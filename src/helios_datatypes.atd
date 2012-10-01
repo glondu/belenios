@@ -1,0 +1,110 @@
+(** {1 Core types} *)
+
+type number <ocaml predef from="Core_datatypes"> = abstract
+type uuid <ocaml predef from="Core_datatypes"> = abstract
+type datetime <ocaml predef from="Core_datatypes"> = abstract
+
+(** {1 ElGamal keys} *)
+
+type public_key = {
+  g : number;
+  p : number;
+  q : number;
+  y : number;
+}
+
+type private_key = {
+  public_key : public_key;
+  x : number;
+}
+
+(** {1 Elections} *)
+
+type tally_type = [
+  | Homomorphic <json name="homomorphic">
+]
+
+type choice_type = [
+  | Approval <json name="approval">
+]
+
+type result_type = [
+  | Absolute <json name="absolute">
+  | Relative <json name="relative">
+]
+
+type question = {
+  answer_urls : unit list;
+  answers : string list;
+  choice_type : choice_type;
+  max : int;
+  min : int;
+  question : string;
+  result_type : result_type;
+  short_name : string;
+  tally_type : tally_type;
+} <ocaml field_prefix="q_">
+
+type election = {
+  cast_url : string;
+  description : string;
+  frozen_at : datetime;
+  name : string;
+  openreg : bool;
+  public_key : public_key;
+  questions : question list;
+  uuid : uuid;
+  short_name : string;
+  use_voter_aliases : bool;
+  voters_hash : unit;
+  voting_ends_at : unit;
+  voting_starts_at : unit;
+} <ocaml field_prefix="e_">
+
+(** {1 Ballots} *)
+
+type choice = {
+  alpha : number;
+  beta : number;
+}
+
+type commitment = {
+  a <json name="A"> : number;
+  b <json name="B"> : number;
+}
+
+type proof_item = {
+  challenge : number;
+  commitment : commitment;
+  response : number;
+}
+
+type proof = proof_item list
+
+type answer = {
+  choices : choice list;
+  individual_proofs : proof list;
+  overall_proof : proof;
+}
+
+type vote = {
+  answers : answer list;
+  election_hash : string;
+  election_uuid : uuid;
+}
+
+(** {1 Tally} *)
+
+type tally = choice list list
+
+type encrypted_tally = {
+  num_tallied : int;
+  tally : tally;
+}
+
+(** {1 Partial decryptions} *)
+
+type partial_decryption = {
+  decryption_factors : number list list;
+  decryption_proofs : proof list;
+}
