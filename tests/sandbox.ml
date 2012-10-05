@@ -6,6 +6,7 @@ module type TYPES = sig
   val write : 'a t -> Bi_outbuf.t -> 'a -> unit
   val election : election t
   val private_key : private_key t
+  val trustee_public_key : trustee_public_key t
   val vote : vote t
   val encrypted_tally : encrypted_tally t
   val partial_decryption : partial_decryption t
@@ -18,6 +19,7 @@ module Types : TYPES = struct
   let write = snd
   let election = (read_election, write_election)
   let private_key = (read_private_key, write_private_key)
+  let trustee_public_key = (read_trustee_public_key, write_trustee_public_key)
   let vote = (read_vote, write_vote)
   let encrypted_tally = (read_encrypted_tally, write_encrypted_tally)
   let partial_decryption = (read_partial_decryption, write_partial_decryption)
@@ -53,6 +55,7 @@ let load_and_check typ fname =
 
 let one_election = load_and_check Types.election "tests/data/election.json"
 let one_trustee_private_key = load_and_check Types.private_key "tests/data/trustee-private-key.json"
+let one_trustee_public_key = load_and_check Types.trustee_public_key "tests/data/trustee-public-key.json"
 let vote_1 = load_and_check Types.vote "tests/data/vote-emacs-1.json"
 let vote_2 = load_and_check Types.vote "tests/data/vote-emacs-2.json"
 let encrypted_tally = load_and_check Types.encrypted_tally "tests/data/encrypted-tally.json"

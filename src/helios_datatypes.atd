@@ -77,7 +77,7 @@ type proof_item = {
   challenge : number;
   commitment : commitment;
   response : number;
-}
+} <ocaml field_prefix="dp_">
 
 type proof = proof_item list
 
@@ -103,6 +103,17 @@ type encrypted_tally = {
 }
 
 (** {1 Partial decryptions} *)
+
+type pok = {
+  challenge : number;
+  commitment : number;
+  response : number;
+} <ocaml field_prefix="pok_">
+
+type trustee_public_key = {
+  pok : pok;
+  public_key : public_key;
+} <ocaml field_prefix="trustee_">
 
 type partial_decryption = {
   decryption_factors : number list list;
