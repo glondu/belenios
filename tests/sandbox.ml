@@ -52,7 +52,7 @@ let load_and_check typ fname =
   one_thing
 
 let one_election = load_and_check Types.election "tests/data/election.json"
-let one_private_key = load_and_check Types.private_key "tests/data/private-key.json"
+let one_trustee_private_key = load_and_check Types.private_key "tests/data/trustee-private-key.json"
 let vote_1 = load_and_check Types.vote "tests/data/vote-emacs-1.json"
 let vote_2 = load_and_check Types.vote "tests/data/vote-emacs-2.json"
 let encrypted_tally = load_and_check Types.encrypted_tally "tests/data/encrypted-tally.json"
