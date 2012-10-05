@@ -79,16 +79,16 @@ type proof_item = {
   response : number;
 } <ocaml field_prefix="dp_">
 
-type proof = proof_item list
+type proof = proof_item list <ocaml repr="array">
 
 type answer = {
-  choices : choice list;
-  individual_proofs : proof list;
+  choices : choice list <ocaml repr="array">;
+  individual_proofs : proof list <ocaml repr="array">;
   overall_proof : proof;
 }
 
 type vote = {
-  answers : answer list;
+  answers : answer list <ocaml repr="array">;
   election_hash : string;
   election_uuid : uuid;
 }
