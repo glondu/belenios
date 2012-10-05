@@ -4,6 +4,7 @@
 #require "uuidm";;
 #require "atdgen";;
 #require "yojson";;
+#require "cryptokit";;
 
 #directory "_build/src";;
 #load "lib.cma";;

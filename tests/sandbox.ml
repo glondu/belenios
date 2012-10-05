@@ -60,3 +60,72 @@ let vote_1 = load_and_check Types.vote "tests/data/vote-emacs-1.json"
 let vote_2 = load_and_check Types.vote "tests/data/vote-emacs-2.json"
 let encrypted_tally = load_and_check Types.encrypted_tally "tests/data/encrypted-tally.json"
 let one_partial_decryption = load_and_check Types.partial_decryption "tests/data/partial-decryption.json"
+
+let verify_public_key {g; p; q; y} =
+  let ( = ) = Z.equal and ( ** ) a b = Z.powm a b p in
+  Z.probab_prime p 10 > 0 &&
+  g = Z.rem g p &&
+  y = Z.rem y p &&
+  g ** q = Z.one &&
+  y ** q = Z.one &&
+  true
+
+let () = assert (verify_public_key one_trustee_public_key.trustee_public_key)
+
+let dlog_challenge_generator q x =
+  let ( |> ) x f = f x in
+  Z.to_string x |>
+  Cryptokit.(hash_string (Hash.sha1 ())) |>
+  Cryptokit.(transform_string (Hexa.encode ())) |>
+  Z.of_string_base 16 |>
+  (fun x -> Z.rem x q)
+
+let verify_trustee_pok pk =
+  let {g; p; q; y} = pk.trustee_public_key in
+  let {pok_commitment; pok_challenge; pok_response} = pk.trustee_pok in
+  let ( = ) = Z.equal and ( ** ) a b = Z.powm a b p in
+  let ( * ) a b = Z.(rem (a * b) p) in
+  pok_commitment = Z.rem pok_commitment p &&
+  pok_challenge = Z.rem pok_challenge q &&
+  pok_response = Z.rem pok_response q &&
+  g ** pok_response = pok_commitment * y ** pok_challenge &&
+  let challenge = dlog_challenge_generator q pok_commitment in
+  pok_challenge = challenge &&
+  true
+
+let () = assert (verify_trustee_pok one_trustee_public_key)
+
+let verify_disjunct pk big_g big_h proof_item =
+  let {g; p; q; y = h} = pk in
+  let {dp_commitment = {a; b}; dp_challenge; dp_response} = proof_item in
+  let ( = ) = Z.equal and ( ** ) a b = Z.powm a b p in
+  let ( * ) a b = Z.(rem (a * b) p) in
+  a = Z.rem a p &&
+  b = Z.rem b p &&
+  dp_challenge = Z.rem dp_challenge q &&
+  (* dp_response = Z.rem dp_response q && *) (* FIXME *)
+  (* g ** dp_response = big_g * a && *) (* FIXME *)
+  (* h ** dp_response = big_h * b && *) (* FIXME *)
+  true
+
+let verify_disj_proof pk big_g big_hs proof =
+  let n = Array.length proof in
+  n = Array.length big_hs &&
+  (let rec check i =
+     i = n || (verify_disjunct pk big_g big_hs.(i) proof.(i) && check (i+1))
+   in check 0)
+
+let verify_zero_or_one pk ciphertext proof =
+  let {g; p; q; y} = pk in
+  let {alpha; beta} = ciphertext in
+  Array.length proof = 2 &&
+  let ( = ) = Z.equal and ( ** ) a b = Z.(powm a (of_int b) p) in
+  let ( / ) a b = Z.(rem (a * invert b p) p) in
+  let big_hs = Array.init 2 (fun i -> beta / (g ** i)) in
+  verify_disj_proof pk alpha big_hs proof &&
+  true
+
+let verify_answer pk answer =
+  verify_zero_or_one pk answer.choices.(0) answer.individual_proofs.(0)
+
+let _ = verify_answer one_election.e_public_key vote_1.answers.(0)
