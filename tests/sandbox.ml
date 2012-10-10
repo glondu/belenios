@@ -108,8 +108,8 @@ let verify_disjunct pk big_g big_h proof_item =
   true
 
 let verify_disj_proof pk big_g big_hs proof =
-  let n = Array.length proof in
-  n = Array.length big_hs &&
+  let n = Array.length big_hs in
+  n = Array.length proof &&
   (let rec check i =
      i = n || (verify_disjunct pk big_g big_hs.(i) proof.(i) && check (i+1))
    in check 0)
