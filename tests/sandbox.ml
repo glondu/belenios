@@ -103,9 +103,8 @@ let verify_disjunct pk big_g big_h proof_item =
   a = Z.rem a p &&
   b = Z.rem b p &&
   dp_challenge = Z.rem dp_challenge q &&
-  (* dp_response = Z.rem dp_response q && *) (* FIXME *)
-  (* g ** dp_response = big_g * a && *) (* FIXME *)
-  (* h ** dp_response = big_h * b && *) (* FIXME *)
+  g ** dp_response = big_g ** dp_challenge * a &&
+  h ** dp_response = big_h ** dp_challenge * b &&
   true
 
 let verify_disj_proof pk big_g big_hs proof =
