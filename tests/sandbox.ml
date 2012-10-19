@@ -122,27 +122,42 @@ let verify_disjunctive_proof pk big_g big_hs proof =
        Z.(hashZ commitments mod q =~ challenges mod q)
    in check (pred n) [] Z.zero)
 
-let verify_zero_or_one pk alpha beta proof =
+let verify_range pk min max alpha beta proof =
   let {g; p; q; y} = pk in
   Array.length proof = 2 &&
   let ( ** ) a b = Z.(powm a (of_int b) p) in
   let ( / ) a b = Z.(a * invert b p mod p) in
-  let big_hs = Array.init 2 (fun i -> beta / (g ** i)) in
+  let big_hs = Array.init (max-min+1) (fun i -> beta / (g ** (i-min))) in
   verify_disjunctive_proof pk alpha big_hs proof
 
-let verify_answer pk nb answer =
-  assert (nb > 0);
+let verify_answer pk question answer =
+  let {q_max; q_min; q_answers; _} = question in
+  let nb = Array.length q_answers in
   let {g; p; q; y} = pk in
   Array.length answer.choices = nb &&
   Array.length answer.individual_proofs = nb &&
   let ( * ) a b = Z.(a * b mod p) in
   (let rec check i alphas betas =
-     i = nb ||
-     let {alpha; beta} = answer.choices.(i) in
-     check_subgroup p q alpha &&
-     check_subgroup p q beta &&
-     verify_zero_or_one pk alpha beta answer.individual_proofs.(i) &&
-     check (i+1) (alphas * alpha) (betas * beta)
-   in check 0 Z.one Z.one)
+     if i >= 0 then
+       let {alpha; beta} = answer.choices.(i) in
+       check_subgroup p q alpha &&
+       check_subgroup p q beta &&
+       verify_range pk 0 1 alpha beta answer.individual_proofs.(i) &&
+       check (pred i) (alphas * alpha) (betas * beta)
+     else
+       verify_range pk q_min q_max alphas betas answer.overall_proof
+   in check (pred nb) Z.one Z.one)
 
-let () = assert (verify_answer one_election.e_public_key 4 vote_1.answers.(0))
+let array_forall2 f a b =
+  let n = Array.length a in
+  n = Array.length b &&
+  (let rec check i =
+     if i >= 0 then f a.(i) b.(i) && check (pred i)
+     else true
+   in check (pred n))
+
+let verify_vote {e_public_key; e_questions; _} {answers; _} =
+  array_forall2 (verify_answer e_public_key) e_questions answers
+
+let () = assert (verify_vote one_election vote_1)
+let () = assert (verify_vote one_election vote_2)
