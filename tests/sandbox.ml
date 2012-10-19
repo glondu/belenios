@@ -62,7 +62,11 @@ let vote_2 = load_and_check Types.vote (data "vote-emacs-2.json")
 let encrypted_tally = load_and_check Types.encrypted_tally (data "encrypted-tally.json")
 let one_partial_decryption = load_and_check Types.partial_decryption (data "partial-decryption.json")
 
+let ( |> ) x f = f x
+let ( =~ ) = Z.equal
+
 let check_modulo p x = Z.(geq x zero && lt x p)
+let check_subgroup p q x = Z.(powm x q p =~ one)
 
 let verify_public_key {g; p; q; y} =
   let ( = ) = Z.equal and ( ** ) a b = Z.powm a b p in
@@ -74,9 +78,6 @@ let verify_public_key {g; p; q; y} =
   y ** q = Z.one
 
 let () = assert (verify_public_key one_trustee_public_key.trustee_public_key)
-
-let ( |> ) x f = f x
-let ( =~ ) = Z.equal
 
 let hashZ x = Cryptokit.(x |>
   hash_string (Hash.sha1 ()) |>
@@ -131,14 +132,18 @@ let verify_zero_or_one pk alpha beta proof =
 
 let verify_answer pk nb answer =
   assert (nb > 0);
+  let {g; p; q; y} = pk in
   Array.length answer.choices = nb &&
   Array.length answer.individual_proofs = nb &&
-  let ( * ) a b = Z.(a * b mod pk.p) in
+  let ( ** ) a b = Z.(powm a (of_int b) p) in
+  let ( * ) a b = Z.(a * b mod p) in
   (let rec check i alphas betas =
      i = nb ||
      let {alpha; beta} = answer.choices.(i) in
+     check_subgroup p q alpha &&
+     check_subgroup p q beta &&
      verify_zero_or_one pk alpha beta answer.individual_proofs.(i) &&
      check (i+1) (alphas * alpha) (betas * beta)
    in check 0 Z.one Z.one)
 
-let _ = verify_answer one_election.e_public_key 4 vote_1.answers.(0)
+let () = assert (verify_answer one_election.e_public_key 4 vote_1.answers.(0))
