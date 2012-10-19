@@ -162,5 +162,20 @@ let verify_vote e v =
   e.e_uuid = v.election_uuid &&
   array_forall2 (verify_answer e.e_public_key) e.e_questions v.answers
 
+let compute_encrypted_tally e vs =
+  let {g; p; q; y} = e.e_public_key in
+  let ( * ) a b = Z.(a * b mod p) in
+  let ( *~ ) a b = Z.({ alpha = a.alpha * b.alpha mod p; beta = a.beta * b.beta mod p}) in
+  let num_tallied = Array.length vs in
+  let tally = Array.mapi (fun i question ->
+    Array.mapi (fun j answer ->
+      Array.fold_left (fun accu v ->
+        accu *~ v.answers.(i).choices.(j)
+      ) Z.({ alpha = one; beta = one}) vs
+    ) question.q_answers
+  ) e.e_questions in
+  { num_tallied; tally }
+
 let () = assert (verify_vote one_election vote_1)
 let () = assert (verify_vote one_election vote_2)
+let () = assert (compute_encrypted_tally one_election [| vote_1; vote_2 |] = encrypted_tally)
