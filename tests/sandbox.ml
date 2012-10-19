@@ -135,7 +135,6 @@ let verify_answer pk nb answer =
   let {g; p; q; y} = pk in
   Array.length answer.choices = nb &&
   Array.length answer.individual_proofs = nb &&
-  let ( ** ) a b = Z.(powm a (of_int b) p) in
   let ( * ) a b = Z.(a * b mod p) in
   (let rec check i alphas betas =
      i = nb ||
