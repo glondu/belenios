@@ -35,7 +35,7 @@ type result_type = [
 
 type question = {
   answer_urls : unit list;
-  answers : string list;
+  answers : string list <ocaml repr="array">;
   choice_type : choice_type;
   max : int;
   min : int;
@@ -52,7 +52,7 @@ type election = {
   name : string;
   openreg : bool;
   public_key : public_key;
-  questions : question list;
+  questions : question list <ocaml repr="array">;
   uuid : uuid;
   short_name : string;
   use_voter_aliases : bool;
