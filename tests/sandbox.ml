@@ -41,7 +41,7 @@ let save typ fname x =
   close_out o
 
 let () =
-  assert (Sys.command "mkdir -p _build/tests/data" = 0)
+  assert (Sys.command "mkdir -p _build/tests/data/favorite-editor" = 0)
 
 let load_and_check typ fname =
   let one_thing = load typ fname in
@@ -53,7 +53,7 @@ let load_and_check typ fname =
   assert (r = 0);
   one_thing
 
-let data x = Filename.concat "tests/data" x
+let data x = Filename.concat "tests/data/favorite-editor" x
 let one_election = load_and_check Types.election (data "election.json")
 let one_trustee_private_key = load_and_check Types.private_key (data "trustee-private-key.json")
 let one_trustee_public_key = load_and_check Types.trustee_public_key (data "trustee-public-key.json")
