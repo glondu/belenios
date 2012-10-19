@@ -132,6 +132,7 @@ let verify_range pk min max alpha beta proof =
 
 let verify_answer pk question answer =
   let {q_max; q_min; q_answers; _} = question in
+  (* FIXME: handle q_max = infinity *)
   let nb = Array.length q_answers in
   let {g; p; q; y} = pk in
   Array.length answer.choices = nb &&
@@ -156,8 +157,10 @@ let array_forall2 f a b =
      else true
    in check (pred n))
 
-let verify_vote {e_public_key; e_questions; _} {answers; _} =
-  array_forall2 (verify_answer e_public_key) e_questions answers
+let verify_vote e v =
+  (* FIXME: check v.election_hash *)
+  e.e_uuid = v.election_uuid &&
+  array_forall2 (verify_answer e.e_public_key) e.e_questions v.answers
 
 let () = assert (verify_vote one_election vote_1)
 let () = assert (verify_vote one_election vote_2)
