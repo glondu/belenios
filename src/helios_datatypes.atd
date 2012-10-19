@@ -95,7 +95,7 @@ type vote = {
 
 (** {1 Tally} *)
 
-type tally = choice list list
+type tally = choice list <ocaml repr="array"> list <ocaml repr="array">
 
 type encrypted_tally = {
   num_tallied : int;
