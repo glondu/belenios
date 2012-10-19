@@ -61,70 +61,83 @@ let vote_2 = load_and_check Types.vote "tests/data/vote-emacs-2.json"
 let encrypted_tally = load_and_check Types.encrypted_tally "tests/data/encrypted-tally.json"
 let one_partial_decryption = load_and_check Types.partial_decryption "tests/data/partial-decryption.json"
 
+let check_modulo p x = Z.(geq x zero && lt x p)
+
 let verify_public_key {g; p; q; y} =
   let ( = ) = Z.equal and ( ** ) a b = Z.powm a b p in
   Z.probab_prime p 10 > 0 &&
-  g = Z.rem g p &&
-  y = Z.rem y p &&
+  check_modulo p g &&
+  check_modulo p y &&
+  check_modulo p q &&
   g ** q = Z.one &&
-  y ** q = Z.one &&
-  true
+  y ** q = Z.one
 
 let () = assert (verify_public_key one_trustee_public_key.trustee_public_key)
 
+let ( |> ) x f = f x
+let ( =~ ) = Z.equal
+
+let hashZ x = Cryptokit.(x |>
+  hash_string (Hash.sha1 ()) |>
+  transform_string (Hexa.encode ()) |>
+  Z.of_string_base 16
+)
+
 let dlog_challenge_generator q x =
-  let ( |> ) x f = f x in
-  Z.to_string x |>
-  Cryptokit.(hash_string (Hash.sha1 ())) |>
-  Cryptokit.(transform_string (Hexa.encode ())) |>
-  Z.of_string_base 16 |>
-  (fun x -> Z.rem x q)
+  Z.rem (hashZ (Z.to_string x)) q
 
 let verify_trustee_pok pk =
   let {g; p; q; y} = pk.trustee_public_key in
   let {pok_commitment; pok_challenge; pok_response} = pk.trustee_pok in
-  let ( = ) = Z.equal and ( ** ) a b = Z.powm a b p in
+  let ( ** ) a b = Z.powm a b p in
   let ( * ) a b = Z.(rem (a * b) p) in
-  pok_commitment = Z.rem pok_commitment p &&
-  pok_challenge = Z.rem pok_challenge q &&
-  pok_response = Z.rem pok_response q &&
-  g ** pok_response = pok_commitment * y ** pok_challenge &&
-  let challenge = dlog_challenge_generator q pok_commitment in
-  pok_challenge = challenge &&
-  true
+  check_modulo p pok_commitment &&
+  check_modulo q pok_response &&
+  g ** pok_response =~ pok_commitment * y ** pok_challenge &&
+  pok_challenge =~ dlog_challenge_generator q pok_commitment
 
 let () = assert (verify_trustee_pok one_trustee_public_key)
 
-let verify_disjunct pk big_g big_h proof_item =
-  let {g; p; q; y = h} = pk in
-  let {dp_commitment = {a; b}; dp_challenge; dp_response} = proof_item in
-  let ( = ) = Z.equal and ( ** ) a b = Z.powm a b p in
-  let ( * ) a b = Z.(rem (a * b) p) in
-  a = Z.rem a p &&
-  b = Z.rem b p &&
-  dp_challenge = Z.rem dp_challenge q &&
-  g ** dp_response = big_g ** dp_challenge * a &&
-  h ** dp_response = big_h ** dp_challenge * b &&
-  true
-
-let verify_disj_proof pk big_g big_hs proof =
+let verify_disjunctive_proof pk big_g big_hs proof =
   let n = Array.length big_hs in
   n = Array.length proof &&
-  (let rec check i =
-     i = n || (verify_disjunct pk big_g big_hs.(i) proof.(i) && check (i+1))
-   in check 0)
+  let {g; p; q; y = h} = pk in
+  let ( ** ) a b = Z.powm a b p in
+  let ( * ) a b = Z.(rem (a * b) p) in
+  assert (n > 0);
+  (let rec check i commitments challenges =
+     if i >= 0 then
+       let {dp_commitment = {a; b}; dp_challenge; dp_response} = proof.(i) in
+       check_modulo p a &&
+       check_modulo p b &&
+       check_modulo q dp_challenge &&
+       check_modulo q dp_response &&
+       g ** dp_response =~ big_g ** dp_challenge * a &&
+       h ** dp_response =~ big_hs.(i) ** dp_challenge * b &&
+       check (pred i) (Z.to_string a :: Z.to_string b :: commitments) Z.(challenges + dp_challenge)
+     else
+       let commitments = String.concat "," commitments in
+       Z.rem (hashZ commitments) q =~ Z.rem challenges q
+   in check (pred n) [] Z.zero)
 
-let verify_zero_or_one pk ciphertext proof =
+let verify_zero_or_one pk alpha beta proof =
   let {g; p; q; y} = pk in
-  let {alpha; beta} = ciphertext in
   Array.length proof = 2 &&
-  let ( = ) = Z.equal and ( ** ) a b = Z.(powm a (of_int b) p) in
+  let ( ** ) a b = Z.(powm a (of_int b) p) in
   let ( / ) a b = Z.(rem (a * invert b p) p) in
   let big_hs = Array.init 2 (fun i -> beta / (g ** i)) in
-  verify_disj_proof pk alpha big_hs proof &&
-  true
+  verify_disjunctive_proof pk alpha big_hs proof
 
-let verify_answer pk answer =
-  verify_zero_or_one pk answer.choices.(0) answer.individual_proofs.(0)
+let verify_answer pk nb answer =
+  assert (nb > 0);
+  Array.length answer.choices = nb &&
+  Array.length answer.individual_proofs = nb &&
+  let ( * ) a b = Z.(rem (a * b) pk.p) in
+  (let rec check i alphas betas =
+     i = nb ||
+     let {alpha; beta} = answer.choices.(i) in
+     verify_zero_or_one pk alpha beta answer.individual_proofs.(i) &&
+     check (i+1) (alphas * alpha) (betas * beta)
+   in check 0 Z.one Z.one)
 
-let _ = verify_answer one_election.e_public_key vote_1.answers.(0)
+let _ = verify_answer one_election.e_public_key 4 vote_1.answers.(0)
