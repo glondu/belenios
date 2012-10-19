@@ -84,13 +84,13 @@ let hashZ x = Cryptokit.(x |>
 )
 
 let dlog_challenge_generator q x =
-  Z.rem (hashZ (Z.to_string x)) q
+  Z.(hashZ (Z.to_string x) mod q)
 
 let verify_trustee_pok pk =
   let {g; p; q; y} = pk.trustee_public_key in
   let {pok_commitment; pok_challenge; pok_response} = pk.trustee_pok in
   let ( ** ) a b = Z.powm a b p in
-  let ( * ) a b = Z.(rem (a * b) p) in
+  let ( * ) a b = Z.(a * b mod p) in
   check_modulo p pok_commitment &&
   check_modulo q pok_response &&
   g ** pok_response =~ pok_commitment * y ** pok_challenge &&
@@ -103,7 +103,7 @@ let verify_disjunctive_proof pk big_g big_hs proof =
   n = Array.length proof &&
   let {g; p; q; y = h} = pk in
   let ( ** ) a b = Z.powm a b p in
-  let ( * ) a b = Z.(rem (a * b) p) in
+  let ( * ) a b = Z.(a * b mod p) in
   assert (n > 0);
   (let rec check i commitments challenges =
      if i >= 0 then
@@ -117,14 +117,14 @@ let verify_disjunctive_proof pk big_g big_hs proof =
        check (pred i) (Z.to_string a :: Z.to_string b :: commitments) Z.(challenges + dp_challenge)
      else
        let commitments = String.concat "," commitments in
-       Z.rem (hashZ commitments) q =~ Z.rem challenges q
+       Z.(hashZ commitments mod q =~ challenges mod q)
    in check (pred n) [] Z.zero)
 
 let verify_zero_or_one pk alpha beta proof =
   let {g; p; q; y} = pk in
   Array.length proof = 2 &&
   let ( ** ) a b = Z.(powm a (of_int b) p) in
-  let ( / ) a b = Z.(rem (a * invert b p) p) in
+  let ( / ) a b = Z.(a * invert b p mod p) in
   let big_hs = Array.init 2 (fun i -> beta / (g ** i)) in
   verify_disjunctive_proof pk alpha big_hs proof
 
@@ -132,7 +132,7 @@ let verify_answer pk nb answer =
   assert (nb > 0);
   Array.length answer.choices = nb &&
   Array.length answer.individual_proofs = nb &&
-  let ( * ) a b = Z.(rem (a * b) pk.p) in
+  let ( * ) a b = Z.(a * b mod pk.p) in
   (let rec check i alphas betas =
      i = nb ||
      let {alpha; beta} = answer.choices.(i) in
