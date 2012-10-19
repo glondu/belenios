@@ -53,13 +53,14 @@ let load_and_check typ fname =
   assert (r = 0);
   one_thing
 
-let one_election = load_and_check Types.election "tests/data/election.json"
-let one_trustee_private_key = load_and_check Types.private_key "tests/data/trustee-private-key.json"
-let one_trustee_public_key = load_and_check Types.trustee_public_key "tests/data/trustee-public-key.json"
-let vote_1 = load_and_check Types.vote "tests/data/vote-emacs-1.json"
-let vote_2 = load_and_check Types.vote "tests/data/vote-emacs-2.json"
-let encrypted_tally = load_and_check Types.encrypted_tally "tests/data/encrypted-tally.json"
-let one_partial_decryption = load_and_check Types.partial_decryption "tests/data/partial-decryption.json"
+let data x = Filename.concat "tests/data" x
+let one_election = load_and_check Types.election (data "election.json")
+let one_trustee_private_key = load_and_check Types.private_key (data "trustee-private-key.json")
+let one_trustee_public_key = load_and_check Types.trustee_public_key (data "trustee-public-key.json")
+let vote_1 = load_and_check Types.vote (data "vote-emacs-1.json")
+let vote_2 = load_and_check Types.vote (data "vote-emacs-2.json")
+let encrypted_tally = load_and_check Types.encrypted_tally (data "encrypted-tally.json")
+let one_partial_decryption = load_and_check Types.partial_decryption (data "partial-decryption.json")
 
 let check_modulo p x = Z.(geq x zero && lt x p)
 
