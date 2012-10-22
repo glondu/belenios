@@ -10,6 +10,8 @@ module type TYPES = sig
   val vote : vote t
   val encrypted_tally : encrypted_tally t
   val partial_decryption : partial_decryption t
+  val election_public_data : election_public_data t
+  val election_private_data : election_private_data t
 end
 
 module Types : TYPES = struct
@@ -23,6 +25,8 @@ module Types : TYPES = struct
   let vote = (read_vote, write_vote)
   let encrypted_tally = (read_encrypted_tally, write_encrypted_tally)
   let partial_decryption = (read_partial_decryption, write_partial_decryption)
+  let election_public_data = (read_election_public_data, write_election_public_data)
+  let election_private_data = (read_election_private_data, write_election_private_data)
 end
 
 let load typ fname =
@@ -40,7 +44,8 @@ let save typ fname x =
   Bi_outbuf.flush_channel_writer buf;
   close_out o
 
-let load_and_check typ fname =
+let load_and_check ?(verbose=false) typ fname =
+  if verbose then Printf.eprintf "Loading and checking %s...\n%!" fname;
   let thing = load typ fname in
   let tempfname = Filename.temp_file "belenios" ".json" in
   save typ tempfname thing;
@@ -49,14 +54,26 @@ let load_and_check typ fname =
   Sys.remove tempfname;
   thing
 
-let data x = Filename.concat "tests/data/favorite-editor" x
-let one_election = load_and_check Types.election (data "election.json")
-let one_trustee_private_key = load_and_check Types.private_key (data "trustee-private-key.json")
-let one_trustee_public_key = load_and_check Types.trustee_public_key (data "trustee-public-key.json")
-let vote_1 = load_and_check Types.vote (data "vote-emacs-1.json")
-let vote_2 = load_and_check Types.vote (data "vote-emacs-2.json")
-let encrypted_tally = load_and_check Types.encrypted_tally (data "encrypted-tally.json")
-let one_partial_decryption = load_and_check Types.partial_decryption (data "partial-decryption.json")
+type election_test_data = {
+  raw_json : string;
+  election : election;
+  public_data : election_public_data;
+  private_data : election_private_data;
+}
+
+let first_line filename =
+  let i = open_in filename in
+  let r = input_line i in
+  close_in i;
+  r
+
+let load_election_test_data ?(verbose=false) dirname =
+  let data x = Filename.concat dirname x in
+  let raw_json = first_line (data "election.json") in
+  let election = load_and_check ~verbose Types.election (data "election.json") in
+  let public_data = load_and_check ~verbose Types.election_public_data (data "public_data.json") in
+  let private_data = load_and_check ~verbose Types.election_private_data (data "private_data.json") in
+  { raw_json; election; public_data; private_data }
 
 let ( |> ) x f = f x
 let ( =~ ) = Z.equal
@@ -71,8 +88,6 @@ let verify_public_key {g; p; q; y} =
   check_modulo p q &&
   check_subgroup p q g &&
   check_subgroup p q y
-
-let () = assert (verify_public_key one_trustee_public_key.trustee_public_key)
 
 let hashZ x = Cryptokit.(x |>
   hash_string (Hash.sha1 ()) |>
@@ -171,6 +186,19 @@ let compute_encrypted_tally e vs =
   ) e.e_questions in
   { num_tallied; tally }
 
-let () = assert (verify_vote one_election vote_1)
-let () = assert (verify_vote one_election vote_2)
-let () = assert (compute_encrypted_tally one_election [| vote_1; vote_2 |] = encrypted_tally)
+let verbose_assert msg it =
+  Printf.eprintf "Verifying %s...%!" msg;
+  let r = Lazy.force it in
+  Printf.eprintf " %s\n%!" (if r then "OK" else "failed!")
+
+let load_election_and_verify_it_all dirname =
+  let e = load_election_test_data ~verbose:true dirname in
+  verbose_assert "election public key"
+    (lazy (verify_public_key e.election.e_public_key));
+  Array.iter (fun x -> verbose_assert "vote"
+    (lazy (verify_vote e.election x))) e.public_data.votes;
+  verbose_assert "encrypted tally"
+    (lazy (e.public_data.encrypted_tally =
+        compute_encrypted_tally e.election e.public_data.votes));;
+
+let () = load_election_and_verify_it_all "tests/data/favorite-editor"
