@@ -65,13 +65,12 @@ let check_modulo p x = Z.(geq x zero && lt x p)
 let check_subgroup p q x = Z.(powm x q p =~ one)
 
 let verify_public_key {g; p; q; y} =
-  let ( = ) = Z.equal and ( ** ) a b = Z.powm a b p in
   Z.probab_prime p 10 > 0 &&
   check_modulo p g &&
   check_modulo p y &&
   check_modulo p q &&
-  g ** q = Z.one &&
-  y ** q = Z.one
+  check_subgroup p q g &&
+  check_subgroup p q y
 
 let () = assert (verify_public_key one_trustee_public_key.trustee_public_key)
 
