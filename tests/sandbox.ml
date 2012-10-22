@@ -40,18 +40,14 @@ let save typ fname x =
   Bi_outbuf.flush_channel_writer buf;
   close_out o
 
-let () =
-  assert (Sys.command "mkdir -p _build/tests/data/favorite-editor" = 0)
-
 let load_and_check typ fname =
-  let one_thing = load typ fname in
-  save typ (Filename.concat "_build" fname) one_thing;
-  let r = Printf.ksprintf Sys.command "bash -c '\
-    diff -u <(json_pp < %s) <(json_pp < _build/%s)
-    '" fname fname
-  in
+  let thing = load typ fname in
+  let tempfname = Filename.temp_file "belenios" ".json" in
+  save typ tempfname thing;
+  let r = Printf.ksprintf Sys.command "bash -c 'diff -u <(json_pp < %s) <(json_pp < %s)'" fname tempfname in
   assert (r = 0);
-  one_thing
+  Sys.remove tempfname;
+  thing
 
 let data x = Filename.concat "tests/data/favorite-editor" x
 let one_election = load_and_check Types.election (data "election.json")
