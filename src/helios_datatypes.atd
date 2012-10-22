@@ -119,3 +119,16 @@ type partial_decryption = {
   decryption_factors : number list list;
   decryption_proofs : proof list;
 }
+
+(** {1 Compound datastructures} *)
+
+type election_public_data = {
+  trustee_public_keys : trustee_public_key list <ocaml repr="array">;
+  votes : vote list <ocaml repr="array">;
+  encrypted_tally : encrypted_tally;
+  partial_decryptions : partial_decryption list <ocaml repr="array">;
+}
+
+type election_private_data = {
+  trustee_private_keys : private_key list <ocaml repr="array">;
+}
