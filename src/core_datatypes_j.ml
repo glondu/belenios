@@ -50,12 +50,16 @@ let uuid_of_string s =
 open CalendarLib
 let datetime_format = "%Y-%m-%d %H:%M:%S"
 
-let write_datetime buf n =
+let write_datetime buf (n, s) =
   Bi_outbuf.add_char buf '"';
-  Bi_outbuf.add_string buf (Printer.Precise_Fcalendar.sprint datetime_format n);
-  let ts = Printf.sprintf "%.6f" (Fcalendar.Precise.to_unixfloat n) in
-  let i = String.index ts '.' in
-  Bi_outbuf.add_substring buf ts i (String.length ts - i);
+  (match s with
+     | Some s -> Bi_outbuf.add_string buf s
+     | None ->
+       Bi_outbuf.add_string buf (Printer.Precise_Fcalendar.sprint datetime_format n);
+       let ts = Printf.sprintf "%.6f" (Fcalendar.Precise.to_unixfloat n) in
+       let i = String.index ts '.' in
+       Bi_outbuf.add_substring buf ts i (String.length ts - i);
+  );
   Bi_outbuf.add_char buf '"'
 
 let string_of_datetime ?(len=28) n =
@@ -68,7 +72,7 @@ let datetime_of_json = function
     let i = String.index s '.' in
     let l = Printer.Precise_Fcalendar.from_fstring datetime_format (String.sub s 0 i) in
     let r = float_of_string ("0" ^ String.sub s i (String.length s-i)) in
-    Fcalendar.Precise.add l (Fcalendar.Precise.Period.second r)
+    (Fcalendar.Precise.add l (Fcalendar.Precise.Period.second r), Some s)
   | _ -> assert false
 
 let read_datetime state buf =
