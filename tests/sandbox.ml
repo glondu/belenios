@@ -120,9 +120,6 @@ let verify_public_key {g; p; q; y} =
   check_subgroup p q g &&
   check_subgroup p q y
 
-let dlog_challenge_generator q x =
-  Z.(hashZ (Z.to_string x) mod q)
-
 let verify_trustee_pok pk =
   let {g; p; q; y} = pk.trustee_public_key in
   let {pok_commitment; pok_challenge; pok_response} = pk.trustee_pok in
@@ -131,7 +128,7 @@ let verify_trustee_pok pk =
   check_modulo p pok_commitment &&
   check_modulo q pok_response &&
   g ** pok_response =~ pok_commitment * y ** pok_challenge &&
-  pok_challenge =~ dlog_challenge_generator q pok_commitment
+  pok_challenge =~ Z.(hashZ (Z.to_string pok_commitment) mod q)
 
 let () = assert (verify_trustee_pok one_trustee_public_key)
 
