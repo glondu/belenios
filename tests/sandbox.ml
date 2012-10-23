@@ -130,7 +130,6 @@ let verify_trustee_pok pk =
   g ** pok_response =~ pok_commitment * y ** pok_challenge &&
   pok_challenge =~ Z.(hashZ (Z.to_string pok_commitment) mod q)
 
-let () = assert (verify_trustee_pok one_trustee_public_key)
 
 let verify_disjunctive_proof pk big_g big_hs proof =
   let n = Array.length big_hs in
@@ -200,6 +199,20 @@ let compute_encrypted_tally e vs =
   ) e.e_questions in
   { num_tallied; tally }
 
+let verify_election_public_key pk tpks =
+  let n = Array.length tpks in
+  assert (n > 0);
+  let {g; p; q; y} = pk in
+  let rec loop i accu =
+    if i >= 0 then
+      let tpk = tpks.(i) in
+      let {g = g'; p = p'; q = q'; y = y'} = tpk.trustee_public_key in
+      g =~ g' && p =~ p' && q =~ q' &&
+      verify_trustee_pok tpk &&
+      loop (pred i) Z.(accu * y' mod p)
+    else accu =~ y
+  in loop (pred n) Z.one
+
 let verbose_assert msg it =
   Printf.eprintf "Verifying %s...%!" msg;
   let r = Lazy.force it in
@@ -208,7 +221,9 @@ let verbose_assert msg it =
 let load_election_and_verify_it_all dirname =
   let e = load_election_test_data ~verbose:true dirname in
   verbose_assert "election public key"
-    (lazy (verify_public_key e.election.e_public_key));
+    (lazy (verify_election_public_key
+             e.election.e_public_key
+             e.public_data.trustee_public_keys));
   Array.iter (fun x -> verbose_assert "vote"
     (lazy (verify_vote e.election e.fingerprint x))) e.public_data.votes;
   verbose_assert "encrypted tally"
