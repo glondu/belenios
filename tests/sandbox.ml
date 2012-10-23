@@ -9,6 +9,11 @@ let hashZ x = Cryptokit.(x |>
   Z.of_string_base 16
 )
 
+let hashB x = Cryptokit.(x |>
+  hash_string (Hash.sha256 ()) |>
+  transform_string (Base64.encode_compact ())
+)
+
 let array_forall2 f a b =
   let n = Array.length a in
   n = Array.length b &&
@@ -75,7 +80,7 @@ let load_and_check ?(verbose=false) typ fname =
   thing
 
 type election_test_data = {
-  raw_json : string;
+  fingerprint : string;
   election : election;
   public_data : election_public_data;
   private_data : election_private_data;
@@ -87,13 +92,25 @@ let first_line filename =
   close_in i;
   r
 
+let fix_fingerprint x =
+  for i = 0 to String.length x - 1 do
+    if x.[i] = '+' then x.[i] <- ' '
+  done
+
 let load_election_test_data ?(verbose=false) dirname =
   let data x = Filename.concat dirname x in
   let raw_json = first_line (data "election.json") in
+  let fingerprint = hashB raw_json in
+  fix_fingerprint fingerprint;
   let election = load_and_check ~verbose Types.election (data "election.json") in
+  assert (
+    let buf = Lexing.from_string raw_json in
+    let lex = Yojson.init_lexer () in
+    Types.read Types.election lex buf = election
+  );
   let public_data = load_and_check ~verbose Types.election_public_data (data "public_data.json") in
   let private_data = load_and_check ~verbose Types.election_private_data (data "private_data.json") in
-  { raw_json; election; public_data; private_data }
+  { fingerprint; election; public_data; private_data }
 
 let verify_public_key {g; p; q; y} =
   Z.probab_prime p 10 > 0 &&
@@ -167,8 +184,8 @@ let verify_answer pk question answer =
        verify_range pk q_min q_max alphas betas answer.overall_proof
    in check (pred nb) Z.one Z.one)
 
-let verify_vote e v =
-  (* FIXME: check v.election_hash *)
+let verify_vote e fingerprint v =
+  v.election_hash = fingerprint &&
   e.e_uuid = v.election_uuid &&
   array_forall2 (verify_answer e.e_public_key) e.e_questions v.answers
 
@@ -196,7 +213,7 @@ let load_election_and_verify_it_all dirname =
   verbose_assert "election public key"
     (lazy (verify_public_key e.election.e_public_key));
   Array.iter (fun x -> verbose_assert "vote"
-    (lazy (verify_vote e.election x))) e.public_data.votes;
+    (lazy (verify_vote e.election e.fingerprint x))) e.public_data.votes;
   verbose_assert "encrypted tally"
     (lazy (e.public_data.encrypted_tally =
         compute_encrypted_tally e.election e.public_data.votes));;
