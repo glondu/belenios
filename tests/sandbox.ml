@@ -1,5 +1,25 @@
 open Helios_datatypes_t
 
+let ( |> ) x f = f x
+let ( =~ ) = Z.equal
+
+let hashZ x = Cryptokit.(x |>
+  hash_string (Hash.sha1 ()) |>
+  transform_string (Hexa.encode ()) |>
+  Z.of_string_base 16
+)
+
+let array_forall2 f a b =
+  let n = Array.length a in
+  n = Array.length b &&
+  (let rec check i =
+     if i >= 0 then f a.(i) b.(i) && check (pred i)
+     else true
+   in check (pred n))
+
+let check_modulo p x = Z.(geq x zero && lt x p)
+let check_subgroup p q x = Z.(powm x q p =~ one)
+
 module type TYPES = sig
   type 'a t
   val read : 'a t -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
@@ -75,12 +95,6 @@ let load_election_test_data ?(verbose=false) dirname =
   let private_data = load_and_check ~verbose Types.election_private_data (data "private_data.json") in
   { raw_json; election; public_data; private_data }
 
-let ( |> ) x f = f x
-let ( =~ ) = Z.equal
-
-let check_modulo p x = Z.(geq x zero && lt x p)
-let check_subgroup p q x = Z.(powm x q p =~ one)
-
 let verify_public_key {g; p; q; y} =
   Z.probab_prime p 10 > 0 &&
   check_modulo p g &&
@@ -88,12 +102,6 @@ let verify_public_key {g; p; q; y} =
   check_modulo p q &&
   check_subgroup p q g &&
   check_subgroup p q y
-
-let hashZ x = Cryptokit.(x |>
-  hash_string (Hash.sha1 ()) |>
-  transform_string (Hexa.encode ()) |>
-  Z.of_string_base 16
-)
 
 let dlog_challenge_generator q x =
   Z.(hashZ (Z.to_string x) mod q)
@@ -158,14 +166,6 @@ let verify_answer pk question answer =
      else
        verify_range pk q_min q_max alphas betas answer.overall_proof
    in check (pred nb) Z.one Z.one)
-
-let array_forall2 f a b =
-  let n = Array.length a in
-  n = Array.length b &&
-  (let rec check i =
-     if i >= 0 then f a.(i) b.(i) && check (pred i)
-     else true
-   in check (pred n))
 
 let verify_vote e v =
   (* FIXME: check v.election_hash *)
