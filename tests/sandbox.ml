@@ -22,6 +22,12 @@ let array_forall2 f a b =
      else true
    in check (pred n))
 
+let array_foralli f x =
+  let rec loop i =
+    if i >= 0 then f i x.(i) && loop (pred i)
+    else true
+  in loop (pred (Array.length x))
+
 let check_modulo p x = Z.(geq x zero && lt x p)
 let check_subgroup p q x = Z.(powm x q p =~ one)
 
@@ -199,6 +205,37 @@ let compute_encrypted_tally e vs =
   ) e.e_questions in
   { num_tallied; tally }
 
+let verify_proof_item challenge_generator g h g' h' p q proof =
+  (* FIXME: factorize with verify_disjunctive_proof *)
+  let ( ** ) a b = Z.(powm a b p) and ( * ) a b = Z.(a * b mod p) in
+  let {dp_commitment = {a; b}; dp_challenge; dp_response} = proof in
+  check_modulo p a &&
+  check_modulo p b &&
+  check_modulo q dp_challenge &&
+  check_modulo q dp_response &&
+  g ** dp_response =~ g' ** dp_challenge * a &&
+  h ** dp_response =~ h' ** dp_challenge * b &&
+  dp_challenge =~ challenge_generator a b
+
+let verify_partial_decryption e tpk pds =
+  let {g; p; q; y} = tpk.trustee_public_key in
+  let {decryption_factors = dfs; decryption_proofs = dps} = pds in
+  let challenge_generator a b =
+    Z.(hashZ (to_string a ^ "," ^ to_string b) mod q)
+  in
+  let tally = e.public_data.encrypted_tally.tally in
+  array_foralli (fun i question ->
+    let dfs_i = dfs.(i) and dps_i = dps.(i) and tally_i = tally.(i) in
+    array_foralli (fun j answer ->
+      verify_proof_item challenge_generator g tally_i.(j).alpha y dfs_i.(j) p q dps_i.(j)
+    ) question.q_answers
+  ) e.election.e_questions
+
+let verify_partial_decryptions e =
+  array_forall2 (verify_partial_decryption e)
+    e.public_data.trustee_public_keys
+    e.public_data.partial_decryptions
+
 let verify_election_public_key pk tpks =
   let n = Array.length tpks in
   assert (n > 0);
@@ -228,6 +265,8 @@ let load_election_and_verify_it_all dirname =
     (lazy (verify_vote e.election e.fingerprint x))) e.public_data.votes;
   verbose_assert "encrypted tally"
     (lazy (e.public_data.encrypted_tally =
-        compute_encrypted_tally e.election e.public_data.votes));;
+        compute_encrypted_tally e.election e.public_data.votes));
+  verbose_assert "partial decryptions"
+    (lazy (verify_partial_decryptions e));;
 
 let () = load_election_and_verify_it_all "tests/data/favorite-editor"
