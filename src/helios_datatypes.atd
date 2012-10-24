@@ -116,8 +116,8 @@ type trustee_public_key = {
 } <ocaml field_prefix="trustee_">
 
 type partial_decryption = {
-  decryption_factors : number list list;
-  decryption_proofs : proof list;
+  decryption_factors : number list <ocaml repr="array"> list <ocaml repr="array">;
+  decryption_proofs : proof list <ocaml repr="array">;
 }
 
 (** {1 Compound datastructures} *)
