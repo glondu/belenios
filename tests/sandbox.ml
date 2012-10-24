@@ -147,6 +147,7 @@ let verify_disjunctive_proof pk big_g big_hs proof =
   (let rec check i commitments challenges =
      if i >= 0 then
        let {dp_commitment = {a; b}; dp_challenge; dp_response} = proof.(i) in
+       (* FIXME: is it needed to do check_subgroup on a and b? *)
        check_modulo p a &&
        check_modulo p b &&
        check_modulo q dp_challenge &&
@@ -209,6 +210,7 @@ let verify_proof_item challenge_generator g h g' h' p q proof =
   (* FIXME: factorize with verify_disjunctive_proof *)
   let ( ** ) a b = Z.(powm a b p) and ( * ) a b = Z.(a * b mod p) in
   let {dp_commitment = {a; b}; dp_challenge; dp_response} = proof in
+  (* FIXME: is it needed to do check_subgroup on a and b? *)
   check_modulo p a &&
   check_modulo p b &&
   check_modulo q dp_challenge &&
