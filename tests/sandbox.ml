@@ -126,7 +126,7 @@ let verify_public_key {g; p; q; y} =
   check_subgroup p q g &&
   check_subgroup p q y
 
-let verify_trustee_pok pk =
+let verify_pok pk =
   let {g; p; q; y} = pk.trustee_public_key in
   let {pok_commitment; pok_challenge; pok_response} = pk.trustee_pok in
   let ( ** ) a b = Z.powm a b p in
@@ -235,7 +235,7 @@ let verify_partial_decryption e tpk pds =
 
 let verify_partial_decryptions e =
   array_forall2 (verify_partial_decryption e)
-    e.public_data.trustee_public_keys
+    e.public_data.public_keys
     e.public_data.partial_decryptions
 
 let verify_election_public_key pk tpks =
@@ -247,7 +247,7 @@ let verify_election_public_key pk tpks =
       let tpk = tpks.(i) in
       let {g = g'; p = p'; q = q'; y = y'} = tpk.trustee_public_key in
       g =~ g' && p =~ p' && q =~ q' &&
-      verify_trustee_pok tpk &&
+      verify_pok tpk &&
       loop (pred i) Z.(accu * y' mod p)
     else accu =~ y
   in loop (pred n) Z.one
@@ -278,12 +278,14 @@ let verbose_assert msg it =
 
 let load_election_and_verify_it_all dirname =
   let e = load_election_test_data ~verbose:true dirname in
-  verbose_assert "election public key"
+  verbose_assert "public key"
     (lazy (verify_election_public_key
              e.election.e_public_key
-             e.public_data.trustee_public_keys));
-  Array.iter (fun x -> verbose_assert "vote"
-    (lazy (verify_vote e.election e.fingerprint x))) e.public_data.votes;
+             e.public_data.public_keys));
+  verbose_assert "votes"
+    (lazy (array_foralli
+             (fun _ x -> verify_vote e.election e.fingerprint x)
+             e.public_data.votes));
   verbose_assert "encrypted tally"
     (lazy (e.public_data.encrypted_tally =
         compute_encrypted_tally e.election e.public_data.votes));
@@ -294,6 +296,6 @@ let load_election_and_verify_it_all dirname =
   verbose_assert "private keys"
     (lazy (array_foralli
              (fun _ k -> verify_private_key k)
-             e.private_data.trustee_private_keys));;
+             e.private_data.private_keys));;
 
 let () = load_election_and_verify_it_all "tests/data/favorite-editor"
