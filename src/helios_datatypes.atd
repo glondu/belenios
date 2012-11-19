@@ -73,18 +73,18 @@ type commitment = {
   b <json name="B"> : number;
 }
 
-type proof_item = {
+type proof = {
   challenge : number;
   commitment : commitment;
   response : number;
 } <ocaml field_prefix="dp_">
 
-type proof = proof_item list <ocaml repr="array">
+type disjunctive_proof = proof list <ocaml repr="array">
 
 type answer = {
   choices : choice list <ocaml repr="array">;
-  individual_proofs : proof list <ocaml repr="array">;
-  overall_proof : proof;
+  individual_proofs : disjunctive_proof list <ocaml repr="array">;
+  overall_proof : disjunctive_proof;
 }
 
 type vote = {
@@ -117,7 +117,7 @@ type trustee_public_key = {
 
 type partial_decryption = {
   decryption_factors : number list <ocaml repr="array"> list <ocaml repr="array">;
-  decryption_proofs : proof list <ocaml repr="array">;
+  decryption_proofs : proof list <ocaml repr="array"> list <ocaml repr="array">;
 }
 
 (** {1 Compound datastructures} *)
@@ -127,6 +127,7 @@ type election_public_data = {
   votes : vote list <ocaml repr="array">;
   encrypted_tally : encrypted_tally;
   partial_decryptions : partial_decryption list <ocaml repr="array">;
+  result : int list <ocaml repr="array"> list <ocaml repr="array">;
 }
 
 type election_private_data = {
