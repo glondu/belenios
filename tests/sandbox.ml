@@ -267,6 +267,10 @@ let verify_result e =
     ) question.q_answers
   ) e.election.e_questions
 
+let verify_private_key k =
+  let {x; public_key = {g; p; q; y}} = k in
+  check_modulo q x && y =~ Z.powm g x p
+
 let verbose_assert msg it =
   Printf.eprintf "Verifying %s...%!" msg;
   let r = Lazy.force it in
@@ -286,6 +290,10 @@ let load_election_and_verify_it_all dirname =
   verbose_assert "partial decryptions"
     (lazy (verify_partial_decryptions e));
   verbose_assert "result"
-    (lazy (verify_result e));;
+    (lazy (verify_result e));
+  verbose_assert "private keys"
+    (lazy (array_foralli
+             (fun _ k -> verify_private_key k)
+             e.private_data.trustee_private_keys));;
 
 let () = load_election_and_verify_it_all "tests/data/favorite-editor"
