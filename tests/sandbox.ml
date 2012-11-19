@@ -252,6 +252,21 @@ let verify_election_public_key pk tpks =
     else accu =~ y
   in loop (pred n) Z.one
 
+let verify_result e =
+  let {g; p; q; y} = e.election.e_public_key in
+  let pds = e.public_data.partial_decryptions in
+  let tally = e.public_data.encrypted_tally.tally in
+  let result = e.public_data.result in
+  let ( * ) a b = Z.(a * b mod p) and ( ** ) a b = Z.(powm a (of_int b) p) in
+  array_foralli (fun i question ->
+    array_foralli (fun j answer ->
+      let combined_factor = Array.fold_left (fun accu f ->
+        accu * f.decryption_factors.(i).(j)
+      ) Z.one pds in
+      Z.invert combined_factor p * tally.(i).(j).beta =~ g ** result.(i).(j)
+    ) question.q_answers
+  ) e.election.e_questions
+
 let verbose_assert msg it =
   Printf.eprintf "Verifying %s...%!" msg;
   let r = Lazy.force it in
@@ -269,6 +284,8 @@ let load_election_and_verify_it_all dirname =
     (lazy (e.public_data.encrypted_tally =
         compute_encrypted_tally e.election e.public_data.votes));
   verbose_assert "partial decryptions"
-    (lazy (verify_partial_decryptions e));;
+    (lazy (verify_partial_decryptions e));
+  verbose_assert "result"
+    (lazy (verify_result e));;
 
 let () = load_election_and_verify_it_all "tests/data/favorite-editor"
