@@ -32,33 +32,49 @@ let check_modulo p x = Z.(geq x zero && lt x p)
 let check_subgroup p q x = Z.(powm x q p =~ one)
 
 module type TYPES = sig
+  type elt
   type 'a t
   val read : 'a t -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
   val write : 'a t -> Bi_outbuf.t -> 'a -> unit
-  val election : election t
-  val private_key : private_key t
-  val trustee_public_key : trustee_public_key t
-  val vote : vote t
-  val encrypted_tally : encrypted_tally t
-  val partial_decryption : partial_decryption t
-  val election_public_data : election_public_data t
-  val election_private_data : election_private_data t
+  val election : elt election t
+  val private_key : elt private_key t
+  val trustee_public_key : elt trustee_public_key t
+  val vote : elt vote t
+  val encrypted_tally : elt encrypted_tally t
+  val partial_decryption : elt partial_decryption t
+  val election_public_data : elt election_public_data t
+  val election_private_data : elt election_private_data t
 end
 
-module Types : TYPES = struct
+module type SGROUP = sig
+  type t
+  val write : Bi_outbuf.t -> t -> unit
+  val read : Yojson.Safe.lexer_state -> Lexing.lexbuf -> t
+end
+
+module SFiniteFieldMult : SGROUP with type t = Z.t = struct
+  type t = Z.t
+  let write = Core_datatypes_j.write_number
+  let read = Core_datatypes_j.read_number
+end
+
+module MakeTypes (G : SGROUP) : TYPES with type elt = G.t = struct
   open Helios_datatypes_j
+  type elt = G.t
   type 'a t = (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) * (Bi_outbuf.t -> 'a -> unit)
   let read = fst
   let write = snd
-  let election = (read_election, write_election)
-  let private_key = (read_private_key, write_private_key)
-  let trustee_public_key = (read_trustee_public_key, write_trustee_public_key)
-  let vote = (read_vote, write_vote)
-  let encrypted_tally = (read_encrypted_tally, write_encrypted_tally)
-  let partial_decryption = (read_partial_decryption, write_partial_decryption)
-  let election_public_data = (read_election_public_data, write_election_public_data)
-  let election_private_data = (read_election_private_data, write_election_private_data)
+  let election = (read_election G.read, write_election G.write)
+  let private_key = (read_private_key G.read, write_private_key G.write)
+  let trustee_public_key = (read_trustee_public_key G.read, write_trustee_public_key G.write)
+  let vote = (read_vote G.read, write_vote G.write)
+  let encrypted_tally = (read_encrypted_tally G.read, write_encrypted_tally G.write)
+  let partial_decryption = (read_partial_decryption G.read, write_partial_decryption G.write)
+  let election_public_data = (read_election_public_data G.read, write_election_public_data G.write)
+  let election_private_data = (read_election_private_data G.read, write_election_private_data G.write)
 end
+
+module Types : TYPES with type elt = Z.t = MakeTypes (SFiniteFieldMult)
 
 let load typ fname =
   let i = open_in fname in
@@ -85,11 +101,11 @@ let load_and_check ?(verbose=false) typ fname =
   Sys.remove tempfname;
   thing
 
-type election_test_data = {
+type 'a election_test_data = {
   fingerprint : string;
-  election : election;
-  public_data : election_public_data;
-  private_data : election_private_data;
+  election : 'a election;
+  public_data : 'a election_public_data;
+  private_data : 'a election_private_data;
 }
 
 let first_line filename =

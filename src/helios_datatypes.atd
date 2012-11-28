@@ -6,15 +6,15 @@ type datetime <ocaml predef from="Core_datatypes"> = abstract
 
 (** {1 ElGamal keys} *)
 
-type public_key = {
-  g : number;
+type 'a public_key = {
+  g : 'a;
   p : number;
   q : number;
-  y : number;
+  y : 'a;
 }
 
-type private_key = {
-  public_key : public_key;
+type 'a private_key = {
+  public_key : 'a public_key;
   x : number;
 }
 
@@ -45,13 +45,13 @@ type question = {
   tally_type : tally_type;
 } <ocaml field_prefix="q_">
 
-type election = {
+type 'a election = {
   cast_url : string;
   description : string;
   frozen_at : datetime;
   name : string;
   openreg : bool;
-  public_key : public_key;
+  public_key : 'a public_key;
   questions : question list <ocaml repr="array">;
   uuid : uuid;
   short_name : string;
@@ -63,73 +63,73 @@ type election = {
 
 (** {1 Ballots} *)
 
-type choice = {
-  alpha : number;
-  beta : number;
+type 'a choice = {
+  alpha : 'a;
+  beta : 'a;
 }
 
-type commitment = {
-  a <json name="A"> : number;
-  b <json name="B"> : number;
+type 'a commitment = {
+  a <json name="A"> : 'a;
+  b <json name="B"> : 'a;
 }
 
-type proof = {
+type 'a proof = {
   challenge : number;
-  commitment : commitment;
+  commitment : 'a commitment;
   response : number;
 } <ocaml field_prefix="dp_">
 
-type disjunctive_proof = proof list <ocaml repr="array">
+type 'a disjunctive_proof = 'a proof list <ocaml repr="array">
 
-type answer = {
-  choices : choice list <ocaml repr="array">;
-  individual_proofs : disjunctive_proof list <ocaml repr="array">;
-  overall_proof : disjunctive_proof;
+type 'a answer = {
+  choices : 'a choice list <ocaml repr="array">;
+  individual_proofs : 'a disjunctive_proof list <ocaml repr="array">;
+  overall_proof : 'a disjunctive_proof;
 }
 
-type vote = {
-  answers : answer list <ocaml repr="array">;
+type 'a vote = {
+  answers : 'a answer list <ocaml repr="array">;
   election_hash : string;
   election_uuid : uuid;
 }
 
 (** {1 Tally} *)
 
-type tally = choice list <ocaml repr="array"> list <ocaml repr="array">
+type 'a tally = 'a choice list <ocaml repr="array"> list <ocaml repr="array">
 
-type encrypted_tally = {
+type 'a encrypted_tally = {
   num_tallied : int;
-  tally : tally;
+  tally : 'a tally;
 }
 
 (** {1 Partial decryptions} *)
 
-type pok = {
+type 'a pok = {
   challenge : number;
-  commitment : number;
+  commitment : 'a;
   response : number;
 } <ocaml field_prefix="pok_">
 
-type trustee_public_key = {
-  pok : pok;
-  public_key : public_key;
+type 'a trustee_public_key = {
+  pok : 'a pok;
+  public_key : 'a public_key;
 } <ocaml field_prefix="trustee_">
 
-type partial_decryption = {
-  decryption_factors : number list <ocaml repr="array"> list <ocaml repr="array">;
-  decryption_proofs : proof list <ocaml repr="array"> list <ocaml repr="array">;
+type 'a partial_decryption = {
+  decryption_factors : 'a list <ocaml repr="array"> list <ocaml repr="array">;
+  decryption_proofs : 'a proof list <ocaml repr="array"> list <ocaml repr="array">;
 }
 
 (** {1 Compound datastructures} *)
 
-type election_public_data = {
-  public_keys : trustee_public_key list <ocaml repr="array">;
-  votes : vote list <ocaml repr="array">;
-  encrypted_tally : encrypted_tally;
-  partial_decryptions : partial_decryption list <ocaml repr="array">;
+type 'a election_public_data = {
+  public_keys : 'a trustee_public_key list <ocaml repr="array">;
+  votes : 'a vote list <ocaml repr="array">;
+  encrypted_tally : 'a encrypted_tally;
+  partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
   result : int list <ocaml repr="array"> list <ocaml repr="array">;
 }
 
-type election_private_data = {
-  private_keys : private_key list <ocaml repr="array">;
+type 'a election_private_data = {
+  private_keys : 'a private_key list <ocaml repr="array">;
 }
