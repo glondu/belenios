@@ -1,2 +1,2 @@
-<**/*.{ml,mli}>: package(zarith), package(calendar), package(uuidm)
-<**/*_{t,j}.{ml,mli}>: package(atdgen), package(yojson)
+<**/*.{ml,mli}>: package(zarith), package(calendar), package(uuidm), package(cryptokit), package(atdgen)
+<**/*_{t,j}.{ml,mli}>: package(yojson)
