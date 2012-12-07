@@ -1,0 +1,30 @@
+<!-- -*- Mode: Xml -*- -->
+<ocsigen>
+
+  <server>
+
+    <port>8001</port>
+
+    <logdir>_RUNDIR_/log</logdir>
+    <datadir>_RUNDIR_/lib</datadir>
+    <commandpipe>_RUNDIR_/run/ocsigenserver_command</commandpipe>
+
+    <charset>utf-8</charset>
+
+    <findlib path="/usr/lib/ocaml"/>
+
+    <extension findlib-package="ocsigenserver.ext.staticmod"/>
+
+    <extension findlib-package="ocsigenserver.ext.ocsipersist-sqlite">
+      <database file="_RUNDIR_/lib/ocsidb"/>
+    </extension>
+
+    <extension findlib-package="eliom.server"/>
+
+    <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
+      <eliom module="_build/src/server.cma" />
+    </host>
+
+  </server>
+
+</ocsigen>
