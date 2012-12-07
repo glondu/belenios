@@ -22,6 +22,9 @@
     <extension findlib-package="eliom.server"/>
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
+      <site path="static" charset="utf-8">
+        <static dir="_SRCDIR_/helios/static" />
+      </site>
       <eliom module="_build/src/server.cma" />
     </host>
 
