@@ -16,6 +16,9 @@ let () = dispatch & function
 
   | After_rules ->
 
+    Pathname.define_context "src" ["helios/src"];
+    Pathname.define_context "helios/src" ["src"];
+
     rule "%.atd -> %_t.ml & %_t.mli" ~deps:["%.atd"] ~prods:["%_t.ml"; "%_t.mli"]
       (atdgen_action [A"-t"]);
     rule "%.atd -> %_j.ml & %_j.mli" ~deps:["%.atd"] ~prods:["%_j.ml"; "%_j.mli"]
