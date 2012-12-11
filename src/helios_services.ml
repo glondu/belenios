@@ -1,13 +1,23 @@
 open Eliom_service
 open Eliom_parameter
 
-let heliosvotingorg_s = external_service
+let heliosvotingorg = external_service
   ~prefix:"http://heliosvoting.org"
   ~path:[]
   ~get_params:unit
   ()
 
-let home_s = service
+let home = service
   ~path:[]
+  ~get_params:unit
+  ()
+
+let elections_administered = service
+  ~path:["elections"; "administered"]
+  ~get_params:unit
+  ()
+
+let election_new = service
+  ~path:["elections"; "new"]
   ~get_params:unit
   ()
