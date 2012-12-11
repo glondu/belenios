@@ -1,2 +1,2 @@
-<**/*.{ml,mli}>: thread, package(zarith), package(calendar), package(uuidm), package(cryptokit), package(atdgen), package(eliom.server)
+<**/*.{ml,mli}>: thread, package(zarith), package(calendar), package(uuidm), package(cryptokit), package(atdgen), package(eliom.server), syntax(camlp4o), package(lwt.syntax)
 <**/*_{t,j}.{ml,mli}>: package(yojson)
