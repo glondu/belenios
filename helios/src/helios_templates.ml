@@ -1,10 +1,12 @@
+open Helios_datatypes_t
 open Eliom_content.Html5.F
 
 let site_title = "Helios Election Server"
 let welcome_message = "This is the default message"
 
+let s x = Xml.uri_of_string ("/static/" ^ x)
+
 let base ~title ~header ~content =
-  let s x = Xml.uri_of_string ("/static/" ^ x) in
   html
     (head (Eliom_content.Html5.F.title (pcdata (title ^ " - Helios"))) [
       link
@@ -50,16 +52,40 @@ let base ~title ~header ~content =
       ];
      ])
 
+let not_implemented title = base
+  ~title
+  ~header:[h2 [pcdata title]]
+  ~content:[div [pcdata "This service is not implemented."]]
+
+let login_box = []
+
+let format_one_election (e : Z.t Helios_datatypes_t.election (* FIXME *)) =
+  li [pcdata e.e_name]
+
+let format_one_featured_election (e : Z.t Helios_datatypes_t.election (* FIXME *)) =
+  [
+    div ~a:[a_class ["highlight-box-margin"]] [
+      div ~a:[a_style "font-size: 1.4em;"] [
+        pcdata e.e_name
+      ];
+      pcdata " by ";
+      pcdata "FIXME";
+      br ();
+      pcdata e.e_description
+    ];
+    br ()
+  ]
+
 let index ~user ~featured = base
   ~title:site_title
   ~header:[h2 [pcdata site_title]]
   ~content:(
     let user_box = match user with
-      | `User (user, administered, voted) ->
+      | Some (user_type, user_name, administered, voted) ->
         let administration_box = match administered with
           | Some admin ->
             let administered_box = match admin with
-              | _::_ -> ul admin
+              | _::_ -> ul (List.map format_one_election admin)
               | [] -> em [pcdata "none yet"]
             in [
               h4 [pcdata "Administration"];
@@ -82,12 +108,20 @@ let index ~user ~featured = base
         let recent_votes = [
           h4 [pcdata "Recent votes"];
           match voted with
-          | _::_ -> ul voted
+          | _::_ -> ul (List.map format_one_election voted)
           | [] -> em [pcdata "none yet"]
         ] in
-        [div ~a:[a_style "font-size:1.4em;"; a_class ["highlight-box"]] user]
+        [
+          div ~a:[a_style "font-size:1.4em;"; a_class ["highlight-box"]] [
+            img
+              ~src:(Printf.ksprintf s "auth/login-icons/%s.png" user_type)
+              ~a:[a_style "border:0;"; a_height 25]
+              ~alt:user_type ();
+            pcdata user_name;
+          ]
+        ]
         @ administration_box @ recent_votes
-      | `Login login_box ->
+      | None ->
         [h3 [pcdata "Log In to Start Voting"]]
         @ login_box
         @ [br (); br ()]
@@ -96,7 +130,7 @@ let index ~user ~featured = base
       | _::_ ->
         [
           h3 [pcdata "Currently Featured Elections"];
-          p featured;
+          div (List.flatten (List.map format_one_featured_election featured));
         ]
       | [] ->
         [
