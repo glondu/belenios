@@ -31,3 +31,8 @@ let login = service
   ~path:["login"]
   ~get_params:unit
   ()
+
+let perform_login = post_service
+  ~fallback:login
+  ~post_params:(string "username" ** bool "admin_p")
+  ()

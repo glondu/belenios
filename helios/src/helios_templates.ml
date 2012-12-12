@@ -176,3 +176,30 @@ let index ~mystuff ~featured = base
       br ()
     ])
   )
+
+let dummy_login =
+  let title = site_title ^ " — Login" in
+  let form = post_form
+    ~a:[a_id "login_form"; a_class ["prettyform"]]
+    ~service:Helios_services.perform_login
+    (fun (username_name, admin_name) ->
+      [
+        tablex [tbody [
+          tr [
+            th [label ~a:[a_for username_name] [pcdata "Username:"]];
+            td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:username_name ()];
+          ];
+          tr [
+            th [label ~a:[a_for admin_name] [pcdata "Admin?"]];
+            td [bool_checkbox ~name:admin_name ()];
+          ]]
+        ];
+        div [
+          string_input ~input_type:`Submit ~value:"Login" ();
+        ]
+      ]) ()
+  in
+  base
+    ~title
+    ~header:[h2 [pcdata title]]
+    ~content:[div [form]]

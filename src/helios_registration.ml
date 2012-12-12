@@ -18,7 +18,7 @@ let () = Eliom_registration.Html5.register
   (fun () () ->
     lwt user = Eliom_reference.get user in
     let mystuff = match user with
-      | Some u -> `User (u, None, [])
+      | Some (admin_p, u) -> `User (u, (if admin_p then Some [] else None), [])
       | None -> `Auth_systems auth_systems
     in
     lwt featured = get_featured_elections () in
@@ -41,5 +41,10 @@ let () = Eliom_registration.Html5.register
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.login
-  (fun _ () ->
+  (fun () () ->
+    return (Helios_templates.dummy_login))
+
+let () = Eliom_registration.Html5.register
+  ~service:Helios_services.perform_login
+  (fun () (username, admin_p) ->
     return (Helios_templates.not_implemented "Login"))
