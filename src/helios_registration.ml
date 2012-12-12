@@ -5,18 +5,24 @@ let user =
     ~scope:Eliom_common.session_group
     None
 
-let featured_elections =
-  Eliom_reference.eref
-    ~scope:Eliom_common.global
-    ~persistent:"featured_elections"
-    []
+let auth_systems = [
+]
+
+let get_featured_elections () =
+  let open Helios_templates in
+  return [
+  ]
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.home
   (fun () () ->
     lwt user = Eliom_reference.get user in
-    lwt featured = Eliom_reference.get featured_elections in
-    return (Helios_templates.index ~user ~featured))
+    let mystuff = match user with
+      | Some u -> `User (u, None, [])
+      | None -> `Auth_systems auth_systems
+    in
+    lwt featured = get_featured_elections () in
+    return (Helios_templates.index ~mystuff ~featured))
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.elections_administered
@@ -27,3 +33,13 @@ let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_new
   (fun () () ->
     return (Helios_templates.not_implemented "Create election"))
+
+let () = Eliom_registration.Html5.register
+  ~service:Helios_services.election_shortcut
+  (fun _ () ->
+    return (Helios_templates.not_implemented "Election shortcut"))
+
+let () = Eliom_registration.Html5.register
+  ~service:Helios_services.login
+  (fun _ () ->
+    return (Helios_templates.not_implemented "Login"))

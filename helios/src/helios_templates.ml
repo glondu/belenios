@@ -7,7 +7,7 @@ let welcome_message = "This is the default message"
 let s x = Xml.uri_of_string ("/static/" ^ x)
 
 let base ~title ~header ~content =
-  html
+  html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata (title ^ " - Helios"))) [
       link
         ~rel:[`Stylesheet]
@@ -43,7 +43,7 @@ let base ~title ~header ~content =
           (* if user/voter... *)
           pcdata "not logged in.";
           br ();
-          a ~service:Helios_services.heliosvotingorg [
+          a ~service:Helios_services.project_home [
             pcdata "About Helios"
           ] ();
           (* footer links *)
@@ -57,31 +57,68 @@ let not_implemented title = base
   ~header:[h2 [pcdata title]]
   ~content:[div [pcdata "This service is not implemented."]]
 
-let login_box = []
+let login_box auth_systems = List.map
+  (fun x ->
+    p [
+      a
+        ~service:Helios_services.login
+        ~a:[a_style "font-size: 1.4em;"] [
+          img
+            ~a:[a_style "border:0;"; a_height 35]
+            ~src:(Printf.ksprintf s "auth/login-icons/%s.png" x)
+            ~alt:x ();
+          pcdata x;
+        ] ();
+    ]
+  ) auth_systems
 
-let format_one_election (e : Z.t Helios_datatypes_t.election (* FIXME *)) =
-  li [pcdata e.e_name]
+type user = {
+  user_name : string;
+  user_type : string;
+}
 
-let format_one_featured_election (e : Z.t Helios_datatypes_t.election (* FIXME *)) =
+let format_user u size = [
+  img
+    ~src:(Printf.ksprintf s "auth/login-icons/%s.png" u.user_type)
+    ~a:[a_style "border:0;"; a_height size]
+    ~alt:u.user_type ();
+  pcdata " ";
+  pcdata u.user_name;
+]
+
+type election = {
+  election_short_name : string;
+  election_name : string;
+  election_description : string;
+  election_admin : user;
+}
+
+let format_one_election e =
+  li [pcdata e.election_name]
+
+let format_one_featured_election e =
   [
-    div ~a:[a_class ["highlight-box-margin"]] [
-      div ~a:[a_style "font-size: 1.4em;"] [
-        pcdata e.e_name
-      ];
+    div ~a:[a_class ["highlight-box-margin"]] ([
+      a
+        ~service:(Eliom_service.preapply
+                    Helios_services.election_shortcut
+                    e.election_short_name)
+        ~a:[a_style "font-size: 1.4em;"]
+        [pcdata e.election_name] ();
       pcdata " by ";
-      pcdata "FIXME";
+    ] @ format_user e.election_admin 15 @ [
       br ();
-      pcdata e.e_description
-    ];
-    br ()
+      pcdata e.election_description;
+    ]);
+    br ();
   ]
 
-let index ~user ~featured = base
+let index ~mystuff ~featured = base
   ~title:site_title
   ~header:[h2 [pcdata site_title]]
   ~content:(
-    let user_box = match user with
-      | Some (user_type, user_name, administered, voted) ->
+    let mystuff_box = match mystuff with
+      | `User (u, administered, voted) ->
         let administration_box = match administered with
           | Some admin ->
             let administered_box = match admin with
@@ -112,35 +149,30 @@ let index ~user ~featured = base
           | [] -> em [pcdata "none yet"]
         ] in
         [
-          div ~a:[a_style "font-size:1.4em;"; a_class ["highlight-box"]] [
-            img
-              ~src:(Printf.ksprintf s "auth/login-icons/%s.png" user_type)
-              ~a:[a_style "border:0;"; a_height 25]
-              ~alt:user_type ();
-            pcdata user_name;
-          ]
+          div ~a:[a_style "font-size:1.4em;"; a_class ["highlight-box"]]
+            (format_user u 25)
         ]
         @ administration_box @ recent_votes
-      | None ->
+      | `Auth_systems auth_systems ->
         [h3 [pcdata "Log In to Start Voting"]]
-        @ login_box
+        @ (login_box auth_systems)
         @ [br (); br ()]
     in
     let featured_box = match featured with
       | _::_ ->
         [
-          h3 [pcdata "Currently Featured Elections"];
+          h3 [pcdata "Current Featured Elections"];
           div (List.flatten (List.map format_one_featured_election featured));
         ]
       | [] ->
         [
           h4 [pcdata "no featured elections at the moment"];
         ]
-    in [
-      div ~a:[a_id "mystuff"] user_box;
+    in ([
+      div ~a:[a_id "mystuff"] mystuff_box;
       p ~a:[a_style "font-size: 1.4em;"] [pcdata welcome_message];
-      div featured_box;
+    ] @ featured_box @ [
       br ~a:[a_style "clear:right;"] ();
       br ()
-    ]
+    ])
   )
