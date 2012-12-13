@@ -1,9 +1,8 @@
 open Lwt
 
-let user =
-  Eliom_reference.eref
-    ~scope:Eliom_common.session_group
-    None
+let user = Eliom_reference.eref
+  ~scope:Eliom_common.session_group
+  None
 
 let auth_systems = [
 ]
