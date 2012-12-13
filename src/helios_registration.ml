@@ -5,11 +5,21 @@ let user = Eliom_reference.eref
   None
 
 let auth_systems = [
+  "dummy";
 ]
 
 let get_featured_elections () =
   let open Helios_templates in
   return [
+    {
+      election_short_name = "editor";
+      election_name = "Best editor";
+      election_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+      election_admin = {
+        user_name = "admin";
+        user_type = "dummy";
+      };
+    }
   ]
 
 let () = Eliom_registration.Html5.register
