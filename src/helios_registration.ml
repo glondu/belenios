@@ -42,9 +42,12 @@ let () = Eliom_registration.Html5.register
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.login
   (fun () () ->
-    return (Helios_templates.dummy_login))
-
-let () = Eliom_registration.Html5.register
-  ~service:Helios_services.perform_login
-  (fun () (username, admin_p) ->
-    return (Helios_templates.not_implemented "Login"))
+    (* FIXME *)
+    let service = Helios_services.perform_login () in
+    let () = Eliom_registration.Html5.register
+      ~service
+      ~scope:Eliom_common.session_group
+      (fun () (username, admin_p) ->
+        return (Helios_templates.not_implemented "Login"))
+    in
+    return (Helios_templates.dummy_login ~service))

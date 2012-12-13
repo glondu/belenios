@@ -177,11 +177,11 @@ let index ~mystuff ~featured = base
     ])
   )
 
-let dummy_login =
+let dummy_login ~service =
   let title = site_title ^ " — Login" in
   let form = post_form
     ~a:[a_id "login_form"; a_class ["prettyform"]]
-    ~service:Helios_services.perform_login
+    ~service
     (fun (username_name, admin_name) ->
       [
         tablex [tbody [

@@ -32,7 +32,10 @@ let login = service
   ~get_params:unit
   ()
 
-let perform_login = post_service
-  ~fallback:login
-  ~post_params:(string "username" ** bool "admin_p")
-  ()
+let perform_login () =
+  Eliom_service.post_coservice
+    ~csrf_safe:true
+    ~csrf_scope:Eliom_common.session_group
+    ~fallback:login
+    ~post_params:Eliom_parameter.(string "username" ** bool "admin_p")
+    ()
