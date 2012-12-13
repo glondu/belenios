@@ -5,17 +5,19 @@ if [ ! -d _build ]; then
   exit 1
 fi
 
-RUNDIR=${SELENIOS_RUNDIR:-_run}
+BELENIOS_RUNDIR=${BELENIOS_RUNDIR:-_run}
+BELENIOS_TMPDIR=${BELENIOS_TMPDIR:-/tmp/belenios}
 
 mkdir -p \
-  $RUNDIR/etc \
-  $RUNDIR/log \
-  $RUNDIR/lib \
-  $RUNDIR/run
+  $BELENIOS_RUNDIR/etc \
+  $BELENIOS_RUNDIR/log \
+  $BELENIOS_RUNDIR/lib \
+  $BELENIOS_TMPDIR/run
 
 sed \
-  -e "s@_RUNDIR_@$RUNDIR@g" \
+  -e "s@_TMPDIR_@$BELENIOS_TMPDIR@g" \
+  -e "s@_RUNDIR_@$BELENIOS_RUNDIR@g" \
   -e "s@_SRCDIR_@$PWD@g" \
-  tests/ocsigenserver.conf.in > $RUNDIR/etc/ocsigenserver.conf
+  tests/ocsigenserver.conf.in > $BELENIOS_RUNDIR/etc/ocsigenserver.conf
 
-ocsigenserver -c $RUNDIR/etc/ocsigenserver.conf "$@"
+ocsigenserver -c $BELENIOS_RUNDIR/etc/ocsigenserver.conf "$@"

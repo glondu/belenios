@@ -7,7 +7,7 @@
 
     <logdir>_RUNDIR_/log</logdir>
     <datadir>_RUNDIR_/lib</datadir>
-    <commandpipe>_RUNDIR_/run/ocsigenserver_command</commandpipe>
+    <commandpipe>_TMPDIR_/run/ocsigenserver_command</commandpipe>
 
     <charset>utf-8</charset>
 
