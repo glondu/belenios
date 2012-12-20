@@ -53,10 +53,20 @@ let () = Eliom_registration.Html5.register
   (fun () () ->
     (* FIXME *)
     let service = Helios_services.perform_login () in
-    let () = Eliom_registration.Html5.register
+    let () = Eliom_registration.Redirection.register
       ~service
       ~scope:Eliom_common.session
-      (fun () (username, admin_p) ->
-        return (Helios_templates.not_implemented "Login"))
+      (fun () (user_name, admin_p) ->
+        let user_type = "dummy" in
+        Eliom_reference.set user
+          (Some (admin_p,
+                 Helios_templates.({user_name; user_type}))) >>
+        return Helios_services.home)
     in
     return (Helios_templates.dummy_login ~service))
+
+let () = Eliom_registration.Redirection.register
+  ~service:Helios_services.logout
+  (fun () () ->
+    Eliom_state.discard ~scope:Eliom_common.session () >>
+    return Helios_services.home)

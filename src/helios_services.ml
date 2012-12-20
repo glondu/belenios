@@ -32,6 +32,11 @@ let login = service
   ~get_params:unit
   ()
 
+let logout = service
+  ~path:["logout"]
+  ~get_params:unit
+  ()
+
 let perform_login () =
   Eliom_service.post_coservice
     ~csrf_safe:true
