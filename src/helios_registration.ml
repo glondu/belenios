@@ -1,7 +1,7 @@
 open Lwt
 
 let user = Eliom_reference.eref
-  ~scope:Eliom_common.session_group
+  ~scope:Eliom_common.session
   None
 
 let auth_systems = [
@@ -55,7 +55,7 @@ let () = Eliom_registration.Html5.register
     let service = Helios_services.perform_login () in
     let () = Eliom_registration.Html5.register
       ~service
-      ~scope:Eliom_common.session_group
+      ~scope:Eliom_common.session
       (fun () (username, admin_p) ->
         return (Helios_templates.not_implemented "Login"))
     in
