@@ -1,14 +1,7 @@
 open Lwt
 
-let user = Eliom_reference.eref
-  ~scope:Eliom_common.session
-  None
-
-let auth_systems = [
-  "dummy";
-]
-
 let get_featured_elections () =
+  let open Helios_services in
   let open Helios_templates in
   return [
     {
@@ -25,28 +18,23 @@ let get_featured_elections () =
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.home
   (fun () () ->
-    lwt user = Eliom_reference.get user in
-    let mystuff = match user with
-      | Some (admin_p, u) -> `User (u, (if admin_p then Some [] else None), [])
-      | None -> `Auth_systems auth_systems
-    in
     lwt featured = get_featured_elections () in
-    return (Helios_templates.index ~mystuff ~featured))
+    Helios_templates.index ~featured)
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.elections_administered
   (fun () () ->
-    return (Helios_templates.not_implemented "Administrate elections"))
+    Helios_templates.not_implemented "Administrate elections")
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_new
   (fun () () ->
-    return (Helios_templates.not_implemented "Create election"))
+    Helios_templates.not_implemented "Create election")
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_shortcut
   (fun _ () ->
-    return (Helios_templates.not_implemented "Election shortcut"))
+    Helios_templates.not_implemented "Election shortcut")
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.login
@@ -58,12 +46,11 @@ let () = Eliom_registration.Html5.register
       ~scope:Eliom_common.session
       (fun () (user_name, admin_p) ->
         let user_type = "dummy" in
-        Eliom_reference.set user
-          (Some (admin_p,
-                 Helios_templates.({user_name; user_type}))) >>
+        Eliom_reference.set Helios_services.user
+          (Some (admin_p, Helios_services.({user_name; user_type}))) >>
         return Helios_services.home)
     in
-    return (Helios_templates.dummy_login ~service))
+    Helios_templates.dummy_login ~service)
 
 let () = Eliom_registration.Redirection.register
   ~service:Helios_services.logout

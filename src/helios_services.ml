@@ -44,3 +44,16 @@ let perform_login () =
     ~fallback:login
     ~post_params:Eliom_parameter.(string "username" ** bool "admin_p")
     ()
+
+let auth_systems = [
+  "dummy";
+]
+
+type user = {
+  user_name : string;
+  user_type : string;
+}
+
+let user = Eliom_reference.eref
+  ~scope:Eliom_common.session
+  (None : (bool * user) option)

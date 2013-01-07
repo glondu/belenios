@@ -6,8 +6,18 @@ let welcome_message = "This is the default message"
 
 let s x = Xml.uri_of_string ("/static/" ^ x)
 
+let format_user u size = Helios_services.([
+  img
+    ~src:(Printf.ksprintf s "auth/login-icons/%s.png" u.user_type)
+    ~a:[a_style "border:0;"; a_height size]
+    ~alt:u.user_type ();
+  pcdata " ";
+  pcdata u.user_name;
+])
+
 let base ~title ~header ~content =
-  html ~a:[a_dir `Ltr; a_xml_lang "en"]
+  lwt user = Eliom_reference.get Helios_services.user in
+  Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata (title ^ " - Helios"))) [
       link
         ~rel:[`Stylesheet]
@@ -38,19 +48,33 @@ let base ~title ~header ~content =
           br ();
         ] @ header);
         div ~a:[a_id "contentbody"] content;
-        div ~a:[a_id "footer"] [
-          span ~a:[a_style "float:right;"] [ (* footer logo *) ];
-          (* if user/voter... *)
-          pcdata "not logged in.";
-          br ();
-          a ~service:Helios_services.project_home [
-            pcdata "About Helios"
-          ] ();
+        div ~a:[a_id "footer"] (
+          [span ~a:[a_style "float:right;"] [ (* footer logo *) ]] @
+          (match user with
+            | Some (admin_p, user) ->
+              [pcdata "logged in as "] @ (format_user user 15) @ [
+                pcdata " [";
+                a ~service:Helios_services.logout [pcdata "logout"] ();
+                pcdata "]";
+                br ()
+              ]
+            | None ->
+              [pcdata "not logged in."] @ [
+                pcdata " [";
+                a ~service:Helios_services.login [pcdata "log in"] ();
+                pcdata "]";
+                br ();
+              ]
+          ) @ [
+            a ~service:Helios_services.project_home [
+              pcdata "About Helios | Help!"
+            ] ();
           (* footer links *)
-          br ~a:[a_style "clear:right;"] ();
-        ];
+            br ~a:[a_style "clear:right;"] ();
+          ]
+        )
       ];
-     ])
+     ]))
 
 let not_implemented title = base
   ~title
@@ -72,25 +96,11 @@ let login_box auth_systems = List.map
     ]
   ) auth_systems
 
-type user = {
-  user_name : string;
-  user_type : string;
-}
-
-let format_user u size = [
-  img
-    ~src:(Printf.ksprintf s "auth/login-icons/%s.png" u.user_type)
-    ~a:[a_style "border:0;"; a_height size]
-    ~alt:u.user_type ();
-  pcdata " ";
-  pcdata u.user_name;
-]
-
 type election = {
   election_short_name : string;
   election_name : string;
   election_description : string;
-  election_admin : user;
+  election_admin : Helios_services.user;
 }
 
 let format_one_election e =
@@ -113,12 +123,16 @@ let format_one_featured_election e =
     br ();
   ]
 
-let index ~mystuff ~featured = base
+let index ~featured =
+  lwt user = Eliom_reference.get Helios_services.user in
+  base
   ~title:site_title
   ~header:[h2 [pcdata site_title]]
   ~content:(
-    let mystuff_box = match mystuff with
-      | `User (u, administered, voted) ->
+    let mystuff = match user with
+      | Some (admin_p, u) ->
+        let administered = if admin_p then Some [] else None in
+        let voted = [] in
         let administration_box = match administered with
           | Some admin ->
             let administered_box = match admin with
@@ -153,9 +167,9 @@ let index ~mystuff ~featured = base
             (format_user u 25)
         ]
         @ administration_box @ recent_votes
-      | `Auth_systems auth_systems ->
+      | None ->
         [h3 [pcdata "Log In to Start Voting"]]
-        @ (login_box auth_systems)
+        @ (login_box Helios_services.auth_systems)
         @ [br (); br ()]
     in
     let featured_box = match featured with
@@ -169,7 +183,7 @@ let index ~mystuff ~featured = base
           h4 [pcdata "no featured elections at the moment"];
         ]
     in ([
-      div ~a:[a_id "mystuff"] mystuff_box;
+      div ~a:[a_id "mystuff"] mystuff;
       p ~a:[a_style "font-size: 1.4em;"] [pcdata welcome_message];
     ] @ featured_box @ [
       br ~a:[a_style "clear:right;"] ();
