@@ -67,8 +67,9 @@ let base ~title ~header ~content =
               ]
           ) @ [
             a ~service:Helios_services.project_home [
-              pcdata "About Helios | Help!"
+              pcdata "About Helios"
             ] ();
+            pcdata " | Help!";
           (* footer links *)
             br ~a:[a_style "clear:right;"] ();
           ]
@@ -96,11 +97,26 @@ let login_box auth_systems = List.map
     ]
   ) auth_systems
 
+type answer = {
+  count : int;
+  answer : string;
+  winner : bool;
+}
+
+type question = {
+  answers : answer list;
+  question : string;
+}
+
 type election = {
+  election_uuid : string;
   election_short_name : string;
   election_name : string;
   election_description : string;
   election_admin : Helios_services.user;
+  election_questions : string list;
+  election_trustees : string list;
+  election_state : [`Finished of question list | `Stopped | `Started];
 }
 
 let format_one_election e =
@@ -217,3 +233,85 @@ let dummy_login ~service =
     ~title
     ~header:[h2 [pcdata title]]
     ~content:[div [form]]
+
+let list_iteri f xs =
+  let rec loop i = function
+    | [] -> []
+    | x :: xs -> f i x :: loop (succ i) xs
+  in List.flatten (loop 0 xs)
+
+let election_view ~election =
+  let content = [
+    div ~a:[a_style "float: left; margin-right: 50px;"] [pcdata "FIXME"];
+    br ();
+    br ();
+    br ~a:[a_style "clear: left;"] ();
+    div ~a:[a_style "margin-bottom: 25px;margin-left: 15px; border-left: 1px solid #aaa; padding-left: 5px; font-size:1.3em;"] [pcdata election.election_description];
+    p ~a:[a_style "text-align: center; font-size: 1.5em;"] [
+      a ~service:(Eliom_service.preapply Helios_services.election_questions election.election_uuid) [
+        pcdata "questions (";
+        pcdata (string_of_int (List.length election.election_questions));
+        pcdata ")";
+      ] ();
+      (* FIXME: space (&nbsp) breaks the output *)
+      pcdata "  |  ";
+      a ~service:(Eliom_service.preapply Helios_services.election_voters election.election_uuid) [
+        pcdata "voters & ballots"
+      ] ();
+      pcdata "  |  ";
+      a ~service:(Eliom_service.preapply Helios_services.election_trustees election.election_uuid) [
+        pcdata "trustees (";
+        pcdata (string_of_int (List.length election.election_trustees));
+        pcdata ")";
+      ] ();
+    ];
+    (* NOTE: administration things removed from here! *)
+    br ();
+    br ();
+  ] @ (match election.election_state with
+    | `Finished result ->
+      [
+        span ~a:[a_class ["highlight-box"; "round"]] [
+          pcdata "This election is complete.";
+        ];
+        br ();
+        br ();
+        h3 ~a:[a_class ["highlight-box"]] [pcdata "Tally"];
+      ] @ (
+        list_iteri (fun i question ->
+          [
+            b [
+              span ~a:[a_style "font-size:0.8em;"] [
+                pcdata "Question #";
+                pcdata (string_of_int i);
+              ];
+              br ();
+              pcdata question.question;
+            ];
+            br ();
+            let table xs = match xs with
+              | x :: xs -> table ~a:[a_class ["pretty"]; a_style "width: auto;"] x xs
+              | [] -> assert false
+            in table (
+              List.map (fun answer ->
+                let style = if answer.winner then "font-weight:bold;" else "" in
+                tr [
+                  td ~a:[a_style ("padding-right:80px;" ^ style)] [pcdata answer.answer];
+                  td ~a:[a_style ("text-align:right;" ^ style)] [pcdata (string_of_int answer.count)];
+                ]
+              ) question.answers
+            );
+          ]
+        ) result
+      )
+    | `Stopped ->
+      [
+        (* FIXME *)
+      ]
+    | `Started ->
+      [
+        (* FIXME *)
+      ]
+  )
+  in
+  base ~title:election.election_name ~header:[] ~content
