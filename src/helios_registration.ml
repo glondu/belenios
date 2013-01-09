@@ -1,19 +1,50 @@
+open StdExtra
+open Helios_datatypes_t
 open Lwt
+
+let election_file =
+  let res = ref None in
+  let open Ocsigen_extensions.Configuration in
+  Eliom_config.parse_config [
+    element
+      ~name:"elections"
+      ~obligatory:true
+      ~attributes:[
+        attribute ~name:"file" ~obligatory:true (fun s -> res := Some s)
+      ]
+      ()
+  ];
+  match !res with
+    | Some s -> s
+    | None -> raise (Ocsigen_extensions.Error_in_config_file
+                       "could not find elections in configuration file")
+
+let raw_elections =
+  Ocsigen_messages.debug
+    (fun () -> "Loading elections from " ^ election_file ^ "...");
+  Lwt_io.lines_of_file election_file |>
+  Lwt_stream.filter (fun s -> s <> "") |>
+  Lwt_stream.to_list |> Lwt_main.run |>
+  List.map (Helios_datatypes_j.election_of_string Core_datatypes_j.read_number)
+
+let get_raw_election_by_uuid x =
+  List.find (fun e -> Uuidm.equal e.e_uuid x) raw_elections
+
+let test_uuid =
+  match Uuidm.of_string "94c1a03e-1c48-11e2-8866-3cd92b7981b8" with
+    | Some u -> u
+    | None -> assert false
 
 let elections =
   let open Helios_services in
   let open Helios_templates in
   [
     {
-      election_uuid = "94c1a03e-1c48-11e2-8866-3cd92b7981b8";
-      election_short_name = "editor";
-      election_name = "Best editor";
-      election_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+      election = get_raw_election_by_uuid test_uuid;
       election_admin = {
         user_name = "admin";
         user_type = "dummy";
       };
-      election_questions = [];
       election_trustees = [];
       election_state = `Finished [
         {
@@ -50,11 +81,11 @@ let get_featured_elections () =
 
 let get_election_by_name x =
   let open Helios_templates in
-  wrap2 List.find (fun e -> e.election_short_name = x) elections
+  wrap2 List.find (fun e -> e.election.e_short_name = x) elections
 
 let get_election_by_uuid x =
   let open Helios_templates in
-  wrap2 List.find (fun e -> e.election_uuid = x) elections
+  wrap2 List.find (fun e -> Uuidm.equal e.election.e_uuid x) elections
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.home
@@ -79,7 +110,7 @@ let () = Eliom_registration.Redirection.register
       lwt e = get_election_by_name name in
       return (Eliom_service.preapply
                 Helios_services.election_view
-                e.Helios_templates.election_uuid)
+                e.Helios_templates.election.e_uuid)
     with Not_found ->
       raise_lwt Eliom_common.Eliom_404)
 

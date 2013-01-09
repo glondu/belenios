@@ -108,19 +108,15 @@ type question = {
   question : string;
 }
 
-type election = {
-  election_uuid : string;
-  election_short_name : string;
-  election_name : string;
-  election_description : string;
+type election_extradata = {
+  election : Z.t Helios_datatypes_t.election;
   election_admin : Helios_services.user;
-  election_questions : string list;
   election_trustees : string list;
   election_state : [`Finished of question list | `Stopped | `Started];
 }
 
 let format_one_election e =
-  li [pcdata e.election_name]
+  li [pcdata e.election.e_name]
 
 let format_one_featured_election e =
   [
@@ -128,13 +124,13 @@ let format_one_featured_election e =
       a
         ~service:(Eliom_service.preapply
                     Helios_services.election_shortcut
-                    e.election_short_name)
+                    e.election.e_short_name)
         ~a:[a_style "font-size: 1.4em;"]
-        [pcdata e.election_name] ();
+        [pcdata e.election.e_name] ();
       pcdata " by ";
     ] @ format_user e.election_admin 15 @ [
       br ();
-      pcdata e.election_description;
+      pcdata e.election.e_description;
     ]);
     br ();
   ]
@@ -246,20 +242,20 @@ let election_view ~election =
     br ();
     br ();
     br ~a:[a_style "clear: left;"] ();
-    div ~a:[a_style "margin-bottom: 25px;margin-left: 15px; border-left: 1px solid #aaa; padding-left: 5px; font-size:1.3em;"] [pcdata election.election_description];
+    div ~a:[a_style "margin-bottom: 25px;margin-left: 15px; border-left: 1px solid #aaa; padding-left: 5px; font-size:1.3em;"] [pcdata election.election.e_description];
     p ~a:[a_style "text-align: center; font-size: 1.5em;"] [
-      a ~service:(Eliom_service.preapply Helios_services.election_questions election.election_uuid) [
+      a ~service:(Eliom_service.preapply Helios_services.election_questions election.election.e_uuid) [
         pcdata "questions (";
-        pcdata (string_of_int (List.length election.election_questions));
+        pcdata (string_of_int (Array.length election.election.e_questions));
         pcdata ")";
       ] ();
       (* FIXME: space (&nbsp) breaks the output *)
       pcdata "  |  ";
-      a ~service:(Eliom_service.preapply Helios_services.election_voters election.election_uuid) [
+      a ~service:(Eliom_service.preapply Helios_services.election_voters election.election.e_uuid) [
         pcdata "voters & ballots"
       ] ();
       pcdata "  |  ";
-      a ~service:(Eliom_service.preapply Helios_services.election_trustees election.election_uuid) [
+      a ~service:(Eliom_service.preapply Helios_services.election_trustees election.election.e_uuid) [
         pcdata "trustees (";
         pcdata (string_of_int (List.length election.election_trustees));
         pcdata ")";
@@ -314,4 +310,4 @@ let election_view ~election =
       ]
   )
   in
-  base ~title:election.election_name ~header:[] ~content
+  base ~title:election.election.e_name ~header:[] ~content

@@ -58,22 +58,29 @@ let user = Eliom_reference.eref
   ~scope:Eliom_common.session
   (None : (bool * user) option)
 
+let uuid = Eliom_parameter.user_type
+  (fun x -> match Uuidm.of_string x with
+    | Some x -> x
+    | None -> invalid_arg "uuid")
+  Uuidm.to_string
+  "uuid"
+
 let election_view = service
   ~path:["elections"; "view"]
-  ~get_params:(string "uuid")
+  ~get_params:uuid
   ()
 
 let election_questions = service
   ~path:["elections"; "questions"]
-  ~get_params:(string "uuid")
+  ~get_params:uuid
   ()
 
 let election_voters = service
   ~path:["elections"; "voters"]
-  ~get_params:(string "uuid")
+  ~get_params:uuid
   ()
 
 let election_trustees = service
   ~path:["elections"; "trustees"]
-  ~get_params:(string "uuid")
+  ~get_params:uuid
   ()

@@ -21,11 +21,17 @@
 
     <extension findlib-package="eliom.server"/>
 
+    <extension findlib-package="zarith"/>
+    <extension findlib-package="uuidm"/>
+    <extension findlib-package="atdgen"/>
+
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <site path="static" charset="utf-8">
         <static dir="_SRCDIR_/helios/static" />
       </site>
-      <eliom module="_build/src/server.cma" />
+      <eliom module="_build/src/server.cma">
+        <elections file="tests/data/favorite-editor/election.json"/>
+      </eliom>
     </host>
 
   </server>
