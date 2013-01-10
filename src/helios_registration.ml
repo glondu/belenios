@@ -60,46 +60,46 @@ let test_uuid =
     | Some u -> u
     | None -> assert false
 
-let elections =
+let format_election e =
   let open Helios_services in
   let open Helios_templates in
-  [
-    {
-      election = get_raw_election_by_uuid test_uuid;
-      election_admin = {
-        user_name = "admin";
-        user_type = "dummy";
-      };
-      election_trustees = [];
-      election_state = `Finished [
-        {
-          answers = [
-            {
-              answer = "emacs";
-              count = 2;
-              winner = true;
-            };
-            {
-              answer = "vim";
-              count = 1;
-              winner = false;
-            };
-            {
-              answer = "gedit";
-              count = 0;
-              winner = false;
-            };
-            {
-              answer = "something else";
-              count = 1;
-              winner = false;
-            };
-          ];
-          question = "What is your favourite editor?";
-        };
-      ];
-    }
-  ]
+  let election = e.Helios_services.election in
+  let election_admin = {
+    user_name = "admin";
+    user_type = "dummy";
+  } in
+  let election_trustees = [] in
+  let election_state = match e.public_data.election_result with
+    | Some r ->
+      Array.mapi (fun i q ->
+        let q' = election.e_questions.(i) in
+        let question = q'.q_question in
+        let answers = Array.mapi (fun j a ->
+          let answer = q'.q_answers.(j) in
+          let count = a in
+          (answer, count)
+        ) q |> Array.to_list
+        in
+        let (winners, _) = List.fold_left
+          (fun (ws, v) ((_, c) as w) ->
+            if c > v then ([w], c)
+            else if c = v then (w::ws, v)
+            else (ws, v)
+          ) ([], 0) answers
+        in
+        let answers = List.map
+          (fun ((answer, count) as x) ->
+            let winner = List.memq x winners in
+            { answer; count; winner }
+          ) answers
+        in
+        { question; answers }
+      ) (r.result : int array array) |> (fun x -> `Finished (Array.to_list x))
+    | None -> `Started
+  in
+  { election; election_admin; election_trustees; election_state }
+
+let elections = List.map format_election elections
 
 let get_featured_elections () =
   return elections
