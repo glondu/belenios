@@ -1,11 +1,6 @@
 open StdExtra
 open Helios_datatypes_t
 
-let hashB x = Cryptokit.(x |>
-  hash_string (Hash.sha256 ()) |>
-  transform_string (Base64.encode_compact ())
-)
-
 module type TYPES = sig
   type elt
   type 'a t
@@ -51,13 +46,7 @@ end
 
 module Types : TYPES with type elt = Z.t = MakeTypes (SFiniteFieldMult)
 
-let load typ fname =
-  let i = open_in fname in
-  let buf = Lexing.from_channel i in
-  let lex = Yojson.init_lexer ~fname () in
-  let result = Types.read typ lex buf in
-  close_in i;
-  result
+let load typ fname = load_from_file (Types.read typ) fname
 
 let save typ fname x =
   let o = open_out fname in
@@ -75,11 +64,6 @@ let load_and_check ?(verbose=false) typ fname =
   assert (r = 0);
   Sys.remove tempfname;
   thing
-
-let non_empty_lines_of_file fname =
-  Lwt_io.lines_of_file fname |>
-  Lwt_stream.filter (fun s -> s <> "") |>
-  Lwt_stream.to_list |> Lwt_main.run
 
 type 'a election_test_data = {
   raw : string;
@@ -109,6 +93,7 @@ let load_election_test_data ?(verbose=false) dir =
   let fingerprint = hashB raw in
   let votes =
     non_empty_lines_of_file (data "votes.json") |>
+    Lwt_main.run |>
     List.map (Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number) |>
     Array.of_list
   in
