@@ -40,7 +40,7 @@ let logout = service
 let perform_login () =
   Eliom_service.post_coservice
     ~csrf_safe:true
-    ~csrf_scope:Eliom_common.session
+    ~csrf_scope:Eliom_common.default_session_scope
     ~fallback:login
     ~post_params:Eliom_parameter.(string "username" ** bool "admin_p")
     ()
@@ -55,7 +55,7 @@ type user = {
 }
 
 let user = Eliom_reference.eref
-  ~scope:Eliom_common.session
+  ~scope:Eliom_common.default_session_scope
   (None : (bool * user) option)
 
 let uuid = Eliom_parameter.user_type

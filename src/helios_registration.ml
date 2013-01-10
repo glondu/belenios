@@ -121,7 +121,7 @@ let () = Eliom_registration.Html5.register
     let service = Helios_services.perform_login () in
     let () = Eliom_registration.Redirection.register
       ~service
-      ~scope:Eliom_common.session
+      ~scope:Eliom_common.default_session_scope
       (fun () (user_name, admin_p) ->
         let user_type = "dummy" in
         Eliom_reference.set Helios_services.user
@@ -133,7 +133,7 @@ let () = Eliom_registration.Html5.register
 let () = Eliom_registration.Redirection.register
   ~service:Helios_services.logout
   (fun () () ->
-    Eliom_state.discard ~scope:Eliom_common.session () >>
+    Eliom_state.discard ~scope:Eliom_common.default_session_scope () >>
     return Helios_services.home)
 
 let () = Eliom_registration.Html5.register
