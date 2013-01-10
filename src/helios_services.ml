@@ -1,3 +1,4 @@
+open Helios_datatypes_t
 open Eliom_service
 open Eliom_parameter
 
@@ -84,3 +85,13 @@ let election_trustees = service
   ~path:["elections"; "trustees"]
   ~get_params:uuid
   ()
+
+(* FIXME: type declarations should be elsewhere *)
+
+type election_data = {
+  raw : string;
+  fingerprint : string;
+  election : Z.t election;
+  mutable votes : Z.t vote list;
+  public_data : Z.t election_public_data;
+}

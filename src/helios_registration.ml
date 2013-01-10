@@ -2,33 +2,58 @@ open StdExtra
 open Helios_datatypes_t
 open Lwt
 
-let election_file =
-  let res = ref None in
+let election_index, election_library =
+  let index = ref None in
+  let library = ref None in
   let open Ocsigen_extensions.Configuration in
   Eliom_config.parse_config [
     element
       ~name:"elections"
       ~obligatory:true
       ~attributes:[
-        attribute ~name:"file" ~obligatory:true (fun s -> res := Some s)
+        attribute ~name:"index" ~obligatory:true (fun s -> index := Some s);
+        attribute ~name:"library" ~obligatory:true (fun s -> library := Some s);
       ]
       ()
   ];
-  match !res with
-    | Some s -> s
-    | None -> raise (Ocsigen_extensions.Error_in_config_file
-                       "could not find elections in configuration file")
+  match !index, !library with
+    | Some i, Some l -> i, l
+    | _ -> raise (Ocsigen_extensions.Error_in_config_file
+                       "could not find index or library in configuration file")
 
 let raw_elections =
   Ocsigen_messages.debug
-    (fun () -> "Loading elections from " ^ election_file ^ "...");
-  Lwt_io.lines_of_file election_file |>
+    (fun () -> "Loading elections from " ^ election_index ^ "...");
+  Lwt_io.lines_of_file election_index |>
   Lwt_stream.filter (fun s -> s <> "") |>
-  Lwt_stream.to_list |> Lwt_main.run |>
-  List.map (Helios_datatypes_j.election_of_string Core_datatypes_j.read_number)
+  Lwt_stream.to_list |> Lwt_main.run
+
+let load_election_data raw =
+  let election =
+    Helios_datatypes_j.election_of_string Core_datatypes_j.read_number raw
+  in
+  let fingerprint = hashB raw in
+  let dir = Filename.concat election_library
+    ("{" ^ Uuidm.to_string election.e_uuid ^ "}")
+  in
+  let data x = Filename.concat dir x in
+  let public_data = load_from_file
+    (Helios_datatypes_j.read_election_public_data Core_datatypes_j.read_number)
+    (data "public.json")
+  in
+  let votes =
+    non_empty_lines_of_file (data "votes.json") |>
+    Lwt_main.run |>
+    List.map (Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number) |>
+    List.rev
+  in
+  Helios_services.({ raw; fingerprint; election; votes; public_data })
+
+let elections = List.map load_election_data raw_elections
 
 let get_raw_election_by_uuid x =
-  List.find (fun e -> Uuidm.equal e.e_uuid x) raw_elections
+  let open Helios_services in
+  (List.find (fun e -> Uuidm.equal e.election.e_uuid x) elections).election
 
 let test_uuid =
   match Uuidm.of_string "94c1a03e-1c48-11e2-8866-3cd92b7981b8" with
