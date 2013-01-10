@@ -122,11 +122,15 @@ type 'a partial_decryption = {
 
 (** {1 Compound datastructures} *)
 
-type 'a election_public_data = {
-  public_keys : 'a trustee_public_key list <ocaml repr="array">;
+type 'a result = {
   encrypted_tally : 'a encrypted_tally;
   partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
   result : int list <ocaml repr="array"> list <ocaml repr="array">;
+}
+
+type 'a election_public_data = {
+  public_keys : 'a trustee_public_key list <ocaml repr="array">;
+  ?election_result : 'a result option;
 }
 
 type 'a election_private_data = {

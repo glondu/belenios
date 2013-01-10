@@ -130,6 +130,11 @@ let verbose_verify_election_test_data e =
   let {g; p; q; y} = e.election.e_public_key in
   let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
   let module Crypto = ElGamal.Make (G) in
+  let r =
+    match e.public_data.election_result with
+      | Some r -> r
+      | None -> assert false
+  in
   verbose_assert "election key"
     (lazy (Crypto.verify_election_key
              e.election.e_public_key.y
@@ -139,12 +144,12 @@ let verbose_verify_election_test_data e =
              (fun _ x -> Crypto.verify_vote e.election e.fingerprint x)
              e.votes));
   verbose_assert "encrypted tally"
-    (lazy (e.public_data.encrypted_tally =
+    (lazy (r.encrypted_tally =
         Crypto.compute_encrypted_tally e.election e.votes));
   verbose_assert "partial decryptions"
     (lazy (Crypto.verify_partial_decryptions e.election e.public_data));
   verbose_assert "result"
-    (lazy (Crypto.verify_result e.election e.public_data));
+    (lazy (Crypto.verify_result e.election r));
   verbose_assert "private keys"
     (lazy (array_foralli
              (fun _ k -> Crypto.verify_private_key k)
