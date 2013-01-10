@@ -6,6 +6,10 @@
 #require "yojson";;
 #require "cryptokit";;
 
+#camlp4o;;
+#require "lwt.unix";;
+#require "lwt.syntax";;
+
 #directory "_build/src";;
 #load "lib.cma";;
 

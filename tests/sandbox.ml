@@ -76,46 +76,57 @@ let load_and_check ?(verbose=false) typ fname =
   Sys.remove tempfname;
   thing
 
+let non_empty_lines_of_file fname =
+  Lwt_io.lines_of_file fname |>
+  Lwt_stream.filter (fun s -> s <> "") |>
+  Lwt_stream.to_list |> Lwt_main.run
+
+type 'a raw_data = {
+  dirname : string;
+  raw_elections : string list;
+  raw_votes : 'a vote list;
+}
+
+let load_raw_data dirname =
+  let data x = Filename.concat dirname x in
+  let raw_elections = non_empty_lines_of_file (data "elections.json")
+  and raw_votes =
+    non_empty_lines_of_file (data "votes.json") |>
+    List.map (fun x ->
+      Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number x)
+  in
+  { dirname; raw_elections; raw_votes }
+
 type 'a election_test_data = {
+  raw : string;
   fingerprint : string;
   election : 'a election;
+  votes : 'a vote array;
   public_data : 'a election_public_data;
   private_data : 'a election_private_data;
 }
 
-let first_line filename =
-  let i = open_in filename in
-  let r = input_line i in
-  close_in i;
-  r
-
-let fix_fingerprint x =
-  for i = 0 to String.length x - 1 do
-    if x.[i] = '+' then x.[i] <- ' '
-  done
-
-let load_election_test_data ?(verbose=false) dirname =
-  let data x = Filename.concat dirname x in
-  let raw_json = first_line (data "election.json") in
-  let fingerprint = hashB raw_json in
-  fix_fingerprint fingerprint;
-  let election = load_and_check ~verbose Types.election (data "election.json") in
-  assert (
-    let buf = Lexing.from_string raw_json in
-    let lex = Yojson.init_lexer () in
-    Types.read Types.election lex buf = election
-  );
-  let public_data = load_and_check ~verbose Types.election_public_data (data "public_data.json") in
-  let private_data = load_and_check ~verbose Types.election_private_data (data "private_data.json") in
-  { fingerprint; election; public_data; private_data }
+let load_election_test_data ?(verbose=false) d raw =
+  let election = Helios_datatypes_j.election_of_string Core_datatypes_j.read_number raw in
+  let name = election.e_short_name in
+  let data x = Filename.concat d.dirname (name ^ x)  in
+  let fingerprint = hashB raw in
+  let public_data = load_and_check ~verbose Types.election_public_data (data ".public.json") in
+  let private_data = load_and_check ~verbose Types.election_private_data (data ".private.json") in
+  let votes =
+    d.raw_votes |>
+    List.filter (fun x -> Uuidm.equal x.election_uuid election.e_uuid) |>
+    Array.of_list
+  in
+  { raw; fingerprint; election; votes; public_data; private_data }
 
 let verbose_assert msg it =
-  Printf.eprintf "Verifying %s...%!" msg;
+  Printf.eprintf "   %s...%!" msg;
   let r = Lazy.force it in
   Printf.eprintf " %s\n%!" (if r then "OK" else "failed!")
 
-let load_election_and_verify_it_all dirname =
-  let e = load_election_test_data ~verbose:true dirname in
+let verbose_verify_election_test_data e =
+  Printf.eprintf "Verifying election %S:\n%!" e.election.e_short_name;
   let {g; p; q; y} = e.election.e_public_key in
   let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
   let module Crypto = ElGamal.Make (G) in
@@ -126,10 +137,10 @@ let load_election_and_verify_it_all dirname =
   verbose_assert "votes"
     (lazy (array_foralli
              (fun _ x -> Crypto.verify_vote e.election e.fingerprint x)
-             e.public_data.votes));
+             e.votes));
   verbose_assert "encrypted tally"
     (lazy (e.public_data.encrypted_tally =
-        Crypto.compute_encrypted_tally e.election e.public_data.votes));
+        Crypto.compute_encrypted_tally e.election e.votes));
   verbose_assert "partial decryptions"
     (lazy (Crypto.verify_partial_decryptions e.election e.public_data));
   verbose_assert "result"
@@ -139,4 +150,9 @@ let load_election_and_verify_it_all dirname =
              (fun _ k -> Crypto.verify_private_key k)
              e.private_data.private_keys));;
 
-let () = load_election_and_verify_it_all "tests/data/favorite-editor"
+let load_election_and_verify_it_all dirname =
+  let d = load_raw_data dirname in
+  let elections = List.map (load_election_test_data d) d.raw_elections in
+  List.iter verbose_verify_election_test_data elections;;
+
+let () = load_election_and_verify_it_all "tests/data"
