@@ -81,22 +81,6 @@ let non_empty_lines_of_file fname =
   Lwt_stream.filter (fun s -> s <> "") |>
   Lwt_stream.to_list |> Lwt_main.run
 
-type 'a raw_data = {
-  dirname : string;
-  raw_elections : string list;
-  raw_votes : 'a vote list;
-}
-
-let load_raw_data dirname =
-  let data x = Filename.concat dirname x in
-  let raw_elections = non_empty_lines_of_file (data "elections.json")
-  and raw_votes =
-    non_empty_lines_of_file (data "votes.json") |>
-    List.map (fun x ->
-      Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number x)
-  in
-  { dirname; raw_elections; raw_votes }
-
 type 'a election_test_data = {
   raw : string;
   fingerprint : string;
@@ -106,16 +90,26 @@ type 'a election_test_data = {
   private_data : 'a election_private_data;
 }
 
-let load_election_test_data ?(verbose=false) d raw =
+let enforce_single_element s =
+  let open Lwt_stream in
+  lwt t = next s in
+  lwt b = is_empty s in
+  (assert_lwt b) >>
+  Lwt.return t
+
+let load_election_test_data ?(verbose=false) dir =
+  let data x = Filename.concat dir x in
+  let raw =
+    Lwt_io.lines_of_file (data "election.json") |>
+    enforce_single_element |> Lwt_main.run
+  in
   let election = Helios_datatypes_j.election_of_string Core_datatypes_j.read_number raw in
-  let name = election.e_short_name in
-  let data x = Filename.concat d.dirname (name ^ x)  in
+  let public_data = load_and_check ~verbose Types.election_public_data (data "public.json") in
+  let private_data = load_and_check ~verbose Types.election_private_data (data "private.json") in
   let fingerprint = hashB raw in
-  let public_data = load_and_check ~verbose Types.election_public_data (data ".public.json") in
-  let private_data = load_and_check ~verbose Types.election_private_data (data ".private.json") in
   let votes =
-    d.raw_votes |>
-    List.filter (fun x -> Uuidm.equal x.election_uuid election.e_uuid) |>
+    non_empty_lines_of_file (data "votes.json") |>
+    List.map (Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number) |>
     Array.of_list
   in
   { raw; fingerprint; election; votes; public_data; private_data }
@@ -155,9 +149,16 @@ let verbose_verify_election_test_data e =
              (fun _ k -> Crypto.verify_private_key k)
              e.private_data.private_keys));;
 
+let notdotfiles_of_directory dirname =
+  Lwt_unix.files_of_directory dirname |>
+  Lwt_stream.filter (fun x -> String.length x > 0 && x.[0] <> '.') |>
+  Lwt_stream.map (Filename.concat dirname) |>
+  Lwt_stream.to_list |>
+  Lwt_main.run
+
 let load_election_and_verify_it_all dirname =
-  let d = load_raw_data dirname in
-  let elections = List.map (load_election_test_data d) d.raw_elections in
-  List.iter verbose_verify_election_test_data elections;;
+  notdotfiles_of_directory dirname |>
+  List.map load_election_test_data |>
+  List.iter verbose_verify_election_test_data;;
 
 let () = load_election_and_verify_it_all "tests/data"

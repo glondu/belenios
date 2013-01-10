@@ -30,7 +30,7 @@
         <static dir="_SRCDIR_/helios/static" />
       </site>
       <eliom module="_build/src/server.cma">
-        <elections file="tests/data/elections.json"/>
+        <elections file="_RUNDIR_/lib/elections.json"/>
       </eliom>
     </host>
 

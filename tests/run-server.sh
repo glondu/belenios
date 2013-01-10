@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ ! -d _build ]; then
-  echo "This script should be run from the root of the source tree!"
+  echo "This script should be run from the root of the (built) source tree!"
   exit 1
 fi
 
@@ -19,5 +19,8 @@ sed \
   -e "s@_RUNDIR_@$BELENIOS_RUNDIR@g" \
   -e "s@_SRCDIR_@$PWD@g" \
   tests/ocsigenserver.conf.in > $BELENIOS_RUNDIR/etc/ocsigenserver.conf
+
+{ for u in tests/data/*/election.json; do cat "$u"; echo; done; } \
+  > $BELENIOS_RUNDIR/lib/elections.json
 
 ocsigenserver -c $BELENIOS_RUNDIR/etc/ocsigenserver.conf "$@"
