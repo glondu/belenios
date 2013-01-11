@@ -66,8 +66,18 @@ let uuid = Eliom_parameter.user_type
   Uuidm.to_string
   "uuid"
 
+let election_raw = service
+  ~path:["elections"; ""]
+  ~get_params:uuid
+  ()
+
 let election_view = service
   ~path:["elections"; "view"]
+  ~get_params:uuid
+  ()
+
+let election_vote = service
+  ~path:["elections"; "vote"]
   ~get_params:uuid
   ()
 

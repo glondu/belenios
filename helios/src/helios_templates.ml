@@ -110,7 +110,9 @@ type question = {
 }
 
 type election_extradata = {
+  xelection : Helios_services.election_data;
   election : Z.t Helios_datatypes_t.election;
+  (* FIXME: datatypes should be revisited, election is xelection.election! *)
   election_admin : Helios_services.user;
   election_trustees : string list;
   election_state : [`Finished of question list | `Stopped | `Started];
@@ -232,6 +234,30 @@ let dummy_login ~service =
     ~content:[div [form]]
 
 let election_view ~election =
+  let audit_info = [
+    (* FIXME: unsafe_data *)
+    unsafe_data "<a href=\"#\" onclick=\"$('#auditbody').slideToggle(250);\">Audit Info</a>";
+    div ~a:[
+      a_id "auditbody";
+      a_style "display:none;";
+    ] [
+      br ();
+      pcdata "Election URL:";
+      pre ~a:[a_style "font-size: 1.2em;"] [
+        let service = Eliom_service.preapply Helios_services.election_raw election.election.e_uuid in
+        a ~service [ pcdata (make_string_uri ~absolute:true ~service ()) ] ()
+      ];
+      br ();
+      pcdata "Election Fingerprint:";
+      pre ~a:[a_style "font-size: 1.3em; font-weight: bold;"] [
+        pcdata election.xelection.Helios_services.fingerprint;
+      ];
+      (* FIXME: Ballot Tracking Center *)
+      (* FIXME: Audited Ballots *)
+      (* FIXME: result *)
+      (* FIXME: voting booth *)
+    ]
+  ] in
   let content = [
     div ~a:[a_style "float: left; margin-right: 50px;"] [pcdata "FIXME"];
     br ();
@@ -297,12 +323,32 @@ let election_view ~election =
       )
     | `Stopped ->
       [
-        (* FIXME *)
+        span ~a:[a_class ["highlight-box"; "round"]] [
+          pcdata "Election closed. Tally will be computed soon.";
+        ];
+        br ();
       ]
     | `Started ->
       [
-        (* FIXME *)
+        span ~a:[
+          a_class ["highlight-box"; "round"];
+          a_style "font-size: 1.6em; margin-right: 10px;";
+          a_id "votelink";
+        ] [
+          a ~service:(Eliom_service.preapply Helios_services.election_vote election.election.e_uuid) [
+            pcdata "Vote in this election";
+          ] ()
+        ];
+        br ();
+        (* if election.voting_extended_until ... *)
+        pcdata "This election ends at the administrator's discretion.";
+        br ();
       ]
-  )
-  in
+  ) @ [
+    (* FIXME: privacity, eligibility, etc. *)
+    div ~a:[
+      a_style "background: lightyellow; padding:5px; padding-left: 10px; margin-top: 15px; border: 1px solid #aaa; width: 720px;";
+      a_class ["round"];
+    ] audit_info
+  ] in
   base ~title:election.election.e_name ~header:[] ~content

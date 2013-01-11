@@ -53,7 +53,7 @@ let elections = List.map load_election_data raw_elections
 
 let get_raw_election_by_uuid x =
   let open Helios_services in
-  (List.find (fun e -> Uuidm.equal e.election.e_uuid x) elections).election
+  List.find (fun e -> Uuidm.equal e.election.e_uuid x) elections
 
 let test_uuid =
   match Uuidm.of_string "94c1a03e-1c48-11e2-8866-3cd92b7981b8" with
@@ -97,7 +97,7 @@ let format_election e =
       ) (r.result : int array array) |> (fun x -> `Finished (Array.to_list x))
     | None -> `Started
   in
-  { election; election_admin; election_trustees; election_state }
+  { election; xelection=e; election_admin; election_trustees; election_state }
 
 let elections = List.map format_election elections
 
@@ -161,12 +161,30 @@ let () = Eliom_registration.Redirection.register
     Eliom_state.discard ~scope:Eliom_common.default_session_scope () >>
     return Helios_services.home)
 
+let () = Eliom_registration.String.register
+  ~service:Helios_services.election_raw
+  (fun uuid () ->
+    try_lwt
+      lwt election = get_election_by_uuid uuid in
+      return (election.Helios_templates.xelection.Helios_services.raw, "application/json")
+    with Not_found ->
+      raise_lwt Eliom_common.Eliom_404)
+
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_view
   (fun uuid () ->
     try_lwt
       lwt election = get_election_by_uuid uuid in
       Helios_templates.election_view ~election
+    with Not_found ->
+      raise_lwt Eliom_common.Eliom_404)
+
+let () = Eliom_registration.Html5.register
+  ~service:Helios_services.election_vote
+  (fun uuid () ->
+    try_lwt
+      lwt election = get_election_by_uuid uuid in
+      Helios_templates.not_implemented "Vote"
     with Not_found ->
       raise_lwt Eliom_common.Eliom_404)
 
