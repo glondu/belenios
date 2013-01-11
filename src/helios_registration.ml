@@ -42,10 +42,13 @@ let load_election_data raw =
     (data "public.json")
   in
   let votes =
-    non_empty_lines_of_file (data "votes.json") |>
-    Lwt_main.run |>
-    List.map (Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number) |>
-    List.rev
+    let file = data "votes.json" in
+    if Sys.file_exists file then (
+      non_empty_lines_of_file file |>
+      Lwt_main.run |>
+      List.map (Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number) |>
+      List.rev
+    ) else []
   in
   Helios_services.({ raw; fingerprint; election; votes; public_data })
 

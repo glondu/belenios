@@ -80,3 +80,25 @@ let read_datetime state buf =
 
 let datetime_of_string s =
   datetime_of_json (Yojson.Safe.from_string s)
+
+(** {1 Serializers for type int_or_null} *)
+
+let write_int_or_null buf = function
+  | Some n -> Bi_outbuf.add_string buf (string_of_int n)
+  | None -> Bi_outbuf.add_string buf "null"
+
+let string_of_int_or_null ?(len=4) n =
+  let buf = Bi_outbuf.create len in
+  write_int_or_null buf n;
+  Bi_outbuf.contents buf
+
+let int_or_null_of_json = function
+  | `Int i -> Some i
+  | `Null -> None
+  | _ -> assert false
+
+let read_int_or_null state buf =
+  int_or_null_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
+
+let int_or_null_of_string s =
+  int_or_null_of_json (Yojson.Safe.from_string s)

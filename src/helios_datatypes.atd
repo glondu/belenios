@@ -3,6 +3,7 @@
 type number <ocaml predef from="Core_datatypes"> = abstract
 type uuid <ocaml predef from="Core_datatypes"> = abstract
 type datetime <ocaml predef from="Core_datatypes"> = abstract
+type int_or_null <ocaml predef from="Core_datatypes"> = abstract
 
 (** {1 ElGamal keys} *)
 
@@ -37,7 +38,7 @@ type question = {
   answer_urls : unit list;
   answers : string list <ocaml repr="array">;
   choice_type : choice_type;
-  max : int;
+  max : int_or_null;
   min : int;
   question : string;
   result_type : result_type;

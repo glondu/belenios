@@ -61,9 +61,10 @@ module type ELGAMAL_CRYPTO = sig
   val verify_answer : t -> question -> t answer -> bool
   val verify_vote : t election -> string -> t vote -> bool
   val verify_equality : t -> t -> t -> t proof -> bool
-  val verify_partial_decryption :
-    t election -> t tally -> t trustee_public_key -> t partial_decryption -> bool
-  val verify_partial_decryptions : t election -> t election_public_data -> bool
+  val verify_partial_decryption : t election ->
+    t tally -> t trustee_public_key -> t partial_decryption -> bool
+  val verify_partial_decryptions : t election ->
+    t trustee_public_key array -> t result -> bool
   val verify_result : t election -> t result -> bool
   val compute_encrypted_tally : t election -> t vote array -> t encrypted_tally
 end
@@ -124,6 +125,11 @@ module Make (G : GROUP) = struct
 
   let verify_answer y question answer =
     let {q_max; q_min; q_answers; _} = question in
+    let q_max =
+      match q_max with
+        | Some q -> q
+        | None -> assert false (* FIXME *)
+    in
     let nb = Array.length q_answers in
     Array.length answer.choices = nb &&
     Array.length answer.individual_proofs = nb &&
@@ -163,14 +169,10 @@ module Make (G : GROUP) = struct
       ) question.q_answers
     ) election.e_questions
 
-  let verify_partial_decryptions election public_data =
-    (* FIXME: move this match elsewhere *)
-    match public_data.election_result with
-      | Some r ->
-        Array.forall2 (verify_partial_decryption election r.encrypted_tally.tally)
-          public_data.public_keys
-          r.partial_decryptions
-      | None -> false
+  let verify_partial_decryptions election public_keys r =
+    Array.forall2 (verify_partial_decryption election r.encrypted_tally.tally)
+      public_keys
+      r.partial_decryptions
 
   let verify_result election public_data =
     let pds = public_data.partial_decryptions in

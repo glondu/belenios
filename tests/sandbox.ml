@@ -69,7 +69,7 @@ type 'a election_test_data = {
   raw : string;
   fingerprint : string;
   election : 'a election;
-  votes : 'a vote array;
+  votes : 'a vote array option;
   public_data : 'a election_public_data;
   private_data : 'a election_private_data;
 }
@@ -92,10 +92,13 @@ let load_election_test_data ?(verbose=false) dir =
   let private_data = load_and_check ~verbose Types.election_private_data (data "private.json") in
   let fingerprint = hashB raw in
   let votes =
-    non_empty_lines_of_file (data "votes.json") |>
-    Lwt_main.run |>
-    List.map (Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number) |>
-    Array.of_list
+    let file = data "votes.json" in
+    if Sys.file_exists file then Some (
+      non_empty_lines_of_file file |>
+      Lwt_main.run |>
+      List.map (Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number) |>
+      Array.of_list
+    ) else None
   in
   { raw; fingerprint; election; votes; public_data; private_data }
 
@@ -109,30 +112,41 @@ let verbose_verify_election_test_data e =
   let {g; p; q; y} = e.election.e_public_key in
   let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
   let module Crypto = ElGamal.Make (G) in
-  let r =
-    match e.public_data.election_result with
-      | Some r -> r
-      | None -> assert false
-  in
-  verbose_assert "election key"
-    (lazy (Crypto.verify_election_key
-             e.election.e_public_key.y
-             e.public_data.public_keys));
-  verbose_assert "votes"
-    (lazy (Array.foralli
-             (fun _ x -> Crypto.verify_vote e.election e.fingerprint x)
-             e.votes));
-  verbose_assert "encrypted tally"
-    (lazy (r.encrypted_tally =
-        Crypto.compute_encrypted_tally e.election e.votes));
-  verbose_assert "partial decryptions"
-    (lazy (Crypto.verify_partial_decryptions e.election e.public_data));
-  verbose_assert "result"
-    (lazy (Crypto.verify_result e.election r));
-  verbose_assert "private keys"
-    (lazy (Array.foralli
-             (fun _ k -> Crypto.verify_private_key k)
-             e.private_data.private_keys));;
+  verbose_assert "election key" (lazy (
+    Crypto.verify_election_key
+      e.election.e_public_key.y
+      e.public_data.public_keys
+  ));
+  (match e.votes with
+    | Some votes ->
+      verbose_assert "votes" (lazy (
+        Array.foralli
+          (fun _ x -> Crypto.verify_vote e.election e.fingerprint x)
+          votes
+      ));
+      (match e.public_data.election_result with
+        | Some r ->
+          verbose_assert "encrypted tally" (lazy (
+            r.encrypted_tally = Crypto.compute_encrypted_tally e.election votes
+          ))
+        | None -> ()
+      );
+    | None -> Printf.eprintf "   no votes available\n%!"
+  );
+  (match e.public_data.election_result with
+    | Some r ->
+      verbose_assert "partial decryptions" (lazy (
+        Crypto.verify_partial_decryptions
+          e.election e.public_data.public_keys r
+      ));
+      verbose_assert "result" (lazy (Crypto.verify_result e.election r));
+    | None -> Printf.eprintf "   no results available\n%!"
+  );
+  verbose_assert "private keys" (lazy (
+    Array.foralli
+      (fun _ k -> Crypto.verify_private_key k)
+      e.private_data.private_keys
+  ));;
 
 let notdotfiles_of_directory dirname =
   Lwt_unix.files_of_directory dirname |>
