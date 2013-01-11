@@ -76,6 +76,10 @@ let election_view = service
   ~get_params:uuid
   ()
 
+let election_booth = static_dir_with_params
+  ~get_params:(string "election_url")
+  ()
+
 let election_vote = service
   ~path:["elections"; "vote"]
   ~get_params:uuid

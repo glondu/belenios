@@ -179,12 +179,15 @@ let () = Eliom_registration.Html5.register
     with Not_found ->
       raise_lwt Eliom_common.Eliom_404)
 
-let () = Eliom_registration.Html5.register
+let () = Eliom_registration.Redirection.register
   ~service:Helios_services.election_vote
   (fun uuid () ->
     try_lwt
       lwt election = get_election_by_uuid uuid in
-      Helios_templates.not_implemented "Vote"
+      let service = Eliom_service.preapply Helios_services.election_raw uuid in
+      return (Eliom_service.preapply Helios_services.election_booth
+                (["booth"; "vote.html"],
+                 Eliom_uri.make_string_uri ~absolute_path:true ~service ()))
     with Not_found ->
       raise_lwt Eliom_common.Eliom_404)
 
