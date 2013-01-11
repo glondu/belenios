@@ -80,6 +80,13 @@ let election_booth = static_dir_with_params
   ~get_params:(string "election_url")
   ()
 
+let make_booth uuid =
+  let service = Eliom_service.preapply election_raw uuid in
+  Eliom_service.preapply election_booth (
+    ["booth"; "vote.html"],
+    Eliom_uri.make_string_uri ~absolute_path:true ~service ()
+  )
+
 let election_vote = service
   ~path:["elections"; "vote"]
   ~get_params:uuid

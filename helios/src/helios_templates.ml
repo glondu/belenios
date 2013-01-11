@@ -234,6 +234,8 @@ let dummy_login ~service =
     ~content:[div [form]]
 
 let election_view ~election =
+  let service = Eliom_service.preapply Helios_services.election_raw election.election.e_uuid in
+  let booth = Helios_services.make_booth election.election.e_uuid in
   let audit_info = [
     (* FIXME: unsafe_data *)
     unsafe_data "<a href=\"#\" onclick=\"$('#auditbody').slideToggle(250);\">Audit Info</a>";
@@ -243,19 +245,27 @@ let election_view ~election =
     ] [
       br ();
       pcdata "Election URL:";
-      pre ~a:[a_style "font-size: 1.2em;"] [
-        let service = Eliom_service.preapply Helios_services.election_raw election.election.e_uuid in
+      br ();
+      code ~a:[a_style "font-size: 1.2em;"] [
         a ~service [ pcdata (make_string_uri ~absolute:true ~service ()) ] ()
       ];
       br ();
+      br ();
       pcdata "Election Fingerprint:";
-      pre ~a:[a_style "font-size: 1.3em; font-weight: bold;"] [
+      br ();
+      code ~a:[a_style "font-size: 1.3em; font-weight: bold;"] [
         pcdata election.xelection.Helios_services.fingerprint;
       ];
+      br ();
+      br ();
       (* FIXME: Ballot Tracking Center *)
       (* FIXME: Audited Ballots *)
       (* FIXME: result *)
-      (* FIXME: voting booth *)
+      p ~a:[a_style "font-size: 1.2em;"] [
+        pcdata "Review the ";
+        a ~service:booth [ pcdata "voting booth" ] ();
+        pcdata ".";
+      ];
     ]
   ] in
   let content = [
