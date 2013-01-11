@@ -350,6 +350,7 @@ let election_view ~election =
           ] ()
         ];
         br ();
+        br ();
         (* if election.voting_extended_until ... *)
         pcdata "This election ends at the administrator's discretion.";
         br ();

@@ -68,7 +68,11 @@ let format_election e =
     user_name = "admin";
     user_type = "dummy";
   } in
-  let election_trustees = [] in
+  let election_trustees =
+    e.public_data.public_keys |>
+    Array.map (fun k -> k.trustee_public_key.y |> Z.to_string |> hashB) |>
+    Array.to_list
+  in
   let election_state = match e.public_data.election_result with
     | Some r ->
       Array.mapi (fun i q ->
