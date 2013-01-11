@@ -119,7 +119,7 @@ let verbose_verify_election_test_data e =
              e.election.e_public_key.y
              e.public_data.public_keys));
   verbose_assert "votes"
-    (lazy (array_foralli
+    (lazy (Array.foralli
              (fun _ x -> Crypto.verify_vote e.election e.fingerprint x)
              e.votes));
   verbose_assert "encrypted tally"
@@ -130,7 +130,7 @@ let verbose_verify_election_test_data e =
   verbose_assert "result"
     (lazy (Crypto.verify_result e.election r));
   verbose_assert "private keys"
-    (lazy (array_foralli
+    (lazy (Array.foralli
              (fun _ k -> Crypto.verify_private_key k)
              e.private_data.private_keys));;
 

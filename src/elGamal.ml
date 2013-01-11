@@ -141,7 +141,7 @@ module Make (G : GROUP) = struct
   let verify_vote e fingerprint v =
     v.election_hash = fingerprint &&
     e.e_uuid = v.election_uuid &&
-    array_forall2 (verify_answer e.e_public_key.y) e.e_questions v.answers
+    Array.forall2 (verify_answer e.e_public_key.y) e.e_questions v.answers
 
   let verify_equality h g' h' proof =
     (* NB: similar to disjunctive, but with different challenge
@@ -156,9 +156,9 @@ module Make (G : GROUP) = struct
   let verify_partial_decryption election tally tpk pds =
     let y = tpk.trustee_public_key.y in
     let {decryption_factors = dfs; decryption_proofs = dps} = pds in
-    array_foralli (fun i question ->
+    Array.foralli (fun i question ->
       let dfs_i = dfs.(i) and dps_i = dps.(i) and tally_i = tally.(i) in
-      array_foralli (fun j answer ->
+      Array.foralli (fun j answer ->
         verify_equality tally_i.(j).alpha y dfs_i.(j) dps_i.(j)
       ) question.q_answers
     ) election.e_questions
@@ -167,7 +167,7 @@ module Make (G : GROUP) = struct
     (* FIXME: move this match elsewhere *)
     match public_data.election_result with
       | Some r ->
-        array_forall2 (verify_partial_decryption election r.encrypted_tally.tally)
+        Array.forall2 (verify_partial_decryption election r.encrypted_tally.tally)
           public_data.public_keys
           r.partial_decryptions
       | None -> false
@@ -176,8 +176,8 @@ module Make (G : GROUP) = struct
     let pds = public_data.partial_decryptions in
     let tally = public_data.encrypted_tally.tally in
     let result = public_data.result in
-    array_foralli (fun i question ->
-      array_foralli (fun j answer ->
+    Array.foralli (fun i question ->
+      Array.foralli (fun j answer ->
         let combined_factor = Array.fold_left (fun accu f ->
           accu *~ f.decryption_factors.(i).(j)
         ) one pds in

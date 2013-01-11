@@ -1,19 +1,33 @@
 let ( |> ) x f = f x
 let ( =% ) = Z.equal
 
-let array_forall2 f a b =
-  let n = Array.length a in
-  n = Array.length b &&
-  (let rec check i =
-     if i >= 0 then f a.(i) b.(i) && check (pred i)
-     else true
-   in check (pred n))
+module Array = struct
+  include Array
 
-let array_foralli f x =
-  let rec loop i =
-    if i >= 0 then f i x.(i) && loop (pred i)
-    else true
-  in loop (pred (Array.length x))
+  let forall2 f a b =
+    let n = Array.length a in
+    n = Array.length b &&
+    (let rec check i =
+       if i >= 0 then f a.(i) b.(i) && check (pred i)
+       else true
+     in check (pred n))
+
+  let foralli f x =
+    let rec loop i =
+      if i >= 0 then f i x.(i) && loop (pred i)
+      else true
+    in loop (pred (Array.length x))
+end
+
+module List = struct
+  include List
+
+  let iteri f xs =
+    let rec loop i = function
+      | [] -> []
+      | x :: xs -> f i x :: loop (succ i) xs
+    in List.flatten (loop 0 xs)
+end
 
 let hashB x = Cryptokit.(x |>
   hash_string (Hash.sha256 ()) |>

@@ -1,8 +1,16 @@
 val ( |> ) : 'a -> ('a -> 'b) -> 'b
 val ( =% ) : Z.t -> Z.t -> bool
 
-val array_forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
-val array_foralli : (int -> 'a -> bool) -> 'a array -> bool
+module List : sig
+  include module type of List
+  val iteri : (int -> 'a -> 'b list) -> 'a list -> 'b list
+end
+
+module Array : sig
+  include module type of Array
+  val forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
+  val foralli : (int -> 'a -> bool) -> 'a array -> bool
+end
 
 val hashB : string -> string
 

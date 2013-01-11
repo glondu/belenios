@@ -1,3 +1,4 @@
+open StdExtra
 open Helios_datatypes_t
 open Eliom_content.Html5.F
 
@@ -230,12 +231,6 @@ let dummy_login ~service =
     ~header:[h2 [pcdata title]]
     ~content:[div [form]]
 
-let list_iteri f xs =
-  let rec loop i = function
-    | [] -> []
-    | x :: xs -> f i x :: loop (succ i) xs
-  in List.flatten (loop 0 xs)
-
 let election_view ~election =
   let content = [
     div ~a:[a_style "float: left; margin-right: 50px;"] [pcdata "FIXME"];
@@ -274,7 +269,7 @@ let election_view ~election =
         br ();
         h3 ~a:[a_class ["highlight-box"]] [pcdata "Tally"];
       ] @ (
-        list_iteri (fun i question ->
+        List.iteri (fun i question ->
           [
             b [
               span ~a:[a_style "font-size:0.8em;"] [
