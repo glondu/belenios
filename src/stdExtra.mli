@@ -12,6 +12,11 @@ module Array : sig
   val foralli : (int -> 'a -> bool) -> 'a array -> bool
 end
 
+module String : sig
+  include module type of String
+  val map : (char -> char) -> string -> string
+end
+
 val hashB : string -> string
 
 val load_from_file : (Yojson.lexer_state -> Lexing.lexbuf -> 'a) -> string -> 'a

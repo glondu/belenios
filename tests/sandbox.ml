@@ -1,5 +1,6 @@
 open StdExtra
 open Helios_datatypes_t
+open Common
 
 module type TYPES = sig
   type elt
@@ -65,49 +66,16 @@ let load_and_check ?(verbose=false) typ fname =
   Sys.remove tempfname;
   thing
 
-type 'a election_test_data = {
-  raw : string;
-  fingerprint : string;
-  election : 'a election;
-  votes : 'a vote array option;
-  public_data : 'a election_public_data;
-  private_data : 'a election_private_data;
-}
-
-let enforce_single_element s =
-  let open Lwt_stream in
-  lwt t = next s in
-  lwt b = is_empty s in
-  (assert_lwt b) >>
-  Lwt.return t
-
-let load_election_test_data ?(verbose=false) dir =
-  let data x = Filename.concat dir x in
-  let raw =
-    Lwt_io.lines_of_file (data "election.json") |>
-    enforce_single_element |> Lwt_main.run
-  in
-  let election = Helios_datatypes_j.election_of_string Core_datatypes_j.read_number raw in
-  let public_data = load_and_check ~verbose Types.election_public_data (data "public.json") in
-  let private_data = load_and_check ~verbose Types.election_private_data (data "private.json") in
-  let fingerprint = hashB raw in
-  let votes =
-    let file = data "votes.json" in
-    if Sys.file_exists file then Some (
-      non_empty_lines_of_file file |>
-      Lwt_main.run |>
-      List.map (Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number) |>
-      Array.of_list
-    ) else None
-  in
-  { raw; fingerprint; election; votes; public_data; private_data }
+let load_election_private_data ?(verbose=false) dir uuid =
+  Printf.ksprintf (Filename.concat dir) "{%s}/private.json" uuid |>
+  load_and_check ~verbose Types.election_private_data
 
 let verbose_assert msg it =
   Printf.eprintf "   %s...%!" msg;
   let r = Lazy.force it in
   Printf.eprintf " %s\n%!" (if r then "OK" else "failed!")
 
-let verbose_verify_election_test_data e =
+let verbose_verify_election_test_data (e, votes, private_data) =
   Printf.eprintf "Verifying election %S:\n%!" e.election.e_short_name;
   let {g; p; q; y} = e.election.e_public_key in
   let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
@@ -117,21 +85,21 @@ let verbose_verify_election_test_data e =
       e.election.e_public_key.y
       e.public_data.public_keys
   ));
-  (match e.votes with
-    | Some votes ->
-      verbose_assert "votes" (lazy (
-        Array.foralli
-          (fun _ x -> Crypto.verify_vote e.election e.fingerprint x)
-          votes
-      ));
-      (match e.public_data.election_result with
-        | Some r ->
-          verbose_assert "encrypted tally" (lazy (
-            r.encrypted_tally = Crypto.compute_encrypted_tally e.election votes
-          ))
-        | None -> ()
-      );
-    | None -> Printf.eprintf "   no votes available\n%!"
+  if Array.length votes = 0 then (
+    Printf.eprintf "   no votes available\n%!"
+  ) else (
+    verbose_assert "votes" (lazy (
+      Array.foralli (fun _ x ->
+        Crypto.verify_vote e.election e.fingerprint x
+      ) votes
+    ));
+    (match e.public_data.election_result with
+      | Some r ->
+        verbose_assert "encrypted tally" (lazy (
+          r.encrypted_tally = Crypto.compute_encrypted_tally e.election votes
+        ))
+      | None -> ()
+    );
   );
   (match e.public_data.election_result with
     | Some r ->
@@ -145,19 +113,17 @@ let verbose_verify_election_test_data e =
   verbose_assert "private keys" (lazy (
     Array.foralli
       (fun _ k -> Crypto.verify_private_key k)
-      e.private_data.private_keys
+      private_data.private_keys
   ));;
 
-let notdotfiles_of_directory dirname =
-  Lwt_unix.files_of_directory dirname |>
-  Lwt_stream.filter (fun x -> String.length x > 0 && x.[0] <> '.') |>
-  Lwt_stream.map (Filename.concat dirname) |>
-  Lwt_stream.to_list |>
-  Lwt_main.run
-
 let load_election_and_verify_it_all dirname =
-  notdotfiles_of_directory dirname |>
-  List.map load_election_test_data |>
+  load_elections_and_votes dirname |>
+  Lwt_stream.to_list |> Lwt_main.run |>
+  List.map (fun (e, v) ->
+    let votes = Lwt_stream.to_list v |> Lwt_main.run |> Array.of_list in
+    let private_data = load_election_private_data dirname (Uuidm.to_string e.election.e_uuid) in
+    (e, votes, private_data)
+  ) |>
   List.iter verbose_verify_election_test_data;;
 
 let () = load_election_and_verify_it_all "tests/data"

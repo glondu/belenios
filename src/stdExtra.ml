@@ -29,6 +29,16 @@ module List = struct
     in List.flatten (loop 0 xs)
 end
 
+module String = struct
+  include String
+
+  let map f s =
+    let n = String.length s in
+    let res = String.create n in
+    for i = 0 to n-1 do res.[i] <- f s.[i] done;
+    res
+end
+
 let hashB x = Cryptokit.(x |>
   hash_string (Hash.sha256 ()) |>
   transform_string (Base64.encode_compact ())

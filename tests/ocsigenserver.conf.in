@@ -33,7 +33,7 @@
         <static dir="_SRCDIR_/helios/booth" />
       </site>
       <eliom module="_build/src/server.cma">
-        <elections index="_RUNDIR_/lib/elections.json" library="tests/data"/>
+        <load dir="tests/data"/>
       </eliom>
     </host>
 

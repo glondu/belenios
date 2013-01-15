@@ -2,81 +2,22 @@ open StdExtra
 open Helios_datatypes_t
 open Lwt
 
-let election_index, election_library =
-  let index = ref None in
-  let library = ref None in
-  let open Ocsigen_extensions.Configuration in
-  Eliom_config.parse_config [
-    element
-      ~name:"elections"
-      ~obligatory:true
-      ~attributes:[
-        attribute ~name:"index" ~obligatory:true (fun s -> index := Some s);
-        attribute ~name:"library" ~obligatory:true (fun s -> library := Some s);
-      ]
-      ()
-  ];
-  match !index, !library with
-    | Some i, Some l -> i, l
-    | _ -> raise (Ocsigen_extensions.Error_in_config_file
-                       "could not find index or library in configuration file")
-
-let raw_elections =
-  Ocsigen_messages.debug
-    (fun () -> "Loading elections from " ^ election_index ^ "...");
-  Lwt_io.lines_of_file election_index |>
-  Lwt_stream.filter (fun s -> s <> "") |>
-  Lwt_stream.to_list |> Lwt_main.run
-
-let load_election_data raw =
-  let election =
-    Helios_datatypes_j.election_of_string Core_datatypes_j.read_number raw
-  in
-  let fingerprint = hashB raw in
-  let dir = Filename.concat election_library
-    ("{" ^ Uuidm.to_string election.e_uuid ^ "}")
-  in
-  let data x = Filename.concat dir x in
-  let public_data = load_from_file
-    (Helios_datatypes_j.read_election_public_data Core_datatypes_j.read_number)
-    (data "public.json")
-  in
-  let votes =
-    let file = data "votes.json" in
-    if Sys.file_exists file then (
-      non_empty_lines_of_file file |>
-      Lwt_main.run |>
-      List.map (Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number) |>
-      List.rev
-    ) else []
-  in
-  Helios_services.({ raw; fingerprint; election; votes; public_data })
-
-let elections = List.map load_election_data raw_elections
-
-let get_raw_election_by_uuid x =
-  let open Helios_services in
-  List.find (fun e -> Uuidm.equal e.election.e_uuid x) elections
-
-let test_uuid =
-  match Uuidm.of_string "94c1a03e-1c48-11e2-8866-3cd92b7981b8" with
-    | Some u -> u
-    | None -> assert false
+let elections_table = Ocsipersist.open_table "elections"
 
 let format_election e =
   let open Helios_services in
   let open Helios_templates in
-  let election = e.Helios_services.election in
+  let election = e.Common.election in
   let election_admin = {
     user_name = "admin";
     user_type = "dummy";
   } in
   let election_trustees =
-    e.public_data.public_keys |>
+    e.Common.public_data.public_keys |>
     Array.map (fun k -> k.trustee_public_key.y |> Z.to_string |> hashB) |>
     Array.to_list
   in
-  let election_state = match e.public_data.election_result with
+  let election_state = match e.Common.public_data.election_result with
     | Some r ->
       Array.mapi (fun i q ->
         let q' = election.e_questions.(i) in
@@ -106,18 +47,42 @@ let format_election e =
   in
   { election; xelection=e; election_admin; election_trustees; election_state }
 
-let elections = List.map format_election elections
-
-let get_featured_elections () =
-  return elections
-
-let get_election_by_name x =
-  let open Helios_templates in
-  wrap2 List.find (fun e -> e.election.e_short_name = x) elections
+let () =
+  let dir = ref None in
+  let open Ocsigen_extensions.Configuration in
+  Eliom_config.parse_config [
+    element
+      ~name:"load"
+      ~obligatory:false
+      ~attributes:[
+        attribute ~name:"dir" ~obligatory:true (fun s -> dir := Some s);
+      ]
+      ()
+  ];
+  match !dir with
+    | Some dir ->
+      Ocsigen_messages.debug
+        (fun () -> "Loading elections from " ^ dir ^ "...");
+      Common.load_elections_and_votes dir |>
+      Lwt_stream.iter_s (fun (e, votes) ->
+        let uuid = Uuidm.to_string e.Common.election.e_uuid in
+        Ocsigen_messages.debug
+          (fun () -> Printf.sprintf "-- loading %s (%s)" uuid e.Common.election.e_short_name);
+        lwt () = Ocsipersist.add elections_table uuid (format_election e) in
+        let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
+        let table = Ocsipersist.open_table ("votes_" ^ uuid_underscored) in
+        Lwt_stream.iter_s (fun v ->
+          Ocsipersist.add table (Common.hash_vote v) v
+        ) votes
+      ) |>
+      Lwt_main.run
+    | None -> ()
 
 let get_election_by_uuid x =
-  let open Helios_templates in
-  wrap2 List.find (fun e -> Uuidm.equal e.election.e_uuid x) elections
+  Ocsipersist.find elections_table (Uuidm.to_string x)
+
+let get_featured_elections () =
+  Ocsipersist.fold_step (fun uuid e res -> return (e :: res)) elections_table []
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.home
@@ -134,17 +99,6 @@ let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_new
   (fun () () ->
     Helios_templates.not_implemented "Create election")
-
-let () = Eliom_registration.Redirection.register
-  ~service:Helios_services.election_shortcut
-  (fun name () ->
-    try_lwt
-      lwt e = get_election_by_name name in
-      return (Eliom_service.preapply
-                Helios_services.election_view
-                e.Helios_templates.election.e_uuid)
-    with Not_found ->
-      raise_lwt Eliom_common.Eliom_404)
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.login
@@ -173,7 +127,7 @@ let () = Eliom_registration.String.register
   (fun uuid () ->
     try_lwt
       lwt election = get_election_by_uuid uuid in
-      return (election.Helios_templates.xelection.Helios_services.raw, "application/json")
+      return (election.Helios_templates.xelection.Common.raw, "application/json")
     with Not_found ->
       raise_lwt Eliom_common.Eliom_404)
 

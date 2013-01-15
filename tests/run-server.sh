@@ -20,7 +20,4 @@ sed \
   -e "s@_SRCDIR_@$PWD@g" \
   tests/ocsigenserver.conf.in > $BELENIOS_RUNDIR/etc/ocsigenserver.conf
 
-{ for u in tests/data/*/election.json; do cat "$u"; echo; done; } \
-  > $BELENIOS_RUNDIR/lib/elections.json
-
 ocsigenserver -c $BELENIOS_RUNDIR/etc/ocsigenserver.conf "$@"

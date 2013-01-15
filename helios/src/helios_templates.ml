@@ -110,7 +110,7 @@ type question = {
 }
 
 type election_extradata = {
-  xelection : Helios_services.election_data;
+  xelection : Common.election_data;
   election : Z.t Helios_datatypes_t.election;
   (* FIXME: datatypes should be revisited, election is xelection.election! *)
   election_admin : Helios_services.user;
@@ -126,8 +126,8 @@ let format_one_featured_election e =
     div ~a:[a_class ["highlight-box-margin"]] ([
       a
         ~service:(Eliom_service.preapply
-                    Helios_services.election_shortcut
-                    e.election.e_short_name)
+                    Helios_services.election_view
+                    e.election.e_uuid)
         ~a:[a_style "font-size: 1.4em;"]
         [pcdata e.election.e_name] ();
       pcdata " by ";
@@ -254,7 +254,7 @@ let election_view ~election =
       pcdata "Election Fingerprint:";
       br ();
       code ~a:[a_style "font-size: 1.3em; font-weight: bold;"] [
-        pcdata election.xelection.Helios_services.fingerprint;
+        pcdata election.xelection.Common.fingerprint;
       ];
       br ();
       br ();
