@@ -2,6 +2,10 @@ open StdExtra
 open Helios_datatypes_t
 open Lwt
 
+(* The following should be in configuration file... but
+   <maxrequestbodysize> doesn't work *)
+let () = Ocsigen_config.set_maxrequestbodysizeinmemory 32768
+
 let elections_table = Ocsipersist.open_table "elections"
 
 let format_election e =
@@ -147,6 +151,18 @@ let () = Eliom_registration.Redirection.register
       return (Helios_services.make_booth uuid)
     with Not_found ->
       raise_lwt Eliom_common.Eliom_404)
+
+let () = Eliom_registration.Redirection.register
+  ~service:Helios_services.election_cast
+  (fun uuid () ->
+      return (Eliom_service.preapply
+                Helios_services.election_view
+                uuid))
+
+let () = Eliom_registration.Html5.register
+  ~service:Helios_services.election_cast_post
+  (fun uuid (euuid, (ehash, evote)) ->
+    Helios_templates.not_implemented "Cast")
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_questions

@@ -87,6 +87,19 @@ let election_vote = service
   ~get_params:uuid
   ()
 
+let election_cast = service
+  ~path:["election"; "cast"]
+  ~get_params:uuid
+  ()
+
+let election_cast_post = post_service
+  ~fallback:election_cast
+  ~post_params:(
+    string "election_uuid" **
+    string "election_hash" **
+    string "encrypted_vote"
+  ) ()
+
 let election_questions = service
   ~path:["election"; "questions"]
   ~get_params:uuid
