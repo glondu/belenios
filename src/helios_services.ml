@@ -14,12 +14,12 @@ let home = service
   ()
 
 let elections_administered = service
-  ~path:["elections"; "administered"]
+  ~path:["election"; "administered"]
   ~get_params:unit
   ()
 
 let election_new = service
-  ~path:["elections"; "new"]
+  ~path:["election"; "new"]
   ~get_params:unit
   ()
 
@@ -62,12 +62,12 @@ let uuid = Eliom_parameter.user_type
   "uuid"
 
 let election_raw = service
-  ~path:["elections"; ""]
+  ~path:["election"; ""]
   ~get_params:uuid
   ()
 
 let election_view = service
-  ~path:["elections"; "view"]
+  ~path:["election"; "view"]
   ~get_params:uuid
   ()
 
@@ -83,21 +83,21 @@ let make_booth uuid =
   )
 
 let election_vote = service
-  ~path:["elections"; "vote"]
+  ~path:["election"; "vote"]
   ~get_params:uuid
   ()
 
 let election_questions = service
-  ~path:["elections"; "questions"]
+  ~path:["election"; "questions"]
   ~get_params:uuid
   ()
 
 let election_voters = service
-  ~path:["elections"; "voters"]
+  ~path:["election"; "voters"]
   ~get_params:uuid
   ()
 
 let election_trustees = service
-  ~path:["elections"; "trustees"]
+  ~path:["election"; "trustees"]
   ~get_params:uuid
   ()
