@@ -135,6 +135,16 @@ let () = Eliom_registration.String.register
     with Not_found ->
       raise_lwt Eliom_common.Eliom_404)
 
+let () = Eliom_registration.String.register
+  ~service:Helios_services.get_randomness
+  (fun () () ->
+    (* FIXME: DoS/entropy exhaustion vulnerability *)
+    Lwt_preemptive.detach (fun () -> Cryptokit.Random.(string secure_rng 32)) () >>=
+    wrap1 Cryptokit.(transform_string (Base64.encode_compact ())) >>=
+    (fun x -> return (Helios_datatypes_j.string_of_randomness { randomness=x })) >>=
+    (fun x -> return (x, "application/json"))
+  )
+
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_view
   (fun uuid () ->

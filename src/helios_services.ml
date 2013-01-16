@@ -109,3 +109,8 @@ let election_trustees = service
   ~path:["election"; "trustees"]
   ~get_params:uuid
   ()
+
+let get_randomness = service
+  ~path:["get-randomness"]
+  ~get_params:unit
+  ()
