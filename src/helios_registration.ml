@@ -79,7 +79,10 @@ let () =
     | None -> ()
 
 let get_election_by_uuid x =
-  Ocsipersist.find elections_table (Uuidm.to_string x)
+  try_lwt
+    Ocsipersist.find elections_table (Uuidm.to_string x)
+  with Not_found ->
+    raise_lwt Eliom_common.Eliom_404
 
 let get_featured_elections () =
   (* FIXME: doesn't scale when there are a lot of unfeatured elections *)
