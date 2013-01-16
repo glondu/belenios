@@ -121,6 +121,13 @@ type 'a partial_decryption = {
   decryption_proofs : 'a proof list <ocaml repr="array"> list <ocaml repr="array">;
 }
 
+(** {1 Other basic datastructures} *)
+
+type user = {
+  user_name <json name="name"> : string;
+  user_type <json name="type"> : string;
+}
+
 (** {1 Compound datastructures} *)
 
 type 'a result = {
@@ -132,6 +139,7 @@ type 'a result = {
 type 'a election_public_data = {
   public_keys : 'a trustee_public_key list <ocaml repr="array">;
   ?election_result : 'a result option;
+  admin : user;
 }
 
 type 'a election_private_data = {

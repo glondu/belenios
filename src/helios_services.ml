@@ -45,11 +45,6 @@ let auth_systems = [
   "dummy";
 ]
 
-type user = {
-  user_name : string;
-  user_type : string;
-}
-
 let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
   (None : (bool * user) option)

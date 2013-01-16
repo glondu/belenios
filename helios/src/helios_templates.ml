@@ -113,7 +113,6 @@ type election_extradata = {
   xelection : Common.election_data;
   election : Z.t Helios_datatypes_t.election;
   (* FIXME: datatypes should be revisited, election is xelection.election! *)
-  election_admin : Helios_services.user;
   election_trustees : string list;
   election_state : [`Finished of question list | `Stopped | `Started];
 }
@@ -131,7 +130,7 @@ let format_one_featured_election e =
         ~a:[a_style "font-size: 1.4em;"]
         [pcdata e.election.e_name] ();
       pcdata " by ";
-    ] @ format_user e.election_admin 15 @ [
+    ] @ format_user e.xelection.Common.public_data.admin 15 @ [
       br ();
       pcdata e.election.e_description;
     ]);

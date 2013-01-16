@@ -12,10 +12,6 @@ let format_election e =
   let open Helios_services in
   let open Helios_templates in
   let election = e.Common.election in
-  let election_admin = {
-    user_name = "admin";
-    user_type = "dummy";
-  } in
   let election_trustees =
     e.Common.public_data.public_keys |>
     Array.map (fun k -> k.trustee_public_key.y |> Z.to_string |> hashB) |>
@@ -49,7 +45,7 @@ let format_election e =
       ) (r.result : int array array) |> (fun x -> `Finished (Array.to_list x))
     | None -> `Started
   in
-  { election; xelection=e; election_admin; election_trustees; election_state }
+  { election; xelection=e; election_trustees; election_state }
 
 let () =
   let dir = ref None in
@@ -115,7 +111,7 @@ let () = Eliom_registration.Html5.register
       (fun () (user_name, admin_p) ->
         let user_type = "dummy" in
         Eliom_reference.set Helios_services.user
-          (Some (admin_p, Helios_services.({user_name; user_type}))) >>
+          (Some (admin_p, {user_name; user_type})) >>
         return Helios_services.home)
     in
     Helios_templates.dummy_login ~service)
