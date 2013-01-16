@@ -173,18 +173,3 @@ let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_cast_post
   (fun uuid (euuid, (ehash, evote)) ->
     Helios_templates.not_implemented "Cast")
-
-let () = Eliom_registration.Html5.register
-  ~service:Helios_services.election_questions
-  (fun uuid () ->
-    Helios_templates.not_implemented "Questions")
-
-let () = Eliom_registration.Html5.register
-  ~service:Helios_services.election_voters
-  (fun uuid () ->
-    Helios_templates.not_implemented "Voters")
-
-let () = Eliom_registration.Html5.register
-  ~service:Helios_services.election_trustees
-  (fun uuid () ->
-    Helios_templates.not_implemented "Trustees")

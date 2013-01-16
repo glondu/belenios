@@ -95,21 +95,6 @@ let election_cast_post = post_service
     string "encrypted_vote"
   ) ()
 
-let election_questions = service
-  ~path:["election"; "questions"]
-  ~get_params:uuid
-  ()
-
-let election_voters = service
-  ~path:["election"; "voters"]
-  ~get_params:uuid
-  ()
-
-let election_trustees = service
-  ~path:["election"; "trustees"]
-  ~get_params:uuid
-  ()
-
 let get_randomness = service
   ~path:["get-randomness"]
   ~get_params:unit

@@ -276,32 +276,18 @@ let election_view ~election =
         ];
         pcdata " election created by ";
         u [ b (format_user election.xelection.Common.public_data.admin 15) ];
+        pcdata " with ";
+        pcdata (string_of_int (Array.length election.election.e_questions));
+        pcdata " question(s) and ";
+        pcdata (string_of_int (List.length election.election_trustees));
+        pcdata " trustee(s)";
       ];
     ];
     br ();
     br ();
     br ~a:[a_style "clear: left;"] ();
     div ~a:[a_style "margin-bottom: 25px;margin-left: 15px; border-left: 1px solid #aaa; padding-left: 5px; font-size:1.3em;"] [pcdata election.election.e_description];
-    p ~a:[a_style "text-align: center; font-size: 1.5em;"] [
-      a ~service:(Eliom_service.preapply Helios_services.election_questions election.election.e_uuid) [
-        pcdata "questions (";
-        pcdata (string_of_int (Array.length election.election.e_questions));
-        pcdata ")";
-      ] ();
-      (* FIXME: space (&nbsp) breaks the output *)
-      pcdata "  |  ";
-      a ~service:(Eliom_service.preapply Helios_services.election_voters election.election.e_uuid) [
-        pcdata "voters & ballots"
-      ] ();
-      pcdata "  |  ";
-      a ~service:(Eliom_service.preapply Helios_services.election_trustees election.election.e_uuid) [
-        pcdata "trustees (";
-        pcdata (string_of_int (List.length election.election_trustees));
-        pcdata ")";
-      ] ();
-    ];
     (* NOTE: administration things removed from here! *)
-    br ();
     br ();
   ] @ (match election.election_state with
     | `Finished result ->
