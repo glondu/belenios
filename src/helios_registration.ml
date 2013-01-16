@@ -171,5 +171,21 @@ let () = Eliom_registration.Redirection.register
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_cast_post
-  (fun uuid (euuid, (ehash, evote)) ->
-    Helios_templates.not_implemented "Cast")
+  (fun uuid evote ->
+    lwt election = get_election_by_uuid uuid in
+    let result =
+      try
+        let vote = Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number evote in
+        let {g; p; q; y} = election.Helios_templates.election.e_public_key in
+        let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
+        let module Crypto = ElGamal.Make (G) in
+        if
+          Uuidm.equal uuid vote.election_uuid &&
+          (* ehash = vote.election_hash && *)
+          Crypto.verify_vote election.Helios_templates.election election.Helios_templates.xelection.Common.fingerprint vote
+        then `Valid (Common.hash_vote vote)
+        else `Invalid
+      with e -> `Malformed
+    in
+    Helios_templates.vote_cast ~election ~result
+  )

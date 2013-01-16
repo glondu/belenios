@@ -89,11 +89,8 @@ let election_cast = service
 
 let election_cast_post = post_service
   ~fallback:election_cast
-  ~post_params:(
-    string "election_uuid" **
-    string "election_hash" **
-    string "encrypted_vote"
-  ) ()
+  ~post_params:(string "encrypted_vote")
+  ()
 
 let get_randomness = service
   ~path:["get-randomness"]

@@ -357,3 +357,20 @@ let election_view ~election =
     ] audit_info
   ] in
   base ~title:election.election.e_name ~header:[] ~content
+
+let vote_cast ~election ~result =
+  let content = [
+    h2 ~a:[a_class ["title"]] [
+      pcdata election.election.e_name;
+    ];
+    br ();
+    div [
+      pcdata "Your vote in ";
+      em [pcdata election.election.e_name];
+      (match result with
+         | `Valid hash -> pcdata (" is valid, its hash is " ^ hash)
+         | `Invalid -> pcdata " is invalid!"
+         | `Malformed -> pcdata " is malformed!"
+      );
+    ]
+  ] in base ~title:election.election.e_name ~header:[] ~content

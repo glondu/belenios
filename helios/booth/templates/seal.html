@@ -38,8 +38,6 @@ To protect your privacy:
 
 
 <form method="POST" action="{$T.cast_url}" id="send_ballot_form" class="prettyform">
-<input type="hidden" name="election_uuid" value="{$T.election_uuid}" />
-<input type="hidden" name="election_hash" value="{$T.election_hash}" />
 <textarea name="encrypted_vote" style="display: none;">
 {$T.encrypted_vote_json}
 </textarea>
