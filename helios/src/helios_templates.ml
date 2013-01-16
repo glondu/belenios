@@ -111,14 +111,11 @@ type question = {
 
 type election_extradata = {
   xelection : Common.election_data;
-  election : Z.t Helios_datatypes_t.election;
-  (* FIXME: datatypes should be revisited, election is xelection.election! *)
-  election_trustees : string list;
   election_state : [`Finished of question list | `Stopped | `Started];
 }
 
 let format_one_election e =
-  li [pcdata e.election.e_name]
+  li [pcdata e.xelection.Common.election.e_name]
 
 let format_one_featured_election e =
   [
@@ -126,13 +123,13 @@ let format_one_featured_election e =
       a
         ~service:(Eliom_service.preapply
                     Helios_services.election_view
-                    e.election.e_uuid)
+                    e.xelection.Common.election.e_uuid)
         ~a:[a_style "font-size: 1.4em;"]
-        [pcdata e.election.e_name] ();
+        [pcdata e.xelection.Common.election.e_name] ();
       pcdata " by ";
     ] @ format_user e.xelection.Common.public_data.admin 15 @ [
       br ();
-      pcdata e.election.e_description;
+      pcdata e.xelection.Common.election.e_description;
     ]);
     br ();
   ]
@@ -233,8 +230,8 @@ let dummy_login ~service =
     ~content:[div [form]]
 
 let election_view ~election =
-  let service = Eliom_service.preapply Helios_services.election_raw election.election.e_uuid in
-  let booth = Helios_services.make_booth election.election.e_uuid in
+  let service = Eliom_service.preapply Helios_services.election_raw election.xelection.Common.election.e_uuid in
+  let booth = Helios_services.make_booth election.xelection.Common.election.e_uuid in
   let audit_info = [
     (* FIXME: unsafe_data *)
     unsafe_data "<a href=\"#\" onclick=\"$('#auditbody').slideToggle(250);\">Audit Info</a>";
@@ -269,7 +266,7 @@ let election_view ~election =
   ] in
   let content = [
     div ~a:[a_style "float: left; margin-right: 50px;"] [
-      h2 ~a:[a_class ["title"]] [pcdata election.election.e_name];
+      h2 ~a:[a_class ["title"]] [pcdata election.xelection.Common.election.e_name];
       p ~a:[a_style "padding-top:0px; margin-top:0px"] [
         em [
           pcdata (if election.xelection.Common.public_data.private_p then "private" else "public")
@@ -277,16 +274,16 @@ let election_view ~election =
         pcdata " election created by ";
         u [ b (format_user election.xelection.Common.public_data.admin 15) ];
         pcdata " with ";
-        pcdata (string_of_int (Array.length election.election.e_questions));
+        pcdata (string_of_int (Array.length election.xelection.Common.election.e_questions));
         pcdata " question(s) and ";
-        pcdata (string_of_int (List.length election.election_trustees));
+        pcdata (string_of_int (Array.length election.xelection.Common.public_data.public_keys));
         pcdata " trustee(s)";
       ];
     ];
     br ();
     br ();
     br ~a:[a_style "clear: left;"] ();
-    div ~a:[a_style "margin-bottom: 25px;margin-left: 15px; border-left: 1px solid #aaa; padding-left: 5px; font-size:1.3em;"] [pcdata election.election.e_description];
+    div ~a:[a_style "margin-bottom: 25px;margin-left: 15px; border-left: 1px solid #aaa; padding-left: 5px; font-size:1.3em;"] [pcdata election.xelection.Common.election.e_description];
     (* NOTE: administration things removed from here! *)
     br ();
   ] @ (match election.election_state with
@@ -339,7 +336,7 @@ let election_view ~election =
           a_style "font-size: 1.6em; margin-right: 10px;";
           a_id "votelink";
         ] [
-          a ~service:(Eliom_service.preapply Helios_services.election_vote election.election.e_uuid) [
+          a ~service:(Eliom_service.preapply Helios_services.election_vote election.xelection.Common.election.e_uuid) [
             pcdata "Vote in this election";
           ] ()
         ];
@@ -356,21 +353,22 @@ let election_view ~election =
       a_class ["round"];
     ] audit_info
   ] in
-  base ~title:election.election.e_name ~header:[] ~content
+  base ~title:election.xelection.Common.election.e_name ~header:[] ~content
 
 let vote_cast ~election ~result =
+  let title = election.xelection.Common.election.e_name in
   let content = [
     h2 ~a:[a_class ["title"]] [
-      pcdata election.election.e_name;
+      pcdata title;
     ];
     br ();
     div [
       pcdata "Your vote in ";
-      em [pcdata election.election.e_name];
+      em [pcdata election.xelection.Common.election.e_name];
       (match result with
          | `Valid hash -> pcdata (" is valid, its hash is " ^ hash)
          | `Invalid -> pcdata " is invalid!"
          | `Malformed -> pcdata " is malformed!"
       );
     ]
-  ] in base ~title:election.election.e_name ~header:[] ~content
+  ] in base ~title ~header:[] ~content

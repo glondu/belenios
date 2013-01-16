@@ -12,11 +12,6 @@ let format_election e =
   let open Helios_services in
   let open Helios_templates in
   let election = e.Common.election in
-  let election_trustees =
-    e.Common.public_data.public_keys |>
-    Array.map (fun k -> k.trustee_public_key.y |> Z.to_string |> hashB) |>
-    Array.to_list
-  in
   let election_state = match e.Common.public_data.election_result with
     | Some r ->
       Array.mapi (fun i q ->
@@ -45,7 +40,7 @@ let format_election e =
       ) (r.result : int array array) |> (fun x -> `Finished (Array.to_list x))
     | None -> `Started
   in
-  { election; xelection=e; election_trustees; election_state }
+  { xelection=e; election_state }
 
 let () =
   let dir = ref None in
@@ -179,13 +174,13 @@ let () = Eliom_registration.Html5.register
     let result =
       try
         let vote = Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number evote in
-        let {g; p; q; y} = election.Helios_templates.election.e_public_key in
+        let {g; p; q; y} = election.Helios_templates.xelection.Common.election.e_public_key in
         let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
         let module Crypto = ElGamal.Make (G) in
         if
           Uuidm.equal uuid vote.election_uuid &&
           (* ehash = vote.election_hash && *)
-          Crypto.verify_vote election.Helios_templates.election election.Helios_templates.xelection.Common.fingerprint vote
+          Crypto.verify_vote election.Helios_templates.xelection.Common.election election.Helios_templates.xelection.Common.fingerprint vote
         then `Valid (Common.hash_vote vote)
         else `Invalid
       with e -> `Malformed
