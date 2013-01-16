@@ -3,7 +3,7 @@ open Helios_datatypes_t
 open Eliom_content.Html5.F
 
 let site_title = "Helios Election Server"
-let welcome_message = "This is the default message"
+let welcome_message = "Welcome to the Helios Election Server!"
 
 let s x = Xml.uri_of_string ("/static/" ^ x)
 
