@@ -268,7 +268,16 @@ let election_view ~election =
     ]
   ] in
   let content = [
-    div ~a:[a_style "float: left; margin-right: 50px;"] [pcdata "FIXME"];
+    div ~a:[a_style "float: left; margin-right: 50px;"] [
+      h2 ~a:[a_class ["title"]] [pcdata election.election.e_name];
+      p ~a:[a_style "padding-top:0px; margin-top:0px"] [
+        em [
+          pcdata (if election.xelection.Common.public_data.private_p then "private" else "public")
+        ];
+        pcdata " election created by ";
+        u [ b (format_user election.xelection.Common.public_data.admin 15) ];
+      ];
+    ];
     br ();
     br ();
     br ~a:[a_style "clear: left;"] ();

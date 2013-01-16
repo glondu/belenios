@@ -82,7 +82,11 @@ let get_election_by_uuid x =
   Ocsipersist.find elections_table (Uuidm.to_string x)
 
 let get_featured_elections () =
-  Ocsipersist.fold_step (fun uuid e res -> return (e :: res)) elections_table []
+  (* FIXME: doesn't scale when there are a lot of unfeatured elections *)
+  Ocsipersist.fold_step (fun uuid e res ->
+    let res = if e.Helios_templates.xelection.Common.public_data.featured_p then e::res else res in
+    return res
+  ) elections_table []
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.home

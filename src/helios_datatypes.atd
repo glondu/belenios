@@ -140,6 +140,8 @@ type 'a election_public_data = {
   public_keys : 'a trustee_public_key list <ocaml repr="array">;
   ?election_result : 'a result option;
   admin : user;
+  private_p : bool;
+  featured_p : bool;
 }
 
 type 'a election_private_data = {
