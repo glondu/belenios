@@ -13,16 +13,6 @@ let home = service
   ~get_params:unit
   ()
 
-let elections_administered = service
-  ~path:["election"; "administered"]
-  ~get_params:unit
-  ()
-
-let election_new = service
-  ~path:["election"; "new"]
-  ~get_params:unit
-  ()
-
 let login = service
   ~path:["login"]
   ~get_params:unit

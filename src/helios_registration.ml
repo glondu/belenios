@@ -93,16 +93,6 @@ let () = Eliom_registration.Html5.register
     Helios_templates.index ~featured)
 
 let () = Eliom_registration.Html5.register
-  ~service:Helios_services.elections_administered
-  (fun () () ->
-    Helios_templates.not_implemented "Administrate elections")
-
-let () = Eliom_registration.Html5.register
-  ~service:Helios_services.election_new
-  (fun () () ->
-    Helios_templates.not_implemented "Create election")
-
-let () = Eliom_registration.Html5.register
   ~service:Helios_services.login
   (fun () () ->
     (* FIXME *)

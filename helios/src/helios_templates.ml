@@ -152,18 +152,6 @@ let index ~featured =
             in [
               h4 [pcdata "Administration"];
               administered_box;
-              p [pcdata "[";
-                 a ~service:Helios_services.elections_administered [
-                   pcdata "see all"
-                 ] ();
-                 pcdata "]"];
-              div ~a:[a_style "text-align:right;"] [
-                a ~service:Helios_services.election_new
-                  ~a:[a_style "font-size: 1.2em; padding:5px; background: #eee; border: 1px solid #888;"]
-                  [
-                    pcdata "create election >";
-                  ] ();
-              ]
             ]
           | None -> []
         in
