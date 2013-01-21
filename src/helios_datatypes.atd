@@ -34,6 +34,14 @@ type result_type = [
   | Relative <json name="relative">
 ]
 
+type election_state = [
+  | Setup <json name="setup">
+  | Frozen <json name="frozen">
+  | Started <json name="started">
+  | Stopped <json name="stopped">
+  | Finished <json name="finished">
+]
+
 type question = {
   answer_urls : unit list;
   answers : string list <ocaml repr="array">;
@@ -146,6 +154,7 @@ type 'a election_public_data = {
   admin : user;
   private_p : bool;
   featured_p : bool;
+  state : election_state;
 }
 
 type 'a election_private_data = {

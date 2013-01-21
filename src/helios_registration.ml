@@ -8,40 +8,6 @@ let () = Ocsigen_config.set_maxrequestbodysizeinmemory 32768
 
 let elections_table = Ocsipersist.open_table "elections"
 
-let format_election e =
-  let open Helios_services in
-  let open Helios_templates in
-  let election = e.Common.election in
-  let election_state = match e.Common.public_data.election_result with
-    | Some r ->
-      Array.mapi (fun i q ->
-        let q' = election.e_questions.(i) in
-        let question = q'.q_question in
-        let answers = Array.mapi (fun j a ->
-          let answer = q'.q_answers.(j) in
-          let count = a in
-          (answer, count)
-        ) q |> Array.to_list
-        in
-        let (winners, _) = List.fold_left
-          (fun (ws, v) ((_, c) as w) ->
-            if c > v then ([w], c)
-            else if c = v then (w::ws, v)
-            else (ws, v)
-          ) ([], 0) answers
-        in
-        let answers = List.map
-          (fun ((answer, count) as x) ->
-            let winner = List.memq x winners in
-            { answer; count; winner }
-          ) answers
-        in
-        { question; answers }
-      ) (r.result : int array array) |> (fun x -> `Finished (Array.to_list x))
-    | None -> `Started
-  in
-  { xelection=e; election_state }
-
 let () =
   let dir = ref None in
   let open Ocsigen_extensions.Configuration in
@@ -63,7 +29,7 @@ let () =
         let uuid = Uuidm.to_string e.Common.election.e_uuid in
         Ocsigen_messages.debug
           (fun () -> Printf.sprintf "-- loading %s (%s)" uuid e.Common.election.e_short_name);
-        lwt () = Ocsipersist.add elections_table uuid (format_election e) in
+        lwt () = Ocsipersist.add elections_table uuid e in
         let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
         let table = Ocsipersist.open_table ("votes_" ^ uuid_underscored) in
         Lwt_stream.iter_s (fun v ->
@@ -82,7 +48,7 @@ let get_election_by_uuid x =
 let get_featured_elections () =
   (* FIXME: doesn't scale when there are a lot of unfeatured elections *)
   Ocsipersist.fold_step (fun uuid e res ->
-    let res = if e.Helios_templates.xelection.Common.public_data.featured_p then e::res else res in
+    let res = if e.Common.public_data.featured_p then e::res else res in
     return res
   ) elections_table []
 
@@ -96,7 +62,7 @@ let if_eligible f uuid () =
   lwt election = get_election_by_uuid uuid in
   lwt user = Eliom_reference.get Helios_services.user in
   lwt () =
-    if election.Helios_templates.xelection.Common.public_data.private_p then (
+    if election.Common.public_data.private_p then (
       match user with
         | Some (_, user) ->
           lwt eligible = Helios_services.is_eligible uuid user in
@@ -137,7 +103,7 @@ let () = Eliom_registration.String.register
   ~service:Helios_services.election_raw
   (if_eligible
      (fun uuid election user ->
-       return (election.Helios_templates.xelection.Common.raw, "application/json")
+       return (election.Common.raw, "application/json")
      )
   )
 
@@ -184,13 +150,13 @@ let () = Eliom_registration.Html5.register
     let result =
       try
         let vote = Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number evote in
-        let {g; p; q; y} = election.Helios_templates.xelection.Common.election.e_public_key in
+        let {g; p; q; y} = election.Common.election.e_public_key in
         let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
         let module Crypto = ElGamal.Make (G) in
         if
           Uuidm.equal uuid vote.election_uuid &&
           (* ehash = vote.election_hash && *)
-          Crypto.verify_vote election.Helios_templates.xelection.Common.election election.Helios_templates.xelection.Common.fingerprint vote
+          Crypto.verify_vote election.Common.election election.Common.fingerprint vote
         then `Valid (Common.hash_vote vote)
         else `Invalid
       with e -> `Malformed
