@@ -108,6 +108,34 @@ let () = Eliom_registration.String.register
   )
 
 let () = Eliom_registration.String.register
+  ~service:Helios_services.election_public_data
+  (if_eligible
+     (fun uuid election user ->
+       return (
+         Helios_datatypes_j.string_of_election_public_data
+           Core_datatypes_j.write_number
+           election.Common.public_data,
+         "application/json"
+       )
+     )
+  )
+
+let () = Eliom_registration.String.register
+  ~service:Helios_services.election_ballots
+  (if_eligible
+     (fun uuid election user ->
+       let uuid_underscored = String.map (function '-' -> '_' | c -> c) (Uuidm.to_string uuid) in
+       let table = Ocsipersist.open_table ("votes_" ^ uuid_underscored) in
+       lwt ballots = Ocsipersist.fold_step (fun hash v res ->
+         let s = Helios_datatypes_j.string_of_vote Core_datatypes_j.write_number v ^ "\n" in
+         return (s :: res)
+       ) table [] in
+       let result = String.concat "" ballots in
+       return (result, "application/json")
+     )
+  )
+
+let () = Eliom_registration.String.register
   ~service:Helios_services.get_randomness
   (fun () () ->
     (* FIXME: DoS/entropy exhaustion vulnerability *)

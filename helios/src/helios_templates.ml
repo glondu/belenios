@@ -263,13 +263,18 @@ let election_view ~election =
       ];
       br ();
       br ();
-      (* FIXME: Ballot Tracking Center *)
-      (* FIXME: Audited Ballots *)
-      (* FIXME: result *)
-      p ~a:[a_style "font-size: 1.2em;"] [
-        pcdata "Review the ";
-        a ~service:booth [ pcdata "voting booth" ] ();
-        pcdata ".";
+      p ~a:[a_style "font-size: 1.3em;"] [
+        a ~service:Helios_services.(preapply_uuid election_ballots election) [
+          pcdata "Ballot Tracking Center";
+        ] ();
+        pcdata " | ";
+        a ~service:Helios_services.(preapply_uuid election_public_data election) [
+          pcdata "Election data";
+        ] ();
+        pcdata " | ";
+        a ~service:booth [
+          pcdata "Voting booth";
+        ] ();
       ];
     ]
   ] in
