@@ -117,11 +117,9 @@ let () = Eliom_registration.Redirection.register
 let () = Eliom_registration.String.register
   ~service:Helios_services.election_raw
   (fun uuid () ->
-    try_lwt
-      lwt election = get_election_by_uuid uuid in
-      return (election.Helios_templates.xelection.Common.raw, "application/json")
-    with Not_found ->
-      raise_lwt Eliom_common.Eliom_404)
+    lwt election = get_election_by_uuid uuid in
+    return (election.Helios_templates.xelection.Common.raw, "application/json")
+  )
 
 let () = Eliom_registration.String.register
   ~service:Helios_services.get_randomness
@@ -136,19 +134,15 @@ let () = Eliom_registration.String.register
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_view
   (fun uuid () ->
-    try_lwt
-      lwt election = get_election_by_uuid uuid in
-      Helios_templates.election_view ~election
-    with Not_found ->
-      raise_lwt Eliom_common.Eliom_404)
+    lwt election = get_election_by_uuid uuid in
+    Helios_templates.election_view ~election
+  )
 
 let () = Eliom_registration.Redirection.register
   ~service:Helios_services.election_vote
   (fun uuid () ->
-    try_lwt
-      return (Helios_services.make_booth uuid)
-    with Not_found ->
-      raise_lwt Eliom_common.Eliom_404)
+    return (Helios_services.make_booth uuid)
+  )
 
 let () = Eliom_registration.Redirection.register
   ~service:Helios_services.election_cast
