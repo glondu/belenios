@@ -149,7 +149,7 @@ let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_view
   (if_eligible
      (fun uuid election user ->
-       Helios_templates.election_view ~election
+       Helios_templates.election_view ~election ~user
      )
   )
 

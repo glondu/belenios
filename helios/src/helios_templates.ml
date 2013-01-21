@@ -238,9 +238,30 @@ let dummy_login ~service =
     ~header:[h2 [pcdata title]]
     ~content:[div [form]]
 
-let election_view ~election =
+let election_view ~election ~user =
   let service = Helios_services.(preapply_uuid election_raw election) in
   let booth = Helios_services.make_booth election.Common.election.e_uuid in
+  lwt eligibility =
+    if not election.Common.public_data.private_p && election.Common.election.e_openreg then (
+      Lwt.return [
+        pcdata "Anyone can vote in this election.";
+      ]
+    ) else (match user with
+      | None ->
+        Lwt.return [
+          a ~service:Helios_services.login [pcdata "Log in"] ();
+          pcdata " to check if you can vote.";
+        ]
+      | Some (_, u) ->
+        lwt b = Helios_services.is_eligible election.Common.election.e_uuid u in
+        let can = if b then pcdata "can" else pcdata "cannot" in
+        Lwt.return [
+          pcdata "You ";
+          can;
+          pcdata " vote in this election.";
+        ]
+    )
+  in
   let audit_info = [
     (* FIXME: unsafe_data *)
     unsafe_data "<a href=\"#\" onclick=\"$('#auditbody').slideToggle(250);\">Audit Info</a>";
@@ -368,8 +389,7 @@ let election_view ~election =
         ];
         br ();
       ]
-  ) @ [
-    (* FIXME: privacity, eligibility, etc. *)
+  ) @ eligibility @ [
     div ~a:[
       a_style "background: lightyellow; padding:5px; padding-left: 10px; margin-top: 15px; border: 1px solid #aaa; width: 720px;";
       a_class ["round"];
