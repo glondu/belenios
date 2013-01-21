@@ -92,5 +92,7 @@ let get_randomness = service
 
 (* FIXME: should be elsewhere... *)
 
+let preapply_uuid s e = Eliom_service.preapply s e.Common.election.e_uuid
+
 let is_eligible (uuid : Uuidm.t) (user : user) =
   Lwt.return (String.startswith user.user_name "special-")

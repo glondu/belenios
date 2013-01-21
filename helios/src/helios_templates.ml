@@ -144,9 +144,7 @@ let format_one_featured_election e =
   [
     div ~a:[a_class ["highlight-box-margin"]] ([
       a
-        ~service:(Eliom_service.preapply
-                    Helios_services.election_view
-                    e.Common.election.e_uuid)
+        ~service:Helios_services.(preapply_uuid election_view e)
         ~a:[a_style "font-size: 1.4em;"]
         [pcdata e.Common.election.e_name] ();
       pcdata " by ";
@@ -241,7 +239,7 @@ let dummy_login ~service =
     ~content:[div [form]]
 
 let election_view ~election =
-  let service = Eliom_service.preapply Helios_services.election_raw election.Common.election.e_uuid in
+  let service = Helios_services.(preapply_uuid election_raw election) in
   let booth = Helios_services.make_booth election.Common.election.e_uuid in
   let audit_info = [
     (* FIXME: unsafe_data *)
@@ -348,7 +346,7 @@ let election_view ~election =
           a_style "font-size: 1.6em; margin-right: 10px;";
           a_id "votelink";
         ] [
-          a ~service:(Eliom_service.preapply Helios_services.election_vote election.Common.election.e_uuid) [
+          a ~service:(Helios_services.(preapply_uuid election_vote election)) [
             pcdata "Vote in this election";
           ] ()
         ];

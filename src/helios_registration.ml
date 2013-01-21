@@ -138,7 +138,7 @@ let () = Eliom_registration.Redirection.register
   (if_eligible
      (fun uuid election user ->
        return (
-         Eliom_service.preapply Helios_services.election_view uuid
+         Helios_services.(preapply_uuid election_view election)
        )
      )
   )
