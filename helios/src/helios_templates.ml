@@ -2,6 +2,8 @@ open StdExtra
 open Helios_datatypes_t
 open Eliom_content.Html5.F
 
+(* FIXME: these pages should be redesigned *)
+
 let site_title = "Helios Election Server"
 let welcome_message = "Welcome to the Helios Election Server!"
 
