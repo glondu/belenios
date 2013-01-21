@@ -1,2 +1,1 @@
-<**/*.{ml,mli}>: annotate, thread, package(zarith), package(calendar), package(uuidm), package(cryptokit), package(atdgen), package(eliom.server), syntax(camlp4o), package(lwt.syntax)
-<**/*_{t,j}.{ml,mli}>: package(yojson)
+<**/*.{ml,mli,byte}>: annotate, thread, package(zarith), package(calendar), package(uuidm), package(cryptokit), package(atdgen), package(eliom.server), syntax(camlp4o), package(lwt.syntax), package(yojson)
