@@ -47,6 +47,8 @@ let uuid = Eliom_parameter.user_type
   Uuidm.to_string
   "uuid"
 
+(* FIXME: decide whether uuid should be a directory or a GET parameter *)
+
 let election_raw = service
   ~path:["election"; ""]
   ~get_params:uuid
