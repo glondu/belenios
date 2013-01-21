@@ -86,6 +86,25 @@ let get_featured_elections () =
     return res
   ) elections_table []
 
+let forbidden () = raise_lwt (
+  Ocsigen_extensions.Ocsigen_http_error (
+    Ocsigen_cookies.empty_cookieset, 403
+  )
+)
+
+let if_eligible f uuid () =
+  lwt election = get_election_by_uuid uuid in
+  lwt user = Eliom_reference.get Helios_services.user in
+  lwt () =
+    if election.Helios_templates.xelection.Common.public_data.private_p then (
+      match user with
+        | Some (_, user) ->
+          lwt eligible = Helios_services.is_eligible uuid user in
+          if not eligible then forbidden () else return ()
+        | None -> forbidden ()
+    ) else return ()
+  in f uuid election user
+
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.home
   (fun () () ->
@@ -116,9 +135,10 @@ let () = Eliom_registration.Redirection.register
 
 let () = Eliom_registration.String.register
   ~service:Helios_services.election_raw
-  (fun uuid () ->
-    lwt election = get_election_by_uuid uuid in
-    return (election.Helios_templates.xelection.Common.raw, "application/json")
+  (if_eligible
+     (fun uuid election user ->
+       return (election.Helios_templates.xelection.Common.raw, "application/json")
+     )
   )
 
 let () = Eliom_registration.String.register
@@ -133,23 +153,29 @@ let () = Eliom_registration.String.register
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_view
-  (fun uuid () ->
-    lwt election = get_election_by_uuid uuid in
-    Helios_templates.election_view ~election
+  (if_eligible
+     (fun uuid election user ->
+       Helios_templates.election_view ~election
+     )
   )
 
 let () = Eliom_registration.Redirection.register
   ~service:Helios_services.election_vote
-  (fun uuid () ->
-    return (Helios_services.make_booth uuid)
+  (if_eligible
+     (fun uuid election user ->
+       return (Helios_services.make_booth uuid)
+     )
   )
 
 let () = Eliom_registration.Redirection.register
   ~service:Helios_services.election_cast
-  (fun uuid () ->
-      return (Eliom_service.preapply
-                Helios_services.election_view
-                uuid))
+  (if_eligible
+     (fun uuid election user ->
+       return (
+         Eliom_service.preapply Helios_services.election_view uuid
+       )
+     )
+  )
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_cast_post

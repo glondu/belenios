@@ -1,3 +1,4 @@
+open StdExtra
 open Helios_datatypes_t
 open Eliom_service
 open Eliom_parameter
@@ -86,3 +87,8 @@ let get_randomness = service
   ~path:["get-randomness"]
   ~get_params:unit
   ()
+
+(* FIXME: should be elsewhere... *)
+
+let is_eligible (uuid : Uuidm.t) (user : user) =
+  Lwt.return (String.startswith user.user_name "special-")
