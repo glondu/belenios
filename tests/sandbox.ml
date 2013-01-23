@@ -75,7 +75,7 @@ let verbose_assert msg it =
   let r = Lazy.force it in
   Printf.eprintf " %s\n%!" (if r then "OK" else "failed!")
 
-let verbose_verify_election_test_data (e, votes, private_data) =
+let verbose_verify_election_test_data (e, votes, voters, private_data) =
   Printf.eprintf "Verifying election %S:\n%!" e.election.e_short_name;
   let {g; p; q; y} = e.election.e_public_key in
   let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
@@ -110,6 +110,9 @@ let verbose_verify_election_test_data (e, votes, private_data) =
       verbose_assert "result" (lazy (Crypto.verify_result e.election r));
     | None -> Printf.eprintf "   no results available\n%!"
   );
+  verbose_assert "voter count" (lazy (
+    Array.length voters = Array.length votes
+  ));
   verbose_assert "private keys" (lazy (
     Array.foralli
       (fun _ k -> Crypto.verify_private_key k)
@@ -119,10 +122,11 @@ let verbose_verify_election_test_data (e, votes, private_data) =
 let load_election_and_verify_it_all dirname =
   load_elections_and_votes dirname |>
   Lwt_stream.to_list |> Lwt_main.run |>
-  List.map (fun (e, v) ->
+  List.map (fun (e, v, voters) ->
     let votes = Lwt_stream.to_list v |> Lwt_main.run |> Array.of_list in
+    let voters = Lwt_stream.to_list voters |> Lwt_main.run |> Array.of_list in
     let private_data = load_election_private_data dirname (Uuidm.to_string e.election.e_uuid) in
-    (e, votes, private_data)
+    (e, votes, voters, private_data)
   ) |>
   List.iter verbose_verify_election_test_data;;
 

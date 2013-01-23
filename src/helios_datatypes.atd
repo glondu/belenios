@@ -140,6 +140,11 @@ type randomness = {
   randomness : string;
 }
 
+type voter = {
+  user : user;
+  ?hash : string option;
+}  <ocaml field_prefix="voter_">
+
 (** {1 Compound datastructures} *)
 
 type 'a result = {
