@@ -58,7 +58,7 @@ let forbidden () = raise_lwt (
   )
 )
 
-let if_eligible f uuid () =
+let if_eligible f uuid x =
   lwt election = get_election_by_uuid uuid in
   lwt user = Eliom_reference.get Helios_services.user in
   lwt () =
@@ -69,7 +69,7 @@ let if_eligible f uuid () =
           if not eligible then forbidden () else return ()
         | None -> forbidden ()
     ) else return ()
-  in f uuid election user
+  in f uuid election user x
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.home
@@ -102,7 +102,7 @@ let () = Eliom_registration.Redirection.register
 let () = Eliom_registration.String.register
   ~service:Helios_services.election_raw
   (if_eligible
-     (fun uuid election user ->
+     (fun uuid election user () ->
        return (election.Common.raw, "application/json")
      )
   )
@@ -110,7 +110,7 @@ let () = Eliom_registration.String.register
 let () = Eliom_registration.String.register
   ~service:Helios_services.election_public_data
   (if_eligible
-     (fun uuid election user ->
+     (fun uuid election user () ->
        return (
          Helios_datatypes_j.string_of_election_public_data
            Core_datatypes_j.write_number
@@ -123,7 +123,7 @@ let () = Eliom_registration.String.register
 let () = Eliom_registration.String.register
   ~service:Helios_services.election_ballots
   (if_eligible
-     (fun uuid election user ->
+     (fun uuid election user () ->
        let uuid_underscored = String.map (function '-' -> '_' | c -> c) (Uuidm.to_string uuid) in
        let table = Ocsipersist.open_table ("votes_" ^ uuid_underscored) in
        lwt ballots = Ocsipersist.fold_step (fun hash v res ->
@@ -148,7 +148,7 @@ let () = Eliom_registration.String.register
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_view
   (if_eligible
-     (fun uuid election user ->
+     (fun uuid election user () ->
        Helios_templates.election_view ~election ~user
      )
   )
@@ -156,7 +156,7 @@ let () = Eliom_registration.Html5.register
 let () = Eliom_registration.Redirection.register
   ~service:Helios_services.election_vote
   (if_eligible
-     (fun uuid election user ->
+     (fun uuid election user () ->
        return (Helios_services.make_booth uuid)
      )
   )
@@ -164,7 +164,7 @@ let () = Eliom_registration.Redirection.register
 let () = Eliom_registration.Redirection.register
   ~service:Helios_services.election_cast
   (if_eligible
-     (fun uuid election user ->
+     (fun uuid election user () ->
        return (
          Helios_services.(preapply_uuid election_view election)
        )
@@ -173,21 +173,21 @@ let () = Eliom_registration.Redirection.register
 
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_cast_post
-  (fun uuid evote ->
-    lwt election = get_election_by_uuid uuid in
-    let result =
-      try
-        let vote = Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number evote in
-        let {g; p; q; y} = election.Common.election.e_public_key in
-        let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
-        let module Crypto = ElGamal.Make (G) in
-        if
-          Uuidm.equal uuid vote.election_uuid &&
-          (* ehash = vote.election_hash && *)
-          Crypto.verify_vote election.Common.election election.Common.fingerprint vote
-        then `Valid (Common.hash_vote vote)
-        else `Invalid
-      with e -> `Malformed
-    in
-    Helios_templates.vote_cast ~election ~result
+  (if_eligible
+     (fun uuid election user evote ->
+       let result =
+         try
+           let vote = Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number evote in
+           let {g; p; q; y} = election.Common.election.e_public_key in
+           let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
+           let module Crypto = ElGamal.Make (G) in
+           if
+             Uuidm.equal uuid vote.election_uuid &&
+             Crypto.verify_vote election.Common.election election.Common.fingerprint vote
+           then `Valid (Common.hash_vote vote)
+           else `Invalid
+         with e -> `Malformed
+       in
+       Helios_templates.vote_cast ~election ~result
+     )
   )
