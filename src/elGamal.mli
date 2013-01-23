@@ -43,15 +43,8 @@ module type ELGAMAL_CRYPTO = sig
   type t
   val verify_public_key : t public_key -> bool
   val verify_private_key : t private_key -> bool
-  val verify_pok : t -> t pok -> bool
   val verify_election_key : t -> t trustee_public_key array -> bool
-  val verify_disjunction : t -> t -> t array -> t proof array -> bool
-  val verify_range : t -> int -> int -> t -> t -> t proof array -> bool
-  val verify_answer : t -> question -> t answer -> bool
   val verify_ballot : t election -> string -> t ballot -> bool
-  val verify_equality : t -> t -> t -> t proof -> bool
-  val verify_partial_decryption : t election ->
-    t tally -> t trustee_public_key -> t partial_decryption -> bool
   val verify_partial_decryptions : t election ->
     t trustee_public_key array -> t result -> bool
   val verify_result : t election -> t result -> bool
