@@ -48,13 +48,13 @@ let make_ff_msubgroup ~p ~q ~g =
 
 module type ELGAMAL_CRYPTO = sig
   type t
-  val verify_public_key : t public_key -> bool
-  val verify_private_key : t private_key -> bool
-  val verify_election_key : t -> t trustee_public_key array -> bool
-  val verify_ballot : t election -> string -> t ballot -> bool
-  val verify_partial_decryptions : t election ->
+  val check_public_key : t public_key -> bool
+  val check_private_key : t private_key -> bool
+  val check_election_key : t -> t trustee_public_key array -> bool
+  val check_ballot : t election -> string -> t ballot -> bool
+  val check_partial_decryptions : t election ->
     t trustee_public_key array -> t result -> bool
-  val verify_result : t election -> t result -> bool
+  val check_result : t election -> t result -> bool
   val compute_encrypted_tally : t election -> t ballot array -> t encrypted_tally
 end
 
@@ -67,34 +67,34 @@ module Make (G : GROUP) = struct
   let check_exponent x = check_modulo q x
   let one = g **~ Z.zero
 
-  let verify_public_key k =
+  let check_public_key k =
     let {g = g'; p = p'; q = q'; y} = k in
     g =~ g' && p =% p' && q =% q' && check_element y
 
-  let verify_private_key k =
+  let check_private_key k =
     let {x; public_key = {y; _}} = k in
     check_exponent x && y =~ g **~ x
 
-  let verify_pok y pok =
+  let check_pok y pok =
     let {pok_commitment; pok_challenge; pok_response} = pok in
     (* NB: we don't check commitment and challenge thanks to hash *)
     check_exponent pok_response &&
     g **~ pok_response =~ pok_commitment *~ y **~ pok_challenge &&
     pok_challenge =% hash [pok_commitment]
 
-  let verify_election_key y tpks =
+  let check_election_key y tpks =
     let n = Array.length tpks in
     assert (n > 0);
     let rec loop i accu =
       if i >= 0 then
         let tpk = tpks.(i) in
         let {g = g'; p = p'; q = q'; y = y'} = tpk.trustee_public_key in
-        g =~ g' && p =% p' && q =% q' && verify_pok y' tpk.trustee_pok &&
+        g =~ g' && p =% p' && q =% q' && check_pok y' tpk.trustee_pok &&
         loop (pred i) (accu *~ y')
       else accu =~ y
     in loop (pred n) one
 
-  let verify_disjunction h big_g big_hs proof =
+  let check_disjunction h big_g big_hs proof =
     let n = Array.length big_hs in
     assert (n > 0);
     n = Array.length proof &&
@@ -110,12 +110,12 @@ module Make (G : GROUP) = struct
        hash commitments =% Z.(challenges mod q)
    in check (pred n) [] Z.zero)
 
-  let verify_range h min max alpha beta proof =
+  let check_range h min max alpha beta proof =
     Array.length proof = 2 &&
     let big_hs = Array.init (max-min+1) (fun i -> beta *~ inv (g **~ Z.of_int (i-min))) in
-    verify_disjunction h alpha big_hs proof
+    check_disjunction h alpha big_hs proof
 
-  let verify_answer y question answer =
+  let check_answer y question answer =
     let {q_max; q_min; q_answers; _} = question in
     let q_max =
       match q_max with
@@ -130,18 +130,18 @@ module Make (G : GROUP) = struct
          let {alpha; beta} = answer.choices.(i) in
          check_element alpha &&
          check_element beta &&
-         verify_range y 0 1 alpha beta answer.individual_proofs.(i) &&
+         check_range y 0 1 alpha beta answer.individual_proofs.(i) &&
          check (pred i) (alphas *~ alpha) (betas *~ beta)
        else
-         verify_range y q_min q_max alphas betas answer.overall_proof
+         check_range y q_min q_max alphas betas answer.overall_proof
      in check (pred nb) one one)
 
-  let verify_ballot e fingerprint v =
+  let check_ballot e fingerprint v =
     v.election_hash = fingerprint &&
     e.e_uuid = v.election_uuid &&
-    Array.forall2 (verify_answer e.e_public_key.y) e.e_questions v.answers
+    Array.forall2 (check_answer e.e_public_key.y) e.e_questions v.answers
 
-  let verify_equality h g' h' proof =
+  let check_equality h g' h' proof =
     (* NB: similar to disjunctive, but with different challenge
        checking... hardly factorizable *)
     let {dp_commitment = {a; b}; dp_challenge; dp_response} = proof in
@@ -151,22 +151,22 @@ module Make (G : GROUP) = struct
     h **~ dp_response =~ h' **~ dp_challenge *~ b &&
     dp_challenge =% hash [a; b]
 
-  let verify_partial_decryption election tally tpk pds =
+  let check_partial_decryption election tally tpk pds =
     let y = tpk.trustee_public_key.y in
     let {decryption_factors = dfs; decryption_proofs = dps} = pds in
     Array.foralli (fun i question ->
       let dfs_i = dfs.(i) and dps_i = dps.(i) and tally_i = tally.(i) in
       Array.foralli (fun j answer ->
-        verify_equality tally_i.(j).alpha y dfs_i.(j) dps_i.(j)
+        check_equality tally_i.(j).alpha y dfs_i.(j) dps_i.(j)
       ) question.q_answers
     ) election.e_questions
 
-  let verify_partial_decryptions election public_keys r =
-    Array.forall2 (verify_partial_decryption election r.encrypted_tally.tally)
+  let check_partial_decryptions election public_keys r =
+    Array.forall2 (check_partial_decryption election r.encrypted_tally.tally)
       public_keys
       r.partial_decryptions
 
-  let verify_result election public_data =
+  let check_result election public_data =
     let pds = public_data.partial_decryptions in
     let tally = public_data.encrypted_tally.tally in
     let result = public_data.result in

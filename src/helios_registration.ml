@@ -188,7 +188,7 @@ let () = Eliom_registration.Html5.register
            let module Crypto = ElGamal.Make (G) in
            if
              Uuidm.equal uuid ballot.election_uuid &&
-             Crypto.verify_ballot election.Common.election election.Common.fingerprint ballot
+             Crypto.check_ballot election.Common.election election.Common.fingerprint ballot
            then `Valid (Common.hash_ballot ballot)
            else `Invalid
          with e -> `Malformed

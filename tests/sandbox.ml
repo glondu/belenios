@@ -81,7 +81,7 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
   let module Crypto = ElGamal.Make (G) in
   verbose_assert "election key" (lazy (
-    Crypto.verify_election_key
+    Crypto.check_election_key
       e.election.e_public_key.y
       e.public_data.public_keys
   ));
@@ -90,7 +90,7 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   ) else (
     verbose_assert "ballots" (lazy (
       Array.foralli (fun _ x ->
-        Crypto.verify_ballot e.election e.fingerprint x
+        Crypto.check_ballot e.election e.fingerprint x
       ) ballots
     ));
     (match e.public_data.election_result with
@@ -104,10 +104,10 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   (match e.public_data.election_result with
     | Some r ->
       verbose_assert "partial decryptions" (lazy (
-        Crypto.verify_partial_decryptions
+        Crypto.check_partial_decryptions
           e.election e.public_data.public_keys r
       ));
-      verbose_assert "result" (lazy (Crypto.verify_result e.election r));
+      verbose_assert "result" (lazy (Crypto.check_result e.election r));
     | None -> Printf.eprintf "   no results available\n%!"
   );
   verbose_assert "signature count" (lazy (
@@ -115,7 +115,7 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   ));
   verbose_assert "private keys" (lazy (
     Array.foralli
-      (fun _ k -> Crypto.verify_private_key k)
+      (fun _ k -> Crypto.check_private_key k)
       private_data.private_keys
   ));;
 
