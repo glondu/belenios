@@ -3,7 +3,6 @@ open Helios_datatypes_t
 
 module type GROUP = sig
   type t
-  val one : t
   val g : t
   val q : Z.t
   val p : Z.t
@@ -11,7 +10,6 @@ module type GROUP = sig
   val ( **~ ) : t -> Z.t -> t
   val ( =~ ) : t -> t -> bool
   val inv : t -> t
-  val check_exponent : Z.t -> bool
   val check_element : t -> bool
   val hash : t list -> Z.t
 end
@@ -35,7 +33,6 @@ let make_ff_msubgroup p q g =
     let module G = struct
       open Z
       type t = Z.t
-      let one = Z.one
       let p = p
       let q = q
       let g = g
@@ -44,7 +41,6 @@ let make_ff_msubgroup p q g =
       let inv x = invert x p
       let ( =~ ) = equal
       let check_element x = check_modulo p x && x **~ q =~ one
-      let check_exponent x = check_modulo q x
       let hash x = hashZ (String.concat "," (List.map to_string x)) mod q
     end in (module G : GROUP with type t = Z.t)
   else
@@ -74,6 +70,9 @@ module Make (G : GROUP) = struct
 
   (* FIXME: redundancy of group parameters that are embedded in the
      abstract group *)
+
+  let check_exponent x = check_modulo q x
+  let one = g **~ Z.zero
 
   let verify_public_key k =
     let {g = g'; p = p'; q = q'; y} = k in

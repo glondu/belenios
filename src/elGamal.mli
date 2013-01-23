@@ -4,7 +4,6 @@ open Helios_datatypes_t
 
 module type GROUP = sig
   type t
-  val one : t
   val g : t
   val q : Z.t
   val p : Z.t
@@ -12,7 +11,6 @@ module type GROUP = sig
   val ( **~ ) : t -> Z.t -> t
   val ( =~ ) : t -> t -> bool
   val inv : t -> t
-  val check_exponent : Z.t -> bool
   val check_element : t -> bool
   val hash : t list -> Z.t
 end
