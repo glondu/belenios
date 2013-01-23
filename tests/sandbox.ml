@@ -119,6 +119,8 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
       private_data.private_keys
   ));;
 
+let iter_keep f xs = List.iter f xs; xs;;
+
 let load_election_and_verify_it_all dirname =
   load_elections_and_votes dirname |>
   Lwt_stream.to_list |> Lwt_main.run |>
@@ -128,6 +130,6 @@ let load_election_and_verify_it_all dirname =
     let private_data = load_election_private_data dirname (Uuidm.to_string e.election.e_uuid) in
     (e, ballots, signatures, private_data)
   ) |>
-  List.iter verbose_verify_election_test_data;;
+  iter_keep verbose_verify_election_test_data;;
 
-let () = load_election_and_verify_it_all "tests/data"
+let all_data = load_election_and_verify_it_all "tests/data";;
