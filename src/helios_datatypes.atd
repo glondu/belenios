@@ -140,10 +140,10 @@ type randomness = {
   randomness : string;
 }
 
-type voter = {
+type signature = {
   user : user;
   ?hash : string option;
-}  <ocaml field_prefix="voter_">
+}  <ocaml field_prefix="sig_">
 
 (** {1 Compound datastructures} *)
 

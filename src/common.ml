@@ -49,18 +49,18 @@ let load_elections_and_votes dirname =
             )
           ) else Lwt_stream.from_direct (fun () -> None)
         in
-        let voters =
-          let file = data "voters.json" in
+        let signatures =
+          let file = data "signatures.json" in
           if Sys.file_exists file then (
             Lwt_io.lines_of_file file |>
             Lwt_stream.map (fun x ->
-              let v = Helios_datatypes_j.voter_of_string x in
+              let v = Helios_datatypes_j.signature_of_string x in
               v
             )
           ) else Lwt_stream.from_direct (fun () -> None)
         in
         let election_data = { raw; fingerprint; election; public_data } in
-        Lwt.return (Some (election_data, ballots, voters))
+        Lwt.return (Some (election_data, ballots, signatures))
       | None -> assert false
     ) else Lwt.return None
   )
