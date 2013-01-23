@@ -133,3 +133,102 @@ let load_election_and_verify_it_all dirname =
   iter_keep verbose_verify_election_test_data;;
 
 let all_data = load_election_and_verify_it_all "tests/data";;
+
+let rec get_election name = function
+  | [] -> raise Not_found
+  | ((e, _, _, _) as x)::xs when e.election.e_short_name = name -> x
+  | _::xs -> get_election name xs
+
+let e, ballots, signatures, private_data = get_election "editor" all_data;;
+let {g; p; q; y} = e.election.e_public_key
+module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t)
+module Crypto = ElGamal.Make (G)
+
+let random_exponent =
+  let pseudo = lazy Cryptokit.Random.(pseudo_rng (string secure_rng 20)) in
+  (* 20 is 160 bits of entropy, taken from secure source *)
+  fun () ->
+    let raw = Cryptokit.Random.(string (Lazy.force pseudo) 32) in
+    (* 32 is 256 bits of entropy, taken from pseudo-random source *)
+    let hex = Cryptokit.(transform_string (Hexa.encode ()) raw) in
+    Z.(of_string_base 16 hex mod q)
+
+open G
+
+let dummy_proof_item = {
+  dp_commitment = { a = Z.one; b = Z.one };
+  dp_challenge = Z.zero;
+  dp_response = Z.zero;
+}
+
+let make_proof min max choice r {alpha; beta} =
+  let n = max-min+1 in
+  let j = choice-min in
+  let proof = Array.create n dummy_proof_item in
+  for i = 0 to n-1 do
+    if i <> j then (
+      let dp_challenge = random_exponent ()
+      and dp_response = random_exponent () in
+      let a = g **~ dp_response *~ inv (alpha **~ dp_challenge)
+      and b = y **~ dp_response *~ inv ((beta *~ inv (g **~ Z.of_int i)) **~ dp_challenge) in
+      proof.(i) <- { dp_commitment = {a; b}; dp_challenge; dp_response }
+    )
+  done;
+  let w = random_exponent () in
+  let a = g **~ w and b = y **~ w in
+  let dp_challenge =
+    let commitments = ref [] and challenges = ref Z.zero in
+    for i = 0 to j-1 do
+      let {a; b} = proof.(i).dp_commitment in
+      commitments := b :: a :: !commitments;
+      challenges := Z.(!challenges + proof.(i).dp_challenge);
+    done;
+    commitments := b :: a :: !commitments;
+    for i = j+1 to n-1 do
+      let {a; b} = proof.(i).dp_commitment in
+      commitments := b :: a :: !commitments;
+      challenges := Z.(!challenges + proof.(i).dp_challenge);
+    done;
+    Z.((G.hash (List.rev !commitments) + q - !challenges) mod q)
+  in
+  let dp_response = Z.((r * dp_challenge + w) mod q) in
+  proof.(j) <- { dp_commitment = {a; b}; dp_challenge; dp_response };
+  proof
+
+let make_ballot e election_hash answers =
+  let y = e.e_public_key.y in
+  {
+    answers =
+      Array.mapi (fun i answer ->
+        let randoms = Array.init (Array.length answer) (fun _ -> random_exponent ()) in
+        let choices =
+          Array.mapi (fun i choice ->
+            assert (choice = 0 || choice = 1);
+            let r = randoms.(i) in
+            { alpha = g **~ r; beta = y **~ r *~ g **~ Z.of_int choice }
+          ) answer
+        in
+        let individual_proofs =
+          Array.mapi (fun i x -> make_proof 0 1 answer.(i) randoms.(i) x) choices
+        in
+        let min = e.e_questions.(i).q_min in
+        let max = match e.e_questions.(i).q_max with
+          | Some x -> x
+          | None -> assert false (* FIXME *)
+        in
+        let overall_proof =
+          let ( *- ) a b = Z.({ alpha = a.alpha * b.alpha; beta = a.beta * b.beta }) in
+          let dummy_ciphertext = Z.({ alpha = one; beta = one}) in
+          let sum_cleartexts = Array.fold_left ( + ) 0 answer in
+          let sum_ciphertexts = Array.fold_left ( *- ) dummy_ciphertext choices in
+          let sum_randoms = Z.(Array.fold_left ( + ) zero randoms) in
+          make_proof min max sum_cleartexts sum_randoms sum_ciphertexts
+        in
+        { choices; individual_proofs; overall_proof }
+      ) answers;
+    election_hash;
+    election_uuid = e.e_uuid;
+  }
+
+let b1 = make_ballot e.election e.fingerprint [| [| 1; 0; 0; 0 |] |];;
+assert (Crypto.check_ballot e.election e.fingerprint b1);;
