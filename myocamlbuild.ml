@@ -19,6 +19,10 @@ let () = dispatch & function
     Pathname.define_context "src" ["helios/src"];
     Pathname.define_context "helios/src" ["src"];
     Pathname.define_context "tests" ["src"];
+    Pathname.define_context "." ["src"];
+
+    (* the following avoids an ocamlfind warning, it should be built-in *)
+    flag ["doc"; "thread"] (A"-thread");
 
     rule "%.atd -> %_t.ml & %_t.mli" ~deps:["%.atd"] ~prods:["%_t.ml"; "%_t.mli"]
       (atdgen_action [A"-t"]);

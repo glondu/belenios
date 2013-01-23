@@ -1,2 +1,3 @@
 src/lib.cma
 src/server.cma
+api.docdir/index.html
