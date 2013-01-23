@@ -8,7 +8,7 @@ type election_data = {
 }
 
 val load_elections_and_votes :
-  string -> (election_data * Z.t vote Lwt_stream.t * voter Lwt_stream.t) Lwt_stream.t
+  string -> (election_data * Z.t ballot Lwt_stream.t * voter Lwt_stream.t) Lwt_stream.t
 
-val hash_vote : Z.t vote -> string
+val hash_ballot : Z.t ballot -> string
 val hash_user : user -> string

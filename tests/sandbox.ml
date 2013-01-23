@@ -10,7 +10,7 @@ module type TYPES = sig
   val election : elt election t
   val private_key : elt private_key t
   val trustee_public_key : elt trustee_public_key t
-  val vote : elt vote t
+  val ballot : elt ballot t
   val encrypted_tally : elt encrypted_tally t
   val partial_decryption : elt partial_decryption t
   val election_public_data : elt election_public_data t
@@ -38,7 +38,7 @@ module MakeTypes (G : SGROUP) : TYPES with type elt = G.t = struct
   let election = (read_election G.read, write_election G.write)
   let private_key = (read_private_key G.read, write_private_key G.write)
   let trustee_public_key = (read_trustee_public_key G.read, write_trustee_public_key G.write)
-  let vote = (read_vote G.read, write_vote G.write)
+  let ballot = (read_ballot G.read, write_ballot G.write)
   let encrypted_tally = (read_encrypted_tally G.read, write_encrypted_tally G.write)
   let partial_decryption = (read_partial_decryption G.read, write_partial_decryption G.write)
   let election_public_data = (read_election_public_data G.read, write_election_public_data G.write)
@@ -75,7 +75,7 @@ let verbose_assert msg it =
   let r = Lazy.force it in
   Printf.eprintf " %s\n%!" (if r then "OK" else "failed!")
 
-let verbose_verify_election_test_data (e, votes, voters, private_data) =
+let verbose_verify_election_test_data (e, ballots, voters, private_data) =
   Printf.eprintf "Verifying election %S:\n%!" e.election.e_short_name;
   let {g; p; q; y} = e.election.e_public_key in
   let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
@@ -85,18 +85,18 @@ let verbose_verify_election_test_data (e, votes, voters, private_data) =
       e.election.e_public_key.y
       e.public_data.public_keys
   ));
-  if Array.length votes = 0 then (
-    Printf.eprintf "   no votes available\n%!"
+  if Array.length ballots = 0 then (
+    Printf.eprintf "   no ballots available\n%!"
   ) else (
-    verbose_assert "votes" (lazy (
+    verbose_assert "ballots" (lazy (
       Array.foralli (fun _ x ->
-        Crypto.verify_vote e.election e.fingerprint x
-      ) votes
+        Crypto.verify_ballot e.election e.fingerprint x
+      ) ballots
     ));
     (match e.public_data.election_result with
       | Some r ->
         verbose_assert "encrypted tally" (lazy (
-          r.encrypted_tally = Crypto.compute_encrypted_tally e.election votes
+          r.encrypted_tally = Crypto.compute_encrypted_tally e.election ballots
         ))
       | None -> ()
     );
@@ -111,7 +111,7 @@ let verbose_verify_election_test_data (e, votes, voters, private_data) =
     | None -> Printf.eprintf "   no results available\n%!"
   );
   verbose_assert "voter count" (lazy (
-    Array.length voters = Array.length votes
+    Array.length voters = Array.length ballots
   ));
   verbose_assert "private keys" (lazy (
     Array.foralli
@@ -122,11 +122,11 @@ let verbose_verify_election_test_data (e, votes, voters, private_data) =
 let load_election_and_verify_it_all dirname =
   load_elections_and_votes dirname |>
   Lwt_stream.to_list |> Lwt_main.run |>
-  List.map (fun (e, v, voters) ->
-    let votes = Lwt_stream.to_list v |> Lwt_main.run |> Array.of_list in
+  List.map (fun (e, ballots, voters) ->
+    let ballots = Lwt_stream.to_list ballots |> Lwt_main.run |> Array.of_list in
     let voters = Lwt_stream.to_list voters |> Lwt_main.run |> Array.of_list in
     let private_data = load_election_private_data dirname (Uuidm.to_string e.election.e_uuid) in
-    (e, votes, voters, private_data)
+    (e, ballots, voters, private_data)
   ) |>
   List.iter verbose_verify_election_test_data;;
 

@@ -399,7 +399,7 @@ let election_view ~election ~user =
   ] in
   base ~title:election.Common.election.e_name ~header:[] ~content
 
-let vote_cast ~election ~result =
+let cast_ballot ~election ~result =
   let title = election.Common.election.e_name in
   let content = [
     h2 ~a:[a_class ["title"]] [
@@ -407,7 +407,7 @@ let vote_cast ~election ~result =
     ];
     br ();
     div [
-      pcdata "Your vote in ";
+      pcdata "Your ballot for ";
       em [pcdata election.Common.election.e_name];
       (match result with
          | `Valid hash -> pcdata (" is valid, its hash is " ^ hash)

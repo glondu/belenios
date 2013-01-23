@@ -25,17 +25,17 @@ let () =
       Ocsigen_messages.debug
         (fun () -> "Loading elections from " ^ dir ^ "...");
       Common.load_elections_and_votes dir |>
-      Lwt_stream.iter_s (fun (e, votes, voters) ->
+      Lwt_stream.iter_s (fun (e, ballots, voters) ->
         let uuid = Uuidm.to_string e.Common.election.e_uuid in
         Ocsigen_messages.debug
           (fun () -> Printf.sprintf "-- loading %s (%s)" uuid e.Common.election.e_short_name);
         lwt () = Ocsipersist.add elections_table uuid e in
         let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
-        let table = Ocsipersist.open_table ("votes_" ^ uuid_underscored) in
+        let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
         let voters_table = Ocsipersist.open_table ("voters_" ^ uuid_underscored) in
         lwt () = Lwt_stream.iter_s (fun v ->
-          Ocsipersist.add table (Common.hash_vote v) v
-        ) votes in
+          Ocsipersist.add table (Common.hash_ballot v) v
+        ) ballots in
         lwt () = Lwt_stream.iter_s (fun v ->
           Ocsipersist.add voters_table (Common.hash_user v.voter_user) v
         ) voters in
@@ -130,9 +130,9 @@ let () = Eliom_registration.String.register
   (if_eligible
      (fun uuid election user () ->
        let uuid_underscored = String.map (function '-' -> '_' | c -> c) (Uuidm.to_string uuid) in
-       let table = Ocsipersist.open_table ("votes_" ^ uuid_underscored) in
+       let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
        lwt ballots = Ocsipersist.fold_step (fun hash v res ->
-         let s = Helios_datatypes_j.string_of_vote Core_datatypes_j.write_number v ^ "\n" in
+         let s = Helios_datatypes_j.string_of_ballot Core_datatypes_j.write_number v ^ "\n" in
          return (s :: res)
        ) table [] in
        let result = String.concat "" ballots in
@@ -179,20 +179,20 @@ let () = Eliom_registration.Redirection.register
 let () = Eliom_registration.Html5.register
   ~service:Helios_services.election_cast_post
   (if_eligible
-     (fun uuid election user evote ->
+     (fun uuid election user raw_ballot ->
        let result =
          try
-           let vote = Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number evote in
+           let ballot = Helios_datatypes_j.ballot_of_string Core_datatypes_j.read_number raw_ballot in
            let {g; p; q; y} = election.Common.election.e_public_key in
            let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
            let module Crypto = ElGamal.Make (G) in
            if
-             Uuidm.equal uuid vote.election_uuid &&
-             Crypto.verify_vote election.Common.election election.Common.fingerprint vote
-           then `Valid (Common.hash_vote vote)
+             Uuidm.equal uuid ballot.election_uuid &&
+             Crypto.verify_ballot election.Common.election election.Common.fingerprint ballot
+           then `Valid (Common.hash_ballot ballot)
            else `Invalid
          with e -> `Malformed
        in
-       Helios_templates.vote_cast ~election ~result
+       Helios_templates.cast_ballot ~election ~result
      )
   )

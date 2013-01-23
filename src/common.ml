@@ -38,12 +38,12 @@ let load_elections_and_votes dirname =
           load_from_file (Helios_datatypes_j.read_election_public_data Core_datatypes_j.read_number)
         in
         let fingerprint = hashB raw in
-        let votes =
-          let file = data "votes.json" in
+        let ballots =
+          let file = data "ballots.json" in
           if Sys.file_exists file then (
             Lwt_io.lines_of_file file |>
             Lwt_stream.map (fun x ->
-              let v = Helios_datatypes_j.vote_of_string Core_datatypes_j.read_number x in
+              let v = Helios_datatypes_j.ballot_of_string Core_datatypes_j.read_number x in
               assert (Uuidm.equal uuid v.election_uuid);
               v
             )
@@ -60,14 +60,14 @@ let load_elections_and_votes dirname =
           ) else Lwt_stream.from_direct (fun () -> None)
         in
         let election_data = { raw; fingerprint; election; public_data } in
-        Lwt.return (Some (election_data, votes, voters))
+        Lwt.return (Some (election_data, ballots, voters))
       | None -> assert false
     ) else Lwt.return None
   )
 
 let concat s l f = String.concat s (List.map f (Array.to_list l))
 
-let hash_vote v =
+let hash_ballot v =
   concat "//" v.answers (fun a ->
     concat "|" a.choices (fun c ->
       Printf.sprintf "%s,%s" (Z.to_string c.alpha) (Z.to_string c.beta)

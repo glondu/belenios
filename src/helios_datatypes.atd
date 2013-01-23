@@ -96,7 +96,7 @@ type 'a answer = {
   overall_proof : 'a disjunctive_proof;
 }
 
-type 'a vote = {
+type 'a ballot = {
   answers : 'a answer list <ocaml repr="array">;
   election_hash : string;
   election_uuid : uuid;
