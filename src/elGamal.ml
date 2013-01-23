@@ -22,7 +22,7 @@ let hashZ x = Cryptokit.(x |>
 
 let check_modulo p x = Z.(geq x zero && lt x p)
 
-let make_ff_msubgroup p q g =
+let make_ff_msubgroup ~p ~q ~g =
   if
     Z.probab_prime p 10 > 0 &&
     Z.probab_prime q 10 > 0 &&
