@@ -60,3 +60,5 @@ let non_empty_lines_of_file fname =
   Lwt_io.lines_of_file fname |>
   Lwt_stream.filter (fun s -> s <> "") |>
   Lwt_stream.to_list
+
+let random q = assert false

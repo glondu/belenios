@@ -1,0 +1,68 @@
+<doc text="Serializable datatypes">
+
+(** {2 Predefined types} *)
+
+type number <ocaml predef from="Core_datatypes"> = abstract
+type uuid <ocaml predef from="Core_datatypes"> = abstract
+
+(** {2 Basic cryptographic datastructures} *)
+
+type 'a ciphertext = {
+  alpha : 'a;
+  beta : 'a;
+}
+<doc text="An ElGamal ciphertext.">
+
+type proof = {
+  challenge : number;
+  response : number;
+}
+<doc text="A Fiat-Shamir non-interactive zero-knowledge proof of knowledge (ZKP).">
+
+type disjunctive_proof = proof list <ocaml repr="array">
+<doc text="A disjunctive ZKP. The size of the array is the number of disjuncts. ">
+
+(** {2 Elections} *)
+
+type question = {
+  answers : string list <ocaml repr="array">;
+  min : int;
+  max : int;
+  question : string;
+} <ocaml field_prefix="q_">
+
+type 'a election = {
+  description : string;
+  name : string;
+  public_key : 'a;
+  questions : question list <ocaml repr="array">;
+  uuid : uuid;
+  short_name : string;
+} <ocaml field_prefix="e_">
+<doc text="Election parameters relevant for creating a ballot.">
+
+type 'a answer = {
+  choices : 'a ciphertext list <ocaml repr="array">;
+  individual_proofs : disjunctive_proof list <ocaml repr="array">;
+  overall_proof : disjunctive_proof;
+}
+<doc text="An answer to a question. It consists of a weight for each
+choice, a proof that each of these weights is 0 or 1, and an overall
+proof that the total weight is within bounds.">
+
+type 'a ballot = {
+  answers : 'a answer list <ocaml repr="array">;
+  election_hash : string;
+  election_uuid : uuid;
+}
+
+type 'a partial_decryption = {
+  decryption_factors : 'a list <ocaml repr="array"> list <ocaml repr="array">;
+  decryption_proofs : proof list <ocaml repr="array"> list <ocaml repr="array">;
+}
+
+type 'a result = {
+  encrypted_tally : 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">;
+  partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
+  result : int list <ocaml repr="array"> list <ocaml repr="array">;
+}

@@ -22,3 +22,5 @@ val hashB : string -> string
 
 val load_from_file : (Yojson.lexer_state -> Lexing.lexbuf -> 'a) -> string -> 'a
 val non_empty_lines_of_file : string -> string list Lwt.t
+
+val random : Z.t -> Z.t
