@@ -1,5 +1,5 @@
 open StdExtra
-open Helios_datatypes_t
+open Serializable_compat_t
 open Common
 
 module type TYPES = sig
@@ -30,7 +30,7 @@ module SFiniteFieldMult : SGROUP with type t = Z.t = struct
 end
 
 module MakeTypes (G : SGROUP) : TYPES with type elt = G.t = struct
-  open Helios_datatypes_j
+  open Serializable_compat_j
   type elt = G.t
   type 'a t = (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) * (Bi_outbuf.t -> 'a -> unit)
   let read = fst

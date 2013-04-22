@@ -1,5 +1,5 @@
 open StdExtra
-open Helios_datatypes_t
+open Serializable_compat_t
 open Lwt
 
 (* The following should be in configuration file... but
@@ -117,7 +117,7 @@ let () = Eliom_registration.String.register
   (if_eligible
      (fun uuid election user () ->
        return (
-         Helios_datatypes_j.string_of_election_public_data
+         Serializable_compat_j.string_of_election_public_data
            Core_datatypes_j.write_number
            election.Common.public_data,
          "application/json"
@@ -132,7 +132,7 @@ let () = Eliom_registration.String.register
        let uuid_underscored = String.map (function '-' -> '_' | c -> c) (Uuidm.to_string uuid) in
        let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
        lwt ballots = Ocsipersist.fold_step (fun hash v res ->
-         let s = Helios_datatypes_j.string_of_ballot Core_datatypes_j.write_number v ^ "\n" in
+         let s = Serializable_compat_j.string_of_ballot Core_datatypes_j.write_number v ^ "\n" in
          return (s :: res)
        ) table [] in
        let result = String.concat "" ballots in
@@ -146,7 +146,7 @@ let () = Eliom_registration.String.register
     (* FIXME: DoS/entropy exhaustion vulnerability *)
     Lwt_preemptive.detach (fun () -> Cryptokit.Random.(string secure_rng 32)) () >>=
     wrap1 Cryptokit.(transform_string (Base64.encode_compact ())) >>=
-    (fun x -> return (Helios_datatypes_j.string_of_randomness { randomness=x })) >>=
+    (fun x -> return (Serializable_compat_j.string_of_randomness { randomness=x })) >>=
     (fun x -> return (x, "application/json"))
   )
 
@@ -182,7 +182,7 @@ let () = Eliom_registration.Html5.register
      (fun uuid election user raw_ballot ->
        let result =
          try
-           let ballot = Helios_datatypes_j.ballot_of_string Core_datatypes_j.read_number raw_ballot in
+           let ballot = Serializable_compat_j.ballot_of_string Core_datatypes_j.read_number raw_ballot in
            let {g; p; q; y} = election.Common.election.e_public_key in
            let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
            let module Crypto = ElGamal.Make (G) in

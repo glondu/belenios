@@ -1,5 +1,5 @@
 open StdExtra
-open Helios_datatypes_t
+open Serializable_compat_t
 open Eliom_service
 open Eliom_parameter
 

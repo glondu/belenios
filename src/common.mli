@@ -1,4 +1,4 @@
-open Helios_datatypes_t
+open Serializable_compat_t
 
 type election_data = {
   raw : string;

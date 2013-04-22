@@ -1,5 +1,5 @@
 open StdExtra
-open Helios_datatypes_t
+open Serializable_compat_t
 
 type election_data = {
   raw : string;
@@ -29,13 +29,13 @@ let load_elections_and_votes dirname =
           Lwt_io.lines_of_file |>
           enforce_single_element
         in
-        let election = Helios_datatypes_j.election_of_string
+        let election = Serializable_compat_j.election_of_string
           Core_datatypes_j.read_number raw
         in
         (assert_lwt (Uuidm.equal uuid election.e_uuid)) >>
         let public_data =
           data "public.json" |>
-          load_from_file (Helios_datatypes_j.read_election_public_data Core_datatypes_j.read_number)
+          load_from_file (Serializable_compat_j.read_election_public_data Core_datatypes_j.read_number)
         in
         let fingerprint = hashB raw in
         let ballots =
@@ -43,7 +43,7 @@ let load_elections_and_votes dirname =
           if Sys.file_exists file then (
             Lwt_io.lines_of_file file |>
             Lwt_stream.map (fun x ->
-              let v = Helios_datatypes_j.ballot_of_string Core_datatypes_j.read_number x in
+              let v = Serializable_compat_j.ballot_of_string Core_datatypes_j.read_number x in
               assert (Uuidm.equal uuid v.election_uuid);
               v
             )
@@ -54,7 +54,7 @@ let load_elections_and_votes dirname =
           if Sys.file_exists file then (
             Lwt_io.lines_of_file file |>
             Lwt_stream.map (fun x ->
-              let v = Helios_datatypes_j.signature_of_string x in
+              let v = Serializable_compat_j.signature_of_string x in
               v
             )
           ) else Lwt_stream.from_direct (fun () -> None)
@@ -96,5 +96,5 @@ let hash_ballot v =
   hashB
 
 let hash_user v =
-  Helios_datatypes_j.string_of_user v |>
+  Serializable_compat_j.string_of_user v |>
   hashB
