@@ -1,3 +1,5 @@
+<doc text="Serializable datatypes (compatibility layer)">
+
 (** {1 Core types} *)
 
 type number <ocaml predef from="Core_datatypes"> = abstract
@@ -72,7 +74,7 @@ type 'a election = {
 
 (** {1 Ballots} *)
 
-type 'a choice = {
+type 'a choice <ocaml predef from="Serializable" t="ciphertext"> = {
   alpha : 'a;
   beta : 'a;
 }
