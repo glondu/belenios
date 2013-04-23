@@ -8,8 +8,13 @@ end
 
 module Array : sig
   include module type of Array
+  val forall : ('a -> bool) -> 'a array -> bool
   val forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
   val foralli : (int -> 'a -> bool) -> 'a array -> bool
+  val map2 : ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
+  val map2i : (int -> 'a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
+  val map2ij : ('a -> 'b -> 'c) -> 'a array array -> 'b array array -> 'c array array
+  val map3 : ('a -> 'b -> 'c -> 'd) -> 'a array -> 'b array -> 'c array -> 'd array
 end
 
 module String : sig

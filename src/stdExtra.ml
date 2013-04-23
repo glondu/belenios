@@ -4,6 +4,13 @@ let ( =% ) = Z.equal
 module Array = struct
   include Array
 
+  let forall f a =
+    let n = Array.length a in
+    (let rec check i =
+       if i >= 0 then f a.(i) && check (pred i)
+       else true
+     in check (pred n))
+
   let forall2 f a b =
     let n = Array.length a in
     n = Array.length b &&
@@ -17,6 +24,23 @@ module Array = struct
       if i >= 0 then f i x.(i) && loop (pred i)
       else true
     in loop (pred (Array.length x))
+
+  let map2 f a b =
+    Array.mapi (fun i ai -> f ai b.(i)) a
+
+  let map2i f a b =
+    Array.mapi (fun i ai -> f i ai b.(i)) a
+
+  let map2ij f a b =
+    Array.mapi (fun i ai ->
+      let bi = b.(i) in
+      Array.mapi (fun j aj ->
+        f aj bi.(j)
+      ) ai
+    ) a
+
+  let map3 f a b c =
+    Array.mapi (fun i ai -> f ai b.(i) c.(i)) a
 end
 
 module List = struct
@@ -61,4 +85,9 @@ let non_empty_lines_of_file fname =
   Lwt_stream.filter (fun s -> s <> "") |>
   Lwt_stream.to_list
 
-let random q = assert false
+let prng = Cryptokit.Random.(pseudo_rng (string secure_rng 32))
+
+let random q =
+  let size = Z.size q * Sys.word_size / 8 in
+  let r = Cryptokit.Random.string prng size in
+  Z.(of_bits r mod q)

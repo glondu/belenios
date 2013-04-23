@@ -2,6 +2,7 @@ StdExtra
 Core_datatypes_j
 Serializable_t
 Serializable_j
+Crypto
 Serializable_compat_t
 Serializable_compat_j
 Serializable_compat

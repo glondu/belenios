@@ -142,7 +142,7 @@ let rec get_election name = function
 let e, ballots, signatures, private_data = get_election "editor" all_data;;
 let {g; p; q; y} = e.election.e_public_key
 module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t)
-module Crypto = ElGamal.Make (G)
+module MyCrypto = ElGamal.Make (G)
 
 let random_exponent =
   let pseudo = lazy Cryptokit.Random.(pseudo_rng (string secure_rng 20)) in
@@ -231,4 +231,26 @@ let make_ballot e election_hash answers =
   }
 
 let b1 = make_ballot e.election e.fingerprint [| [| 1; 0; 0; 0 |] |];;
-assert (Crypto.check_ballot e.election e.fingerprint b1);;
+assert (MyCrypto.check_ballot e.election e.fingerprint b1);;
+
+module P = struct
+  module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+  let params = Serializable_compat.of_election e.election
+  let fingerprint = e.fingerprint
+end
+
+module Election = Crypto.MakeHomomorphicElection(P)
+module Compat = Serializable_compat.MakeCompat(P)
+
+let nballots = Array.map Serializable_compat.of_ballot ballots;;
+assert (Array.forall Election.check_ballot nballots);;
+assert (Array.forall2 (fun b b' -> b = Compat.to_ballot b') ballots nballots);;
+
+let create_ballot b =
+  let randomness = Array.map (fun x ->
+    Array.map (fun _ -> random q) x
+  ) b in
+  Election.create_ballot randomness b
+
+let test_ballot = create_ballot [| [| 1; 0; 0; 0 |] |];;
+assert (Election.check_ballot test_ballot);;
