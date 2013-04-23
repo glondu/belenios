@@ -1,4 +1,4 @@
-open Core_datatypes_t
+open Serializable_builtin_t
 
 (** {1 Serializers for type number} *)
 

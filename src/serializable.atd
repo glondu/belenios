@@ -2,8 +2,8 @@
 
 (** {2 Predefined types} *)
 
-type number <ocaml predef from="Core_datatypes"> = abstract
-type uuid <ocaml predef from="Core_datatypes"> = abstract
+type number <ocaml predef from="Serializable_builtin"> = abstract
+type uuid <ocaml predef from="Serializable_builtin"> = abstract
 
 (** {2 Basic cryptographic datastructures} *)
 

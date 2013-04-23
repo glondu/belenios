@@ -14,11 +14,11 @@
 #load "lib.cma";;
 
 let pp_print_datetime ppf x =
-  Format.pp_print_string ppf (Core_datatypes_j.string_of_datetime x)
+  Format.pp_print_string ppf (Serializable_builtin_j.string_of_datetime x)
 ;;
 
 let pp_print_uuid ppf x =
-  Format.pp_print_string ppf (Core_datatypes_j.string_of_uuid x)
+  Format.pp_print_string ppf (Serializable_builtin_j.string_of_uuid x)
 ;;
 
 #install_printer Z.pp_print;;

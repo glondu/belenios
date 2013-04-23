@@ -30,12 +30,12 @@ let load_elections_and_votes dirname =
           enforce_single_element
         in
         let election = Serializable_compat_j.election_of_string
-          Core_datatypes_j.read_number raw
+          Serializable_builtin_j.read_number raw
         in
         (assert_lwt (Uuidm.equal uuid election.e_uuid)) >>
         let public_data =
           data "public.json" |>
-          load_from_file (Serializable_compat_j.read_election_public_data Core_datatypes_j.read_number)
+          load_from_file (Serializable_compat_j.read_election_public_data Serializable_builtin_j.read_number)
         in
         let fingerprint = hashB raw in
         let ballots =
@@ -43,7 +43,7 @@ let load_elections_and_votes dirname =
           if Sys.file_exists file then (
             Lwt_io.lines_of_file file |>
             Lwt_stream.map (fun x ->
-              let v = Serializable_compat_j.ballot_of_string Core_datatypes_j.read_number x in
+              let v = Serializable_compat_j.ballot_of_string Serializable_builtin_j.read_number x in
               assert (Uuidm.equal uuid v.election_uuid);
               v
             )

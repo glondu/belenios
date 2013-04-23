@@ -25,8 +25,8 @@ end
 
 module SFiniteFieldMult : SGROUP with type t = Z.t = struct
   type t = Z.t
-  let write = Core_datatypes_j.write_number
-  let read = Core_datatypes_j.read_number
+  let write = Serializable_builtin_j.write_number
+  let read = Serializable_builtin_j.read_number
 end
 
 module MakeTypes (G : SGROUP) : TYPES with type elt = G.t = struct

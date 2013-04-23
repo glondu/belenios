@@ -2,10 +2,10 @@
 
 (** {1 Core types} *)
 
-type number <ocaml predef from="Core_datatypes"> = abstract
-type uuid <ocaml predef from="Core_datatypes"> = abstract
-type datetime <ocaml predef from="Core_datatypes"> = abstract
-type int_or_null <ocaml predef from="Core_datatypes"> = abstract
+type number <ocaml predef from="Serializable_builtin"> = abstract
+type uuid <ocaml predef from="Serializable_builtin"> = abstract
+type datetime <ocaml predef from="Serializable_builtin"> = abstract
+type int_or_null <ocaml predef from="Serializable_builtin"> = abstract
 
 (** {1 ElGamal keys} *)
 
