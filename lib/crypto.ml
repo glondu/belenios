@@ -74,7 +74,7 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
       beta = c1.beta *~ c2.beta;
     }
 
-  let combine_ciphertexts = Array.map2ij eg_combine
+  let combine_ciphertexts = Array.mmap2 eg_combine
 
   type plaintext = int array array
   type ballot = public_key Serializable_t.ballot
@@ -177,6 +177,11 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
     let overall_proof = eg_disj_prove d (summ - q.q_min) sumr sumc in
     {choices; individual_proofs; overall_proof}
 
+  let create_randomness () =
+    Array.map (fun q ->
+      Array.init (Array.length q.q_answers) (fun _ -> random G.q)
+    ) params.e_questions
+
   let create_ballot r m =
     {
       answers = Array.map3 create_answer params.e_questions r m;
@@ -201,9 +206,24 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
 
   type factor = public_key Serializable_t.partial_decryption
 
-  let compute_factor c x = assert false
+  let eg_factor x {alpha; beta} =
+    alpha **~ x,
+    fs_prove [| g; alpha |] x hash
 
-  let check_factor c y f = assert false
+  let compute_factor c x =
+    let res = Array.mmap (eg_factor x) c in
+    let decryption_factors, decryption_proofs = Array.ssplit res in
+    {decryption_factors; decryption_proofs}
+
+  let check_factor c y f =
+    Array.fforall3 (fun {alpha; _} f {challenge; response} ->
+      let commitments =
+        [|
+          g **~ response / (y **~ challenge);
+          alpha **~ response / (f **~ challenge);
+        |]
+      in hash commitments =% challenge
+    ) c f.decryption_factors f.decryption_proofs
 
   type result = public_key Serializable_t.result
 

@@ -25,13 +25,39 @@ module Array = struct
       else true
     in loop (pred (Array.length x))
 
+  let fforall3 f xs ys zs =
+    let rec loop_outer i =
+      if i >= 0 then
+        let x = xs.(i) and y = ys.(i) and z = zs.(i) in
+        let n = Array.length x in
+        n = Array.length y &&
+        n = Array.length z &&
+        let rec loop_inner j =
+          if j >= 0 then f x.(j) y.(j) z.(j) && loop_inner (pred j)
+          else true
+        in loop_inner (pred n)
+      else true
+    in
+    let n = Array.length xs in
+    n = Array.length ys &&
+    n = Array.length zs &&
+    loop_outer (pred n)
+
   let map2 f a b =
     Array.mapi (fun i ai -> f ai b.(i)) a
 
   let map2i f a b =
     Array.mapi (fun i ai -> f i ai b.(i)) a
 
-  let map2ij f a b =
+  let map3 f a b c =
+    Array.mapi (fun i ai -> f ai b.(i) c.(i)) a
+
+  let mmap f a =
+    Array.map (fun ai ->
+      Array.map f ai
+    ) a
+
+  let mmap2 f a b =
     Array.mapi (fun i ai ->
       let bi = b.(i) in
       Array.mapi (fun j aj ->
@@ -39,8 +65,16 @@ module Array = struct
       ) ai
     ) a
 
-  let map3 f a b c =
-    Array.mapi (fun i ai -> f ai b.(i) c.(i)) a
+  let mmap3 f a b c =
+    Array.mapi (fun i ai ->
+      let bi = b.(i) and ci = c.(i) in
+      Array.mapi (fun j aj ->
+        f aj bi.(j) ci.(j)
+      ) ai
+    ) a
+
+  let ssplit a =
+    mmap fst a, mmap snd a
 end
 
 module List = struct
@@ -85,7 +119,9 @@ let non_empty_lines_of_file fname =
   Lwt_stream.filter (fun s -> s <> "") |>
   Lwt_stream.to_list
 
-let prng = Cryptokit.Random.(pseudo_rng (string secure_rng 32))
+let seed = lazy (Cryptokit.Random.(string secure_rng 32))
+
+let prng = Cryptokit.Random.(pseudo_rng (Lazy.force seed))
 
 let random q =
   let size = Z.size q * Sys.word_size / 8 in

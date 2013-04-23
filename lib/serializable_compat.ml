@@ -44,9 +44,17 @@ let of_ballot b =
   let open Serializable_t in
   {answers; election_hash; election_uuid}
 
+let of_partial_decryption p =
+  let {decryption_factors; decryption_proofs} = p in
+  let decryption_proofs = Array.mmap of_proof decryption_proofs in
+  let open Serializable_t in
+  {decryption_factors; decryption_proofs}
+
 module type COMPAT = sig
   type t
   val to_ballot : t Serializable_t.ballot -> t ballot
+  val to_partial_decryption : t Serializable_t.ciphertext array array ->
+    t Serializable_t.partial_decryption -> t partial_decryption
 end
 
 module MakeCompat (P : Crypto_sigs.ELECTION_PARAMS) = struct
@@ -114,9 +122,13 @@ module MakeCompat (P : Crypto_sigs.ELECTION_PARAMS) = struct
 
   let to_answer a q =
     let {choices; individual_proofs; overall_proof} = a in
-    let individual_proofs = Array.map2 (recommit d01) individual_proofs choices in
+    let individual_proofs =
+      Array.map2 (recommit d01) individual_proofs choices
+    in
     let sumc = Array.fold_left eg_combine dummy_ciphertext choices in
-    let overall_proof = recommit (make_d q.q_min q.q_max) overall_proof sumc in
+    let overall_proof =
+      recommit (make_d q.q_min q.q_max) overall_proof sumc
+    in
     let open Serializable_compat_t in
     {choices; individual_proofs; overall_proof}
 
@@ -125,4 +137,22 @@ module MakeCompat (P : Crypto_sigs.ELECTION_PARAMS) = struct
     let answers = Array.map2 to_answer answers params.e_questions in
     let open Serializable_compat_t in
     {answers; election_hash; election_uuid}
+
+  let to_partial_decryption c p =
+    let {decryption_factors; decryption_proofs} = p in
+    let decryption_proofs =
+      Array.mmap3 (fun {alpha; _} f {challenge; response} ->
+        let open Serializable_compat_t in
+        let dp_commitment = {
+          a = g **~ response / (y **~ challenge);
+          b = alpha **~ response / (f **~ challenge);
+        } in {
+          dp_commitment;
+          dp_challenge = challenge;
+          dp_response = response;
+        }
+      ) c decryption_factors decryption_proofs
+    in
+    let open Serializable_compat_t in
+    {decryption_factors; decryption_proofs}
 end

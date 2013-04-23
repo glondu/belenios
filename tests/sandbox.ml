@@ -254,3 +254,21 @@ let create_ballot b =
 
 let test_ballot = create_ballot [| [| 1; 0; 0; 0 |] |];;
 assert (Election.check_ballot test_ballot);;
+
+let result =
+  match e.public_data.election_result with
+    | Some r -> r
+    | None -> assert false
+
+let tally = result.encrypted_tally.tally;;
+let fs = Array.map Serializable_compat.of_partial_decryption result.partial_decryptions;;
+assert (Array.forall2 (fun f f' -> f = Compat.to_partial_decryption tally f') result.partial_decryptions fs);;
+let ys = Array.map (fun x -> x.trustee_public_key.y) e.public_data.public_keys;;
+assert (Array.forall2 (Election.check_factor tally) ys fs);;
+
+let y = ys.(0);;
+let x = Z.of_string "45298523167338358817538343074024028933886309805828157085973885299032584889325";;
+assert (g **~ x =% y);;
+
+let test_factor = Election.compute_factor tally x;;
+assert (Election.check_factor tally y test_factor);;

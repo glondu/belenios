@@ -88,8 +88,12 @@ module type HOMOMORPHIC = sig
   type randomness = Z.t array array
   (** Randomness needed to create a ballot. *)
 
+  val create_randomness : unit -> randomness
+  (** Creates randomness for [create_ballot] below. The result can be
+      kept for Benaloh-style auditing. *)
+
   val create_ballot : randomness -> plaintext -> ballot
-  (** [create_ballot answers] creates a ballot, or raises
+  (** [create_ballot r answers] creates a ballot, or raises
       [Invalid_argument] if [answers] doesn't satisfy the election
       constraints. *)
 
@@ -107,7 +111,7 @@ module type HOMOMORPHIC = sig
       private key share and the encrypted tally, and contains a
       cryptographic proof that he or she didn't cheat. *)
 
-  val compute_factor : randomness -> ciphertext -> private_key -> factor
+  val compute_factor : ciphertext -> private_key -> factor
 
   val check_factor : ciphertext -> public_key -> factor -> bool
   (** [check_factor c pk f] checks that [f], supposedly submitted by a
