@@ -42,6 +42,7 @@ let finite_field ~p ~q ~g =
       let ( =~ ) = equal
       let check x = check_modulo p x && x **~ q =~ one
       let hash xs = hashZ (map_and_concat_with_commas Z.to_string xs)
+      let compare = Z.compare
     end in (module G : Crypto_sigs.GROUP with type t = Z.t)
   else
     invalid_arg "Invalid parameters for a multiplicative subgroup of finite field"
@@ -227,9 +228,32 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
 
   type result = public_key Serializable_t.result
 
-  let combine_factors nb_tallied c fs = assert false
+  let combine_factors nb_tallied encrypted_tally partial_decryptions =
+    let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
+    let factors = Array.fold_left (fun a b ->
+      Array.mmap2 ( *~ ) a b.decryption_factors
+    ) dummy partial_decryptions in
+    let exp_results = Array.mmap2 (fun {beta; _} f ->
+      beta / f
+    ) encrypted_tally factors in
+    let log =
+      let module GMap = Map.Make(G) in
+      let rec loop i cur accu =
+        if i < nb_tallied
+        then loop (succ i) (cur *~ g) (GMap.add cur i accu)
+        else accu
+      in
+      let map = loop 0 G.one GMap.empty in
+      fun x ->
+        try
+          GMap.find x map
+        with Not_found ->
+          invalid_arg "Cannot compute result"
+    in
+    let result = Array.mmap log exp_results in
+    {nb_tallied; encrypted_tally; partial_decryptions; result}
 
   let check_result r = assert false
 
-  let extract_tally r = assert false
+  let extract_tally r = r.result
 end

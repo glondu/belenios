@@ -6,6 +6,7 @@ val of_election : 'a election -> 'a Serializable_t.election
 val of_ballot : 'a ballot -> 'a Serializable_t.ballot
 val of_partial_decryption :
   'a partial_decryption -> 'a Serializable_t.partial_decryption
+val of_result : 'a result -> 'a Serializable_t.result
 
 module type COMPAT = sig
   type t

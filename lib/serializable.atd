@@ -62,6 +62,7 @@ type 'a partial_decryption = {
 }
 
 type 'a result = {
+  nb_tallied : int;
   encrypted_tally : 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">;
   partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
   result : int list <ocaml repr="array"> list <ocaml repr="array">;

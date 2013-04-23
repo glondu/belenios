@@ -35,6 +35,9 @@ module type GROUP = sig
 
   val hash : t array -> Z.t
   (** Hash an array of elements into an integer mod [q]. *)
+
+  val compare : t -> t -> int
+  (** A total ordering over the elements of the group. *)
 end
 
 (** Parameters for an election. *)
@@ -126,8 +129,8 @@ module type HOMOMORPHIC = sig
 
   val combine_factors : int -> ciphertext -> factor array -> result
   (** Combine the encrypted tally and the factors from all trustees to
-      produce the election result. This first argument is the number
-      of tallied ballots. *)
+      produce the election result. The first argument is the number of
+      tallied ballots. May raise [Invalid_argument]. *)
 
   val check_result : result -> bool
 
