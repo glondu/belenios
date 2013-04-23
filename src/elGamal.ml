@@ -1,4 +1,4 @@
-open StdExtra
+open Util
 open Serializable_compat_t
 
 module type GROUP = sig

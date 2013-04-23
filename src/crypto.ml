@@ -1,4 +1,4 @@
-open StdExtra
+open Util
 
 (** Helper functions *)
 

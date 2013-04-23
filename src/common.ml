@@ -1,4 +1,4 @@
-open StdExtra
+open Util
 open Serializable_compat_t
 
 type election_data = {
