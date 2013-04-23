@@ -32,7 +32,7 @@
       <site path="booth" charset="utf-8">
         <static dir="_SRCDIR_/helios/booth" />
       </site>
-      <eliom module="_build/src/server.cma">
+      <eliom module="_build/web/server.cma">
         <load dir="tests/data"/>
       </eliom>
     </host>

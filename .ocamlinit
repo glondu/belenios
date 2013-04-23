@@ -10,7 +10,7 @@
 #require "lwt.unix";;
 #require "lwt.syntax";;
 
-#directory "_build/src";;
+#directory "_build/lib";;
 #load "lib.cma";;
 
 let pp_print_datetime ppf x =
