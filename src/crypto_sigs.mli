@@ -1,4 +1,4 @@
-(** Cryptographic primitives signatures *)
+(** Signatures of cryptographic primitives *)
 
 (** A group suitable for discrete logarithm-based cryptography. *)
 module type GROUP = sig
