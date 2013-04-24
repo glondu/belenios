@@ -27,10 +27,10 @@
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <site path="static" charset="utf-8">
-        <static dir="_SRCDIR_/helios/static" />
+        <static dir="_SRCDIR_/web/helios/static" />
       </site>
       <site path="booth" charset="utf-8">
-        <static dir="_SRCDIR_/helios/booth" />
+        <static dir="_SRCDIR_/web/helios/booth" />
       </site>
       <eliom module="_build/web/server.cma">
         <load dir="tests/data"/>

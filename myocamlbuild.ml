@@ -16,8 +16,8 @@ let () = dispatch & function
 
   | After_rules ->
 
-    Pathname.define_context "web" ["lib"; "helios/src"];
-    Pathname.define_context "helios/src" ["lib"; "web"];
+    Pathname.define_context "web" ["lib"; "web/helios/src"];
+    Pathname.define_context "web/helios/src" ["lib"; "web"];
     Pathname.define_context "tests" ["lib"];
     Pathname.define_context "." ["lib"];
 
