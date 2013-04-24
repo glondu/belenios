@@ -78,21 +78,28 @@ let verbose_assert msg it =
 let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   Printf.eprintf "Verifying election %S:\n%!" e.election.e_short_name;
   let {g; p; q; y} = e.election.e_public_key in
-  let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
-  let module Crypto = ElGamal.Make (G) in
+  let module P = struct
+    module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+    let params = Serializable_compat.of_election e.election
+    let fingerprint = e.fingerprint
+  end in
+  let module Election = Crypto.MakeHomomorphicElection(P) in
+(*
   verbose_assert "election key" (lazy (
     Crypto.check_election_key
       e.election.e_public_key.y
       e.public_data.public_keys
   ));
+*)
   if Array.length ballots = 0 then (
     Printf.eprintf "   no ballots available\n%!"
   ) else (
     verbose_assert "ballots" (lazy (
       Array.foralli (fun _ x ->
-        Crypto.check_ballot e.election e.fingerprint x
+        Election.check_ballot (Serializable_compat.of_ballot x)
       ) ballots
     ));
+(*
     (match e.public_data.election_result with
       | Some r ->
         verbose_assert "encrypted tally" (lazy (
@@ -100,7 +107,9 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
         ))
       | None -> ()
     );
+*)
   );
+(*
   (match e.public_data.election_result with
     | Some r ->
       verbose_assert "partial decryptions" (lazy (
@@ -110,14 +119,18 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
       verbose_assert "result" (lazy (Crypto.check_result e.election r));
     | None -> Printf.eprintf "   no results available\n%!"
   );
+*)
   verbose_assert "signature count" (lazy (
     Array.length signatures = Array.length ballots
   ));
+(*
   verbose_assert "private keys" (lazy (
     Array.foralli
       (fun _ k -> Crypto.check_private_key k)
       private_data.private_keys
-  ));;
+  ))
+*)
+  ();;
 
 let iter_keep f xs = List.iter f xs; xs;;
 
@@ -141,8 +154,6 @@ let rec get_election name = function
 
 let e, ballots, signatures, private_data = get_election "editor" all_data;;
 let {g; p; q; y} = e.election.e_public_key
-module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t)
-module MyCrypto = ElGamal.Make (G)
 
 let random_exponent =
   let pseudo = lazy Cryptokit.Random.(pseudo_rng (string secure_rng 20)) in
@@ -152,86 +163,6 @@ let random_exponent =
     (* 32 is 256 bits of entropy, taken from pseudo-random source *)
     let hex = Cryptokit.(transform_string (Hexa.encode ()) raw) in
     Z.(of_string_base 16 hex mod q)
-
-open G
-
-let dummy_proof_item = {
-  dp_commitment = { a = Z.one; b = Z.one };
-  dp_challenge = Z.zero;
-  dp_response = Z.zero;
-}
-
-let make_proof min max choice r {alpha; beta} =
-  let n = max-min+1 in
-  let j = choice-min in
-  let proof = Array.create n dummy_proof_item in
-  for i = 0 to n-1 do
-    if i <> j then (
-      let dp_challenge = random_exponent ()
-      and dp_response = random_exponent () in
-      let a = g **~ dp_response *~ inv (alpha **~ dp_challenge)
-      and b = y **~ dp_response *~ inv ((beta *~ inv (g **~ Z.of_int i)) **~ dp_challenge) in
-      proof.(i) <- { dp_commitment = {a; b}; dp_challenge; dp_response }
-    )
-  done;
-  let w = random_exponent () in
-  let a = g **~ w and b = y **~ w in
-  let dp_challenge =
-    let commitments = ref [] and challenges = ref Z.zero in
-    for i = 0 to j-1 do
-      let {a; b} = proof.(i).dp_commitment in
-      commitments := b :: a :: !commitments;
-      challenges := Z.(!challenges + proof.(i).dp_challenge);
-    done;
-    commitments := b :: a :: !commitments;
-    for i = j+1 to n-1 do
-      let {a; b} = proof.(i).dp_commitment in
-      commitments := b :: a :: !commitments;
-      challenges := Z.(!challenges + proof.(i).dp_challenge);
-    done;
-    Z.((G.hash (List.rev !commitments) + q - !challenges) mod q)
-  in
-  let dp_response = Z.((r * dp_challenge + w) mod q) in
-  proof.(j) <- { dp_commitment = {a; b}; dp_challenge; dp_response };
-  proof
-
-let make_ballot e election_hash answers =
-  let y = e.e_public_key.y in
-  {
-    answers =
-      Array.mapi (fun i answer ->
-        let randoms = Array.init (Array.length answer) (fun _ -> random_exponent ()) in
-        let choices =
-          Array.mapi (fun i choice ->
-            assert (choice = 0 || choice = 1);
-            let r = randoms.(i) in
-            { alpha = g **~ r; beta = y **~ r *~ g **~ Z.of_int choice }
-          ) answer
-        in
-        let individual_proofs =
-          Array.mapi (fun i x -> make_proof 0 1 answer.(i) randoms.(i) x) choices
-        in
-        let min = e.e_questions.(i).q_min in
-        let max = match e.e_questions.(i).q_max with
-          | Some x -> x
-          | None -> assert false (* FIXME *)
-        in
-        let overall_proof =
-          let ( *- ) a b = Z.({ alpha = a.alpha * b.alpha; beta = a.beta * b.beta }) in
-          let dummy_ciphertext = Z.({ alpha = one; beta = one}) in
-          let sum_cleartexts = Array.fold_left ( + ) 0 answer in
-          let sum_ciphertexts = Array.fold_left ( *- ) dummy_ciphertext choices in
-          let sum_randoms = Z.(Array.fold_left ( + ) zero randoms) in
-          make_proof min max sum_cleartexts sum_randoms sum_ciphertexts
-        in
-        { choices; individual_proofs; overall_proof }
-      ) answers;
-    election_hash;
-    election_uuid = e.e_uuid;
-  }
-
-let b1 = make_ballot e.election e.fingerprint [| [| 1; 0; 0; 0 |] |];;
-assert (MyCrypto.check_ballot e.election e.fingerprint b1);;
 
 module P = struct
   module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
@@ -268,7 +199,7 @@ assert (Array.forall2 (Election.check_factor tally) ys fs);;
 
 let y = ys.(0);;
 let x = Z.of_string "45298523167338358817538343074024028933886309805828157085973885299032584889325";;
-assert (g **~ x =% y);;
+assert P.G.(g **~ x =% y);;
 
 let test_factor = Election.compute_factor tally x;;
 assert (Election.check_factor tally y test_factor);;

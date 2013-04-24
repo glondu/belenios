@@ -184,11 +184,15 @@ let () = Eliom_registration.Html5.register
          try
            let ballot = Serializable_compat_j.ballot_of_string Serializable_builtin_j.read_number raw_ballot in
            let {g; p; q; y} = election.Common.election.e_public_key in
-           let module G = (val ElGamal.make_ff_msubgroup p q g : ElGamal.GROUP with type t = Z.t) in
-           let module Crypto = ElGamal.Make (G) in
+           let module P = struct
+             module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+             let params = Serializable_compat.of_election election.Common.election
+             let fingerprint = assert false
+           end in
+           let module Election = Crypto.MakeHomomorphicElection(P) in
            if
              Uuidm.equal uuid ballot.election_uuid &&
-             Crypto.check_ballot election.Common.election election.Common.fingerprint ballot
+             Election.check_ballot (Serializable_compat.of_ballot ballot)
            then `Valid (Common.hash_ballot ballot)
            else `Invalid
          with e -> `Malformed
