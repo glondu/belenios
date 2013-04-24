@@ -49,18 +49,19 @@ let finite_field ~p ~q ~g =
 
 (** Homomorphic elections *)
 
-module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
+module MakeElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
   open Serializable_t
   open P
   open G
+  type elt = G.t
   type private_key = Z.t
-  type public_key = G.t
+  type public_key = elt
 
   let election_params = params
   let y = params.e_public_key
   let ( / ) x y = x *~ invert y
 
-  type ciphertext = public_key Serializable_t.ciphertext array array
+  type ciphertext = elt Serializable_t.ciphertext array array
 
   let dummy_ciphertext =
     {
@@ -78,7 +79,7 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
   let combine_ciphertexts = Array.mmap2 eg_combine
 
   type plaintext = int array array
-  type ballot = public_key Serializable_t.ballot
+  type ballot = elt Serializable_t.ballot
   type randomness = Z.t array array
 
   (** ElGamal encryption. *)
@@ -205,7 +206,7 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
 
   let extract_ciphertext b = Array.map (fun x -> x.choices) b.answers
 
-  type factor = public_key Serializable_t.partial_decryption
+  type factor = elt Serializable_t.partial_decryption
 
   let eg_factor x {alpha; beta} =
     alpha **~ x,
@@ -235,7 +236,7 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
       in hash commitments =% challenge
     ) c f.decryption_factors f.decryption_proofs
 
-  type result = public_key Serializable_t.result
+  type result = elt Serializable_t.result
 
   let combine_factors nb_tallied encrypted_tally partial_decryptions =
     let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in

@@ -53,7 +53,7 @@ module type ELECTION_PARAMS = sig
 end
 
 (** Cryptographic primives for an election with homomorphic tally. *)
-module type HOMOMORPHIC = sig
+module type ELECTION = sig
 
   (** {2 Election parameters} *)
 
@@ -62,14 +62,15 @@ module type HOMOMORPHIC = sig
       are integers modulo a large prime number. Public keys are
       members of a suitably chosen group. *)
 
+  type elt
   type private_key = Z.t
-  type public_key
+  type public_key = elt
 
-  val election_params : public_key Serializable_t.election
+  val election_params : elt Serializable_t.election
 
   (** {2 Ciphertexts} *)
 
-  type ciphertext = public_key Serializable_t.ciphertext array array
+  type ciphertext = elt Serializable_t.ciphertext array array
   (** A ciphertext that can be homomorphically combined. *)
 
   val combine_ciphertexts : ciphertext -> ciphertext -> ciphertext
@@ -83,7 +84,7 @@ module type HOMOMORPHIC = sig
       ballot. When [x] is such a value, [x.(i).(j)] is the weight (0
       or 1) given to answer [j] in question [i]. *)
 
-  type ballot = public_key Serializable_t.ballot
+  type ballot = elt Serializable_t.ballot
   (** A ballot ready to be transmitted, containing the encrypted
       answers and cryptographic proofs that they satisfy the election
       constraints. *)
@@ -109,7 +110,7 @@ module type HOMOMORPHIC = sig
 
   (** {2 Partial decryptions} *)
 
-  type factor = public_key Serializable_t.partial_decryption
+  type factor = elt Serializable_t.partial_decryption
   (** A decryption share. It is computed by a trustee from his or her
       private key share and the encrypted tally, and contains a
       cryptographic proof that he or she didn't cheat. *)
@@ -123,7 +124,7 @@ module type HOMOMORPHIC = sig
 
   (** {2 Result} *)
 
-  type result = public_key Serializable_t.result
+  type result = elt Serializable_t.result
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 

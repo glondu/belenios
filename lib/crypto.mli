@@ -7,5 +7,5 @@ val finite_field : p:Z.t -> q:Z.t -> g:Z.t ->
     checks on [p], [q] and [g] and raises [Invalid_argument] in caise
     of failure. *)
 
-module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) :
-  Crypto_sigs.HOMOMORPHIC with type public_key = P.G.t
+module MakeElection (P : Crypto_sigs.ELECTION_PARAMS) :
+  Crypto_sigs.ELECTION with type elt = P.G.t

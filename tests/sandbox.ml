@@ -83,7 +83,7 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
     let params = Serializable_compat.of_election e.election
     let fingerprint = e.fingerprint
   end in
-  let module Election = Crypto.MakeHomomorphicElection(P) in
+  let module Election = Crypto.MakeElection(P) in
 (*
   verbose_assert "election key" (lazy (
     Crypto.check_election_key
@@ -170,7 +170,7 @@ module P = struct
   let fingerprint = e.fingerprint
 end
 
-module Election = Crypto.MakeHomomorphicElection(P)
+module Election = Crypto.MakeElection(P)
 module Compat = Serializable_compat.MakeCompat(P)
 
 let nballots = Array.map Serializable_compat.of_ballot ballots;;
