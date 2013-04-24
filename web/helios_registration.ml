@@ -186,6 +186,9 @@ let () = Eliom_registration.Html5.register
            let {g; p; q; y} = election.Common.election.e_public_key in
            let module P = struct
              module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+             let public_keys = Array.map (fun x ->
+               x.trustee_public_key.y
+             ) election.Common.public_data.public_keys
              let params = Serializable_compat.of_election election.Common.election
              let fingerprint = assert false
            end in

@@ -263,10 +263,11 @@ module MakeElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
     let result = Array.mmap log results in
     {nb_tallied; encrypted_tally; partial_decryptions; result}
 
-  let check_result ys r =
+  let check_result r =
     let {encrypted_tally; partial_decryptions; result; nb_tallied} = r in
     check_ciphertext encrypted_tally &&
-    Array.forall2 (check_factor encrypted_tally) ys partial_decryptions &&
+    Array.forall2 (check_factor encrypted_tally)
+      public_keys partial_decryptions &&
     let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
     let factors = Array.fold_left (fun a b ->
       Array.mmap2 ( *~ ) a b.decryption_factors

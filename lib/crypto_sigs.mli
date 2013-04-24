@@ -45,6 +45,9 @@ module type ELECTION_PARAMS = sig
   module G : GROUP
   (** The group used for cryptography. *)
 
+  val public_keys : G.t array
+  (** Trustee public keys. *)
+
   val params : G.t Serializable_t.election
   (** Other parameters. *)
 
@@ -133,7 +136,7 @@ module type ELECTION = sig
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
 
-  val check_result : public_key array -> result -> bool
+  val check_result : result -> bool
 
   val extract_tally : result -> plaintext
   (** Extract the plaintext result of the election. *)

@@ -80,6 +80,10 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   let {g; p; q; y} = e.election.e_public_key in
   let module P = struct
     module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+    let public_keys =
+      Array.map (fun x ->
+        x.trustee_public_key.y
+      ) e.public_data.public_keys
     let params = Serializable_compat.of_election e.election
     let fingerprint = e.fingerprint
   end in
@@ -166,6 +170,10 @@ let random_exponent =
 
 module P = struct
   module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+  let public_keys =
+    Array.map (fun x ->
+      x.trustee_public_key.y
+    ) e.public_data.public_keys
   let params = Serializable_compat.of_election e.election
   let fingerprint = e.fingerprint
 end
@@ -213,5 +221,5 @@ let () =
     nresult.nb_tallied nresult.encrypted_tally nresult.partial_decryptions
   in
   assert (nresult'.result = nresult.result);
-  assert (Election.check_result ys nresult');
+  assert (Election.check_result nresult');
 ;;
