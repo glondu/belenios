@@ -1,4 +1,5 @@
 open Util
+open Serializable_t
 
 (** Helper functions *)
 
@@ -22,35 +23,42 @@ let map_and_concat_with_commas f xs =
 
 (** Finite field arithmetic *)
 
+let check_finite_field ~p ~q ~g =
+  Z.probab_prime p 10 > 0 &&
+  Z.probab_prime q 10 > 0 &&
+  check_modulo p g &&
+  check_modulo p q &&
+  Z.(powm g q p =% one)
+
 let finite_field ~p ~q ~g =
-  if
-    Z.probab_prime p 10 > 0 &&
-    Z.probab_prime q 10 > 0 &&
-    check_modulo p g &&
-    check_modulo p q &&
-    Z.(powm g q p =% one)
-  then
-    let module G = struct
-      open Z
-      type t = Z.t
-      let q = q
-      let one = Z.one
-      let g = g
-      let ( *~ ) a b = a * b mod p
-      let ( **~ ) a b = powm a b p
-      let invert x = invert x p
-      let ( =~ ) = equal
-      let check x = check_modulo p x && x **~ q =~ one
-      let hash xs = hashZ (map_and_concat_with_commas Z.to_string xs)
-      let compare = Z.compare
-    end in (module G : Crypto_sigs.GROUP with type t = Z.t)
-  else
-    invalid_arg "Invalid parameters for a multiplicative subgroup of finite field"
+  let module G = struct
+    open Z
+    type t = Z.t
+    let q = q
+    let one = Z.one
+    let g = g
+    let ( *~ ) a b = a * b mod p
+    let ( **~ ) a b = powm a b p
+    let invert x = Z.invert x p
+    let ( =~ ) = Z.equal
+    let check x = check_modulo p x && x **~ q =~ one
+    let hash xs = hashZ (map_and_concat_with_commas Z.to_string xs)
+    let compare = Z.compare
+  end in (module G : Crypto_sigs.GROUP with type t = Z.t)
+
+(** Parameters *)
+
+let check_election p =
+  let module P = (val p : Crypto_sigs.ELECTION_PARAMS) in
+  let open P in
+  let open G in
+  (* check public key *)
+  let computed = Array.fold_left ( *~ ) G.one public_keys in
+  computed =~ params.e_public_key
 
 (** Homomorphic elections *)
 
 module MakeElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
-  open Serializable_t
   open P
   open G
   type elt = G.t

@@ -78,6 +78,9 @@ let verbose_assert msg it =
 let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   Printf.eprintf "Verifying election %S:\n%!" e.election.e_short_name;
   let {g; p; q; y} = e.election.e_public_key in
+  verbose_assert "group parameters" (lazy (
+    Crypto.check_finite_field ~p ~q ~g
+  ));
   let module P = struct
     module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
     let public_keys =
@@ -87,14 +90,10 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
     let params = Serializable_compat.of_election e.election
     let fingerprint = e.fingerprint
   end in
-  let module Election = Crypto.MakeElection(P) in
-(*
   verbose_assert "election key" (lazy (
-    Crypto.check_election_key
-      e.election.e_public_key.y
-      e.public_data.public_keys
+    Crypto.check_election (module P : Crypto_sigs.ELECTION_PARAMS)
   ));
-*)
+  let module Election = Crypto.MakeElection(P) in
   if Array.length ballots = 0 then (
     Printf.eprintf "   no ballots available\n%!"
   ) else (
