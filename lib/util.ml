@@ -25,6 +25,36 @@ module Array = struct
       else true
     in loop (pred (Array.length x))
 
+  let fforall f xs =
+    let rec loop_outer i =
+      if i >= 0 then
+        let x = xs.(i) in
+        let n = Array.length x in
+        let rec loop_inner j =
+          if j >= 0 then f x.(j) && loop_inner (pred j)
+          else true
+        in loop_inner (pred n)
+      else true
+    in
+    let n = Array.length xs in
+    loop_outer (pred n)
+
+  let fforall2 f xs ys =
+    let rec loop_outer i =
+      if i >= 0 then
+        let x = xs.(i) and y = ys.(i) in
+        let n = Array.length x in
+        n = Array.length y &&
+        let rec loop_inner j =
+          if j >= 0 then f x.(j) y.(j) && loop_inner (pred j)
+          else true
+        in loop_inner (pred n)
+      else true
+    in
+    let n = Array.length xs in
+    n = Array.length ys &&
+    loop_outer (pred n)
+
   let fforall3 f xs ys zs =
     let rec loop_outer i =
       if i >= 0 then

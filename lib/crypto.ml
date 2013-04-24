@@ -211,13 +211,22 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
     alpha **~ x,
     fs_prove [| g; alpha |] x hash
 
+  let check_ciphertext c =
+    Array.fforall (fun {alpha; beta} -> G.check alpha && G.check beta) c
+
   let compute_factor c x =
-    let res = Array.mmap (eg_factor x) c in
-    let decryption_factors, decryption_proofs = Array.ssplit res in
-    {decryption_factors; decryption_proofs}
+    if check_ciphertext c then (
+      let res = Array.mmap (eg_factor x) c in
+      let decryption_factors, decryption_proofs = Array.ssplit res in
+      {decryption_factors; decryption_proofs}
+    ) else (
+      invalid_arg "Invalid ciphertext"
+    )
 
   let check_factor c y f =
     Array.fforall3 (fun {alpha; _} f {challenge; response} ->
+      check_modulo q challenge &&
+      check_modulo q response &&
       let commitments =
         [|
           g **~ response / (y **~ challenge);
@@ -233,13 +242,13 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
     let factors = Array.fold_left (fun a b ->
       Array.mmap2 ( *~ ) a b.decryption_factors
     ) dummy partial_decryptions in
-    let exp_results = Array.mmap2 (fun {beta; _} f ->
+    let results = Array.mmap2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
     let log =
       let module GMap = Map.Make(G) in
       let rec loop i cur accu =
-        if i < nb_tallied
+        if i <= nb_tallied
         then loop (succ i) (cur *~ g) (GMap.add cur i accu)
         else accu
       in
@@ -250,10 +259,21 @@ module MakeHomomorphicElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
         with Not_found ->
           invalid_arg "Cannot compute result"
     in
-    let result = Array.mmap log exp_results in
+    let result = Array.mmap log results in
     {nb_tallied; encrypted_tally; partial_decryptions; result}
 
-  let check_result r = assert false
+  let check_result ys r =
+    let {encrypted_tally; partial_decryptions; result; nb_tallied} = r in
+    check_ciphertext encrypted_tally &&
+    Array.forall2 (check_factor encrypted_tally) ys partial_decryptions &&
+    let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
+    let factors = Array.fold_left (fun a b ->
+      Array.mmap2 ( *~ ) a b.decryption_factors
+    ) dummy partial_decryptions in
+    let results = Array.mmap2 (fun {beta; _} f ->
+      beta / f
+    ) encrypted_tally factors in
+    Array.fforall2 (fun r1 r2 -> r1 =~ g **~ Z.of_int r2) results r.result
 
   let extract_tally r = r.result
 end

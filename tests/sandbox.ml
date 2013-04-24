@@ -272,3 +272,15 @@ assert (g **~ x =% y);;
 
 let test_factor = Election.compute_factor tally x;;
 assert (Election.check_factor tally y test_factor);;
+assert (Serializable_t.(test_factor.decryption_factors) = result.partial_decryptions.(0).decryption_factors);;
+
+let nresult = Serializable_compat.of_result result;;
+
+let () =
+  let open Serializable_t in
+  let nresult' = Election.combine_factors
+    nresult.nb_tallied nresult.encrypted_tally nresult.partial_decryptions
+  in
+  assert (nresult'.result = nresult.result);
+  assert (Election.check_result ys nresult');
+;;

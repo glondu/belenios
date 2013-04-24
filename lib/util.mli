@@ -11,6 +11,9 @@ module Array : sig
   val forall : ('a -> bool) -> 'a array -> bool
   val forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
   val foralli : (int -> 'a -> bool) -> 'a array -> bool
+  val fforall : ('a -> bool) -> 'a array array -> bool
+  val fforall2 : ('a -> 'b -> bool) ->
+    'a array array -> 'b array array -> bool
   val fforall3 : ('a -> 'b -> 'c -> bool) ->
     'a array array -> 'b array array -> 'c array array -> bool
   val map2 : ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
