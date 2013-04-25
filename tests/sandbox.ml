@@ -79,10 +79,10 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   Printf.eprintf "Verifying election %S:\n%!" e.election.e_short_name;
   let {g; p; q; y} = e.election.e_public_key in
   verbose_assert "group parameters" (lazy (
-    Crypto.check_finite_field ~p ~q ~g
+    Election.check_finite_field ~p ~q ~g
   ));
   let module P = struct
-    module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+    module G = (val Election.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
     let public_keys =
       Array.map (fun x ->
         x.trustee_public_key.y
@@ -91,16 +91,16 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
     let fingerprint = e.fingerprint
   end in
   verbose_assert "election key" (lazy (
-    Crypto.check_election (module P : Crypto_sigs.ELECTION_PARAMS)
+    Election.check_election (module P : Crypto_sigs.ELECTION_PARAMS)
   ));
-  let module M = Crypto.MakeSimpleMonad(P.G) in
-  let module Election = Crypto.MakeElection(P)(M) in
+  let module M = Election.MakeSimpleMonad(P.G) in
+  let module E = Election.MakeElection(P)(M) in
   if Array.length ballots = 0 then (
     Printf.eprintf "   no ballots available\n%!"
   ) else (
     verbose_assert "ballots" (lazy (
       Array.foralli (fun _ x ->
-        Election.check_ballot (Serializable_compat.of_ballot x)
+        E.check_ballot (Serializable_compat.of_ballot x)
       ) ballots
     ));
 (*
@@ -169,7 +169,7 @@ let random_exponent =
     Z.(of_string_base 16 hex mod q)
 
 module P = struct
-  module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+  module G = (val Election.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
   let public_keys =
     Array.map (fun x ->
       x.trustee_public_key.y
@@ -178,18 +178,18 @@ module P = struct
   let fingerprint = e.fingerprint
 end
 
-module M = Crypto.MakeSimpleMonad(P.G)
-module Election = Crypto.MakeElection(P)(M)
+module M = Election.MakeSimpleMonad(P.G)
+module E = Election.MakeElection(P)(M)
 module Compat = Serializable_compat.MakeCompat(P)
 
 let nballots = Array.map Serializable_compat.of_ballot ballots;;
-assert (Array.forall Election.check_ballot nballots);;
+assert (Array.forall E.check_ballot nballots);;
 assert (Array.forall2 (fun b b' -> b = Compat.to_ballot b') ballots nballots);;
 
-let create_ballot b = Election.(create_ballot (make_randomness () ()) b)
+let create_ballot b = E.(create_ballot (make_randomness () ()) b)
 
 let test_ballot = create_ballot [| [| 1; 0; 0; 0 |] |] ();;
-assert (Election.check_ballot test_ballot);;
+assert (E.check_ballot test_ballot);;
 
 let result =
   match e.public_data.election_result with
@@ -200,23 +200,23 @@ let tally = result.encrypted_tally.tally;;
 let fs = Array.map Serializable_compat.of_partial_decryption result.partial_decryptions;;
 assert (Array.forall2 (fun f f' -> f = Compat.to_partial_decryption tally f') result.partial_decryptions fs);;
 let ys = Array.map (fun x -> x.trustee_public_key.y) e.public_data.public_keys;;
-assert (Array.forall2 (Election.check_factor tally) ys fs);;
+assert (Array.forall2 (E.check_factor tally) ys fs);;
 
 let y = ys.(0);;
 let x = Z.of_string "45298523167338358817538343074024028933886309805828157085973885299032584889325";;
 assert P.G.(g **~ x =% y);;
 
-let test_factor = Election.compute_factor tally x ();;
-assert (Election.check_factor tally y test_factor);;
+let test_factor = E.compute_factor tally x ();;
+assert (E.check_factor tally y test_factor);;
 assert (Serializable_t.(test_factor.decryption_factors) = result.partial_decryptions.(0).decryption_factors);;
 
 let nresult = Serializable_compat.of_result result;;
 
 let () =
   let open Serializable_t in
-  let nresult' = Election.combine_factors
+  let nresult' = E.combine_factors
     nresult.nb_tallied nresult.encrypted_tally nresult.partial_decryptions
   in
   assert (nresult'.result = nresult.result);
-  assert (Election.check_result nresult');
+  assert (E.check_result nresult');
 ;;

@@ -185,18 +185,18 @@ let () = Eliom_registration.Html5.register
            let ballot = Serializable_compat_j.ballot_of_string Serializable_builtin_j.read_number raw_ballot in
            let {g; p; q; y} = election.Common.election.e_public_key in
            let module P = struct
-             module G = (val Crypto.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+             module G = (val Election.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
              let public_keys = Array.map (fun x ->
                x.trustee_public_key.y
              ) election.Common.public_data.public_keys
              let params = Serializable_compat.of_election election.Common.election
              let fingerprint = assert false
            end in
-           let module M = Crypto.MakeSimpleMonad(P.G) in
-           let module Election = Crypto.MakeElection(P)(M) in
+           let module M = Election.MakeSimpleMonad(P.G) in
+           let module E = Election.MakeElection(P)(M) in
            if
              Uuidm.equal uuid ballot.election_uuid &&
-             Election.check_ballot (Serializable_compat.of_ballot ballot)
+             E.check_ballot (Serializable_compat.of_ballot ballot)
            then `Valid (Common.hash_ballot ballot)
            else `Invalid
          with e -> `Malformed
