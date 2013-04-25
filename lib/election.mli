@@ -1,4 +1,4 @@
-(** Cryptographic primitives *)
+(** Election primitives *)
 
 open Signatures
 
