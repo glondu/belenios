@@ -13,16 +13,31 @@ val check_finite_field : p:Z.t -> q:Z.t -> g:Z.t -> bool
 val check_election : (module ELECTION_PARAMS) -> bool
 (** Check consistency of election parameters. *)
 
-module MakeSimpleMonad (G : GROUP) : ELECTION_MONAD
-  with type ballot = G.t Serializable_t.ballot
-  and type 'a t = unit -> 'a
-(** Simple election monad that keeps all ballots in memory. It uses a
-    secure random number generator lazily initialized by a seed shared
-    by all instances. *)
+module MakeSimpleMonad (G : GROUP) : sig
 
-module MakeElection
-  (P : ELECTION_PARAMS)
-  (M : ELECTION_MONAD with type ballot = P.G.t Serializable_t.ballot)
-  : ELECTION
-  with type elt = P.G.t
-  and type 'a m = 'a M.t
+  (** {2 Monadic definitions} *)
+
+  type 'a t = unit -> 'a
+  val return : 'a -> 'a t
+  val bind : 'a t -> ('a -> 'b t) -> 'b t
+
+  (** {2 Random number generation} *)
+
+  val random : Z.t -> Z.t t
+  (** [random q] returns a random number modulo [q]. It uses a secure
+      random number generator lazily initialized by a seed shared by all
+      instances. *)
+
+  (** {2 Ballot box management} *)
+
+  (** The following implements the {!module:Signatures.BALLOT_BOX} interface. *)
+
+  type ballot = G.t Serializable_t.ballot
+  val cast : ballot -> unit t
+  val fold : (ballot -> 'a -> 'a t) -> 'a -> 'a t
+end
+(** Simple election monad that keeps all ballots in memory. *)
+
+module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) :
+  ELECTION with type elt = P.G.t and type 'a m = 'a M.t
+(** Implementation of {!Signatures.ELECTION}. *)

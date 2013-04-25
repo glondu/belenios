@@ -40,18 +40,24 @@ module type GROUP = sig
   (** A total ordering over the elements of the group. *)
 end
 
-(** Monad capturing impure operations used by elections. *)
-module type ELECTION_MONAD = sig
-  (** {2 Usual monadic operations} *)
-
+(** Monad signature. *)
+module type MONAD = sig
   type 'a t
   val return : 'a -> 'a t
   val bind : 'a t -> ('a -> 'b t) -> 'b t
+end
 
-  (** {2 General-purpose impure operations} *)
+(** Random number generation. *)
+module type RANDOM = sig
+  include MONAD
 
   val random : Z.t -> Z.t t
   (** [random q] returns a random number modulo [q]. *)
+end
+
+(** Ballot box. *)
+module type BALLOT_BOX = sig
+  include MONAD
 
   (** {2 Election-specific operations} *)
 
@@ -105,6 +111,9 @@ module type ELECTION = sig
 
   type ciphertext = elt Serializable_t.ciphertext array array
   (** A ciphertext that can be homomorphically combined. *)
+
+  val neutral_ciphertext : ciphertext
+  (** The neutral element for [combine_ciphertext] below. *)
 
   val combine_ciphertexts : ciphertext -> ciphertext -> ciphertext
   (** Combine two ciphertexts. The encrypted tally of an election is

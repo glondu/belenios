@@ -95,35 +95,43 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   ));
   let module M = Election.MakeSimpleMonad(P.G) in
   let module E = Election.MakeElection(P)(M) in
+  let encrypted_tally = lazy (
+    M.fold (fun b tally ->
+      M.return (E.combine_ciphertexts tally (E.extract_ciphertext b))
+    ) E.neutral_ciphertext ()
+  ) in
   if Array.length ballots = 0 then (
     Printf.eprintf "   no ballots available\n%!"
   ) else (
     verbose_assert "ballots" (lazy (
       Array.foralli (fun _ x ->
-        E.check_ballot (Serializable_compat.ballot x)
+        let b = Serializable_compat.ballot x in
+        if E.check_ballot b then (
+          M.cast b (); true
+        ) else false
       ) ballots
     ));
-(*
     (match e.public_data.election_result with
       | Some r ->
         verbose_assert "encrypted tally" (lazy (
-          r.encrypted_tally = Crypto.compute_encrypted_tally e.election ballots
+          r.encrypted_tally.tally = Lazy.force encrypted_tally
         ))
       | None -> ()
     );
-*)
   );
-(*
   (match e.public_data.election_result with
     | Some r ->
-      verbose_assert "partial decryptions" (lazy (
-        Crypto.check_partial_decryptions
-          e.election e.public_data.public_keys r
+      verbose_assert "partial decryptions and result" (lazy (
+        let result = E.combine_factors
+          r.encrypted_tally.num_tallied
+          (Lazy.force encrypted_tally)
+          (Array.map Serializable_compat.partial_decryption r.partial_decryptions)
+        in
+        E.check_result result &&
+        E.extract_tally result = r.result
       ));
-      verbose_assert "result" (lazy (Crypto.check_result e.election r));
     | None -> Printf.eprintf "   no results available\n%!"
   );
-*)
   verbose_assert "signature count" (lazy (
     Array.length signatures = Array.length ballots
   ));

@@ -80,11 +80,7 @@ end
 
 (** Homomorphic elections *)
 
-module MakeElection
-  (P : ELECTION_PARAMS)
-  (M : ELECTION_MONAD with type ballot = P.G.t Serializable_t.ballot)
-  =
-struct
+module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
   open P
   open G
 
@@ -114,6 +110,10 @@ struct
       alpha = c1.alpha *~ c2.alpha;
       beta = c1.beta *~ c2.beta;
     }
+
+  let neutral_ciphertext = Array.map (fun q ->
+    Array.make (Array.length q.q_answers) dummy_ciphertext
+  ) params.e_questions
 
   let combine_ciphertexts = Array.mmap2 eg_combine
 
