@@ -15,5 +15,5 @@ module type COMPAT = sig
     t Serializable_t.partial_decryption -> t partial_decryption
 end
 
-module MakeCompat (P : Crypto_sigs.ELECTION_PARAMS) :
+module MakeCompat (P : Signatures.ELECTION_PARAMS) :
   COMPAT with type t = P.G.t

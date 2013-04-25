@@ -67,7 +67,7 @@ module type COMPAT = sig
     t Serializable_t.partial_decryption -> t partial_decryption
 end
 
-module MakeCompat (P : Crypto_sigs.ELECTION_PARAMS) = struct
+module MakeCompat (P : Signatures.ELECTION_PARAMS) = struct
   open Serializable_t
   open P
   open G

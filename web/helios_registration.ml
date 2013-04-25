@@ -185,7 +185,7 @@ let () = Eliom_registration.Html5.register
            let ballot = Serializable_compat_j.ballot_of_string Serializable_builtin_j.read_number raw_ballot in
            let {g; p; q; y} = election.Common.election.e_public_key in
            let module P = struct
-             module G = (val Election.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+             module G = (val Election.finite_field ~p ~q ~g : Signatures.GROUP with type t = Z.t)
              let public_keys = Array.map (fun x ->
                x.trustee_public_key.y
              ) election.Common.public_data.public_keys

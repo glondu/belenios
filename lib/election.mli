@@ -1,6 +1,6 @@
 (** Cryptographic primitives *)
 
-open Crypto_sigs
+open Signatures
 
 val finite_field : p:Z.t -> q:Z.t -> g:Z.t ->
   (module GROUP with type t = Z.t)

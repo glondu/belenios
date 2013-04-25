@@ -1,6 +1,6 @@
 open Util
 open Serializable_t
-open Crypto_sigs
+open Signatures
 
 (** Helper functions *)
 

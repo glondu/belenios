@@ -82,7 +82,7 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
     Election.check_finite_field ~p ~q ~g
   ));
   let module P = struct
-    module G = (val Election.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+    module G = (val Election.finite_field ~p ~q ~g : Signatures.GROUP with type t = Z.t)
     let public_keys =
       Array.map (fun x ->
         x.trustee_public_key.y
@@ -91,7 +91,7 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
     let fingerprint = e.fingerprint
   end in
   verbose_assert "election key" (lazy (
-    Election.check_election (module P : Crypto_sigs.ELECTION_PARAMS)
+    Election.check_election (module P : Signatures.ELECTION_PARAMS)
   ));
   let module M = Election.MakeSimpleMonad(P.G) in
   let module E = Election.MakeElection(P)(M) in
@@ -169,7 +169,7 @@ let random_exponent =
     Z.(of_string_base 16 hex mod q)
 
 module P = struct
-  module G = (val Election.finite_field ~p ~q ~g : Crypto_sigs.GROUP with type t = Z.t)
+  module G = (val Election.finite_field ~p ~q ~g : Signatures.GROUP with type t = Z.t)
   let public_keys =
     Array.map (fun x ->
       x.trustee_public_key.y
