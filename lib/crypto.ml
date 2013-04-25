@@ -62,19 +62,20 @@ let check_election p =
 let prng = lazy (Cryptokit.Random.(pseudo_rng (string secure_rng 32)))
 
 module MakeSimpleMonad (G : GROUP) = struct
-  type 'a t = 'a
+  type 'a t = unit -> 'a
   let ballots = ref []
-  let return x = x
-  let bind x f = f x
+  let return x () = x
+  let bind x f = f (x ())
 
   let random q =
     let size = Z.size q * Sys.word_size / 8 in
-    let r = Cryptokit.Random.string (Lazy.force prng) size in
-    Z.(of_bits r mod q)
+    fun () ->
+      let r = Cryptokit.Random.string (Lazy.force prng) size in
+      Z.(of_bits r mod q)
 
   type ballot = G.t Serializable_t.ballot
-  let cast x = ballots := x :: !ballots
-  let fold f x = List.fold_left (fun accu b -> f b accu) x !ballots
+  let cast x () = ballots := x :: !ballots
+  let fold f x () = List.fold_left (fun accu b -> f b accu ()) x !ballots
 end
 
 (** Homomorphic elections *)
@@ -248,7 +249,7 @@ struct
     overall_proof >>= fun overall_proof ->
     return {choices; individual_proofs; overall_proof}
 
-  let randomness =
+  let make_randomness () =
     sswap (Array.map (fun q ->
       Array.init (Array.length q.q_answers) (fun _ -> random G.q)
     ) params.e_questions)

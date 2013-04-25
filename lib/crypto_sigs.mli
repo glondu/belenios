@@ -125,7 +125,7 @@ module type ELECTION = sig
   type randomness = Z.t array array
   (** Randomness needed to create a ballot. *)
 
-  val randomness : randomness m
+  val make_randomness : unit -> randomness m
   (** Creates randomness for [create_ballot] below. The result can be
       kept for Benaloh-style auditing. *)
 

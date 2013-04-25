@@ -15,8 +15,10 @@ val check_election : (module ELECTION_PARAMS) -> bool
 
 module MakeSimpleMonad (G : GROUP) : ELECTION_MONAD
   with type ballot = G.t Serializable_t.ballot
-  and type 'a t = 'a
-(** Simple election monad that keeps all ballots in memory. *)
+  and type 'a t = unit -> 'a
+(** Simple election monad that keeps all ballots in memory. It uses a
+    secure random number generator lazily initialized by a seed shared
+    by all instances. *)
 
 module MakeElection
   (P : ELECTION_PARAMS)

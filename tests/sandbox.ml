@@ -186,9 +186,9 @@ let nballots = Array.map Serializable_compat.of_ballot ballots;;
 assert (Array.forall Election.check_ballot nballots);;
 assert (Array.forall2 (fun b b' -> b = Compat.to_ballot b') ballots nballots);;
 
-let create_ballot b = Election.(create_ballot randomness b)
+let create_ballot b = Election.(create_ballot (make_randomness () ()) b)
 
-let test_ballot = create_ballot [| [| 1; 0; 0; 0 |] |];;
+let test_ballot = create_ballot [| [| 1; 0; 0; 0 |] |] ();;
 assert (Election.check_ballot test_ballot);;
 
 let result =
@@ -206,7 +206,7 @@ let y = ys.(0);;
 let x = Z.of_string "45298523167338358817538343074024028933886309805828157085973885299032584889325";;
 assert P.G.(g **~ x =% y);;
 
-let test_factor = Election.compute_factor tally x;;
+let test_factor = Election.compute_factor tally x ();;
 assert (Election.check_factor tally y test_factor);;
 assert (Serializable_t.(test_factor.decryption_factors) = result.partial_decryptions.(0).decryption_factors);;
 
