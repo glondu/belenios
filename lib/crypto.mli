@@ -13,13 +13,14 @@ val check_finite_field : p:Z.t -> q:Z.t -> g:Z.t -> bool
 val check_election : (module ELECTION_PARAMS) -> bool
 (** Check consistency of election parameters. *)
 
-module MakeDummyMonad (G : GROUP) : ELECTION_MONAD
+module MakeSimpleMonad (G : GROUP) : ELECTION_MONAD
   with type ballot = G.t Serializable_t.ballot
   and type 'a t = 'a
+(** Simple election monad that keeps all ballots in memory. *)
 
 module MakeElection
   (P : ELECTION_PARAMS)
   (M : ELECTION_MONAD with type ballot = P.G.t Serializable_t.ballot)
   : ELECTION
   with type elt = P.G.t
-  and type 'a m = 'a
+  and type 'a m = 'a M.t

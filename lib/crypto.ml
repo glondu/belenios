@@ -57,16 +57,17 @@ let check_election p =
   let computed = Array.fold_left ( *~ ) G.one public_keys in
   computed =~ params.e_public_key
 
-(** Dummy monad *)
+(** Simple monad *)
 
-module MakeDummyMonad (G : GROUP) = struct
+module MakeSimpleMonad (G : GROUP) = struct
   type 'a t = 'a
+  let ballots = ref []
   let return x = x
   let bind x f = f x
   let random q = Util.random q
   type ballot = G.t Serializable_t.ballot
-  let cast x = ()
-  let fold f x = return x
+  let cast x = ballots := x :: !ballots
+  let fold f x = List.fold_left (fun accu b -> f b accu) x !ballots
 end
 
 (** Homomorphic elections *)
@@ -79,7 +80,9 @@ struct
   open P
   open G
 
-  type 'a m = 'a
+  type 'a m = 'a M.t
+  open M
+  let ( >>= ) = bind
 
   type elt = G.t
   type private_key = Z.t
@@ -127,11 +130,11 @@ struct
       knowledge *)
 
   let fs_prove gs x oracle =
-    let w = random q in
+    random q >>= fun w ->
     let commitments = Array.map (fun g -> g **~ w) gs in
     let challenge = oracle commitments in
     let response = Z.((w + x * challenge) mod q) in
-    {challenge; response}
+    return {challenge; response}
 
   (** ZKPs for disjunctions *)
 
@@ -147,20 +150,28 @@ struct
     let f i =
       let challenge = random q
       and response = random q in
+      challenge >>= fun challenge ->
+      response >>= fun response ->
       proofs.(i) <- {challenge; response};
       commitments.(2*i) <- g **~ response / alpha **~ challenge;
       commitments.(2*i+1) <- y **~ response / (beta *~ d.(i)) **~ challenge;
       total_challenges := Z.(!total_challenges + challenge);
+      return ()
     in
-    for i = 0 to x-1 do f i done;
-    for i = x+1 to n-1 do f i done;
+    let rec loop i =
+      if i < x then f i >>= fun () -> loop (succ i)
+      else if i = x then loop (succ i)
+      else if i < n then f i >>= fun () -> loop (succ i)
+      else return ()
+    in loop 0 >>= fun () ->
     total_challenges := Z.(q - !total_challenges mod q);
     (* compute genuine proof *)
-    proofs.(x) <- fs_prove [| g; y |] r (fun commitx ->
+    fs_prove [| g; y |] r (fun commitx ->
       Array.blit commitx 0 commitments (2*x) 2;
       Z.((G.hash commitments + !total_challenges) mod q)
-    );
-    proofs
+    ) >>= fun p ->
+    proofs.(x) <- p;
+    return proofs
 
   let eg_disj_verify d proofs {alpha; beta} =
     G.check alpha && G.check beta &&
@@ -194,6 +205,27 @@ struct
     done;
     d
 
+  let swap xs =
+    let rec loop i accu =
+      if i >= 0
+      then xs.(i) >>= fun x -> loop (pred i) (x::accu)
+      else return (Array.of_list accu)
+    in loop (pred (Array.length xs)) []
+
+  let sswap xs =
+    let rec loop_outer i accu =
+      if i >= 0 then (
+        let x = xs.(i) in
+        let rec loop_inner j accu =
+          if j >= 0
+          then x.(j) >>= fun r -> loop_inner (pred j) (r::accu)
+          else return (Array.of_list accu)
+        in
+        loop_inner (Array.length x - 1) [] >>= fun ys ->
+        loop_outer (pred i) (ys::accu)
+      ) else return (Array.of_list accu)
+    in loop_outer (Array.length xs - 1) []
+
   let create_answer q r m =
     let choices = Array.map2 eg_encrypt r m in
     let individual_proofs = Array.map3 (eg_disj_prove d01) m r choices in
@@ -205,16 +237,19 @@ struct
     assert (q.q_min <= summ && summ <= q.q_max);
     let d = make_d q.q_min q.q_max in
     let overall_proof = eg_disj_prove d (summ - q.q_min) sumr sumc in
-    {choices; individual_proofs; overall_proof}
+    swap individual_proofs >>= fun individual_proofs ->
+    overall_proof >>= fun overall_proof ->
+    return {choices; individual_proofs; overall_proof}
 
-  let create_randomness () =
-    Array.map (fun q ->
+  let randomness =
+    sswap (Array.map (fun q ->
       Array.init (Array.length q.q_answers) (fun _ -> random G.q)
-    ) params.e_questions
+    ) params.e_questions)
 
   let create_ballot r m =
-    {
-      answers = Array.map3 create_answer params.e_questions r m;
+    swap (Array.map3 create_answer params.e_questions r m) >>= fun answers ->
+    return {
+      answers;
       election_hash = fingerprint;
       election_uuid = params.e_uuid
     }
@@ -247,7 +282,8 @@ struct
     if check_ciphertext c then (
       let res = Array.mmap (eg_factor x) c in
       let decryption_factors, decryption_proofs = Array.ssplit res in
-      {decryption_factors; decryption_proofs}
+      sswap decryption_proofs >>= fun decryption_proofs ->
+      return {decryption_factors; decryption_proofs}
     ) else (
       invalid_arg "Invalid ciphertext"
     )
