@@ -135,14 +135,16 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   verbose_assert "signature count" (lazy (
     Array.length signatures = Array.length ballots
   ));
-(*
   verbose_assert "private keys" (lazy (
-    Array.foralli
-      (fun _ k -> Crypto.check_private_key k)
+    let open P.G in
+    Array.forall
+      (fun k ->
+        let {g=g'; p=p'; q=q'; y} = k.public_key in
+        g =~ g' && p =% p' && q =% q' &&
+        g **~ k.x =~ y
+      )
       private_data.private_keys
-  ))
-*)
-  ();;
+  ));;
 
 let iter_keep f xs = List.iter f xs; xs;;
 
