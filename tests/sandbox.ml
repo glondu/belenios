@@ -87,7 +87,7 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
       Array.map (fun x ->
         x.trustee_public_key.y
       ) e.public_data.public_keys
-    let params = Serializable_compat.of_election e.election
+    let params = Serializable_compat.election e.election
     let fingerprint = e.fingerprint
   end in
   verbose_assert "election key" (lazy (
@@ -100,7 +100,7 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   ) else (
     verbose_assert "ballots" (lazy (
       Array.foralli (fun _ x ->
-        E.check_ballot (Serializable_compat.of_ballot x)
+        E.check_ballot (Serializable_compat.ballot x)
       ) ballots
     ));
 (*
@@ -174,7 +174,7 @@ module P = struct
     Array.map (fun x ->
       x.trustee_public_key.y
     ) e.public_data.public_keys
-  let params = Serializable_compat.of_election e.election
+  let params = Serializable_compat.election e.election
   let fingerprint = e.fingerprint
 end
 
@@ -182,9 +182,9 @@ module M = Election.MakeSimpleMonad(P.G)
 module E = Election.MakeElection(P)(M)
 module Compat = Serializable_compat.MakeCompat(P)
 
-let nballots = Array.map Serializable_compat.of_ballot ballots;;
+let nballots = Array.map Serializable_compat.ballot ballots;;
 assert (Array.forall E.check_ballot nballots);;
-assert (Array.forall2 (fun b b' -> b = Compat.to_ballot b') ballots nballots);;
+assert (Array.forall2 (fun b b' -> b = Compat.ballot b') ballots nballots);;
 
 let create_ballot b = E.(create_ballot (make_randomness () ()) b)
 
@@ -197,8 +197,8 @@ let result =
     | None -> assert false
 
 let tally = result.encrypted_tally.tally;;
-let fs = Array.map Serializable_compat.of_partial_decryption result.partial_decryptions;;
-assert (Array.forall2 (fun f f' -> f = Compat.to_partial_decryption tally f') result.partial_decryptions fs);;
+let fs = Array.map Serializable_compat.partial_decryption result.partial_decryptions;;
+assert (Array.forall2 (fun f f' -> f = Compat.partial_decryption tally f') result.partial_decryptions fs);;
 let ys = Array.map (fun x -> x.trustee_public_key.y) e.public_data.public_keys;;
 assert (Array.forall2 (E.check_factor tally) ys fs);;
 
@@ -210,7 +210,7 @@ let test_factor = E.compute_factor tally x ();;
 assert (E.check_factor tally y test_factor);;
 assert (Serializable_t.(test_factor.decryption_factors) = result.partial_decryptions.(0).decryption_factors);;
 
-let nresult = Serializable_compat.of_result result;;
+let nresult = Serializable_compat.result result;;
 
 let () =
   let open Serializable_t in

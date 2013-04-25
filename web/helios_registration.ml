@@ -189,14 +189,14 @@ let () = Eliom_registration.Html5.register
              let public_keys = Array.map (fun x ->
                x.trustee_public_key.y
              ) election.Common.public_data.public_keys
-             let params = Serializable_compat.of_election election.Common.election
+             let params = Serializable_compat.election election.Common.election
              let fingerprint = assert false
            end in
            let module M = Election.MakeSimpleMonad(P.G) in
            let module E = Election.MakeElection(P)(M) in
            if
              Uuidm.equal uuid ballot.election_uuid &&
-             E.check_ballot (Serializable_compat.of_ballot ballot)
+             E.check_ballot (Serializable_compat.ballot ballot)
            then `Valid (Common.hash_ballot ballot)
            else `Invalid
          with e -> `Malformed
