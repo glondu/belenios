@@ -8,12 +8,8 @@ val partial_decryption :
   'a partial_decryption -> 'a Serializable_t.partial_decryption
 val result : 'a result -> 'a Serializable_t.result
 
-module type COMPAT = sig
-  type t
-  val ballot : t Serializable_t.ballot -> t ballot
-  val partial_decryption : t Serializable_t.ciphertext array array ->
-    t Serializable_t.partial_decryption -> t partial_decryption
+module MakeCompat (P : Signatures.ELECTION_PARAMS) : sig
+  val ballot : P.G.t Serializable_t.ballot -> P.G.t ballot
+  val partial_decryption : P.G.t Serializable_t.ciphertext array array ->
+    P.G.t Serializable_t.partial_decryption -> P.G.t partial_decryption
 end
-
-module MakeCompat (P : Signatures.ELECTION_PARAMS) :
-  COMPAT with type t = P.G.t

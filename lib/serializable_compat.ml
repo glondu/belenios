@@ -60,19 +60,10 @@ let result r =
   let open Serializable_t in
   {nb_tallied; encrypted_tally; partial_decryptions; result}
 
-module type COMPAT = sig
-  type t
-  val ballot : t Serializable_t.ballot -> t ballot
-  val partial_decryption : t Serializable_t.ciphertext array array ->
-    t Serializable_t.partial_decryption -> t partial_decryption
-end
-
 module MakeCompat (P : Signatures.ELECTION_PARAMS) = struct
   open Serializable_t
   open P
   open G
-
-  type t = G.t
 
   (* The following duplicates parts of module Crypto, in order to
      reconstruct commitments. *)
