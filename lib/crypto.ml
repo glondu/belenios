@@ -59,12 +59,19 @@ let check_election p =
 
 (** Simple monad *)
 
+let prng = lazy (Cryptokit.Random.(pseudo_rng (string secure_rng 32)))
+
 module MakeSimpleMonad (G : GROUP) = struct
   type 'a t = 'a
   let ballots = ref []
   let return x = x
   let bind x f = f x
-  let random q = Util.random q
+
+  let random q =
+    let size = Z.size q * Sys.word_size / 8 in
+    let r = Cryptokit.Random.string (Lazy.force prng) size in
+    Z.(of_bits r mod q)
+
   type ballot = G.t Serializable_t.ballot
   let cast x = ballots := x :: !ballots
   let fold f x = List.fold_left (fun accu b -> f b accu) x !ballots

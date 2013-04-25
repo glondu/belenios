@@ -148,12 +148,3 @@ let non_empty_lines_of_file fname =
   Lwt_io.lines_of_file fname |>
   Lwt_stream.filter (fun s -> s <> "") |>
   Lwt_stream.to_list
-
-let seed = lazy (Cryptokit.Random.(string secure_rng 32))
-
-let prng = Cryptokit.Random.(pseudo_rng (Lazy.force seed))
-
-let random q =
-  let size = Z.size q * Sys.word_size / 8 in
-  let r = Cryptokit.Random.string prng size in
-  Z.(of_bits r mod q)
