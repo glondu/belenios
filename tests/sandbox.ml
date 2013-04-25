@@ -93,7 +93,7 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
   verbose_assert "election key" (lazy (
     Crypto.check_election (module P : Crypto_sigs.ELECTION_PARAMS)
   ));
-  let module Election = Crypto.MakeElection(P) in
+  let module Election = Crypto.MakeElection(P)(Crypto.MakeDummyMonad(P.G)) in
   if Array.length ballots = 0 then (
     Printf.eprintf "   no ballots available\n%!"
   ) else (
@@ -177,7 +177,7 @@ module P = struct
   let fingerprint = e.fingerprint
 end
 
-module Election = Crypto.MakeElection(P)
+module Election = Crypto.MakeElection(P)(Crypto.MakeDummyMonad(P.G))
 module Compat = Serializable_compat.MakeCompat(P)
 
 let nballots = Array.map Serializable_compat.of_ballot ballots;;

@@ -40,6 +40,33 @@ module type GROUP = sig
   (** A total ordering over the elements of the group. *)
 end
 
+(** Monad capturing impure operations used by elections. *)
+module type ELECTION_MONAD = sig
+  (** {2 Usual monadic operations} *)
+
+  type 'a t
+  val return : 'a -> 'a t
+  val bind : 'a t -> ('a -> 'b t) -> 'b t
+
+  (** {2 General-purpose impure operations} *)
+
+  val random : Z.t -> Z.t t
+  (** [random q] returns a random number modulo [q]. *)
+
+  (** {2 Election-specific operations} *)
+
+  type ballot
+  (** The type of ballots. The monad is supposed to keep track of all
+      cast ballots (e.g. in a database). *)
+
+  val cast : ballot -> unit t
+  (** Cast a ballot. *)
+
+  val fold : (ballot -> 'a -> 'a t) -> 'a -> 'a t
+  (** [fold f a] computes [(f bN ... (f b2 (f b1 a))...)], where [b1
+      ... bN] are all cast ballots. *)
+end
+
 (** Parameters for an election. *)
 module type ELECTION_PARAMS = sig
   module G : GROUP
@@ -57,6 +84,9 @@ end
 
 (** Cryptographic primives for an election with homomorphic tally. *)
 module type ELECTION = sig
+
+  type 'a m
+  (** The type of monadic values. *)
 
   (** {2 Election parameters} *)
 
@@ -95,11 +125,11 @@ module type ELECTION = sig
   type randomness = Z.t array array
   (** Randomness needed to create a ballot. *)
 
-  val create_randomness : unit -> randomness
+  val create_randomness : unit -> randomness m
   (** Creates randomness for [create_ballot] below. The result can be
       kept for Benaloh-style auditing. *)
 
-  val create_ballot : randomness -> plaintext -> ballot
+  val create_ballot : randomness -> plaintext -> ballot m
   (** [create_ballot r answers] creates a ballot, or raises
       [Invalid_argument] if [answers] doesn't satisfy the election
       constraints. *)
@@ -118,7 +148,7 @@ module type ELECTION = sig
       private key share and the encrypted tally, and contains a
       cryptographic proof that he or she didn't cheat. *)
 
-  val compute_factor : ciphertext -> private_key -> factor
+  val compute_factor : ciphertext -> private_key -> factor m
 
   val check_factor : ciphertext -> public_key -> factor -> bool
   (** [check_factor c pk f] checks that [f], supposedly submitted by a

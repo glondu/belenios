@@ -192,7 +192,7 @@ let () = Eliom_registration.Html5.register
              let params = Serializable_compat.of_election election.Common.election
              let fingerprint = assert false
            end in
-           let module Election = Crypto.MakeElection(P) in
+           let module Election = Crypto.MakeElection(P)(Crypto.MakeDummyMonad(P.G)) in
            if
              Uuidm.equal uuid ballot.election_uuid &&
              Election.check_ballot (Serializable_compat.of_ballot ballot)

@@ -1,5 +1,6 @@
 open Util
 open Serializable_t
+open Crypto_sigs
 
 (** Helper functions *)
 
@@ -44,23 +45,42 @@ let finite_field ~p ~q ~g =
     let check x = check_modulo p x && x **~ q =~ one
     let hash xs = hashZ (map_and_concat_with_commas Z.to_string xs)
     let compare = Z.compare
-  end in (module G : Crypto_sigs.GROUP with type t = Z.t)
+  end in (module G : GROUP with type t = Z.t)
 
 (** Parameters *)
 
 let check_election p =
-  let module P = (val p : Crypto_sigs.ELECTION_PARAMS) in
+  let module P = (val p : ELECTION_PARAMS) in
   let open P in
   let open G in
   (* check public key *)
   let computed = Array.fold_left ( *~ ) G.one public_keys in
   computed =~ params.e_public_key
 
+(** Dummy monad *)
+
+module MakeDummyMonad (G : GROUP) = struct
+  type 'a t = 'a
+  let return x = x
+  let bind x f = f x
+  let random q = Util.random q
+  type ballot = G.t Serializable_t.ballot
+  let cast x = ()
+  let fold f x = return x
+end
+
 (** Homomorphic elections *)
 
-module MakeElection (P : Crypto_sigs.ELECTION_PARAMS) = struct
+module MakeElection
+  (P : ELECTION_PARAMS)
+  (M : ELECTION_MONAD with type ballot = P.G.t Serializable_t.ballot)
+  =
+struct
   open P
   open G
+
+  type 'a m = 'a
+
   type elt = G.t
   type private_key = Z.t
   type public_key = elt
