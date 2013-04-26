@@ -38,6 +38,28 @@ module MakeSimpleMonad (G : GROUP) : sig
 end
 (** Simple election monad that keeps all ballots in memory. *)
 
+module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) : sig
+
+  (** This module implements a simple distributed key generation. Each
+      share is a number modulo q, and the secret key is their sum. All
+      shares are needed to decrypt, but the decryptions can be done in
+      a distributed fashion. *)
+
+  val generate_and_prove :
+    unit -> (Z.t * G.t Serializable_t.trustee_public_key) M.t
+  (** [generate_and_prove ()] returns a new keypair [(x, y)]. [x] is
+      the secret exponent, [y] contains the public key and a
+      zero-knowledge proof of knowledge. *)
+
+  val check : G.t Serializable_t.trustee_public_key -> bool
+  (** Check a public key and its proof. *)
+
+  val combine : G.t Serializable_t.trustee_public_key array -> G.t
+  (** Combine all public key shares into an election public key. *)
+
+end
+(** Simple distributed generation of an election public key. *)
+
 module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) :
   ELECTION with type elt = P.G.t and type 'a m = 'a M.t
 (** Implementation of {!Signatures.ELECTION}. *)
