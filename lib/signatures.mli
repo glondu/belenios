@@ -88,7 +88,7 @@ module type ELECTION_PARAMS = sig
   (** The election fingerprint. *)
 end
 
-(** Cryptographic primives for an election with homomorphic tally. *)
+(** Cryptographic primitives for an election with homomorphic tally. *)
 module type ELECTION = sig
 
   type 'a m
