@@ -49,7 +49,7 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) : sig
     unit -> (Z.t * G.t Serializable_t.trustee_public_key) M.t
   (** [generate_and_prove ()] returns a new keypair [(x, y)]. [x] is
       the secret exponent, [y] contains the public key and a
-      zero-knowledge proof of knowledge. *)
+      zero-knowledge proof of knowledge of [x]. *)
 
   val check : G.t Serializable_t.trustee_public_key -> bool
   (** Check a public key and its proof. *)
