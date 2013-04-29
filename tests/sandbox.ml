@@ -270,9 +270,10 @@ assert (Serializable_t.(test_factor.decryption_factors) = (List.hd partial_decry
 
 let () =
   let partial_decryptions = List.map Serializable_compat.partial_decryption partial_decryptions in
+  let num_tallied = encrypted_tally.num_tallied in
   let open Serializable_t in
   let nresult' = E.combine_factors
-    encrypted_tally.num_tallied encrypted_tally.tally (Array.of_list partial_decryptions)
+    num_tallied encrypted_tally.tally (Array.of_list partial_decryptions)
   in
   assert (nresult'.result = result);
   assert (E.check_result nresult');

@@ -351,7 +351,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
 
   type result = elt Serializable_t.result
 
-  let combine_factors nb_tallied encrypted_tally partial_decryptions =
+  let combine_factors num_tallied encrypted_tally partial_decryptions =
     let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
     let factors = Array.fold_left (fun a b ->
       Array.mmap2 ( *~ ) a b.decryption_factors
@@ -362,7 +362,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     let log =
       let module GMap = Map.Make(G) in
       let rec loop i cur accu =
-        if i <= nb_tallied
+        if i <= num_tallied
         then loop (succ i) (cur *~ g) (GMap.add cur i accu)
         else accu
       in
@@ -374,10 +374,10 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
           invalid_arg "Cannot compute result"
     in
     let result = Array.mmap log results in
-    {nb_tallied; encrypted_tally; partial_decryptions; result}
+    {num_tallied; encrypted_tally; partial_decryptions; result}
 
   let check_result r =
-    let {encrypted_tally; partial_decryptions; result; nb_tallied} = r in
+    let {encrypted_tally; partial_decryptions; result; num_tallied} = r in
     check_ciphertext encrypted_tally &&
     Array.forall2 (check_factor encrypted_tally)
       public_keys partial_decryptions &&
