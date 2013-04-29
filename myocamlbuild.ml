@@ -28,5 +28,9 @@ let () = dispatch & function
       (atdgen_action [A"-t"]);
     rule "%.atd -> %_j.ml & %_j.mli" ~deps:["%.atd"] ~prods:["%_j.ml"; "%_j.mli"]
       (atdgen_action [A"-j"; A"-j-std"]);
+    rule "%.md -> %.html" ~deps:["%.md"] ~prods:["%.html"]
+      (fun env build ->
+        Cmd (S [A"markdown"; P (env "%.md"); Sh">"; P (env "%.html")])
+      );
 
   | _ -> ()
