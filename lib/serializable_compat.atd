@@ -131,6 +131,8 @@ type 'a partial_decryption = {
   decryption_proofs : 'a proof list <ocaml repr="array"> list <ocaml repr="array">;
 }
 
+type raw_result = int list <ocaml repr="array"> list <ocaml repr="array">
+
 (** {1 Other basic datastructures} *)
 
 type user = {
@@ -152,7 +154,7 @@ type signature = {
 type 'a result = {
   encrypted_tally : 'a encrypted_tally;
   partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
-  result : int list <ocaml repr="array"> list <ocaml repr="array">;
+  result : raw_result;
 }
 
 type 'a election_public_data = {

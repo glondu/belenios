@@ -50,16 +50,6 @@ let partial_decryption p =
   let open Serializable_t in
   {decryption_factors; decryption_proofs}
 
-let result r =
-  let {encrypted_tally; partial_decryptions; result} = r in
-  let nb_tallied = encrypted_tally.num_tallied in
-  let encrypted_tally = encrypted_tally.tally in
-  let partial_decryptions =
-    Array.map partial_decryption partial_decryptions
-  in
-  let open Serializable_t in
-  {nb_tallied; encrypted_tally; partial_decryptions; result}
-
 module MakeCompat (P : Signatures.ELECTION_PARAMS) = struct
   open Serializable_t
   open P

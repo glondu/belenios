@@ -1,94 +1,136 @@
+open Lwt
 open Util
 open Serializable_compat_t
-open Common
 
-module type TYPES = sig
-  type elt
-  type 'a t
-  val read : 'a t -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
-  val write : 'a t -> Bi_outbuf.t -> 'a -> unit
-  val election : elt election t
-  val private_key : elt private_key t
-  val trustee_public_key : elt trustee_public_key t
-  val ballot : elt ballot t
-  val encrypted_tally : elt encrypted_tally t
-  val partial_decryption : elt partial_decryption t
-  val election_public_data : elt election_public_data t
-  val election_private_data : elt election_private_data t
-end
+let if_legacy s =
+  if String.length s = 38 && s.[0] = '{' && s.[37] = '}'
+  then Uuidm.of_string ~pos:1 s
+  else None
 
-module type SGROUP = sig
-  type t
-  val write : Bi_outbuf.t -> t -> unit
-  val read : Yojson.Safe.lexer_state -> Lexing.lexbuf -> t
-end
+type 'a legacy_election = {
+  uuid : uuid;
+  raw_election : string;
+  election : 'a election;
+  trustee_public_keys : 'a trustee_public_key list;
+  private_keys : 'a private_key list option;
+  ballots : 'a ballot list option;
+  encrypted_tally : 'a encrypted_tally option;
+  partial_decryptions : 'a partial_decryption list option;
+  result : raw_result option;
+}
 
-module SFiniteFieldMult : SGROUP with type t = Z.t = struct
-  type t = Z.t
-  let write = Serializable_builtin_j.write_number
-  let read = Serializable_builtin_j.read_number
-end
+let ( / ) = Filename.concat
 
-module MakeTypes (G : SGROUP) : TYPES with type elt = G.t = struct
-  open Serializable_compat_j
-  type elt = G.t
-  type 'a t = (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) * (Bi_outbuf.t -> 'a -> unit)
-  let read = fst
-  let write = snd
-  let election = (read_election G.read, write_election G.write)
-  let private_key = (read_private_key G.read, write_private_key G.write)
-  let trustee_public_key = (read_trustee_public_key G.read, write_trustee_public_key G.write)
-  let ballot = (read_ballot G.read, write_ballot G.write)
-  let encrypted_tally = (read_encrypted_tally G.read, write_encrypted_tally G.write)
-  let partial_decryption = (read_partial_decryption G.read, write_partial_decryption G.write)
-  let election_public_data = (read_election_public_data G.read, write_election_public_data G.write)
-  let election_private_data = (read_election_private_data G.read, write_election_private_data G.write)
-end
+let atom t_of_string file =
+  try_lwt
+    lwt raw = Lwt_io.chars_of_file file |> Lwt_stream.to_string in
+    return (Some (t_of_string raw))
+  with Unix.Unix_error(Unix.ENOENT, "open", _) -> Lwt.return None
 
-module Types : TYPES with type elt = Z.t = MakeTypes (SFiniteFieldMult)
+let list t_of_string file =
+  try_lwt
+    Lwt_io.lines_of_file file |>
+    Lwt_stream.map t_of_string |>
+    Lwt_stream.to_list >>=
+    (fun x -> return (Some x))
+  with Unix.Unix_error(Unix.ENOENT, "open", _) -> return None
 
-let load typ fname = load_from_file (Types.read typ) fname
+let legacy_election dir uuid =
+  let read = Serializable_builtin_j.read_number in
+  lwt raw_election =
+    Lwt_io.chars_of_file (dir/"election.json") |> Lwt_stream.to_string
+  in
+  let election = Serializable_compat_j.election_of_string read raw_election in
+  lwt trustee_public_keys =
+    match_lwt list (Serializable_compat_j.trustee_public_key_of_string read) (dir/"public_keys.jsons") with
+      | Some xs -> return xs
+      | None -> fail (Failure "cannot read public keys")
+  in
+  lwt private_keys = list (Serializable_compat_j.private_key_of_string read) (dir/"private_keys.jsons") in
+  lwt ballots = list (Serializable_compat_j.ballot_of_string read) (dir/"ballots.jsons") in
+  lwt encrypted_tally = atom (Serializable_compat_j.encrypted_tally_of_string read) (dir/"encrypted_tally.json") in
+  lwt partial_decryptions = list (Serializable_compat_j.partial_decryption_of_string read) (dir/"partial_decryptions.jsons") in
+  lwt result = atom Serializable_compat_j.raw_result_of_string (dir/"result.json") in
+  return {
+    uuid;
+    raw_election;
+    election;
+    trustee_public_keys;
+    private_keys;
+    ballots;
+    encrypted_tally;
+    partial_decryptions;
+    result;
+  }
 
-let save typ fname x =
-  let o = open_out fname in
-  let buf = Bi_outbuf.create_channel_writer o in
-  Types.write typ buf x;
-  Bi_outbuf.flush_channel_writer buf;
-  close_out o
-
-let load_and_check ?(verbose=false) typ fname =
-  if verbose then Printf.eprintf "Loading and checking %s...\n%!" fname;
-  let thing = load typ fname in
-  let tempfname = Filename.temp_file "belenios" ".json" in
-  save typ tempfname thing;
-  let r = Printf.ksprintf Sys.command "bash -c 'diff -u <(json_pp < %s) <(json_pp < %s)'" fname tempfname in
-  assert (r = 0);
-  Sys.remove tempfname;
-  thing
-
-let load_election_private_data ?(verbose=false) dir uuid =
-  Printf.ksprintf (Filename.concat dir) "{%s}/private.json" uuid |>
-  load_and_check ~verbose Types.election_private_data
+let check_legacy e =
+  let read = Serializable_builtin_j.read_number in
+  e.election = Serializable_compat_j.election_of_string read e.raw_election &&
+  e.uuid = e.election.e_uuid &&
+  let {g; p; q; _} = e.election.e_public_key in
+  let module P = struct
+    module G =
+      (val Election.finite_field ~g ~p ~q : Signatures.GROUP with type t = Z.t)
+    let params = Serializable_compat.election e.election
+    let fingerprint = hashB e.raw_election
+    let public_keys =
+      e.trustee_public_keys |>
+      List.map (fun x -> x.trustee_public_key.y) |>
+      Array.of_list
+  end in
+  let module Compat = Serializable_compat.MakeCompat(P) in
+  List.for_all (fun pk ->
+    let {g = g'; p = p'; q = q'; _} = pk.trustee_public_key in
+    g = g' && p = p' && q = q'
+  ) e.trustee_public_keys &&
+  (match e.private_keys with
+    | Some sks ->
+      List.for_all2 (fun pk sk ->
+        pk.trustee_public_key = sk.public_key
+      ) e.trustee_public_keys sks
+    | None -> true
+  ) &&
+  (match e.ballots with
+    | Some bs ->
+      List.for_all (fun b ->
+        let b' = Serializable_compat.ballot b in
+        b = Compat.ballot b'
+      ) bs
+    | None -> true
+  ) &&
+  (match e.encrypted_tally, e.partial_decryptions with
+    | Some et, Some pds ->
+      List.for_all (fun pd ->
+        let pd' = Serializable_compat.partial_decryption pd in
+        pd = Compat.partial_decryption et.tally pd'
+      ) pds
+    | None, Some pds ->
+      failwith "partial_decryptions with no encrypted_tally"
+    | _, None -> true
+  )
 
 let verbose_assert msg it =
   Printf.eprintf "   %s...%!" msg;
   let r = Lazy.force it in
   Printf.eprintf " %s\n%!" (if r then "OK" else "failed!")
 
-let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
+let verbose_verify_election_test_data e =
   Printf.eprintf "Verifying election %S:\n%!" e.election.e_short_name;
   let {g; p; q; y} = e.election.e_public_key in
   verbose_assert "group parameters" (lazy (
     Election.check_finite_field ~p ~q ~g
   ));
+  verbose_assert "redundant information in legacy datastructrure" (lazy (
+    check_legacy e
+  ));
   let module P = struct
     module G = (val Election.finite_field ~p ~q ~g : Signatures.GROUP with type t = Z.t)
     let public_keys =
-      Array.map (fun x ->
+      List.map (fun x ->
         x.trustee_public_key.y
-      ) e.public_data.public_keys
+      ) e.trustee_public_keys |> Array.of_list
     let params = Serializable_compat.election e.election
-    let fingerprint = e.fingerprint
+    let fingerprint = hashB e.raw_election
   end in
   verbose_assert "election key" (lazy (
     Election.check_election (module P : Signatures.ELECTION_PARAMS)
@@ -100,73 +142,73 @@ let verbose_verify_election_test_data (e, ballots, signatures, private_data) =
       M.return (E.combine_ciphertexts tally (E.extract_ciphertext b))
     ) E.neutral_ciphertext ()
   ) in
-  if Array.length ballots = 0 then (
-    Printf.eprintf "   no ballots available\n%!"
-  ) else (
-    verbose_assert "ballots" (lazy (
-      Array.foralli (fun _ x ->
-        let b = Serializable_compat.ballot x in
-        if E.check_ballot b then (
-          M.cast b (); true
-        ) else false
-      ) ballots
-    ));
-    (match e.public_data.election_result with
-      | Some r ->
-        verbose_assert "encrypted tally" (lazy (
-          r.encrypted_tally.tally = Lazy.force encrypted_tally
-        ))
-      | None -> ()
-    );
+  (match e.ballots with
+    | None ->
+      Printf.eprintf "   no ballots available\n%!"
+    | Some ballots ->
+      verbose_assert "ballots" (lazy (
+        List.for_all (fun x ->
+          let b = Serializable_compat.ballot x in
+          if E.check_ballot b then (
+            M.cast b (); true
+          ) else false
+        ) ballots
+      ));
+      (match e.encrypted_tally with
+        | Some et ->
+          verbose_assert "encrypted tally" (lazy (
+            et.tally = Lazy.force encrypted_tally
+          ))
+        | None -> ()
+      );
   );
-  (match e.public_data.election_result with
-    | Some r ->
+  (match e.encrypted_tally, e.result, e.partial_decryptions with
+    | Some et, Some r, Some pds ->
+      let pds = Array.of_list pds in
       verbose_assert "partial decryptions and result" (lazy (
         let result = E.combine_factors
-          r.encrypted_tally.num_tallied
+          et.num_tallied
           (Lazy.force encrypted_tally)
-          (Array.map Serializable_compat.partial_decryption r.partial_decryptions)
+          (Array.map Serializable_compat.partial_decryption pds)
         in
         E.check_result result &&
-        E.extract_tally result = r.result
+        E.extract_tally result = r
       ));
-    | None -> Printf.eprintf "   no results available\n%!"
+    | None, None, None -> Printf.eprintf "   no results available\n%!"
+    | _ -> failwith "partial results, cannot check"
   );
-  verbose_assert "signature count" (lazy (
-    Array.length signatures = Array.length ballots
-  ));
-  verbose_assert "private keys" (lazy (
-    let open P.G in
-    Array.forall
-      (fun k ->
-        let {g=g'; p=p'; q=q'; y} = k.public_key in
-        g =~ g' && p =% p' && q =% q' &&
-        g **~ k.x =~ y
-      )
-      private_data.private_keys
-  ));;
+  (match e.private_keys with
+    | Some sks ->
+      verbose_assert "private keys" (lazy (
+        let open P.G in
+        List.for_all (fun k ->
+          let {g=g'; p=p'; q=q'; y} = k.public_key in
+          g =~ g' && p =% p' && q =% q' && g **~ k.x =~ y
+        ) sks
+      ))
+    | None -> Printf.eprintf "    no private keys available\n%!"
+  );;
 
 let iter_keep f xs = List.iter f xs; xs;;
 
 let load_election_and_verify_it_all dirname =
-  load_elections_and_votes dirname |>
-  Lwt_stream.to_list |> Lwt_main.run |>
-  List.map (fun (e, ballots, signatures) ->
-    let ballots = Lwt_stream.to_list ballots |> Lwt_main.run |> Array.of_list in
-    let signatures = Lwt_stream.to_list signatures |> Lwt_main.run |> Array.of_list in
-    let private_data = load_election_private_data dirname (Uuidm.to_string e.election.e_uuid) in
-    (e, ballots, signatures, private_data)
+  Lwt_unix.files_of_directory dirname |>
+  Lwt_stream.filter_map_s (fun d ->
+    match if_legacy d with
+      | Some uuid -> legacy_election (dirname/d) uuid >>= (fun x -> return (Some x))
+      | None -> return None
   ) |>
-  iter_keep verbose_verify_election_test_data;;
+  Lwt_stream.to_list >>=
+  wrap2 iter_keep verbose_verify_election_test_data;;
 
-let all_data = load_election_and_verify_it_all "tests/data";;
+lwt all_data = load_election_and_verify_it_all "tests/data/legacy";;
 
 let rec get_election name = function
   | [] -> raise Not_found
-  | ((e, _, _, _) as x)::xs when e.election.e_short_name = name -> x
+  | x::xs when x.election.e_short_name = name -> x
   | _::xs -> get_election name xs
 
-let e, ballots, signatures, private_data = get_election "editor" all_data;;
+let e = get_election "editor" all_data;;
 let {g; p; q; y} = e.election.e_public_key
 
 let random_exponent =
@@ -181,52 +223,52 @@ let random_exponent =
 module P = struct
   module G = (val Election.finite_field ~p ~q ~g : Signatures.GROUP with type t = Z.t)
   let public_keys =
-    Array.map (fun x ->
+    List.map (fun x ->
       x.trustee_public_key.y
-    ) e.public_data.public_keys
+    ) e.trustee_public_keys |> Array.of_list
   let params = Serializable_compat.election e.election
-  let fingerprint = e.fingerprint
+  let fingerprint = hashB e.raw_election
 end
 
 module M = Election.MakeSimpleMonad(P.G)
 module E = Election.MakeElection(P)(M)
 module Compat = Serializable_compat.MakeCompat(P)
 
-let nballots = Array.map Serializable_compat.ballot ballots;;
-assert (Array.forall E.check_ballot nballots);;
-assert (Array.forall2 (fun b b' -> b = Compat.ballot b') ballots nballots);;
+let ballots = match e.ballots with Some ballots -> ballots | None -> assert false;;
+let nballots = List.map Serializable_compat.ballot ballots;;
+assert (List.for_all E.check_ballot nballots);;
+assert (List.for_all2 (fun b b' -> b = Compat.ballot b') ballots nballots);;
 
 let create_ballot b = E.(create_ballot (make_randomness () ()) b)
 
 let test_ballot = create_ballot [| [| 1; 0; 0; 0 |] |] ();;
 assert (E.check_ballot test_ballot);;
 
-let result =
-  match e.public_data.election_result with
-    | Some r -> r
-    | None -> assert false
+let result, encrypted_tally, partial_decryptions =
+  match e.result, e.encrypted_tally, e.partial_decryptions with
+    | Some a, Some b, Some c -> a, b, c
+    | _ -> assert false
 
-let tally = result.encrypted_tally.tally;;
-let fs = Array.map Serializable_compat.partial_decryption result.partial_decryptions;;
-assert (Array.forall2 (fun f f' -> f = Compat.partial_decryption tally f') result.partial_decryptions fs);;
-let ys = Array.map (fun x -> x.trustee_public_key.y) e.public_data.public_keys;;
-assert (Array.forall2 (E.check_factor tally) ys fs);;
+let tally = encrypted_tally.tally;;
+let fs = List.map Serializable_compat.partial_decryption partial_decryptions;;
+assert (List.for_all2 (fun f f' -> f = Compat.partial_decryption tally f') partial_decryptions fs);;
+let ys = List.map (fun x -> x.trustee_public_key.y) e.trustee_public_keys;;
+assert (List.for_all2 (E.check_factor tally) ys fs);;
 
-let y = ys.(0);;
+let y = List.hd ys;;
 let x = Z.of_string "45298523167338358817538343074024028933886309805828157085973885299032584889325";;
 assert P.G.(g **~ x =% y);;
 
 let test_factor = E.compute_factor tally x ();;
 assert (E.check_factor tally y test_factor);;
-assert (Serializable_t.(test_factor.decryption_factors) = result.partial_decryptions.(0).decryption_factors);;
-
-let nresult = Serializable_compat.result result;;
+assert (Serializable_t.(test_factor.decryption_factors) = (List.hd partial_decryptions).decryption_factors);;
 
 let () =
+  let partial_decryptions = List.map Serializable_compat.partial_decryption partial_decryptions in
   let open Serializable_t in
   let nresult' = E.combine_factors
-    nresult.nb_tallied nresult.encrypted_tally nresult.partial_decryptions
+    encrypted_tally.num_tallied encrypted_tally.tally (Array.of_list partial_decryptions)
   in
-  assert (nresult'.result = nresult.result);
+  assert (nresult'.result = result);
   assert (E.check_result nresult');
 ;;
