@@ -20,6 +20,7 @@ module MakeSimpleMonad (G : GROUP) : sig
   type 'a t = unit -> 'a
   val return : 'a -> 'a t
   val bind : 'a t -> ('a -> 'b t) -> 'b t
+  val fail : exn -> 'a t
 
   (** {2 Random number generation} *)
 

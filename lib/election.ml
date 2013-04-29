@@ -66,6 +66,7 @@ module MakeSimpleMonad (G : GROUP) = struct
   let ballots = ref []
   let return x () = x
   let bind x f = f (x ())
+  let fail e = raise e
 
   let random q =
     let size = Z.size q * Sys.word_size / 8 in
@@ -333,7 +334,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
       sswap decryption_proofs >>= fun decryption_proofs ->
       return {decryption_factors; decryption_proofs}
     ) else (
-      invalid_arg "Invalid ciphertext"
+      fail (Invalid_argument "Invalid ciphertext")
     )
 
   let check_factor c y f =
