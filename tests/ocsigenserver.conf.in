@@ -33,7 +33,7 @@
         <static dir="_SRCDIR_/web/helios/booth" />
       </site>
       <eliom module="_build/web/server.cma">
-        <load dir="tests/data"/>
+        <load dir="tests/data/legacy"/>
       </eliom>
     </host>
 
