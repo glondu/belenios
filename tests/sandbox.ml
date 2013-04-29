@@ -2,6 +2,11 @@ open Lwt
 open Util
 open Serializable_compat_t
 
+let hashB x = Cryptokit.(x |>
+  hash_string (Hash.sha256 ()) |>
+  transform_string (Base64.encode_compact ())
+)
+
 let if_legacy s =
   if String.length s = 38 && s.[0] = '{' && s.[37] = '}'
   then Uuidm.of_string ~pos:1 s

@@ -15,6 +15,19 @@ let enforce_single_element s =
   (assert_lwt b) >>
   Lwt.return t
 
+let load_from_file read fname =
+  let i = open_in fname in
+  let buf = Lexing.from_channel i in
+  let lex = Yojson.init_lexer ~fname () in
+  let result = read lex buf in
+  close_in i;
+  result
+
+let hashB x = Cryptokit.(x |>
+  hash_string (Hash.sha256 ()) |>
+  transform_string (Base64.encode_compact ())
+)
+
 let load_elections_and_votes dirname =
   Lwt_unix.files_of_directory dirname |>
   Lwt_stream.filter_map_s (fun x ->
