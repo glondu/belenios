@@ -18,6 +18,7 @@ let () = dispatch & function
 
     Pathname.define_context "web" ["lib"; "web/helios/src"];
     Pathname.define_context "web/helios/src" ["lib"; "web"];
+    Pathname.define_context "tests/legacy" ["lib"];
     Pathname.define_context "tests" ["lib"];
     Pathname.define_context "." ["lib"];
 

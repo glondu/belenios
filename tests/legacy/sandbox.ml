@@ -251,7 +251,7 @@ let load_election_and_verify_it_all dirname =
   wrap2 iter_keep verbose_verify_election_test_data;;
 
 (* The following line executes all verbose (in-console) tests... *)
-lwt all_data = load_election_and_verify_it_all "tests/data/legacy";;
+lwt all_data = load_election_and_verify_it_all "tests/legacy";;
 
 (* The following are in-toplevel experiments... *)
 
