@@ -15,7 +15,8 @@ directory is:
 
  * `election.json`: the election parameters, as they are sent to the
    booth. This is what is returned by the `/helios/elections/$UUID`
-   path in the reference implementation.
+   path in the reference implementation, and the election fingerprint
+   is computed by hashing this file as is.
 
  * `ballots.jsons`: one line per submitted ballot, as it is sent by
    the booth when the voter confirms.
