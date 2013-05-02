@@ -4,6 +4,13 @@ let ( =% ) = Z.equal
 module Array = struct
   include Array
 
+  let forall f a =
+    let n = Array.length a in
+    (let rec check i =
+       if i >= 0 then f a.(i) && check (pred i)
+       else true
+     in check (pred n))
+
   let forall2 f a b =
     let n = Array.length a in
     n = Array.length b &&
