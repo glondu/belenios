@@ -12,12 +12,6 @@ module Array = struct
        else true
      in check (pred n))
 
-  let foralli f x =
-    let rec loop i =
-      if i >= 0 then f i x.(i) && loop (pred i)
-      else true
-    in loop (pred (Array.length x))
-
   let fforall f xs =
     let rec loop_outer i =
       if i >= 0 then

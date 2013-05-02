@@ -9,7 +9,6 @@ end
 module Array : sig
   include module type of Array
   val forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
-  val foralli : (int -> 'a -> bool) -> 'a array -> bool
   val fforall : ('a -> bool) -> 'a array array -> bool
   val fforall2 : ('a -> 'b -> bool) ->
     'a array array -> 'b array array -> bool
