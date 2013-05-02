@@ -1,10 +1,10 @@
-Legacy test data
-================
+Legacy tests
+============
 
 This directory contains data collected by running fake elections with
 the reference implementation.
 
-There is one directory per election. The typical content of a
+There is one sub-directory per election. The typical content of a
 directory is:
 
  * `public_keys.jsons`: one line per public key share, as it is
@@ -34,5 +34,8 @@ directory is:
 Trustee-related `.jsons` files have one line per trustee, in the same
 order. Data were collected in situ, using the [TamperData][1] Firefox
 extension.
+
+The `sandbox.ml` file contains some tests and illustrates the
+compatibility layer with the reference implementation.
 
 [1]: http://tamperdata.mozdev.org/
