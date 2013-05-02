@@ -7,8 +7,8 @@ open Serializable_compat_t
 (** Hash function used for election fingerprints, smart ballot
     trakers, etc. *)
 let hashB x = Cryptokit.(x |>
-    hash_string (Hash.sha256 ()) |>
-        transform_string (Base64.encode_compact ())
+  hash_string (Hash.sha256 ()) |>
+  transform_string (Base64.encode_compact ())
 )
 
 (** The files described in README.md are stored in a directory named
