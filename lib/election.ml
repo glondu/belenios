@@ -59,7 +59,7 @@ let check_election p =
 
 (** Simple monad *)
 
-let prng = lazy (Cryptokit.Random.(pseudo_rng (string secure_rng 32)))
+let prng = lazy (Cryptokit.Random.(pseudo_rng (string secure_rng 16)))
 
 module MakeSimpleMonad (G : GROUP) = struct
   type 'a t = unit -> 'a

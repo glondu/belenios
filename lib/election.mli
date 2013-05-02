@@ -26,8 +26,8 @@ module MakeSimpleMonad (G : GROUP) : sig
 
   val random : Z.t -> Z.t t
   (** [random q] returns a random number modulo [q]. It uses a secure
-      random number generator lazily initialized by a seed shared by all
-      instances. *)
+      random number generator lazily initialized by a 128-bit seed
+      shared by all instances. *)
 
   (** {2 Ballot box management} *)
 
