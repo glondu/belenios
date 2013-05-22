@@ -2,6 +2,17 @@ open Lwt
 open Util
 open Serializable_compat_t
 
+type user = {
+  user_name : string;
+  user_type : string;
+}
+
+type 'a result = {
+  encrypted_tally : 'a encrypted_tally;
+  partial_decryptions : 'a partial_decryption array;
+  result : raw_result;
+}
+
 type election_data = {
   raw : string;
   fingerprint : string;

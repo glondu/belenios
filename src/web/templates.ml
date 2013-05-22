@@ -11,11 +11,11 @@ let s x = Xml.uri_of_string ("/static/" ^ x)
 
 let format_user u size = Services.([
   img
-    ~src:(Printf.ksprintf s "auth/login-icons/%s.png" u.user_type)
+    ~src:(Printf.ksprintf s "auth/login-icons/%s.png" u.Common.user_type)
     ~a:[a_style "border:0;"; a_height size]
-    ~alt:u.user_type ();
+    ~alt:u.Common.user_type ();
   pcdata " ";
-  pcdata u.user_name;
+  pcdata u.Common.user_name;
 ])
 
 let base ~title ~header ~content =
@@ -136,7 +136,7 @@ let format_election_result e r =
       ) answers
     in
     { question; answers }
-  ) (r.result : int array array) |>
+  ) (r.Common.result : int array array) |>
   Array.to_list
 
 let format_one_election e =

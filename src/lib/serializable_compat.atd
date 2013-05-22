@@ -135,24 +135,6 @@ type raw_result = int list <ocaml repr="array"> list <ocaml repr="array">
 
 (** {1 Other basic datastructures} *)
 
-type user = {
-  user_name <json name="name"> : string;
-  user_type <json name="type"> : string;
-}
-
 type randomness = {
   randomness : string;
-}
-
-type signature = {
-  user : user;
-  ?hash : string option;
-}  <ocaml field_prefix="sig_">
-
-(** {1 Compound datastructures} *)
-
-type 'a result = {
-  encrypted_tally : 'a encrypted_tally;
-  partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
-  result : raw_result;
 }

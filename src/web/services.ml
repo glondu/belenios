@@ -38,7 +38,7 @@ let auth_systems = [
 
 let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
-  (None : user option)
+  (None : Common.user option)
 
 let uuid = Eliom_parameter.user_type
   (fun x -> match Uuidm.of_string x with
@@ -99,5 +99,5 @@ let get_randomness = service
 
 let preapply_uuid s e = Eliom_service.preapply s e.Common.election.e_uuid
 
-let is_eligible (uuid : Uuidm.t) (user : user) =
-  Lwt.return (String.startswith user.user_name "special-")
+let is_eligible (uuid : Uuidm.t) (user : Common.user) =
+  Lwt.return (String.startswith user.Common.user_name "special-")

@@ -89,7 +89,7 @@ let () = Eliom_registration.Html5.register
       (fun () user_name ->
         let user_type = "dummy" in
         Eliom_reference.set Services.user
-          (Some {user_name; user_type}) >>
+          Common.(Some {user_name; user_type}) >>
         return Services.home)
     in
     Templates.dummy_login ~service)
