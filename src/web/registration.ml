@@ -65,7 +65,7 @@ let if_eligible f uuid x =
   lwt () =
     if election.Common.public_data.private_p then (
       match user with
-        | Some (_, user) ->
+        | Some user ->
           lwt eligible = Services.is_eligible uuid user in
           if not eligible then forbidden () else return ()
         | None -> forbidden ()
@@ -86,10 +86,10 @@ let () = Eliom_registration.Html5.register
     let () = Eliom_registration.Redirection.register
       ~service
       ~scope:Eliom_common.default_session_scope
-      (fun () (user_name, admin_p) ->
+      (fun () user_name ->
         let user_type = "dummy" in
         Eliom_reference.set Services.user
-          (Some (admin_p, {user_name; user_type})) >>
+          (Some {user_name; user_type}) >>
         return Services.home)
     in
     Templates.dummy_login ~service)

@@ -29,7 +29,7 @@ let perform_login () =
     ~csrf_safe:true
     ~csrf_scope:Eliom_common.default_session_scope
     ~fallback:login
-    ~post_params:Eliom_parameter.(string "username" ** bool "admin_p")
+    ~post_params:Eliom_parameter.(string "username")
     ()
 
 let auth_systems = [
@@ -38,7 +38,7 @@ let auth_systems = [
 
 let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
-  (None : (bool * user) option)
+  (None : user option)
 
 let uuid = Eliom_parameter.user_type
   (fun x -> match Uuidm.of_string x with

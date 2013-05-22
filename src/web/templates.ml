@@ -54,7 +54,7 @@ let base ~title ~header ~content =
         div ~a:[a_id "footer"] (
           [span ~a:[a_style "float:right;"] [ (* footer logo *) ]] @
           (match user with
-            | Some (admin_p, user) ->
+            | Some user ->
               [pcdata "logged in as "] @ (format_user user 15) @ [
                 pcdata " [";
                 a ~service:Services.logout [pcdata "logout"] ();
@@ -164,20 +164,8 @@ let index ~featured =
   ~header:[h2 [pcdata site_title]]
   ~content:(
     let mystuff = match user with
-      | Some (admin_p, u) ->
-        let administered = if admin_p then Some [] else None in
+      | Some u ->
         let voted = [] in
-        let administration_box = match administered with
-          | Some admin ->
-            let administered_box = match admin with
-              | _::_ -> ul (List.map format_one_election admin)
-              | [] -> em [pcdata "none yet"]
-            in [
-              h4 [pcdata "Administration"];
-              administered_box;
-            ]
-          | None -> []
-        in
         let recent_votes = [
           h4 [pcdata "Recent votes"];
           match voted with
@@ -188,7 +176,7 @@ let index ~featured =
           div ~a:[a_style "font-size:1.4em;"; a_class ["highlight-box"]]
             (format_user u 25)
         ]
-        @ administration_box @ recent_votes
+        @ recent_votes
       | None ->
         [h3 [pcdata "Log In to Start Voting"]]
         @ (login_box Services.auth_systems)
@@ -218,16 +206,12 @@ let dummy_login ~service =
   let form = post_form
     ~a:[a_id "login_form"; a_class ["prettyform"]]
     ~service
-    (fun (username_name, admin_name) ->
+    (fun username_name ->
       [
         tablex [tbody [
           tr [
             th [label ~a:[a_for username_name] [pcdata "Username:"]];
             td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:username_name ()];
-          ];
-          tr [
-            th [label ~a:[a_for admin_name] [pcdata "Admin?"]];
-            td [bool_checkbox ~name:admin_name ()];
           ]]
         ];
         div [
@@ -254,7 +238,7 @@ let election_view ~election ~user =
           a ~service:Services.login [pcdata "Log in"] ();
           pcdata " to check if you can vote.";
         ]
-      | Some (_, u) ->
+      | Some u ->
         lwt b = Services.is_eligible election.Common.election.e_uuid u in
         let can = if b then pcdata "can" else pcdata "cannot" in
         Lwt.return [
