@@ -1,4 +1,4 @@
-lib/lib.cma
-web/server.cma
+src/lib/lib.cma
+src/web/server.cma
 api.docdir/index.html
 tests/legacy/README.html

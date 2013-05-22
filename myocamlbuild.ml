@@ -16,11 +16,11 @@ let () = dispatch & function
 
   | After_rules ->
 
-    Pathname.define_context "web" ["lib"; "web/helios/src"];
-    Pathname.define_context "web/helios/src" ["lib"; "web"];
-    Pathname.define_context "tests/legacy" ["lib"];
-    Pathname.define_context "tests" ["lib"];
-    Pathname.define_context "." ["lib"];
+    Pathname.define_context "src/web" ["src/lib"; "src/web/helios/src"];
+    Pathname.define_context "src/web/helios/src" ["src/lib"; "src/web"];
+    Pathname.define_context "tests/legacy" ["src/lib"];
+    Pathname.define_context "tests" ["src/lib"];
+    Pathname.define_context "." ["src/lib"];
 
     (* the following avoids an ocamlfind warning, it should be built-in *)
     flag ["doc"; "thread"] (A"-thread");
