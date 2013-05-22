@@ -93,7 +93,7 @@ let load_elections_and_votes dirname =
             Lwt_stream.map (fun x ->
               let v = Serializable_compat_j.ballot_of_string Serializable_builtin_j.read_number x in
               assert (Uuidm.equal uuid v.election_uuid);
-              v
+              x, v
             )
           ) else Lwt_stream.from_direct (fun () -> None)
         in
@@ -102,37 +102,3 @@ let load_elections_and_votes dirname =
       | None -> assert false
     ) else Lwt.return None
   )
-
-let concat s l f = String.concat s (List.map f (Array.to_list l))
-
-let hash_ballot v =
-  concat "//" v.answers (fun a ->
-    concat "|" a.choices (fun c ->
-      Printf.sprintf "%s,%s" (Z.to_string c.alpha) (Z.to_string c.beta)
-    ) ^
-    "#" ^
-    concat "|" a.individual_proofs (fun p ->
-      concat "/" p (fun pi ->
-        Printf.sprintf "%a,%a,%a,%a"
-          Z.sprint pi.dp_commitment.a
-          Z.sprint pi.dp_commitment.b
-          Z.sprint pi.dp_challenge
-          Z.sprint pi.dp_response
-      )
-    ) ^
-    "#" ^
-    concat "/" a.overall_proof (fun pi ->
-      Printf.sprintf "%a,%a,%a,%a"
-        Z.sprint pi.dp_commitment.a
-        Z.sprint pi.dp_commitment.b
-        Z.sprint pi.dp_challenge
-        Z.sprint pi.dp_response
-    )
-  ) ^
-  "#" ^ v.election_hash ^
-  "#" ^ (Uuidm.to_string v.election_uuid) |>
-  hashB
-
-let hash_user v =
-  Serializable_compat_j.string_of_user v |>
-  hashB

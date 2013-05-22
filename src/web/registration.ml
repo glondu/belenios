@@ -32,8 +32,8 @@ let () =
         lwt () = Ocsipersist.add elections_table uuid e in
         let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
         let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
-        lwt () = Lwt_stream.iter_s (fun v ->
-          Ocsipersist.add table (Common.hash_ballot v) v
+        lwt () = Lwt_stream.iter_s (fun (r, v) ->
+          Ocsipersist.add table (Common.hashB r) v
         ) ballots in
         return ()
       ) |>
@@ -193,7 +193,7 @@ let () = Eliom_registration.Html5.register
            if
              Uuidm.equal uuid ballot.election_uuid &&
              E.check_ballot (Serializable_compat.ballot ballot)
-           then `Valid (Common.hash_ballot ballot)
+           then `Valid (Common.hashB raw_ballot)
            else `Invalid
          with e -> `Malformed
        in

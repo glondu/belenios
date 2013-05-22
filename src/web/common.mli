@@ -7,8 +7,7 @@ type election_data = {
   public_data : Z.t election_public_data;
 }
 
-val load_elections_and_votes :
-  string -> (election_data * Z.t ballot Lwt_stream.t) Lwt_stream.t
+val hashB : string -> string
 
-val hash_ballot : Z.t ballot -> string
-val hash_user : user -> string
+val load_elections_and_votes :
+  string -> (election_data * (string * Z.t ballot) Lwt_stream.t) Lwt_stream.t
