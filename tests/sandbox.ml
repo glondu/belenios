@@ -117,3 +117,42 @@ assert (E.check_result result);;
 
 let tally = E.extract_tally result;;
 assert (tally = [|[| 1; 0; 1; 0; 0 |]; [|0; 4; 0; 4; 3; 0|]; [| 1; 1; 2 |]|]);;
+
+(* Save to disk *)
+
+let ( / ) = Filename.concat
+
+let save_to filename writer x =
+  let oc = open_out filename in
+  let ob = Bi_outbuf.create_channel_writer oc in
+  writer ob x;
+  Bi_outbuf.flush_channel_writer ob;
+  close_out oc;;
+
+let list_save_to filename writer xs =
+  let oc = open_out filename in
+  let ob = Bi_outbuf.create_channel_writer oc in
+  Array.iter (fun x ->
+    writer ob x;
+    Bi_outbuf.add_char ob '\n';
+  ) xs;
+  Bi_outbuf.flush_channel_writer ob;
+  close_out oc;;
+
+let save_to_disk () =
+  let election = { election with
+    e_public_key = { ff_g = g; ff_p = p; ff_q = q; ff_y = y }
+  } in
+  let ballots = Array.of_list (M.fold (fun x xs () -> x::xs) [] ()) in
+  let dir = Printf.sprintf "tests/data/{%s}"
+    (Uuidm.to_string election.e_uuid)
+  in
+  Unix.mkdir dir 0o755;
+  let open Serializable_j in
+  let number = Serializable_builtin_j.write_number in
+  save_to (dir/"election.json") (write_election write_ff_pubkey) election;
+  list_save_to (dir/"private_keys.jsons") number private_keys;
+  list_save_to (dir/"public_keys.jsons") (write_trustee_public_key number) public_keys;
+  list_save_to (dir/"ballots.jsons") (write_ballot number) ballots;
+  save_to (dir/"result.json") (write_result number) result;
+  ();;

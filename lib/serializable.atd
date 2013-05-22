@@ -31,6 +31,14 @@ type 'a trustee_public_key = {
 
 (** {2 Elections} *)
 
+type ff_pubkey = {
+  g : number;
+  p : number;
+  q : number;
+  y : number;
+} <ocaml field_prefix="ff_">
+<doc text="Parameters for a multiplicative subgroup of a finite field, with a public key.">
+
 type question = {
   answers : string list <ocaml repr="array">;
   min : int;
