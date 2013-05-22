@@ -1,3 +1,4 @@
+open Lwt
 open Util
 open Serializable_compat_t
 
@@ -46,10 +47,44 @@ let load_elections_and_votes dirname =
           Serializable_builtin_j.read_number raw
         in
         (assert_lwt (Uuidm.equal uuid election.e_uuid)) >>
-        let public_data =
-          data "public.json" |>
-          load_from_file (Serializable_compat_j.read_election_public_data Serializable_builtin_j.read_number)
+        lwt public_keys =
+          data "public_keys.jsons" |>
+          Lwt_io.lines_of_file |>
+          Lwt_stream.map (fun x ->
+            Serializable_compat_j.trustee_public_key_of_string Serializable_builtin_j.read_number x
+          ) |>
+          Lwt_stream.to_list >>= wrap1 Array.of_list
         in
+        lwt election_result, state =
+          match (
+            try Some (
+              data "result.json" |>
+              load_from_file Serializable_compat_j.read_raw_result
+            ) with Sys_error _ -> None
+          ) with
+          | Some result ->
+            let encrypted_tally =
+              data "encrypted_tally.json" |>
+              load_from_file (Serializable_compat_j.read_encrypted_tally Serializable_builtin_j.read_number)
+            in
+            lwt partial_decryptions =
+              data "partial_decryptions.jsons" |>
+              Lwt_io.lines_of_file |>
+              Lwt_stream.map (fun x ->
+                Serializable_compat_j.partial_decryption_of_string Serializable_builtin_j.read_number x
+              ) |>
+              Lwt_stream.to_list >>= wrap1 Array.of_list
+            in return (Some { encrypted_tally; partial_decryptions; result }, `Finished)
+          | None -> return (None, `Started)
+        in
+        let public_data = {
+          public_keys;
+          election_result;
+          admin = { user_name = "admin"; user_type = "dummy" };
+          private_p = false;
+          featured_p = true;
+          state;
+        } in
         let fingerprint = hashB raw in
         let ballots =
           let file = data "ballots.json" in
@@ -62,18 +97,8 @@ let load_elections_and_votes dirname =
             )
           ) else Lwt_stream.from_direct (fun () -> None)
         in
-        let signatures =
-          let file = data "signatures.json" in
-          if Sys.file_exists file then (
-            Lwt_io.lines_of_file file |>
-            Lwt_stream.map (fun x ->
-              let v = Serializable_compat_j.signature_of_string x in
-              v
-            )
-          ) else Lwt_stream.from_direct (fun () -> None)
-        in
         let election_data = { raw; fingerprint; election; public_data } in
-        Lwt.return (Some (election_data, ballots, signatures))
+        Lwt.return (Some (election_data, ballots))
       | None -> assert false
     ) else Lwt.return None
   )

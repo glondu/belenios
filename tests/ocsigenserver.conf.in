@@ -27,13 +27,13 @@
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <site path="static" charset="utf-8">
-        <static dir="_SRCDIR_/web/helios/static" />
+        <static dir="_SRCDIR_/media/static" />
       </site>
       <site path="booth" charset="utf-8">
-        <static dir="_SRCDIR_/web/helios/booth" />
+        <static dir="_SRCDIR_/media/booth" />
       </site>
-      <eliom module="_build/web/server.cma">
-        <load dir="tests/data/legacy"/>
+      <eliom module="_build/src/web/server.cma">
+        <load dir="tests/legacy"/>
       </eliom>
     </host>
 

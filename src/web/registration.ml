@@ -25,20 +25,16 @@ let () =
       Ocsigen_messages.debug
         (fun () -> "Loading elections from " ^ dir ^ "...");
       Common.load_elections_and_votes dir |>
-      Lwt_stream.iter_s (fun (e, ballots, signatures) ->
+      Lwt_stream.iter_s (fun (e, ballots) ->
         let uuid = Uuidm.to_string e.Common.election.e_uuid in
         Ocsigen_messages.debug
           (fun () -> Printf.sprintf "-- loading %s (%s)" uuid e.Common.election.e_short_name);
         lwt () = Ocsipersist.add elections_table uuid e in
         let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
         let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
-        let signatures_table = Ocsipersist.open_table ("signatures_" ^ uuid_underscored) in
         lwt () = Lwt_stream.iter_s (fun v ->
           Ocsipersist.add table (Common.hash_ballot v) v
         ) ballots in
-        lwt () = Lwt_stream.iter_s (fun v ->
-          Ocsipersist.add signatures_table (Common.hash_user v.sig_user) v
-        ) signatures in
         return ()
       ) |>
       Lwt_main.run
