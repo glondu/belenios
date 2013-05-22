@@ -12,4 +12,5 @@ clean:
 tree: _build/tree.html
 
 _build/tree.html:
+	mkdir -p _build
 	tree -o $@ -H '..'  -I '_build|_run|*~'
