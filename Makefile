@@ -8,3 +8,8 @@ check: all
 clean:
 	ocamlbuild -clean
 	rm -f *~
+
+tree: _build/tree.html
+
+_build/tree.html:
+	tree -o $@ -H '..'  -I '_build|_run|*~'
