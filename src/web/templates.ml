@@ -9,7 +9,7 @@ let welcome_message = "Welcome to the Helios Election Server!"
 
 let s x = Xml.uri_of_string ("/static/" ^ x)
 
-let format_user u size = Helios_services.([
+let format_user u size = Services.([
   img
     ~src:(Printf.ksprintf s "auth/login-icons/%s.png" u.user_type)
     ~a:[a_style "border:0;"; a_height size]
@@ -19,7 +19,7 @@ let format_user u size = Helios_services.([
 ])
 
 let base ~title ~header ~content =
-  lwt user = Eliom_reference.get Helios_services.user in
+  lwt user = Eliom_reference.get Services.user in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata (title ^ " - Helios"))) [
       link
@@ -42,7 +42,7 @@ let base ~title ~header ~content =
     (body [
       div ~a:[a_id "content"] [
         div ~a:[a_id "header"] ([
-          a ~service:Helios_services.home [
+          a ~service:Services.home [
             img
               ~src:(s "logo.gif")
               ~a:[a_style "border:0;"; a_height 110]
@@ -57,19 +57,19 @@ let base ~title ~header ~content =
             | Some (admin_p, user) ->
               [pcdata "logged in as "] @ (format_user user 15) @ [
                 pcdata " [";
-                a ~service:Helios_services.logout [pcdata "logout"] ();
+                a ~service:Services.logout [pcdata "logout"] ();
                 pcdata "]";
                 br ()
               ]
             | None ->
               [pcdata "not logged in."] @ [
                 pcdata " [";
-                a ~service:Helios_services.login [pcdata "log in"] ();
+                a ~service:Services.login [pcdata "log in"] ();
                 pcdata "]";
                 br ();
               ]
           ) @ [
-            a ~service:Helios_services.project_home [
+            a ~service:Services.project_home [
               pcdata "About Helios"
             ] ();
             pcdata " | Help!";
@@ -89,7 +89,7 @@ let login_box auth_systems = List.map
   (fun x ->
     p [
       a
-        ~service:Helios_services.login
+        ~service:Services.login
         ~a:[a_style "font-size: 1.4em;"] [
           img
             ~a:[a_style "border:0;"; a_height 35]
@@ -112,7 +112,7 @@ type question = {
 }
 
 let format_election_result e r =
-  let open Helios_services in
+  let open Services in
   Array.mapi (fun i q ->
     let q' = e.e_questions.(i) in
     let question = q'.q_question in
@@ -146,7 +146,7 @@ let format_one_featured_election e =
   [
     div ~a:[a_class ["highlight-box-margin"]] ([
       a
-        ~service:Helios_services.(preapply_uuid election_view e)
+        ~service:Services.(preapply_uuid election_view e)
         ~a:[a_style "font-size: 1.4em;"]
         [pcdata e.Common.election.e_name] ();
       pcdata " by ";
@@ -158,7 +158,7 @@ let format_one_featured_election e =
   ]
 
 let index ~featured =
-  lwt user = Eliom_reference.get Helios_services.user in
+  lwt user = Eliom_reference.get Services.user in
   base
   ~title:site_title
   ~header:[h2 [pcdata site_title]]
@@ -191,7 +191,7 @@ let index ~featured =
         @ administration_box @ recent_votes
       | None ->
         [h3 [pcdata "Log In to Start Voting"]]
-        @ (login_box Helios_services.auth_systems)
+        @ (login_box Services.auth_systems)
         @ [br (); br ()]
     in
     let featured_box = match featured with
@@ -241,8 +241,8 @@ let dummy_login ~service =
     ~content:[div [form]]
 
 let election_view ~election ~user =
-  let service = Helios_services.(preapply_uuid election_raw election) in
-  let booth = Helios_services.make_booth election.Common.election.e_uuid in
+  let service = Services.(preapply_uuid election_raw election) in
+  let booth = Services.make_booth election.Common.election.e_uuid in
   lwt eligibility =
     if not election.Common.public_data.private_p && election.Common.election.e_openreg then (
       Lwt.return [
@@ -251,11 +251,11 @@ let election_view ~election ~user =
     ) else (match user with
       | None ->
         Lwt.return [
-          a ~service:Helios_services.login [pcdata "Log in"] ();
+          a ~service:Services.login [pcdata "Log in"] ();
           pcdata " to check if you can vote.";
         ]
       | Some (_, u) ->
-        lwt b = Helios_services.is_eligible election.Common.election.e_uuid u in
+        lwt b = Services.is_eligible election.Common.election.e_uuid u in
         let can = if b then pcdata "can" else pcdata "cannot" in
         Lwt.return [
           pcdata "You ";
@@ -287,11 +287,11 @@ let election_view ~election ~user =
       br ();
       br ();
       p ~a:[a_style "font-size: 1.3em;"] [
-        a ~service:Helios_services.(preapply_uuid election_ballots election) [
+        a ~service:Services.(preapply_uuid election_ballots election) [
           pcdata "Ballot Tracking Center";
         ] ();
         pcdata " | ";
-        a ~service:Helios_services.(preapply_uuid election_public_data election) [
+        a ~service:Services.(preapply_uuid election_public_data election) [
           pcdata "Election data";
         ] ();
         pcdata " | ";
@@ -374,7 +374,7 @@ let election_view ~election ~user =
           a_style "font-size: 1.6em; margin-right: 10px;";
           a_id "votelink";
         ] [
-          a ~service:(Helios_services.(preapply_uuid election_vote election)) [
+          a ~service:(Services.(preapply_uuid election_vote election)) [
             pcdata "Vote in this election";
           ] ()
         ];

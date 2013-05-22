@@ -65,47 +65,47 @@ let forbidden () = raise_lwt (
 
 let if_eligible f uuid x =
   lwt election = get_election_by_uuid uuid in
-  lwt user = Eliom_reference.get Helios_services.user in
+  lwt user = Eliom_reference.get Services.user in
   lwt () =
     if election.Common.public_data.private_p then (
       match user with
         | Some (_, user) ->
-          lwt eligible = Helios_services.is_eligible uuid user in
+          lwt eligible = Services.is_eligible uuid user in
           if not eligible then forbidden () else return ()
         | None -> forbidden ()
     ) else return ()
   in f uuid election user x
 
 let () = Eliom_registration.Html5.register
-  ~service:Helios_services.home
+  ~service:Services.home
   (fun () () ->
     lwt featured = get_featured_elections () in
-    Helios_templates.index ~featured)
+    Templates.index ~featured)
 
 let () = Eliom_registration.Html5.register
-  ~service:Helios_services.login
+  ~service:Services.login
   (fun () () ->
     (* FIXME *)
-    let service = Helios_services.perform_login () in
+    let service = Services.perform_login () in
     let () = Eliom_registration.Redirection.register
       ~service
       ~scope:Eliom_common.default_session_scope
       (fun () (user_name, admin_p) ->
         let user_type = "dummy" in
-        Eliom_reference.set Helios_services.user
+        Eliom_reference.set Services.user
           (Some (admin_p, {user_name; user_type})) >>
-        return Helios_services.home)
+        return Services.home)
     in
-    Helios_templates.dummy_login ~service)
+    Templates.dummy_login ~service)
 
 let () = Eliom_registration.Redirection.register
-  ~service:Helios_services.logout
+  ~service:Services.logout
   (fun () () ->
     Eliom_state.discard ~scope:Eliom_common.default_session_scope () >>
-    return Helios_services.home)
+    return Services.home)
 
 let () = Eliom_registration.String.register
-  ~service:Helios_services.election_raw
+  ~service:Services.election_raw
   (if_eligible
      (fun uuid election user () ->
        return (election.Common.raw, "application/json")
@@ -113,7 +113,7 @@ let () = Eliom_registration.String.register
   )
 
 let () = Eliom_registration.String.register
-  ~service:Helios_services.election_public_data
+  ~service:Services.election_public_data
   (if_eligible
      (fun uuid election user () ->
        return (
@@ -126,7 +126,7 @@ let () = Eliom_registration.String.register
   )
 
 let () = Eliom_registration.String.register
-  ~service:Helios_services.election_ballots
+  ~service:Services.election_ballots
   (if_eligible
      (fun uuid election user () ->
        let uuid_underscored = String.map (function '-' -> '_' | c -> c) (Uuidm.to_string uuid) in
@@ -141,7 +141,7 @@ let () = Eliom_registration.String.register
   )
 
 let () = Eliom_registration.String.register
-  ~service:Helios_services.get_randomness
+  ~service:Services.get_randomness
   (fun () () ->
     (* FIXME: DoS/entropy exhaustion vulnerability *)
     Lwt_preemptive.detach (fun () -> Cryptokit.Random.(string secure_rng 32)) () >>=
@@ -151,33 +151,33 @@ let () = Eliom_registration.String.register
   )
 
 let () = Eliom_registration.Html5.register
-  ~service:Helios_services.election_view
+  ~service:Services.election_view
   (if_eligible
      (fun uuid election user () ->
-       Helios_templates.election_view ~election ~user
+       Templates.election_view ~election ~user
      )
   )
 
 let () = Eliom_registration.Redirection.register
-  ~service:Helios_services.election_vote
+  ~service:Services.election_vote
   (if_eligible
      (fun uuid election user () ->
-       return (Helios_services.make_booth uuid)
+       return (Services.make_booth uuid)
      )
   )
 
 let () = Eliom_registration.Redirection.register
-  ~service:Helios_services.election_cast
+  ~service:Services.election_cast
   (if_eligible
      (fun uuid election user () ->
        return (
-         Helios_services.(preapply_uuid election_view election)
+         Services.(preapply_uuid election_view election)
        )
      )
   )
 
 let () = Eliom_registration.Html5.register
-  ~service:Helios_services.election_cast_post
+  ~service:Services.election_cast_post
   (if_eligible
      (fun uuid election user raw_ballot ->
        let result =
@@ -201,6 +201,6 @@ let () = Eliom_registration.Html5.register
            else `Invalid
          with e -> `Malformed
        in
-       Helios_templates.cast_ballot ~election ~result
+       Templates.cast_ballot ~election ~result
      )
   )

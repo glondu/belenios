@@ -5,6 +5,6 @@ Serializable_j
 Serializable_compat
 Common
 Election
-Helios_services
-Helios_templates
-Helios_registration
+Services
+Templates
+Registration
