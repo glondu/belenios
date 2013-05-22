@@ -4,7 +4,12 @@ type election_data = {
   raw : string;
   fingerprint : string;
   election : Z.t election;
-  public_data : Z.t election_public_data;
+  public_keys : Z.t trustee_public_key array;
+  election_result : Z.t result option;
+  admin : user;
+  private_p : bool;
+  featured_p : bool;
+  state : election_state;
 }
 
 val hashB : string -> string

@@ -156,16 +156,3 @@ type 'a result = {
   partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
   result : raw_result;
 }
-
-type 'a election_public_data = {
-  public_keys : 'a trustee_public_key list <ocaml repr="array">;
-  ?election_result : 'a result option;
-  admin : user;
-  private_p : bool;
-  featured_p : bool;
-  state : election_state;
-}
-
-type 'a election_private_data = {
-  private_keys : 'a private_key list <ocaml repr="array">;
-}

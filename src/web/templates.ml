@@ -150,7 +150,7 @@ let format_one_featured_election e =
         ~a:[a_style "font-size: 1.4em;"]
         [pcdata e.Common.election.e_name] ();
       pcdata " by ";
-    ] @ format_user e.Common.public_data.admin 15 @ [
+    ] @ format_user e.Common.admin 15 @ [
       br ();
       pcdata e.Common.election.e_description;
     ]);
@@ -228,7 +228,7 @@ let election_view ~election ~user =
   let service = Services.(preapply_uuid election_raw election) in
   let booth = Services.make_booth election.Common.election.e_uuid in
   lwt eligibility =
-    if not election.Common.public_data.private_p && election.Common.election.e_openreg then (
+    if not election.Common.private_p && election.Common.election.e_openreg then (
       Lwt.return [
         pcdata "Anyone can vote in this election.";
       ]
@@ -275,10 +275,6 @@ let election_view ~election ~user =
           pcdata "Ballot Tracking Center";
         ] ();
         pcdata " | ";
-        a ~service:Services.(preapply_uuid election_public_data election) [
-          pcdata "Election data";
-        ] ();
-        pcdata " | ";
         a ~service:booth [
           pcdata "Voting booth";
         ] ();
@@ -290,14 +286,14 @@ let election_view ~election ~user =
       h2 ~a:[a_class ["title"]] [pcdata election.Common.election.e_name];
       p ~a:[a_style "padding-top:0px; margin-top:0px"] [
         em [
-          pcdata (if election.Common.public_data.private_p then "private" else "public")
+          pcdata (if election.Common.private_p then "private" else "public")
         ];
         pcdata " election created by ";
-        u [ b (format_user election.Common.public_data.admin 15) ];
+        u [ b (format_user election.Common.admin 15) ];
         pcdata " with ";
         pcdata (string_of_int (Array.length election.Common.election.e_questions));
         pcdata " question(s) and ";
-        pcdata (string_of_int (Array.length election.Common.public_data.public_keys));
+        pcdata (string_of_int (Array.length election.Common.public_keys));
         pcdata " trustee(s)";
       ];
     ];
@@ -307,7 +303,7 @@ let election_view ~election ~user =
     div ~a:[a_style "margin-bottom: 25px;margin-left: 15px; border-left: 1px solid #aaa; padding-left: 5px; font-size:1.3em;"] [pcdata election.Common.election.e_description];
     (* NOTE: administration things removed from here! *)
     br ();
-  ] @ (match election.Common.public_data.state, election.Common.public_data.election_result with
+  ] @ (match election.Common.state, election.Common.election_result with
     | `Finished, Some r ->
       let result = format_election_result election.Common.election r in
       [

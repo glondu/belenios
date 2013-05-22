@@ -49,7 +49,7 @@ let get_election_by_uuid x =
 let get_featured_elections () =
   (* FIXME: doesn't scale when there are a lot of unfeatured elections *)
   Ocsipersist.fold_step (fun uuid e res ->
-    let res = if e.Common.public_data.featured_p then e::res else res in
+    let res = if e.Common.featured_p then e::res else res in
     return res
   ) elections_table []
 
@@ -63,7 +63,7 @@ let if_eligible f uuid x =
   lwt election = get_election_by_uuid uuid in
   lwt user = Eliom_reference.get Services.user in
   lwt () =
-    if election.Common.public_data.private_p then (
+    if election.Common.private_p then (
       match user with
         | Some user ->
           lwt eligible = Services.is_eligible uuid user in
@@ -105,19 +105,6 @@ let () = Eliom_registration.String.register
   (if_eligible
      (fun uuid election user () ->
        return (election.Common.raw, "application/json")
-     )
-  )
-
-let () = Eliom_registration.String.register
-  ~service:Services.election_public_data
-  (if_eligible
-     (fun uuid election user () ->
-       return (
-         Serializable_compat_j.string_of_election_public_data
-           Serializable_builtin_j.write_number
-           election.Common.public_data,
-         "application/json"
-       )
      )
   )
 
@@ -184,7 +171,7 @@ let () = Eliom_registration.Html5.register
              module G = (val Election.finite_field ~p ~q ~g : Signatures.GROUP with type t = Z.t)
              let public_keys = Array.map (fun x ->
                x.trustee_public_key.y
-             ) election.Common.public_data.public_keys
+             ) election.Common.public_keys
              let params = Serializable_compat.election election.Common.election
              let fingerprint = assert false
            end in

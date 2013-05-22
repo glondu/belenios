@@ -6,7 +6,12 @@ type election_data = {
   raw : string;
   fingerprint : string;
   election : Z.t election;
-  public_data : Z.t election_public_data;
+  public_keys : Z.t trustee_public_key array;
+  election_result : Z.t result option;
+  admin : user;
+  private_p : bool;
+  featured_p : bool;
+  state : election_state;
 }
 
 let enforce_single_element s =
@@ -77,14 +82,6 @@ let load_elections_and_votes dirname =
             in return (Some { encrypted_tally; partial_decryptions; result }, `Finished)
           | None -> return (None, `Started)
         in
-        let public_data = {
-          public_keys;
-          election_result;
-          admin = { user_name = "admin"; user_type = "dummy" };
-          private_p = false;
-          featured_p = true;
-          state;
-        } in
         let fingerprint = hashB raw in
         let ballots =
           let file = data "ballots.json" in
@@ -97,7 +94,17 @@ let load_elections_and_votes dirname =
             )
           ) else Lwt_stream.from_direct (fun () -> None)
         in
-        let election_data = { raw; fingerprint; election; public_data } in
+        let election_data = {
+          raw;
+          fingerprint;
+          election;
+          public_keys;
+          election_result;
+          admin = { user_name = "admin"; user_type = "dummy" };
+          private_p = false;
+          featured_p = true;
+          state;
+        } in
         Lwt.return (Some (election_data, ballots))
       | None -> assert false
     ) else Lwt.return None

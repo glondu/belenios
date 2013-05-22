@@ -85,11 +85,6 @@ let election_ballots = service
   ~get_params:uuid
   ()
 
-let election_public_data = service
-  ~path:["election"; "public-data"]
-  ~get_params:uuid
-  ()
-
 let election_cast_post = post_service
   ~fallback:election_cast
   ~post_params:(string "encrypted_vote")
