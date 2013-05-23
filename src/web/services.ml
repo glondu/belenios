@@ -1,5 +1,5 @@
 open Util
-open Serializable_compat_t
+open Serializable_t
 open Eliom_service
 open Eliom_parameter
 

@@ -1,5 +1,5 @@
 open Util
-open Serializable_compat_t
+open Serializable_t
 open Eliom_content.Html5.F
 
 (* FIXME: these pages should be redesigned *)
@@ -136,7 +136,7 @@ let format_election_result e r =
       ) answers
     in
     { question; answers }
-  ) (r.Common.result : int array array) |>
+  ) r.result |>
   Array.to_list
 
 let format_one_election e =
@@ -228,7 +228,7 @@ let election_view ~election ~user =
   let service = Services.(preapply_uuid election_raw election) in
   let booth = Services.make_booth election.Common.election.e_uuid in
   lwt eligibility =
-    if not election.Common.private_p && election.Common.election.e_openreg then (
+    if not election.Common.private_p then (
       Lwt.return [
         pcdata "Anyone can vote in this election.";
       ]
@@ -303,8 +303,8 @@ let election_view ~election ~user =
     div ~a:[a_style "margin-bottom: 25px;margin-left: 15px; border-left: 1px solid #aaa; padding-left: 5px; font-size:1.3em;"] [pcdata election.Common.election.e_description];
     (* NOTE: administration things removed from here! *)
     br ();
-  ] @ (match election.Common.state, election.Common.election_result with
-    | `Finished, Some r ->
+  ] @ (match election.Common.election_result with
+    | Some r ->
       let result = format_election_result election.Common.election r in
       [
         span ~a:[a_class ["highlight-box"; "round"]] [
@@ -340,14 +340,7 @@ let election_view ~election ~user =
           ]
         ) result
       )
-    | `Stopped, _ ->
-      [
-        span ~a:[a_class ["highlight-box"; "round"]] [
-          pcdata "Election closed. Tally will be computed soon.";
-        ];
-        br ();
-      ]
-    | `Started, _ ->
+    | None ->
       [
         span ~a:[
           a_class ["highlight-box"; "round"];
@@ -362,13 +355,6 @@ let election_view ~election ~user =
         br ();
         (* if election.voting_extended_until ... *)
         pcdata "This election ends at the administrator's discretion.";
-        br ();
-      ]
-    | _ ->
-      [
-        span ~a:[a_class ["highlight-box"; "round"]] [
-          pcdata "FIXME";
-        ];
         br ();
       ]
   ) @ eligibility @ [

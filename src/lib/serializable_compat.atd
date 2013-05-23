@@ -132,9 +132,3 @@ type 'a partial_decryption = {
 }
 
 type raw_result = int list <ocaml repr="array"> list <ocaml repr="array">
-
-(** {1 Other basic datastructures} *)
-
-type randomness = {
-  randomness : string;
-}

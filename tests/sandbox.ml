@@ -141,7 +141,7 @@ let list_save_to filename writer xs =
 
 let save_to_disk () =
   let election = { election with
-    e_public_key = { ff_g = g; ff_p = p; ff_q = q; ff_y = y }
+    e_public_key = { g; p; q; y }
   } in
   let ballots = Array.of_list (M.fold (fun x xs () -> x::xs) [] ()) in
   let dir = Printf.sprintf "tests/data/{%s}"

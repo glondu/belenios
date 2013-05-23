@@ -1,5 +1,5 @@
 open Util
-open Serializable_compat_t
+open Serializable_t
 open Lwt
 
 (* The following should be in configuration file... but
@@ -115,7 +115,7 @@ let () = Eliom_registration.String.register
        let uuid_underscored = String.map (function '-' -> '_' | c -> c) (Uuidm.to_string uuid) in
        let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
        lwt ballots = Ocsipersist.fold_step (fun hash v res ->
-         let s = Serializable_compat_j.string_of_ballot Serializable_builtin_j.write_number v ^ "\n" in
+         let s = Serializable_j.string_of_ballot Serializable_builtin_j.write_number v ^ "\n" in
          return (s :: res)
        ) table [] in
        let result = String.concat "" ballots in
@@ -129,7 +129,7 @@ let () = Eliom_registration.String.register
     (* FIXME: DoS/entropy exhaustion vulnerability *)
     Lwt_preemptive.detach (fun () -> Cryptokit.Random.(string secure_rng 32)) () >>=
     wrap1 Cryptokit.(transform_string (Base64.encode_compact ())) >>=
-    (fun x -> return (Serializable_compat_j.string_of_randomness { randomness=x })) >>=
+    (fun x -> return (Serializable_j.string_of_randomness { randomness=x })) >>=
     (fun x -> return (x, "application/json"))
   )
 
@@ -165,21 +165,21 @@ let () = Eliom_registration.Html5.register
      (fun uuid election user raw_ballot ->
        let result =
          try
-           let ballot = Serializable_compat_j.ballot_of_string Serializable_builtin_j.read_number raw_ballot in
+           let ballot = Serializable_j.ballot_of_string Serializable_builtin_j.read_number raw_ballot in
            let {g; p; q; y} = election.Common.election.e_public_key in
            let module P = struct
              module G = (val Election.finite_field ~p ~q ~g : Signatures.GROUP with type t = Z.t)
              let public_keys = Array.map (fun x ->
-               x.trustee_public_key.y
+               x.trustee_public_key
              ) election.Common.public_keys
-             let params = Serializable_compat.election election.Common.election
+             let params = { election.Common.election with e_public_key = y }
              let fingerprint = assert false
            end in
            let module M = Election.MakeSimpleMonad(P.G) in
            let module E = Election.MakeElection(P)(M) in
            if
              Uuidm.equal uuid ballot.election_uuid &&
-             E.check_ballot (Serializable_compat.ballot ballot)
+             E.check_ballot ballot
            then `Valid (Common.hashB raw_ballot)
            else `Invalid
          with e -> `Malformed
