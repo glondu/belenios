@@ -378,7 +378,7 @@ let cast_ballot ~election ~result =
       (match result with
          | `Valid hash -> pcdata (" is valid, its hash is " ^ hash)
          | `Invalid -> pcdata " is invalid!"
-         | `Malformed -> pcdata " is malformed!"
+         | `Malformed e -> Printf.ksprintf pcdata " is malformed! (%s)" (Printexc.to_string e)
       );
     ]
   ] in base ~title ~header:[] ~content

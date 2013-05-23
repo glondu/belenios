@@ -2,9 +2,9 @@ open Util
 open Serializable_t
 open Lwt
 
-(* The following should be in configuration file... but
+(* FIXME: the following should be in configuration file... but
    <maxrequestbodysize> doesn't work *)
-let () = Ocsigen_config.set_maxrequestbodysizeinmemory 32768
+let () = Ocsigen_config.set_maxrequestbodysizeinmemory 128000
 
 let elections_table = Ocsipersist.open_table "elections"
 
@@ -173,7 +173,7 @@ let () = Eliom_registration.Html5.register
                x.trustee_public_key
              ) election.Common.public_keys
              let params = { election.Common.election with e_public_key = y }
-             let fingerprint = assert false
+             let fingerprint = election.Common.fingerprint
            end in
            let module M = Election.MakeSimpleMonad(P.G) in
            let module E = Election.MakeElection(P)(M) in
@@ -182,7 +182,7 @@ let () = Eliom_registration.Html5.register
              E.check_ballot ballot
            then `Valid (Common.hashB raw_ballot)
            else `Invalid
-         with e -> `Malformed
+         with e -> `Malformed e
        in
        Templates.cast_ballot ~election ~result
      )

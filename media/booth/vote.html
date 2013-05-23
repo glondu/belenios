@@ -166,6 +166,7 @@ BOOTH.setup_election = function(raw_json) {
   // the main reason for this is unicode representation: the Python approach
   // appears to be safer.
   BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
+  BOOTH.election.cast_url = "/election/cast?uuid=" + BOOTH.election.uuid
 
   // FIXME: we shouldn't need to set both, but right now we are doing so
   // because different code uses each one. Bah. Need fixing.
