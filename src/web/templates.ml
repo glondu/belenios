@@ -7,14 +7,7 @@ open Eliom_content.Html5.F
 let site_title = "Helios Election Server"
 let welcome_message = "Welcome to the Helios Election Server!"
 
-let s x = Xml.uri_of_string ("/static/" ^ x)
-
 let format_user u size = Services.([
-  img
-    ~src:(Printf.ksprintf s "auth/login-icons/%s.png" u.Common.user_type)
-    ~a:[a_style "border:0;"; a_height size]
-    ~alt:u.Common.user_type ();
-  pcdata " ";
   pcdata u.Common.user_name;
 ])
 
@@ -22,20 +15,6 @@ let base ~title ~header ~content =
   lwt user = Eliom_reference.get Services.user in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata (title ^ " - Helios"))) [
-      link
-        ~rel:[`Stylesheet]
-        ~href:(s "main.css")
-        ~a:[a_mime_type "text/css"; a_media [`Screen]]
-        ();
-      link
-        ~rel:[`Stylesheet]
-        ~href:(s "helios/css/ui-lightness/jquery-ui-1.8.1.custom.css")
-        ~a:[a_mime_type "text/css"]
-        ();
-      script (pcdata "") ~a:[a_src (s "helios/js/jquery-1.4.2.min.js")];
-      script (pcdata "") ~a:[a_src (s "helios/js/jquery-ui-1.8.1.custom.min.js")];
-      script (pcdata "") ~a:[a_src (s "helios/js/jqsplitdatetime.js")];
-      script (pcdata "") ~a:[a_src (s "helios/helios/jquery.json.min.js")];
       (* block js *)
       (* block extra-head *)
     ])
@@ -43,10 +22,7 @@ let base ~title ~header ~content =
       div ~a:[a_id "content"] [
         div ~a:[a_id "header"] ([
           a ~service:Services.home [
-            img
-              ~src:(s "logo.gif")
-              ~a:[a_style "border:0;"; a_height 110]
-              ~alt:"Helios" ()
+            pcdata site_title;
           ] ();
           br ();
         ] @ header);
@@ -91,10 +67,6 @@ let login_box auth_systems = List.map
       a
         ~service:Services.login
         ~a:[a_style "font-size: 1.4em;"] [
-          img
-            ~a:[a_style "border:0;"; a_height 35]
-            ~src:(Printf.ksprintf s "auth/login-icons/%s.png" x)
-            ~alt:x ();
           pcdata x;
         ] ();
     ]

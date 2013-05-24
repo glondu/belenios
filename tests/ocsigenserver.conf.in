@@ -26,9 +26,6 @@
     <extension findlib-package="atdgen"/>
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
-      <site path="static" charset="utf-8">
-        <static dir="_SRCDIR_/media/static" />
-      </site>
       <site path="booth" charset="utf-8">
         <static dir="_SRCDIR_/media/booth" />
       </site>
