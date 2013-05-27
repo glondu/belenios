@@ -98,16 +98,6 @@ module Array = struct
     mmap fst a, mmap snd a
 end
 
-module List = struct
-  include List
-
-  let iteri f xs =
-    let rec loop i = function
-      | [] -> []
-      | x :: xs -> f i x :: loop (succ i) xs
-    in List.flatten (loop 0 xs)
-end
-
 module String = struct
   include String
 

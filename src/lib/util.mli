@@ -1,11 +1,6 @@
 val ( |> ) : 'a -> ('a -> 'b) -> 'b
 val ( =% ) : Z.t -> Z.t -> bool
 
-module List : sig
-  include module type of List
-  val iteri : (int -> 'a -> 'b list) -> 'a list -> 'b list
-end
-
 module Array : sig
   include module type of Array
   val forall : ('a -> bool) -> 'a array -> bool
