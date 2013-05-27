@@ -2,75 +2,42 @@ open Util
 open Serializable_t
 open Eliom_content.Html5.F
 
-(* FIXME: these pages should be redesigned *)
+(* TODO: these pages should be redesigned *)
 
-let site_title = "Helios Election Server"
-let welcome_message = "Welcome to the Helios Election Server!"
+let project_name = "Belenios"
+let site_title = project_name ^ " Election Server"
+let welcome_message = "Welcome to the " ^ project_name ^ " Election Server!"
 
-let format_user u size = Services.([
-  pcdata u.Common.user_name;
-])
+let format_user u = pcdata u.Common.user_name
 
 let base ~title ~header ~content =
   lwt user = Eliom_reference.get Services.user in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
-    (head (Eliom_content.Html5.F.title (pcdata (title ^ " - Helios"))) [
-      (* block js *)
-      (* block extra-head *)
-    ])
+    (head (Eliom_content.Html5.F.title (pcdata title)) [])
     (body [
-      div ~a:[a_id "content"] [
-        div ~a:[a_id "header"] ([
-          a ~service:Services.home [
-            pcdata site_title;
-          ] ();
-          br ();
-        ] @ header);
-        div ~a:[a_id "contentbody"] content;
-        div ~a:[a_id "footer"] (
-          [span ~a:[a_style "float:right;"] [ (* footer logo *) ]] @
-          (match user with
-            | Some user ->
-              [pcdata "logged in as "] @ (format_user user 15) @ [
-                pcdata " [";
-                a ~service:Services.logout [pcdata "logout"] ();
-                pcdata "]";
-                br ()
-              ]
-            | None ->
-              [pcdata "not logged in."] @ [
-                pcdata " [";
-                a ~service:Services.login [pcdata "log in"] ();
-                pcdata "]";
-                br ();
-              ]
-          ) @ [
-            a ~service:Services.project_home [
-              pcdata "About Helios"
-            ] ();
-            pcdata " | Help!";
-          (* footer links *)
-            br ~a:[a_style "clear:right;"] ();
-          ]
-        )
+      div ~a:[a_id "header"] [
+        a ~service:Services.home [pcdata site_title] ();
+        header;
       ];
+      div ~a:[a_id "content"] [content];
+      div ~a:[a_id "footer"]
+        (match user with
+          | Some user ->
+            [
+              pcdata "Logged in as ";
+              format_user user;
+              pcdata ". ";
+              a ~service:Services.logout [pcdata "Log out"] ();
+              pcdata ".";
+            ]
+          | None ->
+            [
+              pcdata "Not logged in. ";
+              a ~service:Services.login [pcdata "Log in"] ();
+              pcdata ".";
+            ]
+        )
      ]))
-
-let not_implemented title = base
-  ~title
-  ~header:[h2 [pcdata title]]
-  ~content:[div [pcdata "This service is not implemented."]]
-
-let login_box auth_systems = List.map
-  (fun x ->
-    p [
-      a
-        ~service:Services.login
-        ~a:[a_style "font-size: 1.4em;"] [
-          pcdata x;
-        ] ();
-    ]
-  ) auth_systems
 
 type answer = {
   count : int;
@@ -111,90 +78,53 @@ let format_election_result e r =
   ) r.result |>
   Array.to_list
 
-let format_one_election e =
-  li [pcdata e.Common.election.e_name]
-
 let format_one_featured_election e =
-  [
-    div ~a:[a_class ["highlight-box-margin"]] ([
-      a
-        ~service:Services.(preapply_uuid election_view e)
-        ~a:[a_style "font-size: 1.4em;"]
+  li [
+    h3 [
+      a ~service:Services.(preapply_uuid election_view e)
         [pcdata e.Common.election.e_name] ();
-      pcdata " by ";
-    ] @ format_user e.Common.admin 15 @ [
-      br ();
-      pcdata e.Common.election.e_description;
-    ]);
-    br ();
+    ];
+    p [pcdata e.Common.election.e_description];
   ]
 
 let index ~featured =
   lwt user = Eliom_reference.get Services.user in
-  base
-  ~title:site_title
-  ~header:[h2 [pcdata site_title]]
-  ~content:(
-    let mystuff = match user with
-      | Some u ->
-        let voted = [] in
-        let recent_votes = [
-          h4 [pcdata "Recent votes"];
-          match voted with
-          | _::_ -> ul (List.map format_one_election voted)
-          | [] -> em [pcdata "none yet"]
-        ] in
-        [
-          div ~a:[a_style "font-size:1.4em;"; a_class ["highlight-box"]]
-            (format_user u 25)
-        ]
-        @ recent_votes
-      | None ->
-        [h3 [pcdata "Log In to Start Voting"]]
-        @ (login_box Services.auth_systems)
-        @ [br (); br ()]
-    in
+  let header = h1 [pcdata site_title] in
+  let content =
     let featured_box = match featured with
       | _::_ ->
-        [
-          h3 [pcdata "Current Featured Elections"];
-          div (List.flatten (List.map format_one_featured_election featured));
+        div [
+          h2 [pcdata "Current Featured Elections"];
+          ul (List.map format_one_featured_election featured);
         ]
       | [] ->
-        [
-          h4 [pcdata "no featured elections at the moment"];
+        p [
+          pcdata "No featured elections at the moment.";
         ]
-    in ([
-      div ~a:[a_id "mystuff"] mystuff;
-      p ~a:[a_style "font-size: 1.4em;"] [pcdata welcome_message];
-    ] @ featured_box @ [
-      br ~a:[a_style "clear:right;"] ();
-      br ()
-    ])
-  )
+    in div [
+      pcdata welcome_message;
+      featured_box;
+    ]
+  in base ~title:site_title ~header ~content
 
 let dummy_login ~service =
-  let title = site_title ^ " — Login" in
-  let form = post_form
-    ~a:[a_id "login_form"; a_class ["prettyform"]]
+  let title = "Login - " ^ site_title in
+  let header = h1 [pcdata "Login"] in
+  let content = post_form
     ~service
-    (fun username_name ->
+    (fun name ->
       [
         tablex [tbody [
           tr [
-            th [label ~a:[a_for username_name] [pcdata "Username:"]];
-            td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:username_name ()];
+            th [label ~a:[a_for name] [pcdata "Username:"]];
+            td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name ()];
           ]]
         ];
         div [
           string_input ~input_type:`Submit ~value:"Login" ();
         ]
       ]) ()
-  in
-  base
-    ~title
-    ~header:[h2 [pcdata title]]
-    ~content:[div [form]]
+  in base ~title ~header ~content
 
 let election_view ~election ~user =
   let service = Services.(preapply_uuid election_raw election) in
@@ -220,137 +150,103 @@ let election_view ~election ~user =
         ]
     )
   in
-  let audit_info = [
-    (* FIXME: unsafe_data *)
-    unsafe_data "<a href=\"#\" onclick=\"$('#auditbody').slideToggle(250);\">Audit Info</a>";
-    div ~a:[
-      a_id "auditbody";
-      a_style "display:none;";
-    ] [
-      br ();
-      pcdata "Election URL:";
-      br ();
-      code ~a:[a_style "font-size: 1.2em;"] [
-        a ~service [ pcdata (make_string_uri ~absolute:true ~service ()) ] ()
+  let audit_info = div [
+    h2 [pcdata "Audit Info"];
+    div [
+      p [
+        pcdata "Election URL: ";
+        code [
+          a ~service [ pcdata (make_string_uri ~absolute:true ~service ()) ] ()
+        ];
       ];
-      br ();
-      br ();
-      pcdata "Election Fingerprint:";
-      br ();
-      code ~a:[a_style "font-size: 1.3em; font-weight: bold;"] [
-        pcdata election.Common.fingerprint;
+      p [
+        pcdata "Election Fingerprint: ";
+        code [ pcdata election.Common.fingerprint ];
       ];
-      br ();
-      br ();
-      p ~a:[a_style "font-size: 1.3em;"] [
+      p [
         a ~service:Services.(preapply_uuid election_ballots election) [
           pcdata "Ballot Tracking Center";
         ] ();
         pcdata " | ";
-        a ~service:booth [
-          pcdata "Voting booth";
-        ] ();
+        a ~service:booth [ pcdata "Voting booth" ] ();
       ];
     ]
   ] in
-  let content = [
-    div ~a:[a_style "float: left; margin-right: 50px;"] [
-      h2 ~a:[a_class ["title"]] [pcdata election.Common.election.e_name];
-      p ~a:[a_style "padding-top:0px; margin-top:0px"] [
-        em [
-          pcdata (if election.Common.private_p then "private" else "public")
-        ];
-        pcdata " election created by ";
-        u [ b (format_user election.Common.admin 15) ];
-        pcdata " with ";
-        pcdata (string_of_int (Array.length election.Common.election.e_questions));
-        pcdata " question(s) and ";
-        pcdata (string_of_int (Array.length election.Common.public_keys));
-        pcdata " trustee(s)";
+  let content = div [
+    p [
+      pcdata "This is a ";
+      em [
+        pcdata (if election.Common.private_p then "private" else "public")
       ];
+      pcdata " election created by ";
+      format_user election.Common.admin;
+      pcdata " with ";
+      pcdata (string_of_int (Array.length election.Common.election.e_questions));
+      pcdata " question(s) and ";
+      pcdata (string_of_int (Array.length election.Common.public_keys));
+      pcdata " trustee(s).";
     ];
-    br ();
-    br ();
-    br ~a:[a_style "clear: left;"] ();
-    div ~a:[a_style "margin-bottom: 25px;margin-left: 15px; border-left: 1px solid #aaa; padding-left: 5px; font-size:1.3em;"] [pcdata election.Common.election.e_description];
-    (* NOTE: administration things removed from here! *)
-    br ();
-  ] @ (match election.Common.election_result with
-    | Some r ->
-      let result = format_election_result election.Common.election r in
-      [
-        span ~a:[a_class ["highlight-box"; "round"]] [
-          pcdata "This election is complete.";
-        ];
-        br ();
-        br ();
-        h3 ~a:[a_class ["highlight-box"]] [pcdata "Tally"];
-      ] @ (
-        List.iteri (fun i question ->
-          [
-            b [
-              span ~a:[a_style "font-size:0.8em;"] [
-                pcdata "Question #";
-                pcdata (string_of_int i);
+    p [pcdata election.Common.election.e_description];
+    p eligibility;
+    (match election.Common.election_result with
+      | Some r ->
+        let result = format_election_result election.Common.election r in
+        let formatted_result =
+          List.map (fun question ->
+            div [
+              h3 [
+                pcdata question.question;
               ];
-              br ();
-              pcdata question.question;
-            ];
-            br ();
-            let table xs = match xs with
-              | x :: xs -> table ~a:[a_class ["pretty"]; a_style "width: auto;"] x xs
-              | [] -> assert false
-            in table (
-              List.map (fun answer ->
-                let style = if answer.winner then "font-weight:bold;" else "" in
-                tr [
-                  td ~a:[a_style ("padding-right:80px;" ^ style)] [pcdata answer.answer];
-                  td ~a:[a_style ("text-align:right;" ^ style)] [pcdata (string_of_int answer.count)];
-                ]
-              ) question.answers
-            );
-          ]
-        ) result
-      )
+              let table xs = match xs with
+                | x :: xs -> table x xs
+                | [] -> div [pcdata "Result is not available."]
+              in table (
+                List.map (fun answer ->
+                  let style = if answer.winner then b else span in
+                  tr [
+                    td [style [pcdata answer.answer]];
+                    td [style [pcdata (string_of_int answer.count)]];
+                  ]
+                ) question.answers
+              );
+            ]
+          ) result
+        in div [
+          pcdata "This election is complete.";
+          h2 [pcdata "Tally"];
+          div formatted_result;
+        ]
     | None ->
-      [
-        span ~a:[
-          a_class ["highlight-box"; "round"];
-          a_style "font-size: 1.6em; margin-right: 10px;";
-          a_id "votelink";
-        ] [
+      div [
+        p [
           a ~service:(Services.(preapply_uuid election_vote election)) [
             pcdata "Vote in this election";
-          ] ()
+          ] ();
         ];
-        br ();
-        br ();
-        (* if election.voting_extended_until ... *)
-        pcdata "This election ends at the administrator's discretion.";
-        br ();
+        p [
+          pcdata "This election ends at the administrator's discretion.";
+        ];
       ]
-  ) @ eligibility @ [
-    div ~a:[
-      a_style "background: lightyellow; padding:5px; padding-left: 10px; margin-top: 15px; border: 1px solid #aaa; width: 720px;";
-      a_class ["round"];
-    ] audit_info
+    );
+    audit_info;
   ] in
-  base ~title:election.Common.election.e_name ~header:[] ~content
+  let title = election.Common.election.e_name ^ " - " ^ project_name in
+  let header = h1 [ pcdata election.Common.election.e_name ] in
+  base ~title ~header ~content
 
 let cast_ballot ~election ~result =
-  let title = election.Common.election.e_name in
-  let content = [
-    h2 ~a:[a_class ["title"]] [
-      pcdata title;
-    ];
-    br ();
-    div [
+  let name = election.Common.election.e_name in
+  let title = name ^ " - " ^ project_name in
+  let header = h1 [ pcdata name ] in
+  let content =
+    p [
       pcdata "Your ballot for ";
-      em [pcdata election.Common.election.e_name];
+      em [pcdata name];
       (match result with
-         | `Valid hash -> pcdata (" is valid, its hash is " ^ hash)
+         | `Valid hash -> pcdata (" is valid, its hash is " ^ hash ^ ".")
          | `Invalid -> pcdata " is invalid!"
          | `Malformed e -> Printf.ksprintf pcdata " is malformed! (%s)" (Printexc.to_string e)
       );
     ]
-  ] in base ~title ~header:[] ~content
+  in
+  base ~title ~header ~content
