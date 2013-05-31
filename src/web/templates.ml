@@ -4,39 +4,50 @@ open Eliom_content.Html5.F
 
 (* TODO: these pages should be redesigned *)
 
-let project_name = "Belenios"
-let site_title = project_name ^ " Election Server"
-let welcome_message = "Welcome to the " ^ project_name ^ " Election Server!"
+let site_title = "Election Server"
+let welcome_message = "Welcome!"
 
 let format_user u = pcdata u.Common.user_name
 
-let base ~title ~header ~content =
+let base ~title ~content =
   lwt user = Eliom_reference.get Services.user in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata title)) [])
     (body [
       div ~a:[a_id "header"] [
-        a ~service:Services.home [pcdata site_title] ();
-        header;
+        div [
+          div [
+            a ~service:Services.home [pcdata site_title] ();
+          ];
+          div (
+            match user with
+            | Some user ->
+              [
+                div [
+                  pcdata "Logged in as ";
+                  format_user user;
+                  pcdata ".";
+                ];
+                div [
+                  a ~service:Services.logout [pcdata "Log out"] ();
+                  pcdata ".";
+                ];
+              ]
+            | None ->
+              [
+                div [
+                  pcdata "Not logged in.";
+                ];
+                div [
+                  a ~service:Services.login [pcdata "Log in"] ();
+                  pcdata ".";
+                ];
+              ]
+          );
+        ];
       ];
-      div ~a:[a_id "content"] [content];
-      div ~a:[a_id "footer"]
-        (match user with
-          | Some user ->
-            [
-              pcdata "Logged in as ";
-              format_user user;
-              pcdata ". ";
-              a ~service:Services.logout [pcdata "Log out"] ();
-              pcdata ".";
-            ]
-          | None ->
-            [
-              pcdata "Not logged in. ";
-              a ~service:Services.login [pcdata "Log in"] ();
-              pcdata ".";
-            ]
-        )
+      div ~a:[a_id "content"] content;
+      div ~a:[a_id "footer"] []
      ]))
 
 type answer = {
@@ -89,29 +100,28 @@ let format_one_featured_election e =
 
 let index ~featured =
   lwt user = Eliom_reference.get Services.user in
-  let header = h1 [pcdata site_title] in
-  let content =
-    let featured_box = match featured with
-      | _::_ ->
-        div [
-          h2 [pcdata "Current Featured Elections"];
-          ul (List.map format_one_featured_election featured);
-        ]
-      | [] ->
-        p [
-          pcdata "No featured elections at the moment.";
-        ]
-    in div [
+  let featured_box = match featured with
+    | _::_ ->
+      div [
+        h2 [pcdata "Current featured elections"];
+        ul (List.map format_one_featured_election featured);
+      ]
+    | [] ->
+      div [
+        pcdata "No featured elections at the moment.";
+      ]
+  in
+  let content = [
+    h1 [pcdata site_title];
+    div [
       pcdata welcome_message;
       featured_box;
-    ]
-  in base ~title:site_title ~header ~content
+    ];
+  ] in
+  base ~title:site_title ~content
 
 let dummy_login ~service =
-  let title = "Login - " ^ site_title in
-  let header = h1 [pcdata "Login"] in
-  let content = post_form
-    ~service
+  let form = post_form ~service
     (fun name ->
       [
         tablex [tbody [
@@ -124,62 +134,65 @@ let dummy_login ~service =
           string_input ~input_type:`Submit ~value:"Login" ();
         ]
       ]) ()
-  in base ~title ~header ~content
+  in
+  let content = [
+    h1 [pcdata "Login"];
+    form;
+  ] in
+  base ~title:"Login" ~content
 
 let election_view ~election ~user =
   let service = Services.(preapply_uuid election_raw election) in
   let booth = Services.make_booth election.Common.election.e_uuid in
-  lwt eligibility =
-    if not election.Common.private_p then (
-      Lwt.return [
-        pcdata "Anyone can vote in this election.";
-      ]
-    ) else (match user with
-      | None ->
-        Lwt.return [
-          a ~service:Services.login [pcdata "Log in"] ();
-          pcdata " to check if you can vote.";
-        ]
-      | Some u ->
-        lwt b = Services.is_eligible election.Common.election.e_uuid u in
-        let can = if b then pcdata "can" else pcdata "cannot" in
-        Lwt.return [
-          pcdata "You ";
-          can;
-          pcdata " vote in this election.";
-        ]
-    )
+  lwt permissions =
+    let open Common in
+    match election.can_vote with
+      | Any ->
+        Lwt.return [ pcdata "Anyone can vote in this election." ]
+      | Restricted p ->
+        match user with
+          | None ->
+            Lwt.return [
+              a ~service:Services.login [pcdata "Log in"] ();
+              pcdata " to check if you can vote.";
+            ]
+          | Some u ->
+            lwt b = p u in
+            let can = if b then pcdata "can" else pcdata "cannot" in
+            Lwt.return [
+              pcdata "You ";
+              can;
+              pcdata " vote in this election.";
+            ]
   in
   let audit_info = div [
     h2 [pcdata "Audit Info"];
     div [
-      p [
+      div [
         pcdata "Election URL: ";
         code [
           a ~service [ pcdata (make_string_uri ~absolute:true ~service ()) ] ()
         ];
       ];
-      p [
+      div [
         pcdata "Election Fingerprint: ";
         code [ pcdata election.Common.fingerprint ];
       ];
-      p [
+      div [
         a ~service:Services.(preapply_uuid election_ballots election) [
           pcdata "Ballot Tracking Center";
         ] ();
-        pcdata " | ";
+      ];
+      div [
         a ~service:booth [ pcdata "Voting booth" ] ();
       ];
     ]
   ] in
-  let content = div [
+  let content = [
+    h1 [ pcdata election.Common.election.e_name ];
     p [
-      pcdata "This is a ";
-      em [
-        pcdata (if election.Common.private_p then "private" else "public")
-      ];
-      pcdata " election created by ";
-      format_user election.Common.admin;
+      pcdata "This is an election created by ";
+      format_user election.Common.author;
       pcdata " with ";
       pcdata (string_of_int (Array.length election.Common.election.e_questions));
       pcdata " question(s) and ";
@@ -187,7 +200,7 @@ let election_view ~election ~user =
       pcdata " trustee(s).";
     ];
     p [pcdata election.Common.election.e_description];
-    p eligibility;
+    p permissions;
     (match election.Common.election_result with
       | Some r ->
         let result = format_election_result election.Common.election r in
@@ -218,28 +231,25 @@ let election_view ~election ~user =
         ]
     | None ->
       div [
-        p [
+        div [
           a ~service:(Services.(preapply_uuid election_vote election)) [
             pcdata "Vote in this election";
           ] ();
         ];
-        p [
+        div [
           pcdata "This election ends at the administrator's discretion.";
         ];
       ]
     );
     audit_info;
   ] in
-  let title = election.Common.election.e_name ^ " - " ^ project_name in
-  let header = h1 [ pcdata election.Common.election.e_name ] in
-  base ~title ~header ~content
+  base ~title:election.Common.election.e_name ~content
 
 let cast_ballot ~election ~result =
   let name = election.Common.election.e_name in
-  let title = name ^ " - " ^ project_name in
-  let header = h1 [ pcdata name ] in
-  let content =
-    p [
+  let content = [
+    h1 [ pcdata name ];
+    div [
       pcdata "Your ballot for ";
       em [pcdata name];
       (match result with
@@ -248,5 +258,5 @@ let cast_ballot ~election ~result =
          | `Malformed e -> Printf.ksprintf pcdata " is malformed! (%s)" (Printexc.to_string e)
       );
     ]
-  in
-  base ~title ~header ~content
+  ] in
+  base ~title:name ~content

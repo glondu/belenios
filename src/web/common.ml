@@ -7,15 +7,21 @@ type user = {
   user_type : string;
 }
 
+type acl =
+  | Any
+  | Restricted of (user -> bool Lwt.t)
+
 type election_data = {
   raw : string;
   fingerprint : string;
   election : ff_pubkey election;
   public_keys : Z.t trustee_public_key array;
   election_result : Z.t result option;
-  admin : user;
-  private_p : bool;
+  author : user;
   featured_p : bool;
+  can_read : acl;
+  can_vote : acl;
+  can_admin : acl;
 }
 
 let enforce_single_element s =
@@ -88,9 +94,11 @@ let load_elections_and_votes dirname =
           election;
           public_keys;
           election_result;
-          admin = { user_name = "admin"; user_type = "dummy" };
-          private_p = false;
+          author = { user_name = "admin"; user_type = "dummy" };
           featured_p = true;
+          can_read = Any;
+          can_vote = Any;
+          can_admin = Any;
         } in
         Lwt.return (Some (election_data, ballots))
       | None -> assert false

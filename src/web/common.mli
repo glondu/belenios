@@ -5,15 +5,21 @@ type user = {
   user_type : string;
 }
 
+type acl =
+  | Any
+  | Restricted of (user -> bool Lwt.t)
+
 type election_data = {
   raw : string;
   fingerprint : string;
   election : ff_pubkey election;
   public_keys : Z.t trustee_public_key array;
   election_result : Z.t result option;
-  admin : user;
-  private_p : bool;
+  author : user;
   featured_p : bool;
+  can_read : acl;
+  can_vote : acl;
+  can_admin : acl;
 }
 
 val hashB : string -> string

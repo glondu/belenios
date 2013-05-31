@@ -59,17 +59,19 @@ let forbidden () = raise_lwt (
   )
 )
 
-let if_eligible f uuid x =
+let if_eligible acl f uuid x =
   lwt election = get_election_by_uuid uuid in
   lwt user = Eliom_reference.get Services.user in
   lwt () =
-    if election.Common.private_p then (
-      match user with
-        | Some user ->
-          lwt eligible = Services.is_eligible uuid user in
-          if not eligible then forbidden () else return ()
+    let open Common in
+    match acl election with
+      | Any -> return ()
+      | Restricted p ->
+        match user with
+          | Some user ->
+            lwt ok = p user in
+            if ok then return () else forbidden ()
         | None -> forbidden ()
-    ) else return ()
   in f uuid election user x
 
 let () = Eliom_registration.Html5.register
@@ -100,9 +102,12 @@ let () = Eliom_registration.Redirection.register
     Eliom_state.discard ~scope:Eliom_common.default_session_scope () >>
     return Services.home)
 
+let can_read x = x.Common.can_read
+let can_vote x = x.Common.can_vote
+
 let () = Eliom_registration.String.register
   ~service:Services.election_raw
-  (if_eligible
+  (if_eligible can_read
      (fun uuid election user () ->
        return (election.Common.raw, "application/json")
      )
@@ -110,7 +115,7 @@ let () = Eliom_registration.String.register
 
 let () = Eliom_registration.String.register
   ~service:Services.election_ballots
-  (if_eligible
+  (if_eligible can_read
      (fun uuid election user () ->
        let uuid_underscored = String.map (function '-' -> '_' | c -> c) (Uuidm.to_string uuid) in
        let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
@@ -135,7 +140,7 @@ let () = Eliom_registration.String.register
 
 let () = Eliom_registration.Html5.register
   ~service:Services.election_view
-  (if_eligible
+  (if_eligible can_read
      (fun uuid election user () ->
        Templates.election_view ~election ~user
      )
@@ -143,7 +148,7 @@ let () = Eliom_registration.Html5.register
 
 let () = Eliom_registration.Redirection.register
   ~service:Services.election_vote
-  (if_eligible
+  (if_eligible can_vote
      (fun uuid election user () ->
        return (Services.make_booth uuid)
      )
@@ -151,7 +156,7 @@ let () = Eliom_registration.Redirection.register
 
 let () = Eliom_registration.Redirection.register
   ~service:Services.election_cast
-  (if_eligible
+  (if_eligible can_vote
      (fun uuid election user () ->
        return (
          Services.(preapply_uuid election_view election)
@@ -161,7 +166,7 @@ let () = Eliom_registration.Redirection.register
 
 let () = Eliom_registration.Html5.register
   ~service:Services.election_cast_post
-  (if_eligible
+  (if_eligible can_vote
      (fun uuid election user raw_ballot ->
        let result =
          try
