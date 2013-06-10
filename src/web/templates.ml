@@ -7,7 +7,9 @@ open Eliom_content.Html5.F
 let site_title = "Election Server"
 let welcome_message = "Welcome!"
 
-let format_user u = pcdata u.Common.user_name
+let format_user u =
+  let open Common in
+  Printf.ksprintf pcdata "%s:%s" u.user_type u.user_name
 
 let base ~title ~content =
   lwt user = Eliom_reference.get Services.user in
@@ -39,7 +41,10 @@ let base ~title ~content =
                   pcdata "Not logged in.";
                 ];
                 div [
-                  a ~service:Services.login [pcdata "Log in"] ();
+                  pcdata "Login: ";
+                  a ~service:Services.login [pcdata "dummy"] ();
+                  pcdata ", ";
+                  a ~service:Services.login_cas [pcdata "CAS"] None;
                   pcdata ".";
                 ];
               ]

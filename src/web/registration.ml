@@ -96,6 +96,55 @@ let () = Eliom_registration.Html5.register
     in
     Templates.dummy_login ~service)
 
+let next_lf str i =
+  try Some (String.index_from str i '\n')
+  with Not_found -> None
+
+let fail_http status =
+  fail (
+    Ocsigen_extensions.Ocsigen_http_error
+      (Ocsigen_cookies.empty_cookieset, status)
+  )
+
+let () = Eliom_registration.Redirection.register
+  ~service:Services.login_cas
+  (fun ticket () -> match ticket with
+    | Some x ->
+      let service = Eliom_service.preapply Services.login_cas None in
+      let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+      let service = Eliom_service.preapply Services.cas_validate (uri, x) in
+      let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+      lwt reply = Ocsigen_http_client.get_url uri in
+      (match reply.Ocsigen_http_frame.frame_content with
+        | Some stream ->
+          lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
+          Ocsigen_stream.finalize stream `Success >>
+          (match next_lf info 0 with
+            | Some i ->
+              (match String.sub info 0 i with
+                | "yes" ->
+                  (match next_lf info (i+1) with
+                    | Some j ->
+                      let user_name = String.sub info (i+1) (j-i-1) in
+                      let user_type = "cas" in
+                      Eliom_reference.set Services.user
+                        Common.(Some {user_name; user_type}) >>
+                      return Services.home
+                    | None -> fail_http 502
+                  )
+                | "no" -> fail_http 401
+                | _ -> fail_http 502
+              )
+            | None -> fail_http 502
+          )
+        | None -> fail_http 502
+      )
+    | None ->
+      let service = Eliom_service.preapply Services.login_cas None in
+      let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+      return (Eliom_service.preapply Services.cas_login uri)
+  )
+
 let () = Eliom_registration.Redirection.register
   ~service:Services.logout
   (fun () () ->
