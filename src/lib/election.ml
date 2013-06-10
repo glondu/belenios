@@ -64,6 +64,7 @@ let prng = lazy (Cryptokit.Random.(pseudo_rng (string secure_rng 16)))
 module MakeSimpleMonad (G : GROUP) = struct
   type 'a t = unit -> 'a
   let ballots = ref []
+  let records = ref []
   let return x () = x
   let bind x f = f (x ())
   let fail e = raise e
@@ -75,8 +76,11 @@ module MakeSimpleMonad (G : GROUP) = struct
       Z.(of_bits r mod q)
 
   type ballot = G.t Serializable_t.ballot
-  let cast x () = ballots := x :: !ballots
-  let fold f x () = List.fold_left (fun accu b -> f b accu ()) x !ballots
+  type record = string
+  let cast x r () = ballots := x :: !ballots; records := r :: !records
+  let fold_ballots f x () = List.fold_left (fun accu b -> f b accu ()) x !ballots
+  let fold_records f x () = List.fold_left (fun accu b -> f b accu ()) x !records
+  let turnout () = List.length !ballots
 end
 
 (** Distributed key generation *)

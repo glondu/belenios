@@ -58,7 +58,8 @@ end
 
 (** Ballot box. *)
 module type BALLOT_BOX = sig
-  include MONAD
+  type 'a m
+  (** The type of monadic values. *)
 
   (** {2 Election-specific operations} *)
 
@@ -66,12 +67,21 @@ module type BALLOT_BOX = sig
   (** The type of ballots. The monad is supposed to keep track of all
       cast ballots (e.g. in a database). *)
 
-  val cast : ballot -> unit t
+  type record
+  (** The type of log records. *)
+
+  val cast : ballot -> record -> unit m
   (** Cast a ballot. *)
 
-  val fold : (ballot -> 'a -> 'a t) -> 'a -> 'a t
-  (** [fold f a] computes [(f bN ... (f b2 (f b1 a))...)], where [b1
-      ... bN] are all cast ballots. *)
+  val fold_ballots : (ballot -> 'a -> 'a m) -> 'a -> 'a m
+  (** [fold_ballots f a] computes [(f bN ... (f b2 (f b1 a))...)],
+      where [b1 ... bN] are all cast ballots. *)
+
+  val fold_records : (record -> 'a -> 'a m) -> 'a -> 'a m
+  (** Same as [fold_ballots] for records. *)
+
+  val turnout : int m
+  (** Number of cast ballots. *)
 end
 
 (** Parameters for an election. *)

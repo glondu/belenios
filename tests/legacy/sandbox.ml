@@ -187,7 +187,7 @@ let verbose_verify_election_test_data e =
        several match blocks below. It is lazy because it must be
        computed only after all ballots are cast (i.e. not right
        now). *)
-    M.fold (fun b tally ->
+    M.fold_ballots (fun b tally ->
       M.return (E.combine_ciphertexts tally (E.extract_ciphertext b))
     ) E.neutral_ciphertext ()
   ) in
@@ -199,7 +199,7 @@ let verbose_verify_election_test_data e =
         List.for_all (fun x ->
           let b = Serializable_compat.ballot x in
           if E.check_ballot b then (
-            M.cast b (); true
+            M.cast b "anonymous" (); true
           ) else false
         ) ballots
       );

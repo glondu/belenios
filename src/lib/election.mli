@@ -31,11 +31,10 @@ module MakeSimpleMonad (G : GROUP) : sig
 
   (** {2 Ballot box management} *)
 
-  (** The following implements the {!module:Signatures.BALLOT_BOX} interface. *)
-
-  type ballot = G.t Serializable_t.ballot
-  val cast : ballot -> unit t
-  val fold : (ballot -> 'a -> 'a t) -> 'a -> 'a t
+  include Signatures.BALLOT_BOX
+  with type 'a m := 'a t
+  and type ballot = G.t Serializable_t.ballot
+  and type record = string
 end
 (** Simple election monad that keeps all ballots in memory. *)
 

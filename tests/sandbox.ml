@@ -81,13 +81,11 @@ module E = Election.MakeElection(P)(M);;
 
 (* Vote *)
 
-let num_cast = ref 0
-
 let vote b =
   try
     let b = E.create_ballot (E.make_randomness () ()) b () in
     let ok = E.check_ballot b in
-    if ok then (M.cast b (); incr num_cast);
+    if ok then M.cast b "anonymous" ();
     ok
   with _ -> false
 ;;
@@ -103,7 +101,7 @@ assert (not (vote [|[| 1; 0; 0; 0; 0 |]; [| 0; 1; 0; 1; 0; 0 |]; [| 0; 1; 1 |]|]
 
 (* Tally *)
 
-let encrypted_tally = M.fold (fun b t ->
+let encrypted_tally = M.fold_ballots (fun b t ->
   M.return (E.combine_ciphertexts (E.extract_ciphertext b) t)
 ) E.neutral_ciphertext ();;
 
@@ -112,7 +110,7 @@ let factors = Array.map (fun x ->
 ) private_keys;;
 assert (Array.forall2 (E.check_factor encrypted_tally) P.public_keys factors);;
 
-let result = E.combine_factors !num_cast encrypted_tally factors;;
+let result = E.combine_factors (M.turnout ()) encrypted_tally factors;;
 assert (E.check_result result);;
 
 let tally = E.extract_tally result;;
@@ -143,7 +141,7 @@ let save_to_disk () =
   let election = { election with
     e_public_key = { g; p; q; y }
   } in
-  let ballots = Array.of_list (M.fold (fun x xs () -> x::xs) [] ()) in
+  let ballots = Array.of_list (M.fold_ballots (fun x xs () -> x::xs) [] ()) in
   let dir = Printf.sprintf "tests/data/{%s}"
     (Uuidm.to_string election.e_uuid)
   in
