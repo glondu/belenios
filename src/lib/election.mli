@@ -17,10 +17,7 @@ module MakeSimpleMonad (G : GROUP) : sig
 
   (** {2 Monadic definitions} *)
 
-  type 'a t = unit -> 'a
-  val return : 'a -> 'a t
-  val bind : 'a t -> ('a -> 'b t) -> 'b t
-  val fail : exn -> 'a t
+  include Signatures.MONAD with type 'a t = unit -> 'a
 
   (** {2 Random number generation} *)
 
