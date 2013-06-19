@@ -155,8 +155,15 @@ let () = Eliom_registration.Redirection.register
 let () = Eliom_registration.Redirection.register
   ~service:Services.logout
   (fun () () ->
+    lwt user = Eliom_reference.get Services.user in
     Eliom_state.discard ~scope:Eliom_common.default_session_scope () >>
-    return Services.home)
+    match user with
+      | Some user when user.Common.user_type = "cas" ->
+        let service = Services.home in
+        let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+        return (Eliom_service.preapply Services.cas_logout uri)
+      | _ -> return Services.home
+  )
 
 let can_read x = x.Common.can_read
 let can_vote x = x.Common.can_vote
