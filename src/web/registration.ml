@@ -68,11 +68,13 @@ let get_featured_elections () =
     return res
   ) elections_table []
 
-let forbidden () = raise_lwt (
-  Ocsigen_extensions.Ocsigen_http_error (
-    Ocsigen_cookies.empty_cookieset, 403
+let fail_http status =
+  raise_lwt (
+    Ocsigen_extensions.Ocsigen_http_error
+      (Ocsigen_cookies.empty_cookieset, status)
   )
-)
+
+let forbidden () = fail_http 403
 
 let if_eligible acl f uuid x =
   lwt election = get_election_by_uuid uuid in
@@ -115,21 +117,19 @@ let next_lf str i =
   try Some (String.index_from str i '\n')
   with Not_found -> None
 
-let fail_http status =
-  fail (
-    Ocsigen_extensions.Ocsigen_http_error
-      (Ocsigen_cookies.empty_cookieset, status)
-  )
-
 let () = Eliom_registration.Redirection.register
   ~service:Services.login_cas
   (fun ticket () -> match ticket with
     | Some x ->
-      let service = Eliom_service.preapply Services.login_cas None in
-      let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-      let service = Eliom_service.preapply Services.cas_validate (uri, x) in
-      let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-      lwt reply = Ocsigen_http_client.get_url uri in
+      let me =
+        let service = Eliom_service.preapply Services.login_cas None in
+        Eliom_uri.make_string_uri ~absolute:true ~service ()
+      in
+      let validation =
+        let service = Eliom_service.preapply Services.cas_validate (me, x) in
+        Eliom_uri.make_string_uri ~absolute:true ~service ()
+      in
+      lwt reply = Ocsigen_http_client.get_url validation in
       (match reply.Ocsigen_http_frame.frame_content with
         | Some stream ->
           lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
