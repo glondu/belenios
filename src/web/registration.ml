@@ -211,7 +211,7 @@ let () = Eliom_registration.String.register
   )
 
 let () = Eliom_registration.Html5.register
-  ~service:Services.election_view
+  ~service:Services.election_index
   (if_eligible can_read
      (fun uuid election user () ->
        Templates.election_view ~election ~user
@@ -231,7 +231,7 @@ let () = Eliom_registration.Redirection.register
   (if_eligible can_vote
      (fun uuid election user () ->
        return (
-         Services.(preapply_uuid election_view election)
+         Services.(preapply_uuid election_index election)
        )
      )
   )

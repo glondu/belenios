@@ -67,28 +67,17 @@ let uuid = Eliom_parameter.user_type
   Uuidm.to_string
   "uuid"
 
-(* FIXME: decide whether uuid should be a directory or a GET parameter *)
+(* TODO: put uuid in url instead of GET parameter *)
 
-let election_raw = service
+let election_index = service
   ~path:["election"; ""]
   ~get_params:uuid
   ()
 
-let election_view = service
-  ~path:["election"; "view"]
+let election_raw = service
+  ~path:["election"; "raw"]
   ~get_params:uuid
   ()
-
-let election_booth = static_dir_with_params
-  ~get_params:(string "election_url")
-  ()
-
-let make_booth uuid =
-  let service = Eliom_service.preapply election_raw uuid in
-  Eliom_service.preapply election_booth (
-    ["booth"; "vote.html"],
-    Eliom_uri.make_string_uri ~absolute_path:true ~service ()
-  )
 
 let election_vote = service
   ~path:["election"; "vote"]
@@ -115,12 +104,18 @@ let get_randomness = service
   ~get_params:unit
   ()
 
-(* FIXME: should be elsewhere... *)
+let election_booth = static_dir_with_params
+  ~get_params:(string "election_url")
+  ()
+
+let make_booth uuid =
+  let service = Eliom_service.preapply election_raw uuid in
+  Eliom_service.preapply election_booth (
+    ["booth"; "vote.html"],
+    Eliom_uri.make_string_uri ~absolute_path:true ~service ()
+  )
 
 let preapply_uuid s e = Eliom_service.preapply s e.Common.election.e_uuid
-
-let is_eligible (uuid : Uuidm.t) (user : Common.user) =
-  Lwt.return (String.startswith user.Common.user_name "special-")
 
 type savable_service =
   | Home

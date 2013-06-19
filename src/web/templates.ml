@@ -99,7 +99,7 @@ let format_election_result e r =
 let format_one_featured_election e =
   li [
     h3 [
-      a ~service:Services.(preapply_uuid election_view e)
+      a ~service:Services.(preapply_uuid election_index e)
         [pcdata e.Common.election.e_name] ();
     ];
     p [pcdata e.Common.election.e_description];
