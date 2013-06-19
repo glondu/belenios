@@ -17,12 +17,15 @@ let () = dispatch & function
   | After_rules ->
 
     Pathname.define_context "src/web" ["src/lib"];
+    Pathname.define_context "src/bin" ["src/lib"];
     Pathname.define_context "tests/legacy" ["src/lib"];
     Pathname.define_context "tests" ["src/lib"];
     Pathname.define_context "." ["src/lib"];
 
     (* the following avoids an ocamlfind warning, it should be built-in *)
     flag ["doc"; "thread"] (A"-thread");
+
+    flag ["binary"; "compile"] (S [A"-w"; A"-24"]);
 
     rule "%.atd -> %_t.ml & %_t.mli" ~deps:["%.atd"] ~prods:["%_t.ml"; "%_t.mli"]
       (atdgen_action [A"-t"]);
