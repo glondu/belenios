@@ -30,7 +30,7 @@
         <static dir="_SRCDIR_/media/booth" />
       </site>
       <eliom module="_build/src/web/server.cma">
-        <load dir="tests/data"/>
+        <import dir="tests/data"/>
       </eliom>
     </host>
 

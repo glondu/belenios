@@ -7,13 +7,14 @@ open Lwt
 let () = Ocsigen_config.set_maxrequestbodysizeinmemory 128000
 
 let elections_table = Ocsipersist.open_table "elections"
+let imported_table = Ocsipersist.open_table "imported"
 
 let () =
   let dir = ref None in
   let open Ocsigen_extensions.Configuration in
   Eliom_config.parse_config [
     element
-      ~name:"load"
+      ~name:"import"
       ~obligatory:false
       ~attributes:[
         attribute ~name:"dir" ~obligatory:true (fun s -> dir := Some s);
@@ -23,19 +24,25 @@ let () =
   match !dir with
     | Some dir ->
       Ocsigen_messages.debug
-        (fun () -> "Loading elections from " ^ dir ^ "...");
+        (fun () -> "Importing elections from " ^ dir ^ "...");
       Common.load_elections_and_votes dir |>
       Lwt_stream.iter_s (fun (e, ballots) ->
         let uuid = Uuidm.to_string e.Common.election.e_uuid in
-        Ocsigen_messages.debug
-          (fun () -> Printf.sprintf "-- loading %s (%s)" uuid e.Common.election.e_short_name);
-        lwt () = Ocsipersist.add elections_table uuid e in
-        let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
-        let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
-        lwt () = Lwt_stream.iter_s (fun (r, v) ->
-          Ocsipersist.add table (Common.hashB r) v
-        ) ballots in
-        return ()
+        lwt b =
+          try_lwt Ocsipersist.find imported_table uuid
+          with Not_found -> return false
+        in
+        if not b then (
+          Ocsigen_messages.debug
+            (fun () -> Printf.sprintf "-- importing %s (%s)" uuid e.Common.election.e_short_name);
+          lwt () = Ocsipersist.add elections_table uuid e in
+          let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
+          let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
+          Lwt_stream.iter_s (fun (r, v) ->
+            Ocsipersist.add table (Common.hashB r) v
+          ) ballots >>
+          Ocsipersist.add imported_table uuid true
+        ) else return ()
       ) |>
       Lwt_main.run
     | None -> ()
