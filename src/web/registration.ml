@@ -92,7 +92,7 @@ let if_eligible acl f uuid x =
 let () = Eliom_registration.Html5.register
   ~service:Services.home
   (fun () () ->
-    Services.(set Home) >>
+    Eliom_reference.unset Services.saved_service >>
     lwt featured = get_featured_elections () in
     Templates.index ~featured)
 
@@ -165,7 +165,7 @@ let () = Eliom_registration.Redirection.register
   ~service:Services.logout
   (fun () () ->
     lwt user = Eliom_reference.get Services.user in
-    Eliom_reference.set Services.user None >>
+    Eliom_reference.unset Services.user >>
     match user with
       | Some user when user.Common.user_type = Common.CAS ->
         lwt service = Services.get () in
