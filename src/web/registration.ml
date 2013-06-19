@@ -33,8 +33,10 @@ let () =
           with Not_found -> return false
         in
         if not b then (
-          Ocsigen_messages.debug
-            (fun () -> Printf.sprintf "-- importing %s (%s)" uuid e.Common.election.e_short_name);
+          Ocsigen_messages.debug (fun () ->
+            Printf.sprintf "-- importing %s (%s)"
+              uuid e.Common.election.e_short_name
+          );
           lwt () = Ocsipersist.add elections_table uuid e in
           let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
           let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
@@ -42,7 +44,13 @@ let () =
             Ocsipersist.add table (Common.hashB r) v
           ) ballots >>
           Ocsipersist.add imported_table uuid true
-        ) else return ()
+        ) else (
+          Ocsigen_messages.debug (fun () ->
+            Printf.sprintf "-- skipping %s (%s)" uuid
+              e.Common.election.e_short_name
+          );
+          return ()
+        )
       ) |>
       Lwt_main.run
     | None -> ()
