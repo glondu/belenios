@@ -111,3 +111,8 @@ module String = struct
     let xn = String.length x and sn = String.length s in
     xn >= sn && String.sub x 0 sn = s
 end
+
+let rec list_join sep = function
+  | [] -> []
+  | [x] -> [x]
+  | x :: xs -> x :: sep :: list_join sep xs

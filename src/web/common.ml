@@ -2,9 +2,15 @@ open Lwt
 open Util
 open Serializable_t
 
+type user_type = Dummy | CAS
+
+let string_of_user_type = function
+  | Dummy -> "dummy"
+  | CAS -> "cas"
+
 type user = {
   user_name : string;
-  user_type : string;
+  user_type : user_type;
 }
 
 type acl =
@@ -94,7 +100,7 @@ let load_elections_and_votes dirname =
           election;
           public_keys;
           election_result;
-          author = { user_name = "admin"; user_type = "dummy" };
+          author = { user_name = "admin"; user_type = Dummy };
           featured_p = true;
           can_read = Any;
           can_vote = Any;

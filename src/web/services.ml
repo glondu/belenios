@@ -8,8 +8,8 @@ let home = service
   ~get_params:unit
   ()
 
-let login = service
-  ~path:["login"]
+let login_dummy = service
+  ~path:["login-dummy"]
   ~get_params:unit
   ()
 
@@ -43,16 +43,17 @@ let logout = service
   ~get_params:unit
   ()
 
-let perform_login () =
+let create_dummy_login () =
   Eliom_service.post_coservice
     ~csrf_safe:true
     ~csrf_scope:Eliom_common.default_session_scope
-    ~fallback:login
+    ~fallback:login_dummy
     ~post_params:Eliom_parameter.(string "username")
     ()
 
 let auth_systems = [
-  "dummy";
+  "dummy", login_dummy;
+  "CAS", Eliom_service.preapply login_cas None;
 ]
 
 let user = Eliom_reference.eref

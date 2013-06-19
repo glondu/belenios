@@ -1,8 +1,12 @@
 open Serializable_t
 
+type user_type = Dummy | CAS
+
+val string_of_user_type : user_type -> string
+
 type user = {
   user_name : string;
-  user_type : string;
+  user_type : user_type;
 }
 
 type acl =

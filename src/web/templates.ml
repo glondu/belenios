@@ -9,7 +9,8 @@ let welcome_message = "Welcome!"
 
 let format_user u =
   let open Common in
-  Printf.ksprintf pcdata "%s:%s" u.user_type u.user_name
+  let t = string_of_user_type u.user_type in
+  Printf.ksprintf pcdata "%s:%s" t u.user_name
 
 let base ~title ~content =
   lwt user = Eliom_reference.get Services.user in
@@ -40,13 +41,14 @@ let base ~title ~content =
                 div [
                   pcdata "Not logged in.";
                 ];
-                div [
-                  pcdata "Login: ";
-                  a ~service:Services.login [pcdata "dummy"] ();
-                  pcdata ", ";
-                  a ~service:Services.login_cas [pcdata "CAS"] None;
-                  pcdata ".";
-                ];
+                let auth_systems = List.map (fun (name, service) ->
+                  a ~service [pcdata name] ()
+                ) Services.auth_systems in
+                div (
+                  [ pcdata "Login: " ] @
+                  list_join (pcdata ", ") auth_systems @
+                  [ pcdata "." ]
+                );
               ]
           );
         ];
@@ -158,8 +160,7 @@ let election_view ~election ~user =
         match user with
           | None ->
             Lwt.return [
-              a ~service:Services.login [pcdata "Log in"] ();
-              pcdata " to check if you can vote.";
+              pcdata "Log in to check if you can vote.";
             ]
           | Some u ->
             lwt b = p u in

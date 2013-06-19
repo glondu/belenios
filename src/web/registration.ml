@@ -89,17 +89,16 @@ let () = Eliom_registration.Html5.register
     Templates.index ~featured)
 
 let () = Eliom_registration.Html5.register
-  ~service:Services.login
+  ~service:Services.login_dummy
   (fun () () ->
-    (* FIXME *)
-    let service = Services.perform_login () in
+    let service = Services.create_dummy_login () in
     let () = Eliom_registration.Redirection.register
       ~service
       ~scope:Eliom_common.default_session_scope
       (fun () user_name ->
-        let user_type = "dummy" in
-        Eliom_reference.set Services.user
-          Common.(Some {user_name; user_type}) >>
+        let open Common in
+        let user_type = Dummy in
+        Eliom_reference.set Services.user (Some {user_name; user_type}) >>
         Services.get ())
     in
     Templates.dummy_login ~service)
@@ -133,10 +132,11 @@ let () = Eliom_registration.Redirection.register
                 | "yes" ->
                   (match next_lf info (i+1) with
                     | Some j ->
+                      let open Common in
                       let user_name = String.sub info (i+1) (j-i-1) in
-                      let user_type = "cas" in
+                      let user_type = CAS in
                       Eliom_reference.set Services.user
-                        Common.(Some {user_name; user_type}) >>
+                        (Some {user_name; user_type}) >>
                       Services.get ()
                     | None -> fail_http 502
                   )
@@ -159,7 +159,7 @@ let () = Eliom_registration.Redirection.register
     lwt user = Eliom_reference.get Services.user in
     Eliom_reference.set Services.user None >>
     match user with
-      | Some user when user.Common.user_type = "cas" ->
+      | Some user when user.Common.user_type = Common.CAS ->
         lwt service = Services.get () in
         let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
         return (Eliom_service.preapply Services.cas_logout uri)

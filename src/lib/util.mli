@@ -26,3 +26,5 @@ module String : sig
   val map : (char -> char) -> string -> string
   val startswith : string -> string -> bool
 end
+
+val list_join : 'a -> 'a list -> 'a list
