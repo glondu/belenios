@@ -79,6 +79,11 @@ let election_raw = service
   ~get_params:uuid
   ()
 
+let election_public_keys = service
+  ~path:["election"; "public_keys"]
+  ~get_params:uuid
+  ()
+
 let election_vote = service
   ~path:["election"; "vote"]
   ~get_params:uuid

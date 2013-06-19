@@ -185,6 +185,15 @@ let () = Eliom_registration.String.register
      )
   )
 
+let () = Eliom_registration.File.register
+  ~service:Services.election_public_keys
+  ~content_type:"application/json"
+  (if_eligible can_read
+      (fun uuid election user () ->
+        return election.Common.public_keys_file
+      )
+   )
+
 let () = Eliom_registration.String.register
   ~service:Services.election_ballots
   (if_eligible can_read

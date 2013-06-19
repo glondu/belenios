@@ -22,6 +22,7 @@ type election_data = {
   fingerprint : string;
   election : ff_pubkey election;
   public_keys : Z.t trustee_public_key array;
+  public_keys_file : string;
   election_result : Z.t result option;
   author : user;
   featured_p : bool;
@@ -68,8 +69,9 @@ let load_elections_and_votes dirname =
           Serializable_j.read_ff_pubkey raw
         in
         (assert_lwt (Uuidm.equal uuid election.e_uuid)) >>
+        let public_keys_file = data "public_keys.jsons" in
         lwt public_keys =
-          data "public_keys.jsons" |>
+          public_keys_file |>
           Lwt_io.lines_of_file |>
           Lwt_stream.map (fun x ->
             Serializable_j.trustee_public_key_of_string Serializable_builtin_j.read_number x
@@ -99,6 +101,7 @@ let load_elections_and_votes dirname =
           fingerprint;
           election;
           public_keys;
+          public_keys_file;
           election_result;
           author = { user_name = "admin"; user_type = Dummy };
           featured_p = true;

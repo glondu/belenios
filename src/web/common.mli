@@ -18,6 +18,7 @@ type election_data = {
   fingerprint : string;
   election : ff_pubkey election;
   public_keys : Z.t trustee_public_key array;
+  public_keys_file : string;
   election_result : Z.t result option;
   author : user;
   featured_p : bool;
