@@ -120,3 +120,21 @@ let preapply_uuid s e = Eliom_service.preapply s e.Common.election.e_uuid
 
 let is_eligible (uuid : Uuidm.t) (user : Common.user) =
   Lwt.return (String.startswith user.Common.user_name "special-")
+
+type savable_service =
+  | Home
+
+let saved_service = Eliom_reference.eref
+  ~scope:Eliom_common.default_session_scope
+  Home
+
+let to_service = function
+  | Home -> home
+
+open Lwt
+
+let get () =
+  Eliom_reference.get saved_service >>= wrap1 to_service
+
+let set s =
+  Eliom_reference.set saved_service s

@@ -84,6 +84,7 @@ let if_eligible acl f uuid x =
 let () = Eliom_registration.Html5.register
   ~service:Services.home
   (fun () () ->
+    Services.(set Home) >>
     lwt featured = get_featured_elections () in
     Templates.index ~featured)
 
@@ -99,7 +100,7 @@ let () = Eliom_registration.Html5.register
         let user_type = "dummy" in
         Eliom_reference.set Services.user
           Common.(Some {user_name; user_type}) >>
-        return Services.home)
+        Services.get ())
     in
     Templates.dummy_login ~service)
 
@@ -136,7 +137,7 @@ let () = Eliom_registration.Redirection.register
                       let user_type = "cas" in
                       Eliom_reference.set Services.user
                         Common.(Some {user_name; user_type}) >>
-                      return Services.home
+                      Services.get ()
                     | None -> fail_http 502
                   )
                 | "no" -> fail_http 401
@@ -156,13 +157,13 @@ let () = Eliom_registration.Redirection.register
   ~service:Services.logout
   (fun () () ->
     lwt user = Eliom_reference.get Services.user in
-    Eliom_state.discard ~scope:Eliom_common.default_session_scope () >>
+    Eliom_reference.set Services.user None >>
     match user with
       | Some user when user.Common.user_type = "cas" ->
-        let service = Services.home in
+        lwt service = Services.get () in
         let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
         return (Eliom_service.preapply Services.cas_logout uri)
-      | _ -> return Services.home
+      | _ -> Services.get ()
   )
 
 let can_read x = x.Common.can_read
