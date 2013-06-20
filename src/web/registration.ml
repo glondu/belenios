@@ -65,7 +65,6 @@ lwt election_table =
               fingerprint;
               election;
               fn_public_keys;
-              author = { user_name = "admin"; user_type = Dummy };
               featured_p = true;
               can_read = Any;
               can_vote = Any;

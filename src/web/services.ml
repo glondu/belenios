@@ -75,12 +75,12 @@ let election_index = service
   ()
 
 let election_raw = service
-  ~path:["election"; "raw"]
+  ~path:["election"; "election.json"]
   ~get_params:uuid
   ()
 
 let election_public_keys = service
-  ~path:["election"; "public_keys"]
+  ~path:["election"; "public_keys.jsons"]
   ~get_params:uuid
   ()
 
@@ -95,7 +95,7 @@ let election_cast = service
   ()
 
 let election_ballots = service
-  ~path:["election"; "ballots"]
+  ~path:["election"; "ballots.jsons"]
   ~get_params:uuid
   ()
 

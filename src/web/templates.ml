@@ -175,46 +175,35 @@ let election_view ~election ~user =
     h2 [pcdata "Audit Info"];
     div [
       div [
-        pcdata "Election URL: ";
-        code [
-          a ~service [ pcdata (make_string_uri ~absolute:true ~service ()) ] ()
-        ];
-      ];
-      div [
-        pcdata "Election Fingerprint: ";
+        pcdata "Election fingerprint: ";
         code [ pcdata election.Web_common.fingerprint ];
       ];
       div [
-        a ~service:Services.(preapply_uuid election_ballots election) [
-          pcdata "Ballot Tracking Center";
+        pcdata "Election data: ";
+        a ~service [ pcdata "parameters" ] ();
+        pcdata ", ";
+        a ~service:Services.(preapply_uuid election_public_keys election) [
+          pcdata "trustee public keys"
         ] ();
+        pcdata ", ";
+        a ~service:Services.(preapply_uuid election_ballots election) [
+          pcdata "ballots";
+        ] ();
+        pcdata ".";
       ];
       div [
         a ~service:booth [ pcdata "Voting booth" ] ();
       ];
     ]
   ] in
-  let nquestions = Array.length election.Web_common.election.e_questions in
   let content = [
     h1 [ pcdata election.Web_common.election.e_name ];
-    p [
-      pcdata "This is an election created by ";
-      format_user election.Web_common.author;
-      pcdata " with ";
-      pcdata (string_of_int nquestions);
-      Printf.ksprintf pcdata " question%s."
-        (if nquestions > 1 then "s" else "");
-    ];
     p [pcdata election.Web_common.election.e_description];
-    p permissions;
     div [
       div [
         a ~service:(Services.(preapply_uuid election_vote election)) [
           pcdata "Vote in this election";
         ] ();
-      ];
-      div [
-        pcdata "This election ends at the administrator's discretion.";
       ];
     ];
     audit_info;

@@ -22,7 +22,6 @@ type election_data = {
   fingerprint : string;
   election : ff_pubkey election;
   fn_public_keys : string;
-  author : user;
   featured_p : bool;
   can_read : acl;
   can_vote : acl;
