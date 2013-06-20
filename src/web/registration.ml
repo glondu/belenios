@@ -25,9 +25,9 @@ let () =
     | Some dir ->
       Ocsigen_messages.debug
         (fun () -> "Importing elections from " ^ dir ^ "...");
-      Common.load_elections_and_votes dir |>
+      Web_common.load_elections_and_votes dir |>
       Lwt_stream.iter_s (fun (e, ballots) ->
-        let uuid = Uuidm.to_string e.Common.election.e_uuid in
+        let uuid = Uuidm.to_string e.Web_common.election.e_uuid in
         lwt b =
           try_lwt Ocsipersist.find imported_table uuid
           with Not_found -> return false
@@ -35,7 +35,7 @@ let () =
         if not b then (
           Ocsigen_messages.debug (fun () ->
             Printf.sprintf "-- importing %s (%s)"
-              uuid e.Common.election.e_short_name
+              uuid e.Web_common.election.e_short_name
           );
           lwt () = Ocsipersist.add elections_table uuid e in
           let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
@@ -47,7 +47,7 @@ let () =
         ) else (
           Ocsigen_messages.debug (fun () ->
             Printf.sprintf "-- skipping %s (%s)" uuid
-              e.Common.election.e_short_name
+              e.Web_common.election.e_short_name
           );
           return ()
         )
@@ -64,7 +64,7 @@ let get_election_by_uuid x =
 let get_featured_elections () =
   (* FIXME: doesn't scale when there are a lot of unfeatured elections *)
   Ocsipersist.fold_step (fun uuid e res ->
-    let res = if e.Common.featured_p then e::res else res in
+    let res = if e.Web_common.featured_p then e::res else res in
     return res
   ) elections_table []
 
@@ -80,7 +80,7 @@ let if_eligible acl f uuid x =
   lwt election = get_election_by_uuid uuid in
   lwt user = Eliom_reference.get Services.user in
   lwt () =
-    let open Common in
+    let open Web_common in
     match acl election with
       | Any -> return ()
       | Restricted p ->
@@ -106,7 +106,7 @@ let () = Eliom_registration.Html5.register
       ~service
       ~scope:Eliom_common.default_session_scope
       (fun () user_name ->
-        let open Common in
+        let open Web_common in
         let user_type = Dummy in
         Eliom_reference.set Services.user (Some {user_name; user_type}) >>
         Services.get ())
@@ -140,7 +140,7 @@ let () = Eliom_registration.Redirection.register
                 | "yes" ->
                   (match next_lf info (i+1) with
                     | Some j ->
-                      let open Common in
+                      let open Web_common in
                       let user_name = String.sub info (i+1) (j-i-1) in
                       let user_type = CAS in
                       Eliom_reference.set Services.user
@@ -167,21 +167,21 @@ let () = Eliom_registration.Redirection.register
     lwt user = Eliom_reference.get Services.user in
     Eliom_reference.unset Services.user >>
     match user with
-      | Some user when user.Common.user_type = Common.CAS ->
+      | Some user when user.Web_common.user_type = Web_common.CAS ->
         lwt service = Services.get () in
         let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
         return (Eliom_service.preapply Services.cas_logout uri)
       | _ -> Services.get ()
   )
 
-let can_read x = x.Common.can_read
-let can_vote x = x.Common.can_vote
+let can_read x = x.Web_common.can_read
+let can_vote x = x.Web_common.can_vote
 
 let () = Eliom_registration.String.register
   ~service:Services.election_raw
   (if_eligible can_read
      (fun uuid election user () ->
-       return (election.Common.raw, "application/json")
+       return (election.Web_common.raw, "application/json")
      )
   )
 
@@ -190,7 +190,7 @@ let () = Eliom_registration.File.register
   ~content_type:"application/json"
   (if_eligible can_read
       (fun uuid election user () ->
-        return election.Common.public_keys_file
+        return election.Web_common.public_keys_file
       )
    )
 
@@ -252,14 +252,14 @@ let () = Eliom_registration.Html5.register
        let result =
          try
            let ballot = Serializable_j.ballot_of_string Serializable_builtin_j.read_number raw_ballot in
-           let {g; p; q; y} = election.Common.election.e_public_key in
+           let {g; p; q; y} = election.Web_common.election.e_public_key in
            let module P = struct
              module G = (val Election.finite_field ~p ~q ~g : Signatures.GROUP with type t = Z.t)
              let public_keys = Array.map (fun x ->
                x.trustee_public_key
-             ) election.Common.public_keys
-             let params = { election.Common.election with e_public_key = y }
-             let fingerprint = election.Common.fingerprint
+             ) election.Web_common.public_keys
+             let params = { election.Web_common.election with e_public_key = y }
+             let fingerprint = election.Web_common.fingerprint
            end in
            let module M = Election.MakeSimpleMonad(P.G) in
            let module E = Election.MakeElection(P)(M) in

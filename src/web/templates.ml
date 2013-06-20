@@ -8,7 +8,7 @@ let site_title = "Election Server"
 let welcome_message = "Welcome!"
 
 let format_user u =
-  let open Common in
+  let open Web_common in
   let t = string_of_user_type u.user_type in
   Printf.ksprintf pcdata "%s:%s" t u.user_name
 
@@ -100,9 +100,9 @@ let format_one_featured_election e =
   li [
     h3 [
       a ~service:Services.(preapply_uuid election_index e)
-        [pcdata e.Common.election.e_name] ();
+        [pcdata e.Web_common.election.e_name] ();
     ];
-    p [pcdata e.Common.election.e_description];
+    p [pcdata e.Web_common.election.e_description];
   ]
 
 let index ~featured =
@@ -150,9 +150,9 @@ let dummy_login ~service =
 
 let election_view ~election ~user =
   let service = Services.(preapply_uuid election_raw election) in
-  let booth = Services.make_booth election.Common.election.e_uuid in
+  let booth = Services.make_booth election.Web_common.election.e_uuid in
   lwt permissions =
-    let open Common in
+    let open Web_common in
     match election.can_vote with
       | Any ->
         Lwt.return [ pcdata "Anyone can vote in this election." ]
@@ -182,7 +182,7 @@ let election_view ~election ~user =
       ];
       div [
         pcdata "Election Fingerprint: ";
-        code [ pcdata election.Common.fingerprint ];
+        code [ pcdata election.Web_common.fingerprint ];
       ];
       div [
         a ~service:Services.(preapply_uuid election_ballots election) [
@@ -195,21 +195,21 @@ let election_view ~election ~user =
     ]
   ] in
   let content = [
-    h1 [ pcdata election.Common.election.e_name ];
+    h1 [ pcdata election.Web_common.election.e_name ];
     p [
       pcdata "This is an election created by ";
-      format_user election.Common.author;
+      format_user election.Web_common.author;
       pcdata " with ";
-      pcdata (string_of_int (Array.length election.Common.election.e_questions));
+      pcdata (string_of_int (Array.length election.Web_common.election.e_questions));
       pcdata " question(s) and ";
-      pcdata (string_of_int (Array.length election.Common.public_keys));
+      pcdata (string_of_int (Array.length election.Web_common.public_keys));
       pcdata " trustee(s).";
     ];
-    p [pcdata election.Common.election.e_description];
+    p [pcdata election.Web_common.election.e_description];
     p permissions;
-    (match election.Common.election_result with
+    (match election.Web_common.election_result with
       | Some r ->
-        let result = format_election_result election.Common.election r in
+        let result = format_election_result election.Web_common.election r in
         let formatted_result =
           List.map (fun question ->
             div [
@@ -249,10 +249,10 @@ let election_view ~election ~user =
     );
     audit_info;
   ] in
-  base ~title:election.Common.election.e_name ~content
+  base ~title:election.Web_common.election.e_name ~content
 
 let cast_ballot ~election ~result =
-  let name = election.Common.election.e_name in
+  let name = election.Web_common.election.e_name in
   let content = [
     h1 [ pcdata name ];
     div [

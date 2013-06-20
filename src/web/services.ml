@@ -58,7 +58,7 @@ let auth_systems = [
 
 let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
-  (None : Common.user option)
+  (None : Web_common.user option)
 
 let uuid = Eliom_parameter.user_type
   (fun x -> match Uuidm.of_string x with
@@ -120,7 +120,7 @@ let make_booth uuid =
     Eliom_uri.make_string_uri ~absolute_path:true ~service ()
   )
 
-let preapply_uuid s e = Eliom_service.preapply s e.Common.election.e_uuid
+let preapply_uuid s e = Eliom_service.preapply s e.Web_common.election.e_uuid
 
 type savable_service =
   | Home
