@@ -237,18 +237,19 @@ let () = Eliom_registration.File.register
       )
    )
 
-let () = Eliom_registration.String.register
+let () = Eliom_registration.Streamlist.register
   ~service:Services.election_ballots
   (if_eligible can_read
      (fun uuid election user () ->
-       let uuid_underscored = String.map (function '-' -> '_' | c -> c) (Uuidm.to_string uuid) in
-       let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
-       lwt ballots = Ocsipersist.fold_step (fun hash v res ->
-         let s = Serializable_j.string_of_ballot Serializable_builtin_j.write_number v ^ "\n" in
-         return (s :: res)
-       ) table [] in
-       let result = String.concat "" ballots in
-       return (result, "application/json")
+       let module X = (val election : Web_common.WEB_ELECTION) in
+       (* TODO: streaming *)
+       lwt ballots = X.B.fold_ballots (fun x xs ->
+         return ((x^"\n")::xs)
+       ) [] in
+       let s = List.map (fun b () ->
+         return (Ocsigen_stream.of_string b)
+       ) ballots in
+       return (s, "application/json")
      )
   )
 
@@ -294,18 +295,28 @@ let () = Eliom_registration.Redirection.register
 let () = Eliom_registration.Html5.register
   ~service:Services.election_cast_post
   (if_eligible can_vote
-     (fun uuid election user raw_ballot ->
-       let module X = (val election : Web_common.WEB_ELECTION) in
-       let result =
-         try
-           let ballot = Serializable_j.ballot_of_string Serializable_builtin_j.read_number raw_ballot in
-           if
-             Uuidm.equal uuid ballot.election_uuid &&
-             X.E.check_ballot ballot
-           then `Valid (sha256_b64 raw_ballot)
-           else `Invalid
-         with e -> `Malformed e
-       in
-       Templates.cast_ballot ~election:X.data ~result
+     (fun uuid election user ballot ->
+       let open Web_common in
+       let module X = (val election : WEB_ELECTION) in
+       match user with
+         | Some {user_type; user_name} ->
+           begin
+             let t = string_of_user_type user_type in
+             let record =
+               Printf.sprintf "%s:%s" t user_name,
+               (CalendarLib.Fcalendar.Precise.now (), None)
+             in
+             lwt result =
+               try_lwt
+                 X.B.cast ballot record >>
+                 return (`Valid (sha256_b64 ballot))
+               with
+                 | Serialization e -> return (`Malformed e)
+                 | ProofCheck -> return `Invalid
+             in
+             Templates.cast_ballot ~election:X.data ~result
+           end
+         | None ->
+           Templates.cast_ballot ~election:X.data ~result:`Anon
      )
   )

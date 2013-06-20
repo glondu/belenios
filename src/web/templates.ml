@@ -218,9 +218,10 @@ let cast_ballot ~election ~result =
       pcdata "Your ballot for ";
       em [pcdata name];
       (match result with
-         | `Valid hash -> pcdata (" is valid, its hash is " ^ hash ^ ".")
+         | `Valid hash -> pcdata (" has been accepted, its hash is " ^ hash ^ ".")
          | `Invalid -> pcdata " is invalid!"
          | `Malformed e -> Printf.ksprintf pcdata " is malformed! (%s)" (Printexc.to_string e)
+         | `Anon -> pcdata " cannot be accepted, you must log in first!"
       );
     ]
   ] in
