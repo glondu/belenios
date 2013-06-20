@@ -116,3 +116,13 @@ let rec list_join sep = function
   | [] -> []
   | [x] -> [x]
   | x :: xs -> x :: sep :: list_join sep xs
+
+let sha256_hex x = Cryptokit.(x |>
+  hash_string (Hash.sha256 ()) |>
+  transform_string (Hexa.encode ())
+)
+
+let sha256_b64 x = Cryptokit.(x |>
+  hash_string (Hash.sha256 ()) |>
+  transform_string (Base64.encode_compact ())
+)

@@ -48,7 +48,7 @@ module MakeBallotBox (E : LWT_ELECTION) = struct
       ) with e -> Lwt.fail (Serialization e)
     in
     if E.check_ballot ballot then (
-      Ocsipersist.add ballot_table (Common.hashB rawballot) rawballot >>
+      Ocsipersist.add ballot_table (sha256_b64 rawballot) rawballot >>
       Ocsipersist.add record_table user date
     ) else (
       Lwt.fail ProofCheck

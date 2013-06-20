@@ -46,11 +46,6 @@ let load_from_file read fname =
   close_in i;
   result
 
-let hashB x = Cryptokit.(x |>
-  hash_string (Hash.sha256 ()) |>
-  transform_string (Base64.encode_compact ())
-)
-
 let load_elections_and_votes dirname =
   Lwt_unix.files_of_directory dirname |>
   Lwt_stream.filter_map_s (fun x ->
@@ -84,7 +79,7 @@ let load_elections_and_votes dirname =
             load_from_file (Serializable_j.read_result Serializable_builtin_j.read_number)
           ) with Sys_error _ -> None
         in
-        let fingerprint = hashB raw in
+        let fingerprint = sha256_b64 raw in
         let ballots =
           let file = data "ballots.json" in
           if Sys.file_exists file then (

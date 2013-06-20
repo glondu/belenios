@@ -28,3 +28,6 @@ module String : sig
 end
 
 val list_join : 'a -> 'a list -> 'a list
+
+val sha256_hex : string -> string
+val sha256_b64 : string -> string

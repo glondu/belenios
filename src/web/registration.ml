@@ -41,7 +41,7 @@ let () =
           let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
           let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
           Lwt_stream.iter_s (fun (r, v) ->
-            Ocsipersist.add table (Common.hashB r) v
+            Ocsipersist.add table (sha256_b64 r) v
           ) ballots >>
           Ocsipersist.add imported_table uuid true
         ) else (
@@ -266,7 +266,7 @@ let () = Eliom_registration.Html5.register
            if
              Uuidm.equal uuid ballot.election_uuid &&
              E.check_ballot ballot
-           then `Valid (Common.hashB raw_ballot)
+           then `Valid (sha256_b64 raw_ballot)
            else `Invalid
          with e -> `Malformed e
        in

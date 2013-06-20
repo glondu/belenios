@@ -27,7 +27,5 @@ type election_data = {
   can_admin : acl;
 }
 
-val hashB : string -> string
-
 val load_elections_and_votes :
   string -> (election_data * (string * Z.t ballot) Lwt_stream.t) Lwt_stream.t
