@@ -21,7 +21,6 @@ type election_data = {
   featured_p : bool;
   can_read : acl;
   can_vote : acl;
-  can_admin : acl;
 }
 
 module MakeLwtRandom (G : Signatures.GROUP) : sig

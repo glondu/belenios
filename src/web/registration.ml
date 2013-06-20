@@ -68,7 +68,6 @@ lwt election_table =
               featured_p = true;
               can_read = Any;
               can_vote = Any;
-              can_admin = Any;
             }) in
             let {g; p; q; y} = election.e_public_key in
             let module G = (val
