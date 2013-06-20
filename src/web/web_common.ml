@@ -18,12 +18,10 @@ type acl =
   | Restricted of (user -> bool Lwt.t)
 
 type election_data = {
-  raw : string;
+  fn_election : string;
   fingerprint : string;
   election : ff_pubkey election;
-  public_keys : Z.t trustee_public_key array;
-  public_keys_file : string;
-  election_result : Z.t result option;
+  fn_public_keys : string;
   author : user;
   featured_p : bool;
   can_read : acl;
@@ -45,69 +43,6 @@ let load_from_file read fname =
   let result = read lex buf in
   close_in i;
   result
-
-let load_elections_and_votes dirname =
-  Lwt_unix.files_of_directory dirname |>
-  Lwt_stream.filter_map_s (fun x ->
-    let n = String.length x in
-    if n = 38 && x.[0] = '{' && x.[n-1] = '}' then (
-      match Uuidm.of_string ~pos:1 x with
-      | Some uuid ->
-        let dirname = Filename.concat dirname x in
-        let data x = Filename.concat dirname x in
-        lwt raw =
-          data "election.json" |>
-          Lwt_io.lines_of_file |>
-          enforce_single_element
-        in
-        let election = Serializable_j.election_of_string
-          Serializable_j.read_ff_pubkey raw
-        in
-        (assert_lwt (Uuidm.equal uuid election.e_uuid)) >>
-        let public_keys_file = data "public_keys.jsons" in
-        lwt public_keys =
-          public_keys_file |>
-          Lwt_io.lines_of_file |>
-          Lwt_stream.map (fun x ->
-            Serializable_j.trustee_public_key_of_string Serializable_builtin_j.read_number x
-          ) |>
-          Lwt_stream.to_list >>= wrap1 Array.of_list
-        in
-        let election_result =
-          try Some (
-            data "result.json" |>
-            load_from_file (Serializable_j.read_result Serializable_builtin_j.read_number)
-          ) with Sys_error _ -> None
-        in
-        let fingerprint = sha256_b64 raw in
-        let ballots =
-          let file = data "ballots.json" in
-          if Sys.file_exists file then (
-            Lwt_io.lines_of_file file |>
-            Lwt_stream.map (fun x ->
-              let v = Serializable_j.ballot_of_string Serializable_builtin_j.read_number x in
-              assert (Uuidm.equal uuid v.election_uuid);
-              x, v
-            )
-          ) else Lwt_stream.from_direct (fun () -> None)
-        in
-        let election_data = {
-          raw;
-          fingerprint;
-          election;
-          public_keys;
-          public_keys_file;
-          election_result;
-          author = { user_name = "admin"; user_type = Dummy };
-          featured_p = true;
-          can_read = Any;
-          can_vote = Any;
-          can_admin = Any;
-        } in
-        Lwt.return (Some (election_data, ballots))
-      | None -> assert false
-    ) else Lwt.return None
-  )
 
 module MakeLwtRandom (G : Signatures.GROUP) = struct
 
@@ -134,6 +69,13 @@ exception ProofCheck
 module type LWT_ELECTION = Signatures.ELECTION
   with type elt = Z.t
   and type 'a m = 'a Lwt.t
+
+module type WEB_BBOX = sig
+  include Signatures.BALLOT_BOX
+  with type 'a m := 'a Lwt.t
+  and type ballot = string
+  and type record = string * Serializable_builtin_t.datetime
+end
 
 module MakeBallotBox (E : LWT_ELECTION) = struct
 
@@ -170,4 +112,11 @@ module MakeBallotBox (E : LWT_ELECTION) = struct
     Ocsipersist.fold_step (fun k v x -> f (k, v) x) record_table x
 
   let turnout = Ocsipersist.length ballot_table
+end
+
+module type WEB_ELECTION = sig
+  module G : Signatures.GROUP
+  module E : LWT_ELECTION
+  module B : WEB_BBOX
+  val data : election_data
 end

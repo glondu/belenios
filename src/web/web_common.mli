@@ -14,21 +14,16 @@ type acl =
   | Restricted of (user -> bool Lwt.t)
 
 type election_data = {
-  raw : string;
+  fn_election : string;
   fingerprint : string;
   election : ff_pubkey election;
-  public_keys : Z.t trustee_public_key array;
-  public_keys_file : string;
-  election_result : Z.t result option;
+  fn_public_keys : string;
   author : user;
   featured_p : bool;
   can_read : acl;
   can_vote : acl;
   can_admin : acl;
 }
-
-val load_elections_and_votes :
-  string -> (election_data * (string * Z.t ballot) Lwt_stream.t) Lwt_stream.t
 
 module MakeLwtRandom (G : Signatures.GROUP) : sig
 
@@ -51,13 +46,18 @@ module type LWT_ELECTION = Signatures.ELECTION
   with type elt = Z.t
   and type 'a m = 'a Lwt.t
 
-module MakeBallotBox (E : LWT_ELECTION) : sig
-
-  (** {2 Ballot box management} *)
-
+module type WEB_BBOX = sig
   include Signatures.BALLOT_BOX
   with type 'a m := 'a Lwt.t
   and type ballot = string
   and type record = string * Serializable_builtin_t.datetime
 end
-(** This ballot box stores ballots and records in Ocsipersist tables. *)
+
+module MakeBallotBox (E : LWT_ELECTION) : WEB_BBOX
+
+module type WEB_ELECTION = sig
+  module G : Signatures.GROUP
+  module E : LWT_ELECTION
+  module B : WEB_BBOX
+  val data : election_data
+end

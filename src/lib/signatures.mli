@@ -89,8 +89,11 @@ module type ELECTION_PARAMS = sig
   module G : GROUP
   (** The group used for cryptography. *)
 
-  val public_keys : G.t array
+  val public_keys : G.t array Lazy.t
   (** Trustee public keys. *)
+
+  (* TODO: public_keys is not needed during election, remove from
+     here, or at least monadify. *)
 
   val params : G.t Serializable_t.election
   (** Other parameters. *)

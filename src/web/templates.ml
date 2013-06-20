@@ -194,59 +194,29 @@ let election_view ~election ~user =
       ];
     ]
   ] in
+  let nquestions = Array.length election.Web_common.election.e_questions in
   let content = [
     h1 [ pcdata election.Web_common.election.e_name ];
     p [
       pcdata "This is an election created by ";
       format_user election.Web_common.author;
       pcdata " with ";
-      pcdata (string_of_int (Array.length election.Web_common.election.e_questions));
-      pcdata " question(s) and ";
-      pcdata (string_of_int (Array.length election.Web_common.public_keys));
-      pcdata " trustee(s).";
+      pcdata (string_of_int nquestions);
+      Printf.ksprintf pcdata " question%s."
+        (if nquestions > 1 then "s" else "");
     ];
     p [pcdata election.Web_common.election.e_description];
     p permissions;
-    (match election.Web_common.election_result with
-      | Some r ->
-        let result = format_election_result election.Web_common.election r in
-        let formatted_result =
-          List.map (fun question ->
-            div [
-              h3 [
-                pcdata question.question;
-              ];
-              let table xs = match xs with
-                | x :: xs -> table x xs
-                | [] -> div [pcdata "Result is not available."]
-              in table (
-                List.map (fun answer ->
-                  let style = if answer.winner then b else span in
-                  tr [
-                    td [style [pcdata answer.answer]];
-                    td [style [pcdata (string_of_int answer.count)]];
-                  ]
-                ) question.answers
-              );
-            ]
-          ) result
-        in div [
-          pcdata "This election is complete.";
-          h2 [pcdata "Tally"];
-          div formatted_result;
-        ]
-    | None ->
+    div [
       div [
-        div [
-          a ~service:(Services.(preapply_uuid election_vote election)) [
-            pcdata "Vote in this election";
-          ] ();
-        ];
-        div [
-          pcdata "This election ends at the administrator's discretion.";
-        ];
-      ]
-    );
+        a ~service:(Services.(preapply_uuid election_vote election)) [
+          pcdata "Vote in this election";
+        ] ();
+      ];
+      div [
+        pcdata "This election ends at the administrator's discretion.";
+      ];
+    ];
     audit_info;
   ] in
   base ~title:election.Web_common.election.e_name ~content

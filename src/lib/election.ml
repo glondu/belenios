@@ -54,7 +54,7 @@ let check_election p =
   let open P in
   let open G in
   (* check public key *)
-  let computed = Array.fold_left ( *~ ) G.one public_keys in
+  let computed = Array.fold_left ( *~ ) G.one (Lazy.force public_keys) in
   computed =~ params.e_public_key
 
 (** Simple monad *)
@@ -384,7 +384,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     let {encrypted_tally; partial_decryptions; result; num_tallied} = r in
     check_ciphertext encrypted_tally &&
     Array.forall2 (check_factor encrypted_tally)
-      public_keys partial_decryptions &&
+      (Lazy.force public_keys) partial_decryptions &&
     let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
     let factors = Array.fold_left (fun a b ->
       Array.mmap2 ( *~ ) a b.decryption_factors

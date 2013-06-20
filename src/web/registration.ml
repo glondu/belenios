@@ -6,15 +6,25 @@ open Lwt
    <maxrequestbodysize> doesn't work *)
 let () = Ocsigen_config.set_maxrequestbodysizeinmemory 128000
 
-let elections_table = Ocsipersist.open_table "elections"
-let imported_table = Ocsipersist.open_table "imported"
+module EMap = Map.Make(Uuidm)
 
-let () =
+let ( / ) = Filename.concat
+
+let file_exists x =
+  try_lwt
+    Lwt_unix.(access x [R_OK]) >>
+    return true
+  with _ ->
+    return false
+
+let populate accu f s = Lwt_stream.fold_s f s accu
+
+lwt election_table =
   let dir = ref None in
   let open Ocsigen_extensions.Configuration in
   Eliom_config.parse_config [
     element
-      ~name:"import"
+      ~name:"data"
       ~obligatory:false
       ~attributes:[
         attribute ~name:"dir" ~obligatory:true (fun s -> dir := Some s);
@@ -23,50 +33,81 @@ let () =
   ];
   match !dir with
     | Some dir ->
-      Ocsigen_messages.debug
-        (fun () -> "Importing elections from " ^ dir ^ "...");
-      Web_common.load_elections_and_votes dir |>
-      Lwt_stream.iter_s (fun (e, ballots) ->
-        let uuid = Uuidm.to_string e.Web_common.election.e_uuid in
-        lwt b =
-          try_lwt Ocsipersist.find imported_table uuid
-          with Not_found -> return false
-        in
-        if not b then (
-          Ocsigen_messages.debug (fun () ->
-            Printf.sprintf "-- importing %s (%s)"
-              uuid e.Web_common.election.e_short_name
-          );
-          lwt () = Ocsipersist.add elections_table uuid e in
-          let uuid_underscored = String.map (function '-' -> '_' | c -> c) uuid in
-          let table = Ocsipersist.open_table ("ballots_" ^ uuid_underscored) in
-          Lwt_stream.iter_s (fun (r, v) ->
-            Ocsipersist.add table (sha256_b64 r) v
-          ) ballots >>
-          Ocsipersist.add imported_table uuid true
+      Ocsigen_messages.debug (fun () ->
+        "Using data from " ^ dir ^ "..."
+      );
+      Lwt_unix.files_of_directory dir |>
+      populate EMap.empty (fun subdir accu ->
+        let path = dir/subdir in
+        lwt b = file_exists (path/"result.json") in
+        if b then (
+          (* result is available *)
+          (* TODO: if the election is featured, show it on the home page *)
+          return accu
         ) else (
-          Ocsigen_messages.debug (fun () ->
-            Printf.sprintf "-- skipping %s (%s)" uuid
-              e.Web_common.election.e_short_name
-          );
-          return ()
+          let fn_election = path/"election.json" in
+          let fn_public_keys = path/"public_keys.jsons" in
+          lwt b = file_exists fn_election in
+          if b then (
+            Ocsigen_messages.debug (fun () ->
+              "-- registering " ^ subdir
+            );
+            lwt raw =
+              Lwt_io.chars_of_file fn_election |>
+              Lwt_stream.to_string
+            in
+            let election = Serializable_j.election_of_string
+              Serializable_j.read_ff_pubkey raw
+            in
+            let fingerprint = sha256_b64 raw in
+            let election_data = Web_common.({
+              fn_election;
+              fingerprint;
+              election;
+              fn_public_keys;
+              author = { user_name = "admin"; user_type = Dummy };
+              featured_p = true;
+              can_read = Any;
+              can_vote = Any;
+              can_admin = Any;
+            }) in
+            let {g; p; q; y} = election.e_public_key in
+            let module G = (val
+              Election.finite_field ~p ~q ~g :
+                Signatures.GROUP with type t = Z.t
+            ) in
+            let module P = struct
+              module G = G
+              let public_keys = lazy (assert false)
+              let params = { election with e_public_key = y }
+              let fingerprint = fingerprint
+            end in
+            let module X : Web_common.WEB_ELECTION = struct
+              module G = G
+              module M = Web_common.MakeLwtRandom(G)
+              module E = Election.MakeElection(P)(M)
+              module B = Web_common.MakeBallotBox(E)
+              let data = election_data
+            end in
+            let uuid = election.e_uuid in
+            return (EMap.add uuid (module X : Web_common.WEB_ELECTION) accu)
+          ) else return accu
         )
-      ) |>
-      Lwt_main.run
-    | None -> ()
+       )
+    | None -> return EMap.empty
 
 let get_election_by_uuid x =
   try_lwt
-    Ocsipersist.find elections_table (Uuidm.to_string x)
+    EMap.find x election_table |> return
   with Not_found ->
     raise_lwt Eliom_common.Eliom_404
 
 let get_featured_elections () =
-  (* FIXME: doesn't scale when there are a lot of unfeatured elections *)
-  Ocsipersist.fold_step (fun uuid e res ->
-    let res = if e.Web_common.featured_p then e::res else res in
-    return res
-  ) elections_table []
+  EMap.fold (fun uuid e res ->
+    let module X = (val e : Web_common.WEB_ELECTION) in
+    let e = X.data in
+    if e.Web_common.featured_p then e::res else res
+  ) election_table [] |> return
 
 let fail_http status =
   raise_lwt (
@@ -78,10 +119,11 @@ let forbidden () = fail_http 403
 
 let if_eligible acl f uuid x =
   lwt election = get_election_by_uuid uuid in
+  let module X = (val election : Web_common.WEB_ELECTION) in
   lwt user = Eliom_reference.get Services.user in
   lwt () =
     let open Web_common in
-    match acl election with
+    match acl X.data with
       | Any -> return ()
       | Restricted p ->
         match user with
@@ -177,11 +219,13 @@ let () = Eliom_registration.Redirection.register
 let can_read x = x.Web_common.can_read
 let can_vote x = x.Web_common.can_vote
 
-let () = Eliom_registration.String.register
+let () = Eliom_registration.File.register
   ~service:Services.election_raw
+  ~content_type:"application/json"
   (if_eligible can_read
      (fun uuid election user () ->
-       return (election.Web_common.raw, "application/json")
+       let module X = (val election : Web_common.WEB_ELECTION) in
+       return X.data.Web_common.fn_election
      )
   )
 
@@ -190,7 +234,8 @@ let () = Eliom_registration.File.register
   ~content_type:"application/json"
   (if_eligible can_read
       (fun uuid election user () ->
-        return election.Web_common.public_keys_file
+        let module X = (val election : Web_common.WEB_ELECTION) in
+        return X.data.Web_common.fn_public_keys
       )
    )
 
@@ -223,7 +268,8 @@ let () = Eliom_registration.Html5.register
   ~service:Services.election_index
   (if_eligible can_read
      (fun uuid election user () ->
-       Templates.election_view ~election ~user
+       let module X = (val election : Web_common.WEB_ELECTION) in
+       Templates.election_view ~election:X.data ~user
      )
   )
 
@@ -239,8 +285,9 @@ let () = Eliom_registration.Redirection.register
   ~service:Services.election_cast
   (if_eligible can_vote
      (fun uuid election user () ->
+       let module X = (val election : Web_common.WEB_ELECTION) in
        return (
-         Services.(preapply_uuid election_index election)
+         Services.(preapply_uuid election_index X.data)
        )
      )
   )
@@ -249,27 +296,17 @@ let () = Eliom_registration.Html5.register
   ~service:Services.election_cast_post
   (if_eligible can_vote
      (fun uuid election user raw_ballot ->
+       let module X = (val election : Web_common.WEB_ELECTION) in
        let result =
          try
            let ballot = Serializable_j.ballot_of_string Serializable_builtin_j.read_number raw_ballot in
-           let {g; p; q; y} = election.Web_common.election.e_public_key in
-           let module P = struct
-             module G = (val Election.finite_field ~p ~q ~g : Signatures.GROUP with type t = Z.t)
-             let public_keys = Array.map (fun x ->
-               x.trustee_public_key
-             ) election.Web_common.public_keys
-             let params = { election.Web_common.election with e_public_key = y }
-             let fingerprint = election.Web_common.fingerprint
-           end in
-           let module M = Election.MakeSimpleMonad(P.G) in
-           let module E = Election.MakeElection(P)(M) in
            if
              Uuidm.equal uuid ballot.election_uuid &&
-             E.check_ballot ballot
+             X.E.check_ballot ballot
            then `Valid (sha256_b64 raw_ballot)
            else `Invalid
          with e -> `Malformed e
        in
-       Templates.cast_ballot ~election ~result
+       Templates.cast_ballot ~election:X.data ~result
      )
   )

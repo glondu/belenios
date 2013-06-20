@@ -108,10 +108,11 @@ let check_legacy e =
       (val Election.finite_field ~g ~p ~q : Signatures.GROUP with type t = Z.t)
     let params = Serializable_compat.election e.election
     let fingerprint = e.fingerprint
-    let public_keys =
+    let public_keys = Lazy.lazy_from_val (
       e.trustee_public_keys |>
       List.map (fun x -> x.trustee_public_key.y) |>
       Array.of_list
+    )
   end in
   let open P.G in
   let ( / ) a b = a *~ (invert b) in
@@ -172,10 +173,11 @@ let verbose_verify_election_test_data e =
       (val Election.finite_field ~g ~p ~q : Signatures.GROUP with type t = Z.t)
     let params = Serializable_compat.election e.election
     let fingerprint = e.fingerprint
-    let public_keys =
+    let public_keys = Lazy.lazy_from_val (
       e.trustee_public_keys |>
       List.map (fun x -> x.trustee_public_key.y) |>
       Array.of_list
+    )
   end in
   verbose_assert "election key" (fun () ->
     Election.check_election (module P : Signatures.ELECTION_PARAMS)
@@ -273,10 +275,11 @@ module P = struct
     (val Election.finite_field ~g ~p ~q : Signatures.GROUP with type t = Z.t)
   let params = Serializable_compat.election e.election
   let fingerprint = e.fingerprint
-  let public_keys =
+  let public_keys = Lazy.lazy_from_val (
     e.trustee_public_keys |>
         List.map (fun x -> x.trustee_public_key.y) |>
             Array.of_list
+  )
 end
 module M = Election.MakeSimpleMonad(P.G)
 module E = Election.MakeElection(P)(M)

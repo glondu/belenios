@@ -70,7 +70,9 @@ let election = {
 module P = struct
   module G = G
   let params = election
-  let public_keys = public_keys |> Array.map (fun x -> x.trustee_public_key)
+  let public_keys = Lazy.lazy_from_val (
+    public_keys |> Array.map (fun x -> x.trustee_public_key)
+  )
   let fingerprint =
     election |>
     Serializable_j.string_of_election Serializable_builtin_j.write_number |>
@@ -108,7 +110,7 @@ let encrypted_tally = M.fold_ballots (fun b t ->
 let factors = Array.map (fun x ->
   E.compute_factor encrypted_tally x ()
 ) private_keys;;
-assert (Array.forall2 (E.check_factor encrypted_tally) P.public_keys factors);;
+assert (Array.forall2 (E.check_factor encrypted_tally) (Lazy.force P.public_keys) factors);;
 
 let result = E.combine_factors (M.turnout ()) encrypted_tally factors;;
 assert (E.check_result result);;
