@@ -253,13 +253,14 @@ let () = Eliom_registration.String.register
      )
   )
 
+let prng = Cryptokit.Random.(pseudo_rng (string secure_rng 16))
+
 let () = Eliom_registration.String.register
   ~service:Services.get_randomness
   (fun () () ->
-    (* FIXME: DoS/entropy exhaustion vulnerability *)
-    Lwt_preemptive.detach (fun () -> Cryptokit.Random.(string secure_rng 32)) () >>=
-    wrap1 Cryptokit.(transform_string (Base64.encode_compact ())) >>=
-    (fun x -> return (Serializable_j.string_of_randomness { randomness=x })) >>=
+    Cryptokit.Random.(string prng 32) |>
+    Cryptokit.(transform_string (Base64.encode_compact ())) |>
+    (fun x -> Serializable_j.string_of_randomness { randomness=x }) |>
     (fun x -> return (x, "application/json"))
   )
 
