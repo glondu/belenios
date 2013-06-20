@@ -60,6 +60,10 @@ let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
   (None : Web_common.user option)
 
+let ballot = Eliom_reference.eref
+  ~scope:Eliom_common.default_session_scope
+  (None : string option)
+
 let uuid = Eliom_parameter.user_type
   (fun x -> match Uuidm.of_string x with
     | Some x -> x
@@ -109,6 +113,14 @@ let election_cast_post = post_service
   ~post_params:(string "encrypted_vote")
   ()
 
+let create_confirm () =
+  Eliom_service.post_coservice
+    ~csrf_safe:true
+    ~csrf_scope:Eliom_common.default_session_scope
+    ~fallback:election_cast
+    ~post_params:Eliom_parameter.unit
+    ()
+
 let get_randomness = service
   ~path:["get-randomness"]
   ~get_params:unit
@@ -129,6 +141,8 @@ let preapply_uuid s e = Eliom_service.preapply s e.Web_common.election.e_uuid
 
 type savable_service =
   | Home
+  | Cast of Uuidm.t
+  | Election of Uuidm.t
 
 let saved_service = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
@@ -136,6 +150,8 @@ let saved_service = Eliom_reference.eref
 
 let to_service = function
   | Home -> home
+  | Cast u -> Eliom_service.preapply election_cast u
+  | Election u -> Eliom_service.preapply election_index u
 
 open Lwt
 

@@ -150,7 +150,6 @@ let dummy_login ~service =
 
 let election_view ~election ~user =
   let service = Services.(preapply_uuid election_raw election) in
-  let booth = Services.make_booth election.Web_common.election.e_uuid in
   lwt permissions =
     let open Web_common in
     match election.can_vote with
@@ -191,9 +190,6 @@ let election_view ~election ~user =
         ] ();
         pcdata ".";
       ];
-      div [
-        a ~service:booth [ pcdata "Voting booth" ] ();
-      ];
     ]
   ] in
   let content = [
@@ -210,19 +206,54 @@ let election_view ~election ~user =
   ] in
   base ~title:election.Web_common.election.e_name ~content
 
-let cast_ballot ~election ~result =
+let ballot_received ~election ~confirm ~user =
+  let name = election.Web_common.election.e_name in
+  let user_div = match user with
+    | Some u ->
+      let service = confirm () in
+      post_form ~service (fun () -> [
+        div [
+          pcdata "I am ";
+          format_user u;
+          pcdata " and ";
+          string_input ~input_type:`Submit ~value:"I confirm my vote" ();
+          pcdata ".";
+        ]
+      ]) election.Web_common.election.e_uuid
+    | None ->
+      div [
+        pcdata "Please log in to confirm your vote.";
+      ]
+  in
+  let content = [
+    h1 [ pcdata name ];
+    p [
+      pcdata "Your ballot for ";
+      em [pcdata name];
+      pcdata " has been received, but not recorded yet.";
+    ];
+    user_div;
+  ] in
+  base ~title:name ~content
+
+let do_cast_ballot ~election ~result =
   let name = election.Web_common.election.e_name in
   let content = [
     h1 [ pcdata name ];
-    div [
+    p [
       pcdata "Your ballot for ";
       em [pcdata name];
       (match result with
          | `Valid hash -> pcdata (" has been accepted, its hash is " ^ hash ^ ".")
          | `Invalid -> pcdata " is invalid!"
          | `Malformed e -> Printf.ksprintf pcdata " is malformed! (%s)" (Printexc.to_string e)
-         | `Anon -> pcdata " cannot be accepted, you must log in first!"
       );
-    ]
+    ];
+    div [
+      a ~service:(Services.(preapply_uuid election_index election)) [
+        pcdata "Go back to election"
+      ] ();
+      pcdata ".";
+    ];
   ] in
   base ~title:name ~content

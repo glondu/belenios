@@ -115,21 +115,21 @@ let fail_http status =
 
 let forbidden () = fail_http 403
 
+let check_acl acl election user =
+  let open Web_common in
+  match acl election with
+    | Any -> return true
+    | Restricted p ->
+      match user with
+        | Some user -> p user
+        | None -> return false
+
 let if_eligible acl f uuid x =
   lwt election = get_election_by_uuid uuid in
   let module X = (val election : Web_common.WEB_ELECTION) in
   lwt user = Eliom_reference.get Services.user in
-  lwt () =
-    let open Web_common in
-    match acl X.data with
-      | Any -> return ()
-      | Restricted p ->
-        match user with
-          | Some user ->
-            lwt ok = p user in
-            if ok then return () else forbidden ()
-        | None -> forbidden ()
-  in f uuid election user x
+  lwt b = check_acl acl X.data user in
+  if b then f uuid election user x else forbidden ()
 
 let () = Eliom_registration.Html5.register
   ~service:Services.home
@@ -287,6 +287,7 @@ let () = Eliom_registration.Html5.register
   ~service:Services.election_index
   (if_eligible can_read
      (fun uuid election user () ->
+       Eliom_reference.set Services.saved_service (Services.Election uuid) >>
        let module X = (val election : Web_common.WEB_ELECTION) in
        Templates.election_view ~election:X.data ~user
      )
@@ -294,48 +295,73 @@ let () = Eliom_registration.Html5.register
 
 let () = Eliom_registration.Redirection.register
   ~service:Services.election_vote
-  (if_eligible can_vote
+  (if_eligible can_read
      (fun uuid election user () ->
+       Eliom_reference.set Services.saved_service (Services.Election uuid) >>
        return (Services.make_booth uuid)
      )
   )
 
-let () = Eliom_registration.Redirection.register
+let do_cast election uuid () =
+  match_lwt Eliom_reference.get Services.ballot with
+    | Some ballot ->
+      begin
+        Eliom_reference.unset Services.ballot >>
+        let open Web_common in
+        let module X = (val election : WEB_ELECTION) in
+        match_lwt Eliom_reference.get Services.user with
+          | Some {user_type; user_name} as u ->
+            lwt b = check_acl can_vote X.data u in
+            if b then (
+              let t = string_of_user_type user_type in
+              let record =
+                Printf.sprintf "%s:%s" t user_name,
+                (CalendarLib.Fcalendar.Precise.now (), None)
+              in
+              lwt result =
+                try_lwt
+                  X.B.cast ballot record >>
+                  return (`Valid (sha256_b64 ballot))
+                with
+                  | Serialization e -> return (`Malformed e)
+                  | ProofCheck -> return `Invalid
+              in
+              Eliom_reference.unset Services.ballot >>
+              Templates.do_cast_ballot ~election:X.data ~result
+            ) else forbidden ()
+          | None -> forbidden ()
+      end
+    | None -> fail_http 404
+
+let ballot_received uuid election user =
+  let module X = (val election : Web_common.WEB_ELECTION) in
+  Eliom_reference.set Services.saved_service (Services.Cast uuid) >>
+  let confirm () =
+    let service = Services.create_confirm () in
+    let () = Eliom_registration.Html5.register
+      ~service
+      ~scope:Eliom_common.default_session_scope
+      (do_cast election)
+    in service
+  in
+  Templates.ballot_received ~election:X.data ~confirm ~user
+
+
+let () = Eliom_registration.Html5.register
   ~service:Services.election_cast
-  (if_eligible can_vote
+  (if_eligible can_read
      (fun uuid election user () ->
-       let module X = (val election : Web_common.WEB_ELECTION) in
-       return (
-         Services.(preapply_uuid election_index X.data)
-       )
+       match_lwt Eliom_reference.get Services.ballot with
+         | Some _ -> ballot_received uuid election user
+         | None -> fail_http 404
      )
   )
 
 let () = Eliom_registration.Html5.register
   ~service:Services.election_cast_post
-  (if_eligible can_vote
+  (if_eligible can_read
      (fun uuid election user ballot ->
-       let open Web_common in
-       let module X = (val election : WEB_ELECTION) in
-       match user with
-         | Some {user_type; user_name} ->
-           begin
-             let t = string_of_user_type user_type in
-             let record =
-               Printf.sprintf "%s:%s" t user_name,
-               (CalendarLib.Fcalendar.Precise.now (), None)
-             in
-             lwt result =
-               try_lwt
-                 X.B.cast ballot record >>
-                 return (`Valid (sha256_b64 ballot))
-               with
-                 | Serialization e -> return (`Malformed e)
-                 | ProofCheck -> return `Invalid
-             in
-             Templates.cast_ballot ~election:X.data ~result
-           end
-         | None ->
-           Templates.cast_ballot ~election:X.data ~result:`Anon
+       Eliom_reference.set Services.ballot (Some ballot) >>
+       ballot_received uuid election user
      )
   )
