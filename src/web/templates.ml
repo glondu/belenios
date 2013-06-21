@@ -146,6 +146,9 @@ let dummy_login ~service =
   ] in
   base ~title:"Login" ~content
 
+let format_date (date, _) =
+  CalendarLib.Printer.Precise_Fcalendar.sprint "%a, %d %b %Y %T %z" date
+
 let election_view ~election ~user =
   let module X = (val election : Web_common.WEB_ELECTION) in
   let election = X.data in
@@ -173,10 +176,10 @@ let election_view ~election ~user =
   let voting_period = match X.P.metadata with
     | Some m ->
       [
-        pcdata "This election starts at ";
-        pcdata (Serializable_builtin_j.string_of_datetime m.e_voting_starts_at);
-        pcdata " and ends at ";
-        pcdata (Serializable_builtin_j.string_of_datetime m.e_voting_starts_at);
+        pcdata "This election starts on ";
+        em [pcdata (format_date m.e_voting_starts_at)];
+        pcdata " and ends on ";
+        em [pcdata (format_date m.e_voting_ends_at)];
         pcdata ".";
       ]
     | None ->
