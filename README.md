@@ -27,8 +27,8 @@ On Debian and its derivatives, you can try the following:
     equivs-build $BELENIOS/stuff/belenios-deps-minimal.control
     equivs-build $BELENIOS/stuff/belenios-deps-all.control
 
-Then install the chosen `deb`s with `dpkg -i`, followed by `aptitude`
-to install missing dependencies.
+Then install the chosen `deb`s with `dpkg -i`, followed by `apt-get -f
+install` to install missing dependencies.
 
 NOTE: `equiv-build` should not be run from a NFS directory!
 
@@ -41,7 +41,7 @@ Trustee's guide
 
 To generate a keypair, run:
 
-    make trustee-keypair
+    make trustee-keygen
 
 It will generate two files, `XXXXXXXX.public` and `XXXXXXXX.private`,
 containing respectively the public and the private key. Send the
