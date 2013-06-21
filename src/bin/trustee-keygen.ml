@@ -29,15 +29,29 @@ let id = String.sub
 
 Printf.printf "Keypair %s has been generated\n%!" id;;
 
-let save id kind thing writer =
-  let filename = Printf.sprintf "%s.%s" id kind in
-  let oc = open_out filename in
+let pubkey =
+  "public",
+  id ^ ".public",
+  0o444,
+  public_key,
+  Serializable_j.write_trustee_public_key Serializable_builtin_j.write_number
+
+let privkey =
+  "private",
+  id ^ ".private",
+  0o400,
+  private_key,
+  Serializable_builtin_j.write_number
+
+let save (kind, filename, perm, thing, writer) =
+  let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
   let ob = Bi_outbuf.create_channel_writer oc in
   writer ob thing;
   Bi_outbuf.flush_channel_writer ob;
   close_out oc;
-  Printf.printf "%s key saved to %s\n%!" (String.capitalize kind) filename
-;;
+  Printf.printf "%s key saved to %s\n%!" (String.capitalize kind) filename;
+  (* set permissions in the unlikely case where the file already existed *)
+  Unix.chmod filename perm;;
 
-save id "public" public_key (Serializable_j.write_trustee_public_key Serializable_builtin_j.write_number);;
-save id "private" private_key Serializable_builtin_j.write_number;;
+save pubkey;;
+save privkey;;
