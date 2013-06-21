@@ -84,7 +84,7 @@ window.onbeforeunload = function(evt) {
 BOOTH.exit = function() {
     if (confirm("Are you sure you want to exit the booth and lose all information about your current ballot?")) {
         BOOTH.started_p = false;
-        window.location = BOOTH.election.cast_url;
+        window.location = "/election/?uuid=" + BOOTH.election.uuid;
     }
 };
 
