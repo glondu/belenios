@@ -159,6 +159,7 @@ let if_eligible acl f uuid x =
 let () = Eliom_registration.Html5.register
   ~service:Services.home
   (fun () () ->
+    Eliom_reference.unset Services.ballot >>
     Eliom_reference.unset Services.saved_service >>
     lwt featured = get_featured_elections () in
     Templates.index ~featured)
@@ -230,6 +231,7 @@ let () = Eliom_registration.Redirection.register
   ~service:Services.logout
   (fun () () ->
     lwt user = Eliom_reference.get Services.user in
+    (* should ballot be unset here or not? *)
     Eliom_reference.unset Services.user >>
     match user with
       | Some user when user.Web_common.user_type = Web_common.CAS ->
@@ -323,6 +325,7 @@ let () = Eliom_registration.Html5.register
   ~service:Services.election_index
   (if_eligible can_read
      (fun uuid election user () ->
+       Eliom_reference.unset Services.ballot >>
        Eliom_reference.set Services.saved_service (Services.Election uuid) >>
        Templates.election_view ~election ~user
      )
@@ -332,6 +335,7 @@ let () = Eliom_registration.Redirection.register
   ~service:Services.election_vote
   (if_eligible can_read
      (fun uuid election user () ->
+       Eliom_reference.unset Services.ballot >>
        Eliom_reference.set Services.saved_service (Services.Election uuid) >>
        return (Services.make_booth uuid)
      )
