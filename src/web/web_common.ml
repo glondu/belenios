@@ -4,14 +4,15 @@ open Serializable_t
 
 type user_type = Dummy | CAS
 
-let string_of_user_type = function
-  | Dummy -> "dummy"
-  | CAS -> "cas"
-
 type user = {
   user_name : string;
   user_type : user_type;
 }
+
+let string_of_user {user_name; user_type} =
+  match user_type with
+    | Dummy -> Printf.sprintf "dummy:%s" user_name
+    | CAS -> user_name
 
 type acl =
   | Any

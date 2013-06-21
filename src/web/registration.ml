@@ -310,12 +310,11 @@ let do_cast election uuid () =
         let open Web_common in
         let module X = (val election : WEB_ELECTION) in
         match_lwt Eliom_reference.get Services.user with
-          | Some {user_type; user_name} as u ->
+          | Some user as u ->
             lwt b = check_acl can_vote X.data u in
             if b then (
-              let t = string_of_user_type user_type in
               let record =
-                Printf.sprintf "%s:%s" t user_name,
+                Web_common.string_of_user user,
                 (CalendarLib.Fcalendar.Precise.now (), None)
               in
               lwt result =

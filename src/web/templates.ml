@@ -8,9 +8,7 @@ let site_title = "Election Server"
 let welcome_message = "Welcome!"
 
 let format_user u =
-  let open Web_common in
-  let t = string_of_user_type u.user_type in
-  Printf.ksprintf pcdata "%s:%s" t u.user_name
+  pcdata (Web_common.string_of_user u)
 
 let base ~title ~content =
   lwt user = Eliom_reference.get Services.user in
