@@ -285,13 +285,23 @@ let () = Eliom_registration.Streamlist.register
      )
   )
 
-let prng = Cryptokit.Random.(pseudo_rng (string secure_rng 16))
+let get_randomness =
+  let prng = Lazy.lazy_from_fun (Lwt_preemptive.detach (fun () ->
+    Cryptokit.Random.(pseudo_rng (string secure_rng 16))
+  )) in
+  let mutex = Lwt_mutex.create () in
+  fun () ->
+    Lwt_mutex.lock mutex >>
+    lwt prng = Lazy.force prng in
+    let r = Cryptokit.Random.(string prng 32) in
+    Lwt_mutex.unlock mutex;
+    return r
 
 let () = Eliom_registration.String.register
   ~service:Services.get_randomness
   (fun () () ->
-    Cryptokit.Random.(string prng 32) |>
-    Cryptokit.(transform_string (Base64.encode_compact ())) |>
+    lwt r = get_randomness () in
+    Cryptokit.(transform_string (Base64.encode_compact ()) r) |>
     (fun x -> Serializable_j.string_of_randomness { randomness=x }) |>
     (fun x -> return (x, "application/json"))
   )
