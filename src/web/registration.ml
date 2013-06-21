@@ -379,7 +379,8 @@ let ballot_received uuid election user =
       (do_cast election)
     in service
   in
-  Templates.ballot_received ~election:X.data ~confirm ~user
+  lwt can_vote = check_acl can_vote X.data user in
+  Templates.ballot_received ~election:X.data ~confirm ~user ~can_vote
 
 
 let () = Eliom_registration.Html5.register

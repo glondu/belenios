@@ -227,10 +227,10 @@ let election_view ~election ~user =
   ] in
   base ~title:election.Web_common.election.e_name ~content
 
-let ballot_received ~election ~confirm ~user =
+let ballot_received ~election ~confirm ~user ~can_vote =
   let name = election.Web_common.election.e_name in
   let user_div = match user with
-    | Some u ->
+    | Some u when can_vote ->
       let service = confirm () in
       post_form ~service (fun () -> [
         div [
@@ -241,6 +241,10 @@ let ballot_received ~election ~confirm ~user =
           pcdata ".";
         ]
       ]) election.Web_common.election.e_uuid
+    | Some _ ->
+      div [
+        pcdata "You cannot vote in this election!";
+      ]
     | None ->
       div [
         pcdata "Please log in to confirm your vote.";
@@ -254,6 +258,12 @@ let ballot_received ~election ~confirm ~user =
       pcdata " has been received, but not recorded yet.";
     ];
     user_div;
+    p [
+      a ~service:(Services.(preapply_uuid election_index election)) [
+        pcdata "Go back to election"
+      ] ();
+      pcdata ".";
+    ];
   ] in
   base ~title:name ~content
 
@@ -271,7 +281,7 @@ let do_cast_ballot ~election ~result =
          | `Closed -> pcdata " cannot be accepted because the election is closed!"
       );
     ];
-    div [
+    p [
       a ~service:(Services.(preapply_uuid election_index election)) [
         pcdata "Go back to election"
       ] ();
