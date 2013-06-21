@@ -96,7 +96,10 @@ module type ELECTION_PARAMS = sig
      here, or at least monadify. *)
 
   val params : G.t Serializable_t.election
-  (** Other parameters. *)
+  (** Parameters of the election. *)
+
+  val metadata : Serializable_t.metadata option
+  (** Other optional metadata. *)
 
   val fingerprint : string
   (** The election fingerprint. *)

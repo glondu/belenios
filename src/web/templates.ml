@@ -147,6 +147,8 @@ let dummy_login ~service =
   base ~title:"Login" ~content
 
 let election_view ~election ~user =
+  let module X = (val election : Web_common.WEB_ELECTION) in
+  let election = X.data in
   let service = Services.(preapply_uuid election_raw election) in
   lwt permissions =
     let open Web_common in
@@ -167,6 +169,20 @@ let election_view ~election ~user =
               can;
               pcdata " vote in this election.";
             ]
+  in
+  let voting_period = match X.P.metadata with
+    | Some m ->
+      [
+        pcdata "This election starts at ";
+        pcdata (Serializable_builtin_j.string_of_datetime m.e_voting_starts_at);
+        pcdata " and ends at ";
+        pcdata (Serializable_builtin_j.string_of_datetime m.e_voting_starts_at);
+        pcdata ".";
+      ]
+    | None ->
+      [
+        pcdata "This election starts and ends at the administrator's discretion."
+      ]
   in
   let audit_info = div [
     h2 [pcdata "Audit Info"];
@@ -193,6 +209,7 @@ let election_view ~election ~user =
   let content = [
     h1 [ pcdata election.Web_common.election.e_name ];
     p [pcdata election.Web_common.election.e_description];
+    p voting_period;
     div [
       div [
         a ~service:(Services.(preapply_uuid election_vote election)) [

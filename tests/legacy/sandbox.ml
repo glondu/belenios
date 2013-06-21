@@ -107,6 +107,7 @@ let check_legacy e =
     module G =
       (val Election.finite_field ~g ~p ~q : Signatures.GROUP with type t = Z.t)
     let params = Serializable_compat.election e.election
+    let metadata = None
     let fingerprint = e.fingerprint
     let public_keys = Lazy.lazy_from_val (
       e.trustee_public_keys |>
@@ -172,6 +173,7 @@ let verbose_verify_election_test_data e =
     module G =
       (val Election.finite_field ~g ~p ~q : Signatures.GROUP with type t = Z.t)
     let params = Serializable_compat.election e.election
+    let metadata = None
     let fingerprint = e.fingerprint
     let public_keys = Lazy.lazy_from_val (
       e.trustee_public_keys |>
@@ -274,6 +276,7 @@ module P = struct
   module G =
     (val Election.finite_field ~g ~p ~q : Signatures.GROUP with type t = Z.t)
   let params = Serializable_compat.election e.election
+  let metadata = None
   let fingerprint = e.fingerprint
   let public_keys = Lazy.lazy_from_val (
     e.trustee_public_keys |>

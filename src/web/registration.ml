@@ -74,17 +74,29 @@ lwt election_table =
               Election.finite_field ~p ~q ~g :
                 Signatures.GROUP with type t = Z.t
             ) in
+            lwt metadata =
+              let fn = path/"metadata.json" in
+              lwt b = file_exists fn in
+              if b then (
+                Lwt_io.chars_of_file fn |>
+                Lwt_stream.to_string >>=
+                wrap1 Serializable_j.metadata_of_string >>=
+                (fun x -> return (Some x))
+              ) else return None
+            in
             let module P = struct
               module G = G
               let public_keys = lazy (assert false)
               let params = { election with e_public_key = y }
               let fingerprint = fingerprint
+              let metadata = metadata
             end in
             let module X : Web_common.WEB_ELECTION = struct
               module G = G
               module M = Web_common.MakeLwtRandom(G)
+              module P = P
               module E = Election.MakeElection(P)(M)
-              module B = Web_common.MakeBallotBox(E)
+              module B = Web_common.MakeBallotBox(P)(E)
               let data = election_data
             end in
             let uuid = election.e_uuid in
@@ -289,8 +301,7 @@ let () = Eliom_registration.Html5.register
   (if_eligible can_read
      (fun uuid election user () ->
        Eliom_reference.set Services.saved_service (Services.Election uuid) >>
-       let module X = (val election : Web_common.WEB_ELECTION) in
-       Templates.election_view ~election:X.data ~user
+       Templates.election_view ~election ~user
      )
   )
 

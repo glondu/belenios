@@ -1,5 +1,6 @@
 open Lwt
 open Util
+open Serializable_builtin_t
 open Serializable_t
 
 type user_type = Dummy | CAS
@@ -69,6 +70,7 @@ end
 
 exception Serialization of exn
 exception ProofCheck
+exception ElectionClosed
 
 module type LWT_ELECTION = Signatures.ELECTION
   with type elt = Z.t
@@ -78,10 +80,12 @@ module type WEB_BBOX = sig
   include Signatures.BALLOT_BOX
   with type 'a m := 'a Lwt.t
   and type ballot = string
-  and type record = string * Serializable_builtin_t.datetime
+  and type record = string * datetime
 end
 
-module MakeBallotBox (E : LWT_ELECTION) = struct
+module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struct
+
+  (* TODO: enforce E is derived from P *)
 
   let suffix = "_" ^ String.map (function
     | '-' -> '_'
@@ -95,6 +99,15 @@ module MakeBallotBox (E : LWT_ELECTION) = struct
   type record = string * Serializable_builtin_t.datetime
 
   let cast rawballot (user, date) =
+    let voting_open = match P.metadata with
+      | Some m ->
+        let date = fst date in
+        let open CalendarLib.Fcalendar.Precise in
+        compare (fst m.e_voting_starts_at) date <= 0 &&
+        compare date (fst m.e_voting_ends_at) < 0
+      | None -> true
+    in
+    if not voting_open then fail ElectionClosed else return () >>
     lwt ballot =
       try Lwt.return (
         Serializable_j.ballot_of_string
@@ -120,6 +133,7 @@ end
 
 module type WEB_ELECTION = sig
   module G : Signatures.GROUP
+  module P : Signatures.ELECTION_PARAMS
   module E : LWT_ELECTION
   module B : WEB_BBOX
   val data : election_data

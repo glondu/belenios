@@ -1,3 +1,4 @@
+open Serializable_builtin_t
 open Serializable_t
 
 type user_type = Dummy | CAS
@@ -40,6 +41,7 @@ end
 
 exception Serialization of exn
 exception ProofCheck
+exception ElectionClosed
 
 module type LWT_ELECTION = Signatures.ELECTION
   with type elt = Z.t
@@ -49,13 +51,14 @@ module type WEB_BBOX = sig
   include Signatures.BALLOT_BOX
   with type 'a m := 'a Lwt.t
   and type ballot = string
-  and type record = string * Serializable_builtin_t.datetime
+  and type record = string * datetime
 end
 
-module MakeBallotBox (E : LWT_ELECTION) : WEB_BBOX
+module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) : WEB_BBOX
 
 module type WEB_ELECTION = sig
   module G : Signatures.GROUP
+  module P : Signatures.ELECTION_PARAMS
   module E : LWT_ELECTION
   module B : WEB_BBOX
   val data : election_data

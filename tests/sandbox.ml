@@ -67,9 +67,19 @@ let election = {
   e_short_name = "test";
 };;
 
+let metadata =
+  let open CalendarLib.Fcalendar.Precise in
+  let now = now () in
+  {
+    e_voting_starts_at = add now Period.(day 1), None;
+    e_voting_ends_at = add now Period.(day 8), None;
+  }
+;;
+
 module P = struct
   module G = G
   let params = election
+  let metadata = Some metadata
   let public_keys = Lazy.lazy_from_val (
     public_keys |> Array.map (fun x -> x.trustee_public_key)
   )
@@ -151,6 +161,7 @@ let save_to_disk () =
   let open Serializable_j in
   let number = Serializable_builtin_j.write_number in
   save_to (dir/"election.json") (write_election write_ff_pubkey) election;
+  save_to (dir/"metadata.json") write_metadata metadata;
   list_save_to (dir/"private_keys.jsons") number private_keys;
   list_save_to (dir/"public_keys.jsons") (write_trustee_public_key number) public_keys;
   list_save_to (dir/"ballots.jsons") (write_ballot number) ballots;
