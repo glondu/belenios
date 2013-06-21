@@ -257,18 +257,19 @@ let () = Eliom_registration.Streamlist.register
   ~service:Services.election_records
   (if_eligible can_read
      (fun uuid election user () ->
-       forbidden () >> (* FIXME *)
-       let module X = (val election : Web_common.WEB_ELECTION) in
-       (* TODO: streaming *)
-       lwt ballots = X.B.fold_records (fun (u, d) xs ->
-         let x = Printf.sprintf "%s %S\n"
-           (Serializable_builtin_j.string_of_datetime d) u
-         in return (x::xs)
-       ) [] in
-       let s = List.map (fun b () ->
-         return (Ocsigen_stream.of_string b)
-       ) ballots in
-       return (s, "text/plain")
+       if Web_common.is_admin user then (
+         let module X = (val election : Web_common.WEB_ELECTION) in
+         (* TODO: streaming *)
+         lwt ballots = X.B.fold_records (fun (u, d) xs ->
+           let x = Printf.sprintf "%s %S\n"
+             (Serializable_builtin_j.string_of_datetime d) u
+           in return (x::xs)
+         ) [] in
+         let s = List.map (fun b () ->
+           return (Ocsigen_stream.of_string b)
+         ) ballots in
+         return (s, "text/plain")
+       ) else forbidden ()
      )
   )
 

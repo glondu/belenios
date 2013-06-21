@@ -14,6 +14,11 @@ let string_of_user {user_name; user_type} =
     | Dummy -> Printf.sprintf "dummy:%s" user_name
     | CAS -> user_name
 
+(* FIXME: use a dedicated user_type *)
+let is_admin = function
+  | Some { user_name = "admin"; user_type = Dummy } -> true
+  | _ -> false
+
 type acl =
   | Any
   | Restricted of (user -> bool Lwt.t)

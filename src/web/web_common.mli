@@ -8,6 +8,7 @@ type user = {
 }
 
 val string_of_user : user -> string
+val is_admin : user option -> bool
 
 type acl =
   | Any
