@@ -39,7 +39,7 @@ let y = KG.combine public_keys;;
 (* Setup election *)
 
 let election = {
-  e_description = "This is a test election";
+  e_description = "This is a test election.";
   e_name = "Test election";
   e_public_key = y;
   e_questions =
