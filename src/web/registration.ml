@@ -346,6 +346,7 @@ let do_cast election uuid () =
                 with
                   | Serialization e -> return (`Malformed e)
                   | ProofCheck -> return `Invalid
+                  | ElectionClosed -> return `Closed
               in
               Eliom_reference.unset Services.ballot >>
               Templates.do_cast_ballot ~election:X.data ~result

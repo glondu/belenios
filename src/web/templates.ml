@@ -268,6 +268,7 @@ let do_cast_ballot ~election ~result =
          | `Valid hash -> pcdata (" has been accepted, its hash is " ^ hash ^ ".")
          | `Invalid -> pcdata " is invalid!"
          | `Malformed e -> Printf.ksprintf pcdata " is malformed! (%s)" (Printexc.to_string e)
+         | `Closed -> pcdata " cannot be accepted because the election is closed!"
       );
     ];
     div [
