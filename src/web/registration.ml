@@ -7,6 +7,7 @@ open Lwt
 let () = Ocsigen_config.set_maxrequestbodysizeinmemory 128000
 
 module EMap = Map.Make(Uuidm)
+module SSet = Set.Make(String)
 
 let ( / ) = Filename.concat
 
@@ -60,20 +61,6 @@ lwt election_table =
               Serializable_j.read_ff_pubkey raw
             in
             let fingerprint = sha256_b64 raw in
-            let election_data = Web_common.({
-              fn_election;
-              fingerprint;
-              election;
-              fn_public_keys;
-              featured_p = true;
-              can_read = Any;
-              can_vote = Any;
-            }) in
-            let {g; p; q; y} = election.e_public_key in
-            let module G = (val
-              Election.finite_field ~p ~q ~g :
-                Signatures.GROUP with type t = Z.t
-            ) in
             lwt metadata =
               let fn = path/"metadata.json" in
               lwt b = file_exists fn in
@@ -84,6 +71,32 @@ lwt election_table =
                 (fun x -> return (Some x))
               ) else return None
             in
+            let can_vote = match metadata with
+              | None -> Web_common.Any
+              | Some m -> match m.e_voters_list with
+                | None -> Web_common.Any
+                | Some voters ->
+                  let set = List.fold_left (fun accu u ->
+                    SSet.add u accu
+                  ) SSet.empty voters in
+                  Web_common.Restricted (fun u ->
+                    return (SSet.mem (Web_common.string_of_user u) set)
+                  )
+            in
+            let election_data = Web_common.({
+              fn_election;
+              fingerprint;
+              election;
+              fn_public_keys;
+              featured_p = true;
+              can_read = Any;
+              can_vote;
+            }) in
+            let {g; p; q; y} = election.e_public_key in
+            let module G = (val
+              Election.finite_field ~p ~q ~g :
+                Signatures.GROUP with type t = Z.t
+            ) in
             let module P = struct
               module G = G
               let public_keys = lazy (assert false)

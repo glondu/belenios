@@ -94,4 +94,5 @@ type randomness = {
 type metadata = {
   voting_starts_at : datetime;
   voting_ends_at : datetime;
+  ?voters_list : string list option;
 } <ocaml field_prefix="e_">

@@ -73,6 +73,7 @@ let metadata =
   {
     e_voting_starts_at = add now Period.(day 1), None;
     e_voting_ends_at = add now Period.(day 8), None;
+    e_voters_list = None;
   }
 ;;
 
