@@ -2,5 +2,6 @@ src/lib/lib.cma
 src/web/server.cma
 api.docdir/index.html
 tests/legacy/README.html
+README.html
 
 src/bin/trustee-keygen.native

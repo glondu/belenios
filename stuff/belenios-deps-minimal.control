@@ -1,0 +1,18 @@
+Section: misc
+Priority: optional
+Standards-Version: 3.9.4
+
+Package: belenios-deps-minimal
+Version: 0.0.1
+Maintainer: Stéphane Glondu <Stephane.Glondu@inria.fr>
+Depends:
+ build-essential,
+ ocaml-findlib,
+ libzarith-ocaml-dev,
+ libcalendar-ocaml-dev,
+ libuuidm-ocaml-dev,
+ libatdgen-ocaml-dev,
+ libyojson-ocaml-dev,
+ libcryptokit-ocaml-dev,
+ libgmp-dev
+Description: meta-package depending on Belenios minimal dependencies

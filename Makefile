@@ -1,3 +1,6 @@
+minimal:
+	ocamlbuild minimal.otarget
+
 all:
 	ocamlbuild all.otarget
 
