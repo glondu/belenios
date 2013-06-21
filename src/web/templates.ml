@@ -8,7 +8,7 @@ let site_title = "Election Server"
 let welcome_message = "Welcome!"
 
 let format_user u =
-  pcdata (Web_common.string_of_user u)
+  em [pcdata (Web_common.string_of_user u)]
 
 let base ~title ~content =
   lwt user = Eliom_reference.get Services.user in
@@ -208,8 +208,11 @@ let election_view ~election ~user =
   ] in
   let content = [
     h1 [ pcdata election.Web_common.election.e_name ];
-    p [pcdata election.Web_common.election.e_description];
+    p ~a:[a_style "margin: 1em; padding: 2pt; font-style: italic; border: 1pt solid;"] [
+      pcdata election.Web_common.election.e_description
+    ];
     p voting_period;
+    p permissions;
     div [
       div [
         a ~service:(Services.(preapply_uuid election_vote election)) [
