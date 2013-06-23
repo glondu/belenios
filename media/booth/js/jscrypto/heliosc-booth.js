@@ -27,11 +27,7 @@ heliosc.booth.derive_key = function (election) {
     var n58 = BigInt.fromInt(58);
     var n53 = BigInt.fromInt(53); // previous_prime(58)
     var digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-
-    // FIXME: for demonstration purposes, this is a constant. In
-    // practice, it should be different (at least) for each election
-    // (e.g. UUID?  fingerprint?).
-    var salt = sjcl.codec.hex.toBits("ed3540246bb511e286793cd92b7981b8");
+    var salt = sjcl.codec.hex.toBits(election.uuid.replace(/-/g, ""));
 
     // Check that a secret credential is well formed
     function check(s) {
