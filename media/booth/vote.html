@@ -167,6 +167,7 @@ BOOTH.setup_election = function(raw_json) {
   // appears to be safer.
   BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
   BOOTH.election.cast_url = "/election/cast?uuid=" + BOOTH.election.uuid
+  BOOTH.voter_id = "ID"; // placeholder for later
 
   // FIXME: we shouldn't need to set both, but right now we are doing so
   // because different code uses each one. Bah. Need fixing.
@@ -205,6 +206,7 @@ BOOTH.launch_async_encryption_answer = function(question_num) {
    BOOTH.workers[question_num].postMessage({
       'type' : 'encrypt',
       'answer' : BOOTH.ballot.answers[question_num],
+      'voter_id' : BOOTH.voter_id,
       'id' : BOOTH.answer_timestamps[question_num]
    });
 };
@@ -464,7 +466,7 @@ BOOTH.seal_ballot_raw = function() {
     if (BOOTH.synchronous) {
       BOOTH.progress = new UTILS.PROGRESS();
       var progress_interval = setInterval("BOOTH.check_encryption_status()", 500);
-      BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.progress);
+      BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.progress, BOOTH.voter_id);
       clearInterval(progress_interval);
       BOOTH._after_ballot_encryption();
     } else {
