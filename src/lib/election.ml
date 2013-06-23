@@ -43,6 +43,7 @@ let finite_field ~p ~q ~g =
     let invert x = Z.invert x p
     let ( =~ ) = Z.equal
     let check x = check_modulo p x && x **~ q =~ one
+    let to_string = Z.to_string
     let hash prefix xs =
       hashZ (prefix ^ (map_and_concat_with_commas Z.to_string xs))
     let compare = Z.compare
@@ -305,21 +306,42 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     return {
       answers;
       election_hash = fingerprint;
-      election_uuid = params.e_uuid
+      election_uuid = params.e_uuid;
+      signature = None;
     }
 
   (** Ballot verification *)
 
-  let verify_answer q a =
-    Array.forall2 (eg_disj_verify d01 "ID") a.individual_proofs a.choices &&
+  let verify_answer id q a =
+    Array.forall2 (eg_disj_verify d01 id) a.individual_proofs a.choices &&
     let sumc = Array.fold_left eg_combine dummy_ciphertext a.choices in
     let d = make_d q.q_min q.q_max in
-    eg_disj_verify d "ID" a.overall_proof sumc
+    eg_disj_verify d id a.overall_proof sumc
 
   let check_ballot b =
     b.election_uuid = params.e_uuid &&
     b.election_hash = P.fingerprint &&
-    Array.forall2 verify_answer params.e_questions b.answers
+    let ok, id = match b.signature with
+      | Some {s_commitment = y; s_challenge; s_response} ->
+        let ok =
+          check_modulo q s_challenge &&
+          check_modulo q s_response &&
+          let commitment = g **~ s_response *~ y **~ s_challenge in
+          let prefix = "sig|" ^ G.to_string commitment ^ "|" in
+          let ciphertexts = List.flatten (
+            List.map (fun a ->
+              List.flatten (
+                List.map (fun {alpha; beta} ->
+                  [alpha; beta]
+                ) (Array.to_list a.choices)
+              )
+            ) (Array.to_list b.answers)
+          ) |> Array.of_list in
+          s_challenge =% G.hash prefix ciphertexts
+        in ok, G.to_string y
+      | None -> true, "ID"
+    in ok &&
+    Array.forall2 (verify_answer id) params.e_questions b.answers
 
   let extract_ciphertext b = Array.map (fun x -> x.choices) b.answers
 

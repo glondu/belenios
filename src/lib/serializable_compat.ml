@@ -41,8 +41,9 @@ let answer a =
 let ballot b =
   let {answers; election_hash; election_uuid} = b in
   let answers = Array.map answer answers in
+  let signature = None in
   let open Serializable_t in
-  {answers; election_hash; election_uuid}
+  {answers; election_hash; election_uuid; signature}
 
 let partial_decryption p =
   let {decryption_factors; decryption_proofs} = p in

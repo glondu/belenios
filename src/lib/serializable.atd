@@ -66,10 +66,18 @@ type 'a answer = {
 choice, a proof that each of these weights is 0 or 1, and an overall
 proof that the total weight is within bounds.">
 
+(* FIXME: merge this with trustee_public_key *)
+type 'a signature = {
+  commitment : 'a; (* FIXME: this is actually a public key *)
+  challenge : number;
+  response : number;
+} <ocaml field_prefix="s_">
+
 type 'a ballot = {
   answers : 'a answer list <ocaml repr="array">;
   election_hash : string;
   election_uuid : uuid;
+  ?signature : 'a signature option;
 }
 
 type 'a partial_decryption = {
