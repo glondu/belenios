@@ -30,6 +30,7 @@
   <script language="javascript" src="js/jscrypto/sha1.js"></script>
   <script language="javascript" src="js/jscrypto/sha2.js"></script>
   <script language="javascript" src="js/jscrypto/helios.js?d=20111004"></script>
+  <script language="javascript" src="js/jscrypto/heliosc-booth.js?d=20130201"></script>
 </head>
 <body>
 <div id="wrapper">
@@ -167,12 +168,12 @@ BOOTH.setup_election = function(raw_json) {
   // appears to be safer.
   BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
   BOOTH.election.cast_url = "/election/cast?uuid=" + BOOTH.election.uuid
-  BOOTH.voter_id = "ID"; // placeholder for later
 
   // FIXME: we shouldn't need to set both, but right now we are doing so
   // because different code uses each one. Bah. Need fixing.
   BOOTH.election.hash = b64_sha256(raw_json);
   BOOTH.election.election_hash = BOOTH.election.hash
+  BOOTH.derive_key = heliosc.booth.derive_key(BOOTH.election);
 
   // async?
   BOOTH.setup_workers(raw_json);
@@ -458,6 +459,7 @@ BOOTH.wait_for_ciphertexts = function() {
     }
 
     BOOTH.encrypted_ballot = HELIOS.EncryptedVote.fromEncryptedAnswers(BOOTH.election, BOOTH.encrypted_answers);
+    BOOTH.encrypted_ballot.doSignature(BOOTH.credential);
 
     BOOTH._after_ballot_encryption();
 };
@@ -467,6 +469,7 @@ BOOTH.seal_ballot_raw = function() {
       BOOTH.progress = new UTILS.PROGRESS();
       var progress_interval = setInterval("BOOTH.check_encryption_status()", 500);
       BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.progress, BOOTH.voter_id);
+      BOOTH.encrypted_ballot.doSignature(BOOTH.credential);
       clearInterval(progress_interval);
       BOOTH._after_ballot_encryption();
     } else {
@@ -551,6 +554,17 @@ BOOTH.show_receipt = function() {
 
 BOOTH.do_done = function() {
   BOOTH.started_p = false;
+};
+
+BOOTH.ask_token = function () {
+    try {
+        var token = window.prompt("Please enter your secret token:");
+        BOOTH.credential = BOOTH.derive_key(token);
+        BOOTH.voter_id = BOOTH.credential.y.toString();
+        BOOTH.show_question(0);
+    } catch (e) {
+        window.alert(e);
+    }
 };
 
 </script>

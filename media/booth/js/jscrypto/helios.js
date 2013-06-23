@@ -467,11 +467,13 @@ HELIOS.EncryptedVote = Class.extend({
       return ea.toJSONObject(include_plaintext);
     });
     
-    return {
+    var res = {
       answers : answers,
       election_hash : this.election_hash,
       election_uuid : this.election_uuid
     }
+    if (this.signature) res.signature = this.signature.toJSONObject();
+    return res;
   },
   
   get_hash: function() {

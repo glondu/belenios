@@ -540,6 +540,20 @@ ElGamal.disjunctive_challenge_generator = function(id) { return function(commitm
   return new BigInt(hex_sha1("prove|" + id + "|" + strings_to_hash.join(",")), 16);
 }};
 
+// same structure as above, adapted for (alpha, beta) pairs of
+// encrypted choices instead of (A, B) of commitments
+ElGamal.stringify_choices = function(choices) {
+  var strings_to_hash = [];
+
+  _(choices).each(function(choice) {
+    // toJSONObject instead of toString because of IE weirdness.
+    strings_to_hash[strings_to_hash.length] = choice.alpha.toJSONObject();
+    strings_to_hash[strings_to_hash.length] = choice.beta.toJSONObject();
+  });
+
+  return strings_to_hash.join(",");
+};
+
 // a challenge generator for Fiat-Shamir
 ElGamal.fiatshamir_challenge_generator = function(commitment) {
   return ElGamal.disjunctive_challenge_generator([commitment]);
