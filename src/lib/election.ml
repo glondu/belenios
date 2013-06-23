@@ -43,7 +43,8 @@ let finite_field ~p ~q ~g =
     let invert x = Z.invert x p
     let ( =~ ) = Z.equal
     let check x = check_modulo p x && x **~ q =~ one
-    let hash xs = hashZ (map_and_concat_with_commas Z.to_string xs)
+    let hash prefix xs =
+      hashZ (prefix ^ (map_and_concat_with_commas Z.to_string xs))
     let compare = Z.compare
   end in (module G : GROUP with type t = Z.t)
 
@@ -105,7 +106,7 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
   let generate_and_prove () =
     random q >>= fun x ->
     let trustee_public_key = g **~ x in
-    fs_prove [| g |] x G.hash >>= fun trustee_pok ->
+    fs_prove [| g |] x (G.hash "") >>= fun trustee_pok ->
     return (x, {trustee_pok; trustee_public_key})
 
   let check {trustee_pok; trustee_public_key = y} =
@@ -114,7 +115,7 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
     check_modulo q challenge &&
     check_modulo q response &&
     let commitment = g **~ response / (y **~ challenge) in
-    challenge =% G.hash [| commitment |]
+    challenge =% G.hash "" [| commitment |]
 
   let combine pks =
     Array.fold_left (fun y {trustee_public_key; _} ->
@@ -191,7 +192,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
 
   (** ZKPs for disjunctions *)
 
-  let eg_disj_prove d x r {alpha; beta} =
+  let eg_disj_prove d id x r {alpha; beta} =
     (* prove that alpha = g^r and beta = y^r/d_x *)
     (* the size of d is the number of disjuncts *)
     let n = Array.length d in
@@ -221,12 +222,12 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     (* compute genuine proof *)
     fs_prove [| g; y |] r (fun commitx ->
       Array.blit commitx 0 commitments (2*x) 2;
-      Z.((G.hash commitments + !total_challenges) mod q)
+      Z.((G.hash ("prove|"^id^"|") commitments + !total_challenges) mod q)
     ) >>= fun p ->
     proofs.(x) <- p;
     return proofs
 
-  let eg_disj_verify d proofs {alpha; beta} =
+  let eg_disj_verify d id proofs {alpha; beta} =
     G.check alpha && G.check beta &&
     let n = Array.length d in
     n = Array.length proofs &&
@@ -242,7 +243,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
         ) else raise Exit
       done;
       total_challenges := Z.(!total_challenges mod q);
-      hash commitments =% !total_challenges
+      hash ("prove|"^id^"|") commitments =% !total_challenges
     with Exit -> false
 
   (** Ballot creation *)
@@ -279,9 +280,9 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
       ) else return (Array.of_list accu)
     in loop_outer (Array.length xs - 1) []
 
-  let create_answer q r m =
+  let create_answer id q r m =
     let choices = Array.map2 eg_encrypt r m in
-    let individual_proofs = Array.map3 (eg_disj_prove d01) m r choices in
+    let individual_proofs = Array.map3 (eg_disj_prove d01 id) m r choices in
     (* create overall_proof from homomorphic combination of individual
        weights *)
     let sumr = Array.fold_left Z.(+) Z.zero r in
@@ -289,7 +290,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     let sumc = Array.fold_left eg_combine dummy_ciphertext choices in
     assert (q.q_min <= summ && summ <= q.q_max);
     let d = make_d q.q_min q.q_max in
-    let overall_proof = eg_disj_prove d (summ - q.q_min) sumr sumc in
+    let overall_proof = eg_disj_prove d id (summ - q.q_min) sumr sumc in
     swap individual_proofs >>= fun individual_proofs ->
     overall_proof >>= fun overall_proof ->
     return {choices; individual_proofs; overall_proof}
@@ -300,7 +301,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     ) params.e_questions)
 
   let create_ballot r m =
-    swap (Array.map3 create_answer params.e_questions r m) >>= fun answers ->
+    swap (Array.map3 (create_answer "ID") params.e_questions r m) >>= fun answers ->
     return {
       answers;
       election_hash = fingerprint;
@@ -310,10 +311,10 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
   (** Ballot verification *)
 
   let verify_answer q a =
-    Array.forall2 (eg_disj_verify d01) a.individual_proofs a.choices &&
+    Array.forall2 (eg_disj_verify d01 "ID") a.individual_proofs a.choices &&
     let sumc = Array.fold_left eg_combine dummy_ciphertext a.choices in
     let d = make_d q.q_min q.q_max in
-    eg_disj_verify d a.overall_proof sumc
+    eg_disj_verify d "ID" a.overall_proof sumc
 
   let check_ballot b =
     b.election_uuid = params.e_uuid &&
@@ -326,7 +327,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
 
   let eg_factor x {alpha; beta} =
     alpha **~ x,
-    fs_prove [| g; alpha |] x hash
+    fs_prove [| g; alpha |] x (hash "")
 
   let check_ciphertext c =
     Array.fforall (fun {alpha; beta} -> G.check alpha && G.check beta) c
@@ -350,7 +351,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
           g **~ response / (y **~ challenge);
           alpha **~ response / (f **~ challenge);
         |]
-      in hash commitments =% challenge
+      in hash "" commitments =% challenge
     ) c f.decryption_factors f.decryption_proofs
 
   type result = elt Serializable_t.result

@@ -33,8 +33,9 @@ module type GROUP = sig
   val invert : t -> t
   (** Inversion. *)
 
-  val hash : t array -> Z.t
-  (** Hash an array of elements into an integer mod [q]. *)
+  val hash : string -> t array -> Z.t
+  (** Hash an array of elements into an integer mod [q]. The string
+      argument is a string that is prepended before computing the hash. *)
 
   val compare : t -> t -> int
   (** A total ordering over the elements of the group. *)
