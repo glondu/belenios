@@ -16,6 +16,10 @@ To run basic command-line tools, you will need:
  * [Atdgen](http://mjambon.com/atdgen)
  * [Yojson](http://mjambon.com/yojson.html)
 
+To generate credentials, you will need:
+
+ * [The SpiderMonkey JavaScript shell](https://developer.mozilla.org/en-US/docs/SpiderMonkey)
+
 To run the web server, you will additionally need:
 
  * [Eliom](http://ocsigen.org/eliom/) version 3
@@ -47,3 +51,22 @@ It will generate two files, `XXXXXXXX.public` and `XXXXXXXX.private`,
 containing respectively the public and the private key. Send the
 public key file to the server administrator, and keep the private key
 with extreme care.
+
+
+Credential authority's guide
+----------------------------
+
+To generate the credentials, run:
+
+    ./stuff/credgen.sh --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --count NN
+
+where XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX is the UUID of the election
+given by the administrator, and NN the number of credentials to
+generate. It will generate two files,
+`XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.public` and
+`XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.private`, each with NN lines. Send
+the public file as a whole to the administator, and each line of the
+private file to each voter.
+
+Note that, if you are honest, you must not keep the private file, nor
+to whom you sent each individual private credential.

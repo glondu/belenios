@@ -5,3 +5,4 @@ tests/legacy/README.html
 README.html
 
 src/bin/trustee-keygen.native
+src/bin/credgen.native
