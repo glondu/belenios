@@ -15,11 +15,15 @@ type acl =
   | Any
   | Restricted of (user -> bool Lwt.t)
 
+module SSet : Set.S with type elt = string
+
 type election_data = {
   fn_election : string;
   fingerprint : string;
   election : ff_pubkey election;
   fn_public_keys : string;
+  public_creds : SSet.t;
+  fn_public_creds : string;
   featured_p : bool;
   can_read : acl;
   can_vote : acl;
@@ -39,9 +43,18 @@ module MakeLwtRandom (G : Signatures.GROUP) : sig
 end
 (** Lwt-compatible random number generation. *)
 
-exception Serialization of exn
-exception ProofCheck
-exception ElectionClosed
+type error =
+ | Serialization of exn
+ | ProofCheck
+ | ElectionClosed
+ | MissingCredential
+ | InvalidCredential
+ | RevoteNotAllowed
+ | ReusedCredential
+
+exception Error of error
+
+val explain_error : error -> string
 
 module type LWT_ELECTION = Signatures.ELECTION
   with type elt = Z.t
@@ -52,6 +65,8 @@ module type WEB_BBOX = sig
   with type 'a m := 'a Lwt.t
   and type ballot = string
   and type record = string * datetime
+
+  val inject_creds : SSet.t -> unit Lwt.t
 end
 
 module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) : WEB_BBOX

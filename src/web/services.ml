@@ -88,6 +88,11 @@ let election_public_keys = service
   ~get_params:uuid
   ()
 
+let election_public_creds = service
+  ~path:["election"; "public_creds.txt"]
+  ~get_params:uuid
+  ()
+
 let election_vote = service
   ~path:["election"; "vote"]
   ~get_params:uuid

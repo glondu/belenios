@@ -7,7 +7,6 @@ open Lwt
 let () = Ocsigen_config.set_maxrequestbodysizeinmemory 128000
 
 module EMap = Map.Make(Uuidm)
-module SSet = Set.Make(String)
 
 let ( / ) = Filename.concat
 
@@ -71,16 +70,23 @@ lwt election_table =
                 (fun x -> return (Some x))
               ) else return None
             in
+            let fn_public_creds = path/"public_creds.txt" in
+            lwt public_creds =
+              Lwt_io.lines_of_file fn_public_creds |>
+              populate Web_common.SSet.empty (fun c accu ->
+                return (Web_common.SSet.add c accu)
+              )
+            in
             let can_vote = match metadata with
               | None -> Web_common.Any
               | Some m -> match m.e_voters_list with
                 | None -> Web_common.Any
                 | Some voters ->
                   let set = List.fold_left (fun accu u ->
-                    SSet.add u accu
-                  ) SSet.empty voters in
+                    Web_common.SSet.add u accu
+                  ) Web_common.SSet.empty voters in
                   Web_common.Restricted (fun u ->
-                    return (SSet.mem (Web_common.string_of_user u) set)
+                    return (Web_common.SSet.mem (Web_common.string_of_user u) set)
                   )
             in
             let election_data = Web_common.({
@@ -88,6 +94,8 @@ lwt election_table =
               fingerprint;
               election;
               fn_public_keys;
+              public_creds;
+              fn_public_creds;
               featured_p = true;
               can_read = Any;
               can_vote;
@@ -112,6 +120,7 @@ lwt election_table =
               module B = Web_common.MakeBallotBox(P)(E)
               let data = election_data
             end in
+            X.B.inject_creds public_creds >>
             let uuid = election.e_uuid in
             return (EMap.add uuid (module X : Web_common.WEB_ELECTION) accu)
           ) else return accu
@@ -264,6 +273,16 @@ let () = Eliom_registration.File.register
       )
    )
 
+let () = Eliom_registration.File.register
+  ~service:Services.election_public_creds
+  ~content_type:"text/plain"
+  (if_eligible can_read
+      (fun uuid election user () ->
+        let module X = (val election : Web_common.WEB_ELECTION) in
+        return X.data.Web_common.fn_public_creds
+      )
+   )
+
 let () = Eliom_registration.Streamlist.register
   ~service:Services.election_ballots
   (if_eligible can_read
@@ -360,10 +379,7 @@ let do_cast election uuid () =
                 try_lwt
                   X.B.cast ballot record >>
                   return (`Valid (sha256_b64 ballot))
-                with
-                  | Serialization e -> return (`Malformed e)
-                  | ProofCheck -> return `Invalid
-                  | ElectionClosed -> return `Closed
+                with Error e -> return (`Error e)
               in
               Eliom_reference.unset Services.ballot >>
               Templates.do_cast_ballot ~election:X.data ~result

@@ -198,6 +198,10 @@ let election_view ~election ~user =
         pcdata "Election data: ";
         a ~service [ pcdata "parameters" ] ();
         pcdata ", ";
+        a ~service:Services.(preapply_uuid election_public_creds election) [
+          pcdata "public credentials"
+        ] ();
+        pcdata ", ";
         a ~service:Services.(preapply_uuid election_public_keys election) [
           pcdata "trustee public keys"
         ] ();
@@ -276,9 +280,7 @@ let do_cast_ballot ~election ~result =
       em [pcdata name];
       (match result with
          | `Valid hash -> pcdata (" has been accepted, its hash is " ^ hash ^ ".")
-         | `Invalid -> pcdata " is invalid!"
-         | `Malformed e -> Printf.ksprintf pcdata " is malformed! (%s)" (Printexc.to_string e)
-         | `Closed -> pcdata " cannot be accepted because the election is closed!"
+         | `Error e -> pcdata (" is rejected, because " ^ Web_common.explain_error e ^ ".")
       );
     ];
     p [
