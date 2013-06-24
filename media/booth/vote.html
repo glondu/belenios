@@ -558,7 +558,7 @@ BOOTH.do_done = function() {
 
 BOOTH.ask_token = function () {
     try {
-        var token = window.prompt("Please enter your secret token:");
+        var token = window.prompt("Please enter your credential:");
         BOOTH.credential = BOOTH.derive_key(token);
         BOOTH.voter_id = BOOTH.credential.y.toString();
         BOOTH.show_question(0);
