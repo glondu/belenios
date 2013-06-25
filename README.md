@@ -27,7 +27,9 @@ To run the web server, you will additionally need:
 
  * [Eliom](http://ocsigen.org/eliom/) version 3
 
-On Debian and its derivatives, you can try the following:
+On Debian and its derivatives, you can find the list of packages to
+install in the `stuff/belenios-deps-*.control` files. You can also
+create meta-packages with `equivs` by using the following commands:
 
     BELENIOS=`pwd`
     cd /tmp
