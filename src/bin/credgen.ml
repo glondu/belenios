@@ -81,7 +81,7 @@ let generate_token () =
   let checksum = 53 - Z.(to_int (value mod n53)) in
   raw ^ String.make 1 digits.[checksum]
 
-let smjs_template = format_of_string "smjs -f media/booth/js/jscrypto/sjcl.js -e 'print(sjcl.codec.hex.fromBits(sjcl.misc.pbkdf2(%S, sjcl.codec.hex.toBits(%S), 1000, 256)))'"
+let smjs_template = format_of_string "./stuff/derive_key.js %s %s"
 
 let public_key_of_token x =
   let ic = Printf.ksprintf Unix.open_process_in smjs_template x uuid in

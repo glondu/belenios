@@ -6,7 +6,7 @@ Package: belenios-deps-minimal
 Version: 0.0.1
 Maintainer: Stéphane Glondu <Stephane.Glondu@inria.fr>
 Depends:
- spidermonkey-bin,
+ nodejs,
  build-essential,
  ocaml-findlib,
  libzarith-ocaml-dev,
