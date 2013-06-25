@@ -11,30 +11,46 @@ module G = (
   val Election.finite_field ~g ~p ~q : Signatures.GROUP with type t = Z.t
 );;
 
+(* Some helpers *)
+
+let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+let token_length = 14
+let n58 = Z.of_int 58
+let n53 = Z.of_int 53
+
+let smjs_template = format_of_string "./stuff/derive_key.js %s %s"
+
+let public_key_of_token uuid x =
+  let ic = Printf.ksprintf Unix.open_process_in smjs_template x uuid in
+  let hex = input_line ic in
+  if Unix.(close_process_in ic <> WEXITED 0) then (
+    Printf.eprintf "Error while running nodejs!";
+    exit 2;
+  );
+  let x = Z.(of_string_base 16 hex mod q) in
+  let y = G.(g **~ x) in
+  Z.to_string y
+
 (* Argument parsing *)
 
 let uuid = ref None
-let count = ref 0
+let count = ref None
+let derive = ref None
 
 let speclist = Arg.([
   "--uuid", String (fun s -> uuid := Some s), "UUID of the election";
-  "--count", Int (fun i -> count := i), "number of credentials to generate";
+  "--count", Int (fun i -> count := Some i), "number of credentials to generate";
+  "--derive", String (fun s -> derive := Some s), "derive public credential from given private one";
 ])
 
 let usage_msg =
-  Printf.sprintf "Usage: %s --uuid <uuid> --count <n>" Sys.argv.(0)
+  Printf.sprintf "Usage: %s --uuid <uuid> {--count <n> | --derive <privcred>}" Sys.argv.(0)
 
 let anon_fun x =
   Printf.eprintf "I do not know what to do with %s!\n" x;
   exit 1
 
 let () = Arg.parse speclist anon_fun usage_msg
-
-let count =
-  if !count < 1 then (
-    Printf.eprintf "You must generate at least one credential!\n";
-    exit 1;
-  ); !count
 
 let remove_dashes x =
   let n = String.length x in
@@ -56,15 +72,28 @@ let uuid = match !uuid with
         Printf.eprintf "UUID is invalid!\n";
         exit 1
 
-(* Generation *)
+let count =
+  match !count, !derive with
+    | Some _, Some _ ->
+      Printf.eprintf "--count and --derive are incompatible!\n";
+      exit 1
+    | Some i, None ->
+      if i < 1 then (
+        Printf.eprintf "You must generate at least one credential!\n";
+        exit 1
+      ); i
+    | None, Some d ->
+      print_endline (public_key_of_token uuid d);
+      exit 0
+    | None, None ->
+      Printf.eprintf "Nothing to do: use --count or --derive!\n";
+      exit 1
+;;
+
+(* The generation itself, if requested *)
 
 let prng = Cryptokit.Random.(pseudo_rng (string secure_rng 16))
 let random_char () = int_of_char (Cryptokit.Random.string prng 1).[0]
-
-let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-let token_length = 14
-let n58 = Z.of_int 58
-let n53 = Z.of_int 53
 
 let generate_raw_token () =
   let res = String.create token_length in
@@ -81,19 +110,6 @@ let generate_token () =
   let checksum = 53 - Z.(to_int (value mod n53)) in
   raw ^ String.make 1 digits.[checksum]
 
-let smjs_template = format_of_string "./stuff/derive_key.js %s %s"
-
-let public_key_of_token x =
-  let ic = Printf.ksprintf Unix.open_process_in smjs_template x uuid in
-  let hex = input_line ic in
-  if Unix.(close_process_in ic <> WEXITED 0) then (
-    Printf.eprintf "Error while running smjs!";
-    exit 2;
-  );
-  let x = Z.(of_string_base 16 hex mod q) in
-  let y = G.(g **~ x) in
-  Z.to_string y
-
 let private_credentials =
   let rec loop i accu =
     if i > 0 then loop (i-1) (generate_token () :: accu)
@@ -102,7 +118,7 @@ let private_credentials =
 
 let public_credentials =
   private_credentials |>
-  List.map public_key_of_token |>
+  List.map (public_key_of_token uuid) |>
   List.sort compare
 
 (* Save to files *)

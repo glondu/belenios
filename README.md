@@ -73,3 +73,7 @@ private file to each voter.
 
 Note that, if you are honest, you must not keep the private file, nor
 to whom you sent each individual private credential.
+
+To check the public key derived from a private credential, run:
+
+    ./stuff/credgen.sh --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --derive YYYYYYYYYYYYYYY
