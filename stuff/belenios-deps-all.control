@@ -6,6 +6,7 @@ Package: belenios-deps-all
 Version: 0.0.1
 Maintainer: Stéphane Glondu <Stephane.Glondu@inria.fr>
 Depends:
+ markdown,
  camlp4,
  liblwt-ocaml-dev (>= 2.4),
  libeliom-ocaml-dev (>= 3)
