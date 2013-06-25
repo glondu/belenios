@@ -31,20 +31,28 @@ let public_key_of_token uuid x =
   let y = G.(g **~ x) in
   Z.to_string y
 
+let option_map f = function
+  | Some x -> Some (f x)
+  | None -> None
+
 (* Argument parsing *)
 
+let dir = ref (Sys.getcwd ())
 let uuid = ref None
 let count = ref None
+let file = ref None
 let derive = ref None
 
 let speclist = Arg.([
+  "--dir", String (fun s -> dir := s), "directory where output will be written";
   "--uuid", String (fun s -> uuid := Some s), "UUID of the election";
   "--count", Int (fun i -> count := Some i), "number of credentials to generate";
+  "--file", String (fun s -> file := Some s), "file with list of identities";
   "--derive", String (fun s -> derive := Some s), "derive public credential from given private one";
 ])
 
 let usage_msg =
-  Printf.sprintf "Usage: %s --uuid <uuid> {--count <n> | --derive <privcred>}" Sys.argv.(0)
+  Printf.sprintf "Usage: %s [--dir <dir>] --uuid <uuid> {--count <n> | --file <file> | --derive <privcred>}" Sys.argv.(0)
 
 let anon_fun x =
   Printf.eprintf "I do not know what to do with %s!\n" x;
@@ -72,21 +80,32 @@ let uuid = match !uuid with
         Printf.eprintf "UUID is invalid!\n";
         exit 1
 
-let count =
-  match !count, !derive with
-    | Some _, Some _ ->
-      Printf.eprintf "--count and --derive are incompatible!\n";
-      exit 1
-    | Some i, None ->
+let count, ids =
+  match !count, !file, !derive with
+    | Some i, None, None ->
       if i < 1 then (
         Printf.eprintf "You must generate at least one credential!\n";
         exit 1
-      ); i
-    | None, Some d ->
+      ); i, None
+    | None, Some f, None ->
+      let ic = open_in f in
+      let rec loop accu =
+        match (try Some (input_line ic) with End_of_file -> None) with
+          | Some "" -> loop accu
+          | Some x -> loop (x::accu)
+          | None -> List.rev accu
+      in
+      let res = loop [] in
+      close_in ic;
+      List.length res, Some res
+    | None, None, Some d ->
       print_endline (public_key_of_token uuid d);
       exit 0
-    | None, None ->
-      Printf.eprintf "Nothing to do: use --count or --derive!\n";
+    | None, None, None ->
+      Printf.eprintf "Nothing to do: use --count, --file or --derive!\n";
+      exit 1
+    | _, _, _ ->
+      Printf.eprintf "Conflicting options!\n";
       exit 1
 ;;
 
@@ -117,35 +136,57 @@ let private_credentials =
   in loop count []
 
 let public_credentials =
-  private_credentials |>
-  List.map (public_key_of_token uuid) |>
-  List.sort compare
+  List.map (public_key_of_token uuid) private_credentials
+
+let hashed_credentials = option_map (fun ids ->
+  List.map2 (fun id cred ->
+    Printf.sprintf "%s %s" (sha256_hex cred) id
+  ) ids public_credentials
+) ids
 
 (* Save to files *)
 
+let timestamp = Printf.sprintf "%.0f" (Unix.time ())
+
 let pub =
-  "public",
-  uuid ^ ".public",
+  "public credentials",
+  timestamp ^ ".public",
   0o444,
-  public_credentials
+  List.sort compare public_credentials
 
 let priv =
-  "private",
-  uuid ^ ".private",
+  let kind, creds = match ids with
+    | None -> "private credentials", private_credentials
+    | Some ids -> "private credentials with ids",
+      List.map2 (fun id cred ->
+        Printf.sprintf "%s %s" cred id
+      ) ids private_credentials
+  in
+  kind,
+  timestamp ^ ".private",
   0o400,
-  private_credentials
+  List.sort compare creds
+
+let hashed = option_map (fun h ->
+  "hashed credentials with ids",
+  timestamp ^ ".hashed",
+  0o400,
+  List.sort compare h
+) hashed_credentials
 
 let output_endline oc x =
   output_string oc x;
   output_char oc '\n'
 
 let save (kind, filename, perm, thing) =
-  let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
+  let full_filename = Filename.concat !dir filename in
+  let oc = open_out_gen [
+    Open_wronly; Open_creat; Open_excl
+  ] perm full_filename in
   List.iter (output_endline oc) thing;
   close_out oc;
-  Printf.printf "%d %s credentials saved to %s\n%!" count kind filename;
-  (* set permissions in the unlikely case where the file already existed *)
-  Unix.chmod filename perm;;
+  Printf.printf "%d %s saved to %s\n%!" count kind full_filename;;
 
 save pub;;
 save priv;;
+ignore (option_map save hashed);;
