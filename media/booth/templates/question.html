@@ -35,12 +35,6 @@ as many of the choices as you approve of
 </div>
 
 
-{#if $T.show_reviewall}
-<div style="float: right;">
-<input type="button" onclick="BOOTH.validate_and_confirm({$T.question_num});" value="Proceed" />
-</div>
-{#/if}
-
 {#if $T.question_num != 0}
 <input type="button" onclick="BOOTH.previous({$T.question_num})" value="Previous" />
 &nbsp;
@@ -49,6 +43,10 @@ as many of the choices as you approve of
 {#if $T.question_num < $T.last_question_num}
 <input type="button" onclick="BOOTH.next({$T.question_num})" value="Next" />
 &nbsp;
+{#/if}
+
+{#if $T.show_reviewall}
+<input type="button" onclick="BOOTH.validate_and_confirm({$T.question_num});" value="Proceed" />
 {#/if}
 
 <br clear="both" />
