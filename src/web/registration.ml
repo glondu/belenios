@@ -440,7 +440,7 @@ let () = Eliom_registration.Html5.register
      (fun uuid election user () ->
        match_lwt Eliom_reference.get Services.ballot with
          | Some _ -> ballot_received uuid election user
-         | None -> fail_http 404
+         | None -> Templates.election_cast_raw ~election
      )
   )
 

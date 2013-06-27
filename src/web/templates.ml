@@ -232,6 +232,24 @@ let election_view ~election ~user =
   ] in
   base ~title:election.Web_common.election.e_name ~content
 
+let election_cast_raw ~election =
+  let module X = (val election : Web_common.WEB_ELECTION) in
+  let election = X.data in
+  let form = post_form ~service:Services.election_cast_post
+    (fun name ->
+      [
+        div [pcdata "Please paste your raw ballot in JSON format in the following box:"];
+        div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
+        div [string_input ~input_type:`Submit ~value:"Submit" ()];
+      ]
+    ) election.Web_common.election.e_uuid
+  in
+  let content = [
+    h1 [ pcdata election.Web_common.election.e_name ];
+    form;
+  ] in
+  base ~title:election.Web_common.election.e_name ~content
+
 let ballot_received ~election ~confirm ~user ~can_vote =
   let name = election.Web_common.election.e_name in
   let user_div = match user with
