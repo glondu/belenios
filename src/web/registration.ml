@@ -504,11 +504,14 @@ let () = Eliom_registration.Html5.register
      )
   )
 
-let () = Eliom_registration.Html5.register
+let () = Eliom_registration.Redirection.register
   ~service:Services.election_cast_post
   (if_eligible can_read
      (fun uuid election user ballot ->
+       Eliom_reference.set Services.saved_service (Services.Cast uuid) >>
        Eliom_reference.set Services.ballot (Some ballot) >>
-       ballot_received uuid election user
+       match user with
+         | None -> return (Eliom_service.preapply Services.login_cas None)
+         | Some u -> Services.get ()
      )
   )
