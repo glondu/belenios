@@ -22,6 +22,7 @@ let populate accu f s = Lwt_stream.fold_s f s accu
 let secure_logfile = ref None
 let data_dir = ref None
 let source_file = ref None
+let enable_dummy = ref false
 
 let () =
   let open Ocsigen_extensions.Configuration in
@@ -44,6 +45,11 @@ let () =
       ~attributes:[
         attribute ~name:"dir" ~obligatory:true (fun s -> data_dir := Some s);
       ] ();
+    element
+      ~name:"enable-dummy"
+      ~obligatory:false
+      ~init:(fun () -> enable_dummy := true)
+      ();
   ];;
 
 lwt () =
@@ -196,20 +202,23 @@ let () = Eliom_registration.Html5.register
 let () = Eliom_registration.Html5.register
   ~service:Services.login_dummy
   (fun () () ->
-    let service = Services.create_dummy_login () in
-    let () = Eliom_registration.Redirection.register
-      ~service
-      ~scope:Eliom_common.default_session_scope
-      (fun () user_name ->
-        let open Web_common in
-        let user_type = Dummy in
-        Eliom_reference.set Services.user (Some {user_name; user_type}) >>
-        Web_common.security_log (fun () ->
-          user_name ^ " successfully logged in using dummy"
-        ) >>
-        Services.get ())
-    in
-    Templates.dummy_login ~service)
+    if !enable_dummy then (
+      let service = Services.create_dummy_login () in
+      let () = Eliom_registration.Redirection.register
+        ~service
+        ~scope:Eliom_common.default_session_scope
+        (fun () user_name ->
+          let open Web_common in
+          let user_type = Dummy in
+          Eliom_reference.set Services.user (Some {user_name; user_type}) >>
+          Web_common.security_log (fun () ->
+            user_name ^ " successfully logged in using dummy"
+          ) >>
+          Services.get ())
+      in
+      Templates.dummy_login ~service
+    ) else fail_http 404
+  )
 
 let next_lf str i =
   try Some (String.index_from str i '\n')

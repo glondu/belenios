@@ -30,6 +30,7 @@
         <static dir="_SRCDIR_/media/booth" />
       </site>
       <eliom module="_build/src/web/server.cma">
+        <enable-dummy/>
         <log file="_RUNDIR_/log/security.log"/>
         <data dir="tests/data"/>
       </eliom>

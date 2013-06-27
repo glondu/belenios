@@ -57,7 +57,6 @@ let create_dummy_login () =
     ()
 
 let auth_systems = [
-  "dummy", login_dummy;
   "CAS", Eliom_service.preapply login_cas None;
 ]
 
