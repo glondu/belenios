@@ -2,3 +2,4 @@
 <tests/**/*.{ml,mli,byte,native,odoc}>: package(lwt.unix), syntax(camlp4o), package(lwt.syntax)
 <src/web/*.{ml,mli,byte,native,odoc}>: package(eliom.server), syntax(camlp4o), package(lwt.syntax)
 <src/bin/*>: binary
+<stuff/*>: binary

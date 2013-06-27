@@ -20,6 +20,7 @@ let () = dispatch & function
     Pathname.define_context "src/bin" ["src/lib"];
     Pathname.define_context "tests/legacy" ["src/lib"];
     Pathname.define_context "tests" ["src/lib"];
+    Pathname.define_context "stuff" ["src/lib"];
     Pathname.define_context "." ["src/lib"];
 
     (* the following avoids an ocamlfind warning, it should be built-in *)
