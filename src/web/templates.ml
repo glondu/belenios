@@ -53,7 +53,12 @@ let base ~title ~content =
         ];
       ];
       div ~a:[a_id "content"] content;
-      div ~a:[a_id "footer"] []
+      hr ();
+      div ~a:[a_id "footer"; a_style "text-align: center;" ] [
+        pcdata "Powered by ";
+        a ~service:Services.source_code [pcdata "Belenios"] ();
+        pcdata ".";
+      ]
      ]))
 
 type answer = {

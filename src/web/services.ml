@@ -8,6 +8,11 @@ let home = service
   ~get_params:unit
   ()
 
+let source_code = service
+  ~path:["belenios.tar.gz"]
+  ~get_params:unit
+  ()
+
 let login_dummy = service
   ~path:["login-dummy"]
   ~get_params:unit

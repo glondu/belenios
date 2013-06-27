@@ -21,6 +21,7 @@ let populate accu f s = Lwt_stream.fold_s f s accu
 
 let secure_logfile = ref None
 let data_dir = ref None
+let source_file = ref None
 
 let () =
   let open Ocsigen_extensions.Configuration in
@@ -30,6 +31,12 @@ let () =
       ~obligatory:true
       ~attributes:[
         attribute ~name:"file" ~obligatory:true (fun s -> secure_logfile := Some s);
+      ] ();
+    element
+      ~name:"source"
+      ~obligatory:false
+      ~attributes:[
+        attribute ~name:"file" ~obligatory:true (fun s -> source_file := Some s);
       ] ();
     element
       ~name:"data"
@@ -280,6 +287,21 @@ let () = Eliom_registration.Redirection.register
 
 let can_read x = x.Web_common.can_read
 let can_vote x = x.Web_common.can_vote
+
+let () = Eliom_registration.File.register
+  ~service:Services.source_code
+  ~content_type:"application/x-gzip"
+  (fun () () -> match !source_file with
+  | None -> fail_http 404
+  | Some f ->
+    match_lwt Eliom_reference.get Services.user with
+    | Some user ->
+      Web_common.(security_log (fun () ->
+        string_of_user user ^ " downloaded source code"
+      )) >>
+      return f
+    | None -> forbidden ()
+  )
 
 let () = Eliom_registration.File.register
   ~service:Services.election_raw
