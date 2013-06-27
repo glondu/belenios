@@ -110,6 +110,37 @@ module type WEB_BBOX = sig
   val extract_creds : unit -> SSet.t Lwt.t
 end
 
+let security_logfile = ref None
+
+let open_security_log f =
+  lwt () =
+    match !security_logfile with
+      | Some ic -> Lwt_io.close ic
+      | None -> return ()
+  in
+  lwt ic = Lwt_io.(
+    open_file ~flags:Unix.(
+      [O_WRONLY; O_APPEND; O_CREAT]
+    ) ~perm:0o600 ~mode:output f
+  ) in
+  security_logfile := Some ic;
+  return ()
+
+let security_log s =
+  match !security_logfile with
+    | None -> return ()
+    | Some ic -> Lwt_io.atomic (fun ic ->
+      Lwt_io.write ic (
+        Serializable_builtin_j.string_of_datetime (
+          CalendarLib.Fcalendar.Precise.now (),
+          None
+        )
+      ) >>
+      Lwt_io.write ic ": " >>
+      Lwt_io.write_line ic (s ()) >>
+      Lwt_io.flush ic
+    ) ic
+
 module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struct
 
   (* TODO: enforce E is derived from P *)
@@ -169,7 +200,7 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
         | Some s -> Lwt.return (Z.to_string s.s_commitment)
         | None -> fail MissingCredential
     in
-    lwt cred =
+    lwt old_cred =
       try_lwt Ocsipersist.find cred_table credential
       with Not_found -> fail InvalidCredential
     and old_record =
@@ -178,14 +209,17 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
         Lwt.return (Some x)
       with Not_found -> Lwt.return None
     in
-    match cred, old_record with
+    match old_cred, old_record with
       | None, None ->
         (* first vote *)
         if E.check_ballot ballot then (
           let hash = sha256_b64 rawballot in
           Ocsipersist.add cred_table credential (Some hash) >>
           Ocsipersist.add ballot_table hash rawballot >>
-          Ocsipersist.add record_table user (date, credential)
+          Ocsipersist.add record_table user (date, credential) >>
+          security_log (fun () ->
+            Printf.sprintf "%s successfully cast ballot %s" user hash
+          )
         ) else (
           fail ProofCheck
         )
@@ -193,17 +227,34 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
         (* revote *)
         if credential = old_credential then (
           if E.check_ballot ballot then (
+            lwt old_ballot = Ocsipersist.find ballot_table h in
             Ocsipersist.remove ballot_table h >>
+            security_log (fun () ->
+              Printf.sprintf "%s successfully removed ballot %S" user old_ballot
+            ) >>
             let hash = sha256_b64 rawballot in
             Ocsipersist.add cred_table credential (Some hash) >>
             Ocsipersist.add ballot_table hash rawballot >>
-            Ocsipersist.add record_table user (date, credential)
+            Ocsipersist.add record_table user (date, credential) >>
+            security_log (fun () ->
+              Printf.sprintf "%s successfully cast ballot %s" user hash
+            )
           ) else (
             fail ProofCheck
           )
-        ) else fail WrongCredential
-      | None, Some _ -> fail RevoteNotAllowed
-      | Some _, None -> fail ReusedCredential
+        ) else (
+          security_log (fun () ->
+            Printf.sprintf "%s attempted to revote with already used credential %s" user credential
+          ) >> fail WrongCredential
+        )
+      | None, Some _ ->
+        security_log (fun () ->
+          Printf.sprintf "%s attempted to revote using a new credential %s" user credential
+        ) >> fail RevoteNotAllowed
+      | Some _, None ->
+        security_log (fun () ->
+          Printf.sprintf "%s attempted to vote with already used credential %s" user credential
+        ) >> fail ReusedCredential
 
   let fold_ballots f x =
     Ocsipersist.fold_step (fun k v x -> f v x) ballot_table x

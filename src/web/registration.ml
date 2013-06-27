@@ -19,19 +19,33 @@ let file_exists x =
 
 let populate accu f s = Lwt_stream.fold_s f s accu
 
-lwt election_table =
-  let dir = ref None in
+let secure_logfile = ref None
+let data_dir = ref None
+
+let () =
   let open Ocsigen_extensions.Configuration in
   Eliom_config.parse_config [
     element
-      ~name:"data"
-      ~obligatory:false
+      ~name:"log"
+      ~obligatory:true
       ~attributes:[
-        attribute ~name:"dir" ~obligatory:true (fun s -> dir := Some s);
-      ]
-      ()
-  ];
-  match !dir with
+        attribute ~name:"file" ~obligatory:true (fun s -> secure_logfile := Some s);
+      ] ();
+    element
+      ~name:"data"
+      ~obligatory:true
+      ~attributes:[
+        attribute ~name:"dir" ~obligatory:true (fun s -> data_dir := Some s);
+      ] ();
+  ];;
+
+lwt () =
+  match !secure_logfile with
+    | Some x -> Web_common.open_security_log x
+    | None -> return ()
+
+lwt election_table =
+  match !data_dir with
     | Some dir ->
       Ocsigen_messages.debug (fun () ->
         "Using data from " ^ dir ^ "..."
@@ -183,6 +197,9 @@ let () = Eliom_registration.Html5.register
         let open Web_common in
         let user_type = Dummy in
         Eliom_reference.set Services.user (Some {user_name; user_type}) >>
+        Web_common.security_log (fun () ->
+          user_name ^ " successfully logged in using dummy"
+        ) >>
         Services.get ())
     in
     Templates.dummy_login ~service)
@@ -217,6 +234,9 @@ let () = Eliom_registration.Redirection.register
                       let open Web_common in
                       let user_name = String.sub info (i+1) (j-i-1) in
                       let user_type = CAS in
+                      Web_common.security_log (fun () ->
+                        user_name ^ " successfully logged in using CAS"
+                      ) >>
                       Eliom_reference.set Services.user
                         (Some {user_name; user_type}) >>
                       Services.get ()
@@ -242,10 +262,19 @@ let () = Eliom_registration.Redirection.register
     (* should ballot be unset here or not? *)
     Eliom_reference.unset Services.user >>
     match user with
-      | Some user when user.Web_common.user_type = Web_common.CAS ->
-        lwt service = Services.get () in
-        let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-        return (Eliom_service.preapply Services.cas_logout uri)
+      | Some user ->
+        if user.Web_common.user_type = Web_common.CAS then (
+          lwt service = Services.get () in
+          let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+          Web_common.(security_log (fun () ->
+            string_of_user user ^ " logged out, redirecting to CAS"
+          )) >>
+          return (Eliom_service.preapply Services.cas_logout uri)
+        ) else (
+          Web_common.(security_log (fun () ->
+            string_of_user user ^ " logged out"
+          )) >> Services.get ()
+        )
       | _ -> Services.get ()
   )
 

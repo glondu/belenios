@@ -79,3 +79,9 @@ module type WEB_ELECTION = sig
   module B : WEB_BBOX
   val data : election_data
 end
+
+val open_security_log : string -> unit Lwt.t
+(** Set the path to the security logger. *)
+
+val security_log : (unit -> string) -> unit Lwt.t
+(** Add an entry to the security log. *)
