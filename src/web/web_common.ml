@@ -72,13 +72,14 @@ module MakeLwtRandom (G : Signatures.GROUP) = struct
 end
 
 type error =
- | Serialization of exn
- | ProofCheck
- | ElectionClosed
- | MissingCredential
- | InvalidCredential
- | RevoteNotAllowed
- | ReusedCredential
+  | Serialization of exn
+  | ProofCheck
+  | ElectionClosed
+  | MissingCredential
+  | InvalidCredential
+  | RevoteNotAllowed
+  | ReusedCredential
+  | WrongCredential
 
 exception Error of error
 
@@ -93,6 +94,7 @@ let explain_error = function
   | InvalidCredential -> "your credential is invalid"
   | RevoteNotAllowed -> "you are not allowed to revote"
   | ReusedCredential -> "your credential has already been used"
+  | WrongCredential -> "you are not allowed to vote with this credential"
 
 module type LWT_ELECTION = Signatures.ELECTION
   with type elt = Z.t
@@ -183,21 +185,23 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
           let hash = sha256_b64 rawballot in
           Ocsipersist.add cred_table credential (Some hash) >>
           Ocsipersist.add ballot_table hash rawballot >>
-          Ocsipersist.add record_table user date
+          Ocsipersist.add record_table user (date, credential)
         ) else (
           fail ProofCheck
         )
-      | Some h, Some _ ->
+      | Some h, Some (_, old_credential) ->
         (* revote *)
-        if E.check_ballot ballot then (
-          Ocsipersist.remove ballot_table h >>
-          let hash = sha256_b64 rawballot in
-          Ocsipersist.add cred_table credential (Some hash) >>
-          Ocsipersist.add ballot_table hash rawballot >>
-          Ocsipersist.add record_table user date
-        ) else (
-          fail ProofCheck
-        )
+        if credential = old_credential then (
+          if E.check_ballot ballot then (
+            Ocsipersist.remove ballot_table h >>
+            let hash = sha256_b64 rawballot in
+            Ocsipersist.add cred_table credential (Some hash) >>
+            Ocsipersist.add ballot_table hash rawballot >>
+            Ocsipersist.add record_table user (date, credential)
+          ) else (
+            fail ProofCheck
+          )
+        ) else fail WrongCredential
       | None, Some _ -> fail RevoteNotAllowed
       | Some _, None -> fail ReusedCredential
 
@@ -205,7 +209,7 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
     Ocsipersist.fold_step (fun k v x -> f v x) ballot_table x
 
   let fold_records f x =
-    Ocsipersist.fold_step (fun k v x -> f (k, v) x) record_table x
+    Ocsipersist.fold_step (fun k v x -> f (k, fst v) x) record_table x
 
   let turnout = Ocsipersist.length ballot_table
 end

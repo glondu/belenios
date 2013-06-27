@@ -43,13 +43,14 @@ end
 (** Lwt-compatible random number generation. *)
 
 type error =
- | Serialization of exn
- | ProofCheck
- | ElectionClosed
- | MissingCredential
- | InvalidCredential
- | RevoteNotAllowed
- | ReusedCredential
+  | Serialization of exn
+  | ProofCheck
+  | ElectionClosed
+  | MissingCredential
+  | InvalidCredential
+  | RevoteNotAllowed
+  | ReusedCredential
+  | WrongCredential
 
 exception Error of error
 
