@@ -168,7 +168,7 @@ let election_view ~election ~user =
         match user with
           | None ->
             Lwt.return [
-              pcdata "Log in to check if you can vote.";
+              pcdata "Log in to check if you can vote. Alternatively, you can try to vote and log in at the last moment.";
             ]
           | Some u ->
             lwt b = p u in
@@ -229,8 +229,13 @@ let election_view ~election ~user =
     div [
       div [
         a ~service:(Services.(preapply_uuid election_vote election)) [
-          pcdata "Vote in this election";
+          pcdata "Go to the booth";
         ] ();
+        pcdata " or ";
+        a ~service:(Services.(preapply_uuid election_cast election)) [
+          pcdata "submit a raw ballot";
+        ] ();
+        pcdata ".";
       ];
     ];
     audit_info;
