@@ -17,10 +17,10 @@ let base ~title ~content =
     (body [
       div ~a:[a_id "header"] [
         div [
-          div [
+          div ~a:[a_style "float: left;"] [
             a ~service:Services.home [pcdata site_title] ();
           ];
-          div (
+          div ~a:[a_style "float: right; text-align: right;"] (
             match user with
             | Some user ->
               [
@@ -49,6 +49,7 @@ let base ~title ~content =
                 );
               ]
           );
+          div ~a:[a_style "clear: both;"] [];
         ];
       ];
       div ~a:[a_id "content"] content;
