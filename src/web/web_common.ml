@@ -3,7 +3,7 @@ open Util
 open Serializable_builtin_t
 open Serializable_t
 
-type user_type = Dummy | CAS
+type user_type = Dummy | CAS | Admin
 
 type user = {
   user_name : string;
@@ -14,10 +14,10 @@ let string_of_user {user_name; user_type} =
   match user_type with
     | Dummy -> Printf.sprintf "dummy:%s" user_name
     | CAS -> user_name
+    | Admin -> Printf.sprintf "admin:%s" user_name
 
-(* FIXME: use a dedicated user_type *)
 let is_admin = function
-  | Some { user_name = "admin"; user_type = Dummy } -> true
+  | Some { user_name = _; user_type = Admin } -> true
   | _ -> false
 
 type acl =

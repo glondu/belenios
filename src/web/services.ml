@@ -18,6 +18,11 @@ let login_dummy = service
   ~get_params:unit
   ()
 
+let login_admin = service
+  ~path:["login-admin"]
+  ~get_params:unit
+  ()
+
 let cas_server = "https://cas.inria.fr"
 
 let cas_login = external_service
@@ -48,11 +53,11 @@ let logout = service
   ~get_params:unit
   ()
 
-let create_dummy_login () =
+let create_string_login ~fallback =
   Eliom_service.post_coservice
     ~csrf_safe:true
     ~csrf_scope:Eliom_common.default_session_scope
-    ~fallback:login_dummy
+    ~fallback
     ~post_params:Eliom_parameter.(string "username")
     ()
 

@@ -23,6 +23,7 @@ let secure_logfile = ref None
 let data_dir = ref None
 let source_file = ref None
 let enable_dummy = ref false
+let admin_hash = ref ""
 
 let () =
   let open Ocsigen_extensions.Configuration in
@@ -50,6 +51,12 @@ let () =
       ~obligatory:false
       ~init:(fun () -> enable_dummy := true)
       ();
+    element
+      ~name:"admin"
+      ~obligatory:true
+      ~attributes:[
+        attribute ~name:"hash" ~obligatory:true (fun s -> admin_hash := s);
+      ] ();
   ];;
 
 lwt () =
@@ -203,7 +210,7 @@ let () = Eliom_registration.Html5.register
   ~service:Services.login_dummy
   (fun () () ->
     if !enable_dummy then (
-      let service = Services.create_dummy_login () in
+      let service = Services.create_string_login ~fallback:Services.login_dummy in
       let () = Eliom_registration.Redirection.register
         ~service
         ~scope:Eliom_common.default_session_scope
@@ -218,6 +225,28 @@ let () = Eliom_registration.Html5.register
       in
       Templates.dummy_login ~service
     ) else fail_http 404
+  )
+
+let () = Eliom_registration.Html5.register
+  ~service:Services.login_admin
+  (fun () () ->
+    let service = Services.create_string_login ~fallback:Services.login_admin in
+    let () = Eliom_registration.Redirection.register
+      ~service
+      ~scope:Eliom_common.default_session_scope
+      (fun () user_name ->
+        if sha256_hex user_name = !admin_hash then (
+          let open Web_common in
+          let user_type = Admin in
+          Eliom_reference.set Services.user (Some {user_name="admin"; user_type}) >>
+          Web_common.security_log (fun () ->
+            "admin successfully logged in"
+          ) >>
+          Services.get ()
+        ) else forbidden ()
+      )
+    in
+    Templates.dummy_login ~service
   )
 
 let next_lf str i =
