@@ -95,7 +95,6 @@ lwt election_table =
               election;
               fn_public_keys;
               public_creds;
-              fn_public_creds;
               featured_p = true;
               can_read = Any;
               can_vote;
@@ -273,14 +272,17 @@ let () = Eliom_registration.File.register
       )
    )
 
-let () = Eliom_registration.File.register
+let () = Eliom_registration.Streamlist.register
   ~service:Services.election_public_creds
-  ~content_type:"text/plain"
   (if_eligible can_read
       (fun uuid election user () ->
         let module X = (val election : Web_common.WEB_ELECTION) in
-        return X.data.Web_common.fn_public_creds
-      )
+        lwt creds = X.B.extract_creds () in
+        let s = Web_common.SSet.fold (fun x accu ->
+          (fun () -> return (Ocsigen_stream.of_string (x^"\n"))) :: accu
+        ) creds [] in
+        return (List.rev s, "text/plain")
+       )
    )
 
 let () = Eliom_registration.Streamlist.register

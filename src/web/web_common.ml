@@ -32,7 +32,6 @@ type election_data = {
   election : ff_pubkey election;
   fn_public_keys : string;
   public_creds : SSet.t;
-  fn_public_creds : string;
   featured_p : bool;
   can_read : acl;
   can_vote : acl;
@@ -106,6 +105,7 @@ module type WEB_BBOX = sig
   and type record = string * datetime
 
   val inject_creds : SSet.t -> unit Lwt.t
+  val extract_creds : unit -> SSet.t Lwt.t
 end
 
 module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struct
@@ -124,10 +124,13 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
   type ballot = string
   type record = string * Serializable_builtin_t.datetime
 
-  let inject_creds creds =
-    lwt existing_creds = Ocsipersist.fold_step (fun k v x ->
+  let extract_creds () =
+    Ocsipersist.fold_step (fun k v x ->
       return (SSet.add k x)
-    ) cred_table SSet.empty in
+    ) cred_table SSet.empty
+
+  let inject_creds creds =
+    lwt existing_creds = extract_creds () in
     if SSet.is_empty existing_creds then (
       Ocsigen_messages.debug (fun () ->
         "-- injecting credentials"

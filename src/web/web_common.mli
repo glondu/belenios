@@ -23,7 +23,6 @@ type election_data = {
   election : ff_pubkey election;
   fn_public_keys : string;
   public_creds : SSet.t;
-  fn_public_creds : string;
   featured_p : bool;
   can_read : acl;
   can_vote : acl;
@@ -67,6 +66,7 @@ module type WEB_BBOX = sig
   and type record = string * datetime
 
   val inject_creds : SSet.t -> unit Lwt.t
+  val extract_creds : unit -> SSet.t Lwt.t
 end
 
 module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) : WEB_BBOX
