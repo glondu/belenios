@@ -55,6 +55,7 @@ let write_datetime buf (n, s) =
   (match s with
      | Some s -> Bi_outbuf.add_string buf s
      | None ->
+       let n = Fcalendar.Precise.to_gmt n in
        Bi_outbuf.add_string buf (Printer.Precise_Fcalendar.sprint datetime_format n);
        let ts = Printf.sprintf "%.6f" (Fcalendar.Precise.to_unixfloat n) in
        let i = String.index ts '.' in
@@ -71,6 +72,7 @@ let datetime_of_json = function
   | `String s ->
     let i = String.index s '.' in
     let l = Printer.Precise_Fcalendar.from_fstring datetime_format (String.sub s 0 i) in
+    let l = Fcalendar.Precise.from_gmt l in
     let r = float_of_string ("0" ^ String.sub s i (String.length s-i)) in
     (Fcalendar.Precise.add l (Fcalendar.Precise.Period.second r), Some s)
   | _ -> assert false

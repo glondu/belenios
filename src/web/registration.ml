@@ -25,6 +25,8 @@ let source_file = ref None
 let enable_dummy = ref false
 let admin_hash = ref ""
 
+let () = CalendarLib.Time_Zone.(change Local)
+
 let () =
   let open Ocsigen_extensions.Configuration in
   Eliom_config.parse_config [
