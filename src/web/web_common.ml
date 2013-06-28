@@ -189,6 +189,9 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
       | None -> true
     in
     if not voting_open then fail ElectionClosed else return () >>
+    if String.contains rawballot '\n' then (
+      fail (Serialization (Invalid_argument "multiline ballot"))
+    ) else return () >>
     lwt ballot =
       try Lwt.return (
         Serializable_j.ballot_of_string
