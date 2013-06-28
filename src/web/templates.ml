@@ -155,6 +155,13 @@ let dummy_login ~service =
 let format_date (date, _) =
   CalendarLib.Printer.Precise_Fcalendar.sprint "%a, %d %b %Y %T %z" date
 
+let make_button ~service contents =
+  let uri = Eliom_uri.make_string_uri ~service () in
+  Printf.ksprintf unsafe_data (* FIXME: unsafe *)
+    "<button onclick=\"location.href='%s';\">%s</button>"
+    uri
+    contents
+
 let election_view ~election ~user =
   let module X = (val election : Web_common.WEB_ELECTION) in
   let election = X.data in
@@ -194,7 +201,7 @@ let election_view ~election ~user =
       ]
   in
   let audit_info = div [
-    h2 [pcdata "Audit Info"];
+    h3 [pcdata "Audit Info"];
     div [
       div [
         pcdata "Election fingerprint: ";
@@ -228,16 +235,16 @@ let election_view ~election ~user =
     p permissions;
     div [
       div [
-        a ~service:(Services.(preapply_uuid election_vote election)) [
-          pcdata "Go to the booth";
-        ] ();
+        make_button
+          ~service:(Services.(preapply_uuid election_vote election))
+          "Go to the booth";
         pcdata " or ";
-        a ~service:(Services.(preapply_uuid election_cast election)) [
-          pcdata "submit a raw ballot";
-        ] ();
-        pcdata ".";
+        make_button
+          ~service:(Services.(preapply_uuid election_cast election))
+          "Submit a raw ballot";
       ];
     ];
+    br ();
     audit_info;
   ] in
   base ~title:election.Web_common.election.e_name ~content
