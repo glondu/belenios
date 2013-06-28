@@ -10,12 +10,9 @@ Please <b><u>keep a record</u></b> of your smart ballot tracker [<a onclick="BOO
 </p>
 
 <p>
-To protect your privacy:
-<ul>
-  <li> Helios has not yet asked for your identity.</li>
-  <li> Once you click "Proceed", Helios will remember only your encrypted vote.</li>
-  <li> Thus, only you know your vote.</li>
-</ul>
+At this stage, your ballot has been prepared locally on your computer
+ and has not yet been sent to the server. The next step is to send your
+ vote to the server.
 </p>
 
 <button id="proceed_button" onclick="BOOTH.cast_ballot();">Proceed to Cast</button><br />
@@ -28,3 +25,5 @@ To protect your privacy:
 {$T.encrypted_vote_json}
 </textarea>
 </form>
+
+<p>You can optionally <a href="javascript:save_ballot()">save your encrypted ballot</a>.</p>

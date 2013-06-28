@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8" />
-  <title>Helios Voting Booth</title>
+  <title>Belenios Voting Booth</title>
   <link rel="stylesheet" type="text/css" href="css/booth.css" />
   <link rel="stylesheet" type="text/css" href="css/forms.css" />
   <script language="javascript" src="js/jscrypto/class.js"></script>
@@ -35,7 +35,7 @@
 <body>
 <div id="wrapper">
 <span style="float:right; padding: 7px 15px 5px 10px;">[<a href="javascript:BOOTH.exit();">exit</a>]</span>
-<div id="banner">Helios Voting Booth</div>
+<div id="banner">Belenios Voting Booth</div>
 <div id="content">
 
 <div id="header">
@@ -567,6 +567,10 @@ BOOTH.ask_token = function () {
     }
 };
 
+function save_ballot() {
+    UTILS.open_window_with_content($('#send_ballot_form')[0].elements[0].value, "application/json");
+}
+
 </script>
 <div id="page">
   <div id="progress_div" style="display:none; width: 500px; margin:auto;">
@@ -582,7 +586,7 @@ BOOTH.ask_token = function () {
   <div id="error_div" class="panel" style="display: none;">
     <h3>There's a problem</h3>
     <p>
-      It appears that your browser does not have Java enabled. Helios needs Java to perform encryption within the browser.
+      It appears that your browser does not have Java enabled. The booth needs Java to perform encryption within the browser.
     </p>
     <p>
       You may be able to install Java by visiting <a target="_new" href="http://java.com">java.com</a>.
@@ -600,7 +604,7 @@ BOOTH.ask_token = function () {
   </div>
 
   <div id="encrypting_div" class="panel" style="display:none;">
-      <h3 align="center">Helios is now encrypting your ballot<br />
+      <h3 align="center">The booth is now encrypting your ballot<br />
           <img src="encrypting.gif" /> <span style="font-size:0.7em; display:none;" id="percent_done_container">(<span id="percent_done">0</span>%)</span></h3>
 
       <p align="center"><b>This may take up to two minutes.</b>
