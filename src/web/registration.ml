@@ -24,6 +24,7 @@ let data_dir = ref None
 let source_file = ref None
 let enable_dummy = ref false
 let admin_hash = ref ""
+let main_election = ref None
 
 let () = CalendarLib.Time_Zone.(change Local)
 
@@ -59,12 +60,25 @@ let () =
       ~attributes:[
         attribute ~name:"hash" ~obligatory:true (fun s -> admin_hash := s);
       ] ();
+    element
+      ~name:"main-election"
+      ~obligatory:false
+      ~attributes:[
+        attribute ~name:"uuid" ~obligatory:true (fun s -> main_election := Some s);
+      ] ();
   ];;
 
 lwt () =
   match !secure_logfile with
     | Some x -> Web_common.open_security_log x
     | None -> return ()
+
+let main_election = match !main_election with
+  | None -> None
+  | Some u ->
+    match Uuidm.of_string u with
+    | Some u -> Some u
+    | None -> failwith "Incorrect UUID in configuration <main-election> tag"
 
 lwt election_table =
   match !data_dir with
@@ -200,13 +214,21 @@ let if_eligible acl f uuid x =
   lwt b = check_acl acl X.data user in
   if b then f uuid election user x else forbidden ()
 
-let () = Eliom_registration.Html5.register
-  ~service:Services.home
-  (fun () () ->
-    Eliom_reference.unset Services.ballot >>
-    Eliom_reference.unset Services.saved_service >>
-    lwt featured = get_featured_elections () in
-    Templates.index ~featured)
+let () =
+  match main_election with
+  | None -> Eliom_registration.Html5.register ~service:Services.home
+    (fun () () ->
+      Eliom_reference.unset Services.ballot >>
+      Eliom_reference.unset Services.saved_service >>
+      lwt featured = get_featured_elections () in
+      Templates.index ~featured
+    )
+  | Some uuid -> Eliom_registration.Redirection.register ~service:Services.home
+    (fun () () ->
+      Eliom_reference.unset Services.ballot >>
+      Eliom_reference.unset Services.saved_service >>
+      return (Eliom_service.preapply Services.election_index uuid)
+    )
 
 let () = Eliom_registration.Html5.register
   ~service:Services.login_dummy
