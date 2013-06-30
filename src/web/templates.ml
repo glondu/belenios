@@ -327,3 +327,27 @@ let do_cast_ballot ~election ~result =
     ];
   ] in
   base ~title:name ~content
+
+let election_update_credential ~election =
+  let module X = (val election : Web_common.WEB_ELECTION) in
+  let election = X.data in
+  let form = post_form ~service:Services.election_update_credential
+    (fun (old, new_) ->
+      [
+        div [
+          pcdata "Hash of the old credential: ";
+          string_input ~name:old ~input_type:`Text ~a:[a_size 64] ();
+        ];
+        div [
+          pcdata "New credential: ";
+          string_input ~name:new_ ~input_type:`Text ~a:[a_size 617] ();
+        ];
+        div [string_input ~input_type:`Submit ~value:"Submit" ()];
+      ]
+    ) election.Web_common.election.e_uuid
+  in
+  let content = [
+    h1 [ pcdata election.Web_common.election.e_name ];
+    form;
+  ] in
+  base ~title:election.Web_common.election.e_name ~content

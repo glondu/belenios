@@ -80,6 +80,8 @@ type error =
   | RevoteNotAllowed
   | ReusedCredential
   | WrongCredential
+  | UsedCredential
+  | CredentialNotFound
 
 exception Error of error
 
@@ -95,6 +97,8 @@ let explain_error = function
   | RevoteNotAllowed -> "you are not allowed to revote"
   | ReusedCredential -> "your credential has already been used"
   | WrongCredential -> "you are not allowed to vote with this credential"
+  | UsedCredential -> "the credential has already been used"
+  | CredentialNotFound -> "the credential has not been found"
 
 module type LWT_ELECTION = Signatures.ELECTION
   with type elt = Z.t
@@ -108,6 +112,7 @@ module type WEB_BBOX = sig
 
   val inject_creds : SSet.t -> unit Lwt.t
   val extract_creds : unit -> SSet.t Lwt.t
+  val update_cred : old:string -> new_:string -> unit Lwt.t
 end
 
 let security_logfile = ref None
@@ -266,6 +271,19 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
     Ocsipersist.fold_step (fun k v x -> f (k, fst v) x) record_table x
 
   let turnout = Ocsipersist.length ballot_table
+
+  let update_cred ~old ~new_ =
+    match_lwt Ocsipersist.fold_step (fun k v x ->
+      if sha256_hex k = old then (
+        match v with
+          | Some _ -> fail UsedCredential
+          | None -> return (Some k)
+      ) else return x
+    ) cred_table None with
+    | None -> fail CredentialNotFound
+    | Some x ->
+      Ocsipersist.remove cred_table x >>
+      Ocsipersist.add cred_table new_ None
 end
 
 module type WEB_ELECTION = sig

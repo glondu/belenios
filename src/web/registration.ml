@@ -186,7 +186,7 @@ let forbidden () = fail_http 403
 
 let check_acl acl election user =
   let open Web_common in
-  match acl election with
+  match acl election user with
     | Any -> return true
     | Restricted p ->
       match user with
@@ -325,8 +325,9 @@ let () = Eliom_registration.Redirection.register
       | _ -> Services.get ()
   )
 
-let can_read x = x.Web_common.can_read
-let can_vote x = x.Web_common.can_vote
+let can_read x u = x.Web_common.can_read
+let can_vote x u = x.Web_common.can_vote
+let can_admin x u = Web_common.is_admin u
 
 let () = Eliom_registration.File.register
   ~service:Services.source_code
@@ -516,4 +517,29 @@ let () = Eliom_registration.Redirection.register
          | None -> return (Eliom_service.preapply Services.login_cas None)
          | Some u -> Services.get ()
      )
+  )
+
+let () = Eliom_registration.Html5.register
+  ~service:Services.election_update_credential_form
+  (fun uuid () ->
+    lwt user = Eliom_reference.get Services.user in
+    if Web_common.is_admin user then (
+      lwt election = get_election_by_uuid uuid in
+      Templates.election_update_credential ~election
+    ) else forbidden ()
+  )
+
+let () = Eliom_registration.String.register
+  ~service:Services.election_update_credential
+  (fun uuid (old, new_) ->
+    lwt user = Eliom_reference.get Services.user in
+    if Web_common.is_admin user then (
+      lwt election = get_election_by_uuid uuid in
+      let module X = (val election : Web_common.WEB_ELECTION) in
+      try_lwt
+        X.B.update_cred ~old ~new_ >>
+        return ("OK", "text/plain")
+      with Web_common.Error e ->
+        return ("Error: " ^ Web_common.explain_error e, "text/plain")
+    ) else forbidden ()
   )

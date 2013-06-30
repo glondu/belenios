@@ -127,6 +127,16 @@ let election_cast_post = post_service
   ~post_params:(string "encrypted_vote")
   ()
 
+let election_update_credential_form = service
+  ~path:["election"; "update-cred"]
+  ~get_params:uuid
+  ()
+
+let election_update_credential = post_service
+  ~fallback:election_update_credential_form
+  ~post_params:(string "old_credential" ** string "new_credential")
+  ()
+
 let create_confirm () =
   Eliom_service.post_coservice
     ~csrf_safe:true

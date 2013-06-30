@@ -51,6 +51,8 @@ type error =
   | RevoteNotAllowed
   | ReusedCredential
   | WrongCredential
+  | UsedCredential
+  | CredentialNotFound
 
 exception Error of error
 
@@ -68,6 +70,7 @@ module type WEB_BBOX = sig
 
   val inject_creds : SSet.t -> unit Lwt.t
   val extract_creds : unit -> SSet.t Lwt.t
+  val update_cred : old:string -> new_:string -> unit Lwt.t
 end
 
 module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) : WEB_BBOX
