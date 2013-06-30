@@ -419,11 +419,10 @@ let get_randomness =
   )) in
   let mutex = Lwt_mutex.create () in
   fun () ->
-    Lwt_mutex.lock mutex >>
-    lwt prng = Lazy.force prng in
-    let r = Cryptokit.Random.(string prng 32) in
-    Lwt_mutex.unlock mutex;
-    return r
+    Lwt_mutex.with_lock mutex (fun () ->
+      lwt prng = Lazy.force prng in
+      return Cryptokit.Random.(string prng 32)
+    )
 
 let () = Eliom_registration.String.register
   ~service:Services.get_randomness
