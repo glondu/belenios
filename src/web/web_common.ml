@@ -180,7 +180,8 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
       if SSet.(is_empty (diff creds existing_creds)) then (
         Lwt.return ()
       ) else (
-        Lwt.fail (Invalid_argument "Existing credentials do not match")
+        Ocsigen_messages.warning "public_creds.txt does not match db!";
+        Lwt.return ()
       )
     )
 
