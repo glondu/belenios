@@ -185,7 +185,7 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
       )
     )
 
-  let cast rawballot (user, date) =
+  let do_cast rawballot (user, date) =
     let voting_open = match P.metadata with
       | Some m ->
         let date = fst date in
@@ -273,7 +273,7 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
 
   let turnout = Ocsipersist.length ballot_table
 
-  let update_cred ~old ~new_ =
+  let do_update_cred ~old ~new_ =
     match_lwt Ocsipersist.fold_step (fun k v x ->
       if sha256_hex k = old then (
         match v with
@@ -285,6 +285,15 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
     | Some x ->
       Ocsipersist.remove cred_table x >>
       Ocsipersist.add cred_table new_ None
+
+  let mutex = Lwt_mutex.create ()
+
+  let cast rawballot (user, date) =
+    Lwt_mutex.with_lock mutex (fun () -> do_cast rawballot (user, date))
+
+  let update_cred ~old ~new_ =
+    Lwt_mutex.with_lock mutex (fun () -> do_update_cred ~old ~new_)
+
 end
 
 module type WEB_ELECTION = sig
