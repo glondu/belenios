@@ -31,10 +31,6 @@ let public_key_of_token uuid x =
   let y = G.(g **~ x) in
   Z.to_string y
 
-let option_map f = function
-  | Some x -> Some (f x)
-  | None -> None
-
 (* Argument parsing *)
 
 let dir = ref (Sys.getcwd ())

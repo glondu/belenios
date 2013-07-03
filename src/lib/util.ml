@@ -126,3 +126,7 @@ let sha256_b64 x = Cryptokit.(x |>
   hash_string (Hash.sha256 ()) |>
   transform_string (Base64.encode_compact ())
 )
+
+let option_map f = function
+  | Some x -> Some (f x)
+  | None -> None

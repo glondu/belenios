@@ -31,3 +31,5 @@ val list_join : 'a -> 'a list -> 'a list
 
 val sha256_hex : string -> string
 val sha256_b64 : string -> string
+
+val option_map : ('a -> 'b) -> 'a option -> 'b option
