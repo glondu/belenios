@@ -31,7 +31,7 @@ let private_keys, public_keys =
       let a, b = List.split accu in
       Array.of_list a, Array.of_list b
     )
-  in loop 10 []
+  in loop 1 []
 ;;
 assert (Array.forall KG.check public_keys);;
 let y = KG.combine public_keys;;
