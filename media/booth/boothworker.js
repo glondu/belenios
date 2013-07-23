@@ -12,7 +12,6 @@ importScripts("js/jscrypto/jsbn.js",
 	      "js/jscrypto/bigint.js",
 	      "js/jscrypto/random.js",
 	      "js/jscrypto/elgamal.js",
-	      "js/jscrypto/sha1.js",
 	      "js/jscrypto/sha2.js",
 	      "js/jscrypto/helios.js");
 

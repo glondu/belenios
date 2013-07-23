@@ -70,7 +70,7 @@ HELIOS.EncryptedVote.prototype.doSignature = function(cred) {
     var w = Random.getRandomInteger(pk.q);
     var commitment = pk.g.modPow(w, pk.p);
     var prefix = "sig|" + commitment.toJSONObject() + "|";
-    var challenge = (new BigInt(hex_sha1(prefix + _(this.encrypted_answers).map(function(ea) {
+    var challenge = (new BigInt(hex_sha256(prefix + _(this.encrypted_answers).map(function(ea) {
         return ElGamal.stringify_choices(ea.choices);
     }).join(",")), 16)).mod(pk.q);
     // we do (q-x*challenge)+w instead of directly w-x*challenge,

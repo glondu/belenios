@@ -5,6 +5,7 @@
  */
 var chrsz   = 8;  /* bits per input character. 8 - ASCII; 16 - Unicode      */
 var hexcase = 0;/* hex output format. 0 - lowercase; 1 - uppercase        */
+var b64pad  = ""; /* base-64 pad character. "=" for strict RFC compliance   */
 
 function safe_add (x, y) {
   var lsw = (x & 0xFFFF) + (y & 0xFFFF);

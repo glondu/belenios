@@ -460,7 +460,7 @@ ElGamal.disjunctive_challenge_generator = function(id) { return function(commitm
   
   // console.log(strings_to_hash);
   // STRINGS = strings_to_hash;
-  return new BigInt(hex_sha1("prove|" + id + "|" + strings_to_hash.join(",")), 16);
+  return new BigInt(hex_sha256("prove|" + id + "|" + strings_to_hash.join(",")), 16);
 }};
 
 // same structure as above, adapted for (alpha, beta) pairs of

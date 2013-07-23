@@ -6,12 +6,6 @@ open Signatures
 
 let check_modulo p x = Z.(geq x zero && lt x p)
 
-let hashZ x = Cryptokit.(x |>
-  hash_string (Hash.sha1 ()) |>
-  transform_string (Hexa.encode ()) |>
-  Z.of_string_base 16
-)
-
 let map_and_concat_with_commas f xs =
   let n = Array.length xs in
   let res = Buffer.create (n * 1024) in
@@ -45,7 +39,9 @@ let finite_field ~p ~q ~g =
     let check x = check_modulo p x && x **~ q =~ one
     let to_string = Z.to_string
     let hash prefix xs =
-      hashZ (prefix ^ (map_and_concat_with_commas Z.to_string xs))
+      let x = prefix ^ (map_and_concat_with_commas Z.to_string xs) in
+      let z = Z.of_string_base 16 (sha256_hex x) in
+      Z.(z mod q)
     let compare = Z.compare
   end in (module G : GROUP with type t = Z.t)
 
