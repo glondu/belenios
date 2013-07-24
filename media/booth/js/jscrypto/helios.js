@@ -278,7 +278,7 @@ HELIOS.EncryptedAnswer = Class.extend({
       // generate proof
       if (generate_new_randomness) {
         // generate proof that this ciphertext is a 0 or a 1
-        individual_proofs[i] = choices[i].generateDisjunctiveProof(zero_one_plaintexts, plaintext_index, randomness[i], ElGamal.disjunctive_challenge_generator(id));
+        individual_proofs[i] = choices[i].generateDisjunctiveProof(zero_one_plaintexts, plaintext_index, randomness[i], ElGamal.disjunctive_challenge_generator(id, choices[i]));
       }
       
       if (progress)
@@ -306,7 +306,7 @@ HELIOS.EncryptedAnswer = Class.extend({
       if (question.min)
         overall_plaintext_index -= question.min;
       
-      overall_proof = hom_sum.generateDisjunctiveProof(plaintexts, overall_plaintext_index, rand_sum, ElGamal.disjunctive_challenge_generator(id));
+      overall_proof = hom_sum.generateDisjunctiveProof(plaintexts, overall_plaintext_index, rand_sum, ElGamal.disjunctive_challenge_generator(id, hom_sum));
 
       if (progress) {
         for (var i=0; i<question.max; i++)

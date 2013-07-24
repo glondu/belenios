@@ -448,7 +448,7 @@ ElGamal.DLogProof.fromJSONObject = function(d) {
 
 // a challenge generator based on a list of commitments of
 // proofs of knowledge of plaintext. Just appends A and B with commas.
-ElGamal.disjunctive_challenge_generator = function(id) { return function(commitments) {
+ElGamal.disjunctive_challenge_generator = function(id, c) { return function(commitments) {
   var strings_to_hash = [];
 
   // go through all proofs and append the commitments
@@ -460,7 +460,8 @@ ElGamal.disjunctive_challenge_generator = function(id) { return function(commitm
   
   // console.log(strings_to_hash);
   // STRINGS = strings_to_hash;
-  return new BigInt(hex_sha256("prove|" + id + "|" + strings_to_hash.join(",")), 16);
+  var prefix = "prove|" + id + "|" + c.alpha.toJSONObject() + "," + c.beta.toJSONObject() + "|"
+  return new BigInt(hex_sha256(prefix + strings_to_hash.join(",")), 16);
 }};
 
 // same structure as above, adapted for (alpha, beta) pairs of

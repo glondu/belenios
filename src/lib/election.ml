@@ -219,7 +219,10 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     (* compute genuine proof *)
     fs_prove [| g; y |] r (fun commitx ->
       Array.blit commitx 0 commitments (2*x) 2;
-      Z.((G.hash ("prove|"^id^"|") commitments + !total_challenges) mod q)
+      let prefix = Printf.sprintf "prove|%s|%s,%s|"
+        id (G.to_string alpha) (G.to_string beta)
+      in
+      Z.((G.hash prefix commitments + !total_challenges) mod q)
     ) >>= fun p ->
     proofs.(x) <- p;
     return proofs
@@ -240,7 +243,10 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
         ) else raise Exit
       done;
       total_challenges := Z.(!total_challenges mod q);
-      hash ("prove|"^id^"|") commitments =% !total_challenges
+      let prefix = Printf.sprintf "prove|%s|%s,%s|"
+        id (G.to_string alpha) (G.to_string beta)
+      in
+      hash prefix commitments =% !total_challenges
     with Exit -> false
 
   (** Ballot creation *)
