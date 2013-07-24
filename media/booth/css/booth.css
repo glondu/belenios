@@ -39,7 +39,7 @@ body {
   padding: 0px;
   margin: 0px;
   line-height: 100%;
-  font-weight: none;
+  font-weight: normal;
 }
 
 #banner {
@@ -102,5 +102,4 @@ h3 {
 
 #election_hash {
   font-family: courier;
-}
 }
