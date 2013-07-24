@@ -468,7 +468,7 @@ BOOTH.seal_ballot_raw = function() {
     if (BOOTH.synchronous) {
       BOOTH.progress = new UTILS.PROGRESS();
       var progress_interval = setInterval("BOOTH.check_encryption_status()", 500);
-      BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.progress, BOOTH.voter_id);
+      BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.voter_id, BOOTH.progress);
       BOOTH.encrypted_ballot.doSignature(BOOTH.credential);
       clearInterval(progress_interval);
       BOOTH._after_ballot_encryption();

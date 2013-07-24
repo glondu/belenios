@@ -407,7 +407,7 @@ HELIOS.EncryptedAnswer.fromJSONObject = function(d, election) {
 };
 
 HELIOS.EncryptedVote = Class.extend({
-  init: function(election, answers, progress) {
+  init: function(election, answers, id, progress) {
     // empty constructor
     if (election == null)
       return;
@@ -437,7 +437,7 @@ HELIOS.EncryptedVote = Class.extend({
       
     // loop through questions
     for (var i=0; i<n_questions; i++) {
-      this.encrypted_answers[i] = new HELIOS.EncryptedAnswer(election.questions[i], answers[i], election.public_key, progress);
+      this.encrypted_answers[i] = new HELIOS.EncryptedAnswer(election.questions[i], answers[i], election.public_key, id, progress);
     }    
   },
 
