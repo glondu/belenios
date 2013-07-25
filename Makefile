@@ -5,9 +5,7 @@ all:
 	ocamlbuild all.otarget
 
 check: all
-	ocamlbuild tests/legacy/sandbox.byte tests/sandbox.byte
-	# legacy tests broken because of credentials
-	# @_build/tests/legacy/sandbox.byte
+	ocamlbuild tests/sandbox.byte
 	@_build/tests/sandbox.byte
 
 clean:
