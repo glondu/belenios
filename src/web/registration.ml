@@ -73,6 +73,10 @@ let login_default =
   if !enable_dummy then login_dummy
   else Eliom_service.preapply login_cas None
 
+let auth_systems =
+  ("CAS", Eliom_service.preapply Services.login_cas None;) ::
+  (if !enable_dummy then ["dummy", Services.login_dummy] else [])
+
 lwt () =
   match !secure_logfile with
     | Some x -> Web_common.open_security_log x
@@ -226,7 +230,7 @@ let () =
       Eliom_reference.unset Services.ballot >>
       Eliom_reference.unset Services.saved_service >>
       lwt featured = get_featured_elections () in
-      Templates.index ~featured
+      Templates.index ~auth_systems ~featured
     )
   | Some uuid -> Eliom_registration.Redirection.register ~service:Services.home
     (fun () () ->
@@ -252,7 +256,7 @@ let () = Eliom_registration.Html5.register
           ) >>
           Services.get ())
       in
-      Templates.dummy_login ~service
+      Templates.dummy_login ~auth_systems ~service
     ) else fail_http 404
   )
 
@@ -275,7 +279,7 @@ let () = Eliom_registration.Html5.register
         ) else forbidden ()
       )
     in
-    Templates.dummy_login ~service
+    Templates.dummy_login ~auth_systems ~service
   )
 
 let next_lf str i =
@@ -466,7 +470,7 @@ let () = Eliom_registration.Html5.register
      (fun uuid election user () ->
        Eliom_reference.unset Services.ballot >>
        Eliom_reference.set Services.saved_service (Services.Election uuid) >>
-       Templates.election_view ~election ~user
+       Templates.election_view ~auth_systems ~election ~user
      )
   )
 
@@ -502,7 +506,7 @@ let do_cast election uuid () =
                 with Error e -> return (`Error e)
               in
               Eliom_reference.unset Services.ballot >>
-              Templates.do_cast_ballot ~election:X.data ~result
+              Templates.do_cast_ballot ~auth_systems ~election:X.data ~result
             ) else forbidden ()
           | None -> forbidden ()
       end
@@ -520,7 +524,7 @@ let ballot_received uuid election user =
     in service
   in
   lwt can_vote = check_acl can_vote X.data user in
-  Templates.ballot_received ~election:X.data ~confirm ~user ~can_vote
+  Templates.ballot_received ~auth_systems ~election:X.data ~confirm ~user ~can_vote
 
 
 let () = Eliom_registration.Html5.register
@@ -529,7 +533,7 @@ let () = Eliom_registration.Html5.register
      (fun uuid election user () ->
        match_lwt Eliom_reference.get Services.ballot with
          | Some _ -> ballot_received uuid election user
-         | None -> Templates.election_cast_raw ~election
+         | None -> Templates.election_cast_raw ~auth_systems ~election
      )
   )
 
@@ -551,7 +555,7 @@ let () = Eliom_registration.Html5.register
     lwt user = Eliom_reference.get Services.user in
     if Web_common.is_admin user then (
       lwt election = get_election_by_uuid uuid in
-      Templates.election_update_credential ~election
+      Templates.election_update_credential ~auth_systems ~election
     ) else forbidden ()
   )
 

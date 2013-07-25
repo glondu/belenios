@@ -10,7 +10,7 @@ let welcome_message = "Welcome!"
 let format_user u =
   em [pcdata (Web_common.string_of_user u)]
 
-let base ~title ~content =
+let base ~auth_systems ~title ~content =
   lwt user = Eliom_reference.get Services.user in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata title)) [])
@@ -41,7 +41,7 @@ let base ~title ~content =
                 ];
                 let auth_systems = List.map (fun (name, service) ->
                   a ~service [pcdata name] ()
-                ) Services.auth_systems in
+                ) auth_systems in
                 div (
                   [ pcdata "Login: " ] @
                   list_join (pcdata ", ") auth_systems @
@@ -109,7 +109,7 @@ let format_one_featured_election e =
     p [pcdata e.Web_common.election.e_description];
   ]
 
-let index ~featured =
+let index ~auth_systems ~featured =
   lwt user = Eliom_reference.get Services.user in
   let featured_box = match featured with
     | _::_ ->
@@ -129,7 +129,7 @@ let index ~featured =
       featured_box;
     ];
   ] in
-  base ~title:site_title ~content
+  base ~auth_systems ~title:site_title ~content
 
 let dummy_login ~service =
   let form = post_form ~service
@@ -162,7 +162,7 @@ let make_button ~service contents =
     uri
     contents
 
-let election_view ~election ~user =
+let election_view ~auth_systems ~election ~user =
   let module X = (val election : Web_common.WEB_ELECTION) in
   let election = X.data in
   let service = Services.(preapply_uuid election_raw election) in
@@ -247,7 +247,7 @@ let election_view ~election ~user =
     br ();
     audit_info;
   ] in
-  base ~title:election.Web_common.election.e_name ~content
+  base ~auth_systems ~title:election.Web_common.election.e_name ~content
 
 let election_cast_raw ~election =
   let module X = (val election : Web_common.WEB_ELECTION) in

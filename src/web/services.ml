@@ -61,10 +61,6 @@ let create_string_login ~fallback =
     ~post_params:Eliom_parameter.(string "username")
     ()
 
-let auth_systems = [
-  "CAS", Eliom_service.preapply login_cas None;
-]
-
 let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
   (None : Web_common.user option)
