@@ -46,25 +46,6 @@ ElGamal.PublicKey = Class.extend({
     return {g : this.g.toJSONObject(), p : this.p.toJSONObject(), q : this.q.toJSONObject(), y : this.y.toJSONObject()};
   },
   
-  verifyKnowledgeOfSecretKey: function(proof, challenge_generator) {
-    // if challenge_generator is present, we have to check that the challenge was properly generated.
-    if (challenge_generator != null) {
-      if (!proof.challenge.equals(challenge_generator(proof.commitment))) {
-        return false;
-      }
-    }
-    
-    // verify that g^response = s * y^challenge
-    var check = this.g.modPow(proof.response, this.p).equals(this.y.modPow(proof.challenge, this.p).multiply(proof.commitment).mod(this.p));
-    
-    return check;
-  },
-  
-  // check if the decryption factor is correct for this public key, given the proof
-  verifyDecryptionFactor: function(ciphertext, decryption_factor, decryption_proof, challenge_generator) {
-    return decryption_proof.verify(this.g, ciphertext.alpha, this.y, decryption_factor, this.p, this.q, challenge_generator);
-  },
-  
   multiply: function(other) {
     // base condition
     if (other == 0 || other == 1) {
@@ -225,23 +206,6 @@ ElGamal.Ciphertext = Class.extend({
     return ElGamal.Proof.simulate(this.pk.g, this.pk.y, this.alpha, beta_over_plaintext, this.pk.p, this.pk.q, challenge);
   },
   
-  verifyProof: function(plaintext, proof, challenge_generator) {
-    // DH tuple to verify is 
-    // g, y, alpha, beta/m
-    var beta_over_m = this.beta.multiply(plaintext.m.modInverse(this.pk.p)).mod(this.pk.p);
-    
-    return proof.verify(this.pk.g, this.pk.y, this.alpha, beta_over_m, this.pk.p, this.pk.q, challenge_generator);
-  },
-
-  verifyDecryptionProof: function(plaintext, proof, challenge_generator) {
-    // DH tuple to verify is 
-    // g, alpha, y, beta/m
-    // since the proven dlog is the secret key x, y=g^x.
-    var beta_over_m = this.beta.multiply(plaintext.m.modInverse(this.pk.p)).mod(this.pk.p);
-
-    return proof.verify(this.pk.g, this.alpha, this.pk.y, beta_over_m, this.pk.p, this.pk.q, challenge_generator);
-  },
-  
   generateDisjunctiveProof: function(list_of_plaintexts, real_index, randomness, challenge_generator) {
     // go through all plaintexts and simulate the ones that must be simulated.
     // note how the interface is as such so that the result does not reveal which is the real proof.
@@ -286,30 +250,6 @@ ElGamal.Ciphertext = Class.extend({
     // set the real proof
     proofs[real_index] = real_proof;
     return new ElGamal.DisjunctiveProof(proofs);
-  },
-  
-  verifyDisjunctiveProof: function(list_of_plaintexts, disj_proof, challenge_generator) {
-    var result = true;
-    var proofs = disj_proof.proofs;
-    
-    // for loop because we want to bail out of the inner loop
-    // if we fail one of the verifications.
-    for (var i=0; i < list_of_plaintexts.length; i++) {
-      if (!this.verifyProof(list_of_plaintexts[i], proofs[i]))
-        return false;
-    }
-    
-    // check the overall challenge
-    
-    // first the one expected from the proofs
-    var commitments = _(proofs).map(function(proof) {return proof.commitment;});
-    var expected_challenge = challenge_generator(commitments);
-    
-    // then the one that is the sum of the previous one.
-    var sum = new BigInt("0", 10); var self = this;
-    _(proofs).each(function(proof) {sum = sum.add(proof.challenge).mod(self.pk.q);});
-    
-    return expected_challenge.equals(sum);    
   },
   
   equals: function(other) {
@@ -390,23 +330,6 @@ ElGamal.Proof = Class.extend({
       commitment : {A: this.commitment.A.toJSONObject(), B: this.commitment.B.toJSONObject()},
       response : this.response.toJSONObject()
     }
-  },
-  
-  // verify a DH tuple proof
-  verify: function(little_g, little_h, big_g, big_h, p, q, challenge_generator) {
-    // check that little_g^response = A * big_g^challenge
-    var first_check = little_g.modPow(this.response, p).equals(big_g.modPow(this.challenge, p).multiply(this.commitment.A).mod(p));
-
-    // check that little_h^response = B * big_h^challenge
-    var second_check = little_h.modPow(this.response, p).equals(big_h.modPow(this.challenge, p).multiply(this.commitment.B).mod(p));
-    
-    var third_check = true;
-    
-    if (challenge_generator) {
-      third_check = this.challenge.equals(challenge_generator(this.commitment));
-    }
-    
-    return (first_check && second_check && third_check);
   }
 });
 

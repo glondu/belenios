@@ -327,27 +327,6 @@ HELIOS.EncryptedAnswer = Class.extend({
     this.randomness = null;
   },
   
-  // FIXME: should verifyEncryption really generate proofs? Overkill.
-  verifyEncryption: function(question, pk) {
-    var result = this.doEncryption(question, this.answer, pk, this.randomness);
-
-    // check that we have the same number of ciphertexts
-    if (result.choices.length != this.choices.length) {
-      return false;      
-    }
-      
-    // check the ciphertexts
-    for (var i=0; i<result.choices.length; i++) {
-      if (!result.choices[i].equals(this.choices[i])) {
-        // alert ("oy: " + result.choices[i] + "/" + this.choices[i]);
-        return false;
-      }
-    }
-    
-    // we made it, we're good
-    return true;
-  },
-  
   toString: function() {
     // get each ciphertext as a JSON string
     var choices_strings = _(this.choices).map(function(c) {return c.toString();});
@@ -454,14 +433,6 @@ HELIOS.EncryptedVote = Class.extend({
     });
   },
   
-  verifyEncryption: function(questions, pk) {
-    var overall_result = true;
-    _(this.encrypted_answers).each(function(ea, i) {
-      overall_result = overall_result && ea.verifyEncryption(questions[i], pk);
-    });
-    return overall_result;
-  },
-  
   toJSONObject: function(include_plaintext) {
       var answers = _(this.encrypted_answers).map(function(ea,i) {
       return ea.toJSONObject(include_plaintext);
@@ -478,53 +449,6 @@ HELIOS.EncryptedVote = Class.extend({
   
   get_hash: function() {
      return b64_sha256(JSON.stringify(this.toJSONObject()));
-  },
-  
-  get_audit_trail: function() {
-    return this.toJSONObject(true);
-  },
-  
-  verifyProofs: function(pk, outcome_callback) {
-    var zero_or_one = UTILS.generate_plaintexts(pk, 0, 1);
-
-    var VALID_P = true;
-    
-    var self = this;
-    
-    // for each question and associate encrypted answer
-    _(this.encrypted_answers).each(function(enc_answer, ea_num) {
-        var overall_result = 1;
-
-        // the max number of answers (decides whether this is approval or not and requires an overall proof)
-        var max = self.election.questions[ea_num].max;
-
-        // go through each individual proof
-        _(enc_answer.choices).each(function(choice, choice_num) {
-          var result = choice.verifyDisjunctiveProof(zero_or_one, enc_answer.individual_proofs[choice_num], ElGamal.disjunctive_challenge_generator);
-          outcome_callback(ea_num, choice_num, result, choice);
-          
-          VALID_P = VALID_P && result;
-           
-          // keep track of homomorphic product, if needed
-          if (max != null)
-            overall_result = choice.multiply(overall_result);
-        });
-        
-        if (max != null) {
-          // possible plaintexts [0, 1, .. , question.max]
-          var plaintexts = UTILS.generate_plaintexts(pk, self.election.questions[ea_num].min, self.election.questions[ea_num].max);
-        
-          // check the proof on the overall product
-          var overall_check = overall_result.verifyDisjunctiveProof(plaintexts, enc_answer.overall_proof, ElGamal.disjunctive_challenge_generator);
-          outcome_callback(ea_num, null, overall_check, null);
-          VALID_P = VALID_P && overall_check;
-        } else {
-          // check to make sure the overall_proof is null, since it's approval voting
-          VALID_P = VALID_P && (enc_answer.overall_proof == null)
-        }
-    });
-    
-    return VALID_P;
   }
 });
 

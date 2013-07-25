@@ -56,7 +56,6 @@ BOOTH.setup_templates = function() {
     $('#question_div').setTemplateURL("templates/question.html" + cache_bust);
     $('#confirm_div').setTemplateURL("templates/confirm.html" + cache_bust);
     $('#seal_div').setTemplateURL("templates/seal.html" + cache_bust);
-    $('#audit_div').setTemplateURL("templates/audit.html" + cache_bust);
     $('#footer').setTemplateURL("templates/footer.html" + cache_bust);
 
     BOOTH.templates_setup_p = true;
@@ -511,18 +510,6 @@ BOOTH.seal_ballot = function() {
     }
 };
 
-BOOTH.audit_ballot = function() {
-    BOOTH.audit_trail = BOOTH.encrypted_ballot_with_plaintexts_serialized || $.toJSON(BOOTH.encrypted_ballot.get_audit_trail());
-
-    BOOTH.show($('#audit_div')).processTemplate({'audit_trail' : BOOTH.audit_trail, 'election_url' : BOOTH.election_url});
-};
-
-BOOTH.post_audited_ballot = function() {
-  $.post(BOOTH.election_url + "/post-audited-ballot", {'audited_ballot': BOOTH.audit_trail}, function(result) {
-    alert('This audited ballot has been posted.\nRemember, this vote will only be used for auditing and will not be tallied.\nClick "back to voting" and cast a new ballot to make sure your vote counts.');
-  });
-};
-
 BOOTH.cast_ballot = function() {
     // show progress spinner
     $('#loading_div').html('<img src="loading.gif" id="proceed_loading_img" />');
@@ -537,9 +524,6 @@ BOOTH.cast_ballot = function() {
 
     BOOTH.encrypted_ballot_serialized = null;
     BOOTH.encrypted_ballot_with_plaintexts_serialized = null;
-
-    // remove audit trail
-    BOOTH.audit_trail = null;
 
     // we're ready to leave the site
     BOOTH.started_p = false;
@@ -611,9 +595,6 @@ function save_ballot() {
   </div>
 
   <div id="seal_div" class="panel">
-  </div>
-
-  <div id="audit_div" class="panel">
   </div>
 
 </div>
