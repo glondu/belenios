@@ -33,7 +33,7 @@
         <enable-dummy/>
         <admin hash="97b878ee6f0b3fdec58875e7825e720a0cc0f973d73e415458b5544938d09fe6"/><!-- Ooj8jubi -->
         <log file="_RUNDIR_/log/security.log"/>
-        <data dir="tests/data"/>
+        <data dir="demo/data"/>
       </eliom>
     </host>
 

@@ -5,8 +5,8 @@ all:
 	ocamlbuild all.otarget
 
 check: all
-	ocamlbuild tests/sandbox.byte
-	@_build/tests/sandbox.byte
+	ocamlbuild demo/demo.byte
+	@_build/demo/demo.byte
 
 clean:
 	ocamlbuild -clean

@@ -155,7 +155,7 @@ let save_to_disk () =
     e_public_key = { g; p; q; y }
   } in
   let ballots = Array.of_list (M.fold_ballots (fun x xs () -> x::xs) [] ()) in
-  let dir = Printf.sprintf "tests/data/%s" (Uuidm.to_string election.e_uuid) in
+  let dir = Printf.sprintf "demo/data/%s" (Uuidm.to_string election.e_uuid) in
   Unix.mkdir dir 0o755;
   let open Serializable_j in
   let number = Serializable_builtin_j.write_number in

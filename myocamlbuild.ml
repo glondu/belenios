@@ -18,7 +18,7 @@ let () = dispatch & function
 
     Pathname.define_context "src/web" ["src/lib"];
     Pathname.define_context "src/bin" ["src/lib"];
-    Pathname.define_context "tests" ["src/lib"];
+    Pathname.define_context "demo" ["src/lib"];
     Pathname.define_context "stuff" ["src/lib"];
     Pathname.define_context "." ["src/lib"];
 

@@ -162,7 +162,7 @@ Server administrator's guide
 
 ### Overview of the web server
 
-A sample web server can be run with the `tests/run-server.sh` script.
+A sample web server can be run with the `demo/run-server.sh` script.
 
 Here is an excerpt of the sample configuration file:
 

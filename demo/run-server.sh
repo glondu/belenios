@@ -18,6 +18,6 @@ sed \
   -e "s@_TMPDIR_@$BELENIOS_TMPDIR@g" \
   -e "s@_RUNDIR_@$BELENIOS_RUNDIR@g" \
   -e "s@_SRCDIR_@$PWD@g" \
-  tests/ocsigenserver.conf.in > $BELENIOS_RUNDIR/etc/ocsigenserver.conf
+  demo/ocsigenserver.conf.in > $BELENIOS_RUNDIR/etc/ocsigenserver.conf
 
 ocsigenserver -c $BELENIOS_RUNDIR/etc/ocsigenserver.conf "$@"
