@@ -68,6 +68,11 @@ let () =
       ] ();
   ];;
 
+let login_default =
+  let open Services in
+  if !enable_dummy then login_dummy
+  else Eliom_service.preapply login_cas None
+
 lwt () =
   match !secure_logfile with
     | Some x -> Web_common.open_security_log x
@@ -535,7 +540,7 @@ let () = Eliom_registration.Redirection.register
        Eliom_reference.set Services.saved_service (Services.Cast uuid) >>
        Eliom_reference.set Services.ballot (Some ballot) >>
        match user with
-         | None -> return (Eliom_service.preapply Services.login_cas None)
+         | None -> return login_default
          | Some u -> Services.get ()
      )
   )
