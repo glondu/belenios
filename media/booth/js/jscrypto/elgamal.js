@@ -553,12 +553,3 @@ ElGamal.stringify_choices = function(choices) {
 
   return strings_to_hash.join(",");
 };
-
-// a challenge generator for Fiat-Shamir
-ElGamal.fiatshamir_challenge_generator = function(commitment) {
-  return ElGamal.disjunctive_challenge_generator([commitment]);
-};
-
-ElGamal.fiatshamir_dlog_challenge_generator = function(commitment) {
-  return new BigInt(hex_sha1(commitment.toJSONObject()), 16);
-};
