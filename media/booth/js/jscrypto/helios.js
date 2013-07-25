@@ -216,7 +216,7 @@ UTILS.generate_plaintexts = function(pk, min, max) {
 
 
 HELIOS.EncryptedAnswer = Class.extend({
-  init: function(question, answer, pk, id, progress) {
+  init: function(question, answer, pk, zkp, progress) {
     // if nothing in the constructor
     if (question == null)
       return;
@@ -226,7 +226,7 @@ HELIOS.EncryptedAnswer = Class.extend({
     this.answer = answer;
 
     // do the encryption
-    var enc_result = this.doEncryption(question, answer, pk, id, null, progress);
+    var enc_result = this.doEncryption(question, answer, pk, zkp, null, progress);
 
     this.choices = enc_result.choices;
     this.randomness = enc_result.randomness;
@@ -234,7 +234,7 @@ HELIOS.EncryptedAnswer = Class.extend({
     this.overall_proof = enc_result.overall_proof;    
   },
   
-  doEncryption: function(question, answer, pk, id, randomness, progress) {
+  doEncryption: function(question, answer, pk, zkp, randomness, progress) {
     var choices = [];
     var individual_proofs = [];
     var overall_proof = null;
@@ -278,7 +278,7 @@ HELIOS.EncryptedAnswer = Class.extend({
       // generate proof
       if (generate_new_randomness) {
         // generate proof that this ciphertext is a 0 or a 1
-        individual_proofs[i] = choices[i].generateDisjunctiveProof(zero_one_plaintexts, plaintext_index, randomness[i], ElGamal.disjunctive_challenge_generator(id, choices[i]));
+        individual_proofs[i] = choices[i].generateDisjunctiveProof(zero_one_plaintexts, plaintext_index, randomness[i], ElGamal.disjunctive_challenge_generator(zkp, choices[i]));
       }
       
       if (progress)
@@ -306,7 +306,7 @@ HELIOS.EncryptedAnswer = Class.extend({
       if (question.min)
         overall_plaintext_index -= question.min;
       
-      overall_proof = hom_sum.generateDisjunctiveProof(plaintexts, overall_plaintext_index, rand_sum, ElGamal.disjunctive_challenge_generator(id, hom_sum));
+      overall_proof = hom_sum.generateDisjunctiveProof(plaintexts, overall_plaintext_index, rand_sum, ElGamal.disjunctive_challenge_generator(zkp, hom_sum));
 
       if (progress) {
         for (var i=0; i<question.max; i++)
@@ -386,7 +386,7 @@ HELIOS.EncryptedAnswer.fromJSONObject = function(d, election) {
 };
 
 HELIOS.EncryptedVote = Class.extend({
-  init: function(election, answers, id, progress) {
+  init: function(election, answers, zkp, progress) {
     // empty constructor
     if (election == null)
       return;
@@ -416,7 +416,7 @@ HELIOS.EncryptedVote = Class.extend({
       
     // loop through questions
     for (var i=0; i<n_questions; i++) {
-      this.encrypted_answers[i] = new HELIOS.EncryptedAnswer(election.questions[i], answers[i], election.public_key, id, progress);
+      this.encrypted_answers[i] = new HELIOS.EncryptedAnswer(election.questions[i], answers[i], election.public_key, zkp, progress);
     }    
   },
 

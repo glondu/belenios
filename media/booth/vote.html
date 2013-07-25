@@ -205,7 +205,7 @@ BOOTH.launch_async_encryption_answer = function(question_num) {
    BOOTH.workers[question_num].postMessage({
       'type' : 'encrypt',
       'answer' : BOOTH.ballot.answers[question_num],
-      'voter_id' : BOOTH.voter_id,
+      'zkp' : BOOTH.zkp,
       'id' : BOOTH.answer_timestamps[question_num]
    });
 };
@@ -466,7 +466,7 @@ BOOTH.seal_ballot_raw = function() {
     if (BOOTH.synchronous) {
       BOOTH.progress = new UTILS.PROGRESS();
       var progress_interval = setInterval("BOOTH.check_encryption_status()", 500);
-      BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.voter_id, BOOTH.progress);
+      BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.zkp, BOOTH.progress);
       BOOTH.encrypted_ballot.doSignature(BOOTH.credential);
       clearInterval(progress_interval);
       BOOTH._after_ballot_encryption();
@@ -543,7 +543,7 @@ BOOTH.ask_token = function () {
     try {
         var token = window.prompt("Please enter your credential:");
         BOOTH.credential = BOOTH.derive_key(token);
-        BOOTH.voter_id = BOOTH.credential.y.toString();
+        BOOTH.zkp = BOOTH.credential.y.toString();
         BOOTH.show_question(0);
     } catch (e) {
         window.alert(e);

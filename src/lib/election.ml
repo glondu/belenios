@@ -189,7 +189,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
 
   (** ZKPs for disjunctions *)
 
-  let eg_disj_prove d id x r {alpha; beta} =
+  let eg_disj_prove d zkp x r {alpha; beta} =
     (* prove that alpha = g^r and beta = y^r/d_x *)
     (* the size of d is the number of disjuncts *)
     let n = Array.length d in
@@ -220,14 +220,14 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     fs_prove [| g; y |] r (fun commitx ->
       Array.blit commitx 0 commitments (2*x) 2;
       let prefix = Printf.sprintf "prove|%s|%s,%s|"
-        id (G.to_string alpha) (G.to_string beta)
+        zkp (G.to_string alpha) (G.to_string beta)
       in
       Z.((G.hash prefix commitments + !total_challenges) mod q)
     ) >>= fun p ->
     proofs.(x) <- p;
     return proofs
 
-  let eg_disj_verify d id proofs {alpha; beta} =
+  let eg_disj_verify d zkp proofs {alpha; beta} =
     G.check alpha && G.check beta &&
     let n = Array.length d in
     n = Array.length proofs &&
@@ -244,7 +244,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
       done;
       total_challenges := Z.(!total_challenges mod q);
       let prefix = Printf.sprintf "prove|%s|%s,%s|"
-        id (G.to_string alpha) (G.to_string beta)
+        zkp (G.to_string alpha) (G.to_string beta)
       in
       hash prefix commitments =% !total_challenges
     with Exit -> false
@@ -283,9 +283,9 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
       ) else return (Array.of_list accu)
     in loop_outer (Array.length xs - 1) []
 
-  let create_answer id q r m =
+  let create_answer zkp q r m =
     let choices = Array.map2 eg_encrypt r m in
-    let individual_proofs = Array.map3 (eg_disj_prove d01 id) m r choices in
+    let individual_proofs = Array.map3 (eg_disj_prove d01 zkp) m r choices in
     (* create overall_proof from homomorphic combination of individual
        weights *)
     let sumr = Array.fold_left Z.(+) Z.zero r in
@@ -293,7 +293,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     let sumc = Array.fold_left eg_combine dummy_ciphertext choices in
     assert (q.q_min <= summ && summ <= q.q_max);
     let d = make_d q.q_min q.q_max in
-    let overall_proof = eg_disj_prove d id (summ - q.q_min) sumr sumc in
+    let overall_proof = eg_disj_prove d zkp (summ - q.q_min) sumr sumc in
     swap individual_proofs >>= fun individual_proofs ->
     overall_proof >>= fun overall_proof ->
     return {choices; individual_proofs; overall_proof}
@@ -304,7 +304,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     ) params.e_questions)
 
   let create_ballot r m =
-    swap (Array.map3 (create_answer "ID") params.e_questions r m) >>= fun answers ->
+    swap (Array.map3 (create_answer "") params.e_questions r m) >>= fun answers ->
     return {
       answers;
       election_hash = fingerprint;
@@ -314,16 +314,16 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
 
   (** Ballot verification *)
 
-  let verify_answer id q a =
-    Array.forall2 (eg_disj_verify d01 id) a.individual_proofs a.choices &&
+  let verify_answer zkp q a =
+    Array.forall2 (eg_disj_verify d01 zkp) a.individual_proofs a.choices &&
     let sumc = Array.fold_left eg_combine dummy_ciphertext a.choices in
     let d = make_d q.q_min q.q_max in
-    eg_disj_verify d id a.overall_proof sumc
+    eg_disj_verify d zkp a.overall_proof sumc
 
   let check_ballot b =
     b.election_uuid = params.e_uuid &&
     b.election_hash = P.fingerprint &&
-    let ok, id = match b.signature with
+    let ok, zkp = match b.signature with
       | Some {s_commitment = y; s_challenge; s_response} ->
         let ok =
           check_modulo q s_challenge &&
@@ -341,9 +341,9 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
           ) |> Array.of_list in
           s_challenge =% G.hash prefix ciphertexts
         in ok, G.to_string y
-      | None -> true, "ID"
+      | None -> true, ""
     in ok &&
-    Array.forall2 (verify_answer id) params.e_questions b.answers
+    Array.forall2 (verify_answer zkp) params.e_questions b.answers
 
   let extract_ciphertext b = Array.map (fun x -> x.choices) b.answers
 
