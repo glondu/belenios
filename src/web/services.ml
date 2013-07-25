@@ -120,7 +120,7 @@ let election_records = service
 
 let election_cast_post = post_service
   ~fallback:election_cast
-  ~post_params:(string "encrypted_vote")
+  ~post_params:(opt (string "encrypted_vote") ** opt (file "encrypted_vote_file"))
   ()
 
 let election_update_credential_form = service

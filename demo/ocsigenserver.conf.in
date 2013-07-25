@@ -7,6 +7,10 @@
 
     <logdir>_RUNDIR_/log</logdir>
     <datadir>_RUNDIR_/lib</datadir>
+
+    <uploaddir>_RUNDIR_/upload</uploaddir>
+    <maxuploadfilesize>128kB</maxuploadfilesize>
+
     <commandpipe>_TMPDIR_/run/ocsigenserver_command</commandpipe>
 
     <charset>utf-8</charset>

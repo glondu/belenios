@@ -252,8 +252,8 @@ let election_view ~auth_systems ~election ~user =
 let election_cast_raw ~election =
   let module X = (val election : Web_common.WEB_ELECTION) in
   let election = X.data in
-  let form = post_form ~service:Services.election_cast_post
-    (fun name ->
+  let form_rawballot = post_form ~service:Services.election_cast_post
+    (fun (name, _) ->
       [
         div [pcdata "Please paste your raw ballot in JSON format in the following box:"];
         div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
@@ -261,9 +261,24 @@ let election_cast_raw ~election =
       ]
     ) election.Web_common.election.e_uuid
   in
+  let form_upload = post_form ~service:Services.election_cast_post
+    (fun (_, name) ->
+      [
+        div [pcdata "Alternatively, you can also upload a file containing your ballot:"];
+        div [
+          pcdata "File: ";
+          file_input ~name ();
+        ];
+        div [string_input ~input_type:`Submit ~value:"Submit" ()];
+      ]
+    ) election.Web_common.election.e_uuid
+  in
   let content = [
     h1 [ pcdata election.Web_common.election.e_name ];
-    form;
+    h3 [ pcdata "Submit by copy/paste" ];
+    form_rawballot;
+    h3 [ pcdata "Submit by file" ];
+    form_upload;
   ] in
   base ~title:election.Web_common.election.e_name ~content
 

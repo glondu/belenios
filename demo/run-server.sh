@@ -12,6 +12,7 @@ mkdir -p \
   $BELENIOS_RUNDIR/etc \
   $BELENIOS_RUNDIR/log \
   $BELENIOS_RUNDIR/lib \
+  $BELENIOS_RUNDIR/upload \
   $BELENIOS_TMPDIR/run
 
 sed \

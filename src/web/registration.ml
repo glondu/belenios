@@ -540,7 +540,14 @@ let () = Eliom_registration.Html5.register
 let () = Eliom_registration.Redirection.register
   ~service:Services.election_cast_post
   (if_eligible can_read
-     (fun uuid election user ballot ->
+     (fun uuid election user (ballot_raw, ballot_file) ->
+       lwt ballot = match ballot_raw, ballot_file with
+         | Some ballot, None -> return ballot
+         | None, Some fi ->
+           let fn = fi.Ocsigen_extensions.tmp_filename in
+           Lwt_stream.to_string (Lwt_io.chars_of_file fn)
+         | _, _ -> fail_http 400
+       in
        Eliom_reference.set Services.saved_service (Services.Cast uuid) >>
        Eliom_reference.set Services.ballot (Some ballot) >>
        match user with
