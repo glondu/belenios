@@ -140,7 +140,7 @@ ElGamal.SecretKey = Class.extend({
     // compute response = w +  x * challenge
     var response = w.add(this.x.multiply(challenge)).mod(this.pk.q);
     
-    return new ElGamal.DLogProof(s, challenge, response);
+    return new ElGamal.DLogProof(challenge, response);
   }
 });
 
@@ -310,33 +310,37 @@ ElGamal.Plaintext = Class.extend({
 
 ElGamal.Proof = Class.extend({
   init: function(A, B, challenge, response) {
-    this.commitment = {};
-    this.commitment.A = A;
-    this.commitment.B = B;
+    if (A && B) {
+      this.commitment = {};
+      this.commitment.A = A;
+      this.commitment.B = B;
+    }
     this.challenge = challenge;
     this.response = response;
   },
   
   toString: function() {
-    return this.commitment.A.toString() + ","
-          + this.commitment.B.toString() + ","
-          + this.challenge.toString() + ","
+    return this.challenge.toString() + ","
           + this.response.toString()
   },
 
   toJSONObject: function() {
     return {
       challenge : this.challenge.toJSONObject(),
-      commitment : {A: this.commitment.A.toJSONObject(), B: this.commitment.B.toJSONObject()},
       response : this.response.toJSONObject()
     }
   }
 });
 
 ElGamal.Proof.fromJSONObject = function(d) {
+  var A, B;
+  if (d.commitment) {
+    A = BigInt.fromJSONObject(d.commitment.A);
+    B = BigInt.fromJSONObject(d.commitment.B);
+  }
   return new ElGamal.Proof(
-    BigInt.fromJSONObject(d.commitment.A),
-    BigInt.fromJSONObject(d.commitment.B),
+    A,
+    B,
     BigInt.fromJSONObject(d.challenge),
     BigInt.fromJSONObject(d.response));
 };
@@ -354,6 +358,7 @@ ElGamal.Proof.generate = function(little_g, little_h, x, p, q, challenge_generat
   var proof = new ElGamal.Proof();
   
   // compute A=little_g^w, B=little_h^w
+  proof.commitment = {}
   proof.commitment.A = little_g.modPow(w, p);
   proof.commitment.B = little_h.modPow(w, p);
   
@@ -431,19 +436,24 @@ ElGamal.encrypt = function(pk, plaintext, r) {
 // DLog Proof
 //
 ElGamal.DLogProof = Class.extend({
-  init: function(commitment, challenge, response) {
-    this.commitment = commitment;
+  init: function(challenge, response) {
     this.challenge = challenge;
     this.response = response;
   },
   
   toJSONObject: function() {
-    return {'challenge' : this.challenge.toJSONObject(), 'commitment': this.commitment.toJSONObject(), 'response': this.response.toJSONObject()};
+    var res = {'challenge' : this.challenge.toJSONObject(), 'response': this.response.toJSONObject()};
+    if (this.public_key) res.public_key = this.public_key.toJSONObject();
+    return res;
   }
 });
 
 ElGamal.DLogProof.fromJSONObject = function(d) {
-  return new ElGamal.DLogProof(BigInt.fromJSONObject(d.commitment || d.s), BigInt.fromJSONObject(d.challenge), BigInt.fromJSONObject(d.response));
+  var res = new ElGamal.DLogProof(BigInt.fromJSONObject(d.challenge), BigInt.fromJSONObject(d.response));
+  if (d.public_key) {
+      res.public_key = BigInt.fromJSONObject(d.public_key);
+  }
+  return res;
 };
 
 // a challenge generator based on a list of commitments of

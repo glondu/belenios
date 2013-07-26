@@ -68,7 +68,7 @@ proof that the total weight is within bounds.">
 
 (* FIXME: merge this with trustee_public_key *)
 type 'a signature = {
-  commitment : 'a; (* FIXME: this is actually a public key *)
+  public_key : 'a;
   challenge : number;
   response : number;
 } <ocaml field_prefix="s_">

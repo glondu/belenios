@@ -206,7 +206,7 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
     in
     lwt credential =
       match ballot.signature with
-        | Some s -> Lwt.return (Z.to_string s.s_commitment)
+        | Some s -> Lwt.return (Z.to_string s.s_public_key)
         | None -> fail MissingCredential
     in
     lwt old_cred =

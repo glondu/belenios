@@ -77,8 +77,7 @@ HELIOS.EncryptedVote.prototype.doSignature = function(cred) {
     // in case mod doesn't support negative numbers as expected
     var response = pk.q.subtract(cred.x.multiply(challenge).mod(pk.q));
     response = response.add(w).mod(pk.q);
-    // hugly hijack of the DLogProof datatype... note: here, we
-    // give public credential instead of commitment, which can be computed
-    // from public credential, challenge and response
-    this.signature = new ElGamal.DLogProof(cred.y, challenge, response);
+    // hugly hijack of the DLogProof datatype...
+    this.signature = new ElGamal.DLogProof(challenge, response);
+    this.signature.public_key = cred.y;
 }

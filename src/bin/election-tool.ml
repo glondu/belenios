@@ -134,7 +134,7 @@ let check_signature_present =
   match public_creds with
   | Some creds -> (fun b ->
     match b.signature with
-    | Some s -> ZSet.mem s.s_commitment creds
+    | Some s -> ZSet.mem s.s_public_key creds
     | None -> false
   )
   | None -> (fun _ -> true)

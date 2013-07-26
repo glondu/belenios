@@ -324,7 +324,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     b.election_uuid = params.e_uuid &&
     b.election_hash = P.fingerprint &&
     let ok, zkp = match b.signature with
-      | Some {s_commitment = y; s_challenge; s_response} ->
+      | Some {s_public_key = y; s_challenge; s_response} ->
         let ok =
           check_modulo q s_challenge &&
           check_modulo q s_response &&
