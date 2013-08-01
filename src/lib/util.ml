@@ -41,7 +41,7 @@ module Array = struct
         n = Array.length y &&
         let rec loop_inner j =
           if j >= 0 then f x.(j) y.(j) && loop_inner (pred j)
-          else true
+          else loop_outer (pred i)
         in loop_inner (pred n)
       else true
     in
@@ -58,7 +58,7 @@ module Array = struct
         n = Array.length z &&
         let rec loop_inner j =
           if j >= 0 then f x.(j) y.(j) z.(j) && loop_inner (pred j)
-          else true
+          else loop_outer (pred i)
         in loop_inner (pred n)
       else true
     in
