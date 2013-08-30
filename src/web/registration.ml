@@ -160,8 +160,7 @@ lwt election_table =
             }) in
             let {g; p; q; y} = election.e_public_key in
             let module G = (val
-              Election.finite_field ~p ~q ~g :
-                Signatures.GROUP with type t = Z.t
+              Election.finite_field ~p ~q ~g : Election.FF_GROUP
             ) in
             let module P = struct
               module G = G

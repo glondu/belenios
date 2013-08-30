@@ -62,10 +62,7 @@ let election, election_fingerprint =
 let {g; p; q; y}  = election.e_public_key
 let () = assert (Election.check_finite_field ~p ~q ~g)
 
-module G = (
-  val Election.finite_field ~g ~p ~q : Signatures.GROUP with type t = Z.t
-)
-
+module G = (val Election.finite_field ~g ~p ~q : Election.FF_GROUP)
 module M = Election.MakeSimpleMonad(G)
 
 (* Load and check trustee keys, if present *)
