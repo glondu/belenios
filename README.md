@@ -18,13 +18,6 @@ To run basic command-line tools, you will need:
  * [Atdgen](http://mjambon.com/atdgen)
  * [Yojson](http://mjambon.com/yojson.html)
 
-To generate credentials, you will need:
-
- * [Node.js](http://nodejs.org/)
-
-On some systems, the Node.js interpreter might be available as either
-`node` or `nodejs`, please adapt `stuff/derive_key.js` accordingly.
-
 To run the web server, you will additionally need:
 
  * [Eliom](http://ocsigen.org/eliom/) version 3

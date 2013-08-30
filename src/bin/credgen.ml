@@ -18,15 +18,13 @@ let token_length = 14
 let n58 = Z.of_int 58
 let n53 = Z.of_int 53
 
-let smjs_template = format_of_string "./stuff/derive_key.js %s %s"
-
 let public_key_of_token uuid x =
-  let ic = Printf.ksprintf Unix.open_process_in smjs_template x uuid in
-  let hex = input_line ic in
-  if Unix.(close_process_in ic <> WEXITED 0) then (
-    Printf.eprintf "Error while running nodejs!";
-    exit 2;
-  );
+  let open Cryptokit in
+  let salt = transform_string (Hexa.decode ()) uuid in
+  let hex =
+    pbkdf2 ~prf:MAC.hmac_sha256 ~iterations:1000 ~size:1 ~salt x |>
+    transform_string (Hexa.encode ())
+  in
   let x = Z.(of_string_base 16 hex mod q) in
   let y = G.(g **~ x) in
   Z.to_string y

@@ -33,3 +33,9 @@ val sha256_hex : string -> string
 val sha256_b64 : string -> string
 
 val option_map : ('a -> 'b) -> 'a option -> 'b option
+
+val pbkdf2 :
+  prf:(string -> Cryptokit.hash) ->
+  salt:string ->
+  iterations:int -> size:int ->
+  string -> string
