@@ -3,3 +3,4 @@ src/lib/lib.cma
 src/web/server.cma
 api.docdir/index.html
 README.html
+stuff/template.byte
