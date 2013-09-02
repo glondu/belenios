@@ -158,9 +158,9 @@ lwt election_table =
               can_read = Any;
               can_vote;
             }) in
-            let {g; p; q; y} = params.e_public_key in
+            let {group; y} = params.e_public_key in
             let module G = (val
-              Election.finite_field ~p ~q ~g : Election.FF_GROUP
+              Election.finite_field group : Election.FF_GROUP
             ) in
             let module P = struct
               module G = G

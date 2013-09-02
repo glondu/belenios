@@ -3,7 +3,7 @@ open Util
 (* Setup group *)
 
 module G = Election.DefaultGroup;;
-assert G.(Election.check_finite_field ~p ~q ~g);;
+assert (Election.check_finite_field G.group);;
 
 (* Some helpers *)
 

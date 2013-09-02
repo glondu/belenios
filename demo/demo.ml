@@ -9,7 +9,7 @@ let hashB x = Cryptokit.(x |>
 (* Setup group *)
 
 module G = Election.DefaultGroup;;
-assert G.(Election.check_finite_field ~p ~q ~g);;
+assert (Election.check_finite_field G.group);;
 
 module M = Election.MakeSimpleMonad(G);;
 
@@ -146,7 +146,7 @@ let list_save_to filename writer xs =
 
 let save_to_disk () =
   let params = { params with
-    e_public_key = G.({ g; p; q; y })
+    e_public_key = G.({group; y})
   } in
   let ballots = Array.of_list (M.fold_ballots (fun x xs () -> x::xs) [] ()) in
   let dir = Printf.sprintf "demo/data/%s" (Uuidm.to_string params.e_uuid) in

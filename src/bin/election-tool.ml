@@ -59,10 +59,11 @@ let params, election_fingerprint =
   | Some [e] -> e
   | _ -> failwith "invalid election file"
 
-let {g; p; q; y}  = params.e_public_key
-let () = assert (Election.check_finite_field ~p ~q ~g)
+let {group; y} = params.e_public_key
+let {g; p; q} = group
+let () = assert (Election.check_finite_field group)
 
-module G = (val Election.finite_field ~g ~p ~q : Election.FF_GROUP)
+module G = (val Election.finite_field group : Election.FF_GROUP)
 module M = Election.MakeSimpleMonad(G)
 
 (* Load and check trustee keys, if present *)

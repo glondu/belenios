@@ -32,13 +32,20 @@ type 'a trustee_public_key = {
 
 (** {2 Elections} *)
 
-type ff_pubkey = {
+type ff_params = {
   g : number;
   p : number;
   q : number;
-  y : number;
 }
-<doc text="Parameters for a multiplicative subgroup of a finite field, with a public key.">
+<doc text="Parameters for a multiplicative subgroup of a finite field.">
+
+type ('a, 'b) wrapped_pubkey = {
+  group : 'a;
+  y : 'b;
+}
+<doc text="A public key wrapped with its group parameters.">
+
+type ff_pubkey = (ff_params, number) wrapped_pubkey
 
 type question = {
   answers : string list <ocaml repr="array">;

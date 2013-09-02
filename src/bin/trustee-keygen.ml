@@ -4,7 +4,7 @@ open Serializable_t
 (* Setup group *)
 
 module G = Election.DefaultGroup;;
-assert G.(Election.check_finite_field ~p ~q ~g);;
+assert (Election.check_finite_field G.group);;
 
 module M = Election.MakeSimpleMonad(G);;
 

@@ -42,6 +42,11 @@ module type GROUP = sig
 
   val compare : t -> t -> int
   (** A total ordering over the elements of the group. *)
+
+  type group
+  (** Serializable description of the group. *)
+
+  val group : group
 end
 
 (** Monad signature. *)

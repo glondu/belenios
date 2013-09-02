@@ -4,7 +4,7 @@ open Serializable_t
 (* Setup group *)
 
 module G = Election.DefaultGroup;;
-assert G.(Election.check_finite_field ~p ~q ~g);;
+assert (Election.check_finite_field G.group);;
 
 module M = Election.MakeSimpleMonad(G);;
 
@@ -35,7 +35,7 @@ let y = KG.combine public_keys
 let params = {
   e_description = "This is a test election.";
   e_name = "Test election";
-  e_public_key = G.({g; p; q; y});
+  e_public_key = G.({group; y});
   e_questions =
     [|
       {
