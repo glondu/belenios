@@ -104,18 +104,18 @@ lwt election_table =
           (* TODO: if the election is featured, show it on the home page *)
           return accu
         ) else (
-          let fn_election = path/"election.json" in
+          let fn_params = path/"election.json" in
           let fn_public_keys = path/"public_keys.jsons" in
-          lwt b = file_exists fn_election in
+          lwt b = file_exists fn_params in
           if b then (
             Ocsigen_messages.debug (fun () ->
               "-- registering " ^ subdir
             );
             lwt raw =
-              Lwt_io.chars_of_file fn_election |>
+              Lwt_io.chars_of_file fn_params |>
               Lwt_stream.to_string
             in
-            let election = Serializable_j.election_of_string
+            let params = Serializable_j.params_of_string
               Serializable_j.read_ff_pubkey raw
             in
             let fingerprint = sha256_b64 raw in
@@ -149,23 +149,23 @@ lwt election_table =
                   )
             in
             let election_data = Web_common.({
-              fn_election;
+              fn_params;
               fingerprint;
-              election;
+              params;
               fn_public_keys;
               public_creds;
               featured_p = true;
               can_read = Any;
               can_vote;
             }) in
-            let {g; p; q; y} = election.e_public_key in
+            let {g; p; q; y} = params.e_public_key in
             let module G = (val
               Election.finite_field ~p ~q ~g : Election.FF_GROUP
             ) in
             let module P = struct
               module G = G
               let public_keys = lazy (assert false)
-              let params = { election with e_public_key = y }
+              let params = { params with e_public_key = y }
               let fingerprint = fingerprint
               let metadata = metadata
             end in
@@ -178,7 +178,7 @@ lwt election_table =
               let data = election_data
             end in
             X.B.inject_creds public_creds >>
-            let uuid = election.e_uuid in
+            let uuid = params.e_uuid in
             return (EMap.add uuid (module X : Web_common.WEB_ELECTION) accu)
           ) else return accu
         )
@@ -380,7 +380,7 @@ let () = Eliom_registration.File.register
   (if_eligible can_read
      (fun uuid election user () ->
        let module X = (val election : Web_common.WEB_ELECTION) in
-       return X.data.Web_common.fn_election
+       return X.data.Web_common.fn_params
      )
   )
 

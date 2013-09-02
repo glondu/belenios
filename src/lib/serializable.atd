@@ -47,7 +47,7 @@ type question = {
   question : string;
 } <ocaml field_prefix="q_">
 
-type 'a election = {
+type 'a params = {
   description : string;
   name : string;
   public_key : 'a;

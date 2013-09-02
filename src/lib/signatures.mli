@@ -99,7 +99,7 @@ module type ELECTION_PARAMS = sig
   (* TODO: public_keys is not needed during election, remove from
      here, or at least monadify. *)
 
-  val params : G.t Serializable_t.election
+  val params : G.t Serializable_t.params
   (** Parameters of the election. *)
 
   val metadata : Serializable_t.metadata option
@@ -126,7 +126,7 @@ module type ELECTION = sig
   type private_key = Z.t
   type public_key = elt
 
-  val election_params : elt Serializable_t.election
+  val election_params : elt Serializable_t.params
 
   (** {2 Ciphertexts} *)
 

@@ -2,7 +2,7 @@
 
 open Serializable_compat_t
 
-val election : 'a election -> 'a Serializable_t.election
+val params : 'a params -> 'a Serializable_t.params
 val ballot : 'a ballot -> 'a Serializable_t.ballot
 val partial_decryption :
   'a partial_decryption -> 'a Serializable_t.partial_decryption

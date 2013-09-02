@@ -51,15 +51,15 @@ let () = Sys.chdir !dir
 
 (* Load and check election *)
 
-let election, election_fingerprint =
+let params, election_fingerprint =
   match (load_from_file (fun l ->
-    Serializable_j.(election_of_string read_ff_pubkey l),
+    Serializable_j.(params_of_string read_ff_pubkey l),
     sha256_b64 l
   ) "election.json") with
   | Some [e] -> e
   | _ -> failwith "invalid election file"
 
-let {g; p; q; y}  = election.e_public_key
+let {g; p; q; y}  = params.e_public_key
 let () = assert (Election.check_finite_field ~p ~q ~g)
 
 module G = (val Election.finite_field ~g ~p ~q : Election.FF_GROUP)
@@ -97,7 +97,7 @@ let metadata =
 
 module P = struct
   module G = G
-  let params = { election with e_public_key = y }
+  let params = { params with e_public_key = y }
   let metadata = metadata
   let public_keys = lazy (
     match public_keys with

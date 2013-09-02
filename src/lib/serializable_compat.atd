@@ -56,7 +56,7 @@ type question = {
   tally_type : tally_type;
 } <ocaml field_prefix="q_">
 
-type 'a election = {
+type 'a params = {
   cast_url : string;
   description : string;
   frozen_at : datetime;

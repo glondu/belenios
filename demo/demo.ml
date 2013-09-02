@@ -32,7 +32,7 @@ let y = KG.combine public_keys;;
 
 (* Setup election *)
 
-let election = {
+let params = {
   e_description = "This is a test election.";
   e_name = "Test election";
   e_public_key = y;
@@ -73,14 +73,14 @@ let metadata =
 
 module P = struct
   module G = G
-  let params = election
+  let params = params
   let metadata = Some metadata
   let public_keys = Lazy.lazy_from_val (
     public_keys |> Array.map (fun x -> x.trustee_public_key)
   )
   let fingerprint =
-    election |>
-    Serializable_j.string_of_election Serializable_builtin_j.write_number |>
+    params |>
+    Serializable_j.string_of_params Serializable_builtin_j.write_number |>
     hashB
 end;;
 
@@ -145,15 +145,15 @@ let list_save_to filename writer xs =
   close_out oc;;
 
 let save_to_disk () =
-  let election = { election with
+  let params = { params with
     e_public_key = G.({ g; p; q; y })
   } in
   let ballots = Array.of_list (M.fold_ballots (fun x xs () -> x::xs) [] ()) in
-  let dir = Printf.sprintf "demo/data/%s" (Uuidm.to_string election.e_uuid) in
+  let dir = Printf.sprintf "demo/data/%s" (Uuidm.to_string params.e_uuid) in
   Unix.mkdir dir 0o755;
   let open Serializable_j in
   let number = Serializable_builtin_j.write_number in
-  save_to (dir/"election.json") (write_election write_ff_pubkey) election;
+  save_to (dir/"election.json") (write_params write_ff_pubkey) params;
   save_to (dir/"metadata.json") write_metadata metadata;
   list_save_to (dir/"private_keys.jsons") number private_keys;
   list_save_to (dir/"public_keys.jsons") (write_trustee_public_key number) public_keys;

@@ -10,7 +10,7 @@ let question q =
   let open Serializable_t in
   {q_answers; q_min; q_max; q_question}
 
-let election e =
+let params e =
   let {
     e_description; e_name; e_public_key;
     e_questions; e_uuid; e_short_name;

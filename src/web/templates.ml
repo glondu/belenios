@@ -104,9 +104,9 @@ let format_one_featured_election e =
   li [
     h3 [
       a ~service:Services.(preapply_uuid election_index e)
-        [pcdata e.Web_common.election.e_name] ();
+        [pcdata e.Web_common.params.e_name] ();
     ];
-    p [pcdata e.Web_common.election.e_description];
+    p [pcdata e.Web_common.params.e_description];
   ]
 
 let index ~auth_systems ~featured =
@@ -227,9 +227,9 @@ let election_view ~auth_systems ~election ~user =
     ]
   ] in
   let content = [
-    h1 [ pcdata election.Web_common.election.e_name ];
+    h1 [ pcdata election.Web_common.params.e_name ];
     p ~a:[a_style "margin: 1em; padding: 2pt; font-style: italic; border: 1pt solid;"] [
-      pcdata election.Web_common.election.e_description
+      pcdata election.Web_common.params.e_description
     ];
     p voting_period;
     p permissions;
@@ -247,7 +247,7 @@ let election_view ~auth_systems ~election ~user =
     br ();
     audit_info;
   ] in
-  base ~auth_systems ~title:election.Web_common.election.e_name ~content
+  base ~auth_systems ~title:election.Web_common.params.e_name ~content
 
 let election_cast_raw ~election =
   let module X = (val election : Web_common.WEB_ELECTION) in
@@ -259,7 +259,7 @@ let election_cast_raw ~election =
         div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
         div [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
-    ) election.Web_common.election.e_uuid
+    ) election.Web_common.params.e_uuid
   in
   let form_upload = post_form ~service:Services.election_cast_post
     (fun (_, name) ->
@@ -271,19 +271,19 @@ let election_cast_raw ~election =
         ];
         div [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
-    ) election.Web_common.election.e_uuid
+    ) election.Web_common.params.e_uuid
   in
   let content = [
-    h1 [ pcdata election.Web_common.election.e_name ];
+    h1 [ pcdata election.Web_common.params.e_name ];
     h3 [ pcdata "Submit by copy/paste" ];
     form_rawballot;
     h3 [ pcdata "Submit by file" ];
     form_upload;
   ] in
-  base ~title:election.Web_common.election.e_name ~content
+  base ~title:election.Web_common.params.e_name ~content
 
 let ballot_received ~election ~confirm ~user ~can_vote =
-  let name = election.Web_common.election.e_name in
+  let name = election.Web_common.params.e_name in
   let user_div = match user with
     | Some u when can_vote ->
       let service = confirm () in
@@ -295,7 +295,7 @@ let ballot_received ~election ~confirm ~user ~can_vote =
           string_input ~input_type:`Submit ~value:"I confirm my vote" ();
           pcdata ".";
         ]
-      ]) election.Web_common.election.e_uuid
+      ]) election.Web_common.params.e_uuid
     | Some _ ->
       div [
         pcdata "You cannot vote in this election!";
@@ -323,7 +323,7 @@ let ballot_received ~election ~confirm ~user ~can_vote =
   base ~title:name ~content
 
 let do_cast_ballot ~election ~result =
-  let name = election.Web_common.election.e_name in
+  let name = election.Web_common.params.e_name in
   let content = [
     h1 [ pcdata name ];
     p [
@@ -359,10 +359,10 @@ let election_update_credential ~election =
         ];
         div [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
-    ) election.Web_common.election.e_uuid
+    ) election.Web_common.params.e_uuid
   in
   let content = [
-    h1 [ pcdata election.Web_common.election.e_name ];
+    h1 [ pcdata election.Web_common.params.e_name ];
     form;
   ] in
-  base ~title:election.Web_common.election.e_name ~content
+  base ~title:election.Web_common.params.e_name ~content

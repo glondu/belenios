@@ -32,7 +32,7 @@ let y = KG.combine public_keys
 
 (* Setup election *)
 
-let election = {
+let params = {
   e_description = "This is a test election.";
   e_name = "Test election";
   e_public_key = G.({g; p; q; y});
@@ -81,5 +81,5 @@ let save_to filename writer x =
   close_out oc;;
 
 open Serializable_j;;
-save_to "election.json" (write_election write_ff_pubkey) election;;
+save_to "election.json" (write_params write_ff_pubkey) params;;
 save_to "metadata.json" write_metadata metadata;;
