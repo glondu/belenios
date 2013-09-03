@@ -27,10 +27,10 @@ type acl =
 module SSet = Set.Make(String)
 
 type election_web = {
-  fn_params : string;
+  params_fname : string;
   fingerprint : string;
   params : ff_pubkey params;
-  fn_public_keys : string;
+  public_keys_fname : string;
   public_creds : SSet.t;
   featured_p : bool;
   can_read : acl;

@@ -104,15 +104,15 @@ lwt election_table =
           (* TODO: if the election is featured, show it on the home page *)
           return accu
         ) else (
-          let fn_params = path/"election.json" in
-          let fn_public_keys = path/"public_keys.jsons" in
-          lwt b = file_exists fn_params in
+          let params_fname = path/"election.json" in
+          let public_keys_fname = path/"public_keys.jsons" in
+          lwt b = file_exists params_fname in
           if b then (
             Ocsigen_messages.debug (fun () ->
               "-- registering " ^ subdir
             );
             lwt raw =
-              Lwt_io.chars_of_file fn_params |>
+              Lwt_io.chars_of_file params_fname |>
               Lwt_stream.to_string
             in
             let params = Serializable_j.params_of_string
@@ -120,18 +120,18 @@ lwt election_table =
             in
             let fingerprint = sha256_b64 raw in
             lwt metadata =
-              let fn = path/"metadata.json" in
-              lwt b = file_exists fn in
+              let fname = path/"metadata.json" in
+              lwt b = file_exists fname in
               if b then (
-                Lwt_io.chars_of_file fn |>
+                Lwt_io.chars_of_file fname |>
                 Lwt_stream.to_string >>=
                 wrap1 Serializable_j.metadata_of_string >>=
                 (fun x -> return (Some x))
               ) else return None
             in
-            let fn_public_creds = path/"public_creds.txt" in
+            let public_creds_fname = path/"public_creds.txt" in
             lwt public_creds =
-              Lwt_io.lines_of_file fn_public_creds |>
+              Lwt_io.lines_of_file public_creds_fname |>
               populate Web_common.SSet.empty (fun c accu ->
                 return (Web_common.SSet.add c accu)
               )
@@ -149,10 +149,10 @@ lwt election_table =
                   )
             in
             let election_web = Web_common.({
-              fn_params;
+              params_fname;
               fingerprint;
               params;
-              fn_public_keys;
+              public_keys_fname;
               public_creds;
               featured_p = true;
               can_read = Any;
@@ -380,7 +380,7 @@ let () = Eliom_registration.File.register
   (if_eligible can_read
      (fun uuid election user () ->
        let module X = (val election : Web_common.WEB_ELECTION) in
-       return X.election_web.Web_common.fn_params
+       return X.election_web.Web_common.params_fname
      )
   )
 
@@ -390,7 +390,7 @@ let () = Eliom_registration.File.register
   (if_eligible can_read
       (fun uuid election user () ->
         let module X = (val election : Web_common.WEB_ELECTION) in
-        return X.election_web.Web_common.fn_public_keys
+        return X.election_web.Web_common.public_keys_fname
       )
    )
 
@@ -543,8 +543,8 @@ let () = Eliom_registration.Redirection.register
        lwt ballot = match ballot_raw, ballot_file with
          | Some ballot, None -> return ballot
          | None, Some fi ->
-           let fn = fi.Ocsigen_extensions.tmp_filename in
-           Lwt_stream.to_string (Lwt_io.chars_of_file fn)
+           let fname = fi.Ocsigen_extensions.tmp_filename in
+           Lwt_stream.to_string (Lwt_io.chars_of_file fname)
          | _, _ -> fail_http 400
        in
        Eliom_reference.set Services.saved_service (Services.Cast uuid) >>
