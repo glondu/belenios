@@ -17,7 +17,7 @@ type acl =
 
 module SSet : Set.S with type elt = string
 
-type election_data = {
+type election_web = {
   fn_params : string;
   fingerprint : string;
   params : ff_pubkey params;
@@ -80,7 +80,7 @@ module type WEB_ELECTION = sig
   module P : Signatures.ELECTION_PARAMS
   module E : LWT_ELECTION
   module B : WEB_BBOX
-  val data : election_data
+  val election_web : election_web
 end
 
 val open_security_log : string -> unit Lwt.t

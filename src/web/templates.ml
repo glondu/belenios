@@ -164,7 +164,7 @@ let make_button ~service contents =
 
 let election_view ~auth_systems ~election ~user =
   let module X = (val election : Web_common.WEB_ELECTION) in
-  let election = X.data in
+  let election = X.election_web in
   let service = Services.(preapply_uuid election_raw election) in
   lwt permissions =
     let open Web_common in
@@ -251,7 +251,7 @@ let election_view ~auth_systems ~election ~user =
 
 let election_cast_raw ~election =
   let module X = (val election : Web_common.WEB_ELECTION) in
-  let election = X.data in
+  let election = X.election_web in
   let form_rawballot = post_form ~service:Services.election_cast_post
     (fun (name, _) ->
       [
@@ -345,7 +345,7 @@ let do_cast_ballot ~election ~result =
 
 let election_update_credential ~election =
   let module X = (val election : Web_common.WEB_ELECTION) in
-  let election = X.data in
+  let election = X.election_web in
   let form = post_form ~service:Services.election_update_credential
     (fun (old, new_) ->
       [

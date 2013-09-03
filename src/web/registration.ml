@@ -148,7 +148,7 @@ lwt election_table =
                     return (Web_common.SSet.mem (Web_common.string_of_user u) set)
                   )
             in
-            let election_data = Web_common.({
+            let election_web = Web_common.({
               fn_params;
               fingerprint;
               params;
@@ -175,7 +175,7 @@ lwt election_table =
               module P = P
               module E = Election.MakeElection(P)(M)
               module B = Web_common.MakeBallotBox(P)(E)
-              let data = election_data
+              let election_web = election_web
             end in
             X.B.inject_creds public_creds >>
             let uuid = params.e_uuid in
@@ -194,7 +194,7 @@ let get_election_by_uuid x =
 let get_featured_elections () =
   EMap.fold (fun uuid e res ->
     let module X = (val e : Web_common.WEB_ELECTION) in
-    let e = X.data in
+    let e = X.election_web in
     if e.Web_common.featured_p then e::res else res
   ) election_table [] |> return
 
@@ -219,7 +219,7 @@ let if_eligible acl f uuid x =
   lwt election = get_election_by_uuid uuid in
   let module X = (val election : Web_common.WEB_ELECTION) in
   lwt user = Eliom_reference.get Services.user in
-  lwt b = check_acl acl X.data user in
+  lwt b = check_acl acl X.election_web user in
   if b then f uuid election user x else forbidden ()
 
 let () =
@@ -380,7 +380,7 @@ let () = Eliom_registration.File.register
   (if_eligible can_read
      (fun uuid election user () ->
        let module X = (val election : Web_common.WEB_ELECTION) in
-       return X.data.Web_common.fn_params
+       return X.election_web.Web_common.fn_params
      )
   )
 
@@ -390,7 +390,7 @@ let () = Eliom_registration.File.register
   (if_eligible can_read
       (fun uuid election user () ->
         let module X = (val election : Web_common.WEB_ELECTION) in
-        return X.data.Web_common.fn_public_keys
+        return X.election_web.Web_common.fn_public_keys
       )
    )
 
@@ -492,7 +492,7 @@ let do_cast election uuid () =
         let module X = (val election : WEB_ELECTION) in
         match_lwt Eliom_reference.get Services.user with
           | Some user as u ->
-            lwt b = check_acl can_vote X.data u in
+            lwt b = check_acl can_vote X.election_web u in
             if b then (
               let record =
                 Web_common.string_of_user user,
@@ -505,7 +505,7 @@ let do_cast election uuid () =
                 with Error e -> return (`Error e)
               in
               Eliom_reference.unset Services.ballot >>
-              Templates.do_cast_ballot ~auth_systems ~election:X.data ~result
+              Templates.do_cast_ballot ~auth_systems ~election:X.election_web ~result
             ) else forbidden ()
           | None -> forbidden ()
       end
@@ -522,8 +522,8 @@ let ballot_received uuid election user =
       (do_cast election)
     in service
   in
-  lwt can_vote = check_acl can_vote X.data user in
-  Templates.ballot_received ~auth_systems ~election:X.data ~confirm ~user ~can_vote
+  lwt can_vote = check_acl can_vote X.election_web user in
+  Templates.ballot_received ~auth_systems ~election:X.election_web ~confirm ~user ~can_vote
 
 
 let () = Eliom_registration.Html5.register
