@@ -28,7 +28,13 @@ type election_web = {
   can_vote : acl;
 }
 
-module MakeLwtRandom (G : Signatures.GROUP) : sig
+val make_rng : unit -> Cryptokit.Random.rng Lwt.t
+
+module type LWT_RNG = sig
+  val rng : Cryptokit.Random.rng Lwt.t
+end
+
+module MakeLwtRandom (X : LWT_RNG) : sig
 
   (** {2 Monadic definitions} *)
 

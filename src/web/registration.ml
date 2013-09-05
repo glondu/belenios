@@ -170,11 +170,12 @@ lwt election_table =
               let metadata = metadata
             end in
             let module X : Web_common.WEB_ELECTION = struct
+              open Web_common
               module G = G
-              module M = Web_common.MakeLwtRandom(G)
+              module M = MakeLwtRandom(struct let rng = make_rng () end)
               module P = P
               module E = Election.MakeElection(P)(M)
-              module B = Web_common.MakeBallotBox(P)(E)
+              module B = MakeBallotBox(P)(E)
               let election_web = election_web
             end in
             X.B.inject_creds public_creds >>
