@@ -116,14 +116,10 @@ lwt election_table =
             Ocsigen_messages.debug (fun () ->
               "-- registering " ^ subdir
             );
-            lwt raw =
+            lwt raw_election =
               Lwt_io.chars_of_file params_fname |>
               Lwt_stream.to_string
             in
-            let params = Serializable_j.params_of_string
-              Serializable_j.read_ff_pubkey raw
-            in
-            let fingerprint = sha256_b64 raw in
             lwt metadata =
               let fname = path/"metadata.json" in
               lwt b = file_exists fname in
@@ -153,12 +149,6 @@ lwt election_table =
                     return (Web_common.SSet.mem (Web_common.string_of_user u) set)
                   )
             in
-            let election = {
-              e_params = params;
-              e_meta = metadata;
-              e_pks = None;
-              e_fingerprint = fingerprint;
-            } in
             let election_web = Web_common.({
               params_fname;
               public_keys_fname;
@@ -166,13 +156,13 @@ lwt election_table =
               can_read = Any;
               can_vote;
             }) in
-            let web_election = Web_common.make_web_election
-              (module E : Web_common.LWT_ELECTION with type elt = Z.t)
-              election election_web
+            let open Web_common in
+            let web_election = make_web_election
+              raw_election metadata election_web
             in
-            let module X = (val web_election : Web_common.WEB_ELECTION) in
+            let module X = (val web_election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
             X.B.inject_creds public_creds >>
-            let uuid = params.e_uuid in
+            let uuid = web_election.election.e_params.e_uuid in
             return (EMap.add uuid web_election accu)
           ) else return accu
         )
@@ -186,10 +176,10 @@ let get_election_by_uuid x =
     raise_lwt Eliom_common.Eliom_404
 
 let get_featured_elections () =
+  let open Web_common in
   EMap.fold (fun uuid e res ->
-    let module X = (val e : Web_common.WEB_ELECTION) in
-    if X.election_web.Web_common.featured_p then
-      X.election :: res
+    if e.election_web.featured_p then
+      e.election.e_params :: res
     else res
   ) election_table [] |> return
 
@@ -212,9 +202,8 @@ let check_acl acl election user =
 
 let if_eligible acl f uuid x =
   lwt election = get_election_by_uuid uuid in
-  let module X = (val election : Web_common.WEB_ELECTION) in
   lwt user = Eliom_reference.get Services.user in
-  lwt b = check_acl acl X.election_web user in
+  lwt b = check_acl acl election.Web_common.election_web user in
   if b then f uuid election user x else forbidden ()
 
 let () =
@@ -374,8 +363,7 @@ let () = Eliom_registration.File.register
   ~content_type:"application/json"
   (if_eligible can_read
      (fun uuid election user () ->
-       let module X = (val election : Web_common.WEB_ELECTION) in
-       return X.election_web.Web_common.params_fname
+       return Web_common.(election.election_web.params_fname)
      )
   )
 
@@ -384,8 +372,7 @@ let () = Eliom_registration.File.register
   ~content_type:"application/json"
   (if_eligible can_read
       (fun uuid election user () ->
-        let module X = (val election : Web_common.WEB_ELECTION) in
-        return X.election_web.Web_common.public_keys_fname
+        return Web_common.(election.election_web.public_keys_fname)
       )
    )
 
@@ -393,7 +380,8 @@ let () = Eliom_registration.Streamlist.register
   ~service:Services.election_public_creds
   (if_eligible can_read
       (fun uuid election user () ->
-        let module X = (val election : Web_common.WEB_ELECTION) in
+        let open Web_common in
+        let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
         lwt creds = X.B.extract_creds () in
         let s = Web_common.SSet.fold (fun x accu ->
           (fun () -> return (Ocsigen_stream.of_string (x^"\n"))) :: accu
@@ -406,7 +394,8 @@ let () = Eliom_registration.Streamlist.register
   ~service:Services.election_ballots
   (if_eligible can_read
      (fun uuid election user () ->
-       let module X = (val election : Web_common.WEB_ELECTION) in
+       let open Web_common in
+       let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
        (* TODO: streaming *)
        lwt ballots = X.B.fold_ballots (fun x xs ->
          return ((x^"\n")::xs)
@@ -423,7 +412,8 @@ let () = Eliom_registration.Streamlist.register
   (if_eligible can_read
      (fun uuid election user () ->
        if Web_common.is_admin user then (
-         let module X = (val election : Web_common.WEB_ELECTION) in
+         let open Web_common in
+         let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
          (* TODO: streaming *)
          lwt ballots = X.B.fold_records (fun (u, d) xs ->
            let x = Printf.sprintf "%s %S\n"
@@ -484,10 +474,10 @@ let do_cast election uuid () =
       begin
         Eliom_reference.unset Services.ballot >>
         let open Web_common in
-        let module X = (val election : WEB_ELECTION) in
+        let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
         match_lwt Eliom_reference.get Services.user with
           | Some user as u ->
-            lwt b = check_acl can_vote X.election_web u in
+            lwt b = check_acl can_vote election.election_web u in
             if b then (
               let record =
                 Web_common.string_of_user user,
@@ -500,14 +490,15 @@ let do_cast election uuid () =
                 with Error e -> return (`Error e)
               in
               Eliom_reference.unset Services.ballot >>
-              Templates.do_cast_ballot ~auth_systems ~election:X.election ~result
+              Templates.do_cast_ballot ~auth_systems ~election ~result
             ) else forbidden ()
           | None -> forbidden ()
       end
     | None -> fail_http 404
 
 let ballot_received uuid election user =
-  let module X = (val election : Web_common.WEB_ELECTION) in
+  let open Web_common in
+  let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
   Eliom_reference.set Services.saved_service (Services.Cast uuid) >>
   let confirm () =
     let service = Services.create_confirm () in
@@ -517,8 +508,8 @@ let ballot_received uuid election user =
       (do_cast election)
     in service
   in
-  lwt can_vote = check_acl can_vote X.election_web user in
-  Templates.ballot_received ~auth_systems ~election:X.election ~confirm ~user ~can_vote
+  lwt can_vote = check_acl can_vote election.election_web user in
+  Templates.ballot_received ~auth_systems ~election ~confirm ~user ~can_vote
 
 
 let () = Eliom_registration.Html5.register
@@ -563,10 +554,11 @@ let () = Eliom_registration.Html5.register
 let () = Eliom_registration.String.register
   ~service:Services.election_update_credential
   (fun uuid (old, new_) ->
+    let open Web_common in
     lwt user = Eliom_reference.get Services.user in
     if Web_common.is_admin user then (
       lwt election = get_election_by_uuid uuid in
-      let module X = (val election : Web_common.WEB_ELECTION) in
+      let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
       try_lwt
         X.B.update_cred ~old ~new_ >>
         return ("OK", "text/plain")

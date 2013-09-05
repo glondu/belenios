@@ -105,9 +105,9 @@ let format_one_featured_election e =
   li [
     h3 [
       a ~service:Services.(preapply_uuid election_index e)
-        [pcdata e.e_params.e_name] ();
+        [pcdata e.e_name] ();
     ];
-    p [pcdata e.e_params.e_description];
+    p [pcdata e.e_description];
   ]
 
 let index ~auth_systems ~featured =
@@ -164,13 +164,11 @@ let make_button ~service contents =
     contents
 
 let election_view ~auth_systems ~election ~user =
-  let module X = (val election : Web_common.WEB_ELECTION) in
-  let election = X.election in
-  let params = election.e_params in
-  let service = Services.(preapply_uuid election_raw election) in
+  let open Web_common in
+  let params = election.election.e_params in
+  let service = Services.(preapply_uuid election_raw params) in
   lwt permissions =
-    let open Web_common in
-    match X.election_web.can_vote with
+    match election.election_web.can_vote with
       | Any ->
         Lwt.return [ pcdata "Anyone can vote in this election." ]
       | Restricted p ->
@@ -188,7 +186,7 @@ let election_view ~auth_systems ~election ~user =
               pcdata " vote in this election.";
             ]
   in
-  let voting_period = match election.e_meta with
+  let voting_period = match election.election.e_meta with
     | Some m ->
       [
         pcdata "This election starts on ";
@@ -207,21 +205,21 @@ let election_view ~auth_systems ~election ~user =
     div [
       div [
         pcdata "Election fingerprint: ";
-        code [ pcdata election.e_fingerprint ];
+        code [ pcdata election.election.e_fingerprint ];
       ];
       div [
         pcdata "Election data: ";
         a ~service [ pcdata "parameters" ] ();
         pcdata ", ";
-        a ~service:Services.(preapply_uuid election_public_creds election) [
+        a ~service:Services.(preapply_uuid election_public_creds params) [
           pcdata "public credentials"
         ] ();
         pcdata ", ";
-        a ~service:Services.(preapply_uuid election_public_keys election) [
+        a ~service:Services.(preapply_uuid election_public_keys params) [
           pcdata "trustee public keys"
         ] ();
         pcdata ", ";
-        a ~service:Services.(preapply_uuid election_ballots election) [
+        a ~service:Services.(preapply_uuid election_ballots params) [
           pcdata "ballots";
         ] ();
         pcdata ".";
@@ -238,11 +236,11 @@ let election_view ~auth_systems ~election ~user =
     div [
       div [
         make_button
-          ~service:(Services.(preapply_uuid election_vote election))
+          ~service:(Services.(preapply_uuid election_vote params))
           "Go to the booth";
         pcdata " or ";
         make_button
-          ~service:(Services.(preapply_uuid election_cast election))
+          ~service:(Services.(preapply_uuid election_cast params))
           "Submit a raw ballot";
       ];
     ];
@@ -252,8 +250,8 @@ let election_view ~auth_systems ~election ~user =
   base ~auth_systems ~title:params.e_name ~content
 
 let election_cast_raw ~election =
-  let module X = (val election : Web_common.WEB_ELECTION) in
-  let params = X.election.e_params in
+  let open Web_common in
+  let params = election.election.e_params in
   let form_rawballot = post_form ~service:Services.election_cast_post
     (fun (name, _) ->
       [
@@ -285,7 +283,9 @@ let election_cast_raw ~election =
   base ~title:params.e_name ~content
 
 let ballot_received ~election ~confirm ~user ~can_vote =
-  let name = election.e_params.e_name in
+  let open Web_common in
+  let params = election.election.e_params in
+  let name = params.e_name in
   let user_div = match user with
     | Some u when can_vote ->
       let service = confirm () in
@@ -297,7 +297,7 @@ let ballot_received ~election ~confirm ~user ~can_vote =
           string_input ~input_type:`Submit ~value:"I confirm my vote" ();
           pcdata ".";
         ]
-      ]) election.e_params.e_uuid
+      ]) params.e_uuid
     | Some _ ->
       div [
         pcdata "You cannot vote in this election!";
@@ -316,7 +316,7 @@ let ballot_received ~election ~confirm ~user ~can_vote =
     ];
     user_div;
     p [
-      a ~service:(Services.(preapply_uuid election_index election)) [
+      a ~service:(Services.(preapply_uuid election_index params)) [
         pcdata "Go back to election"
       ] ();
       pcdata ".";
@@ -325,7 +325,8 @@ let ballot_received ~election ~confirm ~user ~can_vote =
   base ~title:name ~content
 
 let do_cast_ballot ~election ~result =
-  let name = election.e_params.e_name in
+  let params = election.Web_common.election.e_params in
+  let name = params.e_name in
   let content = [
     h1 [ pcdata name ];
     p [
@@ -337,7 +338,7 @@ let do_cast_ballot ~election ~result =
       );
     ];
     p [
-      a ~service:(Services.(preapply_uuid election_index election)) [
+      a ~service:(Services.(preapply_uuid election_index params)) [
         pcdata "Go back to election"
       ] ();
       pcdata ".";
@@ -346,8 +347,7 @@ let do_cast_ballot ~election ~result =
   base ~title:name ~content
 
 let election_update_credential ~election =
-  let module X = (val election : Web_common.WEB_ELECTION) in
-  let params = X.election.e_params in
+  let params = election.Web_common.election.e_params in
   let form = post_form ~service:Services.election_update_credential
     (fun (old, new_) ->
       [

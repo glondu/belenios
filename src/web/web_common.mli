@@ -26,23 +26,16 @@ type election_web = {
 }
 
 val make_rng : unit -> Cryptokit.Random.rng Lwt.t
+(** Create a pseudo random number generator initialized by a 128-bit
+    secure random seed. *)
+
+module type LWT_RANDOM = Signatures.RANDOM with type 'a t = 'a Lwt.t
 
 module type LWT_RNG = sig
   val rng : Cryptokit.Random.rng Lwt.t
 end
 
-module MakeLwtRandom (X : LWT_RNG) : sig
-
-  (** {2 Monadic definitions} *)
-
-  include Signatures.MONAD with type 'a t = 'a Lwt.t
-
-  (** {2 Random number generation} *)
-
-  val random : Z.t -> Z.t t
-  (** [random q] returns a random number modulo [q]. It uses a secure
-      random number generator initialized by a 128-bit seed. *)
-end
+module MakeLwtRandom (X : LWT_RNG) : LWT_RANDOM
 (** Lwt-compatible random number generation. *)
 
 type error =
@@ -61,12 +54,9 @@ exception Error of error
 
 val explain_error : error -> string
 
-module type LWT_ELECTION = Signatures.ELECTION
-  with type 'a m = 'a Lwt.t
-
-module type WEB_BBOX = sig
+module type WEB_BALLOT_BOX = sig
   include Signatures.BALLOT_BOX
-  with type 'a m := 'a Lwt.t
+  with type 'a m = 'a Lwt.t
   and type ballot = string
   and type record = string * datetime
 
@@ -75,18 +65,25 @@ module type WEB_BBOX = sig
   val update_cred : old:string -> new_:string -> unit Lwt.t
 end
 
-module type WEB_ELECTION = sig
-  module G : Signatures.GROUP with type t = Z.t
-  module E : LWT_ELECTION with type elt = G.t
-  module B : WEB_BBOX
-  val election : G.t Signatures.election
-  val election_web : election_web
+module type WEB_ELECTION_BUNDLE =
+  Signatures.ELECTION_BUNDLE with type 'a E.m = 'a Lwt.t
+
+module type WEB_BALLOT_BOX_BUNDLE = sig
+  include WEB_ELECTION_BUNDLE
+  module B : WEB_BALLOT_BOX
 end
 
+type 'a web_election = private {
+  modules : (module WEB_BALLOT_BOX_BUNDLE with type elt = 'a);
+  election : 'a Signatures.election;
+  election_web : election_web;
+}
+
 val make_web_election :
-  (module LWT_ELECTION with type elt = Z.t) ->
-  ff_pubkey Signatures.election -> election_web ->
-  (module WEB_ELECTION)
+  string ->
+  Serializable_t.metadata option ->
+  election_web ->
+  Z.t web_election
 
 val open_security_log : string -> unit Lwt.t
 (** Set the path to the security logger. *)
