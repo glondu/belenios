@@ -17,8 +17,9 @@ val check_finite_field : Serializable_t.ff_params -> bool
 module DefaultGroup : FF_GROUP
 (** A sample group suitable for cryptography. *)
 
-val check_election : (module ELECTION_PARAMS) -> bool
-(** Check consistency of election parameters. *)
+val check_election_public_key : (module GROUP with type t = 'a) ->
+  'a election -> bool
+(** Check election public key. *)
 
 module MakeSimpleMonad (G : GROUP) : sig
 
@@ -64,6 +65,6 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) : sig
 end
 (** Simple distributed generation of an election public key. *)
 
-module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) :
-  ELECTION with type elt = P.G.t and type 'a m = 'a M.t
+module MakeElection (G : GROUP) (M : RANDOM) :
+  ELECTION with type elt = G.t and type 'a m = 'a M.t
 (** Implementation of {!Signatures.ELECTION}. *)

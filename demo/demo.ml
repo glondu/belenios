@@ -1,3 +1,4 @@
+open Signatures
 open Util
 open Serializable_t
 
@@ -10,8 +11,8 @@ let hashB x = Cryptokit.(x |>
 
 module G = Election.DefaultGroup;;
 assert (Election.check_finite_field G.group);;
-
 module M = Election.MakeSimpleMonad(G);;
+module E = Election.MakeElection(G)(M);;
 
 (* Setup trustees *)
 
@@ -71,27 +72,24 @@ let metadata =
   }
 ;;
 
-module P = struct
-  module G = G
-  let params = params
-  let metadata = Some metadata
-  let public_keys = Lazy.lazy_from_val (
-    public_keys |> Array.map (fun x -> x.trustee_public_key)
-  )
-  let fingerprint =
+let pks = public_keys |> Array.map (fun x -> x.trustee_public_key)
+
+let e = {
+  e_params = params;
+  e_meta = Some metadata;
+  e_pks = Some pks;
+  e_fingerprint =
     params |>
     Serializable_j.string_of_params Serializable_builtin_j.write_number |>
-    hashB
-end;;
-
-module E = Election.MakeElection(P)(M);;
+    hashB;
+};;
 
 (* Vote *)
 
 let vote b =
   try
-    let b = E.create_ballot (E.make_randomness () ()) b () in
-    let ok = E.check_ballot b in
+    let b = E.create_ballot e (E.make_randomness e ()) b () in
+    let ok = E.check_ballot e b in
     if ok then M.cast b "anonymous" ();
     ok
   with _ -> false
@@ -110,15 +108,15 @@ assert (not (vote [|[| 1; 0; 0; 0; 0 |]; [| 0; 1; 0; 1; 0; 0 |]; [| 0; 1; 1 |]|]
 
 let encrypted_tally = M.fold_ballots (fun b t ->
   M.return (E.combine_ciphertexts (E.extract_ciphertext b) t)
-) E.neutral_ciphertext ();;
+) (E.neutral_ciphertext e) ();;
 
 let factors = Array.map (fun x ->
   E.compute_factor encrypted_tally x ()
 ) private_keys;;
-assert (Array.forall2 (E.check_factor encrypted_tally) (Lazy.force P.public_keys) factors);;
+assert (Array.forall2 (E.check_factor encrypted_tally) pks factors);;
 
 let result = E.combine_factors (M.turnout ()) encrypted_tally factors;;
-assert (E.check_result result);;
+assert (E.check_result e result);;
 
 let tally = E.extract_tally result;;
 assert (tally = [|[| 1; 0; 1; 0; 0 |]; [|0; 4; 0; 4; 3; 0|]; [| 1; 1; 2 |]|]);;

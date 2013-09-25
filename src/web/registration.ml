@@ -1,3 +1,4 @@
+open Signatures
 open Util
 open Serializable_t
 open Lwt
@@ -5,6 +6,10 @@ open Lwt
 (* FIXME: the following should be in configuration file... but
    <maxrequestbodysize> doesn't work *)
 let () = Ocsigen_config.set_maxrequestbodysizeinmemory 128000
+
+module G = Election.DefaultGroup
+module M = Web_common.MakeLwtRandom(struct let rng = Web_common.make_rng () end)
+module E = Election.MakeElection(G)(M)
 
 module EMap = Map.Make(Uuidm)
 
@@ -148,39 +153,27 @@ lwt election_table =
                     return (Web_common.SSet.mem (Web_common.string_of_user u) set)
                   )
             in
+            let election = {
+              e_params = params;
+              e_meta = metadata;
+              e_pks = None;
+              e_fingerprint = fingerprint;
+            } in
             let election_web = Web_common.({
               params_fname;
-              fingerprint;
-              params;
               public_keys_fname;
-              public_creds;
               featured_p = true;
               can_read = Any;
               can_vote;
             }) in
-            let {group; y} = params.e_public_key in
-            let module G = (val
-              Election.finite_field group : Election.FF_GROUP
-            ) in
-            let module P = struct
-              module G = G
-              let public_keys = lazy (assert false)
-              let params = { params with e_public_key = y }
-              let fingerprint = fingerprint
-              let metadata = metadata
-            end in
-            let module X : Web_common.WEB_ELECTION = struct
-              open Web_common
-              module G = G
-              module M = MakeLwtRandom(struct let rng = make_rng () end)
-              module P = P
-              module E = Election.MakeElection(P)(M)
-              module B = MakeBallotBox(P)(E)
-              let election_web = election_web
-            end in
+            let web_election = Web_common.make_web_election
+              (module E : Web_common.LWT_ELECTION with type elt = Z.t)
+              election election_web
+            in
+            let module X = (val web_election : Web_common.WEB_ELECTION) in
             X.B.inject_creds public_creds >>
             let uuid = params.e_uuid in
-            return (EMap.add uuid (module X : Web_common.WEB_ELECTION) accu)
+            return (EMap.add uuid web_election accu)
           ) else return accu
         )
        )
@@ -195,8 +188,9 @@ let get_election_by_uuid x =
 let get_featured_elections () =
   EMap.fold (fun uuid e res ->
     let module X = (val e : Web_common.WEB_ELECTION) in
-    let e = X.election_web in
-    if e.Web_common.featured_p then e::res else res
+    if X.election_web.Web_common.featured_p then
+      X.election :: res
+    else res
   ) election_table [] |> return
 
 let fail_http status =
@@ -506,7 +500,7 @@ let do_cast election uuid () =
                 with Error e -> return (`Error e)
               in
               Eliom_reference.unset Services.ballot >>
-              Templates.do_cast_ballot ~auth_systems ~election:X.election_web ~result
+              Templates.do_cast_ballot ~auth_systems ~election:X.election ~result
             ) else forbidden ()
           | None -> forbidden ()
       end
@@ -524,7 +518,7 @@ let ballot_received uuid election user =
     in service
   in
   lwt can_vote = check_acl can_vote X.election_web user in
-  Templates.ballot_received ~auth_systems ~election:X.election_web ~confirm ~user ~can_vote
+  Templates.ballot_received ~auth_systems ~election:X.election ~confirm ~user ~can_vote
 
 
 let () = Eliom_registration.Html5.register

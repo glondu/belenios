@@ -1,3 +1,4 @@
+open Signatures
 open Util
 open Serializable_t
 open Eliom_content.Html5.F
@@ -104,9 +105,9 @@ let format_one_featured_election e =
   li [
     h3 [
       a ~service:Services.(preapply_uuid election_index e)
-        [pcdata e.Web_common.params.e_name] ();
+        [pcdata e.e_params.e_name] ();
     ];
-    p [pcdata e.Web_common.params.e_description];
+    p [pcdata e.e_params.e_description];
   ]
 
 let index ~auth_systems ~featured =
@@ -164,11 +165,12 @@ let make_button ~service contents =
 
 let election_view ~auth_systems ~election ~user =
   let module X = (val election : Web_common.WEB_ELECTION) in
-  let election = X.election_web in
+  let election = X.election in
+  let params = election.e_params in
   let service = Services.(preapply_uuid election_raw election) in
   lwt permissions =
     let open Web_common in
-    match election.can_vote with
+    match X.election_web.can_vote with
       | Any ->
         Lwt.return [ pcdata "Anyone can vote in this election." ]
       | Restricted p ->
@@ -186,7 +188,7 @@ let election_view ~auth_systems ~election ~user =
               pcdata " vote in this election.";
             ]
   in
-  let voting_period = match X.P.metadata with
+  let voting_period = match election.e_meta with
     | Some m ->
       [
         pcdata "This election starts on ";
@@ -205,7 +207,7 @@ let election_view ~auth_systems ~election ~user =
     div [
       div [
         pcdata "Election fingerprint: ";
-        code [ pcdata election.Web_common.fingerprint ];
+        code [ pcdata election.e_fingerprint ];
       ];
       div [
         pcdata "Election data: ";
@@ -227,9 +229,9 @@ let election_view ~auth_systems ~election ~user =
     ]
   ] in
   let content = [
-    h1 [ pcdata election.Web_common.params.e_name ];
+    h1 [ pcdata params.e_name ];
     p ~a:[a_style "margin: 1em; padding: 2pt; font-style: italic; border: 1pt solid;"] [
-      pcdata election.Web_common.params.e_description
+      pcdata params.e_description
     ];
     p voting_period;
     p permissions;
@@ -247,11 +249,11 @@ let election_view ~auth_systems ~election ~user =
     br ();
     audit_info;
   ] in
-  base ~auth_systems ~title:election.Web_common.params.e_name ~content
+  base ~auth_systems ~title:params.e_name ~content
 
 let election_cast_raw ~election =
   let module X = (val election : Web_common.WEB_ELECTION) in
-  let election = X.election_web in
+  let params = X.election.e_params in
   let form_rawballot = post_form ~service:Services.election_cast_post
     (fun (name, _) ->
       [
@@ -259,7 +261,7 @@ let election_cast_raw ~election =
         div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
         div [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
-    ) election.Web_common.params.e_uuid
+    ) params.e_uuid
   in
   let form_upload = post_form ~service:Services.election_cast_post
     (fun (_, name) ->
@@ -271,19 +273,19 @@ let election_cast_raw ~election =
         ];
         div [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
-    ) election.Web_common.params.e_uuid
+    ) params.e_uuid
   in
   let content = [
-    h1 [ pcdata election.Web_common.params.e_name ];
+    h1 [ pcdata params.e_name ];
     h3 [ pcdata "Submit by copy/paste" ];
     form_rawballot;
     h3 [ pcdata "Submit by file" ];
     form_upload;
   ] in
-  base ~title:election.Web_common.params.e_name ~content
+  base ~title:params.e_name ~content
 
 let ballot_received ~election ~confirm ~user ~can_vote =
-  let name = election.Web_common.params.e_name in
+  let name = election.e_params.e_name in
   let user_div = match user with
     | Some u when can_vote ->
       let service = confirm () in
@@ -295,7 +297,7 @@ let ballot_received ~election ~confirm ~user ~can_vote =
           string_input ~input_type:`Submit ~value:"I confirm my vote" ();
           pcdata ".";
         ]
-      ]) election.Web_common.params.e_uuid
+      ]) election.e_params.e_uuid
     | Some _ ->
       div [
         pcdata "You cannot vote in this election!";
@@ -323,7 +325,7 @@ let ballot_received ~election ~confirm ~user ~can_vote =
   base ~title:name ~content
 
 let do_cast_ballot ~election ~result =
-  let name = election.Web_common.params.e_name in
+  let name = election.e_params.e_name in
   let content = [
     h1 [ pcdata name ];
     p [
@@ -345,7 +347,7 @@ let do_cast_ballot ~election ~result =
 
 let election_update_credential ~election =
   let module X = (val election : Web_common.WEB_ELECTION) in
-  let election = X.election_web in
+  let params = X.election.e_params in
   let form = post_form ~service:Services.election_update_credential
     (fun (old, new_) ->
       [
@@ -359,10 +361,10 @@ let election_update_credential ~election =
         ];
         div [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
-    ) election.Web_common.params.e_uuid
+    ) params.e_uuid
   in
   let content = [
-    h1 [ pcdata election.Web_common.params.e_name ];
+    h1 [ pcdata params.e_name ];
     form;
   ] in
-  base ~title:election.Web_common.params.e_name ~content
+  base ~title:params.e_name ~content

@@ -63,13 +63,13 @@ module DefaultGroup = (val finite_field default_ff_params : FF_GROUP)
 
 (** Parameters *)
 
-let check_election p =
-  let module P = (val p : ELECTION_PARAMS) in
-  let open P in
+let check_election_public_key (type t) g e =
+  let module G = (val g : GROUP with type t = t) in
   let open G in
   (* check public key *)
-  let computed = Array.fold_left ( *~ ) G.one (Lazy.force public_keys) in
-  computed =~ params.e_public_key
+  match e.e_pks with
+  | Some pks -> Array.fold_left ( *~ ) G.one pks =~ e.e_params.e_public_key
+  | None -> false
 
 (** Simple monad *)
 
@@ -139,8 +139,7 @@ end
 
 (** Homomorphic elections *)
 
-module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
-  open P
+module MakeElection (G : GROUP) (M : RANDOM) = struct
   open G
 
   type 'a m = 'a M.t
@@ -148,11 +147,11 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
   let ( >>= ) = bind
 
   type elt = G.t
+
+  type t = elt election
   type private_key = Z.t
   type public_key = elt
 
-  let election_params = params
-  let y = params.e_public_key
   let ( / ) x y = x *~ invert y
 
   type ciphertext = elt Serializable_t.ciphertext array array
@@ -170,9 +169,9 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
       beta = c1.beta *~ c2.beta;
     }
 
-  let neutral_ciphertext = Array.map (fun q ->
+  let neutral_ciphertext e = Array.map (fun q ->
     Array.make (Array.length q.q_answers) dummy_ciphertext
-  ) params.e_questions
+  ) e.e_params.e_questions
 
   let combine_ciphertexts = Array.mmap2 eg_combine
 
@@ -181,7 +180,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
   type randomness = Z.t array array
 
   (** ElGamal encryption. *)
-  let eg_encrypt r x =
+  let eg_encrypt y r x =
     {
       alpha = g **~ r;
       beta = y **~ r *~ g **~ Z.of_int x;
@@ -205,7 +204,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
 
   (** ZKPs for disjunctions *)
 
-  let eg_disj_prove d zkp x r {alpha; beta} =
+  let eg_disj_prove y d zkp x r {alpha; beta} =
     (* prove that alpha = g^r and beta = y^r/d_x *)
     (* the size of d is the number of disjuncts *)
     let n = Array.length d in
@@ -243,7 +242,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     proofs.(x) <- p;
     return proofs
 
-  let eg_disj_verify d zkp proofs {alpha; beta} =
+  let eg_disj_verify y d zkp proofs {alpha; beta} =
     G.check alpha && G.check beta &&
     let n = Array.length d in
     n = Array.length proofs &&
@@ -299,9 +298,9 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
       ) else return (Array.of_list accu)
     in loop_outer (Array.length xs - 1) []
 
-  let create_answer zkp q r m =
-    let choices = Array.map2 eg_encrypt r m in
-    let individual_proofs = Array.map3 (eg_disj_prove d01 zkp) m r choices in
+  let create_answer y zkp q r m =
+    let choices = Array.map2 (eg_encrypt y) r m in
+    let individual_proofs = Array.map3 (eg_disj_prove y d01 zkp) m r choices in
     (* create overall_proof from homomorphic combination of individual
        weights *)
     let sumr = Array.fold_left Z.(+) Z.zero r in
@@ -309,36 +308,38 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     let sumc = Array.fold_left eg_combine dummy_ciphertext choices in
     assert (q.q_min <= summ && summ <= q.q_max);
     let d = make_d q.q_min q.q_max in
-    let overall_proof = eg_disj_prove d zkp (summ - q.q_min) sumr sumc in
+    let overall_proof = eg_disj_prove y d zkp (summ - q.q_min) sumr sumc in
     swap individual_proofs >>= fun individual_proofs ->
     overall_proof >>= fun overall_proof ->
     return {choices; individual_proofs; overall_proof}
 
-  let make_randomness () =
+  let make_randomness e =
     sswap (Array.map (fun q ->
       Array.init (Array.length q.q_answers) (fun _ -> random G.q)
-    ) params.e_questions)
+    ) e.e_params.e_questions)
 
-  let create_ballot r m =
-    swap (Array.map3 (create_answer "") params.e_questions r m) >>= fun answers ->
+  let create_ballot e r m =
+    let p = e.e_params in
+    swap (Array.map3 (create_answer p.e_public_key "") p.e_questions r m) >>= fun answers ->
     return {
       answers;
-      election_hash = fingerprint;
-      election_uuid = params.e_uuid;
+      election_hash = e.e_fingerprint;
+      election_uuid = p.e_uuid;
       signature = None;
     }
 
   (** Ballot verification *)
 
-  let verify_answer zkp q a =
-    Array.forall2 (eg_disj_verify d01 zkp) a.individual_proofs a.choices &&
+  let verify_answer y zkp q a =
+    Array.forall2 (eg_disj_verify y d01 zkp) a.individual_proofs a.choices &&
     let sumc = Array.fold_left eg_combine dummy_ciphertext a.choices in
     let d = make_d q.q_min q.q_max in
-    eg_disj_verify d zkp a.overall_proof sumc
+    eg_disj_verify y d zkp a.overall_proof sumc
 
-  let check_ballot b =
-    b.election_uuid = params.e_uuid &&
-    b.election_hash = P.fingerprint &&
+  let check_ballot e b =
+    let p = e.e_params in
+    b.election_uuid = p.e_uuid &&
+    b.election_hash = e.e_fingerprint &&
     let ok, zkp = match b.signature with
       | Some {s_public_key = y; s_challenge; s_response} ->
         let ok =
@@ -359,7 +360,7 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
         in ok, G.to_string y
       | None -> true, ""
     in ok &&
-    Array.forall2 (verify_answer zkp) params.e_questions b.answers
+    Array.forall2 (verify_answer p.e_public_key zkp) p.e_questions b.answers
 
   let extract_ciphertext b = Array.map (fun x -> x.choices) b.answers
 
@@ -421,11 +422,13 @@ module MakeElection (P : ELECTION_PARAMS) (M : RANDOM) = struct
     let result = Array.mmap log results in
     {num_tallied; encrypted_tally; partial_decryptions; result}
 
-  let check_result r =
+  let check_result e r =
     let {encrypted_tally; partial_decryptions; result; num_tallied} = r in
     check_ciphertext encrypted_tally &&
-    Array.forall2 (check_factor encrypted_tally)
-      (Lazy.force public_keys) partial_decryptions &&
+    (match e.e_pks with
+    | Some pks ->
+      Array.forall2 (check_factor encrypted_tally) pks partial_decryptions
+    | None -> false) &&
     let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
     let factors = Array.fold_left (fun a b ->
       Array.mmap2 ( *~ ) a b.decryption_factors

@@ -94,25 +94,19 @@ module type BALLOT_BOX = sig
 end
 
 (** Parameters for an election. *)
-module type ELECTION_PARAMS = sig
-  module G : GROUP
-  (** The group used for cryptography. *)
-
-  val public_keys : G.t array Lazy.t
-  (** Trustee public keys. *)
-
-  (* TODO: public_keys is not needed during election, remove from
-     here, or at least monadify. *)
-
-  val params : G.t Serializable_t.params
+type 'a election = {
+  e_params : 'a Serializable_t.params;
   (** Parameters of the election. *)
 
-  val metadata : Serializable_t.metadata option
-  (** Other optional metadata. *)
+  e_meta : Serializable_t.metadata option;
+  (** Other optional, serializable, metadata. *)
 
-  val fingerprint : string
-  (** The election fingerprint. *)
-end
+  e_pks : 'a array option;
+  (** Trustee public keys. *)
+
+  e_fingerprint : string;
+  (** Fingerprint of the election. *)
+}
 
 (** Cryptographic primitives for an election with homomorphic tally. *)
 module type ELECTION = sig
@@ -128,17 +122,17 @@ module type ELECTION = sig
       members of a suitably chosen group. *)
 
   type elt
+
+  type t = elt election
   type private_key = Z.t
   type public_key = elt
-
-  val election_params : elt Serializable_t.params
 
   (** {2 Ciphertexts} *)
 
   type ciphertext = elt Serializable_t.ciphertext array array
   (** A ciphertext that can be homomorphically combined. *)
 
-  val neutral_ciphertext : ciphertext
+  val neutral_ciphertext : t -> ciphertext
   (** The neutral element for [combine_ciphertext] below. *)
 
   val combine_ciphertexts : ciphertext -> ciphertext -> ciphertext
@@ -160,16 +154,16 @@ module type ELECTION = sig
   type randomness = Z.t array array
   (** Randomness needed to create a ballot. *)
 
-  val make_randomness : unit -> randomness m
+  val make_randomness : t -> randomness m
   (** Creates randomness for [create_ballot] below. The result can be
       kept for Benaloh-style auditing. *)
 
-  val create_ballot : randomness -> plaintext -> ballot m
+  val create_ballot : t -> randomness -> plaintext -> ballot m
   (** [create_ballot r answers] creates a ballot, or raises
       [Invalid_argument] if [answers] doesn't satisfy the election
       constraints. *)
 
-  val check_ballot : ballot -> bool
+  val check_ballot : t -> ballot -> bool
   (** [check_ballot b] checks all the cryptographic proofs in [b]. All
       ballots produced by [create_ballot] should pass this check. *)
 
@@ -201,7 +195,7 @@ module type ELECTION = sig
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
 
-  val check_result : result -> bool
+  val check_result : t -> result -> bool
 
   val extract_tally : result -> plaintext
   (** Extract the plaintext result of the election. *)

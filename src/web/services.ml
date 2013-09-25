@@ -157,7 +157,7 @@ let make_booth uuid =
     Eliom_uri.make_string_uri ~absolute_path:true ~service ()
   )
 
-let preapply_uuid s e = Eliom_service.preapply s e.Web_common.params.e_uuid
+let preapply_uuid s e = Eliom_service.preapply s e.Signatures.e_params.e_uuid
 
 type savable_service =
   | Home

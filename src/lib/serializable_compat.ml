@@ -1,3 +1,4 @@
+open Signatures
 open Util
 open Serializable_compat_t
 
@@ -51,10 +52,11 @@ let partial_decryption p =
   let open Serializable_t in
   {decryption_factors; decryption_proofs}
 
-module MakeCompat (P : Signatures.ELECTION_PARAMS) = struct
+module MakeCompat (G : GROUP) = struct
   open Serializable_t
-  open P
   open G
+
+  type election = G.t Signatures.election
 
   (* The following duplicates parts of module Crypto, in order to
      reconstruct commitments. *)
@@ -79,7 +81,6 @@ module MakeCompat (P : Signatures.ELECTION_PARAMS) = struct
       dp_response = Z.zero;
     }
 
-  let y = params.e_public_key
   let ( / ) x y = x *~ invert y
 
   let invg = invert G.g
@@ -93,7 +94,7 @@ module MakeCompat (P : Signatures.ELECTION_PARAMS) = struct
     done;
     d
 
-  let recommit d proofs {alpha; beta} =
+  let recommit y d proofs {alpha; beta} =
     let n = Array.length d in
     assert (n = Array.length proofs);
     let result = Array.create n dummy_proof in
@@ -112,25 +113,27 @@ module MakeCompat (P : Signatures.ELECTION_PARAMS) = struct
     done;
     result
 
-  let answer a q =
+  let answer y a q =
     let {choices; individual_proofs; overall_proof} = a in
     let individual_proofs =
-      Array.map2 (recommit d01) individual_proofs choices
+      Array.map2 (recommit y d01) individual_proofs choices
     in
     let sumc = Array.fold_left eg_combine dummy_ciphertext choices in
     let overall_proof =
-      recommit (make_d q.q_min q.q_max) overall_proof sumc
+      recommit y (make_d q.q_min q.q_max) overall_proof sumc
     in
     let open Serializable_compat_t in
     {choices; individual_proofs; overall_proof}
 
-  let ballot b =
+  let ballot e b =
+    let p = e.e_params in
     let {answers; election_hash; election_uuid} = b in
-    let answers = Array.map2 answer answers params.e_questions in
+    let answers = Array.map2 (answer p.e_public_key) answers p.e_questions in
     let open Serializable_compat_t in
     {answers; election_hash; election_uuid}
 
-  let partial_decryption c p =
+  let partial_decryption e c p =
+    let y = e.e_params.e_public_key in
     let {decryption_factors; decryption_proofs} = p in
     let decryption_proofs =
       Array.mmap3 (fun {alpha; _} f {challenge; response} ->

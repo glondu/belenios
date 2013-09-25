@@ -1,3 +1,4 @@
+open Signatures
 open Lwt
 open Util
 open Serializable_builtin_t
@@ -28,10 +29,7 @@ module SSet = Set.Make(String)
 
 type election_web = {
   params_fname : string;
-  fingerprint : string;
-  params : ff_pubkey params;
   public_keys_fname : string;
-  public_creds : SSet.t;
   featured_p : bool;
   can_read : acl;
   can_vote : acl;
@@ -105,8 +103,7 @@ let explain_error = function
   | CredentialNotFound -> "the credential has not been found"
 
 module type LWT_ELECTION = Signatures.ELECTION
-  with type elt = Z.t
-  and type 'a m = 'a Lwt.t
+  with type 'a m = 'a Lwt.t
 
 module type WEB_BBOX = sig
   include Signatures.BALLOT_BOX
@@ -150,101 +147,104 @@ let security_log s =
       Lwt_io.flush ic
     ) ic
 
-module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struct
+module type WEB_ELECTION = sig
+  module G : Signatures.GROUP with type t = Z.t
+  module E : LWT_ELECTION with type elt = G.t
+  module B : WEB_BBOX
+  val election : G.t Signatures.election
+  val election_web : election_web
+end
 
-  (* TODO: enforce E is derived from P *)
+let make_web_election lwt_election wrapped_election election_web = begin
 
-  let suffix = "_" ^ String.map (function
-    | '-' -> '_'
-    | c -> c
-  ) (Uuidm.to_string E.election_params.e_uuid)
+  let wrapped_params = wrapped_election.e_params in
+  let {group; y} = wrapped_params.e_public_key in
 
-  let ballot_table = Ocsipersist.open_table ("ballots" ^ suffix)
-  let record_table = Ocsipersist.open_table ("records" ^ suffix)
-  let cred_table = Ocsipersist.open_table ("creds" ^ suffix)
+  let module G : Signatures.GROUP with type t = Z.t =
+        (val Election.finite_field group : Election.FF_GROUP)
+  in
 
-  type ballot = string
-  type record = string * Serializable_builtin_t.datetime
+  let election = { wrapped_election with
+    e_params = { wrapped_params with e_public_key = y };
+    e_pks = None
+  } in
 
-  let extract_creds () =
-    Ocsipersist.fold_step (fun k v x ->
-      return (SSet.add k x)
-    ) cred_table SSet.empty
+  let module E = (val lwt_election : LWT_ELECTION with type elt = G.t) in
 
-  let inject_creds creds =
-    lwt existing_creds = extract_creds () in
-    if SSet.is_empty existing_creds then (
-      Ocsigen_messages.debug (fun () ->
-        "-- injecting credentials"
-      );
-      SSet.fold (fun x unit ->
-        unit >> Ocsipersist.add cred_table x None
-      ) creds (return ())
-    ) else (
-      if SSet.(is_empty (diff creds existing_creds)) then (
-        Lwt.return ()
+  let module B : WEB_BBOX = struct
+
+    let suffix = "_" ^ String.map (function
+      | '-' -> '_'
+      | c -> c
+    ) (Uuidm.to_string election.e_params.e_uuid)
+
+    let ballot_table = Ocsipersist.open_table ("ballots" ^ suffix)
+    let record_table = Ocsipersist.open_table ("records" ^ suffix)
+    let cred_table = Ocsipersist.open_table ("creds" ^ suffix)
+
+    type ballot = string
+    type record = string * Serializable_builtin_t.datetime
+
+    let extract_creds () =
+      Ocsipersist.fold_step (fun k v x ->
+        return (SSet.add k x)
+      ) cred_table SSet.empty
+
+    let inject_creds creds =
+      lwt existing_creds = extract_creds () in
+      if SSet.is_empty existing_creds then (
+        Ocsigen_messages.debug (fun () ->
+          "-- injecting credentials"
+        );
+        SSet.fold (fun x unit ->
+          unit >> Ocsipersist.add cred_table x None
+        ) creds (return ())
       ) else (
-        Ocsigen_messages.warning "public_creds.txt does not match db!";
-        Lwt.return ()
-      )
-    )
-
-  let do_cast rawballot (user, date) =
-    let voting_open = match P.metadata with
-      | Some m ->
-        let date = fst date in
-        let open CalendarLib.Fcalendar.Precise in
-        compare (fst m.e_voting_starts_at) date <= 0 &&
-        compare date (fst m.e_voting_ends_at) < 0
-      | None -> true
-    in
-    if not voting_open then fail ElectionClosed else return () >>
-    if String.contains rawballot '\n' then (
-      fail (Serialization (Invalid_argument "multiline ballot"))
-    ) else return () >>
-    lwt ballot =
-      try Lwt.return (
-        Serializable_j.ballot_of_string
-          Serializable_builtin_j.read_number rawballot
-      ) with e -> fail (Serialization e)
-    in
-    lwt credential =
-      match ballot.signature with
-        | Some s -> Lwt.return (Z.to_string s.s_public_key)
-        | None -> fail MissingCredential
-    in
-    lwt old_cred =
-      try_lwt Ocsipersist.find cred_table credential
-      with Not_found -> fail InvalidCredential
-    and old_record =
-      try_lwt
-        lwt x = Ocsipersist.find record_table user in
-        Lwt.return (Some x)
-      with Not_found -> Lwt.return None
-    in
-    match old_cred, old_record with
-      | None, None ->
-        (* first vote *)
-        if E.check_ballot ballot then (
-          let hash = sha256_b64 rawballot in
-          Ocsipersist.add cred_table credential (Some hash) >>
-          Ocsipersist.add ballot_table hash rawballot >>
-          Ocsipersist.add record_table user (date, credential) >>
-          security_log (fun () ->
-            Printf.sprintf "%s successfully cast ballot %s" user hash
-          )
+        if SSet.(is_empty (diff creds existing_creds)) then (
+          Lwt.return ()
         ) else (
-          fail ProofCheck
+          Ocsigen_messages.warning "public_creds.txt does not match db!";
+          Lwt.return ()
         )
-      | Some h, Some (_, old_credential) ->
-        (* revote *)
-        if credential = old_credential then (
-          if E.check_ballot ballot then (
-            lwt old_ballot = Ocsipersist.find ballot_table h in
-            Ocsipersist.remove ballot_table h >>
-            security_log (fun () ->
-              Printf.sprintf "%s successfully removed ballot %S" user old_ballot
-            ) >>
+      )
+
+    let do_cast rawballot (user, date) =
+      let voting_open = match election.e_meta with
+        | Some m ->
+          let date = fst date in
+          let open CalendarLib.Fcalendar.Precise in
+          compare (fst m.e_voting_starts_at) date <= 0 &&
+          compare date (fst m.e_voting_ends_at) < 0
+        | None -> true
+      in
+      if not voting_open then fail ElectionClosed else return () >>
+      if String.contains rawballot '\n' then (
+        fail (Serialization (Invalid_argument "multiline ballot"))
+      ) else return () >>
+      lwt ballot =
+        try Lwt.return (
+          Serializable_j.ballot_of_string
+            Serializable_builtin_j.read_number rawballot
+        ) with e -> fail (Serialization e)
+      in
+      lwt credential =
+        match ballot.signature with
+          | Some s -> Lwt.return (Z.to_string s.s_public_key)
+          | None -> fail MissingCredential
+      in
+      lwt old_cred =
+        try_lwt Ocsipersist.find cred_table credential
+        with Not_found -> fail InvalidCredential
+      and old_record =
+        try_lwt
+          lwt x = Ocsipersist.find record_table user in
+          Lwt.return (Some x)
+        with Not_found -> Lwt.return None
+      in
+      match old_cred, old_record with
+        | None, None ->
+          (* first vote *)
+          if E.check_ballot election ballot then (
             let hash = sha256_b64 rawballot in
             Ocsipersist.add cred_table credential (Some hash) >>
             Ocsipersist.add ballot_table hash rawballot >>
@@ -255,55 +255,76 @@ module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) = struc
           ) else (
             fail ProofCheck
           )
-        ) else (
+        | Some h, Some (_, old_credential) ->
+          (* revote *)
+          if credential = old_credential then (
+            if E.check_ballot election ballot then (
+              lwt old_ballot = Ocsipersist.find ballot_table h in
+              Ocsipersist.remove ballot_table h >>
+              security_log (fun () ->
+                Printf.sprintf "%s successfully removed ballot %S" user old_ballot
+              ) >>
+              let hash = sha256_b64 rawballot in
+              Ocsipersist.add cred_table credential (Some hash) >>
+              Ocsipersist.add ballot_table hash rawballot >>
+              Ocsipersist.add record_table user (date, credential) >>
+              security_log (fun () ->
+                Printf.sprintf "%s successfully cast ballot %s" user hash
+              )
+            ) else (
+              fail ProofCheck
+            )
+          ) else (
+            security_log (fun () ->
+              Printf.sprintf "%s attempted to revote with already used credential %s" user credential
+            ) >> fail WrongCredential
+          )
+        | None, Some _ ->
           security_log (fun () ->
-            Printf.sprintf "%s attempted to revote with already used credential %s" user credential
-          ) >> fail WrongCredential
-        )
-      | None, Some _ ->
-        security_log (fun () ->
-          Printf.sprintf "%s attempted to revote using a new credential %s" user credential
-        ) >> fail RevoteNotAllowed
-      | Some _, None ->
-        security_log (fun () ->
-          Printf.sprintf "%s attempted to vote with already used credential %s" user credential
-        ) >> fail ReusedCredential
+            Printf.sprintf "%s attempted to revote using a new credential %s" user credential
+          ) >> fail RevoteNotAllowed
+        | Some _, None ->
+          security_log (fun () ->
+            Printf.sprintf "%s attempted to vote with already used credential %s" user credential
+          ) >> fail ReusedCredential
 
-  let fold_ballots f x =
-    Ocsipersist.fold_step (fun k v x -> f v x) ballot_table x
+    let fold_ballots f x =
+      Ocsipersist.fold_step (fun k v x -> f v x) ballot_table x
 
-  let fold_records f x =
-    Ocsipersist.fold_step (fun k v x -> f (k, fst v) x) record_table x
+    let fold_records f x =
+      Ocsipersist.fold_step (fun k v x -> f (k, fst v) x) record_table x
 
-  let turnout = Ocsipersist.length ballot_table
+    let turnout = Ocsipersist.length ballot_table
 
-  let do_update_cred ~old ~new_ =
-    match_lwt Ocsipersist.fold_step (fun k v x ->
-      if sha256_hex k = old then (
-        match v with
-          | Some _ -> fail UsedCredential
-          | None -> return (Some k)
-      ) else return x
-    ) cred_table None with
-    | None -> fail CredentialNotFound
-    | Some x ->
-      Ocsipersist.remove cred_table x >>
-      Ocsipersist.add cred_table new_ None
+    let do_update_cred ~old ~new_ =
+      match_lwt Ocsipersist.fold_step (fun k v x ->
+        if sha256_hex k = old then (
+          match v with
+            | Some _ -> fail UsedCredential
+            | None -> return (Some k)
+        ) else return x
+      ) cred_table None with
+      | None -> fail CredentialNotFound
+      | Some x ->
+        Ocsipersist.remove cred_table x >>
+        Ocsipersist.add cred_table new_ None
 
-  let mutex = Lwt_mutex.create ()
+    let mutex = Lwt_mutex.create ()
 
-  let cast rawballot (user, date) =
-    Lwt_mutex.with_lock mutex (fun () -> do_cast rawballot (user, date))
+    let cast rawballot (user, date) =
+      Lwt_mutex.with_lock mutex (fun () -> do_cast rawballot (user, date))
 
-  let update_cred ~old ~new_ =
-    Lwt_mutex.with_lock mutex (fun () -> do_update_cred ~old ~new_)
+    let update_cred ~old ~new_ =
+      Lwt_mutex.with_lock mutex (fun () -> do_update_cred ~old ~new_)
+  end in
 
-end
+  let module X : WEB_ELECTION = struct
+    module G = G
+    module E = E
+    module B = B
+    let election = election
+    let election_web = election_web
+  end in
 
-module type WEB_ELECTION = sig
-  module G : Signatures.GROUP
-  module P : Signatures.ELECTION_PARAMS
-  module E : LWT_ELECTION
-  module B : WEB_BBOX
-  val election_web : election_web
+  (module X : WEB_ELECTION)
 end

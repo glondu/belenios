@@ -19,10 +19,7 @@ module SSet : Set.S with type elt = string
 
 type election_web = {
   params_fname : string;
-  fingerprint : string;
-  params : ff_pubkey params;
   public_keys_fname : string;
-  public_creds : SSet.t;
   featured_p : bool;
   can_read : acl;
   can_vote : acl;
@@ -65,8 +62,7 @@ exception Error of error
 val explain_error : error -> string
 
 module type LWT_ELECTION = Signatures.ELECTION
-  with type elt = Z.t
-  and type 'a m = 'a Lwt.t
+  with type 'a m = 'a Lwt.t
 
 module type WEB_BBOX = sig
   include Signatures.BALLOT_BOX
@@ -79,15 +75,18 @@ module type WEB_BBOX = sig
   val update_cred : old:string -> new_:string -> unit Lwt.t
 end
 
-module MakeBallotBox (P : Signatures.ELECTION_PARAMS) (E : LWT_ELECTION) : WEB_BBOX
-
 module type WEB_ELECTION = sig
-  module G : Signatures.GROUP
-  module P : Signatures.ELECTION_PARAMS
-  module E : LWT_ELECTION
+  module G : Signatures.GROUP with type t = Z.t
+  module E : LWT_ELECTION with type elt = G.t
   module B : WEB_BBOX
+  val election : G.t Signatures.election
   val election_web : election_web
 end
+
+val make_web_election :
+  (module LWT_ELECTION with type elt = Z.t) ->
+  ff_pubkey Signatures.election -> election_web ->
+  (module WEB_ELECTION)
 
 val open_security_log : string -> unit Lwt.t
 (** Set the path to the security logger. *)

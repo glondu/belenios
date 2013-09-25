@@ -1,3 +1,4 @@
+open Signatures
 open Util
 open Serializable_t
 
@@ -65,6 +66,7 @@ let () = assert (Election.check_finite_field group)
 
 module G = (val Election.finite_field group : Election.FF_GROUP)
 module M = Election.MakeSimpleMonad(G)
+module E = Election.MakeElection(G)(M);;
 
 (* Load and check trustee keys, if present *)
 
@@ -96,19 +98,16 @@ let metadata =
   | Some _ -> failwith "invalid metadata.json"
   | None -> None
 
-module P = struct
-  module G = G
-  let params = { params with e_public_key = y }
-  let metadata = metadata
-  let public_keys = lazy (
-    match public_keys with
-    | Some pks -> pks
-    | None -> failwith "missing public keys"
-  )
-  let fingerprint = election_fingerprint
-end
+let pks = match public_keys with
+  | Some pks -> pks
+  | None -> failwith "missing public keys"
 
-module E = Election.MakeElection(P)(M);;
+let e = {
+  e_params = { params with e_public_key = y };
+  e_meta = metadata;
+  e_pks = Some pks;
+  e_fingerprint = election_fingerprint;
+}
 
 (* Load ballots, if present *)
 
@@ -138,7 +137,7 @@ let check_signature_present =
   | None -> (fun _ -> true)
 
 let vote (b, hash) =
-  if check_signature_present b && E.check_ballot b
+  if check_signature_present b && E.check_ballot e b
   then M.cast b "anonymous" ()
   else Printf.ksprintf failwith "ballot %s failed tests" hash
 
@@ -150,7 +149,7 @@ let encrypted_tally = lazy (
     | Some _ ->
       M.fold_ballots (fun b t ->
         M.return (E.combine_ciphertexts (E.extract_ciphertext b) t)
-      ) E.neutral_ciphertext ()
+      ) (E.neutral_ciphertext e) ()
 )
 
 let () =
@@ -159,14 +158,9 @@ let () =
     (match load_from_file (Serializable_builtin_j.number_of_string) fn with
       | Some [sk] ->
         let pk = G.(g **~ sk) in
-        let () =
-          match public_keys with
-          | Some pks ->
-            if Array.forall (fun x -> not (x =% pk)) pks then (
-              Printf.eprintf "Warning: your key is not present in public_keys.jsons!\n";
-            )
-          | None -> ()
-        in
+        if Array.forall (fun x -> not (x =% pk)) pks then (
+          Printf.eprintf "Warning: your key is not present in public_keys.jsons!\n";
+        );
         let tally = Lazy.force encrypted_tally in
         let factor =
           E.compute_factor tally sk ()
@@ -191,7 +185,7 @@ let result =
 let () =
   match result with
   | Some [result] ->
-    assert (E.check_result result)
+    assert (E.check_result e result)
   | Some _ ->
     failwith "invalid result file"
   | None ->
@@ -201,9 +195,9 @@ let () =
     match factors with
     | Some factors ->
       let tally = Lazy.force encrypted_tally in
-      assert (Array.forall2 (E.check_factor tally) (Lazy.force P.public_keys) factors);
+      assert (Array.forall2 (E.check_factor tally) pks factors);
       let result = E.combine_factors (M.turnout ()) tally factors in
-      assert (E.check_result result);
+      assert (E.check_result e result);
       save_to "result.json" (
         Serializable_j.write_result Serializable_builtin_j.write_number
       ) result;
