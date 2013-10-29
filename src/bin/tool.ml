@@ -52,7 +52,7 @@ let speclist = Arg.([
 ])
 
 let usage_msg =
-  Printf.sprintf "Usage: %s [--dir <dir>] [--decrypt <privkey>]" Sys.argv.(0)
+  Printf.sprintf "Usage: %s election [--dir <dir>] [--decrypt <privkey>]" Sys.argv.(0)
 
 let anon_fun x =
   Printf.eprintf "I do not know what to do with %s!\n" x;
@@ -228,7 +228,7 @@ let () = Printf.eprintf "All checks passed!\n%!"
 end
 
 
-let () =
+let main () =
   let module P = GetParams(struct end) in
   let module G = (val Election.finite_field P.group : Election.FF_GROUP) in
   let module X = RunTool (G) (P) in

@@ -55,6 +55,6 @@ save privkey;;
 end
 
 
-let () =
+let main () =
   let module X = RunTrusteeKeygen (struct end) in
   ()

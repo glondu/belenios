@@ -42,7 +42,7 @@ let speclist = Arg.([
 ])
 
 let usage_msg =
-  Printf.sprintf "Usage: %s [--dir <dir>] --uuid <uuid> {--count <n> | --file <file> | --derive <privcred>}" Sys.argv.(0)
+  Printf.sprintf "Usage: %s credgen [--dir <dir>] --uuid <uuid> {--count <n> | --file <file> | --derive <privcred>}" Sys.argv.(0)
 
 let anon_fun x =
   Printf.eprintf "I do not know what to do with %s!\n" x;
@@ -184,6 +184,6 @@ ignore (option_map save hashed);;
 end
 
 
-let () =
+let main () =
   let module X = RunCredgen (struct end) in
   ()

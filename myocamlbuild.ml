@@ -11,9 +11,6 @@ let native_compilation =
 
 let exe_suffix = if native_compilation then ".native" else ".byte"
 
-let exe_rule name =
-  copy_rule name ("src/bin/" ^ name ^ exe_suffix) name
-
 let atdgen_action opts env build =
   let x = env "%.atd" in
   let d = Pathname.dirname x and f = Pathname.basename x in
@@ -49,9 +46,6 @@ let () = dispatch & function
         Cmd (S [A"markdown"; P (env "%.md"); Sh">"; P (env "%.html")])
       );
 
-    (* binaries *)
-    exe_rule "credgen";
-    exe_rule "trustee-keygen";
-    exe_rule "election-tool";
+    copy_rule "belenios-tool" ("src/bin/main" ^ exe_suffix) "belenios-tool";
 
   | _ -> ()
