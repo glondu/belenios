@@ -17,7 +17,3 @@ tree: _build/tree.html
 _build/tree.html: _build/_digests
 	mkdir -p _build
 	tree -o $@ -H '..'  -I '_build|_run|*~'
-
-trustee-keygen:
-	ocamlbuild src/bin/trustee-keygen.native
-	@_build/src/bin/trustee-keygen.native

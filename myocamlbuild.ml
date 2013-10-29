@@ -1,5 +1,18 @@
 open Ocamlbuild_plugin
 
+let try_exec cmd =
+  Sys.command (cmd ^ " >/dev/null 2>&1") = 0
+
+let has_ocamlopt = try_exec "which ocamlopt"
+
+let native_compilation =
+  try Sys.getenv "OCAMLBEST" = "native"
+  with Not_found -> has_ocamlopt
+
+let exe_suffix = if native_compilation then ".native" else ".byte"
+
+let exe_rule name =
+  copy_rule name ("src/bin/" ^ name ^ exe_suffix) name
 
 let atdgen_action opts env build =
   let x = env "%.atd" in
@@ -35,5 +48,10 @@ let () = dispatch & function
       (fun env build ->
         Cmd (S [A"markdown"; P (env "%.md"); Sh">"; P (env "%.html")])
       );
+
+    (* binaries *)
+    exe_rule "credgen";
+    exe_rule "trustee-keygen";
+    exe_rule "election-tool";
 
   | _ -> ()
