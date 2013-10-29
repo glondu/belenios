@@ -2,25 +2,6 @@ open Signatures
 open Util
 open Serializable_t
 
-(* Command-line arguments *)
-
-let dir = ref (Sys.getcwd ())
-let sk_file = ref None
-
-let speclist = Arg.([
-  "--dir", String (fun s -> dir := s), "chdir to that directory first";
-  "--decrypt", String (fun s -> sk_file := Some s), "do partial decryption";
-])
-
-let usage_msg =
-  Printf.sprintf "Usage: %s [--dir <dir>] [--decrypt <privkey>]" Sys.argv.(0)
-
-let anon_fun x =
-  Printf.eprintf "I do not know what to do with %s!\n" x;
-  exit 1
-
-let () = Arg.parse speclist anon_fun usage_msg
-
 (* Helpers *)
 
 let load_from_file of_string filename =
@@ -48,6 +29,37 @@ let save_to filename writer x =
   Bi_outbuf.flush_channel_writer ob;
   close_out oc;;
 
+
+module type PARAMS = sig
+  val sk_file : string option ref
+  val params : ff_pubkey params
+  val election_fingerprint : string
+  val group :  ff_params
+  val y : number
+end
+
+
+module GetParams (X : sig end) : PARAMS = struct
+
+(* Command-line arguments *)
+
+let dir = ref (Sys.getcwd ())
+let sk_file = ref None
+
+let speclist = Arg.([
+  "--dir", String (fun s -> dir := s), "chdir to that directory first";
+  "--decrypt", String (fun s -> sk_file := Some s), "do partial decryption";
+])
+
+let usage_msg =
+  Printf.sprintf "Usage: %s [--dir <dir>] [--decrypt <privkey>]" Sys.argv.(0)
+
+let anon_fun x =
+  Printf.eprintf "I do not know what to do with %s!\n" x;
+  exit 1
+
+let () = Arg.parse speclist anon_fun usage_msg
+
 let () = Sys.chdir !dir
 
 (* Load and check election *)
@@ -64,7 +76,12 @@ let {group; y} = params.e_public_key
 let {g; p; q} = group
 let () = assert (Election.check_finite_field group)
 
-module G = (val Election.finite_field group : Election.FF_GROUP)
+end
+
+
+module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
+
+open P
 module M = Election.MakeSimpleMonad(G)
 module E = Election.MakeElection(G)(M);;
 
@@ -82,7 +99,7 @@ let () =
   | Some pks ->
     assert (Array.forall KG.check pks);
     let y' = KG.combine pks in
-    assert (y =% y')
+    assert (P.y =% y')
   | None -> ()
 
 let public_keys =
@@ -103,7 +120,7 @@ let pks = match public_keys with
   | None -> failwith "missing public keys"
 
 let e = {
-  e_params = { params with e_public_key = y };
+  e_params = { params with e_public_key = P.y };
   e_meta = metadata;
   e_pks = Some pks;
   e_fingerprint = election_fingerprint;
@@ -207,3 +224,12 @@ let () =
 (* The end *)
 
 let () = Printf.eprintf "All checks passed!\n%!"
+
+end
+
+
+let () =
+  let module P = GetParams(struct end) in
+  let module G = (val Election.finite_field P.group : Election.FF_GROUP) in
+  let module X = RunTool (G) (P) in
+  ()

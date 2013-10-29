@@ -1,5 +1,7 @@
 open Util
 
+module RunCredgen (X : sig end) = struct
+
 (* Setup group *)
 
 module G = Election.DefaultGroup;;
@@ -178,3 +180,10 @@ let save (kind, filename, perm, thing) =
 save pub;;
 save priv;;
 ignore (option_map save hashed);;
+
+end
+
+
+let () =
+  let module X = RunCredgen (struct end) in
+  ()

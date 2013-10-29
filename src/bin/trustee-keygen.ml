@@ -1,6 +1,8 @@
 open Util
 open Serializable_t
 
+module RunTrusteeKeygen (X : sig end) = struct
+
 (* Setup group *)
 
 module G = Election.DefaultGroup;;
@@ -49,3 +51,10 @@ let save (kind, filename, perm, thing, writer) =
 
 save pubkey;;
 save privkey;;
+
+end
+
+
+let () =
+  let module X = RunTrusteeKeygen (struct end) in
+  ()
