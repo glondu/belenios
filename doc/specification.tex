@@ -3,408 +3,575 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage{amsmath,amssymb,amsthm,stmaryrd,bbm}
+\usepackage{amsmath}
+\usepackage{bbm}
 \usepackage{hyperref}
 
-\newcommand{\Z}{\mathbb{Z}}
-\newcommand{\N}{\mathbb{N}}
+\newcommand{\version}{0.1}
 
-\title{Notes on Helios}
+\newcommand{\F}{\mathbbm{F}}
+\newcommand{\G}{\mathbbm{G}}
+\newcommand{\Z}{\mathbbm{Z}}
+\newcommand{\N}{\mathbbm{N}}
+\newcommand{\I}{\mathbbm{I}}
+
+\newcommand{\public}{\textsf{public}}
+\newcommand{\shuffle}{\textsf{shuffle}}
+\newcommand{\basesixfour}{\textsf{BASE64}}
+\newcommand{\shatwo}{\textsf{SHA256}}
+
+\newcommand{\jstring}{\texttt{string}}
+\newcommand{\uuid}{\texttt{uuid}}
+\newcommand{\tpk}{\texttt{trustee\_public\_key}}
+\newcommand{\election}{\texttt{election}}
+\newcommand{\ballot}{\texttt{ballot}}
+\newcommand{\etally}{\texttt{encrypted\_tally}}
+\newcommand{\pdecryption}{\texttt{partial\_decryption}}
+\newcommand{\result}{\texttt{result}}
+
+\title{Belenios specification}
+\date{Version~\version}
 \author{Stéphane Glondu}
 
 \begin{document}
 \maketitle
 \tableofcontents
 
-\section{Protocol}
+\section{Introduction}
 
-\subsection{Principals}
+This document is a specification of the voting protocol implemented in
+Belenios v\version. More discussion, theoretical explanations and
+bibliographical references can be found in a technical report
+available online.\footnote{\url{http://eprint.iacr.org/2013/177}}
+
+The Belenios protocol is very similar to Helios (with a signature
+added to ballots and different zero-knowledge proofs) and Helios-C
+(without distributed key generation of trustees).
+
+The cryptography involved in Belenios needs a cyclic group $\G$ where
+discrete logarithms are hard to compute. We will denote by $g$ a
+generator and $q$ its order. We use a multiplicative notation for the
+group operation. For practical purposes, we use a multiplicative
+subgroup of $\F_p$ (hence, all exponentiations are implicitly done
+modulo $p$). We suppose the group parameters are agreed on
+beforehand. Default group parameters are given as examples in
+section~\ref{default-group} (they are the same as Helios v3).
+
+\section{Principals}
+
 \begin{itemize}
-\item authentication authority ($G$)
-\item administrator ($A$)
-\item Helios ($H$)
-\item trustees ($T_1,\dots,T_m$)
-\item voters ($V_1,\dots,V_n$)
+\item $S$: voting server
+\item $A$: server administrator
+\item $C$: credential authority
+\item $T_1,\dots,T_m$: trustees
+\item $V_1,\dots,V_n$: voters
 \end{itemize}
 
-\subsection{Process}
+\section{Processes}
+\label{processes}
+
+\subsection{Election setup}
+
 \begin{enumerate}
-\item $A$ logs in by authenticating to $G$
-\item $A$ creates a new election $E$; he fills in \textsf{short\_name}
-  (unique forever), \textsf{name}, \textsf{description},
-  \textsf{election\_type} (\textsf{election} or \textsf{referendum}),
-  \textsf{use\_voter\_aliases}, \textsf{private\_p}; \textsf{uuid} is
-  generated
-\item $A$ creates questions $Q_1,\dots,Q_q$; for each $Q_i$, he fills in:
-  \begin{itemize}
-  \item number of answers (min and max)
-  \item result type: absolute or relative (\emph{i.e.} what kind of
-    majority wins if $\textrm{max}>1$, seems to be purely cosmetic)
-  \item the question itself
-  \item answers $R_1,\dots,R_r$
-  \item in the underlying object, there is also a choice type (always
-    approval), a tally type (always homomorphic), a URL for each answer (always null)
-  \end{itemize}
-\item $A$ registers trustees $T_1,\dots,T_m$:
-  \begin{itemize}
-  \item one of them can be Helios itself
-    \begin{enumerate}
-      \item generation $\textsf{sk}=\langle x,\textsf{pk}\rangle$, $\textsf{pk}=\langle y,p,q,g\rangle$:
-        \begin{itemize}
-        \item $g$ (2046 bits), $p$ (2047 bits) and $q$ (255 bits) are
-          predefined parameters such that $g^q=1\mod p$
-        \item $p$ and $q$ are prime numbers
-        \item pick random $x\in \Z_q$
-        \item $y=g^x \mod p$
-        \end{itemize}
-      \item proof of knowledge $\textsf{pok}=\langle\textsf{commitment},\textsf{challenge},\textsf{response}\rangle$:
-        \begin{itemize}
-        \item pick random $w\in \Z_q$
-        \item $\textsf{commitment}=g^w \mod p$
-        \item $\textsf{challenge}=\textsf{SHA1}(\textsf{commitment}) \mod q$
-        \item $\textsf{response}=w+x\times\textsf{challenge} \mod q$
-        \end{itemize}
-      \end{enumerate}
-  \item for each other $T_i$:
-    \begin{itemize}
-    \item $A$ gives a name and an email address
-    \item $A$ sends an email to $T_i$ with a login (secret) URL
-    \item $T_i$ goes to that URL and uploads his public key
-      $\textsf{pk}=\langle y,p,q,g\rangle$ and a proof of knowledge
-      $\textsf{pok}=\langle\textsf{commitment},\textsf{challenge},\textsf{response}\rangle$
-    \item $H$ verifies $\textsf{pok}$:
-      \begin{itemize}
-      \item $g^\textsf{response} \mod p = \textsf{commitment}\times y^\textsf{challenge} \mod p$
-      \item $\textsf{challenge} = \textsf{SHA1}(\textsf{commitment}) \mod q$
-      \end{itemize}
-    \item the URL can also be used to check a private key $\langle x, \textsf{pk}\rangle$
-      \begin{itemize}
-      \item actually, it only checks that $\textsf{SHA1}(\textsf{pk})$ is correct
-      \end{itemize}
-    \item once the public key is uploaded, it doesn't seem to matter
-      that the URL becomes public\dots unless each individual trustee
-      public key is to be kept confidential
-    \end{itemize}
-  \end{itemize}
-\item $A$ registers voters:
-  \begin{itemize}
-  \item either anyone (who can authenticate to $G$) can vote
-  \item or $A$ registers $V_1,\dots,V_n$; for each $V_i$, he fills in:
-    \begin{itemize}
-    \item login
-    \item email address
-    \item full name
-    \end{itemize}
-    Voters will then authenticate using $H$.
-  \end{itemize}
-\item $A$ freezes and opens election:
-  \begin{itemize}
-  \item questions, options, and trustees are frozen
-  \item compute the hash of the list of voters\dots{} not implemented!
-  \item compute the public key of the election by multiplying all
-    trustee public keys
-  \item $A$ sends an email to each $V_i$
-  \end{itemize}
-\item $A$ logs out
-\item each $V$ votes (or not):
+\item $A$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
+  sends it to $C$
+\item $C$ generates \hyperref[credentials]{credentials}
+  $c_1,\dots,c_n$ and computes
+  $L=\shuffle(\public(c_1),\dots,\public(c_n))$
+\item for $j\in[1\dots n]$, $C$ sends $c_j$ to $V_j$
+\item $C$ forgets $c_1,\dots,c_n$
+\item $C$ forgets the mapping between $j$ and $\public(c_j)$
+  if credential recovery is not needed
+\item $C$ sends $L$ to $A$
+\item for $i\in[1\dots m]$,
   \begin{enumerate}
-  \item $V$ logs in if the election is private
-  \item $V$ enters the booth and gets \texttt{election} object
-  \item $V$ makes a ballot $B$ (see \ref{ballot-format})
-  \item the \emph{smart ballot tracke}r is $\textsf{BASE64}(\textsf{SHA256}(B))$
-  \item $V$ can print or email it (client-side)
-  \item $V$ can audit the ballot
-    \begin{itemize}
-    \item the whole ballot is then disclosed with randomness, $V_i$ can copy it and paste it in a ballot verifier
-    \item $V$ can post the audited ballot to a tracking center
-    \item audited ballots are discarded
-    \end{itemize}
-  \item $V$ authenticates (using either $H$ or $G$)
-  \item $V$ casts her ballot $B$
-  \item $H$ verifies $B$
-  \item $H$ publishes $B$
+  \item $T_i$ generates a \hyperref[trustee-keys]{$\tpk$} $k_i$ and
+    sends it to $A$
+  \item $A$ checks $k_i$
   \end{enumerate}
-\item anyone with the voting URL for $E$ can access the ballot
-  tracking center and audited ballots
-\item at the end of the election, $A$ logs in, stops the election and
-  computes encrypted tally:
-  \[
-    \textsf{tally}_{i,j}=\prod_k (\textsf{choices}_k)_{i,j}
-    \qquad
-    \textsf{num\_tallied}=\sum_k 1
-  \]
-  where:
-  \begin{itemize}
-  \item $i$ ranges over questions, $j$ ranges over choices, $k$ over
-    all cast ballots
-  \item $(\textsf{choices}_k)_{i,j}$ is a ciphertext $\langle\alpha,\beta\rangle$
-  \item $\prod$ is pointwise multiplication
-  \end{itemize}
-\item the encrypted tally fingerprint is computed
-\item each $T$ provides his decrypted share:
-  \begin{itemize}
-  \item $T$ checks the encrypted tally fingerprint
-  \item $T$ computes
-    \[ \begin{array}{rcl}
-      \textsf{decryption\_factors}_{i,j}&=&\alpha_{i,j}^x\\
-      \textsf{decryption\_proofs}_{i,j}&=&\textsf{ElGamal.Proof.generate}(g,\alpha_{i,j},x,p,q,\textsf{SHA1}\circ\otimes)
-    \end{array} \]
-    and uploads $\langle\textsf{decryption\_factors},\textsf{decryption\_proofs}\rangle$
-  \item $H$ verifies proofs
-  \end{itemize}
-\item $A$ combines trustee decryptions
-\item $A$ releases results
+\item $A$ combines all the trustee public keys into the election
+  public key $y$
+\item $A$ creates the \hyperref[elections]{$\election$} $E$
+\item $A$ loads $E$ and $L$ into $S$ and starts it
 \end{enumerate}
 
-\section{Datatypes}
+\subsection{Vote}
 
-\subsection{ElGamal keys}
-\label{key-format}
+\begin{enumerate}
+\item $V$ gets $E$
+\item $V$ creates a \hyperref[ballots]{$\ballot$} $b$ and submits it to $S$
+\item $S$ verifies $b$ and publishes it
+\end{enumerate}
+
+\subsection{Credential recovery}
+
+\begin{enumerate}
+\item $V$ contacts $C$
+\item $C$ looks up $V$'s public credential $\public(c_i)$ and
+  generates a new credential $c'_i$
+\item $C$ sends $c'_i$ to $V$ and forgets it
+\item $C$ sends $\public(c_i)$ and $\public(c'_i)$ to $A$
+\item $A$ checks that $\public(c_i)$ has not been used and replaces it
+  by $\public(c'_i)$ in $L$
+\end{enumerate}
+
+\subsection{Tally}
+
+\begin{enumerate}
+\item $A$ stops $S$ and computes the \hyperref[tally]{$\etally$} $\Pi$
+\item for $i\in[1\dots m]$,
+  \begin{enumerate}
+  \item $A$ sends $\Pi$ to $T_i$
+  \item $T_i$ generates a \hyperref[tally]{$\pdecryption$} $\delta_i$
+    and sends it to $A$
+  \item $A$ verifies $\delta_i$
+  \end{enumerate}
+\item $A$ combines all the partial decryptions, computes and publishes
+  the election \hyperref[election-result]{\result}
+\end{enumerate}
+
+\section{Messages}
+\label{messages}
+
+\subsection{Conventions}
+
+Structured data is encoded in JSON (RFC 4627). There is no specific
+requirement on the formatting and order of fields, but care must be
+taken when hashes are computed. We use the notation
+$\textsf{field}(o)$ to access the field \textsf{field} of $o$.
+
+\subsection{Basic types}
+\label{basic-types}
+
+\begin{itemize}
+\item $\jstring$: JSON string
+\item $\uuid$: UUID (see RFC 4122), encoded as a JSON string
+\item $\I$: small integer, encoded as a JSON number
+\item $\N$, $\Z_q$, $\G$: big integer, written in base 10 and encoded as a
+  JSON string
+\end{itemize}
+
+\subsection{Common structures}
+\label{common}
+
+\newcommand{\pk}{\texttt{public\_key}}
+\newcommand{\sk}{\texttt{private\_key}}
+\newcommand{\proof}{\texttt{proof}}
+\newcommand{\dproof}{\texttt{dproof}}
+\newcommand{\ciphertext}{\texttt{ciphertext}}
+
+\newcommand{\pklabel}{\textsf{public\_key}}
+\newcommand{\pok}{\textsf{pok}}
+\newcommand{\challenge}{\textsf{challenge}}
+\newcommand{\response}{\textsf{response}}
+\newcommand{\alphalabel}{\textsf{alpha}}
+\newcommand{\betalabel}{\textsf{beta}}
+\newcommand{\Hash}{\mathcal{H}}
 
 \begin{gather*}
-  \texttt{public\_key}=\left\{
+  \proof=\left\{
     \begin{array}{rcl}
-      \textsf{p}&:&\N\\
-      \textsf{q}&:&\N\\
-      \textsf{g}&:&\Z_p\\
-      \textsf{y}&:&\Z_p
+      \challenge&:&\Z_q\\
+      \response&:&\Z_q
     \end{array}
   \right\}
   \qquad
-  \texttt{private\_key}=\left\{
+  \ciphertext=\left\{
     \begin{array}{rcl}
-      \textsf{pk}&:&\texttt{public\_key}\\
-      \textsf{x}&:&\Z_q
+      \alphalabel&:&\G\\
+      \betalabel&:&\G
     \end{array}
   \right\}
 \end{gather*}
+
+\subsection{Trustee keys}
+\label{trustee-keys}
+
+\begin{gather*}
+  \pk=\G\qquad\sk=\Z_q\\
+  \tpk=\left\{
+    \begin{array}{rcl}
+      \pok&:&\proof\\
+      \pklabel&:&\pk
+    \end{array}
+  \right\}
+\end{gather*}
+
+A private key is a random number $x$ modulo $q$. The corresponding
+$\pklabel$ is $g^x$. A $\tpk$ is a bundle of this public key with a
+\hyperref[common]{$\proof$} of knowledge computed as follows:
+\begin{enumerate}
+\item pick a random $w\in\Z_q$
+\item compute $A=g^w$
+\item $\challenge=\Hash_\pok(A)\mod q$
+\item $\response=w+x\times\challenge\mod q$
+\end{enumerate}
+where $\Hash_\pok$ is $\shatwo$ with input written in base 10 and
+output interpreted as a 256-bit big-endian number. The proof is
+verified as follows:
+\begin{enumerate}
+\item compute $A={g^\response}/{y^\challenge}$
+\item check that $\challenge=\Hash_\pok(A)\mod q$
+\end{enumerate}
+
+\subsection{Credentials}
+\label{credentials}
+
+\newcommand{\secret}{\texttt{secret}}
+
+A secret \emph{credential} $c$ is a 15-character string, where characters are
+taken from the set:
+\[\texttt{123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz}\]
+The first 14 characters are random, and the last one is a checksum to
+detect typing errors. To compute the checksum, each character is
+interpreted as a base 58 digit: $\texttt{1}$ is $0$, $\texttt{2}$ is
+$1$, \dots, $\texttt{z}$ is $57$. The first 14 characters are
+interpreted as a big-endian number $c_1$ The checksum is $53-c_1\mod
+53$.
+
+From this string, a secret exponent $s=\secret(c)$ is derived by using
+PBKDF2 (RFC 2898) with:
+\begin{itemize}
+\item $c$ as password;
+\item HMAC-SHA256 (RFC 2104, FIPS PUB 180-2) as pseudorandom function;
+\item the $\uuid$ (interpreted as a 16-byte array) of the election as
+  salt;
+\item $1000$ iterations
+\end{itemize}
+and an output size of 1 block, which is interpreted as a big-endian
+256-bit number and then reduced modulo $q$ to form $s$.  From this
+secret exponent, a public key $\public(c)=g^s$ is computed.
 
 \subsection{Election}
-\label{election-format}
+\label{elections}
+
+\newcommand{\question}{\texttt{question}}
 
 \begin{gather*}
-  \texttt{uuid}=\textrm{RFC-4122}
-  \qquad
-  \texttt{datetime}=\textrm{RFC-3339}
-  \\
-  \texttt{tally\_type}=\textsf{homomorphic}
-  \qquad
-  \texttt{choice\_type}=\textsf{approval}
-  \\
-  \texttt{result\_type}=\textsf{absolute}\mid\textsf{relative}
-  \\
-  \hspace{-11.5pt}  % ~half of what "Overfull \hbox" says
-  \texttt{question}=\left\{\small
+  \texttt{group}=\left\{
     \begin{array}{rcl}
-      \textsf{short\_name}&:&\texttt{string}\\
-      \textsf{question}&:&\texttt{string}\\
-      \textsf{answers}&:&\texttt{string}^\ast\\
-      \textsf{min}&:&\N\\
-      \textsf{max}&:&\N\\
-      \textsf{tally\_type}&:&\texttt{tally\_type}\\
-      \textsf{result\_type}&:&\texttt{result\_type}\\
-      \textsf{choice\_type}&:&\texttt{choice\_type}\\
-      \textsf{answer\_urls}&:&\texttt{null}^\ast
+      \textsf{g}&:&\G\\
+      \textsf{p}&:&\N\\
+      \textsf{q}&:&\N
     \end{array}
   \right\}
   \qquad
-  \texttt{election}=\left\{\small
+  \texttt{wrapped\_pk}=\left\{\small
     \begin{array}{rcl}
-      \textsf{uuid}&:&\texttt{uuid}\\
-      \textsf{short\_name}&:&\texttt{string}\\
-      \textsf{name}&:&\texttt{string}\\
-      \textsf{description}&:&\texttt{string}\\
-      \textsf{openreg}&:&\texttt{bool}\\
-      \textsf{use\_voter\_aliases}&:&\texttt{bool}\\
+      \textsf{group}&:&\texttt{group}\\
+      \textsf{y}&:&\G
+    \end{array}
+  \right\}
+\end{gather*}
+The election public key, which is denoted by $y$ thoughout this
+document, is computed by multiplying all the public keys of the
+trustees, and bundled with the group parameters in a
+\texttt{wrapped\_pk} structure.
+
+\newcommand{\minlabel}{\textsf{min}}
+\newcommand{\maxlabel}{\textsf{max}}
+\newcommand{\answers}{\textsf{answers}}
+
+\begin{gather*}
+  \question=\left\{\small
+    \begin{array}{rcl}
+      \answers&:&\jstring^\ast\\
+      \minlabel&:&\I\\
+      \maxlabel&:&\I\\
+      \textsf{question}&:&\jstring
+    \end{array}
+  \right\}
+  \qquad
+  \election=\left\{\small
+    \begin{array}{rcl}
+      \textsf{description}&:&\jstring\\
+      \textsf{name}&:&\jstring\\
+      \textsf{public\_key}&:&\texttt{wrapped\_pk}\\
       \textsf{questions}&:&\texttt{question}^\ast\\
-      \textsf{cast\_url}&:&\texttt{string}\\
-      \textsf{frozen\_at}&:&\texttt{datetime}\\
-      \textsf{voting\_starts\_at}&:&\texttt{datetime}?\\
-      \textsf{voting\_ends\_at}&:&\texttt{datetime}?\\
-      \textsf{voters\_hash}&:&\texttt{null}\\
-      \textsf{public\_key}&:&\texttt{public\_key}
-    \end{array}
-  \right\}
-  \\
-  \texttt{tally}=\texttt{choice}^{\ast\ast}
-  \qquad
-  \texttt{encrypted\_tally}=\left\{
-    \begin{array}{rcl}
-      \textsf{num\_tallied}&:&\N\\
-      \textsf{tally}&:&\texttt{tally}
+      \textsf{uuid}&:&\texttt{uuid}\\
+      \textsf{short\_name}&:&\jstring
     \end{array}
   \right\}
 \end{gather*}
 
-\begin{itemize}
-\item the \texttt{Election} Python class also has \textsf{private\_p}
-  and \textsf{election\_type}, but they are not exported in the JSON
-  object; hence, they are not part of the election fingerprint
-  (shouldn't they?)
-\end{itemize}
+\newcommand{\answer}{\texttt{answer}}
+\newcommand{\signature}{\texttt{signature}}
+\newcommand{\iproofs}{\textsf{individual\_proofs}}
+\newcommand{\oproof}{\textsf{overall\_proof}}
+\newcommand{\choices}{\textsf{choices}}
+\newcommand{\dprove}{\textsf{dprove}}
 
-\subsection{Ballot}
-\label{ballot-format}
+\subsection{Disjunctive proofs}
 
 \begin{gather*}
-  \texttt{choice}=\left\{
+  \dproof=\proof^\ast
+\end{gather*}
+
+Given a pair $(\alpha,\beta)$ of group elements, one can prove that it
+has the form $(g^r,y^rg^{M_i})$ with $M_i\in[M_0,\dots,M_k]$ by
+creating a sequence of $\proof$s $\pi_0,\dots,\pi_k$ with the
+following procedure, parameterised by a group element $S$:
+\begin{enumerate}
+\item for $j\neq i$:
+  \begin{enumerate}
+  \item create $\pi_j$ with a random $\challenge$ and a random
+    $\response$
+  \item compute
+    \[A_j=\frac{g^\response}{\alpha^\challenge}\quad\text{and}\quad
+    B_j=\frac{y^\response}{(\beta/g^{M_j})^\challenge}\]
+  \end{enumerate}
+\item $\pi_i$ is created as follows:
+  \begin{enumerate}
+  \item pick a random $w\in\Z_q$
+  \item compute $A_i=g^w$ and $B_i=y^w$
+  \item $\challenge(\pi_i)=\Hash_\dprove(S,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq
+      i}\challenge(\pi_j)\mod q$
+  \item $\response(\pi_i)=w+r\times\challenge(\pi_i)\mod q$
+  \end{enumerate}
+\end{enumerate}
+In the above, $\Hash_\dprove$ is computed as follows:
+\[\Hash_\dprove(S,A_0,B_0,\dots,A_k,B_k)=\shatwo(\verb=prove|=S\verb=|=\alpha\verb=,=\beta\verb=|=A_0\verb=,=B_0\verb=,=\dots\verb=,=A_k\verb=,=B_k)\]
+where \verb=prove=, the vertical bars and the commas are verbatim and
+numbers are written in base 10. The result is interpreted as a 256-bit
+big-endian number. We will denote the whole procedure by
+$\dprove(S,r,i,M_0,\dots,M_k)$.
+
+The proof is verified as follows:
+\begin{enumerate}
+\item for $j\in[0\dots k]$, compute
+  \[A_j=\frac{g^\response}{\alpha^\challenge}\quad\text{and}\quad
+  B_j=\frac{y^\response}{(\beta/g^{M_j})^\challenge}\]
+\item check that
+  \[\Hash_\dprove(S,A_0,B_0,\dots,A_k,B_k)=\sum_{j\in[0\dots
+    k]}\challenge(\pi_j)\mod q\]
+\end{enumerate}
+
+\subsection{Encrypted answers}
+\label{answers}
+
+\begin{gather*}
+  \answer=\left\{\small
     \begin{array}{rcl}
-      \textsf{alpha}&:&\Z_p\\
-      \textsf{beta}&:&\Z_p
-    \end{array}
-  \right\}
-  \qquad
-  \texttt{commitment}=\left\{
-    \begin{array}{rcl}
-      \textsf{A}&:&\Z_p\\
-      \textsf{B}&:&\Z_p
-    \end{array}
-  \right\}
-  \\
-  \texttt{proof\_item}=\left\{
-    \begin{array}{rcl}
-      \textsf{commitment}&:&\texttt{commitment}\\
-      \textsf{challenge}&:&\Z_q\\
-      \textsf{response}&:&\Z_q
-    \end{array}
-  \right\}
-  \qquad
-  \texttt{proof}=\texttt{proof\_item}^\ast
-  \\
-  \texttt{answer}=\left\{
-    \begin{array}{rcl}
-      \makebox[0pt][l]{\rule[0.5ex]{6.5em}{0.7pt}}
-      \textsf{answer}&:&\Z_q^\ast\\
-      \makebox[0pt][l]{\rule[0.5ex]{8.5em}{0.7pt}}
-      \textsf{randomness}&:&\Z_q^\ast\\
-      \textsf{choices}&:&\texttt{choice}^\ast\\
-      \textsf{individual\_proofs}&:&\texttt{proof}^\ast\\
-      \textsf{overall\_proof}&:&\texttt{proof}
-    \end{array}
-  \right\}
-  \qquad
-  \texttt{vote}=\left\{
-    \begin{array}{rcl}
-      \textsf{answers}&:&\texttt{answer}^\ast\\
-      \textsf{election\_hash}&:&\texttt{string}\\
-      \textsf{election\_uuid}&:&\texttt{string}
+      \choices&:&\ciphertext^\ast\\
+      \iproofs&:&\dproof^\ast\\
+      \oproof&:&\dproof
     \end{array}
   \right\}
 \end{gather*}
 
-\begin{itemize}
-\item $|\textsf{answers}|$ is the number of questions
-\item for each question, let $N$ be the number of possible answers,
-  and $\textsf{min}$ and $\textsf{max}$ the bounds on the number of
-  answers that can be chosen
-\item $\textsf{answer}$ is the list of accepted choices;
-  $|\textsf{answer}|\in\{\textsf{min},\dots,\textsf{max}\}$,
-  $\textsf{answer}_i\in\{0,\dots,N-1\}$
-\item $\textsf{randomness}$ is a list (length $N$) of random secret
-  nonces used for ElGamal encryption
-\item everything can be computed from $\textsf{answer}$,
-  $\textsf{randomness}$ and public election data; they are given out
-  for audit, but not for actual cast
-\item $\textsf{choices}$ (length $N$) is the raw, unproved, vote; each
-  $\texttt{choice}$ in it is the encryption of $v\in\{0,1\}$,
-  depending on whether the choice is accepted or not
-\item equations and notations, for each choice:
-  \begin{itemize}
-  \item let $r$ be the secret nonce, and $m$ be the message to be
-    encrypted
-  \item $(\alpha,\beta)=(g^r, y^r g^m)$
-  \item $(g,h)=(g,y)=(g,g^x)$
-  \item $(G,H)=(g^r,\beta/g^m)=(g^r,h^r)=(G,G^x)$
-  \end{itemize}
-\item in a $\texttt{proof}$, there is one $\texttt{proof\_item}$ per
-  choice; one of them corresponds to the true choice and all the
-  others are simulated:
-  \begin{enumerate}
-  \item for each simulated choice:
-    \begin{enumerate}
-    \item pick at random $\textsf{challenge}\in\Z_q$ and $\textsf{response}\in\Z_q$
-    \item compute
-      \[
-      \textsf{A}=\frac{g^{\textsf{response}}}{G^{\textsf{challenge}}}
-      \qquad\textrm{and}\qquad
-      \textsf{B}=\frac{h^{\textsf{response}}}{H^{\textsf{challenge}}}
-      \]
-    \end{enumerate}
-  \item for the true choice:
-    \begin{enumerate}
-    \item pick at random $w\in\Z_q$
-    \item compute $\textsf{A}=g^w$, $\textsf{B}=h^w$ and
-      \[
-      \textsf{challenge}=
-      \textsf{SHA1}\left(\bigotimes_i\textsf{A}_i\otimes\textsf{B}_i\right)-
-      \sum_{i\neq m} \textsf{challenge}_i
-      \]
-      (here, $\otimes$ is concatenation with a comma)
-    \item compute $\textsf{response}=x\times\textsf{challenge}+w$
-    \end{enumerate}
-  \item verification:
-    \[
-      \left.\begin{array}{rcl}
-          g^{\textsf{response}}&=&G^{\textsf{challenge}}\times\textsf{A}\\
-          h^{\textsf{response}}&=&H^{\textsf{challenge}}\times\textsf{B}
-        \end{array}
-      \right\}\textrm{for each proof item}
-    \]
-    \[
-    \textsf{SHA1}\left(\bigotimes_i\textsf{A}_i\otimes\textsf{B}_i\right)=
-    \sum_i \textsf{challenge}_i
-    \]
-  \end{enumerate}
-\item in $\textsf{individual\_proofs}$, each one proves that the
-  choice is in $\{0,1\}$
-\item $\textsf{overall\_proof}$ proves that the homomorphic sum of
-  $\textsf{choices}$ is in $\{\textsf{min},\dots,\textsf{max}\}$
-\item in $\textsf{answers}$, there is an $\texttt{answer}$ for each
-  question
-\end{itemize}
+An answer to a \hyperref[elections]{$\question$} is the vector of
+encrypted weights (\choices, same length as \answers) given to each
+answer. Each weight comes with a disjunctive proof (in \iproofs, same
+length as \choices) that it is indeed 0 or 1. The whole answer also
+comes with a proof (\oproof) that the sum of weights is within bounds
+$[\minlabel\dots\maxlabel]$.
 
-\section{Miscellaneous}
+More concretely, each weight $m\in[0\dots1]$ is encrypted into a
+$\ciphertext$ as follows:
+\begin{enumerate}
+\item pick a random $r\in\Z_q$
+\item $\alphalabel=g^r$
+\item $\betalabel=y^rg^m$
+\end{enumerate}
+where $y$ is the election public key.
 
-\subsection{On ZK proofs}
-\begin{itemize}
-\item Kinds of ZK proofs:
-  \begin{itemize}
-  \item knowledge of a discrete logarithm
-  \item disjunction
-  \item four values $(g,h,G,H)$ (where $G=g^x$, $H=h^x$) are a DH
-    tuple:
-    \[
-    \textsf{ElGamal.Proof.generate}(g,h,x,p,q,\textsf{challenge\_generator}):
-    \texttt{proof\_item}\]
-    used in proofs of disjunctions and decryption
-  \end{itemize}
-\item How to express formally the security of ZK proofs
-  \begin{itemize}
-  \item in terms of the security parameter ($k=128$)
-  \item what are the security assumptions (DDH? secure hash function?)
-  \end{itemize}
-\end{itemize}
+To compute the proofs, the voter needs a
+\hyperref[credentials]{credential} $c$. Let $s=\secret(c)$, and
+$S=g^s$ written in base 10. The individual proof that $m\in[0\dots1]$
+is computed by running $\dprove(S,r,m,0,1)$.  The overall proof that
+$M\in[\minlabel\dots\maxlabel]$ is computed by running
+$\dprove(S,R,M-\minlabel,\minlabel,\dots,\maxlabel)$ where $R$ is the
+sum of the $r$ used in ciphertexts, and $M$ the sum of the $m$.
 
-\subsection{Comments on the implementation}
-\begin{itemize}
-\item Code difficult to audit:
-  \begin{itemize}
-  \item bad separation of concerns, big trusted computing base
-  \item dead and/or duplicated code and data all around
-  \item fragile meta-programming, lack of flexibility
-  \end{itemize}
-\item Administrator and voter sessions are mixed
-\item The voter list is reversed in CSV uploads
-\item Odd change of voter order during the voting phase
-\item Bugs:
-  \begin{itemize}
-  \item add a second trustee with the same email address
-  \item email voters when there is none
-  \item election frozen, logged in as administrator, click on voters and ballots
-  \item election frozen, some voters registered, open to any voters, click on voter list
-  \item failed votes are not reported properly
-  \item exceptions raised by EncryptedVote.verify are lost
-  \end{itemize}
-\end{itemize}
+\subsection{Signatures}
+\label{signatures}
+
+\begin{gather*}
+  \signature=\left\{\small
+    \begin{array}{rcl}
+      \pklabel&:&\pk\\
+      \challenge&:&\Z_q\\
+      \response&:&\Z_q
+    \end{array}
+  \right\}
+\end{gather*}
+
+\newcommand{\siglabel}{\textsf{signature}}
+
+Each ballot contains a digital signature to avoid ballot stuffing. The
+signature needs a \hyperref[credentials]{credential} $c$ and uses all
+the \ciphertext{}s $\gamma_1,\dots,\gamma_l$ that appear in the ballot
+($l$ is the sum of the lengths of $\choices$). It is computed as
+follows:
+\begin{enumerate}
+\item $s=\secret(c)$
+\item pick a random $w\in\Z_q$
+\item $A=g^w$
+\item $\challenge=\Hash_\siglabel(A,\gamma_1,\dots,\gamma_l)\mod q$
+\item $\response=w-s\times\challenge\mod q$
+\end{enumerate}
+In the above, $\Hash_\siglabel$ is computed as follows:
+\[
+\Hash_\siglabel(A,\gamma_1,\dots,\gamma_l)=\shatwo(\verb=sig|=A\verb=|=\alphalabel(\gamma_1)\verb=,=\betalabel(\gamma_1)\verb=,=\dots\verb=,=\alphalabel(\gamma_l)\verb=,=\betalabel(\gamma_l))
+\]
+where \verb=sig=, the vertical bars and commas are verbatim and
+numbers are written in base 10. The result is interpreted as a 256-bit
+big-endian number.
+
+Signatures are verified as follows:
+\begin{enumerate}
+\item compute $A=g^\response\times y^\challenge$
+\item check that $\challenge=\Hash_\siglabel(A,\gamma_1,\dots,\gamma_l)\mod q$
+\end{enumerate}
+
+\subsection{Ballots}
+\label{ballots}
+
+\newcommand{\json}{\textsf{JSON}}
+
+\begin{gather*}
+  \ballot=\left\{\small
+    \begin{array}{rcl}
+      \answers&:&\hyperref[answers]{\answer}^\ast\\
+      \textsf{election\_hash}&:&\jstring\\
+      \textsf{election\_uuid}&:&\uuid\\
+      \siglabel&:&\hyperref[signatures]{\signature}
+    \end{array}
+  \right\}
+\end{gather*}
+The so-called hash (or \emph{fingerprint}) of the election
+is computed with the function $\Hash_\json$:
+\[
+\Hash_\json(J)=\basesixfour(\shatwo(J))
+\]
+Where $J$ is the serialization (done by the server) of the $\election$
+structure.
+
+The same hashing function is used on a serialization (done by the
+voting client) of the $\ballot$ structure to produce a so-called
+\emph{smart ballot tracker}.
+
+\subsection{Tally}
+\label{tally}
+
+\begin{gather*}
+  \etally=\ciphertext^\ast{}^\ast
+\end{gather*}
+The encrypted tally is the pointwise product of the ciphertexts of all
+accepted ballots:
+\[
+\begin{array}{rcl}
+\alphalabel(\etally_{i,j})&=&\prod\alphalabel(\choices(\answers(\ballot)_i)_j)\\
+\betalabel(\etally_{i,j})&=&\prod\betalabel(\choices(\answers(\ballot)_i)_j)
+\end{array}
+\]
+
+\newcommand{\dfactors}{\textsf{decryption\_factors}}
+\newcommand{\dproofs}{\textsf{decryption\_proofs}}
+\newcommand{\decrypt}{\textsf{decrypt}}
+
+\begin{gather*}
+  \pdecryption=\left\{\small
+    \begin{array}{rcl}
+      \dfactors&:&\G^\ast{}^\ast\\
+      \dproofs&:&\proof^\ast{}^\ast
+    \end{array}
+  \right\}
+\end{gather*}
+From the encrypted tally, each trustee computes a partial decryption
+using the \hyperref[trustee-keys]{private key} $x$ he generated during
+election setup. It consists of so-called decryption factors:
+\[
+\dfactors_{i,j}=\alphalabel(\etally_{i,j})^x
+\]
+and proofs that they were correctly computed. Each $\dproofs_{i,j}$ is
+computed as follows:
+\begin{enumerate}
+\item pick a random $w\in\Z_q$
+\item compute $A=g^w$ and $B=\alphalabel(\etally_{i,j})^w$
+\item $\challenge=\Hash_\decrypt(A,B)\mod q$
+\item $\response=w+x\times\challenge\mod q$
+\end{enumerate}
+In the above, $\Hash_\decrypt$ is computed as follows:
+\[
+\Hash_\decrypt(A,B)=\shatwo(A\verb=,=B)
+\]
+where the comma is verbatim and numbers are written in base 10. The
+result is interpreted as a 256-bit big-endian number.
+
+These proofs are verified using the $\tpk$ structure $k$ that the
+trustee sent to the administrator during the election setup:
+\begin{enumerate}
+\item compute
+\[
+A=\frac{g^\response}{\pklabel(k)^\challenge}
+\quad\text{and}\quad
+B=\frac{\alphalabel(\etally_{i,j})^\response}{\dfactors_{i,j}^\challenge}
+\]
+\item check that $\Hash_\decrypt(A,B)=\challenge\mod q$
+\end{enumerate}
+
+\subsection{Election result}
+\label{election-result}
+
+\newcommand{\ntallied}{\textsf{num\_tallied}}
+\newcommand{\etallylabel}{\textsf{encrypted\_tally}}
+\newcommand{\pdlabel}{\textsf{partial\_decryptions}}
+\newcommand{\resultlabel}{\textsf{result}}
+
+\begin{gather*}
+  \result=\left\{\small
+    \begin{array}{rcl}
+      \ntallied&:&\I\\
+      \etallylabel&:&\etally\\
+      \pdlabel&:&\pdecryption^\ast\\
+      \resultlabel&:&\I^\ast{}^\ast
+    \end{array}
+  \right\}
+\end{gather*}
+The decryption factors are combined for each ciphertext to build
+synthetic ones:
+\[
+F_{i,j}=\prod_{z\in[1\dots m]}\pdlabel_{z,i,j}
+\]
+where $m$ is the number of trustees. The $\resultlabel$ field of the
+$\result$ structure is then computed as follows:
+\[
+\resultlabel_{i,j}=\log_g\left(\frac{\betalabel(\etallylabel_{i,j})}{F_{i,j}}\right)
+\]
+Here, the discrete logarithm logarithm can be easily computed because
+it is bounded by $\ntallied$.
+
+\section{Default group parameters}
+\label{default-group}
+
+\[
+\begin{array}{lcr}
+p&=&16328632084933010\\
+&&002384055033805457329601614771185955389739167309086214800406\\
+&&465799038583634953752941675645562182498120750264980492381375\\
+&&579367675648771293800310370964745767014243638518442553823973\\
+&&482995267304044326777047662957480269391322789378384619428596\\
+&&446446984694306187644767462460965622580087564339212631775817\\
+&&895958409016676398975671266179637898557687317076177218843233\\
+&&150695157881061257053019133078545928983562221396313169622475\\
+&&509818442661047018436264806901023966236718367204710755935899\\
+&&013750306107738002364137917426595737403871114187750804346564\\
+&&731250609196846638183903982387884578266136503697493474682071\\
+g&=&14887492224963187\\
+&&634282421537186040801304008017743492304481737382571933937568\\
+&&724473847106029915040150784031882206090286938661464458896494\\
+&&215273989547889201144857352611058572236578734319505128042602\\
+&&372864570426550855201448111746579871811249114781674309062693\\
+&&442442368697449970648232621880001709535143047913661432883287\\
+&&150003429802392229361583608686643243349727791976247247948618\\
+&&930423866180410558458272606627111270040091203073580238905303\\
+&&994472202930783207472394578498507764703191288249547659899997\\
+&&131166130259700604433891232298182348403175947450284433411265\\
+&&966789131024573629546048637848902243503970966798589660808533\\
+q&=&61329566248342901\\
+&&292543872769978950870633559608669337131139375508370458778917
+\end{array}
+\]
 
 \end{document}
