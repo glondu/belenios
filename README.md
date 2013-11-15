@@ -2,82 +2,23 @@ Belenios
 ========
 
 
-Compilation
------------
+Introduction
+------------
 
-### Command-line tool
+Belenios is a verifiable voting system that partly implements the
+Helios-C protocol described in [1], which is itself derived from
+[Helios](http://vote.heliosvoting.org).
 
-To compile the command-line tool, you will need:
+[1]: http://eprint.iacr.org/2013/177
 
- * [OCaml](http://caml.inria.fr/)
- * [Findlib](http://projects.camlcity.org/projects/findlib.html)
- * [Zarith](https://forge.ocamlcore.org/projects/zarith/)
- * [Calendar](http://calendar.forge.ocamlcore.org/)
- * [Uuidm](http://erratique.ch/software/uuidm)
- * [Cryptokit](https://forge.ocamlcore.org/projects/cryptokit/)
- * [Atdgen](http://mjambon.com/atdgen)
- * [Yojson](http://mjambon.com/yojson.html)
+It consists of a command-line tool used to perform administrative
+tasks related to elections, as well as verifications, and a web server
+used to collect ballots from voters. Voters can vote directly from
+their web browser.
 
-If you use [OPAM](http://opam.ocamlpro.com/), these dependencies can
-be installed with the following command:
+A specification is provided in doc/specification.tex.
 
-    opam install atdgen zarith cryptokit uuidm calendar
-
-On [Debian](http://www.debian.org)-based systems, they can be
-installed with the following command:
-
-    apt-get install atdgen libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev
-
-Once all the dependencies have been installed, the command-line tool
-can be compiled with:
-
-    make
-
-It produces a single executable, `belenios-tool`. You can install it
-in your `PATH` (which we will assume in the guides), or refer to it
-with a full path.
-
-### Web server
-
-The web server uses the [Ocsigen/Eliom](http://ocsigen.org)
-framework. Eliom version 3 is needed.
-
-With OPAM, you can install it with:
-
-    opam install eliom
-
-On Debian-based systems, you can install it with:
-
-    apt-get install ocsigenserver eliom
-
-But keep in mind that Belenios needs a very recent version of these
-packages (in particular, eliom version 3 which is not in Debian stable
-at the time of writing), so the ones available on your system might be
-too old. If you are in this case, and want to run the server, we
-advise you to use OPAM.
-
-Once all the dependencies have been installed, the Eliom module can be
-compiled with:
-
-    make all
-
-### Documentation
-
-To generate HTML files from `.md` ones, you will need:
-
- * [Markdown](http://daringfireball.net/projects/markdown/)
-
-Additionnaly, you will need LaTeX to compile the specification.
-
-On Debian-based systems, you can install the dependencies needed to
-compile the documentation with:
-
-    apt-get install markdown texlive
-
-Once all the dependencies have been installed, the documentation can
-be compiled with:
-
-    make doc
+Compilation instructions are provided in INSTALL.md.
 
 
 Voter's guide
@@ -268,3 +209,31 @@ In the following, we assume `ocsigenserver` is properly configured.
 
 Note: `partial_decryptions.jsons` is a temporary file whose contents
 is embedded in `result.json`, so there is no need to keep it.
+
+
+Legal
+-----
+
+### Internal code
+
+By "internal code", we mean everything that is not in the `ext/`
+directory.
+
+Copyright © 2012-2013 Inria
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version, with the additional
+exemption that compiling, linking, and/or using OpenSSL is allowed.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Affero General Public License for more details.
+
+### External code
+
+The booth (web-based voting client) has been imported from Helios and
+adapted for our needs. It uses code from many origins; please refer to
+each file for accurate copyright and licensing information.
