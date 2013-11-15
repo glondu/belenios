@@ -17,3 +17,10 @@ tree: _build/tree.html
 _build/tree.html: _build/_digests
 	mkdir -p _build
 	tree -o $@ -H '..'  -I '_build|_run|*~'
+
+doc:
+	ocamlbuild doc.otarget
+	$(MAKE) doc/specification.pdf
+
+doc/specification.pdf: doc/specification.tex
+	cd doc && for u in 1 2; do pdflatex specification.tex; done
