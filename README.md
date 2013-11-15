@@ -5,9 +5,9 @@ Belenios
 Compilation
 -----------
 
-### Dependencies
+### Command-line tool
 
-To run basic command-line tools, you will need:
+To compile the command-line tool, you will need:
 
  * [OCaml](http://caml.inria.fr/)
  * [Findlib](http://projects.camlcity.org/projects/findlib.html)
@@ -18,35 +18,66 @@ To run basic command-line tools, you will need:
  * [Atdgen](http://mjambon.com/atdgen)
  * [Yojson](http://mjambon.com/yojson.html)
 
-To run the web server, you will additionally need:
+If you use [OPAM](http://opam.ocamlpro.com/), these dependencies can
+be installed with the following command:
 
- * [Eliom](http://ocsigen.org/eliom/) version 3
+    opam install atdgen zarith cryptokit uuidm calendar
 
-In general, using [OPAM](http://opam.ocamlpro.com/) should work on any
-Unix-based system.
+On [Debian](http://www.debian.org)-based systems, they can be
+installed with the following command:
+
+    apt-get install atdgen libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev
+
+Once all the dependencies have been installed, the command-line tool
+can be compiled with:
+
+    make
+
+It produces a single executable, `belenios-tool`. You can install it
+in your `PATH` (which we will assume in the guides), or refer to it
+with a full path.
+
+### Web server
+
+The web server uses the [Ocsigen/Eliom](http://ocsigen.org)
+framework. Eliom version 3 is needed.
+
+With OPAM, you can install it with:
+
+    opam install eliom
+
+On Debian-based systems, you can install it with:
+
+    apt-get install ocsigenserver eliom
+
+But keep in mind that Belenios needs a very recent version of these
+packages (in particular, eliom version 3 which is not in Debian stable
+at the time of writing), so the ones available on your system might be
+too old. If you are in this case, and want to run the server, we
+advise you to use OPAM.
+
+Once all the dependencies have been installed, the Eliom module can be
+compiled with:
+
+    make all
+
+### Documentation
 
 To generate HTML files from `.md` ones, you will need:
 
  * [Markdown](http://daringfireball.net/projects/markdown/)
 
-There are two Makefile targets corresponding to the two levels of
-dependencies: `minimal` (default) and `all`.
+Additionnaly, you will need LaTeX to compile the specification.
 
-### Debian-specific instructions
+On Debian-based systems, you can install the dependencies needed to
+compile the documentation with:
 
-On Debian and its derivatives, you can find the list of packages to
-install in the `stuff/belenios-deps-*.control` files. You can also
-create meta-packages with `equivs` by using the following commands:
+    apt-get install markdown texlive
 
-    BELENIOS=`pwd`
-    cd /tmp
-    equivs-build $BELENIOS/stuff/belenios-deps-minimal.control
-    equivs-build $BELENIOS/stuff/belenios-deps-all.control
+Once all the dependencies have been installed, the documentation can
+be compiled with:
 
-Then install the chosen `deb`s with `dpkg -i`, followed by `apt-get -f
-install` to install missing dependencies.
-
-NOTE: `equiv-build` should not be run from a NFS directory!
+    make doc
 
 
 Voter's guide
@@ -67,7 +98,7 @@ If you put these files in a directory `/path/to/election`, the following
 command will perform all possible verifications, depending on existing
 files:
 
-    ./stuff/election-tool.sh --dir /path/to/election
+    belenios-tool election --dir /path/to/election
 
 For example, during the election, you can check if some candidate
 ballot is acceptable by putting it alone in `ballots.jsons`, and
@@ -81,7 +112,7 @@ Trustee's guide
 
 To generate a keypair, run:
 
-    make trustee-keygen
+    belenios-tool trustee-keygen
 
 It will generate two files, `XXXXXXXX.public` and `XXXXXXXX.private`,
 containing respectively the public and the private key. Send the
@@ -93,7 +124,7 @@ with extreme care.
 To compute your decryption share, set `/path/to/election` up as
 described in the _Voter's guide_ section above, and run:
 
-    ./stuff/election-tool.sh --dir /path/to/election --decrypt /path/to/privkey > partial_decryption.json
+    belenios-tool election --dir /path/to/election --decrypt /path/to/privkey > partial_decryption.json
 
 and send `partial_decryption.json` to the election
 administrator.
@@ -109,7 +140,7 @@ Credential authority's guide
 
 To generate the credentials, run:
 
-    ./stuff/credgen.sh --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --count N
+    belenios-tool credgen --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --count N
 
 where `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX` is the UUID of the
 election given by the administrator, and `N` the number of credentials
@@ -129,7 +160,7 @@ to whom you sent each individual private credential.
 If you have a list of identities in a file `F` with `N` non-empty
 lines, one identity per line, you can also run:
 
-    ./stuff/credgen.sh --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --file F
+    belenios-tool credgen --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --file F
 
 It will create the same `TTTTTTTTTT.public` file as above, with `N`
 lines. It will also generate `TTTTTTTTTT.private` with `N` lines, each
@@ -147,7 +178,7 @@ that there is no matching between them based on line numbers.
 
 To get the public key derived from a private credential, run:
 
-    ./stuff/credgen.sh --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --derive YYYYYYYYYYYYYYY
+    belenios-tool credgen --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --derive YYYYYYYYYYYYYYY
 
 
 Server administrator's guide
@@ -155,7 +186,8 @@ Server administrator's guide
 
 ### Overview of the web server
 
-A sample web server can be run with the `demo/run-server.sh` script.
+A sample web server can be run with the `demo/run-server.sh` script,
+from the compiled source tree.
 
 Here is an excerpt of the sample configuration file:
 
@@ -229,7 +261,7 @@ In the following, we assume `ocsigenserver` is properly configured.
  2. Concatenate the `partial_decryption.json` received from each
     trustee into a `partial_decryptions.jsons`, in the same order as in
     `public_keys.jsons`.
- 3. Run `$BELENIOS/stuff/election-tool.sh`.  It will create
+ 3. Run `belenios-tool election`.  It will create
     `result.json`. Publish this file, along with the files listed in
     the first step above. The whole set will enable universal
     verifiability.
