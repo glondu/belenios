@@ -176,11 +176,11 @@ In the following, we assume `ocsigenserver` is properly configured.
      following, we denote by `$DIR` the full path to this directory.
  4.  Go to Belenios source tree (we assume its full path is
      `$BELENIOS`).
- 5.  Edit `stuff/template.ml` with the election parameters, and run
+ 5.  Edit `demo/template.ml` with the election parameters, and run
      `make all`.
  6.  Go to `$DIR`.
  7.  Concatenate all trustee public keys into a `public_keys.jsons`
-     file, and run `$BELENIOS/_build/stuff/template.native`. It should
+     file, and run `$BELENIOS/_build/demo/template.native`. It should
      generate `election.json` and `metadata.json`. The `ydump` tool
      (from Yojson) can be used to pretty-print them.
  8.  (Optionally) Edit `election.json` and `metadata.json` to your

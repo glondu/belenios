@@ -1,4 +1,4 @@
 minimal.otarget
 src/lib/lib.cma
 src/web/server.cma
-stuff/template.byte
+demo/template.byte
