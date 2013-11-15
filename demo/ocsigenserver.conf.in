@@ -31,7 +31,7 @@
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <site path="booth" charset="utf-8">
-        <static dir="_SRCDIR_/media/booth" />
+        <static dir="_SRCDIR_/ext/booth" />
       </site>
       <eliom module="_build/src/web/server.cma">
         <enable-dummy/>
