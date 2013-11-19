@@ -6,10 +6,8 @@ Introduction
 ------------
 
 Belenios is a verifiable voting system that partly implements the
-Helios-C protocol described in [1], which is itself derived from
-[Helios](http://vote.heliosvoting.org).
-
-[1]: http://eprint.iacr.org/2013/177
+Helios-C protocol described [here](http://eprint.iacr.org/2013/177),
+which is itself derived from [Helios](http://vote.heliosvoting.org).
 
 It consists of a command-line tool used to perform administrative
 tasks related to elections, as well as verifications, and a web server
