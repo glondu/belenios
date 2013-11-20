@@ -32,10 +32,12 @@ let y = KG.combine public_keys
 
 (* Setup election *)
 
+let {g; p; q} = G.group
+
 let params = {
   e_description = "This is a test election.";
   e_name = "Test election";
-  e_public_key = G.({group; y});
+  e_public_key = {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y};
   e_questions =
     [|
       {

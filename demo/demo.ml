@@ -143,8 +143,9 @@ let list_save_to filename writer xs =
   close_out oc;;
 
 let save_to_disk () =
+  let {g; p; q} = G.group in
   let params = { params with
-    e_public_key = G.({group; y})
+    e_public_key = {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y}
   } in
   let ballots = Array.of_list (M.fold_ballots (fun x xs () -> x::xs) [] ()) in
   let dir = Printf.sprintf "demo/data/%s" (Uuidm.to_string params.e_uuid) in

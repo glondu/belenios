@@ -60,10 +60,13 @@ type ff_params = {
 }
 <doc text="Parameters for a multiplicative subgroup of a finite field.">
 
+(* FIXME: use a "group" field of type 'a *)
 type ('a, 'b) wrapped_pubkey = {
-  group : 'a;
+  g : number;
+  p : number;
+  q : number;
   y : 'b;
-}
+} <ocaml field_prefix="ffpk_">
 <doc text="A public key wrapped with its group parameters.">
 
 type ff_pubkey = (ff_params, number) wrapped_pubkey

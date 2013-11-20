@@ -187,7 +187,8 @@ let make_web_election raw_election e_meta election_web =
   let wrapped_params = Serializable_j.params_of_string
     Serializable_j.read_ff_pubkey raw_election
   in
-  let {group; y} = wrapped_params.e_public_key in
+  let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = wrapped_params.e_public_key in
+  let group = {g; p; q} in
   let e_params = { wrapped_params with e_public_key = y } in
   let election = {e_params; e_meta; e_pks = None; e_fingerprint} in
 

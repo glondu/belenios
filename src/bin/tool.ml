@@ -93,8 +93,8 @@ let params, election_fingerprint =
   | Some [e] -> e
   | _ -> failwith "invalid election file"
 
-let {group; y} = params.e_public_key
-let {g; p; q} = group
+let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = params.e_public_key
+let group = {g; p; q}
 let () = assert (Election.check_finite_field group)
 
 end

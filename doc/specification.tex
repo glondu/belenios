@@ -248,17 +248,11 @@ secret exponent, a public key $\public(c)=g^s$ is computed.
 \newcommand{\question}{\texttt{question}}
 
 \begin{gather*}
-  \texttt{group}=\left\{
+  \texttt{wrapped\_pk}=\left\{\small
     \begin{array}{rcl}
       \textsf{g}&:&\G\\
       \textsf{p}&:&\N\\
-      \textsf{q}&:&\N
-    \end{array}
-  \right\}
-  \qquad
-  \texttt{wrapped\_pk}=\left\{\small
-    \begin{array}{rcl}
-      \textsf{group}&:&\texttt{group}\\
+      \textsf{q}&:&\N\\
       \textsf{y}&:&\G
     \end{array}
   \right\}
