@@ -46,7 +46,8 @@ available online.\footnote{\url{http://eprint.iacr.org/2013/177}}
 
 The Belenios protocol is very similar to Helios (with a signature
 added to ballots and different zero-knowledge proofs) and Helios-C
-(without distributed key generation of trustees).
+(with the distributed key generation of trustees of Helios, without
+threshold support).
 
 The cryptography involved in Belenios needs a cyclic group $\G$ where
 discrete logarithms are hard to compute. We will denote by $g$ a
@@ -71,6 +72,7 @@ section~\ref{default-group} (they are the same as Helios v3).
 \label{processes}
 
 \subsection{Election setup}
+\label{election-setup}
 
 \begin{enumerate}
 \item $A$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
@@ -83,11 +85,11 @@ section~\ref{default-group} (they are the same as Helios v3).
 \item $C$ forgets the mapping between $j$ and $\public(c_j)$
   if credential recovery is not needed
 \item $C$ sends $L$ to $A$
-\item for $i\in[1\dots m]$,
+\item for $z\in[1\dots m]$,
   \begin{enumerate}
-  \item $T_i$ generates a \hyperref[trustee-keys]{$\tpk$} $k_i$ and
+  \item $T_z$ generates a \hyperref[trustee-keys]{$\tpk$} $k_z$ and
     sends it to $A$
-  \item $A$ checks $k_i$
+  \item $A$ checks $k_z$
   \end{enumerate}
 \item $A$ combines all the trustee public keys into the election
   public key $y$
@@ -100,7 +102,7 @@ section~\ref{default-group} (they are the same as Helios v3).
 \begin{enumerate}
 \item $V$ gets $E$
 \item $V$ creates a \hyperref[ballots]{$\ballot$} $b$ and submits it to $S$
-\item $S$ verifies $b$ and publishes it
+\item $S$ validates $b$ and publishes it
 \end{enumerate}
 
 \subsection{Credential recovery}
@@ -119,12 +121,12 @@ section~\ref{default-group} (they are the same as Helios v3).
 
 \begin{enumerate}
 \item $A$ stops $S$ and computes the \hyperref[tally]{$\etally$} $\Pi$
-\item for $i\in[1\dots m]$,
+\item for $z\in[1\dots m]$,
   \begin{enumerate}
-  \item $A$ sends $\Pi$ to $T_i$
-  \item $T_i$ generates a \hyperref[tally]{$\pdecryption$} $\delta_i$
+  \item $A$ sends $\Pi$ to $T_z$
+  \item $T_z$ generates a \hyperref[tally]{$\pdecryption$} $\delta_z$
     and sends it to $A$
-  \item $A$ verifies $\delta_i$
+  \item $A$ verifies $\delta_z$
   \end{enumerate}
 \item $A$ combines all the partial decryptions, computes and publishes
   the election \hyperref[election-result]{\result}
@@ -295,6 +297,14 @@ trustees, and bundled with the group parameters in a
 \newcommand{\choices}{\textsf{choices}}
 \newcommand{\dprove}{\textsf{dprove}}
 
+During an election, public data include:
+\begin{itemize}
+\item the $\election$ structure described above;
+\item all the $\tpk$s that were generated during the
+  \hyperref[election-setup]{setup phase};
+\item the set $L$ of public credentials.
+\end{itemize}
+
 \subsection{Disjunctive proofs}
 
 \begin{gather*}
@@ -318,13 +328,13 @@ following procedure, parameterised by a group element $S$:
   \begin{enumerate}
   \item pick a random $w\in\Z_q$
   \item compute $A_i=g^w$ and $B_i=y^w$
-  \item $\challenge(\pi_i)=\Hash_\dprove(S,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq
+  \item $\challenge(\pi_i)=\Hash_\dprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq
       i}\challenge(\pi_j)\mod q$
   \item $\response(\pi_i)=w+r\times\challenge(\pi_i)\mod q$
   \end{enumerate}
 \end{enumerate}
 In the above, $\Hash_\dprove$ is computed as follows:
-\[\Hash_\dprove(S,A_0,B_0,\dots,A_k,B_k)=\shatwo(\verb=prove|=S\verb=|=\alpha\verb=,=\beta\verb=|=A_0\verb=,=B_0\verb=,=\dots\verb=,=A_k\verb=,=B_k)\]
+\[\Hash_\dprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\shatwo(\verb=prove|=S\verb=|=\alpha\verb=,=\beta\verb=|=A_0\verb=,=B_0\verb=,=\dots\verb=,=A_k\verb=,=B_k)\]
 where \verb=prove=, the vertical bars and the commas are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
 big-endian number. We will denote the whole procedure by
@@ -336,7 +346,7 @@ The proof is verified as follows:
   \[A_j=\frac{g^\response}{\alpha^\challenge}\quad\text{and}\quad
   B_j=\frac{y^\response}{(\beta/g^{M_j})^\challenge}\]
 \item check that
-  \[\Hash_\dprove(S,A_0,B_0,\dots,A_k,B_k)=\sum_{j\in[0\dots
+  \[\Hash_\dprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\sum_{j\in[0\dots
     k]}\challenge(\pi_j)\mod q\]
 \end{enumerate}
 
