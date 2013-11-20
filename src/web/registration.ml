@@ -49,6 +49,7 @@ let secure_logfile = ref None
 let data_dir = ref None
 let source_file = ref None
 let enable_dummy = ref false
+let enable_cas = ref false
 let admin_hash = ref ""
 let main_election = ref None
 
@@ -81,6 +82,11 @@ let () =
       ~init:(fun () -> enable_dummy := true)
       ();
     element
+      ~name:"enable-cas"
+      ~obligatory:false
+      ~init:(fun () -> enable_cas := true)
+      ();
+    element
       ~name:"admin"
       ~obligatory:true
       ~attributes:[
@@ -100,7 +106,9 @@ let login_default =
   else Eliom_service.preapply login_cas None
 
 let auth_systems =
-  ("CAS", Eliom_service.preapply Services.login_cas None;) ::
+  (if !enable_cas then [
+    "CAS", Eliom_service.preapply Services.login_cas None
+  ] else []) @
   (if !enable_dummy then ["dummy", Services.login_dummy] else [])
 
 lwt () =
