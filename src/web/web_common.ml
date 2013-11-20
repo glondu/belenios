@@ -191,7 +191,7 @@ let make_web_election raw_election e_meta election_web =
   let e_params = { wrapped_params with e_public_key = y } in
   let election = {e_params; e_meta; e_pks = None; e_fingerprint} in
 
-  let module X : WEB_ELECTION_BUNDLE with type elt = Z.t = struct
+  let module X : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t = struct
     type elt = Z.t
 
     module G = (val Election.finite_field group : Election.FF_GROUP)
@@ -348,7 +348,7 @@ let make_web_election raw_election e_meta election_web =
     end
   end in
   {
-    modules = (assert false);
+    modules = (module X : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t);
     election;
     election_web;
   }
