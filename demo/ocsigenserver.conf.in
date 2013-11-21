@@ -35,6 +35,7 @@
       </site>
       <eliom module="_build/src/web/server.cma">
         <enable-dummy/>
+        <source file="../belenios.tar.gz"/>
         <main-election uuid="6d122f00-2650-4de8-87de-30037a21f943"/>
         <admin hash="97b878ee6f0b3fdec58875e7825e720a0cc0f973d73e415458b5544938d09fe6"/><!-- Ooj8jubi -->
         <log file="_RUNDIR_/log/security.log"/>

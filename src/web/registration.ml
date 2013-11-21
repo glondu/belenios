@@ -66,7 +66,7 @@ let () =
       ] ();
     element
       ~name:"source"
-      ~obligatory:false
+      ~obligatory:true
       ~attributes:[
         attribute ~name:"file" ~obligatory:true (fun s -> source_file := Some s);
       ] ();
