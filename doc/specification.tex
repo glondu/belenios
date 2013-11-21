@@ -200,20 +200,22 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
 \end{gather*}
 
 A private key is a random number $x$ modulo $q$. The corresponding
-$\pklabel$ is $g^x$. A $\tpk$ is a bundle of this public key with a
+$\pklabel$ is $X=g^x$. A $\tpk$ is a bundle of this public key with a
 \hyperref[common]{$\proof$} of knowledge computed as follows:
 \begin{enumerate}
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$
-\item $\challenge=\Hash_\pok(A)\mod q$
+\item $\challenge=\Hash_\pok(X,A)\mod q$
 \item $\response=w+x\times\challenge\mod q$
 \end{enumerate}
-where $\Hash_\pok$ is $\shatwo$ with input written in base 10 and
-output interpreted as a 256-bit big-endian number. The proof is
-verified as follows:
+where $\Hash_\pok$ is computed as follows:
+\[\Hash_\pok(X,A) = \shatwo(\verb=pok|=X\verb=|=A) \]
+where $\pok$ and the vertical bars are verbatim and numbers are
+written in base 10. The result is interpreted as a 256-bit big-endian
+number. The proof is verified as follows:
 \begin{enumerate}
 \item compute $A={g^\response}/{y^\challenge}$
-\item check that $\challenge=\Hash_\pok(A)\mod q$
+\item check that $\challenge=\Hash_\pok(\pklabel,A)\mod q$
 \end{enumerate}
 
 \subsection{Credentials}

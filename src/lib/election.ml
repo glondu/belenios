@@ -140,7 +140,8 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
   let generate_and_prove () =
     random q >>= fun x ->
     let trustee_public_key = g **~ x in
-    fs_prove [| g |] x (G.hash "") >>= fun trustee_pok ->
+    let zkp = "pok|" ^ G.to_string trustee_public_key ^ "|" in
+    fs_prove [| g |] x (G.hash zkp) >>= fun trustee_pok ->
     return (x, {trustee_pok; trustee_public_key})
 
   let check {trustee_pok; trustee_public_key = y} =
@@ -149,7 +150,8 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
     check_modulo q challenge &&
     check_modulo q response &&
     let commitment = g **~ response / (y **~ challenge) in
-    challenge =% G.hash "" [| commitment |]
+    let zkp = "pok|" ^ G.to_string y ^ "|" in
+    challenge =% G.hash zkp [| commitment |]
 
   let combine pks =
     Array.fold_left (fun y {trustee_public_key; _} ->
