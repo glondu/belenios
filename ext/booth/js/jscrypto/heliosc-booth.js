@@ -69,7 +69,7 @@ HELIOS.EncryptedVote.prototype.doSignature = function(cred) {
     var pk = this.election.public_key;
     var w = Random.getRandomInteger(pk.q);
     var commitment = pk.g.modPow(w, pk.p);
-    var prefix = "sig|" + commitment.toJSONObject() + "|";
+    var prefix = "sig|" + cred.y.toJSONObject() + "|" + commitment.toJSONObject() + "|";
     var challenge = (new BigInt(hex_sha256(prefix + _(this.encrypted_answers).map(function(ea) {
         return ElGamal.stringify_choices(ea.choices);
     }).join(",")), 16)).mod(pk.q);

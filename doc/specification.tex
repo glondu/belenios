@@ -410,15 +410,16 @@ the \ciphertext{}s $\gamma_1,\dots,\gamma_l$ that appear in the ballot
 ($l$ is the sum of the lengths of $\choices$). It is computed as
 follows:
 \begin{enumerate}
-\item $s=\secret(c)$
+\item compute $s=\secret(c)$
 \item pick a random $w\in\Z_q$
-\item $A=g^w$
-\item $\challenge=\Hash_\siglabel(A,\gamma_1,\dots,\gamma_l)\mod q$
+\item compute $A=g^w$
+\item $\pklabel=g^s$
+\item $\challenge=\Hash_\siglabel(\pklabel,A,\gamma_1,\dots,\gamma_l)\mod q$
 \item $\response=w-s\times\challenge\mod q$
 \end{enumerate}
 In the above, $\Hash_\siglabel$ is computed as follows:
 \[
-\Hash_\siglabel(A,\gamma_1,\dots,\gamma_l)=\shatwo(\verb=sig|=A\verb=|=\alphalabel(\gamma_1)\verb=,=\betalabel(\gamma_1)\verb=,=\dots\verb=,=\alphalabel(\gamma_l)\verb=,=\betalabel(\gamma_l))
+\Hash_\siglabel(S,A,\gamma_1,\dots,\gamma_l)=\shatwo(\verb=sig|=S\verb=|=A\verb=|=\alphalabel(\gamma_1)\verb=,=\betalabel(\gamma_1)\verb=,=\dots\verb=,=\alphalabel(\gamma_l)\verb=,=\betalabel(\gamma_l))
 \]
 where \verb=sig=, the vertical bars and commas are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
@@ -427,7 +428,7 @@ big-endian number.
 Signatures are verified as follows:
 \begin{enumerate}
 \item compute $A=g^\response\times y^\challenge$
-\item check that $\challenge=\Hash_\siglabel(A,\gamma_1,\dots,\gamma_l)\mod q$
+\item check that $\challenge=\Hash_\siglabel(\pklabel,A,\gamma_1,\dots,\gamma_l)\mod q$
 \end{enumerate}
 
 \subsection{Ballots}

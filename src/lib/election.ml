@@ -369,7 +369,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
           check_modulo q s_challenge &&
           check_modulo q s_response &&
           let commitment = g **~ s_response *~ y **~ s_challenge in
-          let prefix = "sig|" ^ G.to_string commitment ^ "|" in
+          let prefix = "sig|" ^ G.to_string y ^ "|" ^ G.to_string commitment ^ "|" in
           let ciphertexts = List.flatten (
             List.map (fun a ->
               List.flatten (
