@@ -299,7 +299,8 @@ trustees, and bundled with the group parameters in a
 \newcommand{\choices}{\textsf{choices}}
 \newcommand{\dprove}{\textsf{dprove}}
 
-During an election, public data include:
+During an election, the following data needs to be public in order to
+verify the setup phase and to validate ballots:
 \begin{itemize}
 \item the $\election$ structure described above;
 \item all the $\tpk$s that were generated during the
@@ -550,6 +551,17 @@ $\result$ structure is then computed as follows:
 \]
 Here, the discrete logarithm logarithm can be easily computed because
 it is bounded by $\ntallied$.
+
+After the election, the following data needs to be public in order to
+verify the tally:
+\begin{itemize}
+\item the $\election$ structure;
+\item all the $\tpk$s that were generated during the
+  \hyperref[election-setup]{setup phase};
+\item the set of public credentials;
+\item the set of ballots;
+\item the $\result$ structure described above.
+\end{itemize}
 
 \section{Default group parameters}
 \label{default-group}
