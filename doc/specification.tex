@@ -485,8 +485,9 @@ accepted ballots:
   \right\}
 \end{gather*}
 From the encrypted tally, each trustee computes a partial decryption
-using the \hyperref[trustee-keys]{private key} $x$ he generated during
-election setup. It consists of so-called decryption factors:
+using the \hyperref[trustee-keys]{private key} $x$ (and the
+corresponding public key $X=g^x$) he generated during election
+setup. It consists of so-called decryption factors:
 \[
 \dfactors_{i,j}=\alphalabel(\etally_{i,j})^x
 \]
@@ -495,15 +496,16 @@ computed as follows:
 \begin{enumerate}
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$ and $B=\alphalabel(\etally_{i,j})^w$
-\item $\challenge=\Hash_\decrypt(A,B)\mod q$
+\item $\challenge=\Hash_\decrypt(X,A,B)\mod q$
 \item $\response=w+x\times\challenge\mod q$
 \end{enumerate}
 In the above, $\Hash_\decrypt$ is computed as follows:
 \[
-\Hash_\decrypt(A,B)=\shatwo(A\verb=,=B)
+\Hash_\decrypt(X,A,B)=\shatwo(\verb=decrypt|=X\verb=|=A\verb=,=B)
 \]
-where the comma is verbatim and numbers are written in base 10. The
-result is interpreted as a 256-bit big-endian number.
+where \verb=decrypt=, the vertical bars and the comma are verbatim and
+numbers are written in base 10. The result is interpreted as a 256-bit
+big-endian number.
 
 These proofs are verified using the $\tpk$ structure $k$ that the
 trustee sent to the administrator during the election setup:
@@ -514,7 +516,7 @@ A=\frac{g^\response}{\pklabel(k)^\challenge}
 \quad\text{and}\quad
 B=\frac{\alphalabel(\etally_{i,j})^\response}{\dfactors_{i,j}^\challenge}
 \]
-\item check that $\Hash_\decrypt(A,B)=\challenge\mod q$
+\item check that $\Hash_\decrypt(\pklabel(k),A,B)=\challenge\mod q$
 \end{enumerate}
 
 \subsection{Election result}

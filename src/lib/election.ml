@@ -390,8 +390,9 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
   type factor = elt Serializable_t.partial_decryption
 
   let eg_factor x {alpha; beta} =
+    let zkp = "decrypt|" ^ G.to_string (g **~ x) ^ "|" in
     alpha **~ x,
-    fs_prove [| g; alpha |] x (hash "")
+    fs_prove [| g; alpha |] x (hash zkp)
 
   let check_ciphertext c =
     Array.fforall (fun {alpha; beta} -> G.check alpha && G.check beta) c
@@ -407,6 +408,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
     )
 
   let check_factor c y f =
+    let zkp = "decrypt|" ^ G.to_string y ^ "|" in
     Array.fforall3 (fun {alpha; _} f {challenge; response} ->
       check_modulo q challenge &&
       check_modulo q response &&
@@ -415,7 +417,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
           g **~ response / (y **~ challenge);
           alpha **~ response / (f **~ challenge);
         |]
-      in hash "" commitments =% challenge
+      in hash zkp commitments =% challenge
     ) c f.decryption_factors f.decryption_proofs
 
   type result = elt Serializable_t.result
