@@ -384,7 +384,11 @@ let () = Eliom_registration.File.register
         string_of_user user ^ " downloaded source code"
       )) >>
       return f
-    | None -> forbidden ()
+    | None ->
+      Web_common.(security_log (fun () ->
+        "someone anonymously downloaded source code"
+      )) >>
+      return f
   )
 
 let () = Eliom_registration.File.register
