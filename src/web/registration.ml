@@ -120,6 +120,48 @@ let password_db = match !password_db_fname with
     ) PMap.empty (Csv.load fname)
   )
 
+(* TODO: make the authentication system more flexible *)
+
+let login_dummy = Eliom_service.service
+  ~path:["login-dummy"]
+  ~get_params:Eliom_parameter.unit
+  ()
+
+let login_password = Eliom_service.service
+  ~path:["login-password"]
+  ~get_params:Eliom_parameter.unit
+  ()
+
+let login_admin = Eliom_service.service
+  ~path:["login-admin"]
+  ~get_params:Eliom_parameter.unit
+  ()
+
+let cas_server = "https://cas.inria.fr"
+
+let cas_login = Eliom_service.external_service
+  ~prefix:cas_server
+  ~path:["cas"; "login"]
+  ~get_params:Eliom_parameter.(string "service")
+  ()
+
+let cas_logout = Eliom_service.external_service
+  ~prefix:cas_server
+  ~path:["cas"; "logout"]
+  ~get_params:Eliom_parameter.(string "service")
+  ()
+
+let cas_validate = Eliom_service.external_service
+  ~prefix:cas_server
+  ~path:["cas"; "validate"]
+  ~get_params:Eliom_parameter.(string "service" ** string "ticket")
+  ()
+
+let login_cas = Eliom_service.service
+  ~path:["login-cas"]
+  ~get_params:Eliom_parameter.(opt (string "ticket"))
+  ()
+
 let login_default =
   let open Services in
   if !enable_dummy then login_dummy
@@ -128,10 +170,10 @@ let login_default =
 
 let auth_systems =
   (if !enable_cas then [
-    "CAS", Eliom_service.preapply Services.login_cas None
+    "CAS", Eliom_service.preapply login_cas None
   ] else []) @
-  (if password_db <> None then ["password", Services.login_password] else []) @
-  (if !enable_dummy then ["dummy", Services.login_dummy] else [])
+  (if password_db <> None then ["password", login_password] else []) @
+  (if !enable_dummy then ["dummy", login_dummy] else [])
 
 lwt () =
   match !secure_logfile with
@@ -274,11 +316,11 @@ let () =
     )
 
 let () = Eliom_registration.Html5.register
-  ~service:Services.login_dummy
+  ~service:login_dummy
   (fun () () ->
     if !enable_dummy then (
       let service = Services.create_string_login
-        ~fallback:Services.login_dummy
+        ~fallback:login_dummy
         ~post_params:Eliom_parameter.(string "username")
       in
       let () = Eliom_registration.Redirection.register
@@ -298,12 +340,12 @@ let () = Eliom_registration.Html5.register
   )
 
 let () = Eliom_registration.Html5.register
-  ~service:Services.login_password
+  ~service:login_password
   (fun () () ->
     match password_db with
     | Some db ->
       let service = Services.create_string_login
-        ~fallback:Services.login_password
+        ~fallback:login_password
         ~post_params:Eliom_parameter.(string "username" ** string "password")
       in
       let () = Eliom_registration.Redirection.register
@@ -329,10 +371,10 @@ let () = Eliom_registration.Html5.register
   )
 
 let () = Eliom_registration.Html5.register
-  ~service:Services.login_admin
+  ~service:login_admin
   (fun () () ->
     let service = Services.create_string_login
-      ~fallback:Services.login_admin
+      ~fallback:login_admin
       ~post_params:Eliom_parameter.(string "password")
     in
     let () = Eliom_registration.Redirection.register
@@ -358,15 +400,15 @@ let next_lf str i =
   with Not_found -> None
 
 let () = Eliom_registration.Redirection.register
-  ~service:Services.login_cas
+  ~service:login_cas
   (fun ticket () -> match ticket with
     | Some x ->
       let me =
-        let service = Eliom_service.preapply Services.login_cas None in
+        let service = Eliom_service.preapply login_cas None in
         Eliom_uri.make_string_uri ~absolute:true ~service ()
       in
       let validation =
-        let service = Eliom_service.preapply Services.cas_validate (me, x) in
+        let service = Eliom_service.preapply cas_validate (me, x) in
         Eliom_uri.make_string_uri ~absolute:true ~service ()
       in
       lwt reply = Ocsigen_http_client.get_url validation in
@@ -399,9 +441,9 @@ let () = Eliom_registration.Redirection.register
         | None -> fail_http 502
       )
     | None ->
-      let service = Eliom_service.preapply Services.login_cas None in
+      let service = Eliom_service.preapply login_cas None in
       let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-      return (Eliom_service.preapply Services.cas_login uri)
+      return (Eliom_service.preapply cas_login uri)
   )
 
 let () = Eliom_registration.Redirection.register
@@ -418,7 +460,7 @@ let () = Eliom_registration.Redirection.register
           Web_common.(security_log (fun () ->
             string_of_user user ^ " logged out, redirecting to CAS"
           )) >>
-          return (Eliom_service.preapply Services.cas_logout uri)
+          return (Eliom_service.preapply cas_logout uri)
         ) else (
           Web_common.(security_log (fun () ->
             string_of_user user ^ " logged out"

@@ -34,46 +34,6 @@ let source_code = service
   ~get_params:unit
   ()
 
-let login_dummy = service
-  ~path:["login-dummy"]
-  ~get_params:unit
-  ()
-
-let login_password = service
-  ~path:["login-password"]
-  ~get_params:unit
-  ()
-
-let login_admin = service
-  ~path:["login-admin"]
-  ~get_params:unit
-  ()
-
-let cas_server = "https://cas.inria.fr"
-
-let cas_login = external_service
-  ~prefix:cas_server
-  ~path:["cas"; "login"]
-  ~get_params:Eliom_parameter.(string "service")
-  ()
-
-let cas_logout = external_service
-  ~prefix:cas_server
-  ~path:["cas"; "logout"]
-  ~get_params:Eliom_parameter.(string "service")
-  ()
-
-let cas_validate = external_service
-  ~prefix:cas_server
-  ~path:["cas"; "validate"]
-  ~get_params:Eliom_parameter.(string "service" ** string "ticket")
-  ()
-
-let login_cas = service
-  ~path:["login-cas"]
-  ~get_params:Eliom_parameter.(opt (string "ticket"))
-  ()
-
 let logout = service
   ~path:["logout"]
   ~get_params:unit
