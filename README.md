@@ -132,6 +132,7 @@ Here is an excerpt of the sample configuration file:
 
     <eliom module="_build/src/web/server.cma">
       <enable-dummy/>
+      <enable-password db="demo/data/password_db.csv"/>
       <source file="../belenios.tar.gz"/>
       <main-election uuid="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"/>
       <admin hash="XXX"/>
@@ -142,8 +143,20 @@ Here is an excerpt of the sample configuration file:
 The `<enable-dummy>` tag enables the dummy authentication method,
 which just asks for a name. No security is intended. This is useful
 for debugging or demonstration purposes but obviously not suitable for
-production. This is the only authentication method supported at the
-moment.
+production. To disable it, just remove the tag.
+
+The `<enable-password>` tag enables password-based authentication. It
+takes as parameter a file, in CSV format, where each line consists of:
+
+ * a user name
+ * a salt
+ * SHA256(salt concatenated with password)
+
+Additional fields are ignored. In the sample `password_db.csv` file, a
+fourth field with the plaintext password is included. The sample file
+has been generated with the following shell command:
+
+    for u in `seq 1 5`; do SALT=`pwgen`; PASS=`pwgen`; echo "user$u,$SALT,$(echo -n "$SALT$PASS" | sha256sum | read a b; echo $a),$PASS"; done
 
 The `<source>` tag gives the path of the source tarball. Note that this
 is a path on the local filesystem and not a URL. If you made local

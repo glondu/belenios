@@ -174,6 +174,31 @@ let dummy_login ~service =
   ] in
   base ~title:"Login" ~content
 
+let password_login ~service =
+  let form = post_form ~service
+    (fun (llogin, lpassword) ->
+      [
+        tablex [tbody [
+          tr [
+            th [label ~a:[a_for llogin] [pcdata "Username:"]];
+            td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin ()];
+          ];
+          tr [
+            th [label ~a:[a_for lpassword] [pcdata "Password:"]];
+            td [string_input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword ()];
+          ];
+        ]];
+        div [
+          string_input ~input_type:`Submit ~value:"Login" ();
+        ]
+      ]) ()
+  in
+  let content = [
+    h1 [pcdata "Password login"];
+    form;
+  ] in
+  base ~title:"Password login" ~content
+
 let format_date (date, _) =
   CalendarLib.Printer.Precise_Fcalendar.sprint "%a, %d %b %Y %T %z" date
 

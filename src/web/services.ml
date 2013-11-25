@@ -39,6 +39,11 @@ let login_dummy = service
   ~get_params:unit
   ()
 
+let login_password = service
+  ~path:["login-password"]
+  ~get_params:unit
+  ()
+
 let login_admin = service
   ~path:["login-admin"]
   ~get_params:unit
@@ -74,13 +79,11 @@ let logout = service
   ~get_params:unit
   ()
 
-let create_string_login ~fallback =
+let create_string_login ~fallback ~post_params =
   Eliom_service.post_coservice
     ~csrf_safe:true
     ~csrf_scope:Eliom_common.default_session_scope
-    ~fallback
-    ~post_params:Eliom_parameter.(string "username")
-    ()
+    ~fallback ~post_params ()
 
 let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope

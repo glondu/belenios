@@ -22,7 +22,7 @@
 open Serializable_builtin_t
 open Serializable_t
 
-type user_type = Dummy | CAS | Admin
+type user_type = Dummy | Password | CAS | Admin
 
 type user = {
   user_name : string;

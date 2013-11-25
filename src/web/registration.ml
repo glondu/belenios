@@ -49,6 +49,7 @@ let secure_logfile = ref None
 let data_dir = ref None
 let source_file = ref None
 let enable_dummy = ref false
+let password_db_fname = ref None
 let enable_cas = ref false
 let admin_hash = ref ""
 let main_election = ref None
@@ -82,6 +83,12 @@ let () =
       ~init:(fun () -> enable_dummy := true)
       ();
     element
+      ~name:"enable-password"
+      ~obligatory:false
+      ~attributes:[
+        attribute ~name:"db" ~obligatory:true (fun s -> password_db_fname := Some s);
+      ] ();
+    element
       ~name:"enable-cas"
       ~obligatory:false
       ~init:(fun () -> enable_cas := true)
@@ -100,15 +107,30 @@ let () =
       ] ();
   ];;
 
+module PMap = Map.Make(String)
+
+let password_db = match !password_db_fname with
+  | None -> None
+  | Some fname -> Some (
+    List.fold_left (fun accu line ->
+      match line with
+      | username :: salt :: password :: _ ->
+        PMap.add username (salt, password) accu
+      | _ -> failwith "error in password db file"
+    ) PMap.empty (Csv.load fname)
+  )
+
 let login_default =
   let open Services in
   if !enable_dummy then login_dummy
+  else if password_db <> None then login_password
   else Eliom_service.preapply login_cas None
 
 let auth_systems =
   (if !enable_cas then [
     "CAS", Eliom_service.preapply Services.login_cas None
   ] else []) @
+  (if password_db <> None then ["password", Services.login_password] else []) @
   (if !enable_dummy then ["dummy", Services.login_dummy] else [])
 
 lwt () =
@@ -255,7 +277,10 @@ let () = Eliom_registration.Html5.register
   ~service:Services.login_dummy
   (fun () () ->
     if !enable_dummy then (
-      let service = Services.create_string_login ~fallback:Services.login_dummy in
+      let service = Services.create_string_login
+        ~fallback:Services.login_dummy
+        ~post_params:Eliom_parameter.(string "username")
+      in
       let () = Eliom_registration.Redirection.register
         ~service
         ~scope:Eliom_common.default_session_scope
@@ -273,9 +298,43 @@ let () = Eliom_registration.Html5.register
   )
 
 let () = Eliom_registration.Html5.register
+  ~service:Services.login_password
+  (fun () () ->
+    match password_db with
+    | Some db ->
+      let service = Services.create_string_login
+        ~fallback:Services.login_password
+        ~post_params:Eliom_parameter.(string "username" ** string "password")
+      in
+      let () = Eliom_registration.Redirection.register
+        ~service
+        ~scope:Eliom_common.default_session_scope
+        (fun () (user_name, password) ->
+          if (
+            try
+              let salt, hashed = PMap.find user_name db in
+              sha256_hex (salt ^ password) = hashed
+            with Not_found -> false
+          ) then (
+            let open Web_common in
+            let user_type = Password in
+            Eliom_reference.set Services.user (Some {user_name; user_type}) >>
+            Web_common.security_log (fun () ->
+              user_name ^ " successfully logged in using password"
+            ) >> Services.get ()
+          ) else forbidden ())
+      in
+      Templates.password_login ~auth_systems ~service
+    | None -> fail_http 404
+  )
+
+let () = Eliom_registration.Html5.register
   ~service:Services.login_admin
   (fun () () ->
-    let service = Services.create_string_login ~fallback:Services.login_admin in
+    let service = Services.create_string_login
+      ~fallback:Services.login_admin
+      ~post_params:Eliom_parameter.(string "password")
+    in
     let () = Eliom_registration.Redirection.register
       ~service
       ~scope:Eliom_common.default_session_scope

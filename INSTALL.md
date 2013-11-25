@@ -37,16 +37,18 @@ the guides), or refer to it with a full path.
 Web server
 ----------
 
-The web server uses the [Ocsigen/Eliom](http://ocsigen.org)
-framework. Eliom version 3 is needed.
+The web server has the following additional dependencies:
 
-With OPAM, you can install it with:
+ * [Eliom](http://ocsigen.org/eliom/), version 3
+ * [Csv](https://forge.ocamlcore.org/projects/csv/)
 
-    opam install eliom
+With OPAM, you can install them with:
+
+    opam install eliom csv
 
 On Debian-based systems, you can install it with:
 
-    apt-get install ocsigenserver eliom
+    apt-get install ocsigenserver eliom libcsv-ocaml-dev
 
 But keep in mind that Belenios needs a very recent version of these
 packages (in particular, eliom version 3 which is not in Debian stable

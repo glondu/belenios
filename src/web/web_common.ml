@@ -25,7 +25,7 @@ open Util
 open Serializable_builtin_t
 open Serializable_t
 
-type user_type = Dummy | CAS | Admin
+type user_type = Dummy | Password | CAS | Admin
 
 type user = {
   user_name : string;
@@ -35,6 +35,7 @@ type user = {
 let string_of_user {user_name; user_type} =
   match user_type with
     | Dummy -> Printf.sprintf "dummy:%s" user_name
+    | Password -> Printf.sprintf "password:%s" user_name
     | CAS -> user_name
     | Admin -> Printf.sprintf "admin:%s" user_name
 
