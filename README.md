@@ -158,6 +158,12 @@ has been generated with the following shell command:
 
     for u in `seq 1 5`; do SALT=`pwgen`; PASS=`pwgen`; echo "user$u,$SALT,$(echo -n "$SALT$PASS" | sha256sum | read a b; echo $a),$PASS"; done
 
+There is also the possibility to authenticate with a
+[CAS](http://www.jasig.org/cas) server. To do that, use the
+`<enable-cas>` instead of other `<enable-*>` tags:
+
+    <enable-cas server="https://cas.example.org"/>
+
 The `<source>` tag gives the path of the source tarball. Note that this
 is a path on the local filesystem and not a URL. If you made local
 changes, an easy way to comply with the AGPL license is to commit them

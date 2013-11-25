@@ -51,6 +51,7 @@ let source_file = ref None
 let enable_dummy = ref false
 let password_db_fname = ref None
 let enable_cas = ref false
+let cas_server = ref "https://cas.example.org"
 let admin_hash = ref ""
 let main_election = ref None
 
@@ -92,7 +93,9 @@ let () =
       ~name:"enable-cas"
       ~obligatory:false
       ~init:(fun () -> enable_cas := true)
-      ();
+      ~attributes:[
+        attribute ~name:"server" ~obligatory:true (fun s -> cas_server := s);
+      ] ();
     element
       ~name:"admin"
       ~obligatory:true
@@ -137,22 +140,20 @@ let login_admin = Eliom_service.service
   ~get_params:Eliom_parameter.unit
   ()
 
-let cas_server = "https://cas.inria.fr"
-
 let cas_login = Eliom_service.external_service
-  ~prefix:cas_server
+  ~prefix:!cas_server
   ~path:["cas"; "login"]
   ~get_params:Eliom_parameter.(string "service")
   ()
 
 let cas_logout = Eliom_service.external_service
-  ~prefix:cas_server
+  ~prefix:!cas_server
   ~path:["cas"; "logout"]
   ~get_params:Eliom_parameter.(string "service")
   ()
 
 let cas_validate = Eliom_service.external_service
-  ~prefix:cas_server
+  ~prefix:!cas_server
   ~path:["cas"; "validate"]
   ~get_params:Eliom_parameter.(string "service" ** string "ticket")
   ()
