@@ -97,10 +97,10 @@ module GetParams (X : sig end) : PARAMS = struct
   let group = {g; p; q}
   let () = assert (Election.check_finite_field group)
 
-  end
+end
 
 
-  module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
+module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
 
   open P
   module M = Election.MakeSimpleMonad(G)
