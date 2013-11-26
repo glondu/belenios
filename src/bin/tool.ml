@@ -52,7 +52,9 @@ let save_to filename writer x =
 
 
 module type PARAMS = sig
-  val sk_file : string option ref
+  val sk_file : string option
+  val do_finalize : bool
+  val do_decrypt : bool
   val params : ff_pubkey params
   val election_fingerprint : string
   val group :  ff_params
@@ -66,20 +68,39 @@ module GetParams (X : sig end) : PARAMS = struct
 
   let dir = ref (Sys.getcwd ())
   let sk_file = ref None
+  let do_finalize = ref false
+  let do_decrypt = ref false
 
   let speclist = Arg.([
-    "--dir", String (fun s -> dir := s), "chdir to that directory first";
-    "--decrypt", String (fun s -> sk_file := Some s), "do partial decryption";
+    "--dir", String (fun s -> dir := s), "path to election files";
+    "--privkey", String (fun s -> sk_file := Some s), "path to private key";
   ])
 
   let usage_msg =
-    Printf.sprintf "Usage: %s election [--dir <dir>] [--decrypt <privkey>]" Sys.argv.(0)
+    Printf.sprintf "Usage: %s election [--dir <dir>] [--privkey <privkey>] { verify | decrypt | finalize }" Sys.argv.(0)
 
-  let anon_fun x =
-    Printf.eprintf "I do not know what to do with %s!\n" x;
+  let usage () =
+    Arg.usage speclist usage_msg;
     exit 1
 
+  let anon_args = ref []
+
+  let anon_fun x =
+    anon_args := x :: !anon_args
+
   let () = Arg.parse speclist anon_fun usage_msg
+
+  let () = match List.rev !anon_args with
+    | [] -> usage ()
+    | ["verify"] -> ()
+    | ["finalize"] -> do_finalize := true
+    | ["decrypt"] ->
+      (match !sk_file with
+      | None ->
+        Printf.eprintf "--privkey is missing\n";
+        exit 1
+      | Some _ -> do_decrypt := true)
+    | x :: _ -> usage ()
 
   let () = Sys.chdir !dir
 
@@ -96,6 +117,10 @@ module GetParams (X : sig end) : PARAMS = struct
   let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = params.e_public_key
   let group = {g; p; q}
   let () = assert (Election.check_finite_field group)
+
+  let sk_file = !sk_file
+  let do_finalize = !do_finalize
+  let do_decrypt = !do_decrypt
 
 end
 
@@ -190,8 +215,8 @@ module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
         ) (E.neutral_ciphertext e) ()
   )
 
-  let () =
-    match !sk_file with
+  let () = if do_decrypt then
+    match sk_file with
     | Some fn ->
       (match load_from_file (Serializable_builtin_j.number_of_string) fn with
         | Some [sk] ->
@@ -236,10 +261,12 @@ module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
         assert (Array.forall2 (E.check_factor tally) pks factors);
         let result = E.combine_factors (M.turnout ()) tally factors in
         assert (E.check_result e result);
-        save_to "result.json" (
-          Serializable_j.write_result Serializable_builtin_j.write_number
-        ) result;
-        Printf.eprintf "result.json written\n%!"
+        if do_finalize then (
+          save_to "result.json" (
+            Serializable_j.write_result Serializable_builtin_j.write_number
+          ) result;
+          Printf.eprintf "result.json written\n%!"
+        );
       | None -> ()
 
   (* The end *)

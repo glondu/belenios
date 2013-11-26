@@ -37,7 +37,7 @@ If you put these files in a directory `/path/to/election`, the following
 command will perform all possible verifications, depending on existing
 files:
 
-    belenios-tool election --dir /path/to/election
+    belenios-tool election --dir /path/to/election verify
 
 For example, during the election, you can check if some candidate
 ballot is acceptable by putting it alone in `ballots.jsons`, and
@@ -63,7 +63,7 @@ with extreme care.
 To compute your decryption share, set `/path/to/election` up as
 described in the _Voter's guide_ section above, and run:
 
-    belenios-tool election --dir /path/to/election --decrypt /path/to/privkey > partial_decryption.json
+    belenios-tool election --dir /path/to/election --privkey /path/to/privkey decrypt > partial_decryption.json
 
 and send `partial_decryption.json` to the election
 administrator.
@@ -240,7 +240,7 @@ In the following, we assume `ocsigenserver` is properly configured.
  2. Concatenate the `partial_decryption.json` received from each
     trustee into a `partial_decryptions.jsons`, in the same order as in
     `public_keys.jsons`.
- 3. Run `belenios-tool election`.  It will create
+ 3. Run `belenios-tool election finalize`.  It will create
     `result.json`. Publish this file, along with the files listed in
     the first step above. The whole set will enable universal
     verifiability.
