@@ -66,14 +66,19 @@ module GetParams (X : sig end) : PARAMS = struct
 
   (* Command-line arguments *)
 
-  let dir = ref (Sys.getcwd ())
+  let initial_dir = Sys.getcwd ()
+  let dir = ref initial_dir
   let sk_file = ref None
   let do_finalize = ref false
   let do_decrypt = ref false
 
   let speclist = Arg.([
     "--dir", String (fun s -> dir := s), "path to election files";
-    "--privkey", String (fun s -> sk_file := Some s), "path to private key";
+    "--privkey", String (fun s ->
+      let fname =
+        if Filename.is_relative s then Filename.concat initial_dir s else s
+      in sk_file := Some fname
+    ), "path to private key";
   ])
 
   let usage_msg =
