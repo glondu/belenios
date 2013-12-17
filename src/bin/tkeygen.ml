@@ -22,13 +22,46 @@
 open Util
 open Serializable_t
 
-module RunTrusteeKeygen (X : sig end) = struct
+module type PARAMS = sig
+  val group : (module Election.FF_GROUP)
+end
+
+module GetParams (X : sig end) : PARAMS = struct
+  let group = ref None
+
+  let speclist = Arg.([
+    "--group", String (fun s -> group := Some s), "file with group parameters";
+  ])
+
+  let usage_msg =
+    Printf.sprintf "Usage: %s trustee-keygen [--group <file>]" Sys.argv.(0)
+
+  let usage () =
+    Arg.usage speclist usage_msg;
+    exit 1
+
+  let anon_fun x =
+    Printf.eprintf "I do not know what to do with %s\n" x;
+    usage ()
+
+  let () = Arg.parse speclist anon_fun usage_msg
+
+  let group = match !group with
+    | None -> Election.((module DefaultGroup : FF_GROUP))
+    | Some fname ->
+      let ic = open_in fname in
+      let ls = Yojson.init_lexer () in
+      let lb = Lexing.from_channel ic in
+      let r = Serializable_j.read_ff_params ls lb in
+      close_in ic;
+      Election.finite_field r
+end
+
+module RunTrusteeKeygen (G : Election.FF_GROUP) = struct
 
   (* Setup group *)
 
-  module G = Election.DefaultGroup;;
   assert (Election.check_finite_field G.group);;
-
   module M = Election.MakeSimpleMonad(G);;
 
   (* Generate key *)
@@ -77,5 +110,7 @@ end
 
 
 let main () =
-  let module X = RunTrusteeKeygen (struct end) in
+  let module P = GetParams (struct end) in
+  let module G = (val P.group : Election.FF_GROUP) in
+  let module X = RunTrusteeKeygen (G) in
   ()
