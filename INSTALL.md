@@ -1,6 +1,11 @@
 Belenios compilation instructions
 =================================
 
+The easiest and most portable way to compile Belenios from source is
+to use [OPAM](http://opam.ocamlpro.com/), which is a package manager
+for OCaml projects. You can find installation instructions
+[there](http://opam.ocaml.org/doc/Quick_Install.html).
+
 Command-line tool
 -----------------
 
