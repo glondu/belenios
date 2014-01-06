@@ -23,7 +23,13 @@ be installed with the following command:
 On [Debian](http://www.debian.org)-based systems, they can be
 installed with the following command:
 
-    apt-get install atdgen libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev
+    sudo apt-get install libatdgen-ocaml-dev libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev
+
+On [Ubuntu](http://www.ubuntu.com), you need to enable the "Universe"
+repository. This can be done with the following command-line (run it
+before running the command above):
+
+    sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"
 
 Once all the dependencies have been installed, the command-line tool
 can be compiled with:
@@ -48,7 +54,7 @@ With OPAM, you can install them with:
 
 On Debian-based systems, you can install it with:
 
-    apt-get install ocsigenserver eliom libcsv-ocaml-dev
+    sudo apt-get install ocsigenserver eliom libcsv-ocaml-dev
 
 But keep in mind that Belenios needs a very recent version of these
 packages (in particular, eliom version 3 which is not in Debian stable
@@ -78,7 +84,7 @@ Additionnaly, you will need LaTeX to compile the specification.
 On Debian-based systems, you can install the dependencies needed to
 compile the documentation with:
 
-    apt-get install markdown texlive
+    sudo apt-get install markdown texlive
 
 Once all the dependencies have been installed, the documentation can
 be compiled with:
