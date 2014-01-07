@@ -20,9 +20,11 @@
 (**************************************************************************)
 
 let usage () =
+  let cmd = Sys.argv.(0) in
   Printf.eprintf
-    "Usage: %s { trustee-keygen | election | credgen } options...\n"
-    Sys.argv.(0);
+    "Usage: %s { trustee-keygen | election | credgen } [--help] [<args>]
+To get help for a specific command, run: %s <command> --help\n"
+    cmd cmd;
   exit 1
 
 
