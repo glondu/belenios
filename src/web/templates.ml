@@ -153,14 +153,18 @@ let index ~auth_systems ~featured =
   ] in
   base ~auth_systems ~title:site_title ~content
 
-let dummy_login ~service =
+let string_login ~kind ~service =
+  let title, field_name, input_type = match kind with
+    | `Dummy -> "Dummy login", "Username:", `Text
+    | `Admin -> "Admin login", "Admin password:", `Password
+  in
   let form = post_form ~service
     (fun name ->
       [
         tablex [tbody [
           tr [
-            th [label ~a:[a_for name] [pcdata "Username:"]];
-            td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name ()];
+            th [label ~a:[a_for name] [pcdata field_name]];
+            td [string_input ~a:[a_maxlength 50] ~input_type ~name ()];
           ]]
         ];
         div [
@@ -169,10 +173,10 @@ let dummy_login ~service =
       ]) ()
   in
   let content = [
-    h1 [pcdata "Login"];
+    h1 [pcdata title];
     form;
   ] in
-  base ~title:"Login" ~content
+  base ~title ~content
 
 let password_login ~service =
   let form = post_form ~service

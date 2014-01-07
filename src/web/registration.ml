@@ -339,7 +339,7 @@ let () = Eliom_registration.Html5.register
           ) >>
           Services.get ())
       in
-      Templates.dummy_login ~auth_systems ~service
+      Templates.string_login ~auth_systems ~service ~kind:`Dummy
     ) else fail_http 404
   )
 
@@ -396,7 +396,7 @@ let () = Eliom_registration.Html5.register
         ) else forbidden ()
       )
     in
-    Templates.dummy_login ~auth_systems ~service
+    Templates.string_login ~auth_systems ~service ~kind:`Admin
   )
 
 let next_lf str i =
