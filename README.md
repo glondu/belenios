@@ -261,7 +261,7 @@ Legal
 By "internal code", we mean everything that is not in the `ext/`
 directory.
 
-Copyright © 2012-2013 Inria
+Copyright © 2012-2014 Inria
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as

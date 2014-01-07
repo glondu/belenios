@@ -1,5 +1,5 @@
 /*
-  Copyright © 2012-2013 Inria. All rights reserved.
+  Copyright © 2012-2014 Inria. All rights reserved.
   Author: Stéphane Glondu <Stephane.Glondu@inria.fr>
 
   This program is free software: you can redistribute it and/or modify
