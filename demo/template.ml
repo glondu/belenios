@@ -34,6 +34,10 @@ let y = KG.combine public_keys
 
 let {g; p; q} = G.group
 
+let uuid_of_string x = match Uuidm.of_string x with
+  | Some y -> y
+  | None -> invalid_arg "invalid UUID"
+
 let params = {
   e_description = "This is a test election.";
   e_name = "Test election";
@@ -59,7 +63,7 @@ let params = {
         q_question = "Question 3?";
       };
     |];
-  e_uuid = Uuidm.create `V4;
+  e_uuid = uuid_of_string "00000000-0000-0000-0000-000000000000";
   e_short_name = "test";
 };;
 
