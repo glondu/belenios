@@ -211,8 +211,11 @@ lwt election_table =
               "-- registering " ^ subdir
             );
             lwt raw_election =
-              Lwt_io.chars_of_file params_fname |>
-              Lwt_stream.to_string
+              Lwt_io.lines_of_file params_fname |>
+              Lwt_stream.to_list |>
+              (fun x -> match_lwt x with
+              | [e] -> return e
+              | _ -> failwith "election.json is invalid")
             in
             lwt metadata =
               let fname = path/"metadata.json" in
