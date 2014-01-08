@@ -2,6 +2,8 @@
 
 set -e
 
+BELENIOS_SRC="${BELENIOS_SRC:-$PWD}"
+
 # Check that OCamlDuce is not installed
 if which ocamlduce >/dev/null; then
     echo "Please uninstall OCamlDuce first, or remove it from your PATH."
@@ -68,6 +70,15 @@ make
 make install
 
 echo
+echo "=-=-= Generation of env.sh =-=-="
+echo
+cat > $BELENIOS_SRC/env.sh <<EOF
+PATH="$BELENIOS_SYSROOT/bootstrap/bin:\$PATH"; export PATH;
+OPAMROOT=$OPAMROOT; export OPAMROOT;
+eval \`opam config env\`
+EOF
+
+echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init --no-setup
@@ -88,9 +99,7 @@ echo "can be safely removed now."
 echo
 echo "Next, you need to run the following commands or add them to your ~/.bashrc"
 echo "or equivalent:"
-echo "  export PATH=$BELENIOS_SYSROOT/bootstrap/bin:\$PATH"
-echo "  export OPAMROOT=$OPAMROOT"
-echo "  eval \`opam config env\`"
+echo "  source $BELENIOS_SRC/env.sh"
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 echo
