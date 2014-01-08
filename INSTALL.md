@@ -10,16 +10,28 @@ compile Belenios from source is to use
 [OPAM](http://opam.ocamlpro.com/), which is a package manager for
 OCaml projects.
 
-The requirements are a POSIX system, a C compiler,
-[GMP](http://gmplib.org/) and [PCRE](http://www.pcre.org/). These
-libraries are quite common, and probably available from your system
-package manager if you have one.
+The non-OCaml prerequisites are:
 
-In Belenios sources, there is a `opam-bootstrap.sh` shell script that
-downloads and installs OCaml, OPAM and all the dependencies of
-Belenios into a single directory. You can chose the directory by
-setting the `OPAMROOT` environment variable, or it will take `~/.opam`
-by default. Just run:
+ * a POSIX system with a C compiler
+ * [GMP](http://gmplib.org/)
+ * [PCRE](http://www.pcre.org/)
+ * [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/)
+ * [m4](https://www.gnu.org/software/m4/)
+ * [SQLite3](https://www.sqlite.org/)
+ * [OpenSSL](https://www.openssl.org/)
+
+These libraries and tools are pretty common, and might be directly part
+of your operating system. On [Debian](http://www.debian.org/) and its
+derivatives, they can be installed with the following command:
+
+    apt-get install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev
+
+If you are unfamiliar with OCaml or OPAM, we provide an
+`opam-bootstrap.sh` shell script that creates a whole, hopefully
+self-contained, OCaml+OPAM install, and then installs all the
+dependencies of Belenios, everything into a single directory. You can
+chose the directory by setting the `BELENIOS_SYSROOT` environment
+variable, or it will take `~/.belenios` by default. Just run:
 
     ./opam-boostap.sh
 
@@ -32,6 +44,10 @@ update your shell environment, then run:
     make all
 
 and you can skip the next two sections.
+
+If you are familiar with OCaml, please read the `opam-bootstrap.sh`
+shell script, or the following two sections to compile Belenios with
+your existing OCaml installation.
 
 Command-line tool
 -----------------
