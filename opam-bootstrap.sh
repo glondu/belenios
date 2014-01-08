@@ -8,6 +8,18 @@ if which ocamlduce >/dev/null; then
     exit 1
 fi
 
+echo
+echo "=-=-= Download and check tarballs =-=-="
+echo
+
+# Look for wget or curl
+if which wget >/dev/null; then
+    echo "wget was found and will be used"
+elif which curl >/dev/null; then
+    wget () { curl "$1" > "${1##*/}"; }
+    echo "curl was found and will be used"
+fi
+
 export BELENIOS_SYSROOT="${BELENIOS_SYSROOT:-$HOME/.belenios}"
 export OPAMROOT="$BELENIOS_SYSROOT/opam"
 
@@ -19,16 +31,18 @@ fi
 
 mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
 
-echo
-echo "=-=-= Download and check tarballs =-=-="
-echo
 cd "$BELENIOS_SYSROOT/bootstrap/src"
 wget http://caml.inria.fr/pub/distrib/ocaml-4.01/ocaml-4.01.0.tar.gz
 wget http://www.ocamlpro.com/pub/opam-full-1.1.0.tar.gz
+
+if which sha256sum >/dev/null; then
 sha256sum --check <<EOF
 ea1751deff454f5c738d10d8a0ad135afee0852d391cf95766b726c0faf7cfdb  ocaml-4.01.0.tar.gz
 c0ab5e85b6cd26e533a40686e08aea173387d15bead817026f5b08f264642583  opam-full-1.1.0.tar.gz
 EOF
+else
+    echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
+fi
 
 echo
 echo "=-=-= Compilation and installation of OCaml =-=-="
