@@ -53,12 +53,12 @@ The cryptography involved in Belenios needs a cyclic group $\G$ where
 discrete logarithms are hard to compute. We will denote by $g$ a
 generator and $q$ its order. We use a multiplicative notation for the
 group operation. For practical purposes, we use a multiplicative
-subgroup of $\F_p$ (hence, all exponentiations are implicitly done
+subgroup of $\F^*_p$ (hence, all exponentiations are implicitly done
 modulo $p$). We suppose the group parameters are agreed on
 beforehand. Default group parameters are given as examples in
 section~\ref{default-group} (they are the same as Helios v3).
 
-\section{Principals}
+\section{Parties}
 
 \begin{itemize}
 \item $S$: voting server
@@ -549,8 +549,8 @@ $\result$ structure is then computed as follows:
 \[
 \resultlabel_{i,j}=\log_g\left(\frac{\betalabel(\etallylabel_{i,j})}{F_{i,j}}\right)
 \]
-Here, the discrete logarithm logarithm can be easily computed because
-it is bounded by $\ntallied$.
+Here, the discrete logarithm can be easily computed because it is
+bounded by $\ntallied$.
 
 After the election, the following data needs to be public in order to
 verify the tally:
