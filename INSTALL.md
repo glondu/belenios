@@ -33,7 +33,7 @@ dependencies of Belenios, everything into a single directory. You can
 chose the directory by setting the `BELENIOS_SYSROOT` environment
 variable, or it will take `~/.belenios` by default. Just run:
 
-    ./opam-boostap.sh
+    ./opam-bootstrap.sh
 
 On a modern desktop system, this needs approximately 10 minutes and 1
 gigabyte of disk space.
@@ -43,7 +43,8 @@ update your shell environment, then run:
 
     make all
 
-and you can skip the next two sections.
+and you can skip the next two sections and go directly to the
+_Documentation_ section.
 
 If you are familiar with OCaml, please read the `opam-bootstrap.sh`
 shell script, or the following two sections to compile Belenios with
