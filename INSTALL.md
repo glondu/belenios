@@ -131,6 +131,42 @@ then be installed with:
     sudo apt-get install libatdgen-ocaml-dev libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev
     sudo apt-get install ocsigenserver eliom libcsv-ocaml-dev
 
+Compiling on Windows using Cygwin
+---------------------------------
+
+Windows is not yet a fully supported platform, but you can compile at
+least the command-line tool on Windows + 32-bit
+[Cygwin](http://cygwin.com/index.html). You might need the following
+packages:
+
+ * curl
+ * dos2unix
+ * flexdll
+ * gcc-core
+ * gcc-g++
+ * git
+ * gmp
+ * libgmp-devel
+ * libncursesw-devel
+ * libpcre-devel
+ * libsqlite3-devel
+ * m4
+ * make
+ * ocaml
+ * ocaml-base
+ * ocaml-camlp4
+ * ocaml-compiler-libs
+ * openssh
+ * patch
+ * pkg-config
+ * zlib-devel
+
+With these packages installed, you should be able to install OPAM by
+following its [installation instructions from
+sources](http://opam.ocaml.org/doc/Quick_Install.html#h2-FromSources).
+Once OPAM is installed, follow the instructions in the _Command-line
+tool_ section above.
+
 Troubleshooting
 ---------------
 
