@@ -402,14 +402,29 @@ let election_update_credential ~election =
     (fun (old, new_) ->
       [
         div [
+          p [
+            pcdata "\
+This form allows you to change a single credential at a time. To get \
+the hash of a credential, run the following command:";
+          ];
+          pre [
+            pcdata "printf old-credential | sha256sum";
+          ];
+          p [
+            pcdata "In the above command, ";
+            code [pcdata "old-credential"];
+            pcdata " should look like a big number written in base 10.";
+          ];
+        ];
+        p [
           pcdata "Hash of the old credential: ";
           string_input ~name:old ~input_type:`Text ~a:[a_size 64] ();
         ];
-        div [
+        p [
           pcdata "New credential: ";
           string_input ~name:new_ ~input_type:`Text ~a:[a_size 617] ();
         ];
-        div [string_input ~input_type:`Submit ~value:"Submit" ()];
+        p [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
     ) params.e_uuid
   in
