@@ -79,13 +79,6 @@ let metadata =
 
 (* Save to disk *)
 
-let save_to filename writer x =
-  let oc = open_out filename in
-  let ob = Bi_outbuf.create_channel_writer oc in
-  writer ob x;
-  Bi_outbuf.flush_channel_writer ob;
-  close_out oc;;
-
 open Serializable_j;;
 save_to "election.json" (write_params write_ff_pubkey) params;;
 save_to "metadata.json" write_metadata metadata;;

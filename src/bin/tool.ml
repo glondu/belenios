@@ -43,13 +43,6 @@ let load_from_file of_string filename =
 
 let read_number = Serializable_builtin_j.read_number
 
-let save_to filename writer x =
-  let oc = open_out filename in
-  let ob = Bi_outbuf.create_channel_writer oc in
-  writer ob x;
-  Bi_outbuf.flush_channel_writer ob;
-  close_out oc;;
-
 
 module type PARAMS = sig
   val sk_file : string option

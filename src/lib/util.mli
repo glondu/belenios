@@ -60,3 +60,5 @@ val pbkdf2 :
   salt:string ->
   iterations:int -> size:int ->
   string -> string
+
+val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit

@@ -97,6 +97,7 @@ module RunTrusteeKeygen (G : Election.FF_GROUP) = struct
     let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
     let ob = Bi_outbuf.create_channel_writer oc in
     writer ob thing;
+    Bi_outbuf.add_char ob '\n';
     Bi_outbuf.flush_channel_writer ob;
     close_out oc;
     Printf.printf "%s key saved to %s\n%!" (String.capitalize kind) filename;

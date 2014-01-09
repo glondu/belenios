@@ -187,3 +187,11 @@ let pbkdf2 ~prf ~salt ~iterations ~size password =
     String.blit (one_iteration i) 0 result offset hLen;
   done;
   result
+
+let save_to filename writer x =
+  let oc = open_out filename in
+  let ob = Bi_outbuf.create_channel_writer oc in
+  writer ob x;
+  Bi_outbuf.add_char ob '\n';
+  Bi_outbuf.flush_channel_writer ob;
+  close_out oc;;

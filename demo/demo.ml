@@ -125,13 +125,6 @@ assert (tally = [|[| 1; 0; 1; 0; 0 |]; [|0; 4; 0; 4; 3; 0|]; [| 1; 1; 2 |]|]);;
 
 let ( / ) = Filename.concat
 
-let save_to filename writer x =
-  let oc = open_out filename in
-  let ob = Bi_outbuf.create_channel_writer oc in
-  writer ob x;
-  Bi_outbuf.flush_channel_writer ob;
-  close_out oc;;
-
 let list_save_to filename writer xs =
   let oc = open_out filename in
   let ob = Bi_outbuf.create_channel_writer oc in
