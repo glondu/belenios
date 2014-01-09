@@ -67,12 +67,13 @@ let params = {
   e_short_name = "test";
 };;
 
+let date_of_string x =
+  Serializable_builtin_j.datetime_of_string ("\"" ^ x ^ "\"")
+
 let metadata =
-  let open CalendarLib.Fcalendar.Precise in
-  let now = now () in
   {
-    e_voting_starts_at = now, None;
-    e_voting_ends_at = now, None;
+    e_voting_starts_at = date_of_string "2013-12-25 08:00:00.000"; (* UTC *)
+    e_voting_ends_at = date_of_string "2014-01-01 12:00:00.000"; (* UTC *)
     e_voters_list = None;
   }
 ;;
