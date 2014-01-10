@@ -40,8 +40,8 @@ let map_and_concat_with_commas f xs =
 (** Finite field arithmetic *)
 
 let check_finite_field {p; q; g} =
-  Z.probab_prime p 10 > 0 &&
-  Z.probab_prime q 10 > 0 &&
+  Z.probab_prime p 20 > 0 &&
+  Z.probab_prime q 20 > 0 &&
   check_modulo p g &&
   check_modulo p q &&
   Z.(powm g q p =% one)
