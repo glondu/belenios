@@ -35,7 +35,7 @@ let () =
     Arg.current := 1;
     match Sys.argv.(1) with
     | "trustee-keygen" -> Tkeygen.main ()
-    | "election" -> Tool.main ()
+    | "election" -> Election_tool.main ()
     | "credgen" -> Credgen.main ()
     | _ -> usage ()
   )
