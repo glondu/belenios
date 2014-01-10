@@ -30,6 +30,7 @@ module RunCredgen (X : sig end) = struct
 
   (* Some helpers *)
 
+  (* Beware: the following must be changed in accordance with the booth! *)
   let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
   let token_length = 14
   let n58 = Z.of_int 58
