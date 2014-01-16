@@ -170,8 +170,36 @@ tool_ section above.
 Troubleshooting
 ---------------
 
+### OCamlDuce incompatibility
+
 OCamlDuce is an optional transitive dependency of Belenios, but
 Belenios does not use it. If OCamlDuce was installed outside of OPAM
 (e.g. via your system package manager), you may face issues. You can
 work around them by uninstalling OCamlDuce and restarting the
 installation procedure.
+
+### Missing sources
+
+The instructions outlined in this document and in the
+`opam-bootstrap.sh` script imply downloading files from third-party
+servers. Sometimes, these servers can be down. For example, you can
+get:
+
+    =-=-= Installing ocamlnet.3.7.3 =-=-=
+    ocamlnet.3.7.3 Downloading http://download.camlcity.org/download/ocamlnet-3.7.3.tar.gz
+    [ERROR] http://download.camlcity.org/download/ocamlnet-3.7.3.tar.gz is not available
+
+    ===== ERROR while installing ocamlnet.3.7.3 =====
+    Could not get the source for ocamlnet.3.7.3.
+
+This can be worked around with the following steps:
+
+ * source the generated `env.sh` file (you must adapt it if you use an
+   incompatible shell such as tcsh);
+ * download the file from an alternate source (for example
+   [Debian source packages](http://www.debian.org/distrib/packages));
+ * run `opam pin <package-name> <path-to-file-download-above>` (in the
+   example above, `<package-name>` would be `ocamlnet`);
+ * resume the installation by running again the `opam install` command
+   found in `opam-bootstrap.sh`;
+ * follow the instructions given at the end of `opam-bootstrap.sh`.
