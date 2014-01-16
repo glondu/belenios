@@ -82,7 +82,7 @@ echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init --no-setup
-eval `opam config env`
+eval `opam config env --sh`
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
@@ -100,6 +100,8 @@ echo
 echo "Next, you need to run the following commands or add them to your ~/.bashrc"
 echo "or equivalent:"
 echo "  source $BELENIOS_SRC/env.sh"
+echo "Note that if you use a Bourne-incompatible shell (e.g. tcsh), you'll have"
+echo "to adapt env.sh to your shell."
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 echo
