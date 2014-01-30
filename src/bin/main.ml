@@ -22,7 +22,7 @@
 let usage () =
   let cmd = Sys.argv.(0) in
   Printf.eprintf
-    "Usage: %s { trustee-keygen | election | credgen } [--help] [<args>]
+    "Usage: %s { trustee-keygen | election | credgen | mkelection } [--help] [<args>]
 To get help for a specific command, run: %s <command> --help\n"
     cmd cmd;
   exit 1
@@ -37,5 +37,6 @@ let () =
     | "trustee-keygen" -> Tkeygen.main ()
     | "election" -> Election_tool.main ()
     | "credgen" -> Credgen.main ()
+    | "mkelection" -> Mkelection.main ()
     | _ -> usage ()
   )

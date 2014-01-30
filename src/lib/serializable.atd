@@ -88,6 +88,14 @@ type 'a params = {
 } <ocaml field_prefix="e_">
 <doc text="Election parameters relevant for creating a ballot.">
 
+type template = {
+  description : string;
+  name : string;
+  questions : question list <ocaml repr="array">;
+  short_name : string;
+} <ocaml field_prefix="t_">
+<doc text="Election template.">
+
 type 'a answer = {
   choices : 'a ciphertext list <ocaml repr="array">;
   individual_proofs : disjunctive_proof list <ocaml repr="array">;
