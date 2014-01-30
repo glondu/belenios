@@ -33,12 +33,12 @@ let load_from_file of_string filename =
       let rec loop lines =
         match (try Some (input_line ic) with End_of_file -> None) with
         | Some "" -> loop lines
-        | Some line -> loop (line::lines)
+        | Some line -> loop (of_string line::lines)
         | None -> lines
       in loop []
     in
     close_in ic;
-    Some (List.rev_map of_string lines)
+    Some (List.rev lines)
   ) else None
 
 let read_number = Serializable_builtin_j.read_number
