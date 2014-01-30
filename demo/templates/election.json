@@ -1,0 +1,1 @@
+{"description":"This is a test election.","name":"Test election","questions":[{"answers":["a","b","c","d","e"],"min":0,"max":1,"question":"Question 1?"},{"answers":["a","b","c","d","e","f"],"min":2,"max":3,"question":"Question 2?"},{"answers":["a","b","c"],"min":1,"max":1,"question":"Question 3?"}],"short_name":"test"}
