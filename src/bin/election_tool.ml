@@ -48,6 +48,7 @@ module type PARAMS = sig
   val sk_file : string option
   val do_finalize : bool
   val do_decrypt : bool
+  val ballot_file : string option
   val params : ff_pubkey params
   val election_fingerprint : string
   val group :  ff_params
@@ -64,6 +65,7 @@ module GetParams (X : sig end) : PARAMS = struct
   let sk_file = ref None
   let do_finalize = ref false
   let do_decrypt = ref false
+  let ballot_file = ref None
 
   let speclist = Arg.([
     "--dir", String (fun s -> dir := s), "path to election files";
@@ -75,7 +77,7 @@ module GetParams (X : sig end) : PARAMS = struct
   ])
 
   let usage_msg =
-    Printf.sprintf "Usage: %s election [--dir <dir>] [--privkey <privkey>] { verify | decrypt | finalize }" Sys.argv.(0)
+    Printf.sprintf "Usage: %s election [--dir <dir>] [--privkey <privkey>] { vote <ballot> | verify | decrypt | finalize }" Sys.argv.(0)
 
   let usage () =
     Arg.usage speclist usage_msg;
@@ -90,6 +92,13 @@ module GetParams (X : sig end) : PARAMS = struct
 
   let () = match List.rev !anon_args with
     | [] -> usage ()
+    | ["vote"; f] ->
+      let f =
+        if Filename.is_relative f then Filename.concat initial_dir f else f
+      in ballot_file := Some f
+    | ["vote"] ->
+      Printf.eprintf "ballot file is missing\n";
+      exit 1
     | ["verify"] -> ()
     | ["finalize"] -> do_finalize := true
     | ["decrypt"] ->
@@ -119,6 +128,7 @@ module GetParams (X : sig end) : PARAMS = struct
   let sk_file = !sk_file
   let do_finalize = !do_finalize
   let do_decrypt = !do_decrypt
+  let ballot_file = !ballot_file
 
 end
 
@@ -212,6 +222,31 @@ module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
           M.return (E.combine_ciphertexts (E.extract_ciphertext b) t)
         ) (E.neutral_ciphertext e) ()
   )
+
+  let () = match ballot_file with
+    | None -> ()
+    | Some fn ->
+      (match load_from_file Serializable_j.plaintext_of_string fn with
+      | Some [b] ->
+        let sk =
+          match sk_file with
+          | Some fn ->
+            (match load_from_file (fun x -> x) fn with
+            | Some [cred] ->
+              let hex = Credgen.derive e.e_params.e_uuid cred in
+              Some Z.(of_string_base 16 hex mod G.q)
+            | _ -> failwith "invalid credential file"
+            )
+          | None -> None
+        in
+        let b = E.create_ballot e ?sk (E.make_randomness e ()) b () in
+        assert (E.check_ballot e b);
+        print_endline (
+          Serializable_j.string_of_ballot
+            Serializable_builtin_j.write_number b
+        )
+      | _ -> failwith "invalid plaintext ballot file"
+      )
 
   let () = if do_decrypt then
     match sk_file with

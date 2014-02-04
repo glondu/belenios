@@ -124,11 +124,13 @@ type 'a partial_decryption = {
   decryption_proofs : proof list <ocaml repr="array"> list <ocaml repr="array">;
 }
 
+type plaintext = int list <ocaml repr="array"> list <ocaml repr="array">
+
 type 'a result = {
   num_tallied : int;
   encrypted_tally : 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">;
   partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
-  result : int list <ocaml repr="array"> list <ocaml repr="array">;
+  result : plaintext;
 }
 
 (** {1 Other datastructures} *)

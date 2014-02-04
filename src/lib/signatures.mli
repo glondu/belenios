@@ -162,7 +162,7 @@ module type ELECTION = sig
 
   (** {2 Ballots} *)
 
-  type plaintext = int array array
+  type plaintext = Serializable_t.plaintext
   (** The plaintext equivalent of [ciphertext], i.e. the contents of a
       ballot. When [x] is such a value, [x.(i).(j)] is the weight (0
       or 1) given to answer [j] in question [i]. *)

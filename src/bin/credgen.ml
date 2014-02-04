@@ -21,6 +21,22 @@
 
 open Util
 
+let remove_dashes x =
+  let n = String.length x in
+  let res = Buffer.create n in
+  for i = 0 to n-1 do
+    let c = x.[i] in
+    if c <> '-' then Buffer.add_char res c;
+  done;
+  Buffer.contents res
+
+let derive uuid x =
+  let open Cryptokit in
+  let uuid = remove_dashes (Uuidm.to_string uuid) in
+  let salt = transform_string (Hexa.decode ()) uuid in
+  pbkdf2 ~prf:MAC.hmac_sha256 ~iterations:1000 ~size:1 ~salt x |>
+  transform_string (Hexa.encode ())
+
 module RunCredgen (X : sig end) = struct
 
   (* Setup group *)
@@ -37,12 +53,7 @@ module RunCredgen (X : sig end) = struct
   let n53 = Z.of_int 53
 
   let public_key_of_token uuid x =
-    let open Cryptokit in
-    let salt = transform_string (Hexa.decode ()) uuid in
-    let hex =
-      pbkdf2 ~prf:MAC.hmac_sha256 ~iterations:1000 ~size:1 ~salt x |>
-      transform_string (Hexa.encode ())
-    in
+    let hex = derive uuid x in
     let x = Z.(of_string_base 16 hex mod G.q) in
     let y = G.(g **~ x) in
     Z.to_string y
@@ -72,22 +83,13 @@ module RunCredgen (X : sig end) = struct
 
   let () = Arg.parse speclist anon_fun usage_msg
 
-  let remove_dashes x =
-    let n = String.length x in
-    let res = Buffer.create n in
-    for i = 0 to n-1 do
-      let c = x.[i] in
-      if c <> '-' then Buffer.add_char res c;
-    done;
-    Buffer.contents res
-
   let uuid = match !uuid with
     | None ->
       Printf.eprintf "UUID is missing!\n";
       exit 1
     | Some u ->
       match Uuidm.of_string u with
-        | Some _ -> remove_dashes u
+        | Some u -> u
         | None ->
           Printf.eprintf "UUID is invalid!\n";
           exit 1
