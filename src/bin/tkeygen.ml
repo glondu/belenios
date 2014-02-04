@@ -81,14 +81,14 @@ module RunTrusteeKeygen (G : Election.FF_GROUP) = struct
 
   let pubkey =
     "public",
-    id ^ ".public",
+    id ^ ".pubkey",
     0o444,
     public_key,
     Serializable_j.write_trustee_public_key Serializable_builtin_j.write_number
 
   let privkey =
     "private",
-    id ^ ".private",
+    id ^ ".privkey",
     0o400,
     private_key,
     Serializable_builtin_j.write_number

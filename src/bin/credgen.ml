@@ -162,7 +162,7 @@ module RunCredgen (X : sig end) = struct
 
   let pub =
     "public credentials",
-    timestamp ^ ".public",
+    timestamp ^ ".pubcreds",
     0o444,
     List.sort compare public_credentials
 
@@ -175,13 +175,13 @@ module RunCredgen (X : sig end) = struct
         ) ids private_credentials
     in
     kind,
-    timestamp ^ ".private",
+    timestamp ^ ".privcreds",
     0o400,
     List.sort compare creds
 
   let hashed = option_map (fun h ->
     "hashed credentials with ids",
-    timestamp ^ ".hashed",
+    timestamp ^ ".hashcreds",
     0o400,
     List.sort compare h
   ) hashed_credentials
