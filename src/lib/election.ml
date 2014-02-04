@@ -341,14 +341,45 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
       Array.init (Array.length q.q_answers) (fun _ -> random G.q)
     ) e.e_params.e_questions)
 
-  let create_ballot e r m =
+  let make_sig_prefix zkp commitment =
+    "sig|" ^ zkp ^ "|" ^ G.to_string commitment ^ "|"
+
+  let make_sig_contents answers =
+    List.flatten (
+      List.map (fun a ->
+        List.flatten (
+          List.map (fun {alpha; beta} ->
+            [alpha; beta]
+          ) (Array.to_list a.choices)
+        )
+      ) (Array.to_list answers)
+    ) |> Array.of_list
+
+  let create_ballot e ?sk r m =
     let p = e.e_params in
-    swap (Array.map3 (create_answer p.e_public_key "") p.e_questions r m) >>= fun answers ->
+    let sk, zkp =
+      match sk with
+      | None -> None, ""
+      | Some x -> let y = G.(g **~ x) in Some (x, y), G.to_string y
+    in
+    swap (Array.map3 (create_answer p.e_public_key zkp) p.e_questions r m) >>= fun answers ->
+    (
+      match sk with
+      | None -> return None
+      | Some (x, y) ->
+        random q >>= fun w ->
+        let commitment = g **~ w in
+        let prefix = make_sig_prefix zkp commitment in
+        let contents = make_sig_contents answers in
+        let s_challenge = G.hash prefix contents in
+        let s_response = Z.(erem (w - x * s_challenge) q) in
+        return (Some {s_public_key = y; s_challenge; s_response})
+    ) >>= fun signature ->
     return {
       answers;
       election_hash = e.e_fingerprint;
       election_uuid = p.e_uuid;
-      signature = None;
+      signature;
     }
 
   (** Ballot verification *)
@@ -365,22 +396,15 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
     b.election_hash = e.e_fingerprint &&
     let ok, zkp = match b.signature with
       | Some {s_public_key = y; s_challenge; s_response} ->
+        let zkp = G.to_string y in
         let ok =
           check_modulo q s_challenge &&
           check_modulo q s_response &&
           let commitment = g **~ s_response *~ y **~ s_challenge in
-          let prefix = "sig|" ^ G.to_string y ^ "|" ^ G.to_string commitment ^ "|" in
-          let ciphertexts = List.flatten (
-            List.map (fun a ->
-              List.flatten (
-                List.map (fun {alpha; beta} ->
-                  [alpha; beta]
-                ) (Array.to_list a.choices)
-              )
-            ) (Array.to_list b.answers)
-          ) |> Array.of_list in
-          s_challenge =% G.hash prefix ciphertexts
-        in ok, G.to_string y
+          let prefix = make_sig_prefix zkp commitment in
+          let contents = make_sig_contents b.answers in
+          s_challenge =% G.hash prefix contents
+        in ok, zkp
       | None -> true, ""
     in ok &&
     Array.forall2 (verify_answer p.e_public_key zkp) p.e_questions b.answers
