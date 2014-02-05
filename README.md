@@ -43,6 +43,13 @@ For example, during the election, you can check if some candidate
 ballot is acceptable by putting it alone in `ballots.jsons`, and
 running the command above.
 
+If you put your secret credential in a file `/path/to/credential` and
+your choices in a file `/path/to/choices.json` (as an array of arrays
+of 0/1 in JSON format), the following command will output a ballot
+that can be directly submitted:
+
+    belenios-tool election --dir /path/to/election --privkey /path/to/credential vote /path/to/choices.json
+
 
 Trustee's guide
 ---------------
