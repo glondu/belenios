@@ -143,7 +143,7 @@ let make_booth uuid =
   let service = Eliom_service.preapply election_dir (uuid, ESRaw) in
   Eliom_service.preapply election_booth (
     ["booth"; "vote.html"],
-    Eliom_uri.make_string_uri ~absolute_path:true ~service ()
+    Eliom_uri.make_string_uri ~service ()
   )
 
 let preapply_uuid s e = Eliom_service.preapply s e.e_uuid
