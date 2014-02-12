@@ -539,26 +539,28 @@ let f_records uuid election user () =
     return (s, "text/plain")
   ) else forbidden ()
 
-let () =
+let handle_pseudo_file u f =
   let open Eliom_registration in
   let open Services in
-  File.register
-    ~service:election_raw
-    ~content_type:"application/json"
-    (if_eligible can_read f_raw);
-  File.register
-    ~service:election_public_keys
-    ~content_type:"application/json"
-    (if_eligible can_read f_keys);
-  Streamlist.register
-    ~service:election_public_creds
-    (if_eligible can_read f_creds);
-  Streamlist.register
-    ~service:election_ballots
-    (if_eligible can_read f_ballots);
-  Streamlist.register
-    ~service:election_records
-    (if_eligible can_read f_records)
+  let file f =
+    if_eligible can_read f u () >>=
+    File.send ~content_type:"application/json"
+  and stream f =
+    if_eligible can_read f u () >>=
+    Streamlist.send >>=
+    (fun x -> return (cast_unknown_content_kind x))
+  in
+  match f with
+  | ESRaw -> file f_raw
+  | ESKeys -> file f_keys
+  | ESCreds -> stream f_creds
+  | ESBallots -> stream f_ballots
+  | ESRecords -> stream f_records
+
+let () =
+  Eliom_registration.Any.register
+    ~service:Services.election_dir
+    (fun (uuid, f) () -> handle_pseudo_file uuid f)
 
 let get_randomness =
   let prng = Lazy.lazy_from_fun (Lwt_preemptive.detach (fun () ->

@@ -216,7 +216,7 @@ let make_button ~service contents =
 let election_view ~auth_systems ~election ~user =
   let open Web_common in
   let params = election.election.e_params in
-  let service = Services.(preapply_uuid election_raw params) in
+  let service = Services.(election_file params ESRaw) in
   lwt permissions =
     match election.election_web.can_vote with
       | Any ->
@@ -261,15 +261,15 @@ let election_view ~auth_systems ~election ~user =
         pcdata "Election data: ";
         a ~service [ pcdata "parameters" ] ();
         pcdata ", ";
-        a ~service:Services.(preapply_uuid election_public_creds params) [
+        a ~service:Services.(election_file params ESCreds) [
           pcdata "public credentials"
         ] ();
         pcdata ", ";
-        a ~service:Services.(preapply_uuid election_public_keys params) [
+        a ~service:Services.(election_file params ESKeys) [
           pcdata "trustee public keys"
         ] ();
         pcdata ", ";
-        a ~service:Services.(preapply_uuid election_ballots params) [
+        a ~service:Services.(election_file params ESBallots) [
           pcdata "ballots";
         ] ();
         pcdata ".";

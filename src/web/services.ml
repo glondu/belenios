@@ -60,25 +60,40 @@ let uuid = Eliom_parameter.user_type
   Uuidm.to_string
   "uuid"
 
-(* TODO: put uuid in url instead of GET parameter *)
+type election_file =
+  | ESRaw
+  | ESKeys
+  | ESCreds
+  | ESBallots
+  | ESRecords
+
+let election_file_of_string = function
+  | "election.json" -> ESRaw
+  | "public_keys.jsons" -> ESKeys
+  | "public_creds.txt" -> ESCreds
+  | "ballots.jsons" -> ESBallots
+  | "records" -> ESRecords
+  | x -> invalid_arg ("election_dir_item: " ^ x)
+
+let string_of_election_file = function
+  | ESRaw -> "election.json"
+  | ESKeys -> "public_keys.jsons"
+  | ESCreds -> "public_creds.txt"
+  | ESBallots -> "ballots.jsons"
+  | ESRecords -> "records"
+
+let election_file = Eliom_parameter.user_type
+  election_file_of_string
+  string_of_election_file
+  "file"
+
+let election_dir = service
+  ~path:["elections"]
+  ~get_params:(suffix (uuid ** election_file))
+  ()
 
 let election_index = service
   ~path:["election"; ""]
-  ~get_params:uuid
-  ()
-
-let election_raw = service
-  ~path:["election"; "election.json"]
-  ~get_params:uuid
-  ()
-
-let election_public_keys = service
-  ~path:["election"; "public_keys.jsons"]
-  ~get_params:uuid
-  ()
-
-let election_public_creds = service
-  ~path:["election"; "public_creds.txt"]
   ~get_params:uuid
   ()
 
@@ -89,16 +104,6 @@ let election_vote = service
 
 let election_cast = service
   ~path:["election"; "cast"]
-  ~get_params:uuid
-  ()
-
-let election_ballots = service
-  ~path:["election"; "ballots.jsons"]
-  ~get_params:uuid
-  ()
-
-let election_records = service
-  ~path:["election"; "records"]
   ~get_params:uuid
   ()
 
@@ -135,13 +140,14 @@ let election_booth = static_dir_with_params
   ()
 
 let make_booth uuid =
-  let service = Eliom_service.preapply election_raw uuid in
+  let service = Eliom_service.preapply election_dir (uuid, ESRaw) in
   Eliom_service.preapply election_booth (
     ["booth"; "vote.html"],
     Eliom_uri.make_string_uri ~absolute_path:true ~service ()
   )
 
 let preapply_uuid s e = Eliom_service.preapply s e.e_uuid
+let election_file e f = Eliom_service.preapply election_dir (e.e_uuid, f)
 
 type savable_service =
   | Home
