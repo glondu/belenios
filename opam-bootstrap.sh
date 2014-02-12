@@ -35,12 +35,12 @@ mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
 
 cd "$BELENIOS_SYSROOT/bootstrap/src"
 wget http://caml.inria.fr/pub/distrib/ocaml-4.01/ocaml-4.01.0.tar.gz
-wget http://www.ocamlpro.com/pub/opam-full-1.1.0.tar.gz
+wget http://www.ocamlpro.com/pub/opam-full-1.1.1.tar.gz
 
 if which sha256sum >/dev/null; then
 sha256sum --check <<EOF
 ea1751deff454f5c738d10d8a0ad135afee0852d391cf95766b726c0faf7cfdb  ocaml-4.01.0.tar.gz
-c0ab5e85b6cd26e533a40686e08aea173387d15bead817026f5b08f264642583  opam-full-1.1.0.tar.gz
+bfcb78109cf88612b5170b25bb96aa576ed3908c8a68b9164a7ae16f9f59ae38  opam-full-1.1.1.tar.gz
 EOF
 else
     echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
@@ -63,8 +63,8 @@ echo
 echo "=-=-= Compilation and installation of OPAM =-=-="
 echo
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-tar -xzf opam-full-1.1.0.tar.gz
-cd opam-full-1.1.0
+tar -xzf opam-full-1.1.1.tar.gz
+cd opam-full-1.1.1
 ./configure -prefix "$BELENIOS_SYSROOT/bootstrap"
 make
 make install
