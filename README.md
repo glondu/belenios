@@ -171,6 +171,12 @@ There is also the possibility to authenticate with a
 
     <enable-cas server="https://cas.example.org"/>
 
+If the web server is behind a reverse-proxy, it might be needed to
+rewrite URLs passed to the CAS server. This can be done with the
+following directive:
+
+    <rewrite-prefix src="https://backend-server" dst="https://frontend-server/belenios"/>
+
 The `<source>` tag gives the path of the source tarball. Note that this
 is a path on the local filesystem and not a URL. If you made local
 changes, an easy way to comply with the AGPL license is to commit them
