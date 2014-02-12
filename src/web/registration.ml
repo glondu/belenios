@@ -496,75 +496,69 @@ let () = Eliom_registration.File.register
       return f
   )
 
-let () = Eliom_registration.File.register
-  ~service:Services.election_raw
-  ~content_type:"application/json"
-  (if_eligible can_read
-     (fun uuid election user () ->
-       return Web_common.(election.election_web.params_fname)
-     )
-  )
+let f_raw uuid election user () =
+  return Web_common.(election.election_web.params_fname)
 
-let () = Eliom_registration.File.register
-  ~service:Services.election_public_keys
-  ~content_type:"application/json"
-  (if_eligible can_read
-      (fun uuid election user () ->
-        return Web_common.(election.election_web.public_keys_fname)
-      )
-   )
+let f_keys uuid election user () =
+  return Web_common.(election.election_web.public_keys_fname)
 
-let () = Eliom_registration.Streamlist.register
-  ~service:Services.election_public_creds
-  (if_eligible can_read
-      (fun uuid election user () ->
-        let open Web_common in
-        let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
-        lwt creds = X.B.extract_creds () in
-        let s = Web_common.SSet.fold (fun x accu ->
-          (fun () -> return (Ocsigen_stream.of_string (x^"\n"))) :: accu
-        ) creds [] in
-        return (List.rev s, "text/plain")
-       )
-   )
+let f_creds uuid election user () =
+  let open Web_common in
+  let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+  lwt creds = X.B.extract_creds () in
+  let s = Web_common.SSet.fold (fun x accu ->
+    (fun () -> return (Ocsigen_stream.of_string (x^"\n"))) :: accu
+  ) creds [] in
+  return (List.rev s, "text/plain")
 
-let () = Eliom_registration.Streamlist.register
-  ~service:Services.election_ballots
-  (if_eligible can_read
-     (fun uuid election user () ->
-       let open Web_common in
-       let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
-       (* TODO: streaming *)
-       lwt ballots = X.B.fold_ballots (fun x xs ->
-         return ((x^"\n")::xs)
-       ) [] in
-       let s = List.map (fun b () ->
-         return (Ocsigen_stream.of_string b)
-       ) ballots in
-       return (s, "application/json")
-     )
-  )
+let f_ballots uuid election user () =
+  let open Web_common in
+  let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+  (* TODO: streaming *)
+  lwt ballots = X.B.fold_ballots (fun x xs ->
+    return ((x^"\n")::xs)
+  ) [] in
+  let s = List.map (fun b () ->
+    return (Ocsigen_stream.of_string b)
+  ) ballots in
+  return (s, "application/json")
 
-let () = Eliom_registration.Streamlist.register
-  ~service:Services.election_records
-  (if_eligible can_read
-     (fun uuid election user () ->
-       if Web_common.is_admin user then (
-         let open Web_common in
-         let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
-         (* TODO: streaming *)
-         lwt ballots = X.B.fold_records (fun (u, d) xs ->
-           let x = Printf.sprintf "%s %S\n"
-             (Serializable_builtin_j.string_of_datetime d) u
-           in return (x::xs)
-         ) [] in
-         let s = List.map (fun b () ->
-           return (Ocsigen_stream.of_string b)
-         ) ballots in
-         return (s, "text/plain")
-       ) else forbidden ()
-     )
-  )
+let f_records uuid election user () =
+  if Web_common.is_admin user then (
+    let open Web_common in
+    let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+    (* TODO: streaming *)
+    lwt ballots = X.B.fold_records (fun (u, d) xs ->
+      let x = Printf.sprintf "%s %S\n"
+        (Serializable_builtin_j.string_of_datetime d) u
+      in return (x::xs)
+    ) [] in
+    let s = List.map (fun b () ->
+      return (Ocsigen_stream.of_string b)
+    ) ballots in
+    return (s, "text/plain")
+  ) else forbidden ()
+
+let () =
+  let open Eliom_registration in
+  let open Services in
+  File.register
+    ~service:election_raw
+    ~content_type:"application/json"
+    (if_eligible can_read f_raw);
+  File.register
+    ~service:election_public_keys
+    ~content_type:"application/json"
+    (if_eligible can_read f_keys);
+  Streamlist.register
+    ~service:election_public_creds
+    (if_eligible can_read f_creds);
+  Streamlist.register
+    ~service:election_ballots
+    (if_eligible can_read f_ballots);
+  Streamlist.register
+    ~service:election_records
+    (if_eligible can_read f_records)
 
 let get_randomness =
   let prng = Lazy.lazy_from_fun (Lwt_preemptive.detach (fun () ->
