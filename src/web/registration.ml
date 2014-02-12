@@ -54,6 +54,8 @@ let enable_cas = ref false
 let cas_server = ref "https://cas.example.org"
 let admin_hash = ref ""
 let main_election = ref None
+let rewrite_src = ref None
+let rewrite_dst = ref None
 
 let () = CalendarLib.Time_Zone.(change Local)
 
@@ -77,6 +79,13 @@ let () =
       ~obligatory:true
       ~attributes:[
         attribute ~name:"dir" ~obligatory:true (fun s -> data_dir := Some s);
+      ] ();
+    element
+      ~name:"rewrite-prefix"
+      ~obligatory:false
+      ~attributes:[
+        attribute ~name:"src" ~obligatory:true (fun s -> rewrite_src := Some s);
+        attribute ~name:"dst" ~obligatory:true (fun s -> rewrite_dst := Some s);
       ] ();
     element
       ~name:"enable-dummy"
@@ -122,6 +131,18 @@ let password_db = match !password_db_fname with
       | _ -> failwith "error in password db file"
     ) PMap.empty (Csv.load fname)
   )
+
+let rewrite_prefix =
+  match !rewrite_src, !rewrite_dst with
+  | Some src, Some dst ->
+    let nsrc = String.length src in
+    (fun x ->
+      let n = String.length x in
+      if n >= nsrc && String.sub x 0 nsrc = src then
+        dst ^ String.sub x nsrc (n-nsrc)
+      else x
+    )
+  | _, _ -> (fun x -> x)
 
 (* TODO: make the authentication system more flexible *)
 
@@ -409,7 +430,8 @@ let () = Eliom_registration.Redirection.register
     | Some x ->
       let me =
         let service = Eliom_service.preapply login_cas None in
-        Eliom_uri.make_string_uri ~absolute:true ~service ()
+        let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+        rewrite_prefix uri
       in
       let validation =
         let service = Eliom_service.preapply cas_validate (me, x) in
@@ -447,6 +469,7 @@ let () = Eliom_registration.Redirection.register
     | None ->
       let service = Eliom_service.preapply login_cas None in
       let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+      let uri = rewrite_prefix uri in
       return (Eliom_service.preapply cas_login uri)
   )
 
@@ -461,6 +484,7 @@ let () = Eliom_registration.Redirection.register
         if user.Web_common.user_type = Web_common.CAS then (
           lwt service = Services.get () in
           let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+          let uri = rewrite_prefix uri in
           Web_common.(security_log (fun () ->
             string_of_user user ^ " logged out, redirecting to CAS"
           )) >>
