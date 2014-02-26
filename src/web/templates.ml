@@ -83,45 +83,6 @@ let base ~auth_systems ~title ~content =
       ]
      ]))
 
-type answer = {
-  count : int;
-  answer : string;
-  winner : bool;
-}
-
-type question = {
-  answers : answer list;
-  question : string;
-}
-
-let format_election_result e r =
-  let open Services in
-  Array.mapi (fun i q ->
-    let q' = e.e_questions.(i) in
-    let question = q'.q_question in
-    let answers = Array.mapi (fun j a ->
-      let answer = q'.q_answers.(j) in
-      let count = a in
-      (answer, count)
-    ) q |> Array.to_list
-    in
-    let (winners, _) = List.fold_left
-      (fun (ws, v) ((_, c) as w) ->
-        if c > v then ([w], c)
-        else if c = v then (w::ws, v)
-        else (ws, v)
-      ) ([], 0) answers
-    in
-    let answers = List.map
-      (fun ((answer, count) as x) ->
-        let winner = List.memq x winners in
-        { answer; count; winner }
-      ) answers
-    in
-    { question; answers }
-  ) r.result |>
-  Array.to_list
-
 let format_one_featured_election e =
   li [
     h3 [
