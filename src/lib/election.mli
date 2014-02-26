@@ -57,12 +57,12 @@ module MakeSimpleMonad (G : GROUP) : sig
 
   (** {2 Ballot box management} *)
 
-  include Signatures.BALLOT_BOX
+  include Signatures.MONADIC_MAP_RO
   with type 'a m := 'a t
-  and type ballot = G.t Serializable_t.ballot
-  and type receipt := unit
+  and type elt = G.t Serializable_t.ballot
+  and type key := unit
 
-  val cast : ballot -> unit t
+  val cast : elt -> unit t
 end
 (** Simple election monad that keeps all ballots in memory. *)
 

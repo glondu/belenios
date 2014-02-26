@@ -539,7 +539,7 @@ let f_ballots uuid election user () =
   let open Web_common in
   let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
   (* TODO: streaming *)
-  lwt ballots = X.B.Ballots.fold_ballots (fun _ x xs ->
+  lwt ballots = X.B.Ballots.fold (fun _ x xs ->
     return ((x^"\n")::xs)
   ) [] in
   let s = List.map (fun b () ->
@@ -552,7 +552,7 @@ let f_records uuid election user () =
     let open Web_common in
     let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
     (* TODO: streaming *)
-    lwt ballots = X.B.Records.fold_ballots (fun u (d, _) xs ->
+    lwt ballots = X.B.Records.fold (fun u (d, _) xs ->
       let x = Printf.sprintf "%s %S\n"
         (Serializable_builtin_j.string_of_datetime d) u
       in return (x::xs)

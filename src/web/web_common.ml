@@ -158,14 +158,14 @@ let security_log s =
     ) ic
 
 module type WEB_BALLOT_BOX = sig
-  module Ballots : Signatures.BALLOT_BOX
+  module Ballots : Signatures.MONADIC_MAP_RO
     with type 'a m = 'a Lwt.t
-    and type ballot = string
-    and type receipt = string
-  module Records : Signatures.BALLOT_BOX
+    and type elt = string
+    and type key = string
+  module Records : Signatures.MONADIC_MAP_RO
     with type 'a m = 'a Lwt.t
-    and type ballot = Serializable_builtin_t.datetime * string
-    and type receipt = string
+    and type elt = Serializable_builtin_t.datetime * string
+    and type key = string
 
   val cast : string -> string * datetime -> string Lwt.t
   val inject_creds : SSet.t -> unit Lwt.t
@@ -214,20 +214,20 @@ let make_web_election raw_election e_meta election_web =
 
       module Ballots = struct
         type 'a m = 'a Lwt.t
-        type ballot = string
-        type receipt = string
+        type elt = string
+        type key = string
         let table = Ocsipersist.open_table ("ballots" ^ suffix)
-        let turnout = Ocsipersist.length table
-        let fold_ballots f x = Ocsipersist.fold_step f table x
+        let cardinal = Ocsipersist.length table
+        let fold f x = Ocsipersist.fold_step f table x
       end
 
       module Records = struct
         type 'a m = 'a Lwt.t
-        type ballot = Serializable_builtin_t.datetime * string
-        type receipt = string
+        type elt = Serializable_builtin_t.datetime * string
+        type key = string
         let table = Ocsipersist.open_table ("records" ^ suffix)
-        let turnout = Ocsipersist.length table
-        let fold_ballots f x = Ocsipersist.fold_step f table x
+        let cardinal = Ocsipersist.length table
+        let fold f x = Ocsipersist.fold_step f table x
       end
 
       let cred_table = Ocsipersist.open_table ("creds" ^ suffix)

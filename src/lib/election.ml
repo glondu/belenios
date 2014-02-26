@@ -109,10 +109,10 @@ module MakeSimpleMonad (G : GROUP) = struct
       let r = Cryptokit.Random.string (Lazy.force prng) size in
       Z.(of_bits r mod q)
 
-  type ballot = G.t Serializable_t.ballot
+  type elt = G.t Serializable_t.ballot
   let cast x () = ballots := x :: !ballots
-  let fold_ballots f x () = List.fold_left (fun accu b -> f () b accu ()) x !ballots
-  let turnout () = List.length !ballots
+  let fold f x () = List.fold_left (fun accu b -> f () b accu ()) x !ballots
+  let cardinal () = List.length !ballots
 end
 
 (** Distributed key generation *)

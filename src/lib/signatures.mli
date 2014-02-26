@@ -86,27 +86,23 @@ module type RANDOM = sig
   (** [random q] returns a random number modulo [q]. *)
 end
 
-(** Ballot box. *)
-module type BALLOT_BOX = sig
+(** Read operations of a monadic map. *)
+module type MONADIC_MAP_RO = sig
   type 'a m
   (** The type of monadic values. *)
 
-  (** {2 Election-specific operations} *)
+  type elt
+  (** The type of map values. *)
 
-  type ballot
-  (** The type of ballots. The monad is supposed to keep track of all
-      cast ballots (e.g. in a database). *)
+  type key
+  (** The type of map keys. *)
 
-  type receipt
-  (** The type of receipts. This is something the voter gets after
-      casting a ballot to check his vote later. *)
+  val fold : (key -> elt -> 'a -> 'a m) -> 'a -> 'a m
+  (** [fold f a] computes [(f kN vN ... (f k2 v2 (f k1 v1 a))...)],
+      where [k1/v1 ... kN/vN] are all key/value pairs. *)
 
-  val fold_ballots : (receipt -> ballot -> 'a -> 'a m) -> 'a -> 'a m
-  (** [fold_ballots f a] computes [(f rN bN ... (f r2 b2 (f r1 b1 a))...)],
-      where [r1,b1 ... rN,bN] are all cast ballots. *)
-
-  val turnout : int m
-  (** Number of cast ballots. *)
+  val cardinal : int m
+  (** Return the number of bindings. *)
 end
 
 (** Parameters for an election. *)
@@ -231,6 +227,10 @@ module type ELECTION_BUNDLE = sig
 end
 
 module type BALLOT_BOX_BUNDLE = sig
+  type receipt
+  type ballot
   include ELECTION_BUNDLE
-  include BALLOT_BOX with type 'a m = 'a E.m
+  include MONADIC_MAP_RO with type 'a m = 'a E.m
+                         and type elt := ballot
+                         and type key := receipt
 end

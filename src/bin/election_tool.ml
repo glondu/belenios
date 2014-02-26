@@ -218,7 +218,7 @@ module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
     match ballots with
       | None -> failwith "ballots.jsons is missing"
       | Some _ ->
-        M.fold_ballots (fun () b t ->
+        M.fold (fun () b t ->
           M.return (E.combine_ciphertexts (E.extract_ciphertext b) t)
         ) (E.neutral_ciphertext e) ()
   )
@@ -292,7 +292,7 @@ module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
       | Some factors ->
         let tally = Lazy.force encrypted_tally in
         assert (Array.forall2 (E.check_factor tally) pks factors);
-        let result = E.combine_factors (M.turnout ()) tally factors in
+        let result = E.combine_factors (M.cardinal ()) tally factors in
         assert (E.check_result e result);
         if do_finalize then (
           save_to "result.json" (
