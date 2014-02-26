@@ -158,11 +158,16 @@ let security_log s =
     ) ic
 
 module type WEB_BALLOT_BOX = sig
-  include Signatures.BALLOT_BOX
-  with type 'a m = 'a Lwt.t
-  and type ballot = string
-  and type record = string * datetime
+  module Ballots : Signatures.BALLOT_BOX
+    with type 'a m = 'a Lwt.t
+    and type ballot = string
+    and type receipt = string
+  module Records : Signatures.BALLOT_BOX
+    with type 'a m = 'a Lwt.t
+    and type ballot = Serializable_builtin_t.datetime * string
+    and type receipt = string
 
+  val cast : string -> string * datetime -> string Lwt.t
   val inject_creds : SSet.t -> unit Lwt.t
   val extract_creds : unit -> SSet.t Lwt.t
   val update_cred : old:string -> new_:string -> unit Lwt.t
@@ -202,19 +207,30 @@ let make_web_election raw_election e_meta election_web =
 
     module B : WEB_BALLOT_BOX = struct
 
-      type 'a m = 'a Lwt.t
-
       let suffix = "_" ^ String.map (function
         | '-' -> '_'
         | c -> c
       ) (Uuidm.to_string e_params.e_uuid)
 
-      let ballot_table = Ocsipersist.open_table ("ballots" ^ suffix)
-      let record_table = Ocsipersist.open_table ("records" ^ suffix)
-      let cred_table = Ocsipersist.open_table ("creds" ^ suffix)
+      module Ballots = struct
+        type 'a m = 'a Lwt.t
+        type ballot = string
+        type receipt = string
+        let table = Ocsipersist.open_table ("ballots" ^ suffix)
+        let turnout = Ocsipersist.length table
+        let fold_ballots f x = Ocsipersist.fold_step f table x
+      end
 
-      type ballot = string
-      type record = string * Serializable_builtin_t.datetime
+      module Records = struct
+        type 'a m = 'a Lwt.t
+        type ballot = Serializable_builtin_t.datetime * string
+        type receipt = string
+        let table = Ocsipersist.open_table ("records" ^ suffix)
+        let turnout = Ocsipersist.length table
+        let fold_ballots f x = Ocsipersist.fold_step f table x
+      end
+
+      let cred_table = Ocsipersist.open_table ("creds" ^ suffix)
 
       let extract_creds () =
         Ocsipersist.fold_step (fun k v x ->
@@ -268,7 +284,7 @@ let make_web_election raw_election e_meta election_web =
           with Not_found -> fail InvalidCredential
         and old_record =
           try_lwt
-            lwt x = Ocsipersist.find record_table user in
+            lwt x = Ocsipersist.find Records.table user in
             Lwt.return (Some x)
           with Not_found -> Lwt.return None
         in
@@ -278,11 +294,11 @@ let make_web_election raw_election e_meta election_web =
             if E.check_ballot election ballot then (
               let hash = sha256_b64 rawballot in
               Ocsipersist.add cred_table credential (Some hash) >>
-              Ocsipersist.add ballot_table hash rawballot >>
-              Ocsipersist.add record_table user (date, credential) >>
+              Ocsipersist.add Ballots.table hash rawballot >>
+              Ocsipersist.add Records.table user (date, credential) >>
               security_log (fun () ->
                 Printf.sprintf "%s successfully cast ballot %s" user hash
-              )
+              ) >> return hash
             ) else (
               fail ProofCheck
             )
@@ -290,18 +306,18 @@ let make_web_election raw_election e_meta election_web =
             (* revote *)
             if credential = old_credential then (
               if E.check_ballot election ballot then (
-                lwt old_ballot = Ocsipersist.find ballot_table h in
-                Ocsipersist.remove ballot_table h >>
+                lwt old_ballot = Ocsipersist.find Ballots.table h in
+                Ocsipersist.remove Ballots.table h >>
                 security_log (fun () ->
                   Printf.sprintf "%s successfully removed ballot %S" user old_ballot
                 ) >>
                 let hash = sha256_b64 rawballot in
                 Ocsipersist.add cred_table credential (Some hash) >>
-                Ocsipersist.add ballot_table hash rawballot >>
-                Ocsipersist.add record_table user (date, credential) >>
+                Ocsipersist.add Ballots.table hash rawballot >>
+                Ocsipersist.add Records.table user (date, credential) >>
                 security_log (fun () ->
                   Printf.sprintf "%s successfully cast ballot %s" user hash
-                )
+                ) >> return hash
               ) else (
                 fail ProofCheck
               )
@@ -318,14 +334,6 @@ let make_web_election raw_election e_meta election_web =
             security_log (fun () ->
               Printf.sprintf "%s attempted to vote with already used credential %s" user credential
             ) >> fail ReusedCredential
-
-      let fold_ballots f x =
-        Ocsipersist.fold_step (fun k v x -> f v x) ballot_table x
-
-      let fold_records f x =
-        Ocsipersist.fold_step (fun k v x -> f (k, fst v) x) record_table x
-
-      let turnout = Ocsipersist.length ballot_table
 
       let do_update_cred ~old ~new_ =
         match_lwt Ocsipersist.fold_step (fun k v x ->

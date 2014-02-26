@@ -97,18 +97,13 @@ module type BALLOT_BOX = sig
   (** The type of ballots. The monad is supposed to keep track of all
       cast ballots (e.g. in a database). *)
 
-  type record
-  (** The type of log records. *)
+  type receipt
+  (** The type of receipts. This is something the voter gets after
+      casting a ballot to check his vote later. *)
 
-  val cast : ballot -> record -> unit m
-  (** Cast a ballot. *)
-
-  val fold_ballots : (ballot -> 'a -> 'a m) -> 'a -> 'a m
-  (** [fold_ballots f a] computes [(f bN ... (f b2 (f b1 a))...)],
-      where [b1 ... bN] are all cast ballots. *)
-
-  val fold_records : (record -> 'a -> 'a m) -> 'a -> 'a m
-  (** Same as [fold_ballots] for records. *)
+  val fold_ballots : (receipt -> ballot -> 'a -> 'a m) -> 'a -> 'a m
+  (** [fold_ballots f a] computes [(f rN bN ... (f r2 b2 (f r1 b1 a))...)],
+      where [r1,b1 ... rN,bN] are all cast ballots. *)
 
   val turnout : int m
   (** Number of cast ballots. *)

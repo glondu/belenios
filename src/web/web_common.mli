@@ -76,11 +76,16 @@ exception Error of error
 val explain_error : error -> string
 
 module type WEB_BALLOT_BOX = sig
-  include Signatures.BALLOT_BOX
-  with type 'a m = 'a Lwt.t
-  and type ballot = string
-  and type record = string * datetime
+  module Ballots : Signatures.BALLOT_BOX
+    with type 'a m = 'a Lwt.t
+    and type ballot = string
+    and type receipt = string
+  module Records : Signatures.BALLOT_BOX
+    with type 'a m = 'a Lwt.t
+    and type ballot = Serializable_builtin_t.datetime * string
+    and type receipt = string
 
+  val cast : string -> string * datetime -> string Lwt.t
   val inject_creds : SSet.t -> unit Lwt.t
   val extract_creds : unit -> SSet.t Lwt.t
   val update_cred : old:string -> new_:string -> unit Lwt.t

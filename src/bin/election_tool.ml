@@ -209,7 +209,7 @@ module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
 
   let vote (b, hash) =
     if check_signature_present b && E.check_ballot e b
-    then M.cast b "anonymous" ()
+    then M.cast b ()
     else Printf.ksprintf failwith "ballot %s failed tests" hash
 
   let () = ballots |> option_map (List.iter vote) |> ignore
@@ -218,7 +218,7 @@ module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
     match ballots with
       | None -> failwith "ballots.jsons is missing"
       | Some _ ->
-        M.fold_ballots (fun b t ->
+        M.fold_ballots (fun () b t ->
           M.return (E.combine_ciphertexts (E.extract_ciphertext b) t)
         ) (E.neutral_ciphertext e) ()
   )

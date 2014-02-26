@@ -539,7 +539,7 @@ let f_ballots uuid election user () =
   let open Web_common in
   let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
   (* TODO: streaming *)
-  lwt ballots = X.B.fold_ballots (fun x xs ->
+  lwt ballots = X.B.Ballots.fold_ballots (fun _ x xs ->
     return ((x^"\n")::xs)
   ) [] in
   let s = List.map (fun b () ->
@@ -552,7 +552,7 @@ let f_records uuid election user () =
     let open Web_common in
     let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
     (* TODO: streaming *)
-    lwt ballots = X.B.fold_records (fun (u, d) xs ->
+    lwt ballots = X.B.Records.fold_ballots (fun u (d, _) xs ->
       let x = Printf.sprintf "%s %S\n"
         (Serializable_builtin_j.string_of_datetime d) u
       in return (x::xs)
@@ -643,8 +643,8 @@ let do_cast election uuid () =
               in
               lwt result =
                 try_lwt
-                  X.B.cast ballot record >>
-                  return (`Valid (sha256_b64 ballot))
+                  lwt hash = X.B.cast ballot record in
+                  return (`Valid hash)
                 with Error e -> return (`Error e)
               in
               Eliom_reference.unset Services.ballot >>

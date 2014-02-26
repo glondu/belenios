@@ -60,7 +60,9 @@ module MakeSimpleMonad (G : GROUP) : sig
   include Signatures.BALLOT_BOX
   with type 'a m := 'a t
   and type ballot = G.t Serializable_t.ballot
-  and type record = string
+  and type receipt := unit
+
+  val cast : ballot -> unit t
 end
 (** Simple election monad that keeps all ballots in memory. *)
 
