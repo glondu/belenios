@@ -30,17 +30,19 @@ let site_title = "Election Server"
 let welcome_message = "Welcome!"
 
 let format_user u =
-  em [pcdata (Web_common.string_of_user u)]
+  em [pcdata (Auth_common.(string_of_user u.user_user))]
+
+module Make (S : Web_signatures.MAIN_SERVICES) = struct
 
 let base ~auth_systems ~title ~content =
-  lwt user = Eliom_reference.get Services.user in
+  lwt user = Eliom_reference.get Auth_common.user in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata title)) [])
     (body [
       div ~a:[a_id "header"] [
         div [
           div ~a:[a_style "float: left;"] [
-            a ~service:Services.home [pcdata site_title] ();
+            a ~service:S.home [pcdata site_title] ();
           ];
           div ~a:[a_style "float: right; text-align: right;"] (
             match user with
@@ -52,7 +54,7 @@ let base ~auth_systems ~title ~content =
                   pcdata ".";
                 ];
                 div [
-                  a ~service:Services.logout [pcdata "Log out"] ();
+                  a ~service:Auth_common.logout [pcdata "Log out"] ();
                   pcdata ".";
                 ];
               ]
@@ -78,7 +80,7 @@ let base ~auth_systems ~title ~content =
       hr ();
       div ~a:[a_id "footer"; a_style "text-align: center;" ] [
         pcdata "Powered by ";
-        a ~service:Services.source_code [pcdata "Belenios"] ();
+        a ~service:S.source_code [pcdata "Belenios"] ();
         pcdata ".";
       ]
      ]))
@@ -86,14 +88,14 @@ let base ~auth_systems ~title ~content =
 let format_one_featured_election e =
   li [
     h3 [
-      a ~service:Services.(preapply_uuid election_index e)
+      a ~service:(Services.preapply_uuid S.election_index e)
         [pcdata e.e_name] ();
     ];
     p [pcdata e.e_description];
   ]
 
 let index ~auth_systems ~featured =
-  lwt user = Eliom_reference.get Services.user in
+  lwt user = Eliom_reference.get Auth_common.user in
   let featured_box = match featured with
     | _::_ ->
       div [
@@ -175,9 +177,9 @@ let make_button ~service contents =
     contents
 
 let election_view ~auth_systems ~election ~user =
-  let open Web_common in
+  let open Web_election in
   let params = election.election.e_params in
-  let service = Services.(election_file params ESRaw) in
+  let service = S.election_file params Services.ESRaw in
   lwt permissions =
     match election.election_web.can_vote with
       | Any ->
@@ -189,7 +191,7 @@ let election_view ~auth_systems ~election ~user =
               pcdata "Log in to check if you can vote. Alternatively, you can try to vote and log in at the last moment.";
             ]
           | Some u ->
-            lwt b = p u in
+            lwt b = p u.Auth_common.user_user in
             let can = if b then pcdata "can" else pcdata "cannot" in
             Lwt.return [
               pcdata "You ";
@@ -222,15 +224,15 @@ let election_view ~auth_systems ~election ~user =
         pcdata "Election data: ";
         a ~service [ pcdata "parameters" ] ();
         pcdata ", ";
-        a ~service:Services.(election_file params ESCreds) [
+        a ~service:(S.election_file params Services.ESCreds) [
           pcdata "public credentials"
         ] ();
         pcdata ", ";
-        a ~service:Services.(election_file params ESKeys) [
+        a ~service:(S.election_file params Services.ESKeys) [
           pcdata "trustee public keys"
         ] ();
         pcdata ", ";
-        a ~service:Services.(election_file params ESBallots) [
+        a ~service:(S.election_file params Services.ESBallots) [
           pcdata "ballots";
         ] ();
         pcdata ".";
@@ -247,11 +249,11 @@ let election_view ~auth_systems ~election ~user =
     div [
       div [
         make_button
-          ~service:(Services.(preapply_uuid election_vote params))
+          ~service:(Services.preapply_uuid S.election_vote params)
           "Go to the booth";
         pcdata " or ";
         make_button
-          ~service:(Services.(preapply_uuid election_cast params))
+          ~service:(Services.preapply_uuid S.election_cast params)
           "Submit a raw ballot";
       ];
     ];
@@ -261,9 +263,9 @@ let election_view ~auth_systems ~election ~user =
   base ~auth_systems ~title:params.e_name ~content
 
 let election_cast_raw ~election =
-  let open Web_common in
+  let open Web_election in
   let params = election.election.e_params in
-  let form_rawballot = post_form ~service:Services.election_cast_post
+  let form_rawballot = post_form ~service:S.election_cast_post
     (fun (name, _) ->
       [
         div [pcdata "Please paste your raw ballot in JSON format in the following box:"];
@@ -272,7 +274,7 @@ let election_cast_raw ~election =
       ]
     ) params.e_uuid
   in
-  let form_upload = post_form ~service:Services.election_cast_post
+  let form_upload = post_form ~service:S.election_cast_post
     (fun (_, name) ->
       [
         div [pcdata "Alternatively, you can also upload a file containing your ballot:"];
@@ -294,7 +296,7 @@ let election_cast_raw ~election =
   base ~title:params.e_name ~content
 
 let ballot_received ~election ~confirm ~user ~can_vote =
-  let open Web_common in
+  let open Web_election in
   let params = election.election.e_params in
   let name = params.e_name in
   let user_div = match user with
@@ -327,7 +329,7 @@ let ballot_received ~election ~confirm ~user ~can_vote =
     ];
     user_div;
     p [
-      a ~service:(Services.(preapply_uuid election_index params)) [
+      a ~service:(Services.preapply_uuid S.election_index params) [
         pcdata "Go back to election"
       ] ();
       pcdata ".";
@@ -336,7 +338,7 @@ let ballot_received ~election ~confirm ~user ~can_vote =
   base ~title:name ~content
 
 let do_cast_ballot ~election ~result =
-  let params = election.Web_common.election.e_params in
+  let params = election.Web_election.election.e_params in
   let name = params.e_name in
   let content = [
     h1 [ pcdata name ];
@@ -349,7 +351,7 @@ let do_cast_ballot ~election ~result =
       );
     ];
     p [
-      a ~service:(Services.(preapply_uuid election_index params)) [
+      a ~service:(Services.preapply_uuid S.election_index params) [
         pcdata "Go back to election"
       ] ();
       pcdata ".";
@@ -358,8 +360,8 @@ let do_cast_ballot ~election ~result =
   base ~title:name ~content
 
 let election_update_credential ~election =
-  let params = election.Web_common.election.e_params in
-  let form = post_form ~service:Services.election_update_credential
+  let params = election.Web_election.election.e_params in
+  let form = post_form ~service:S.election_update_credential
     (fun (old, new_) ->
       [
         div [
@@ -394,3 +396,5 @@ the hash of a credential, run the following command:";
     form;
   ] in
   base ~title:params.e_name ~content
+
+end

@@ -19,61 +19,28 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Util
-open Serializable_t
-open Eliom_service
-open Eliom_parameter
+type user = {
+  user_type : string;
+  user_name : string;
+}
 
-let ballot = Eliom_reference.eref
-  ~scope:Eliom_common.default_session_scope
-  (None : string option)
+type logged_user = {
+  user_admin : bool;
+  user_user : user;
+}
 
-let uuid = Eliom_parameter.user_type
-  (fun x -> match Uuidm.of_string x with
-    | Some x -> x
-    | None -> invalid_arg "uuid")
-  Uuidm.to_string
-  "uuid"
+val string_of_user : user -> string
+val user : logged_user option Eliom_reference.eref
 
-type election_file =
-  | ESRaw
-  | ESKeys
-  | ESCreds
-  | ESBallots
-  | ESRecords
+val logout :
+  (unit, unit,
+   [> `Attached of
+        ([> `Internal of [> `Service ] ], [> `Get ])
+        Eliom_service.a_s ],
+   [ `WithoutSuffix ], unit, unit,
+   [< Eliom_service.registrable > `Registrable ], 'a)
+  Eliom_service.service
 
-let election_file_of_string = function
-  | "election.json" -> ESRaw
-  | "public_keys.jsons" -> ESKeys
-  | "public_creds.txt" -> ESCreds
-  | "ballots.jsons" -> ESBallots
-  | "records" -> ESRecords
-  | x -> invalid_arg ("election_dir_item: " ^ x)
+open Web_signatures
 
-let string_of_election_file = function
-  | ESRaw -> "election.json"
-  | ESKeys -> "public_keys.jsons"
-  | ESCreds -> "public_creds.txt"
-  | ESBallots -> "ballots.jsons"
-  | ESRecords -> "records"
-
-let election_update_credential_form = service
-  ~path:["election"; "update-cred"]
-  ~get_params:uuid
-  ()
-
-let get_randomness = service
-  ~path:["get-randomness"]
-  ~get_params:unit
-  ()
-
-let preapply_uuid s e = Eliom_service.preapply s e.e_uuid
-
-type savable_service =
-  | Home
-  | Cast of Uuidm.t
-  | Election of Uuidm.t
-
-let saved_service = Eliom_reference.eref
-  ~scope:Eliom_common.default_session_scope
-  Home
+module Make (C : AUTH_CONFIG) (S : MAIN_SERVICES) (T : TEMPLATES) : AUTH_SERVICES

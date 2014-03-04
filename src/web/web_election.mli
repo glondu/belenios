@@ -19,61 +19,53 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Util
+open Serializable_builtin_t
 open Serializable_t
-open Eliom_service
-open Eliom_parameter
 
-let ballot = Eliom_reference.eref
-  ~scope:Eliom_common.default_session_scope
-  (None : string option)
+type acl =
+  | Any
+  | Restricted of (Auth_common.user -> bool Lwt.t)
 
-let uuid = Eliom_parameter.user_type
-  (fun x -> match Uuidm.of_string x with
-    | Some x -> x
-    | None -> invalid_arg "uuid")
-  Uuidm.to_string
-  "uuid"
+type election_web = {
+  params_fname : string;
+  public_keys_fname : string;
+  featured_p : bool;
+  can_read : acl;
+  can_vote : acl;
+}
 
-type election_file =
-  | ESRaw
-  | ESKeys
-  | ESCreds
-  | ESBallots
-  | ESRecords
+module type WEB_BALLOT_BOX = sig
+  module Ballots : Signatures.MONADIC_MAP_RO
+    with type 'a m = 'a Lwt.t
+    and type elt = string
+    and type key = string
+  module Records : Signatures.MONADIC_MAP_RO
+    with type 'a m = 'a Lwt.t
+    and type elt = Serializable_builtin_t.datetime * string
+    and type key = string
 
-let election_file_of_string = function
-  | "election.json" -> ESRaw
-  | "public_keys.jsons" -> ESKeys
-  | "public_creds.txt" -> ESCreds
-  | "ballots.jsons" -> ESBallots
-  | "records" -> ESRecords
-  | x -> invalid_arg ("election_dir_item: " ^ x)
+  val cast : string -> string * datetime -> string Lwt.t
+  val inject_creds : Util.SSet.t -> unit Lwt.t
+  val extract_creds : unit -> Util.SSet.t Lwt.t
+  val update_cred : old:string -> new_:string -> unit Lwt.t
+end
 
-let string_of_election_file = function
-  | ESRaw -> "election.json"
-  | ESKeys -> "public_keys.jsons"
-  | ESCreds -> "public_creds.txt"
-  | ESBallots -> "ballots.jsons"
-  | ESRecords -> "records"
+module type WEB_ELECTION_BUNDLE =
+  Signatures.ELECTION_BUNDLE with type 'a E.m = 'a Lwt.t
 
-let election_update_credential_form = service
-  ~path:["election"; "update-cred"]
-  ~get_params:uuid
-  ()
+module type WEB_BALLOT_BOX_BUNDLE = sig
+  include WEB_ELECTION_BUNDLE
+  module B : WEB_BALLOT_BOX
+end
 
-let get_randomness = service
-  ~path:["get-randomness"]
-  ~get_params:unit
-  ()
+type 'a web_election = private {
+  modules : (module WEB_BALLOT_BOX_BUNDLE with type elt = 'a);
+  election : 'a Signatures.election;
+  election_web : election_web;
+}
 
-let preapply_uuid s e = Eliom_service.preapply s e.e_uuid
-
-type savable_service =
-  | Home
-  | Cast of Uuidm.t
-  | Election of Uuidm.t
-
-let saved_service = Eliom_reference.eref
-  ~scope:Eliom_common.default_session_scope
-  Home
+val make_web_election :
+  string ->
+  Serializable_t.metadata option ->
+  election_web ->
+  Z.t web_election

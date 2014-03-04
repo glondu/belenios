@@ -62,3 +62,6 @@ val pbkdf2 :
   string -> string
 
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
+
+module SSet : Set.S with type elt = string
+module SMap : Map.S with type key = string
