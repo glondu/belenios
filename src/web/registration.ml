@@ -345,11 +345,13 @@ module S = struct
 
   let set s =
     Eliom_reference.set saved_service s
+
+  include Auth_common.Make (struct end)
 end
 
 module T = Templates.Make (S)
 
-module A = Auth_common.Make (struct
+module A = Auth_common.Register (struct
   let enable_cas = !enable_cas
   let cas_server = !cas_server
   let password_db = password_db
@@ -572,7 +574,7 @@ let () = Eliom_registration.Redirection.register
        Eliom_reference.set Services.saved_service (Services.Cast uuid) >>
        Eliom_reference.set Services.ballot (Some ballot) >>
        match user with
-         | None -> return A.login_default
+         | None -> return (Eliom_service.preapply S.login None)
          | Some u -> S.get ()
      )
   )

@@ -32,7 +32,7 @@ let welcome_message = "Welcome!"
 let format_user u =
   em [pcdata (Auth_common.(string_of_user u.user_user))]
 
-module Make (S : Web_signatures.MAIN_SERVICES) = struct
+module Make (S : Web_signatures.ALL_SERVICES) = struct
 
 let base ~auth_systems ~title ~content =
   lwt user = Eliom_reference.get Auth_common.user in
@@ -54,7 +54,7 @@ let base ~auth_systems ~title ~content =
                   pcdata ".";
                 ];
                 div [
-                  a ~service:Auth_common.logout [pcdata "Log out"] ();
+                  a ~service:S.logout [pcdata "Log out"] ();
                   pcdata ".";
                 ];
               ]
@@ -64,6 +64,7 @@ let base ~auth_systems ~title ~content =
                   pcdata "Not logged in.";
                 ];
                 let auth_systems = List.map (fun (name, service) ->
+                  let service = Eliom_service.preapply S.login (Some service) in
                   a ~service [pcdata name] ()
                 ) auth_systems in
                 div (

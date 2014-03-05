@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+module type EMPTY = sig end
+
 module type MAIN_SERVICES = sig
 
   val home :
@@ -129,23 +131,31 @@ end
 
 module type AUTH_SERVICES = sig
 
-  val login_default :
+  val login :
+    (string option, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of string ] Eliom_parameter.param_name, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val logout :
     (unit, unit,
      [> `Attached of
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit, Eliom_service.registrable, 'a)
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
-  val auth_systems :
-    (string *
-     (unit, unit,
-      [> `Attached of
-           ([> `Internal of [> `Service ] ], [> `Get ])
-           Eliom_service.a_s ],
-      [ `WithoutSuffix ], unit, unit, Eliom_service.registrable, 'a)
-     Eliom_service.service)
-    list
+end
+
+
+module type AUTH_SYSTEMS = sig
+
+  val auth_systems : (string * string) list
 
 end
 
@@ -160,12 +170,7 @@ module type TEMPLATES = sig
              Eliom_parameter.param_name,
              [< Eliom_service.registrable ], 'c)
             Eliom_service.service ->
-    auth_systems:(string *
-                  (unit, unit, [< Eliom_service.get_service_kind ],
-                   [< Eliom_service.suff ], 'd, unit,
-                   [< Eliom_service.registrable ], 'e)
-                  Eliom_service.service)
-                 list ->
+    auth_systems:(string * string) list ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val password_login :
@@ -177,12 +182,13 @@ module type TEMPLATES = sig
              Eliom_parameter.param_name,
              [< Eliom_service.registrable ], 'c)
             Eliom_service.service ->
-    auth_systems:(string *
-                  (unit, unit, [< Eliom_service.get_service_kind ],
-                   [< Eliom_service.suff ], 'd, unit,
-                   [< Eliom_service.registrable ], 'e)
-                  Eliom_service.service)
-                 list ->
+    auth_systems:(string * string) list ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
+end
+
+
+module type ALL_SERVICES = sig
+  include MAIN_SERVICES
+  include AUTH_SERVICES
 end

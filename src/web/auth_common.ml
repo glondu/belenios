@@ -40,11 +40,6 @@ let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
   None
 
-let logout = Eliom_service.service
-  ~path:["logout"]
-  ~get_params:Eliom_parameter.unit
-  ()
-
 let create_string_login ~fallback ~post_params =
   Eliom_service.post_coservice
     ~csrf_safe:true
@@ -53,7 +48,21 @@ let create_string_login ~fallback ~post_params =
 
 (* TODO: make the authentication system more flexible *)
 
-module Make (C : AUTH_CONFIG) (S : MAIN_SERVICES) (T : TEMPLATES) = struct
+module Make (X : EMPTY) = struct
+
+  let login = Eliom_service.service
+    ~path:["login"]
+    ~get_params:Eliom_parameter.(opt (string "service"))
+    ()
+
+  let logout = Eliom_service.service
+    ~path:["logout"]
+    ~get_params:Eliom_parameter.unit
+    ()
+
+end
+
+module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
 
   let login_dummy = Eliom_service.service
     ~path:["login-dummy"]
@@ -99,11 +108,9 @@ module Make (C : AUTH_CONFIG) (S : MAIN_SERVICES) (T : TEMPLATES) = struct
     else Eliom_service.preapply login_cas None
 
   let auth_systems =
-    (if C.enable_cas then [
-      "CAS", Eliom_service.preapply login_cas None
-    ] else []) @
-    (if C.password_db <> None then ["password", login_password] else []) @
-    (if C.enable_dummy then ["dummy", login_dummy] else [])
+    (if C.enable_cas then ["CAS", "cas"] else []) @
+    (if C.password_db <> None then ["password", "password"] else []) @
+    (if C.enable_dummy then ["dummy", "dummy"] else [])
 
   let () = Eliom_registration.Html5.register
     ~service:login_dummy
@@ -242,8 +249,17 @@ module Make (C : AUTH_CONFIG) (S : MAIN_SERVICES) (T : TEMPLATES) = struct
         Lwt.return (Eliom_service.preapply cas_login uri)
     )
 
-  let () = Eliom_registration.Redirection.register
-    ~service:logout
+  let () = Eliom_registration.Redirection.register ~service:S.login
+    (fun service () ->
+      match service with
+      | None -> Lwt.return login_default
+      | Some "dummy" -> Lwt.return login_dummy
+      | Some "cas" -> Lwt.return (Eliom_service.preapply login_cas None)
+      | Some "password" -> Lwt.return login_password
+      | _ -> fail_http 404
+    )
+
+  let () = Eliom_registration.Redirection.register ~service:S.logout
     (fun () () ->
       lwt u = Eliom_reference.get user in
       (* should ballot be unset here or not? *)

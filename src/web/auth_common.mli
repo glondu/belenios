@@ -32,15 +32,7 @@ type logged_user = {
 val string_of_user : user -> string
 val user : logged_user option Eliom_reference.eref
 
-val logout :
-  (unit, unit,
-   [> `Attached of
-        ([> `Internal of [> `Service ] ], [> `Get ])
-        Eliom_service.a_s ],
-   [ `WithoutSuffix ], unit, unit,
-   [< Eliom_service.registrable > `Registrable ], 'a)
-  Eliom_service.service
-
 open Web_signatures
 
-module Make (C : AUTH_CONFIG) (S : MAIN_SERVICES) (T : TEMPLATES) : AUTH_SERVICES
+module Make (X : EMPTY) : AUTH_SERVICES
+module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) : AUTH_SYSTEMS
