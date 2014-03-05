@@ -367,7 +367,7 @@ let () =
       Eliom_reference.unset Services.ballot >>
       Eliom_reference.unset Services.saved_service >>
       lwt featured = get_featured_elections () in
-      A.(T.index ~auth_systems ~featured)
+      T.index ~featured
     )
   | Some uuid -> Eliom_registration.Redirection.register ~service:S.home
     (fun () () ->
@@ -492,7 +492,7 @@ let () = Eliom_registration.Html5.register
      (fun uuid election user () ->
        Eliom_reference.unset Services.ballot >>
        Eliom_reference.set Services.saved_service (Services.Election uuid) >>
-       A.(T.election_view ~auth_systems ~election ~user)
+       T.election_view ~election ~user
      )
   )
 
@@ -528,7 +528,7 @@ let do_cast election uuid () =
                 with Error e -> return (`Error e)
               in
               Eliom_reference.unset Services.ballot >>
-              A.(T.do_cast_ballot ~auth_systems ~election ~result)
+              T.do_cast_ballot ~election ~result
             ) else forbidden ()
           | None -> forbidden ()
       end
@@ -547,7 +547,7 @@ let ballot_received uuid election user =
     in service
   in
   lwt can_vote = check_acl can_vote election.election_web user in
-  A.(T.ballot_received ~auth_systems ~election ~confirm ~user ~can_vote)
+  T.ballot_received ~election ~confirm ~user ~can_vote
 
 
 let () = Eliom_registration.Html5.register
@@ -556,7 +556,7 @@ let () = Eliom_registration.Html5.register
      (fun uuid election user () ->
        match_lwt Eliom_reference.get Services.ballot with
          | Some _ -> ballot_received uuid election user
-         | None -> A.(T.election_cast_raw ~auth_systems ~election)
+         | None -> T.election_cast_raw ~election
      )
   )
 
@@ -586,7 +586,7 @@ let () = Eliom_registration.Html5.register
     match user with
     | Some u when u.Auth_common.user_admin ->
       lwt election = get_election_by_uuid uuid in
-      A.(T.election_update_credential ~auth_systems ~election)
+      T.election_update_credential ~election
     | _ -> forbidden ()
   )
 

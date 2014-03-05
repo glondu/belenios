@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Web_signatures
+
 type user = {
   user_type : string;
   user_name : string;
@@ -27,12 +29,13 @@ type user = {
 type logged_user = {
   user_admin : bool;
   user_user : user;
+  user_logout : (module LOGOUT_HANDLER);
 }
 
 val string_of_user : user -> string
 val user : logged_user option Eliom_reference.eref
 
-open Web_signatures
+val get_auth_systems : unit -> string list
 
 module Make (X : EMPTY) : AUTH_SERVICES
-module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) : AUTH_SYSTEMS
+module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) : EMPTY

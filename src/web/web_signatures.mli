@@ -153,13 +153,6 @@ module type AUTH_SERVICES = sig
 end
 
 
-module type AUTH_SYSTEMS = sig
-
-  val auth_systems : (string * string) list
-
-end
-
-
 module type TEMPLATES = sig
 
   val string_login :
@@ -170,7 +163,6 @@ module type TEMPLATES = sig
              Eliom_parameter.param_name,
              [< Eliom_service.registrable ], 'c)
             Eliom_service.service ->
-    auth_systems:(string * string) list ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val password_login :
@@ -182,7 +174,6 @@ module type TEMPLATES = sig
              Eliom_parameter.param_name,
              [< Eliom_service.registrable ], 'c)
             Eliom_service.service ->
-    auth_systems:(string * string) list ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 end
@@ -191,4 +182,16 @@ end
 module type ALL_SERVICES = sig
   include MAIN_SERVICES
   include AUTH_SERVICES
+end
+
+
+module type LOGOUT_HANDLER = sig
+  val logout :
+    unit ->
+    (unit, unit,
+     [> `Attached of
+          ([> `External | `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit, Eliom_service.registrable, 'a)
+    Eliom_service.service Lwt.t
 end

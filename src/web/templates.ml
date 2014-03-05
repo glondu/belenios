@@ -34,7 +34,7 @@ let format_user u =
 
 module Make (S : Web_signatures.ALL_SERVICES) = struct
 
-let base ~auth_systems ~title ~content =
+let base ~title ~content =
   lwt user = Eliom_reference.get Auth_common.user in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata title)) [])
@@ -63,10 +63,10 @@ let base ~auth_systems ~title ~content =
                 div [
                   pcdata "Not logged in.";
                 ];
-                let auth_systems = List.map (fun (name, service) ->
-                  let service = Eliom_service.preapply S.login (Some service) in
+                let auth_systems = List.map (fun name ->
+                  let service = Eliom_service.preapply S.login (Some name) in
                   a ~service [pcdata name] ()
-                ) auth_systems in
+                ) (Auth_common.get_auth_systems ()) in
                 div (
                   [ pcdata "Login: " ] @
                   list_join (pcdata ", ") auth_systems @
@@ -95,7 +95,7 @@ let format_one_featured_election e =
     p [pcdata e.e_description];
   ]
 
-let index ~auth_systems ~featured =
+let index ~featured =
   lwt user = Eliom_reference.get Auth_common.user in
   let featured_box = match featured with
     | _::_ ->
@@ -115,7 +115,7 @@ let index ~auth_systems ~featured =
       featured_box;
     ];
   ] in
-  base ~auth_systems ~title:site_title ~content
+  base ~title:site_title ~content
 
 let string_login ~kind ~service =
   let title, field_name, input_type = match kind with
@@ -177,7 +177,7 @@ let make_button ~service contents =
     uri
     contents
 
-let election_view ~auth_systems ~election ~user =
+let election_view ~election ~user =
   let open Web_election in
   let params = election.election.e_params in
   let service = S.election_file params Services.ESRaw in
@@ -261,7 +261,7 @@ let election_view ~auth_systems ~election ~user =
     br ();
     audit_info;
   ] in
-  base ~auth_systems ~title:params.e_name ~content
+  base ~title:params.e_name ~content
 
 let election_cast_raw ~election =
   let open Web_election in
