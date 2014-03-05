@@ -187,19 +187,19 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
   let () = if C.enable_cas then (
     let cas_login = Eliom_service.external_service
       ~prefix:C.cas_server
-      ~path:["cas"; "login"]
+      ~path:["login"]
       ~get_params:Eliom_parameter.(string "service")
       ()
     in
     let cas_logout = Eliom_service.external_service
       ~prefix:C.cas_server
-      ~path:["cas"; "logout"]
+      ~path:["logout"]
       ~get_params:Eliom_parameter.(string "service")
       ()
     in
     let cas_validate = Eliom_service.external_service
       ~prefix:C.cas_server
-      ~path:["cas"; "validate"]
+      ~path:["validate"]
       ~get_params:Eliom_parameter.(string "service" ** string "ticket")
       ()
     in
