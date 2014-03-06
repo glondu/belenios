@@ -31,7 +31,7 @@ type user = {
 type logged_user = {
   user_admin : bool;
   user_user : user;
-  user_logout : (module LOGOUT_HANDLER);
+  user_logout : (module CONT_SERVICE);
 }
 
 let string_of_user {user_type; user_name} =
@@ -106,18 +106,18 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
           let module L = (val u.user_logout) in
           security_log (fun () ->
             string_of_user u.user_user ^ " logged out"
-          ) >> L.logout ()
+          ) >> L.cont ()
         | _ -> S.get ()
     )
 
-  module DefaultLogout : LOGOUT_HANDLER = struct
-    let logout = S.get
+  module DefaultLogout : CONT_SERVICE = struct
+    let cont = S.get
   end
 
   let () = if C.enable_dummy then (
     let user_admin = false in
     let user_type = "dummy" in
-    let user_logout = (module DefaultLogout : LOGOUT_HANDLER) in
+    let user_logout = (module DefaultLogout : CONT_SERVICE) in
     let service = Eliom_service.service
       ~path:["login-dummy"]
       ~get_params:Eliom_parameter.unit
@@ -154,7 +154,7 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
     | Some db ->
       let user_admin = false in
       let user_type = "password" in
-      let user_logout = (module DefaultLogout : LOGOUT_HANDLER) in
+      let user_logout = (module DefaultLogout : CONT_SERVICE) in
       let service = Eliom_service.service
         ~path:["login-password"]
         ~get_params:Eliom_parameter.unit
@@ -244,8 +244,8 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
                           let user_name = String.sub info (i+1) (j-i-1) in
                           let user_type = "cas" in
                           let user_user = {user_type; user_name} in
-                          let module L : LOGOUT_HANDLER = struct
-                            let logout () =
+                          let module L : CONT_SERVICE = struct
+                            let cont () =
                               lwt service = S.get () in
                               let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
                               let uri = C.rewrite_prefix uri in
@@ -254,7 +254,7 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
                               ) >>
                               Lwt.return (Eliom_service.preapply cas_logout uri)
                           end in
-                          let user_logout = (module L : LOGOUT_HANDLER) in
+                          let user_logout = (module L : CONT_SERVICE) in
                           let user_admin = false in
                           security_log (fun () ->
                             user_name ^ " successfully logged in using CAS"
@@ -302,7 +302,7 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
         (fun () user_name ->
           if sha256_hex user_name = C.admin_hash then (
             let user_type = "password" in
-            let user_logout = (module DefaultLogout : LOGOUT_HANDLER) in
+            let user_logout = (module DefaultLogout : CONT_SERVICE) in
             let user_user = {user_type; user_name} in
             let user_admin = true in
             Eliom_reference.set user (Some {user_admin; user_user; user_logout}) >>

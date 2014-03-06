@@ -185,8 +185,8 @@ module type ALL_SERVICES = sig
 end
 
 
-module type LOGOUT_HANDLER = sig
-  val logout :
+module type CONT_SERVICE = sig
+  val cont :
     unit ->
     (unit, unit,
      [> `Attached of

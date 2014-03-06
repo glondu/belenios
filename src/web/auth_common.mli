@@ -29,7 +29,7 @@ type user = {
 type logged_user = {
   user_admin : bool;
   user_user : user;
-  user_logout : (module LOGOUT_HANDLER);
+  user_logout : (module CONT_SERVICE);
 }
 
 val string_of_user : user -> string
