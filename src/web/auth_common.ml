@@ -43,20 +43,6 @@ let user = Eliom_reference.eref
 
 (* TODO: make the authentication system more flexible *)
 
-module Make (X : EMPTY) = struct
-
-  let login = Eliom_service.service
-    ~path:["login"]
-    ~get_params:Eliom_parameter.(opt (string "service"))
-    ()
-
-  let logout = Eliom_service.service
-    ~path:["logout"]
-    ~get_params:Eliom_parameter.unit
-    ()
-
-end
-
 let auth_system_map = ref []
 
 let register_auth_system name service =
@@ -71,33 +57,53 @@ let get_default_auth_system () =
   | [] -> fail_http 404
   | (name, _) :: _ -> Lwt.return name
 
-module Register (S : ALL_SERVICES) = struct
+module Make (X : EMPTY) = struct
 
-  let () = Eliom_registration.Redirection.register ~service:S.login
-    (fun service () ->
-      lwt x = match service with
-        | None -> get_default_auth_system ()
-        | Some x -> Lwt.return x
-      in
-      try
-        let auth_system = List.assoc x !auth_system_map in
-        let module A = (val auth_system : AUTH_SYSTEM) in
-        Lwt.return A.service
-      with Not_found -> fail_http 404
-    )
+  module Services : AUTH_SERVICES = struct
 
-  let () = Eliom_registration.Redirection.register ~service:S.logout
-    (fun () () ->
-      lwt u = Eliom_reference.get user in
-      (* should ballot be unset here or not? *)
-      Eliom_reference.unset user >>
-      match u with
-        | Some u ->
-          let module L = (val u.user_logout) in
-          security_log (fun () ->
-            string_of_user u.user_user ^ " logged out"
-          ) >> L.cont ()
-        | _ -> S.get ()
-    )
+    let login = Eliom_service.service
+      ~path:["login"]
+      ~get_params:Eliom_parameter.(opt (string "service"))
+      ()
+
+    let logout = Eliom_service.service
+      ~path:["logout"]
+      ~get_params:Eliom_parameter.unit
+      ()
+
+  end
+
+  module Register (C : CONT_SERVICE) : EMPTY = struct
+
+    let () = Eliom_registration.Redirection.register
+      ~service:Services.login
+      (fun service () ->
+        lwt x = match service with
+          | None -> get_default_auth_system ()
+          | Some x -> Lwt.return x
+        in
+        try
+          let auth_system = List.assoc x !auth_system_map in
+          let module A = (val auth_system : AUTH_SYSTEM) in
+          Lwt.return A.service
+        with Not_found -> fail_http 404
+      )
+
+    let () = Eliom_registration.Redirection.register
+      ~service:Services.logout
+      (fun () () ->
+        lwt u = Eliom_reference.get user in
+        (* should ballot be unset here or not? *)
+        Eliom_reference.unset user >>
+        match u with
+          | Some u ->
+            let module L = (val u.user_logout) in
+            security_log (fun () ->
+              string_of_user u.user_user ^ " logged out"
+            ) >> L.cont ()
+          | _ -> C.cont ()
+      )
+
+  end
 
 end

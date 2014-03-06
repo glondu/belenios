@@ -255,6 +255,8 @@ let if_eligible acl f uuid x =
   lwt b = check_acl acl election.Web_election.election_web user in
   if b then f uuid election user x else forbidden ()
 
+module A = Auth_common.Make (struct end)
+
 module S = struct
   open Eliom_service
   open Eliom_parameter
@@ -339,8 +341,10 @@ module S = struct
   let set s =
     Eliom_reference.set saved_service s
 
-  include Auth_common.Make (struct end)
+  include A.Services
 end
+
+let () = let module X = A.Register (struct let cont = S.get end) in ()
 
 module T = Templates.Make (S)
 
@@ -351,8 +355,6 @@ module C = struct
   let enable_dummy = !enable_dummy
   let rewrite_prefix = rewrite_prefix
 end
-
-module A = Auth_common.Register (S)
 
 let () =
   if C.enable_dummy then let module X = Auth_dummy.Register (S) (T) in ()
