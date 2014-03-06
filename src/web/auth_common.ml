@@ -41,12 +41,6 @@ let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
   None
 
-let create_string_login ~fallback ~post_params =
-  Eliom_service.post_coservice
-    ~csrf_safe:true
-    ~csrf_scope:Eliom_common.default_session_scope
-    ~fallback ~post_params ()
-
 (* TODO: make the authentication system more flexible *)
 
 module Make (X : EMPTY) = struct
@@ -77,7 +71,7 @@ let get_default_auth_system () =
   | [] -> fail_http 404
   | (name, _) :: _ -> Lwt.return name
 
-module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
+module Register (S : ALL_SERVICES) = struct
 
   let () = Eliom_registration.Redirection.register ~service:S.login
     (fun service () ->
@@ -104,42 +98,6 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
             string_of_user u.user_user ^ " logged out"
           ) >> L.cont ()
         | _ -> S.get ()
-    )
-
-  module DefaultLogout : CONT_SERVICE = struct
-    let cont = S.get
-  end
-
-  let login_admin = Eliom_service.service
-    ~path:["login-admin"]
-    ~get_params:Eliom_parameter.unit
-    ()
-
-  let () = Eliom_registration.Html5.register
-    ~service:login_admin
-    (fun () () ->
-      let service = create_string_login
-        ~fallback:login_admin
-        ~post_params:Eliom_parameter.(string "password")
-      in
-      let () = Eliom_registration.Redirection.register
-        ~service
-        ~scope:Eliom_common.default_session_scope
-        (fun () user_name ->
-          if sha256_hex user_name = C.admin_hash then (
-            let user_type = "password" in
-            let user_logout = (module DefaultLogout : CONT_SERVICE) in
-            let user_user = {user_type; user_name} in
-            let user_admin = true in
-            Eliom_reference.set user (Some {user_admin; user_user; user_logout}) >>
-            security_log (fun () ->
-              "admin successfully logged in"
-            ) >>
-            S.get ()
-          ) else forbidden ()
-        )
-      in
-      T.string_login ~service ~kind:`Admin
     )
 
 end

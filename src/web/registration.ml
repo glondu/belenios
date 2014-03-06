@@ -53,7 +53,6 @@ let enable_dummy = ref false
 let password_db_fname = ref None
 let enable_cas = ref false
 let cas_server = ref "https://cas.example.org"
-let admin_hash = ref ""
 let main_election = ref None
 let rewrite_src = ref None
 let rewrite_dst = ref None
@@ -105,12 +104,6 @@ let () =
       ~init:(fun () -> enable_cas := true)
       ~attributes:[
         attribute ~name:"server" ~obligatory:true (fun s -> cas_server := s);
-      ] ();
-    element
-      ~name:"admin"
-      ~obligatory:true
-      ~attributes:[
-        attribute ~name:"hash" ~obligatory:true (fun s -> admin_hash := s);
       ] ();
     element
       ~name:"main-election"
@@ -356,11 +349,10 @@ module C = struct
   let cas_server = !cas_server
   let password_db = password_db
   let enable_dummy = !enable_dummy
-  let admin_hash = !admin_hash
   let rewrite_prefix = rewrite_prefix
 end
 
-module A = Auth_common.Register (C) (S) (T)
+module A = Auth_common.Register (S)
 
 let () =
   if C.enable_dummy then let module X = Auth_dummy.Register (S) (T) in ()
@@ -391,7 +383,6 @@ let () =
 
 let can_read x u = x.Web_election.can_read
 let can_vote x u = x.Web_election.can_vote
-let can_admin x u = u.Auth_common.user_admin
 
 let () = Eliom_registration.File.register
   ~service:S.source_code

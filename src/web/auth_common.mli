@@ -39,4 +39,4 @@ val get_auth_systems : unit -> string list
 val register_auth_system : string -> (module AUTH_SYSTEM) -> unit
 
 module Make (X : EMPTY) : AUTH_SERVICES
-module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) : EMPTY
+module Register (S : ALL_SERVICES) : EMPTY
