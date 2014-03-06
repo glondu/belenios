@@ -195,3 +195,14 @@ module type LOGOUT_HANDLER = sig
      [ `WithoutSuffix ], unit, unit, Eliom_service.registrable, 'a)
     Eliom_service.service Lwt.t
 end
+
+module type AUTH_SYSTEM = sig
+  val service :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     Eliom_service.registrable, 'a)
+    Eliom_service.service
+end

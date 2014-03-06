@@ -36,6 +36,7 @@ val string_of_user : user -> string
 val user : logged_user option Eliom_reference.eref
 
 val get_auth_systems : unit -> string list
+val register_auth_system : string -> (module AUTH_SYSTEM) -> unit
 
 module Make (X : EMPTY) : AUTH_SERVICES
 module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) : EMPTY

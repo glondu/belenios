@@ -89,7 +89,10 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
         | None -> get_default_auth_system ()
         | Some x -> Lwt.return x
       in
-      try Lwt.return (List.assoc x !auth_system_map)
+      try
+        let auth_system = List.assoc x !auth_system_map in
+        let module A = (val auth_system : AUTH_SYSTEM) in
+        Lwt.return A.service
       with Not_found -> fail_http 404
     )
 
@@ -140,7 +143,10 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
             ) >> S.get ())
         in T.string_login ~service ~kind:`Dummy
       )
-    in register_auth_system "dummy" service
+    in
+    let module A = struct let service = service end in
+    let auth_system = (module A : AUTH_SYSTEM) in
+    register_auth_system "dummy" auth_system
   )
 
   let () = match C.password_db with
@@ -182,7 +188,10 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
               ) else forbidden ())
           in T.password_login ~service
         )
-      in register_auth_system "password" service
+      in
+      let module A = struct let service = service end in
+      let auth_system = (module A : AUTH_SYSTEM) in
+      register_auth_system "password" auth_system
 
   let () = if C.enable_cas then (
     let cas_login = Eliom_service.external_service
@@ -270,7 +279,9 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) (T : TEMPLATES) = struct
       )
     in
     let service = Eliom_service.preapply login_cas None in
-    register_auth_system "CAS" service
+    let module A = struct let service = service end in
+    let auth_system = (module A : AUTH_SYSTEM) in
+    register_auth_system "CAS" auth_system
   )
 
   let login_admin = Eliom_service.service
