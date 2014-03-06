@@ -351,14 +351,27 @@ end
 
 module T = Templates.Make (S)
 
-module A = Auth_common.Register (struct
+module C = struct
   let enable_cas = !enable_cas
   let cas_server = !cas_server
   let password_db = password_db
   let enable_dummy = !enable_dummy
   let admin_hash = !admin_hash
   let rewrite_prefix = rewrite_prefix
-end) (S) (T)
+end
+
+module A = Auth_common.Register (C) (S) (T)
+
+let () =
+  if C.enable_dummy then let module X = Auth_dummy.Register (S) (T) in ()
+
+let () =
+  match C.password_db with
+  | Some _ -> let module X = Auth_password.Register (C) (S) (T) in ()
+  | None -> ()
+
+let () =
+  if C.enable_cas then let module X = Auth_cas.Register (C) (S) in ()
 
 let () =
   match main_election with

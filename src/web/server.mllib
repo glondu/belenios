@@ -3,6 +3,9 @@ Serializable_builtin_j
 Serializable_j
 Web_common
 Auth_common
+Auth_dummy
+Auth_password
+Auth_cas
 Web_election
 Election
 Services
