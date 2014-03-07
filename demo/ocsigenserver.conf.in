@@ -35,8 +35,8 @@
         <static dir="_SRCDIR_/ext/booth" />
       </site>
       <eliom module="_build/src/web/server.cma">
-        <enable-dummy/>
-        <enable-password db="demo/data/password_db.csv"/>
+        <auth-dummy name="demo"/>
+        <auth-password name="local" db="demo/data/password_db.csv"/>
         <source file="../belenios.tar.gz"/>
         <main-election uuid="6d122f00-2650-4de8-87de-30037a21f943"/>
         <log file="_RUNDIR_/log/security.log"/>

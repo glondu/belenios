@@ -66,7 +66,7 @@ let base ~title ~content =
                 let auth_systems = List.map (fun name ->
                   let service = Eliom_service.preapply S.login (Some name) in
                   a ~service [pcdata name] ()
-                ) (Auth_common.get_auth_systems ()) in
+                ) (S.get_auth_systems ()) in
                 div (
                   [ pcdata "Login: " ] @
                   list_join (pcdata ", ") auth_systems @

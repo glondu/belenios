@@ -27,44 +27,50 @@ let next_lf str i =
   try Some (String.index_from str i '\n')
   with Not_found -> None
 
-module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) = struct
+module type CONFIG = sig
+  val server : string
+end
+
+module Make (C : CONFIG) (N : NAME) : AUTH_INSTANCE = struct
 
   let user_admin = false
-  let user_type = "cas"
+  let user_type = N.name
 
-  module A : AUTH_SYSTEM = struct
+  let cas_login = Eliom_service.external_service
+    ~prefix:C.server
+    ~path:["login"]
+    ~get_params:Eliom_parameter.(string "service")
+    ()
 
-    let cas_login = Eliom_service.external_service
-      ~prefix:C.cas_server
-      ~path:["login"]
-      ~get_params:Eliom_parameter.(string "service")
-      ()
+  let cas_logout = Eliom_service.external_service
+    ~prefix:C.server
+    ~path:["logout"]
+    ~get_params:Eliom_parameter.(string "service")
+    ()
 
-    let cas_logout = Eliom_service.external_service
-      ~prefix:C.cas_server
-      ~path:["logout"]
-      ~get_params:Eliom_parameter.(string "service")
-      ()
+  let cas_validate = Eliom_service.external_service
+    ~prefix:C.server
+    ~path:["validate"]
+    ~get_params:Eliom_parameter.(string "service" ** string "ticket")
+    ()
 
-    let cas_validate = Eliom_service.external_service
-      ~prefix:C.cas_server
-      ~path:["validate"]
-      ~get_params:Eliom_parameter.(string "service" ** string "ticket")
-      ()
+  let login_cas = Eliom_service.service
+    ~path:["auth"; N.name]
+    ~get_params:Eliom_parameter.(opt (string "ticket"))
+    ()
 
-    let login_cas = Eliom_service.service
-      ~path:["login-cas"]
-      ~get_params:Eliom_parameter.(opt (string "ticket"))
-      ()
+  let service = Eliom_service.preapply login_cas None
 
-    let () = Eliom_registration.Redirection.register ~service:login_cas
+  module Register (S : CONT_SERVICE) (T : TEMPLATES) = struct
+
+    let () = Eliom_registration.Redirection.register
+      ~service:login_cas
       (fun ticket () ->
         match ticket with
         | Some x ->
           let me =
-            let service = Eliom_service.preapply login_cas None in
             let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-            C.rewrite_prefix uri
+            rewrite_prefix uri
           in
           let validation =
             let service = Eliom_service.preapply cas_validate (me, x) in
@@ -85,20 +91,18 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) = struct
                           let user_user = {user_type; user_name} in
                           let module L : CONT_SERVICE = struct
                             let cont () =
-                              lwt service = S.get () in
+                              lwt service = S.cont () in
                               let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-                              let uri = C.rewrite_prefix uri in
+                              let uri = rewrite_prefix uri in
                               security_log (fun () ->
-                                string_of_user user_user ^ " logged out, redirecting to CAS"
+                                Printf.sprintf "%s logged out, redirecting to CAS [%s]"
+                                  (string_of_user user_user) C.server
                               ) >> Lwt.return (Eliom_service.preapply cas_logout uri)
                           end in
                           let user_logout = (module L : CONT_SERVICE) in
-                          security_log (fun () ->
-                            user_name ^ " successfully logged in using CAS"
-                          ) >>
                           Eliom_reference.set user
                             (Some {user_admin; user_user; user_logout}) >>
-                          S.get ()
+                          S.cont ()
                         | None -> fail_http 502
                       )
                     | "no" -> fail_http 401
@@ -109,15 +113,57 @@ module Register (C : AUTH_CONFIG) (S : ALL_SERVICES) = struct
             | None -> fail_http 502
           )
         | None ->
-          let service = Eliom_service.preapply login_cas None in
           let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-          let uri = C.rewrite_prefix uri in
+          let uri = rewrite_prefix uri in
           Lwt.return (Eliom_service.preapply cas_login uri)
       )
 
-    let service = Eliom_service.preapply login_cas None
-
   end
 
-  let () = register_auth_system "CAS" (module A : AUTH_SYSTEM)
 end
+
+type instance = {
+  mutable name : string option;
+  mutable server : string option;
+}
+
+let init () =
+  let instances = ref [] in
+  let current_instance = ref None in
+  let push_current loc =
+    match !current_instance with
+    | None -> ()
+    | Some {name = Some name; server = Some server} ->
+      let module C : CONFIG = struct
+        let server = server
+      end in
+      instances := (name, (module C : CONFIG)) :: !instances;
+      current_instance := None
+    | _ -> failwith ("unexpected case in auth-cas/" ^ loc)
+  in
+  let spec =
+    let open Ocsigen_extensions.Configuration in
+    [
+      let init () =
+        push_current "init";
+        current_instance := Some {name = None; server = None}
+      and attributes = [
+        attribute ~name:"name" ~obligatory:true (fun s ->
+          match !current_instance with
+          | Some ({name = None; _} as i) -> i.name <- Some s
+          | _ -> failwith "unexpected case in auth-cas/name"
+        );
+        attribute ~name:"server" ~obligatory:true (fun s ->
+          match !current_instance with
+          | Some ({server = None; _} as i) -> i.server <- Some s
+          | _ -> failwith "unexpected case in auth-cas/server"
+        );
+      ] in element ~name:"auth-cas" ~init ~attributes ();
+    ]
+  and exec ~instantiate =
+    push_current "exec";
+    List.iter (fun (name, config) ->
+      let module X = Make ((val config : CONFIG)) in
+      instantiate name (module X : AUTH_SERVICE)
+    ) !instances
+  in Auth_common.register_auth_system ~spec ~exec

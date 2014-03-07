@@ -61,3 +61,6 @@ val security_log : (unit -> string) -> unit Lwt.t
 
 val fail_http : int -> 'a Lwt.t
 val forbidden : unit -> 'a Lwt.t
+
+val rewrite_prefix : string -> string
+val set_rewrite_prefix : src:string -> dst:string -> unit

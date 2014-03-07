@@ -132,3 +132,16 @@ let fail_http status =
   )
 
 let forbidden () = fail_http 403
+
+let rewrite_fun = ref (fun x -> x)
+
+let rewrite_prefix x = !rewrite_fun x
+
+let set_rewrite_prefix ~src ~dst =
+  let nsrc = String.length src in
+  let f x =
+    let n = String.length x in
+    if n >= nsrc && String.sub x 0 nsrc = src then
+      dst ^ String.sub x nsrc (n-nsrc)
+    else x
+  in rewrite_fun := f

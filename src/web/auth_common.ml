@@ -41,25 +41,46 @@ let user = Eliom_reference.eref
   ~scope:Eliom_common.default_session_scope
   None
 
+type instantiator = string -> (module AUTH_SERVICE) -> unit
+
+let config_spec = ref []
+let config_exec = ref []
+
+let register_auth_system ~spec ~exec =
+  config_spec := spec @ !config_spec;
+  config_exec := exec :: !config_exec
+
+let get_config_spec () = !config_spec
+
 (* TODO: make the authentication system more flexible *)
-
-let auth_system_map = ref []
-
-let register_auth_system name service =
-  auth_system_map := (name, service) :: !auth_system_map
-
-let auth_systems = lazy (List.map fst !auth_system_map)
-
-let get_auth_systems () = Lazy.force auth_systems
-
-let get_default_auth_system () =
-  match !auth_system_map with
-  | [] -> fail_http 404
-  | (name, _) :: _ -> Lwt.return name
 
 module Make (X : EMPTY) = struct
 
+  let instances = Hashtbl.create 10
+  let auth_systems = ref []
+
+  let instantiate name auth =
+    if Hashtbl.mem instances name then (
+      failwith ("multiple instances with name " ^ name)
+    ) else (
+      let module N = struct let name = name end in
+      let module A = (val auth : AUTH_SERVICE) in
+      let i = (module A (N) : AUTH_INSTANCE) in
+      Hashtbl.add instances name i;
+      auth_systems := name :: !auth_systems
+    )
+
+  let () = List.iter (fun f -> f ~instantiate) !config_exec
+
+  let default_auth_system = lazy (
+    match !auth_systems with
+    | [name] -> name
+    | _ -> failwith "several (or no) instances of auth systems"
+  )
+
   module Services : AUTH_SERVICES = struct
+
+    let get_auth_systems () = !auth_systems
 
     let login = Eliom_service.service
       ~path:["login"]
@@ -73,18 +94,24 @@ module Make (X : EMPTY) = struct
 
   end
 
-  module Register (C : CONT_SERVICE) : EMPTY = struct
+  module Register (C : CONT_SERVICE) (T : TEMPLATES) : EMPTY = struct
+
+    let () = Hashtbl.iter (fun name i ->
+      let module A = (val i : AUTH_INSTANCE) in
+      let module X : EMPTY = A.Register (C) (T) in
+      ()
+    ) instances
 
     let () = Eliom_registration.Redirection.register
       ~service:Services.login
       (fun service () ->
         lwt x = match service with
-          | None -> get_default_auth_system ()
+          | None -> Lwt.return (Lazy.force default_auth_system)
           | Some x -> Lwt.return x
         in
         try
-          let auth_system = List.assoc x !auth_system_map in
-          let module A = (val auth_system : AUTH_SYSTEM) in
+          let i = Hashtbl.find instances x in
+          let module A = (val i : AUTH_INSTANCE) in
           Lwt.return A.service
         with Not_found -> fail_http 404
       )

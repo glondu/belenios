@@ -130,6 +130,8 @@ end
 
 module type AUTH_SERVICES = sig
 
+  val get_auth_systems : unit -> string list
+
   val login :
     (string option, unit,
      [> `Attached of
@@ -195,7 +197,12 @@ module type CONT_SERVICE = sig
     Eliom_service.service Lwt.t
 end
 
-module type AUTH_SYSTEM = sig
+module type NAME = sig
+  val name : string
+end
+
+module type AUTH_INSTANCE = sig
+
   val service :
     (unit, unit,
      [> `Attached of
@@ -204,4 +211,9 @@ module type AUTH_SYSTEM = sig
      [ `WithoutSuffix ], unit, unit,
      Eliom_service.registrable, 'a)
     Eliom_service.service
+
+  module Register (S : CONT_SERVICE) (T : TEMPLATES) : EMPTY
+
 end
+
+module type AUTH_SERVICE = functor (N : NAME) -> AUTH_INSTANCE

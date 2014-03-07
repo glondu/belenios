@@ -24,6 +24,7 @@ open Util
 open Serializable_t
 open Lwt
 open Web_common
+open Web_signatures
 
 (* FIXME: the following should be in configuration file... but
    <maxrequestbodysize> doesn't work *)
@@ -49,19 +50,19 @@ let populate accu f s = Lwt_stream.fold_s f s accu
 let secure_logfile = ref None
 let data_dir = ref None
 let source_file = ref None
-let enable_dummy = ref false
-let password_db_fname = ref None
-let enable_cas = ref false
-let cas_server = ref "https://cas.example.org"
 let main_election = ref None
 let rewrite_src = ref None
 let rewrite_dst = ref None
 
 let () = CalendarLib.Time_Zone.(change Local)
 
-let () =
+let () = Auth_dummy.init ()
+let () = Auth_password.init ()
+let () = Auth_cas.init ()
+
+let config_spec =
   let open Ocsigen_extensions.Configuration in
-  Eliom_config.parse_config [
+  [
     element
       ~name:"log"
       ~obligatory:true
@@ -88,53 +89,20 @@ let () =
         attribute ~name:"dst" ~obligatory:true (fun s -> rewrite_dst := Some s);
       ] ();
     element
-      ~name:"enable-dummy"
-      ~obligatory:false
-      ~init:(fun () -> enable_dummy := true)
-      ();
-    element
-      ~name:"enable-password"
-      ~obligatory:false
-      ~attributes:[
-        attribute ~name:"db" ~obligatory:true (fun s -> password_db_fname := Some s);
-      ] ();
-    element
-      ~name:"enable-cas"
-      ~obligatory:false
-      ~init:(fun () -> enable_cas := true)
-      ~attributes:[
-        attribute ~name:"server" ~obligatory:true (fun s -> cas_server := s);
-      ] ();
-    element
       ~name:"main-election"
       ~obligatory:false
       ~attributes:[
         attribute ~name:"uuid" ~obligatory:true (fun s -> main_election := Some s);
       ] ();
-  ];;
+  ] @ Auth_common.get_config_spec ()
 
-let password_db = match !password_db_fname with
-  | None -> None
-  | Some fname -> Some (
-    List.fold_left (fun accu line ->
-      match line with
-      | username :: salt :: password :: _ ->
-        SMap.add username (salt, password) accu
-      | _ -> failwith "error in password db file"
-    ) SMap.empty (Csv.load fname)
-  )
+let () = Eliom_config.parse_config config_spec
 
-let rewrite_prefix =
+let () =
   match !rewrite_src, !rewrite_dst with
   | Some src, Some dst ->
-    let nsrc = String.length src in
-    (fun x ->
-      let n = String.length x in
-      if n >= nsrc && String.sub x 0 nsrc = src then
-        dst ^ String.sub x nsrc (n-nsrc)
-      else x
-    )
-  | _, _ -> (fun x -> x)
+    set_rewrite_prefix ~src ~dst
+  | _, _ -> ()
 
 lwt () =
   match !secure_logfile with
@@ -344,28 +312,12 @@ module S = struct
   include A.Services
 end
 
-let () = let module X = A.Register (struct let cont = S.get end) in ()
-
 module T = Templates.Make (S)
 
-module C = struct
-  let enable_cas = !enable_cas
-  let cas_server = !cas_server
-  let password_db = password_db
-  let enable_dummy = !enable_dummy
-  let rewrite_prefix = rewrite_prefix
-end
-
 let () =
-  if C.enable_dummy then let module X = Auth_dummy.Register (S) (T) in ()
-
-let () =
-  match C.password_db with
-  | Some _ -> let module X = Auth_password.Register (C) (S) (T) in ()
-  | None -> ()
-
-let () =
-  if C.enable_cas then let module X = Auth_cas.Register (C) (S) in ()
+  let module S = struct let cont = S.get end in
+  let module X : EMPTY = A.Register (S) (T) in
+  ()
 
 let () =
   match main_election with

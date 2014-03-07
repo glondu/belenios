@@ -22,22 +22,19 @@
 open Web_signatures
 open Auth_common
 
-module Register (S : ALL_SERVICES) (T : TEMPLATES) = struct
-
-  module L : CONT_SERVICE = struct
-    let cont = S.get
-  end
+module Make (N : NAME) : AUTH_INSTANCE = struct
 
   let user_admin = false
-  let user_type = "dummy"
-  let user_logout = (module L : CONT_SERVICE)
+  let user_type = N.name
 
-  module A : AUTH_SYSTEM = struct
+  let service = Eliom_service.service
+    ~path:["auth"; N.name]
+    ~get_params:Eliom_parameter.unit
+    ()
 
-    let service = Eliom_service.service
-      ~path:["login-dummy"]
-      ~get_params:Eliom_parameter.unit
-      ()
+  module Register (S : CONT_SERVICE) (T : TEMPLATES) = struct
+
+    let user_logout = (module S : CONT_SERVICE)
 
     let () = Eliom_registration.Html5.register ~service
       (fun () () ->
@@ -54,14 +51,27 @@ module Register (S : ALL_SERVICES) (T : TEMPLATES) = struct
             let user_user = {user_type; user_name} in
             let logged_user = {user_admin; user_user; user_logout} in
             Eliom_reference.set user (Some logged_user) >>
-            Web_common.security_log (fun () ->
-              user_name ^ " successfully logged in using dummy"
-            ) >> S.get ())
+            S.cont ())
         in T.string_login ~service ~kind:`Dummy
       )
 
   end
 
-  let () = register_auth_system "dummy" (module A : AUTH_SYSTEM)
-
 end
+
+let init () =
+  let instances = ref [] in
+  let spec =
+    let open Ocsigen_extensions.Configuration in
+    [
+      let attributes = [
+        attribute ~name:"name" ~obligatory:true (fun s ->
+          instances := s :: !instances
+        );
+      ] in element ~name:"auth-dummy" ~attributes ();
+    ]
+  and exec ~instantiate =
+    List.iter (fun name ->
+      instantiate name (module Make : AUTH_SERVICE)
+    ) !instances
+  in Auth_common.register_auth_system ~spec ~exec

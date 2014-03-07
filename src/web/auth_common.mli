@@ -35,10 +35,17 @@ type logged_user = {
 val string_of_user : user -> string
 val user : logged_user option Eliom_reference.eref
 
-val get_auth_systems : unit -> string list
-val register_auth_system : string -> (module AUTH_SYSTEM) -> unit
+type instantiator = string -> (module AUTH_SERVICE) -> unit
+
+val register_auth_system :
+  spec:(Ocsigen_extensions.Configuration.element list) ->
+  exec:(instantiate:instantiator -> unit) ->
+  unit
+
+val get_config_spec :
+  unit -> Ocsigen_extensions.Configuration.element list
 
 module Make (X : EMPTY) : sig
   module Services : AUTH_SERVICES
-  module Register (S : CONT_SERVICE) : EMPTY
+  module Register (S : CONT_SERVICE) (T : TEMPLATES) : EMPTY
 end
