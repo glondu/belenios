@@ -167,6 +167,9 @@ module type TEMPLATES = sig
             Eliom_service.service ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
+  val generic_login :
+    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
 end
 
 

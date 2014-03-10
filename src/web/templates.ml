@@ -167,6 +167,13 @@ let password_login ~service =
   ] in
   base ~title:"Password login" ~content
 
+let generic_login () =
+  let content = [
+    h1 [pcdata "Log in"];
+    div [p [pcdata "Please choose one authentication system."]];
+  ] in
+  base ~title:"Log in" ~content
+
 let format_date (date, _) =
   CalendarLib.Printer.Precise_Fcalendar.sprint "%a, %d %b %Y %T %z" date
 

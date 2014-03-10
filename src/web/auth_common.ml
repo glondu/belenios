@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt
 open Util
 open Web_signatures
 open Web_common
@@ -90,24 +91,22 @@ module Make (X : EMPTY) = struct
 
     let () = List.iter (fun f -> f ~instantiate) !config_exec
 
-    let default_auth_system = lazy (
-      match !auth_systems with
-      | [name] -> name
-      | _ -> failwith "several (or no) instances of auth systems"
-    )
-
     let () = Eliom_registration.Any.register
       ~service:Services.login
       (fun service () ->
-        lwt x = match service with
-          | None -> Lwt.return (Lazy.force default_auth_system)
-          | Some x -> Lwt.return x
+        let use name =
+          try
+            let i = Hashtbl.find instances name in
+            let module A = (val i : AUTH_INSTANCE) in
+            A.handler ()
+          with Not_found -> fail_http 404
         in
-        try
-          let i = Hashtbl.find instances x in
-          let module A = (val i : AUTH_INSTANCE) in
-          A.handler ()
-        with Not_found -> fail_http 404
+        match service with
+        | Some name -> use name
+        | None ->
+          match !auth_systems with
+          | [name] -> use name
+          | _ -> T.generic_login () >>= Eliom_registration.Html5.send
       )
 
     let () = Eliom_registration.Redirection.register
