@@ -22,7 +22,7 @@
 open Web_signatures
 open Auth_common
 
-module Make (N : NAME) : AUTH_INSTANCE = struct
+module Make (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
 
   let user_admin = false
   let user_type = N.name
@@ -32,30 +32,26 @@ module Make (N : NAME) : AUTH_INSTANCE = struct
     ~get_params:Eliom_parameter.unit
     ()
 
-  module Register (S : CONT_SERVICE) (T : TEMPLATES) = struct
+  let user_logout = (module S : CONT_SERVICE)
 
-    let user_logout = (module S : CONT_SERVICE)
-
-    let () = Eliom_registration.Html5.register ~service
-      (fun () () ->
-        let post_params = Eliom_parameter.(string "username") in
-        let service = Eliom_service.post_coservice
-          ~csrf_safe:true
-          ~csrf_scope:Eliom_common.default_session_scope
-          ~fallback:service
-          ~post_params ()
-        in
-        let () = Eliom_registration.Redirection.register ~service
-          ~scope:Eliom_common.default_session_scope
-          (fun () user_name ->
-            let user_user = {user_type; user_name} in
-            let logged_user = {user_admin; user_user; user_logout} in
-            Eliom_reference.set user (Some logged_user) >>
-            S.cont ())
-        in T.string_login ~service ~kind:`Dummy
-      )
-
-  end
+  let () = Eliom_registration.Html5.register ~service
+    (fun () () ->
+      let post_params = Eliom_parameter.(string "username") in
+      let service = Eliom_service.post_coservice
+        ~csrf_safe:true
+        ~csrf_scope:Eliom_common.default_session_scope
+        ~fallback:service
+        ~post_params ()
+      in
+      let () = Eliom_registration.Redirection.register ~service
+        ~scope:Eliom_common.default_session_scope
+        (fun () user_name ->
+          let user_user = {user_type; user_name} in
+          let logged_user = {user_admin; user_user; user_logout} in
+          Eliom_reference.set user (Some logged_user) >>
+          S.cont ())
+      in T.string_login ~service ~kind:`Dummy
+    )
 
 end
 

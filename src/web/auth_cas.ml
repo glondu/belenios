@@ -31,7 +31,7 @@ module type CONFIG = sig
   val server : string
 end
 
-module Make (C : CONFIG) (N : NAME) : AUTH_INSTANCE = struct
+module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
 
   let user_admin = false
   let user_type = N.name
@@ -61,64 +61,60 @@ module Make (C : CONFIG) (N : NAME) : AUTH_INSTANCE = struct
 
   let service = Eliom_service.preapply login_cas None
 
-  module Register (S : CONT_SERVICE) (T : TEMPLATES) = struct
-
-    let () = Eliom_registration.Redirection.register
-      ~service:login_cas
-      (fun ticket () ->
-        match ticket with
-        | Some x ->
-          let me =
-            let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-            rewrite_prefix uri
-          in
-          let validation =
-            let service = Eliom_service.preapply cas_validate (me, x) in
-            Eliom_uri.make_string_uri ~absolute:true ~service ()
-          in
-          lwt reply = Ocsigen_http_client.get_url validation in
-          (match reply.Ocsigen_http_frame.frame_content with
-            | Some stream ->
-              lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
-              Ocsigen_stream.finalize stream `Success >>
-              (match next_lf info 0 with
-                | Some i ->
-                  (match String.sub info 0 i with
-                    | "yes" ->
-                      (match next_lf info (i+1) with
-                        | Some j ->
-                          let user_name = String.sub info (i+1) (j-i-1) in
-                          let user_user = {user_type; user_name} in
-                          let module L : CONT_SERVICE = struct
-                            let cont () =
-                              lwt service = S.cont () in
-                              let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-                              let uri = rewrite_prefix uri in
-                              security_log (fun () ->
-                                Printf.sprintf "%s logged out, redirecting to CAS [%s]"
-                                  (string_of_user user_user) C.server
-                              ) >> Lwt.return (Eliom_service.preapply cas_logout uri)
-                          end in
-                          let user_logout = (module L : CONT_SERVICE) in
-                          Eliom_reference.set user
-                            (Some {user_admin; user_user; user_logout}) >>
-                          S.cont ()
-                        | None -> fail_http 502
-                      )
-                    | "no" -> fail_http 401
-                    | _ -> fail_http 502
-                  )
-                | None -> fail_http 502
-              )
-            | None -> fail_http 502
-          )
-        | None ->
+  let () = Eliom_registration.Redirection.register
+    ~service:login_cas
+    (fun ticket () ->
+      match ticket with
+      | Some x ->
+        let me =
           let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-          let uri = rewrite_prefix uri in
-          Lwt.return (Eliom_service.preapply cas_login uri)
-      )
-
-  end
+          rewrite_prefix uri
+        in
+        let validation =
+          let service = Eliom_service.preapply cas_validate (me, x) in
+          Eliom_uri.make_string_uri ~absolute:true ~service ()
+        in
+        lwt reply = Ocsigen_http_client.get_url validation in
+        (match reply.Ocsigen_http_frame.frame_content with
+          | Some stream ->
+            lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
+            Ocsigen_stream.finalize stream `Success >>
+            (match next_lf info 0 with
+              | Some i ->
+                (match String.sub info 0 i with
+                  | "yes" ->
+                    (match next_lf info (i+1) with
+                      | Some j ->
+                        let user_name = String.sub info (i+1) (j-i-1) in
+                        let user_user = {user_type; user_name} in
+                        let module L : CONT_SERVICE = struct
+                          let cont () =
+                            lwt service = S.cont () in
+                            let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+                            let uri = rewrite_prefix uri in
+                            security_log (fun () ->
+                              Printf.sprintf "%s logged out, redirecting to CAS [%s]"
+                                (string_of_user user_user) C.server
+                            ) >> Lwt.return (Eliom_service.preapply cas_logout uri)
+                        end in
+                        let user_logout = (module L : CONT_SERVICE) in
+                        Eliom_reference.set user
+                          (Some {user_admin; user_user; user_logout}) >>
+                        S.cont ()
+                      | None -> fail_http 502
+                    )
+                  | "no" -> fail_http 401
+                  | _ -> fail_http 502
+                )
+              | None -> fail_http 502
+            )
+          | None -> fail_http 502
+        )
+      | None ->
+        let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
+        let uri = rewrite_prefix uri in
+        Lwt.return (Eliom_service.preapply cas_login uri)
+    )
 
 end
 

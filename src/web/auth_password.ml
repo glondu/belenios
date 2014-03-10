@@ -28,7 +28,7 @@ module type CONFIG = sig
   val db : string
 end
 
-module Make (C : CONFIG) (N : NAME) : AUTH_INSTANCE = struct
+module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
 
   let user_admin = false
   let user_type = N.name
@@ -46,38 +46,34 @@ module Make (C : CONFIG) (N : NAME) : AUTH_INSTANCE = struct
       | _ -> failwith ("error while parsing db file for " ^ N.name)
     ) SMap.empty (Csv.load C.db)
 
-  module Register (S : CONT_SERVICE) (T : TEMPLATES) = struct
+  let user_logout = (module S : CONT_SERVICE)
 
-    let user_logout = (module S : CONT_SERVICE)
-
-    let () = Eliom_registration.Html5.register ~service
-      (fun () () ->
-        let post_params = Eliom_parameter.(
-          string "username" ** string "password"
-        ) in
-        let service = Eliom_service.post_coservice
-          ~csrf_safe:true
-          ~csrf_scope:Eliom_common.default_session_scope
-          ~fallback:service
-          ~post_params ()
-        in
-        let () = Eliom_registration.Redirection.register ~service
-          ~scope:Eliom_common.default_session_scope
-          (fun () (user_name, password) ->
-            if (
-              try
-                let salt, hashed = SMap.find user_name db in
-                sha256_hex (salt ^ password) = hashed
-              with Not_found -> false
-            ) then (
-              let user_user = {user_type; user_name} in
-              Eliom_reference.set user (Some {user_admin; user_user; user_logout}) >>
-              S.cont ()
-            ) else forbidden ())
-        in T.password_login ~service
-      )
-
-  end
+  let () = Eliom_registration.Html5.register ~service
+    (fun () () ->
+      let post_params = Eliom_parameter.(
+        string "username" ** string "password"
+      ) in
+      let service = Eliom_service.post_coservice
+        ~csrf_safe:true
+        ~csrf_scope:Eliom_common.default_session_scope
+        ~fallback:service
+        ~post_params ()
+      in
+      let () = Eliom_registration.Redirection.register ~service
+        ~scope:Eliom_common.default_session_scope
+        (fun () (user_name, password) ->
+          if (
+            try
+              let salt, hashed = SMap.find user_name db in
+              sha256_hex (salt ^ password) = hashed
+            with Not_found -> false
+          ) then (
+            let user_user = {user_type; user_name} in
+            Eliom_reference.set user (Some {user_admin; user_user; user_logout}) >>
+            S.cont ()
+          ) else forbidden ())
+      in T.password_login ~service
+    )
 
 end
 

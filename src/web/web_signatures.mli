@@ -202,8 +202,10 @@ module type AUTH_INSTANCE = sig
      Eliom_service.registrable, 'a)
     Eliom_service.service
 
-  module Register (S : CONT_SERVICE) (T : TEMPLATES) : EMPTY
-
 end
 
-module type AUTH_SERVICE = functor (N : NAME) -> AUTH_INSTANCE
+module type AUTH_SERVICE =
+  functor (N : NAME) ->
+  functor (S : CONT_SERVICE) ->
+  functor (T : TEMPLATES) ->
+  AUTH_INSTANCE

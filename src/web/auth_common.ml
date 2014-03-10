@@ -59,25 +59,6 @@ module Make (X : EMPTY) = struct
   let instances = Hashtbl.create 10
   let auth_systems = ref []
 
-  let instantiate name auth =
-    if Hashtbl.mem instances name then (
-      failwith ("multiple instances with name " ^ name)
-    ) else (
-      let module N = struct let name = name end in
-      let module A = (val auth : AUTH_SERVICE) in
-      let i = (module A (N) : AUTH_INSTANCE) in
-      Hashtbl.add instances name i;
-      auth_systems := name :: !auth_systems
-    )
-
-  let () = List.iter (fun f -> f ~instantiate) !config_exec
-
-  let default_auth_system = lazy (
-    match !auth_systems with
-    | [name] -> name
-    | _ -> failwith "several (or no) instances of auth systems"
-  )
-
   module Services : AUTH_SERVICES = struct
 
     let get_auth_systems () = !auth_systems
@@ -96,11 +77,24 @@ module Make (X : EMPTY) = struct
 
   module Register (C : CONT_SERVICE) (T : TEMPLATES) : EMPTY = struct
 
-    let () = Hashtbl.iter (fun name i ->
-      let module A = (val i : AUTH_INSTANCE) in
-      let module X : EMPTY = A.Register (C) (T) in
-      ()
-    ) instances
+    let instantiate name auth =
+      if Hashtbl.mem instances name then (
+        failwith ("multiple instances with name " ^ name)
+      ) else (
+        let module N = struct let name = name end in
+        let module A = (val auth : AUTH_SERVICE) (N) (C) (T) in
+        let i = (module A : AUTH_INSTANCE) in
+        Hashtbl.add instances name i;
+        auth_systems := name :: !auth_systems
+      )
+
+    let () = List.iter (fun f -> f ~instantiate) !config_exec
+
+    let default_auth_system = lazy (
+      match !auth_systems with
+      | [name] -> name
+      | _ -> failwith "several (or no) instances of auth systems"
+    )
 
     let () = Eliom_registration.Redirection.register
       ~service:Services.login
