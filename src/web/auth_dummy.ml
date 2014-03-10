@@ -53,6 +53,8 @@ module Make (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = stru
       in T.string_login ~service ~kind:`Dummy
     )
 
+  let handler () = Eliom_registration.Redirection.send service
+
 end
 
 let init () =

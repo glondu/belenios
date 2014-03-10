@@ -116,6 +116,8 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
         Lwt.return (Eliom_service.preapply cas_login uri)
     )
 
+  let handler () = Eliom_registration.Redirection.send service
+
 end
 
 type instance = {

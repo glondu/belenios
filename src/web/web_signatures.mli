@@ -193,14 +193,11 @@ end
 
 module type AUTH_INSTANCE = sig
 
-  val service :
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     Eliom_service.registrable, 'a)
-    Eliom_service.service
+  val handler :
+    unit ->
+    (Eliom_registration.browser_content,
+     Eliom_registration.http_service)
+    Eliom_registration.kind Lwt.t
 
 end
 

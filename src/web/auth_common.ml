@@ -96,7 +96,7 @@ module Make (X : EMPTY) = struct
       | _ -> failwith "several (or no) instances of auth systems"
     )
 
-    let () = Eliom_registration.Redirection.register
+    let () = Eliom_registration.Any.register
       ~service:Services.login
       (fun service () ->
         lwt x = match service with
@@ -106,7 +106,7 @@ module Make (X : EMPTY) = struct
         try
           let i = Hashtbl.find instances x in
           let module A = (val i : AUTH_INSTANCE) in
-          Lwt.return A.service
+          A.handler ()
         with Not_found -> fail_http 404
       )
 

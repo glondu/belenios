@@ -75,6 +75,8 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
       in T.password_login ~service
     )
 
+  let handler () = Eliom_registration.Redirection.send service
+
 end
 
 type instance = {
