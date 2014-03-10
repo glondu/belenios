@@ -89,7 +89,7 @@ let base ~title ~content =
 let format_one_featured_election e =
   li [
     h3 [
-      a ~service:(Services.preapply_uuid S.election_index e)
+      a ~service:(S.election_file e Services.ESIndex)
         [pcdata e.e_name] ();
     ];
     p [pcdata e.e_description];
@@ -330,7 +330,7 @@ let ballot_received ~election ~confirm ~user ~can_vote =
     ];
     user_div;
     p [
-      a ~service:(Services.preapply_uuid S.election_index params) [
+      a ~service:(S.election_file params Services.ESIndex) [
         pcdata "Go back to election"
       ] ();
       pcdata ".";
@@ -352,7 +352,7 @@ let do_cast_ballot ~election ~result =
       );
     ];
     p [
-      a ~service:(Services.preapply_uuid S.election_index params) [
+      a ~service:(S.election_file params Services.ESIndex) [
         pcdata "Go back to election"
       ] ();
       pcdata ".";

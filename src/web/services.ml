@@ -36,6 +36,7 @@ let uuid = Eliom_parameter.user_type
   "uuid"
 
 type election_file =
+  | ESIndex
   | ESRaw
   | ESKeys
   | ESCreds
@@ -43,6 +44,7 @@ type election_file =
   | ESRecords
 
 let election_file_of_string = function
+  | "" -> ESIndex
   | "election.json" -> ESRaw
   | "public_keys.jsons" -> ESKeys
   | "public_creds.txt" -> ESCreds
@@ -51,6 +53,7 @@ let election_file_of_string = function
   | x -> invalid_arg ("election_dir_item: " ^ x)
 
 let string_of_election_file = function
+  | ESIndex -> ""
   | ESRaw -> "election.json"
   | ESKeys -> "public_keys.jsons"
   | ESCreds -> "public_creds.txt"

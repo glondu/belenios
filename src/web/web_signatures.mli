@@ -41,16 +41,6 @@ module type MAIN_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
-  val election_index :
-    (Serializable_t.uuid, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ],
-     [ `One of Serializable_t.uuid ] Eliom_parameter.param_name,
-     unit, [< Eliom_service.registrable > `Registrable ], 'a)
-    Eliom_service.service
-
   val election_file :
     'a Serializable_t.params ->
     Services.election_file ->

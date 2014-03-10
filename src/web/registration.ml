@@ -240,11 +240,6 @@ module S = struct
     ~get_params:unit
     ()
 
-  let election_index = service
-    ~path:["election"; ""]
-    ~get_params:uuid
-    ()
-
   let election_vote = service
     ~path:["election"; "vote"]
     ~get_params:uuid
@@ -299,7 +294,7 @@ module S = struct
   let to_service = function
     | Home -> home
     | Cast u -> Eliom_service.preapply election_cast u
-    | Election u -> Eliom_service.preapply election_index u
+    | Election u -> Eliom_service.preapply election_dir (u, ESIndex)
 
   open Lwt
 
@@ -332,7 +327,7 @@ let () =
     (fun () () ->
       Eliom_reference.unset Services.ballot >>
       Eliom_reference.unset Services.saved_service >>
-      return (Eliom_service.preapply S.election_index uuid)
+      return (Eliom_service.preapply S.election_dir (uuid, Services.ESIndex))
     )
 
 let can_read x u = x.Web_election.can_read
@@ -401,6 +396,11 @@ let f_records uuid election user () =
     return (s, "text/plain")
   | _ -> forbidden ()
 
+let f_index uuid election user () =
+  Eliom_reference.unset Services.ballot >>
+  Eliom_reference.set Services.saved_service (Services.Election uuid) >>
+  T.election_view ~election ~user
+
 let handle_pseudo_file u f =
   let open Eliom_registration in
   let open Services in
@@ -413,6 +413,7 @@ let handle_pseudo_file u f =
     (fun x -> return (cast_unknown_content_kind x))
   in
   match f with
+  | ESIndex -> if_eligible can_read f_index u () >>= Html5.send
   | ESRaw -> file f_raw
   | ESKeys -> file f_keys
   | ESCreds -> stream f_creds
@@ -442,16 +443,6 @@ let () = Eliom_registration.String.register
     Cryptokit.(transform_string (Base64.encode_compact ()) r) |>
     (fun x -> Serializable_j.string_of_randomness { randomness=x }) |>
     (fun x -> return (x, "application/json"))
-  )
-
-let () = Eliom_registration.Html5.register
-  ~service:S.election_index
-  (if_eligible can_read
-     (fun uuid election user () ->
-       Eliom_reference.unset Services.ballot >>
-       Eliom_reference.set Services.saved_service (Services.Election uuid) >>
-       T.election_view ~election ~user
-     )
   )
 
 let () = Eliom_registration.Redirection.register
