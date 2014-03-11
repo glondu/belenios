@@ -52,6 +52,10 @@ module Make (X : EMPTY) = struct
   let on_success user_admin user_type ~user_name ~user_logout =
     let user_user = {user_type; user_name} in
     let logged_user = {user_admin; user_user; user_logout} in
+    security_log (fun () ->
+      Printf.sprintf "%s successfully logged in%s using %s"
+        user_name (if user_admin then " (as admin)" else "") user_type
+    ) >>
     Eliom_reference.set user (Some logged_user)
 
   module Services : AUTH_SERVICES = struct
