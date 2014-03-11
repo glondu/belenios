@@ -117,10 +117,9 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
     ] in
     base ~title:site_title ~content
 
-  let string_login ~kind ~service =
-    let title, field_name, input_type = match kind with
-      | `Dummy -> "Dummy login", "Username:", `Text
-      | `Admin -> "Admin login", "Admin password:", `Password
+  let dummy_login ~service =
+    let title, field_name, input_type =
+      "Dummy login", "Username:", `Text
     in
     let form = post_form ~service
       (fun name ->

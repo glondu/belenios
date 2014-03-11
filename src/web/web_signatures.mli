@@ -168,8 +168,7 @@ end
 
 module type TEMPLATES = sig
 
-  val string_login :
-    kind:[< `Admin | `Dummy ] ->
+  val dummy_login :
     service:(unit, 'a, [< Eliom_service.post_service_kind ],
              [< Eliom_service.suff ], 'b,
              [< string Eliom_parameter.setoneradio ]
