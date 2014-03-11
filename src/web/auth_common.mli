@@ -21,19 +21,7 @@
 
 open Web_signatures
 
-type user = {
-  user_type : string;
-  user_name : string;
-}
-
-type logged_user = {
-  user_admin : bool;
-  user_user : user;
-  user_logout : (module CONT_SERVICE);
-}
-
 val string_of_user : user -> string
-val user : logged_user option Eliom_reference.eref
 
 type instantiator = string -> (module AUTH_SERVICE) -> unit
 

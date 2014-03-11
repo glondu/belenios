@@ -30,9 +30,6 @@ end
 
 module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
 
-  let user_admin = false
-  let user_type = N.name
-
   let service = Eliom_service.service
     ~path:["auth"; N.name]
     ~get_params:Eliom_parameter.unit
@@ -47,6 +44,10 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
     ) SMap.empty (Csv.load C.db)
 
   let user_logout = (module S : CONT_SERVICE)
+
+  let on_success_ref = Eliom_reference.eref
+    ~scope:Eliom_common.default_session_scope
+    (fun ~user_name ~user_logout -> Lwt.return ())
 
   let () = Eliom_registration.Html5.register ~service
     (fun () () ->
@@ -68,14 +69,16 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
               sha256_hex (salt ^ password) = hashed
             with Not_found -> false
           ) then (
-            let user_user = {user_type; user_name} in
-            Eliom_reference.set user (Some {user_admin; user_user; user_logout}) >>
+            lwt on_success = Eliom_reference.get on_success_ref in
+            on_success ~user_name ~user_logout >>
             S.cont ()
           ) else forbidden ())
       in T.password_login ~service
     )
 
-  let handler () = Eliom_registration.Redirection.send service
+  let handler ~on_success () =
+    Eliom_reference.set on_success_ref on_success >>
+    Eliom_registration.Redirection.send service
 
 end
 

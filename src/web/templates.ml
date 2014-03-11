@@ -22,6 +22,7 @@
 open Signatures
 open Util
 open Serializable_t
+open Web_signatures
 open Eliom_content.Html5.F
 
 (* TODO: these pages should be redesigned *)
@@ -35,7 +36,7 @@ let format_user u =
 module Make (S : Web_signatures.ALL_SERVICES) = struct
 
 let base ~title ~content =
-  lwt user = Eliom_reference.get Auth_common.user in
+  lwt user = S.get_logged_user () in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata title)) [])
     (body [
@@ -96,7 +97,6 @@ let format_one_featured_election e =
   ]
 
 let index ~featured =
-  lwt user = Eliom_reference.get Auth_common.user in
   let featured_box = match featured with
     | _::_ ->
       div [
@@ -199,7 +199,7 @@ let election_view ~election ~user =
               pcdata "Log in to check if you can vote. Alternatively, you can try to vote and log in at the last moment.";
             ]
           | Some u ->
-            lwt b = p u.Auth_common.user_user in
+            lwt b = p u.user_user in
             let can = if b then pcdata "can" else pcdata "cannot" in
             Lwt.return [
               pcdata "You ";

@@ -24,23 +24,8 @@ open Util
 open Web_signatures
 open Web_common
 
-type user = {
-  user_type : string;
-  user_name : string;
-}
-
-type logged_user = {
-  user_admin : bool;
-  user_user : user;
-  user_logout : (module CONT_SERVICE);
-}
-
 let string_of_user {user_type; user_name} =
   user_type ^ ":" ^ user_name
-
-let user = Eliom_reference.eref
-  ~scope:Eliom_common.default_session_scope
-  None
 
 type instantiator = string -> (module AUTH_SERVICE) -> unit
 
@@ -60,9 +45,20 @@ module Make (X : EMPTY) = struct
   let instances = Hashtbl.create 10
   let auth_systems = ref []
 
+  let user = Eliom_reference.eref
+    ~scope:Eliom_common.default_session_scope
+    None
+
+  let on_success user_admin user_type ~user_name ~user_logout =
+    let user_user = {user_type; user_name} in
+    let logged_user = {user_admin; user_user; user_logout} in
+    Eliom_reference.set user (Some logged_user)
+
   module Services : AUTH_SERVICES = struct
 
     let get_auth_systems () = !auth_systems
+
+    let get_logged_user () = Eliom_reference.get user
 
     let login = Eliom_service.service
       ~path:["login"]
@@ -98,7 +94,7 @@ module Make (X : EMPTY) = struct
           try
             let i = Hashtbl.find instances name in
             let module A = (val i : AUTH_INSTANCE) in
-            A.handler ()
+            A.handler ~on_success:(on_success false name) ()
           with Not_found -> fail_http 404
         in
         match service with

@@ -214,14 +214,8 @@ let check_acl acl election user =
     | Any -> return true
     | Restricted p ->
       match user with
-        | Some user -> p user.Auth_common.user_user
+        | Some user -> p user.Web_signatures.user_user
         | None -> return false
-
-let if_eligible acl f uuid x =
-  lwt election = get_election_by_uuid uuid in
-  lwt user = Eliom_reference.get Auth_common.user in
-  lwt b = check_acl acl election.Web_election.election_web user in
-  if b then f uuid election user x else forbidden ()
 
 module A = Auth_common.Make (struct end)
 
@@ -309,6 +303,12 @@ end
 
 module T = Templates.Make (S)
 
+let if_eligible acl f uuid x =
+  lwt election = get_election_by_uuid uuid in
+  lwt user = S.get_logged_user () in
+  lwt b = check_acl acl election.Web_election.election_web user in
+  if b then f uuid election user x else forbidden ()
+
 let () =
   let module S = struct let cont = S.get end in
   let module X : EMPTY = A.Register (S) (T) in
@@ -339,7 +339,7 @@ let () = Eliom_registration.File.register
   (fun () () -> match !source_file with
   | None -> fail_http 404
   | Some f ->
-    match_lwt Eliom_reference.get Auth_common.user with
+    match_lwt S.get_logged_user () with
     | Some u ->
       security_log (fun () ->
         Auth_common.(string_of_user u.user_user) ^ " downloaded source code"
@@ -381,7 +381,7 @@ let f_ballots uuid election user () =
 
 let f_records uuid election user () =
   match user with
-  | Some u when u.Auth_common.user_admin ->
+  | Some u when u.Web_signatures.user_admin ->
     let open Web_election in
     let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
     (* TODO: streaming *)
@@ -462,12 +462,12 @@ let do_cast election uuid () =
         Eliom_reference.unset Services.ballot >>
         let open Web_election in
         let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
-        match_lwt Eliom_reference.get Auth_common.user with
+        match_lwt S.get_logged_user () with
           | Some user as u ->
             lwt b = check_acl can_vote election.election_web u in
             if b then (
               let record =
-                Auth_common.string_of_user user.Auth_common.user_user,
+                Auth_common.string_of_user user.Web_signatures.user_user,
                 (CalendarLib.Fcalendar.Precise.now (), None)
               in
               lwt result =
@@ -531,9 +531,9 @@ let () = Eliom_registration.Redirection.register
 let () = Eliom_registration.Html5.register
   ~service:Services.election_update_credential_form
   (fun uuid () ->
-    lwt user = Eliom_reference.get Auth_common.user in
+    lwt user = S.get_logged_user () in
     match user with
-    | Some u when u.Auth_common.user_admin ->
+    | Some u when u.Web_signatures.user_admin ->
       lwt election = get_election_by_uuid uuid in
       T.election_update_credential ~election
     | _ -> forbidden ()
@@ -542,9 +542,9 @@ let () = Eliom_registration.Html5.register
 let () = Eliom_registration.String.register
   ~service:S.election_update_credential
   (fun uuid (old, new_) ->
-    lwt user = Eliom_reference.get Auth_common.user in
+    lwt user = S.get_logged_user () in
     match user with
-    | Some u when u.Auth_common.user_admin ->
+    | Some u when u.Web_signatures.user_admin ->
       lwt election = get_election_by_uuid uuid in
       let open Web_election in
       let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in

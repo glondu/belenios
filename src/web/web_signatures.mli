@@ -117,10 +117,32 @@ module type AUTH_CONFIG = sig
   val password_db : (SMap.key * SMap.key) SMap.t option
 end
 
+module type CONT_SERVICE = sig
+  val cont :
+    unit ->
+    (unit, unit,
+     [> `Attached of
+          ([> `External | `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit, Eliom_service.registrable, 'a)
+    Eliom_service.service Lwt.t
+end
+
+type user = {
+  user_type : string;
+  user_name : string;
+}
+
+type logged_user = {
+  user_admin : bool;
+  user_user : user;
+  user_logout : (module CONT_SERVICE);
+}
 
 module type AUTH_SERVICES = sig
 
   val get_auth_systems : unit -> string list
+  val get_logged_user : unit -> logged_user option Lwt.t
 
   val login :
     (string option, unit,
@@ -178,26 +200,17 @@ module type ALL_SERVICES = sig
   include AUTH_SERVICES
 end
 
-
-module type CONT_SERVICE = sig
-  val cont :
-    unit ->
-    (unit, unit,
-     [> `Attached of
-          ([> `External | `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit, Eliom_service.registrable, 'a)
-    Eliom_service.service Lwt.t
-end
-
 module type NAME = sig
   val name : string
 end
 
+type on_success_handler =
+  user_name:string -> user_logout:(module CONT_SERVICE) -> unit Lwt.t
+
 module type AUTH_INSTANCE = sig
 
   val handler :
-    unit ->
+    on_success:on_success_handler -> unit ->
     (Eliom_registration.browser_content,
      Eliom_registration.http_service)
     Eliom_registration.kind Lwt.t

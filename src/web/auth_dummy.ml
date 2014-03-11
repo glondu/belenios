@@ -24,15 +24,16 @@ open Auth_common
 
 module Make (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
 
-  let user_admin = false
-  let user_type = N.name
-
   let service = Eliom_service.service
     ~path:["auth"; N.name]
     ~get_params:Eliom_parameter.unit
     ()
 
   let user_logout = (module S : CONT_SERVICE)
+
+  let on_success_ref = Eliom_reference.eref
+    ~scope:Eliom_common.default_session_scope
+    (fun ~user_name ~user_logout -> Lwt.return ())
 
   let () = Eliom_registration.Html5.register ~service
     (fun () () ->
@@ -46,14 +47,15 @@ module Make (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = stru
       let () = Eliom_registration.Redirection.register ~service
         ~scope:Eliom_common.default_session_scope
         (fun () user_name ->
-          let user_user = {user_type; user_name} in
-          let logged_user = {user_admin; user_user; user_logout} in
-          Eliom_reference.set user (Some logged_user) >>
+          lwt on_success = Eliom_reference.get on_success_ref in
+          on_success ~user_name ~user_logout >>
           S.cont ())
       in T.string_login ~service ~kind:`Dummy
     )
 
-  let handler () = Eliom_registration.Redirection.send service
+  let handler ~on_success () =
+    Eliom_reference.set on_success_ref on_success >>
+    Eliom_registration.Redirection.send service
 
 end
 

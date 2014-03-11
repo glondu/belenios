@@ -28,7 +28,7 @@ open Web_common
 
 type acl =
   | Any
-  | Restricted of (Auth_common.user -> bool Lwt.t)
+  | Restricted of (Web_signatures.user -> bool Lwt.t)
 
 type election_web = {
   params_fname : string;

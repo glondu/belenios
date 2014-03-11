@@ -33,9 +33,6 @@ end
 
 module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
 
-  let user_admin = false
-  let user_type = N.name
-
   let cas_login = Eliom_service.external_service
     ~prefix:C.server
     ~path:["login"]
@@ -60,6 +57,10 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
     ()
 
   let service = Eliom_service.preapply login_cas None
+
+  let on_success_ref = Eliom_reference.eref
+    ~scope:Eliom_common.default_session_scope
+    (fun ~user_name ~user_logout -> Lwt.return ())
 
   let () = Eliom_registration.Redirection.register
     ~service:login_cas
@@ -86,20 +87,19 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
                     (match next_lf info (i+1) with
                       | Some j ->
                         let user_name = String.sub info (i+1) (j-i-1) in
-                        let user_user = {user_type; user_name} in
                         let module L : CONT_SERVICE = struct
                           let cont () =
                             lwt service = S.cont () in
                             let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
                             let uri = rewrite_prefix uri in
                             security_log (fun () ->
-                              Printf.sprintf "%s logged out, redirecting to CAS [%s]"
-                                (string_of_user user_user) C.server
+                              Printf.sprintf "%s:%s logged out, redirecting to CAS [%s]"
+                                N.name user_name C.server
                             ) >> Lwt.return (Eliom_service.preapply cas_logout uri)
                         end in
                         let user_logout = (module L : CONT_SERVICE) in
-                        Eliom_reference.set user
-                          (Some {user_admin; user_user; user_logout}) >>
+                        lwt on_success = Eliom_reference.get on_success_ref in
+                        on_success ~user_name ~user_logout >>
                         S.cont ()
                       | None -> fail_http 502
                     )
@@ -116,7 +116,9 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
         Lwt.return (Eliom_service.preapply cas_login uri)
     )
 
-  let handler () = Eliom_registration.Redirection.send service
+  let handler ~on_success () =
+    Eliom_reference.set on_success_ref on_success >>
+    Eliom_registration.Redirection.send service
 
 end
 
