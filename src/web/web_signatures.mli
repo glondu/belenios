@@ -21,7 +21,7 @@
 
 module type EMPTY = sig end
 
-module type MAIN_SERVICES = sig
+module type SITE_SERVICES = sig
 
   val home :
     (unit, unit,
@@ -41,6 +41,52 @@ module type MAIN_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
+  val get_randomness :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_update_credential :
+    (Serializable_t.uuid, string * string,
+     [> `Attached of
+          ([> `Internal of [ `Coservice | `Service ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of Serializable_t.uuid ] Eliom_parameter.param_name,
+     [ `One of string ] Eliom_parameter.param_name *
+     [ `One of string ] Eliom_parameter.param_name,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_update_credential_form :
+    (Uuidm.t, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of Uuidm.t ] Eliom_parameter.param_name, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+end
+
+module type ELECTION_SERVICES = sig
+
+  val election_dir :
+    (Serializable_t.uuid * Services.election_file, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithSuffix ],
+     [ `One of Serializable_t.uuid ] Eliom_parameter.param_name *
+     [ `One of Services.election_file ] Eliom_parameter.param_name,
+     unit, [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
   val election_file :
     'a Serializable_t.params ->
     Services.election_file ->
@@ -51,6 +97,20 @@ module type MAIN_SERVICES = sig
      [ `WithoutSuffix ], unit, unit,
      [< Eliom_service.registrable > `Unregistrable ], 'b)
     Eliom_service.service
+
+  val make_booth :
+    Serializable_t.uuid ->
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Unregistrable ], 'a)
+    Eliom_service.service
+
+end
+
+module type VOTING_SERVICES = sig
 
   val election_vote :
     (Serializable_t.uuid, unit,
@@ -84,26 +144,16 @@ module type MAIN_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
-  val election_update_credential :
-    (Serializable_t.uuid, string * string,
+  val create_confirm :
+    unit ->
+    (Uuidm.t, unit,
      [> `Attached of
-          ([> `Internal of [ `Coservice | `Service ] ], [> `Post ])
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ],
-     [ `One of Serializable_t.uuid ] Eliom_parameter.param_name,
-     [ `One of string ] Eliom_parameter.param_name *
-     [ `One of string ] Eliom_parameter.param_name,
+     [ `One of Uuidm.t ] Eliom_parameter.param_name, unit,
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
-
-  val get :
-    unit ->
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit, Eliom_service.registrable, 'a)
-    Eliom_service.service Lwt.t
 
 end
 
@@ -168,6 +218,41 @@ end
 
 module type TEMPLATES = sig
 
+  val index :
+    featured:'a Serializable_t.params list ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  type 'a election
+
+  val election_update_credential :
+    election:'a election ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val election_view :
+    election:'a election ->
+    user:logged_user option ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val do_cast_ballot :
+    election:'a election ->
+    result:[< `Error of Web_common.error | `Valid of string ] ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val ballot_received :
+    election:'a election ->
+    confirm:(unit ->
+             (Serializable_t.uuid, 'b,
+              [< Eliom_service.post_service_kind ],
+              [< Eliom_service.suff ], 'c, unit,
+              [< Eliom_service.registrable ], 'd)
+             Eliom_service.service) ->
+    user:logged_user option ->
+    can_vote:bool -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val election_cast_raw :
+    election:'a election ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
   val dummy_login :
     service:(unit, 'a, [< Eliom_service.post_service_kind ],
              [< Eliom_service.suff ], 'b,
@@ -195,8 +280,11 @@ end
 
 
 module type ALL_SERVICES = sig
-  include MAIN_SERVICES
+  include SITE_SERVICES
+  include ELECTION_SERVICES
+  include VOTING_SERVICES
   include AUTH_SERVICES
+  include CONT_SERVICE
 end
 
 module type NAME = sig

@@ -60,16 +60,6 @@ let string_of_election_file = function
   | ESBallots -> "ballots.jsons"
   | ESRecords -> "records"
 
-let election_update_credential_form = service
-  ~path:["election"; "update-cred"]
-  ~get_params:uuid
-  ()
-
-let get_randomness = service
-  ~path:["get-randomness"]
-  ~get_params:unit
-  ()
-
 let preapply_uuid s e = Eliom_service.preapply s e.e_uuid
 
 type savable_service =
