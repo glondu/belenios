@@ -23,6 +23,17 @@ open Serializable_builtin_t
 
 module type EMPTY = sig end
 
+module type SAVED_SERVICE = sig
+  val s :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [> Eliom_service.registrable ], 'a)
+    Eliom_service.service
+end
+
 module type SITE_SERVICES = sig
 
   val home :
@@ -73,6 +84,8 @@ module type SITE_SERVICES = sig
      [ `One of Uuidm.t ] Eliom_parameter.param_name, unit,
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
+
+  val saved_service : (module SAVED_SERVICE) Eliom_reference.eref
 
 end
 

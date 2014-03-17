@@ -260,6 +260,10 @@ module SSite = struct
       ~post_params:(string "old_credential" ** string "new_credential")
       ()
 
+    let saved_service = Eliom_reference.eref
+      ~scope:Eliom_common.default_session_scope
+      (module struct let s = home end : SAVED_SERVICE)
+
   end
 
   module Register (S : ALL_SERVICES) (T : TEMPLATES) : EMPTY = struct
@@ -438,7 +442,6 @@ module SElection = struct
 
     let f_index uuid election user () =
       Eliom_reference.unset ballot >>
-      Eliom_reference.set saved_service (Election uuid) >>
       T.election_view ~election ~user
 
     let handle_pseudo_file u f =
@@ -464,7 +467,12 @@ module SElection = struct
 
     let () = Any.register
       ~service:election_dir
-      (fun (uuid, f) () -> handle_pseudo_file uuid f)
+      (fun ((uuid, f) as p) () ->
+        let module X = struct let s = preapply election_dir p end in
+        let x = (module X : SAVED_SERVICE) in
+        Eliom_reference.set S.saved_service x >>
+        handle_pseudo_file uuid f
+      )
 
   end
 
@@ -510,7 +518,9 @@ module SVoting = struct
       (if_eligible S.get_logged_user can_read
          (fun u election user () ->
            Eliom_reference.unset ballot >>
-           Eliom_reference.set saved_service (Election u) >>
+           let module X = struct let s = preapply election_vote u end in
+           let x = (module X : SAVED_SERVICE) in
+           Eliom_reference.set S.saved_service x >>
            return (S.make_booth u)
          )
       )
@@ -546,7 +556,6 @@ module SVoting = struct
     let ballot_received uuid election user =
       let open Web_election in
       let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
-      Eliom_reference.set saved_service (Cast uuid) >>
       let confirm () =
         let service = S.create_confirm () in
         let () = Html5.register
@@ -562,6 +571,9 @@ module SVoting = struct
       ~service:election_cast
       (if_eligible S.get_logged_user can_read
          (fun uuid election user () ->
+           let module X = struct let s = preapply election_cast uuid end in
+           let x = (module X : SAVED_SERVICE) in
+           Eliom_reference.set S.saved_service x >>
            match_lwt Eliom_reference.get ballot with
            | Some _ -> ballot_received uuid election user
            | None -> T.election_cast_raw ~election
@@ -579,7 +591,11 @@ module SVoting = struct
                Lwt_stream.to_string (Lwt_io.chars_of_file fname)
              | _, _ -> fail_http 400
            in
-           Eliom_reference.set saved_service (Cast uuid) >>
+           let module X = struct
+             let s = preapply election_cast uuid
+           end in
+           let x = (module X : SAVED_SERVICE) in
+           Eliom_reference.set S.saved_service x >>
            Eliom_reference.set ballot (Some the_ballot) >>
            match user with
            | None -> return (preapply S.login None)
@@ -601,13 +617,10 @@ module S = struct
   include SElection.Services
   include SVoting.Services
 
-  let to_service = function
-    | Home -> home
-    | Cast u -> preapply election_cast u
-    | Election u -> preapply election_dir (u, ESIndex)
-
   let cont () =
-    Eliom_reference.get saved_service >>= wrap1 to_service
+    lwt x = Eliom_reference.get saved_service in
+    let module X = (val x : SAVED_SERVICE) in
+    return X.s
 
 end
 

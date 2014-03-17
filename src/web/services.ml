@@ -61,12 +61,3 @@ let string_of_election_file = function
   | ESRecords -> "records"
 
 let preapply_uuid s e = Eliom_service.preapply s e.e_uuid
-
-type savable_service =
-  | Home
-  | Cast of Uuidm.t
-  | Election of Uuidm.t
-
-let saved_service = Eliom_reference.eref
-  ~scope:Eliom_common.default_session_scope
-  Home
