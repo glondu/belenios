@@ -214,23 +214,3 @@ module type ELECTION = sig
   val extract_tally : result -> plaintext
   (** Extract the plaintext result of the election. *)
 end
-
-module type ELECTION_BUNDLE = sig
-  (* It seems that with OCaml 3.12.1, "with" constraints in package
-     types cannot be made on types in submodules, so we export a type
-     here, that will be aliased in submodules and constrained in
-     package types. *)
-  type elt
-
-  module G : GROUP with type t = elt
-  module E : ELECTION with type elt = elt
-end
-
-module type BALLOT_BOX_BUNDLE = sig
-  type receipt
-  type ballot
-  include ELECTION_BUNDLE
-  include MONADIC_MAP_RO with type 'a m = 'a E.m
-                         and type elt := ballot
-                         and type key := receipt
-end

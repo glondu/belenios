@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Serializable_builtin_t
+open Signatures
 
 module type EMPTY = sig end
 
@@ -242,12 +243,23 @@ type election_web = {
   can_vote : acl;
 }
 
+module type ELECTION_BUNDLE = sig
+  (* It seems that with OCaml 3.12.1, "with" constraints in package
+     types cannot be made on types in submodules, so we export a type
+     here, that will be aliased in submodules and constrained in
+     package types. *)
+  type elt
+
+  module G : GROUP with type t = elt
+  module E : ELECTION with type elt = elt
+end
+
 module type WEB_BALLOT_BOX = sig
-  module Ballots : Signatures.MONADIC_MAP_RO
+  module Ballots : MONADIC_MAP_RO
     with type 'a m = 'a Lwt.t
     and type elt = string
     and type key = string
-  module Records : Signatures.MONADIC_MAP_RO
+  module Records : MONADIC_MAP_RO
     with type 'a m = 'a Lwt.t
     and type elt = Serializable_builtin_t.datetime * string
     and type key = string
@@ -259,7 +271,7 @@ module type WEB_BALLOT_BOX = sig
 end
 
 module type WEB_ELECTION_BUNDLE =
-  Signatures.ELECTION_BUNDLE with type 'a E.m = 'a Lwt.t
+  ELECTION_BUNDLE with type 'a E.m = 'a Lwt.t
 
 module type WEB_BALLOT_BOX_BUNDLE = sig
   include WEB_ELECTION_BUNDLE
@@ -268,7 +280,7 @@ end
 
 type 'a web_election = {
   modules : (module WEB_BALLOT_BOX_BUNDLE with type elt = 'a);
-  election : 'a Signatures.election;
+  election : 'a election;
   election_web : election_web;
 }
 
