@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Serializable_builtin_t
+
 module type EMPTY = sig end
 
 module type SITE_SERVICES = sig
@@ -215,6 +217,47 @@ module type AUTH_SERVICES = sig
 
 end
 
+type acl =
+  | Any
+  | Restricted of (user -> bool Lwt.t)
+
+type election_web = {
+  params_fname : string;
+  public_keys_fname : string;
+  featured_p : bool;
+  can_read : acl;
+  can_vote : acl;
+}
+
+module type WEB_BALLOT_BOX = sig
+  module Ballots : Signatures.MONADIC_MAP_RO
+    with type 'a m = 'a Lwt.t
+    and type elt = string
+    and type key = string
+  module Records : Signatures.MONADIC_MAP_RO
+    with type 'a m = 'a Lwt.t
+    and type elt = Serializable_builtin_t.datetime * string
+    and type key = string
+
+  val cast : string -> string * datetime -> string Lwt.t
+  val inject_creds : Util.SSet.t -> unit Lwt.t
+  val extract_creds : unit -> Util.SSet.t Lwt.t
+  val update_cred : old:string -> new_:string -> unit Lwt.t
+end
+
+module type WEB_ELECTION_BUNDLE =
+  Signatures.ELECTION_BUNDLE with type 'a E.m = 'a Lwt.t
+
+module type WEB_BALLOT_BOX_BUNDLE = sig
+  include WEB_ELECTION_BUNDLE
+  module B : WEB_BALLOT_BOX
+end
+
+type 'a web_election = {
+  modules : (module WEB_BALLOT_BOX_BUNDLE with type elt = 'a);
+  election : 'a Signatures.election;
+  election_web : election_web;
+}
 
 module type TEMPLATES = sig
 
@@ -222,24 +265,22 @@ module type TEMPLATES = sig
     featured:'a Serializable_t.params list ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-  type 'a election
-
   val election_update_credential :
-    election:'a election ->
+    election:'a web_election ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val election_view :
-    election:'a election ->
+    election:'a web_election ->
     user:logged_user option ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val do_cast_ballot :
-    election:'a election ->
+    election:'a web_election ->
     result:[< `Error of Web_common.error | `Valid of string ] ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val ballot_received :
-    election:'a election ->
+    election:'a web_election ->
     confirm:(unit ->
              (Serializable_t.uuid, 'b,
               [< Eliom_service.post_service_kind ],
@@ -250,7 +291,7 @@ module type TEMPLATES = sig
     can_vote:bool -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val election_cast_raw :
-    election:'a election ->
+    election:'a web_election ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val dummy_login :

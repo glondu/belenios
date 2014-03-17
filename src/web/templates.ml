@@ -345,7 +345,7 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
     base ~title:name ~content
 
   let do_cast_ballot ~election ~result =
-    let params = election.Web_election.election.e_params in
+    let params = election.election.e_params in
     let name = params.e_name in
     let content = [
       h1 [ pcdata name ];
@@ -367,7 +367,7 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
     base ~title:name ~content
 
   let election_update_credential ~election =
-    let params = election.Web_election.election.e_params in
+    let params = election.election.e_params in
     let form = post_form ~service:S.election_update_credential
       (fun (old, new_) ->
         [

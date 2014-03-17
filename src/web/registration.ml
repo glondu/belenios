@@ -163,14 +163,14 @@ lwt election_table =
               )
             in
             let can_vote = match metadata with
-              | None -> Web_election.Any
+              | None -> Any
               | Some m -> match m.e_voters_list with
-                | None -> Web_election.Any
+                | None -> Any
                 | Some voters ->
                   let set = List.fold_left (fun accu u ->
                     SSet.add u accu
                   ) SSet.empty voters in
-                  Web_election.Restricted (fun u ->
+                  Restricted (fun u ->
                     return (SSet.mem (Auth_common.string_of_user u) set)
                   )
             in
@@ -220,11 +220,11 @@ let check_acl acl election user =
 let if_eligible get_user acl f uuid x =
   lwt election = get_election_by_uuid uuid in
   lwt user = get_user () in
-  lwt b = check_acl acl election.Web_election.election_web user in
+  lwt b = check_acl acl election.election_web user in
   if b then f uuid election user x else forbidden ()
 
-let can_read x u = x.Web_election.can_read
-let can_vote x u = x.Web_election.can_vote
+let can_read x u = x.can_read
+let can_vote x u = x.can_vote
 
 module SAuth = Auth_common.Make (struct end)
 
@@ -262,11 +262,7 @@ module SSite = struct
 
   end
 
-  module Register
-    (S : ALL_SERVICES)
-    (T : TEMPLATES with type 'a election = 'a Web_election.web_election)
-    : EMPTY =
-  struct
+  module Register (S : ALL_SERVICES) (T : TEMPLATES) : EMPTY = struct
     open Services
     open Eliom_registration
 
@@ -392,11 +388,7 @@ module SElection = struct
 
   end
 
-  module Register
-    (S : ALL_SERVICES)
-    (T : TEMPLATES with type 'a election = 'a Web_election.web_election)
-    : EMPTY =
-  struct
+  module Register (S : ALL_SERVICES) (T : TEMPLATES) : EMPTY = struct
     open Services
     open Eliom_registration
 
@@ -509,11 +501,7 @@ module SVoting = struct
 
   end
 
-  module Register
-    (S : ALL_SERVICES)
-    (T : TEMPLATES with type 'a election = 'a Web_election.web_election)
-    : EMPTY =
-  struct
+  module Register (S : ALL_SERVICES) (T : TEMPLATES) : EMPTY = struct
     open Services
     open Eliom_registration
 
@@ -624,7 +612,7 @@ module S = struct
 end
 
 module T = struct
-  type 'a election = 'a Web_election.web_election
+  type 'a election = 'a web_election
   include Templates.Make (S)
 end
 
