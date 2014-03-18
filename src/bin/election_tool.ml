@@ -123,7 +123,6 @@ module GetParams (X : sig end) : PARAMS = struct
 
   let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = params.e_public_key
   let group = {g; p; q}
-  let () = assert (Election.check_finite_field group)
 
   let sk_file = !sk_file
   let do_finalize = !do_finalize

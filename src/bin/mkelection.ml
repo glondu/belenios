@@ -85,7 +85,6 @@ module MakeElection (G : Election.FF_GROUP) (P : PARAMS) = struct
 
   (* Setup group *)
 
-  assert (Election.check_finite_field G.group);;
   module M = Election.MakeSimpleMonad(G);;
 
   (* Setup trustees *)

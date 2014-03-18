@@ -50,7 +50,7 @@ module type FF_GROUP = GROUP
   with type t = Z.t
   and type group = ff_params
 
-let finite_field group =
+let unsafe_finite_field group =
   let {p; q; g} = group in
   let module G = struct
     open Z
@@ -73,6 +73,12 @@ let finite_field group =
     type group = ff_params
     let group = group
   end in (module G : FF_GROUP)
+
+let finite_field group =
+  if check_finite_field group then
+    unsafe_finite_field group
+  else
+    invalid_arg "incorrect finite field parameters"
 
 (** Parameters *)
 

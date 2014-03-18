@@ -103,9 +103,6 @@ end
 module RunCredgen (P : PARAMS) (G : Election.FF_GROUP) = struct
   open P
 
-  (* Check the group *)
-  let () = assert (Election.check_finite_field G.group)
-
   (* Some helpers *)
 
   (* Beware: the following must be changed in accordance with the booth! *)

@@ -63,7 +63,6 @@ module RunTrusteeKeygen (G : Election.FF_GROUP) = struct
 
   (* Setup group *)
 
-  assert (Election.check_finite_field G.group);;
   module M = Election.MakeSimpleMonad(G);;
 
   (* Generate key *)
