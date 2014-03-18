@@ -30,33 +30,23 @@ let remove_dashes x =
   done;
   Buffer.contents res
 
-let derive uuid x =
+let do_derive uuid x =
   let open Cryptokit in
   let uuid = remove_dashes (Uuidm.to_string uuid) in
   let salt = transform_string (Hexa.decode ()) uuid in
   pbkdf2 ~prf:MAC.hmac_sha256 ~iterations:1000 ~size:1 ~salt x |>
   transform_string (Hexa.encode ())
 
-module RunCredgen (X : sig end) = struct
+module type PARAMS = sig
+  val group : (module Election.FF_GROUP)
+  val uuid : Uuidm.t
+  val count : int option ref
+  val file : string option ref
+  val derive : string option ref
+  val dir : string ref
+end
 
-  (* Setup group *)
-
-  module G = Election.DefaultGroup;;
-  assert (Election.check_finite_field G.group);;
-
-  (* Some helpers *)
-
-  (* Beware: the following must be changed in accordance with the booth! *)
-  let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-  let token_length = 14
-  let n58 = Z.of_int 58
-  let n53 = Z.of_int 53
-
-  let public_key_of_token uuid x =
-    let hex = derive uuid x in
-    let x = Z.(of_string_base 16 hex mod G.q) in
-    let y = G.(g **~ x) in
-    Z.to_string y
+module GetParams (X : sig end) : PARAMS = struct
 
   (* Argument parsing *)
 
@@ -65,6 +55,7 @@ module RunCredgen (X : sig end) = struct
   let count = ref None
   let file = ref None
   let derive = ref None
+  let group = ref None
 
   let speclist = Arg.([
     "--dir", String (fun s -> dir := s), "directory where output will be written";
@@ -72,6 +63,7 @@ module RunCredgen (X : sig end) = struct
     "--count", Int (fun i -> count := Some i), "number of credentials to generate";
     "--file", String (fun s -> file := Some s), "file with list of identities";
     "--derive", String (fun s -> derive := Some s), "derive public credential from given private one";
+    "--group", String (fun s -> group := Some s), "file with group parameters";
   ])
 
   let usage_msg =
@@ -83,6 +75,18 @@ module RunCredgen (X : sig end) = struct
 
   let () = Arg.parse speclist anon_fun usage_msg
 
+  let group = match !group with
+    | None ->
+      Printf.eprintf "--group is missing!\n";
+      exit 1
+    | Some fname ->
+      let ic = open_in fname in
+      let ls = Yojson.init_lexer () in
+      let lb = Lexing.from_channel ic in
+      let r = Serializable_j.read_ff_params ls lb in
+      close_in ic;
+      Election.finite_field r
+
   let uuid = match !uuid with
     | None ->
       Printf.eprintf "UUID is missing!\n";
@@ -93,6 +97,28 @@ module RunCredgen (X : sig end) = struct
         | None ->
           Printf.eprintf "UUID is invalid!\n";
           exit 1
+
+end
+
+module RunCredgen (P : PARAMS) (G : Election.FF_GROUP) = struct
+  open P
+
+  (* Check the group *)
+  let () = assert (Election.check_finite_field G.group)
+
+  (* Some helpers *)
+
+  (* Beware: the following must be changed in accordance with the booth! *)
+  let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+  let token_length = 14
+  let n58 = Z.of_int 58
+  let n53 = Z.of_int 53
+
+  let public_key_of_token uuid x =
+    let hex = do_derive uuid x in
+    let x = Z.(of_string_base 16 hex mod G.q) in
+    let y = G.(g **~ x) in
+    Z.to_string y
 
   let count, ids =
     match !count, !file, !derive with
@@ -207,7 +233,10 @@ module RunCredgen (X : sig end) = struct
 
 end
 
+let derive = do_derive
 
 let main () =
-  let module X = RunCredgen (struct end) in
+  let module P = GetParams (struct end) in
+  let module G = (val P.group : Election.FF_GROUP) in
+  let module X = RunCredgen (P) (G) in
   ()

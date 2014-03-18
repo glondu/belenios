@@ -35,9 +35,6 @@ val finite_field : Serializable_t.ff_params -> (module FF_GROUP)
 val check_finite_field : Serializable_t.ff_params -> bool
 (** Check consistency of finite field parameters. *)
 
-module DefaultGroup : FF_GROUP
-(** A sample group suitable for cryptography. *)
-
 val check_election_public_key : (module GROUP with type t = 'a) ->
   'a election -> bool
 (** Check election public key. *)

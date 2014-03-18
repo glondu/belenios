@@ -34,7 +34,7 @@ module GetParams (X : sig end) : PARAMS = struct
   ])
 
   let usage_msg =
-    Printf.sprintf "Usage: %s trustee-keygen [--group <file>]" Sys.argv.(0)
+    Printf.sprintf "Usage: %s trustee-keygen --group <file>" Sys.argv.(0)
 
   let usage () =
     Arg.usage speclist usage_msg;
@@ -47,7 +47,9 @@ module GetParams (X : sig end) : PARAMS = struct
   let () = Arg.parse speclist anon_fun usage_msg
 
   let group = match !group with
-    | None -> Election.((module DefaultGroup : FF_GROUP))
+    | None ->
+      Printf.eprintf "--group is missing!\n";
+      usage ()
     | Some fname ->
       let ic = open_in fname in
       let ls = Yojson.init_lexer () in

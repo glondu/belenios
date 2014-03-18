@@ -21,19 +21,23 @@ DIR=$BELENIOS/demo/data/$UUID
 mkdir $DIR
 cd $DIR
 
+# Common options
+uuid="--uuid $UUID"
+group="--group $BELENIOS/demo/groups/default.json"
+
 # Generate credentials
-belenios-tool credgen --uuid $UUID --count 3
+belenios-tool credgen $uuid $group --count 3
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
-belenios-tool trustee-keygen
-belenios-tool trustee-keygen
-belenios-tool trustee-keygen
+belenios-tool trustee-keygen $group
+belenios-tool trustee-keygen $group
+belenios-tool trustee-keygen $group
 cat *.pubkey > public_keys.jsons
 
 # Generate election parameters
-belenios-tool mkelection --uuid $UUID --group $BELENIOS/demo/groups/default.json --template $BELENIOS/demo/templates/election.json
+belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/election.json
 
 header "Simulate votes"
 
