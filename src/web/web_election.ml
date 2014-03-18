@@ -28,7 +28,7 @@ open Serializable_t
 open Web_serializable_t
 open Web_common
 
-let make_web_election raw_election metadata election_web =
+let make_web_election raw_election metadata ~featured_p ~params_fname ~public_keys_fname =
 
   let e_fingerprint = sha256_b64 raw_election in
   let wrapped_params = Serializable_j.params_of_string
@@ -37,14 +37,18 @@ let make_web_election raw_election metadata election_web =
   let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = wrapped_params.e_public_key in
   let group = {g; p; q} in
   let e_params = { wrapped_params with e_public_key = y } in
-  let election = {e_params; e_pks = None; e_fingerprint} in
 
-  let module X : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t = struct
-    type elt = Z.t
-
+  let module X : WEB_ELECTION = struct
     module G = (val Election.finite_field group : Election.FF_GROUP)
     module M = MakeLwtRandom(struct let rng = make_rng () end)
     module E = Election.MakeElection(G)(M)
+
+    let election = {e_params; e_pks = None; e_fingerprint}
+    let metadata = metadata
+
+    let public_keys_fname = public_keys_fname
+    let params_fname = params_fname
+    let featured_p = featured_p
 
     module B : WEB_BALLOT_BOX = struct
 
@@ -200,9 +204,5 @@ let make_web_election raw_election metadata election_web =
         Lwt_mutex.with_lock mutex (fun () -> do_update_cred ~old ~new_)
     end
   end in
-  {
-    modules = (module X : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t);
-    election;
-    metadata;
-    election_web;
-  }
+
+  (module X : WEB_ELECTION)

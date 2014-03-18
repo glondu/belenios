@@ -167,35 +167,17 @@ lwt election_table =
                 return (SSet.add c accu)
               )
             in
-            let can_vote = match metadata.e_voters with
-              | None -> Any
-              | Some acls ->
-                let set = List.fold_left (fun accu u ->
-                  AclSet.add u accu
-                ) AclSet.empty acls in
-                Restricted (fun u ->
-                  return (
-                    AclSet.mem `Any set ||
-                    AclSet.mem (`Domain u.user_domain) set ||
-                    AclSet.mem (`User u) set
-                  )
-                )
+            let featured_p = true in
+            let election = Web_election.make_web_election
+              raw_election metadata
+              ~featured_p
+              ~params_fname
+              ~public_keys_fname
             in
-            let election_web = Web_election.({
-              params_fname;
-              public_keys_fname;
-              featured_p = true;
-              can_read = Any;
-              can_vote;
-            }) in
-            let open Web_election in
-            let web_election = make_web_election
-              raw_election metadata election_web
-            in
-            let module X = (val web_election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+            let module X = (val election : WEB_ELECTION) in
             X.B.inject_creds public_creds >>
-            let uuid = web_election.election.e_params.e_uuid in
-            return (EMap.add uuid web_election accu)
+            let uuid = X.election.e_params.e_uuid in
+            return (EMap.add uuid election accu)
           ) else return accu
         )
        )
@@ -208,30 +190,37 @@ let get_election_by_uuid x =
     raise_lwt Eliom_common.Eliom_404
 
 let get_featured_elections () =
-  let open Web_election in
   EMap.fold (fun uuid e res ->
-    if e.election_web.featured_p then
-      e.election.e_params :: res
+    let module X = (val e : WEB_ELECTION) in
+    if X.featured_p then
+      e :: res
     else res
   ) election_table [] |> return
 
-let check_acl acl election user =
-  let open Web_election in
-  match acl election user with
-    | Any -> return true
-    | Restricted p ->
-      match user with
-        | Some user -> p user.user_user
-        | None -> return false
-
 let if_eligible get_user acl f uuid x =
   lwt election = get_election_by_uuid uuid in
+  let module X = (val election : WEB_ELECTION) in
   lwt user = get_user () in
-  lwt b = check_acl acl election.election_web user in
-  if b then f uuid election user x else forbidden ()
+  if acl X.metadata user then
+    f uuid election user x
+  else
+    forbidden ()
 
-let can_read x u = x.can_read
-let can_vote x u = x.can_vote
+let can_read m user =
+  match m.e_readers with
+  | None -> false
+  | Some acls ->
+    match user with
+    | None -> List.mem `Any acls (* readers can be anonymous *)
+    | Some u -> check_acl (Some acls) u.user_user
+
+let can_vote m user =
+  match m.e_voters with
+  | None -> false
+  | Some acls ->
+    match user with
+    | None -> false (* voters must log in *)
+    | Some u -> check_acl (Some acls) u.user_user
 
 module SAuth = Auth_common.Make (struct end)
 
@@ -352,8 +341,7 @@ module SSite = struct
         match user with
         | Some u when u.user_admin ->
           lwt election = get_election_by_uuid uuid in
-          let open Web_election in
-          let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+          let module X = (val election : WEB_ELECTION) in
           begin try_lwt
             X.B.update_cred ~old ~new_ >>
             return ("OK", "text/plain")
@@ -404,14 +392,15 @@ module SElection = struct
     open Eliom_registration
 
     let f_raw uuid election user () =
-      return Web_election.(election.election_web.params_fname)
+      let module X = (val election : WEB_ELECTION) in
+      return X.params_fname
 
     let f_keys uuid election user () =
-      return Web_election.(election.election_web.public_keys_fname)
+      let module X = (val election : WEB_ELECTION) in
+      return X.public_keys_fname
 
     let f_creds uuid election user () =
-      let open Web_election in
-      let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+      let module X = (val election : WEB_ELECTION) in
       lwt creds = X.B.extract_creds () in
       let s = SSet.fold (fun x accu ->
         (fun () -> return (Ocsigen_stream.of_string (x^"\n"))) :: accu
@@ -419,8 +408,7 @@ module SElection = struct
       return (List.rev s, "text/plain")
 
     let f_ballots uuid election user () =
-      let open Web_election in
-      let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+      let module X = (val election : WEB_ELECTION) in
       (* TODO: streaming *)
       lwt ballots = X.B.Ballots.fold (fun _ x xs ->
         return ((x^"\n")::xs)
@@ -433,8 +421,7 @@ module SElection = struct
     let f_records uuid election user () =
       match user with
       | Some u when u.user_admin ->
-        let open Web_election in
-        let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+        let module X = (val election : WEB_ELECTION) in
         (* TODO: streaming *)
         lwt ballots = X.B.Records.fold (fun u (d, _) xs ->
           let x = Printf.sprintf "%s %S\n"
@@ -537,14 +524,13 @@ module SVoting = struct
       | Some the_ballot ->
         begin
           Eliom_reference.unset ballot >>
-          let open Web_election in
-          let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+          let module X = (val election : WEB_ELECTION) in
           match_lwt S.get_logged_user () with
-          | Some user as u ->
-            lwt b = check_acl can_vote election.election_web u in
+          | Some u ->
+            let b = check_acl X.metadata.e_voters u.user_user in
             if b then (
               let record =
-                Auth_common.string_of_user user.user_user,
+                Auth_common.string_of_user u.user_user,
                 (CalendarLib.Fcalendar.Precise.now (), None)
               in
               lwt result =
@@ -561,8 +547,7 @@ module SVoting = struct
       | None -> fail_http 404
 
     let ballot_received uuid election user =
-      let open Web_election in
-      let module X = (val election.modules : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t) in
+      let module X = (val election : WEB_ELECTION) in
       let confirm () =
         let service = S.create_confirm () in
         let () = Html5.register
@@ -571,7 +556,7 @@ module SVoting = struct
           (do_cast election)
         in service
       in
-      lwt can_vote = check_acl can_vote election.election_web user in
+      let can_vote = can_vote X.metadata user in
       T.ballot_received ~election ~confirm ~user ~can_vote
 
     let () = Html5.register
@@ -631,10 +616,7 @@ module S = struct
 
 end
 
-module T = struct
-  type 'a election = 'a web_election
-  include Templates.Make (S)
-end
+module T = Templates.Make (S)
 
 let () =
   let module X : EMPTY = SAuth.Register (S) (T) in

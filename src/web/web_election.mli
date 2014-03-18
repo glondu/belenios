@@ -27,5 +27,7 @@ open Web_signatures
 val make_web_election :
   string ->
   metadata ->
-  election_web ->
-  Z.t web_election
+  featured_p:bool ->
+  params_fname:string ->
+  public_keys_fname:string ->
+  (module WEB_ELECTION)

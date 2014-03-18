@@ -228,29 +228,6 @@ module type AUTH_SERVICES = sig
 
 end
 
-type acl =
-  | Any
-  | Restricted of (user -> bool Lwt.t)
-
-type election_web = {
-  params_fname : string;
-  public_keys_fname : string;
-  featured_p : bool;
-  can_read : acl;
-  can_vote : acl;
-}
-
-module type ELECTION_BUNDLE = sig
-  (* It seems that with OCaml 3.12.1, "with" constraints in package
-     types cannot be made on types in submodules, so we export a type
-     here, that will be aliased in submodules and constrained in
-     package types. *)
-  type elt
-
-  module G : GROUP with type t = elt
-  module E : ELECTION with type elt = elt
-end
-
 module type WEB_BALLOT_BOX = sig
   module Ballots : MONADIC_MAP_RO
     with type 'a m = 'a Lwt.t
@@ -267,43 +244,42 @@ module type WEB_BALLOT_BOX = sig
   val update_cred : old:string -> new_:string -> unit Lwt.t
 end
 
-module type WEB_ELECTION_BUNDLE =
-  ELECTION_BUNDLE with type 'a E.m = 'a Lwt.t
+module type WEB_ELECTION = sig
+  module G : GROUP
+  module E : ELECTION with type elt = G.t
 
-module type WEB_BALLOT_BOX_BUNDLE = sig
-  include WEB_ELECTION_BUNDLE
+  val election : G.t election
+  val metadata : metadata
+
   module B : WEB_BALLOT_BOX
-end
 
-type 'a web_election = {
-  modules : (module WEB_BALLOT_BOX_BUNDLE with type elt = 'a);
-  election : 'a election;
-  metadata : metadata;
-  election_web : election_web;
-}
+  val featured_p : bool
+  val params_fname : string
+  val public_keys_fname : string
+end
 
 module type TEMPLATES = sig
 
   val index :
-    featured:'a Serializable_t.params list ->
+    featured:(module WEB_ELECTION) list ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val election_update_credential :
-    election:'a web_election ->
+    election:(module WEB_ELECTION) ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val election_view :
-    election:'a web_election ->
+    election:(module WEB_ELECTION) ->
     user:logged_user option ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val do_cast_ballot :
-    election:'a web_election ->
+    election:(module WEB_ELECTION) ->
     result:[< `Error of Web_common.error | `Valid of string ] ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val ballot_received :
-    election:'a web_election ->
+    election:(module WEB_ELECTION) ->
     confirm:(unit ->
              (Serializable_t.uuid, 'b,
               [< Eliom_service.post_service_kind ],
@@ -314,7 +290,7 @@ module type TEMPLATES = sig
     can_vote:bool -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val election_cast_raw :
-    election:'a web_election ->
+    election:(module WEB_ELECTION) ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val dummy_login :

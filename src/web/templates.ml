@@ -22,7 +22,9 @@
 open Signatures
 open Util
 open Serializable_t
+open Web_serializable_t
 open Web_signatures
+open Web_common
 open Eliom_content.Html5.F
 
 (* TODO: these pages should be redesigned *)
@@ -33,7 +35,7 @@ let welcome_message = "Welcome!"
 let format_user u =
   em [pcdata (Auth_common.(string_of_user u.user_user))]
 
-module Make (S : Web_signatures.ALL_SERVICES) = struct
+module Make (S : ALL_SERVICES) : TEMPLATES = struct
 
   let base ~title ~content =
     lwt user = S.get_logged_user () in
@@ -87,7 +89,9 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
         ]
        ]))
 
-  let format_one_featured_election e =
+  let format_one_featured_election election =
+    let module X = (val election : WEB_ELECTION) in
+    let e = X.election.e_params in
     li [
       h3 [
         a ~service:(S.election_file e Services.ESIndex)
@@ -184,30 +188,26 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
       contents
 
   let election_view ~election ~user =
-    let open Web_election in
-    let params = election.election.e_params in
+    let module X = (val election : WEB_ELECTION) in
+    let params = X.election.e_params and m = X.metadata in
     let service = S.election_file params Services.ESRaw in
     lwt permissions =
-      match election.election_web.can_vote with
-        | Any ->
-          Lwt.return [ pcdata "Anyone can vote in this election." ]
-        | Restricted p ->
-          match user with
-            | None ->
-              Lwt.return [
-                pcdata "Log in to check if you can vote. Alternatively, you can try to vote and log in at the last moment.";
-              ]
-            | Some u ->
-              lwt b = p u.user_user in
-              let can = if b then pcdata "can" else pcdata "cannot" in
-              Lwt.return [
-                pcdata "You ";
-                can;
-                pcdata " vote in this election.";
-              ]
+      match user with
+      | None ->
+        Lwt.return [
+          pcdata "Log in to check if you can vote. ";
+          pcdata "Alternatively, you can try to vote and ";
+          pcdata "log in at the last moment.";
+        ]
+      | Some u ->
+        let can = if check_acl m.e_voters u.user_user then "can" else "cannot" in
+        Lwt.return [
+          pcdata "You ";
+          pcdata can;
+          pcdata " vote in this election.";
+        ]
     in
     let voting_period =
-      let m = election.metadata in
       match m.e_voting_starts_at, m.e_voting_ends_at with
       | None, None ->
         [
@@ -239,7 +239,7 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
       div [
         div [
           pcdata "Election fingerprint: ";
-          code [ pcdata election.election.e_fingerprint ];
+          code [ pcdata X.election.e_fingerprint ];
         ];
         div [
           pcdata "Election data: ";
@@ -284,8 +284,8 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
     base ~title:params.e_name ~content
 
   let election_cast_raw ~election =
-    let open Web_election in
-    let params = election.election.e_params in
+    let module X = (val election : WEB_ELECTION) in
+    let params = X.election.e_params in
     let form_rawballot = post_form ~service:S.election_cast_post
       (fun (name, _) ->
         [
@@ -317,8 +317,8 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
     base ~title:params.e_name ~content
 
   let ballot_received ~election ~confirm ~user ~can_vote =
-    let open Web_election in
-    let params = election.election.e_params in
+    let module X = (val election : WEB_ELECTION) in
+    let params = X.election.e_params in
     let name = params.e_name in
     let user_div = match user with
       | Some u when can_vote ->
@@ -359,7 +359,8 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
     base ~title:name ~content
 
   let do_cast_ballot ~election ~result =
-    let params = election.election.e_params in
+    let module X = (val election : WEB_ELECTION) in
+    let params = X.election.e_params in
     let name = params.e_name in
     let content = [
       h1 [ pcdata name ];
@@ -381,7 +382,8 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
     base ~title:name ~content
 
   let election_update_credential ~election =
-    let params = election.election.e_params in
+    let module X = (val election : WEB_ELECTION) in
+    let params = X.election.e_params in
     let form = post_form ~service:S.election_update_credential
       (fun (old, new_) ->
         [

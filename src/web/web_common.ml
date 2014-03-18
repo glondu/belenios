@@ -154,3 +154,15 @@ let empty_metadata = {
   e_voters = None;
   e_owner = None;
 }
+
+let check_acl a u =
+  match a with
+  | Some acls ->
+    let rec loop = function
+      | [] -> false
+      | `Any :: _ -> true
+      | `Domain x :: _ when x = u.user_domain -> true
+      | `User x :: _ when x = u -> true
+      | _ :: xs -> loop xs
+    in loop acls
+  | _ -> false
