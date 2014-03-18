@@ -31,10 +31,6 @@ open Web_signatures
    <maxrequestbodysize> doesn't work *)
 let () = Ocsigen_config.set_maxrequestbodysizeinmemory 128000
 
-module G = Election.DefaultGroup
-module M = MakeLwtRandom(struct let rng = make_rng () end)
-module E = Election.MakeElection(G)(M)
-
 module EMap = Map.Make(Uuidm)
 
 module AclSet = Set.Make(struct
