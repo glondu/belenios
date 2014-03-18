@@ -22,6 +22,7 @@
 open Lwt
 open Util
 open Serializable_t
+open Signatures
 open Web_serializable_t
 open Web_signatures
 open Web_common

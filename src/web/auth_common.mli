@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Serializable_t
+open Signatures
 open Web_serializable_t
 open Web_signatures
 

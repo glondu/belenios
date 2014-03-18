@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Signatures
 open Util
 
 let remove_dashes x =
@@ -46,7 +47,7 @@ module type PARAMS = sig
   val dir : string ref
 end
 
-module GetParams (X : sig end) : PARAMS = struct
+module GetParams (X : EMPTY) : PARAMS = struct
 
   (* Argument parsing *)
 

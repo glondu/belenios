@@ -56,7 +56,7 @@ module type PARAMS = sig
 end
 
 
-module GetParams (X : sig end) : PARAMS = struct
+module GetParams (X : EMPTY) : PARAMS = struct
 
   (* Command-line arguments *)
 

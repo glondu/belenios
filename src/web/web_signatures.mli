@@ -24,8 +24,6 @@ open Serializable_t
 open Web_serializable_t
 open Signatures
 
-module type EMPTY = sig end
-
 module type SAVED_SERVICE = sig
   val s :
     (unit, unit,

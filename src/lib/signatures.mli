@@ -21,6 +21,9 @@
 
 (** Signatures *)
 
+(** Empty module *)
+module type EMPTY = sig end
+
 (** A group suitable for discrete logarithm-based cryptography. *)
 module type GROUP = sig
   (** The following interface is redundant: it is assumed, but not

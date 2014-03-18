@@ -21,12 +21,13 @@
 
 open Util
 open Serializable_t
+open Signatures
 
 module type PARAMS = sig
   val group : (module Election.FF_GROUP)
 end
 
-module GetParams (X : sig end) : PARAMS = struct
+module GetParams (X : EMPTY) : PARAMS = struct
   let group = ref None
 
   let speclist = Arg.([
