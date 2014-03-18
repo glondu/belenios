@@ -35,11 +35,6 @@ cat *.pubkey > public_keys.jsons
 # Generate election parameters
 belenios-tool mkelection --uuid $UUID --group $BELENIOS/demo/groups/default.json --template $BELENIOS/demo/templates/election.json
 
-# Generate election metadata
-BDATE="$(date -u +'%F %T.000')"
-EDATE="$(date -u -d tomorrow +'%F %T.000')"
-printf '{"voting_starts_at":"%s","voting_ends_at":"%s"}\n' "$BDATE" "$EDATE" > metadata.json
-
 header "Simulate votes"
 
 cat private_creds.txt | while read cred; do
