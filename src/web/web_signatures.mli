@@ -20,6 +20,8 @@
 (**************************************************************************)
 
 open Serializable_builtin_t
+open Serializable_t
+open Web_serializable_t
 open Signatures
 
 module type EMPTY = sig end
@@ -194,11 +196,6 @@ module type CONT_SERVICE = sig
     Eliom_service.service Lwt.t
 end
 
-type user = {
-  user_type : string;
-  user_name : string;
-}
-
 type logged_user = {
   user_admin : bool;
   user_user : user;
@@ -281,6 +278,7 @@ end
 type 'a web_election = {
   modules : (module WEB_BALLOT_BOX_BUNDLE with type elt = 'a);
   election : 'a election;
+  metadata : metadata;
   election_web : election_web;
 }
 

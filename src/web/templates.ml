@@ -206,18 +206,32 @@ module Make (S : Web_signatures.ALL_SERVICES) = struct
                 pcdata " vote in this election.";
               ]
     in
-    let voting_period = match election.election.e_meta with
-      | Some m ->
-        [
-          pcdata "This election starts on ";
-          em [pcdata (format_date m.e_voting_starts_at)];
-          pcdata " and ends on ";
-          em [pcdata (format_date m.e_voting_ends_at)];
-          pcdata ".";
-        ]
-      | None ->
+    let voting_period =
+      let m = election.metadata in
+      match m.e_voting_starts_at, m.e_voting_ends_at with
+      | None, None ->
         [
           pcdata "This election starts and ends at the administrator's discretion."
+        ]
+      | Some s, None ->
+        [
+          pcdata "This election starts on ";
+          em [pcdata (format_date s)];
+          pcdata " and ends at the administrator's discretion.";
+        ]
+      | None, Some s ->
+        [
+          pcdata "This election starts at the administrator's discretion and ends on ";
+          em [pcdata (format_date s)];
+          pcdata ".";
+        ]
+      | Some s, Some e ->
+        [
+          pcdata "This election starts on ";
+          em [pcdata (format_date s)];
+          pcdata " and ends on ";
+          em [pcdata (format_date e)];
+          pcdata ".";
         ]
     in
     let audit_info = div [

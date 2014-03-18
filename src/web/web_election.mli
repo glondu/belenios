@@ -21,10 +21,11 @@
 
 open Serializable_builtin_t
 open Serializable_t
+open Web_serializable_t
 open Web_signatures
 
 val make_web_election :
   string ->
-  metadata option ->
+  metadata ->
   election_web ->
   Z.t web_election

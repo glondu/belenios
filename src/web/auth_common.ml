@@ -21,11 +21,13 @@
 
 open Lwt
 open Util
+open Serializable_t
+open Web_serializable_t
 open Web_signatures
 open Web_common
 
-let string_of_user {user_type; user_name} =
-  user_type ^ ":" ^ user_name
+let string_of_user {user_domain; user_name} =
+  user_domain ^ ":" ^ user_name
 
 type instantiator = string -> (module AUTH_SERVICE) -> unit
 
@@ -49,12 +51,12 @@ module Make (X : EMPTY) = struct
     ~scope:Eliom_common.default_session_scope
     None
 
-  let on_success user_admin user_type ~user_name ~user_logout =
-    let user_user = {user_type; user_name} in
+  let on_success user_admin user_domain ~user_name ~user_logout =
+    let user_user = {user_domain; user_name} in
     let logged_user = {user_admin; user_user; user_logout} in
     security_log (fun () ->
       Printf.sprintf "%s successfully logged in%s using %s"
-        user_name (if user_admin then " (as admin)" else "") user_type
+        user_name (if user_admin then " (as admin)" else "") user_domain
     ) >>
     Eliom_reference.set user (Some logged_user)
 

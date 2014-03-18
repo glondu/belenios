@@ -25,9 +25,10 @@ open Lwt
 open Util
 open Serializable_builtin_t
 open Serializable_t
+open Web_serializable_t
 open Web_common
 
-let make_web_election raw_election e_meta election_web =
+let make_web_election raw_election metadata election_web =
 
   let e_fingerprint = sha256_b64 raw_election in
   let wrapped_params = Serializable_j.params_of_string
@@ -36,7 +37,7 @@ let make_web_election raw_election e_meta election_web =
   let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = wrapped_params.e_public_key in
   let group = {g; p; q} in
   let e_params = { wrapped_params with e_public_key = y } in
-  let election = {e_params; e_meta; e_pks = None; e_fingerprint} in
+  let election = {e_params; e_pks = None; e_fingerprint} in
 
   let module X : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t = struct
     type elt = Z.t
@@ -96,13 +97,15 @@ let make_web_election raw_election e_meta election_web =
         )
 
       let do_cast rawballot (user, date) =
-        let voting_open = match election.e_meta with
-          | Some m ->
-            let date = fst date in
+        let voting_open =
+          let compare a b =
             let open CalendarLib.Fcalendar.Precise in
-            compare (fst m.e_voting_starts_at) date <= 0 &&
-            compare date (fst m.e_voting_ends_at) < 0
-          | None -> true
+            match a, b with
+            | Some a, Some b -> compare (fst a) (fst b)
+            | _, _ -> -1
+          in
+          compare metadata.e_voting_starts_at (Some date) <= 0 &&
+          compare (Some date) metadata.e_voting_ends_at < 0
         in
         if not voting_open then fail ElectionClosed else return () >>
         if String.contains rawballot '\n' then (
@@ -200,5 +203,6 @@ let make_web_election raw_election e_meta election_web =
   {
     modules = (module X : WEB_BALLOT_BOX_BUNDLE with type elt = Z.t);
     election;
+    metadata;
     election_web;
   }

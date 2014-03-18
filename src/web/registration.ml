@@ -22,6 +22,7 @@
 open Signatures
 open Util
 open Serializable_t
+open Web_serializable_j
 open Lwt
 open Web_common
 open Web_signatures
@@ -35,6 +36,11 @@ module M = MakeLwtRandom(struct let rng = make_rng () end)
 module E = Election.MakeElection(G)(M)
 
 module EMap = Map.Make(Uuidm)
+
+module AclSet = Set.Make(struct
+  type t = Web_serializable_t.acl
+  let compare = compare
+end)
 
 let ( / ) = Filename.concat
 
@@ -151,9 +157,8 @@ lwt election_table =
               if b then (
                 Lwt_io.chars_of_file fname |>
                 Lwt_stream.to_string >>=
-                wrap1 Serializable_j.metadata_of_string >>=
-                (fun x -> return (Some x))
-              ) else return None
+                wrap1 metadata_of_string
+              ) else return empty_metadata
             in
             let public_creds_fname = path/"public_creds.txt" in
             lwt public_creds =
@@ -162,17 +167,19 @@ lwt election_table =
                 return (SSet.add c accu)
               )
             in
-            let can_vote = match metadata with
+            let can_vote = match metadata.e_voters with
               | None -> Any
-              | Some m -> match m.e_voters_list with
-                | None -> Any
-                | Some voters ->
-                  let set = List.fold_left (fun accu u ->
-                    SSet.add u accu
-                  ) SSet.empty voters in
-                  Restricted (fun u ->
-                    return (SSet.mem (Auth_common.string_of_user u) set)
+              | Some acls ->
+                let set = List.fold_left (fun accu u ->
+                  AclSet.add u accu
+                ) AclSet.empty acls in
+                Restricted (fun u ->
+                  return (
+                    AclSet.mem `Any set ||
+                    AclSet.mem (`Domain u.user_domain) set ||
+                    AclSet.mem (`User u) set
                   )
+                )
             in
             let election_web = Web_election.({
               params_fname;
@@ -323,7 +330,7 @@ module SSite = struct
       (fun () () ->
         lwt r = do_get_randomness () in
         Cryptokit.(transform_string (Base64.encode_compact ()) r) |>
-        (fun x -> Serializable_j.string_of_randomness { randomness=x }) |>
+        (fun x -> string_of_randomness { randomness=x }) |>
         (fun x -> return (x, "application/json"))
       )
 

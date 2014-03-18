@@ -24,6 +24,7 @@ open Lwt
 open Util
 open Serializable_builtin_t
 open Serializable_t
+open Web_serializable_t
 
 let enforce_single_element s =
   let open Lwt_stream in
@@ -145,3 +146,11 @@ let set_rewrite_prefix ~src ~dst =
       dst ^ String.sub x nsrc (n-nsrc)
     else x
   in rewrite_fun := f
+
+let empty_metadata = {
+  e_voting_starts_at = None;
+  e_voting_ends_at = None;
+  e_readers = None;
+  e_voters = None;
+  e_owner = None;
+}

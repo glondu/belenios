@@ -163,19 +163,12 @@ module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
 
   (* Finish setting up the election *)
 
-  let metadata =
-    match (load_from_file Serializable_j.metadata_of_string "metadata.json") with
-    | Some [m] -> Some m
-    | Some _ -> failwith "invalid metadata.json"
-    | None -> None
-
   let pks = match public_keys with
     | Some pks -> pks
     | None -> failwith "missing public keys"
 
   let e = {
     e_params = { params with e_public_key = P.y };
-    e_meta = metadata;
     e_pks = Some pks;
     e_fingerprint = election_fingerprint;
   }

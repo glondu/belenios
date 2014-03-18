@@ -110,9 +110,6 @@ type 'a election = {
   e_params : 'a Serializable_t.params;
   (** Parameters of the election. *)
 
-  e_meta : Serializable_t.metadata option;
-  (** Other optional, serializable, metadata. *)
-
   e_pks : 'a array option;
   (** Trustee public keys. *)
 
