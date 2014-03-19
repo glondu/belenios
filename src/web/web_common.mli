@@ -86,3 +86,9 @@ type election_file =
 
 val election_file_of_string : string -> election_file
 val string_of_election_file : election_file -> string
+
+val election_file :
+  string ->
+  (election_file, [ `WithoutSuffix ],
+   [ `One of election_file ] Eliom_parameter.param_name)
+  Eliom_parameter.params_type

@@ -365,16 +365,11 @@ module SElection = struct
   open Eliom_service
   open Eliom_parameter
 
-  let election_file = Eliom_parameter.user_type
-    election_file_of_string
-    string_of_election_file
-    "file"
-
   module Services : ELECTION_SERVICES = struct
 
     let election_dir = service
       ~path:["elections"]
-      ~get_params:(suffix (uuid "uuid" ** election_file))
+      ~get_params:(suffix (uuid "uuid" ** election_file "file"))
       ()
 
     let election_file e f = preapply election_dir (e.e_uuid, f)

@@ -197,3 +197,7 @@ let string_of_election_file = function
   | ESCreds -> "public_creds.txt"
   | ESBallots -> "ballots.jsons"
   | ESRecords -> "records"
+
+let election_file = Eliom_parameter.user_type
+  ~of_string:election_file_of_string
+  ~to_string:string_of_election_file
