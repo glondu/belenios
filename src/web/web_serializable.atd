@@ -50,3 +50,10 @@ type metadata = {
   ?voters : acl list option;
   ?owner: user option;
 } <ocaml field_prefix="e_">
+
+type datadir_item = {
+  dir : string;
+  featured : bool;
+} <ocaml field_prefix="datadir_">
+
+type datadir_index = datadir_item list

@@ -50,7 +50,7 @@ let file_exists x =
 let populate accu f s = Lwt_stream.fold_s f s accu
 
 let secure_logfile = ref None
-let data_dir = ref None
+let datadirs = ref []
 let source_file = ref None
 let main_election = ref None
 let rewrite_src = ref None
@@ -81,7 +81,7 @@ let config_spec =
       ~name:"data"
       ~obligatory:true
       ~attributes:[
-        attribute ~name:"dir" ~obligatory:true (fun s -> data_dir := Some s);
+        attribute ~name:"dir" ~obligatory:true (fun s -> datadirs := s :: !datadirs);
       ] ();
     element
       ~name:"rewrite-prefix"
@@ -118,66 +118,79 @@ let main_election = match !main_election with
     | Some u -> Some u
     | None -> failwith "Incorrect UUID in configuration <main-election> tag"
 
+let get_single_line x =
+  match_lwt Lwt_stream.get x with
+  | None -> return None
+  | Some _ as line ->
+    lwt b = Lwt_stream.is_empty x in
+    if b then (
+      return line
+    ) else (
+      Lwt_stream.junk_while (fun _ -> true) x >>
+      return None
+    )
+
+let process_datadir dir =
+  Ocsigen_messages.debug (fun () ->
+    "Using data from " ^ dir ^ "..."
+  );
+  lwt index =
+    Lwt_io.chars_of_file (dir/"index.json") |>
+    Lwt_stream.to_string >>=
+    wrap1 datadir_index_of_string
+  in
+  Lwt_list.map_p (fun item ->
+    let subdir = item.datadir_dir in
+    let path = dir/subdir in
+    let params_fname = path/"election.json" in
+    let public_keys_fname = path/"public_keys.jsons" in
+    Ocsigen_messages.debug (fun () ->
+      "-- registering " ^ subdir
+    );
+    lwt raw_election =
+      Lwt_io.lines_of_file params_fname |>
+      get_single_line >>=
+      (function
+      | Some e -> return e
+      | None -> failwith "election.json is invalid")
+    in
+    lwt metadata =
+      let fname = path/"metadata.json" in
+      lwt b = file_exists fname in
+      if b then (
+        Lwt_io.chars_of_file fname |>
+        Lwt_stream.to_string >>=
+        wrap1 metadata_of_string
+      ) else return empty_metadata
+    in
+    let public_creds_fname = path/"public_creds.txt" in
+    lwt public_creds =
+      Lwt_io.lines_of_file public_creds_fname |>
+      populate SSet.empty (fun c accu ->
+        return (SSet.add c accu)
+      )
+    in
+    let featured_p = item.datadir_featured in
+    let election = Web_election.make_web_election
+      raw_election metadata
+      ~featured_p
+      ~params_fname
+      ~public_keys_fname
+    in
+    let module X = (val election : WEB_ELECTION) in
+    X.B.inject_creds public_creds >>
+    return election
+  ) index
+
 lwt election_table =
-  match !data_dir with
-    | Some dir ->
-      Ocsigen_messages.debug (fun () ->
-        "Using data from " ^ dir ^ "..."
-      );
-      Lwt_unix.files_of_directory dir |>
-      populate EMap.empty (fun subdir accu ->
-        let path = dir/subdir in
-        lwt b = file_exists (path/"result.json") in
-        if b then (
-          (* result is available *)
-          (* TODO: if the election is featured, show it on the home page *)
-          return accu
-        ) else (
-          let params_fname = path/"election.json" in
-          let public_keys_fname = path/"public_keys.jsons" in
-          lwt b = file_exists params_fname in
-          if b then (
-            Ocsigen_messages.debug (fun () ->
-              "-- registering " ^ subdir
-            );
-            lwt raw_election =
-              Lwt_io.lines_of_file params_fname |>
-              Lwt_stream.to_list |>
-              (fun x -> match_lwt x with
-              | [e] -> return e
-              | _ -> failwith "election.json is invalid")
-            in
-            lwt metadata =
-              let fname = path/"metadata.json" in
-              lwt b = file_exists fname in
-              if b then (
-                Lwt_io.chars_of_file fname |>
-                Lwt_stream.to_string >>=
-                wrap1 metadata_of_string
-              ) else return empty_metadata
-            in
-            let public_creds_fname = path/"public_creds.txt" in
-            lwt public_creds =
-              Lwt_io.lines_of_file public_creds_fname |>
-              populate SSet.empty (fun c accu ->
-                return (SSet.add c accu)
-              )
-            in
-            let featured_p = true in
-            let election = Web_election.make_web_election
-              raw_election metadata
-              ~featured_p
-              ~params_fname
-              ~public_keys_fname
-            in
-            let module X = (val election : WEB_ELECTION) in
-            X.B.inject_creds public_creds >>
-            let uuid = X.election.e_params.e_uuid in
-            return (EMap.add uuid election accu)
-          ) else return accu
-        )
-       )
-    | None -> return EMap.empty
+  Lwt_list.fold_left_s (fun accu d ->
+    process_datadir d >>=
+    wrap1 @@ List.fold_left (fun accu election ->
+      let module X = (val election : WEB_ELECTION) in
+      let uuid = X.election.e_params.e_uuid in
+      EMap.add uuid election accu
+    ) accu
+  ) EMap.empty !datadirs
 
 let get_election_by_uuid x =
   try_lwt
