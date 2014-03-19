@@ -64,6 +64,16 @@ module type SITE_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
+  val election_update_credential :
+    (Uuidm.t, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of Uuidm.t ] Eliom_parameter.param_name, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
   val election_update_credential_post :
     (Serializable_t.uuid, string * string,
      [> `Attached of
@@ -73,16 +83,6 @@ module type SITE_SERVICES = sig
      [ `One of Serializable_t.uuid ] Eliom_parameter.param_name,
      [ `One of string ] Eliom_parameter.param_name *
      [ `One of string ] Eliom_parameter.param_name,
-     [< Eliom_service.registrable > `Registrable ], 'a)
-    Eliom_service.service
-
-  val election_update_credential_form :
-    (Uuidm.t, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ],
-     [ `One of Uuidm.t ] Eliom_parameter.param_name, unit,
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 

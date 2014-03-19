@@ -250,7 +250,7 @@ In the following, we assume `ocsigenserver` is properly configured.
 
  1. Go to `/login-admin` on the live server and log in using the admin
     password.
- 2. Go to `/election/update-cred?uuid=UUID`, and fill in the form.
+ 2. Go to `/update-cred?uuid=UUID`, and fill in the form.
 
 ### Tally
 
