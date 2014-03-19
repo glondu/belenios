@@ -270,11 +270,11 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
       div [
         div [
           make_button
-            ~service:(Services.preapply_uuid S.election_vote params)
+            ~service:(Eliom_service.preapply S.election_vote params.e_uuid)
             "Go to the booth";
           pcdata " or ";
           make_button
-            ~service:(Services.preapply_uuid S.election_cast params)
+            ~service:(Eliom_service.preapply S.election_cast params.e_uuid)
             "Submit a raw ballot";
         ];
       ];

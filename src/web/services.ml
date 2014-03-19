@@ -59,5 +59,3 @@ let string_of_election_file = function
   | ESCreds -> "public_creds.txt"
   | ESBallots -> "ballots.jsons"
   | ESRecords -> "records"
-
-let preapply_uuid s e = Eliom_service.preapply s e.e_uuid
