@@ -260,7 +260,7 @@ module SSite = struct
       ~get_params:uuid
       ()
 
-    let election_update_credential = post_service
+    let election_update_credential_post = post_service
       ~fallback:election_update_credential_form
       ~post_params:(string "old_credential" ** string "new_credential")
       ()
@@ -344,7 +344,7 @@ module SSite = struct
       )
 
     let () = String.register
-      ~service:election_update_credential
+      ~service:election_update_credential_post
       (fun uuid (old, new_) ->
         lwt user = S.get_logged_user () in
         match user with

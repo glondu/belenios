@@ -384,7 +384,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
   let election_update_credential ~election =
     let module X = (val election : WEB_ELECTION) in
     let params = X.election.e_params in
-    let form = post_form ~service:S.election_update_credential
+    let form = post_form ~service:S.election_update_credential_post
       (fun (old, new_) ->
         [
           div [

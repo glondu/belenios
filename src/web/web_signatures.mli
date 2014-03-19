@@ -64,7 +64,7 @@ module type SITE_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
-  val election_update_credential :
+  val election_update_credential_post :
     (Serializable_t.uuid, string * string,
      [> `Attached of
           ([> `Internal of [ `Coservice | `Service ] ], [> `Post ])
