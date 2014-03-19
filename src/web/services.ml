@@ -24,10 +24,6 @@ open Serializable_t
 open Eliom_service
 open Eliom_parameter
 
-let ballot = Eliom_reference.eref
-  ~scope:Eliom_common.default_session_scope
-  (None : string option)
-
 let uuid = Eliom_parameter.user_type
   (fun x -> match Uuidm.of_string x with
     | Some x -> x

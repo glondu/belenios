@@ -171,6 +171,8 @@ module type VOTING_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
+  val ballot : string option Eliom_reference.eref
+
 end
 
 

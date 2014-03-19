@@ -280,7 +280,6 @@ module SSite = struct
       | None ->
         Html5.register ~service:home
         (fun () () ->
-          Eliom_reference.unset ballot >>
           Eliom_reference.unset saved_service >>
           lwt featured = get_featured_elections () in
           T.index ~featured
@@ -288,7 +287,6 @@ module SSite = struct
       | Some uuid ->
         Redirection.register ~service:home
         (fun () () ->
-          Eliom_reference.unset ballot >>
           Eliom_reference.unset saved_service >>
           return (preapply S.election_dir (uuid, ESIndex))
         )
@@ -444,7 +442,6 @@ module SElection = struct
       | _ -> forbidden ()
 
     let f_index uuid election user () =
-      Eliom_reference.unset ballot >>
       T.election_view ~election ~user
 
     let handle_pseudo_file u f =
@@ -509,6 +506,10 @@ module SVoting = struct
       ~fallback:election_cast
       ~post_params:(opt (string "encrypted_vote") ** opt (file "encrypted_vote_file"))
       ()
+
+    let ballot = Eliom_reference.eref
+      ~scope:Eliom_common.default_session_scope
+      (None : string option)
 
   end
 
