@@ -235,7 +235,6 @@ module SAuth = Auth_common.Make (struct end)
 
 module SSite = struct
   open Eliom_service
-  open Services
 
   module Services : SITE_SERVICES = struct
     open Eliom_parameter
@@ -257,7 +256,7 @@ module SSite = struct
 
     let election_update_credential = service
       ~path:["update-cred"]
-      ~get_params:uuid
+      ~get_params:(uuid "uuid")
       ()
 
     let election_update_credential_post = post_service
@@ -365,7 +364,6 @@ end
 module SElection = struct
   open Eliom_service
   open Eliom_parameter
-  open Services
 
   let election_file = Eliom_parameter.user_type
     election_file_of_string
@@ -376,7 +374,7 @@ module SElection = struct
 
     let election_dir = service
       ~path:["elections"]
-      ~get_params:(suffix (uuid ** election_file))
+      ~get_params:(suffix (uuid "uuid" ** election_file))
       ()
 
     let election_file e f = preapply election_dir (e.e_uuid, f)
@@ -480,19 +478,18 @@ end
 
 module SVoting = struct
   open Eliom_service
-  open Services
 
   module Services : VOTING_SERVICES = struct
     open Eliom_parameter
 
     let election_vote = service
       ~path:["election"; "vote"]
-      ~get_params:uuid
+      ~get_params:(uuid "uuid")
       ()
 
     let election_cast = service
       ~path:["election"; "cast"]
-      ~get_params:uuid
+      ~get_params:(uuid "uuid")
       ()
 
     let create_confirm () = post_coservice
@@ -611,8 +608,6 @@ end
 
 module S = struct
   open Lwt
-  open Eliom_service
-  open Services
 
   include SAuth.Services
   include SSite.Services

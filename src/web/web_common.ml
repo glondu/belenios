@@ -166,3 +166,34 @@ let check_acl a u =
       | _ :: xs -> loop xs
     in loop acls
   | _ -> false
+
+let uuid = Eliom_parameter.user_type
+  ~of_string:(fun x -> match Uuidm.of_string x with
+    | Some x -> x
+    | None -> invalid_arg "uuid")
+  ~to_string:Uuidm.to_string
+
+type election_file =
+  | ESIndex
+  | ESRaw
+  | ESKeys
+  | ESCreds
+  | ESBallots
+  | ESRecords
+
+let election_file_of_string = function
+  | "" -> ESIndex
+  | "election.json" -> ESRaw
+  | "public_keys.jsons" -> ESKeys
+  | "public_creds.txt" -> ESCreds
+  | "ballots.jsons" -> ESBallots
+  | "records" -> ESRecords
+  | x -> invalid_arg ("election_dir_item: " ^ x)
+
+let string_of_election_file = function
+  | ESIndex -> ""
+  | ESRaw -> "election.json"
+  | ESKeys -> "public_keys.jsons"
+  | ESCreds -> "public_creds.txt"
+  | ESBallots -> "ballots.jsons"
+  | ESRecords -> "records"

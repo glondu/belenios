@@ -94,7 +94,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
     let e = X.election.e_params in
     li [
       h3 [
-        a ~service:(S.election_file e Services.ESIndex)
+        a ~service:(S.election_file e ESIndex)
           [pcdata e.e_name] ();
       ];
       p [pcdata e.e_description];
@@ -190,7 +190,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
   let election_view ~election ~user =
     let module X = (val election : WEB_ELECTION) in
     let params = X.election.e_params and m = X.metadata in
-    let service = S.election_file params Services.ESRaw in
+    let service = S.election_file params ESRaw in
     lwt permissions =
       match user with
       | None ->
@@ -245,15 +245,15 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
           pcdata "Election data: ";
           a ~service [ pcdata "parameters" ] ();
           pcdata ", ";
-          a ~service:(S.election_file params Services.ESCreds) [
+          a ~service:(S.election_file params ESCreds) [
             pcdata "public credentials"
           ] ();
           pcdata ", ";
-          a ~service:(S.election_file params Services.ESKeys) [
+          a ~service:(S.election_file params ESKeys) [
             pcdata "trustee public keys"
           ] ();
           pcdata ", ";
-          a ~service:(S.election_file params Services.ESBallots) [
+          a ~service:(S.election_file params ESBallots) [
             pcdata "ballots";
           ] ();
           pcdata ".";
@@ -350,7 +350,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
       ];
       user_div;
       p [
-        a ~service:(S.election_file params Services.ESIndex) [
+        a ~service:(S.election_file params ESIndex) [
           pcdata "Go back to election"
         ] ();
         pcdata ".";
@@ -373,7 +373,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
         );
       ];
       p [
-        a ~service:(S.election_file params Services.ESIndex) [
+        a ~service:(S.election_file params ESIndex) [
           pcdata "Go back to election"
         ] ();
         pcdata ".";

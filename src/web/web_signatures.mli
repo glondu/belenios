@@ -93,19 +93,19 @@ end
 module type ELECTION_SERVICES = sig
 
   val election_dir :
-    (Serializable_t.uuid * Services.election_file, unit,
+    (Serializable_t.uuid * Web_common.election_file, unit,
      [> `Attached of
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithSuffix ],
      [ `One of Serializable_t.uuid ] Eliom_parameter.param_name *
-     [ `One of Services.election_file ] Eliom_parameter.param_name,
+     [ `One of Web_common.election_file ] Eliom_parameter.param_name,
      unit, [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
   val election_file :
     'a Serializable_t.params ->
-    Services.election_file ->
+    Web_common.election_file ->
     (unit, unit,
      [> `Attached of
           ([> `Internal of [> `Service ] ], [> `Get ])

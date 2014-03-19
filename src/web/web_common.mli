@@ -69,3 +69,20 @@ val set_rewrite_prefix : src:string -> dst:string -> unit
 val empty_metadata : metadata
 
 val check_acl : acl list option -> user -> bool
+
+val uuid :
+  string ->
+  (Uuidm.t, [ `WithoutSuffix ],
+   [ `One of Uuidm.t ] Eliom_parameter.param_name)
+  Eliom_parameter.params_type
+
+type election_file =
+  | ESIndex
+  | ESRaw
+  | ESKeys
+  | ESCreds
+  | ESBallots
+  | ESRecords
+
+val election_file_of_string : string -> election_file
+val string_of_election_file : election_file -> string
