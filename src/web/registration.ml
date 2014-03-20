@@ -231,7 +231,10 @@ let can_vote m user =
     | None -> false (* voters must log in *)
     | Some u -> check_acl (Some acls) u.user_user
 
-module SAuth = Auth_common.Make (struct end)
+module SAuth = Auth_common.Make (struct
+  let name = "site"
+  let path = []
+end)
 
 module SSite = struct
   open Eliom_service

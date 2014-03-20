@@ -36,7 +36,7 @@ val register_auth_system :
 val get_config_spec :
   unit -> Ocsigen_extensions.Configuration.element list
 
-module Make (X : EMPTY) : sig
+module Make (N : NAME) : sig
   module Services : AUTH_SERVICES
   module Register (S : CONT_SERVICE) (T : TEMPLATES) : EMPTY
 end

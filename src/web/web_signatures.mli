@@ -329,6 +329,7 @@ end
 
 module type NAME = sig
   val name : string
+  val path : string list
 end
 
 type on_success_handler =

@@ -43,7 +43,7 @@ let get_config_spec () = !config_spec
 
 (* TODO: make the authentication system more flexible *)
 
-module Make (X : EMPTY) = struct
+module Make (N : NAME) = struct
 
   let instances = Hashtbl.create 10
   let auth_systems = ref []
@@ -68,12 +68,12 @@ module Make (X : EMPTY) = struct
     let get_logged_user () = Eliom_reference.get user
 
     let login = Eliom_service.service
-      ~path:["login"]
+      ~path:(N.path @ ["login"])
       ~get_params:Eliom_parameter.(opt (string "service"))
       ()
 
     let logout = Eliom_service.service
-      ~path:["logout"]
+      ~path:(N.path @ ["logout"])
       ~get_params:Eliom_parameter.unit
       ()
 
@@ -85,7 +85,10 @@ module Make (X : EMPTY) = struct
       if Hashtbl.mem instances name then (
         failwith ("multiple instances with name " ^ name)
       ) else (
-        let module N = struct let name = name end in
+        let module N = struct
+          let name = name
+          let path = N.path @ ["auth"; name]
+        end in
         let module A = (val auth : AUTH_SERVICE) (N) (C) (T) in
         let i = (module A : AUTH_INSTANCE) in
         Hashtbl.add instances name i;

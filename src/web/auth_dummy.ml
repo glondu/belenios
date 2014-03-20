@@ -25,7 +25,7 @@ open Auth_common
 module Make (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
 
   let service = Eliom_service.service
-    ~path:["auth"; N.name]
+    ~path:N.path
     ~get_params:Eliom_parameter.unit
     ()
 

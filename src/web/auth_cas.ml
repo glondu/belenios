@@ -52,7 +52,7 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
     ()
 
   let login_cas = Eliom_service.service
-    ~path:["auth"; N.name]
+    ~path:N.path
     ~get_params:Eliom_parameter.(opt (string "ticket"))
     ()
 
