@@ -22,7 +22,18 @@
 open Util
 open Web_signatures
 open Web_common
-open Auth_common
+
+type config = { db : string }
+
+let name = "password"
+
+let parse_config ~instance ~attributes =
+  match attributes with
+  | ["db", db] -> {db}
+  | _ ->
+    Printf.ksprintf failwith
+      "invalid configuration for instance %s of auth/%s"
+      instance name
 
 module type CONFIG = sig
   val db : string
@@ -82,48 +93,17 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
 
 end
 
-type instance = {
-  mutable name : string option;
-  mutable db : string option;
-}
+let make {db} =
+  let module C = struct let db = db end in
+  (module Make (C) : AUTH_SERVICE)
 
-let init () =
-  let instances = ref [] in
-  let current_instance = ref None in
-  let push_current loc =
-    match !current_instance with
-    | None -> ()
-    | Some {name = Some name; db = Some db} ->
-      let module C : CONFIG = struct
-        let db = db
-      end in
-      instances := (name, (module C : CONFIG)) :: !instances;
-      current_instance := None
-    | _ -> failwith ("unexpected case in auth-password/" ^ loc)
-  in
-  let spec =
-    let open Ocsigen_extensions.Configuration in
-    [
-      let init () =
-        push_current "init";
-        current_instance := Some {name = None; db = None}
-      and attributes = [
-        attribute ~name:"name" ~obligatory:true (fun s ->
-          match !current_instance with
-          | Some ({name = None; _} as i) -> i.name <- Some s
-          | _ -> failwith "unexpected case in auth-password/name"
-        );
-        attribute ~name:"db" ~obligatory:true (fun s ->
-          match !current_instance with
-          | Some ({db = None; _} as i) -> i.db <- Some s
-          | _ -> failwith "unexpected case in auth-password/db"
-        );
-      ] in element ~name:"auth-password" ~init ~attributes ();
-    ]
-  and exec ~instantiate =
-    push_current "exec";
-    List.iter (fun (name, config) ->
-      let module X = Make ((val config : CONFIG)) in
-      instantiate name (module X : AUTH_SERVICE)
-    ) !instances
-  in Auth_common.register_auth_system ~spec ~exec
+type c = config
+
+module A : AUTH_SYSTEM = struct
+  type config = c
+  let name = name
+  let parse_config = parse_config
+  let make = make
+end
+
+let () = Auth_common.register_auth_system (module A : AUTH_SYSTEM)

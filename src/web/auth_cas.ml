@@ -21,11 +21,12 @@
 
 open Web_signatures
 open Web_common
-open Auth_common
 
 let next_lf str i =
   try Some (String.index_from str i '\n')
   with Not_found -> None
+
+type config = { server : string }
 
 module type CONFIG = sig
   val server : string
@@ -122,48 +123,27 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
 
 end
 
-type instance = {
-  mutable name : string option;
-  mutable server : string option;
-}
+let name = "cas"
 
-let init () =
-  let instances = ref [] in
-  let current_instance = ref None in
-  let push_current loc =
-    match !current_instance with
-    | None -> ()
-    | Some {name = Some name; server = Some server} ->
-      let module C : CONFIG = struct
-        let server = server
-      end in
-      instances := (name, (module C : CONFIG)) :: !instances;
-      current_instance := None
-    | _ -> failwith ("unexpected case in auth-cas/" ^ loc)
-  in
-  let spec =
-    let open Ocsigen_extensions.Configuration in
-    [
-      let init () =
-        push_current "init";
-        current_instance := Some {name = None; server = None}
-      and attributes = [
-        attribute ~name:"name" ~obligatory:true (fun s ->
-          match !current_instance with
-          | Some ({name = None; _} as i) -> i.name <- Some s
-          | _ -> failwith "unexpected case in auth-cas/name"
-        );
-        attribute ~name:"server" ~obligatory:true (fun s ->
-          match !current_instance with
-          | Some ({server = None; _} as i) -> i.server <- Some s
-          | _ -> failwith "unexpected case in auth-cas/server"
-        );
-      ] in element ~name:"auth-cas" ~init ~attributes ();
-    ]
-  and exec ~instantiate =
-    push_current "exec";
-    List.iter (fun (name, config) ->
-      let module X = Make ((val config : CONFIG)) in
-      instantiate name (module X : AUTH_SERVICE)
-    ) !instances
-  in Auth_common.register_auth_system ~spec ~exec
+let parse_config ~instance ~attributes =
+  match attributes with
+  | ["server", server] -> {server}
+  | _ ->
+    Printf.ksprintf failwith
+      "invalid configuration for instance %s of auth/%s"
+      instance name
+
+let make {server} =
+  let module C = struct let server = server end in
+  (module Make (C) : AUTH_SERVICE)
+
+type c = config
+
+module A : AUTH_SYSTEM = struct
+  type config = c
+  let name = name
+  let parse_config = parse_config
+  let make = make
+end
+
+let () = Auth_common.register_auth_system (module A : AUTH_SYSTEM)

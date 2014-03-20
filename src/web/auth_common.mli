@@ -26,17 +26,20 @@ open Web_signatures
 
 val string_of_user : user -> string
 
-type instantiator = string -> (module AUTH_SERVICE) -> unit
+val register_auth_system : (module AUTH_SYSTEM) -> unit
 
-val register_auth_system :
-  spec:(Ocsigen_extensions.Configuration.element list) ->
-  exec:(instantiate:instantiator -> unit) ->
-  unit
+type auth_instance = {
+  auth_system : string;
+  auth_instance : string;
+  auth_config : (string * string) list;
+}
 
-val get_config_spec :
-  unit -> Ocsigen_extensions.Configuration.element list
+module type CONFIG = sig
+  include NAME
+  val instances : auth_instance list
+end
 
-module Make (N : NAME) : sig
+module Make (C : CONFIG) : sig
   module Services : AUTH_SERVICES
   module Register (S : CONT_SERVICE) (T : TEMPLATES) : EMPTY
 end

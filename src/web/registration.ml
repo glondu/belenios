@@ -49,67 +49,38 @@ let file_exists x =
 
 let populate accu f s = Lwt_stream.fold_s f s accu
 
-let secure_logfile = ref None
 let datadirs = ref []
 let source_file = ref None
 let main_election = ref None
-let rewrite_src = ref None
-let rewrite_dst = ref None
+let auth_instances = ref []
 
 let () = CalendarLib.Time_Zone.(change Local)
 
-let () = Auth_dummy.init ()
-let () = Auth_password.init ()
-let () = Auth_cas.init ()
-
-let config_spec =
-  let open Ocsigen_extensions.Configuration in
-  [
-    element
-      ~name:"log"
-      ~obligatory:true
-      ~attributes:[
-        attribute ~name:"file" ~obligatory:true (fun s -> secure_logfile := Some s);
-      ] ();
-    element
-      ~name:"source"
-      ~obligatory:true
-      ~attributes:[
-        attribute ~name:"file" ~obligatory:true (fun s -> source_file := Some s);
-      ] ();
-    element
-      ~name:"data"
-      ~obligatory:true
-      ~attributes:[
-        attribute ~name:"dir" ~obligatory:true (fun s -> datadirs := s :: !datadirs);
-      ] ();
-    element
-      ~name:"rewrite-prefix"
-      ~obligatory:false
-      ~attributes:[
-        attribute ~name:"src" ~obligatory:true (fun s -> rewrite_src := Some s);
-        attribute ~name:"dst" ~obligatory:true (fun s -> rewrite_dst := Some s);
-      ] ();
-    element
-      ~name:"main-election"
-      ~obligatory:false
-      ~attributes:[
-        attribute ~name:"uuid" ~obligatory:true (fun s -> main_election := Some s);
-      ] ();
-  ] @ Auth_common.get_config_spec ()
-
-let () = Eliom_config.parse_config config_spec
-
 let () =
-  match !rewrite_src, !rewrite_dst with
-  | Some src, Some dst ->
+  Eliom_config.get_config () |>
+  let open Simplexmlparser in
+  List.iter @@ function
+  | PCData x ->
+    Ocsigen_extensions.Configuration.ignore_blank_pcdata ~in_tag:"belenios" x
+  | Element ("log", ["file", file], []) ->
+    Lwt_main.run (open_security_log file)
+  | Element ("source", ["file", file], []) ->
+    source_file := Some file
+  | Element ("data", ["dir", dir], []) ->
+    datadirs := dir :: !datadirs
+  | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->
     set_rewrite_prefix ~src ~dst
-  | _, _ -> ()
-
-lwt () =
-  match !secure_logfile with
-    | Some x -> open_security_log x
-    | None -> return ()
+  | Element ("main-election", ["uuid", uuid], []) ->
+    main_election := Some uuid
+  | Element ("auth", ["name", auth_instance],
+             [Element (auth_system, auth_config, [])]) ->
+    let open Auth_common in
+    let i = {auth_system; auth_instance; auth_config} in
+    auth_instances := i :: !auth_instances
+  | Element (tag, _, _) ->
+    Printf.ksprintf failwith
+      "invalid configuration for tag %s in belenios"
+      tag
 
 let main_election = match !main_election with
   | None -> None
@@ -234,6 +205,7 @@ let can_vote m user =
 module SAuth = Auth_common.Make (struct
   let name = "site"
   let path = []
+  let instances = !auth_instances
 end)
 
 module SSite = struct

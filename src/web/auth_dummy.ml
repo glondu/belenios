@@ -20,7 +20,18 @@
 (**************************************************************************)
 
 open Web_signatures
-open Auth_common
+
+type config = unit
+
+let name = "dummy"
+
+let parse_config ~instance ~attributes =
+  match attributes with
+  | [] -> ()
+  | _ ->
+    Printf.ksprintf failwith
+      "invalid configuration for instance %s of auth/%s"
+      instance name
 
 module Make (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
 
@@ -59,19 +70,13 @@ module Make (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = stru
 
 end
 
-let init () =
-  let instances = ref [] in
-  let spec =
-    let open Ocsigen_extensions.Configuration in
-    [
-      let attributes = [
-        attribute ~name:"name" ~obligatory:true (fun s ->
-          instances := s :: !instances
-        );
-      ] in element ~name:"auth-dummy" ~attributes ();
-    ]
-  and exec ~instantiate =
-    List.iter (fun name ->
-      instantiate name (module Make : AUTH_SERVICE)
-    ) !instances
-  in Auth_common.register_auth_system ~spec ~exec
+let make () = (module Make : AUTH_SERVICE)
+
+module A : AUTH_SYSTEM = struct
+  type config = unit
+  let name = name
+  let parse_config = parse_config
+  let make = make
+end
+
+let () = Auth_common.register_auth_system (module A : AUTH_SYSTEM)

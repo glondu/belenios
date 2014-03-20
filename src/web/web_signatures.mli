@@ -350,3 +350,16 @@ module type AUTH_SERVICE =
   functor (S : CONT_SERVICE) ->
   functor (T : TEMPLATES) ->
   AUTH_INSTANCE
+
+module type AUTH_SYSTEM = sig
+  type config
+
+  val name : string
+
+  val parse_config :
+    instance:string ->
+    attributes:(string * string) list ->
+    config
+
+  val make : config -> (module AUTH_SERVICE)
+end

@@ -30,23 +30,33 @@ open Web_common
 let string_of_user {user_domain; user_name} =
   user_domain ^ ":" ^ user_name
 
-type instantiator = string -> (module AUTH_SERVICE) -> unit
+let auth_systems = Hashtbl.create 10
 
-let config_spec = ref []
-let config_exec = ref []
+let register_auth_system auth_system =
+  let module X = (val auth_system : AUTH_SYSTEM) in
+  if Hashtbl.mem auth_systems X.name then (
+    Printf.ksprintf failwith
+      "multiple authentication systems with name %s"
+      X.name
+  ) else (
+    Hashtbl.add auth_systems X.name auth_system
+  )
 
-let register_auth_system ~spec ~exec =
-  config_spec := spec @ !config_spec;
-  config_exec := exec :: !config_exec
+type auth_instance = {
+  auth_system : string;
+  auth_instance : string;
+  auth_config : (string * string) list;
+}
 
-let get_config_spec () = !config_spec
+module type CONFIG = sig
+  include NAME
+  val instances : auth_instance list
+end
 
-(* TODO: make the authentication system more flexible *)
+module Make (N : CONFIG) = struct
 
-module Make (N : NAME) = struct
-
-  let instances = Hashtbl.create 10
-  let auth_systems = ref []
+  let auth_instances = Hashtbl.create 10
+  let auth_instance_names = ref []
 
   let user = Eliom_reference.eref
     ~scope:Eliom_common.default_session_scope
@@ -63,7 +73,7 @@ module Make (N : NAME) = struct
 
   module Services : AUTH_SERVICES = struct
 
-    let get_auth_systems () = !auth_systems
+    let get_auth_systems () = !auth_instance_names
 
     let get_logged_user () = Eliom_reference.get user
 
@@ -81,28 +91,38 @@ module Make (N : NAME) = struct
 
   module Register (C : CONT_SERVICE) (T : TEMPLATES) : EMPTY = struct
 
-    let instantiate name auth =
-      if Hashtbl.mem instances name then (
-        failwith ("multiple instances with name " ^ name)
+    let () = List.iter (fun auth_instance ->
+      let {
+        auth_system = name;
+        auth_instance = instance;
+        auth_config = attributes;
+      } = auth_instance in
+      if Hashtbl.mem auth_instances instance then (
+        Printf.ksprintf failwith
+          "multiple instances with name %s"
+          instance
       ) else (
+        let auth_system = Hashtbl.find auth_systems name in
+        let module X = (val auth_system : AUTH_SYSTEM) in
+        let config = X.parse_config ~instance ~attributes in
+        let auth = X.make config in
         let module N = struct
-          let name = name
-          let path = N.path @ ["auth"; name]
+          let name = instance
+          let path = N.path @ ["auth"; instance]
         end in
         let module A = (val auth : AUTH_SERVICE) (N) (C) (T) in
         let i = (module A : AUTH_INSTANCE) in
-        Hashtbl.add instances name i;
-        auth_systems := name :: !auth_systems
+        Hashtbl.add auth_instances instance i;
+        auth_instance_names := instance :: !auth_instance_names
       )
-
-    let () = List.iter (fun f -> f ~instantiate) !config_exec
+    ) N.instances
 
     let () = Eliom_registration.Any.register
       ~service:Services.login
       (fun service () ->
         let use name =
           try
-            let i = Hashtbl.find instances name in
+            let i = Hashtbl.find auth_instances name in
             let module A = (val i : AUTH_INSTANCE) in
             A.handler ~on_success:(on_success false name) ()
           with Not_found -> fail_http 404
@@ -110,7 +130,7 @@ module Make (N : NAME) = struct
         match service with
         | Some name -> use name
         | None ->
-          match !auth_systems with
+          match !auth_instance_names with
           | [name] -> use name
           | _ -> T.generic_login () >>= Eliom_registration.Html5.send
       )
