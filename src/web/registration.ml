@@ -270,18 +270,7 @@ module SSite = struct
       ~content_type:"application/x-gzip"
       (fun () () -> match !source_file with
       | None -> fail_http 404
-      | Some f ->
-        match_lwt S.get_logged_user () with
-        | Some u ->
-          security_log (fun () ->
-            Auth_common.(string_of_user u.user_user) ^ " downloaded source code"
-          ) >>
-          return f
-        | None ->
-          security_log (fun () ->
-            "someone anonymously downloaded source code"
-          ) >>
-          return f
+      | Some f -> return f
       )
 
     let do_get_randomness =
