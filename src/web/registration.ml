@@ -229,16 +229,6 @@ module SSite = struct
       ~get_params:unit
       ()
 
-    let election_update_credential = service
-      ~path:["update-cred"]
-      ~get_params:(uuid "uuid")
-      ()
-
-    let election_update_credential_post = post_service
-      ~fallback:election_update_credential
-      ~post_params:(string "old_credential" ** string "new_credential")
-      ()
-
     let saved_service = Eliom_reference.eref
       ~scope:Eliom_common.default_session_scope
       (module struct let s = home end : SAVED_SERVICE)
@@ -291,42 +281,6 @@ module SSite = struct
         Cryptokit.(transform_string (Base64.encode_compact ()) r) |>
         (fun x -> string_of_randomness { randomness=x }) |>
         (fun x -> return (x, "application/json"))
-      )
-
-    let () = Html5.register
-      ~service:election_update_credential
-      (fun uuid () ->
-        lwt user = S.get_logged_user () in
-        match user with
-        | Some u ->
-          lwt election = get_election_by_uuid uuid in
-          let module X = (val election : WEB_ELECTION) in
-          if X.metadata.e_owner = Some u.user_user then (
-            T.Election.update_credential ~election
-          ) else (
-            forbidden ()
-          )
-        | _ -> forbidden ()
-      )
-
-    let () = String.register
-      ~service:election_update_credential_post
-      (fun uuid (old, new_) ->
-        lwt user = S.get_logged_user () in
-        match user with
-        | Some u ->
-          lwt election = get_election_by_uuid uuid in
-          let module X = (val election : WEB_ELECTION) in
-          if X.metadata.e_owner = Some u.user_user then (
-            try_lwt
-              X.B.update_cred ~old ~new_ >>
-              return ("OK", "text/plain")
-            with Error e ->
-              return ("Error: " ^ explain_error e, "text/plain")
-          ) else (
-            forbidden ()
-          )
-        | _ -> forbidden ()
       )
 
   end
@@ -453,6 +407,16 @@ module SVoting = struct
   module Services : VOTING_SERVICES = struct
     open Eliom_parameter
 
+    let election_update_credential = service
+      ~path:["update-cred"]
+      ~get_params:(uuid "uuid")
+      ()
+
+    let election_update_credential_post = post_service
+      ~fallback:election_update_credential
+      ~post_params:(string "old_credential" ** string "new_credential")
+      ()
+
     let election_vote = service
       ~path:["election"; "vote"]
       ~get_params:(uuid "uuid")
@@ -484,6 +448,42 @@ module SVoting = struct
   module Register (S : ALL_SERVICES) (T : TEMPLATES) : EMPTY = struct
     open Services
     open Eliom_registration
+
+    let () = Html5.register
+      ~service:election_update_credential
+      (fun uuid () ->
+        lwt user = S.get_logged_user () in
+        match user with
+        | Some u ->
+          lwt election = get_election_by_uuid uuid in
+          let module X = (val election : WEB_ELECTION) in
+          if X.metadata.e_owner = Some u.user_user then (
+            T.Election.update_credential ~election
+          ) else (
+            forbidden ()
+          )
+        | _ -> forbidden ()
+      )
+
+    let () = String.register
+      ~service:election_update_credential_post
+      (fun uuid (old, new_) ->
+        lwt user = S.get_logged_user () in
+        match user with
+        | Some u ->
+          lwt election = get_election_by_uuid uuid in
+          let module X = (val election : WEB_ELECTION) in
+          if X.metadata.e_owner = Some u.user_user then (
+            try_lwt
+              X.B.update_cred ~old ~new_ >>
+              return ("OK", "text/plain")
+            with Error e ->
+              return ("Error: " ^ explain_error e, "text/plain")
+          ) else (
+            forbidden ()
+          )
+        | _ -> forbidden ()
+      )
 
     let () = Redirection.register
       ~service:election_vote
