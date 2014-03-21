@@ -298,9 +298,14 @@ module SSite = struct
       (fun uuid () ->
         lwt user = S.get_logged_user () in
         match user with
-        | Some u when u.user_admin ->
+        | Some u ->
           lwt election = get_election_by_uuid uuid in
-          T.election_update_credential ~election
+          let module X = (val election : WEB_ELECTION) in
+          if X.metadata.e_owner = Some u.user_user then (
+            T.election_update_credential ~election
+          ) else (
+            forbidden ()
+          )
         | _ -> forbidden ()
       )
 
@@ -309,15 +314,18 @@ module SSite = struct
       (fun uuid (old, new_) ->
         lwt user = S.get_logged_user () in
         match user with
-        | Some u when u.user_admin ->
+        | Some u ->
           lwt election = get_election_by_uuid uuid in
           let module X = (val election : WEB_ELECTION) in
-          begin try_lwt
-            X.B.update_cred ~old ~new_ >>
-            return ("OK", "text/plain")
-          with Error e ->
-            return ("Error: " ^ explain_error e, "text/plain")
-          end
+          if X.metadata.e_owner = Some u.user_user then (
+            try_lwt
+              X.B.update_cred ~old ~new_ >>
+              return ("OK", "text/plain")
+            with Error e ->
+              return ("Error: " ^ explain_error e, "text/plain")
+          ) else (
+            forbidden ()
+          )
         | _ -> forbidden ()
       )
 
@@ -384,18 +392,22 @@ module SElection = struct
 
     let f_records uuid election user () =
       match user with
-      | Some u when u.user_admin ->
+      | Some u ->
         let module X = (val election : WEB_ELECTION) in
-        (* TODO: streaming *)
-        lwt ballots = X.B.Records.fold (fun u (d, _) xs ->
-          let x = Printf.sprintf "%s %S\n"
-            (Serializable_builtin_j.string_of_datetime d) u
-          in return (x::xs)
-        ) [] in
-        let s = List.map (fun b () ->
-          return (Ocsigen_stream.of_string b)
-        ) ballots in
-        return (s, "text/plain")
+        if X.metadata.e_owner = Some u.user_user then (
+          (* TODO: streaming *)
+          lwt ballots = X.B.Records.fold (fun u (d, _) xs ->
+            let x = Printf.sprintf "%s %S\n"
+              (Serializable_builtin_j.string_of_datetime d) u
+            in return (x::xs)
+          ) [] in
+          let s = List.map (fun b () ->
+            return (Ocsigen_stream.of_string b)
+          ) ballots in
+          return (s, "text/plain")
+        ) else (
+          forbidden ()
+        )
       | _ -> forbidden ()
 
     let f_index uuid election user () =

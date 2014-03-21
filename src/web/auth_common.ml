@@ -62,12 +62,12 @@ module Make (N : CONFIG) = struct
     ~scope:Eliom_common.default_session_scope
     None
 
-  let on_success user_admin user_domain ~user_name ~user_logout =
+  let on_success user_domain ~user_name ~user_logout =
     let user_user = {user_domain; user_name} in
-    let logged_user = {user_admin; user_user; user_logout} in
+    let logged_user = {user_user; user_logout} in
     security_log (fun () ->
-      Printf.sprintf "%s successfully logged in%s using %s"
-        user_name (if user_admin then " (as admin)" else "") user_domain
+      Printf.sprintf "%s successfully logged on %s using %s"
+        user_name N.name user_domain
     ) >>
     Eliom_reference.set user (Some logged_user)
 
@@ -124,7 +124,7 @@ module Make (N : CONFIG) = struct
           try
             let i = Hashtbl.find auth_instances name in
             let module A = (val i : AUTH_INSTANCE) in
-            A.handler ~on_success:(on_success false name) ()
+            A.handler ~on_success:(on_success name) ()
           with Not_found -> fail_http 404
         in
         match service with

@@ -197,7 +197,6 @@ module type CONT_SERVICE = sig
 end
 
 type logged_user = {
-  user_admin : bool;
   user_user : user;
   user_logout : (module CONT_SERVICE);
 }
