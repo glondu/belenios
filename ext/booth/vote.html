@@ -339,7 +339,7 @@ BOOTH.load_and_setup_election = function(election_url) {
 
     if (USE_SJCL) {
       // get more randomness from server
-      $.getJSON(BOOTH.election_url + "../../get-randomness", {}, function(result) {
+      $.getJSON("../get-randomness", {}, function(result) {
         sjcl.random.addEntropy(result.randomness);
       });
     }
