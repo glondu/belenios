@@ -24,10 +24,12 @@ open Serializable_t
 open Web_serializable_t
 open Web_signatures
 
-val make :
-  string ->
-  metadata ->
-  featured:bool ->
-  params_fname:string ->
-  public_keys_fname:string ->
-  (module WEB_ELECTION)
+type config = {
+  raw_election : string;
+  metadata : metadata;
+  featured : bool;
+  params_fname : string;
+  public_keys_fname : string;
+}
+
+val make : config -> (module WEB_ELECTION)

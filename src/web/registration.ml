@@ -142,12 +142,10 @@ let process_datadir dir =
       )
     in
     let featured = item.datadir_featured in
-    let election = Web_election.make
-      raw_election metadata
-      ~featured
-      ~params_fname
-      ~public_keys_fname
-    in
+    let election = Web_election.(make {
+      raw_election; metadata; featured;
+      params_fname; public_keys_fname;
+    }) in
     let module X = (val election : WEB_ELECTION) in
     X.B.inject_creds public_creds >>
     return election

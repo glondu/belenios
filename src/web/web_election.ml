@@ -28,6 +28,14 @@ open Serializable_t
 open Web_serializable_t
 open Web_common
 
+type config = {
+  raw_election : string;
+  metadata : metadata;
+  featured : bool;
+  params_fname : string;
+  public_keys_fname : string;
+}
+
 let can_read m user =
   match m.e_readers with
   | None -> false
@@ -44,7 +52,7 @@ let can_vote m user =
     | None -> false (* voters must log in *)
     | Some u -> check_acl (Some acls) u.user_user
 
-let make raw_election metadata ~featured ~params_fname ~public_keys_fname =
+let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
   let e_fingerprint = sha256_b64 raw_election in
   let wrapped_params = Serializable_j.params_of_string
