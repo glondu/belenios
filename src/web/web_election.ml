@@ -44,7 +44,7 @@ let can_vote m user =
     | None -> false (* voters must log in *)
     | Some u -> check_acl (Some acls) u.user_user
 
-let make_web_election raw_election metadata ~featured_p ~params_fname ~public_keys_fname =
+let make raw_election metadata ~featured ~params_fname ~public_keys_fname =
 
   let e_fingerprint = sha256_b64 raw_election in
   let wrapped_params = Serializable_j.params_of_string
@@ -64,7 +64,7 @@ let make_web_election raw_election metadata ~featured_p ~params_fname ~public_ke
 
     let public_keys_fname = public_keys_fname
     let params_fname = params_fname
-    let featured_p = featured_p
+    let featured = featured
 
     module B : WEB_BALLOT_BOX = struct
 

@@ -141,10 +141,10 @@ let process_datadir dir =
         return (SSet.add c accu)
       )
     in
-    let featured_p = item.datadir_featured in
-    let election = Web_election.make_web_election
+    let featured = item.datadir_featured in
+    let election = Web_election.make
       raw_election metadata
-      ~featured_p
+      ~featured
       ~params_fname
       ~public_keys_fname
     in
@@ -172,7 +172,7 @@ let get_election_by_uuid x =
 let get_featured_elections () =
   EMap.fold (fun uuid e res ->
     let module X = (val e : WEB_ELECTION) in
-    if X.featured_p then
+    if X.featured then
       e :: res
     else res
   ) election_table [] |> return

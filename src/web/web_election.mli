@@ -24,10 +24,10 @@ open Serializable_t
 open Web_serializable_t
 open Web_signatures
 
-val make_web_election :
+val make :
   string ->
   metadata ->
-  featured_p:bool ->
+  featured:bool ->
   params_fname:string ->
   public_keys_fname:string ->
   (module WEB_ELECTION)

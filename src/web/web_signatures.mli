@@ -270,7 +270,7 @@ module type WEB_ELECTION = sig
 
   val election : G.t election
   val metadata : metadata
-  val featured_p : bool
+  val featured : bool
   val params_fname : string
   val public_keys_fname : string
 
