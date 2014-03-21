@@ -256,7 +256,7 @@ module SSite = struct
         (fun () () ->
           Eliom_reference.unset saved_service >>
           lwt featured = get_featured_elections () in
-          T.index ~featured
+          T.Site.home ~featured
         )
       | Some uuid ->
         Redirection.register ~service:home
@@ -302,7 +302,7 @@ module SSite = struct
           lwt election = get_election_by_uuid uuid in
           let module X = (val election : WEB_ELECTION) in
           if X.metadata.e_owner = Some u.user_user then (
-            T.election_update_credential ~election
+            T.Election.update_credential ~election
           ) else (
             forbidden ()
           )
@@ -411,7 +411,7 @@ module SElection = struct
       | _ -> forbidden ()
 
     let f_index uuid election user () =
-      T.election_view ~election ~user
+      T.Election.home ~election ~user
 
     let handle_pseudo_file u f =
       let open Eliom_registration in
@@ -518,7 +518,7 @@ module SVoting = struct
                 with Error e -> return (`Error e)
               in
               Eliom_reference.unset ballot >>
-              T.do_cast_ballot ~election ~result
+              T.Election.cast_confirmed ~election ~result
             ) else forbidden ()
           | None -> forbidden ()
         end
@@ -535,7 +535,7 @@ module SVoting = struct
         in service
       in
       let can_vote = can_vote X.metadata user in
-      T.ballot_received ~election ~confirm ~user ~can_vote
+      T.Election.cast_confirmation ~election ~confirm ~user ~can_vote
 
     let () = Html5.register
       ~service:election_cast
@@ -546,7 +546,7 @@ module SVoting = struct
            Eliom_reference.set S.saved_service x >>
            match_lwt Eliom_reference.get ballot with
            | Some _ -> ballot_received uuid election user
-           | None -> T.election_cast_raw ~election
+           | None -> T.Election.cast_raw ~election
          )
       )
 

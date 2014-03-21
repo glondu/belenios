@@ -61,7 +61,7 @@ module Make (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = stru
           lwt on_success = Eliom_reference.get on_success_ref in
           on_success ~user_name ~user_logout >>
           S.cont ())
-      in T.dummy_login ~service
+      in T.Auth.login_dummy ~service
     )
 
   let handler ~on_success () =

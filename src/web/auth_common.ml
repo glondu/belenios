@@ -132,7 +132,7 @@ module Make (N : CONFIG) = struct
         | None ->
           match !auth_instance_names with
           | [name] -> use name
-          | _ -> T.generic_login () >>= Eliom_registration.Html5.send
+          | _ -> T.Auth.login_choose () >>= Eliom_registration.Html5.send
       )
 
     let () = Eliom_registration.Redirection.register

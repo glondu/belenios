@@ -257,42 +257,17 @@ module type WEB_ELECTION = sig
   val public_keys_fname : string
 end
 
-module type TEMPLATES = sig
+module type SITE_TEMPLATES = sig
 
-  val index :
+  val home :
     featured:(module WEB_ELECTION) list ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-  val election_update_credential :
-    election:(module WEB_ELECTION) ->
-    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+end
 
-  val election_view :
-    election:(module WEB_ELECTION) ->
-    user:logged_user option ->
-    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+module type AUTH_TEMPLATES = sig
 
-  val do_cast_ballot :
-    election:(module WEB_ELECTION) ->
-    result:[< `Error of Web_common.error | `Valid of string ] ->
-    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val ballot_received :
-    election:(module WEB_ELECTION) ->
-    confirm:(unit ->
-             (Serializable_t.uuid, 'b,
-              [< Eliom_service.post_service_kind ],
-              [< Eliom_service.suff ], 'c, unit,
-              [< Eliom_service.registrable ], 'd)
-             Eliom_service.service) ->
-    user:logged_user option ->
-    can_vote:bool -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val election_cast_raw :
-    election:(module WEB_ELECTION) ->
-    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val dummy_login :
+  val login_dummy :
     service:(unit, 'a, [< Eliom_service.post_service_kind ],
              [< Eliom_service.suff ], 'b,
              [< string Eliom_parameter.setoneradio ]
@@ -301,7 +276,7 @@ module type TEMPLATES = sig
             Eliom_service.service ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-  val password_login :
+  val login_password :
     service:(unit, 'a, [< Eliom_service.post_service_kind ],
              [< Eliom_service.suff ], 'b,
              [< string Eliom_parameter.setoneradio ]
@@ -312,11 +287,49 @@ module type TEMPLATES = sig
             Eliom_service.service ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-  val generic_login :
+  val login_choose :
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 end
 
+module type ELECTION_TEMPLATES = sig
+
+  val home :
+    election:(module WEB_ELECTION) ->
+    user:logged_user option ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val update_credential :
+    election:(module WEB_ELECTION) ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val cast_raw :
+    election:(module WEB_ELECTION) ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val cast_confirmation :
+    election:(module WEB_ELECTION) ->
+    confirm:(unit ->
+             (Serializable_t.uuid, 'b,
+              [< Eliom_service.post_service_kind ],
+              [< Eliom_service.suff ], 'c, unit,
+              [< Eliom_service.registrable ], 'd)
+             Eliom_service.service) ->
+    user:logged_user option ->
+    can_vote:bool -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val cast_confirmed :
+    election:(module WEB_ELECTION) ->
+    result:[< `Error of Web_common.error | `Valid of string ] ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+end
+
+module type TEMPLATES = sig
+  module Site : SITE_TEMPLATES
+  module Auth : AUTH_TEMPLATES
+  module Election : ELECTION_TEMPLATES
+end
 
 module type ALL_SERVICES = sig
   include SITE_SERVICES
