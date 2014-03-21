@@ -84,7 +84,7 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
             on_success ~user_name ~user_logout >>
             S.cont ()
           ) else forbidden ())
-      in T.Auth.login_password ~service
+      in T.login_password ~service ()
     )
 
   let handler ~on_success () =

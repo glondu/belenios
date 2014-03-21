@@ -83,7 +83,7 @@ window.onbeforeunload = function(evt) {
 BOOTH.exit = function() {
     if (confirm("Are you sure you want to exit the booth and lose all information about your current ballot?")) {
         BOOTH.started_p = false;
-        window.location = BOOTH.server_url + "/election/?uuid=" + BOOTH.election.uuid;
+        window.location = BOOTH.election_url;
     }
 };
 
@@ -165,7 +165,7 @@ BOOTH.setup_election = function(raw_json) {
   // the main reason for this is unicode representation: the Python approach
   // appears to be safer.
   BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
-  BOOTH.election.cast_url = BOOTH.server_url + "/election/cast?uuid=" + BOOTH.election.uuid
+  BOOTH.election.cast_url = BOOTH.election_url + "cast"
 
   // FIXME: we shouldn't need to set both, but right now we are doing so
   // because different code uses each one. Bah. Need fixing.
@@ -326,10 +326,10 @@ BOOTH.show_encryption_message_before = function(func_to_execute) {
 };
 
 BOOTH.load_and_setup_election = function(election_url) {
-    BOOTH.server_url = election_url.split("/").slice(0,-3).join("/");
+    BOOTH.election_url = election_url
 
     // the hash will be computed within the setup function call now
-    $.get(election_url, function(raw_json) {
+    $.get(election_url + "election.json", function(raw_json) {
         raw_json = raw_json.trim();
         BOOTH.setup_election(raw_json);
         BOOTH.show_election();
@@ -339,7 +339,7 @@ BOOTH.load_and_setup_election = function(election_url) {
 
     if (USE_SJCL) {
       // get more randomness from server
-      $.getJSON(BOOTH.server_url + "/get-randomness", {}, function(result) {
+      $.getJSON(BOOTH.election_url + "../../get-randomness", {}, function(result) {
         sjcl.random.addEntropy(result.randomness);
       });
     }

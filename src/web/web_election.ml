@@ -28,6 +28,22 @@ open Serializable_t
 open Web_serializable_t
 open Web_common
 
+let can_read m user =
+  match m.e_readers with
+  | None -> false
+  | Some acls ->
+    match user with
+    | None -> List.mem `Any acls (* readers can be anonymous *)
+    | Some u -> check_acl (Some acls) u.user_user
+
+let can_vote m user =
+  match m.e_voters with
+  | None -> false
+  | Some acls ->
+    match user with
+    | None -> false (* voters must log in *)
+    | Some u -> check_acl (Some acls) u.user_user
+
 let make_web_election raw_election metadata ~featured_p ~params_fname ~public_keys_fname =
 
   let e_fingerprint = sha256_b64 raw_election in
@@ -202,7 +218,288 @@ let make_web_election raw_election metadata ~featured_p ~params_fname ~public_ke
 
       let update_cred ~old ~new_ =
         Lwt_mutex.with_lock mutex (fun () -> do_update_cred ~old ~new_)
+
     end
+
+    let if_eligible get_user acl f () x =
+      lwt user = get_user () in
+      if acl metadata user then
+        f user x
+      else
+        forbidden ()
+
+    open Eliom_service
+    open Eliom_parameter
+
+    module Services : ELECTION_SERVICES = struct
+
+      let base_path = ["elections"; Uuidm.to_string election.e_params.e_uuid]
+      let make_path x = base_path @ x
+      let root = make_path [""]
+
+      let home = service
+        ~path:root
+        ~get_params:unit
+        ()
+
+      let election_dir = service
+        ~path:root
+        ~priority:(-1)
+        ~get_params:(suffix (election_file "file"))
+        ()
+
+      let election_booth = static_dir_with_params
+        ~get_params:(string "election_url")
+        ()
+
+      let booth_path = ["booth"; "vote.html"]
+
+      let root_rel_to_booth = root
+        |> Eliom_uri.reconstruct_relative_url_path booth_path
+        |> String.concat "/"
+
+      let booth =
+        preapply election_booth (booth_path, root_rel_to_booth)
+
+      let election_update_credential = service
+        ~path:(make_path ["update-cred"])
+        ~get_params:unit
+        ()
+
+      let election_update_credential_post = post_service
+        ~fallback:election_update_credential
+        ~post_params:(string "old_credential" ** string "new_credential")
+        ()
+
+      let election_vote = service
+        ~path:(make_path ["vote"])
+        ~get_params:unit
+        ()
+
+      let election_cast = service
+        ~path:(make_path ["cast"])
+        ~get_params:unit
+        ()
+
+      let create_confirm () = post_coservice
+          ~csrf_safe:true
+          ~csrf_scope:Eliom_common.default_session_scope
+          ~fallback:election_cast
+          ~post_params:Eliom_parameter.unit
+          ()
+
+      let election_cast_post = post_service
+        ~fallback:election_cast
+        ~post_params:(opt (string "encrypted_vote") ** opt (file "encrypted_vote_file"))
+        ()
+
+      let ballot = Eliom_reference.eref
+        ~scope:Eliom_common.default_session_scope
+        (None : string option)
+
+    end
+
+    module Register (S : SITE_SERVICES) (T : ELECTION_TEMPLATES) : EMPTY = struct
+      open Services
+      open Eliom_registration
+
+      let () = Html5.register ~service:home
+        (if_eligible S.get_logged_user can_read
+           (fun user () -> T.home ~user ())
+        )
+
+      let f_raw user () =
+        return params_fname
+
+      let f_keys user () =
+        return public_keys_fname
+
+      let f_creds user () =
+        lwt creds = B.extract_creds () in
+        let s = SSet.fold (fun x accu ->
+          (fun () -> return (Ocsigen_stream.of_string (x^"\n"))) :: accu
+        ) creds [] in
+        return (List.rev s, "text/plain")
+
+      let f_ballots user () =
+        (* TODO: streaming *)
+        lwt ballots = B.Ballots.fold (fun _ x xs ->
+          return ((x^"\n")::xs)
+        ) [] in
+        let s = List.map (fun b () ->
+          return (Ocsigen_stream.of_string b)
+        ) ballots in
+        return (s, "application/json")
+
+      let f_records user () =
+        match user with
+        | Some u ->
+          if metadata.e_owner = Some u.user_user then (
+            (* TODO: streaming *)
+            lwt ballots = B.Records.fold (fun u (d, _) xs ->
+              let x = Printf.sprintf "%s %S\n"
+                (Serializable_builtin_j.string_of_datetime d) u
+              in return (x::xs)
+            ) [] in
+            let s = List.map (fun b () ->
+              return (Ocsigen_stream.of_string b)
+            ) ballots in
+            return (s, "text/plain")
+          ) else (
+            forbidden ()
+          )
+        | _ -> forbidden ()
+
+      let handle_pseudo_file u f =
+        let open Eliom_registration in
+        let file f =
+          if_eligible S.get_logged_user can_read f u () >>=
+          File.send ~content_type:"application/json"
+        and stream f =
+          if_eligible S.get_logged_user can_read f u () >>=
+          Streamlist.send >>=
+          (fun x -> return (cast_unknown_content_kind x))
+        in
+        match f with
+        | ESRaw -> file f_raw
+        | ESKeys -> file f_keys
+        | ESCreds -> stream f_creds
+        | ESBallots -> stream f_ballots
+        | ESRecords -> stream f_records
+
+      let () = Any.register
+        ~service:election_dir
+        (fun f () ->
+          let module X = struct let s = preapply election_dir f end in
+          let x = (module X : SAVED_SERVICE) in
+          Eliom_reference.set S.saved_service x >>
+          handle_pseudo_file () f
+        )
+
+      let () = Html5.register
+        ~service:election_update_credential
+        (fun uuid () ->
+          lwt user = S.get_logged_user () in
+          match user with
+          | Some u ->
+            if metadata.e_owner = Some u.user_user then (
+              T.update_credential ()
+            ) else (
+              forbidden ()
+            )
+          | _ -> forbidden ()
+        )
+
+      let () = String.register
+        ~service:election_update_credential_post
+        (fun uuid (old, new_) ->
+          lwt user = S.get_logged_user () in
+          match user with
+          | Some u ->
+            if metadata.e_owner = Some u.user_user then (
+              try_lwt
+                B.update_cred ~old ~new_ >>
+                return ("OK", "text/plain")
+              with Error e ->
+                return ("Error: " ^ explain_error e, "text/plain")
+            ) else (
+              forbidden ()
+            )
+          | _ -> forbidden ()
+        )
+
+      let () = Redirection.register
+        ~service:election_vote
+        (if_eligible S.get_logged_user can_read
+           (fun user () ->
+             Eliom_reference.unset ballot >>
+             let module X = struct let s = election_vote end in
+             let x = (module X : SAVED_SERVICE) in
+             Eliom_reference.set S.saved_service x >>
+             return booth
+           )
+        )
+
+      let do_cast uuid () =
+        match_lwt Eliom_reference.get ballot with
+        | Some the_ballot ->
+          begin
+            Eliom_reference.unset ballot >>
+            match_lwt S.get_logged_user () with
+            | Some u ->
+              let b = check_acl metadata.e_voters u.user_user in
+              if b then (
+                let record =
+                  Auth_common.string_of_user u.user_user,
+                  (CalendarLib.Fcalendar.Precise.now (), None)
+                in
+                lwt result =
+                  try_lwt
+                    lwt hash = B.cast the_ballot record in
+                    return (`Valid hash)
+                  with Error e -> return (`Error e)
+                in
+                Eliom_reference.unset ballot >>
+                T.cast_confirmed ~result ()
+              ) else forbidden ()
+            | None -> forbidden ()
+          end
+        | None -> fail_http 404
+
+      let ballot_received uuid user =
+        let confirm () =
+          let service = Services.create_confirm () in
+          let () = Html5.register
+            ~service
+            ~scope:Eliom_common.default_session_scope
+            do_cast
+          in service
+        in
+        let can_vote = can_vote metadata user in
+        T.cast_confirmation ~confirm ~user ~can_vote ()
+
+      let () = Html5.register
+        ~service:election_cast
+        (if_eligible S.get_logged_user can_read
+           (fun user () ->
+             let uuid = election.e_params.e_uuid in
+             let module X = struct let s = election_cast end in
+             let x = (module X : SAVED_SERVICE) in
+             Eliom_reference.set S.saved_service x >>
+             match_lwt Eliom_reference.get ballot with
+             | Some _ -> ballot_received uuid user
+             | None -> T.cast_raw ()
+           )
+        )
+
+      let () = Redirection.register
+        ~service:election_cast_post
+        (if_eligible S.get_logged_user can_read
+           (fun user (ballot_raw, ballot_file) ->
+             lwt the_ballot = match ballot_raw, ballot_file with
+               | Some ballot, None -> return ballot
+               | None, Some fi ->
+                 let fname = fi.Ocsigen_extensions.tmp_filename in
+                 Lwt_stream.to_string (Lwt_io.chars_of_file fname)
+               | _, _ -> fail_http 400
+             in
+             let module X : SAVED_SERVICE = struct
+               let uuid = election.e_params.e_uuid
+               let s = election_cast
+             end in
+             let x = (module X : SAVED_SERVICE) in
+             Eliom_reference.set S.saved_service x >>
+             Eliom_reference.set ballot (Some the_ballot) >>
+             match user with
+             | None -> return (preapply S.login None)
+             | Some u -> S.cont ()
+           )
+        )
+
+    end
+
+    module S = Services
+
   end in
 
   (module X : WEB_ELECTION)

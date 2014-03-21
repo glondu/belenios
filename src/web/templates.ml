@@ -35,7 +35,7 @@ let welcome_message = "Welcome!"
 let format_user u =
   em [pcdata (Auth_common.(string_of_user u.user_user))]
 
-module Make (S : ALL_SERVICES) : TEMPLATES = struct
+module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
   let base ~title ~content =
     lwt user = S.get_logged_user () in
@@ -90,100 +90,91 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
        ]))
 
   let format_one_featured_election election =
-    let module X = (val election : WEB_ELECTION) in
-    let e = X.election.e_params in
+    let module W = (val election : WEB_ELECTION) in
+    let e = W.election.e_params in
     li [
       h3 [
-        a ~service:(S.election_file e ESIndex)
-          [pcdata e.e_name] ();
+        a ~service:W.S.home [pcdata e.e_name] ();
       ];
       p [pcdata e.e_description];
     ]
 
-  module Site = struct
-
-    let home ~featured =
-      let featured_box = match featured with
-        | _::_ ->
-          div [
-            h2 [pcdata "Current featured elections"];
-            ul (List.map format_one_featured_election featured);
-          ]
-        | [] ->
-          div [
-            pcdata "No featured elections at the moment.";
-          ]
-      in
-      let content = [
-        h1 [pcdata site_title];
+  let home ~featured () =
+    let featured_box = match featured with
+      | _::_ ->
         div [
-          pcdata welcome_message;
-          featured_box;
-        ];
-      ] in
-      base ~title:site_title ~content
+          h2 [pcdata "Current featured elections"];
+          ul (List.map format_one_featured_election featured);
+        ]
+      | [] ->
+        div [
+          pcdata "No featured elections at the moment.";
+        ]
+    in
+    let content = [
+      h1 [pcdata site_title];
+      div [
+        pcdata welcome_message;
+        featured_box;
+      ];
+    ] in
+    base ~title:site_title ~content
 
-  end
+  let login_dummy ~service () =
+    let title, field_name, input_type =
+      "Dummy login", "Username:", `Text
+    in
+    let form = post_form ~service
+      (fun name ->
+        [
+          tablex [tbody [
+            tr [
+              th [label ~a:[a_for name] [pcdata field_name]];
+              td [string_input ~a:[a_maxlength 50] ~input_type ~name ()];
+            ]]
+          ];
+          div [
+            string_input ~input_type:`Submit ~value:"Login" ();
+          ]
+        ]) ()
+    in
+    let content = [
+      h1 [pcdata title];
+      form;
+    ] in
+    base ~title ~content
 
-  module Auth = struct
-
-    let login_dummy ~service =
-      let title, field_name, input_type =
-        "Dummy login", "Username:", `Text
-      in
-      let form = post_form ~service
-        (fun name ->
-          [
-            tablex [tbody [
-              tr [
-                th [label ~a:[a_for name] [pcdata field_name]];
-                td [string_input ~a:[a_maxlength 50] ~input_type ~name ()];
-              ]]
+  let login_password ~service () =
+    let form = post_form ~service
+      (fun (llogin, lpassword) ->
+        [
+          tablex [tbody [
+            tr [
+              th [label ~a:[a_for llogin] [pcdata "Username:"]];
+              td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin ()];
             ];
-            div [
-              string_input ~input_type:`Submit ~value:"Login" ();
-            ]
-          ]) ()
-      in
-      let content = [
-        h1 [pcdata title];
-        form;
-      ] in
-      base ~title ~content
+            tr [
+              th [label ~a:[a_for lpassword] [pcdata "Password:"]];
+              td [string_input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword ()];
+            ];
+          ]];
+          div [
+            string_input ~input_type:`Submit ~value:"Login" ();
+          ]
+        ]) ()
+    in
+    let content = [
+      h1 [pcdata "Password login"];
+      form;
+    ] in
+    base ~title:"Password login" ~content
 
-    let login_password ~service =
-      let form = post_form ~service
-        (fun (llogin, lpassword) ->
-          [
-            tablex [tbody [
-              tr [
-                th [label ~a:[a_for llogin] [pcdata "Username:"]];
-                td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin ()];
-              ];
-              tr [
-                th [label ~a:[a_for lpassword] [pcdata "Password:"]];
-                td [string_input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword ()];
-              ];
-            ]];
-            div [
-              string_input ~input_type:`Submit ~value:"Login" ();
-            ]
-          ]) ()
-      in
-      let content = [
-        h1 [pcdata "Password login"];
-        form;
-      ] in
-      base ~title:"Password login" ~content
-
-    let login_choose () =
-      let content = [
-        h1 [pcdata "Log in"];
-        div [p [pcdata "Please choose one authentication system."]];
-      ] in
-      base ~title:"Log in" ~content
-
-  end
+  let login_choose () =
+    let content = [
+      h1 [pcdata "Log in"];
+      div [p [pcdata "Please choose one authentication system."]];
+    ] in
+    base ~title:"Log in" ~content
 
   let format_date (date, _) =
     CalendarLib.Printer.Precise_Fcalendar.sprint "%a, %d %b %Y %T %z" date
@@ -195,12 +186,12 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
       uri
       contents
 
-  module Election = struct
+  module Election (W : WEB_ELECTION) = struct
 
-    let home ~election ~user =
-      let module X = (val election : WEB_ELECTION) in
-      let params = X.election.e_params and m = X.metadata in
-      let service = S.election_file params ESRaw in
+    let file x = Eliom_service.preapply W.S.election_dir x
+
+    let home ~user () =
+      let params = W.election.e_params and m = W.metadata in
       lwt permissions =
         match user with
         | None ->
@@ -249,21 +240,23 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
         div [
           div [
             pcdata "Election fingerprint: ";
-            code [ pcdata X.election.e_fingerprint ];
+            code [ pcdata W.election.e_fingerprint ];
           ];
           div [
             pcdata "Election data: ";
-            a ~service [ pcdata "parameters" ] ();
+            a ~service:(file ESRaw) [
+              pcdata "parameters"
+            ] ();
             pcdata ", ";
-            a ~service:(S.election_file params ESCreds) [
+            a ~service:(file ESCreds) [
               pcdata "public credentials"
             ] ();
             pcdata ", ";
-            a ~service:(S.election_file params ESKeys) [
+            a ~service:(file ESKeys) [
               pcdata "trustee public keys"
             ] ();
             pcdata ", ";
-            a ~service:(S.election_file params ESBallots) [
+            a ~service:(file ESBallots) [
               pcdata "ballots";
             ] ();
             pcdata ".";
@@ -280,11 +273,11 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
         div [
           div [
             make_button
-              ~service:(Eliom_service.preapply S.election_vote params.e_uuid)
+              ~service:W.S.election_vote
               "Go to the booth";
             pcdata " or ";
             make_button
-              ~service:(Eliom_service.preapply S.election_cast params.e_uuid)
+              ~service:W.S.election_cast
               "Submit a raw ballot";
           ];
         ];
@@ -293,10 +286,9 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
       ] in
       base ~title:params.e_name ~content
 
-    let update_credential ~election =
-      let module X = (val election : WEB_ELECTION) in
-      let params = X.election.e_params in
-      let form = post_form ~service:S.election_update_credential_post
+    let update_credential () =
+      let params = W.election.e_params in
+      let form = post_form ~service:W.S.election_update_credential_post
         (fun (old, new_) ->
           [
             div [
@@ -326,7 +318,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
             ];
             p [string_input ~input_type:`Submit ~value:"Submit" ()];
           ]
-        ) params.e_uuid
+        ) ()
       in
       let content = [
         h1 [ pcdata params.e_name ];
@@ -334,19 +326,18 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
       ] in
       base ~title:params.e_name ~content
 
-    let cast_raw ~election =
-      let module X = (val election : WEB_ELECTION) in
-      let params = X.election.e_params in
-      let form_rawballot = post_form ~service:S.election_cast_post
+    let cast_raw () =
+      let params = W.election.e_params in
+      let form_rawballot = post_form ~service:W.S.election_cast_post
         (fun (name, _) ->
           [
             div [pcdata "Please paste your raw ballot in JSON format in the following box:"];
             div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
             div [string_input ~input_type:`Submit ~value:"Submit" ()];
           ]
-        ) params.e_uuid
+        ) ()
       in
-      let form_upload = post_form ~service:S.election_cast_post
+      let form_upload = post_form ~service:W.S.election_cast_post
         (fun (_, name) ->
           [
             div [pcdata "Alternatively, you can also upload a file containing your ballot:"];
@@ -356,7 +347,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
             ];
             div [string_input ~input_type:`Submit ~value:"Submit" ()];
           ]
-        ) params.e_uuid
+        ) ()
       in
       let content = [
         h1 [ pcdata params.e_name ];
@@ -367,9 +358,8 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
       ] in
       base ~title:params.e_name ~content
 
-    let cast_confirmation ~election ~confirm ~user ~can_vote =
-      let module X = (val election : WEB_ELECTION) in
-      let params = X.election.e_params in
+    let cast_confirmation ~confirm ~user ~can_vote () =
+      let params = W.election.e_params in
       let name = params.e_name in
       let user_div = match user with
         | Some u when can_vote ->
@@ -382,7 +372,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
               string_input ~input_type:`Submit ~value:"I confirm my vote" ();
               pcdata ".";
             ]
-          ]) params.e_uuid
+          ]) ()
         | Some _ ->
           div [
             pcdata "You cannot vote in this election!";
@@ -401,7 +391,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
         ];
         user_div;
         p [
-          a ~service:(S.election_file params ESIndex) [
+          a ~service:W.S.home [
             pcdata "Go back to election"
           ] ();
           pcdata ".";
@@ -409,9 +399,8 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
       ] in
       base ~title:name ~content
 
-    let cast_confirmed ~election ~result =
-      let module X = (val election : WEB_ELECTION) in
-      let params = X.election.e_params in
+    let cast_confirmed ~result () =
+      let params = W.election.e_params in
       let name = params.e_name in
       let content = [
         h1 [ pcdata name ];
@@ -424,7 +413,7 @@ module Make (S : ALL_SERVICES) : TEMPLATES = struct
           );
         ];
         p [
-          a ~service:(S.election_file params ESIndex) [
+          a ~service:W.S.home [
             pcdata "Go back to election"
           ] ();
           pcdata ".";
