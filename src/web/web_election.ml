@@ -308,7 +308,12 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
       let () = Html5.register ~service:W.S.home
         (if_eligible S.get_logged_user can_read
-           (fun user () -> T.home ~user ())
+           (fun user () ->
+             let module X = struct let s = W.S.home end in
+             let x = (module X : SAVED_SERVICE) in
+             Eliom_reference.set S.saved_service x >>
+             T.home ~user ()
+           )
         )
 
       let f_raw user () =
