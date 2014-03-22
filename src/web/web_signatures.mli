@@ -157,16 +157,6 @@ module type ELECTION_SERVICES = sig
 
 end
 
-
-module type AUTH_CONFIG = sig
-  val cas_server : string
-  val enable_cas : bool
-  val enable_dummy : bool
-  val rewrite_prefix : string -> string
-  open Util
-  val password_db : (SMap.key * SMap.key) SMap.t option
-end
-
 module type CONT_SERVICE = sig
   val cont :
     unit ->
