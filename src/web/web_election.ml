@@ -28,14 +28,6 @@ open Serializable_t
 open Web_serializable_t
 open Web_common
 
-type config = {
-  raw_election : string;
-  metadata : metadata;
-  featured : bool;
-  params_fname : string;
-  public_keys_fname : string;
-}
-
 let can_read m user =
   match m.e_readers with
   | None -> false
@@ -52,6 +44,11 @@ let can_vote m user =
     | None -> false (* voters must log in *)
     | Some u -> check_acl (Some acls) u.user_user
 
+module type REGISTRATION = sig
+  module W : WEB_ELECTION
+  module Register (S : SITE_SERVICES) (T : ELECTION_TEMPLATES) : EMPTY
+end
+
 let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
   let e_fingerprint = sha256_b64 raw_election in
@@ -62,126 +59,111 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
   let group = {g; p; q} in
   let e_params = { wrapped_params with e_public_key = y } in
 
-  let module X : WEB_ELECTION = struct
-    module G = (val Election.finite_field group : Election.FF_GROUP)
-    module M = MakeLwtRandom(struct let rng = make_rng () end)
-    module E = Election.MakeElection(G)(M)
+  let module R : REGISTRATION = struct
 
-    let election = {e_params; e_pks = None; e_fingerprint}
-    let metadata = metadata
+    module W : WEB_ELECTION = struct
+      module G = (val Election.finite_field group : Election.FF_GROUP)
+      module M = MakeLwtRandom(struct let rng = make_rng () end)
+      module E = Election.MakeElection(G)(M)
 
-    let public_keys_fname = public_keys_fname
-    let params_fname = params_fname
-    let featured = featured
+      let election = {e_params; e_pks = None; e_fingerprint}
+      let metadata = metadata
 
-    module B : WEB_BALLOT_BOX = struct
+      let public_keys_fname = public_keys_fname
+      let params_fname = params_fname
+      let featured = featured
 
-      let suffix = "_" ^ String.map (function
-        | '-' -> '_'
-        | c -> c
-      ) (Uuidm.to_string e_params.e_uuid)
+      module B : WEB_BALLOT_BOX = struct
 
-      module Ballots = struct
-        type 'a m = 'a Lwt.t
-        type elt = string
-        type key = string
-        let table = Ocsipersist.open_table ("ballots" ^ suffix)
-        let cardinal = Ocsipersist.length table
-        let fold f x = Ocsipersist.fold_step f table x
-      end
+        let suffix = "_" ^ String.map (function
+          | '-' -> '_'
+          | c -> c
+        ) (Uuidm.to_string e_params.e_uuid)
 
-      module Records = struct
-        type 'a m = 'a Lwt.t
-        type elt = Serializable_builtin_t.datetime * string
-        type key = string
-        let table = Ocsipersist.open_table ("records" ^ suffix)
-        let cardinal = Ocsipersist.length table
-        let fold f x = Ocsipersist.fold_step f table x
-      end
+        module Ballots = struct
+          type 'a m = 'a Lwt.t
+          type elt = string
+          type key = string
+          let table = Ocsipersist.open_table ("ballots" ^ suffix)
+          let cardinal = Ocsipersist.length table
+          let fold f x = Ocsipersist.fold_step f table x
+        end
 
-      let cred_table = Ocsipersist.open_table ("creds" ^ suffix)
+        module Records = struct
+          type 'a m = 'a Lwt.t
+          type elt = Serializable_builtin_t.datetime * string
+          type key = string
+          let table = Ocsipersist.open_table ("records" ^ suffix)
+          let cardinal = Ocsipersist.length table
+          let fold f x = Ocsipersist.fold_step f table x
+        end
 
-      let extract_creds () =
-        Ocsipersist.fold_step (fun k v x ->
-          return (SSet.add k x)
-        ) cred_table SSet.empty
+        let cred_table = Ocsipersist.open_table ("creds" ^ suffix)
 
-      let inject_creds creds =
-        lwt existing_creds = extract_creds () in
-        if SSet.is_empty existing_creds then (
-          Ocsigen_messages.debug (fun () ->
-            "-- injecting credentials"
-          );
-          SSet.fold (fun x unit ->
-            unit >> Ocsipersist.add cred_table x None
-          ) creds (return ())
-        ) else (
-          if SSet.(is_empty (diff creds existing_creds)) then (
-            Lwt.return ()
+        let extract_creds () =
+          Ocsipersist.fold_step (fun k v x ->
+            return (SSet.add k x)
+          ) cred_table SSet.empty
+
+        let inject_creds creds =
+          lwt existing_creds = extract_creds () in
+          if SSet.is_empty existing_creds then (
+            Ocsigen_messages.debug (fun () ->
+              Printf.sprintf
+                "Injecting credentials for %s"
+                (Uuidm.to_string e_params.e_uuid)
+            );
+            SSet.fold (fun x unit ->
+              unit >> Ocsipersist.add cred_table x None
+            ) creds (return ())
           ) else (
-            Ocsigen_messages.warning "public_creds.txt does not match db!";
-            Lwt.return ()
-          )
-        )
-
-      let do_cast rawballot (user, date) =
-        let voting_open =
-          let compare a b =
-            let open CalendarLib.Fcalendar.Precise in
-            match a, b with
-            | Some a, Some b -> compare (fst a) (fst b)
-            | _, _ -> -1
-          in
-          compare metadata.e_voting_starts_at (Some date) <= 0 &&
-          compare (Some date) metadata.e_voting_ends_at < 0
-        in
-        if not voting_open then fail ElectionClosed else return () >>
-        if String.contains rawballot '\n' then (
-          fail (Serialization (Invalid_argument "multiline ballot"))
-        ) else return () >>
-        lwt ballot =
-          try Lwt.return (
-            Serializable_j.ballot_of_string
-              Serializable_builtin_j.read_number rawballot
-          ) with e -> fail (Serialization e)
-        in
-        lwt credential =
-          match ballot.signature with
-            | Some s -> Lwt.return (Z.to_string s.s_public_key)
-            | None -> fail MissingCredential
-        in
-        lwt old_cred =
-          try_lwt Ocsipersist.find cred_table credential
-          with Not_found -> fail InvalidCredential
-        and old_record =
-          try_lwt
-            lwt x = Ocsipersist.find Records.table user in
-            Lwt.return (Some x)
-          with Not_found -> Lwt.return None
-        in
-        match old_cred, old_record with
-          | None, None ->
-            (* first vote *)
-            if E.check_ballot election ballot then (
-              let hash = sha256_b64 rawballot in
-              Ocsipersist.add cred_table credential (Some hash) >>
-              Ocsipersist.add Ballots.table hash rawballot >>
-              Ocsipersist.add Records.table user (date, credential) >>
-              security_log (fun () ->
-                Printf.sprintf "%s successfully cast ballot %s" user hash
-              ) >> return hash
+            if SSet.(is_empty (diff creds existing_creds)) then (
+              Lwt.return ()
             ) else (
-              fail ProofCheck
+              Ocsigen_messages.warning "public_creds.txt does not match db!";
+              Lwt.return ()
             )
-          | Some h, Some (_, old_credential) ->
-            (* revote *)
-            if credential = old_credential then (
+          )
+
+        let do_cast rawballot (user, date) =
+          let voting_open =
+            let compare a b =
+              let open CalendarLib.Fcalendar.Precise in
+              match a, b with
+              | Some a, Some b -> compare (fst a) (fst b)
+              | _, _ -> -1
+            in
+            compare metadata.e_voting_starts_at (Some date) <= 0 &&
+            compare (Some date) metadata.e_voting_ends_at < 0
+          in
+          if not voting_open then fail ElectionClosed else return () >>
+          if String.contains rawballot '\n' then (
+            fail (Serialization (Invalid_argument "multiline ballot"))
+          ) else return () >>
+          lwt ballot =
+            try Lwt.return (
+              Serializable_j.ballot_of_string
+                Serializable_builtin_j.read_number rawballot
+            ) with e -> fail (Serialization e)
+          in
+          lwt credential =
+            match ballot.signature with
+              | Some s -> Lwt.return (Z.to_string s.s_public_key)
+              | None -> fail MissingCredential
+          in
+          lwt old_cred =
+            try_lwt Ocsipersist.find cred_table credential
+            with Not_found -> fail InvalidCredential
+          and old_record =
+            try_lwt
+              lwt x = Ocsipersist.find Records.table user in
+              Lwt.return (Some x)
+            with Not_found -> Lwt.return None
+          in
+          match old_cred, old_record with
+            | None, None ->
+              (* first vote *)
               if E.check_ballot election ballot then (
-                lwt old_ballot = Ocsipersist.find Ballots.table h in
-                Ocsipersist.remove Ballots.table h >>
-                security_log (fun () ->
-                  Printf.sprintf "%s successfully removed ballot %S" user old_ballot
-                ) >>
                 let hash = sha256_b64 rawballot in
                 Ocsipersist.add cred_table credential (Some hash) >>
                 Ocsipersist.add Ballots.table hash rawballot >>
@@ -192,126 +174,139 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
               ) else (
                 fail ProofCheck
               )
-            ) else (
+            | Some h, Some (_, old_credential) ->
+              (* revote *)
+              if credential = old_credential then (
+                if E.check_ballot election ballot then (
+                  lwt old_ballot = Ocsipersist.find Ballots.table h in
+                  Ocsipersist.remove Ballots.table h >>
+                  security_log (fun () ->
+                    Printf.sprintf "%s successfully removed ballot %S" user old_ballot
+                  ) >>
+                  let hash = sha256_b64 rawballot in
+                  Ocsipersist.add cred_table credential (Some hash) >>
+                  Ocsipersist.add Ballots.table hash rawballot >>
+                  Ocsipersist.add Records.table user (date, credential) >>
+                  security_log (fun () ->
+                    Printf.sprintf "%s successfully cast ballot %s" user hash
+                  ) >> return hash
+                ) else (
+                  fail ProofCheck
+                )
+              ) else (
+                security_log (fun () ->
+                  Printf.sprintf "%s attempted to revote with already used credential %s" user credential
+                ) >> fail WrongCredential
+              )
+            | None, Some _ ->
               security_log (fun () ->
-                Printf.sprintf "%s attempted to revote with already used credential %s" user credential
-              ) >> fail WrongCredential
-            )
-          | None, Some _ ->
-            security_log (fun () ->
-              Printf.sprintf "%s attempted to revote using a new credential %s" user credential
-            ) >> fail RevoteNotAllowed
-          | Some _, None ->
-            security_log (fun () ->
-              Printf.sprintf "%s attempted to vote with already used credential %s" user credential
-            ) >> fail ReusedCredential
+                Printf.sprintf "%s attempted to revote using a new credential %s" user credential
+              ) >> fail RevoteNotAllowed
+            | Some _, None ->
+              security_log (fun () ->
+                Printf.sprintf "%s attempted to vote with already used credential %s" user credential
+              ) >> fail ReusedCredential
 
-      let do_update_cred ~old ~new_ =
-        match_lwt Ocsipersist.fold_step (fun k v x ->
-          if sha256_hex k = old then (
-            match v with
-              | Some _ -> fail UsedCredential
-              | None -> return (Some k)
-          ) else return x
-        ) cred_table None with
-        | None -> fail CredentialNotFound
-        | Some x ->
-          Ocsipersist.remove cred_table x >>
-          Ocsipersist.add cred_table new_ None
+        let do_update_cred ~old ~new_ =
+          match_lwt Ocsipersist.fold_step (fun k v x ->
+            if sha256_hex k = old then (
+              match v with
+                | Some _ -> fail UsedCredential
+                | None -> return (Some k)
+            ) else return x
+          ) cred_table None with
+          | None -> fail CredentialNotFound
+          | Some x ->
+            Ocsipersist.remove cred_table x >>
+            Ocsipersist.add cred_table new_ None
 
-      let mutex = Lwt_mutex.create ()
+        let mutex = Lwt_mutex.create ()
 
-      let cast rawballot (user, date) =
-        Lwt_mutex.with_lock mutex (fun () -> do_cast rawballot (user, date))
+        let cast rawballot (user, date) =
+          Lwt_mutex.with_lock mutex (fun () -> do_cast rawballot (user, date))
 
-      let update_cred ~old ~new_ =
-        Lwt_mutex.with_lock mutex (fun () -> do_update_cred ~old ~new_)
+        let update_cred ~old ~new_ =
+          Lwt_mutex.with_lock mutex (fun () -> do_update_cred ~old ~new_)
+
+      end
+
+      open Eliom_service
+      open Eliom_parameter
+
+      module S : ELECTION_SERVICES = struct
+
+        let base_path = ["elections"; Uuidm.to_string election.e_params.e_uuid]
+        let make_path x = base_path @ x
+        let root = make_path [""]
+
+        let home = service
+          ~path:root
+          ~get_params:unit
+          ()
+
+        let election_dir = service
+          ~path:root
+          ~priority:(-1)
+          ~get_params:(suffix (election_file "file"))
+          ()
+
+        let election_booth = static_dir_with_params
+          ~get_params:(string "election_url")
+          ()
+
+        let booth_path = ["booth"; "vote.html"]
+
+        let root_rel_to_booth = root
+          |> Eliom_uri.reconstruct_relative_url_path booth_path
+          |> String.concat "/"
+
+        let booth =
+          preapply election_booth (booth_path, root_rel_to_booth)
+
+        let election_update_credential = service
+          ~path:(make_path ["update-cred"])
+          ~get_params:unit
+          ()
+
+        let election_update_credential_post = post_service
+          ~fallback:election_update_credential
+          ~post_params:(string "old_credential" ** string "new_credential")
+          ()
+
+        let election_vote = service
+          ~path:(make_path ["vote"])
+          ~get_params:unit
+          ()
+
+        let election_cast = service
+          ~path:(make_path ["cast"])
+          ~get_params:unit
+          ()
+
+        let election_cast_post = post_service
+          ~fallback:election_cast
+          ~post_params:(opt (string "encrypted_vote") ** opt (file "encrypted_vote_file"))
+          ()
+
+      end
 
     end
 
-    let if_eligible get_user acl f () x =
-      lwt user = get_user () in
-      if acl metadata user then
-        f user x
-      else
-        forbidden ()
-
-    open Eliom_service
-    open Eliom_parameter
-
-    module Services : ELECTION_SERVICES = struct
-
-      let base_path = ["elections"; Uuidm.to_string election.e_params.e_uuid]
-      let make_path x = base_path @ x
-      let root = make_path [""]
-
-      let home = service
-        ~path:root
-        ~get_params:unit
-        ()
-
-      let election_dir = service
-        ~path:root
-        ~priority:(-1)
-        ~get_params:(suffix (election_file "file"))
-        ()
-
-      let election_booth = static_dir_with_params
-        ~get_params:(string "election_url")
-        ()
-
-      let booth_path = ["booth"; "vote.html"]
-
-      let root_rel_to_booth = root
-        |> Eliom_uri.reconstruct_relative_url_path booth_path
-        |> String.concat "/"
-
-      let booth =
-        preapply election_booth (booth_path, root_rel_to_booth)
-
-      let election_update_credential = service
-        ~path:(make_path ["update-cred"])
-        ~get_params:unit
-        ()
-
-      let election_update_credential_post = post_service
-        ~fallback:election_update_credential
-        ~post_params:(string "old_credential" ** string "new_credential")
-        ()
-
-      let election_vote = service
-        ~path:(make_path ["vote"])
-        ~get_params:unit
-        ()
-
-      let election_cast = service
-        ~path:(make_path ["cast"])
-        ~get_params:unit
-        ()
-
-      let create_confirm () = post_coservice
-          ~csrf_safe:true
-          ~csrf_scope:Eliom_common.default_session_scope
-          ~fallback:election_cast
-          ~post_params:Eliom_parameter.unit
-          ()
-
-      let election_cast_post = post_service
-        ~fallback:election_cast
-        ~post_params:(opt (string "encrypted_vote") ** opt (file "encrypted_vote_file"))
-        ()
+    module Register (S : SITE_SERVICES) (T : ELECTION_TEMPLATES) : EMPTY = struct
+      open Eliom_registration
 
       let ballot = Eliom_reference.eref
         ~scope:Eliom_common.default_session_scope
         (None : string option)
 
-    end
+      let if_eligible get_user acl f () x =
+        lwt user = get_user () in
+        if acl metadata user then
+          f user x
+        else
+          forbidden ()
 
-    module Register (S : SITE_SERVICES) (T : ELECTION_TEMPLATES) : EMPTY = struct
-      open Services
-      open Eliom_registration
-
-      let () = Html5.register ~service:home
+      let () = Html5.register ~service:W.S.home
         (if_eligible S.get_logged_user can_read
            (fun user () -> T.home ~user ())
         )
@@ -323,7 +318,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         return public_keys_fname
 
       let f_creds user () =
-        lwt creds = B.extract_creds () in
+        lwt creds = W.B.extract_creds () in
         let s = SSet.fold (fun x accu ->
           (fun () -> return (Ocsigen_stream.of_string (x^"\n"))) :: accu
         ) creds [] in
@@ -331,7 +326,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
       let f_ballots user () =
         (* TODO: streaming *)
-        lwt ballots = B.Ballots.fold (fun _ x xs ->
+        lwt ballots = W.B.Ballots.fold (fun _ x xs ->
           return ((x^"\n")::xs)
         ) [] in
         let s = List.map (fun b () ->
@@ -344,7 +339,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         | Some u ->
           if metadata.e_owner = Some u.user_user then (
             (* TODO: streaming *)
-            lwt ballots = B.Records.fold (fun u (d, _) xs ->
+            lwt ballots = W.B.Records.fold (fun u (d, _) xs ->
               let x = Printf.sprintf "%s %S\n"
                 (Serializable_builtin_j.string_of_datetime d) u
               in return (x::xs)
@@ -376,16 +371,18 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         | ESRecords -> stream f_records
 
       let () = Any.register
-        ~service:election_dir
+        ~service:W.S.election_dir
         (fun f () ->
-          let module X = struct let s = preapply election_dir f end in
+          let module X = struct
+            let s = Eliom_service.preapply W.S.election_dir f
+          end in
           let x = (module X : SAVED_SERVICE) in
           Eliom_reference.set S.saved_service x >>
           handle_pseudo_file () f
         )
 
       let () = Html5.register
-        ~service:election_update_credential
+        ~service:W.S.election_update_credential
         (fun uuid () ->
           lwt user = S.get_logged_user () in
           match user with
@@ -399,14 +396,14 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         )
 
       let () = String.register
-        ~service:election_update_credential_post
+        ~service:W.S.election_update_credential_post
         (fun uuid (old, new_) ->
           lwt user = S.get_logged_user () in
           match user with
           | Some u ->
             if metadata.e_owner = Some u.user_user then (
               try_lwt
-                B.update_cred ~old ~new_ >>
+                W.B.update_cred ~old ~new_ >>
                 return ("OK", "text/plain")
               with Error e ->
                 return ("Error: " ^ explain_error e, "text/plain")
@@ -417,14 +414,14 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         )
 
       let () = Redirection.register
-        ~service:election_vote
+        ~service:W.S.election_vote
         (if_eligible S.get_logged_user can_read
            (fun user () ->
              Eliom_reference.unset ballot >>
-             let module X = struct let s = election_vote end in
+             let module X = struct let s = W.S.election_vote end in
              let x = (module X : SAVED_SERVICE) in
              Eliom_reference.set S.saved_service x >>
-             return booth
+             return W.S.booth
            )
         )
 
@@ -443,7 +440,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
                 in
                 lwt result =
                   try_lwt
-                    lwt hash = B.cast the_ballot record in
+                    lwt hash = W.B.cast the_ballot record in
                     return (`Valid hash)
                   with Error e -> return (`Error e)
                 in
@@ -456,7 +453,13 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
       let ballot_received uuid user =
         let confirm () =
-          let service = Services.create_confirm () in
+          let service = Eliom_service.post_coservice
+            ~csrf_safe:true
+            ~csrf_scope:Eliom_common.default_session_scope
+            ~fallback:W.S.election_cast
+            ~post_params:Eliom_parameter.unit
+            ()
+          in
           let () = Html5.register
             ~service
             ~scope:Eliom_common.default_session_scope
@@ -467,11 +470,11 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         T.cast_confirmation ~confirm ~user ~can_vote ()
 
       let () = Html5.register
-        ~service:election_cast
+        ~service:W.S.election_cast
         (if_eligible S.get_logged_user can_read
            (fun user () ->
-             let uuid = election.e_params.e_uuid in
-             let module X = struct let s = election_cast end in
+             let uuid = W.election.e_params.e_uuid in
+             let module X = struct let s = W.S.election_cast end in
              let x = (module X : SAVED_SERVICE) in
              Eliom_reference.set S.saved_service x >>
              match_lwt Eliom_reference.get ballot with
@@ -481,7 +484,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         )
 
       let () = Redirection.register
-        ~service:election_cast_post
+        ~service:W.S.election_cast_post
         (if_eligible S.get_logged_user can_read
            (fun user (ballot_raw, ballot_file) ->
              lwt the_ballot = match ballot_raw, ballot_file with
@@ -492,22 +495,20 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
                | _, _ -> fail_http 400
              in
              let module X : SAVED_SERVICE = struct
-               let uuid = election.e_params.e_uuid
-               let s = election_cast
+               let uuid = W.election.e_params.e_uuid
+               let s = W.S.election_cast
              end in
              let x = (module X : SAVED_SERVICE) in
              Eliom_reference.set S.saved_service x >>
              Eliom_reference.set ballot (Some the_ballot) >>
              match user with
-             | None -> return (preapply S.login None)
+             | None -> return (Eliom_service.preapply S.login None)
              | Some u -> S.cont ()
            )
         )
 
     end
 
-    module S = Services
-
   end in
 
-  (module X : WEB_ELECTION)
+  (module R : REGISTRATION)

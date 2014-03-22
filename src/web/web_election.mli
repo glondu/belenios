@@ -21,15 +21,13 @@
 
 open Serializable_builtin_t
 open Serializable_t
+open Signatures
 open Web_serializable_t
 open Web_signatures
 
-type config = {
-  raw_election : string;
-  metadata : metadata;
-  featured : bool;
-  params_fname : string;
-  public_keys_fname : string;
-}
+module type REGISTRATION = sig
+  module W : WEB_ELECTION
+  module Register (S : SITE_SERVICES) (T : ELECTION_TEMPLATES) : EMPTY
+end
 
-val make : config -> (module WEB_ELECTION)
+val make : election_config -> (module REGISTRATION)

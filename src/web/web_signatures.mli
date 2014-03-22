@@ -35,6 +35,14 @@ module type SAVED_SERVICE = sig
     Eliom_service.service
 end
 
+type election_config = {
+  raw_election : string;
+  metadata : metadata;
+  featured : bool;
+  params_fname : string;
+  public_keys_fname : string;
+}
+
 module type CORE_SERVICES = sig
 
   val home :
@@ -147,18 +155,6 @@ module type ELECTION_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
-  val create_confirm :
-    unit ->
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Coservice ] ], [> `Post ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
-    Eliom_service.service
-
-  val ballot : string option Eliom_reference.eref
-
 end
 
 
@@ -211,12 +207,6 @@ module type AUTH_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
-end
-
-module type SITE_SERVICES = sig
-  include CORE_SERVICES
-  include CONT_SERVICE
-  include AUTH_SERVICES
 end
 
 module type WEB_BALLOT_BOX = sig
@@ -276,7 +266,13 @@ module type WEB_ELECTION = sig
 
   module B : WEB_BALLOT_BOX
   module S : ELECTION_SERVICES
-  module Register (S : SITE_SERVICES) (T : ELECTION_TEMPLATES) : EMPTY
+end
+
+module type SITE_SERVICES = sig
+  include CORE_SERVICES
+  include CONT_SERVICE
+  include AUTH_SERVICES
+  val register_election : election_config -> (module WEB_ELECTION) Lwt.t
 end
 
 module type TEMPLATES = sig
