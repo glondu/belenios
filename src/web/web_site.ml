@@ -90,7 +90,7 @@ module Make (C : CONFIG) : SITE_SERVICES = struct
 
   include S
 
-  module T = Templates.Make (S)
+  module T = Web_templates.Make (S)
 
   let () = register_election_ref := fun config ->
     let registration = Web_election.make config in

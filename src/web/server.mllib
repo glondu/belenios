@@ -9,6 +9,6 @@ Auth_password
 Auth_cas
 Web_election
 Election
-Templates
+Web_templates
 Web_site
 Web_main
