@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt
 open Web_signatures
 open Web_common
 
@@ -32,7 +33,7 @@ module type CONFIG = sig
   val server : string
 end
 
-module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
+module Make (C : CONFIG) (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
 
   let cas_login = Eliom_service.external_service
     ~prefix:C.server
@@ -62,11 +63,15 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
   let self =
     Eliom_uri.make_string_uri ~absolute:true ~service () |> rewrite_prefix
 
-  let on_success_ref = Eliom_reference.eref
+  let login_cont = Eliom_reference.eref
     ~scope:Eliom_common.default_session_scope
-    (fun ~user_name ~user_logout -> Lwt.return ())
+    None
 
-  let () = Eliom_registration.Redirection.register
+  let logout_cont = Eliom_reference.eref
+    ~scope:Eliom_common.default_session_scope
+    None
+
+  let () = Eliom_registration.Any.register
     ~service:login_cas
     (fun ticket () ->
       match ticket with
@@ -87,20 +92,12 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
                     (match next_lf info (i+1) with
                       | Some j ->
                         let user_name = String.sub info (i+1) (j-i-1) in
-                        let module L : CONT_SERVICE = struct
-                          let cont () =
-                            lwt service = S.cont () in
-                            let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-                            let uri = rewrite_prefix uri in
-                            security_log (fun () ->
-                              Printf.sprintf "%s:%s logged out, redirecting to CAS [%s]"
-                                N.name user_name C.server
-                            ) >> Lwt.return (Eliom_service.preapply cas_logout uri)
-                        end in
-                        let user_logout = (module L : CONT_SERVICE) in
-                        lwt on_success = Eliom_reference.get on_success_ref in
-                        on_success ~user_name ~user_logout >>
-                        S.cont ()
+                        (match_lwt Eliom_reference.get login_cont with
+                        | Some cont ->
+                          Eliom_reference.unset login_cont >>
+                          cont user_name ()
+                        | None -> fail_http 400
+                        )
                       | None -> fail_http 502
                     )
                   | "no" -> fail_http 401
@@ -110,12 +107,27 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
             )
           | None -> fail_http 502
         )
-      | None -> Lwt.return (Eliom_service.preapply cas_login self)
+      | None ->
+        match_lwt Eliom_reference.get logout_cont with
+        | None ->
+          Eliom_service.preapply cas_login self |>
+          Eliom_registration.Redirection.send
+        | Some cont ->
+          Eliom_reference.unset logout_cont >>
+          cont () ()
     )
 
-  let handler ~on_success () =
-    Eliom_reference.set on_success_ref on_success >>
+  let login cont () =
+    Eliom_reference.set login_cont (Some cont) >>
     Eliom_registration.Redirection.send service
+
+  let logout cont () =
+    security_log (fun () ->
+      Printf.sprintf "user logged out, redirecting to CAS [%s]" C.server
+    ) >>
+    lwt () = Eliom_reference.set logout_cont (Some cont) in
+    Eliom_service.preapply cas_logout self |>
+    Eliom_registration.Redirection.send
 
 end
 

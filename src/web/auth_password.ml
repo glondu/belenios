@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt
 open Util
 open Web_signatures
 open Web_common
@@ -39,7 +40,7 @@ module type CONFIG = sig
   val db : string
 end
 
-module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_INSTANCE = struct
+module Make (C : CONFIG) (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
 
   let service = Eliom_service.service
     ~path:N.path
@@ -54,11 +55,9 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
       | _ -> failwith ("error while parsing db file for " ^ N.name)
     ) SMap.empty (Csv.load C.db)
 
-  let user_logout = (module S : CONT_SERVICE)
-
-  let on_success_ref = Eliom_reference.eref
+  let login_cont = Eliom_reference.eref
     ~scope:Eliom_common.default_session_scope
-    (fun ~user_name ~user_logout -> Lwt.return ())
+    None
 
   let () = Eliom_registration.Html5.register ~service
     (fun () () ->
@@ -71,7 +70,7 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
         ~fallback:service
         ~post_params ()
       in
-      let () = Eliom_registration.Redirection.register ~service
+      let () = Eliom_registration.Any.register ~service
         ~scope:Eliom_common.default_session_scope
         (fun () (user_name, password) ->
           if (
@@ -80,16 +79,20 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
               sha256_hex (salt ^ password) = hashed
             with Not_found -> false
           ) then (
-            lwt on_success = Eliom_reference.get on_success_ref in
-            on_success ~user_name ~user_logout >>
-            S.cont ()
+            match_lwt Eliom_reference.get login_cont with
+            | Some cont ->
+              Eliom_reference.unset login_cont >>
+              cont user_name ()
+            | None -> fail_http 400
           ) else forbidden ())
       in T.login_password ~service ()
     )
 
-  let handler ~on_success () =
-    Eliom_reference.set on_success_ref on_success >>
+  let login cont () =
+    Eliom_reference.set login_cont (Some cont) >>
     Eliom_registration.Redirection.send service
+
+  let logout cont () = cont () ()
 
 end
 

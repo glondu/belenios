@@ -62,15 +62,6 @@ module Make (N : CONFIG) = struct
     ~scope:Eliom_common.default_session_scope
     None
 
-  let on_success user_domain ~user_name ~user_logout =
-    let user_user = {user_domain; user_name} in
-    let logged_user = {user_user; user_logout} in
-    security_log (fun () ->
-      Printf.sprintf "%s successfully logged on %s using %s"
-        user_name N.name user_domain
-    ) >>
-    Eliom_reference.set user (Some logged_user)
-
   module Services : AUTH_SERVICES = struct
 
     let get_auth_systems () = !auth_instance_names
@@ -91,6 +82,16 @@ module Make (N : CONFIG) = struct
 
   module Register (C : CONT_SERVICE) (T : TEMPLATES) : EMPTY = struct
 
+    let on_success user_domain user_handlers user_name () =
+      security_log (fun () ->
+        Printf.sprintf "%s successfully logged on %s using %s"
+          user_name N.name user_domain
+      ) >>
+      let user_user = {user_domain; user_name} in
+      let logged_user = {user_user; user_handlers} in
+      Eliom_reference.set user (Some logged_user) >>
+      C.cont () >>= Eliom_registration.Redirection.send
+
     let () = List.iter (fun auth_instance ->
       let {
         auth_system = name;
@@ -110,8 +111,8 @@ module Make (N : CONFIG) = struct
           let name = instance
           let path = N.path @ ["auth"; instance]
         end in
-        let module A = (val auth : AUTH_SERVICE) (N) (C) (T) in
-        let i = (module A : AUTH_INSTANCE) in
+        let module A = (val auth : AUTH_SERVICE) (N) (T) in
+        let i = (module A : AUTH_HANDLERS) in
         Hashtbl.add auth_instances instance i;
         auth_instance_names := instance :: !auth_instance_names
       )
@@ -123,8 +124,8 @@ module Make (N : CONFIG) = struct
         let use name =
           try
             let i = Hashtbl.find auth_instances name in
-            let module A = (val i : AUTH_INSTANCE) in
-            A.handler ~on_success:(on_success name) ()
+            let module A = (val i : AUTH_HANDLERS) in
+            A.login (on_success name i) ()
           with Not_found -> fail_http 404
         in
         match service with
@@ -135,19 +136,24 @@ module Make (N : CONFIG) = struct
           | _ -> T.login_choose () >>= Eliom_registration.Html5.send
       )
 
-    let () = Eliom_registration.Redirection.register
+    let () = Eliom_registration.Any.register
       ~service:Services.logout
       (fun () () ->
         lwt u = Eliom_reference.get user in
         (* should ballot be unset here or not? *)
         Eliom_reference.unset user >>
         match u with
-          | Some u ->
-            let module L = (val u.user_logout) in
-            security_log (fun () ->
-              string_of_user u.user_user ^ " logged out"
-            ) >> L.cont ()
-          | _ -> C.cont ()
+        | Some u ->
+          security_log (fun () ->
+            string_of_user u.user_user ^ " logged out"
+          ) >>
+          let module A = (val u.user_handlers) in
+          let cont () () =
+            C.cont () >>= Eliom_registration.Redirection.send
+          in
+          A.logout cont ()
+        | _ ->
+          C.cont () >>= Eliom_registration.Redirection.send
       )
 
   end

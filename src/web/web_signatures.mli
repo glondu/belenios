@@ -168,9 +168,21 @@ module type CONT_SERVICE = sig
     Eliom_service.service Lwt.t
 end
 
+type service_handler = unit ->
+  (Eliom_registration.browser_content,
+   Eliom_registration.http_service
+  ) Eliom_registration.kind Lwt.t
+
+type 'a service_cont = ('a -> service_handler) -> service_handler
+
+module type AUTH_HANDLERS = sig
+  val login : string service_cont
+  val logout : unit service_cont
+end
+
 type logged_user = {
   user_user : user;
-  user_logout : (module CONT_SERVICE);
+  user_handlers : (module AUTH_HANDLERS);
 }
 
 module type AUTH_SERVICES = sig
@@ -307,24 +319,10 @@ module type NAME = sig
   val path : string list
 end
 
-type on_success_handler =
-  user_name:string -> user_logout:(module CONT_SERVICE) -> unit Lwt.t
-
-module type AUTH_INSTANCE = sig
-
-  val handler :
-    on_success:on_success_handler -> unit ->
-    (Eliom_registration.browser_content,
-     Eliom_registration.http_service)
-    Eliom_registration.kind Lwt.t
-
-end
-
 module type AUTH_SERVICE =
   functor (N : NAME) ->
-  functor (S : CONT_SERVICE) ->
   functor (T : TEMPLATES) ->
-  AUTH_INSTANCE
+  AUTH_HANDLERS
 
 module type AUTH_SYSTEM = sig
   type config
