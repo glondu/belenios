@@ -295,10 +295,6 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
     module Register (S : SITE_SERVICES) (T : ELECTION_TEMPLATES) : EMPTY = struct
       open Eliom_registration
 
-      let ballot = Eliom_reference.eref
-        ~scope:Eliom_common.default_session_scope
-        (None : string option)
-
       let if_eligible acl f () x =
         lwt user = S.get_user () in
         if acl metadata user then
@@ -306,9 +302,10 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         else
           forbidden ()
 
-      let cast_confirmed = Eliom_reference.eref
-        ~scope:Eliom_common.default_session_scope
-        None
+      let scope = Eliom_common.default_session_scope
+
+      let ballot = Eliom_reference.eref ~scope None
+      let cast_confirmed = Eliom_reference.eref ~scope None
 
       let () = Html5.register ~service:W.S.home
         (if_eligible can_read
@@ -470,16 +467,13 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         let confirm () =
           let service = Eliom_service.post_coservice
             ~csrf_safe:true
-            ~csrf_scope:Eliom_common.default_session_scope
+            ~csrf_scope:scope
             ~fallback:W.S.election_cast
             ~post_params:Eliom_parameter.unit
             ()
           in
-          let () = Any.register
-            ~service
-            ~scope:Eliom_common.default_session_scope
-            do_cast
-          in service
+          let () = Any.register ~service ~scope do_cast in
+          service
         in
         let can_vote = can_vote metadata user in
         T.cast_confirmation ~confirm ~user ~can_vote ()

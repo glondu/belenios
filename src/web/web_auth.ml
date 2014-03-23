@@ -60,12 +60,12 @@ end
 
 module Make (N : CONFIG) = struct
 
+  let scope = Eliom_common.default_session_scope
+
   let auth_instances = Hashtbl.create 10
   let auth_instance_names = ref []
 
-  let user = Eliom_reference.eref
-    ~scope:Eliom_common.default_session_scope
-    None
+  let user = Eliom_reference.eref ~scope None
 
   module Services : AUTH_SERVICES = struct
 

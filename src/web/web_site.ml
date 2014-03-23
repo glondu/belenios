@@ -59,6 +59,8 @@ module Make (C : CONFIG) : SITE_SERVICES = struct
     include Auth.Services
     open Eliom_parameter
 
+    let scope = Eliom_common.default_session_scope
+
     let home = service
       ~path:(make_path [""])
       ~get_params:unit
@@ -74,8 +76,7 @@ module Make (C : CONFIG) : SITE_SERVICES = struct
       ~get_params:unit
       ()
 
-    let saved_service = Eliom_reference.eref
-      ~scope:Eliom_common.default_session_scope
+    let saved_service = Eliom_reference.eref ~scope
       (module struct let s = home end : SAVED_SERVICE)
 
     let cont () =

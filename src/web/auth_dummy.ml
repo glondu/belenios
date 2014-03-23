@@ -37,26 +37,25 @@ let parse_config ~instance ~attributes =
 
 module Make (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
 
+  let scope = Eliom_common.default_session_scope
+
   let service = Eliom_service.service
     ~path:N.path
     ~get_params:Eliom_parameter.unit
     ()
 
-  let login_cont = Eliom_reference.eref
-    ~scope:Eliom_common.default_session_scope
-    None
+  let login_cont = Eliom_reference.eref ~scope None
 
   let () = Eliom_registration.Html5.register ~service
     (fun () () ->
       let post_params = Eliom_parameter.(string "username") in
       let service = Eliom_service.post_coservice
         ~csrf_safe:true
-        ~csrf_scope:Eliom_common.default_session_scope
+        ~csrf_scope:scope
         ~fallback:service
         ~post_params ()
       in
-      let () = Eliom_registration.Any.register ~service
-        ~scope:Eliom_common.default_session_scope
+      let () = Eliom_registration.Any.register ~service ~scope
         (fun () user_name ->
           match_lwt Eliom_reference.get login_cont with
           | Some cont ->

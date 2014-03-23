@@ -35,6 +35,8 @@ end
 
 module Make (C : CONFIG) (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
 
+  let scope = Eliom_common.default_session_scope
+
   let cas_login = Eliom_service.external_service
     ~prefix:C.server
     ~path:["login"]
@@ -63,13 +65,8 @@ module Make (C : CONFIG) (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
   let self =
     Eliom_uri.make_string_uri ~absolute:true ~service () |> rewrite_prefix
 
-  let login_cont = Eliom_reference.eref
-    ~scope:Eliom_common.default_session_scope
-    None
-
-  let logout_cont = Eliom_reference.eref
-    ~scope:Eliom_common.default_session_scope
-    None
+  let login_cont = Eliom_reference.eref ~scope None
+  let logout_cont = Eliom_reference.eref ~scope None
 
   let () = Eliom_registration.Any.register
     ~service:login_cas
