@@ -306,13 +306,21 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         else
           forbidden ()
 
+      let cast_confirmed = Eliom_reference.eref
+        ~scope:Eliom_common.default_session_scope
+        None
+
       let () = Html5.register ~service:W.S.home
         (if_eligible can_read
            (fun user () ->
              let module X = struct let s = W.S.home end in
              let x = (module X : SAVED_SERVICE) in
              Eliom_reference.set S.saved_service x >>
-             T.home ~user ()
+             match_lwt Eliom_reference.get cast_confirmed with
+             | Some result ->
+               Eliom_reference.unset cast_confirmed >>
+               T.cast_confirmed ~result ()
+             | None -> T.home ~user ()
            )
         )
 
@@ -450,7 +458,9 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
                   with Error e -> return (`Error e)
                 in
                 Eliom_reference.unset ballot >>
-                T.cast_confirmed ~result ()
+                Eliom_reference.set cast_confirmed (Some result) >>
+                let cont () () = Redirection.send W.S.home in
+                S.do_logout cont ()
               ) else forbidden ()
             | None -> forbidden ()
           end
@@ -465,7 +475,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
             ~post_params:Eliom_parameter.unit
             ()
           in
-          let () = Html5.register
+          let () = Any.register
             ~service
             ~scope:Eliom_common.default_session_scope
             do_cast
