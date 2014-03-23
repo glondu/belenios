@@ -204,6 +204,7 @@ module type AUTH_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
+  val do_login : unit service_cont
   val do_logout : unit service_cont
 
 end

@@ -67,6 +67,41 @@ module Make (N : CONFIG) = struct
 
   let user = Eliom_reference.eref ~scope None
 
+  (* Forward reference, will be set to eponymous template *)
+  let login_choose = ref (fun () -> assert false)
+
+  let do_login_using user_domain cont =
+    try
+      let user_handlers = Hashtbl.find auth_instances user_domain in
+      let cont user_name () =
+        let user_user = {user_domain; user_name} in
+        let logged_user = {user_user; user_handlers} in
+        security_log (fun () ->
+          Printf.sprintf "%s successfully logged into %s"
+            (string_of_user user_user) N.name
+        ) >>
+        Eliom_reference.set user (Some logged_user) >>
+        cont () ()
+      in
+      let module A = (val user_handlers : AUTH_HANDLERS) in
+      A.login cont ()
+    with Not_found -> fail_http 404
+
+  let login_handler service cont =
+    let cont () () =
+      match service with
+      | Some name -> do_login_using name cont
+      | None ->
+        match !auth_instance_names with
+        | [name] -> do_login_using name cont
+        | _ -> !login_choose () >>= Eliom_registration.Html5.send
+    in
+    match_lwt Eliom_reference.get user with
+    | Some u ->
+      let module A = (val u.user_handlers) in
+      A.logout cont ()
+    | None -> cont () ()
+
   module Services : AUTH_SERVICES = struct
 
     let get_auth_systems () = !auth_instance_names
@@ -80,6 +115,8 @@ module Make (N : CONFIG) = struct
       ~path:(N.path @ ["login"])
       ~get_params:Eliom_parameter.(opt (string "service"))
       ()
+
+    let do_login cont () = login_handler None cont
 
     let logout = Eliom_service.service
       ~path:(N.path @ ["logout"])
@@ -101,15 +138,7 @@ module Make (N : CONFIG) = struct
 
   module Register (C : CONT_SERVICE) (T : TEMPLATES) : EMPTY = struct
 
-    let on_success user_domain user_handlers user_name () =
-      let user_user = {user_domain; user_name} in
-      security_log (fun () ->
-        Printf.sprintf "%s successfully logged into %s"
-          (string_of_user user_user) N.name
-      ) >>
-      let logged_user = {user_user; user_handlers} in
-      Eliom_reference.set user (Some logged_user) >>
-      C.cont () >>= Eliom_registration.Redirection.send
+    let () = login_choose := T.login_choose
 
     let () = List.iter (fun auth_instance ->
       let {
@@ -140,19 +169,9 @@ module Make (N : CONFIG) = struct
     let () = Eliom_registration.Any.register
       ~service:Services.login
       (fun service () ->
-        let use name =
-          try
-            let i = Hashtbl.find auth_instances name in
-            let module A = (val i : AUTH_HANDLERS) in
-            A.login (on_success name i) ()
-          with Not_found -> fail_http 404
-        in
-        match service with
-        | Some name -> use name
-        | None ->
-          match !auth_instance_names with
-          | [name] -> use name
-          | _ -> T.login_choose () >>= Eliom_registration.Html5.send
+        let cont () () =
+          C.cont () >>= Eliom_registration.Redirection.send
+        in login_handler service cont
       )
 
     let () = Eliom_registration.Any.register
