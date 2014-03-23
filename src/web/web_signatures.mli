@@ -180,15 +180,10 @@ module type AUTH_HANDLERS = sig
   val logout : unit service_cont
 end
 
-type logged_user = {
-  user_user : user;
-  user_handlers : (module AUTH_HANDLERS);
-}
-
 module type AUTH_SERVICES = sig
 
   val get_auth_systems : unit -> string list
-  val get_logged_user : unit -> logged_user option Lwt.t
+  val get_user : unit -> user option Lwt.t
 
   val login :
     (string option, unit,
@@ -230,7 +225,7 @@ end
 module type ELECTION_TEMPLATES = sig
 
   val home :
-    user:logged_user option ->
+    user:user option ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val update_credential :
@@ -246,7 +241,7 @@ module type ELECTION_TEMPLATES = sig
               [< Eliom_service.suff ], 'c, unit,
               [< Eliom_service.registrable ], 'd)
              Eliom_service.service) ->
-    user:logged_user option ->
+    user:user option ->
     can_vote:bool ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 

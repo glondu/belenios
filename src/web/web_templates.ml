@@ -33,12 +33,12 @@ let site_title = "Election Server"
 let welcome_message = "Welcome!"
 
 let format_user u =
-  em [pcdata (Auth_common.(string_of_user u.user_user))]
+  em [pcdata (Auth_common.(string_of_user u))]
 
 module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
   let base ~title ~content =
-    lwt user = S.get_logged_user () in
+    lwt user = S.get_user () in
     Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
       (head (Eliom_content.Html5.F.title (pcdata title)) [])
       (body [
@@ -201,7 +201,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
             pcdata "log in at the last moment.";
           ]
         | Some u ->
-          let can = if check_acl m.e_voters u.user_user then "can" else "cannot" in
+          let can = if check_acl m.e_voters u then "can" else "cannot" in
           Lwt.return [
             pcdata "You ";
             pcdata can;

@@ -34,7 +34,7 @@ let can_read m user =
   | Some acls ->
     match user with
     | None -> List.mem `Any acls (* readers can be anonymous *)
-    | Some u -> check_acl (Some acls) u.user_user
+    | Some u -> check_acl (Some acls) u
 
 let can_vote m user =
   match m.e_voters with
@@ -42,7 +42,7 @@ let can_vote m user =
   | Some acls ->
     match user with
     | None -> false (* voters must log in *)
-    | Some u -> check_acl (Some acls) u.user_user
+    | Some u -> check_acl (Some acls) u
 
 module type REGISTRATION = sig
   module W : WEB_ELECTION
@@ -307,7 +307,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
           forbidden ()
 
       let () = Html5.register ~service:W.S.home
-        (if_eligible S.get_logged_user can_read
+        (if_eligible S.get_user can_read
            (fun user () ->
              let module X = struct let s = W.S.home end in
              let x = (module X : SAVED_SERVICE) in
@@ -342,7 +342,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
       let f_records user () =
         match user with
         | Some u ->
-          if metadata.e_owner = Some u.user_user then (
+          if metadata.e_owner = Some u then (
             (* TODO: streaming *)
             lwt ballots = W.B.Records.fold (fun u (d, _) xs ->
               let x = Printf.sprintf "%s %S\n"
@@ -361,10 +361,10 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
       let handle_pseudo_file u f =
         let open Eliom_registration in
         let file f =
-          if_eligible S.get_logged_user can_read f u () >>=
+          if_eligible S.get_user can_read f u () >>=
           File.send ~content_type:"application/json"
         and stream f =
-          if_eligible S.get_logged_user can_read f u () >>=
+          if_eligible S.get_user can_read f u () >>=
           Streamlist.send >>=
           (fun x -> return (cast_unknown_content_kind x))
         in
@@ -389,10 +389,10 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
       let () = Html5.register
         ~service:W.S.election_update_credential
         (fun uuid () ->
-          lwt user = S.get_logged_user () in
+          lwt user = S.get_user () in
           match user with
           | Some u ->
-            if metadata.e_owner = Some u.user_user then (
+            if metadata.e_owner = Some u then (
               T.update_credential ()
             ) else (
               forbidden ()
@@ -403,10 +403,10 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
       let () = String.register
         ~service:W.S.election_update_credential_post
         (fun uuid (old, new_) ->
-          lwt user = S.get_logged_user () in
+          lwt user = S.get_user () in
           match user with
           | Some u ->
-            if metadata.e_owner = Some u.user_user then (
+            if metadata.e_owner = Some u then (
               try_lwt
                 W.B.update_cred ~old ~new_ >>
                 return ("OK", "text/plain")
@@ -420,7 +420,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
       let () = Redirection.register
         ~service:W.S.election_vote
-        (if_eligible S.get_logged_user can_read
+        (if_eligible S.get_user can_read
            (fun user () ->
              Eliom_reference.unset ballot >>
              let module X = struct let s = W.S.election_vote end in
@@ -435,12 +435,12 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         | Some the_ballot ->
           begin
             Eliom_reference.unset ballot >>
-            match_lwt S.get_logged_user () with
+            match_lwt S.get_user () with
             | Some u ->
-              let b = check_acl metadata.e_voters u.user_user in
+              let b = check_acl metadata.e_voters u in
               if b then (
                 let record =
-                  Auth_common.string_of_user u.user_user,
+                  Auth_common.string_of_user u,
                   (CalendarLib.Fcalendar.Precise.now (), None)
                 in
                 lwt result =
@@ -476,7 +476,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
       let () = Html5.register
         ~service:W.S.election_cast
-        (if_eligible S.get_logged_user can_read
+        (if_eligible S.get_user can_read
            (fun user () ->
              let uuid = W.election.e_params.e_uuid in
              let module X = struct let s = W.S.election_cast end in
@@ -490,7 +490,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
       let () = Redirection.register
         ~service:W.S.election_cast_post
-        (if_eligible S.get_logged_user can_read
+        (if_eligible S.get_user can_read
            (fun user (ballot_raw, ballot_file) ->
              lwt the_ballot = match ballot_raw, ballot_file with
                | Some ballot, None -> return ballot

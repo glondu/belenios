@@ -48,6 +48,11 @@ type auth_instance = {
   auth_config : (string * string) list;
 }
 
+type logged_user = {
+  user_user : user;
+  user_handlers : (module AUTH_HANDLERS);
+}
+
 module type CONFIG = sig
   include NAME
   val instances : auth_instance list
@@ -66,7 +71,10 @@ module Make (N : CONFIG) = struct
 
     let get_auth_systems () = !auth_instance_names
 
-    let get_logged_user () = Eliom_reference.get user
+    let get_user () =
+      match_lwt Eliom_reference.get user with
+      | Some u -> return (Some u.user_user)
+      | None -> return None
 
     let login = Eliom_service.service
       ~path:(N.path @ ["login"])
