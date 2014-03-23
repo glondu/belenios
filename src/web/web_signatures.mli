@@ -262,7 +262,11 @@ module type SITE_SERVICES = sig
   include CORE_SERVICES
   include CONT_SERVICE
   include AUTH_SERVICES
+
   val register_election : election_config -> (module WEB_ELECTION) Lwt.t
+
+  val set_main_election : (module WEB_ELECTION) -> unit
+  val unset_main_election : unit -> unit
 end
 
 module type TEMPLATES = sig
