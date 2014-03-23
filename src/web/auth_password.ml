@@ -109,4 +109,4 @@ module A : AUTH_SYSTEM = struct
   let make = make
 end
 
-let () = Auth_common.register_auth_system (module A : AUTH_SYSTEM)
+let () = Web_auth.register_auth_system (module A : AUTH_SYSTEM)

@@ -440,7 +440,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
               let b = check_acl metadata.e_voters u in
               if b then (
                 let record =
-                  Auth_common.string_of_user u,
+                  Web_auth.string_of_user u,
                   (CalendarLib.Fcalendar.Precise.now (), None)
                 in
                 lwt result =

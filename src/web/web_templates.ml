@@ -33,7 +33,7 @@ let site_title = "Election Server"
 let welcome_message = "Welcome!"
 
 let format_user u =
-  em [pcdata (Auth_common.(string_of_user u))]
+  em [pcdata (Web_auth.(string_of_user u))]
 
 module Make (S : SITE_SERVICES) : TEMPLATES = struct
 

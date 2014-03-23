@@ -31,7 +31,7 @@ module type CONFIG = sig
   val name : string
   val path : string list
   val source_file : string
-  val instances : Auth_common.auth_instance list
+  val instances : Web_auth.auth_instance list
 end
 
 module Make (C : CONFIG) : SITE_SERVICES = struct
@@ -40,7 +40,7 @@ module Make (C : CONFIG) : SITE_SERVICES = struct
 
   let make_path x = C.path @ x
 
-  module Auth = Auth_common.Make (C)
+  module Auth = Web_auth.Make (C)
 
   let main_election = ref None
   let featured = ref []
