@@ -86,6 +86,17 @@ module Make (N : CONFIG) = struct
       ~get_params:Eliom_parameter.unit
       ()
 
+    let do_logout cont () =
+      match_lwt Eliom_reference.get user with
+      | Some u ->
+        security_log (fun () ->
+          string_of_user u.user_user ^ " logged out"
+        ) >>
+        Eliom_reference.unset user >>
+        let module A = (val u.user_handlers) in
+        A.logout cont ()
+      | None -> cont () ()
+
   end
 
   module Register (C : CONT_SERVICE) (T : TEMPLATES) : EMPTY = struct
@@ -147,21 +158,9 @@ module Make (N : CONFIG) = struct
     let () = Eliom_registration.Any.register
       ~service:Services.logout
       (fun () () ->
-        lwt u = Eliom_reference.get user in
-        (* should ballot be unset here or not? *)
-        Eliom_reference.unset user >>
-        match u with
-        | Some u ->
-          security_log (fun () ->
-            string_of_user u.user_user ^ " logged out"
-          ) >>
-          let module A = (val u.user_handlers) in
-          let cont () () =
-            C.cont () >>= Eliom_registration.Redirection.send
-          in
-          A.logout cont ()
-        | _ ->
+        let cont () () =
           C.cont () >>= Eliom_registration.Redirection.send
+        in Services.do_logout cont ()
       )
 
   end
