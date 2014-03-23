@@ -38,6 +38,8 @@ module Make (C : CONFIG) : SITE_SERVICES = struct
   open Eliom_service
   open Eliom_registration
 
+  let make_path x = C.path @ x
+
   module Auth = Auth_common.Make (C)
 
   let main_election = ref None
@@ -58,17 +60,17 @@ module Make (C : CONFIG) : SITE_SERVICES = struct
     open Eliom_parameter
 
     let home = service
-      ~path:[]
+      ~path:(make_path [""])
       ~get_params:unit
       ()
 
     let source_code = service
-      ~path:["belenios.tar.gz"]
+      ~path:(make_path ["belenios.tar.gz"])
       ~get_params:unit
       ()
 
     let get_randomness = service
-      ~path:["get-randomness"]
+      ~path:(make_path ["get-randomness"])
       ~get_params:unit
       ()
 
