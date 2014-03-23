@@ -59,6 +59,9 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
 
   let service = Eliom_service.preapply login_cas None
 
+  let self =
+    Eliom_uri.make_string_uri ~absolute:true ~service () |> rewrite_prefix
+
   let on_success_ref = Eliom_reference.eref
     ~scope:Eliom_common.default_session_scope
     (fun ~user_name ~user_logout -> Lwt.return ())
@@ -68,12 +71,8 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
     (fun ticket () ->
       match ticket with
       | Some x ->
-        let me =
-          let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-          rewrite_prefix uri
-        in
         let validation =
-          let service = Eliom_service.preapply cas_validate (me, x) in
+          let service = Eliom_service.preapply cas_validate (self, x) in
           Eliom_uri.make_string_uri ~absolute:true ~service ()
         in
         lwt reply = Ocsigen_http_client.get_url validation in
@@ -111,10 +110,7 @@ module Make (C : CONFIG) (N : NAME) (S : CONT_SERVICE) (T : TEMPLATES) : AUTH_IN
             )
           | None -> fail_http 502
         )
-      | None ->
-        let uri = Eliom_uri.make_string_uri ~absolute:true ~service () in
-        let uri = rewrite_prefix uri in
-        Lwt.return (Eliom_service.preapply cas_login uri)
+      | None -> Lwt.return (Eliom_service.preapply cas_login self)
     )
 
   let handler ~on_success () =
