@@ -299,15 +299,15 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         ~scope:Eliom_common.default_session_scope
         (None : string option)
 
-      let if_eligible get_user acl f () x =
-        lwt user = get_user () in
+      let if_eligible acl f () x =
+        lwt user = S.get_user () in
         if acl metadata user then
           f user x
         else
           forbidden ()
 
       let () = Html5.register ~service:W.S.home
-        (if_eligible S.get_user can_read
+        (if_eligible can_read
            (fun user () ->
              let module X = struct let s = W.S.home end in
              let x = (module X : SAVED_SERVICE) in
@@ -361,10 +361,10 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
       let handle_pseudo_file u f =
         let open Eliom_registration in
         let file f =
-          if_eligible S.get_user can_read f u () >>=
+          if_eligible can_read f u () >>=
           File.send ~content_type:"application/json"
         and stream f =
-          if_eligible S.get_user can_read f u () >>=
+          if_eligible can_read f u () >>=
           Streamlist.send >>=
           (fun x -> return (cast_unknown_content_kind x))
         in
@@ -420,7 +420,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
       let () = Redirection.register
         ~service:W.S.election_vote
-        (if_eligible S.get_user can_read
+        (if_eligible can_read
            (fun user () ->
              Eliom_reference.unset ballot >>
              let module X = struct let s = W.S.election_vote end in
@@ -476,7 +476,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
       let () = Html5.register
         ~service:W.S.election_cast
-        (if_eligible S.get_user can_read
+        (if_eligible can_read
            (fun user () ->
              let uuid = W.election.e_params.e_uuid in
              let module X = struct let s = W.S.election_cast end in
@@ -490,7 +490,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
       let () = Redirection.register
         ~service:W.S.election_cast_post
-        (if_eligible S.get_user can_read
+        (if_eligible can_read
            (fun user (ballot_raw, ballot_file) ->
              lwt the_ballot = match ballot_raw, ballot_file with
                | Some ballot, None -> return ballot
