@@ -24,17 +24,6 @@ open Serializable_t
 open Web_serializable_t
 open Signatures
 
-module type SAVED_SERVICE = sig
-  val s :
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     [> Eliom_service.registrable ], 'a)
-    Eliom_service.service
-end
-
 type election_config = {
   raw_election : string;
   metadata : metadata;
@@ -71,8 +60,6 @@ module type CORE_SERVICES = sig
      [ `WithoutSuffix ], unit, unit,
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
-
-  val saved_service : (module SAVED_SERVICE) Eliom_reference.eref
 
 end
 
@@ -155,17 +142,6 @@ module type ELECTION_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
-end
-
-module type CONT_SERVICE = sig
-  val cont :
-    unit ->
-    (unit, unit,
-     [> `Attached of
-          ([> `External | `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit, Eliom_service.registrable, 'a)
-    Eliom_service.service Lwt.t
 end
 
 type service_handler = unit ->
@@ -270,13 +246,14 @@ end
 
 module type SITE_SERVICES = sig
   include CORE_SERVICES
-  include CONT_SERVICE
   include AUTH_SERVICES
 
   val register_election : election_config -> (module WEB_ELECTION) Lwt.t
 
   val set_main_election : (module WEB_ELECTION) -> unit
   val unset_main_election : unit -> unit
+
+  val cont : (unit -> service_handler) Eliom_reference.eref
 end
 
 module type TEMPLATES = sig

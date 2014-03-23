@@ -310,9 +310,8 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
       let () = Html5.register ~service:W.S.home
         (if_eligible can_read
            (fun user () ->
-             let module X = struct let s = W.S.home end in
-             let x = (module X : SAVED_SERVICE) in
-             Eliom_reference.set S.saved_service x >>
+             let cont () () = Redirection.send W.S.home in
+             Eliom_reference.set S.cont cont >>
              match_lwt Eliom_reference.get cast_confirmed with
              | Some result ->
                Eliom_reference.unset cast_confirmed >>
@@ -383,11 +382,11 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
       let () = Any.register
         ~service:W.S.election_dir
         (fun f () ->
-          let module X = struct
-            let s = Eliom_service.preapply W.S.election_dir f
-          end in
-          let x = (module X : SAVED_SERVICE) in
-          Eliom_reference.set S.saved_service x >>
+          let cont () () =
+            Eliom_service.preapply W.S.election_dir f |>
+            Redirection.send
+          in
+          Eliom_reference.set S.cont cont >>
           handle_pseudo_file () f
         )
 
@@ -428,9 +427,8 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         (if_eligible can_read
            (fun user () ->
              Eliom_reference.unset ballot >>
-             let module X = struct let s = W.S.election_vote end in
-             let x = (module X : SAVED_SERVICE) in
-             Eliom_reference.set S.saved_service x >>
+             let cont () () = Redirection.send W.S.election_vote in
+             Eliom_reference.set S.cont cont >>
              return W.S.booth
            )
         )
@@ -483,16 +481,15 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         (if_eligible can_read
            (fun user () ->
              let uuid = W.election.e_params.e_uuid in
-             let module X = struct let s = W.S.election_cast end in
-             let x = (module X : SAVED_SERVICE) in
-             Eliom_reference.set S.saved_service x >>
+             let cont () () = Redirection.send W.S.election_cast in
+             Eliom_reference.set S.cont cont >>
              match_lwt Eliom_reference.get ballot with
              | Some _ -> ballot_received uuid user
              | None -> T.cast_raw ()
            )
         )
 
-      let () = Redirection.register
+      let () = Any.register
         ~service:W.S.election_cast_post
         (if_eligible can_read
            (fun user (ballot_raw, ballot_file) ->
@@ -503,16 +500,12 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
                  Lwt_stream.to_string (Lwt_io.chars_of_file fname)
                | _, _ -> fail_http 400
              in
-             let module X : SAVED_SERVICE = struct
-               let uuid = W.election.e_params.e_uuid
-               let s = W.S.election_cast
-             end in
-             let x = (module X : SAVED_SERVICE) in
-             Eliom_reference.set S.saved_service x >>
+             let cont () () = Redirection.send W.S.election_cast in
+             Eliom_reference.set S.cont cont >>
              Eliom_reference.set ballot (Some the_ballot) >>
              match user with
-             | None -> return (Eliom_service.preapply S.login None)
-             | Some u -> S.cont ()
+             | None -> S.do_login cont ()
+             | Some u -> cont () ()
            )
         )
 

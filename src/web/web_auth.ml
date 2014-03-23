@@ -136,7 +136,7 @@ module Make (N : CONFIG) = struct
 
   end
 
-  module Register (C : CONT_SERVICE) (T : TEMPLATES) : EMPTY = struct
+  module Register (S : SITE_SERVICES) (T : TEMPLATES) : EMPTY = struct
 
     let () = login_choose := T.login_choose
 
@@ -169,17 +169,15 @@ module Make (N : CONFIG) = struct
     let () = Eliom_registration.Any.register
       ~service:Services.login
       (fun service () ->
-        let cont () () =
-          C.cont () >>= Eliom_registration.Redirection.send
-        in login_handler service cont
+        lwt cont = Eliom_reference.get S.cont in
+        login_handler service cont
       )
 
     let () = Eliom_registration.Any.register
       ~service:Services.logout
       (fun () () ->
-        let cont () () =
-          C.cont () >>= Eliom_registration.Redirection.send
-        in Services.do_logout cont ()
+        lwt cont = Eliom_reference.get S.cont in
+        Services.do_logout cont ()
       )
 
   end

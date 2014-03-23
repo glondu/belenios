@@ -76,13 +76,8 @@ module Make (C : CONFIG) : SITE_SERVICES = struct
       ~get_params:unit
       ()
 
-    let saved_service = Eliom_reference.eref ~scope
-      (module struct let s = home end : SAVED_SERVICE)
-
-    let cont () =
-      lwt x = Eliom_reference.get saved_service in
-      let module X = (val x : SAVED_SERVICE) in
-      return X.s
+    let cont = Eliom_reference.eref ~scope
+      (fun () () -> Eliom_registration.Redirection.send home)
 
     let register_election config = !register_election_ref config
 
@@ -108,7 +103,7 @@ module Make (C : CONFIG) : SITE_SERVICES = struct
 
   let () = Any.register ~service:home
     (fun () () ->
-      Eliom_reference.unset saved_service >>
+      Eliom_reference.unset cont >>
       match !main_election with
       | None ->
         T.home ~featured:!featured () >>= Html5.send
