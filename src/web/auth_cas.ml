@@ -110,6 +110,11 @@ module Make (C : CONFIG) (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
       | None ->
         match_lwt Eliom_reference.get logout_cont with
         | None ->
+          lwt () = security_log (fun () ->
+            Printf.sprintf
+              "user is trying to log in, redirecting to CAS [%s]"
+              C.server
+          ) in
           Eliom_service.preapply cas_login self |>
           Eliom_registration.Redirection.send
         | Some cont ->

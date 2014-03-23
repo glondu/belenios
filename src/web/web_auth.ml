@@ -91,11 +91,11 @@ module Make (N : CONFIG) = struct
   module Register (C : CONT_SERVICE) (T : TEMPLATES) : EMPTY = struct
 
     let on_success user_domain user_handlers user_name () =
-      security_log (fun () ->
-        Printf.sprintf "%s successfully logged on %s using %s"
-          user_name N.name user_domain
-      ) >>
       let user_user = {user_domain; user_name} in
+      security_log (fun () ->
+        Printf.sprintf "%s successfully logged into %s"
+          (string_of_user user_user) N.name
+      ) >>
       let logged_user = {user_user; user_handlers} in
       Eliom_reference.set user (Some logged_user) >>
       C.cont () >>= Eliom_registration.Redirection.send
