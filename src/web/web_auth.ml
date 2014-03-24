@@ -83,6 +83,8 @@ module Make (N : CONFIG) = struct
 
   module Services : AUTH_SERVICES = struct
 
+    let auth_realm = N.name
+
     let get_auth_systems () = !auth_instance_names
 
     let get_user () =

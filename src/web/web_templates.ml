@@ -32,14 +32,16 @@ open Eliom_content.Html5.F
 
 let site_title = "Election Server"
 let welcome_message = "Welcome!"
+let admin_background = " background: #FF9999;"
 
 let format_user u =
   em [pcdata (Web_auth.(string_of_user u))]
 
-let make_login_box auth =
+let make_login_box style auth =
+  let style = "float: right; text-align: right;" ^ style in
   let module S = (val auth : AUTH_SERVICES) in
   lwt user = S.get_user () in
-  return @@ div ~a:[a_style "float: right; text-align: right;"] (
+  return @@ div ~a:[a_style style] (
     match user with
     | Some user ->
       [
@@ -74,7 +76,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
   let site_login_box =
     let auth = (module S : AUTH_SERVICES) in
-    fun () -> make_login_box auth
+    fun () -> make_login_box admin_background auth
 
   let base ~title ~login_box ~content =
     Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
@@ -134,7 +136,10 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
     let login_box =
       let auth = (module S : AUTH_SERVICES) in
-      fun () -> make_login_box auth
+      let style =
+        if S.auth_realm = "site" then admin_background else ""
+      in
+      fun () -> make_login_box style auth
 
     let dummy ~service () =
       let title, field_name, input_type =
@@ -211,7 +216,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
     let election_login_box =
       let auth = (module W.S : AUTH_SERVICES) in
-      fun () -> make_login_box auth
+      fun () -> make_login_box "" auth
 
     let file x = Eliom_service.preapply W.S.election_dir x
 

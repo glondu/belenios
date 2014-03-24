@@ -41,6 +41,8 @@ type election_config = {
 
 module type AUTH_SERVICES = sig
 
+  val auth_realm : string
+
   val get_auth_systems : unit -> string list
   val get_user : unit -> user option Lwt.t
 
