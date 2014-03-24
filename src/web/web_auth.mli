@@ -28,15 +28,9 @@ val string_of_user : user -> string
 
 val register_auth_system : (module AUTH_SYSTEM) -> unit
 
-type auth_instance = {
-  auth_system : string;
-  auth_instance : string;
-  auth_config : (string * string) list;
-}
-
 module type CONFIG = sig
   include NAME
-  val instances : auth_instance list
+  val auth_config : auth_config list
 end
 
 module Make (C : CONFIG) : sig

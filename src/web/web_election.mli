@@ -27,7 +27,7 @@ open Web_signatures
 
 module type REGISTRATION = sig
   module W : WEB_ELECTION
-  module Register (S : SITE) (T : ELECTION_TEMPLATES) : EMPTY
+  module Register (S : SITE) (T : TEMPLATES) : EMPTY
 end
 
 val make : election_config -> (module REGISTRATION)

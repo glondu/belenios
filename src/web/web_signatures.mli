@@ -24,13 +24,46 @@ open Serializable_t
 open Web_serializable_t
 open Signatures
 
+type auth_config = {
+  auth_system : string;
+  auth_instance : string;
+  auth_config : (string * string) list;
+}
+
 type election_config = {
   raw_election : string;
   metadata : metadata;
   featured : bool;
   params_fname : string;
   public_keys_fname : string;
+  auth_config : auth_config list;
 }
+
+module type AUTH_SERVICES = sig
+
+  val get_auth_systems : unit -> string list
+  val get_user : unit -> user option Lwt.t
+
+  val login :
+    (string option, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of string ] Eliom_parameter.param_name, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val logout :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+end
 
 module type CORE_SERVICES = sig
 
@@ -64,6 +97,7 @@ module type CORE_SERVICES = sig
 end
 
 module type ELECTION_SERVICES = sig
+  include AUTH_SERVICES
 
   val home :
     (unit, unit,
@@ -159,32 +193,6 @@ end
 module type AUTH_HANDLERS_PUBLIC = sig
   val do_login : unit service_cont
   val do_logout : unit service_cont
-end
-
-module type AUTH_SERVICES = sig
-
-  val get_auth_systems : unit -> string list
-  val get_user : unit -> user option Lwt.t
-
-  val login :
-    (string option, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ],
-     [ `One of string ] Eliom_parameter.param_name, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
-    Eliom_service.service
-
-  val logout :
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
-    Eliom_service.service
-
 end
 
 module type WEB_BALLOT_BOX = sig

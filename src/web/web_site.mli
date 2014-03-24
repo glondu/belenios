@@ -25,7 +25,7 @@ module type CONFIG = sig
   val name : string
   val path : string list
   val source_file : string
-  val instances : Web_auth.auth_instance list
+  val auth_config : auth_config list
 end
 
 module Make (C : CONFIG) : SITE

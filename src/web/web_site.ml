@@ -31,7 +31,7 @@ module type CONFIG = sig
   val name : string
   val path : string list
   val source_file : string
-  val instances : Web_auth.auth_instance list
+  val auth_config : auth_config list
 end
 
 module Make (C : CONFIG) : SITE = struct
@@ -95,7 +95,7 @@ module Make (C : CONFIG) : SITE = struct
     let registration = Web_election.make config in
     let module R = (val registration : Web_election.REGISTRATION) in
     let module W = R.W in
-    let module X : EMPTY = R.Register (S) (T.Election (W)) in
+    let module X : EMPTY = R.Register (S) (T) in
     let election = (module W : WEB_ELECTION) in
     let election_ro = (module W : WEB_ELECTION_RO) in
     if W.featured then featured := election_ro :: !featured;

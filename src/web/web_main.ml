@@ -135,6 +135,7 @@ let parse_election_dir dir =
       featured = item.datadir_featured;
       params_fname;
       public_keys_fname;
+      auth_config = !auth_instances;
     }, public_creds_fname)
   ) index
 
@@ -159,7 +160,7 @@ module Site_config = struct
   let name = "site"
   let path = []
   let source_file = source_file
-  let instances = !auth_instances
+  let auth_config = !auth_instances
 end
 
 module Site = Web_site.Make (Site_config)

@@ -46,14 +46,14 @@ let can_vote m user =
 
 module type REGISTRATION = sig
   module W : WEB_ELECTION
-  module Register (S : SITE) (T : ELECTION_TEMPLATES) : EMPTY
+  module Register (S : SITE) (T : TEMPLATES) : EMPTY
 end
 
-let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
+let make config =
 
-  let e_fingerprint = sha256_b64 raw_election in
+  let e_fingerprint = sha256_b64 config.raw_election in
   let wrapped_params = Serializable_j.params_of_string
-    Serializable_j.read_ff_pubkey raw_election
+    Serializable_j.read_ff_pubkey config.raw_election
   in
   let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = wrapped_params.e_public_key in
   let group = {g; p; q} in
@@ -61,17 +61,28 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
   let module R : REGISTRATION = struct
 
+    let uuid = Uuidm.to_string e_params.e_uuid
+    let base_path = ["elections"; uuid]
+
+    module N = struct
+      let name = uuid
+      let path = base_path
+      let auth_config = config.auth_config
+    end
+
+    module Auth = Web_auth.Make (N)
+
     module W : WEB_ELECTION = struct
       module G = (val Election.finite_field group : Election.FF_GROUP)
       module M = MakeLwtRandom(struct let rng = make_rng () end)
       module E = Election.MakeElection(G)(M)
 
       let election = {e_params; e_pks = None; e_fingerprint}
-      let metadata = metadata
+      let metadata = config.metadata
 
-      let public_keys_fname = public_keys_fname
-      let params_fname = params_fname
-      let featured = featured
+      let public_keys_fname = config.public_keys_fname
+      let params_fname = config.params_fname
+      let featured = config.featured
 
       module B : WEB_BALLOT_BOX = struct
 
@@ -234,8 +245,9 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
       open Eliom_parameter
 
       module S : ELECTION_SERVICES = struct
+        include Auth.Services
+        include Auth.Handlers
 
-        let base_path = ["elections"; Uuidm.to_string election.e_params.e_uuid]
         let make_path x = base_path @ x
         let root = make_path [""]
 
@@ -292,12 +304,16 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
     end
 
-    module Register (S : SITE) (T : ELECTION_TEMPLATES) : EMPTY = struct
+    module Register (S : SITE) (T : TEMPLATES) : EMPTY = struct
       open Eliom_registration
+
+      let () = let module X : EMPTY = Auth.Register (S) (T) in ()
+
+      module T = T.Election (W)
 
       let if_eligible acl f () x =
         lwt user = S.get_user () in
-        if acl metadata user then
+        if acl config.metadata user then
           f user x
         else
           forbidden ()
@@ -321,10 +337,10 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
         )
 
       let f_raw user () =
-        return params_fname
+        return W.params_fname
 
       let f_keys user () =
-        return public_keys_fname
+        return W.public_keys_fname
 
       let f_creds user () =
         lwt creds = W.B.extract_creds () in
@@ -346,7 +362,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
       let f_records user () =
         match user with
         | Some u ->
-          if metadata.e_owner = Some u then (
+          if W.metadata.e_owner = Some u then (
             (* TODO: streaming *)
             lwt ballots = W.B.Records.fold (fun u (d, _) xs ->
               let x = Printf.sprintf "%s %S\n"
@@ -396,7 +412,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
           lwt user = S.get_user () in
           match user with
           | Some u ->
-            if metadata.e_owner = Some u then (
+            if W.metadata.e_owner = Some u then (
               T.update_credential ()
             ) else (
               forbidden ()
@@ -410,7 +426,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
           lwt user = S.get_user () in
           match user with
           | Some u ->
-            if metadata.e_owner = Some u then (
+            if W.metadata.e_owner = Some u then (
               try_lwt
                 W.B.update_cred ~old ~new_ >>
                 return ("OK", "text/plain")
@@ -440,7 +456,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
             Eliom_reference.unset ballot >>
             match_lwt S.get_user () with
             | Some u ->
-              let b = check_acl metadata.e_voters u in
+              let b = check_acl W.metadata.e_voters u in
               if b then (
                 let record =
                   Web_auth.string_of_user u,
@@ -473,7 +489,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
           let () = Any.register ~service ~scope do_cast in
           service
         in
-        let can_vote = can_vote metadata user in
+        let can_vote = can_vote W.metadata user in
         T.cast_confirmation ~confirm ~user ~can_vote ()
 
       let () = Html5.register

@@ -42,12 +42,6 @@ let register_auth_system auth_system =
     Hashtbl.add auth_systems X.name auth_system
   )
 
-type auth_instance = {
-  auth_system : string;
-  auth_instance : string;
-  auth_config : (string * string) list;
-}
-
 type logged_user = {
   user_user : user;
   user_handlers : (module AUTH_HANDLERS);
@@ -55,7 +49,7 @@ type logged_user = {
 
 module type CONFIG = sig
   include NAME
-  val instances : auth_instance list
+  val auth_config : auth_config list
 end
 
 module Make (N : CONFIG) = struct
@@ -168,7 +162,7 @@ module Make (N : CONFIG) = struct
         Hashtbl.add auth_instances instance i;
         auth_instance_names := instance :: !auth_instance_names
       )
-    ) N.instances
+    ) N.auth_config
 
     let () = Eliom_registration.Any.register
       ~service:Services.login
