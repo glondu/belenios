@@ -375,7 +375,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         h1 [ pcdata params.e_name ];
         form;
       ] in
-      lwt login_box = election_login_box () in
+      lwt login_box = site_login_box () in
       base ~title:params.e_name ~login_box ~content
 
     let cast_raw () =
@@ -408,7 +408,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         h3 [ pcdata "Submit by file" ];
         form_upload;
       ] in
-      lwt login_box = site_login_box () in
+      lwt login_box = election_login_box () in
       base ~title:params.e_name ~login_box ~content
 
     let cast_confirmation ~confirm ~can_vote () =
