@@ -37,7 +37,7 @@ let () = CalendarLib.Time_Zone.(change Local)
 
 (** Parse configuration from <eliom> *)
 
-let data_dirs = ref []
+let import_dirs = ref []
 let source_file = ref None
 let main_election_uuid = ref None
 let auth_instances = ref []
@@ -52,13 +52,13 @@ let () =
     Lwt_main.run (open_security_log file)
   | Element ("source", ["file", file], []) ->
     source_file := Some file
-  | Element ("data", ["dir", dir], []) ->
-    data_dirs := dir :: !data_dirs
+  | Element ("import", ["dir", dir], []) ->
+    import_dirs := dir :: !import_dirs
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->
     set_rewrite_prefix ~src ~dst
   | Element ("main-election", ["uuid", uuid], []) ->
     (match  Uuidm.of_string uuid with
-    | Some u -> main_election_uuid := Some u
+    | Some u -> main_election_uuid := Some (Uuidm.to_string u)
     | None -> failwith "Incorrect UUID in configuration <main-election> tag"
     )
   | Element ("auth", ["name", auth_instance],
@@ -94,16 +94,18 @@ let file_exists x =
   with _ ->
     return false
 
-let parse_election_dir dir =
+let election_table = Ocsipersist.open_table "elections"
+
+let import_election_dir accu dir =
   Ocsigen_messages.debug (fun () ->
-    "Loading data from " ^ dir ^ "..."
+    "Importing data from " ^ dir ^ "..."
   );
   lwt index =
     Lwt_io.chars_of_file (dir/"index.json") |>
     Lwt_stream.to_string >>=
     wrap1 datadir_index_of_string
   in
-  Lwt_list.map_p (fun item ->
+  Lwt_list.fold_left_s (fun accu item ->
     let subdir = item.datadir_dir in
     let path = dir/subdir in
     let params_fname = path/"election.json" in
@@ -118,29 +120,49 @@ let parse_election_dir dir =
       | Some e -> return e
       | None -> failwith "election.json is invalid")
     in
-    lwt metadata =
-      let fname = path/"metadata.json" in
-      lwt b = file_exists fname in
-      if b then (
-        Lwt_io.chars_of_file fname |>
-        Lwt_stream.to_string >>=
-        wrap1 metadata_of_string
-      ) else return empty_metadata
+    let uuid =
+      (election_uuid_of_string raw_election).election_uuid |>
+      Uuidm.to_string
     in
-    let public_creds_fname = path/"public_creds.txt" in
-    (* public credentials will be parsed later *)
-    return Web_election.({
-      raw_election;
-      metadata;
-      featured = item.datadir_featured;
-      params_fname;
-      public_keys_fname;
-    }, public_creds_fname)
-  ) index
+    lwt exists =
+      try_lwt
+        lwt _ = Ocsipersist.find election_table uuid in
+        return true
+      with Not_found -> return false
+    in
+    if exists then (
+      let () = Ocsigen_messages.debug (fun () ->
+        "-- election already present in database, skipping"
+      ) in return accu
+    ) else if SMap.mem uuid accu then (
+      let () = Ocsigen_messages.debug (fun () ->
+        "-- duplicate election, skipping"
+      ) in return accu
+    ) else (
+      lwt metadata =
+        let fname = path/"metadata.json" in
+        lwt b = file_exists fname in
+        if b then (
+          Lwt_io.chars_of_file fname |>
+          Lwt_stream.to_string >>=
+          wrap1 metadata_of_string
+        ) else return empty_metadata
+      in
+      let public_creds_fname = path/"public_creds.txt" in
+      let config = Web_election.({
+        raw_election;
+        metadata;
+        featured = item.datadir_featured;
+        params_fname;
+        public_keys_fname;
+      }) in
+      Ocsipersist.add election_table uuid config >>
+      return @@ SMap.add uuid public_creds_fname accu
+    )
+  ) accu index
 
-lwt election_configs =
-  Lwt_list.map_p parse_election_dir !data_dirs >>=
-  wrap1 List.flatten
+lwt imported =
+  Lwt_list.fold_left_s import_election_dir SMap.empty !import_dirs
 
 lwt source_file =
   match !source_file with
@@ -164,23 +186,23 @@ end
 
 module Site = Web_site.Make (Site_config)
 
-let populate accu f s = Lwt_stream.fold_s f s accu
-
 lwt () =
-  Lwt_list.iter_s (fun (config, public_creds_fname) ->
+  Ocsipersist.iter_step (fun uuid config ->
     lwt election = Site.register_election config in
     let module W = (val election : WEB_ELECTION) in
     (match !main_election_uuid with
-    | Some u when u = W.election.e_params.e_uuid ->
-      Site.set_main_election election
+    | Some u when u = uuid -> Site.set_main_election election
     | _ -> ()
     );
-    lwt public_creds =
+    try_lwt
+      let public_creds_fname = SMap.find uuid imported in
+      (* if the election has just been imported, inject its credentials *)
+      let () =
+        Ocsigen_messages.debug (fun () ->
+          Printf.sprintf "Injecting credentials for %s" uuid
+        )
+      in
       Lwt_io.lines_of_file public_creds_fname |>
-      populate SSet.empty (fun c accu ->
-        return (SSet.add c accu)
-      )
-    in
-    W.B.inject_creds public_creds >>
-    return ()
-  ) election_configs
+      Lwt_stream.iter_s W.B.inject_cred
+    with Not_found -> return ()
+  ) election_table

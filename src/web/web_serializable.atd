@@ -23,6 +23,7 @@
 
 (** {1 Predefined types} *)
 
+type uuid <ocaml predef from="Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Serializable_builtin"> = abstract
 
 (** {1 Web-specific types} *)
@@ -68,3 +69,7 @@ type datadir_item = {
 } <ocaml field_prefix="datadir_">
 
 type datadir_index = datadir_item list
+
+type election_uuid = {
+  uuid : uuid;
+} <ocaml field_prefix="election_">

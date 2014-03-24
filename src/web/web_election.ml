@@ -121,23 +121,12 @@ let make config =
             return (SSet.add k x)
           ) cred_table SSet.empty
 
-        let inject_creds creds =
-          lwt existing_creds = extract_creds () in
-          if SSet.is_empty existing_creds then (
-            Ocsigen_messages.debug (fun () ->
-              Printf.sprintf "Injecting credentials for %s" uuid
-            );
-            SSet.fold (fun x unit ->
-              unit >> Ocsipersist.add cred_table x None
-            ) creds (return ())
-          ) else (
-            if SSet.(is_empty (diff creds existing_creds)) then (
-              Lwt.return ()
-            ) else (
-              Ocsigen_messages.warning "public_creds.txt does not match db!";
-              Lwt.return ()
-            )
-          )
+        let inject_cred cred =
+          try_lwt
+            let _ = Ocsipersist.find cred_table cred in
+            failwith "trying to add duplicate credential"
+          with Not_found ->
+            Ocsipersist.add cred_table cred None
 
         let do_cast rawballot (user, date) =
           let voting_open =

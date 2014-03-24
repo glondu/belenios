@@ -201,7 +201,7 @@ module type WEB_BALLOT_BOX = sig
     and type key = string
 
   val cast : string -> string * datetime -> string Lwt.t
-  val inject_creds : Util.SSet.t -> unit Lwt.t
+  val inject_cred : string -> unit Lwt.t
   val extract_creds : unit -> Util.SSet.t Lwt.t
   val update_cred : old:string -> new_:string -> unit Lwt.t
 end
