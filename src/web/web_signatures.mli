@@ -232,7 +232,7 @@ module type ELECTION_TEMPLATES = sig
 
 end
 
-module type WEB_ELECTION = sig
+module type WEB_ELECTION_RO = sig
   module G : GROUP
   module E : ELECTION with type elt = G.t
 
@@ -242,8 +242,12 @@ module type WEB_ELECTION = sig
   val params_fname : string
   val public_keys_fname : string
 
-  module B : WEB_BALLOT_BOX
   module S : ELECTION_SERVICES
+end
+
+module type WEB_ELECTION = sig
+  include WEB_ELECTION_RO
+  module B : WEB_BALLOT_BOX
 end
 
 module type SITE_SERVICES = sig
@@ -263,7 +267,7 @@ end
 module type TEMPLATES = sig
 
   val home :
-    featured:(module WEB_ELECTION) list ->
+    featured:(module WEB_ELECTION_RO) list ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val login_dummy :
@@ -289,7 +293,7 @@ module type TEMPLATES = sig
   val login_choose :
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-  module Election (W : WEB_ELECTION) : ELECTION_TEMPLATES
+  module Election (W : WEB_ELECTION_RO) : ELECTION_TEMPLATES
 
 end
 

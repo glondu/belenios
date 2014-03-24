@@ -90,7 +90,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
        ]))
 
   let format_one_featured_election election =
-    let module W = (val election : WEB_ELECTION) in
+    let module W = (val election : WEB_ELECTION_RO) in
     let e = W.election.e_params in
     li [
       h3 [
@@ -186,7 +186,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       uri
       contents
 
-  module Election (W : WEB_ELECTION) = struct
+  module Election (W : WEB_ELECTION_RO) = struct
 
     let file x = Eliom_service.preapply W.S.election_dir x
 

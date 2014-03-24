@@ -97,7 +97,8 @@ module Make (C : CONFIG) : SITE = struct
     let module W = R.W in
     let module X : EMPTY = R.Register (S) (T.Election (W)) in
     let election = (module W : WEB_ELECTION) in
-    if W.featured then featured := election :: !featured;
+    let election_ro = (module W : WEB_ELECTION_RO) in
+    if W.featured then featured := election_ro :: !featured;
     return election
 
   let () = let module X : EMPTY = Auth.Register (S) (T) in ()
