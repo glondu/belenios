@@ -153,6 +153,7 @@ let empty_metadata = {
   e_readers = None;
   e_voters = None;
   e_owner = None;
+  e_auth_config = None;
 }
 
 let check_acl a u =

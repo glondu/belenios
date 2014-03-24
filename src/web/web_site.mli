@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Web_serializable_t
 open Web_signatures
 
 module type CONFIG = sig

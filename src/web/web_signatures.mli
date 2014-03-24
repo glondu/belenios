@@ -24,19 +24,12 @@ open Serializable_t
 open Web_serializable_t
 open Signatures
 
-type auth_config = {
-  auth_system : string;
-  auth_instance : string;
-  auth_config : (string * string) list;
-}
-
 type election_config = {
   raw_election : string;
   metadata : metadata;
   featured : bool;
   params_fname : string;
   public_keys_fname : string;
-  auth_config : auth_config list;
 }
 
 module type AUTH_SERVICES = sig

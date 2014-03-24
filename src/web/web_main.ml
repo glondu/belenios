@@ -135,7 +135,6 @@ let parse_election_dir dir =
       featured = item.datadir_featured;
       params_fname;
       public_keys_fname;
-      auth_config = !auth_instances;
     }, public_creds_fname)
   ) index
 

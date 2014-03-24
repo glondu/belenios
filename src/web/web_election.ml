@@ -67,7 +67,11 @@ let make config =
     module N = struct
       let name = uuid
       let path = base_path
-      let auth_config = config.auth_config
+
+      let auth_config =
+        match config.metadata.e_auth_config with
+        | None -> []
+        | Some xs -> xs
     end
 
     module Auth = Web_auth.Make (N)
