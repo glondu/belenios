@@ -60,14 +60,14 @@ let make_login_box style auth =
         div [
           pcdata "Not logged in.";
         ];
-        let auth_systems = List.map (fun name ->
-          let service = Eliom_service.preapply S.login (Some name) in
-          a ~service [pcdata name] ()
-        ) (S.get_auth_systems ()) in
+        let auth_systems =
+          S.get_auth_systems () |>
+          List.map (fun name ->
+            a ~service:S.login [pcdata name] (Some name)
+          ) |> list_join (pcdata ", ")
+        in
         div (
-          [ pcdata "Login: " ] @
-          list_join (pcdata ", ") auth_systems @
-          [ pcdata "." ]
+          [pcdata "Log in: ["] @ auth_systems @ [pcdata "]"]
         );
       ]
   )
