@@ -40,7 +40,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
   let cas_login = Eliom_service.external_service
     ~prefix:C.server
     ~path:["login"]
-    ~get_params:Eliom_parameter.(string "service")
+    ~get_params:Eliom_parameter.(string "service" ** opt (bool "renew"))
     ()
 
   let cas_logout = Eliom_service.external_service
@@ -112,7 +112,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
               "user is trying to log in, redirecting to CAS [%s]"
               C.server
           ) in
-          Eliom_service.preapply cas_login self |>
+          Eliom_service.preapply cas_login (self, Some true) |>
           Eliom_registration.Redirection.send
         | Some cont ->
           Eliom_reference.unset logout_cont >>
