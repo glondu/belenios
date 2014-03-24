@@ -89,7 +89,7 @@ let make config =
         let suffix = "_" ^ String.map (function
           | '-' -> '_'
           | c -> c
-        ) (Uuidm.to_string e_params.e_uuid)
+        ) uuid
 
         module Ballots = struct
           type 'a m = 'a Lwt.t
@@ -120,9 +120,7 @@ let make config =
           lwt existing_creds = extract_creds () in
           if SSet.is_empty existing_creds then (
             Ocsigen_messages.debug (fun () ->
-              Printf.sprintf
-                "Injecting credentials for %s"
-                (Uuidm.to_string e_params.e_uuid)
+              Printf.sprintf "Injecting credentials for %s" uuid
             );
             SSet.fold (fun x unit ->
               unit >> Ocsipersist.add cred_table x None
@@ -408,7 +406,7 @@ let make config =
 
       let () = Html5.register
         ~service:W.S.election_update_credential
-        (fun uuid () ->
+        (fun () () ->
           lwt user = S.get_user () in
           match user with
           | Some u ->
@@ -422,7 +420,7 @@ let make config =
 
       let () = String.register
         ~service:W.S.election_update_credential_post
-        (fun uuid (old, new_) ->
+        (fun () (old, new_) ->
           lwt user = S.get_user () in
           match user with
           | Some u ->
@@ -449,7 +447,7 @@ let make config =
            )
         )
 
-      let do_cast uuid () =
+      let do_cast () () =
         match_lwt Eliom_reference.get ballot with
         | Some the_ballot ->
           begin
@@ -477,7 +475,7 @@ let make config =
           end
         | None -> fail_http 404
 
-      let ballot_received uuid user =
+      let ballot_received user =
         let confirm () =
           let service = Eliom_service.post_coservice
             ~csrf_safe:true
@@ -496,11 +494,10 @@ let make config =
         ~service:W.S.election_cast
         (if_eligible can_read
            (fun user () ->
-             let uuid = W.election.e_params.e_uuid in
              let cont () () = Redirection.send W.S.election_cast in
              Eliom_reference.set S.cont cont >>
              match_lwt Eliom_reference.get ballot with
-             | Some _ -> ballot_received uuid user
+             | Some _ -> ballot_received user
              | None -> T.cast_raw ()
            )
         )
