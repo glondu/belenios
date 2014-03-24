@@ -71,8 +71,8 @@ module Make (N : CONFIG) = struct
         let user_user = {user_domain; user_name} in
         let logged_user = {user_user; user_handlers} in
         security_log (fun () ->
-          Printf.sprintf "%s successfully logged into %s"
-            (string_of_user user_user) N.name
+          Printf.sprintf "[%s] %s logged in"
+            N.name (string_of_user user_user)
         ) >>
         Eliom_reference.set user (Some logged_user) >>
         cont () ()
@@ -125,7 +125,8 @@ module Make (N : CONFIG) = struct
       match_lwt Eliom_reference.get user with
       | Some u ->
         security_log (fun () ->
-          string_of_user u.user_user ^ " logged out"
+          Printf.sprintf "[%s] %s logged out"
+            N.name (string_of_user u.user_user)
         ) >>
         Eliom_reference.unset user >>
         let module A = (val u.user_handlers) in
