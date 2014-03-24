@@ -116,12 +116,16 @@ module Make (N : CONFIG) = struct
       ~get_params:Eliom_parameter.(opt (string "service"))
       ()
 
-    let do_login cont () = login_handler None cont
-
     let logout = Eliom_service.service
       ~path:(N.path @ ["logout"])
       ~get_params:Eliom_parameter.unit
       ()
+
+  end
+
+  module Handlers : AUTH_HANDLERS_PUBLIC = struct
+
+    let do_login cont () = login_handler None cont
 
     let do_logout cont () =
       match_lwt Eliom_reference.get user with
@@ -136,7 +140,7 @@ module Make (N : CONFIG) = struct
 
   end
 
-  module Register (S : SITE_SERVICES) (T : TEMPLATES) : EMPTY = struct
+  module Register (S : SITE) (T : TEMPLATES) : EMPTY = struct
 
     let () = login_choose := T.login_choose
 
@@ -177,7 +181,7 @@ module Make (N : CONFIG) = struct
       ~service:Services.logout
       (fun () () ->
         lwt cont = Eliom_reference.get S.cont in
-        Services.do_logout cont ()
+        Handlers.do_logout cont ()
       )
 
   end

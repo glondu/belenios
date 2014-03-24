@@ -34,7 +34,7 @@ module type CONFIG = sig
   val instances : Web_auth.auth_instance list
 end
 
-module Make (C : CONFIG) : SITE_SERVICES = struct
+module Make (C : CONFIG) : SITE = struct
   open Eliom_service
   open Eliom_registration
 
@@ -55,8 +55,9 @@ module Make (C : CONFIG) : SITE_SERVICES = struct
      and Web_election. S is not meant to leak and will be included
      in the returned module later. *)
 
-  module S : SITE_SERVICES = struct
+  module S : SITE = struct
     include Auth.Services
+    include Auth.Handlers
     open Eliom_parameter
 
     let scope = Eliom_common.default_session_scope

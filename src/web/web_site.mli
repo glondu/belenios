@@ -28,4 +28,4 @@ module type CONFIG = sig
   val instances : Web_auth.auth_instance list
 end
 
-module Make (C : CONFIG) : SITE_SERVICES
+module Make (C : CONFIG) : SITE

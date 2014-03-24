@@ -156,6 +156,11 @@ module type AUTH_HANDLERS = sig
   val logout : unit service_cont
 end
 
+module type AUTH_HANDLERS_PUBLIC = sig
+  val do_login : unit service_cont
+  val do_logout : unit service_cont
+end
+
 module type AUTH_SERVICES = sig
 
   val get_auth_systems : unit -> string list
@@ -179,9 +184,6 @@ module type AUTH_SERVICES = sig
      [ `WithoutSuffix ], unit, unit,
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
-
-  val do_login : unit service_cont
-  val do_logout : unit service_cont
 
 end
 
@@ -247,12 +249,14 @@ end
 module type SITE_SERVICES = sig
   include CORE_SERVICES
   include AUTH_SERVICES
+end
 
+module type SITE = sig
+  include SITE_SERVICES
+  include AUTH_HANDLERS_PUBLIC
   val register_election : election_config -> (module WEB_ELECTION) Lwt.t
-
   val set_main_election : (module WEB_ELECTION) -> unit
   val unset_main_election : unit -> unit
-
   val cont : (unit -> service_handler) Eliom_reference.eref
 end
 

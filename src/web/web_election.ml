@@ -46,7 +46,7 @@ let can_vote m user =
 
 module type REGISTRATION = sig
   module W : WEB_ELECTION
-  module Register (S : SITE_SERVICES) (T : ELECTION_TEMPLATES) : EMPTY
+  module Register (S : SITE) (T : ELECTION_TEMPLATES) : EMPTY
 end
 
 let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
@@ -292,7 +292,7 @@ let make {raw_election; metadata; featured; params_fname; public_keys_fname} =
 
     end
 
-    module Register (S : SITE_SERVICES) (T : ELECTION_TEMPLATES) : EMPTY = struct
+    module Register (S : SITE) (T : ELECTION_TEMPLATES) : EMPTY = struct
       open Eliom_registration
 
       let if_eligible acl f () x =
