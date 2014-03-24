@@ -193,9 +193,17 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       base ~title:"Password login" ~login_box ~content
 
     let choose () =
+      let auth_systems =
+        S.get_auth_systems () |>
+        List.map (fun name ->
+          a ~service:S.login [pcdata name] (Some name)
+        ) |> list_join (pcdata ", ")
+      in
       let content = [
         h1 [pcdata "Log in"];
-        div [p [pcdata "Please choose one authentication system."]];
+        div [p (
+          [pcdata "Please log in: ["] @ auth_systems @ [pcdata "]"]
+        )]
       ] in
       lwt login_box = login_box () in
       base ~title:"Log in" ~login_box ~content
