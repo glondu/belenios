@@ -68,7 +68,7 @@ val set_rewrite_prefix : src:string -> dst:string -> unit
 
 val empty_metadata : metadata
 
-val check_acl : acl list option -> user -> bool
+val check_acl : acl option -> user -> bool
 
 type election_file =
   | ESRaw

@@ -226,11 +226,22 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       lwt permissions =
         match user with
         | None ->
-          Lwt.return [
-            pcdata "Log in to check if you can vote. ";
-            pcdata "Alternatively, you can try to vote and ";
-            pcdata "log in at the last moment.";
-          ]
+          (match m.e_voters with
+          | Some `Any ->
+            return [
+              pcdata "Anybody can vote in this election.";
+            ]
+          | Some _ ->
+            return [
+              pcdata "Log in to check if you can vote. ";
+              pcdata "Alternatively, you can try to vote and ";
+              pcdata "log in at the last moment.";
+            ]
+          | None ->
+            return [
+              pcdata "Currently, nobody can vote in this election.";
+            ]
+          )
         | Some u ->
           let can = if check_acl m.e_voters u then "can" else "cannot" in
           Lwt.return [

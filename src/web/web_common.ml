@@ -157,14 +157,14 @@ let empty_metadata = {
 
 let check_acl a u =
   match a with
-  | Some acls ->
+  | Some `Any -> true
+  | Some (`Many items) ->
     let rec loop = function
       | [] -> false
-      | `Any :: _ -> true
       | `Domain x :: _ when x = u.user_domain -> true
       | `User x :: _ when x = u -> true
       | _ :: xs -> loop xs
-    in loop acls
+    in loop items
   | _ -> false
 
 let uuid = Eliom_parameter.user_type

@@ -31,18 +31,18 @@ open Web_common
 let can_read m user =
   match m.e_readers with
   | None -> false
-  | Some acls ->
+  | Some acl ->
     match user with
-    | None -> List.mem `Any acls (* readers can be anonymous *)
-    | Some u -> check_acl (Some acls) u
+    | None -> acl = `Any (* readers can be anonymous *)
+    | Some u -> check_acl (Some acl) u
 
 let can_vote m user =
   match m.e_voters with
   | None -> false
-  | Some acls ->
+  | Some acl ->
     match user with
     | None -> false (* voters must log in *)
-    | Some u -> check_acl (Some acls) u
+    | Some u -> check_acl (Some acl) u
 
 module type REGISTRATION = sig
   module W : WEB_ELECTION

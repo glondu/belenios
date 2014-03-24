@@ -37,17 +37,21 @@ type user = {
   name : string;
 } <ocaml field_prefix="user_">
 
+type acl_item =
+  [ Domain of string
+  | User of user
+  ]
+
 type acl =
   [ Any
-  | Domain of string
-  | User of user
+  | Many of acl_item list
   ]
 
 type metadata = {
   ?voting_starts_at : datetime option;
   ?voting_ends_at : datetime option;
-  ?readers : acl list option;
-  ?voters : acl list option;
+  ?readers : acl option;
+  ?voters : acl option;
   ?owner: user option;
 } <ocaml field_prefix="e_">
 
