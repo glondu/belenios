@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt
 open Signatures
 open Util
 open Serializable_t
@@ -35,10 +36,47 @@ let welcome_message = "Welcome!"
 let format_user u =
   em [pcdata (Web_auth.(string_of_user u))]
 
+let make_login_box auth =
+  let module S = (val auth : AUTH_SERVICES) in
+  lwt user = S.get_user () in
+  return @@ div ~a:[a_style "float: right; text-align: right;"] (
+    match user with
+    | Some user ->
+      [
+        div [
+          pcdata "Logged in as ";
+          format_user user;
+          pcdata ".";
+        ];
+        div [
+          a ~service:S.logout [pcdata "Log out"] ();
+          pcdata ".";
+        ];
+      ]
+    | None ->
+      [
+        div [
+          pcdata "Not logged in.";
+        ];
+        let auth_systems = List.map (fun name ->
+          let service = Eliom_service.preapply S.login (Some name) in
+          a ~service [pcdata name] ()
+        ) (S.get_auth_systems ()) in
+        div (
+          [ pcdata "Login: " ] @
+          list_join (pcdata ", ") auth_systems @
+          [ pcdata "." ]
+        );
+      ]
+  )
+
 module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
-  let base ~title ~content =
-    lwt user = S.get_user () in
+  let site_login_box =
+    let auth = (module S : AUTH_SERVICES) in
+    fun () -> make_login_box auth
+
+  let base ~title ~login_box ~content =
     Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
       (head (Eliom_content.Html5.F.title (pcdata title)) [])
       (body [
@@ -47,36 +85,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
             div ~a:[a_style "float: left;"] [
               a ~service:S.home [pcdata site_title] ();
             ];
-            div ~a:[a_style "float: right; text-align: right;"] (
-              match user with
-              | Some user ->
-                [
-                  div [
-                    pcdata "Logged in as ";
-                    format_user user;
-                    pcdata ".";
-                  ];
-                  div [
-                    a ~service:S.logout [pcdata "Log out"] ();
-                    pcdata ".";
-                  ];
-                ]
-              | None ->
-                [
-                  div [
-                    pcdata "Not logged in.";
-                  ];
-                  let auth_systems = List.map (fun name ->
-                    let service = Eliom_service.preapply S.login (Some name) in
-                    a ~service [pcdata name] ()
-                  ) (S.get_auth_systems ()) in
-                  div (
-                    [ pcdata "Login: " ] @
-                    list_join (pcdata ", ") auth_systems @
-                    [ pcdata "." ]
-                  );
-                ]
-            );
+            login_box;
             div ~a:[a_style "clear: both;"] [];
           ];
         ];
@@ -118,63 +127,75 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         featured_box;
       ];
     ] in
-    base ~title:site_title ~content
+    lwt login_box = site_login_box () in
+    base ~title:site_title ~login_box ~content
 
-  let login_dummy ~service () =
-    let title, field_name, input_type =
-      "Dummy login", "Username:", `Text
-    in
-    let form = post_form ~service
-      (fun name ->
-        [
-          tablex [tbody [
-            tr [
-              th [label ~a:[a_for name] [pcdata field_name]];
-              td [string_input ~a:[a_maxlength 50] ~input_type ~name ()];
-            ]]
-          ];
-          div [
-            string_input ~input_type:`Submit ~value:"Login" ();
-          ]
-        ]) ()
-    in
-    let content = [
-      h1 [pcdata title];
-      form;
-    ] in
-    base ~title ~content
+  module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES = struct
 
-  let login_password ~service () =
-    let form = post_form ~service
-      (fun (llogin, lpassword) ->
-        [
-          tablex [tbody [
-            tr [
-              th [label ~a:[a_for llogin] [pcdata "Username:"]];
-              td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin ()];
+    let login_box =
+      let auth = (module S : AUTH_SERVICES) in
+      fun () -> make_login_box auth
+
+    let dummy ~service () =
+      let title, field_name, input_type =
+        "Dummy login", "Username:", `Text
+      in
+      let form = post_form ~service
+        (fun name ->
+          [
+            tablex [tbody [
+              tr [
+                th [label ~a:[a_for name] [pcdata field_name]];
+                td [string_input ~a:[a_maxlength 50] ~input_type ~name ()];
+              ]]
             ];
-            tr [
-              th [label ~a:[a_for lpassword] [pcdata "Password:"]];
-              td [string_input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword ()];
-            ];
-          ]];
-          div [
-            string_input ~input_type:`Submit ~value:"Login" ();
-          ]
-        ]) ()
-    in
-    let content = [
-      h1 [pcdata "Password login"];
-      form;
-    ] in
-    base ~title:"Password login" ~content
+            div [
+              string_input ~input_type:`Submit ~value:"Login" ();
+            ]
+          ]) ()
+      in
+      let content = [
+        h1 [pcdata title];
+        form;
+      ] in
+      lwt login_box = login_box () in
+      base ~title ~login_box ~content
 
-  let login_choose () =
-    let content = [
-      h1 [pcdata "Log in"];
-      div [p [pcdata "Please choose one authentication system."]];
-    ] in
-    base ~title:"Log in" ~content
+    let password ~service () =
+      let form = post_form ~service
+        (fun (llogin, lpassword) ->
+          [
+            tablex [tbody [
+              tr [
+                th [label ~a:[a_for llogin] [pcdata "Username:"]];
+                td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin ()];
+              ];
+              tr [
+                th [label ~a:[a_for lpassword] [pcdata "Password:"]];
+                td [string_input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword ()];
+              ];
+            ]];
+            div [
+              string_input ~input_type:`Submit ~value:"Login" ();
+            ]
+          ]) ()
+      in
+      let content = [
+        h1 [pcdata "Password login"];
+        form;
+      ] in
+      lwt login_box = login_box () in
+      base ~title:"Password login" ~login_box ~content
+
+    let choose () =
+      let content = [
+        h1 [pcdata "Log in"];
+        div [p [pcdata "Please choose one authentication system."]];
+      ] in
+      lwt login_box = login_box () in
+      base ~title:"Log in" ~login_box ~content
+
+  end
 
   let format_date (date, _) =
     CalendarLib.Printer.Precise_Fcalendar.sprint "%a, %d %b %Y %T %z" date
@@ -188,9 +209,14 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
   module Election (W : WEB_ELECTION_RO) = struct
 
+    let election_login_box =
+      let auth = (module W.S : AUTH_SERVICES) in
+      fun () -> make_login_box auth
+
     let file x = Eliom_service.preapply W.S.election_dir x
 
-    let home ~user () =
+    let home () =
+      lwt user = W.S.get_user () in
       let params = W.election.e_params and m = W.metadata in
       lwt permissions =
         match user with
@@ -284,7 +310,8 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         br ();
         audit_info;
       ] in
-      base ~title:params.e_name ~content
+      lwt login_box = election_login_box () in
+      base ~title:params.e_name ~login_box ~content
 
     let update_credential () =
       let params = W.election.e_params in
@@ -324,7 +351,8 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         h1 [ pcdata params.e_name ];
         form;
       ] in
-      base ~title:params.e_name ~content
+      lwt login_box = election_login_box () in
+      base ~title:params.e_name ~login_box ~content
 
     let cast_raw () =
       let params = W.election.e_params in
@@ -356,9 +384,11 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         h3 [ pcdata "Submit by file" ];
         form_upload;
       ] in
-      base ~title:params.e_name ~content
+      lwt login_box = site_login_box () in
+      base ~title:params.e_name ~login_box ~content
 
-    let cast_confirmation ~confirm ~user ~can_vote () =
+    let cast_confirmation ~confirm ~can_vote () =
+      lwt user = W.S.get_user () in
       let params = W.election.e_params in
       let name = params.e_name in
       let user_div = match user with
@@ -397,7 +427,8 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
           pcdata ".";
         ];
       ] in
-      base ~title:name ~content
+      lwt login_box = election_login_box () in
+      base ~title:name ~login_box ~content
 
     let cast_confirmed ~result () =
       let params = W.election.e_params in
@@ -419,7 +450,8 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
           pcdata ".";
         ];
       ] in
-      base ~title:name ~content
+      lwt login_box = election_login_box () in
+      base ~title:name ~login_box ~content
 
   end
 

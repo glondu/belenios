@@ -35,7 +35,7 @@ let parse_config ~instance ~attributes =
       "invalid configuration for instance %s of auth/%s"
       instance name
 
-module Make (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
+module Make (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = struct
 
   let scope = Eliom_common.default_session_scope
 
@@ -63,7 +63,7 @@ module Make (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
             cont user_name ()
           | None -> fail_http 400
         )
-      in T.login_dummy ~service ()
+      in T.dummy ~service ()
     )
 
   let login cont () =

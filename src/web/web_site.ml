@@ -101,7 +101,7 @@ module Make (C : CONFIG) : SITE = struct
     if W.featured then featured := election_ro :: !featured;
     return election
 
-  let () = let module X : EMPTY = Auth.Register (S) (T) in ()
+  let () = let module X : EMPTY = Auth.Register (S) (T.Login (S)) in ()
 
   let () = Any.register ~service:home
     (fun () () ->

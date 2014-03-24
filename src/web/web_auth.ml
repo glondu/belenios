@@ -81,21 +81,6 @@ module Make (N : CONFIG) = struct
       A.login cont ()
     with Not_found -> fail_http 404
 
-  let login_handler service cont =
-    let cont () () =
-      match service with
-      | Some name -> do_login_using name cont
-      | None ->
-        match !auth_instance_names with
-        | [name] -> do_login_using name cont
-        | _ -> !login_choose () >>= Eliom_registration.Html5.send
-    in
-    match_lwt Eliom_reference.get user with
-    | Some u ->
-      let module A = (val u.user_handlers) in
-      A.logout cont ()
-    | None -> cont () ()
-
   module Services : AUTH_SERVICES = struct
 
     let get_auth_systems () = !auth_instance_names
@@ -117,6 +102,21 @@ module Make (N : CONFIG) = struct
 
   end
 
+  let login_handler service cont =
+    let cont () () =
+      match service with
+      | Some name -> do_login_using name cont
+      | None ->
+        match !auth_instance_names with
+        | [name] -> do_login_using name cont
+        | _ -> !login_choose () >>= Eliom_registration.Html5.send
+    in
+    match_lwt Eliom_reference.get user with
+    | Some u ->
+      let module A = (val u.user_handlers) in
+      A.logout cont ()
+    | None -> cont () ()
+
   module Handlers : AUTH_HANDLERS_PUBLIC = struct
 
     let do_login cont () = login_handler None cont
@@ -135,9 +135,9 @@ module Make (N : CONFIG) = struct
 
   end
 
-  module Register (S : SITE) (T : TEMPLATES) : EMPTY = struct
+  module Register (S : SITE) (T : LOGIN_TEMPLATES) : EMPTY = struct
 
-    let () = login_choose := T.login_choose
+    let () = login_choose := T.choose
 
     let () = List.iter (fun auth_instance ->
       let {

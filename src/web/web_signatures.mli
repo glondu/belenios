@@ -214,7 +214,6 @@ end
 module type ELECTION_TEMPLATES = sig
 
   val home :
-    user:user option ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val update_credential :
@@ -230,7 +229,6 @@ module type ELECTION_TEMPLATES = sig
               [< Eliom_service.suff ], 'c, unit,
               [< Eliom_service.registrable ], 'd)
              Eliom_service.service) ->
-    user:user option ->
     can_vote:bool ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
@@ -256,6 +254,7 @@ end
 module type WEB_ELECTION = sig
   include WEB_ELECTION_RO
   module B : WEB_BALLOT_BOX
+  module H : AUTH_HANDLERS_PUBLIC
 end
 
 module type SITE_SERVICES = sig
@@ -272,13 +271,9 @@ module type SITE = sig
   val cont : (unit -> service_handler) Eliom_reference.eref
 end
 
-module type TEMPLATES = sig
+module type LOGIN_TEMPLATES = sig
 
-  val home :
-    featured:(module WEB_ELECTION_RO) list ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val login_dummy :
+  val dummy :
     service:(unit, 'a, [< Eliom_service.post_service_kind ],
              [< Eliom_service.suff ], 'b,
              [< string Eliom_parameter.setoneradio ]
@@ -287,7 +282,7 @@ module type TEMPLATES = sig
             Eliom_service.service ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-  val login_password :
+  val password :
     service:(unit, 'a, [< Eliom_service.post_service_kind ],
              [< Eliom_service.suff ], 'b,
              [< string Eliom_parameter.setoneradio ]
@@ -298,9 +293,18 @@ module type TEMPLATES = sig
             Eliom_service.service ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-  val login_choose :
+  val choose :
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
+end
+
+module type TEMPLATES = sig
+
+  val home :
+    featured:(module WEB_ELECTION_RO) list ->
+    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES
   module Election (W : WEB_ELECTION_RO) : ELECTION_TEMPLATES
 
 end
@@ -312,7 +316,7 @@ end
 
 module type AUTH_SERVICE =
   functor (N : NAME) ->
-  functor (T : TEMPLATES) ->
+  functor (T : LOGIN_TEMPLATES) ->
   AUTH_HANDLERS
 
 module type AUTH_SYSTEM = sig

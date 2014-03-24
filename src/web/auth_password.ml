@@ -40,7 +40,7 @@ module type CONFIG = sig
   val db : string
 end
 
-module Make (C : CONFIG) (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
+module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = struct
 
   let scope = Eliom_common.default_session_scope
 
@@ -84,7 +84,7 @@ module Make (C : CONFIG) (N : NAME) (T : TEMPLATES) : AUTH_HANDLERS = struct
               cont user_name ()
             | None -> fail_http 400
           ) else forbidden ())
-      in T.login_password ~service ()
+      in T.password ~service ()
     )
 
   let login cont () =

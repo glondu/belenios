@@ -76,6 +76,7 @@ let make config =
       module G = (val Election.finite_field group : Election.FF_GROUP)
       module M = MakeLwtRandom(struct let rng = make_rng () end)
       module E = Election.MakeElection(G)(M)
+      module H = Auth.Handlers
 
       let election = {e_params; e_pks = None; e_fingerprint}
       let metadata = config.metadata
@@ -244,7 +245,6 @@ let make config =
 
       module S : ELECTION_SERVICES = struct
         include Auth.Services
-        include Auth.Handlers
 
         let make_path x = base_path @ x
         let root = make_path [""]
@@ -305,12 +305,12 @@ let make config =
     module Register (S : SITE) (T : TEMPLATES) : EMPTY = struct
       open Eliom_registration
 
-      let () = let module X : EMPTY = Auth.Register (S) (T) in ()
+      let () = let module X : EMPTY = Auth.Register (S) (T.Login (W.S)) in ()
 
       module T = T.Election (W)
 
       let if_eligible acl f () x =
-        lwt user = S.get_user () in
+        lwt user = W.S.get_user () in
         if acl config.metadata user then
           f user x
         else
@@ -330,7 +330,7 @@ let make config =
              | Some result ->
                Eliom_reference.unset cast_confirmed >>
                T.cast_confirmed ~result ()
-             | None -> T.home ~user ()
+             | None -> T.home ()
            )
         )
 
@@ -452,7 +452,7 @@ let make config =
         | Some the_ballot ->
           begin
             Eliom_reference.unset ballot >>
-            match_lwt S.get_user () with
+            match_lwt W.S.get_user () with
             | Some u ->
               let b = check_acl W.metadata.e_voters u in
               if b then (
@@ -469,7 +469,7 @@ let make config =
                 Eliom_reference.unset ballot >>
                 Eliom_reference.set cast_confirmed (Some result) >>
                 let cont () () = Redirection.send W.S.home in
-                S.do_logout cont ()
+                W.H.do_logout cont ()
               ) else forbidden ()
             | None -> forbidden ()
           end
@@ -488,7 +488,7 @@ let make config =
           service
         in
         let can_vote = can_vote W.metadata user in
-        T.cast_confirmation ~confirm ~user ~can_vote ()
+        T.cast_confirmation ~confirm ~can_vote ()
 
       let () = Html5.register
         ~service:W.S.election_cast
@@ -517,7 +517,7 @@ let make config =
              Eliom_reference.set S.cont cont >>
              Eliom_reference.set ballot (Some the_ballot) >>
              match user with
-             | None -> S.do_login cont ()
+             | None -> W.H.do_login cont ()
              | Some u -> cont () ()
            )
         )
