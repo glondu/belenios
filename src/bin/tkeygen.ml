@@ -25,7 +25,7 @@ open Signatures
 open Common
 
 module type PARAMS = sig
-  module G : Group_field.GROUP
+  module G : GROUP
 end
 
 let parse_args () = begin
@@ -76,6 +76,8 @@ end
 module Run (P : PARAMS) : EMPTY = struct
   open P
 
+  let write_elt = make_write G.to_string
+
   (* Setup group *)
 
   module M = Election.MakeSimpleMonad(G);;
@@ -89,7 +91,7 @@ module Run (P : PARAMS) : EMPTY = struct
   (* Save to file *)
 
   let id = String.sub
-    (sha256_hex (Z.to_string public_key.trustee_public_key))
+    (sha256_hex (G.to_string public_key.trustee_public_key))
     0 8 |> String.uppercase
   ;;
 
@@ -100,7 +102,7 @@ module Run (P : PARAMS) : EMPTY = struct
     id ^ ".pubkey",
     0o444,
     public_key,
-    write_trustee_public_key write_number
+    write_trustee_public_key write_elt
 
   let privkey =
     "private",

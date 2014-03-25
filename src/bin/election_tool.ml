@@ -51,8 +51,8 @@ module type PARAMS = sig
   val params : ff_pubkey params
   val election_fingerprint : string
   val group :  ff_params
-  val y : number
-  module G : Group_field.GROUP
+  module G : GROUP
+  val y : G.t
 end
 
 
@@ -150,13 +150,16 @@ module Run (P : PARAMS) : EMPTY = struct
   module M = Election.MakeSimpleMonad(G)
   module E = Election.MakeElection(G)(M);;
 
+  let read_elt = make_read G.of_string
+  let write_elt = make_write G.to_string
+
   (* Load and check trustee keys, if present *)
 
   module KG = Election.MakeSimpleDistKeyGen(G)(M);;
 
   let public_keys_with_pok =
     load_from_file (
-      trustee_public_key_of_string read_number
+      trustee_public_key_of_string read_elt
     ) "public_keys.jsons" |> option_map Array.of_list
 
   let () =
@@ -164,7 +167,7 @@ module Run (P : PARAMS) : EMPTY = struct
     | Some pks ->
       assert (Array.forall KG.check pks);
       let y' = KG.combine pks in
-      assert (P.y =% y')
+      assert G.(y =~ y')
     | None -> ()
 
   let public_keys =
@@ -186,19 +189,19 @@ module Run (P : PARAMS) : EMPTY = struct
 
   (* Load ballots, if present *)
 
-  module ZSet = Set.Make(Z)
+  module GSet = Set.Make (G)
 
   let public_creds =
-    load_from_file Z.of_string "public_creds.txt" |>
+    load_from_file G.of_string "public_creds.txt" |>
     option_map (fun xs ->
       List.fold_left (fun accu x ->
-        ZSet.add x accu
-      ) ZSet.empty xs
+        GSet.add x accu
+      ) GSet.empty xs
     )
 
   let ballots =
     load_from_file (fun line ->
-      ballot_of_string read_number line,
+      ballot_of_string read_elt line,
       sha256_b64 line
     ) "ballots.jsons"
 
@@ -206,7 +209,7 @@ module Run (P : PARAMS) : EMPTY = struct
     match public_creds with
     | Some creds -> (fun b ->
       match b.signature with
-      | Some s -> ZSet.mem s.s_public_key creds
+      | Some s -> GSet.mem s.s_public_key creds
       | None -> false
     )
     | None -> (fun _ -> true)
@@ -245,7 +248,7 @@ module Run (P : PARAMS) : EMPTY = struct
         in
         let b = E.create_ballot e ?sk (E.make_randomness e ()) b () in
         assert (E.check_ballot e b);
-        print_endline (string_of_ballot write_number b)
+        print_endline (string_of_ballot write_elt b)
       | _ -> failwith "invalid plaintext ballot file"
       )
 
@@ -255,7 +258,7 @@ module Run (P : PARAMS) : EMPTY = struct
       (match load_from_file (number_of_string) fn with
         | Some [sk] ->
           let pk = G.(g **~ sk) in
-          if Array.forall (fun x -> not (x =% pk)) pks then (
+          if Array.forall (fun x -> not G.(x =~ pk)) pks then (
             Printf.eprintf "Warning: your key is not present in public_keys.jsons!\n";
           );
           let tally = Lazy.force encrypted_tally in
@@ -263,7 +266,7 @@ module Run (P : PARAMS) : EMPTY = struct
             E.compute_factor tally sk ()
           in
           assert (E.check_factor tally pk factor);
-          print_endline (string_of_partial_decryption write_number factor)
+          print_endline (string_of_partial_decryption write_elt factor)
         | _ -> failwith "invalid private key file"
       )
     | None -> ()
@@ -272,7 +275,7 @@ module Run (P : PARAMS) : EMPTY = struct
 
   let result =
     load_from_file (
-      result_of_string read_number
+      result_of_string read_elt
     ) "result.json"
 
   let () =
@@ -283,7 +286,7 @@ module Run (P : PARAMS) : EMPTY = struct
       failwith "invalid result file"
     | None ->
       let factors = load_from_file (
-        partial_decryption_of_string read_number
+        partial_decryption_of_string read_elt
       ) "partial_decryptions.jsons" |> option_map Array.of_list in
       match factors with
       | Some factors ->
@@ -293,7 +296,7 @@ module Run (P : PARAMS) : EMPTY = struct
         assert (E.check_result e result);
         if do_finalize then (
           save_to "result.json" (
-            write_result write_number
+            write_result write_elt
           ) result;
           Printf.eprintf "result.json written\n%!"
         );

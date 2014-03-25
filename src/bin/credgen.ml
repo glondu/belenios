@@ -44,7 +44,7 @@ module type PARAMS = sig
   val file : string option
   val derive : string option
   val dir : string
-  module G : Group_field.GROUP
+  module G : GROUP
 end
 
 let parse_args () = begin
@@ -129,7 +129,7 @@ module Run (P : PARAMS) : EMPTY = struct
     let hex = do_derive uuid x in
     let x = Z.(of_string_base 16 hex mod G.q) in
     let y = G.(g **~ x) in
-    Z.to_string y
+    G.to_string y
 
   let count, ids =
     match count, file, derive with

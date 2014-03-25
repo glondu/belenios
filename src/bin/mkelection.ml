@@ -26,8 +26,9 @@ open Common
 
 module type PARAMS = sig
   val uuid : Uuidm.t
-  val template : template
-  module G : Group_field.GROUP
+  module G : GROUP
+  val params : G.t -> G.t wrapped_pubkey params
+  val write_params : Bi_outbuf.t -> G.t wrapped_pubkey params -> unit
 end
 
 let parse_args () = begin
@@ -70,6 +71,8 @@ let parse_args () = begin
       r
   in
 
+  let {g; p; q} = group in
+
   let module P = struct
 
     let uuid = match !uuid with
@@ -90,6 +93,17 @@ let parse_args () = begin
 
     module G = (val Group_field.make group : Group_field.GROUP)
 
+    let params y = {
+      e_description = template.t_description;
+      e_name = template.t_name;
+      e_public_key = {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y};
+      e_questions = template.t_questions;
+      e_uuid = uuid;
+      e_short_name = template.t_short_name;
+    }
+
+    let write_params = write_params write_ff_pubkey
+
   end in
 
   (module P : PARAMS)
@@ -98,6 +112,8 @@ end
 
 module Run (P : PARAMS) : EMPTY = struct
   open P
+
+  let read_elt = make_read G.of_string
 
   (* Setup group *)
 
@@ -118,7 +134,7 @@ module Run (P : PARAMS) : EMPTY = struct
     in
     close_in ic;
     let keys = List.map (fun x ->
-      trustee_public_key_of_string read_number x
+      trustee_public_key_of_string read_elt x
     ) raw_keys |> Array.of_list in
     assert (Array.forall KG.check keys);
     keys
@@ -127,20 +143,11 @@ module Run (P : PARAMS) : EMPTY = struct
 
   (* Setup election *)
 
-  let {g; p; q} = G.group
-
-  let params = {
-    e_description = P.template.t_description;
-    e_name = P.template.t_name;
-    e_public_key = {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y};
-    e_questions = P.template.t_questions;
-    e_uuid = P.uuid;
-    e_short_name = P.template.t_short_name;
-  }
+  let params = P.params y
 
   (* Save to disk *)
 
-  let () = save_to "election.json" (write_params write_ff_pubkey) params
+  let () = save_to "election.json" write_params params
 
 end
 
