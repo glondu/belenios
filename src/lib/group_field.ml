@@ -64,6 +64,7 @@ let unsafe_make group =
     let ( =~ ) = Z.equal
     let check x = check_modulo p x && x **~ q =~ one
     let to_string = Z.to_string
+    let of_string = Z.of_string
     let hash prefix xs =
       let x = prefix ^ (map_and_concat_with_commas Z.to_string xs) in
       let z = Z.of_string_base 16 (sha256_hex x) in
