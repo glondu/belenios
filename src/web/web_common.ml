@@ -19,10 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures
 open Lwt
+open Signatures
 open Common
-open Serializable_builtin_t
+open Serializable_builtin_j
 open Serializable_t
 open Web_serializable_t
 
@@ -116,10 +116,7 @@ let security_log s =
     | None -> return ()
     | Some ic -> Lwt_io.atomic (fun ic ->
       Lwt_io.write ic (
-        Serializable_builtin_j.string_of_datetime (
-          CalendarLib.Fcalendar.Precise.now (),
-          None
-        )
+        string_of_datetime (CalendarLib.Fcalendar.Precise.now (), None)
       ) >>
       Lwt_io.write ic ": " >>
       Lwt_io.write_line ic (s ()) >>

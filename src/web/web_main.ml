@@ -19,13 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt
+open Serializable_t
 open Signatures
 open Common
-open Serializable_t
 open Web_serializable_j
-open Lwt
-open Web_common
 open Web_signatures
+open Web_common
 
 (** Global initialization *)
 

@@ -19,9 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Common
 open Serializable_t
 open Signatures
+open Common
 
 (** Helper functions *)
 
@@ -54,7 +54,7 @@ module MakeSimpleMonad (G : GROUP) = struct
       let r = Cryptokit.Random.string (Lazy.force prng) size in
       Z.(of_bits r mod q)
 
-  type elt = G.t Serializable_t.ballot
+  type elt = G.t ballot
   let cast x () = ballots := x :: !ballots
   let fold f x () = List.fold_left (fun accu b -> f () b accu ()) x !ballots
   let cardinal () = List.length !ballots
@@ -353,7 +353,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
 
   let extract_ciphertext b = Array.map (fun x -> x.choices) b.answers
 
-  type factor = elt Serializable_t.partial_decryption
+  type factor = elt partial_decryption
 
   let eg_factor x {alpha; beta} =
     let zkp = "decrypt|" ^ G.to_string (g **~ x) ^ "|" in

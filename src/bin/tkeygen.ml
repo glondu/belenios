@@ -19,9 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Common
-open Serializable_t
+open Serializable_builtin_j
+open Serializable_j
 open Signatures
+open Common
 
 module type PARAMS = sig
   val group : (module Group_field.GROUP)
@@ -55,7 +56,7 @@ module GetParams (X : EMPTY) : PARAMS = struct
       let ic = open_in fname in
       let ls = Yojson.init_lexer () in
       let lb = Lexing.from_channel ic in
-      let r = Serializable_j.read_ff_params ls lb in
+      let r = read_ff_params ls lb in
       close_in ic;
       Group_field.make r
 end
@@ -86,14 +87,14 @@ module RunTrusteeKeygen (G : Group_field.GROUP) = struct
     id ^ ".pubkey",
     0o444,
     public_key,
-    Serializable_j.write_trustee_public_key Serializable_builtin_j.write_number
+    write_trustee_public_key write_number
 
   let privkey =
     "private",
     id ^ ".privkey",
     0o400,
     private_key,
-    Serializable_builtin_j.write_number
+    write_number
 
   let save (kind, filename, perm, thing, writer) =
     let oc = open_out_gen [Open_wronly; Open_creat] perm filename in

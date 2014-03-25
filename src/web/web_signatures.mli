@@ -21,9 +21,9 @@
 
 open Serializable_builtin_t
 open Serializable_t
+open Signatures
 open Common
 open Web_serializable_t
-open Signatures
 
 type election_config = {
   raw_election : string;
@@ -198,7 +198,7 @@ module type WEB_BALLOT_BOX = sig
     and type key = string
   module Records : MONADIC_MAP_RO
     with type 'a m = 'a Lwt.t
-    and type elt = Serializable_builtin_t.datetime * string
+    and type elt = datetime * string
     and type key = string
 
   val cast : string -> string * datetime -> string Lwt.t

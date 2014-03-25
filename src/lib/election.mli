@@ -21,6 +21,7 @@
 
 (** Election primitives *)
 
+open Serializable_t
 open Signatures
 
 val check_election_public_key : (module GROUP with type t = 'a) ->
@@ -44,7 +45,7 @@ module MakeSimpleMonad (G : GROUP) : sig
 
   include Signatures.MONADIC_MAP_RO
   with type 'a m := 'a t
-  and type elt = G.t Serializable_t.ballot
+  and type elt = G.t ballot
   and type key := unit
 
   val cast : elt -> unit t
@@ -59,15 +60,15 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) : sig
       a distributed fashion. *)
 
   val generate_and_prove :
-    unit -> (Z.t * G.t Serializable_t.trustee_public_key) M.t
+    unit -> (Z.t * G.t trustee_public_key) M.t
   (** [generate_and_prove ()] returns a new keypair [(x, y)]. [x] is
       the secret exponent, [y] contains the public key and a
       zero-knowledge proof of knowledge of [x]. *)
 
-  val check : G.t Serializable_t.trustee_public_key -> bool
+  val check : G.t trustee_public_key -> bool
   (** Check a public key and its proof. *)
 
-  val combine : G.t Serializable_t.trustee_public_key array -> G.t
+  val combine : G.t trustee_public_key array -> G.t
   (** Combine all public key shares into an election public key. *)
 
 end

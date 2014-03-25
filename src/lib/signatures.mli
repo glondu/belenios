@@ -21,6 +21,8 @@
 
 (** Signatures *)
 
+open Serializable_t
+
 (** Empty module *)
 module type EMPTY = sig end
 
@@ -113,7 +115,7 @@ end
 
 (** Parameters for an election. *)
 type 'a election = {
-  e_params : 'a Serializable_t.params;
+  e_params : 'a params;
   (** Parameters of the election. *)
 
   e_pks : 'a array option;
@@ -189,7 +191,7 @@ module type ELECTION = sig
 
   (** {2 Partial decryptions} *)
 
-  type factor = elt Serializable_t.partial_decryption
+  type factor = elt partial_decryption
   (** A decryption share. It is computed by a trustee from his or her
       private key share and the encrypted tally, and contains a
       cryptographic proof that he or she didn't cheat. *)

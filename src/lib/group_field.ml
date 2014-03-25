@@ -19,8 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Common
 open Serializable_j
+open Common
 
 (** Helper functions *)
 

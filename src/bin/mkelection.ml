@@ -19,9 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Common
-open Serializable_t
+open Serializable_builtin_j
+open Serializable_j
 open Signatures
+open Common
 
 module type PARAMS = sig
   val group : (module Group_field.GROUP)
@@ -61,7 +62,7 @@ module GetParams (X : EMPTY) : PARAMS = struct
       let ic = open_in fname in
       let ls = Yojson.init_lexer () in
       let lb = Lexing.from_channel ic in
-      let r = Serializable_j.read_ff_params ls lb in
+      let r = read_ff_params ls lb in
       close_in ic;
       Group_field.make r
 
@@ -77,7 +78,7 @@ module GetParams (X : EMPTY) : PARAMS = struct
       let ic = open_in fname in
       let ls = Yojson.init_lexer () in
       let lb = Lexing.from_channel ic in
-      let r = Serializable_j.read_template ls lb in
+      let r = read_template ls lb in
       close_in ic;
       r
 end
@@ -103,7 +104,7 @@ module MakeElection (G : Group_field.GROUP) (P : PARAMS) = struct
     in
     close_in ic;
     let keys = List.map (fun x ->
-      Serializable_j.trustee_public_key_of_string Serializable_builtin_j.read_number x
+      trustee_public_key_of_string read_number x
     ) raw_keys |> Array.of_list in
     assert (Array.forall KG.check keys);
     keys
@@ -125,7 +126,6 @@ module MakeElection (G : Group_field.GROUP) (P : PARAMS) = struct
 
   (* Save to disk *)
 
-  open Serializable_j
   let () = save_to "election.json" (write_params write_ff_pubkey) params
 
 end

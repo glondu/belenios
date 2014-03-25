@@ -19,9 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Serializable_builtin_j
+open Serializable_j
 open Signatures
 open Common
-open Serializable_t
 
 (* Helpers *)
 
@@ -40,8 +41,6 @@ let load_from_file of_string filename =
     close_in ic;
     Some (List.rev lines)
   ) else None
-
-let read_number = Serializable_builtin_j.read_number
 
 
 module type PARAMS = sig
@@ -115,7 +114,7 @@ module GetParams (X : EMPTY) : PARAMS = struct
 
   let params, election_fingerprint =
     match (load_from_file (fun l ->
-      Serializable_j.(params_of_string read_ff_pubkey l),
+      params_of_string read_ff_pubkey l,
       sha256_b64 l
     ) "election.json") with
     | Some [e] -> e
@@ -144,7 +143,7 @@ module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
 
   let public_keys_with_pok =
     load_from_file (
-      Serializable_j.trustee_public_key_of_string read_number
+      trustee_public_key_of_string read_number
     ) "public_keys.jsons" |> option_map Array.of_list
 
   let () =
@@ -186,7 +185,7 @@ module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
 
   let ballots =
     load_from_file (fun line ->
-      Serializable_j.ballot_of_string read_number line,
+      ballot_of_string read_number line,
       sha256_b64 line
     ) "ballots.jsons"
 
@@ -218,7 +217,7 @@ module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
   let () = match ballot_file with
     | None -> ()
     | Some fn ->
-      (match load_from_file Serializable_j.plaintext_of_string fn with
+      (match load_from_file plaintext_of_string fn with
       | Some [b] ->
         let sk =
           match sk_file with
@@ -233,17 +232,14 @@ module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
         in
         let b = E.create_ballot e ?sk (E.make_randomness e ()) b () in
         assert (E.check_ballot e b);
-        print_endline (
-          Serializable_j.string_of_ballot
-            Serializable_builtin_j.write_number b
-        )
+        print_endline (string_of_ballot write_number b)
       | _ -> failwith "invalid plaintext ballot file"
       )
 
   let () = if do_decrypt then
     match sk_file with
     | Some fn ->
-      (match load_from_file (Serializable_builtin_j.number_of_string) fn with
+      (match load_from_file (number_of_string) fn with
         | Some [sk] ->
           let pk = G.(g **~ sk) in
           if Array.forall (fun x -> not (x =% pk)) pks then (
@@ -254,11 +250,7 @@ module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
             E.compute_factor tally sk ()
           in
           assert (E.check_factor tally pk factor);
-          print_endline (
-            Serializable_j.string_of_partial_decryption
-              Serializable_builtin_j.write_number
-              factor
-          )
+          print_endline (string_of_partial_decryption write_number factor)
         | _ -> failwith "invalid private key file"
       )
     | None -> ()
@@ -267,7 +259,7 @@ module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
 
   let result =
     load_from_file (
-      Serializable_j.result_of_string read_number
+      result_of_string read_number
     ) "result.json"
 
   let () =
@@ -278,7 +270,7 @@ module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
       failwith "invalid result file"
     | None ->
       let factors = load_from_file (
-        Serializable_j.partial_decryption_of_string read_number
+        partial_decryption_of_string read_number
       ) "partial_decryptions.jsons" |> option_map Array.of_list in
       match factors with
       | Some factors ->
@@ -288,7 +280,7 @@ module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
         assert (E.check_result e result);
         if do_finalize then (
           save_to "result.json" (
-            Serializable_j.write_result Serializable_builtin_j.write_number
+            write_result write_number
           ) result;
           Printf.eprintf "result.json written\n%!"
         );

@@ -19,13 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures
-open Web_signatures
 open Lwt
-open Common
 open Serializable_builtin_t
-open Serializable_t
+open Serializable_j
+open Signatures
+open Common
 open Web_serializable_t
+open Web_signatures
 open Web_common
 
 let can_read m user =
@@ -52,9 +52,7 @@ end
 let make config =
 
   let e_fingerprint = sha256_b64 config.raw_election in
-  let wrapped_params = Serializable_j.params_of_string
-    Serializable_j.read_ff_pubkey config.raw_election
-  in
+  let wrapped_params = params_of_string read_ff_pubkey config.raw_election in
   let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = wrapped_params.e_public_key in
   let group = {g; p; q} in
   let e_params = { wrapped_params with e_public_key = y } in
@@ -107,7 +105,7 @@ let make config =
 
         module Records = struct
           type 'a m = 'a Lwt.t
-          type elt = Serializable_builtin_t.datetime * string
+          type elt = datetime * string
           type key = string
           let table = Ocsipersist.open_table ("records" ^ suffix)
           let cardinal = Ocsipersist.length table
@@ -144,10 +142,8 @@ let make config =
             fail (Serialization (Invalid_argument "multiline ballot"))
           ) else return () >>
           lwt ballot =
-            try Lwt.return (
-              Serializable_j.ballot_of_string
-                Serializable_builtin_j.read_number rawballot
-            ) with e -> fail (Serialization e)
+            try Lwt.return (ballot_of_string read_number rawballot)
+            with e -> fail (Serialization e)
           in
           lwt credential =
             match ballot.signature with
@@ -356,9 +352,8 @@ let make config =
           if W.metadata.e_owner = Some u then (
             (* TODO: streaming *)
             lwt ballots = W.B.Records.fold (fun u (d, _) xs ->
-              let x = Printf.sprintf "%s %S\n"
-                (Serializable_builtin_j.string_of_datetime d) u
-              in return (x::xs)
+              let x = Printf.sprintf "%s %S\n" (string_of_datetime d) u in
+              return (x::xs)
             ) [] in
             let s = List.map (fun b () ->
               return (Ocsigen_stream.of_string b)
