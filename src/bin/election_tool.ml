@@ -52,19 +52,20 @@ module type PARAMS = sig
   val election_fingerprint : string
   val group :  ff_params
   val y : number
+  module G : Group_field.GROUP
 end
 
 
-module GetParams (X : EMPTY) : PARAMS = struct
+let parse_args () = begin
 
   (* Command-line arguments *)
 
-  let initial_dir = Sys.getcwd ()
-  let dir = ref initial_dir
-  let sk_file = ref None
-  let do_finalize = ref false
-  let do_decrypt = ref false
-  let ballot_file = ref None
+  let initial_dir = Sys.getcwd () in
+  let dir = ref initial_dir in
+  let sk_file = ref None in
+  let do_finalize = ref false in
+  let do_decrypt = ref false in
+  let ballot_file = ref None in
 
   let speclist = Arg.([
     "--dir", String (fun s -> dir := s), "path to election files";
@@ -73,21 +74,24 @@ module GetParams (X : EMPTY) : PARAMS = struct
         if Filename.is_relative s then Filename.concat initial_dir s else s
       in sk_file := Some fname
     ), "path to private key";
-  ])
+  ]) in
 
   let usage_msg =
     Printf.sprintf "Usage: %s election [--dir <dir>] [--privkey <privkey>] { vote <ballot> | verify | decrypt | finalize }" Sys.argv.(0)
+  in
 
   let usage () =
     Arg.usage speclist usage_msg;
     exit 1
+  in
 
-  let anon_args = ref []
+  let anon_args = ref [] in
 
   let anon_fun x =
     anon_args := x :: !anon_args
+  in
 
-  let () = Arg.parse speclist anon_fun usage_msg
+  let () = Arg.parse speclist anon_fun usage_msg in
 
   let () = match List.rev !anon_args with
     | [] -> usage ()
@@ -107,8 +111,9 @@ module GetParams (X : EMPTY) : PARAMS = struct
         exit 1
       | Some _ -> do_decrypt := true)
     | x :: _ -> usage ()
+  in
 
-  let () = Sys.chdir !dir
+  let () = Sys.chdir !dir in
 
   (* Load and check election *)
 
@@ -119,19 +124,27 @@ module GetParams (X : EMPTY) : PARAMS = struct
     ) "election.json") with
     | Some [e] -> e
     | _ -> failwith "invalid election file"
+  in
 
-  let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = params.e_public_key
-  let group = {g; p; q}
+  let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = params.e_public_key in
 
-  let sk_file = !sk_file
-  let do_finalize = !do_finalize
-  let do_decrypt = !do_decrypt
-  let ballot_file = !ballot_file
+  let module P = struct
+    let sk_file = !sk_file
+    let do_finalize = !do_finalize
+    let do_decrypt = !do_decrypt
+    let ballot_file = !ballot_file
+    let params = params
+    let election_fingerprint = election_fingerprint
+    let group = {g; p; q}
+    let y = y
+    module G = (val Group_field.make group : Group_field.GROUP)
+  end in
+
+  (module P : PARAMS)
 
 end
 
-
-module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
+module Run (P : PARAMS) : EMPTY = struct
 
   open P
   module M = Election.MakeSimpleMonad(G)
@@ -294,7 +307,6 @@ end
 
 
 let main () =
-  let module P = GetParams(struct end) in
-  let module G = (val Group_field.make P.group : Group_field.GROUP) in
-  let module X = RunTool (G) (P) in
+  let module P = (val parse_args () : PARAMS) in
+  let module X : EMPTY = Run (P) in
   ()

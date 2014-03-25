@@ -25,36 +25,40 @@ open Signatures
 open Common
 
 module type PARAMS = sig
-  val group : (module Group_field.GROUP)
   val uuid : Uuidm.t
   val template : template
+  module G : Group_field.GROUP
 end
 
-module GetParams (X : EMPTY) : PARAMS = struct
-  let group = ref None
-  let uuid = ref None
-  let template = ref None
+let parse_args () = begin
+
+  let group = ref None in
+  let uuid = ref None in
+  let template = ref None in
 
   let speclist = Arg.([
     "--group", String (fun s -> group := Some s), "file with group parameters";
     "--uuid", String (fun s -> uuid := Some s), "UUID of the election";
     "--template", String (fun s -> template := Some s), "file with election template";
-  ])
+  ]) in
 
   let usage_msg =
     Printf.sprintf "Usage: %s mkelection --group <file> --uuid <uuid> --template <file>" Sys.argv.(0)
+  in
 
   let usage () =
     Arg.usage speclist usage_msg;
     exit 1
+  in
 
-  let die s = prerr_endline s; usage ()
+  let die s = prerr_endline s; usage () in
 
   let anon_fun x =
     Printf.eprintf "I do not know what to do with %s\n" x;
     usage ()
+  in
 
-  let () = Arg.parse speclist anon_fun usage_msg
+  let () = Arg.parse speclist anon_fun usage_msg in
 
   let group = match !group with
     | None -> die "--group is missing"
@@ -63,27 +67,37 @@ module GetParams (X : EMPTY) : PARAMS = struct
       let ls = Yojson.init_lexer () in
       let lb = Lexing.from_channel ic in
       let r = read_ff_params ls lb in
-      close_in ic;
-      Group_field.make r
-
-  let uuid = match !uuid with
-    | None -> die "--uuid is missing"
-    | Some uuid -> match Uuidm.of_string uuid with
-      | None -> die "invalid UUID"
-      | Some u -> u
-
-  let template = match !template with
-    | None -> die "--template is missing"
-    | Some fname ->
-      let ic = open_in fname in
-      let ls = Yojson.init_lexer () in
-      let lb = Lexing.from_channel ic in
-      let r = read_template ls lb in
-      close_in ic;
       r
+  in
+
+  let module P = struct
+
+    let uuid = match !uuid with
+      | None -> die "--uuid is missing"
+      | Some uuid -> match Uuidm.of_string uuid with
+        | None -> die "invalid UUID"
+        | Some u -> u
+
+    let template = match !template with
+      | None -> die "--template is missing"
+      | Some fname ->
+        let ic = open_in fname in
+        let ls = Yojson.init_lexer () in
+        let lb = Lexing.from_channel ic in
+        let r = read_template ls lb in
+        close_in ic;
+        r
+
+    module G = (val Group_field.make group : Group_field.GROUP)
+
+  end in
+
+  (module P : PARAMS)
+
 end
 
-module MakeElection (G : Group_field.GROUP) (P : PARAMS) = struct
+module Run (P : PARAMS) : EMPTY = struct
+  open P
 
   (* Setup group *)
 
@@ -131,7 +145,6 @@ module MakeElection (G : Group_field.GROUP) (P : PARAMS) = struct
 end
 
 let main () =
-  let module P = GetParams (struct end) in
-  let module G = (val P.group : Group_field.GROUP) in
-  let module X = MakeElection (G) (P) in
+  let module P = (val parse_args () : PARAMS) in
+  let module X : EMPTY = Run (P) in
   ()

@@ -25,28 +25,32 @@ open Signatures
 open Common
 
 module type PARAMS = sig
-  val group : (module Group_field.GROUP)
+  module G : Group_field.GROUP
 end
 
-module GetParams (X : EMPTY) : PARAMS = struct
-  let group = ref None
+let parse_args () = begin
+
+  let group = ref None in
 
   let speclist = Arg.([
     "--group", String (fun s -> group := Some s), "file with group parameters";
-  ])
+  ]) in
 
   let usage_msg =
     Printf.sprintf "Usage: %s trustee-keygen --group <file>" Sys.argv.(0)
+  in
 
   let usage () =
     Arg.usage speclist usage_msg;
     exit 1
+  in
 
   let anon_fun x =
     Printf.eprintf "I do not know what to do with %s\n" x;
     usage ()
+  in
 
-  let () = Arg.parse speclist anon_fun usage_msg
+  let () = Arg.parse speclist anon_fun usage_msg in
 
   let group = match !group with
     | None ->
@@ -58,10 +62,19 @@ module GetParams (X : EMPTY) : PARAMS = struct
       let lb = Lexing.from_channel ic in
       let r = read_ff_params ls lb in
       close_in ic;
-      Group_field.make r
+      r
+  in
+
+  let module P = struct
+    module G = (val Group_field.make group : Group_field.GROUP)
+  end in
+
+  (module P : PARAMS)
+
 end
 
-module RunTrusteeKeygen (G : Group_field.GROUP) = struct
+module Run (P : PARAMS) : EMPTY = struct
+  open P
 
   (* Setup group *)
 
@@ -114,7 +127,6 @@ end
 
 
 let main () =
-  let module P = GetParams (struct end) in
-  let module G = (val P.group : Group_field.GROUP) in
-  let module X = RunTrusteeKeygen (G) in
+  let module P = (val parse_args () : PARAMS) in
+  let module X : EMPTY = Run (P) in
   ()

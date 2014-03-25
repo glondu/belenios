@@ -39,24 +39,24 @@ let do_derive uuid x =
   transform_string (Hexa.encode ())
 
 module type PARAMS = sig
-  val group : (module Group_field.GROUP)
   val uuid : Uuidm.t
-  val count : int option ref
-  val file : string option ref
-  val derive : string option ref
-  val dir : string ref
+  val count : int option
+  val file : string option
+  val derive : string option
+  val dir : string
+  module G : Group_field.GROUP
 end
 
-module GetParams (X : EMPTY) : PARAMS = struct
+let parse_args () = begin
 
   (* Argument parsing *)
 
-  let dir = ref (Sys.getcwd ())
-  let uuid = ref None
-  let count = ref None
-  let file = ref None
-  let derive = ref None
-  let group = ref None
+  let dir = ref (Sys.getcwd ()) in
+  let uuid = ref None in
+  let count = ref None in
+  let file = ref None in
+  let derive = ref None in
+  let group = ref None in
 
   let speclist = Arg.([
     "--dir", String (fun s -> dir := s), "directory where output will be written";
@@ -65,16 +65,18 @@ module GetParams (X : EMPTY) : PARAMS = struct
     "--file", String (fun s -> file := Some s), "file with list of identities";
     "--derive", String (fun s -> derive := Some s), "derive public credential from given private one";
     "--group", String (fun s -> group := Some s), "file with group parameters";
-  ])
+  ]) in
 
   let usage_msg =
     Printf.sprintf "Usage: %s credgen [--dir <dir>] --uuid <uuid> {--count <n> | --file <file> | --derive <privcred>}" Sys.argv.(0)
+  in
 
   let anon_fun x =
     Printf.eprintf "I do not know what to do with %s!\n" x;
     exit 1
+  in
 
-  let () = Arg.parse speclist anon_fun usage_msg
+  let () = Arg.parse speclist anon_fun usage_msg in
 
   let group = match !group with
     | None ->
@@ -86,22 +88,33 @@ module GetParams (X : EMPTY) : PARAMS = struct
       let lb = Lexing.from_channel ic in
       let r = Serializable_j.read_ff_params ls lb in
       close_in ic;
-      Group_field.make r
+      r
+  in
 
-  let uuid = match !uuid with
-    | None ->
-      Printf.eprintf "UUID is missing!\n";
-      exit 1
-    | Some u ->
-      match Uuidm.of_string u with
+  let module P = struct
+    let uuid = match !uuid with
+      | None ->
+        Printf.eprintf "UUID is missing!\n";
+        exit 1
+      | Some u ->
+        match Uuidm.of_string u with
         | Some u -> u
         | None ->
           Printf.eprintf "UUID is invalid!\n";
           exit 1
 
+    let count = !count
+    let file = !file
+    let derive = !derive
+    let dir = !dir
+    module G = (val Group_field.make group : Group_field.GROUP)
+  end in
+
+  (module P : PARAMS)
+
 end
 
-module RunCredgen (P : PARAMS) (G : Group_field.GROUP) = struct
+module Run (P : PARAMS) : EMPTY = struct
   open P
 
   (* Some helpers *)
@@ -119,7 +132,7 @@ module RunCredgen (P : PARAMS) (G : Group_field.GROUP) = struct
     Z.to_string y
 
   let count, ids =
-    match !count, !file, !derive with
+    match count, file, derive with
       | Some i, None, None ->
         if i < 1 then (
           Printf.eprintf "You must generate at least one credential!\n";
@@ -217,7 +230,7 @@ module RunCredgen (P : PARAMS) (G : Group_field.GROUP) = struct
     output_char oc '\n'
 
   let save (kind, filename, perm, thing) =
-    let full_filename = Filename.concat !dir filename in
+    let full_filename = Filename.concat dir filename in
     let oc = open_out_gen [
       Open_wronly; Open_creat; Open_excl
     ] perm full_filename in
@@ -234,7 +247,6 @@ end
 let derive = do_derive
 
 let main () =
-  let module P = GetParams (struct end) in
-  let module G = (val P.group : Group_field.GROUP) in
-  let module X = RunCredgen (P) (G) in
+  let module P = (val parse_args () : PARAMS) in
+  let module X : EMPTY = Run (P) in
   ()
