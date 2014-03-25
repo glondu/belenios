@@ -123,7 +123,7 @@ let make config =
 
         let inject_cred cred =
           try_lwt
-            let _ = Ocsipersist.find cred_table cred in
+            lwt _ = Ocsipersist.find cred_table cred in
             failwith "trying to add duplicate credential"
           with Not_found ->
             Ocsipersist.add cred_table cred None
