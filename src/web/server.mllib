@@ -8,6 +8,7 @@ Auth_dummy
 Auth_password
 Auth_cas
 Web_election
+Group_field
 Election
 Web_templates
 Web_site

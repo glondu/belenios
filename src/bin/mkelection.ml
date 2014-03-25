@@ -24,7 +24,7 @@ open Serializable_t
 open Signatures
 
 module type PARAMS = sig
-  val group : (module Election.FF_GROUP)
+  val group : (module Group_field.GROUP)
   val uuid : Uuidm.t
   val template : template
 end
@@ -63,7 +63,7 @@ module GetParams (X : EMPTY) : PARAMS = struct
       let lb = Lexing.from_channel ic in
       let r = Serializable_j.read_ff_params ls lb in
       close_in ic;
-      Election.finite_field r
+      Group_field.make r
 
   let uuid = match !uuid with
     | None -> die "--uuid is missing"
@@ -82,7 +82,7 @@ module GetParams (X : EMPTY) : PARAMS = struct
       r
 end
 
-module MakeElection (G : Election.FF_GROUP) (P : PARAMS) = struct
+module MakeElection (G : Group_field.GROUP) (P : PARAMS) = struct
 
   (* Setup group *)
 
@@ -132,6 +132,6 @@ end
 
 let main () =
   let module P = GetParams (struct end) in
-  let module G = (val P.group : Election.FF_GROUP) in
+  let module G = (val P.group : Group_field.GROUP) in
   let module X = MakeElection (G) (P) in
   ()

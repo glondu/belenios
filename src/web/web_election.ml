@@ -77,7 +77,7 @@ let make config =
     module Auth = Web_auth.Make (N)
 
     module W : WEB_ELECTION = struct
-      module G = (val Election.finite_field group : Election.FF_GROUP)
+      module G = (val Group_field.make group : Group_field.GROUP)
       module M = MakeLwtRandom(struct let rng = make_rng () end)
       module E = Election.MakeElection(G)(M)
       module H = Auth.Handlers

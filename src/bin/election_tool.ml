@@ -132,7 +132,7 @@ module GetParams (X : EMPTY) : PARAMS = struct
 end
 
 
-module RunTool (G : Election.FF_GROUP) (P : PARAMS) = struct
+module RunTool (G : Group_field.GROUP) (P : PARAMS) = struct
 
   open P
   module M = Election.MakeSimpleMonad(G)
@@ -303,6 +303,6 @@ end
 
 let main () =
   let module P = GetParams(struct end) in
-  let module G = (val Election.finite_field P.group : Election.FF_GROUP) in
+  let module G = (val Group_field.make P.group : Group_field.GROUP) in
   let module X = RunTool (G) (P) in
   ()

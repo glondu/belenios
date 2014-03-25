@@ -24,7 +24,7 @@ open Serializable_t
 open Signatures
 
 module type PARAMS = sig
-  val group : (module Election.FF_GROUP)
+  val group : (module Group_field.GROUP)
 end
 
 module GetParams (X : EMPTY) : PARAMS = struct
@@ -57,10 +57,10 @@ module GetParams (X : EMPTY) : PARAMS = struct
       let lb = Lexing.from_channel ic in
       let r = Serializable_j.read_ff_params ls lb in
       close_in ic;
-      Election.finite_field r
+      Group_field.make r
 end
 
-module RunTrusteeKeygen (G : Election.FF_GROUP) = struct
+module RunTrusteeKeygen (G : Group_field.GROUP) = struct
 
   (* Setup group *)
 
@@ -114,6 +114,6 @@ end
 
 let main () =
   let module P = GetParams (struct end) in
-  let module G = (val P.group : Election.FF_GROUP) in
+  let module G = (val P.group : Group_field.GROUP) in
   let module X = RunTrusteeKeygen (G) in
   ()

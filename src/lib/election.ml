@@ -27,59 +27,6 @@ open Signatures
 
 let check_modulo p x = Z.(geq x zero && lt x p)
 
-let map_and_concat_with_commas f xs =
-  let n = Array.length xs in
-  let res = Buffer.create (n * 1024) in
-  for i = 0 to n-1 do
-    Buffer.add_string res (f xs.(i));
-    Buffer.add_char res ',';
-  done;
-  let size = Buffer.length res - 1 in
-  if size > 0 then Buffer.sub res 0 size else ""
-
-(** Finite field arithmetic *)
-
-let check_finite_field {p; q; g} =
-  Z.probab_prime p 20 > 0 &&
-  Z.probab_prime q 20 > 0 &&
-  check_modulo p g &&
-  check_modulo p q &&
-  Z.(powm g q p =% one)
-
-module type FF_GROUP = GROUP
-  with type t = Z.t
-  and type group = ff_params
-
-let unsafe_finite_field group =
-  let {p; q; g} = group in
-  let module G = struct
-    open Z
-    type t = Z.t
-    let p = p
-    let q = q
-    let one = Z.one
-    let g = g
-    let ( *~ ) a b = a * b mod p
-    let ( **~ ) a b = powm a b p
-    let invert x = Z.invert x p
-    let ( =~ ) = Z.equal
-    let check x = check_modulo p x && x **~ q =~ one
-    let to_string = Z.to_string
-    let hash prefix xs =
-      let x = prefix ^ (map_and_concat_with_commas Z.to_string xs) in
-      let z = Z.of_string_base 16 (sha256_hex x) in
-      Z.(z mod q)
-    let compare = Z.compare
-    type group = ff_params
-    let group = group
-  end in (module G : FF_GROUP)
-
-let finite_field group =
-  if check_finite_field group then
-    unsafe_finite_field group
-  else
-    invalid_arg "incorrect finite field parameters"
-
 (** Parameters *)
 
 let check_election_public_key (type t) g e =

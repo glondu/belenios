@@ -39,7 +39,7 @@ let do_derive uuid x =
   transform_string (Hexa.encode ())
 
 module type PARAMS = sig
-  val group : (module Election.FF_GROUP)
+  val group : (module Group_field.GROUP)
   val uuid : Uuidm.t
   val count : int option ref
   val file : string option ref
@@ -86,7 +86,7 @@ module GetParams (X : EMPTY) : PARAMS = struct
       let lb = Lexing.from_channel ic in
       let r = Serializable_j.read_ff_params ls lb in
       close_in ic;
-      Election.finite_field r
+      Group_field.make r
 
   let uuid = match !uuid with
     | None ->
@@ -101,7 +101,7 @@ module GetParams (X : EMPTY) : PARAMS = struct
 
 end
 
-module RunCredgen (P : PARAMS) (G : Election.FF_GROUP) = struct
+module RunCredgen (P : PARAMS) (G : Group_field.GROUP) = struct
   open P
 
   (* Some helpers *)
@@ -235,6 +235,6 @@ let derive = do_derive
 
 let main () =
   let module P = GetParams (struct end) in
-  let module G = (val P.group : Election.FF_GROUP) in
+  let module G = (val P.group : Group_field.GROUP) in
   let module X = RunCredgen (P) (G) in
   ()
