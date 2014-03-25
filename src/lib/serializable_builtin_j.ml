@@ -21,50 +21,54 @@
 
 open Serializable_builtin_t
 
+(** {1 Helpers for interacting with atd-generated stuff} *)
+
+let make_write to_string buf x =
+  Bi_outbuf.add_char buf '"';
+  Bi_outbuf.add_string buf (to_string x);
+  Bi_outbuf.add_char buf '"'
+
+let make_read of_string state buf =
+  match Yojson.Safe.from_lexbuf ~stream:true state buf with
+  | `String s -> of_string s
+  | _ -> assert false
+
 (** {1 Serializers for type number} *)
 
-let write_number buf n =
-  Bi_outbuf.add_char buf '"';
-  Bi_outbuf.add_string buf (Z.to_string n);
-  Bi_outbuf.add_char buf '"'
+let write_number = make_write Z.to_string
 
 let string_of_number ?(len=2048) n =
   let buf = Bi_outbuf.create len in
   write_number buf n;
   Bi_outbuf.contents buf
 
-let number_of_json = function
+let read_number = make_read Z.of_string
+
+let number_of_string x =
+  match Yojson.Safe.from_string x with
   | `String s -> Z.of_string s
   | _ -> assert false
 
-let read_number state buf =
-  number_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
-
-let number_of_string s =
-  number_of_json (Yojson.Safe.from_string s)
-
 (** {1 Serializers for type uuid} *)
 
-let write_uuid buf n =
-  Bi_outbuf.add_char buf '"';
-  Bi_outbuf.add_string buf (Uuidm.to_string n);
-  Bi_outbuf.add_char buf '"'
+let write_uuid = make_write Uuidm.to_string
 
 let string_of_uuid ?(len=38) n =
   let buf = Bi_outbuf.create len in
   write_uuid buf n;
   Bi_outbuf.contents buf
 
-let uuid_of_json = function
-  | `String s ->
-    (match Uuidm.of_string s with Some s -> s | _ -> assert false)
+let raw_uuid_of_string x =
+  match Uuidm.of_string x with
+  | Some s -> s
   | _ -> assert false
 
-let read_uuid state buf =
-  uuid_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
+let read_uuid = make_read raw_uuid_of_string
 
-let uuid_of_string s =
-  uuid_of_json (Yojson.Safe.from_string s)
+let uuid_of_string x =
+  match Yojson.Safe.from_string x with
+  | `String s -> raw_uuid_of_string s
+  | _ -> assert false
 
 (** {1 Serializers for type datetime} *)
 

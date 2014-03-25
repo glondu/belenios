@@ -21,6 +21,14 @@
 
 open Serializable_builtin_t
 
+(** {1 Helpers for interacting with atd-generated stuff} *)
+
+val make_write :
+  ('a -> string) -> Bi_outbuf.t -> 'a -> unit
+
+val make_read :
+  (string -> 'a) -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
+
 (** {1 Serializers for type number} *)
 
 val write_number : Bi_outbuf.t -> number -> unit
