@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Signatures
-open Util
+open Common
 open Serializable_t
 open Web_serializable_j
 open Lwt

@@ -21,7 +21,7 @@
 
 open Lwt
 open Signatures
-open Util
+open Common
 open Serializable_t
 open Web_serializable_t
 open Web_signatures

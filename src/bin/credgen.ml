@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Signatures
-open Util
+open Common
 
 let remove_dashes x =
   let n = String.length x in

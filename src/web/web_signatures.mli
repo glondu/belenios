@@ -21,6 +21,7 @@
 
 open Serializable_builtin_t
 open Serializable_t
+open Common
 open Web_serializable_t
 open Signatures
 
@@ -202,7 +203,7 @@ module type WEB_BALLOT_BOX = sig
 
   val cast : string -> string * datetime -> string Lwt.t
   val inject_cred : string -> unit Lwt.t
-  val extract_creds : unit -> Util.SSet.t Lwt.t
+  val extract_creds : unit -> SSet.t Lwt.t
   val update_cred : old:string -> new_:string -> unit Lwt.t
 end
 

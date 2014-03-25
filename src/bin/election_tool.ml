@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Signatures
-open Util
+open Common
 open Serializable_t
 
 (* Helpers *)
