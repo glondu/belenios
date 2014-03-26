@@ -34,9 +34,9 @@ let () =
   else (
     Arg.current := 1;
     match Sys.argv.(1) with
-    | "trustee-keygen" -> Tkeygen.main ()
-    | "election" -> Election_tool.main ()
-    | "credgen" -> Credgen.main ()
-    | "mkelection" -> Mkelection.main ()
+    | "trustee-keygen" -> Tool_tkeygen.main ()
+    | "election" -> Tool_election.main ()
+    | "credgen" -> Tool_credgen.main ()
+    | "mkelection" -> Tool_mkelection.main ()
     | _ -> usage ()
   )

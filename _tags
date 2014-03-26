@@ -1,5 +1,5 @@
 <**/*.{ml,mli,byte,native,odoc}>: debug, annot, thread, package(zarith), package(calendar), package(uuidm), package(cryptokit), package(atdgen), package(yojson)
 <demo/**/*.{ml,mli,byte,native,odoc}>: package(lwt.unix), syntax(camlp4o), package(lwt.syntax)
 <src/web/*.{ml,mli,byte,native,odoc}>: package(eliom.server), syntax(camlp4o), package(lwt.syntax), package(csv)
-<src/bin/*>: binary
+<src/tool/*>: binary
 <stuff/*>: binary

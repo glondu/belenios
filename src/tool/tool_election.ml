@@ -240,7 +240,7 @@ module Run (P : PARAMS) : EMPTY = struct
           | Some fn ->
             (match load_from_file (fun x -> x) fn with
             | Some [cred] ->
-              let hex = Credgen.derive e.e_params.e_uuid cred in
+              let hex = Tool_credgen.derive e.e_params.e_uuid cred in
               Some Z.(of_string_base 16 hex mod G.q)
             | _ -> failwith "invalid credential file"
             )

@@ -27,7 +27,7 @@ let () = dispatch & function
   | After_rules ->
 
     Pathname.define_context "src/web" ["src/lib"];
-    Pathname.define_context "src/bin" ["src/lib"];
+    Pathname.define_context "src/tool" ["src/lib"];
     Pathname.define_context "demo" ["src/lib"];
     Pathname.define_context "stuff" ["src/lib"];
     Pathname.define_context "." ["src/lib"];
@@ -46,6 +46,6 @@ let () = dispatch & function
         Cmd (S [A"markdown"; P (env "%.md"); Sh">"; P (env "%.html")])
       );
 
-    copy_rule "belenios-tool" ("src/bin/main" ^ exe_suffix) "belenios-tool";
+    copy_rule "belenios-tool" ("src/tool/tool_main" ^ exe_suffix) "belenios-tool";
 
   | _ -> ()
