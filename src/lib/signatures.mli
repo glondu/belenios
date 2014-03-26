@@ -23,6 +23,11 @@
 
 open Serializable_t
 
+(** Helpers for interacting with atd stuff *)
+
+type 'a reader = Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
+type 'a writer = Bi_outbuf.t -> 'a -> unit
+
 (** Empty module *)
 module type EMPTY = sig end
 
@@ -64,6 +69,12 @@ module type GROUP = sig
 
   val of_string : string -> t
   (** Conversion from string. *)
+
+  val read : t reader
+  (** Reading from a stream. *)
+
+  val write : t writer
+  (** Writing to a stream. *)
 
   val hash : string -> t array -> Z.t
   (** Hash an array of elements into an integer mod [q]. The string

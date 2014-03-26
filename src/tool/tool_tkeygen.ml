@@ -76,8 +76,6 @@ end
 module Run (P : PARAMS) : EMPTY = struct
   open P
 
-  let write_elt = make_write G.to_string
-
   (* Setup group *)
 
   module M = Election.MakeSimpleMonad(G);;
@@ -102,7 +100,7 @@ module Run (P : PARAMS) : EMPTY = struct
     id ^ ".pubkey",
     0o444,
     public_key,
-    write_trustee_public_key write_elt
+    write_trustee_public_key G.write
 
   let privkey =
     "private",

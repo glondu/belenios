@@ -65,6 +65,17 @@ let unsafe_make group =
     let check x = check_modulo p x && x **~ q =~ one
     let to_string = Z.to_string
     let of_string = Z.of_string
+
+    let read state buf =
+      match Yojson.Safe.from_lexbuf ~stream:true state buf with
+      | `String s -> Z.of_string s
+      | _ -> assert false
+
+    let write buf x =
+      Bi_outbuf.add_char buf '"';
+      Bi_outbuf.add_string buf (Z.to_string x);
+      Bi_outbuf.add_char buf '"'
+
     let hash prefix xs =
       let x = prefix ^ (map_and_concat_with_commas Z.to_string xs) in
       let z = Z.of_string_base 16 (sha256_hex x) in

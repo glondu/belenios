@@ -117,8 +117,6 @@ end
 module Run (P : PARAMS) : EMPTY = struct
   open P
 
-  let read_elt = make_read G.of_string
-
   (* Setup group *)
 
   module M = Election.MakeSimpleMonad(G);;
@@ -138,7 +136,7 @@ module Run (P : PARAMS) : EMPTY = struct
     in
     close_in ic;
     let keys = List.map (fun x ->
-      trustee_public_key_of_string read_elt x
+      trustee_public_key_of_string G.read x
     ) raw_keys |> Array.of_list in
     assert (Array.forall KG.check keys);
     keys

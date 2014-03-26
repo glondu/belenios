@@ -150,16 +150,13 @@ module Run (P : PARAMS) : EMPTY = struct
   module M = Election.MakeSimpleMonad(G)
   module E = Election.MakeElection(G)(M);;
 
-  let read_elt = make_read G.of_string
-  let write_elt = make_write G.to_string
-
   (* Load and check trustee keys, if present *)
 
   module KG = Election.MakeSimpleDistKeyGen(G)(M);;
 
   let public_keys_with_pok =
     load_from_file (
-      trustee_public_key_of_string read_elt
+      trustee_public_key_of_string G.read
     ) "public_keys.jsons" |> option_map Array.of_list
 
   let () =
@@ -201,7 +198,7 @@ module Run (P : PARAMS) : EMPTY = struct
 
   let ballots =
     load_from_file (fun line ->
-      ballot_of_string read_elt line,
+      ballot_of_string G.read line,
       sha256_b64 line
     ) "ballots.jsons"
 
@@ -248,7 +245,7 @@ module Run (P : PARAMS) : EMPTY = struct
         in
         let b = E.create_ballot e ?sk (E.make_randomness e ()) b () in
         assert (E.check_ballot e b);
-        print_endline (string_of_ballot write_elt b)
+        print_endline (string_of_ballot G.write b)
       | _ -> failwith "invalid plaintext ballot file"
       )
 
@@ -266,7 +263,7 @@ module Run (P : PARAMS) : EMPTY = struct
             E.compute_factor tally sk ()
           in
           assert (E.check_factor tally pk factor);
-          print_endline (string_of_partial_decryption write_elt factor)
+          print_endline (string_of_partial_decryption G.write factor)
         | _ -> failwith "invalid private key file"
       )
     | None -> ()
@@ -275,7 +272,7 @@ module Run (P : PARAMS) : EMPTY = struct
 
   let result =
     load_from_file (
-      result_of_string read_elt
+      result_of_string G.read
     ) "result.json"
 
   let () =
@@ -286,7 +283,7 @@ module Run (P : PARAMS) : EMPTY = struct
       failwith "invalid result file"
     | None ->
       let factors = load_from_file (
-        partial_decryption_of_string read_elt
+        partial_decryption_of_string G.read
       ) "partial_decryptions.jsons" |> option_map Array.of_list in
       match factors with
       | Some factors ->
@@ -296,7 +293,7 @@ module Run (P : PARAMS) : EMPTY = struct
         assert (E.check_result e result);
         if do_finalize then (
           save_to "result.json" (
-            write_result write_elt
+            write_result G.write
           ) result;
           Printf.eprintf "result.json written\n%!"
         );
