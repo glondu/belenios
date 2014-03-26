@@ -26,9 +26,9 @@ open Common
 
 module type PARAMS = sig
   val uuid : Uuidm.t
+  val template : template
   module G : GROUP
-  val params : G.t -> G.t wrapped_pubkey params
-  val write_params : Bi_outbuf.t -> G.t wrapped_pubkey params -> unit
+  val write_params : Bi_outbuf.t -> G.t params -> unit
 end
 
 let parse_args () = begin
@@ -102,7 +102,11 @@ let parse_args () = begin
       e_short_name = template.t_short_name;
     }
 
-    let write_params = write_params write_ff_pubkey
+    let write_params buf params =
+      let y = params.e_public_key in
+      let w = {ffpk_g=g; ffpk_p=p; ffpk_q=q; ffpk_y=y} in
+      let params = { params with e_public_key = w } in
+      write_params write_ff_pubkey buf params
 
   end in
 
@@ -143,7 +147,14 @@ module Run (P : PARAMS) : EMPTY = struct
 
   (* Setup election *)
 
-  let params = P.params y
+  let params = {
+    e_description = template.t_description;
+    e_name = template.t_name;
+    e_public_key = y;
+    e_questions = template.t_questions;
+    e_uuid = uuid;
+    e_short_name = template.t_short_name;
+  }
 
   (* Save to disk *)
 

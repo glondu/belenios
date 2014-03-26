@@ -61,15 +61,13 @@ type ff_params = {
 <doc text="Parameters for a multiplicative subgroup of a finite field.">
 
 (* FIXME: use a "group" field of type 'a *)
-type 'a wrapped_pubkey = {
-  g : 'a;
+type ff_pubkey = {
+  g : number;
   p : number;
   q : number;
-  y : 'a;
+  y : number;
 } <ocaml field_prefix="ffpk_">
-<doc text="A public key wrapped with its group parameters.">
-
-type ff_pubkey = number wrapped_pubkey
+<doc text="A finite field public key wrapped with its group parameters.">
 
 type question = {
   answers : string list <ocaml repr="array">;
