@@ -86,7 +86,7 @@ let parse_args () = begin
       let ic = open_in fname in
       let ls = Yojson.init_lexer () in
       let lb = Lexing.from_channel ic in
-      let r = Serializable_j.read_ff_params ls lb in
+      let r = Group.read ls lb in
       close_in ic;
       r
   in
@@ -107,7 +107,7 @@ let parse_args () = begin
     let file = !file
     let derive = !derive
     let dir = !dir
-    module G = (val Group_field.make group : Group_field.GROUP)
+    module G = (val group : GROUP)
   end in
 
   (module P : PARAMS)

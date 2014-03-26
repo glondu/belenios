@@ -48,11 +48,9 @@ module type PARAMS = sig
   val do_finalize : bool
   val do_decrypt : bool
   val ballot_file : string option
-  val params : ff_pubkey params
   val election_fingerprint : string
-  val group :  ff_params
   module G : GROUP
-  val y : G.t
+  val params : G.t params
 end
 
 
@@ -119,14 +117,12 @@ let parse_args () = begin
 
   let params, election_fingerprint =
     match (load_from_file (fun l ->
-      params_of_string read_ff_pubkey l,
+      Group.election_params_of_string l,
       sha256_b64 l
     ) "election.json") with
     | Some [e] -> e
     | _ -> failwith "invalid election file"
   in
-
-  let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = params.e_public_key in
 
   let module P = struct
     let sk_file = !sk_file
@@ -135,9 +131,7 @@ let parse_args () = begin
     let ballot_file = !ballot_file
     let params = params
     let election_fingerprint = election_fingerprint
-    let group = {g; p; q}
-    let y = y
-    module G = (val Group_field.make group : Group_field.GROUP)
+    include (val params : ELECTION_PARAMS)
   end in
 
   (module P : PARAMS)
@@ -164,7 +158,7 @@ module Run (P : PARAMS) : EMPTY = struct
     | Some pks ->
       assert (Array.forall KG.check pks);
       let y' = KG.combine pks in
-      assert G.(y =~ y')
+      assert G.(params.e_public_key =~ y')
     | None -> ()
 
   let public_keys =
@@ -179,7 +173,7 @@ module Run (P : PARAMS) : EMPTY = struct
     | None -> failwith "missing public keys"
 
   let e = {
-    e_params = { params with e_public_key = P.y };
+    e_params = params;
     e_pks = Some pks;
     e_fingerprint = election_fingerprint;
   }

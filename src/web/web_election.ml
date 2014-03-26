@@ -52,10 +52,9 @@ end
 let make config =
 
   let e_fingerprint = sha256_b64 config.raw_election in
-  let wrapped_params = params_of_string read_ff_pubkey config.raw_election in
-  let {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y} = wrapped_params.e_public_key in
-  let group = {g; p; q} in
-  let e_params = { wrapped_params with e_public_key = y } in
+  let params = Group.election_params_of_string config.raw_election in
+  let module P = (val params : ELECTION_PARAMS) in
+  let e_params = P.params in
 
   let module R : REGISTRATION = struct
 
@@ -75,7 +74,7 @@ let make config =
     module Auth = Web_auth.Make (N)
 
     module W : WEB_ELECTION = struct
-      module G = (val Group_field.make group : Group_field.GROUP)
+      module G = P.G
       module M = MakeLwtRandom(struct let rng = make_rng () end)
       module E = Election.MakeElection(G)(M)
       module H = Auth.Handlers
@@ -142,12 +141,12 @@ let make config =
             fail (Serialization (Invalid_argument "multiline ballot"))
           ) else return () >>
           lwt ballot =
-            try Lwt.return (ballot_of_string read_number rawballot)
+            try Lwt.return (ballot_of_string G.read rawballot)
             with e -> fail (Serialization e)
           in
           lwt credential =
             match ballot.signature with
-              | Some s -> Lwt.return (Z.to_string s.s_public_key)
+              | Some s -> Lwt.return (G.to_string s.s_public_key)
               | None -> fail MissingCredential
           in
           lwt old_cred =

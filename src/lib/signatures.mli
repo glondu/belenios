@@ -87,6 +87,25 @@ module type GROUP = sig
   (** Serializable description of the group. *)
 
   val group : group
+
+  type wrapped_pubkey
+  (** The type of a pubkey wrapped with group parameters. *)
+
+  val wrap_pubkey : t -> wrapped_pubkey
+  val write_wrapped_pubkey : wrapped_pubkey writer
+
+end
+
+(** A public key wrapped with its group. *)
+module type PUBLIC_KEY = sig
+  module G : GROUP
+  val y : G.t
+end
+
+(** Election params wrapped with its group. *)
+module type ELECTION_PARAMS = sig
+  module G : GROUP
+  val params : G.t params
 end
 
 (** Monad signature. *)

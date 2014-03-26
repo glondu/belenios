@@ -28,7 +28,6 @@ module type PARAMS = sig
   val uuid : Uuidm.t
   val template : template
   module G : GROUP
-  val write_params : Bi_outbuf.t -> G.t params -> unit
 end
 
 let parse_args () = begin
@@ -67,11 +66,9 @@ let parse_args () = begin
       let ic = open_in fname in
       let ls = Yojson.init_lexer () in
       let lb = Lexing.from_channel ic in
-      let r = read_ff_params ls lb in
+      let r = Group.read ls lb in
       r
   in
-
-  let {g; p; q} = group in
 
   let module P = struct
 
@@ -91,22 +88,13 @@ let parse_args () = begin
         close_in ic;
         r
 
-    module G = (val Group_field.make group : Group_field.GROUP)
-
-    let params y = {
-      e_description = template.t_description;
-      e_name = template.t_name;
-      e_public_key = {ffpk_g = g; ffpk_p = p; ffpk_q = q; ffpk_y = y};
-      e_questions = template.t_questions;
-      e_uuid = uuid;
-      e_short_name = template.t_short_name;
-    }
+    module G = (val group : GROUP)
 
     let write_params buf params =
       let y = params.e_public_key in
-      let w = {ffpk_g=g; ffpk_p=p; ffpk_q=q; ffpk_y=y} in
+      let w = G.wrap_pubkey y in
       let params = { params with e_public_key = w } in
-      write_params write_ff_pubkey buf params
+      write_params G.write_wrapped_pubkey buf params
 
   end in
 
@@ -148,7 +136,7 @@ module Run (P : PARAMS) : EMPTY = struct
   let params = {
     e_description = template.t_description;
     e_name = template.t_name;
-    e_public_key = y;
+    e_public_key = G.wrap_pubkey y;
     e_questions = template.t_questions;
     e_uuid = uuid;
     e_short_name = template.t_short_name;
@@ -156,6 +144,7 @@ module Run (P : PARAMS) : EMPTY = struct
 
   (* Save to disk *)
 
+  let write_params = write_params G.write_wrapped_pubkey
   let () = save_to "election.json" write_params params
 
 end
