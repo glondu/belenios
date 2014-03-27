@@ -91,9 +91,10 @@ module Make (C : CONFIG) : SITE = struct
 
   module T = Web_templates.Make (S)
 
-  let () = register_election_ref := fun config ->
-    let registration = Web_election.make config in
-    let module R = (val registration : Web_election.REGISTRATION) in
+  let () = register_election_ref := fun election_data web_params ->
+    let module D = (val election_data : ELECTION_DATA) in
+    let module P = (val web_params : WEB_PARAMS) in
+    let module R = Web_election.Make (D) (P) in
     let module W = R.W in
     let module X : EMPTY = R.Register (S) (T) in
     let election = (module W : WEB_ELECTION) in

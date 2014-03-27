@@ -25,14 +25,6 @@ open Signatures
 open Common
 open Web_serializable_t
 
-type election_config = {
-  raw_election : string;
-  metadata : metadata;
-  featured : bool;
-  params_fname : string;
-  public_keys_fname : string;
-}
-
 module type AUTH_SERVICES = sig
 
   val auth_realm : string
@@ -234,16 +226,17 @@ module type ELECTION_TEMPLATES = sig
 
 end
 
-module type WEB_ELECTION_RO = sig
-  module G : GROUP
-  module E : ELECTION with type elt = G.t
-
-  val election : G.t election
+module type WEB_PARAMS = sig
   val metadata : metadata
   val featured : bool
   val params_fname : string
   val public_keys_fname : string
+end
 
+module type WEB_ELECTION_RO = sig
+  include ELECTION_DATA
+  include WEB_PARAMS
+  module E : ELECTION with type elt = G.t
   module S : ELECTION_SERVICES
 end
 
@@ -261,7 +254,11 @@ end
 module type SITE = sig
   include SITE_SERVICES
   include AUTH_HANDLERS_PUBLIC
-  val register_election : election_config -> (module WEB_ELECTION) Lwt.t
+
+  val register_election :
+    (module ELECTION_DATA) -> (module WEB_PARAMS) ->
+    (module WEB_ELECTION) Lwt.t
+
   val set_main_election : (module WEB_ELECTION) -> unit
   val unset_main_election : unit -> unit
   val cont : (unit -> service_handler) Eliom_reference.eref

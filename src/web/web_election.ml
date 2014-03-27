@@ -49,16 +49,9 @@ module type REGISTRATION = sig
   module Register (S : SITE) (T : TEMPLATES) : EMPTY
 end
 
-let make config =
+module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
 
-  let params = Group.election_params_of_string config.raw_election in
-  let module P = (val params : ELECTION_PARAMS) in
-  let e_fingerprint = P.fingerprint in
-  let e_params = P.params in
-
-  let module R : REGISTRATION = struct
-
-    let uuid = Uuidm.to_string e_params.e_uuid
+    let uuid = Uuidm.to_string D.election.e_params.e_uuid
     let base_path = ["elections"; uuid]
 
     module N = struct
@@ -66,7 +59,7 @@ let make config =
       let path = base_path
 
       let auth_config =
-        match config.metadata.e_auth_config with
+        match P.metadata.e_auth_config with
         | None -> []
         | Some xs -> xs
     end
@@ -74,17 +67,11 @@ let make config =
     module Auth = Web_auth.Make (N)
 
     module W : WEB_ELECTION = struct
-      module G = P.G
+      include D
+      include P
       module M = MakeLwtRandom(struct let rng = make_rng () end)
       module E = Election.MakeElection(G)(M)
       module H = Auth.Handlers
-
-      let election = {e_params; e_pks = None; e_fingerprint}
-      let metadata = config.metadata
-
-      let public_keys_fname = config.public_keys_fname
-      let params_fname = config.params_fname
-      let featured = config.featured
 
       module B : WEB_BALLOT_BOX = struct
 
@@ -299,7 +286,7 @@ let make config =
 
       let if_eligible acl f () x =
         lwt user = W.S.get_user () in
-        if acl config.metadata user then
+        if acl W.metadata user then
           f user x
         else
           forbidden ()
@@ -511,6 +498,4 @@ let make config =
 
     end
 
-  end in
-
-  (module R : REGISTRATION)
+end

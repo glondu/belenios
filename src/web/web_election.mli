@@ -30,4 +30,4 @@ module type REGISTRATION = sig
   module Register (S : SITE) (T : TEMPLATES) : EMPTY
 end
 
-val make : election_config -> (module REGISTRATION)
+module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION

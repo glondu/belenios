@@ -156,6 +156,12 @@ type 'a election = {
   (** Fingerprint of the election. *)
 }
 
+(** Election data bundled with a group. *)
+module type ELECTION_DATA = sig
+  module G : GROUP
+  val election : G.t election
+end
+
 (** Cryptographic primitives for an election with homomorphic tally. *)
 module type ELECTION = sig
 

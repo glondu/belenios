@@ -120,10 +120,9 @@ let import_election_dir accu dir =
       | Some e -> return e
       | None -> failwith "election.json is invalid")
     in
-    let uuid =
-      (election_uuid_of_string raw_election).election_uuid |>
-      Uuidm.to_string
-    in
+    let params = Group.election_params_of_string raw_election in
+    let module P = (val params : ELECTION_PARAMS) in
+    let uuid = Uuidm.to_string P.params.e_uuid in
     lwt exists =
       try_lwt
         lwt _ = Ocsipersist.find election_table uuid in
@@ -149,14 +148,14 @@ let import_election_dir accu dir =
         ) else return empty_metadata
       in
       let public_creds_fname = path/"public_creds.txt" in
-      let config = Web_election.({
-        raw_election;
-        metadata;
-        featured = item.datadir_featured;
-        params_fname;
-        public_keys_fname;
-      }) in
-      Ocsipersist.add election_table uuid config >>
+      let module X = struct
+        let metadata = metadata
+        let featured = item.datadir_featured
+        let params_fname = params_fname
+        let public_keys_fname = public_keys_fname
+      end in
+      let web_params = (module X : WEB_PARAMS) in
+      Ocsipersist.add election_table uuid (raw_election, web_params) >>
       return @@ SMap.add uuid public_creds_fname accu
     )
   ) accu index
@@ -187,8 +186,19 @@ end
 module Site = Web_site.Make (Site_config)
 
 lwt () =
-  Ocsipersist.iter_step (fun uuid config ->
-    lwt election = Site.register_election config in
+  Ocsipersist.iter_step (fun uuid (raw_election, web_params) ->
+    let params = Group.election_params_of_string raw_election in
+    let module P = (val params : ELECTION_PARAMS) in
+    let module D = struct
+      module G = P.G
+      let election = {
+        e_params = P.params;
+        e_pks = None;
+        e_fingerprint = P.fingerprint;
+      }
+    end in
+    let election_data = (module D : ELECTION_DATA) in
+    lwt election = Site.register_election election_data web_params in
     let module W = (val election : WEB_ELECTION) in
     (match !main_election_uuid with
     | Some u when u = uuid -> Site.set_main_election election
