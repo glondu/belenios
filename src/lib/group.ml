@@ -21,6 +21,7 @@
 
 open Serializable_j
 open Signatures
+open Common
 
 (** Generic group parsing *)
 
@@ -52,5 +53,6 @@ let election_params_of_string x =
   let module X = struct
     module G = (val Group_field.make group : Group_field.GROUP)
     let params = {params with e_public_key = y}
+    let fingerprint = sha256_b64 x
   end in
   (module X : ELECTION_PARAMS)

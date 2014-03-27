@@ -106,6 +106,7 @@ end
 module type ELECTION_PARAMS = sig
   module G : GROUP
   val params : G.t params
+  val fingerprint : string
 end
 
 (** Monad signature. *)

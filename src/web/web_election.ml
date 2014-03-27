@@ -51,9 +51,9 @@ end
 
 let make config =
 
-  let e_fingerprint = sha256_b64 config.raw_election in
   let params = Group.election_params_of_string config.raw_election in
   let module P = (val params : ELECTION_PARAMS) in
+  let e_fingerprint = P.fingerprint in
   let e_params = P.params in
 
   let module R : REGISTRATION = struct

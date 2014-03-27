@@ -48,9 +48,7 @@ module type PARAMS = sig
   val do_finalize : bool
   val do_decrypt : bool
   val ballot_file : string option
-  val election_fingerprint : string
-  module G : GROUP
-  val params : G.t params
+  include ELECTION_PARAMS
 end
 
 
@@ -115,11 +113,8 @@ let parse_args () = begin
 
   (* Load and check election *)
 
-  let params, election_fingerprint =
-    match (load_from_file (fun l ->
-      Group.election_params_of_string l,
-      sha256_b64 l
-    ) "election.json") with
+  let params =
+    match load_from_file Group.election_params_of_string "election.json" with
     | Some [e] -> e
     | _ -> failwith "invalid election file"
   in
@@ -129,8 +124,6 @@ let parse_args () = begin
     let do_finalize = !do_finalize
     let do_decrypt = !do_decrypt
     let ballot_file = !ballot_file
-    let params = params
-    let election_fingerprint = election_fingerprint
     include (val params : ELECTION_PARAMS)
   end in
 
@@ -175,7 +168,7 @@ module Run (P : PARAMS) : EMPTY = struct
   let e = {
     e_params = params;
     e_pks = Some pks;
-    e_fingerprint = election_fingerprint;
+    e_fingerprint = fingerprint;
   }
 
   (* Load ballots, if present *)
