@@ -34,6 +34,18 @@ module type CONFIG = sig
   val auth_config : auth_config list
 end
 
+let get_single_line x =
+  match_lwt Lwt_stream.get x with
+  | None -> return None
+  | Some _ as line ->
+    lwt b = Lwt_stream.is_empty x in
+    if b then (
+      return line
+    ) else (
+      Lwt_stream.junk_while (fun _ -> true) x >>
+      return None
+    )
+
 module Make (C : CONFIG) : SITE = struct
   open Eliom_service
   open Eliom_registration
@@ -42,14 +54,25 @@ module Make (C : CONFIG) : SITE = struct
 
   module Auth = Web_auth.Make (C)
 
-  let main_election = ref None
-  let featured = ref []
+  let store = Ocsipersist.open_store C.name
+
+  (* Persistent table, used to initialize the server. *)
+  let election_ptable = Ocsipersist.open_table (C.name ^ "_elections")
+
+  (* In-memory table, indexed by UUID, contains closures. *)
+  let election_table = ref SMap.empty
+
+  lwt main_election =
+    Ocsipersist.make_persistent store "main_election" None
+
+  lwt featured =
+    Ocsipersist.make_persistent store "featured_elections" []
 
   (* The following reference is there to cut a dependency loop:
      S.register_election depends on S (via Templates). It will be set
      to a proper value once we have called Templates.Make. *)
 
-  let register_election_ref = ref (fun _ -> assert false)
+  let import_election_ref = ref (fun _ -> assert false)
 
   (* We use an intermediate module S that will be passed to Templates
      and Web_election. S is not meant to leak and will be included
@@ -80,10 +103,17 @@ module Make (C : CONFIG) : SITE = struct
     let cont = Eliom_reference.eref ~scope
       (fun () () -> Eliom_registration.Redirection.send home)
 
-    let register_election config = !register_election_ref config
+    let import_election ~featured f = !import_election_ref featured f
 
-    let set_main_election x = main_election := Some x
-    let unset_main_election () = main_election := None
+    let set_main_election x =
+      if SMap.mem x !election_table then (
+        Ocsipersist.set main_election (Some x)
+      ) else (
+        Lwt.fail Not_found
+      )
+
+    let unset_main_election () =
+      Ocsipersist.set main_election None
 
   end
 
@@ -91,27 +121,111 @@ module Make (C : CONFIG) : SITE = struct
 
   module T = Web_templates.Make (S)
 
-  let () = register_election_ref := fun election_data web_params ->
-    let module D = (val election_data : ELECTION_DATA) in
+  let register_election params web_params =
+    let module P = (val params : ELECTION_PARAMS) in
+    let uuid = Uuidm.to_string P.params.e_uuid in
+    let module D = struct
+      module G = P.G
+      let election = {
+        e_params = P.params;
+        e_pks = None;
+        e_fingerprint = P.fingerprint;
+      }
+    end in
     let module P = (val web_params : WEB_PARAMS) in
     let module R = Web_election.Make (D) (P) in
     let module W = R.W in
     let module X : EMPTY = R.Register (S) (T) in
     let election = (module W : WEB_ELECTION) in
-    let election_ro = (module W : WEB_ELECTION_RO) in
-    if W.featured then featured := election_ro :: !featured;
+    election_table := SMap.add uuid election !election_table;
+    lwt () =
+      if W.featured then (
+        lwt the_featured = Ocsipersist.get featured in
+        Ocsipersist.set featured (uuid :: the_featured)
+      ) else return ()
+    in
     return election
+
+  let () = import_election_ref := fun featured f ->
+    lwt raw_election =
+      Lwt_io.lines_of_file f.f_election |>
+      get_single_line >>=
+      (function
+      | Some e -> return e
+      | None -> Printf.ksprintf
+        failwith "%s must contain a single line" f.f_election
+      )
+    in
+    let params = Group.election_params_of_string raw_election in
+    let module P = (val params : ELECTION_PARAMS) in
+    let uuid = Uuidm.to_string P.params.e_uuid in
+    lwt exists =
+      try_lwt
+        lwt _ = Ocsipersist.find election_ptable uuid in
+        return true
+      with Not_found -> return false
+    in
+    if exists then (
+      return None
+    ) else (
+      lwt metadata =
+        Lwt_io.chars_of_file f.f_metadata |>
+        Lwt_stream.to_string >>=
+        wrap1 metadata_of_string
+      in
+      let module X = struct
+        let metadata = metadata
+        let featured = featured
+        let params_fname = f.f_election
+        let public_keys_fname = f.f_public_keys
+      end in
+      let web_params = (module X : WEB_PARAMS) in
+      Ocsipersist.add election_ptable uuid (raw_election, web_params) >>
+      lwt election = register_election params web_params in
+      let module W = (val election : WEB_ELECTION) in
+      begin try_lwt
+        let () =
+          Ocsigen_messages.debug (fun () ->
+            Printf.sprintf "Injecting credentials for %s" uuid
+          )
+        in
+        Lwt_io.lines_of_file f.f_public_creds |>
+        Lwt_stream.iter_s W.B.inject_cred
+      with Not_found ->
+        return ()
+      end >>
+      return (Some election)
+    )
+
+  lwt () =
+    Ocsipersist.iter_step (fun uuid (raw_election, web_params) ->
+      let params = Group.election_params_of_string raw_election in
+      lwt election = register_election params web_params in
+      let module W = (val election : WEB_ELECTION) in
+      assert (uuid = Uuidm.to_string W.election.e_params.e_uuid);
+      Ocsigen_messages.debug (fun () ->
+        Printf.sprintf "Initialized election %s from persistent store" uuid
+      );
+      return ()
+    ) election_ptable
 
   let () = let module X : EMPTY = Auth.Register (S) (T.Login (S)) in ()
 
   let () = Any.register ~service:home
     (fun () () ->
       Eliom_reference.unset cont >>
-      match !main_election with
+      match_lwt Ocsipersist.get main_election with
       | None ->
-        T.home ~featured:!featured () >>= Html5.send
-      | Some w ->
-        let module W = (val w : WEB_ELECTION) in
+        lwt featured =
+          Ocsipersist.get featured >>=
+          Lwt_list.map_p (fun x ->
+            let module W = (val SMap.find x !election_table : WEB_ELECTION) in
+            return (module W : WEB_ELECTION_RO)
+          )
+        in
+        T.home ~featured () >>= Html5.send
+      | Some x ->
+        let module W = (val SMap.find x !election_table : WEB_ELECTION) in
         Redirection.send W.S.home
     )
 

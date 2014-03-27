@@ -251,16 +251,20 @@ module type SITE_SERVICES = sig
   include AUTH_SERVICES
 end
 
+type election_files = {
+  f_election : string;
+  f_metadata : string;
+  f_public_keys : string;
+  f_public_creds : string;
+}
+
 module type SITE = sig
   include SITE_SERVICES
   include AUTH_HANDLERS_PUBLIC
-
-  val register_election :
-    (module ELECTION_DATA) -> (module WEB_PARAMS) ->
-    (module WEB_ELECTION) Lwt.t
-
-  val set_main_election : (module WEB_ELECTION) -> unit
-  val unset_main_election : unit -> unit
+  val import_election :
+    featured:bool -> election_files -> (module WEB_ELECTION) option Lwt.t
+  val set_main_election : string -> unit Lwt.t
+  val unset_main_election : unit -> unit Lwt.t
   val cont : (unit -> service_handler) Eliom_reference.eref
 end
 
