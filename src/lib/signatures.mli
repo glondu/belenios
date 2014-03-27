@@ -144,7 +144,7 @@ module type MONADIC_MAP_RO = sig
   (** Return the number of bindings. *)
 end
 
-(** Parameters for an election. *)
+(** Election data needed for cryptographic operations. *)
 type 'a election = {
   e_params : 'a params;
   (** Parameters of the election. *)
