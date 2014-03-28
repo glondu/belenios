@@ -14,6 +14,7 @@ mkdir -p \
   $BELENIOS_RUNDIR/log \
   $BELENIOS_RUNDIR/lib \
   $BELENIOS_RUNDIR/upload \
+  $BELENIOS_RUNDIR/spool \
   $BELENIOS_TMPDIR/run
 
 sed \

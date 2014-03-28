@@ -31,6 +31,7 @@ module type CONFIG = sig
   val name : string
   val path : string list
   val source_file : string
+  val spool_dir : string
   val auth_config : auth_config list
 end
 
@@ -180,16 +181,28 @@ module Make (C : CONFIG) : SITE = struct
     if exists then (
       return None
     ) else (
+      let ( / ) = Filename.concat in
+      let dir = C.spool_dir/uuid in
       lwt metadata =
         Lwt_io.chars_of_file f.f_metadata |>
         Lwt_stream.to_string >>=
         wrap1 metadata_of_string
       in
+      lwt () =
+        Lwt_unix.mkdir dir 0o700 >>
+        Lwt_io.(with_file Output (dir/"election.json") (fun oc ->
+          write_line oc raw_election
+        )) >>
+        Lwt_io.(with_file Output (dir/"public_keys.jsons") (fun oc ->
+          with_file Input f.f_public_keys (fun ic ->
+            read_chars ic |> write_chars oc
+          )
+        ))
+      in
       let module X = struct
         let metadata = metadata
         let featured = featured
-        let params_fname = f.f_election
-        let public_keys_fname = f.f_public_keys
+        let dir = dir
       end in
       let web_params = (module X : WEB_PARAMS) in
       Ocsipersist.add election_ptable uuid (raw_election, web_params) >>

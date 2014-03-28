@@ -37,6 +37,7 @@ let () = CalendarLib.Time_Zone.(change Local)
 
 (** Parse configuration from <eliom> *)
 
+let spool_dir = ref None
 let import_dirs = ref []
 let source_file = ref None
 let main_election_uuid = ref None
@@ -54,6 +55,8 @@ let () =
     source_file := Some file
   | Element ("import", ["dir", dir], []) ->
     import_dirs := dir :: !import_dirs
+  | Element ("spool", ["dir", dir], []) ->
+    spool_dir := Some dir
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->
     set_rewrite_prefix ~src ~dst
   | Element ("main-election", ["uuid", uuid], []) ->
@@ -107,12 +110,18 @@ lwt source_file =
     )
   | None -> failwith "missing <source> in configuration"
 
+let spool_dir =
+  match !spool_dir with
+  | Some d -> d
+  | None -> failwith "missing <spool> in configuration"
+
 (** Build up the site *)
 
 module Site_config = struct
   let name = "site"
   let path = []
   let source_file = source_file
+  let spool_dir = spool_dir
   let auth_config = !auth_instances
 end
 

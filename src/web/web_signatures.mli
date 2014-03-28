@@ -229,8 +229,7 @@ end
 module type WEB_PARAMS = sig
   val metadata : metadata
   val featured : bool
-  val params_fname : string
-  val public_keys_fname : string
+  val dir : string
 end
 
 module type WEB_ELECTION_RO = sig

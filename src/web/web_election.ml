@@ -309,11 +309,13 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
            )
         )
 
+      let ( / ) = Filename.concat
+
       let f_raw user () =
-        return W.params_fname
+        return @@ W.dir/"election.json"
 
       let f_keys user () =
-        return W.public_keys_fname
+        return @@ W.dir/"public_keys.jsons"
 
       let f_creds user () =
         lwt creds = W.B.extract_creds () in
