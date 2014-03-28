@@ -156,12 +156,6 @@ module Make (C : CONFIG) : SITE = struct
     let module X : EMPTY = R.Register (S) (T) in
     let election = (module W : WEB_ELECTION) in
     election_table := SMap.add uuid election !election_table;
-    lwt () =
-      if W.featured then (
-        lwt the_featured = Ocsipersist.get featured in
-        Ocsipersist.set featured (uuid :: the_featured)
-      ) else return ()
-    in
     return election
 
   let () = import_election_ref := fun featured f ->
@@ -201,6 +195,10 @@ module Make (C : CONFIG) : SITE = struct
       Ocsipersist.add election_ptable uuid (raw_election, web_params) >>
       lwt election = register_election params web_params in
       let module W = (val election : WEB_ELECTION) in
+      lwt () =
+        if W.featured then S.add_featured_election uuid
+        else return ()
+      in
       begin try_lwt
         let () =
           Ocsigen_messages.debug (fun () ->
