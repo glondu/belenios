@@ -265,6 +265,8 @@ module type SITE = sig
     featured:bool -> election_files -> (module WEB_ELECTION) option Lwt.t
   val set_main_election : string -> unit Lwt.t
   val unset_main_election : unit -> unit Lwt.t
+  val add_featured_election : string -> unit Lwt.t
+  val remove_featured_election : string -> unit Lwt.t
   val cont : (unit -> service_handler) Eliom_reference.eref
 end
 

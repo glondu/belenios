@@ -34,6 +34,10 @@ module type CONFIG = sig
   val auth_config : auth_config list
 end
 
+let rec list_remove x = function
+  | [] -> []
+  | y :: ys -> if x = y then ys else y :: (list_remove x ys)
+
 let get_single_line x =
   match_lwt Lwt_stream.get x with
   | None -> return None
@@ -104,6 +108,20 @@ module Make (C : CONFIG) : SITE = struct
       (fun () () -> Eliom_registration.Redirection.send home)
 
     let import_election ~featured f = !import_election_ref featured f
+
+    let add_featured_election x =
+      lwt the_featured = Ocsipersist.get featured in
+      if List.mem x the_featured then (
+        return ()
+      ) else if SMap.mem x !election_table then (
+        Ocsipersist.set featured (x :: the_featured)
+      ) else (
+        Lwt.fail Not_found
+      )
+
+    let remove_featured_election x =
+      lwt the_featured = Ocsipersist.get featured in
+      Ocsipersist.set featured (list_remove x the_featured)
 
     let set_main_election x =
       if SMap.mem x !election_table then (
