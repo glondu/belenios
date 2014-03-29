@@ -229,6 +229,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
           ~get_params:unit
           ()
 
+        let admin = service
+          ~path:(make_path ["admin"])
+          ~get_params:unit
+          ()
+
         let election_dir = service
           ~path:root
           ~priority:(-1)
@@ -307,6 +312,13 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
                T.cast_confirmed ~result ()
              | None -> T.home ()
            )
+        )
+
+      let () = Html5.register ~service:W.S.admin
+        (fun () () ->
+          match_lwt S.get_user () with
+          | Some u when W.metadata.e_owner = Some u -> T.admin ()
+          | _ -> forbidden ()
         )
 
       let ( / ) = Filename.concat

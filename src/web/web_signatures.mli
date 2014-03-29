@@ -64,6 +64,15 @@ module type CORE_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
+  val admin :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
   val source_code :
     (unit, unit,
      [> `Attached of
@@ -88,6 +97,15 @@ module type ELECTION_SERVICES = sig
   include AUTH_SERVICES
 
   val home :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val admin :
     (unit, unit,
      [> `Attached of
           ([> `Internal of [> `Service ] ], [> `Get ])
@@ -204,6 +222,9 @@ module type ELECTION_TEMPLATES = sig
   val home :
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
+  val admin :
+    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
   val update_credential :
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
@@ -300,6 +321,10 @@ module type TEMPLATES = sig
 
   val home :
     featured:(module WEB_ELECTION_RO) list ->
+    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val admin :
+    elections:(module WEB_ELECTION_RO) list ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES

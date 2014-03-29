@@ -96,16 +96,23 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         div ~a:[a_id "footer"; a_style "text-align: center;" ] [
           pcdata "Powered by ";
           a ~service:S.source_code [pcdata "Belenios"] ();
+          pcdata ". ";
+          a ~service:S.admin [pcdata "Administer elections"] ();
           pcdata ".";
         ]
        ]))
 
-  let format_one_featured_election election =
+  let format_election kind election =
     let module W = (val election : WEB_ELECTION_RO) in
     let e = W.election.e_params in
+    let service =
+      match kind with
+      | `Home -> W.S.home
+      | `Admin -> W.S.admin
+    in
     li [
       h3 [
-        a ~service:W.S.home [pcdata e.e_name] ();
+        a ~service [pcdata e.e_name] ();
       ];
       p [pcdata e.e_description];
     ]
@@ -115,7 +122,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       | _::_ ->
         div [
           h2 [pcdata "Current featured elections"];
-          ul (List.map format_one_featured_election featured);
+          ul (List.map (format_election `Home) featured);
         ]
       | [] ->
         div [
@@ -129,8 +136,25 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         featured_box;
       ];
     ] in
-    lwt login_box = site_login_box () in
+    let login_box = pcdata "" in
     base ~title:site_title ~login_box ~content
+
+  let admin ~elections () =
+    let title = site_title ^ " — Administration" in
+    let elections =
+      match elections with
+      | [] -> p [pcdata "You cannot administer any elections!"]
+      | _ -> ul @@ List.map (format_election `Admin) elections
+    in
+    let content = [
+      h1 [pcdata title];
+      div [
+        h2 [pcdata "Elections you can administer"];
+        elections;
+      ];
+    ] in
+    lwt login_box = site_login_box () in
+    base ~title ~login_box ~content
 
   module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES = struct
 
@@ -336,6 +360,22 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       ] in
       lwt login_box = election_login_box () in
       base ~title:params.e_name ~login_box ~content
+
+    let admin () =
+      let title = W.election.e_params.e_name ^ " — Administration" in
+      let content = [
+        h1 [pcdata title];
+        div [
+          let service = W.S.home in
+          a ~service [pcdata "Election home"] ();
+        ];
+        div [
+          let service = W.S.election_update_credential in
+          a ~service [pcdata "Update a credential"] ();
+        ];
+      ] in
+      lwt login_box = site_login_box () in
+      base ~title ~login_box ~content
 
     let update_credential () =
       let params = W.election.e_params in

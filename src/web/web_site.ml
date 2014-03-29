@@ -95,6 +95,11 @@ module Make (C : CONFIG) : SITE = struct
       ~get_params:unit
       ()
 
+    let admin = service
+      ~path:(make_path ["admin"])
+      ~get_params:unit
+      ()
+
     let source_code = service
       ~path:(make_path ["belenios.tar.gz"])
       ~get_params:unit
@@ -256,6 +261,26 @@ module Make (C : CONFIG) : SITE = struct
       | Some x ->
         let module W = (val SMap.find x !election_table : WEB_ELECTION) in
         Redirection.send W.S.home
+    )
+
+  let () = Html5.register ~service:admin
+    (fun () () ->
+      let cont () () = Redirection.send admin in
+      Eliom_reference.set S.cont cont >>
+      lwt elections =
+        match_lwt get_user () with
+        | None -> return []
+        | Some u ->
+          SMap.fold (fun _ w accu ->
+            let module W = (val w : WEB_ELECTION) in
+            if W.metadata.e_owner = Some u then (
+              (module W : WEB_ELECTION_RO) :: accu
+            ) else (
+              accu
+            )
+          ) !election_table [] |> List.rev |> return
+      in
+      T.admin ~elections ()
     )
 
   let () = File.register
