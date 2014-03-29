@@ -38,7 +38,6 @@
         <auth name="demo"><dummy/></auth>
         <auth name="local"><password db="demo/password_db.csv"/></auth>
         <source file="../belenios.tar.gz"/>
-        <main-election uuid="6d122f00-2650-4de8-87de-30037a21f943"/>
         <log file="_RUNDIR_/log/security.log"/>
         <import dir="demo/data"/>
         <spool dir="_RUNDIR_/spool"/>
