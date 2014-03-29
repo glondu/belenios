@@ -1,1 +1,1 @@
-{"readers":"Any","voters":"Any","auth_config":[{"auth_system":"dummy","auth_instance":"demo","auth_config":[]}]}
+{"owner":{"domain":"demo","name":"admin"},"readers":"Any","voters":"Any","auth_config":[{"auth_system":"dummy","auth_instance":"demo","auth_config":[]}]}
