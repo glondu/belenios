@@ -131,12 +131,17 @@ lwt () =
   Lwt_list.iter_s (fun dir ->
     read_election_dir dir >>=
     Lwt_list.iter_s (fun (f, featured) ->
-      match_lwt Site.import_election ~featured f with
+      match_lwt Site.import_election f with
       | None ->
         Ocsigen_messages.debug (fun () ->
           Printf.sprintf "Ignored: %s" f.f_election
         ); return ()
-      | Some _ -> return ()
+      | Some w ->
+        if featured then (
+          let module W = (val w : WEB_ELECTION) in
+          let uuid = Uuidm.to_string W.election.e_params.e_uuid in
+          Site.add_featured_election uuid
+        ) else return ()
     )
   ) !import_dirs
 

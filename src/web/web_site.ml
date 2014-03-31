@@ -118,7 +118,7 @@ module Make (C : CONFIG) : SITE = struct
     let cont = Eliom_reference.eref ~scope
       (fun () () -> Eliom_registration.Redirection.send home)
 
-    let import_election ~featured f = !import_election_ref featured f
+    let import_election f = !import_election_ref f
 
     let add_featured_election x =
       lwt the_featured = Ocsipersist.get featured in
@@ -169,7 +169,7 @@ module Make (C : CONFIG) : SITE = struct
     election_table := SMap.add uuid election !election_table;
     return election
 
-  let () = import_election_ref := fun featured f ->
+  let () = import_election_ref := fun f ->
     lwt raw_election =
       Lwt_io.lines_of_file f.f_election |>
       get_single_line >>=
@@ -211,17 +211,12 @@ module Make (C : CONFIG) : SITE = struct
       in
       let module X = struct
         let metadata = metadata
-        let featured = featured
         let dir = dir
       end in
       let web_params = (module X : WEB_PARAMS) in
       Ocsipersist.add election_ptable uuid (raw_election, web_params) >>
       lwt election = register_election params web_params in
       let module W = (val election : WEB_ELECTION) in
-      lwt () =
-        if W.featured then S.add_featured_election uuid
-        else return ()
-      in
       begin try_lwt
         let () =
           Ocsigen_messages.debug (fun () ->

@@ -249,7 +249,6 @@ end
 
 module type WEB_PARAMS = sig
   val metadata : metadata
-  val featured : bool
   val dir : string
 end
 
@@ -282,7 +281,7 @@ module type SITE = sig
   include SITE_SERVICES
   include AUTH_HANDLERS_PUBLIC
   val import_election :
-    featured:bool -> election_files -> (module WEB_ELECTION) option Lwt.t
+    election_files -> (module WEB_ELECTION) option Lwt.t
   val set_main_election : string -> unit Lwt.t
   val unset_main_election : unit -> unit Lwt.t
   val add_featured_election : string -> unit Lwt.t
