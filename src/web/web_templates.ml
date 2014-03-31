@@ -216,6 +216,26 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       lwt login_box = login_box () in
       base ~title:"Password login" ~login_box ~content
 
+    let upload_password_db ~service () =
+      let title = "Upload password database" in
+      let form = post_form ~service
+        (fun password_db ->
+          [
+            div [
+              pcdata "Password database (CSV format): ";
+              file_input ~name:password_db ();
+            ];
+            div [string_input ~input_type:`Submit ~value:"Submit" ()];
+          ]
+        ) ()
+      in
+      let content = [
+        h1 [pcdata title];
+        div [form];
+      ] in
+      lwt login_box = site_login_box () in
+      base ~title ~login_box ~content
+
     let choose () =
       let auth_systems =
         S.get_auth_systems () |>

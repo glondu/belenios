@@ -312,6 +312,15 @@ module type LOGIN_TEMPLATES = sig
             Eliom_service.service ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
+  val upload_password_db :
+    service:(unit, 'a, [< Eliom_service.post_service_kind ],
+             [< Eliom_service.suff ], 'b,
+             [< Eliom_lib.file_info Eliom_parameter.setoneradio ]
+             Eliom_parameter.param_name,
+             [< Eliom_service.registrable ], 'c)
+            Eliom_service.service ->
+    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
   val choose :
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
