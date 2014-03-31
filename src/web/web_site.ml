@@ -55,6 +55,11 @@ module Make (C : CONFIG) : SITE = struct
   open Eliom_service
   open Eliom_registration
 
+  module C = struct
+    include C
+    let kind = `Site
+  end
+
   let make_path x = C.path @ x
 
   module Auth = Web_auth.Make (C)

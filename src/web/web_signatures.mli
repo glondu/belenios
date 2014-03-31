@@ -335,6 +335,7 @@ end
 module type NAME = sig
   val name : string
   val path : string list
+  val kind : [ `Site | `Election of string ]
 end
 
 module type AUTH_SERVICE =

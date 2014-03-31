@@ -49,6 +49,7 @@ type logged_user = {
 
 module type CONFIG = sig
   include NAME
+  val kind : [ `Site | `Election of string ]
   val auth_config : auth_config list
 end
 
@@ -159,6 +160,7 @@ module Make (N : CONFIG) = struct
         let module N = struct
           let name = instance
           let path = N.path @ ["auth"; instance]
+          let kind = N.kind
         end in
         let module A = (val auth : AUTH_SERVICE) (N) (T) in
         let i = (module A : AUTH_HANDLERS) in

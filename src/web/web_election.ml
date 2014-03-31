@@ -57,6 +57,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
     module N = struct
       let name = uuid
       let path = base_path
+      let kind = `Election P.dir
 
       let auth_config =
         match P.metadata.e_auth_config with
