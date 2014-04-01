@@ -318,7 +318,27 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
       let () = Html5.register ~service:W.S.admin
         (fun () () ->
           match_lwt S.get_user () with
-          | Some u when W.metadata.e_owner = Some u -> T.admin ()
+          | Some u when W.metadata.e_owner = Some u ->
+            let post_params = Eliom_parameter.(
+              bool "featured"
+            ) in
+            let set_featured = Eliom_service.post_coservice
+              ~csrf_safe:true
+              ~csrf_scope:scope
+              ~fallback:W.S.admin
+              ~post_params
+              ()
+            in
+            let () = Any.register ~scope ~service:set_featured
+              (fun () featured ->
+                lwt () = if featured then (
+                  S.add_featured_election uuid
+                ) else (
+                  S.remove_featured_election uuid
+                ) in Redirection.send W.S.admin
+              )
+            in
+            T.admin ~set_featured ()
           | _ -> forbidden ()
         )
 

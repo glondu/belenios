@@ -223,6 +223,11 @@ module type ELECTION_TEMPLATES = sig
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val admin :
+    set_featured:(unit, 'a, [< Eliom_service.post_service_kind ],
+                  [< Eliom_service.suff ], 'b,
+                  [ `One of bool ] Eliom_parameter.param_name,
+                  [< Eliom_service.registrable ], 'c)
+                 Eliom_service.service ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val update_credential :

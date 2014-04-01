@@ -381,8 +381,14 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       lwt login_box = election_login_box () in
       base ~title:params.e_name ~login_box ~content
 
-    let admin () =
+    let admin ~set_featured () =
       let title = W.election.e_params.e_name ^ " — Administration" in
+      let feature_form = post_form ~service:set_featured
+        (fun featured -> [
+          bool_checkbox ~name:featured ();
+          string_input ~input_type:`Submit ~value:"(Un)feature" ();
+        ]) ()
+      in
       let content = [
         h1 [pcdata title];
         div [
@@ -393,6 +399,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
           let service = W.S.election_update_credential in
           a ~service [pcdata "Update a credential"] ();
         ];
+        div [feature_form];
       ] in
       lwt login_box = site_login_box () in
       base ~title ~login_box ~content
