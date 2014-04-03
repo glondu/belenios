@@ -196,5 +196,4 @@ let save_to filename writer x =
   Bi_outbuf.flush_channel_writer ob;
   close_out oc;;
 
-module SSet = Set.Make(String)
 module SMap = Map.Make(String)

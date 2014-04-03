@@ -129,3 +129,29 @@ let read_int_or_null state buf =
 
 let int_or_null_of_string s =
   int_or_null_of_json (Yojson.Safe.from_string s)
+
+(** {1 Serializers for type string_set} *)
+
+let write_string_set buf set =
+  `List (SSet.elements set |> List.map (fun x -> `String x)) |>
+  Yojson.Safe.to_outbuf buf
+
+let string_of_string_set ?(len=100) set =
+  let buf = Bi_outbuf.create len in
+  write_string_set buf set;
+  Bi_outbuf.contents buf
+
+let string_set_of_json = function
+  | `List xs ->
+    List.fold_left (fun accu x ->
+      match x with
+      | `String y -> SSet.add y accu
+      | _ -> assert false
+    ) SSet.empty xs
+  | _ -> assert false
+
+let read_string_set state buf =
+  Yojson.Safe.from_lexbuf ~stream:true state buf |> string_set_of_json
+
+let string_set_of_string s =
+  Yojson.Safe.from_string s |> string_set_of_json

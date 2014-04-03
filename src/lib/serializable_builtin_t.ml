@@ -19,48 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val ( |> ) : 'a -> ('a -> 'b) -> 'b
-val ( =% ) : Z.t -> Z.t -> bool
+type number = Z.t
+type uuid = Uuidm.t
+type datetime = CalendarLib.Fcalendar.Precise.t * string option
+type int_or_null = int option
 
-module Array : sig
-  include module type of Array
-  val forall : ('a -> bool) -> 'a array -> bool
-  val forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
-  val fforall : ('a -> bool) -> 'a array array -> bool
-  val fforall2 : ('a -> 'b -> bool) ->
-    'a array array -> 'b array array -> bool
-  val fforall3 : ('a -> 'b -> 'c -> bool) ->
-    'a array array -> 'b array array -> 'c array array -> bool
-  val map2 : ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
-  val map3 : ('a -> 'b -> 'c -> 'd) ->
-    'a array -> 'b array -> 'c array -> 'd array
-  val mmap : ('a -> 'b) -> 'a array array -> 'b array array
-  val mmap2 : ('a -> 'b -> 'c) ->
-    'a array array -> 'b array array -> 'c array array
-  val mmap3 : ('a -> 'b -> 'c -> 'd) ->
-    'a array array -> 'b array array -> 'c array array -> 'd array array
-  val ssplit : ('a * 'b) array array -> 'a array array * 'b array array
-end
+module SSet = Set.Make(String)
 
-module String : sig
-  include module type of String
-  val map : (char -> char) -> string -> string
-  val startswith : string -> string -> bool
-end
-
-val list_join : 'a -> 'a list -> 'a list
-
-val sha256_hex : string -> string
-val sha256_b64 : string -> string
-
-val option_map : ('a -> 'b) -> 'a option -> 'b option
-
-val pbkdf2 :
-  prf:(string -> Cryptokit.hash) ->
-  salt:string ->
-  iterations:int -> size:int ->
-  string -> string
-
-val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
-
-module SMap : Map.S with type key = string
+type string_set = SSet.t
