@@ -149,6 +149,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
     let content = [
       h1 [pcdata title];
       div [
+        a ~service:S.new_election [pcdata "Create a new election"] ();
         h2 [pcdata "Elections you can administer"];
         elections;
       ];
@@ -263,6 +264,58 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       "<button onclick=\"location.href='%s';\">%s</button>"
       uri
       contents
+
+  let new_election () =
+    let title = "Create new election" in
+    lwt body =
+      let form = post_form ~service:S.new_election_post
+        (fun (election, (metadata, (public_keys, public_creds))) ->
+          [
+            div [
+              pcdata "Public election parameters: ";
+              file_input ~name:election ();
+            ];
+            div [
+              pcdata "Optional metadata: ";
+              file_input ~name:metadata ()
+            ];
+            div [
+              pcdata "Trustee public keys: ";
+              file_input ~name:public_keys ()
+            ];
+            div [
+              pcdata "Public credentials: ";
+              file_input ~name:public_creds ()
+            ];
+            div [string_input ~input_type:`Submit ~value:"Submit" ()];
+          ]
+        ) ()
+      in return [form]
+    in
+    let content = [
+      h1 [pcdata title];
+      div body;
+    ] in
+    lwt login_box = site_login_box () in
+    base ~title ~login_box ~content
+
+  let new_election_failure reason () =
+    let title = "Create new election" in
+    let reason =
+      match reason with
+      | `Exists -> pcdata "An election with the same UUID already exists."
+      | `Exception e -> pcdata @@ Printexc.to_string e
+    in
+    let content = [
+      h1 [pcdata title];
+      div [
+        p [pcdata "The creation failed."];
+        p [reason];
+        p [a ~service:S.new_election [pcdata "Try again"] ()];
+      ]
+    ] in
+    lwt login_box = site_login_box () in
+    base ~title ~login_box ~content
 
   module Election (W : WEB_ELECTION_RO) = struct
 

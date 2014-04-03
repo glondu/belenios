@@ -91,6 +91,31 @@ module type CORE_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
+  val new_election :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val new_election_post :
+    (unit,
+     Eliom_lib.file_info *
+     (Eliom_lib.file_info *
+      (Eliom_lib.file_info * Eliom_lib.file_info)),
+     [> `Attached of
+          ([> `Internal of [ `Coservice | `Service ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit,
+     [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
+     ([ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
+      ([ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
+       [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name)),
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
 end
 
 module type ELECTION_SERVICES = sig
@@ -343,6 +368,13 @@ module type TEMPLATES = sig
 
   val admin :
     elections:(module WEB_ELECTION_RO) list ->
+    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val new_election :
+    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val new_election_failure :
+    [ `Exists | `Exception of exn ] ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES

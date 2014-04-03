@@ -116,6 +116,18 @@ module Make (C : CONFIG) : SITE = struct
       ~get_params:unit
       ()
 
+    let new_election = service
+      ~path:(make_path ["new-election"])
+      ~get_params:unit
+      ()
+
+    let new_election_post = post_service
+      ~fallback:new_election
+      ~post_params:(
+        file "election" ** file "metadata"
+        ** file "public_keys" ** file "public_creds"
+      ) ()
+
     let cont = Eliom_reference.eref ~scope
       (fun () () -> Eliom_registration.Redirection.send home)
 
@@ -348,6 +360,40 @@ module Make (C : CONFIG) : SITE = struct
       Cryptokit.(transform_string (Base64.encode_compact ()) r) |>
       (fun x -> string_of_randomness { randomness=x }) |>
       (fun x -> return (x, "application/json"))
+    )
+
+  let () = Html5.register ~service:new_election
+    (fun () () ->
+      match_lwt S.get_user () with
+      | None -> forbidden ()
+      | Some _ -> T.new_election ()
+    )
+
+  let () = Any.register ~service:new_election_post
+    (fun () (election, (metadata, (public_keys, public_creds))) ->
+      match_lwt S.get_user () with
+      | Some u ->
+        let open Ocsigen_extensions in
+        let files = {
+          f_election = election.tmp_filename;
+          f_metadata = metadata.tmp_filename;
+          f_public_keys = public_keys.tmp_filename;
+          f_public_creds = public_creds.tmp_filename;
+        } in
+        begin try_lwt
+          begin match_lwt S.import_election files with
+          | None ->
+            T.new_election_failure `Exists () >>= Html5.send
+          | Some w ->
+            let module W = (val w : REGISTRABLE_ELECTION) in
+            lwt w = W.register () in
+            let module W = (val w : WEB_ELECTION) in
+            W.S.admin |> Redirection.send
+          end
+        with e ->
+          T.new_election_failure (`Exception e) () >>= Html5.send
+        end
+      | None -> forbidden ()
     )
 
 end
