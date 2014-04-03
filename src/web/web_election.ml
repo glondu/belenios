@@ -368,7 +368,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
         return (s, "application/json")
 
       let f_records user () =
-        match user with
+        match_lwt S.get_user () with
         | Some u ->
           if W.metadata.e_owner = Some u then (
             (* TODO: streaming *)
