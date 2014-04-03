@@ -399,6 +399,10 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
           let service = W.S.election_update_credential in
           a ~service [pcdata "Update a credential"] ();
         ];
+        div [
+          let service = W.S.election_dir in
+          a ~service [pcdata "Voting records"] ESRecords;
+        ];
         div [feature_form];
       ] in
       lwt login_box = site_login_box () in
