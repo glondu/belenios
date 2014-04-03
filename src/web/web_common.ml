@@ -22,6 +22,7 @@
 open Lwt
 open Signatures
 open Common
+open Serializable_builtin_t
 open Serializable_builtin_j
 open Serializable_t
 open Web_serializable_t
@@ -159,8 +160,11 @@ let check_acl a u =
   | Some (`Many items) ->
     let rec loop = function
       | [] -> false
-      | `Domain x :: _ when x = u.user_domain -> true
-      | `User x :: _ when x = u -> true
+      | item :: _ when item.acl_domain = u.user_domain ->
+        (match item.acl_users with
+        | `Any -> true
+        | `Many users -> SSet.mem u.user_name users
+        )
       | _ :: xs -> loop xs
     in loop items
   | _ -> false
