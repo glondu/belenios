@@ -30,4 +30,13 @@ module type REGISTRATION = sig
   module Register (S : SITE) (T : TEMPLATES) : EMPTY
 end
 
-module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION
+module type REGISTRABLE = sig
+  module W : sig
+    include ELECTION_DATA
+    include WEB_PARAMS
+    module E : ELECTION with type elt = G.t
+  end
+  module Register (X : EMPTY) : REGISTRATION
+end
+
+module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE

@@ -51,7 +51,25 @@ module type REGISTRATION = sig
   module Register (S : SITE) (T : TEMPLATES) : EMPTY
 end
 
-module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
+module type REGISTRABLE = sig
+  module W : sig
+    include ELECTION_DATA
+    include WEB_PARAMS
+    module E : ELECTION with type elt = G.t
+  end
+  module Register (X : EMPTY) : REGISTRATION
+end
+
+module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
+
+  module W = struct
+    include D
+    include P
+    module M = MakeLwtRandom(struct let rng = make_rng () end)
+    module E = Election.MakeElection(G)(M)
+  end
+
+  module Register (X : EMPTY) : REGISTRATION = struct
 
     let uuid = Uuidm.to_string D.election.e_params.e_uuid
     let base_path = ["elections"; uuid]
@@ -69,11 +87,9 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
 
     module Auth = Web_auth.Make (N)
 
-    module W : WEB_ELECTION = struct
-      include D
-      include P
-      module M = MakeLwtRandom(struct let rng = make_rng () end)
-      module E = Election.MakeElection(G)(M)
+    module W = struct
+      include W
+
       module H = Auth.Handlers
 
       module B : WEB_BALLOT_BOX = struct
@@ -524,5 +540,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
         )
 
     end
+
+  end
 
 end

@@ -282,11 +282,16 @@ type election_files = {
   f_public_creds : string;
 }
 
+module type REGISTRABLE_ELECTION = sig
+  val discard : unit -> unit
+  val register : unit -> (module WEB_ELECTION) Lwt.t
+end
+
 module type SITE = sig
   include SITE_SERVICES
   include AUTH_HANDLERS_PUBLIC
   val import_election :
-    election_files -> (module WEB_ELECTION) option Lwt.t
+    election_files -> (module REGISTRABLE_ELECTION) option Lwt.t
   val set_main_election : string -> unit Lwt.t
   val unset_main_election : unit -> unit Lwt.t
   val add_featured_election : string -> unit Lwt.t

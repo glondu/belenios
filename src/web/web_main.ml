@@ -138,6 +138,8 @@ lwt () =
         ); return ()
       | Some w ->
         if featured then (
+          let module W = (val w : REGISTRABLE_ELECTION) in
+          lwt w = W.register () in
           let module W = (val w : WEB_ELECTION) in
           let uuid = Uuidm.to_string W.election.e_params.e_uuid in
           Site.add_featured_election uuid

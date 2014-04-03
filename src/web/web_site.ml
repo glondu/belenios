@@ -163,79 +163,97 @@ module Make (C : CONFIG) : SITE = struct
     end in
     let module P = (val web_params : WEB_PARAMS) in
     let module R = Web_election.Make (D) (P) in
-    let module W = R.W in
-    let module X : EMPTY = R.Register (S) (T) in
-    let election = (module W : WEB_ELECTION) in
-    election_table := SMap.add uuid election !election_table;
-    return election
+    fun () ->
+      (* starting from here, we do side-effects on the running server *)
+      let module R = R.Register (struct end) in
+      let module W = R.W in
+      let module X : EMPTY = R.Register (S) (T) in
+      let election = (module W : WEB_ELECTION) in
+      election_table := SMap.add uuid election !election_table;
+      election
+
+  (* Mutex to avoid simultaneous registrations of the same election *)
+  let registration_mutex = Lwt_mutex.create ()
 
   let () = import_election_ref := fun f ->
-    lwt raw_election =
-      Lwt_io.lines_of_file f.f_election |>
-      get_single_line >>=
-      (function
-      | Some e -> return e
-      | None -> Printf.ksprintf
-        failwith "%s must contain a single line" f.f_election
-      )
-    in
-    let params = Group.election_params_of_string raw_election in
-    let module P = (val params : ELECTION_PARAMS) in
-    let uuid = Uuidm.to_string P.params.e_uuid in
-    lwt exists =
-      try_lwt
-        lwt _ = Ocsipersist.find election_ptable uuid in
-        return true
-      with Not_found -> return false
-    in
-    if exists then (
-      return None
-    ) else (
-      let ( / ) = Filename.concat in
-      let dir = C.spool_dir/uuid in
-      lwt metadata =
-        Lwt_io.chars_of_file f.f_metadata |>
-        Lwt_stream.to_string >>=
-        wrap1 metadata_of_string
+    Lwt_mutex.lock registration_mutex >>
+    try_lwt
+      lwt raw_election =
+        Lwt_io.lines_of_file f.f_election |>
+        get_single_line >>=
+        (function
+        | Some e -> return e
+        | None -> Printf.ksprintf
+          failwith "%s must contain a single line" f.f_election
+        )
       in
-      lwt () =
-        Lwt_unix.mkdir dir 0o700 >>
-        Lwt_io.(with_file Output (dir/"election.json") (fun oc ->
-          write_line oc raw_election
-        )) >>
-        Lwt_io.(with_file Output (dir/"public_keys.jsons") (fun oc ->
-          with_file Input f.f_public_keys (fun ic ->
-            read_chars ic |> write_chars oc
-          )
-        ))
+      let params = Group.election_params_of_string raw_election in
+      let module P = (val params : ELECTION_PARAMS) in
+      let uuid = Uuidm.to_string P.params.e_uuid in
+      lwt exists =
+        try_lwt
+          lwt _ = Ocsipersist.find election_ptable uuid in
+          return true
+        with Not_found -> return false
       in
-      let module X = struct
-        let metadata = metadata
-        let dir = dir
-      end in
-      let web_params = (module X : WEB_PARAMS) in
-      Ocsipersist.add election_ptable uuid (raw_election, web_params) >>
-      lwt election = register_election params web_params in
-      let module W = (val election : WEB_ELECTION) in
-      begin try_lwt
-        let () =
-          Ocsigen_messages.debug (fun () ->
-            Printf.sprintf "Injecting credentials for %s" uuid
-          )
+      if exists then (
+        return None
+      ) else (
+        let ( / ) = Filename.concat in
+        let dir = C.spool_dir/uuid in
+        lwt metadata =
+          Lwt_io.chars_of_file f.f_metadata |>
+          Lwt_stream.to_string >>=
+          wrap1 metadata_of_string
         in
-        Lwt_io.lines_of_file f.f_public_creds |>
-        Lwt_stream.iter_s W.B.inject_cred >>
-        W.B.update_files ()
-      with Not_found ->
-        return ()
-      end >>
-      return (Some election)
-    )
+        let module X = struct
+          let metadata = metadata
+          let dir = dir
+        end in
+        let web_params = (module X : WEB_PARAMS) in
+        let do_register = register_election params web_params in
+        let public_keys = Lwt_io.lines_of_file f.f_public_keys in
+        let module R = struct
+          let discard () = Lwt_mutex.unlock registration_mutex
+          let register () =
+            if not (Lwt_mutex.is_locked registration_mutex) then
+              failwith "This election can no longer be registered.";
+            try_lwt
+              Lwt_unix.mkdir dir 0o700 >>
+              Lwt_io.(with_file Output (dir/"election.json") (fun oc ->
+                write_line oc raw_election
+              )) >>
+              Lwt_io.(with_file Output (dir/"public_keys.jsons") (fun oc ->
+                write_lines oc public_keys
+              )) >>
+              let election = do_register () in
+              let module W = (val election : WEB_ELECTION) in
+              let () =
+                Ocsigen_messages.debug (fun () ->
+                  Printf.sprintf "Injecting credentials for %s" uuid
+                )
+              in
+              Lwt_io.lines_of_file f.f_public_creds |>
+              Lwt_stream.iter_s W.B.inject_cred >>
+              W.B.update_files () >>
+              Ocsipersist.add election_ptable uuid (raw_election, web_params) >>
+              let () = Lwt_mutex.unlock registration_mutex in
+              return election
+            with e ->
+              Lwt_mutex.unlock registration_mutex;
+              Lwt.fail e
+        end in
+        (* until here, no side-effects on the running server *)
+        return @@ Some (module R : REGISTRABLE_ELECTION)
+      )
+    with e ->
+      Lwt_mutex.unlock registration_mutex;
+      Lwt.fail e
 
   lwt () =
     Ocsipersist.iter_step (fun uuid (raw_election, web_params) ->
       let params = Group.election_params_of_string raw_election in
-      lwt election = register_election params web_params in
+      let election = register_election params web_params () in
       let module W = (val election : WEB_ELECTION) in
       assert (uuid = Uuidm.to_string W.election.e_params.e_uuid);
       Ocsigen_messages.debug (fun () ->
