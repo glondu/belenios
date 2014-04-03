@@ -224,7 +224,8 @@ module Make (C : CONFIG) : SITE = struct
           )
         in
         Lwt_io.lines_of_file f.f_public_creds |>
-        Lwt_stream.iter_s W.B.inject_cred
+        Lwt_stream.iter_s W.B.inject_cred >>
+        W.B.update_files ()
       with Not_found ->
         return ()
       end >>

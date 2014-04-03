@@ -28,6 +28,8 @@ open Web_serializable_t
 open Web_signatures
 open Web_common
 
+let ( / ) = Filename.concat
+
 let can_read m user =
   match m.e_readers with
   | None -> false
@@ -100,11 +102,6 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
         end
 
         let cred_table = Ocsipersist.open_table ("creds" ^ suffix)
-
-        let extract_creds () =
-          Ocsipersist.fold_step (fun k v x ->
-            return (SSet.add k x)
-          ) cred_table SSet.empty
 
         let inject_cred cred =
           try_lwt
@@ -206,13 +203,53 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
             Ocsipersist.remove cred_table x >>
             Ocsipersist.add cred_table new_ None
 
+        let do_write f =
+          Lwt_io.(with_file ~mode:Output (dir / string_of_election_file f))
+
+        let do_write_ballots () =
+          do_write ESBallots (fun oc ->
+            Ocsipersist.iter_step (fun _ x ->
+              Lwt_io.write_line oc x
+            ) Ballots.table
+          )
+
+        let do_write_creds () =
+          do_write ESCreds (fun oc ->
+            Ocsipersist.iter_step (fun x _ ->
+              Lwt_io.write_line oc x
+            ) cred_table
+          )
+
+        let do_write_records () =
+          do_write ESRecords (fun oc ->
+            Ocsipersist.iter_step (fun u (d, _) ->
+              Printf.sprintf "%s %S\n" (string_of_datetime d) u |>
+              Lwt_io.write oc
+            ) Records.table
+          )
+
         let mutex = Lwt_mutex.create ()
 
         let cast rawballot (user, date) =
-          Lwt_mutex.with_lock mutex (fun () -> do_cast rawballot (user, date))
+          Lwt_mutex.with_lock mutex (fun () ->
+            lwt r = do_cast rawballot (user, date) in
+            do_write_ballots () >>
+            do_write_records () >>
+            return r
+          )
 
         let update_cred ~old ~new_ =
-          Lwt_mutex.with_lock mutex (fun () -> do_update_cred ~old ~new_)
+          Lwt_mutex.with_lock mutex (fun () ->
+            lwt r = do_update_cred ~old ~new_ in
+            do_write_creds () >> return r
+          )
+
+        let update_files () =
+          Lwt_mutex.with_lock mutex (fun () ->
+            do_write_ballots () >>
+            do_write_records () >>
+            do_write_creds ()
+          )
 
       end
 
@@ -342,65 +379,20 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRATION = struct
           | _ -> forbidden ()
         )
 
-      let ( / ) = Filename.concat
-
-      let f_raw user () =
-        return @@ W.dir/"election.json"
-
-      let f_keys user () =
-        return @@ W.dir/"public_keys.jsons"
-
-      let f_creds user () =
-        lwt creds = W.B.extract_creds () in
-        let s = SSet.fold (fun x accu ->
-          (fun () -> return (Ocsigen_stream.of_string (x^"\n"))) :: accu
-        ) creds [] in
-        return (List.rev s, "text/plain")
-
-      let f_ballots user () =
-        (* TODO: streaming *)
-        lwt ballots = W.B.Ballots.fold (fun _ x xs ->
-          return ((x^"\n")::xs)
-        ) [] in
-        let s = List.map (fun b () ->
-          return (Ocsigen_stream.of_string b)
-        ) ballots in
-        return (s, "application/json")
-
-      let f_records user () =
-        match_lwt S.get_user () with
-        | Some u ->
-          if W.metadata.e_owner = Some u then (
-            (* TODO: streaming *)
-            lwt ballots = W.B.Records.fold (fun u (d, _) xs ->
-              let x = Printf.sprintf "%s %S\n" (string_of_datetime d) u in
-              return (x::xs)
-            ) [] in
-            let s = List.map (fun b () ->
-              return (Ocsigen_stream.of_string b)
-            ) ballots in
-            return (s, "text/plain")
-          ) else (
-            forbidden ()
-          )
-        | _ -> forbidden ()
+      let content_type_of_file = function
+        | ESRaw | ESKeys | ESBallots -> "application/json"
+        | ESCreds | ESRecords -> "text/plain"
 
       let handle_pseudo_file u f =
-        let open Eliom_registration in
-        let file f =
-          if_eligible can_read f u () >>=
-          File.send ~content_type:"application/json"
-        and stream f =
-          if_eligible can_read f u () >>=
-          Streamlist.send >>=
-          (fun x -> return (cast_unknown_content_kind x))
+        lwt () =
+          if f = ESRecords then (
+            match_lwt S.get_user () with
+            | Some u when W.metadata.e_owner <> Some u -> forbidden ()
+            | _ -> return ()
+          ) else return ()
         in
-        match f with
-        | ESRaw -> file f_raw
-        | ESKeys -> file f_keys
-        | ESCreds -> stream f_creds
-        | ESBallots -> stream f_ballots
-        | ESRecords -> stream f_records
+        let content_type = content_type_of_file f in
+        File.send ~content_type (W.dir / string_of_election_file f)
 
       let () = Any.register
         ~service:W.S.election_dir
