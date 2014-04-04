@@ -226,6 +226,15 @@ module Make (C : CONFIG) : SITE = struct
           failwith "Public keys are invalid.";
         if not G.(R.W.election.e_params.e_public_key =~ KG.combine pks) then
           failwith "Public keys mismatch with election public key.";
+        let public_creds = Lwt_io.lines_of_file f.f_public_creds in
+        lwt () = Lwt_stream.(
+          clone public_creds |>
+          iter_s (fun x ->
+            if not G.(check @@ of_string x) then (
+              Lwt.fail @@ Failure "Public credentials are invalid."
+            ) else return ()
+          )
+        ) in
         let module R = struct
           let discard () = Lwt_mutex.unlock registration_mutex
           let register () =
@@ -246,7 +255,7 @@ module Make (C : CONFIG) : SITE = struct
                   Printf.sprintf "Injecting credentials for %s" uuid
                 )
               in
-              Lwt_io.lines_of_file f.f_public_creds |>
+              public_creds |>
               Lwt_stream.iter_s W.B.inject_cred >>
               W.B.update_files () >>
               Ocsipersist.add election_ptable uuid (raw_election, web_params) >>
