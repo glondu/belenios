@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Lwt
-open Serializable_t
+open Serializable_j
 open Signatures
 open Common
 open Web_serializable_j
@@ -63,6 +63,7 @@ module Make (C : CONFIG) : SITE = struct
   let make_path x = C.path @ x
 
   module Auth = Web_auth.Make (C)
+  module Random = MakeLwtRandom (struct let rng = make_rng () end)
 
   let store = Ocsipersist.open_store C.name
 
@@ -163,7 +164,7 @@ module Make (C : CONFIG) : SITE = struct
     end in
     let module P = (val web_params : WEB_PARAMS) in
     let module R = Web_election.Make (D) (P) in
-    fun () ->
+    (module R : Web_election.REGISTRABLE), fun () ->
       (* starting from here, we do side-effects on the running server *)
       let module R = R.Register (struct end) in
       let module W = R.W in
@@ -211,8 +212,20 @@ module Make (C : CONFIG) : SITE = struct
           let dir = dir
         end in
         let web_params = (module X : WEB_PARAMS) in
-        let do_register = register_election params web_params in
+        let r, do_register = register_election params web_params in
+        let module R = (val r : Web_election.REGISTRABLE) in
+        let module G = R.W.G in
+        let module KG = Election.MakeSimpleDistKeyGen (G) (Random) in
         let public_keys = Lwt_io.lines_of_file f.f_public_keys in
+        lwt pks = Lwt_stream.(
+          clone public_keys |>
+          map (trustee_public_key_of_string G.read) |>
+          to_list >>= wrap1 Array.of_list
+        ) in
+        if not (Array.forall KG.check pks) then
+          failwith "Public keys are invalid.";
+        if not G.(R.W.election.e_params.e_public_key =~ KG.combine pks) then
+          failwith "Public keys mismatch with election public key.";
         let module R = struct
           let discard () = Lwt_mutex.unlock registration_mutex
           let register () =
@@ -253,7 +266,8 @@ module Make (C : CONFIG) : SITE = struct
   lwt () =
     Ocsipersist.iter_step (fun uuid (raw_election, web_params) ->
       let params = Group.election_params_of_string raw_election in
-      let election = register_election params web_params () in
+      let _, do_register = register_election params web_params in
+      let election = do_register () in
       let module W = (val election : WEB_ELECTION) in
       assert (uuid = Uuidm.to_string W.election.e_params.e_uuid);
       Ocsigen_messages.debug (fun () ->
