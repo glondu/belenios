@@ -63,7 +63,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
   let service = Eliom_service.preapply login_cas None
 
   let self =
-    Eliom_uri.make_string_uri ~absolute:true ~service () |> rewrite_prefix
+    lazy (Eliom_uri.make_string_uri ~absolute:true ~service () |> rewrite_prefix)
 
   let login_cont = Eliom_reference.eref ~scope None
   let logout_cont = Eliom_reference.eref ~scope None
@@ -74,7 +74,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
       match ticket with
       | Some x ->
         let validation =
-          let service = Eliom_service.preapply cas_validate (self, x) in
+          let service = Eliom_service.preapply cas_validate (Lazy.force self, x) in
           Eliom_uri.make_string_uri ~absolute:true ~service ()
         in
         lwt reply = Ocsigen_http_client.get_url validation in
@@ -112,7 +112,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
               "user is trying to log in, redirecting to CAS [%s]"
               C.server
           ) in
-          Eliom_service.preapply cas_login (self, Some true) |>
+          Eliom_service.preapply cas_login (Lazy.force self, Some true) |>
           Eliom_registration.Redirection.send
         | Some cont ->
           Eliom_reference.unset logout_cont >>
@@ -128,7 +128,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
       Printf.sprintf "user logged out, redirecting to CAS [%s]" C.server
     ) >>
     lwt () = Eliom_reference.set logout_cont (Some cont) in
-    Eliom_service.preapply cas_logout self |>
+    Eliom_service.preapply cas_logout (Lazy.force self) |>
     Eliom_registration.Redirection.send
 
 end
