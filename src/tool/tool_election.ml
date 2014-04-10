@@ -26,6 +26,8 @@ open Common
 
 (* Helpers *)
 
+let ( / ) = Filename.concat
+
 let load_from_file of_string filename =
   if Sys.file_exists filename then (
     Printf.eprintf "Loading %s...\n%!" filename;
@@ -44,91 +46,12 @@ let load_from_file of_string filename =
 
 
 module type PARAMS = sig
+  val dir : string
   val sk_file : string option
   val do_finalize : bool
   val do_decrypt : bool
   val ballot_file : string option
   include ELECTION_PARAMS
-end
-
-
-let parse_args () = begin
-
-  (* Command-line arguments *)
-
-  let initial_dir = Sys.getcwd () in
-  let dir = ref initial_dir in
-  let sk_file = ref None in
-  let do_finalize = ref false in
-  let do_decrypt = ref false in
-  let ballot_file = ref None in
-
-  let speclist = Arg.([
-    "--dir", String (fun s -> dir := s), "path to election files";
-    "--privkey", String (fun s ->
-      let fname =
-        if Filename.is_relative s then Filename.concat initial_dir s else s
-      in sk_file := Some fname
-    ), "path to private key";
-  ]) in
-
-  let usage_msg =
-    Printf.sprintf "Usage: %s election [--dir <dir>] [--privkey <privkey>] { vote <ballot> | verify | decrypt | finalize }" Sys.argv.(0)
-  in
-
-  let usage () =
-    Arg.usage speclist usage_msg;
-    exit 1
-  in
-
-  let anon_args = ref [] in
-
-  let anon_fun x =
-    anon_args := x :: !anon_args
-  in
-
-  let () = Arg.parse speclist anon_fun usage_msg in
-
-  let () = match List.rev !anon_args with
-    | [] -> usage ()
-    | ["vote"; f] ->
-      let f =
-        if Filename.is_relative f then Filename.concat initial_dir f else f
-      in ballot_file := Some f
-    | ["vote"] ->
-      Printf.eprintf "ballot file is missing\n";
-      exit 1
-    | ["verify"] -> ()
-    | ["finalize"] -> do_finalize := true
-    | ["decrypt"] ->
-      (match !sk_file with
-      | None ->
-        Printf.eprintf "--privkey is missing\n";
-        exit 1
-      | Some _ -> do_decrypt := true)
-    | x :: _ -> usage ()
-  in
-
-  let () = Sys.chdir !dir in
-
-  (* Load and check election *)
-
-  let params =
-    match load_from_file Group.election_params_of_string "election.json" with
-    | Some [e] -> e
-    | _ -> failwith "invalid election file"
-  in
-
-  let module P = struct
-    let sk_file = !sk_file
-    let do_finalize = !do_finalize
-    let do_decrypt = !do_decrypt
-    let ballot_file = !ballot_file
-    include (val params : ELECTION_PARAMS)
-  end in
-
-  (module P : PARAMS)
-
 end
 
 module Run (P : PARAMS) : EMPTY = struct
@@ -144,7 +67,7 @@ module Run (P : PARAMS) : EMPTY = struct
   let public_keys_with_pok =
     load_from_file (
       trustee_public_key_of_string G.read
-    ) "public_keys.jsons" |> option_map Array.of_list
+    ) (dir/"public_keys.jsons") |> option_map Array.of_list
 
   let () =
     match public_keys_with_pok with
@@ -176,7 +99,7 @@ module Run (P : PARAMS) : EMPTY = struct
   module GSet = Set.Make (G)
 
   let public_creds =
-    load_from_file G.of_string "public_creds.txt" |>
+    load_from_file G.of_string (dir/"public_creds.txt") |>
     option_map (fun xs ->
       List.fold_left (fun accu x ->
         GSet.add x accu
@@ -187,7 +110,7 @@ module Run (P : PARAMS) : EMPTY = struct
     load_from_file (fun line ->
       ballot_of_string G.read line,
       sha256_b64 line
-    ) "ballots.jsons"
+    ) (dir/"ballots.jsons")
 
   let check_signature_present =
     match public_creds with
@@ -260,7 +183,7 @@ module Run (P : PARAMS) : EMPTY = struct
   let result =
     load_from_file (
       result_of_string G.read
-    ) "result.json"
+    ) (dir/"result.json")
 
   let () =
     match result with
@@ -271,7 +194,7 @@ module Run (P : PARAMS) : EMPTY = struct
     | None ->
       let factors = load_from_file (
         partial_decryption_of_string G.read
-      ) "partial_decryptions.jsons" |> option_map Array.of_list in
+      ) (dir/"partial_decryptions.jsons") |> option_map Array.of_list in
       match factors with
       | Some factors ->
         let tally = Lazy.force encrypted_tally in
@@ -279,7 +202,7 @@ module Run (P : PARAMS) : EMPTY = struct
         let result = E.combine_factors (M.cardinal ()) tally factors in
         assert (E.check_result e result);
         if do_finalize then (
-          save_to "result.json" (
+          save_to (dir/"result.json") (
             write_result G.write
           ) result;
           Printf.eprintf "result.json written\n%!"
@@ -292,8 +215,88 @@ module Run (P : PARAMS) : EMPTY = struct
 
 end
 
+open Tool_common
 
-let main () =
-  let module P = (val parse_args () : PARAMS) in
-  let module X : EMPTY = Run (P) in
-  ()
+type action = Vote | Verify | Decrypt | Finalize
+
+let main action dir privkey ballot =
+  wrap_main (fun () ->
+    let fname = dir/"election.json" in
+    let params =
+      load_from_file Group.election_params_of_string fname |>
+      function
+      | Some [e] -> e
+      | None -> failcmd "could not read %s" fname
+      | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
+    in
+    let module P : PARAMS = struct
+      let dir = dir
+      let sk_file = privkey
+      let ballot_file = ballot
+      let do_decrypt = action = Decrypt
+      let do_finalize = action = Finalize
+      include (val params : ELECTION_PARAMS)
+    end in
+    let module X : EMPTY = Run (P) in ()
+  )
+
+open Cmdliner
+
+let dir_t =
+  let doc = "Path to election files." in
+  let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
+  Arg.(value & opt dir Filename.current_dir_name the_info)
+
+let privcred_t =
+  let doc = "Read private credential from file $(docv)." in
+  let the_info = Arg.info ["privcred"] ~docv:"PRIV_CRED" ~doc in
+  Arg.(value & opt (some file) None the_info)
+
+let privkey_t =
+  let doc = "Read private key from file $(docv)." in
+  let the_info = Arg.info ["privkey"] ~docv:"PRIV_KEY" ~doc in
+  Arg.(value & opt (some file) None the_info)
+
+let ballot_t =
+  let doc = "Read ballot choices from file $(docv)." in
+  let the_info = Arg.info ["ballot"] ~docv:"BALLOT" ~doc in
+  Arg.(value & opt (some file) None the_info)
+
+let vote_cmd =
+  let doc = "create a ballot" in
+  let man = [
+    `S "DESCRIPTION";
+    `P "This command creates a ballot and prints it on standard output.";
+  ] @ common_man in
+  Term.(ret (pure main $ pure Vote $ dir_t $ privcred_t $ ballot_t)),
+  Term.info "vote" ~doc ~man
+
+let verify_cmd =
+  let doc = "verify election data" in
+  let man = [
+    `S "DESCRIPTION";
+    `P "This command performs all possible verifications.";
+  ] @ common_man in
+  Term.(ret (pure main $ pure Verify $ dir_t $ privkey_t $ ballot_t)),
+  Term.info "verify" ~doc ~man
+
+let decrypt_cmd =
+  let doc = "perform partial decryption" in
+  let man = [
+    `S "DESCRIPTION";
+    `P "This command is run by each trustee to perform a partial decryption.";
+  ] @ common_man in
+  Term.(ret (pure main $ pure Decrypt $ dir_t $ privkey_t $ ballot_t)),
+  Term.info "decrypt" ~doc ~man
+
+let finalize_cmd =
+  let doc = "finalizes an election" in
+  let man = [
+    `S "DESCRIPTION";
+    `P "This command reads partial decryptions done by trustees from file $(i,partial_decryptions.jsons), checks them, combines them into the final tally and prints the result to standard output.";
+    `P "The result structure contains partial decryptions itself, so $(i,partial_decryptions.jsons) can be discarded afterwards.";
+  ] @ common_man in
+  Term.(ret (pure main $ pure Finalize $ dir_t $ privkey_t $ ballot_t)),
+  Term.info "finalize" ~doc ~man
+
+let cmds = [vote_cmd; verify_cmd; decrypt_cmd; finalize_cmd]

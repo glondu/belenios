@@ -19,22 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Tool_common
-open Cmdliner
+exception Cmdline_error of string
 
-let default_cmd =
-  let doc = "election management tool" in
-  let man = common_man in
-  Term.(ret (pure (`Help (`Pager, None)))),
-  Term.info "belenios-tool" ~version:"0.2" ~doc ~man
+val failcmd : ('a, unit, string, 'b) format4 -> 'a
 
-let cmds =
-  Tool_tkeygen.cmds @
-  Tool_election.cmds @
-  Tool_credgen.cmds @
-  Tool_mkelection.cmds
+val common_man : [> `Noblank | `P of string | `S of string ] list
+val get_mandatory_opt : string -> 'a option -> 'a
+val wrap_main : (unit -> unit) -> [> `Error of bool * string | `Ok of unit ]
 
-let () =
-  match Term.eval_choice default_cmd cmds with
-  | `Error _ -> exit 1
-  | _ -> exit 0
+val group_t : (string * (module Signatures.GROUP)) option Cmdliner.Term.t
+val uuid_t : Uuidm.t option Cmdliner.Term.t

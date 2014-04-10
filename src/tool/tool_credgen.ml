@@ -38,80 +38,14 @@ let do_derive uuid x =
   pbkdf2 ~prf:MAC.hmac_sha256 ~iterations:1000 ~size:1 ~salt x |>
   transform_string (Hexa.encode ())
 
+type generate_kind = Count of int | File of string
+type action =  Derive of string | Generate of generate_kind
+
 module type PARAMS = sig
   val uuid : Uuidm.t
-  val count : int option
-  val file : string option
-  val derive : string option
+  val action : action
   val dir : string
   module G : GROUP
-end
-
-let parse_args () = begin
-
-  (* Argument parsing *)
-
-  let dir = ref (Sys.getcwd ()) in
-  let uuid = ref None in
-  let count = ref None in
-  let file = ref None in
-  let derive = ref None in
-  let group = ref None in
-
-  let speclist = Arg.([
-    "--dir", String (fun s -> dir := s), "directory where output will be written";
-    "--uuid", String (fun s -> uuid := Some s), "UUID of the election";
-    "--count", Int (fun i -> count := Some i), "number of credentials to generate";
-    "--file", String (fun s -> file := Some s), "file with list of identities";
-    "--derive", String (fun s -> derive := Some s), "derive public credential from given private one";
-    "--group", String (fun s -> group := Some s), "file with group parameters";
-  ]) in
-
-  let usage_msg =
-    Printf.sprintf "Usage: %s credgen [--dir <dir>] --uuid <uuid> {--count <n> | --file <file> | --derive <privcred>}" Sys.argv.(0)
-  in
-
-  let anon_fun x =
-    Printf.eprintf "I do not know what to do with %s!\n" x;
-    exit 1
-  in
-
-  let () = Arg.parse speclist anon_fun usage_msg in
-
-  let group = match !group with
-    | None ->
-      Printf.eprintf "--group is missing!\n";
-      exit 1
-    | Some fname ->
-      let ic = open_in fname in
-      let ls = Yojson.init_lexer () in
-      let lb = Lexing.from_channel ic in
-      let r = Group.read ls lb in
-      close_in ic;
-      r
-  in
-
-  let module P = struct
-    let uuid = match !uuid with
-      | None ->
-        Printf.eprintf "UUID is missing!\n";
-        exit 1
-      | Some u ->
-        match Uuidm.of_string u with
-        | Some u -> u
-        | None ->
-          Printf.eprintf "UUID is invalid!\n";
-          exit 1
-
-    let count = !count
-    let file = !file
-    let derive = !derive
-    let dir = !dir
-    module G = (val group : GROUP)
-  end in
-
-  (module P : PARAMS)
-
 end
 
 module Run (P : PARAMS) : EMPTY = struct
@@ -131,122 +65,174 @@ module Run (P : PARAMS) : EMPTY = struct
     let y = G.(g **~ x) in
     G.to_string y
 
-  let count, ids =
-    match count, file, derive with
-      | Some i, None, None ->
-        if i < 1 then (
-          Printf.eprintf "You must generate at least one credential!\n";
-          exit 1
-        ); i, None
-      | None, Some f, None ->
+  let generate kind = begin
+
+    let count, ids = match kind with
+      | File f ->
         let ic = open_in f in
         let rec loop accu =
           match (try Some (input_line ic) with End_of_file -> None) with
-            | Some "" -> loop accu
-            | Some x -> loop (x::accu)
-            | None -> List.rev accu
+          | Some "" -> loop accu
+          | Some x -> loop (x::accu)
+          | None -> List.rev accu
         in
         let res = loop [] in
         close_in ic;
         List.length res, Some res
-      | None, None, Some d ->
-        print_endline (public_key_of_token uuid d);
-        exit 0
-      | None, None, None ->
-        Printf.eprintf "Nothing to do: use --count, --file or --derive!\n";
-        exit 1
-      | _, _, _ ->
-        Printf.eprintf "Conflicting options!\n";
-        exit 1
-  ;;
-
-  (* The generation itself, if requested *)
-
-  let prng = Cryptokit.Random.(pseudo_rng (string secure_rng 16))
-  let random_char () = int_of_char (Cryptokit.Random.string prng 1).[0]
-
-  let generate_raw_token () =
-    let res = String.create token_length in
-    let rec loop i accu =
-      if i < token_length then (
-        let digit = random_char () mod 58 in
-        res.[i] <- digits.[digit];
-        loop (i+1) Z.(n58 * accu + of_int digit)
-      ) else (res, accu)
-    in loop 0 Z.zero
-
-  let generate_token () =
-    let (raw, value) = generate_raw_token () in
-    let checksum = 53 - Z.(to_int (value mod n53)) in
-    raw ^ String.make 1 digits.[checksum]
-
-  let private_credentials =
-    let rec loop i accu =
-      if i > 0 then loop (i-1) (generate_token () :: accu)
-      else accu
-    in loop count []
-
-  let public_credentials =
-    List.map (public_key_of_token uuid) private_credentials
-
-  let hashed_credentials = option_map (fun ids ->
-    List.map2 (fun id cred ->
-      Printf.sprintf "%s %s" (sha256_hex cred) id
-    ) ids public_credentials
-  ) ids
-
-  (* Save to files *)
-
-  let timestamp = Printf.sprintf "%.0f" (Unix.time ())
-
-  let pub =
-    "public credentials",
-    timestamp ^ ".pubcreds",
-    0o444,
-    List.sort compare public_credentials
-
-  let priv =
-    let kind, creds = match ids with
-      | None -> "private credentials", private_credentials
-      | Some ids -> "private credentials with ids",
-        List.map2 (fun id cred ->
-          Printf.sprintf "%s %s" cred id
-        ) ids private_credentials
+      | Count i -> i, None
     in
-    kind,
-    timestamp ^ ".privcreds",
-    0o400,
-    List.sort compare creds
 
-  let hashed = option_map (fun h ->
-    "hashed credentials with ids",
-    timestamp ^ ".hashcreds",
-    0o400,
-    List.sort compare h
-  ) hashed_credentials
+    (* The generation itself *)
 
-  let output_endline oc x =
-    output_string oc x;
-    output_char oc '\n'
+    let prng = Cryptokit.Random.(pseudo_rng (string secure_rng 16)) in
+    let random_char () = int_of_char (Cryptokit.Random.string prng 1).[0] in
 
-  let save (kind, filename, perm, thing) =
-    let full_filename = Filename.concat dir filename in
-    let oc = open_out_gen [
-      Open_wronly; Open_creat; Open_excl
-    ] perm full_filename in
-    List.iter (output_endline oc) thing;
-    close_out oc;
-    Printf.printf "%d %s saved to %s\n%!" count kind full_filename;;
+    let generate_raw_token () =
+      let res = String.create token_length in
+      let rec loop i accu =
+        if i < token_length then (
+          let digit = random_char () mod 58 in
+          res.[i] <- digits.[digit];
+          loop (i+1) Z.(n58 * accu + of_int digit)
+        ) else (res, accu)
+      in loop 0 Z.zero
+    in
 
-  save pub;;
-  save priv;;
-  ignore (option_map save hashed);;
+    let generate_token () =
+      let (raw, value) = generate_raw_token () in
+      let checksum = 53 - Z.(to_int (value mod n53)) in
+      raw ^ String.make 1 digits.[checksum]
+    in
+
+    let private_credentials =
+      let rec loop i accu =
+        if i > 0 then loop (i-1) (generate_token () :: accu)
+        else accu
+      in loop count []
+    in
+
+    let public_credentials =
+      List.map (public_key_of_token uuid) private_credentials
+    in
+
+    let hashed_credentials = option_map (fun ids ->
+      List.map2 (fun id cred ->
+        Printf.sprintf "%s %s" (sha256_hex cred) id
+      ) ids public_credentials
+    ) ids in
+
+    (* Save to files *)
+
+    let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
+
+    let pub =
+      "public credentials",
+      timestamp ^ ".pubcreds",
+      0o444,
+      List.sort compare public_credentials
+    in
+
+    let priv =
+      let kind, creds = match ids with
+        | None -> "private credentials", private_credentials
+        | Some ids -> "private credentials with ids",
+          List.map2 (fun id cred ->
+            Printf.sprintf "%s %s" cred id
+          ) ids private_credentials
+      in
+      kind,
+      timestamp ^ ".privcreds",
+      0o400,
+      List.sort compare creds
+    in
+
+    let hashed = option_map (fun h ->
+      "hashed credentials with ids",
+      timestamp ^ ".hashcreds",
+      0o400,
+      List.sort compare h
+    ) hashed_credentials in
+
+    let output_endline oc x =
+      output_string oc x;
+      output_char oc '\n'
+    in
+
+    let save (kind, filename, perm, thing) =
+      let full_filename = Filename.concat dir filename in
+      let oc = open_out_gen [
+        Open_wronly; Open_creat; Open_excl
+      ] perm full_filename in
+      List.iter (output_endline oc) thing;
+      close_out oc;
+      Printf.printf "%d %s saved to %s\n%!" count kind full_filename
+    in
+
+    save pub;
+    save priv;
+    ignore (option_map save hashed)
+
+  end
+
+  let () = match action with
+    | Derive d -> print_endline (public_key_of_token uuid d)
+    | Generate kind -> generate kind
 
 end
 
 let derive = do_derive
 
-let main () =
-  let module P = (val parse_args () : PARAMS) in
-  let module X : EMPTY = Run (P) in
-  ()
+open Tool_common
+
+let main group dir uuid count file derive =
+  wrap_main (fun () ->
+    let _, group = get_mandatory_opt "--group" group in
+    let module P : PARAMS = struct
+      module G = (val group : GROUP)
+      let uuid = get_mandatory_opt "--uuid" uuid
+      let dir = dir
+      let action =
+        match count, file, derive with
+        | Some n, None, None ->
+          if n < 1 then (
+            failcmd "the argument of --count must be a positive number"
+          ) else Generate (Count n)
+        | None, Some f, None -> Generate (File f)
+        | None, None, Some c -> Derive c
+        | _, _, _ -> failcmd "--count, --file and --derive are mutually exclusive"
+    end in
+    let module X : EMPTY = Run (P) in ()
+  )
+
+open Cmdliner
+
+let dir_t =
+  let doc = "Save output files to $(docv)." in
+  let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
+  Arg.(value & opt dir Filename.current_dir_name the_info)
+
+let count_t =
+  let doc = "Generate $(docv) credentials." in
+  let the_info = Arg.info ["count"] ~docv:"N" ~doc in
+  Arg.(value & opt (some int) None the_info)
+
+let file_t =
+  let doc = "Read identities from $(docv) and generate an additional $(i,T.hashcreds) with identities associated with hashed public credentials. These hashed public credentials are used by the hotline to update a public credential on the web server. One credential will be generated for each line of $(docv)." in
+  let the_info = Arg.info ["count"] ~docv:"FILE" ~doc in
+  Arg.(value & opt (some file) None the_info)
+
+let derive_t =
+  let doc = "Derive the public key associated to a specific $(docv)." in
+  let the_info = Arg.info ["derive"] ~docv:"PRIVATE_CRED" ~doc in
+  Arg.(value & opt (some string) None the_info)
+
+let credgen_cmd =
+  let doc = "generate credentials" in
+  let man = [
+    `S "DESCRIPTION";
+    `P "This command is run by a credential authority to generate credentials for a specific election. The generated private credentials are stored in $(i,T.privcreds), where $(i,T) is a timestamp. $(i,T.privcreds) contains one credential per line. Each voter must be sent a credential, and $(i,T.privcreds) must be destroyed after dispatching is done. The associated public keys are stored in $(i,T.pubcreds) and must be sent to the election administrator.";
+  ] @ common_man in
+  Term.(ret (pure main $ group_t $ dir_t $ uuid_t $ count_t $ file_t $ derive_t)),
+  Term.info "credgen" ~doc ~man
+
+let cmds = [credgen_cmd]

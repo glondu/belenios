@@ -30,78 +30,6 @@ module type PARAMS = sig
   module G : GROUP
 end
 
-let parse_args () = begin
-
-  let group = ref None in
-  let uuid = ref None in
-  let template = ref None in
-
-  let speclist = Arg.([
-    "--group", String (fun s -> group := Some s), "file with group parameters";
-    "--uuid", String (fun s -> uuid := Some s), "UUID of the election";
-    "--template", String (fun s -> template := Some s), "file with election template";
-  ]) in
-
-  let usage_msg =
-    Printf.sprintf "Usage: %s mkelection --group <file> --uuid <uuid> --template <file>" Sys.argv.(0)
-  in
-
-  let usage () =
-    Arg.usage speclist usage_msg;
-    exit 1
-  in
-
-  let die s = prerr_endline s; usage () in
-
-  let anon_fun x =
-    Printf.eprintf "I do not know what to do with %s\n" x;
-    usage ()
-  in
-
-  let () = Arg.parse speclist anon_fun usage_msg in
-
-  let group = match !group with
-    | None -> die "--group is missing"
-    | Some fname ->
-      let ic = open_in fname in
-      let ls = Yojson.init_lexer () in
-      let lb = Lexing.from_channel ic in
-      let r = Group.read ls lb in
-      r
-  in
-
-  let module P = struct
-
-    let uuid = match !uuid with
-      | None -> die "--uuid is missing"
-      | Some uuid -> match Uuidm.of_string uuid with
-        | None -> die "invalid UUID"
-        | Some u -> u
-
-    let template = match !template with
-      | None -> die "--template is missing"
-      | Some fname ->
-        let ic = open_in fname in
-        let ls = Yojson.init_lexer () in
-        let lb = Lexing.from_channel ic in
-        let r = read_template ls lb in
-        close_in ic;
-        r
-
-    module G = (val group : GROUP)
-
-    let write_params buf params =
-      let y = params.e_public_key in
-      let w = G.wrap_pubkey y in
-      let params = { params with e_public_key = w } in
-      write_params G.write_wrapped_pubkey buf params
-
-  end in
-
-  (module P : PARAMS)
-
-end
-
 module Run (P : PARAMS) : EMPTY = struct
   open P
 
@@ -149,7 +77,50 @@ module Run (P : PARAMS) : EMPTY = struct
 
 end
 
-let main () =
-  let module P = (val parse_args () : PARAMS) in
-  let module X : EMPTY = Run (P) in
-  ()
+open Tool_common
+
+let main group uuid template =
+  wrap_main (fun () ->
+    let _, group = get_mandatory_opt "--group" group in
+    let _, template = get_mandatory_opt "--template" template in
+    let module P : PARAMS = struct
+      module G = (val group : GROUP)
+      let uuid = get_mandatory_opt "--uuid" uuid
+      let template = template
+    end in
+    let module X : EMPTY = Run (P) in ()
+  )
+
+open Cmdliner
+
+let template_c =
+  (fun fname ->
+    if Sys.file_exists fname then (
+      try
+        let ic = open_in fname in
+        let ls = Yojson.init_lexer () in
+        let lb = Lexing.from_channel ic in
+        let r = read_template ls lb in
+        close_in ic;
+        `Ok (fname, r)
+      with e ->
+        let e = Printexc.to_string e and s = Printf.sprintf in
+        `Error (s "could not read template from %s (%s)" fname e)
+    ) else `Error (Printf.sprintf "file %s does not exist" fname)
+  ), (fun fmt (fname, _) -> Format.pp_print_string fmt fname)
+
+let template_t =
+  let doc = "Read election template from file $(docv)." in
+  let the_info = Arg.info ["template"] ~docv:"TEMPLATE" ~doc in
+  Arg.(value & opt (some template_c) None the_info)
+
+let mkelection_cmd =
+  let doc = "create an election public parameter file" in
+  let man = [
+    `S "DESCRIPTION";
+    `P "This command reads and checks $(i,public_keys.jsons). It then computes the global election public key and generates an $(i,election.json) file.";
+  ] @ common_man in
+  Term.(ret (pure main $ group_t $ uuid_t $ template_t)),
+  Term.info "mkelection" ~doc ~man
+
+let cmds = [mkelection_cmd]

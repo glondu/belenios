@@ -28,51 +28,6 @@ module type PARAMS = sig
   module G : GROUP
 end
 
-let parse_args () = begin
-
-  let group = ref None in
-
-  let speclist = Arg.([
-    "--group", String (fun s -> group := Some s), "file with group parameters";
-  ]) in
-
-  let usage_msg =
-    Printf.sprintf "Usage: %s trustee-keygen --group <file>" Sys.argv.(0)
-  in
-
-  let usage () =
-    Arg.usage speclist usage_msg;
-    exit 1
-  in
-
-  let anon_fun x =
-    Printf.eprintf "I do not know what to do with %s\n" x;
-    usage ()
-  in
-
-  let () = Arg.parse speclist anon_fun usage_msg in
-
-  let group = match !group with
-    | None ->
-      Printf.eprintf "--group is missing!\n";
-      usage ()
-    | Some fname ->
-      let ic = open_in fname in
-      let ls = Yojson.init_lexer () in
-      let lb = Lexing.from_channel ic in
-      let r = Group.read ls lb in
-      close_in ic;
-      r
-  in
-
-  let module P = struct
-    module G = (val group : GROUP)
-  end in
-
-  (module P : PARAMS)
-
-end
-
 module Run (P : PARAMS) : EMPTY = struct
   open P
 
@@ -125,8 +80,24 @@ module Run (P : PARAMS) : EMPTY = struct
 
 end
 
+open Tool_common
 
-let main () =
-  let module P = (val parse_args () : PARAMS) in
-  let module X : EMPTY = Run (P) in
-  ()
+let main group =
+  wrap_main (fun () ->
+    let _, group = get_mandatory_opt "--group" group in
+    let module P = struct module G = (val group : GROUP) end in
+    let module X : EMPTY = Run (P) in ()
+  )
+
+open Cmdliner
+
+let tkeygen_cmd =
+  let doc = "generate a trustee key" in
+  let man = [
+    `S "DESCRIPTION";
+    `P "This command is run by a trustee to generate a share of an election key. Such a share consists of a private key and a public key with a certificate. Generated files are stored in the current directory with a name that starts with $(i,ID), where $(i,ID) is a short fingerprint of the public key. The private key is stored in $(i,ID.privkey) and must be secured by the trustee. The public key is stored in $(i,ID.pubkey) and must be sent to the election administrator.";
+  ] @ common_man in
+  Term.(ret (pure main $ group_t)),
+  Term.info "trustee-keygen" ~doc ~man
+
+let cmds = [tkeygen_cmd]

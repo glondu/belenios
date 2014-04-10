@@ -37,7 +37,7 @@ If you put these files in a directory `/path/to/election`, the following
 command will perform all possible verifications, depending on existing
 files:
 
-    belenios-tool election --dir /path/to/election verify
+    belenios-tool verify --dir /path/to/election
 
 For example, during the election, you can check if some candidate
 ballot is acceptable by putting it alone in `ballots.jsons`, and
@@ -48,7 +48,7 @@ your choices in a file `/path/to/choices.json` (as an array of arrays
 of 0/1 in JSON format), the following command will output a ballot
 that can be directly submitted:
 
-    belenios-tool election --dir /path/to/election --privkey /path/to/credential vote /path/to/choices.json
+    belenios-tool vote --dir /path/to/election --privcred /path/to/credential --ballot /path/to/choices.json
 
 
 Trustee's guide
@@ -70,7 +70,7 @@ with extreme care.
 To compute your decryption share, set `/path/to/election` up as
 described in the _Voter's guide_ section above, and run:
 
-    belenios-tool election --dir /path/to/election --privkey /path/to/privkey decrypt > partial_decryption.json
+    belenios-tool decrypt --dir /path/to/election --privkey /path/to/privkey > partial_decryption.json
 
 and send `partial_decryption.json` to the election
 administrator.
@@ -176,7 +176,7 @@ to be able to access the administration page specific to the election.
  2. Concatenate the `partial_decryption.json` received from each
     trustee into a `partial_decryptions.jsons`, in the same order as in
     `public_keys.jsons`.
- 3. Run `belenios-tool election finalize`.  It will create
+ 3. Run `belenios-tool finalize`.  It will create
     `result.json`. Publish this file, along with the files listed in
     the first step above. The whole set will enable universal
     verifiability.

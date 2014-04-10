@@ -42,7 +42,7 @@ belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/electi
 header "Simulate votes"
 
 cat private_creds.txt | while read cred; do
-    belenios-tool election --privkey <(echo $cred) vote <(printf "[[0,0,0,0,0],[0,1,0,1,1,0],[0,0,1]]")
+    belenios-tool vote --privcred <(echo $cred) --ballot <(printf "[[0,0,0,0,0],[0,1,0,1,1,0],[0,0,1]]")
     echo >&2
 done > ballots.tmp
 mv ballots.tmp ballots.jsons
@@ -50,14 +50,14 @@ mv ballots.tmp ballots.jsons
 header "Perform decryption"
 
 for u in *.privkey; do
-    belenios-tool election --privkey $u decrypt
+    belenios-tool decrypt --privkey $u
     echo >&2
 done > partial_decryptions.tmp
 mv partial_decryptions.tmp partial_decryptions.jsons
 
 header "Finalize tally"
 
-belenios-tool election finalize
+belenios-tool finalize
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
