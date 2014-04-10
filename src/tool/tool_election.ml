@@ -44,13 +44,15 @@ let load_from_file of_string filename =
     Some (List.rev lines)
   ) else None
 
+type action =
+| Vote of string * string (* privcred, ballot *)
+| Decrypt of string (* privkey *)
+| Verify
+| Finalize
 
 module type PARAMS = sig
   val dir : string
-  val sk_file : string option
-  val do_finalize : bool
-  val do_decrypt : bool
-  val ballot_file : string option
+  val action : action
   include ELECTION_PARAMS
 end
 
@@ -98,128 +100,126 @@ module Run (P : PARAMS) : EMPTY = struct
 
   module GSet = Set.Make (G)
 
-  let public_creds =
+  let public_creds = lazy (
     load_from_file G.of_string (dir/"public_creds.txt") |>
     option_map (fun xs ->
       List.fold_left (fun accu x ->
         GSet.add x accu
       ) GSet.empty xs
     )
+  )
 
-  let ballots =
+  let ballots = lazy (
     load_from_file (fun line ->
       ballot_of_string G.read line,
       sha256_b64 line
     ) (dir/"ballots.jsons")
+  )
 
-  let check_signature_present =
-    match public_creds with
+  let check_signature_present = lazy (
+    match Lazy.force public_creds with
     | Some creds -> (fun b ->
       match b.signature with
       | Some s -> GSet.mem s.s_public_key creds
       | None -> false
     )
     | None -> (fun _ -> true)
+  )
 
   let vote (b, hash) =
-    if check_signature_present b && E.check_ballot e b
+    if Lazy.force check_signature_present b && E.check_ballot e b
     then M.cast b ()
     else Printf.ksprintf failwith "ballot %s failed tests" hash
 
-  let () = ballots |> option_map (List.iter vote) |> ignore
+  let ballots_check = lazy (
+    Lazy.force ballots |> option_map (List.iter vote)
+  )
 
   let encrypted_tally = lazy (
-    match ballots with
+    match Lazy.force ballots_check with
       | None -> failwith "ballots.jsons is missing"
-      | Some _ ->
+      | Some () ->
         M.fold (fun () b t ->
           M.return (E.combine_ciphertexts (E.extract_ciphertext b) t)
         ) (E.neutral_ciphertext e) ()
   )
 
-  let () = match ballot_file with
-    | None -> ()
-    | Some fn ->
-      (match load_from_file plaintext_of_string fn with
-      | Some [b] ->
+  let do_vote privcred ballot =
+    match load_from_file plaintext_of_string ballot with
+    | Some [b] ->
         let sk =
-          match sk_file with
-          | Some fn ->
-            (match load_from_file (fun x -> x) fn with
-            | Some [cred] ->
-              let hex = Tool_credgen.derive e.e_params.e_uuid cred in
-              Some Z.(of_string_base 16 hex mod G.q)
-            | _ -> failwith "invalid credential file"
-            )
-          | None -> None
+          match load_from_file (fun x -> x) privcred with
+          | Some [cred] ->
+            let hex = Tool_credgen.derive e.e_params.e_uuid cred in
+            Some Z.(of_string_base 16 hex mod G.q)
+          | _ -> failwith "invalid credential file"
         in
         let b = E.create_ballot e ?sk (E.make_randomness e ()) b () in
         assert (E.check_ballot e b);
         print_endline (string_of_ballot G.write b)
-      | _ -> failwith "invalid plaintext ballot file"
-      )
+    | _ -> failwith "invalid plaintext ballot file"
 
-  let () = if do_decrypt then
-    match sk_file with
-    | Some fn ->
-      (match load_from_file (number_of_string) fn with
-        | Some [sk] ->
-          let pk = G.(g **~ sk) in
-          if Array.forall (fun x -> not G.(x =~ pk)) pks then (
-            Printf.eprintf "Warning: your key is not present in public_keys.jsons!\n";
-          );
-          let tally = Lazy.force encrypted_tally in
-          let factor =
-            E.compute_factor tally sk ()
-          in
-          assert (E.check_factor tally pk factor);
-          print_endline (string_of_partial_decryption G.write factor)
-        | _ -> failwith "invalid private key file"
-      )
-    | None -> ()
+  let do_decrypt privkey =
+    match load_from_file (number_of_string) privkey with
+    | Some [sk] ->
+      let pk = G.(g **~ sk) in
+      if Array.forall (fun x -> not G.(x =~ pk)) pks then (
+        Printf.eprintf "Warning: your key is not present in public_keys.jsons!\n";
+      );
+      let tally = Lazy.force encrypted_tally in
+      let factor =
+        E.compute_factor tally sk ()
+      in
+      assert (E.check_factor tally pk factor);
+      print_endline (string_of_partial_decryption G.write factor)
+    | _ -> failwith "invalid private key file"
 
   (* Load or compute result, and check it *)
 
-  let result =
+  let result = lazy (
     load_from_file (
       result_of_string G.read
     ) (dir/"result.json")
+  )
 
-  let () =
-    match result with
-    | Some [result] ->
-      assert (E.check_result e result)
-    | Some _ ->
-      failwith "invalid result file"
-    | None ->
-      let factors = load_from_file (
-        partial_decryption_of_string G.read
-      ) (dir/"partial_decryptions.jsons") |> option_map Array.of_list in
-      match factors with
-      | Some factors ->
-        let tally = Lazy.force encrypted_tally in
-        assert (Array.forall2 (E.check_factor tally) pks factors);
-        let result = E.combine_factors (M.cardinal ()) tally factors in
-        assert (E.check_result e result);
-        if do_finalize then (
-          save_to (dir/"result.json") (
-            write_result G.write
-          ) result;
-          Printf.eprintf "result.json written\n%!"
-        );
-      | None -> ()
+  let do_finalize () =
+    let factors = load_from_file (
+      partial_decryption_of_string G.read
+    ) (dir/"partial_decryptions.jsons") |> option_map Array.of_list in
+    match factors with
+    | Some factors ->
+      let tally = Lazy.force encrypted_tally in
+      assert (Array.forall2 (E.check_factor tally) pks factors);
+      let result = E.combine_factors (M.cardinal ()) tally factors in
+      assert (E.check_result e result);
+      save_to (dir/"result.json") (
+        write_result G.write
+      ) result;
+      Printf.eprintf "result.json written\n%!"
+    | None -> failwith "cannot load partial decryptions"
 
-  (* The end *)
+  let do_verify () =
+    (match Lazy.force ballots_check with
+    | Some () -> ()
+    | None -> Printf.eprintf "No ballots to check!\n%!"
+    );
+    (match Lazy.force result with
+    | Some [result] -> assert (E.check_result e result)
+    | Some _ -> failwith "invalid result file"
+    | None -> Printf.eprintf "No result to check!\n%!"
+    );
+    Printf.eprintf "All checks passed!\n%!"
 
-  let () = Printf.eprintf "All checks passed!\n%!"
-
+  let () = match action with
+    | Vote (privcred, ballot) -> do_vote privcred ballot
+    | Decrypt privkey -> do_decrypt privkey
+    | Finalize -> do_finalize ()
+    | Verify -> do_verify ()
 end
 
 open Tool_common
 
-type action = Vote | Verify | Decrypt | Finalize
-
-let main action dir privkey ballot =
+let main dir action =
   wrap_main (fun () ->
     let fname = dir/"election.json" in
     let params =
@@ -231,10 +231,7 @@ let main action dir privkey ballot =
     in
     let module P : PARAMS = struct
       let dir = dir
-      let sk_file = privkey
-      let ballot_file = ballot
-      let do_decrypt = action = Decrypt
-      let do_finalize = action = Finalize
+      let action = action
       include (val params : ELECTION_PARAMS)
     end in
     let module X : EMPTY = Run (P) in ()
@@ -268,7 +265,12 @@ let vote_cmd =
     `S "DESCRIPTION";
     `P "This command creates a ballot and prints it on standard output.";
   ] @ common_man in
-  Term.(ret (pure main $ pure Vote $ dir_t $ privcred_t $ ballot_t)),
+  let main = Term.pure (fun d p b ->
+    let p = get_mandatory_opt "--privcred" p in
+    let b = get_mandatory_opt "--ballot" b in
+    main d (Vote (p, b))
+  ) in
+  Term.(ret (main $ dir_t $ privcred_t $ ballot_t)),
   Term.info "vote" ~doc ~man
 
 let verify_cmd =
@@ -277,7 +279,7 @@ let verify_cmd =
     `S "DESCRIPTION";
     `P "This command performs all possible verifications.";
   ] @ common_man in
-  Term.(ret (pure main $ pure Verify $ dir_t $ privkey_t $ ballot_t)),
+  Term.(ret (pure main $ dir_t $ pure Verify)),
   Term.info "verify" ~doc ~man
 
 let decrypt_cmd =
@@ -286,7 +288,11 @@ let decrypt_cmd =
     `S "DESCRIPTION";
     `P "This command is run by each trustee to perform a partial decryption.";
   ] @ common_man in
-  Term.(ret (pure main $ pure Decrypt $ dir_t $ privkey_t $ ballot_t)),
+  let main = Term.pure (fun d p ->
+    let p = get_mandatory_opt "--privkey" p in
+    main d (Decrypt p)
+  ) in
+  Term.(ret (main $ dir_t $ privkey_t)),
   Term.info "decrypt" ~doc ~man
 
 let finalize_cmd =
@@ -296,7 +302,7 @@ let finalize_cmd =
     `P "This command reads partial decryptions done by trustees from file $(i,partial_decryptions.jsons), checks them, combines them into the final tally and prints the result to standard output.";
     `P "The result structure contains partial decryptions itself, so $(i,partial_decryptions.jsons) can be discarded afterwards.";
   ] @ common_man in
-  Term.(ret (pure main $ pure Finalize $ dir_t $ privkey_t $ ballot_t)),
+  Term.(ret (pure main $ dir_t $ pure Finalize)),
   Term.info "finalize" ~doc ~man
 
 let cmds = [vote_cmd; verify_cmd; decrypt_cmd; finalize_cmd]
