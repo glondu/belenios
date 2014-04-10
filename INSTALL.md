@@ -63,11 +63,12 @@ To compile the command-line tool, you will need:
  * [Cryptokit](https://forge.ocamlcore.org/projects/cryptokit/)
  * [Atdgen](http://mjambon.com/atdgen)
  * [Yojson](http://mjambon.com/yojson.html)
+ * [Cmdliner](http://erratique.ch/software/cmdliner)
 
 With OPAM, these dependencies can be installed with the following
 command:
 
-    opam install atdgen zarith cryptokit uuidm calendar
+    opam install atdgen zarith cryptokit uuidm calendar cmdliner
 
 Once all the dependencies have been installed, the command-line tool
 can be compiled with:
@@ -128,7 +129,7 @@ official Debian packages. On Ubuntu, you need to enable the "Universe"
 repository. Instead of using OPAM, the dependencies of Belenios can
 then be installed with:
 
-    sudo apt-get install libatdgen-ocaml-dev libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev
+    sudo apt-get install libatdgen-ocaml-dev libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev libcmdliner-ocaml-dev
     sudo apt-get install ocsigenserver eliom libcsv-ocaml-dev
 
 Compiling on Windows using Cygwin
