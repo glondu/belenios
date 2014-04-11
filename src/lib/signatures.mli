@@ -21,6 +21,7 @@
 
 (** Signatures *)
 
+open Platform
 open Serializable_t
 
 (** Helpers for interacting with atd stuff *)

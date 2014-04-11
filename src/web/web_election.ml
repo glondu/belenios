@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Platform
 open Serializable_builtin_t
 open Serializable_j
 open Signatures
@@ -129,9 +130,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         let do_cast rawballot (user, date) =
           let voting_open =
             let compare a b =
-              let open CalendarLib.Fcalendar.Precise in
               match a, b with
-              | Some a, Some b -> compare (fst a) (fst b)
+              | Some a, Some b -> datetime_compare a b
               | _, _ -> -1
             in
             compare metadata.e_voting_starts_at (Some date) <= 0 &&
@@ -473,10 +473,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
             | Some u ->
               let b = check_acl W.metadata.e_voters u in
               if b then (
-                let record =
-                  Web_auth.string_of_user u,
-                  (CalendarLib.Fcalendar.Precise.now (), None)
-                in
+                let record = Web_auth.string_of_user u, now () in
                 lwt result =
                   try_lwt
                     lwt hash = W.B.cast the_ballot record in

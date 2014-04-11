@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Platform
 open Serializable_t
 open Signatures
 open Common
@@ -39,7 +40,7 @@ let check_election_public_key (type t) g e =
 
 (** Simple monad *)
 
-let prng = lazy (Cryptokit.Random.(pseudo_rng (string secure_rng 16)))
+let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
 module MakeSimpleMonad (G : GROUP) = struct
   type 'a t = unit -> 'a
@@ -51,7 +52,7 @@ module MakeSimpleMonad (G : GROUP) = struct
   let random q =
     let size = Z.size q * Sys.word_size / 8 in
     fun () ->
-      let r = Cryptokit.Random.string (Lazy.force prng) size in
+      let r = random_string (Lazy.force prng) size in
       Z.(of_bits r mod q)
 
   type elt = G.t ballot
@@ -93,7 +94,7 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
     check_modulo q response &&
     let commitment = g **~ response / (y **~ challenge) in
     let zkp = "pok|" ^ G.to_string y ^ "|" in
-    challenge =% G.hash zkp [| commitment |]
+    Z.(challenge =% G.hash zkp [| commitment |])
 
   let combine pks =
     Array.fold_left (fun y {trustee_public_key; _} ->
@@ -226,7 +227,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
       let prefix = Printf.sprintf "prove|%s|%s,%s|"
         zkp (G.to_string alpha) (G.to_string beta)
       in
-      hash prefix commitments =% !total_challenges
+      Z.(hash prefix commitments =% !total_challenges)
     with Exit -> false
 
   (** Ballot creation *)
@@ -345,7 +346,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
           let commitment = g **~ s_response *~ y **~ s_challenge in
           let prefix = make_sig_prefix zkp commitment in
           let contents = make_sig_contents b.answers in
-          s_challenge =% G.hash prefix contents
+          Z.(s_challenge =% G.hash prefix contents)
         in ok, zkp
       | None -> true, ""
     in ok &&
@@ -383,7 +384,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
           g **~ response / (y **~ challenge);
           alpha **~ response / (f **~ challenge);
         |]
-      in hash zkp commitments =% challenge
+      in Z.(hash zkp commitments =% challenge)
     ) c f.decryption_factors f.decryption_proofs
 
   type result = elt Serializable_t.result

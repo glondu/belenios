@@ -1,3 +1,4 @@
+src/platform/native/Platform
 Serializable_builtin_t
 Serializable_builtin_j
 Serializable_j

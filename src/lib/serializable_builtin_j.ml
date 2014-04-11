@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Platform
 open Serializable_builtin_t
 
 (** {1 Helpers for interacting with atd-generated stuff} *)
@@ -72,20 +73,9 @@ let uuid_of_string x =
 
 (** {1 Serializers for type datetime} *)
 
-open CalendarLib
-let datetime_format = "%Y-%m-%d %H:%M:%S"
-
-let write_datetime buf (n, s) =
+let write_datetime buf n =
   Bi_outbuf.add_char buf '"';
-  (match s with
-     | Some s -> Bi_outbuf.add_string buf s
-     | None ->
-       let n = Fcalendar.Precise.to_gmt n in
-       Bi_outbuf.add_string buf (Printer.Precise_Fcalendar.sprint datetime_format n);
-       let ts = Printf.sprintf "%.6f" (Fcalendar.Precise.to_unixfloat n) in
-       let i = String.index ts '.' in
-       Bi_outbuf.add_substring buf ts i (String.length ts - i);
-  );
+  Bi_outbuf.add_string buf (Platform.string_of_datetime n);
   Bi_outbuf.add_char buf '"'
 
 let string_of_datetime ?(len=28) n =
@@ -94,12 +84,7 @@ let string_of_datetime ?(len=28) n =
   Bi_outbuf.contents buf
 
 let datetime_of_json = function
-  | `String s ->
-    let i = String.index s '.' in
-    let l = Printer.Precise_Fcalendar.from_fstring datetime_format (String.sub s 0 i) in
-    let l = Fcalendar.Precise.from_gmt l in
-    let r = float_of_string ("0" ^ String.sub s i (String.length s-i)) in
-    (Fcalendar.Precise.add l (Fcalendar.Precise.Period.second r), Some s)
+  | `String s -> Platform.datetime_of_string s
   | _ -> assert false
 
 let read_datetime state buf =

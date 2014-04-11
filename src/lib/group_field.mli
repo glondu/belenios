@@ -21,6 +21,7 @@
 
 (** Finite field arithmetic *)
 
+open Platform
 open Serializable_t
 
 module type GROUP = Signatures.GROUP

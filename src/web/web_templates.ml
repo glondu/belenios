@@ -255,8 +255,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
   end
 
-  let format_date (date, _) =
-    CalendarLib.Printer.Precise_Fcalendar.sprint "%a, %d %b %Y %T %z" date
+  let format_date = Platform.format_datetime "%a, %d %b %Y %T %z"
 
   let make_button ~service contents =
     let uri = Eliom_uri.make_string_uri ~service () in

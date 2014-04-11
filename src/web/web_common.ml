@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Platform
 open Signatures
 open Common
 open Serializable_builtin_t
@@ -43,13 +44,13 @@ let load_from_file read fname =
   result
 
 let make_rng = Lwt_preemptive.detach (fun () ->
-  Cryptokit.Random.(pseudo_rng (string secure_rng 16))
+  pseudo_rng (random_string secure_rng 16)
 )
 
 module type LWT_RANDOM = Signatures.RANDOM with type 'a t = 'a Lwt.t
 
 module type LWT_RNG = sig
-  val rng : Cryptokit.Random.rng Lwt.t
+  val rng : rng Lwt.t
 end
 
 module MakeLwtRandom (X : LWT_RNG) = struct
@@ -62,7 +63,7 @@ module MakeLwtRandom (X : LWT_RNG) = struct
   let random q =
     let size = Z.size q * Sys.word_size / 8 in
     lwt rng = X.rng in
-    let r = Cryptokit.Random.string rng size in
+    let r = random_string rng size in
     return Z.(of_bits r mod q)
 
 end
@@ -117,7 +118,7 @@ let security_log s =
     | None -> return ()
     | Some ic -> Lwt_io.atomic (fun ic ->
       Lwt_io.write ic (
-        string_of_datetime (CalendarLib.Fcalendar.Precise.now (), None)
+        string_of_datetime (now ())
       ) >>
       Lwt_io.write ic ": " >>
       Lwt_io.write_line ic (s ()) >>

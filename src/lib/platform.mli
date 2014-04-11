@@ -19,13 +19,46 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Platform
+val sha256_hex : string -> string
+val sha256_b64 : string -> string
 
-type number = Z.t
-type uuid = Uuidm.t
-type datetime = Platform.datetime
-type int_or_null = int option
+val b64_encode_compact : string -> string
 
-module SSet : Set.S with type elt = string
+val derive_cred : Uuidm.t -> string -> string
 
-type string_set = SSet.t
+type rng
+val secure_rng : rng
+val pseudo_rng : string -> rng
+val random_string : rng -> int -> string
+
+module Z : sig
+  type t
+  val zero : t
+  val one : t
+  val of_int : int -> t
+  val of_string : string -> t
+  val of_string_base : int -> string -> t
+  val ( + ) : t -> t -> t
+  val ( - ) : t -> t -> t
+  val ( * ) : t -> t -> t
+  val ( mod ) : t -> t -> t
+  val erem : t -> t -> t
+  val to_int : t -> int
+  val to_string : t -> string
+  val compare : t -> t -> int
+  val ( =% ) : t -> t -> bool
+  val geq : t -> t -> bool
+  val lt : t -> t -> bool
+  val powm : t -> t -> t -> t
+  val invert : t -> t -> t
+  val probab_prime : t -> int -> int
+  val size : t -> int
+  val of_bits : string -> t
+end
+
+type datetime
+val now : unit -> datetime
+val string_of_datetime : datetime -> string
+val datetime_of_string : string -> datetime
+val datetime_compare : datetime -> datetime -> int
+val format_datetime : string -> datetime -> string

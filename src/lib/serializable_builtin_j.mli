@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Platform
 open Serializable_builtin_t
 
 (** {1 Serializers for type number} *)

@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 val ( |> ) : 'a -> ('a -> 'b) -> 'b
-val ( =% ) : Z.t -> Z.t -> bool
 
 module Array : sig
   include module type of Array
@@ -50,16 +49,7 @@ end
 
 val list_join : 'a -> 'a list -> 'a list
 
-val sha256_hex : string -> string
-val sha256_b64 : string -> string
-
 val option_map : ('a -> 'b) -> 'a option -> 'b option
-
-val pbkdf2 :
-  prf:(string -> Cryptokit.hash) ->
-  salt:string ->
-  iterations:int -> size:int ->
-  string -> string
 
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
 

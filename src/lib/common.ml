@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 let ( |> ) x f = f x
-let ( =% ) = Z.equal
 
 module Array = struct
   include Array
@@ -138,55 +137,9 @@ let rec list_join sep = function
   | [x] -> [x]
   | x :: xs -> x :: sep :: list_join sep xs
 
-let sha256_hex x = Cryptokit.(x |>
-  hash_string (Hash.sha256 ()) |>
-  transform_string (Hexa.encode ())
-)
-
-let sha256_b64 x = Cryptokit.(x |>
-  hash_string (Hash.sha256 ()) |>
-  transform_string (Base64.encode_compact ())
-)
-
 let option_map f = function
   | Some x -> Some (f x)
   | None -> None
-
-let int_msb i =
-  let result = String.create 4 in
-  result.[0] <- char_of_int (i lsr 24);
-  result.[1] <- char_of_int ((i lsr 16) land 0xff);
-  result.[2] <- char_of_int ((i lsr 8) land 0xff);
-  result.[3] <- char_of_int (i land 0xff);
-  result
-
-let xor a b =
-  let n = String.length a in
-  assert (n = String.length b);
-  let result = String.create n in
-  for i = 0 to n-1 do
-    result.[i] <- char_of_int (int_of_char a.[i] lxor int_of_char b.[i])
-  done;
-  result
-
-let pbkdf2 ~prf ~salt ~iterations ~size password =
-  let c = iterations - 1 in
-  let hLen = (prf password)#hash_size in
-  let result = String.create (hLen * size) in
-  let one_iteration i =
-    let u = Cryptokit.hash_string (prf password) (salt ^ int_msb i) in
-    let rec loop c u accu =
-      if c > 0 then
-        let u' = Cryptokit.hash_string (prf password) u in
-        loop (c-1) u' (xor accu u')
-      else accu
-    in loop c u u
-  in
-  for i = 1 to size do
-    let offset = (i-1) * hLen in
-    String.blit (one_iteration i) 0 result offset hLen;
-  done;
-  result
 
 let save_to filename writer x =
   let oc = open_out filename in

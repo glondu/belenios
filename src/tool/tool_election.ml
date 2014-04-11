@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Platform
 open Serializable_builtin_j
 open Serializable_j
 open Signatures
@@ -150,7 +151,7 @@ module Run (P : PARAMS) : EMPTY = struct
         let sk =
           match load_from_file (fun x -> x) privcred with
           | Some [cred] ->
-            let hex = Tool_credgen.derive e.e_params.e_uuid cred in
+            let hex = derive_cred e.e_params.e_uuid cred in
             Some Z.(of_string_base 16 hex mod G.q)
           | _ -> failwith "invalid credential file"
         in

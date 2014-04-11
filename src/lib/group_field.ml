@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Platform
 open Serializable_j
 open Common
 
@@ -61,7 +62,7 @@ let unsafe_make group =
     let ( *~ ) a b = a * b mod p
     let ( **~ ) a b = powm a b p
     let invert x = Z.invert x p
-    let ( =~ ) = Z.equal
+    let ( =~ ) = Z.( =% )
     let check x = check_modulo p x && x **~ q =~ one
     let to_string = Z.to_string
     let of_string = Z.of_string

@@ -21,6 +21,7 @@
 
 (** Election primitives *)
 
+open Platform
 open Serializable_t
 open Signatures
 

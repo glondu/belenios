@@ -19,24 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Platform
 open Signatures
 open Common
-
-let remove_dashes x =
-  let n = String.length x in
-  let res = Buffer.create n in
-  for i = 0 to n-1 do
-    let c = x.[i] in
-    if c <> '-' then Buffer.add_char res c;
-  done;
-  Buffer.contents res
-
-let do_derive uuid x =
-  let open Cryptokit in
-  let uuid = remove_dashes (Uuidm.to_string uuid) in
-  let salt = transform_string (Hexa.decode ()) uuid in
-  pbkdf2 ~prf:MAC.hmac_sha256 ~iterations:1000 ~size:1 ~salt x |>
-  transform_string (Hexa.encode ())
 
 type generate_kind = Count of int | File of string
 type action =  Derive of string | Generate of generate_kind
@@ -60,7 +45,7 @@ module Run (P : PARAMS) : EMPTY = struct
   let n53 = Z.of_int 53
 
   let public_key_of_token uuid x =
-    let hex = do_derive uuid x in
+    let hex = derive_cred uuid x in
     let x = Z.(of_string_base 16 hex mod G.q) in
     let y = G.(g **~ x) in
     G.to_string y
@@ -84,8 +69,8 @@ module Run (P : PARAMS) : EMPTY = struct
 
     (* The generation itself *)
 
-    let prng = Cryptokit.Random.(pseudo_rng (string secure_rng 16)) in
-    let random_char () = int_of_char (Cryptokit.Random.string prng 1).[0] in
+    let prng = pseudo_rng (random_string secure_rng 16) in
+    let random_char () = int_of_char (random_string prng 1).[0] in
 
     let generate_raw_token () =
       let res = String.create token_length in
@@ -179,8 +164,6 @@ module Run (P : PARAMS) : EMPTY = struct
     | Generate kind -> generate kind
 
 end
-
-let derive = do_derive
 
 open Tool_common
 

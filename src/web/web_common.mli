@@ -23,14 +23,14 @@ open Serializable_builtin_t
 open Serializable_t
 open Web_serializable_t
 
-val make_rng : unit -> Cryptokit.Random.rng Lwt.t
+val make_rng : unit -> Platform.rng Lwt.t
 (** Create a pseudo random number generator initialized by a 128-bit
     secure random seed. *)
 
 module type LWT_RANDOM = Signatures.RANDOM with type 'a t = 'a Lwt.t
 
 module type LWT_RNG = sig
-  val rng : Cryptokit.Random.rng Lwt.t
+  val rng : Platform.rng Lwt.t
 end
 
 module MakeLwtRandom (X : LWT_RNG) : LWT_RANDOM

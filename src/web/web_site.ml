@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Platform
 open Serializable_j
 open Signatures
 open Common
@@ -344,20 +345,20 @@ module Make (C : CONFIG) : SITE = struct
 
   let do_get_randomness =
     let prng = Lazy.lazy_from_fun (Lwt_preemptive.detach (fun () ->
-      Cryptokit.Random.(pseudo_rng (string secure_rng 16))
+      pseudo_rng (random_string secure_rng 16)
     )) in
     let mutex = Lwt_mutex.create () in
     fun () ->
       Lwt_mutex.with_lock mutex (fun () ->
         lwt prng = Lazy.force prng in
-        return Cryptokit.Random.(string prng 32)
+        return (random_string prng 32)
       )
 
   let () = String.register
     ~service:get_randomness
     (fun () () ->
       lwt r = do_get_randomness () in
-      Cryptokit.(transform_string (Base64.encode_compact ()) r) |>
+      b64_encode_compact r |>
       (fun x -> string_of_randomness { randomness=x }) |>
       (fun x -> return (x, "application/json"))
     )

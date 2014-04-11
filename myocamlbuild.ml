@@ -19,6 +19,26 @@ let atdgen_action opts env build =
 let js_of_ocaml env build =
   Cmd (S [A"js_of_ocaml"; P (env "%.byte")])
 
+let ( / ) = Filename.concat
+
+let platform_rules kind =
+  let lib = "src" / "lib" in
+  let platform = "src" / "platform" / kind / "platform" in
+  let ml = platform ^ ".ml" in
+  let mli = platform ^ ".mli" in
+  dep ["file:" ^ ml] [mli];
+  copy_rule mli (lib / "platform.mli") mli
+
+let tool_rules platform =
+  let platform = "src" / "platform" / platform / "platform" in
+  let lib = "src" / "lib" / "serializable_builtin_t" in
+  let lib_native = lib ^ ".cmx" in
+  let lib_byte = lib ^ ".cmo" in
+  let cmo = platform ^ ".cmo" in
+  let cmx = platform ^ ".cmx" in
+  dep ["file:" ^ lib_native] [cmx];
+  dep ["file:" ^ lib_byte] [cmo]
+
 let () = dispatch & function
 
   | Before_options ->
@@ -50,6 +70,10 @@ let () = dispatch & function
       (fun env build ->
         Cmd (S [A"markdown"; P (env "%.md"); Sh">"; P (env "%.html")])
       );
+
+    platform_rules "native";
+    platform_rules "js";
+    tool_rules "native";
 
     copy_rule "belenios-tool" ("src/tool/tool_main" ^ exe_suffix) "belenios-tool";
 

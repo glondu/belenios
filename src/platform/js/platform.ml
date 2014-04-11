@@ -19,13 +19,47 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Platform
+let sha256_hex x = assert false
+let sha256_b64 x = assert false
 
-type number = Z.t
-type uuid = Uuidm.t
-type datetime = Platform.datetime
-type int_or_null = int option
+let b64_encode_compact x = assert false
 
-module SSet : Set.S with type elt = string
+let derive_cred uuid x = assert false
 
-type string_set = SSet.t
+type rng = unit -> unit
+
+let secure_rng () = assert false
+let pseudo_rng x () = assert false
+let random_string rng i = assert false
+
+module Z = struct
+  type t = unit -> unit
+  let zero () = assert false
+  let one () = assert false
+  let of_int x = assert false
+  let of_string x = assert false
+  let of_string_base b x = assert false
+  let ( + ) x y = assert false
+  let ( - ) x y = assert false
+  let ( * ) x y = assert false
+  let ( mod ) x y = assert false
+  let erem x y = assert false
+  let to_int x = assert false
+  let to_string x = assert false
+  let compare x y = assert false
+  let ( =% ) x y = assert false
+  let geq x y = assert false
+  let lt x y = assert false
+  let powm x y m = assert false
+  let invert x m = assert false
+  let probab_prime x n = assert false
+  let size x = assert false
+  let of_bits x = assert false
+end
+
+type datetime
+let now () = assert false
+let string_of_datetime x = assert false
+let datetime_of_string x = assert false
+let datetime_compare x y = assert false
+let format_datetime fmt x = assert false
