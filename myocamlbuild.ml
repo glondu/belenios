@@ -16,6 +16,8 @@ let atdgen_action opts env build =
   let d = Pathname.dirname x and f = Pathname.basename x in
   Cmd (S [A"cd"; P d; Sh"&&"; A"atdgen"; S opts; P f])
 
+let js_of_ocaml env build =
+  Cmd (S [A"js_of_ocaml"; P (env "%.byte")])
 
 let () = dispatch & function
 
@@ -41,6 +43,9 @@ let () = dispatch & function
       (atdgen_action [A"-t"]);
     rule "%.atd -> %_j.ml & %_j.mli" ~deps:["%.atd"] ~prods:["%_j.ml"; "%_j.mli"]
       (atdgen_action [A"-j"; A"-j-std"]);
+
+    rule "%.byte -> %.js" ~deps:["%.byte"] ~prods:["%.js"] js_of_ocaml;
+
     rule "%.md -> %.html" ~deps:["%.md"] ~prods:["%.html"]
       (fun env build ->
         Cmd (S [A"markdown"; P (env "%.md"); Sh">"; P (env "%.html")])
