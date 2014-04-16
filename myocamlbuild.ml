@@ -23,21 +23,20 @@ let ( / ) = Filename.concat
 
 let platform_rules kind =
   let lib = "src" / "lib" in
-  let platform = "src" / "platform" / kind / "platform" in
-  let ml = platform ^ ".ml" in
-  let mli = platform ^ ".mli" in
+  let platform_dir = "src" / "platform" in
+  let platform_mod = platform_dir / kind / "platform" in
+  let platform_lib = platform_dir / "platform-" ^ kind in
+  let ml = platform_mod ^ ".ml" in
+  let mli = platform_mod ^ ".mli" in
+  let mllib = platform_lib ^ ".mllib" in
+  rule mllib ~deps:[ml] ~prods:[mllib] (fun _ _ ->
+    (* technically, there is no dependency, but we need the directory to
+       exist for the following *)
+    Echo ([platform_dir / kind / "Platform"; "\n"], mllib)
+  );
   dep ["file:" ^ ml] [mli];
-  copy_rule mli (lib / "platform.mli") mli
-
-let tool_rules platform =
-  let platform = "src" / "platform" / platform / "platform" in
-  let lib = "src" / "lib" / "serializable_builtin_t" in
-  let lib_native = lib ^ ".cmx" in
-  let lib_byte = lib ^ ".cmo" in
-  let cmo = platform ^ ".cmo" in
-  let cmx = platform ^ ".cmx" in
-  dep ["file:" ^ lib_native] [cmx];
-  dep ["file:" ^ lib_byte] [cmo]
+  copy_rule mli (lib / "platform.mli") mli;
+  ocaml_lib platform_lib
 
 let () = dispatch & function
 
@@ -73,7 +72,6 @@ let () = dispatch & function
 
     platform_rules "native";
     platform_rules "js";
-    tool_rules "native";
 
     copy_rule "belenios-tool" ("src/tool/tool_main" ^ exe_suffix) "belenios-tool";
 
