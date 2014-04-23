@@ -82,7 +82,7 @@ private key!
 Credential authority's guide
 ----------------------------
 
-### Fully anonymous credential generation
+### Pseudonymous credential generation
 
 To generate the credentials, run:
 
@@ -90,35 +90,34 @@ To generate the credentials, run:
 
 where `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX` is the UUID of the
 election given by the administrator, and `N` the number of credentials
-to generate. It will generate two files, `TTTTTTTTTT.public` and
-`TTTTTTTTTT.private` (where `TTTTTTTTTT` is a timestamp), each with
-`N` lines. Send the public file as a whole to the administator, and
-each line of the private file to each voter.
+to generate. It will generate three files with `N` lines:
+
+ * `T.privcreds`: each line of this file contains a unique numeric
+   identifier and a private credential. Assign each identifier to a
+   voter and send him/her the associated credential. Destroy the whole
+   file when you are done;
+ * `T.pubcreds`: each line of this file contains a public credential.
+   Send the whole file to the election administrator; it will be the
+   initial `public_creds.txt` for the election;
+ * `T.hashcreds`: each line of this file contains, for each id in
+   `T.privcreds`, the hash of the corresponding public key. This file
+   is needed if you want to be able to change a credential after the
+   election is set up (e.g. if some voter lost his/her private
+   credential). If you do not want this feature, destroy this file and
+   the association between identifiers and voters.
 
 You can optionally add a `--dir` option to specify the directory where
 these files will be written.
 
-Note that, if you are honest, you must not keep the private file, nor
-to whom you sent each individual private credential.
-
 ### Credential generation with identity matching
 
-If you have a list of identities in a file `F` with `N` non-empty
-lines, one identity per line, you can also run:
+If you have a list of identities in a file `F` with `N` lines, one
+identity per line, you can also run:
 
     belenios-tool credgen --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --file F
 
-It will create the same `TTTTTTTTTT.public` file as above, with `N`
-lines. It will also generate `TTTTTTTTTT.private` with `N` lines, each
-one containing a private credential and the identity of whom to send
-it to. Additionally, it will create `TTTTTTTTTT.hashed` with `N`
-lines, each one containing the hash of a public credential and the
-corresponding identity. Only the hashed file is needed to disactivate
-the credential of a specific identify; the private file must still be
-forgotten once it is used.
-
-Note that, as a safety measure, all output files are written sorted so
-that there is no matching between them based on line numbers.
+It will create the same files as above using identities from `F`
+instead of generating numeric identifiers.
 
 ### Checking a private credential
 
