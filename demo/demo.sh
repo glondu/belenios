@@ -41,8 +41,9 @@ belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/electi
 
 header "Simulate votes"
 
-cat private_creds.txt | while read cred; do
+cat private_creds.txt | while read id cred; do
     belenios-tool vote --privcred <(echo $cred) --ballot <(printf "[[0,0,0,0,0],[0,1,0,1,1,0],[0,0,1]]")
+    echo "Voter $id voted" >&2
     echo >&2
 done > ballots.tmp
 mv ballots.tmp ballots.jsons
