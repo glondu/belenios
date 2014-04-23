@@ -25,10 +25,13 @@ open Signatures
 open Common
 
 module type PARAMS = sig
+  val dir : string
   val uuid : Uuidm.t
   val template : template
   module G : GROUP
 end
+
+let ( / ) = Filename.concat
 
 module Run (P : PARAMS) : EMPTY = struct
   open P
@@ -42,7 +45,7 @@ module Run (P : PARAMS) : EMPTY = struct
   module KG = Election.MakeSimpleDistKeyGen(G)(M);;
 
   let public_keys =
-    let ic = open_in "public_keys.jsons" in
+    let ic = open_in (dir / "public_keys.jsons") in
     let raw_keys =
       let rec loop xs =
         match (try Some (input_line ic) with End_of_file -> None) with
@@ -73,13 +76,13 @@ module Run (P : PARAMS) : EMPTY = struct
   (* Save to disk *)
 
   let write_params = write_params G.write_wrapped_pubkey
-  let () = save_to "election.json" write_params params
+  let () = save_to (dir / "election.json") write_params params
 
 end
 
 open Tool_common
 
-let main group uuid template =
+let main dir group uuid template =
   wrap_main (fun () ->
     let _, group = get_mandatory_opt "--group" group in
     let _, template = get_mandatory_opt "--template" template in
@@ -87,11 +90,17 @@ let main group uuid template =
       module G = (val group : GROUP)
       let uuid = get_mandatory_opt "--uuid" uuid
       let template = template
+      let dir = dir
     end in
     let module X : EMPTY = Run (P) in ()
   )
 
 open Cmdliner
+
+let dir_t =
+  let doc = "Path to election files." in
+  let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
+  Arg.(value & opt dir Filename.current_dir_name the_info)
 
 let template_c =
   (fun fname ->
@@ -120,7 +129,7 @@ let mkelection_cmd =
     `S "DESCRIPTION";
     `P "This command reads and checks $(i,public_keys.jsons). It then computes the global election public key and generates an $(i,election.json) file.";
   ] @ common_man in
-  Term.(ret (pure main $ group_t $ uuid_t $ template_t)),
+  Term.(ret (pure main $ dir_t $ group_t $ uuid_t $ template_t)),
   Term.info "mkelection" ~doc ~man
 
 let cmds = [mkelection_cmd]
