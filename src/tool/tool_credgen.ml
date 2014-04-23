@@ -201,7 +201,7 @@ let count_t =
 
 let file_t =
   let doc = "Read identities from $(docv) and generate an additional $(i,T.hashcreds) with identities associated with hashed public credentials. These hashed public credentials are used by the hotline to update a public credential on the web server. One credential will be generated for each line of $(docv)." in
-  let the_info = Arg.info ["count"] ~docv:"FILE" ~doc in
+  let the_info = Arg.info ["file"] ~docv:"FILE" ~doc in
   Arg.(value & opt (some file) None the_info)
 
 let derive_t =
