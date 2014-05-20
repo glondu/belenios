@@ -26,6 +26,3 @@ val failcmd : ('a, unit, string, 'b) format4 -> 'a
 val common_man : [> `Noblank | `P of string | `S of string ] list
 val get_mandatory_opt : string -> 'a option -> 'a
 val wrap_main : (unit -> unit) -> [> `Error of bool * string | `Ok of unit ]
-
-val group_t : (string * (module Signatures.GROUP)) option Cmdliner.Term.t
-val uuid_t : Uuidm.t option Cmdliner.Term.t

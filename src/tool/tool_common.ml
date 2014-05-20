@@ -40,36 +40,3 @@ let wrap_main f =
   | Cmdline_error e -> `Error (true, e)
   | Failure e -> `Error (false, e)
   | e -> `Error (false, Printexc.to_string e)
-
-let group_c =
-  (fun fname ->
-    if Sys.file_exists fname then (
-      try
-        let ic = open_in fname in
-        let ls = Yojson.init_lexer () in
-        let lb = Lexing.from_channel ic in
-        let r = Group.read ls lb in
-        close_in ic;
-        `Ok (fname, r)
-      with e ->
-        let e = Printexc.to_string e and s = Printf.sprintf in
-        `Error (s "could not read group parameters from %s (%s)" fname e)
-    ) else `Error (Printf.sprintf "file %s does not exist" fname)
-  ), (fun fmt (fname, _) -> Format.pp_print_string fmt fname)
-
-let uuid_c =
-  (fun u ->
-    match Uuidm.of_string u with
-    | Some uuid -> `Ok uuid
-    | None -> `Error (Printf.sprintf "%s is not a valid UUID" u)
-  ), (fun fmt u -> Format.pp_print_string fmt (Uuidm.to_string u))
-
-open Cmdliner
-
-let group_t =
-  let doc = "Take group parameters from file $(docv)." in
-  Arg.(value & opt (some group_c) None & info ["group"] ~docv:"GROUP" ~doc)
-
-let uuid_t =
-  let doc = "UUID of the election." in
-  Arg.(value & opt (some uuid_c) None & info ["uuid"] ~docv:"UUID" ~doc)
