@@ -26,10 +26,26 @@ open Signatures
 open Common
 
 module type PARAMS = sig
+  val group : string
+end
+
+module type S = sig
+  type keypair = { id : string; priv : string; pub : string }
+  val trustee_keygen : unit -> keypair
+end
+
+module type PARSED_PARAMS = sig
   module G : GROUP
 end
 
-module Run (P : PARAMS) : EMPTY = struct
+let parse_params p =
+  let module P = (val p : PARAMS) in
+  let module R = struct
+    module G = (val Group.of_string P.group : GROUP)
+  end
+  in (module R : PARSED_PARAMS)
+
+module Make (P : PARSED_PARAMS) : S = struct
   open P
 
   (* Setup group *)
@@ -39,58 +55,71 @@ module Run (P : PARAMS) : EMPTY = struct
   (* Generate key *)
 
   module KG = Election.MakeSimpleDistKeyGen(G)(M);;
-  let private_key, public_key = KG.generate_and_prove () ();;
-  assert (KG.check public_key);;
 
-  (* Save to file *)
+  type keypair = { id : string; priv : string; pub : string }
 
-  let id = String.sub
-    (sha256_hex (G.to_string public_key.trustee_public_key))
-    0 8 |> String.uppercase
-  ;;
-
-  Printf.printf "Keypair %s has been generated\n%!" id;;
-
-  let pubkey =
-    "public",
-    id ^ ".pubkey",
-    0o444,
-    public_key,
-    write_trustee_public_key G.write
-
-  let privkey =
-    "private",
-    id ^ ".privkey",
-    0o400,
-    private_key,
-    write_number
-
-  let save (kind, filename, perm, thing, writer) =
-    let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
-    let ob = Bi_outbuf.create_channel_writer oc in
-    writer ob thing;
-    Bi_outbuf.add_char ob '\n';
-    Bi_outbuf.flush_channel_writer ob;
-    close_out oc;
-    Printf.printf "%s key saved to %s\n%!" (String.capitalize kind) filename;
-    (* set permissions in the unlikely case where the file already existed *)
-    Unix.chmod filename perm;;
-
-  save pubkey;;
-  save privkey;;
+  let trustee_keygen () =
+    let private_key, public_key = KG.generate_and_prove () () in
+    assert (KG.check public_key);
+    let id = String.sub
+      (sha256_hex (G.to_string public_key.trustee_public_key))
+      0 8 |> String.uppercase
+    in
+    Printf.printf "I: keypair %s has been generated\n%!" id;
+    let priv = string_of_number private_key in
+    let pub = string_of_trustee_public_key G.write public_key in
+    {id; priv; pub}
 
 end
+
+let make params =
+  let module P = (val parse_params params : PARSED_PARAMS) in
+  let module R = Make (P) in
+  (module R : S)
+
+let lines_of_file f =
+  let ic = open_in f in
+  let rec loop accu =
+    match (try Some (input_line ic) with End_of_file -> None) with
+    | Some x -> loop (x::accu)
+    | None -> List.rev accu
+  in
+  let res = loop [] in
+  close_in ic;
+  res
+
+let string_of_file f =
+  lines_of_file f |> String.concat "\n"
 
 open Tool_common
 
 let main group =
   wrap_main (fun () ->
-    let _, group = get_mandatory_opt "--group" group in
-    let module P = struct module G = (val group : GROUP) end in
-    let module X : EMPTY = Run (P) in ()
+    let module P = struct
+      let group = get_mandatory_opt "--group" group |> string_of_file
+    end in
+    let module R = (val make (module P : PARAMS) : S) in
+    let kp = R.trustee_keygen () in
+    let pubkey = "public", kp.R.id ^ ".pubkey", 0o444, kp.R.pub in
+    let privkey = "private", kp.R.id ^ ".privkey", 0o400, kp.R.priv in
+    let save (kind, filename, perm, thing) =
+      let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
+      output_string oc thing;
+      output_char oc '\n';
+      close_out oc;
+      Printf.printf "I: %s key saved to %s\n%!" kind filename;
+      (* set permissions in the unlikely case where the file already existed *)
+      Unix.chmod filename perm
+    in
+    save pubkey;
+    save privkey
   )
 
 open Cmdliner
+
+let group_t =
+  let doc = "Take group parameters from file $(docv)." in
+  Arg.(value & opt (some file) None & info ["group"] ~docv:"GROUP" ~doc)
 
 let tkeygen_cmd =
   let doc = "generate a trustee key" in
