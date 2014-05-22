@@ -23,44 +23,28 @@ open Serializable_j
 open Common
 open Cmdliner
 
-let lines_of_file f =
-  let ic = open_in f in
-  let rec loop accu =
-    match (try Some (input_line ic) with End_of_file -> None) with
-    | Some x -> loop (x::accu)
-    | None -> List.rev accu
-  in
-  let res = loop [] in
-  close_in ic;
-  res
+let stream_to_list s =
+  let res = ref [] in
+  Stream.iter (fun x -> res := x :: !res) s;
+  List.rev !res
 
-let string_of_file f =
-  lines_of_file f |> String.concat "\n"
-
-let int_length n =
-  string_of_int n |> String.length
-
-let stream_lines_of_file fname =
+let lines_of_file fname =
   let ic = open_in fname in
   Stream.from (fun _ ->
     try Some (input_line ic)
     with End_of_file -> close_in ic; None
   )
 
+let string_of_file f =
+  lines_of_file f |> stream_to_list |> String.concat "\n"
+
+let int_length n =
+  string_of_int n |> String.length
+
 let load_from_file of_string filename =
   if Sys.file_exists filename then (
     Printf.eprintf "I: loading %s...\n%!" (Filename.basename filename);
-    let ic = open_in filename in
-    let lines =
-      let rec loop lines =
-        match (try Some (input_line ic) with End_of_file -> None) with
-        | Some "" -> loop lines
-        | Some line -> loop (of_string line::lines)
-        | None -> lines
-      in loop []
-    in
-    close_in ic;
-    Some (List.rev lines)
+    Some (lines_of_file filename |> stream_to_list |> List.rev_map of_string)
   ) else None
 
 let ( / ) = Filename.concat
@@ -142,11 +126,11 @@ module Election : CMDLINER_MODULE = struct
       option_map Array.of_list
 
     let get_public_creds () =
-      try Some (stream_lines_of_file (X.dir/"public_creds.txt"))
+      try Some (lines_of_file (X.dir/"public_creds.txt"))
       with _ -> None
 
     let get_ballots () =
-      try Some (stream_lines_of_file (X.dir/"ballots.jsons"))
+      try Some (lines_of_file (X.dir/"ballots.jsons"))
       with _ -> None
 
     let get_result () =
@@ -320,7 +304,7 @@ module Credgen : CMDLINER_MODULE = struct
           if n < 1 then (
             failcmd "the argument of --count must be a positive number"
           ) else `Generate (generate_ids n)
-        | None, Some f, None -> `Generate (lines_of_file f)
+        | None, Some f, None -> `Generate (lines_of_file f |> stream_to_list)
         | None, None, Some c -> `Derive c
         | _, _, _ ->
           failcmd "--count, --file and --derive are mutually exclusive"
@@ -394,7 +378,7 @@ module Mkelection : CMDLINER_MODULE = struct
         let uuid = get_mandatory_opt "--uuid" uuid
         let template = get_mandatory_opt "--template" template |> string_of_file
         let get_public_keys () =
-          Some (lines_of_file (dir / "public_keys.jsons") |> Array.of_list)
+          Some (lines_of_file (dir / "public_keys.jsons") |> stream_to_list |> Array.of_list)
       end in
       let module R = (val make (module P : PARAMS) : S) in
       let params = R.mkelection () in
