@@ -38,6 +38,36 @@ let platform_rules kind =
   copy_rule mli (lib / "platform.mli") mli;
   ocaml_lib platform_lib
 
+let build_rule () =
+  let genversion = "genversion.sh" in
+  let deps = ["VERSION"; genversion] in
+  let prod = "BUILD" in
+  let builder _ _ =
+    Cmd (S [A "sh"; P genversion; Sh ">"; P prod])
+  in
+  rule "BUILD" ~deps ~prod builder
+
+let version_rule () =
+  let file = "BUILD" in
+  let deps = [file; "src/lib/belenios_version.mli"] in
+  let prod = "src/lib/belenios_version.ml" in
+  let builder _ _ =
+    let version, build =
+      let ic = open_in file in
+      let version = input_line ic in
+      let build = input_line ic in
+      close_in ic;
+      version, build
+    in
+    let lines = Printf.([
+      sprintf "let version = \"%s\"" version;
+      sprintf "let build = \"%s\"" build;
+    ]) in
+    Echo (lines, prod)
+  in
+  rule "BUILD -> belenios_version.ml" ~deps ~prod builder
+
+
 let () = dispatch & function
 
   | Before_options ->
@@ -68,6 +98,8 @@ let () = dispatch & function
         Cmd (S [A"markdown"; P (env "%.md"); Sh">"; P (env "%.html")])
       );
 
+    build_rule ();
+    version_rule ();
     platform_rules "native";
     platform_rules "js";
 

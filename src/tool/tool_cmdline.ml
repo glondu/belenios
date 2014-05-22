@@ -416,10 +416,11 @@ end
 let cmds = Tkeygen.cmds @ Election.cmds @ Credgen.cmds @ Mkelection.cmds
 
 let default_cmd =
+  let version = Belenios_version.(Printf.sprintf "%s (%s)" version build) in
   let doc = "election management tool" in
   let man = common_man in
   Term.(ret (pure (`Help (`Pager, None)))),
-  Term.info "belenios-tool" ~version:"0.2" ~doc ~man
+  Term.info "belenios-tool" ~version ~doc ~man
 
 let () =
   match Term.eval_choice default_cmd cmds with
