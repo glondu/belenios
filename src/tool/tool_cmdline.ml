@@ -75,6 +75,19 @@ module type CMDLINER_MODULE = sig
   val cmds : (unit Cmdliner.Term.t * Cmdliner.Term.info) list
 end
 
+let group_t =
+  let doc = "Take group parameters from file $(docv)." in
+  Arg.(value & opt (some file) None & info ["group"] ~docv:"GROUP" ~doc)
+
+let uuid_t =
+  let doc = "UUID of the election." in
+  Arg.(value & opt (some string) None & info ["uuid"] ~docv:"UUID" ~doc)
+
+let dir_t =
+  let doc = "Use directory $(docv) for reading of writing election files." in
+  let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
+  Arg.(value & opt dir Filename.current_dir_name the_info)
+
 module Tkeygen : CMDLINER_MODULE = struct
   open Tool_tkeygen
 
@@ -99,10 +112,6 @@ module Tkeygen : CMDLINER_MODULE = struct
       save pubkey;
       save privkey
     )
-
-  let group_t =
-    let doc = "Take group parameters from file $(docv)." in
-    Arg.(value & opt (some file) None & info ["group"] ~docv:"GROUP" ~doc)
 
   let cmds = [
     let doc = "generate a trustee key" in
@@ -188,11 +197,6 @@ module Election : CMDLINER_MODULE = struct
         output_char oc '\n';
         close_out oc
     )
-
-  let dir_t =
-    let doc = "Path to election files." in
-    let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
-    Arg.(value & opt dir Filename.current_dir_name the_info)
 
   let privcred_t =
     let doc = "Read private credential from file $(docv)." in
@@ -327,19 +331,6 @@ module Credgen : CMDLINER_MODULE = struct
         save params_hash base (List.rev hashs)
     )
 
-  let group_t =
-    let doc = "Take group parameters from file $(docv)." in
-    Arg.(value & opt (some file) None & info ["group"] ~docv:"GROUP" ~doc)
-
-  let uuid_t =
-    let doc = "UUID of the election." in
-    Arg.(value & opt (some string) None & info ["uuid"] ~docv:"UUID" ~doc)
-
-  let dir_t =
-    let doc = "Save output files to $(docv)." in
-    let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
-    Arg.(value & opt dir Filename.current_dir_name the_info)
-
   let count_t =
     let doc = "Generate $(docv) credentials." in
     let the_info = Arg.info ["count"] ~docv:"N" ~doc in
@@ -387,19 +378,6 @@ module Mkelection : CMDLINER_MODULE = struct
       output_char oc '\n';
       close_out oc
     )
-
-  let group_t =
-    let doc = "Take group parameters from file $(docv)." in
-    Arg.(value & opt (some file) None & info ["group"] ~docv:"GROUP" ~doc)
-
-  let uuid_t =
-    let doc = "UUID of the election." in
-    Arg.(value & opt (some string) None & info ["uuid"] ~docv:"UUID" ~doc)
-
-  let dir_t =
-    let doc = "Path to election files." in
-    let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
-    Arg.(value & opt dir Filename.current_dir_name the_info)
 
   let template_c =
     (fun fname ->
