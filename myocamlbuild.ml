@@ -71,6 +71,6 @@ let () = dispatch & function
     platform_rules "native";
     platform_rules "js";
 
-    copy_rule "belenios-tool" ("src/tool/tool_main" ^ exe_suffix) "belenios-tool";
+    copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
 
   | _ -> ()

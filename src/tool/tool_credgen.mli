@@ -1,5 +1,3 @@
-open Tool_common
-
 module type PARAMS = sig
   val uuid : string
   val group : string
@@ -11,5 +9,3 @@ module type S = sig
 end
 
 val make : (module PARAMS) -> (module S)
-
-val cmds : (unit Cmdliner.Term.t * Cmdliner.Term.info) list

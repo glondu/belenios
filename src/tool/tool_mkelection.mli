@@ -10,5 +10,3 @@ module type S = sig
 end
 
 val make : (module PARAMS) -> (module S)
-
-val cmds : (unit Cmdliner.Term.t * Cmdliner.Term.info) list

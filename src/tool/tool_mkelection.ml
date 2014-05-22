@@ -58,8 +58,6 @@ let parse_params p =
   end
   in (module R : PARSED_PARAMS)
 
-let ( / ) = Filename.concat
-
 module Make (P : PARSED_PARAMS) : S = struct
   open P
 
@@ -100,82 +98,3 @@ let make params =
   let module P = (val parse_params params : PARSED_PARAMS) in
   let module R = Make (P) in
   (module R : S)
-
-let lines_of_file f =
-  let ic = open_in f in
-  let rec loop accu =
-    match (try Some (input_line ic) with End_of_file -> None) with
-    | Some x -> loop (x::accu)
-    | None -> List.rev accu
-  in
-  let res = loop [] in
-  close_in ic;
-  res
-
-let string_of_file f =
-  lines_of_file f |> String.concat "\n"
-
-open Tool_common
-
-let main dir group uuid template =
-  wrap_main (fun () ->
-    let module P = struct
-      let group = get_mandatory_opt "--group" group |> string_of_file
-      let uuid = get_mandatory_opt "--uuid" uuid
-      let template = get_mandatory_opt "--template" template |> string_of_file
-      let get_public_keys () =
-        Some (lines_of_file (dir / "public_keys.jsons") |> Array.of_list)
-    end in
-    let module R = (val make (module P : PARAMS) : S) in
-    let params = R.mkelection () in
-    let oc = open_out (dir / "election.json") in
-    output_string oc params;
-    output_char oc '\n';
-    close_out oc
-  )
-
-open Cmdliner
-
-let group_t =
-  let doc = "Take group parameters from file $(docv)." in
-  Arg.(value & opt (some file) None & info ["group"] ~docv:"GROUP" ~doc)
-
-let uuid_t =
-  let doc = "UUID of the election." in
-  Arg.(value & opt (some string) None & info ["uuid"] ~docv:"UUID" ~doc)
-
-let dir_t =
-  let doc = "Path to election files." in
-  let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
-  Arg.(value & opt dir Filename.current_dir_name the_info)
-
-let template_c =
-  (fun fname ->
-    if Sys.file_exists fname then (
-      try
-        let ic = open_in fname in
-        let ls = Yojson.init_lexer () in
-        let lb = Lexing.from_channel ic in
-        let r = read_template ls lb in
-        close_in ic;
-        `Ok (fname, r)
-      with e ->
-        let e = Printexc.to_string e and s = Printf.sprintf in
-        `Error (s "could not read template from %s (%s)" fname e)
-    ) else `Error (Printf.sprintf "file %s does not exist" fname)
-  ), (fun fmt (fname, _) -> Format.pp_print_string fmt fname)
-
-let template_t =
-  let doc = "Read election template from file $(docv)." in
-  Arg.(value & opt (some file) None & info ["template"] ~docv:"TEMPLATE" ~doc)
-
-let mkelection_cmd =
-  let doc = "create an election public parameter file" in
-  let man = [
-    `S "DESCRIPTION";
-    `P "This command reads and checks $(i,public_keys.jsons). It then computes the global election public key and generates an $(i,election.json) file.";
-  ] @ common_man in
-  Term.(ret (pure main $ dir_t $ group_t $ uuid_t $ template_t)),
-  Term.info "mkelection" ~doc ~man
-
-let cmds = [mkelection_cmd]
