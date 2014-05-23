@@ -23,14 +23,15 @@ open Platform
 
 let document = Dom_html.window##document
 
-let alert (s : Js.js_string Js.t) : unit =
-  Js.Unsafe.fun_call (Js.Unsafe.variable "alert") [| Js.Unsafe.inject s |]
+let alert s =
+  let open Js.Unsafe in
+  fun_call (variable "alert") [| s |> Js.string |> inject |]
 
 let install_handler (id, handler) =
   let f _ =
     begin try handler () with e ->
       let msg = "Unexpected error: " ^ Printexc.to_string e in
-      alert (Js.string msg)
+      alert msg
     end;
     Js._false
   in
