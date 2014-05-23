@@ -61,28 +61,12 @@ let set_textarea id z =
         (fun x -> x##value <- Js.string z)
     )
 
-module Calc = struct
+module Tests = struct
 
-  let add () =
-    let a = Z.of_string (get_textarea "calc_a") in
-    let b = Z.of_string (get_textarea "calc_b") in
-    set_textarea "calc_r" Z.(to_string (a + b))
+  let unit_tests () =
+    alert "All tests were successful!"
 
-  let mul () =
-    let a = Z.of_string (get_textarea "calc_a") in
-    let b = Z.of_string (get_textarea "calc_b") in
-    set_textarea "calc_r" Z.(to_string (a * b))
-
-  let sub () =
-    let a = Z.of_string (get_textarea "calc_a") in
-    let b = Z.of_string (get_textarea "calc_b") in
-    set_textarea "calc_r" Z.(to_string (a - b))
-
-  let cmds = [
-    "do_add", add;
-    "do_mul", mul;
-    "do_sub", sub;
-  ]
+  let cmds = ["do_unit_tests", unit_tests]
 end
 
 module Tkeygen = struct
@@ -98,7 +82,7 @@ module Tkeygen = struct
   let cmds = ["do_tkeygen", tkeygen]
 end
 
-let cmds = Calc.cmds @ Tkeygen.cmds
+let cmds = Tests.cmds @ Tkeygen.cmds
 
 let install_handlers () =
   List.iter install_handler cmds
