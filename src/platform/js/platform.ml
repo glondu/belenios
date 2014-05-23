@@ -40,26 +40,32 @@ module Z = struct
   let zero = get lib "ZERO"
   let one = get lib "ONE"
 
-  let of_int x = assert false
+  let of_string_base b x = new_obj lib
+    [|
+      x |> Js.string |> inject;
+      b |> float_of_int |> Js.number_of_float |> inject;
+    |]
 
-  let of_string x =
-    new_obj lib [| x |> Js.string |> inject |]
-
-  let of_string_base b x = assert false
+  let of_string x = of_string_base 10 x
+  let of_int x = x |> string_of_int |> of_string
   let ( + ) x y = meth_call x "add" [| y |]
   let ( - ) x y = meth_call x "subtract" [| y |]
   let ( * ) x y = meth_call x "multiply" [| y |]
-  let ( mod ) x y = assert false
+  let ( mod ) x y = meth_call x "mod" [| y |]
   let erem x y = assert false
-  let to_int x = assert false
+  let to_int x = meth_call x "intValue" [| |]
   let to_string x = meth_call x "toString" [| |] |> Js.to_string
   let compare x y = assert false
   let ( =% ) x y = assert false
   let geq x y = assert false
   let lt x y = assert false
-  let powm x y m = assert false
-  let invert x m = assert false
-  let probab_prime x n = assert false
+  let powm x y m = meth_call x "modPow" [| y; m |]
+  let invert x m = meth_call x "modInverse" [| m |]
+
+  let probab_prime x n =
+    meth_call x "isProbablePrime" [| |] |>
+    Js.float_of_number |> int_of_float
+
   let size x = assert false
   let of_bits x = assert false
 end

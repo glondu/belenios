@@ -80,6 +80,16 @@ module Tests = struct
     check "add" (operator Z.( + ) "44882170531862833234");
     check "mul" (operator Z.( * ) "416966603126589360375328894595477783568");
     check "sub" (operator Z.( - ) "-18615660588463118978");
+    let a = 132180439 and b = 41907500 in
+    let c = Z.of_int a and d = Z.of_int b in
+    let int_roundtrip a c () = a = Z.to_int c in
+    check "int_roundtrip_a" (int_roundtrip a c);
+    check "int_roundtrip_b" (int_roundtrip b d);
+    let m = Z.of_int 181944121 in
+    check "mod" (fun () -> Z.to_int Z.((c * d) mod m) = 30881634);
+    check "powm" (fun () -> Z.to_int (Z.powm c d m) = 81171525);
+    check "invert" (fun () -> Z.to_int (Z.invert c m) = 54455411);
+    check "prime" (fun () -> Z.probab_prime m 5 > 0);
     Printf.ksprintf alert "%d tests were successful!" !ntests
 
   let cmds = ["do_unit_tests", unit_tests]
