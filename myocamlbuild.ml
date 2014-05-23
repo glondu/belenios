@@ -104,5 +104,7 @@ let () = dispatch & function
     platform_rules "js";
 
     copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
+    copy_rule "jsbn" "ext/booth/js/jscrypto/jsbn.js" "src/tool/jsbn.js";
+    copy_rule "jsbn2" "ext/booth/js/jscrypto/jsbn2.js" "src/tool/jsbn2.js";
 
   | _ -> ()

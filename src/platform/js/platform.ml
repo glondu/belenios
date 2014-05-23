@@ -33,19 +33,26 @@ let pseudo_rng x () = assert false
 let random_string rng i = assert false
 
 module Z = struct
-  type t = unit -> unit
-  let zero () = assert false
-  let one () = assert false
+  open Js.Unsafe
+  type t = any
+
+  let lib = variable "BigInteger"
+  let zero = get lib "ZERO"
+  let one = get lib "ONE"
+
   let of_int x = assert false
-  let of_string x = assert false
+
+  let of_string x =
+    new_obj lib [| x |> Js.string |> inject |]
+
   let of_string_base b x = assert false
-  let ( + ) x y = assert false
-  let ( - ) x y = assert false
-  let ( * ) x y = assert false
+  let ( + ) x y = meth_call x "add" [| y |]
+  let ( - ) x y = meth_call x "subtract" [| y |]
+  let ( * ) x y = meth_call x "multiply" [| y |]
   let ( mod ) x y = assert false
   let erem x y = assert false
   let to_int x = assert false
-  let to_string x = assert false
+  let to_string x = meth_call x "toString" [| |] |> Js.to_string
   let compare x y = assert false
   let ( =% ) x y = assert false
   let geq x y = assert false

@@ -3,3 +3,5 @@ src/lib/lib.cma
 src/web/server.cma
 src/tool/tool_js.js
 src/tool/belenios_tool.html
+src/tool/jsbn.js
+src/tool/jsbn2.js
