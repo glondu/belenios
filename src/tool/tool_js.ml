@@ -64,7 +64,23 @@ let set_textarea id z =
 module Tests = struct
 
   let unit_tests () =
-    alert "All tests were successful!"
+    let a = "13133254971699857128" and b = "31748915560162976106" in
+    let c = Z.of_string a and d = Z.of_string b in
+    let ntests = ref 0 in
+    let check name f =
+      if not (f ()) then Printf.ksprintf failwith "test %s failed" name;
+      incr ntests
+    in
+    check "ZERO" (fun () -> Z.to_string Z.zero = "0");
+    check "ONE" (fun () -> Z.to_string Z.one = "1");
+    let string_roundtrip a c () = a = Z.to_string c in
+    check "string_roundtrip_a" (string_roundtrip a c);
+    check "string_roundtrip_b" (string_roundtrip b d);
+    let operator op expected () = expected = Z.to_string (op c d) in
+    check "add" (operator Z.( + ) "44882170531862833234");
+    check "mul" (operator Z.( * ) "416966603126589360375328894595477783568");
+    check "sub" (operator Z.( - ) "-18615660588463118978");
+    Printf.ksprintf alert "%d tests were successful!" !ntests
 
   let cmds = ["do_unit_tests", unit_tests]
 end
