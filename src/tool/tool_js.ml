@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Platform
+
 let document = Dom_html.window##document
 
 let alert (s : Js.js_string Js.t) : unit =
@@ -49,6 +51,39 @@ let get_textarea id =
   | None -> raise Not_found
   | Some x -> x
 
+let set_textarea id z =
+  Js.Opt.iter
+    (document##getElementById (Js.string id))
+    (fun e ->
+      Js.Opt.iter
+        (Dom_html.CoerceTo.textarea e)
+        (fun x -> x##value <- Js.string z)
+    )
+
+module Calc = struct
+
+  let add () =
+    let a = Z.of_string (get_textarea "calc_a") in
+    let b = Z.of_string (get_textarea "calc_b") in
+    set_textarea "calc_r" Z.(to_string (a + b))
+
+  let mul () =
+    let a = Z.of_string (get_textarea "calc_a") in
+    let b = Z.of_string (get_textarea "calc_b") in
+    set_textarea "calc_r" Z.(to_string (a * b))
+
+  let sub () =
+    let a = Z.of_string (get_textarea "calc_a") in
+    let b = Z.of_string (get_textarea "calc_b") in
+    set_textarea "calc_r" Z.(to_string (a - b))
+
+  let cmds = [
+    "do_add", add;
+    "do_mul", mul;
+    "do_sub", sub;
+  ]
+end
+
 module Tkeygen = struct
   open Tool_tkeygen
 
@@ -62,7 +97,7 @@ module Tkeygen = struct
   let cmds = ["do_tkeygen", tkeygen]
 end
 
-let cmds = Tkeygen.cmds
+let cmds = Calc.cmds @ Tkeygen.cmds
 
 let install_handlers () =
   List.iter install_handler cmds
