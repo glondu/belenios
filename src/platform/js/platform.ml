@@ -61,6 +61,7 @@ module Z = struct
   let lt x y = compare x y < 0
   let powm x y m = meth_call x "modPow" [| y; m |]
   let invert x m = meth_call x "modInverse" [| m |]
+  let bit_length x = meth_call x "bitLength" [| |]
 
   let erem x y =
     let r = x mod y in
@@ -70,8 +71,15 @@ module Z = struct
     meth_call x "isProbablePrime" [| |] |>
     Js.float_of_number |> int_of_float
 
-  let size x = assert false
-  let of_bits x = assert false
+  let z256 = of_int 256
+
+  let of_bits x =
+    let n = String.length x in
+    let rec loop res i =
+      if i >= 0
+      then loop (res * z256 + of_int (int_of_char x.[i])) (pred i)
+      else res
+    in loop zero (pred n)
 end
 
 type datetime

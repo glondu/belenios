@@ -95,6 +95,11 @@ module Tests = struct
     check "neq" (fun () -> Z.(not (c =% d)));
     check "geq" (fun () -> Z.geq c d);
     check "lt" (fun () -> Z.lt d c);
+    let i = Z.of_string "272660753928370030481696309961224617984" in
+    check "bit_length" (fun () -> Z.bit_length i = 128);
+    let j = Z.of_bits "\x81\xab\xd3\xed\x0b\x19\x2e\x40\x7a\xca" in
+    let k = Z.of_string "956173156978067279948673" in
+    check "of_bits" (fun () -> Z.(j =% k));
     Printf.ksprintf alert "%d tests were successful!" !ntests
 
   let cmds = ["do_unit_tests", unit_tests]

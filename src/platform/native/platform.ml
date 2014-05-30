@@ -92,6 +92,7 @@ let random_string = Cryptokit.Random.string
 module Z = struct
   include Z
   let ( =% ) = equal
+  let bit_length x = Pervasives.(String.length (to_bits x) * 8)
 end
 
 open CalendarLib

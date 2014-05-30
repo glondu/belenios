@@ -61,7 +61,7 @@ module MakeLwtRandom (X : LWT_RNG) = struct
   let fail = Lwt.fail
 
   let random q =
-    let size = Z.size q * Sys.word_size / 8 in
+    let size = Z.bit_length q / 8 + 1 in
     lwt rng = X.rng in
     let r = random_string rng size in
     return Z.(of_bits r mod q)

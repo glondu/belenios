@@ -52,7 +52,7 @@ module Z : sig
   val powm : t -> t -> t -> t
   val invert : t -> t -> t
   val probab_prime : t -> int -> int
-  val size : t -> int
+  val bit_length : t -> int
   val of_bits : string -> t
 end
 

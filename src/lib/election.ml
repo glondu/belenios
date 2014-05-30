@@ -50,7 +50,7 @@ module MakeSimpleMonad (G : GROUP) = struct
   let fail e = raise e
 
   let random q =
-    let size = Z.size q * Sys.word_size / 8 in
+    let size = Z.bit_length q / 8 + 1 in
     fun () ->
       let r = random_string (Lazy.force prng) size in
       Z.(of_bits r mod q)
