@@ -122,7 +122,24 @@ module Tkeygen = struct
   let cmds = ["do_tkeygen", tkeygen]
 end
 
-let cmds = Tests.cmds @ Tkeygen.cmds
+module Credgen = struct
+  open Tool_credgen
+
+  let derive () =
+    let module P : PARAMS = struct
+      let uuid = get_textarea "credgen_uuid"
+      let group = get_textarea "credgen_group"
+    end in
+    let module X = (val make (module P : PARAMS) : S) in
+    let cred = get_textarea "credgen_derive_input" in
+    set_textarea "credgen_derive_output" (X.derive cred)
+
+  let cmds = [
+    "do_credgen_derive", derive;
+  ]
+end
+
+let cmds = Tests.cmds @ Tkeygen.cmds @ Credgen.cmds
 
 let install_handlers () =
   List.iter install_handler cmds
