@@ -113,7 +113,11 @@ module Tkeygen = struct
       let group = get_textarea "tkeygen_group"
     end in
     let module X = (val make (module P : PARAMS) : S) in
-    ignore (X.trustee_keygen ())
+    let open X in
+    let {id; priv; pub} = trustee_keygen () in
+    set_textarea "tkeygen_id" id;
+    set_textarea "tkeygen_secret" priv;
+    set_textarea "tkeygen_public" pub
 
   let cmds = ["do_tkeygen", tkeygen]
 end
