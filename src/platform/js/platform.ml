@@ -19,8 +19,19 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let sha256_hex x = assert false
-let sha256_b64 x = assert false
+let sjcl = Js.Unsafe.variable "sjcl"
+
+let sha256 x =
+  Js.Unsafe.meth_call sjcl "hash.sha256.hash"
+    [| Js.string x |> Js.Unsafe.inject |]
+
+let sha256_hex x =
+  Js.Unsafe.meth_call sjcl "codec.hex.fromBits"
+    [| sha256 x |] |> Js.to_string
+
+let sha256_b64 x =
+  Js.Unsafe.meth_call sjcl "codec.base64.fromBits"
+    [| sha256 x |] |> Js.to_string
 
 let b64_encode_compact x = assert false
 
@@ -28,9 +39,23 @@ let derive_cred uuid x = assert false
 
 type rng = unit -> unit
 
-let secure_rng () = assert false
-let pseudo_rng x () = assert false
-let random_string rng i = assert false
+let sjcl_random = Js.Unsafe.get sjcl "random"
+
+let secure_rng () =
+  Js.Unsafe.meth_call sjcl_random "addEntropy"
+    [|
+      Js.string "91ad862fdddfe6171fa8492414273" |> Js.Unsafe.inject;
+      256 |> float_of_int |> Js.number_of_float |> Js.Unsafe.inject;
+    |]
+
+let pseudo_rng x () = ()
+
+let random_string rng n =
+  let () = rng () in
+  Js.Unsafe.meth_call sjcl_random "randomWords"
+    [|
+      n |> float_of_int |> Js.number_of_float |> Js.Unsafe.inject;
+    |] |> Js.to_string
 
 module Z = struct
   open Js.Unsafe
