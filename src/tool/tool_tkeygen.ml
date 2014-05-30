@@ -65,7 +65,6 @@ module Make (P : PARSED_PARAMS) : S = struct
       (sha256_hex (G.to_string public_key.trustee_public_key))
       0 8 |> String.uppercase
     in
-    Printf.printf "I: keypair %s has been generated\n%!" id;
     let priv = string_of_number private_key in
     let pub = string_of_trustee_public_key G.write public_key in
     {id; priv; pub}

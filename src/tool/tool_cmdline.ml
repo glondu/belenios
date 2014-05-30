@@ -111,6 +111,7 @@ module Tkeygen : CMDLINER_MODULE = struct
       end in
       let module R = (val make (module P : PARAMS) : S) in
       let kp = R.trustee_keygen () in
+      Printf.printf "I: keypair %s has been generated\n%!" kp.R.id;
       let pubkey = "public", kp.R.id ^ ".pubkey", 0o444, kp.R.pub in
       let privkey = "private", kp.R.id ^ ".privkey", 0o400, kp.R.priv in
       let save (kind, filename, perm, thing) =
