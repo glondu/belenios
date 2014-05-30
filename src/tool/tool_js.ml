@@ -87,9 +87,14 @@ module Tests = struct
     check "int_roundtrip_b" (int_roundtrip b d);
     let m = Z.of_int 181944121 in
     check "mod" (fun () -> Z.to_int Z.((c * d) mod m) = 30881634);
+    check "erem" (fun () -> Z.to_int Z.((zero - c * d) mod m) = 151062487);
     check "powm" (fun () -> Z.to_int (Z.powm c d m) = 81171525);
     check "invert" (fun () -> Z.to_int (Z.invert c m) = 54455411);
     check "prime" (fun () -> Z.probab_prime m 5 > 0);
+    check "eq" (fun () -> Z.(c =% c));
+    check "neq" (fun () -> Z.(not (c =% d)));
+    check "geq" (fun () -> Z.geq c d);
+    check "lt" (fun () -> Z.lt d c);
     Printf.ksprintf alert "%d tests were successful!" !ntests
 
   let cmds = ["do_unit_tests", unit_tests]

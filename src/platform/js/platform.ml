@@ -52,15 +52,19 @@ module Z = struct
   let ( - ) x y = meth_call x "subtract" [| y |]
   let ( * ) x y = meth_call x "multiply" [| y |]
   let ( mod ) x y = meth_call x "mod" [| y |]
-  let erem x y = assert false
+
   let to_int x = meth_call x "intValue" [| |]
   let to_string x = meth_call x "toString" [| |] |> Js.to_string
-  let compare x y = assert false
-  let ( =% ) x y = assert false
-  let geq x y = assert false
-  let lt x y = assert false
+  let compare x y = meth_call x "compareTo" [| y |]
+  let ( =% ) x y = compare x y = 0
+  let geq x y = compare x y >= 0
+  let lt x y = compare x y < 0
   let powm x y m = meth_call x "modPow" [| y; m |]
   let invert x m = meth_call x "modInverse" [| m |]
+
+  let erem x y =
+    let r = x mod y in
+    if lt r zero then r + y else r
 
   let probab_prime x n =
     meth_call x "isProbablePrime" [| |] |>
