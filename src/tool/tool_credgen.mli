@@ -9,3 +9,5 @@ module type S = sig
 end
 
 val make : (module PARAMS) -> (module S)
+
+val generate_ids : int -> string list

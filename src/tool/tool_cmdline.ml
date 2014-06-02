@@ -44,22 +44,6 @@ let load_from_file of_string filename =
     Some (lines_of_file filename |> stream_to_list |> List.rev_map of_string)
   ) else None
 
-let int_length n =
-  string_of_int n |> String.length
-
-let rec find_first n first =
-  if int_length first = int_length (first + n) then first
-  else find_first n (10 * first)
-
-let generate_ids n =
-  (* choose the first id so that they all have the same length *)
-  let first = find_first n 1 in
-  let last = first + n - 1 in
-  let rec loop last accu =
-    if last < first then accu
-    else loop (last-1) (string_of_int last :: accu)
-  in loop last []
-
 let ( / ) = Filename.concat
 
 exception Cmdline_error of string
