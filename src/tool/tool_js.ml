@@ -182,7 +182,26 @@ module Credgen = struct
   ]
 end
 
-let cmds = Tests.cmds @ Tkeygen.cmds @ Credgen.cmds
+module Mkelection = struct
+  open Tool_mkelection
+
+  let mkelection () =
+    let module P : PARAMS = struct
+      let uuid = get_textarea "mkelection_uuid"
+      let group = get_textarea "mkelection_group"
+      let template = get_textarea "mkelection_template"
+      let get_public_keys () =
+        Some (get_textarea "mkelection_pks" |> split_lines |> Array.of_list)
+    end in
+    let module X = (val make (module P : PARAMS) : S) in
+    set_textarea "mkelection_output" (X.mkelection ())
+
+  let cmds = [
+    "do_mkelection", mkelection;
+  ]
+end
+
+let cmds = Tests.cmds @ Tkeygen.cmds @ Credgen.cmds @ Mkelection.cmds
 
 let install_handlers () =
   List.iter install_handler cmds
