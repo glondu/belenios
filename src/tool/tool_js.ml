@@ -134,8 +134,48 @@ module Credgen = struct
     let cred = get_textarea "credgen_derive_input" in
     set_textarea "credgen_derive_output" (X.derive cred)
 
+  let generate ids =
+    let module P : PARAMS = struct
+      let uuid = get_textarea "credgen_uuid"
+      let group = get_textarea "credgen_group"
+    end in
+    let module X = (val make (module P : PARAMS) : S) in
+    let privs, pubs, hashs =
+      List.fold_left (fun (privs, pubs, hashs) id ->
+        let priv, pub, hash = X.generate () in
+        let priv = id ^ " " ^ priv and hash = id ^ " " ^ hash in
+        priv::privs, pub::pubs, hash::hashs
+      ) ([], [], []) ids
+    in
+    set_textarea "credgen_generated_creds"
+      (privs |> List.rev |> String.concat "\n");
+    set_textarea "credgen_generated_pks"
+      (pubs |> List.sort compare |> String.concat "\n");
+    set_textarea "credgen_generated_hashed"
+      (hashs |> List.rev |> String.concat "\n")
+
+  let generate_n () =
+    get_textarea "credgen_number" |>
+    int_of_string |> generate_ids |> generate
+
+  let generate_ids () =
+    let ids = get_textarea "credgen_ids" ^ "\n" in
+    let n = String.length ids in
+    let rec loop accu i =
+      if i < n
+      then (
+        let j = String.index_from ids i '\n' in
+        let line = String.sub ids i (j-i) in
+        let accu = if line = "" then accu else line :: accu in
+        loop accu (j+1)
+      ) else List.rev accu
+    in
+    loop [] 0 |> generate
+
   let cmds = [
     "do_credgen_derive", derive;
+    "do_credgen_generate", generate_n;
+    "do_credgen_ids", generate_ids;
   ]
 end
 

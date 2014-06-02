@@ -53,6 +53,32 @@
         </div>
       </div>
       <div>
+        <h3>Generate anonymous credentials</h3>
+        Number of credentials to generate:
+        <div><textarea id="credgen_number"></textarea></div>
+        <button id="do_credgen_generate">Generate</button>
+      </div>
+      <div>
+        <h3>Generate credentials with identity matching</h3>
+        <div>
+          List of identities:
+          <div><textarea id="credgen_ids"></textarea></div>
+        </div>
+        <button id="do_credgen_ids">Generate</button>
+      </div>
+      <div>
+        <h3>Generated credentials</h3>
+        <textarea id="credgen_generated_creds" readonly="readonly"></textarea>
+      </div>
+      <div>
+        <h3>Generated public keys</h3>
+        <textarea id="credgen_generated_pks" readonly="readonly"></textarea>
+      </div>
+      <div>
+        <h3>Fingerprints of generated public keys</h3>
+        <textarea id="credgen_generated_hashed" readonly="readonly"></textarea>
+      </div>
+      <div>
         <h3>Check a credential</h3>
         <div>
           Credential:
