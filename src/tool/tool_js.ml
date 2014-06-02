@@ -122,6 +122,19 @@ module Tkeygen = struct
   let cmds = ["do_tkeygen", tkeygen]
 end
 
+let split_lines str =
+  let str = str ^ "\n" in
+  let n = String.length str in
+  let rec loop accu i =
+    if i < n
+    then (
+      let j = String.index_from str i '\n' in
+      let line = String.sub str i (j-i) in
+      let accu = if line = "" then accu else line :: accu in
+      loop accu (j+1)
+    ) else List.rev accu
+  in loop [] 0
+
 module Credgen = struct
   open Tool_credgen
 
@@ -159,18 +172,8 @@ module Credgen = struct
     int_of_string |> generate_ids |> generate
 
   let generate_ids () =
-    let ids = get_textarea "credgen_ids" ^ "\n" in
-    let n = String.length ids in
-    let rec loop accu i =
-      if i < n
-      then (
-        let j = String.index_from ids i '\n' in
-        let line = String.sub ids i (j-i) in
-        let accu = if line = "" then accu else line :: accu in
-        loop accu (j+1)
-      ) else List.rev accu
-    in
-    loop [] 0 |> generate
+    get_textarea "credgen_ids" ^ "\n" |>
+    split_lines |> generate
 
   let cmds = [
     "do_credgen_derive", derive;
