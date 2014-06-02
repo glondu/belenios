@@ -73,12 +73,23 @@ let secure_rng () =
 
 let pseudo_rng x () = ()
 
+let string_of_hex hex n =
+  let res = String.create n in
+  for i = 0 to n-1 do
+    let c = int_of_string ("0x" ^ String.sub hex (2*i) 2) in
+    res.[i] <- char_of_int c
+  done;
+  res
+
 let random_string rng n =
   let () = rng () in
-  Js.Unsafe.meth_call sjcl_random "randomWords"
-    [|
-      n |> float_of_int |> Js.number_of_float |> Js.Unsafe.inject;
-    |] |> Js.to_string
+  let words = Js.Unsafe.meth_call sjcl_random "randomWords"
+    [| n/4+1 |> float_of_int |> Js.number_of_float |> Js.Unsafe.inject |]
+  in
+  let hex_words = Js.Unsafe.meth_call sjcl "codec.hex.fromBits"
+    [| words |] |> Js.to_string
+  in
+  string_of_hex hex_words n
 
 module Z = struct
   open Js.Unsafe
