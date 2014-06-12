@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Platform
+open Serializable_j
 
 let document = Dom_html.window##document
 
@@ -201,7 +202,96 @@ module Mkelection = struct
   ]
 end
 
-let cmds = Tests.cmds @ Tkeygen.cmds @ Credgen.cmds @ Mkelection.cmds
+module ToolElection = struct
+  open Tool_election
+
+  module Getters = struct
+
+    let get_public_keys () =
+      let raw = get_textarea "election_pks" |> split_lines in
+      let pks = Array.of_list raw in
+      if Array.length pks = 0 then None else Some pks
+
+    let get_public_creds () =
+      let raw = get_textarea "election_pubcreds" |> split_lines in
+      match raw with
+      | [] -> None
+      | _ -> Some (Stream.of_list raw)
+
+    let get_ballots () =
+      let raw = get_textarea "election_ballots" |> split_lines in
+      match raw with
+      | [] -> None
+      | _ -> Some (Stream.of_list raw)
+
+    let get_result () =
+      let raw = get_textarea "election_result" |> split_lines in
+      match raw with
+      | [] -> None
+      | [r] -> Some r
+      | _ -> invalid_arg "invalid result"
+
+    let print_msg x = alert x
+  end
+
+  let get_election () =
+    let raw = get_textarea "election_params" in
+    match split_lines raw with
+    | [e] -> e
+    | _ -> invalid_arg "invalid election parameters"
+
+
+  let create_ballot () =
+    let module P : PARAMS = struct
+      let election = get_election ()
+      include Getters
+    end in
+    let choices = get_textarea "election_choices" |> plaintext_of_string in
+    let privcred = get_textarea "election_privcred" in
+    let module X = (val make (module P : PARAMS) : S) in
+    set_textarea "election_ballot" (X.vote (Some privcred) choices)
+
+  let verify () =
+    let module P : PARAMS = struct
+      let election = get_election ()
+      include Getters
+    end in
+    let module X = (val make (module P : PARAMS) : S) in
+    X.verify ()
+
+  let decrypt () =
+    let module P : PARAMS = struct
+      let election = get_election ()
+      include Getters
+    end in
+    let module X = (val make (module P : PARAMS) : S) in
+    let privkey = get_textarea "election_privkey" in
+    set_textarea "election_pd" (X.decrypt privkey)
+
+  let finalize () =
+    let module P : PARAMS = struct
+      let election = get_election ()
+      include Getters
+    end in
+    let module X = (val make (module P : PARAMS) : S) in
+    let factors = get_textarea "election_factors" |> split_lines in
+    set_textarea "election_result" (X.finalize (Array.of_list factors))
+
+  let cmds = [
+    "do_encrypt", create_ballot;
+    "do_verify", verify;
+    "do_decrypt", decrypt;
+    "do_finalize", finalize;
+  ]
+
+end
+
+let cmds =
+  Tests.cmds @
+  Tkeygen.cmds @
+  Credgen.cmds @
+  Mkelection.cmds @
+  ToolElection.cmds
 
 let install_handlers () =
   List.iter install_handler cmds
