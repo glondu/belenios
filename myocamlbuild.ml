@@ -67,8 +67,9 @@ let version_rule () =
   in
   rule "BUILD -> belenios_version.ml" ~deps ~prod builder
 
-let copy_ext_js_rule fname =
-  copy_rule fname ("ext/booth/js/jscrypto/" ^ fname) ("src/tool/" ^ fname)
+let copy_ext_js_rule dir fname =
+  let full_name = dir / fname in
+  copy_rule full_name ("ext/booth/js/jscrypto" / fname) full_name
 
 let () = dispatch & function
 
@@ -106,6 +107,6 @@ let () = dispatch & function
     platform_rules "js";
 
     copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
-    List.iter copy_ext_js_rule ["jsbn.js"; "jsbn2.js"; "sjcl.js"];
+    List.iter (copy_ext_js_rule "src/tool") ["jsbn.js"; "jsbn2.js"; "sjcl.js"];
 
   | _ -> ()
