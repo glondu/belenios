@@ -86,6 +86,7 @@ let () = dispatch & function
 
     Pathname.define_context "src/web" ["src/lib"];
     Pathname.define_context "src/tool" ["src/lib"];
+    Pathname.define_context "src/booth" ["src/lib"];
     Pathname.define_context "demo" ["src/lib"];
     Pathname.define_context "stuff" ["src/lib"];
     Pathname.define_context "." ["src/lib"];
@@ -112,6 +113,8 @@ let () = dispatch & function
 
     copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
     List.iter (copy_ext_js_rule "src/tool") ["jsbn.js"; "jsbn2.js"; "sjcl.js"];
+    List.iter (copy_ext_js_rule "src/booth") ["jsbn.js"; "jsbn2.js"; "sjcl.js"];
     copy_platform_js_rule "src/tool" "random.js";
+    copy_platform_js_rule "src/booth" "random.js";
 
   | _ -> ()

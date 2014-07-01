@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>Belenios Booth</title>
+    <script src="sjcl.js"></script>
+    <script src="jsbn.js"></script>
+    <script src="jsbn2.js"></script>
+    <script src="random.js"></script>
+    <script src="booth.js"></script>
+  </head>
+  <body>
+    <div id="election_loader" style="display:none;">
+      <h1>Election loader</h1>
+      Election parameters:
+      <div><textarea id="election_params" rows="1" cols="80"></textarea></div>
+      <div><button id="load_election">Load election</button></div>
+    </div>
+    <div id="booth_div" style="display:none;">
+      <div align="center">
+        <h1 id="election_name"></h1>
+        <p id="election_description"></p>
+        <div>
+          <div>Election UUID: <span id="election_uuid"></span></div>
+          <div>Election Fingerprint: <span id="election_fingerprint"></span></div>
+        </div>
+      </div>
+      <div id="intro">
+        <p>To cast a vote, you will be led through the following steps. If you have not yet logged in, you will be asked to do so at the very end of the process.</p>
+        <ol>
+          <li><b>Enter</b> your credential.</li>
+          <li>
+            <b>Select</b> your options.
+            <div>Answer the questions, and review your choices.</div>
+          </li>
+          <li>
+            <b>Encrypt</b> your selection.
+            <div>Your selection is encrypted safely inside your browser.</div>
+            <div>A smart ballot tracker is given to let you track your ballot.</div>
+          </li>
+          <li>
+            <b>Submit</b> your encrypted ballot.
+            <div>Proceed to log in and cast your encrypted ballot for tallying.</div>
+          </li>
+        </ol>
+      </div>
+      <div id="question_div"></div>
+      <div id="plaintext_div" style="display:none;">
+        <h2>Review your ballot</h2>
+        <div id="pretty_choices"></div>
+        <div style="display:none;">
+          Plaintext raw ballot:
+          <div><textarea id="choices" rows="1" cols="80" readonly="readonly"></textarea></div>
+        </div>
+        <div><button id="encrypt">Confirm and encrypt</button></div>
+        <div id="ballot_div" style="display:none;">
+          <form id="ballot_form" method="POST">
+            <div style="display:none;">
+              Encrypted ballot:
+              <div>
+                <textarea id="ballot" rows="1" cols="80" name="encrypted_vote" readonly="readonly"></textarea>
+              </div>
+            </div>
+            <p>
+              Your ballot has been successfully encrypted!
+              Your smart ballot tracker is <span id="ballot_tracker"></span>.
+              Refresh this page to start again from the beginning.
+            </p>
+            <input type="submit" value="Submit"/>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
