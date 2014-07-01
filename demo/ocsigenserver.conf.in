@@ -32,7 +32,7 @@
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <site path="booth" charset="utf-8">
-        <static dir="_SRCDIR_/ext/booth" />
+        <static dir="_SRCDIR_/_build/src/booth" />
       </site>
       <eliom module="_build/src/web/server.cma">
         <auth name="demo"><dummy/></auth>
