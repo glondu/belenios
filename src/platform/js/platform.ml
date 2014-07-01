@@ -69,13 +69,8 @@ type rng = unit -> unit
 
 let sjcl_random = Js.Unsafe.get sjcl "random"
 
-let secure_rng () =
-  Js.Unsafe.meth_call sjcl_random "addEntropy"
-    [|
-      Js.string "91ad862fdddfe6171fa8492414273" |> Js.Unsafe.inject;
-      256 |> float_of_int |> Js.number_of_float |> Js.Unsafe.inject;
-    |]
-
+(* PRNG is initialized in random.js *)
+let secure_rng () = ()
 let pseudo_rng x () = ()
 
 let string_of_hex hex n =

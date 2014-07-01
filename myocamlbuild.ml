@@ -71,6 +71,10 @@ let copy_ext_js_rule dir fname =
   let full_name = dir / fname in
   copy_rule full_name ("ext/booth/js/jscrypto" / fname) full_name
 
+let copy_platform_js_rule dir fname =
+  let full_name = dir / fname in
+  copy_rule full_name ("src/platform/js" / fname) full_name
+
 let () = dispatch & function
 
   | Before_options ->
@@ -108,5 +112,6 @@ let () = dispatch & function
 
     copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
     List.iter (copy_ext_js_rule "src/tool") ["jsbn.js"; "jsbn2.js"; "sjcl.js"];
+    copy_platform_js_rule "src/tool" "random.js";
 
   | _ -> ()
