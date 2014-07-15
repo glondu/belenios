@@ -286,7 +286,20 @@ module ToolElection = struct
 
 end
 
+let int_of_quad str =
+  let ( ! ) x = int_of_char str.[x] in
+  (((((!0 lsl 8) lor !1) lsl 8) lor !2) lsl 8) lor !3
+
+let new_uuid () =
+  let seed = Array.init 16 (fun _ ->
+    random_string secure_rng 4 |> int_of_quad
+  ) in
+  let s = Random.State.make seed in
+  let uuid = Uuidm.v4_gen s () in
+  set_textarea "election_uuid" (Uuidm.to_string uuid)
+
 let cmds =
+  ["new_uuid", new_uuid] @
   Tests.cmds @
   Tkeygen.cmds @
   Credgen.cmds @
