@@ -129,6 +129,9 @@ module Make (C : CONFIG) : SITE = struct
         ** file "public_keys" ** file "public_creds"
       ) ()
 
+    let tool =
+      preapply (static_dir ()) ["tool"; "belenios-tool.html"]
+
     let cont = Eliom_reference.eref ~scope
       (fun () () -> Eliom_registration.Redirection.send home)
 

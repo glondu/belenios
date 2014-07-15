@@ -293,6 +293,11 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
     in
     let content = [
       h1 [pcdata title];
+      p [
+        pcdata "You can use the ";
+        a ~service:S.tool [pcdata "tool"] ();
+        pcdata " to prepare election files.";
+      ];
       div body;
     ] in
     lwt login_box = site_login_box () in

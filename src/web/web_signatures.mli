@@ -116,6 +116,15 @@ module type CORE_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ], 'a)
     Eliom_service.service
 
+  val tool :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Unregistrable ], 'a)
+    Eliom_service.service
+
 end
 
 module type ELECTION_SERVICES = sig
