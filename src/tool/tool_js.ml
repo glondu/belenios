@@ -111,7 +111,7 @@ module Tkeygen = struct
 
   let tkeygen () =
     let module P : PARAMS = struct
-      let group = get_textarea "tkeygen_group"
+      let group = get_textarea "election_group"
     end in
     let module X = (val make (module P : PARAMS) : S) in
     let open X in
@@ -141,8 +141,8 @@ module Credgen = struct
 
   let derive () =
     let module P : PARAMS = struct
-      let uuid = get_textarea "credgen_uuid"
-      let group = get_textarea "credgen_group"
+      let uuid = get_textarea "election_uuid"
+      let group = get_textarea "election_group"
     end in
     let module X = (val make (module P : PARAMS) : S) in
     let cred = get_textarea "credgen_derive_input" in
@@ -150,8 +150,8 @@ module Credgen = struct
 
   let generate ids =
     let module P : PARAMS = struct
-      let uuid = get_textarea "credgen_uuid"
-      let group = get_textarea "credgen_group"
+      let uuid = get_textarea "election_uuid"
+      let group = get_textarea "election_group"
     end in
     let module X = (val make (module P : PARAMS) : S) in
     let privs, pubs, hashs =
@@ -188,8 +188,8 @@ module Mkelection = struct
 
   let mkelection () =
     let module P : PARAMS = struct
-      let uuid = get_textarea "mkelection_uuid"
-      let group = get_textarea "mkelection_group"
+      let uuid = get_textarea "election_uuid"
+      let group = get_textarea "election_group"
       let template = get_textarea "mkelection_template"
       let get_public_keys () =
         Some (get_textarea "mkelection_pks" |> split_lines |> Array.of_list)

@@ -11,30 +11,104 @@
   </head>
   <body>
     <h1>Belenios Tool</h1>
-    <div id="calculator">
+    <ul>
+      <li><a href="#tests">Unit tests</a></li>
+      <li><a href="#setup">Pre-election setup</a></li>
+      <li><a href="#election">Election management</a></li>
+    </ul>
+    <div id="tests">
       <h2>Unit tests</h2>
       <div>
         <button id="do_unit_tests">Run unit tests</button>
       </div>
     </div>
-    <div id="tkeygen">
-      <h2>Trustee key generation</h2>
+    <div id="setup">
+      <h2>Pre-election setup</h2>
       <div>
-        <h3>Group parameters</h3>
-        <textarea id="tkeygen_group" rows="1" cols="80"></textarea>
+        <div>
+          UUID:
+          <div><textarea id="election_uuid" rows="1" cols="80"></textarea></div>
+        </div>
+        <div>
+          Group parameters:
+          <div><textarea id="election_group" rows="1" cols="80">{"g":"14887492224963187634282421537186040801304008017743492304481737382571933937568724473847106029915040150784031882206090286938661464458896494215273989547889201144857352611058572236578734319505128042602372864570426550855201448111746579871811249114781674309062693442442368697449970648232621880001709535143047913661432883287150003429802392229361583608686643243349727791976247247948618930423866180410558458272606627111270040091203073580238905303994472202930783207472394578498507764703191288249547659899997131166130259700604433891232298182348403175947450284433411265966789131024573629546048637848902243503970966798589660808533","p":"16328632084933010002384055033805457329601614771185955389739167309086214800406465799038583634953752941675645562182498120750264980492381375579367675648771293800310370964745767014243638518442553823973482995267304044326777047662957480269391322789378384619428596446446984694306187644767462460965622580087564339212631775817895958409016676398975671266179637898557687317076177218843233150695157881061257053019133078545928983562221396313169622475509818442661047018436264806901023966236718367204710755935899013750306107738002364137917426595737403871114187750804346564731250609196846638183903982387884578266136503697493474682071","q":"61329566248342901292543872769978950870633559608669337131139375508370458778917"}</textarea></div>
+        </div>
       </div>
+    </div>
+    <div id="tkeygen">
+      <h3>Trustee key generation</h3>
       <button id="do_tkeygen">Generate a keypair</button>
       <div>
-        <h3>Generated key identifier</h3>
+        <h4>Generated key identifier</h4>
         <textarea id="tkeygen_id" rows="1" cols="10" readonly="readonly"></textarea>
       </div>
       <div>
-        <h3>Generated secret key</h3>
+        <h4>Generated secret key</h4>
         <textarea id="tkeygen_secret" rows="1" cols="80" readonly="readonly"></textarea>
       </div>
       <div>
-        <h3>Generated public key</h3>
+        <h4>Generated public key</h4>
         <textarea id="tkeygen_public" rows="1" cols="80" readonly="readonly"></textarea>
+      </div>
+    </div>
+    <div id="credgen">
+      <h3>Credential management</h3>
+      <div>
+        <h4>Generate anonymous credentials</h4>
+        Number of credentials to generate:
+        <div><textarea id="credgen_number"></textarea></div>
+        <button id="do_credgen_generate">Generate</button>
+      </div>
+      <div>
+        <h4>Generate credentials with identity matching</h4>
+        <div>
+          List of identities:
+          <div><textarea id="credgen_ids"></textarea></div>
+        </div>
+        <button id="do_credgen_ids">Generate</button>
+      </div>
+      <div>
+        <h4>Generated credentials</h4>
+        <textarea id="credgen_generated_creds" readonly="readonly"></textarea>
+      </div>
+      <div>
+        <h4>Generated public keys</h4>
+        <textarea id="credgen_generated_pks" readonly="readonly"></textarea>
+      </div>
+      <div>
+        <h4>Fingerprints of generated public keys</h4>
+        <textarea id="credgen_generated_hashed" readonly="readonly"></textarea>
+      </div>
+      <div>
+        <h4>Check a credential</h4>
+        <div>
+          Credential:
+          <div><textarea id="credgen_derive_input"></textarea></div>
+          <button id="do_credgen_derive">Generate public key</button>
+        </div>
+        <div>
+          <textarea id="credgen_derive_output" rows="1" cols="80" readonly="readonly"></textarea>
+        </div>
+      </div>
+    </div>
+    <div id="mkelection">
+      <h3>Election creation</h3>
+      <div>
+        <div>
+          Public keys:
+          <div><textarea id="mkelection_pks" rows="3" cols="80"></textarea></div>
+        </div>
+        <div>
+          Questions:
+          <div><textarea id="mkelection_template" rows="1" cols="80"></textarea></div>
+        </div>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <div>
+          <button id="do_mkelection">Generate</button>
+          <div><textarea id="mkelection_output"></textarea></div>
+        </div>
       </div>
     </div>
     <div id="election">
@@ -77,86 +151,6 @@
         <div><button id="do_finalize" rows="1" cols="80">Finalize</textarea></div>
         <div><textarea id="election_result" rows="1" cols="80"></textarea></div>
         <div><button id="do_verify">Verify</button></div>
-      </div>
-    </div>
-    <div id="credgen">
-      <h2>Credential management</h2>
-      <div>
-        <h3>Election parameters</h3>
-        <div>
-          UUID:
-          <div><textarea id="credgen_uuid" rows="1" cols="80"></textarea></div>
-        </div>
-        <div>
-          Group parameters:
-          <div><textarea id="credgen_group" rows="1" cols="80"></textarea></div>
-        </div>
-      </div>
-      <div>
-        <h3>Generate anonymous credentials</h3>
-        Number of credentials to generate:
-        <div><textarea id="credgen_number"></textarea></div>
-        <button id="do_credgen_generate">Generate</button>
-      </div>
-      <div>
-        <h3>Generate credentials with identity matching</h3>
-        <div>
-          List of identities:
-          <div><textarea id="credgen_ids"></textarea></div>
-        </div>
-        <button id="do_credgen_ids">Generate</button>
-      </div>
-      <div>
-        <h3>Generated credentials</h3>
-        <textarea id="credgen_generated_creds" readonly="readonly"></textarea>
-      </div>
-      <div>
-        <h3>Generated public keys</h3>
-        <textarea id="credgen_generated_pks" readonly="readonly"></textarea>
-      </div>
-      <div>
-        <h3>Fingerprints of generated public keys</h3>
-        <textarea id="credgen_generated_hashed" readonly="readonly"></textarea>
-      </div>
-      <div>
-        <h3>Check a credential</h3>
-        <div>
-          Credential:
-          <div><textarea id="credgen_derive_input"></textarea></div>
-          <button id="do_credgen_derive">Generate public key</button>
-        </div>
-        <div>
-          <textarea id="credgen_derive_output" rows="1" cols="80" readonly="readonly"></textarea>
-        </div>
-      </div>
-    </div>
-    <div id="mkelection">
-      <h2>Election creation</h2>
-      <div>
-        <h3>Input</h3>
-        <div>
-          UUID:
-          <div><textarea id="mkelection_uuid" rows="1" cols="80"></textarea></div>
-        </div>
-        <div>
-          Group parameters:
-          <div><textarea id="mkelection_group" rows="1" cols="80"></textarea></div>
-        </div>
-        <div>
-          Public keys:
-          <div><textarea id="mkelection_pks" rows="1" cols="80"></textarea></div>
-        </div>
-        <div>
-          Template:
-          <div><textarea id="mkelection_template" rows="1" cols="80"></textarea></div>
-        </div>
-      </div>
-      <div>
-        <h3>Output</h3>
-        <div>
-          <button id="do_mkelection">Generate</button>
-          <div><textarea id="mkelection_output"></textarea></div>
-        </div>
       </div>
     </div>
   </body>
