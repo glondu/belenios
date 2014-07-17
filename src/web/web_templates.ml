@@ -87,7 +87,9 @@ module Make (S : AUTH_SERVICES) : TEMPLATES = struct
 
   let base ~title ~login_box ~content =
     Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
-      (head (Eliom_content.Html5.F.title (pcdata title)) [])
+      (head (Eliom_content.Html5.F.title (pcdata title)) [
+        script (pcdata "window.onbeforeunload = function () {};");
+      ])
       (body [
         div ~a:[a_id "header"] [
           div [
