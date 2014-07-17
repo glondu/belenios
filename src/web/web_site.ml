@@ -203,7 +203,7 @@ module Make (C : CONFIG) : SITE = struct
         (function
         | Some e -> return e
         | None -> Printf.ksprintf
-          failwith "%s must contain a single line" f.f_election
+          failwith "election.json must contain a single line"
         )
       in
       let params = Group.election_params_of_string raw_election in
