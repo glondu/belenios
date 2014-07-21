@@ -358,6 +358,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
       let () = Html5.register ~service:W.S.home
         (if_eligible can_read
            (fun user () ->
+             Eliom_reference.unset ballot >>
              let cont () () = Redirection.send W.S.home in
              Eliom_reference.set S.cont cont >>
              match_lwt Eliom_reference.get cast_confirmed with
