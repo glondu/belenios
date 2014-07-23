@@ -66,7 +66,7 @@ module Make (C : CONFIG) : SITE = struct
   let make_path x = C.path @ x
 
   module Auth = Web_auth.Make (C)
-  module Random = MakeLwtRandom (struct let rng = make_rng () end)
+  module LwtRandom = MakeLwtRandom (struct let rng = make_rng () end)
 
   let store = Ocsipersist.open_store C.name
 
@@ -233,7 +233,7 @@ module Make (C : CONFIG) : SITE = struct
         let r, do_register = register_election params web_params in
         let module R = (val r : Web_election.REGISTRABLE) in
         let module G = R.W.G in
-        let module KG = Election.MakeSimpleDistKeyGen (G) (Random) in
+        let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
         let public_keys = Lwt_io.lines_of_file f.f_public_keys in
         lwt pks = Lwt_stream.(
           clone public_keys |>
