@@ -52,6 +52,8 @@ let get_single_line x =
       return None
     )
 
+let ( / ) = Filename.concat
+
 module Make (C : CONFIG) : SITE = struct
   open Eliom_service
   open Eliom_registration
@@ -217,7 +219,6 @@ module Make (C : CONFIG) : SITE = struct
         Lwt_mutex.unlock registration_mutex;
         return None
       ) else (
-        let ( / ) = Filename.concat in
         let dir = C.spool_dir/uuid in
         lwt metadata =
           Lwt_io.chars_of_file f.f_metadata |>
