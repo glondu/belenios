@@ -214,6 +214,7 @@ module Make (C : CONFIG) : SITE = struct
         with Not_found -> return false
       in
       if exists then (
+        Lwt_mutex.unlock registration_mutex;
         return None
       ) else (
         let ( / ) = Filename.concat in
