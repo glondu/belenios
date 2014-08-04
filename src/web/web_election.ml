@@ -392,7 +392,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                 ) in Redirection.send W.S.admin
               )
             in
-            T.admin ~set_featured ()
+            lwt is_featured = S.is_featured_election uuid in
+            T.admin ~set_featured ~is_featured ()
           | _ -> forbidden ()
         )
 

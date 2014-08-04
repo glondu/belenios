@@ -438,12 +438,13 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       lwt login_box = election_login_box () in
       base ~title:params.e_name ~login_box ~content
 
-    let admin ~set_featured () =
+    let admin ~set_featured ~is_featured () =
       let title = W.election.e_params.e_name ^ " — Administration" in
       let feature_form = post_form ~service:set_featured
         (fun featured -> [
-          bool_checkbox ~name:featured ();
-          string_input ~input_type:`Submit ~value:"(Un)feature" ();
+          bool_checkbox ~name:featured ~checked:is_featured ();
+          pcdata "Feature this election ";
+          string_input ~input_type:`Submit ~value:"Apply" ();
         ]) ()
       in
       let content = [

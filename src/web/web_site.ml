@@ -153,6 +153,10 @@ module Make (C : CONFIG) : SITE = struct
       lwt the_featured = Ocsipersist.get featured in
       Ocsipersist.set featured (list_remove x the_featured)
 
+    let is_featured_election x =
+      lwt the_featured = Ocsipersist.get featured in
+      return (List.mem x the_featured)
+
     let set_main_election x =
       if SMap.mem x !election_table then (
         Ocsipersist.set main_election (Some x)
