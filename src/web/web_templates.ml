@@ -20,10 +20,10 @@
 (**************************************************************************)
 
 open Lwt
-open Serializable_t
+open Serializable_j
 open Signatures
 open Common
-open Web_serializable_t
+open Web_serializable_j
 open Web_signatures
 open Web_common
 open Eliom_content.Html5.F
@@ -149,7 +149,8 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
     let content = [
       h1 [pcdata title];
       div [
-        a ~service:S.new_election [pcdata "Create a new election"] ();
+        div [a ~service:S.new_election [pcdata "Create a new election"] ()];
+        div [a ~service:S.election_setup_index [pcdata "Elections being prepared"] ()];
         h2 [pcdata "Elections you can administer"];
         elections;
       ];
@@ -270,6 +271,12 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       let form = post_form ~service:S.new_election_post
         (fun (election, (metadata, (public_keys, public_creds))) ->
           [
+            h2 [pcdata "Import prepared election"];
+            p [
+              pcdata "This section assumes you have already prepared election files offline using either the command-line tool or its ";
+              a ~service:S.tool [pcdata "web version"] ();
+              pcdata ".";
+            ];
             div [
               pcdata "Public election parameters: ";
               file_input ~name:election ();
@@ -289,15 +296,19 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
             div [string_input ~input_type:`Submit ~value:"Submit" ()];
           ]
         ) ()
-      in return [form]
+      in
+      let setup_form = post_form ~service:S.election_setup_new
+        (fun () ->
+         [
+           h2 [pcdata "Prepare a new election"];
+           div [string_input ~input_type:`Submit ~value:"Prepare a new election" ()]
+         ]
+        ) ()
+      in
+      return [form; setup_form]
     in
     let content = [
       h1 [pcdata title];
-      p [
-        pcdata "You can use the ";
-        a ~service:S.tool [pcdata "tool"] ();
-        pcdata " to prepare election files.";
-      ];
       div body;
     ] in
     lwt login_box = site_login_box () in
@@ -315,10 +326,173 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       div [
         p [pcdata "The creation failed."];
         p [reason];
-        p [a ~service:S.new_election [pcdata "Try again"] ()];
       ]
     ] in
     lwt login_box = site_login_box () in
+    base ~title ~login_box ~content
+
+  let election_setup_index uuids () =
+    let service = S.election_setup in
+    let title = "Elections being prepared" in
+    let uuids =
+      List.map (fun k ->
+        li [a ~service [pcdata (Uuidm.to_string k)] k]
+      ) uuids
+    in
+    let list =
+      match uuids with
+      | [] -> div [pcdata "You own no such elections."]
+      | us -> ul us
+    in
+    let content = [
+      h1 [pcdata title];
+      div [list];
+    ] in
+    lwt login_box = site_login_box () in
+    base ~title ~login_box ~content
+
+  let generic_error_page message () =
+    let title = "Error" in
+    let content = [
+      h1 [pcdata title];
+      p [pcdata message];
+    ] in
+    let login_box = pcdata "" in
+    base ~title ~login_box ~content
+
+  let election_setup uuid se () =
+    let title = "Preparation of election " ^ Uuidm.to_string uuid in
+    let make_form service value title =
+      post_form ~service
+        (fun name ->
+         [
+           div [
+             h2 [pcdata title];
+             div [textarea ~a:[a_rows 5; a_cols 80] ~name ~value ()];
+             div [string_input ~input_type:`Submit ~value:"Submit" ()];
+           ]
+         ]
+        ) ()
+    in
+    let form_group =
+      make_form
+        (Eliom_service.preapply S.election_setup_group uuid)
+        se.se_group "Group parameters"
+    in
+    let form_metadata =
+      let value = string_of_metadata se.se_metadata in
+      make_form
+        (Eliom_service.preapply S.election_setup_metadata uuid)
+        value "Election metadata"
+    in
+    let form_questions =
+      let value = string_of_template se.se_questions in
+      make_form
+        (Eliom_service.preapply S.election_setup_questions uuid)
+        value "Questions"
+    in
+    let form_trustees =
+      post_form
+        ~service:S.election_setup_trustee_add
+        (fun () ->
+         [div
+            [h2 [pcdata "Trustees"];
+             ol
+               (List.rev_map
+                  (fun (token, pk) ->
+                   li
+                     [a ~service:S.election_setup_trustee [pcdata token] token]
+                  ) se.se_public_keys
+               );
+             string_input ~input_type:`Submit ~value:"Add" ()]]) uuid
+    in
+    let div_credentials =
+      div
+        [h2 [pcdata "Credentials"];
+         a
+           ~service:S.election_setup_credentials
+           [pcdata "Manage credentials"]
+           se.se_public_creds]
+    in
+    let form_create =
+      post_form
+        ~service:S.election_setup_create
+        (fun () ->
+         [div
+            [h2 [pcdata "Finalize creation"];
+             string_input ~input_type:`Submit ~value:"Create election" ()]]
+        ) uuid
+    in
+    let content = [
+      h1 [pcdata title];
+      form_trustees;
+      div_credentials;
+      form_group;
+      form_metadata;
+      form_questions;
+      form_create;
+    ] in
+    lwt login_box = site_login_box () in
+    base ~title ~login_box ~content
+
+  let election_setup_credentials token uuid se () =
+    let title = "Credentials for election " ^ uuid in
+    let form_textarea =
+      post_form
+        ~service:S.election_setup_credentials_post
+        (fun name ->
+         [div
+            [h2 [pcdata "Submit by copy/paste"];
+             div [textarea ~a:[a_rows 5; a_cols 40] ~name ()];
+             div [string_input ~input_type:`Submit ~value:"Submit" ()]]])
+        token
+    in
+    let form_file =
+      post_form
+        ~service:S.election_setup_credentials_post_file
+        (fun name ->
+         [div
+            [h2 [pcdata "Submit by file"];
+             div [file_input ~name ()];
+             div [string_input ~input_type:`Submit ~value:"Submit" ()]]])
+        token
+    in
+    let div_download =
+      div [a ~service:S.election_setup_credentials_download
+             [pcdata "Download current file"]
+             token]
+    in
+    let content = [
+      h1 [pcdata title];
+      div_download;
+      form_textarea;
+      form_file;
+    ] in
+    let login_box = pcdata "" in
+    base ~title ~login_box ~content
+
+  let election_setup_trustee token uuid se () =
+    let title = "Trustee for election " ^ uuid in
+    let form =
+      let value = !(List.assoc token se.se_public_keys) in
+      let service = Eliom_service.preapply S.election_setup_trustee_post token in
+      post_form
+        ~service
+        (fun name ->
+         [
+           div [
+             div [pcdata "Public key:"];
+             div [textarea ~a:[a_rows 5; a_cols 40] ~name ~value ()];
+             div [string_input ~input_type:`Submit ~value:"Submit" ()];
+           ]
+         ]
+        ) ()
+    in
+    let content = [
+      h1 [pcdata title];
+      form;
+    ] in
+    let login_box = pcdata "" in
     base ~title ~login_box ~content
 
   module Election (W : WEB_ELECTION_RO) = struct

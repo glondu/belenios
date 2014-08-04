@@ -201,3 +201,44 @@ let string_of_election_file = function
 let election_file = Eliom_parameter.user_type
   ~of_string:election_file_of_string
   ~to_string:string_of_election_file
+
+let uuid_of_string x =
+  match Uuidm.of_string x with
+  | Some x -> x
+  | None -> Printf.ksprintf invalid_arg "invalid UUID [%s]" x
+
+let uuid =
+  let of_string x = uuid_of_string x
+  and to_string x = Uuidm.to_string x
+  in Eliom_parameter.user_type ~of_string ~to_string
+
+type setup_election = {
+  mutable se_owner : user;
+  mutable se_group : string;
+  mutable se_questions : template;
+  mutable se_public_keys : (string * string ref) list;
+  mutable se_metadata : metadata;
+  mutable se_public_creds : string;
+}
+
+let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+let token_length = 14
+let prng = lazy (pseudo_rng (random_string secure_rng 16))
+
+let random_char () =
+  lwt rng =
+    if Lazy.is_val prng then return (Lazy.force prng) else
+    Lwt_preemptive.detach (fun () -> Lazy.force prng) ()
+  in
+  return (int_of_char (random_string rng 1).[0])
+
+let generate_token () =
+  let res = String.create token_length in
+  let rec loop i =
+    if i < token_length then (
+      lwt digit = random_char () in
+      let digit = digit mod 58 in
+      res.[i] <- b58_digits.[digit];
+      loop (i+1)
+    ) else return res
+  in loop 0

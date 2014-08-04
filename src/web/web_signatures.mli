@@ -125,6 +125,151 @@ module type CORE_SERVICES = sig
      [< Eliom_service.registrable > `Unregistrable ], 'a)
     Eliom_service.service
 
+  val election_setup_index :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_new :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup :
+    (Uuidm.t, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of Uuidm.t ] Eliom_parameter.param_name, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_group :
+    (Uuidm.t, string,
+     [> `Attached of
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of Uuidm.t ] Eliom_parameter.param_name,
+     [ `One of string ] Eliom_parameter.param_name,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_metadata :
+    (Uuidm.t, string,
+     [> `Attached of
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of Uuidm.t ] Eliom_parameter.param_name,
+     [ `One of string ] Eliom_parameter.param_name,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_questions :
+    (Uuidm.t, string,
+     [> `Attached of
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of Uuidm.t ] Eliom_parameter.param_name,
+     [ `One of string ] Eliom_parameter.param_name,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_trustee_add :
+    (Uuidm.t, unit,
+     [> `Attached of
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of Uuidm.t ] Eliom_parameter.param_name,
+     unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_credentials :
+    (string, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of string ] Eliom_parameter.param_name, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_credentials_download :
+    (string, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of string ] Eliom_parameter.param_name, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_credentials_post :
+    (string, string,
+     [> `Attached of
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of string ] Eliom_parameter.param_name,
+     [ `One of string ] Eliom_parameter.param_name,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_credentials_post_file :
+    (string, Eliom_lib.file_info,
+     [> `Attached of
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of string ] Eliom_parameter.param_name,
+     [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_trustee :
+    (string, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of string ] Eliom_parameter.param_name, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_trustee_post :
+    (string, string,
+     [> `Attached of
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of string ] Eliom_parameter.param_name,
+     [ `One of string ] Eliom_parameter.param_name,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
+  val election_setup_create :
+    (Uuidm.t, unit,
+     [> `Attached of
+          ([> `Internal of [> `Coservice ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ],
+     [ `One of Uuidm.t ] Eliom_parameter.param_name, unit,
+     [< Eliom_service.registrable > `Registrable ], 'a)
+    Eliom_service.service
+
 end
 
 module type ELECTION_SERVICES = sig
@@ -387,6 +532,24 @@ module type TEMPLATES = sig
   val new_election_failure :
     [ `Exists | `Exception of exn ] ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val generic_error_page :
+    string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val election_setup_index :
+    Uuidm.t list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val election_setup :
+    Uuidm.t -> Web_common.setup_election -> unit ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val election_setup_credentials :
+    string -> string -> Web_common.setup_election -> unit ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+  val election_setup_trustee :
+    string -> string -> Web_common.setup_election -> unit ->
+    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES
   module Election (W : WEB_ELECTION_RO) : ELECTION_TEMPLATES

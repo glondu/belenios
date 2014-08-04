@@ -85,3 +85,22 @@ val election_file :
   (election_file, [ `WithoutSuffix ],
    [ `One of election_file ] Eliom_parameter.param_name)
   Eliom_parameter.params_type
+
+val uuid_of_string : string -> Uuidm.t
+
+val uuid :
+  string ->
+  (Uuidm.t, [ `WithoutSuffix ],
+   [ `One of Uuidm.t ] Eliom_parameter.param_name)
+  Eliom_parameter.params_type
+
+type setup_election = {
+  mutable se_owner : user;
+  mutable se_group : string;
+  mutable se_questions : template;
+  mutable se_public_keys : (string * string ref) list;
+  mutable se_metadata : metadata;
+  mutable se_public_creds : string;
+}
+
+val generate_token : unit -> string Lwt.t

@@ -73,6 +73,15 @@ module Make (C : CONFIG) : SITE = struct
   (* Persistent table, used to initialize the server. *)
   let election_ptable = Ocsipersist.open_table (C.name ^ "_elections")
 
+  (* Table with elections in setup mode. *)
+  let election_stable = Ocsipersist.open_table (C.name ^ "_setup")
+
+  (* Table with tokens given to trustees. *)
+  let election_pktokens = Ocsipersist.open_table (C.name ^ "_pktokens")
+
+  (* Table with tokens given to credential authorities. *)
+  let election_credtokens = Ocsipersist.open_table (C.name ^ "_credtokens")
+
   (* In-memory table, indexed by UUID, contains closures. *)
   let election_table = ref SMap.empty
 
@@ -133,6 +142,80 @@ module Make (C : CONFIG) : SITE = struct
 
     let tool =
       preapply (static_dir ()) ["tool"; "belenios-tool.html"]
+
+    let election_setup_index = service
+      ~path:(make_path ["setup"; ""])
+      ~get_params:unit
+      ()
+
+    let election_setup_new = post_coservice
+      ~csrf_safe:true
+      ~fallback:election_setup_index
+      ~post_params:unit
+      ()
+
+    let election_setup = service
+      ~path:(make_path ["setup"; "election"])
+      ~get_params:(uuid "uuid")
+      ()
+
+    let election_setup_group = post_coservice
+      ~fallback:election_setup
+      ~post_params:(string "group")
+      ()
+
+    let election_setup_metadata = post_coservice
+      ~fallback:election_setup
+      ~post_params:(string "metadata")
+      ()
+
+    let election_setup_questions = post_coservice
+      ~fallback:election_setup
+      ~post_params:(string "questions")
+      ()
+
+    let election_setup_trustee_add = post_coservice
+      ~fallback:election_setup
+      ~post_params:unit
+      ()
+
+    let election_setup_credentials = service
+      ~path:(make_path ["setup"; "credentials"])
+      ~get_params:(string "token")
+      ()
+
+    let election_setup_credentials_download =
+      service
+        ~path:(make_path ["setup"; "public_creds.txt"])
+        ~get_params:(string "token")
+        ()
+
+    let election_setup_credentials_post = post_coservice
+      ~fallback:election_setup_credentials
+      ~post_params:(string "public_creds")
+      ()
+
+    let election_setup_credentials_post_file = post_coservice
+      ~fallback:election_setup_credentials
+      ~post_params:(file "public_creds")
+      ()
+
+    let election_setup_trustee = service
+      ~path:(make_path ["setup"; "trustee"])
+      ~get_params:(string "token")
+      ()
+
+    let election_setup_trustee_post = post_coservice
+      ~fallback:election_setup_trustee
+      ~post_params:(string "public_key")
+      ()
+
+    let election_setup_create =
+      post_coservice
+        ~csrf_safe:true
+        ~fallback:election_setup
+        ~post_params:unit
+        ()
 
     let cont = Eliom_reference.eref ~scope
       (fun () () -> Eliom_registration.Redirection.send home)
@@ -405,5 +488,334 @@ module Make (C : CONFIG) : SITE = struct
         end
       | None -> forbidden ()
     )
+
+  let generate_uuid = Uuidm.v4_gen (Random.State.make_self_init ())
+
+  let () = Html5.register ~service:election_setup_index
+    (fun () () ->
+     match_lwt S.get_user () with
+     | Some u ->
+        lwt uuids =
+          Ocsipersist.fold_step (fun k v accu ->
+            if v.se_owner = u
+            then return (uuid_of_string k :: accu)
+            else return accu
+          ) election_stable []
+        in T.election_setup_index uuids ()
+     | None -> forbidden ()
+    )
+
+  let () = Redirection.register ~service:election_setup_new
+    (fun () () ->
+     match_lwt S.get_user () with
+     | Some u ->
+        let uuid = generate_uuid () in
+        let uuid_s = Uuidm.to_string uuid in
+        lwt token = generate_token () in
+        let se_metadata = {
+          e_voting_starts_at = None;
+          e_voting_ends_at = None;
+          e_readers = Some `Any;
+          e_voters = Some `Any;
+          e_owner = Some u;
+          e_auth_config = Some [{auth_system = "dummy"; auth_instance = "demo"; auth_config = []}];
+        } in
+        let question = {
+          q_answers = [| "Answer 1"; "Answer 2" |];
+          q_min = 0;
+          q_max = 1;
+          q_question = "Question 1?";
+        } in
+        let se_questions = {
+          t_description = "Description of the election.";
+          t_name = "Name of the election";
+          t_questions = [| question |];
+          t_short_name = "short_name";
+        } in
+        let se = {
+          se_owner = u;
+          se_group = "{\"g\":\"14887492224963187634282421537186040801304008017743492304481737382571933937568724473847106029915040150784031882206090286938661464458896494215273989547889201144857352611058572236578734319505128042602372864570426550855201448111746579871811249114781674309062693442442368697449970648232621880001709535143047913661432883287150003429802392229361583608686643243349727791976247247948618930423866180410558458272606627111270040091203073580238905303994472202930783207472394578498507764703191288249547659899997131166130259700604433891232298182348403175947450284433411265966789131024573629546048637848902243503970966798589660808533\",\"p\":\"16328632084933010002384055033805457329601614771185955389739167309086214800406465799038583634953752941675645562182498120750264980492381375579367675648771293800310370964745767014243638518442553823973482995267304044326777047662957480269391322789378384619428596446446984694306187644767462460965622580087564339212631775817895958409016676398975671266179637898557687317076177218843233150695157881061257053019133078545928983562221396313169622475509818442661047018436264806901023966236718367204710755935899013750306107738002364137917426595737403871114187750804346564731250609196846638183903982387884578266136503697493474682071\",\"q\":\"61329566248342901292543872769978950870633559608669337131139375508370458778917\"}";
+          se_questions;
+          se_public_keys = [];
+          se_metadata;
+          se_public_creds = token;
+        } in
+        lwt () = Ocsipersist.add election_stable uuid_s se in
+        lwt () = Ocsipersist.add election_credtokens token uuid_s in
+        return (preapply election_setup uuid)
+    | None -> forbidden ()
+    )
+
+  let () = Html5.register ~service:election_setup
+    (fun uuid () ->
+     match_lwt S.get_user () with
+     | Some u ->
+        let uuid_s = Uuidm.to_string uuid in
+        lwt se = Ocsipersist.find election_stable uuid_s in
+        if se.se_owner = u
+        then T.election_setup uuid se ()
+        else forbidden ()
+     | None -> forbidden ()
+    )
+
+  let election_setup_mutex = Lwt_mutex.create ()
+
+  let handle_setup f uuid x =
+    match_lwt S.get_user () with
+    | Some u ->
+       let uuid_s = Uuidm.to_string uuid in
+       Lwt_mutex.with_lock election_setup_mutex (fun () ->
+         lwt se = Ocsipersist.find election_stable uuid_s in
+         if se.se_owner = u then (
+           try_lwt
+             f se x u;
+             Ocsipersist.add election_stable uuid_s se >>
+             Redirection.send (preapply election_setup uuid)
+           with e ->
+             T.generic_error_page (Printexc.to_string e) () >>= Html5.send
+         ) else forbidden ()
+       )
+    | None -> forbidden ()
+
+  let () =
+    Any.register
+      ~service:election_setup_group
+      (handle_setup
+         (fun se x _ ->
+          let _group = Group.of_string x in
+          (* we keep it as a string since it contains a type *)
+          se.se_group <- x))
+
+  let () =
+    Any.register
+      ~service:election_setup_metadata
+      (handle_setup
+         (fun se x u ->
+          let metadata = metadata_of_string x in
+          if metadata.e_owner <> Some u then failwith "wrong owner";
+          se.se_metadata <- metadata))
+
+  let () =
+    Any.register
+      ~service:election_setup_questions
+      (handle_setup
+         (fun se x _ ->
+          se.se_questions <- template_of_string x))
+
+  let () =
+    Redirection.register
+      ~service:election_setup_trustee_add
+      (fun uuid () ->
+       match_lwt S.get_user () with
+       | Some u ->
+          let uuid_s = Uuidm.to_string uuid in
+          Lwt_mutex.with_lock election_setup_mutex (fun () ->
+            lwt se = Ocsipersist.find election_stable uuid_s in
+            if se.se_owner = u
+            then (
+              lwt token = generate_token () in
+              se.se_public_keys <- (token, ref "") :: se.se_public_keys;
+              Ocsipersist.add election_stable uuid_s se >>
+              Ocsipersist.add election_pktokens token uuid_s
+            ) else forbidden ()
+          ) >>
+          return (preapply election_setup uuid)
+       | None -> forbidden ()
+      )
+
+  let () =
+    Html5.register
+      ~service:election_setup_credentials
+      (fun token () ->
+       lwt uuid = Ocsipersist.find election_credtokens token in
+       lwt se = Ocsipersist.find election_stable uuid in
+       T.election_setup_credentials token uuid se ()
+      )
+
+  let () =
+    File.register
+      ~service:election_setup_credentials_download
+      ~content_type:"text/plain"
+      (fun token () ->
+       lwt uuid = Ocsipersist.find election_credtokens token in
+       return (C.spool_dir / uuid ^ ".public_creds.txt")
+      )
+
+  let wrap_handler f =
+    try_lwt f ()
+    with
+    | e -> T.generic_error_page (Printexc.to_string e) () >>= Html5.send
+
+  let handle_credentials_post token creds =
+    lwt uuid = Ocsipersist.find election_credtokens token in
+    lwt se = Ocsipersist.find election_stable uuid in
+    let module G = (val Group.of_string se.se_group : GROUP) in
+    let fname = C.spool_dir / uuid ^ ".public_creds.txt" in
+    Lwt_mutex.with_lock
+      election_setup_mutex
+      (fun () ->
+       Lwt_io.with_file
+         ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+         ~perm:0o600 ~mode:Lwt_io.Output fname
+         (fun oc -> Lwt_io.write_chars oc creds)
+      ) >>
+    lwt () =
+      let i = ref 1 in
+      Lwt_stream.iter
+        (fun x ->
+         try
+           let x = G.of_string x in
+           if not (G.check x) then raise Exit;
+           incr i
+         with _ ->
+           Printf.ksprintf failwith "invalid credential at line %d" !i)
+        (Lwt_io.lines_of_file fname)
+    in
+    Redirection.send (preapply election_setup_credentials token)
+
+  let () =
+    Any.register
+      ~service:election_setup_credentials_post
+      (fun token creds ->
+       let s = Lwt_stream.of_string creds in
+       wrap_handler (fun () -> handle_credentials_post token s))
+
+  let () =
+    Any.register
+      ~service:election_setup_credentials_post_file
+      (fun token creds ->
+       let s = Lwt_io.chars_of_file creds.Ocsigen_extensions.tmp_filename in
+       wrap_handler (fun () -> handle_credentials_post token s))
+
+  let () =
+    Html5.register
+      ~service:election_setup_trustee
+      (fun token () ->
+       lwt uuid = Ocsipersist.find election_pktokens token in
+       lwt se = Ocsipersist.find election_stable uuid in
+       T.election_setup_trustee token uuid se ()
+      )
+
+  let () =
+    Any.register
+      ~service:election_setup_trustee_post
+      (fun token public_key ->
+       wrap_handler
+         (fun () ->
+          lwt uuid = Ocsipersist.find election_pktokens token in
+          Lwt_mutex.with_lock
+            election_setup_mutex
+            (fun () ->
+             lwt se = Ocsipersist.find election_stable uuid in
+             let pkref = List.assoc token se.se_public_keys in
+             let module G = (val Group.of_string se.se_group : GROUP) in
+             let pk = trustee_public_key_of_string G.read public_key in
+             let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
+             if not (KG.check pk) then failwith "invalid public key";
+             (* we keep pk as a string because of G.t *)
+             pkref := public_key;
+             Ocsipersist.add election_stable uuid se
+            ) >> Redirection.send (preapply election_setup_trustee token)
+         )
+      )
+
+  let () =
+    Any.register
+      ~service:election_setup_create
+      (fun uuid () ->
+       match_lwt S.get_user () with
+       | None -> forbidden ()
+       | Some u ->
+          begin try_lwt
+            let uuid_s = Uuidm.to_string uuid in
+            Lwt_mutex.with_lock election_setup_mutex (fun () ->
+              lwt se = Ocsipersist.find election_stable uuid_s in
+              if se.se_owner <> u then forbidden () else
+              let group = Group.of_string se.se_group in
+              let module G = (val group : GROUP) in
+              let module M = Election.MakeSimpleMonad (G) in
+              (* FIXME: KG does not actually need M here *)
+              let module KG = Election.MakeSimpleDistKeyGen (G) (M) in
+              (* construct election data in memory *)
+              let () =
+                match se.se_public_keys with
+                | [] -> failwith "trustee public keys are missing"
+                | _ :: _ -> ()
+              in
+              let public_keys =
+                List.map
+                  (fun (_, r) ->
+                   if !r = "" then failwith "some public keys are missing";
+                   trustee_public_key_of_string G.read !r
+                  ) se.se_public_keys
+              in
+              let y = KG.combine (Array.of_list public_keys) in
+              let template = se.se_questions in
+              let params = {
+                e_description = template.t_description;
+                e_name = template.t_name;
+                e_public_key = G.wrap_pubkey y;
+                e_questions = template.t_questions;
+                e_uuid = uuid;
+                e_short_name = template.t_short_name;
+              } in
+              let files = {
+                f_election = C.spool_dir / uuid_s ^ ".election.json";
+                f_metadata = C.spool_dir / uuid_s ^ ".metadata.json";
+                f_public_keys = C.spool_dir / uuid_s ^ ".public_keys.jsons";
+                f_public_creds = C.spool_dir / uuid_s ^ ".public_creds.txt";
+              } in
+              lwt _ =
+                try_lwt Lwt_unix.stat files.f_public_creds
+                with _ -> failwith "public credentials are missing"
+              in
+              (* write election files to disk *)
+              let create_file fname what =
+                Lwt_io.with_file
+                  ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+                  ~perm:0o600 ~mode:Lwt_io.Output fname
+                  (fun oc -> Lwt_io.write oc what >> Lwt_io.write oc "\n")
+              in
+              create_file files.f_election (string_of_params G.write_wrapped_pubkey params) >>
+              create_file files.f_metadata (string_of_metadata se.se_metadata) >>
+              Lwt_io.with_file
+                ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+                ~perm:0o600
+                ~mode:Lwt_io.Output
+                files.f_public_keys
+                (fun oc ->
+                 Lwt_list.iter_s
+                   (fun pk ->
+                    Lwt_io.write oc (string_of_trustee_public_key G.write pk) >>
+                    Lwt_io.write oc "\n"
+                   ) public_keys
+                ) >>
+              (* actually create the election *)
+              begin match_lwt S.import_election files with
+              | None ->
+                 T.new_election_failure `Exists () >>= Html5.send
+              | Some w ->
+                 let module W = (val w : REGISTRABLE_ELECTION) in
+                 lwt w = W.register () in
+                 let module W = (val w : WEB_ELECTION) in
+                 (* clean up temporary files *)
+                 Lwt_unix.unlink files.f_election >>
+                 Lwt_unix.unlink files.f_metadata >>
+                 Lwt_unix.unlink files.f_public_keys >>
+                 Lwt_unix.unlink files.f_public_creds >>
+                 (* clean up tokens *)
+                 Ocsipersist.remove election_credtokens se.se_public_creds >>
+                 Lwt_list.iter_s
+                   (fun (token, _) ->
+                    Ocsipersist.remove election_pktokens token)
+                   se.se_public_keys >>
+                 Ocsipersist.remove election_stable uuid_s >>
+                 Redirection.send W.S.admin
+              end
+            )
+          with e ->
+            T.new_election_failure (`Exception e) () >>= Html5.send
+          end
+      )
 
 end
