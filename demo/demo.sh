@@ -37,12 +37,12 @@ belenios-tool trustee-keygen $group
 cat *.pubkey > public_keys.jsons
 
 # Generate election parameters
-belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/election.json
+belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/questions.json
 
 header "Simulate votes"
 
 cat private_creds.txt | while read id cred; do
-    belenios-tool vote --privcred <(echo $cred) --ballot <(printf "[[0,0,0,0,0],[0,1,0,1,1,0],[0,0,1]]")
+    belenios-tool vote --privcred <(echo $cred) --ballot <(printf "[[1,0]]")
     echo "Voter $id voted" >&2
     echo >&2
 done > ballots.tmp
