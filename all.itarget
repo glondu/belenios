@@ -1,5 +1,5 @@
 minimal.otarget
 src/lib/lib.cma
 src/web/server.cma
-src/tool/belenios-tool.html.otarget
-src/booth/vote.html.otarget
+src/static/belenios-tool.html.otarget
+src/static/vote.html.otarget

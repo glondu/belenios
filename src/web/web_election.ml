@@ -299,7 +299,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           ~get_params:(string "election_url")
           ()
 
-        let booth_path = ["booth"; "vote.html"]
+        let booth_path = ["static"; "vote.html"]
 
         let root_rel_to_booth = root
           |> Eliom_uri.reconstruct_relative_url_path booth_path

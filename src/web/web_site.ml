@@ -142,7 +142,7 @@ module Make (C : CONFIG) : SITE = struct
       ) ()
 
     let tool =
-      preapply (static_dir ()) ["tool"; "belenios-tool.html"]
+      preapply (static_dir ()) ["static"; "belenios-tool.html"]
 
     let election_setup_index = service
       ~path:(make_path ["setup"; ""])

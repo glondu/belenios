@@ -67,14 +67,6 @@ let version_rule () =
   in
   rule "BUILD -> belenios_version.ml" ~deps ~prod builder
 
-let copy_ext_js_rule dir fname =
-  let full_name = dir / fname in
-  copy_rule full_name ("ext/booth/js/jscrypto" / fname) full_name
-
-let copy_platform_js_rule dir fname =
-  let full_name = dir / fname in
-  copy_rule full_name ("src/platform/js" / fname) full_name
-
 let () = dispatch & function
 
   | Before_options ->
@@ -111,10 +103,16 @@ let () = dispatch & function
     platform_rules "native";
     platform_rules "js";
 
+    copy_rule "jsbn.js" "ext/booth/js/jscrypto/jsbn.js" "src/static/jsbn.js";
+    copy_rule "jsbn2.js" "ext/booth/js/jscrypto/jsbn2.js" "src/static/jsbn2.js";
+    copy_rule "sjcl.js" "ext/booth/js/jscrypto/sjcl.js" "src/static/sjcl.js";
+    copy_rule "random.js" "src/platform/js/random.js" "src/static/random.js";
+
     copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
-    List.iter (copy_ext_js_rule "src/tool") ["jsbn.js"; "jsbn2.js"; "sjcl.js"];
-    List.iter (copy_ext_js_rule "src/booth") ["jsbn.js"; "jsbn2.js"; "sjcl.js"];
-    copy_platform_js_rule "src/tool" "random.js";
-    copy_platform_js_rule "src/booth" "random.js";
+    copy_rule "belenios-tool.js" "src/tool/tool_js.js" "src/static/tool_js.js";
+    copy_rule "belenios-tool.html" "src/tool/belenios-tool.html" "src/static/belenios-tool.html";
+
+    copy_rule "booth.js" "src/booth/booth.js" "src/static/booth.js";
+    copy_rule "vote.html" "src/booth/vote.html" "src/static/vote.html";
 
   | _ -> ()

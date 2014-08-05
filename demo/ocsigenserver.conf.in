@@ -31,11 +31,8 @@
     <extension findlib-package="csv"/>
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
-      <site path="booth" charset="utf-8">
-        <static dir="_SRCDIR_/_build/src/booth" />
-      </site>
-      <site path="tool" charset="utf-8">
-        <static dir="_SRCDIR_/_build/src/tool" />
+      <site path="static" charset="utf-8">
+        <static dir="_SRCDIR_/_build/src/static" />
       </site>
       <eliom module="_build/src/web/server.cma">
         <auth name="demo"><dummy/></auth>
