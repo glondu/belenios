@@ -37,25 +37,25 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
 
   let scope = Eliom_common.default_session_scope
 
-  let cas_login = Eliom_service.external_service
+  let cas_login = Eliom_service.Http.external_service
     ~prefix:C.server
     ~path:["login"]
     ~get_params:Eliom_parameter.(string "service" ** opt (bool "renew"))
     ()
 
-  let cas_logout = Eliom_service.external_service
+  let cas_logout = Eliom_service.Http.external_service
     ~prefix:C.server
     ~path:["logout"]
     ~get_params:Eliom_parameter.(string "service")
     ()
 
-  let cas_validate = Eliom_service.external_service
+  let cas_validate = Eliom_service.Http.external_service
     ~prefix:C.server
     ~path:["validate"]
     ~get_params:Eliom_parameter.(string "service" ** string "ticket")
     ()
 
-  let login_cas = Eliom_service.service
+  let login_cas = Eliom_service.Http.service
     ~path:N.path
     ~get_params:Eliom_parameter.(opt (string "ticket"))
     ()

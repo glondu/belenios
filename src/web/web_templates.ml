@@ -260,7 +260,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
   let make_button ~service contents =
     let uri = Eliom_uri.make_string_uri ~service () in
-    Printf.ksprintf unsafe_data (* FIXME: unsafe *)
+    Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
       "<button onclick=\"location.href='%s';\">%s</button>"
       uri
       contents

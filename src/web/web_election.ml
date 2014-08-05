@@ -274,6 +274,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
       module S : ELECTION_SERVICES = struct
         include Auth.Services
+        open Eliom_service.Http
 
         let make_path x = base_path @ x
         let root = make_path [""]
@@ -376,7 +377,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
             let post_params = Eliom_parameter.(
               bool "featured"
             ) in
-            let set_featured = Eliom_service.post_coservice
+            let set_featured = Eliom_service.Http.post_coservice
               ~csrf_safe:true
               ~csrf_scope:scope
               ~fallback:W.S.admin
@@ -493,7 +494,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
       let ballot_received user =
         let confirm () =
-          let service = Eliom_service.post_coservice
+          let service = Eliom_service.Http.post_coservice
             ~csrf_safe:true
             ~csrf_scope:scope
             ~fallback:W.S.election_cast

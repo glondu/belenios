@@ -93,12 +93,12 @@ module Make (N : CONFIG) = struct
       | Some u -> return (Some u.user_user)
       | None -> return None
 
-    let login = Eliom_service.service
+    let login = Eliom_service.Http.service
       ~path:(N.path @ ["login"])
       ~get_params:Eliom_parameter.(opt (string "service"))
       ()
 
-    let logout = Eliom_service.service
+    let logout = Eliom_service.Http.service
       ~path:(N.path @ ["logout"])
       ~get_params:Eliom_parameter.unit
       ()

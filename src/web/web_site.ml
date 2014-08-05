@@ -105,6 +105,7 @@ module Make (C : CONFIG) : SITE = struct
     include Auth.Services
     include Auth.Handlers
     open Eliom_parameter
+    open Eliom_service.Http
 
     let scope = Eliom_common.default_session_scope
 

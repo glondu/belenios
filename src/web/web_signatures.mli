@@ -39,7 +39,8 @@ module type AUTH_SERVICES = sig
           Eliom_service.a_s ],
      [ `WithoutSuffix ],
      [ `One of string ] Eliom_parameter.param_name, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val logout :
@@ -48,7 +49,8 @@ module type AUTH_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
 end
@@ -61,7 +63,8 @@ module type CORE_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val admin :
@@ -70,7 +73,8 @@ module type CORE_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val source_code :
@@ -79,7 +83,8 @@ module type CORE_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val get_randomness :
@@ -88,7 +93,8 @@ module type CORE_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val new_election :
@@ -97,7 +103,8 @@ module type CORE_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val new_election_post :
@@ -113,7 +120,8 @@ module type CORE_SERVICES = sig
      ([ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
       ([ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
        [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name)),
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val tool :
@@ -122,7 +130,8 @@ module type CORE_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Unregistrable ], 'a)
+     [< Eliom_service.registrable > `Unregistrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_index :
@@ -131,7 +140,8 @@ module type CORE_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_new :
@@ -140,7 +150,8 @@ module type CORE_SERVICES = sig
           ([> `Internal of [> `Coservice ] ], [> `Post ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup :
@@ -150,7 +161,8 @@ module type CORE_SERVICES = sig
           Eliom_service.a_s ],
      [ `WithoutSuffix ],
      [ `One of Uuidm.t ] Eliom_parameter.param_name, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_group :
@@ -161,7 +173,8 @@ module type CORE_SERVICES = sig
      [ `WithoutSuffix ],
      [ `One of Uuidm.t ] Eliom_parameter.param_name,
      [ `One of string ] Eliom_parameter.param_name,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_metadata :
@@ -172,7 +185,8 @@ module type CORE_SERVICES = sig
      [ `WithoutSuffix ],
      [ `One of Uuidm.t ] Eliom_parameter.param_name,
      [ `One of string ] Eliom_parameter.param_name,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_questions :
@@ -183,7 +197,8 @@ module type CORE_SERVICES = sig
      [ `WithoutSuffix ],
      [ `One of Uuidm.t ] Eliom_parameter.param_name,
      [ `One of string ] Eliom_parameter.param_name,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_trustee_add :
@@ -194,7 +209,8 @@ module type CORE_SERVICES = sig
      [ `WithoutSuffix ],
      [ `One of Uuidm.t ] Eliom_parameter.param_name,
      unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_credentials :
@@ -204,7 +220,8 @@ module type CORE_SERVICES = sig
           Eliom_service.a_s ],
      [ `WithoutSuffix ],
      [ `One of string ] Eliom_parameter.param_name, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_credentials_download :
@@ -214,7 +231,8 @@ module type CORE_SERVICES = sig
           Eliom_service.a_s ],
      [ `WithoutSuffix ],
      [ `One of string ] Eliom_parameter.param_name, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_credentials_post :
@@ -225,7 +243,8 @@ module type CORE_SERVICES = sig
      [ `WithoutSuffix ],
      [ `One of string ] Eliom_parameter.param_name,
      [ `One of string ] Eliom_parameter.param_name,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_credentials_post_file :
@@ -236,7 +255,8 @@ module type CORE_SERVICES = sig
      [ `WithoutSuffix ],
      [ `One of string ] Eliom_parameter.param_name,
      [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_trustee :
@@ -246,7 +266,8 @@ module type CORE_SERVICES = sig
           Eliom_service.a_s ],
      [ `WithoutSuffix ],
      [ `One of string ] Eliom_parameter.param_name, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_trustee_post :
@@ -257,7 +278,8 @@ module type CORE_SERVICES = sig
      [ `WithoutSuffix ],
      [ `One of string ] Eliom_parameter.param_name,
      [ `One of string ] Eliom_parameter.param_name,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_setup_create :
@@ -267,7 +289,8 @@ module type CORE_SERVICES = sig
           Eliom_service.a_s ],
      [ `WithoutSuffix ],
      [ `One of Uuidm.t ] Eliom_parameter.param_name, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
 end
@@ -281,7 +304,8 @@ module type ELECTION_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val admin :
@@ -290,7 +314,8 @@ module type ELECTION_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_dir :
@@ -300,7 +325,8 @@ module type ELECTION_SERVICES = sig
           Eliom_service.a_s ],
      [ `WithSuffix ],
      [ `One of Web_common.election_file ] Eliom_parameter.param_name,
-     unit, [< Eliom_service.registrable > `Registrable ], 'a)
+     unit, [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val booth :
@@ -309,7 +335,8 @@ module type ELECTION_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Unregistrable ], 'a)
+     [< Eliom_service.registrable > `Unregistrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_update_credential :
@@ -318,7 +345,8 @@ module type ELECTION_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_update_credential_post :
@@ -329,7 +357,8 @@ module type ELECTION_SERVICES = sig
      [ `WithoutSuffix ], unit,
      [ `One of string ] Eliom_parameter.param_name *
      [ `One of string ] Eliom_parameter.param_name,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_vote :
@@ -338,7 +367,8 @@ module type ELECTION_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit,
-     unit, [< Eliom_service.registrable > `Registrable ], 'a)
+     unit, [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_cast :
@@ -347,7 +377,8 @@ module type ELECTION_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit,
-     unit, [< Eliom_service.registrable > `Registrable ], 'a)
+     unit, [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
   val election_cast_post :
@@ -358,15 +389,14 @@ module type ELECTION_SERVICES = sig
      [ `WithoutSuffix ], unit,
      [ `One of string ] Eliom_parameter.param_name *
      [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name,
-     [< Eliom_service.registrable > `Registrable ], 'a)
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
     Eliom_service.service
 
 end
 
 type service_handler = unit ->
-  (Eliom_registration.browser_content,
-   Eliom_registration.http_service
-  ) Eliom_registration.kind Lwt.t
+  Eliom_registration.browser_content Eliom_registration.kind Lwt.t
 
 type 'a service_cont = ('a -> service_handler) -> service_handler
 
@@ -405,7 +435,8 @@ module type ELECTION_TEMPLATES = sig
     set_featured:(unit, 'a, [< Eliom_service.post_service_kind ],
                   [< Eliom_service.suff ], 'b,
                   [ `One of bool ] Eliom_parameter.param_name,
-                  [< Eliom_service.registrable ], 'c)
+                  [< Eliom_service.registrable ],
+                  [< Eliom_service.non_ocaml_service ])
                  Eliom_service.service ->
     is_featured:bool ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
@@ -421,7 +452,8 @@ module type ELECTION_TEMPLATES = sig
              (unit, 'b,
               [< Eliom_service.post_service_kind ],
               [< Eliom_service.suff ], 'c, unit,
-              [< Eliom_service.registrable ], 'd)
+              [< Eliom_service.registrable ],
+              [< Eliom_service.non_ocaml_service ])
              Eliom_service.service) ->
     can_vote:bool ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
@@ -487,7 +519,8 @@ module type LOGIN_TEMPLATES = sig
              [< Eliom_service.suff ], 'b,
              [< string Eliom_parameter.setoneradio ]
              Eliom_parameter.param_name,
-             [< Eliom_service.registrable ], 'c)
+             [< Eliom_service.registrable ],
+             [< Eliom_service.non_ocaml_service ])
             Eliom_service.service ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
@@ -498,7 +531,8 @@ module type LOGIN_TEMPLATES = sig
              Eliom_parameter.param_name *
              [< string Eliom_parameter.setoneradio ]
              Eliom_parameter.param_name,
-             [< Eliom_service.registrable ], 'c)
+             [< Eliom_service.registrable ],
+             [< Eliom_service.non_ocaml_service ])
             Eliom_service.service ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
@@ -507,7 +541,8 @@ module type LOGIN_TEMPLATES = sig
              [< Eliom_service.suff ], 'b,
              [< Eliom_lib.file_info Eliom_parameter.setoneradio ]
              Eliom_parameter.param_name,
-             [< Eliom_service.registrable ], 'c)
+             [< Eliom_service.registrable ],
+             [< Eliom_service.non_ocaml_service ])
             Eliom_service.service ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 

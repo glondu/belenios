@@ -39,7 +39,7 @@ module Make (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = struct
 
   let scope = Eliom_common.default_session_scope
 
-  let service = Eliom_service.service
+  let service = Eliom_service.Http.service
     ~path:N.path
     ~get_params:Eliom_parameter.unit
     ()
@@ -49,7 +49,7 @@ module Make (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = struct
   let () = Eliom_registration.Html5.register ~service
     (fun () () ->
       let post_params = Eliom_parameter.(string "username") in
-      let service = Eliom_service.post_coservice
+      let service = Eliom_service.Http.post_coservice
         ~csrf_safe:true
         ~csrf_scope:scope
         ~fallback:service

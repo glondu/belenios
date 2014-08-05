@@ -56,7 +56,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
 
   let scope = Eliom_common.default_session_scope
 
-  let service = Eliom_service.service
+  let service = Eliom_service.Http.service
     ~path:N.path
     ~get_params:Eliom_parameter.unit
     ()
@@ -79,7 +79,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
     let post_params = Eliom_parameter.(
       string "username" ** string "password"
     ) in
-    let service = Eliom_service.post_coservice
+    let service = Eliom_service.Http.post_coservice
       ~csrf_safe:true
       ~csrf_scope:scope
       ~fallback:service
@@ -104,7 +104,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
 
   let bootstrap_service_handler () =
     let post_params = Eliom_parameter.file "password_db" in
-    let upload_service = Eliom_service.post_coservice
+    let upload_service = Eliom_service.Http.post_coservice
       ~csrf_safe:true
       ~csrf_scope:scope
       ~fallback:service
