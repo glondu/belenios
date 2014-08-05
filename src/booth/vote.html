@@ -52,7 +52,10 @@
           Plaintext raw ballot:
           <div><textarea id="choices" rows="1" cols="80" readonly="readonly"></textarea></div>
         </div>
-        <div><button id="encrypt">Confirm and encrypt</button></div>
+        <div id="encrypting_div">
+          Please wait while your ballot is being encrypted...
+          <img src="encrypting.gif"/>
+        </div>
         <div id="ballot_div" style="display:none;">
           <form id="ballot_form" method="POST">
             <div style="display:none;">
@@ -64,11 +67,11 @@
             <p>
               Your ballot has been successfully encrypted!
               Your smart ballot tracker is <span id="ballot_tracker"></span>.
-              Refresh this page to start again from the beginning.
             </p>
-            <input type="submit" value="Submit"/>
+            <input type="submit" value="Confirm and submit"/>
           </form>
         </div>
+        <button onclick="location.reload();">Cancel</button>
       </div>
     </div>
   </body>

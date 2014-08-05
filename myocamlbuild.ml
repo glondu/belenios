@@ -112,6 +112,7 @@ let () = dispatch & function
     copy_rule "belenios-tool.js" "src/tool/tool_js.js" "src/static/tool_js.js";
     copy_rule "belenios-tool.html" "src/tool/belenios-tool.html" "src/static/belenios-tool.html";
 
+    copy_rule "encrypting.gif" "ext/booth/encrypting.gif" "src/static/encrypting.gif";
     copy_rule "booth.js" "src/booth/booth.js" "src/static/booth.js";
     copy_rule "vote.html" "src/booth/vote.html" "src/static/vote.html";
 

@@ -77,10 +77,26 @@ let setNodeById id x =
 let setDisplayById id x =
   withElementById id (fun e -> e##style##display <- Js.string x)
 
+let prng = lazy (pseudo_rng (random_string secure_rng 16))
+
+module MakeLwtJsMonad (G : GROUP) = struct
+  type 'a t = unit -> 'a Lwt.t
+  let return x () = Lwt.return x
+  let bind x f () = Lwt.bind (x ()) (fun y -> f y ())
+  let fail x () = Lwt.fail x
+
+  let random q =
+    let size = Z.bit_length q / 8 + 1 in
+    fun () ->
+      lwt () = Lwt_js.yield () in
+      let r = random_string (Lazy.force prng) size in
+      Lwt.return Z.(of_bits r mod q)
+end
+
 let encryptBallot params cred plaintext () =
   let module P = (val params : ELECTION_PARAMS) in
   let module G = P.G in
-  let module M = Election.MakeSimpleMonad (G) in
+  let module M = MakeLwtJsMonad (G) in
   let module E = Election.MakeElection (G) (M) in
   let e = {
     e_params = P.params;
@@ -91,12 +107,15 @@ let encryptBallot params cred plaintext () =
     let hex = derive_cred P.params.e_uuid cred in
     Z.(of_string_base 16 hex mod G.q)
   in
-  let b = E.create_ballot e ~sk (E.make_randomness e ()) plaintext () in
+  lwt randomness = E.make_randomness e () in
+  lwt b = E.create_ballot e ~sk randomness plaintext () in
   let s = string_of_ballot G.write b in
   setTextarea "ballot" s;
   setNodeById "ballot_tracker" (sha256_b64 s);
+  setDisplayById "encrypting_div" "none";
   setDisplayById "ballot_div" "block";
-  Dom_html.window##onbeforeunload <- Dom_html.no_handler
+  Dom_html.window##onbeforeunload <- Dom_html.no_handler;
+  Lwt.return ()
 
 let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
   (* Create div element for the current question. [i] and [(q,
@@ -207,7 +226,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
               Dom.appendChild e ul;
             ) all_answers
           );
-          installHandler "encrypt" (encryptBallot params sk all_answers);
+          Lwt_js_events.async (encryptBallot params sk all_answers);
           setDisplayById "plaintext_div" "block";
           Js._false
         );
