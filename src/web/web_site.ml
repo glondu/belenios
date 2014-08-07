@@ -54,6 +54,14 @@ let get_single_line x =
 
 let ( / ) = Filename.concat
 
+let delete_shallow_directory dir =
+  lwt () =
+    Lwt_unix.files_of_directory dir |>
+    Lwt_stream.filter (fun x -> x <> "." && x <> "..") |>
+    Lwt_stream.iter_s (fun x -> Lwt_unix.unlink (dir/x))
+  in
+  Lwt_unix.rmdir dir
+
 module Make (C : CONFIG) : SITE = struct
   open Eliom_service
   open Eliom_registration
@@ -368,6 +376,15 @@ module Make (C : CONFIG) : SITE = struct
               let () = Lwt_mutex.unlock registration_mutex in
               return election
             with e ->
+              lwt () =
+                try_lwt delete_shallow_directory dir
+                with e ->
+                  Printf.ksprintf
+                    (fun s ->
+                     return (Ocsigen_messages.unexpected_exception e s))
+                    "error while deleting %s after failure of %s"
+                    dir uuid
+              in
               Lwt_mutex.unlock registration_mutex;
               Lwt.fail e
         end in
