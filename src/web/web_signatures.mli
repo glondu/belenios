@@ -55,84 +55,7 @@ module type AUTH_SERVICES = sig
 
 end
 
-module type CORE_SERVICES = sig
-
-  val home :
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ],
-     [> Eliom_service.http_service ])
-    Eliom_service.service
-
-  val admin :
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ],
-     [> Eliom_service.http_service ])
-    Eliom_service.service
-
-  val source_code :
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ],
-     [> Eliom_service.http_service ])
-    Eliom_service.service
-
-  val get_randomness :
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ],
-     [> Eliom_service.http_service ])
-    Eliom_service.service
-
-  val new_election :
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ],
-     [> Eliom_service.http_service ])
-    Eliom_service.service
-
-  val new_election_post :
-    (unit,
-     Eliom_lib.file_info *
-     (Eliom_lib.file_info *
-      (Eliom_lib.file_info * Eliom_lib.file_info)),
-     [> `Attached of
-          ([> `Internal of [ `Coservice | `Service ] ], [> `Post ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit,
-     [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
-     ([ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
-      ([ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
-       [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name)),
-     [< Eliom_service.registrable > `Registrable ],
-     [> Eliom_service.http_service ])
-    Eliom_service.service
-
-  val tool :
-    (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Unregistrable ],
-     [> Eliom_service.http_service ])
-    Eliom_service.service
+module type SETUP_SERVICES = sig
 
   val election_setup_index :
     (unit, unit,
@@ -292,6 +215,89 @@ module type CORE_SERVICES = sig
      [< Eliom_service.registrable > `Registrable ],
      [> Eliom_service.http_service ])
     Eliom_service.service
+
+end
+
+module type CORE_SERVICES = sig
+
+  val home :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
+    Eliom_service.service
+
+  val admin :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
+    Eliom_service.service
+
+  val source_code :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
+    Eliom_service.service
+
+  val get_randomness :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
+    Eliom_service.service
+
+  val new_election :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
+    Eliom_service.service
+
+  val new_election_post :
+    (unit,
+     Eliom_lib.file_info *
+     (Eliom_lib.file_info *
+      (Eliom_lib.file_info * Eliom_lib.file_info)),
+     [> `Attached of
+          ([> `Internal of [ `Coservice | `Service ] ], [> `Post ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit,
+     [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
+     ([ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
+      ([ `One of Eliom_lib.file_info ] Eliom_parameter.param_name *
+       [ `One of Eliom_lib.file_info ] Eliom_parameter.param_name)),
+     [< Eliom_service.registrable > `Registrable ],
+     [> Eliom_service.http_service ])
+    Eliom_service.service
+
+  val tool :
+    (unit, unit,
+     [> `Attached of
+          ([> `Internal of [> `Service ] ], [> `Get ])
+          Eliom_service.a_s ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Unregistrable ],
+     [> Eliom_service.http_service ])
+    Eliom_service.service
+
+  include SETUP_SERVICES
 
 end
 
