@@ -475,15 +475,11 @@ module type WEB_PARAMS = sig
   val dir : string
 end
 
-module type WEB_ELECTION_RO = sig
+module type WEB_ELECTION = sig
   include ELECTION_DATA
   include WEB_PARAMS
   module E : ELECTION with type elt = G.t
   module S : ELECTION_SERVICES
-end
-
-module type WEB_ELECTION = sig
-  include WEB_ELECTION_RO
   module B : WEB_BALLOT_BOX
   module H : AUTH_HANDLERS_PUBLIC
 end
@@ -560,11 +556,11 @@ end
 module type TEMPLATES = sig
 
   val home :
-    featured:(module WEB_ELECTION_RO) list ->
+    featured:(module WEB_ELECTION) list ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val admin :
-    elections:(module WEB_ELECTION_RO) list ->
+    elections:(module WEB_ELECTION) list ->
     unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   val new_election :
@@ -593,7 +589,7 @@ module type TEMPLATES = sig
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES
-  module Election (W : WEB_ELECTION_RO) : ELECTION_TEMPLATES
+  module Election (W : WEB_ELECTION) : ELECTION_TEMPLATES
 
 end
 

@@ -417,10 +417,7 @@ module Make (C : CONFIG) : SITE = struct
       | None ->
         lwt featured =
           Ocsipersist.get featured >>=
-          Lwt_list.map_p (fun x ->
-            let module W = (val SMap.find x !election_table : WEB_ELECTION) in
-            return (module W : WEB_ELECTION_RO)
-          )
+          Lwt_list.map_p (fun x -> return @@ SMap.find x !election_table)
         in
         T.home ~featured () >>= Html5.send
       | Some x ->
@@ -439,7 +436,7 @@ module Make (C : CONFIG) : SITE = struct
           SMap.fold (fun _ w accu ->
             let module W = (val w : WEB_ELECTION) in
             if W.metadata.e_owner = Some u then (
-              (module W : WEB_ELECTION_RO) :: accu
+              w :: accu
             ) else (
               accu
             )

@@ -103,7 +103,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
        ]))
 
   let format_election kind election =
-    let module W = (val election : WEB_ELECTION_RO) in
+    let module W = (val election : WEB_ELECTION) in
     let e = W.election.e_params in
     let service =
       match kind with
@@ -495,7 +495,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
     let login_box = pcdata "" in
     base ~title ~login_box ~content
 
-  module Election (W : WEB_ELECTION_RO) = struct
+  module Election (W : WEB_ELECTION) = struct
 
     let election_login_box =
       let auth = (module W.S : AUTH_SERVICES) in
