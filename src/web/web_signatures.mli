@@ -401,6 +401,22 @@ module type ELECTION_SERVICES = sig
 
 end
 
+type content =
+    Eliom_registration.browser_content Eliom_registration.kind Lwt.t
+
+module type ELECTION_HANDLERS =
+  sig
+    val home : unit -> unit -> content
+    val admin : unit -> unit -> content
+    val election_dir : Web_common.election_file -> unit -> content
+    val election_update_credential : unit -> unit -> content
+    val election_update_credential_post : unit -> string * string -> content
+    val election_vote : unit -> unit -> content
+    val election_cast : unit -> unit -> content
+    val election_cast_post :
+      unit -> string option * Eliom_lib.file_info option -> content
+  end
+
 type service_handler = unit ->
   Eliom_registration.browser_content Eliom_registration.kind Lwt.t
 
@@ -475,13 +491,18 @@ module type WEB_PARAMS = sig
   val dir : string
 end
 
-module type WEB_ELECTION = sig
+module type WEB_ELECTION_ = sig
   include ELECTION_DATA
   include WEB_PARAMS
   module E : ELECTION with type elt = G.t
   module S : ELECTION_SERVICES
   module B : WEB_BALLOT_BOX
   module H : AUTH_HANDLERS_PUBLIC
+end
+
+module type WEB_ELECTION = sig
+  include WEB_ELECTION_
+  module Z : ELECTION_HANDLERS
 end
 
 module type SITE_SERVICES = sig
@@ -589,7 +610,7 @@ module type TEMPLATES = sig
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
   module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES
-  module Election (W : WEB_ELECTION) : ELECTION_TEMPLATES
+  module Election (W : WEB_ELECTION_) : ELECTION_TEMPLATES
 
 end
 

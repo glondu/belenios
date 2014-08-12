@@ -282,7 +282,11 @@ module Make (C : CONFIG) : SITE = struct
       (* starting from here, we do side-effects on the running server *)
       let module R = R.Register (struct end) in
       let module W = R.W in
-      let module X : EMPTY = R.Register (S) (T) in
+      let module X : ELECTION_HANDLERS = R.Register (S) (T) in
+      let module W = struct
+        include W
+        module Z = X
+      end in
       let election = (module W : WEB_ELECTION) in
       election_table := SMap.add uuid election !election_table;
       election

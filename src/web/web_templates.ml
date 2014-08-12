@@ -495,7 +495,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
     let login_box = pcdata "" in
     base ~title ~login_box ~content
 
-  module Election (W : WEB_ELECTION) = struct
+  module Election (W : WEB_ELECTION_) = struct
 
     let election_login_box =
       let auth = (module W.S : AUTH_SERVICES) in

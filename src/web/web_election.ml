@@ -48,8 +48,8 @@ let can_vote m user =
     | Some u -> check_acl (Some acl) u
 
 module type REGISTRATION = sig
-  module W : WEB_ELECTION
-  module Register (S : SITE) (T : TEMPLATES) : EMPTY
+  module W : WEB_ELECTION_
+  module Register (S : SITE) (T : TEMPLATES) : ELECTION_HANDLERS
 end
 
 module type REGISTRABLE = sig
@@ -337,7 +337,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
     end
 
-    module Register (S : SITE) (T : TEMPLATES) : EMPTY = struct
+    module Register (S : SITE) (T : TEMPLATES) : ELECTION_HANDLERS = struct
       open Eliom_registration
 
       let () = let module X : EMPTY = Auth.Register (S) (T.Login (W.S)) in ()
@@ -356,7 +356,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
       let ballot = Eliom_reference.eref ~scope None
       let cast_confirmed = Eliom_reference.eref ~scope None
 
-      let () = Html5.register ~service:W.S.home
+      let home =
         (if_eligible can_read
            (fun user () ->
              Eliom_reference.unset ballot >>
@@ -365,12 +365,14 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              match_lwt Eliom_reference.get cast_confirmed with
              | Some result ->
                Eliom_reference.unset cast_confirmed >>
-               T.cast_confirmed ~result ()
-             | None -> T.home ()
+               T.cast_confirmed ~result () >>= Html5.send
+             | None -> T.home () >>= Html5.send
            )
         )
 
-      let () = Html5.register ~service:W.S.admin
+      let () = Any.register ~service:W.S.home home
+
+      let admin =
         (fun () () ->
           match_lwt S.get_user () with
           | Some u when W.metadata.e_owner = Some u ->
@@ -394,9 +396,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
               )
             in
             lwt is_featured = S.is_featured_election uuid in
-            T.admin ~set_featured ~is_featured ()
+            T.admin ~set_featured ~is_featured () >>= Html5.send
           | _ -> forbidden ()
         )
+
+      let () = Any.register ~service:W.S.admin admin
 
       let content_type_of_file = function
         | ESRaw | ESKeys | ESBallots -> "application/json"
@@ -413,8 +417,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         let content_type = content_type_of_file f in
         File.send ~content_type (W.dir / string_of_election_file f)
 
-      let () = Any.register
-        ~service:W.S.election_dir
+      let election_dir =
         (fun f () ->
           let cont () () =
             Eliom_service.preapply W.S.election_dir f |>
@@ -424,22 +427,27 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           handle_pseudo_file () f
         )
 
-      let () = Html5.register
-        ~service:W.S.election_update_credential
+      let () = Any.register ~service:W.S.election_dir election_dir
+
+      let election_update_credential =
         (fun () () ->
           lwt user = S.get_user () in
           match user with
           | Some u ->
             if W.metadata.e_owner = Some u then (
-              T.update_credential ()
+              T.update_credential () >>= Html5.send
             ) else (
               forbidden ()
             )
           | _ -> forbidden ()
         )
 
-      let () = String.register
-        ~service:W.S.election_update_credential_post
+      let () =
+        Any.register
+          ~service:W.S.election_update_credential
+          election_update_credential
+
+      let election_update_credential_post =
         (fun () (old, new_) ->
           lwt user = S.get_user () in
           match user with
@@ -447,25 +455,32 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
             if W.metadata.e_owner = Some u then (
               try_lwt
                 W.B.update_cred ~old ~new_ >>
-                return ("OK", "text/plain")
+                String.send ("OK", "text/plain")
               with Error e ->
-                return ("Error: " ^ explain_error e, "text/plain")
-            ) else (
+                String.send ("Error: " ^ explain_error e, "text/plain")
+            ) >>= (fun x -> return @@ cast_unknown_content_kind x)
+            else (
               forbidden ()
             )
           | _ -> forbidden ()
         )
 
-      let () = Redirection.register
-        ~service:W.S.election_vote
+      let () =
+        Any.register
+          ~service:W.S.election_update_credential_post
+          election_update_credential_post
+
+      let election_vote =
         (if_eligible can_read
            (fun user () ->
              Eliom_reference.unset ballot >>
              let cont () () = Redirection.send W.S.election_vote in
              Eliom_reference.set S.cont cont >>
-             return W.S.booth
+             Redirection.send W.S.booth
            )
         )
+
+      let () = Any.register ~service:W.S.election_vote election_vote
 
       let do_cast () () =
         match_lwt Eliom_reference.get ballot with
@@ -507,20 +522,20 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         let can_vote = can_vote W.metadata user in
         T.cast_confirmation ~confirm ~can_vote ()
 
-      let () = Html5.register
-        ~service:W.S.election_cast
+      let election_cast =
         (if_eligible can_read
            (fun user () ->
              let cont () () = Redirection.send W.S.election_cast in
              Eliom_reference.set S.cont cont >>
              match_lwt Eliom_reference.get ballot with
-             | Some _ -> ballot_received user
-             | None -> T.cast_raw ()
+             | Some _ -> ballot_received user >>= Html5.send
+             | None -> T.cast_raw () >>= Html5.send
            )
         )
 
-      let () = Any.register
-        ~service:W.S.election_cast_post
+      let () = Any.register ~service:W.S.election_cast election_cast
+
+      let election_cast_post =
         (if_eligible can_read
            (fun user (ballot_raw, ballot_file) ->
              lwt the_ballot = match ballot_raw, ballot_file with
@@ -538,6 +553,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              | Some u -> cont () ()
            )
         )
+
+      let () =
+        Any.register
+          ~service:W.S.election_cast_post
+          election_cast_post
 
     end
 
