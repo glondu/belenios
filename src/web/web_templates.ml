@@ -107,12 +107,12 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
     let e = W.election.e_params in
     let service =
       match kind with
-      | `Home -> W.S.home
-      | `Admin -> W.S.admin
+      | `Home -> S.election_home
+      | `Admin -> S.election_admin
     in
     li [
       h3 [
-        a ~service [pcdata e.e_name] ();
+        a ~service [pcdata e.e_name] (e.e_uuid, ());
       ];
       p [pcdata e.e_description];
     ]
@@ -501,7 +501,10 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       let auth = (module W.S : AUTH_SERVICES) in
       fun () -> make_login_box "" auth
 
-    let file x = Eliom_service.preapply W.S.election_dir x
+    let file x =
+      Eliom_service.preapply
+        S.election_dir
+        (W.election.e_params.e_uuid, x)
 
     let home () =
       lwt user = W.S.get_user () in
@@ -598,11 +601,11 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         div [
           div [
             make_button
-              ~service:W.S.election_vote
+              ~service:(Eliom_service.preapply S.election_vote (params.e_uuid, ()))
               "Go to the booth";
             pcdata " or ";
             make_button
-              ~service:W.S.election_cast
+              ~service:(Eliom_service.preapply S.election_cast (params.e_uuid, ()))
               "Submit a raw ballot";
           ];
         ];
@@ -612,28 +615,26 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       lwt login_box = election_login_box () in
       base ~title:params.e_name ~login_box ~content
 
-    let admin ~set_featured ~is_featured () =
+    let admin ~is_featured () =
       let title = W.election.e_params.e_name ^ " — Administration" in
-      let feature_form = post_form ~service:set_featured
+      let feature_form = post_form ~service:S.election_set_featured
         (fun featured -> [
           bool_checkbox ~name:featured ~checked:is_featured ();
           pcdata "Feature this election ";
           string_input ~input_type:`Submit ~value:"Apply" ();
-        ]) ()
+        ]) (W.election.e_params.e_uuid, ())
       in
+      let uuid = W.election.e_params.e_uuid in
       let content = [
         h1 [pcdata title];
         div [
-          let service = W.S.home in
-          a ~service [pcdata "Election home"] ();
+          a ~service:S.election_home [pcdata "Election home"] (uuid, ());
         ];
         div [
-          let service = W.S.election_update_credential in
-          a ~service [pcdata "Update a credential"] ();
+          a ~service:S.election_update_credential [pcdata "Update a credential"] (uuid, ());
         ];
         div [
-          let service = W.S.election_dir in
-          a ~service [pcdata "Voting records"] ESRecords;
+          a ~service:S.election_dir [pcdata "Voting records"] (uuid, ESRecords);
         ];
         div [feature_form];
       ] in
@@ -642,7 +643,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
     let update_credential () =
       let params = W.election.e_params in
-      let form = post_form ~service:W.S.election_update_credential_post
+      let form = post_form ~service:S.election_update_credential_post
         (fun (old, new_) ->
           [
             div [
@@ -672,7 +673,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
             ];
             p [string_input ~input_type:`Submit ~value:"Submit" ()];
           ]
-        ) ()
+        ) (params.e_uuid, ())
       in
       let content = [
         h1 [ pcdata params.e_name ];
@@ -683,16 +684,16 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
     let cast_raw () =
       let params = W.election.e_params in
-      let form_rawballot = post_form ~service:W.S.election_cast_post
+      let form_rawballot = post_form ~service:S.election_cast_post
         (fun (name, _) ->
           [
             div [pcdata "Please paste your raw ballot in JSON format in the following box:"];
             div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
             div [string_input ~input_type:`Submit ~value:"Submit" ()];
           ]
-        ) ()
+        ) (params.e_uuid, ())
       in
-      let form_upload = post_form ~service:W.S.election_cast_post
+      let form_upload = post_form ~service:S.election_cast_post
         (fun (_, name) ->
           [
             div [pcdata "Alternatively, you can also upload a file containing your ballot:"];
@@ -702,7 +703,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
             ];
             div [string_input ~input_type:`Submit ~value:"Submit" ()];
           ]
-        ) ()
+        ) (params.e_uuid, ())
       in
       let content = [
         h1 [ pcdata params.e_name ];
@@ -714,14 +715,13 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       lwt login_box = election_login_box () in
       base ~title:params.e_name ~login_box ~content
 
-    let cast_confirmation ~confirm ~can_vote () =
+    let cast_confirmation ~can_vote () =
       lwt user = W.S.get_user () in
       let params = W.election.e_params in
       let name = params.e_name in
       let user_div = match user with
         | Some u when can_vote ->
-          let service = confirm () in
-          post_form ~service (fun () -> [
+          post_form ~service:S.election_cast_confirm (fun () -> [
             div [
               pcdata "I am ";
               format_user u;
@@ -729,7 +729,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
               string_input ~input_type:`Submit ~value:"I confirm my vote" ();
               pcdata ".";
             ]
-          ]) ()
+          ]) (params.e_uuid, ())
         | Some _ ->
           div [
             pcdata "You cannot vote in this election!";
@@ -748,9 +748,13 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
         ];
         user_div;
         p [
-          a ~service:W.S.home [
+          (let service =
+            Eliom_service.preapply
+              S.election_home (W.election.e_params.e_uuid, ())
+          in
+          a ~service [
             pcdata "Go back to election"
-          ] ();
+          ] ());
           pcdata ".";
         ];
       ] in
@@ -771,9 +775,13 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
           );
         ];
         p [
-          a ~service:W.S.home [
+          (let service =
+            Eliom_service.preapply
+              S.election_home (params.e_uuid, ())
+          in
+          a ~service [
             pcdata "Go back to election"
-          ] ();
+          ] ());
           pcdata ".";
         ];
       ] in

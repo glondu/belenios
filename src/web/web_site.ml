@@ -226,6 +226,67 @@ module Make (C : CONFIG) : SITE = struct
         ~post_params:unit
         ()
 
+    let election_home =
+      service
+        ~path:(make_path ["elections"])
+        ~get_params:(suffix (uuid "uuid" ** suffix_const ""))
+        ()
+
+    let election_admin =
+      service
+        ~path:(make_path ["elections"])
+        ~get_params:(suffix (uuid "uuid" ** suffix_const "admin"))
+        ()
+
+    let election_set_featured =
+      post_coservice
+        ~fallback:election_admin
+        ~post_params:(bool "featured")
+        ()
+
+    let election_update_credential =
+      service
+        ~path:(make_path ["elections"])
+        ~get_params:(suffix (uuid "uuid" ** suffix_const "update-cred"))
+        ()
+
+    let election_update_credential_post =
+      post_service
+        ~fallback:election_update_credential
+        ~post_params:(string "old_credential" ** string "new_credential")
+        ()
+
+    let election_vote =
+      service
+        ~path:(make_path ["elections"])
+        ~get_params:(suffix (uuid "uuid" ** suffix_const "vote"))
+        ()
+
+    let election_cast =
+      service
+        ~path:(make_path ["elections"])
+        ~get_params:(suffix (uuid "uuid" ** suffix_const "cast"))
+        ()
+
+    let election_cast_post =
+      post_service
+        ~fallback:election_cast
+        ~post_params:(opt (string "encrypted_vote") ** opt (file "encrypted_vote_file"))
+        ()
+
+    let election_cast_confirm =
+      post_coservice
+        ~csrf_safe:true
+        ~fallback:election_cast
+        ~post_params:unit
+        ()
+
+    let election_dir =
+      service
+        ~path:(make_path ["elections"])
+        ~get_params:(suffix (uuid "uuid" ** election_file "file"))
+        ()
+
     let cont = Eliom_reference.eref ~scope
       (fun () () -> Eliom_registration.Redirection.send home)
 
@@ -426,7 +487,8 @@ module Make (C : CONFIG) : SITE = struct
         T.home ~featured () >>= Html5.send
       | Some x ->
         let module W = (val SMap.find x !election_table : WEB_ELECTION) in
-        Redirection.send W.S.home
+        Redirection.send
+          (preapply S.election_home (W.election.e_params.e_uuid, ()))
     )
 
   let () = Html5.register ~service:admin
@@ -500,7 +562,8 @@ module Make (C : CONFIG) : SITE = struct
             let module W = (val w : REGISTRABLE_ELECTION) in
             lwt w = W.register () in
             let module W = (val w : WEB_ELECTION) in
-            W.S.admin |> Redirection.send
+            Redirection.send
+              (preapply S.election_admin (W.election.e_params.e_uuid, ()))
           end
         with e ->
           T.new_election_failure (`Exception e) () >>= Html5.send
@@ -829,12 +892,106 @@ module Make (C : CONFIG) : SITE = struct
                     Ocsipersist.remove election_pktokens token)
                    se.se_public_keys >>
                  Ocsipersist.remove election_stable uuid_s >>
-                 Redirection.send W.S.admin
+                 Redirection.send
+                   (preapply S.election_admin (W.election.e_params.e_uuid, ()))
               end
             )
           with e ->
             T.new_election_failure (`Exception e) () >>= Html5.send
           end
       )
+
+  let () =
+    Any.register
+      ~service:election_home
+      (fun (uuid, ()) () ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.home () ())
+
+  let () =
+    Any.register
+      ~service:election_set_featured
+      (fun (uuid, ()) featured ->
+       let uuid_s = Uuidm.to_string uuid in
+       lwt () =
+         if featured then S.add_featured_election uuid_s
+         else S.remove_featured_election uuid_s
+       in
+       Redirection.send
+         (preapply S.election_admin (uuid, ())))
+
+  let () =
+    Any.register
+      ~service:election_admin
+      (fun (uuid, ()) () ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.admin () ())
+
+  let () =
+    Any.register
+      ~service:election_update_credential
+      (fun (uuid, ()) () ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.election_update_credential () ())
+
+  let () =
+    Any.register
+      ~service:election_update_credential_post
+      (fun (uuid, ()) x ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.election_update_credential_post () x)
+
+  let () =
+    Any.register
+      ~service:election_vote
+      (fun (uuid, ()) x ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.election_vote () x)
+
+  let () =
+    Any.register
+      ~service:election_cast
+      (fun (uuid, ()) x ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.election_cast () x)
+
+  let () =
+    Any.register
+      ~service:election_cast_post
+      (fun (uuid, ()) x ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.election_cast_post () x)
+
+  let () =
+    Any.register
+      ~service:election_cast_confirm
+      (fun (uuid, ()) x ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.election_cast_confirm () x)
+
+  let () =
+    Any.register
+      ~service:election_dir
+      (fun (uuid, f) x ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.election_dir f x)
 
 end

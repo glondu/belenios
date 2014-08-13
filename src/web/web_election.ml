@@ -274,65 +274,6 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
       module S : ELECTION_SERVICES = struct
         include Auth.Services
-        open Eliom_service.Http
-
-        let make_path x = base_path @ x
-        let root = make_path [""]
-
-        let home = service
-          ~path:root
-          ~get_params:unit
-          ()
-
-        let admin = service
-          ~path:(make_path ["admin"])
-          ~get_params:unit
-          ()
-
-        let election_dir = service
-          ~path:root
-          ~priority:(-1)
-          ~get_params:(suffix (election_file "file"))
-          ()
-
-        let election_booth = static_dir_with_params
-          ~get_params:(string "election_url")
-          ()
-
-        let booth_path = ["static"; "vote.html"]
-
-        let root_rel_to_booth = root
-          |> Eliom_uri.reconstruct_relative_url_path booth_path
-          |> String.concat "/"
-
-        let booth =
-          preapply election_booth (booth_path, root_rel_to_booth)
-
-        let election_update_credential = service
-          ~path:(make_path ["update-cred"])
-          ~get_params:unit
-          ()
-
-        let election_update_credential_post = post_service
-          ~fallback:election_update_credential
-          ~post_params:(string "old_credential" ** string "new_credential")
-          ()
-
-        let election_vote = service
-          ~path:(make_path ["vote"])
-          ~get_params:unit
-          ()
-
-        let election_cast = service
-          ~path:(make_path ["cast"])
-          ~get_params:unit
-          ()
-
-        let election_cast_post = post_service
-          ~fallback:election_cast
-          ~post_params:(opt (string "encrypted_vote") ** opt (file "encrypted_vote_file"))
-          ()
-
       end
 
     end
@@ -360,7 +301,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         (if_eligible can_read
            (fun user () ->
              Eliom_reference.unset ballot >>
-             let cont () () = Redirection.send W.S.home in
+             let cont () () =
+               Redirection.send
+                 (Eliom_service.preapply
+                    S.election_home (W.election.e_params.e_uuid, ()))
+             in
              Eliom_reference.set S.cont cont >>
              match_lwt Eliom_reference.get cast_confirmed with
              | Some result ->
@@ -370,37 +315,14 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
            )
         )
 
-      let () = Any.register ~service:W.S.home home
-
       let admin =
         (fun () () ->
           match_lwt S.get_user () with
           | Some u when W.metadata.e_owner = Some u ->
-            let post_params = Eliom_parameter.(
-              bool "featured"
-            ) in
-            let set_featured = Eliom_service.Http.post_coservice
-              ~csrf_safe:true
-              ~csrf_scope:scope
-              ~fallback:W.S.admin
-              ~post_params
-              ()
-            in
-            let () = Any.register ~scope ~service:set_featured
-              (fun () featured ->
-                lwt () = if featured then (
-                  S.add_featured_election uuid
-                ) else (
-                  S.remove_featured_election uuid
-                ) in Redirection.send W.S.admin
-              )
-            in
             lwt is_featured = S.is_featured_election uuid in
-            T.admin ~set_featured ~is_featured () >>= Html5.send
+            T.admin ~is_featured () >>= Html5.send
           | _ -> forbidden ()
         )
-
-      let () = Any.register ~service:W.S.admin admin
 
       let content_type_of_file = function
         | ESRaw | ESKeys | ESBallots -> "application/json"
@@ -420,14 +342,14 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
       let election_dir =
         (fun f () ->
           let cont () () =
-            Eliom_service.preapply W.S.election_dir f |>
             Redirection.send
+              (Eliom_service.preapply
+                 S.election_dir
+                 (W.election.e_params.e_uuid, f))
           in
           Eliom_reference.set S.cont cont >>
           handle_pseudo_file () f
         )
-
-      let () = Any.register ~service:W.S.election_dir election_dir
 
       let election_update_credential =
         (fun () () ->
@@ -441,11 +363,6 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
             )
           | _ -> forbidden ()
         )
-
-      let () =
-        Any.register
-          ~service:W.S.election_update_credential
-          election_update_credential
 
       let election_update_credential_post =
         (fun () (old, new_) ->
@@ -465,24 +382,27 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           | _ -> forbidden ()
         )
 
-      let () =
-        Any.register
-          ~service:W.S.election_update_credential_post
-          election_update_credential_post
-
       let election_vote =
         (if_eligible can_read
            (fun user () ->
              Eliom_reference.unset ballot >>
-             let cont () () = Redirection.send W.S.election_vote in
+             let cont () () =
+               Redirection.send
+                 (Eliom_service.preapply
+                    S.election_vote (W.election.e_params.e_uuid, ()))
+             in
              Eliom_reference.set S.cont cont >>
-             Redirection.send W.S.booth
+             let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
+             Redirection.send
+               (Eliom_service.preapply
+                  (Eliom_service.static_dir_with_params
+                     ~get_params:(Eliom_parameter.string "election_url") ())
+                  (["static"; "vote.html"],
+                   "../elections/" ^ uuid_s ^ "/"))
            )
         )
 
-      let () = Any.register ~service:W.S.election_vote election_vote
-
-      let do_cast () () =
+      let election_cast_confirm () () =
         match_lwt Eliom_reference.get ballot with
         | Some the_ballot ->
           begin
@@ -500,7 +420,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                 in
                 Eliom_reference.unset ballot >>
                 Eliom_reference.set cast_confirmed (Some result) >>
-                let cont () () = Redirection.send W.S.home in
+                let cont () () =
+                  Redirection.send
+                    (Eliom_service.preapply
+                       S.election_home (W.election.e_params.e_uuid, ()))
+                in
                 W.H.do_logout cont ()
               ) else forbidden ()
             | None -> forbidden ()
@@ -508,32 +432,23 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         | None -> fail_http 404
 
       let ballot_received user =
-        let confirm () =
-          let service = Eliom_service.Http.post_coservice
-            ~csrf_safe:true
-            ~csrf_scope:scope
-            ~fallback:W.S.election_cast
-            ~post_params:Eliom_parameter.unit
-            ()
-          in
-          let () = Any.register ~service ~scope do_cast in
-          service
-        in
         let can_vote = can_vote W.metadata user in
-        T.cast_confirmation ~confirm ~can_vote ()
+        T.cast_confirmation ~can_vote ()
 
       let election_cast =
         (if_eligible can_read
            (fun user () ->
-             let cont () () = Redirection.send W.S.election_cast in
+             let cont () () =
+               Redirection.send
+                 (Eliom_service.preapply
+                    S.election_cast (W.election.e_params.e_uuid, ()))
+             in
              Eliom_reference.set S.cont cont >>
              match_lwt Eliom_reference.get ballot with
              | Some _ -> ballot_received user >>= Html5.send
              | None -> T.cast_raw () >>= Html5.send
            )
         )
-
-      let () = Any.register ~service:W.S.election_cast election_cast
 
       let election_cast_post =
         (if_eligible can_read
@@ -545,7 +460,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                  Lwt_stream.to_string (Lwt_io.chars_of_file fname)
                | _, _ -> fail_http 400
              in
-             let cont () () = Redirection.send W.S.election_cast in
+             let cont () () =
+               Redirection.send
+                 (Eliom_service.preapply
+                    S.election_cast (W.election.e_params.e_uuid, ()))
+             in
              Eliom_reference.set S.cont cont >>
              Eliom_reference.set ballot (Some the_ballot) >>
              match user with
@@ -553,11 +472,6 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              | Some u -> cont () ()
            )
         )
-
-      let () =
-        Any.register
-          ~service:W.S.election_cast_post
-          election_cast_post
 
     end
 
