@@ -269,12 +269,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
       end
 
-      open Eliom_service
-      open Eliom_parameter
-
-      module S : ELECTION_SERVICES = struct
-        include Auth.Services
-      end
+      module S = Auth.Services
 
     end
 

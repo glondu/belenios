@@ -482,10 +482,6 @@ module type CORE_SERVICES = sig
 
 end
 
-module type ELECTION_SERVICES = sig
-  include AUTH_SERVICES
-end
-
 type content =
     Eliom_registration.browser_content Eliom_registration.kind Lwt.t
 
@@ -576,7 +572,7 @@ module type WEB_ELECTION_ = sig
   include ELECTION_DATA
   include WEB_PARAMS
   module E : ELECTION with type elt = G.t
-  module S : ELECTION_SERVICES
+  module S : AUTH_SERVICES
   module B : WEB_BALLOT_BOX
   module H : AUTH_HANDLERS_PUBLIC
 end
