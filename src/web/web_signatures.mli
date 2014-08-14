@@ -32,14 +32,18 @@ module type AUTH_SERVICES = sig
   val get_auth_systems : unit -> string list
   val get_user : unit -> user option Lwt.t
 
+end
+
+module type AUTH_LINKS = sig
+
   val login :
-    (string option, unit,
+    string option ->
+    (unit, unit,
      [> `Attached of
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
-     [ `WithoutSuffix ],
-     [ `One of string ] Eliom_parameter.param_name, unit,
-     [< Eliom_service.registrable > `Registrable ],
+     [ `WithoutSuffix ], unit, unit,
+     [< Eliom_service.registrable > `Unregistrable ],
      [> Eliom_service.http_service ])
     Eliom_service.service
 
@@ -49,7 +53,7 @@ module type AUTH_SERVICES = sig
           ([> `Internal of [> `Service ] ], [> `Get ])
           Eliom_service.a_s ],
      [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Registrable ],
+     [< Eliom_service.registrable > `Unregistrable ],
      [> Eliom_service.http_service ])
     Eliom_service.service
 
@@ -245,6 +249,31 @@ module type ELECTION_SERVICES_SITE =
             [> Eliom_service.http_service ])
            Eliom_service.service
 
+    val election_login :
+           ((Uuidm.t * unit) * string option, unit,
+            [> `Attached of
+                 ([> `Internal of [> `Service ] ], [> `Get ])
+                 Eliom_service.a_s ],
+            [ `WithSuffix ],
+            ([ `One of Uuidm.t ] Eliom_parameter.param_name *
+             [ `One of unit ] Eliom_parameter.param_name) *
+            [ `One of string ] Eliom_parameter.param_name, unit,
+            [< Eliom_service.registrable > `Registrable ],
+            [> Eliom_service.http_service ])
+           Eliom_service.service
+
+    val election_logout :
+           (Uuidm.t * unit, unit,
+            [> `Attached of
+                 ([> `Internal of [> `Service ] ], [> `Get ])
+                 Eliom_service.a_s ],
+            [ `WithSuffix ],
+            [ `One of Uuidm.t ] Eliom_parameter.param_name *
+            [ `One of unit ] Eliom_parameter.param_name, unit,
+            [< Eliom_service.registrable > `Registrable ],
+            [> Eliom_service.http_service ])
+           Eliom_service.service
+
     val election_set_featured :
            (Uuidm.t * unit, bool,
             [> `Attached of
@@ -370,6 +399,27 @@ module type CORE_SERVICES = sig
      [> Eliom_service.http_service ])
     Eliom_service.service
 
+  val site_login :
+           (string option, unit,
+            [> `Attached of
+                 ([> `Internal of [> `Service ] ], [> `Get ])
+                 Eliom_service.a_s ],
+            [ `WithoutSuffix ],
+            [ `One of string ] Eliom_parameter.param_name, unit,
+            [< Eliom_service.registrable > `Registrable ],
+            [> Eliom_service.http_service ])
+           Eliom_service.service
+
+  val site_logout :
+           (unit, unit,
+            [> `Attached of
+                 ([> `Internal of [> `Service ] ], [> `Get ])
+                 Eliom_service.a_s ],
+            [ `WithoutSuffix ], unit, unit,
+            [< Eliom_service.registrable > `Registrable ],
+            [> Eliom_service.http_service ])
+           Eliom_service.service
+
   val source_code :
     (unit, unit,
      [> `Attached of
@@ -441,6 +491,8 @@ type content =
 
 module type ELECTION_HANDLERS =
   sig
+    val login : string option -> unit -> content
+    val logout : unit -> unit -> content
     val home : unit -> unit -> content
     val admin : unit -> unit -> content
     val election_dir : Web_common.election_file -> unit -> content
@@ -451,6 +503,12 @@ module type ELECTION_HANDLERS =
     val election_cast_post :
       unit -> string option * Eliom_lib.file_info option -> content
     val election_cast_confirm : unit -> unit -> content
+  end
+
+module type AUTH_HANDLERS_RAW =
+  sig
+    val login : string option -> unit -> content
+    val logout : unit -> unit -> content
   end
 
 type service_handler = unit ->
@@ -632,7 +690,7 @@ module type TEMPLATES = sig
     string -> string -> Web_common.setup_election -> unit ->
     [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-  module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES
+  module Login (S : AUTH_SERVICES) (L : AUTH_LINKS) : LOGIN_TEMPLATES
   module Election (W : WEB_ELECTION_) : ELECTION_TEMPLATES
 
 end

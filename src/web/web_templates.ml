@@ -37,9 +37,10 @@ let admin_background = " background: #FF9999;"
 let format_user u =
   em [pcdata (Web_auth.(string_of_user u))]
 
-let make_login_box style auth =
+let make_login_box style auth links =
   let style = "float: right; text-align: right;" ^ style in
   let module S = (val auth : AUTH_SERVICES) in
+  let module L = (val links : AUTH_LINKS) in
   lwt user = S.get_user () in
   return @@ div ~a:[a_style style] (
     match user with
@@ -51,7 +52,7 @@ let make_login_box style auth =
           pcdata ".";
         ];
         div [
-          a ~service:S.logout [pcdata "Log out"] ();
+          a ~service:L.logout [pcdata "Log out"] ();
           pcdata ".";
         ];
       ]
@@ -63,7 +64,7 @@ let make_login_box style auth =
         let auth_systems =
           S.get_auth_systems () |>
           List.map (fun name ->
-            a ~service:S.login [pcdata name] (Some name)
+            a ~service:(L.login (Some name)) [pcdata name] ()
           ) |> list_join (pcdata ", ")
         in
         div (
@@ -76,7 +77,12 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
   let site_login_box =
     let auth = (module S : AUTH_SERVICES) in
-    fun () -> make_login_box admin_background auth
+    let module L = struct
+      let login x = Eliom_service.preapply S.site_login x
+      let logout = Eliom_service.preapply S.site_logout ()
+    end in
+    let links = (module L : AUTH_LINKS) in
+    fun () -> make_login_box admin_background auth links
 
   let base ~title ~login_box ~content =
     Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
@@ -158,14 +164,15 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
     lwt login_box = site_login_box () in
     base ~title ~login_box ~content
 
-  module Login (S : AUTH_SERVICES) : LOGIN_TEMPLATES = struct
+  module Login (S : AUTH_SERVICES) (L : AUTH_LINKS) : LOGIN_TEMPLATES = struct
 
     let login_box =
       let auth = (module S : AUTH_SERVICES) in
+      let links = (module L : AUTH_LINKS) in
       let style =
         if S.auth_realm = "site" then admin_background else ""
       in
-      fun () -> make_login_box style auth
+      fun () -> make_login_box style auth links
 
     let dummy ~service () =
       let title, field_name, input_type =
@@ -242,7 +249,7 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
       let auth_systems =
         S.get_auth_systems () |>
         List.map (fun name ->
-          a ~service:S.login [pcdata name] (Some name)
+          a ~service:(L.login (Some name)) [pcdata name] ()
         ) |> list_join (pcdata ", ")
       in
       let content = [
@@ -499,7 +506,18 @@ module Make (S : SITE_SERVICES) : TEMPLATES = struct
 
     let election_login_box =
       let auth = (module W.S : AUTH_SERVICES) in
-      fun () -> make_login_box "" auth
+      let module L = struct
+        let login x =
+          Eliom_service.preapply
+            S.election_login
+            ((W.election.e_params.e_uuid, ()), x)
+        let logout =
+          Eliom_service.preapply
+            S.election_logout
+            (W.election.e_params.e_uuid, ())
+      end in
+      let links = (module L : AUTH_LINKS) in
+      fun () -> make_login_box "" auth links
 
     let file x =
       Eliom_service.preapply

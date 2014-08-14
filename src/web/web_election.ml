@@ -281,7 +281,12 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
     module Register (S : SITE) (T : TEMPLATES) : ELECTION_HANDLERS = struct
       open Eliom_registration
 
-      let () = let module X : EMPTY = Auth.Register (S) (T.Login (W.S)) in ()
+      module L = struct
+        let login x = Eliom_service.preapply S.election_login ((W.election.e_params.e_uuid, ()), x)
+        let logout = Eliom_service.preapply S.election_logout (W.election.e_params.e_uuid, ())
+      end
+
+      include Auth.Register (S) (T.Login (W.S) (L))
 
       module T = T.Election (W)
 

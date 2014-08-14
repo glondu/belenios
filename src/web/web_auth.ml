@@ -93,16 +93,6 @@ module Make (N : CONFIG) = struct
       | Some u -> return (Some u.user_user)
       | None -> return None
 
-    let login = Eliom_service.Http.service
-      ~path:(N.path @ ["login"])
-      ~get_params:Eliom_parameter.(opt (string "service"))
-      ()
-
-    let logout = Eliom_service.Http.service
-      ~path:(N.path @ ["logout"])
-      ~get_params:Eliom_parameter.unit
-      ()
-
   end
 
   let login_handler service cont =
@@ -138,7 +128,7 @@ module Make (N : CONFIG) = struct
 
   end
 
-  module Register (S : SITE) (T : LOGIN_TEMPLATES) : EMPTY = struct
+  module Register (S : SITE) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS_RAW = struct
 
     let () = login_choose := T.choose
 
@@ -169,15 +159,13 @@ module Make (N : CONFIG) = struct
       )
     ) N.auth_config
 
-    let () = Eliom_registration.Any.register
-      ~service:Services.login
+    let login =
       (fun service () ->
         lwt cont = Eliom_reference.get S.cont in
         login_handler service cont
       )
 
-    let () = Eliom_registration.Any.register
-      ~service:Services.logout
+    let logout =
       (fun () () ->
         lwt cont = Eliom_reference.get S.cont in
         Handlers.do_logout cont ()

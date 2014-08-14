@@ -37,5 +37,5 @@ end
 module Make (C : CONFIG) : sig
   module Services : AUTH_SERVICES
   module Handlers : AUTH_HANDLERS_PUBLIC
-  module Register (S : SITE) (T : LOGIN_TEMPLATES) : EMPTY
+  module Register (S : SITE) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS_RAW
 end

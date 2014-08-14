@@ -127,6 +127,18 @@ module Make (C : CONFIG) : SITE = struct
       ~get_params:unit
       ()
 
+    let site_login =
+      service
+        ~path:(make_path ["login"])
+        ~get_params:(opt (string "service"))
+        ()
+
+    let site_logout =
+      service
+        ~path:(make_path ["logout"])
+        ~get_params:unit
+        ()
+
     let source_code = service
       ~path:(make_path ["belenios.tar.gz"])
       ~get_params:unit
@@ -236,6 +248,20 @@ module Make (C : CONFIG) : SITE = struct
       service
         ~path:(make_path ["elections"])
         ~get_params:(suffix (uuid "uuid" ** suffix_const "admin"))
+        ()
+
+    let election_login =
+      service
+        ~path:(make_path ["elections"])
+        ~get_params:(suffix_prod
+                       (uuid "uuid" ** suffix_const "login")
+                       (opt (string "service")))
+        ()
+
+    let election_logout =
+      service
+        ~path:(make_path ["elections"])
+        ~get_params:(suffix (uuid "uuid" ** suffix_const "logout"))
         ()
 
     let election_set_featured =
@@ -473,7 +499,12 @@ module Make (C : CONFIG) : SITE = struct
       return ()
     ) election_ptable
 
-  let () = let module X : EMPTY = Auth.Register (S) (T.Login (S)) in ()
+  module L = struct
+    let login x = Eliom_service.preapply S.site_login x
+    let logout = Eliom_service.preapply S.site_logout ()
+  end
+
+  module Z = Auth.Register (S) (T.Login (S) (L))
 
   let () = Any.register ~service:home
     (fun () () ->
@@ -510,6 +541,9 @@ module Make (C : CONFIG) : SITE = struct
       in
       T.admin ~elections ()
     )
+
+  let () = Any.register ~service:site_login Z.login
+  let () = Any.register ~service:site_logout Z.logout
 
   let () = File.register
     ~service:source_code
@@ -930,6 +964,24 @@ module Make (C : CONFIG) : SITE = struct
        let w = SMap.find uuid_s !election_table in
        let module W = (val w : WEB_ELECTION) in
        W.Z.admin () ())
+
+  let () =
+    Any.register
+      ~service:election_login
+      (fun ((uuid, ()), service) () ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.login service ())
+
+  let () =
+    Any.register
+      ~service:election_logout
+      (fun (uuid, ()) () ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       W.Z.logout () ())
 
   let () =
     Any.register
