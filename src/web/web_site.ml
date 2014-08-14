@@ -27,6 +27,7 @@ open Common
 open Web_serializable_j
 open Web_common
 open Web_signatures
+open Web_services
 
 module type CONFIG = sig
   val name : string
@@ -71,8 +72,6 @@ module Make (C : CONFIG) : SITE = struct
     let kind = `Site
   end
 
-  let make_path x = C.path @ x
-
   module Auth = Web_auth.Make (C)
   module LwtRandom = MakeLwtRandom (struct let rng = make_rng () end)
 
@@ -116,202 +115,6 @@ module Make (C : CONFIG) : SITE = struct
     open Eliom_service.Http
 
     let scope = Eliom_common.default_session_scope
-
-    let home = service
-      ~path:(make_path [""])
-      ~get_params:unit
-      ()
-
-    let admin = service
-      ~path:(make_path ["admin"])
-      ~get_params:unit
-      ()
-
-    let site_login =
-      service
-        ~path:(make_path ["login"])
-        ~get_params:(opt (string "service"))
-        ()
-
-    let site_logout =
-      service
-        ~path:(make_path ["logout"])
-        ~get_params:unit
-        ()
-
-    let source_code = service
-      ~path:(make_path ["belenios.tar.gz"])
-      ~get_params:unit
-      ()
-
-    let get_randomness = service
-      ~path:(make_path ["get-randomness"])
-      ~get_params:unit
-      ()
-
-    let new_election = service
-      ~path:(make_path ["new-election"])
-      ~get_params:unit
-      ()
-
-    let new_election_post = post_service
-      ~fallback:new_election
-      ~post_params:(
-        file "election" ** file "metadata"
-        ** file "public_keys" ** file "public_creds"
-      ) ()
-
-    let tool =
-      preapply (static_dir ()) ["static"; "belenios-tool.html"]
-
-    let election_setup_index = service
-      ~path:(make_path ["setup"; ""])
-      ~get_params:unit
-      ()
-
-    let election_setup_new = post_coservice
-      ~csrf_safe:true
-      ~fallback:election_setup_index
-      ~post_params:unit
-      ()
-
-    let election_setup = service
-      ~path:(make_path ["setup"; "election"])
-      ~get_params:(uuid "uuid")
-      ()
-
-    let election_setup_group = post_coservice
-      ~fallback:election_setup
-      ~post_params:(string "group")
-      ()
-
-    let election_setup_metadata = post_coservice
-      ~fallback:election_setup
-      ~post_params:(string "metadata")
-      ()
-
-    let election_setup_questions = post_coservice
-      ~fallback:election_setup
-      ~post_params:(string "questions")
-      ()
-
-    let election_setup_trustee_add = post_coservice
-      ~fallback:election_setup
-      ~post_params:unit
-      ()
-
-    let election_setup_credentials = service
-      ~path:(make_path ["setup"; "credentials"])
-      ~get_params:(string "token")
-      ()
-
-    let election_setup_credentials_download =
-      service
-        ~path:(make_path ["setup"; "public_creds.txt"])
-        ~get_params:(string "token")
-        ()
-
-    let election_setup_credentials_post = post_coservice
-      ~fallback:election_setup_credentials
-      ~post_params:(string "public_creds")
-      ()
-
-    let election_setup_credentials_post_file = post_coservice
-      ~fallback:election_setup_credentials
-      ~post_params:(file "public_creds")
-      ()
-
-    let election_setup_trustee = service
-      ~path:(make_path ["setup"; "trustee"])
-      ~get_params:(string "token")
-      ()
-
-    let election_setup_trustee_post = post_coservice
-      ~fallback:election_setup_trustee
-      ~post_params:(string "public_key")
-      ()
-
-    let election_setup_create =
-      post_coservice
-        ~csrf_safe:true
-        ~fallback:election_setup
-        ~post_params:unit
-        ()
-
-    let election_home =
-      service
-        ~path:(make_path ["elections"])
-        ~get_params:(suffix (uuid "uuid" ** suffix_const ""))
-        ()
-
-    let election_admin =
-      service
-        ~path:(make_path ["elections"])
-        ~get_params:(suffix (uuid "uuid" ** suffix_const "admin"))
-        ()
-
-    let election_login =
-      service
-        ~path:(make_path ["elections"])
-        ~get_params:(suffix_prod
-                       (uuid "uuid" ** suffix_const "login")
-                       (opt (string "service")))
-        ()
-
-    let election_logout =
-      service
-        ~path:(make_path ["elections"])
-        ~get_params:(suffix (uuid "uuid" ** suffix_const "logout"))
-        ()
-
-    let election_set_featured =
-      post_coservice
-        ~fallback:election_admin
-        ~post_params:(bool "featured")
-        ()
-
-    let election_update_credential =
-      service
-        ~path:(make_path ["elections"])
-        ~get_params:(suffix (uuid "uuid" ** suffix_const "update-cred"))
-        ()
-
-    let election_update_credential_post =
-      post_service
-        ~fallback:election_update_credential
-        ~post_params:(string "old_credential" ** string "new_credential")
-        ()
-
-    let election_vote =
-      service
-        ~path:(make_path ["elections"])
-        ~get_params:(suffix (uuid "uuid" ** suffix_const "vote"))
-        ()
-
-    let election_cast =
-      service
-        ~path:(make_path ["elections"])
-        ~get_params:(suffix (uuid "uuid" ** suffix_const "cast"))
-        ()
-
-    let election_cast_post =
-      post_service
-        ~fallback:election_cast
-        ~post_params:(opt (string "encrypted_vote") ** opt (file "encrypted_vote_file"))
-        ()
-
-    let election_cast_confirm =
-      post_coservice
-        ~csrf_safe:true
-        ~fallback:election_cast
-        ~post_params:unit
-        ()
-
-    let election_dir =
-      service
-        ~path:(make_path ["elections"])
-        ~get_params:(suffix (uuid "uuid" ** election_file "file"))
-        ()
 
     let cont = Eliom_reference.eref ~scope
       (fun () () -> Eliom_registration.Redirection.send home)
@@ -500,8 +303,8 @@ module Make (C : CONFIG) : SITE = struct
     ) election_ptable
 
   module L = struct
-    let login x = Eliom_service.preapply S.site_login x
-    let logout = Eliom_service.preapply S.site_logout ()
+    let login x = Eliom_service.preapply site_login x
+    let logout = Eliom_service.preapply site_logout ()
   end
 
   module Z = Auth.Register (S) (T.Login (S) (L))
@@ -519,7 +322,7 @@ module Make (C : CONFIG) : SITE = struct
       | Some x ->
         let module W = (val SMap.find x !election_table : WEB_ELECTION) in
         Redirection.send
-          (preapply S.election_home (W.election.e_params.e_uuid, ()))
+          (preapply election_home (W.election.e_params.e_uuid, ()))
     )
 
   let () = Html5.register ~service:admin
@@ -597,7 +400,7 @@ module Make (C : CONFIG) : SITE = struct
             lwt w = W.register () in
             let module W = (val w : WEB_ELECTION) in
             Redirection.send
-              (preapply S.election_admin (W.election.e_params.e_uuid, ()))
+              (preapply election_admin (W.election.e_params.e_uuid, ()))
           end
         with e ->
           T.new_election_failure (`Exception e) () >>= Html5.send
@@ -927,7 +730,7 @@ module Make (C : CONFIG) : SITE = struct
                    se.se_public_keys >>
                  Ocsipersist.remove election_stable uuid_s >>
                  Redirection.send
-                   (preapply S.election_admin (W.election.e_params.e_uuid, ()))
+                   (preapply election_admin (W.election.e_params.e_uuid, ()))
               end
             )
           with e ->
@@ -954,7 +757,7 @@ module Make (C : CONFIG) : SITE = struct
          else S.remove_featured_election uuid_s
        in
        Redirection.send
-         (preapply S.election_admin (uuid, ())))
+         (preapply election_admin (uuid, ())))
 
   let () =
     Any.register

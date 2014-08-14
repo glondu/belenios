@@ -28,6 +28,7 @@ open Common
 open Web_serializable_t
 open Web_signatures
 open Web_common
+open Web_services
 
 let ( / ) = Filename.concat
 
@@ -277,8 +278,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
       open Eliom_registration
 
       module L = struct
-        let login x = Eliom_service.preapply S.election_login ((W.election.e_params.e_uuid, ()), x)
-        let logout = Eliom_service.preapply S.election_logout (W.election.e_params.e_uuid, ())
+        let login x = Eliom_service.preapply election_login ((W.election.e_params.e_uuid, ()), x)
+        let logout = Eliom_service.preapply election_logout (W.election.e_params.e_uuid, ())
       end
 
       include Auth.Register (S) (T.Login (W.S) (L))
@@ -304,7 +305,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              let cont () () =
                Redirection.send
                  (Eliom_service.preapply
-                    S.election_home (W.election.e_params.e_uuid, ()))
+                    election_home (W.election.e_params.e_uuid, ()))
              in
              Eliom_reference.set S.cont cont >>
              match_lwt Eliom_reference.get cast_confirmed with
@@ -344,7 +345,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           let cont () () =
             Redirection.send
               (Eliom_service.preapply
-                 S.election_dir
+                 election_dir
                  (W.election.e_params.e_uuid, f))
           in
           Eliom_reference.set S.cont cont >>
@@ -389,7 +390,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              let cont () () =
                Redirection.send
                  (Eliom_service.preapply
-                    S.election_vote (W.election.e_params.e_uuid, ()))
+                    election_vote (W.election.e_params.e_uuid, ()))
              in
              Eliom_reference.set S.cont cont >>
              let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
@@ -423,7 +424,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                 let cont () () =
                   Redirection.send
                     (Eliom_service.preapply
-                       S.election_home (W.election.e_params.e_uuid, ()))
+                       election_home (W.election.e_params.e_uuid, ()))
                 in
                 W.H.do_logout cont ()
               ) else forbidden ()
@@ -441,7 +442,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              let cont () () =
                Redirection.send
                  (Eliom_service.preapply
-                    S.election_cast (W.election.e_params.e_uuid, ()))
+                    election_cast (W.election.e_params.e_uuid, ()))
              in
              Eliom_reference.set S.cont cont >>
              match_lwt Eliom_reference.get ballot with
@@ -463,7 +464,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              let cont () () =
                Redirection.send
                  (Eliom_service.preapply
-                    S.election_cast (W.election.e_params.e_uuid, ()))
+                    Web_services.election_cast (W.election.e_params.e_uuid, ()))
              in
              Eliom_reference.set S.cont cont >>
              Eliom_reference.set ballot (Some the_ballot) >>
