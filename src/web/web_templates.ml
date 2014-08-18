@@ -74,7 +74,7 @@ let make_login_box style auth links =
       ]
   )
 
-module Make (S : SITE_SERVICES) : TEMPLATES = struct
+module Make (S : AUTH_SERVICES) : TEMPLATES = struct
 
   let site_login_box =
     let auth = (module S : AUTH_SERVICES) in

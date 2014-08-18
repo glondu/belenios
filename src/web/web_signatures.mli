@@ -159,10 +159,6 @@ module type WEB_ELECTION = sig
   module Z : ELECTION_HANDLERS
 end
 
-module type SITE_SERVICES = sig
-  include AUTH_SERVICES
-end
-
 type election_files = {
   f_election : string;
   f_metadata : string;
@@ -176,7 +172,7 @@ module type REGISTRABLE_ELECTION = sig
 end
 
 module type SITE = sig
-  include SITE_SERVICES
+  include AUTH_SERVICES
   include AUTH_HANDLERS_PUBLIC
   val import_election :
     election_files -> (module REGISTRABLE_ELECTION) option Lwt.t
