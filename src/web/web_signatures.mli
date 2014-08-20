@@ -95,7 +95,7 @@ module type AUTH_HANDLERS = sig
 end
 
 module type AUTH_HANDLERS_PUBLIC = sig
-  val do_login : unit service_cont
+  val do_login : string option -> unit service_cont
   val do_logout : unit service_cont
 end
 
@@ -182,6 +182,7 @@ module type SITE = sig
   val remove_featured_election : string -> unit Lwt.t
   val is_featured_election : string -> bool Lwt.t
   val cont : (unit -> service_handler) Eliom_reference.eref
+  val install_authentication : auth_config list -> unit
 end
 
 module type LOGIN_TEMPLATES = sig

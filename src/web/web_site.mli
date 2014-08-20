@@ -27,7 +27,6 @@ module type CONFIG = sig
   val path : string list
   val source_file : string
   val spool_dir : string
-  val auth_config : auth_config list
 end
 
 module Make (C : CONFIG) : SITE

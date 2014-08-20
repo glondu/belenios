@@ -34,7 +34,6 @@ module type CONFIG = sig
   val path : string list
   val source_file : string
   val spool_dir : string
-  val auth_config : auth_config list
 end
 
 let rec list_remove x = function
@@ -104,6 +103,9 @@ module Make (C : CONFIG) : SITE = struct
 
   let import_election_ref = ref (fun _ -> assert false)
 
+  (* Forward reference *)
+  let install_authentication_ref = ref (fun _ -> assert false)
+
   (* We use an intermediate module S that will be passed to Templates
      and Web_election. S is not meant to leak and will be included
      in the returned module later. *)
@@ -148,6 +150,8 @@ module Make (C : CONFIG) : SITE = struct
 
     let unset_main_election () =
       Ocsipersist.set main_election None
+
+    let install_authentication xs = !install_authentication_ref xs
 
   end
 
@@ -307,7 +311,10 @@ module Make (C : CONFIG) : SITE = struct
     let logout = Eliom_service.preapply site_logout ()
   end
 
-  module Z = Auth.Register (S) (T.Login (S) (L))
+  let () = install_authentication_ref := fun auth_configs ->
+    let module T = T.Login (S) (L) in
+    let templates = (module T : LOGIN_TEMPLATES) in
+    Auth.register templates auth_configs
 
   let () = Any.register ~service:home
     (fun () () ->
@@ -345,8 +352,16 @@ module Make (C : CONFIG) : SITE = struct
       T.admin ~elections ()
     )
 
-  let () = Any.register ~service:site_login Z.login
-  let () = Any.register ~service:site_logout Z.logout
+  let login service () =
+    lwt cont = Eliom_reference.get S.cont in
+    Auth.Handlers.do_login service cont ()
+
+  let logout () () =
+    lwt cont = Eliom_reference.get S.cont in
+    Auth.Handlers.do_logout cont ()
+
+  let () = Any.register ~service:site_login login
+  let () = Any.register ~service:site_logout logout
 
   let () = File.register
     ~service:source_code

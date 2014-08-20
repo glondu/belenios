@@ -47,22 +47,49 @@ type logged_user = {
   user_handlers : (module AUTH_HANDLERS);
 }
 
-module type CONFIG = sig
-  include NAME
-  val auth_config : auth_config list
-end
-
-module Make (N : CONFIG) = struct
+module Make (N : NAME) = struct
 
   let scope = Eliom_common.default_session_scope
 
   let auth_instances = Hashtbl.create 10
   let auth_instance_names = ref []
 
-  let user = Eliom_reference.eref ~scope None
-
   (* Forward reference, will be set to eponymous template *)
   let login_choose = ref (fun () -> assert false)
+
+  let register templates xs =
+    let module T = (val templates : LOGIN_TEMPLATES) in
+    login_choose := T.choose;
+    List.iter
+      (fun auth_instance ->
+       let {
+         auth_system = name;
+         auth_instance = instance;
+         auth_config = attributes;
+       } = auth_instance in
+       if Hashtbl.mem auth_instances instance then (
+         Printf.ksprintf
+           failwith
+           "multiple instances with name %s"
+           instance
+       ) else (
+         let auth_system = Hashtbl.find auth_systems name in
+         let module X = (val auth_system : AUTH_SYSTEM) in
+         let config = X.parse_config ~instance ~attributes in
+         let auth = X.make config in
+         let module N = struct
+           let name = instance
+           let path = N.path @ ["auth"; instance]
+           let kind = N.kind
+         end in
+         let module A = (val auth : AUTH_SERVICE) (N) (T) in
+         let i = (module A : AUTH_HANDLERS) in
+         Hashtbl.add auth_instances instance i;
+         auth_instance_names := instance :: !auth_instance_names
+       )
+      ) xs
+
+  let user = Eliom_reference.eref ~scope None
 
   let do_login_using user_domain cont =
     try
@@ -111,7 +138,7 @@ module Make (N : CONFIG) = struct
 
   module Handlers : AUTH_HANDLERS_PUBLIC = struct
 
-    let do_login cont () = login_handler None cont
+    let do_login service cont () = login_handler service cont
 
     let do_logout cont () =
       match_lwt Eliom_reference.get user with
@@ -124,51 +151,6 @@ module Make (N : CONFIG) = struct
         let module A = (val u.user_handlers) in
         A.logout cont ()
       | None -> cont () ()
-
-  end
-
-  module Register (S : SITE) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS_RAW = struct
-
-    let () = login_choose := T.choose
-
-    let () = List.iter (fun auth_instance ->
-      let {
-        auth_system = name;
-        auth_instance = instance;
-        auth_config = attributes;
-      } = auth_instance in
-      if Hashtbl.mem auth_instances instance then (
-        Printf.ksprintf failwith
-          "multiple instances with name %s"
-          instance
-      ) else (
-        let auth_system = Hashtbl.find auth_systems name in
-        let module X = (val auth_system : AUTH_SYSTEM) in
-        let config = X.parse_config ~instance ~attributes in
-        let auth = X.make config in
-        let module N = struct
-          let name = instance
-          let path = N.path @ ["auth"; instance]
-          let kind = N.kind
-        end in
-        let module A = (val auth : AUTH_SERVICE) (N) (T) in
-        let i = (module A : AUTH_HANDLERS) in
-        Hashtbl.add auth_instances instance i;
-        auth_instance_names := instance :: !auth_instance_names
-      )
-    ) N.auth_config
-
-    let login =
-      (fun service () ->
-        lwt cont = Eliom_reference.get S.cont in
-        login_handler service cont
-      )
-
-    let logout =
-      (fun () () ->
-        lwt cont = Eliom_reference.get S.cont in
-        Handlers.do_logout cont ()
-      )
 
   end
 

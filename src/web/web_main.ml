@@ -122,10 +122,11 @@ module Site_config = struct
   let path = []
   let source_file = source_file
   let spool_dir = spool_dir
-  let auth_config = !auth_instances
 end
 
 module Site = Web_site.Make (Site_config)
+
+let () = Site.install_authentication !auth_instances
 
 lwt () =
   Lwt_list.iter_s (fun dir ->

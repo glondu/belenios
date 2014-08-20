@@ -282,7 +282,18 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         let logout = Eliom_service.preapply election_logout (W.election.e_params.e_uuid, ())
       end
 
-      include Auth.Register (S) (T.Login (W.S) (L))
+      let () =
+        let module T = T.Login (W.S) (L) in
+        let templates = (module T : LOGIN_TEMPLATES) in
+        Auth.register templates N.auth_config
+
+      let login service () =
+        lwt cont = Eliom_reference.get S.cont in
+        Auth.Handlers.do_login service cont ()
+
+      let logout () () =
+        lwt cont = Eliom_reference.get S.cont in
+        Auth.Handlers.do_logout cont ()
 
       module T = T.Election (W)
 
@@ -469,7 +480,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              Eliom_reference.set S.cont cont >>
              Eliom_reference.set ballot (Some the_ballot) >>
              match user with
-             | None -> W.H.do_login cont ()
+             | None -> W.H.do_login None cont ()
              | Some u -> cont () ()
            )
         )

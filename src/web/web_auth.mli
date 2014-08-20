@@ -28,13 +28,8 @@ val string_of_user : user -> string
 
 val register_auth_system : (module AUTH_SYSTEM) -> unit
 
-module type CONFIG = sig
-  include NAME
-  val auth_config : auth_config list
-end
-
-module Make (C : CONFIG) : sig
+module Make (C : NAME) : sig
+  val register : (module LOGIN_TEMPLATES) -> auth_config list -> unit
   module Services : AUTH_SERVICES
   module Handlers : AUTH_HANDLERS_PUBLIC
-  module Register (S : SITE) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS_RAW
 end
