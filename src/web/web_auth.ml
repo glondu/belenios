@@ -49,7 +49,6 @@ type logged_user = {
 
 module type CONFIG = sig
   include NAME
-  val kind : [ `Site | `Election of string ]
   val auth_config : auth_config list
 end
 

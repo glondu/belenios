@@ -30,7 +30,6 @@ val register_auth_system : (module AUTH_SYSTEM) -> unit
 
 module type CONFIG = sig
   include NAME
-  val kind : [ `Site | `Election of string ]
   val auth_config : auth_config list
 end
 
