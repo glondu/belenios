@@ -112,11 +112,6 @@ let delete_shallow_directory dir =
     open Eliom_parameter
     open Eliom_service.Http
 
-    let scope = Eliom_common.default_session_scope
-
-    let cont = Eliom_reference.eref ~scope
-      (fun () () -> Eliom_registration.Redirection.send home)
-
     let import_election f = !import_election_ref f
 
     let add_featured_election x =
@@ -331,7 +326,7 @@ let delete_shallow_directory dir =
   let () = Html5.register ~service:admin
     (fun () () ->
       let cont () () = Redirection.send admin in
-      Eliom_reference.set S.cont cont >>
+      Eliom_reference.set Web_services.cont cont >>
       lwt elections =
         match_lwt get_user () with
         | None -> return []
@@ -349,11 +344,11 @@ let delete_shallow_directory dir =
     )
 
   let login service () =
-    lwt cont = Eliom_reference.get S.cont in
+    lwt cont = Eliom_reference.get Web_services.cont in
     Auth.Handlers.do_login service cont ()
 
   let logout () () =
-    lwt cont = Eliom_reference.get S.cont in
+    lwt cont = Eliom_reference.get Web_services.cont in
     Auth.Handlers.do_logout cont ()
 
   let () = Any.register ~service:site_login login

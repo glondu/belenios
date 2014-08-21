@@ -288,11 +288,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         Auth.register templates N.auth_config
 
       let login service () =
-        lwt cont = Eliom_reference.get S.cont in
+        lwt cont = Eliom_reference.get Web_services.cont in
         Auth.Handlers.do_login service cont ()
 
       let logout () () =
-        lwt cont = Eliom_reference.get S.cont in
+        lwt cont = Eliom_reference.get Web_services.cont in
         Auth.Handlers.do_logout cont ()
 
       module T = T.Election (W)
@@ -318,7 +318,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                  (Eliom_service.preapply
                     election_home (W.election.e_params.e_uuid, ()))
              in
-             Eliom_reference.set S.cont cont >>
+             Eliom_reference.set Web_services.cont cont >>
              match_lwt Eliom_reference.get cast_confirmed with
              | Some result ->
                Eliom_reference.unset cast_confirmed >>
@@ -359,7 +359,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                  election_dir
                  (W.election.e_params.e_uuid, f))
           in
-          Eliom_reference.set S.cont cont >>
+          Eliom_reference.set Web_services.cont cont >>
           handle_pseudo_file () f
         )
 
@@ -403,7 +403,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                  (Eliom_service.preapply
                     election_vote (W.election.e_params.e_uuid, ()))
              in
-             Eliom_reference.set S.cont cont >>
+             Eliom_reference.set Web_services.cont cont >>
              let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
              Redirection.send
                (Eliom_service.preapply
@@ -455,7 +455,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                  (Eliom_service.preapply
                     election_cast (W.election.e_params.e_uuid, ()))
              in
-             Eliom_reference.set S.cont cont >>
+             Eliom_reference.set Web_services.cont cont >>
              match_lwt Eliom_reference.get ballot with
              | Some _ -> ballot_received user >>= Html5.send
              | None -> T.cast_raw () >>= Html5.send
@@ -477,7 +477,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                  (Eliom_service.preapply
                     Web_services.election_cast (W.election.e_params.e_uuid, ()))
              in
-             Eliom_reference.set S.cont cont >>
+             Eliom_reference.set Web_services.cont cont >>
              Eliom_reference.set ballot (Some the_ballot) >>
              match user with
              | None -> W.H.do_login None cont ()

@@ -181,7 +181,6 @@ module type SITE = sig
   val add_featured_election : string -> unit Lwt.t
   val remove_featured_election : string -> unit Lwt.t
   val is_featured_election : string -> bool Lwt.t
-  val cont : (unit -> service_handler) Eliom_reference.eref
   val install_authentication : auth_config list -> unit
 end
 

@@ -23,6 +23,7 @@ open Eliom_service
 open Eliom_service.Http
 open Eliom_parameter
 open Web_common
+open Web_signatures
 
 let home = service ~path:[""] ~get_params:unit ()
 let admin = service ~path:["admin"] ~get_params:unit ()
@@ -64,3 +65,8 @@ let election_cast = service ~path:["elections"] ~get_params:(suffix (uuid "uuid"
 let election_cast_post = post_service ~fallback:election_cast ~post_params:(opt (string "encrypted_vote") ** opt (file "encrypted_vote_file")) ()
 let election_cast_confirm = post_coservice ~csrf_safe:true ~fallback:election_cast ~post_params:unit ()
 let election_dir = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** election_file "file")) ()
+
+let scope = Eliom_common.default_session_scope
+
+let cont : (unit -> service_handler) Eliom_reference.eref =
+  Eliom_reference.eref ~scope (fun () () -> Eliom_registration.Redirection.send home)
