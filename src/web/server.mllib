@@ -11,10 +11,10 @@ Web_serializable_j
 Web_common
 Web_services
 Web_auth
-Web_election
-Web_site
-Web_templates
 Auth_dummy
 Auth_password
 Auth_cas
+Web_templates
+Web_election
+Web_site
 Web_main

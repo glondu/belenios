@@ -117,22 +117,15 @@ let spool_dir =
 
 (** Build up the site *)
 
-module Site_config = struct
-  let name = "site"
-  let path = []
-  let source_file = source_file
-  let spool_dir = spool_dir
-end
-
-module Site = Web_site.Make (Site_config)
-
-let () = Site.install_authentication !auth_instances
+let () = Web_site.source_file := source_file
+let () = Web_site.spool_dir := spool_dir
+let () = Web_site.install_authentication !auth_instances
 
 lwt () =
   Lwt_list.iter_s (fun dir ->
     read_election_dir dir >>=
     Lwt_list.iter_s (fun (f, featured) ->
-      match_lwt Site.import_election f with
+      match_lwt Web_site.import_election f with
       | None ->
         Ocsigen_messages.debug (fun () ->
           Printf.sprintf "Ignored: %s" f.f_election
@@ -143,12 +136,12 @@ lwt () =
         let module W = (val w : WEB_ELECTION) in
         if featured then (
           let uuid = Uuidm.to_string W.election.e_params.e_uuid in
-          Site.add_featured_election uuid
+          Web_site.add_featured_election uuid
         ) else return ()
     )
   ) !import_dirs
 
 lwt () =
   match !main_election_uuid with
-  | Some uuid -> Site.set_main_election uuid
+  | Some uuid -> Web_site.set_main_election uuid
   | _ -> return ()

@@ -29,12 +29,8 @@ open Web_common
 open Web_signatures
 open Web_services
 
-module type CONFIG = sig
-  val name : string
-  val path : string list
-  val source_file : string
-  val spool_dir : string
-end
+let source_file = ref "belenios.tar.gz"
+let spool_dir = ref "."
 
 let rec list_remove x = function
   | [] -> []
@@ -62,12 +58,12 @@ let delete_shallow_directory dir =
   in
   Lwt_unix.rmdir dir
 
-module Make (C : CONFIG) : SITE = struct
   open Eliom_service
   open Eliom_registration
 
   module C = struct
-    include C
+    let name = "site"
+    let path = []
     let kind = `Site
   end
 
@@ -213,7 +209,7 @@ module Make (C : CONFIG) : SITE = struct
         Lwt_mutex.unlock registration_mutex;
         return None
       ) else (
-        let dir = C.spool_dir/uuid in
+        let dir = !spool_dir/uuid in
         lwt metadata =
           Lwt_io.chars_of_file f.f_metadata |>
           Lwt_stream.to_string >>=
@@ -366,7 +362,7 @@ module Make (C : CONFIG) : SITE = struct
   let () = File.register
     ~service:source_code
     ~content_type:"application/x-gzip"
-    (fun () () -> return C.source_file)
+    (fun () () -> return !source_file)
 
   let do_get_randomness =
     let prng = Lazy.lazy_from_fun (Lwt_preemptive.detach (fun () ->
@@ -572,7 +568,7 @@ module Make (C : CONFIG) : SITE = struct
       ~content_type:"text/plain"
       (fun token () ->
        lwt uuid = Ocsipersist.find election_credtokens token in
-       return (C.spool_dir / uuid ^ ".public_creds.txt")
+       return (!spool_dir / uuid ^ ".public_creds.txt")
       )
 
   let wrap_handler f =
@@ -584,7 +580,7 @@ module Make (C : CONFIG) : SITE = struct
     lwt uuid = Ocsipersist.find election_credtokens token in
     lwt se = Ocsipersist.find election_stable uuid in
     let module G = (val Group.of_string se.se_group : GROUP) in
-    let fname = C.spool_dir / uuid ^ ".public_creds.txt" in
+    let fname = !spool_dir / uuid ^ ".public_creds.txt" in
     Lwt_mutex.with_lock
       election_setup_mutex
       (fun () ->
@@ -694,10 +690,10 @@ module Make (C : CONFIG) : SITE = struct
                 e_short_name = template.t_short_name;
               } in
               let files = {
-                f_election = C.spool_dir / uuid_s ^ ".election.json";
-                f_metadata = C.spool_dir / uuid_s ^ ".metadata.json";
-                f_public_keys = C.spool_dir / uuid_s ^ ".public_keys.jsons";
-                f_public_creds = C.spool_dir / uuid_s ^ ".public_creds.txt";
+                f_election = !spool_dir / uuid_s ^ ".election.json";
+                f_metadata = !spool_dir / uuid_s ^ ".metadata.json";
+                f_public_keys = !spool_dir / uuid_s ^ ".public_keys.jsons";
+                f_public_creds = !spool_dir / uuid_s ^ ".public_creds.txt";
               } in
               lwt _ =
                 try_lwt Lwt_unix.stat files.f_public_creds
@@ -863,5 +859,3 @@ module Make (C : CONFIG) : SITE = struct
        let w = SMap.find uuid_s !election_table in
        let module W = (val w : WEB_ELECTION) in
        W.Z.election_dir f x)
-
-end

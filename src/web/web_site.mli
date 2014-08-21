@@ -22,11 +22,7 @@
 open Web_serializable_t
 open Web_signatures
 
-module type CONFIG = sig
-  val name : string
-  val path : string list
-  val source_file : string
-  val spool_dir : string
-end
+val source_file : string ref
+val spool_dir : string ref
 
-module Make (C : CONFIG) : SITE
+include SITE
