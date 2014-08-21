@@ -796,10 +796,10 @@ module Make (S : AUTH_SERVICES) : TEMPLATES = struct
         p [
           (let service =
             Eliom_service.preapply
-              election_home (params.e_uuid, ())
+              election_logout (params.e_uuid, ())
           in
           a ~service [
-            pcdata "Go back to election"
+            pcdata "Log out"
           ] ());
           pcdata ".";
         ];

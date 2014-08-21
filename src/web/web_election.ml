@@ -432,12 +432,9 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                 in
                 Eliom_reference.unset ballot >>
                 Eliom_reference.set cast_confirmed (Some result) >>
-                let cont () () =
-                  Redirection.send
-                    (Eliom_service.preapply
-                       election_home (W.election.e_params.e_uuid, ()))
-                in
-                W.H.do_logout cont ()
+                Redirection.send
+                  (Eliom_service.preapply
+                     election_home (W.election.e_params.e_uuid, ()))
               ) else forbidden ()
             | None -> forbidden ()
           end
