@@ -25,4 +25,11 @@ open Web_signatures
 val source_file : string ref
 val spool_dir : string ref
 
-include SITE
+val import_election :
+  election_files -> (module REGISTRABLE_ELECTION) option Lwt.t
+val set_main_election : string -> unit Lwt.t
+val unset_main_election : unit -> unit Lwt.t
+val add_featured_election : string -> unit Lwt.t
+val remove_featured_election : string -> unit Lwt.t
+val is_featured_election : string -> bool Lwt.t
+val install_authentication : auth_config list -> unit

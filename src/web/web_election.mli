@@ -27,7 +27,7 @@ open Web_signatures
 
 module type REGISTRATION = sig
   module W : WEB_ELECTION_
-  module Register (S : SITE) (T : TEMPLATES) : ELECTION_HANDLERS
+  module Register (T : TEMPLATES) : ELECTION_HANDLERS
 end
 
 module type REGISTRABLE = sig

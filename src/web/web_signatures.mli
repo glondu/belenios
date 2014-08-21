@@ -67,10 +67,10 @@ module type ELECTION_HANDLERS =
     val login : string option -> unit -> content
     val logout : unit -> unit -> content
     val home : unit -> unit -> content
-    val admin : unit -> unit -> content
-    val election_dir : Web_common.election_file -> unit -> content
-    val election_update_credential : unit -> unit -> content
-    val election_update_credential_post : unit -> string * string -> content
+    val admin : user option -> bool -> unit -> unit -> content
+    val election_dir : user option -> Web_common.election_file -> unit -> content
+    val election_update_credential : user option -> unit -> unit -> content
+    val election_update_credential_post : user option -> unit -> string * string -> content
     val election_vote : unit -> unit -> content
     val election_cast : unit -> unit -> content
     val election_cast_post :
@@ -169,19 +169,6 @@ type election_files = {
 module type REGISTRABLE_ELECTION = sig
   val discard : unit -> unit
   val register : unit -> (module WEB_ELECTION) Lwt.t
-end
-
-module type SITE = sig
-  include AUTH_SERVICES
-  include AUTH_HANDLERS_PUBLIC
-  val import_election :
-    election_files -> (module REGISTRABLE_ELECTION) option Lwt.t
-  val set_main_election : string -> unit Lwt.t
-  val unset_main_election : unit -> unit Lwt.t
-  val add_featured_election : string -> unit Lwt.t
-  val remove_featured_election : string -> unit Lwt.t
-  val is_featured_election : string -> bool Lwt.t
-  val install_authentication : auth_config list -> unit
 end
 
 module type LOGIN_TEMPLATES = sig

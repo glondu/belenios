@@ -50,7 +50,7 @@ let can_vote m user =
 
 module type REGISTRATION = sig
   module W : WEB_ELECTION_
-  module Register (S : SITE) (T : TEMPLATES) : ELECTION_HANDLERS
+  module Register (T : TEMPLATES) : ELECTION_HANDLERS
 end
 
 module type REGISTRABLE = sig
@@ -274,7 +274,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
     end
 
-    module Register (S : SITE) (T : TEMPLATES) : ELECTION_HANDLERS = struct
+    module Register (T : TEMPLATES) : ELECTION_HANDLERS = struct
       open Eliom_registration
 
       module L = struct
@@ -327,11 +327,10 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
            )
         )
 
-      let admin =
+      let admin site_user is_featured =
         (fun () () ->
-          match_lwt S.get_user () with
+          match site_user with
           | Some u when W.metadata.e_owner = Some u ->
-            lwt is_featured = S.is_featured_election uuid in
             T.admin ~is_featured () >>= Html5.send
           | _ -> forbidden ()
         )
@@ -340,10 +339,10 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         | ESRaw | ESKeys | ESBallots -> "application/json"
         | ESCreds | ESRecords -> "text/plain"
 
-      let handle_pseudo_file u f =
+      let handle_pseudo_file u f site_user =
         lwt () =
           if f = ESRecords then (
-            match_lwt S.get_user () with
+            match site_user with
             | Some u when W.metadata.e_owner <> Some u -> forbidden ()
             | _ -> return ()
           ) else return ()
@@ -351,7 +350,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         let content_type = content_type_of_file f in
         File.send ~content_type (W.dir / string_of_election_file f)
 
-      let election_dir =
+      let election_dir site_user =
         (fun f () ->
           let cont () () =
             Redirection.send
@@ -360,13 +359,12 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                  (W.election.e_params.e_uuid, f))
           in
           Eliom_reference.set Web_services.cont cont >>
-          handle_pseudo_file () f
+          handle_pseudo_file () f site_user
         )
 
-      let election_update_credential =
+      let election_update_credential site_user =
         (fun () () ->
-          lwt user = S.get_user () in
-          match user with
+          match site_user with
           | Some u ->
             if W.metadata.e_owner = Some u then (
               T.update_credential () >>= Html5.send
@@ -376,10 +374,9 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           | _ -> forbidden ()
         )
 
-      let election_update_credential_post =
+      let election_update_credential_post site_user =
         (fun () (old, new_) ->
-          lwt user = S.get_user () in
-          match user with
+          match site_user with
           | Some u ->
             if W.metadata.e_owner = Some u then (
               try_lwt

@@ -102,15 +102,7 @@ let delete_shallow_directory dir =
   (* Forward reference *)
   let install_authentication_ref = ref (fun _ -> assert false)
 
-  (* We use an intermediate module S that will be passed to Templates
-     and Web_election. S is not meant to leak and will be included
-     in the returned module later. *)
-
-  module S : SITE = struct
     include Auth.Services
-    include Auth.Handlers
-    open Eliom_parameter
-    open Eliom_service.Http
 
     let import_election f = !import_election_ref f
 
@@ -144,11 +136,7 @@ let delete_shallow_directory dir =
 
     let install_authentication xs = !install_authentication_ref xs
 
-  end
-
-  include S
-
-  module T = Web_templates.Make (S)
+  module T = Web_templates.Make (Auth.Services)
 
   let register_election params web_params =
     let module P = (val params : ELECTION_PARAMS) in
@@ -167,7 +155,7 @@ let delete_shallow_directory dir =
       (* starting from here, we do side-effects on the running server *)
       let module R = R.Register (struct end) in
       let module W = R.W in
-      let module X : ELECTION_HANDLERS = R.Register (S) (T) in
+      let module X : ELECTION_HANDLERS = R.Register (T) in
       let module W = struct
         include W
         module Z = X
@@ -303,7 +291,7 @@ let delete_shallow_directory dir =
   end
 
   let () = install_authentication_ref := fun auth_configs ->
-    let module T = T.Login (S) (L) in
+    let module T = T.Login (Auth.Services) (L) in
     let templates = (module T : LOGIN_TEMPLATES) in
     Auth.register templates auth_configs
 
@@ -381,14 +369,14 @@ let delete_shallow_directory dir =
 
   let () = Html5.register ~service:new_election
     (fun () () ->
-      match_lwt S.get_user () with
+      match_lwt get_user () with
       | None -> forbidden ()
       | Some _ -> T.new_election ()
     )
 
   let () = Any.register ~service:new_election_post
     (fun () (election, (metadata, (public_keys, public_creds))) ->
-      match_lwt S.get_user () with
+      match_lwt get_user () with
       | Some u ->
         let open Ocsigen_extensions in
         let files = {
@@ -398,7 +386,7 @@ let delete_shallow_directory dir =
           f_public_creds = public_creds.tmp_filename;
         } in
         begin try_lwt
-          begin match_lwt S.import_election files with
+          begin match_lwt import_election files with
           | None ->
             T.new_election_failure `Exists () >>= Html5.send
           | Some w ->
@@ -418,7 +406,7 @@ let delete_shallow_directory dir =
 
   let () = Html5.register ~service:election_setup_index
     (fun () () ->
-     match_lwt S.get_user () with
+     match_lwt get_user () with
      | Some u ->
         lwt uuids =
           Ocsipersist.fold_step (fun k v accu ->
@@ -432,7 +420,7 @@ let delete_shallow_directory dir =
 
   let () = Redirection.register ~service:election_setup_new
     (fun () () ->
-     match_lwt S.get_user () with
+     match_lwt get_user () with
      | Some u ->
         let uuid = generate_uuid () in
         let uuid_s = Uuidm.to_string uuid in
@@ -473,7 +461,7 @@ let delete_shallow_directory dir =
 
   let () = Html5.register ~service:election_setup
     (fun uuid () ->
-     match_lwt S.get_user () with
+     match_lwt get_user () with
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
         lwt se = Ocsipersist.find election_stable uuid_s in
@@ -486,7 +474,7 @@ let delete_shallow_directory dir =
   let election_setup_mutex = Lwt_mutex.create ()
 
   let handle_setup f uuid x =
-    match_lwt S.get_user () with
+    match_lwt get_user () with
     | Some u ->
        let uuid_s = Uuidm.to_string uuid in
        Lwt_mutex.with_lock election_setup_mutex (fun () ->
@@ -531,7 +519,7 @@ let delete_shallow_directory dir =
     Redirection.register
       ~service:election_setup_trustee_add
       (fun uuid () ->
-       match_lwt S.get_user () with
+       match_lwt get_user () with
        | Some u ->
           let uuid_s = Uuidm.to_string uuid in
           Lwt_mutex.with_lock election_setup_mutex (fun () ->
@@ -648,7 +636,7 @@ let delete_shallow_directory dir =
     Any.register
       ~service:election_setup_create
       (fun uuid () ->
-       match_lwt S.get_user () with
+       match_lwt get_user () with
        | None -> forbidden ()
        | Some u ->
           begin try_lwt
@@ -716,7 +704,7 @@ let delete_shallow_directory dir =
                    ) public_keys
                 ) >>
               (* actually create the election *)
-              begin match_lwt S.import_election files with
+              begin match_lwt import_election files with
               | None ->
                  T.new_election_failure `Exists () >>= Html5.send
               | Some w ->
@@ -759,8 +747,8 @@ let delete_shallow_directory dir =
       (fun (uuid, ()) featured ->
        let uuid_s = Uuidm.to_string uuid in
        lwt () =
-         if featured then S.add_featured_election uuid_s
-         else S.remove_featured_election uuid_s
+         if featured then add_featured_election uuid_s
+         else remove_featured_election uuid_s
        in
        Redirection.send
          (preapply election_admin (uuid, ())))
@@ -772,7 +760,9 @@ let delete_shallow_directory dir =
        let uuid_s = Uuidm.to_string uuid in
        let w = SMap.find uuid_s !election_table in
        let module W = (val w : WEB_ELECTION) in
-       W.Z.admin () ())
+       lwt user = get_user () in
+       lwt is_featured = is_featured_election uuid_s in
+       W.Z.admin user is_featured () ())
 
   let () =
     Any.register
@@ -799,7 +789,8 @@ let delete_shallow_directory dir =
        let uuid_s = Uuidm.to_string uuid in
        let w = SMap.find uuid_s !election_table in
        let module W = (val w : WEB_ELECTION) in
-       W.Z.election_update_credential () ())
+       lwt user = get_user () in
+       W.Z.election_update_credential user () ())
 
   let () =
     Any.register
@@ -808,7 +799,8 @@ let delete_shallow_directory dir =
        let uuid_s = Uuidm.to_string uuid in
        let w = SMap.find uuid_s !election_table in
        let module W = (val w : WEB_ELECTION) in
-       W.Z.election_update_credential_post () x)
+       lwt user = get_user () in
+       W.Z.election_update_credential_post user () x)
 
   let () =
     Any.register
@@ -853,4 +845,5 @@ let delete_shallow_directory dir =
        let uuid_s = Uuidm.to_string uuid in
        let w = SMap.find uuid_s !election_table in
        let module W = (val w : WEB_ELECTION) in
-       W.Z.election_dir f x)
+       lwt user = get_user () in
+       W.Z.election_dir user f x)
