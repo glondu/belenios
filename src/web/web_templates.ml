@@ -74,10 +74,9 @@ let make_login_box style auth links =
       ]
   )
 
-module Make (S : AUTH_SERVICES) : TEMPLATES = struct
 
   let site_login_box =
-    let auth = (module S : AUTH_SERVICES) in
+    let auth = (module Web_site_auth : AUTH_SERVICES) in
     let module L = struct
       let login x = Eliom_service.preapply site_login x
       let logout = Eliom_service.preapply site_logout ()
@@ -810,5 +809,3 @@ module Make (S : AUTH_SERVICES) : TEMPLATES = struct
       base ~title:name ~login_box ~content
 
   end
-
-end

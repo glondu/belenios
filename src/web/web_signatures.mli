@@ -210,46 +210,6 @@ module type LOGIN_TEMPLATES = sig
 
 end
 
-module type TEMPLATES = sig
-
-  val home :
-    featured:(module WEB_ELECTION) list ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val admin :
-    elections:(module WEB_ELECTION) list ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val new_election :
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val new_election_failure :
-    [ `Exists | `Exception of exn ] ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val generic_error_page :
-    string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val election_setup_index :
-    Uuidm.t list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val election_setup :
-    Uuidm.t -> Web_common.setup_election -> unit ->
-    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val election_setup_credentials :
-    string -> string -> Web_common.setup_election -> unit ->
-    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val election_setup_trustee :
-    string -> string -> Web_common.setup_election -> unit ->
-    [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  module Login (S : AUTH_SERVICES) (L : AUTH_LINKS) : LOGIN_TEMPLATES
-  module Election (W : WEB_ELECTION_) : ELECTION_TEMPLATES
-
-end
-
 module type NAME = sig
   val name : string
   val path : string list

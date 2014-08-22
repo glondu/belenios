@@ -19,24 +19,26 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_builtin_t
-open Serializable_t
-open Signatures
-open Web_serializable_t
-open Web_signatures
-
-module type REGISTRATION = sig
-  module W : WEB_ELECTION_
-  module Register (X : EMPTY) : ELECTION_HANDLERS
+module C = struct
+  let name = "site"
+  let path = []
+  let kind = `Site
 end
 
-module type REGISTRABLE = sig
-  module W : sig
-    include ELECTION_DATA
-    include WEB_PARAMS
-    module E : ELECTION with type elt = G.t
-  end
-  module Register (X : EMPTY) : REGISTRATION
-end
+module A = Web_auth.Make (C)
+let register = A.register
+include A.Services
 
-module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE
+open Eliom_registration
+open Web_services
+
+let login service () =
+  lwt cont = Eliom_reference.get Web_services.cont in
+  A.Handlers.do_login service cont ()
+
+let logout () () =
+  lwt cont = Eliom_reference.get Web_services.cont in
+  A.Handlers.do_logout cont ()
+
+let () = Any.register ~service:site_login login
+let () = Any.register ~service:site_logout logout

@@ -61,28 +61,21 @@ let delete_shallow_directory dir =
   open Eliom_service
   open Eliom_registration
 
-  module C = struct
-    let name = "site"
-    let path = []
-    let kind = `Site
-  end
-
-  module Auth = Web_auth.Make (C)
   module LwtRandom = MakeLwtRandom (struct let rng = make_rng () end)
 
-  let store = Ocsipersist.open_store C.name
+  let store = Ocsipersist.open_store "site"
 
   (* Persistent table, used to initialize the server. *)
-  let election_ptable = Ocsipersist.open_table (C.name ^ "_elections")
+  let election_ptable = Ocsipersist.open_table "site_elections"
 
   (* Table with elections in setup mode. *)
-  let election_stable = Ocsipersist.open_table (C.name ^ "_setup")
+  let election_stable = Ocsipersist.open_table "site_setup"
 
   (* Table with tokens given to trustees. *)
-  let election_pktokens = Ocsipersist.open_table (C.name ^ "_pktokens")
+  let election_pktokens = Ocsipersist.open_table "site_pktokens"
 
   (* Table with tokens given to credential authorities. *)
-  let election_credtokens = Ocsipersist.open_table (C.name ^ "_credtokens")
+  let election_credtokens = Ocsipersist.open_table "site_credtokens"
 
   (* In-memory table, indexed by UUID, contains closures. *)
   let election_table = ref SMap.empty
@@ -102,7 +95,7 @@ let delete_shallow_directory dir =
   (* Forward reference *)
   let install_authentication_ref = ref (fun _ -> assert false)
 
-    include Auth.Services
+    include Web_site_auth
 
     let import_election f = !import_election_ref f
 
@@ -136,7 +129,7 @@ let delete_shallow_directory dir =
 
     let install_authentication xs = !install_authentication_ref xs
 
-  module T = Web_templates.Make (Auth.Services)
+  module T = Web_templates
 
   let register_election params web_params =
     let module P = (val params : ELECTION_PARAMS) in
@@ -291,9 +284,9 @@ let delete_shallow_directory dir =
   end
 
   let () = install_authentication_ref := fun auth_configs ->
-    let module T = T.Login (Auth.Services) (L) in
+    let module T = T.Login (Web_site_auth) (L) in
     let templates = (module T : LOGIN_TEMPLATES) in
-    Auth.register templates auth_configs
+    Web_site_auth.register templates auth_configs
 
   let () = Any.register ~service:home
     (fun () () ->
@@ -330,17 +323,6 @@ let delete_shallow_directory dir =
       in
       T.admin ~elections ()
     )
-
-  let login service () =
-    lwt cont = Eliom_reference.get Web_services.cont in
-    Auth.Handlers.do_login service cont ()
-
-  let logout () () =
-    lwt cont = Eliom_reference.get Web_services.cont in
-    Auth.Handlers.do_logout cont ()
-
-  let () = Any.register ~service:site_login login
-  let () = Any.register ~service:site_logout logout
 
   let () = File.register
     ~service:source_code

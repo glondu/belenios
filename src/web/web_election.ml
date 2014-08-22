@@ -50,7 +50,7 @@ let can_vote m user =
 
 module type REGISTRATION = sig
   module W : WEB_ELECTION_
-  module Register (T : TEMPLATES) : ELECTION_HANDLERS
+  module Register (X : EMPTY) : ELECTION_HANDLERS
 end
 
 module type REGISTRABLE = sig
@@ -274,7 +274,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
     end
 
-    module Register (T : TEMPLATES) : ELECTION_HANDLERS = struct
+    module Register (X : EMPTY) : ELECTION_HANDLERS = struct
       open Eliom_registration
 
       module L = struct
@@ -283,7 +283,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
       end
 
       let () =
-        let module T = T.Login (W.S) (L) in
+        let module T = Web_templates.Login (W.S) (L) in
         let templates = (module T : LOGIN_TEMPLATES) in
         Auth.register templates N.auth_config
 
@@ -295,7 +295,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         lwt cont = Eliom_reference.get Web_services.cont in
         Auth.Handlers.do_logout cont ()
 
-      module T = T.Election (W)
+      module T = Web_templates.Election (W)
 
       let if_eligible acl f () x =
         lwt user = W.S.get_user () in
