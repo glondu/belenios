@@ -343,8 +343,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         lwt () =
           if f = ESRecords then (
             match site_user with
-            | Some u when W.metadata.e_owner <> Some u -> forbidden ()
-            | _ -> return ()
+            | Some u when W.metadata.e_owner = Some u -> return ()
+            | _ -> forbidden ()
           ) else return ()
         in
         let content_type = content_type_of_file f in
