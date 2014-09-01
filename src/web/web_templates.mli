@@ -34,5 +34,11 @@ val election_setup : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] 
 val election_setup_credentials : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
+val election_home : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_admin : (module WEB_ELECTION_) -> is_featured:bool -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val update_credential : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_raw : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_confirmation : (module WEB_ELECTION_) -> can_vote:bool -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_confirmed : (module WEB_ELECTION_) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
 module Login (S : AUTH_SERVICES) (L : AUTH_LINKS) : LOGIN_TEMPLATES
-module Election (W : WEB_ELECTION_) : ELECTION_TEMPLATES

@@ -115,31 +115,6 @@ module type WEB_BALLOT_BOX = sig
   val update_cred : old:string -> new_:string -> unit Lwt.t
 end
 
-module type ELECTION_TEMPLATES = sig
-
-  val home :
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val admin :
-    is_featured:bool ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val update_credential :
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val cast_raw :
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val cast_confirmation :
-    can_vote:bool ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val cast_confirmed :
-    result:[< `Error of Web_common.error | `Valid of string ] ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-end
-
 module type WEB_PARAMS = sig
   val metadata : metadata
   val dir : string

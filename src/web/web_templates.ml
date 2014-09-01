@@ -504,9 +504,9 @@ let make_login_box style auth links =
     let login_box = pcdata "" in
     base ~title ~login_box ~content
 
-  module Election (W : WEB_ELECTION_) = struct
 
-    let election_login_box =
+    let election_login_box w =
+      let module W = (val w : WEB_ELECTION_) in
       let auth = (module W.S : AUTH_SERVICES) in
       let module L = struct
         let login x =
@@ -521,12 +521,14 @@ let make_login_box style auth links =
       let links = (module L : AUTH_LINKS) in
       fun () -> make_login_box "" auth links
 
-    let file x =
+    let file w x =
+      let module W = (val w : WEB_ELECTION_) in
       Eliom_service.preapply
         election_dir
         (W.election.e_params.e_uuid, x)
 
-    let home () =
+    let election_home w () =
+      let module W = (val w : WEB_ELECTION_) in
       lwt user = W.S.get_user () in
       let params = W.election.e_params and m = W.metadata in
       lwt permissions =
@@ -592,19 +594,19 @@ let make_login_box style auth links =
           ];
           div [
             pcdata "Election data: ";
-            a ~service:(file ESRaw) [
+            a ~service:(file w ESRaw) [
               pcdata "parameters"
             ] ();
             pcdata ", ";
-            a ~service:(file ESCreds) [
+            a ~service:(file w ESCreds) [
               pcdata "public credentials"
             ] ();
             pcdata ", ";
-            a ~service:(file ESKeys) [
+            a ~service:(file w ESKeys) [
               pcdata "trustee public keys"
             ] ();
             pcdata ", ";
-            a ~service:(file ESBallots) [
+            a ~service:(file w ESBallots) [
               pcdata "ballots";
             ] ();
             pcdata ".";
@@ -632,10 +634,11 @@ let make_login_box style auth links =
         br ();
         audit_info;
       ] in
-      lwt login_box = election_login_box () in
+      lwt login_box = election_login_box w () in
       base ~title:params.e_name ~login_box ~content
 
-    let admin ~is_featured () =
+    let election_admin w ~is_featured () =
+      let module W = (val w : WEB_ELECTION_) in
       let title = W.election.e_params.e_name ^ " — Administration" in
       let feature_form = post_form ~service:election_set_featured
         (fun featured -> [
@@ -648,7 +651,7 @@ let make_login_box style auth links =
       let content = [
         h1 [pcdata title];
         div [
-          a ~service:election_home [pcdata "Election home"] (uuid, ());
+          a ~service:Web_services.election_home [pcdata "Election home"] (uuid, ());
         ];
         div [
           a ~service:election_update_credential [pcdata "Update a credential"] (uuid, ());
@@ -661,7 +664,8 @@ let make_login_box style auth links =
       lwt login_box = site_login_box () in
       base ~title ~login_box ~content
 
-    let update_credential () =
+    let update_credential w () =
+      let module W = (val w : WEB_ELECTION_) in
       let params = W.election.e_params in
       let form = post_form ~service:election_update_credential_post
         (fun (old, new_) ->
@@ -702,7 +706,8 @@ let make_login_box style auth links =
       lwt login_box = site_login_box () in
       base ~title:params.e_name ~login_box ~content
 
-    let cast_raw () =
+    let cast_raw w () =
+      let module W = (val w : WEB_ELECTION_) in
       let params = W.election.e_params in
       let form_rawballot = post_form ~service:election_cast_post
         (fun (name, _) ->
@@ -732,10 +737,11 @@ let make_login_box style auth links =
         h3 [ pcdata "Submit by file" ];
         form_upload;
       ] in
-      lwt login_box = election_login_box () in
+      lwt login_box = election_login_box w () in
       base ~title:params.e_name ~login_box ~content
 
-    let cast_confirmation ~can_vote () =
+    let cast_confirmation w ~can_vote () =
+      let module W = (val w : WEB_ELECTION_) in
       lwt user = W.S.get_user () in
       let params = W.election.e_params in
       let name = params.e_name in
@@ -770,7 +776,7 @@ let make_login_box style auth links =
         p [
           (let service =
             Eliom_service.preapply
-              election_home (W.election.e_params.e_uuid, ())
+              Web_services.election_home (W.election.e_params.e_uuid, ())
           in
           a ~service [
             pcdata "Go back to election"
@@ -778,10 +784,11 @@ let make_login_box style auth links =
           pcdata ".";
         ];
       ] in
-      lwt login_box = election_login_box () in
+      lwt login_box = election_login_box w () in
       base ~title:name ~login_box ~content
 
-    let cast_confirmed ~result () =
+    let cast_confirmed w ~result () =
+      let module W = (val w : WEB_ELECTION_) in
       let params = W.election.e_params in
       let name = params.e_name in
       let content = [
@@ -805,7 +812,6 @@ let make_login_box style auth links =
           pcdata ".";
         ];
       ] in
-      lwt login_box = election_login_box () in
+      lwt login_box = election_login_box w () in
       base ~title:name ~login_box ~content
 
-  end

@@ -295,7 +295,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         lwt cont = Eliom_reference.get Web_services.cont in
         Auth.Handlers.do_logout cont ()
 
-      module T = Web_templates.Election (W)
+      module T = Web_templates
 
       let if_eligible acl f () x =
         lwt user = W.S.get_user () in
@@ -322,8 +322,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              match_lwt Eliom_reference.get cast_confirmed with
              | Some result ->
                Eliom_reference.unset cast_confirmed >>
-               T.cast_confirmed ~result () >>= Html5.send
-             | None -> T.home () >>= Html5.send
+               T.cast_confirmed (module W) ~result () >>= Html5.send
+             | None -> T.election_home (module W) () >>= Html5.send
            )
         )
 
@@ -331,7 +331,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         (fun () () ->
           match site_user with
           | Some u when W.metadata.e_owner = Some u ->
-            T.admin ~is_featured () >>= Html5.send
+            T.election_admin (module W) ~is_featured () >>= Html5.send
           | _ -> forbidden ()
         )
 
@@ -367,7 +367,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           match site_user with
           | Some u ->
             if W.metadata.e_owner = Some u then (
-              T.update_credential () >>= Html5.send
+              T.update_credential (module W) () >>= Html5.send
             ) else (
               forbidden ()
             )
@@ -439,7 +439,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
       let ballot_received user =
         let can_vote = can_vote W.metadata user in
-        T.cast_confirmation ~can_vote ()
+        T.cast_confirmation (module W) ~can_vote ()
 
       let election_cast =
         (if_eligible can_read
@@ -452,7 +452,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              Eliom_reference.set Web_services.cont cont >>
              match_lwt Eliom_reference.get ballot with
              | Some _ -> ballot_received user >>= Html5.send
-             | None -> T.cast_raw () >>= Html5.send
+             | None -> T.cast_raw (module W) () >>= Html5.send
            )
         )
 
