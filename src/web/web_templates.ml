@@ -585,6 +585,13 @@ let make_login_box style auth links =
             pcdata ".";
           ]
       in
+      let ballots_link =
+        p [
+            a ~service:election_pretty_ballots [
+                pcdata "List of accepted ballots"
+              ] ((params.e_uuid, ()), 1)
+          ]
+      in
       let audit_info = div [
         h3 [pcdata "Audit Info"];
         div [
@@ -631,6 +638,7 @@ let make_login_box style auth links =
               "Submit a raw ballot";
           ];
         ];
+        ballots_link;
         br ();
         audit_info;
       ] in
@@ -815,3 +823,33 @@ let make_login_box style auth links =
       lwt login_box = election_login_box w () in
       base ~title:name ~login_box ~content
 
+let pretty_ballots w hashes () =
+  let module W = (val w : WEB_ELECTION_) in
+  let params = W.election.e_params in
+  let title = params.e_name ^ " — Accepted ballots" in
+  let nballots = ref 0 in
+  let ballots =
+    List.rev_map
+      (fun h ->
+       incr nballots;
+       li
+         [a
+            ~service:election_pretty_ballot
+            [pcdata h]
+            ((params.e_uuid, ()), h)]
+      ) hashes
+  in
+  let links =
+    p
+      [a
+         ~service:Web_services.election_home
+         [pcdata "Back to election"]
+         (params.e_uuid, ())]
+  in
+  let content = [
+    h1 [pcdata title];
+    ul ballots;
+    links;
+  ] in
+  lwt login_box = election_login_box w () in
+  base ~title ~login_box ~content

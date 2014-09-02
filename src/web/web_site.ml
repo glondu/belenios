@@ -820,6 +820,24 @@ let delete_shallow_directory dir =
        let module W = (val w : WEB_ELECTION) in
        W.Z.election_cast_confirm () x)
 
+let () =
+  Any.register
+    ~service:election_pretty_ballots
+    (fun ((uuid, ()), start) () ->
+     let uuid_s = Uuidm.to_string uuid in
+     let w = SMap.find uuid_s !election_table in
+     let module W = (val w : WEB_ELECTION) in
+     W.Z.election_pretty_ballots start ())
+
+let () =
+  Any.register
+    ~service:election_pretty_ballot
+    (fun ((uuid, ()), hash) () ->
+     let uuid_s = Uuidm.to_string uuid in
+     let w = SMap.find uuid_s !election_table in
+     let module W = (val w : WEB_ELECTION) in
+     W.Z.election_pretty_ballot hash ())
+
   let () =
     Any.register
       ~service:election_dir

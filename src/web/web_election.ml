@@ -479,6 +479,35 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
            )
         )
 
+      let election_pretty_ballots start () =
+        lwt user = W.S.get_user () in
+        if can_read W.metadata user then (
+          lwt res, _ =
+            W.B.Ballots.fold
+              (fun h _ (accu, i) ->
+               if i >= start && i < start+50 then
+                 return (h :: accu, i+1)
+               else return (accu, i+1)
+              ) ([], 1)
+          in T.pretty_ballots (module W) res () >>= Html5.send
+        ) else forbidden ()
+
+      let election_pretty_ballot hash () =
+        lwt user = W.S.get_user () in
+        if can_read W.metadata user then (
+          lwt ballot =
+            W.B.Ballots.fold
+              (fun h b accu ->
+               if h = hash then return (Some b) else return accu
+              ) None
+          in
+          match ballot with
+          | None -> fail_http 404
+          | Some b ->
+             String.send (b, "application/json") >>=
+             (fun x -> return @@ cast_unknown_content_kind x)
+        ) else forbidden ()
+
     end
 
   end

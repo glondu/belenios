@@ -76,6 +76,8 @@ module type ELECTION_HANDLERS =
     val election_cast_post :
       unit -> string option * Eliom_lib.file_info option -> content
     val election_cast_confirm : unit -> unit -> content
+    val election_pretty_ballots : int -> unit -> content
+    val election_pretty_ballot : string -> unit -> content
   end
 
 module type AUTH_HANDLERS_RAW =
