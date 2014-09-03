@@ -491,14 +491,37 @@ let make_login_box style auth links =
          [
            div [
              div [pcdata "Public key:"];
-             div [textarea ~a:[a_rows 5; a_cols 40] ~name ~value ()];
+             div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ~value ()];
              div [string_input ~input_type:`Submit ~value:"Submit" ()];
            ]
          ]
         ) ()
     in
+    let group =
+      let name : 'a Eliom_parameter.param_name = Obj.magic "group" in
+      let value = se.se_group in
+      div
+        ~a:[a_style "display:none;"]
+        [
+          div [pcdata "Group parameters:"];
+          div [textarea ~a:[a_id "group"; a_rows 5; a_cols 40; a_readonly `ReadOnly] ~name ~value ()];
+        ]
+    in
+    let interactivity =
+      div
+        ~a:[a_id "interactivity"]
+        [
+          script ~a:[a_src (uri_of_string (fun () -> "../static/sjcl.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn2.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/random.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_tkeygen.js"))] (pcdata "");
+        ]
+    in
     let content = [
       h1 [pcdata title];
+      group;
+      interactivity;
       form;
     ] in
     let login_box = pcdata "" in
