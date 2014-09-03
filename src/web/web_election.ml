@@ -472,7 +472,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              Eliom_reference.set Web_services.cont cont >>
              Eliom_reference.set ballot (Some the_ballot) >>
              match user with
-             | None -> Auth.Handlers.do_login None cont ()
+             | None ->
+                Redirection.send
+                  (Eliom_service.preapply
+                     Web_services.election_login
+                     ((W.election.e_params.e_uuid, ()), None))
              | Some u -> cont () ()
            )
         )
