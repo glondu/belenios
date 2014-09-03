@@ -92,8 +92,6 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
     module W = struct
       include W
 
-      module H = Auth.Handlers
-
       module B : WEB_BALLOT_BOX = struct
 
         let suffix = "_" ^ String.map (function
@@ -474,7 +472,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              Eliom_reference.set Web_services.cont cont >>
              Eliom_reference.set ballot (Some the_ballot) >>
              match user with
-             | None -> W.H.do_login None cont ()
+             | None -> Auth.Handlers.do_login None cont ()
              | Some u -> cont () ()
            )
         )

@@ -128,7 +128,6 @@ module type WEB_ELECTION_ = sig
   module E : ELECTION with type elt = G.t
   module S : AUTH_SERVICES
   module B : WEB_BALLOT_BOX
-  module H : AUTH_HANDLERS_PUBLIC
 end
 
 module type WEB_ELECTION = sig
