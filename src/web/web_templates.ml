@@ -451,8 +451,8 @@ let make_login_box style auth links =
         ~service:election_setup_credentials_post
         (fun name ->
          [div
-            [h2 [pcdata "Submit by copy/paste"];
-             div [textarea ~a:[a_rows 5; a_cols 40] ~name ()];
+            [div [pcdata "Public credentials:"];
+             div [textarea ~a:[a_id "pks"; a_rows 5; a_cols 40] ~name ()];
              div [string_input ~input_type:`Submit ~value:"Submit" ()]]])
         token
     in
@@ -467,14 +467,38 @@ let make_login_box style auth links =
         token
     in
     let div_download =
-      div [a ~service:election_setup_credentials_download
+      p [a ~service:election_setup_credentials_download
              [pcdata "Download current file"]
              token]
     in
+    let group =
+      let name : 'a Eliom_parameter.param_name = Obj.magic "group" in
+      let value = se.se_group in
+      div
+        ~a:[a_style "display:none;"]
+        [
+          div [pcdata "UUID:"];
+          div [textarea ~a:[a_id "uuid"; a_rows 1; a_cols 40; a_readonly `ReadOnly] ~name ~value:uuid ()];
+          div [pcdata "Group parameters:"];
+          div [textarea ~a:[a_id "group"; a_rows 5; a_cols 40; a_readonly `ReadOnly] ~name ~value ()];
+        ]
+    in
+    let interactivity =
+      div
+        ~a:[a_id "interactivity"]
+        [
+          script ~a:[a_src (uri_of_string (fun () -> "../static/sjcl.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn2.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/random.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_credgen.js"))] (pcdata "");
+        ]
+    in
+    let div_textarea = div [group; interactivity; form_textarea] in
     let content = [
       h1 [pcdata title];
       div_download;
-      form_textarea;
+      div_textarea;
       form_file;
     ] in
     let login_box = pcdata "" in

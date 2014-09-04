@@ -117,5 +117,6 @@ let () = dispatch & function
     copy_rule "vote.html" "src/booth/vote.html" "src/static/vote.html";
 
     copy_rule "tool_js_tkeygen.js" "src/tool/tool_js_tkeygen.js" "src/static/tool_js_tkeygen.js";
+    copy_rule "tool_js_credgen.js" "src/tool/tool_js_credgen.js" "src/static/tool_js_credgen.js";
 
   | _ -> ()
