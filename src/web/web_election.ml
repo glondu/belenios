@@ -133,6 +133,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
               | Some a, Some b -> datetime_compare a b
               | _, _ -> -1
             in
+            !state = `Open &&
             compare metadata.e_voting_starts_at (Some date) <= 0 &&
             compare (Some date) metadata.e_voting_ends_at < 0
           in

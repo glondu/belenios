@@ -58,6 +58,7 @@ let election_admin = service ~path:["elections"] ~get_params:(suffix (uuid "uuid
 let election_login = service ~path:["elections"] ~get_params:(suffix_prod (uuid "uuid" ** suffix_const "login") (opt (string "service"))) ()
 let election_logout = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "logout")) ()
 let election_set_featured = post_coservice ~fallback:election_admin ~post_params:(bool "featured") ()
+let election_set_state = post_coservice ~fallback:election_admin ~post_params:(bool "state") ()
 let election_update_credential = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "update-cred")) ()
 let election_update_credential_post = post_service ~fallback:election_update_credential ~post_params:(string "old_credential" ** string "new_credential") ()
 let election_vote = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "vote")) ()

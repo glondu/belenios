@@ -194,6 +194,7 @@ let delete_shallow_directory dir =
         let module X = struct
           let metadata = metadata
           let dir = dir
+          let state = ref `Open
         end in
         let web_params = (module X : WEB_PARAMS) in
         let r, do_register = register_election params web_params in
@@ -745,6 +746,19 @@ let delete_shallow_directory dir =
        lwt user = get_user () in
        lwt is_featured = is_featured_election uuid_s in
        W.Z.admin user is_featured () ())
+
+  let () =
+    Any.register
+      ~service:election_set_state
+      (fun (uuid, ()) state ->
+       let uuid_s = Uuidm.to_string uuid in
+       let w = SMap.find uuid_s !election_table in
+       let module W = (val w : WEB_ELECTION) in
+       match_lwt get_user () with
+       | Some u when W.metadata.e_owner = Some u ->
+          W.state := if state then `Open else `Closed;
+          Redirection.send (preapply election_admin (uuid, ()))
+       | _ -> forbidden ())
 
   let () =
     Any.register

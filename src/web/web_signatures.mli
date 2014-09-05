@@ -120,6 +120,7 @@ end
 module type WEB_PARAMS = sig
   val metadata : metadata
   val dir : string
+  val state : [ `Open | `Closed ] ref
 end
 
 module type WEB_ELECTION_ = sig

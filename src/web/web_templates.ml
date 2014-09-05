@@ -632,6 +632,14 @@ let make_login_box style auth links =
             pcdata ".";
           ]
       in
+      let state =
+        if !W.state = `Closed then
+          [
+            pcdata " ";
+            b [pcdata "This election is currently closed."];
+          ]
+        else []
+      in
       let ballots_link =
         p [
             a ~service:election_pretty_ballots [
@@ -672,7 +680,7 @@ let make_login_box style auth links =
         p ~a:[a_style "margin: 1em; padding: 2pt; font-style: italic; border: 1pt solid;"] [
           pcdata params.e_description
         ];
-        p voting_period;
+        p (voting_period @ state);
         p permissions;
         div [
           div [
@@ -702,6 +710,17 @@ let make_login_box style auth links =
           string_input ~input_type:`Submit ~value:"Apply" ();
         ]) (W.election.e_params.e_uuid, ())
       in
+      let state_form =
+        let checked = !W.state = `Open in
+        post_form
+          ~service:election_set_state
+          (fun name ->
+           [
+             bool_checkbox ~name ~checked ();
+             pcdata "Open this election ";
+             string_input ~input_type:`Submit ~value:"Apply" ();
+           ]) (W.election.e_params.e_uuid, ())
+      in
       let uuid = W.election.e_params.e_uuid in
       let content = [
         h1 [pcdata title];
@@ -715,6 +734,7 @@ let make_login_box style auth links =
           a ~service:election_dir [pcdata "Voting records"] (uuid, ESRecords);
         ];
         div [feature_form];
+        div [state_form];
       ] in
       lwt login_box = site_login_box () in
       base ~title ~login_box ~content
