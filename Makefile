@@ -5,6 +5,7 @@ all:
 	ocamlbuild all.otarget
 
 check: all
+	demo/demo.sh
 
 clean:
 	ocamlbuild -clean
