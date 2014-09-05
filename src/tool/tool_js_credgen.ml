@@ -21,35 +21,7 @@
 
 open Platform
 open Serializable_j
-
-let document = Dom_html.window##document
-
-let alert s : unit =
-  let open Js.Unsafe in
-  fun_call (variable "alert") [| s |> Js.string |> inject |]
-
-let get_textarea id =
-  let res = ref None in
-  Js.Opt.iter
-    (document##getElementById (Js.string id))
-    (fun e ->
-      Js.Opt.iter
-        (Dom_html.CoerceTo.textarea e)
-        (fun x -> res := Some (Js.to_string (x##value)))
-    );
-  match !res with
-  | None -> raise Not_found
-  | Some x -> x
-
-let set_textarea id z =
-  Js.Opt.iter
-    (document##getElementById (Js.string id))
-    (fun e ->
-      Js.Opt.iter
-        (Dom_html.CoerceTo.textarea e)
-        (fun x -> x##value <- Js.string z)
-    )
-
+open Tool_js_common
 open Tool_credgen
 
 let generate _ =

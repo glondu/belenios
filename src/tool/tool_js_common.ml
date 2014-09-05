@@ -19,35 +19,30 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Platform
-open Serializable_j
-open Tool_js_common
-open Tool_tkeygen
+let document = Dom_html.window##document
 
-let tkeygen _ =
-  let module P : PARAMS = struct
-    let group = get_textarea "group"
-  end in
-  let module X = (val make (module P : PARAMS) : S) in
-  let open X in
-  let {id; priv; pub} = trustee_keygen () in
-  let data_uri = (Js.string "data:application/json,")##concat (Js.encodeURI (Js.string priv)) in
-  ignore (Dom_html.window##open_ (data_uri, Js.string id, Js.null));
-  set_textarea "pk" pub;
-  alert "The private key has been open in a new window (or tab). Please save it before submitting the public key!";
-  Js._false
+let alert s : unit =
+  let open Js.Unsafe in
+  fun_call (variable "alert") [| s |> Js.string |> inject |]
 
-let fill_interactivity _ =
+let get_textarea id =
+  let res = ref None in
   Js.Opt.iter
-    (document##getElementById (Js.string "interactivity"))
+    (document##getElementById (Js.string id))
     (fun e ->
-     let b = document##createElement (Js.string "button") in
-     let t = document##createTextNode (Js.string "Generate a new keypair") in
-     b##onclick <- Dom_html.handler tkeygen;
-     Dom.appendChild b t;
-     Dom.appendChild e b;
+      Js.Opt.iter
+        (Dom_html.CoerceTo.textarea e)
+        (fun x -> res := Some (Js.to_string (x##value)))
     );
-  Js._false
+  match !res with
+  | None -> raise Not_found
+  | Some x -> x
 
-let () =
-  Dom_html.window##onload <- Dom_html.handler fill_interactivity;
+let set_textarea id z =
+  Js.Opt.iter
+    (document##getElementById (Js.string id))
+    (fun e ->
+      Js.Opt.iter
+        (Dom_html.CoerceTo.textarea e)
+        (fun x -> x##value <- Js.string z)
+    )
