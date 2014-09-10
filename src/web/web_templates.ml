@@ -456,12 +456,20 @@ let make_login_box style auth links =
              div [string_input ~input_type:`Submit ~value:"Submit" ()]]])
         token
     in
+    let disclaimer =
+      p
+        [
+          b [pcdata "Note:"];
+          pcdata " submitting a large (> 200) number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below.";
+        ]
+    in
     let form_file =
       post_form
         ~service:election_setup_credentials_post_file
         (fun name ->
          [div
             [h2 [pcdata "Submit by file"];
+             div [pcdata "Use this form to upload public credentials generated with the command-line tool."];
              div [file_input ~name ()];
              div [string_input ~input_type:`Submit ~value:"Submit" ()]]])
         token
@@ -494,7 +502,7 @@ let make_login_box style auth links =
           script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_credgen.js"))] (pcdata "");
         ]
     in
-    let div_textarea = div [group; interactivity; form_textarea] in
+    let div_textarea = div [group; interactivity; form_textarea; disclaimer] in
     let content = [
       h1 [pcdata title];
       div_download;
