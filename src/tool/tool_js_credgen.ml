@@ -25,7 +25,7 @@ open Tool_js_common
 open Tool_credgen
 
 let generate _ =
-  let number = get_textarea "number" |> int_of_string in
+  let number = get_input "number" |> int_of_string in
   let ids = generate_ids number in
   let module P : PARAMS = struct
     let uuid = get_textarea "uuid"
@@ -58,17 +58,16 @@ let fill_interactivity _ =
      let x = document##createElement (Js.string "div") in
      let t = document##createTextNode (Js.string "Number of credentials to generate: ") in
      Dom.appendChild x t;
-     let y = document##createElement (Js.string "textarea") in
+     let y = document##createElement (Js.string "input") in
      y##setAttribute (Js.string "id", Js.string "number");
-     y##setAttribute (Js.string "rows", Js.string "1");
-     y##setAttribute (Js.string "cols", Js.string "5");
+     y##setAttribute (Js.string "size", Js.string "5");
      Dom.appendChild x y;
      Dom.appendChild e x;
      let b = document##createElement (Js.string "button") in
-     let t = document##createTextNode (Js.string "Generate credentials") in
+     let t = document##createTextNode (Js.string "Generate") in
      b##onclick <- Dom_html.handler generate;
      Dom.appendChild b t;
-     Dom.appendChild e b;
+     Dom.appendChild x b;
     );
   Js._false
 

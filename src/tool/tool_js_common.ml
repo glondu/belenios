@@ -46,3 +46,16 @@ let set_textarea id z =
         (Dom_html.CoerceTo.textarea e)
         (fun x -> x##value <- Js.string z)
     )
+
+let get_input id =
+  let res = ref None in
+  Js.Opt.iter
+    (document##getElementById (Js.string id))
+    (fun e ->
+      Js.Opt.iter
+        (Dom_html.CoerceTo.input e)
+        (fun x -> res := Some (Js.to_string (x##value)))
+    );
+  match !res with
+  | None -> raise Not_found
+  | Some x -> x
