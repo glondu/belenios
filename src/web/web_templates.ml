@@ -394,11 +394,13 @@ let make_login_box style auth links =
         (Eliom_service.preapply election_setup_metadata uuid)
         value "Election metadata"
     in
-    let form_questions =
-      let value = string_of_template se.se_questions in
-      make_form
-        (Eliom_service.preapply election_setup_questions uuid)
-        value "Questions"
+    let div_questions =
+      div
+        [h2 [pcdata "Questions"];
+         a
+           ~service:election_setup_questions
+           [pcdata "Manage questions"]
+           uuid]
     in
     let form_trustees =
       post_form
@@ -438,8 +440,28 @@ let make_login_box style auth links =
       div_credentials;
       form_group;
       form_metadata;
-      form_questions;
+      div_questions;
       form_create;
+    ] in
+    lwt login_box = site_login_box () in
+    base ~title ~login_box ~content
+
+  let election_setup_questions uuid se () =
+    let title = "Questions for election " ^ Uuidm.to_string uuid in
+    let form =
+      let value = string_of_template se.se_questions in
+      post_form
+        ~service:election_setup_questions_post
+        (fun name ->
+         [
+           div [pcdata "Questions:"];
+           div [textarea ~a:[a_id "questions"; a_rows 5; a_cols 80] ~name ~value ()];
+           div [string_input ~input_type:`Submit ~value:"Submit" ()]])
+        uuid
+    in
+    let content = [
+      h1 [pcdata title];
+      form;
     ] in
     lwt login_box = site_login_box () in
     base ~title ~login_box ~content

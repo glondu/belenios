@@ -456,7 +456,7 @@ let delete_shallow_directory dir =
 
   let election_setup_mutex = Lwt_mutex.create ()
 
-  let handle_setup f uuid x =
+  let handle_setup f cont uuid x =
     match_lwt get_user () with
     | Some u ->
        let uuid_s = Uuidm.to_string uuid in
@@ -466,7 +466,7 @@ let delete_shallow_directory dir =
            try_lwt
              f se x u;
              Ocsipersist.add election_stable uuid_s se >>
-             Redirection.send (preapply election_setup uuid)
+             Redirection.send (preapply cont uuid)
            with e ->
              T.generic_error_page (Printexc.to_string e) () >>= Html5.send
          ) else forbidden ()
@@ -480,7 +480,7 @@ let delete_shallow_directory dir =
          (fun se x _ ->
           let _group = Group.of_string x in
           (* we keep it as a string since it contains a type *)
-          se.se_group <- x))
+          se.se_group <- x) election_setup)
 
   let () =
     Any.register
@@ -489,14 +489,28 @@ let delete_shallow_directory dir =
          (fun se x u ->
           let metadata = metadata_of_string x in
           if metadata.e_owner <> Some u then failwith "wrong owner";
-          se.se_metadata <- metadata))
+          se.se_metadata <- metadata) election_setup)
+
+  let () =
+    Html5.register
+      ~service:election_setup_questions
+      (fun uuid () ->
+       match_lwt get_user () with
+       | Some u ->
+          let uuid_s = Uuidm.to_string uuid in
+          lwt se = Ocsipersist.find election_stable uuid_s in
+          if se.se_owner = u
+          then T.election_setup_questions uuid se ()
+          else forbidden ()
+       | None -> forbidden ()
+      )
 
   let () =
     Any.register
-      ~service:election_setup_questions
+      ~service:election_setup_questions_post
       (handle_setup
          (fun se x _ ->
-          se.se_questions <- template_of_string x))
+          se.se_questions <- template_of_string x) election_setup_questions)
 
   let () =
     Redirection.register

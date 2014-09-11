@@ -31,6 +31,7 @@ val generic_error_page : string -> unit -> [> `Html ] Eliom_content.Html5.F.elt 
 
 val election_setup_index : Uuidm.t list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_questions : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_credentials : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
