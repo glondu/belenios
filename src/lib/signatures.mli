@@ -206,7 +206,7 @@ module type ELECTION = sig
       answers and cryptographic proofs that they satisfy the election
       constraints. *)
 
-  type randomness = Z.t array array
+  type randomness
   (** Randomness needed to create a ballot. *)
 
   val make_randomness : t -> randomness m
