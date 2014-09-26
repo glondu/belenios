@@ -67,6 +67,10 @@ let version_rule () =
   in
   rule "BUILD -> belenios_version.ml" ~deps ~prod builder
 
+let copy_static f =
+  let base = Filename.basename f in
+  copy_rule base f ("src/static" / base)
+
 let () = dispatch & function
 
   | Before_options ->
@@ -118,5 +122,14 @@ let () = dispatch & function
 
     copy_rule "tool_js_tkeygen.js" "src/tool/tool_js_tkeygen.js" "src/static/tool_js_tkeygen.js";
     copy_rule "tool_js_credgen.js" "src/tool/tool_js_credgen.js" "src/static/tool_js_credgen.js";
+
+    List.iter
+      copy_static
+      [
+        "ext/css/reset.css";
+        "ext/css/styled-elements.css";
+        "ext/css/style.css";
+        "ext/css/superfish.css";
+      ]
 
   | _ -> ()

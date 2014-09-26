@@ -174,6 +174,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   let () =
     (* previous button *)
     let btns = document##createElement (Js.string "div") in
+    btns##setAttribute (Js.string "style", Js.string "text-align: center;");
     let () =
       match prev with
       | [] ->
@@ -268,6 +269,8 @@ let addQuestions sk params qs =
   )
 
 let createStartButton params intro_div qs =
+  let div = Dom_html.createDiv document in
+  div##setAttribute (Js.string "style", Js.string "text-align:center;");
   let b = document##createElement (Js.string "button") in
   let t = document##createTextNode (Js.string "Start") in
   b##onclick <- Dom_html.handler (fun _ ->
@@ -283,7 +286,8 @@ let createStartButton params intro_div qs =
     Js._false
   );
   Dom.appendChild b t;
-  b
+  Dom.appendChild div b;
+  div
 
 let drop_trailing_newline s =
   let n = String.length s in
