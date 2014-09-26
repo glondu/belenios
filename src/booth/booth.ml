@@ -202,6 +202,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         let b = document##createElement (Js.string "button") in
         let t = document##createTextNode (Js.string "Proceed") in
         b##onclick <- Dom_html.handler (fun _ ->
+         if check_constraints () then (
           let all = (q, answers) :: prev in
           let all_answers = List.rev_map snd all |> Array.of_list in
           let all_questions = List.rev_map fst all |> Array.of_list in
@@ -229,6 +230,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
           Lwt_js_events.async (encryptBallot params sk all_answers);
           setDisplayById "plaintext_div" "block";
           Js._false
+         ) else Js._false
         );
         Dom.appendChild b t;
         Dom.appendChild btns b
