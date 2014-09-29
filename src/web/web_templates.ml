@@ -88,8 +88,10 @@ let make_login_box style auth links =
     Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
       (head (Eliom_content.Html5.F.title (pcdata title)) [
         script (pcdata "window.onbeforeunload = function () {};");
+        link ~rel:[`Stylesheet] ~href:(uri_of_string (fun () -> "/static/site.css")) ();
       ])
       (body [
+        div ~a:[a_id "wrapper"] [
         div ~a:[a_id "header"] [
           div [
             div ~a:[a_style "float: left;"] [
@@ -98,16 +100,18 @@ let make_login_box style auth links =
             login_box;
             div ~a:[a_style "clear: both;"] [];
           ];
+          h1 ~a:[a_style "text-align: center;"] [pcdata title];
         ];
-        div ~a:[a_id "content"] content;
-        hr ();
+        div ~a:[a_id "main"] content;
         div ~a:[a_id "footer"; a_style "text-align: center;" ] [
-          pcdata "Powered by ";
-          a ~service:source_code [pcdata "Belenios"] ();
-          pcdata ". ";
-          a ~service:admin [pcdata "Administer elections"] ();
-          pcdata ".";
-        ]
+          div ~a:[a_id "bottom"] [
+            pcdata "Powered by ";
+            a ~service:source_code [pcdata "Belenios"] ();
+            pcdata ". ";
+            a ~service:admin [pcdata "Administer elections"] ();
+            pcdata ".";
+          ]
+        ]]
        ]))
 
   let format_election kind election =
@@ -138,7 +142,6 @@ let make_login_box style auth links =
         ]
     in
     let content = [
-      h1 [pcdata site_title];
       div [
         pcdata welcome_message;
         featured_box;
@@ -155,7 +158,6 @@ let make_login_box style auth links =
       | _ -> ul @@ List.map (format_election `Admin) elections
     in
     let content = [
-      h1 [pcdata title];
       div [
         div [a ~service:new_election [pcdata "Create a new election"] ()];
         div [a ~service:election_setup_index [pcdata "Elections being prepared"] ()];
@@ -195,7 +197,6 @@ let make_login_box style auth links =
           ]) ()
       in
       let content = [
-        h1 [pcdata title];
         form;
       ] in
       lwt login_box = login_box () in
@@ -221,7 +222,6 @@ let make_login_box style auth links =
           ]) ()
       in
       let content = [
-        h1 [pcdata "Password login"];
         form;
       ] in
       lwt login_box = login_box () in
@@ -241,7 +241,6 @@ let make_login_box style auth links =
         ) ()
       in
       let content = [
-        h1 [pcdata title];
         div [form];
       ] in
       lwt login_box = site_login_box () in
@@ -255,7 +254,6 @@ let make_login_box style auth links =
         ) |> list_join (pcdata ", ")
       in
       let content = [
-        h1 [pcdata "Log in"];
         div [p (
           [pcdata "Please log in: ["] @ auth_systems @ [pcdata "]"]
         )]
@@ -317,7 +315,6 @@ let make_login_box style auth links =
       return [form; setup_form]
     in
     let content = [
-      h1 [pcdata title];
       div body;
     ] in
     lwt login_box = site_login_box () in
@@ -331,7 +328,6 @@ let make_login_box style auth links =
       | `Exception e -> pcdata @@ Printexc.to_string e
     in
     let content = [
-      h1 [pcdata title];
       div [
         p [pcdata "The creation failed."];
         p [reason];
@@ -354,7 +350,6 @@ let make_login_box style auth links =
       | us -> ul us
     in
     let content = [
-      h1 [pcdata title];
       div [list];
     ] in
     lwt login_box = site_login_box () in
@@ -363,7 +358,6 @@ let make_login_box style auth links =
   let generic_error_page message () =
     let title = "Error" in
     let content = [
-      h1 [pcdata title];
       p [pcdata message];
     ] in
     let login_box = pcdata "" in
@@ -435,7 +429,6 @@ let make_login_box style auth links =
         ) uuid
     in
     let content = [
-      h1 [pcdata title];
       form_trustees;
       div_credentials;
       form_group;
@@ -460,7 +453,6 @@ let make_login_box style auth links =
         uuid
     in
     let content = [
-      h1 [pcdata title];
       form;
     ] in
     lwt login_box = site_login_box () in
@@ -526,7 +518,6 @@ let make_login_box style auth links =
     in
     let div_textarea = div [group; interactivity; form_textarea; disclaimer] in
     let content = [
-      h1 [pcdata title];
       div_download;
       div_textarea;
       form_file;
@@ -573,7 +564,6 @@ let make_login_box style auth links =
         ]
     in
     let content = [
-      h1 [pcdata title];
       group;
       interactivity;
       form;
@@ -706,7 +696,6 @@ let make_login_box style auth links =
         ]
       ] in
       let content = [
-        h1 [ pcdata params.e_name ];
         p ~a:[a_style "margin: 1em; padding: 2pt; font-style: italic; border: 1pt solid;"] [
           pcdata params.e_description
         ];
@@ -753,7 +742,6 @@ let make_login_box style auth links =
       in
       let uuid = W.election.e_params.e_uuid in
       let content = [
-        h1 [pcdata title];
         div [
           a ~service:Web_services.election_home [pcdata "Election home"] (uuid, ());
         ];
@@ -944,7 +932,6 @@ let pretty_ballots w hashes () =
          (params.e_uuid, ())]
   in
   let content = [
-    h1 [pcdata title];
     ul ballots;
     links;
   ] in
