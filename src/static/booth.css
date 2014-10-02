@@ -1,26 +1,7 @@
 @import url('style.css');
 @import url('superfish.css');
+@import url('site.css');
 
-#page-title-home {
-    height:223px;
-}
-ol {
-    list-style: decimal;
-}
-ul {
-    list-style: disc;
-}
-#wrapper {
-    min-height: 0px;
-}
-#header {
-    color: #ffffff;
-    height: 80px;
-}
-#main {
-    border-radius: 0px 0px 0px 0px;
-    padding: 10px;
-}
 #footer #bottom {
     line-height: 1.5em;
 }
