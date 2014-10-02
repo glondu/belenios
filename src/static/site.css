@@ -12,10 +12,11 @@ ul {
 }
 #wrapper {
     min-height: 0px;
+    font-size: 16px;
 }
 #header {
     color: #ffffff;
-    height: 80px;
+    height: 90px;
 }
 #main {
     border-radius: 0px 0px 0px 0px;
