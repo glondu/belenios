@@ -27,5 +27,5 @@ td{padding:10px;}
 td, th{border-bottom:1px solid #1f1f1f;}
 .lists-arrow ul,
 .lists-star ul,
-.lists-arrow ul{list-style-image:url(../img/bullets/arrow.png);line-height:1.5em;}
-.lists-star ul{list-style-image:url(../img/bullets/star.png);line-height:1.5em;}
+.lists-arrow ul{line-height:1.5em;}
+.lists-star ul{line-height:1.5em;}
