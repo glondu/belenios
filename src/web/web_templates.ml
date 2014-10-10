@@ -793,7 +793,6 @@ let make_login_box style auth links =
         ) (params.e_uuid, ())
       in
       let content = [
-        h1 [ pcdata params.e_name ];
         form;
       ] in
       lwt login_box = site_login_box () in
@@ -824,7 +823,6 @@ let make_login_box style auth links =
         ) (params.e_uuid, ())
       in
       let content = [
-        h1 [ pcdata params.e_name ];
         h3 [ pcdata "Submit by copy/paste" ];
         form_rawballot;
         h3 [ pcdata "Submit by file" ];
@@ -859,7 +857,6 @@ let make_login_box style auth links =
           ]
       in
       let content = [
-        h1 [ pcdata name ];
         p [
           pcdata "Your ballot for ";
           em [pcdata name];
@@ -885,7 +882,6 @@ let make_login_box style auth links =
       let params = W.election.e_params in
       let name = params.e_name in
       let content = [
-        h1 [ pcdata name ];
         p [
           pcdata "Your ballot for ";
           em [pcdata name];
