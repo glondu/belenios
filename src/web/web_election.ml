@@ -436,9 +436,9 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           end
         | None -> fail_http 404
 
-      let ballot_received user =
+      let ballot_received user hash =
         let can_vote = can_vote W.metadata user in
-        T.cast_confirmation (module W) ~can_vote ()
+        T.cast_confirmation (module W) ~can_vote hash ()
 
       let election_cast =
         (if_eligible can_read
@@ -450,7 +450,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              in
              Eliom_reference.set Web_services.cont cont >>
              match_lwt Eliom_reference.get ballot with
-             | Some _ -> ballot_received user >>= Html5.send
+             | Some b -> ballot_received user (sha256_b64 b) >>= Html5.send
              | None -> T.cast_raw (module W) () >>= Html5.send
            )
         )

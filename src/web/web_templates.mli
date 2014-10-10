@@ -39,7 +39,7 @@ val election_home : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.H
 val election_admin : (module WEB_ELECTION_) -> is_featured:bool -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val update_credential : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_raw : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_confirmation : (module WEB_ELECTION_) -> can_vote:bool -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_confirmation : (module WEB_ELECTION_) -> can_vote:bool -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_confirmed : (module WEB_ELECTION_) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val pretty_ballots : (module WEB_ELECTION_) -> string list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 

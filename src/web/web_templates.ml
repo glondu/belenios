@@ -831,7 +831,7 @@ let make_login_box style auth links =
       lwt login_box = election_login_box w () in
       base ~title:params.e_name ~login_box ~content
 
-    let cast_confirmation w ~can_vote () =
+    let cast_confirmation w ~can_vote hash () =
       let module W = (val w : WEB_ELECTION_) in
       lwt user = W.S.get_user () in
       let params = W.election.e_params in
@@ -839,7 +839,7 @@ let make_login_box style auth links =
       let user_div = match user with
         | Some u when can_vote ->
           post_form ~service:election_cast_confirm (fun () -> [
-            div [
+            p ~a:[a_style "text-align: center; padding: 10px;"] [
               pcdata "I am ";
               format_user u;
               pcdata " and ";
@@ -868,7 +868,10 @@ let make_login_box style auth links =
         p [
           pcdata "Your ballot for ";
           em [pcdata name];
-          pcdata " has been received, but not recorded yet.";
+          pcdata " has been received, but not recorded yet. ";
+          pcdata "Your smart ballot tracker is ";
+          b [pcdata hash];
+          pcdata ".";
         ];
         user_div;
         p [
