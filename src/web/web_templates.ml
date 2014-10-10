@@ -269,7 +269,7 @@ let make_login_box style auth links =
   let make_button ~service contents =
     let uri = Eliom_uri.make_string_uri ~service () in
     Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
-      "<button onclick=\"location.href='%s';\">%s</button>"
+      "<button onclick=\"location.href='%s';\" style=\"font-size:30px;\">%s</button>"
       uri
       contents
 
@@ -662,21 +662,22 @@ let make_login_box style auth links =
         else []
       in
       let ballots_link =
-        p [
-            a ~service:election_pretty_ballots [
-                pcdata "List of accepted ballots"
+        p ~a:[a_style "text-align:center;"] [
+            a
+              ~a:[a_style "font-size:25px;"]
+              ~service:election_pretty_ballots [
+                pcdata "See accepted ballots"
               ] ((params.e_uuid, ()), 1)
           ]
       in
-      let audit_info = div [
-        h3 [pcdata "Audit Info"];
+      let footer = div ~a:[a_style "line-height:1.5em;"] [
         div [
           div [
             pcdata "Election fingerprint: ";
             code [ pcdata W.election.e_fingerprint ];
           ];
           div [
-            pcdata "Election data: ";
+            pcdata "Audit data: ";
             a ~service:(file w ESRaw) [
               pcdata "parameters"
             ] ();
@@ -697,28 +698,27 @@ let make_login_box style auth links =
         ]
       ] in
       let content = [
-        p ~a:[a_style "margin: 1em; padding: 2pt; font-style: italic; border: 1pt solid;"] [
-          pcdata params.e_description
-        ];
         p (voting_period @ state);
         p permissions;
-        div [
+        br ();
+        div ~a:[a_style "text-align:center;"] [
           div [
             make_button
               ~service:(Eliom_service.preapply election_vote (params.e_uuid, ()))
               "Go to the booth";
-            pcdata " or ";
-            make_button
+            ];
+          div [
+            pcdata "or ";
+            a
               ~service:(Eliom_service.preapply election_cast (params.e_uuid, ()))
-              "Submit a raw ballot";
+              [pcdata "submit a raw ballot"] ();
           ];
         ];
-        ballots_link;
         br ();
-        audit_info;
+        ballots_link;
       ] in
       lwt login_box = election_login_box w () in
-      base ~title:params.e_name ~login_box ~content ()
+      base ~title:params.e_name ~login_box ~content ~footer ()
 
     let election_admin w ~is_featured () =
       let module W = (val w : WEB_ELECTION_) in
@@ -858,7 +858,7 @@ let make_login_box style auth links =
           ]
       in
       let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-        pcdata "Introduction — Answer to questions — Review and encrypt";
+        pcdata "Input credential — Answer to questions — Review and encrypt";
         pcdata " — Authenticate — ";
         b [pcdata "Confirm"];
         pcdata " — Done";
@@ -894,7 +894,7 @@ let make_login_box style auth links =
       let params = W.election.e_params in
       let name = params.e_name in
       let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-        pcdata "Introduction — Answer to questions — Review and encrypt";
+        pcdata "Input credential — Answer to questions — Review and encrypt";
         pcdata " — Authenticate — Confirm — ";
         b [pcdata "Done"];
         hr ();
@@ -905,7 +905,7 @@ let make_login_box style auth links =
           pcdata "Your ballot for ";
           em [pcdata name];
           (match result with
-             | `Valid hash -> pcdata (" has been accepted, its hash is " ^ hash ^ ".")
+             | `Valid hash -> pcdata (" has been accepted, your smart ballot tracker is " ^ hash ^ ".")
              | `Error e -> pcdata (" is rejected, because " ^ Web_common.explain_error e ^ ".")
           );
         ];
@@ -947,6 +947,7 @@ let pretty_ballots w hashes () =
          (params.e_uuid, ())]
   in
   let content = [
+    p [pcdata "This is the list of ballots accepted so far."];
     ul ballots;
     links;
   ] in

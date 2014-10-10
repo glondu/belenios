@@ -5,3 +5,7 @@
 #footer #bottom {
     line-height: 1.5em;
 }
+
+#ballot_tracker {
+    font-weight: bold;
+}
