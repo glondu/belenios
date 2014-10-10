@@ -117,6 +117,12 @@ let encryptBallot params cred plaintext () =
   Dom_html.window##onbeforeunload <- Dom_html.no_handler;
   Lwt.return ()
 
+let progress_step n =
+  let old_ = Printf.sprintf "progress%d" (n-1) in
+  let new_ = Printf.sprintf "progress%d" n in
+  withElementById old_ (fun e -> e##setAttribute (Js.string "style", Js.string ""));
+  withElementById new_ (fun e -> e##setAttribute (Js.string "style", Js.string "font-weight: bold;"))
+
 let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
   (* Create div element for the current question. [i] and [(q,
      answers)] point to the current question. [List.rev prev @ [q,
@@ -230,6 +236,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
           );
           Lwt_js_events.async (encryptBallot params sk all_answers);
           setDisplayById "plaintext_div" "block";
+          progress_step 3;
           Js._false
          ) else Js._false
         );
@@ -280,6 +287,7 @@ let createStartButton params intro_div qs =
       Dom_html.window##onbeforeunload <- Dom_html.handler (fun _ ->
         Js._false
       );
+      progress_step 2;
       addQuestions cred params qs
     | None -> ()
     );

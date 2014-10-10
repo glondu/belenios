@@ -856,7 +856,15 @@ let make_login_box style auth links =
             pcdata "Please log in to confirm your vote.";
           ]
       in
+      let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
+        pcdata "Introduction — Answer to questions — Review and encrypt";
+        pcdata " — Authenticate — ";
+        b [pcdata "Confirm"];
+        pcdata " — Done";
+        hr ();
+      ] in
       let content = [
+        progress;
         p [
           pcdata "Your ballot for ";
           em [pcdata name];
@@ -881,7 +889,14 @@ let make_login_box style auth links =
       let module W = (val w : WEB_ELECTION_) in
       let params = W.election.e_params in
       let name = params.e_name in
+      let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
+        pcdata "Introduction — Answer to questions — Review and encrypt";
+        pcdata " — Authenticate — Confirm — ";
+        b [pcdata "Done"];
+        hr ();
+      ] in
       let content = [
+        progress;
         p [
           pcdata "Your ballot for ";
           em [pcdata name];
