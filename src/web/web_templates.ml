@@ -84,7 +84,7 @@ let make_login_box style auth links =
     let links = (module L : AUTH_LINKS) in
     fun () -> make_login_box admin_background auth links
 
-  let base ~title ~login_box ~content =
+  let base ~title ~login_box ~content ?(footer = div []) () =
     Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
       (head (Eliom_content.Html5.F.title (pcdata title)) [
         script (pcdata "window.onbeforeunload = function () {};");
@@ -105,6 +105,7 @@ let make_login_box style auth links =
         div ~a:[a_id "main"] content;
         div ~a:[a_id "footer"; a_style "text-align: center;" ] [
           div ~a:[a_id "bottom"] [
+            footer;
             pcdata "Powered by ";
             a ~service:source_code [pcdata "Belenios"] ();
             pcdata ". ";
@@ -148,7 +149,7 @@ let make_login_box style auth links =
       ];
     ] in
     let login_box = pcdata "" in
-    base ~title:site_title ~login_box ~content
+    base ~title:site_title ~login_box ~content ()
 
   let admin ~elections () =
     let title = site_title ^ " — Administration" in
@@ -166,7 +167,7 @@ let make_login_box style auth links =
       ];
     ] in
     lwt login_box = site_login_box () in
-    base ~title ~login_box ~content
+    base ~title ~login_box ~content ()
 
   module Login (S : AUTH_SERVICES) (L : AUTH_LINKS) : LOGIN_TEMPLATES = struct
 
@@ -200,7 +201,7 @@ let make_login_box style auth links =
         form;
       ] in
       lwt login_box = login_box () in
-      base ~title ~login_box ~content
+      base ~title ~login_box ~content ()
 
     let password ~service () =
       let form = post_form ~service
@@ -225,7 +226,7 @@ let make_login_box style auth links =
         form;
       ] in
       lwt login_box = login_box () in
-      base ~title:"Password login" ~login_box ~content
+      base ~title:"Password login" ~login_box ~content ()
 
     let upload_password_db ~service () =
       let title = "Upload password database" in
@@ -244,7 +245,7 @@ let make_login_box style auth links =
         div [form];
       ] in
       lwt login_box = site_login_box () in
-      base ~title ~login_box ~content
+      base ~title ~login_box ~content ()
 
     let choose () =
       let auth_systems =
@@ -259,7 +260,7 @@ let make_login_box style auth links =
         )]
       ] in
       lwt login_box = login_box () in
-      base ~title:"Log in" ~login_box ~content
+      base ~title:"Log in" ~login_box ~content ()
 
   end
 
@@ -318,7 +319,7 @@ let make_login_box style auth links =
       div body;
     ] in
     lwt login_box = site_login_box () in
-    base ~title ~login_box ~content
+    base ~title ~login_box ~content ()
 
   let new_election_failure reason () =
     let title = "Create new election" in
@@ -334,7 +335,7 @@ let make_login_box style auth links =
       ]
     ] in
     lwt login_box = site_login_box () in
-    base ~title ~login_box ~content
+    base ~title ~login_box ~content ()
 
   let election_setup_index uuids () =
     let service = election_setup in
@@ -353,7 +354,7 @@ let make_login_box style auth links =
       div [list];
     ] in
     lwt login_box = site_login_box () in
-    base ~title ~login_box ~content
+    base ~title ~login_box ~content ()
 
   let generic_error_page message () =
     let title = "Error" in
@@ -361,7 +362,7 @@ let make_login_box style auth links =
       p [pcdata message];
     ] in
     let login_box = pcdata "" in
-    base ~title ~login_box ~content
+    base ~title ~login_box ~content ()
 
   let election_setup uuid se () =
     let title = "Preparation of election " ^ Uuidm.to_string uuid in
@@ -437,7 +438,7 @@ let make_login_box style auth links =
       form_create;
     ] in
     lwt login_box = site_login_box () in
-    base ~title ~login_box ~content
+    base ~title ~login_box ~content ()
 
   let election_setup_questions uuid se () =
     let title = "Questions for election " ^ Uuidm.to_string uuid in
@@ -456,7 +457,7 @@ let make_login_box style auth links =
       form;
     ] in
     lwt login_box = site_login_box () in
-    base ~title ~login_box ~content
+    base ~title ~login_box ~content ()
 
   let election_setup_credentials token uuid se () =
     let title = "Credentials for election " ^ uuid in
@@ -523,7 +524,7 @@ let make_login_box style auth links =
       form_file;
     ] in
     let login_box = pcdata "" in
-    base ~title ~login_box ~content
+    base ~title ~login_box ~content ()
 
   let election_setup_trustee token uuid se () =
     let title = "Trustee for election " ^ uuid in
@@ -569,7 +570,7 @@ let make_login_box style auth links =
       form;
     ] in
     let login_box = pcdata "" in
-    base ~title ~login_box ~content
+    base ~title ~login_box ~content ()
 
 
     let election_login_box w =
@@ -717,7 +718,7 @@ let make_login_box style auth links =
         audit_info;
       ] in
       lwt login_box = election_login_box w () in
-      base ~title:params.e_name ~login_box ~content
+      base ~title:params.e_name ~login_box ~content ()
 
     let election_admin w ~is_featured () =
       let module W = (val w : WEB_ELECTION_) in
@@ -755,7 +756,7 @@ let make_login_box style auth links =
         div [state_form];
       ] in
       lwt login_box = site_login_box () in
-      base ~title ~login_box ~content
+      base ~title ~login_box ~content ()
 
     let update_credential w () =
       let module W = (val w : WEB_ELECTION_) in
@@ -796,7 +797,7 @@ let make_login_box style auth links =
         form;
       ] in
       lwt login_box = site_login_box () in
-      base ~title:params.e_name ~login_box ~content
+      base ~title:params.e_name ~login_box ~content ()
 
     let cast_raw w () =
       let module W = (val w : WEB_ELECTION_) in
@@ -829,7 +830,7 @@ let make_login_box style auth links =
         form_upload;
       ] in
       lwt login_box = election_login_box w () in
-      base ~title:params.e_name ~login_box ~content
+      base ~title:params.e_name ~login_box ~content ()
 
     let cast_confirmation w ~can_vote hash () =
       let module W = (val w : WEB_ELECTION_) in
@@ -886,7 +887,7 @@ let make_login_box style auth links =
         ];
       ] in
       lwt login_box = election_login_box w () in
-      base ~title:name ~login_box ~content
+      base ~title:name ~login_box ~content ()
 
     let cast_confirmed w ~result () =
       let module W = (val w : WEB_ELECTION_) in
@@ -920,7 +921,7 @@ let make_login_box style auth links =
         ];
       ] in
       lwt login_box = election_login_box w () in
-      base ~title:name ~login_box ~content
+      base ~title:name ~login_box ~content ()
 
 let pretty_ballots w hashes () =
   let module W = (val w : WEB_ELECTION_) in
@@ -950,4 +951,4 @@ let pretty_ballots w hashes () =
     links;
   ] in
   lwt login_box = election_login_box w () in
-  base ~title ~login_box ~content
+  base ~title ~login_box ~content ()
