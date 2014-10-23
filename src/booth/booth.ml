@@ -223,14 +223,20 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
               Dom.appendChild h t;
               Dom.appendChild e h;
               let ul = document##createElement (Js.string "ul") in
+              let checked = ref 0 in
               Array.iteri (fun i a ->
                 if a > 0 then (
+                  incr checked;
                   let li = document##createElement (Js.string "li") in
                   let t = document##createTextNode (Js.string q.q_answers.(i)) in
                   Dom.appendChild li t;
                   Dom.appendChild ul li;
                 )
               ) a;
+              if !checked = 0 then (
+                let t = document##createTextNode (Js.string "(nothing)") in
+                Dom.appendChild ul t
+              );
               Dom.appendChild e ul;
             ) all_answers
           );
