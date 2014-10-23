@@ -276,10 +276,9 @@ let addQuestions sk params qs =
   )
 
 let createStartButton params intro_div qs =
-  let div = Dom_html.createDiv document in
-  div##setAttribute (Js.string "style", Js.string "text-align:center;");
   let b = document##createElement (Js.string "button") in
-  let t = document##createTextNode (Js.string "Start") in
+  b##setAttribute (Js.string "style", Js.string "font-size:20px;");
+  let t = document##createTextNode (Js.string "here") in
   b##onclick <- Dom_html.handler (fun _ ->
     (match prompt "Please enter your credential:" with
     | Some cred ->
@@ -294,8 +293,7 @@ let createStartButton params intro_div qs =
     Js._false
   );
   Dom.appendChild b t;
-  Dom.appendChild div b;
-  div
+  b
 
 let drop_trailing_newline s =
   let n = String.length s in
@@ -313,7 +311,7 @@ let loadElection () =
   setNodeById "election_fingerprint" P.fingerprint;
   withElementById "intro" (fun e ->
     let b = createStartButton election_params e P.params.e_questions in
-    Dom.appendChild e b
+    withElementById "input_code" (fun e -> Dom.appendChild e b)
   )
 
 let split str prefix =
