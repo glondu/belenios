@@ -873,6 +873,8 @@ let make_login_box style auth links =
           pcdata "Your smart ballot tracker is ";
           b [pcdata hash];
           pcdata ".";
+          br ();
+          br ();
         ];
         user_div;
         p [
