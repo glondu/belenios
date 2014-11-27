@@ -281,19 +281,41 @@ let addQuestions sk params qs =
       Dom.appendChild e div
   )
 
+(* Beware: the following must be changed in accordance with tool_credgen.ml! *)
+let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+let token_length = 14
+let n58 = Z.of_int 58
+let n53 = Z.of_int 53
+
+let checkCredential x =
+  String.length x = token_length + 1 &&
+  let rec loop i accu =
+    if i < token_length then (
+      let digit = String.index digits x.[i] in
+      loop (i+1) Z.(n58 * accu + of_int digit)
+    ) else accu
+  in
+  try
+    let n = loop 0 Z.zero in
+    let checksum = String.index digits x.[token_length] in
+    Z.((n + of_int checksum) mod n53 =% zero)
+  with Not_found -> false
+
 let createStartButton params intro_div qs =
   let b = document##createElement (Js.string "button") in
   b##setAttribute (Js.string "style", Js.string "font-size:20px;");
   let t = document##createTextNode (Js.string "here") in
   b##onclick <- Dom_html.handler (fun _ ->
     (match prompt "Please enter your credential:" with
-    | Some cred ->
+    | Some cred when checkCredential cred ->
       intro_div##style##display <- Js.string "none";
       Dom_html.window##onbeforeunload <- Dom_html.handler (fun _ ->
         Js._false
       );
       progress_step 2;
       addQuestions cred params qs
+    | Some _ ->
+       alert "Invalid credential!"
     | None -> ()
     );
     Js._false
