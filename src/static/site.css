@@ -28,3 +28,6 @@ ul {
 #header a {
     color: #ffffff;
 }
+button {
+    cursor: pointer;
+}

@@ -156,6 +156,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
       in
       if answers.(i) > 0 then cb##checked <- Js.bool true;
       checkbox##setAttribute (Js.string "type", Js.string "checkbox");
+      checkbox##setAttribute (Js.string "style", Js.string "cursor: pointer;");
       Dom.appendChild div checkbox;
       let t = document##createTextNode (Js.string a) in
       checkbox##onclick <- Dom_html.handler (fun _ ->
@@ -207,6 +208,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
       | [] ->
         (* last question, create a "Proceed" button instead of "Next" *)
         let b = document##createElement (Js.string "button") in
+        b##setAttribute (Js.string "style", Js.string "font-size: 30px;");
         let t = document##createTextNode (Js.string "Proceed") in
         b##onclick <- Dom_html.handler (fun _ ->
          if check_constraints () then (

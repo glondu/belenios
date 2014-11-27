@@ -269,7 +269,7 @@ let make_login_box style auth links =
   let make_button ~service contents =
     let uri = Eliom_uri.make_string_uri ~service () in
     Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
-      "<button onclick=\"location.href='%s';\" style=\"font-size:30px;\">%s</button>"
+      "<button onclick=\"location.href='%s';\" style=\"font-size:35px;\">%s</button>"
       uri
       contents
 
@@ -844,7 +844,9 @@ let make_login_box style auth links =
               pcdata "I am ";
               format_user u;
               pcdata " and ";
-              string_input ~input_type:`Submit ~value:"I confirm my vote" ();
+              string_input
+                ~a:[a_style "font-size: 20px; cursor: pointer;"]
+                ~input_type:`Submit ~value:"I cast my vote" ();
               pcdata ".";
             ]
           ]) (params.e_uuid, ())
@@ -874,8 +876,9 @@ let make_login_box style auth links =
           b [pcdata hash];
           pcdata ".";
           br ();
-          br ();
         ];
+        br ();
+        p [pcdata "Note: your ballot is encrypted and nobody can see its contents."];
         user_div;
         p [
           (let service =
@@ -901,23 +904,34 @@ let make_login_box style auth links =
         b [pcdata "Done"];
         hr ();
       ] in
+      let result =
+        match result with
+        | `Valid hash ->
+           [pcdata " has been accepted, your smart ballot tracker is ";
+            b [pcdata hash];
+            pcdata ". We invite you to save it and check its presence in the ";
+            a ~service:election_pretty_ballots [pcdata "ballot box"] ((params.e_uuid, ()), 1);
+            pcdata ".";
+           ]
+        | `Error e ->
+           [pcdata " is rejected, because ";
+            pcdata (Web_common.explain_error e);
+            pcdata ".";
+           ]
+      in
       let content = [
         progress;
-        p [
+        p ([
           pcdata "Your ballot for ";
           em [pcdata name];
-          (match result with
-             | `Valid hash -> pcdata (" has been accepted, your smart ballot tracker is " ^ hash ^ ".")
-             | `Error e -> pcdata (" is rejected, because " ^ Web_common.explain_error e ^ ".")
-          );
-        ];
+          ] @ result);
         p [
           (let service =
             Eliom_service.preapply
               election_logout (params.e_uuid, ())
           in
           a ~service [
-            pcdata "Log out"
+            pcdata "Log out and come back to election page"
           ] ());
           pcdata ".";
         ];
