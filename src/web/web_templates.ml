@@ -366,8 +366,8 @@ let make_login_box style auth links =
 
   let election_setup uuid se () =
     let title = "Preparation of election " ^ Uuidm.to_string uuid in
-    let make_form service value title =
-      post_form ~service
+    let make_form ?a service value title =
+      post_form ?a ~service
         (fun name ->
          [
            div [
@@ -380,6 +380,7 @@ let make_login_box style auth links =
     in
     let form_group =
       make_form
+        ~a:[a_style "display: none;"]
         (Eliom_service.preapply election_setup_group uuid)
         se.se_group "Group parameters"
     in
