@@ -453,7 +453,19 @@ let make_login_box style auth links =
            div [string_input ~input_type:`Submit ~value:"Submit" ()]])
         uuid
     in
+    let interactivity =
+      div
+        ~a:[a_id "interactivity"]
+        [
+          script ~a:[a_src (uri_of_string (fun () -> "../static/sjcl.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn2.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/random.js"))] (pcdata "");
+          script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_questions.js"))] (pcdata "");
+        ]
+    in
     let content = [
+      interactivity;
       form;
     ] in
     lwt login_box = site_login_box () in
