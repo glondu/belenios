@@ -27,13 +27,10 @@ type config = unit
 
 let name = "dummy"
 
-let parse_config ~instance ~attributes =
+let parse_config ~attributes =
   match attributes with
-  | [] -> ()
-  | _ ->
-    Printf.ksprintf failwith
-      "invalid configuration for instance %s of auth/%s"
-      instance name
+  | [] -> Some ()
+  | _ -> None
 
 module Make (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = struct
 

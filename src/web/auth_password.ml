@@ -29,13 +29,10 @@ type config = { db : string }
 
 let name = "password"
 
-let parse_config ~instance ~attributes =
+let parse_config ~attributes =
   match attributes with
-  | ["db", db] -> {db}
-  | _ ->
-    Printf.ksprintf failwith
-      "invalid configuration for instance %s of auth/%s"
-      instance name
+  | ["db", db] -> Some {db}
+  | _ -> None
 
 module type CONFIG = sig
   val db : string

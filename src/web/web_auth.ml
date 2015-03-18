@@ -75,7 +75,15 @@ module Make (N : NAME) = struct
        ) else (
          let auth_system = Hashtbl.find auth_systems name in
          let module X = (val auth_system : AUTH_SYSTEM) in
-         let config = X.parse_config ~instance ~attributes in
+         let config =
+           match X.parse_config ~attributes with
+           | Some x -> x
+           | None ->
+              Printf.ksprintf
+                failwith
+                "invalid configuration for instance %s of auth/%s"
+                instance X.name
+         in
          let auth = X.make config in
          let module N = struct
            let name = instance

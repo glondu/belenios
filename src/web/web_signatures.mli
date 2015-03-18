@@ -204,9 +204,8 @@ module type AUTH_SYSTEM = sig
   val name : string
 
   val parse_config :
-    instance:string ->
     attributes:(string * string) list ->
-    config
+    config option
 
   val make : config -> (module AUTH_SERVICE)
 end

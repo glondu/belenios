@@ -135,13 +135,10 @@ end
 
 let name = "cas"
 
-let parse_config ~instance ~attributes =
+let parse_config ~attributes =
   match attributes with
-  | ["server", server] -> {server}
-  | _ ->
-    Printf.ksprintf failwith
-      "invalid configuration for instance %s of auth/%s"
-      instance name
+  | ["server", server] -> Some {server}
+  | _ -> None
 
 let make {server} =
   let module C = struct let server = server end in
