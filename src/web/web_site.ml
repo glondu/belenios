@@ -74,20 +74,7 @@ let election_credtokens = Ocsipersist.open_table "site_credtokens"
 (* In-memory table, indexed by UUID, contains closures. *)
 let election_table = ref SMap.empty
 
-(* The following reference is there to cut a dependency loop:
-   S.register_election depends on S (via Templates). It will be set
-   to a proper value once we have called Templates.Make. *)
-
-let import_election_ref = ref (fun _ -> assert false)
-
-(* Forward reference *)
-let install_authentication_ref = ref (fun _ -> assert false)
-
 include Web_site_auth
-
-let import_election f = !import_election_ref f
-
-let install_authentication xs = !install_authentication_ref xs
 
 module T = Web_templates
 
@@ -120,7 +107,7 @@ let register_election params web_params =
 (* Mutex to avoid simultaneous registrations of the same election *)
 let registration_mutex = Lwt_mutex.create ()
 
-let () = import_election_ref := fun f ->
+let import_election f =
   Lwt_mutex.lock registration_mutex >>
   try_lwt
     lwt raw_election =
@@ -244,7 +231,7 @@ module L = struct
   let logout = Eliom_service.preapply site_logout ()
 end
 
-let () = install_authentication_ref := fun auth_configs ->
+let install_authentication auth_configs =
   let module T = T.Login (Web_site_auth) (L) in
   let templates = (module T : LOGIN_TEMPLATES) in
   Web_site_auth.register templates auth_configs
