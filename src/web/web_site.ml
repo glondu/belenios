@@ -32,10 +32,6 @@ open Web_services
 let source_file = ref "belenios.tar.gz"
 let spool_dir = ref "."
 
-let rec list_remove x = function
-  | [] -> []
-  | y :: ys -> if x = y then ys else y :: (list_remove x ys)
-
 let get_single_line x =
   match_lwt Lwt_stream.get x with
   | None -> return None
@@ -63,8 +59,6 @@ open Eliom_registration
 
 module LwtRandom = MakeLwtRandom (struct let rng = make_rng () end)
 
-let store = Ocsipersist.open_store "site"
-
 (* Persistent table, used to initialize the server. *)
 let election_ptable = Ocsipersist.open_table "site_elections"
 
@@ -80,12 +74,6 @@ let election_credtokens = Ocsipersist.open_table "site_credtokens"
 (* In-memory table, indexed by UUID, contains closures. *)
 let election_table = ref SMap.empty
 
-lwt main_election =
-  Ocsipersist.make_persistent store "main_election" None
-
-lwt featured =
-  Ocsipersist.make_persistent store "featured_elections" []
-
 (* The following reference is there to cut a dependency loop:
    S.register_election depends on S (via Templates). It will be set
    to a proper value once we have called Templates.Make. *)
@@ -98,34 +86,6 @@ let install_authentication_ref = ref (fun _ -> assert false)
 include Web_site_auth
 
 let import_election f = !import_election_ref f
-
-let add_featured_election x =
-  lwt the_featured = Ocsipersist.get featured in
-  if List.mem x the_featured then (
-    return ()
-  ) else if SMap.mem x !election_table then (
-    Ocsipersist.set featured (x :: the_featured)
-  ) else (
-    Lwt.fail Not_found
-  )
-
-let remove_featured_election x =
-  lwt the_featured = Ocsipersist.get featured in
-  Ocsipersist.set featured (list_remove x the_featured)
-
-let is_featured_election x =
-  lwt the_featured = Ocsipersist.get featured in
-  return (List.mem x the_featured)
-
-let set_main_election x =
-  if SMap.mem x !election_table then (
-    Ocsipersist.set main_election (Some x)
-  ) else (
-    Lwt.fail Not_found
-  )
-
-let unset_main_election () =
-  Ocsipersist.set main_election None
 
 let install_authentication xs = !install_authentication_ref xs
 
@@ -292,10 +252,10 @@ let () = install_authentication_ref := fun auth_configs ->
 let () = Any.register ~service:home
   (fun () () ->
     Eliom_reference.unset cont >>
-    match_lwt Ocsipersist.get main_election with
+    match_lwt Web_persist.get_main_election () with
     | None ->
       lwt featured =
-        Ocsipersist.get featured >>=
+        Web_persist.get_featured_elections () >>=
         Lwt_list.map_p (fun x -> return @@ SMap.find x !election_table)
       in
       T.home ~featured () >>= Html5.send
@@ -744,8 +704,8 @@ let () =
     (fun (uuid, ()) featured ->
      let uuid_s = Uuidm.to_string uuid in
      lwt () =
-       if featured then add_featured_election uuid_s
-       else remove_featured_election uuid_s
+       if featured then Web_persist.add_featured_election uuid_s
+       else Web_persist.remove_featured_election uuid_s
      in
      Redirection.send
        (preapply election_admin (uuid, ())))
@@ -758,7 +718,7 @@ let () =
      let w = SMap.find uuid_s !election_table in
      let module W = (val w : WEB_ELECTION) in
      lwt user = get_user () in
-     lwt is_featured = is_featured_election uuid_s in
+     lwt is_featured = Web_persist.is_featured_election uuid_s in
      W.Z.admin user is_featured () ())
 
 let () =

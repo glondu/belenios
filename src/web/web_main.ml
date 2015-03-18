@@ -136,12 +136,12 @@ lwt () =
         let module W = (val w : WEB_ELECTION) in
         if featured then (
           let uuid = Uuidm.to_string W.election.e_params.e_uuid in
-          Web_site.add_featured_election uuid
+          Web_persist.add_featured_election uuid
         ) else return ()
     )
   ) !import_dirs
 
 lwt () =
   match !main_election_uuid with
-  | Some uuid -> Web_site.set_main_election uuid
+  | Some uuid -> Web_persist.set_main_election uuid
   | _ -> return ()
