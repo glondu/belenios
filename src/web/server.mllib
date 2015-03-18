@@ -16,6 +16,7 @@ Auth_password
 Auth_cas
 Web_site_auth
 Web_templates
+Web_persist
 Web_election
 Web_site
 Web_main

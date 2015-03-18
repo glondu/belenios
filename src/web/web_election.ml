@@ -127,13 +127,14 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
             Ocsipersist.add cred_table cred None
 
         let do_cast rawballot (user, date) =
+          lwt state = Web_persist.get_election_state uuid in
           let voting_open =
             let compare a b =
               match a, b with
               | Some a, Some b -> datetime_compare a b
               | _, _ -> -1
             in
-            !state = `Open &&
+            state = `Open &&
             compare metadata.e_voting_starts_at (Some date) <= 0 &&
             compare (Some date) metadata.e_voting_ends_at < 0
           in
@@ -322,7 +323,9 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              | Some result ->
                Eliom_reference.unset cast_confirmed >>
                T.cast_confirmed (module W) ~result () >>= Html5.send
-             | None -> T.election_home (module W) () >>= Html5.send
+             | None ->
+               lwt state = Web_persist.get_election_state uuid in
+               T.election_home (module W) state () >>= Html5.send
            )
         )
 
@@ -330,7 +333,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         (fun () () ->
           match site_user with
           | Some u when W.metadata.e_owner = Some u ->
-            T.election_admin (module W) ~is_featured () >>= Html5.send
+            lwt state = Web_persist.get_election_state uuid in
+            T.election_admin (module W) ~is_featured state () >>= Html5.send
           | _ -> forbidden ()
         )
 

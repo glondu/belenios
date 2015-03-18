@@ -35,8 +35,8 @@ val election_setup_questions : Uuidm.t -> Web_common.setup_election -> unit -> [
 val election_setup_credentials : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val election_home : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_admin : (module WEB_ELECTION_) -> is_featured:bool -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_home : (module WEB_ELECTION_) -> [ `Open | `Closed ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_admin : (module WEB_ELECTION_) -> is_featured:bool -> [ `Open | `Closed ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val update_credential : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_raw : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_confirmation : (module WEB_ELECTION_) -> can_vote:bool -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

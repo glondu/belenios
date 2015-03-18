@@ -613,7 +613,7 @@ let make_login_box style auth links =
         election_dir
         (W.election.e_params.e_uuid, x)
 
-    let election_home w () =
+    let election_home w state () =
       let module W = (val w : WEB_ELECTION_) in
       lwt user = W.S.get_user () in
       let params = W.election.e_params and m = W.metadata in
@@ -672,7 +672,7 @@ let make_login_box style auth links =
           ]
       in
       let state =
-        if !W.state = `Closed then
+        if state = `Closed then
           [
             pcdata " ";
             b [pcdata "This election is currently closed."];
@@ -738,7 +738,7 @@ let make_login_box style auth links =
       lwt login_box = election_login_box w () in
       base ~title:params.e_name ~login_box ~content ~footer ()
 
-    let election_admin w ~is_featured () =
+    let election_admin w ~is_featured state () =
       let module W = (val w : WEB_ELECTION_) in
       let title = W.election.e_params.e_name ^ " — Administration" in
       let feature_form = post_form ~service:election_set_featured
@@ -749,7 +749,7 @@ let make_login_box style auth links =
         ]) (W.election.e_params.e_uuid, ())
       in
       let state_form =
-        let checked = !W.state = `Open in
+        let checked = state = `Open in
         post_form
           ~service:election_set_state
           (fun name ->

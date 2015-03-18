@@ -770,7 +770,8 @@ let () =
      let module W = (val w : WEB_ELECTION) in
      match_lwt get_user () with
      | Some u when W.metadata.e_owner = Some u ->
-        W.state := if state then `Open else `Closed;
+        let state = if state then `Open else `Closed in
+        Web_persist.set_election_state uuid_s state >>
         Redirection.send (preapply election_admin (uuid, ()))
      | _ -> forbidden ())
 
