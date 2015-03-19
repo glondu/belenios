@@ -74,8 +74,6 @@ let election_credtokens = Ocsipersist.open_table "site_credtokens"
 (* In-memory table, indexed by UUID, contains closures. *)
 let election_table = ref SMap.empty
 
-include Web_site_auth
-
 module T = Web_templates
 
 let register_election params web_params =
@@ -257,7 +255,7 @@ let () = Html5.register ~service:admin
     let cont () () = Redirection.send admin in
     Eliom_reference.set Web_services.cont cont >>
     lwt elections =
-      match_lwt get_user () with
+      match_lwt Web_site_auth.get_user () with
       | None -> return []
       | Some u ->
         SMap.fold (fun _ w accu ->
@@ -299,14 +297,14 @@ let () = String.register
 
 let () = Html5.register ~service:new_election
   (fun () () ->
-    match_lwt get_user () with
+    match_lwt Web_site_auth.get_user () with
     | None -> forbidden ()
     | Some _ -> T.new_election ()
   )
 
 let () = Any.register ~service:new_election_post
   (fun () (election, (metadata, (public_keys, public_creds))) ->
-    match_lwt get_user () with
+    match_lwt Web_site_auth.get_user () with
     | Some u ->
       let open Ocsigen_extensions in
       let files = {
@@ -336,7 +334,7 @@ let generate_uuid = Uuidm.v4_gen (Random.State.make_self_init ())
 
 let () = Html5.register ~service:election_setup_index
   (fun () () ->
-   match_lwt get_user () with
+   match_lwt Web_site_auth.get_user () with
    | Some u ->
       lwt uuids =
         Ocsipersist.fold_step (fun k v accu ->
@@ -350,7 +348,7 @@ let () = Html5.register ~service:election_setup_index
 
 let () = Redirection.register ~service:election_setup_new
   (fun () () ->
-   match_lwt get_user () with
+   match_lwt Web_site_auth.get_user () with
    | Some u ->
       let uuid = generate_uuid () in
       let uuid_s = Uuidm.to_string uuid in
@@ -391,7 +389,7 @@ let () = Redirection.register ~service:election_setup_new
 
 let () = Html5.register ~service:election_setup
   (fun uuid () ->
-   match_lwt get_user () with
+   match_lwt Web_site_auth.get_user () with
    | Some u ->
       let uuid_s = Uuidm.to_string uuid in
       lwt se = Ocsipersist.find election_stable uuid_s in
@@ -404,7 +402,7 @@ let () = Html5.register ~service:election_setup
 let election_setup_mutex = Lwt_mutex.create ()
 
 let handle_setup f cont uuid x =
-  match_lwt get_user () with
+  match_lwt Web_site_auth.get_user () with
   | Some u ->
      let uuid_s = Uuidm.to_string uuid in
      Lwt_mutex.with_lock election_setup_mutex (fun () ->
@@ -442,7 +440,7 @@ let () =
   Html5.register
     ~service:election_setup_questions
     (fun uuid () ->
-     match_lwt get_user () with
+     match_lwt Web_site_auth.get_user () with
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
         lwt se = Ocsipersist.find election_stable uuid_s in
@@ -463,7 +461,7 @@ let () =
   Redirection.register
     ~service:election_setup_trustee_add
     (fun uuid () ->
-     match_lwt get_user () with
+     match_lwt Web_site_auth.get_user () with
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
         Lwt_mutex.with_lock election_setup_mutex (fun () ->
@@ -580,7 +578,7 @@ let () =
   Any.register
     ~service:election_setup_create
     (fun uuid () ->
-     match_lwt get_user () with
+     match_lwt Web_site_auth.get_user () with
      | None -> forbidden ()
      | Some u ->
         begin try_lwt
@@ -704,7 +702,7 @@ let () =
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
      let module W = (val w : WEB_ELECTION) in
-     lwt user = get_user () in
+     lwt user = Web_site_auth.get_user () in
      lwt is_featured = Web_persist.is_featured_election uuid_s in
      W.Z.admin user is_featured () ())
 
@@ -715,7 +713,7 @@ let () =
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
      let module W = (val w : WEB_ELECTION) in
-     match_lwt get_user () with
+     match_lwt Web_site_auth.get_user () with
      | Some u when W.metadata.e_owner = Some u ->
         let state = if state then `Open else `Closed in
         Web_persist.set_election_state uuid_s state >>
@@ -747,7 +745,7 @@ let () =
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
      let module W = (val w : WEB_ELECTION) in
-     lwt user = get_user () in
+     lwt user = Web_site_auth.get_user () in
      W.Z.election_update_credential user () ())
 
 let () =
@@ -757,7 +755,7 @@ let () =
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
      let module W = (val w : WEB_ELECTION) in
-     lwt user = get_user () in
+     lwt user = Web_site_auth.get_user () in
      W.Z.election_update_credential_post user () x)
 
 let () =
@@ -821,5 +819,5 @@ let () =
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
      let module W = (val w : WEB_ELECTION) in
-     lwt user = get_user () in
+     lwt user = Web_site_auth.get_user () in
      W.Z.election_dir user f x)
