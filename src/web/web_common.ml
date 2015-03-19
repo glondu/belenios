@@ -242,3 +242,6 @@ let generate_token () =
       loop (i+1)
     ) else return res
   in loop 0
+
+let string_of_user {user_domain; user_name} =
+  user_domain ^ ":" ^ user_name

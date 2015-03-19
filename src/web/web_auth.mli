@@ -24,8 +24,6 @@ open Signatures
 open Web_serializable_t
 open Web_signatures
 
-val string_of_user : user -> string
-
 val register_auth_system : (module AUTH_SYSTEM) -> unit
 
 module Make (C : NAME) : sig

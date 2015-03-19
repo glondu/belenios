@@ -27,9 +27,6 @@ open Web_serializable_t
 open Web_signatures
 open Web_common
 
-let string_of_user {user_domain; user_name} =
-  user_domain ^ ":" ^ user_name
-
 let auth_systems = Hashtbl.create 10
 
 let register_auth_system auth_system =

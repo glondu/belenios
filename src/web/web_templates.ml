@@ -36,7 +36,7 @@ let welcome_message = "Welcome!"
 let admin_background = " background: #FF9999;"
 
 let format_user u =
-  em [pcdata (Web_auth.(string_of_user u))]
+  em [pcdata (string_of_user u)]
 
 let make_login_box style auth links =
   let style = "float: right; text-align: right;" ^ style in

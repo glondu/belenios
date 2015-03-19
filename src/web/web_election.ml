@@ -423,7 +423,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
             | Some u ->
               let b = check_acl W.metadata.e_voters u in
               if b then (
-                let record = Web_auth.string_of_user u, now () in
+                let record = string_of_user u, now () in
                 lwt result =
                   try_lwt
                     lwt hash = W.B.cast the_ballot record in

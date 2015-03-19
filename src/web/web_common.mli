@@ -104,3 +104,5 @@ type setup_election = {
 }
 
 val generate_token : unit -> string Lwt.t
+
+val string_of_user : user -> string
