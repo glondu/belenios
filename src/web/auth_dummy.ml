@@ -32,7 +32,7 @@ let parse_config ~attributes =
   | [] -> Some ()
   | _ -> None
 
-module Make (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = struct
+module Make (N : NAME) (S : AUTH_SERVICES) (L : AUTH_LINKS) : AUTH_HANDLERS = struct
 
   let scope = Eliom_common.default_session_scope
 
@@ -60,7 +60,7 @@ module Make (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = struct
             cont user_name ()
           | None -> fail_http 400
         )
-      in T.dummy ~service ()
+      in Web_templates.dummy ~service (module S : AUTH_SERVICES) (module L : AUTH_LINKS) ()
     )
 
   let login cont () =

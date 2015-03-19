@@ -283,9 +283,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
       end
 
       let () =
-        let module T = Web_templates.Login (W.S) (L) in
-        let templates = (module T : LOGIN_TEMPLATES) in
-        Auth.register templates N.auth_config
+        Auth.register (module W.S : AUTH_SERVICES) (module L : AUTH_LINKS) N.auth_config
 
       let login service () =
         lwt cont = Eliom_reference.get Web_services.cont in
@@ -334,7 +332,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           match site_user with
           | Some u when W.metadata.e_owner = Some u ->
             lwt state = Web_persist.get_election_state uuid in
-            T.election_admin (module W) ~is_featured state () >>= Html5.send
+            T.election_admin (module W) ~is_featured state (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
           | _ -> forbidden ()
         )
 
@@ -370,7 +368,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           match site_user with
           | Some u ->
             if W.metadata.e_owner = Some u then (
-              T.update_credential (module W) () >>= Html5.send
+              T.update_credential (module W) (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
             ) else (
               forbidden ()
             )

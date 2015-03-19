@@ -22,25 +22,62 @@
 open Web_signatures
 
 val home : featured:(module WEB_ELECTION) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val admin : elections:(module WEB_ELECTION) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val admin : elections:(module WEB_ELECTION) list -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val new_election : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val new_election : (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val new_election_failure : [ `Exists | `Exception of exn ] -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val generic_error_page : string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val election_setup_index : Uuidm.t list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_questions : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_index : Uuidm.t list -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_questions : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_credentials : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val election_home : (module WEB_ELECTION_) -> [ `Open | `Closed ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_admin : (module WEB_ELECTION_) -> is_featured:bool -> [ `Open | `Closed ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val update_credential : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_admin : (module WEB_ELECTION_) -> is_featured:bool -> [ `Open | `Closed ] -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val update_credential : (module WEB_ELECTION_) -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_raw : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_confirmation : (module WEB_ELECTION_) -> can_vote:bool -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_confirmed : (module WEB_ELECTION_) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val pretty_ballots : (module WEB_ELECTION_) -> string list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-module Login (S : AUTH_SERVICES) (L : AUTH_LINKS) : LOGIN_TEMPLATES
+val dummy :
+  service:(unit, 'a, [< Eliom_service.post_service_kind ],
+           [< Eliom_service.suff ], 'b,
+           [< string Eliom_parameter.setoneradio ]
+           Eliom_parameter.param_name,
+           [< Eliom_service.registrable ],
+           [< Eliom_service.non_ocaml_service ])
+          Eliom_service.service ->
+  (module AUTH_SERVICES) -> (module AUTH_LINKS) ->
+  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+val password :
+  service:(unit, 'a, [< Eliom_service.post_service_kind ],
+           [< Eliom_service.suff ], 'b,
+           [< string Eliom_parameter.setoneradio ]
+           Eliom_parameter.param_name *
+           [< string Eliom_parameter.setoneradio ]
+           Eliom_parameter.param_name,
+           [< Eliom_service.registrable ],
+           [< Eliom_service.non_ocaml_service ])
+          Eliom_service.service ->
+  (module AUTH_SERVICES) -> (module AUTH_LINKS) ->
+  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+val upload_password_db :
+  service:(unit, 'a, [< Eliom_service.post_service_kind ],
+           [< Eliom_service.suff ], 'b,
+           [< Eliom_lib.file_info Eliom_parameter.setoneradio ]
+           Eliom_parameter.param_name,
+           [< Eliom_service.registrable ],
+           [< Eliom_service.non_ocaml_service ])
+          Eliom_service.service ->
+  (module AUTH_SERVICES) -> (module AUTH_LINKS) ->
+  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+val choose :
+  (module AUTH_SERVICES) -> (module AUTH_LINKS) ->
+  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

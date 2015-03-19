@@ -54,9 +54,8 @@ module Make (N : NAME) = struct
   (* Forward reference, will be set to eponymous template *)
   let login_choose = ref (fun () -> assert false)
 
-  let register templates xs =
-    let module T = (val templates : LOGIN_TEMPLATES) in
-    login_choose := T.choose;
+  let register auth_services links xs =
+    login_choose := Web_templates.choose auth_services links;
     List.iter
       (fun auth_instance ->
        let {
@@ -87,7 +86,9 @@ module Make (N : NAME) = struct
            let path = N.path @ ["auth"; instance]
            let kind = N.kind
          end in
-         let module A = (val auth : AUTH_SERVICE) (N) (T) in
+         let module S = (val auth_services : AUTH_SERVICES) in
+         let module L = (val links : AUTH_LINKS) in
+         let module A = (val auth : AUTH_SERVICE) (N) (S) (L) in
          let i = (module A : AUTH_HANDLERS) in
          Hashtbl.add auth_instances instance i;
          auth_instance_names := instance :: !auth_instance_names

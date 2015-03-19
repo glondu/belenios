@@ -147,45 +147,6 @@ module type REGISTRABLE_ELECTION = sig
   val register : unit -> (module WEB_ELECTION) Lwt.t
 end
 
-module type LOGIN_TEMPLATES = sig
-
-  val dummy :
-    service:(unit, 'a, [< Eliom_service.post_service_kind ],
-             [< Eliom_service.suff ], 'b,
-             [< string Eliom_parameter.setoneradio ]
-             Eliom_parameter.param_name,
-             [< Eliom_service.registrable ],
-             [< Eliom_service.non_ocaml_service ])
-            Eliom_service.service ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val password :
-    service:(unit, 'a, [< Eliom_service.post_service_kind ],
-             [< Eliom_service.suff ], 'b,
-             [< string Eliom_parameter.setoneradio ]
-             Eliom_parameter.param_name *
-             [< string Eliom_parameter.setoneradio ]
-             Eliom_parameter.param_name,
-             [< Eliom_service.registrable ],
-             [< Eliom_service.non_ocaml_service ])
-            Eliom_service.service ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val upload_password_db :
-    service:(unit, 'a, [< Eliom_service.post_service_kind ],
-             [< Eliom_service.suff ], 'b,
-             [< Eliom_lib.file_info Eliom_parameter.setoneradio ]
-             Eliom_parameter.param_name,
-             [< Eliom_service.registrable ],
-             [< Eliom_service.non_ocaml_service ])
-            Eliom_service.service ->
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-  val choose :
-    unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-end
-
 module type NAME = sig
   val name : string
   val path : string list
@@ -194,7 +155,8 @@ end
 
 module type AUTH_SERVICE =
   functor (N : NAME) ->
-  functor (T : LOGIN_TEMPLATES) ->
+  functor (S : AUTH_SERVICES) ->
+  functor (L : AUTH_LINKS) ->
   AUTH_HANDLERS
 
 module type AUTH_SYSTEM = sig

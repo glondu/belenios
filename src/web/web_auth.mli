@@ -27,7 +27,7 @@ open Web_signatures
 val register_auth_system : (module AUTH_SYSTEM) -> unit
 
 module Make (C : NAME) : sig
-  val register : (module LOGIN_TEMPLATES) -> auth_config list -> unit
+  val register : (module AUTH_SERVICES) -> (module AUTH_LINKS) -> auth_config list -> unit
   module Services : AUTH_SERVICES
   module Handlers : AUTH_HANDLERS_PUBLIC
 end

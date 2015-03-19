@@ -230,9 +230,7 @@ module L = struct
 end
 
 let install_authentication auth_configs =
-  let module T = T.Login (Web_site_auth) (L) in
-  let templates = (module T : LOGIN_TEMPLATES) in
-  Web_site_auth.register templates auth_configs
+  Web_site_auth.register (module Web_site_auth : AUTH_SERVICES) (module L : AUTH_LINKS) auth_configs
 
 let () = Any.register ~service:home
   (fun () () ->
@@ -267,7 +265,7 @@ let () = Html5.register ~service:admin
           )
         ) !election_table [] |> List.rev |> return
     in
-    T.admin ~elections ()
+    T.admin ~elections (module Web_site_auth : AUTH_SERVICES) ()
   )
 
 let () = File.register
@@ -299,7 +297,7 @@ let () = Html5.register ~service:new_election
   (fun () () ->
     match_lwt Web_site_auth.get_user () with
     | None -> forbidden ()
-    | Some _ -> T.new_election ()
+    | Some _ -> T.new_election (module Web_site_auth : AUTH_SERVICES) ()
   )
 
 let () = Any.register ~service:new_election_post
@@ -316,7 +314,7 @@ let () = Any.register ~service:new_election_post
       begin try_lwt
         begin match_lwt import_election files with
         | None ->
-          T.new_election_failure `Exists () >>= Html5.send
+          T.new_election_failure `Exists (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
         | Some w ->
           let module W = (val w : REGISTRABLE_ELECTION) in
           lwt w = W.register () in
@@ -325,7 +323,7 @@ let () = Any.register ~service:new_election_post
             (preapply election_admin (W.election.e_params.e_uuid, ()))
         end
       with e ->
-        T.new_election_failure (`Exception e) () >>= Html5.send
+        T.new_election_failure (`Exception e) (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
       end
     | None -> forbidden ()
   )
@@ -342,7 +340,7 @@ let () = Html5.register ~service:election_setup_index
           then return (uuid_of_string k :: accu)
           else return accu
         ) election_stable []
-      in T.election_setup_index uuids ()
+      in T.election_setup_index uuids (module Web_site_auth : AUTH_SERVICES) ()
    | None -> forbidden ()
   )
 
@@ -394,7 +392,7 @@ let () = Html5.register ~service:election_setup
       let uuid_s = Uuidm.to_string uuid in
       lwt se = Ocsipersist.find election_stable uuid_s in
       if se.se_owner = u
-      then T.election_setup uuid se ()
+      then T.election_setup uuid se (module Web_site_auth : AUTH_SERVICES) ()
       else forbidden ()
    | None -> forbidden ()
   )
@@ -445,7 +443,7 @@ let () =
         let uuid_s = Uuidm.to_string uuid in
         lwt se = Ocsipersist.find election_stable uuid_s in
         if se.se_owner = u
-        then T.election_setup_questions uuid se ()
+        then T.election_setup_questions uuid se (module Web_site_auth : AUTH_SERVICES) ()
         else forbidden ()
      | None -> forbidden ()
     )
@@ -648,7 +646,7 @@ let () =
             (* actually create the election *)
             begin match_lwt import_election files with
             | None ->
-               T.new_election_failure `Exists () >>= Html5.send
+               T.new_election_failure `Exists (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
             | Some w ->
                let module W = (val w : REGISTRABLE_ELECTION) in
                lwt w = W.register () in
@@ -670,7 +668,7 @@ let () =
             end
           )
         with e ->
-          T.new_election_failure (`Exception e) () >>= Html5.send
+          T.new_election_failure (`Exception e) (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
         end
     )
 

@@ -49,7 +49,7 @@ let load_db name file =
 
 let ( / ) = Filename.concat
 
-module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = struct
+module Make (C : CONFIG) (N : NAME) (S : AUTH_SERVICES) (L : AUTH_LINKS) : AUTH_HANDLERS = struct
 
   let scope = Eliom_common.default_session_scope
 
@@ -97,7 +97,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
           | None -> fail_http 400
         ) else forbidden ())
     in
-    T.password ~service ()
+    Web_templates.password ~service (module S : AUTH_SERVICES) (module L : AUTH_LINKS) ()
 
   let bootstrap_service_handler () =
     let post_params = Eliom_parameter.file "password_db" in
@@ -126,7 +126,7 @@ module Make (C : CONFIG) (N : NAME) (T : LOGIN_TEMPLATES) : AUTH_HANDLERS = stru
         | `Production _ -> forbidden ()
       )
     in
-    T.upload_password_db ~service:upload_service ()
+    Web_templates.upload_password_db ~service:upload_service (module S : AUTH_SERVICES) (module L : AUTH_LINKS) ()
 
   let () = Eliom_registration.Html5.register ~service
     (fun () () ->
