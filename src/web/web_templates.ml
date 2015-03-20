@@ -74,13 +74,15 @@ let make_login_box style auth links =
       ]
   )
 
-let site_login_box auth =
-  let module L = struct
-    let login x = Eliom_service.preapply site_login x
-    let logout = Eliom_service.preapply site_logout ()
-  end in
-  let links = (module L : AUTH_LINKS) in
-  fun () -> make_login_box admin_background auth links
+module Site_links = struct
+  let login x = Eliom_service.preapply site_login x
+  let logout = Eliom_service.preapply site_logout ()
+end
+
+let site_links = (module Site_links : AUTH_LINKS)
+
+let site_login_box auth () =
+  make_login_box admin_background auth site_links
 
 let base ~title ~login_box ~content ?(footer = div []) () =
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
