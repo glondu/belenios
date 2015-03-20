@@ -150,13 +150,12 @@ end
 module type NAME = sig
   val name : string
   val path : string list
-  val kind : [ `Site | `Election of string ]
+  val kind : [ `Site | `Election of Uuidm.t * string ]
 end
 
 module type AUTH_SERVICE =
   functor (N : NAME) ->
   functor (S : AUTH_SERVICES) ->
-  functor (L : AUTH_LINKS) ->
   AUTH_HANDLERS
 
 module type AUTH_SYSTEM = sig

@@ -44,6 +44,22 @@ type logged_user = {
   user_handlers : (module AUTH_HANDLERS);
 }
 
+module MakeLinks (N : NAME) = struct
+  let login, logout =
+    match N.kind with
+    | `Site ->
+       (fun x -> Eliom_service.preapply Web_services.site_login x),
+       (Eliom_service.preapply Web_services.site_logout ())
+    | `Election (uuid, _) ->
+       (fun x ->
+        Eliom_service.preapply
+          Web_services.election_login
+          ((uuid, ()), x)),
+       (Eliom_service.preapply
+          Web_services.election_logout
+          (uuid, ()))
+end
+
 module Make (N : NAME) = struct
 
   let scope = Eliom_common.default_session_scope
@@ -87,8 +103,7 @@ module Make (N : NAME) = struct
            let kind = N.kind
          end in
          let module S = (val auth_services : AUTH_SERVICES) in
-         let module L = (val links : AUTH_LINKS) in
-         let module A = (val auth : AUTH_SERVICE) (N) (S) (L) in
+         let module A = (val auth : AUTH_SERVICE) (N) (S) in
          let i = (module A : AUTH_HANDLERS) in
          Hashtbl.add auth_instances instance i;
          auth_instance_names := instance :: !auth_instance_names

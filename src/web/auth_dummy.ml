@@ -32,7 +32,9 @@ let parse_config ~attributes =
   | [] -> Some ()
   | _ -> None
 
-module Make (N : NAME) (S : AUTH_SERVICES) (L : AUTH_LINKS) : AUTH_HANDLERS = struct
+module Make (N : NAME) (S : AUTH_SERVICES) : AUTH_HANDLERS = struct
+
+  module L = Web_auth.MakeLinks (N)
 
   let scope = Eliom_common.default_session_scope
 

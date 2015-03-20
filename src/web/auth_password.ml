@@ -49,7 +49,9 @@ let load_db name file =
 
 let ( / ) = Filename.concat
 
-module Make (C : CONFIG) (N : NAME) (S : AUTH_SERVICES) (L : AUTH_LINKS) : AUTH_HANDLERS = struct
+module Make (C : CONFIG) (N : NAME) (S : AUTH_SERVICES) : AUTH_HANDLERS = struct
+
+  module L = Web_auth.MakeLinks (N)
 
   let scope = Eliom_common.default_session_scope
 
@@ -61,7 +63,7 @@ module Make (C : CONFIG) (N : NAME) (S : AUTH_SERVICES) (L : AUTH_LINKS) : AUTH_
   let db =
     ref @@ match N.kind with
     | `Site -> `Production (load_db N.name C.db)
-    | `Election dir ->
+    | `Election (_, dir) ->
       (* hash the user-input name to avoid all kinds of injection *)
       let fname = dir / sha256_hex C.db in
       try
