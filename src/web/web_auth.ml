@@ -142,26 +142,24 @@ module Make (N : NAME) = struct
        )
       ) xs
 
-  let login_handler service cont =
-    let cont () () =
-      match service with
-      | Some name -> do_login_using name cont
-      | None ->
-        match !auth_instance_names with
-        | [name] -> do_login_using name cont
-        | _ ->
-           Web_templates.choose auth_services links () >>=
-           Eliom_registration.Html5.send
-    in
-    match_lwt Eliom_reference.get user with
-    | Some u ->
-      let module A = (val u.user_handlers) in
-      A.logout cont ()
-    | None -> cont () ()
-
   module Handlers : AUTH_HANDLERS_PUBLIC = struct
 
-    let do_login service cont () = login_handler service cont
+    let do_login service cont () =
+      let cont () () =
+        match service with
+        | Some name -> do_login_using name cont
+        | None ->
+          match !auth_instance_names with
+          | [name] -> do_login_using name cont
+          | _ ->
+             Web_templates.choose auth_services links () >>=
+             Eliom_registration.Html5.send
+      in
+      match_lwt Eliom_reference.get user with
+      | Some u ->
+        let module A = (val u.user_handlers) in
+        A.logout cont ()
+      | None -> cont () ()
 
     let do_logout cont () =
       match_lwt Eliom_reference.get user with
