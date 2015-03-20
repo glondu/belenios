@@ -70,9 +70,6 @@ module Make (N : NAME) = struct
   let auth_instances = Hashtbl.create 10
   let auth_instance_names = ref []
 
-  (* Forward reference, will be set to eponymous template *)
-  let login_choose = ref (fun () -> assert false)
-
   let user = Eliom_reference.eref ~scope None
 
   let do_login_using user_domain cont =
@@ -105,9 +102,9 @@ module Make (N : NAME) = struct
 
   end
 
+  let auth_services = (module Services : AUTH_SERVICES)
+
   let configure xs =
-    let auth_services = (module Services : AUTH_SERVICES) in
-    login_choose := Web_templates.choose auth_services links;
     List.iter
       (fun auth_instance ->
        let {
@@ -152,7 +149,9 @@ module Make (N : NAME) = struct
       | None ->
         match !auth_instance_names with
         | [name] -> do_login_using name cont
-        | _ -> !login_choose () >>= Eliom_registration.Html5.send
+        | _ ->
+           Web_templates.choose auth_services links () >>=
+           Eliom_registration.Html5.send
     in
     match_lwt Eliom_reference.get user with
     | Some u ->
