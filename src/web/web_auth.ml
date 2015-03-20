@@ -73,46 +73,6 @@ module Make (N : NAME) = struct
   (* Forward reference, will be set to eponymous template *)
   let login_choose = ref (fun () -> assert false)
 
-  let configure auth_services xs =
-    login_choose := Web_templates.choose auth_services links;
-    List.iter
-      (fun auth_instance ->
-       let {
-         auth_system = name;
-         auth_instance = instance;
-         auth_config = attributes;
-       } = auth_instance in
-       if Hashtbl.mem auth_instances instance then (
-         Printf.ksprintf
-           failwith
-           "multiple instances with name %s"
-           instance
-       ) else (
-         let auth_system = Hashtbl.find auth_systems name in
-         let module X = (val auth_system : AUTH_SYSTEM) in
-         let config =
-           match X.parse_config ~attributes with
-           | Some x -> x
-           | None ->
-              Printf.ksprintf
-                failwith
-                "invalid configuration for instance %s of auth/%s"
-                instance X.name
-         in
-         let auth = X.make config in
-         let module N = struct
-           let name = instance
-           let path = N.path @ ["auth"; instance]
-           let kind = N.kind
-         end in
-         let module S = (val auth_services : AUTH_SERVICES) in
-         let module A = (val auth : AUTH_SERVICE) (N) (S) in
-         let i = (module A : AUTH_HANDLERS) in
-         Hashtbl.add auth_instances instance i;
-         auth_instance_names := instance :: !auth_instance_names
-       )
-      ) xs
-
   let user = Eliom_reference.eref ~scope None
 
   let do_login_using user_domain cont =
@@ -144,6 +104,46 @@ module Make (N : NAME) = struct
       | None -> return None
 
   end
+
+  let configure xs =
+    let auth_services = (module Services : AUTH_SERVICES) in
+    login_choose := Web_templates.choose auth_services links;
+    List.iter
+      (fun auth_instance ->
+       let {
+         auth_system = name;
+         auth_instance = instance;
+         auth_config = attributes;
+       } = auth_instance in
+       if Hashtbl.mem auth_instances instance then (
+         Printf.ksprintf
+           failwith
+           "multiple instances with name %s"
+           instance
+       ) else (
+         let auth_system = Hashtbl.find auth_systems name in
+         let module X = (val auth_system : AUTH_SYSTEM) in
+         let config =
+           match X.parse_config ~attributes with
+           | Some x -> x
+           | None ->
+              Printf.ksprintf
+                failwith
+                "invalid configuration for instance %s of auth/%s"
+                instance X.name
+         in
+         let auth = X.make config in
+         let module N = struct
+           let name = instance
+           let path = N.path @ ["auth"; instance]
+           let kind = N.kind
+         end in
+         let module A = (val auth : AUTH_SERVICE) (N) (Services) in
+         let i = (module A : AUTH_HANDLERS) in
+         Hashtbl.add auth_instances instance i;
+         auth_instance_names := instance :: !auth_instance_names
+       )
+      ) xs
 
   let login_handler service cont =
     let cont () () =
