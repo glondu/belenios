@@ -26,7 +26,7 @@ module C = struct
 end
 
 module A = Web_auth.Make (C)
-let register = A.register
+let configure = A.configure
 include A.Services
 
 open Eliom_registration

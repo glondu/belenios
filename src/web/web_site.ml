@@ -225,7 +225,7 @@ lwt () =
   ) election_ptable
 
 let install_authentication auth_configs =
-  Web_site_auth.register (module Web_site_auth : AUTH_SERVICES) auth_configs
+  Web_site_auth.configure (module Web_site_auth : AUTH_SERVICES) auth_configs
 
 let () = Any.register ~service:home
   (fun () () ->

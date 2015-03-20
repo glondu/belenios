@@ -73,7 +73,7 @@ module Make (N : NAME) = struct
   (* Forward reference, will be set to eponymous template *)
   let login_choose = ref (fun () -> assert false)
 
-  let register auth_services xs =
+  let configure auth_services xs =
     login_choose := Web_templates.choose auth_services links;
     List.iter
       (fun auth_instance ->

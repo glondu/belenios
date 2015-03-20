@@ -278,7 +278,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
       open Eliom_registration
 
       let () =
-        Auth.register (module W.S : AUTH_SERVICES) N.auth_config
+        Auth.configure (module W.S : AUTH_SERVICES) N.auth_config
 
       let login service () =
         lwt cont = Eliom_reference.get Web_services.cont in
