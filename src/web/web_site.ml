@@ -224,9 +224,6 @@ lwt () =
     return ()
   ) election_ptable
 
-let install_authentication auth_configs =
-  Web_site_auth.configure auth_configs
-
 let () = Any.register ~service:home
   (fun () () ->
     Eliom_reference.unset cont >>

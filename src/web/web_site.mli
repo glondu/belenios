@@ -27,4 +27,3 @@ val spool_dir : string ref
 
 val import_election :
   election_files -> (module REGISTRABLE_ELECTION) option Lwt.t
-val install_authentication : auth_config list -> unit

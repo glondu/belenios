@@ -119,7 +119,7 @@ let spool_dir =
 
 let () = Web_site.source_file := source_file
 let () = Web_site.spool_dir := spool_dir
-let () = Web_site.install_authentication !auth_instances
+let () = Web_site_auth.configure !auth_instances
 
 lwt () =
   Lwt_list.iter_s (fun dir ->
