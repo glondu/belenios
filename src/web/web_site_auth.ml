@@ -34,11 +34,11 @@ open Web_services
 
 let login service () =
   lwt cont = Eliom_reference.get Web_services.cont in
-  A.Handlers.do_login service cont ()
+  A.Handlers.login service cont ()
 
 let logout () () =
   lwt cont = Eliom_reference.get Web_services.cont in
-  A.Handlers.do_logout cont ()
+  A.Handlers.logout cont ()
 
 let () = Any.register ~service:site_login login
 let () = Any.register ~service:site_logout logout

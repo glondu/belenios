@@ -91,14 +91,14 @@ type service_handler = unit ->
 
 type 'a service_cont = ('a -> service_handler) -> service_handler
 
-module type AUTH_HANDLERS = sig
+module type AUTH_INSTANCE_HANDLERS = sig
   val login : string service_cont
   val logout : unit service_cont
 end
 
-module type AUTH_HANDLERS_PUBLIC = sig
-  val do_login : string option -> unit service_cont
-  val do_logout : unit service_cont
+module type AUTH_HANDLERS = sig
+  val login : string option -> unit service_cont
+  val logout : unit service_cont
 end
 
 module type WEB_BALLOT_BOX = sig
@@ -153,10 +153,10 @@ module type NAME = sig
   val kind : [ `Site | `Election of Uuidm.t * string ]
 end
 
-module type AUTH_SERVICE =
+module type AUTH_MAKE_INSTANCE =
   functor (N : NAME) ->
   functor (S : AUTH_SERVICES) ->
-  AUTH_HANDLERS
+  AUTH_INSTANCE_HANDLERS
 
 module type AUTH_SYSTEM = sig
   type config
@@ -167,5 +167,5 @@ module type AUTH_SYSTEM = sig
     attributes:(string * string) list ->
     config option
 
-  val make : config -> (module AUTH_SERVICE)
+  val make : config -> (module AUTH_MAKE_INSTANCE)
 end

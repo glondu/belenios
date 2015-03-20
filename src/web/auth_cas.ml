@@ -33,7 +33,7 @@ module type CONFIG = sig
   val server : string
 end
 
-module Make (C : CONFIG) (N : NAME) (S : AUTH_SERVICES) : AUTH_HANDLERS = struct
+module Make (C : CONFIG) (N : NAME) (S : AUTH_SERVICES) : AUTH_INSTANCE_HANDLERS = struct
 
   let scope = Eliom_common.default_session_scope
 
@@ -142,7 +142,7 @@ let parse_config ~attributes =
 
 let make {server} =
   let module C = struct let server = server end in
-  (module Make (C) : AUTH_SERVICE)
+  (module Make (C) : AUTH_MAKE_INSTANCE)
 
 type c = config
 

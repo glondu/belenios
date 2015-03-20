@@ -31,5 +31,5 @@ module MakeLinks (N : NAME) : AUTH_LINKS
 module Make (C : NAME) : sig
   val configure : auth_config list -> unit
   module Services : AUTH_SERVICES
-  module Handlers : AUTH_HANDLERS_PUBLIC
+  module Handlers : AUTH_HANDLERS
 end

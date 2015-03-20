@@ -41,7 +41,7 @@ let register_auth_system auth_system =
 
 type logged_user = {
   user_user : user;
-  user_handlers : (module AUTH_HANDLERS);
+  user_handlers : (module AUTH_INSTANCE_HANDLERS);
 }
 
 module MakeLinks (N : NAME) = struct
@@ -85,7 +85,7 @@ module Make (N : NAME) = struct
         Eliom_reference.set user (Some logged_user) >>
         cont () ()
       in
-      let module A = (val user_handlers : AUTH_HANDLERS) in
+      let module A = (val user_handlers : AUTH_INSTANCE_HANDLERS) in
       A.login cont ()
     with Not_found -> fail_http 404
 
@@ -135,16 +135,16 @@ module Make (N : NAME) = struct
            let path = N.path @ ["auth"; instance]
            let kind = N.kind
          end in
-         let module A = (val auth : AUTH_SERVICE) (N) (Services) in
-         let i = (module A : AUTH_HANDLERS) in
+         let module A = (val auth : AUTH_MAKE_INSTANCE) (N) (Services) in
+         let i = (module A : AUTH_INSTANCE_HANDLERS) in
          Hashtbl.add auth_instances instance i;
          auth_instance_names := instance :: !auth_instance_names
        )
       ) xs
 
-  module Handlers : AUTH_HANDLERS_PUBLIC = struct
+  module Handlers : AUTH_HANDLERS = struct
 
-    let do_login service cont () =
+    let login service cont () =
       let cont () () =
         match service with
         | Some name -> do_login_using name cont
@@ -161,7 +161,7 @@ module Make (N : NAME) = struct
         A.logout cont ()
       | None -> cont () ()
 
-    let do_logout cont () =
+    let logout cont () =
       match_lwt Eliom_reference.get user with
       | Some u ->
         security_log (fun () ->

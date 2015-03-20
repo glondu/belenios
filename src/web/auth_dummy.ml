@@ -32,7 +32,7 @@ let parse_config ~attributes =
   | [] -> Some ()
   | _ -> None
 
-module Make (N : NAME) (S : AUTH_SERVICES) : AUTH_HANDLERS = struct
+module Make (N : NAME) (S : AUTH_SERVICES) : AUTH_INSTANCE_HANDLERS = struct
 
   module L = Web_auth.MakeLinks (N)
 
@@ -73,7 +73,7 @@ module Make (N : NAME) (S : AUTH_SERVICES) : AUTH_HANDLERS = struct
 
 end
 
-let make () = (module Make : AUTH_SERVICE)
+let make () = (module Make : AUTH_MAKE_INSTANCE)
 
 module A : AUTH_SYSTEM = struct
   type config = unit

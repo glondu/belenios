@@ -49,7 +49,7 @@ let load_db name file =
 
 let ( / ) = Filename.concat
 
-module Make (C : CONFIG) (N : NAME) (S : AUTH_SERVICES) : AUTH_HANDLERS = struct
+module Make (C : CONFIG) (N : NAME) (S : AUTH_SERVICES) : AUTH_INSTANCE_HANDLERS = struct
 
   module L = Web_auth.MakeLinks (N)
 
@@ -147,7 +147,7 @@ end
 
 let make {db} =
   let module C = struct let db = db end in
-  (module Make (C) : AUTH_SERVICE)
+  (module Make (C) : AUTH_MAKE_INSTANCE)
 
 type c = config
 

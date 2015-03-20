@@ -282,11 +282,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
       let login service () =
         lwt cont = Eliom_reference.get Web_services.cont in
-        Auth.Handlers.do_login service cont ()
+        Auth.Handlers.login service cont ()
 
       let logout () () =
         lwt cont = Eliom_reference.get Web_services.cont in
-        Auth.Handlers.do_logout cont ()
+        Auth.Handlers.logout cont ()
 
       module T = Web_templates
 
