@@ -62,6 +62,9 @@ end
 
 module Make (N : NAME) = struct
 
+  module L = MakeLinks (N)
+  let links = (module L : AUTH_LINKS)
+
   let scope = Eliom_common.default_session_scope
 
   let auth_instances = Hashtbl.create 10
@@ -70,7 +73,7 @@ module Make (N : NAME) = struct
   (* Forward reference, will be set to eponymous template *)
   let login_choose = ref (fun () -> assert false)
 
-  let register auth_services links xs =
+  let register auth_services xs =
     login_choose := Web_templates.choose auth_services links;
     List.iter
       (fun auth_instance ->

@@ -277,13 +277,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
     module Register (X : EMPTY) : ELECTION_HANDLERS = struct
       open Eliom_registration
 
-      module L = struct
-        let login x = Eliom_service.preapply election_login ((W.election.e_params.e_uuid, ()), x)
-        let logout = Eliom_service.preapply election_logout (W.election.e_params.e_uuid, ())
-      end
-
       let () =
-        Auth.register (module W.S : AUTH_SERVICES) (module L : AUTH_LINKS) N.auth_config
+        Auth.register (module W.S : AUTH_SERVICES) N.auth_config
 
       let login service () =
         lwt cont = Eliom_reference.get Web_services.cont in

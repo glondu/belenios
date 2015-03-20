@@ -29,7 +29,7 @@ val register_auth_system : (module AUTH_SYSTEM) -> unit
 module MakeLinks (N : NAME) : AUTH_LINKS
 
 module Make (C : NAME) : sig
-  val register : (module AUTH_SERVICES) -> (module AUTH_LINKS) -> auth_config list -> unit
+  val register : (module AUTH_SERVICES) -> auth_config list -> unit
   module Services : AUTH_SERVICES
   module Handlers : AUTH_HANDLERS_PUBLIC
 end

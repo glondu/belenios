@@ -224,13 +224,8 @@ lwt () =
     return ()
   ) election_ptable
 
-module L = struct
-  let login x = Eliom_service.preapply site_login x
-  let logout = Eliom_service.preapply site_logout ()
-end
-
 let install_authentication auth_configs =
-  Web_site_auth.register (module Web_site_auth : AUTH_SERVICES) (module L : AUTH_LINKS) auth_configs
+  Web_site_auth.register (module Web_site_auth : AUTH_SERVICES) auth_configs
 
 let () = Any.register ~service:home
   (fun () () ->
