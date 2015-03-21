@@ -275,46 +275,58 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
     end
 
     module Register (X : EMPTY) : ELECTION_HANDLERS = struct
-      open Eliom_registration
 
       let () =
         Auth.configure N.auth_config
-
-      let login service () =
-        lwt cont = Eliom_reference.get Web_services.cont in
-        Auth.Handlers.login service cont ()
-
-      let logout () () =
-        lwt cont = Eliom_reference.get Web_services.cont in
-        Auth.Handlers.logout cont ()
-
-      module T = Web_templates
-
-      let if_eligible acl f () x =
-        lwt user = W.Auth.Services.get_user () in
-        if acl W.metadata user then
-          f user x
-        else
-          forbidden ()
 
       let scope = Eliom_common.default_session_scope
 
       let ballot = Eliom_reference.eref ~scope None
       let cast_confirmed = Eliom_reference.eref ~scope None
 
-      let home =
-        (if_eligible can_read
+    end
+
+  end
+
+end
+
+      open Eliom_registration
+
+      let login w service () =
+        let module W = (val w : WEB_ELECTION) in
+        lwt cont = Eliom_reference.get Web_services.cont in
+        W.Auth.Handlers.login service cont ()
+
+      let logout w () () =
+        let module W = (val w : WEB_ELECTION) in
+        lwt cont = Eliom_reference.get Web_services.cont in
+        W.Auth.Handlers.logout cont ()
+
+      module T = Web_templates
+
+      let if_eligible w acl f () x =
+        let module W = (val w : WEB_ELECTION) in
+        lwt user = W.Auth.Services.get_user () in
+        if acl W.metadata user then
+          f user x
+        else
+          forbidden ()
+
+      let home w =
+        let module W = (val w : WEB_ELECTION) in
+        let uuid = Uuidm.to_string W.election.e_params.e_uuid in
+        (if_eligible w can_read
            (fun user () ->
-             Eliom_reference.unset ballot >>
+             Eliom_reference.unset W.Z.ballot >>
              let cont () () =
                Redirection.send
                  (Eliom_service.preapply
                     election_home (W.election.e_params.e_uuid, ()))
              in
              Eliom_reference.set Web_services.cont cont >>
-             match_lwt Eliom_reference.get cast_confirmed with
+             match_lwt Eliom_reference.get W.Z.cast_confirmed with
              | Some result ->
-               Eliom_reference.unset cast_confirmed >>
+               Eliom_reference.unset W.Z.cast_confirmed >>
                T.cast_confirmed (module W) ~result () >>= Html5.send
              | None ->
                lwt state = Web_persist.get_election_state uuid in
@@ -322,7 +334,9 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
            )
         )
 
-      let admin site_user is_featured =
+      let admin w site_user is_featured =
+        let module W = (val w : WEB_ELECTION) in
+        let uuid = Uuidm.to_string W.election.e_params.e_uuid in
         (fun () () ->
           match site_user with
           | Some u when W.metadata.e_owner = Some u ->
@@ -335,7 +349,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         | ESRaw | ESKeys | ESBallots -> "application/json"
         | ESCreds | ESRecords -> "text/plain"
 
-      let handle_pseudo_file u f site_user =
+      let handle_pseudo_file w u f site_user =
+        let module W = (val w : WEB_ELECTION) in
         lwt () =
           if f = ESRecords then (
             match site_user with
@@ -346,7 +361,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         let content_type = content_type_of_file f in
         File.send ~content_type (W.dir / string_of_election_file f)
 
-      let election_dir site_user =
+      let election_dir w site_user =
+        let module W = (val w : WEB_ELECTION) in
         (fun f () ->
           let cont () () =
             Redirection.send
@@ -355,10 +371,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                  (W.election.e_params.e_uuid, f))
           in
           Eliom_reference.set Web_services.cont cont >>
-          handle_pseudo_file () f site_user
+          handle_pseudo_file w () f site_user
         )
 
-      let election_update_credential site_user =
+      let election_update_credential w site_user =
+        let module W = (val w : WEB_ELECTION) in
         (fun () () ->
           match site_user with
           | Some u ->
@@ -370,7 +387,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           | _ -> forbidden ()
         )
 
-      let election_update_credential_post site_user =
+      let election_update_credential_post w site_user =
+        let module W = (val w : WEB_ELECTION) in
         (fun () (old, new_) ->
           match site_user with
           | Some u ->
@@ -387,10 +405,11 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           | _ -> forbidden ()
         )
 
-      let election_vote =
-        (if_eligible can_read
+      let election_vote w =
+        let module W = (val w : WEB_ELECTION) in
+        (if_eligible w can_read
            (fun user () ->
-             Eliom_reference.unset ballot >>
+             Eliom_reference.unset W.Z.ballot >>
              let cont () () =
                Redirection.send
                  (Eliom_service.preapply
@@ -407,11 +426,12 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
            )
         )
 
-      let election_cast_confirm () () =
-        match_lwt Eliom_reference.get ballot with
+      let election_cast_confirm w () () =
+        let module W = (val w : WEB_ELECTION) in
+        match_lwt Eliom_reference.get W.Z.ballot with
         | Some the_ballot ->
           begin
-            Eliom_reference.unset ballot >>
+            Eliom_reference.unset W.Z.ballot >>
             match_lwt W.Auth.Services.get_user () with
             | Some u ->
               let b = check_acl W.metadata.e_voters u in
@@ -423,8 +443,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                     return (`Valid hash)
                   with Error e -> return (`Error e)
                 in
-                Eliom_reference.unset ballot >>
-                Eliom_reference.set cast_confirmed (Some result) >>
+                Eliom_reference.unset W.Z.ballot >>
+                Eliom_reference.set W.Z.cast_confirmed (Some result) >>
                 Redirection.send
                   (Eliom_service.preapply
                      election_home (W.election.e_params.e_uuid, ()))
@@ -433,12 +453,14 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           end
         | None -> fail_http 404
 
-      let ballot_received user hash =
+      let ballot_received w user hash =
+        let module W = (val w : WEB_ELECTION) in
         let can_vote = can_vote W.metadata user in
         T.cast_confirmation (module W) ~can_vote hash ()
 
-      let election_cast =
-        (if_eligible can_read
+      let election_cast w =
+        let module W = (val w : WEB_ELECTION) in
+        (if_eligible w can_read
            (fun user () ->
              let cont () () =
                Redirection.send
@@ -446,14 +468,15 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                     election_cast (W.election.e_params.e_uuid, ()))
              in
              Eliom_reference.set Web_services.cont cont >>
-             match_lwt Eliom_reference.get ballot with
-             | Some b -> ballot_received user (sha256_b64 b) >>= Html5.send
+             match_lwt Eliom_reference.get W.Z.ballot with
+             | Some b -> ballot_received w user (sha256_b64 b) >>= Html5.send
              | None -> T.cast_raw (module W) () >>= Html5.send
            )
         )
 
-      let election_cast_post =
-        (if_eligible can_read
+      let election_cast_post w =
+        let module W = (val w : WEB_ELECTION) in
+        (if_eligible w can_read
            (fun user (ballot_raw, ballot_file) ->
              lwt the_ballot = match ballot_raw, ballot_file with
                | Some ballot, None -> return ballot
@@ -468,7 +491,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
                     Web_services.election_cast (W.election.e_params.e_uuid, ()))
              in
              Eliom_reference.set Web_services.cont cont >>
-             Eliom_reference.set ballot (Some the_ballot) >>
+             Eliom_reference.set W.Z.ballot (Some the_ballot) >>
              match user with
              | None ->
                 Redirection.send
@@ -479,7 +502,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
            )
         )
 
-      let election_pretty_ballots start () =
+      let election_pretty_ballots w start () =
+        let module W = (val w : WEB_ELECTION) in
         lwt user = W.Auth.Services.get_user () in
         if can_read W.metadata user then (
           lwt res, _ =
@@ -492,7 +516,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           in T.pretty_ballots (module W) res () >>= Html5.send
         ) else forbidden ()
 
-      let election_pretty_ballot hash () =
+      let election_pretty_ballot w hash () =
+        let module W = (val w : WEB_ELECTION) in
         lwt user = W.Auth.Services.get_user () in
         if can_read W.metadata user then (
           lwt ballot =
@@ -507,9 +532,3 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
              String.send (b, "application/json") >>=
              (fun x -> return @@ cast_unknown_content_kind x)
         ) else forbidden ()
-
-    end
-
-  end
-
-end

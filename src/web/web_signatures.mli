@@ -64,20 +64,8 @@ type content =
 
 module type ELECTION_HANDLERS =
   sig
-    val login : string option -> unit -> content
-    val logout : unit -> unit -> content
-    val home : unit -> unit -> content
-    val admin : user option -> bool -> unit -> unit -> content
-    val election_dir : user option -> Web_common.election_file -> unit -> content
-    val election_update_credential : user option -> unit -> unit -> content
-    val election_update_credential_post : user option -> unit -> string * string -> content
-    val election_vote : unit -> unit -> content
-    val election_cast : unit -> unit -> content
-    val election_cast_post :
-      unit -> string option * Eliom_lib.file_info option -> content
-    val election_cast_confirm : unit -> unit -> content
-    val election_pretty_ballots : int -> unit -> content
-    val election_pretty_ballot : string -> unit -> content
+    val ballot : string option Eliom_reference.eref
+    val cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option Eliom_reference.eref
   end
 
 module type AUTH_HANDLERS_RAW =

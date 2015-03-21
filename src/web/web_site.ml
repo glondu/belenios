@@ -670,8 +670,7 @@ let () =
     (fun (uuid, ()) () ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     W.Z.home () ())
+     Web_election.home w () ())
 
 let () =
   Any.register
@@ -691,10 +690,9 @@ let () =
     (fun (uuid, ()) () ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
      lwt user = Web_site_auth.get_user () in
      lwt is_featured = Web_persist.is_featured_election uuid_s in
-     W.Z.admin user is_featured () ())
+     Web_election.admin w user is_featured () ())
 
 let () =
   Any.register
@@ -716,8 +714,7 @@ let () =
     (fun ((uuid, ()), service) () ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     W.Z.login service ())
+     Web_election.login w service ())
 
 let () =
   Any.register
@@ -725,8 +722,7 @@ let () =
     (fun (uuid, ()) () ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     W.Z.logout () ())
+     Web_election.logout w () ())
 
 let () =
   Any.register
@@ -734,9 +730,8 @@ let () =
     (fun (uuid, ()) () ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
      lwt user = Web_site_auth.get_user () in
-     W.Z.election_update_credential user () ())
+     Web_election.election_update_credential w user () ())
 
 let () =
   Any.register
@@ -744,9 +739,8 @@ let () =
     (fun (uuid, ()) x ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
      lwt user = Web_site_auth.get_user () in
-     W.Z.election_update_credential_post user () x)
+     Web_election.election_update_credential_post w user () x)
 
 let () =
   Any.register
@@ -754,8 +748,7 @@ let () =
     (fun (uuid, ()) x ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     W.Z.election_vote () x)
+     Web_election.election_vote w () x)
 
 let () =
   Any.register
@@ -763,8 +756,7 @@ let () =
     (fun (uuid, ()) x ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     W.Z.election_cast () x)
+     Web_election.election_cast w () x)
 
 let () =
   Any.register
@@ -772,8 +764,7 @@ let () =
     (fun (uuid, ()) x ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     W.Z.election_cast_post () x)
+     Web_election.election_cast_post w () x)
 
 let () =
   Any.register
@@ -781,8 +772,7 @@ let () =
     (fun (uuid, ()) x ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     W.Z.election_cast_confirm () x)
+     Web_election.election_cast_confirm w () x)
 
 let () =
   Any.register
@@ -790,8 +780,7 @@ let () =
     (fun ((uuid, ()), start) () ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     W.Z.election_pretty_ballots start ())
+     Web_election.election_pretty_ballots w start ())
 
 let () =
   Any.register
@@ -799,8 +788,7 @@ let () =
     (fun ((uuid, ()), hash) () ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     W.Z.election_pretty_ballot hash ())
+     Web_election.election_pretty_ballot w hash ())
 
 let () =
   Any.register
@@ -808,6 +796,5 @@ let () =
     (fun (uuid, f) x ->
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
      lwt user = Web_site_auth.get_user () in
-     W.Z.election_dir user f x)
+     Web_election.election_dir w user f x)
