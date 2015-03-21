@@ -498,7 +498,7 @@ let election_setup_trustee token uuid se () =
 
 let election_login_box w =
   let module W = (val w : WEB_ELECTION_) in
-  let auth = (module W.S : AUTH_SERVICES) in
+  let auth = (module W.Auth.Services : AUTH_SERVICES) in
   let module L = struct
     let login x =
       Eliom_service.preapply
@@ -520,7 +520,7 @@ let file w x =
 
 let election_home w state () =
   let module W = (val w : WEB_ELECTION_) in
-  lwt user = W.S.get_user () in
+  lwt user = W.Auth.Services.get_user () in
   let params = W.election.e_params and m = W.metadata in
   lwt permissions =
     match user with
@@ -757,7 +757,7 @@ let cast_raw w () =
 
 let cast_confirmation w ~can_vote hash () =
   let module W = (val w : WEB_ELECTION_) in
-  lwt user = W.S.get_user () in
+  lwt user = W.Auth.Services.get_user () in
   let params = W.election.e_params in
   let name = params.e_name in
   let user_div = match user with

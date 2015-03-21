@@ -270,7 +270,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
       end
 
-      module S = Auth.Services
+      module Auth = Auth
 
     end
 
@@ -291,7 +291,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
       module T = Web_templates
 
       let if_eligible acl f () x =
-        lwt user = W.S.get_user () in
+        lwt user = W.Auth.Services.get_user () in
         if acl W.metadata user then
           f user x
         else
@@ -412,7 +412,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         | Some the_ballot ->
           begin
             Eliom_reference.unset ballot >>
-            match_lwt W.S.get_user () with
+            match_lwt W.Auth.Services.get_user () with
             | Some u ->
               let b = check_acl W.metadata.e_voters u in
               if b then (
@@ -480,7 +480,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         )
 
       let election_pretty_ballots start () =
-        lwt user = W.S.get_user () in
+        lwt user = W.Auth.Services.get_user () in
         if can_read W.metadata user then (
           lwt res, _ =
             W.B.Ballots.fold
@@ -493,7 +493,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         ) else forbidden ()
 
       let election_pretty_ballot hash () =
-        lwt user = W.S.get_user () in
+        lwt user = W.Auth.Services.get_user () in
         if can_read W.metadata user then (
           lwt ballot =
             W.B.Ballots.fold
