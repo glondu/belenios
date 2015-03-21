@@ -40,17 +40,3 @@ module type REGISTRABLE = sig
 end
 
 module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE
-
-val login : (module WEB_ELECTION) -> string option -> unit -> content
-val logout : (module WEB_ELECTION) -> unit -> unit -> content
-val home : (module WEB_ELECTION) -> unit -> unit -> content
-val admin : (module WEB_ELECTION) -> user option -> bool -> unit -> unit -> content
-val election_dir : (module WEB_ELECTION) -> user option -> Web_common.election_file -> unit -> content
-val election_update_credential : (module WEB_ELECTION) -> user option -> unit -> unit -> content
-val election_update_credential_post : (module WEB_ELECTION) -> user option -> unit -> string * string -> content
-val election_vote : (module WEB_ELECTION) -> unit -> unit -> content
-val election_cast : (module WEB_ELECTION) -> unit -> unit -> content
-val election_cast_post : (module WEB_ELECTION) -> unit -> string option * Eliom_lib.file_info option -> content
-val election_cast_confirm : (module WEB_ELECTION) -> unit -> unit -> content
-val election_pretty_ballots : (module WEB_ELECTION) -> int -> unit -> content
-val election_pretty_ballot : (module WEB_ELECTION) -> string -> unit -> content
