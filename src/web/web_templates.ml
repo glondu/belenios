@@ -497,7 +497,7 @@ let election_setup_trustee token uuid se () =
 
 
 let election_login_box w =
-  let module W = (val w : WEB_ELECTION_) in
+  let module W = (val w : WEB_ELECTION) in
   let auth = (module W.Auth.Services : AUTH_SERVICES) in
   let module L = struct
     let login x =
@@ -513,13 +513,13 @@ let election_login_box w =
   fun () -> make_login_box "" auth links
 
 let file w x =
-  let module W = (val w : WEB_ELECTION_) in
+  let module W = (val w : WEB_ELECTION) in
   Eliom_service.preapply
     election_dir
     (W.election.e_params.e_uuid, x)
 
 let election_home w state () =
-  let module W = (val w : WEB_ELECTION_) in
+  let module W = (val w : WEB_ELECTION) in
   lwt user = W.Auth.Services.get_user () in
   let params = W.election.e_params and m = W.metadata in
   lwt permissions =
@@ -644,7 +644,7 @@ let election_home w state () =
   base ~title:params.e_name ~login_box ~content ~footer ()
 
 let election_admin w ~is_featured state auth () =
-  let module W = (val w : WEB_ELECTION_) in
+  let module W = (val w : WEB_ELECTION) in
   let title = W.election.e_params.e_name ^ " — Administration" in
   let feature_form = post_form ~service:election_set_featured
     (fun featured -> [
@@ -682,7 +682,7 @@ let election_admin w ~is_featured state auth () =
   base ~title ~login_box ~content ()
 
 let update_credential w auth () =
-  let module W = (val w : WEB_ELECTION_) in
+  let module W = (val w : WEB_ELECTION) in
   let params = W.election.e_params in
   let form = post_form ~service:election_update_credential_post
     (fun (old, new_) ->
@@ -723,7 +723,7 @@ let update_credential w auth () =
   base ~title:params.e_name ~login_box ~content ()
 
 let cast_raw w () =
-  let module W = (val w : WEB_ELECTION_) in
+  let module W = (val w : WEB_ELECTION) in
   let params = W.election.e_params in
   let form_rawballot = post_form ~service:election_cast_post
     (fun (name, _) ->
@@ -756,7 +756,7 @@ let cast_raw w () =
   base ~title:params.e_name ~login_box ~content ()
 
 let cast_confirmation w ~can_vote hash () =
-  let module W = (val w : WEB_ELECTION_) in
+  let module W = (val w : WEB_ELECTION) in
   lwt user = W.Auth.Services.get_user () in
   let params = W.election.e_params in
   let name = params.e_name in
@@ -818,7 +818,7 @@ let cast_confirmation w ~can_vote hash () =
   base ~title:name ~login_box ~content ()
 
 let cast_confirmed w ~result () =
-  let module W = (val w : WEB_ELECTION_) in
+  let module W = (val w : WEB_ELECTION) in
   let params = W.election.e_params in
   let name = params.e_name in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
@@ -863,7 +863,7 @@ let cast_confirmed w ~result () =
   base ~title:name ~login_box ~content ()
 
 let pretty_ballots w hashes () =
-  let module W = (val w : WEB_ELECTION_) in
+  let module W = (val w : WEB_ELECTION) in
   let params = W.election.e_params in
   let title = params.e_name ^ " — Accepted ballots" in
   let nballots = ref 0 in

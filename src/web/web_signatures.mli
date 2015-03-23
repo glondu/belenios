@@ -62,12 +62,6 @@ end
 type content =
     Eliom_registration.browser_content Eliom_registration.kind Lwt.t
 
-module type ELECTION_HANDLERS =
-  sig
-    val ballot : string option Eliom_reference.eref
-    val cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option Eliom_reference.eref
-  end
-
 module type AUTH_HANDLERS_RAW =
   sig
     val login : string option -> unit -> content
@@ -110,7 +104,7 @@ module type WEB_PARAMS = sig
   val dir : string
 end
 
-module type WEB_ELECTION_ = sig
+module type WEB_ELECTION = sig
   include ELECTION_DATA
   include WEB_PARAMS
   module E : ELECTION with type elt = G.t
@@ -119,11 +113,6 @@ module type WEB_ELECTION_ = sig
     module Services : AUTH_SERVICES
     module Handlers : AUTH_HANDLERS
   end
-end
-
-module type WEB_ELECTION = sig
-  include WEB_ELECTION_
-  module Z : ELECTION_HANDLERS
 end
 
 type election_files = {

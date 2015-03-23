@@ -93,11 +93,7 @@ let register_election params web_params =
     (* starting from here, we do side-effects on the running server *)
     let module R = R.Register (struct end) in
     let module W = R.W in
-    let module X : ELECTION_HANDLERS = R.Register (T) in
-    let module W = struct
-      include W
-      module Z = X
-    end in
+    let module X : EMPTY = R.Register (T) in
     let election = (module W : WEB_ELECTION) in
     election_table := SMap.add uuid election !election_table;
     election
@@ -698,16 +694,16 @@ let () =
      let uuid = Uuidm.to_string W.election.e_params.e_uuid in
      (if_eligible w can_read
         (fun user () ->
-          Eliom_reference.unset W.Z.ballot >>
+          Eliom_reference.unset Web_services.ballot >>
           let cont () () =
             Redirection.send
               (Eliom_service.preapply
                  election_home (W.election.e_params.e_uuid, ()))
           in
           Eliom_reference.set Web_services.cont cont >>
-          match_lwt Eliom_reference.get W.Z.cast_confirmed with
+          match_lwt Eliom_reference.get Web_services.cast_confirmed with
           | Some result ->
-            Eliom_reference.unset W.Z.cast_confirmed >>
+            Eliom_reference.unset Web_services.cast_confirmed >>
             T.cast_confirmed (module W) ~result () >>= Html5.send
           | None ->
             lwt state = Web_persist.get_election_state uuid in
@@ -826,7 +822,7 @@ let () =
      let module W = (val w : WEB_ELECTION) in
      (if_eligible w can_read
         (fun user () ->
-          Eliom_reference.unset W.Z.ballot >>
+          Eliom_reference.unset Web_services.ballot >>
           let cont () () =
             Redirection.send
               (Eliom_service.preapply
@@ -863,7 +859,7 @@ let () =
                  election_cast (W.election.e_params.e_uuid, ()))
           in
           Eliom_reference.set Web_services.cont cont >>
-          match_lwt Eliom_reference.get W.Z.ballot with
+          match_lwt Eliom_reference.get Web_services.ballot with
           | Some b -> ballot_received w user (sha256_b64 b) >>= Html5.send
           | None -> T.cast_raw (module W) () >>= Html5.send
         )
@@ -891,7 +887,7 @@ let () =
                  Web_services.election_cast (W.election.e_params.e_uuid, ()))
           in
           Eliom_reference.set Web_services.cont cont >>
-          Eliom_reference.set W.Z.ballot (Some the_ballot) >>
+          Eliom_reference.set Web_services.ballot (Some the_ballot) >>
           match user with
           | None ->
              Redirection.send
@@ -909,10 +905,10 @@ let () =
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
      let module W = (val w : WEB_ELECTION) in
-     match_lwt Eliom_reference.get W.Z.ballot with
+     match_lwt Eliom_reference.get Web_services.ballot with
      | Some the_ballot ->
        begin
-         Eliom_reference.unset W.Z.ballot >>
+         Eliom_reference.unset Web_services.ballot >>
          match_lwt W.Auth.Services.get_user () with
          | Some u ->
            let b = check_acl W.metadata.e_voters u in
@@ -924,8 +920,8 @@ let () =
                  return (`Valid hash)
                with Error e -> return (`Error e)
              in
-             Eliom_reference.unset W.Z.ballot >>
-             Eliom_reference.set W.Z.cast_confirmed (Some result) >>
+             Eliom_reference.unset Web_services.ballot >>
+             Eliom_reference.set Web_services.cast_confirmed (Some result) >>
              Redirection.send
                (Eliom_service.preapply
                   election_home (W.election.e_params.e_uuid, ()))

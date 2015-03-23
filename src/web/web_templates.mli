@@ -35,13 +35,13 @@ val election_setup_questions : Uuidm.t -> Web_common.setup_election -> (module A
 val election_setup_credentials : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val election_home : (module WEB_ELECTION_) -> [ `Open | `Closed ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_admin : (module WEB_ELECTION_) -> is_featured:bool -> [ `Open | `Closed ] -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val update_credential : (module WEB_ELECTION_) -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_raw : (module WEB_ELECTION_) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_confirmation : (module WEB_ELECTION_) -> can_vote:bool -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_confirmed : (module WEB_ELECTION_) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val pretty_ballots : (module WEB_ELECTION_) -> string list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_home : (module WEB_ELECTION) -> [ `Open | `Closed ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_admin : (module WEB_ELECTION) -> is_featured:bool -> [ `Open | `Closed ] -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val update_credential : (module WEB_ELECTION) -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_raw : (module WEB_ELECTION) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_confirmation : (module WEB_ELECTION) -> can_vote:bool -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_confirmed : (module WEB_ELECTION) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val pretty_ballots : (module WEB_ELECTION) -> string list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val dummy :
   service:(unit, 'a, [< Eliom_service.post_service_kind ],

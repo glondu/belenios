@@ -33,8 +33,8 @@ open Web_services
 let ( / ) = Filename.concat
 
 module type REGISTRATION = sig
-  module W : WEB_ELECTION_
-  module Register (X : EMPTY) : ELECTION_HANDLERS
+  module W : WEB_ELECTION
+  module Register (X : EMPTY) : EMPTY
 end
 
 module type REGISTRABLE = sig
@@ -258,15 +258,10 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
 
     end
 
-    module Register (X : EMPTY) : ELECTION_HANDLERS = struct
+    module Register (X : EMPTY) : EMPTY = struct
 
       let () =
         Auth.configure N.auth_config
-
-      let scope = Eliom_common.default_session_scope
-
-      let ballot = Eliom_reference.eref ~scope None
-      let cast_confirmed = Eliom_reference.eref ~scope None
 
     end
 

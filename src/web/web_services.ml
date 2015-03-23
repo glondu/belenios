@@ -74,3 +74,9 @@ let scope = Eliom_common.default_session_scope
 
 let cont : (unit -> service_handler) Eliom_reference.eref =
   Eliom_reference.eref ~scope (fun () () -> Eliom_registration.Redirection.send home)
+
+let ballot : string option Eliom_reference.eref =
+  Eliom_reference.eref ~scope None
+
+let cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option Eliom_reference.eref =
+  Eliom_reference.eref ~scope None

@@ -26,8 +26,8 @@ open Web_serializable_t
 open Web_signatures
 
 module type REGISTRATION = sig
-  module W : WEB_ELECTION_
-  module Register (X : EMPTY) : ELECTION_HANDLERS
+  module W : WEB_ELECTION
+  module Register (X : EMPTY) : EMPTY
 end
 
 module type REGISTRABLE = sig
