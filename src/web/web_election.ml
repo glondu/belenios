@@ -33,22 +33,10 @@ open Web_services
 let ( / ) = Filename.concat
 
 module type REGISTRABLE = sig
-  module W : sig
-    include ELECTION_DATA
-    include WEB_PARAMS
-    module E : ELECTION with type elt = G.t
-  end
   module Register (X : EMPTY) : WEB_ELECTION
 end
 
 module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
-
-  module W = struct
-    include D
-    include P
-    module M = MakeLwtRandom(struct let rng = make_rng () end)
-    module E = Election.MakeElection(G)(M)
-  end
 
   module Register (X : EMPTY) : WEB_ELECTION = struct
 
@@ -69,7 +57,10 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
     module Auth = Web_auth.Make (N)
     let () = Auth.configure N.auth_config
 
-    include W
+    include D
+    include P
+    module M = MakeLwtRandom(struct let rng = make_rng () end)
+    module E = Election.MakeElection(G)(M)
 
     module B : WEB_BALLOT_BOX = struct
 

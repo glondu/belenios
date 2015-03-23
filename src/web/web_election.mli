@@ -26,11 +26,6 @@ open Web_serializable_t
 open Web_signatures
 
 module type REGISTRABLE = sig
-  module W : sig
-    include ELECTION_DATA
-    include WEB_PARAMS
-    module E : ELECTION with type elt = G.t
-  end
   module Register (X : EMPTY) : WEB_ELECTION
 end
 
