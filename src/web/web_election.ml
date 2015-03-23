@@ -32,18 +32,13 @@ open Web_services
 
 let ( / ) = Filename.concat
 
-module type REGISTRATION = sig
-  module W : WEB_ELECTION
-  module Register (X : EMPTY) : EMPTY
-end
-
 module type REGISTRABLE = sig
   module W : sig
     include ELECTION_DATA
     include WEB_PARAMS
     module E : ELECTION with type elt = G.t
   end
-  module Register (X : EMPTY) : REGISTRATION
+  module Register (X : EMPTY) : WEB_ELECTION
 end
 
 module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
@@ -55,7 +50,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
     module E = Election.MakeElection(G)(M)
   end
 
-  module Register (X : EMPTY) : REGISTRATION = struct
+  module Register (X : EMPTY) : WEB_ELECTION = struct
 
     let uuid = Uuidm.to_string D.election.e_params.e_uuid
     let base_path = ["elections"; uuid]
@@ -72,8 +67,8 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
     end
 
     module Auth = Web_auth.Make (N)
+    let () = Auth.configure N.auth_config
 
-    module W = struct
       include W
 
       module B : WEB_BALLOT_BOX = struct
@@ -253,17 +248,6 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           )
 
       end
-
-      module Auth = Auth
-
-    end
-
-    module Register (X : EMPTY) : EMPTY = struct
-
-      let () =
-        Auth.configure N.auth_config
-
-    end
 
   end
 

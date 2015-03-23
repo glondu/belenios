@@ -91,9 +91,7 @@ let register_election params web_params =
   let module R = Web_election.Make (D) (P) in
   (module R : Web_election.REGISTRABLE), fun () ->
     (* starting from here, we do side-effects on the running server *)
-    let module R = R.Register (struct end) in
-    let module W = R.W in
-    let module X : EMPTY = R.Register (T) in
+    let module W = R.Register (struct end) in
     let election = (module W : WEB_ELECTION) in
     election_table := SMap.add uuid election !election_table;
     election
