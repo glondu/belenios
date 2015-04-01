@@ -745,12 +745,19 @@ let () =
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
      let module W = (val w : WEB_ELECTION) in
-     match_lwt Web_site_auth.get_user () with
-     | Some u when W.metadata.e_owner = Some u ->
-        let state = if state then `Open else `Closed in
-        Web_persist.set_election_state uuid_s state >>
-        Redirection.send (preapply election_admin (uuid, ()))
-     | _ -> forbidden ())
+     lwt () =
+       match_lwt Web_site_auth.get_user () with
+       | Some u when W.metadata.e_owner = Some u -> return ()
+       | _ -> forbidden ()
+     in
+     lwt () =
+       match_lwt Web_persist.get_election_state uuid_s with
+       | `Open | `Closed -> return ()
+       | _ -> forbidden ()
+     in
+     let state = if state then `Open else `Closed in
+     Web_persist.set_election_state uuid_s state >>
+     Redirection.send (preapply election_admin (uuid, ())))
 
 let () =
   Any.register
@@ -970,7 +977,7 @@ let () =
      ) else forbidden ())
 
 let content_type_of_file = function
-  | ESRaw | ESKeys | ESBallots -> "application/json"
+  | ESRaw | ESKeys | ESBallots | ESETally -> "application/json"
   | ESCreds | ESRecords -> "text/plain"
 
 let handle_pseudo_file w u f site_user =
@@ -1001,3 +1008,24 @@ let () =
      in
      Eliom_reference.set Web_services.cont cont >>
      handle_pseudo_file w () f site_user)
+
+let () =
+  Any.register
+    ~service:election_compute_encrypted_tally
+    (fun (uuid, ()) () ->
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      lwt () =
+        match_lwt Web_site_auth.get_user () with
+        | Some u when W.metadata.e_owner = Some u -> return ()
+        | _ -> forbidden ()
+      in
+      lwt () =
+        match_lwt Web_persist.get_election_state uuid_s with
+        | `Closed -> return ()
+        | _ -> forbidden ()
+      in
+      lwt x = W.B.compute_encrypted_tally () in
+      Web_persist.set_election_state uuid_s (`EncryptedTally x) >>
+      Redirection.send (preapply election_admin (uuid, ())))

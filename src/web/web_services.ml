@@ -70,6 +70,8 @@ let election_pretty_ballots = service ~path:["elections"] ~get_params:(suffix_pr
 let election_pretty_ballot = service ~path:["elections"] ~get_params:(suffix_prod (uuid "uuid" ** suffix_const "ballot") (string "hash")) ()
 let election_dir = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** election_file "file")) ()
 
+let election_compute_encrypted_tally = post_coservice ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
+
 let scope = Eliom_common.default_session_scope
 
 let cont : (unit -> service_handler) Eliom_reference.eref =

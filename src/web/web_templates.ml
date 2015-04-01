@@ -577,12 +577,26 @@ let election_home w state () =
       ]
   in
   let state =
-    if state = `Closed then
+    match state with
+    | `Closed ->
       [
         pcdata " ";
         b [pcdata "This election is currently closed."];
       ]
-    else []
+    | `Open -> []
+    | `EncryptedTally (_, hash) ->
+       [
+         pcdata " ";
+         b [pcdata "The election is closed and being tallied."];
+         pcdata " The ";
+         a
+           ~service:election_dir
+           [pcdata "encrypted tally"]
+           (W.election.e_params.e_uuid, ESETally);
+         pcdata " hash is ";
+         b [pcdata hash];
+         pcdata ".";
+       ]
   in
   let ballots_link =
     p ~a:[a_style "text-align:center;"] [
@@ -653,8 +667,7 @@ let election_admin w ~is_featured state auth () =
       string_input ~input_type:`Submit ~value:"Apply" ();
     ]) (W.election.e_params.e_uuid, ())
   in
-  let state_form =
-    let checked = state = `Open in
+  let state_form checked =
     post_form
       ~service:election_set_state
       (fun name ->
@@ -663,6 +676,36 @@ let election_admin w ~is_featured state auth () =
          pcdata "Open this election ";
          string_input ~input_type:`Submit ~value:"Apply" ();
        ]) (W.election.e_params.e_uuid, ())
+  in
+  let state_div =
+    match state with
+    | `Open ->
+       div [
+         state_form true;
+       ]
+    | `Closed ->
+       div [
+         state_form false;
+         post_form
+           ~service:election_compute_encrypted_tally
+           (fun () ->
+             [string_input
+                 ~input_type:`Submit
+                 ~value:"Compute encrypted tally"
+                 ()
+             ]) (W.election.e_params.e_uuid, ());
+       ]
+    | `EncryptedTally (_, hash) ->
+       div [
+         pcdata "The ";
+         a
+           ~service:election_dir
+           [pcdata "encrypted tally"]
+           (W.election.e_params.e_uuid, ESETally);
+         pcdata " has been computed. Its hash is ";
+         b [pcdata hash];
+         pcdata ".";
+       ]
   in
   let uuid = W.election.e_params.e_uuid in
   let content = [
@@ -676,7 +719,7 @@ let election_admin w ~is_featured state auth () =
       a ~service:election_dir [pcdata "Voting records"] (uuid, ESRecords);
     ];
     div [feature_form];
-    div [state_form];
+    div [state_div];
   ] in
   lwt login_box = site_login_box auth () in
   base ~title ~login_box ~content ()

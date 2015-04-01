@@ -124,9 +124,11 @@ type 'a partial_decryption = {
 
 type plaintext = int list <ocaml repr="array"> list <ocaml repr="array">
 
+type 'a encrypted_tally = 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">
+
 type 'a result = {
   num_tallied : int;
-  encrypted_tally : 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">;
+  encrypted_tally : 'a encrypted_tally;
   partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
   result : plaintext;
 }

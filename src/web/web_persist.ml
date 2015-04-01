@@ -22,6 +22,12 @@
 open Lwt
 open Common
 
+type election_state =
+  [ `Open
+  | `Closed
+  | `EncryptedTally of int * string
+  ]
+
 let election_states = Ocsipersist.open_table "election_states"
 
 let get_election_state x =

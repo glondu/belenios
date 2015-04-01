@@ -238,6 +238,23 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
           do_write_creds ()
         )
 
+      let compute_encrypted_tally () =
+        lwt num_tallied, tally =
+          Ocsipersist.fold_step
+            (fun _ rawballot (n, accu) ->
+              let ballot = ballot_of_string G.read rawballot in
+              let ciphertext = E.extract_ciphertext ballot in
+              return (n + 1, E.combine_ciphertexts accu ciphertext))
+            Ballots.table (0, E.neutral_ciphertext election)
+        in
+        let tally = string_of_encrypted_tally G.write tally in
+        Lwt_mutex.with_lock mutex (fun () ->
+          do_write ESETally (fun oc ->
+            Lwt_io.write oc tally
+          )
+        ) >>
+        return (num_tallied, sha256_b64 tally)
+
     end
 
   end

@@ -19,8 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val get_election_state : string -> [ `Open | `Closed ] Lwt.t
-val set_election_state : string -> [ `Open | `Closed ] -> unit Lwt.t
+type election_state =
+  [ `Open
+  | `Closed
+  | `EncryptedTally of int * string
+  ]
+val get_election_state : string -> election_state Lwt.t
+val set_election_state : string -> election_state -> unit Lwt.t
 
 val get_main_election : unit -> string option Lwt.t
 val set_main_election : string -> unit Lwt.t

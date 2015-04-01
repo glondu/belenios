@@ -76,6 +76,7 @@ type election_file =
   | ESCreds
   | ESBallots
   | ESRecords
+  | ESETally
 
 val election_file_of_string : string -> election_file
 val string_of_election_file : election_file -> string
