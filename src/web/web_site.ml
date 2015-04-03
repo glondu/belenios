@@ -976,6 +976,67 @@ let () =
           (fun x -> return @@ cast_unknown_content_kind x)
      ) else forbidden ())
 
+let () =
+  Any.register
+    ~service:election_tally_trustees
+    (fun (uuid, ((), trustee_id)) () ->
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      lwt () =
+        match_lwt Web_persist.get_election_state uuid_s with
+        | `EncryptedTally _ -> return ()
+        | _ -> fail_http 404
+      in
+      T.tally_trustees w trustee_id () >>= Html5.send)
+
+let () =
+  Any.register
+    ~service:election_tally_trustees_post
+    (fun (uuid, ((), trustee_id)) partial_decryption ->
+      let uuid_s = Uuidm.to_string uuid in
+      lwt () =
+        match_lwt Web_persist.get_election_state uuid_s with
+        | `EncryptedTally _ -> return ()
+        | _ -> forbidden ()
+      in
+      lwt pds = Web_persist.get_partial_decryptions uuid_s in
+      lwt () =
+        if List.mem_assoc trustee_id pds then forbidden () else return ()
+      in
+      lwt () =
+        if trustee_id > 0 then return () else fail_http 404
+      in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      let pks = W.dir / string_of_election_file ESKeys in
+      let pks = Lwt_io.lines_of_file pks in
+      lwt () = Lwt_stream.njunk (trustee_id-1) pks in
+      lwt pk = Lwt_stream.peek pks in
+      lwt () = Lwt_stream.junk_while (fun _ -> true) pks in
+      lwt pk =
+        match pk with
+        | None -> fail_http 404
+        | Some x -> return x
+      in
+      let pk = trustee_public_key_of_string W.G.read pk in
+      let pk = pk.trustee_public_key in
+      let pd = partial_decryption_of_string W.G.read partial_decryption in
+      let et = W.dir / string_of_election_file ESETally in
+      lwt et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
+      let et = encrypted_tally_of_string W.G.read et in
+      if W.E.check_factor et pk pd then (
+        let pds = (trustee_id, partial_decryption) :: pds in
+        lwt () = Web_persist.set_partial_decryptions uuid_s pds in
+        T.generic_error_page
+          "Your partial decryption has been received and checked!" () >>=
+        Html5.send
+      ) else (
+        T.generic_error_page
+          "The partial decryption didn't pass validation!" () >>=
+        Html5.send
+      ))
+
 let content_type_of_file = function
   | ESRaw | ESKeys | ESBallots | ESETally -> "application/json"
   | ESCreds | ESRecords -> "text/plain"

@@ -43,6 +43,8 @@ val cast_confirmation : (module WEB_ELECTION) -> can_vote:bool -> string -> unit
 val cast_confirmed : (module WEB_ELECTION) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val pretty_ballots : (module WEB_ELECTION) -> string list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
+val tally_trustees : (module WEB_ELECTION) -> int -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
 val dummy :
   service:(unit, 'a, [< Eliom_service.post_service_kind ],
            [< Eliom_service.suff ], 'b,

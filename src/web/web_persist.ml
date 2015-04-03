@@ -76,3 +76,12 @@ let set_main_election x =
 
 let unset_main_election () =
   Ocsipersist.set main_election None
+
+let election_pds = Ocsipersist.open_table "election_pds"
+
+let get_partial_decryptions x =
+  try_lwt Ocsipersist.find election_pds x
+  with Not_found -> return []
+
+let set_partial_decryptions x pds =
+  Ocsipersist.add election_pds x pds

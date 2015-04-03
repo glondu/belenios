@@ -68,9 +68,12 @@ let election_cast_post = post_service ~fallback:election_cast ~post_params:(opt 
 let election_cast_confirm = post_coservice ~csrf_safe:true ~fallback:election_cast ~post_params:unit ()
 let election_pretty_ballots = service ~path:["elections"] ~get_params:(suffix_prod (uuid "uuid" ** suffix_const "ballots") (int "start")) ()
 let election_pretty_ballot = service ~path:["elections"] ~get_params:(suffix_prod (uuid "uuid" ** suffix_const "ballot") (string "hash")) ()
-let election_dir = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** election_file "file")) ()
 
 let election_compute_encrypted_tally = post_coservice ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
+let election_tally_trustees = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "trustees" ** int "trustee_id")) ()
+let election_tally_trustees_post = post_service ~fallback:election_tally_trustees ~post_params:(string "partial_decryption") ()
+
+let election_dir = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** election_file "file")) ()
 
 let scope = Eliom_common.default_session_scope
 

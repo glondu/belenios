@@ -939,6 +939,56 @@ let pretty_ballots w hashes () =
   lwt login_box = election_login_box w () in
   base ~title ~login_box ~content ()
 
+let tally_trustees w trustee_id () =
+  let module W = (val w : WEB_ELECTION) in
+  let params = W.election.e_params in
+  let title =
+    params.e_name ^ " — Partial decryption #" ^ string_of_int trustee_id
+  in
+  let content = [
+    p [pcdata "It is now time to compute your partial decryption factors."];
+    p [
+      pcdata "The hash of the encrypted tally is ";
+      b [span ~a:[a_id "hash"] []];
+      pcdata "."
+    ];
+    div ~a:[a_id "input_private_key"] [
+      p [pcdata "Please enter your private key:"];
+      input
+        ~a:[a_id "private_key"; a_size 80]
+        ~input_type:`Text
+        ();
+      button
+        ~a:[a_id "compute"]
+        ~button_type:`Button
+        [pcdata "Compute decryption factors"];
+    ];
+    div ~a:[a_id "pd_done"] [
+      post_form
+        ~service:election_tally_trustees_post
+        (fun pd ->
+          [
+            div [
+              textarea
+                ~a:[a_rows 5; a_cols 40; a_id "pd"]
+                ~name:pd
+                ();
+            ];
+            div [string_input ~input_type:`Submit ~value:"Submit" ()];
+          ]
+        ) (params.e_uuid, ((), trustee_id));
+    ];
+    div [
+      script ~a:[a_src (uri_of_string (fun () -> "../../../static/sjcl.js"))] (pcdata "");
+      script ~a:[a_src (uri_of_string (fun () -> "../../../static/jsbn.js"))] (pcdata "");
+      script ~a:[a_src (uri_of_string (fun () -> "../../../static/jsbn2.js"))] (pcdata "");
+      script ~a:[a_src (uri_of_string (fun () -> "../../../static/random.js"))] (pcdata "");
+      script ~a:[a_src (uri_of_string (fun () -> "../../../static/tool_js_pd.js"))] (pcdata "");
+    ]
+  ] in
+  let login_box = pcdata "" in
+  base ~title ~login_box ~content ()
+
 let login_box auth links =
   let module S = (val auth : AUTH_SERVICES) in
   let style =
