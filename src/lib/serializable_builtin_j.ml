@@ -29,10 +29,10 @@ let make_write to_string buf x =
   Bi_outbuf.add_string buf (to_string x);
   Bi_outbuf.add_char buf '"'
 
-let make_read of_string state buf =
+let make_read name of_string state buf =
   match Yojson.Safe.from_lexbuf ~stream:true state buf with
   | `String s -> of_string s
-  | _ -> assert false
+  | _ -> invalid_arg (name ^ ": a string was expected")
 
 (** {1 Serializers for type number} *)
 
@@ -43,12 +43,12 @@ let string_of_number ?(len=2048) n =
   write_number buf n;
   Bi_outbuf.contents buf
 
-let read_number = make_read Z.of_string
+let read_number = make_read "read_number" Z.of_string
 
 let number_of_string x =
   match Yojson.Safe.from_string x with
   | `String s -> Z.of_string s
-  | _ -> assert false
+  | _ -> invalid_arg "number_of_string: a string was expected"
 
 (** {1 Serializers for type uuid} *)
 
@@ -62,14 +62,14 @@ let string_of_uuid ?(len=38) n =
 let raw_uuid_of_string x =
   match Uuidm.of_string x with
   | Some s -> s
-  | _ -> assert false
+  | _ -> invalid_arg "uuid_of_string: invalid UUID"
 
-let read_uuid = make_read raw_uuid_of_string
+let read_uuid = make_read "read_uuid" raw_uuid_of_string
 
 let uuid_of_string x =
   match Yojson.Safe.from_string x with
   | `String s -> raw_uuid_of_string s
-  | _ -> assert false
+  | _ -> invalid_arg "uuid_of_string: a string was expected"
 
 (** {1 Serializers for type datetime} *)
 
@@ -85,7 +85,7 @@ let string_of_datetime ?(len=28) n =
 
 let datetime_of_json = function
   | `String s -> Platform.datetime_of_string s
-  | _ -> assert false
+  | _ -> invalid_arg "datetime_of_json: a string was expected"
 
 let read_datetime state buf =
   datetime_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
@@ -107,7 +107,7 @@ let string_of_int_or_null ?(len=4) n =
 let int_or_null_of_json = function
   | `Int i -> Some i
   | `Null -> None
-  | _ -> assert false
+  | _ -> invalid_arg "int_or_null_of_json: unexpected input"
 
 let read_int_or_null state buf =
   int_or_null_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
@@ -131,9 +131,9 @@ let string_set_of_json = function
     List.fold_left (fun accu x ->
       match x with
       | `String y -> SSet.add y accu
-      | _ -> assert false
+      | _ -> invalid_arg "string_set_of_json: a string was expected"
     ) SSet.empty xs
-  | _ -> assert false
+  | _ -> invalid_arg "string_set_of_json: a list was expected"
 
 let read_string_set state buf =
   Yojson.Safe.from_lexbuf ~stream:true state buf |> string_set_of_json
