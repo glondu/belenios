@@ -988,7 +988,14 @@ let () =
         | `EncryptedTally _ -> return ()
         | _ -> fail_http 404
       in
-      T.tally_trustees w trustee_id () >>= Html5.send)
+      lwt pds = Web_persist.get_partial_decryptions uuid_s in
+      if List.mem_assoc trustee_id pds then (
+        T.generic_error_page
+          "Your partial decryption has already been received and checked!"
+          () >>= Html5.send
+      ) else (
+        T.tally_trustees w trustee_id () >>= Html5.send
+      ))
 
 let () =
   Any.register
