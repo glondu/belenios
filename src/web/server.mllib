@@ -9,6 +9,7 @@ Election
 
 Web_serializable_j
 Web_common
+Web_persist
 Web_services
 Web_templates
 Web_auth
@@ -16,7 +17,6 @@ Auth_dummy
 Auth_password
 Auth_cas
 Web_site_auth
-Web_persist
 Web_election
 Web_site
 Web_main
