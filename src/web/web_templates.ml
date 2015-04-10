@@ -261,8 +261,7 @@ let election_setup_index uuids auth () =
   lwt login_box = site_login_box auth () in
   base ~title ~login_box ~content ()
 
-let generic_error_page message () =
-  let title = "Error" in
+let generic_page ~title message () =
   let content = [
     p [pcdata message];
   ] in

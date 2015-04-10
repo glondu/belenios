@@ -397,7 +397,7 @@ let handle_setup f cont uuid x =
            Ocsipersist.add election_stable uuid_s se >>
            Redirection.send (preapply cont uuid)
          with e ->
-           T.generic_error_page (Printexc.to_string e) () >>= Html5.send
+           T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html5.send
        ) else forbidden ()
      )
   | None -> forbidden ()
@@ -483,7 +483,7 @@ let () =
 let wrap_handler f =
   try_lwt f ()
   with
-  | e -> T.generic_error_page (Printexc.to_string e) () >>= Html5.send
+  | e -> T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html5.send
 
 let handle_credentials_post token creds =
   lwt uuid = Ocsipersist.find election_credtokens token in
@@ -990,7 +990,7 @@ let () =
       in
       lwt pds = Web_persist.get_partial_decryptions uuid_s in
       if List.mem_assoc trustee_id pds then (
-        T.generic_error_page
+        T.generic_page ~title:"Error"
           "Your partial decryption has already been received and checked!"
           () >>= Html5.send
       ) else (
@@ -1035,11 +1035,11 @@ let () =
       if W.E.check_factor et pk pd then (
         let pds = (trustee_id, partial_decryption) :: pds in
         lwt () = Web_persist.set_partial_decryptions uuid_s pds in
-        T.generic_error_page
+        T.generic_page ~title:"Success"
           "Your partial decryption has been received and checked!" () >>=
         Html5.send
       ) else (
-        T.generic_error_page
+        T.generic_page ~title:"Error"
           "The partial decryption didn't pass validation!" () >>=
         Html5.send
       ))
