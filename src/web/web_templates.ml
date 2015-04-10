@@ -584,7 +584,7 @@ let election_home w state () =
         b [pcdata "This election is currently closed."];
       ]
     | `Open -> []
-    | `EncryptedTally (_, hash) ->
+    | `EncryptedTally (_, _, hash) ->
        [
          pcdata " ";
          b [pcdata "The election is closed and being tallied."];
@@ -660,6 +660,7 @@ let election_home w state () =
 let election_admin w ~is_featured state auth () =
   let module W = (val w : WEB_ELECTION) in
   let title = W.election.e_params.e_name ^ " — Administration" in
+  let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
   let feature_form = post_form ~service:election_set_featured
     (fun featured -> [
       bool_checkbox ~name:featured ~checked:is_featured ();
@@ -677,14 +678,14 @@ let election_admin w ~is_featured state auth () =
          string_input ~input_type:`Submit ~value:"Apply" ();
        ]) (W.election.e_params.e_uuid, ())
   in
-  let state_div =
+  lwt state_div =
     match state with
     | `Open ->
-       div [
+       return @@ div [
          state_form true;
        ]
     | `Closed ->
-       div [
+       return @@ div [
          state_form false;
          post_form
            ~service:election_compute_encrypted_tally
@@ -695,16 +696,47 @@ let election_admin w ~is_featured state auth () =
                  ()
              ]) (W.election.e_params.e_uuid, ());
        ]
-    | `EncryptedTally (_, hash) ->
-       div [
-         pcdata "The ";
-         a
-           ~service:election_dir
-           [pcdata "encrypted tally"]
-           (W.election.e_params.e_uuid, ESETally);
-         pcdata " has been computed. Its hash is ";
-         b [pcdata hash];
-         pcdata ".";
+    | `EncryptedTally (npks, _, hash) ->
+       let rec seq a b =
+         if a <= b then a :: (seq (a+1) b) else []
+       in
+       lwt pds = Web_persist.get_partial_decryptions uuid_s in
+       let trustees =
+         List.map
+           (fun trustee_id ->
+             tr [
+               td [
+                 a
+                   ~service:election_tally_trustees
+                   [pcdata (string_of_int trustee_id)]
+                   (W.election.e_params.e_uuid, ((), trustee_id))
+               ];
+               td [
+                 pcdata (if List.mem_assoc trustee_id pds then "Yes" else "No")
+               ];
+             ]
+           ) (seq 1 npks)
+       in
+       return @@ div [
+         div [
+           pcdata "The ";
+           a
+             ~service:election_dir
+             [pcdata "encrypted tally"]
+             (W.election.e_params.e_uuid, ESETally);
+           pcdata " has been computed. Its hash is ";
+           b [pcdata hash];
+           pcdata ".";
+         ];
+         div [
+           div [pcdata "We are now waiting for trustees..."];
+           table
+             (tr [
+               td [pcdata "Trustee ID"];
+               td [pcdata "Done?"];
+             ])
+             trustees
+         ]
        ]
   in
   let uuid = W.election.e_params.e_uuid in

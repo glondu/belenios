@@ -1094,6 +1094,10 @@ let () =
         | `Closed -> return ()
         | _ -> forbidden ()
       in
-      lwt x = W.B.compute_encrypted_tally () in
-      Web_persist.set_election_state uuid_s (`EncryptedTally x) >>
+      lwt nb, hash = W.B.compute_encrypted_tally () in
+      let pks = W.dir / string_of_election_file ESKeys in
+      let pks = Lwt_io.lines_of_file pks in
+      let npks = ref 0 in
+      lwt () = Lwt_stream.junk_while (fun _ -> incr npks; true) pks in
+      Web_persist.set_election_state uuid_s (`EncryptedTally (!npks, nb, hash)) >>
       Redirection.send (preapply election_admin (uuid, ())))

@@ -25,7 +25,7 @@ open Common
 type election_state =
   [ `Open
   | `Closed
-  | `EncryptedTally of int * string
+  | `EncryptedTally of int * int * string
   ]
 
 let election_states = Ocsipersist.open_table "election_states"

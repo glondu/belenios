@@ -22,7 +22,7 @@
 type election_state =
   [ `Open
   | `Closed
-  | `EncryptedTally of int * string
+  | `EncryptedTally of int * int * string
   ]
 val get_election_state : string -> election_state Lwt.t
 val set_election_state : string -> election_state -> unit Lwt.t
