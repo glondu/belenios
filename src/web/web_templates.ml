@@ -597,6 +597,17 @@ let election_home w state () =
          b [pcdata hash];
          pcdata ".";
        ]
+    | `Tallied ->
+       [
+         pcdata " ";
+         b [pcdata "This election has been tallied."];
+         pcdata " Its ";
+         a
+           ~service:election_dir
+           [pcdata "result"]
+           (W.election.e_params.e_uuid, ESResult);
+         pcdata " is available."
+       ]
   in
   let ballots_link =
     p ~a:[a_style "text-align:center;"] [
@@ -717,6 +728,16 @@ let election_admin w ~is_featured state auth () =
              ]
            ) (seq 1 npks)
        in
+       let release_form =
+         post_form
+           ~service:election_tally_release
+           (fun () ->
+             [string_input
+                 ~input_type:`Submit
+                 ~value:"Combine partial decryptions"
+                 ()
+             ]) (W.election.e_params.e_uuid, ())
+       in
        return @@ div [
          div [
            pcdata "The ";
@@ -736,7 +757,12 @@ let election_admin w ~is_featured state auth () =
                td [pcdata "Done?"];
              ])
              trustees
-         ]
+         ];
+         release_form;
+       ]
+    | `Tallied ->
+       return @@ div [
+         pcdata "This election has been tallied.";
        ]
   in
   let uuid = W.election.e_params.e_uuid in

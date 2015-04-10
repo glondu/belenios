@@ -26,6 +26,7 @@ type election_state =
   [ `Open
   | `Closed
   | `EncryptedTally of int * int * string
+  | `Tallied
   ]
 
 let election_states = Ocsipersist.open_table "election_states"

@@ -72,6 +72,7 @@ let election_pretty_ballot = service ~path:["elections"] ~get_params:(suffix_pro
 let election_compute_encrypted_tally = post_coservice ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_tally_trustees = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "trustees" ** int "trustee_id")) ()
 let election_tally_trustees_post = post_service ~fallback:election_tally_trustees ~post_params:(string "partial_decryption") ()
+let election_tally_release = post_service ~fallback:election_admin ~post_params:unit ()
 
 let election_dir = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** election_file "file")) ()
 

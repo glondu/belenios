@@ -1044,8 +1044,50 @@ let () =
         Html5.send
       ))
 
+let () =
+  Any.register
+    ~service:election_tally_release
+    (fun (uuid, ()) () ->
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w) in
+      lwt () =
+        match_lwt Web_site_auth.get_user () with
+        | Some u when W.metadata.e_owner = Some u -> return ()
+        | _ -> forbidden ()
+      in
+      lwt npks, ntallied =
+        match_lwt Web_persist.get_election_state uuid_s with
+        | `EncryptedTally (npks, ntallied, _) -> return (npks, ntallied)
+        | _ -> forbidden ()
+      in
+      lwt pds = Web_persist.get_partial_decryptions uuid_s in
+      lwt pds =
+        try
+          return @@ Array.init npks (fun i ->
+            List.assoc (i+1) pds |> partial_decryption_of_string W.G.read
+          )
+        with Not_found -> fail_http 404
+      in
+      lwt et =
+        W.dir / string_of_election_file ESETally |>
+        Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
+        wrap1 (encrypted_tally_of_string W.G.read)
+      in
+      let result = W.E.combine_factors ntallied et pds in
+      lwt () =
+        let open Lwt_io in
+        with_file
+          ~mode:Output (W.dir / string_of_election_file ESResult)
+          (fun oc -> Lwt_io.write_line oc (string_of_result W.G.write result))
+      in
+      lwt () = Web_persist.set_election_state uuid_s `Tallied in
+      Eliom_service.preapply
+        election_admin (W.election.e_params.e_uuid, ()) |>
+      Redirection.send)
+
 let content_type_of_file = function
-  | ESRaw | ESKeys | ESBallots | ESETally -> "application/json"
+  | ESRaw | ESKeys | ESBallots | ESETally | ESResult -> "application/json"
   | ESCreds | ESRecords -> "text/plain"
 
 let handle_pseudo_file w u f site_user =

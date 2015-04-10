@@ -183,6 +183,7 @@ type election_file =
   | ESBallots
   | ESRecords
   | ESETally
+  | ESResult
 
 let election_file_of_string = function
   | "election.json" -> ESRaw
@@ -191,6 +192,7 @@ let election_file_of_string = function
   | "ballots.jsons" -> ESBallots
   | "records" -> ESRecords
   | "encrypted_tally.json" -> ESETally
+  | "result.json" -> ESResult
   | x -> invalid_arg ("election_dir_item: " ^ x)
 
 let string_of_election_file = function
@@ -200,6 +202,7 @@ let string_of_election_file = function
   | ESBallots -> "ballots.jsons"
   | ESRecords -> "records"
   | ESETally -> "encrypted_tally.json"
+  | ESResult -> "result.json"
 
 let election_file = Eliom_parameter.user_type
   ~of_string:election_file_of_string
