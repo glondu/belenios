@@ -238,8 +238,9 @@ let () = Html5.register ~service:admin
   (fun () () ->
     let cont () () = Redirection.send admin in
     Eliom_reference.set Web_services.cont cont >>
+    lwt site_user = Web_site_auth.get_user () in
     lwt elections =
-      match_lwt Web_site_auth.get_user () with
+      match site_user with
       | None -> return []
       | Some u ->
         SMap.fold (fun _ w accu ->
@@ -251,7 +252,17 @@ let () = Html5.register ~service:admin
           )
         ) !election_table [] |> List.rev |> return
     in
-    T.admin ~elections (module Web_site_auth : AUTH_SERVICES) ()
+    lwt setup_elections =
+      match site_user with
+      | None -> return []
+      | Some u ->
+         Ocsipersist.fold_step (fun k v accu ->
+           if v.se_owner = u
+           then return (uuid_of_string k :: accu)
+           else return accu
+         ) election_stable []
+    in
+    T.admin ~elections ~setup_elections (module Web_site_auth) ()
   )
 
 let () = File.register
@@ -315,20 +326,6 @@ let () = Any.register ~service:new_election_post
   )
 
 let generate_uuid = Uuidm.v4_gen (Random.State.make_self_init ())
-
-let () = Html5.register ~service:election_setup_index
-  (fun () () ->
-   match_lwt Web_site_auth.get_user () with
-   | Some u ->
-      lwt uuids =
-        Ocsipersist.fold_step (fun k v accu ->
-          if v.se_owner = u
-          then return (uuid_of_string k :: accu)
-          else return accu
-        ) election_stable []
-      in T.election_setup_index uuids (module Web_site_auth : AUTH_SERVICES) ()
-   | None -> forbidden ()
-  )
 
 let () = Redirection.register ~service:election_setup_new
   (fun () () ->

@@ -22,14 +22,13 @@
 open Web_signatures
 
 val home : featured:(module WEB_ELECTION) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val admin : elections:(module WEB_ELECTION) list -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val admin : elections:(module WEB_ELECTION) list -> setup_elections:(Uuidm.t list) -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val new_election : (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val new_election_failure : [ `Exists | `Exception of exn ] -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val generic_page : title:string -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val election_setup_index : Uuidm.t list -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_questions : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_credentials : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

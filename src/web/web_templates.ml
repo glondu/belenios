@@ -151,17 +151,26 @@ let home ~featured () =
   let login_box = pcdata "" in
   base ~title:site_title ~login_box ~content ()
 
-let admin ~elections auth () =
+let admin ~elections ~setup_elections auth () =
   let title = site_title ^ " — Administration" in
   let elections =
     match elections with
-    | [] -> p [pcdata "You cannot administer any elections!"]
+    | [] -> p [pcdata "You own no such elections!"]
     | _ -> ul @@ List.map (format_election `Admin) elections
+  in
+  let setup_elections =
+    match setup_elections with
+    | [] -> p [pcdata "You own no such elections!"]
+    | _ -> ul @@
+       List.map (fun k ->
+         li [a ~service:election_setup [pcdata (Uuidm.to_string k)] k]
+       ) setup_elections
   in
   let content = [
     div [
       div [a ~service:new_election [pcdata "Create a new election"] ()];
-      div [a ~service:election_setup_index [pcdata "Elections being prepared"] ()];
+      h2 [pcdata "Elections being prepared"];
+      setup_elections;
       h2 [pcdata "Elections you can administer"];
       elections;
     ];
@@ -238,25 +247,6 @@ let new_election_failure reason auth () =
       p [pcdata "The creation failed."];
       p [reason];
     ]
-  ] in
-  lwt login_box = site_login_box auth () in
-  base ~title ~login_box ~content ()
-
-let election_setup_index uuids auth () =
-  let service = election_setup in
-  let title = "Elections being prepared" in
-  let uuids =
-    List.map (fun k ->
-      li [a ~service [pcdata (Uuidm.to_string k)] k]
-    ) uuids
-  in
-  let list =
-    match uuids with
-    | [] -> div [pcdata "You own no such elections."]
-    | us -> ul us
-  in
-  let content = [
-    div [list];
   ] in
   lwt login_box = site_login_box auth () in
   base ~title ~login_box ~content ()
