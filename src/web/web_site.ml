@@ -658,56 +658,27 @@ let () =
         end
     )
 
-let can_read m user =
-  match m.e_readers with
-  | None -> false
-  | Some acl ->
-    match user with
-    | None -> acl = `Any (* readers can be anonymous *)
-    | Some u -> check_acl (Some acl) u
-
-let can_vote m user =
-  match m.e_voters with
-  | None -> false
-  | Some acl ->
-    match user with
-    | None -> false (* voters must log in *)
-    | Some u -> check_acl (Some acl) u
-
-let if_eligible w acl f () x =
-  let module W = (val w : WEB_ELECTION) in
-  lwt user = W.Auth.Services.get_user () in
-  if acl W.metadata user then
-    f user x
-  else
-    forbidden ()
-
 let () =
   Any.register
     ~service:election_home
     (fun (uuid, ()) () ->
-     let uuid_s = Uuidm.to_string uuid in
-     let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     let uuid = Uuidm.to_string W.election.e_params.e_uuid in
-     (if_eligible w can_read
-        (fun user () ->
-          Eliom_reference.unset Web_services.ballot >>
-          let cont () () =
-            Redirection.send
-              (Eliom_service.preapply
-                 election_home (W.election.e_params.e_uuid, ()))
-          in
-          Eliom_reference.set Web_services.cont cont >>
-          match_lwt Eliom_reference.get Web_services.cast_confirmed with
-          | Some result ->
-            Eliom_reference.unset Web_services.cast_confirmed >>
-            T.cast_confirmed (module W) ~result () >>= Html5.send
-          | None ->
-            lwt state = Web_persist.get_election_state uuid in
-            T.election_home (module W) state () >>= Html5.send
-        )
-     ) () ())
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      Eliom_reference.unset Web_services.ballot >>
+      let cont () () =
+        Redirection.send
+          (Eliom_service.preapply
+             election_home (W.election.e_params.e_uuid, ()))
+      in
+      Eliom_reference.set Web_services.cont cont >>
+      match_lwt Eliom_reference.get Web_services.cast_confirmed with
+      | Some result ->
+         Eliom_reference.unset Web_services.cast_confirmed >>
+         T.cast_confirmed (module W) ~result () >>= Html5.send
+      | None ->
+         lwt state = Web_persist.get_election_state uuid_s in
+         T.election_home (module W) state () >>= Html5.send)
 
 let () =
   Any.register
@@ -822,27 +793,22 @@ let () =
   Any.register
     ~service:election_vote
     (fun (uuid, ()) () ->
-     let uuid_s = Uuidm.to_string uuid in
-     let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     (if_eligible w can_read
-        (fun user () ->
-          Eliom_reference.unset Web_services.ballot >>
-          let cont () () =
-            Redirection.send
-              (Eliom_service.preapply
-                 election_vote (W.election.e_params.e_uuid, ()))
-          in
-          Eliom_reference.set Web_services.cont cont >>
-          let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
-          Redirection.send
-            (Eliom_service.preapply
-               (Eliom_service.static_dir_with_params
-                  ~get_params:(Eliom_parameter.string "election_url") ())
-               (["static"; "vote.html"],
-                "../elections/" ^ uuid_s ^ "/"))
-        )
-     ) () ())
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      Eliom_reference.unset Web_services.ballot >>
+      let cont () () =
+        Redirection.send
+          (Eliom_service.preapply
+             election_vote (W.election.e_params.e_uuid, ()))
+      in
+      Eliom_reference.set Web_services.cont cont >>
+      Redirection.send
+        (Eliom_service.preapply
+           (Eliom_service.static_dir_with_params
+              ~get_params:(Eliom_parameter.string "election_url") ())
+           (["static"; "vote.html"],
+            "../elections/" ^ uuid_s ^ "/")))
 
 let () =
   Any.register
@@ -923,42 +889,36 @@ let () =
   Any.register
     ~service:election_pretty_ballots
     (fun ((uuid, ()), start) () ->
-     let uuid_s = Uuidm.to_string uuid in
-     let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     lwt user = W.Auth.Services.get_user () in
-     if can_read W.metadata user then (
-       lwt res, _ =
-         W.B.Ballots.fold
-           (fun h _ (accu, i) ->
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      lwt res, _ =
+        W.B.Ballots.fold
+          (fun h _ (accu, i) ->
             if i >= start && i < start+50 then
               return (h :: accu, i+1)
             else return (accu, i+1)
-           ) ([], 1)
-       in T.pretty_ballots (module W) res () >>= Html5.send
-     ) else forbidden ())
+          ) ([], 1)
+      in T.pretty_ballots (module W) res () >>= Html5.send)
 
 let () =
   Any.register
     ~service:election_pretty_ballot
     (fun ((uuid, ()), hash) () ->
-     let uuid_s = Uuidm.to_string uuid in
-     let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     lwt user = W.Auth.Services.get_user () in
-     if can_read W.metadata user then (
-       lwt ballot =
-         W.B.Ballots.fold
-           (fun h b accu ->
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      lwt ballot =
+        W.B.Ballots.fold
+          (fun h b accu ->
             if h = hash then return (Some b) else return accu
-           ) None
-       in
-       match ballot with
-       | None -> fail_http 404
-       | Some b ->
-          String.send (b, "application/json") >>=
-          (fun x -> return @@ cast_unknown_content_kind x)
-     ) else forbidden ())
+          ) None
+      in
+      match ballot with
+      | None -> fail_http 404
+      | Some b ->
+         String.send (b, "application/json") >>=
+           (fun x -> return @@ cast_unknown_content_kind x))
 
 let () =
   Any.register
