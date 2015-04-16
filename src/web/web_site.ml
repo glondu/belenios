@@ -844,96 +844,80 @@ let () =
         )
      ) () ())
 
-let ballot_received w user hash =
-  let module W = (val w : WEB_ELECTION) in
-  let can_vote = can_vote W.metadata user in
-  T.cast_confirmation (module W) ~can_vote hash ()
-
 let () =
   Any.register
     ~service:election_cast
     (fun (uuid, ()) () ->
-     let uuid_s = Uuidm.to_string uuid in
-     let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     (if_eligible w can_read
-        (fun user () ->
-          let cont () () =
-            Redirection.send
-              (Eliom_service.preapply
-                 election_cast (W.election.e_params.e_uuid, ()))
-          in
-          Eliom_reference.set Web_services.cont cont >>
-          match_lwt Eliom_reference.get Web_services.ballot with
-          | Some b -> ballot_received w user (sha256_b64 b) >>= Html5.send
-          | None -> T.cast_raw (module W) () >>= Html5.send
-        )
-     ) () ())
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      let cont () () =
+        Redirection.send
+          (Eliom_service.preapply
+             election_cast (W.election.e_params.e_uuid, ()))
+      in
+      Eliom_reference.set Web_services.cont cont >>
+      match_lwt Eliom_reference.get Web_services.ballot with
+      | Some b -> T.cast_confirmation w (sha256_b64 b) () >>= Html5.send
+      | None -> T.cast_raw w () >>= Html5.send)
 
 let () =
   Any.register
     ~service:election_cast_post
-    (fun (uuid, ()) x ->
-     let uuid_s = Uuidm.to_string uuid in
-     let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     (if_eligible w can_read
-        (fun user (ballot_raw, ballot_file) ->
-          lwt the_ballot = match ballot_raw, ballot_file with
-            | Some ballot, None -> return ballot
-            | None, Some fi ->
-              let fname = fi.Ocsigen_extensions.tmp_filename in
-              Lwt_stream.to_string (Lwt_io.chars_of_file fname)
-            | _, _ -> fail_http 400
-          in
-          let cont () () =
-            Redirection.send
-              (Eliom_service.preapply
-                 Web_services.election_cast (W.election.e_params.e_uuid, ()))
-          in
-          Eliom_reference.set Web_services.cont cont >>
-          Eliom_reference.set Web_services.ballot (Some the_ballot) >>
-          match user with
-          | None ->
-             Redirection.send
-               (Eliom_service.preapply
-                  Web_services.election_login
-                  ((W.election.e_params.e_uuid, ()), None))
-          | Some u -> cont () ()
-        )
-     ) () x)
+    (fun (uuid, ()) (ballot_raw, ballot_file) ->
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      lwt user = W.Auth.Services.get_user () in
+      lwt the_ballot = match ballot_raw, ballot_file with
+        | Some ballot, None -> return ballot
+        | None, Some fi ->
+           let fname = fi.Ocsigen_extensions.tmp_filename in
+           Lwt_stream.to_string (Lwt_io.chars_of_file fname)
+        | _, _ -> fail_http 400
+      in
+      let cont () () =
+        Redirection.send
+          (Eliom_service.preapply
+             Web_services.election_cast (W.election.e_params.e_uuid, ()))
+      in
+      Eliom_reference.set Web_services.cont cont >>
+      Eliom_reference.set Web_services.ballot (Some the_ballot) >>
+      match user with
+      | None ->
+         Redirection.send
+           (Eliom_service.preapply
+              Web_services.election_login
+              ((W.election.e_params.e_uuid, ()), None))
+      | Some u -> cont () ())
 
 let () =
   Any.register
     ~service:election_cast_confirm
     (fun (uuid, ()) () ->
-     let uuid_s = Uuidm.to_string uuid in
-     let w = SMap.find uuid_s !election_table in
-     let module W = (val w : WEB_ELECTION) in
-     match_lwt Eliom_reference.get Web_services.ballot with
-     | Some the_ballot ->
-       begin
-         Eliom_reference.unset Web_services.ballot >>
-         match_lwt W.Auth.Services.get_user () with
-         | Some u ->
-           let b = check_acl W.metadata.e_voters u in
-           if b then (
-             let record = string_of_user u, now () in
-             lwt result =
-               try_lwt
-                 lwt hash = W.B.cast the_ballot record in
-                 return (`Valid hash)
-               with Error e -> return (`Error e)
-             in
-             Eliom_reference.unset Web_services.ballot >>
-             Eliom_reference.set Web_services.cast_confirmed (Some result) >>
-             Redirection.send
-               (Eliom_service.preapply
-                  election_home (W.election.e_params.e_uuid, ()))
-           ) else forbidden ()
-         | None -> forbidden ()
-       end
-     | None -> fail_http 404)
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      match_lwt Eliom_reference.get Web_services.ballot with
+      | Some the_ballot ->
+         begin
+           Eliom_reference.unset Web_services.ballot >>
+           match_lwt W.Auth.Services.get_user () with
+           | Some u ->
+              let record = string_of_user u, now () in
+              lwt result =
+                try_lwt
+                  lwt hash = W.B.cast the_ballot record in
+                  return (`Valid hash)
+                with Error e -> return (`Error e)
+              in
+              Eliom_reference.set Web_services.cast_confirmed (Some result) >>
+              Redirection.send
+                (Eliom_service.preapply
+                   election_home (W.election.e_params.e_uuid, ()))
+           | None -> forbidden ()
+         end
+      | None -> fail_http 404)
 
 let () =
   Any.register

@@ -855,13 +855,13 @@ let cast_raw w () =
   lwt login_box = election_login_box w () in
   base ~title:params.e_name ~login_box ~content ()
 
-let cast_confirmation w ~can_vote hash () =
+let cast_confirmation w hash () =
   let module W = (val w : WEB_ELECTION) in
   lwt user = W.Auth.Services.get_user () in
   let params = W.election.e_params in
   let name = params.e_name in
   let user_div = match user with
-    | Some u when can_vote ->
+    | Some u ->
       post_form ~service:election_cast_confirm (fun () -> [
         p ~a:[a_style "text-align: center; padding: 10px;"] [
           pcdata "I am ";
@@ -873,10 +873,6 @@ let cast_confirmation w ~can_vote hash () =
           pcdata ".";
         ]
       ]) (params.e_uuid, ())
-    | Some _ ->
-      div [
-        pcdata "You cannot vote in this election!";
-      ]
     | None ->
       div [
         pcdata "Please log in to confirm your vote.";
