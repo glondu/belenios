@@ -149,26 +149,9 @@ let set_rewrite_prefix ~src ~dst =
 let empty_metadata = {
   e_voting_starts_at = None;
   e_voting_ends_at = None;
-  e_readers = None;
-  e_voters = None;
   e_owner = None;
   e_auth_config = None;
 }
-
-let check_acl a u =
-  match a with
-  | Some `Any -> true
-  | Some (`Many items) ->
-    let rec loop = function
-      | [] -> false
-      | item :: _ when item.acl_domain = u.user_domain ->
-        (match item.acl_users with
-        | `Any -> true
-        | `Many users -> SSet.mem u.user_name users
-        )
-      | _ :: xs -> loop xs
-    in loop items
-  | _ -> false
 
 let uuid = Eliom_parameter.user_type
   ~of_string:(fun x -> match Uuidm.of_string x with

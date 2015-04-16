@@ -521,33 +521,6 @@ let election_home w state () =
   let module W = (val w : WEB_ELECTION) in
   lwt user = W.Auth.Services.get_user () in
   let params = W.election.e_params and m = W.metadata in
-  lwt permissions =
-    match user with
-    | None ->
-      (match m.e_voters with
-      | Some `Any ->
-        return [
-          pcdata "Anybody can vote in this election.";
-        ]
-      | Some _ ->
-        return [
-          pcdata "Log in to check if you can vote. ";
-          pcdata "Alternatively, you can try to vote and ";
-          pcdata "log in at the last moment.";
-        ]
-      | None ->
-        return [
-          pcdata "Currently, nobody can vote in this election.";
-        ]
-      )
-    | Some u ->
-      let can = if check_acl m.e_voters u then "can" else "cannot" in
-      Lwt.return [
-        pcdata "You ";
-        pcdata can;
-        pcdata " vote in this election.";
-      ]
-  in
   let voting_period =
     match m.e_voting_starts_at, m.e_voting_ends_at with
     | None, None ->
@@ -646,7 +619,6 @@ let election_home w state () =
   ] in
   let content = [
     p (voting_period @ state);
-    p permissions;
     br ();
     div ~a:[a_style "text-align:center;"] [
       div [

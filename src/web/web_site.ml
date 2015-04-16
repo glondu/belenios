@@ -340,8 +340,6 @@ let () = Redirection.register ~service:election_setup_new
       let se_metadata = {
         e_voting_starts_at = None;
         e_voting_ends_at = None;
-        e_readers = Some `Any;
-        e_voters = Some `Any;
         e_owner = Some u;
         e_auth_config = Some [{auth_system = "dummy"; auth_instance = "demo"; auth_config = []}];
       } in

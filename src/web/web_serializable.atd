@@ -39,21 +39,6 @@ type user = {
   name : string;
 } <ocaml field_prefix="user_">
 
-type names =
-  [ Any
-  | Many of string_set
-  ]
-
-type acl_item = {
-  domain : string;
-  users : names;
-} <ocaml field_prefix="acl_">
-
-type acl =
-  [ Any
-  | Many of acl_item list
-  ]
-
 type auth_config = {
   auth_system : string;
   auth_instance : string;
@@ -63,8 +48,6 @@ type auth_config = {
 type metadata = {
   ?voting_starts_at : datetime option;
   ?voting_ends_at : datetime option;
-  ?readers : acl option;
-  ?voters : acl option;
   ?owner: user option;
   ?auth_config: auth_config list option;
 } <ocaml field_prefix="e_">
