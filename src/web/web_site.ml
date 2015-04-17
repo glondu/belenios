@@ -577,7 +577,7 @@ let () =
               | _ :: _ -> ()
             in
             let public_keys =
-              List.map
+              List.rev_map
                 (fun (_, r) ->
                  if !r = "" then failwith "some public keys are missing";
                  trustee_public_key_of_string G.read !r
