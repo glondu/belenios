@@ -164,7 +164,7 @@ packages:
 
 With these packages installed, you should be able to install OPAM by
 following its [installation instructions from
-sources](http://opam.ocaml.org/doc/Quick_Install.html#h2-FromSources).
+sources](http://opam.ocaml.org/doc/Install.html#FromSources).
 Once OPAM is installed, follow the instructions in the _Command-line
 tool_ section above.
 
