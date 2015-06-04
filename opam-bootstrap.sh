@@ -34,13 +34,13 @@ fi
 mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
 
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-wget http://caml.inria.fr/pub/distrib/ocaml-4.01/ocaml-4.01.0.tar.gz
-wget http://www.ocamlpro.com/pub/opam-full-1.1.1.tar.gz
+wget http://caml.inria.fr/pub/distrib/ocaml-4.02/ocaml-4.02.1.tar.gz
+wget https://github.com/ocaml/opam/releases/download/1.2.2/opam-full-1.2.2.tar.gz
 
 if which sha256sum >/dev/null; then
 sha256sum --check <<EOF
-ea1751deff454f5c738d10d8a0ad135afee0852d391cf95766b726c0faf7cfdb  ocaml-4.01.0.tar.gz
-bfcb78109cf88612b5170b25bb96aa576ed3908c8a68b9164a7ae16f9f59ae38  opam-full-1.1.1.tar.gz
+3cbc7af5a3886c8c5af8dab5568d6256a191d89ecbd4aea18eaf5b47034c6138  ocaml-4.02.1.tar.gz
+15e617179251041f4bf3910257bbb8398db987d863dd3cfc288bdd958de58f00  opam-full-1.2.2.tar.gz
 EOF
 else
     echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
@@ -50,8 +50,8 @@ echo
 echo "=-=-= Compilation and installation of OCaml =-=-="
 echo
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-tar -xzf ocaml-4.01.0.tar.gz
-cd ocaml-4.01.0
+tar -xzf ocaml-4.02.1.tar.gz
+cd ocaml-4.02.1
 ./configure -prefix "$BELENIOS_SYSROOT/bootstrap"
 make world
 make opt
@@ -63,9 +63,10 @@ echo
 echo "=-=-= Compilation and installation of OPAM =-=-="
 echo
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-tar -xzf opam-full-1.1.1.tar.gz
-cd opam-full-1.1.1
+tar -xzf opam-full-1.2.2.tar.gz
+cd opam-full-1.2.2
 ./configure -prefix "$BELENIOS_SYSROOT/bootstrap"
+make lib-ext
 make
 make install
 
@@ -82,7 +83,10 @@ echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init --no-setup
-eval `opam config env --sh`
+eval `opam config env`
+# the following is needed because of camlp4
+opam switch 4.02.1
+eval `opam config env`
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
