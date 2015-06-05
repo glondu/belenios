@@ -528,7 +528,8 @@ let handle_credentials_post token creds =
          Printf.ksprintf failwith "invalid credential at line %d" !i)
       (Lwt_io.lines_of_file fname)
   in
-  Redirection.send (preapply election_setup_credentials token)
+  T.generic_page ~title:"Success"
+    "Credentials have been received and checked!" () >>= Html5.send
 
 let () =
   Any.register
@@ -572,7 +573,9 @@ let () =
            (* we keep pk as a string because of G.t *)
            pkref := public_key;
            Ocsipersist.add election_stable uuid se
-          ) >> Redirection.send (preapply election_setup_trustee token)
+          ) >> T.generic_page ~title:"Success"
+            "Your key has been received and checked!"
+            () >>= Html5.send
        )
     )
 
