@@ -292,20 +292,31 @@ let election_setup uuid se auth () =
          [pcdata "Manage questions"]
          uuid]
   in
-  let form_trustees =
+  let form_trustees_add =
     post_form
       ~service:election_setup_trustee_add
       (fun () ->
-       [div
-          [h2 [pcdata "Trustees"];
-           ol
-             (List.rev_map
-                (fun (token, pk) ->
-                 li
-                   [a ~service:election_setup_trustee [pcdata token] token]
-                ) se.se_public_keys
-             );
-           string_input ~input_type:`Submit ~value:"Add" ()]]) uuid
+        [string_input ~input_type:`Submit ~value:"Add" ()]) uuid
+  in
+  let form_trustees_del =
+    post_form
+      ~service:election_setup_trustee_del
+      (fun () ->
+        [string_input ~input_type:`Submit ~value:"Delete" ()]) uuid
+  in
+  let div_trustees =
+    div [
+      h2 [pcdata "Trustees"];
+      ol
+        (List.rev_map
+           (fun (token, pk) ->
+             li
+               [a ~service:election_setup_trustee [pcdata token] token]
+           ) se.se_public_keys
+        );
+      form_trustees_add;
+      form_trustees_del;
+    ]
   in
   let div_credentials =
     div
@@ -325,7 +336,7 @@ let election_setup uuid se auth () =
       ) uuid
   in
   let content = [
-    form_trustees;
+    div_trustees;
     div_credentials;
     form_group;
     form_metadata;

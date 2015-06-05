@@ -458,6 +458,29 @@ let () =
     )
 
 let () =
+  Redirection.register
+    ~service:election_setup_trustee_del
+    (fun uuid () ->
+     match_lwt Web_site_auth.get_user () with
+     | Some u ->
+        let uuid_s = Uuidm.to_string uuid in
+        Lwt_mutex.with_lock election_setup_mutex (fun () ->
+          lwt se = Ocsipersist.find election_stable uuid_s in
+          if se.se_owner = u
+          then (
+            match se.se_public_keys with
+            | (token, _) :: xs ->
+               se.se_public_keys <- xs;
+               Ocsipersist.add election_stable uuid_s se >>
+               Ocsipersist.remove election_pktokens token
+            | _ -> return ()
+          ) else forbidden ()
+        ) >>
+        return (preapply election_setup uuid)
+     | None -> forbidden ()
+    )
+
+let () =
   Html5.register
     ~service:election_setup_credentials
     (fun token () ->
