@@ -593,21 +593,19 @@ let () =
             if se.se_owner <> u then forbidden () else
             let group = Group.of_string se.se_group in
             let module G = (val group : GROUP) in
-            let module M = Election.MakeSimpleMonad (G) in
-            (* FIXME: KG does not actually need M here *)
-            let module KG = Election.MakeSimpleDistKeyGen (G) (M) in
+            let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
             (* construct election data in memory *)
-            let () =
+            lwt public_keys, private_key =
               match se.se_public_keys with
-              | [] -> failwith "trustee public keys are missing"
-              | _ :: _ -> ()
-            in
-            let public_keys =
-              List.rev_map
-                (fun (_, r) ->
-                 if !r = "" then failwith "some public keys are missing";
-                 trustee_public_key_of_string G.read !r
-                ) se.se_public_keys
+              | [] ->
+                 lwt private_key, public_key = KG.generate_and_prove () in
+                 return ([public_key], Some private_key)
+              | _ :: _ ->
+                 return (List.rev_map
+                   (fun (_, r) ->
+                     if !r = "" then failwith "some public keys are missing";
+                     trustee_public_key_of_string G.read !r
+                   ) se.se_public_keys, None)
             in
             let y = KG.combine (Array.of_list public_keys) in
             let template = se.se_questions in
@@ -658,6 +656,14 @@ let () =
                let module W = (val w : REGISTRABLE_ELECTION) in
                lwt w = W.register () in
                let module W = (val w : WEB_ELECTION) in
+               (* create file with private key, if any *)
+               lwt () =
+                 match private_key with
+                 | None -> return ()
+                 | Some x ->
+                    let fname = W.dir / "private_key.json" in
+                    create_file fname (string_of_number x)
+               in
                (* clean up temporary files *)
                Lwt_unix.unlink files.f_election >>
                Lwt_unix.unlink files.f_metadata >>
@@ -1101,10 +1107,25 @@ let () =
         | `Closed -> return ()
         | _ -> forbidden ()
       in
-      lwt nb, hash = W.B.compute_encrypted_tally () in
+      lwt nb, hash, tally = W.B.compute_encrypted_tally () in
       let pks = W.dir / string_of_election_file ESKeys in
       let pks = Lwt_io.lines_of_file pks in
       let npks = ref 0 in
       lwt () = Lwt_stream.junk_while (fun _ -> incr npks; true) pks in
       Web_persist.set_election_state uuid_s (`EncryptedTally (!npks, nb, hash)) >>
+      lwt () =
+        (* compute partial decryption if the (single) key is known *)
+        let skfile = W.dir / "private_key.json" in
+        if !npks = 1 && Sys.file_exists skfile then (
+          lwt sk = Lwt_io.lines_of_file skfile |> Lwt_stream.to_list in
+          let sk = match sk with
+            | [sk] -> number_of_string sk
+            | _ -> failwith "several private keys are available"
+          in
+          let tally = encrypted_tally_of_string W.G.read tally in
+          lwt pd = W.E.compute_factor tally sk in
+          let pd = string_of_partial_decryption W.G.write pd in
+          Web_persist.set_partial_decryptions uuid_s [1, pd]
+        ) else return ()
+      in
       Redirection.send (preapply election_admin (uuid, ())))

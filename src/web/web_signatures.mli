@@ -98,7 +98,7 @@ module type WEB_BALLOT_BOX = sig
   val update_files : unit -> unit Lwt.t
   val update_cred : old:string -> new_:string -> unit Lwt.t
 
-  val compute_encrypted_tally : unit -> (int * string) Lwt.t
+  val compute_encrypted_tally : unit -> (int * string * string) Lwt.t
   (** Computes and writes to disk the encrypted tally. Returns the
       number of ballots and the hash of the encrypted tally. *)
 end
@@ -111,7 +111,7 @@ end
 module type WEB_ELECTION = sig
   include ELECTION_DATA
   include WEB_PARAMS
-  module E : ELECTION with type elt = G.t
+  module E : ELECTION with type elt = G.t and type 'a m = 'a Lwt.t
   module B : WEB_BALLOT_BOX
   module Auth : sig
     module Services : AUTH_SERVICES

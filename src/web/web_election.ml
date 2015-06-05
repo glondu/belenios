@@ -253,7 +253,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
             Lwt_io.write oc tally
           )
         ) >>
-        return (num_tallied, sha256_b64 tally)
+        return (num_tallied, sha256_b64 tally, tally)
 
     end
 
