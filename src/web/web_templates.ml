@@ -310,8 +310,14 @@ let election_setup uuid se auth () =
       ol
         (List.rev_map
            (fun (token, pk) ->
-             li
-               [a ~service:election_setup_trustee [pcdata token] token]
+             li [
+               a ~service:election_setup_trustee [
+                 pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
+                   ~absolute:true
+                   ~service:election_setup_trustee
+                   token
+               ] token
+             ];
            ) se.se_public_keys
         );
       form_trustees_add;
@@ -319,12 +325,22 @@ let election_setup uuid se auth () =
     ]
   in
   let div_credentials =
-    div
-      [h2 [pcdata "Credentials"];
-       a
-         ~service:election_setup_credentials
-         [pcdata "Manage credentials"]
-         se.se_public_creds]
+    div [
+      h2 [pcdata "Credentials"];
+      ul [
+        li [
+          a
+            ~service:election_setup_credentials
+            [
+              pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
+                ~absolute:true
+                ~service:election_setup_credentials
+                se.se_public_creds
+            ]
+            se.se_public_creds;
+        ];
+      ];
+    ]
   in
   let form_create =
     post_form
