@@ -707,7 +707,12 @@ let election_admin w ~is_featured state auth () =
                td [
                  a
                    ~service:election_tally_trustees
-                   [pcdata (string_of_int trustee_id)]
+                   [
+                     pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
+                       ~absolute:true
+                       ~service:election_tally_trustees
+                       (W.election.e_params.e_uuid, ((), trustee_id))
+                   ]
                    (W.election.e_params.e_uuid, ((), trustee_id))
                ];
                td [
@@ -741,7 +746,7 @@ let election_admin w ~is_featured state auth () =
            div [pcdata "We are now waiting for trustees..."];
            table
              (tr [
-               td [pcdata "Trustee ID"];
+               td [pcdata "Trustee link"];
                td [pcdata "Done?"];
              ])
              trustees
