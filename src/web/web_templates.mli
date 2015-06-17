@@ -30,6 +30,7 @@ val new_election_failure : [ `Exists | `Exception of exn ] -> (module AUTH_SERVI
 val generic_page : title:string -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val election_setup : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_voters : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_questions : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_credentials : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

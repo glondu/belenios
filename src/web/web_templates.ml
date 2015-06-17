@@ -304,6 +304,18 @@ let election_setup uuid se auth () =
       (fun () ->
         [string_input ~input_type:`Submit ~value:"Delete" ()]) uuid
   in
+  let div_voters =
+    div [
+      h2 [pcdata "Voters"];
+      div [
+        pcdata @@ string_of_int @@ List.length se.se_voters;
+        pcdata " voter(s) registered";
+      ];
+      a ~service:election_setup_voters
+        [pcdata "Manage voters"]
+        uuid
+    ]
+  in
   let div_trustees =
     div [
       h2 [pcdata "Trustees"];
@@ -352,6 +364,7 @@ let election_setup uuid se auth () =
       ) uuid
   in
   let content = [
+    div_voters;
     div_trustees;
     div_credentials;
     form_group;
@@ -394,6 +407,24 @@ let election_setup_questions uuid se auth () =
     interactivity;
     form;
     link;
+  ] in
+  lwt login_box = site_login_box auth () in
+  base ~title ~login_box ~content ()
+
+let election_setup_voters uuid se auth () =
+  let title = "Voters for election " ^ Uuidm.to_string uuid in
+  let form =
+    post_form
+      ~service:election_setup_voters_post
+      (fun name ->
+        let value = String.concat "\n" se.se_voters in
+        [
+          div [textarea ~a:[a_rows 20; a_cols 50] ~name ~value ()];
+          div [string_input ~input_type:`Submit ~value:"Submit" ()]])
+      uuid
+  in
+  let content = [
+    form
   ] in
   lwt login_box = site_login_box auth () in
   base ~title ~login_box ~content ()

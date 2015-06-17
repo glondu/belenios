@@ -97,6 +97,7 @@ val uuid :
 type setup_election = {
   mutable se_owner : user;
   mutable se_group : string;
+  mutable se_voters : string list;
   mutable se_questions : template;
   mutable se_public_keys : (string * string ref) list;
   mutable se_metadata : metadata;
