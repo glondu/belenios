@@ -476,6 +476,14 @@ let election_setup_credentials token uuid se () =
         div [textarea ~a:[a_id "group"; a_rows 5; a_cols 40; a_readonly `ReadOnly] ~name ~value ()];
       ]
   in
+  let voters =
+    let name : 'a Eliom_parameter.param_name = Obj.magic "voters" in
+    let value = String.concat "\n" se.se_voters in
+    div [
+      div [pcdata "List of voters:"];
+      div [textarea ~a:[a_id "voters"; a_rows 5; a_cols 40; a_readonly `ReadOnly] ~name ~value ()];
+    ]
+  in
   let interactivity =
     div
       ~a:[a_id "interactivity"]
@@ -487,7 +495,7 @@ let election_setup_credentials token uuid se () =
         script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_credgen.js"))] (pcdata "");
       ]
   in
-  let div_textarea = div [group; interactivity; form_textarea; disclaimer] in
+  let div_textarea = div [group; voters; interactivity; form_textarea; disclaimer] in
   let content = [
     div_download;
     div_textarea;

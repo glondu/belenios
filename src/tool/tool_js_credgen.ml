@@ -25,8 +25,16 @@ open Tool_js_common
 open Tool_credgen
 
 let generate _ =
-  let number = get_input "number" |> int_of_string in
-  let ids = generate_ids number in
+  let ids =
+    let raw = get_textarea "voters" in
+    let rec loop i accu =
+      if i >= 0 then
+        let j = try String.rindex_from raw i '\n' with Not_found -> -1 in
+        loop (j-1) (String.sub raw (j+1) (i-j) :: accu)
+      else
+        accu
+    in loop (String.length raw - 1) []
+  in
   let module P : PARAMS = struct
     let uuid = get_textarea "uuid"
     let group = get_textarea "group"
@@ -56,12 +64,6 @@ let fill_interactivity _ =
     (document##getElementById (Js.string "interactivity"))
     (fun e ->
      let x = document##createElement (Js.string "div") in
-     let t = document##createTextNode (Js.string "Number of credentials to generate: ") in
-     Dom.appendChild x t;
-     let y = document##createElement (Js.string "input") in
-     y##setAttribute (Js.string "id", Js.string "number");
-     y##setAttribute (Js.string "size", Js.string "5");
-     Dom.appendChild x y;
      Dom.appendChild e x;
      let b = document##createElement (Js.string "button") in
      let t = document##createTextNode (Js.string "Generate") in
