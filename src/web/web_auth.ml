@@ -93,7 +93,7 @@ module Make (N : NAME) = struct
 
     let auth_realm = N.name
 
-    let get_auth_systems () = !auth_instance_names
+    let get_auth_systems () = return !auth_instance_names
 
     let get_user () =
       match_lwt Eliom_reference.get user with

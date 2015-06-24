@@ -43,6 +43,7 @@ let make_login_box style auth links =
   let module S = (val auth : AUTH_SERVICES) in
   let module L = (val links : AUTH_LINKS) in
   lwt user = S.get_user () in
+  lwt auth_systems = S.get_auth_systems () in
   return @@ div ~a:[a_style style] (
     match user with
     | Some user ->
@@ -63,7 +64,7 @@ let make_login_box style auth links =
           pcdata "Not logged in.";
         ];
         let auth_systems =
-          S.get_auth_systems () |>
+          auth_systems |>
           List.map (fun name ->
             a ~service:(L.login (Some name)) [pcdata name] ()
           ) |> list_join (pcdata ", ")
@@ -1160,8 +1161,9 @@ let upload_password_db ~service auth links () =
 let choose auth links () =
   let module S = (val auth : AUTH_SERVICES) in
   let module L = (val links : AUTH_LINKS) in
+  lwt auth_systems = S.get_auth_systems () in
   let auth_systems =
-    S.get_auth_systems () |>
+    auth_systems |>
     List.map (fun name ->
       a ~service:(L.login (Some name)) [pcdata name] ()
     ) |> list_join (pcdata ", ")
