@@ -22,22 +22,22 @@
 open Web_signatures
 
 val home : featured:(module WEB_ELECTION) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val admin : elections:(module WEB_ELECTION) list -> setup_elections:(Uuidm.t list) -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val admin : elections:(module WEB_ELECTION) list -> setup_elections:(Uuidm.t list) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val new_election : (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val new_election_failure : [ `Exists | `Exception of exn ] -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val new_election : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val generic_page : title:string -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val election_setup : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_voters : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_questions : Uuidm.t -> Web_common.setup_election -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_voters : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_questions : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_credentials : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val election_home : (module WEB_ELECTION) -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_admin : (module WEB_ELECTION) -> is_featured:bool -> Web_persist.election_state -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val update_credential : (module WEB_ELECTION) -> (module AUTH_SERVICES) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_admin : (module WEB_ELECTION) -> is_featured:bool -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val update_credential : (module WEB_ELECTION) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_raw : (module WEB_ELECTION) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_confirmation : (module WEB_ELECTION) -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_confirmed : (module WEB_ELECTION) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

@@ -79,10 +79,17 @@ module Site_links = struct
   let logout = Eliom_service.preapply site_logout ()
 end
 
-let site_links = (module Site_links : AUTH_LINKS)
+module Site_auth = struct
+  let auth_realm = "site"
+  let get_user () = !Web_site_auth_state.get_user ()
+  let get_auth_systems () = !Web_site_auth_state.get_auth_systems ()
+end
 
-let site_login_box auth () =
-  make_login_box admin_background auth site_links
+let site_links = (module Site_links : AUTH_LINKS)
+let site_auth = (module Site_auth : AUTH_SERVICES)
+
+let site_login_box () =
+  make_login_box admin_background site_auth site_links
 
 let base ~title ~login_box ~content ?(footer = div []) () =
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
@@ -151,7 +158,7 @@ let home ~featured () =
   let login_box = pcdata "" in
   base ~title:site_title ~login_box ~content ()
 
-let admin ~elections ~setup_elections auth () =
+let admin ~elections ~setup_elections () =
   let title = site_title ^ " — Administration" in
   let elections =
     match elections with
@@ -175,7 +182,7 @@ let admin ~elections ~setup_elections auth () =
       elections;
     ];
   ] in
-  lwt login_box = site_login_box auth () in
+  lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
 let format_date = Platform.format_datetime "%a, %d %b %Y %T %z"
@@ -187,7 +194,7 @@ let make_button ~service contents =
     uri
     contents
 
-let new_election auth () =
+let new_election () =
   let title = "Create new election" in
   lwt body =
     let form = post_form ~service:new_election_post
@@ -232,10 +239,10 @@ let new_election auth () =
   let content = [
     div body;
   ] in
-  lwt login_box = site_login_box auth () in
+  lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
-let new_election_failure reason auth () =
+let new_election_failure reason () =
   let title = "Create new election" in
   let reason =
     match reason with
@@ -248,7 +255,7 @@ let new_election_failure reason auth () =
       p [reason];
     ]
   ] in
-  lwt login_box = site_login_box auth () in
+  lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
 let generic_page ~title message () =
@@ -258,7 +265,7 @@ let generic_page ~title message () =
   let login_box = pcdata "" in
   base ~title ~login_box ~content ()
 
-let election_setup uuid se auth () =
+let election_setup uuid se () =
   let title = "Preparation of election " ^ Uuidm.to_string uuid in
   let make_form ?a service value title =
     post_form ?a ~service
@@ -372,10 +379,10 @@ let election_setup uuid se auth () =
     div_questions;
     form_create;
   ] in
-  lwt login_box = site_login_box auth () in
+  lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
-let election_setup_questions uuid se auth () =
+let election_setup_questions uuid se () =
   let title = "Questions for election " ^ Uuidm.to_string uuid in
   let form =
     let value = string_of_template se.se_questions in
@@ -408,10 +415,10 @@ let election_setup_questions uuid se auth () =
     form;
     link;
   ] in
-  lwt login_box = site_login_box auth () in
+  lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
-let election_setup_voters uuid se auth () =
+let election_setup_voters uuid se () =
   let title = "Voters for election " ^ Uuidm.to_string uuid in
   let form =
     post_form
@@ -426,7 +433,7 @@ let election_setup_voters uuid se auth () =
   let content = [
     form
   ] in
-  lwt login_box = site_login_box auth () in
+  lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
 let election_setup_credentials token uuid se () =
@@ -695,7 +702,7 @@ let election_home w state () =
   lwt login_box = election_login_box w () in
   base ~title:params.e_name ~login_box ~content ~footer ()
 
-let election_admin w ~is_featured state auth () =
+let election_admin w ~is_featured state () =
   let module W = (val w : WEB_ELECTION) in
   let title = W.election.e_params.e_name ^ " — Administration" in
   let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
@@ -811,10 +818,10 @@ let election_admin w ~is_featured state auth () =
     div [feature_form];
     div [state_div];
   ] in
-  lwt login_box = site_login_box auth () in
+  lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
-let update_credential w auth () =
+let update_credential w () =
   let module W = (val w : WEB_ELECTION) in
   let params = W.election.e_params in
   let form = post_form ~service:election_update_credential_post
@@ -852,7 +859,7 @@ let update_credential w auth () =
   let content = [
     form;
   ] in
-  lwt login_box = site_login_box auth () in
+  lwt login_box = site_login_box () in
   base ~title:params.e_name ~login_box ~content ()
 
 let cast_raw w () =

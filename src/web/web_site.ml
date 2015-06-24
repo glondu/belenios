@@ -262,7 +262,7 @@ let () = Html5.register ~service:admin
            else return accu
          ) election_stable []
     in
-    T.admin ~elections ~setup_elections (module Web_site_auth) ()
+    T.admin ~elections ~setup_elections ()
   )
 
 let () = File.register
@@ -294,7 +294,7 @@ let () = Html5.register ~service:new_election
   (fun () () ->
     match_lwt Web_site_auth.get_user () with
     | None -> forbidden ()
-    | Some _ -> T.new_election (module Web_site_auth : AUTH_SERVICES) ()
+    | Some _ -> T.new_election ()
   )
 
 let () = Any.register ~service:new_election_post
@@ -311,7 +311,7 @@ let () = Any.register ~service:new_election_post
       begin try_lwt
         begin match_lwt import_election files with
         | None ->
-          T.new_election_failure `Exists (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
+          T.new_election_failure `Exists () >>= Html5.send
         | Some w ->
           let module W = (val w : REGISTRABLE_ELECTION) in
           lwt w = W.register () in
@@ -320,7 +320,7 @@ let () = Any.register ~service:new_election_post
             (preapply election_admin (W.election.e_params.e_uuid, ()))
         end
       with e ->
-        T.new_election_failure (`Exception e) (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
+        T.new_election_failure (`Exception e) () >>= Html5.send
       end
     | None -> forbidden ()
   )
@@ -374,7 +374,7 @@ let () = Html5.register ~service:election_setup
       let uuid_s = Uuidm.to_string uuid in
       lwt se = Ocsipersist.find election_stable uuid_s in
       if se.se_owner = u
-      then T.election_setup uuid se (module Web_site_auth : AUTH_SERVICES) ()
+      then T.election_setup uuid se ()
       else forbidden ()
    | None -> forbidden ()
   )
@@ -425,7 +425,7 @@ let () =
         let uuid_s = Uuidm.to_string uuid in
         lwt se = Ocsipersist.find election_stable uuid_s in
         if se.se_owner = u
-        then T.election_setup_questions uuid se (module Web_site_auth : AUTH_SERVICES) ()
+        then T.election_setup_questions uuid se ()
         else forbidden ()
      | None -> forbidden ()
     )
@@ -446,7 +446,7 @@ let () =
          let uuid_s = Uuidm.to_string uuid in
          lwt se = Ocsipersist.find election_stable uuid_s in
          if se.se_owner = u
-         then T.election_setup_voters uuid se (module Web_site_auth : AUTH_SERVICES) ()
+         then T.election_setup_voters uuid se ()
          else forbidden ()
       | None -> forbidden ()
     )
@@ -689,7 +689,7 @@ let () =
             (* actually create the election *)
             begin match_lwt import_election files with
             | None ->
-               T.new_election_failure `Exists (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
+               T.new_election_failure `Exists () >>= Html5.send
             | Some w ->
                let module W = (val w : REGISTRABLE_ELECTION) in
                lwt w = W.register () in
@@ -719,7 +719,7 @@ let () =
             end
           )
         with e ->
-          T.new_election_failure (`Exception e) (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
+          T.new_election_failure (`Exception e) () >>= Html5.send
         end
     )
 
@@ -770,7 +770,7 @@ let () =
      match site_user with
      | Some u when W.metadata.e_owner = Some u ->
         lwt state = Web_persist.get_election_state uuid in
-        T.election_admin (module W) ~is_featured state (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
+        T.election_admin (module W) ~is_featured state () >>= Html5.send
        | _ -> forbidden ()
     )
 
@@ -826,7 +826,7 @@ let () =
      match site_user with
      | Some u ->
         if W.metadata.e_owner = Some u then (
-          T.update_credential (module W) (module Web_site_auth : AUTH_SERVICES) () >>= Html5.send
+          T.update_credential (module W) () >>= Html5.send
         ) else (
           forbidden ()
         )

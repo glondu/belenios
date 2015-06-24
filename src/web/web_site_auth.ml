@@ -42,3 +42,6 @@ let logout () () =
 
 let () = Any.register ~service:site_login login
 let () = Any.register ~service:site_logout logout
+
+let () = Web_site_auth_state.get_user := get_user
+let () = Web_site_auth_state.get_auth_systems := get_auth_systems

@@ -11,6 +11,7 @@ Web_serializable_j
 Web_common
 Web_persist
 Web_services
+Web_site_auth_state
 Web_templates
 Web_auth
 Auth_dummy
