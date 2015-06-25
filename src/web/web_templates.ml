@@ -81,7 +81,6 @@ module Site_links = struct
 end
 
 module Site_auth = struct
-  let auth_realm = "site"
   let get_user () = Web_auth_state.get_site_user ()
   let get_auth_systems () =
     lwt l = Web_auth_state.get_config None in
@@ -564,7 +563,6 @@ let election_setup_trustee token uuid se () =
 let election_login_box w =
   let module W = (val w : WEB_ELECTION) in
   let module A = struct
-    let auth_realm = Uuidm.to_string W.election.e_params.e_uuid
     let get_user () =
       Web_auth_state.get_election_user W.election.e_params.e_uuid
     let get_auth_systems () =
@@ -1091,99 +1089,6 @@ let tally_trustees w trustee_id () =
   ] in
   let login_box = pcdata "" in
   base ~title ~login_box ~content ()
-
-let login_box auth links =
-  let module S = (val auth : AUTH_SERVICES) in
-  let style =
-    if S.auth_realm = "site" then admin_background else ""
-  in
-  make_login_box style auth links
-
-let dummy ~service auth links () =
-  let title, field_name, input_type =
-    "Dummy login", "Username:", `Text
-  in
-  let form = post_form ~service
-    (fun name ->
-      [
-        tablex [tbody [
-          tr [
-            th [label ~a:[a_for name] [pcdata field_name]];
-            td [string_input ~a:[a_maxlength 50] ~input_type ~name ()];
-          ]]
-        ];
-        div [
-          string_input ~input_type:`Submit ~value:"Login" ();
-        ]
-      ]) ()
-  in
-  let content = [
-    form;
-  ] in
-  lwt login_box = login_box auth links in
-  base ~title ~login_box ~content ()
-
-let password ~service auth links () =
-  let form = post_form ~service
-    (fun (llogin, lpassword) ->
-      [
-        tablex [tbody [
-          tr [
-            th [label ~a:[a_for llogin] [pcdata "Username:"]];
-            td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin ()];
-          ];
-          tr [
-            th [label ~a:[a_for lpassword] [pcdata "Password:"]];
-            td [string_input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword ()];
-          ];
-        ]];
-        div [
-          string_input ~input_type:`Submit ~value:"Login" ();
-        ]
-      ]) ()
-  in
-  let content = [
-    form;
-  ] in
-  lwt login_box = login_box auth links in
-  base ~title:"Password login" ~login_box ~content ()
-
-let upload_password_db ~service auth links () =
-  let title = "Upload password database" in
-  let form = post_form ~service
-    (fun password_db ->
-      [
-        div [
-          pcdata "Password database (CSV format): ";
-          file_input ~name:password_db ();
-        ];
-        div [string_input ~input_type:`Submit ~value:"Submit" ()];
-      ]
-    ) ()
-  in
-  let content = [
-    div [form];
-  ] in
-  lwt login_box = login_box auth links in
-  base ~title ~login_box ~content ()
-
-let choose auth links () =
-  let module S = (val auth : AUTH_SERVICES) in
-  let module L = (val links : AUTH_LINKS) in
-  lwt auth_systems = S.get_auth_systems () in
-  let auth_systems =
-    auth_systems |>
-    List.map (fun name ->
-      a ~service:(L.login (Some name)) [pcdata name] ()
-    ) |> list_join (pcdata ", ")
-  in
-  let content = [
-    div [p (
-      [pcdata "Please log in: ["] @ auth_systems @ [pcdata "]"]
-    )]
-  ] in
-  lwt login_box = login_box auth links in
-  base ~title:"Log in" ~login_box ~content ()
 
 let already_logged_in () =
   let title = "Already logged in" in

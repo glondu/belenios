@@ -45,45 +45,6 @@ val pretty_ballots : (module WEB_ELECTION) -> string list -> unit -> [> `Html ] 
 
 val tally_trustees : (module WEB_ELECTION) -> int -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val dummy :
-  service:(unit, 'a, [< Eliom_service.post_service_kind ],
-           [< Eliom_service.suff ], 'b,
-           [< string Eliom_parameter.setoneradio ]
-           Eliom_parameter.param_name,
-           [< Eliom_service.registrable ],
-           [< Eliom_service.non_ocaml_service ])
-          Eliom_service.service ->
-  (module AUTH_SERVICES) -> (module AUTH_LINKS) ->
-  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-val password :
-  service:(unit, 'a, [< Eliom_service.post_service_kind ],
-           [< Eliom_service.suff ], 'b,
-           [< string Eliom_parameter.setoneradio ]
-           Eliom_parameter.param_name *
-           [< string Eliom_parameter.setoneradio ]
-           Eliom_parameter.param_name,
-           [< Eliom_service.registrable ],
-           [< Eliom_service.non_ocaml_service ])
-          Eliom_service.service ->
-  (module AUTH_SERVICES) -> (module AUTH_LINKS) ->
-  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-val upload_password_db :
-  service:(unit, 'a, [< Eliom_service.post_service_kind ],
-           [< Eliom_service.suff ], 'b,
-           [< Eliom_lib.file_info Eliom_parameter.setoneradio ]
-           Eliom_parameter.param_name,
-           [< Eliom_service.registrable ],
-           [< Eliom_service.non_ocaml_service ])
-          Eliom_service.service ->
-  (module AUTH_SERVICES) -> (module AUTH_LINKS) ->
-  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
-val choose :
-  (module AUTH_SERVICES) -> (module AUTH_LINKS) ->
-  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-
 val already_logged_in :
   unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 

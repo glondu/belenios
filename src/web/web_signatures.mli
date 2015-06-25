@@ -27,8 +27,6 @@ open Web_serializable_t
 
 module type AUTH_SERVICES = sig
 
-  val auth_realm : string
-
   val get_auth_systems : unit -> string list Lwt.t
   val get_user : unit -> user option Lwt.t
 
@@ -61,27 +59,6 @@ end
 
 type content =
     Eliom_registration.browser_content Eliom_registration.kind Lwt.t
-
-module type AUTH_HANDLERS_RAW =
-  sig
-    val login : string option -> unit -> content
-    val logout : unit -> unit -> content
-  end
-
-type service_handler = unit ->
-  Eliom_registration.browser_content Eliom_registration.kind Lwt.t
-
-type 'a service_cont = ('a -> service_handler) -> service_handler
-
-module type AUTH_INSTANCE_HANDLERS = sig
-  val login : string service_cont
-  val logout : unit service_cont
-end
-
-module type AUTH_HANDLERS = sig
-  val login : string option -> unit service_cont
-  val logout : unit service_cont
-end
 
 module type WEB_BALLOT_BOX = sig
   module Ballots : MONADIC_MAP_RO
@@ -126,27 +103,4 @@ type election_files = {
 module type REGISTRABLE_ELECTION = sig
   val discard : unit -> unit
   val register : unit -> (module WEB_ELECTION) Lwt.t
-end
-
-module type NAME = sig
-  val name : string
-  val path : string list
-  val kind : [ `Site | `Election of Uuidm.t * string ]
-end
-
-module type AUTH_MAKE_INSTANCE =
-  functor (N : NAME) ->
-  functor (S : AUTH_SERVICES) ->
-  AUTH_INSTANCE_HANDLERS
-
-module type AUTH_SYSTEM = sig
-  type config
-
-  val name : string
-
-  val parse_config :
-    attributes:(string * string) list ->
-    config option
-
-  val make : config -> (module AUTH_MAKE_INSTANCE)
 end

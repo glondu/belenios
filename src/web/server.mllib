@@ -13,10 +13,6 @@ Web_persist
 Web_services
 Web_auth_state
 Web_templates
-Web_auth
-Auth_dummy
-Auth_password
-Auth_cas
 Web_site_auth
 Web_election
 Web_site

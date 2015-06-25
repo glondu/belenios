@@ -66,7 +66,6 @@ let () =
     )
   | Element ("auth", ["name", auth_instance],
              [Element (auth_system, auth_config, [])]) ->
-    let open Web_auth in
     let i = {auth_system; auth_instance; auth_config} in
     auth_instances := i :: !auth_instances
   | Element (tag, _, _) ->
