@@ -83,3 +83,18 @@ val upload_password_db :
 val choose :
   (module AUTH_SERVICES) -> (module AUTH_LINKS) ->
   unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+val already_logged_in :
+  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+val login_choose :
+  string list ->
+  (string -> (unit, unit, [< Eliom_service.get_service_kind ],
+             [< Eliom_service.suff ], 'a, unit,
+             [< Eliom_service.registrable ],
+             [< Eliom_service.non_ocaml_service ])
+            Eliom_service.service) ->
+  unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+val login_dummy : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val login_password : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

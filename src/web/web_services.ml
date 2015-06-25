@@ -80,9 +80,6 @@ let election_dir = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" 
 
 let scope = Eliom_common.default_session_scope
 
-let cont : (unit -> service_handler) Eliom_reference.eref =
-  Eliom_reference.eref ~scope (fun () () -> Eliom_registration.Redirection.send home)
-
 let ballot : string option Eliom_reference.eref =
   Eliom_reference.eref ~scope None
 

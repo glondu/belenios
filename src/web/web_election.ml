@@ -54,8 +54,13 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         | Some xs -> xs
     end
 
-    module Auth = Web_auth.Make (N)
-    let () = Auth.configure N.auth_config
+    let configure_auth () =
+      let auth_config =
+        List.map (fun {auth_system; auth_instance; auth_config} ->
+          auth_instance, (auth_system, List.map snd auth_config)
+        ) N.auth_config
+      in
+      Web_persist.set_auth_config uuid auth_config
 
     include D
     include P

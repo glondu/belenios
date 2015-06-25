@@ -86,3 +86,12 @@ let get_partial_decryptions x =
 
 let set_partial_decryptions x pds =
   Ocsipersist.add election_pds x pds
+
+let auth_configs = Ocsipersist.open_table "auth_configs"
+
+let get_auth_config x =
+  try_lwt Ocsipersist.find auth_configs x
+  with Not_found -> return []
+
+let set_auth_config x c =
+  Ocsipersist.add auth_configs x c

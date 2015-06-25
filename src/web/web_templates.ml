@@ -82,8 +82,10 @@ end
 
 module Site_auth = struct
   let auth_realm = "site"
-  let get_user () = !Web_site_auth_state.get_user ()
-  let get_auth_systems () = !Web_site_auth_state.get_auth_systems ()
+  let get_user () = Web_auth_state.get_site_user ()
+  let get_auth_systems () =
+    lwt l = Web_auth_state.get_config None in
+    return (List.map fst l)
 end
 
 let site_links = (module Site_links : AUTH_LINKS)
@@ -561,7 +563,15 @@ let election_setup_trustee token uuid se () =
 
 let election_login_box w =
   let module W = (val w : WEB_ELECTION) in
-  let auth = (module W.Auth.Services : AUTH_SERVICES) in
+  let module A = struct
+    let auth_realm = Uuidm.to_string W.election.e_params.e_uuid
+    let get_user () =
+      Web_auth_state.get_election_user W.election.e_params.e_uuid
+    let get_auth_systems () =
+      lwt l = Web_auth_state.get_config (Some W.election.e_params.e_uuid) in
+      return @@ List.map fst l
+  end in
+  let auth = (module A : AUTH_SERVICES) in
   let module L = struct
     let login x =
       Eliom_service.preapply
@@ -583,7 +593,6 @@ let file w x =
 
 let election_home w state () =
   let module W = (val w : WEB_ELECTION) in
-  lwt user = W.Auth.Services.get_user () in
   let params = W.election.e_params and m = W.metadata in
   let voting_period =
     match m.e_voting_starts_at, m.e_voting_ends_at with
@@ -898,7 +907,7 @@ let cast_raw w () =
 
 let cast_confirmation w hash () =
   let module W = (val w : WEB_ELECTION) in
-  lwt user = W.Auth.Services.get_user () in
+  lwt user = Web_auth_state.get_election_user W.election.e_params.e_uuid in
   let params = W.election.e_params in
   let name = params.e_name in
   let user_div = match user with
@@ -1175,3 +1184,78 @@ let choose auth links () =
   ] in
   lwt login_box = login_box auth links in
   base ~title:"Log in" ~login_box ~content ()
+
+let already_logged_in () =
+  let title = "Already logged in" in
+  let content = [
+    div [
+      pcdata "You are already logged in as an administrator or on another election. You have to ";
+      a ~service:site_logout [pcdata "log out"] ();
+      pcdata " first."];
+  ] in
+  let login_box = pcdata "" in
+  base ~title ~login_box ~content ()
+
+let login_choose auth_systems service () =
+  let auth_systems =
+    auth_systems |>
+    List.map (fun name ->
+      a ~service:(service name) [pcdata name] ()
+    ) |> list_join (pcdata ", ")
+  in
+  let content = [
+    div [p (
+      [pcdata "Please log in: ["] @ auth_systems @ [pcdata "]"]
+    )]
+  ] in
+  let login_box = pcdata "" in
+  base ~title:"Log in" ~login_box ~content ()
+
+let login_dummy () =
+  let title, field_name, input_type =
+    "Dummy login", "Username:", `Text
+  in
+  let form = post_form ~service:Web_auth_state.dummy_post
+    (fun name ->
+      [
+        tablex [tbody [
+          tr [
+            th [label ~a:[a_for name] [pcdata field_name]];
+            td [string_input ~a:[a_maxlength 50] ~input_type ~name ()];
+          ]]
+        ];
+        div [
+          string_input ~input_type:`Submit ~value:"Login" ();
+        ]
+      ]) ()
+  in
+  let content = [
+    form;
+  ] in
+  let login_box = pcdata "" in
+  base ~title ~login_box ~content ()
+
+let login_password () =
+  let form = post_form ~service:Web_auth_state.password_post
+    (fun (llogin, lpassword) ->
+      [
+        tablex [tbody [
+          tr [
+            th [label ~a:[a_for llogin] [pcdata "Username:"]];
+            td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin ()];
+          ];
+          tr [
+            th [label ~a:[a_for lpassword] [pcdata "Password:"]];
+            td [string_input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword ()];
+          ];
+        ]];
+        div [
+          string_input ~input_type:`Submit ~value:"Login" ();
+        ]
+      ]) ()
+  in
+  let content = [
+    form;
+  ] in
+  let login_box = pcdata "" in
+  base ~title:"Password login" ~login_box ~content ()

@@ -39,3 +39,6 @@ val get_featured_elections : unit -> string list Lwt.t
 
 val get_partial_decryptions : string -> (int * string) list Lwt.t
 val set_partial_decryptions : string -> (int * string) list -> unit Lwt.t
+
+val get_auth_config : string -> (string * (string * string list)) list Lwt.t
+val set_auth_config : string -> (string * (string * string list)) list -> unit Lwt.t
