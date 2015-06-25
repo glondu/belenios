@@ -28,7 +28,7 @@ open Web_signatures
 let home = service ~path:[""] ~get_params:unit ()
 let admin = service ~path:["admin"] ~get_params:unit ()
 let site_login = service ~path:["login"] ~get_params:(opt (string "service")) ()
-let site_logout = service ~path:["logout"] ~get_params:unit ()
+let logout = service ~path:["logout"] ~get_params:unit ()
 
 let source_code = service ~path:["belenios.tar.gz"] ~get_params:unit ()
 let get_randomness = service ~path:["get-randomness"] ~get_params:unit ()
@@ -59,7 +59,6 @@ let election_setup_create = post_coservice ~csrf_safe:true ~fallback:election_se
 let election_home = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "")) ()
 let election_admin = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "admin")) ()
 let election_login = service ~path:["elections"] ~get_params:(suffix_prod (uuid "uuid" ** suffix_const "login") (opt (string "service"))) ()
-let election_logout = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "logout")) ()
 let election_set_featured = post_coservice ~fallback:election_admin ~post_params:(bool "featured") ()
 let election_set_state = post_coservice ~fallback:election_admin ~post_params:(bool "state") ()
 let election_update_credential = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "update-cred")) ()

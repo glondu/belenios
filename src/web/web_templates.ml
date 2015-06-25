@@ -77,7 +77,7 @@ let make_login_box style auth links =
 
 module Site_links = struct
   let login x = Eliom_service.preapply site_login x
-  let logout = Eliom_service.preapply site_logout ()
+  let logout = Eliom_service.preapply logout ()
 end
 
 module Site_auth = struct
@@ -576,9 +576,7 @@ let election_login_box w =
         election_login
         ((W.election.e_params.e_uuid, ()), x)
     let logout =
-      Eliom_service.preapply
-        election_logout
-        (W.election.e_params.e_uuid, ())
+      Eliom_service.preapply logout ()
   end in
   let links = (module L : AUTH_LINKS) in
   fun () -> make_login_box "" auth links
@@ -993,10 +991,7 @@ let cast_confirmed w ~result () =
       em [pcdata name];
       ] @ result);
     p [
-      (let service =
-        Eliom_service.preapply
-          election_logout (params.e_uuid, ())
-      in
+      (let service = Eliom_service.preapply logout () in
       a ~service [
         pcdata "Log out and come back to election page"
       ] ());
@@ -1095,7 +1090,7 @@ let already_logged_in () =
   let content = [
     div [
       pcdata "You are already logged in as an administrator or on another election. You have to ";
-      a ~service:site_logout [pcdata "log out"] ();
+      a ~service:logout [pcdata "log out"] ();
       pcdata " first."];
   ] in
   let login_box = pcdata "" in

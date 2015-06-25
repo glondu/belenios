@@ -259,11 +259,8 @@ let logout_handler () =
 let () = Eliom_registration.Any.register ~service:site_login
   (fun service () -> login_handler service None)
 
-let () = Eliom_registration.Any.register ~service:site_logout
+let () = Eliom_registration.Any.register ~service:logout
   (fun () () -> logout_handler ())
 
 let () = Eliom_registration.Any.register ~service:election_login
   (fun ((uuid, ()), service) () -> login_handler service (Some uuid))
-
-let () = Eliom_registration.Any.register ~service:election_logout
-  (fun (_, ()) () -> logout_handler ())
