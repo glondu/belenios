@@ -88,11 +88,10 @@ let register_election params web_params =
     }
   end in
   let module P = (val web_params : WEB_PARAMS) in
-  let module R = Web_election.Make (D) (P) in
-  (module R : Web_election.REGISTRABLE), fun () ->
+  let module W = Web_election.Make (D) (P) in
+  let election = (module W : WEB_ELECTION) in
+  fun () ->
     (* starting from here, we do side-effects on the running server *)
-    let module W = R.Register (struct end) in
-    let election = (module W : WEB_ELECTION) in
     election_table := SMap.add uuid election !election_table;
     election
 
@@ -136,8 +135,7 @@ let import_election f =
         let state = ref `Open
       end in
       let web_params = (module X : WEB_PARAMS) in
-      let r, do_register = register_election params web_params in
-      let module R = (val r : Web_election.REGISTRABLE) in
+      let do_register = register_election params web_params in
       let module G = P.G in
       let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
       let public_keys = Lwt_io.lines_of_file f.f_public_keys in
@@ -219,7 +217,7 @@ let import_election f =
 lwt () =
   Ocsipersist.iter_step (fun uuid (raw_election, web_params) ->
     let params = Group.election_params_of_string raw_election in
-    let _, do_register = register_election params web_params in
+    let do_register = register_election params web_params in
     let election = do_register () in
     let module W = (val election : WEB_ELECTION) in
     assert (uuid = Uuidm.to_string W.election.e_params.e_uuid);

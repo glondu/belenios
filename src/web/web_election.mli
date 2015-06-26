@@ -25,8 +25,4 @@ open Signatures
 open Web_serializable_t
 open Web_signatures
 
-module type REGISTRABLE = sig
-  module Register (X : EMPTY) : WEB_ELECTION
-end
-
-module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE
+module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : WEB_ELECTION

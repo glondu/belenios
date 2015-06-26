@@ -32,13 +32,7 @@ open Web_services
 
 let ( / ) = Filename.concat
 
-module type REGISTRABLE = sig
-  module Register (X : EMPTY) : WEB_ELECTION
-end
-
-module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
-
-  module Register (X : EMPTY) : WEB_ELECTION = struct
+module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : WEB_ELECTION = struct
 
     let uuid = Uuidm.to_string D.election.e_params.e_uuid
 
@@ -241,7 +235,5 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
         return (num_tallied, sha256_b64 tally, tally)
 
     end
-
-  end
 
 end
