@@ -41,26 +41,6 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : REGISTRABLE = struct
   module Register (X : EMPTY) : WEB_ELECTION = struct
 
     let uuid = Uuidm.to_string D.election.e_params.e_uuid
-    let base_path = ["elections"; uuid]
-
-    module N = struct
-      let name = uuid
-      let path = base_path
-      let kind = `Election (D.election.e_params.e_uuid, P.dir)
-
-      let auth_config =
-        match P.metadata.e_auth_config with
-        | None -> []
-        | Some xs -> xs
-    end
-
-    let configure_auth () =
-      let auth_config =
-        List.map (fun {auth_system; auth_instance; auth_config} ->
-          auth_instance, (auth_system, List.map snd auth_config)
-        ) N.auth_config
-      in
-      Web_persist.set_auth_config uuid auth_config
 
     include D
     include P

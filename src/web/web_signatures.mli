@@ -90,7 +90,6 @@ module type WEB_ELECTION = sig
   include WEB_PARAMS
   module E : ELECTION with type elt = G.t and type 'a m = 'a Lwt.t
   module B : WEB_BALLOT_BOX
-  val configure_auth : unit -> unit Lwt.t
 end
 
 type election_files = {

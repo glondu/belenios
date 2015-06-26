@@ -174,7 +174,17 @@ let import_election f =
             )) >>
             let election = do_register () in
             let module W = (val election : WEB_ELECTION) in
-            W.configure_auth () >>
+            lwt () =
+              match W.metadata.e_auth_config with
+              | None -> return ()
+              | Some xs ->
+                 let auth_config =
+                   List.map (fun {auth_system; auth_instance; auth_config} ->
+                     auth_instance, (auth_system, List.map snd auth_config)
+                   ) xs
+                 in
+                 Web_persist.set_auth_config uuid auth_config
+            in
             let () =
               Ocsigen_messages.debug (fun () ->
                 Printf.sprintf "Injecting credentials for %s" uuid
@@ -212,7 +222,6 @@ lwt () =
     let _, do_register = register_election params web_params in
     let election = do_register () in
     let module W = (val election : WEB_ELECTION) in
-    lwt () = W.configure_auth () in
     assert (uuid = Uuidm.to_string W.election.e_params.e_uuid);
     Ocsigen_messages.debug (fun () ->
       Printf.sprintf "Initialized election %s from persistent store" uuid
