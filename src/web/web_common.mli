@@ -73,6 +73,7 @@ type election_file =
   | ESKeys
   | ESCreds
   | ESBallots
+  | ESVoters
   | ESRecords
   | ESETally
   | ESResult

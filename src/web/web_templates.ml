@@ -790,6 +790,9 @@ let election_admin w ~is_featured state () =
       a ~service:election_update_credential [pcdata "Update a credential"] (uuid, ());
     ];
     div [
+      a ~service:election_dir [pcdata "Voter list"] (uuid, ESVoters);
+    ];
+    div [
       a ~service:election_dir [pcdata "Voting records"] (uuid, ESRecords);
     ];
     div [feature_form];

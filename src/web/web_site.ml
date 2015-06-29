@@ -54,6 +54,8 @@ let delete_shallow_directory dir =
   in
   Lwt_unix.rmdir dir
 
+let concat = String.concat
+
 open Eliom_service
 open Eliom_registration
 
@@ -139,6 +141,7 @@ let import_election f =
       let module G = P.G in
       let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
       let public_keys = Lwt_io.lines_of_file f.f_public_keys in
+      let voters = Lwt_io.lines_of_file f.f_voters in
       lwt pks = Lwt_stream.(
         clone public_keys |>
         map (trustee_public_key_of_string G.read) |>
@@ -169,6 +172,9 @@ let import_election f =
             )) >>
             Lwt_io.(with_file Output (dir/"public_keys.jsons") (fun oc ->
               write_lines oc public_keys
+            )) >>
+            Lwt_io.(with_file Output (dir/"voters.txt") (fun oc ->
+              write_lines oc voters
             )) >>
             let election = do_register () in
             let module W = (val election : WEB_ELECTION) in
@@ -641,6 +647,7 @@ let () =
               f_metadata = !spool_dir / uuid_s ^ ".metadata.json";
               f_public_keys = !spool_dir / uuid_s ^ ".public_keys.jsons";
               f_public_creds = !spool_dir / uuid_s ^ ".public_creds.txt";
+              f_voters = !spool_dir / uuid_s ^ ".voters.txt";
             } in
             lwt _ =
               try_lwt Lwt_unix.stat files.f_public_creds
@@ -655,6 +662,7 @@ let () =
             in
             create_file files.f_election (string_of_params G.write_wrapped_pubkey params) >>
             create_file files.f_metadata (string_of_metadata se.se_metadata) >>
+            create_file files.f_voters (concat "\n" se.se_voters) >>
             Lwt_io.with_file
               ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
               ~perm:0o600
@@ -688,6 +696,7 @@ let () =
                Lwt_unix.unlink files.f_metadata >>
                Lwt_unix.unlink files.f_public_keys >>
                Lwt_unix.unlink files.f_public_creds >>
+               Lwt_unix.unlink files.f_voters >>
                (* clean up tokens *)
                Ocsipersist.remove election_credtokens se.se_public_creds >>
                Lwt_list.iter_s
@@ -1052,12 +1061,17 @@ let () =
 
 let content_type_of_file = function
   | ESRaw | ESKeys | ESBallots | ESETally | ESResult -> "application/json"
-  | ESCreds | ESRecords -> "text/plain"
+  | ESCreds | ESRecords | ESVoters -> "text/plain"
 
 let handle_pseudo_file w u f site_user =
   let module W = (val w : WEB_ELECTION) in
+  let confidential =
+    match f with
+    | ESRaw | ESKeys | ESBallots | ESETally | ESResult | ESCreds -> false
+    | ESRecords | ESVoters -> true
+  in
   lwt () =
-    if f = ESRecords then (
+    if confidential then (
       match site_user with
       | Some u when W.metadata.e_owner = Some u -> return ()
       | _ -> forbidden ()

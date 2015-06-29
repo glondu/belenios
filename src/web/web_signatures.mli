@@ -97,6 +97,7 @@ type election_files = {
   f_metadata : string;
   f_public_keys : string;
   f_public_creds : string;
+  f_voters : string;
 }
 
 module type REGISTRABLE_ELECTION = sig

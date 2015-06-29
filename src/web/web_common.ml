@@ -164,6 +164,7 @@ type election_file =
   | ESKeys
   | ESCreds
   | ESBallots
+  | ESVoters
   | ESRecords
   | ESETally
   | ESResult
@@ -174,6 +175,7 @@ let election_file_of_string = function
   | "public_creds.txt" -> ESCreds
   | "ballots.jsons" -> ESBallots
   | "records" -> ESRecords
+  | "voters.txt" -> ESVoters
   | "encrypted_tally.json" -> ESETally
   | "result.json" -> ESResult
   | x -> invalid_arg ("election_dir_item: " ^ x)
@@ -184,6 +186,7 @@ let string_of_election_file = function
   | ESCreds -> "public_creds.txt"
   | ESBallots -> "ballots.jsons"
   | ESRecords -> "records"
+  | ESVoters -> "voters.txt"
   | ESETally -> "encrypted_tally.json"
   | ESResult -> "result.json"
 

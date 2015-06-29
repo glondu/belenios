@@ -95,6 +95,7 @@ let read_election_dir dir =
       f_metadata = path/"metadata.json";
       f_public_keys = path/"public_keys.jsons";
       f_public_creds = path/"public_creds.txt";
+      f_voters = path/"voters.txt";
     }, item.datadir_featured)
   )
 
