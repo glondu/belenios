@@ -199,35 +199,6 @@ let make_button ~service contents =
 let new_election () =
   let title = "Create new election" in
   lwt body =
-    let form = post_form ~service:new_election_post
-      (fun (election, (metadata, (public_keys, public_creds))) ->
-        [
-          h2 [pcdata "Import prepared election"];
-          p [
-            pcdata "This section assumes you have already prepared election files offline using either the command-line tool or its ";
-            a ~service:tool [pcdata "web version"] ();
-            pcdata ".";
-          ];
-          div [
-            pcdata "Public election parameters: ";
-            file_input ~name:election ();
-          ];
-          div [
-            pcdata "Optional metadata: ";
-            file_input ~name:metadata ()
-          ];
-          div [
-            pcdata "Trustee public keys: ";
-            file_input ~name:public_keys ()
-          ];
-          div [
-            pcdata "Public credentials: ";
-            file_input ~name:public_creds ()
-          ];
-          div [string_input ~input_type:`Submit ~value:"Submit" ()];
-        ]
-      ) ()
-    in
     let setup_form = post_form ~service:election_setup_new
       (fun () ->
        [
@@ -236,7 +207,7 @@ let new_election () =
        ]
       ) ()
     in
-    return [form; setup_form]
+    return [setup_form]
   in
   let content = [
     div body;

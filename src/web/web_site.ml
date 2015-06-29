@@ -306,34 +306,6 @@ let () = Html5.register ~service:new_election
     | Some _ -> T.new_election ()
   )
 
-let () = Any.register ~service:new_election_post
-  (fun () (election, (metadata, (public_keys, public_creds))) ->
-    match_lwt Web_auth_state.get_site_user () with
-    | Some u ->
-      let open Ocsigen_extensions in
-      let files = {
-        f_election = election.tmp_filename;
-        f_metadata = metadata.tmp_filename;
-        f_public_keys = public_keys.tmp_filename;
-        f_public_creds = public_creds.tmp_filename;
-      } in
-      begin try_lwt
-        begin match_lwt import_election files with
-        | None ->
-          T.new_election_failure `Exists () >>= Html5.send
-        | Some w ->
-          let module W = (val w : REGISTRABLE_ELECTION) in
-          lwt w = W.register () in
-          let module W = (val w : WEB_ELECTION) in
-          Redirection.send
-            (preapply election_admin (W.election.e_params.e_uuid, ()))
-        end
-      with e ->
-        T.new_election_failure (`Exception e) () >>= Html5.send
-      end
-    | None -> forbidden ()
-  )
-
 let generate_uuid = Uuidm.v4_gen (Random.State.make_self_init ())
 
 let () = Redirection.register ~service:election_setup_new

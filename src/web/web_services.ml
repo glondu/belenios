@@ -34,7 +34,6 @@ let source_code = service ~path:["belenios.tar.gz"] ~get_params:unit ()
 let get_randomness = service ~path:["get-randomness"] ~get_params:unit ()
 
 let new_election = service ~path:["new-election"] ~get_params:unit ()
-let new_election_post = post_service ~fallback:new_election ~post_params:(file "election" ** file "metadata" ** file "public_keys" ** file "public_creds") ()
 
 let tool = preapply (static_dir ()) ["static"; "belenios-tool.html"]
 
