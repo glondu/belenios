@@ -404,6 +404,77 @@ let () =
         se.se_metadata <- metadata) election_setup)
 
 let () =
+  Any.register
+    ~service:election_setup_auth
+    (handle_setup
+       (fun se auth_system _ _ ->
+         match auth_system with
+         | Some (("dummy" | "password") as auth_system) ->
+            se.se_metadata <- {
+              se.se_metadata with
+                e_auth_config = Some [{
+                  auth_system;
+                  auth_instance = auth_system;
+                  auth_config = []
+                }]
+            }
+         | Some "cas" ->
+            se.se_metadata <- {
+              se.se_metadata with
+                e_auth_config = Some [{
+                  auth_system = "cas";
+                  auth_instance = "cas";
+                  auth_config = ["server", ""];
+                }]
+            }
+         | Some x -> failwith ("unknown authentication system: "^x)
+         | None -> failwith "no authentication system was given"
+       ) election_setup)
+
+let () =
+  Any.register
+    ~service:election_setup_auth_cas
+    (handle_setup
+       (fun se server _ _ ->
+         se.se_metadata <- {
+           se.se_metadata with
+             e_auth_config = Some [{
+               auth_system = "cas";
+               auth_instance = "cas";
+               auth_config = ["server", server];
+             }]
+         }) election_setup)
+
+let () =
+  Any.register
+    ~service:election_setup_auth_genpwd
+    (handle_setup
+       (fun se () _ uuid ->
+         let table =
+           "password_" ^
+           let u = Uuidm.to_string uuid in
+           underscorize u
+         in
+         let table = Ocsipersist.open_table table in
+         Lwt_list.iter_s (fun v ->
+           lwt salt = generate_token () in
+           lwt password = generate_token () in
+           let hashed = sha256_hex (salt ^ password) in
+           lwt () = Ocsipersist.add table v (salt, hashed) in
+           let body =
+             "Username: " ^ v ^ "\nPassword: " ^ password ^ "\n"
+           in
+           let subject =
+             "Your password for election " ^ Uuidm.to_string uuid
+           in
+           lwt () = send_email "noreply@belenios.org" v subject body in
+           Ocsigen_messages.debug (fun () ->
+             Printf.sprintf "----- Password for %s is %s" v password
+           );
+           return ()
+         ) se.se_voters) election_setup)
+
+let () =
   Html5.register
     ~service:election_setup_questions
     (fun uuid () ->

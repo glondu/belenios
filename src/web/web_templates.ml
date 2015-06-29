@@ -264,6 +264,74 @@ let election_setup uuid se () =
       (Eliom_service.preapply election_setup_metadata uuid)
       value "Election metadata"
   in
+  let form_auth =
+    let checked_dummy, checked_password, checked_cas =
+      match se.se_metadata.e_auth_config with
+      | Some [x] ->
+         (match x.auth_system with
+         | "dummy" -> true, false, false
+         | "password" -> false, true, false
+         | "cas" -> false, false, true
+         | _ -> false, false, false)
+      | _ -> false, false, false
+    in
+    post_form ~service:election_setup_auth
+      (fun name ->
+        [
+          div [
+            string_radio ~checked:checked_dummy ~name ~value:"dummy" ();
+            pcdata "Dummy";
+          ];
+          div [
+            string_radio ~checked:checked_password ~name ~value:"password" ();
+            pcdata "Password";
+          ];
+          div [
+            string_radio ~checked:checked_cas ~name ~value:"cas" ();
+            pcdata "CAS";
+          ];
+          div [
+            string_input ~input_type:`Submit ~value:"Submit" ();
+          ];
+        ])
+      uuid
+  in
+  let form_cas =
+    match se.se_metadata.e_auth_config with
+    | Some [x] ->
+       (match x.auth_system with
+       | "cas" ->
+          let value =
+            match x.auth_config with
+            | ["server", x] -> x
+            | _ -> ""
+          in
+          post_form ~service:election_setup_auth_cas
+            (fun name ->
+              [
+                div [
+                  pcdata "CAS server address: ";
+                  string_input ~name ~input_type:`Text ~a:[a_size 40] ~value ();
+                  string_input ~input_type:`Submit ~value:"Submit" ();
+                ]
+              ]) uuid
+       | _ -> pcdata "")
+    | _ -> pcdata ""
+  in
+  let form_password =
+    match se.se_metadata.e_auth_config with
+    | Some [x] ->
+       (match x.auth_system with
+       | "password" ->
+          post_form ~service:election_setup_auth_genpwd
+            (fun () ->
+              [div [
+                string_input ~input_type:`Submit ~value:"Generate and mail passwords" ()
+              ]]
+            ) uuid
+       | _ -> pcdata "")
+    | _ -> pcdata ""
+  in
   let div_questions =
     div
       [h2 [pcdata "Questions"];
@@ -349,6 +417,12 @@ let election_setup uuid se () =
     div_credentials;
     form_group;
     form_metadata;
+    div [
+      h2 [pcdata "Authentication"];
+      form_auth;
+      form_cas;
+      form_password;
+    ];
     div_questions;
     form_create;
   ] in

@@ -110,3 +110,5 @@ val generate_token : unit -> string Lwt.t
 val string_of_user : user -> string
 
 val underscorize : string -> string
+
+val send_email : string -> string -> string -> string -> unit Lwt.t

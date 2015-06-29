@@ -241,3 +241,9 @@ let string_of_user {user_domain; user_name} =
 
 let underscorize x =
   String.map (function '-' -> '_' | c -> c) x
+
+let send_email from to_ subject body =
+  let contents =
+    "From: " ^ from ^ "\nTo: " ^ to_ ^ "\nSubject: " ^ subject ^ "\n\n" ^ body
+  in
+  Lwt_process.pwrite ("sendmail", [|"sendmail"; to_|]) contents
