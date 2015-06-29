@@ -43,10 +43,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) : WEB_ELECTION = struct
 
     module B : WEB_BALLOT_BOX = struct
 
-      let suffix = "_" ^ String.map (function
-        | '-' -> '_'
-        | c -> c
-      ) uuid
+      let suffix = "_" ^ underscorize uuid
 
       module Ballots = struct
         type 'a m = 'a Lwt.t

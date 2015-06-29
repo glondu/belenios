@@ -238,3 +238,6 @@ let generate_token () =
 
 let string_of_user {user_domain; user_name} =
   user_domain ^ ":" ^ user_name
+
+let underscorize x =
+  String.map (function '-' -> '_' | c -> c) x

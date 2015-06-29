@@ -97,9 +97,7 @@ let password_handler () (name, password) =
     | None -> "site"
     | Some u ->
        let u = Uuidm.to_string u in
-       for i = 0 to String.length u - 1 do
-         if u.[i] = '-' then u.[i] <- '_'
-       done; u
+       underscorize u
   in
   let table = Ocsipersist.open_table table in
   lwt salt, hashed =
