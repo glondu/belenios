@@ -376,7 +376,7 @@ let handle_setup f cont uuid x =
        lwt se = Ocsipersist.find election_stable uuid_s in
        if se.se_owner = u then (
          try_lwt
-           f se x u;
+           f se x u uuid;
            Ocsipersist.add election_stable uuid_s se >>
            Redirection.send (preapply cont uuid)
          with e ->
@@ -389,7 +389,7 @@ let () =
   Any.register
     ~service:election_setup_group
     (handle_setup
-       (fun se x _ ->
+       (fun se x _ _ ->
         let _group = Group.of_string x in
         (* we keep it as a string since it contains a type *)
         se.se_group <- x) election_setup)
@@ -398,7 +398,7 @@ let () =
   Any.register
     ~service:election_setup_metadata
     (handle_setup
-       (fun se x u ->
+       (fun se x u _ ->
         let metadata = metadata_of_string x in
         if metadata.e_owner <> Some u then failwith "wrong owner";
         se.se_metadata <- metadata) election_setup)
@@ -421,7 +421,7 @@ let () =
   Any.register
     ~service:election_setup_questions_post
     (handle_setup
-       (fun se x _ ->
+       (fun se x _ _ ->
         se.se_questions <- template_of_string x) election_setup_questions)
 
 let () =
@@ -451,7 +451,7 @@ let () =
   Any.register
     ~service:election_setup_voters_post
     (handle_setup
-       (fun se x _ ->
+       (fun se x _ _ ->
          let xs = Pcre.split x in
          let () =
            try
