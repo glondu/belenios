@@ -261,6 +261,7 @@ let election_setup uuid se () =
   let form_metadata =
     let value = string_of_metadata se.se_metadata in
     make_form
+      ~a:[a_style "display: none;"]
       (Eliom_service.preapply election_setup_metadata uuid)
       value "Election metadata"
   in
