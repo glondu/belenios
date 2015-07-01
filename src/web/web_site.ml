@@ -54,7 +54,7 @@ let delete_shallow_directory dir =
   in
   Lwt_unix.rmdir dir
 
-let concat = String.concat
+module PString = String
 
 open Eliom_service
 open Eliom_registration
@@ -733,7 +733,7 @@ let () =
             in
             create_file files.f_election (string_of_params G.write_wrapped_pubkey params) >>
             create_file files.f_metadata (string_of_metadata se.se_metadata) >>
-            create_file files.f_voters (concat "\n" se.se_voters) >>
+            create_file files.f_voters (PString.concat "\n" se.se_voters) >>
             Lwt_io.with_file
               ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
               ~perm:0o600
