@@ -40,6 +40,29 @@ let wrap f x =
         alert "Unexpected error: %s" (Printexc.to_string e)
   ); Js._false
 
+let basic_check_private_key s =
+  let n = String.length s in
+  let rec leading i =
+    if i < n then
+      match s.[i] with
+      | '"' -> middle (i+1)
+      | _ -> failwith "Must start with a double quote"
+    else failwith "Too short"
+  and middle i =
+    if i < n then
+      match s.[i] with
+      | '0'..'9' -> ending (i+1)
+      | _ -> failwith "Must have at least one digit"
+    else failwith "Too short"
+  and ending i =
+    if i < n then
+      match s.[i] with
+      | '0'..'9' -> ending (i+1)
+      | '"' -> (if i+1 < n then failwith "Must end with a double quote")
+      | c -> Printf.ksprintf failwith "Illegal character: %c" c
+    else failwith "Must end with a double quote"
+  in leading 0
+
 let compute_partial_decryption _ =
   Js.Opt.option !election >>= fun e ->
   let election = Group.election_params_of_string e in
@@ -51,6 +74,7 @@ let compute_partial_decryption _ =
   document##getElementById (Js.string "private_key") >>= fun e ->
   Dom_html.CoerceTo.input e >>= fun e ->
   let pk_str = Js.to_string e##value in
+  basic_check_private_key pk_str;
   let private_key =
     try number_of_string pk_str
     with e ->
