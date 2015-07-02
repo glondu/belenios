@@ -641,6 +641,87 @@ let () =
      let s = Lwt_io.chars_of_file creds.Ocsigen_extensions.tmp_filename in
      wrap_handler (fun () -> handle_credentials_post token s))
 
+module Credgen = struct
+  module String = PString
+
+  (* FIXME: duplicate of Tool_credgen *)
+
+  let get_random_char =
+    let prng = Lazy.lazy_from_fun (Lwt_preemptive.detach (fun () ->
+      pseudo_rng (random_string secure_rng 16)
+    )) in
+    let mutex = Lwt_mutex.create () in
+    fun () ->
+      Lwt_mutex.with_lock mutex (fun () ->
+        lwt prng = Lazy.force prng in
+        let s = random_string prng 1 in
+        return @@ s.[0]
+      )
+
+  (* Beware: the following must be changed in accordance with the booth! *)
+  let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+  let token_length = 14
+  let n58 = Z.of_int 58
+  let n53 = Z.of_int 53
+
+  let generate_raw_token () =
+    let res = String.create token_length in
+    let rec loop i accu =
+      if i < token_length then (
+        lwt digit = get_random_char () in
+        let digit = int_of_char digit mod 58 in
+        res.[i] <- digits.[digit];
+        loop (i+1) Z.(n58 * accu + of_int digit)
+      ) else return (res, accu)
+    in loop 0 Z.zero
+
+  let add_checksum (raw, value) =
+    let checksum = 53 - Z.(to_int (value mod n53)) in
+    return (raw ^ String.make 1 digits.[checksum])
+
+  let generate () =
+    generate_raw_token () >>= add_checksum
+
+end
+
+let () =
+  Any.register
+    ~service:election_setup_credentials_server
+    (fun uuid () ->
+      let uuid_s = Uuidm.to_string uuid in
+      lwt se = Ocsipersist.find election_stable uuid_s in
+      let module S = Set.Make (PString) in
+      let module G = (val Group.of_string se.se_group : GROUP) in
+      lwt creds =
+        Lwt_list.fold_left_s (fun accu id ->
+          lwt cred = Credgen.generate () in
+          let priv_cred = derive_cred uuid cred in
+          let pub_cred =
+            let x = Z.(of_string_base 16 priv_cred mod G.q) in
+            let y = G.(g **~ x) in
+            G.to_string y
+          in
+          lwt () = send_email
+            "noreply@belenios.org" id
+            ("Your credential for election " ^ uuid_s)
+            cred
+          in
+          return @@ S.add pub_cred accu
+        ) S.empty se.se_voters
+      in
+      let creds = S.elements creds in
+      let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
+      lwt () = Lwt_mutex.with_lock election_setup_mutex
+        (fun () ->
+          Lwt_io.with_file
+            ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+            ~perm:0o600 ~mode:Lwt_io.Output fname
+            (fun oc ->
+              Lwt_list.iter_s (Lwt_io.write_line oc) creds))
+      in
+      T.generic_page ~title:"Success"
+        "Credentials have been generated and mailed!" () >>= Html5.send)
+
 let () =
   Html5.register
     ~service:election_setup_trustee

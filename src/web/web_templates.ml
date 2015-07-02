@@ -401,6 +401,10 @@ let election_setup uuid se () =
             se.se_public_creds;
         ];
       ];
+      post_form ~service:election_setup_credentials_server
+        (fun () ->
+          [string_input ~input_type:`Submit ~value:"Generate on server" ()]
+        ) uuid;
     ]
   in
   let form_create =
