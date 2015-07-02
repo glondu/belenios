@@ -1206,7 +1206,7 @@ let () =
           ~mode:Output (W.dir / string_of_election_file ESResult)
           (fun oc -> Lwt_io.write_line oc (string_of_result W.G.write result))
       in
-      lwt () = Web_persist.set_election_state uuid_s `Tallied in
+      lwt () = Web_persist.set_election_state uuid_s (`Tallied result.result) in
       Eliom_service.preapply
         election_admin (W.election.e_params.e_uuid, ()) |>
       Redirection.send)

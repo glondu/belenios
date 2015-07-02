@@ -667,7 +667,7 @@ let election_home w state () =
         pcdata ".";
       ]
   in
-  let state =
+  let state_ =
     match state with
     | `Closed ->
       [
@@ -688,7 +688,7 @@ let election_home w state () =
          b [pcdata hash];
          pcdata ".";
        ]
-    | `Tallied ->
+    | `Tallied _ ->
        [
          pcdata " ";
          b [pcdata "This election has been tallied."];
@@ -736,9 +736,7 @@ let election_home w state () =
       ];
     ]
   ] in
-  let content = [
-    p (voting_period @ state);
-    br ();
+  let go_to_the_booth =
     div ~a:[a_style "text-align:center;"] [
       div [
         make_button
@@ -751,7 +749,33 @@ let election_home w state () =
           ~service:(Eliom_service.preapply election_cast (params.e_uuid, ()))
           [pcdata "submit a raw ballot"] ();
       ];
-    ];
+    ]
+  in
+  let middle =
+    match state with
+    | `Tallied result ->
+       let questions = Array.to_list W.election.e_params.e_questions in
+       ul (List.mapi (fun i x ->
+         let answers = Array.to_list x.q_answers in
+         let answers = List.mapi (fun j x ->
+           tr [td [pcdata x]; td [pcdata @@ string_of_int result.(i).(j)]]
+         ) answers in
+         let answers =
+           match answers with
+           | [] -> pcdata ""
+           | x :: xs -> table x xs
+         in
+         li [
+           pcdata x.q_question;
+           answers;
+         ]
+       ) questions)
+    | _ -> go_to_the_booth
+  in
+  let content = [
+    p (voting_period @ state_);
+    br ();
+    middle;
     br ();
     ballots_link;
   ] in
@@ -855,7 +879,7 @@ let election_admin w ~is_featured state () =
          ];
          release_form;
        ]
-    | `Tallied ->
+    | `Tallied _ ->
        return @@ div [
          pcdata "This election has been tallied.";
        ]

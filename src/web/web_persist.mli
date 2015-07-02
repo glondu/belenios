@@ -19,11 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Serializable_t
+
 type election_state =
   [ `Open
   | `Closed
   | `EncryptedTally of int * int * string
-  | `Tallied
+  | `Tallied of plaintext
   ]
 val get_election_state : string -> election_state Lwt.t
 val set_election_state : string -> election_state -> unit Lwt.t

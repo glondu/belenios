@@ -20,13 +20,14 @@
 (**************************************************************************)
 
 open Lwt
+open Serializable_t
 open Common
 
 type election_state =
   [ `Open
   | `Closed
   | `EncryptedTally of int * int * string
-  | `Tallied
+  | `Tallied of plaintext
   ]
 
 let election_states = Ocsipersist.open_table "election_states"
