@@ -97,12 +97,6 @@ module type GROUP = sig
 
 end
 
-(** A public key wrapped with its group. *)
-module type PUBLIC_KEY = sig
-  module G : GROUP
-  val y : G.t
-end
-
 (** Election params wrapped with its group. *)
 module type ELECTION_PARAMS = sig
   module G : GROUP
