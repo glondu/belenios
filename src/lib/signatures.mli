@@ -88,12 +88,7 @@ module type GROUP = sig
   (** Serializable description of the group. *)
 
   val group : group
-
-  type wrapped_pubkey
-  (** The type of a pubkey wrapped with group parameters. *)
-
-  val wrap_pubkey : t -> wrapped_pubkey
-  val write_wrapped_pubkey : wrapped_pubkey writer
+  val write_group : group writer
 
 end
 

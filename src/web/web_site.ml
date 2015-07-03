@@ -789,7 +789,7 @@ let () =
             let params = {
               e_description = template.t_description;
               e_name = template.t_name;
-              e_public_key = G.wrap_pubkey y;
+              e_public_key = {wpk_group = G.group; wpk_y = y};
               e_questions = template.t_questions;
               e_uuid = uuid;
               e_short_name = template.t_short_name;
@@ -812,7 +812,7 @@ let () =
                 ~perm:0o600 ~mode:Lwt_io.Output fname
                 (fun oc -> Lwt_io.write oc what >> Lwt_io.write oc "\n")
             in
-            create_file files.f_election (string_of_params G.write_wrapped_pubkey params) >>
+            create_file files.f_election (string_of_params (write_wrapped_pubkey G.write_group G.write) params) >>
             create_file files.f_metadata (string_of_metadata se.se_metadata) >>
             create_file files.f_voters (PString.concat "\n" se.se_voters) >>
             Lwt_io.with_file

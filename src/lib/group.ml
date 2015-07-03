@@ -39,9 +39,8 @@ let read state buf =
   (module G : GROUP)
 
 let election_params_of_string x =
-  let params = params_of_string read_ff_pubkey x in
-  let {ffpk_g=g; ffpk_p=p; ffpk_q=q; ffpk_y=y} = params.e_public_key in
-  let group = {g; p; q} in
+  let params = params_of_string (read_wrapped_pubkey read_ff_params read_number) x in
+  let {wpk_group=group; wpk_y=y} = params.e_public_key in
   let module X = struct
     module G = (val Group_field.make group : Group_field.GROUP)
     let params = {params with e_public_key = y}

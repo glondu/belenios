@@ -81,7 +81,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   let params = {
     e_description = template.t_description;
     e_name = template.t_name;
-    e_public_key = G.wrap_pubkey y;
+    e_public_key = {wpk_group = G.group; wpk_y = y};
     e_questions = template.t_questions;
     e_uuid = uuid;
     e_short_name = template.t_short_name;
@@ -90,7 +90,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   (* Generate and serialize election.json *)
 
   let mkelection () =
-    string_of_params G.write_wrapped_pubkey params
+    string_of_params (write_wrapped_pubkey G.write_group G.write) params
 
 end
 

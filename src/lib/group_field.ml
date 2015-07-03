@@ -84,13 +84,7 @@ let unsafe_make group =
     let compare = Z.compare
     type group = ff_params
     let group = group
-
-    type wrapped_pubkey = Serializable_t.ff_pubkey
-
-    let wrap_pubkey y =
-      Serializable_t.({ffpk_g=g; ffpk_p=p; ffpk_q=q; ffpk_y=y})
-
-    let write_wrapped_pubkey = write_ff_pubkey
+    let write_group = write_ff_params
 
   end in (module G : GROUP)
 
