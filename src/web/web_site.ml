@@ -90,7 +90,7 @@ let register_election params web_params =
     }
   end in
   let module P = (val web_params : WEB_PARAMS) in
-  let module W = Web_election.Make (D) (P) in
+  let module W = Web_election.Make (D) (P) (LwtRandom) in
   let election = (module W : WEB_ELECTION) in
   fun () ->
     (* starting from here, we do side-effects on the running server *)
