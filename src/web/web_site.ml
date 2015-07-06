@@ -134,7 +134,6 @@ let import_election f =
       let module X = struct
         let metadata = metadata
         let dir = dir
-        let state = ref `Open
       end in
       let web_params = (module X : WEB_PARAMS) in
       let do_register = register_election params web_params in
@@ -161,10 +160,7 @@ let import_election f =
         )
       ) in
       let module R = struct
-        let discard () = Lwt_mutex.unlock registration_mutex
         let register () =
-          if not (Lwt_mutex.is_locked registration_mutex) then
-            failwith "This election can no longer be registered.";
           try_lwt
             Lwt_unix.mkdir dir 0o700 >>
             Lwt_io.(with_file Output (dir/"election.json") (fun oc ->

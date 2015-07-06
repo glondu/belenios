@@ -101,6 +101,5 @@ type election_files = {
 }
 
 module type REGISTRABLE_ELECTION = sig
-  val discard : unit -> unit
   val register : unit -> (module WEB_ELECTION) Lwt.t
 end
