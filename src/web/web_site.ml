@@ -697,11 +697,9 @@ let () =
             let y = G.(g **~ x) in
             G.to_string y
           in
-          lwt () = send_email
-            "noreply@belenios.org" id
-            ("Your credential for election " ^ uuid_s)
-            cred
-          in
+          let body = "Username: " ^ id ^ "\nCredential: " ^ cred ^ "\n" in
+          let subject = "Your credential for election " ^ uuid_s in
+          lwt () = send_email "noreply@belenios.org" id subject body in
           return @@ S.add pub_cred accu
         ) S.empty se.se_voters
       in
