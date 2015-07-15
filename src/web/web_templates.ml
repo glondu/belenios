@@ -258,7 +258,7 @@ let generic_page ~title message () =
   base ~title ~login_box ~content ()
 
 let election_setup uuid se () =
-  let title = "Preparation of election " ^ Uuidm.to_string uuid in
+  let title = "Preparation of election " ^ se.se_questions.t_name in
   let make_form ?a service value title =
     post_form ?a ~service
       (fun name ->
@@ -511,7 +511,7 @@ let election_setup uuid se () =
   base ~title ~login_box ~content ()
 
 let election_setup_questions uuid se () =
-  let title = "Questions for election " ^ Uuidm.to_string uuid in
+  let title = "Questions for election " ^ se.se_questions.t_name in
   let form =
     let value = string_of_template se.se_questions in
     post_form
@@ -547,7 +547,7 @@ let election_setup_questions uuid se () =
   base ~title ~login_box ~content ()
 
 let election_setup_voters uuid se () =
-  let title = "Voters for election " ^ Uuidm.to_string uuid in
+  let title = "Voters for election " ^ se.se_questions.t_name in
   let form =
     post_form
       ~service:election_setup_voters_post
@@ -566,7 +566,7 @@ let election_setup_voters uuid se () =
   base ~title ~login_box ~content ()
 
 let election_setup_credentials token uuid se () =
-  let title = "Credentials for election " ^ uuid in
+  let title = "Credentials for election " ^ se.se_questions.t_name in
   let form_textarea =
     post_form
       ~service:election_setup_credentials_post
@@ -641,7 +641,7 @@ let election_setup_credentials token uuid se () =
   base ~title ~login_box ~content ()
 
 let election_setup_trustee token uuid se () =
-  let title = "Trustee for election " ^ uuid in
+  let title = "Trustee for election " ^ se.se_questions.t_name in
   let form =
     let value = !(List.assoc token se.se_public_keys) in
     let service = Eliom_service.preapply election_setup_trustee_post token in
