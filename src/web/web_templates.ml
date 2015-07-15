@@ -140,12 +140,37 @@ let format_election kind election =
   ]
 
 let home ~featured () =
+  let loria = Eliom_service.Http.external_service
+    ~prefix:"http://www.loria.fr"
+    ~path:[]
+    ~get_params:Eliom_parameter.unit
+    ()
+  in
+  let belenios = Eliom_service.Http.external_service
+    ~prefix:"http://belenios.gforge.inria.fr"
+    ~path:[]
+    ~get_params:Eliom_parameter.unit
+    ()
   in
   let content = [
     div [
       h2 ~a:[a_style "text-align:center;"] [pcdata welcome_message];
       h3 [a ~service:admin [pcdata "Administer elections"] ()];
-      div [p [br ()]];
+      div [br ()];
+      div [
+        pcdata "Belenios is an electronic voting system developed at ";
+        a ~service:loria [pcdata "LORIA"] ();
+        pcdata ". It provides both confidentiality of the votes and ";
+        pcdata "end-to-end verifiability of the result. Verifiability ";
+        pcdata "relies in particular on the fact that the ballots are ";
+        pcdata "stored on a public ballot box (on a webpage), so that ";
+        pcdata "voters can check the presence of their ballots. Similarly, ";
+        pcdata "anyone can check that the published result corresponds to ";
+        pcdata "the contents of the ballot box. More information and ";
+        pcdata "discussion can be found on the ";
+        a ~service:belenios [pcdata "Belenios web page"] ();
+        pcdata ".";
+      ];
     ];
   ] in
   let login_box = pcdata "" in
