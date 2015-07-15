@@ -321,7 +321,7 @@ let () = Redirection.register ~service:election_setup_new
         e_voting_starts_at = None;
         e_voting_ends_at = None;
         e_owner = Some u;
-        e_auth_config = Some [{auth_system = "dummy"; auth_instance = "demo"; auth_config = []}];
+        e_auth_config = Some [{auth_system = "password"; auth_instance = "password"; auth_config = []}];
       } in
       let question = {
         q_answers = [| "Answer 1"; "Answer 2" |];
