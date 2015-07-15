@@ -191,6 +191,13 @@ let admin ~elections () =
      lwt login_box = site_login_box () in
      base ~title ~login_box ~content ()
   | Some (elections, setup_elections) ->
+    let setup_form = post_form ~service:election_setup_new
+      (fun () ->
+       [
+         div [string_input ~a:[a_style "font-size:24px;"] ~input_type:`Submit ~value:"Prepare a new election" ()]
+       ]
+      ) ()
+    in
     let elections =
       match elections with
       | [] -> p [pcdata "You own no such elections!"]
@@ -206,9 +213,11 @@ let admin ~elections () =
     in
     let content = [
       div [
-        div [a ~service:new_election [pcdata "Create a new election"] ()];
+        div [setup_form];
+        div [br ()];
         h2 [pcdata "Elections being prepared"];
         setup_elections;
+        div [br ()];
         h2 [pcdata "Elections you can administer"];
         elections;
       ];
@@ -224,25 +233,6 @@ let make_button ~service contents =
     "<button onclick=\"location.href='%s';\" style=\"font-size:35px;\">%s</button>"
     uri
     contents
-
-let new_election () =
-  let title = "Create new election" in
-  lwt body =
-    let setup_form = post_form ~service:election_setup_new
-      (fun () ->
-       [
-         h2 [pcdata "Prepare a new election"];
-         div [string_input ~input_type:`Submit ~value:"Prepare a new election" ()]
-       ]
-      ) ()
-    in
-    return [setup_form]
-  in
-  let content = [
-    div body;
-  ] in
-  lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
 
 let new_election_failure reason () =
   let title = "Create new election" in

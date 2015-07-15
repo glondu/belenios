@@ -299,13 +299,6 @@ let () = String.register
     (fun x -> return (x, "application/json"))
   )
 
-let () = Html5.register ~service:new_election
-  (fun () () ->
-    match_lwt Web_auth_state.get_site_user () with
-    | None -> forbidden ()
-    | Some _ -> T.new_election ()
-  )
-
 let generate_uuid = Uuidm.v4_gen (Random.State.make_self_init ())
 
 let () = Redirection.register ~service:election_setup_new

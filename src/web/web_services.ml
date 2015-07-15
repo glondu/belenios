@@ -33,8 +33,6 @@ let logout = service ~path:["logout"] ~get_params:unit ()
 let source_code = service ~path:["belenios.tar.gz"] ~get_params:unit ()
 let get_randomness = service ~path:["get-randomness"] ~get_params:unit ()
 
-let new_election = service ~path:["new-election"] ~get_params:unit ()
-
 let tool = preapply (static_dir ()) ["static"; "belenios-tool.html"]
 
 let election_setup_new = post_coservice ~csrf_safe:true ~fallback:admin ~post_params:unit ()
