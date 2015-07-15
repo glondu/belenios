@@ -178,35 +178,43 @@ let home ~featured () =
 
 let admin ~elections () =
   let title = site_title ^ " — Administration" in
-  let elections, setup_elections =
-    match elections with
-    | None -> [], []
-    | Some (x, y) -> x, y
-  in
-  let elections =
-    match elections with
-    | [] -> p [pcdata "You own no such elections!"]
-    | _ -> ul @@ List.map (format_election `Admin) elections
-  in
-  let setup_elections =
-    match setup_elections with
-    | [] -> p [pcdata "You own no such elections!"]
-    | _ -> ul @@
-       List.map (fun k ->
-         li [a ~service:election_setup [pcdata (Uuidm.to_string k)] k]
-       ) setup_elections
-  in
-  let content = [
-    div [
-      div [a ~service:new_election [pcdata "Create a new election"] ()];
-      h2 [pcdata "Elections being prepared"];
-      setup_elections;
-      h2 [pcdata "Elections you can administer"];
-      elections;
-    ];
-  ] in
-  lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  match elections with
+  | None ->
+     let content = [
+       div [
+         pcdata "To administer an election, you need to ";
+         a ~service:site_login [pcdata "log in"] None;
+         pcdata ". If you do not have an account, ";
+         pcdata "please send an email to contact@belenios.org.";
+       ]
+     ] in
+     lwt login_box = site_login_box () in
+     base ~title ~login_box ~content ()
+  | Some (elections, setup_elections) ->
+    let elections =
+      match elections with
+      | [] -> p [pcdata "You own no such elections!"]
+      | _ -> ul @@ List.map (format_election `Admin) elections
+    in
+    let setup_elections =
+      match setup_elections with
+      | [] -> p [pcdata "You own no such elections!"]
+      | _ -> ul @@
+         List.map (fun k ->
+           li [a ~service:election_setup [pcdata (Uuidm.to_string k)] k]
+         ) setup_elections
+    in
+    let content = [
+      div [
+        div [a ~service:new_election [pcdata "Create a new election"] ()];
+        h2 [pcdata "Elections being prepared"];
+        setup_elections;
+        h2 [pcdata "Elections you can administer"];
+        elections;
+      ];
+    ] in
+    lwt login_box = site_login_box () in
+    base ~title ~login_box ~content ()
 
 let format_date = Platform.format_datetime "%a, %d %b %Y %T %z"
 
