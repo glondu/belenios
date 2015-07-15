@@ -207,8 +207,8 @@ let admin ~elections () =
       match setup_elections with
       | [] -> p [pcdata "You own no such elections!"]
       | _ -> ul @@
-         List.map (fun k ->
-           li [a ~service:election_setup [pcdata (Uuidm.to_string k)] k]
+         List.map (fun (k, title) ->
+           li [a ~service:election_setup [pcdata title] k]
          ) setup_elections
     in
     let content = [

@@ -266,7 +266,7 @@ let () = Html5.register ~service:admin
          and setup_elections =
            Ocsipersist.fold_step (fun k v accu ->
              if v.se_owner = u
-             then return (uuid_of_string k :: accu)
+             then return ((uuid_of_string k, v.se_questions.t_name) :: accu)
              else return accu
            ) election_stable []
          in return @@ Some (elections, setup_elections)

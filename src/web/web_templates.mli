@@ -22,7 +22,7 @@
 open Web_signatures
 
 val home : featured:(module WEB_ELECTION) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val admin : elections:((module WEB_ELECTION) list * Uuidm.t list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val admin : elections:((module WEB_ELECTION) list * (Uuidm.t * string) list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
