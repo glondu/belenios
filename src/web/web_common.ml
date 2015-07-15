@@ -246,4 +246,5 @@ let send_email from to_ subject body =
   let contents =
     "From: " ^ from ^ "\nTo: " ^ to_ ^ "\nSubject: " ^ subject ^ "\n\n" ^ body
   in
-  Lwt_process.pwrite ("sendmail", [|"sendmail"; to_|]) contents
+  let sendmail = "/usr/sbin/sendmail" in
+  Lwt_process.pwrite (sendmail, [|sendmail; "-f"; from; to_|]) contents
