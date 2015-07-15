@@ -32,7 +32,7 @@ open Eliom_content.Html5.F
 (* TODO: these pages should be redesigned *)
 
 let site_title = "Election Server"
-let welcome_message = "Welcome!"
+let welcome_message = "Welcome to the Belenios system!"
 let admin_background = " background: #FF9999;"
 
 let format_user u =
@@ -153,7 +153,9 @@ let home ~featured () =
   in
   let content = [
     div [
-      pcdata welcome_message;
+      h2 ~a:[a_style "text-align:center;"] [pcdata welcome_message];
+      h3 [a ~service:admin [pcdata "Administer elections"] ()];
+      div [p [br ()]];
       featured_box;
     ];
   ] in
@@ -280,19 +282,19 @@ let election_setup uuid se () =
       (fun name ->
         [
           div [
-            string_radio ~checked:checked_dummy ~name ~value:"dummy" ();
-            pcdata "Dummy";
+            string_radio ~checked:checked_password ~name ~value:"password" ();
+            pcdata "Password (passwords will be emailed to voters)";
           ];
           div [
-            string_radio ~checked:checked_password ~name ~value:"password" ();
-            pcdata "Password";
+            string_radio ~checked:checked_dummy ~name ~value:"dummy" ();
+            pcdata "Dummy (typically for a test election)";
           ];
           div [
             string_radio ~checked:checked_cas ~name ~value:"cas" ();
-            pcdata "CAS";
+            pcdata "CAS (external authentication server)";
           ];
           div [
-            string_input ~input_type:`Submit ~value:"Submit" ();
+            string_input ~input_type:`Submit ~value:"Change authentication mode" ();
           ];
         ])
       uuid
@@ -327,19 +329,21 @@ let election_setup uuid se () =
           post_form ~service:election_setup_auth_genpwd
             (fun () ->
               [div [
-                string_input ~input_type:`Submit ~value:"Generate and mail passwords" ()
+                string_input ~input_type:`Submit ~value:"Generate passwords" ()
               ]]
             ) uuid
        | _ -> pcdata "")
     | _ -> pcdata ""
   in
   let div_questions =
-    div
-      [h2 [pcdata "Questions"];
-       a
-         ~service:election_setup_questions
-         [pcdata "Manage questions"]
-         uuid]
+    div [
+      h2 [
+        a
+          ~service:election_setup_questions
+          [pcdata "Edit questions"]
+          uuid;
+      ]
+    ]
   in
   let form_trustees_add =
     post_form
@@ -355,19 +359,23 @@ let election_setup uuid se () =
   in
   let div_voters =
     div [
-      h2 [pcdata "Voters"];
+      h2 [
+        a ~service:election_setup_voters
+          [pcdata "Edit voters"]
+          uuid
+      ];
       div [
         pcdata @@ string_of_int @@ List.length se.se_voters;
         pcdata " voter(s) registered";
       ];
-      a ~service:election_setup_voters
-        [pcdata "Manage voters"]
-        uuid
     ]
   in
   let div_trustees =
     div [
       h2 [pcdata "Trustees"];
+      div [pcdata "By default, the election server manages the keys of the election. If you do not wish the server to store any keys, click here."];
+      div [pcdata "If you do not wish the server to store any keys, you may nominate trustees. In that case, each trustee will create her own secret key. Be careful, once the election is over, you will need the contribution of each trustee to compute the result!"];
+      br ();
       ol
         (List.rev_map
            (fun (token, pk) ->
@@ -381,6 +389,13 @@ let election_setup uuid se () =
              ];
            ) se.se_public_keys
         );
+      (if se.se_public_keys <> [] then
+          div [
+            pcdata "There is one link per trustee. Send each trustee her link.";
+            br ();
+            br ();
+          ]
+       else pcdata "");
       form_trustees_add;
       form_trustees_del;
     ]
@@ -388,6 +403,16 @@ let election_setup uuid se () =
   let div_credentials =
     div [
       h2 [pcdata "Credentials"];
+      div [
+        pcdata "The server may generate and email the credentials to the voters. If you prefer to delegate this task to another authority, click here.";
+      ];
+      post_form ~service:election_setup_credentials_server
+        (fun () ->
+          [string_input ~input_type:`Submit ~value:"Generate on server" ()]
+        ) uuid;
+      div [
+        pcdata "If you wish the credentials to be generated and managed by an external authority, please send her the following link:";
+      ];
       ul [
         li [
           a
@@ -401,10 +426,9 @@ let election_setup uuid se () =
             se.se_public_creds;
         ];
       ];
-      post_form ~service:election_setup_credentials_server
-        (fun () ->
-          [string_input ~input_type:`Submit ~value:"Generate on server" ()]
-        ) uuid;
+      div [
+        pcdata "Note that this authority will have to send each credential to each voter herself.";
+      ];
     ]
   in
   let form_create =
@@ -417,9 +441,12 @@ let election_setup uuid se () =
       ) uuid
   in
   let content = [
+    div_questions;
+    hr ();
     div_voters;
-    div_trustees;
+    hr ();
     div_credentials;
+    hr ();
     form_group;
     form_metadata;
     div [
@@ -428,7 +455,9 @@ let election_setup uuid se () =
       form_cas;
       form_password;
     ];
-    div_questions;
+    hr ();
+    div_trustees;
+    hr ();
     form_create;
   ] in
   lwt login_box = site_login_box () in
@@ -483,7 +512,8 @@ let election_setup_voters uuid se () =
       uuid
   in
   let content = [
-    form
+    div [pcdata "Please enter the email addresses of the voters, one per line."];
+    form;
   ] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
@@ -692,10 +722,10 @@ let election_home w state () =
        [
          pcdata " ";
          b [pcdata "This election has been tallied."];
-         pcdata " Its ";
+         pcdata " The result with ";
          a
            ~service:election_dir
-           [pcdata "result"]
+           [pcdata "cryptographic proofs"]
            (W.election.e_params.e_uuid, ESResult);
          pcdata " is available."
        ]
