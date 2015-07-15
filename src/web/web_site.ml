@@ -252,28 +252,26 @@ let () = Html5.register ~service:admin
     lwt site_user = Web_auth_state.get_site_user () in
     lwt elections =
       match site_user with
-      | None -> return []
+      | None -> return None
       | Some u ->
-        SMap.fold (fun _ w accu ->
-          let module W = (val w : WEB_ELECTION) in
-          if W.metadata.e_owner = Some u then (
-            w :: accu
-          ) else (
-            accu
-          )
-        ) !election_table [] |> List.rev |> return
+         lwt elections =
+           SMap.fold (fun _ w accu ->
+             let module W = (val w : WEB_ELECTION) in
+             if W.metadata.e_owner = Some u then (
+               w :: accu
+             ) else (
+               accu
+             )
+           ) !election_table [] |> List.rev |> return
+         and setup_elections =
+           Ocsipersist.fold_step (fun k v accu ->
+             if v.se_owner = u
+             then return (uuid_of_string k :: accu)
+             else return accu
+           ) election_stable []
+         in return @@ Some (elections, setup_elections)
     in
-    lwt setup_elections =
-      match site_user with
-      | None -> return []
-      | Some u ->
-         Ocsipersist.fold_step (fun k v accu ->
-           if v.se_owner = u
-           then return (uuid_of_string k :: accu)
-           else return accu
-         ) election_stable []
-    in
-    T.admin ~elections ~setup_elections ()
+    T.admin ~elections ()
   )
 
 let () = File.register

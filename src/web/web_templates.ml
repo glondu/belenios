@@ -176,8 +176,13 @@ let home ~featured () =
   let login_box = pcdata "" in
   base ~title:site_title ~login_box ~content ()
 
-let admin ~elections ~setup_elections () =
+let admin ~elections () =
   let title = site_title ^ " — Administration" in
+  let elections, setup_elections =
+    match elections with
+    | None -> [], []
+    | Some (x, y) -> x, y
+  in
   let elections =
     match elections with
     | [] -> p [pcdata "You own no such elections!"]
