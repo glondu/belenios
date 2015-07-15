@@ -418,31 +418,14 @@ let election_setup uuid se () =
     div [
       h2 [pcdata "Credentials"];
       div [
-        pcdata "The server may generate and email the credentials to the voters. If you prefer to delegate this task to another authority, click here.";
+        pcdata "The server may generate and email the credentials to the voters. If you prefer to delegate this task to another authority, click ";
+        a ~service:election_setup_credential_authority [pcdata "here"] uuid;
+        pcdata ".";
       ];
       post_form ~service:election_setup_credentials_server
         (fun () ->
           [string_input ~input_type:`Submit ~value:"Generate on server" ()]
         ) uuid;
-      div [
-        pcdata "If you wish the credentials to be generated and managed by an external authority, please send her the following link:";
-      ];
-      ul [
-        li [
-          a
-            ~service:election_setup_credentials
-            [
-              pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
-                ~absolute:true
-                ~service:election_setup_credentials
-                se.se_public_creds
-            ]
-            se.se_public_creds;
-        ];
-      ];
-      div [
-        pcdata "Note that this authority will have to send each credential to each voter herself.";
-      ];
     ]
   in
   let form_create =
@@ -522,6 +505,33 @@ let election_setup_trustees uuid se () =
     ]
   in
   let content = [div_content] in
+  lwt login_box = site_login_box () in
+  base ~title ~login_box ~content ()
+
+let election_setup_credential_authority uuid se () =
+  let title = "Credentials for election " ^ se.se_questions.t_name in
+  let content = [
+    div [
+      pcdata "If you wish the credentials to be generated and managed by ";
+      pcdata "an external authority, please send her the following link:";
+    ];
+    ul [
+      li [
+        a
+          ~service:election_setup_credentials
+          [
+            pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
+              ~absolute:true
+              ~service:election_setup_credentials
+              se.se_public_creds
+          ]
+          se.se_public_creds;
+      ];
+    ];
+    div [
+      pcdata "Note that this authority will have to send each credential to each voter herself.";
+    ];
+  ] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 

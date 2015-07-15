@@ -341,28 +341,24 @@ let () = Redirection.register ~service:election_setup_new
   | None -> forbidden ()
   )
 
+let generic_setup_page f uuid () =
+  match_lwt Web_auth_state.get_site_user () with
+  | Some u ->
+     let uuid_s = Uuidm.to_string uuid in
+     lwt se = Ocsipersist.find election_stable uuid_s in
+     if se.se_owner = u
+     then f uuid se ()
+     else forbidden ()
+  | None -> forbidden ()
+
 let () = Html5.register ~service:election_setup
-  (fun uuid () ->
-   match_lwt Web_auth_state.get_site_user () with
-   | Some u ->
-      let uuid_s = Uuidm.to_string uuid in
-      lwt se = Ocsipersist.find election_stable uuid_s in
-      if se.se_owner = u
-      then T.election_setup uuid se ()
-      else forbidden ()
-   | None -> forbidden ()
-  )
+  (generic_setup_page T.election_setup)
 
 let () = Html5.register ~service:election_setup_trustees
-  (fun uuid () ->
-    match_lwt Web_auth_state.get_site_user () with
-    | Some u ->
-       let uuid_s = Uuidm.to_string uuid in
-       lwt se = Ocsipersist.find election_stable uuid_s in
-       if se.se_owner = u
-       then T.election_setup_trustees uuid se ()
-       else forbidden ()
-    | None -> forbidden ())
+  (generic_setup_page T.election_setup_trustees)
+
+let () = Html5.register ~service:election_setup_credential_authority
+  (generic_setup_page T.election_setup_credential_authority)
 
 let election_setup_mutex = Lwt_mutex.create ()
 
