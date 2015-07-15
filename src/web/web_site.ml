@@ -441,6 +441,28 @@ let () =
              }]
          }) election_setup)
 
+let template_password = format_of_string
+  "You are listed as a voter for the election
+
+  %s
+
+You will find below your login and password.  To cast a vote, you will
+also need a credential, sent in a separate email.  Be careful,
+passwords and credentials look similar but play different roles.  You
+will be asked to enter your credential before entering the voting
+booth.  Login and passwords are required once your ballot is ready to
+be cast.
+
+Username: %s
+Password: %s
+Page of the election: %s
+
+Note that you are allowed to vote several times.  Only the last vote
+counts.
+
+-- 
+Belenios"
+
 let () =
   Any.register
     ~service:election_setup_auth_genpwd
@@ -451,18 +473,19 @@ let () =
            let u = Uuidm.to_string uuid in
            underscorize u
          in
+         let title = se.se_questions.t_name in
+         let url = Eliom_uri.make_string_uri
+           ~absolute:true ~service:election_home
+           (uuid, ()) |> rewrite_prefix
+         in
          let table = Ocsipersist.open_table table in
          Lwt_list.iter_s (fun v ->
            lwt salt = generate_token () in
            lwt password = generate_token () in
            let hashed = sha256_hex (salt ^ password) in
            lwt () = Ocsipersist.add table v (salt, hashed) in
-           let body =
-             "Username: " ^ v ^ "\nPassword: " ^ password ^ "\n"
-           in
-           let subject =
-             "Your password for election " ^ Uuidm.to_string uuid
-           in
+           let body = Printf.sprintf template_password title v password url in
+           let subject = "Your password for election " ^ title in
            lwt () = send_email "noreply@belenios.org" v subject body in
            return ()
          ) se.se_voters) election_setup)
@@ -677,11 +700,38 @@ module Credgen = struct
 
 end
 
+let template_credential = format_of_string
+  "You are listed as a voter for the election
+
+  %s
+
+You will find below your login and credential.  To cast a vote, you will
+also need a password, sent in a separate email.  Be careful,
+passwords and credentials look similar but play different roles.  You
+will be asked to enter your credential before entering the voting
+booth.  Login and passwords are required once your ballot is ready to
+be cast.
+
+Username: %s
+Credential: %s
+Page of the election: %s
+
+Note that you are allowed to vote several times.  Only the last vote
+counts.
+
+-- 
+Belenios"
+
 let () =
   Any.register
     ~service:election_setup_credentials_server
-    (fun uuid () ->
+    (handle_setup (fun se () _ uuid ->
       let uuid_s = Uuidm.to_string uuid in
+      let title = se.se_questions.t_name in
+      let url = Eliom_uri.make_string_uri
+        ~absolute:true ~service:election_home
+        (uuid, ()) |> rewrite_prefix
+      in
       lwt se = Ocsipersist.find election_stable uuid_s in
       let module S = Set.Make (PString) in
       let module G = (val Group.of_string se.se_group : GROUP) in
@@ -694,8 +744,8 @@ let () =
             let y = G.(g **~ x) in
             G.to_string y
           in
-          let body = "Username: " ^ id ^ "\nCredential: " ^ cred ^ "\n" in
-          let subject = "Your credential for election " ^ uuid_s in
+          let body = Printf.sprintf template_credential title id cred url in
+          let subject = "Your credential for election " ^ title in
           lwt () = send_email "noreply@belenios.org" id subject body in
           return @@ S.add pub_cred accu
         ) S.empty se.se_voters
@@ -712,6 +762,8 @@ let () =
       in
       T.generic_page ~title:"Success"
         "Credentials have been generated and mailed!" () >>= Html5.send)
+       election_setup
+    )
 
 let () =
   Html5.register
