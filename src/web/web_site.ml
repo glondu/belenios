@@ -913,22 +913,27 @@ let () =
     ~service:election_home
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
-      let w = SMap.find uuid_s !election_table in
-      let module W = (val w : WEB_ELECTION) in
-      Eliom_reference.unset Web_services.ballot >>
-      let cont () =
-        Redirection.send
-          (Eliom_service.preapply
-             election_home (W.election.e_params.e_uuid, ()))
-      in
-      Eliom_reference.set Web_auth_state.cont [cont] >>
-      match_lwt Eliom_reference.get Web_services.cast_confirmed with
-      | Some result ->
-         Eliom_reference.unset Web_services.cast_confirmed >>
-         T.cast_confirmed (module W) ~result () >>= Html5.send
-      | None ->
-         lwt state = Web_persist.get_election_state uuid_s in
-         T.election_home (module W) state () >>= Html5.send)
+      try
+        let w = SMap.find uuid_s !election_table in
+        let module W = (val w : WEB_ELECTION) in
+        Eliom_reference.unset Web_services.ballot >>
+        let cont () =
+          Redirection.send
+            (Eliom_service.preapply
+               election_home (W.election.e_params.e_uuid, ()))
+        in
+        Eliom_reference.set Web_auth_state.cont [cont] >>
+        match_lwt Eliom_reference.get Web_services.cast_confirmed with
+        | Some result ->
+           Eliom_reference.unset Web_services.cast_confirmed >>
+           T.cast_confirmed (module W) ~result () >>= Html5.send
+        | None ->
+           lwt state = Web_persist.get_election_state uuid_s in
+           T.election_home (module W) state () >>= Html5.send
+      with Not_found ->
+        T.generic_page ~title:"Error"
+          "This election does not exist yet. Please come back later." ()
+          >>= Html5.send)
 
 let () =
   Any.register
