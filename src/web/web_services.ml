@@ -41,6 +41,7 @@ let election_setup_group = post_coservice ~fallback:election_setup ~post_params:
 let election_setup_metadata = post_coservice ~fallback:election_setup ~post_params:(string "metadata") ()
 let election_setup_questions = service ~path:["setup"; "questions"] ~get_params:(uuid "uuid") ()
 let election_setup_questions_post = post_coservice ~fallback:election_setup_questions ~post_params:(string "questions") ()
+let election_setup_description = post_coservice ~fallback:election_setup ~post_params:(string "name" ** string "description") ()
 let election_setup_voters = service ~path:["setup"; "voters"] ~get_params:(uuid "uuid") ()
 let election_setup_voters_post = post_service ~fallback:election_setup_voters ~post_params:(string "voters") ()
 let election_setup_trustee_add = post_coservice ~fallback:election_setup ~post_params:unit ()

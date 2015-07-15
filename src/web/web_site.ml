@@ -374,6 +374,16 @@ let handle_setup f cont uuid x =
 
 let () =
   Any.register
+    ~service:election_setup_description
+    (handle_setup
+       (fun se (name, description) _ _ ->
+         se.se_questions <- {se.se_questions with
+           t_name = name;
+           t_description = description;
+         }) election_setup)
+
+let () =
+  Any.register
     ~service:election_setup_group
     (handle_setup
        (fun se x _ _ ->

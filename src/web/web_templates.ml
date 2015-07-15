@@ -271,6 +271,34 @@ let election_setup uuid se () =
        ]
       ) ()
   in
+  let form_description =
+    post_form ~service:election_setup_description
+      (fun (name, description) ->
+        [
+          div [
+            pcdata "Name of the election: ";
+            string_input ~name:name
+              ~input_type:`Text ~value:se.se_questions.t_name ();
+          ];
+          div [
+            div [pcdata "Description of the election: "];
+            div [
+              textarea ~name:description ~a:[a_cols 80]
+                ~value:se.se_questions.t_description ();
+            ];
+          ];
+          div [
+            string_input ~input_type:`Submit ~value:"Submit" ();
+          ];
+        ]
+      ) uuid
+  in
+  let div_description =
+    div [
+      h2 [pcdata "Name and description of the election"];
+      form_description;
+    ]
+  in
   let form_group =
     make_form
       ~a:[a_style "display: none;"]
@@ -458,6 +486,8 @@ let election_setup uuid se () =
       ) uuid
   in
   let content = [
+    div_description;
+    hr ();
     div_questions;
     hr ();
     div_voters;
