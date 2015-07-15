@@ -141,6 +141,11 @@ let import_election f =
       let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
       let public_keys = Lwt_io.lines_of_file f.f_public_keys in
       let voters = Lwt_io.lines_of_file f.f_voters in
+      lwt () =
+        match_lwt Lwt_stream.peek voters with
+        | Some _ -> return_unit
+        | None -> Lwt.fail (Failure "No voters")
+      in
       lwt pks = Lwt_stream.(
         clone public_keys |>
         map (trustee_public_key_of_string G.read) |>
@@ -865,7 +870,18 @@ let () =
             in
             create_file files.f_election (string_of_params (write_wrapped_pubkey G.write_group G.write) params) >>
             create_file files.f_metadata (string_of_metadata se.se_metadata) >>
-            create_file files.f_voters (PString.concat "\n" se.se_voters) >>
+            Lwt_io.with_file
+              ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+              ~perm:0o600
+              ~mode:Lwt_io.Output
+              files.f_voters
+              (fun oc ->
+               Lwt_list.iter_s
+                 (fun v ->
+                  Lwt_io.write oc v >>
+                  Lwt_io.write oc "\n"
+                 ) se.se_voters
+              ) >>
             Lwt_io.with_file
               ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
               ~perm:0o600
