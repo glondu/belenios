@@ -52,6 +52,7 @@ let election_setup_credentials_post = post_coservice ~fallback:election_setup_cr
 let election_setup_credentials_post_file = post_coservice ~fallback:election_setup_credentials ~post_params:(file "public_creds") ()
 let election_setup_credentials_server = post_coservice ~fallback:election_setup ~post_params:unit ()
 
+let election_setup_trustees = service ~path:["setup"; "trustees"] ~get_params:(uuid "uuid") ()
 let election_setup_trustee = service ~path:["setup"; "trustee"] ~get_params:(string "token") ()
 let election_setup_trustee_post = post_coservice ~fallback:election_setup_trustee ~post_params:(string "public_key") ()
 let election_setup_create = post_coservice ~csrf_safe:true ~fallback:election_setup ~post_params:unit ()

@@ -353,6 +353,17 @@ let () = Html5.register ~service:election_setup
    | None -> forbidden ()
   )
 
+let () = Html5.register ~service:election_setup_trustees
+  (fun uuid () ->
+    match_lwt Web_auth_state.get_site_user () with
+    | Some u ->
+       let uuid_s = Uuidm.to_string uuid in
+       lwt se = Ocsipersist.find election_stable uuid_s in
+       if se.se_owner = u
+       then T.election_setup_trustees uuid se ()
+       else forbidden ()
+    | None -> forbidden ())
+
 let election_setup_mutex = Lwt_mutex.create ()
 
 let handle_setup f cont uuid x =
@@ -566,7 +577,7 @@ let () =
             Ocsipersist.add election_pktokens token uuid_s
           ) else forbidden ()
         ) >>
-        return (preapply election_setup uuid)
+        return (preapply election_setup_trustees uuid)
      | None -> forbidden ()
     )
 
@@ -589,7 +600,7 @@ let () =
             | _ -> return ()
           ) else forbidden ()
         ) >>
-        return (preapply election_setup uuid)
+        return (preapply election_setup_trustees uuid)
      | None -> forbidden ()
     )
 

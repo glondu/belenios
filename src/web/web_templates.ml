@@ -390,18 +390,6 @@ let election_setup uuid se () =
       ]
     ]
   in
-  let form_trustees_add =
-    post_form
-      ~service:election_setup_trustee_add
-      (fun () ->
-        [string_input ~input_type:`Submit ~value:"Add" ()]) uuid
-  in
-  let form_trustees_del =
-    post_form
-      ~service:election_setup_trustee_del
-      (fun () ->
-        [string_input ~input_type:`Submit ~value:"Delete" ()]) uuid
-  in
   let div_voters =
     div [
       h2 [
@@ -418,31 +406,12 @@ let election_setup uuid se () =
   let div_trustees =
     div [
       h2 [pcdata "Trustees"];
-      div [pcdata "By default, the election server manages the keys of the election. If you do not wish the server to store any keys, click here."];
-      div [pcdata "If you do not wish the server to store any keys, you may nominate trustees. In that case, each trustee will create her own secret key. Be careful, once the election is over, you will need the contribution of each trustee to compute the result!"];
-      br ();
-      ol
-        (List.rev_map
-           (fun (token, pk) ->
-             li [
-               a ~service:election_setup_trustee [
-                 pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
-                   ~absolute:true
-                   ~service:election_setup_trustee
-                   token
-               ] token
-             ];
-           ) se.se_public_keys
-        );
-      (if se.se_public_keys <> [] then
-          div [
-            pcdata "There is one link per trustee. Send each trustee her link.";
-            br ();
-            br ();
-          ]
-       else pcdata "");
-      form_trustees_add;
-      form_trustees_del;
+      div [
+        pcdata "By default, the election server manages the keys of the ";
+        pcdata "election. If you do not wish the server to store any keys, ";
+        pcdata "click ";
+        a ~service:election_setup_trustees [pcdata "here"] uuid;
+        pcdata "."];
     ]
   in
   let div_credentials =
@@ -507,6 +476,52 @@ let election_setup uuid se () =
     hr ();
     form_create;
   ] in
+  lwt login_box = site_login_box () in
+  base ~title ~login_box ~content ()
+
+let election_setup_trustees uuid se () =
+  let title = "Trustees for election " ^ se.se_questions.t_name in
+  let form_trustees_add =
+    post_form
+      ~service:election_setup_trustee_add
+      (fun () ->
+        [string_input ~input_type:`Submit ~value:"Add" ()]) uuid
+  in
+  let form_trustees_del =
+    post_form
+      ~service:election_setup_trustee_del
+      (fun () ->
+        [string_input ~input_type:`Submit ~value:"Delete" ()]) uuid
+  in
+  let div_content =
+    div [
+      div [pcdata "If you do not wish the server to store any keys, you may nominate trustees. In that case, each trustee will create her own secret key. Be careful, once the election is over, you will need the contribution of each trustee to compute the result!"];
+      br ();
+      ol
+        (List.rev_map
+           (fun (token, pk) ->
+             li [
+               a ~service:election_setup_trustee [
+                 pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
+                   ~absolute:true
+                   ~service:election_setup_trustee
+                   token
+               ] token
+             ];
+           ) se.se_public_keys
+        );
+      (if se.se_public_keys <> [] then
+          div [
+            pcdata "There is one link per trustee. Send each trustee her link.";
+            br ();
+            br ();
+          ]
+       else pcdata "");
+      form_trustees_add;
+      form_trustees_del;
+    ]
+  in
+  let content = [div_content] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
