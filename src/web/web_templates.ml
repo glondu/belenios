@@ -140,23 +140,12 @@ let format_election kind election =
   ]
 
 let home ~featured () =
-  let featured_box = match featured with
-    | _::_ ->
-      div [
-        h2 [pcdata "Current featured elections"];
-        ul (List.map (format_election `Home) featured);
-      ]
-    | [] ->
-      div [
-        pcdata "No featured elections at the moment.";
-      ]
   in
   let content = [
     div [
       h2 ~a:[a_style "text-align:center;"] [pcdata welcome_message];
       h3 [a ~service:admin [pcdata "Administer elections"] ()];
       div [p [br ()]];
-      featured_box;
     ];
   ] in
   let login_box = pcdata "" in
