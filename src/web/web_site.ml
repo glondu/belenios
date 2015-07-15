@@ -464,9 +464,6 @@ let () =
              "Your password for election " ^ Uuidm.to_string uuid
            in
            lwt () = send_email "noreply@belenios.org" v subject body in
-           Ocsigen_messages.debug (fun () ->
-             Printf.sprintf "----- Password for %s is %s" v password
-           );
            return ()
          ) se.se_voters) election_setup)
 
