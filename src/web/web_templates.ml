@@ -889,13 +889,20 @@ let election_admin w ~is_featured state () =
   let title = W.election.e_params.e_name ^ " — Administration" in
   let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
   let state_form checked =
+    let service, value, msg =
+      if checked then
+        election_close, "Close election",
+        "The election is open. Voters can vote. "
+      else
+        election_open, "Open election",
+        "The election is closed. No one can vote. "
+    in
     post_form
-      ~service:election_set_state
-      (fun name ->
+      ~service
+      (fun () ->
        [
-         bool_checkbox ~name ~checked ();
-         pcdata "Open this election ";
-         string_input ~input_type:`Submit ~value:"Apply" ();
+         pcdata msg;
+         string_input ~input_type:`Submit ~value ();
        ]) (W.election.e_params.e_uuid, ())
   in
   lwt state_div =
@@ -912,8 +919,9 @@ let election_admin w ~is_featured state () =
            (fun () ->
              [string_input
                  ~input_type:`Submit
-                 ~value:"Compute encrypted tally"
-                 ()
+                 ~value:"Tally the election"
+                 ();
+              pcdata " (Warning, this action is irreversible.)";
              ]) (W.election.e_params.e_uuid, ());
        ]
     | `EncryptedTally (npks, _, hash) ->

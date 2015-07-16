@@ -970,10 +970,7 @@ let () =
        | _ -> forbidden ()
     )
 
-let () =
-  Any.register
-    ~service:election_set_state
-    (fun (uuid, ()) state ->
+let election_set_state state (uuid, ()) () =
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
      let module W = (val w : WEB_ELECTION) in
@@ -989,7 +986,10 @@ let () =
      in
      let state = if state then `Open else `Closed in
      Web_persist.set_election_state uuid_s state >>
-     Redirection.send (preapply election_admin (uuid, ())))
+     Redirection.send (preapply election_admin (uuid, ()))
+
+let () = Any.register ~service:election_open (election_set_state true)
+let () = Any.register ~service:election_close (election_set_state false)
 
 let () =
   Any.register
