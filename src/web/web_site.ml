@@ -862,38 +862,20 @@ let () =
               with _ -> failwith "public credentials are missing"
             in
             (* write election files to disk *)
-            let create_file fname what =
+            let create_file fname what xs =
               Lwt_io.with_file
                 ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
                 ~perm:0o600 ~mode:Lwt_io.Output fname
-                (fun oc -> Lwt_io.write oc what >> Lwt_io.write oc "\n")
+                (fun oc ->
+                  Lwt_list.iter_s
+                    (fun v ->
+                      Lwt_io.write oc (what v) >>
+                      Lwt_io.write oc "\n") xs)
             in
-            create_file files.f_election (string_of_params (write_wrapped_pubkey G.write_group G.write) params) >>
-            create_file files.f_metadata (string_of_metadata se.se_metadata) >>
-            Lwt_io.with_file
-              ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
-              ~perm:0o600
-              ~mode:Lwt_io.Output
-              files.f_voters
-              (fun oc ->
-               Lwt_list.iter_s
-                 (fun v ->
-                  Lwt_io.write oc v >>
-                  Lwt_io.write oc "\n"
-                 ) se.se_voters
-              ) >>
-            Lwt_io.with_file
-              ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
-              ~perm:0o600
-              ~mode:Lwt_io.Output
-              files.f_public_keys
-              (fun oc ->
-               Lwt_list.iter_s
-                 (fun pk ->
-                  Lwt_io.write oc (string_of_trustee_public_key G.write pk) >>
-                  Lwt_io.write oc "\n"
-                 ) public_keys
-              ) >>
+            create_file files.f_election (string_of_params (write_wrapped_pubkey G.write_group G.write)) [params] >>
+            create_file files.f_metadata string_of_metadata [se.se_metadata] >>
+            create_file files.f_voters (fun x -> x) se.se_voters >>
+            create_file files.f_public_keys (string_of_trustee_public_key G.write) public_keys >>
             (* actually create the election *)
             begin match_lwt import_election files with
             | None ->
@@ -908,7 +890,7 @@ let () =
                  | None -> return ()
                  | Some x ->
                     let fname = W.dir / "private_key.json" in
-                    create_file fname (string_of_number x)
+                    create_file fname string_of_number [x]
                in
                (* clean up temporary files *)
                Lwt_unix.unlink files.f_election >>
