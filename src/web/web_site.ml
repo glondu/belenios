@@ -955,18 +955,6 @@ let () =
 
 let () =
   Any.register
-    ~service:election_set_featured
-    (fun (uuid, ()) featured ->
-     let uuid_s = Uuidm.to_string uuid in
-     lwt () =
-       if featured then Web_persist.add_featured_election uuid_s
-       else Web_persist.remove_featured_election uuid_s
-     in
-     Redirection.send
-       (preapply election_admin (uuid, ())))
-
-let () =
-  Any.register
     ~service:election_admin
     (fun (uuid, ()) () ->
      let uuid_s = Uuidm.to_string uuid in

@@ -888,13 +888,6 @@ let election_admin w ~is_featured state () =
   let module W = (val w : WEB_ELECTION) in
   let title = W.election.e_params.e_name ^ " — Administration" in
   let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
-  let feature_form = post_form ~service:election_set_featured
-    (fun featured -> [
-      bool_checkbox ~name:featured ~checked:is_featured ();
-      pcdata "Feature this election ";
-      string_input ~input_type:`Submit ~value:"Apply" ();
-    ]) (W.election.e_params.e_uuid, ())
-  in
   let state_form checked =
     post_form
       ~service:election_set_state
@@ -1000,7 +993,6 @@ let election_admin w ~is_featured state () =
     div [
       a ~service:election_dir [pcdata "Voting records"] (uuid, ESRecords);
     ];
-    div [feature_form];
     div [state_div];
   ] in
   lwt login_box = site_login_box () in
