@@ -146,6 +146,18 @@ let import_election f =
         | Some _ -> return_unit
         | None -> Lwt.fail (Failure "No voters")
       in
+      lwt () =
+        match metadata.e_auth_config with
+        | Some [x] ->
+           if x.auth_system = "password" then
+             let table = "password_" ^ underscorize uuid in
+             let table = Ocsipersist.open_table table in
+             lwt n = Ocsipersist.length table in
+             if n = 0 then Lwt.fail (Failure "No passwords")
+             else return_unit
+           else return_unit
+        | _ -> return_unit
+      in
       lwt pks = Lwt_stream.(
         clone public_keys |>
         map (trustee_public_key_of_string G.read) |>
