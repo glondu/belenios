@@ -164,6 +164,7 @@ let createTemplate template =
   let container = Dom_html.createDiv document in
   (* name *)
   let x = Dom_html.createDiv document in
+  x##style##display <- Js.string "none";
   let t = document##createTextNode (Js.string "Name of the election: ") in
   Dom.appendChild x t;
   let h_name = Dom_html.createInput document in
@@ -173,6 +174,7 @@ let createTemplate template =
   Dom.appendChild container x;
   (* short name *)
   let x = Dom_html.createDiv document in
+  x##style##display <- Js.string "none";
   let t = document##createTextNode (Js.string "Short name: ") in
   Dom.appendChild x t;
   let h_short_name = Dom_html.createInput document in
@@ -182,6 +184,7 @@ let createTemplate template =
   Dom.appendChild container x;
   (* description *)
   let x = Dom_html.createDiv document in
+  x##style##display <- Js.string "none";
   let y = Dom_html.createDiv document in
   let t = document##createTextNode (Js.string "Description:") in
   Dom.appendChild y t;
@@ -196,10 +199,6 @@ let createTemplate template =
   Dom.appendChild container x;
   (* questions *)
   let x = Dom_html.createDiv document in
-  let y = Dom_html.createH2 document in
-  let t = document##createTextNode (Js.string "Questions") in
-  Dom.appendChild y t;
-  Dom.appendChild x y;
   let h_questions_div = Dom_html.createDiv document in
   h_questions_div##id <- Js.string "election_questions";
   Dom.appendChild x h_questions_div;
