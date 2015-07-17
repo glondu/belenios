@@ -378,7 +378,7 @@ let () = Html5.register ~service:election_setup_credential_authority
 
 let election_setup_mutex = Lwt_mutex.create ()
 
-let handle_setup f cont uuid x =
+let handle_setup f uuid x =
   match_lwt Web_auth_state.get_site_user () with
   | Some u ->
      let uuid_s = Uuidm.to_string uuid in
@@ -386,49 +386,54 @@ let handle_setup f cont uuid x =
        lwt se = Ocsipersist.find election_stable uuid_s in
        if se.se_owner = u then (
          try_lwt
-           f se x u uuid;
+           lwt cont = f se x u uuid in
            Ocsipersist.add election_stable uuid_s se >>
-           Redirection.send (preapply cont uuid)
+           cont ()
          with e ->
            T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html5.send
        ) else forbidden ()
      )
   | None -> forbidden ()
 
+let redir_preapply s u () = Redirection.send (preapply s u)
+
 let () =
   Any.register
     ~service:election_setup_description
     (handle_setup
-       (fun se (name, description) _ _ ->
+       (fun se (name, description) _ uuid ->
          se.se_questions <- {se.se_questions with
            t_name = name;
            t_description = description;
-         }) election_setup)
+         };
+         return (redir_preapply election_setup uuid)))
 
 let () =
   Any.register
     ~service:election_setup_group
     (handle_setup
-       (fun se x _ _ ->
+       (fun se x _ uuid ->
         let _group = Group.of_string x in
         (* we keep it as a string since it contains a type *)
-        se.se_group <- x) election_setup)
+        se.se_group <- x;
+        return (redir_preapply election_setup uuid)))
 
 let () =
   Any.register
     ~service:election_setup_metadata
     (handle_setup
-       (fun se x u _ ->
+       (fun se x u uuid ->
         let metadata = metadata_of_string x in
         if metadata.e_owner <> Some u then failwith "wrong owner";
-        se.se_metadata <- metadata) election_setup)
+        se.se_metadata <- metadata;
+        return (redir_preapply election_setup uuid)))
 
 let () =
   Any.register
     ~service:election_setup_auth
     (handle_setup
-       (fun se auth_system _ _ ->
-         match auth_system with
+       (fun se auth_system _ uuid ->
+         (match auth_system with
          | Some (("dummy" | "password") as auth_system) ->
             se.se_metadata <- {
               se.se_metadata with
@@ -448,14 +453,14 @@ let () =
                 }]
             }
          | Some x -> failwith ("unknown authentication system: "^x)
-         | None -> failwith "no authentication system was given"
-       ) election_setup)
+         | None -> failwith "no authentication system was given");
+         return (redir_preapply election_setup uuid)))
 
 let () =
   Any.register
     ~service:election_setup_auth_cas
     (handle_setup
-       (fun se server _ _ ->
+       (fun se server _ uuid ->
          se.se_metadata <- {
            se.se_metadata with
              e_auth_config = Some [{
@@ -463,7 +468,8 @@ let () =
                auth_instance = "cas";
                auth_config = ["server", server];
              }]
-         }) election_setup)
+         };
+         return (redir_preapply election_setup uuid)))
 
 let template_password = format_of_string
   "You are listed as a voter for the election
@@ -512,7 +518,10 @@ let () =
            let subject = "Your password for election " ^ title in
            lwt () = send_email "noreply@belenios.org" v subject body in
            return ()
-         ) se.se_voters) election_setup)
+         ) se.se_voters >>
+         return (fun () ->
+           T.generic_page ~title:"Success"
+             "Passwords have been generated and mailed!" () >>= Html5.send)))
 
 let () =
   Html5.register
@@ -532,8 +541,9 @@ let () =
   Any.register
     ~service:election_setup_questions_post
     (handle_setup
-       (fun se x _ _ ->
-        se.se_questions <- template_of_string x) election_setup_questions)
+       (fun se x _ uuid ->
+        se.se_questions <- template_of_string x;
+         return (redir_preapply election_setup_questions uuid)))
 
 let () =
   Html5.register
@@ -562,7 +572,7 @@ let () =
   Any.register
     ~service:election_setup_voters_post
     (handle_setup
-       (fun se x _ _ ->
+       (fun se x _ uuid ->
          let xs = Pcre.split x in
          let () =
            try
@@ -570,7 +580,8 @@ let () =
              Printf.ksprintf failwith "%S is not a valid address" bad
            with Not_found -> ()
          in
-         se.se_voters <- xs) election_setup)
+         se.se_voters <- xs;
+         return (redir_preapply election_setup uuid)))
 
 let () =
   Redirection.register
@@ -780,18 +791,16 @@ let () =
       in
       let creds = S.elements creds in
       let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
-      lwt () = Lwt_mutex.with_lock election_setup_mutex
-        (fun () ->
+      lwt () =
           Lwt_io.with_file
             ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
             ~perm:0o600 ~mode:Lwt_io.Output fname
             (fun oc ->
-              Lwt_list.iter_s (Lwt_io.write_line oc) creds))
+              Lwt_list.iter_s (Lwt_io.write_line oc) creds)
       in
-      T.generic_page ~title:"Success"
-        "Credentials have been generated and mailed!" () >>= Html5.send)
-       election_setup
-    )
+      return (fun () ->
+        T.generic_page ~title:"Success"
+          "Credentials have been generated and mailed!" () >>= Html5.send)))
 
 let () =
   Html5.register
