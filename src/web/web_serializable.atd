@@ -46,8 +46,6 @@ type auth_config = {
 }
 
 type metadata = {
-  ?voting_starts_at : datetime option;
-  ?voting_ends_at : datetime option;
   ?owner: user option;
   ?auth_config: auth_config list option;
 } <ocaml field_prefix="e_">

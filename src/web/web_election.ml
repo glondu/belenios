@@ -73,16 +73,7 @@ module Make (D : ELECTION_DATA) (P : WEB_PARAMS) (M : RANDOM with type 'a t = 'a
 
       let do_cast rawballot (user, date) =
         lwt state = Web_persist.get_election_state uuid in
-        let voting_open =
-          let compare a b =
-            match a, b with
-            | Some a, Some b -> datetime_compare a b
-            | _, _ -> -1
-          in
-          state = `Open &&
-          compare metadata.e_voting_starts_at (Some date) <= 0 &&
-          compare (Some date) metadata.e_voting_ends_at < 0
-        in
+        let voting_open = state = `Open in
         if not voting_open then fail ElectionClosed else return () >>
         if String.contains rawballot '\n' then (
           fail (Serialization (Invalid_argument "multiline ballot"))

@@ -326,8 +326,6 @@ let () = Redirection.register ~service:election_setup_new
       let uuid_s = Uuidm.to_string uuid in
       lwt token = generate_token () in
       let se_metadata = {
-        e_voting_starts_at = None;
-        e_voting_ends_at = None;
         e_owner = Some u;
         e_auth_config = Some [{auth_system = "password"; auth_instance = "password"; auth_config = []}];
       } in

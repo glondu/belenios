@@ -741,34 +741,7 @@ let file w x =
 
 let election_home w state () =
   let module W = (val w : WEB_ELECTION) in
-  let params = W.election.e_params and m = W.metadata in
-  let voting_period =
-    match m.e_voting_starts_at, m.e_voting_ends_at with
-    | None, None ->
-      [
-        pcdata "This election starts and ends at the administrator's discretion."
-      ]
-    | Some s, None ->
-      [
-        pcdata "This election starts on ";
-        em [pcdata (format_date s)];
-        pcdata " and ends at the administrator's discretion.";
-      ]
-    | None, Some s ->
-      [
-        pcdata "This election starts at the administrator's discretion and ends on ";
-        em [pcdata (format_date s)];
-        pcdata ".";
-      ]
-    | Some s, Some e ->
-      [
-        pcdata "This election starts on ";
-        em [pcdata (format_date s)];
-        pcdata " and ends on ";
-        em [pcdata (format_date e)];
-        pcdata ".";
-      ]
-  in
+  let params = W.election.e_params in
   let state_ =
     match state with
     | `Closed ->
@@ -875,7 +848,7 @@ let election_home w state () =
     | _ -> go_to_the_booth
   in
   let content = [
-    p (voting_period @ state_);
+    p state_;
     br ();
     middle;
     br ();
