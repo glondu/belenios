@@ -929,7 +929,7 @@ let election_admin w ~is_featured state () =
            (fun () ->
              [string_input
                  ~input_type:`Submit
-                 ~value:"Combine partial decryptions"
+                 ~value:"Compute the result"
                  ()
              ]) (W.election.e_params.e_uuid, ())
        in

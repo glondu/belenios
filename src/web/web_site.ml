@@ -1226,10 +1226,7 @@ let () =
         Html5.send
       ))
 
-let () =
-  Any.register
-    ~service:election_tally_release
-    (fun (uuid, ()) () ->
+let handle_election_tally_release (uuid, ()) () =
       let uuid_s = Uuidm.to_string uuid in
       let w = SMap.find uuid_s !election_table in
       let module W = (val w) in
@@ -1265,8 +1262,13 @@ let () =
       in
       lwt () = Web_persist.set_election_state uuid_s (`Tallied result.result) in
       Eliom_service.preapply
-        election_admin (W.election.e_params.e_uuid, ()) |>
-      Redirection.send)
+        election_home (W.election.e_params.e_uuid, ()) |>
+      Redirection.send
+
+let () =
+  Any.register
+    ~service:election_tally_release
+    handle_election_tally_release
 
 let content_type_of_file = function
   | ESRaw | ESKeys | ESBallots | ESETally | ESResult -> "application/json"
@@ -1322,19 +1324,18 @@ let () =
       let npks = ref 0 in
       lwt () = Lwt_stream.junk_while (fun _ -> incr npks; true) pks in
       Web_persist.set_election_state uuid_s (`EncryptedTally (!npks, nb, hash)) >>
-      lwt () =
-        (* compute partial decryption if the (single) key is known *)
-        let skfile = W.dir / "private_key.json" in
-        if !npks = 1 && Sys.file_exists skfile then (
-          lwt sk = Lwt_io.lines_of_file skfile |> Lwt_stream.to_list in
-          let sk = match sk with
-            | [sk] -> number_of_string sk
-            | _ -> failwith "several private keys are available"
-          in
-          let tally = encrypted_tally_of_string W.G.read tally in
-          lwt pd = W.E.compute_factor tally sk in
-          let pd = string_of_partial_decryption W.G.write pd in
-          Web_persist.set_partial_decryptions uuid_s [1, pd]
-        ) else return ()
-      in
-      Redirection.send (preapply election_admin (uuid, ())))
+      (* compute partial decryption and release tally
+         if the (single) key is known *)
+      let skfile = W.dir / "private_key.json" in
+      if !npks = 1 && Sys.file_exists skfile then (
+        lwt sk = Lwt_io.lines_of_file skfile |> Lwt_stream.to_list in
+        let sk = match sk with
+          | [sk] -> number_of_string sk
+          | _ -> failwith "several private keys are available"
+        in
+        let tally = encrypted_tally_of_string W.G.read tally in
+        lwt pd = W.E.compute_factor tally sk in
+        let pd = string_of_partial_decryption W.G.write pd in
+        Web_persist.set_partial_decryptions uuid_s [1, pd] >>
+        handle_election_tally_release (uuid, ()) ()
+      ) else Redirection.send (preapply election_admin (uuid, ())))
