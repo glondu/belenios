@@ -328,6 +328,7 @@ let () = Redirection.register ~service:election_setup_new
       let se_metadata = {
         e_owner = Some u;
         e_auth_config = Some [{auth_system = "password"; auth_instance = "password"; auth_config = []}];
+        e_cred_authority = None;
       } in
       let question = {
         q_answers = [| "Answer 1"; "Answer 2" |];
@@ -663,6 +664,7 @@ let handle_credentials_post token creds =
          Printf.ksprintf failwith "invalid credential at line %d" !i)
       (Lwt_io.lines_of_file fname)
   in
+  let () = se.se_metadata <- {se.se_metadata with e_cred_authority = None} in
   T.generic_page ~title:"Success"
     "Credentials have been received and checked!" () >>= Html5.send
 
@@ -749,6 +751,9 @@ let () =
   Any.register
     ~service:election_setup_credentials_server
     (handle_setup (fun se () _ uuid ->
+      let () = se.se_metadata <- {se.se_metadata with
+        e_cred_authority = Some "server"
+      } in
       let uuid_s = Uuidm.to_string uuid in
       let title = se.se_questions.t_name in
       let url = Eliom_uri.make_string_uri

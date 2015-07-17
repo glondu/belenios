@@ -961,13 +961,20 @@ let election_admin w ~is_featured state () =
        ]
   in
   let uuid = W.election.e_params.e_uuid in
+  let update_credential =
+    match W.metadata.e_cred_authority with
+    | Some "server" ->
+       pcdata ""
+    | _ ->
+       div [
+         a ~service:election_update_credential [pcdata "Update a credential"] (uuid, ());
+       ];
+  in
   let content = [
     div [
       a ~service:Web_services.election_home [pcdata "Election home"] (uuid, ());
     ];
-    div [
-      a ~service:election_update_credential [pcdata "Update a credential"] (uuid, ());
-    ];
+    update_credential;
     div [
       a ~service:election_dir [pcdata "Voter list"] (uuid, ESVoters);
     ];
