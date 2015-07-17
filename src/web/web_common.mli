@@ -66,8 +66,6 @@ val forbidden : unit -> 'a Lwt.t
 val rewrite_prefix : string -> string
 val set_rewrite_prefix : src:string -> dst:string -> unit
 
-val empty_metadata : metadata
-
 type election_file =
   | ESRaw
   | ESKeys

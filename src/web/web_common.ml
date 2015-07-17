@@ -146,13 +146,6 @@ let set_rewrite_prefix ~src ~dst =
     else x
   in rewrite_fun := f
 
-let empty_metadata = {
-  e_voting_starts_at = None;
-  e_voting_ends_at = None;
-  e_owner = None;
-  e_auth_config = None;
-}
-
 let uuid = Eliom_parameter.user_type
   ~of_string:(fun x -> match Uuidm.of_string x with
     | Some x -> x
