@@ -3,9 +3,10 @@ function init_prng () {
     sjcl.random.startCollectors();
 
     // Seed from window.crypto if present
-    if (window.crypto) {
+    var cryptoObj = window.crypto || window.msCrypto; // for IE 11
+    if (cryptoObj) {
         var bytes = new Uint32Array(4);
-        window.crypto.getRandomValues(bytes);
+        cryptoObj.getRandomValues(bytes);
         sjcl.random.addEntropy(bytes[0], 32);
         sjcl.random.addEntropy(bytes[1], 32);
         sjcl.random.addEntropy(bytes[2], 32);
