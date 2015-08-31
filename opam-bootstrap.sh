@@ -84,14 +84,13 @@ echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init --no-setup
 eval `opam config env`
-# the following is needed because of camlp4
-opam switch 4.02.1
+opam switch 4.01.0
 eval `opam config env`
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes atdgen zarith cryptokit uuidm calendar cmdliner eliom csv
+opam install --yes atdgen=1.3.1 zarith=1.3 cryptokit=1.10 uuidm=0.9.5 calendar cmdliner=0.9.7 eliom=4.0.0 csv=1.3.3
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
