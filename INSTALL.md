@@ -84,7 +84,7 @@ Web server
 
 The web server has the following additional dependencies:
 
- * [Eliom](http://ocsigen.org/eliom/), version 3
+ * [Eliom](http://ocsigen.org/eliom/)
  * [Csv](https://forge.ocamlcore.org/projects/csv/)
 
 With OPAM, you can install them with:
@@ -204,3 +204,10 @@ This can be worked around with the following steps:
  * resume the installation by running again the `opam install` command
    found in `opam-bootstrap.sh`;
  * follow the instructions given at the end of `opam-bootstrap.sh`.
+
+### Errors while compiling Belenios itself
+
+If you succeeded installing all dependencies, but you get errors while
+compiling Belenios, maybe you installed an incompatible version of a
+dependency. The `opam-bootstrap.sh` script is tuned to install only
+compatible versions; you can have a look at it to get these versions.
