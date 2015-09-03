@@ -34,12 +34,12 @@ fi
 mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
 
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-wget http://caml.inria.fr/pub/distrib/ocaml-4.02/ocaml-4.02.1.tar.gz
+wget http://caml.inria.fr/pub/distrib/ocaml-4.02/ocaml-4.02.3.tar.gz
 wget https://github.com/ocaml/opam/releases/download/1.2.2/opam-full-1.2.2.tar.gz
 
 if which sha256sum >/dev/null; then
 sha256sum --check <<EOF
-3cbc7af5a3886c8c5af8dab5568d6256a191d89ecbd4aea18eaf5b47034c6138  ocaml-4.02.1.tar.gz
+928fb5f64f4e141980ba567ff57b62d8dc7b951b58be9590ffb1be2172887a72  ocaml-4.02.3.tar.gz
 15e617179251041f4bf3910257bbb8398db987d863dd3cfc288bdd958de58f00  opam-full-1.2.2.tar.gz
 EOF
 else
@@ -50,8 +50,8 @@ echo
 echo "=-=-= Compilation and installation of OCaml =-=-="
 echo
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-tar -xzf ocaml-4.02.1.tar.gz
-cd ocaml-4.02.1
+tar -xzf ocaml-4.02.3.tar.gz
+cd ocaml-4.02.3
 ./configure -prefix "$BELENIOS_SYSROOT/bootstrap"
 make world
 make opt
