@@ -493,6 +493,15 @@ counts.
 -- 
 Belenios"
 
+let generate_password table title url v =
+  lwt salt = generate_token () in
+  lwt password = generate_token () in
+  let hashed = sha256_hex (salt ^ password) in
+  lwt () = Ocsipersist.add table v (salt, hashed) in
+  let body = Printf.sprintf template_password title v password url in
+  let subject = "Your password for election " ^ title in
+  send_email "noreply@belenios.org" v subject body
+
 let () =
   Any.register
     ~service:election_setup_auth_genpwd
@@ -509,19 +518,41 @@ let () =
            (uuid, ()) |> rewrite_prefix
          in
          let table = Ocsipersist.open_table table in
-         Lwt_list.iter_s (fun v ->
-           lwt salt = generate_token () in
-           lwt password = generate_token () in
-           let hashed = sha256_hex (salt ^ password) in
-           lwt () = Ocsipersist.add table v (salt, hashed) in
-           let body = Printf.sprintf template_password title v password url in
-           let subject = "Your password for election " ^ title in
-           lwt () = send_email "noreply@belenios.org" v subject body in
-           return ()
-         ) se.se_voters >>
+         Lwt_list.iter_s (generate_password table title url) se.se_voters >>
          return (fun () ->
            T.generic_page ~title:"Success"
              "Passwords have been generated and mailed!" () >>= Html5.send)))
+
+let () =
+  Any.register
+    ~service:election_regenpwd
+    (fun ((uuid, ()), user) () ->
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      lwt site_user = Web_auth_state.get_site_user () in
+      match site_user with
+      | Some u when W.metadata.e_owner = Some u ->
+         let table = "password_" ^ underscorize uuid_s in
+         let table = Ocsipersist.open_table table in
+         let title = W.election.e_params.e_name in
+         let url = Eliom_uri.make_string_uri
+           ~absolute:true ~service:election_home
+           (uuid, ()) |> rewrite_prefix
+         in
+         begin try_lwt
+           lwt _ = Ocsipersist.find table user in
+           generate_password table title url user >>
+           T.generic_page ~title:"Success"
+             ("A new password has been mailed to " ^ user ^ ".") ()
+           >>= Html5.send
+         with Not_found ->
+           T.generic_page ~title:"Error"
+             (user ^ " is not a registered user for this election.") ()
+           >>= Html5.send
+         end
+      | _ -> forbidden ()
+    )
 
 let () =
   Html5.register
