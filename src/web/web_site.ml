@@ -1173,7 +1173,7 @@ let () =
       lwt res, _ =
         W.B.Ballots.fold
           (fun h _ (accu, i) ->
-            if i >= start && i < start+50 then
+            if i >= start && i < start+1000 then
               return (h :: accu, i+1)
             else return (accu, i+1)
           ) ([], 1)
