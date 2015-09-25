@@ -54,8 +54,10 @@ tar -xzf ocaml-4.02.3.tar.gz
 cd ocaml-4.02.3
 ./configure -prefix "$BELENIOS_SYSROOT/bootstrap"
 make world
-make opt
-make opt.opt
+if ! grep -q ARCH=none config/Makefile; then
+  make opt
+  make opt.opt
+fi
 make install
 export PATH="$BELENIOS_SYSROOT/bootstrap/bin:$PATH"
 
