@@ -816,7 +816,7 @@ let election_home w state () =
       div [
         make_button
           ~service:(Eliom_service.preapply election_vote (params.e_uuid, ()))
-          "Go to the booth";
+          "Start";
         ];
       div [
         pcdata "or ";

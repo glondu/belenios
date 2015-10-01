@@ -992,7 +992,7 @@ let () =
            lwt state = Web_persist.get_election_state uuid_s in
            T.election_home (module W) state () >>= Html5.send
       with Not_found ->
-        T.generic_page ~title:"Error"
+        T.generic_page ~title:"Sorry, this election is not yet open"
           "This election does not exist yet. Please come back later." ()
           >>= Html5.send)
 
