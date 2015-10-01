@@ -1199,6 +1199,41 @@ let () =
            (fun x -> return @@ cast_unknown_content_kind x))
 
 let () =
+  let rex = Pcre.regexp "\".*\" \".*:(.*)\"" in
+  Any.register
+    ~service:election_missing_voters
+    (fun (uuid, ()) () ->
+      let uuid_s = Uuidm.to_string uuid in
+      let w = SMap.find uuid_s !election_table in
+      let module W = (val w : WEB_ELECTION) in
+      lwt () =
+        match_lwt Web_auth_state.get_site_user () with
+        | Some u when W.metadata.e_owner = Some u -> return ()
+        | _ -> forbidden ()
+      in
+      let voters = Lwt_io.lines_of_file
+        (W.dir / string_of_election_file ESVoters)
+      in
+      let module S = Set.Make (PString) in
+      lwt voters = Lwt_stream.fold (fun v accu ->
+        S.add v accu
+      ) voters S.empty in
+      let records = Lwt_io.lines_of_file
+        (W.dir / string_of_election_file ESRecords)
+      in
+      lwt voters = Lwt_stream.fold (fun r accu ->
+        let s = Pcre.exec ~rex r in
+        let v = Pcre.get_substring s 1 in
+        S.remove v accu
+      ) records voters in
+      let buf = Buffer.create 128 in
+      S.iter (fun v ->
+        Buffer.add_string buf v;
+        Buffer.add_char buf '\n'
+      ) voters;
+      String.send (Buffer.contents buf, "text/plain"))
+
+let () =
   Any.register
     ~service:election_tally_trustees
     (fun (uuid, ((), trustee_id)) () ->

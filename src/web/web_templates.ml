@@ -981,6 +981,9 @@ let election_admin w ~is_featured state () =
     div [
       a ~service:election_dir [pcdata "Voting records"] (uuid, ESRecords);
     ];
+    div [
+      a ~service:election_missing_voters [pcdata "Missing voters"] (uuid, ());
+    ];
     div [state_div];
   ] in
   lwt login_box = site_login_box () in
