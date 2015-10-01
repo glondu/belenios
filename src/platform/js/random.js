@@ -14,8 +14,6 @@ function init_prng () {
         if (console) {
             console.log("PRNG successfully initialized using crypto object");
         }
-    } else {
-        alert("The random number generator could not be safely initialized. You should use a more modern browser.");
     }
 }
 
