@@ -206,10 +206,9 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
       (* next button *)
       match next with
       | [] ->
-        (* last question, create a "Proceed" button instead of "Next" *)
+        (* last question, the button leads to encryption page *)
         let b = document##createElement (Js.string "button") in
-        b##setAttribute (Js.string "style", Js.string "font-size: 30px;");
-        let t = document##createTextNode (Js.string "Proceed") in
+        let t = document##createTextNode (Js.string "Next") in
         b##onclick <- Dom_html.handler (fun _ ->
          if check_constraints () then (
           let all = (q, answers) :: prev in
