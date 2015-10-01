@@ -38,7 +38,7 @@ let admin_background = " background: #FF9999;"
 let format_user u =
   em [pcdata (string_of_user u)]
 
-let make_login_box style auth links =
+let make_login_box ~show_login style auth links =
   let style = "float: right; text-align: right;" ^ style in
   let module S = (val auth : AUTH_SERVICES) in
   let module L = (val links : AUTH_LINKS) in
@@ -59,6 +59,7 @@ let make_login_box style auth links =
         ];
       ]
     | None ->
+       if show_login then
       [
         div [
           pcdata "Not logged in.";
@@ -73,6 +74,7 @@ let make_login_box style auth links =
           [pcdata "Log in: ["] @ auth_systems @ [pcdata "]"]
         );
       ]
+        else []
   )
 
 module Site_links = struct
@@ -91,7 +93,7 @@ let site_links = (module Site_links : AUTH_LINKS)
 let site_auth = (module Site_auth : AUTH_SERVICES)
 
 let site_login_box () =
-  make_login_box admin_background site_auth site_links
+  make_login_box ~show_login:true admin_background site_auth site_links
 
 let base ~title ~login_box ~content ?(footer = div []) () =
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
@@ -731,7 +733,7 @@ let election_login_box w =
       Eliom_service.preapply logout ()
   end in
   let links = (module L : AUTH_LINKS) in
-  fun () -> make_login_box "" auth links
+  fun () -> make_login_box ~show_login:false "" auth links
 
 let file w x =
   let module W = (val w : WEB_ELECTION) in
@@ -1118,7 +1120,7 @@ let cast_confirmation w hash () =
       pcdata ".";
     ];
   ] in
-  lwt login_box = election_login_box w () in
+  let login_box = pcdata "" in
   base ~title:name ~login_box ~content ()
 
 let cast_confirmed w ~result () =
@@ -1160,7 +1162,7 @@ let cast_confirmed w ~result () =
       pcdata ".";
     ];
   ] in
-  lwt login_box = election_login_box w () in
+  let login_box = pcdata "" in
   base ~title:name ~login_box ~content ()
 
 let pretty_ballots w hashes () =
