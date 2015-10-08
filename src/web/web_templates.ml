@@ -194,7 +194,7 @@ let admin ~elections () =
      ] in
      lwt login_box = site_login_box () in
      base ~title ~login_box ~content ()
-  | Some (elections, setup_elections) ->
+  | Some (elections, tallied, setup_elections) ->
     let setup_form = post_form ~service:election_setup_new
       (fun () ->
        [
@@ -206,6 +206,11 @@ let admin ~elections () =
       match elections with
       | [] -> p [pcdata "You own no such elections!"]
       | _ -> ul @@ List.map (format_election `Admin) elections
+    in
+    let tallied =
+      match tallied with
+      | [] -> p [pcdata "You own no such elections!"]
+      | _ -> ul @@ List.map (format_election `Admin) tallied
     in
     let setup_elections =
       match setup_elections with
@@ -224,6 +229,9 @@ let admin ~elections () =
         div [br ()];
         h2 [pcdata "Elections you can administer"];
         elections;
+        div [br ()];
+        h2 [pcdata "Tallied elections"];
+        tallied;
       ];
     ] in
     lwt login_box = site_login_box () in

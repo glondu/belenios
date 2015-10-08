@@ -271,22 +271,27 @@ let () = Html5.register ~service:admin
       match site_user with
       | None -> return None
       | Some u ->
-         lwt elections =
+         lwt elections, tallied =
            SMap.fold (fun _ w accu ->
              let module W = (val w : WEB_ELECTION) in
              if W.metadata.e_owner = Some u then (
-               w :: accu
+               let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
+               lwt state = Web_persist.get_election_state uuid_s in
+               lwt elections, tallied = accu in
+               match state with
+               | `Tallied _ -> return (elections, w :: tallied)
+               | _ -> return (w :: elections, tallied)
              ) else (
                accu
              )
-           ) !election_table [] |> List.rev |> return
+           ) !election_table (return ([], []))
          and setup_elections =
            Ocsipersist.fold_step (fun k v accu ->
              if v.se_owner = u
              then return ((uuid_of_string k, v.se_questions.t_name) :: accu)
              else return accu
            ) election_stable []
-         in return @@ Some (elections, setup_elections)
+         in return @@ Some (elections, tallied, setup_elections)
     in
     T.admin ~elections ()
   )
