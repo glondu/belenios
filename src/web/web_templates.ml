@@ -95,6 +95,12 @@ let site_auth = (module Site_auth : AUTH_SERVICES)
 let site_login_box () =
   make_login_box ~show_login:true admin_background site_auth site_links
 
+let belenios_url = Eliom_service.Http.external_service
+  ~prefix:"http://belenios.gforge.inria.fr"
+  ~path:[]
+  ~get_params:Eliom_parameter.unit
+  ()
+
 let base ~title ~login_box ~content ?(footer = div []) () =
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata title)) [
@@ -118,7 +124,9 @@ let base ~title ~login_box ~content ?(footer = div []) () =
         div ~a:[a_id "bottom"] [
           footer;
           pcdata "Powered by ";
-          a ~service:source_code [pcdata "Belenios"] ();
+          a ~service:belenios_url [pcdata "Belenios"] ();
+          pcdata ". ";
+          a ~service:source_code [pcdata "Get the source code"] ();
           pcdata ". ";
           a ~service:admin [pcdata "Administer elections"] ();
           pcdata ".";
@@ -148,12 +156,6 @@ let home ~featured () =
     ~get_params:Eliom_parameter.unit
     ()
   in
-  let belenios = Eliom_service.Http.external_service
-    ~prefix:"http://belenios.gforge.inria.fr"
-    ~path:[]
-    ~get_params:Eliom_parameter.unit
-    ()
-  in
   let content = [
     div [
       h2 ~a:[a_style "text-align:center;"] [pcdata welcome_message];
@@ -170,7 +172,7 @@ let home ~featured () =
         pcdata "anyone can check that the published result corresponds to ";
         pcdata "the contents of the ballot box. More information and ";
         pcdata "discussion can be found on the ";
-        a ~service:belenios [pcdata "Belenios web page"] ();
+        a ~service:belenios_url [pcdata "Belenios web page"] ();
         pcdata ".";
       ];
     ];
