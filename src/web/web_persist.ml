@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Serializable_builtin_j
 open Serializable_t
 open Common
 
@@ -38,6 +39,17 @@ let get_election_state x =
 
 let set_election_state x s =
   Ocsipersist.add election_states x s
+
+let election_dates = Ocsipersist.open_table "election_dates"
+
+let past = datetime_of_string "\"2015-10-01 00:00:00.000000\""
+
+let get_election_date x =
+  try_lwt Ocsipersist.find election_dates x
+  with Not_found -> return past
+
+let set_election_date x d =
+  Ocsipersist.add election_dates x d
 
 let store = Ocsipersist.open_store "site"
 

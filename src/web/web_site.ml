@@ -277,10 +277,11 @@ let () = Html5.register ~service:admin
              if W.metadata.e_owner = Some u then (
                let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
                lwt state = Web_persist.get_election_state uuid_s in
+               lwt date = Web_persist.get_election_date uuid_s in
                lwt elections, tallied = accu in
                match state with
-               | `Tallied _ -> return (elections, w :: tallied)
-               | _ -> return (w :: elections, tallied)
+               | `Tallied _ -> return (elections, (date, w) :: tallied)
+               | _ -> return ((date, w) :: elections, tallied)
              ) else (
                accu
              )
@@ -291,7 +292,13 @@ let () = Html5.register ~service:admin
              then return ((uuid_of_string k, v.se_questions.t_name) :: accu)
              else return accu
            ) election_stable []
-         in return @@ Some (elections, tallied, setup_elections)
+         in
+         let sort l =
+           List.sort (fun (x, _) (y, _) -> datetime_compare x y) l |>
+           List.map (fun (_, x) -> x)
+         in
+         let elections = sort elections and tallied = sort tallied in
+         return @@ Some (elections, tallied, setup_elections)
     in
     T.admin ~elections ()
   )
@@ -965,6 +972,7 @@ let () =
                   Ocsipersist.remove election_pktokens token)
                  se.se_public_keys >>
                Ocsipersist.remove election_stable uuid_s >>
+               Web_persist.set_election_date uuid_s (now ()) >>
                Redirection.send
                  (preapply election_admin (W.election.e_params.e_uuid, ()))
             end

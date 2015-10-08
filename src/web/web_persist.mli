@@ -30,6 +30,9 @@ type election_state =
 val get_election_state : string -> election_state Lwt.t
 val set_election_state : string -> election_state -> unit Lwt.t
 
+val get_election_date : string -> datetime Lwt.t
+val set_election_date : string -> datetime -> unit Lwt.t
+
 val get_main_election : unit -> string option Lwt.t
 val set_main_election : string -> unit Lwt.t
 val unset_main_election : unit -> unit Lwt.t
