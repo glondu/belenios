@@ -51,46 +51,6 @@ let get_election_date x =
 let set_election_date x d =
   Ocsipersist.add election_dates x d
 
-let store = Ocsipersist.open_store "site"
-
-lwt main_election =
-  Ocsipersist.make_persistent store "main_election" None
-
-lwt featured =
-  Ocsipersist.make_persistent store "featured_elections" []
-
-let add_featured_election x =
-  lwt the_featured = Ocsipersist.get featured in
-  if List.mem x the_featured then (
-    return ()
-  ) else (
-    Ocsipersist.set featured (x :: the_featured)
-  )
-
-let rec list_remove x = function
-  | [] -> []
-  | y :: ys -> if x = y then ys else y :: (list_remove x ys)
-
-let remove_featured_election x =
-  lwt the_featured = Ocsipersist.get featured in
-  Ocsipersist.set featured (list_remove x the_featured)
-
-let is_featured_election x =
-  lwt the_featured = Ocsipersist.get featured in
-  return (List.mem x the_featured)
-
-let get_featured_elections () =
-  Ocsipersist.get featured
-
-let get_main_election () =
-  Ocsipersist.get main_election
-
-let set_main_election x =
-  Ocsipersist.set main_election (Some x)
-
-let unset_main_election () =
-  Ocsipersist.set main_election None
-
 let election_pds = Ocsipersist.open_table "election_pds"
 
 let get_partial_decryptions x =

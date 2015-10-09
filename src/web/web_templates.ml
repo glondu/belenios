@@ -149,7 +149,7 @@ let format_election kind election =
     p [pcdata e.e_description];
   ]
 
-let home ~featured () =
+let home () =
   let loria = Eliom_service.Http.external_service
     ~prefix:"http://www.loria.fr"
     ~path:[]
@@ -869,7 +869,7 @@ let election_home w state () =
   lwt login_box = election_login_box w () in
   base ~title:params.e_name ~login_box ~content ~footer ()
 
-let election_admin w ~is_featured state () =
+let election_admin w state () =
   let module W = (val w : WEB_ELECTION) in
   let title = W.election.e_params.e_name ^ " — Administration" in
   let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in

@@ -59,11 +59,6 @@ let () =
     spool_dir := Some dir
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->
     set_rewrite_prefix ~src ~dst
-  | Element ("main-election", ["uuid", uuid], []) ->
-    (match  Uuidm.of_string uuid with
-    | Some u -> main_election_uuid := Some (Uuidm.to_string u)
-    | None -> failwith "Incorrect UUID in configuration <main-election> tag"
-    )
   | Element ("auth", ["name", auth_instance],
              [Element (auth_system, auth_config, [])]) ->
     let i = {auth_system; auth_instance; auth_config} in
@@ -90,13 +85,13 @@ let read_election_dir dir =
   wrap1 datadir_index_of_string >>=
   Lwt_list.map_p (fun item ->
     let path = dir/item.datadir_dir in
-    return ({
+    return {
       f_election = path/"election.json";
       f_metadata = path/"metadata.json";
       f_public_keys = path/"public_keys.jsons";
       f_public_creds = path/"public_creds.txt";
       f_voters = path/"voters.txt";
-    }, item.datadir_featured)
+    }
   )
 
 lwt source_file =
@@ -124,7 +119,7 @@ let () = Web_site_auth.configure (List.rev !auth_instances)
 lwt () =
   Lwt_list.iter_s (fun dir ->
     read_election_dir dir >>=
-    Lwt_list.iter_s (fun (f, featured) ->
+    Lwt_list.iter_s (fun f ->
       match_lwt Web_site.import_election f with
       | None ->
         Ocsigen_messages.debug (fun () ->
@@ -133,15 +128,6 @@ lwt () =
       | Some w ->
         let module W = (val w : REGISTRABLE_ELECTION) in
         lwt w = W.register () in
-        let module W = (val w : WEB_ELECTION) in
-        if featured then (
-          let uuid = Uuidm.to_string W.election.e_params.e_uuid in
-          Web_persist.add_featured_election uuid
-        ) else return ()
+        return ()
     )
   ) !import_dirs
-
-lwt () =
-  match !main_election_uuid with
-  | Some uuid -> Web_persist.set_main_election uuid
-  | _ -> return ()

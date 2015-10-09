@@ -53,7 +53,6 @@ type metadata = {
 
 type datadir_item = {
   dir : string;
-  featured : bool;
 } <ocaml field_prefix="datadir_">
 
 type datadir_index = datadir_item list

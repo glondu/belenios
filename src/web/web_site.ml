@@ -249,17 +249,7 @@ lwt () =
 let () = Any.register ~service:home
   (fun () () ->
     Eliom_reference.unset Web_auth_state.cont >>
-    match_lwt Web_persist.get_main_election () with
-    | None ->
-      lwt featured =
-        Web_persist.get_featured_elections () >>=
-        Lwt_list.map_p (fun x -> return @@ SMap.find x !election_table)
-      in
-      T.home ~featured () >>= Html5.send
-    | Some x ->
-      let module W = (val SMap.find x !election_table : WEB_ELECTION) in
-      Redirection.send
-        (preapply election_home (W.election.e_params.e_uuid, ()))
+    T.home () >>= Html5.send
   )
 
 let () = Html5.register ~service:admin
@@ -1016,13 +1006,12 @@ let () =
      let uuid_s = Uuidm.to_string uuid in
      let w = SMap.find uuid_s !election_table in
      lwt site_user = Web_auth_state.get_site_user () in
-     lwt is_featured = Web_persist.is_featured_election uuid_s in
      let module W = (val w : WEB_ELECTION) in
      let uuid = Uuidm.to_string W.election.e_params.e_uuid in
      match site_user with
      | Some u when W.metadata.e_owner = Some u ->
         lwt state = Web_persist.get_election_state uuid in
-        T.election_admin (module W) ~is_featured state () >>= Html5.send
+        T.election_admin (module W) state () >>= Html5.send
        | _ -> forbidden ()
     )
 
