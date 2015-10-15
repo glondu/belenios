@@ -40,14 +40,14 @@ let check_election_public_key (type t) g e =
 
 (** Simple monad *)
 
-let prng = lazy (pseudo_rng (random_string secure_rng 16))
-
 module MakeSimpleMonad (G : GROUP) = struct
   type 'a t = unit -> 'a
   let ballots = ref []
   let return x () = x
   let bind x f = f (x ())
   let fail e = raise e
+
+  let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
   let random q =
     let size = Z.bit_length q / 8 + 1 in
