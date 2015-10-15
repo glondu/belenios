@@ -333,8 +333,8 @@ let () = Redirection.register ~service:election_setup_new
         e_cred_authority = None;
       } in
       let question = {
-        q_answers = [| "Answer 1"; "Answer 2" |];
-        q_min = 0;
+        q_answers = [| "Answer 1"; "Answer 2"; "Blank" |];
+        q_min = 1;
         q_max = 1;
         q_question = "Question 1?";
       } in
