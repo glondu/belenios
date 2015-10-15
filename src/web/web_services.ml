@@ -63,7 +63,8 @@ let election_setup_auth_genpwd = post_coservice ~fallback:election_setup ~post_p
 
 let election_home = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "")) ()
 let election_admin = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "admin")) ()
-let election_regenpwd = service ~path:["elections"] ~get_params:(suffix_prod (uuid "uuid" ** suffix_const "regenpwd") (string "user")) ()
+let election_regenpwd = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "regenpwd")) ()
+let election_regenpwd_post = post_coservice ~fallback:election_regenpwd ~post_params:(string "user") ()
 let election_login = service ~path:["elections"] ~get_params:(suffix_prod (uuid "uuid" ** suffix_const "login") (opt (string "service"))) ()
 let election_open = post_coservice ~fallback:election_admin ~post_params:unit ()
 let election_close = post_coservice ~fallback:election_admin ~post_params:unit ()

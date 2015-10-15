@@ -528,7 +528,13 @@ let () =
 let () =
   Any.register
     ~service:election_regenpwd
-    (fun ((uuid, ()), user) () ->
+    (fun (uuid, ()) user ->
+      T.regenpwd uuid () >>= Html5.send)
+
+let () =
+  Any.register
+    ~service:election_regenpwd_post
+    (fun (uuid, ()) user ->
       let uuid_s = Uuidm.to_string uuid in
       let w = SMap.find uuid_s !election_table in
       let module W = (val w : WEB_ELECTION) in

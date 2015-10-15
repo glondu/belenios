@@ -996,6 +996,9 @@ let election_admin w state () =
     div [
       a ~service:election_missing_voters [pcdata "Missing voters"] (uuid, ());
     ];
+    div [
+      a ~service:election_regenpwd [pcdata "Regenerate and mail a password"] (uuid, ());
+    ];
     div [state_div];
   ] in
   lwt login_box = site_login_box () in
@@ -1041,6 +1044,23 @@ let update_credential w () =
   ] in
   lwt login_box = site_login_box () in
   base ~title:params.e_name ~login_box ~content ()
+
+let regenpwd uuid () =
+  let form = post_form ~service:election_regenpwd_post
+    (fun user ->
+      [
+        div [
+          pcdata "Username: ";
+          string_input ~name:user ~input_type:`Text ();
+        ];
+        div [string_input ~input_type:`Submit ~value:"Submit" ()];
+      ]
+    ) (uuid, ())
+  in
+  let content = [ form ] in
+  let title = "Regenerate and mail password" in
+  lwt login_box = site_login_box () in
+  base ~title ~login_box ~content ()
 
 let cast_raw w () =
   let module W = (val w : WEB_ELECTION) in
