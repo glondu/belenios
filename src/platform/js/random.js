@@ -5,12 +5,12 @@ function init_prng () {
     // Seed from window.crypto if present
     var cryptoObj = window.crypto || window.msCrypto; // for IE 11
     if (cryptoObj) {
-        var bytes = new Uint32Array(4);
+        var n = 8;
+        var bytes = new Uint32Array(n);
         cryptoObj.getRandomValues(bytes);
-        sjcl.random.addEntropy(bytes[0], 32);
-        sjcl.random.addEntropy(bytes[1], 32);
-        sjcl.random.addEntropy(bytes[2], 32);
-        sjcl.random.addEntropy(bytes[3], 32);
+        for (var i = 0; i < n; i++) {
+            sjcl.random.addEntropy(bytes[i], 32);
+        }
         if (console) {
             console.log("PRNG successfully initialized using crypto object");
         }
