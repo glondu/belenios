@@ -85,10 +85,14 @@ module type WEB_PARAMS = sig
   val dir : string
 end
 
-module type WEB_ELECTION = sig
+module type WEB_ELECTION_DATA = sig
   include ELECTION_DATA
   include WEB_PARAMS
-  module E : ELECTION with type elt = G.t and type 'a m = 'a Lwt.t
+end
+
+module type WEB_ELECTION = sig
+  module D : WEB_ELECTION_DATA
+  module E : ELECTION with type elt = D.G.t and type 'a m = 'a Lwt.t
   module B : WEB_BALLOT_BOX
 end
 

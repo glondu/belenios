@@ -25,4 +25,4 @@ open Signatures
 open Web_serializable_t
 open Web_signatures
 
-module Make (D : ELECTION_DATA) (P : WEB_PARAMS) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION
+module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION

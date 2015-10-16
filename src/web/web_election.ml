@@ -32,12 +32,12 @@ open Web_services
 
 let ( / ) = Filename.concat
 
-module Make (D : ELECTION_DATA) (P : WEB_PARAMS) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION = struct
+module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION = struct
 
     let uuid = Uuidm.to_string D.election.e_params.e_uuid
 
+    module D = D
     include D
-    include P
     module E = Election.MakeElection(G)(M)
 
     module B : WEB_BALLOT_BOX = struct
