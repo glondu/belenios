@@ -94,20 +94,16 @@ module MakeLwtJsMonad (G : GROUP) = struct
 end
 
 let encryptBallot params cred plaintext () =
-  let module P = (val params : ELECTION_PARAMS) in
+  let module P = (val params : ELECTION_DATA) in
   let module G = P.G in
   let module M = MakeLwtJsMonad (G) in
   let module E = Election.MakeElection (G) (M) in
-  let e = {
-    e_params = P.params;
-    e_fingerprint = P.fingerprint;
-  } in
   let sk =
-    let hex = derive_cred P.params.e_uuid cred in
+    let hex = derive_cred P.election.e_params.e_uuid cred in
     Z.(of_string_base 16 hex mod G.q)
   in
-  lwt randomness = E.make_randomness e () in
-  lwt b = E.create_ballot e ~sk randomness plaintext () in
+  lwt randomness = E.make_randomness P.election () in
+  lwt b = E.create_ballot P.election ~sk randomness plaintext () in
   let s = string_of_ballot G.write b in
   setTextarea "ballot" s;
   setNodeById "ballot_tracker" (sha256_b64 s);
@@ -332,13 +328,14 @@ let loadElection () =
   setDisplayById "booth_div" "block";
   let election_raw = getTextarea "election_params" |> drop_trailing_newline in
   let election_params = Group.election_params_of_string election_raw in
-  let module P = (val election_params : ELECTION_PARAMS) in
-  setNodeById "election_name" P.params.e_name;
-  setNodeById "election_description" P.params.e_description;
-  setNodeById "election_uuid" (Uuidm.to_string P.params.e_uuid);
-  setNodeById "election_fingerprint" P.fingerprint;
+  let module P = (val election_params : ELECTION_DATA) in
+  let params = P.election.e_params in
+  setNodeById "election_name" params.e_name;
+  setNodeById "election_description" params.e_description;
+  setNodeById "election_uuid" (Uuidm.to_string params.e_uuid);
+  setNodeById "election_fingerprint" P.election.e_fingerprint;
   withElementById "intro" (fun e ->
-    let b = createStartButton election_params e P.params.e_questions in
+    let b = createStartButton election_params e params.e_questions in
     withElementById "input_code" (fun e -> Dom.appendChild e b)
   )
 

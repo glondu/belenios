@@ -77,13 +77,8 @@ module T = Web_templates
 
 let web_election_data (raw_election, web_params) =
   let params = Group.election_params_of_string raw_election in
-  let module P = (val params : ELECTION_PARAMS) in
   let module D = struct
-    module G = P.G
-    let election = {
-      e_params = P.params;
-      e_fingerprint = P.fingerprint;
-    }
+    include (val params : ELECTION_DATA)
     include (val web_params : WEB_PARAMS)
   end in
   (module D : WEB_ELECTION_DATA)
@@ -108,8 +103,8 @@ let import_election f =
       )
     in
     let params = Group.election_params_of_string raw_election in
-    let module P = (val params : ELECTION_PARAMS) in
-    let uuid = Uuidm.to_string P.params.e_uuid in
+    let module P = (val params : ELECTION_DATA) in
+    let uuid = Uuidm.to_string P.election.e_params.e_uuid in
     lwt exists =
       try_lwt
         lwt _ = Ocsipersist.find election_ptable uuid in
@@ -159,7 +154,7 @@ let import_election f =
       ) in
       if not (Array.forall KG.check pks) then
         failwith "Public keys are invalid.";
-      if not G.(P.params.e_public_key =~ KG.combine pks) then
+      if not G.(P.election.e_params.e_public_key =~ KG.combine pks) then
         failwith "Public keys mismatch with election public key.";
       let public_creds = Lwt_io.lines_of_file f.f_public_creds in
       lwt () = Lwt_stream.(

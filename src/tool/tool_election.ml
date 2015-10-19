@@ -44,7 +44,7 @@ end
 
 module type PARSED_PARAMS = sig
   include PARAMS
-  include ELECTION_PARAMS
+  include ELECTION_DATA
 end
 
 let parse_params p =
@@ -52,7 +52,7 @@ let parse_params p =
   let params = Group.election_params_of_string P.election in
   let module R = struct
     include P
-    include (val params : ELECTION_PARAMS)
+    include (val params : ELECTION_DATA)
   end in
   (module R : PARSED_PARAMS)
 
@@ -75,7 +75,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     | Some pks ->
       assert (Array.forall KG.check pks);
       let y' = KG.combine pks in
-      assert G.(params.e_public_key =~ y')
+      assert G.(election.e_params.e_public_key =~ y')
     | None -> ()
 
   let public_keys =
@@ -88,11 +88,6 @@ module Make (P : PARSED_PARAMS) : S = struct
   let pks = match public_keys with
     | Some pks -> pks
     | None -> failwith "missing public keys"
-
-  let e = {
-    e_params = params;
-    e_fingerprint = fingerprint;
-  }
 
   (* Load ballots, if present *)
 
@@ -127,7 +122,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   )
 
   let cast (b, hash) =
-    if Lazy.force check_signature_present b && E.check_ballot e b
+    if Lazy.force check_signature_present b && E.check_ballot election b
     then M.cast b ()
     else Printf.ksprintf failwith "ballot %s failed tests" hash
 
@@ -141,18 +136,18 @@ module Make (P : PARSED_PARAMS) : S = struct
       | Some () ->
         M.fold (fun () b t ->
           M.return (E.combine_ciphertexts (E.extract_ciphertext b) t)
-        ) (E.neutral_ciphertext e) ()
+        ) (E.neutral_ciphertext election) ()
   )
 
   let vote privcred ballot =
     let sk =
       privcred |> option_map (fun cred ->
-        let hex = derive_cred e.e_params.e_uuid cred in
+        let hex = derive_cred election.e_params.e_uuid cred in
         Z.(of_string_base 16 hex mod G.q)
       )
     in
-    let b = E.create_ballot e ?sk (E.make_randomness e ()) ballot () in
-    assert (E.check_ballot e b);
+    let b = E.create_ballot election ?sk (E.make_randomness election ()) ballot () in
+    assert (E.check_ballot election b);
     string_of_ballot G.write b
 
   let decrypt privkey =
@@ -171,7 +166,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     let tally = Lazy.force encrypted_tally in
     assert (Array.forall2 (E.check_factor tally) pks factors);
     let result = E.combine_factors (M.cardinal ()) tally factors in
-    assert (E.check_result e pks result);
+    assert (E.check_result election pks result);
     string_of_result G.write result
 
   let verify () =
@@ -181,7 +176,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     );
     (match get_result () with
     | Some result ->
-      assert (E.check_result e pks (result_of_string G.read result))
+      assert (E.check_result election pks (result_of_string G.read result))
     | None -> print_msg "W: no result to check"
     );
     print_msg "I: all checks passed"
