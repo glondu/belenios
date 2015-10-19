@@ -82,7 +82,6 @@ let web_election_data (raw_election, web_params) =
     module G = P.G
     let election = {
       e_params = P.params;
-      e_pks = None;
       e_fingerprint = P.fingerprint;
     }
     include (val web_params : WEB_PARAMS)

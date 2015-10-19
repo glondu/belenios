@@ -30,13 +30,11 @@ let check_modulo p x = Z.(geq x zero && lt x p)
 
 (** Parameters *)
 
-let check_election_public_key (type t) g e =
+let check_election_public_key (type t) g pks e =
   let module G = (val g : GROUP with type t = t) in
   let open G in
   (* check public key *)
-  match e.e_pks with
-  | Some pks -> Array.fold_left ( *~ ) G.one pks =~ e.e_params.e_public_key
-  | None -> false
+  Array.fold_left ( *~ ) G.one pks =~ e.e_params.e_public_key
 
 (** Simple monad *)
 
@@ -414,13 +412,10 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
     let result = Array.mmap log results in
     {num_tallied; encrypted_tally; partial_decryptions; result}
 
-  let check_result e r =
+  let check_result e pks r =
     let {encrypted_tally; partial_decryptions; result; num_tallied} = r in
     check_ciphertext encrypted_tally &&
-    (match e.e_pks with
-    | Some pks ->
-      Array.forall2 (check_factor encrypted_tally) pks partial_decryptions
-    | None -> false) &&
+    Array.forall2 (check_factor encrypted_tally) pks partial_decryptions &&
     let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
     let factors = Array.fold_left (fun a b ->
       Array.mmap2 ( *~ ) a b.decryption_factors

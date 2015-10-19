@@ -91,7 +91,6 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   let e = {
     e_params = params;
-    e_pks = Some pks;
     e_fingerprint = fingerprint;
   }
 
@@ -172,7 +171,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     let tally = Lazy.force encrypted_tally in
     assert (Array.forall2 (E.check_factor tally) pks factors);
     let result = E.combine_factors (M.cardinal ()) tally factors in
-    assert (E.check_result e result);
+    assert (E.check_result e pks result);
     string_of_result G.write result
 
   let verify () =
@@ -182,7 +181,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     );
     (match get_result () with
     | Some result ->
-      assert (E.check_result e (result_of_string G.read result))
+      assert (E.check_result e pks (result_of_string G.read result))
     | None -> print_msg "W: no result to check"
     );
     print_msg "I: all checks passed"

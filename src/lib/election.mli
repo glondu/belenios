@@ -26,7 +26,7 @@ open Serializable_t
 open Signatures
 
 val check_election_public_key : (module GROUP with type t = 'a) ->
-  'a election -> bool
+  'a array -> 'a election -> bool
 (** Check election public key. *)
 
 module MakeSimpleMonad (G : GROUP) : sig

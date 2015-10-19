@@ -100,7 +100,6 @@ let encryptBallot params cred plaintext () =
   let module E = Election.MakeElection (G) (M) in
   let e = {
     e_params = P.params;
-    e_pks = None;
     e_fingerprint = P.fingerprint;
   } in
   let sk =
