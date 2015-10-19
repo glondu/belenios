@@ -1262,9 +1262,8 @@ let () =
         if trustee_id > 0 then return () else fail_http 404
       in
       lwt w = find_election uuid_s in
-      let module W = Web_election.Make ((val w)) (LwtRandom) in
-      let module E = W.E in
-      let module W = W.D in
+      let module W = (val w) in
+      let module E = Election.MakeElection (W.G) (LwtRandom) in
       let pks = W.dir / string_of_election_file ESKeys in
       let pks = Lwt_io.lines_of_file pks in
       lwt () = Lwt_stream.njunk (trustee_id-1) pks in
@@ -1296,9 +1295,8 @@ let () =
 let handle_election_tally_release (uuid, ()) () =
       let uuid_s = Uuidm.to_string uuid in
       lwt w = find_election uuid_s in
-      let module W = Web_election.Make ((val w)) (LwtRandom) in
-      let module E = W.E in
-      let module W = W.D in
+      let module W = (val w) in
+      let module E = Election.MakeElection (W.G) (LwtRandom) in
       lwt () =
         match_lwt Web_auth_state.get_site_user () with
         | Some u when W.metadata.e_owner = Some u -> return ()
