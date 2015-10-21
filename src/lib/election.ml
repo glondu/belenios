@@ -28,14 +28,6 @@ open Common
 
 let check_modulo p x = Z.(geq x zero && lt x p)
 
-(** Parameters *)
-
-let check_election_public_key (type t) g pks e =
-  let module G = (val g : GROUP with type t = t) in
-  let open G in
-  (* check public key *)
-  Array.fold_left ( *~ ) G.one pks =~ e.e_params.e_public_key
-
 (** Simple monad *)
 
 module MakeSimpleMonad (G : GROUP) = struct

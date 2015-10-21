@@ -29,9 +29,6 @@ open Serializable_t
 type 'a reader = Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
 type 'a writer = Bi_outbuf.t -> 'a -> unit
 
-(** Empty module *)
-module type EMPTY = sig end
-
 (** A group suitable for discrete logarithm-based cryptography. *)
 module type GROUP = sig
   (** The following interface is redundant: it is assumed, but not
