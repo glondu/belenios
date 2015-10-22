@@ -83,9 +83,20 @@ let web_election_data (raw_election, web_params) =
   end in
   (module D : WEB_ELECTION_DATA)
 
-let find_election uuid =
+let raw_find_election uuid =
   lwt x = Ocsipersist.find election_ptable uuid in
   return (web_election_data x)
+
+module WCacheTypes = struct
+  type key = string
+  type value = (module WEB_ELECTION_DATA)
+end
+
+module WCache = Ocsigen_cache.Make (WCacheTypes)
+
+let find_election =
+  let cache = new WCache.cache raw_find_election 100 in
+  fun x -> cache#find x
 
 (* Mutex to avoid simultaneous registrations of the same election *)
 let registration_mutex = Lwt_mutex.create ()
