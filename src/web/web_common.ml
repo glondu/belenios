@@ -28,6 +28,8 @@ open Serializable_builtin_j
 open Serializable_t
 open Web_serializable_t
 
+let spool_dir = ref "."
+
 let enforce_single_element s =
   let open Lwt_stream in
   lwt t = next s in

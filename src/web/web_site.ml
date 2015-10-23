@@ -30,7 +30,6 @@ open Web_signatures
 open Web_services
 
 let source_file = ref "belenios.tar.gz"
-let spool_dir = ref "."
 
 let get_single_line x =
   match_lwt Lwt_stream.get x with

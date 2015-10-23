@@ -21,8 +21,9 @@
 
 open Lwt
 open Serializable_builtin_j
-open Serializable_t
+open Serializable_j
 open Common
+open Web_common
 
 type election_state =
   [ `Open
@@ -68,3 +69,12 @@ let get_auth_config x =
 
 let set_auth_config x c =
   Ocsipersist.add auth_configs x c
+
+let ( / ) = Filename.concat
+
+let get_election_result uuid =
+  try_lwt
+    Lwt_io.chars_of_file (!spool_dir / uuid / "result.json") |>
+    Lwt_stream.to_string >>= fun x ->
+    return @@ Some (result_of_string (Yojson.Safe.from_lexbuf ~stream:true) x)
+  with _ -> return_none

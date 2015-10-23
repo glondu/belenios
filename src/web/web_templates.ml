@@ -838,26 +838,35 @@ let election_home w state () =
       ];
     ]
   in
-  let middle =
-    match state with
-    | `Tallied result ->
+  lwt middle =
+    let uuid = Uuidm.to_string params.e_uuid in
+    lwt result = Web_persist.get_election_result uuid in
+    match result with
+    | Some r ->
+       let result = r.result in
        let questions = Array.to_list W.election.e_params.e_questions in
-       ul (List.mapi (fun i x ->
-         let answers = Array.to_list x.q_answers in
-         let answers = List.mapi (fun j x ->
-           tr [td [pcdata x]; td [pcdata @@ string_of_int result.(i).(j)]]
-         ) answers in
-         let answers =
-           match answers with
-           | [] -> pcdata ""
-           | x :: xs -> table x xs
-         in
-         li [
-           pcdata x.q_question;
-           answers;
-         ]
-       ) questions)
-    | _ -> go_to_the_booth
+       return @@ div [
+         ul (List.mapi (fun i x ->
+           let answers = Array.to_list x.q_answers in
+           let answers = List.mapi (fun j x ->
+             tr [td [pcdata x]; td [pcdata @@ string_of_int result.(i).(j)]]
+           ) answers in
+           let answers =
+             match answers with
+             | [] -> pcdata ""
+             | x :: xs -> table x xs
+           in
+           li [
+             pcdata x.q_question;
+             answers;
+           ]
+         ) questions);
+         div [
+           pcdata "Number of accepted ballots: ";
+           pcdata (string_of_int r.num_tallied);
+         ];
+       ]
+    | None -> return go_to_the_booth
   in
   let content = [
     p state_;

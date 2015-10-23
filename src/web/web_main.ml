@@ -113,7 +113,7 @@ let spool_dir =
 (** Build up the site *)
 
 let () = Web_site.source_file := source_file
-let () = Web_site.spool_dir := spool_dir
+let () = Web_common.spool_dir := spool_dir
 let () = Web_site_auth.configure (List.rev !auth_instances)
 
 lwt () =

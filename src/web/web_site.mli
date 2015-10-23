@@ -23,7 +23,6 @@ open Web_serializable_t
 open Web_signatures
 
 val source_file : string ref
-val spool_dir : string ref
 
 val import_election :
   election_files -> (module REGISTRABLE_ELECTION) option Lwt.t
