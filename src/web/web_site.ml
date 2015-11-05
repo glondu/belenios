@@ -106,6 +106,13 @@ let find_election =
   let cache = new WCache.cache raw_find_election 100 in
   fun x -> cache#find x
 
+let dump_passwords dir table uuid =
+  Lwt_io.(with_file Output (dir / "passwords.csv") (fun oc ->
+    Ocsipersist.iter_step (fun voter (salt, hashed) ->
+      write_line oc (voter ^ "," ^ salt ^ "," ^ hashed)
+    ) table
+  ))
+
 (* Mutex to avoid simultaneous registrations of the same election *)
 let registration_mutex = Lwt_mutex.create ()
 
@@ -222,6 +229,12 @@ let import_election f =
             Lwt_stream.iter_s W.B.inject_cred >>
             W.B.update_files () >>
             Ocsipersist.add election_ptable uuid (raw_election, web_params) >>
+            (
+              let table = "password_" ^ underscorize uuid in
+              let table = Ocsipersist.open_table table in
+              lwt size = Ocsipersist.length table in
+              if size > 0 then dump_passwords dir table uuid else return_unit
+            ) >>
             let () = Lwt_mutex.unlock registration_mutex in
             return (module W : WEB_ELECTION)
           with e ->
@@ -503,11 +516,8 @@ let () =
     ~service:election_setup_auth_genpwd
     (handle_setup
        (fun se () _ uuid ->
-         let table =
-           "password_" ^
-           let u = Uuidm.to_string uuid in
-           underscorize u
-         in
+         let uuid_s = Uuidm.to_string uuid in
+         let table = "password_" ^ underscorize uuid_s in
          let title = se.se_questions.t_name in
          let url = Eliom_uri.make_string_uri
            ~absolute:true ~service:election_home
@@ -545,6 +555,7 @@ let () =
          begin try_lwt
            lwt _ = Ocsipersist.find table user in
            generate_password table title url user >>
+           dump_passwords W.dir table uuid_s >>
            T.generic_page ~title:"Success"
              ("A new password has been mailed to " ^ user ^ ".") ()
            >>= Html5.send
@@ -1437,4 +1448,13 @@ lwt () =
     Lwt_io.(with_file Output (P.dir/"metadata.json") (fun oc ->
       write_line oc raw_metadata
     ))
+  ) election_ptable
+
+lwt () =
+  Ocsipersist.iter_step (fun uuid (_, web_params) ->
+    let module P = (val web_params : WEB_PARAMS) in
+    let table = "password_" ^ underscorize uuid in
+    let table = Ocsipersist.open_table table in
+    lwt size = Ocsipersist.length table in
+    if size > 0 then dump_passwords P.dir table uuid else return_unit
   ) election_ptable
