@@ -125,10 +125,10 @@ let import_election f =
     let module P = (val params : ELECTION_DATA) in
     let uuid = Uuidm.to_string P.election.e_params.e_uuid in
     lwt exists =
-      try_lwt
-        lwt _ = Ocsipersist.find election_ptable uuid in
-        return true
-      with Not_found -> return false
+      lwt x = Web_persist.get_raw_election uuid in
+      match x with
+      | Some _ -> return true
+      | None -> return false
     in
     if exists then (
       Lwt_mutex.unlock registration_mutex;
@@ -260,9 +260,8 @@ let () = Html5.register ~service:admin
       | None -> return None
       | Some u ->
          lwt elections, tallied =
-           Ocsipersist.fold_step (fun uuid_s (_, web_params) accu ->
-             let module W = (val web_params : WEB_PARAMS) in
-             if W.metadata.e_owner = Some u then (
+           Web_persist.get_elections_by_owner u >>=
+           Lwt_list.fold_left_s (fun accu uuid_s ->
                lwt w = find_election uuid_s in
                lwt state = Web_persist.get_election_state uuid_s in
                lwt date = Web_persist.get_election_date uuid_s in
@@ -270,10 +269,7 @@ let () = Html5.register ~service:admin
                match state with
                | `Tallied _ -> return (elections, (date, w) :: tallied)
                | _ -> return ((date, w) :: elections, tallied)
-             ) else (
-               return accu
-             )
-           ) election_ptable ([], [])
+           ) ([], [])
          and setup_elections =
            Ocsipersist.fold_step (fun k v accu ->
              if v.se_owner = u

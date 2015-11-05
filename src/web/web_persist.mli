@@ -43,3 +43,5 @@ val set_auth_config : string -> (string * (string * string list)) list -> unit L
 val get_raw_election : string -> string option Lwt.t
 val get_election_metadata : string -> metadata option Lwt.t
 val get_election_result : string -> Yojson.Safe.json result option Lwt.t
+
+val get_elections_by_owner : user -> string list Lwt.t

@@ -95,3 +95,12 @@ let get_election_result uuid =
     Lwt_stream.to_string >>= fun x ->
     return @@ Some (result_of_string (Yojson.Safe.from_lexbuf ~stream:true) x)
   with _ -> return_none
+
+let get_elections_by_owner user =
+  Lwt_unix.files_of_directory !spool_dir |>
+  Lwt_stream.filter_s (fun x ->
+    if x = "." || x = ".." then return false else
+    match_lwt get_election_metadata x with
+    | Some m -> return (m.e_owner = Some user)
+    | None -> return false
+  ) |> Lwt_stream.to_list
