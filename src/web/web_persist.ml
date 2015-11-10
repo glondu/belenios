@@ -26,6 +26,15 @@ open Common
 open Web_serializable_j
 open Web_common
 
+let ( / ) = Filename.concat
+
+let get_election_result uuid =
+  try_lwt
+    Lwt_io.chars_of_file (!spool_dir / uuid / "result.json") |>
+    Lwt_stream.to_string >>= fun x ->
+    return @@ Some (result_of_string (Yojson.Safe.from_lexbuf ~stream:true) x)
+  with _ -> return_none
+
 type election_state =
   [ `Open
   | `Closed
@@ -37,7 +46,10 @@ let election_states = Ocsipersist.open_table "election_states"
 
 let get_election_state x =
   try_lwt Ocsipersist.find election_states x
-  with Not_found -> return `Open
+  with Not_found ->
+    match_lwt get_election_result x with
+    | Some r -> return (`Tallied r.result)
+    | None -> return `Open
 
 let set_election_state x s =
   Ocsipersist.add election_states x s
@@ -71,8 +83,6 @@ let get_auth_config x =
 let set_auth_config x c =
   Ocsipersist.add auth_configs x c
 
-let ( / ) = Filename.concat
-
 let get_raw_election uuid =
   try_lwt
     let lines = Lwt_io.lines_of_file (!spool_dir / uuid / "election.json") in
@@ -87,13 +97,6 @@ let get_election_metadata uuid =
     Lwt_io.chars_of_file (!spool_dir / uuid / "metadata.json") |>
     Lwt_stream.to_string >>= fun x ->
     return @@ Some (metadata_of_string x)
-  with _ -> return_none
-
-let get_election_result uuid =
-  try_lwt
-    Lwt_io.chars_of_file (!spool_dir / uuid / "result.json") |>
-    Lwt_stream.to_string >>= fun x ->
-    return @@ Some (result_of_string (Yojson.Safe.from_lexbuf ~stream:true) x)
   with _ -> return_none
 
 let get_elections_by_owner user =
