@@ -81,6 +81,7 @@ type error =
   | WrongCredential
   | UsedCredential
   | CredentialNotFound
+  | UnauthorizedVoter
 
 exception Error of error
 
@@ -98,6 +99,7 @@ let explain_error = function
   | WrongCredential -> "you are not allowed to vote with this credential"
   | UsedCredential -> "the credential has already been used"
   | CredentialNotFound -> "the credential has not been found"
+  | UnauthorizedVoter -> "you are not allowed to vote"
 
 let security_logfile = ref None
 
@@ -243,3 +245,11 @@ let send_email from to_ subject body =
   in
   let sendmail = "/usr/sbin/sendmail" in
   Lwt_process.pwrite (sendmail, [|sendmail; "-f"; from; to_|]) contents
+
+let split_identity x =
+  let n = String.length x in
+  try
+    let i = String.index x ',' in
+    String.sub x 0 i, String.sub x (i+1) (n-i-1)
+  with Not_found ->
+    x, x

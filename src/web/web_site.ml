@@ -502,14 +502,15 @@ counts.
 -- 
 Belenios"
 
-let generate_password table title url v =
+let generate_password table title url id =
+  let email, login = split_identity id in
   lwt salt = generate_token () in
   lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
-  lwt () = Ocsipersist.add table v (salt, hashed) in
-  let body = Printf.sprintf template_password title v password url in
+  lwt () = Ocsipersist.add table login (salt, hashed) in
+  let body = Printf.sprintf template_password title login password url in
   let subject = "Your password for election " ^ title in
-  send_email "noreply@belenios.org" v subject body
+  send_email "noreply@belenios.org" email subject body
 
 let () =
   Any.register
@@ -606,7 +607,7 @@ let () =
 (* see http://www.regular-expressions.info/email.html *)
 let email_rex = Pcre.regexp
   ~flags:[`CASELESS]
-  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,7}$"
+  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,7}(,[A-Z0-9._%+-]+)?$"
 
 let is_email x =
   try ignore (Pcre.pcre_exec ~rex:email_rex x); true
@@ -819,7 +820,8 @@ let () =
       let module S = Set.Make (PString) in
       let module G = (val Group.of_string se.se_group : GROUP) in
       lwt creds =
-        Lwt_list.fold_left_s (fun accu id ->
+        Lwt_list.fold_left_s (fun accu identity ->
+          let email, login = split_identity identity in
           lwt cred = Credgen.generate () in
           let priv_cred = derive_cred uuid cred in
           let pub_cred =
@@ -827,9 +829,9 @@ let () =
             let y = G.(g **~ x) in
             G.to_string y
           in
-          let body = Printf.sprintf template_credential title id cred url in
+          let body = Printf.sprintf template_credential title login cred url in
           let subject = "Your credential for election " ^ title in
-          lwt () = send_email "noreply@belenios.org" id subject body in
+          lwt () = send_email "noreply@belenios.org" email subject body in
           return @@ S.add pub_cred accu
         ) S.empty se.se_voters
       in
@@ -1165,7 +1167,7 @@ let () =
            Eliom_reference.unset Web_services.ballot >>
            match_lwt Web_auth_state.get_election_user uuid with
            | Some u ->
-              let record = string_of_user u, now () in
+              let record = u, now () in
               lwt result =
                 try_lwt
                   lwt hash = B.cast the_ballot record in
@@ -1235,7 +1237,8 @@ let () =
       in
       let module S = Set.Make (PString) in
       lwt voters = Lwt_stream.fold (fun v accu ->
-        S.add v accu
+        let _, login = split_identity v in
+        S.add login accu
       ) voters S.empty in
       let records = Lwt_io.lines_of_file
         (W.dir / string_of_election_file ESRecords)

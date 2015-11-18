@@ -70,7 +70,7 @@ module type WEB_BALLOT_BOX = sig
     and type elt = datetime * string
     and type key = string
 
-  val cast : string -> string * datetime -> string Lwt.t
+  val cast : string -> user * datetime -> string Lwt.t
   val inject_cred : string -> unit Lwt.t
   val update_files : unit -> unit Lwt.t
   val update_cred : old:string -> new_:string -> unit Lwt.t

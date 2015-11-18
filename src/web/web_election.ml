@@ -72,6 +72,14 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
           Ocsipersist.add cred_table cred None
 
       let do_cast rawballot (user, date) =
+        let voters = Lwt_io.lines_of_file (!spool_dir / uuid / "voters.txt") in
+        lwt voters = Lwt_stream.to_list voters in
+        let voter_ok = List.exists (fun x ->
+          let _, login = split_identity x in
+          login = user.user_name
+        ) voters in
+        if not voter_ok then fail UnauthorizedVoter else return () >>
+        let user = string_of_user user in
         lwt state = Web_persist.get_election_state uuid in
         let voting_open = state = `Open in
         if not voting_open then fail ElectionClosed else return () >>

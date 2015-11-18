@@ -49,6 +49,7 @@ type error =
   | WrongCredential
   | UsedCredential
   | CredentialNotFound
+  | UnauthorizedVoter
 
 exception Error of error
 
@@ -112,3 +113,5 @@ val string_of_user : user -> string
 val underscorize : string -> string
 
 val send_email : string -> string -> string -> string -> unit Lwt.t
+
+val split_identity : string -> string * string
