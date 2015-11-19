@@ -83,8 +83,17 @@ let web_election_data (raw_election, web_params) =
   (module D : WEB_ELECTION_DATA)
 
 let raw_find_election uuid =
-  lwt x = Ocsipersist.find election_ptable uuid in
-  return (web_election_data x)
+  lwt raw_election = Web_persist.get_raw_election uuid in
+  lwt metadata = Web_persist.get_election_metadata uuid in
+  match raw_election, metadata with
+  | Some raw_election, Some metadata ->
+     let module P = struct
+       let dir = !spool_dir / uuid
+       let metadata = metadata
+     end in
+     let web_params = (module P : WEB_PARAMS) in
+     return (web_election_data (raw_election, web_params))
+  | _, _ -> Lwt.fail Not_found
 
 module WCacheTypes = struct
   type key = string
@@ -187,6 +196,9 @@ let import_election f =
             )) >>
             Lwt_io.(with_file Output (dir/"voters.txt") (fun oc ->
               write_lines oc voters
+            )) >>
+            Lwt_io.(with_file Output (dir/"metadata.json") (fun oc ->
+              write_line oc (string_of_metadata metadata)
             )) >>
             let election = web_election_data (raw_election, web_params) in
             let module W = Web_election.Make ((val election)) (LwtRandom) in
@@ -1419,3 +1431,14 @@ let () =
         Web_persist.set_partial_decryptions uuid_s [1, pd] >>
         handle_election_tally_release (uuid, ()) ()
       ) else Redirection.send (preapply election_admin (uuid, ())))
+
+(** Dump all election metadata to disk at startup (temporary) *)
+
+lwt () =
+  Ocsipersist.iter_step (fun uuid (_, web_params) ->
+    let module P = (val web_params : WEB_PARAMS) in
+    let raw_metadata = string_of_metadata P.metadata in
+    Lwt_io.(with_file Output (P.dir/"metadata.json") (fun oc ->
+      write_line oc raw_metadata
+    ))
+  ) election_ptable

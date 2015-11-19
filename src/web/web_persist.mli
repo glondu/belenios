@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Serializable_t
+open Web_serializable_t
 
 type election_state =
   [ `Open
@@ -39,4 +40,6 @@ val set_partial_decryptions : string -> (int * string) list -> unit Lwt.t
 val get_auth_config : string -> (string * (string * string list)) list Lwt.t
 val set_auth_config : string -> (string * (string * string list)) list -> unit Lwt.t
 
+val get_raw_election : string -> string option Lwt.t
+val get_election_metadata : string -> metadata option Lwt.t
 val get_election_result : string -> Yojson.Safe.json result option Lwt.t

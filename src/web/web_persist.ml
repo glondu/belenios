@@ -23,6 +23,7 @@ open Lwt
 open Serializable_builtin_j
 open Serializable_j
 open Common
+open Web_serializable_j
 open Web_common
 
 type election_state =
@@ -71,6 +72,22 @@ let set_auth_config x c =
   Ocsipersist.add auth_configs x c
 
 let ( / ) = Filename.concat
+
+let get_raw_election uuid =
+  try_lwt
+    let lines = Lwt_io.lines_of_file (!spool_dir / uuid / "election.json") in
+    begin match_lwt Lwt_stream.to_list lines with
+    | x :: _ -> return @@ Some x
+    | [] -> return_none
+    end
+  with _ -> return_none
+
+let get_election_metadata uuid =
+  try_lwt
+    Lwt_io.chars_of_file (!spool_dir / uuid / "metadata.json") |>
+    Lwt_stream.to_string >>= fun x ->
+    return @@ Some (metadata_of_string x)
+  with _ -> return_none
 
 let get_election_result uuid =
   try_lwt
