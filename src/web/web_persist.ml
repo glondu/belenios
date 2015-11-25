@@ -58,12 +58,27 @@ let election_dates = Ocsipersist.open_table "election_dates"
 
 let past = datetime_of_string "\"2015-10-01 00:00:00.000000\""
 
-let get_election_date x =
-  try_lwt Ocsipersist.find election_dates x
-  with Not_found -> return past
+let set_election_date uuid d =
+  Ocsipersist.add election_dates uuid d >>
+  let dates = { e_finalization = d } in
+  Lwt_io.(with_file Output (!spool_dir / uuid / "dates.json") (fun oc ->
+    write_line oc (string_of_election_dates dates)
+  ))
 
-let set_election_date x d =
-  Ocsipersist.add election_dates x d
+let get_election_date uuid =
+  try_lwt
+    (* Temporary *)
+    lwt d = Ocsipersist.find election_dates uuid in
+    set_election_date uuid d >>
+    return d
+  with Not_found ->
+    try_lwt
+      Lwt_io.chars_of_file (!spool_dir / uuid / "dates.json") |>
+      Lwt_stream.to_string >>= fun x ->
+      let dates = election_dates_of_string x in
+      return dates.e_finalization
+    with _ ->
+      return past
 
 let election_pds = Ocsipersist.open_table "election_pds"
 

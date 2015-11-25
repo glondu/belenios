@@ -60,3 +60,7 @@ type datadir_index = datadir_item list
 type election_uuid = {
   uuid : uuid;
 } <ocaml field_prefix="election_">
+
+type election_dates = {
+  finalization : datetime;
+} <ocaml field_prefix="e_">
