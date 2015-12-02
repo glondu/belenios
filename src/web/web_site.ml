@@ -60,9 +60,6 @@ open Eliom_registration
 
 module LwtRandom = MakeLwtRandom (struct let rng = make_rng () end)
 
-(* Persistent table, used to initialize the server. *)
-let election_ptable = Ocsipersist.open_table "site_elections"
-
 (* Table with elections in setup mode. *)
 let election_stable = Ocsipersist.open_table "site_setup"
 
@@ -228,7 +225,6 @@ let import_election f =
             public_creds |>
             Lwt_stream.iter_s W.B.inject_cred >>
             W.B.update_files () >>
-            Ocsipersist.add election_ptable uuid (raw_election, web_params) >>
             (
               let table = "password_" ^ underscorize uuid in
               let table = Ocsipersist.open_table table in
@@ -1441,23 +1437,3 @@ let () =
         Web_persist.set_partial_decryptions uuid_s [1, pd] >>
         handle_election_tally_release (uuid, ()) ()
       ) else Redirection.send (preapply election_admin (uuid, ())))
-
-(** Dump all election metadata to disk at startup (temporary) *)
-
-lwt () =
-  Ocsipersist.iter_step (fun uuid (_, web_params) ->
-    let module P = (val web_params : WEB_PARAMS) in
-    let raw_metadata = string_of_metadata P.metadata in
-    Lwt_io.(with_file Output (P.dir/"metadata.json") (fun oc ->
-      write_line oc raw_metadata
-    ))
-  ) election_ptable
-
-lwt () =
-  Ocsipersist.iter_step (fun uuid (_, web_params) ->
-    let module P = (val web_params : WEB_PARAMS) in
-    let table = "password_" ^ underscorize uuid in
-    let table = Ocsipersist.open_table table in
-    lwt size = Ocsipersist.length table in
-    if size > 0 then dump_passwords P.dir table uuid else return_unit
-  ) election_ptable
