@@ -587,17 +587,61 @@ let election_setup_voters uuid se () =
   let title = "Voters for election " ^ se.se_questions.t_name in
   let form =
     post_form
-      ~service:election_setup_voters_post
+      ~service:election_setup_voters_add
       (fun name ->
-        let value = String.concat "\n" se.se_voters in
         [
-          div [textarea ~a:[a_rows 20; a_cols 50] ~name ~value ()];
-          div [string_input ~input_type:`Submit ~value:"Submit" ()]])
+          div [textarea ~a:[a_rows 20; a_cols 50] ~name ()];
+          div [string_input ~input_type:`Submit ~value:"Add" ()]])
       uuid
   in
+  let mk_remove_button id =
+    post_form
+      ~service:election_setup_voters_remove
+      (fun name ->
+        [
+          string_input ~input_type:`Hidden ~name ~value:id ();
+          string_input ~input_type:`Submit ~value:"Remove" ();
+        ]
+      ) uuid
+  in
+  let to_string x = if x then "Yes" else "No" in
+  let voters =
+    List.map (fun v ->
+      tr [
+        td [pcdata v.sv_id];
+        td [pcdata (to_string v.sv_credential)];
+        td [pcdata (to_string v.sv_password)];
+        td [mk_remove_button v.sv_id];
+      ]
+    ) se.se_voters
+  in
+  let voters =
+    match voters with
+    | [] -> div [pcdata "No voters"]
+    | _ :: _ ->
+       table
+         (tr [
+           th [pcdata "Identity"];
+           th [pcdata "Credential"];
+           th [pcdata "Password"];
+           th [pcdata "Remove"];
+         ])
+         voters
+  in
+  let back = div [
+    a ~service:Web_services.election_setup [pcdata "Return to setup page"] uuid;
+  ] in
   let content = [
-    div [pcdata "Please enter the email addresses of the voters, one per line."];
+    voters;
+    back;
+    div [pcdata "Please enter the identities of voters to add, one per line:"];
     form;
+    div [
+      b [pcdata "Note:"];
+      pcdata " An identity is either an e-mail address, or \"address,login\",";
+      pcdata " where \"address\" is an e-mail address and \"login\" the";
+      pcdata " associated login for authentication.";
+    ];
   ] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
@@ -651,7 +695,7 @@ let election_setup_credentials token uuid se () =
   in
   let voters =
     let name : 'a Eliom_parameter.param_name = Obj.magic "voters" in
-    let value = String.concat "\n" se.se_voters in
+    let value = String.concat "\n" (List.map (fun x -> x.sv_id) se.se_voters) in
     div [
       div [pcdata "List of voters:"];
       div [textarea ~a:[a_id "voters"; a_rows 5; a_cols 40; a_readonly `ReadOnly] ~name ~value ()];

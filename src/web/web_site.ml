@@ -521,7 +521,10 @@ let () =
            (uuid, ()) |> rewrite_prefix
          in
          let table = Ocsipersist.open_table table in
-         Lwt_list.iter_s (generate_password table title url) se.se_voters >>
+         Lwt_list.iter_s (fun id ->
+           generate_password table title url id.sv_id >>
+           return (id.sv_password <- true)
+         ) se.se_voters >>
          return (fun () ->
            T.generic_page ~title:"Success"
              "Passwords have been generated and mailed!" () >>= Html5.send)))
@@ -611,7 +614,7 @@ let is_email x =
 
 let () =
   Any.register
-    ~service:election_setup_voters_post
+    ~service:election_setup_voters_add
     (handle_setup
        (fun se x _ uuid ->
          let xs = Pcre.split x in
@@ -621,8 +624,20 @@ let () =
              Printf.ksprintf failwith "%S is not a valid address" bad
            with Not_found -> ()
          in
-         se.se_voters <- xs;
-         return (redir_preapply election_setup uuid)))
+         se.se_voters <- se.se_voters @ List.map (fun sv_id ->
+           {sv_id; sv_credential=false; sv_password=false}
+         ) xs;
+         return (redir_preapply election_setup_voters uuid)))
+
+let () =
+  Any.register
+    ~service:election_setup_voters_remove
+    (handle_setup
+       (fun se voter _ uuid ->
+         se.se_voters <- List.filter (fun v ->
+           v.sv_id <> voter
+         ) se.se_voters;
+         return (redir_preapply election_setup_voters uuid)))
 
 let () =
   Redirection.register
@@ -816,8 +831,8 @@ let () =
       let module S = Set.Make (PString) in
       let module G = (val Group.of_string se.se_group : GROUP) in
       lwt creds =
-        Lwt_list.fold_left_s (fun accu identity ->
-          let email, login = split_identity identity in
+        Lwt_list.fold_left_s (fun accu v ->
+          let email, login = split_identity v.sv_id in
           lwt cred = Credgen.generate () in
           let priv_cred = derive_cred uuid cred in
           let pub_cred =
@@ -828,6 +843,7 @@ let () =
           let body = Printf.sprintf template_credential title login cred url in
           let subject = "Your credential for election " ^ title in
           lwt () = send_email "noreply@belenios.org" email subject body in
+          v.sv_credential <- true;
           return @@ S.add pub_cred accu
         ) S.empty se.se_voters
       in
@@ -940,7 +956,7 @@ let () =
             in
             create_file files.f_election (string_of_params (write_wrapped_pubkey G.write_group G.write)) [params] >>
             create_file files.f_metadata string_of_metadata [se.se_metadata] >>
-            create_file files.f_voters (fun x -> x) se.se_voters >>
+            create_file files.f_voters (fun x -> x.sv_id) se.se_voters >>
             create_file files.f_public_keys (string_of_trustee_public_key G.write) public_keys >>
             (* actually create the election *)
             begin match_lwt import_election files with

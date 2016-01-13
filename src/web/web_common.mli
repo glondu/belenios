@@ -96,10 +96,16 @@ val uuid :
    [ `One of Uuidm.t ] Eliom_parameter.param_name)
   Eliom_parameter.params_type
 
+type setup_voter = {
+  sv_id : string;
+  mutable sv_credential : bool;
+  mutable sv_password : bool;
+}
+
 type setup_election = {
   mutable se_owner : user;
   mutable se_group : string;
-  mutable se_voters : string list;
+  mutable se_voters : setup_voter list;
   mutable se_questions : template;
   mutable se_public_keys : (string * string ref) list;
   mutable se_metadata : metadata;
