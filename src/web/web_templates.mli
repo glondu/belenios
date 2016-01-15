@@ -28,6 +28,7 @@ val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ]
 
 val generic_page : title:string -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
+val election_setup_pre : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_voters : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_questions : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

@@ -323,44 +323,69 @@ let () = String.register
 
 let generate_uuid = Uuidm.v4_gen (Random.State.make_self_init ())
 
+let create_new_election owner cred auth =
+  let e_cred_authority = match cred with
+    | `Automatic -> Some "server"
+    | `Manual -> None
+  in
+  let e_auth_config = match auth with
+    | `Password -> Some [{auth_system = "password"; auth_instance = "password"; auth_config = []}]
+    | `Dummy -> Some [{auth_system = "dummy"; auth_instance = "dummy"; auth_config = []}]
+    | `CAS server -> Some [{auth_system = "cas"; auth_instance = "cas"; auth_config = ["server", server]}]
+  in
+  let uuid = generate_uuid () in
+  let uuid_s = Uuidm.to_string uuid in
+  lwt token = generate_token () in
+  let se_metadata = {
+    e_owner = Some owner;
+    e_auth_config;
+    e_cred_authority;
+  } in
+  let question = {
+    q_answers = [| "Answer 1"; "Answer 2"; "Blank" |];
+    q_min = 1;
+    q_max = 1;
+    q_question = "Question 1?";
+  } in
+  let se_questions = {
+    t_description = "Description of the election.";
+    t_name = "Name of the election";
+    t_questions = [| question |];
+    t_short_name = "short_name";
+  } in
+  let se = {
+    se_owner = owner;
+    se_group = "{\"g\":\"14887492224963187634282421537186040801304008017743492304481737382571933937568724473847106029915040150784031882206090286938661464458896494215273989547889201144857352611058572236578734319505128042602372864570426550855201448111746579871811249114781674309062693442442368697449970648232621880001709535143047913661432883287150003429802392229361583608686643243349727791976247247948618930423866180410558458272606627111270040091203073580238905303994472202930783207472394578498507764703191288249547659899997131166130259700604433891232298182348403175947450284433411265966789131024573629546048637848902243503970966798589660808533\",\"p\":\"16328632084933010002384055033805457329601614771185955389739167309086214800406465799038583634953752941675645562182498120750264980492381375579367675648771293800310370964745767014243638518442553823973482995267304044326777047662957480269391322789378384619428596446446984694306187644767462460965622580087564339212631775817895958409016676398975671266179637898557687317076177218843233150695157881061257053019133078545928983562221396313169622475509818442661047018436264806901023966236718367204710755935899013750306107738002364137917426595737403871114187750804346564731250609196846638183903982387884578266136503697493474682071\",\"q\":\"61329566248342901292543872769978950870633559608669337131139375508370458778917\"}";
+    se_voters = [];
+    se_questions;
+    se_public_keys = [];
+    se_metadata;
+    se_public_creds = token;
+  } in
+  lwt () = Ocsipersist.add election_stable uuid_s se in
+  lwt () = Ocsipersist.add election_credtokens token uuid_s in
+  return (preapply election_setup uuid)
+
+let () = Html5.register ~service:election_setup_pre
+  (fun () () -> T.election_setup_pre ())
+
 let () = Redirection.register ~service:election_setup_new
-  (fun () () ->
+  (fun () (credmgmt, (auth, cas_server)) ->
    match_lwt Web_auth_state.get_site_user () with
    | Some u ->
-      let uuid = generate_uuid () in
-      let uuid_s = Uuidm.to_string uuid in
-      lwt token = generate_token () in
-      let se_metadata = {
-        e_owner = Some u;
-        e_auth_config = Some [{auth_system = "password"; auth_instance = "password"; auth_config = []}];
-        e_cred_authority = None;
-      } in
-      let question = {
-        q_answers = [| "Answer 1"; "Answer 2"; "Blank" |];
-        q_min = 1;
-        q_max = 1;
-        q_question = "Question 1?";
-      } in
-      let se_questions = {
-        t_description = "Description of the election.";
-        t_name = "Name of the election";
-        t_questions = [| question |];
-        t_short_name = "short_name";
-      } in
-      let se = {
-        se_owner = u;
-        se_group = "{\"g\":\"14887492224963187634282421537186040801304008017743492304481737382571933937568724473847106029915040150784031882206090286938661464458896494215273989547889201144857352611058572236578734319505128042602372864570426550855201448111746579871811249114781674309062693442442368697449970648232621880001709535143047913661432883287150003429802392229361583608686643243349727791976247247948618930423866180410558458272606627111270040091203073580238905303994472202930783207472394578498507764703191288249547659899997131166130259700604433891232298182348403175947450284433411265966789131024573629546048637848902243503970966798589660808533\",\"p\":\"16328632084933010002384055033805457329601614771185955389739167309086214800406465799038583634953752941675645562182498120750264980492381375579367675648771293800310370964745767014243638518442553823973482995267304044326777047662957480269391322789378384619428596446446984694306187644767462460965622580087564339212631775817895958409016676398975671266179637898557687317076177218843233150695157881061257053019133078545928983562221396313169622475509818442661047018436264806901023966236718367204710755935899013750306107738002364137917426595737403871114187750804346564731250609196846638183903982387884578266136503697493474682071\",\"q\":\"61329566248342901292543872769978950870633559608669337131139375508370458778917\"}";
-        se_voters = [];
-        se_questions;
-        se_public_keys = [];
-        se_metadata;
-        se_public_creds = token;
-      } in
-      lwt () = Ocsipersist.add election_stable uuid_s se in
-      lwt () = Ocsipersist.add election_credtokens token uuid_s in
-      return (preapply election_setup uuid)
-  | None -> forbidden ()
-  )
+      lwt credmgmt = match credmgmt with
+        | Some "auto" -> return `Automatic
+        | Some "manual" -> return `Manual
+        | _ -> fail_http 400
+      in
+      lwt auth = match auth with
+        | Some "password" -> return `Password
+        | Some "dummy" -> return `Dummy
+        | Some "cas" -> return @@ `CAS cas_server
+        | _ -> fail_http 400
+      in
+      create_new_election u credmgmt auth
+   | None -> forbidden ())
 
 let generic_setup_page f uuid () =
   match_lwt Web_auth_state.get_site_user () with

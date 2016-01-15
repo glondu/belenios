@@ -35,7 +35,8 @@ let get_randomness = service ~path:["get-randomness"] ~get_params:unit ()
 
 let tool = preapply (static_dir ()) ["static"; "belenios-tool.html"]
 
-let election_setup_new = post_coservice ~csrf_safe:true ~fallback:admin ~post_params:unit ()
+let election_setup_new = post_coservice ~csrf_safe:true ~fallback:admin ~post_params:(radio string "credmgmt" ** radio string "auth" ** string "cas_server") ()
+let election_setup_pre = service ~path:["setup"; "new"] ~get_params:unit ()
 let election_setup = service ~path:["setup"; "election"] ~get_params:(uuid "uuid") ()
 let election_setup_group = post_coservice ~fallback:election_setup ~post_params:(string "group") ()
 let election_setup_metadata = post_coservice ~fallback:election_setup ~post_params:(string "metadata") ()
