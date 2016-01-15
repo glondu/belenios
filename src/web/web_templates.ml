@@ -604,15 +604,23 @@ let election_setup_voters uuid se () =
         ]
       ) uuid
   in
+  let has_credentials = match se.se_metadata.e_cred_authority with
+    | None -> false
+    | Some _ -> true
+  in
+  let has_passwords = match se.se_metadata.e_auth_config with
+    | Some [{auth_system = "password"; _}] -> true
+    | _ -> false
+  in
   let to_string x = if x then "Yes" else "No" in
   let voters =
     List.map (fun v ->
-      tr [
-        td [pcdata v.sv_id];
-        td [pcdata (to_string v.sv_credential)];
-        td [pcdata (to_string v.sv_password)];
-        td [mk_remove_button v.sv_id];
-      ]
+      tr (
+        [td [pcdata v.sv_id]] @
+        (if has_credentials then [td [pcdata (to_string v.sv_credential)]] else []) @
+        (if has_passwords then [td [pcdata (to_string v.sv_password)]] else []) @
+        [td [mk_remove_button v.sv_id]]
+      )
     ) se.se_voters
   in
   let voters =
@@ -620,12 +628,12 @@ let election_setup_voters uuid se () =
     | [] -> div [pcdata "No voters"]
     | _ :: _ ->
        table
-         (tr [
-           th [pcdata "Identity"];
-           th [pcdata "Credential"];
-           th [pcdata "Password"];
-           th [pcdata "Remove"];
-         ])
+         (tr (
+           [th [pcdata "Identity"]] @
+           (if has_credentials then [th [pcdata "Credential"]] else []) @
+           (if has_passwords then [th [pcdata "Password"]] else []) @
+           [th [pcdata "Remove"]]
+         ))
          voters
   in
   let back = div [
