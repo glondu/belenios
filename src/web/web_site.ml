@@ -361,6 +361,7 @@ let create_new_election owner cred auth =
     se_public_keys = [];
     se_metadata;
     se_public_creds = token;
+    se_public_creds_received = false;
   } in
   lwt () = Ocsipersist.add election_stable uuid_s se in
   lwt () = Ocsipersist.add election_credtokens token uuid_s in
@@ -650,7 +651,7 @@ let () =
            with Not_found -> ()
          in
          se.se_voters <- se.se_voters @ List.map (fun sv_id ->
-           {sv_id; sv_credential=false; sv_password=false}
+           {sv_id; sv_password=false}
          ) xs;
          return (redir_preapply election_setup_voters uuid)))
 
@@ -734,6 +735,7 @@ let wrap_handler f =
 let handle_credentials_post token creds =
   lwt uuid = Ocsipersist.find election_credtokens token in
   lwt se = Ocsipersist.find election_stable uuid in
+  if se.se_public_creds_received then forbidden () else
   let module G = (val Group.of_string se.se_group : GROUP) in
   let fname = !spool_dir / uuid ^ ".public_creds.txt" in
   Lwt_mutex.with_lock
@@ -757,6 +759,8 @@ let handle_credentials_post token creds =
       (Lwt_io.lines_of_file fname)
   in
   let () = se.se_metadata <- {se.se_metadata with e_cred_authority = None} in
+  let () = se.se_public_creds_received <- true in
+  Ocsipersist.add election_stable uuid se >>
   T.generic_page ~title:"Success"
     "Credentials have been received and checked!" () >>= Html5.send
 
@@ -843,6 +847,7 @@ let () =
   Any.register
     ~service:election_setup_credentials_server
     (handle_setup (fun se () _ uuid ->
+      if se.se_public_creds_received then forbidden () else
       let () = se.se_metadata <- {se.se_metadata with
         e_cred_authority = Some "server"
       } in
@@ -868,7 +873,6 @@ let () =
           let body = Printf.sprintf template_credential title login cred url in
           let subject = "Your credential for election " ^ title in
           lwt () = send_email "noreply@belenios.org" email subject body in
-          v.sv_credential <- true;
           return @@ S.add pub_cred accu
         ) S.empty se.se_voters
       in
@@ -881,6 +885,7 @@ let () =
             (fun oc ->
               Lwt_list.iter_s (Lwt_io.write_line oc) creds)
       in
+      se.se_public_creds_received <- true;
       return (fun () ->
         T.generic_page ~title:"Success"
           "Credentials have been generated and mailed!" () >>= Html5.send)))

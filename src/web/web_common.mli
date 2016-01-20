@@ -98,7 +98,6 @@ val uuid :
 
 type setup_voter = {
   sv_id : string;
-  mutable sv_credential : bool;
   mutable sv_password : bool;
 }
 
@@ -110,6 +109,7 @@ type setup_election = {
   mutable se_public_keys : (string * string ref) list;
   mutable se_metadata : metadata;
   mutable se_public_creds : string;
+  mutable se_public_creds_received : bool;
 }
 
 val generate_token : unit -> string Lwt.t

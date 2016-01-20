@@ -438,15 +438,21 @@ let election_setup uuid se () =
   let div_credentials =
     div [
       h2 [pcdata "Credentials"];
-      if has_credentials then (
-        post_form ~service:election_setup_credentials_server
-          (fun () ->
-            [string_input ~input_type:`Submit ~value:"Generate on server" ()]
-          ) uuid
-      ) else (
+      if se.se_public_creds_received then (
         div [
-          a ~service:election_setup_credential_authority [pcdata "Credential management"] uuid;
+          pcdata "Credentials have already been generated!"
         ]
+      ) else (
+        if has_credentials then (
+          post_form ~service:election_setup_credentials_server
+            (fun () ->
+              [string_input ~input_type:`Submit ~value:"Generate on server" ()]
+            ) uuid
+        ) else (
+          div [
+            a ~service:election_setup_credential_authority [pcdata "Credential management"] uuid;
+          ]
+        )
       )
     ]
   in
@@ -608,10 +614,6 @@ let election_setup_voters uuid se () =
         ]
       ) uuid
   in
-  let has_credentials = match se.se_metadata.e_cred_authority with
-    | None -> false
-    | Some _ -> true
-  in
   let has_passwords = match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] -> true
     | _ -> false
@@ -621,7 +623,6 @@ let election_setup_voters uuid se () =
     List.map (fun v ->
       tr (
         [td [pcdata v.sv_id]] @
-        (if has_credentials then [td [pcdata (to_string v.sv_credential)]] else []) @
         (if has_passwords then [td [pcdata (to_string v.sv_password)]] else []) @
         [td [mk_remove_button v.sv_id]]
       )
@@ -634,7 +635,6 @@ let election_setup_voters uuid se () =
        table
          (tr (
            [th [pcdata "Identity"]] @
-           (if has_credentials then [th [pcdata "Credential"]] else []) @
            (if has_passwords then [th [pcdata "Password"]] else []) @
            [th [pcdata "Remove"]]
          ))
@@ -725,11 +725,18 @@ let election_setup_credentials token uuid se () =
       ]
   in
   let div_textarea = div [group; voters; interactivity; form_textarea; disclaimer] in
-  let content = [
-    div_download;
-    div_textarea;
-    form_file;
-  ] in
+  let content =
+    if se.se_public_creds_received then (
+      [
+        div [pcdata "Credentials have already been generated!"];
+      ]
+    ) else (
+      [
+        div_download;
+        div_textarea;
+        form_file;
+      ]
+    ) in
   let login_box = pcdata "" in
   base ~title ~login_box ~content ()
 
