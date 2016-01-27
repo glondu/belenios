@@ -54,6 +54,7 @@ val already_logged_in :
 val login_choose :
   string list ->
   (string -> (unit, unit, [< Eliom_service.get_service_kind ],
+             [< Eliom_service.attached ], [< Eliom_service.service_kind ],
              [< Eliom_service.suff ], 'a, unit,
              [< Eliom_service.registrable ],
              [< Eliom_service.non_ocaml_service ])

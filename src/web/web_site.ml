@@ -218,7 +218,7 @@ let import_election f =
                  Web_persist.set_auth_config uuid auth_config
             in
             let () =
-              Ocsigen_messages.debug (fun () ->
+              Ocsigen_messages.console (fun () ->
                 Printf.sprintf "Injecting credentials for %s" uuid
               )
             in

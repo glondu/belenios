@@ -122,7 +122,7 @@ lwt () =
     Lwt_list.iter_s (fun f ->
       match_lwt Web_site.import_election f with
       | None ->
-        Ocsigen_messages.debug (fun () ->
+        Ocsigen_messages.console (fun () ->
           Printf.sprintf "Ignored: %s" f.f_election
         ); return ()
       | Some w ->

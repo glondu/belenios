@@ -637,8 +637,7 @@ let election_setup_voters uuid se () =
            [th [pcdata "Identity"]] @
            (if has_passwords then [th [pcdata "Password"]] else []) @
            [th [pcdata "Remove"]]
-         ))
-         voters
+         ) :: voters)
   in
   let back = div [
     a ~service:Web_services.election_setup [pcdata "Return to setup page"] uuid;
@@ -917,7 +916,7 @@ let election_home w state () =
            let answers =
              match answers with
              | [] -> pcdata ""
-             | x :: xs -> table x xs
+             | x :: xs -> table (x :: xs)
            in
            li [
              pcdata x.q_question;
@@ -1034,8 +1033,7 @@ let election_admin w state () =
              (tr [
                td [pcdata "Trustee link"];
                td [pcdata "Done?"];
-             ])
-             trustees
+             ] :: trustees)
          ];
          release_form;
        ]

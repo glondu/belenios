@@ -45,7 +45,7 @@ let configure x =
        (match auth_config with
        | [] -> ()
        | ["db", file] ->
-          Ocsigen_messages.debug (fun () ->
+          Ocsigen_messages.console (fun () ->
             Printf.sprintf "Loading passwords from file %s" file
           );
          let db = Csv.load file in

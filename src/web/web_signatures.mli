@@ -37,9 +37,9 @@ module type AUTH_LINKS = sig
   val login :
     string option ->
     (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
+     [< Eliom_service.service_method > `Get ],
+     [< Eliom_service.attached > `Attached ],
+     [< Eliom_service.service_kind > `Service ],
      [ `WithoutSuffix ], unit, unit,
      [< Eliom_service.registrable > `Unregistrable ],
      [> Eliom_service.http_service ])
@@ -47,9 +47,9 @@ module type AUTH_LINKS = sig
 
   val logout :
     (unit, unit,
-     [> `Attached of
-          ([> `Internal of [> `Service ] ], [> `Get ])
-          Eliom_service.a_s ],
+     [< Eliom_service.service_method > `Get ],
+     [< Eliom_service.attached > `Attached ],
+     [< Eliom_service.service_kind > `Service ],
      [ `WithoutSuffix ], unit, unit,
      [< Eliom_service.registrable > `Unregistrable ],
      [> Eliom_service.http_service ])
