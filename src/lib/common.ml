@@ -46,7 +46,7 @@ module Array = struct
         let n = Array.length x in
         let rec loop_inner j =
           if j >= 0 then f x.(j) && loop_inner (pred j)
-          else true
+          else loop_outer (pred i)
         in loop_inner (pred n)
       else true
     in
