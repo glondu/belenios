@@ -103,7 +103,7 @@ let find_election =
   let cache = new WCache.cache raw_find_election 100 in
   fun x -> cache#find x
 
-let dump_passwords dir table uuid =
+let dump_passwords dir table =
   Lwt_io.(with_file Output (dir / "passwords.csv") (fun oc ->
     Ocsipersist.iter_step (fun voter (salt, hashed) ->
       write_line oc (voter ^ "," ^ salt ^ "," ^ hashed)
@@ -229,7 +229,7 @@ let import_election f =
               let table = "password_" ^ underscorize uuid in
               let table = Ocsipersist.open_table table in
               lwt size = Ocsipersist.length table in
-              if size > 0 then dump_passwords dir table uuid else return_unit
+              if size > 0 then dump_passwords dir table else return_unit
             ) >>
             let () = Lwt_mutex.unlock registration_mutex in
             return (module W : WEB_ELECTION)
@@ -558,7 +558,7 @@ let () =
 let () =
   Any.register
     ~service:election_regenpwd
-    (fun (uuid, ()) user ->
+    (fun (uuid, ()) () ->
       T.regenpwd uuid () >>= Html5.send)
 
 let () =
@@ -581,7 +581,7 @@ let () =
          begin try_lwt
            lwt _ = Ocsipersist.find table user in
            generate_password table title url user >>
-           dump_passwords W.dir table uuid_s >>
+           dump_passwords W.dir table >>
            T.generic_page ~title:"Success"
              ("A new password has been mailed to " ^ user ^ ".") ()
            >>= Html5.send
@@ -896,7 +896,7 @@ let () =
     (fun token () ->
      lwt uuid = Ocsipersist.find election_pktokens token in
      lwt se = Ocsipersist.find election_stable uuid in
-     T.election_setup_trustee token uuid se ()
+     T.election_setup_trustee token se ()
     )
 
 let () =
@@ -1192,7 +1192,7 @@ let () =
            (Eliom_service.preapply
               Web_services.election_login
               ((W.election.e_params.e_uuid, ()), None))
-      | Some u -> cont ())
+      | Some _ -> cont ())
 
 let () =
   Any.register
@@ -1415,7 +1415,7 @@ let content_type_of_file = function
   | ESRaw | ESKeys | ESBallots | ESETally | ESResult -> "application/json"
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
-let handle_pseudo_file w u f site_user =
+let handle_pseudo_file w f site_user =
   let module W = (val w : WEB_ELECTION_DATA) in
   let confidential =
     match f with
@@ -1440,7 +1440,7 @@ let () =
      lwt w = find_election uuid_s in
      lwt site_user = Web_auth_state.get_site_user () in
      let module W = (val w) in
-     handle_pseudo_file w () f site_user)
+     handle_pseudo_file w f site_user)
 
 let () =
   Any.register

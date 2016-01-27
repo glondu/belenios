@@ -346,7 +346,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
 
   type factor = elt partial_decryption
 
-  let eg_factor x {alpha; beta} =
+  let eg_factor x {alpha; _} =
     let zkp = "decrypt|" ^ G.to_string (g **~ x) ^ "|" in
     alpha **~ x,
     fs_prove [| g; alpha |] x (hash zkp)
@@ -404,8 +404,8 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
     let result = Array.mmap log results in
     {num_tallied; encrypted_tally; partial_decryptions; result}
 
-  let check_result e pks r =
-    let {encrypted_tally; partial_decryptions; result; num_tallied} = r in
+  let check_result pks r =
+    let {encrypted_tally; partial_decryptions; result; _} = r in
     check_ciphertext encrypted_tally &&
     Array.forall2 (check_factor encrypted_tally) pks partial_decryptions &&
     let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
@@ -415,7 +415,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
     let results = Array.mmap2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
-    Array.fforall2 (fun r1 r2 -> r1 =~ g **~ Z.of_int r2) results r.result
+    Array.fforall2 (fun r1 r2 -> r1 =~ g **~ Z.of_int r2) results result
 
   let extract_tally r = r.result
 end

@@ -19,8 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Platform
-open Serializable_j
 open Tool_js_common
 open Tool_credgen
 

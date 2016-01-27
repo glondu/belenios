@@ -19,10 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_builtin_t
-open Serializable_t
 open Signatures
-open Common
 open Web_serializable_t
 
 module type AUTH_SERVICES = sig

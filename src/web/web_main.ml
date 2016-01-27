@@ -20,8 +20,6 @@
 (**************************************************************************)
 
 open Lwt
-open Serializable_t
-open Signatures
 open Common
 open Web_serializable_j
 open Web_signatures
@@ -40,7 +38,6 @@ let () = CalendarLib.Time_Zone.(change Local)
 let spool_dir = ref None
 let import_dirs = ref []
 let source_file = ref None
-let main_election_uuid = ref None
 let auth_instances = ref []
 
 let () =
@@ -127,7 +124,7 @@ lwt () =
         ); return ()
       | Some w ->
         let module W = (val w : REGISTRABLE_ELECTION) in
-        lwt w = W.register () in
+        lwt _ = W.register () in
         return ()
     )
   ) !import_dirs

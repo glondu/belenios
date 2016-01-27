@@ -228,7 +228,7 @@ module type ELECTION = sig
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
 
-  val check_result : t -> public_key array -> result -> bool
+  val check_result : public_key array -> result -> bool
 
   val extract_tally : result -> plaintext
   (** Extract the plaintext result of the election. *)

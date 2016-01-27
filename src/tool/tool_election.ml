@@ -19,9 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Printf
 open Platform
-open Serializable_builtin_j
 open Serializable_j
 open Signatures
 open Common
@@ -166,7 +164,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     let tally = Lazy.force encrypted_tally in
     assert (Array.forall2 (E.check_factor tally) pks factors);
     let result = E.combine_factors (M.cardinal ()) tally factors in
-    assert (E.check_result election pks result);
+    assert (E.check_result pks result);
     string_of_result G.write result
 
   let verify () =
@@ -176,7 +174,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     );
     (match get_result () with
     | Some result ->
-      assert (E.check_result election pks (result_of_string G.read result))
+      assert (E.check_result pks (result_of_string G.read result))
     | None -> print_msg "W: no result to check"
     );
     print_msg "I: all checks passed"

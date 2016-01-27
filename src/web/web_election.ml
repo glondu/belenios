@@ -21,14 +21,12 @@
 
 open Lwt
 open Platform
-open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
 open Web_serializable_t
 open Web_signatures
 open Web_common
-open Web_services
 
 let ( / ) = Filename.concat
 

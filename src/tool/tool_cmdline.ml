@@ -365,22 +365,6 @@ module Mkelection : CMDLINER_MODULE = struct
       close_out oc
     )
 
-  let template_c =
-    (fun fname ->
-      if Sys.file_exists fname then (
-        try
-          let ic = open_in fname in
-          let ls = Yojson.init_lexer () in
-          let lb = Lexing.from_channel ic in
-          let r = read_template ls lb in
-          close_in ic;
-          `Ok (fname, r)
-        with e ->
-          let e = Printexc.to_string e and s = Printf.sprintf in
-          `Error (s "could not read template from %s (%s)" fname e)
-      ) else `Error (Printf.sprintf "file %s does not exist" fname)
-    ), (fun fmt (fname, _) -> Format.pp_print_string fmt fname)
-
   let template_t =
     let doc = "Read election template from file $(docv)." in
     Arg.(value & opt (some file) None & info ["template"] ~docv:"TEMPLATE" ~doc)

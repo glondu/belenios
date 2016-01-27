@@ -21,29 +21,12 @@
 
 open Lwt
 open Platform
-open Signatures
 open Common
-open Serializable_builtin_t
 open Serializable_builtin_j
 open Serializable_t
 open Web_serializable_t
 
 let spool_dir = ref "."
-
-let enforce_single_element s =
-  let open Lwt_stream in
-  lwt t = next s in
-  lwt b = is_empty s in
-  (assert_lwt b) >>
-  Lwt.return t
-
-let load_from_file read fname =
-  let i = open_in fname in
-  let buf = Lexing.from_channel i in
-  let lex = Yojson.init_lexer ~fname () in
-  let result = read lex buf in
-  close_in i;
-  result
 
 let make_rng = Lwt_preemptive.detach (fun () ->
   pseudo_rng (random_string secure_rng 16)
@@ -149,12 +132,6 @@ let set_rewrite_prefix ~src ~dst =
       dst ^ String.sub x nsrc (n-nsrc)
     else x
   in rewrite_fun := f
-
-let uuid = Eliom_parameter.user_type
-  ~of_string:(fun x -> match Uuidm.of_string x with
-    | Some x -> x
-    | None -> invalid_arg "uuid")
-  ~to_string:Uuidm.to_string
 
 type election_file =
   | ESRaw

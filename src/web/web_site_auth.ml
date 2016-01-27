@@ -38,7 +38,7 @@ let configure x =
     ) x
   in
   Web_persist.set_auth_config "" auth_config |> Lwt_unix.run;
-  List.iter (fun {auth_system; auth_instance; auth_config} ->
+  List.iter (fun {auth_system; auth_config; _} ->
     match auth_system with
     | "password" ->
        let table = Ocsipersist.open_table "password_site" in
@@ -220,7 +220,7 @@ let login_handler service uuid =
     | Some u -> preapply election_login ((u, ()), service)
   in
   match_lwt Eliom_reference.get user with
-  | Some u ->
+  | Some _ ->
      cont_push (fun () -> Eliom_registration.Redirection.send (myself service)) >>
      Web_templates.already_logged_in () >>= Eliom_registration.Html5.send
   | None ->

@@ -19,10 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Platform
 open Serializable_j
 open Tool_js_common
-open Tool_credgen
 
 let (>>=) = Js.Opt.bind
 let return = Js.Opt.return
@@ -132,7 +130,7 @@ let createQuestion q =
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add an answer") in
-  let f e =
+  let f _ =
     let x = createAnswer "" in
     Dom.appendChild h_answers x
   in
@@ -141,7 +139,7 @@ let createQuestion q =
   Dom.appendChild x b;
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Remove last answer") in
-  let f e =
+  let f _ =
     let answers = h_answers##querySelectorAll (Js.string ".question_answer") in
     let last_answer = answers##item (answers##length - 1) in
     last_answer >>= fun x ->
@@ -212,7 +210,7 @@ let createTemplate template =
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add a question") in
-  let f e =
+  let f _ =
     let x = createQuestion {q_question=""; q_min=0; q_max=1; q_answers=[||]} in
     Dom.appendChild h_questions_div x
   in
@@ -221,7 +219,7 @@ let createTemplate template =
   Dom.appendChild x b;
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Remove last question") in
-  let f e =
+  let f _ =
     let questions = h_questions_div##querySelectorAll (Js.string ".question_question") in
     let last_question = questions##item (questions##length - 1) in
     last_question >>= fun x ->
@@ -241,7 +239,7 @@ let createTemplate template =
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Submit") in
-  let f e =
+  let f _ =
     try
       let template = extractTemplate () in
       set_textarea "questions" (string_of_template template);

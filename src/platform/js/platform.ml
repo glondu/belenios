@@ -38,7 +38,7 @@ let sha256_b64 x =
   | Some i -> String.sub raw 0 i
   | None -> raw
 
-let b64_encode_compact x = assert false
+let b64_encode_compact _ = assert false
 
 let remove_dashes x =
   let n = String.length x in
@@ -71,7 +71,7 @@ let sjcl_random = Js.Unsafe.get sjcl "random"
 
 (* PRNG is initialized in random.js *)
 let secure_rng () = ()
-let pseudo_rng x () = ()
+let pseudo_rng _ () = ()
 
 let string_of_hex hex n =
   let res = String.create n in
@@ -127,7 +127,7 @@ module Z = struct
     if lt r zero then r + y else r
 
   let probab_prime x n =
-    meth_call x "isProbablePrime" [| |] |>
+    meth_call x "isProbablePrime" [| n |> float_of_int |> Js.number_of_float |> inject |] |>
     Js.float_of_number |> int_of_float
 
   let z256 = of_int 256
@@ -143,7 +143,7 @@ end
 
 type datetime
 let now () = assert false
-let string_of_datetime x = assert false
-let datetime_of_string x = assert false
-let datetime_compare x y = assert false
-let format_datetime fmt x = assert false
+let string_of_datetime _ = assert false
+let datetime_of_string _ = assert false
+let datetime_compare _ _ = assert false
+let format_datetime _ _ = assert false

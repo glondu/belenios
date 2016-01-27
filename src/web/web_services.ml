@@ -23,7 +23,6 @@ open Eliom_service
 open Eliom_service.Http
 open Eliom_parameter
 open Web_common
-open Web_signatures
 
 let home = service ~path:[""] ~get_params:unit ()
 let admin = service ~path:["admin"] ~get_params:unit ()

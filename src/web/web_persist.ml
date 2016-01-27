@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Lwt
-open Serializable_builtin_j
 open Serializable_j
 open Common
 open Web_serializable_j

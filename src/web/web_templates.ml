@@ -234,8 +234,6 @@ let admin ~elections () =
     lwt login_box = site_login_box () in
     base ~title ~login_box ~content ()
 
-let format_date = Platform.format_datetime "%a, %d %b %Y %T %z"
-
 let make_button ~service contents =
   let uri = Eliom_uri.make_string_uri ~service () in
   Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
@@ -505,7 +503,7 @@ let election_setup_trustees uuid se () =
       br ();
       ol
         (List.rev_map
-           (fun (token, pk) ->
+           (fun (token, _) ->
              li [
                a ~service:election_setup_trustee [
                  pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
@@ -531,7 +529,7 @@ let election_setup_trustees uuid se () =
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
-let election_setup_credential_authority uuid se () =
+let election_setup_credential_authority _ se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
   let content = [
     div [
@@ -739,7 +737,7 @@ let election_setup_credentials token uuid se () =
   let login_box = pcdata "" in
   base ~title ~login_box ~content ()
 
-let election_setup_trustee token uuid se () =
+let election_setup_trustee token se () =
   let title = "Trustee for election " ^ se.se_questions.t_name in
   let form =
     let value = !(List.assoc token se.se_public_keys) in
