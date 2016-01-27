@@ -268,7 +268,7 @@ let addQuestions sk params qs =
     let n = Array.length qs in
     let qs =
       Array.to_list qs |>
-      List.map (fun q -> q, Array.create (Array.length q.q_answers) 0)
+      List.map (fun q -> q, Array.make (Array.length q.q_answers) 0)
     in
     match qs with
     | [] -> failwith "no questions"

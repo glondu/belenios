@@ -165,8 +165,8 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
     (* the size of d is the number of disjuncts *)
     let n = Array.length d in
     assert (0 <= x && x < n);
-    let proofs = Array.create n dummy_proof
-    and commitments = Array.create (2*n) g
+    let proofs = Array.make n dummy_proof
+    and commitments = Array.make (2*n) g
     and total_challenges = ref Z.zero in
     (* compute fake proofs *)
     let f i =
@@ -202,7 +202,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
     G.check alpha && G.check beta &&
     let n = Array.length d in
     n = Array.length proofs &&
-    let commitments = Array.create (2*n) g
+    let commitments = Array.make (2*n) g
     and total_challenges = ref Z.zero in
     try
       for i = 0 to n-1 do
@@ -227,7 +227,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
 
   let make_d min max =
     let n = max - min + 1 in
-    let d = Array.create n (invert (g **~ Z.of_int min)) in
+    let d = Array.make n (invert (g **~ Z.of_int min)) in
     for i = 1 to n-1 do
       d.(i) <- d.(i-1) *~ invg
     done;

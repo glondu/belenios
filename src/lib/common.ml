@@ -121,12 +121,6 @@ end
 module String = struct
   include String
 
-  let map f s =
-    let n = String.length s in
-    let res = String.create n in
-    for i = 0 to n-1 do res.[i] <- f s.[i] done;
-    res
-
   let startswith x s =
     let xn = String.length x and sn = String.length s in
     xn >= sn && String.sub x 0 sn = s

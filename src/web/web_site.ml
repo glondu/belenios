@@ -302,7 +302,7 @@ let () = File.register
   (fun () () -> return !source_file)
 
 let do_get_randomness =
-  let prng = Lazy.lazy_from_fun (Lwt_preemptive.detach (fun () ->
+  let prng = Lazy.from_fun (Lwt_preemptive.detach (fun () ->
     pseudo_rng (random_string secure_rng 16)
   )) in
   let mutex = Lwt_mutex.create () in
@@ -784,7 +784,7 @@ module Credgen = struct
   (* FIXME: duplicate of Tool_credgen *)
 
   let get_random_char =
-    let prng = Lazy.lazy_from_fun (Lwt_preemptive.detach (fun () ->
+    let prng = Lazy.from_fun (Lwt_preemptive.detach (fun () ->
       pseudo_rng (random_string secure_rng 16)
     )) in
     let mutex = Lwt_mutex.create () in
@@ -802,14 +802,14 @@ module Credgen = struct
   let n53 = Z.of_int 53
 
   let generate_raw_token () =
-    let res = String.create token_length in
+    let res = Bytes.create token_length in
     let rec loop i accu =
       if i < token_length then (
         lwt digit = get_random_char () in
         let digit = int_of_char digit mod 58 in
-        res.[i] <- digits.[digit];
+        Bytes.set res i digits.[digit];
         loop (i+1) Z.(n58 * accu + of_int digit)
-      ) else return (res, accu)
+      ) else return (Bytes.to_string res, accu)
     in loop 0 Z.zero
 
   let add_checksum (raw, value) =

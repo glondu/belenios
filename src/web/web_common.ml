@@ -206,14 +206,14 @@ let random_char () =
   return (int_of_char (random_string rng 1).[0])
 
 let generate_token () =
-  let res = String.create token_length in
+  let res = Bytes.create token_length in
   let rec loop i =
     if i < token_length then (
       lwt digit = random_char () in
       let digit = digit mod 58 in
-      res.[i] <- b58_digits.[digit];
+      Bytes.set res i b58_digits.[digit];
       loop (i+1)
-    ) else return res
+    ) else return (Bytes.to_string res)
   in loop 0
 
 let string_of_user {user_domain; user_name} =

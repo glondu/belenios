@@ -74,12 +74,10 @@ let secure_rng () = ()
 let pseudo_rng _ () = ()
 
 let string_of_hex hex n =
-  let res = String.create n in
-  for i = 0 to n-1 do
+  String.init n (fun i ->
     let c = int_of_string ("0x" ^ String.sub hex (2*i) 2) in
-    res.[i] <- char_of_int c
-  done;
-  res
+    char_of_int c
+  )
 
 let random_string rng n =
   let () = rng () in

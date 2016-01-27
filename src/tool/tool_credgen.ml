@@ -72,13 +72,13 @@ module Make (P : PARSED_PARAMS) : S = struct
     int_of_char (random_string (Lazy.force prng) 1).[0]
 
   let generate_raw_token () =
-    let res = String.create token_length in
+    let res = Bytes.create token_length in
     let rec loop i accu =
       if i < token_length then (
         let digit = random_char () mod 58 in
-        res.[i] <- digits.[digit];
+        Bytes.set res i digits.[digit];
         loop (i+1) Z.(n58 * accu + of_int digit)
-      ) else (res, accu)
+      ) else (Bytes.to_string res, accu)
     in loop 0 Z.zero
 
   let add_checksum (raw, value) =
