@@ -857,7 +857,6 @@ let () =
         ~absolute:true ~service:election_home
         (uuid, ()) |> rewrite_prefix
       in
-      lwt se = Ocsipersist.find election_stable uuid_s in
       let module S = Set.Make (PString) in
       let module G = (val Group.of_string se.se_group : GROUP) in
       lwt creds =
