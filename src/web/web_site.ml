@@ -643,6 +643,7 @@ let () =
     ~service:election_setup_voters_add
     (handle_setup
        (fun se x _ uuid ->
+         if se.se_public_creds_received then forbidden () else (
          let xs = Pcre.split x in
          let () =
            try
@@ -653,17 +654,18 @@ let () =
          se.se_voters <- se.se_voters @ List.map (fun sv_id ->
            {sv_id; sv_password=false}
          ) xs;
-         return (redir_preapply election_setup_voters uuid)))
+         return (redir_preapply election_setup_voters uuid))))
 
 let () =
   Any.register
     ~service:election_setup_voters_remove
     (handle_setup
        (fun se voter _ uuid ->
+         if se.se_public_creds_received then forbidden () else (
          se.se_voters <- List.filter (fun v ->
            v.sv_id <> voter
          ) se.se_voters;
-         return (redir_preapply election_setup_voters uuid)))
+         return (redir_preapply election_setup_voters uuid))))
 
 let () =
   Redirection.register

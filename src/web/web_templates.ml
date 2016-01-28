@@ -622,7 +622,7 @@ let election_setup_voters uuid se () =
       tr (
         [td [pcdata v.sv_id]] @
         (if has_passwords then [td [pcdata (to_string v.sv_password)]] else []) @
-        [td [mk_remove_button v.sv_id]]
+        (if se.se_public_creds_received then [] else [td [mk_remove_button v.sv_id]])
       )
     ) se.se_voters
   in
@@ -634,23 +634,31 @@ let election_setup_voters uuid se () =
          (tr (
            [th [pcdata "Identity"]] @
            (if has_passwords then [th [pcdata "Password"]] else []) @
-           [th [pcdata "Remove"]]
+           (if se.se_public_creds_received then [] else [th [pcdata "Remove"]])
          ) :: voters)
   in
   let back = div [
     a ~service:Web_services.election_setup [pcdata "Return to setup page"] uuid;
   ] in
+  let div_add =
+    if se.se_public_creds_received then
+      pcdata ""
+    else
+      div [
+        div [pcdata "Please enter the identities of voters to add, one per line:"];
+        form;
+        div [
+          b [pcdata "Note:"];
+          pcdata " An identity is either an e-mail address, or \"address,login\",";
+          pcdata " where \"address\" is an e-mail address and \"login\" the";
+          pcdata " associated login for authentication.";
+        ];
+      ]
+  in
   let content = [
     voters;
     back;
-    div [pcdata "Please enter the identities of voters to add, one per line:"];
-    form;
-    div [
-      b [pcdata "Note:"];
-      pcdata " An identity is either an e-mail address, or \"address,login\",";
-      pcdata " where \"address\" is an e-mail address and \"login\" the";
-      pcdata " associated login for authentication.";
-    ];
+    div_add;
   ] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
