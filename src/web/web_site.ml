@@ -113,7 +113,7 @@ let dump_passwords dir table =
 (* Mutex to avoid simultaneous registrations of the same election *)
 let registration_mutex = Lwt_mutex.create ()
 
-let import_election f =
+let import_election f se_voters =
   Lwt_mutex.lock registration_mutex >>
   try_lwt
     lwt raw_election =
@@ -160,14 +160,11 @@ let import_election f =
       in
       lwt () =
         match metadata.e_auth_config with
-        | Some [x] ->
-           if x.auth_system = "password" then
-             let table = "password_" ^ underscorize uuid in
-             let table = Ocsipersist.open_table table in
-             lwt n = Ocsipersist.length table in
-             if n = 0 then Lwt.fail (Failure "No passwords")
-             else return_unit
-           else return_unit
+        | Some [{auth_system = "password"; _}] ->
+           if List.for_all (fun v -> v.sv_password <> None) se_voters then
+             return_unit
+           else
+             Lwt.fail (Failure "Some passwords are missing")
         | _ -> return_unit
       in
       lwt pks = Lwt_stream.(
@@ -225,12 +222,6 @@ let import_election f =
             public_creds |>
             Lwt_stream.iter_s W.B.inject_cred >>
             W.B.update_files () >>
-            (
-              let table = "password_" ^ underscorize uuid in
-              let table = Ocsipersist.open_table table in
-              lwt size = Ocsipersist.length table in
-              if size > 0 then dump_passwords dir table else return_unit
-            ) >>
             let () = Lwt_mutex.unlock registration_mutex in
             return (module W : WEB_ELECTION)
           with e ->
@@ -524,32 +515,29 @@ counts.
 -- 
 Belenios"
 
-let generate_password table title url id =
+let generate_password title url id =
   let email, login = split_identity id in
   lwt salt = generate_token () in
   lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
-  lwt () = Ocsipersist.add table login (salt, hashed) in
   let body = Printf.sprintf template_password title login password url in
   let subject = "Your password for election " ^ title in
-  send_email "noreply@belenios.org" email subject body
+  send_email "noreply@belenios.org" email subject body >>
+  return (salt, hashed)
 
 let () =
   Any.register
     ~service:election_setup_auth_genpwd
     (handle_setup
        (fun se () _ uuid ->
-         let uuid_s = Uuidm.to_string uuid in
-         let table = "password_" ^ underscorize uuid_s in
          let title = se.se_questions.t_name in
          let url = Eliom_uri.make_string_uri
            ~absolute:true ~service:election_home
            (uuid, ()) |> rewrite_prefix
          in
-         let table = Ocsipersist.open_table table in
          Lwt_list.iter_s (fun id ->
-           generate_password table title url id.sv_id >>
-           return (id.sv_password <- true)
+           lwt x = generate_password title url id.sv_id in
+           return (id.sv_password <- Some x)
          ) se.se_voters >>
          return (fun () ->
            T.generic_page ~title:"Success"
@@ -580,7 +568,8 @@ let () =
          in
          begin try_lwt
            lwt _ = Ocsipersist.find table user in
-           generate_password table title url user >>
+           lwt x = generate_password title url user in
+           Ocsipersist.add table user x >>
            dump_passwords W.dir table >>
            T.generic_page ~title:"Success"
              ("A new password has been mailed to " ^ user ^ ".") ()
@@ -652,7 +641,7 @@ let () =
            with Not_found -> ()
          in
          se.se_voters <- se.se_voters @ List.map (fun sv_id ->
-           {sv_id; sv_password=false}
+           {sv_id; sv_password = None}
          ) xs;
          return (redir_preapply election_setup_voters uuid))))
 
@@ -990,7 +979,7 @@ let () =
             create_file files.f_voters (fun x -> x.sv_id) se.se_voters >>
             create_file files.f_public_keys (string_of_trustee_public_key G.write) public_keys >>
             (* actually create the election *)
-            begin match_lwt import_election files with
+            begin match_lwt import_election files se.se_voters with
             | None ->
                T.new_election_failure `Exists () >>= Html5.send
             | Some w ->
@@ -1018,6 +1007,21 @@ let () =
                   Ocsipersist.remove election_pktokens token)
                  se.se_public_keys >>
                Ocsipersist.remove election_stable uuid_s >>
+               (* inject passwords *)
+               (match se.se_metadata.e_auth_config with
+               | Some [{auth_system = "password"; _}] ->
+                 let table = "password_" ^ underscorize uuid_s in
+                 let table = Ocsipersist.open_table table in
+                 Lwt_list.iter_s
+                   (fun v ->
+                     let _, login = split_identity v.sv_id in
+                     match v.sv_password with
+                     | Some x -> Ocsipersist.add table login x
+                     | None -> return_unit
+                   ) se.se_voters >>
+                 dump_passwords W.D.dir table
+               | _ -> return_unit) >>
+               (* finish *)
                Web_persist.set_election_date uuid_s (now ()) >>
                Redirection.send
                  (preapply election_admin (W.D.election.e_params.e_uuid, ()))

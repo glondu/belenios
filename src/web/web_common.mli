@@ -97,7 +97,7 @@ val uuid :
 
 type setup_voter = {
   sv_id : string;
-  mutable sv_password : bool;
+  mutable sv_password : (string * string) option;
 }
 
 type setup_election = {

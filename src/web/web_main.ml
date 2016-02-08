@@ -117,7 +117,7 @@ lwt () =
   Lwt_list.iter_s (fun dir ->
     read_election_dir dir >>=
     Lwt_list.iter_s (fun f ->
-      match_lwt Web_site.import_election f with
+      match_lwt Web_site.import_election f [] with
       | None ->
         Ocsigen_messages.console (fun () ->
           Printf.sprintf "Ignored: %s" f.f_election

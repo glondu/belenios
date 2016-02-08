@@ -616,7 +616,10 @@ let election_setup_voters uuid se () =
     | Some [{auth_system = "password"; _}] -> true
     | _ -> false
   in
-  let to_string x = if x then "Yes" else "No" in
+  let to_string x = match x with
+    | Some _ -> "Yes"
+    | None -> "No"
+  in
   let voters =
     List.map (fun v ->
       tr (
