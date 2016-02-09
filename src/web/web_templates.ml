@@ -629,7 +629,7 @@ let election_setup_voters uuid se () =
     if has_passwords then
       post_form ~service:election_setup_auth_genpwd
         (fun () ->
-          [string_input ~input_type:`Submit ~value:"Generate passwords" ()]
+          [string_input ~input_type:`Submit ~value:"Generate and mail missing passwords" ()]
         ) uuid
     else pcdata ""
   in

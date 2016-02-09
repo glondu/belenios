@@ -536,8 +536,11 @@ let () =
            (uuid, ()) |> rewrite_prefix
          in
          Lwt_list.iter_s (fun id ->
-           lwt x = generate_password title url id.sv_id in
-           return (id.sv_password <- Some x)
+           match id.sv_password with
+           | None ->
+             lwt x = generate_password title url id.sv_id in
+             return (id.sv_password <- Some x)
+           | Some _ -> return_unit
          ) se.se_voters >>
          return (fun () ->
            T.generic_page ~title:"Success"
