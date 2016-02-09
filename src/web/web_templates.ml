@@ -665,7 +665,13 @@ let election_setup_voters uuid se () =
         ];
       ]
   in
+  let div_import = div [
+    a ~service:election_setup_import
+      [pcdata "Import voters from another election"]
+      uuid
+  ] in
   let content = [
+    div_import;
     voters;
     back;
     div_add;
@@ -801,6 +807,41 @@ let election_setup_trustee token se () =
   let login_box = pcdata "" in
   base ~title ~login_box ~content ()
 
+let election_setup_import uuid se (elections, tallied) () =
+  let title = "Election " ^ se.se_questions.t_name ^ " — Import voters from another election" in
+  let format_election election =
+    let module W = (val election : WEB_ELECTION_DATA) in
+    let name = W.election.e_params.e_name in
+    let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
+    let form = post_form
+      ~service:election_setup_import_post
+      (fun from ->
+        [
+          div [pcdata name; pcdata " ("; pcdata uuid_s; pcdata ")"];
+          div [
+            user_type_input Uuidm.to_string
+              ~input_type:`Hidden
+              ~name:from
+              ~value:W.election.e_params.e_uuid ();
+            string_input ~input_type:`Submit ~value:"Import from this election" ();
+          ]
+        ]
+      ) uuid
+    in
+    li [form]
+  in
+  let itemize xs = match xs with
+    | [] -> p [pcdata "You own no such elections!"]
+    | _ -> ul @@ List.map format_election xs
+  in
+  let content = [
+    h2 [pcdata "Elections you can administer"];
+    itemize elections;
+    h2 [pcdata "Tallied elections"];
+    itemize tallied;
+  ] in
+  lwt login_box = site_login_box () in
+  base ~title ~login_box ~content ()
 
 let election_login_box w =
   let module W = (val w : WEB_ELECTION_DATA) in

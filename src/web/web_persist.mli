@@ -45,3 +45,5 @@ val get_election_metadata : string -> metadata option Lwt.t
 val get_election_result : string -> Yojson.Safe.json result option Lwt.t
 
 val get_elections_by_owner : user -> string list Lwt.t
+
+val get_voters : string -> string list option Lwt.t

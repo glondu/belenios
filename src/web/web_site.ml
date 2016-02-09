@@ -250,6 +250,25 @@ let () = Any.register ~service:home
     T.home () >>= Html5.send
   )
 
+let get_finalized_elections_by_owner u =
+  lwt elections, tallied =
+    Web_persist.get_elections_by_owner u >>=
+    Lwt_list.fold_left_s (fun accu uuid_s ->
+        lwt w = find_election uuid_s in
+        lwt state = Web_persist.get_election_state uuid_s in
+        lwt date = Web_persist.get_election_date uuid_s in
+        let elections, tallied = accu in
+        match state with
+        | `Tallied _ -> return (elections, (date, w) :: tallied)
+        | _ -> return ((date, w) :: elections, tallied)
+    ) ([], [])
+  in
+  let sort l =
+    List.sort (fun (x, _) (y, _) -> datetime_compare x y) l |>
+    List.map (fun (_, x) -> x)
+  in
+  return (sort elections, sort tallied)
+
 let () = Html5.register ~service:admin
   (fun () () ->
     let cont () = Redirection.send admin in
@@ -259,29 +278,14 @@ let () = Html5.register ~service:admin
       match site_user with
       | None -> return None
       | Some u ->
-         lwt elections, tallied =
-           Web_persist.get_elections_by_owner u >>=
-           Lwt_list.fold_left_s (fun accu uuid_s ->
-               lwt w = find_election uuid_s in
-               lwt state = Web_persist.get_election_state uuid_s in
-               lwt date = Web_persist.get_election_date uuid_s in
-               let elections, tallied = accu in
-               match state with
-               | `Tallied _ -> return (elections, (date, w) :: tallied)
-               | _ -> return ((date, w) :: elections, tallied)
-           ) ([], [])
-         and setup_elections =
+         lwt elections, tallied = get_finalized_elections_by_owner u in
+         lwt setup_elections =
            Ocsipersist.fold_step (fun k v accu ->
              if v.se_owner = u
              then return ((uuid_of_string k, v.se_questions.t_name) :: accu)
              else return accu
            ) election_stable []
          in
-         let sort l =
-           List.sort (fun (x, _) (y, _) -> datetime_compare x y) l |>
-           List.map (fun (_, x) -> x)
-         in
-         let elections = sort elections and tallied = sort tallied in
          return @@ Some (elections, tallied, setup_elections)
     in
     T.admin ~elections ()
@@ -1034,6 +1038,40 @@ let () =
           T.new_election_failure (`Exception e) () >>= Html5.send
         end
     )
+
+let () =
+  Html5.register
+    ~service:election_setup_import
+    (fun uuid () ->
+      lwt site_user = Web_auth_state.get_site_user () in
+      match site_user with
+      | None -> forbidden ()
+      | Some u ->
+         lwt se = Ocsipersist.find election_stable (Uuidm.to_string uuid) in
+         lwt elections = get_finalized_elections_by_owner u in
+         T.election_setup_import uuid se elections ())
+
+let () =
+  Any.register
+    ~service:election_setup_import_post
+    (handle_setup
+       (fun se from _ uuid ->
+         let from_s = Uuidm.to_string from in
+         lwt voters = Web_persist.get_voters from_s in
+         match voters with
+         | Some voters ->
+            if se.se_public_creds_received then forbidden () else (
+              se.se_voters <- se.se_voters @ List.map (fun sv_id ->
+                {sv_id; sv_password = None}
+              ) voters;
+              return (redir_preapply election_setup_voters uuid))
+         | None ->
+            return (fun () -> T.generic_page ~title:"Error"
+              (Printf.sprintf
+                 "Could not retrieve voter list from election %s"
+                 from_s)
+              () >>= Html5.send)))
+
 
 let () =
   Any.register

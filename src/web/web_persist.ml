@@ -112,3 +112,10 @@ let get_elections_by_owner user =
     | Some m -> return (m.e_owner = Some user)
     | None -> return false
   ) |> Lwt_stream.to_list
+
+let get_voters uuid =
+  try_lwt
+    let lines = Lwt_io.lines_of_file (!spool_dir / uuid / "voters.txt") in
+    lwt lines = Lwt_stream.to_list lines in
+    return @@ Some lines
+  with _ -> return_none

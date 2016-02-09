@@ -62,6 +62,9 @@ let election_setup_auth = post_coservice ~fallback:election_setup ~post_params:(
 let election_setup_auth_cas = post_coservice ~fallback:election_setup ~post_params:(string "server") ()
 let election_setup_auth_genpwd = post_coservice ~fallback:election_setup ~post_params:unit ()
 
+let election_setup_import = service ~path:["setup"; "import"] ~get_params:(uuid "uuid") ()
+let election_setup_import_post = post_coservice ~fallback:election_setup_import ~post_params:(uuid "from") ()
+
 let election_home = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "")) ()
 let election_admin = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "admin")) ()
 let election_regenpwd = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "regenpwd")) ()
