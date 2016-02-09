@@ -636,7 +636,7 @@ let is_email x =
 
 module SSet = Set.Make (PString)
 
-let merge_voters a b =
+let merge_voters a b f =
   let existing = List.fold_left (fun accu sv ->
     SSet.add sv.sv_id accu
   ) SSet.empty a in
@@ -644,7 +644,7 @@ let merge_voters a b =
     if SSet.mem sv_id existing then
       (existing, accu)
     else
-      (SSet.add sv_id existing, {sv_id; sv_password = None} :: accu)
+      (SSet.add sv_id existing, {sv_id; sv_password = f sv_id} :: accu)
   ) (existing, List.rev a) b in
   List.rev res
 
@@ -661,7 +661,7 @@ let () =
              Printf.ksprintf failwith "%S is not a valid address" bad
            with Not_found -> ()
          in
-         se.se_voters <- merge_voters se.se_voters xs;
+         se.se_voters <- merge_voters se.se_voters xs (fun _ -> None);
          return (redir_preapply election_setup_voters uuid))))
 
 let () =
@@ -1070,10 +1070,19 @@ let () =
        (fun se from _ uuid ->
          let from_s = Uuidm.to_string from in
          lwt voters = Web_persist.get_voters from_s in
+         lwt passwords = Web_persist.get_passwords from_s in
+         let get_password =
+           match passwords with
+           | None -> fun _ -> None
+           | Some p -> fun sv_id ->
+             let _, login = split_identity sv_id in
+             try Some (SMap.find login p)
+             with Not_found -> None
+         in
          match voters with
          | Some voters ->
             if se.se_public_creds_received then forbidden () else (
-              se.se_voters <- merge_voters se.se_voters voters;
+              se.se_voters <- merge_voters se.se_voters voters get_password;
               return (redir_preapply election_setup_voters uuid))
          | None ->
             return (fun () -> T.generic_page ~title:"Error"

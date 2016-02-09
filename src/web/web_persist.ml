@@ -119,3 +119,19 @@ let get_voters uuid =
     lwt lines = Lwt_stream.to_list lines in
     return @@ Some lines
   with _ -> return_none
+
+let get_passwords uuid =
+  let csv =
+    try Some (Csv.load (!spool_dir / uuid / "passwords.csv"))
+    with _ -> None
+  in
+  match csv with
+  | None -> return_none
+  | Some csv ->
+     let res = List.fold_left (fun accu line ->
+       match line with
+       | [login; salt; hash] ->
+          SMap.add login (salt, hash) accu
+       | _ -> accu
+     ) SMap.empty csv in
+     return @@ Some res
