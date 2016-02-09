@@ -521,7 +521,14 @@ let election_setup_trustees uuid se () =
       form_trustees_del;
     ]
   in
-  let content = [div_content] in
+  let back_link = div [
+    a ~service:Web_services.election_setup
+      [pcdata "Go back to election setup"] uuid;
+  ] in
+  let content = [
+    div_content;
+    back_link;
+  ] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
