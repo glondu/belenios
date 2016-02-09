@@ -456,7 +456,9 @@ let election_setup uuid se () =
       (fun () ->
        [div
           [h2 [pcdata "Finalize creation"];
-           string_input ~input_type:`Submit ~value:"Create election" ()]]
+           string_input ~input_type:`Submit ~value:"Create election" ();
+           pcdata " (Warning: this action is irreversible.)";
+          ]]
       ) uuid
   in
   let content = [
