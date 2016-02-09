@@ -381,13 +381,9 @@ let election_setup uuid se () =
       h2 [pcdata "Authentication"];
       match auth with
       | `Password ->
-         post_form ~service:election_setup_auth_genpwd
-           (fun () ->
-             [div [
-               pcdata "Authentication scheme: password ";
-               string_input ~input_type:`Submit ~value:"Generate passwords" ()
-             ]]
-           ) uuid
+         div [
+           pcdata "Authentication scheme: password ";
+         ]
       | `Dummy ->
          div [
            pcdata "Authentication scheme: dummy"
@@ -629,16 +625,27 @@ let election_setup_voters uuid se () =
       )
     ) se.se_voters
   in
+  let form_passwords =
+    if has_passwords then
+      post_form ~service:election_setup_auth_genpwd
+        (fun () ->
+          [string_input ~input_type:`Submit ~value:"Generate passwords" ()]
+        ) uuid
+    else pcdata ""
+  in
   let voters =
     match voters with
     | [] -> div [pcdata "No voters"]
     | _ :: _ ->
-       table
-         (tr (
-           [th [pcdata "Identity"]] @
-           (if has_passwords then [th [pcdata "Password"]] else []) @
-           (if se.se_public_creds_received then [] else [th [pcdata "Remove"]])
-         ) :: voters)
+       div [
+         form_passwords;
+         table
+           (tr (
+             [th [pcdata "Identity"]] @
+               (if has_passwords then [th [pcdata "Password"]] else []) @
+               (if se.se_public_creds_received then [] else [th [pcdata "Remove"]])
+            ) :: voters)
+       ]
   in
   let back = div [
     a ~service:Web_services.election_setup [pcdata "Return to setup page"] uuid;
