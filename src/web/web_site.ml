@@ -634,6 +634,20 @@ let is_email x =
   try ignore (Pcre.pcre_exec ~rex:email_rex x); true
   with Not_found -> false
 
+module SSet = Set.Make (PString)
+
+let merge_voters a b =
+  let existing = List.fold_left (fun accu sv ->
+    SSet.add sv.sv_id accu
+  ) SSet.empty a in
+  let _, res = List.fold_left (fun (existing, accu) sv_id ->
+    if SSet.mem sv_id existing then
+      (existing, accu)
+    else
+      (SSet.add sv_id existing, {sv_id; sv_password = None} :: accu)
+  ) (existing, List.rev a) b in
+  List.rev res
+
 let () =
   Any.register
     ~service:election_setup_voters_add
@@ -647,9 +661,7 @@ let () =
              Printf.ksprintf failwith "%S is not a valid address" bad
            with Not_found -> ()
          in
-         se.se_voters <- se.se_voters @ List.map (fun sv_id ->
-           {sv_id; sv_password = None}
-         ) xs;
+         se.se_voters <- merge_voters se.se_voters xs;
          return (redir_preapply election_setup_voters uuid))))
 
 let () =
@@ -1061,9 +1073,7 @@ let () =
          match voters with
          | Some voters ->
             if se.se_public_creds_received then forbidden () else (
-              se.se_voters <- se.se_voters @ List.map (fun sv_id ->
-                {sv_id; sv_password = None}
-              ) voters;
+              se.se_voters <- merge_voters se.se_voters voters;
               return (redir_preapply election_setup_voters uuid))
          | None ->
             return (fun () -> T.generic_page ~title:"Error"
