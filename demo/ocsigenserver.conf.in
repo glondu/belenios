@@ -39,7 +39,6 @@
         <auth name="local"><password db="demo/password_db.csv"/></auth>
         <source file="../belenios.tar.gz"/>
         <log file="_RUNDIR_/log/security.log"/>
-        <import dir="demo/data"/>
         <spool dir="_RUNDIR_/spool"/>
       </eliom>
     </host>

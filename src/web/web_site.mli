@@ -19,11 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_signatures
-open Web_common
-
 val source_file : string ref
-
-val import_election :
-  election_files -> setup_voter list ->
-  (module REGISTRABLE_ELECTION) option Lwt.t

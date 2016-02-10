@@ -22,7 +22,6 @@
 open Lwt
 open Common
 open Web_serializable_j
-open Web_signatures
 open Web_common
 
 (** Global initialization *)
@@ -36,7 +35,6 @@ let () = CalendarLib.Time_Zone.(change Local)
 (** Parse configuration from <eliom> *)
 
 let spool_dir = ref None
-let import_dirs = ref []
 let source_file = ref None
 let auth_instances = ref []
 
@@ -50,8 +48,6 @@ let () =
     Lwt_main.run (open_security_log file)
   | Element ("source", ["file", file], []) ->
     source_file := Some file
-  | Element ("import", ["dir", dir], []) ->
-    import_dirs := dir :: !import_dirs
   | Element ("spool", ["dir", dir], []) ->
     spool_dir := Some dir
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->
@@ -67,29 +63,12 @@ let () =
 
 (** Parse configuration from other sources *)
 
-let ( / ) = Filename.concat
-
 let file_exists x =
   try_lwt
     Lwt_unix.(access x [R_OK]) >>
     return true
   with _ ->
     return false
-
-let read_election_dir dir =
-  Lwt_io.chars_of_file (dir/"index.json") |>
-  Lwt_stream.to_string >>=
-  wrap1 datadir_index_of_string >>=
-  Lwt_list.map_p (fun item ->
-    let path = dir/item.datadir_dir in
-    return {
-      f_election = path/"election.json";
-      f_metadata = path/"metadata.json";
-      f_public_keys = path/"public_keys.jsons";
-      f_public_creds = path/"public_creds.txt";
-      f_voters = path/"voters.txt";
-    }
-  )
 
 lwt source_file =
   match !source_file with
@@ -112,19 +91,3 @@ let spool_dir =
 let () = Web_site.source_file := source_file
 let () = Web_common.spool_dir := spool_dir
 let () = Web_site_auth.configure (List.rev !auth_instances)
-
-lwt () =
-  Lwt_list.iter_s (fun dir ->
-    read_election_dir dir >>=
-    Lwt_list.iter_s (fun f ->
-      match_lwt Web_site.import_election f [] with
-      | None ->
-        Ocsigen_messages.console (fun () ->
-          Printf.sprintf "Ignored: %s" f.f_election
-        ); return ()
-      | Some w ->
-        let module W = (val w : REGISTRABLE_ELECTION) in
-        lwt _ = W.register () in
-        return ()
-    )
-  ) !import_dirs
