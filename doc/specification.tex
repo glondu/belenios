@@ -346,8 +346,8 @@ $\dprove(S,r,i,M_0,\dots,M_k)$.
 The proof is verified as follows:
 \begin{enumerate}
 \item for $j\in[0\dots k]$, compute
-  \[A_j=\frac{g^\response}{\alpha^\challenge}\quad\text{and}\quad
-  B_j=\frac{y^\response}{(\beta/g^{M_j})^\challenge}\]
+  \[A_j=\frac{g^{\response(\pi_j)}}{\alpha^{\challenge(\pi_j)}}\quad\text{and}\quad
+  B_j=\frac{y^{\response(\pi_j)}}{(\beta/g^{M_j})^{\challenge(\pi_j)}}\]
 \item check that
   \[\Hash_\dprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\sum_{j\in[0\dots
     k]}\challenge(\pi_j)\mod q\]
