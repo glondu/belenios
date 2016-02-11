@@ -305,6 +305,7 @@ let createStartButton params intro_div qs =
     (match prompt "Please enter your credential:" with
     | Some cred when checkCredential cred ->
       intro_div##style##display <- Js.string "none";
+      setDisplayById "question_div" "block";
       Dom_html.window##onbeforeunload <- Dom_html.handler (fun _ ->
         Js._false
       );

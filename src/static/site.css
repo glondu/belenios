@@ -31,3 +31,8 @@ ul {
 button {
     cursor: pointer;
 }
+.current_step {
+    text-align: center;
+    font-size: 28px;
+    padding-bottom: 28px;
+}
