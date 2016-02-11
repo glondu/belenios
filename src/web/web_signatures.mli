@@ -92,15 +92,3 @@ module type WEB_ELECTION = sig
   module E : ELECTION with type elt = D.G.t and type 'a m = 'a Lwt.t
   module B : WEB_BALLOT_BOX
 end
-
-type election_files = {
-  f_election : string;
-  f_metadata : string;
-  f_public_keys : string;
-  f_public_creds : string;
-  f_voters : string;
-}
-
-module type REGISTRABLE_ELECTION = sig
-  val register : unit -> (module WEB_ELECTION) Lwt.t
-end

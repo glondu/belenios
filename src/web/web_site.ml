@@ -31,27 +31,7 @@ open Web_services
 
 let source_file = ref "belenios.tar.gz"
 
-let get_single_line x =
-  match_lwt Lwt_stream.get x with
-  | None -> return None
-  | Some _ as line ->
-    lwt b = Lwt_stream.is_empty x in
-    if b then (
-      return line
-    ) else (
-      Lwt_stream.junk_while (fun _ -> true) x >>
-      return None
-    )
-
 let ( / ) = Filename.concat
-
-let delete_shallow_directory dir =
-  lwt () =
-    Lwt_unix.files_of_directory dir |>
-    Lwt_stream.filter (fun x -> x <> "." && x <> "..") |>
-    Lwt_stream.iter_s (fun x -> Lwt_unix.unlink (dir/x))
-  in
-  Lwt_unix.rmdir dir
 
 module PString = String
 
@@ -110,139 +90,128 @@ let dump_passwords dir table =
     ) table
   ))
 
-(* Mutex to avoid simultaneous registrations of the same election *)
-let registration_mutex = Lwt_mutex.create ()
-
-let import_election f se_voters =
-  Lwt_mutex.lock registration_mutex >>
-  try_lwt
-    lwt raw_election =
-      Lwt_io.lines_of_file f.f_election |>
-      get_single_line >>=
-      (function
-      | Some e -> return e
-      | None -> Printf.ksprintf
-        failwith "election.json must contain a single line"
-      )
-    in
-    let params = Group.election_params_of_string raw_election in
-    let module P = (val params : ELECTION_DATA) in
-    let uuid = Uuidm.to_string P.election.e_params.e_uuid in
-    lwt exists =
-      lwt x = Web_persist.get_raw_election uuid in
-      match x with
-      | Some _ -> return true
-      | None -> return false
-    in
-    if exists then (
-      Lwt_mutex.unlock registration_mutex;
-      return None
-    ) else (
-      let dir = !spool_dir/uuid in
-      lwt metadata =
-        Lwt_io.chars_of_file f.f_metadata |>
-        Lwt_stream.to_string >>=
-        wrap1 metadata_of_string
-      in
-      let module X = struct
-        let metadata = metadata
-        let dir = dir
-      end in
-      let web_params = (module X : WEB_PARAMS) in
-      let module G = P.G in
-      let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
-      let public_keys = Lwt_io.lines_of_file f.f_public_keys in
-      let voters = Lwt_io.lines_of_file f.f_voters in
-      lwt () =
-        match_lwt Lwt_stream.peek voters with
-        | Some _ -> return_unit
-        | None -> Lwt.fail (Failure "No voters")
-      in
-      lwt () =
-        match metadata.e_auth_config with
-        | Some [{auth_system = "password"; _}] ->
-           if List.for_all (fun v -> v.sv_password <> None) se_voters then
-             return_unit
-           else
-             Lwt.fail (Failure "Some passwords are missing")
-        | _ -> return_unit
-      in
-      lwt pks = Lwt_stream.(
-        clone public_keys |>
-        map (trustee_public_key_of_string G.read) |>
-        to_list >>= wrap1 Array.of_list
-      ) in
-      if not (Array.forall KG.check pks) then
-        failwith "Public keys are invalid.";
-      if not G.(P.election.e_params.e_public_key =~ KG.combine pks) then
-        failwith "Public keys mismatch with election public key.";
-      let public_creds = Lwt_io.lines_of_file f.f_public_creds in
-      lwt () = Lwt_stream.(
-        clone public_creds |>
-        iter_s (fun x ->
-          if not G.(check @@ of_string x) then (
-            Lwt.fail @@ Failure "Public credentials are invalid."
-          ) else return ()
-        )
-      ) in
-      let module R = struct
-        let register () =
-          try_lwt
-            Lwt_unix.mkdir dir 0o700 >>
-            Lwt_io.(with_file Output (dir/"election.json") (fun oc ->
-              write_line oc raw_election
-            )) >>
-            Lwt_io.(with_file Output (dir/"public_keys.jsons") (fun oc ->
-              write_lines oc public_keys
-            )) >>
-            Lwt_io.(with_file Output (dir/"voters.txt") (fun oc ->
-              write_lines oc voters
-            )) >>
-            Lwt_io.(with_file Output (dir/"metadata.json") (fun oc ->
-              write_line oc (string_of_metadata metadata)
-            )) >>
-            let election = web_election_data (raw_election, web_params) in
-            let module W = Web_election.Make ((val election)) (LwtRandom) in
-            lwt () =
-              match W.D.metadata.e_auth_config with
-              | None -> return ()
-              | Some xs ->
-                 let auth_config =
-                   List.map (fun {auth_system; auth_instance; auth_config} ->
-                     auth_instance, (auth_system, List.map snd auth_config)
-                   ) xs
-                 in
-                 Web_persist.set_auth_config uuid auth_config
-            in
-            let () =
-              Ocsigen_messages.console (fun () ->
-                Printf.sprintf "Injecting credentials for %s" uuid
-              )
-            in
-            public_creds |>
-            Lwt_stream.iter_s W.B.inject_cred >>
-            W.B.update_files () >>
-            let () = Lwt_mutex.unlock registration_mutex in
-            return (module W : WEB_ELECTION)
-          with e ->
-            lwt () =
-              try_lwt delete_shallow_directory dir
-              with e ->
-                Printf.ksprintf
-                  (fun s ->
-                   return (Ocsigen_messages.unexpected_exception e s))
-                  "error while deleting %s after failure of %s"
-                  dir uuid
-            in
-            Lwt_mutex.unlock registration_mutex;
-            Lwt.fail e
-      end in
-      (* until here, no side-effects on the running server *)
-      return @@ Some (module R : REGISTRABLE_ELECTION)
-    )
-  with e ->
-    Lwt_mutex.unlock registration_mutex;
-    Lwt.fail e
+let finalize_election uuid se =
+  let uuid_s = Uuidm.to_string uuid in
+  (* voters *)
+  let () =
+    if se.se_voters = [] then failwith "no voters"
+  in
+  (* passwords *)
+  let () =
+    match se.se_metadata.e_auth_config with
+    | Some [{auth_system = "password"; _}] ->
+       if not @@ List.for_all (fun v -> v.sv_password <> None) se.se_voters then
+         failwith "some passwords are missing"
+    | _ -> ()
+  in
+  (* credentials *)
+  let () =
+    if not se.se_public_creds_received then
+      failwith "public credentials are missing"
+  in
+  (* trustees *)
+  let group = Group.of_string se.se_group in
+  let module G = (val group : GROUP) in
+  let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
+  lwt public_keys, private_key =
+    match se.se_public_keys with
+    | [] ->
+       lwt private_key, public_key = KG.generate_and_prove () in
+       return ([public_key], Some private_key)
+    | _ :: _ ->
+       return
+         (List.rev_map
+            (fun (_, r) ->
+              if !r = "" then failwith "some public keys are missing";
+              trustee_public_key_of_string G.read !r
+            ) se.se_public_keys, None)
+  in
+  let y = KG.combine (Array.of_list public_keys) in
+  (* election parameters *)
+  let template = se.se_questions in
+  let params = {
+    e_description = template.t_description;
+    e_name = template.t_name;
+    e_public_key = {wpk_group = G.group; wpk_y = y};
+    e_questions = template.t_questions;
+    e_uuid = uuid;
+    e_short_name = template.t_short_name;
+  } in
+  let raw_election = string_of_params (write_wrapped_pubkey G.write_group G.write) params in
+  (* write election files to disk *)
+  let dir = !spool_dir / uuid_s in
+  let create_file fname what xs =
+    Lwt_io.with_file
+      ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+      ~perm:0o600 ~mode:Lwt_io.Output (dir / fname)
+      (fun oc ->
+        Lwt_list.iter_s
+          (fun v ->
+            Lwt_io.write oc (what v) >>
+              Lwt_io.write oc "\n") xs)
+  in
+  Lwt_unix.mkdir dir 0o700 >>
+  create_file "public_keys.jsons" (string_of_trustee_public_key G.write) public_keys >>
+  create_file "voters.txt" (fun x -> x.sv_id) se.se_voters >>
+  create_file "metadata.json" string_of_metadata [se.se_metadata] >>
+  create_file "election.json" (fun x -> x) [raw_election] >>
+  (* construct Web_election instance *)
+  let module X = struct
+    let metadata = se.se_metadata
+    let dir = dir
+  end in
+  let web_params = (module X : WEB_PARAMS) in
+  let election = web_election_data (raw_election, web_params) in
+  let module W = Web_election.Make ((val election)) (LwtRandom) in
+  (* set up authentication *)
+  lwt () =
+    match W.D.metadata.e_auth_config with
+    | None -> return ()
+    | Some xs ->
+       let auth_config =
+         List.map (fun {auth_system; auth_instance; auth_config} ->
+           auth_instance, (auth_system, List.map snd auth_config)
+         ) xs
+       in
+       Web_persist.set_auth_config uuid_s auth_config
+  in
+  (* inject credentials *)
+  lwt () =
+    let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
+    Lwt_io.lines_of_file fname |>
+    Lwt_stream.iter_s W.B.inject_cred >>
+    W.B.update_files () >>
+    Lwt_unix.unlink fname
+  in
+  (* create file with private key, if any *)
+  lwt () =
+    match private_key with
+    | None -> return_unit
+    | Some x -> create_file "private_key.json" string_of_number [x]
+  in
+  (* clean up setup database *)
+  Ocsipersist.remove election_credtokens se.se_public_creds >>
+  Lwt_list.iter_s
+    (fun (token, _) ->
+      Ocsipersist.remove election_pktokens token)
+    se.se_public_keys >>
+  Ocsipersist.remove election_stable uuid_s >>
+  (* inject passwords *)
+  (match se.se_metadata.e_auth_config with
+  | Some [{auth_system = "password"; _}] ->
+     let table = "password_" ^ underscorize uuid_s in
+     let table = Ocsipersist.open_table table in
+     Lwt_list.iter_s
+       (fun v ->
+         let _, login = split_identity v.sv_id in
+         match v.sv_password with
+         | Some x -> Ocsipersist.add table login x
+         | None -> return_unit
+       ) se.se_voters >>
+       dump_passwords W.D.dir table
+  | _ -> return_unit) >>
+  (* finish *)
+  Web_persist.set_election_date uuid_s (now ())
 
 let () = Any.register ~service:home
   (fun () () ->
@@ -945,106 +914,8 @@ let () =
           Lwt_mutex.with_lock election_setup_mutex (fun () ->
             lwt se = Ocsipersist.find election_stable uuid_s in
             if se.se_owner <> u then forbidden () else
-            let group = Group.of_string se.se_group in
-            let module G = (val group : GROUP) in
-            let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
-            (* construct election data in memory *)
-            lwt public_keys, private_key =
-              match se.se_public_keys with
-              | [] ->
-                 lwt private_key, public_key = KG.generate_and_prove () in
-                 return ([public_key], Some private_key)
-              | _ :: _ ->
-                 return (List.rev_map
-                   (fun (_, r) ->
-                     if !r = "" then failwith "some public keys are missing";
-                     trustee_public_key_of_string G.read !r
-                   ) se.se_public_keys, None)
-            in
-            let y = KG.combine (Array.of_list public_keys) in
-            let template = se.se_questions in
-            let params = {
-              e_description = template.t_description;
-              e_name = template.t_name;
-              e_public_key = {wpk_group = G.group; wpk_y = y};
-              e_questions = template.t_questions;
-              e_uuid = uuid;
-              e_short_name = template.t_short_name;
-            } in
-            let files = {
-              f_election = !spool_dir / uuid_s ^ ".election.json";
-              f_metadata = !spool_dir / uuid_s ^ ".metadata.json";
-              f_public_keys = !spool_dir / uuid_s ^ ".public_keys.jsons";
-              f_public_creds = !spool_dir / uuid_s ^ ".public_creds.txt";
-              f_voters = !spool_dir / uuid_s ^ ".voters.txt";
-            } in
-            lwt _ =
-              try_lwt Lwt_unix.stat files.f_public_creds
-              with _ -> failwith "public credentials are missing"
-            in
-            (* write election files to disk *)
-            let create_file fname what xs =
-              Lwt_io.with_file
-                ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
-                ~perm:0o600 ~mode:Lwt_io.Output fname
-                (fun oc ->
-                  Lwt_list.iter_s
-                    (fun v ->
-                      Lwt_io.write oc (what v) >>
-                      Lwt_io.write oc "\n") xs)
-            in
-            create_file files.f_election (string_of_params (write_wrapped_pubkey G.write_group G.write)) [params] >>
-            create_file files.f_metadata string_of_metadata [se.se_metadata] >>
-            create_file files.f_voters (fun x -> x.sv_id) se.se_voters >>
-            create_file files.f_public_keys (string_of_trustee_public_key G.write) public_keys >>
-            (* actually create the election *)
-            begin match_lwt import_election files se.se_voters with
-            | None ->
-               T.new_election_failure `Exists () >>= Html5.send
-            | Some w ->
-               let module W = (val w : REGISTRABLE_ELECTION) in
-               lwt w = W.register () in
-               let module W = (val w : WEB_ELECTION) in
-               (* create file with private key, if any *)
-               lwt () =
-                 match private_key with
-                 | None -> return ()
-                 | Some x ->
-                    let fname = W.D.dir / "private_key.json" in
-                    create_file fname string_of_number [x]
-               in
-               (* clean up temporary files *)
-               Lwt_unix.unlink files.f_election >>
-               Lwt_unix.unlink files.f_metadata >>
-               Lwt_unix.unlink files.f_public_keys >>
-               Lwt_unix.unlink files.f_public_creds >>
-               Lwt_unix.unlink files.f_voters >>
-               (* clean up tokens *)
-               Ocsipersist.remove election_credtokens se.se_public_creds >>
-               Lwt_list.iter_s
-                 (fun (token, _) ->
-                  Ocsipersist.remove election_pktokens token)
-                 se.se_public_keys >>
-               Ocsipersist.remove election_stable uuid_s >>
-               (* inject passwords *)
-               (match se.se_metadata.e_auth_config with
-               | Some [{auth_system = "password"; _}] ->
-                 let table = "password_" ^ underscorize uuid_s in
-                 let table = Ocsipersist.open_table table in
-                 Lwt_list.iter_s
-                   (fun v ->
-                     let _, login = split_identity v.sv_id in
-                     match v.sv_password with
-                     | Some x -> Ocsipersist.add table login x
-                     | None -> return_unit
-                   ) se.se_voters >>
-                 dump_passwords W.D.dir table
-               | _ -> return_unit) >>
-               (* finish *)
-               Web_persist.set_election_date uuid_s (now ()) >>
-               Redirection.send
-                 (preapply election_admin (W.D.election.e_params.e_uuid, ()))
-            end
+            finalize_election uuid se >>
+            Redirection.send (preapply election_admin (uuid, ()))
           )
         with e ->
           T.new_election_failure (`Exception e) () >>= Html5.send
