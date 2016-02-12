@@ -102,7 +102,14 @@ let belenios_url = Eliom_service.Http.external_service
   ~get_params:Eliom_parameter.unit
   ()
 
-let base ~title ~login_box ~content ?(footer = div []) () =
+let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
+  let administer =
+    match uuid with
+    | None ->
+       a ~service:admin [pcdata "Administer elections"] ()
+    | Some uuid ->
+       a ~service:election_admin [pcdata "Administer this election"] (uuid, ())
+  in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
     (head (Eliom_content.Html5.F.title (pcdata title)) [
       script (pcdata "window.onbeforeunload = function () {};");
@@ -129,7 +136,7 @@ let base ~title ~login_box ~content ?(footer = div []) () =
           pcdata ". ";
           a ~service:source_code [pcdata "Get the source code"] ();
           pcdata ". ";
-          a ~service:admin [pcdata "Administer elections"] ();
+          administer;
           pcdata ".";
         ]
       ]]
@@ -1005,7 +1012,8 @@ let election_home w state () =
     ballots_link;
   ] in
   lwt login_box = election_login_box w () in
-  base ~title:params.e_name ~login_box ~content ~footer ()
+  let uuid = params.e_uuid in
+  base ~title:params.e_name ~login_box ~content ~footer ~uuid ()
 
 let election_admin w state () =
   let module W = (val w : WEB_ELECTION_DATA) in
@@ -1180,7 +1188,8 @@ let update_credential w () =
     form;
   ] in
   lwt login_box = site_login_box () in
-  base ~title:params.e_name ~login_box ~content ()
+  let uuid = W.election.e_params.e_uuid in
+  base ~title:params.e_name ~login_box ~content ~uuid ()
 
 let regenpwd uuid () =
   let form = post_form ~service:election_regenpwd_post
@@ -1197,7 +1206,7 @@ let regenpwd uuid () =
   let content = [ form ] in
   let title = "Regenerate and mail password" in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ~login_box ~content ~uuid ()
 
 let cast_raw w () =
   let module W = (val w : WEB_ELECTION_DATA) in
@@ -1230,7 +1239,8 @@ let cast_raw w () =
     form_upload;
   ] in
   lwt login_box = election_login_box w () in
-  base ~title:params.e_name ~login_box ~content ()
+  let uuid = W.election.e_params.e_uuid in
+  base ~title:params.e_name ~login_box ~content ~uuid ()
 
 let cast_confirmation w hash () =
   let module W = (val w : WEB_ELECTION_DATA) in
@@ -1291,7 +1301,8 @@ let cast_confirmation w hash () =
     ];
   ] in
   let login_box = pcdata "" in
-  base ~title:name ~login_box ~content ()
+  let uuid = params.e_uuid in
+  base ~title:name ~login_box ~content ~uuid ()
 
 let cast_confirmed w ~result () =
   let module W = (val w : WEB_ELECTION_DATA) in
@@ -1337,7 +1348,8 @@ let cast_confirmed w ~result () =
     ];
   ] in
   let login_box = pcdata "" in
-  base ~title:name ~login_box ~content ()
+  let uuid = params.e_uuid in
+  base ~title:name ~login_box ~content ~uuid ()
 
 let pretty_ballots w hashes () =
   let module W = (val w : WEB_ELECTION_DATA) in
@@ -1371,7 +1383,8 @@ let pretty_ballots w hashes () =
     links;
   ] in
   lwt login_box = election_login_box w () in
-  base ~title ~login_box ~content ()
+  let uuid = params.e_uuid in
+  base ~title ~login_box ~content ~uuid ()
 
 let tally_trustees w trustee_id () =
   let module W = (val w : WEB_ELECTION_DATA) in
@@ -1421,7 +1434,8 @@ let tally_trustees w trustee_id () =
     ]
   ] in
   let login_box = pcdata "" in
-  base ~title ~login_box ~content ()
+  let uuid = params.e_uuid in
+  base ~title ~login_box ~content ~uuid ()
 
 let already_logged_in () =
   let title = "Already logged in" in
