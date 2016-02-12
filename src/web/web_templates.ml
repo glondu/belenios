@@ -1263,6 +1263,9 @@ let cast_confirmation w hash () =
   ] in
   let content = [
     progress;
+    div ~a:[a_class ["current_step"]] [
+        pcdata "Step 5/6: Confirm";
+    ];
     p [
       pcdata "Your ballot for ";
       em [pcdata name];
@@ -1299,23 +1302,27 @@ let cast_confirmed w ~result () =
     b [pcdata "Done"];
     hr ();
   ] in
-  let result =
+  let result, step_title =
     match result with
     | `Valid hash ->
        [pcdata " has been accepted, your smart ballot tracker is ";
         b [pcdata hash];
-        pcdata ". We invite you to save it and check its presence in the ";
+        pcdata ". You can check its presence in the ";
         a ~service:election_pretty_ballots [pcdata "ballot box"] ((params.e_uuid, ()), 1);
-        pcdata ".";
-       ]
+        pcdata " anytime during the election.";
+       ], "Thank you for voting!"
     | `Error e ->
        [pcdata " is rejected, because ";
         pcdata (Web_common.explain_error e);
         pcdata ".";
-       ]
+       ], "FAIL!"
   in
   let content = [
     progress;
+    div ~a:[a_class ["current_step"]] [
+        pcdata "Step 6/6: ";
+        pcdata step_title;
+    ];
     p ([
       pcdata "Your ballot for ";
       em [pcdata name];
