@@ -998,12 +998,16 @@ let () =
      lwt w = find_election uuid_s in
      lwt site_user = Web_auth_state.get_site_user () in
      let module W = (val w) in
-     let uuid = Uuidm.to_string W.election.e_params.e_uuid in
      match site_user with
      | Some u when W.metadata.e_owner = Some u ->
-        lwt state = Web_persist.get_election_state uuid in
+        lwt state = Web_persist.get_election_state uuid_s in
         T.election_admin (module W) state () >>= Html5.send
-       | _ -> forbidden ()
+     | _ ->
+        let cont () =
+          Redirection.send (Eliom_service.preapply election_admin (uuid, ()))
+        in
+        Eliom_reference.set Web_auth_state.cont [cont] >>
+        Redirection.send (Eliom_service.preapply site_login None)
     )
 
 let election_set_state state (uuid, ()) () =
