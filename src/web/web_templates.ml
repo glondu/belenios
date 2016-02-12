@@ -35,10 +35,11 @@ let site_title = "Election Server"
 let welcome_message = "Welcome to the Belenios system!"
 let admin_background = " background: #FF9999;"
 
-let format_user u =
-  em [pcdata (string_of_user u)]
+let format_user ~site u =
+  em [pcdata (if site then string_of_user u else u.user_name)]
 
-let make_login_box ~show_login style auth links =
+let make_login_box ~site auth links =
+  let style = if site then admin_background else "" in
   let style = "float: right; text-align: right;" ^ style in
   let module S = (val auth : AUTH_SERVICES) in
   let module L = (val links : AUTH_LINKS) in
@@ -50,7 +51,7 @@ let make_login_box ~show_login style auth links =
       [
         div [
           pcdata "Logged in as ";
-          format_user user;
+          format_user ~site user;
           pcdata ".";
         ];
         div [
@@ -59,7 +60,7 @@ let make_login_box ~show_login style auth links =
         ];
       ]
     | None ->
-       if show_login then
+       if site then
       [
         div [
           pcdata "Not logged in.";
@@ -93,7 +94,7 @@ let site_links = (module Site_links : AUTH_LINKS)
 let site_auth = (module Site_auth : AUTH_SERVICES)
 
 let site_login_box () =
-  make_login_box ~show_login:true admin_background site_auth site_links
+  make_login_box ~site:true site_auth site_links
 
 let belenios_url = Eliom_service.Http.external_service
   ~prefix:"http://belenios.gforge.inria.fr"
@@ -871,7 +872,7 @@ let election_login_box w =
       Eliom_service.preapply logout ()
   end in
   let links = (module L : AUTH_LINKS) in
-  fun () -> make_login_box ~show_login:false "" auth links
+  fun () -> make_login_box ~site:false auth links
 
 let file w x =
   let module W = (val w : WEB_ELECTION_DATA) in
@@ -1241,7 +1242,7 @@ let cast_confirmation w hash () =
       post_form ~service:election_cast_confirm (fun () -> [
         p ~a:[a_style "text-align: center; padding: 10px;"] [
           pcdata "I am ";
-          format_user u;
+          format_user ~site:false u;
           pcdata " and ";
           string_input
             ~a:[a_style "font-size: 20px; cursor: pointer;"]
