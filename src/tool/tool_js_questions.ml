@@ -238,7 +238,7 @@ let createTemplate template =
   Dom.appendChild container x;
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
-  let t = document##createTextNode (Js.string "Submit") in
+  let t = document##createTextNode (Js.string "Save changes") in
   let f _ =
     try
       let template = extractTemplate () in

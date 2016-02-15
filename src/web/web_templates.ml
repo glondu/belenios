@@ -328,7 +328,7 @@ let election_setup uuid se () =
          div [
            h2 [pcdata title];
            div [textarea ~a:[a_rows 5; a_cols 80] ~name ~value ()];
-           div [string_input ~input_type:`Submit ~value:"Submit" ()];
+           div [string_input ~input_type:`Submit ~value:"Save changes" ()];
          ]
        ]
       ) ()
@@ -350,7 +350,7 @@ let election_setup uuid se () =
             ];
           ];
           div [
-            string_input ~input_type:`Submit ~value:"Submit" ();
+            string_input ~input_type:`Submit ~value:"Save changes" ();
           ];
         ]
       ) uuid
@@ -578,7 +578,7 @@ let election_setup_questions uuid se () =
        [
          div [pcdata "Questions:"];
          div [textarea ~a:[a_id "questions"; a_rows 5; a_cols 80] ~name ~value ()];
-         div [string_input ~input_type:`Submit ~value:"Submit" ()]])
+         div [string_input ~input_type:`Submit ~value:"Save changes" ()]])
       uuid
   in
   let link =
