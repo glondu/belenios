@@ -446,16 +446,19 @@ let election_setup uuid se () =
           pcdata "Credentials have already been generated!"
         ]
       ) else (
-        if has_credentials then (
-          post_form ~service:election_setup_credentials_server
-            (fun () ->
-              [string_input ~input_type:`Submit ~value:"Generate on server" ()]
-            ) uuid
-        ) else (
-          div [
-            a ~service:election_setup_credential_authority [pcdata "Credential management"] uuid;
-          ]
-        )
+        div [
+          pcdata "Warning: this will freeze the voter list!";
+          if has_credentials then (
+            post_form ~service:election_setup_credentials_server
+              (fun () ->
+                [string_input ~input_type:`Submit ~value:"Generate on server" ()]
+              ) uuid
+          ) else (
+            div [
+              a ~service:election_setup_credential_authority [pcdata "Credential management"] uuid;
+            ]
+          );
+        ]
       )
     ]
   in
