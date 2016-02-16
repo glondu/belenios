@@ -48,10 +48,10 @@ let generate _ =
   in
   let text_pks = pubs |> List.sort compare |> String.concat "\n" in
   set_textarea "pks" text_pks;
-  let text_creds = privs |> List.rev |> String.concat "\n" in
+  let text_creds = (privs |> List.rev |> String.concat "\n") ^ "\n" in
   let data_creds = (Js.string "data:text/plain,")##concat (Js.encodeURI (Js.string text_creds)) in
   ignore (Dom_html.window##open_ (data_creds, Js.string "creds", Js.null));
-  let text_hashed = hashs |> List.rev |> String.concat "\n" in
+  let text_hashed = (hashs |> List.rev |> String.concat "\n") ^ "\n" in
   let data_hashed = (Js.string "data:text/plain,")##concat (Js.encodeURI (Js.string text_hashed)) in
   ignore (Dom_html.window##open_ (data_hashed, Js.string "hashed", Js.null));
   alert "New windows (or tabs) were open with private credentials and credential hashes. Please save them before submitting public credentials!";
