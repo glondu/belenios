@@ -305,6 +305,7 @@ let election_setup_pre () =
                 string_radio ~name:auth ~value:"cas" ();
                 pcdata " CAS (external authentication server), server address: ";
                 string_input ~input_type:`Text ~name:cas_server ();
+                pcdata " (for example: https://cas.inria.fr/cas)";
               ];
             ];
           div [
