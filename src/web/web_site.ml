@@ -498,26 +498,28 @@ let generate_password title url id =
   send_email "noreply@belenios.org" email subject body >>
   return (salt, hashed)
 
+let handle_password se uuid ~force voters =
+  let title = se.se_questions.t_name in
+  let url = Eliom_uri.make_string_uri ~absolute:true ~service:election_home
+    (uuid, ()) |> rewrite_prefix
+  in
+  Lwt_list.iter_s (fun id ->
+    match id.sv_password with
+    | Some _ when not force -> return_unit
+    | None | Some _ ->
+       lwt x = generate_password title url id.sv_id in
+       return (id.sv_password <- Some x)
+  ) voters >>
+  return (fun () ->
+    T.generic_page ~title:"Success"
+      "Passwords have been generated and mailed!" () >>= Html5.send)
+
 let () =
   Any.register
     ~service:election_setup_auth_genpwd
     (handle_setup
        (fun se () _ uuid ->
-         let title = se.se_questions.t_name in
-         let url = Eliom_uri.make_string_uri
-           ~absolute:true ~service:election_home
-           (uuid, ()) |> rewrite_prefix
-         in
-         Lwt_list.iter_s (fun id ->
-           match id.sv_password with
-           | None ->
-             lwt x = generate_password title url id.sv_id in
-             return (id.sv_password <- Some x)
-           | Some _ -> return_unit
-         ) se.se_voters >>
-         return (fun () ->
-           T.generic_page ~title:"Success"
-             "Passwords have been generated and mailed!" () >>= Html5.send)))
+         handle_password se uuid ~force:false se.se_voters))
 
 let () =
   Any.register
@@ -643,6 +645,13 @@ let () =
            v.sv_id <> voter
          ) se.se_voters;
          return (redir_preapply election_setup_voters uuid))))
+
+let () =
+  Any.register ~service:election_setup_voters_passwd
+    (handle_setup
+       (fun se voter _ uuid ->
+         let voter = List.filter (fun v -> v.sv_id = voter) se.se_voters in
+         handle_password se uuid ~force:true voter))
 
 let () =
   Redirection.register

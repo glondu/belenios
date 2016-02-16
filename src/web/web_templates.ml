@@ -630,15 +630,25 @@ let election_setup_voters uuid se () =
     | Some [{auth_system = "password"; _}] -> true
     | _ -> false
   in
-  let to_string x = match x with
-    | Some _ -> "Yes"
-    | None -> "No"
+  let mk_regen_passwd value =
+    post_form ~service:election_setup_voters_passwd
+      ~a:[a_style "display: inline;"]
+      (fun name ->
+        [
+          string_input ~input_type:`Hidden ~name ~value ();
+          string_input ~input_type:`Submit ~value:"Send again" ();
+        ]
+      ) uuid
+  in
+  let format_password_cell x = match x.sv_password with
+    | Some _ -> [pcdata "Yes "; mk_regen_passwd x.sv_id]
+    | None -> [pcdata "No"]
   in
   let voters =
     List.map (fun v ->
       tr (
         [td [pcdata v.sv_id]] @
-        (if has_passwords then [td [pcdata (to_string v.sv_password)]] else []) @
+        (if has_passwords then [td (format_password_cell v)] else []) @
         (if se.se_public_creds_received then [] else [td [mk_remove_button v.sv_id]])
       )
     ) se.se_voters
@@ -660,7 +670,7 @@ let election_setup_voters uuid se () =
          table
            (tr (
              [th [pcdata "Identity"]] @
-               (if has_passwords then [th [pcdata "Password"]] else []) @
+               (if has_passwords then [th [pcdata "Password sent?"]] else []) @
                (if se.se_public_creds_received then [] else [th [pcdata "Remove"]])
             ) :: voters)
        ]
