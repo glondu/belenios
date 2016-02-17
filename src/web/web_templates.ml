@@ -874,6 +874,36 @@ let file w x =
     election_dir
     (W.election.e_params.e_uuid, x)
 
+let audit_footer w =
+  let module W = (val w : WEB_ELECTION_DATA) in
+  div ~a:[a_style "line-height:1.5em;"] [
+    div [
+      div [
+        pcdata "Election fingerprint: ";
+        code [ pcdata W.election.e_fingerprint ];
+      ];
+      div [
+        pcdata "Audit data: ";
+        a ~service:(file w ESRaw) [
+          pcdata "parameters"
+        ] ();
+        pcdata ", ";
+        a ~service:(file w ESCreds) [
+          pcdata "public credentials"
+        ] ();
+        pcdata ", ";
+        a ~service:(file w ESKeys) [
+          pcdata "trustee public keys"
+        ] ();
+        pcdata ", ";
+        a ~service:(file w ESBallots) [
+          pcdata "ballots";
+        ] ();
+        pcdata ".";
+      ];
+    ]
+  ]
+
 let election_home w state () =
   let module W = (val w : WEB_ELECTION_DATA) in
   let params = W.election.e_params in
@@ -919,33 +949,7 @@ let election_home w state () =
           ] ((params.e_uuid, ()), 1)
       ]
   in
-  let footer = div ~a:[a_style "line-height:1.5em;"] [
-    div [
-      div [
-        pcdata "Election fingerprint: ";
-        code [ pcdata W.election.e_fingerprint ];
-      ];
-      div [
-        pcdata "Audit data: ";
-        a ~service:(file w ESRaw) [
-          pcdata "parameters"
-        ] ();
-        pcdata ", ";
-        a ~service:(file w ESCreds) [
-          pcdata "public credentials"
-        ] ();
-        pcdata ", ";
-        a ~service:(file w ESKeys) [
-          pcdata "trustee public keys"
-        ] ();
-        pcdata ", ";
-        a ~service:(file w ESBallots) [
-          pcdata "ballots";
-        ] ();
-        pcdata ".";
-      ];
-    ]
-  ] in
+  let footer = audit_footer w in
   let go_to_the_booth =
     div ~a:[a_style "text-align:center;"] [
       div [
@@ -1219,7 +1223,25 @@ let cast_raw w () =
       ]
     ) (params.e_uuid, ())
   in
+  let intro = div [
+    div [
+      pcdata "You can create a raw ballot by using the command line tool ";
+      pcdata "(available in the ";
+      a ~service:source_code [pcdata "sources"] ();
+      pcdata "), or its ";
+      a ~service:(Eliom_service.static_dir ()) [
+        pcdata "web interface";
+      ] ["static"; "belenios-tool.html"];
+      pcdata ". A specification of raw ballots is also available in the ";
+      pcdata "sources.";
+    ];
+    div [
+      a ~service:Web_services.election_home
+        [pcdata "Back to election home"] (params.e_uuid, ());
+    ];
+  ] in
   let content = [
+    intro;
     h3 [ pcdata "Submit by copy/paste" ];
     form_rawballot;
     h3 [ pcdata "Submit by file" ];
@@ -1227,7 +1249,8 @@ let cast_raw w () =
   ] in
   lwt login_box = election_login_box w () in
   let uuid = W.election.e_params.e_uuid in
-  base ~title:params.e_name ~login_box ~content ~uuid ()
+  let footer = audit_footer w in
+  base ~title:params.e_name ~login_box ~content ~uuid ~footer ()
 
 let cast_confirmation w hash () =
   let module W = (val w : WEB_ELECTION_DATA) in
