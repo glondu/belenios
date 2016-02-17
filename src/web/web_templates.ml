@@ -702,9 +702,9 @@ let election_setup_voters uuid se () =
       uuid
   ] in
   let content = [
+    back;
     div_import;
     voters;
-    back;
     div_add;
   ] in
   lwt login_box = site_login_box () in
