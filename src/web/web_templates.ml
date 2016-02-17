@@ -322,18 +322,6 @@ let election_setup_pre () =
 
 let election_setup uuid se () =
   let title = "Preparation of election " ^ se.se_questions.t_name in
-  let make_form ?a service value title =
-    post_form ?a ~service
-      (fun name ->
-       [
-         div [
-           h2 [pcdata title];
-           div [textarea ~a:[a_rows 5; a_cols 80] ~name ~value ()];
-           div [string_input ~input_type:`Submit ~value:"Save changes" ()];
-         ]
-       ]
-      ) ()
-  in
   let form_description =
     post_form ~service:election_setup_description
       (fun (name, description) ->
@@ -361,19 +349,6 @@ let election_setup uuid se () =
       h2 [pcdata "Name and description of the election"];
       form_description;
     ]
-  in
-  let form_group =
-    make_form
-      ~a:[a_style "display: none;"]
-      (Eliom_service.preapply election_setup_group uuid)
-      se.se_group "Group parameters"
-  in
-  let form_metadata =
-    let value = string_of_metadata se.se_metadata in
-    make_form
-      ~a:[a_style "display: none;"]
-      (Eliom_service.preapply election_setup_metadata uuid)
-      value "Election metadata"
   in
   let has_credentials = match se.se_metadata.e_cred_authority with
     | None -> false
@@ -482,8 +457,6 @@ let election_setup uuid se () =
     hr ();
     div_credentials;
     hr ();
-    form_group;
-    form_metadata;
     div_auth;
     hr ();
     div_trustees;
