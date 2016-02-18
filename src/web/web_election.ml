@@ -30,6 +30,23 @@ open Web_common
 
 let ( / ) = Filename.concat
 
+let template_confirmation = format_of_string
+  "Dear %s,
+
+Your vote for election
+
+  %s
+
+has been recorded. Your smart ballot tracker is
+
+  %s
+
+Results will be published on the election page
+
+  %s
+
+-- \nBelenios"
+
 module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION = struct
 
     let uuid = Uuidm.to_string D.election.e_params.e_uuid
@@ -69,14 +86,27 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
         with Not_found ->
           Ocsipersist.add cred_table cred None
 
+      let send_confirmation_email user email hash =
+        let title = D.election.e_params.e_name in
+        let subject = "Your vote for election " ^ title in
+        let url = Eliom_uri.make_string_uri
+          ~absolute:true ~service:Web_services.election_home
+          (D.election.e_params.e_uuid, ()) |> rewrite_prefix
+        in
+        let body = Printf.sprintf template_confirmation user title hash url in
+        send_email "noreply@belenios.org" email subject body
+
       let do_cast rawballot (user, date) =
         let voters = Lwt_io.lines_of_file (!spool_dir / uuid / "voters.txt") in
         lwt voters = Lwt_stream.to_list voters in
-        let voter_ok = List.exists (fun x ->
-          let _, login = split_identity x in
-          login = user.user_name
-        ) voters in
-        if not voter_ok then fail UnauthorizedVoter else return () >>
+        lwt email, login =
+          let rec loop = function
+            | x :: xs ->
+               let email, login = split_identity x in
+               if login = user.user_name then return (email, login) else loop xs
+            | [] -> fail UnauthorizedVoter
+          in loop voters
+        in
         let user = string_of_user user in
         lwt state = Web_persist.get_election_state uuid in
         let voting_open = state = `Open in
@@ -110,6 +140,7 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
               Ocsipersist.add cred_table credential (Some hash) >>
               Ocsipersist.add Ballots.table hash rawballot >>
               Ocsipersist.add Records.table user (date, credential) >>
+              send_confirmation_email login email hash >>
               security_log (fun () ->
                 Printf.sprintf "%s successfully cast ballot %s" user hash
               ) >> return hash
@@ -129,6 +160,7 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
                 Ocsipersist.add cred_table credential (Some hash) >>
                 Ocsipersist.add Ballots.table hash rawballot >>
                 Ocsipersist.add Records.table user (date, credential) >>
+                send_confirmation_email login email hash >>
                 security_log (fun () ->
                   Printf.sprintf "%s successfully cast ballot %s" user hash
                 ) >> return hash

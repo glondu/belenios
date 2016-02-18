@@ -1332,6 +1332,7 @@ let cast_confirmed w ~result () =
         pcdata ". You can check its presence in the ";
         a ~service:election_pretty_ballots [pcdata "ballot box"] ((params.e_uuid, ()), 1);
         pcdata " anytime during the election.";
+        pcdata " A confirmation e-mail has been sent to you.";
        ], "Thank you for voting!"
     | `Error e ->
        [pcdata " is rejected, because ";
