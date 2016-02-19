@@ -134,11 +134,15 @@ module Election : CMDLINER_MODULE = struct
       option_map Array.of_list
 
     let get_public_creds () =
-      try Some (lines_of_file (X.dir/"public_creds.txt"))
+      let file = "public_creds.txt" in
+      Printf.eprintf "I: loading %s...\n%!" file;
+      try Some (lines_of_file (X.dir / file))
       with _ -> None
 
     let get_ballots () =
-      try Some (lines_of_file (X.dir/"ballots.jsons"))
+      let file = "ballots.jsons" in
+      Printf.eprintf "I: loading %s...\n%!" file;
+      try Some (lines_of_file (X.dir / file))
       with _ -> None
 
     let get_result () =
