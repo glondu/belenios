@@ -89,13 +89,13 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Load ballots, if present *)
 
-  module GSet = Set.Make (G)
+  module GSet = Map.Make (G)
 
   let public_creds = lazy (
     get_public_creds () |> option_map (fun creds ->
       let res = ref GSet.empty in
-      Stream.iter (fun x -> res := GSet.add (G.of_string x) !res) creds;
-      !res
+      Stream.iter (fun x -> res := GSet.add (G.of_string x) false !res) creds;
+      res
     )
   )
 
@@ -113,7 +113,11 @@ module Make (P : PARSED_PARAMS) : S = struct
     match Lazy.force public_creds with
     | Some creds -> (fun b ->
       match b.signature with
-      | Some s -> GSet.mem s.s_public_key creds
+      | Some s ->
+         (try
+            if GSet.find s.s_public_key !creds then false
+            else (creds := GSet.add s.s_public_key true !creds; true)
+          with Not_found -> false)
       | None -> false
     )
     | None -> (fun _ -> true)
