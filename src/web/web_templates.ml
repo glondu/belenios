@@ -202,7 +202,7 @@ let admin ~elections () =
      ] in
      lwt login_box = site_login_box () in
      base ~title ~login_box ~content ()
-  | Some (elections, tallied, setup_elections) ->
+  | Some (elections, tallied, archived, setup_elections) ->
     let elections =
       match elections with
       | [] -> p [pcdata "You own no such elections!"]
@@ -212,6 +212,11 @@ let admin ~elections () =
       match tallied with
       | [] -> p [pcdata "You own no such elections!"]
       | _ -> ul @@ List.map (format_election `Admin) tallied
+    in
+    let archived =
+      match archived with
+      | [] -> p [pcdata "You own no such elections!"]
+      | _ -> ul @@ List.map (format_election `Admin) archived
     in
     let setup_elections =
       match setup_elections with
@@ -237,6 +242,8 @@ let admin ~elections () =
         div [br ()];
         h2 [pcdata "Tallied elections"];
         tallied;
+        h2 [pcdata "Archived elections"];
+        archived;
       ];
     ] in
     lwt login_box = site_login_box () in
@@ -811,7 +818,7 @@ let election_setup_trustee token se () =
   let login_box = pcdata "" in
   base ~title ~login_box ~content ()
 
-let election_setup_import uuid se (elections, tallied) () =
+let election_setup_import uuid se (elections, tallied, archived) () =
   let title = "Election " ^ se.se_questions.t_name ^ " — Import voters from another election" in
   let format_election election =
     let module W = (val election : WEB_ELECTION_DATA) in
@@ -843,6 +850,8 @@ let election_setup_import uuid se (elections, tallied) () =
     itemize elections;
     h2 [pcdata "Tallied elections"];
     itemize tallied;
+    h2 [pcdata "Archived elections"];
+    itemize archived;
   ] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
@@ -932,12 +941,11 @@ let election_home w state () =
        [
          pcdata " ";
          b [pcdata "This election has been tallied."];
-         pcdata " The result with ";
-         a
-           ~service:election_dir
-           [pcdata "cryptographic proofs"]
-           (W.election.e_params.e_uuid, ESResult);
-         pcdata " is available."
+       ]
+    | `Archived ->
+       [
+         pcdata " ";
+         b [pcdata "This election is archived."];
        ]
   in
   let ballots_link =
@@ -991,6 +999,13 @@ let election_home w state () =
          div [
            pcdata "Number of accepted ballots: ";
            pcdata (string_of_int r.num_tallied);
+         ];
+         div [
+           pcdata "You can also download the ";
+           a ~service:election_dir
+             [pcdata "result with cryptographic proofs"]
+             (W.election.e_params.e_uuid, ESResult);
+           pcdata ".";
          ];
        ]
     | None -> return go_to_the_booth
@@ -1106,6 +1121,10 @@ let election_admin w state () =
     | `Tallied _ ->
        return @@ div [
          pcdata "This election has been tallied.";
+       ]
+    | `Archived ->
+       return @@ div [
+         pcdata "This election is archived.";
        ]
   in
   let uuid = W.election.e_params.e_uuid in

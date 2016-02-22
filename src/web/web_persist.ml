@@ -39,16 +39,14 @@ type election_state =
   | `Closed
   | `EncryptedTally of int * int * string
   | `Tallied of plaintext
+  | `Archived
   ]
 
 let election_states = Ocsipersist.open_table "election_states"
 
 let get_election_state x =
   try_lwt Ocsipersist.find election_states x
-  with Not_found ->
-    match_lwt get_election_result x with
-    | Some r -> return (`Tallied r.result)
-    | None -> return `Open
+  with Not_found -> return `Archived
 
 let set_election_state x s =
   Ocsipersist.add election_states x s

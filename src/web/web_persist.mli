@@ -28,6 +28,7 @@ type election_state =
   | `Closed
   | `EncryptedTally of int * int * string
   | `Tallied of plaintext
+  | `Archived
   ]
 val get_election_state : string -> election_state Lwt.t
 val set_election_state : string -> election_state -> unit Lwt.t

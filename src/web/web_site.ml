@@ -211,6 +211,7 @@ let finalize_election uuid se =
        dump_passwords W.D.dir table
   | _ -> return_unit) >>
   (* finish *)
+  Web_persist.set_election_state uuid_s `Open >>
   Web_persist.set_election_date uuid_s (now ())
 
 let () = Any.register ~service:home
@@ -220,23 +221,24 @@ let () = Any.register ~service:home
   )
 
 let get_finalized_elections_by_owner u =
-  lwt elections, tallied =
+  lwt elections, tallied, archived =
     Web_persist.get_elections_by_owner u >>=
     Lwt_list.fold_left_s (fun accu uuid_s ->
         lwt w = find_election uuid_s in
         lwt state = Web_persist.get_election_state uuid_s in
         lwt date = Web_persist.get_election_date uuid_s in
-        let elections, tallied = accu in
+        let elections, tallied, archived = accu in
         match state with
-        | `Tallied _ -> return (elections, (date, w) :: tallied)
-        | _ -> return ((date, w) :: elections, tallied)
-    ) ([], [])
+        | `Tallied _ -> return (elections, (date, w) :: tallied, archived)
+        | `Archived -> return (elections, tallied, (date, w) :: archived)
+        | _ -> return ((date, w) :: elections, tallied, archived)
+    ) ([], [], [])
   in
   let sort l =
     List.sort (fun (x, _) (y, _) -> datetime_compare x y) l |>
     List.map (fun (_, x) -> x)
   in
-  return (sort elections, sort tallied)
+  return (sort elections, sort tallied, sort archived)
 
 let () = Html5.register ~service:admin
   (fun () () ->
@@ -247,7 +249,7 @@ let () = Html5.register ~service:admin
       match site_user with
       | None -> return None
       | Some u ->
-         lwt elections, tallied = get_finalized_elections_by_owner u in
+         lwt elections, tallied, archived = get_finalized_elections_by_owner u in
          lwt setup_elections =
            Ocsipersist.fold_step (fun k v accu ->
              if v.se_owner = u
@@ -255,7 +257,7 @@ let () = Html5.register ~service:admin
              else return accu
            ) election_stable []
          in
-         return @@ Some (elections, tallied, setup_elections)
+         return @@ Some (elections, tallied, archived, setup_elections)
     in
     T.admin ~elections ()
   )
