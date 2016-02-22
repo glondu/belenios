@@ -946,7 +946,7 @@ let election_home w state () =
           ~a:[a_style "font-size:25px;"]
           ~service:election_pretty_ballots [
             pcdata "See accepted ballots"
-          ] ((params.e_uuid, ()), 1)
+          ] (params.e_uuid, ())
       ]
   in
   let footer = audit_footer w in
@@ -1330,7 +1330,7 @@ let cast_confirmed w ~result () =
        [pcdata " has been accepted, your smart ballot tracker is ";
         b [pcdata hash];
         pcdata ". You can check its presence in the ";
-        a ~service:election_pretty_ballots [pcdata "ballot box"] ((params.e_uuid, ()), 1);
+        a ~service:election_pretty_ballots [pcdata "ballot box"] (params.e_uuid, ());
         pcdata " anytime during the election.";
         pcdata " A confirmation e-mail has been sent to you.";
        ], "Thank you for voting!"

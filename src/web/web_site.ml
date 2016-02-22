@@ -1176,20 +1176,14 @@ let () =
 let () =
   Any.register
     ~service:election_pretty_ballots
-    (fun ((uuid, ()), start) () ->
+    (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
       lwt w = find_election uuid_s in
       let module W = Web_election.Make ((val w)) (LwtRandom) in
       let module B = W.B in
       let module W = W.D in
-      lwt res, _ =
-        B.Ballots.fold
-          (fun h _ (accu, i) ->
-            if i >= start && i < start+1000 then
-              return (h :: accu, i+1)
-            else return (accu, i+1)
-          ) ([], 1)
-      in T.pretty_ballots (module W) res () >>= Html5.send)
+      lwt res = B.Ballots.fold (fun h _ accu -> return (h :: accu)) [] in
+      T.pretty_ballots (module W) res () >>= Html5.send)
 
 let () =
   Any.register
