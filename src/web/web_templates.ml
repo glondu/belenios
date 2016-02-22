@@ -1388,8 +1388,12 @@ let pretty_ballots w hashes () =
          [pcdata "Back to election"]
          (params.e_uuid, ())]
   in
+  let number = div [
+    pcdata (string_of_int !nballots);
+    pcdata " ballot(s) have been accepted so far."
+  ] in
   let content = [
-    p [pcdata "This is the list of ballots accepted so far."];
+    number;
     ul ballots;
     links;
   ] in
