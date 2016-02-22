@@ -1182,8 +1182,9 @@ let () =
       let module W = Web_election.Make ((val w)) (LwtRandom) in
       let module B = W.B in
       let module W = W.D in
-      lwt res = B.Ballots.fold (fun h _ accu -> return (h :: accu)) [] in
-      T.pretty_ballots (module W) res () >>= Html5.send)
+      lwt ballots = B.Ballots.fold (fun h _ accu -> return (h :: accu)) [] in
+      lwt result = Web_persist.get_election_result uuid_s in
+      T.pretty_ballots (module W) ballots result () >>= Html5.send)
 
 let () =
   Any.register

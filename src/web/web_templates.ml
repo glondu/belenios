@@ -1362,7 +1362,7 @@ let cast_confirmed w ~result () =
   let uuid = params.e_uuid in
   base ~title:name ~login_box ~content ~uuid ()
 
-let pretty_ballots w hashes () =
+let pretty_ballots w hashes result () =
   let module W = (val w : WEB_ELECTION_DATA) in
   let params = W.election.e_params in
   let title = params.e_name ^ " — Accepted ballots" in
@@ -1388,10 +1388,34 @@ let pretty_ballots w hashes () =
          [pcdata "Back to election"]
          (params.e_uuid, ())]
   in
-  let number = div [
-    pcdata (string_of_int !nballots);
-    pcdata " ballot(s) have been accepted so far."
-  ] in
+  let number = match !nballots, result with
+    | 0, Some r ->
+       div [
+         pcdata (string_of_int r.num_tallied);
+         pcdata " ballot(s) have been accepted.";
+         pcdata " Ballot details are no longer available for this election,";
+         pcdata " but you can still download the whole ";
+         a ~service:(file w ESBallots) [pcdata "ballot list"] ();
+         pcdata ".";
+       ]
+    | n, None ->
+       div [
+         pcdata (string_of_int n);
+         pcdata " ballot(s) have been accepted so far."
+       ]
+    | n, Some r when n = r.num_tallied ->
+       div [
+         pcdata (string_of_int n);
+         pcdata " ballot(s) have been accepted."
+       ]
+    | n, Some r -> (* should not happen *)
+       div [
+         pcdata (string_of_int n);
+         pcdata " ballot(s) have been accepted, and ";
+         pcdata (string_of_int r.num_tallied);
+         pcdata " have been tallied.";
+       ]
+  in
   let content = [
     number;
     ul ballots;
