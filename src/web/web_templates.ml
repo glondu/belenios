@@ -1146,7 +1146,7 @@ let election_admin w state () =
       a ~service:election_dir [pcdata "Voter list"] (uuid, ESVoters);
     ];
     div [
-      a ~service:election_dir [pcdata "Voting records"] (uuid, ESRecords);
+      a ~service:election_pretty_records [pcdata "Voting records"] (uuid, ());
     ];
     div [
       a ~service:election_missing_voters [pcdata "Missing voters"] (uuid, ());
@@ -1443,6 +1443,33 @@ let pretty_ballots w hashes result () =
   lwt login_box = election_login_box w () in
   let uuid = params.e_uuid in
   base ~title ~login_box ~content ~uuid ()
+
+let pretty_records w records () =
+  let module W = (val w : WEB_ELECTION_DATA) in
+  let uuid = W.election.e_params.e_uuid in
+  let title = W.election.e_params.e_name ^ " — Records" in
+  let records = List.map (fun (date, voter) ->
+    tr [td [pcdata date]; td [pcdata voter]]
+  ) records in
+  let table = match records with
+    | [] -> div [pcdata "Nobody voted!"]
+    | _ ->
+       div [
+         table
+           (tr [th [pcdata "Date/Time (UTC)"]; th [pcdata "Username"]]
+            :: records);
+       ]
+  in
+  let content = [
+    div [
+      pcdata "You can also access the ";
+      a ~service:election_dir [pcdata "raw data"] (uuid, ESRecords);
+      pcdata ".";
+    ];
+    table;
+  ] in
+  lwt login_box = site_login_box () in
+  base ~title ~login_box ~content ()
 
 let tally_trustees w trustee_id () =
   let module W = (val w : WEB_ELECTION_DATA) in

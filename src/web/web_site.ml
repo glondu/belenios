@@ -1244,6 +1244,30 @@ let () =
       String.send (Buffer.contents buf, "text/plain"))
 
 let () =
+  let rex = Pcre.regexp "\"(.*)\\..*\" \".*:(.*)\"" in
+  Any.register ~service:election_pretty_records
+    (fun (uuid, ()) () ->
+      let uuid_s = Uuidm.to_string uuid in
+      lwt w = find_election uuid_s in
+      let module W = (val w) in
+      lwt () =
+        match_lwt Web_auth_state.get_site_user () with
+        | Some u when W.metadata.e_owner = Some u -> return_unit
+        | _ -> forbidden ()
+      in
+      let records = Lwt_io.lines_of_file
+        (W.dir / string_of_election_file ESRecords)
+      in
+      lwt records = Lwt_stream.fold (fun r accu ->
+        let s = Pcre.exec ~rex r in
+        let date = Pcre.get_substring s 1 in
+        let voter = Pcre.get_substring s 2 in
+        (date, voter) :: accu
+      ) records [] in
+      T.pretty_records w (List.rev records) () >>= Html5.send
+    )
+
+let () =
   Any.register
     ~service:election_tally_trustees
     (fun (uuid, ((), trustee_id)) () ->

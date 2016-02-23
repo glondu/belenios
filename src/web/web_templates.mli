@@ -47,6 +47,7 @@ val cast_raw : (module WEB_ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Ht
 val cast_confirmation : (module WEB_ELECTION_DATA) -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_confirmed : (module WEB_ELECTION_DATA) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val pretty_ballots : (module WEB_ELECTION_DATA) -> string list -> Yojson.Safe.json result option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val pretty_records : (module WEB_ELECTION_DATA) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val tally_trustees : (module WEB_ELECTION_DATA) -> int -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
