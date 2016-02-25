@@ -141,9 +141,7 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
               Ocsipersist.add Ballots.table hash rawballot >>
               Ocsipersist.add Records.table user (date, credential) >>
               send_confirmation_email login email hash >>
-              security_log (fun () ->
-                Printf.sprintf "%s successfully cast ballot %s" user hash
-              ) >> return hash
+              return hash
             ) else (
               fail ProofCheck
             )
@@ -151,19 +149,13 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
             (* revote *)
             if credential = old_credential then (
               if E.check_ballot election ballot then (
-                lwt old_ballot = Ocsipersist.find Ballots.table h in
                 Ocsipersist.remove Ballots.table h >>
-                security_log (fun () ->
-                  Printf.sprintf "%s successfully removed ballot %S" user old_ballot
-                ) >>
                 let hash = sha256_b64 rawballot in
                 Ocsipersist.add cred_table credential (Some hash) >>
                 Ocsipersist.add Ballots.table hash rawballot >>
                 Ocsipersist.add Records.table user (date, credential) >>
                 send_confirmation_email login email hash >>
-                security_log (fun () ->
-                  Printf.sprintf "%s successfully cast ballot %s" user hash
-                ) >> return hash
+                return hash
               ) else (
                 fail ProofCheck
               )
