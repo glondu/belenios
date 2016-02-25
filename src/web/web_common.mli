@@ -100,12 +100,17 @@ type setup_voter = {
   mutable sv_password : (string * string) option;
 }
 
+type setup_trustee = {
+  st_token : string;
+  mutable st_public_key : string;
+}
+
 type setup_election = {
   mutable se_owner : user;
   mutable se_group : string;
   mutable se_voters : setup_voter list;
   mutable se_questions : template;
-  mutable se_public_keys : (string * string ref) list;
+  mutable se_public_keys : setup_trustee list;
   mutable se_metadata : metadata;
   mutable se_public_creds : string;
   mutable se_public_creds_received : bool;

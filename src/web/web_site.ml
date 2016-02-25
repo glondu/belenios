@@ -121,9 +121,9 @@ let finalize_election uuid se =
     | _ :: _ ->
        return
          (List.rev_map
-            (fun (_, r) ->
-              if !r = "" then failwith "some public keys are missing";
-              trustee_public_key_of_string G.read !r
+            (fun {st_public_key; _} ->
+              if st_public_key = "" then failwith "some public keys are missing";
+              trustee_public_key_of_string G.read st_public_key
             ) se.se_public_keys, None)
   in
   let y = KG.combine (Array.of_list public_keys) in
@@ -192,8 +192,8 @@ let finalize_election uuid se =
   (* clean up setup database *)
   Ocsipersist.remove election_credtokens se.se_public_creds >>
   Lwt_list.iter_s
-    (fun (token, _) ->
-      Ocsipersist.remove election_pktokens token)
+    (fun {st_token; _} ->
+      Ocsipersist.remove election_pktokens st_token)
     se.se_public_keys >>
   Ocsipersist.remove election_stable uuid_s >>
   (* inject passwords *)
@@ -666,10 +666,11 @@ let () =
           lwt se = Ocsipersist.find election_stable uuid_s in
           if se.se_owner = u
           then (
-            lwt token = generate_token () in
-            se.se_public_keys <- (token, ref "") :: se.se_public_keys;
+            lwt st_token = generate_token () in
+            let trustee = {st_token; st_public_key = ""} in
+            se.se_public_keys <- trustee :: se.se_public_keys;
             Ocsipersist.add election_stable uuid_s se >>
-            Ocsipersist.add election_pktokens token uuid_s
+            Ocsipersist.add election_pktokens st_token uuid_s
           ) else forbidden ()
         ) >>
         return (preapply election_setup_trustees uuid)
@@ -688,10 +689,10 @@ let () =
           if se.se_owner = u
           then (
             match se.se_public_keys with
-            | (token, _) :: xs ->
+            | {st_token; _} :: xs ->
                se.se_public_keys <- xs;
                Ocsipersist.add election_stable uuid_s se >>
-               Ocsipersist.remove election_pktokens token
+               Ocsipersist.remove election_pktokens st_token
             | _ -> return ()
           ) else forbidden ()
         ) >>
@@ -899,13 +900,13 @@ let () =
           election_setup_mutex
           (fun () ->
            lwt se = Ocsipersist.find election_stable uuid in
-           let pkref = List.assoc token se.se_public_keys in
+           let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
            let module G = (val Group.of_string se.se_group : GROUP) in
            let pk = trustee_public_key_of_string G.read public_key in
            let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
            if not (KG.check pk) then failwith "invalid public key";
            (* we keep pk as a string because of G.t *)
-           pkref := public_key;
+           t.st_public_key <- public_key;
            Ocsipersist.add election_stable uuid se
           ) >> T.generic_page ~title:"Success"
             "Your key has been received and checked!"

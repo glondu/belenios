@@ -493,14 +493,14 @@ let election_setup_trustees uuid se () =
       br ();
       ol
         (List.rev_map
-           (fun (token, _) ->
+           (fun {st_token; _} ->
              li [
                a ~service:election_setup_trustee [
                  pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
                    ~absolute:true
                    ~service:election_setup_trustee
-                   token
-               ] token
+                   st_token
+               ] st_token
              ];
            ) se.se_public_keys
         );
@@ -775,7 +775,8 @@ let election_setup_credentials token uuid se () =
 let election_setup_trustee token se () =
   let title = "Trustee for election " ^ se.se_questions.t_name in
   let form =
-    let value = !(List.assoc token se.se_public_keys) in
+    let trustee = List.find (fun x -> x.st_token = token) se.se_public_keys in
+    let value = trustee.st_public_key in
     let service = Eliom_service.preapply election_setup_trustee_post token in
     post_form
       ~service
