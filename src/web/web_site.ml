@@ -113,21 +113,24 @@ let finalize_election uuid se =
   let group = Group.of_string se.se_group in
   let module G = (val group : GROUP) in
   let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
-  lwt public_keys, private_key =
+  lwt trustees, public_keys, private_key =
     match se.se_public_keys with
     | [] ->
        lwt private_key, public_key = KG.generate_and_prove () in
-       return ([public_key], Some private_key)
+       return (None, [public_key], Some private_key)
     | _ :: _ ->
-       return
-         (List.rev_map
+       return (
+         Some (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
+         (List.map
             (fun {st_public_key; _} ->
               if st_public_key = "" then failwith "some public keys are missing";
               trustee_public_key_of_string G.read st_public_key
-            ) se.se_public_keys, None)
+            ) se.se_public_keys),
+         None)
   in
   let y = KG.combine (Array.of_list public_keys) in
   (* election parameters *)
+  let metadata = { se.se_metadata with e_trustees = trustees } in
   let template = se.se_questions in
   let params = {
     e_description = template.t_description;
@@ -153,11 +156,11 @@ let finalize_election uuid se =
   Lwt_unix.mkdir dir 0o700 >>
   create_file "public_keys.jsons" (string_of_trustee_public_key G.write) public_keys >>
   create_file "voters.txt" (fun x -> x.sv_id) se.se_voters >>
-  create_file "metadata.json" string_of_metadata [se.se_metadata] >>
+  create_file "metadata.json" string_of_metadata [metadata] >>
   create_file "election.json" (fun x -> x) [raw_election] >>
   (* construct Web_election instance *)
   let module X = struct
-    let metadata = se.se_metadata
+    let metadata = metadata
     let dir = dir
   end in
   let web_params = (module X : WEB_PARAMS) in
@@ -197,7 +200,7 @@ let finalize_election uuid se =
     se.se_public_keys >>
   Ocsipersist.remove election_stable uuid_s >>
   (* inject passwords *)
-  (match se.se_metadata.e_auth_config with
+  (match metadata.e_auth_config with
   | Some [{auth_system = "password"; _}] ->
      let table = "password_" ^ underscorize uuid_s in
      let table = Ocsipersist.open_table table in
@@ -306,6 +309,7 @@ let create_new_election owner cred auth =
     e_owner = Some owner;
     e_auth_config;
     e_cred_authority;
+    e_trustees = None;
   } in
   let question = {
     q_answers = [| "Answer 1"; "Answer 2"; "Blank" |];
@@ -607,6 +611,14 @@ let is_identity x =
   try ignore (Pcre.pcre_exec ~rex:identity_rex x); true
   with Not_found -> false
 
+let email_rex = Pcre.regexp
+  ~flags:[`CASELESS]
+  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,7}$"
+
+let is_email x =
+  try ignore (Pcre.pcre_exec ~rex:email_rex x); true
+  with Not_found -> false
+
 module SSet = Set.Make (PString)
 
 let merge_voters a b f =
@@ -656,9 +668,10 @@ let () =
          handle_password se uuid ~force:true voter))
 
 let () =
-  Redirection.register
+  Any.register
     ~service:election_setup_trustee_add
-    (fun uuid () ->
+    (fun uuid st_id ->
+     if is_email st_id then
      match_lwt Web_auth_state.get_site_user () with
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
@@ -667,20 +680,23 @@ let () =
           if se.se_owner = u
           then (
             lwt st_token = generate_token () in
-            let trustee = {st_token; st_public_key = ""} in
-            se.se_public_keys <- trustee :: se.se_public_keys;
+            let trustee = {st_id; st_token; st_public_key = ""} in
+            se.se_public_keys <- se.se_public_keys @ [trustee];
             Ocsipersist.add election_stable uuid_s se >>
             Ocsipersist.add election_pktokens st_token uuid_s
           ) else forbidden ()
         ) >>
-        return (preapply election_setup_trustees uuid)
+        Redirection.send (preapply election_setup_trustees uuid)
      | None -> forbidden ()
+     else
+       let msg = st_id ^ " is not a valid e-mail address!" in
+       T.generic_page ~title:"Error" msg () >>= Html5.send
     )
 
 let () =
   Redirection.register
     ~service:election_setup_trustee_del
-    (fun uuid () ->
+    (fun uuid index ->
      match_lwt Web_auth_state.get_site_user () with
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
@@ -688,12 +704,17 @@ let () =
           lwt se = Ocsipersist.find election_stable uuid_s in
           if se.se_owner = u
           then (
-            match se.se_public_keys with
-            | {st_token; _} :: xs ->
-               se.se_public_keys <- xs;
-               Ocsipersist.add election_stable uuid_s se >>
-               Ocsipersist.remove election_pktokens st_token
-            | _ -> return ()
+            let trustees, old =
+              se.se_public_keys |>
+              List.mapi (fun i x -> i, x) |>
+              List.partition (fun (i, _) -> i <> index) |>
+              (fun (x, y) -> List.map snd x, List.map snd y)
+            in
+            se.se_public_keys <- trustees;
+            Ocsipersist.add election_stable uuid_s se >>
+            Lwt_list.iter_s (fun {st_token; _} ->
+              Ocsipersist.remove election_pktokens st_token
+            ) old
           ) else forbidden ()
         ) >>
         return (preapply election_setup_trustees uuid)

@@ -478,32 +478,51 @@ let election_setup_trustees uuid se () =
   let form_trustees_add =
     post_form
       ~service:election_setup_trustee_add
-      (fun () ->
-        [string_input ~input_type:`Submit ~value:"Add" ()]) uuid
+      (fun name ->
+        [
+          string_input ~input_type:`Text ~name ();
+          string_input ~input_type:`Submit ~value:"Add" ();
+        ]
+      ) uuid
   in
-  let form_trustees_del =
+  let mk_form_trustee_del value =
     post_form
       ~service:election_setup_trustee_del
-      (fun () ->
-        [string_input ~input_type:`Submit ~value:"Delete" ()]) uuid
+      (fun name ->
+        [
+          int_input ~input_type:`Hidden ~name ~value ();
+          string_input ~input_type:`Submit ~value:"Remove" ();
+        ]) uuid
+  in
+  let trustees = match se.se_public_keys with
+    | [] -> pcdata ""
+    | ts ->
+       table (
+         tr [
+           th [pcdata "Trustee link"];
+           th [pcdata "Done?"];
+           th [pcdata "Remove"];
+         ] ::
+           List.mapi (fun i t ->
+             tr [
+               td [
+                 a ~service:election_setup_trustee [
+                   pcdata t.st_id
+                 ] t.st_token;
+               ];
+               td [
+                 pcdata (if t.st_public_key = "" then "No" else "Yes");
+               ];
+               td [mk_form_trustee_del i];
+             ]
+           ) ts
+       )
   in
   let div_content =
     div [
       div [pcdata "If you do not wish the server to store any keys, you may nominate trustees. In that case, each trustee will create her own secret key. Be careful, once the election is over, you will need the contribution of each trustee to compute the result!"];
       br ();
-      ol
-        (List.rev_map
-           (fun {st_token; _} ->
-             li [
-               a ~service:election_setup_trustee [
-                 pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
-                   ~absolute:true
-                   ~service:election_setup_trustee
-                   st_token
-               ] st_token
-             ];
-           ) se.se_public_keys
-        );
+      trustees;
       (if se.se_public_keys <> [] then
           div [
             pcdata "There is one link per trustee. Send each trustee her link.";
@@ -512,7 +531,6 @@ let election_setup_trustees uuid se () =
           ]
        else pcdata "");
       form_trustees_add;
-      form_trustees_del;
     ]
   in
   let back_link = div [

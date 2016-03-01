@@ -184,6 +184,7 @@ type setup_voter = {
 }
 
 type setup_trustee = {
+  st_id : string;
   st_token : string;
   mutable st_public_key : string;
 }
