@@ -599,12 +599,12 @@ let () =
     )
 
 (* see http://www.regular-expressions.info/email.html *)
-let email_rex = Pcre.regexp
+let identity_rex = Pcre.regexp
   ~flags:[`CASELESS]
   "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,7}(,[A-Z0-9._%+-]+)?$"
 
-let is_email x =
-  try ignore (Pcre.pcre_exec ~rex:email_rex x); true
+let is_identity x =
+  try ignore (Pcre.pcre_exec ~rex:identity_rex x); true
   with Not_found -> false
 
 module SSet = Set.Make (PString)
@@ -630,8 +630,8 @@ let () =
          let xs = Pcre.split x in
          let () =
            try
-             let bad = List.find (fun x -> not (is_email x)) xs in
-             Printf.ksprintf failwith "%S is not a valid address" bad
+             let bad = List.find (fun x -> not (is_identity x)) xs in
+             Printf.ksprintf failwith "%S is not a valid identity" bad
            with Not_found -> ()
          in
          se.se_voters <- merge_voters se.se_voters xs (fun _ -> None);
