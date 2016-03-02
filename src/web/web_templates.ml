@@ -1113,8 +1113,8 @@ let election_admin w state () =
            div [pcdata "We are now waiting for trustees..."];
            table
              (tr [
-               td [pcdata "Trustee link"];
-               td [pcdata "Done?"];
+               th [pcdata "Trustee link"];
+               th [pcdata "Done?"];
              ] :: trustees)
          ];
          release_form;
