@@ -1081,30 +1081,41 @@ let election_admin w state () =
              ]) (W.election.e_params.e_uuid, ());
        ]
     | `EncryptedTally (npks, _, hash) ->
-       let rec seq a b =
-         if a <= b then a :: (seq (a+1) b) else []
-       in
        lwt pds = Web_persist.get_partial_decryptions uuid_s in
        let trustees =
+         let rec loop i ts =
+           if i <= npks then
+             match ts with
+             | t :: ts -> (Some t, i) :: (loop (i+1) ts)
+             | [] -> (None, i) :: (loop (i+1) ts)
+           else []
+         in
+         match W.metadata.e_trustees with
+         | None -> loop 1 []
+         | Some ts -> loop 1 ts
+       in
+       let trustees =
          List.map
-           (fun trustee_id ->
+           (fun (name, trustee_id) ->
+             let service = election_tally_trustees in
+             let x = (W.election.e_params.e_uuid, ((), trustee_id)) in
+             let link_content = match name with
+               | None ->
+                  [
+                    pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
+                      ~absolute:true ~service x
+                  ]
+               | Some name -> [pcdata name]
+             in
              tr [
                td [
-                 a
-                   ~service:election_tally_trustees
-                   [
-                     pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
-                       ~absolute:true
-                       ~service:election_tally_trustees
-                       (W.election.e_params.e_uuid, ((), trustee_id))
-                   ]
-                   (W.election.e_params.e_uuid, ((), trustee_id))
+                 a ~service link_content x
                ];
                td [
                  pcdata (if List.mem_assoc trustee_id pds then "Yes" else "No")
                ];
              ]
-           ) (seq 1 npks)
+           ) trustees
        in
        let release_form =
          post_form
