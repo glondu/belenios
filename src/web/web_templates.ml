@@ -256,6 +256,13 @@ let make_button ~service contents =
     uri
     contents
 
+let a_mailto ~dest ~body contents =
+  let uri = Printf.sprintf "mailto:%s?body=%s" dest
+    (Netencoding.Url.encode ~plus:false body)
+  in
+  Printf.ksprintf Unsafe.data "<a href=\"%s\">%s</a>"
+    uri contents
+
 let new_election_failure reason () =
   let title = "Create new election" in
   let reason =
@@ -506,9 +513,9 @@ let election_setup_trustees uuid se () =
            List.mapi (fun i t ->
              tr [
                td [
-                 a ~service:election_setup_trustee [
-                   pcdata t.st_id
-                 ] t.st_token;
+                 let body = rewrite_prefix @@ Eliom_uri.make_string_uri
+                   ~absolute:true ~service:election_setup_trustee t.st_token
+                 in a_mailto ~dest:t.st_id ~body t.st_id
                ];
                td [
                  pcdata (if t.st_public_key = "" then "No" else "Yes");
@@ -1099,17 +1106,16 @@ let election_admin w state () =
            (fun (name, trustee_id) ->
              let service = election_tally_trustees in
              let x = (W.election.e_params.e_uuid, ((), trustee_id)) in
-             let link_content = match name with
-               | None ->
-                  [
-                    pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
-                      ~absolute:true ~service x
-                  ]
-               | Some name -> [pcdata name]
+             let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
+               ~absolute:true ~service x
+             in
+             let link_content, dest = match name with
+               | None -> uri, "toto@example.org"
+               | Some name -> name, name
              in
              tr [
                td [
-                 a ~service link_content x
+                 a_mailto ~dest ~body:uri link_content
                ];
                td [
                  pcdata (if List.mem_assoc trustee_id pds then "Yes" else "No")
