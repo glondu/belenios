@@ -41,6 +41,10 @@ has been recorded. Your smart ballot tracker is
 
   %s
 
+You can check its presence in the ballot box, accessible at
+
+  %s
+
 Results will be published on the election page
 
   %s
@@ -89,11 +93,16 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
       let send_confirmation_email user email hash =
         let title = D.election.e_params.e_name in
         let subject = "Your vote for election " ^ title in
-        let url = Eliom_uri.make_string_uri
-          ~absolute:true ~service:Web_services.election_home
-          (D.election.e_params.e_uuid, ()) |> rewrite_prefix
+        let x = (D.election.e_params.e_uuid, ()) in
+        let url1 = Eliom_uri.make_string_uri ~absolute:true
+          ~service:Web_services.election_pretty_ballots x |> rewrite_prefix
         in
-        let body = Printf.sprintf template_confirmation user title hash url in
+        let url2 = Eliom_uri.make_string_uri ~absolute:true
+          ~service:Web_services.election_home x |> rewrite_prefix
+        in
+        let body = Printf.sprintf template_confirmation
+          user title hash url1 url2
+        in
         send_email "noreply@belenios.org" email subject body
 
       let do_cast rawballot (user, date) =
