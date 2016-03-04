@@ -312,10 +312,6 @@ let election_setup_pre () =
                 pcdata " Password (passwords will be emailed to voters)";
               ];
               div [
-                string_radio ~name:auth ~value:"dummy" ();
-                pcdata " Dummy (typically for a test election)";
-              ];
-              div [
                 string_radio ~name:auth ~value:"cas" ();
                 pcdata " CAS (external authentication server), server address: ";
                 string_input ~input_type:`Text ~name:cas_server ();
