@@ -198,10 +198,10 @@ let cas_login_handler config () =
      let cas_login = Http.external_service
        ~prefix:server
        ~path:["login"]
-       ~get_params:Eliom_parameter.(string "service" ** opt (bool "renew"))
+       ~get_params:Eliom_parameter.(string "service")
        ()
      in
-     let service = preapply cas_login (Lazy.force cas_self, Some true) in
+     let service = preapply cas_login (Lazy.force cas_self) in
      Eliom_registration.Redirection.send service
   | _ -> failwith "cas_login_handler invoked with bad config"
 
