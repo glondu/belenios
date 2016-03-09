@@ -55,7 +55,7 @@ let make_login_box ~site auth links =
           pcdata ".";
         ];
         div [
-          a ~service:L.logout [pcdata "Log out"] ();
+          a ~a:[a_id "logout"] ~service:L.logout [pcdata "Log out"] ();
           pcdata ".";
         ];
       ]
@@ -68,7 +68,8 @@ let make_login_box ~site auth links =
         let auth_systems =
           auth_systems |>
           List.map (fun name ->
-            a ~service:(L.login (Some name)) [pcdata name] ()
+            a ~a:[a_id ("login_" ^ name)]
+              ~service:(L.login (Some name)) [pcdata name] ()
           ) |> list_join (pcdata ", ")
         in
         div (
@@ -392,8 +393,7 @@ let election_setup uuid se () =
   let div_questions =
     div [
       h2 [
-        a
-          ~service:election_setup_questions
+        a ~a:[a_id "edit_questions"] ~service:election_setup_questions
           [pcdata "Edit questions"]
           uuid;
       ]
@@ -402,7 +402,7 @@ let election_setup uuid se () =
   let div_voters =
     div [
       h2 [
-        a ~service:election_setup_voters
+        a ~a:[a_id "edit_voters"] ~service:election_setup_voters
           [pcdata "Edit voters"]
           uuid
       ];
@@ -1415,7 +1415,7 @@ let cast_confirmed w ~result () =
       ] @ result);
     p [
       (let service = Eliom_service.preapply logout () in
-      a ~service [
+      a ~a:[a_id "logout"] ~service [
         pcdata "Log out and come back to election page"
       ] ());
       pcdata ".";
