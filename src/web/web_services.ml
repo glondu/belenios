@@ -73,6 +73,7 @@ let election_regenpwd_post = post_coservice ~fallback:election_regenpwd ~post_pa
 let election_login = service ~path:["elections"] ~get_params:(suffix_prod (uuid "uuid" ** suffix_const "login") (opt (string "service"))) ()
 let election_open = post_coservice ~fallback:election_admin ~post_params:unit ()
 let election_close = post_coservice ~fallback:election_admin ~post_params:unit ()
+let election_archive = post_coservice ~fallback:election_admin ~post_params:unit ()
 let election_update_credential = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "update-cred")) ()
 let election_update_credential_post = post_service ~fallback:election_update_credential ~post_params:(string "old_credential" ** string "new_credential") ()
 let election_vote = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "vote")) ()

@@ -217,6 +217,32 @@ let finalize_election uuid se =
   Web_persist.set_election_state uuid_s `Open >>
   Web_persist.set_election_date uuid_s (now ())
 
+let cleanup_table ?uuid_s table =
+  let table = Ocsipersist.open_table table in
+  match uuid_s with
+  | None ->
+     lwt indexes = Ocsipersist.fold_step (fun k _ accu ->
+       return (k :: accu)) table []
+     in
+     Lwt_list.iter_s (Ocsipersist.remove table) indexes
+  | Some u -> Ocsipersist.remove table u
+
+let cleanup_file f =
+  try_lwt Lwt_unix.unlink f
+  with _ -> return_unit
+
+let archive_election uuid_s =
+  let uuid_u = underscorize uuid_s in
+  lwt () = cleanup_table ~uuid_s "election_states" in
+  lwt () = cleanup_table ~uuid_s "election_pds" in
+  lwt () = cleanup_table ~uuid_s "auth_configs" in
+  lwt () = cleanup_table ("password_" ^ uuid_u) in
+  lwt () = cleanup_table ("records_" ^ uuid_u) in
+  lwt () = cleanup_table ("creds_" ^ uuid_u) in
+  lwt () = cleanup_table ("ballots_" ^ uuid_u) in
+  lwt () = cleanup_file (!spool_dir / uuid_s / "private_key.json") in
+  return_unit
+
 let () = Any.register ~service:home
   (fun () () ->
     Eliom_reference.unset Web_auth_state.cont >>
@@ -1063,6 +1089,18 @@ let election_set_state state (uuid, ()) () =
 
 let () = Any.register ~service:election_open (election_set_state true)
 let () = Any.register ~service:election_close (election_set_state false)
+
+let () = Any.register ~service:election_archive (fun (uuid, ()) () ->
+  let uuid_s = Uuidm.to_string uuid in
+  lwt w = find_election uuid_s in
+  lwt site_user = Web_auth_state.get_site_user () in
+  let module W = (val w) in
+  match site_user with
+  | Some u when W.metadata.e_owner = Some u ->
+     archive_election uuid_s >>
+     Redirection.send (Eliom_service.preapply election_admin (uuid, ()))
+  | _ -> forbidden ()
+)
 
 let () =
   Any.register

@@ -1159,6 +1159,17 @@ let election_admin w state () =
          pcdata "This election is archived.";
        ]
   in
+  let div_archive = match state with
+    | `Archived -> pcdata ""
+    | _ -> div [
+      post_form ~service:election_archive (fun () ->
+        [
+          string_input ~input_type:`Submit ~value:"Archive this election" ();
+          pcdata " (Warning: this action is irreversible!)";
+        ]
+      ) (W.election.e_params.e_uuid, ())
+    ]
+  in
   let uuid = W.election.e_params.e_uuid in
   let update_credential =
     match W.metadata.e_cred_authority with
@@ -1187,6 +1198,7 @@ let election_admin w state () =
       a ~service:election_regenpwd [pcdata "Regenerate and mail a password"] (uuid, ());
     ];
     div [state_div];
+    div_archive;
   ] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
