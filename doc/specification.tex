@@ -428,7 +428,7 @@ big-endian number.
 
 Signatures are verified as follows:
 \begin{enumerate}
-\item compute $A=g^\response\times y^\challenge$
+\item compute $A=g^\response\times \pklabel^\challenge$
 \item check that $\challenge=\Hash_\siglabel(\pklabel,A,\gamma_1,\dots,\gamma_l)\mod q$
 \end{enumerate}
 
