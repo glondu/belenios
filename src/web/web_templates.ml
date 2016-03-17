@@ -1452,15 +1452,6 @@ let pretty_ballots w hashes result () =
          (params.e_uuid, ())]
   in
   let number = match !nballots, result with
-    | 0, Some r ->
-       div [
-         pcdata (string_of_int r.num_tallied);
-         pcdata " ballot(s) have been accepted.";
-         pcdata " Ballot details are no longer available for this election,";
-         pcdata " but you can still download the whole ";
-         a ~service:(file w ESBallots) [pcdata "ballot list"] ();
-         pcdata ".";
-       ]
     | n, None ->
        div [
          pcdata (string_of_int n);

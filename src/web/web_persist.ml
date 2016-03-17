@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Platform
 open Serializable_j
 open Common
 open Web_serializable_j
@@ -133,3 +134,46 @@ let get_passwords uuid =
        | _ -> accu
      ) SMap.empty csv in
      return @@ Some res
+
+
+module Ballots = Map.Make (String)
+
+module BallotsCacheTypes = struct
+  type key = string
+  type value = string Ballots.t
+end
+
+module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
+
+let raw_get_ballots_archived uuid =
+  try_lwt
+    let ballots = Lwt_io.lines_of_file (!spool_dir / uuid / "ballots.jsons") in
+    Lwt_stream.fold (fun b accu ->
+      let hash = sha256_b64 b in
+      Ballots.add hash b accu
+    ) ballots Ballots.empty
+  with _ -> return Ballots.empty
+
+let archived_ballots_cache =
+  new BallotsCache.cache raw_get_ballots_archived 10
+
+let get_ballot_hashes ~uuid =
+  match_lwt get_election_state uuid with
+  | `Archived ->
+     lwt ballots = archived_ballots_cache#find uuid in
+     Ballots.bindings ballots |> List.map fst |> return
+  | _ ->
+     let table = Ocsipersist.open_table ("ballots_" ^ underscorize uuid) in
+     Ocsipersist.fold_step (fun hash _ accu ->
+       return (hash :: accu)
+     ) table [] >>= (fun x -> return @@ List.rev x)
+
+let get_ballot_by_hash ~uuid ~hash =
+  match_lwt get_election_state uuid with
+  | `Archived ->
+     lwt ballots = archived_ballots_cache#find uuid in
+     (try Some (Ballots.find hash ballots) with Not_found -> None) |> return
+  | _ ->
+     let table = Ocsipersist.open_table ("ballots_" ^ underscorize uuid) in
+     try_lwt Ocsipersist.find table hash >>= (fun x -> return @@ Some x)
+     with Not_found -> return_none

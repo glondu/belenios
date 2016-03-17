@@ -1241,26 +1241,16 @@ let () =
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
       lwt w = find_election uuid_s in
-      let module W = Web_election.Make ((val w)) (LwtRandom) in
-      let module B = W.B in
-      let module W = W.D in
-      lwt ballots = B.Ballots.fold (fun h _ accu -> return (h :: accu)) [] in
+      lwt ballots = Web_persist.get_ballot_hashes uuid_s in
       lwt result = Web_persist.get_election_result uuid_s in
-      T.pretty_ballots (module W) ballots result () >>= Html5.send)
+      T.pretty_ballots w ballots result () >>= Html5.send)
 
 let () =
   Any.register
     ~service:election_pretty_ballot
     (fun ((uuid, ()), hash) () ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
-      let module W = Web_election.Make ((val w)) (LwtRandom) in
-      lwt ballot =
-        W.B.Ballots.fold
-          (fun h b accu ->
-            if h = hash then return (Some b) else return accu
-          ) None
-      in
+      lwt ballot = Web_persist.get_ballot_by_hash ~uuid:uuid_s ~hash in
       match ballot with
       | None -> fail_http 404
       | Some b ->
