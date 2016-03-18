@@ -37,8 +37,6 @@ let tool = preapply (static_dir ()) ["static"; "belenios-tool.html"]
 let election_setup_new = post_coservice ~csrf_safe:true ~fallback:admin ~post_params:(radio string "credmgmt" ** radio string "auth" ** string "cas_server") ()
 let election_setup_pre = service ~path:["setup"; "new"] ~get_params:unit ()
 let election_setup = service ~path:["setup"; "election"] ~get_params:(uuid "uuid") ()
-let election_setup_group = post_coservice ~fallback:election_setup ~post_params:(string "group") ()
-let election_setup_metadata = post_coservice ~fallback:election_setup ~post_params:(string "metadata") ()
 let election_setup_questions = service ~path:["setup"; "questions"] ~get_params:(uuid "uuid") ()
 let election_setup_questions_post = post_coservice ~fallback:election_setup_questions ~post_params:(string "questions") ()
 let election_setup_description = post_coservice ~fallback:election_setup ~post_params:(string "name" ** string "description") ()
@@ -59,8 +57,6 @@ let election_setup_trustees = service ~path:["setup"; "trustees"] ~get_params:(u
 let election_setup_trustee = service ~path:["setup"; "trustee"] ~get_params:(string "token") ()
 let election_setup_trustee_post = post_coservice ~fallback:election_setup_trustee ~post_params:(string "public_key") ()
 let election_setup_create = post_coservice ~csrf_safe:true ~fallback:election_setup ~post_params:unit ()
-let election_setup_auth = post_coservice ~fallback:election_setup ~post_params:(radio string "system") ()
-let election_setup_auth_cas = post_coservice ~fallback:election_setup ~post_params:(string "server") ()
 let election_setup_auth_genpwd = post_coservice ~fallback:election_setup ~post_params:unit ()
 
 let election_setup_import = service ~path:["setup"; "import"] ~get_params:(uuid "uuid") ()

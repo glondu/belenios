@@ -415,69 +415,6 @@ let () =
          };
          return (redir_preapply election_setup uuid)))
 
-let () =
-  Any.register
-    ~service:election_setup_group
-    (handle_setup
-       (fun se x _ uuid ->
-        let _group = Group.of_string x in
-        (* we keep it as a string since it contains a type *)
-        se.se_group <- x;
-        return (redir_preapply election_setup uuid)))
-
-let () =
-  Any.register
-    ~service:election_setup_metadata
-    (handle_setup
-       (fun se x u uuid ->
-        let metadata = metadata_of_string x in
-        if metadata.e_owner <> Some u then failwith "wrong owner";
-        se.se_metadata <- metadata;
-        return (redir_preapply election_setup uuid)))
-
-let () =
-  Any.register
-    ~service:election_setup_auth
-    (handle_setup
-       (fun se auth_system _ uuid ->
-         (match auth_system with
-         | Some (("dummy" | "password") as auth_system) ->
-            se.se_metadata <- {
-              se.se_metadata with
-                e_auth_config = Some [{
-                  auth_system;
-                  auth_instance = auth_system;
-                  auth_config = []
-                }]
-            }
-         | Some "cas" ->
-            se.se_metadata <- {
-              se.se_metadata with
-                e_auth_config = Some [{
-                  auth_system = "cas";
-                  auth_instance = "cas";
-                  auth_config = ["server", ""];
-                }]
-            }
-         | Some x -> failwith ("unknown authentication system: "^x)
-         | None -> failwith "no authentication system was given");
-         return (redir_preapply election_setup uuid)))
-
-let () =
-  Any.register
-    ~service:election_setup_auth_cas
-    (handle_setup
-       (fun se server _ uuid ->
-         se.se_metadata <- {
-           se.se_metadata with
-             e_auth_config = Some [{
-               auth_system = "cas";
-               auth_instance = "cas";
-               auth_config = ["server", server];
-             }]
-         };
-         return (redir_preapply election_setup uuid)))
-
 let template_password = format_of_string
   "You are listed as a voter for the election
 
