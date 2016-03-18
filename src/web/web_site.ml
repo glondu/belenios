@@ -415,34 +415,12 @@ let () =
          };
          return (redir_preapply election_setup uuid)))
 
-let template_password = format_of_string
-  "You are listed as a voter for the election
-
-  %s
-
-You will find below your login and password.  To cast a vote, you will
-also need a credential, sent in a separate email.  Be careful,
-passwords and credentials look similar but play different roles.  You
-will be asked to enter your credential before entering the voting
-booth.  Login and passwords are required once your ballot is ready to
-be cast.
-
-Username: %s
-Password: %s
-Page of the election: %s
-
-Note that you are allowed to vote several times.  Only the last vote
-counts.
-
--- 
-Belenios"
-
 let generate_password title url id =
   let email, login = split_identity id in
   lwt salt = generate_token () in
   lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
-  let body = Printf.sprintf template_password title login password url in
+  let body = Mail_templates.password title login password url in
   let subject = "Your password for election " ^ title in
   send_email "noreply@belenios.org" email subject body >>
   return (salt, hashed)
@@ -777,28 +755,6 @@ module Credgen = struct
 
 end
 
-let template_credential = format_of_string
-  "You are listed as a voter for the election
-
-  %s
-
-You will find below your login and credential.  To cast a vote, you will
-also need a password, sent in a separate email.  Be careful,
-passwords and credentials look similar but play different roles.  You
-will be asked to enter your credential before entering the voting
-booth.  Login and passwords are required once your ballot is ready to
-be cast.
-
-Username: %s
-Credential: %s
-Page of the election: %s
-
-Note that you are allowed to vote several times.  Only the last vote
-counts.
-
--- 
-Belenios"
-
 let () =
   Any.register
     ~service:election_setup_credentials_server
@@ -825,7 +781,7 @@ let () =
             let y = G.(g **~ x) in
             G.to_string y
           in
-          let body = Printf.sprintf template_credential title login cred url in
+          let body = Mail_templates.credential title login cred url in
           let subject = "Your credential for election " ^ title in
           lwt () = send_email "noreply@belenios.org" email subject body in
           return @@ S.add pub_cred accu

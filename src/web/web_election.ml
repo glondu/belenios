@@ -30,27 +30,6 @@ open Web_common
 
 let ( / ) = Filename.concat
 
-let template_confirmation = format_of_string
-  "Dear %s,
-
-Your vote for election
-
-  %s
-
-has been recorded. Your smart ballot tracker is
-
-  %s
-
-You can check its presence in the ballot box, accessible at
-
-  %s
-
-Results will be published on the election page
-
-  %s
-
--- \nBelenios"
-
 module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION = struct
 
     let uuid = Uuidm.to_string D.election.e_params.e_uuid
@@ -82,9 +61,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
         let url2 = Eliom_uri.make_string_uri ~absolute:true
           ~service:Web_services.election_home x |> rewrite_prefix
         in
-        let body = Printf.sprintf template_confirmation
-          user title hash url1 url2
-        in
+        let body = Mail_templates.confirmation user title hash url1 url2 in
         send_email "noreply@belenios.org" email subject body
 
       let do_cast rawballot (user, date) =
