@@ -58,15 +58,6 @@ type content =
     Eliom_registration.browser_content Eliom_registration.kind Lwt.t
 
 module type WEB_BALLOT_BOX = sig
-  module Ballots : MONADIC_MAP_RO
-    with type 'a m = 'a Lwt.t
-    and type elt = string
-    and type key = string
-  module Records : MONADIC_MAP_RO
-    with type 'a m = 'a Lwt.t
-    and type elt = datetime * string
-    and type key = string
-
   val cast : string -> user * datetime -> string Lwt.t
   val inject_cred : string -> unit Lwt.t
   val update_files : unit -> unit Lwt.t
