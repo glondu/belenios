@@ -22,4 +22,4 @@
 open Signatures
 open Web_signatures
 
-module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION
+module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION

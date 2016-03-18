@@ -144,7 +144,7 @@ let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
      ]))
 
 let format_election kind election =
-  let module W = (val election : WEB_ELECTION_DATA) in
+  let module W = (val election : ELECTION_DATA) in
   let e = W.election.e_params in
   let service =
     match kind with
@@ -843,7 +843,7 @@ let election_setup_trustee token se () =
 let election_setup_import uuid se (elections, tallied, archived) () =
   let title = "Election " ^ se.se_questions.t_name ^ " — Import voters from another election" in
   let format_election election =
-    let module W = (val election : WEB_ELECTION_DATA) in
+    let module W = (val election : ELECTION_DATA) in
     let name = W.election.e_params.e_name in
     let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
     let form = post_form
@@ -879,7 +879,7 @@ let election_setup_import uuid se (elections, tallied, archived) () =
   base ~title ~login_box ~content ()
 
 let election_login_box w =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   let module A = struct
     let get_user () =
       Web_auth_state.get_election_user W.election.e_params.e_uuid
@@ -900,13 +900,13 @@ let election_login_box w =
   fun () -> make_login_box ~site:false auth links
 
 let file w x =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   Eliom_service.preapply
     election_dir
     (W.election.e_params.e_uuid, x)
 
 let audit_footer w =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   div ~a:[a_style "line-height:1.5em;"] [
     div [
       div [
@@ -936,7 +936,7 @@ let audit_footer w =
   ]
 
 let election_home w state () =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
   let state_ =
     match state with
@@ -1043,8 +1043,8 @@ let election_home w state () =
   let uuid = params.e_uuid in
   base ~title:params.e_name ~login_box ~content ~footer ~uuid ()
 
-let election_admin w state () =
-  let module W = (val w : WEB_ELECTION_DATA) in
+let election_admin w metadata state () =
+  let module W = (val w : ELECTION_DATA) in
   let title = W.election.e_params.e_name ^ " — Administration" in
   let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
   let state_form checked =
@@ -1093,7 +1093,7 @@ let election_admin w state () =
              | [] -> (None, i) :: (loop (i+1) ts)
            else []
          in
-         match W.metadata.e_trustees with
+         match metadata.e_trustees with
          | None -> loop 1 []
          | Some ts -> loop 1 ts
        in
@@ -1172,7 +1172,7 @@ let election_admin w state () =
   in
   let uuid = W.election.e_params.e_uuid in
   let update_credential =
-    match W.metadata.e_cred_authority with
+    match metadata.e_cred_authority with
     | Some "server" ->
        pcdata ""
     | _ ->
@@ -1204,7 +1204,7 @@ let election_admin w state () =
   base ~title ~login_box ~content ()
 
 let update_credential w () =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
   let form = post_form ~service:election_update_credential_post
     (fun (old, new_) ->
@@ -1263,7 +1263,7 @@ let regenpwd uuid () =
   base ~title ~login_box ~content ~uuid ()
 
 let cast_raw w () =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
   let form_rawballot = post_form ~service:election_cast_post
     (fun (name, _) ->
@@ -1316,7 +1316,7 @@ let cast_raw w () =
   base ~title:params.e_name ~login_box ~content ~uuid ~footer ()
 
 let cast_confirmation w hash () =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   lwt user = Web_auth_state.get_election_user W.election.e_params.e_uuid in
   let params = W.election.e_params in
   let name = params.e_name in
@@ -1378,7 +1378,7 @@ let cast_confirmation w hash () =
   base ~title:name ~login_box ~content ~uuid ()
 
 let cast_confirmed w ~result () =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
   let name = params.e_name in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
@@ -1426,7 +1426,7 @@ let cast_confirmed w ~result () =
   base ~title:name ~login_box ~content ~uuid ()
 
 let pretty_ballots w hashes result () =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
   let title = params.e_name ^ " — Accepted ballots" in
   let nballots = ref 0 in
@@ -1480,7 +1480,7 @@ let pretty_ballots w hashes result () =
   base ~title ~login_box ~content ~uuid ()
 
 let pretty_records w records () =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   let uuid = W.election.e_params.e_uuid in
   let title = W.election.e_params.e_name ^ " — Records" in
   let records = List.map (fun (date, voter) ->
@@ -1507,7 +1507,7 @@ let pretty_records w records () =
   base ~title ~login_box ~content ()
 
 let tally_trustees w trustee_id () =
-  let module W = (val w : WEB_ELECTION_DATA) in
+  let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
   let title =
     params.e_name ^ " — Partial decryption #" ^ string_of_int trustee_id

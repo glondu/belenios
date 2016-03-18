@@ -20,10 +20,10 @@
 (**************************************************************************)
 
 open Serializable_t
-open Web_signatures
+open Signatures
 
 val home : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val admin : elections:((module WEB_ELECTION_DATA) list * (module WEB_ELECTION_DATA) list * (module WEB_ELECTION_DATA) list * (Uuidm.t * string) list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val admin : elections:((module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list * (Uuidm.t * string) list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
@@ -37,19 +37,19 @@ val election_setup_credential_authority : Uuidm.t -> Web_common.setup_election -
 val election_setup_credentials : string -> string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustees : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_import : Uuidm.t -> Web_common.setup_election -> (module WEB_ELECTION_DATA) list * (module WEB_ELECTION_DATA) list * (module WEB_ELECTION_DATA) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_import : Uuidm.t -> Web_common.setup_election -> (module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val election_home : (module WEB_ELECTION_DATA) -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_admin : (module WEB_ELECTION_DATA) -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val update_credential : (module WEB_ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_home : (module ELECTION_DATA) -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_admin : (module ELECTION_DATA) -> Web_serializable_j.metadata -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val update_credential : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val regenpwd : Uuidm.t -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_raw : (module WEB_ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_confirmation : (module WEB_ELECTION_DATA) -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_confirmed : (module WEB_ELECTION_DATA) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val pretty_ballots : (module WEB_ELECTION_DATA) -> string list -> Yojson.Safe.json result option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val pretty_records : (module WEB_ELECTION_DATA) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_raw : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_confirmation : (module ELECTION_DATA) -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_confirmed : (module ELECTION_DATA) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val pretty_ballots : (module ELECTION_DATA) -> string list -> Yojson.Safe.json result option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val pretty_records : (module ELECTION_DATA) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val tally_trustees : (module WEB_ELECTION_DATA) -> int -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val tally_trustees : (module ELECTION_DATA) -> int -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val already_logged_in :
   unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

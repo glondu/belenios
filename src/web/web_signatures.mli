@@ -68,18 +68,8 @@ module type WEB_BALLOT_BOX = sig
       number of ballots and the hash of the encrypted tally. *)
 end
 
-module type WEB_PARAMS = sig
-  val metadata : metadata
-  val dir : string
-end
-
-module type WEB_ELECTION_DATA = sig
-  include ELECTION_DATA
-  include WEB_PARAMS
-end
-
 module type WEB_ELECTION = sig
-  module D : WEB_ELECTION_DATA
-  module E : ELECTION with type elt = D.G.t and type 'a m = 'a Lwt.t
+  module G : GROUP
+  module E : ELECTION with type elt = G.t and type 'a m = 'a Lwt.t
   module B : WEB_BALLOT_BOX
 end

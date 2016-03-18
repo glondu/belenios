@@ -51,13 +51,12 @@ Results will be published on the election page
 
 -- \nBelenios"
 
-module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION = struct
+module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION = struct
 
     let uuid = Uuidm.to_string D.election.e_params.e_uuid
 
-    module D = D
-    include D
-    module E = Election.MakeElection(G)(M)
+    module G = D.G
+    module E = Election.MakeElection (G) (M)
 
     module B : WEB_BALLOT_BOX = struct
 
@@ -127,7 +126,7 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
         match old_cred, old_record with
           | None, None ->
             (* first vote *)
-            if E.check_ballot election ballot then (
+            if E.check_ballot D.election ballot then (
               let hash = sha256_b64 rawballot in
               Ocsipersist.add cred_table credential (Some hash) >>
               Ocsipersist.add ballots_table hash rawballot >>
@@ -140,7 +139,7 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
           | Some h, Some (_, old_credential) ->
             (* revote *)
             if credential = old_credential then (
-              if E.check_ballot election ballot then (
+              if E.check_ballot D.election ballot then (
                 Ocsipersist.remove ballots_table h >>
                 let hash = sha256_b64 rawballot in
                 Ocsipersist.add cred_table credential (Some hash) >>
@@ -179,7 +178,7 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
           Ocsipersist.add cred_table new_ None
 
       let do_write f =
-        Lwt_io.(with_file ~mode:Output (dir / string_of_election_file f))
+        Lwt_io.(with_file ~mode:Output (!spool_dir / uuid / string_of_election_file f))
 
       let do_write_ballots () =
         do_write ESBallots (fun oc ->
@@ -233,7 +232,7 @@ module Make (D : WEB_ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB
               let ballot = ballot_of_string G.read rawballot in
               let ciphertext = E.extract_ciphertext ballot in
               return (n + 1, E.combine_ciphertexts accu ciphertext))
-            ballots_table (0, E.neutral_ciphertext election)
+            ballots_table (0, E.neutral_ciphertext D.election)
         in
         let tally = string_of_encrypted_tally G.write tally in
         Lwt_mutex.with_lock mutex (fun () ->

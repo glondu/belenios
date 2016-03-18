@@ -96,19 +96,29 @@ let get_raw_election uuid =
     end
   with _ -> return_none
 
+let empty_metadata = {
+  e_owner = None;
+  e_auth_config = None;
+  e_cred_authority = None;
+  e_trustees = None;
+}
+
+let return_empty_metadata = return empty_metadata
+
 let get_election_metadata uuid =
   try_lwt
     Lwt_io.chars_of_file (!spool_dir / uuid / "metadata.json") |>
     Lwt_stream.to_string >>= fun x ->
-    return @@ Some (metadata_of_string x)
-  with _ -> return_none
+    return @@ metadata_of_string x
+  with _ -> return_empty_metadata
 
 let get_elections_by_owner user =
   Lwt_unix.files_of_directory !spool_dir |>
   Lwt_stream.filter_s (fun x ->
     if x = "." || x = ".." then return false else
-    match_lwt get_election_metadata x with
-    | Some m -> return (m.e_owner = Some user)
+    lwt metadata = get_election_metadata x in
+    match metadata.e_owner with
+    | Some o -> return (o = user)
     | None -> return false
   ) |> Lwt_stream.to_list
 
