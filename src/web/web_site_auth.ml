@@ -24,7 +24,7 @@ open Eliom_service
 open Platform
 open Web_serializable_t
 open Web_common
-open Web_auth_state
+open Web_state
 open Web_services
 
 let next_lf str i =

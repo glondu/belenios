@@ -85,9 +85,9 @@ module Site_links = struct
 end
 
 module Site_auth = struct
-  let get_user () = Web_auth_state.get_site_user ()
+  let get_user () = Web_state.get_site_user ()
   let get_auth_systems () =
-    lwt l = Web_auth_state.get_config None in
+    lwt l = Web_state.get_config None in
     return (List.map fst l)
 end
 
@@ -882,9 +882,9 @@ let election_login_box w =
   let module W = (val w : ELECTION_DATA) in
   let module A = struct
     let get_user () =
-      Web_auth_state.get_election_user W.election.e_params.e_uuid
+      Web_state.get_election_user W.election.e_params.e_uuid
     let get_auth_systems () =
-      lwt l = Web_auth_state.get_config (Some W.election.e_params.e_uuid) in
+      lwt l = Web_state.get_config (Some W.election.e_params.e_uuid) in
       return @@ List.map fst l
   end in
   let auth = (module A : AUTH_SERVICES) in
@@ -1317,7 +1317,7 @@ let cast_raw w () =
 
 let cast_confirmation w hash () =
   let module W = (val w : ELECTION_DATA) in
-  lwt user = Web_auth_state.get_election_user W.election.e_params.e_uuid in
+  lwt user = Web_state.get_election_user W.election.e_params.e_uuid in
   let params = W.election.e_params in
   let name = params.e_name in
   let user_div = match user with
@@ -1587,7 +1587,7 @@ let login_dummy () =
   let title, field_name, input_type =
     "Dummy login", "Username:", `Text
   in
-  let form = post_form ~service:Web_auth_state.dummy_post
+  let form = post_form ~service:Web_state.dummy_post
     (fun name ->
       [
         tablex [tbody [
@@ -1608,7 +1608,7 @@ let login_dummy () =
   base ~title ~login_box ~content ()
 
 let login_password () =
-  let form = post_form ~service:Web_auth_state.password_post
+  let form = post_form ~service:Web_state.password_post
     (fun (llogin, lpassword) ->
       [
         tablex [tbody [
