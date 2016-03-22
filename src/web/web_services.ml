@@ -89,10 +89,5 @@ let election_tally_release = post_service ~fallback:election_admin ~post_params:
 
 let election_dir = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** election_file "file")) ()
 
-let scope = Eliom_common.default_session_scope
-
-let ballot : string option Eliom_reference.eref =
-  Eliom_reference.eref ~scope None
-
-let cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option Eliom_reference.eref =
-  Eliom_reference.eref ~scope None
+let dummy_post = post_coservice' ~post_params:(string "username") ()
+let password_post = post_coservice' ~post_params:(string "username" ** string "password") ()

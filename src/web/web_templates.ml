@@ -1587,7 +1587,7 @@ let login_dummy () =
   let title, field_name, input_type =
     "Dummy login", "Username:", `Text
   in
-  let form = post_form ~service:Web_state.dummy_post
+  let form = post_form ~service:dummy_post
     (fun name ->
       [
         tablex [tbody [
@@ -1608,7 +1608,7 @@ let login_dummy () =
   base ~title ~login_box ~content ()
 
 let login_password () =
-  let form = post_form ~service:Web_state.password_post
+  let form = post_form ~service:password_post
     (fun (llogin, lpassword) ->
       [
         tablex [tbody [

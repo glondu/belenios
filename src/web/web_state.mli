@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2015 Inria                                           *)
+(*  Copyright © 2012-2016 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,8 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt
-open Web_serializable_t
 open Web_signatures
 
 type user = {
@@ -30,61 +28,15 @@ type user = {
   logout : unit -> content;
 }
 
-let scope = Eliom_common.default_session_scope
+val user : user option Eliom_reference.eref
+val get_site_user : unit -> Web_serializable_t.user option Lwt.t
+val get_election_user : Uuidm.t -> Web_serializable_t.user option Lwt.t
 
-let user = Eliom_reference.eref ~scope None
+val get_config : Uuidm.t option -> (string * (string * string list)) list Lwt.t
 
-let get_site_user () =
-  match_lwt Eliom_reference.get user with
-  | None -> return None
-  | Some u ->
-     match u.uuid with
-     | None ->
-        return @@ Some {
-          user_domain = u.service;
-          user_name = u.name;
-        }
-     | Some _ -> return None
+val cont : (unit -> content) list Eliom_reference.eref
+val cont_push : (unit -> content) -> unit Lwt.t
+val cont_pop : unit -> (unit -> content) option Lwt.t
 
-let get_election_user uuid =
-  match_lwt Eliom_reference.get user with
-  | None -> return None
-  | Some u ->
-     match u.uuid with
-     | None -> return None
-     | Some uuid' ->
-        if Uuidm.equal uuid uuid' then
-          return @@ Some {
-            user_domain = u.service;
-            user_name = u.name
-          }
-        else
-          return None
-
-
-let get_config uuid =
-  let uuid_s =
-    match uuid with
-    | None -> ""
-    | Some u -> Uuidm.to_string u
-  in
-  Web_persist.get_auth_config uuid_s
-
-
-let cont = Eliom_reference.eref ~scope []
-
-let cont_push f =
-  let open Eliom_reference in
-  lwt fs = get cont in
-  set cont (f :: fs)
-
-let cont_pop () =
-  let open Eliom_reference in
-  lwt fs = get cont in
-  match fs with
-  | f :: fs -> set cont fs >> return (Some f)
-  | [] -> return None
-
-
-let ballot = Eliom_reference.eref ~scope None
-let cast_confirmed = Eliom_reference.eref ~scope None
+val ballot : string option Eliom_reference.eref
+val cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option Eliom_reference.eref
