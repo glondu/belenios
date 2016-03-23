@@ -79,7 +79,7 @@ let setDisplayById id x =
 
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
-module MakeLwtJsMonad (G : GROUP) = struct
+module LwtJsRandom = struct
   type 'a t = unit -> 'a Lwt.t
   let return x () = Lwt.return x
   let bind x f () = Lwt.bind (x ()) (fun y -> f y ())
@@ -96,8 +96,7 @@ end
 let encryptBallot params cred plaintext () =
   let module P = (val params : ELECTION_DATA) in
   let module G = P.G in
-  let module M = MakeLwtJsMonad (G) in
-  let module E = Election.MakeElection (G) (M) in
+  let module E = Election.MakeElection (G) (LwtJsRandom) in
   let sk =
     let hex = derive_cred P.election.e_params.e_uuid cred in
     Z.(of_string_base 16 hex mod G.q)
