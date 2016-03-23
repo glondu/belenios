@@ -32,8 +32,6 @@ val user : user option Eliom_reference.eref
 val get_site_user : unit -> Web_serializable_t.user option Lwt.t
 val get_election_user : Uuidm.t -> Web_serializable_t.user option Lwt.t
 
-val get_config : Uuidm.t option -> (string * (string * string list)) list Lwt.t
-
 val cont : (unit -> content) list Eliom_reference.eref
 val cont_push : (unit -> content) -> unit Lwt.t
 val cont_pop : unit -> (unit -> content) option Lwt.t

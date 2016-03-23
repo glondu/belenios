@@ -224,7 +224,11 @@ let login_handler service uuid =
      cont_push (fun () -> Eliom_registration.Redirection.send (myself service)) >>
      Web_templates.already_logged_in () >>= Eliom_registration.Html5.send
   | None ->
-     lwt c = get_config uuid in
+     let uuid_or_empty = match uuid with
+       | None -> ""
+       | Some u -> Uuidm.to_string u
+     in
+     lwt c = Web_persist.get_auth_config uuid_or_empty in
      match service with
      | Some s ->
         lwt auth_system, config =

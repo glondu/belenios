@@ -87,7 +87,7 @@ end
 module Site_auth = struct
   let get_user () = Web_state.get_site_user ()
   let get_auth_systems () =
-    lwt l = Web_state.get_config None in
+    lwt l = Web_persist.get_auth_config "" in
     return (List.map fst l)
 end
 
@@ -884,7 +884,8 @@ let election_login_box w =
     let get_user () =
       Web_state.get_election_user W.election.e_params.e_uuid
     let get_auth_systems () =
-      lwt l = Web_state.get_config (Some W.election.e_params.e_uuid) in
+      let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
+      lwt l = Web_persist.get_auth_config uuid_s in
       return @@ List.map fst l
   end in
   let auth = (module A : AUTH_SERVICES) in

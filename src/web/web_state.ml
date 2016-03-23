@@ -62,15 +62,6 @@ let get_election_user uuid =
           return None
 
 
-let get_config uuid =
-  let uuid_s =
-    match uuid with
-    | None -> ""
-    | Some u -> Uuidm.to_string u
-  in
-  Web_persist.get_auth_config uuid_s
-
-
 let cont = Eliom_reference.eref ~scope []
 
 let cont_push f =
