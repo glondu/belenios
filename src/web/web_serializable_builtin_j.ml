@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2014 Inria                                           *)
+(*  Copyright © 2012-2016 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,12 +19,18 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Platform
+open Web_serializable_builtin_t
 
-type number = Z.t
-type uuid = Uuidm.t
-type int_or_null = int option
+(** {1 Serializers for type datetime} *)
 
-module SSet = Set.Make(String)
+let write_datetime buf n =
+  Bi_outbuf.add_char buf '"';
+  Bi_outbuf.add_string buf (raw_string_of_datetime n);
+  Bi_outbuf.add_char buf '"'
 
-type string_set = SSet.t
+let datetime_of_json = function
+  | `String s -> raw_datetime_of_string s
+  | _ -> invalid_arg "datetime_of_json: a string was expected"
+
+let read_datetime state buf =
+  datetime_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)

@@ -23,7 +23,6 @@ open Platform
 
 type number = Z.t
 type uuid = Uuidm.t
-type datetime = Platform.datetime
 type int_or_null = int option
 
 module SSet : Set.S with type elt = string

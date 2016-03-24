@@ -35,13 +35,6 @@ val string_of_uuid : ?len:int -> uuid -> string
 val read_uuid : Yojson.Safe.lexer_state -> Lexing.lexbuf -> uuid
 val uuid_of_string : string -> uuid
 
-(** {1 Serializers for type datetime} *)
-
-val write_datetime : Bi_outbuf.t -> datetime -> unit
-val string_of_datetime : ?len:int -> datetime -> string
-val read_datetime : Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
-val datetime_of_string : string -> datetime
-
 (** {1 Serializers for type int_or_null} *)
 
 val write_int_or_null : Bi_outbuf.t -> int_or_null -> unit

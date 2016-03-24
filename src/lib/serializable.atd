@@ -25,7 +25,6 @@
 
 type number <ocaml predef from="Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
-type datetime <ocaml predef from="Serializable_builtin"> = abstract
 
 (** {2 Basic cryptographic datastructures} *)
 

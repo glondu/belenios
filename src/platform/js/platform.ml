@@ -126,10 +126,3 @@ module Z = struct
       else res
     in loop zero (pred n)
 end
-
-type datetime
-let now () = assert false
-let string_of_datetime _ = assert false
-let datetime_of_string _ = assert false
-let datetime_compare _ _ = assert false
-let format_datetime _ _ = assert false

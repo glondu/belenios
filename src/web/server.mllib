@@ -8,6 +8,8 @@ Group
 Election
 Credential
 
+Web_serializable_builtin_t
+Web_serializable_builtin_j
 Web_serializable_j
 Web_common
 Web_persist

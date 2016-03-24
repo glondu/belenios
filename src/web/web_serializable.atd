@@ -24,8 +24,8 @@
 (** {1 Predefined types} *)
 
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
-type datetime <ocaml predef from="Serializable_builtin"> = abstract
 type string_set <ocaml predef from="Serializable_builtin"> = abstract
+type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
 
 (** {1 Web-specific types} *)
 

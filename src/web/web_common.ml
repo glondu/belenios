@@ -22,9 +22,9 @@
 open Lwt
 open Platform
 open Common
-open Serializable_builtin_j
 open Serializable_t
-open Web_serializable_t
+open Web_serializable_builtin_t
+open Web_serializable_j
 
 let spool_dir = ref "."
 

@@ -52,10 +52,3 @@ module Z : sig
   val bit_length : t -> int
   val of_bits : string -> t
 end
-
-type datetime
-val now : unit -> datetime
-val string_of_datetime : datetime -> string
-val datetime_of_string : string -> datetime
-val datetime_compare : datetime -> datetime -> int
-val format_datetime : string -> datetime -> string

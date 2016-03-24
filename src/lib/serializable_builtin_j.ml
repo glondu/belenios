@@ -71,28 +71,6 @@ let uuid_of_string x =
   | `String s -> raw_uuid_of_string s
   | _ -> invalid_arg "uuid_of_string: a string was expected"
 
-(** {1 Serializers for type datetime} *)
-
-let write_datetime buf n =
-  Bi_outbuf.add_char buf '"';
-  Bi_outbuf.add_string buf (Platform.string_of_datetime n);
-  Bi_outbuf.add_char buf '"'
-
-let string_of_datetime ?(len=28) n =
-  let buf = Bi_outbuf.create len in
-  write_datetime buf n;
-  Bi_outbuf.contents buf
-
-let datetime_of_json = function
-  | `String s -> Platform.datetime_of_string s
-  | _ -> invalid_arg "datetime_of_json: a string was expected"
-
-let read_datetime state buf =
-  datetime_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
-
-let datetime_of_string s =
-  datetime_of_json (Yojson.Safe.from_string s)
-
 (** {1 Serializers for type int_or_null} *)
 
 let write_int_or_null buf = function

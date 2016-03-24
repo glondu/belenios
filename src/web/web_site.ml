@@ -24,6 +24,7 @@ open Platform
 open Serializable_j
 open Signatures
 open Common
+open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Web_services

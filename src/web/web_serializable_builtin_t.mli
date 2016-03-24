@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2014 Inria                                           *)
+(*  Copyright © 2012-2016 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,12 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Platform
-
-type number = Z.t
-type uuid = Uuidm.t
-type int_or_null = int option
-
-module SSet = Set.Make(String)
-
-type string_set = SSet.t
+type datetime
+val now : unit -> datetime
+val raw_string_of_datetime : datetime -> string
+val raw_datetime_of_string : string -> datetime
+val datetime_compare : datetime -> datetime -> int
+val format_datetime : string -> datetime -> string
