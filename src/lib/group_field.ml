@@ -70,7 +70,7 @@ let unsafe_make group =
     let read state buf =
       match Yojson.Safe.from_lexbuf ~stream:true state buf with
       | `String s -> Z.of_string s
-      | _ -> assert false
+      | _ -> invalid_arg "Group_field.read: a string was expected"
 
     let write buf x =
       Bi_outbuf.add_char buf '"';

@@ -56,7 +56,7 @@ let extractQuestion q =
       (answers##length)
       (fun i ->
        let a = answers##item (i) >>= extractAnswer in
-       Js.Opt.get a (fun () -> assert false))
+       Js.Opt.get a (fun () -> failwith "extractQuestion"))
   in
   return {q_question; q_min; q_max; q_answers}
 
@@ -70,7 +70,7 @@ let extractTemplate () =
       (questions##length)
       (fun i ->
        let q = questions##item (i) >>= extractQuestion in
-       Js.Opt.get q (fun () -> assert false))
+       Js.Opt.get q (fun () -> failwith "extractTemplate"))
   in
   {t_name; t_short_name; t_description; t_questions}
 
