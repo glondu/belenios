@@ -280,9 +280,12 @@ let new_election_failure reason () =
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
-let generic_page ~title message () =
+let generic_page ~title ~service message () =
   let content = [
     p [pcdata message];
+    div [
+      a ~service [pcdata "Proceed"] ();
+    ];
   ] in
   let login_box = pcdata "" in
   base ~title ~login_box ~content ()

@@ -401,7 +401,8 @@ let handle_setup f uuid x =
            Ocsipersist.add election_stable uuid_s se >>
            cont ()
          with e ->
-           T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html5.send
+           let service = preapply election_setup uuid in
+           T.generic_page ~title:"Error" ~service (Printexc.to_string e) () >>= Html5.send
        ) else forbidden ()
      )
   | None -> forbidden ()
@@ -442,7 +443,8 @@ let handle_password se uuid ~force voters =
        return (id.sv_password <- Some x)
   ) voters >>
   return (fun () ->
-    T.generic_page ~title:"Success"
+    let service = preapply election_setup_voters uuid in
+    T.generic_page ~title:"Success" ~service
       "Passwords have been generated and mailed!" () >>= Html5.send)
 
 let () =
@@ -476,16 +478,17 @@ let () =
            ~absolute:true ~service:election_home
            (uuid, ()) |> rewrite_prefix
          in
+         let service = preapply election_admin (uuid, ()) in
          begin try_lwt
            lwt _ = Ocsipersist.find table user in
            lwt x = generate_password title url user in
            Ocsipersist.add table user x >>
            dump_passwords (!spool_dir / uuid_s) table >>
-           T.generic_page ~title:"Success"
+           T.generic_page ~title:"Success" ~service
              ("A new password has been mailed to " ^ user ^ ".") ()
            >>= Html5.send
          with Not_found ->
-           T.generic_page ~title:"Error"
+           T.generic_page ~title:"Error" ~service
              (user ^ " is not a registered user for this election.") ()
            >>= Html5.send
          end
@@ -616,7 +619,8 @@ let () =
      | None -> forbidden ()
      else
        let msg = st_id ^ " is not a valid e-mail address!" in
-       T.generic_page ~title:"Error" msg () >>= Html5.send
+       let service = preapply election_setup_trustees uuid in
+       T.generic_page ~title:"Error" ~service msg () >>= Html5.send
     )
 
 let () =
@@ -668,7 +672,7 @@ let () =
 let wrap_handler f =
   try_lwt f ()
   with
-  | e -> T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html5.send
+  | e -> T.generic_page ~title:"Error" ~service:home (Printexc.to_string e) () >>= Html5.send
 
 let handle_credentials_post token creds =
   lwt uuid = Ocsipersist.find election_credtokens token in
@@ -699,7 +703,7 @@ let handle_credentials_post token creds =
   let () = se.se_metadata <- {se.se_metadata with e_cred_authority = None} in
   let () = se.se_public_creds_received <- true in
   Ocsipersist.add election_stable uuid se >>
-  T.generic_page ~title:"Success"
+  T.generic_page ~title:"Success" ~service:home
     "Credentials have been received and checked!" () >>= Html5.send
 
 let () =
@@ -761,7 +765,8 @@ let () =
       in
       se.se_public_creds_received <- true;
       return (fun () ->
-        T.generic_page ~title:"Success"
+        let service = preapply election_setup uuid in
+        T.generic_page ~title:"Success" ~service
           "Credentials have been generated and mailed!" () >>= Html5.send)))
 
 let () =
@@ -792,7 +797,7 @@ let () =
            (* we keep pk as a string because of G.t *)
            t.st_public_key <- public_key;
            Ocsipersist.add election_stable uuid se
-          ) >> T.generic_page ~title:"Success"
+          ) >> T.generic_page ~title:"Success" ~service:home
             "Your key has been received and checked!"
             () >>= Html5.send
        )
@@ -853,6 +858,7 @@ let () =
               return (redir_preapply election_setup_voters uuid))
          | None ->
             return (fun () -> T.generic_page ~title:"Error"
+              ~service:(preapply election_setup_voters uuid)
               (Printf.sprintf
                  "Could not retrieve voter list from election %s"
                  from_s)
@@ -883,6 +889,7 @@ let () =
            T.election_home (module W) state () >>= Html5.send
       with Not_found ->
         T.generic_page ~title:"Sorry, this election is not yet open"
+          ~service:(preapply election_home (uuid, ()))
           "This election does not exist yet. Please come back later." ()
           >>= Html5.send)
 
@@ -1174,6 +1181,7 @@ let () =
       lwt pds = Web_persist.get_partial_decryptions uuid_s in
       if List.mem_assoc trustee_id pds then (
         T.generic_page ~title:"Error"
+          ~service:(preapply election_home (uuid, ()))
           "Your partial decryption has already been received and checked!"
           () >>= Html5.send
       ) else (
@@ -1219,11 +1227,13 @@ let () =
       if E.check_factor et pk pd then (
         let pds = (trustee_id, partial_decryption) :: pds in
         lwt () = Web_persist.set_partial_decryptions uuid_s pds in
-        T.generic_page ~title:"Success"
+        let service = preapply election_home (uuid, ()) in
+        T.generic_page ~title:"Success" ~service
           "Your partial decryption has been received and checked!" () >>=
         Html5.send
       ) else (
-        T.generic_page ~title:"Error"
+        let service = preapply election_tally_trustees (uuid, ((), trustee_id)) in
+        T.generic_page ~title:"Error" ~service
           "The partial decryption didn't pass validation!" () >>=
         Html5.send
       ))

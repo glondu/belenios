@@ -27,7 +27,14 @@ val admin : elections:((module ELECTION_DATA) list * (module ELECTION_DATA) list
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val generic_page : title:string -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val generic_page : title:string ->
+  service:(unit, unit, [< Eliom_service.get_service_kind ],
+           [< Eliom_service.attached ],
+           [< Eliom_service.service_kind ], [< Eliom_service.suff ],
+           'a, unit, [< Eliom_service.registrable ],
+           [< Eliom_service.non_ocaml_service ])
+    Eliom_service.service ->
+  string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val election_setup_pre : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup : Uuidm.t -> Web_common.setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
