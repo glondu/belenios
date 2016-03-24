@@ -23,8 +23,6 @@ val sha256_hex : string -> string
 val sha256_b64 : string -> string
 val pbkdf2_hex : iterations:int -> salt:string -> string -> string
 
-val b64_encode_compact : string -> string
-
 type rng
 val secure_rng : rng
 val pseudo_rng : string -> rng

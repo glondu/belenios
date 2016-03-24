@@ -38,8 +38,6 @@ let sha256_b64 x =
   | Some i -> String.sub raw 0 i
   | None -> raw
 
-let b64_encode_compact _ = assert false
-
 let pbkdf2_hex ~iterations ~salt x =
   let salt = Js.Unsafe.meth_call sjcl "codec.hex.toBits"
     [| Js.string salt |> Js.Unsafe.inject |]

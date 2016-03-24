@@ -287,6 +287,9 @@ let do_get_randomness =
       return (random_string prng 32)
     )
 
+let b64_encode_compact x =
+  Cryptokit.(transform_string (Base64.encode_compact ()) x)
+
 let () = String.register
   ~service:get_randomness
   (fun () () ->
