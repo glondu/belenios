@@ -97,10 +97,8 @@ let encryptBallot params cred plaintext () =
   let module P = (val params : ELECTION_DATA) in
   let module G = P.G in
   let module E = Election.MakeElection (G) (LwtJsRandom) in
-  let sk =
-    let hex = derive_cred P.election.e_params.e_uuid cred in
-    Z.(of_string_base 16 hex mod G.q)
-  in
+  let module CD = Credential.MakeDerive (G) in
+  let sk = CD.derive P.election.e_params.e_uuid cred in
   lwt randomness = E.make_randomness P.election () in
   lwt b = E.create_ballot P.election ~sk randomness plaintext () in
   let s = string_of_ballot G.write b in
@@ -276,33 +274,13 @@ let addQuestions sk params qs =
       Dom.appendChild e div
   )
 
-(* Beware: the following must be changed in accordance with tool_credgen.ml! *)
-let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-let token_length = 14
-let n58 = Z.of_int 58
-let n53 = Z.of_int 53
-
-let checkCredential x =
-  String.length x = token_length + 1 &&
-  let rec loop i accu =
-    if i < token_length then (
-      let digit = String.index digits x.[i] in
-      loop (i+1) Z.(n58 * accu + of_int digit)
-    ) else accu
-  in
-  try
-    let n = loop 0 Z.zero in
-    let checksum = String.index digits x.[token_length] in
-    Z.((n + of_int checksum) mod n53 =% zero)
-  with Not_found -> false
-
 let createStartButton params intro_div qs =
   let b = document##createElement (Js.string "button") in
   b##setAttribute (Js.string "style", Js.string "font-size:20px;");
   let t = document##createTextNode (Js.string "here") in
   b##onclick <- Dom_html.handler (fun _ ->
     (match prompt "Please enter your credential:" with
-    | Some cred when checkCredential cred ->
+    | Some cred when Credential.check cred ->
       intro_div##style##display <- Js.string "none";
       setDisplayById "question_div" "block";
       Dom_html.window##onbeforeunload <- Dom_html.handler (fun _ ->

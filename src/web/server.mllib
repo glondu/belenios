@@ -6,6 +6,7 @@ Common
 Group_field
 Group
 Election
+Credential
 
 Web_serializable_j
 Web_common

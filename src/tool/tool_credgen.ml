@@ -52,38 +52,13 @@ let parse_params p =
 module Make (P : PARSED_PARAMS) : S = struct
   open P
 
-  (* Some helpers *)
-
-  (* Beware: the following must be changed in accordance with the booth! *)
-  let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-  let token_length = 14
-  let n58 = Z.of_int 58
-  let n53 = Z.of_int 53
+  module CG = Credential.MakeGenerate (Election.MakeSimpleMonad (G))
+  module CD = Credential.MakeDerive (G)
 
   let derive x =
-    let hex = derive_cred uuid x in
-    let x = Z.(of_string_base 16 hex mod G.q) in
+    let x = CD.derive uuid x in
     let y = G.(g **~ x) in
     G.to_string y
-
-  let prng = lazy (pseudo_rng (random_string secure_rng 16))
-
-  let random_char () =
-    int_of_char (random_string (Lazy.force prng) 1).[0]
-
-  let generate_raw_token () =
-    let res = Bytes.create token_length in
-    let rec loop i accu =
-      if i < token_length then (
-        let digit = random_char () mod 58 in
-        Bytes.set res i digits.[digit];
-        loop (i+1) Z.(n58 * accu + of_int digit)
-      ) else (Bytes.to_string res, accu)
-    in loop 0 Z.zero
-
-  let add_checksum (raw, value) =
-    let checksum = 53 - Z.(to_int (value mod n53)) in
-    raw ^ String.make 1 digits.[checksum]
 
   let compute_pub_and_hash priv =
     let pub = derive priv in
@@ -91,7 +66,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     priv, pub, hashed
 
   let generate () =
-    generate_raw_token () |> add_checksum |> compute_pub_and_hash
+    CG.generate () () |> compute_pub_and_hash
 
 end
 

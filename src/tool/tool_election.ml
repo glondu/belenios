@@ -144,8 +144,8 @@ module Make (P : PARSED_PARAMS) : S = struct
   let vote privcred ballot =
     let sk =
       privcred |> option_map (fun cred ->
-        let hex = derive_cred election.e_params.e_uuid cred in
-        Z.(of_string_base 16 hex mod G.q)
+        let module CD = Credential.MakeDerive (G) in
+        CD.derive election.e_params.e_uuid cred
       )
     in
     let b = E.create_ballot election ?sk (E.make_randomness election ()) ballot () in

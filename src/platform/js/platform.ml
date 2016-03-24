@@ -40,25 +40,15 @@ let sha256_b64 x =
 
 let b64_encode_compact _ = assert false
 
-let remove_dashes x =
-  let n = String.length x in
-  let res = Buffer.create n in
-  for i = 0 to n-1 do
-    let c = x.[i] in
-    if c <> '-' then Buffer.add_char res c;
-  done;
-  Buffer.contents res
-
-let derive_cred uuid x =
-  let uuid = remove_dashes (Uuidm.to_string uuid) in
+let pbkdf2_hex ~iterations ~salt x =
   let salt = Js.Unsafe.meth_call sjcl "codec.hex.toBits"
-    [| Js.string uuid |> Js.Unsafe.inject |]
+    [| Js.string salt |> Js.Unsafe.inject |]
   in
   let derived = Js.Unsafe.meth_call sjcl "misc.pbkdf2"
     [|
       Js.string x |> Js.Unsafe.inject;
       salt;
-      Js.Unsafe.inject 1000;
+      Js.Unsafe.inject iterations;
       Js.Unsafe.inject 256;
     |]
   in

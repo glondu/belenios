@@ -66,20 +66,10 @@ let pbkdf2 ~prf ~salt ~iterations ~size password =
   done;
   Bytes.to_string result
 
-let remove_dashes x =
-  let n = String.length x in
-  let res = Buffer.create n in
-  for i = 0 to n-1 do
-    let c = x.[i] in
-    if c <> '-' then Buffer.add_char res c;
-  done;
-  Buffer.contents res
-
-let derive_cred uuid x =
+let pbkdf2_hex ~iterations ~salt x =
   let open Cryptokit in
-  let uuid = remove_dashes (Uuidm.to_string uuid) in
-  let salt = transform_string (Hexa.decode ()) uuid in
-  pbkdf2 ~prf:MAC.hmac_sha256 ~iterations:1000 ~size:1 ~salt x |>
+  let salt = transform_string (Hexa.decode ()) salt in
+  pbkdf2 ~prf:MAC.hmac_sha256 ~iterations ~size:1 ~salt x |>
   transform_string (Hexa.encode ())
 
 type rng = Cryptokit.Random.rng
