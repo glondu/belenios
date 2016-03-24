@@ -38,26 +38,11 @@ let make_read name of_string state buf =
 
 let write_number = make_write Z.to_string
 
-let string_of_number ?(len=2048) n =
-  let buf = Bi_outbuf.create len in
-  write_number buf n;
-  Bi_outbuf.contents buf
-
 let read_number = make_read "read_number" Z.of_string
-
-let number_of_string x =
-  match Yojson.Safe.from_string x with
-  | `String s -> Z.of_string s
-  | _ -> invalid_arg "number_of_string: a string was expected"
 
 (** {1 Serializers for type uuid} *)
 
 let write_uuid = make_write Uuidm.to_string
-
-let string_of_uuid ?(len=38) n =
-  let buf = Bi_outbuf.create len in
-  write_uuid buf n;
-  Bi_outbuf.contents buf
 
 let raw_uuid_of_string x =
   match Uuidm.of_string x with
@@ -66,21 +51,11 @@ let raw_uuid_of_string x =
 
 let read_uuid = make_read "read_uuid" raw_uuid_of_string
 
-let uuid_of_string x =
-  match Yojson.Safe.from_string x with
-  | `String s -> raw_uuid_of_string s
-  | _ -> invalid_arg "uuid_of_string: a string was expected"
-
 (** {1 Serializers for type int_or_null} *)
 
 let write_int_or_null buf = function
   | Some n -> Bi_outbuf.add_string buf (string_of_int n)
   | None -> Bi_outbuf.add_string buf "null"
-
-let string_of_int_or_null ?(len=4) n =
-  let buf = Bi_outbuf.create len in
-  write_int_or_null buf n;
-  Bi_outbuf.contents buf
 
 let int_or_null_of_json = function
   | `Int i -> Some i
@@ -90,19 +65,11 @@ let int_or_null_of_json = function
 let read_int_or_null state buf =
   int_or_null_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
 
-let int_or_null_of_string s =
-  int_or_null_of_json (Yojson.Safe.from_string s)
-
 (** {1 Serializers for type string_set} *)
 
 let write_string_set buf set =
   `List (SSet.elements set |> List.map (fun x -> `String x)) |>
   Yojson.Safe.to_outbuf buf
-
-let string_of_string_set ?(len=100) set =
-  let buf = Bi_outbuf.create len in
-  write_string_set buf set;
-  Bi_outbuf.contents buf
 
 let string_set_of_json = function
   | `List xs ->
@@ -115,6 +82,3 @@ let string_set_of_json = function
 
 let read_string_set state buf =
   Yojson.Safe.from_lexbuf ~stream:true state buf |> string_set_of_json
-
-let string_set_of_string s =
-  Yojson.Safe.from_string s |> string_set_of_json
