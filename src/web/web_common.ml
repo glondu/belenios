@@ -230,10 +230,13 @@ let underscorize x =
 
 let send_email from to_ subject body =
   let contents =
-    "From: " ^ from ^ "\nTo: " ^ to_ ^ "\nSubject: " ^ subject ^ "\n\n" ^ body
+    Netsendmail.compose
+      ~from_addr:("Belenios public server", from)
+      ~to_addrs:[to_, to_]
+      ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
+      ~subject body
   in
-  let sendmail = "/usr/sbin/sendmail" in
-  Lwt_process.pwrite (sendmail, [|sendmail; "-f"; from; to_|]) contents
+  Lwt_preemptive.detach Netsendmail.sendmail contents
 
 let split_identity x =
   let n = String.length x in
