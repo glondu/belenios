@@ -62,7 +62,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
           ~service:Web_services.election_home x |> rewrite_prefix
         in
         let body = Mail_templates.confirmation user title hash url1 url2 in
-        send_email "noreply@belenios.org" email subject body
+        send_email email subject body
 
       let do_cast rawballot (user, date) =
         let voters = Lwt_io.lines_of_file (!spool_dir / uuid / "voters.txt") in

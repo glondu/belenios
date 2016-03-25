@@ -427,7 +427,7 @@ let generate_password title url id =
   let hashed = sha256_hex (salt ^ password) in
   let body = Mail_templates.password title login password url in
   let subject = "Your password for election " ^ title in
-  send_email "noreply@belenios.org" email subject body >>
+  send_email email subject body >>
   return (salt, hashed)
 
 let handle_password se uuid ~force voters =
@@ -750,7 +750,7 @@ let () =
           in
           let body = Mail_templates.credential title login cred url in
           let subject = "Your credential for election " ^ title in
-          lwt () = send_email "noreply@belenios.org" email subject body in
+          lwt () = send_email email subject body in
           return @@ S.add pub_cred accu
         ) S.empty se.se_voters
       in

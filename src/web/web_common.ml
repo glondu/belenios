@@ -228,11 +228,11 @@ let string_of_user {user_domain; user_name} =
 let underscorize x =
   String.map (function '-' -> '_' | c -> c) x
 
-let send_email from to_ subject body =
+let send_email recipient subject body =
   let contents =
     Netsendmail.compose
-      ~from_addr:("Belenios public server", from)
-      ~to_addrs:[to_, to_]
+      ~from_addr:("Belenios public server", "noreply@belenios.org")
+      ~to_addrs:[recipient, recipient]
       ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
       ~subject body
   in
