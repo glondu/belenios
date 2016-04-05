@@ -21,12 +21,15 @@ The non-OCaml prerequisites are:
  * [OpenSSL](https://www.openssl.org/)
  * [Wget](https://www.gnu.org/software/wget/) or [curl](http://curl.haxx.se/)
  * [Unzip](http://www.info-zip.org/UnZip.html)
+ * [aspcud](http://www.cs.uni-potsdam.de/wv/aspcud/) (optional)
+ * [ncurses](http://invisible-island.net/ncurses/)
+ * [uuidgen](https://www.kernel.org/pub/linux/utils/util-linux/)
 
 These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
 derivatives, they can be installed with the following command:
 
-    apt-get install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget unzip
+    apt-get install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime
 
 If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully
@@ -125,7 +128,7 @@ be compiled with:
 Compilation using only official Debian packages
 -----------------------------------------------
 
-At the time of writing (07 Jan 2014), you need the development version
+At the time of writing (05 Apr 2016), you need the development version
 of Debian (or Ubuntu) to be able to compile Belenios using only
 official Debian packages. On Ubuntu, you need to enable the "Universe"
 repository. Instead of using OPAM, the dependencies of Belenios can
