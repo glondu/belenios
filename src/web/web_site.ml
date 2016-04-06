@@ -443,7 +443,7 @@ let handle_password se uuid ~force voters =
        return (id.sv_password <- Some x)
   ) voters >>
   return (fun () ->
-    let service = preapply election_setup_voters uuid in
+    let service = preapply election_setup uuid in
     T.generic_page ~title:"Success" ~service
       "Passwords have been generated and mailed!" () >>= Html5.send)
 

@@ -243,6 +243,7 @@ let admin ~elections () =
         div [br ()];
         h2 [pcdata "Tallied elections"];
         tallied;
+        div [br ()];
         h2 [pcdata "Archived elections"];
         archived;
       ];
@@ -292,20 +293,30 @@ let generic_page ~title ~service message () =
 
 let election_setup_pre () =
   let title = "Prepare a new election" in
+  let cred_info = Eliom_service.Http.external_service
+    ~prefix:"http://belenios.gforge.inria.fr"
+    ~path:["howitworks.php"]
+    ~get_params:Eliom_parameter.unit
+    ()
+  in
   let form =
     post_form ~service:election_setup_new
       (fun (credmgmt, (auth, cas_server)) ->
         [
           fieldset
-            ~legend:(legend [pcdata "Credential management"])
+            ~legend:(legend [
+              pcdata "Credential management (";
+              a ~service:cred_info [pcdata "more info"] ();
+              pcdata ")";
+            ])
             [
               div [
                 string_radio ~checked:true ~name:credmgmt ~value:"auto" ();
-                pcdata " Automatic (degraded mode)";
+                pcdata " Automatic (degraded mode - credentials will be handled by the server)";
               ];
               div [
                 string_radio ~name:credmgmt ~value:"manual" ();
-                pcdata " Manual (safe mode)";
+                pcdata " Manual (safe mode - a third party will handle the credentials)";
               ];
             ];
           fieldset
@@ -486,6 +497,7 @@ let election_setup_trustees uuid se () =
       ~service:election_setup_trustee_add
       (fun name ->
         [
+          pcdata "Trustee's e-mail address: ";
           string_input ~input_type:`Text ~name ();
           string_input ~input_type:`Submit ~value:"Add" ();
         ]
@@ -1077,14 +1089,15 @@ let election_admin w metadata state () =
     | `Closed ->
        return @@ div [
          state_form false;
+         br ();
          post_form
            ~service:election_compute_encrypted_tally
            (fun () ->
              [string_input
                  ~input_type:`Submit
-                 ~value:"Tally the election"
+                 ~value:"Tally election"
                  ();
-              pcdata " (Warning, this action is irreversible.)";
+              pcdata " Warning: this action is irreversible; the election will be definitively closed.";
              ]) (W.election.e_params.e_uuid, ());
        ]
     | `EncryptedTally (npks, _, hash) ->
@@ -1166,12 +1179,14 @@ let election_admin w metadata state () =
   let div_archive = match state with
     | `Archived -> pcdata ""
     | _ -> div [
+      br ();
+      hr ();
       post_form ~service:election_archive (fun () ->
         [
-          string_input ~input_type:`Submit ~value:"Archive this election" ();
-          pcdata " (Warning: this action is irreversible!)";
+          string_input ~input_type:`Submit ~value:"Archive election" ();
+          pcdata " Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no tally).";
         ]
-      ) (W.election.e_params.e_uuid, ())
+      ) (W.election.e_params.e_uuid, ());
     ]
   in
   let uuid = W.election.e_params.e_uuid in
