@@ -236,7 +236,12 @@ let send_email recipient subject body =
       ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
       ~subject body
   in
-  Lwt_preemptive.detach Netsendmail.sendmail contents
+  let rec loop () =
+    try_lwt
+      Lwt_preemptive.detach Netsendmail.sendmail contents
+    with Unix.Unix_error (Unix.EAGAIN, _, _) ->
+      Lwt_unix.sleep 1. >> loop ()
+  in loop ()
 
 let split_identity x =
   let n = String.length x in
