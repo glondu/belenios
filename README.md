@@ -91,6 +91,5 @@ Affero General Public License for more details.
 
 ### External code
 
-The booth (web-based voting client) has been imported from Helios and
-adapted for our needs. It uses code from many origins; please refer to
-each file for accurate copyright and licensing information.
+Please refer to each file for accurate copyright and licensing
+information.
