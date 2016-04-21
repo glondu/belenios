@@ -35,7 +35,7 @@ If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully
 self-contained, OCaml+OPAM install, and then installs all the
 dependencies of Belenios, everything into a single directory. You can
-chose the directory by setting the `BELENIOS_SYSROOT` environment
+choose the directory by setting the `BELENIOS_SYSROOT` environment
 variable, or it will take `~/.belenios` by default. Just run:
 
     ./opam-bootstrap.sh
@@ -209,6 +209,17 @@ This can be worked around with the following steps:
  * resume the installation by running again the `opam install` command
    found in `opam-bootstrap.sh`;
  * follow the instructions given at the end of `opam-bootstrap.sh`.
+
+### Errors while compiling ocsigenserver
+
+If ocsigenserver fails to install because of a SSL-related error:
+
+ * edit `opam-bootstrap.sh` by adding ` ssl=0.5.2` to the `opam
+   install` call;
+ * run `./opam-bootstrap.sh`.
+
+An alternative could be to install aspcud before running
+`opam-bootstrap.sh`.
 
 ### Errors while compiling Belenios itself
 

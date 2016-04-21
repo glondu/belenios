@@ -34,7 +34,7 @@ summarized as follows:
  4. The administrator collects all public credentials and trustees'
     public keys and sets up the election.
  5. The administrator opens the election.
- 6. Each voter vote; the administrator collects, checks and publishes
+ 6. Each voter votes; the administrator collects, checks and publishes
     all the ballots.
  7. The administrator closes the election.
  8. Trustees collectively decrypt the result.

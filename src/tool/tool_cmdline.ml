@@ -53,6 +53,8 @@ let failcmd fmt = Printf.ksprintf (fun x -> raise (Cmdline_error x)) fmt
 let common_man = [
   `S "MORE INFORMATION";
   `P "This command is part of the Belenios command-line tool.";
+  `P "To get more help on a specific subcommand, run:";
+  `P "$(b,belenios-tool) $(i,COMMAND) $(b,--help)";
   `P "See $(i,http://belenios.gforge.inria.fr/).";
 ]
 
