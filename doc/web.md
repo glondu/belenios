@@ -67,7 +67,7 @@ result.
 At any moment, a finalized election can be archived. This releases
 some resources on the server and makes the election read-only. In
 particular, it is no longer possible to vote in or to tally an
-archived election.
+archived election. Be careful, this operation is not revertible.
 
 ### Auditing an election
 

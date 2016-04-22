@@ -12,7 +12,7 @@ can be organized using this tool. As an illustration of that, you can
 have a look at the `demo/demo.sh` script that simulates an election.
 
 This file documents how to use `belenios-tool`, from the point of view
-of the various roles involved in a election. You can also run it with
+of the various roles involved in an election. You can also run it with
 the `--help` option to get more information.
 
 
@@ -20,7 +20,7 @@ Auditor's guide
 ---------------
 
 Note that anyone can be an auditor. Everyone who plays a specific role
-in a election should start by auditing the election data.
+in an election should start by auditing the election data.
 
 During an election, you should have access to the following files:
 
@@ -50,9 +50,13 @@ Voter's guide
 If you put your secret credential in a file `/path/to/credential` and
 your choices in a file `/path/to/choices.json` (as an array of arrays
 of 0/1 in JSON format), the following command will output a raw ballot
-that can be directly submitted:
+that can be sent to the administrator of the election:
 
     belenios-tool vote --dir /path/to/election --privcred /path/to/credential --ballot /path/to/choices.json
+
+In the case where the election is administered with the web interface,
+a raw ballot prepared with the command-line tool can be uploaded directly
+via the web interface.
 
 
 Administrator's guide
@@ -78,7 +82,7 @@ Administrator's guide
 
 ### Running the election
 
-The contents of `$DIR` should be public.
+The contents of `$DIR` must be public.
 
 For each received ballot, append it to `ballots.jsons` and run:
 
@@ -88,7 +92,7 @@ If no error is reported, publish the new `ballots.jsons`; otherwise,
 the new ballot is incorrect and you must revert `ballots.jsons` to its
 previous state.
 
-Note that each ballot should be authenticated in order to prevent the
+Note that each ballot must be authenticated in order to prevent the
 credential authority from stuffing the ballot box. This issue is not
 addressed by the command-line tool, but the web server provides
 several authentication mechanisms.
@@ -129,7 +133,7 @@ election given by the administrator. It will generate three files with
    credential later (e.g. if a voter lost or did not receive it).
  * `T.pubcreds`: each line of this file contains a public credential.
    Send the whole file to the election administrator; it will be the
-   `public_creds.txt` for the election (and you should check that);
+   `public_creds.txt` for the election (and you must check that);
  * `T.hashcreds`: each line of this file contains, for each id in
    `T.privcreds`, the hash of the corresponding public key. At the
    moment, this file has no practical purpose (but this might change in
@@ -151,7 +155,7 @@ To generate a keypair, run:
 It will generate two files, `XXXXXXXX.public` and `XXXXXXXX.private`,
 containing respectively the public and the private key. Send the
 public key file to the server administrator, and keep the private key
-with extreme care. When the election is open, you should check that
+with extreme care. When the election is open, you must check that
 your public key is present in the published `public_keys.jsons`.
 
 ### Partial decryption

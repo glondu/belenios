@@ -2,14 +2,14 @@
 ================
 
  * Many changes in the web server:
-   + Add election_missing_voters: it now possible to see the list of
+   + Add election_missing_voters: it is now possible to see the list of
      people who did not vote (new link in election administration
      page).
    + Hide the login box when it is not relevant: We do no longer show
      login links in the top right hand corner of the page. The voter
      is automatically invited to log in when he is about to cast a
      vote.
-   + Do no longer show warning when window.cryto is unavailable (this
+   + Do no longer show warning when window.crypto is unavailable (this
      warning appeared on IE8).
    + In admin page, show tallied elections in a new section.
    + In admin page, sort (finalized) elections by finalization time.
@@ -17,7 +17,7 @@
    + Generating trustee keys is more resilient to momentary lack of
      entropy.
    + Change default question to make the blank choice explicit.
-   + Print number of accepted ballots on the result pagee
+   + Print number of accepted ballots on the result page.
    + Add the possibility to specify a login attached to an email
      address. E-mail address and logins must be specified in the
      following way: foo@example.com,login. When login is not
