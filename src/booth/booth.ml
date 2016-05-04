@@ -29,6 +29,12 @@ let document = Dom_html.window##document
 let withElementById x f =
   Js.Opt.iter (document##getElementById (Js.string x)) f
 
+let getHtmlById x =
+  let r = ref x in
+  withElementById x (fun x ->
+    r := Js.to_string x##innerHTML
+  ); !r
+
 let alert s : unit =
   let open Js.Unsafe in
   fun_call (variable "alert") [| s |> Js.string |> inject |]
@@ -128,8 +134,10 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   in
   let () =
     let c = document##createElement (Js.string "div") in
-    let s = Printf.sprintf
-      "Question #%d of %d — select between %d and %d answer(s)"
+    let fmt = Scanf.format_from_string
+      (getHtmlById "question_header") "%d%d%d%d"
+    in
+    let s = Printf.sprintf fmt
       (i + 1) num_questions q.q_min q.q_max
     in
     let t = document##createTextNode (Js.string s) in
@@ -163,10 +171,12 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   let check_constraints () =
     let total = Array.fold_left (+) 0 answers in
     if total < q.q_min then (
-      Printf.ksprintf alert "You must select at least %d answer(s)" q.q_min;
+      let fmt = Scanf.format_from_string (getHtmlById "at_least") "%d" in
+      Printf.ksprintf alert fmt q.q_min;
       false
     ) else if total > q.q_max then (
-      Printf.ksprintf alert "You must select at most %d answer(s)" q.q_max;
+      let fmt = Scanf.format_from_string (getHtmlById "at_most") "%d" in
+      Printf.ksprintf alert fmt q.q_max;
       false
     ) else true
   in
@@ -181,7 +191,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         ()
       | r :: prev ->
         let b = document##createElement (Js.string "button") in
-        let t = document##createTextNode (Js.string "Previous") in
+        let t = document##createTextNode (Js.string @@ getHtmlById "str_previous") in
         b##onclick <- Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
@@ -200,7 +210,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
       | [] ->
         (* last question, the button leads to encryption page *)
         let b = document##createElement (Js.string "button") in
-        let t = document##createTextNode (Js.string "Next") in
+        let t = document##createTextNode (Js.string @@ getHtmlById "str_next") in
         b##onclick <- Dom_html.handler (fun _ ->
          if check_constraints () then (
           let all = (q, answers) :: prev in
@@ -227,7 +237,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
                 )
               ) a;
               if !checked = 0 then (
-                let t = document##createTextNode (Js.string "(nothing)") in
+                let t = document##createTextNode (Js.string @@ getHtmlById "str_nothing") in
                 Dom.appendChild ul t
               );
               Dom.appendChild e ul;
@@ -243,7 +253,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         Dom.appendChild btns b
       | r :: next ->
         let b = document##createElement (Js.string "button") in
-        let t = document##createTextNode (Js.string "Next") in
+        let t = document##createTextNode (Js.string @@ getHtmlById "str_next") in
         b##onclick <- Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
@@ -279,7 +289,7 @@ let createStartButton params intro_div qs =
   b##setAttribute (Js.string "style", Js.string "font-size:20px;");
   let t = document##createTextNode (Js.string "here") in
   b##onclick <- Dom_html.handler (fun _ ->
-    (match prompt "Please enter your credential:" with
+    (match prompt (getHtmlById "enter_cred") with
     | Some cred when Credential.check cred ->
       intro_div##style##display <- Js.string "none";
       setDisplayById "question_div" "block";
@@ -289,7 +299,7 @@ let createStartButton params intro_div qs =
       progress_step 2;
       addQuestions cred params qs
     | Some _ ->
-       alert "Invalid credential!"
+       alert (getHtmlById "invalid_cred")
     | None -> ()
     );
     Js._false
