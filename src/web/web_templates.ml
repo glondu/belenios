@@ -461,17 +461,10 @@ let election_setup uuid se () =
       )
     ]
   in
-  let form_create =
-    post_form
-      ~service:election_setup_create
-      (fun () ->
-       [div
-          [h2 [pcdata "Finalize creation"];
-           string_input ~input_type:`Submit ~value:"Create election" ();
-           pcdata " (Warning: this action is irreversible.)";
-          ]]
-      ) uuid
-  in
+  let link_confirm = div [
+    h2 [pcdata "Finalize creation"];
+    a ~service:election_setup_confirm [pcdata "Create election"] uuid;
+  ] in
   let content = [
     div_description;
     hr ();
@@ -485,7 +478,7 @@ let election_setup uuid se () =
     hr ();
     div_trustees;
     hr ();
-    form_create;
+    link_confirm;
   ] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
@@ -889,6 +882,67 @@ let election_setup_import uuid se (elections, tallied, archived) () =
     itemize tallied;
     h2 [pcdata "Archived elections"];
     itemize archived;
+  ] in
+  lwt login_box = site_login_box () in
+  base ~title ~login_box ~content ()
+
+let election_setup_confirm uuid se () =
+  let title = "Election " ^ se.se_questions.t_name ^ " — Finalize creation" in
+  let voters = Printf.sprintf "%d voter(s)" (List.length se.se_voters) in
+  let passwords =
+    match se.se_metadata.e_auth_config with
+    | Some [{auth_system = "password"; _}] ->
+       if List.for_all (fun v -> v.sv_password <> None) se.se_voters then "OK"
+       else "Missing"
+    | _ -> "Not applicable"
+  in
+  let credentials =
+    if se.se_public_creds_received then "OK" else "Missing"
+  in
+  let trustees =
+    match se.se_public_keys with
+    | [] -> "OK"
+    | _ :: _ ->
+       if List.for_all (fun {st_public_key; _} ->
+         st_public_key <> ""
+       ) se.se_public_keys then "OK" else "Missing"
+  in
+  let table_checklist = table [
+    tr [
+      td [pcdata "Voters?"];
+      td [pcdata voters];
+    ];
+    tr [
+      td [pcdata "Passwords?"];
+      td [pcdata passwords];
+    ];
+    tr [
+      td [pcdata "Credentials?"];
+      td [pcdata credentials];
+    ];
+    tr [
+      td [pcdata "Trustees?"];
+      td [pcdata trustees];
+    ]
+  ] in
+  let checklist = div [
+    h2 [pcdata "Checklist"];
+    table_checklist;
+  ] in
+  let form_create =
+    post_form
+      ~service:election_setup_create
+      (fun () ->
+       [div
+          [h2 [pcdata "Finalize creation"];
+           string_input ~input_type:`Submit ~value:"Create election" ();
+           pcdata " (Warning: this action is irreversible.)";
+          ]]
+      ) uuid
+  in
+  let content = [
+    checklist;
+    form_create;
   ] in
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
