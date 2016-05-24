@@ -73,3 +73,5 @@ val login_choose :
 
 val login_dummy : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val login_password : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+
+val booth : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

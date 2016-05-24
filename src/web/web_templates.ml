@@ -1650,3 +1650,147 @@ let login_password () =
   ] in
   let login_box = pcdata "" in
   base ~title:"Password login" ~login_box ~content ()
+
+let booth () =
+  let head = head (title (pcdata "Belenios Booth")) [
+    link ~rel:[`Stylesheet] ~href:(uri_of_string (fun () -> "/static/booth.css")) ();
+    script ~a:[a_src (uri_of_string (fun () -> "/static/sjcl.js"))] (pcdata "");
+    script ~a:[a_src (uri_of_string (fun () -> "/static/jsbn.js"))] (pcdata "");
+    script ~a:[a_src (uri_of_string (fun () -> "/static/jsbn2.js"))] (pcdata "");
+    script ~a:[a_src (uri_of_string (fun () -> "/static/random.js"))] (pcdata "");
+    script ~a:[a_src (uri_of_string (fun () -> "/static/booth.js"))] (pcdata "");
+  ] in
+  let election_loader =
+    let name : 'a Eliom_parameter.param_name = Obj.magic "election_params" in
+    div ~a:[a_id "election_loader"; a_style "display:none;"] [
+      h1 [pcdata "Election loader"];
+      pcdata "Election parameters:";
+      div [textarea ~name ~a:[a_id "election_params"; a_rows 1; a_cols 80] ()];
+      div [button ~button_type:`Button ~a:[a_id "load_election"] [pcdata "Load election"]];
+    ]
+  in
+  let text_choices =
+    let name : 'a Eliom_parameter.param_name = Obj.magic "choices" in
+    textarea ~name ~a:[a_id "choices"; a_rows 1; a_cols 80; a_readonly `ReadOnly] ()
+  in
+  let ballot_form =
+    post_form ~a:[a_id "ballot_form"] ~service:election_cast_post
+      (fun (encrypted_vote, _) -> [
+        div ~a:[a_style "display:none;"] [
+          pcdata "Encrypted ballot:";
+          div [
+            textarea
+              ~a:[a_id "ballot"; a_rows 1; a_cols 80; a_readonly `ReadOnly]
+              ~name:encrypted_vote ();
+          ];
+        ];
+        p [
+          pcdata "Your ballot has been successfully encrypted, ";
+          b [pcdata "but has not been cast yet"];
+          pcdata "!";
+        ];
+        p [
+          pcdata "Your smart ballot tracker is ";
+          span ~a:[a_id "ballot_tracker"] [];
+        ];
+        p [
+          pcdata "We invite you to save it in order to check later that it is taken into account.";
+        ];
+        br ();
+        string_input ~input_type:`Submit ~value:"Continue" ~a:[a_style "font-size:30px;"] ();
+        br (); br ();
+       ])
+      (Uuidm.nil, ())
+  in
+  let main =
+    div ~a:[a_id "main"] [
+      div ~a:[a_style "text-align:center; margin-bottom:20px;"] [
+        span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [pcdata "Input credential"];
+        pcdata " — ";
+        span ~a:[a_id "progress2"] [pcdata "Answer to questions"];
+        pcdata " — ";
+        span ~a:[a_id "progress3"] [pcdata "Review and encrypt"];
+        pcdata " — ";
+        span ~a:[a_id "progress4"] [pcdata "Authenticate"];
+        pcdata " — ";
+        span ~a:[a_id "progress5"] [pcdata "Confirm"];
+        pcdata " — ";
+        span ~a:[a_id "progress6"] [pcdata "Done"];
+        hr ();
+      ];
+      div ~a:[a_id "intro"; a_style "text-align:center;"] [
+        div ~a:[a_class ["current_step"]] [
+          pcdata "Step 1/6: Input your credential"
+        ];
+        br (); br ();
+        p ~a:[a_id "input_code"; a_style "font-size:20px;"] [
+          pcdata "Input your credential ";
+        ];
+        br (); br ();
+      ];
+      div ~a:[a_id "question_div"; a_style "display:none;"] [
+        div ~a:[a_class ["current_step"]] [
+          pcdata "Step 2/6: Answer to questions";
+        ];
+      ];
+      div ~a:[a_id "plaintext_div"; a_style "display:none;"] [
+        div ~a:[a_class ["current_step"]] [
+          pcdata "Step 3/6: Review and encrypt";
+        ];
+        div ~a:[a_id "pretty_choices"] [];
+        div ~a:[a_style "display:none;"] [
+          pcdata "Plaintext raw ballot:";
+          div [text_choices];
+        ];
+        div ~a:[a_style "text-align:center;"] [
+          div ~a:[a_id "encrypting_div"] [
+            p [pcdata "Please wait while your ballot is being encrypted..."];
+            img ~src:(uri_of_string (fun () -> "/static/encrypting.gif")) ~alt:"Encrypting..." ();
+          ];
+          div ~a:[a_id "ballot_div"; a_style "display:none;"] [ballot_form];
+          Unsafe.data "<button onclick=\"location.reload();\">Restart</button>";
+          br (); br ();
+        ];
+      ];
+    ]
+  in
+  let booth_div =
+    div ~a:[a_id "booth_div"; a_style "display:none;"] [
+      div ~a:[a_id "header"] [
+        div ~a:[a_style "text-align:center;"] [
+          h1 ~a:[a_id "election_name"] [];
+          p ~a:[a_id "election_description"] [];
+        ]
+      ];
+      main;
+      div ~a:[a_id "footer"] [
+        div ~a:[a_id "bottom"] [
+          div [
+            pcdata "Election UUID: ";
+            span ~a:[a_id "election_uuid"] [];
+          ];
+          div [
+            pcdata "Election fingerprint: ";
+            span ~a:[a_id "election_fingerprint"] [];
+          ];
+        ];
+      ];
+      div ~a:[a_style "display:none;"] [
+        span ~a:[a_id "question_header"] [pcdata "Question #%d of %d — select between %d and %d answer(s)"];
+        span ~a:[a_id "at_least"] [pcdata "You must select at least %d answer(s)"];
+        span ~a:[a_id "at_most"] [pcdata "You must select at most %d answer(s)"];
+        span ~a:[a_id "str_previous"] [pcdata "Previous"];
+        span ~a:[a_id "str_next"] [pcdata "Next"];
+        span ~a:[a_id "str_nothing"] [pcdata "(nothing)"];
+        span ~a:[a_id "enter_cred"] [pcdata "Please enter your credential:"];
+        span ~a:[a_id "invalid_cred"] [pcdata "Invalid credential!"];
+      ];
+    ]
+  in
+  let body = body [
+    div ~a:[a_id "wrapper"] [
+      election_loader;
+      booth_div;
+    ];
+  ] in
+  return @@ html ~a:[a_dir `Ltr; a_xml_lang "en"] head body

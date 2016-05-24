@@ -327,33 +327,24 @@ let loadElection () =
     withElementById "input_code" (fun e -> Dom.appendChild e b)
   )
 
-let split str prefix =
+let get_prefix str =
   let n = String.length str in
-  let p = String.length prefix in
-  if p <= n && String.sub str 0 p = prefix then
-    Some (String.sub str p (n-p))
-  else None
+  if n >= 4 then String.sub str 0 (n-4) else str
 
 let () =
   Dom_html.window##onload <- Dom_html.handler (fun _ ->
-    let s = Js.to_string Dom_html.window##location##search in
-    (match split s "?election_url=" with
-    | Some url ->
-      let url = Url.urldecode url in
-      withElementById "ballot_form" (fun e ->
-        Js.Opt.iter
-          (Dom_html.CoerceTo.form e)
-          (fun e -> e##action <- Js.string (url ^ "cast"))
-      );
-      let open XmlHttpRequest in
-      Lwt.async (fun () ->
-        lwt raw = get (url ^ "election.json") in
-        let () = setTextarea "election_params" raw.content in
-        Lwt.return (runHandler loadElection ())
-      )
-    | None ->
-      setDisplayById "election_loader" "block";
-      installHandler "load_election" loadElection;
+    let s = Js.to_string Dom_html.window##location##pathname in
+    let url = get_prefix s in
+    withElementById "ballot_form" (fun e ->
+      Js.Opt.iter
+        (Dom_html.CoerceTo.form e)
+        (fun e -> e##action <- Js.string (url ^ "cast"))
+    );
+    let open XmlHttpRequest in
+    Lwt.async (fun () ->
+      lwt raw = get (url ^ "election.json") in
+      let () = setTextarea "election_params" raw.content in
+      Lwt.return (runHandler loadElection ())
     );
     Js._false
   )

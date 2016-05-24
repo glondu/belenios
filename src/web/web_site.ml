@@ -994,17 +994,9 @@ let () =
 let () =
   Any.register
     ~service:election_vote
-    (fun (uuid, ()) () ->
-      let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
-      let module W = (val w) in
+    (fun (_, ()) () ->
       Eliom_reference.unset Web_state.ballot >>
-      Redirection.send
-        (Eliom_service.preapply
-           (Eliom_service.static_dir_with_params
-              ~get_params:(Eliom_parameter.string "election_url") ())
-           (["static"; "vote.html"],
-            "../elections/" ^ uuid_s ^ "/")))
+      Web_templates.booth () >>= Html5.send)
 
 let () =
   Any.register
