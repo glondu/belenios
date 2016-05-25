@@ -1,0 +1,5 @@
+let start = "Start"
+let or_ = "or"
+let submit_a_raw_ballot = "submit a raw ballot"
+let see_accepted_ballots = "See accepted ballots"
+let belenios_booth = "Belenios Booth"

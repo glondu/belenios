@@ -38,3 +38,5 @@ val cont_pop : unit -> (unit -> content) option Lwt.t
 
 val ballot : string option Eliom_reference.eref
 val cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option Eliom_reference.eref
+
+val language : string Eliom_reference.eref

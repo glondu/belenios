@@ -952,6 +952,8 @@ let audit_footer w =
   ]
 
 let election_home w state () =
+  lwt language = Eliom_reference.get Web_state.language in
+  let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
   let state_ =
@@ -991,7 +993,7 @@ let election_home w state () =
         a
           ~a:[a_style "font-size:25px;"]
           ~service:election_pretty_ballots [
-            pcdata "See accepted ballots"
+            pcdata L.see_accepted_ballots
           ] (params.e_uuid, ())
       ]
   in
@@ -1001,13 +1003,14 @@ let election_home w state () =
       div [
         make_button
           ~service:(Eliom_service.preapply election_vote (params.e_uuid, ()))
-          "Start";
+          L.start;
         ];
       div [
-        pcdata "or ";
+        pcdata L.or_;
+        pcdata " ";
         a
           ~service:(Eliom_service.preapply election_cast (params.e_uuid, ()))
-          [pcdata "submit a raw ballot"] ();
+          [pcdata L.submit_a_raw_ballot] ();
       ];
     ]
   in
@@ -1048,7 +1051,15 @@ let election_home w state () =
        ]
     | None -> return go_to_the_booth
   in
+  let languages =
+    div ~a:[a_class ["languages"]] [
+      a ~service:set_language [pcdata "en"] "en";
+      pcdata " ";
+      a ~service:set_language [pcdata "fr"] "fr";
+    ]
+  in
   let content = [
+    languages;
     p state_;
     br ();
     middle;
@@ -1652,7 +1663,9 @@ let login_password () =
   base ~title:"Password login" ~login_box ~content ()
 
 let booth () =
-  let head = head (title (pcdata "Belenios Booth")) [
+  lwt language = Eliom_reference.get Web_state.language in
+  let module L = (val Web_i18n.get_lang language) in
+  let head = head (title (pcdata L.belenios_booth)) [
     link ~rel:[`Stylesheet] ~href:(uri_of_string (fun () -> "/static/booth.css")) ();
     script ~a:[a_src (uri_of_string (fun () -> "/static/sjcl.js"))] (pcdata "");
     script ~a:[a_src (uri_of_string (fun () -> "/static/jsbn.js"))] (pcdata "");

@@ -91,3 +91,5 @@ let election_dir = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" 
 
 let dummy_post = post_coservice' ~post_params:(string "username") ()
 let password_post = post_coservice' ~post_params:(string "username" ** string "password") ()
+
+let set_language = coservice' ~get_params:(string "lang") ()

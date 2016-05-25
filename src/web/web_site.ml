@@ -1348,3 +1348,12 @@ let () =
         Web_persist.set_partial_decryptions uuid_s [1, pd] >>
         handle_election_tally_release (uuid, ()) ()
       ) else Redirection.send (preapply election_admin (uuid, ())))
+
+let () =
+  Any.register ~service:set_language
+    (fun lang () ->
+      Eliom_reference.set Web_state.language lang >>
+      lwt cont = Web_state.cont_pop () in
+      match cont with
+      | Some f -> f ()
+      | None -> Redirection.send home)

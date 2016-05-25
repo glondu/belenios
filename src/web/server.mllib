@@ -8,6 +8,10 @@ Group
 Election
 Credential
 
+Web_l10n_en
+Web_l10n_fr
+Web_i18n
+
 Web_serializable_builtin_t
 Web_serializable_builtin_j
 Web_serializable_j

@@ -79,3 +79,5 @@ let cont_pop () =
 
 let ballot = Eliom_reference.eref ~scope None
 let cast_confirmed = Eliom_reference.eref ~scope None
+
+let language = Eliom_reference.eref ~scope "en"

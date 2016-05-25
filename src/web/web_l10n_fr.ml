@@ -1,0 +1,5 @@
+let start = "Commencer"
+let or_ = "ou"
+let submit_a_raw_ballot = "soumettre un bulletin brut"
+let see_accepted_ballots = "Voir les bulletins acceptés"
+let belenios_booth = "Isoloir Belenios"
