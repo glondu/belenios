@@ -1789,6 +1789,7 @@ let booth () =
         ];
       ];
       div ~a:[a_style "display:none;"] [
+        span ~a:[a_id "str_here"] [pcdata "here"];
         span ~a:[a_id "question_header"] [pcdata "Question #%d of %d — select between %d and %d answer(s)"];
         span ~a:[a_id "at_least"] [pcdata "You must select at least %d answer(s)"];
         span ~a:[a_id "at_most"] [pcdata "You must select at most %d answer(s)"];

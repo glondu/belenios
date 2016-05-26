@@ -287,7 +287,7 @@ let addQuestions sk params qs =
 let createStartButton params intro_div qs =
   let b = document##createElement (Js.string "button") in
   b##setAttribute (Js.string "style", Js.string "font-size:20px;");
-  let t = document##createTextNode (Js.string "here") in
+  let t = document##createTextNode (Js.string (getHtmlById "str_here")) in
   b##onclick <- Dom_html.handler (fun _ ->
     (match prompt (getHtmlById "enter_cred") with
     | Some cred when Credential.check cred ->
