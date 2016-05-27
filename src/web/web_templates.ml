@@ -1346,6 +1346,8 @@ let cast_raw w () =
   base ~title:params.e_name ~login_box ~content ~uuid ~footer ()
 
 let cast_confirmation w hash () =
+  lwt language = Eliom_reference.get Web_state.language in
+  let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
   lwt user = Web_state.get_election_user W.election.e_params.e_uuid in
   let params = W.election.e_params in
@@ -1354,43 +1356,50 @@ let cast_confirmation w hash () =
     | Some u ->
       post_form ~service:election_cast_confirm (fun () -> [
         p ~a:[a_style "text-align: center; padding: 10px;"] [
-          pcdata "I am ";
+          pcdata L.i_am;
           format_user ~site:false u;
-          pcdata " and ";
+          pcdata L.and_;
           string_input
             ~a:[a_style "font-size: 20px; cursor: pointer;"]
-            ~input_type:`Submit ~value:"I cast my vote" ();
+            ~input_type:`Submit ~value:L.i_cast_my_vote ();
           pcdata ".";
         ]
       ]) (params.e_uuid, ())
     | None ->
       div [
-        pcdata "Please log in to confirm your vote.";
+        pcdata L.please_login_to_confirm;
       ]
   in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-    pcdata "Input credential — Answer to questions — Review and encrypt";
-    pcdata " — Authenticate — ";
-    b [pcdata "Confirm"];
-    pcdata " — Done";
+    pcdata L.input_credential;
+    pcdata " — ";
+    pcdata L.answer_to_questions;
+    pcdata " — ";
+    pcdata L.review_and_encrypt;
+    pcdata " — ";
+    pcdata L.authenticate;
+    pcdata " — ";
+    b [pcdata L.confirm];
+    pcdata " — ";
+    pcdata L.done_;
     hr ();
   ] in
   let content = [
     progress;
     div ~a:[a_class ["current_step"]] [
-        pcdata "Step 5/6: Confirm";
+        pcdata L.booth_step5;
     ];
     p [
-      pcdata "Your ballot for ";
+      pcdata L.your_ballot_for;
       em [pcdata name];
-      pcdata " has been received, but not recorded yet. ";
-      pcdata "Your smart ballot tracker is ";
+      pcdata L.has_been_received;
+      pcdata L.your_tracker_is;
       b [pcdata hash];
       pcdata ".";
       br ();
     ];
     br ();
-    p [pcdata "Note: your ballot is encrypted and nobody can see its contents."];
+    p [pcdata L.nobody_can_see];
     user_div;
     p [
       (let service =
@@ -1398,7 +1407,7 @@ let cast_confirmation w hash () =
           Web_services.election_home (W.election.e_params.e_uuid, ())
       in
       a ~service [
-        pcdata "Go back to election"
+        pcdata L.go_back_to_election
       ] ());
       pcdata ".";
     ];
@@ -1408,45 +1417,58 @@ let cast_confirmation w hash () =
   base ~title:name ~login_box ~content ~uuid ()
 
 let cast_confirmed w ~result () =
+  lwt language = Eliom_reference.get Web_state.language in
+  let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
   let name = params.e_name in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-    pcdata "Input credential — Answer to questions — Review and encrypt";
-    pcdata " — Authenticate — Confirm — ";
-    b [pcdata "Done"];
+    pcdata L.input_credential;
+    pcdata " — ";
+    pcdata L.answer_to_questions;
+    pcdata " — ";
+    pcdata L.review_and_encrypt;
+    pcdata " — ";
+    pcdata L.authenticate;
+    pcdata " — ";
+    pcdata L.confirm;
+    pcdata " — ";
+    b [pcdata L.done_];
     hr ();
   ] in
   let result, step_title =
     match result with
     | `Valid hash ->
-       [pcdata " has been accepted, your smart ballot tracker is ";
+       [pcdata L.has_been_accepted;
+        pcdata " ";
+        pcdata L.your_tracker_is;
         b [pcdata hash];
-        pcdata ". You can check its presence in the ";
-        a ~service:election_pretty_ballots [pcdata "ballot box"] (params.e_uuid, ());
-        pcdata " anytime during the election.";
-        pcdata " A confirmation e-mail has been sent to you.";
-       ], "Thank you for voting!"
+        pcdata ". ";
+        pcdata L.you_can_check_its_presence;
+        a ~service:election_pretty_ballots [pcdata L.ballot_box] (params.e_uuid, ());
+        pcdata L.anytime_during_the_election;
+        pcdata L.confirmation_email;
+       ], L.thank_you_for_voting
     | `Error e ->
-       [pcdata " is rejected, because ";
+       [pcdata L.is_rejected_because;
         pcdata (Web_common.explain_error e);
         pcdata ".";
-       ], "FAIL!"
+       ], L.fail
   in
   let content = [
     progress;
     div ~a:[a_class ["current_step"]] [
-        pcdata "Step 6/6: ";
+        pcdata L.booth_step6;
         pcdata step_title;
     ];
     p ([
-      pcdata "Your ballot for ";
+      pcdata L.your_ballot_for;
       em [pcdata name];
       ] @ result);
     p [
       (let service = Eliom_service.preapply logout () in
       a ~a:[a_id "logout"] ~service [
-        pcdata "Log out and come back to election page"
+        pcdata L.logout_and_come_back
       ] ());
       pcdata ".";
     ];
@@ -1698,19 +1720,19 @@ let booth () =
           ];
         ];
         p [
-          pcdata "Your ballot has been successfully encrypted, ";
-          b [pcdata "but has not been cast yet"];
-          pcdata "!";
+          pcdata L.successfully_encrypted;
+          b [pcdata L.not_cast_yet];
+          pcdata L.qmark;
         ];
         p [
-          pcdata "Your smart ballot tracker is ";
+          pcdata L.your_tracker_is;
           span ~a:[a_id "ballot_tracker"] [];
         ];
         p [
-          pcdata "We invite you to save it in order to check later that it is taken into account.";
+          pcdata L.we_invite_you_to_save_it;
         ];
         br ();
-        string_input ~input_type:`Submit ~value:"Continue" ~a:[a_style "font-size:30px;"] ();
+        string_input ~input_type:`Submit ~value:L.continue ~a:[a_style "font-size:30px;"] ();
         br (); br ();
        ])
       (Uuidm.nil, ())
@@ -1718,37 +1740,37 @@ let booth () =
   let main =
     div ~a:[a_id "main"] [
       div ~a:[a_style "text-align:center; margin-bottom:20px;"] [
-        span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [pcdata "Input credential"];
+        span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [pcdata L.input_credential];
         pcdata " — ";
-        span ~a:[a_id "progress2"] [pcdata "Answer to questions"];
+        span ~a:[a_id "progress2"] [pcdata L.answer_to_questions];
         pcdata " — ";
-        span ~a:[a_id "progress3"] [pcdata "Review and encrypt"];
+        span ~a:[a_id "progress3"] [pcdata L.review_and_encrypt];
         pcdata " — ";
-        span ~a:[a_id "progress4"] [pcdata "Authenticate"];
+        span ~a:[a_id "progress4"] [pcdata L.authenticate];
         pcdata " — ";
-        span ~a:[a_id "progress5"] [pcdata "Confirm"];
+        span ~a:[a_id "progress5"] [pcdata L.confirm];
         pcdata " — ";
-        span ~a:[a_id "progress6"] [pcdata "Done"];
+        span ~a:[a_id "progress6"] [pcdata L.done_];
         hr ();
       ];
       div ~a:[a_id "intro"; a_style "text-align:center;"] [
         div ~a:[a_class ["current_step"]] [
-          pcdata "Step 1/6: Input your credential"
+          pcdata L.booth_step1;
         ];
         br (); br ();
         p ~a:[a_id "input_code"; a_style "font-size:20px;"] [
-          pcdata "Input your credential ";
+          pcdata L.input_your_credential;
         ];
         br (); br ();
       ];
       div ~a:[a_id "question_div"; a_style "display:none;"] [
         div ~a:[a_class ["current_step"]] [
-          pcdata "Step 2/6: Answer to questions";
+          pcdata L.booth_step2;
         ];
       ];
       div ~a:[a_id "plaintext_div"; a_style "display:none;"] [
         div ~a:[a_class ["current_step"]] [
-          pcdata "Step 3/6: Review and encrypt";
+          pcdata L.booth_step3;
         ];
         div ~a:[a_id "pretty_choices"] [];
         div ~a:[a_style "display:none;"] [
@@ -1757,11 +1779,11 @@ let booth () =
         ];
         div ~a:[a_style "text-align:center;"] [
           div ~a:[a_id "encrypting_div"] [
-            p [pcdata "Please wait while your ballot is being encrypted..."];
-            img ~src:(uri_of_string (fun () -> "/static/encrypting.gif")) ~alt:"Encrypting..." ();
+            p [pcdata L.wait_while_encrypted];
+            img ~src:(uri_of_string (fun () -> "/static/encrypting.gif")) ~alt:L.encrypting ();
           ];
           div ~a:[a_id "ballot_div"; a_style "display:none;"] [ballot_form];
-          Unsafe.data "<button onclick=\"location.reload();\">Restart</button>";
+          Unsafe.data ("<button onclick=\"location.reload();\">"^L.restart^"</button>");
           br (); br ();
         ];
       ];
@@ -1779,25 +1801,25 @@ let booth () =
       div ~a:[a_id "footer"] [
         div ~a:[a_id "bottom"] [
           div [
-            pcdata "Election UUID: ";
+            pcdata L.election_uuid;
             span ~a:[a_id "election_uuid"] [];
           ];
           div [
-            pcdata "Election fingerprint: ";
+            pcdata L.election_fingerprint;
             span ~a:[a_id "election_fingerprint"] [];
           ];
         ];
       ];
       div ~a:[a_style "display:none;"] [
-        span ~a:[a_id "str_here"] [pcdata "here"];
-        span ~a:[a_id "question_header"] [pcdata "Question #%d of %d — select between %d and %d answer(s)"];
-        span ~a:[a_id "at_least"] [pcdata "You must select at least %d answer(s)"];
-        span ~a:[a_id "at_most"] [pcdata "You must select at most %d answer(s)"];
-        span ~a:[a_id "str_previous"] [pcdata "Previous"];
-        span ~a:[a_id "str_next"] [pcdata "Next"];
-        span ~a:[a_id "str_nothing"] [pcdata "(nothing)"];
-        span ~a:[a_id "enter_cred"] [pcdata "Please enter your credential:"];
-        span ~a:[a_id "invalid_cred"] [pcdata "Invalid credential!"];
+        span ~a:[a_id "str_here"] [pcdata L.here];
+        span ~a:[a_id "question_header"] [pcdata L.question_header];
+        span ~a:[a_id "at_least"] [pcdata L.at_least];
+        span ~a:[a_id "at_most"] [pcdata L.at_most];
+        span ~a:[a_id "str_previous"] [pcdata L.previous];
+        span ~a:[a_id "str_next"] [pcdata L.next];
+        span ~a:[a_id "str_nothing"] [pcdata L.nothing];
+        span ~a:[a_id "enter_cred"] [pcdata L.enter_cred];
+        span ~a:[a_id "invalid_cred"] [pcdata L.invalid_cred];
       ];
     ]
   in
