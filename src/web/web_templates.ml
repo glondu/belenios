@@ -148,10 +148,7 @@ let format_election election =
   let e = W.election.e_params in
   let service = election_admin in
   li [
-    h3 [
-      a ~service [pcdata e.e_name] (e.e_uuid, ());
-    ];
-    p [pcdata e.e_description];
+    a ~service [pcdata e.e_name] (e.e_uuid, ());
   ]
 
 let home () =
