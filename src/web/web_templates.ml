@@ -897,7 +897,9 @@ let election_setup_confirm uuid se () =
     | _ -> "Not applicable"
   in
   let credentials =
-    if se.se_public_creds_received then "OK" else "Missing"
+    if se.se_public_creds_received then
+      if se.se_metadata.e_cred_authority = None then "Received" else "Sent"
+    else "Missing"
   in
   let trustees =
     match se.se_public_keys with
