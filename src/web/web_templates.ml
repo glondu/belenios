@@ -291,7 +291,7 @@ let election_setup_pre () =
   let title = "Prepare a new election" in
   let cred_info = Eliom_service.Http.external_service
     ~prefix:"http://belenios.gforge.inria.fr"
-    ~path:["howitworks.php"]
+    ~path:["setup.php"]
     ~get_params:Eliom_parameter.unit
     ()
   in
