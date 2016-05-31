@@ -889,25 +889,26 @@ let election_setup_import uuid se (elections, tallied, archived) () =
 let election_setup_confirm uuid se () =
   let title = "Election " ^ se.se_questions.t_name ^ " — Finalize creation" in
   let voters = Printf.sprintf "%d voter(s)" (List.length se.se_voters) in
-  let passwords =
+  let ready = not (se.se_voters = []) in
+  let ready, passwords =
     match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] ->
-       if List.for_all (fun v -> v.sv_password <> None) se.se_voters then "OK"
-       else "Missing"
-    | _ -> "Not applicable"
+       if List.for_all (fun v -> v.sv_password <> None) se.se_voters then ready, "OK"
+       else false, "Missing"
+    | _ -> ready, "Not applicable"
   in
-  let credentials =
+  let ready, credentials =
     if se.se_public_creds_received then
-      if se.se_metadata.e_cred_authority = None then "Received" else "Sent"
-    else "Missing"
+      ready, if se.se_metadata.e_cred_authority = None then "Received" else "Sent"
+    else false, "Missing"
   in
-  let trustees =
+  let ready, trustees =
     match se.se_public_keys with
-    | [] -> "OK"
+    | [] -> ready, "OK"
     | _ :: _ ->
        if List.for_all (fun {st_public_key; _} ->
          st_public_key <> ""
-       ) se.se_public_keys then "OK" else "Missing"
+       ) se.se_public_keys then ready, "OK" else false, "Missing"
   in
   let table_checklist = table [
     tr [
@@ -932,15 +933,17 @@ let election_setup_confirm uuid se () =
     table_checklist;
   ] in
   let form_create =
-    post_form
-      ~service:election_setup_create
-      (fun () ->
-       [div
-          [h2 [pcdata "Finalize creation"];
-           string_input ~input_type:`Submit ~value:"Create election" ();
-           pcdata " (Warning: this action is irreversible.)";
-          ]]
-      ) uuid
+    if ready then
+      post_form
+        ~service:election_setup_create
+        (fun () ->
+          [div
+              [h2 [pcdata "Finalize creation"];
+               string_input ~input_type:`Submit ~value:"Create election" ();
+               pcdata " (Warning: this action is irreversible.)";
+              ]]
+        ) uuid
+    else div []
   in
   let content = [
     checklist;
