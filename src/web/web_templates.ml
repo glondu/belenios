@@ -945,7 +945,11 @@ let election_setup_confirm uuid se () =
         ) uuid
     else div []
   in
+  let back = div [
+    a ~service:Web_services.election_setup [pcdata "Return to setup page"] uuid;
+  ] in
   let content = [
+    back;
     checklist;
     form_create;
   ] in
