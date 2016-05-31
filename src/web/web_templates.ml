@@ -143,14 +143,10 @@ let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
       ]]
      ]))
 
-let format_election kind election =
+let format_election election =
   let module W = (val election : ELECTION_DATA) in
   let e = W.election.e_params in
-  let service =
-    match kind with
-    | `Home -> election_home
-    | `Admin -> election_admin
-  in
+  let service = election_admin in
   li [
     h3 [
       a ~service [pcdata e.e_name] (e.e_uuid, ());
@@ -207,17 +203,17 @@ let admin ~elections () =
     let elections =
       match elections with
       | [] -> p [pcdata "You own no such elections!"]
-      | _ -> ul @@ List.map (format_election `Admin) elections
+      | _ -> ul @@ List.map format_election elections
     in
     let tallied =
       match tallied with
       | [] -> p [pcdata "You own no such elections!"]
-      | _ -> ul @@ List.map (format_election `Admin) tallied
+      | _ -> ul @@ List.map format_election tallied
     in
     let archived =
       match archived with
       | [] -> p [pcdata "You own no such elections!"]
-      | _ -> ul @@ List.map (format_election `Admin) archived
+      | _ -> ul @@ List.map format_election archived
     in
     let setup_elections =
       match setup_elections with
