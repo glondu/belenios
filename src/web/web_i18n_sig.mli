@@ -1,4 +1,5 @@
 module type LocalizedStrings = sig
+  val lang : string
   val start : string
   val or_ : string
   val submit_a_raw_ballot : string
@@ -53,4 +54,23 @@ module type LocalizedStrings = sig
   val is_rejected_because : string
   val fail : string
   val logout_and_come_back : string
+  val administer_elections : string
+  val administer_this_election : string
+  val powered_by : string
+  val get_the_source_code : string
+  val audit_data : string
+  val parameters : string
+  val public_credentials : string
+  val trustee_public_keys : string
+  val ballots : string
+  val election_server : string
+  val accepted_ballots : string
+  val ballots_have_been_accepted_so_far : string
+  val ballots_have_been_accepted : string
+  val ballots_have_been_accepted_and : string
+  val have_been_tallied : string
+  val username : string
+  val password : string
+  val login : string
+  val password_login : string
 end

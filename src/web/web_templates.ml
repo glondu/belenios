@@ -104,14 +104,16 @@ let belenios_url = Eliom_service.Http.external_service
   ()
 
 let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
+  lwt language = Eliom_reference.get Web_state.language in
+  let module L = (val Web_i18n.get_lang language) in
   let administer =
     match uuid with
     | None ->
-       a ~service:admin [pcdata "Administer elections"] ()
+       a ~service:admin [pcdata L.administer_elections] ()
     | Some uuid ->
-       a ~service:election_admin [pcdata "Administer this election"] (uuid, ())
+       a ~service:election_admin [pcdata L.administer_this_election] (uuid, ())
   in
-  Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang "en"]
+  Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang L.lang]
     (head (Eliom_content.Html5.F.title (pcdata title)) [
       script (pcdata "window.onbeforeunload = function () {};");
       link ~rel:[`Stylesheet] ~href:(uri_of_string (fun () -> "/static/site.css")) ();
@@ -121,7 +123,7 @@ let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
       div ~a:[a_id "header"] [
         div [
           div ~a:[a_style "float: left;"] [
-            a ~service:home [pcdata site_title] ();
+            a ~service:home [pcdata L.election_server] ();
           ];
           login_box;
           div ~a:[a_style "clear: both;"] [];
@@ -132,10 +134,10 @@ let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
       div ~a:[a_id "footer"; a_style "text-align: center;" ] [
         div ~a:[a_id "bottom"] [
           footer;
-          pcdata "Powered by ";
+          pcdata L.powered_by;
           a ~service:belenios_url [pcdata "Belenios"] ();
           pcdata ". ";
-          a ~service:source_code [pcdata "Get the source code"] ();
+          a ~service:source_code [pcdata L.get_the_source_code] ();
           pcdata ". ";
           administer;
           pcdata ".";
@@ -922,29 +924,31 @@ let file w x =
     (W.election.e_params.e_uuid, x)
 
 let audit_footer w =
+  lwt language = Eliom_reference.get Web_state.language in
+  let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
-  div ~a:[a_style "line-height:1.5em;"] [
+  return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
       div [
-        pcdata "Election fingerprint: ";
+        pcdata L.election_fingerprint;
         code [ pcdata W.election.e_fingerprint ];
       ];
       div [
-        pcdata "Audit data: ";
+        pcdata L.audit_data;
         a ~service:(file w ESRaw) [
-          pcdata "parameters"
+          pcdata L.parameters
         ] ();
         pcdata ", ";
         a ~service:(file w ESCreds) [
-          pcdata "public credentials"
+          pcdata L.public_credentials
         ] ();
         pcdata ", ";
         a ~service:(file w ESKeys) [
-          pcdata "trustee public keys"
+          pcdata L.trustee_public_keys
         ] ();
         pcdata ", ";
         a ~service:(file w ESBallots) [
-          pcdata "ballots";
+          pcdata L.ballots
         ] ();
         pcdata ".";
       ];
@@ -997,7 +1001,7 @@ let election_home w state () =
           ] (params.e_uuid, ())
       ]
   in
-  let footer = audit_footer w in
+  lwt footer = audit_footer w in
   let go_to_the_booth =
     div ~a:[a_style "text-align:center;"] [
       div [
@@ -1342,7 +1346,7 @@ let cast_raw w () =
   ] in
   lwt login_box = election_login_box w () in
   let uuid = W.election.e_params.e_uuid in
-  let footer = audit_footer w in
+  lwt footer = audit_footer w in
   base ~title:params.e_name ~login_box ~content ~uuid ~footer ()
 
 let cast_confirmation w hash () =
@@ -1478,9 +1482,11 @@ let cast_confirmed w ~result () =
   base ~title:name ~login_box ~content ~uuid ()
 
 let pretty_ballots w hashes result () =
+  lwt language = Eliom_reference.get Web_state.language in
+  let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
-  let title = params.e_name ^ " — Accepted ballots" in
+  let title = params.e_name ^ " — " ^ L.accepted_ballots in
   let nballots = ref 0 in
   let hashes =
     List.sort (fun a b -> String.(compare (uppercase a) (uppercase b))) hashes
@@ -1500,26 +1506,26 @@ let pretty_ballots w hashes result () =
     p
       [a
          ~service:Web_services.election_home
-         [pcdata "Back to election"]
+         [pcdata L.go_back_to_election]
          (params.e_uuid, ())]
   in
   let number = match !nballots, result with
     | n, None ->
        div [
          pcdata (string_of_int n);
-         pcdata " ballot(s) have been accepted so far."
+         pcdata L.ballots_have_been_accepted_so_far;
        ]
     | n, Some r when n = r.num_tallied ->
        div [
          pcdata (string_of_int n);
-         pcdata " ballot(s) have been accepted."
+         pcdata L.ballots_have_been_accepted;
        ]
     | n, Some r -> (* should not happen *)
        div [
          pcdata (string_of_int n);
-         pcdata " ballot(s) have been accepted, and ";
+         pcdata L.ballots_have_been_accepted_and;
          pcdata (string_of_int r.num_tallied);
-         pcdata " have been tallied.";
+         pcdata L.have_been_tallied;
        ]
   in
   let content = [
@@ -1660,21 +1666,23 @@ let login_dummy () =
   base ~title ~login_box ~content ()
 
 let login_password () =
+  lwt language = Eliom_reference.get Web_state.language in
+  let module L = (val Web_i18n.get_lang language) in
   let form = post_form ~service:password_post
     (fun (llogin, lpassword) ->
       [
         tablex [tbody [
           tr [
-            th [label ~a:[a_for llogin] [pcdata "Username:"]];
+            th [label ~a:[a_for llogin] [pcdata L.username]];
             td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin ()];
           ];
           tr [
-            th [label ~a:[a_for lpassword] [pcdata "Password:"]];
+            th [label ~a:[a_for lpassword] [pcdata L.password]];
             td [string_input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword ()];
           ];
         ]];
         div [
-          string_input ~input_type:`Submit ~value:"Login" ();
+          string_input ~input_type:`Submit ~value:L.login ();
         ]
       ]) ()
   in
@@ -1682,7 +1690,7 @@ let login_password () =
     form;
   ] in
   let login_box = pcdata "" in
-  base ~title:"Password login" ~login_box ~content ()
+  base ~title:L.password_login ~login_box ~content ()
 
 let booth () =
   lwt language = Eliom_reference.get Web_state.language in
@@ -1829,4 +1837,4 @@ let booth () =
       booth_div;
     ];
   ] in
-  return @@ html ~a:[a_dir `Ltr; a_xml_lang "en"] head body
+  return @@ html ~a:[a_dir `Ltr; a_xml_lang L.lang] head body
