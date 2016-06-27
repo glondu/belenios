@@ -906,6 +906,19 @@ let () =
           >>= Html5.send)
 
 let () =
+  Any.register ~service:set_cookie_disclaimer
+    (fun () () ->
+      Eliom_reference.set Web_state.show_cookie_disclaimer false >>
+      lwt cont = Web_state.cont_pop () in
+      match cont with
+      | Some f -> f ()
+      | None ->
+         T.generic_page ~title:"Cookies are blocked"
+           ~service:home
+           "Your browser seems to block cookies. Please enable them." ()
+           >>= Html5.send)
+
+let () =
   Any.register
     ~service:election_admin
     (fun (uuid, ()) () ->

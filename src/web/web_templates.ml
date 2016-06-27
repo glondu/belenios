@@ -1104,7 +1104,19 @@ let election_home w state () =
        ]
     | None -> return go_to_the_booth
   in
+  lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
+  let cookie_disclaimer =
+    if scd then
+      div
+        ~a:[a_style "border-style: solid; border-width: 1px;"]
+        [
+          pcdata "To use this site, you must accept cookies. ";
+          a ~service:set_cookie_disclaimer [pcdata "Accept"] ();
+        ]
+    else pcdata ""
+  in
   let content = [
+    cookie_disclaimer;
     p state_;
     br ();
     middle;

@@ -32,6 +32,8 @@ type user = {
 
 let scope = Eliom_common.default_session_scope
 
+let show_cookie_disclaimer = Eliom_reference.eref ~scope true
+
 let user = Eliom_reference.eref ~scope None
 
 let get_site_user () =
