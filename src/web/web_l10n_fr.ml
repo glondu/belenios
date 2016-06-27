@@ -72,3 +72,67 @@ let username = "Nom d'utilisateur :"
 let password = "Mot de passe :"
 let login = "Se connecter"
 let password_login = "Connexion par mot de passe"
+
+
+let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Vous êtes enregistré(e) en tant qu'électeur pour l'élection
+
+  %s
+
+Veuillez trouver ci-dessous votre nom d'utilisateur et votre mot de
+passe. Pour soumettre un bulletin, vous aurez également besoin d'un
+code de vote, envoyé dans un e-mail séparé. Soyez prudent(e), le mot
+de passe et le code de vote se ressemblent mais jouent des rôles
+différents. Le système vous demandera votre code de vote dès l'entrée
+dans l'isoloir virtuel. Le nom d'utilisateur et le mot de passe sont
+nécessaires lorsque votre bulletin est prêt à être soumis.
+
+Nom d'utilisateur : %s
+Mot de passe : %s
+Page de l'élection : %s
+
+Notez que vous pouvez voter plusieurs fois. Seule la dernière est
+prise en compte."
+
+
+let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Vous êtes enregistré(e) en tant qu'électeur pour l'élection
+
+  %s
+
+Veuillez trouver ci-dessous votre nom d'utilisateur et votre code de
+vote. Pour soumettre un bulletin, vous aurez également besoin d'un
+mot de passe, envoyé dans un e-mail séparé. Soyez prudent(e), le mot
+de passe et le code de vote se ressemblent mais jouent des rôles
+différents. Le système vous demandera votre code de vote dès l'entrée
+dans l'isoloir virtuel. Le nom d'utilisateur et le mot de passe sont
+nécessaires lorsque votre bulletin est prêt à être soumis.
+
+Nom d'utilisateur : %s
+Code de vote : %s
+Page de l'élection : %s
+
+Notez que vous pouvez voter plusieurs fois. Seule la dernière est
+prise en compte."
+
+
+let mail_confirmation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "%s,
+
+Votre vote pour l'élection
+
+  %s
+
+a été enregistré. Votre numéro de suivi est
+
+  %s
+
+Vous pouvez vérifier sa présence dans l'urne, accessible au
+
+  %s
+
+Les résultats seront publiés sur la page de l'élection
+
+  %s
+
+-- \nBelenios"

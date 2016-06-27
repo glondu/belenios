@@ -61,7 +61,9 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
         let url2 = Eliom_uri.make_string_uri ~absolute:true
           ~service:Web_services.election_home x |> rewrite_prefix
         in
-        let body = Mail_templates.confirmation user title hash url1 url2 in
+        lwt language = Eliom_reference.get Web_state.language in
+        let module L = (val Web_i18n.get_lang language) in
+        let body = Printf.sprintf L.mail_confirmation user title hash url1 url2 in
         send_email email subject body
 
       let do_cast rawballot (user, date) =

@@ -420,12 +420,17 @@ let () =
          };
          return (redir_preapply election_setup uuid)))
 
-let generate_password title url id =
+let generate_password langs title url id =
   let email, login = split_identity id in
   lwt salt = generate_token () in
   lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
-  let body = Mail_templates.password title login password url in
+  let bodies = List.map (fun lang ->
+    let module L = (val Web_i18n.get_lang lang) in
+    Printf.sprintf L.mail_password title login password url
+  ) langs in
+  let body = PString.concat "\n\n----------\n\n" bodies in
+  let body = body ^ "\n\n-- \nBelenios" in
   let subject = "Your password for election " ^ title in
   send_email email subject body >>
   return (salt, hashed)
@@ -439,7 +444,7 @@ let handle_password se uuid ~force voters =
     match id.sv_password with
     | Some _ when not force -> return_unit
     | None | Some _ ->
-       lwt x = generate_password title url id.sv_id in
+       lwt x = generate_password langs title url id.sv_id in
        return (id.sv_password <- Some x)
   ) voters >>
   return (fun () ->
@@ -481,7 +486,7 @@ let () =
          let service = preapply election_admin (uuid, ()) in
          begin try_lwt
            lwt _ = Ocsipersist.find table user in
-           lwt x = generate_password title url user in
+           lwt x = generate_password langs title url user in
            Ocsipersist.add table user x >>
            dump_passwords (!spool_dir / uuid_s) table >>
            T.generic_page ~title:"Success" ~service
@@ -748,7 +753,12 @@ let () =
             let y = G.(g **~ x) in
             G.to_string y
           in
-          let body = Mail_templates.credential title login cred url in
+          let bodies = List.map (fun lang ->
+            let module L = (val Web_i18n.get_lang lang) in
+            Printf.sprintf L.mail_credential title login cred url
+          ) langs in
+          let body = PString.concat "\n\n----------\n\n" bodies in
+          let body = body ^ "\n\n-- \nBelenios" in
           let subject = "Your credential for election " ^ title in
           lwt () = send_email email subject body in
           return @@ S.add pub_cred accu

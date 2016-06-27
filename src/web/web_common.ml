@@ -250,3 +250,5 @@ let split_identity x =
     String.sub x 0 i, String.sub x (i+1) (n-i-1)
   with Not_found ->
     x, x
+
+let langs = ["en"; "fr"]
