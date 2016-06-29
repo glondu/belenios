@@ -251,8 +251,9 @@ let make_button ~service contents =
     uri
     contents
 
-let a_mailto ~dest ~body contents =
-  let uri = Printf.sprintf "mailto:%s?body=%s" dest
+let a_mailto ~dest ~subject ~body contents =
+  let uri = Printf.sprintf "mailto:%s?subject=%s&amp;body=%s" dest
+    (Netencoding.Url.encode ~plus:false subject)
     (Netencoding.Url.encode ~plus:false body)
   in
   Printf.ksprintf Unsafe.data "<a href=\"%s\">%s</a>"
@@ -476,6 +477,36 @@ let election_setup uuid se () =
   lwt login_box = site_login_box () in
   base ~title ~login_box ~content ()
 
+let mail_trustee_generation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Dear trustee,
+
+You will find below the link to generate your private decryption key, used to tally the election.
+
+  %s
+
+Here's the instructions:
+1. click on the link
+2. click on \"generate a new key pair\"
+3. your private key will appear in another window or tab. Make sure
+   you SAVE IT properly otherwise it will not possible to tally and the
+   election will be canceled.
+4. in the first window, click on \"submit\" to send the public part of
+   your key, used encrypt the votes. For verification purposes, you
+   should save this part (that starts with {\"pok\":{\"challenge\":\") ), for
+   example sending yourself an email.
+
+Regarding your private key, it is crucial you save it (otherwise the
+election will be canceled) and store it securely (if your private key
+is known together with the private keys of the other trustees, then
+vote privacy is no longer guaranteed). We suggest two options:
+1. you may store the key on a USB stick and store it in a safe.
+2. Or you may simply print it and store it in a safe.
+Of course, more cryptographic solutions are welcome as well.
+
+Thank you for your help,
+
+-- \nThe election administrator."
+
 let election_setup_trustees uuid se () =
   let title = "Trustees for election " ^ se.se_questions.t_name in
   let form_trustees_add =
@@ -510,9 +541,12 @@ let election_setup_trustees uuid se () =
            List.mapi (fun i t ->
              tr [
                td [
-                 let body = rewrite_prefix @@ Eliom_uri.make_string_uri
+                 let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
                    ~absolute:true ~service:election_setup_trustee t.st_token
-                 in a_mailto ~dest:t.st_id ~body t.st_id
+                 in
+                 let body = Printf.sprintf mail_trustee_generation uri in
+                 let subject = "Link to generate the decryption key" in
+                 a_mailto ~dest:t.st_id ~subject ~body t.st_id
                ];
                td [
                  pcdata (if t.st_public_key = "" then "No" else "Yes");
@@ -1127,6 +1161,24 @@ let election_home w state () =
   let uuid = params.e_uuid in
   base ~title:params.e_name ~login_box ~content ~footer ~uuid ()
 
+let mail_trustee_tally : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Dear trustee,
+
+The election is now closed. Here's the link to proceed to tally:
+
+  %s
+
+Here's the instructions:
+1. Follow the link.
+2. Enter your private decryption key in the first box and click on
+   \"generate decryption factors\"
+3. The second box is now filled with crypto material. Please press the
+   button \"submit\".
+
+Thank you again for your help,
+
+-- \nThe election administrator."
+
 let election_admin w metadata state () =
   let module W = (val w : ELECTION_DATA) in
   let title = W.election.e_params.e_name ^ " — Administration" in
@@ -1196,7 +1248,9 @@ let election_admin w metadata state () =
              in
              tr [
                td [
-                 a_mailto ~dest ~body:uri link_content
+                 let body = Printf.sprintf mail_trustee_tally uri in
+                 let subject = "Link to tally the election" in
+                 a_mailto ~dest ~subject ~body link_content
                ];
                td [
                  pcdata (if List.mem_assoc trustee_id pds then "Yes" else "No")
