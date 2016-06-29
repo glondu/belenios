@@ -56,6 +56,7 @@ let election_setup_credentials_server = post_coservice ~fallback:election_setup 
 let election_setup_trustees = service ~path:["setup"; "trustees"] ~get_params:(uuid "uuid") ()
 let election_setup_trustee = service ~path:["setup"; "trustee"] ~get_params:(string "token") ()
 let election_setup_trustee_post = post_coservice ~fallback:election_setup_trustee ~post_params:(string "public_key") ()
+let election_setup_confirm = service ~path:["setup"; "confirm"] ~get_params:(uuid "uuid") ()
 let election_setup_create = post_coservice ~csrf_safe:true ~fallback:election_setup ~post_params:unit ()
 let election_setup_auth_genpwd = post_coservice ~fallback:election_setup ~post_params:unit ()
 
@@ -63,6 +64,7 @@ let election_setup_import = service ~path:["setup"; "import"] ~get_params:(uuid 
 let election_setup_import_post = post_coservice ~fallback:election_setup_import ~post_params:(uuid "from") ()
 
 let election_home = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "")) ()
+let set_cookie_disclaimer = coservice' ~get_params:unit ()
 let election_admin = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "admin")) ()
 let election_regenpwd = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "regenpwd")) ()
 let election_regenpwd_post = post_coservice ~fallback:election_regenpwd ~post_params:(string "user") ()

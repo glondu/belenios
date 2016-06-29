@@ -28,6 +28,8 @@ type user = {
   logout : unit -> content;
 }
 
+val show_cookie_disclaimer : bool Eliom_reference.eref
+
 val user : user option Eliom_reference.eref
 val get_site_user : unit -> Web_serializable_t.user option Lwt.t
 val get_election_user : Uuidm.t -> Web_serializable_t.user option Lwt.t

@@ -815,6 +815,18 @@ let () =
 
 let () =
   Any.register
+    ~service:election_setup_confirm
+    (fun uuid () ->
+      match_lwt Web_state.get_site_user () with
+      | None -> forbidden ()
+      | Some u ->
+         let uuid_s = Uuidm.to_string uuid in
+         lwt se = Ocsipersist.find election_stable uuid_s in
+         if se.se_owner <> u then forbidden () else
+         T.election_setup_confirm uuid se () >>= Html5.send)
+
+let () =
+  Any.register
     ~service:election_setup_create
     (fun uuid () ->
      match_lwt Web_state.get_site_user () with
@@ -902,6 +914,19 @@ let () =
           ~service:(preapply election_home (uuid, ()))
           "This election does not exist yet. Please come back later." ()
           >>= Html5.send)
+
+let () =
+  Any.register ~service:set_cookie_disclaimer
+    (fun () () ->
+      Eliom_reference.set Web_state.show_cookie_disclaimer false >>
+      lwt cont = Web_state.cont_pop () in
+      match cont with
+      | Some f -> f ()
+      | None ->
+         T.generic_page ~title:"Cookies are blocked"
+           ~service:home
+           "Your browser seems to block cookies. Please enable them." ()
+           >>= Html5.send)
 
 let () =
   Any.register
