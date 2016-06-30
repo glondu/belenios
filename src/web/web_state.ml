@@ -82,4 +82,11 @@ let cont_pop () =
 let ballot = Eliom_reference.eref ~scope None
 let cast_confirmed = Eliom_reference.eref ~scope None
 
-let language = Eliom_reference.eref ~scope "en"
+let get_default_language () =
+  let ri = Eliom_request_info.get_ri () in
+  let lazy langs = Ocsigen_request_info.accept_language ri in
+  match langs with
+  | [] -> "en"
+  | (lang, _) :: _ -> lang
+
+let language = Eliom_reference.eref_from_fun ~scope get_default_language
