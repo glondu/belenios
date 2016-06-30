@@ -121,7 +121,10 @@ let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
       div ~a:[a_id "header"] [
         div [
           div ~a:[a_style "float: left;"] [
-            a ~service:home [pcdata site_title] ();
+            a ~service:home [
+              img ~alt:site_title ~a:[a_height 50]
+                ~src:(uri_of_string (fun () -> "/static/logo.png")) ();
+            ] ();
           ];
           login_box;
           div ~a:[a_style "clear: both;"] [];

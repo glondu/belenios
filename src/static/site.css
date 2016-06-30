@@ -16,7 +16,7 @@ ul {
 }
 #header {
     color: #ffffff;
-    height: 90px;
+    height: auto;
 }
 #main {
     border-radius: 0px 0px 0px 0px;
