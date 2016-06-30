@@ -910,9 +910,11 @@ let () =
            lwt state = Web_persist.get_election_state uuid_s in
            T.election_home (module W) state () >>= Html5.send
       with Not_found ->
-        T.generic_page ~title:"Sorry, this election is not yet open"
+        lwt lang = Eliom_reference.get Web_state.language in
+        let module L = (val Web_i18n.get_lang lang) in
+        T.generic_page ~title:L.not_yet_open
           ~service:(preapply election_home (uuid, ()))
-          "This election does not exist yet. Please come back later." ()
+          L.come_back_later ()
           >>= Html5.send)
 
 let () =
@@ -923,9 +925,10 @@ let () =
       match cont with
       | Some f -> f ()
       | None ->
-         T.generic_page ~title:"Cookies are blocked"
-           ~service:home
-           "Your browser seems to block cookies. Please enable them." ()
+         lwt lang = Eliom_reference.get Web_state.language in
+         let module L = (val Web_i18n.get_lang lang) in
+         T.generic_page ~title:L.cookies_are_blocked
+           ~service:home L.please_enable_them ()
            >>= Html5.send)
 
 let () =

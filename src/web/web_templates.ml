@@ -1158,8 +1158,8 @@ let election_home w state () =
       div
         ~a:[a_style "border-style: solid; border-width: 1px;"]
         [
-          pcdata "To use this site, you must accept cookies. ";
-          a ~service:set_cookie_disclaimer [pcdata "Accept"] ();
+          pcdata L.you_must_accept_cookies;
+          a ~service:set_cookie_disclaimer [pcdata L.accept] ();
         ]
     else pcdata ""
   in

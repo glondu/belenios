@@ -94,6 +94,12 @@ module type LocalizedStrings = sig
   val password : string
   val login : string
   val password_login : string
+  val you_must_accept_cookies : string
+  val accept : string
+  val not_yet_open : string
+  val come_back_later : string
+  val cookies_are_blocked : string
+  val please_enable_them : string
   val mail_password : (string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_credential : (string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_confirmation : (string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6

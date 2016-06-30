@@ -93,6 +93,12 @@ let username = "Username:"
 let password = "Password:"
 let login = "Login"
 let password_login = "Password login"
+let you_must_accept_cookies = "To use this site, you must accept cookies. "
+let accept = "Accept"
+let not_yet_open = "Sorry, this election is not yet open"
+let come_back_later = "This election does not exist yet. Please come back later."
+let cookies_are_blocked = "Cookies are blocked"
+let please_enable_them = "Your browser seems to block cookies. Please enable them."
 
 
 let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
