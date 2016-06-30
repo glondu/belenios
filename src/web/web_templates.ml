@@ -1045,6 +1045,10 @@ let audit_footer w =
     ]
   ]
 
+let rec list_concat elt = function
+  | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
+  | ([_] | []) as xs -> xs
+
 let election_home w state () =
   lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
@@ -1146,11 +1150,10 @@ let election_home w state () =
     | None -> return go_to_the_booth
   in
   let languages =
-    div ~a:[a_class ["languages"]] [
-      a ~service:set_language [pcdata "en"] "en";
-      pcdata " ";
-      a ~service:set_language [pcdata "fr"] "fr";
-    ]
+    div ~a:[a_class ["languages"]]
+      (list_concat (pcdata " ") @@ List.map (fun lang ->
+        a ~service:set_language [pcdata lang] lang
+       ) langs)
   in
   lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
   let cookie_disclaimer =
