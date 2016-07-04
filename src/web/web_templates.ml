@@ -1928,6 +1928,11 @@ let booth () =
   let booth_div =
     div ~a:[a_id "booth_div"; a_style "display:none;"] [
       div ~a:[a_id "header"] [
+        div ~a:[a_style "float: left;"] [
+          img ~alt:L.election_server ~a:[a_height 50]
+            ~src:(uri_of_string (fun () -> "/static/logo.png")) ();
+        ];
+        div ~a:[a_style "clear: both;"] [];
         div ~a:[a_style "text-align:center;"] [
           h1 ~a:[a_id "election_name"] [];
           p ~a:[a_id "election_description"] [];
