@@ -677,7 +677,7 @@ let () =
 let wrap_handler f =
   try_lwt f ()
   with
-  | e -> T.generic_page ~title:"Error" ~service:home (Printexc.to_string e) () >>= Html5.send
+  | e -> T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html5.send
 
 let handle_credentials_post token creds =
   lwt uuid = Ocsipersist.find election_credtokens token in
@@ -807,7 +807,7 @@ let () =
            (* we keep pk as a string because of G.t *)
            t.st_public_key <- public_key;
            Ocsipersist.add election_stable uuid se
-          ) >> T.generic_page ~title:"Success" ~service:home
+          ) >> T.generic_page ~title:"Success"
             "Your key has been received and checked!"
             () >>= Html5.send
        )
@@ -928,7 +928,7 @@ let () =
          lwt lang = Eliom_reference.get Web_state.language in
          let module L = (val Web_i18n.get_lang lang) in
          T.generic_page ~title:L.cookies_are_blocked
-           ~service:home L.please_enable_them ()
+           L.please_enable_them ()
            >>= Html5.send)
 
 let () =
@@ -1211,7 +1211,6 @@ let () =
       lwt pds = Web_persist.get_partial_decryptions uuid_s in
       if List.mem_assoc trustee_id pds then (
         T.generic_page ~title:"Error"
-          ~service:(preapply election_home (uuid, ()))
           "Your partial decryption has already been received and checked!"
           () >>= Html5.send
       ) else (
@@ -1257,8 +1256,7 @@ let () =
       if E.check_factor et pk pd then (
         let pds = (trustee_id, partial_decryption) :: pds in
         lwt () = Web_persist.set_partial_decryptions uuid_s pds in
-        let service = preapply election_home (uuid, ()) in
-        T.generic_page ~title:"Success" ~service
+        T.generic_page ~title:"Success"
           "Your partial decryption has been received and checked!" () >>=
         Html5.send
       ) else (
