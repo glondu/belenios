@@ -45,7 +45,7 @@ let make_login_box ~site auth links =
   let module L = (val links : AUTH_LINKS) in
   lwt user = S.get_user () in
   lwt auth_systems = S.get_auth_systems () in
-  return @@ div ~a:[a_style style] (
+  let body =
     match user with
     | Some user ->
       [
@@ -77,7 +77,10 @@ let make_login_box ~site auth links =
         );
       ]
         else []
-  )
+  in
+  match body with
+  | [] -> return None
+  | _::_ -> return (Some (div ~a:[a_style style] body))
 
 module Site_links = struct
   let login x = Eliom_service.preapply site_login x
@@ -103,7 +106,7 @@ let belenios_url = Eliom_service.Http.external_service
   ~get_params:Eliom_parameter.unit
   ()
 
-let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
+let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
   lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let administer =
@@ -112,6 +115,14 @@ let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
        a ~service:admin [pcdata L.administer_elections] ()
     | Some uuid ->
        a ~service:election_admin [pcdata L.administer_this_election] (uuid, ())
+  in
+  let login_box = match login_box with
+    | None ->
+       div ~a:[a_style "float: right; padding: 10px;"] [
+         img ~a:[a_height 70] ~alt:""
+           ~src:(uri_of_string (fun () -> "/static/placeholder.png")) ();
+       ]
+    | Some x -> x
   in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang L.lang]
     (head (Eliom_content.Html5.F.title (pcdata title)) [
@@ -122,16 +133,16 @@ let base ~title ~login_box ~content ?(footer = div []) ?uuid () =
       div ~a:[a_id "wrapper"] [
       div ~a:[a_id "header"] [
         div [
-          div ~a:[a_style "float: left;"] [
+          div ~a:[a_style "float: left; padding: 10px;"] [
             a ~service:home [
-              img ~alt:L.election_server ~a:[a_height 50]
+              img ~alt:L.election_server ~a:[a_height 70]
                 ~src:(uri_of_string (fun () -> "/static/logo.png")) ();
             ] ();
           ];
           login_box;
+          h1 ~a:[a_style "text-align: center; padding: 20px;"] [pcdata title];
           div ~a:[a_style "clear: both;"] [];
         ];
-        h1 ~a:[a_style "text-align: center;"] [pcdata title];
       ];
       div ~a:[a_id "main"] content;
       div ~a:[a_id "footer"; a_style "text-align: center;" ] [
@@ -184,8 +195,7 @@ let home () =
       ];
     ];
   ] in
-  let login_box = pcdata "" in
-  base ~title:site_title ~login_box ~content ()
+  base ~title:site_title ~content ()
 
 let admin ~elections () =
   let title = site_title ^ " — Administration" in
@@ -200,7 +210,7 @@ let admin ~elections () =
        ]
      ] in
      lwt login_box = site_login_box () in
-     base ~title ~login_box ~content ()
+     base ~title ?login_box ~content ()
   | Some (elections, tallied, archived, setup_elections) ->
     let elections =
       match elections with
@@ -247,7 +257,7 @@ let admin ~elections () =
       ];
     ] in
     lwt login_box = site_login_box () in
-    base ~title ~login_box ~content ()
+    base ~title ?login_box ~content ()
 
 let make_button ~service contents =
   let uri = Eliom_uri.make_string_uri ~service () in
@@ -278,7 +288,7 @@ let new_election_failure reason () =
     ]
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let generic_page ~title ~service message () =
   let content = [
@@ -287,8 +297,7 @@ let generic_page ~title ~service message () =
       a ~service [pcdata "Proceed"] ();
     ];
   ] in
-  let login_box = pcdata "" in
-  base ~title ~login_box ~content ()
+  base ~title ~content ()
 
 let election_setup_pre () =
   let title = "Prepare a new election" in
@@ -342,7 +351,7 @@ let election_setup_pre () =
     form
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let election_setup uuid se () =
   let title = "Preparation of election " ^ se.se_questions.t_name in
@@ -480,7 +489,7 @@ let election_setup uuid se () =
     link_confirm;
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let mail_trustee_generation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Dear trustee,
@@ -585,7 +594,7 @@ let election_setup_trustees uuid se () =
     back_link;
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let election_setup_credential_authority _ se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
@@ -611,7 +620,7 @@ let election_setup_credential_authority _ se () =
     ];
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let election_setup_questions uuid se () =
   let title = "Questions for election " ^ se.se_questions.t_name in
@@ -647,7 +656,7 @@ let election_setup_questions uuid se () =
     link;
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let election_setup_voters uuid se () =
   let title = "Voters for election " ^ se.se_questions.t_name in
@@ -749,7 +758,7 @@ let election_setup_voters uuid se () =
     div_add;
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let election_setup_credentials token uuid se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
@@ -830,8 +839,7 @@ let election_setup_credentials token uuid se () =
         form_file;
       ]
     ) in
-  let login_box = pcdata "" in
-  base ~title ~login_box ~content ()
+  base ~title ~content ()
 
 let election_setup_trustee token se () =
   let title = "Trustee for election " ^ se.se_questions.t_name in
@@ -877,8 +885,7 @@ let election_setup_trustee token se () =
     interactivity;
     form;
   ] in
-  let login_box = pcdata "" in
-  base ~title ~login_box ~content ()
+  base ~title ~content ()
 
 let election_setup_import uuid se (elections, tallied, archived) () =
   let title = "Election " ^ se.se_questions.t_name ^ " — Import voters from another election" in
@@ -916,7 +923,7 @@ let election_setup_import uuid se (elections, tallied, archived) () =
     itemize archived;
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let election_setup_confirm uuid se () =
   let title = "Election " ^ se.se_questions.t_name ^ " — Finalize creation" in
@@ -986,7 +993,7 @@ let election_setup_confirm uuid se () =
     form_create;
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let election_login_box w =
   let module W = (val w : ELECTION_DATA) in
@@ -1180,7 +1187,7 @@ let election_home w state () =
   ] in
   lwt login_box = election_login_box w () in
   let uuid = params.e_uuid in
-  base ~title:params.e_name ~login_box ~content ~footer ~uuid ()
+  base ~title:params.e_name ?login_box ~content ~footer ~uuid ()
 
 let mail_trustee_tally : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Dear trustee,
@@ -1363,7 +1370,7 @@ let election_admin w metadata state () =
     div_archive;
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let update_credential w () =
   let module W = (val w : ELECTION_DATA) in
@@ -1405,7 +1412,7 @@ let update_credential w () =
   ] in
   lwt login_box = site_login_box () in
   let uuid = W.election.e_params.e_uuid in
-  base ~title:params.e_name ~login_box ~content ~uuid ()
+  base ~title:params.e_name ?login_box ~content ~uuid ()
 
 let regenpwd uuid () =
   let form = post_form ~service:election_regenpwd_post
@@ -1422,7 +1429,7 @@ let regenpwd uuid () =
   let content = [ form ] in
   let title = "Regenerate and mail password" in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ~uuid ()
+  base ~title ?login_box ~content ~uuid ()
 
 let cast_raw w () =
   let module W = (val w : ELECTION_DATA) in
@@ -1475,7 +1482,7 @@ let cast_raw w () =
   lwt login_box = election_login_box w () in
   let uuid = W.election.e_params.e_uuid in
   lwt footer = audit_footer w in
-  base ~title:params.e_name ~login_box ~content ~uuid ~footer ()
+  base ~title:params.e_name ?login_box ~content ~uuid ~footer ()
 
 let cast_confirmation w hash () =
   lwt language = Eliom_reference.get Web_state.language in
@@ -1544,9 +1551,8 @@ let cast_confirmation w hash () =
       pcdata ".";
     ];
   ] in
-  let login_box = pcdata "" in
   let uuid = params.e_uuid in
-  base ~title:name ~login_box ~content ~uuid ()
+  base ~title:name ~content ~uuid ()
 
 let cast_confirmed w ~result () =
   lwt language = Eliom_reference.get Web_state.language in
@@ -1605,9 +1611,8 @@ let cast_confirmed w ~result () =
       pcdata ".";
     ];
   ] in
-  let login_box = pcdata "" in
   let uuid = params.e_uuid in
-  base ~title:name ~login_box ~content ~uuid ()
+  base ~title:name ~content ~uuid ()
 
 let pretty_ballots w hashes result () =
   lwt language = Eliom_reference.get Web_state.language in
@@ -1663,7 +1668,7 @@ let pretty_ballots w hashes result () =
   ] in
   lwt login_box = election_login_box w () in
   let uuid = params.e_uuid in
-  base ~title ~login_box ~content ~uuid ()
+  base ~title ?login_box ~content ~uuid ()
 
 let pretty_records w records () =
   let module W = (val w : ELECTION_DATA) in
@@ -1690,7 +1695,7 @@ let pretty_records w records () =
     table;
   ] in
   lwt login_box = site_login_box () in
-  base ~title ~login_box ~content ()
+  base ~title ?login_box ~content ()
 
 let tally_trustees w trustee_id () =
   let module W = (val w : ELECTION_DATA) in
@@ -1739,9 +1744,8 @@ let tally_trustees w trustee_id () =
       script ~a:[a_src (uri_of_string (fun () -> "../../../static/tool_js_pd.js"))] (pcdata "");
     ]
   ] in
-  let login_box = pcdata "" in
   let uuid = params.e_uuid in
-  base ~title ~login_box ~content ~uuid ()
+  base ~title ~content ~uuid ()
 
 let already_logged_in () =
   let title = "Already logged in" in
@@ -1751,8 +1755,7 @@ let already_logged_in () =
       a ~service:logout [pcdata "log out"] ();
       pcdata " first."];
   ] in
-  let login_box = pcdata "" in
-  base ~title ~login_box ~content ()
+  base ~title ~content ()
 
 let login_choose auth_systems service () =
   let auth_systems =
@@ -1766,8 +1769,7 @@ let login_choose auth_systems service () =
       [pcdata "Please log in: ["] @ auth_systems @ [pcdata "]"]
     )]
   ] in
-  let login_box = pcdata "" in
-  base ~title:"Log in" ~login_box ~content ()
+  base ~title:"Log in" ~content ()
 
 let login_dummy () =
   let title, field_name, input_type =
@@ -1790,8 +1792,7 @@ let login_dummy () =
   let content = [
     form;
   ] in
-  let login_box = pcdata "" in
-  base ~title ~login_box ~content ()
+  base ~title ~content ()
 
 let login_password () =
   lwt language = Eliom_reference.get Web_state.language in
@@ -1817,8 +1818,7 @@ let login_password () =
   let content = [
     form;
   ] in
-  let login_box = pcdata "" in
-  base ~title:L.password_login ~login_box ~content ()
+  base ~title:L.password_login ~content ()
 
 let booth () =
   lwt language = Eliom_reference.get Web_state.language in
@@ -1928,15 +1928,19 @@ let booth () =
   let booth_div =
     div ~a:[a_id "booth_div"; a_style "display:none;"] [
       div ~a:[a_id "header"] [
-        div ~a:[a_style "float: left;"] [
-          img ~alt:L.election_server ~a:[a_height 50]
+        div ~a:[a_style "float: left; padding: 15px;"] [
+          img ~alt:L.election_server ~a:[a_height 70]
             ~src:(uri_of_string (fun () -> "/static/logo.png")) ();
         ];
-        div ~a:[a_style "clear: both;"] [];
-        div ~a:[a_style "text-align:center;"] [
+        div ~a:[a_style "float: right; padding: 15px;"] [
+          img ~alt:"" ~a:[a_height 70]
+            ~src:(uri_of_string (fun () -> "/static/placeholder.png")) ();
+        ];
+        div ~a:[a_style "text-align:center; padding: 20px;"] [
           h1 ~a:[a_id "election_name"] [];
           p ~a:[a_id "election_description"] [];
-        ]
+        ];
+        div ~a:[a_style "clear: both;"] [];
       ];
       main;
       div ~a:[a_id "footer"] [

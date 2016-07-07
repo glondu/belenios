@@ -2,6 +2,7 @@ minimal.otarget
 src/lib/lib.cma
 src/web/server.cma
 src/static/logo.png
+src/static/placeholder.png
 src/static/belenios-tool.html.otarget
 src/static/vote.html.otarget
 src/static/tool_js_tkeygen.js
