@@ -101,7 +101,7 @@ let site_login_box () =
   make_login_box ~site:true site_auth site_links
 
 let belenios_url = Eliom_service.Http.external_service
-  ~prefix:"http://belenios.gforge.inria.fr"
+  ~prefix:"http://www.belenios.org"
   ~path:[]
   ~get_params:Eliom_parameter.unit
   ()
@@ -307,7 +307,7 @@ let generic_page ~title ?service message () =
 let election_setup_pre () =
   let title = "Prepare a new election" in
   let cred_info = Eliom_service.Http.external_service
-    ~prefix:"http://belenios.gforge.inria.fr"
+    ~prefix:"http://www.belenios.org"
     ~path:["setup.php"]
     ~get_params:Eliom_parameter.unit
     ()
