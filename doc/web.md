@@ -144,5 +144,5 @@ events will be logged. It is optional.
 The `<spool>` element indicates a directory with election data. This
 directory should be empty when the server is launched for the first
 time, and will be populated with election data. A typical location
-would be `/var/spool/belenios`. Warning: it may contain sensitive data
+would be `/var/lib/belenios`. Warning: it may contain sensitive data
 (e.g. the private key when no external trustees are set).
