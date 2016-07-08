@@ -87,6 +87,11 @@ let get_default_language () =
   let lazy langs = Ocsigen_request_info.accept_language ri in
   match langs with
   | [] -> "en"
-  | (lang, _) :: _ -> lang
+  | (lang, _) :: _ ->
+     let n =
+       try String.index lang '-'
+       with Not_found -> String.length lang
+     in
+     String.sub lang 0 n
 
 let language = Eliom_reference.eref_from_fun ~scope get_default_language
