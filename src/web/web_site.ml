@@ -69,6 +69,12 @@ let find_election =
   let cache = new WCache.cache raw_find_election 100 in
   fun x -> cache#find x
 
+let get_setup_election uuid_s =
+  Ocsipersist.find election_stable uuid_s
+
+let set_setup_election uuid_s se =
+  Ocsipersist.add election_stable uuid_s se
+
 let dump_passwords dir table =
   Lwt_io.(with_file Output (dir / "passwords.csv") (fun oc ->
     Ocsipersist.iter_step (fun voter (salt, hashed) ->
@@ -343,7 +349,7 @@ let create_new_election owner cred auth =
     se_public_creds = token;
     se_public_creds_received = false;
   } in
-  lwt () = Ocsipersist.add election_stable uuid_s se in
+  lwt () = set_setup_election uuid_s se in
   lwt () = Ocsipersist.add election_credtokens token uuid_s in
   return (preapply election_setup uuid)
 
@@ -372,7 +378,7 @@ let generic_setup_page f uuid () =
   match_lwt Web_state.get_site_user () with
   | Some u ->
      let uuid_s = Uuidm.to_string uuid in
-     lwt se = Ocsipersist.find election_stable uuid_s in
+     lwt se = get_setup_election uuid_s in
      if se.se_owner = u
      then f uuid se ()
      else forbidden ()
@@ -394,11 +400,11 @@ let handle_setup f uuid x =
   | Some u ->
      let uuid_s = Uuidm.to_string uuid in
      Lwt_mutex.with_lock election_setup_mutex (fun () ->
-       lwt se = Ocsipersist.find election_stable uuid_s in
+       lwt se = get_setup_election uuid_s in
        if se.se_owner = u then (
          try_lwt
            lwt cont = f se x u uuid in
-           Ocsipersist.add election_stable uuid_s se >>
+           set_setup_election uuid_s se >>
            cont ()
          with e ->
            let service = preapply election_setup uuid in
@@ -507,7 +513,7 @@ let () =
      match_lwt Web_state.get_site_user () with
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
-        lwt se = Ocsipersist.find election_stable uuid_s in
+        lwt se = get_setup_election uuid_s in
         if se.se_owner = u
         then T.election_setup_questions uuid se ()
         else forbidden ()
@@ -529,7 +535,7 @@ let () =
       match_lwt Web_state.get_site_user () with
       | Some u ->
          let uuid_s = Uuidm.to_string uuid in
-         lwt se = Ocsipersist.find election_stable uuid_s in
+         lwt se = get_setup_election uuid_s in
          if se.se_owner = u
          then T.election_setup_voters uuid se ()
          else forbidden ()
@@ -610,13 +616,13 @@ let () =
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
         Lwt_mutex.with_lock election_setup_mutex (fun () ->
-          lwt se = Ocsipersist.find election_stable uuid_s in
+          lwt se = get_setup_election uuid_s in
           if se.se_owner = u
           then (
             lwt st_token = generate_token () in
             let trustee = {st_id; st_token; st_public_key = ""} in
             se.se_public_keys <- se.se_public_keys @ [trustee];
-            Ocsipersist.add election_stable uuid_s se >>
+            set_setup_election uuid_s se >>
             Ocsipersist.add election_pktokens st_token uuid_s
           ) else forbidden ()
         ) >>
@@ -636,7 +642,7 @@ let () =
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
         Lwt_mutex.with_lock election_setup_mutex (fun () ->
-          lwt se = Ocsipersist.find election_stable uuid_s in
+          lwt se = get_setup_election uuid_s in
           if se.se_owner = u
           then (
             let trustees, old =
@@ -646,7 +652,7 @@ let () =
               (fun (x, y) -> List.map snd x, List.map snd y)
             in
             se.se_public_keys <- trustees;
-            Ocsipersist.add election_stable uuid_s se >>
+            set_setup_election uuid_s se >>
             Lwt_list.iter_s (fun {st_token; _} ->
               Ocsipersist.remove election_pktokens st_token
             ) old
@@ -661,7 +667,7 @@ let () =
     ~service:election_setup_credentials
     (fun token () ->
      lwt uuid = Ocsipersist.find election_credtokens token in
-     lwt se = Ocsipersist.find election_stable uuid in
+     lwt se = get_setup_election uuid in
      T.election_setup_credentials token uuid se ()
     )
 
@@ -681,7 +687,7 @@ let wrap_handler f =
 
 let handle_credentials_post token creds =
   lwt uuid = Ocsipersist.find election_credtokens token in
-  lwt se = Ocsipersist.find election_stable uuid in
+  lwt se = get_setup_election uuid in
   if se.se_public_creds_received then forbidden () else
   let module G = (val Group.of_string se.se_group : GROUP) in
   let fname = !spool_dir / uuid ^ ".public_creds.txt" in
@@ -707,7 +713,7 @@ let handle_credentials_post token creds =
   in
   let () = se.se_metadata <- {se.se_metadata with e_cred_authority = None} in
   let () = se.se_public_creds_received <- true in
-  Ocsipersist.add election_stable uuid se >>
+  set_setup_election uuid se >>
   T.generic_page ~title:"Success" ~service:home
     "Credentials have been received and checked!" () >>= Html5.send
 
@@ -784,7 +790,7 @@ let () =
     ~service:election_setup_trustee
     (fun token () ->
      lwt uuid = Ocsipersist.find election_pktokens token in
-     lwt se = Ocsipersist.find election_stable uuid in
+     lwt se = get_setup_election uuid in
      T.election_setup_trustee token se ()
     )
 
@@ -798,7 +804,7 @@ let () =
         Lwt_mutex.with_lock
           election_setup_mutex
           (fun () ->
-           lwt se = Ocsipersist.find election_stable uuid in
+           lwt se = get_setup_election uuid in
            let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
            let module G = (val Group.of_string se.se_group : GROUP) in
            let pk = trustee_public_key_of_string G.read public_key in
@@ -806,7 +812,7 @@ let () =
            if not (KG.check pk) then failwith "invalid public key";
            (* we keep pk as a string because of G.t *)
            t.st_public_key <- public_key;
-           Ocsipersist.add election_stable uuid se
+           set_setup_election uuid se
           ) >> T.generic_page ~title:"Success"
             "Your key has been received and checked!"
             () >>= Html5.send
@@ -821,7 +827,7 @@ let () =
       | None -> forbidden ()
       | Some u ->
          let uuid_s = Uuidm.to_string uuid in
-         lwt se = Ocsipersist.find election_stable uuid_s in
+         lwt se = get_setup_election uuid_s in
          if se.se_owner <> u then forbidden () else
          T.election_setup_confirm uuid se () >>= Html5.send)
 
@@ -835,7 +841,7 @@ let () =
         begin try_lwt
           let uuid_s = Uuidm.to_string uuid in
           Lwt_mutex.with_lock election_setup_mutex (fun () ->
-            lwt se = Ocsipersist.find election_stable uuid_s in
+            lwt se = get_setup_election uuid_s in
             if se.se_owner <> u then forbidden () else
             finalize_election uuid se >>
             Redirection.send (preapply election_admin (uuid, ()))
@@ -853,7 +859,7 @@ let () =
       match site_user with
       | None -> forbidden ()
       | Some u ->
-         lwt se = Ocsipersist.find election_stable (Uuidm.to_string uuid) in
+         lwt se = get_setup_election (Uuidm.to_string uuid) in
          lwt elections = get_finalized_elections_by_owner u in
          T.election_setup_import uuid se elections ())
 
