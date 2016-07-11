@@ -34,32 +34,32 @@ let next = "Suivant"
 let nothing = "(rien)"
 let enter_cred = "Veuillez entrer votre code de vote :"
 let invalid_cred = "Code de vote invalide !"
-let input_credential = "Entrée du code de vote"
+let input_credential = "Saisie du code de vote"
 let answer_to_questions = "Réponse aux questions"
 let review_and_encrypt = "Récapitulatif et chiffrement"
 let authenticate = "Authentification"
 let confirm = "Confirmation"
 let done_ = "Terminé"
-let booth_step1 = "Étape 1/6 : Entrée du code de vote"
+let booth_step1 = "Étape 1/6 : Saisie du code de vote"
 let booth_step2 = "Étape 2/6 : Réponse aux questions"
 let booth_step3 = "Étape 3/6 : Récapitulatif et chiffrement"
 let booth_step5 = "Étape 5/6 : Confirmation"
 let booth_step6 = "Étape 6/6 : "
-let input_your_credential = "Entrez votre code de vote "
-let wait_while_encrypted = "Veuillez patienter, votre bulletin est en train d'être chiffré..."
+let input_your_credential = "Saisissez votre code de vote "
+let wait_while_encrypted = "Veuillez patienter, le chiffrement de votre bulletin est en cours..."
 let encrypting = "Chiffrement en cours..."
 let restart = "Recommencer"
 let successfully_encrypted = "Votre bulletin a été chiffré avec succès, "
 let not_cast_yet = "mais n'a pas encore été déposé dans l'urne"
 let qmark = " !"
 let your_tracker_is = "Votre numéro de suivi est "
-let we_invite_you_to_save_it = "Nous vous invitons à le sauvegarder afin de vérifier ultérieurement qu'il est bien pris en compte"
+let we_invite_you_to_save_it = "Nous vous invitons à le sauvegarder afin de vérifier ultérieurement que votre vote est bien pris en compte"
 let continue = "Continuer"
 let election_uuid = "UUID de l'élection : "
 let election_fingerprint = "Empreinte de l'élection : "
 let i_am = "Je suis "
 let and_ = " et "
-let i_cast_my_vote = "Je dépose mon bulletin dans l'urne"
+let i_cast_my_vote = "je dépose mon bulletin dans l'urne"
 let please_login_to_confirm = "Veuillez vous connecter pour confirmer votre vote"
 let your_ballot_for = "Votre bulletin pour "
 let has_been_received = " a été reçu, mais pas encore pris en compte. "
@@ -102,13 +102,13 @@ let please_enable_them = "Votre navigateur semble bloquer les cookies. Veuillez 
 
 
 let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Vous êtes enregistré(e) en tant qu'électeur pour l'élection
+  "Vous êtes enregistré(e) en tant qu'électeur(trice) pour l'élection
 
   %s
 
 Veuillez trouver ci-dessous votre nom d'utilisateur et votre mot de
 passe. Pour soumettre un bulletin, vous aurez également besoin d'un
-code de vote, envoyé dans un e-mail séparé. Soyez prudent(e), le mot
+code de vote, envoyé dans un e-mail séparé. Soyez attentif(ve), le mot
 de passe et le code de vote se ressemblent mais jouent des rôles
 différents. Le système vous demandera votre code de vote dès l'entrée
 dans l'isoloir virtuel. Le nom d'utilisateur et le mot de passe sont
@@ -118,18 +118,18 @@ Nom d'utilisateur : %s
 Mot de passe : %s
 Page de l'élection : %s
 
-Notez que vous pouvez voter plusieurs fois. Seule la dernière est
-prise en compte."
+Notez que vous pouvez voter plusieurs fois. Seul le dernier vote est
+pris en compte."
 
 
 let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Vous êtes enregistré(e) en tant qu'électeur pour l'élection
+  "Vous êtes enregistré(e) en tant qu'électeur(trice) pour l'élection
 
   %s
 
 Veuillez trouver ci-dessous votre nom d'utilisateur et votre code de
 vote. Pour soumettre un bulletin, vous aurez également besoin d'un
-mot de passe, envoyé dans un e-mail séparé. Soyez prudent(e), le mot
+mot de passe, envoyé dans un e-mail séparé. Soyez attentif(ve), le mot
 de passe et le code de vote se ressemblent mais jouent des rôles
 différents. Le système vous demandera votre code de vote dès l'entrée
 dans l'isoloir virtuel. Le nom d'utilisateur et le mot de passe sont
@@ -139,8 +139,8 @@ Nom d'utilisateur : %s
 Code de vote : %s
 Page de l'élection : %s
 
-Notez que vous pouvez voter plusieurs fois. Seule la dernière est
-prise en compte."
+Notez que vous pouvez voter plusieurs fois. Seul le dernier vote est
+pris en compte."
 
 
 let mail_confirmation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
