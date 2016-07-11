@@ -22,7 +22,6 @@
 open Lwt
 open Platform
 open Common
-open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 
@@ -177,28 +176,6 @@ let uuid =
   let of_string x = uuid_of_string x
   and to_string x = Uuidm.to_string x
   in Eliom_parameter.user_type ~of_string ~to_string
-
-type setup_voter = {
-  sv_id : string;
-  mutable sv_password : (string * string) option;
-}
-
-type setup_trustee = {
-  st_id : string;
-  st_token : string;
-  mutable st_public_key : string;
-}
-
-type setup_election = {
-  mutable se_owner : user;
-  mutable se_group : string;
-  mutable se_voters : setup_voter list;
-  mutable se_questions : template;
-  mutable se_public_keys : setup_trustee list;
-  mutable se_metadata : metadata;
-  mutable se_public_creds : string;
-  mutable se_public_creds_received : bool;
-}
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let token_length = 14

@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_t
 open Web_serializable_t
 
 val spool_dir : string ref
@@ -94,28 +93,6 @@ val uuid :
   (Uuidm.t, [ `WithoutSuffix ],
    [ `One of Uuidm.t ] Eliom_parameter.param_name)
   Eliom_parameter.params_type
-
-type setup_voter = {
-  sv_id : string;
-  mutable sv_password : (string * string) option;
-}
-
-type setup_trustee = {
-  st_id : string;
-  st_token : string;
-  mutable st_public_key : string;
-}
-
-type setup_election = {
-  mutable se_owner : user;
-  mutable se_group : string;
-  mutable se_voters : setup_voter list;
-  mutable se_questions : template;
-  mutable se_public_keys : setup_trustee list;
-  mutable se_metadata : metadata;
-  mutable se_public_creds : string;
-  mutable se_public_creds_received : bool;
-}
 
 val generate_token : unit -> string Lwt.t
 

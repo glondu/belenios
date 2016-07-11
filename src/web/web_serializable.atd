@@ -26,6 +26,7 @@
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
 type string_set <ocaml predef from="Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
+type template <ocaml predef from="Serializable"> = abstract
 
 (** {1 Web-specific types} *)
 
@@ -65,3 +66,27 @@ type election_uuid = {
 type election_dates = {
   finalization : datetime;
 } <ocaml field_prefix="e_">
+
+(** {1 Types related to elections being prepared} *)
+
+type setup_voter = {
+  id : string;
+  ?password <ocaml mutable> : (string * string) option;
+} <ocaml field_prefix="sv_">
+
+type setup_trustee = {
+  id : string;
+  token : string;
+  public_key <ocaml mutable> : string;
+} <ocaml field_prefix="st_">
+
+type setup_election = {
+  owner : user;
+  group : string;
+  voters <ocaml mutable> : setup_voter list;
+  questions <ocaml mutable> : template;
+  public_keys <ocaml mutable> : setup_trustee list;
+  metadata <ocaml mutable> : metadata;
+  public_creds : string;
+  public_creds_received <ocaml mutable> : bool;
+} <ocaml field_prefix="se_">
