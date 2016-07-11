@@ -407,7 +407,10 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
   let check_result pks r =
     let {encrypted_tally; partial_decryptions; result; _} = r in
     check_ciphertext encrypted_tally &&
-    Array.forall2 (check_factor encrypted_tally) pks partial_decryptions &&
+    (* decryption factors may be not in the same order as pks! *)
+    Array.forall (fun pk ->
+      Array.exists (check_factor encrypted_tally pk) partial_decryptions
+    ) pks &&
     let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
     let factors = Array.fold_left (fun a b ->
       Array.mmap2 ( *~ ) a b.decryption_factors

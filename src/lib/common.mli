@@ -23,6 +23,7 @@ val ( |> ) : 'a -> ('a -> 'b) -> 'b
 
 module Array : sig
   include module type of Array
+  val exists : ('a -> bool) -> 'a array -> bool
   val forall : ('a -> bool) -> 'a array -> bool
   val forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
   val fforall : ('a -> bool) -> 'a array array -> bool

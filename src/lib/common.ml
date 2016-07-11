@@ -24,6 +24,13 @@ let ( |> ) x f = f x
 module Array = struct
   include Array
 
+  let exists f a =
+    let n = Array.length a in
+    (let rec check i =
+       if i >= 0 then f a.(i) || check (pred i)
+       else false
+     in check (pred n))
+
   let forall f a =
     let n = Array.length a in
     (let rec check i =
