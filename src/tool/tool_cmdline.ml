@@ -149,6 +149,7 @@ module Election : CMDLINER_MODULE = struct
 
     let get_result () =
       load_from_file (fun x -> x) (X.dir/"result.json") |> function
+      | None -> None
       | Some [r] -> Some r
       | _ -> failwith "invalid result"
 
