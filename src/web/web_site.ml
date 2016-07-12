@@ -70,10 +70,11 @@ let find_election =
   fun x -> cache#find x
 
 let get_setup_election uuid_s =
-  Ocsipersist.find election_stable uuid_s
+  lwt se = Ocsipersist.find election_stable uuid_s in
+  return (setup_election_of_string se)
 
 let set_setup_election uuid_s se =
-  Ocsipersist.add election_stable uuid_s se
+  Ocsipersist.add election_stable uuid_s (string_of_setup_election se)
 
 let dump_passwords dir table =
   Lwt_io.(with_file Output (dir / "passwords.csv") (fun oc ->
@@ -268,6 +269,7 @@ let () = Html5.register ~service:admin
          lwt elections, tallied, archived = get_finalized_elections_by_owner u in
          lwt setup_elections =
            Ocsipersist.fold_step (fun k v accu ->
+             let v = setup_election_of_string v in
              if v.se_owner = u
              then return ((uuid_of_string k, v.se_questions.t_name) :: accu)
              else return accu
