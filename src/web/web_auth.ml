@@ -131,6 +131,37 @@ let cas_self =
           ~service:(preapply login_cas None)
           () |> rewrite_prefix)
 
+let parse_cas_validation info =
+  match next_lf info 0 with
+  | Some i ->
+     (match String.sub info 0 i with
+     | "yes" -> `Yes
+        (match next_lf info (i+1) with
+        | Some j -> Some (String.sub info (i+1) (j-i-1))
+        | None -> None)
+     | "no" -> `No
+     | _ -> `Error `Parsing)
+  | None -> `Error `Parsing
+
+let get_cas_validation server ticket =
+  let url =
+    let cas_validate = Http.external_service
+      ~prefix:server
+      ~path:["validate"]
+      ~get_params:Eliom_parameter.(string "service" ** string "ticket")
+      ()
+    in
+    let service = preapply cas_validate (Lazy.force cas_self, ticket) in
+    Eliom_uri.make_string_uri ~absolute:true ~service ()
+  in
+  lwt reply = Ocsigen_http_client.get_url url in
+  match reply.Ocsigen_http_frame.frame_content with
+  | Some stream ->
+     lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
+     Ocsigen_stream.finalize stream `Success >>
+     return (parse_cas_validation info)
+  | None -> return (`Error `Http)
+
 let cas_handler ticket () =
   lwt uuid, service =
     match_lwt Eliom_reference.get auth_env with
@@ -144,46 +175,23 @@ let cas_handler ticket () =
        | None -> failwith "cas handler was invoked without a server"
        | Some x -> return x
      in
-     let validation =
-       let cas_validate = Http.external_service
-         ~prefix:server
-         ~path:["validate"]
-         ~get_params:Eliom_parameter.(string "service" ** string "ticket")
-         ()
-       in
-       let service = preapply cas_validate (Lazy.force cas_self, x) in
-       Eliom_uri.make_string_uri ~absolute:true ~service ()
-     in
-     lwt reply = Ocsigen_http_client.get_url validation in
-     (match reply.Ocsigen_http_frame.frame_content with
-     | Some stream ->
-        lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
-        Ocsigen_stream.finalize stream `Success >>
-        (match next_lf info 0 with
-        | Some i ->
-           (match String.sub info 0 i with
-           | "yes" ->
-              (match next_lf info (i+1) with
-              | Some j ->
-                 let name = String.sub info (i+1) (j-i-1) in
-                 let logout () =
-                   Eliom_reference.unset user >>
-                   let cas_logout = Http.external_service
-                     ~prefix:server
-                     ~path:["logout"]
-                     ~get_params:Eliom_parameter.(string "service")
-                     ()
-                   in
-                   let service = preapply cas_logout (Lazy.force cas_self) in
-                   Eliom_registration.Redirection.send service
-                 in
-                 Eliom_reference.set user (Some {uuid; service; name; logout}) >>
-                 default_cont uuid ()
-              | None -> fail_http 502)
-           | "no" -> fail_http 401
-           | _ -> fail_http 502)
-        | None -> fail_http 502)
-     | None -> fail_http 502)
+     (match_lwt get_cas_validation server x with
+     | `Yes (Some name) ->
+        let logout () =
+          Eliom_reference.unset user >>
+          let cas_logout = Http.external_service
+            ~prefix:server
+            ~path:["logout"]
+            ~get_params:Eliom_parameter.(string "service")
+            ()
+          in
+          let service = preapply cas_logout (Lazy.force cas_self) in
+          Eliom_registration.Redirection.send service
+        in
+        Eliom_reference.set user (Some {uuid; service; name; logout}) >>
+        default_cont uuid ()
+     | `No -> fail_http 401
+     | `Yes None | `Error _ -> fail_http 502)
   | None ->
      Eliom_reference.unset cas_server >>
      Eliom_reference.unset auth_env >>
