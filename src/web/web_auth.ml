@@ -22,7 +22,7 @@
 open Lwt
 open Eliom_service
 open Platform
-open Web_serializable_t
+open Web_serializable_j
 open Web_common
 open Web_state
 open Web_services
@@ -219,6 +219,118 @@ let cas_login_handler config () =
      Eliom_registration.Redirection.send service
   | _ -> failwith "cas_login_handler invoked with bad config"
 
+(** OpenID Connect (OIDC) authentication *)
+
+let oidc_state = Eliom_reference.eref ~scope None
+
+let login_oidc = Eliom_service.Http.service
+  ~path:["auth"; "oidc"]
+  ~get_params:Eliom_parameter.any
+  ()
+
+let oidc_self =
+  lazy (Eliom_uri.make_string_uri
+          ~absolute:true
+          ~service:(preapply login_oidc [])
+          () |> rewrite_prefix)
+
+let oidc_get_userinfo ocfg info =
+  let info = oidc_tokens_of_string info in
+  let access_token = info.oidc_access_token in
+  let url = ocfg.userinfo_endpoint in
+  let headers = Http_headers.(
+    add (name "Authorization") ("Bearer " ^ access_token) empty
+  ) in
+  lwt reply = Ocsigen_http_client.get_url ~headers url in
+  match reply.Ocsigen_http_frame.frame_content with
+  | Some stream ->
+     lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
+     Ocsigen_stream.finalize stream `Success >>
+     let x = oidc_userinfo_of_string info in
+     return (Some (match x.oidc_email with Some x -> x | None -> x.oidc_sub))
+  | None -> return None
+
+let oidc_get_name ocfg client_id client_secret code =
+  let content = [
+    "code", code;
+    "client_id", client_id;
+    "client_secret", client_secret;
+    "redirect_uri", Lazy.force oidc_self;
+    "grant_type", "authorization_code";
+  ] in
+  lwt reply = Ocsigen_http_client.post_urlencoded_url ~content ocfg.token_endpoint in
+  match reply.Ocsigen_http_frame.frame_content with
+  | Some stream ->
+    lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
+    Ocsigen_stream.finalize stream `Success >>
+    oidc_get_userinfo ocfg info
+  | None -> return None
+
+let oidc_handler params () =
+  lwt uuid, service =
+    match_lwt Eliom_reference.get auth_env with
+    | None -> failwith "oidc handler was invoked without environment"
+    | Some x -> return x
+  in
+  let code = try Some (List.assoc "code" params) with Not_found -> None in
+  let state = try Some (List.assoc "state" params) with Not_found -> None in
+  match code, state with
+  | Some code, Some state ->
+    lwt ocfg, client_id, client_secret, st =
+      match_lwt Eliom_reference.get oidc_state with
+      | None -> failwith "oidc handler was invoked without a state"
+      | Some x -> return x
+    in
+    Eliom_reference.unset oidc_state >>
+    Eliom_reference.unset auth_env >>
+    if state <> st then fail_http 401 else
+    (match_lwt oidc_get_name ocfg client_id client_secret code with
+    | Some name ->
+       let logout () =
+         Eliom_reference.unset user >>
+         default_cont uuid ()
+       in
+       Eliom_reference.set user (Some {uuid; service; name; logout}) >>
+       default_cont uuid ()
+    | None -> fail_http 401)
+  | _, _ -> default_cont uuid ()
+
+let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler
+
+let get_oidc_configuration server =
+  let url = server ^ "/.well-known/openid-configuration" in
+  lwt reply = Ocsigen_http_client.get_url url in
+  match reply.Ocsigen_http_frame.frame_content with
+  | Some stream ->
+     lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
+     Ocsigen_stream.finalize stream `Success >>
+     return (oidc_configuration_of_string info)
+  | None -> fail_http 404
+
+let split_prefix_path url =
+  let n = String.length url in
+  let i = String.rindex url '/' in
+  String.sub url 0 i, [String.sub url (i+1) (n-i-1)]
+
+let oidc_login_handler config () =
+  match config with
+  | [server; client_id; client_secret] ->
+     lwt ocfg = get_oidc_configuration server in
+     lwt state = generate_token () in
+     Eliom_reference.set oidc_state (Some (ocfg, client_id, client_secret, state)) >>
+     let prefix, path = split_prefix_path ocfg.authorization_endpoint in
+     let auth_endpoint = Http.external_service ~prefix ~path
+       ~get_params:Eliom_parameter.(string "redirect_uri" **
+           string "response_type" ** string "client_id" **
+           string "scope" ** string "state" ** string "prompt")
+       ()
+     in
+     let service = preapply auth_endpoint
+       (Lazy.force oidc_self, ("code", (client_id, ("openid email", (state, "consent")))))
+     in
+     Eliom_registration.Redirection.send service
+  | _ -> failwith "oidc_login_handler invoked with bad config"
+
 (** Generic authentication *)
 
 let get_login_handler service uuid auth_system config =
@@ -227,6 +339,7 @@ let get_login_handler service uuid auth_system config =
   | "dummy" -> Web_templates.login_dummy () >>= Eliom_registration.Html5.send
   | "cas" -> cas_login_handler config ()
   | "password" -> Web_templates.login_password () >>= Eliom_registration.Html5.send
+  | "oidc" -> oidc_login_handler config ()
   | _ -> fail_http 404
 
 let login_handler service uuid =

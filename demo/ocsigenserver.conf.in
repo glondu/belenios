@@ -37,6 +37,7 @@
       <eliom module="_build/src/web/server.cma">
         <auth name="demo"><dummy/></auth>
         <auth name="local"><password db="demo/password_db.csv"/></auth>
+        <!-- <auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth> -->
         <source file="../belenios.tar.gz"/>
         <log file="_RUNDIR_/log/security.log"/>
         <spool dir="_RUNDIR_/spool"/>

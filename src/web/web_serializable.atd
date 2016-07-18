@@ -90,3 +90,22 @@ type setup_election = {
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;
 } <ocaml field_prefix="se_">
+
+(** {1 OpenID Connect-related types} *)
+
+type oidc_configuration = {
+  authorization_endpoint : string;
+  token_endpoint : string;
+  userinfo_endpoint : string;
+}
+
+type oidc_tokens = {
+  access_token : string;
+  token_type : string;
+  id_token : string;
+} <ocaml field_prefix="oidc_">
+
+type oidc_userinfo = {
+  sub : string;
+  ?email : string option;
+} <ocaml field_prefix="oidc_">
