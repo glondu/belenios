@@ -71,6 +71,8 @@ let default_cont uuid () =
      | Some u ->
         Eliom_registration.Redirection.send (preapply Web_services.election_home (u, ()))
 
+(** Dummy authentication *)
+
 let dummy_handler () name =
   match_lwt Eliom_reference.get auth_env with
   | None -> failwith "dummy handler was invoked without environment"
@@ -84,6 +86,8 @@ let dummy_handler () name =
      default_cont uuid ()
 
 let () = Eliom_registration.Any.register ~service:dummy_post dummy_handler
+
+(** Password authentication *)
 
 let password_handler () (name, password) =
   lwt uuid, service =
@@ -116,6 +120,8 @@ let password_handler () (name, password) =
     fail_http 401
 
 let () = Eliom_registration.Any.register ~service:password_post password_handler
+
+(** CAS authentication *)
 
 let cas_server = Eliom_reference.eref ~scope None
 
@@ -212,6 +218,8 @@ let cas_login_handler config () =
      let service = preapply cas_login (Lazy.force cas_self) in
      Eliom_registration.Redirection.send service
   | _ -> failwith "cas_login_handler invoked with bad config"
+
+(** Generic authentication *)
 
 let get_login_handler service uuid auth_system config =
   Eliom_reference.set auth_env (Some (uuid, service)) >>
