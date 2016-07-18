@@ -132,6 +132,17 @@ site. Available authentication methods:
 
    `<rewrite-prefix src="https://backend-server" dst="https://frontend-server/belenios"/>`
 
+ * `<oidc>`: authenticate with an [OpenID Connect](http://openid.net/connect/)
+   server. For example:
+
+   `<auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth>`
+
+   In the above, `client-id` and `client-secret` must be replaced by
+   valid credentials issued by the OpenID Connect provider.
+
+   The `<rewrite-prefix>` directive also applies to this authentication
+   scheme.
+
 The `<source>` element gives the path to the source tarball. Note that
 this is a path on the local filesystem and not a URL. If you made
 local changes, an easy way to comply with the AGPL license is to
