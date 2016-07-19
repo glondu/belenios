@@ -62,7 +62,7 @@ let scope = Eliom_common.default_session_scope
 let auth_env = Eliom_reference.eref ~scope None
 
 let default_cont uuid () =
-  match_lwt cont_pop () with
+  match%lwt cont_pop () with
   | Some f -> f ()
   | None ->
      match uuid with
@@ -74,7 +74,7 @@ let default_cont uuid () =
 (** Dummy authentication *)
 
 let dummy_handler () name =
-  match_lwt Eliom_reference.get auth_env with
+  match%lwt Eliom_reference.get auth_env with
   | None -> failwith "dummy handler was invoked without environment"
   | Some (uuid, service) ->
      let logout () =
@@ -90,8 +90,8 @@ let () = Eliom_registration.Any.register ~service:dummy_post dummy_handler
 (** Password authentication *)
 
 let password_handler () (name, password) =
-  lwt uuid, service =
-    match_lwt Eliom_reference.get auth_env with
+  let%lwt uuid, service =
+    match%lwt Eliom_reference.get auth_env with
     | None -> failwith "password handler was invoked without environment"
     | Some x -> return x
   in
@@ -104,8 +104,8 @@ let password_handler () (name, password) =
        underscorize u
   in
   let table = Ocsipersist.open_table table in
-  lwt salt, hashed =
-    try_lwt Ocsipersist.find table name
+  let%lwt salt, hashed =
+    try%lwt Ocsipersist.find table name
     with Not_found -> fail_http 401
   in
   if sha256_hex (salt ^ password) = hashed then
@@ -160,28 +160,28 @@ let get_cas_validation server ticket =
     let service = preapply cas_validate (Lazy.force cas_self, ticket) in
     Eliom_uri.make_string_uri ~absolute:true ~service ()
   in
-  lwt reply = Ocsigen_http_client.get_url url in
+  let%lwt reply = Ocsigen_http_client.get_url url in
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
-     lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
+     let%lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
      Ocsigen_stream.finalize stream `Success >>
      return (parse_cas_validation info)
   | None -> return (`Error `Http)
 
 let cas_handler ticket () =
-  lwt uuid, service =
-    match_lwt Eliom_reference.get auth_env with
+  let%lwt uuid, service =
+    match%lwt Eliom_reference.get auth_env with
     | None -> failwith "cas handler was invoked without environment"
     | Some x -> return x
   in
   match ticket with
   | Some x ->
-     lwt server =
-       match_lwt Eliom_reference.get cas_server with
+     let%lwt server =
+       match%lwt Eliom_reference.get cas_server with
        | None -> failwith "cas handler was invoked without a server"
        | Some x -> return x
      in
-     (match_lwt get_cas_validation server x with
+     (match%lwt get_cas_validation server x with
      | `Yes (Some name) ->
         let logout () =
           Eliom_reference.unset user >>
@@ -241,10 +241,10 @@ let oidc_get_userinfo ocfg info =
   let headers = Http_headers.(
     add (name "Authorization") ("Bearer " ^ access_token) empty
   ) in
-  lwt reply = Ocsigen_http_client.get_url ~headers url in
+  let%lwt reply = Ocsigen_http_client.get_url ~headers url in
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
-     lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
+     let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
      Ocsigen_stream.finalize stream `Success >>
      let x = oidc_userinfo_of_string info in
      return (Some (match x.oidc_email with Some x -> x | None -> x.oidc_sub))
@@ -258,17 +258,17 @@ let oidc_get_name ocfg client_id client_secret code =
     "redirect_uri", Lazy.force oidc_self;
     "grant_type", "authorization_code";
   ] in
-  lwt reply = Ocsigen_http_client.post_urlencoded_url ~content ocfg.token_endpoint in
+  let%lwt reply = Ocsigen_http_client.post_urlencoded_url ~content ocfg.token_endpoint in
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
-    lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
+    let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
     Ocsigen_stream.finalize stream `Success >>
     oidc_get_userinfo ocfg info
   | None -> return None
 
 let oidc_handler params () =
-  lwt uuid, service =
-    match_lwt Eliom_reference.get auth_env with
+  let%lwt uuid, service =
+    match%lwt Eliom_reference.get auth_env with
     | None -> failwith "oidc handler was invoked without environment"
     | Some x -> return x
   in
@@ -276,15 +276,15 @@ let oidc_handler params () =
   let state = try Some (List.assoc "state" params) with Not_found -> None in
   match code, state with
   | Some code, Some state ->
-    lwt ocfg, client_id, client_secret, st =
-      match_lwt Eliom_reference.get oidc_state with
+    let%lwt ocfg, client_id, client_secret, st =
+      match%lwt Eliom_reference.get oidc_state with
       | None -> failwith "oidc handler was invoked without a state"
       | Some x -> return x
     in
     Eliom_reference.unset oidc_state >>
     Eliom_reference.unset auth_env >>
     if state <> st then fail_http 401 else
-    (match_lwt oidc_get_name ocfg client_id client_secret code with
+    (match%lwt oidc_get_name ocfg client_id client_secret code with
     | Some name ->
        let logout () =
          Eliom_reference.unset user >>
@@ -299,10 +299,10 @@ let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler
 
 let get_oidc_configuration server =
   let url = server ^ "/.well-known/openid-configuration" in
-  lwt reply = Ocsigen_http_client.get_url url in
+  let%lwt reply = Ocsigen_http_client.get_url url in
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
-     lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
+     let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
      Ocsigen_stream.finalize stream `Success >>
      return (oidc_configuration_of_string info)
   | None -> fail_http 404
@@ -315,8 +315,8 @@ let split_prefix_path url =
 let oidc_login_handler config () =
   match config with
   | [server; client_id; client_secret] ->
-     lwt ocfg = get_oidc_configuration server in
-     lwt state = generate_token () in
+     let%lwt ocfg = get_oidc_configuration server in
+     let%lwt state = generate_token () in
      Eliom_reference.set oidc_state (Some (ocfg, client_id, client_secret, state)) >>
      let prefix, path = split_prefix_path ocfg.authorization_endpoint in
      let auth_endpoint = Http.external_service ~prefix ~path
@@ -348,7 +348,7 @@ let login_handler service uuid =
     | None -> preapply site_login service
     | Some u -> preapply election_login ((u, ()), service)
   in
-  match_lwt Eliom_reference.get user with
+  match%lwt Eliom_reference.get user with
   | Some _ ->
      cont_push (fun () -> Eliom_registration.Redirection.send (myself service)) >>
      Web_templates.already_logged_in () >>= Eliom_registration.Html5.send
@@ -357,10 +357,10 @@ let login_handler service uuid =
        | None -> ""
        | Some u -> Uuidm.to_string u
      in
-     lwt c = Web_persist.get_auth_config uuid_or_empty in
+     let%lwt c = Web_persist.get_auth_config uuid_or_empty in
      match service with
      | Some s ->
-        lwt auth_system, config =
+        let%lwt auth_system, config =
           try return @@ List.assoc s c
           with Not_found -> fail_http 404
         in
@@ -380,10 +380,10 @@ let login_handler service uuid =
            Eliom_registration.Html5.send
 
 let logout_handler () =
-  match_lwt Eliom_reference.get user with
+  match%lwt Eliom_reference.get user with
   | Some u -> u.logout ()
   | None ->
-     match_lwt cont_pop () with
+     match%lwt cont_pop () with
      | Some f -> f ()
      | None -> Eliom_registration.Redirection.send Web_services.home
 

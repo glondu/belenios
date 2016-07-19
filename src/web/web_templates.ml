@@ -43,8 +43,8 @@ let make_login_box ~site auth links =
   let style = "float: right; text-align: right;" ^ style in
   let module S = (val auth : AUTH_SERVICES) in
   let module L = (val links : AUTH_LINKS) in
-  lwt user = S.get_user () in
-  lwt auth_systems = S.get_auth_systems () in
+  let%lwt user = S.get_user () in
+  let%lwt auth_systems = S.get_auth_systems () in
   let body =
     match user with
     | Some user ->
@@ -90,7 +90,7 @@ end
 module Site_auth = struct
   let get_user () = Web_state.get_site_user ()
   let get_auth_systems () =
-    lwt l = Web_persist.get_auth_config "" in
+    let%lwt l = Web_persist.get_auth_config "" in
     return (List.map fst l)
 end
 
@@ -107,7 +107,7 @@ let belenios_url = Eliom_service.Http.external_service
   ()
 
 let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
-  lwt language = Eliom_reference.get Web_state.language in
+  let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let administer =
     match uuid with
@@ -209,7 +209,7 @@ let admin ~elections () =
          pcdata "please send an email to contact@belenios.org.";
        ]
      ] in
-     lwt login_box = site_login_box () in
+     let%lwt login_box = site_login_box () in
      base ~title ?login_box ~content ()
   | Some (elections, tallied, archived, setup_elections) ->
     let elections =
@@ -256,7 +256,7 @@ let admin ~elections () =
         archived;
       ];
     ] in
-    lwt login_box = site_login_box () in
+    let%lwt login_box = site_login_box () in
     base ~title ?login_box ~content ()
 
 let make_button ~service contents =
@@ -287,7 +287,7 @@ let new_election_failure reason () =
       p [reason];
     ]
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let generic_page ~title ?service message () =
@@ -355,7 +355,7 @@ let election_setup_pre () =
   let content = [
     form
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let election_setup uuid se () =
@@ -493,7 +493,7 @@ let election_setup uuid se () =
     hr ();
     link_confirm;
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let mail_trustee_generation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -598,7 +598,7 @@ let election_setup_trustees uuid se () =
     div_content;
     back_link;
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let election_setup_credential_authority _ se () =
@@ -624,7 +624,7 @@ let election_setup_credential_authority _ se () =
       pcdata "Note that this authority will have to send each credential to each voter herself.";
     ];
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let election_setup_questions uuid se () =
@@ -660,7 +660,7 @@ let election_setup_questions uuid se () =
     form;
     link;
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let election_setup_voters uuid se () =
@@ -762,7 +762,7 @@ let election_setup_voters uuid se () =
     voters;
     div_add;
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let election_setup_credentials token uuid se () =
@@ -927,7 +927,7 @@ let election_setup_import uuid se (elections, tallied, archived) () =
     h2 [pcdata "Archived elections"];
     itemize archived;
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let election_setup_confirm uuid se () =
@@ -997,7 +997,7 @@ let election_setup_confirm uuid se () =
     checklist;
     form_create;
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let election_login_box w =
@@ -1007,7 +1007,7 @@ let election_login_box w =
       Web_state.get_election_user W.election.e_params.e_uuid
     let get_auth_systems () =
       let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
-      lwt l = Web_persist.get_auth_config uuid_s in
+      let%lwt l = Web_persist.get_auth_config uuid_s in
       return @@ List.map fst l
   end in
   let auth = (module A : AUTH_SERVICES) in
@@ -1029,7 +1029,7 @@ let file w x =
     (W.election.e_params.e_uuid, x)
 
 let audit_footer w =
-  lwt language = Eliom_reference.get Web_state.language in
+  let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
@@ -1065,7 +1065,7 @@ let rec list_concat elt = function
   | ([_] | []) as xs -> xs
 
 let election_home w state () =
-  lwt language = Eliom_reference.get Web_state.language in
+  let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
@@ -1110,7 +1110,7 @@ let election_home w state () =
           ] (params.e_uuid, ())
       ]
   in
-  lwt footer = audit_footer w in
+  let%lwt footer = audit_footer w in
   let go_to_the_booth =
     div ~a:[a_style "text-align:center;"] [
       div [
@@ -1127,9 +1127,9 @@ let election_home w state () =
       ];
     ]
   in
-  lwt middle =
+  let%lwt middle =
     let uuid = Uuidm.to_string params.e_uuid in
-    lwt result = Web_persist.get_election_result uuid in
+    let%lwt result = Web_persist.get_election_result uuid in
     match result with
     | Some r ->
        let result = r.result in
@@ -1170,7 +1170,7 @@ let election_home w state () =
         a ~service:set_language [pcdata lang] lang
        ) langs)
   in
-  lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
+  let%lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
   let cookie_disclaimer =
     if scd then
       div
@@ -1190,7 +1190,7 @@ let election_home w state () =
     br ();
     ballots_link;
   ] in
-  lwt login_box = election_login_box w () in
+  let%lwt login_box = election_login_box w () in
   let uuid = params.e_uuid in
   base ~title:params.e_name ?login_box ~content ~footer ~uuid ()
 
@@ -1233,7 +1233,7 @@ let election_admin w metadata state () =
          string_input ~input_type:`Submit ~value ();
        ]) (W.election.e_params.e_uuid, ())
   in
-  lwt state_div =
+  let%lwt state_div =
     match state with
     | `Open ->
        return @@ div [
@@ -1254,7 +1254,7 @@ let election_admin w metadata state () =
              ]) (W.election.e_params.e_uuid, ());
        ]
     | `EncryptedTally (npks, _, hash) ->
-       lwt pds = Web_persist.get_partial_decryptions uuid_s in
+       let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
        let trustees =
          let rec loop i ts =
            if i <= npks then
@@ -1374,7 +1374,7 @@ let election_admin w metadata state () =
     div [state_div];
     div_archive;
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let update_credential w () =
@@ -1415,7 +1415,7 @@ let update_credential w () =
   let content = [
     form;
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   let uuid = W.election.e_params.e_uuid in
   base ~title:params.e_name ?login_box ~content ~uuid ()
 
@@ -1433,7 +1433,7 @@ let regenpwd uuid () =
   in
   let content = [ form ] in
   let title = "Regenerate and mail password" in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ~uuid ()
 
 let cast_raw w () =
@@ -1484,16 +1484,16 @@ let cast_raw w () =
     h3 [ pcdata "Submit by file" ];
     form_upload;
   ] in
-  lwt login_box = election_login_box w () in
+  let%lwt login_box = election_login_box w () in
   let uuid = W.election.e_params.e_uuid in
-  lwt footer = audit_footer w in
+  let%lwt footer = audit_footer w in
   base ~title:params.e_name ?login_box ~content ~uuid ~footer ()
 
 let cast_confirmation w hash () =
-  lwt language = Eliom_reference.get Web_state.language in
+  let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
-  lwt user = Web_state.get_election_user W.election.e_params.e_uuid in
+  let%lwt user = Web_state.get_election_user W.election.e_params.e_uuid in
   let params = W.election.e_params in
   let name = params.e_name in
   let user_div = match user with
@@ -1560,7 +1560,7 @@ let cast_confirmation w hash () =
   base ~title:name ~content ~uuid ()
 
 let cast_confirmed w ~result () =
-  lwt language = Eliom_reference.get Web_state.language in
+  let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
@@ -1620,7 +1620,7 @@ let cast_confirmed w ~result () =
   base ~title:name ~content ~uuid ()
 
 let pretty_ballots w hashes result () =
-  lwt language = Eliom_reference.get Web_state.language in
+  let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
@@ -1671,7 +1671,7 @@ let pretty_ballots w hashes result () =
     ul ballots;
     links;
   ] in
-  lwt login_box = election_login_box w () in
+  let%lwt login_box = election_login_box w () in
   let uuid = params.e_uuid in
   base ~title ?login_box ~content ~uuid ()
 
@@ -1699,7 +1699,7 @@ let pretty_records w records () =
     ];
     table;
   ] in
-  lwt login_box = site_login_box () in
+  let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
 let tally_trustees w trustee_id () =
@@ -1800,7 +1800,7 @@ let login_dummy () =
   base ~title ~content ()
 
 let login_password () =
-  lwt language = Eliom_reference.get Web_state.language in
+  let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let form = post_form ~service:password_post
     (fun (llogin, lpassword) ->
@@ -1826,7 +1826,7 @@ let login_password () =
   base ~title:L.password_login ~content ()
 
 let booth () =
-  lwt language = Eliom_reference.get Web_state.language in
+  let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let head = head (title (pcdata L.belenios_booth)) [
     link ~rel:[`Stylesheet] ~href:(uri_of_string (fun () -> "/static/booth.css")) ();

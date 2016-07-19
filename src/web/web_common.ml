@@ -46,7 +46,7 @@ module MakeLwtRandom (X : LWT_RNG) = struct
 
   let random q =
     let size = Z.bit_length q / 8 + 1 in
-    lwt rng = X.rng in
+    let%lwt rng = X.rng in
     let r = random_string rng size in
     return Z.(of_bits r mod q)
 
@@ -86,12 +86,12 @@ let explain_error = function
 let security_logfile = ref None
 
 let open_security_log f =
-  lwt () =
+  let%lwt () =
     match !security_logfile with
       | Some ic -> Lwt_io.close ic
       | None -> return ()
   in
-  lwt ic = Lwt_io.(
+  let%lwt ic = Lwt_io.(
     open_file ~flags:Unix.(
       [O_WRONLY; O_APPEND; O_CREAT]
     ) ~perm:0o600 ~mode:output f
@@ -112,10 +112,10 @@ let security_log s =
     ) ic
 
 let fail_http status =
-  raise_lwt (
+  [%lwt raise (
     Ocsigen_extensions.Ocsigen_http_error
       (Ocsigen_cookies.empty_cookieset, status)
-  )
+  )]
 
 let forbidden () = fail_http 403
 
@@ -182,7 +182,7 @@ let token_length = 14
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
 let random_char () =
-  lwt rng =
+  let%lwt rng =
     if Lazy.is_val prng then return (Lazy.force prng) else
     Lwt_preemptive.detach (fun () -> Lazy.force prng) ()
   in
@@ -192,7 +192,7 @@ let generate_token () =
   let res = Bytes.create token_length in
   let rec loop i =
     if i < token_length then (
-      lwt digit = random_char () in
+      let%lwt digit = random_char () in
       let digit = digit mod 58 in
       Bytes.set res i b58_digits.[digit];
       loop (i+1)
@@ -214,7 +214,7 @@ let send_email recipient subject body =
       ~subject body
   in
   let rec loop () =
-    try_lwt
+    try%lwt
       Lwt_preemptive.detach Netsendmail.sendmail contents
     with Unix.Unix_error (Unix.EAGAIN, _, _) ->
       Lwt_unix.sleep 1. >> loop ()

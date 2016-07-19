@@ -52,7 +52,7 @@ let election_credtokens = Ocsipersist.open_table "site_credtokens"
 module T = Web_templates
 
 let raw_find_election uuid =
-  lwt raw_election = Web_persist.get_raw_election uuid in
+  let%lwt raw_election = Web_persist.get_raw_election uuid in
   match raw_election with
   | Some raw_election ->
      return (Group.election_params_of_string raw_election)
@@ -70,7 +70,7 @@ let find_election =
   fun x -> cache#find x
 
 let get_setup_election uuid_s =
-  lwt se = Ocsipersist.find election_stable uuid_s in
+  let%lwt se = Ocsipersist.find election_stable uuid_s in
   return (setup_election_of_string se)
 
 let set_setup_election uuid_s se =
@@ -106,10 +106,10 @@ let finalize_election uuid se =
   let group = Group.of_string se.se_group in
   let module G = (val group : GROUP) in
   let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
-  lwt trustees, public_keys, private_key =
+  let%lwt trustees, public_keys, private_key =
     match se.se_public_keys with
     | [] ->
-       lwt private_key, public_key = KG.generate_and_prove () in
+       let%lwt private_key, public_key = KG.generate_and_prove () in
        return (None, [public_key], Some private_key)
     | _ :: _ ->
        return (
@@ -155,7 +155,7 @@ let finalize_election uuid se =
   let election = Group.election_params_of_string raw_election in
   let module W = Web_election.Make ((val election)) (LwtRandom) in
   (* set up authentication *)
-  lwt () =
+  let%lwt () =
     match metadata.e_auth_config with
     | None -> return ()
     | Some xs ->
@@ -167,7 +167,7 @@ let finalize_election uuid se =
        Web_persist.set_auth_config uuid_s auth_config
   in
   (* inject credentials *)
-  lwt () =
+  let%lwt () =
     let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
     Lwt_io.lines_of_file fname |>
     Lwt_stream.iter_s W.B.inject_cred >>
@@ -175,7 +175,7 @@ let finalize_election uuid se =
     Lwt_unix.unlink fname
   in
   (* create file with private key, if any *)
-  lwt () =
+  let%lwt () =
     match private_key with
     | None -> return_unit
     | Some x -> create_file "private_key.json" string_of_number [x]
@@ -209,26 +209,26 @@ let cleanup_table ?uuid_s table =
   let table = Ocsipersist.open_table table in
   match uuid_s with
   | None ->
-     lwt indexes = Ocsipersist.fold_step (fun k _ accu ->
+     let%lwt indexes = Ocsipersist.fold_step (fun k _ accu ->
        return (k :: accu)) table []
      in
      Lwt_list.iter_s (Ocsipersist.remove table) indexes
   | Some u -> Ocsipersist.remove table u
 
 let cleanup_file f =
-  try_lwt Lwt_unix.unlink f
+  try%lwt Lwt_unix.unlink f
   with _ -> return_unit
 
 let archive_election uuid_s =
   let uuid_u = underscorize uuid_s in
-  lwt () = cleanup_table ~uuid_s "election_states" in
-  lwt () = cleanup_table ~uuid_s "election_pds" in
-  lwt () = cleanup_table ~uuid_s "auth_configs" in
-  lwt () = cleanup_table ("password_" ^ uuid_u) in
-  lwt () = cleanup_table ("records_" ^ uuid_u) in
-  lwt () = cleanup_table ("creds_" ^ uuid_u) in
-  lwt () = cleanup_table ("ballots_" ^ uuid_u) in
-  lwt () = cleanup_file (!spool_dir / uuid_s / "private_key.json") in
+  let%lwt () = cleanup_table ~uuid_s "election_states" in
+  let%lwt () = cleanup_table ~uuid_s "election_pds" in
+  let%lwt () = cleanup_table ~uuid_s "auth_configs" in
+  let%lwt () = cleanup_table ("password_" ^ uuid_u) in
+  let%lwt () = cleanup_table ("records_" ^ uuid_u) in
+  let%lwt () = cleanup_table ("creds_" ^ uuid_u) in
+  let%lwt () = cleanup_table ("ballots_" ^ uuid_u) in
+  let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_key.json") in
   return_unit
 
 let () = Any.register ~service:home
@@ -238,12 +238,12 @@ let () = Any.register ~service:home
   )
 
 let get_finalized_elections_by_owner u =
-  lwt elections, tallied, archived =
+  let%lwt elections, tallied, archived =
     Web_persist.get_elections_by_owner u >>=
     Lwt_list.fold_left_s (fun accu uuid_s ->
-        lwt w = find_election uuid_s in
-        lwt state = Web_persist.get_election_state uuid_s in
-        lwt date = Web_persist.get_election_date uuid_s in
+        let%lwt w = find_election uuid_s in
+        let%lwt state = Web_persist.get_election_state uuid_s in
+        let%lwt date = Web_persist.get_election_date uuid_s in
         let elections, tallied, archived = accu in
         match state with
         | `Tallied _ -> return (elections, (date, w) :: tallied, archived)
@@ -261,13 +261,13 @@ let () = Html5.register ~service:admin
   (fun () () ->
     let cont () = Redirection.send admin in
     Eliom_reference.set Web_state.cont [cont] >>
-    lwt site_user = Web_state.get_site_user () in
-    lwt elections =
+    let%lwt site_user = Web_state.get_site_user () in
+    let%lwt elections =
       match site_user with
       | None -> return None
       | Some u ->
-         lwt elections, tallied, archived = get_finalized_elections_by_owner u in
-         lwt setup_elections =
+         let%lwt elections, tallied, archived = get_finalized_elections_by_owner u in
+         let%lwt setup_elections =
            Ocsipersist.fold_step (fun k v accu ->
              let v = setup_election_of_string v in
              if v.se_owner = u
@@ -292,7 +292,7 @@ let do_get_randomness =
   let mutex = Lwt_mutex.create () in
   fun () ->
     Lwt_mutex.with_lock mutex (fun () ->
-      lwt prng = Lazy.force prng in
+      let%lwt prng = Lazy.force prng in
       return (random_string prng 32)
     )
 
@@ -302,7 +302,7 @@ let b64_encode_compact x =
 let () = String.register
   ~service:get_randomness
   (fun () () ->
-    lwt r = do_get_randomness () in
+    let%lwt r = do_get_randomness () in
     b64_encode_compact r |>
     (fun x -> string_of_randomness { randomness=x }) |>
     (fun x -> return (x, "application/json"))
@@ -322,7 +322,7 @@ let create_new_election owner cred auth =
   in
   let uuid = generate_uuid () in
   let uuid_s = Uuidm.to_string uuid in
-  lwt token = generate_token () in
+  let%lwt token = generate_token () in
   let se_metadata = {
     e_owner = Some owner;
     e_auth_config;
@@ -351,8 +351,8 @@ let create_new_election owner cred auth =
     se_public_creds = token;
     se_public_creds_received = false;
   } in
-  lwt () = set_setup_election uuid_s se in
-  lwt () = Ocsipersist.add election_credtokens token uuid_s in
+  let%lwt () = set_setup_election uuid_s se in
+  let%lwt () = Ocsipersist.add election_credtokens token uuid_s in
   return (preapply election_setup uuid)
 
 let () = Html5.register ~service:election_setup_pre
@@ -360,14 +360,14 @@ let () = Html5.register ~service:election_setup_pre
 
 let () = Redirection.register ~service:election_setup_new
   (fun () (credmgmt, (auth, cas_server)) ->
-   match_lwt Web_state.get_site_user () with
+   match%lwt Web_state.get_site_user () with
    | Some u ->
-      lwt credmgmt = match credmgmt with
+      let%lwt credmgmt = match credmgmt with
         | Some "auto" -> return `Automatic
         | Some "manual" -> return `Manual
         | _ -> fail_http 400
       in
-      lwt auth = match auth with
+      let%lwt auth = match auth with
         | Some "password" -> return `Password
         | Some "dummy" -> return `Dummy
         | Some "cas" -> return @@ `CAS cas_server
@@ -377,10 +377,10 @@ let () = Redirection.register ~service:election_setup_new
    | None -> forbidden ())
 
 let generic_setup_page f uuid () =
-  match_lwt Web_state.get_site_user () with
+  match%lwt Web_state.get_site_user () with
   | Some u ->
      let uuid_s = Uuidm.to_string uuid in
-     lwt se = get_setup_election uuid_s in
+     let%lwt se = get_setup_election uuid_s in
      if se.se_owner = u
      then f uuid se ()
      else forbidden ()
@@ -398,14 +398,14 @@ let () = Html5.register ~service:election_setup_credential_authority
 let election_setup_mutex = Lwt_mutex.create ()
 
 let handle_setup f uuid x =
-  match_lwt Web_state.get_site_user () with
+  match%lwt Web_state.get_site_user () with
   | Some u ->
      let uuid_s = Uuidm.to_string uuid in
      Lwt_mutex.with_lock election_setup_mutex (fun () ->
-       lwt se = get_setup_election uuid_s in
+       let%lwt se = get_setup_election uuid_s in
        if se.se_owner = u then (
-         try_lwt
-           lwt cont = f se x u uuid in
+         try%lwt
+           let%lwt cont = f se x u uuid in
            set_setup_election uuid_s se >>
            cont ()
          with e ->
@@ -430,8 +430,8 @@ let () =
 
 let generate_password langs title url id =
   let email, login = split_identity id in
-  lwt salt = generate_token () in
-  lwt password = generate_token () in
+  let%lwt salt = generate_token () in
+  let%lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
   let bodies = List.map (fun lang ->
     let module L = (val Web_i18n.get_lang lang) in
@@ -452,7 +452,7 @@ let handle_password se uuid ~force voters =
     match id.sv_password with
     | Some _ when not force -> return_unit
     | None | Some _ ->
-       lwt x = generate_password langs title url id.sv_id in
+       let%lwt x = generate_password langs title url id.sv_id in
        return (id.sv_password <- Some x)
   ) voters >>
   return (fun () ->
@@ -478,10 +478,10 @@ let () =
     ~service:election_regenpwd_post
     (fun (uuid, ()) user ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
-      lwt metadata = Web_persist.get_election_metadata uuid_s in
+      let%lwt w = find_election uuid_s in
+      let%lwt metadata = Web_persist.get_election_metadata uuid_s in
       let module W = (val w) in
-      lwt site_user = Web_state.get_site_user () in
+      let%lwt site_user = Web_state.get_site_user () in
       match site_user with
       | Some u when metadata.e_owner = Some u ->
          let table = "password_" ^ underscorize uuid_s in
@@ -492,9 +492,9 @@ let () =
            (uuid, ()) |> rewrite_prefix
          in
          let service = preapply election_admin (uuid, ()) in
-         begin try_lwt
-           lwt _ = Ocsipersist.find table user in
-           lwt x = generate_password langs title url user in
+         begin try%lwt
+           let%lwt _ = Ocsipersist.find table user in
+           let%lwt x = generate_password langs title url user in
            Ocsipersist.add table user x >>
            dump_passwords (!spool_dir / uuid_s) table >>
            T.generic_page ~title:"Success" ~service
@@ -512,10 +512,10 @@ let () =
   Html5.register
     ~service:election_setup_questions
     (fun uuid () ->
-     match_lwt Web_state.get_site_user () with
+     match%lwt Web_state.get_site_user () with
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
-        lwt se = get_setup_election uuid_s in
+        let%lwt se = get_setup_election uuid_s in
         if se.se_owner = u
         then T.election_setup_questions uuid se ()
         else forbidden ()
@@ -534,10 +534,10 @@ let () =
   Html5.register
     ~service:election_setup_voters
     (fun uuid () ->
-      match_lwt Web_state.get_site_user () with
+      match%lwt Web_state.get_site_user () with
       | Some u ->
          let uuid_s = Uuidm.to_string uuid in
-         lwt se = get_setup_election uuid_s in
+         let%lwt se = get_setup_election uuid_s in
          if se.se_owner = u
          then T.election_setup_voters uuid se ()
          else forbidden ()
@@ -614,14 +614,14 @@ let () =
     ~service:election_setup_trustee_add
     (fun uuid st_id ->
      if is_email st_id then
-     match_lwt Web_state.get_site_user () with
+     match%lwt Web_state.get_site_user () with
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
         Lwt_mutex.with_lock election_setup_mutex (fun () ->
-          lwt se = get_setup_election uuid_s in
+          let%lwt se = get_setup_election uuid_s in
           if se.se_owner = u
           then (
-            lwt st_token = generate_token () in
+            let%lwt st_token = generate_token () in
             let trustee = {st_id; st_token; st_public_key = ""} in
             se.se_public_keys <- se.se_public_keys @ [trustee];
             set_setup_election uuid_s se >>
@@ -640,11 +640,11 @@ let () =
   Redirection.register
     ~service:election_setup_trustee_del
     (fun uuid index ->
-     match_lwt Web_state.get_site_user () with
+     match%lwt Web_state.get_site_user () with
      | Some u ->
         let uuid_s = Uuidm.to_string uuid in
         Lwt_mutex.with_lock election_setup_mutex (fun () ->
-          lwt se = get_setup_election uuid_s in
+          let%lwt se = get_setup_election uuid_s in
           if se.se_owner = u
           then (
             let trustees, old =
@@ -668,8 +668,8 @@ let () =
   Html5.register
     ~service:election_setup_credentials
     (fun token () ->
-     lwt uuid = Ocsipersist.find election_credtokens token in
-     lwt se = get_setup_election uuid in
+     let%lwt uuid = Ocsipersist.find election_credtokens token in
+     let%lwt se = get_setup_election uuid in
      T.election_setup_credentials token uuid se ()
     )
 
@@ -678,18 +678,18 @@ let () =
     ~service:election_setup_credentials_download
     ~content_type:"text/plain"
     (fun token () ->
-     lwt uuid = Ocsipersist.find election_credtokens token in
+     let%lwt uuid = Ocsipersist.find election_credtokens token in
      return (!spool_dir / uuid ^ ".public_creds.txt")
     )
 
 let wrap_handler f =
-  try_lwt f ()
+  try%lwt f ()
   with
   | e -> T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html5.send
 
 let handle_credentials_post token creds =
-  lwt uuid = Ocsipersist.find election_credtokens token in
-  lwt se = get_setup_election uuid in
+  let%lwt uuid = Ocsipersist.find election_credtokens token in
+  let%lwt se = get_setup_election uuid in
   if se.se_public_creds_received then forbidden () else
   let module G = (val Group.of_string se.se_group : GROUP) in
   let fname = !spool_dir / uuid ^ ".public_creds.txt" in
@@ -701,7 +701,7 @@ let handle_credentials_post token creds =
        ~perm:0o600 ~mode:Lwt_io.Output fname
        (fun oc -> Lwt_io.write_chars oc creds)
     ) >>
-  lwt () =
+  let%lwt () =
     let i = ref 1 in
     Lwt_stream.iter
       (fun x ->
@@ -752,10 +752,10 @@ let () =
       let module S = Set.Make (PString) in
       let module G = (val Group.of_string se.se_group : GROUP) in
       let module CD = Credential.MakeDerive (G) in
-      lwt creds =
+      let%lwt creds =
         Lwt_list.fold_left_s (fun accu v ->
           let email, login = split_identity v.sv_id in
-          lwt cred = CG.generate () in
+          let%lwt cred = CG.generate () in
           let pub_cred =
             let x = CD.derive uuid cred in
             let y = G.(g **~ x) in
@@ -768,13 +768,13 @@ let () =
           let body = PString.concat "\n\n----------\n\n" bodies in
           let body = body ^ "\n\n-- \nBelenios" in
           let subject = "Your credential for election " ^ title in
-          lwt () = send_email email subject body in
+          let%lwt () = send_email email subject body in
           return @@ S.add pub_cred accu
         ) S.empty se.se_voters
       in
       let creds = S.elements creds in
       let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
-      lwt () =
+      let%lwt () =
           Lwt_io.with_file
             ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
             ~perm:0o600 ~mode:Lwt_io.Output fname
@@ -791,8 +791,8 @@ let () =
   Html5.register
     ~service:election_setup_trustee
     (fun token () ->
-     lwt uuid = Ocsipersist.find election_pktokens token in
-     lwt se = get_setup_election uuid in
+     let%lwt uuid = Ocsipersist.find election_pktokens token in
+     let%lwt se = get_setup_election uuid in
      T.election_setup_trustee token se ()
     )
 
@@ -802,11 +802,11 @@ let () =
     (fun token public_key ->
      wrap_handler
        (fun () ->
-        lwt uuid = Ocsipersist.find election_pktokens token in
+        let%lwt uuid = Ocsipersist.find election_pktokens token in
         Lwt_mutex.with_lock
           election_setup_mutex
           (fun () ->
-           lwt se = get_setup_election uuid in
+           let%lwt se = get_setup_election uuid in
            let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
            let module G = (val Group.of_string se.se_group : GROUP) in
            let pk = trustee_public_key_of_string G.read public_key in
@@ -825,11 +825,11 @@ let () =
   Any.register
     ~service:election_setup_confirm
     (fun uuid () ->
-      match_lwt Web_state.get_site_user () with
+      match%lwt Web_state.get_site_user () with
       | None -> forbidden ()
       | Some u ->
          let uuid_s = Uuidm.to_string uuid in
-         lwt se = get_setup_election uuid_s in
+         let%lwt se = get_setup_election uuid_s in
          if se.se_owner <> u then forbidden () else
          T.election_setup_confirm uuid se () >>= Html5.send)
 
@@ -837,13 +837,13 @@ let () =
   Any.register
     ~service:election_setup_create
     (fun uuid () ->
-     match_lwt Web_state.get_site_user () with
+     match%lwt Web_state.get_site_user () with
      | None -> forbidden ()
      | Some u ->
-        begin try_lwt
+        begin try%lwt
           let uuid_s = Uuidm.to_string uuid in
           Lwt_mutex.with_lock election_setup_mutex (fun () ->
-            lwt se = get_setup_election uuid_s in
+            let%lwt se = get_setup_election uuid_s in
             if se.se_owner <> u then forbidden () else
             finalize_election uuid se >>
             Redirection.send (preapply election_admin (uuid, ()))
@@ -857,12 +857,12 @@ let () =
   Html5.register
     ~service:election_setup_import
     (fun uuid () ->
-      lwt site_user = Web_state.get_site_user () in
+      let%lwt site_user = Web_state.get_site_user () in
       match site_user with
       | None -> forbidden ()
       | Some u ->
-         lwt se = get_setup_election (Uuidm.to_string uuid) in
-         lwt elections = get_finalized_elections_by_owner u in
+         let%lwt se = get_setup_election (Uuidm.to_string uuid) in
+         let%lwt elections = get_finalized_elections_by_owner u in
          T.election_setup_import uuid se elections ())
 
 let () =
@@ -871,8 +871,8 @@ let () =
     (handle_setup
        (fun se from _ uuid ->
          let from_s = Uuidm.to_string from in
-         lwt voters = Web_persist.get_voters from_s in
-         lwt passwords = Web_persist.get_passwords from_s in
+         let%lwt voters = Web_persist.get_voters from_s in
+         let%lwt passwords = Web_persist.get_passwords from_s in
          let get_password =
            match passwords with
            | None -> fun _ -> None
@@ -900,8 +900,8 @@ let () =
     ~service:election_home
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
-      try_lwt
-        lwt w = find_election uuid_s in
+      try%lwt
+        let%lwt w = find_election uuid_s in
         let module W = (val w) in
         Eliom_reference.unset Web_state.ballot >>
         let cont () =
@@ -910,15 +910,15 @@ let () =
                election_home (W.election.e_params.e_uuid, ()))
         in
         Eliom_reference.set Web_state.cont [cont] >>
-        match_lwt Eliom_reference.get Web_state.cast_confirmed with
+        match%lwt Eliom_reference.get Web_state.cast_confirmed with
         | Some result ->
            Eliom_reference.unset Web_state.cast_confirmed >>
            T.cast_confirmed (module W) ~result () >>= Html5.send
         | None ->
-           lwt state = Web_persist.get_election_state uuid_s in
+           let%lwt state = Web_persist.get_election_state uuid_s in
            T.election_home (module W) state () >>= Html5.send
       with Not_found ->
-        lwt lang = Eliom_reference.get Web_state.language in
+        let%lwt lang = Eliom_reference.get Web_state.language in
         let module L = (val Web_i18n.get_lang lang) in
         T.generic_page ~title:L.not_yet_open
           ~service:(preapply election_home (uuid, ()))
@@ -929,11 +929,11 @@ let () =
   Any.register ~service:set_cookie_disclaimer
     (fun () () ->
       Eliom_reference.set Web_state.show_cookie_disclaimer false >>
-      lwt cont = Web_state.cont_pop () in
+      let%lwt cont = Web_state.cont_pop () in
       match cont with
       | Some f -> f ()
       | None ->
-         lwt lang = Eliom_reference.get Web_state.language in
+         let%lwt lang = Eliom_reference.get Web_state.language in
          let module L = (val Web_i18n.get_lang lang) in
          T.generic_page ~title:L.cookies_are_blocked
            L.please_enable_them ()
@@ -944,13 +944,13 @@ let () =
     ~service:election_admin
     (fun (uuid, ()) () ->
      let uuid_s = Uuidm.to_string uuid in
-     lwt w = find_election uuid_s in
-     lwt metadata = Web_persist.get_election_metadata uuid_s in
-     lwt site_user = Web_state.get_site_user () in
+     let%lwt w = find_election uuid_s in
+     let%lwt metadata = Web_persist.get_election_metadata uuid_s in
+     let%lwt site_user = Web_state.get_site_user () in
      let module W = (val w) in
      match site_user with
      | Some u when metadata.e_owner = Some u ->
-        lwt state = Web_persist.get_election_state uuid_s in
+        let%lwt state = Web_persist.get_election_state uuid_s in
         T.election_admin w metadata state () >>= Html5.send
      | _ ->
         let cont () =
@@ -962,16 +962,16 @@ let () =
 
 let election_set_state state (uuid, ()) () =
      let uuid_s = Uuidm.to_string uuid in
-     lwt w = find_election uuid_s in
-     lwt metadata = Web_persist.get_election_metadata uuid_s in
+     let%lwt w = find_election uuid_s in
+     let%lwt metadata = Web_persist.get_election_metadata uuid_s in
      let module W = (val w) in
-     lwt () =
-       match_lwt Web_state.get_site_user () with
+     let%lwt () =
+       match%lwt Web_state.get_site_user () with
        | Some u when metadata.e_owner = Some u -> return ()
        | _ -> forbidden ()
      in
-     lwt () =
-       match_lwt Web_persist.get_election_state uuid_s with
+     let%lwt () =
+       match%lwt Web_persist.get_election_state uuid_s with
        | `Open | `Closed -> return ()
        | _ -> forbidden ()
      in
@@ -984,9 +984,9 @@ let () = Any.register ~service:election_close (election_set_state false)
 
 let () = Any.register ~service:election_archive (fun (uuid, ()) () ->
   let uuid_s = Uuidm.to_string uuid in
-  lwt w = find_election uuid_s in
-  lwt metadata = Web_persist.get_election_metadata uuid_s in
-  lwt site_user = Web_state.get_site_user () in
+  let%lwt w = find_election uuid_s in
+  let%lwt metadata = Web_persist.get_election_metadata uuid_s in
+  let%lwt site_user = Web_state.get_site_user () in
   let module W = (val w) in
   match site_user with
   | Some u when metadata.e_owner = Some u ->
@@ -1000,9 +1000,9 @@ let () =
     ~service:election_update_credential
     (fun (uuid, ()) () ->
      let uuid_s = Uuidm.to_string uuid in
-     lwt w = find_election uuid_s in
-     lwt metadata = Web_persist.get_election_metadata uuid_s in
-     lwt site_user = Web_state.get_site_user () in
+     let%lwt w = find_election uuid_s in
+     let%lwt metadata = Web_persist.get_election_metadata uuid_s in
+     let%lwt site_user = Web_state.get_site_user () in
      let module W = (val w) in
      match site_user with
      | Some u ->
@@ -1018,15 +1018,15 @@ let () =
     ~service:election_update_credential_post
     (fun (uuid, ()) (old, new_) ->
      let uuid_s = Uuidm.to_string uuid in
-     lwt w = find_election uuid_s in
-     lwt metadata = Web_persist.get_election_metadata uuid_s in
+     let%lwt w = find_election uuid_s in
+     let%lwt metadata = Web_persist.get_election_metadata uuid_s in
      let module W = (val w) in
-     lwt site_user = Web_state.get_site_user () in
+     let%lwt site_user = Web_state.get_site_user () in
      let module WE = Web_election.Make (W) (LwtRandom) in
      match site_user with
      | Some u ->
        if metadata.e_owner = Some u then (
-         try_lwt
+         try%lwt
            WE.B.update_cred ~old ~new_ >>
            String.send ("OK", "text/plain")
          with Error e ->
@@ -1049,7 +1049,7 @@ let () =
     ~service:election_cast
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
+      let%lwt w = find_election uuid_s in
       let module W = (val w) in
       let cont () =
         Redirection.send
@@ -1057,7 +1057,7 @@ let () =
              election_cast (W.election.e_params.e_uuid, ()))
       in
       Eliom_reference.set Web_state.cont [cont] >>
-      match_lwt Eliom_reference.get Web_state.ballot with
+      match%lwt Eliom_reference.get Web_state.ballot with
       | Some b -> T.cast_confirmation (module W) (sha256_b64 b) () >>= Html5.send
       | None -> T.cast_raw (module W) () >>= Html5.send)
 
@@ -1066,10 +1066,10 @@ let () =
     ~service:election_cast_post
     (fun (uuid, ()) (ballot_raw, ballot_file) ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
+      let%lwt w = find_election uuid_s in
       let module W = (val w) in
-      lwt user = Web_state.get_election_user uuid in
-      lwt the_ballot = match ballot_raw, ballot_file with
+      let%lwt user = Web_state.get_election_user uuid in
+      let%lwt the_ballot = match ballot_raw, ballot_file with
         | Some ballot, None -> return ballot
         | None, Some fi ->
            let fname = fi.Ocsigen_extensions.tmp_filename in
@@ -1096,19 +1096,19 @@ let () =
     ~service:election_cast_confirm
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
+      let%lwt w = find_election uuid_s in
       let module W = (val w) in
       let module WE = Web_election.Make (W) (LwtRandom) in
-      match_lwt Eliom_reference.get Web_state.ballot with
+      match%lwt Eliom_reference.get Web_state.ballot with
       | Some the_ballot ->
          begin
            Eliom_reference.unset Web_state.ballot >>
-           match_lwt Web_state.get_election_user uuid with
+           match%lwt Web_state.get_election_user uuid with
            | Some u ->
               let record = u, now () in
-              lwt result =
-                try_lwt
-                  lwt hash = WE.B.cast the_ballot record in
+              let%lwt result =
+                try%lwt
+                  let%lwt hash = WE.B.cast the_ballot record in
                   return (`Valid hash)
                 with Error e -> return (`Error e)
               in
@@ -1125,9 +1125,9 @@ let () =
     ~service:election_pretty_ballots
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
-      lwt ballots = Web_persist.get_ballot_hashes uuid_s in
-      lwt result = Web_persist.get_election_result uuid_s in
+      let%lwt w = find_election uuid_s in
+      let%lwt ballots = Web_persist.get_ballot_hashes uuid_s in
+      let%lwt result = Web_persist.get_election_result uuid_s in
       T.pretty_ballots w ballots result () >>= Html5.send)
 
 let () =
@@ -1135,7 +1135,7 @@ let () =
     ~service:election_pretty_ballot
     (fun ((uuid, ()), hash) () ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt ballot = Web_persist.get_ballot_by_hash ~uuid:uuid_s ~hash in
+      let%lwt ballot = Web_persist.get_ballot_by_hash ~uuid:uuid_s ~hash in
       match ballot with
       | None -> fail_http 404
       | Some b ->
@@ -1148,11 +1148,11 @@ let () =
     ~service:election_missing_voters
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
-      lwt metadata = Web_persist.get_election_metadata uuid_s in
+      let%lwt w = find_election uuid_s in
+      let%lwt metadata = Web_persist.get_election_metadata uuid_s in
       let module W = (val w) in
-      lwt () =
-        match_lwt Web_state.get_site_user () with
+      let%lwt () =
+        match%lwt Web_state.get_site_user () with
         | Some u when metadata.e_owner = Some u -> return ()
         | _ -> forbidden ()
       in
@@ -1160,14 +1160,14 @@ let () =
         (!spool_dir / uuid_s / string_of_election_file ESVoters)
       in
       let module S = Set.Make (PString) in
-      lwt voters = Lwt_stream.fold (fun v accu ->
+      let%lwt voters = Lwt_stream.fold (fun v accu ->
         let _, login = split_identity v in
         S.add login accu
       ) voters S.empty in
       let records = Lwt_io.lines_of_file
         (!spool_dir / uuid_s / string_of_election_file ESRecords)
       in
-      lwt voters = Lwt_stream.fold (fun r accu ->
+      let%lwt voters = Lwt_stream.fold (fun r accu ->
         let s = Pcre.exec ~rex r in
         let v = Pcre.get_substring s 1 in
         S.remove v accu
@@ -1184,18 +1184,18 @@ let () =
   Any.register ~service:election_pretty_records
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
-      lwt metadata = Web_persist.get_election_metadata uuid_s in
+      let%lwt w = find_election uuid_s in
+      let%lwt metadata = Web_persist.get_election_metadata uuid_s in
       let module W = (val w) in
-      lwt () =
-        match_lwt Web_state.get_site_user () with
+      let%lwt () =
+        match%lwt Web_state.get_site_user () with
         | Some u when metadata.e_owner = Some u -> return_unit
         | _ -> forbidden ()
       in
       let records = Lwt_io.lines_of_file
         (!spool_dir / uuid_s / string_of_election_file ESRecords)
       in
-      lwt records = Lwt_stream.fold (fun r accu ->
+      let%lwt records = Lwt_stream.fold (fun r accu ->
         let s = Pcre.exec ~rex r in
         let date = Pcre.get_substring s 1 in
         let voter = Pcre.get_substring s 2 in
@@ -1209,14 +1209,14 @@ let () =
     ~service:election_tally_trustees
     (fun (uuid, ((), trustee_id)) () ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
+      let%lwt w = find_election uuid_s in
       let module W = (val w) in
-      lwt () =
-        match_lwt Web_persist.get_election_state uuid_s with
+      let%lwt () =
+        match%lwt Web_persist.get_election_state uuid_s with
         | `EncryptedTally _ -> return ()
         | _ -> fail_http 404
       in
-      lwt pds = Web_persist.get_partial_decryptions uuid_s in
+      let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
       if List.mem_assoc trustee_id pds then (
         T.generic_page ~title:"Error"
           "Your partial decryption has already been received and checked!"
@@ -1230,27 +1230,27 @@ let () =
     ~service:election_tally_trustees_post
     (fun (uuid, ((), trustee_id)) partial_decryption ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt () =
-        match_lwt Web_persist.get_election_state uuid_s with
+      let%lwt () =
+        match%lwt Web_persist.get_election_state uuid_s with
         | `EncryptedTally _ -> return ()
         | _ -> forbidden ()
       in
-      lwt pds = Web_persist.get_partial_decryptions uuid_s in
-      lwt () =
+      let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
+      let%lwt () =
         if List.mem_assoc trustee_id pds then forbidden () else return ()
       in
-      lwt () =
+      let%lwt () =
         if trustee_id > 0 then return () else fail_http 404
       in
-      lwt w = find_election uuid_s in
+      let%lwt w = find_election uuid_s in
       let module W = (val w) in
       let module E = Election.MakeElection (W.G) (LwtRandom) in
       let pks = !spool_dir / uuid_s / string_of_election_file ESKeys in
       let pks = Lwt_io.lines_of_file pks in
-      lwt () = Lwt_stream.njunk (trustee_id-1) pks in
-      lwt pk = Lwt_stream.peek pks in
-      lwt () = Lwt_stream.junk_while (fun _ -> true) pks in
-      lwt pk =
+      let%lwt () = Lwt_stream.njunk (trustee_id-1) pks in
+      let%lwt pk = Lwt_stream.peek pks in
+      let%lwt () = Lwt_stream.junk_while (fun _ -> true) pks in
+      let%lwt pk =
         match pk with
         | None -> fail_http 404
         | Some x -> return x
@@ -1259,11 +1259,11 @@ let () =
       let pk = pk.trustee_public_key in
       let pd = partial_decryption_of_string W.G.read partial_decryption in
       let et = !spool_dir / uuid_s / string_of_election_file ESETally in
-      lwt et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
+      let%lwt et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
       let et = encrypted_tally_of_string W.G.read et in
       if E.check_factor et pk pd then (
         let pds = (trustee_id, partial_decryption) :: pds in
-        lwt () = Web_persist.set_partial_decryptions uuid_s pds in
+        let%lwt () = Web_persist.set_partial_decryptions uuid_s pds in
         T.generic_page ~title:"Success"
           "Your partial decryption has been received and checked!" () >>=
         Html5.send
@@ -1276,41 +1276,41 @@ let () =
 
 let handle_election_tally_release (uuid, ()) () =
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
-      lwt metadata = Web_persist.get_election_metadata uuid_s in
+      let%lwt w = find_election uuid_s in
+      let%lwt metadata = Web_persist.get_election_metadata uuid_s in
       let module W = (val w) in
       let module E = Election.MakeElection (W.G) (LwtRandom) in
-      lwt () =
-        match_lwt Web_state.get_site_user () with
+      let%lwt () =
+        match%lwt Web_state.get_site_user () with
         | Some u when metadata.e_owner = Some u -> return ()
         | _ -> forbidden ()
       in
-      lwt npks, ntallied =
-        match_lwt Web_persist.get_election_state uuid_s with
+      let%lwt npks, ntallied =
+        match%lwt Web_persist.get_election_state uuid_s with
         | `EncryptedTally (npks, ntallied, _) -> return (npks, ntallied)
         | _ -> forbidden ()
       in
-      lwt pds = Web_persist.get_partial_decryptions uuid_s in
-      lwt pds =
+      let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
+      let%lwt pds =
         try
           return @@ Array.init npks (fun i ->
             List.assoc (i+1) pds |> partial_decryption_of_string W.G.read
           )
         with Not_found -> fail_http 404
       in
-      lwt et =
+      let%lwt et =
         !spool_dir / uuid_s / string_of_election_file ESETally |>
         Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
         wrap1 (encrypted_tally_of_string W.G.read)
       in
       let result = E.combine_factors ntallied et pds in
-      lwt () =
+      let%lwt () =
         let open Lwt_io in
         with_file
           ~mode:Output (!spool_dir / uuid_s / string_of_election_file ESResult)
           (fun oc -> Lwt_io.write_line oc (string_of_result W.G.write result))
       in
-      lwt () = Web_persist.set_election_state uuid_s (`Tallied result.result) in
+      let%lwt () = Web_persist.set_election_state uuid_s (`Tallied result.result) in
       Eliom_service.preapply
         election_home (W.election.e_params.e_uuid, ()) |>
       Redirection.send
@@ -1331,9 +1331,9 @@ let handle_pseudo_file uuid_s w f site_user =
     | ESRaw | ESKeys | ESBallots | ESETally | ESResult | ESCreds -> false
     | ESRecords | ESVoters -> true
   in
-  lwt () =
+  let%lwt () =
     if confidential then (
-      lwt metadata = Web_persist.get_election_metadata uuid_s in
+      let%lwt metadata = Web_persist.get_election_metadata uuid_s in
       match site_user with
       | Some u when metadata.e_owner = Some u -> return ()
       | _ -> forbidden ()
@@ -1347,8 +1347,8 @@ let () =
     ~service:election_dir
     (fun (uuid, f) () ->
      let uuid_s = Uuidm.to_string uuid in
-     lwt w = find_election uuid_s in
-     lwt site_user = Web_state.get_site_user () in
+     let%lwt w = find_election uuid_s in
+     let%lwt site_user = Web_state.get_site_user () in
      let module W = (val w) in
      handle_pseudo_file uuid_s w f site_user)
 
@@ -1357,37 +1357,37 @@ let () =
     ~service:election_compute_encrypted_tally
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
-      lwt w = find_election uuid_s in
-      lwt metadata = Web_persist.get_election_metadata uuid_s in
+      let%lwt w = find_election uuid_s in
+      let%lwt metadata = Web_persist.get_election_metadata uuid_s in
       let module W = (val w) in
       let module WE = Web_election.Make (W) (LwtRandom) in
-      lwt () =
-        match_lwt Web_state.get_site_user () with
+      let%lwt () =
+        match%lwt Web_state.get_site_user () with
         | Some u when metadata.e_owner = Some u -> return ()
         | _ -> forbidden ()
       in
-      lwt () =
-        match_lwt Web_persist.get_election_state uuid_s with
+      let%lwt () =
+        match%lwt Web_persist.get_election_state uuid_s with
         | `Closed -> return ()
         | _ -> forbidden ()
       in
-      lwt nb, hash, tally = WE.B.compute_encrypted_tally () in
+      let%lwt nb, hash, tally = WE.B.compute_encrypted_tally () in
       let pks = !spool_dir / uuid_s / string_of_election_file ESKeys in
       let pks = Lwt_io.lines_of_file pks in
       let npks = ref 0 in
-      lwt () = Lwt_stream.junk_while (fun _ -> incr npks; true) pks in
+      let%lwt () = Lwt_stream.junk_while (fun _ -> incr npks; true) pks in
       Web_persist.set_election_state uuid_s (`EncryptedTally (!npks, nb, hash)) >>
       (* compute partial decryption and release tally
          if the (single) key is known *)
       let skfile = !spool_dir / uuid_s / "private_key.json" in
       if !npks = 1 && Sys.file_exists skfile then (
-        lwt sk = Lwt_io.lines_of_file skfile |> Lwt_stream.to_list in
+        let%lwt sk = Lwt_io.lines_of_file skfile |> Lwt_stream.to_list in
         let sk = match sk with
           | [sk] -> number_of_string sk
           | _ -> failwith "several private keys are available"
         in
         let tally = encrypted_tally_of_string WE.G.read tally in
-        lwt pd = WE.E.compute_factor tally sk in
+        let%lwt pd = WE.E.compute_factor tally sk in
         let pd = string_of_partial_decryption WE.G.write pd in
         Web_persist.set_partial_decryptions uuid_s [1, pd] >>
         handle_election_tally_release (uuid, ()) ()
@@ -1397,7 +1397,7 @@ let () =
   Any.register ~service:set_language
     (fun lang () ->
       Eliom_reference.set Web_state.language lang >>
-      lwt cont = Web_state.cont_pop () in
+      let%lwt cont = Web_state.cont_pop () in
       match cont with
       | Some f -> f ()
       | None -> Redirection.send home)

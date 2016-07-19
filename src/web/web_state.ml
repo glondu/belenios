@@ -37,7 +37,7 @@ let show_cookie_disclaimer = Eliom_reference.eref ~scope true
 let user = Eliom_reference.eref ~scope None
 
 let get_site_user () =
-  match_lwt Eliom_reference.get user with
+  match%lwt Eliom_reference.get user with
   | None -> return None
   | Some u ->
      match u.uuid with
@@ -49,7 +49,7 @@ let get_site_user () =
      | Some _ -> return None
 
 let get_election_user uuid =
-  match_lwt Eliom_reference.get user with
+  match%lwt Eliom_reference.get user with
   | None -> return None
   | Some u ->
      match u.uuid with
@@ -68,12 +68,12 @@ let cont = Eliom_reference.eref ~scope []
 
 let cont_push f =
   let open Eliom_reference in
-  lwt fs = get cont in
+  let%lwt fs = get cont in
   set cont (f :: fs)
 
 let cont_pop () =
   let open Eliom_reference in
-  lwt fs = get cont in
+  let%lwt fs = get cont in
   match fs with
   | f :: fs -> set cont fs >> return (Some f)
   | [] -> return None

@@ -45,8 +45,8 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
       let cred_table = Ocsipersist.open_table ("creds_" ^ uuid_u)
 
       let inject_cred cred =
-        try_lwt
-          lwt _ = Ocsipersist.find cred_table cred in
+        try%lwt
+          let%lwt _ = Ocsipersist.find cred_table cred in
           failwith "trying to add duplicate credential"
         with Not_found ->
           Ocsipersist.add cred_table cred None
@@ -61,15 +61,15 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
         let url2 = Eliom_uri.make_string_uri ~absolute:true
           ~service:Web_services.election_home x |> rewrite_prefix
         in
-        lwt language = Eliom_reference.get Web_state.language in
+        let%lwt language = Eliom_reference.get Web_state.language in
         let module L = (val Web_i18n.get_lang language) in
         let body = Printf.sprintf L.mail_confirmation user title hash url1 url2 in
         send_email email subject body
 
       let do_cast rawballot (user, date) =
         let voters = Lwt_io.lines_of_file (!spool_dir / uuid / "voters.txt") in
-        lwt voters = Lwt_stream.to_list voters in
-        lwt email, login =
+        let%lwt voters = Lwt_stream.to_list voters in
+        let%lwt email, login =
           let rec loop = function
             | x :: xs ->
                let email, login = split_identity x in
@@ -78,27 +78,27 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
           in loop voters
         in
         let user = string_of_user user in
-        lwt state = Web_persist.get_election_state uuid in
+        let%lwt state = Web_persist.get_election_state uuid in
         let voting_open = state = `Open in
         if not voting_open then fail ElectionClosed else return () >>
         if String.contains rawballot '\n' then (
           fail (Serialization (Invalid_argument "multiline ballot"))
         ) else return () >>
-        lwt ballot =
+        let%lwt ballot =
           try Lwt.return (ballot_of_string G.read rawballot)
           with e -> fail (Serialization e)
         in
-        lwt credential =
+        let%lwt credential =
           match ballot.signature with
             | Some s -> Lwt.return (G.to_string s.s_public_key)
             | None -> fail MissingCredential
         in
-        lwt old_cred =
-          try_lwt Ocsipersist.find cred_table credential
+        let%lwt old_cred =
+          try%lwt Ocsipersist.find cred_table credential
           with Not_found -> fail InvalidCredential
         and old_record =
-          try_lwt
-            lwt x = Ocsipersist.find records_table user in
+          try%lwt
+            let%lwt x = Ocsipersist.find records_table user in
             Lwt.return (Some x)
           with Not_found -> Lwt.return None
         in
@@ -144,7 +144,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
             ) >> fail ReusedCredential
 
       let do_update_cred ~old ~new_ =
-        match_lwt Ocsipersist.fold_step (fun k v x ->
+        match%lwt Ocsipersist.fold_step (fun k v x ->
           if sha256_hex k = old then (
             match v with
               | Some _ -> fail UsedCredential
@@ -185,7 +185,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
 
       let cast rawballot (user, date) =
         Lwt_mutex.with_lock mutex (fun () ->
-          lwt r = do_cast rawballot (user, date) in
+          let%lwt r = do_cast rawballot (user, date) in
           do_write_ballots () >>
           do_write_records () >>
           return r
@@ -193,7 +193,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
 
       let update_cred ~old ~new_ =
         Lwt_mutex.with_lock mutex (fun () ->
-          lwt r = do_update_cred ~old ~new_ in
+          let%lwt r = do_update_cred ~old ~new_ in
           do_write_creds () >> return r
         )
 
@@ -205,7 +205,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
         )
 
       let compute_encrypted_tally () =
-        lwt num_tallied, tally =
+        let%lwt num_tallied, tally =
           Ocsipersist.fold_step
             (fun _ rawballot (n, accu) ->
               let ballot = ballot_of_string G.read rawballot in

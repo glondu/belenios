@@ -29,7 +29,7 @@ open Web_common
 let ( / ) = Filename.concat
 
 let get_election_result uuid =
-  try_lwt
+  try%lwt
     Lwt_io.chars_of_file (!spool_dir / uuid / "result.json") |>
     Lwt_stream.to_string >>= fun x ->
     return @@ Some (result_of_string (Yojson.Safe.from_lexbuf ~stream:true) x)
@@ -46,7 +46,7 @@ type election_state =
 let election_states = Ocsipersist.open_table "election_states"
 
 let get_election_state x =
-  try_lwt Ocsipersist.find election_states x
+  try%lwt Ocsipersist.find election_states x
   with Not_found -> return `Archived
 
 let set_election_state x s =
@@ -61,7 +61,7 @@ let set_election_date uuid d =
   ))
 
 let get_election_date uuid =
-    try_lwt
+    try%lwt
       Lwt_io.chars_of_file (!spool_dir / uuid / "dates.json") |>
       Lwt_stream.to_string >>= fun x ->
       let dates = election_dates_of_string x in
@@ -72,7 +72,7 @@ let get_election_date uuid =
 let election_pds = Ocsipersist.open_table "election_pds"
 
 let get_partial_decryptions x =
-  try_lwt Ocsipersist.find election_pds x
+  try%lwt Ocsipersist.find election_pds x
   with Not_found -> return []
 
 let set_partial_decryptions x pds =
@@ -81,16 +81,16 @@ let set_partial_decryptions x pds =
 let auth_configs = Ocsipersist.open_table "auth_configs"
 
 let get_auth_config x =
-  try_lwt Ocsipersist.find auth_configs x
+  try%lwt Ocsipersist.find auth_configs x
   with Not_found -> return []
 
 let set_auth_config x c =
   Ocsipersist.add auth_configs x c
 
 let get_raw_election uuid =
-  try_lwt
+  try%lwt
     let lines = Lwt_io.lines_of_file (!spool_dir / uuid / "election.json") in
-    begin match_lwt Lwt_stream.to_list lines with
+    begin match%lwt Lwt_stream.to_list lines with
     | x :: _ -> return @@ Some x
     | [] -> return_none
     end
@@ -106,7 +106,7 @@ let empty_metadata = {
 let return_empty_metadata = return empty_metadata
 
 let get_election_metadata uuid =
-  try_lwt
+  try%lwt
     Lwt_io.chars_of_file (!spool_dir / uuid / "metadata.json") |>
     Lwt_stream.to_string >>= fun x ->
     return @@ metadata_of_string x
@@ -116,16 +116,16 @@ let get_elections_by_owner user =
   Lwt_unix.files_of_directory !spool_dir |>
   Lwt_stream.filter_s (fun x ->
     if x = "." || x = ".." then return false else
-    lwt metadata = get_election_metadata x in
+    let%lwt metadata = get_election_metadata x in
     match metadata.e_owner with
     | Some o -> return (o = user)
     | None -> return false
   ) |> Lwt_stream.to_list
 
 let get_voters uuid =
-  try_lwt
+  try%lwt
     let lines = Lwt_io.lines_of_file (!spool_dir / uuid / "voters.txt") in
-    lwt lines = Lwt_stream.to_list lines in
+    let%lwt lines = Lwt_stream.to_list lines in
     return @@ Some lines
   with _ -> return_none
 
@@ -156,7 +156,7 @@ end
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
 
 let raw_get_ballots_archived uuid =
-  try_lwt
+  try%lwt
     let ballots = Lwt_io.lines_of_file (!spool_dir / uuid / "ballots.jsons") in
     Lwt_stream.fold (fun b accu ->
       let hash = sha256_b64 b in
@@ -168,9 +168,9 @@ let archived_ballots_cache =
   new BallotsCache.cache raw_get_ballots_archived 10
 
 let get_ballot_hashes ~uuid =
-  match_lwt get_election_state uuid with
+  match%lwt get_election_state uuid with
   | `Archived ->
-     lwt ballots = archived_ballots_cache#find uuid in
+     let%lwt ballots = archived_ballots_cache#find uuid in
      Ballots.bindings ballots |> List.map fst |> return
   | _ ->
      let table = Ocsipersist.open_table ("ballots_" ^ underscorize uuid) in
@@ -179,11 +179,11 @@ let get_ballot_hashes ~uuid =
      ) table [] >>= (fun x -> return @@ List.rev x)
 
 let get_ballot_by_hash ~uuid ~hash =
-  match_lwt get_election_state uuid with
+  match%lwt get_election_state uuid with
   | `Archived ->
-     lwt ballots = archived_ballots_cache#find uuid in
+     let%lwt ballots = archived_ballots_cache#find uuid in
      (try Some (Ballots.find hash ballots) with Not_found -> None) |> return
   | _ ->
      let table = Ocsipersist.open_table ("ballots_" ^ underscorize uuid) in
-     try_lwt Ocsipersist.find table hash >>= (fun x -> return @@ Some x)
+     try%lwt Ocsipersist.find table hash >>= (fun x -> return @@ Some x)
      with Not_found -> return_none

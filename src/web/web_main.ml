@@ -64,16 +64,16 @@ let () =
 (** Parse configuration from other sources *)
 
 let file_exists x =
-  try_lwt
+  try%lwt
     Lwt_unix.(access x [R_OK]) >>
     return true
   with _ ->
     return false
 
-lwt source_file =
+let%lwt source_file =
   match !source_file with
   | Some f ->
-    lwt b = file_exists f in
+    let%lwt b = file_exists f in
     if b then (
       return f
     ) else (
