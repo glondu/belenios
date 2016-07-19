@@ -1,3 +1,19 @@
+1.1 (2016-07-25)
+================
+
+ * Web server:
+   + Internationalization of voter-facing interfaces
+     - add French and German translations
+   + Add a confirmation page for election finalization
+   + Add cookie disclaimer
+   + Add templates for mails to trustees
+   + Add the Belenios logo and use www.belenios.org in links
+   + Add OpenID Connect authentication for administrators
+ * Command-line tool:
+   + Issue a proper warning when a result is missing
+   + Support result files where decryption factors are not in the same
+     order as trustee public keys
+
 1.0 (2016-04-22)
 ================
 
