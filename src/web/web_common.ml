@@ -228,4 +228,4 @@ let split_identity x =
   with Not_found ->
     x, x
 
-let langs = ["en"; "fr"]
+let langs = ["en"; "fr"; "de"]
