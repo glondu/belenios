@@ -107,9 +107,9 @@ let () = dispatch & function
     platform_rules "native";
     platform_rules "js";
 
-    copy_rule "jsbn.js" "ext/booth/js/jscrypto/jsbn.js" "src/static/jsbn.js";
-    copy_rule "jsbn2.js" "ext/booth/js/jscrypto/jsbn2.js" "src/static/jsbn2.js";
-    copy_rule "sjcl.js" "ext/booth/js/jscrypto/sjcl.js" "src/static/sjcl.js";
+    copy_rule "jsbn.js" "ext/booth/js/jsbn/jsbn.js" "src/static/jsbn.js";
+    copy_rule "jsbn2.js" "ext/booth/js/jsbn/jsbn2.js" "src/static/jsbn2.js";
+    copy_rule "sjcl.js" "ext/booth/js/sjcl/sjcl.js" "src/static/sjcl.js";
     copy_rule "random.js" "src/platform/js/random.js" "src/static/random.js";
 
     copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
