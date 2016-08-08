@@ -28,5 +28,7 @@ doc/specification.pdf: doc/specification.tex
 archive:
 	test `git status --porcelain | grep -v '^?? ' | wc -l ` -eq 0 && { \
 	COMMIT_ID=`git describe --tags`; \
+	VERSION=`cat VERSION`; \
+	test "$$(printf $$COMMIT_ID | head -c$$(printf $$VERSION | wc -c))" = "$$VERSION" && \
 	git archive --prefix=belenios-$$COMMIT_ID/ $$COMMIT_ID | gzip -9n > ../belenios-$$COMMIT_ID.tar.gz; \
 	ln -sf belenios-$$COMMIT_ID.tar.gz ../belenios.tar.gz; }
