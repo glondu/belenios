@@ -229,3 +229,14 @@ let split_identity x =
     x, x
 
 let langs = ["en"; "fr"; "de"]
+
+let get_languages xs =
+  match xs with
+  | None -> langs
+  | Some xs -> xs
+
+let string_of_languages xs =
+  String.concat " " (get_languages xs)
+
+let languages_of_string x =
+  Some (Pcre.split x)

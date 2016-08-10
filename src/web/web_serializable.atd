@@ -51,6 +51,7 @@ type metadata = {
   ?auth_config: auth_config list option;
   ?cred_authority : string option;
   ?trustees : string list option;
+  ?languages : string list option;
 } <ocaml field_prefix="e_">
 
 type datadir_item = {

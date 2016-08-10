@@ -360,6 +360,29 @@ let election_setup_pre () =
 
 let election_setup uuid se () =
   let title = "Preparation of election " ^ se.se_questions.t_name in
+  let form_languages =
+    post_form ~service:election_setup_languages
+      (fun languages ->
+        [
+          div [
+              pcdata "Languages: ";
+              string_input ~name:languages ~input_type:`Text
+                ~value:(string_of_languages se.se_metadata.e_languages) ();
+            ];
+          div [
+              pcdata "(This is a space-separated list of languages that will be used in emails sent by the server.)";
+            ];
+          div [
+              string_input ~input_type:`Submit ~value:"Save changes" ();
+            ];
+        ]) uuid
+  in
+  let div_languages =
+    div [
+        h2 [pcdata "Languages"];
+        form_languages;
+      ]
+  in
   let form_description =
     post_form ~service:election_setup_description
       (fun (name, description) ->
@@ -480,6 +503,8 @@ let election_setup uuid se () =
   ] in
   let content = [
     div_description;
+    hr ();
+    div_languages;
     hr ();
     div_questions;
     hr ();
@@ -1168,7 +1193,7 @@ let election_home w state () =
     div ~a:[a_class ["languages"]]
       (list_concat (pcdata " ") @@ List.map (fun lang ->
         a ~service:set_language [pcdata lang] lang
-       ) langs)
+       ) (get_languages None))
   in
   let%lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
   let cookie_disclaimer =

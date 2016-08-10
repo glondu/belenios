@@ -101,6 +101,7 @@ let empty_metadata = {
   e_auth_config = None;
   e_cred_authority = None;
   e_trustees = None;
+  e_languages = None;
 }
 
 let return_empty_metadata = return empty_metadata

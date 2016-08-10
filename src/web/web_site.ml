@@ -328,6 +328,7 @@ let create_new_election owner cred auth =
     e_auth_config;
     e_cred_authority;
     e_trustees = None;
+    e_languages = None;
   } in
   let question = {
     q_answers = [| "Answer 1"; "Answer 2"; "Blank" |];
@@ -419,6 +420,17 @@ let redir_preapply s u () = Redirection.send (preapply s u)
 
 let () =
   Any.register
+    ~service:election_setup_languages
+    (handle_setup
+       (fun se languages _ uuid ->
+         se.se_metadata <- {
+            se.se_metadata with
+            e_languages = languages_of_string languages
+          };
+         return (redir_preapply election_setup uuid)))
+
+let () =
+  Any.register
     ~service:election_setup_description
     (handle_setup
        (fun se (name, description) _ uuid ->
@@ -448,6 +460,7 @@ let handle_password se uuid ~force voters =
   let url = Eliom_uri.make_string_uri ~absolute:true ~service:election_home
     (uuid, ()) |> rewrite_prefix
   in
+  let langs = get_languages se.se_metadata.e_languages in
   Lwt_list.iter_s (fun id ->
     match id.sv_password with
     | Some _ when not force -> return_unit
@@ -494,6 +507,7 @@ let () =
          let service = preapply election_admin (uuid, ()) in
          begin try%lwt
            let%lwt _ = Ocsipersist.find table user in
+           let langs = get_languages metadata.e_languages in
            let%lwt x = generate_password langs title url user in
            Ocsipersist.add table user x >>
            dump_passwords (!spool_dir / uuid_s) table >>
@@ -761,6 +775,7 @@ let () =
             let y = G.(g **~ x) in
             G.to_string y
           in
+          let langs = get_languages se.se_metadata.e_languages in
           let bodies = List.map (fun lang ->
             let module L = (val Web_i18n.get_lang lang) in
             Printf.sprintf L.mail_credential title login cred url
