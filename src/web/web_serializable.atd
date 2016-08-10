@@ -54,16 +54,6 @@ type metadata = {
   ?languages : string list option;
 } <ocaml field_prefix="e_">
 
-type datadir_item = {
-  dir : string;
-} <ocaml field_prefix="datadir_">
-
-type datadir_index = datadir_item list
-
-type election_uuid = {
-  uuid : uuid;
-} <ocaml field_prefix="election_">
-
 type election_dates = {
   finalization : datetime;
 } <ocaml field_prefix="e_">
