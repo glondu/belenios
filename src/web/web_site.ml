@@ -131,7 +131,6 @@ let finalize_election uuid se =
     e_public_key = {wpk_group = G.group; wpk_y = y};
     e_questions = template.t_questions;
     e_uuid = uuid;
-    e_short_name = template.t_short_name;
   } in
   let raw_election = string_of_params (write_wrapped_pubkey G.write_group G.write) params in
   (* write election files to disk *)
@@ -340,7 +339,6 @@ let create_new_election owner cred auth =
     t_description = "Description of the election.";
     t_name = "Name of the election";
     t_questions = [| question |];
-    t_short_name = "short_name";
   } in
   let se = {
     se_owner = owner;

@@ -62,7 +62,6 @@ let extractQuestion q =
 
 let extractTemplate () =
   let t_name = get_input "election_name" in
-  let t_short_name = get_input "election_short_name" in
   let t_description = get_textarea "election_description" in
   let questions = document##querySelectorAll (Js.string ".question_question") in
   let t_questions =
@@ -72,7 +71,7 @@ let extractTemplate () =
        let q = questions##item (i) >>= extractQuestion in
        Js.Opt.get q (fun () -> failwith "extractTemplate"))
   in
-  {t_name; t_short_name; t_description; t_questions}
+  {t_name; t_description; t_questions}
 
 (* Injecting the OCaml structure into the DOM *)
 
@@ -169,16 +168,6 @@ let createTemplate template =
   h_name##id <- Js.string "election_name";
   h_name##value <- Js.string template.t_name;
   Dom.appendChild x h_name;
-  Dom.appendChild container x;
-  (* short name *)
-  let x = Dom_html.createDiv document in
-  x##style##display <- Js.string "none";
-  let t = document##createTextNode (Js.string "Short name: ") in
-  Dom.appendChild x t;
-  let h_short_name = Dom_html.createInput document in
-  h_short_name##id <- Js.string "election_short_name";
-  h_short_name##value <- Js.string template.t_short_name;
-  Dom.appendChild x h_short_name;
   Dom.appendChild container x;
   (* description *)
   let x = Dom_html.createDiv document in

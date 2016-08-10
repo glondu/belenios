@@ -83,7 +83,6 @@ module Make (P : PARSED_PARAMS) : S = struct
     e_public_key = {wpk_group = G.group; wpk_y = y};
     e_questions = template.t_questions;
     e_uuid = uuid;
-    e_short_name = template.t_short_name;
   }
 
   (* Generate and serialize election.json *)
