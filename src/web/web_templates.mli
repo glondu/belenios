@@ -46,6 +46,7 @@ val election_setup_credentials : string -> string -> setup_election -> unit -> [
 val election_setup_trustees : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_import : Uuidm.t -> setup_election -> (module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_import_trustees : Uuidm.t -> setup_election -> (module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_confirm : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val election_home : (module ELECTION_DATA) -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

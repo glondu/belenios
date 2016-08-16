@@ -146,6 +146,12 @@ let get_passwords uuid =
      ) SMap.empty csv in
      return @@ Some res
 
+let get_public_keys uuid =
+  try%lwt
+    let lines = Lwt_io.lines_of_file (!spool_dir / uuid / "public_keys.jsons") in
+    let%lwt lines = Lwt_stream.to_list lines in
+    return @@ Some lines
+  with _ -> return_none
 
 module Ballots = Map.Make (String)
 

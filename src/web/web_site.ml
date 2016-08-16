@@ -907,6 +907,56 @@ let () =
                  from_s)
               () >>= Html5.send)))
 
+let () =
+  Html5.register ~service:election_setup_import_trustees
+    (fun uuid () ->
+      let%lwt site_user = Web_state.get_site_user () in
+      match site_user with
+      | None -> forbidden ()
+      | Some u ->
+         let%lwt se = get_setup_election (Uuidm.to_string uuid) in
+         let%lwt elections = get_finalized_elections_by_owner u in
+         T.election_setup_import_trustees uuid se elections ())
+
+exception TrusteeImportError of string
+
+let () =
+  Any.register ~service:election_setup_import_trustees_post
+    (handle_setup
+       (fun se from _ uuid ->
+         let from_s = Uuidm.to_string from in
+         let%lwt metadata = Web_persist.get_election_metadata from_s in
+         let%lwt public_keys = Web_persist.get_public_keys from_s in
+         try%lwt
+               match metadata.e_trustees, public_keys with
+               | Some ts, Some pks when List.length ts = List.length pks ->
+                  let%lwt trustees =
+                    List.combine ts pks
+                    |> Lwt_list.map_p
+                         (fun (st_id, st_public_key) ->
+                           let%lwt st_token = generate_token () in
+                           return {st_id; st_token; st_public_key})
+                  in
+                  let () =
+                    (* check that imported keys are valid *)
+                    let module G = (val Group.of_string se.se_group : GROUP) in
+                    let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
+                    if not @@ List.for_all (fun t ->
+                                  let pk = t.st_public_key in
+                                  let pk = trustee_public_key_of_string G.read pk in
+                                  KG.check pk) trustees then
+                      raise (TrusteeImportError "Imported keys are invalid for this election!")
+                  in
+                  se.se_public_keys <- se.se_public_keys @ trustees;
+                  return (redir_preapply election_setup_trustees uuid)
+               | _, _ ->
+                  [%lwt raise (TrusteeImportError "Could not retrieve trustees from selected election!")]
+         with
+         | TrusteeImportError msg ->
+            return (fun () ->
+                T.generic_page ~title:"Error"
+                  ~service:(preapply election_setup_trustees uuid)
+                  msg () >>= Html5.send)))
 
 let () =
   Any.register

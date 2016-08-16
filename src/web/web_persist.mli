@@ -50,6 +50,7 @@ val get_elections_by_owner : user -> string list Lwt.t
 
 val get_voters : string -> string list option Lwt.t
 val get_passwords : string -> (string * string) SMap.t option Lwt.t
+val get_public_keys : string -> string list option Lwt.t
 
 val get_ballot_hashes : uuid:string -> string list Lwt.t
 val get_ballot_by_hash : uuid:string -> hash:string -> string option Lwt.t

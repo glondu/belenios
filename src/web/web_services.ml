@@ -63,6 +63,8 @@ let election_setup_auth_genpwd = post_coservice ~fallback:election_setup ~post_p
 
 let election_setup_import = service ~path:["setup"; "import"] ~get_params:(uuid "uuid") ()
 let election_setup_import_post = post_coservice ~fallback:election_setup_import ~post_params:(uuid "from") ()
+let election_setup_import_trustees = service ~path:["setup"; "import-trustees"] ~get_params:(uuid "uuid") ()
+let election_setup_import_trustees_post = post_coservice ~fallback:election_setup_import_trustees ~post_params:(uuid "from") ()
 
 let election_home = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "")) ()
 let set_cookie_disclaimer = coservice' ~get_params:unit ()

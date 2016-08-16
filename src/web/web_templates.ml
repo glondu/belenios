@@ -615,12 +615,18 @@ let election_setup_trustees uuid se () =
       form_trustees_add;
     ]
   in
+  let import_link = div [
+                        a ~service:Web_services.election_setup_import_trustees
+                          [pcdata "Import trustees from another election"] uuid
+                      ]
+  in
   let back_link = div [
     a ~service:Web_services.election_setup
       [pcdata "Go back to election setup"] uuid;
   ] in
   let content = [
     div_content;
+    import_link;
     back_link;
   ] in
   let%lwt login_box = site_login_box () in
@@ -917,14 +923,12 @@ let election_setup_trustee token se () =
   ] in
   base ~title ~content ()
 
-let election_setup_import uuid se (elections, tallied, archived) () =
-  let title = "Election " ^ se.se_questions.t_name ^ " — Import voters from another election" in
+let election_setup_importer ~service ~title uuid (elections, tallied, archived) () =
   let format_election election =
     let module W = (val election : ELECTION_DATA) in
     let name = W.election.e_params.e_name in
     let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
-    let form = post_form
-      ~service:election_setup_import_post
+    let form = post_form ~service
       (fun from ->
         [
           div [pcdata name; pcdata " ("; pcdata uuid_s; pcdata ")"];
@@ -954,6 +958,16 @@ let election_setup_import uuid se (elections, tallied, archived) () =
   ] in
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
+
+let election_setup_import uuid se elections =
+  let title = "Election " ^ se.se_questions.t_name ^ " — Import voters from another election" in
+  let service = election_setup_import_post in
+  election_setup_importer ~service ~title uuid elections
+
+let election_setup_import_trustees uuid se elections =
+  let title = "Election " ^ se.se_questions.t_name ^ " — Import trustees from another election" in
+  let service = election_setup_import_trustees_post in
+  election_setup_importer ~service ~title uuid elections
 
 let election_setup_confirm uuid se () =
   let title = "Election " ^ se.se_questions.t_name ^ " — Finalize creation" in
