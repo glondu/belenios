@@ -924,6 +924,7 @@ let () =
   Any.register ~service:election_setup_import_trustees_post
     (handle_setup
        (fun se from _ uuid ->
+         let uuid_s = Uuidm.to_string uuid in
          let from_s = Uuidm.to_string from in
          let%lwt metadata = Web_persist.get_election_metadata from_s in
          let%lwt public_keys = Web_persist.get_public_keys from_s in
@@ -948,6 +949,9 @@ let () =
                       raise (TrusteeImportError "Imported keys are invalid for this election!")
                   in
                   se.se_public_keys <- se.se_public_keys @ trustees;
+                  Lwt_list.iter_s (fun {st_token; _} ->
+                      Ocsipersist.add election_pktokens st_token uuid_s
+                    ) trustees >>
                   return (redir_preapply election_setup_trustees uuid)
                | _, _ ->
                   [%lwt raise (TrusteeImportError "Could not retrieve trustees from selected election!")]
