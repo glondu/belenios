@@ -232,7 +232,7 @@ let available_languages = ["en"; "fr"; "de"]
 
 let get_languages xs =
   match xs with
-  | None -> available_languages
+  | None -> ["en"]
   | Some xs -> xs
 
 let string_of_languages xs =

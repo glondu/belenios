@@ -327,7 +327,7 @@ let create_new_election owner cred auth =
     e_auth_config;
     e_cred_authority;
     e_trustees = None;
-    e_languages = None;
+    e_languages = Some ["en"; "fr"];
   } in
   let question = {
     q_answers = [| "Answer 1"; "Answer 2"; "Blank" |];
