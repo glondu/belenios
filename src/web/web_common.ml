@@ -228,11 +228,11 @@ let split_identity x =
   with Not_found ->
     x, x
 
-let langs = ["en"; "fr"; "de"]
+let available_languages = ["en"; "fr"; "de"]
 
 let get_languages xs =
   match xs with
-  | None -> langs
+  | None -> available_languages
   | Some xs -> xs
 
 let string_of_languages xs =

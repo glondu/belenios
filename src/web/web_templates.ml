@@ -368,6 +368,9 @@ let election_setup uuid se () =
               pcdata "Languages: ";
               string_input ~name:languages ~input_type:`Text
                 ~value:(string_of_languages se.se_metadata.e_languages) ();
+              pcdata " (Available languages: ";
+              pcdata (string_of_languages (Some available_languages));
+              pcdata ")";
             ];
           div [
               pcdata "(This is a space-separated list of languages that will be used in emails sent by the server.)";
@@ -1213,7 +1216,7 @@ let election_home w state () =
     div ~a:[a_class ["languages"]]
       (list_concat (pcdata " ") @@ List.map (fun lang ->
         a ~service:set_language [pcdata lang] lang
-       ) (get_languages None))
+       ) available_languages)
   in
   let%lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
   let cookie_disclaimer =
