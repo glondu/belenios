@@ -428,6 +428,10 @@ let election_setup uuid se () =
       | `Password ->
          div [
            pcdata "Authentication scheme: password ";
+           post_form ~service:election_setup_auth_genpwd
+             (fun () ->
+               [string_input ~input_type:`Submit ~value:"Generate and mail missing passwords" ()]
+             ) uuid;
          ]
       | `Dummy ->
          div [
@@ -756,6 +760,7 @@ let election_setup_voters uuid se () =
     | _ :: _ ->
        div [
          form_passwords;
+         br ();
          table
            (tr (
              [th [pcdata "Identity"]] @
@@ -790,6 +795,7 @@ let election_setup_voters uuid se () =
   let content = [
     back;
     div_import;
+    br ();
     voters;
     div_add;
   ] in
