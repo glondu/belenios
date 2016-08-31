@@ -449,7 +449,11 @@ let generate_password langs title url id =
   ) langs in
   let body = PString.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
-  let subject = "Your password for election " ^ title in
+  let subject =
+    let lang = List.hd langs in
+    let module L = (val Web_i18n.get_lang lang) in
+    Printf.sprintf L.mail_password_subject title
+  in
   send_email email subject body >>
   return (salt, hashed)
 
@@ -780,7 +784,11 @@ let () =
           ) langs in
           let body = PString.concat "\n\n----------\n\n" bodies in
           let body = body ^ "\n\n-- \nBelenios" in
-          let subject = "Your credential for election " ^ title in
+          let subject =
+            let lang = List.hd langs in
+            let module L = (val Web_i18n.get_lang lang) in
+            Printf.sprintf L.mail_credential_subject title
+          in
           let%lwt () = send_email email subject body in
           return @@ S.add pub_cred accu
         ) S.empty se.se_voters

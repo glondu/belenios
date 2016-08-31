@@ -53,7 +53,6 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
 
       let send_confirmation_email user email hash =
         let title = D.election.e_params.e_name in
-        let subject = "Your vote for election " ^ title in
         let x = (D.election.e_params.e_uuid, ()) in
         let url1 = Eliom_uri.make_string_uri ~absolute:true
           ~service:Web_services.election_pretty_ballots x |> rewrite_prefix
@@ -63,6 +62,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
         in
         let%lwt language = Eliom_reference.get Web_state.language in
         let module L = (val Web_i18n.get_lang language) in
+        let subject = Printf.sprintf L.mail_confirmation_subject title in
         let body = Printf.sprintf L.mail_confirmation user title hash url1 url2 in
         send_email email subject body
 

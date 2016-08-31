@@ -101,6 +101,9 @@ let cookies_are_blocked = "Cookies are blocked"
 let please_enable_them = "Your browser seems to block cookies. Please enable them."
 
 
+let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Your password for election %s"
+
 let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "You are listed as a voter for the election
 
@@ -121,6 +124,9 @@ Note that you are allowed to vote several times.  Only the last vote
 counts."
 
 
+let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Your credential for election %s"
+
 let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "You are listed as a voter for the election
 
@@ -140,6 +146,9 @@ Page of the election: %s
 Note that you are allowed to vote several times.  Only the last vote
 counts."
 
+
+let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Your vote for election %s"
 
 let mail_confirmation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Dear %s,

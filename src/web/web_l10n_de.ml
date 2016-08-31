@@ -101,6 +101,9 @@ let cookies_are_blocked = "Cookies sind deaktiviert"
 let please_enable_them = "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
 
 
+let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Your password for election %s" (* FIXME *)
+
 let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Sie sind für die folgende Abstimmung als Wähler eingetragen:
 
@@ -121,6 +124,9 @@ Website der Abstimmung: %s
 Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt."
 
 
+let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Your credential for election %s" (* FIXME *)
+
 let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Sie sind für die folgende Abstimmung als Wähler eingetragen:
 
@@ -140,6 +146,9 @@ Website der Abstimmung: %s
 
 Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt."
 
+
+let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Your vote for election %s" (* FIXME *)
 
 let mail_confirmation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "%s,
