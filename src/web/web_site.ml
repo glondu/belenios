@@ -421,11 +421,35 @@ let () =
     ~service:election_setup_languages
     (handle_setup
        (fun se languages _ uuid ->
-         se.se_metadata <- {
-            se.se_metadata with
-            e_languages = languages_of_string languages
-          };
-         return (redir_preapply election_setup uuid)))
+         let langs = languages_of_string languages in
+         match langs with
+         | None -> assert false
+         | Some [] ->
+            return (fun () ->
+                let service = preapply election_setup uuid in
+                T.generic_page ~title:"Error" ~service
+                  "You must select at least one language!" () >>= Html5.send
+              )
+         | Some ls ->
+            let unavailable =
+              List.filter (fun x ->
+                  not (List.mem x available_languages)
+                ) ls
+            in
+            match unavailable with
+            | [] ->
+               se.se_metadata <- {
+                  se.se_metadata with
+                  e_languages = langs
+                };
+               return (redir_preapply election_setup uuid)
+            | l :: _ ->
+               return (fun () ->
+                   let service = preapply election_setup uuid in
+                   T.generic_page ~title:"Error" ~service
+                     ("No such language: " ^ l) () >>= Html5.send
+                 )
+    ))
 
 let () =
   Any.register
