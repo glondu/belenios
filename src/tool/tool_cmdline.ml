@@ -98,7 +98,7 @@ let uuid_t =
   Arg.(value & opt (some string) None & info ["uuid"] ~docv:"UUID" ~doc)
 
 let dir_t, optdir_t =
-  let doc = "Use directory $(docv) for reading of writing election files." in
+  let doc = "Use directory $(docv) for reading and writing election files." in
   let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
   Arg.(value & opt dir Filename.current_dir_name the_info),
   Arg.(value & opt (some dir) None the_info)
