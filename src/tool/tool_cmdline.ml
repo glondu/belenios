@@ -46,6 +46,21 @@ let load_from_file of_string filename =
 
 let ( / ) = Filename.concat
 
+let download dir url file =
+  let url = if url.[String.length url - 1] = '/' then url else url ^ "/" in
+  Printf.eprintf "I: downloading %s...\n%!" file;
+  let target = dir / file in
+  let command =
+    Printf.sprintf "curl --silent --fail \"%s%s\" > \"%s\"" url file target
+  in
+  let r = Sys.command command in
+  if r <> 0 then (Sys.remove target; false) else true
+
+let rm_rf dir =
+  let files = Sys.readdir dir in
+  Array.iter (fun f -> Unix.unlink (dir / f)) files;
+  Unix.rmdir dir
+
 exception Cmdline_error of string
 
 let failcmd fmt = Printf.ksprintf (fun x -> raise (Cmdline_error x)) fmt
@@ -82,10 +97,16 @@ let uuid_t =
   let doc = "UUID of the election." in
   Arg.(value & opt (some string) None & info ["uuid"] ~docv:"UUID" ~doc)
 
-let dir_t =
+let dir_t, optdir_t =
   let doc = "Use directory $(docv) for reading of writing election files." in
   let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
-  Arg.(value & opt dir Filename.current_dir_name the_info)
+  Arg.(value & opt dir Filename.current_dir_name the_info),
+  Arg.(value & opt (some dir) None the_info)
+
+let url_t =
+  let doc = "Download election files from $(docv)." in
+  let the_info = Arg.info ["url"] ~docv:"URL" ~doc in
+  Arg.(value & opt (some string) None the_info)
 
 module Tkeygen : CMDLINER_MODULE = struct
   open Tool_tkeygen
@@ -157,9 +178,31 @@ module Election : CMDLINER_MODULE = struct
 
   end
 
-  let main dir action =
+  let main url dir action =
     wrap_main (fun () ->
+      let dir, cleanup = match url, dir with
+        | Some _, None ->
+           let tmp = Filename.temp_file "belenios" "" in
+           Unix.unlink tmp;
+           Unix.mkdir tmp 0o700;
+           tmp, true
+        | None, None -> Filename.current_dir_name, false
+        | _, Some d -> d, false
+      in
       Printf.eprintf "I: using directory %s\n%!" dir;
+      let () =
+        match url with
+        | None -> ()
+        | Some u ->
+           if not (
+             download dir u "election.json" &&
+             download dir u "public_keys.jsons" &&
+             download dir u "public_creds.txt" &&
+             download dir u "ballots.jsons" &&
+             download dir u "result.json"
+           ) then
+             Printf.eprintf "W: some errors occurred while downloading\n%!";
+      in
       let module P : PARAMS = struct
         include MakeGetters (struct let dir = dir end)
         let election =
@@ -171,7 +214,7 @@ module Election : CMDLINER_MODULE = struct
           | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
       end in
       let module X = (val make (module P : PARAMS) : S) in
-      match action with
+      begin match action with
       | `Vote (privcred, ballot) ->
         let ballot =
           match load_from_file plaintext_of_string ballot with
@@ -202,6 +245,8 @@ module Election : CMDLINER_MODULE = struct
         output_string oc (X.finalize factors);
         output_char oc '\n';
         close_out oc
+      end;
+      if cleanup then rm_rf dir
     )
 
   let privcred_t =
@@ -225,12 +270,12 @@ module Election : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command creates a ballot and prints it on standard output.";
     ] @ common_man in
-    let main = Term.pure (fun d p b ->
+    let main = Term.pure (fun u d p b ->
       let p = get_mandatory_opt "--privcred" p in
       let b = get_mandatory_opt "--ballot" b in
-      main d (`Vote (p, b))
+      main u d (`Vote (p, b))
     ) in
-    Term.(ret (main $ dir_t $ privcred_t $ ballot_t)),
+    Term.(ret (main $ url_t $ optdir_t $ privcred_t $ ballot_t)),
     Term.info "vote" ~doc ~man
 
   let verify_cmd =
@@ -239,7 +284,7 @@ module Election : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command performs all possible verifications.";
     ] @ common_man in
-    Term.(ret (pure main $ dir_t $ pure `Verify)),
+    Term.(ret (pure main $ url_t $ optdir_t $ pure `Verify)),
     Term.info "verify" ~doc ~man
 
   let decrypt_cmd =
@@ -248,11 +293,11 @@ module Election : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command is run by each trustee to perform a partial decryption.";
     ] @ common_man in
-    let main = Term.pure (fun d p ->
+    let main = Term.pure (fun u d p ->
       let p = get_mandatory_opt "--privkey" p in
-      main d (`Decrypt p)
+      main u d (`Decrypt p)
     ) in
-    Term.(ret (main $ dir_t $ privkey_t)),
+    Term.(ret (main $ url_t $ optdir_t $ privkey_t)),
     Term.info "decrypt" ~doc ~man
 
   let finalize_cmd =
@@ -262,7 +307,7 @@ module Election : CMDLINER_MODULE = struct
       `P "This command reads partial decryptions done by trustees from file $(i,partial_decryptions.jsons), checks them, combines them into the final tally and prints the result to standard output.";
       `P "The result structure contains partial decryptions itself, so $(i,partial_decryptions.jsons) can be discarded afterwards.";
     ] @ common_man in
-    Term.(ret (pure main $ dir_t $ pure `Finalize)),
+    Term.(ret (pure main $ url_t $ optdir_t $ pure `Finalize)),
     Term.info "finalize" ~doc ~man
 
   let cmds = [vote_cmd; verify_cmd; decrypt_cmd; finalize_cmd]
