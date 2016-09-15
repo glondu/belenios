@@ -434,7 +434,38 @@ module Mkelection : CMDLINER_MODULE = struct
 
 end
 
-let cmds = Tkeygen.cmds @ Election.cmds @ Credgen.cmds @ Mkelection.cmds
+module Verifydiff : CMDLINER_MODULE = struct
+  open Tool_verifydiff
+
+  let main dir1 dir2 =
+    wrap_main (fun () ->
+        match dir1, dir2 with
+        | Some dir1, Some dir2 -> verifydiff dir1 dir2
+        | _, _ -> failcmd "--dir1 or --dir2 is missing"
+      )
+
+  let dir1_t =
+    let doc = "First directory to compare." in
+    Arg.(value & opt (some dir) None & info ["dir1"] ~docv:"DIR1" ~doc)
+
+  let dir2_t =
+    let doc = "Second directory to compare." in
+    Arg.(value & opt (some dir) None & info ["dir2"] ~docv:"DIR2" ~doc)
+
+  let verifydiff_cmd =
+    let doc = "verify an election directory update" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command is run by an auditor on two directories $(i,DIR1) and $(i,DIR2). It checks that $(i,DIR2) is a valid update of $(i,DIR1).";
+      ] @ common_man in
+    Term.(ret (pure main $ dir1_t $ dir2_t)),
+    Term.info "verify-diff" ~doc ~man
+
+  let cmds = [verifydiff_cmd]
+
+end
+
+let cmds = Tkeygen.cmds @ Election.cmds @ Credgen.cmds @ Mkelection.cmds @ Verifydiff.cmds
 
 let default_cmd =
   let version = Belenios_version.(Printf.sprintf "%s (%s)" version build) in
