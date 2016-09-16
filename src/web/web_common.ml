@@ -228,7 +228,7 @@ let split_identity x =
   with Not_found ->
     x, x
 
-let available_languages = ["en"; "fr"; "de"]
+let available_languages = ["en"; "fr"; "de"; "ro"]
 
 let get_languages xs =
   match xs with
