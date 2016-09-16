@@ -61,7 +61,7 @@ let i_am = "Ich bin "
 let and_ = " und "
 let i_cast_my_vote = "ich schicke meine Stimme ab"
 let please_login_to_confirm = "Bitte melden Sie sich an um Ihre Stime zu bestätigen."
-let your_ballot_for = "Ihr Stimme für "
+let your_ballot_for = "Ihre Stimme für "
 let has_been_received = " wurde empfangen, aber noch nicht gespeichert. "
 let nobody_can_see = "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt sehen."
 let go_back_to_election = "Zurück zur Wahl"
@@ -102,7 +102,7 @@ let please_enable_them = "Ihr Browser nimmt keine Cookies an, bitte aktivieren S
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Your password for election %s" (* FIXME *)
+  "Ihr Passwort für die Abstimmung %s"
 
 let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Sie sind für die folgende Abstimmung als Wähler eingetragen:
@@ -125,7 +125,7 @@ Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt."
 
 
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Your credential for election %s" (* FIXME *)
+  "Ihre Wählernummer für die Abstimmung %s"
 
 let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Sie sind für die folgende Abstimmung als Wähler eingetragen:
@@ -148,12 +148,12 @@ Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt."
 
 
 let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Your vote for election %s" (* FIXME *)
+  "Ihre Stimme zur Abstimmung %s"
 
 let mail_confirmation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "%s,
 
-Ihr Stimme zur Abstimmung
+Ihre Stimme zur Abstimmung
 
   %s
 
@@ -161,7 +161,8 @@ wurde angenommen. Ihre Stimmennummer ist:
 
   %s
 
-Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der Wahlurne befindet:
+Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der
+Wahlurne befindet:
 
   %s
 
