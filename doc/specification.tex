@@ -159,7 +159,7 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
 \newcommand{\pk}{\texttt{public\_key}}
 \newcommand{\sk}{\texttt{private\_key}}
 \newcommand{\proof}{\texttt{proof}}
-\newcommand{\dproof}{\texttt{dproof}}
+\newcommand{\iproof}{\texttt{iproof}}
 \newcommand{\ciphertext}{\texttt{ciphertext}}
 
 \newcommand{\pklabel}{\textsf{public\_key}}
@@ -297,7 +297,7 @@ trustees, and bundled with the group parameters in a
 \newcommand{\iproofs}{\textsf{individual\_proofs}}
 \newcommand{\oproof}{\textsf{overall\_proof}}
 \newcommand{\choices}{\textsf{choices}}
-\newcommand{\dprove}{\textsf{dprove}}
+\newcommand{\iprove}{\textsf{iprove}}
 
 During an election, the following data needs to be public in order to
 verify the setup phase and to validate ballots:
@@ -308,10 +308,10 @@ verify the setup phase and to validate ballots:
 \item the set $L$ of public credentials.
 \end{itemize}
 
-\subsection{Disjunctive proofs}
+\subsection{Proofs of interval membership}
 
 \begin{gather*}
-  \dproof=\proof^\ast
+  \iproof=\proof^\ast
 \end{gather*}
 
 Given a pair $(\alpha,\beta)$ of group elements, one can prove that it
@@ -331,17 +331,17 @@ following procedure, parameterised by a group element $S$:
   \begin{enumerate}
   \item pick a random $w\in\Z_q$
   \item compute $A_i=g^w$ and $B_i=y^w$
-  \item $\challenge(\pi_i)=\Hash_\dprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq
+  \item $\challenge(\pi_i)=\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq
       i}\challenge(\pi_j)\mod q$
   \item $\response(\pi_i)=w+r\times\challenge(\pi_i)\mod q$
   \end{enumerate}
 \end{enumerate}
-In the above, $\Hash_\dprove$ is computed as follows:
-\[\Hash_\dprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\shatwo(\verb=prove|=S\verb=|=\alpha\verb=,=\beta\verb=|=A_0\verb=,=B_0\verb=,=\dots\verb=,=A_k\verb=,=B_k)\]
+In the above, $\Hash_\iprove$ is computed as follows:
+\[\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\shatwo(\verb=prove|=S\verb=|=\alpha\verb=,=\beta\verb=|=A_0\verb=,=B_0\verb=,=\dots\verb=,=A_k\verb=,=B_k)\]
 where \verb=prove=, the vertical bars and the commas are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
 big-endian number. We will denote the whole procedure by
-$\dprove(S,r,i,M_0,\dots,M_k)$.
+$\iprove(S,r,i,M_0,\dots,M_k)$.
 
 The proof is verified as follows:
 \begin{enumerate}
@@ -349,7 +349,7 @@ The proof is verified as follows:
   \[A_j=\frac{g^{\response(\pi_j)}}{\alpha^{\challenge(\pi_j)}}\quad\text{and}\quad
   B_j=\frac{y^{\response(\pi_j)}}{(\beta/g^{M_j})^{\challenge(\pi_j)}}\]
 \item check that
-  \[\Hash_\dprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\sum_{j\in[0\dots
+  \[\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\sum_{j\in[0\dots
     k]}\challenge(\pi_j)\mod q\]
 \end{enumerate}
 
@@ -360,8 +360,8 @@ The proof is verified as follows:
   \answer=\left\{\small
     \begin{array}{rcl}
       \choices&:&\ciphertext^\ast\\
-      \iproofs&:&\dproof^\ast\\
-      \oproof&:&\dproof
+      \iproofs&:&\iproof^\ast\\
+      \oproof&:&\iproof
     \end{array}
   \right\}
 \end{gather*}
@@ -385,9 +385,9 @@ where $y$ is the election public key.
 To compute the proofs, the voter needs a
 \hyperref[credentials]{credential} $c$. Let $s=\secret(c)$, and
 $S=g^s$ written in base 10. The individual proof that $m\in[0\dots1]$
-is computed by running $\dprove(S,r,m,0,1)$.  The overall proof that
+is computed by running $\iprove(S,r,m,0,1)$.  The overall proof that
 $M\in[\minlabel\dots\maxlabel]$ is computed by running
-$\dprove(S,R,M-\minlabel,\minlabel,\dots,\maxlabel)$ where $R$ is the
+$\iprove(S,R,M-\minlabel,\minlabel,\dots,\maxlabel)$ where $R$ is the
 sum of the $r$ used in ciphertexts, and $M$ the sum of the $m$.
 
 \subsection{Signatures}
