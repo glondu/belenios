@@ -252,7 +252,7 @@ secret exponent, a public key $\public(c)=g^s$ is computed.
 \newcommand{\question}{\texttt{question}}
 
 \begin{gather*}
-  \texttt{wrapped\_pk}=\left\{\small
+  \texttt{wrapped\_pk}=\left\{
     \begin{array}{rcl}
       \textsf{g}&:&\G\\
       \textsf{p}&:&\N\\
@@ -271,7 +271,7 @@ trustees, and bundled with the group parameters in a
 \newcommand{\answers}{\textsf{answers}}
 
 \begin{gather*}
-  \question=\left\{\small
+  \question=\left\{
     \begin{array}{rcl}
       \answers&:&\jstring^\ast\\
       \minlabel&:&\I\\
@@ -280,7 +280,7 @@ trustees, and bundled with the group parameters in a
     \end{array}
   \right\}
   \qquad
-  \election=\left\{\small
+  \election=\left\{
     \begin{array}{rcl}
       \textsf{description}&:&\jstring\\
       \textsf{name}&:&\jstring\\
@@ -357,7 +357,7 @@ The proof is verified as follows:
 \label{answers}
 
 \begin{gather*}
-  \answer=\left\{\small
+  \answer=\left\{
     \begin{array}{rcl}
       \choices&:&\ciphertext^\ast\\
       \iproofs&:&\iproof^\ast\\
@@ -394,7 +394,7 @@ sum of the $r$ used in ciphertexts, and $M$ the sum of the $m$.
 \label{signatures}
 
 \begin{gather*}
-  \signature=\left\{\small
+  \signature=\left\{
     \begin{array}{rcl}
       \pklabel&:&\pk\\
       \challenge&:&\Z_q\\
@@ -438,7 +438,7 @@ Signatures are verified as follows:
 \newcommand{\json}{\textsf{JSON}}
 
 \begin{gather*}
-  \ballot=\left\{\small
+  \ballot=\left\{
     \begin{array}{rcl}
       \answers&:&\hyperref[answers]{\answer}^\ast\\
       \textsf{election\_hash}&:&\jstring\\
@@ -479,7 +479,7 @@ accepted ballots:
 \newcommand{\decrypt}{\textsf{decrypt}}
 
 \begin{gather*}
-  \pdecryption=\left\{\small
+  \pdecryption=\left\{
     \begin{array}{rcl}
       \dfactors&:&\G^\ast{}^\ast\\
       \dproofs&:&\proof^\ast{}^\ast
@@ -530,7 +530,7 @@ B=\frac{\alphalabel(\etally_{i,j})^\response}{\dfactors_{i,j}^\challenge}
 \newcommand{\resultlabel}{\textsf{result}}
 
 \begin{gather*}
-  \result=\left\{\small
+  \result=\left\{
     \begin{array}{rcl}
       \ntallied&:&\I\\
       \etallylabel&:&\etally\\
