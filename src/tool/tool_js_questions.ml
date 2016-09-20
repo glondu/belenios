@@ -84,6 +84,16 @@ let createAnswer a =
   u##size <- 60;
   Dom.appendChild container t;
   Dom.appendChild container u;
+  let btn_text = document##createTextNode (Js.string "Remove") in
+  let btn = Dom_html.createButton document in
+  let f _ =
+    container##parentNode >>= fun x ->
+    Dom.removeChild x container;
+    return ()
+  in
+  btn##onclick <- handler f;
+  Dom.appendChild btn btn_text;
+  Dom.appendChild container btn;
   container
 
 let createQuestion q =
@@ -125,27 +135,13 @@ let createQuestion q =
      let x = createAnswer a in
      Dom.appendChild h_answers x)
     q.q_answers;
-  (* buttons for adding/removing answers *)
+  (* button for adding answer *)
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add an answer") in
   let f _ =
     let x = createAnswer "" in
     Dom.appendChild h_answers x
-  in
-  b##onclick <- handler f;
-  Dom.appendChild b t;
-  Dom.appendChild x b;
-  let b = Dom_html.createButton document in
-  let t = document##createTextNode (Js.string "Remove last answer") in
-  let f _ =
-    let answers = h_answers##querySelectorAll (Js.string ".question_answer") in
-    let last_answer = answers##item (answers##length - 1) in
-    last_answer >>= fun x ->
-    x##parentNode >>= fun p ->
-    p##parentNode >>= fun q ->
-    ignore (q##removeChild (p));
-    return ()
   in
   b##onclick <- handler f;
   Dom.appendChild b t;
