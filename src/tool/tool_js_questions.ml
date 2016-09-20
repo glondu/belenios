@@ -75,7 +75,7 @@ let extractTemplate () =
 
 (* Injecting the OCaml structure into the DOM *)
 
-let createAnswer a =
+let rec createAnswer a =
   let container = Dom_html.createDiv document in
   let t = document##createTextNode (Js.string "Answer: ") in
   let u = Dom_html.createInput document in
@@ -94,6 +94,17 @@ let createAnswer a =
   btn##onclick <- handler f;
   Dom.appendChild btn btn_text;
   Dom.appendChild container btn;
+  let insert_text = document##createTextNode (Js.string "Insert") in
+  let insert_btn = Dom_html.createButton document in
+  let f _ =
+    let x = createAnswer "" in
+    container##parentNode >>= fun p ->
+    Dom.insertBefore p x (Js.some container);
+    return ()
+  in
+  insert_btn##onclick <- handler f;
+  Dom.appendChild insert_btn insert_text;
+  Dom.appendChild container insert_btn;
   container
 
 let createQuestion q =
