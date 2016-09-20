@@ -107,9 +107,9 @@ let rec createAnswer a =
   Dom.appendChild container insert_btn;
   container
 
-let createQuestion q =
+let rec createQuestion q =
   let container = Dom_html.createDiv document in
-  (* properties *)
+  (* question text and remove/insert buttons *)
   let x = Dom_html.createDiv document in
   let t = document##createTextNode (Js.string "Question: ") in
   Dom.appendChild x t;
@@ -118,7 +118,29 @@ let createQuestion q =
   h_question##className <- Js.string "question_question";
   h_question##size <- 60;
   h_question##value <- Js.string q.q_question;
+  let remove_text = document##createTextNode (Js.string "Remove") in
+  let remove_btn = Dom_html.createButton document in
+  let f _ =
+    container##parentNode >>= fun x ->
+    Dom.removeChild x container;
+    return ()
+  in
+  remove_btn##onclick <- handler f;
+  Dom.appendChild remove_btn remove_text;
+  Dom.appendChild x remove_btn;
+  let insert_text = document##createTextNode (Js.string "Insert") in
+  let insert_btn = Dom_html.createButton document in
+  let f _ =
+    let x = createQuestion {q_question=""; q_min=0; q_max=1; q_answers=[||]} in
+    container##parentNode >>= fun p ->
+    Dom.insertBefore p x (Js.some container);
+    return ()
+  in
+  insert_btn##onclick <- handler f;
+  Dom.appendChild insert_btn insert_text;
+  Dom.appendChild x insert_btn;
   Dom.appendChild container x;
+  (* properties *)
   let x = Dom_html.createDiv document in
   let t = document##createTextNode (Js.string "The voter has to choose between ") in
   Dom.appendChild x t;
@@ -202,28 +224,13 @@ let createTemplate template =
      let x = createQuestion q in
      Dom.appendChild h_questions_div x)
     template.t_questions;
-  (* buttons for adding/removing questions *)
+  (* button for adding question *)
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add a question") in
   let f _ =
     let x = createQuestion {q_question=""; q_min=0; q_max=1; q_answers=[||]} in
     Dom.appendChild h_questions_div x
-  in
-  b##onclick <- handler f;
-  Dom.appendChild b t;
-  Dom.appendChild x b;
-  let b = Dom_html.createButton document in
-  let t = document##createTextNode (Js.string "Remove last question") in
-  let f _ =
-    let questions = h_questions_div##querySelectorAll (Js.string ".question_question") in
-    let last_question = questions##item (questions##length - 1) in
-    last_question >>= fun x ->
-    x##parentNode >>= fun p ->
-    p##parentNode >>= fun q ->
-    q##parentNode >>= fun r ->
-    ignore (r##removeChild (q));
-    return ()
   in
   b##onclick <- handler f;
   Dom.appendChild b t;
