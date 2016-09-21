@@ -59,7 +59,14 @@ mv ballots.tmp ballots.jsons
 header "Perform verification"
 
 belenios-tool verify
-belenios-tool verify-diff --dir1=. --dir2=.
+
+header "Simulate and verify update"
+
+tdir="$(mktemp -d)"
+cp election.json public_creds.txt public_keys.jsons "$tdir"
+head -n3 ballots.jsons > "$tdir/ballots.jsons"
+belenios-tool verify-diff --dir1="$tdir" --dir2=.
+rm -rf "$tdir"
 
 header "Perform decryption"
 
