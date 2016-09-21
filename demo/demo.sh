@@ -26,7 +26,7 @@ uuid="--uuid $UUID"
 group="--group $BELENIOS/demo/groups/default.json"
 
 # Generate credentials
-belenios-tool credgen $uuid $group --count 3
+belenios-tool credgen $uuid $group --count 5
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
@@ -41,8 +41,16 @@ belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/questi
 
 header "Simulate votes"
 
-cat private_creds.txt | while read id cred; do
-    belenios-tool vote --privcred <(echo $cred) --ballot <(printf "[[1,0]]")
+cat > votes.txt <<EOF
+[[1,0]]
+[[1,0]]
+[[0,1]]
+[[1,0]]
+[[0,0]]
+EOF
+
+paste private_creds.txt votes.txt | while read id cred vote; do
+    belenios-tool vote --privcred <(echo "$cred") --ballot <(echo "$vote")
     echo "Voter $id voted" >&2
     echo >&2
 done > ballots.tmp
