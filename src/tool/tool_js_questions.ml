@@ -46,6 +46,7 @@ let extractQuestion q =
     try return (int_of_string x)
     with _ -> failwith (error_msg ^ ": " ^ x ^ ".")
   in
+  let q_blank = None in
   numeric ".question_min" "Invalid minimum number of choices" >>= fun q_min ->
   numeric ".question_max" "Invalid maximum number of choices" >>= fun q_max ->
   if not (q_min <= q_max) then
@@ -58,7 +59,7 @@ let extractQuestion q =
        let a = answers##item (i) >>= extractAnswer in
        Js.Opt.get a (fun () -> failwith "extractQuestion"))
   in
-  return {q_question; q_min; q_max; q_answers}
+  return {q_question; q_blank; q_min; q_max; q_answers}
 
 let extractTemplate () =
   let t_name = get_input "election_name" in
@@ -131,7 +132,7 @@ let rec createQuestion q =
   let insert_text = document##createTextNode (Js.string "Insert") in
   let insert_btn = Dom_html.createButton document in
   let f _ =
-    let x = createQuestion {q_question=""; q_min=0; q_max=1; q_answers=[||]} in
+    let x = createQuestion {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]} in
     container##parentNode >>= fun p ->
     Dom.insertBefore p x (Js.some container);
     return ()
@@ -229,7 +230,7 @@ let createTemplate template =
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add a question") in
   let f _ =
-    let x = createQuestion {q_question=""; q_min=0; q_max=1; q_answers=[||]} in
+    let x = createQuestion {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]} in
     Dom.appendChild h_questions_div x
   in
   b##onclick <- handler f;

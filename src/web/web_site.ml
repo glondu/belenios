@@ -331,6 +331,7 @@ let create_new_election owner cred auth =
   } in
   let question = {
     q_answers = [| "Answer 1"; "Answer 2"; "Blank" |];
+    q_blank = None;
     q_min = 1;
     q_max = 1;
     q_question = "Question 1?";
