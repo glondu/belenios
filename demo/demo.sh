@@ -48,6 +48,11 @@ cat private_creds.txt | while read id cred; do
 done > ballots.tmp
 mv ballots.tmp ballots.jsons
 
+header "Perform verification"
+
+belenios-tool verify
+belenios-tool verify-diff --dir1=. --dir2=.
+
 header "Perform decryption"
 
 for u in *.privkey; do
@@ -59,6 +64,10 @@ mv partial_decryptions.tmp partial_decryptions.jsons
 header "Finalize tally"
 
 belenios-tool finalize
+
+header "Perform final verification"
+
+belenios-tool verify
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
