@@ -14,6 +14,7 @@
 \newcommand{\Z}{\mathbbm{Z}}
 \newcommand{\N}{\mathbbm{N}}
 \newcommand{\I}{\mathbbm{I}}
+\newcommand{\B}{\mathbbm{B}}
 
 \newcommand{\public}{\textsf{public}}
 \newcommand{\shuffle}{\textsf{shuffle}}
@@ -149,6 +150,7 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
 \item $\jstring$: JSON string
 \item $\uuid$: UUID (see RFC 4122), encoded as a JSON string
 \item $\I$: small integer, encoded as a JSON number
+\item $\B$: boolean, encoded as a JSON boolean
 \item $\N$, $\Z_q$, $\G$: big integer, written in base 10 and encoded as a
   JSON string
 \end{itemize}
@@ -266,6 +268,7 @@ document, is computed by multiplying all the public keys of the
 trustees, and bundled with the group parameters in a
 \texttt{wrapped\_pk} structure.
 
+\newcommand{\blank}{\textsf{blank}}
 \newcommand{\minlabel}{\textsf{min}}
 \newcommand{\maxlabel}{\textsf{max}}
 \newcommand{\answers}{\textsf{answers}}
@@ -274,6 +277,7 @@ trustees, and bundled with the group parameters in a
   \question=\left\{
     \begin{array}{rcl}
       \answers&:&\jstring^\ast\\
+      ?\blank&:&\B\\
       \minlabel&:&\I\\
       \maxlabel&:&\I\\
       \textsf{question}&:&\jstring
@@ -286,16 +290,21 @@ trustees, and bundled with the group parameters in a
       \textsf{name}&:&\jstring\\
       \textsf{public\_key}&:&\texttt{wrapped\_pk}\\
       \textsf{questions}&:&\texttt{question}^\ast\\
-      \textsf{uuid}&:&\texttt{uuid}\\
-      \textsf{short\_name}&:&\jstring
+      \textsf{uuid}&:&\texttt{uuid}
     \end{array}
   \right\}
 \end{gather*}
+
+The $\blank$ field of $\question$ is optional. When present and true,
+the voter can vote blank for this question. In a blank vote, all
+answers are set to $0$ regardless of the values of $\minlabel$ and
+$\maxlabel$ ($\minlabel$ doesn't need to be $0$).
 
 \newcommand{\answer}{\texttt{answer}}
 \newcommand{\signature}{\texttt{signature}}
 \newcommand{\iproofs}{\textsf{individual\_proofs}}
 \newcommand{\oproof}{\textsf{overall\_proof}}
+\newcommand{\bproof}{\textsf{blank\_proof}}
 \newcommand{\choices}{\textsf{choices}}
 \newcommand{\iprove}{\textsf{iprove}}
 
@@ -308,7 +317,64 @@ verify the setup phase and to validate ballots:
 \item the set $L$ of public credentials.
 \end{itemize}
 
+\subsection{Encrypted answers}
+\label{answers}
+
+\begin{gather*}
+  \answer=\left\{
+    \begin{array}{rcl}
+      \choices&:&\ciphertext^\ast\\
+      \iproofs&:&\iproof^\ast\\
+      \oproof&:&\iproof\\
+      ?\bproof&:&\proof^2
+    \end{array}
+  \right\}
+\end{gather*}
+
+An answer to a \hyperref[elections]{$\question$} is the vector
+$\choices$ of encrypted weights given to each answer. When $\blank$ is
+false (or absent), a blank vote is not allowed and this vector has the
+same length as $\answers$; otherwise, a blank vote is allowed and this
+vector has an additionnal leading weight corresponding to whether the
+vote is blank or not.  Each weight comes with a proof (in \iproofs,
+same length as \choices) that it is $0$ or $1$. The whole answer also
+comes with additional proofs that weights respect constraints.
+
+More concretely, each weight $m\in[0\dots1]$ is encrypted into a
+$\ciphertext$ as follows:
+\begin{enumerate}
+\item pick a random $r\in\Z_q$
+\item $\alphalabel=g^r$
+\item $\betalabel=y^rg^m$
+\end{enumerate}
+where $y$ is the election public key.
+
+To compute the proofs, the voter needs a
+\hyperref[credentials]{credential} $c$. Let $s=\secret(c)$, and
+$S=g^s$ written in base 10. The individual proof that $m\in[0\dots1]$
+is computed by running $\iprove(S,r,m,0,1)$ (see
+section~\ref{iproof}).
+
+When a blank vote is not allowed, $\oproof$ proves that
+$M\in[\minlabel\dots\maxlabel]$ and is computed by running
+$\iprove(S,R,M-\minlabel,\minlabel,\dots,\maxlabel)$ where $R$ is the
+sum of the $r$ used in ciphertexts, and $M$ the sum of the $m$. There
+is no $\bproof$.
+
+When a blank vote is allowed, and there are $n$ choices, the answer is
+modeled as a vector $(m_0,m_1,\dotsc,m_n)$, when $m_0$ is whether this
+is a blank vote or not, and $m_i$ (for $i>0$) is whether choice $i$
+has been selected. Each $m_i$ is encrypted and proven equal to $0$ or
+$1$ as above. Let $m_\Sigma=m_1+\dotsb+m_n$. The additionnal proofs
+are as follows:
+\begin{itemize}
+\item $\bproof$ proves that $m_0=0\lor m_\Sigma=0$;
+\item $\oproof$ proves that $m_0=1\lor m_\Sigma\in[\minlabel\dots\maxlabel]$.
+\end{itemize}
+They are computed as described in section~\ref{bproof}.
+
 \subsection{Proofs of interval membership}
+\label{iproof}
 
 \begin{gather*}
   \iproof=\proof^\ast
@@ -337,7 +403,7 @@ following procedure, parameterised by a group element $S$:
   \end{enumerate}
 \end{enumerate}
 In the above, $\Hash_\iprove$ is computed as follows:
-\[\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\shatwo(\verb=prove|=S\verb=|=\alpha\verb=,=\beta\verb=|=A_0\verb=,=B_0\verb=,=\dots\verb=,=A_k\verb=,=B_k)\]
+\[\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\shatwo(\verb=prove|=S\verb=|=\alpha\verb=,=\beta\verb=|=A_0\verb=,=B_0\verb=,=\dots\verb=,=A_k\verb=,=B_k)\mod q\]
 where \verb=prove=, the vertical bars and the commas are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
 big-endian number. We will denote the whole procedure by
@@ -353,42 +419,146 @@ The proof is verified as follows:
     k]}\challenge(\pi_j)\mod q\]
 \end{enumerate}
 
-\subsection{Encrypted answers}
-\label{answers}
+\subsection{Proofs of possibly-blank votes}
+\label{bproof}
 
-\begin{gather*}
-  \answer=\left\{
-    \begin{array}{rcl}
-      \choices&:&\ciphertext^\ast\\
-      \iproofs&:&\iproof^\ast\\
-      \oproof&:&\iproof
-    \end{array}
-  \right\}
-\end{gather*}
+In this section, we suppose:
+\[
+(\alpha_0,\beta_0)=(g^{r_0},y^{r_0}g^{m_0})
+\quad\text{and}\quad
+(\alpha_\Sigma,\beta_\Sigma)=(g^{r_\Sigma},y^{r_\Sigma}g^{m_\Sigma})
+\]
+Note that $\alpha_\Sigma$, $\beta_\Sigma$ and $r_\Sigma$ can be easily
+computed from the encryptions of $m_1,\dotsc,m_n$ and their associated
+secrets.
 
-An answer to a \hyperref[elections]{$\question$} is the vector of
-encrypted weights (\choices, same length as \answers) given to each
-answer. Each weight comes with a disjunctive proof (in \iproofs, same
-length as \choices) that it is indeed 0 or 1. The whole answer also
-comes with a proof (\oproof) that the sum of weights is within bounds
-$[\minlabel\dots\maxlabel]$.
+Additionnally, let $P$ be the string
+``$g\verb=,=y\verb=,=\alpha_0\verb=,=\beta_0\verb=,=\alpha_\Sigma\verb=,=\beta_\Sigma$'',
+where the commas are verbatim and the numbers are written in base
+10. Let also $M_1,\dotsc,M_k$ be the sequence
+$\minlabel,\dots,\maxlabel$ ($k=\maxlabel-\minlabel+1$).
 
-More concretely, each weight $m\in[0\dots1]$ is encrypted into a
-$\ciphertext$ as follows:
+\subsubsection{Non-blank votes ($m_0=0$)}
+\label{non-blank-votes}
+
+\paragraph{Computing \bproof}
+In $m_0=0\lor m_\Sigma=0$, the first case is true. The proof $\bproof$
+of the whole statement is the couple of proofs $(\pi_0,\pi_\Sigma)$
+built as follows:
 \begin{enumerate}
-\item pick a random $r\in\Z_q$
-\item $\alphalabel=g^r$
-\item $\betalabel=y^rg^m$
+\item pick random $\challenge(\pi_\Sigma)$ and $\response(\pi_\Sigma)$
+  in $\Z_q$
+\item compute
+  $A_\Sigma=g^{\response(\pi_\Sigma)}\times\alpha_\Sigma^{\challenge(\pi_\Sigma)}$
+  and
+  $B_\Sigma=y^{\response(\pi_\Sigma)}\times\beta_\Sigma^{\challenge(\pi_\Sigma)}$
+\item pick a random $w$ in $\Z_q$
+\item compute $A_0=g^w$ and $B_0=y^w$
+\item compute \[\challenge(\pi_0)=\Hash_{\mathsf{bproof0}}(S,P,A_0,B_0,A_\Sigma,B_\Sigma)-\challenge(\pi_\Sigma)\mod q\]
+\item compute $\response(\pi_0)=w-r_0\times\challenge(\pi_0)\mod q$
 \end{enumerate}
-where $y$ is the election public key.
+In the above, $\Hash_{\mathsf{bproof0}}$ is computed as follows:
+\[\Hash_{\mathsf{bproof0}}(\dotsc)=
+\shatwo(\verb=bproof0|=S\verb=|=P\verb=|=A_0\verb=,=B_0\verb=,=A_\Sigma\verb=,=B_\Sigma)\mod q\]
+where \verb=bproof0=, the vertical bars and the commas are verbatim and
+numbers are written in base 10. The result is interpreted as a 256-bit
+big-endian number.
 
-To compute the proofs, the voter needs a
-\hyperref[credentials]{credential} $c$. Let $s=\secret(c)$, and
-$S=g^s$ written in base 10. The individual proof that $m\in[0\dots1]$
-is computed by running $\iprove(S,r,m,0,1)$.  The overall proof that
-$M\in[\minlabel\dots\maxlabel]$ is computed by running
-$\iprove(S,R,M-\minlabel,\minlabel,\dots,\maxlabel)$ where $R$ is the
-sum of the $r$ used in ciphertexts, and $M$ the sum of the $m$.
+\paragraph{Computing \oproof}
+In $m_0=1\lor m_\Sigma\in[M_1\dots M_k]$, the second case
+is true. Let $i$ be such that $m_\Sigma=M_i$. The proof of the whole
+statement is a $(k+1)$-tuple $(\pi_0,\pi_1,\dotsc,\pi_k)$ built as
+follows:
+\begin{enumerate}
+\item pick random $\challenge(\pi_0)$ and $\response(\pi_0)$
+  in $\Z_q$
+\item compute
+  $A_0=g^{\response(\pi_0)}\times\alpha_0^{\challenge(\pi_0)}$
+  and
+  $B_0=y^{\response(\pi_0)}\times(\beta_0/g)^{\challenge(\pi_0)}$
+\item for $j>0$ and $j\neq i$:
+  \begin{enumerate}
+  \item create $\pi_j$ with a random $\challenge$ and a random
+    $\response$ in $\Z_q$
+  \item compute
+    $A_j={g^\response}\times{\alpha_\Sigma^\challenge}$ and
+    $B_j={y^\response}\times{(\beta_\Sigma/g^{M_j})^\challenge}$
+  \end{enumerate}
+\item pick a random $w\in\Z_q$
+\item compute $A_i=g^w$ and $B_i=y^w$
+\item compute
+  \[\challenge(\pi_i)=\Hash_{\textsf{bproof1}}(S,P,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq i}\challenge(\pi_j)\mod q\]
+\item compute $\response(\pi_i)=w-r_\Sigma\times\challenge(\pi_i)\mod q$
+\end{enumerate}
+In the above, $\Hash_{\mathsf{bproof1}}$ is computed as follows:
+\[\Hash_{\mathsf{bproof1}}(\dotsc)=
+\shatwo(\verb=bproof1|=S\verb=|=P\verb=|=A_0\verb=,=B_0\verb=,=\dotsc\verb=,=A_k\verb=,=B_k)\mod q\]
+where \verb=bproof1=, the vertical bars and the commas are verbatim and
+numbers are written in base 10. The result is interpreted as a 256-bit
+big-endian number.
+
+\subsubsection{Blank votes ($m_0=1$)}
+
+\paragraph{Computing \bproof}
+In $m_0=0\lor m_\Sigma=0$, the second case is true. The proof
+$\bproof$ of the whole statement is the couple of proofs
+$(\pi_0,\pi_\Sigma)$ built as in section~\ref{non-blank-votes}, but
+exchanging subscripts $0$ and $\Sigma$ everywhere except in the call
+to $\Hash_{\textsf{bproof0}}$.
+
+\paragraph{Computing \oproof}
+In $m_0=1\lor m_\Sigma\in[M_1\dots M_k]$, the first case is
+true. The proof of the whole statement is a $(k+1)$-tuple
+$(\pi_0,\pi_1,\dotsc,\pi_k)$ built as follows:
+\begin{enumerate}
+\item for $j>0$:
+  \begin{enumerate}
+  \item create $\pi_j$ with a random $\challenge$ and a random
+    $\response$ in $\Z_q$
+  \item compute
+    $A_j={g^\response}\times{\alpha_\Sigma^\challenge}$ and
+    $B_j={y^\response}\times{(\beta_\Sigma/g^{M_j})^\challenge}$
+  \end{enumerate}
+\item pick a random $w\in\Z_q$
+\item compute $A_0=g^w$ and $B_0=y^w$
+\item compute
+  \[\challenge(\pi_0)=\Hash_{\textsf{bproof1}}(S,P,A_0,B_0,\dots,A_k,B_k)-\sum_{j>0}\challenge(\pi_j)\mod q\]
+\item compute $\response(\pi_0)=w-r_0\times\challenge(\pi_0)\mod q$
+\end{enumerate}
+
+\subsubsection{Verifying proofs}
+
+\paragraph{Verifying \bproof}
+A proof of $m_0=0\lor m_\Sigma=0$ is a couple of proofs
+$(\pi_0,\pi_\Sigma)$ such that the following procedure passes:
+\begin{enumerate}
+\item compute
+  $A_0=g^{\response(\pi_0)}\times\alpha_0^{\challenge(\pi_0)}$
+  and
+  $B_0=y^{\response(\pi_0)}\times\beta_0^{\challenge(\pi_0)}$
+\item compute
+  $A_\Sigma=g^{\response(\pi_\Sigma)}\times\alpha_\Sigma^{\challenge(\pi_\Sigma)}$
+  and
+  $B_\Sigma=y^{\response(\pi_\Sigma)}\times\beta_\Sigma^{\challenge(\pi_\Sigma)}$
+\item check that
+  \[\Hash_{\mathsf{bproof0}}(S,P,A_0,B_0,A_\Sigma,B_\Sigma)=\challenge(\pi_0)+\challenge(\pi_\Sigma)\mod q\]
+\end{enumerate}
+
+\paragraph{Verifying \oproof}
+A proof of $m_0=1\lor m_\Sigma\in[M_1\dots M_k]$ is a $(k+1)$-tuple
+$(\pi_0,\pi_1,\dotsc,\pi_k)$ such that the following procedure passes:
+\begin{enumerate}
+\item compute
+  $A_0=g^{\response(\pi_0)}\times\alpha_0^{\challenge(\pi_0)}$
+  and
+  $B_0=y^{\response(\pi_0)}\times(\beta_0/g)^{\challenge(\pi_0)}$
+\item for $j>0$, compute
+  \[A_j=g^{\response(\pi_j)}\times\alpha_j^{\challenge(\pi_j)}
+  \quad\text{and}\quad
+  B_j=y^{\response(\pi_j)}\times(\beta_j/g^{M_j})^{\challenge(\pi_j)}\]
+\item check that
+  \[\Hash_{\textsf{bproof1}}(S,P,A_0,B_0,\dots,A_k,B_k)=\sum_{j=0}^k\challenge(\pi_j)\mod q\]
+\end{enumerate}
 
 \subsection{Signatures}
 \label{signatures}
@@ -498,12 +668,12 @@ computed as follows:
 \begin{enumerate}
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$ and $B=\alphalabel(\etally_{i,j})^w$
-\item $\challenge=\Hash_\decrypt(X,A,B)\mod q$
+\item $\challenge=\Hash_\decrypt(X,A,B)$
 \item $\response=w+x\times\challenge\mod q$
 \end{enumerate}
 In the above, $\Hash_\decrypt$ is computed as follows:
 \[
-\Hash_\decrypt(X,A,B)=\shatwo(\verb=decrypt|=X\verb=|=A\verb=,=B)
+\Hash_\decrypt(X,A,B)=\shatwo(\verb=decrypt|=X\verb=|=A\verb=,=B)\mod q
 \]
 where \verb=decrypt=, the vertical bars and the comma are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
@@ -518,7 +688,7 @@ A=\frac{g^\response}{\pklabel(k)^\challenge}
 \quad\text{and}\quad
 B=\frac{\alphalabel(\etally_{i,j})^\response}{\dfactors_{i,j}^\challenge}
 \]
-\item check that $\Hash_\decrypt(\pklabel(k),A,B)=\challenge\mod q$
+\item check that $\Hash_\decrypt(\pklabel(k),A,B)=\challenge$
 \end{enumerate}
 
 \subsection{Election result}
