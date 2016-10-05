@@ -1,3 +1,19 @@
+1.2 (2016-10-05)
+================
+
+ * Change the default group parameters to avoid possible
+   trapdoors. The new ones are generated using FIPS 186-4.
+ * Web server:
+   + The administrator can choose the language(s) of mails sent by the
+     server
+   + The administrator can import trustees from a previous election
+   + Question editor: it is now possible to insert and remove
+     questions and answers anywhere
+   + Add Romanian translation
+ * Command-line tool:
+   + Add --url option to election subcommands (in particular verify)
+   + Add a "verify-diff" command to belenios-tool
+
 1.1 (2016-07-25)
 ================
 
