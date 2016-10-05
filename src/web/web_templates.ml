@@ -1180,6 +1180,10 @@ let election_home w state () =
        return @@ div [
          ul (List.mapi (fun i x ->
            let answers = Array.to_list x.q_answers in
+           let answers = match x.q_blank with
+             | Some true -> "Blank" :: answers
+             | _ -> answers
+           in
            let answers = List.mapi (fun j x ->
              tr [td [pcdata x]; td [pcdata @@ string_of_int result.(i).(j)]]
            ) answers in

@@ -46,7 +46,9 @@ let extractQuestion q =
     try return (int_of_string x)
     with _ -> failwith (error_msg ^ ": " ^ x ^ ".")
   in
-  let q_blank = None in
+  p2##querySelector (Js.string ".question_blank") >>= fun q_blank ->
+  Dom_html.CoerceTo.input q_blank >>= fun q_blank ->
+  let q_blank = if Js.to_bool q_blank##checked then Some true else None in
   numeric ".question_min" "Invalid minimum number of choices" >>= fun q_min ->
   numeric ".question_max" "Invalid maximum number of choices" >>= fun q_max ->
   if not (q_min <= q_max) then
@@ -158,6 +160,15 @@ let rec createQuestion q =
   h_max##size <- 5;
   h_max##value <- Js.string (string_of_int q.q_max);
   let t = document##createTextNode (Js.string " answers.") in
+  Dom.appendChild x t;
+  Dom.appendChild container x;
+  (* is blank allowed? *)
+  let x = Dom_html.createDiv document in
+  let h_blank = Dom_html.createInput ~_type:(Js.string "checkbox") document in
+  h_blank##className <- Js.string "question_blank";
+  h_blank##checked <- Js.(match q.q_blank with Some true -> _true | _ -> _false);
+  Dom.appendChild x h_blank;
+  let t = document##createTextNode (Js.string "Blank vote is allowed") in
   Dom.appendChild x t;
   Dom.appendChild container x;
   (* answers *)
