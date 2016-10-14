@@ -32,7 +32,7 @@ let withElementById x f =
 let getHtmlById x =
   let r = ref x in
   withElementById x (fun x ->
-    r := Js.to_string x##innerHTML
+    Js.Opt.iter (x##textContent) (fun x -> r := Js.to_string x)
   ); !r
 
 let alert s : unit =
