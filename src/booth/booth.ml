@@ -150,7 +150,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   in
   let () =
     let choices = document##createElement (Js.string "div") in
-    Array.iteri (fun i a ->
+    let choices_divs = Array.mapi (fun i a ->
       let div = document##createElement (Js.string "div") in
       let checkbox = document##createElement (Js.string "input") in
       let cb =
@@ -168,8 +168,22 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         Js._true
       );
       Dom.appendChild div t;
-      Dom.appendChild choices div
-    ) q_answers;
+      div
+    ) q_answers
+    in
+    begin match q.q_blank with
+    | Some true ->
+       for i = 1 to Array.length choices_divs - 1 do
+         Dom.appendChild choices choices_divs.(i)
+       done;
+       (* Put the blank choice at the end of the list *)
+       Dom.appendChild choices (Dom_html.createBr document);
+       Dom.appendChild choices choices_divs.(0)
+    | _ ->
+       for i = 0 to Array.length choices_divs - 1 do
+         Dom.appendChild choices choices_divs.(i)
+       done
+    end;
     Dom.appendChild div choices
   in
   let check_constraints () =
