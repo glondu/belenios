@@ -568,7 +568,7 @@ let () =
     (handle_setup
        (fun se x _ uuid ->
         se.se_questions <- template_of_string x;
-         return (redir_preapply election_setup_questions uuid)))
+         return (redir_preapply election_setup uuid)))
 
 let () =
   Html5.register

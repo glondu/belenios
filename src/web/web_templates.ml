@@ -678,10 +678,6 @@ let election_setup_questions uuid se () =
          div [string_input ~input_type:`Submit ~value:"Save changes" ()]])
       uuid
   in
-  let link =
-    let service = Web_services.election_setup in
-    div [a ~service [pcdata "Go back to election preparation"] uuid]
-  in
   let interactivity =
     div
       ~a:[a_id "interactivity"]
@@ -696,7 +692,6 @@ let election_setup_questions uuid se () =
   let content = [
     interactivity;
     form;
-    link;
   ] in
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
