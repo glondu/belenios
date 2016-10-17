@@ -1190,7 +1190,10 @@ let election_home w state () =
            let answers =
              match answers with
              | [] -> pcdata ""
-             | x :: xs -> table (x :: xs)
+             | y :: ys ->
+                match x.q_blank with
+                | Some true -> table (ys @ [y])
+                | _ -> table (y :: ys)
            in
            li [
              pcdata x.q_question;
