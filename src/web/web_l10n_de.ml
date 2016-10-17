@@ -99,6 +99,8 @@ let not_yet_open = "Entschuldigung, die Abstimmung ist noch nicht geöffnet."
 let come_back_later = "Diese Abstimmung gibt es noch nicht. Bitte kommen Sie später wieder."
 let cookies_are_blocked = "Cookies sind deaktiviert"
 let please_enable_them = "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
+let blank_vote = "Blank vote" (* FIXME *)
+let no_other_blank = "No other choices are allowed when voting blank" (* FIXME *)
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

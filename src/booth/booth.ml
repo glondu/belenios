@@ -145,7 +145,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
     Dom.appendChild div c
   in
   let q_answers = match q.q_blank with
-    | Some true -> Array.append [|"Blank"|] q.q_answers
+    | Some true -> Array.append [|getHtmlById "str_blank_vote"|] q.q_answers
     | _ -> q.q_answers
   in
   let () =
@@ -204,7 +204,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
        let total = Array.fold_left (+) 0 answers' in
        if answers.(0) > 0 then (
          if total <> 0 then
-           (alert "No other choices are allowed when voting blank"; false)
+           (alert (getHtmlById "no_other_blank"); false)
          else true
        ) else check_min_max total
     | _ ->
@@ -263,7 +263,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
                   incr checked;
                   let li = document##createElement (Js.string "li") in
                   let text = match q.q_blank with
-                    | Some true -> if i = 0 then "Blank" else q.q_answers.(i-1)
+                    | Some true -> if i = 0 then getHtmlById "str_blank_vote" else q.q_answers.(i-1)
                     | _ -> q.q_answers.(i)
                   in
                   let t = document##createTextNode (Js.string text) in

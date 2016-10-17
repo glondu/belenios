@@ -99,6 +99,8 @@ let not_yet_open = "Sorry, this election is not yet open"
 let come_back_later = "This election does not exist yet. Please come back later."
 let cookies_are_blocked = "Cookies are blocked"
 let please_enable_them = "Your browser seems to block cookies. Please enable them."
+let blank_vote = "Blank vote"
+let no_other_blank = "No other choices are allowed when voting blank"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

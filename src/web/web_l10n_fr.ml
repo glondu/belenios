@@ -99,6 +99,8 @@ let not_yet_open = "Désolé, cette élection n'est pas encore ouverte"
 let come_back_later = "Cette élection n'existe pas encore. Veuillez revenir plus tard."
 let cookies_are_blocked = "Les cookies sont bloqués"
 let please_enable_them = "Votre navigateur semble bloquer les cookies. Veuillez les activer."
+let blank_vote = "Vote blanc"
+let no_other_blank = "Vous ne pouvez pas sélectionner d'autres choix lors d'un vote blanc"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

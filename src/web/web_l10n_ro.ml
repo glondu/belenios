@@ -99,6 +99,8 @@ let not_yet_open = "Din păcate, această alegere nu este încă deschisă"
 let come_back_later = "Acesta alegere nu există încă. Vă rugăm să reveniți mai târziu."
 let cookies_are_blocked = "Cookie-urile sunt blocate"
 let please_enable_them = "Browser-ul dumneavoastră pare să blocheze cookie-urile. Vă rugăm să le activați."
+let blank_vote = "Blank vote" (* FIXME *)
+let no_other_blank = "No other choices are allowed when voting blank" (* FIXME *)
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
