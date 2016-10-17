@@ -99,6 +99,16 @@ let not_yet_open = "Sorry, this election is not yet open"
 let come_back_later = "This election does not exist yet. Please come back later."
 let cookies_are_blocked = "Cookies are blocked"
 let please_enable_them = "Your browser seems to block cookies. Please enable them."
+let election_currently_closed = "This election is currently closed."
+let election_closed_being_tallied = "The election is closed and being tallied."
+let the = " The "
+let encrypted_tally = "encrypted tally"
+let hash_is = " hash is "
+let election_has_been_tallied = "This election has been tallied."
+let election_archived = "This election is archived."
+let number_accepted_ballots = "Number of accepted ballots: "
+let you_can_also_download = "You can also download the "
+let result_with_crypto_proofs = "result with cryptographic proofs"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

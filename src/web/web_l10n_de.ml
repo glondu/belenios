@@ -99,6 +99,16 @@ let not_yet_open = "Entschuldigung, die Abstimmung ist noch nicht geöffnet."
 let come_back_later = "Diese Abstimmung gibt es noch nicht. Bitte kommen Sie später wieder."
 let cookies_are_blocked = "Cookies sind deaktiviert"
 let please_enable_them = "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
+let election_currently_closed = "This election is currently closed." (* FIXME *)
+let election_closed_being_tallied = "The election is closed and being tallied." (* FIXME *)
+let the = " The " (* FIXME *)
+let encrypted_tally = "encrypted tally" (* FIXME *)
+let hash_is = " hash is " (* FIXME *)
+let election_has_been_tallied = "This election has been tallied." (* FIXME *)
+let election_archived = "This election is archived." (* FIXME *)
+let number_accepted_ballots = "Number of accepted ballots: " (* FIXME *)
+let you_can_also_download = "You can also download the " (* FIXME *)
+let result_with_crypto_proofs = "result with cryptographic proofs" (* FIXME *)
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

@@ -100,6 +100,16 @@ module type LocalizedStrings = sig
   val come_back_later : string
   val cookies_are_blocked : string
   val please_enable_them : string
+  val election_currently_closed : string
+  val election_closed_being_tallied : string
+  val the : string
+  val encrypted_tally : string
+  val hash_is : string
+  val election_has_been_tallied : string
+  val election_archived : string
+  val number_accepted_ballots : string
+  val you_can_also_download : string
+  val result_with_crypto_proofs : string
   val mail_password_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_password : (string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_credential_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6

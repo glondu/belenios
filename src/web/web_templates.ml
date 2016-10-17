@@ -1117,31 +1117,31 @@ let election_home w state () =
     | `Closed ->
       [
         pcdata " ";
-        b [pcdata "This election is currently closed."];
+        b [pcdata L.election_currently_closed];
       ]
     | `Open -> []
     | `EncryptedTally (_, _, hash) ->
        [
          pcdata " ";
-         b [pcdata "The election is closed and being tallied."];
-         pcdata " The ";
+         b [pcdata L.election_closed_being_tallied];
+         pcdata L.the;
          a
            ~service:election_dir
-           [pcdata "encrypted tally"]
+           [pcdata L.encrypted_tally]
            (W.election.e_params.e_uuid, ESETally);
-         pcdata " hash is ";
+         pcdata L.hash_is;
          b [pcdata hash];
          pcdata ".";
        ]
     | `Tallied _ ->
        [
          pcdata " ";
-         b [pcdata "This election has been tallied."];
+         b [pcdata L.election_has_been_tallied];
        ]
     | `Archived ->
        [
          pcdata " ";
-         b [pcdata "This election is archived."];
+         b [pcdata L.election_archived];
        ]
   in
   let ballots_link =
@@ -1194,13 +1194,13 @@ let election_home w state () =
            ]
          ) questions);
          div [
-           pcdata "Number of accepted ballots: ";
+           pcdata L.number_accepted_ballots;
            pcdata (string_of_int r.num_tallied);
          ];
          div [
-           pcdata "You can also download the ";
+           pcdata L.you_can_also_download;
            a ~service:election_dir
-             [pcdata "result with cryptographic proofs"]
+             [pcdata L.result_with_crypto_proofs]
              (W.election.e_params.e_uuid, ESResult);
            pcdata ".";
          ];

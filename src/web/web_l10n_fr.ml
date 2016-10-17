@@ -99,6 +99,16 @@ let not_yet_open = "Désolé, cette élection n'est pas encore ouverte"
 let come_back_later = "Cette élection n'existe pas encore. Veuillez revenir plus tard."
 let cookies_are_blocked = "Les cookies sont bloqués"
 let please_enable_them = "Votre navigateur semble bloquer les cookies. Veuillez les activer."
+let election_currently_closed = "Cette élection est actuellement fermée."
+let election_closed_being_tallied = "L'élection est fermé et en cours de dépouillement."
+let the = " L'empreinte du "
+let encrypted_tally = "résultat chiffré"
+let hash_is = " est "
+let election_has_been_tallied = "Cette élection a été dépouillée."
+let election_archived = "Cette élection est archivée."
+let number_accepted_ballots = "Nombre de bulletins acceptés : "
+let you_can_also_download = "Vous pouvez également télécharger le "
+let result_with_crypto_proofs = "résultat avec les preuves cryptographiques"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
