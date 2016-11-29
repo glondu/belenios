@@ -1487,7 +1487,7 @@ let cast_raw w () =
   let form_rawballot = post_form ~service:election_cast_post
     (fun (name, _) ->
       [
-        div [pcdata "Please paste your raw ballot in JSON format in the following box:"];
+        div [pcdata "Please paste your encrypted ballot in JSON format in the following box:"];
         div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
         div [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
@@ -1507,14 +1507,14 @@ let cast_raw w () =
   in
   let intro = div [
     div [
-      pcdata "You can create a raw ballot by using the command line tool ";
+      pcdata "You can create an encrypted ballot by using the command line tool ";
       pcdata "(available in the ";
       a ~service:source_code [pcdata "sources"] ();
       pcdata "), or its ";
       a ~service:(Eliom_service.static_dir ()) [
         pcdata "web interface";
       ] ["static"; "belenios-tool.html"];
-      pcdata ". A specification of raw ballots is also available in the ";
+      pcdata ". A specification of encrypted ballots is also available in the ";
       pcdata "sources.";
     ];
     div [
