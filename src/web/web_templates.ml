@@ -259,11 +259,11 @@ let admin ~elections () =
     let%lwt login_box = site_login_box () in
     base ~title ?login_box ~content ()
 
-let make_button ~service contents =
+let make_button ~service ~disabled contents =
   let uri = Eliom_uri.make_string_uri ~service () in
   Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
-    "<button onclick=\"location.href='%s';\" style=\"font-size:35px;\">%s</button>"
-    uri
+    "<button onclick=\"location.href='%s';\" style=\"font-size:35px;\"%s>%s</button>"
+    uri (if disabled then " disabled" else "")
     contents
 
 let a_mailto ~dest ~subject ~body contents =
@@ -1155,11 +1155,15 @@ let election_home w state () =
   in
   let%lwt footer = audit_footer w in
   let go_to_the_booth =
+    let disabled = match state with
+      | `Open -> false
+      | _ -> true
+    in
     div ~a:[a_style "text-align:center;"] [
       div [
         make_button
           ~service:(Eliom_service.preapply election_vote (params.e_uuid, ()))
-          L.start;
+          ~disabled L.start;
         ];
       div [
         pcdata L.or_;
