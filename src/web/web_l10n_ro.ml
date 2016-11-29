@@ -21,8 +21,7 @@
 
 let lang = "ro"
 let start = "Start"
-let or_ = "sau"
-let submit_a_raw_ballot = "trimite un buletin de vot"
+let advanced_mode = "Advanced mode" (* FIXME *)
 let see_accepted_ballots = "Consultă buletinele de vot acceptate"
 let belenios_booth = "Cabina de vot Belenios"
 let here = "aici"

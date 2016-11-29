@@ -21,8 +21,7 @@
 
 let lang = "de"
 let start = "Start"
-let or_ = "oder"
-let submit_a_raw_ballot = "neue Stimme im Rohdatenformat abgeben"
+let advanced_mode = "Advanced mode" (* FIXME *)
 let see_accepted_ballots = "angenommene Stimmen anzeigen"
 let belenios_booth = "Belenios Wahlkabine"
 let here = "hier"

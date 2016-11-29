@@ -1166,11 +1166,9 @@ let election_home w state () =
           ~disabled L.start;
         ];
       div [
-        pcdata L.or_;
-        pcdata " ";
         a
           ~service:(Eliom_service.preapply election_cast (params.e_uuid, ()))
-          [pcdata L.submit_a_raw_ballot] ();
+          [pcdata L.advanced_mode] ();
       ];
     ]
   in

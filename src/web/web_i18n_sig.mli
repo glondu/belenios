@@ -22,8 +22,7 @@
 module type LocalizedStrings = sig
   val lang : string
   val start : string
-  val or_ : string
-  val submit_a_raw_ballot : string
+  val advanced_mode : string
   val see_accepted_ballots : string
   val belenios_booth : string
   val here : string
