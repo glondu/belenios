@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2016 Inria                                           *)
+(*  Copyright © 2012-2017 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,38 +19,53 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-(** Election primitives *)
-
 open Platform
 open Serializable_t
 open Signatures
+open Common
 
-val question_length : question -> int
+(** Helper functions *)
 
-module MakeSimpleMonad (G : GROUP) : sig
+let check_modulo p x = Z.(geq x zero && lt x p)
 
-  (** {2 Monadic definitions} *)
+(** Distributed key generation *)
 
-  include Signatures.MONAD with type 'a t = unit -> 'a
+module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
+  open G
+  open M
 
-  (** {2 Random number generation} *)
+  let ( >>= ) = bind
+  let ( / ) x y = x *~ invert y
 
-  val random : Z.t -> Z.t t
-  (** [random q] returns a random number modulo [q]. It uses a secure
-      random number generator lazily initialized by a 128-bit seed
-      shared by all instances. *)
+  (** Fiat-Shamir non-interactive zero-knowledge proofs of
+      knowledge *)
 
-  (** {2 Ballot box management} *)
+  let fs_prove gs x oracle =
+    random q >>= fun w ->
+    let commitments = Array.map (fun g -> g **~ w) gs in
+    let challenge = oracle commitments in
+    let response = Z.((w + x * challenge) mod q) in
+    return {challenge; response}
 
-  include Signatures.MONADIC_MAP_RO
-  with type 'a m := 'a t
-  and type elt = G.t ballot
-  and type key := unit
+  let generate_and_prove () =
+    random q >>= fun x ->
+    let trustee_public_key = g **~ x in
+    let zkp = "pok|" ^ G.to_string trustee_public_key ^ "|" in
+    fs_prove [| g |] x (G.hash zkp) >>= fun trustee_pok ->
+    return (x, {trustee_pok; trustee_public_key})
 
-  val cast : elt -> unit t
+  let check {trustee_pok; trustee_public_key = y} =
+    G.check y &&
+    let {challenge; response} = trustee_pok in
+    check_modulo q challenge &&
+    check_modulo q response &&
+    let commitment = g **~ response / (y **~ challenge) in
+    let zkp = "pok|" ^ G.to_string y ^ "|" in
+    Z.(challenge =% G.hash zkp [| commitment |])
+
+  let combine pks =
+    Array.fold_left (fun y {trustee_public_key; _} ->
+      y *~ trustee_public_key
+    ) G.one pks
+
 end
-(** Simple election monad that keeps all ballots in memory. *)
-
-module MakeElection (G : GROUP) (M : RANDOM) :
-  ELECTION with type elt = G.t and type 'a m = 'a M.t
-(** Implementation of {!Signatures.ELECTION}. *)

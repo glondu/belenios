@@ -101,7 +101,7 @@ let verifydiff dir1 dir2 =
   let open ED in
   let module M = Election.MakeSimpleMonad (G) in
   let module E = Election.MakeElection (G) (M) in
-  let module KG = Election.MakeSimpleDistKeyGen (G) (M) in
+  let module KG = Trustees.MakeSimpleDistKeyGen (G) (M) in
   let pks = match pks with
     | None -> raise (VerifydiffError MissingPublicKeys)
     | Some pks -> List.map (trustee_public_key_of_string G.read) pks

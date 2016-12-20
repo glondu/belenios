@@ -62,7 +62,7 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Load and check trustee keys, if present *)
 
-  module KG = Election.MakeSimpleDistKeyGen(G)(M);;
+  module KG = Trustees.MakeSimpleDistKeyGen(G)(M);;
 
   let public_keys_with_pok =
     get_public_keys () |> option_map @@

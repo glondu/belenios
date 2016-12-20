@@ -106,7 +106,7 @@ let finalize_election uuid se =
   (* trustees *)
   let group = Group.of_string se.se_group in
   let module G = (val group : GROUP) in
-  let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
+  let module KG = Trustees.MakeSimpleDistKeyGen (G) (LwtRandom) in
   let%lwt trustees, public_keys, private_key =
     match se.se_public_keys with
     | [] ->
@@ -851,7 +851,7 @@ let () =
            let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
            let module G = (val Group.of_string se.se_group : GROUP) in
            let pk = trustee_public_key_of_string G.read public_key in
-           let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
+           let module KG = Trustees.MakeSimpleDistKeyGen (G) (LwtRandom) in
            if not (KG.check pk) then failwith "invalid public key";
            (* we keep pk as a string because of G.t *)
            t.st_public_key <- public_key;
@@ -969,7 +969,7 @@ let () =
                   let () =
                     (* check that imported keys are valid *)
                     let module G = (val Group.of_string se.se_group : GROUP) in
-                    let module KG = Election.MakeSimpleDistKeyGen (G) (LwtRandom) in
+                    let module KG = Trustees.MakeSimpleDistKeyGen (G) (LwtRandom) in
                     if not @@ List.for_all (fun t ->
                                   let pk = t.st_public_key in
                                   let pk = trustee_public_key_of_string G.read pk in

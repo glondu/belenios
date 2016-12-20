@@ -53,7 +53,7 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Generate key *)
 
-  module KG = Election.MakeSimpleDistKeyGen(G)(M);;
+  module KG = Trustees.MakeSimpleDistKeyGen(G)(M);;
 
   type keypair = { id : string; priv : string; pub : string }
 

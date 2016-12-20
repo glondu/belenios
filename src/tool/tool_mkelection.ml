@@ -66,7 +66,7 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Setup trustees *)
 
-  module KG = Election.MakeSimpleDistKeyGen(G)(M);;
+  module KG = Trustees.MakeSimpleDistKeyGen(G)(M);;
 
   let public_keys =
     match get_public_keys () with
