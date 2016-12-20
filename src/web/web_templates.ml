@@ -1622,13 +1622,11 @@ let cast_confirmed w ~result () =
       pcdata L.your_ballot_for;
       em [pcdata name];
       ] @ result);
-    p [
-      (let service = Eliom_service.preapply logout () in
-      a ~a:[a_id "logout"] ~service [
-        pcdata L.logout_and_come_back
-      ] ());
-      pcdata ".";
-    ];
+    p
+      [a
+         ~service:Web_services.election_home
+         [pcdata L.go_back_to_election]
+         (params.e_uuid, ())];
   ] in
   let uuid = params.e_uuid in
   base ~title:name ~content ~uuid ()

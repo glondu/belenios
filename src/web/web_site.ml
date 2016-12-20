@@ -1012,6 +1012,7 @@ let () =
         match%lwt Eliom_reference.get Web_state.cast_confirmed with
         | Some result ->
            Eliom_reference.unset Web_state.cast_confirmed >>
+           Eliom_reference.unset Web_state.user >>
            T.cast_confirmed (module W) ~result () >>= Html5.send
         | None ->
            let%lwt state = Web_persist.get_election_state uuid_s in

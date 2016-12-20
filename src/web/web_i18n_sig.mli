@@ -73,7 +73,6 @@ module type LocalizedStrings = sig
   val thank_you_for_voting : string
   val is_rejected_because : string
   val fail : string
-  val logout_and_come_back : string
   val administer_elections : string
   val administer_this_election : string
   val powered_by : string
