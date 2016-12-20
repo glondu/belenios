@@ -21,13 +21,11 @@
 
 open Lwt
 open Web_serializable_t
-open Web_signatures
 
 type user = {
   uuid: Uuidm.t option;
   service : string;
   name : string;
-  logout : unit -> content;
 }
 
 let scope = Eliom_common.default_session_scope

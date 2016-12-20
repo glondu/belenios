@@ -77,11 +77,7 @@ let dummy_handler () name =
   match%lwt Eliom_reference.get auth_env with
   | None -> failwith "dummy handler was invoked without environment"
   | Some (uuid, service) ->
-     let logout () =
-       Eliom_reference.unset user >>
-       default_cont uuid ()
-     in
-     Eliom_reference.set user (Some {uuid; service; name; logout}) >>
+     Eliom_reference.set user (Some {uuid; service; name}) >>
      Eliom_reference.unset auth_env >>
      default_cont uuid ()
 
@@ -109,11 +105,7 @@ let password_handler () (name, password) =
     with Not_found -> fail_http 401
   in
   if sha256_hex (salt ^ password) = hashed then
-    let logout () =
-      Eliom_reference.unset user >>
-      default_cont uuid ()
-    in
-    Eliom_reference.set user (Some {uuid; service; name; logout}) >>
+    Eliom_reference.set user (Some {uuid; service; name}) >>
     Eliom_reference.unset auth_env >>
     default_cont uuid ()
   else
@@ -183,18 +175,7 @@ let cas_handler ticket () =
      in
      (match%lwt get_cas_validation server x with
      | `Yes (Some name) ->
-        let logout () =
-          Eliom_reference.unset user >>
-          let cas_logout = Http.external_service
-            ~prefix:server
-            ~path:["logout"]
-            ~get_params:Eliom_parameter.(string "service")
-            ()
-          in
-          let service = preapply cas_logout (Lazy.force cas_self) in
-          Eliom_registration.Redirection.send service
-        in
-        Eliom_reference.set user (Some {uuid; service; name; logout}) >>
+        Eliom_reference.set user (Some {uuid; service; name}) >>
         default_cont uuid ()
      | `No -> fail_http 401
      | `Yes None | `Error _ -> fail_http 502)
@@ -286,11 +267,7 @@ let oidc_handler params () =
     if state <> st then fail_http 401 else
     (match%lwt oidc_get_name ocfg client_id client_secret code with
     | Some name ->
-       let logout () =
-         Eliom_reference.unset user >>
-         default_cont uuid ()
-       in
-       Eliom_reference.set user (Some {uuid; service; name; logout}) >>
+       Eliom_reference.set user (Some {uuid; service; name}) >>
        default_cont uuid ()
     | None -> fail_http 401)
   | _, _ -> default_cont uuid ()
@@ -380,12 +357,10 @@ let login_handler service uuid =
            Eliom_registration.Html5.send
 
 let logout_handler () =
-  match%lwt Eliom_reference.get user with
-  | Some u -> u.logout ()
-  | None ->
-     match%lwt cont_pop () with
-     | Some f -> f ()
-     | None -> Eliom_registration.Redirection.send Web_services.home
+  Eliom_reference.unset Web_state.user >>
+  match%lwt cont_pop () with
+  | Some f -> f ()
+  | None -> Eliom_registration.Redirection.send Web_services.home
 
 let () = Eliom_registration.Any.register ~service:site_login
   (fun service () -> login_handler service None)

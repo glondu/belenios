@@ -25,7 +25,6 @@ type user = {
   uuid: Uuidm.t option;
   service : string;
   name : string;
-  logout : unit -> content;
 }
 
 val show_cookie_disclaimer : bool Eliom_reference.eref
