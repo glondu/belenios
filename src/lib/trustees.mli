@@ -30,11 +30,12 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) : sig
       shares are needed to decrypt, but the decryptions can be done in
       a distributed fashion. *)
 
-  val generate_and_prove :
-    unit -> (Z.t * G.t trustee_public_key) M.t
-  (** [generate_and_prove ()] returns a new keypair [(x, y)]. [x] is
-      the secret exponent, [y] contains the public key and a
-      zero-knowledge proof of knowledge of [x]. *)
+  val generate : unit -> Z.t M.t
+  (** [generate ()] generates a new private key. *)
+
+  val prove : Z.t -> G.t trustee_public_key M.t
+  (** [prove x] returns the public key associated to [x] and a zero-
+      knowledge proof of its knowledge. *)
 
   val check : G.t trustee_public_key -> bool
   (** Check a public key and its proof. *)

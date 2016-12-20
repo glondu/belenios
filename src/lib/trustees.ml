@@ -47,12 +47,13 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
     let response = Z.((w + x * challenge) mod q) in
     return {challenge; response}
 
-  let generate_and_prove () =
-    random q >>= fun x ->
+  let generate () = random q
+
+  let prove x =
     let trustee_public_key = g **~ x in
     let zkp = "pok|" ^ G.to_string trustee_public_key ^ "|" in
     fs_prove [| g |] x (G.hash zkp) >>= fun trustee_pok ->
-    return (x, {trustee_pok; trustee_public_key})
+    return {trustee_pok; trustee_public_key}
 
   let check {trustee_pok; trustee_public_key = y} =
     G.check y &&

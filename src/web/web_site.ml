@@ -110,7 +110,8 @@ let finalize_election uuid se =
   let%lwt trustees, public_keys, private_key =
     match se.se_public_keys with
     | [] ->
-       let%lwt private_key, public_key = KG.generate_and_prove () in
+       let%lwt private_key = KG.generate () in
+       let%lwt public_key = KG.prove private_key in
        return (None, [public_key], Some private_key)
     | _ :: _ ->
        return (
