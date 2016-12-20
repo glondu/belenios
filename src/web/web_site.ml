@@ -233,7 +233,7 @@ let archive_election uuid_s =
 let () = Any.register ~service:home
   (fun () () ->
     Eliom_reference.unset Web_state.cont >>
-    T.home () >>= Html5.send
+    Redirection.send admin
   )
 
 let get_finalized_elections_by_owner u =

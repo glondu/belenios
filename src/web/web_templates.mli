@@ -23,7 +23,6 @@ open Serializable_t
 open Web_serializable_t
 open Signatures
 
-val home : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val admin : elections:((module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list * (Uuidm.t * string) list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

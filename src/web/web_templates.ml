@@ -32,7 +32,6 @@ open Eliom_content.Html5.F
 (* TODO: these pages should be redesigned *)
 
 let site_title = "Election Server"
-let welcome_message = "Welcome to the Belenios system!"
 let admin_background = " background: #FF9999;"
 
 let format_user ~site u =
@@ -166,36 +165,6 @@ let format_election election =
   li [
     a ~service [pcdata e.e_name] (e.e_uuid, ());
   ]
-
-let home () =
-  let loria = Eliom_service.Http.external_service
-    ~prefix:"http://www.loria.fr"
-    ~path:[]
-    ~get_params:Eliom_parameter.unit
-    ()
-  in
-  let content = [
-    div [
-      h2 ~a:[a_style "text-align:center;"] [pcdata welcome_message];
-      h3 [a ~service:admin [pcdata "Administer elections"] ()];
-      div [br ()];
-      div [
-        pcdata "Belenios is an electronic voting system developed at ";
-        a ~service:loria [pcdata "LORIA"] ();
-        pcdata ". It provides both confidentiality of the votes and ";
-        pcdata "end-to-end verifiability of the result. Verifiability ";
-        pcdata "relies in particular on the fact that the ballots are ";
-        pcdata "stored on a public ballot box (on a webpage), so that ";
-        pcdata "voters can check the presence of their ballots. Similarly, ";
-        pcdata "anyone can check that the published result corresponds to ";
-        pcdata "the contents of the ballot box. More information and ";
-        pcdata "discussion can be found on the ";
-        a ~service:belenios_url [pcdata "Belenios web page"] ();
-        pcdata ".";
-      ];
-    ];
-  ] in
-  base ~title:site_title ~content ()
 
 let admin ~elections () =
   let title = site_title ^ " — Administration" in
