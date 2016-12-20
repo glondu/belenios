@@ -18,6 +18,7 @@
     <findlib path="_OCAML_STDLIBDIR_"/>
 
     <extension findlib-package="ocsigenserver.ext.staticmod"/>
+    <extension findlib-package="ocsigenserver.ext.redirectmod"/>
 
     <extension findlib-package="ocsigenserver.ext.ocsipersist-sqlite">
       <database file="_RUNDIR_/lib/ocsidb"/>
@@ -31,6 +32,7 @@
     <extension findlib-package="csv"/>
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
+      <redirect suburl="^$" dest="http://www.belenios.org"/>
       <site path="static" charset="utf-8">
         <static dir="_SRCDIR_/_build/src/static" />
       </site>
