@@ -25,6 +25,8 @@ open Platform
 open Serializable_t
 open Signatures
 
+val question_length : question -> int
+
 module MakeSimpleMonad (G : GROUP) : sig
 
   (** {2 Monadic definitions} *)

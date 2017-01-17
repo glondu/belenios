@@ -1151,13 +1151,20 @@ let election_home w state () =
        return @@ div [
          ul (List.mapi (fun i x ->
            let answers = Array.to_list x.q_answers in
+           let answers = match x.q_blank with
+             | Some true -> L.blank_vote :: answers
+             | _ -> answers
+           in
            let answers = List.mapi (fun j x ->
              tr [td [pcdata x]; td [pcdata @@ string_of_int result.(i).(j)]]
            ) answers in
            let answers =
              match answers with
              | [] -> pcdata ""
-             | x :: xs -> table (x :: xs)
+             | y :: ys ->
+                match x.q_blank with
+                | Some true -> table (ys @ [y])
+                | _ -> table (y :: ys)
            in
            li [
              pcdata x.q_question;
@@ -1982,6 +1989,8 @@ let booth () =
         span ~a:[a_id "str_nothing"] [pcdata L.nothing];
         span ~a:[a_id "enter_cred"] [pcdata L.enter_cred];
         span ~a:[a_id "invalid_cred"] [pcdata L.invalid_cred];
+        span ~a:[a_id "str_blank_vote"] [pcdata L.blank_vote];
+        span ~a:[a_id "no_other_blank"] [pcdata L.no_other_blank];
       ];
     ]
   in

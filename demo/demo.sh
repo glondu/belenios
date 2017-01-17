@@ -42,11 +42,11 @@ belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/questi
 header "Simulate votes"
 
 cat > votes.txt <<EOF
-[[1,0]]
-[[1,0]]
-[[0,1]]
-[[1,0]]
-[[0,0]]
+[[1,0],[1,0,0]]
+[[1,0],[0,1,0]]
+[[0,1],[0,0,1]]
+[[1,0],[1,0,0]]
+[[0,0],[0,1,0]]
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do

@@ -107,6 +107,8 @@ let election_archived = "This election is archived."
 let number_accepted_ballots = "Number of accepted ballots: "
 let you_can_also_download = "You can also download the "
 let result_with_crypto_proofs = "result with cryptographic proofs"
+let blank_vote = "Blank vote"
+let no_other_blank = "No other choices are allowed when voting blank"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

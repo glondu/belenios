@@ -107,6 +107,8 @@ let election_archived = "This election is archived." (* FIXME *)
 let number_accepted_ballots = "Number of accepted ballots: " (* FIXME *)
 let you_can_also_download = "You can also download the " (* FIXME *)
 let result_with_crypto_proofs = "result with cryptographic proofs" (* FIXME *)
+let blank_vote = "Blank vote" (* FIXME *)
+let no_other_blank = "No other choices are allowed when voting blank" (* FIXME *)
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

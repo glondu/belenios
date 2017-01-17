@@ -144,9 +144,13 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
     Dom.appendChild c t;
     Dom.appendChild div c
   in
+  let q_answers = match q.q_blank with
+    | Some true -> Array.append [|getHtmlById "str_blank_vote"|] q.q_answers
+    | _ -> q.q_answers
+  in
   let () =
     let choices = document##createElement (Js.string "div") in
-    Array.iteri (fun i a ->
+    let choices_divs = Array.mapi (fun i a ->
       let div = document##createElement (Js.string "div") in
       let checkbox = document##createElement (Js.string "input") in
       let cb =
@@ -164,21 +168,48 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         Js._true
       );
       Dom.appendChild div t;
-      Dom.appendChild choices div
-    ) q.q_answers;
+      div
+    ) q_answers
+    in
+    begin match q.q_blank with
+    | Some true ->
+       for i = 1 to Array.length choices_divs - 1 do
+         Dom.appendChild choices choices_divs.(i)
+       done;
+       (* Put the blank choice at the end of the list *)
+       Dom.appendChild choices (Dom_html.createBr document);
+       Dom.appendChild choices choices_divs.(0)
+    | _ ->
+       for i = 0 to Array.length choices_divs - 1 do
+         Dom.appendChild choices choices_divs.(i)
+       done
+    end;
     Dom.appendChild div choices
   in
   let check_constraints () =
-    let total = Array.fold_left (+) 0 answers in
-    if total < q.q_min then (
-      let fmt = Scanf.format_from_string (getHtmlById "at_least") "%d" in
-      Printf.ksprintf alert fmt q.q_min;
-      false
-    ) else if total > q.q_max then (
-      let fmt = Scanf.format_from_string (getHtmlById "at_most") "%d" in
-      Printf.ksprintf alert fmt q.q_max;
-      false
-    ) else true
+    let check_min_max total =
+      if total < q.q_min then (
+        let fmt = Scanf.format_from_string (getHtmlById "at_least") "%d" in
+        Printf.ksprintf alert fmt q.q_min;
+        false
+      ) else if total > q.q_max then (
+        let fmt = Scanf.format_from_string (getHtmlById "at_most") "%d" in
+        Printf.ksprintf alert fmt q.q_max;
+        false
+      ) else true
+    in
+    match q.q_blank with
+    | Some true ->
+       let answers' = Array.sub answers 1 (Array.length answers - 1) in
+       let total = Array.fold_left (+) 0 answers' in
+       if answers.(0) > 0 then (
+         if total <> 0 then
+           (alert (getHtmlById "no_other_blank"); false)
+         else true
+       ) else check_min_max total
+    | _ ->
+       let total = Array.fold_left (+) 0 answers in
+       check_min_max total
   in
   let () =
     (* previous button *)
@@ -231,7 +262,11 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
                 if a > 0 then (
                   incr checked;
                   let li = document##createElement (Js.string "li") in
-                  let t = document##createTextNode (Js.string q.q_answers.(i)) in
+                  let text = match q.q_blank with
+                    | Some true -> if i = 0 then getHtmlById "str_blank_vote" else q.q_answers.(i-1)
+                    | _ -> q.q_answers.(i)
+                  in
+                  let t = document##createTextNode (Js.string text) in
                   Dom.appendChild li t;
                   Dom.appendChild ul li;
                 )
@@ -275,7 +310,7 @@ let addQuestions sk params qs =
     let n = Array.length qs in
     let qs =
       Array.to_list qs |>
-      List.map (fun q -> q, Array.make (Array.length q.q_answers) 0)
+      List.map (fun q -> q, Array.make (Election.question_length q) 0)
     in
     match qs with
     | [] -> failwith "no questions"

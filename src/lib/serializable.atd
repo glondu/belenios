@@ -67,6 +67,7 @@ type ('a, 'b) wrapped_pubkey = {
 
 type question = {
   answers : string list <ocaml repr="array">;
+  ?blank : bool option;
   min : int;
   max : int;
   question : string;
@@ -92,6 +93,7 @@ type 'a answer = {
   choices : 'a ciphertext list <ocaml repr="array">;
   individual_proofs : disjunctive_proof list <ocaml repr="array">;
   overall_proof : disjunctive_proof;
+  ?blank_proof : disjunctive_proof option;
 }
 <doc text="An answer to a question. It consists of a weight for each
 choice, a proof that each of these weights is 0 or 1, and an overall

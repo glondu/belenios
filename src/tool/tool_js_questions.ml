@@ -46,6 +46,9 @@ let extractQuestion q =
     try return (int_of_string x)
     with _ -> failwith (error_msg ^ ": " ^ x ^ ".")
   in
+  p2##querySelector (Js.string ".question_blank") >>= fun q_blank ->
+  Dom_html.CoerceTo.input q_blank >>= fun q_blank ->
+  let q_blank = if Js.to_bool q_blank##checked then Some true else None in
   numeric ".question_min" "Invalid minimum number of choices" >>= fun q_min ->
   numeric ".question_max" "Invalid maximum number of choices" >>= fun q_max ->
   if not (q_min <= q_max) then
@@ -58,7 +61,7 @@ let extractQuestion q =
        let a = answers##item (i) >>= extractAnswer in
        Js.Opt.get a (fun () -> failwith "extractQuestion"))
   in
-  return {q_question; q_min; q_max; q_answers}
+  return {q_question; q_blank; q_min; q_max; q_answers}
 
 let extractTemplate () =
   let t_name = get_input "election_name" in
@@ -131,7 +134,7 @@ let rec createQuestion q =
   let insert_text = document##createTextNode (Js.string "Insert") in
   let insert_btn = Dom_html.createButton document in
   let f _ =
-    let x = createQuestion {q_question=""; q_min=0; q_max=1; q_answers=[||]} in
+    let x = createQuestion {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]} in
     container##parentNode >>= fun p ->
     Dom.insertBefore p x (Js.some container);
     return ()
@@ -157,6 +160,15 @@ let rec createQuestion q =
   h_max##size <- 5;
   h_max##value <- Js.string (string_of_int q.q_max);
   let t = document##createTextNode (Js.string " answers.") in
+  Dom.appendChild x t;
+  Dom.appendChild container x;
+  (* is blank allowed? *)
+  let x = Dom_html.createDiv document in
+  let h_blank = Dom_html.createInput ~_type:(Js.string "checkbox") document in
+  h_blank##className <- Js.string "question_blank";
+  h_blank##checked <- Js.(match q.q_blank with Some true -> _true | _ -> _false);
+  Dom.appendChild x h_blank;
+  let t = document##createTextNode (Js.string "Blank vote is allowed") in
   Dom.appendChild x t;
   Dom.appendChild container x;
   (* answers *)
@@ -229,7 +241,7 @@ let createTemplate template =
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add a question") in
   let f _ =
-    let x = createQuestion {q_question=""; q_min=0; q_max=1; q_answers=[||]} in
+    let x = createQuestion {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]} in
     Dom.appendChild h_questions_div x
   in
   b##onclick <- handler f;
