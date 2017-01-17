@@ -3,6 +3,7 @@ module type PARAMS = sig
   val group : string
   val template : string
   val get_public_keys : unit -> string array option
+  val get_threshold : unit -> string option
 end
 
 module type S = sig

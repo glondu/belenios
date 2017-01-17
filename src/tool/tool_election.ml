@@ -27,6 +27,7 @@ open Common
 module type PARAMS = sig
   val election : string
   val get_public_keys : unit -> string array option
+  val get_threshold : unit -> string option
   val get_public_creds : unit -> string Stream.t option
   val get_ballots : unit -> string Stream.t option
   val get_result : unit -> string option
@@ -36,6 +37,7 @@ end
 module type S = sig
   val vote : string option -> int array array -> string
   val decrypt : string -> string
+  val tdecrypt : string -> string -> string
   val finalize : string array -> string
   val verify : unit -> unit
 end
@@ -60,32 +62,42 @@ module Make (P : PARSED_PARAMS) : S = struct
   module M = Election.MakeSimpleMonad(G)
   module E = Election.MakeElection(G)(M);;
 
+  module KG = Trustees.MakeSimpleDistKeyGen (G) (M)
+
+  module P = Trustees.MakePKI (G) (M)
+  module C = Trustees.MakeChannels (G) (M) (P)
+  module KP = Trustees.MakePedersen (G) (M) (P) (C)
+
   (* Load and check trustee keys, if present *)
 
-  module KG = Trustees.MakeSimpleDistKeyGen(G)(M);;
+  let threshold =
+    match get_threshold () with
+    | None -> None
+    | Some x -> Some (threshold_parameters_of_string G.read x)
 
   let public_keys_with_pok =
-    get_public_keys () |> option_map @@
-    Array.map (trustee_public_key_of_string G.read)
+    match threshold with
+    | None ->
+       get_public_keys () |> option_map @@
+       Array.map (trustee_public_key_of_string G.read)
+    | Some t -> Some t.t_verification_keys
 
   let () =
-    match public_keys_with_pok with
-    | Some pks ->
+    match public_keys_with_pok, threshold with
+    | Some pks, None ->
       assert (Array.forall KG.check pks);
       let y' = KG.combine pks in
       assert G.(election.e_params.e_public_key =~ y')
-    | None -> ()
+    | _ -> ()
 
   let public_keys =
     option_map (
       Array.map (fun pk -> pk.trustee_public_key)
     ) public_keys_with_pok
 
-  (* Finish setting up the election *)
-
-  let pks = match public_keys with
-    | Some pks -> pks
-    | None -> failwith "missing public keys"
+  let pks = lazy (match public_keys with
+                  | Some pks -> pks
+                  | None -> failwith "missing public keys")
 
   (* Load ballots, if present *)
 
@@ -155,7 +167,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   let decrypt privkey =
     let sk = number_of_string privkey in
     let pk = G.(g **~ sk) in
-    if Array.forall (fun x -> not G.(x =~ pk)) pks then (
+    if Array.forall (fun x -> not G.(x =~ pk)) (Lazy.force pks) then (
       print_msg "W: your key is not present in public_keys.jsons";
     );
     let tally = Lazy.force encrypted_tally in
@@ -163,24 +175,60 @@ module Make (P : PARSED_PARAMS) : S = struct
     assert (E.check_factor tally pk factor);
     string_of_partial_decryption G.write factor
 
+  let tdecrypt key pdk =
+    let sk = P.derive_sk key and dk = P.derive_dk key in
+    let vk = G.(g **~ sk) in
+    let pdk = C.recv dk vk pdk in
+    let pdk = (partial_decryption_key_of_string pdk).pdk_decryption_key in
+    let pvk = G.(g **~ pdk) in
+    (match threshold with
+     | None -> print_msg "W: threshold parameters are missing"
+     | Some t ->
+        if Array.forall (fun x ->
+               not G.(x.trustee_public_key =~ pvk)
+             ) t.t_verification_keys then
+          print_msg "W: your key is not present in threshold parameters"
+    );
+    let tally = Lazy.force encrypted_tally in
+    let factor = E.compute_factor tally pdk () in
+    assert (E.check_factor tally pvk factor);
+    string_of_partial_decryption G.write factor
+
   let finalize factors =
     let factors = Array.map (partial_decryption_of_string G.read) factors in
     let tally = Lazy.force encrypted_tally in
-    assert (Array.forall2 (E.check_factor tally) pks factors);
-    let result = E.combine_factors (M.cardinal ()) tally factors in
-    assert (E.check_result pks result);
+    let checker = E.check_factor tally in
+    let combinator =
+      match threshold with
+      | None ->
+         assert (Array.forall2 checker (Lazy.force pks) factors);
+         KG.combine_factors
+      | Some t -> KP.combine_factors checker t
+    in
+    let result = E.combine_factors (M.cardinal ()) tally factors combinator in
+    assert (E.check_result combinator (Lazy.force pks) result);
     string_of_result G.write result
 
   let verify () =
+    (match threshold with
+     | Some t ->
+        assert (KP.check t);
+        assert G.(election.e_params.e_public_key =~ KP.combine t)
+     | None -> ignore (Lazy.force pks)
+    );
     (match Lazy.force ballots_check with
     | Some () -> ()
     | None -> print_msg "W: no ballots to check"
     );
     (match get_result () with
     | Some result ->
-      let result = result_of_string G.read result in
-      assert (Lazy.force encrypted_tally = result.encrypted_tally);
-      assert (E.check_result pks result)
+       let result = result_of_string G.read result in
+       assert (Lazy.force encrypted_tally = result.encrypted_tally);
+       let combinator = match threshold with
+         | None -> KG.combine_factors
+         | Some t -> KP.combine_factors (E.check_factor result.encrypted_tally) t
+       in
+       assert (E.check_result combinator (Lazy.force pks) result)
     | None -> print_msg "W: no result to check"
     );
     print_msg "I: all checks passed"

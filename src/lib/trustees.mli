@@ -43,5 +43,32 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) : sig
   val combine : G.t trustee_public_key array -> G.t
   (** Combine all public key shares into an election public key. *)
 
+  val combine_factors : G.t partial_decryption array -> G.t array array
+
 end
 (** Simple distributed generation of an election public key. *)
+
+module MakePKI (G : GROUP) (M : RANDOM) :
+  PKI with type 'a m = 'a M.t
+     and type private_key = Z.t
+     and type public_key = G.t
+
+module MakeChannels (G : GROUP) (M : RANDOM)
+         (P : PKI with type 'a m = 'a M.t
+                   and type private_key = Z.t
+                   and type public_key = G.t) :
+  CHANNELS with type 'a m = 'a P.m
+     and type private_key = P.private_key
+     and type public_key = P.public_key
+
+exception PedersenFailure of string
+
+module MakePedersen (G : GROUP) (M : RANDOM)
+         (P : PKI with type 'a m = 'a M.t
+                   and type private_key = Z.t
+                   and type public_key = G.t)
+         (C : CHANNELS with type 'a m = 'a M.t
+                        and type private_key = Z.t
+                        and type public_key = G.t) :
+  PEDERSEN with type 'a m = 'a M.t
+            and type elt = G.t

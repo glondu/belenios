@@ -6,6 +6,7 @@ all:
 
 check: all
 	demo/demo.sh
+	demo/demo-threshold.sh
 
 clean:
 	ocamlbuild -clean

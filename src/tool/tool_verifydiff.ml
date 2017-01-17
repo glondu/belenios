@@ -37,6 +37,9 @@ let lines_of_file fname =
 let string_of_file f =
   lines_of_file f |> stream_to_list |> String.concat "\n"
 
+let string_of_file_opt filename =
+  if Sys.file_exists filename then Some (string_of_file filename) else None
+
 let load_from_file of_string filename =
   if Sys.file_exists filename then (
     Some (lines_of_file filename |> stream_to_list |> List.rev_map of_string)
@@ -49,7 +52,9 @@ type verifydiff_error =
   | PublicKeysMismatch
   | MissingPublicKeys
   | InvalidPublicKeys
+  | InvalidThreshold
   | PublicKeyMismatch
+  | ThresholdMismatch
   | MissingCredentials
   | InvalidCredential
   | CredentialsMismatch
@@ -67,7 +72,9 @@ let explain_error = function
   | PublicKeysMismatch -> "public keys mismatch"
   | MissingPublicKeys -> "missing public keys"
   | InvalidPublicKeys -> "invalid public keys"
+  | InvalidThreshold -> "invalid threshold parameters"
   | PublicKeyMismatch -> "public key mismatch"
+  | ThresholdMismatch -> "threshold parameters mismatch"
   | MissingCredentials -> "missing credentials"
   | InvalidCredential -> "invalid credential"
   | CredentialsMismatch -> "credentials mismatch"
@@ -96,22 +103,38 @@ let verifydiff dir1 dir2 =
     let pks2 = load_from_file (fun x -> x) (dir2 / "public_keys.jsons") in
     if pks2 <> pks then raise (VerifydiffError PublicKeysMismatch)
   in
-  (* the public keys must be valid *)
+  (* the threshold parameters must be the same *)
+  let threshold = string_of_file_opt (dir1 / "threshold.json") in
+  let () =
+    let t2 = string_of_file_opt (dir2 / "threshold.json") in
+    if t2 <> threshold then raise (VerifydiffError ThresholdMismatch)
+  in
+  (* the public keys / threshold parameters must be valid *)
   let module ED = (val Group.election_params_of_string election) in
   let open ED in
   let module M = Election.MakeSimpleMonad (G) in
   let module E = Election.MakeElection (G) (M) in
-  let module KG = Trustees.MakeSimpleDistKeyGen (G) (M) in
-  let pks = match pks with
-    | None -> raise (VerifydiffError MissingPublicKeys)
-    | Some pks -> List.map (trustee_public_key_of_string G.read) pks
-  in
-  let () =
-    if not (List.for_all KG.check pks) then
-      raise (VerifydiffError InvalidPublicKeys)
+  let y =
+    match threshold with
+    | None ->
+       let module K = Trustees.MakeSimpleDistKeyGen (G) (M) in
+       let pks = match pks with
+         | None -> raise (VerifydiffError MissingPublicKeys)
+         | Some pks -> List.map (trustee_public_key_of_string G.read) pks
+       in
+       if not (List.for_all K.check pks) then
+         raise (VerifydiffError InvalidPublicKeys);
+       K.combine (Array.of_list pks)
+    | Some t ->
+       let t = threshold_parameters_of_string G.read t in
+       let module P = Trustees.MakePKI (G) (M) in
+       let module C = Trustees.MakeChannels (G) (M) (P) in
+       let module K = Trustees.MakePedersen (G) (M) (P) (C) in
+       if not (K.check t) then
+         raise (VerifydiffError InvalidThreshold);
+       K.combine t
   in
   (* the public keys must correspond to the public key of election *)
-  let y = KG.combine (Array.of_list pks) in
   let () =
     if not G.(election.e_params.e_public_key =~ y) then
       raise (VerifydiffError PublicKeyMismatch)

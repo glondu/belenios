@@ -28,6 +28,7 @@ module type PARAMS = sig
   val group : string
   val template : string
   val get_public_keys : unit -> string array option
+  val get_threshold : unit -> string option
 end
 
 module type S = sig
@@ -39,6 +40,7 @@ module type PARSED_PARAMS = sig
   val template : template
   module G : GROUP
   val get_public_keys : unit -> G.t trustee_public_key array option
+  val get_threshold : unit -> G.t threshold_parameters option
 end
 
 let parse_params p =
@@ -54,6 +56,10 @@ let parse_params p =
       match P.get_public_keys () with
       | None -> None
       | Some xs -> Some (Array.map (trustee_public_key_of_string G.read) xs)
+    let get_threshold () =
+      match P.get_threshold () with
+      | None -> None
+      | Some t -> Some (threshold_parameters_of_string G.read t)
   end
   in (module R : PARSED_PARAMS)
 
@@ -66,14 +72,21 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Setup trustees *)
 
-  module KG = Trustees.MakeSimpleDistKeyGen(G)(M);;
-
-  let public_keys =
-    match get_public_keys () with
-    | Some keys -> keys
-    | None -> failwith "trustee keys are missing"
-
-  let y = KG.combine public_keys
+  let y =
+    match get_threshold () with
+    | None ->
+       let public_keys =
+         match get_public_keys () with
+         | Some keys -> keys
+         | None -> failwith "trustee keys are missing"
+       in
+       let module K = Trustees.MakeSimpleDistKeyGen (G) (M) in
+       K.combine public_keys
+    | Some t ->
+       let module P = Trustees.MakePKI (G) (M) in
+       let module C = Trustees.MakeChannels (G) (M) (P) in
+       let module K = Trustees.MakePedersen (G) (M) (P) (C) in
+       K.combine t
 
   (* Setup election *)
 

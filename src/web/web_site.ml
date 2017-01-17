@@ -1378,6 +1378,7 @@ let handle_election_tally_release (uuid, ()) () =
       let%lwt metadata = Web_persist.get_election_metadata uuid_s in
       let module W = (val w) in
       let module E = Election.MakeElection (W.G) (LwtRandom) in
+      let module KG = Trustees.MakeSimpleDistKeyGen (W.G) (LwtRandom) in
       let%lwt () =
         match%lwt Web_state.get_site_user () with
         | Some u when metadata.e_owner = Some u -> return ()
@@ -1401,7 +1402,7 @@ let handle_election_tally_release (uuid, ()) () =
         Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
         wrap1 (encrypted_tally_of_string W.G.read)
       in
-      let result = E.combine_factors ntallied et pds in
+      let result = E.combine_factors ntallied et pds KG.combine_factors in
       let%lwt () =
         let open Lwt_io in
         with_file

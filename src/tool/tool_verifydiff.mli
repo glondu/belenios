@@ -24,7 +24,9 @@ type verifydiff_error =
   | PublicKeysMismatch
   | MissingPublicKeys
   | InvalidPublicKeys
+  | InvalidThreshold
   | PublicKeyMismatch
+  | ThresholdMismatch
   | MissingCredentials
   | InvalidCredential
   | CredentialsMismatch

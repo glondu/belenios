@@ -223,13 +223,56 @@ module type ELECTION = sig
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 
-  val combine_factors : int -> ciphertext -> factor array -> result
+  type combinator = factor array -> elt array array
+
+  val combine_factors : int -> ciphertext -> factor array -> combinator -> result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
 
-  val check_result : public_key array -> result -> bool
+  val check_result : combinator -> public_key array -> result -> bool
 
   val extract_tally : result -> plaintext
   (** Extract the plaintext result of the election. *)
+end
+
+module type PKI = sig
+  type 'a m
+  type private_key
+  type public_key
+  val genkey : unit -> string m
+  val derive_sk : string -> private_key
+  val derive_dk : string -> private_key
+  val sign : private_key -> string -> proof m
+  val verify : public_key -> string -> proof -> bool
+  val encrypt : public_key -> string -> string m
+  val decrypt : private_key -> string -> string
+  val make_cert : sk:private_key -> dk:private_key -> cert m
+  val verify_cert : cert -> bool
+end
+
+module type CHANNELS = sig
+  type 'a m
+  type private_key
+  type public_key
+  val send : private_key -> public_key -> string -> string m
+  val recv : private_key -> public_key -> string -> string
+end
+
+module type PEDERSEN = sig
+  type 'a m
+  type elt
+
+  val step1 : unit -> (string * cert) m
+  val step2 : certs -> unit
+  val step3 : certs -> string -> int -> polynomial m
+  val step4 : certs -> polynomial array -> vinput array
+  val step5 : certs -> string -> vinput -> elt voutput m
+  val step6 : certs -> polynomial array -> elt voutput array -> elt threshold_parameters
+
+  val check : elt threshold_parameters -> bool
+  val combine : elt threshold_parameters -> elt
+
+  type checker = elt -> elt partial_decryption -> bool
+  val combine_factors : checker -> elt threshold_parameters -> elt partial_decryption array -> elt array array
 end

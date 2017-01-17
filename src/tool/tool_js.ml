@@ -166,6 +166,7 @@ module Mkelection = struct
       let template = get_textarea "mkelection_template"
       let get_public_keys () =
         Some (get_textarea "mkelection_pks" |> split_lines |> Array.of_list)
+      let get_threshold () = None
     end in
     let module X = (val make (module P : PARAMS) : S) in
     set_textarea "mkelection_output" (X.mkelection ())
@@ -184,6 +185,8 @@ module ToolElection = struct
       let raw = get_textarea "election_pks" |> split_lines in
       let pks = Array.of_list raw in
       if Array.length pks = 0 then None else Some pks
+
+    let get_threshold () = None
 
     let get_public_creds () =
       let raw = get_textarea "election_pubcreds" |> split_lines in

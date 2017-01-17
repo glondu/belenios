@@ -128,3 +128,71 @@ type 'a result = {
   partial_decryptions : 'a partial_decryption list <ocaml repr="array">;
   result : plaintext;
 }
+
+(** {2 Channel messages support} *)
+
+type 'a raw_channel_msg = {
+  recipient : 'a;
+  message : string;
+} <ocaml field_prefix="raw_">
+
+type channel_msg = {
+  message : string; (* raw_channel_msg *)
+  signature : proof;
+} <ocaml field_prefix="channel_">
+
+(** {2 Threshold decryption support} *)
+
+type 'a cert_keys = {
+  verification : 'a;
+  encryption : 'a;
+} <ocaml field_prefix="cert_">
+
+type cert = {
+  keys : string; (* cert_keys *)
+  signature : proof;
+} <ocaml field_prefix="cert_">
+
+type certs = {
+  certs : cert list <ocaml repr="array">;
+}
+
+type raw_polynomial = number list <ocaml repr="array">
+type 'a raw_coefexps = 'a list <ocaml repr="array">
+
+type coefexps = {
+  coefexps : string; (* raw_coefexps *)
+  signature : proof;
+} <ocaml field_prefix="ce_">
+
+type secret = {
+  secret : number;
+}
+
+type polynomial = {
+  polynomial : string; (* sent raw_polynomial *)
+  secrets : string list <ocaml repr="array">; (* sent secrets *)
+  coefexps : coefexps;
+} <ocaml field_prefix="p_">
+
+type vinput = {
+  polynomial : string; (* sent raw_polynomial *)
+  secrets : string list <ocaml repr="array">; (* sent secrets *)
+  coefexps : coefexps list <ocaml repr="array">;
+} <ocaml field_prefix="vi_">
+
+type partial_decryption_key = {
+  decryption_key : number;
+} <ocaml field_prefix="pdk_">
+
+type 'a voutput = {
+  private_key : string; (* sent partial_decryption_key *)
+  public_key : 'a trustee_public_key;
+} <ocaml field_prefix="vo_">
+
+type 'a threshold_parameters = {
+  threshold : int;
+  certs : cert list <ocaml repr="array">;
+  coefexps : coefexps list <ocaml repr="array">;
+  verification_keys : 'a trustee_public_key list <ocaml repr="array">;
+} <ocaml field_prefix="t_">

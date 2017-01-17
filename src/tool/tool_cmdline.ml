@@ -19,7 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Signatures
 open Serializable_j
+open Platform
 open Common
 open Cmdliner
 
@@ -34,6 +36,12 @@ let lines_of_file fname =
     try Some (input_line ic)
     with End_of_file -> close_in ic; None
   )
+
+let lines_of_stdin () =
+  Stream.from (fun _ ->
+      try Some (input_line stdin)
+      with End_of_file -> None
+    )
 
 let string_of_file f =
   lines_of_file f |> stream_to_list |> String.concat "\n"
@@ -108,6 +116,11 @@ let url_t =
   let the_info = Arg.info ["url"] ~docv:"URL" ~doc in
   Arg.(value & opt (some string) None the_info)
 
+let key_t =
+  let doc = "Read private key from file $(docv)." in
+  let the_info = Arg.info ["key"] ~docv:"KEY" ~doc in
+  Arg.(value & opt (some file) None the_info)
+
 module Tkeygen : CMDLINER_MODULE = struct
   open Tool_tkeygen
 
@@ -147,10 +160,146 @@ module Tkeygen : CMDLINER_MODULE = struct
 
 end
 
+module Ttkeygen : CMDLINER_MODULE = struct
+
+  let main group step certs threshold key polynomials =
+    wrap_main (fun () ->
+        let get_certs () =
+          let certs = get_mandatory_opt "--certs" certs in
+          match load_from_file cert_of_string certs with
+          | None -> Printf.ksprintf failwith "%s does not exist" certs
+          | Some l -> { certs = Array.of_list (List.rev l) }
+        in
+        let get_polynomials () =
+          let polynomials = get_mandatory_opt "--polynomials" polynomials in
+          match load_from_file polynomial_of_string polynomials with
+          | None -> Printf.ksprintf failwith "%s does not exist" polynomials
+          | Some l -> Array.of_list (List.rev l)
+        in
+        let group = get_mandatory_opt "--group" group |> string_of_file in
+        let module G = (val Group.of_string group : GROUP) in
+        let module M = Election.MakeSimpleMonad (G) in
+        let module P = Trustees.MakePKI (G) (M) in
+        let module C = Trustees.MakeChannels (G) (M) (P) in
+        let module T = Trustees.MakePedersen (G) (M) (P) (C) in
+        match step with
+        | 1 ->
+           let key, cert = T.step1 () () in
+           let id = sha256_hex cert.cert_keys in
+           Printf.eprintf "I: certificate %s has been generated\n%!" id;
+           let pub = "certificate", id ^ ".cert", 0o444, string_of_cert cert in
+           let prv = "private key", id ^ ".key", 0o400, key in
+           let save (descr, filename, perm, thing) =
+             let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
+             output_string oc thing;
+             output_char oc '\n';
+             close_out oc;
+             Printf.eprintf "I: %s saved to %s\n%!" descr filename;
+             (* set permissions in the unlikely case where the file already existed *)
+             Unix.chmod filename perm
+           in
+           save pub;
+           save prv
+        | 2 ->
+           let certs = get_certs () in
+           let () = T.step2 certs in
+           Printf.eprintf "I: certificates are valid\n%!"
+        | 3 ->
+           let certs = get_certs () in
+           let threshold = get_mandatory_opt "--threshold" threshold in
+           let key = get_mandatory_opt "--key" key |> string_of_file in
+           let polynomial = T.step3 certs key threshold () in
+           Printf.printf "%s\n%!" (string_of_polynomial polynomial)
+        | 4 ->
+           let certs = get_certs () in
+           let n = Array.length certs.certs in
+           let polynomials = get_polynomials () in
+           assert (n = Array.length polynomials);
+           let vinputs = T.step4 certs polynomials in
+           assert (n = Array.length vinputs);
+           for i = 0 to n - 1 do
+             let id = sha256_hex certs.certs.(i).cert_keys in
+             let fn = id ^ ".vinput" in
+             let oc = open_out_gen [Open_wronly; Open_creat] 0o444 fn in
+             output_string oc (string_of_vinput vinputs.(i));
+             output_char oc '\n';
+             close_out oc;
+             Printf.eprintf "I: wrote %s\n%!" fn
+           done
+        | 5 ->
+           let certs = get_certs () in
+           let key = get_mandatory_opt "--key" key |> string_of_file in
+           let vinput = read_line () |> vinput_of_string in
+           let voutput = T.step5 certs key vinput () in
+           Printf.printf "%s\n%!" (string_of_voutput G.write voutput)
+        | 6 ->
+           let certs = get_certs () in
+           let n = Array.length certs.certs in
+           let polynomials = get_polynomials () in
+           assert (n = Array.length polynomials);
+           let voutputs = lines_of_stdin ()
+                          |> stream_to_list
+                          |> List.map (voutput_of_string G.read)
+                          |> Array.of_list
+           in
+           assert (n = Array.length voutputs);
+           let tparams = T.step6 certs polynomials voutputs in
+           for i = 0 to n - 1 do
+             let id = sha256_hex certs.certs.(i).cert_keys in
+             let fn = id ^ ".dkey" in
+             let oc = open_out_gen [Open_wronly; Open_creat] 0o400 fn in
+             output_string oc voutputs.(i).vo_private_key;
+             output_char oc '\n';
+             close_out oc;
+             Printf.eprintf "I: wrote %s\n%!" fn
+           done;
+           Printf.printf "%s\n%!" (string_of_threshold_parameters G.write tparams)
+        | _ -> failwith "invalid step"
+      )
+
+  let step_t =
+    let doc = "Step to execute." in
+    let the_info = Arg.info ["step"] ~docv:"STEP" ~doc in
+    Arg.(value & opt int 0 the_info)
+
+  let cert_t =
+    let doc = "Read certificates from file $(docv)." in
+    let the_info = Arg.info ["certs"] ~docv:"CERTS" ~doc in
+    Arg.(value & opt (some file) None the_info)
+
+  let threshold_t =
+    let doc = "Threshold of trustees needed to decrypt." in
+    let the_info = Arg.info ["threshold"] ~docv:"THRESHOLD" ~doc in
+    Arg.(value & opt (some int) None the_info)
+
+  let polynomials_t =
+    let doc = "Read polynomials (output of step 3) from file $(docv)." in
+    let the_info = Arg.info ["polynomials"] ~docv:"POLYNOMIALS" ~doc in
+    Arg.(value & opt (some file) None the_info)
+
+  let ttkeygen_cmd =
+    let doc = "generate a trustee key usable with threshold decryption" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command is run by trustees and the administrator to generate an election key with threshold decryption.";
+      ] @ common_man in
+    Term.(ret (pure main $ group_t $ step_t $ cert_t $ threshold_t $ key_t $ polynomials_t)),
+    Term.info "threshold-trustee-keygen" ~doc ~man
+
+  let cmds = [ttkeygen_cmd]
+
+end
+
 module Election : CMDLINER_MODULE = struct
   open Tool_election
 
   module MakeGetters (X : sig val dir : string end) = struct
+
+    let get_threshold () =
+      let file = "threshold.json" in
+      Printf.eprintf "I: loading %s...\n%!" file;
+      try Some (string_of_file (X.dir / file))
+      with _ -> None
 
     let get_public_keys () =
       load_from_file (fun x -> x) (X.dir/"public_keys.jsons") |>
@@ -233,6 +382,10 @@ module Election : CMDLINER_MODULE = struct
           | _ -> failwith "invalid private key"
         in
         print_endline (X.decrypt privkey)
+      | `TDecrypt (key, pdk) ->
+         let key = string_of_file key in
+         let pdk = string_of_file pdk in
+         print_endline (X.tdecrypt key pdk)
       | `Verify -> X.verify ()
       | `Finalize ->
         let factors =
@@ -264,6 +417,11 @@ module Election : CMDLINER_MODULE = struct
     let the_info = Arg.info ["ballot"] ~docv:"BALLOT" ~doc in
     Arg.(value & opt (some file) None the_info)
 
+  let pdk_t =
+    let doc = "Read (encrypted) decryption key from file $(docv)." in
+    let the_info = Arg.info ["decryption-key"] ~docv:"KEY" ~doc in
+    Arg.(value & opt (some file) None the_info)
+
   let vote_cmd =
     let doc = "create a ballot" in
     let man = [
@@ -287,18 +445,30 @@ module Election : CMDLINER_MODULE = struct
     Term.(ret (pure main $ url_t $ optdir_t $ pure `Verify)),
     Term.info "verify" ~doc ~man
 
-  let decrypt_cmd =
-    let doc = "perform partial decryption" in
-    let man = [
+  let decrypt_man = [
       `S "DESCRIPTION";
       `P "This command is run by each trustee to perform a partial decryption.";
-    ] @ common_man in
+    ] @ common_man
+
+  let decrypt_cmd =
+    let doc = "perform partial decryption" in
     let main = Term.pure (fun u d p ->
       let p = get_mandatory_opt "--privkey" p in
       main u d (`Decrypt p)
     ) in
     Term.(ret (main $ url_t $ optdir_t $ privkey_t)),
-    Term.info "decrypt" ~doc ~man
+    Term.info "decrypt" ~doc ~man:decrypt_man
+
+  let tdecrypt_cmd =
+    let doc = "perform partial decryption (threshold version)" in
+    let main = Term.pure (fun u d k pdk ->
+                   let k = get_mandatory_opt "--key" k in
+                   let pdk = get_mandatory_opt "--decryption-key" pdk in
+                   main u d (`TDecrypt (k, pdk))
+                 )
+    in
+    Term.(ret (main $ url_t $ optdir_t $ key_t $ pdk_t)),
+    Term.info "threshold-decrypt" ~doc ~man:decrypt_man
 
   let finalize_cmd =
     let doc = "finalizes an election" in
@@ -310,7 +480,7 @@ module Election : CMDLINER_MODULE = struct
     Term.(ret (pure main $ url_t $ optdir_t $ pure `Finalize)),
     Term.info "finalize" ~doc ~man
 
-  let cmds = [vote_cmd; verify_cmd; decrypt_cmd; finalize_cmd]
+  let cmds = [vote_cmd; verify_cmd; decrypt_cmd; tdecrypt_cmd; finalize_cmd]
 
 end
 
@@ -408,6 +578,9 @@ module Mkelection : CMDLINER_MODULE = struct
         let template = get_mandatory_opt "--template" template |> string_of_file
         let get_public_keys () =
           Some (lines_of_file (dir / "public_keys.jsons") |> stream_to_list |> Array.of_list)
+        let get_threshold () =
+          let fn = dir / "threshold.json" in
+          if Sys.file_exists fn then Some (string_of_file fn) else None
       end in
       let module R = (val make (module P : PARAMS) : S) in
       let params = R.mkelection () in
@@ -425,7 +598,7 @@ module Mkelection : CMDLINER_MODULE = struct
     let doc = "create an election public parameter file" in
     let man = [
       `S "DESCRIPTION";
-      `P "This command reads and checks $(i,public_keys.jsons). It then computes the global election public key and generates an $(i,election.json) file.";
+      `P "This command reads and checks $(i,public_keys.jsons) (or $(i,threshold.json) if it exists). It then computes the global election public key and generates an $(i,election.json) file.";
     ] @ common_man in
     Term.(ret (pure main $ dir_t $ group_t $ uuid_t $ template_t)),
     Term.info "mkelection" ~doc ~man
@@ -465,7 +638,7 @@ module Verifydiff : CMDLINER_MODULE = struct
 
 end
 
-let cmds = Tkeygen.cmds @ Election.cmds @ Credgen.cmds @ Mkelection.cmds @ Verifydiff.cmds
+let cmds = Tkeygen.cmds @ Ttkeygen.cmds @ Election.cmds @ Credgen.cmds @ Mkelection.cmds @ Verifydiff.cmds
 
 let default_cmd =
   let open Belenios_version in

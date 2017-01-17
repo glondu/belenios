@@ -40,6 +40,7 @@ module Array : sig
   val mmap3 : ('a -> 'b -> 'c -> 'd) ->
     'a array array -> 'b array array -> 'c array array -> 'd array array
   val ssplit : ('a * 'b) array array -> 'a array array * 'b array array
+  val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
 end
 
 module String : sig

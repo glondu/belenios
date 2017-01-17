@@ -123,6 +123,17 @@ module Array = struct
 
   let ssplit a =
     mmap fst a, mmap snd a
+
+  let findi f a =
+    let n = Array.length a in
+    let rec loop i =
+      if i < n then
+        match f i a.(i) with
+        | None -> loop (i+1)
+        | Some _ as x -> x
+      else None
+    in loop 0
+
 end
 
 module String = struct

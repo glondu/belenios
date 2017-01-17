@@ -563,11 +563,10 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
 
   type result = elt Serializable_t.result
 
-  let combine_factors num_tallied encrypted_tally partial_decryptions =
-    let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
-    let factors = Array.fold_left (fun a b ->
-      Array.mmap2 ( *~ ) a b.decryption_factors
-    ) dummy partial_decryptions in
+  type combinator = factor array -> elt array array
+
+  let combine_factors num_tallied encrypted_tally partial_decryptions combinator =
+    let factors = combinator partial_decryptions in
     let results = Array.mmap2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
@@ -588,17 +587,14 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
     let result = Array.mmap log results in
     {num_tallied; encrypted_tally; partial_decryptions; result}
 
-  let check_result pks r =
+  let check_result combinator pks r =
     let {encrypted_tally; partial_decryptions; result; _} = r in
     check_ciphertext encrypted_tally &&
     (* decryption factors may be not in the same order as pks! *)
-    Array.forall (fun pk ->
-      Array.exists (check_factor encrypted_tally pk) partial_decryptions
-    ) pks &&
-    let dummy = Array.mmap (fun _ -> G.one) encrypted_tally in
-    let factors = Array.fold_left (fun a b ->
-      Array.mmap2 ( *~ ) a b.decryption_factors
-    ) dummy partial_decryptions in
+    Array.forall (fun pd ->
+        Array.exists (fun pk -> check_factor encrypted_tally pk pd) pks
+    ) partial_decryptions &&
+    let factors = combinator partial_decryptions in
     let results = Array.mmap2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
