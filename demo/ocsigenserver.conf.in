@@ -32,7 +32,7 @@
     <extension findlib-package="csv"/>
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
-      <redirect suburl="^$" dest="http://www.belenios.org"/>
+      <!-- <redirect suburl="^$" dest="http://www.belenios.org"/> -->
       <site path="static" charset="utf-8">
         <static dir="_SRCDIR_/_build/src/static" />
       </site>
