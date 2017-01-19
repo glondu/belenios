@@ -1,3 +1,11 @@
+1.3
+===
+
+ * Add support for blank votes
+ * Web server:
+   + Do not log out of CAS
+   + Automatically log out after a vote
+
 1.2 (2016-10-05)
 ================
 
