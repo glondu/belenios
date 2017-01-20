@@ -21,7 +21,7 @@
 
 let lang = "it"
 let start = "Cominciare"
-let advanced_mode = "Advanced mode" (* FIXME *)
+let advanced_mode = "Modo avanzato"
 let see_accepted_ballots = "Consultare le schede elettorali accettate"
 let belenios_booth = "Cabina elettorale Belenios"
 let here = "qui"
@@ -97,22 +97,22 @@ let not_yet_open = "Spiacente, quest'elezione non è ancora aperta"
 let come_back_later = "Quest'elezione ancora non esiste. La preghiamo di consultare ulteriormente."
 let cookies_are_blocked = "I cookies sono bloccati"
 let please_enable_them = "Il suo browser non accetta i cookies. Si prega di attivarli."
-let election_currently_closed = "This election is currently closed." (* FIXME *)
-let election_closed_being_tallied = "The election is closed and being tallied." (* FIXME *)
-let the = " The " (* FIXME *)
-let encrypted_tally = "encrypted tally" (* FIXME *)
-let hash_is = " hash is " (* FIXME *)
-let election_has_been_tallied = "This election has been tallied." (* FIXME *)
-let election_archived = "This election is archived." (* FIXME *)
-let number_accepted_ballots = "Number of accepted ballots: " (* FIXME *)
-let you_can_also_download = "You can also download the " (* FIXME *)
-let result_with_crypto_proofs = "result with cryptographic proofs" (* FIXME *)
-let blank_vote = "Blank vote" (* FIXME *)
-let no_other_blank = "No other choices are allowed when voting blank" (* FIXME *)
+let election_currently_closed = "Questa elezione è chiusa per ora."
+let election_closed_being_tallied = "L'elezione è chiusa ed il conteggio è in corso."
+let the = " L'impronta del "
+let encrypted_tally = "risultato cifrato"
+let hash_is = " è "
+let election_has_been_tallied = "Questa elezione è stata conteggiata."
+let election_archived = "Questa elezione è archiviata."
+let number_accepted_ballots = "Numero di schede accettate : "
+let you_can_also_download = "È possibile scaricare il "
+let result_with_crypto_proofs = "risultato con le prove crittografiche"
+let blank_vote = "Scheda bianca"
+let no_other_blank = "Nessun'altra scelta è autorizzata quando la scheda è bianca"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Your password for election %s" (* FIXME *)
+  "La sua password per l'elezione %s"
 
 let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Lei è registrato(a) in quanto elettore(trice) per l'elezione
@@ -138,7 +138,7 @@ preso in considerazione."
 
 
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Your credential for election %s" (* FIXME *)
+  "Il suo codice di voto per l'elezione %s"
 
 let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Lei è registrato(a) in quanto elettore(trice) per l'elezione
@@ -164,16 +164,16 @@ preso in considerazione."
 
 
 let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Your vote for election %s" (* FIXME *)
+  "La sua scheda per l'elezione %s"
 
 let mail_confirmation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "%s,
 
-Il suo voto per l'elezione
+La sua scheda per l'elezione
 
   %s
 
-è stato registrato. Il suo codice di verifica è
+è stata registrata. Il suo codice di verifica è
 
   %s
 
