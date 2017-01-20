@@ -21,7 +21,7 @@
 
 let lang = "de"
 let start = "Start"
-let advanced_mode = "Advanced mode" (* FIXME *)
+let advanced_mode = "Erweiterter Modus"
 let see_accepted_ballots = "angenommene Stimmen anzeigen"
 let belenios_booth = "Belenios Wahlkabine"
 let here = "hier"
@@ -97,18 +97,18 @@ let not_yet_open = "Entschuldigung, die Abstimmung ist noch nicht geöffnet."
 let come_back_later = "Diese Abstimmung gibt es noch nicht. Bitte kommen Sie später wieder."
 let cookies_are_blocked = "Cookies sind deaktiviert"
 let please_enable_them = "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
-let election_currently_closed = "This election is currently closed." (* FIXME *)
-let election_closed_being_tallied = "The election is closed and being tallied." (* FIXME *)
-let the = " The " (* FIXME *)
-let encrypted_tally = "encrypted tally" (* FIXME *)
-let hash_is = " hash is " (* FIXME *)
-let election_has_been_tallied = "This election has been tallied." (* FIXME *)
-let election_archived = "This election is archived." (* FIXME *)
-let number_accepted_ballots = "Number of accepted ballots: " (* FIXME *)
-let you_can_also_download = "You can also download the " (* FIXME *)
-let result_with_crypto_proofs = "result with cryptographic proofs" (* FIXME *)
-let blank_vote = "Blank vote" (* FIXME *)
-let no_other_blank = "No other choices are allowed when voting blank" (* FIXME *)
+let election_currently_closed = "Diese Abstimmung ist beendet."
+let election_closed_being_tallied = "Diese Abstimmung ist beendet und wird ausgezählt."
+let the = "Der Hash des "
+let encrypted_tally = "verschlüsselten Ergebnisses"
+let hash_is = " ist "
+let election_has_been_tallied = "Diese Abstimmung wurde ausgezählt."
+let election_archived = "Diese Abstimmung wurde archiviert."
+let number_accepted_ballots = "Anzahl angenommener Stimmen: "
+let you_can_also_download = "Sie können außerdem das "
+let result_with_crypto_proofs = "Ergbnis mit den kryptographischen Beweisen herunterladen"
+let blank_vote = "ungültige Stimme"
+let no_other_blank = "Bei einer ungültigen Stimme sind keine anderen Auswahlmöglichkeiten vorhanden."
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
