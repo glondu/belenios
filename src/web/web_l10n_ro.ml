@@ -21,7 +21,7 @@
 
 let lang = "ro"
 let start = "Start"
-let advanced_mode = "Advanced mode" (* FIXME *)
+let advanced_mode = "Mod avansat"
 let see_accepted_ballots = "Consultă buletinele de vot acceptate"
 let belenios_booth = "Cabina de vot Belenios"
 let here = "aici"
@@ -86,7 +86,7 @@ let accepted_ballots = "Buletinele de vot acceptate"
 let ballots_have_been_accepted_so_far = " buletin(e) de vot au fost acceptat(e) până în prezent."
 let ballots_have_been_accepted = " buletin(e) de vot au fost acceptat(e)."
 let ballots_have_been_accepted_and = " buletin(e) de vot au fost acceptat(e), și "
-let have_been_tallied = " au fost numărate."
+let have_been_tallied = " au fost contorizate."
 let username = "Nume utilizator:"
 let password = "Parola:"
 let login = "Conectare"
@@ -97,18 +97,18 @@ let not_yet_open = "Din păcate, această alegere nu este încă deschisă"
 let come_back_later = "Acesta alegere nu există încă. Vă rugăm să reveniți mai târziu."
 let cookies_are_blocked = "Cookie-urile sunt blocate"
 let please_enable_them = "Browser-ul dumneavoastră pare să blocheze cookie-urile. Vă rugăm să le activați."
-let election_currently_closed = "This election is currently closed." (* FIXME *)
-let election_closed_being_tallied = "The election is closed and being tallied." (* FIXME *)
-let the = " The " (* FIXME *)
-let encrypted_tally = "encrypted tally" (* FIXME *)
-let hash_is = " hash is " (* FIXME *)
-let election_has_been_tallied = "This election has been tallied." (* FIXME *)
-let election_archived = "This election is archived." (* FIXME *)
-let number_accepted_ballots = "Number of accepted ballots: " (* FIXME *)
-let you_can_also_download = "You can also download the " (* FIXME *)
-let result_with_crypto_proofs = "result with cryptographic proofs" (* FIXME *)
-let blank_vote = "Blank vote" (* FIXME *)
-let no_other_blank = "No other choices are allowed when voting blank" (* FIXME *)
+let election_currently_closed = "Această alegere este în prezent închisă."
+let election_closed_being_tallied = "Această alegere este închisă și în curs de contorizare."
+let the = " Amprenta "
+let encrypted_tally = "rezultatului criptat"
+let hash_is = " este "
+let election_has_been_tallied = "Această alegere a fost contorizata."
+let election_archived = "Această alegere este arhivată."
+let number_accepted_ballots = "Numărul buletinelor de vot acceptate: "
+let you_can_also_download = "De asemenea, puteți descărca "
+let result_with_crypto_proofs = "rezultat cu dovada criptografică"
+let blank_vote = "Vot alb"
+let no_other_blank = "Nu puteți selecta o altă opțiune la un vot alb"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -120,7 +120,7 @@ let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   %s
 
 Mai jos veți găsi numele de utilizator și parola. Pentru a
-depune votul vostru, vă trebuie un cod de votare, ce va
+depune votul vostru, vă trebuie un cod de votare, ce va fi
 trimis într-un e-mail separat.  Aveți grijă, parola și codul
 de votare arată similare, dar joacă roluri diferite. Sistemul
 va solicita codul de votare la intrarea în cabina de vot.
@@ -144,7 +144,7 @@ let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   %s
 
 Mai jos veți găsi numele de utilizator și codul de votare.
-Pentru a depune votul vostru, vă trebuie o parolă, ce va
+Pentru a depune votul vostru, vă trebuie o parolă, ce va fi
 trimisă într-un e-mail separat.  Aveți grijă, parola și codul
 de votare arată similare, dar joacă roluri diferite. Sistemul
 va solicita codul de votare la intrarea în cabina de vot.
