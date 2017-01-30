@@ -37,7 +37,7 @@ let configure x =
       auth_instance, (auth_system, List.map snd auth_config)
     ) x
   in
-  Web_persist.set_auth_config "" auth_config |> Lwt_unix.run;
+  Web_persist.set_auth_config "" auth_config |> Lwt_main.run;
   List.iter (fun {auth_system; auth_config; _} ->
     match auth_system with
     | "password" ->
@@ -51,7 +51,7 @@ let configure x =
          let db = Csv.load file in
          List.iter (function
          | username :: salt :: password :: _ ->
-            Ocsipersist.add table username (salt, password) |> Lwt_unix.run
+            Ocsipersist.add table username (salt, password) |> Lwt_main.run
          | _ -> failwith ("error while loading " ^ file)) db
        | _ -> failwith "error in passwords configuration")
     | _ -> ()
