@@ -174,6 +174,10 @@ let verifydiff dir1 dir2 =
     if not (GMap.for_all (fun pk _ -> GMap.mem pk ballots2) ballots1) then
       raise (VerifydiffError DecreasingBallots)
   in
+  let () =
+    let n = GMap.cardinal ballots2 - GMap.cardinal ballots1 in
+    if n > 0 then Printf.eprintf "I: %d new ballot(s)\n%!" n
+  in
   (* the keys of modified ballots have not been replaced *)
   let () =
     if not (GMap.for_all (fun pk ballot1 ->
@@ -181,5 +185,13 @@ let verifydiff dir1 dir2 =
                 ballot1 = ballot2 || not (GSet.mem pk creds_replaced)
               ) ballots1)
     then raise (VerifydiffError BallotSignedByReplacedKey)
+  in
+  let () =
+    let n = GMap.fold (fun pk ballot1 accu ->
+                let ballot2 = GMap.find pk ballots2 in
+                if ballot1 <> ballot2 then accu + 1 else accu
+              ) ballots1 0
+    in
+    if n > 0 then Printf.eprintf "W: %d ballot(s) have been replaced\n%!" n
   in
   Printf.eprintf "I: all tests passed!\n%!"
