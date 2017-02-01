@@ -1,10 +1,12 @@
-1.3
-===
+1.3 (2016-02-01)
+================
 
  * Add support for blank votes
+ * More diagnostics in verify-diff
  * Web server:
    + Do not log out of CAS
    + Automatically log out after a vote
+   + Add Italian translation
 
 1.2 (2016-10-05)
 ================
