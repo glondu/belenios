@@ -30,6 +30,7 @@ open Web_common
 open Web_services
 
 let source_file = ref "belenios.tar.gz"
+let maxmailsatonce = ref 1000
 
 let ( / ) = Filename.concat
 
@@ -483,6 +484,9 @@ let generate_password langs title url id =
   return (salt, hashed)
 
 let handle_password se uuid ~force voters =
+  if List.length voters > !maxmailsatonce then
+    Lwt.fail (Failure (Printf.sprintf "Cannot send passwords, there are too many voters (max is %d)" !maxmailsatonce))
+  else
   let title = se.se_questions.t_name in
   let url = Eliom_uri.make_string_uri ~absolute:true ~service:election_home
     (uuid, ()) |> rewrite_prefix
@@ -780,6 +784,9 @@ let () =
   Any.register
     ~service:election_setup_credentials_server
     (handle_setup (fun se () _ uuid ->
+      if List.length se.se_voters > !maxmailsatonce then
+        Lwt.fail (Failure (Printf.sprintf "Cannot send credentials, there are too many voters (max is %d)" !maxmailsatonce))
+      else
       if se.se_public_creds_received then forbidden () else
       let () = se.se_metadata <- {se.se_metadata with
         e_cred_authority = Some "server"

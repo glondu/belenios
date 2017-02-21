@@ -37,6 +37,7 @@
         <static dir="_SRCDIR_/_build/src/static" />
       </site>
       <eliom module="_build/src/web/server.cma">
+        <maxmailsatonce value="1000"/>
         <auth name="demo"><dummy/></auth>
         <auth name="local"><password db="demo/password_db.csv"/></auth>
         <!-- <auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth> -->

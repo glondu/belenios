@@ -48,6 +48,8 @@ let () =
     Lwt_main.run (open_security_log file)
   | Element ("source", ["file", file], []) ->
     source_file := Some file
+  | Element ("maxmailsatonce", ["value", limit], []) ->
+    Web_site.maxmailsatonce := int_of_string limit
   | Element ("spool", ["dir", dir], []) ->
     spool_dir := Some dir
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->

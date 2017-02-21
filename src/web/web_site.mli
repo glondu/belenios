@@ -20,3 +20,4 @@
 (**************************************************************************)
 
 val source_file : string ref
+val maxmailsatonce : int ref
