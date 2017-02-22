@@ -784,8 +784,11 @@ let () =
   Any.register
     ~service:election_setup_credentials_server
     (handle_setup (fun se () _ uuid ->
-      if List.length se.se_voters > !maxmailsatonce then
+      let nvoters = List.length se.se_voters in
+      if nvoters > !maxmailsatonce then
         Lwt.fail (Failure (Printf.sprintf "Cannot send credentials, there are too many voters (max is %d)" !maxmailsatonce))
+      else if nvoters = 0 then
+        Lwt.fail (Failure "No voters")
       else
       if se.se_public_creds_received then forbidden () else
       let () = se.se_metadata <- {se.se_metadata with
