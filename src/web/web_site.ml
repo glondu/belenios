@@ -1433,7 +1433,8 @@ let () =
     handle_election_tally_release
 
 let content_type_of_file = function
-  | ESRaw | ESKeys | ESBallots | ESETally | ESResult -> "application/json"
+  | ESRaw -> "application/json; charset=utf-8"
+  | ESKeys | ESBallots | ESETally | ESResult -> "application/json"
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
 let handle_pseudo_file uuid_s w f site_user =
