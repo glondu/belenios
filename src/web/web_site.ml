@@ -1187,6 +1187,7 @@ let () =
            Lwt_stream.to_string (Lwt_io.chars_of_file fname)
         | _, _ -> fail_http 400
       in
+      let the_ballot = PString.trim the_ballot in
       let cont () =
         Redirection.send
           (Eliom_service.preapply
