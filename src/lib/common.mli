@@ -53,4 +53,6 @@ val option_map : ('a -> 'b) -> 'a option -> 'b option
 
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
 
+val compare_b64 : string -> string -> int
+
 module SMap : Map.S with type key = string

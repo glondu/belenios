@@ -150,4 +150,19 @@ let save_to filename writer x =
   Bi_outbuf.flush_channel_writer ob;
   close_out oc;;
 
+let b64_order = "+/0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ"
+
+let compare_b64 a b =
+  let na = String.length a and nb = String.length b in
+  let value_of c = try String.index b64_order c with Not_found -> -1 in
+  let rec loop i =
+    match (i < na), (i < nb) with
+    | true, true ->
+       let diff = value_of a.[i] - value_of b.[i] in
+       if diff = 0 then loop (i+1) else diff
+    | true, false -> 1
+    | false, true -> -1
+    | false, false -> 0
+  in loop 0
+
 module SMap = Map.Make(String)

@@ -1645,9 +1645,7 @@ let pretty_ballots w hashes result () =
   let params = W.election.e_params in
   let title = params.e_name ^ " — " ^ L.accepted_ballots in
   let nballots = ref 0 in
-  let hashes =
-    List.sort (fun a b -> String.(compare (uppercase a) (uppercase b))) hashes
-  in
+  let hashes = List.sort compare_b64 hashes in
   let ballots =
     List.map
       (fun h ->
