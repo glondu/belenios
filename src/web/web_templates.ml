@@ -1056,12 +1056,12 @@ let audit_footer w =
           pcdata L.parameters
         ] ();
         pcdata ", ";
-        a ~service:(file w ESCreds) [
-          pcdata L.public_credentials
-        ] ();
-        pcdata ", ";
         a ~service:(file w ESKeys) [
           pcdata L.trustee_public_keys
+        ] ();
+        pcdata ", ";
+        a ~service:(file w ESCreds) [
+          pcdata L.public_credentials
         ] ();
         pcdata ", ";
         a ~service:(file w ESBallots) [
