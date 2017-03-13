@@ -4,7 +4,9 @@ set -e
 
 BELENIOS=${BELENIOS:-$PWD}
 
-alias belenios-tool=$BELENIOS/_build/belenios-tool
+belenios-tool () {
+    $BELENIOS/_build/belenios-tool "$@"
+}
 
 header () {
     echo
