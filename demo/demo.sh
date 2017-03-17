@@ -2,6 +2,8 @@
 
 set -e
 
+export BELENIOS_USE_URANDOM=1
+
 BELENIOS=${BELENIOS:-$PWD}
 
 belenios-tool () {

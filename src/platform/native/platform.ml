@@ -70,7 +70,13 @@ let pbkdf2_hex ~iterations ~salt x =
   transform_string (Hexa.encode ())
 
 type rng = Cryptokit.Random.rng
-let secure_rng = Cryptokit.Random.secure_rng
+
+let secure_rng =
+  if Belenios_version.debug &&
+    (try Sys.getenv "BELENIOS_USE_URANDOM" with Not_found -> "") <> ""
+  then Cryptokit.Random.device_rng "/dev/urandom"
+  else Cryptokit.Random.secure_rng
+
 let pseudo_rng = Cryptokit.Random.pseudo_rng
 let random_string = Cryptokit.Random.string
 
