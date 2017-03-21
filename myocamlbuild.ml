@@ -1,5 +1,9 @@
 open Ocamlbuild_plugin
 
+let debug =
+  try Sys.getenv "BELENIOS_DEBUG" <> ""
+  with Not_found -> false
+
 let try_exec cmd =
   Sys.command (cmd ^ " >/dev/null 2>&1") = 0
 
@@ -32,7 +36,9 @@ let platform_rules kind =
   rule mllib ~deps:[ml] ~prods:[mllib] (fun _ _ ->
     (* technically, there is no dependency, but we need the directory to
        exist for the following *)
-    Echo ([platform_dir / kind / "Platform"; "\n"], mllib)
+    Echo ([platform_dir / kind / "Belenios_version"; "\n";
+           platform_dir / kind / "Platform"; "\n"],
+          mllib)
   );
   dep ["file:" ^ ml] [mli];
   copy_rule mli (lib / "platform.mli") mli;
@@ -47,10 +53,10 @@ let build_rule () =
   in
   rule "BUILD" ~deps ~prod builder
 
-let version_rule () =
+let version_rules kind =
   let file = "BUILD" in
-  let deps = [file; "src/lib/belenios_version.mli"] in
-  let prod = "src/lib/belenios_version.ml" in
+  let deps = [file; "src/platform/" ^ kind ^ "/belenios_version.mli"] in
+  let prod = "src/platform/" ^ kind ^ "/belenios_version.ml" in
   let builder _ _ =
     let version, build =
       let ic = open_in file in
@@ -62,10 +68,15 @@ let version_rule () =
     let lines = Printf.([
       sprintf "let version = \"%s\"" version;
       sprintf "let build = \"%s\"" build;
+      sprintf "let debug = %b" debug;
     ]) in
     Echo (lines, prod)
   in
-  rule "BUILD -> belenios_version.ml" ~deps ~prod builder
+  copy_rule
+    (kind / "belenios_tool.mli")
+    "src/lib/belenios_version.mli"
+    ("src/platform/" ^ kind ^ "/belenios_version.mli");
+  rule ("BUILD -> " ^ kind ^ "/belenios_version.ml") ~deps ~prod builder
 
 let copy_static f =
   let base = Filename.basename f in
@@ -103,7 +114,8 @@ let () = dispatch & function
       );
 
     build_rule ();
-    version_rule ();
+    version_rules "native";
+    version_rules "js";
     platform_rules "native";
     platform_rules "js";
 

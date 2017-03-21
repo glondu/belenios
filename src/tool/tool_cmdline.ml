@@ -468,7 +468,9 @@ end
 let cmds = Tkeygen.cmds @ Election.cmds @ Credgen.cmds @ Mkelection.cmds @ Verifydiff.cmds
 
 let default_cmd =
-  let version = Belenios_version.(Printf.sprintf "%s (%s)" version build) in
+  let open Belenios_version in
+  let version = Printf.sprintf "%s (%s)" version build in
+  let version = if debug then version ^ " [debug]" else version in
   let doc = "election management tool" in
   let man = common_man in
   Term.(ret (pure (`Help (`Pager, None)))),
