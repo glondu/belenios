@@ -178,7 +178,9 @@ module Make (P : PARSED_PARAMS) : S = struct
     );
     (match get_result () with
     | Some result ->
-      assert (E.check_result pks (result_of_string G.read result))
+      let result = result_of_string G.read result in
+      assert (Lazy.force encrypted_tally = result.encrypted_tally);
+      assert (E.check_result pks result)
     | None -> print_msg "W: no result to check"
     );
     print_msg "I: all checks passed"
