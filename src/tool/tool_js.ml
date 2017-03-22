@@ -251,7 +251,7 @@ module ToolElection = struct
     end in
     let module X = (val make (module P : PARAMS) : S) in
     let factors = get_textarea "election_factors" |> split_lines in
-    set_textarea "election_result" (X.finalize (Array.of_list factors))
+    set_textarea "election_result" (X.finalize factors)
 
   let cmds = [
     "do_encrypt", create_ballot;

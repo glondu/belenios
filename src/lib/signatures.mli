@@ -223,9 +223,9 @@ module type ELECTION = sig
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 
-  type combinator = factor array -> elt array array
+  type combinator = factor list -> elt array array
 
-  val compute_result : int -> ciphertext -> factor array -> combinator -> result
+  val compute_result : int -> ciphertext -> factor list -> combinator -> result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
@@ -274,5 +274,5 @@ module type PEDERSEN = sig
   val combine : elt threshold_parameters -> elt
 
   type checker = elt -> elt partial_decryption -> bool
-  val combine_factors : checker -> elt threshold_parameters -> elt partial_decryption array -> elt array array
+  val combine_factors : checker -> elt threshold_parameters -> elt partial_decryption list -> elt array array
 end

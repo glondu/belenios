@@ -44,7 +44,7 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) : sig
   (** Combine all public key shares into an election public key. *)
 
   type checker = G.t -> G.t partial_decryption -> bool
-  val combine_factors : checker -> G.t array -> G.t partial_decryption array -> G.t array array
+  val combine_factors : checker -> G.t array -> G.t partial_decryption list -> G.t array array
 
 end
 (** Simple distributed generation of an election public key. *)

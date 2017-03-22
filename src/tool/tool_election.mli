@@ -12,7 +12,7 @@ module type S = sig
   val vote : string option -> int array array -> string
   val decrypt : string -> string
   val tdecrypt : string -> string -> string
-  val finalize : string array -> string
+  val finalize : string list -> string
   val verify : unit -> unit
 end
 

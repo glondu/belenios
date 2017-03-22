@@ -1415,7 +1415,7 @@ let handle_election_tally_release (uuid, ()) () =
       in
       let checker = E.check_factor et in
       let combinator = KG.combine_factors checker pks in
-      let result = E.compute_result ntallied et pds combinator in
+      let result = E.compute_result ntallied et (Array.to_list pds) combinator in
       let%lwt () =
         let open Lwt_io in
         with_file

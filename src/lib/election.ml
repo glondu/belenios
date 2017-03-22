@@ -563,7 +563,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
 
   type result = elt Serializable_t.result
 
-  type combinator = factor array -> elt array array
+  type combinator = factor list -> elt array array
 
   let compute_result num_tallied encrypted_tally partial_decryptions combinator =
     let factors = combinator partial_decryptions in

@@ -391,7 +391,7 @@ module Election : CMDLINER_MODULE = struct
         let factors =
           let fname = dir/"partial_decryptions.jsons" in
           match load_from_file (fun x -> x) fname with
-          | Some factors -> Array.of_list factors
+          | Some factors -> factors
           | None -> failwith "cannot load partial decryptions"
         in
         let oc = open_out (dir/"result.json") in

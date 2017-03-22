@@ -72,10 +72,13 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
   type checker = G.t -> G.t partial_decryption -> bool
 
   let combine_factors checker pks pds =
-    assert (Array.length pds > 0);
-    let dummy = Array.mmap (fun _ -> G.one) pds.(0).decryption_factors in
-    assert (Array.forall (fun pk -> Array.exists (checker pk) pds) pks);
-    Array.fold_left (fun a b ->
+    let dummy =
+      match pds with
+      | x :: _ -> Array.mmap (fun _ -> G.one) x.decryption_factors
+      | [] -> failwith "no partial decryptions"
+    in
+    assert (Array.forall (fun pk -> List.exists (checker pk) pds) pks);
+    List.fold_left (fun a b ->
       Array.mmap2 ( *~ ) a b.decryption_factors
     ) dummy pds
 
@@ -238,8 +241,11 @@ module MakePedersen (G : GROUP) (M : RANDOM)
       ) Z.one indexes
 
   let combine_factors checker t pds =
-    assert (Array.length pds > 0);
-    let dummy = Array.mmap (fun _ -> G.one) pds.(0).decryption_factors in
+    let dummy =
+      match pds with
+      | x :: _ -> Array.mmap (fun _ -> G.one) x.decryption_factors
+      | [] -> failwith "no partial decryptions"
+    in
     let pds_with_ids =
       List.map (fun pd ->
           match Array.findi (fun i vk ->
@@ -248,7 +254,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
           with
           | Some i -> i+1, pd
           | None -> raise (PedersenFailure "a partial decryption does not correspond to any verification key")
-        ) (Array.to_list pds)
+        ) pds
     in
     let pds_with_ids =
       let compare (a, _) (b, _) = Pervasives.compare a b in
