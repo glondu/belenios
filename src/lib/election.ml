@@ -587,13 +587,9 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
     let result = Array.mmap log results in
     {num_tallied; encrypted_tally; partial_decryptions; result}
 
-  let check_result combinator pks r =
+  let check_result combinator r =
     let {encrypted_tally; partial_decryptions; result; _} = r in
     check_ciphertext encrypted_tally &&
-    (* decryption factors may be not in the same order as pks! *)
-    Array.forall (fun pd ->
-        Array.exists (fun pk -> check_factor encrypted_tally pk pd) pks
-    ) partial_decryptions &&
     let factors = combinator partial_decryptions in
     let results = Array.mmap2 (fun {beta; _} f ->
       beta / f

@@ -201,12 +201,11 @@ module Make (P : PARSED_PARAMS) : S = struct
     let combinator =
       match threshold with
       | None ->
-         assert (Array.forall2 checker (Lazy.force pks) factors);
-         KG.combine_factors
+         KG.combine_factors checker (Lazy.force pks)
       | Some t -> KP.combine_factors checker t
     in
     let result = E.compute_result (M.cardinal ()) tally factors combinator in
-    assert (E.check_result combinator (Lazy.force pks) result);
+    assert (E.check_result combinator result);
     string_of_result G.write result
 
   let verify () =
@@ -224,11 +223,12 @@ module Make (P : PARSED_PARAMS) : S = struct
     | Some result ->
        let result = result_of_string G.read result in
        assert (Lazy.force encrypted_tally = result.encrypted_tally);
+       let checker = E.check_factor result.encrypted_tally in
        let combinator = match threshold with
-         | None -> KG.combine_factors
-         | Some t -> KP.combine_factors (E.check_factor result.encrypted_tally) t
+         | None -> KG.combine_factors checker (Lazy.force pks)
+         | Some t -> KP.combine_factors checker t
        in
-       assert (E.check_result combinator (Lazy.force pks) result)
+       assert (E.check_result combinator result)
     | None -> print_msg "W: no result to check"
     );
     print_msg "I: all checks passed"

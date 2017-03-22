@@ -1389,6 +1389,17 @@ let handle_election_tally_release (uuid, ()) () =
         | `EncryptedTally (npks, ntallied, _) -> return (npks, ntallied)
         | _ -> forbidden ()
       in
+      let%lwt pks =
+        match%lwt Web_persist.get_public_keys uuid_s with
+          | Some l -> return (Array.of_list l)
+          | _ -> fail_http 404
+      in
+      let pks =
+        Array.map (fun pk ->
+            (trustee_public_key_of_string W.G.read pk).trustee_public_key
+          ) pks
+      in
+      assert (npks = Array.length pks);
       let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
       let%lwt pds =
         try
@@ -1402,7 +1413,9 @@ let handle_election_tally_release (uuid, ()) () =
         Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
         wrap1 (encrypted_tally_of_string W.G.read)
       in
-      let result = E.compute_result ntallied et pds KG.combine_factors in
+      let checker = E.check_factor et in
+      let combinator = KG.combine_factors checker pks in
+      let result = E.compute_result ntallied et pds combinator in
       let%lwt () =
         let open Lwt_io in
         with_file

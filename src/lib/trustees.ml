@@ -69,9 +69,12 @@ module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
       y *~ trustee_public_key
     ) G.one pks
 
-  let combine_factors pds =
+  type checker = G.t -> G.t partial_decryption -> bool
+
+  let combine_factors checker pks pds =
     assert (Array.length pds > 0);
     let dummy = Array.mmap (fun _ -> G.one) pds.(0).decryption_factors in
+    assert (Array.forall (fun pk -> Array.exists (checker pk) pds) pks);
     Array.fold_left (fun a b ->
       Array.mmap2 ( *~ ) a b.decryption_factors
     ) dummy pds
