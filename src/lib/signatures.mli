@@ -225,7 +225,7 @@ module type ELECTION = sig
 
   type combinator = factor array -> elt array array
 
-  val combine_factors : int -> ciphertext -> factor array -> combinator -> result
+  val compute_result : int -> ciphertext -> factor array -> combinator -> result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)

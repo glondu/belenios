@@ -205,7 +205,7 @@ module Make (P : PARSED_PARAMS) : S = struct
          KG.combine_factors
       | Some t -> KP.combine_factors checker t
     in
-    let result = E.combine_factors (M.cardinal ()) tally factors combinator in
+    let result = E.compute_result (M.cardinal ()) tally factors combinator in
     assert (E.check_result combinator (Lazy.force pks) result);
     string_of_result G.write result
 

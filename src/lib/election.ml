@@ -565,7 +565,7 @@ module MakeElection (G : GROUP) (M : RANDOM) = struct
 
   type combinator = factor array -> elt array array
 
-  let combine_factors num_tallied encrypted_tally partial_decryptions combinator =
+  let compute_result num_tallied encrypted_tally partial_decryptions combinator =
     let factors = combinator partial_decryptions in
     let results = Array.mmap2 (fun {beta; _} f ->
       beta / f

@@ -1402,7 +1402,7 @@ let handle_election_tally_release (uuid, ()) () =
         Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
         wrap1 (encrypted_tally_of_string W.G.read)
       in
-      let result = E.combine_factors ntallied et pds KG.combine_factors in
+      let result = E.compute_result ntallied et pds KG.combine_factors in
       let%lwt () =
         let open Lwt_io in
         with_file
