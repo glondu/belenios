@@ -129,17 +129,17 @@ type 'a result = {
   result : plaintext;
 }
 
-(** {2 Channel messages support} *)
+(** {2 PKI support} *)
+
+type signed_msg = {
+  message : string;
+  signature : proof;
+} <ocaml field_prefix="s_">
 
 type 'a raw_channel_msg = {
   recipient : 'a;
   message : string;
 } <ocaml field_prefix="raw_">
-
-type channel_msg = {
-  message : string; (* raw_channel_msg *)
-  signature : proof;
-} <ocaml field_prefix="channel_">
 
 (** {2 Threshold decryption support} *)
 
