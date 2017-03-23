@@ -109,20 +109,21 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
   let derive_dk p =
     Z.of_string_base 16 (sha256_hex ("dk|" ^ p))
 
-  let sign sk msg =
+  let sign sk s_message =
     M.bind (M.random G.q) (fun w ->
         let commitment = G.(g **~ w) in
-        let prefix = "sigmsg|" ^ msg ^ "|" in
+        let prefix = "sigmsg|" ^ s_message ^ "|" in
         let challenge = G.hash prefix [|commitment|] in
         let response = Z.(erem (w - sk * challenge) G.q) in
-        M.return { challenge; response }
+        let s_signature = { challenge; response } in
+        M.return { s_message; s_signature }
       )
 
-  let verify vk msg { challenge; response } =
+  let verify vk {s_message; s_signature = { challenge; response }} =
     check_modulo G.q challenge &&
     check_modulo G.q response &&
     let commitment = G.(g **~ response *~ vk **~ challenge) in
-    let prefix = "sigmsg|" ^ msg ^ "|" in
+    let prefix = "sigmsg|" ^ s_message ^ "|" in
     Z.(challenge =% G.hash prefix [|commitment|])
 
   let encrypt y s =
@@ -136,14 +137,12 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
         cert_verification = G.(g **~ sk);
         cert_encryption = G.(g **~ dk);
       } in
-    let s_message = string_of_cert_keys G.write cert_keys in
-    M.bind (sign sk s_message) (fun s_signature ->
-        M.return { s_message; s_signature }
-      )
+    let cert = string_of_cert_keys G.write cert_keys in
+    sign sk cert
 
-  let verify_cert { s_message; s_signature } =
-    let keys = cert_keys_of_string G.read s_message in
-    verify keys.cert_verification s_message s_signature
+  let verify_cert x =
+    let keys = cert_keys_of_string G.read x.s_message in
+    verify keys.cert_verification x
 
 end
 
@@ -158,18 +157,16 @@ module MakeChannels (G : GROUP) (M : RANDOM)
 
   let send sk c_recipient c_message =
     let msg = { c_recipient; c_message } in
-    let s_message = string_of_channel_msg G.write msg in
-    M.bind (P.sign sk s_message) (fun s_signature ->
-        let msg = { s_message; s_signature } in
+    let msg = string_of_channel_msg G.write msg in
+    M.bind (P.sign sk msg) (fun msg ->
         P.encrypt c_recipient (string_of_signed_msg msg)
       )
 
   let recv dk vk msg =
     let msg = P.decrypt dk msg |> signed_msg_of_string in
-    let { s_message; s_signature } = msg in
-    if not (P.verify vk s_message s_signature) then
+    if not (P.verify vk msg) then
       failwith "invalid signature on received message";
-    let msg = channel_msg_of_string G.read s_message in
+    let msg = channel_msg_of_string G.read msg.s_message in
     let { c_recipient; c_message } = msg in
     if not G.(c_recipient =~ g **~ dk) then
       failwith "invalid recipient on received message";
@@ -220,8 +217,8 @@ module MakePedersen (G : GROUP) (M : RANDOM)
   let check t =
     Array.forall P.verify_cert t.t_certs &&
     let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) t.t_certs in
-    Array.forall2 (fun cert { s_message; s_signature } ->
-        P.verify cert.cert_verification s_message s_signature
+    Array.forall2 (fun cert x ->
+        P.verify cert.cert_verification x
       ) certs t.t_coefexps &&
     let coefexps = Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps) t.t_coefexps in
     Array.forall K.check t.t_verification_keys &&
@@ -328,9 +325,8 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     in fill_polynomial 0 >>= fun () ->
     C.send sk ek (string_of_raw_polynomial polynomial) >>= fun p_polynomial ->
     let coefexps = Array.map (fun x -> g **~ x) polynomial in
-    let s_message = string_of_raw_coefexps G.write {coefexps} in
-    P.sign sk s_message >>= fun s_signature ->
-    let p_coefexps = {s_message; s_signature} in
+    let coefexps = string_of_raw_coefexps G.write {coefexps} in
+    P.sign sk coefexps >>= fun p_coefexps ->
     let p_secrets = Array.make n "" in
     let rec fill_secrets j =
       if j < n then
@@ -349,8 +345,8 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     assert (n = Array.length polynomials);
     let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) certs.certs in
     let vi_coefexps = Array.map (fun x -> x.p_coefexps) polynomials in
-    Array.iteri (fun i {s_message; s_signature} ->
-        if P.verify certs.(i).cert_verification s_message s_signature then ()
+    Array.iteri (fun i x ->
+        if P.verify certs.(i).cert_verification x then ()
         else
           let msg = Printf.sprintf "coefexps %d does not validate" (i+1) in
           raise (PedersenFailure msg)
@@ -389,10 +385,10 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     assert (n = Array.length vinput.vi_coefexps);
     let coefexps =
       Array.init n (fun i ->
-          let { s_message; s_signature } = vinput.vi_coefexps.(i) in
-          if not (P.verify certs.(i).cert_verification s_message s_signature) then
+          let x = vinput.vi_coefexps.(i) in
+          if not (P.verify certs.(i).cert_verification x) then
             raise (PedersenFailure (Printf.sprintf "coefexps %d does not validate" (i+1)));
-          let res = (raw_coefexps_of_string G.read s_message).coefexps in
+          let res = (raw_coefexps_of_string G.read x.s_message).coefexps in
           assert (Array.length res = threshold);
           res
         )
@@ -425,10 +421,10 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     assert (n = Array.length voutputs);
     let coefexps =
       Array.init n (fun i ->
-          let { s_message; s_signature } = polynomials.(i).p_coefexps in
-          if not (P.verify certs.(i).cert_verification s_message s_signature) then
+          let x = polynomials.(i).p_coefexps in
+          if not (P.verify certs.(i).cert_verification x) then
             raise (PedersenFailure (Printf.sprintf "coefexps %d does not validate" (i+1)));
-          (raw_coefexps_of_string G.read s_message).coefexps
+          (raw_coefexps_of_string G.read x.s_message).coefexps
         )
     in
     let computed_vks = compute_verification_keys coefexps in

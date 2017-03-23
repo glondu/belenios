@@ -243,8 +243,8 @@ module type PKI = sig
   val genkey : unit -> string m
   val derive_sk : string -> private_key
   val derive_dk : string -> private_key
-  val sign : private_key -> string -> proof m
-  val verify : public_key -> string -> proof -> bool
+  val sign : private_key -> string -> signed_msg m
+  val verify : public_key -> signed_msg -> bool
   val encrypt : public_key -> string -> string m
   val decrypt : private_key -> string -> string
   val make_cert : sk:private_key -> dk:private_key -> cert m
