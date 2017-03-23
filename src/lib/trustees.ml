@@ -323,7 +323,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
         fill_polynomial (i+1)
       else M.return ()
     in fill_polynomial 0 >>= fun () ->
-    C.send sk ek (string_of_raw_polynomial polynomial) >>= fun p_polynomial ->
+    C.send sk ek (string_of_raw_polynomial {polynomial}) >>= fun p_polynomial ->
     let coefexps = Array.map (fun x -> g **~ x) polynomial in
     let coefexps = string_of_raw_coefexps G.write {coefexps} in
     P.sign sk coefexps >>= fun p_coefexps ->
@@ -373,7 +373,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
       | None -> raise (PedersenFailure "could not find my certificate")
       | Some i -> Z.of_int i
     in
-    let polynomial = C.recv dk vk vinput.vi_polynomial |> raw_polynomial_of_string in
+    let {polynomial} = C.recv dk vk vinput.vi_polynomial |> raw_polynomial_of_string in
     let threshold = Array.length polynomial in
     assert (n = Array.length vinput.vi_secrets);
     let secrets =

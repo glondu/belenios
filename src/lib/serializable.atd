@@ -154,7 +154,9 @@ type certs = {
   certs : cert list <ocaml repr="array">;
 }
 
-type raw_polynomial = number list <ocaml repr="array">
+type raw_polynomial = {
+  polynomial : number list <ocaml repr="array">
+}
 
 type 'a raw_coefexps = {
   coefexps : 'a list <ocaml repr="array">
