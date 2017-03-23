@@ -156,12 +156,12 @@ module MakeChannels (G : GROUP) (M : RANDOM)
   type private_key = P.private_key
   type public_key = P.public_key
 
-  let send sk raw_recipient raw_message =
-    let msg = { raw_recipient; raw_message } in
-    let s_message = string_of_raw_channel_msg G.write msg in
+  let send sk c_recipient c_message =
+    let msg = { c_recipient; c_message } in
+    let s_message = string_of_channel_msg G.write msg in
     M.bind (P.sign sk s_message) (fun s_signature ->
         let msg = { s_message; s_signature } in
-        P.encrypt raw_recipient (string_of_signed_msg msg)
+        P.encrypt c_recipient (string_of_signed_msg msg)
       )
 
   let recv dk vk msg =
@@ -169,11 +169,11 @@ module MakeChannels (G : GROUP) (M : RANDOM)
     let { s_message; s_signature } = msg in
     if not (P.verify vk s_message s_signature) then
       failwith "invalid signature on received message";
-    let msg = raw_channel_msg_of_string G.read s_message in
-    let { raw_recipient; raw_message } = msg in
-    if not G.(raw_recipient =~ g **~ dk) then
+    let msg = channel_msg_of_string G.read s_message in
+    let { c_recipient; c_message } = msg in
+    if not G.(c_recipient =~ g **~ dk) then
       failwith "invalid recipient on received message";
-    raw_message
+    c_message
 
 end
 

@@ -136,10 +136,10 @@ type signed_msg = {
   signature : proof;
 } <ocaml field_prefix="s_">
 
-type 'a raw_channel_msg = {
+type 'a channel_msg = {
   recipient : 'a;
   message : string;
-} <ocaml field_prefix="raw_">
+} <ocaml field_prefix="c_">
 
 (** {2 Threshold decryption support} *)
 
