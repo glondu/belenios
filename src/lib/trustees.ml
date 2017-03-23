@@ -220,10 +220,10 @@ module MakePedersen (G : GROUP) (M : RANDOM)
   let check t =
     Array.forall P.verify_cert t.t_certs &&
     let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) t.t_certs in
-    Array.forall2 (fun cert { ce_coefexps; ce_signature } ->
-        P.verify cert.cert_verification ce_coefexps ce_signature
+    Array.forall2 (fun cert { s_message; s_signature } ->
+        P.verify cert.cert_verification s_message s_signature
       ) certs t.t_coefexps &&
-    let coefexps = Array.map (fun x -> raw_coefexps_of_string G.read x.ce_coefexps) t.t_coefexps in
+    let coefexps = Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps) t.t_coefexps in
     Array.forall K.check t.t_verification_keys &&
     let computed_vks = compute_verification_keys coefexps in
     t.t_threshold = Array.length coefexps.(0) &&
@@ -276,7 +276,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
 
   let combine t =
     t.t_coefexps
-    |> Array.map (fun x -> raw_coefexps_of_string G.read x.ce_coefexps)
+    |> Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps)
     |> Array.fold_left (fun accu x -> G.(accu *~ x.(0))) G.one
 
   let step1 () =
@@ -328,9 +328,9 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     in fill_polynomial 0 >>= fun () ->
     C.send sk ek (string_of_raw_polynomial polynomial) >>= fun p_polynomial ->
     let coefexps = Array.map (fun x -> g **~ x) polynomial in
-    let ce_coefexps = string_of_raw_coefexps G.write coefexps in
-    P.sign sk ce_coefexps >>= fun ce_signature ->
-    let p_coefexps = {ce_coefexps; ce_signature} in
+    let s_message = string_of_raw_coefexps G.write {coefexps} in
+    P.sign sk s_message >>= fun s_signature ->
+    let p_coefexps = {s_message; s_signature} in
     let p_secrets = Array.make n "" in
     let rec fill_secrets j =
       if j < n then
@@ -349,8 +349,8 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     assert (n = Array.length polynomials);
     let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) certs.certs in
     let vi_coefexps = Array.map (fun x -> x.p_coefexps) polynomials in
-    Array.iteri (fun i {ce_coefexps; ce_signature} ->
-        if P.verify certs.(i).cert_verification ce_coefexps ce_signature then ()
+    Array.iteri (fun i {s_message; s_signature} ->
+        if P.verify certs.(i).cert_verification s_message s_signature then ()
         else
           let msg = Printf.sprintf "coefexps %d does not validate" (i+1) in
           raise (PedersenFailure msg)
@@ -389,10 +389,10 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     assert (n = Array.length vinput.vi_coefexps);
     let coefexps =
       Array.init n (fun i ->
-          let { ce_coefexps; ce_signature } = vinput.vi_coefexps.(i) in
-          if not (P.verify certs.(i).cert_verification ce_coefexps ce_signature) then
+          let { s_message; s_signature } = vinput.vi_coefexps.(i) in
+          if not (P.verify certs.(i).cert_verification s_message s_signature) then
             raise (PedersenFailure (Printf.sprintf "coefexps %d does not validate" (i+1)));
-          let res = raw_coefexps_of_string G.read ce_coefexps in
+          let res = (raw_coefexps_of_string G.read s_message).coefexps in
           assert (Array.length res = threshold);
           res
         )
@@ -425,10 +425,10 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     assert (n = Array.length voutputs);
     let coefexps =
       Array.init n (fun i ->
-          let { ce_coefexps; ce_signature } = polynomials.(i).p_coefexps in
-          if not (P.verify certs.(i).cert_verification ce_coefexps ce_signature) then
+          let { s_message; s_signature } = polynomials.(i).p_coefexps in
+          if not (P.verify certs.(i).cert_verification s_message s_signature) then
             raise (PedersenFailure (Printf.sprintf "coefexps %d does not validate" (i+1)));
-          raw_coefexps_of_string G.read ce_coefexps
+          (raw_coefexps_of_string G.read s_message).coefexps
         )
     in
     let computed_vks = compute_verification_keys coefexps in

@@ -155,12 +155,12 @@ type certs = {
 }
 
 type raw_polynomial = number list <ocaml repr="array">
-type 'a raw_coefexps = 'a list <ocaml repr="array">
 
-type coefexps = {
-  coefexps : string; (* raw_coefexps *)
-  signature : proof;
-} <ocaml field_prefix="ce_">
+type 'a raw_coefexps = {
+  coefexps : 'a list <ocaml repr="array">
+}
+
+type coefexps = signed_msg (* raw_coefexps *)
 
 type secret = {
   secret : number;
