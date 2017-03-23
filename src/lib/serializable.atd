@@ -148,10 +148,7 @@ type 'a cert_keys = {
   encryption : 'a;
 } <ocaml field_prefix="cert_">
 
-type cert = {
-  keys : string; (* cert_keys *)
-  signature : proof;
-} <ocaml field_prefix="cert_">
+type cert = signed_msg (* cert_keys *)
 
 type certs = {
   certs : cert list <ocaml repr="array">;

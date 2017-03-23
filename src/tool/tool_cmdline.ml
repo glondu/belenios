@@ -185,7 +185,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         match step with
         | 1 ->
            let key, cert = T.step1 () () in
-           let id = sha256_hex cert.cert_keys in
+           let id = sha256_hex cert.s_message in
            Printf.eprintf "I: certificate %s has been generated\n%!" id;
            let pub = "certificate", id ^ ".cert", 0o444, string_of_cert cert in
            let prv = "private key", id ^ ".key", 0o400, key in
@@ -218,7 +218,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
            let vinputs = T.step4 certs polynomials in
            assert (n = Array.length vinputs);
            for i = 0 to n - 1 do
-             let id = sha256_hex certs.certs.(i).cert_keys in
+             let id = sha256_hex certs.certs.(i).s_message in
              let fn = id ^ ".vinput" in
              let oc = open_out_gen [Open_wronly; Open_creat] 0o444 fn in
              output_string oc (string_of_vinput vinputs.(i));
@@ -245,7 +245,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
            assert (n = Array.length voutputs);
            let tparams = T.step6 certs polynomials voutputs in
            for i = 0 to n - 1 do
-             let id = sha256_hex certs.certs.(i).cert_keys in
+             let id = sha256_hex certs.certs.(i).s_message in
              let fn = id ^ ".dkey" in
              let oc = open_out_gen [Open_wronly; Open_creat] 0o400 fn in
              output_string oc voutputs.(i).vo_private_key;

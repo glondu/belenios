@@ -136,14 +136,14 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
         cert_verification = G.(g **~ sk);
         cert_encryption = G.(g **~ dk);
       } in
-    let cert_keys = string_of_cert_keys G.write cert_keys in
-    M.bind (sign sk cert_keys) (fun cert_signature ->
-        M.return { cert_keys; cert_signature }
+    let s_message = string_of_cert_keys G.write cert_keys in
+    M.bind (sign sk s_message) (fun s_signature ->
+        M.return { s_message; s_signature }
       )
 
-  let verify_cert { cert_keys; cert_signature } =
-    let keys = cert_keys_of_string G.read cert_keys in
-    verify keys.cert_verification cert_keys cert_signature
+  let verify_cert { s_message; s_signature } =
+    let keys = cert_keys_of_string G.read s_message in
+    verify keys.cert_verification s_message s_signature
 
 end
 
@@ -219,7 +219,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
 
   let check t =
     Array.forall P.verify_cert t.t_certs &&
-    let certs = Array.map (fun x -> cert_keys_of_string G.read x.cert_keys) t.t_certs in
+    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) t.t_certs in
     Array.forall2 (fun cert { ce_coefexps; ce_signature } ->
         P.verify cert.cert_verification ce_coefexps ce_signature
       ) certs t.t_coefexps &&
@@ -305,7 +305,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
   let step3 certs seed threshold =
     let n = Array.length certs.certs in
     let () = step2 certs in
-    let certs = Array.map (fun x -> cert_keys_of_string G.read x.cert_keys) certs.certs in
+    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) certs.certs in
     let sk = P.derive_sk seed and dk = P.derive_dk seed in
     let vk = g **~ sk and ek = g **~ dk in
     let i =
@@ -347,7 +347,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     let n = Array.length certs.certs in
     let () = step2 certs in
     assert (n = Array.length polynomials);
-    let certs = Array.map (fun x -> cert_keys_of_string G.read x.cert_keys) certs.certs in
+    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) certs.certs in
     let vi_coefexps = Array.map (fun x -> x.p_coefexps) polynomials in
     Array.iteri (fun i {ce_coefexps; ce_signature} ->
         if P.verify certs.(i).cert_verification ce_coefexps ce_signature then ()
@@ -364,7 +364,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
   let step5 certs seed vinput =
     let n = Array.length certs.certs in
     let () = step2 certs in
-    let certs = Array.map (fun x -> cert_keys_of_string G.read x.cert_keys) certs.certs in
+    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) certs.certs in
     let sk = P.derive_sk seed and dk = P.derive_dk seed in
     let vk = g **~ sk and ek = g **~ dk in
     let j =
@@ -420,7 +420,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     let n = Array.length certs.certs in
     let () = step2 certs in
     let t_certs = certs.certs in
-    let certs = Array.map (fun x -> cert_keys_of_string G.read x.cert_keys) t_certs in
+    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) t_certs in
     assert (n = Array.length polynomials);
     assert (n = Array.length voutputs);
     let coefexps =
