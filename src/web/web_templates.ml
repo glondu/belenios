@@ -771,6 +771,15 @@ let election_setup_voters uuid se () =
 
 let election_setup_credentials token uuid se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
+  let div_link =
+    let url = Eliom_uri.make_string_uri ~absolute:true
+                ~service:election_home (uuid, ()) |> rewrite_prefix
+    in
+    div [
+        pcdata "The link to the election will be:";
+        ul [li [pcdata url]];
+      ]
+  in
   let form_textarea =
     post_form
       ~service:election_setup_credentials_post
@@ -811,7 +820,7 @@ let election_setup_credentials token uuid se () =
       ~a:[a_style "display:none;"]
       [
         div [pcdata "UUID:"];
-        div [textarea ~a:[a_id "uuid"; a_rows 1; a_cols 40; a_readonly `ReadOnly] ~name ~value:uuid ()];
+        div [textarea ~a:[a_id "uuid"; a_rows 1; a_cols 40; a_readonly `ReadOnly] ~name ~value:(Uuidm.to_string uuid) ()];
         div [pcdata "Group parameters:"];
         div [textarea ~a:[a_id "group"; a_rows 5; a_cols 40; a_readonly `ReadOnly] ~name ~value ()];
       ]
@@ -843,6 +852,7 @@ let election_setup_credentials token uuid se () =
       ]
     ) else (
       [
+        div_link;
         div_download;
         div_textarea;
         form_file;
