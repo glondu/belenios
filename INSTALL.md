@@ -51,6 +51,14 @@ update your shell environment, then run:
 and you can skip the next two sections and go directly to the
 _Documentation_ section.
 
+You can also compile a debug version by using the `BELENIOS_DEBUG`
+environment variable:
+
+    BELENIOS_DEBUG=1 make all
+
+Note that this version may introduce vulnerabilities and should not be
+used in production!
+
 If you are familiar with OCaml, please read the `opam-bootstrap.sh`
 shell script, or the following two sections to compile Belenios with
 your existing OCaml installation.
