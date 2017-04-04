@@ -1,4 +1,19 @@
-1.3 (2016-02-01)
+1.4 (2017-04-05)
+================
+
+ * Add a debug mode, which has the possibility to use /dev/urandom as
+   source of entropy
+ * Check encrypted tally in "belenios-tool verify"
+ * Add a sample script to send credentials
+ * Web server:
+   + Introduce a limit on the number of mails sent at once. This
+     effectively limits the number of voters in the general case.
+   + Give a link to the future election to the credential authority and
+     trustees
+   + For each mailto template, add a direct link. This makes life easier
+     for situations where complex mailto links are not supported.
+
+1.3 (2017-02-01)
 ================
 
  * Add support for blank votes
