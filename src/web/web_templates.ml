@@ -673,7 +673,7 @@ let election_setup_questions uuid se () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_setup_voters uuid se () =
+let election_setup_voters uuid se maxvoters () =
   let title = "Voters for election " ^ se.se_questions.t_name in
   let form =
     post_form
@@ -752,7 +752,11 @@ let election_setup_voters uuid se () =
       pcdata ""
     else
       div [
-        div [pcdata "Please enter the identities of voters to add, one per line:"];
+        div [
+            pcdata "Please enter the identities of voters to add, one per line (max ";
+            pcdata (string_of_int maxvoters);
+            pcdata "):"
+          ];
         form;
         div [
           b [pcdata "Note:"];

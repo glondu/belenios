@@ -38,7 +38,7 @@ val generic_page : title:string ->
 
 val election_setup_pre : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_voters : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_voters : Uuidm.t -> setup_election -> int -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_questions : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_credential_authority : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_credentials : string -> Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

@@ -584,7 +584,7 @@ let () =
          let uuid_s = Uuidm.to_string uuid in
          let%lwt se = get_setup_election uuid_s in
          if se.se_owner = u
-         then T.election_setup_voters uuid se ()
+         then T.election_setup_voters uuid se !maxmailsatonce ()
          else forbidden ()
       | None -> forbidden ()
     )
