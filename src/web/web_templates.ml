@@ -554,19 +554,27 @@ let election_setup_trustees uuid se () =
     | ts ->
        table (
          tr [
-           th [pcdata "Trustee link"];
+           th [pcdata "Trustee"];
+           th [pcdata "Mail"];
+           th [pcdata "Link"];
            th [pcdata "Done?"];
            th [pcdata "Remove"];
          ] ::
            List.mapi (fun i t ->
              tr [
                td [
+                 pcdata t.st_id;
+               ];
+               td [
                  let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
                    ~absolute:true ~service:election_setup_trustee t.st_token
                  in
                  let body = Printf.sprintf mail_trustee_generation uri in
                  let subject = "Link to generate the decryption key" in
-                 a_mailto ~dest:t.st_id ~subject ~body t.st_id
+                 a_mailto ~dest:t.st_id ~subject ~body "Mail"
+               ];
+               td [
+                   a ~service:election_setup_trustee [pcdata "Link"] t.st_token;
                ];
                td [
                  pcdata (if t.st_public_key = "" then "No" else "Yes");
@@ -1331,10 +1339,14 @@ let election_admin w metadata state () =
                | Some name -> name, name
              in
              tr [
+               td [pcdata link_content];
                td [
                  let body = Printf.sprintf mail_trustee_tally uri in
                  let subject = "Link to tally the election" in
-                 a_mailto ~dest ~subject ~body link_content
+                 a_mailto ~dest ~subject ~body "Mail"
+               ];
+               td [
+                   a ~service [pcdata "Link"] x;
                ];
                td [
                  pcdata (if List.mem_assoc trustee_id pds then "Yes" else "No")
@@ -1367,7 +1379,9 @@ let election_admin w metadata state () =
            div [pcdata "We are now waiting for trustees..."];
            table
              (tr [
-               th [pcdata "Trustee link"];
+               th [pcdata "Trustee"];
+               th [pcdata "Mail"];
+               th [pcdata "Link"];
                th [pcdata "Done?"];
              ] :: trustees)
          ];
