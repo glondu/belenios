@@ -986,6 +986,15 @@ let election_setup_confirm uuid se () =
          st_public_key <> ""
        ) se.se_public_keys then ready, "OK" else false, "Missing"
   in
+  let div_trustee_warning =
+    match se.se_public_keys with
+    | [] ->
+       div [
+           b [pcdata "Warning:"];
+           pcdata " No trustees were set. This means that the server will manage the election key by itself.";
+         ]
+    | _ :: _ -> pcdata ""
+  in
   let table_checklist = table [
     tr [
       td [pcdata "Voters?"];
@@ -1007,6 +1016,7 @@ let election_setup_confirm uuid se () =
   let checklist = div [
     h2 [pcdata "Checklist"];
     table_checklist;
+    div_trustee_warning;
   ] in
   let form_create =
     if ready then
