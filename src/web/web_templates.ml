@@ -860,8 +860,17 @@ let election_setup_credentials token uuid se () =
     ) in
   base ~title ~content ()
 
-let election_setup_trustee token se () =
+let election_setup_trustee token uuid se () =
   let title = "Trustee for election " ^ se.se_questions.t_name in
+  let div_link =
+    let url = Eliom_uri.make_string_uri ~absolute:true
+                ~service:election_home (uuid, ()) |> rewrite_prefix
+    in
+    div [
+        pcdata "The link to the election will be:";
+        ul [li [pcdata url]];
+      ]
+  in
   let form =
     let trustee = List.find (fun x -> x.st_token = token) se.se_public_keys in
     let value = trustee.st_public_key in
@@ -900,6 +909,7 @@ let election_setup_trustee token se () =
       ]
   in
   let content = [
+    div_link;
     group;
     interactivity;
     form;

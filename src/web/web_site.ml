@@ -853,7 +853,11 @@ let () =
     (fun token () ->
      let%lwt uuid = Ocsipersist.find election_pktokens token in
      let%lwt se = get_setup_election uuid in
-     T.election_setup_trustee token se ()
+     let uuid = match Uuidm.of_string uuid with
+       | None -> failwith "invalid UUID extracted from pktokens"
+       | Some u -> u
+     in
+     T.election_setup_trustee token uuid se ()
     )
 
 let () =
