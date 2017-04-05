@@ -59,6 +59,10 @@ environment variable:
 Note that this version may introduce vulnerabilities and should not be
 used in production!
 
+To make sure everything went well, you can run tests:
+
+    make check
+
 If you are familiar with OCaml, please read the `opam-bootstrap.sh`
 shell script, or the following two sections to compile Belenios with
 your existing OCaml installation.
