@@ -19,21 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Signatures
 open Web_serializable_t
 
 val spool_dir : string ref
 
-val make_rng : unit -> Platform.rng Lwt.t
-(** Create a pseudo random number generator initialized by a 128-bit
-    secure random seed. *)
-
-module type LWT_RANDOM = Signatures.RANDOM with type 'a t = 'a Lwt.t
-
-module type LWT_RNG = sig
-  val rng : Platform.rng Lwt.t
-end
-
-module MakeLwtRandom (X : LWT_RNG) : LWT_RANDOM
+module LwtRandom : RANDOM with type 'a t = 'a Lwt.t
 (** Lwt-compatible random number generation. *)
 
 type error =

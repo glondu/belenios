@@ -39,8 +39,6 @@ module PString = String
 open Eliom_service
 open Eliom_registration
 
-module LwtRandom = MakeLwtRandom (struct let rng = make_rng () end)
-
 (* Table with elections in setup mode. *)
 let election_stable = Ocsipersist.open_table "site_setup"
 

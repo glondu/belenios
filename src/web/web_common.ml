@@ -27,26 +27,18 @@ open Web_serializable_j
 
 let spool_dir = ref "."
 
-let make_rng = Lwt_preemptive.detach (fun () ->
-  pseudo_rng (random_string secure_rng 16)
-)
-
-module type LWT_RANDOM = Signatures.RANDOM with type 'a t = 'a Lwt.t
-
-module type LWT_RNG = sig
-  val rng : rng Lwt.t
-end
-
-module MakeLwtRandom (X : LWT_RNG) = struct
+module LwtRandom = struct
 
   type 'a t = 'a Lwt.t
   let return = Lwt.return
   let bind = Lwt.bind
   let fail = Lwt.fail
 
+  let prng = lazy (pseudo_rng (random_string secure_rng 16))
+
   let random q =
     let size = Z.bit_length q / 8 + 1 in
-    let%lwt rng = X.rng in
+    let%lwt rng = Lwt_preemptive.detach Lazy.force prng in
     let r = random_string rng size in
     return Z.(of_bits r mod q)
 
