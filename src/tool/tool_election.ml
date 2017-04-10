@@ -61,7 +61,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   open P
   module E = Election.MakeElection (G) (DirectRandom)
 
-  module KG = Trustees.MakeSimpleDistKeyGen (G) (DirectRandom)
+  module KG = Trustees.MakeSimple (G) (DirectRandom)
 
   module P = Trustees.MakePKI (G) (DirectRandom)
   module C = Trustees.MakeChannels (G) (DirectRandom) (P)

@@ -23,7 +23,7 @@ open Platform
 open Serializable_t
 open Signatures
 
-module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) : sig
+module MakeSimple (G : GROUP) (M : RANDOM) : sig
 
   (** This module implements a simple distributed key generation. Each
       share is a number modulo q, and the secret key is their sum. All

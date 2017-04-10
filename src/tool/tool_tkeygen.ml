@@ -49,7 +49,7 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Generate key *)
 
-  module KG = Trustees.MakeSimpleDistKeyGen (G) (DirectRandom)
+  module KG = Trustees.MakeSimple (G) (DirectRandom)
 
   type keypair = { id : string; priv : string; pub : string }
 

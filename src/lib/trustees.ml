@@ -30,7 +30,7 @@ let check_modulo p x = Z.(geq x zero && lt x p)
 
 (** Distributed key generation *)
 
-module MakeSimpleDistKeyGen (G : GROUP) (M : RANDOM) = struct
+module MakeSimple (G : GROUP) (M : RANDOM) = struct
   open G
   open M
 
@@ -189,7 +189,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
   open G
   let (>>=) = M.bind
 
-  module K = MakeSimpleDistKeyGen (G) (M)
+  module K = MakeSimple (G) (M)
 
   let compute_verification_keys coefexps =
     let n = Array.length coefexps in

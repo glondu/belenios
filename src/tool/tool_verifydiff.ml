@@ -117,7 +117,7 @@ let verifydiff dir1 dir2 =
   let y =
     match threshold with
     | None ->
-       let module K = Trustees.MakeSimpleDistKeyGen (G) (DirectRandom) in
+       let module K = Trustees.MakeSimple (G) (DirectRandom) in
        let pks = match pks with
          | None -> raise (VerifydiffError MissingPublicKeys)
          | Some pks -> List.map (trustee_public_key_of_string G.read) pks
