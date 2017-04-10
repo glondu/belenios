@@ -137,21 +137,23 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   let cast (b, hash) =
     if Lazy.force check_signature_present b && E.check_ballot election b
-    then M.cast b ()
+    then ()
     else Printf.ksprintf failwith "ballot %s failed tests" hash
 
   let ballots_check = lazy (
     Lazy.force ballots |> option_map (List.iter cast)
   )
 
-  let encrypted_tally = lazy (
-    match Lazy.force ballots_check with
-      | None -> failwith "ballots.jsons is missing"
-      | Some () ->
-        M.fold (fun () b t ->
-          M.return (E.combine_ciphertexts (E.extract_ciphertext b) t)
-        ) (E.neutral_ciphertext election) ()
-  )
+  let encrypted_tally =
+    lazy (
+        match Lazy.force ballots with
+        | None -> failwith "ballots.jsons is missing"
+        | Some ballots ->
+           List.fold_left (fun accu (b, _) ->
+               E.combine_ciphertexts (E.extract_ciphertext b) accu
+             ) (E.neutral_ciphertext election) ballots,
+           List.length ballots
+      )
 
   let vote privcred ballot =
     let sk =
@@ -170,7 +172,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     if Array.forall (fun x -> not G.(x =~ pk)) (Lazy.force pks) then (
       print_msg "W: your key is not present in public_keys.jsons";
     );
-    let tally = Lazy.force encrypted_tally in
+    let tally, _ = Lazy.force encrypted_tally in
     let factor = E.compute_factor tally sk () in
     assert (E.check_factor tally pk factor);
     string_of_partial_decryption G.write factor
@@ -189,14 +191,14 @@ module Make (P : PARSED_PARAMS) : S = struct
              ) t.t_verification_keys then
           print_msg "W: your key is not present in threshold parameters"
     );
-    let tally = Lazy.force encrypted_tally in
+    let tally, _ = Lazy.force encrypted_tally in
     let factor = E.compute_factor tally pdk () in
     assert (E.check_factor tally pvk factor);
     string_of_partial_decryption G.write factor
 
   let finalize factors =
     let factors = List.map (partial_decryption_of_string G.read) factors in
-    let tally = Lazy.force encrypted_tally in
+    let tally, nballots = Lazy.force encrypted_tally in
     let checker = E.check_factor tally in
     let combinator =
       match threshold with
@@ -204,7 +206,7 @@ module Make (P : PARSED_PARAMS) : S = struct
          KG.combine_factors checker (Lazy.force pks)
       | Some t -> KP.combine_factors checker t
     in
-    let result = E.compute_result (M.cardinal ()) tally factors combinator in
+    let result = E.compute_result nballots tally factors combinator in
     assert (E.check_result combinator result);
     string_of_result G.write result
 
@@ -222,7 +224,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     (match get_result () with
     | Some result ->
        let result = result_of_string G.read result in
-       assert (Lazy.force encrypted_tally = result.encrypted_tally);
+       assert (fst (Lazy.force encrypted_tally) = result.encrypted_tally);
        let checker = E.check_factor result.encrypted_tally in
        let combinator = match threshold with
          | None -> KG.combine_factors checker (Lazy.force pks)

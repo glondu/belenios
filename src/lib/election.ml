@@ -37,7 +37,6 @@ let question_length q =
 
 module MakeSimpleMonad (G : GROUP) = struct
   type 'a t = unit -> 'a
-  let ballots = ref []
   let return x () = x
   let bind x f = f (x ())
   let fail e = raise e
@@ -49,11 +48,6 @@ module MakeSimpleMonad (G : GROUP) = struct
     fun () ->
       let r = random_string (Lazy.force prng) size in
       Z.(of_bits r mod q)
-
-  type elt = G.t ballot
-  let cast x () = ballots := x :: !ballots
-  let fold f x () = List.fold_left (fun accu b -> f () b accu ()) x !ballots
-  let cardinal () = List.length !ballots
 end
 
 (** Homomorphic elections *)

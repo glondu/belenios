@@ -105,25 +105,6 @@ module type RANDOM = sig
   (** [random q] returns a random number modulo [q]. *)
 end
 
-(** Read operations of a monadic map. *)
-module type MONADIC_MAP_RO = sig
-  type 'a m
-  (** The type of monadic values. *)
-
-  type elt
-  (** The type of map values. *)
-
-  type key
-  (** The type of map keys. *)
-
-  val fold : (key -> elt -> 'a -> 'a m) -> 'a -> 'a m
-  (** [fold f a] computes [(f kN vN ... (f k2 v2 (f k1 v1 a))...)],
-      where [k1/v1 ... kN/vN] are all key/value pairs. *)
-
-  val cardinal : int m
-  (** Return the number of bindings. *)
-end
-
 (** Election data needed for cryptographic operations. *)
 type 'a election = {
   e_params : 'a params;

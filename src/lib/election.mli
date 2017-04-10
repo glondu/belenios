@@ -39,15 +39,6 @@ module MakeSimpleMonad (G : GROUP) : sig
   (** [random q] returns a random number modulo [q]. It uses a secure
       random number generator lazily initialized by a 128-bit seed
       shared by all instances. *)
-
-  (** {2 Ballot box management} *)
-
-  include Signatures.MONADIC_MAP_RO
-  with type 'a m := 'a t
-  and type elt = G.t ballot
-  and type key := unit
-
-  val cast : elt -> unit t
 end
 (** Simple election monad that keeps all ballots in memory. *)
 
