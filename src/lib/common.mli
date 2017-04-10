@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Signatures
+
 module Array : sig
   include module type of Array
   val exists : ('a -> bool) -> 'a array -> bool
@@ -55,3 +57,5 @@ val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
 val compare_b64 : string -> string -> int
 
 module SMap : Map.S with type key = string
+
+module DirectRandom : RANDOM with type 'a t = 'a

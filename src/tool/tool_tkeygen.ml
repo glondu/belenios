@@ -47,11 +47,9 @@ let parse_params p =
 module Make (P : PARSED_PARAMS) : S = struct
   open P
 
-  module M = Election.DirectRandom
-
   (* Generate key *)
 
-  module KG = Trustees.MakeSimpleDistKeyGen(G)(M);;
+  module KG = Trustees.MakeSimpleDistKeyGen (G) (DirectRandom)
 
   type keypair = { id : string; priv : string; pub : string }
 

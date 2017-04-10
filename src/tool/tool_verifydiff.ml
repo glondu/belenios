@@ -21,6 +21,7 @@
 
 open Signatures
 open Serializable_j
+open Common
 
 let stream_to_list s =
   let res = ref [] in
@@ -112,12 +113,11 @@ let verifydiff dir1 dir2 =
   (* the public keys / threshold parameters must be valid *)
   let module ED = (val Group.election_params_of_string election) in
   let open ED in
-  let module M = Election.DirectRandom in
-  let module E = Election.MakeElection (G) (M) in
+  let module E = Election.MakeElection (G) (DirectRandom) in
   let y =
     match threshold with
     | None ->
-       let module K = Trustees.MakeSimpleDistKeyGen (G) (M) in
+       let module K = Trustees.MakeSimpleDistKeyGen (G) (DirectRandom) in
        let pks = match pks with
          | None -> raise (VerifydiffError MissingPublicKeys)
          | Some pks -> List.map (trustee_public_key_of_string G.read) pks
@@ -127,9 +127,9 @@ let verifydiff dir1 dir2 =
        K.combine (Array.of_list pks)
     | Some t ->
        let t = threshold_parameters_of_string G.read t in
-       let module P = Trustees.MakePKI (G) (M) in
-       let module C = Trustees.MakeChannels (G) (M) (P) in
-       let module K = Trustees.MakePedersen (G) (M) (P) (C) in
+       let module P = Trustees.MakePKI (G) (DirectRandom) in
+       let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
+       let module K = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
        if not (K.check t) then
          raise (VerifydiffError InvalidThreshold);
        K.combine t

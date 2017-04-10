@@ -178,10 +178,9 @@ module Ttkeygen : CMDLINER_MODULE = struct
         in
         let group = get_mandatory_opt "--group" group |> string_of_file in
         let module G = (val Group.of_string group : GROUP) in
-        let module M = Election.DirectRandom in
-        let module P = Trustees.MakePKI (G) (M) in
-        let module C = Trustees.MakeChannels (G) (M) (P) in
-        let module T = Trustees.MakePedersen (G) (M) (P) (C) in
+        let module P = Trustees.MakePKI (G) (DirectRandom) in
+        let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
+        let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
         match step with
         | 1 ->
            let key, cert = T.step1 () in

@@ -52,7 +52,7 @@ let parse_params p =
 module Make (P : PARSED_PARAMS) : S = struct
   open P
 
-  module CG = Credential.MakeGenerate (Election.DirectRandom)
+  module CG = Credential.MakeGenerate (DirectRandom)
   module CD = Credential.MakeDerive (G)
 
   let derive x =

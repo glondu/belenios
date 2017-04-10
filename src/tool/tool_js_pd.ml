@@ -21,6 +21,7 @@
 
 open Platform
 open Serializable_j
+open Common
 open Tool_js_common
 
 let election = ref None
@@ -67,8 +68,7 @@ let compute_partial_decryption _ =
   Js.Opt.option !election >>= fun e ->
   let election = Group.election_params_of_string e in
   let module P = (val election) in
-  let module M = Election.DirectRandom in
-  let module E = Election.MakeElection (P.G) (M) in
+  let module E = Election.MakeElection (P.G) (DirectRandom) in
   Js.Opt.option !encrypted_tally >>= fun e ->
   let encrypted_tally = encrypted_tally_of_string P.G.read e in
   document##getElementById (Js.string "private_key") >>= fun e ->

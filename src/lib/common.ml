@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Platform
+
 module Array = struct
   include Array
 
@@ -175,3 +177,19 @@ let compare_b64 a b =
   in loop 0
 
 module SMap = Map.Make(String)
+
+(** Direct random monad *)
+
+module DirectRandom = struct
+  type 'a t = 'a
+  let return x = x
+  let bind x f = f x
+  let fail e = raise e
+
+  let prng = lazy (pseudo_rng (random_string secure_rng 16))
+
+  let random q =
+    let size = Z.bit_length q / 8 + 1 in
+    let r = random_string (Lazy.force prng) size in
+    Z.(of_bits r mod q)
+end

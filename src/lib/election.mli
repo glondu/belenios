@@ -21,26 +21,10 @@
 
 (** Election primitives *)
 
-open Platform
 open Serializable_t
 open Signatures
 
 val question_length : question -> int
-
-module DirectRandom : sig
-
-  (** {2 Monadic definitions} *)
-
-  include Signatures.MONAD with type 'a t = 'a
-
-  (** {2 Random number generation} *)
-
-  val random : Z.t -> Z.t t
-  (** [random q] returns a random number modulo [q]. It uses a secure
-      random number generator lazily initialized by a 128-bit seed
-      shared by all instances. *)
-end
-(** Direct random monad *)
 
 module MakeElection (G : GROUP) (M : RANDOM) :
   ELECTION with type elt = G.t and type 'a m = 'a M.t

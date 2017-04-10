@@ -66,8 +66,6 @@ let parse_params p =
 module Make (P : PARSED_PARAMS) : S = struct
   open P
 
-  module M = Election.DirectRandom
-
   (* Setup trustees *)
 
   let y =
@@ -78,12 +76,12 @@ module Make (P : PARSED_PARAMS) : S = struct
          | Some keys -> keys
          | None -> failwith "trustee keys are missing"
        in
-       let module K = Trustees.MakeSimpleDistKeyGen (G) (M) in
+       let module K = Trustees.MakeSimpleDistKeyGen (G) (DirectRandom) in
        K.combine public_keys
     | Some t ->
-       let module P = Trustees.MakePKI (G) (M) in
-       let module C = Trustees.MakeChannels (G) (M) (P) in
-       let module K = Trustees.MakePedersen (G) (M) (P) (C) in
+       let module P = Trustees.MakePKI (G) (DirectRandom) in
+       let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
+       let module K = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
        K.combine t
 
   (* Setup election *)

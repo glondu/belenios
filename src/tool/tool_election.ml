@@ -59,14 +59,13 @@ let parse_params p =
 module Make (P : PARSED_PARAMS) : S = struct
 
   open P
-  module M = Election.DirectRandom
-  module E = Election.MakeElection(G)(M);;
+  module E = Election.MakeElection (G) (DirectRandom)
 
-  module KG = Trustees.MakeSimpleDistKeyGen (G) (M)
+  module KG = Trustees.MakeSimpleDistKeyGen (G) (DirectRandom)
 
-  module P = Trustees.MakePKI (G) (M)
-  module C = Trustees.MakeChannels (G) (M) (P)
-  module KP = Trustees.MakePedersen (G) (M) (P) (C)
+  module P = Trustees.MakePKI (G) (DirectRandom)
+  module C = Trustees.MakeChannels (G) (DirectRandom) (P)
+  module KP = Trustees.MakePedersen (G) (DirectRandom) (P) (C)
 
   (* Load and check trustee keys, if present *)
 
