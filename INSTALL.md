@@ -75,7 +75,6 @@ To compile the command-line tool, you will need:
  * [OCaml](http://caml.inria.fr/)
  * [Findlib](http://projects.camlcity.org/projects/findlib.html)
  * [Zarith](https://forge.ocamlcore.org/projects/zarith/)
- * [Calendar](http://calendar.forge.ocamlcore.org/)
  * [Uuidm](http://erratique.ch/software/uuidm)
  * [Cryptokit](https://forge.ocamlcore.org/projects/cryptokit/)
  * [Atdgen](http://mjambon.com/atdgen)
@@ -85,7 +84,7 @@ To compile the command-line tool, you will need:
 With OPAM, these dependencies can be installed with the following
 command:
 
-    opam install atdgen zarith cryptokit uuidm calendar cmdliner
+    opam install atdgen zarith cryptokit uuidm cmdliner
 
 Once all the dependencies have been installed, the command-line tool
 can be compiled with:
@@ -101,12 +100,13 @@ Web server
 
 The web server has the following additional dependencies:
 
+ * [Calendar](http://calendar.forge.ocamlcore.org/)
  * [Eliom](http://ocsigen.org/eliom/)
  * [Csv](https://forge.ocamlcore.org/projects/csv/)
 
 With OPAM, you can install them with:
 
-    opam install eliom csv
+    opam install calendar eliom csv
 
 Once all the dependencies have been installed, the Eliom module can be
 compiled with:

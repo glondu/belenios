@@ -1,7 +1,7 @@
 <**/*.{ml,mli,byte,native,odoc}>: debug, annot, package(uuidm), package(atdgen), package(yojson)
-<src/platform/native/*>: package(zarith), package(calendar), package(cryptokit)
-<src/web/*.{ml,mli,byte,native,odoc}>: thread, package(eliom.server), package(lwt.ppx), package(csv)
-<src/tool/tool_cmdline.*>: package(zarith), package(calendar), package(cryptokit), package(cmdliner), use_platform-native
+<src/platform/native/*>: package(zarith), package(cryptokit)
+<src/web/*.{ml,mli,byte,native,odoc}>: thread, package(eliom.server), package(lwt.ppx), package(calendar), package(csv)
+<src/tool/tool_cmdline.*>: package(zarith), package(cryptokit), package(cmdliner), use_platform-native
 <src/tool/tool_js*> or <src/platform/js/*> or <src/booth/*>: package(js_of_ocaml), syntax(camlp4o), package(js_of_ocaml.syntax), package(lwt.syntax), use_platform-js
 
 <**/*serializable_j.ml>: warn(-32)
