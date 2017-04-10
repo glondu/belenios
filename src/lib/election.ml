@@ -33,9 +33,9 @@ let question_length q =
                              | Some true -> 1
                              | _ -> 0
 
-(** Simple monad *)
+(** Direct random monad *)
 
-module MakeSimpleMonad (G : GROUP) = struct
+module DirectRandom = struct
   type 'a t = unit -> 'a
   let return x () = x
   let bind x f = f (x ())

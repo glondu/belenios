@@ -59,7 +59,7 @@ let parse_params p =
 module Make (P : PARSED_PARAMS) : S = struct
 
   open P
-  module M = Election.MakeSimpleMonad(G)
+  module M = Election.DirectRandom
   module E = Election.MakeElection(G)(M);;
 
   module KG = Trustees.MakeSimpleDistKeyGen (G) (M)

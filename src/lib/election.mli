@@ -27,7 +27,7 @@ open Signatures
 
 val question_length : question -> int
 
-module MakeSimpleMonad (G : GROUP) : sig
+module DirectRandom : sig
 
   (** {2 Monadic definitions} *)
 
@@ -40,7 +40,7 @@ module MakeSimpleMonad (G : GROUP) : sig
       random number generator lazily initialized by a 128-bit seed
       shared by all instances. *)
 end
-(** Simple election monad that keeps all ballots in memory. *)
+(** Direct random monad *)
 
 module MakeElection (G : GROUP) (M : RANDOM) :
   ELECTION with type elt = G.t and type 'a m = 'a M.t
