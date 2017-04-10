@@ -19,8 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let ( |> ) x f = f x
-
 module Array = struct
   include Array
 

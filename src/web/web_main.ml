@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Lwt
-open Common
 open Web_serializable_j
 open Web_common
 

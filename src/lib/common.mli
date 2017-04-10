@@ -19,8 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val ( |> ) : 'a -> ('a -> 'b) -> 'b
-
 module Array : sig
   include module type of Array
   val exists : ('a -> bool) -> 'a array -> bool
