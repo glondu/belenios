@@ -31,7 +31,7 @@ module DirectRandom : sig
 
   (** {2 Monadic definitions} *)
 
-  include Signatures.MONAD with type 'a t = unit -> 'a
+  include Signatures.MONAD with type 'a t = 'a
 
   (** {2 Random number generation} *)
 

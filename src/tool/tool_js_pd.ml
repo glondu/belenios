@@ -81,7 +81,7 @@ let compute_partial_decryption _ =
       Printf.ksprintf
         failwith "Error in format of private key: %s" (Printexc.to_string e)
   in
-  let factor = E.compute_factor encrypted_tally private_key () in
+  let factor = E.compute_factor encrypted_tally private_key in
   set_textarea "pd" (string_of_partial_decryption P.G.write factor);
   Js.some ()
 

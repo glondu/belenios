@@ -184,7 +184,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let module T = Trustees.MakePedersen (G) (M) (P) (C) in
         match step with
         | 1 ->
-           let key, cert = T.step1 () () in
+           let key, cert = T.step1 () in
            let id = sha256_hex cert.s_message in
            Printf.eprintf "I: certificate %s has been generated\n%!" id;
            let pub = "certificate", id ^ ".cert", 0o444, string_of_cert cert in
@@ -208,7 +208,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
            let certs = get_certs () in
            let threshold = get_mandatory_opt "--threshold" threshold in
            let key = get_mandatory_opt "--key" key |> string_of_file in
-           let polynomial = T.step3 certs key threshold () in
+           let polynomial = T.step3 certs key threshold in
            Printf.printf "%s\n%!" (string_of_polynomial polynomial)
         | 4 ->
            let certs = get_certs () in
@@ -230,7 +230,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
            let certs = get_certs () in
            let key = get_mandatory_opt "--key" key |> string_of_file in
            let vinput = read_line () |> vinput_of_string in
-           let voutput = T.step5 certs key vinput () in
+           let voutput = T.step5 certs key vinput in
            Printf.printf "%s\n%!" (string_of_voutput G.write voutput)
         | 6 ->
            let certs = get_certs () in

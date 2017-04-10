@@ -66,7 +66,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     priv, pub, hashed
 
   let generate () =
-    CG.generate () () |> compute_pub_and_hash
+    CG.generate () |> compute_pub_and_hash
 
 end
 

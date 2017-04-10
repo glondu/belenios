@@ -36,18 +36,17 @@ let question_length q =
 (** Direct random monad *)
 
 module DirectRandom = struct
-  type 'a t = unit -> 'a
-  let return x () = x
-  let bind x f = f (x ())
+  type 'a t = 'a
+  let return x = x
+  let bind x f = f x
   let fail e = raise e
 
   let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
   let random q =
     let size = Z.bit_length q / 8 + 1 in
-    fun () ->
-      let r = random_string (Lazy.force prng) size in
-      Z.(of_bits r mod q)
+    let r = random_string (Lazy.force prng) size in
+    Z.(of_bits r mod q)
 end
 
 (** Homomorphic elections *)

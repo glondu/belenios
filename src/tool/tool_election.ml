@@ -162,7 +162,7 @@ module Make (P : PARSED_PARAMS) : S = struct
         CD.derive election.e_params.e_uuid cred
       )
     in
-    let b = E.create_ballot election ?sk (E.make_randomness election ()) ballot () in
+    let b = E.create_ballot election ?sk (E.make_randomness election) ballot in
     assert (E.check_ballot election b);
     string_of_ballot G.write b
 
@@ -173,7 +173,7 @@ module Make (P : PARSED_PARAMS) : S = struct
       print_msg "W: your key is not present in public_keys.jsons";
     );
     let tally, _ = Lazy.force encrypted_tally in
-    let factor = E.compute_factor tally sk () in
+    let factor = E.compute_factor tally sk in
     assert (E.check_factor tally pk factor);
     string_of_partial_decryption G.write factor
 
@@ -192,7 +192,7 @@ module Make (P : PARSED_PARAMS) : S = struct
           print_msg "W: your key is not present in threshold parameters"
     );
     let tally, _ = Lazy.force encrypted_tally in
-    let factor = E.compute_factor tally pdk () in
+    let factor = E.compute_factor tally pdk in
     assert (E.check_factor tally pvk factor);
     string_of_partial_decryption G.write factor
 
