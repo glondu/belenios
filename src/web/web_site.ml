@@ -285,29 +285,6 @@ let () = File.register
   ~content_type:"application/x-gzip"
   (fun () () -> return !source_file)
 
-let do_get_randomness =
-  let prng = Lazy.from_fun (Lwt_preemptive.detach (fun () ->
-    pseudo_rng (random_string secure_rng 16)
-  )) in
-  let mutex = Lwt_mutex.create () in
-  fun () ->
-    Lwt_mutex.with_lock mutex (fun () ->
-      let%lwt prng = Lazy.force prng in
-      return (random_string prng 32)
-    )
-
-let b64_encode_compact x =
-  Cryptokit.(transform_string (Base64.encode_compact ()) x)
-
-let () = String.register
-  ~service:get_randomness
-  (fun () () ->
-    let%lwt r = do_get_randomness () in
-    b64_encode_compact r |>
-    (fun x -> string_of_randomness { randomness=x }) |>
-    (fun x -> return (x, "application/json"))
-  )
-
 let generate_uuid = Uuidm.v4_gen (Random.State.make_self_init ())
 
 let create_new_election owner cred auth =

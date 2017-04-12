@@ -30,7 +30,6 @@ let site_login = service ~path:["login"] ~get_params:(opt (string "service")) ()
 let logout = service ~path:["logout"] ~get_params:unit ()
 
 let source_code = service ~path:["belenios.tar.gz"] ~get_params:unit ()
-let get_randomness = service ~path:["get-randomness"] ~get_params:unit ()
 
 let tool = preapply (static_dir ()) ["static"; "belenios-tool.html"]
 
