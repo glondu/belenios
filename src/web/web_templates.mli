@@ -43,7 +43,9 @@ val election_setup_questions : Uuidm.t -> setup_election -> unit -> [> `Html ] E
 val election_setup_credential_authority : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_credentials : string -> Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustees : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_threshold_trustees : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_threshold_trustee : string -> Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_import : Uuidm.t -> setup_election -> (module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_import_trustees : Uuidm.t -> setup_election -> (module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_confirm : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

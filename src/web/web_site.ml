@@ -45,6 +45,9 @@ let election_stable = Ocsipersist.open_table "site_setup"
 (* Table with tokens given to trustees. *)
 let election_pktokens = Ocsipersist.open_table "site_pktokens"
 
+(* Table with tokens given to trustees (in threshold mode). *)
+let election_tpktokens = Ocsipersist.open_table "site_tpktokens"
+
 (* Table with tokens given to credential authorities. *)
 let election_credtokens = Ocsipersist.open_table "site_credtokens"
 
@@ -327,6 +330,10 @@ let create_new_election owner cred auth =
     se_metadata;
     se_public_creds = token;
     se_public_creds_received = false;
+    se_threshold = None;
+    se_threshold_trustees = None;
+    se_threshold_parameters = None;
+    se_threshold_error = None;
   } in
   let%lwt () = set_setup_election uuid_s se in
   let%lwt () = Ocsipersist.add election_credtokens token uuid_s in
@@ -368,6 +375,9 @@ let () = Html5.register ~service:election_setup
 
 let () = Html5.register ~service:election_setup_trustees
   (generic_setup_page T.election_setup_trustees)
+
+let () = Html5.register ~service:election_setup_threshold_trustees
+  (generic_setup_page T.election_setup_threshold_trustees)
 
 let () = Html5.register ~service:election_setup_credential_authority
   (generic_setup_page T.election_setup_credential_authority)
@@ -1512,3 +1522,228 @@ let () =
       match cont with
       | Some f -> f ()
       | None -> Redirection.send home)
+
+let () =
+  Any.register ~service:election_setup_threshold_set
+    (fun uuid threshold ->
+      if threshold < 0 then forbidden () else
+      let threshold = if threshold = 0 then None else Some threshold in
+      match%lwt Web_state.get_site_user () with
+      | Some u ->
+         let uuid_s = Uuidm.to_string uuid in
+         Lwt_mutex.with_lock election_setup_mutex (fun () ->
+             let%lwt se = get_setup_election uuid_s in
+             if se.se_owner = u
+             then (
+               (match se.se_threshold_trustees with
+                | None -> ()
+                | Some xs -> List.iter (fun x -> x.stt_step <- Some 1) xs
+               );
+               se.se_threshold <- threshold;
+               set_setup_election uuid_s se
+             ) else forbidden ()
+           ) >>
+           Redirection.send (preapply election_setup_threshold_trustees uuid)
+      | None -> forbidden ())
+
+let () =
+  Any.register
+    ~service:election_setup_threshold_trustee_add
+    (fun uuid stt_id ->
+      if is_email stt_id then
+        match%lwt Web_state.get_site_user () with
+        | Some u ->
+           let uuid_s = Uuidm.to_string uuid in
+           Lwt_mutex.with_lock election_setup_mutex (fun () ->
+               let%lwt se = get_setup_election uuid_s in
+               if se.se_owner = u
+               then (
+                 let%lwt stt_token = generate_token () in
+                 let trustee = {
+                     stt_id; stt_token; stt_step = None;
+                     stt_cert = None; stt_polynomial = None;
+                     stt_vinput = None; stt_voutput = None;
+                   } in
+                 let trustees =
+                   match se.se_threshold_trustees with
+                   | None -> Some [trustee]
+                   | Some t -> Some (t @ [trustee])
+                 in
+                 se.se_threshold_trustees <- trustees;
+                 set_setup_election uuid_s se >>
+                 Ocsipersist.add election_tpktokens stt_token uuid_s
+               ) else forbidden ()
+             ) >>
+             Redirection.send (preapply election_setup_threshold_trustees uuid)
+        | None -> forbidden ()
+      else
+        let msg = stt_id ^ " is not a valid e-mail address!" in
+        let service = preapply election_setup_threshold_trustees uuid in
+        T.generic_page ~title:"Error" ~service msg () >>= Html5.send
+    )
+
+let () =
+  Redirection.register
+    ~service:election_setup_threshold_trustee_del
+    (fun uuid index ->
+      match%lwt Web_state.get_site_user () with
+      | Some u ->
+         let uuid_s = Uuidm.to_string uuid in
+         Lwt_mutex.with_lock election_setup_mutex (fun () ->
+             let%lwt se = get_setup_election uuid_s in
+             if se.se_owner = u
+             then (
+               let trustees, old =
+                 let trustees =
+                   match se.se_threshold_trustees with
+                   | None -> []
+                   | Some x -> x
+                 in
+                 trustees |>
+                   List.mapi (fun i x -> i, x) |>
+                   List.partition (fun (i, _) -> i <> index) |>
+                   (fun (x, y) -> List.map snd x, List.map snd y)
+               in
+               let trustees = match trustees with [] -> None | x -> Some x in
+               se.se_threshold_trustees <- trustees;
+               set_setup_election uuid_s se >>
+                 Lwt_list.iter_s (fun {stt_token; _} ->
+                     Ocsipersist.remove election_tpktokens stt_token
+                   ) old
+             ) else forbidden ()
+           ) >>
+           return (preapply election_setup_threshold_trustees uuid)
+      | None -> forbidden ()
+    )
+
+let () =
+  Html5.register
+    ~service:election_setup_threshold_trustee
+    (fun token () ->
+      let%lwt uuid = Ocsipersist.find election_tpktokens token in
+      let%lwt se = get_setup_election uuid in
+      let uuid = match Uuidm.of_string uuid with
+        | None -> failwith "invalid UUID extracted from pktokens"
+        | Some u -> u
+      in
+      T.election_setup_threshold_trustee token uuid se ()
+    )
+
+let () =
+  Any.register
+    ~service:election_setup_threshold_trustee_post
+    (fun token data ->
+      wrap_handler
+        (fun () ->
+          let%lwt uuid = Ocsipersist.find election_tpktokens token in
+          Lwt_mutex.with_lock election_setup_mutex
+            (fun () ->
+              let%lwt se = get_setup_election uuid in
+              let ts =
+                match se.se_threshold_trustees with
+                | None -> failwith "No threshold trustees"
+                | Some xs -> Array.of_list xs
+              in
+              let i, t =
+                match Array.findi (fun i x ->
+                          if token = x.stt_token then Some (i, x) else None
+                        ) ts with
+                | Some (i, t) -> i, t
+                | None -> failwith "Trustee not found"
+              in
+              let get_certs () =
+                let certs = Array.map (fun x ->
+                                match x.stt_cert with
+                                | None -> failwith "Missing certificate"
+                                | Some y -> y
+                              ) ts in
+                {certs}
+              in
+              let get_polynomials () =
+                Array.map (fun x ->
+                    match x.stt_polynomial with
+                    | None -> failwith "Missing polynomial"
+                    | Some y -> y
+                  ) ts
+              in
+              let module G = (val Group.of_string se.se_group : GROUP) in
+              let module P = Trustees.MakePKI (G) (LwtRandom) in
+              let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
+              let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
+              (match t.stt_step with
+               | Some 1 ->
+                  let cert = cert_of_string data in
+                  if K.step1_check cert then (
+                    t.stt_cert <- Some cert;
+                    t.stt_step <- Some 2;
+                    return_unit
+                  ) else (
+                    failwith "Invalid certificate"
+                  )
+               | Some 3 ->
+                  let certs = get_certs () in
+                  let polynomial = polynomial_of_string data in
+                  if K.step3_check certs i polynomial then (
+                    t.stt_polynomial <- Some polynomial;
+                    t.stt_step <- Some 4;
+                    return_unit
+                  ) else (
+                    failwith "Invalid polynomial"
+                  )
+               | Some 5 ->
+                  let certs = get_certs () in
+                  let polynomials = get_polynomials () in
+                  let voutput = voutput_of_string G.read data in
+                  if K.step5_check certs i polynomials voutput then (
+                    t.stt_voutput <- Some data;
+                    t.stt_step <- Some 6;
+                    return_unit
+                  ) else (
+                    failwith "Invalid voutput"
+                  )
+               | _ -> failwith "Unknown step"
+              ) >> (
+                if Array.forall (fun x -> x.stt_step = Some 2) ts then (
+                  (try
+                     K.step2 (get_certs ());
+                     Array.iter (fun x -> x.stt_step <- Some 3) ts;
+                   with e ->
+                     se.se_threshold_error <- Some (Printexc.to_string e)
+                  ); return_unit
+                ) else return_unit
+              ) >> (
+                if Array.forall (fun x -> x.stt_step = Some 4) ts then (
+                  (try
+                     let certs = get_certs () in
+                     let polynomials = get_polynomials () in
+                     let vinputs = K.step4 certs polynomials in
+                     for j = 0 to Array.length ts - 1 do
+                       ts.(j).stt_vinput <- Some vinputs.(j)
+                     done;
+                     Array.iter (fun x -> x.stt_step <- Some 5) ts
+                   with e ->
+                     se.se_threshold_error <- Some (Printexc.to_string e)
+                  ); return_unit
+                ) else return_unit
+              ) >> (
+                if Array.forall (fun x -> x.stt_step = Some 6) ts then (
+                  (try
+                     let certs = get_certs () in
+                     let polynomials = get_polynomials () in
+                     let voutputs = Array.map (fun x ->
+                                        match x.stt_voutput with
+                                        | None -> failwith "Missing voutput"
+                                        | Some y -> voutput_of_string G.read y
+                                      ) ts in
+                     let p = K.step6 certs polynomials voutputs in
+                     se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write p);
+                     Array.iter (fun x -> x.stt_step <- Some 7) ts
+                   with e ->
+                     se.se_threshold_error <- Some (Printexc.to_string e)
+                  ); return_unit
+                ) else return_unit
+              ) >> set_setup_election uuid se
+            ) >>
+            Redirection.send (preapply election_setup_threshold_trustee token)
+        )
+    )

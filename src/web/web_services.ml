@@ -56,6 +56,14 @@ let election_setup_credentials_server = post_coservice ~fallback:election_setup 
 let election_setup_trustees = service ~path:["setup"; "trustees"] ~get_params:(uuid "uuid") ()
 let election_setup_trustee = service ~path:["setup"; "trustee"] ~get_params:(string "token") ()
 let election_setup_trustee_post = post_coservice ~fallback:election_setup_trustee ~post_params:(string "public_key") ()
+
+let election_setup_threshold_trustees = service ~path:["setup"; "threshold-trustees"] ~get_params:(uuid "uuid") ()
+let election_setup_threshold_trustee = service ~path:["setup"; "threshold-trustee"] ~get_params:(string "token") ()
+let election_setup_threshold_trustee_post = post_coservice ~fallback:election_setup_threshold_trustee ~post_params:(string "data") ()
+let election_setup_threshold_set = post_coservice ~fallback:election_setup_threshold_trustees ~post_params:(int "threshold") ()
+let election_setup_threshold_trustee_add = post_coservice ~fallback:election_setup_threshold_trustees ~post_params:(string "id") ()
+let election_setup_threshold_trustee_del = post_coservice ~fallback:election_setup_threshold_trustees ~post_params:(int "index") ()
+
 let election_setup_confirm = service ~path:["setup"; "confirm"] ~get_params:(uuid "uuid") ()
 let election_setup_create = post_coservice ~csrf_safe:true ~fallback:election_setup ~post_params:unit ()
 let election_setup_auth_genpwd = post_coservice ~fallback:election_setup ~post_params:unit ()

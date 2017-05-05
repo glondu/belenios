@@ -27,6 +27,9 @@ type uuid <ocaml predef from="Serializable_builtin"> = abstract
 type string_set <ocaml predef from="Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
 type template <ocaml predef from="Serializable"> = abstract
+type cert <ocaml predef from="Serializable"> = abstract
+type polynomial <ocaml predef from="Serializable"> = abstract
+type vinput <ocaml predef from="Serializable"> = abstract
 
 (** {1 Web-specific types} *)
 
@@ -66,6 +69,16 @@ type setup_trustee = {
   public_key <ocaml mutable> : string;
 } <ocaml field_prefix="st_">
 
+type setup_threshold_trustee = {
+  id : string;
+  token : string;
+  ?step <ocaml mutable> : int option;
+  ?cert <ocaml mutable> : cert option;
+  ?polynomial <ocaml mutable> : polynomial option;
+  ?vinput <ocaml mutable> : vinput option;
+  ?voutput <ocaml mutable> : string option;
+} <ocaml field_prefix="stt_">
+
 type setup_election = {
   owner : user;
   group : string;
@@ -75,6 +88,10 @@ type setup_election = {
   metadata <ocaml mutable> : metadata;
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;
+  ?threshold <ocaml mutable> : int option;
+  ?threshold_trustees <ocaml mutable> : setup_threshold_trustee list option;
+  ?threshold_parameters <ocaml mutable> : string option;
+  ?threshold_error <ocaml mutable> : string option;
 } <ocaml field_prefix="se_">
 
 (** {1 OpenID Connect-related types} *)

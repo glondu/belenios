@@ -587,6 +587,11 @@ let election_setup_trustees uuid se () =
   let div_content =
     div [
       div [pcdata "If you do not wish the server to store any keys, you may nominate trustees. In that case, each trustee will create her own secret key. Be careful, once the election is over, you will need the contribution of each trustee to compute the result!"];
+      div [
+          pcdata "You can also set up the election so that only a ";
+          a ~service:election_setup_threshold_trustees [pcdata "threshold"] uuid;
+          pcdata " of trustees is needed to perform the decryption.";
+        ];
       br ();
       trustees;
       (if se.se_public_keys <> [] then
@@ -611,6 +616,121 @@ let election_setup_trustees uuid se () =
   let content = [
     div_content;
     import_link;
+    back_link;
+  ] in
+  let%lwt login_box = site_login_box () in
+  base ~title ?login_box ~content ()
+
+let election_setup_threshold_trustees uuid se () =
+  let title = "Trustees for election " ^ se.se_questions.t_name in
+  let show_add_remove = se.se_threshold = None in
+  let form_trustees_add =
+    if show_add_remove then
+      post_form
+        ~service:election_setup_threshold_trustee_add
+        (fun name ->
+          [
+            pcdata "Trustee's e-mail address: ";
+            string_input ~input_type:`Text ~name ();
+            string_input ~input_type:`Submit ~value:"Add" ();
+          ]
+        ) uuid
+    else pcdata ""
+  in
+  let mk_form_trustee_del value =
+    post_form
+      ~service:election_setup_threshold_trustee_del
+      (fun name ->
+        [
+          int_input ~input_type:`Hidden ~name ~value ();
+          string_input ~input_type:`Submit ~value:"Remove" ();
+      ]) uuid
+  in
+  let trustees = match se.se_threshold_trustees with
+    | None -> pcdata ""
+    | Some ts ->
+       table (
+         tr (
+           [
+             th [pcdata "Trustee"];
+             th [pcdata "Mail"];
+             th [pcdata "Link"];
+             th [pcdata "Step"];
+           ] @ (if show_add_remove then [th [pcdata "Remove"]] else [])
+         ) ::
+           List.mapi (fun i t ->
+             tr (
+                 [
+                   td [
+                       pcdata t.stt_id;
+                     ];
+                   td [
+                       let uri = rewrite_prefix @@
+                                   Eliom_uri.make_string_uri
+                                     ~absolute:true ~service:election_setup_threshold_trustee t.stt_token
+                       in
+                       let body = Printf.sprintf mail_trustee_generation uri in
+                       let subject = "Link to generate the decryption key" in
+                       a_mailto ~dest:t.stt_id ~subject ~body "Mail"
+                     ];
+                   td [
+                       a ~service:election_setup_threshold_trustee [pcdata "Link"] t.stt_token;
+                     ];
+                   td [
+                       pcdata (string_of_int (match t.stt_step with None -> 0 | Some x -> x));
+                     ];
+                 ] @ (if show_add_remove then [td [mk_form_trustee_del i]] else [])
+               )
+             ) ts
+         )
+  in
+  let form_threshold =
+    div [
+        let value =
+          match se.se_threshold with
+          | None -> 0
+          | Some i -> i
+        in
+        post_form
+          ~service:election_setup_threshold_set
+          (fun name ->
+            [
+              pcdata "Threshold: ";
+              int_input ~input_type:`Text ~name ~value ();
+              string_input ~input_type:`Submit ~value:"Set" ();
+            ]
+          ) uuid
+      ]
+  in
+  let maybe_error =
+    match se.se_threshold_error with
+    | None -> pcdata ""
+    | Some e -> div [b [pcdata "ERROR: "]; pcdata e; br (); br ()]
+  in
+  let div_content =
+    div [
+      div [pcdata "On this page, you can configure a group of trustees such that only a threshold of them is needed to perform the decryption."];
+      br ();
+      form_threshold;
+      br ();
+      trustees;
+      (if se.se_threshold_trustees <> None then
+          div [
+            pcdata "There is one link per trustee. Send each trustee her link.";
+            br ();
+            br ();
+            maybe_error;
+          ]
+       else pcdata "");
+      form_trustees_add;
+    ]
+  in
+  let back_link = div [
+    a ~service:Web_services.election_setup
+      [pcdata "Go back to election setup"] uuid;
+  ] in
+  let content = [
+    div_content;
     back_link;
   ] in
   let%lwt login_box = site_login_box () in
@@ -926,6 +1046,83 @@ let election_setup_trustee token uuid se () =
     interactivity;
     form;
   ] in
+  base ~title ~content ()
+
+let unsafe_textarea id contents =
+  Printf.ksprintf Unsafe.data
+    "<textarea id=\"%s\">%s</textarea>"
+    id contents
+
+let election_setup_threshold_trustee token uuid se () =
+  let title = "Trustee for election " ^ se.se_questions.t_name in
+  let div_link =
+    let url = Eliom_uri.make_string_uri ~absolute:true
+                ~service:election_home (uuid, ()) |> rewrite_prefix
+    in
+    div [
+        pcdata "The link to the election will be:";
+        ul [li [pcdata url]];
+      ]
+  in
+  let%lwt trustee =
+    match se.se_threshold_trustees with
+    | None -> fail_http 404
+    | Some ts ->
+       try return (List.find (fun x -> x.stt_token = token) ts)
+       with Not_found -> fail_http 404
+  in
+  let%lwt certs =
+    match se.se_threshold_trustees with
+    | None -> fail_http 404
+    | Some ts ->
+       let certs = List.fold_left (fun accu x ->
+           match x.stt_cert with
+           | None -> accu
+           | Some c -> c :: accu
+         ) [] ts |> Array.of_list
+       in return {certs}
+  in
+  let inputs =
+    div [
+        div [
+            pcdata "Step: ";
+            unsafe_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);
+          ];
+        div [
+            pcdata "Group parameters: ";
+            unsafe_textarea "group" se.se_group;
+          ];
+        div [
+            pcdata "Certificates: ";
+            unsafe_textarea "certs" (string_of_certs certs);
+          ];
+        div [
+            pcdata "Vinput: ";
+            unsafe_textarea "vinput" (match trustee.stt_vinput with None -> "" | Some x -> string_of_vinput x);
+          ];
+      ]
+  in
+  let form =
+    post_form
+      ~service:election_setup_threshold_trustee_post
+      (fun data ->
+        [
+          div [
+              div [
+                  pcdata "Data: ";
+                  textarea ~name:data ();
+                ];
+              div [string_input ~input_type:`Submit ~value:"Submit" ()];
+            ];
+        ]
+      ) token
+  in
+  let content = [
+      div_link;
+      inputs;
+      form;
+    ]
+  in
   base ~title ~content ()
 
 let election_setup_importer ~service ~title uuid (elections, tallied, archived) () =
