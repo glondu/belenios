@@ -245,10 +245,13 @@ module type PEDERSEN = sig
   type elt
 
   val step1 : unit -> (string * cert) m
+  val step1_check : cert -> bool
   val step2 : certs -> unit
   val step3 : certs -> string -> int -> polynomial m
+  val step3_check : certs -> int -> polynomial -> bool
   val step4 : certs -> polynomial array -> vinput array
   val step5 : certs -> string -> vinput -> elt voutput m
+  val step5_check : certs -> int -> polynomial array -> elt voutput -> bool
   val step6 : certs -> polynomial array -> elt voutput array -> elt threshold_parameters
 
   val check : elt threshold_parameters -> bool

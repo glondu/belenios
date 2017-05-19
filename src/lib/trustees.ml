@@ -283,6 +283,8 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     P.make_cert ~sk ~dk >>= fun cert ->
     M.return (seed, cert)
 
+  let step1_check cert = P.verify_cert cert
+
   let step2 {certs} =
     Array.iteri (fun i cert ->
         if P.verify_cert cert then ()
@@ -338,6 +340,10 @@ module MakePedersen (G : GROUP) (M : RANDOM)
       else M.return ()
     in fill_secrets 0 >>= fun () ->
     M.return {p_polynomial; p_secrets; p_coefexps}
+
+  let step3_check certs i polynomial =
+    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) certs.certs in
+    P.verify certs.(i).cert_verification polynomial.p_coefexps
 
   let step4 certs polynomials =
     let n = Array.length certs.certs in
@@ -411,6 +417,22 @@ module MakePedersen (G : GROUP) (M : RANDOM)
             M.return { vo_public_key; vo_private_key }
           )
       )
+
+  let step5_check certs i polynomials voutput =
+    let n = Array.length certs.certs in
+    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) certs.certs in
+    assert (n = Array.length polynomials);
+    let coefexps =
+      Array.init n (fun i ->
+          let x = polynomials.(i).p_coefexps in
+          if not (P.verify certs.(i).cert_verification x) then
+            raise (PedersenFailure (Printf.sprintf "coefexps %d does not validate" (i+1)));
+          (raw_coefexps_of_string G.read x.s_message).coefexps
+        )
+    in
+    let computed_vk = (compute_verification_keys coefexps).(i) in
+    K.check voutput.vo_public_key &&
+    voutput.vo_public_key.trustee_public_key =~ computed_vk
 
   let step6 certs polynomials voutputs =
     let n = Array.length certs.certs in
