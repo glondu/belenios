@@ -107,24 +107,49 @@ let finalize_election uuid se =
   (* trustees *)
   let group = Group.of_string se.se_group in
   let module G = (val group : GROUP) in
-  let module KG = Trustees.MakeSimple (G) (LwtRandom) in
-  let%lwt trustees, public_keys, private_key =
-    match se.se_public_keys with
-    | [] ->
-       let%lwt private_key = KG.generate () in
-       let%lwt public_key = KG.prove private_key in
-       return (None, [public_key], Some private_key)
-    | _ :: _ ->
-       return (
-         Some (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
-         (List.map
-            (fun {st_public_key; _} ->
-              if st_public_key = "" then failwith "some public keys are missing";
-              trustee_public_key_of_string G.read st_public_key
-            ) se.se_public_keys),
-         None)
+  let%lwt y, trustees, pk_or_tp, private_keys =
+    match se.se_threshold_trustees with
+    | None ->
+       let module KG = Trustees.MakeSimple (G) (LwtRandom) in
+       let%lwt trustees, public_keys, private_key =
+         match se.se_public_keys with
+         | [] ->
+            let%lwt private_key = KG.generate () in
+            let%lwt public_key = KG.prove private_key in
+            return (None, [public_key], `KEY private_key)
+         | _ :: _ ->
+            return (
+                Some (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
+                (List.map
+                   (fun {st_public_key; _} ->
+                     if st_public_key = "" then failwith "some public keys are missing";
+                     trustee_public_key_of_string G.read st_public_key
+                   ) se.se_public_keys),
+                `None)
+       in
+       let y = KG.combine (Array.of_list public_keys) in
+       return (y, trustees, `PK public_keys, private_key)
+    | Some ts ->
+       match se.se_threshold_parameters with
+       | None -> failwith "key establishment not finished"
+       | Some tp ->
+          let tp = threshold_parameters_of_string G.read tp in
+          let module P = Trustees.MakePKI (G) (LwtRandom) in
+          let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
+          let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
+          let trustees = List.map (fun {stt_id; _} -> stt_id) ts in
+          let private_keys =
+            List.map (fun {stt_voutput; _} ->
+                match stt_voutput with
+                | Some v ->
+                   let voutput = voutput_of_string G.read v in
+                   voutput.vo_private_key
+                | None -> failwith "inconsistent state"
+              ) ts
+          in
+          let y = K.combine tp in
+          return (y, Some trustees, `TP tp, `KEYS private_keys)
   in
-  let y = KG.combine (Array.of_list public_keys) in
   (* election parameters *)
   let metadata = { se.se_metadata with e_trustees = trustees } in
   let template = se.se_questions in
@@ -149,7 +174,10 @@ let finalize_election uuid se =
               Lwt_io.write oc "\n") xs)
   in
   Lwt_unix.mkdir dir 0o700 >>
-  create_file "public_keys.jsons" (string_of_trustee_public_key G.write) public_keys >>
+  (match pk_or_tp with
+   | `PK pk -> create_file "public_keys.jsons" (string_of_trustee_public_key G.write) pk
+   | `TP tp -> create_file "threshold.json" (string_of_threshold_parameters G.write) [tp]
+  ) >>
   create_file "voters.txt" (fun x -> x.sv_id) se.se_voters >>
   create_file "metadata.json" string_of_metadata [metadata] >>
   create_file "election.json" (fun x -> x) [raw_election] >>
@@ -176,11 +204,12 @@ let finalize_election uuid se =
     W.B.update_files () >>
     Lwt_unix.unlink fname
   in
-  (* create file with private key, if any *)
+  (* create file with private keys, if any *)
   let%lwt () =
-    match private_key with
-    | None -> return_unit
-    | Some x -> create_file "private_key.json" string_of_number [x]
+    match private_keys with
+    | `None -> return_unit
+    | `KEY x -> create_file "private_key.json" string_of_number [x]
+    | `KEYS x -> create_file "private_keys.jsons" (fun x -> x) x
   in
   (* clean up setup database *)
   Ocsipersist.remove election_credtokens se.se_public_creds >>
@@ -188,6 +217,13 @@ let finalize_election uuid se =
     (fun {st_token; _} ->
       Ocsipersist.remove election_pktokens st_token)
     se.se_public_keys >>
+  (match se.se_threshold_trustees with
+   | None -> return_unit
+   | Some ts ->
+      Lwt_list.iter_s
+        (fun x -> Ocsipersist.remove election_tpktokens x.stt_token)
+        ts
+  ) >>
   Ocsipersist.remove election_stable uuid_s >>
   (* inject passwords *)
   (match metadata.e_auth_config with
@@ -1442,14 +1478,14 @@ let () =
 
 let content_type_of_file = function
   | ESRaw -> "application/json; charset=utf-8"
-  | ESKeys | ESBallots | ESETally | ESResult -> "application/json"
+  | ESKeys | ESTParams | ESBallots | ESETally | ESResult -> "application/json"
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
 let handle_pseudo_file uuid_s w f site_user =
   let module W = (val w : ELECTION_DATA) in
   let confidential =
     match f with
-    | ESRaw | ESKeys | ESBallots | ESETally | ESResult | ESCreds -> false
+    | ESRaw | ESKeys | ESTParams | ESBallots | ESETally | ESResult | ESCreds -> false
     | ESRecords | ESVoters -> true
   in
   let%lwt () =

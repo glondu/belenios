@@ -153,6 +153,13 @@ let get_public_keys uuid =
     return @@ Some lines
   with _ -> return_none
 
+let get_threshold uuid =
+  try%lwt
+    Lwt_io.chars_of_file (!spool_dir / uuid / "threshold.json") |>
+    Lwt_stream.to_string >>= fun x ->
+    return (Some x)
+  with _ -> return_none
+
 module Ballots = Map.Make (String)
 
 module BallotsCacheTypes = struct

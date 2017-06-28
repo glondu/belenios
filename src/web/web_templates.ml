@@ -584,6 +584,27 @@ let election_setup_trustees uuid se () =
            ) ts
        )
   in
+  let import_link = div [
+                        a ~service:Web_services.election_setup_import_trustees
+                          [pcdata "Import trustees from another election"] uuid
+                      ]
+  in
+  let div_trustees =
+    if se.se_threshold_trustees = None then
+      div [
+          trustees;
+          (if se.se_public_keys <> [] then
+             div [
+                 pcdata "There is one link per trustee. Send each trustee her link.";
+                 br ();
+                 br ();
+               ]
+           else pcdata "");
+          form_trustees_add;
+          import_link;
+        ]
+    else pcdata ""
+  in
   let div_content =
     div [
       div [pcdata "If you do not wish the server to store any keys, you may nominate trustees. In that case, each trustee will create her own secret key. Be careful, once the election is over, you will need the contribution of each trustee to compute the result!"];
@@ -593,21 +614,8 @@ let election_setup_trustees uuid se () =
           pcdata " of trustees is needed to perform the decryption.";
         ];
       br ();
-      trustees;
-      (if se.se_public_keys <> [] then
-          div [
-            pcdata "There is one link per trustee. Send each trustee her link.";
-            br ();
-            br ();
-          ]
-       else pcdata "");
-      form_trustees_add;
+      div_trustees;
     ]
-  in
-  let import_link = div [
-                        a ~service:Web_services.election_setup_import_trustees
-                          [pcdata "Import trustees from another election"] uuid
-                      ]
   in
   let back_link = div [
     a ~service:Web_services.election_setup
@@ -615,7 +623,6 @@ let election_setup_trustees uuid se () =
   ] in
   let content = [
     div_content;
-    import_link;
     back_link;
   ] in
   let%lwt login_box = site_login_box () in
@@ -1191,9 +1198,13 @@ let election_setup_confirm uuid se () =
     match se.se_public_keys with
     | [] -> ready, "OK"
     | _ :: _ ->
-       if List.for_all (fun {st_public_key; _} ->
-         st_public_key <> ""
-       ) se.se_public_keys then ready, "OK" else false, "Missing"
+       match se.se_threshold_trustees with
+       | None -> if List.for_all (fun {st_public_key; _} ->
+                        st_public_key <> ""
+                      ) se.se_public_keys then ready, "OK" else false, "Missing"
+       | Some _ ->
+          if se.se_threshold_parameters <> None then ready, "OK"
+          else false, "Missing"
   in
   let div_trustee_warning =
     match se.se_public_keys with
@@ -1283,6 +1294,18 @@ let audit_footer w =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
+  let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
+  let%lwt pk_or_tp =
+    match%lwt Web_persist.get_threshold uuid_s with
+    | None ->
+       return (a ~service:(file w ESKeys) [
+                   pcdata L.trustee_public_keys
+                 ] ())
+    | Some _ ->
+       return (a ~service:(file w ESTParams) [
+                   pcdata "threshold parameters"
+                 ] ())
+  in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
       div [
@@ -1295,9 +1318,7 @@ let audit_footer w =
           pcdata L.parameters
         ] ();
         pcdata ", ";
-        a ~service:(file w ESKeys) [
-          pcdata L.trustee_public_keys
-        ] ();
+        pk_or_tp;
         pcdata ", ";
         a ~service:(file w ESCreds) [
           pcdata L.public_credentials
