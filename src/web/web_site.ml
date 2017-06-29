@@ -48,6 +48,9 @@ let election_pktokens = Ocsipersist.open_table "site_pktokens"
 (* Table with tokens given to trustees (in threshold mode). *)
 let election_tpktokens = Ocsipersist.open_table "site_tpktokens"
 
+(* Table with tokens given to trustees (in threshold mode) to decrypt *)
+let election_tokens_decrypt = Ocsipersist.open_table "site_tokens_decrypt"
+
 (* Table with tokens given to credential authorities. *)
 let election_credtokens = Ocsipersist.open_table "site_credtokens"
 
@@ -260,6 +263,7 @@ let cleanup_file f =
 let archive_election uuid_s =
   let uuid_u = underscorize uuid_s in
   let%lwt () = cleanup_table ~uuid_s "election_states" in
+  let%lwt () = cleanup_table ~uuid_s "site_tokens_decrypt" in
   let%lwt () = cleanup_table ~uuid_s "election_pds" in
   let%lwt () = cleanup_table ~uuid_s "auth_configs" in
   let%lwt () = cleanup_table ("password_" ^ uuid_u) in
@@ -1092,7 +1096,18 @@ let () =
      match site_user with
      | Some u when metadata.e_owner = Some u ->
         let%lwt state = Web_persist.get_election_state uuid_s in
-        T.election_admin w metadata state () >>= Html5.send
+        let get_tokens_decrypt () =
+          try%lwt
+            Ocsipersist.find election_tokens_decrypt uuid_s
+          with Not_found ->
+            match metadata.e_trustees with
+            | None -> failwith "missing trustees in get_tokens_decrypt"
+            | Some ts ->
+               let%lwt ts = Lwt_list.map_s (fun _ -> generate_token ()) ts in
+               Ocsipersist.add election_tokens_decrypt uuid_s ts >>
+               return ts
+        in
+        T.election_admin w metadata state get_tokens_decrypt () >>= Html5.send
      | _ ->
         let cont () =
           Redirection.send (Eliom_service.preapply election_admin (uuid, ()))
@@ -1346,10 +1361,20 @@ let () =
       T.pretty_records w (List.rev records) () >>= Html5.send
     )
 
+let find_trustee_id uuid_s token =
+  try%lwt
+    let%lwt tokens = Ocsipersist.find election_tokens_decrypt uuid_s in
+    let rec find i = function
+      | [] -> raise Not_found
+      | t :: ts -> if t = token then i else find (i+1) ts
+    in
+    return (find 1 tokens)
+  with Not_found -> return (try int_of_string token with _ -> 0)
+
 let () =
   Any.register
     ~service:election_tally_trustees
-    (fun (uuid, ((), trustee_id)) () ->
+    (fun (uuid, ((), token)) () ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
       let module W = (val w) in
@@ -1358,25 +1383,27 @@ let () =
         | `EncryptedTally _ -> return ()
         | _ -> fail_http 404
       in
+      let%lwt trustee_id = find_trustee_id uuid_s token in
       let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
       if List.mem_assoc trustee_id pds then (
         T.generic_page ~title:"Error"
           "Your partial decryption has already been received and checked!"
           () >>= Html5.send
       ) else (
-        T.tally_trustees (module W) trustee_id () >>= Html5.send
+        T.tally_trustees (module W) trustee_id token () >>= Html5.send
       ))
 
 let () =
   Any.register
     ~service:election_tally_trustees_post
-    (fun (uuid, ((), trustee_id)) partial_decryption ->
+    (fun (uuid, ((), token)) partial_decryption ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt () =
         match%lwt Web_persist.get_election_state uuid_s with
         | `EncryptedTally _ -> return ()
         | _ -> forbidden ()
       in
+      let%lwt trustee_id = find_trustee_id uuid_s token in
       let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
       let%lwt () =
         if List.mem_assoc trustee_id pds then forbidden () else return ()
@@ -1387,18 +1414,20 @@ let () =
       let%lwt w = find_election uuid_s in
       let module W = (val w) in
       let module E = Election.MakeElection (W.G) (LwtRandom) in
-      let pks = !spool_dir / uuid_s / string_of_election_file ESKeys in
-      let pks = Lwt_io.lines_of_file pks in
-      let%lwt () = Lwt_stream.njunk (trustee_id-1) pks in
-      let%lwt pk = Lwt_stream.peek pks in
-      let%lwt () = Lwt_stream.junk_while (fun _ -> true) pks in
-      let%lwt pk =
-        match pk with
-        | None -> fail_http 404
-        | Some x -> return x
+      let%lwt pks =
+        match%lwt Web_persist.get_threshold uuid_s with
+        | Some tp ->
+           let tp = threshold_parameters_of_string W.G.read tp in
+           return tp.t_verification_keys
+        | None ->
+           match%lwt Web_persist.get_public_keys uuid_s with
+           | None -> failwith "no public keys in election_tally_trustees_post"
+           | Some pks ->
+              let pks = Array.of_list pks in
+              let pks = Array.map (trustee_public_key_of_string W.G.read) pks in
+              return pks
       in
-      let pk = trustee_public_key_of_string W.G.read pk in
-      let pk = pk.trustee_public_key in
+      let pk = pks.(trustee_id-1).trustee_public_key in
       let pd = partial_decryption_of_string W.G.read partial_decryption in
       let et = !spool_dir / uuid_s / string_of_election_file ESETally in
       let%lwt et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
@@ -1410,7 +1439,7 @@ let () =
           "Your partial decryption has been received and checked!" () >>=
         Html5.send
       ) else (
-        let service = preapply election_tally_trustees (uuid, ((), trustee_id)) in
+        let service = preapply election_tally_trustees (uuid, ((), token)) in
         T.generic_page ~title:"Error" ~service
           "The partial decryption didn't pass validation!" () >>=
         Html5.send
@@ -1422,7 +1451,6 @@ let handle_election_tally_release (uuid, ()) () =
       let%lwt metadata = Web_persist.get_election_metadata uuid_s in
       let module W = (val w) in
       let module E = Election.MakeElection (W.G) (LwtRandom) in
-      let module KG = Trustees.MakeSimple (W.G) (LwtRandom) in
       let%lwt () =
         match%lwt Web_state.get_site_user () with
         | Some u when metadata.e_owner = Some u -> return ()
@@ -1433,33 +1461,51 @@ let handle_election_tally_release (uuid, ()) () =
         | `EncryptedTally (npks, ntallied, _) -> return (npks, ntallied)
         | _ -> forbidden ()
       in
-      let%lwt pks =
-        match%lwt Web_persist.get_public_keys uuid_s with
-          | Some l -> return (Array.of_list l)
-          | _ -> fail_http 404
-      in
-      let pks =
-        Array.map (fun pk ->
-            (trustee_public_key_of_string W.G.read pk).trustee_public_key
-          ) pks
-      in
-      assert (npks = Array.length pks);
-      let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
-      let%lwt pds =
-        try
-          return @@ Array.init npks (fun i ->
-            List.assoc (i+1) pds |> partial_decryption_of_string W.G.read
-          )
-        with Not_found -> fail_http 404
-      in
       let%lwt et =
         !spool_dir / uuid_s / string_of_election_file ESETally |>
         Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
         wrap1 (encrypted_tally_of_string W.G.read)
       in
+      let%lwt tp = Web_persist.get_threshold uuid_s in
+      let tp =
+        match tp with
+        | None -> None
+        | Some tp -> Some (threshold_parameters_of_string W.G.read tp)
+      in
+      let threshold =
+        match tp with
+        | None -> npks
+        | Some tp -> tp.t_threshold
+      in
+      let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
+      let pds = List.map snd pds in
+      let pds = List.map (partial_decryption_of_string W.G.read) pds in
+      let%lwt () =
+        if List.length pds < threshold then fail_http 404 else return_unit
+      in
       let checker = E.check_factor et in
-      let combinator = KG.combine_factors checker pks in
-      let result = E.compute_result ntallied et (Array.to_list pds) combinator in
+      let%lwt combinator =
+        match tp with
+        | None ->
+           let module K = Trustees.MakeSimple (W.G) (LwtRandom) in
+           let%lwt pks =
+             match%lwt Web_persist.get_public_keys uuid_s with
+             | Some l -> return (Array.of_list l)
+             | _ -> fail_http 404
+           in
+           let pks =
+             Array.map (fun pk ->
+                 (trustee_public_key_of_string W.G.read pk).trustee_public_key
+               ) pks
+           in
+           return (K.combine_factors checker pks)
+        | Some tp ->
+           let module P = Trustees.MakePKI (W.G) (LwtRandom) in
+           let module C = Trustees.MakeChannels (W.G) (LwtRandom) (P) in
+           let module K = Trustees.MakePedersen (W.G) (LwtRandom) (P) (C) in
+           return (K.combine_factors checker tp)
+      in
+      let result = E.compute_result ntallied et pds combinator in
       let%lwt () =
         let open Lwt_io in
         with_file
@@ -1467,6 +1513,7 @@ let handle_election_tally_release (uuid, ()) () =
           (fun oc -> Lwt_io.write_line oc (string_of_result W.G.write result))
       in
       let%lwt () = Web_persist.set_election_state uuid_s (`Tallied result.result) in
+      let%lwt () = Ocsipersist.remove election_tokens_decrypt uuid_s in
       Eliom_service.preapply
         election_home (W.election.e_params.e_uuid, ()) |>
       Redirection.send
@@ -1529,15 +1576,21 @@ let () =
         | _ -> forbidden ()
       in
       let%lwt nb, hash, tally = WE.B.compute_encrypted_tally () in
-      let pks = !spool_dir / uuid_s / string_of_election_file ESKeys in
-      let pks = Lwt_io.lines_of_file pks in
-      let npks = ref 0 in
-      let%lwt () = Lwt_stream.junk_while (fun _ -> incr npks; true) pks in
-      Web_persist.set_election_state uuid_s (`EncryptedTally (!npks, nb, hash)) >>
+      let%lwt npks =
+        match%lwt Web_persist.get_threshold uuid_s with
+        | Some tp ->
+           let tp = threshold_parameters_of_string WE.G.read tp in
+           return (Array.length tp.t_verification_keys)
+        | None ->
+           match%lwt Web_persist.get_public_keys uuid_s with
+           | Some pks -> return (List.length pks)
+           | None -> failwith "missing public keys and threshold parameters"
+      in
+      Web_persist.set_election_state uuid_s (`EncryptedTally (npks, nb, hash)) >>
       (* compute partial decryption and release tally
          if the (single) key is known *)
       let skfile = !spool_dir / uuid_s / "private_key.json" in
-      if !npks = 1 && Sys.file_exists skfile then (
+      if npks = 1 && Sys.file_exists skfile then (
         let%lwt sk = Lwt_io.lines_of_file skfile |> Lwt_stream.to_list in
         let sk = match sk with
           | [sk] -> number_of_string sk

@@ -1493,7 +1493,7 @@ Thank you again for your help,
 
 -- \nThe election administrator."
 
-let election_admin w metadata state () =
+let election_admin w metadata state get_tokens_decrypt () =
   let module W = (val w : ELECTION_DATA) in
   let title = W.election.e_params.e_name ^ " — Administration" in
   let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
@@ -1536,6 +1536,17 @@ let election_admin w metadata state () =
        ]
     | `EncryptedTally (npks, _, hash) ->
        let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
+       let%lwt tp = Web_persist.get_threshold uuid_s in
+       let tp =
+         match tp with
+         | None -> None
+         | Some tp -> Some (threshold_parameters_of_string W.G.read tp)
+       in
+       let threshold_or_not =
+         match tp with
+         | None -> pcdata ""
+         | Some tp -> pcdata (Printf.sprintf " At least %d trustees must act." tp.t_threshold)
+       in
        let trustees =
          let rec loop i ts =
            if i <= npks then
@@ -1548,11 +1559,18 @@ let election_admin w metadata state () =
          | None -> loop 1 []
          | Some ts -> loop 1 ts
        in
+       let rec seq i j = if i >= j then [] else i :: (seq (i+1) j) in
+       let%lwt trustee_tokens =
+         match tp with
+         | None -> return (List.map string_of_int (seq 1 (npks+1)))
+         | Some _ -> get_tokens_decrypt ()
+       in
+       let trustees = List.combine trustees trustee_tokens in
        let trustees =
          List.map
-           (fun (name, trustee_id) ->
+           (fun ((name, trustee_id), token) ->
              let service = election_tally_trustees in
-             let x = (W.election.e_params.e_uuid, ((), trustee_id)) in
+             let x = (W.election.e_params.e_uuid, ((), token)) in
              let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
                ~absolute:true ~service x
              in
@@ -1598,7 +1616,7 @@ let election_admin w metadata state () =
            pcdata ".";
          ];
          div [
-           div [pcdata "We are now waiting for trustees..."];
+           div [pcdata "We are now waiting for trustees..."; threshold_or_not];
            table
              (tr [
                th [pcdata "Trustee"];
@@ -1985,11 +2003,16 @@ let pretty_records w records () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let tally_trustees w trustee_id () =
+let tally_trustees w trustee_id token () =
   let module W = (val w : ELECTION_DATA) in
   let params = W.election.e_params in
   let title =
     params.e_name ^ " — Partial decryption #" ^ string_of_int trustee_id
+  in
+  let%lwt encrypted_private_key =
+    match%lwt Web_persist.get_private_keys (Uuidm.to_string params.e_uuid) with
+    | None -> return_none
+    | Some keys -> return (Some (List.nth keys (trustee_id-1)))
   in
   let content = [
     p [pcdata "It is now time to compute your partial decryption factors."];
@@ -1998,6 +2021,14 @@ let tally_trustees w trustee_id () =
       b [span ~a:[a_id "hash"] []];
       pcdata "."
     ];
+    (
+      match encrypted_private_key with
+      | None -> pcdata ""
+      | Some epk ->
+         div ~a:[a_style "display:none;"] [
+             unsafe_textarea "encrypted_private_key" epk
+           ];
+    );
     div ~a:[a_id "input_private_key"] [
       p [pcdata "Please enter your private key:"];
       input
@@ -2022,7 +2053,7 @@ let tally_trustees w trustee_id () =
             ];
             div [string_input ~input_type:`Submit ~value:"Submit" ()];
           ]
-        ) (params.e_uuid, ((), trustee_id));
+        ) (params.e_uuid, ((), token));
     ];
     div [
       script ~a:[a_src (uri_of_string (fun () -> "../../../static/sjcl.js"))] (pcdata "");

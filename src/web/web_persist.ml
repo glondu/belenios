@@ -153,6 +153,13 @@ let get_public_keys uuid =
     return @@ Some lines
   with _ -> return_none
 
+let get_private_keys uuid =
+  try%lwt
+    let lines = Lwt_io.lines_of_file (!spool_dir / uuid / "private_keys.jsons") in
+    let%lwt lines = Lwt_stream.to_list lines in
+    return @@ Some lines
+  with _ -> return_none
+
 let get_threshold uuid =
   try%lwt
     Lwt_io.chars_of_file (!spool_dir / uuid / "threshold.json") |>

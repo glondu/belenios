@@ -51,7 +51,7 @@ val election_setup_import_trustees : Uuidm.t -> setup_election -> (module ELECTI
 val election_setup_confirm : Uuidm.t -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val election_home : (module ELECTION_DATA) -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_admin : (module ELECTION_DATA) -> Web_serializable_j.metadata -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_admin : (module ELECTION_DATA) -> Web_serializable_j.metadata -> Web_persist.election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val update_credential : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val regenpwd : Uuidm.t -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_raw : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
@@ -60,7 +60,7 @@ val cast_confirmed : (module ELECTION_DATA) -> result:[< `Error of Web_common.er
 val pretty_ballots : (module ELECTION_DATA) -> string list -> Yojson.Safe.json result option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val pretty_records : (module ELECTION_DATA) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val tally_trustees : (module ELECTION_DATA) -> int -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val tally_trustees : (module ELECTION_DATA) -> int -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val already_logged_in :
   unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
