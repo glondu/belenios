@@ -1207,13 +1207,13 @@ let election_setup_confirm uuid se () =
           else false, "Missing"
   in
   let div_trustee_warning =
-    match se.se_public_keys with
-    | [] ->
+    match se.se_threshold_trustees, se.se_public_keys with
+    | None, [] ->
        div [
            b [pcdata "Warning:"];
            pcdata " No trustees were set. This means that the server will manage the election key by itself.";
          ]
-    | _ :: _ -> pcdata ""
+    | _, _ -> pcdata ""
   in
   let table_checklist = table [
     tr [
