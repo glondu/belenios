@@ -21,13 +21,19 @@
 
 let sjcl = Js.Unsafe.variable "sjcl"
 
+let hex_fromBits x =
+  Js.Unsafe.meth_call sjcl "codec.hex.fromBits"
+    [| x |] |> Js.to_string
+
+let hex_toBits x =
+  Js.Unsafe.meth_call sjcl "codec.hex.toBits"
+    [| Js.string x |> Js.Unsafe.inject |]
+
 let sha256 x =
   Js.Unsafe.meth_call sjcl "hash.sha256.hash"
     [| Js.string x |> Js.Unsafe.inject |]
 
-let sha256_hex x =
-  Js.Unsafe.meth_call sjcl "codec.hex.fromBits"
-    [| sha256 x |] |> Js.to_string
+let sha256_hex x = hex_fromBits (sha256 x)
 
 let sha256_b64 x =
   let raw =
@@ -39,9 +45,7 @@ let sha256_b64 x =
   | None -> raw
 
 let pbkdf2_hex ~iterations ~salt x =
-  let salt = Js.Unsafe.meth_call sjcl "codec.hex.toBits"
-    [| Js.string salt |> Js.Unsafe.inject |]
-  in
+  let salt = hex_toBits salt in
   let derived = Js.Unsafe.meth_call sjcl "misc.pbkdf2"
     [|
       Js.string x |> Js.Unsafe.inject;
@@ -50,8 +54,7 @@ let pbkdf2_hex ~iterations ~salt x =
       Js.Unsafe.inject 256;
     |]
   in
-  Js.Unsafe.meth_call sjcl "codec.hex.fromBits"
-    [| derived |] |> Js.to_string
+  hex_fromBits derived
 
 type rng = unit -> unit
 
