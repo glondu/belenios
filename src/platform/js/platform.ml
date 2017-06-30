@@ -56,6 +56,13 @@ let pbkdf2_hex ~iterations ~salt x =
   in
   hex_fromBits derived
 
+let aes_hex ~key ~data =
+  let key = hex_toBits key in
+  let data = hex_toBits data in
+  let cipher = Js.Unsafe.(new_obj (get sjcl "cipher.aes") [| key |]) in
+  let output = Js.Unsafe.meth_call cipher "encrypt" [| data |] in
+  hex_fromBits output
+
 type rng = unit -> unit
 
 let sjcl_random = Js.Unsafe.get sjcl "random"

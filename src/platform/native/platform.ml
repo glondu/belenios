@@ -69,6 +69,13 @@ let pbkdf2_hex ~iterations ~salt x =
   pbkdf2 ~prf:MAC.hmac_sha256 ~iterations ~size:1 ~salt x |>
   transform_string (Hexa.encode ())
 
+let aes_hex ~key ~data =
+  let open Cryptokit in
+  let key = transform_string (Hexa.decode ()) key in
+  let data = transform_string (Hexa.decode ()) data in
+  let output = transform_string (Cipher.(aes ~mode:ECB key Encrypt)) data in
+  transform_string (Hexa.encode ()) output
+
 type rng = Cryptokit.Random.rng
 
 let secure_rng =

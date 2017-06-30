@@ -74,6 +74,7 @@ module Tests = struct
     let j = Z.of_bits "\x81\xab\xd3\xed\x0b\x19\x2e\x40\x7a\xca" in
     let k = Z.of_string "956173156978067279948673" in
     check "of_bits" (fun () -> Z.(j =% k));
+    check "AES" (fun () -> aes_hex ~key:"0000000000000000000000000000000000000000000000000000000000000000" ~data:"00000000000000000000000000000000" = "dc95c078a2408989ad48a21492842087");
     Printf.ksprintf alert "%d tests were successful!" !ntests
 
   let cmds = ["do_unit_tests", unit_tests]
