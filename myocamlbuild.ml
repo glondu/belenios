@@ -132,6 +132,7 @@ let () = dispatch & function
     copy_rule "booth.js" "src/booth/booth.js" "src/static/booth.js";
 
     copy_rule "tool_js_tkeygen.js" "src/tool/tool_js_tkeygen.js" "src/static/tool_js_tkeygen.js";
+    copy_rule "tool_js_ttkeygen.js" "src/tool/tool_js_ttkeygen.js" "src/static/tool_js_ttkeygen.js";
     copy_rule "tool_js_credgen.js" "src/tool/tool_js_credgen.js" "src/static/tool_js_credgen.js";
     copy_rule "tool_js_questions.js" "src/tool/tool_js_questions.js" "src/static/tool_js_questions.js";
     copy_rule "tool_js_pd.js" "src/tool/tool_js_pd.js" "src/static/tool_js_pd.js";

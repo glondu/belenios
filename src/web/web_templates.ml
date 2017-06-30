@@ -1086,11 +1086,16 @@ let election_setup_threshold_trustee token uuid se () =
            match x.stt_cert with
            | None -> accu
            | Some c -> c :: accu
-         ) [] ts |> Array.of_list
+         ) [] ts |> List.rev |> Array.of_list
        in return {certs}
   in
+  let threshold =
+    match se.se_threshold with
+    | None -> 0
+    | Some t -> t
+  in
   let inputs =
-    div [
+    div ~a:[a_style "display:none;"] [
         div [
             pcdata "Step: ";
             unsafe_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);
@@ -1102,6 +1107,10 @@ let election_setup_threshold_trustee token uuid se () =
         div [
             pcdata "Certificates: ";
             unsafe_textarea "certs" (string_of_certs certs);
+          ];
+        div [
+            pcdata "Threshold: ";
+            unsafe_textarea "threshold" (string_of_int threshold);
           ];
         div [
             pcdata "Vinput: ";
@@ -1117,16 +1126,28 @@ let election_setup_threshold_trustee token uuid se () =
           div [
               div [
                   pcdata "Data: ";
-                  textarea ~name:data ();
+                  textarea ~a:[a_id "data"] ~name:data ();
                 ];
               div [string_input ~input_type:`Submit ~value:"Submit" ()];
             ];
         ]
       ) token
   in
+  let interactivity =
+    div
+      ~a:[a_id "interactivity"]
+      [
+        script ~a:[a_src (uri_of_string (fun () -> "../static/sjcl.js"))] (pcdata "");
+        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn.js"))] (pcdata "");
+        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn2.js"))] (pcdata "");
+        script ~a:[a_src (uri_of_string (fun () -> "../static/random.js"))] (pcdata "");
+        script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_ttkeygen.js"))] (pcdata "");
+      ]
+  in
   let content = [
       div_link;
       inputs;
+      interactivity;
       form;
     ]
   in
