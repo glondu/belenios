@@ -126,11 +126,25 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     let prefix = "sigmsg|" ^ s_message ^ "|" in
     Z.(challenge =% G.hash prefix [|commitment|])
 
-  let encrypt y s =
-    M.return s
+  let encrypt y plaintext =
+    M.bind (M.random G.q) (fun r ->
+        M.bind (M.random G.q) (fun key ->
+            let key = G.(g **~ key) in
+            let y_alpha = G.(g **~ r) in
+            let y_beta = G.((y **~ r) *~ key) in
+            let key = sha256_hex (G.to_string key) in
+            let iv = sha256_hex (G.to_string y_alpha) in
+            let y_data = Platform.encrypt ~key ~iv ~plaintext in
+            let msg = {y_alpha; y_beta; y_data} in
+            M.return (string_of_encrypted_msg G.write msg)
+          )
+      )
 
-  let decrypt x s =
-    s
+  let decrypt x msg =
+    let {y_alpha; y_beta; y_data} = encrypted_msg_of_string G.read msg in
+    let key = sha256_hex G.(to_string (y_beta *~ invert (y_alpha **~ x))) in
+    let iv = sha256_hex (G.to_string y_alpha) in
+    Platform.decrypt ~key ~iv ~ciphertext:y_data
 
   let make_cert ~sk ~dk =
     let cert_keys = {

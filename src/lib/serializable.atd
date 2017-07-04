@@ -141,6 +141,12 @@ type 'a channel_msg = {
   message : string;
 } <ocaml field_prefix="c_">
 
+type 'a encrypted_msg = {
+  alpha : 'a;
+  beta : 'a;
+  data : string;
+} <ocaml field_prefix="y_">
+
 (** {2 Threshold decryption support} *)
 
 type 'a cert_keys = {
