@@ -25,6 +25,10 @@ val pbkdf2_hex : iterations:int -> salt:string -> string -> string
 
 val aes_hex : key:string -> data:string -> string
 
+(** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
+val encrypt : key:string -> iv:string -> plaintext:string -> string
+val decrypt : key:string -> iv:string -> ciphertext:string -> string
+
 type rng
 val secure_rng : rng
 val pseudo_rng : string -> rng

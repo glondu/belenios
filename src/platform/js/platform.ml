@@ -29,6 +29,14 @@ let hex_toBits x =
   Js.Unsafe.meth_call sjcl "codec.hex.toBits"
     [| Js.string x |> Js.Unsafe.inject |]
 
+let utf8String_fromBits x =
+  Js.Unsafe.meth_call sjcl "codec.utf8String.fromBits"
+    [| x |] |> Js.to_string
+
+let utf8String_toBits x =
+  Js.Unsafe.meth_call sjcl "codec.utf8String.toBits"
+    [| Js.string x |> Js.Unsafe.inject |]
+
 let sha256 x =
   Js.Unsafe.meth_call sjcl "hash.sha256.hash"
     [| Js.string x |> Js.Unsafe.inject |]
@@ -62,6 +70,22 @@ let aes_hex ~key ~data =
   let cipher = Js.Unsafe.(new_obj (get sjcl "cipher.aes") [| key |]) in
   let output = Js.Unsafe.meth_call cipher "encrypt" [| data |] in
   hex_fromBits output
+
+let encrypt ~key ~iv ~plaintext =
+  let key = hex_toBits key in
+  let iv = hex_toBits iv in
+  let plaintext = utf8String_toBits plaintext in
+  let prf = Js.Unsafe.(new_obj (get sjcl "cipher.aes") [| key |]) in
+  let ciphertext = Js.Unsafe.meth_call sjcl "mode.ccm.encrypt" [| prf; plaintext; iv |] in
+  hex_fromBits ciphertext
+
+let decrypt ~key ~iv ~ciphertext =
+  let key = hex_toBits key in
+  let iv = hex_toBits iv in
+  let ciphertext = hex_toBits ciphertext in
+  let prf = Js.Unsafe.(new_obj (get sjcl "cipher.aes") [| key |]) in
+  let plaintext = Js.Unsafe.meth_call sjcl "mode.ccm.decrypt" [| prf; ciphertext; iv |] in
+  utf8String_fromBits plaintext
 
 type rng = unit -> unit
 
