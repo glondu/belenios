@@ -930,6 +930,11 @@ let election_setup_voters uuid se maxvoters () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
+let unsafe_textarea id contents =
+  Printf.ksprintf Unsafe.data
+    "<textarea id=\"%s\">%s</textarea>"
+    id contents
+
 let election_setup_credentials token uuid se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
   let div_link =
@@ -975,23 +980,20 @@ let election_setup_credentials token uuid se () =
            token]
   in
   let group =
-    let name : 'a Eliom_parameter.param_name = Obj.magic "group" in
-    let value = se.se_group in
     div
       ~a:[a_style "display:none;"]
       [
         div [pcdata "UUID:"];
-        div [textarea ~a:[a_id "uuid"; a_rows 1; a_cols 40; a_readonly `ReadOnly] ~name ~value:(Uuidm.to_string uuid) ()];
+        div [unsafe_textarea "uuid" (Uuidm.to_string uuid)];
         div [pcdata "Group parameters:"];
-        div [textarea ~a:[a_id "group"; a_rows 5; a_cols 40; a_readonly `ReadOnly] ~name ~value ()];
+        div [unsafe_textarea "group" se.se_group];
       ]
   in
   let voters =
-    let name : 'a Eliom_parameter.param_name = Obj.magic "voters" in
     let value = String.concat "\n" (List.map (fun x -> x.sv_id) se.se_voters) in
     div [
       div [pcdata "List of voters:"];
-      div [textarea ~a:[a_id "voters"; a_rows 5; a_cols 40; a_readonly `ReadOnly] ~name ~value ()];
+      div [unsafe_textarea "voters" value];
     ]
   in
   let interactivity =
@@ -1049,13 +1051,11 @@ let election_setup_trustee token uuid se () =
       ) ()
   in
   let group =
-    let name : 'a Eliom_parameter.param_name = Obj.magic "group" in
-    let value = se.se_group in
     div
       ~a:[a_style "display:none;"]
       [
         div [pcdata "Group parameters:"];
-        div [textarea ~a:[a_id "group"; a_rows 5; a_cols 40; a_readonly `ReadOnly] ~name ~value ()];
+        div [unsafe_textarea "group" se.se_group];
       ]
   in
   let interactivity =
@@ -1076,11 +1076,6 @@ let election_setup_trustee token uuid se () =
     form;
   ] in
   base ~title ~content ()
-
-let unsafe_textarea id contents =
-  Printf.ksprintf Unsafe.data
-    "<textarea id=\"%s\">%s</textarea>"
-    id contents
 
 let election_setup_threshold_trustee token uuid se () =
   let title = "Trustee for election " ^ se.se_questions.t_name in
@@ -2194,18 +2189,14 @@ let booth () =
     script ~a:[a_src (uri_of_string (fun () -> "/static/booth.js"))] (pcdata "");
   ] in
   let election_loader =
-    let name : 'a Eliom_parameter.param_name = Obj.magic "election_params" in
     div ~a:[a_id "election_loader"; a_style "display:none;"] [
       h1 [pcdata "Election loader"];
       pcdata "Election parameters:";
-      div [textarea ~name ~a:[a_id "election_params"; a_rows 1; a_cols 80] ()];
+      div [unsafe_textarea "election_params" ""];
       div [button ~button_type:`Button ~a:[a_id "load_election"] [pcdata "Load election"]];
     ]
   in
-  let text_choices =
-    let name : 'a Eliom_parameter.param_name = Obj.magic "choices" in
-    textarea ~name ~a:[a_id "choices"; a_rows 1; a_cols 80; a_readonly `ReadOnly] ()
-  in
+  let text_choices = unsafe_textarea "choices" "" in
   let ballot_form =
     post_form ~a:[a_id "ballot_form"] ~service:election_cast_post
       (fun (encrypted_vote, _) -> [
