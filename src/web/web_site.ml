@@ -1615,8 +1615,6 @@ let () =
 let () =
   Any.register ~service:election_setup_threshold_set
     (fun uuid threshold ->
-      if threshold < 0 then forbidden () else
-      let threshold, step = if threshold = 0 then None, None else Some threshold, Some 1 in
       match%lwt Web_state.get_site_user () with
       | Some u ->
          let uuid_s = Uuidm.to_string uuid in
@@ -1624,15 +1622,28 @@ let () =
              let%lwt se = get_setup_election uuid_s in
              if se.se_owner = u
              then (
-               (match se.se_threshold_trustees with
-                | None -> ()
-                | Some xs -> List.iter (fun x -> x.stt_step <- step) xs
-               );
-               se.se_threshold <- threshold;
-               set_setup_election uuid_s se
+               match se.se_threshold_trustees with
+               | None ->
+                  let msg = "Please add some trustees first!" in
+                  let service = preapply election_setup_threshold_trustees uuid in
+                  T.generic_page ~title:"Error" ~service msg () >>= Html5.send
+               | Some xs ->
+                  let maybe_threshold, step =
+                    if threshold = 0 then None, None
+                    else Some threshold, Some 1
+                  in
+                  if threshold >= 0 && threshold < List.length xs then (
+                    List.iter (fun x -> x.stt_step <- step) xs;
+                    se.se_threshold <- maybe_threshold;
+                    set_setup_election uuid_s se >>
+                    Redirection.send (preapply election_setup_threshold_trustees uuid)
+                  ) else (
+                    let msg = "The threshold must be positive and lesser than the number of trustees!" in
+                    let service = preapply election_setup_threshold_trustees uuid in
+                    T.generic_page ~title:"Error" ~service msg () >>= Html5.send
+                  )
              ) else forbidden ()
-           ) >>
-           Redirection.send (preapply election_setup_threshold_trustees uuid)
+           )
       | None -> forbidden ())
 
 let () =
