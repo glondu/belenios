@@ -1616,7 +1616,7 @@ let () =
   Any.register ~service:election_setup_threshold_set
     (fun uuid threshold ->
       if threshold < 0 then forbidden () else
-      let threshold = if threshold = 0 then None else Some threshold in
+      let threshold, step = if threshold = 0 then None, None else Some threshold, Some 1 in
       match%lwt Web_state.get_site_user () with
       | Some u ->
          let uuid_s = Uuidm.to_string uuid in
@@ -1626,7 +1626,7 @@ let () =
              then (
                (match se.se_threshold_trustees with
                 | None -> ()
-                | Some xs -> List.iter (fun x -> x.stt_step <- Some 1) xs
+                | Some xs -> List.iter (fun x -> x.stt_step <- step) xs
                );
                se.se_threshold <- threshold;
                set_setup_election uuid_s se
