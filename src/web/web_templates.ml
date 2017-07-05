@@ -709,6 +709,14 @@ let election_setup_threshold_trustees uuid se () =
           ) uuid
       ]
   in
+  let threshold_warning =
+    if show_add_remove then pcdata "" else
+      div [
+          b [pcdata "Warning:"];
+          pcdata " any change will re-initialize the whole process.";
+          pcdata " To edit trustees and restart the process, set to 0.";
+        ]
+  in
   let maybe_error =
     match se.se_threshold_error with
     | None -> pcdata ""
@@ -719,6 +727,7 @@ let election_setup_threshold_trustees uuid se () =
       div [pcdata "On this page, you can configure a group of trustees such that only a threshold of them is needed to perform the decryption."];
       br ();
       form_threshold;
+      threshold_warning;
       br ();
       trustees;
       (if se.se_threshold_trustees <> None then
