@@ -656,6 +656,7 @@ let election_setup_threshold_trustees uuid se () =
   let trustees = match se.se_threshold_trustees with
     | None -> pcdata ""
     | Some ts ->
+       div [
        table (
          tr (
            [
@@ -689,7 +690,19 @@ let election_setup_threshold_trustees uuid se () =
                  ] @ (if show_add_remove then [td [mk_form_trustee_del i]] else [])
                )
              ) ts
-         )
+         );
+       div [
+           pcdata "Meaning of steps:";
+           ul [
+               li [pcdata "0: administrator needs to set threshold"];
+               li [pcdata "1: action needed from trustee: generate private key"];
+               li [pcdata "2, 4, 6: waiting for other trustees"];
+               li [pcdata "3, 5: action needed from trustee: enter private key"];
+               li [pcdata "7: the key establishment protocol is finished"];
+             ];
+         ];
+       br ();
+       ]
   in
   let form_threshold =
     div [
