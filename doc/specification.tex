@@ -7,7 +7,7 @@
 \usepackage{bbm}
 \usepackage{hyperref}
 
-\newcommand{\version}{0.2}
+\newcommand{\version}{1.5}
 
 \newcommand{\F}{\mathbbm{F}}
 \newcommand{\G}{\mathbbm{G}}
@@ -30,6 +30,11 @@
 \newcommand{\pdecryption}{\texttt{partial\_decryption}}
 \newcommand{\result}{\texttt{result}}
 
+\newcommand{\cert}{\texttt{cert}}
+\newcommand{\poly}{\texttt{polynomial}}
+\newcommand{\vinput}{\texttt{vinput}}
+\newcommand{\voutput}{\texttt{voutput}}
+
 \title{Belenios specification}
 \date{Version~\version}
 \author{Stéphane Glondu}
@@ -44,11 +49,6 @@ This document is a specification of the voting protocol implemented in
 Belenios v\version. More discussion, theoretical explanations and
 bibliographical references can be found in a technical report
 available online.\footnote{\url{http://eprint.iacr.org/2013/177}}
-
-The Belenios protocol is very similar to Helios (with a signature
-added to ballots and different zero-knowledge proofs) and Helios-C
-(with the distributed key generation of trustees of Helios, without
-threshold support).
 
 The cryptography involved in Belenios needs a cyclic group $\G$ where
 discrete logarithms are hard to compute. We will denote by $g$ a
@@ -86,6 +86,19 @@ section~\ref{default-group}.
 \item $C$ forgets the mapping between $j$ and $\public(c_j)$
   if credential recovery is not needed
 \item $C$ sends $L$ to $A$
+\item $A$ and $T_1,\dotsc,T_m$ run a key establishment protocol
+  (either \ref{no-threshold} or \ref{threshold})
+\item $A$ creates the \hyperref[elections]{$\election$} $E$
+\item $A$ loads $E$ and $L$ into $S$ and starts it
+\end{enumerate}
+
+\subsubsection{Basic decryption support}
+\label{no-threshold}
+
+To perform tally with this scheme, all trustees will need to compute a
+partial decryption.
+
+\begin{enumerate}
 \item for $z\in[1\dots m]$,
   \begin{enumerate}
   \item $T_z$ generates a \hyperref[trustee-keys]{$\tpk$} $k_z$ and
@@ -94,8 +107,41 @@ section~\ref{default-group}.
   \end{enumerate}
 \item $A$ combines all the trustee public keys into the election
   public key $y$
-\item $A$ creates the \hyperref[elections]{$\election$} $E$
-\item $A$ loads $E$ and $L$ into $S$ and starts it
+\end{enumerate}
+
+\subsubsection{Threshold decryption support}
+\label{threshold}
+
+To perform tally with this scheme, $t+1$ trustees will need to compute
+a partial decryption.
+
+\begin{enumerate}
+\item for $z\in[1\dots m]$,
+  \begin{enumerate}
+  \item $T_z$ generates a \hyperref[certificates]{$\cert$} $\gamma_z$
+    and sends it to $A$
+  \item $A$ checks $\gamma_z$
+  \end{enumerate}
+\item $A$ assembles $\Gamma=\gamma_1,\dotsc,\gamma_n$
+\item for $z\in[1\dots m]$,
+  \begin{enumerate}
+  \item $A$ sends $\Gamma$ to $T_z$ and $T_z$ checks it
+  \item $T_z$ generates a \hyperref[polynomials]{$\poly$} $P_z$ and
+    sends it to $A$
+  \item $A$ checks $P_z$
+  \end{enumerate}
+\item for $z\in[1\dots m]$, $A$ computes a
+  \hyperref[vinputs]{$\vinput$} $\textsf{vi}_z$
+\item for $z\in[1\dots m]$,
+  \begin{enumerate}
+  \item $A$ sends $\Gamma$ to $T_z$ and $T_z$ checks it
+  \item $A$ sends $\textsf{vi}_z$ to $T_z$ and $T_z$ checks it
+  \item $A$ computes a \hyperref[voutputs]{$\voutput$} $\textsf{vo}_z$ and
+    sends it to $A$
+  \item $A$ checks $\textsf{vo}_z$
+  \end{enumerate}
+\item $A$ extracts encrypted decryption keys $K_1,\dots,K_m$ and
+  \hyperref[threshold-params]{threshold parameters}
 \end{enumerate}
 
 \subsection{Vote}
@@ -122,9 +168,10 @@ section~\ref{default-group}.
 
 \begin{enumerate}
 \item $A$ stops $S$ and computes the \hyperref[tally]{$\etally$} $\Pi$
-\item for $z\in[1\dots m]$,
+\item for $z\in[1\dots m]$ (or, if in threshold mode, a subset of it
+  of size at least $t+1$),
   \begin{enumerate}
-  \item $A$ sends $\Pi$ to $T_z$
+  \item $A$ sends $\Pi$ (and $K_z$ if in threshold mode) to $T_z$
   \item $T_z$ generates a \hyperref[tally]{$\pdecryption$} $\delta_z$
     and sends it to $A$
   \item $A$ verifies $\delta_z$
@@ -220,6 +267,294 @@ number. The proof is verified as follows:
 \item check that $\challenge=\Hash_\pok(\pklabel,A)\mod q$
 \end{enumerate}
 
+\subsection{Messages specific to threshold decryption support}
+
+\subsubsection{Public key infrastructure}
+\label{pki}
+
+Establishing a public key so that threshold decryption is supported
+requires private communications between trustees. To achieve this,
+Belenios uses a custom public key infrastructure. During the key
+establishment protocol, each trustee starts by generating a secret
+seed (at random), then derives from it encryption and decryption keys,
+as well as signing and verification keys. These four keys are then
+used to exchange messages between trustees by using $A$ as a proxy.
+
+The secret seed $s$ is a 22-character string, where characters are
+taken from the set:
+\[\texttt{123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz}\]
+
+\paragraph{Deriving keys}
+
+The (private) signing key $\textsf{sk}$ is derived by computing the
+SHA256 of $s$ prefixed by the string \verb/sk|/. The corresponding
+(public) verification key is $g^{\textsf{sk}}$. The (private)
+decryption key $\textsf{dk}$ is derived by computing the SHA256 of $s$
+prefixed by the string \verb/dk|/. The corresponding (public)
+encryption key is $g^{\textsf{dk}}$.
+
+\paragraph{Signing}
+
+Signing takes a signing key $\textsf{sk}$ and a \textsf{message} $M$
+(as a $\jstring$), computes a \textsf{signature} and produces a
+$\texttt{signed\_msg}$. For the signature, we use a (Schnorr-like)
+non-interactive zero-knowledge proof.
+
+\begin{gather*}
+  \texttt{signed\_msg}=\left\{
+    \begin{array}{rcl}
+      \textsf{message}&:&\jstring\\
+      \textsf{signature}&:&\texttt{proof}
+    \end{array}
+  \right\}
+\end{gather*}
+To compute the \textsf{signature},
+\begin{enumerate}
+\item pick a random $w\in\Z_q$
+\item compute the commitment $A=g^w$
+\item compute the \textsf{challenge} as
+  $\textsf{SHA256}(\texttt{sigmsg|}M\texttt{|}A)$, where $A$ is written
+  in base 10 and the result is interpreted as a 256-bit big-endian
+  number
+\item compute the \textsf{response} as
+  $w-\textsf{sk}\times\textsf{challenge}\mod q$
+\end{enumerate}
+To verify a \textsf{signature} using a verification key \textsf{vk},
+\begin{enumerate}
+\item compute the commitment $A=g^{\textsf{response}}\times\textsf{vk}^{\textsf{challenge}}$
+\item check that $\textsf{challenge}=\textsf{SHA256}(\texttt{sigmsg|}M\texttt{|}A)$
+\end{enumerate}
+
+\paragraph{Encrypting}
+
+Encrypting takes an encryption key $\textsf{ek}$ and a message $M$ (as
+a $\jstring$), computes an \texttt{encrypted\_msg} and serializes it
+as a $\jstring$. We use an El Gamal-like system.
+
+\begin{gather*}
+  \texttt{encrypted\_msg}=\left\{
+    \begin{array}{rcl}
+      \textsf{alpha}&:&\G\\
+      \textsf{beta}&:&\G\\
+      \textsf{data}&:&\jstring
+    \end{array}
+  \right\}
+\end{gather*}
+To compute the \texttt{encrypted\_msg}:
+\begin{enumerate}
+\item pick random $r,s\in\Z_q$
+\item compute $\textsf{alpha}=g^r$
+\item compute $\textsf{beta}=\textsf{ek}^r\times g^s$
+\item compute $\textsf{data}$ as the hexadecimal encoding of the (symmetric)
+  encryption of $M$ using AES in CCM mode with
+  $\textsf{SHA256}(g^s)$ as the key and $\textsf{SHA256}(g^r)$ as the
+  initialization vector (where numbers are written in base 10)
+\end{enumerate}
+To decrypt an \texttt{encrypted\_msg} using a decryption key \textsf{dk}:
+\begin{enumerate}
+\item compute the symmetric key as $\textsf{SHA256}(\textsf{beta}/(\textsf{alpha}^{\textsf{dk}}))$
+\item compute the initialization vector as $\textsf{SHA256}(\textsf{alpha})$
+\item decrypt $\textsf{data}$
+\end{enumerate}
+
+\subsubsection{Certificates}
+\label{certificates}
+
+A certificate is a \texttt{signed\_msg} encapsulating a serialized
+\texttt{cert\_keys} structure, itself filled with the public keys
+generated as described in section~\ref{pki}.
+\begin{gather*}
+  \texttt{cert}=\texttt{signed\_msg}
+  \qquad
+  \texttt{cert\_keys}=\left\{
+    \begin{array}{rcl}
+      \textsf{verification}&:&\G\\
+      \textsf{encryption}&:&\G
+    \end{array}
+  \right\}
+\end{gather*}
+The message is signed with the signing key associated to
+\textsf{verification}.
+
+\subsubsection{Channels}
+\label{channels}
+
+A \textsf{message} is sent securely from \textsf{sk} (a signing key)
+to \textsf{recipient} (an encryption key) by encapsulating it in a
+\texttt{channel\_msg}, serializing it as a $\jstring$, signing it with
+\textsf{sk} and serializing the resulting \texttt{signed\_msg} as a
+$\jstring$, and finally encrypting it with \textsf{recipient}. The
+resulting $\jstring$ will be denoted by
+$\textsf{send}(\textsf{sk},\textsf{recipient},\textsf{message})$, and
+can be transmitted using a third-party (such as the election
+administrator).
+\begin{gather*}
+  \texttt{channel\_msg}=\left\{
+    \begin{array}{rcl}
+      \textsf{recipient}&:&\G\\
+      \textsf{message}&:&\G
+    \end{array}
+  \right\}
+\end{gather*}
+
+\subsubsection{Polynomials}
+\label{polynomials}
+
+Let $\Gamma=\gamma_1,\dotsc,\gamma_m$ be the certificates of all
+trustees. We will denote by $\textsf{vk}_z$ (resp. $\textsf{ek}_z$)
+the \textsf{verification} key (resp. the \textsf{encryption} key) of
+$\gamma_z$. Each trustee must compute a \texttt{polynomial} structure
+in step 3 of the key establishment protocol.
+\begin{gather*}
+  \texttt{polynomial}=\left\{
+    \begin{array}{rcl}
+      \textsf{polynomial}&:&\jstring\\
+      \textsf{secrets}&:&\jstring^\ast\\
+      \textsf{coefexps}&:&\texttt{coefexps}
+    \end{array}
+  \right\}
+\end{gather*}
+Suppose $T_i$ is the trustee who is computing. Therefore, $T_i$ knows
+the signing key $\textsf{sk}$ corresponding to $\textsf{vk}_i$ and the
+decryption key $\textsf{dk}$ corresponding to $\textsf{ek}_i$. $T_i$
+first checks that keys indeed match. Then $T_i$ picks a random
+polynomial
+\[
+  f_i(x)=a_{i0}+a_{i1}x+\dotsb+a_{it}x^t\in\Z_q[x]
+\]
+and computes $A_{ik}=g^{a_{ik}}$ for $k=0,\dotsc,t$ and
+$s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $T_i$ then fills the
+\texttt{polynomial} structure as follows:
+\begin{itemize}
+\item the \textsf{polynomial} field is
+  $\textsf{send}(\textsf{sk},\textsf{ek}_i,M)$ where $M$ is a
+  serialized \texttt{raw\_polynomial} structure
+  \begin{gather*}
+    \texttt{raw\_polynomial}=\left\{
+      \begin{array}{rcl}
+        \textsf{polynomial}&:&\Z_q^\ast
+      \end{array}
+    \right\}
+  \end{gather*}
+  filled with $a_{i0},\dotsc,a_{it}$
+\item the \textsf{secrets} field is
+  $\textsf{send}(\textsf{sk},\textsf{ek}_1,M_{i1}),\dotsc,\textsf{send}(\textsf{sk},\textsf{ek}_m,M_{im})$
+  where $M_{ij}$ is a serialized \texttt{secret} structure
+  \begin{gather*}
+    \texttt{secret}=\left\{
+      \begin{array}{rcl}
+        \textsf{secret}&:&\Z_q
+      \end{array}
+    \right\}
+  \end{gather*}
+  filled with $s_{ij}$
+\item the \textsf{coefexps} field is a signed message containing a
+  serialized \texttt{raw\_coefexps} structure
+  \begin{gather*}
+    \texttt{coefexps}=\texttt{signed\_msg}
+    \qquad
+    \texttt{raw\_coefexps}=\left\{
+      \begin{array}{rcl}
+        \textsf{coefexps}&:&\G^\ast
+      \end{array}
+    \right\}
+  \end{gather*}
+  filled with $A_{i0},\dotsc,A_{it}$
+\end{itemize}
+
+\subsubsection{Vinputs}
+\label{vinputs}
+
+Once we receive all the \texttt{polynomial} structures
+$P_1,\dotsc,P_m$, we compute (during step 4) input data (called
+\texttt{vinput}) for a verification step performed later by the
+trustees. Step 4 can be seen as a routing step.
+\begin{gather*}
+  \texttt{vinput}=\left\{
+    \begin{array}{rcl}
+      \textsf{polynomial}&:&\jstring\\
+      \textsf{secrets}&:&\jstring^\ast\\
+      \textsf{coefexps}&:&\texttt{coefexps}^\ast
+    \end{array}
+  \right\}
+\end{gather*}
+Suppose we are computing the \texttt{vinput} structure $\textsf{vi}_j$
+for trustee $T_j$. We fill it as follows:
+\begin{itemize}
+\item the \textsf{polynomial} field is the same as the one of $P_j$
+\item the \textsf{secret} field is
+  $\textsf{secret}(P_1)_j,\dotsc,\textsf{secret}(P_m)_j$
+\item the \textsf{coefexps} field is
+  $\textsf{coefexps}(P_1),\dotsc,\textsf{coefexps}(P_m)$
+\end{itemize}
+Note that the \textsf{coefexps} field is the same for all trustees.
+
+In step~5, $T_j$ checks consistency of $\textsf{vi}_j$ by unpacking it
+and checking that, for $i=1,\dotsc,m$,
+\[
+g^{s_{ij}}=\prod_{k=0}^t(A_{ik})^{j^k}
+\]
+
+\subsubsection{Voutputs}
+\label{voutputs}
+
+In step 5 of the key establishment protocol, a trustee $T_j$ receives
+$\Gamma$ and $\textsf{vi}_j$, and produces a \texttt{voutput}
+$\textsf{vo}_j$.
+\begin{gather*}
+  \texttt{voutput}=\left\{
+    \begin{array}{rcl}
+      \textsf{private\_key}&:&\jstring\\
+      \textsf{public\_key}&:&\texttt{trustee\_public\_key}
+    \end{array}
+  \right\}
+\end{gather*}
+Trustee $T_j$ fills $\textsf{vo}_j$ as follows:
+\begin{itemize}
+\item \textsf{private\_key} is set to
+  $\textsf{send}(\textsf{sk},\textsf{ek}_j,S)$, where $S_j$ is $T_j$'s
+  (private) decryption key:
+  \[
+    S_j=\sum_{i=1}^m s_{ij}\mod q
+  \]
+\item \textsf{public\_key} is set to a
+  \hyperref[trustee-keys]{\texttt{trustee\_public\_key}} structure
+  built using $S_j$ as private key.
+\end{itemize}
+The administrator checks $\textsf{vo}_j$ as follows:
+\begin{itemize}
+\item check that:
+  \[
+    \textsf{public\_key}(\textsf{public\_key}(\textsf{vo}_j))=\prod_{i=1}^m \prod_{k=0}^t (A_{ik})^{j^k}
+  \]
+\item check $\textsf{pok}(\textsf{public\_key}(\textsf{vo}_j))$
+\end{itemize}
+
+\subsubsection{Threshold parameters}
+\label{threshold-params}
+
+The \texttt{threshold\_parameters} structure embeds data that is
+published during the election.
+\begin{gather*}
+  \texttt{threshold\_parameters}=\left\{
+    \begin{array}{rcl}
+      \textsf{threshold}&:&\I\\
+      \textsf{certs}&:&\texttt{cert}^\ast\\
+      \textsf{coefexps}&:&\texttt{coefexps}^\ast\\
+      \textsf{verification\_keys}&:&\texttt{trustee\_public\_key}^\ast
+    \end{array}
+  \right\}
+\end{gather*}
+The administrator fills it as follows:
+\begin{itemize}
+\item \textsf{threshold} is set to $t+1$
+\item \textsf{certs} is set to $\Gamma=\gamma_1,\dotsc,\gamma_m$
+\item \textsf{coefexps} is set to the same value as the
+  \textsf{coefexps} field of \texttt{vinput}s
+\item \textsf{verification\_keys} is set to
+  $\textsf{public\_key}(\textsf{vo}_1),\dotsc,\textsf{public\_key}(\textsf{vo}_m)$
+\end{itemize}
+
 \subsection{Credentials}
 \label{credentials}
 
@@ -264,9 +599,8 @@ secret exponent, a public key $\public(c)=g^s$ is computed.
   \right\}
 \end{gather*}
 The election public key, which is denoted by $y$ thoughout this
-document, is computed by multiplying all the public keys of the
-trustees, and bundled with the group parameters in a
-\texttt{wrapped\_pk} structure.
+document, is computed during the setup phase, and bundled with the
+group parameters in a \texttt{wrapped\_pk} structure.
 
 \newcommand{\blank}{\textsf{blank}}
 \newcommand{\minlabel}{\textsf{min}}
@@ -312,7 +646,8 @@ During an election, the following data needs to be public in order to
 verify the setup phase and to validate ballots:
 \begin{itemize}
 \item the $\election$ structure described above;
-\item all the $\tpk$s that were generated during the
+\item all the $\tpk$s, or the
+  $\texttt{threshold\_parameters}$, that were generated during the
   \hyperref[election-setup]{setup phase};
 \item the set $L$ of public credentials.
 \end{itemize}
@@ -340,8 +675,8 @@ vote is blank or not.  Each weight comes with a proof (in \iproofs,
 same length as \choices) that it is $0$ or $1$. The whole answer also
 comes with additional proofs that weights respect constraints.
 
-More concretely, each weight $m\in[0\dots1]$ is encrypted into a
-$\ciphertext$ as follows:
+More concretely, each weight $m\in[0\dots1]$ is encrypted (in an El
+Gamal-like fashion) into a $\ciphertext$ as follows:
 \begin{enumerate}
 \item pick a random $r\in\Z_q$
 \item $\alphalabel=g^r$
@@ -575,7 +910,7 @@ $(\pi_0,\pi_1,\dotsc,\pi_k)$ such that the following procedure passes:
 
 \newcommand{\siglabel}{\textsf{signature}}
 
-Each ballot contains a digital signature to avoid ballot stuffing. The
+Each ballot contains a (Schnorr-like) digital signature to avoid ballot stuffing. The
 signature needs a \hyperref[credentials]{credential} $c$ and uses all
 the \ciphertext{}s $\gamma_1,\dots,\gamma_l$ that appear in the ballot
 ($l$ is the sum of the lengths of $\choices$). It is computed as
@@ -710,12 +1045,24 @@ B=\frac{\alphalabel(\etally_{i,j})^\response}{\dfactors_{i,j}^\challenge}
   \right\}
 \end{gather*}
 The decryption factors are combined for each ciphertext to build
-synthetic ones:
+synthetic ones $F_{i,j}$. With basic decryption support:
 \[
 F_{i,j}=\prod_{z\in[1\dots m]}\pdlabel_{z,i,j}
 \]
-where $m$ is the number of trustees. The $\resultlabel$ field of the
-$\result$ structure is then computed as follows:
+where $m$ is the number of trustees. With threshold decryption
+support:
+\[
+F_{i,j}=\prod_{z\in\mathcal{I}}(\pdlabel_{z,i,j})^{\lambda_z^{\mathcal{I}}}
+\]
+where $\mathcal{I}=\{z_1,\dotsc,z_{t+1}\}$ is the set of indexes of
+supplied partial decryptions, and $\lambda_z^{\mathcal{I}}$ are the
+Lagrange coefficients:
+\[
+  \lambda_z^{\mathcal{I}}=\prod_{k\in\mathcal{I}\backslash\{z\}}\frac{k}{k-z}\mod q
+\]
+
+The $\resultlabel$ field of the $\result$ structure is then computed
+as follows:
 \[
 \resultlabel_{i,j}=\log_g\left(\frac{\betalabel(\etallylabel_{i,j})}{F_{i,j}}\right)
 \]
@@ -726,8 +1073,8 @@ After the election, the following data needs to be public in order to
 verify the tally:
 \begin{itemize}
 \item the $\election$ structure;
-\item all the $\tpk$s that were generated during the
-  \hyperref[election-setup]{setup phase};
+\item all the $\tpk$s, or the $\texttt{threshold\_parameters}$, that
+  were generated during the \hyperref[election-setup]{setup phase};
 \item the set of public credentials;
 \item the set of ballots;
 \item the $\result$ structure described above.
