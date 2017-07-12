@@ -1241,7 +1241,12 @@ let election_setup_confirm uuid se () =
                         st_public_key <> ""
                       ) se.se_public_keys then ready, "OK" else false, "Missing"
        | Some _ ->
-          if se.se_threshold_parameters <> None then ready, "OK"
+          if se.se_threshold_parameters <> None &&
+               match se.se_threshold_trustees with
+               | None -> false
+               | Some ts ->
+                  List.for_all (fun {stt_step; _} -> stt_step = Some 7) ts
+          then ready, "OK"
           else false, "Missing"
   in
   let div_trustee_warning =
