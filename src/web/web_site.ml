@@ -322,8 +322,7 @@ let () = Html5.register ~service:admin
     T.admin ~elections ()
   )
 
-let () = File.register
-  ~service:source_code
+let () = File.register ~service:source_code
   ~content_type:"application/x-gzip"
   (fun () () -> return !source_file)
 
@@ -445,8 +444,7 @@ let handle_setup f uuid x =
 let redir_preapply s u () = Redirection.send (preapply s u)
 
 let () =
-  Any.register
-    ~service:election_setup_languages
+  Any.register ~service:election_setup_languages
     (handle_setup
        (fun se languages _ uuid ->
          let langs = languages_of_string languages in
@@ -480,8 +478,7 @@ let () =
     ))
 
 let () =
-  Any.register
-    ~service:election_setup_description
+  Any.register ~service:election_setup_description
     (handle_setup
        (fun se (name, description) _ uuid ->
          se.se_questions <- {se.se_questions with
@@ -531,21 +528,18 @@ let handle_password se uuid ~force voters =
       "Passwords have been generated and mailed!" () >>= Html5.send)
 
 let () =
-  Any.register
-    ~service:election_setup_auth_genpwd
+  Any.register ~service:election_setup_auth_genpwd
     (handle_setup
        (fun se () _ uuid ->
          handle_password se uuid ~force:false se.se_voters))
 
 let () =
-  Any.register
-    ~service:election_regenpwd
+  Any.register ~service:election_regenpwd
     (fun (uuid, ()) () ->
       T.regenpwd uuid () >>= Html5.send)
 
 let () =
-  Any.register
-    ~service:election_regenpwd_post
+  Any.register ~service:election_regenpwd_post
     (fun (uuid, ()) user ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
@@ -580,8 +574,7 @@ let () =
     )
 
 let () =
-  Html5.register
-    ~service:election_setup_questions
+  Html5.register ~service:election_setup_questions
     (fun uuid () ->
      match%lwt Web_state.get_site_user () with
      | Some u ->
@@ -594,16 +587,14 @@ let () =
     )
 
 let () =
-  Any.register
-    ~service:election_setup_questions_post
+  Any.register ~service:election_setup_questions_post
     (handle_setup
        (fun se x _ uuid ->
         se.se_questions <- template_of_string x;
          return (redir_preapply election_setup uuid)))
 
 let () =
-  Html5.register
-    ~service:election_setup_voters
+  Html5.register ~service:election_setup_voters
     (fun uuid () ->
       match%lwt Web_state.get_site_user () with
       | Some u ->
@@ -647,8 +638,7 @@ let merge_voters a b f =
   List.rev res
 
 let () =
-  Any.register
-    ~service:election_setup_voters_add
+  Any.register ~service:election_setup_voters_add
     (handle_setup
        (fun se x _ uuid ->
          if se.se_public_creds_received then forbidden () else (
@@ -663,8 +653,7 @@ let () =
          return (redir_preapply election_setup_voters uuid))))
 
 let () =
-  Any.register
-    ~service:election_setup_voters_remove
+  Any.register ~service:election_setup_voters_remove
     (handle_setup
        (fun se voter _ uuid ->
          if se.se_public_creds_received then forbidden () else (
@@ -681,8 +670,7 @@ let () =
          handle_password se uuid ~force:true voter))
 
 let () =
-  Any.register
-    ~service:election_setup_trustee_add
+  Any.register ~service:election_setup_trustee_add
     (fun uuid st_id ->
      if is_email st_id then
      match%lwt Web_state.get_site_user () with
@@ -708,8 +696,7 @@ let () =
     )
 
 let () =
-  Redirection.register
-    ~service:election_setup_trustee_del
+  Redirection.register ~service:election_setup_trustee_del
     (fun uuid index ->
      match%lwt Web_state.get_site_user () with
      | Some u ->
@@ -736,8 +723,7 @@ let () =
     )
 
 let () =
-  Html5.register
-    ~service:election_setup_credentials
+  Html5.register ~service:election_setup_credentials
     (fun token () ->
      let%lwt uuid = Ocsipersist.find election_credtokens token in
      let%lwt se = get_setup_election uuid in
@@ -749,8 +735,7 @@ let () =
     )
 
 let () =
-  File.register
-    ~service:election_setup_credentials_download
+  File.register ~service:election_setup_credentials_download
     ~content_type:"text/plain"
     (fun token () ->
      let%lwt uuid = Ocsipersist.find election_credtokens token in
@@ -795,15 +780,13 @@ let handle_credentials_post token creds =
     "Credentials have been received and checked!" () >>= Html5.send
 
 let () =
-  Any.register
-    ~service:election_setup_credentials_post
+  Any.register ~service:election_setup_credentials_post
     (fun token creds ->
      let s = Lwt_stream.of_string creds in
      wrap_handler (fun () -> handle_credentials_post token s))
 
 let () =
-  Any.register
-    ~service:election_setup_credentials_post_file
+  Any.register ~service:election_setup_credentials_post_file
     (fun token creds ->
      let s = Lwt_io.chars_of_file creds.Ocsigen_extensions.tmp_filename in
      wrap_handler (fun () -> handle_credentials_post token s))
@@ -811,8 +794,7 @@ let () =
 module CG = Credential.MakeGenerate (LwtRandom)
 
 let () =
-  Any.register
-    ~service:election_setup_credentials_server
+  Any.register ~service:election_setup_credentials_server
     (handle_setup (fun se () _ uuid ->
       let nvoters = List.length se.se_voters in
       if nvoters > !maxmailsatonce then
@@ -874,8 +856,7 @@ let () =
           "Credentials have been generated and mailed!" () >>= Html5.send)))
 
 let () =
-  Html5.register
-    ~service:election_setup_trustee
+  Html5.register ~service:election_setup_trustee
     (fun token () ->
      let%lwt uuid = Ocsipersist.find election_pktokens token in
      let%lwt se = get_setup_election uuid in
@@ -887,8 +868,7 @@ let () =
     )
 
 let () =
-  Any.register
-    ~service:election_setup_trustee_post
+  Any.register ~service:election_setup_trustee_post
     (fun token public_key ->
      wrap_handler
        (fun () ->
@@ -912,8 +892,7 @@ let () =
     )
 
 let () =
-  Any.register
-    ~service:election_setup_confirm
+  Any.register ~service:election_setup_confirm
     (fun uuid () ->
       match%lwt Web_state.get_site_user () with
       | None -> forbidden ()
@@ -924,8 +903,7 @@ let () =
          T.election_setup_confirm uuid se () >>= Html5.send)
 
 let () =
-  Any.register
-    ~service:election_setup_create
+  Any.register ~service:election_setup_create
     (fun uuid () ->
      match%lwt Web_state.get_site_user () with
      | None -> forbidden ()
@@ -944,8 +922,7 @@ let () =
     )
 
 let () =
-  Html5.register
-    ~service:election_setup_import
+  Html5.register ~service:election_setup_import
     (fun uuid () ->
       let%lwt site_user = Web_state.get_site_user () in
       match site_user with
@@ -956,8 +933,7 @@ let () =
          T.election_setup_import uuid se elections ())
 
 let () =
-  Any.register
-    ~service:election_setup_import_post
+  Any.register ~service:election_setup_import_post
     (handle_setup
        (fun se from _ uuid ->
          let from_s = Uuidm.to_string from in
@@ -1040,8 +1016,7 @@ let () =
                   msg () >>= Html5.send)))
 
 let () =
-  Any.register
-    ~service:election_home
+  Any.register ~service:election_home
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
       try%lwt
@@ -1085,8 +1060,7 @@ let () =
            >>= Html5.send)
 
 let () =
-  Any.register
-    ~service:election_admin
+  Any.register ~service:election_admin
     (fun (uuid, ()) () ->
      let uuid_s = Uuidm.to_string uuid in
      let%lwt w = find_election uuid_s in
@@ -1152,8 +1126,7 @@ let () = Any.register ~service:election_archive (fun (uuid, ()) () ->
 )
 
 let () =
-  Any.register
-    ~service:election_update_credential
+  Any.register ~service:election_update_credential
     (fun (uuid, ()) () ->
      let uuid_s = Uuidm.to_string uuid in
      let%lwt w = find_election uuid_s in
@@ -1170,8 +1143,7 @@ let () =
      | _ -> forbidden ())
 
 let () =
-  Any.register
-    ~service:election_update_credential_post
+  Any.register ~service:election_update_credential_post
     (fun (uuid, ()) (old, new_) ->
      let uuid_s = Uuidm.to_string uuid in
      let%lwt w = find_election uuid_s in
@@ -1194,15 +1166,13 @@ let () =
      | _ -> forbidden ())
 
 let () =
-  Any.register
-    ~service:election_vote
+  Any.register ~service:election_vote
     (fun (_, ()) () ->
       Eliom_reference.unset Web_state.ballot >>
       Web_templates.booth () >>= Html5.send)
 
 let () =
-  Any.register
-    ~service:election_cast
+  Any.register ~service:election_cast
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
@@ -1218,8 +1188,7 @@ let () =
       | None -> T.cast_raw (module W) () >>= Html5.send)
 
 let () =
-  Any.register
-    ~service:election_cast_post
+  Any.register ~service:election_cast_post
     (fun (uuid, ()) (ballot_raw, ballot_file) ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
@@ -1249,8 +1218,7 @@ let () =
       | Some _ -> cont ())
 
 let () =
-  Any.register
-    ~service:election_cast_confirm
+  Any.register ~service:election_cast_confirm
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
@@ -1278,8 +1246,7 @@ let () =
       | None -> fail_http 404)
 
 let () =
-  Any.register
-    ~service:election_pretty_ballots
+  Any.register ~service:election_pretty_ballots
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
@@ -1288,8 +1255,7 @@ let () =
       T.pretty_ballots w ballots result () >>= Html5.send)
 
 let () =
-  Any.register
-    ~service:election_pretty_ballot
+  Any.register ~service:election_pretty_ballot
     (fun ((uuid, ()), hash) () ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt ballot = Web_persist.get_ballot_by_hash ~uuid:uuid_s ~hash in
@@ -1301,8 +1267,7 @@ let () =
 
 let () =
   let rex = Pcre.regexp "\".*\" \".*:(.*)\"" in
-  Any.register
-    ~service:election_missing_voters
+  Any.register ~service:election_missing_voters
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
@@ -1372,8 +1337,7 @@ let find_trustee_id uuid_s token =
   with Not_found -> return (try int_of_string token with _ -> 0)
 
 let () =
-  Any.register
-    ~service:election_tally_trustees
+  Any.register ~service:election_tally_trustees
     (fun (uuid, ((), token)) () ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
@@ -1394,8 +1358,7 @@ let () =
       ))
 
 let () =
-  Any.register
-    ~service:election_tally_trustees_post
+  Any.register ~service:election_tally_trustees_post
     (fun (uuid, ((), token)) partial_decryption ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt () =
@@ -1519,8 +1482,7 @@ let handle_election_tally_release (uuid, ()) () =
       Redirection.send
 
 let () =
-  Any.register
-    ~service:election_tally_release
+  Any.register ~service:election_tally_release
     handle_election_tally_release
 
 let content_type_of_file = function
@@ -1547,8 +1509,7 @@ let handle_pseudo_file uuid_s w f site_user =
   File.send ~content_type (!spool_dir / uuid_s / string_of_election_file f)
 
 let () =
-  Any.register
-    ~service:election_dir
+  Any.register ~service:election_dir
     (fun (uuid, f) () ->
      let uuid_s = Uuidm.to_string uuid in
      let%lwt w = find_election uuid_s in
@@ -1557,8 +1518,7 @@ let () =
      handle_pseudo_file uuid_s w f site_user)
 
 let () =
-  Any.register
-    ~service:election_compute_encrypted_tally
+  Any.register ~service:election_compute_encrypted_tally
     (fun (uuid, ()) () ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
@@ -1647,8 +1607,7 @@ let () =
       | None -> forbidden ())
 
 let () =
-  Any.register
-    ~service:election_setup_threshold_trustee_add
+  Any.register ~service:election_setup_threshold_trustee_add
     (fun uuid stt_id ->
       if is_email stt_id then
         match%lwt Web_state.get_site_user () with
@@ -1683,8 +1642,7 @@ let () =
     )
 
 let () =
-  Redirection.register
-    ~service:election_setup_threshold_trustee_del
+  Redirection.register ~service:election_setup_threshold_trustee_del
     (fun uuid index ->
       match%lwt Web_state.get_site_user () with
       | Some u ->
@@ -1717,8 +1675,7 @@ let () =
     )
 
 let () =
-  Html5.register
-    ~service:election_setup_threshold_trustee
+  Html5.register ~service:election_setup_threshold_trustee
     (fun token () ->
       let%lwt uuid = Ocsipersist.find election_tpktokens token in
       let%lwt se = get_setup_election uuid in
@@ -1730,8 +1687,7 @@ let () =
     )
 
 let () =
-  Any.register
-    ~service:election_setup_threshold_trustee_post
+  Any.register ~service:election_setup_threshold_trustee_post
     (fun token data ->
       wrap_handler
         (fun () ->
