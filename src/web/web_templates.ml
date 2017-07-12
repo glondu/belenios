@@ -601,7 +601,6 @@ let election_setup_trustees uuid se () =
                ]
            else pcdata "");
           form_trustees_add;
-          import_link;
         ]
     else pcdata ""
   in
@@ -623,6 +622,7 @@ let election_setup_trustees uuid se () =
   ] in
   let content = [
     div_content;
+    import_link;
     back_link;
   ] in
   let%lwt login_box = site_login_box () in

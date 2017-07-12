@@ -980,10 +980,49 @@ let () =
          let uuid_s = Uuidm.to_string uuid in
          let from_s = Uuidm.to_string from in
          let%lwt metadata = Web_persist.get_election_metadata from_s in
+         let%lwt threshold = Web_persist.get_threshold from_s in
          let%lwt public_keys = Web_persist.get_public_keys from_s in
          try%lwt
-               match metadata.e_trustees, public_keys with
-               | Some ts, Some pks when List.length ts = List.length pks ->
+               match metadata.e_trustees, threshold, public_keys with
+               | Some ts, Some raw_tp, None ->
+                  if se.se_threshold_trustees <> None then
+                    raise (TrusteeImportError "Importing threshold trustees after having already added ones is not supported");
+                  let module G = (val Group.of_string se.se_group : GROUP) in
+                  let module P = Trustees.MakePKI (G) (LwtRandom) in
+                  let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
+                  let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
+                  let tp = threshold_parameters_of_string G.read raw_tp in
+                  if not (K.check tp) then
+                    raise (TrusteeImportError "Imported threshold trustees are invalid for this election!");
+                  let%lwt privs = Web_persist.get_private_keys from_s in
+                  let%lwt se_threshold_trustees =
+                    match privs with
+                    | Some privs ->
+                       let rec loop ts pubs privs accu =
+                         match ts, pubs, privs with
+                         | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
+                            let%lwt stt_token = generate_token () in
+                            let stt_voutput = {vo_public_key; vo_private_key} in
+                            let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
+                            let stt = {
+                                stt_id; stt_token; stt_voutput;
+                                stt_step = Some 7; stt_cert = None;
+                                stt_polynomial = None; stt_vinput = None;
+                              } in
+                            loop ts pubs privs (stt :: accu)
+                         | [], [], [] -> return (List.rev accu)
+                         | _, _, _ -> raise (TrusteeImportError "Inconsistency in imported election!")
+                       in loop ts (Array.to_list tp.t_verification_keys) privs []
+                    | None -> raise (TrusteeImportError "Encrypted decryption keys are missing!")
+                  in
+                  se.se_threshold <- Some tp.t_threshold;
+                  se.se_threshold_trustees <- Some se_threshold_trustees;
+                  se.se_threshold_parameters <- Some raw_tp;
+                  Lwt_list.iter_s (fun {stt_token; _} ->
+                      Ocsipersist.add election_tpktokens stt_token uuid_s
+                    ) se_threshold_trustees >>
+                  return (redir_preapply election_setup_threshold_trustees uuid)
+               | Some ts, None, Some pks when List.length ts = List.length pks ->
                   let%lwt trustees =
                     List.combine ts pks
                     |> Lwt_list.map_p
@@ -1006,7 +1045,7 @@ let () =
                       Ocsipersist.add election_pktokens st_token uuid_s
                     ) trustees >>
                   return (redir_preapply election_setup_trustees uuid)
-               | _, _ ->
+               | _, _, _ ->
                   [%lwt raise (TrusteeImportError "Could not retrieve trustees from selected election!")]
          with
          | TrusteeImportError msg ->
