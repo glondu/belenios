@@ -136,7 +136,7 @@ a partial decryption.
   \begin{enumerate}
   \item $A$ sends $\Gamma$ to $T_z$ and $T_z$ checks it
   \item $A$ sends $\textsf{vi}_z$ to $T_z$ and $T_z$ checks it
-  \item $A$ computes a \hyperref[voutputs]{$\voutput$} $\textsf{vo}_z$ and
+  \item $T_z$ computes a \hyperref[voutputs]{$\voutput$} $\textsf{vo}_z$ and
     sends it to $A$
   \item $A$ checks $\textsf{vo}_z$
   \end{enumerate}
@@ -392,7 +392,7 @@ administrator).
   \texttt{channel\_msg}=\left\{
     \begin{array}{rcl}
       \textsf{recipient}&:&\G\\
-      \textsf{message}&:&\G
+      \textsf{message}&:&\jstring
     \end{array}
   \right\}
 \end{gather*}
@@ -415,8 +415,8 @@ in step 3 of the key establishment protocol.
   \right\}
 \end{gather*}
 Suppose $T_i$ is the trustee who is computing. Therefore, $T_i$ knows
-the signing key $\textsf{sk}$ corresponding to $\textsf{vk}_i$ and the
-decryption key $\textsf{dk}$ corresponding to $\textsf{ek}_i$. $T_i$
+the signing key $\textsf{sk}_i$ corresponding to $\textsf{vk}_i$ and the
+decryption key $\textsf{dk}_i$ corresponding to $\textsf{ek}_i$. $T_i$
 first checks that keys indeed match. Then $T_i$ picks a random
 polynomial
 \[
@@ -427,7 +427,7 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $T_i$ then fills the
 \texttt{polynomial} structure as follows:
 \begin{itemize}
 \item the \textsf{polynomial} field is
-  $\textsf{send}(\textsf{sk},\textsf{ek}_i,M)$ where $M$ is a
+  $\textsf{send}(\textsf{sk}_i,\textsf{ek}_i,M)$ where $M$ is a
   serialized \texttt{raw\_polynomial} structure
   \begin{gather*}
     \texttt{raw\_polynomial}=\left\{
@@ -438,7 +438,7 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $T_i$ then fills the
   \end{gather*}
   filled with $a_{i0},\dotsc,a_{it}$
 \item the \textsf{secrets} field is
-  $\textsf{send}(\textsf{sk},\textsf{ek}_1,M_{i1}),\dotsc,\textsf{send}(\textsf{sk},\textsf{ek}_m,M_{im})$
+  $\textsf{send}(\textsf{sk}_i,\textsf{ek}_1,M_{i1}),\dotsc,\textsf{send}(\textsf{sk}_i,\textsf{ek}_m,M_{im})$
   where $M_{ij}$ is a serialized \texttt{secret} structure
   \begin{gather*}
     \texttt{secret}=\left\{
@@ -512,7 +512,7 @@ $\textsf{vo}_j$.
 Trustee $T_j$ fills $\textsf{vo}_j$ as follows:
 \begin{itemize}
 \item \textsf{private\_key} is set to
-  $\textsf{send}(\textsf{sk},\textsf{ek}_j,S)$, where $S_j$ is $T_j$'s
+  $\textsf{send}(\textsf{sk}_j,\textsf{ek}_j,S_j)$, where $S_j$ is $T_j$'s
   (private) decryption key:
   \[
     S_j=\sum_{i=1}^m s_{ij}\mod q
