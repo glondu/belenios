@@ -62,11 +62,11 @@ section~\ref{default-group}.
 \section{Parties}
 
 \begin{itemize}
-\item $S$: voting server
-\item $A$: server administrator
-\item $C$: credential authority
-\item $T_1,\dots,T_m$: trustees
-\item $V_1,\dots,V_n$: voters
+\item $\mathcal{S}$: voting server
+\item $\mathcal{A}$: server administrator
+\item $\mathcal{C}$: credential authority
+\item $\mathcal{T}_1,\dots,\mathcal{T}_m$: trustees
+\item $\mathcal{V}_1,\dots,\mathcal{V}_n$: voters
 \end{itemize}
 
 \section{Processes}
@@ -76,20 +76,20 @@ section~\ref{default-group}.
 \label{election-setup}
 
 \begin{enumerate}
-\item $A$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
-  sends it to $C$
-\item $C$ generates \hyperref[credentials]{credentials}
+\item $\mathcal{A}$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
+  sends it to $\mathcal{C}$
+\item $\mathcal{C}$ generates \hyperref[credentials]{credentials}
   $c_1,\dots,c_n$ and computes
   $L=\shuffle(\public(c_1),\dots,\public(c_n))$
-\item for $j\in[1\dots n]$, $C$ sends $c_j$ to $V_j$
-\item $C$ forgets $c_1,\dots,c_n$
-\item $C$ forgets the mapping between $j$ and $\public(c_j)$
+\item for $j\in[1\dots n]$, $\mathcal{C}$ sends $c_j$ to $\mathcal{V}_j$
+\item $\mathcal{C}$ forgets $c_1,\dots,c_n$
+\item $\mathcal{C}$ forgets the mapping between $j$ and $\public(c_j)$
   if credential recovery is not needed
-\item $C$ sends $L$ to $A$
-\item $A$ and $T_1,\dotsc,T_m$ run a key establishment protocol
+\item $\mathcal{C}$ sends $L$ to $\mathcal{A}$
+\item $\mathcal{A}$ and $\mathcal{T}_1,\dotsc,\mathcal{T}_m$ run a key establishment protocol
   (either \ref{no-threshold} or \ref{threshold})
-\item $A$ creates the \hyperref[elections]{$\election$} $E$
-\item $A$ loads $E$ and $L$ into $S$ and starts it
+\item $\mathcal{A}$ creates the \hyperref[elections]{$\election$} $E$
+\item $\mathcal{A}$ loads $E$ and $L$ into $\mathcal{S}$ and starts it
 \end{enumerate}
 
 \subsubsection{Basic decryption support}
@@ -101,11 +101,11 @@ partial decryption.
 \begin{enumerate}
 \item for $z\in[1\dots m]$,
   \begin{enumerate}
-  \item $T_z$ generates a \hyperref[trustee-keys]{$\tpk$} $k_z$ and
-    sends it to $A$
-  \item $A$ checks $k_z$
+  \item $\mathcal{T}_z$ generates a \hyperref[trustee-keys]{$\tpk$} $k_z$ and
+    sends it to $\mathcal{A}$
+  \item $\mathcal{A}$ checks $k_z$
   \end{enumerate}
-\item $A$ combines all the trustee public keys into the election
+\item $\mathcal{A}$ combines all the trustee public keys into the election
   public key $y$
 \end{enumerate}
 
@@ -118,65 +118,65 @@ a partial decryption.
 \begin{enumerate}
 \item for $z\in[1\dots m]$,
   \begin{enumerate}
-  \item $T_z$ generates a \hyperref[certificates]{$\cert$} $\gamma_z$
-    and sends it to $A$
-  \item $A$ checks $\gamma_z$
+  \item $\mathcal{T}_z$ generates a \hyperref[certificates]{$\cert$} $\gamma_z$
+    and sends it to $\mathcal{A}$
+  \item $\mathcal{A}$ checks $\gamma_z$
   \end{enumerate}
-\item $A$ assembles $\Gamma=\gamma_1,\dotsc,\gamma_n$
+\item $\mathcal{A}$ assembles $\Gamma=\gamma_1,\dotsc,\gamma_n$
 \item for $z\in[1\dots m]$,
   \begin{enumerate}
-  \item $A$ sends $\Gamma$ to $T_z$ and $T_z$ checks it
-  \item $T_z$ generates a \hyperref[polynomials]{$\poly$} $P_z$ and
-    sends it to $A$
-  \item $A$ checks $P_z$
+  \item $\mathcal{A}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
+  \item $\mathcal{T}_z$ generates a \hyperref[polynomials]{$\poly$} $P_z$ and
+    sends it to $\mathcal{A}$
+  \item $\mathcal{A}$ checks $P_z$
   \end{enumerate}
-\item for $z\in[1\dots m]$, $A$ computes a
+\item for $z\in[1\dots m]$, $\mathcal{A}$ computes a
   \hyperref[vinputs]{$\vinput$} $\textsf{vi}_z$
 \item for $z\in[1\dots m]$,
   \begin{enumerate}
-  \item $A$ sends $\Gamma$ to $T_z$ and $T_z$ checks it
-  \item $A$ sends $\textsf{vi}_z$ to $T_z$ and $T_z$ checks it
-  \item $T_z$ computes a \hyperref[voutputs]{$\voutput$} $\textsf{vo}_z$ and
-    sends it to $A$
-  \item $A$ checks $\textsf{vo}_z$
+  \item $\mathcal{A}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
+  \item $\mathcal{A}$ sends $\textsf{vi}_z$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
+  \item $\mathcal{T}_z$ computes a \hyperref[voutputs]{$\voutput$} $\textsf{vo}_z$ and
+    sends it to $\mathcal{A}$
+  \item $\mathcal{A}$ checks $\textsf{vo}_z$
   \end{enumerate}
-\item $A$ extracts encrypted decryption keys $K_1,\dots,K_m$ and
+\item $\mathcal{A}$ extracts encrypted decryption keys $K_1,\dots,K_m$ and
   \hyperref[threshold-params]{threshold parameters}
 \end{enumerate}
 
 \subsection{Vote}
 
 \begin{enumerate}
-\item $V$ gets $E$
-\item $V$ creates a \hyperref[ballots]{$\ballot$} $b$ and submits it to $S$
-\item $S$ validates $b$ and publishes it
+\item $\mathcal{V}$ gets $E$
+\item $\mathcal{V}$ creates a \hyperref[ballots]{$\ballot$} $b$ and submits it to $\mathcal{S}$
+\item $\mathcal{S}$ validates $b$ and publishes it
 \end{enumerate}
 
 \subsection{Credential recovery}
 
 \begin{enumerate}
-\item $V$ contacts $C$
-\item $C$ looks up $V$'s public credential $\public(c_i)$ and
+\item $\mathcal{V}_i$ contacts $\mathcal{C}$
+\item $\mathcal{C}$ looks up $\mathcal{V}_i$'s public credential $\public(c_i)$ and
   generates a new credential $c'_i$
-\item $C$ sends $c'_i$ to $V$ and forgets it
-\item $C$ sends $\public(c_i)$ and $\public(c'_i)$ to $A$
-\item $A$ checks that $\public(c_i)$ has not been used and replaces it
+\item $\mathcal{C}$ sends $c'_i$ to $\mathcal{V}_i$ and forgets it
+\item $\mathcal{C}$ sends $\public(c_i)$ and $\public(c'_i)$ to $\mathcal{A}$
+\item $\mathcal{A}$ checks that $\public(c_i)$ has not been used and replaces it
   by $\public(c'_i)$ in $L$
 \end{enumerate}
 
 \subsection{Tally}
 
 \begin{enumerate}
-\item $A$ stops $S$ and computes the \hyperref[tally]{$\etally$} $\Pi$
+\item $\mathcal{A}$ stops $\mathcal{S}$ and computes the \hyperref[tally]{$\etally$} $\Pi$
 \item for $z\in[1\dots m]$ (or, if in threshold mode, a subset of it
   of size at least $t+1$),
   \begin{enumerate}
-  \item $A$ sends $\Pi$ (and $K_z$ if in threshold mode) to $T_z$
-  \item $T_z$ generates a \hyperref[tally]{$\pdecryption$} $\delta_z$
-    and sends it to $A$
-  \item $A$ verifies $\delta_z$
+  \item $\mathcal{A}$ sends $\Pi$ (and $K_z$ if in threshold mode) to $\mathcal{T}_z$
+  \item $\mathcal{T}_z$ generates a \hyperref[tally]{$\pdecryption$} $\delta_z$
+    and sends it to $\mathcal{A}$
+  \item $\mathcal{A}$ verifies $\delta_z$
   \end{enumerate}
-\item $A$ combines all the partial decryptions, computes and publishes
+\item $\mathcal{A}$ combines all the partial decryptions, computes and publishes
   the election \hyperref[election-result]{\result}
 \end{enumerate}
 
@@ -278,7 +278,7 @@ Belenios uses a custom public key infrastructure. During the key
 establishment protocol, each trustee starts by generating a secret
 seed (at random), then derives from it encryption and decryption keys,
 as well as signing and verification keys. These four keys are then
-used to exchange messages between trustees by using $A$ as a proxy.
+used to exchange messages between trustees by using $\mathcal{A}$ as a proxy.
 
 The secret seed $s$ is a 22-character string, where characters are
 taken from the set:
@@ -415,16 +415,16 @@ in step 3 of the key establishment protocol.
     \end{array}
   \right\}
 \end{gather*}
-Suppose $T_i$ is the trustee who is computing. Therefore, $T_i$ knows
+Suppose $\mathcal{T}_i$ is the trustee who is computing. Therefore, $\mathcal{T}_i$ knows
 the signing key $\textsf{sk}_i$ corresponding to $\textsf{vk}_i$ and the
-decryption key $\textsf{dk}_i$ corresponding to $\textsf{ek}_i$. $T_i$
-first checks that keys indeed match. Then $T_i$ picks a random
+decryption key $\textsf{dk}_i$ corresponding to $\textsf{ek}_i$. $\mathcal{T}_i$
+first checks that keys indeed match. Then $\mathcal{T}_i$ picks a random
 polynomial
 \[
   f_i(x)=a_{i0}+a_{i1}x+\dotsb+a_{it}x^t\in\Z_q[x]
 \]
 and computes $A_{ik}=g^{a_{ik}}$ for $k=0,\dotsc,t$ and
-$s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $T_i$ then fills the
+$s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
 \texttt{polynomial} structure as follows:
 \begin{itemize}
 \item the \textsf{polynomial} field is
@@ -480,7 +480,7 @@ trustees. Step 4 can be seen as a routing step.
   \right\}
 \end{gather*}
 Suppose we are computing the \texttt{vinput} structure $\textsf{vi}_j$
-for trustee $T_j$. We fill it as follows:
+for trustee $\mathcal{T}_j$. We fill it as follows:
 \begin{itemize}
 \item the \textsf{polynomial} field is the same as the one of $P_j$
 \item the \textsf{secret} field is
@@ -490,7 +490,7 @@ for trustee $T_j$. We fill it as follows:
 \end{itemize}
 Note that the \textsf{coefexps} field is the same for all trustees.
 
-In step~5, $T_j$ checks consistency of $\textsf{vi}_j$ by unpacking it
+In step~5, $\mathcal{T}_j$ checks consistency of $\textsf{vi}_j$ by unpacking it
 and checking that, for $i=1,\dotsc,m$,
 \[
 g^{s_{ij}}=\prod_{k=0}^t(A_{ik})^{j^k}
@@ -499,7 +499,7 @@ g^{s_{ij}}=\prod_{k=0}^t(A_{ik})^{j^k}
 \subsubsection{Voutputs}
 \label{voutputs}
 
-In step 5 of the key establishment protocol, a trustee $T_j$ receives
+In step 5 of the key establishment protocol, a trustee $\mathcal{T}_j$ receives
 $\Gamma$ and $\textsf{vi}_j$, and produces a \texttt{voutput}
 $\textsf{vo}_j$.
 \begin{gather*}
@@ -510,10 +510,10 @@ $\textsf{vo}_j$.
     \end{array}
   \right\}
 \end{gather*}
-Trustee $T_j$ fills $\textsf{vo}_j$ as follows:
+Trustee $\mathcal{T}_j$ fills $\textsf{vo}_j$ as follows:
 \begin{itemize}
 \item \textsf{private\_key} is set to
-  $\textsf{send}(\textsf{sk}_j,\textsf{ek}_j,S_j)$, where $S_j$ is $T_j$'s
+  $\textsf{send}(\textsf{sk}_j,\textsf{ek}_j,S_j)$, where $S_j$ is $\mathcal{T}_j$'s
   (private) decryption key:
   \[
     S_j=\sum_{i=1}^m s_{ij}\mod q
