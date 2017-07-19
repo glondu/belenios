@@ -132,8 +132,8 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
             let key = G.(g **~ key) in
             let y_alpha = G.(g **~ r) in
             let y_beta = G.((y **~ r) *~ key) in
-            let key = sha256_hex (G.to_string key) in
-            let iv = sha256_hex (G.to_string y_alpha) in
+            let key = sha256_hex ("key|" ^ G.to_string key) in
+            let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
             let y_data = Platform.encrypt ~key ~iv ~plaintext in
             let msg = {y_alpha; y_beta; y_data} in
             M.return (string_of_encrypted_msg G.write msg)
@@ -142,8 +142,8 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
 
   let decrypt x msg =
     let {y_alpha; y_beta; y_data} = encrypted_msg_of_string G.read msg in
-    let key = sha256_hex G.(to_string (y_beta *~ invert (y_alpha **~ x))) in
-    let iv = sha256_hex (G.to_string y_alpha) in
+    let key = sha256_hex G.("key|" ^ to_string (y_beta *~ invert (y_alpha **~ x))) in
+    let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
     Platform.decrypt ~key ~iv ~ciphertext:y_data
 
   let make_cert ~sk ~dk =

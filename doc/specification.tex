@@ -347,13 +347,13 @@ To compute the \texttt{encrypted\_msg}:
 \item compute $\textsf{beta}=\textsf{ek}^r\times g^s$
 \item compute $\textsf{data}$ as the hexadecimal encoding of the (symmetric)
   encryption of $M$ using AES in CCM mode with
-  $\textsf{SHA256}(g^s)$ as the key and $\textsf{SHA256}(g^r)$ as the
+  $\textsf{SHA256}(\texttt{key|}g^s)$ as the key and $\textsf{SHA256}(\texttt{iv|}g^r)$ as the
   initialization vector (where numbers are written in base 10)
 \end{enumerate}
 To decrypt an \texttt{encrypted\_msg} using a decryption key \textsf{dk}:
 \begin{enumerate}
-\item compute the symmetric key as $\textsf{SHA256}(\textsf{beta}/(\textsf{alpha}^{\textsf{dk}}))$
-\item compute the initialization vector as $\textsf{SHA256}(\textsf{alpha})$
+\item compute the symmetric key as $\textsf{SHA256}(\texttt{key|}\textsf{beta}/(\textsf{alpha}^{\textsf{dk}}))$
+\item compute the initialization vector as $\textsf{SHA256}(\texttt{iv|}\textsf{alpha})$
 \item decrypt $\textsf{data}$
 \end{enumerate}
 
