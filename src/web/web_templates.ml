@@ -1138,6 +1138,7 @@ let election_setup_threshold_trustee token uuid se () =
   let form =
     post_form
       ~service:election_setup_threshold_trustee_post
+      ~a:[a_id "data_form"]
       (fun data ->
         [
           div [
@@ -1165,6 +1166,7 @@ let election_setup_threshold_trustee token uuid se () =
       div_link;
       inputs;
       interactivity;
+      br ();
       form;
     ]
   in
@@ -1588,7 +1590,7 @@ let election_admin w metadata state get_tokens_decrypt () =
        let threshold_or_not =
          match tp with
          | None -> pcdata ""
-         | Some tp -> pcdata (Printf.sprintf " At least %d trustees must act." tp.t_threshold)
+         | Some tp -> pcdata (Printf.sprintf " At least %d trustee(s) must act." tp.t_threshold)
        in
        let trustees =
          let rec loop i ts =
