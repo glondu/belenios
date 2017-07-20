@@ -930,10 +930,18 @@ let election_setup_voters uuid se maxvoters () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let unsafe_textarea id contents =
+let unsafe_textarea ?rows ?cols id contents =
+  let rows = match rows with
+    | None -> ""
+    | Some i -> Printf.sprintf " rows=\"%d\"" i
+  in
+  let cols = match cols with
+    | None -> ""
+    | Some i -> Printf.sprintf " cols=\"%d\"" i
+  in
   Printf.ksprintf Unsafe.data
-    "<textarea id=\"%s\">%s</textarea>"
-    id contents
+    "<textarea id=\"%s\"%s%s>%s</textarea>"
+    id rows cols contents
 
 let election_setup_credentials token uuid se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
