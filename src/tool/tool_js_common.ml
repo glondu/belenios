@@ -59,3 +59,8 @@ let get_input id =
   match !res with
   | None -> raise Not_found
   | Some x -> x
+
+let hide_element_by_id id =
+  Js.Opt.iter
+    (document##getElementById (Js.string id))
+    (fun e -> e##style##display <- Js.string "none")

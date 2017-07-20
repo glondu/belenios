@@ -80,12 +80,15 @@ let fill_interactivity _ =
       let step = int_of_string (get_textarea "step") in
       match step with
       | 0 ->
+         hide_element_by_id "data_form";
          let t = document##createTextNode (Js.string "Waiting for the election administrator to set the threshold... Reload the page to check progress.") in
          Dom.appendChild e t
       | 2 | 4 | 6 ->
+         hide_element_by_id "data_form";
          let t = document##createTextNode (Js.string "Waiting for the other trustees... Reload the page to check progress.") in
          Dom.appendChild e t
       | 7 ->
+         hide_element_by_id "data_form";
          let t = document##createTextNode (Js.string "The key establishment protocol is finished!") in
          Dom.appendChild e t
       | 1 ->
