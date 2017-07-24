@@ -1188,12 +1188,11 @@ let () =
           let module W = (val w) in
           let module WE = Web_election.Make (W) (LwtRandom) in
           if metadata.e_owner = Some u then (
-            (try%lwt
+            try%lwt
                   WE.B.update_cred ~old ~new_ >>
                   String.send ("OK", "text/plain")
-             with Error e ->
+            with Error e ->
                String.send ("Error: " ^ explain_error e, "text/plain")
-            ) >>= (fun x -> return @@ cast_unknown_content_kind x)
           ) else forbidden ()
         )
     )
