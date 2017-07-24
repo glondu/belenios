@@ -328,6 +328,8 @@ let () = File.register ~service:source_code
 
 let generate_uuid = Uuidm.v4_gen (Random.State.make_self_init ())
 
+let redir_preapply s u () = Redirection.send (preapply s u)
+
 let create_new_election owner cred auth =
   let e_cred_authority = match cred with
     | `Automatic -> Some "server"
@@ -376,12 +378,12 @@ let create_new_election owner cred auth =
   } in
   let%lwt () = set_setup_election uuid_s se in
   let%lwt () = Ocsipersist.add election_credtokens token uuid_s in
-  return (preapply election_setup uuid)
+  redir_preapply election_setup uuid ()
 
 let () = Html5.register ~service:election_setup_pre
   (fun () () -> T.election_setup_pre ())
 
-let () = Redirection.register ~service:election_setup_new
+let () = Any.register ~service:election_setup_new
   (fun () (credmgmt, (auth, cas_server)) ->
    match%lwt Web_state.get_site_user () with
    | Some u ->
@@ -398,8 +400,6 @@ let () = Redirection.register ~service:election_setup_new
       in
       create_new_election u credmgmt auth
    | None -> forbidden ())
-
-let redir_preapply s u () = Redirection.send (preapply s u)
 
 let generic_setup_page f uuid () =
   match%lwt Web_state.get_site_user () with
@@ -699,7 +699,7 @@ let () =
             Ocsipersist.add election_pktokens st_token uuid_s
           ) else forbidden ()
         ) >>
-        Redirection.send (preapply election_setup_trustees uuid)
+        redir_preapply election_setup_trustees uuid ()
      | None -> forbidden ()
      else
        let msg = st_id ^ " is not a valid e-mail address!" in
@@ -708,7 +708,7 @@ let () =
     )
 
 let () =
-  Redirection.register ~service:election_setup_trustee_del
+  Any.register ~service:election_setup_trustee_del
     (fun uuid index ->
      match%lwt Web_state.get_site_user () with
      | Some u ->
@@ -730,7 +730,7 @@ let () =
             ) old
           ) else forbidden ()
         ) >>
-        return (preapply election_setup_trustees uuid)
+        redir_preapply election_setup_trustees uuid ()
      | None -> forbidden ()
     )
 
@@ -926,7 +926,7 @@ let () =
             let%lwt se = get_setup_election uuid_s in
             if se.se_owner <> u then forbidden () else
             finalize_election uuid se >>
-            Redirection.send (preapply election_admin (uuid, ()))
+            redir_preapply election_admin (uuid, ()) ()
           )
         with e ->
           T.new_election_failure (`Exception e) () >>= Html5.send
@@ -1074,11 +1074,7 @@ let () =
         let%lwt w = find_election uuid_s in
         let module W = (val w) in
         Eliom_reference.unset Web_state.ballot >>
-        let cont () =
-          Redirection.send
-            (Eliom_service.preapply
-               election_home (W.election.e_params.e_uuid, ()))
-        in
+        let cont = redir_preapply election_home (W.election.e_params.e_uuid, ()) in
         Eliom_reference.set Web_state.cont [cont] >>
         match%lwt Eliom_reference.get Web_state.cast_confirmed with
         | Some result ->
@@ -1134,11 +1130,9 @@ let () =
         in
         T.election_admin w metadata state get_tokens_decrypt () >>= Html5.send
      | _ ->
-        let cont () =
-          Redirection.send (Eliom_service.preapply election_admin (uuid, ()))
-        in
+        let cont = redir_preapply election_admin (uuid, ()) in
         Eliom_reference.set Web_state.cont [cont] >>
-        Redirection.send (Eliom_service.preapply site_login None)
+        redir_preapply site_login None ()
     )
 
 let election_set_state state (uuid, ()) () =
@@ -1158,7 +1152,7 @@ let election_set_state state (uuid, ()) () =
      in
      let state = if state then `Open else `Closed in
      Web_persist.set_election_state uuid_s state >>
-     Redirection.send (preapply election_admin (uuid, ()))
+     redir_preapply election_admin (uuid, ()) ()
 
 let () = Any.register ~service:election_open (election_set_state true)
 let () = Any.register ~service:election_close (election_set_state false)
@@ -1172,7 +1166,7 @@ let () = Any.register ~service:election_archive (fun (uuid, ()) () ->
   match site_user with
   | Some u when metadata.e_owner = Some u ->
      archive_election uuid_s >>
-     Redirection.send (Eliom_service.preapply election_admin (uuid, ()))
+     redir_preapply election_admin (uuid, ()) ()
   | _ -> forbidden ()
 )
 
@@ -1228,11 +1222,7 @@ let () =
       let uuid_s = Uuidm.to_string uuid in
       let%lwt w = find_election uuid_s in
       let module W = (val w) in
-      let cont () =
-        Redirection.send
-          (Eliom_service.preapply
-             election_cast (W.election.e_params.e_uuid, ()))
-      in
+      let cont = redir_preapply election_cast (W.election.e_params.e_uuid, ()) in
       Eliom_reference.set Web_state.cont [cont] >>
       match%lwt Eliom_reference.get Web_state.ballot with
       | Some b -> T.cast_confirmation (module W) (sha256_b64 b) () >>= Html5.send
@@ -1253,19 +1243,11 @@ let () =
         | _, _ -> fail_http 400
       in
       let the_ballot = PString.trim the_ballot in
-      let cont () =
-        Redirection.send
-          (Eliom_service.preapply
-             Web_services.election_cast (W.election.e_params.e_uuid, ()))
-      in
+      let cont = redir_preapply election_cast (W.election.e_params.e_uuid, ()) in
       Eliom_reference.set Web_state.cont [cont] >>
       Eliom_reference.set Web_state.ballot (Some the_ballot) >>
       match user with
-      | None ->
-         Redirection.send
-           (Eliom_service.preapply
-              Web_services.election_login
-              ((W.election.e_params.e_uuid, ()), None))
+      | None -> redir_preapply election_login ((W.election.e_params.e_uuid, ()), None) ()
       | Some _ -> cont ())
 
 let () =
@@ -1289,9 +1271,7 @@ let () =
                 with Error e -> return (`Error e)
               in
               Eliom_reference.set Web_state.cast_confirmed (Some result) >>
-              Redirection.send
-                (Eliom_service.preapply
-                   election_home (W.election.e_params.e_uuid, ()))
+              redir_preapply election_home (W.election.e_params.e_uuid, ()) ()
            | None -> forbidden ()
          end
       | None -> fail_http 404)
@@ -1528,9 +1508,7 @@ let handle_election_tally_release (uuid, ()) () =
       in
       let%lwt () = Web_persist.set_election_state uuid_s (`Tallied result.result) in
       let%lwt () = Ocsipersist.remove election_tokens_decrypt uuid_s in
-      Eliom_service.preapply
-        election_home (W.election.e_params.e_uuid, ()) |>
-      Redirection.send
+      redir_preapply election_home (W.election.e_params.e_uuid, ()) ()
 
 let () =
   Any.register ~service:election_tally_release
@@ -1612,7 +1590,7 @@ let () =
         let pd = string_of_partial_decryption WE.G.write pd in
         Web_persist.set_partial_decryptions uuid_s [1, pd] >>
         handle_election_tally_release (uuid, ()) ()
-      ) else Redirection.send (preapply election_admin (uuid, ())))
+      ) else redir_preapply election_admin (uuid, ()) ())
 
 let () =
   Any.register ~service:set_language
@@ -1647,7 +1625,7 @@ let () =
                     List.iter (fun x -> x.stt_step <- step) xs;
                     se.se_threshold <- maybe_threshold;
                     set_setup_election uuid_s se >>
-                    Redirection.send (preapply election_setup_threshold_trustees uuid)
+                    redir_preapply election_setup_threshold_trustees uuid ()
                   ) else (
                     let msg = "The threshold must be positive and lesser than the number of trustees!" in
                     let service = preapply election_setup_threshold_trustees uuid in
@@ -1684,7 +1662,7 @@ let () =
                  Ocsipersist.add election_tpktokens stt_token uuid_s
                ) else forbidden ()
              ) >>
-             Redirection.send (preapply election_setup_threshold_trustees uuid)
+             redir_preapply election_setup_threshold_trustees uuid ()
         | None -> forbidden ()
       else
         let msg = stt_id ^ " is not a valid e-mail address!" in
@@ -1693,7 +1671,7 @@ let () =
     )
 
 let () =
-  Redirection.register ~service:election_setup_threshold_trustee_del
+  Any.register ~service:election_setup_threshold_trustee_del
     (fun uuid index ->
       match%lwt Web_state.get_site_user () with
       | Some u ->
@@ -1721,7 +1699,7 @@ let () =
                    ) old
              ) else forbidden ()
            ) >>
-           return (preapply election_setup_threshold_trustees uuid)
+           redir_preapply election_setup_threshold_trustees uuid ()
       | None -> forbidden ()
     )
 
@@ -1851,6 +1829,6 @@ let () =
                 ) else return_unit
               ) >> set_setup_election uuid se
             ) >>
-            Redirection.send (preapply election_setup_threshold_trustee token)
+            redir_preapply election_setup_threshold_trustee token ()
         )
     )
