@@ -399,6 +399,8 @@ let () = Redirection.register ~service:election_setup_new
       create_new_election u credmgmt auth
    | None -> forbidden ())
 
+let redir_preapply s u () = Redirection.send (preapply s u)
+
 let generic_setup_page f uuid () =
   match%lwt Web_state.get_site_user () with
   | Some u ->
@@ -412,8 +414,20 @@ let generic_setup_page f uuid () =
 let () = Html5.register ~service:election_setup
   (generic_setup_page T.election_setup)
 
-let () = Html5.register ~service:election_setup_trustees
-  (generic_setup_page T.election_setup_trustees)
+let () = Any.register ~service:election_setup_trustees
+  (fun uuid () ->
+    match%lwt Web_state.get_site_user () with
+    | Some u ->
+       let uuid_s = Uuidm.to_string uuid in
+       let%lwt se = get_setup_election uuid_s in
+       if se.se_owner = u
+       then
+         match se.se_threshold_trustees with
+         | None -> T.election_setup_trustees uuid se () >>= Html5.send
+         | Some _ -> redir_preapply election_setup_threshold_trustees uuid ()
+       else forbidden ()
+    | None -> forbidden ()
+  )
 
 let () = Html5.register ~service:election_setup_threshold_trustees
   (generic_setup_page T.election_setup_threshold_trustees)
@@ -440,8 +454,6 @@ let handle_setup f uuid x =
        ) else forbidden ()
      )
   | None -> forbidden ()
-
-let redir_preapply s u () = Redirection.send (preapply s u)
 
 let () =
   Any.register ~service:election_setup_languages
