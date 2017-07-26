@@ -406,36 +406,48 @@ let () = Any.register ~service:election_setup_new
       )
   )
 
-let generic_setup_page f uuid () =
+let with_setup_election_ro uuid f =
   with_site_user (fun u ->
       let uuid_s = Uuidm.to_string uuid in
       let%lwt se = get_setup_election uuid_s in
       if se.se_owner = u then
-        f uuid se ()
+        f se
       else forbidden ()
     )
 
-let () = Html5.register ~service:election_setup
-  (generic_setup_page T.election_setup)
+let () =
+  Html5.register ~service:election_setup
+    (fun uuid () ->
+      with_setup_election_ro uuid (fun se ->
+          T.election_setup uuid se ()
+        )
+    )
 
-let () = Any.register ~service:election_setup_trustees
-  (fun uuid () ->
-    with_site_user (fun u ->
-        let uuid_s = Uuidm.to_string uuid in
-        let%lwt se = get_setup_election uuid_s in
-        if se.se_owner = u then
+let () =
+  Any.register ~service:election_setup_trustees
+    (fun uuid () ->
+      with_setup_election_ro uuid (fun se ->
           match se.se_threshold_trustees with
           | None -> T.election_setup_trustees uuid se () >>= Html5.send
           | Some _ -> redir_preapply election_setup_threshold_trustees uuid ()
-        else forbidden ()
-      )
-  )
+        )
+    )
 
-let () = Html5.register ~service:election_setup_threshold_trustees
-  (generic_setup_page T.election_setup_threshold_trustees)
+let () =
+  Html5.register ~service:election_setup_threshold_trustees
+    (fun uuid () ->
+      with_setup_election_ro uuid (fun se ->
+          T.election_setup_threshold_trustees uuid se ()
+        )
+    )
 
-let () = Html5.register ~service:election_setup_credential_authority
-  (generic_setup_page T.election_setup_credential_authority)
+let () =
+  Html5.register ~service:election_setup_credential_authority
+    (fun uuid () ->
+      with_setup_election_ro uuid (fun se ->
+          T.election_setup_credential_authority uuid se ()
+        )
+    )
 
 let election_setup_mutex = Lwt_mutex.create ()
 
@@ -589,12 +601,8 @@ let () =
 let () =
   Html5.register ~service:election_setup_questions
     (fun uuid () ->
-      with_site_user (fun u ->
-          let uuid_s = Uuidm.to_string uuid in
-          let%lwt se = get_setup_election uuid_s in
-          if se.se_owner = u then
-            T.election_setup_questions uuid se ()
-          else forbidden ()
+      with_setup_election_ro uuid (fun se ->
+          T.election_setup_questions uuid se ()
         )
     )
 
@@ -608,12 +616,8 @@ let () =
 let () =
   Html5.register ~service:election_setup_voters
     (fun uuid () ->
-      with_site_user (fun u ->
-          let uuid_s = Uuidm.to_string uuid in
-          let%lwt se = get_setup_election uuid_s in
-          if se.se_owner = u then
-            T.election_setup_voters uuid se !maxmailsatonce ()
-          else forbidden ()
+      with_setup_election_ro uuid (fun se ->
+          T.election_setup_voters uuid se !maxmailsatonce ()
         )
     )
 
@@ -902,11 +906,8 @@ let () =
 let () =
   Any.register ~service:election_setup_confirm
     (fun uuid () ->
-      with_site_user (fun u ->
-          let uuid_s = Uuidm.to_string uuid in
-          let%lwt se = get_setup_election uuid_s in
-          if se.se_owner <> u then forbidden () else
-            T.election_setup_confirm uuid se () >>= Html5.send
+      with_setup_election_ro uuid (fun se ->
+          T.election_setup_confirm uuid se () >>= Html5.send
         )
     )
 
@@ -931,9 +932,8 @@ let () =
 let () =
   Html5.register ~service:election_setup_import
     (fun uuid () ->
-      with_site_user (fun u ->
-          let%lwt se = get_setup_election (Uuidm.to_string uuid) in
-          let%lwt elections = get_finalized_elections_by_owner u in
+      with_setup_election_ro uuid (fun se ->
+          let%lwt elections = get_finalized_elections_by_owner se.se_owner in
           T.election_setup_import uuid se elections ()
         )
     )
@@ -969,9 +969,8 @@ let () =
 let () =
   Html5.register ~service:election_setup_import_trustees
     (fun uuid () ->
-      with_site_user (fun u ->
-          let%lwt se = get_setup_election (Uuidm.to_string uuid) in
-          let%lwt elections = get_finalized_elections_by_owner u in
+      with_setup_election_ro uuid (fun se ->
+          let%lwt elections = get_finalized_elections_by_owner se.se_owner in
           T.election_setup_import_trustees uuid se elections ()
         )
     )
