@@ -4,7 +4,7 @@ minimal:
 all:
 	ocamlbuild all.otarget
 
-check: all
+check: minimal
 	demo/demo.sh
 	demo/demo-threshold.sh
 
