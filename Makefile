@@ -9,7 +9,8 @@ check: all
 	demo/demo-threshold.sh
 
 clean:
-	ocamlbuild -clean
+	-ocamlbuild -clean
+	rm -rf _build
 	rm -f *~
 
 tree: _build/tree.html
