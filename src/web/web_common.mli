@@ -99,4 +99,4 @@ val split_identity : string -> string * string
 val available_languages : string list
 val get_languages : string list option -> string list
 val string_of_languages : string list option -> string
-val languages_of_string : string -> string list option
+val languages_of_string : string -> string list

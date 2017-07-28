@@ -234,4 +234,4 @@ let string_of_languages xs =
   String.concat " " (get_languages xs)
 
 let languages_of_string x =
-  Some (Pcre.split x)
+  Pcre.split x

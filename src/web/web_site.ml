@@ -474,22 +474,21 @@ let () =
       with_setup_election uuid (fun se ->
           let langs = languages_of_string languages in
           match langs with
-          | None -> assert false
-          | Some [] ->
+          | [] ->
              let service = preapply election_setup uuid in
              T.generic_page ~title:"Error" ~service
                "You must select at least one language!" () >>= Html5.send
-          | Some ls ->
+          | _ :: _ ->
              let unavailable =
                List.filter (fun x ->
                    not (List.mem x available_languages)
-                 ) ls
+                 ) langs
              in
              match unavailable with
              | [] ->
                 se.se_metadata <- {
                    se.se_metadata with
-                   e_languages = langs
+                   e_languages = Some langs
                  };
                 redir_preapply election_setup uuid ()
              | l :: _ ->
