@@ -162,15 +162,8 @@ let election_file = Eliom_parameter.user_type
   ~of_string:election_file_of_string
   ~to_string:string_of_election_file
 
-let uuid_of_string x =
-  match Uuidm.of_string x with
-  | Some x -> x
-  | None -> Printf.ksprintf invalid_arg "invalid UUID [%s]" x
-
 let uuid =
-  let of_string x = uuid_of_string x
-  and to_string x = Uuidm.to_string x
-  in Eliom_parameter.user_type ~of_string ~to_string
+  Eliom_parameter.user_type ~of_string:uuid_of_string ~to_string:string_of_uuid
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let token_length = 14
@@ -198,7 +191,7 @@ let string_of_user {user_domain; user_name} =
   user_domain ^ ":" ^ user_name
 
 let underscorize x =
-  String.map (function '-' -> '_' | c -> c) x
+  String.map (function '-' -> '_' | c -> c) (string_of_uuid x)
 
 let send_email recipient subject body =
   let contents =

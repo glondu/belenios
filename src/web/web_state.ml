@@ -23,7 +23,7 @@ open Lwt
 open Web_serializable_t
 
 type user = {
-  uuid: Uuidm.t option;
+  uuid: uuid option;
   service : string;
   name : string;
 }
@@ -53,7 +53,7 @@ let get_election_user uuid =
      match u.uuid with
      | None -> return None
      | Some uuid' ->
-        if Uuidm.equal uuid uuid' then
+        if uuid = uuid' then
           return @@ Some {
             user_domain = u.service;
             user_name = u.name

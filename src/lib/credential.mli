@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Serializable_builtin_t
 open Platform
 open Signatures
 
@@ -29,5 +30,5 @@ end
 val check : string -> bool
 
 module MakeDerive (G : GROUP) : sig
-  val derive : Uuidm.t -> string -> Z.t
+  val derive : uuid -> string -> Z.t
 end

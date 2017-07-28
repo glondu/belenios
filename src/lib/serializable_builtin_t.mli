@@ -22,8 +22,11 @@
 open Platform
 
 type number = Z.t
-type uuid = Uuidm.t
+type uuid
 type int_or_null = int option
+
+val uuid_of_string : string -> uuid
+val string_of_uuid : uuid -> string
 
 module SSet : Set.S with type elt = string
 

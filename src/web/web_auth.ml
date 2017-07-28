@@ -37,7 +37,7 @@ let configure x =
       auth_instance, (auth_system, List.map snd auth_config)
     ) x
   in
-  Web_persist.set_auth_config "" auth_config |> Lwt_main.run;
+  Web_persist.set_auth_config None auth_config |> Lwt_main.run;
   List.iter (fun {auth_system; auth_config; _} ->
     match auth_system with
     | "password" ->
@@ -95,9 +95,7 @@ let password_handler () (name, password) =
     "password_" ^
     match uuid with
     | None -> "site"
-    | Some u ->
-       let u = Uuidm.to_string u in
-       underscorize u
+    | Some u -> underscorize u
   in
   let table = Ocsipersist.open_table table in
   let%lwt salt, hashed =
@@ -330,11 +328,7 @@ let login_handler service uuid =
      cont_push (fun () -> Eliom_registration.Redirection.send (myself service)) >>
      Web_templates.already_logged_in () >>= Eliom_registration.Html5.send
   | None ->
-     let uuid_or_empty = match uuid with
-       | None -> ""
-       | Some u -> Uuidm.to_string u
-     in
-     let%lwt c = Web_persist.get_auth_config uuid_or_empty in
+     let%lwt c = Web_persist.get_auth_config uuid in
      match service with
      | Some s ->
         let%lwt auth_system, config =

@@ -89,7 +89,7 @@ end
 module Site_auth = struct
   let get_user () = Web_state.get_site_user ()
   let get_auth_systems () =
-    let%lwt l = Web_persist.get_auth_config "" in
+    let%lwt l = Web_persist.get_auth_config None in
     return (List.map fst l)
 end
 
@@ -992,7 +992,7 @@ let election_setup_credentials token uuid se () =
       ~a:[a_style "display:none;"]
       [
         div [pcdata "UUID:"];
-        div [unsafe_textarea "uuid" (Uuidm.to_string uuid)];
+        div [unsafe_textarea "uuid" (string_of_uuid uuid)];
         div [pcdata "Group parameters:"];
         div [unsafe_textarea "group" se.se_group];
       ]
@@ -1184,13 +1184,13 @@ let election_setup_importer ~service ~title uuid (elections, tallied, archived) 
   let format_election election =
     let module W = (val election : ELECTION_DATA) in
     let name = W.election.e_params.e_name in
-    let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
+    let uuid_s = string_of_uuid W.election.e_params.e_uuid in
     let form = post_form ~service
       (fun from ->
         [
           div [pcdata name; pcdata " ("; pcdata uuid_s; pcdata ")"];
           div [
-            user_type_input Uuidm.to_string
+            user_type_input string_of_uuid
               ~input_type:`Hidden
               ~name:from
               ~value:W.election.e_params.e_uuid ();
@@ -1321,8 +1321,7 @@ let election_login_box w =
     let get_user () =
       Web_state.get_election_user W.election.e_params.e_uuid
     let get_auth_systems () =
-      let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
-      let%lwt l = Web_persist.get_auth_config uuid_s in
+      let%lwt l = Web_persist.get_auth_config (Some W.election.e_params.e_uuid) in
       return @@ List.map fst l
   end in
   let auth = (module A : AUTH_SERVICES) in
@@ -1347,9 +1346,8 @@ let audit_footer w =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let module W = (val w : ELECTION_DATA) in
-  let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
   let%lwt pk_or_tp =
-    match%lwt Web_persist.get_threshold uuid_s with
+    match%lwt Web_persist.get_threshold W.election.e_params.e_uuid with
     | None ->
        return (a ~service:(file w ESKeys) [
                    pcdata L.trustee_public_keys
@@ -1455,8 +1453,7 @@ let election_home w state () =
     ]
   in
   let%lwt middle =
-    let uuid = Uuidm.to_string params.e_uuid in
-    let%lwt result = Web_persist.get_election_result uuid in
+    let%lwt result = Web_persist.get_election_result params.e_uuid in
     match result with
     | Some r ->
        let result = r.result in
@@ -1549,7 +1546,6 @@ Thank you again for your help,
 let election_admin w metadata state get_tokens_decrypt () =
   let module W = (val w : ELECTION_DATA) in
   let title = W.election.e_params.e_name ^ " — Administration" in
-  let uuid_s = Uuidm.to_string W.election.e_params.e_uuid in
   let state_form checked =
     let service, value, msg =
       if checked then
@@ -1588,8 +1584,8 @@ let election_admin w metadata state get_tokens_decrypt () =
              ]) (W.election.e_params.e_uuid, ());
        ]
     | `EncryptedTally (npks, _, hash) ->
-       let%lwt pds = Web_persist.get_partial_decryptions uuid_s in
-       let%lwt tp = Web_persist.get_threshold uuid_s in
+       let%lwt pds = Web_persist.get_partial_decryptions W.election.e_params.e_uuid in
+       let%lwt tp = Web_persist.get_threshold W.election.e_params.e_uuid in
        let tp =
          match tp with
          | None -> None
@@ -2063,7 +2059,7 @@ let tally_trustees w trustee_id token () =
     params.e_name ^ " — Partial decryption #" ^ string_of_int trustee_id
   in
   let%lwt encrypted_private_key =
-    match%lwt Web_persist.get_private_keys (Uuidm.to_string params.e_uuid) with
+    match%lwt Web_persist.get_private_keys params.e_uuid with
     | None -> return_none
     | Some keys -> return (Some (List.nth keys (trustee_id-1)))
   in
@@ -2192,7 +2188,7 @@ let login_password () =
   ] in
   base ~title:L.password_login ~content ()
 
-let booth () =
+let booth uuid =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let head = head (title (pcdata L.belenios_booth)) [
@@ -2239,7 +2235,7 @@ let booth () =
         string_input ~input_type:`Submit ~value:L.continue ~a:[a_style "font-size:30px;"] ();
         br (); br ();
        ])
-      (Uuidm.nil, ())
+      (uuid, ())
   in
   let main =
     div ~a:[a_id "main"] [

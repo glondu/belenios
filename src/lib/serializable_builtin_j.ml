@@ -42,14 +42,9 @@ let read_number = make_read "read_number" Z.of_string
 
 (** {1 Serializers for type uuid} *)
 
-let write_uuid = make_write Uuidm.to_string
+let write_uuid = make_write string_of_uuid
 
-let raw_uuid_of_string x =
-  match Uuidm.of_string x with
-  | Some s -> s
-  | _ -> invalid_arg "uuid_of_string: invalid UUID"
-
-let read_uuid = make_read "read_uuid" raw_uuid_of_string
+let read_uuid = make_read "read_uuid" uuid_of_string
 
 (** {1 Serializers for type int_or_null} *)
 

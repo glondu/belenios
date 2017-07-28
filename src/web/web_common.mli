@@ -78,19 +78,17 @@ val election_file :
    [ `One of election_file ] Eliom_parameter.param_name)
   Eliom_parameter.params_type
 
-val uuid_of_string : string -> Uuidm.t
-
 val uuid :
   string ->
-  (Uuidm.t, [ `WithoutSuffix ],
-   [ `One of Uuidm.t ] Eliom_parameter.param_name)
+  (uuid, [ `WithoutSuffix ],
+   [ `One of uuid ] Eliom_parameter.param_name)
   Eliom_parameter.params_type
 
 val generate_token : unit -> string Lwt.t
 
 val string_of_user : user -> string
 
-val underscorize : string -> string
+val underscorize : uuid -> string
 
 val send_email : string -> string -> string -> unit Lwt.t
 

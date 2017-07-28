@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Serializable_builtin_t
 open Platform
 open Signatures
 
@@ -78,7 +79,7 @@ let remove_dashes x =
 module MakeDerive (G : GROUP) = struct
 
   let derive uuid x =
-    let salt = remove_dashes (Uuidm.to_string uuid) in
+    let salt = remove_dashes (string_of_uuid uuid) in
     let derived = pbkdf2_hex ~iterations:1000 ~salt x in
     Z.(of_string_base 16 derived mod G.q)
 

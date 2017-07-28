@@ -355,7 +355,7 @@ let loadElection () =
   let params = P.election.e_params in
   setNodeById "election_name" params.e_name;
   setNodeById "election_description" params.e_description;
-  setNodeById "election_uuid" (Uuidm.to_string params.e_uuid);
+  setNodeById "election_uuid" (string_of_uuid params.e_uuid);
   setNodeById "election_fingerprint" P.election.e_fingerprint;
   withElementById "intro" (fun e ->
     let b = createStartButton election_params e params.e_questions in

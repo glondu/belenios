@@ -36,7 +36,7 @@ module type S = sig
 end
 
 module type PARSED_PARAMS = sig
-  val uuid : Uuidm.t
+  val uuid : uuid
   val template : template
   module G : GROUP
   val get_public_keys : unit -> G.t trustee_public_key array option
@@ -46,10 +46,7 @@ end
 let parse_params p =
   let module P = (val p : PARAMS) in
   let module R = struct
-    let uuid =
-      match Uuidm.of_string P.uuid with
-      | Some u -> u
-      | None -> Printf.ksprintf failwith "%s is not a valid UUID" P.uuid
+    let uuid = uuid_of_string P.uuid
     let template = template_of_string P.template
     module G = (val Group.of_string P.group : GROUP)
     let get_public_keys () =

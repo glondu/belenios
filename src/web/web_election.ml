@@ -32,7 +32,7 @@ let ( / ) = Filename.concat
 
 module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION = struct
 
-    let uuid = Uuidm.to_string D.election.e_params.e_uuid
+    let uuid = D.election.e_params.e_uuid
 
     module G = D.G
     module E = Election.MakeElection (G) (M)
@@ -67,7 +67,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
         send_email email subject body
 
       let do_cast rawballot (user, date) =
-        let voters = Lwt_io.lines_of_file (!spool_dir / uuid / "voters.txt") in
+        let voters = Lwt_io.lines_of_file (!spool_dir / string_of_uuid uuid / "voters.txt") in
         let%lwt voters = Lwt_stream.to_list voters in
         let%lwt email, login =
           let rec loop = function
@@ -157,7 +157,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
           Ocsipersist.add cred_table new_ None
 
       let do_write f =
-        Lwt_io.(with_file ~mode:Output (!spool_dir / uuid / string_of_election_file f))
+        Lwt_io.(with_file ~mode:Output (!spool_dir / string_of_uuid uuid / string_of_election_file f))
 
       let do_write_ballots () =
         do_write ESBallots (fun oc ->

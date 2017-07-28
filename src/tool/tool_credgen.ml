@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Serializable_builtin_t
 open Platform
 open Signatures
 open Common
@@ -34,17 +35,14 @@ module type S = sig
 end
 
 module type PARSED_PARAMS = sig
-  val uuid : Uuidm.t
+  val uuid : uuid
   module G : GROUP
 end
 
 let parse_params p =
   let module P = (val p : PARAMS) in
   let module R = struct
-    let uuid =
-      match Uuidm.of_string P.uuid with
-      | Some u -> u
-      | None -> Printf.ksprintf failwith "%s is not a valid UUID" P.uuid
+    let uuid = uuid_of_string P.uuid
     module G = (val Group.of_string P.group : GROUP)
   end
   in (module R : PARSED_PARAMS)
