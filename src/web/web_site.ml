@@ -1063,18 +1063,17 @@ let () =
     (fun (uuid, ()) () ->
       try%lwt
         let%lwt w = find_election uuid in
-        let module W = (val w) in
         Eliom_reference.unset Web_state.ballot >>
-        let cont = redir_preapply election_home (W.election.e_params.e_uuid, ()) in
+        let cont = redir_preapply election_home (uuid, ()) in
         Eliom_reference.set Web_state.cont [cont] >>
         match%lwt Eliom_reference.get Web_state.cast_confirmed with
         | Some result ->
            Eliom_reference.unset Web_state.cast_confirmed >>
            Eliom_reference.unset Web_state.user >>
-           T.cast_confirmed (module W) ~result () >>= Html5.send
+           T.cast_confirmed w ~result () >>= Html5.send
         | None ->
            let%lwt state = Web_persist.get_election_state uuid in
-           T.election_home (module W) state () >>= Html5.send
+           T.election_home w state () >>= Html5.send
       with Not_found ->
         let%lwt lang = Eliom_reference.get Web_state.language in
         let module L = (val Web_i18n.get_lang lang) in
@@ -1104,7 +1103,6 @@ let () =
      let%lwt w = find_election uuid in
      let%lwt metadata = Web_persist.get_election_metadata uuid in
      let%lwt site_user = Web_state.get_site_user () in
-     let module W = (val w) in
      match site_user with
      | Some u when metadata.e_owner = Some u ->
         let%lwt state = Web_persist.get_election_state uuid in
@@ -1128,9 +1126,7 @@ let () =
 
 let election_set_state state (uuid, ()) () =
   with_site_user (fun u ->
-      let%lwt w = find_election uuid in
       let%lwt metadata = Web_persist.get_election_metadata uuid in
-      let module W = (val w) in
       if metadata.e_owner = Some u then (
         let%lwt () =
           match%lwt Web_persist.get_election_state uuid with
@@ -1150,9 +1146,7 @@ let () =
   Any.register ~service:election_archive
     (fun (uuid, ()) () ->
       with_site_user (fun u ->
-          let%lwt w = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
-          let module W = (val w) in
           if metadata.e_owner = Some u then (
             archive_election uuid >>
               redir_preapply election_admin (uuid, ()) ()
@@ -1166,9 +1160,8 @@ let () =
       with_site_user (fun u ->
           let%lwt w = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
-          let module W = (val w) in
           if metadata.e_owner = Some u then (
-            T.update_credential (module W) () >>= Html5.send
+            T.update_credential w () >>= Html5.send
           ) else forbidden ()
         )
     )
@@ -1210,7 +1203,6 @@ let () =
 let () =
   Any.register ~service:election_cast_post
     (fun (uuid, ()) (ballot_raw, ballot_file) ->
-      let%lwt _ = find_election uuid in
       let%lwt user = Web_state.get_election_user uuid in
       let%lwt the_ballot = match ballot_raw, ballot_file with
         | Some ballot, None -> return ballot
@@ -1276,10 +1268,8 @@ let () =
     (fun (uuid, ()) () ->
       with_site_user (fun u ->
           let uuid_s = raw_string_of_uuid uuid in
-          let%lwt w = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
-            let module W = (val w) in
             let voters = Lwt_io.lines_of_file
                            (!spool_dir / uuid_s / string_of_election_file ESVoters)
             in
@@ -1342,7 +1332,6 @@ let () =
   Any.register ~service:election_tally_trustees
     (fun (uuid, ((), token)) () ->
       let%lwt w = find_election uuid in
-      let module W = (val w) in
       let%lwt () =
         match%lwt Web_persist.get_election_state uuid with
         | `EncryptedTally _ -> return ()
@@ -1355,7 +1344,7 @@ let () =
           "Your partial decryption has already been received and checked!"
           () >>= Html5.send
       ) else (
-        T.tally_trustees (module W) trustee_id token () >>= Html5.send
+        T.tally_trustees w trustee_id token () >>= Html5.send
       ))
 
 let () =
@@ -1474,7 +1463,7 @@ let handle_election_tally_release (uuid, ()) () =
         in
         let%lwt () = Web_persist.set_election_state uuid (`Tallied result.result) in
         let%lwt () = Ocsipersist.remove election_tokens_decrypt uuid_s in
-        redir_preapply election_home (W.election.e_params.e_uuid, ()) ()
+        redir_preapply election_home (uuid, ()) ()
       ) else forbidden ()
     )
 
@@ -1487,8 +1476,7 @@ let content_type_of_file = function
   | ESKeys | ESTParams | ESBallots | ESETally | ESResult -> "application/json"
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
-let handle_pseudo_file uuid w f site_user =
-  let module W = (val w : ELECTION_DATA) in
+let handle_pseudo_file uuid f site_user =
   let confidential =
     match f with
     | ESRaw | ESKeys | ESTParams | ESBallots | ESETally | ESResult | ESCreds -> false
@@ -1508,10 +1496,8 @@ let handle_pseudo_file uuid w f site_user =
 let () =
   Any.register ~service:election_dir
     (fun (uuid, f) () ->
-     let%lwt w = find_election uuid in
      let%lwt site_user = Web_state.get_site_user () in
-     let module W = (val w) in
-     handle_pseudo_file uuid w f site_user)
+     handle_pseudo_file uuid f site_user)
 
 let () =
   Any.register ~service:election_compute_encrypted_tally
