@@ -20,9 +20,28 @@
 (**************************************************************************)
 
 open Platform
-open Serializable_t
+open Serializable_j
 open Signatures
 open Common
+
+(** Parsing helpers *)
+
+let of_string x =
+  let params = params_of_string Yojson.Safe.read_json x in
+  {
+    e_params = params;
+    e_fingerprint = sha256_b64 x;
+  }
+
+let get_group x =
+  let w = Yojson.Safe.to_string x.e_params.e_public_key in
+  let module W = (val Group.wrapped_pubkey_of_string w) in
+  let module X =
+    struct
+      module G = W.G
+      let election = {x with e_params = {x.e_params with e_public_key = W.y}}
+    end
+  in (module X : ELECTION_DATA)
 
 (** Helper functions *)
 

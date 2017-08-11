@@ -351,7 +351,7 @@ let loadElection () =
   setDisplayById "election_loader" "none";
   setDisplayById "booth_div" "block";
   let election_raw = getTextarea "election_params" |> drop_trailing_newline in
-  let election_params = Group.election_params_of_string election_raw in
+  let election_params = Election.(get_group (of_string election_raw)) in
   let module P = (val election_params : ELECTION_DATA) in
   let params = P.election.e_params in
   setNodeById "election_name" params.e_name;

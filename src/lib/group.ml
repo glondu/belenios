@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Platform
 open Serializable_j
 open Signatures
 
@@ -37,14 +36,13 @@ let read state buf =
   let module G = (val Group_field.make group : Group_field.GROUP) in
   (module G : GROUP)
 
-let election_params_of_string x =
-  let params = params_of_string (read_wrapped_pubkey read_ff_params read_number) x in
-  let {wpk_group=group; wpk_y=y} = params.e_public_key in
-  let module X = struct
-    module G = (val Group_field.make group : Group_field.GROUP)
-    let election = {
-      e_params = {params with e_public_key = y};
-      e_fingerprint = sha256_b64 x;
-    }
-  end in
-  (module X : ELECTION_DATA)
+let wrapped_pubkey_of_string x =
+  let x = wrapped_pubkey_of_string read Yojson.Safe.read_json x in
+  let {wpk_group=group; wpk_y=y} = x in
+  let module X =
+    struct
+      module G = (val group)
+      let y = G.of_string (Yojson.Safe.Util.to_string y)
+    end
+  in
+  (module X : WRAPPED_PUBKEY)

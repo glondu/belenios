@@ -89,6 +89,12 @@ module type GROUP = sig
 
 end
 
+(** A public key with its group *)
+module type WRAPPED_PUBKEY = sig
+  module G : GROUP
+  val y : G.t
+end
+
 (** Monad signature. *)
 module type MONAD = sig
   type 'a t

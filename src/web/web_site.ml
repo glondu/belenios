@@ -61,7 +61,7 @@ let raw_find_election uuid =
   let%lwt raw_election = Web_persist.get_raw_election uuid in
   match raw_election with
   | Some raw_election ->
-     return (Group.election_params_of_string raw_election)
+     return Election.(get_group (of_string raw_election))
   | _ -> Lwt.fail Not_found
 
 module WCacheTypes = struct
@@ -186,7 +186,7 @@ let finalize_election uuid se =
   create_file "metadata.json" string_of_metadata [metadata] >>
   create_file "election.json" (fun x -> x) [raw_election] >>
   (* construct Web_election instance *)
-  let election = Group.election_params_of_string raw_election in
+  let election = Election.(get_group (of_string raw_election)) in
   let module W = Web_election.Make ((val election)) (LwtRandom) in
   (* set up authentication *)
   let%lwt () =

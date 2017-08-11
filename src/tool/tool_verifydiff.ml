@@ -111,7 +111,7 @@ let verifydiff dir1 dir2 =
     if t2 <> threshold then raise (VerifydiffError ThresholdMismatch)
   in
   (* the public keys / threshold parameters must be valid *)
-  let module ED = (val Group.election_params_of_string election) in
+  let module ED = (val Election.(get_group (of_string election))) in
   let open ED in
   let module E = Election.MakeElection (G) (DirectRandom) in
   let y =

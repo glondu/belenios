@@ -28,5 +28,4 @@ val of_string : string -> (module GROUP)
 
 val read : (module GROUP) reader
 
-val election_params_of_string : string -> (module ELECTION_DATA)
-(** Parse a [Serializable_t.params]. *)
+val wrapped_pubkey_of_string : string -> (module WRAPPED_PUBKEY)

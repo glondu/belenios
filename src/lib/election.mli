@@ -24,6 +24,9 @@
 open Serializable_t
 open Signatures
 
+val of_string : string -> Yojson.Safe.json election
+val get_group : Yojson.Safe.json election -> (module ELECTION_DATA)
+
 val question_length : question -> int
 
 module MakeElection (G : GROUP) (M : RANDOM) :
