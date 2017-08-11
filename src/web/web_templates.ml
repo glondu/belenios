@@ -160,8 +160,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
      ]))
 
 let format_election election =
-  let module W = (val election : ELECTION_DATA) in
-  let e = W.election.e_params in
+  let e = election.e_params in
   let service = election_admin in
   li [
     a ~service [pcdata e.e_name] (e.e_uuid, ());
@@ -1183,9 +1182,8 @@ let election_setup_threshold_trustee token uuid se () =
 
 let election_setup_importer ~service ~title uuid (elections, tallied, archived) () =
   let format_election election =
-    let module W = (val election : ELECTION_DATA) in
-    let name = W.election.e_params.e_name in
-    let uuid_s = raw_string_of_uuid W.election.e_params.e_uuid in
+    let name = election.e_params.e_name in
+    let uuid_s = raw_string_of_uuid election.e_params.e_uuid in
     let form = post_form ~service
       (fun from ->
         [
@@ -1194,7 +1192,7 @@ let election_setup_importer ~service ~title uuid (elections, tallied, archived) 
             user_type_input raw_string_of_uuid
               ~input_type:`Hidden
               ~name:from
-              ~value:W.election.e_params.e_uuid ();
+              ~value:election.e_params.e_uuid ();
             string_input ~input_type:`Submit ~value:"Import from this election" ();
           ]
         ]
@@ -1316,45 +1314,38 @@ let election_setup_confirm uuid se () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_login_box w =
-  let module W = (val w : ELECTION_DATA) in
+let election_login_box uuid =
   let module A = struct
     let get_user () =
-      Web_state.get_election_user W.election.e_params.e_uuid
+      Web_state.get_election_user uuid
     let get_auth_systems () =
-      let%lwt l = Web_persist.get_auth_config (Some W.election.e_params.e_uuid) in
+      let%lwt l = Web_persist.get_auth_config (Some uuid) in
       return @@ List.map fst l
   end in
   let auth = (module A : AUTH_SERVICES) in
   let module L = struct
     let login x =
-      Eliom_service.preapply
-        election_login
-        ((W.election.e_params.e_uuid, ()), x)
+      Eliom_service.preapply election_login ((uuid, ()), x)
     let logout =
       Eliom_service.preapply logout ()
   end in
   let links = (module L : AUTH_LINKS) in
   fun () -> make_login_box ~site:false auth links
 
-let file w x =
-  let module W = (val w : ELECTION_DATA) in
-  Eliom_service.preapply
-    election_dir
-    (W.election.e_params.e_uuid, x)
+let file uuid x = Eliom_service.preapply election_dir (uuid, x)
 
-let audit_footer w =
+let audit_footer election =
+  let uuid = election.e_params.e_uuid in
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
-  let module W = (val w : ELECTION_DATA) in
   let%lwt pk_or_tp =
-    match%lwt Web_persist.get_threshold W.election.e_params.e_uuid with
+    match%lwt Web_persist.get_threshold election.e_params.e_uuid with
     | None ->
-       return (a ~service:(file w ESKeys) [
+       return (a ~service:(file uuid ESKeys) [
                    pcdata L.trustee_public_keys
                  ] ())
     | Some _ ->
-       return (a ~service:(file w ESTParams) [
+       return (a ~service:(file uuid ESTParams) [
                    pcdata "threshold parameters"
                  ] ())
   in
@@ -1362,21 +1353,21 @@ let audit_footer w =
     div [
       div [
         pcdata L.election_fingerprint;
-        code [ pcdata W.election.e_fingerprint ];
+        code [ pcdata election.e_fingerprint ];
       ];
       div [
         pcdata L.audit_data;
-        a ~service:(file w ESRaw) [
+        a ~service:(file uuid ESRaw) [
           pcdata L.parameters
         ] ();
         pcdata ", ";
         pk_or_tp;
         pcdata ", ";
-        a ~service:(file w ESCreds) [
+        a ~service:(file uuid ESCreds) [
           pcdata L.public_credentials
         ] ();
         pcdata ", ";
-        a ~service:(file w ESBallots) [
+        a ~service:(file uuid ESBallots) [
           pcdata L.ballots
         ] ();
         pcdata ".";
@@ -1388,11 +1379,11 @@ let rec list_concat elt = function
   | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
   | ([_] | []) as xs -> xs
 
-let election_home w state () =
+let election_home election state () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
-  let module W = (val w : ELECTION_DATA) in
-  let params = W.election.e_params in
+  let params = election.e_params in
+  let uuid = params.e_uuid in
   let state_ =
     match state with
     | `Closed ->
@@ -1409,7 +1400,7 @@ let election_home w state () =
          a
            ~service:election_dir
            [pcdata L.encrypted_tally]
-           (W.election.e_params.e_uuid, ESETally);
+           (uuid, ESETally);
          pcdata L.hash_is;
          b [pcdata hash];
          pcdata ".";
@@ -1431,10 +1422,10 @@ let election_home w state () =
           ~a:[a_style "font-size:25px;"]
           ~service:election_pretty_ballots [
             pcdata L.see_accepted_ballots
-          ] (params.e_uuid, ())
+          ] (uuid, ())
       ]
   in
-  let%lwt footer = audit_footer w in
+  let%lwt footer = audit_footer election in
   let go_to_the_booth =
     let disabled = match state with
       | `Open -> false
@@ -1443,22 +1434,22 @@ let election_home w state () =
     div ~a:[a_style "text-align:center;"] [
       div [
         make_button
-          ~service:(Eliom_service.preapply election_vote (params.e_uuid, ()))
+          ~service:(Eliom_service.preapply election_vote (uuid, ()))
           ~disabled L.start;
         ];
       div [
         a
-          ~service:(Eliom_service.preapply election_cast (params.e_uuid, ()))
+          ~service:(Eliom_service.preapply election_cast (uuid, ()))
           [pcdata L.advanced_mode] ();
       ];
     ]
   in
   let%lwt middle =
-    let%lwt result = Web_persist.get_election_result params.e_uuid in
+    let%lwt result = Web_persist.get_election_result uuid in
     match result with
     | Some r ->
        let result = r.result in
-       let questions = Array.to_list W.election.e_params.e_questions in
+       let questions = Array.to_list election.e_params.e_questions in
        return @@ div [
          ul (List.mapi (fun i x ->
            let answers = Array.to_list x.q_answers in
@@ -1490,7 +1481,7 @@ let election_home w state () =
            pcdata L.you_can_also_download;
            a ~service:election_dir
              [pcdata L.result_with_crypto_proofs]
-             (W.election.e_params.e_uuid, ESResult);
+             (uuid, ESResult);
            pcdata ".";
          ];
        ]
@@ -1522,8 +1513,7 @@ let election_home w state () =
     br ();
     ballots_link;
   ] in
-  let%lwt login_box = election_login_box w () in
-  let uuid = params.e_uuid in
+  let%lwt login_box = election_login_box uuid () in
   base ~title:params.e_name ?login_box ~content ~footer ~uuid ()
 
 let mail_trustee_tally : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -1544,9 +1534,9 @@ Thank you again for your help,
 
 -- \nThe election administrator."
 
-let election_admin w metadata state get_tokens_decrypt () =
-  let module W = (val w : ELECTION_DATA) in
-  let title = W.election.e_params.e_name ^ " — Administration" in
+let election_admin election metadata state get_tokens_decrypt () =
+  let uuid = election.e_params.e_uuid in
+  let title = election.e_params.e_name ^ " — Administration" in
   let state_form checked =
     let service, value, msg =
       if checked then
@@ -1562,7 +1552,7 @@ let election_admin w metadata state get_tokens_decrypt () =
        [
          pcdata msg;
          string_input ~input_type:`Submit ~value ();
-       ]) (W.election.e_params.e_uuid, ())
+       ]) (uuid, ())
   in
   let%lwt state_div =
     match state with
@@ -1582,15 +1572,15 @@ let election_admin w metadata state get_tokens_decrypt () =
                  ~value:"Tally election"
                  ();
               pcdata " Warning: this action is irreversible; the election will be definitively closed.";
-             ]) (W.election.e_params.e_uuid, ());
+             ]) (uuid, ());
        ]
     | `EncryptedTally (npks, _, hash) ->
-       let%lwt pds = Web_persist.get_partial_decryptions W.election.e_params.e_uuid in
-       let%lwt tp = Web_persist.get_threshold W.election.e_params.e_uuid in
+       let%lwt pds = Web_persist.get_partial_decryptions uuid in
+       let%lwt tp = Web_persist.get_threshold uuid in
        let tp =
          match tp with
          | None -> None
-         | Some tp -> Some (threshold_parameters_of_string W.G.read tp)
+         | Some tp -> Some (threshold_parameters_of_string Yojson.Safe.read_json tp)
        in
        let threshold_or_not =
          match tp with
@@ -1620,7 +1610,7 @@ let election_admin w metadata state get_tokens_decrypt () =
          List.map
            (fun ((name, trustee_id), token) ->
              let service = election_tally_trustees in
-             let x = (W.election.e_params.e_uuid, ((), token)) in
+             let x = (uuid, ((), token)) in
              let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
                ~absolute:true ~service x
              in
@@ -1652,7 +1642,7 @@ let election_admin w metadata state get_tokens_decrypt () =
                  ~input_type:`Submit
                  ~value:"Compute the result"
                  ()
-             ]) (W.election.e_params.e_uuid, ())
+             ]) (uuid, ())
        in
        return @@ div [
          div [
@@ -1660,7 +1650,7 @@ let election_admin w metadata state get_tokens_decrypt () =
            a
              ~service:election_dir
              [pcdata "encrypted tally"]
-             (W.election.e_params.e_uuid, ESETally);
+             (uuid, ESETally);
            pcdata " has been computed. Its hash is ";
            b [pcdata hash];
            pcdata ".";
@@ -1696,10 +1686,9 @@ let election_admin w metadata state get_tokens_decrypt () =
           string_input ~input_type:`Submit ~value:"Archive election" ();
           pcdata " Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no tally).";
         ]
-      ) (W.election.e_params.e_uuid, ());
+      ) (uuid, ());
     ]
   in
-  let uuid = W.election.e_params.e_uuid in
   let update_credential =
     match metadata.e_cred_authority with
     | Some "server" ->
@@ -1732,9 +1721,9 @@ let election_admin w metadata state get_tokens_decrypt () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let update_credential w () =
-  let module W = (val w : ELECTION_DATA) in
-  let params = W.election.e_params in
+let update_credential election () =
+  let params = election.e_params in
+  let uuid = params.e_uuid in
   let form = post_form ~service:election_update_credential_post
     (fun (old, new_) ->
       [
@@ -1765,13 +1754,12 @@ let update_credential w () =
         ];
         p [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
-    ) (params.e_uuid, ())
+    ) (uuid, ())
   in
   let content = [
     form;
   ] in
   let%lwt login_box = site_login_box () in
-  let uuid = W.election.e_params.e_uuid in
   base ~title:params.e_name ?login_box ~content ~uuid ()
 
 let regenpwd uuid () =
@@ -1791,9 +1779,9 @@ let regenpwd uuid () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ~uuid ()
 
-let cast_raw w () =
-  let module W = (val w : ELECTION_DATA) in
-  let params = W.election.e_params in
+let cast_raw election () =
+  let params = election.e_params in
+  let uuid = params.e_uuid in
   let form_rawballot = post_form ~service:election_cast_post
     (fun (name, _) ->
       [
@@ -1801,7 +1789,7 @@ let cast_raw w () =
         div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
         div [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
-    ) (params.e_uuid, ())
+    ) (uuid, ())
   in
   let form_upload = post_form ~service:election_cast_post
     (fun (_, name) ->
@@ -1813,7 +1801,7 @@ let cast_raw w () =
         ];
         div [string_input ~input_type:`Submit ~value:"Submit" ()];
       ]
-    ) (params.e_uuid, ())
+    ) (uuid, ())
   in
   let intro = div [
     div [
@@ -1829,7 +1817,7 @@ let cast_raw w () =
     ];
     div [
       a ~service:Web_services.election_home
-        [pcdata "Back to election home"] (params.e_uuid, ());
+        [pcdata "Back to election home"] (uuid, ());
     ];
   ] in
   let content = [
@@ -1839,17 +1827,16 @@ let cast_raw w () =
     h3 [ pcdata "Submit by file" ];
     form_upload;
   ] in
-  let%lwt login_box = election_login_box w () in
-  let uuid = W.election.e_params.e_uuid in
-  let%lwt footer = audit_footer w in
+  let%lwt login_box = election_login_box uuid () in
+  let%lwt footer = audit_footer election in
   base ~title:params.e_name ?login_box ~content ~uuid ~footer ()
 
-let cast_confirmation w hash () =
+let cast_confirmation election hash () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
-  let module W = (val w : ELECTION_DATA) in
-  let%lwt user = Web_state.get_election_user W.election.e_params.e_uuid in
-  let params = W.election.e_params in
+  let params = election.e_params in
+  let uuid = params.e_uuid in
+  let%lwt user = Web_state.get_election_user uuid in
   let name = params.e_name in
   let user_div = match user with
     | Some u ->
@@ -1863,7 +1850,7 @@ let cast_confirmation w hash () =
             ~input_type:`Submit ~value:L.i_cast_my_vote ();
           pcdata ".";
         ]
-      ]) (params.e_uuid, ())
+      ]) (uuid, ())
     | None ->
       div [
         pcdata L.please_login_to_confirm;
@@ -1903,7 +1890,7 @@ let cast_confirmation w hash () =
     p [
       (let service =
         Eliom_service.preapply
-          Web_services.election_home (W.election.e_params.e_uuid, ())
+          Web_services.election_home (uuid, ())
       in
       a ~service [
         pcdata L.go_back_to_election
@@ -1911,14 +1898,13 @@ let cast_confirmation w hash () =
       pcdata ".";
     ];
   ] in
-  let uuid = params.e_uuid in
   base ~title:name ~content ~uuid ()
 
-let cast_confirmed w ~result () =
+let cast_confirmed election ~result () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
-  let module W = (val w : ELECTION_DATA) in
-  let params = W.election.e_params in
+  let params = election.e_params in
+  let uuid = params.e_uuid in
   let name = params.e_name in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
     pcdata L.input_credential;
@@ -1943,7 +1929,7 @@ let cast_confirmed w ~result () =
         b [pcdata hash];
         pcdata ". ";
         pcdata L.you_can_check_its_presence;
-        a ~service:election_pretty_ballots [pcdata L.ballot_box] (params.e_uuid, ());
+        a ~service:election_pretty_ballots [pcdata L.ballot_box] (uuid, ());
         pcdata L.anytime_during_the_election;
         pcdata L.confirmation_email;
        ], L.thank_you_for_voting
@@ -1967,16 +1953,15 @@ let cast_confirmed w ~result () =
       [a
          ~service:Web_services.election_home
          [pcdata L.go_back_to_election]
-         (params.e_uuid, ())];
+         (uuid, ())];
   ] in
-  let uuid = params.e_uuid in
   base ~title:name ~content ~uuid ()
 
-let pretty_ballots w hashes result () =
+let pretty_ballots election hashes result () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
-  let module W = (val w : ELECTION_DATA) in
-  let params = W.election.e_params in
+  let params = election.e_params in
+  let uuid = params.e_uuid in
   let title = params.e_name ^ " — " ^ L.accepted_ballots in
   let nballots = ref 0 in
   let hashes = List.sort compare_b64 hashes in
@@ -1988,7 +1973,7 @@ let pretty_ballots w hashes result () =
          [a
             ~service:election_pretty_ballot
             [pcdata h]
-            ((params.e_uuid, ()), h)]
+            ((uuid, ()), h)]
       ) hashes
   in
   let links =
@@ -1996,7 +1981,7 @@ let pretty_ballots w hashes result () =
       [a
          ~service:Web_services.election_home
          [pcdata L.go_back_to_election]
-         (params.e_uuid, ())]
+         (uuid, ())]
   in
   let number = match !nballots, result with
     | n, None ->
@@ -2022,14 +2007,12 @@ let pretty_ballots w hashes result () =
     ul ballots;
     links;
   ] in
-  let%lwt login_box = election_login_box w () in
-  let uuid = params.e_uuid in
+  let%lwt login_box = election_login_box uuid () in
   base ~title ?login_box ~content ~uuid ()
 
-let pretty_records w records () =
-  let module W = (val w : ELECTION_DATA) in
-  let uuid = W.election.e_params.e_uuid in
-  let title = W.election.e_params.e_name ^ " — Records" in
+let pretty_records election records () =
+  let uuid = election.e_params.e_uuid in
+  let title = election.e_params.e_name ^ " — Records" in
   let records = List.map (fun (date, voter) ->
     tr [td [pcdata date]; td [pcdata voter]]
   ) records in
@@ -2053,14 +2036,14 @@ let pretty_records w records () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let tally_trustees w trustee_id token () =
-  let module W = (val w : ELECTION_DATA) in
-  let params = W.election.e_params in
+let tally_trustees election trustee_id token () =
+  let params = election.e_params in
+  let uuid = params.e_uuid in
   let title =
     params.e_name ^ " — Partial decryption #" ^ string_of_int trustee_id
   in
   let%lwt encrypted_private_key =
-    match%lwt Web_persist.get_private_keys params.e_uuid with
+    match%lwt Web_persist.get_private_keys uuid with
     | None -> return_none
     | Some keys -> return (Some (List.nth keys (trustee_id-1)))
   in
@@ -2103,7 +2086,7 @@ let tally_trustees w trustee_id token () =
             ];
             div [string_input ~input_type:`Submit ~value:"Submit" ()];
           ]
-        ) (params.e_uuid, ((), token));
+        ) (uuid, ((), token));
     ];
     div [
       script ~a:[a_src (uri_of_string (fun () -> "../../../static/sjcl.js"))] (pcdata "");
@@ -2113,7 +2096,6 @@ let tally_trustees w trustee_id token () =
       script ~a:[a_src (uri_of_string (fun () -> "../../../static/tool_js_pd.js"))] (pcdata "");
     ]
   ] in
-  let uuid = params.e_uuid in
   base ~title ~content ~uuid ()
 
 let already_logged_in () =

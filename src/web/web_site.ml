@@ -61,12 +61,12 @@ let raw_find_election uuid =
   let%lwt raw_election = Web_persist.get_raw_election uuid in
   match raw_election with
   | Some raw_election ->
-     return Election.(get_group (of_string raw_election))
+     return (Election.of_string raw_election)
   | _ -> Lwt.fail Not_found
 
 module WCacheTypes = struct
   type key = uuid
-  type value = (module ELECTION_DATA)
+  type value = Yojson.Safe.json election
 end
 
 module WCache = Ocsigen_cache.Make (WCacheTypes)
@@ -570,13 +570,12 @@ let () =
   Any.register ~service:election_regenpwd_post
     (fun (uuid, ()) user ->
       with_site_user (fun u ->
-          let%lwt w = find_election uuid in
+          let%lwt election = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
-          let module W = (val w) in
           if metadata.e_owner = Some u then (
             let table = "password_" ^ underscorize uuid in
             let table = Ocsipersist.open_table table in
-            let title = W.election.e_params.e_name in
+            let title = election.e_params.e_name in
             let url = Eliom_uri.make_string_uri
                         ~absolute:true ~service:election_home
                         (uuid, ()) |> rewrite_prefix
@@ -1170,9 +1169,9 @@ let () =
   Any.register ~service:election_update_credential_post
     (fun (uuid, ()) (old, new_) ->
       with_site_user (fun u ->
-          let%lwt w = find_election uuid in
+          let%lwt election = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
-          let module W = (val w) in
+          let module W = (val Election.get_group election) in
           let module WE = Web_election.Make (W) (LwtRandom) in
           if metadata.e_owner = Some u then (
             try%lwt
@@ -1222,8 +1221,8 @@ let () =
 let () =
   Any.register ~service:election_cast_confirm
     (fun (uuid, ()) () ->
-      let%lwt w = find_election uuid in
-      let module W = (val w) in
+      let%lwt election = find_election uuid in
+      let module W = (val Election.get_group election) in
       let module WE = Web_election.Make (W) (LwtRandom) in
       match%lwt Eliom_reference.get Web_state.ballot with
       | Some the_ballot ->
@@ -1363,8 +1362,8 @@ let () =
       let%lwt () =
         if trustee_id > 0 then return () else fail_http 404
       in
-      let%lwt w = find_election uuid in
-      let module W = (val w) in
+      let%lwt election = find_election uuid in
+      let module W = (val Election.get_group election) in
       let module E = Election.MakeElection (W.G) (LwtRandom) in
       let%lwt pks =
         match%lwt Web_persist.get_threshold uuid with
@@ -1400,9 +1399,9 @@ let () =
 let handle_election_tally_release (uuid, ()) () =
   with_site_user (fun u ->
       let uuid_s = raw_string_of_uuid uuid in
-      let%lwt w = find_election uuid in
+      let%lwt election = find_election uuid in
       let%lwt metadata = Web_persist.get_election_metadata uuid in
-      let module W = (val w) in
+      let module W = (val Election.get_group election) in
       let module E = Election.MakeElection (W.G) (LwtRandom) in
       if metadata.e_owner = Some u then (
         let%lwt npks, ntallied =
@@ -1503,9 +1502,9 @@ let () =
   Any.register ~service:election_compute_encrypted_tally
     (fun (uuid, ()) () ->
       with_site_user (fun u ->
-          let%lwt w = find_election uuid in
+          let%lwt election = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
-          let module W = (val w) in
+          let module W = (val Election.get_group election) in
           let module WE = Web_election.Make (W) (LwtRandom) in
           if metadata.e_owner = Some u then (
             let%lwt () =

@@ -23,7 +23,7 @@ open Serializable_t
 open Web_serializable_t
 open Signatures
 
-val admin : elections:((module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list * (uuid * string) list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val admin : elections:('a election list * 'a election list * 'a election list * (uuid * string) list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
@@ -46,21 +46,21 @@ val election_setup_trustees : uuid -> setup_election -> unit -> [> `Html ] Eliom
 val election_setup_threshold_trustees : uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_trustee : string -> uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_threshold_trustee : string -> uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_import : uuid -> setup_election -> (module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_import_trustees : uuid -> setup_election -> (module ELECTION_DATA) list * (module ELECTION_DATA) list * (module ELECTION_DATA) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_import : uuid -> setup_election -> 'a election list * 'a election list * 'a election list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_setup_import_trustees : uuid -> setup_election -> 'a election list * 'a election list * 'a election list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_setup_confirm : uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val election_home : (module ELECTION_DATA) -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_admin : (module ELECTION_DATA) -> Web_serializable_j.metadata -> Web_persist.election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val update_credential : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_home : 'a election -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_admin : 'a election -> Web_serializable_j.metadata -> Web_persist.election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val update_credential : 'a election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_raw : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_confirmation : (module ELECTION_DATA) -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val cast_confirmed : (module ELECTION_DATA) -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val pretty_ballots : (module ELECTION_DATA) -> string list -> Yojson.Safe.json result option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val pretty_records : (module ELECTION_DATA) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_confirmation : 'a election -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val cast_confirmed : 'a election -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val pretty_ballots : 'a election -> string list -> Yojson.Safe.json result option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val pretty_records : 'a election -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val tally_trustees : (module ELECTION_DATA) -> int -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val tally_trustees : 'a election -> int -> string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val already_logged_in :
   unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
