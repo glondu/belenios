@@ -103,7 +103,7 @@ end
 let encryptBallot params cred plaintext () =
   let module P = (val params : ELECTION_DATA) in
   let module G = P.G in
-  let module E = Election.MakeElection (G) (LwtJsRandom) in
+  let module E = Election.Make (G) (LwtJsRandom) in
   let module CD = Credential.MakeDerive (G) in
   let sk = CD.derive P.election.e_params.e_uuid cred in
   lwt randomness = E.make_randomness P.election () in

@@ -113,7 +113,7 @@ let verifydiff dir1 dir2 =
   (* the public keys / threshold parameters must be valid *)
   let module ED = (val Election.(get_group (of_string election))) in
   let open ED in
-  let module E = Election.MakeElection (G) (DirectRandom) in
+  let module E = Election.Make (G) (DirectRandom) in
   let y =
     match threshold with
     | None ->

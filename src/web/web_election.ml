@@ -36,7 +36,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
     let uuid = D.election.e_params.e_uuid
 
     module G = D.G
-    module E = Election.MakeElection (G) (M)
+    module E = Election.Make (G) (M)
 
     module B : WEB_BALLOT_BOX = struct
 

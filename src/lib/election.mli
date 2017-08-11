@@ -29,6 +29,6 @@ val get_group : Yojson.Safe.json election -> (module ELECTION_DATA)
 
 val question_length : question -> int
 
-module MakeElection (G : GROUP) (M : RANDOM) :
+module Make (G : GROUP) (M : RANDOM) :
   ELECTION with type elt = G.t and type 'a m = 'a M.t
 (** Implementation of {!Signatures.ELECTION}. *)

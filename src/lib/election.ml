@@ -54,7 +54,7 @@ let question_length q =
 
 (** Homomorphic elections *)
 
-module MakeElection (G : GROUP) (M : RANDOM) = struct
+module Make (G : GROUP) (M : RANDOM) = struct
   open G
 
   type 'a m = 'a M.t
