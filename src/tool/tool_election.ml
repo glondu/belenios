@@ -59,7 +59,7 @@ let parse_params p =
 module Make (P : PARSED_PARAMS) : S = struct
 
   open P
-  module E = Election.Make (G) (DirectRandom)
+  module E = Election.Make (P) (DirectRandom)
 
   module KG = Trustees.MakeSimple (G) (DirectRandom)
 
@@ -135,7 +135,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   )
 
   let cast (b, hash) =
-    if Lazy.force check_signature_present b && E.check_ballot election b
+    if Lazy.force check_signature_present b && E.check_ballot b
     then ()
     else Printf.ksprintf failwith "ballot %s failed tests" hash
 
@@ -150,7 +150,7 @@ module Make (P : PARSED_PARAMS) : S = struct
         | Some ballots ->
            List.fold_left (fun accu (b, _) ->
                E.combine_ciphertexts (E.extract_ciphertext b) accu
-             ) (E.neutral_ciphertext election) ballots,
+             ) (E.neutral_ciphertext ()) ballots,
            List.length ballots
       )
 
@@ -161,8 +161,8 @@ module Make (P : PARSED_PARAMS) : S = struct
         CD.derive election.e_params.e_uuid cred
       )
     in
-    let b = E.create_ballot election ?sk (E.make_randomness election) ballot in
-    assert (E.check_ballot election b);
+    let b = E.create_ballot ?sk (E.make_randomness ()) ballot in
+    assert (E.check_ballot b);
     string_of_ballot G.write b
 
   let decrypt privkey =

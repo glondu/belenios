@@ -113,7 +113,7 @@ let verifydiff dir1 dir2 =
   (* the public keys / threshold parameters must be valid *)
   let module ED = (val Election.(get_group (of_string election))) in
   let open ED in
-  let module E = Election.Make (G) (DirectRandom) in
+  let module E = Election.Make (ED) (DirectRandom) in
   let y =
     match threshold with
     | None ->
@@ -172,7 +172,7 @@ let verifydiff dir1 dir2 =
     match load_from_file (ballot_of_string G.read) (dir / "ballots.jsons") with
     | None -> raise (VerifydiffError MissingBallots)
     | Some ballots ->
-       if not (List.for_all (E.check_ballot election) ballots) then
+       if not (List.for_all E.check_ballot ballots) then
          raise (VerifydiffError InvalidBallot);
        (* return the set of ballots indexed by the public keys used to sign *)
        List.fold_left (fun accu x ->

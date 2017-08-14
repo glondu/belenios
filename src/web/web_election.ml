@@ -36,7 +36,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
     let uuid = D.election.e_params.e_uuid
 
     module G = D.G
-    module E = Election.Make (G) (M)
+    module E = Election.Make (D) (M)
 
     module B : WEB_BALLOT_BOX = struct
 
@@ -106,7 +106,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
         match old_cred, old_record with
           | None, None ->
             (* first vote *)
-            if E.check_ballot D.election ballot then (
+            if E.check_ballot ballot then (
               let hash = sha256_b64 rawballot in
               Ocsipersist.add cred_table credential (Some hash) >>
               Ocsipersist.add ballots_table hash rawballot >>
@@ -119,7 +119,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
           | Some h, Some (_, old_credential) ->
             (* revote *)
             if credential = old_credential then (
-              if E.check_ballot D.election ballot then (
+              if E.check_ballot ballot then (
                 Ocsipersist.remove ballots_table h >>
                 let hash = sha256_b64 rawballot in
                 Ocsipersist.add cred_table credential (Some hash) >>
@@ -212,7 +212,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
               let ballot = ballot_of_string G.read rawballot in
               let ciphertext = E.extract_ciphertext ballot in
               return (n + 1, E.combine_ciphertexts accu ciphertext))
-            ballots_table (0, E.neutral_ciphertext D.election)
+            ballots_table (0, E.neutral_ciphertext ())
         in
         let tally = string_of_encrypted_tally G.write tally in
         Lwt_mutex.with_lock mutex (fun () ->

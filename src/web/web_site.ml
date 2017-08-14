@@ -1364,7 +1364,7 @@ let () =
       in
       let%lwt election = find_election uuid in
       let module W = (val Election.get_group election) in
-      let module E = Election.Make (W.G) (LwtRandom) in
+      let module E = Election.Make (W) (LwtRandom) in
       let%lwt pks =
         match%lwt Web_persist.get_threshold uuid with
         | Some tp ->
@@ -1402,7 +1402,7 @@ let handle_election_tally_release (uuid, ()) () =
       let%lwt election = find_election uuid in
       let%lwt metadata = Web_persist.get_election_metadata uuid in
       let module W = (val Election.get_group election) in
-      let module E = Election.Make (W.G) (LwtRandom) in
+      let module E = Election.Make (W) (LwtRandom) in
       if metadata.e_owner = Some u then (
         let%lwt npks, ntallied =
           match%lwt Web_persist.get_election_state uuid with

@@ -141,7 +141,6 @@ module type ELECTION = sig
 
   type elt
 
-  type t = elt election
   type private_key = Z.t
   type public_key = elt
 
@@ -150,7 +149,7 @@ module type ELECTION = sig
   type ciphertext = elt Serializable_t.ciphertext array array
   (** A ciphertext that can be homomorphically combined. *)
 
-  val neutral_ciphertext : t -> ciphertext
+  val neutral_ciphertext : unit -> ciphertext
   (** The neutral element for [combine_ciphertext] below. *)
 
   val combine_ciphertexts : ciphertext -> ciphertext -> ciphertext
@@ -172,18 +171,17 @@ module type ELECTION = sig
   type randomness
   (** Randomness needed to create a ballot. *)
 
-  val make_randomness : t -> randomness m
+  val make_randomness : unit -> randomness m
   (** Creates randomness for [create_ballot] below. The result can be
       kept for Benaloh-style auditing. *)
 
-  val create_ballot : t -> ?sk:private_key ->
-    randomness -> plaintext -> ballot m
+  val create_ballot : ?sk:private_key -> randomness -> plaintext -> ballot m
   (** [create_ballot r answers] creates a ballot, or raises
       [Invalid_argument] if [answers] doesn't satisfy the election
       constraints. The private key, if given, will be used to sign
       the ballot. *)
 
-  val check_ballot : t -> ballot -> bool
+  val check_ballot : ballot -> bool
   (** [check_ballot b] checks all the cryptographic proofs in [b]. All
       ballots produced by [create_ballot] should pass this check. *)
 

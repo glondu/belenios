@@ -54,7 +54,8 @@ let question_length q =
 
 (** Homomorphic elections *)
 
-module Make (G : GROUP) (M : RANDOM) = struct
+module Make (W : ELECTION_DATA) (M : RANDOM) = struct
+  open W
   open G
 
   type 'a m = 'a M.t
@@ -63,7 +64,6 @@ module Make (G : GROUP) (M : RANDOM) = struct
 
   type elt = G.t
 
-  type t = elt election
   type private_key = Z.t
   type public_key = elt
 
@@ -84,9 +84,9 @@ module Make (G : GROUP) (M : RANDOM) = struct
       beta = c1.beta *~ c2.beta;
     }
 
-  let neutral_ciphertext e = Array.map (fun q ->
+  let neutral_ciphertext () = Array.map (fun q ->
     Array.make (question_length q) dummy_ciphertext
-  ) e.e_params.e_questions
+  ) election.e_params.e_questions
 
   let combine_ciphertexts = Array.mmap2 eg_combine
 
@@ -438,10 +438,10 @@ module Make (G : GROUP) (M : RANDOM) = struct
        let blank_proof = None in
        return {choices; individual_proofs; overall_proof; blank_proof}
 
-  let make_randomness e =
+  let make_randomness () =
     sswap (Array.map (fun q ->
       Array.init (question_length q) (fun _ -> random G.q)
-    ) e.e_params.e_questions)
+    ) election.e_params.e_questions)
 
   let make_sig_prefix zkp commitment =
     "sig|" ^ zkp ^ "|" ^ G.to_string commitment ^ "|"
@@ -457,8 +457,8 @@ module Make (G : GROUP) (M : RANDOM) = struct
       ) (Array.to_list answers)
     ) |> Array.of_list
 
-  let create_ballot e ?sk r m =
-    let p = e.e_params in
+  let create_ballot ?sk r m =
+    let p = election.e_params in
     let sk, zkp =
       match sk with
       | None -> None, ""
@@ -479,7 +479,7 @@ module Make (G : GROUP) (M : RANDOM) = struct
     ) >>= fun signature ->
     return {
       answers;
-      election_hash = e.e_fingerprint;
+      election_hash = election.e_fingerprint;
       election_uuid = p.e_uuid;
       signature;
     }
@@ -503,10 +503,10 @@ module Make (G : GROUP) (M : RANDOM) = struct
        eg_disj_verify y d zkp a.overall_proof sumc
     | _, _ -> false
 
-  let check_ballot e b =
-    let p = e.e_params in
+  let check_ballot b =
+    let p = election.e_params in
     b.election_uuid = p.e_uuid &&
-    b.election_hash = e.e_fingerprint &&
+    b.election_hash = election.e_fingerprint &&
     let ok, zkp = match b.signature with
       | Some {s_public_key = y; s_challenge; s_response} ->
         let zkp = G.to_string y in
