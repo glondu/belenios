@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures
 open Web_serializable_t
 
 module type AUTH_SERVICES = sig
@@ -66,10 +65,4 @@ module type WEB_BALLOT_BOX = sig
   val compute_encrypted_tally : unit -> (int * string * string) Lwt.t
   (** Computes and writes to disk the encrypted tally. Returns the
       number of ballots and the hash of the encrypted tally. *)
-end
-
-module type WEB_ELECTION = sig
-  module G : GROUP
-  module E : ELECTION with type elt = G.t and type 'a m = 'a Lwt.t
-  module B : WEB_BALLOT_BOX
 end

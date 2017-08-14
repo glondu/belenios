@@ -55,14 +55,15 @@ let question_length q =
 (** Homomorphic elections *)
 
 module Make (W : ELECTION_DATA) (M : RANDOM) = struct
-  open W
-  open G
-
   type 'a m = 'a M.t
   open M
   let ( >>= ) = bind
 
-  type elt = G.t
+  type elt = W.G.t
+
+  module G = W.G
+  open G
+  let election = W.election
 
   type private_key = Z.t
   type public_key = elt

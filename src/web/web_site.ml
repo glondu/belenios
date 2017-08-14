@@ -186,8 +186,10 @@ let finalize_election uuid se =
   create_file "metadata.json" string_of_metadata [metadata] >>
   create_file "election.json" (fun x -> x) [raw_election] >>
   (* construct Web_election instance *)
-  let election = Election.(get_group (of_string raw_election)) in
-  let module W = Web_election.Make ((val election)) (LwtRandom) in
+  let election = Election.of_string raw_election in
+  let module W = (val Election.get_group election) in
+  let module E = Election.Make (W) (LwtRandom) in
+  let module B = Web_election.Make (E) in
   (* set up authentication *)
   let%lwt () =
     match metadata.e_auth_config with
@@ -204,8 +206,8 @@ let finalize_election uuid se =
   let%lwt () =
     let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
     Lwt_io.lines_of_file fname |>
-    Lwt_stream.iter_s W.B.inject_cred >>
-    W.B.update_files () >>
+    Lwt_stream.iter_s B.inject_cred >>
+    B.update_files () >>
     Lwt_unix.unlink fname
   in
   (* create file with private keys, if any *)
@@ -1172,10 +1174,11 @@ let () =
           let%lwt election = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           let module W = (val Election.get_group election) in
-          let module WE = Web_election.Make (W) (LwtRandom) in
+          let module E = Election.Make (W) (LwtRandom) in
+          let module B = Web_election.Make (E) in
           if metadata.e_owner = Some u then (
             try%lwt
-                  WE.B.update_cred ~old ~new_ >>
+                  B.update_cred ~old ~new_ >>
                   String.send ("OK", "text/plain")
             with Error e ->
                String.send ("Error: " ^ explain_error e, "text/plain")
@@ -1223,7 +1226,8 @@ let () =
     (fun (uuid, ()) () ->
       let%lwt election = find_election uuid in
       let module W = (val Election.get_group election) in
-      let module WE = Web_election.Make (W) (LwtRandom) in
+      let module E = Election.Make (W) (LwtRandom) in
+      let module B = Web_election.Make (E) in
       match%lwt Eliom_reference.get Web_state.ballot with
       | Some the_ballot ->
          begin
@@ -1233,7 +1237,7 @@ let () =
               let record = u, now () in
               let%lwt result =
                 try%lwt
-                  let%lwt hash = WE.B.cast the_ballot record in
+                  let%lwt hash = B.cast the_ballot record in
                   return (`Valid hash)
                 with Error e -> return (`Error e)
               in
@@ -1505,18 +1509,19 @@ let () =
           let%lwt election = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           let module W = (val Election.get_group election) in
-          let module WE = Web_election.Make (W) (LwtRandom) in
+          let module E = Election.Make (W) (LwtRandom) in
+          let module B = Web_election.Make (E) in
           if metadata.e_owner = Some u then (
             let%lwt () =
               match%lwt Web_persist.get_election_state uuid with
               | `Closed -> return ()
               | _ -> forbidden ()
             in
-            let%lwt nb, hash, tally = WE.B.compute_encrypted_tally () in
+            let%lwt nb, hash, tally = B.compute_encrypted_tally () in
             let%lwt npks =
               match%lwt Web_persist.get_threshold uuid with
               | Some tp ->
-                 let tp = threshold_parameters_of_string WE.G.read tp in
+                 let tp = threshold_parameters_of_string W.G.read tp in
                  return (Array.length tp.t_verification_keys)
               | None ->
                  match%lwt Web_persist.get_public_keys uuid with
@@ -1533,9 +1538,9 @@ let () =
                   | [sk] -> number_of_string sk
                   | _ -> failwith "several private keys are available"
                 in
-                let tally = encrypted_tally_of_string WE.G.read tally in
-                let%lwt pd = WE.E.compute_factor tally sk in
-                let pd = string_of_partial_decryption WE.G.write pd in
+                let tally = encrypted_tally_of_string W.G.read tally in
+                let%lwt pd = E.compute_factor tally sk in
+                let pd = string_of_partial_decryption W.G.write pd in
                 Web_persist.set_partial_decryptions uuid [1, pd] >>
                   handle_election_tally_release (uuid, ()) ()
               ) else redir_preapply election_admin (uuid, ()) ()

@@ -31,14 +31,11 @@ open Web_common
 
 let ( / ) = Filename.concat
 
-module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELECTION = struct
+module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
 
-    let uuid = D.election.e_params.e_uuid
+    let uuid = E.election.e_params.e_uuid
 
-    module G = D.G
-    module E = Election.Make (D) (M)
-
-    module B : WEB_BALLOT_BOX = struct
+    module G = E.G
 
       let uuid_u = underscorize uuid
       let ballots_table = Ocsipersist.open_table ("ballots_" ^ uuid_u)
@@ -53,8 +50,8 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
           Ocsipersist.add cred_table cred None
 
       let send_confirmation_email user email hash =
-        let title = D.election.e_params.e_name in
-        let x = (D.election.e_params.e_uuid, ()) in
+        let title = E.election.e_params.e_name in
+        let x = (E.election.e_params.e_uuid, ()) in
         let url1 = Eliom_uri.make_string_uri ~absolute:true
           ~service:Web_services.election_pretty_ballots x |> rewrite_prefix
         in
@@ -221,7 +218,5 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
           )
         ) >>
         return (num_tallied, sha256_b64 tally, tally)
-
-    end
 
 end

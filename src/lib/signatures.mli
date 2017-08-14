@@ -141,6 +141,9 @@ module type ELECTION = sig
 
   type elt
 
+  module G : GROUP with type t = elt
+  val election : elt election
+
   type private_key = Z.t
   type public_key = elt
 
