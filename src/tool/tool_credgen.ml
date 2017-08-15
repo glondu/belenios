@@ -42,7 +42,7 @@ end
 let parse_params p =
   let module P = (val p : PARAMS) in
   let module R = struct
-    let uuid = uuid_of_string P.uuid
+    let uuid = uuid_of_raw_string P.uuid
     module G = (val Group.of_string P.group : GROUP)
   end
   in (module R : PARSED_PARAMS)

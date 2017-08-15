@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
@@ -992,7 +993,7 @@ let election_setup_credentials token uuid se () =
       ~a:[a_style "display:none;"]
       [
         div [pcdata "UUID:"];
-        div [unsafe_textarea "uuid" (string_of_uuid uuid)];
+        div [unsafe_textarea "uuid" (raw_string_of_uuid uuid)];
         div [pcdata "Group parameters:"];
         div [unsafe_textarea "group" se.se_group];
       ]
@@ -1184,13 +1185,13 @@ let election_setup_importer ~service ~title uuid (elections, tallied, archived) 
   let format_election election =
     let module W = (val election : ELECTION_DATA) in
     let name = W.election.e_params.e_name in
-    let uuid_s = string_of_uuid W.election.e_params.e_uuid in
+    let uuid_s = raw_string_of_uuid W.election.e_params.e_uuid in
     let form = post_form ~service
       (fun from ->
         [
           div [pcdata name; pcdata " ("; pcdata uuid_s; pcdata ")"];
           div [
-            user_type_input string_of_uuid
+            user_type_input raw_string_of_uuid
               ~input_type:`Hidden
               ~name:from
               ~value:W.election.e_params.e_uuid ();

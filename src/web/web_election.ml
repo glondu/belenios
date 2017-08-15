@@ -21,6 +21,7 @@
 
 open Lwt
 open Platform
+open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
@@ -67,7 +68,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
         send_email email subject body
 
       let do_cast rawballot (user, date) =
-        let voters = Lwt_io.lines_of_file (!spool_dir / string_of_uuid uuid / "voters.txt") in
+        let voters = Lwt_io.lines_of_file (!spool_dir / raw_string_of_uuid uuid / "voters.txt") in
         let%lwt voters = Lwt_stream.to_list voters in
         let%lwt email, login =
           let rec loop = function
@@ -157,7 +158,7 @@ module Make (D : ELECTION_DATA) (M : RANDOM with type 'a t = 'a Lwt.t) : WEB_ELE
           Ocsipersist.add cred_table new_ None
 
       let do_write f =
-        Lwt_io.(with_file ~mode:Output (!spool_dir / string_of_uuid uuid / string_of_election_file f))
+        Lwt_io.(with_file ~mode:Output (!spool_dir / raw_string_of_uuid uuid / string_of_election_file f))
 
       let do_write_ballots () =
         do_write ESBallots (fun oc ->

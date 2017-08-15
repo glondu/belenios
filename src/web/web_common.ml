@@ -22,6 +22,7 @@
 open Lwt
 open Platform
 open Common
+open Serializable_builtin_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 
@@ -163,7 +164,7 @@ let election_file = Eliom_parameter.user_type
   ~to_string:string_of_election_file
 
 let uuid =
-  Eliom_parameter.user_type ~of_string:uuid_of_string ~to_string:string_of_uuid
+  Eliom_parameter.user_type ~of_string:uuid_of_raw_string ~to_string:raw_string_of_uuid
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let token_length = 14
@@ -191,7 +192,7 @@ let string_of_user {user_domain; user_name} =
   user_domain ^ ":" ^ user_name
 
 let underscorize x =
-  String.map (function '-' -> '_' | c -> c) (string_of_uuid x)
+  String.map (function '-' -> '_' | c -> c) (raw_string_of_uuid x)
 
 let send_email recipient subject body =
   let contents =

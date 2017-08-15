@@ -25,12 +25,12 @@ type number = Z.t
 type uuid = string
 type int_or_null = int option
 
-let uuid_of_string x =
+let uuid_of_raw_string x =
   match Uuidm.of_string x with
   | Some s -> Uuidm.to_string s
   | None -> Printf.ksprintf invalid_arg "%S is not a valid UUID" x
 
-let string_of_uuid x = x
+let raw_string_of_uuid x = x
 
 module SSet = Set.Make(String)
 

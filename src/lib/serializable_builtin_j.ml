@@ -42,9 +42,9 @@ let read_number = make_read "read_number" Z.of_string
 
 (** {1 Serializers for type uuid} *)
 
-let write_uuid = make_write string_of_uuid
+let write_uuid = make_write raw_string_of_uuid
 
-let read_uuid = make_read "read_uuid" uuid_of_string
+let read_uuid = make_read "read_uuid" uuid_of_raw_string
 
 (** {1 Serializers for type int_or_null} *)
 

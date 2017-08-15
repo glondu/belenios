@@ -21,6 +21,7 @@
 
 open Lwt
 open Platform
+open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
@@ -75,11 +76,11 @@ let find_election =
   fun x -> cache#find x
 
 let get_setup_election uuid =
-  let%lwt se = Ocsipersist.find election_stable (string_of_uuid uuid) in
+  let%lwt se = Ocsipersist.find election_stable (raw_string_of_uuid uuid) in
   return (setup_election_of_string se)
 
 let set_setup_election uuid se =
-  Ocsipersist.add election_stable (string_of_uuid uuid) (string_of_setup_election se)
+  Ocsipersist.add election_stable (raw_string_of_uuid uuid) (string_of_setup_election se)
 
 let dump_passwords dir table =
   Lwt_io.(with_file Output (dir / "passwords.csv") (fun oc ->
@@ -89,7 +90,7 @@ let dump_passwords dir table =
   ))
 
 let finalize_election uuid se =
-  let uuid_s = string_of_uuid uuid in
+  let uuid_s = raw_string_of_uuid uuid in
   (* voters *)
   let () =
     if se.se_voters = [] then failwith "no voters"
@@ -261,7 +262,7 @@ let cleanup_file f =
   with _ -> return_unit
 
 let archive_election uuid =
-  let uuid_s = string_of_uuid uuid in
+  let uuid_s = raw_string_of_uuid uuid in
   let uuid_u = underscorize uuid in
   let%lwt () = cleanup_table ~uuid_s "election_states" in
   let%lwt () = cleanup_table ~uuid_s "site_tokens_decrypt" in
@@ -319,7 +320,7 @@ let () = Html5.register ~service:admin
            Ocsipersist.fold_step (fun k v accu ->
              let v = setup_election_of_string v in
              if v.se_owner = u then
-               return ((uuid_of_string k, v.se_questions.t_name) :: accu)
+               return ((uuid_of_raw_string k, v.se_questions.t_name) :: accu)
              else return accu
            ) election_stable []
          in
@@ -334,7 +335,7 @@ let () = File.register ~service:source_code
 
 let generate_uuid =
   let gen = Uuidm.v4_gen (Random.State.make_self_init ()) in
-  fun () -> uuid_of_string (Uuidm.to_string (gen ()))
+  fun () -> uuid_of_raw_string (Uuidm.to_string (gen ()))
 
 let redir_preapply s u () = Redirection.send (preapply s u)
 
@@ -349,7 +350,7 @@ let create_new_election owner cred auth =
     | `CAS server -> Some [{auth_system = "cas"; auth_instance = "cas"; auth_config = ["server", server]}]
   in
   let uuid = generate_uuid () in
-  let uuid_s = string_of_uuid uuid in
+  let uuid_s = raw_string_of_uuid uuid in
   let%lwt token = generate_token () in
   let se_metadata = {
     e_owner = Some owner;
@@ -586,7 +587,7 @@ let () =
                let langs = get_languages metadata.e_languages in
                let%lwt x = generate_password langs title url user in
                Ocsipersist.add table user x >>
-                 dump_passwords (!spool_dir / string_of_uuid uuid) table >>
+                 dump_passwords (!spool_dir / raw_string_of_uuid uuid) table >>
                  T.generic_page ~title:"Success" ~service
                    ("A new password has been mailed to " ^ user ^ ".") ()
                >>= Html5.send
@@ -705,7 +706,7 @@ let () =
             let%lwt st_token = generate_token () in
             let trustee = {st_id; st_token; st_public_key = ""} in
             se.se_public_keys <- se.se_public_keys @ [trustee];
-            let%lwt () = Ocsipersist.add election_pktokens st_token (string_of_uuid uuid) in
+            let%lwt () = Ocsipersist.add election_pktokens st_token (raw_string_of_uuid uuid) in
             redir_preapply election_setup_trustees uuid ()
           ) else (
             let msg = st_id ^ " is not a valid e-mail address!" in
@@ -739,7 +740,7 @@ let () =
   Html5.register ~service:election_setup_credentials
     (fun token () ->
      let%lwt uuid = Ocsipersist.find election_credtokens token in
-     let uuid = uuid_of_string uuid in
+     let uuid = uuid_of_raw_string uuid in
      let%lwt se = get_setup_election uuid in
      T.election_setup_credentials token uuid se ()
     )
@@ -759,11 +760,11 @@ let wrap_handler f =
 
 let handle_credentials_post token creds =
   let%lwt uuid = Ocsipersist.find election_credtokens token in
-  let uuid = uuid_of_string uuid in
+  let uuid = uuid_of_raw_string uuid in
   let%lwt se = get_setup_election uuid in
   if se.se_public_creds_received then forbidden () else
   let module G = (val Group.of_string se.se_group : GROUP) in
-  let fname = !spool_dir / string_of_uuid uuid ^ ".public_creds.txt" in
+  let fname = !spool_dir / raw_string_of_uuid uuid ^ ".public_creds.txt" in
   Lwt_mutex.with_lock
     election_setup_mutex
     (fun () ->
@@ -853,7 +854,7 @@ let () =
                 ) S.empty se.se_voters
             in
             let creds = S.elements creds in
-            let fname = !spool_dir / string_of_uuid uuid ^ ".public_creds.txt" in
+            let fname = !spool_dir / raw_string_of_uuid uuid ^ ".public_creds.txt" in
             let%lwt () =
               Lwt_io.with_file
                 ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
@@ -873,7 +874,7 @@ let () =
   Html5.register ~service:election_setup_trustee
     (fun token () ->
      let%lwt uuid = Ocsipersist.find election_pktokens token in
-     let uuid = uuid_of_string uuid in
+     let uuid = uuid_of_raw_string uuid in
      let%lwt se = get_setup_election uuid in
      T.election_setup_trustee token uuid se ()
     )
@@ -884,7 +885,7 @@ let () =
      wrap_handler
        (fun () ->
         let%lwt uuid = Ocsipersist.find election_pktokens token in
-        let uuid = uuid_of_string uuid in
+        let uuid = uuid_of_raw_string uuid in
         Lwt_mutex.with_lock
           election_setup_mutex
           (fun () ->
@@ -936,7 +937,7 @@ let () =
   Any.register ~service:election_setup_import_post
     (fun uuid from ->
       with_setup_election uuid (fun se ->
-          let from_s = string_of_uuid from in
+          let from_s = raw_string_of_uuid from in
           let%lwt voters = Web_persist.get_voters from in
           let%lwt passwords = Web_persist.get_passwords from in
           let get_password =
@@ -980,7 +981,7 @@ let () =
   Any.register ~service:election_setup_import_trustees_post
     (fun uuid from ->
       with_setup_election uuid (fun se ->
-          let uuid_s = string_of_uuid uuid in
+          let uuid_s = raw_string_of_uuid uuid in
           let%lwt metadata = Web_persist.get_election_metadata from in
           let%lwt threshold = Web_persist.get_threshold from in
           let%lwt public_keys = Web_persist.get_public_keys from in
@@ -1099,7 +1100,7 @@ let () =
 let () =
   Any.register ~service:election_admin
     (fun (uuid, ()) () ->
-     let uuid_s = string_of_uuid uuid in
+     let uuid_s = raw_string_of_uuid uuid in
      let%lwt w = find_election uuid in
      let%lwt metadata = Web_persist.get_election_metadata uuid in
      let%lwt site_user = Web_state.get_site_user () in
@@ -1274,7 +1275,7 @@ let () =
   Any.register ~service:election_missing_voters
     (fun (uuid, ()) () ->
       with_site_user (fun u ->
-          let uuid_s = string_of_uuid uuid in
+          let uuid_s = raw_string_of_uuid uuid in
           let%lwt w = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
@@ -1314,7 +1315,7 @@ let () =
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
             let records = Lwt_io.lines_of_file
-                            (!spool_dir / string_of_uuid uuid / string_of_election_file ESRecords)
+                            (!spool_dir / raw_string_of_uuid uuid / string_of_election_file ESRecords)
             in
             let%lwt records = Lwt_stream.fold (fun r accu ->
                                   let s = Pcre.exec ~rex r in
@@ -1329,7 +1330,7 @@ let () =
 
 let find_trustee_id uuid token =
   try%lwt
-    let%lwt tokens = Ocsipersist.find election_tokens_decrypt (string_of_uuid uuid) in
+    let%lwt tokens = Ocsipersist.find election_tokens_decrypt (raw_string_of_uuid uuid) in
     let rec find i = function
       | [] -> raise Not_found
       | t :: ts -> if t = token then i else find (i+1) ts
@@ -1391,7 +1392,7 @@ let () =
       in
       let pk = pks.(trustee_id-1).trustee_public_key in
       let pd = partial_decryption_of_string W.G.read partial_decryption in
-      let et = !spool_dir / string_of_uuid uuid / string_of_election_file ESETally in
+      let et = !spool_dir / raw_string_of_uuid uuid / string_of_election_file ESETally in
       let%lwt et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
       let et = encrypted_tally_of_string W.G.read et in
       if E.check_factor et pk pd then (
@@ -1409,7 +1410,7 @@ let () =
 
 let handle_election_tally_release (uuid, ()) () =
   with_site_user (fun u ->
-      let uuid_s = string_of_uuid uuid in
+      let uuid_s = raw_string_of_uuid uuid in
       let%lwt w = find_election uuid in
       let%lwt metadata = Web_persist.get_election_metadata uuid in
       let module W = (val w) in
@@ -1502,7 +1503,7 @@ let handle_pseudo_file uuid w f site_user =
     ) else return ()
   in
   let content_type = content_type_of_file f in
-  File.send ~content_type (!spool_dir / string_of_uuid uuid / string_of_election_file f)
+  File.send ~content_type (!spool_dir / raw_string_of_uuid uuid / string_of_election_file f)
 
 let () =
   Any.register ~service:election_dir
@@ -1540,7 +1541,7 @@ let () =
             Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) >>
               (* compute partial decryption and release tally
                  if the (single) key is known *)
-              let skfile = !spool_dir / string_of_uuid uuid / "private_key.json" in
+              let skfile = !spool_dir / raw_string_of_uuid uuid / "private_key.json" in
               if npks = 1 && Sys.file_exists skfile then (
                 let%lwt sk = Lwt_io.lines_of_file skfile |> Lwt_stream.to_list in
                 let sk = match sk with
@@ -1609,7 +1610,7 @@ let () =
               | Some t -> Some (t @ [trustee])
             in
             se.se_threshold_trustees <- trustees;
-            let%lwt () = Ocsipersist.add election_tpktokens stt_token (string_of_uuid uuid) in
+            let%lwt () = Ocsipersist.add election_tpktokens stt_token (raw_string_of_uuid uuid) in
             redir_preapply election_setup_threshold_trustees uuid ()
           ) else (
             let msg = stt_id ^ " is not a valid e-mail address!" in
@@ -1649,7 +1650,7 @@ let () =
   Html5.register ~service:election_setup_threshold_trustee
     (fun token () ->
       let%lwt uuid = Ocsipersist.find election_tpktokens token in
-      let uuid = uuid_of_string uuid in
+      let uuid = uuid_of_raw_string uuid in
       let%lwt se = get_setup_election uuid in
       T.election_setup_threshold_trustee token uuid se ()
     )
@@ -1660,7 +1661,7 @@ let () =
       wrap_handler
         (fun () ->
           let%lwt uuid = Ocsipersist.find election_tpktokens token in
-          let uuid = uuid_of_string uuid in
+          let uuid = uuid_of_raw_string uuid in
           Lwt_mutex.with_lock election_setup_mutex
             (fun () ->
               let%lwt se = get_setup_election uuid in
