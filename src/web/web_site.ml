@@ -451,7 +451,7 @@ let () =
 
 let election_setup_mutex = Lwt_mutex.create ()
 
-let with_setup_election uuid f =
+let with_setup_election ?(save = true) uuid f =
   with_site_user (fun u ->
       let uuid_s = Uuidm.to_string uuid in
       Lwt_mutex.with_lock election_setup_mutex (fun () ->
@@ -459,7 +459,7 @@ let with_setup_election uuid f =
           if se.se_owner = u then (
             try%lwt
               let%lwt r = f se in
-              let%lwt () = set_setup_election uuid_s se in
+              let%lwt () = if save then set_setup_election uuid_s se else return_unit in
               return r
             with e ->
               let service = preapply election_setup uuid in
@@ -921,7 +921,7 @@ let () =
 let () =
   Any.register ~service:election_setup_create
     (fun uuid () ->
-      with_setup_election uuid (fun se ->
+      with_setup_election ~save:false uuid (fun se ->
           try%lwt
             let%lwt () = finalize_election uuid se in
             redir_preapply election_admin (uuid, ()) ()
