@@ -49,6 +49,11 @@ let () =
     source_file := Some file
   | Element ("maxmailsatonce", ["value", limit], []) ->
     Web_site.maxmailsatonce := int_of_string limit
+  | Element ("server", ["mail", mail], []) ->
+     if is_email mail then
+       server_mail := mail
+     else
+       Printf.ksprintf failwith "%s is not a valid e-mail address" mail
   | Element ("spool", ["dir", dir], []) ->
     spool_dir := Some dir
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->

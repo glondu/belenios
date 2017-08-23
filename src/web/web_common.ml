@@ -27,6 +27,7 @@ open Web_serializable_builtin_t
 open Web_serializable_j
 
 let spool_dir = ref "."
+let server_mail = ref "noreply@belenios.org"
 
 module LwtRandom = struct
 
@@ -197,7 +198,7 @@ let underscorize x =
 let send_email recipient subject body =
   let contents =
     Netsendmail.compose
-      ~from_addr:("Belenios public server", "noreply@belenios.org")
+      ~from_addr:("Belenios public server", !server_mail)
       ~to_addrs:[recipient, recipient]
       ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
       ~subject body
@@ -229,3 +230,11 @@ let string_of_languages xs =
 
 let languages_of_string x =
   Pcre.split x
+
+let email_rex = Pcre.regexp
+  ~flags:[`CASELESS]
+  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,7}$"
+
+let is_email x =
+  try ignore (Pcre.pcre_exec ~rex:email_rex x); true
+  with Not_found -> false

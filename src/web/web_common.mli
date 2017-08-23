@@ -23,6 +23,7 @@ open Signatures
 open Web_serializable_t
 
 val spool_dir : string ref
+val server_mail : string ref
 
 module LwtRandom : RANDOM with type 'a t = 'a Lwt.t
 (** Lwt-compatible random number generation. *)
@@ -98,3 +99,5 @@ val available_languages : string list
 val get_languages : string list option -> string list
 val string_of_languages : string list option -> string
 val languages_of_string : string -> string list
+
+val is_email : string -> bool

@@ -1615,7 +1615,7 @@ let election_admin election metadata state get_tokens_decrypt () =
                ~absolute:true ~service x
              in
              let link_content, dest = match name with
-               | None -> uri, "toto@example.org"
+               | None -> uri, !server_mail
                | Some name -> name, name
              in
              tr [

@@ -635,14 +635,6 @@ let is_identity x =
   try ignore (Pcre.pcre_exec ~rex:identity_rex x); true
   with Not_found -> false
 
-let email_rex = Pcre.regexp
-  ~flags:[`CASELESS]
-  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,7}$"
-
-let is_email x =
-  try ignore (Pcre.pcre_exec ~rex:email_rex x); true
-  with Not_found -> false
-
 module SSet = Set.Make (PString)
 
 let merge_voters a b f =
