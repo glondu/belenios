@@ -65,15 +65,14 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
         send_email email subject body
 
       let do_cast rawballot (user, date) =
-        let voters = Lwt_io.lines_of_file (!spool_dir / raw_string_of_uuid uuid / "voters.txt") in
-        let%lwt voters = Lwt_stream.to_list voters in
+        let%lwt voters = read_file ~uuid "voters.txt" in
         let%lwt email, login =
           let rec loop = function
             | x :: xs ->
                let email, login = split_identity x in
                if login = user.user_name then return (email, login) else loop xs
             | [] -> fail UnauthorizedVoter
-          in loop voters
+          in loop (match voters with Some xs -> xs | None -> [])
         in
         let user = string_of_user user in
         let%lwt state = Web_persist.get_election_state uuid in

@@ -30,11 +30,9 @@ open Web_common
 let ( / ) = Filename.concat
 
 let get_election_result uuid =
-  try%lwt
-    Lwt_io.chars_of_file (!spool_dir / raw_string_of_uuid uuid / "result.json") |>
-    Lwt_stream.to_string >>= fun x ->
-    return @@ Some (result_of_string (Yojson.Safe.from_lexbuf ~stream:true) x)
-  with _ -> return_none
+  match%lwt read_file ~uuid "result.json" with
+  | Some [x] -> return (Some (result_of_string Yojson.Safe.read_json x))
+  | _ -> return_none
 
 type election_state =
   [ `Open
@@ -56,19 +54,15 @@ let set_election_state x s =
 let past = datetime_of_string "\"2015-10-01 00:00:00.000000\""
 
 let set_election_date uuid d =
-  let dates = { e_finalization = d } in
-  Lwt_io.(with_file Output (!spool_dir / raw_string_of_uuid uuid / "dates.json") (fun oc ->
-    write_line oc (string_of_election_dates dates)
-  ))
+  let dates = string_of_election_dates { e_finalization = d } in
+  write_file ~uuid "dates.json" [dates]
 
 let get_election_date uuid =
-    try%lwt
-      Lwt_io.chars_of_file (!spool_dir / raw_string_of_uuid uuid / "dates.json") |>
-      Lwt_stream.to_string >>= fun x ->
-      let dates = election_dates_of_string x in
-      return dates.e_finalization
-    with _ ->
-      return past
+  match%lwt read_file ~uuid "dates.json" with
+  | Some [x] ->
+     let dates = election_dates_of_string x in
+     return dates.e_finalization
+  | _ -> return past
 
 let election_pds = Ocsipersist.open_table "election_pds"
 
@@ -93,13 +87,9 @@ let set_auth_config x c =
   Ocsipersist.add auth_configs (key_of_uuid_option x) c
 
 let get_raw_election uuid =
-  try%lwt
-    let lines = Lwt_io.lines_of_file (!spool_dir / raw_string_of_uuid uuid / "election.json") in
-    begin match%lwt Lwt_stream.to_list lines with
-    | x :: _ -> return @@ Some x
-    | [] -> return_none
-    end
-  with _ -> return_none
+  match%lwt read_file ~uuid "election.json" with
+  | Some [x] -> return (Some x)
+  | _ -> return_none
 
 let empty_metadata = {
   e_owner = None;
@@ -112,11 +102,9 @@ let empty_metadata = {
 let return_empty_metadata = return empty_metadata
 
 let get_election_metadata uuid =
-  try%lwt
-    Lwt_io.chars_of_file (!spool_dir / raw_string_of_uuid uuid / "metadata.json") |>
-    Lwt_stream.to_string >>= fun x ->
-    return @@ metadata_of_string x
-  with _ -> return_empty_metadata
+  match%lwt read_file ~uuid "metadata.json" with
+  | Some [x] -> return (metadata_of_string x)
+  | _ -> return_empty_metadata
 
 let get_elections_by_owner user =
   Lwt_unix.files_of_directory !spool_dir |>
@@ -137,11 +125,7 @@ let get_elections_by_owner user =
     Lwt_stream.to_list
 
 let get_voters uuid =
-  try%lwt
-    let lines = Lwt_io.lines_of_file (!spool_dir / raw_string_of_uuid uuid / "voters.txt") in
-    let%lwt lines = Lwt_stream.to_list lines in
-    return @@ Some lines
-  with _ -> return_none
+  read_file ~uuid "voters.txt"
 
 let get_passwords uuid =
   let csv =
@@ -160,25 +144,15 @@ let get_passwords uuid =
      return @@ Some res
 
 let get_public_keys uuid =
-  try%lwt
-    let lines = Lwt_io.lines_of_file (!spool_dir / raw_string_of_uuid uuid / "public_keys.jsons") in
-    let%lwt lines = Lwt_stream.to_list lines in
-    return @@ Some lines
-  with _ -> return_none
+  read_file ~uuid "public_keys.jsons"
 
 let get_private_keys uuid =
-  try%lwt
-    let lines = Lwt_io.lines_of_file (!spool_dir / raw_string_of_uuid uuid / "private_keys.jsons") in
-    let%lwt lines = Lwt_stream.to_list lines in
-    return @@ Some lines
-  with _ -> return_none
+  read_file ~uuid "private_keys.jsons"
 
 let get_threshold uuid =
-  try%lwt
-    Lwt_io.chars_of_file (!spool_dir / raw_string_of_uuid uuid / "threshold.json") |>
-    Lwt_stream.to_string >>= fun x ->
-    return (Some x)
-  with _ -> return_none
+  match%lwt read_file ~uuid "threshold.json" with
+  | Some [x] -> return (Some x)
+  | _ -> return_none
 
 module Ballots = Map.Make (String)
 
@@ -190,13 +164,15 @@ end
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
 
 let raw_get_ballots_archived uuid =
-  try%lwt
-    let ballots = Lwt_io.lines_of_file (!spool_dir / raw_string_of_uuid uuid / "ballots.jsons") in
-    Lwt_stream.fold (fun b accu ->
-      let hash = sha256_b64 b in
-      Ballots.add hash b accu
-    ) ballots Ballots.empty
-  with _ -> return Ballots.empty
+  match%lwt read_file ~uuid "ballots.jsons" with
+  | Some bs ->
+     return (
+         List.fold_left (fun accu b ->
+             let hash = sha256_b64 b in
+             Ballots.add hash b accu
+           ) Ballots.empty bs
+       )
+  | None -> return Ballots.empty
 
 let archived_ballots_cache =
   new BallotsCache.cache raw_get_ballots_archived 10

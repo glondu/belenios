@@ -101,3 +101,6 @@ val string_of_languages : string list option -> string
 val languages_of_string : string -> string list
 
 val is_email : string -> bool
+
+val read_file : ?uuid:uuid -> string -> string list option Lwt.t
+val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t

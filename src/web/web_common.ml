@@ -238,3 +238,23 @@ let email_rex = Pcre.regexp
 let is_email x =
   try ignore (Pcre.pcre_exec ~rex:email_rex x); true
   with Not_found -> false
+
+let get_fname uuid x =
+  match uuid with
+  | None -> x
+  | Some uuid ->
+     let ( / ) = Filename.concat in
+     !spool_dir / raw_string_of_uuid uuid / x
+
+let read_file ?uuid x =
+  try%lwt
+    let%lwt lines = Lwt_io.lines_of_file (get_fname uuid x) |> Lwt_stream.to_list in
+    return (Some lines)
+  with _ -> return_none
+
+let write_file ?uuid x lines =
+  Lwt_io.(
+    with_file Output (get_fname uuid x) (fun oc ->
+        Lwt_list.iter_s (write_line oc) lines
+      )
+  )

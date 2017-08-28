@@ -205,10 +205,12 @@ let finalize_election uuid se =
   (* inject credentials *)
   let%lwt () =
     let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
-    Lwt_io.lines_of_file fname |>
-    Lwt_stream.iter_s B.inject_cred >>
-    B.update_files () >>
-    Lwt_unix.unlink fname
+    match%lwt read_file fname with
+    | Some xs ->
+       Lwt_list.iter_s B.inject_cred xs
+       >> B.update_files ()
+       >> Lwt_unix.unlink fname
+    | None -> return_unit
   in
   (* create file with private keys, if any *)
   let%lwt () =
@@ -635,8 +637,6 @@ let is_identity x =
   try ignore (Pcre.pcre_exec ~rex:identity_rex x); true
   with Not_found -> false
 
-module SSet = Set.Make (PString)
-
 let merge_voters a b f =
   let existing = List.fold_left (fun accu sv ->
     SSet.add sv.sv_id accu
@@ -768,15 +768,19 @@ let handle_credentials_post token creds =
     ) >>
   let%lwt () =
     let i = ref 1 in
-    Lwt_stream.iter
-      (fun x ->
-       try
-         let x = G.of_string x in
-         if not (G.check x) then raise Exit;
-         incr i
-       with _ ->
-         Printf.ksprintf failwith "invalid credential at line %d" !i)
-      (Lwt_io.lines_of_file fname)
+    match%lwt read_file fname with
+    | Some xs ->
+       return (
+           List.iter (fun x ->
+               try
+                 let x = G.of_string x in
+                 if not (G.check x) then raise Exit;
+                 incr i
+               with _ ->
+                 Printf.ksprintf failwith "invalid credential at line %d" !i
+             ) xs
+         )
+    | None -> return_unit
   in
   let () = se.se_metadata <- {se.se_metadata with e_cred_authority = None} in
   let () = se.se_public_creds_received <- true in
@@ -818,7 +822,6 @@ let () =
                         ~absolute:true ~service:election_home
                         (uuid, ()) |> rewrite_prefix
             in
-            let module S = Set.Make (PString) in
             let module G = (val Group.of_string se.se_group : GROUP) in
             let module CD = Credential.MakeDerive (G) in
             let%lwt creds =
@@ -843,10 +846,10 @@ let () =
                     Printf.sprintf L.mail_credential_subject title
                   in
                   let%lwt () = send_email email subject body in
-                  return @@ S.add pub_cred accu
-                ) S.empty se.se_voters
+                  return @@ SSet.add pub_cred accu
+                ) SSet.empty se.se_voters
             in
-            let creds = S.elements creds in
+            let creds = SSet.elements creds in
             let fname = !spool_dir / raw_string_of_uuid uuid ^ ".public_creds.txt" in
             let%lwt () =
               Lwt_io.with_file
@@ -1262,27 +1265,33 @@ let () =
   Any.register ~service:election_missing_voters
     (fun (uuid, ()) () ->
       with_site_user (fun u ->
-          let uuid_s = raw_string_of_uuid uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
-            let voters = Lwt_io.lines_of_file
-                           (!spool_dir / uuid_s / string_of_election_file ESVoters)
+            let%lwt voters =
+              match%lwt read_file ~uuid (string_of_election_file ESVoters) with
+              | Some vs ->
+                 return (
+                     List.fold_left (fun accu v ->
+                         let _, login = split_identity v in
+                         SSet.add login accu
+                       ) SSet.empty vs
+                   )
+              | None -> return SSet.empty
             in
-            let module S = Set.Make (PString) in
-            let%lwt voters = Lwt_stream.fold (fun v accu ->
-                                 let _, login = split_identity v in
-                                 S.add login accu
-                               ) voters S.empty in
-            let records = Lwt_io.lines_of_file
-                            (!spool_dir / uuid_s / string_of_election_file ESRecords)
+            let%lwt voters =
+              match%lwt read_file ~uuid (string_of_election_file ESRecords) with
+              | Some rs ->
+                 return (
+                     List.fold_left (fun accu r ->
+                         let s = Pcre.exec ~rex r in
+                         let v = Pcre.get_substring s 1 in
+                         SSet.remove v accu
+                       ) voters rs
+                   )
+              | None -> return voters
             in
-            let%lwt voters = Lwt_stream.fold (fun r accu ->
-                                 let s = Pcre.exec ~rex r in
-                                 let v = Pcre.get_substring s 1 in
-                                 S.remove v accu
-                               ) records voters in
             let buf = Buffer.create 128 in
-            S.iter (fun v ->
+            SSet.iter (fun v ->
                 Buffer.add_string buf v;
                 Buffer.add_char buf '\n'
               ) voters;
@@ -1299,15 +1308,19 @@ let () =
           let%lwt w = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
-            let records = Lwt_io.lines_of_file
-                            (!spool_dir / raw_string_of_uuid uuid / string_of_election_file ESRecords)
+            let%lwt records =
+              match%lwt read_file ~uuid (string_of_election_file ESRecords) with
+              | Some rs ->
+                 return (
+                     List.rev_map (fun r ->
+                         let s = Pcre.exec ~rex r in
+                         let date = Pcre.get_substring s 1 in
+                         let voter = Pcre.get_substring s 2 in
+                         (date, voter)
+                       ) rs
+                   )
+              | None -> return []
             in
-            let%lwt records = Lwt_stream.fold (fun r accu ->
-                                  let s = Pcre.exec ~rex r in
-                                  let date = Pcre.get_substring s 1 in
-                                  let voter = Pcre.get_substring s 2 in
-                                  (date, voter) :: accu
-                                ) records [] in
             T.pretty_records w (List.rev records) () >>= Html5.send
           ) else forbidden ()
         )
@@ -1451,10 +1464,8 @@ let handle_election_tally_release (uuid, ()) () =
         in
         let result = E.compute_result ntallied et pds combinator in
         let%lwt () =
-          let open Lwt_io in
-          with_file
-            ~mode:Output (!spool_dir / uuid_s / string_of_election_file ESResult)
-            (fun oc -> Lwt_io.write_line oc (string_of_result W.G.write result))
+          let result = string_of_result W.G.write result in
+          write_file ~uuid (string_of_election_file ESResult) [result]
         in
         let%lwt () = Web_persist.set_election_state uuid (`Tallied result.result) in
         let%lwt () = Ocsipersist.remove election_tokens_decrypt uuid_s in
@@ -1525,9 +1536,9 @@ let () =
                  if the (single) key is known *)
               let skfile = !spool_dir / raw_string_of_uuid uuid / "private_key.json" in
               if npks = 1 && Sys.file_exists skfile then (
-                let%lwt sk = Lwt_io.lines_of_file skfile |> Lwt_stream.to_list in
+                let%lwt sk = read_file skfile in
                 let sk = match sk with
-                  | [sk] -> number_of_string sk
+                  | Some [sk] -> number_of_string sk
                   | _ -> failwith "several private keys are available"
                 in
                 let tally = encrypted_tally_of_string W.G.read tally in
