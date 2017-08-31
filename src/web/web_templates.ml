@@ -540,6 +540,18 @@ let election_setup_trustees uuid se () =
         ]
       ) uuid
   in
+  let form_trustees_add_server =
+    match List.filter (fun {st_id; _} -> st_id = "server") se.se_public_keys with
+    | [] ->
+       post_form
+         ~service:election_setup_trustee_add_server
+         (fun () ->
+           [
+             string_input ~input_type:`Submit ~value:"Add the server" ()
+           ]
+         ) uuid
+    | _ -> pcdata ""
+  in
   let mk_form_trustee_del value =
     post_form
       ~service:election_setup_trustee_del
@@ -566,15 +578,23 @@ let election_setup_trustees uuid se () =
                  pcdata t.st_id;
                ];
                td [
+                   if t.st_token <> "" then (
                  let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
                    ~absolute:true ~service:election_setup_trustee t.st_token
                  in
                  let body = Printf.sprintf mail_trustee_generation uri in
                  let subject = "Link to generate the decryption key" in
                  a_mailto ~dest:t.st_id ~subject ~body "Mail"
+                   ) else (
+                     pcdata "(server)"
+                   )
                ];
                td [
+                   if t.st_token <> "" then (
                    a ~service:election_setup_trustee [pcdata "Link"] t.st_token;
+                   ) else (
+                     pcdata "(server)"
+                   )
                ];
                td [
                  pcdata (if t.st_public_key = "" then "No" else "Yes");
@@ -601,6 +621,7 @@ let election_setup_trustees uuid se () =
                ]
            else pcdata "");
           form_trustees_add;
+          form_trustees_add_server;
         ]
     else pcdata ""
   in
@@ -1618,16 +1639,21 @@ let election_admin election metadata state get_tokens_decrypt () =
                | None -> uri, !server_mail
                | Some name -> name, name
              in
-             tr [
-               td [pcdata link_content];
-               td [
+             let mail, link =
+               if link_content = "server" then (
+                 pcdata "(server)",
+                 pcdata "(server)"
+               ) else (
                  let body = Printf.sprintf mail_trustee_tally uri in
                  let subject = "Link to tally the election" in
-                 a_mailto ~dest ~subject ~body "Mail"
-               ];
-               td [
-                   a ~service [pcdata "Link"] x;
-               ];
+                 a_mailto ~dest ~subject ~body "Mail",
+                 a ~service [pcdata "Link"] x
+               )
+             in
+             tr [
+               td [pcdata link_content];
+               td [mail];
+               td [link];
                td [
                  pcdata (if List.mem_assoc trustee_id pds then "Yes" else "No")
                ];

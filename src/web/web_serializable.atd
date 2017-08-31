@@ -23,6 +23,7 @@
 
 (** {1 Predefined types} *)
 
+type number <ocaml predef from="Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
 type string_set <ocaml predef from="Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
@@ -67,6 +68,7 @@ type setup_trustee = {
   id : string;
   token : string;
   public_key <ocaml mutable> : string;
+  ?private_key : number option;
 } <ocaml field_prefix="st_">
 
 type setup_threshold_trustee = {

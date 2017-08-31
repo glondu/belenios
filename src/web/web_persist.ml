@@ -146,6 +146,11 @@ let get_passwords uuid =
 let get_public_keys uuid =
   read_file ~uuid "public_keys.jsons"
 
+let get_private_key uuid =
+  match%lwt read_file ~uuid "private_key.json" with
+  | Some [x] -> return (Some (number_of_string x))
+  | _ -> return_none
+
 let get_private_keys uuid =
   read_file ~uuid "private_keys.jsons"
 

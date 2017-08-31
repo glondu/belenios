@@ -122,6 +122,18 @@ let finalize_election uuid se =
             let%lwt public_key = KG.prove private_key in
             return (None, [public_key], `KEY private_key)
          | _ :: _ ->
+            let private_key =
+              List.fold_left (fun accu {st_private_key; _} ->
+                  match st_private_key with
+                  | Some x -> x :: accu
+                  | None -> accu
+                ) [] se.se_public_keys
+            in
+            let private_key = match private_key with
+              | [] -> `None
+              | [x] -> `KEY x
+              | _ -> failwith "multiple private keys"
+            in
             return (
                 Some (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
                 (List.map
@@ -129,7 +141,7 @@ let finalize_election uuid se =
                      if st_public_key = "" then failwith "some public keys are missing";
                      trustee_public_key_of_string G.read st_public_key
                    ) se.se_public_keys),
-                `None)
+                private_key)
        in
        let y = KG.combine (Array.of_list public_keys) in
        return (y, trustees, `PK public_keys, private_key)
@@ -223,7 +235,10 @@ let finalize_election uuid se =
   Ocsipersist.remove election_credtokens se.se_public_creds >>
   Lwt_list.iter_s
     (fun {st_token; _} ->
-      Ocsipersist.remove election_pktokens st_token)
+      if st_token <> "" then (
+        Ocsipersist.remove election_pktokens st_token
+      ) else return_unit
+    )
     se.se_public_keys >>
   (match se.se_threshold_trustees with
    | None -> return_unit
@@ -697,7 +712,7 @@ let () =
       with_setup_election uuid (fun se ->
           if is_email st_id then (
             let%lwt st_token = generate_token () in
-            let trustee = {st_id; st_token; st_public_key = ""} in
+            let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None} in
             se.se_public_keys <- se.se_public_keys @ [trustee];
             let%lwt () = Ocsipersist.add election_pktokens st_token (raw_string_of_uuid uuid) in
             redir_preapply election_setup_trustees uuid ()
@@ -706,6 +721,23 @@ let () =
             let service = preapply election_setup_trustees uuid in
             T.generic_page ~title:"Error" ~service msg () >>= Html5.send
           )
+        )
+    )
+
+let () =
+  Any.register ~service:election_setup_trustee_add_server
+    (fun uuid () ->
+      with_setup_election uuid (fun se ->
+          let st_id = "server" and st_token = "" in
+          let module G = (val Group.of_string se.se_group) in
+          let module K = Trustees.MakeSimple (G) (LwtRandom) in
+          let%lwt private_key = K.generate () in
+          let%lwt public_key = K.prove private_key in
+          let st_public_key = string_of_trustee_public_key G.write public_key in
+          let st_private_key = Some private_key in
+          let trustee = {st_id; st_token; st_public_key; st_private_key} in
+          se.se_public_keys <- se.se_public_keys @ [trustee];
+          redir_preapply election_setup_trustees uuid ()
         )
     )
 
@@ -722,7 +754,9 @@ let () =
           se.se_public_keys <- trustees;
           let%lwt () =
             Lwt_list.iter_s (fun {st_token; _} ->
-                Ocsipersist.remove election_pktokens st_token
+                if st_token <> "" then (
+                  Ocsipersist.remove election_pktokens st_token
+                ) else return_unit
               ) old
           in
           redir_preapply election_setup_trustees uuid ()
@@ -1022,17 +1056,27 @@ let () =
                     ) se_threshold_trustees >>
                   redir_preapply election_setup_threshold_trustees uuid ()
                | Some ts, None, Some pks when List.length ts = List.length pks ->
+                  let module G = (val Group.of_string se.se_group) in
+                  let module KG = Trustees.MakeSimple (G) (LwtRandom) in
                   let%lwt trustees =
                     List.combine ts pks
                     |> Lwt_list.map_p
                          (fun (st_id, st_public_key) ->
-                           let%lwt st_token = generate_token () in
-                           return {st_id; st_token; st_public_key})
+                           let%lwt st_token, st_private_key, st_public_key =
+                             if st_id = "server" then (
+                               let%lwt private_key = KG.generate () in
+                               let%lwt public_key = KG.prove private_key in
+                               let public_key = string_of_trustee_public_key G.write public_key in
+                               return ("", Some private_key, public_key)
+                             ) else (
+                               let%lwt st_token = generate_token () in
+                               return (st_token, None, st_public_key)
+                             )
+                           in
+                           return {st_id; st_token; st_public_key; st_private_key})
                   in
                   let () =
                     (* check that imported keys are valid *)
-                    let module G = (val Group.of_string se.se_group : GROUP) in
-                    let module KG = Trustees.MakeSimple (G) (LwtRandom) in
                     if not @@ List.for_all (fun t ->
                                   let pk = t.st_public_key in
                                   let pk = trustee_public_key_of_string G.read pk in
@@ -1041,7 +1085,9 @@ let () =
                   in
                   se.se_public_keys <- se.se_public_keys @ trustees;
                   Lwt_list.iter_s (fun {st_token; _} ->
-                      Ocsipersist.add election_pktokens st_token uuid_s
+                      if st_token <> "" then (
+                        Ocsipersist.add election_pktokens st_token uuid_s
+                      ) else return_unit
                     ) trustees >>
                   redir_preapply election_setup_trustees uuid ()
                | _, _, _ ->
@@ -1532,21 +1578,31 @@ let () =
                  | None -> failwith "missing public keys and threshold parameters"
             in
             Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) >>
-              (* compute partial decryption and release tally
-                 if the (single) key is known *)
-              let skfile = !spool_dir / raw_string_of_uuid uuid / "private_key.json" in
-              if npks = 1 && Sys.file_exists skfile then (
-                let%lwt sk = read_file skfile in
-                let sk = match sk with
-                  | Some [sk] -> number_of_string sk
-                  | _ -> failwith "several private keys are available"
-                in
-                let tally = encrypted_tally_of_string W.G.read tally in
-                let%lwt pd = E.compute_factor tally sk in
-                let pd = string_of_partial_decryption W.G.write pd in
-                Web_persist.set_partial_decryptions uuid [1, pd] >>
-                  handle_election_tally_release (uuid, ()) ()
-              ) else redir_preapply election_admin (uuid, ()) ()
+              let tally = encrypted_tally_of_string W.G.read tally in
+              let%lwt sk = Web_persist.get_private_key uuid in
+              match metadata.e_trustees with
+              | None ->
+                 (* no trustees: compute decryption and release tally *)
+                 let sk = match sk with
+                   | Some x -> x
+                   | None -> failwith "missing private key"
+                 in
+                 let%lwt pd = E.compute_factor tally sk in
+                 let pd = string_of_partial_decryption W.G.write pd in
+                 Web_persist.set_partial_decryptions uuid [1, pd]
+                 >> handle_election_tally_release (uuid, ()) ()
+              | Some ts ->
+                 Lwt_list.iteri_s (fun i t ->
+                     if t = "server" then (
+                       match%lwt Web_persist.get_private_key uuid with
+                       | Some k ->
+                          let%lwt pd = E.compute_factor tally k in
+                          let pd = string_of_partial_decryption W.G.write pd in
+                          Web_persist.set_partial_decryptions uuid [i+1, pd]
+                       | None -> return_unit (* dead end *)
+                     ) else return_unit
+                   ) ts
+                 >> redir_preapply election_admin (uuid, ()) ()
           ) else forbidden ()
         )
     )

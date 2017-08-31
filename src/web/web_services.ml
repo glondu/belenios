@@ -45,6 +45,7 @@ let election_setup_voters_add = post_service ~fallback:election_setup_voters ~po
 let election_setup_voters_remove = post_coservice ~fallback:election_setup_voters ~post_params:(string "voter") ()
 let election_setup_voters_passwd = post_coservice ~fallback:election_setup_voters ~post_params:(string "voter") ()
 let election_setup_trustee_add = post_coservice ~fallback:election_setup ~post_params:(string "id") ()
+let election_setup_trustee_add_server = post_coservice ~fallback:election_setup ~post_params:unit ()
 let election_setup_trustee_del = post_coservice ~fallback:election_setup ~post_params:(int "index") ()
 let election_setup_credential_authority = service ~path:["setup"; "credential-authority"] ~get_params:(uuid "uuid") ()
 let election_setup_credentials = service ~path:["setup"; "credentials"] ~get_params:(string "token") ()
