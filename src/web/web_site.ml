@@ -292,6 +292,7 @@ let archive_election uuid =
   let%lwt () = cleanup_table ("creds_" ^ uuid_u) in
   let%lwt () = cleanup_table ("ballots_" ^ uuid_u) in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_key.json") in
+  let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_keys.jsons") in
   return_unit
 
 let () = Any.register ~service:home
