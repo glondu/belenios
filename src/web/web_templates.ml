@@ -477,6 +477,18 @@ let election_setup uuid se () =
     h2 [pcdata "Finalize creation"];
     a ~service:election_setup_confirm [pcdata "Create election"] uuid;
   ] in
+  let form_destroy =
+    post_form
+      ~service:election_setup_destroy
+      (fun () ->
+        [
+          div [
+              h2 [pcdata "Destroy election"];
+              string_input ~input_type:`Submit ~value:"Destroy election" ();
+            ]
+        ]
+      ) uuid
+  in
   let content = [
     div_description;
     hr ();
@@ -493,6 +505,8 @@ let election_setup uuid se () =
     div_trustees;
     hr ();
     link_confirm;
+    hr ();
+    form_destroy;
   ] in
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()

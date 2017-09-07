@@ -956,6 +956,38 @@ let () =
     )
 
 let () =
+  Any.register ~service:election_setup_destroy
+    (fun uuid () ->
+      with_setup_election ~save:false uuid (fun se ->
+          let uuid_s = raw_string_of_uuid uuid in
+          (* clean up credentials *)
+          let%lwt () =
+            let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
+            try%lwt Lwt_unix.unlink fname
+            with _ -> return_unit
+          in
+          (* clean up setup database *)
+          let%lwt () = Ocsipersist.remove election_credtokens se.se_public_creds in
+          let%lwt () =
+            Lwt_list.iter_s (fun {st_token; _} ->
+                if st_token <> "" then
+                  Ocsipersist.remove election_pktokens st_token
+                else return_unit
+              ) se.se_public_keys
+          in
+          let%lwt () = match se.se_threshold_trustees with
+            | None -> return_unit
+            | Some ts ->
+               Lwt_list.iter_s (fun {stt_token; _} ->
+                   Ocsipersist.remove election_tpktokens stt_token
+                 ) ts
+          in
+          let%lwt () = Ocsipersist.remove election_stable uuid_s in
+          Redirection.send admin
+        )
+    )
+
+let () =
   Html5.register ~service:election_setup_import
     (fun uuid () ->
       with_setup_election_ro uuid (fun se ->

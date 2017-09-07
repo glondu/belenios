@@ -67,6 +67,7 @@ let election_setup_threshold_trustee_del = post_coservice ~fallback:election_set
 
 let election_setup_confirm = service ~path:["setup"; "confirm"] ~get_params:(uuid "uuid") ()
 let election_setup_create = post_coservice ~csrf_safe:true ~fallback:election_setup ~post_params:unit ()
+let election_setup_destroy = post_coservice ~csrf_safe:true ~fallback:election_setup ~post_params:unit ()
 let election_setup_auth_genpwd = post_coservice ~fallback:election_setup ~post_params:unit ()
 
 let election_setup_import = service ~path:["setup"; "import"] ~get_params:(uuid "uuid") ()
