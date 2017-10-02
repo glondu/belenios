@@ -180,6 +180,12 @@ module SMap = Map.Make(String)
 
 (** Direct random monad *)
 
+let bytes_to_sample q =
+  (* we take 128 additional bits of random before the mod q, so that
+     the statistical distance with a uniform distribution in [0,q[ is
+     negligible *)
+  Z.bit_length q / 8 + 17
+
 module DirectRandom = struct
   type 'a t = 'a
   let return x = x
@@ -189,7 +195,7 @@ module DirectRandom = struct
   let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
   let random q =
-    let size = Z.bit_length q / 8 + 1 in
+    let size = bytes_to_sample q in
     let r = random_string (Lazy.force prng) size in
     Z.(of_bits r mod q)
 end

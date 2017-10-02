@@ -58,4 +58,6 @@ val compare_b64 : string -> string -> int
 
 module SMap : Map.S with type key = string
 
+val bytes_to_sample : Platform.Z.t -> int
+
 module DirectRandom : RANDOM with type 'a t = 'a
