@@ -642,11 +642,6 @@ let election_setup_trustees uuid se () =
   let div_content =
     div [
       div [pcdata "If you do not wish the server to store any keys, you may nominate trustees. In that case, each trustee will create her own secret key. Be careful, once the election is over, you will need the contribution of each trustee to compute the result!"];
-      div [
-          pcdata "You can also set up the election so that only a ";
-          a ~service:election_setup_threshold_trustees [pcdata "threshold"] uuid;
-          pcdata " of trustees is needed to perform the decryption.";
-        ];
       br ();
       div_trustees;
     ]
