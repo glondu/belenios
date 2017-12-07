@@ -29,7 +29,7 @@ These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
 derivatives, they can be installed with the following command:
 
-    apt-get install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime
+    sudo apt install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
 
 If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully
@@ -140,14 +140,14 @@ be compiled with:
 Compilation using only official Debian packages
 -----------------------------------------------
 
-At the time of writing (05 Apr 2016), you need the development version
+At the time of writing (07 Dec 2017), you need the stable version (stretch)
 of Debian (or Ubuntu) to be able to compile Belenios using only
 official Debian packages. On Ubuntu, you need to enable the "Universe"
 repository. Instead of using OPAM, the dependencies of Belenios can
 then be installed with:
 
-    sudo apt-get install libatdgen-ocaml-dev libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev libcmdliner-ocaml-dev
-    sudo apt-get install ocsigenserver eliom libcsv-ocaml-dev
+    sudo apt install libatdgen-ocaml-dev libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev libcmdliner-ocaml-dev
+    sudo apt install ocsigenserver eliom libcsv-ocaml-dev
 
 Compiling on Windows using Cygwin
 ---------------------------------
