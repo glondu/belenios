@@ -985,13 +985,22 @@ let election_setup_credentials token uuid se () =
       ]
   in
   let form_textarea =
-    post_form
+    post_form ~a:[a_id "submit_form"; a_style "display:none;"]
       ~service:election_setup_credentials_post
       (fun name ->
        [div
           [div [pcdata "Public credentials:"];
            div [textarea ~a:[a_id "pks"; a_rows 5; a_cols 40] ~name ()];
-           div [string_input ~input_type:`Submit ~value:"Submit" ()]]])
+           div [a ~service:home ~a:[a_id "creds"] [pcdata "Private credentials"] ()];
+           div ~a:[a_style "display:none;"] [a ~service:home ~a:[a_id "hashed"] [pcdata "Hashed public credentials"] ()];
+           div [
+               b [pcdata "Instructions:"];
+               ol [
+                   li [pcdata "download private credentials using the link above;"];
+                   li [pcdata "submit public credentials using the button below."];
+                 ];
+             ];
+           div [string_input ~input_type:`Submit ~value:"Submit public credentials" ()]]])
       token
   in
   let disclaimer =
@@ -1080,10 +1089,18 @@ let election_setup_trustee token uuid se () =
       ~service
       (fun name ->
        [
-         div [
+         div ~a:[a_id "submit_form"; a_style "display:none;"] [
            div [pcdata "Public key:"];
            div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ~value ()];
-           div [string_input ~input_type:`Submit ~value:"Submit" ()];
+           div [a ~service:home ~a:[a_id "private_key"] [pcdata "Private key"] ()];
+           div [
+               b [pcdata "Instructions:"];
+               ol [
+                   li [pcdata "download your private key using the link above;"];
+                   li [pcdata "submit your public key using the button below."];
+                 ];
+             ];
+           div [string_input ~input_type:`Submit ~value:"Submit public key" ()];
          ]
        ]
       ) ()
@@ -1179,6 +1196,14 @@ let election_setup_threshold_trustee token uuid se () =
       ~a:[a_id "data_form"]
       (fun data ->
         [
+          div ~a:[a_id "key_helper"; a_style "display:none;"] [
+              div [a ~service:home ~a:[a_id "private_key"] [pcdata "Private key"] ()];
+              b [pcdata "Instructions:"];
+              ol [
+                  li [pcdata "download your private key using the link above;"];
+                  li [pcdata "submit public data using the button below."];
+                ];
+            ];
           div [
               div [
                   pcdata "Data: ";

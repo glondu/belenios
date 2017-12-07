@@ -60,7 +60,18 @@ let get_input id =
   | None -> raise Not_found
   | Some x -> x
 
-let hide_element_by_id id =
+let set_element_display id x =
   Js.Opt.iter
     (document##getElementById (Js.string id))
-    (fun e -> e##style##display <- Js.string "none")
+    (fun e -> e##style##display <- Js.string x)
+
+let hide_element_by_id id = set_element_display id "none"
+
+let set_download id mime fn x =
+  let x = (Js.string ("data:" ^ mime ^ ","))##concat (Js.encodeURI (Js.string x)) in
+  Js.Opt.iter
+    (document##getElementById (Js.string id))
+    (fun e ->
+      e##setAttribute (Js.string "download", Js.string fn);
+      Js.Opt.iter (Dom_html.CoerceTo.a e) (fun e -> e##href <- x)
+    )

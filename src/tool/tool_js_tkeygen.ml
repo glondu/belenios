@@ -28,11 +28,10 @@ let tkeygen _ =
   end in
   let module X = (val make (module P : PARAMS) : S) in
   let open X in
-  let {id; priv; pub} = trustee_keygen () in
-  let data_uri = (Js.string "data:application/json,")##concat (Js.encodeURI (Js.string priv)) in
-  ignore (Dom_html.window##open_ (data_uri, Js.string id, Js.null));
+  let {id=_; priv; pub} = trustee_keygen () in
   set_textarea "pk" pub;
-  alert "The private key has been open in a new window (or tab). Please save it before submitting the public key!";
+  set_download "private_key" "application/json" "private_key.json" priv;
+  set_element_display "submit_form" "inline";
   Js._false
 
 let fill_interactivity _ =

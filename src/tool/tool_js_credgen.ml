@@ -49,12 +49,10 @@ let generate _ =
   let text_pks = pubs |> List.sort compare |> String.concat "\n" in
   set_textarea "pks" text_pks;
   let text_creds = (privs |> List.rev |> String.concat "\n") ^ "\n" in
-  let data_creds = (Js.string "data:text/plain,")##concat (Js.encodeURI (Js.string text_creds)) in
-  ignore (Dom_html.window##open_ (data_creds, Js.string "creds", Js.null));
+  set_download "creds" "text/plain" "creds.txt" text_creds;
   let text_hashed = (hashs |> List.rev |> String.concat "\n") ^ "\n" in
-  let data_hashed = (Js.string "data:text/plain,")##concat (Js.encodeURI (Js.string text_hashed)) in
-  ignore (Dom_html.window##open_ (data_hashed, Js.string "hashed", Js.null));
-  alert "New windows (or tabs) were open with private credentials and credential hashes. Please save them before submitting public credentials!";
+  set_download "hashed" "text/plain" "hashed.txt" text_hashed;
+  set_element_display "submit_form" "inline";
   Js._false
 
 let fill_interactivity _ =

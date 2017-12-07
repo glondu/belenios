@@ -36,11 +36,10 @@ let gen_cert e _ =
   e##innerHTML <- Js.string "";
   let t = document##createTextNode (Js.string (Printf.sprintf "Certificate %s has been generated!" id)) in
   Dom.appendChild e t;
-  let data_uri = Js.string ("data:text/plain," ^ key) in
-  ignore (Dom_html.window##open_ (data_uri, Js.string id, Js.null));
+  set_download "private_key" "text/plain" "private_key.txt" key;
+  set_element_display "key_helper" "block";
   let cert = string_of_cert cert in
   set_textarea "data" cert;
-  alert "The private key has been open in a new window (or tab). Please save it before submitting the certificate!";
   Js._false
 
 let proceed step e textarea _ =
