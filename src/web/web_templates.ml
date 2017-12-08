@@ -1033,11 +1033,6 @@ let election_setup_credentials token uuid se () =
            div [string_input ~input_type:`Submit ~value:"Submit" ()]]])
       token
   in
-  let div_download =
-    p [a ~service:election_setup_credentials_download
-           [pcdata "Download current file"]
-           token]
-  in
   let group =
     div
       ~a:[a_style "display:none;"]
@@ -1075,7 +1070,6 @@ let election_setup_credentials token uuid se () =
     ) else (
       [
         div_link;
-        div_download;
         div_textarea;
         form_file;
       ]

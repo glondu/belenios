@@ -773,14 +773,6 @@ let () =
      T.election_setup_credentials token uuid se ()
     )
 
-let () =
-  File.register ~service:election_setup_credentials_download
-    ~content_type:"text/plain"
-    (fun token () ->
-     let%lwt uuid = Ocsipersist.find election_credtokens token in
-     return (!spool_dir / uuid ^ ".public_creds.txt")
-    )
-
 let wrap_handler f =
   try%lwt f ()
   with
