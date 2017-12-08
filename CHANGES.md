@@ -1,3 +1,15 @@
+1.5 (2017-12-13)
+================
+
+ * Add support for threshold decryption (experimental)
+ * Fix bias in random sampling
+ * Web server:
+   + Add possibility to define the server e-mail address in config
+   + Add possibility to explicitly add the server itself as a trustee
+   + Add possibility to destroy elections in setup mode
+   + Avoid new tabs and use download links
+   + Add config option for "contact us" link on admin login page
+
 1.4 (2017-04-05)
 ================
 
