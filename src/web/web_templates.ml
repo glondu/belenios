@@ -1111,12 +1111,26 @@ let election_setup_trustee token uuid se () =
          div ~a:[a_id "submit_form"; a_style "display:none;"] [
            div [pcdata "Public key:"];
            div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ~value ()];
-           div [a ~service:home ~a:[a_id "private_key"] [pcdata "Private key"] ()];
            div [
                b [pcdata "Instructions:"];
                ol [
-                   li [pcdata "download your private key using the link above;"];
-                   li [pcdata "submit your public key using the button below."];
+                   li [
+                       pcdata "Download your ";
+                       a ~service:home ~a:[a_id "private_key"] [pcdata "private key"] ();
+                       pcdata " and save it to a secure location.";
+                       br ();
+                       pcdata "You will use it to decrypt the final result.";
+                     ];
+                   li [
+                       pcdata "Download your ";
+                       a ~service:home ~a:[a_id "public_key"] [pcdata "public key"] ();
+                       pcdata " and save it.";
+                       br ();
+                       pcdata "Once the election is open, you must check that";
+                       pcdata " it is present in the set of public keys";
+                       pcdata " published by the server.";
+                     ];
+                   li [pcdata "Submit your public key using the button below."];
                  ];
              ];
            div [string_input ~input_type:`Submit ~value:"Submit public key" ()];

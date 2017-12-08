@@ -30,6 +30,7 @@ let tkeygen _ =
   let open X in
   let {id=_; priv; pub} = trustee_keygen () in
   set_textarea "pk" pub;
+  set_download "public_key" "application/json" "public_key.json" pub;
   set_download "private_key" "application/json" "private_key.json" priv;
   set_element_display "submit_form" "inline";
   Js._false
