@@ -812,7 +812,7 @@ let handle_credentials_post token creds =
   let () = se.se_metadata <- {se.se_metadata with e_cred_authority = None} in
   let () = se.se_public_creds_received <- true in
   set_setup_election uuid se >>
-  T.generic_page ~title:"Success" ~service:home
+  T.generic_page ~title:"Success"
     "Credentials have been received and checked!" () >>= Html5.send
 
 let () =
