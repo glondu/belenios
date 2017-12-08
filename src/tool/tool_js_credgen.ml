@@ -48,6 +48,7 @@ let generate _ =
   in
   let text_pks = pubs |> List.sort compare |> String.concat "\n" in
   set_textarea "pks" text_pks;
+  set_download "public_creds" "text/plain" "public_creds.txt" text_pks;
   let text_creds = (privs |> List.rev |> String.concat "\n") ^ "\n" in
   set_download "creds" "text/plain" "creds.txt" text_creds;
   let text_hashed = (hashs |> List.rev |> String.concat "\n") ^ "\n" in

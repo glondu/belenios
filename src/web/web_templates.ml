@@ -1003,13 +1003,26 @@ let election_setup_credentials token uuid se () =
        [div
           [div [pcdata "Public credentials:"];
            div [textarea ~a:[a_id "pks"; a_rows 5; a_cols 40] ~name ()];
-           div [a ~service:home ~a:[a_id "creds"] [pcdata "Private credentials"] ()];
            div ~a:[a_style "display:none;"] [a ~service:home ~a:[a_id "hashed"] [pcdata "Hashed public credentials"] ()];
            div [
                b [pcdata "Instructions:"];
                ol [
-                   li [pcdata "download private credentials using the link above;"];
-                   li [pcdata "submit public credentials using the button below."];
+                   li [
+                       pcdata "Download ";
+                       a ~service:home ~a:[a_id "creds"] [pcdata "private credentials"] ();
+                       pcdata " and save the file to a secure location.";
+                       br ();
+                       pcdata "You will use it to send credentials to voters.";
+                     ];
+                   li [
+                       pcdata "Download ";
+                       a ~service:home ~a:[a_id "public_creds"] [pcdata "public credentials"] ();
+                       pcdata " and save the file.";
+                       br ();
+                       pcdata "Once the election is open, you must check that";
+                       pcdata " the file published by the server matches.";
+                     ];
+                   li [pcdata "Submit public credentials using the button below."];
                  ];
              ];
            div [string_input ~input_type:`Submit ~value:"Submit public credentials" ()]]])
@@ -1047,7 +1060,7 @@ let election_setup_credentials token uuid se () =
     let value = String.concat "\n" (List.map (fun x -> x.sv_id) se.se_voters) in
     div [
       div [pcdata "List of voters:"];
-      div [unsafe_textarea "voters" value];
+      div [unsafe_textarea ~rows:5 ~cols:40 "voters" value];
     ]
   in
   let interactivity =
