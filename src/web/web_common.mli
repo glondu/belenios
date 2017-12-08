@@ -24,6 +24,7 @@ open Web_serializable_t
 
 val spool_dir : string ref
 val server_mail : string ref
+val contact_uri : string option ref
 
 module LwtRandom : RANDOM with type 'a t = 'a Lwt.t
 (** Lwt-compatible random number generation. *)

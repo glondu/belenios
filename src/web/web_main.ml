@@ -49,6 +49,8 @@ let () =
     source_file := Some file
   | Element ("maxmailsatonce", ["value", limit], []) ->
     Web_site.maxmailsatonce := int_of_string limit
+  | Element ("contact", ["uri", uri], []) ->
+    Web_common.contact_uri := Some uri
   | Element ("server", ["mail", mail], []) ->
      if is_email mail then
        server_mail := mail

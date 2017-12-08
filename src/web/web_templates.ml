@@ -166,16 +166,28 @@ let format_election election =
     a ~service [pcdata e.e_name] (e.e_uuid, ());
   ]
 
+let unsafe_a uri text =
+  Printf.ksprintf Unsafe.data "<a href=\"%s\">%s</a>" uri text
+
 let admin ~elections () =
   let title = site_title ^ " — Administration" in
   match elections with
   | None ->
+     let contact = match !contact_uri with
+       | None -> pcdata ""
+       | Some uri ->
+          div [
+              pcdata "If you do not have any account, you may ";
+              unsafe_a uri "contact us";
+              pcdata ".";
+            ]
+     in
      let content = [
        div [
-         pcdata "To administer an election, you need to ";
-         a ~service:site_login [pcdata "log in"] None;
-         pcdata ". If you do not have an account, ";
-         pcdata "please send an email to contact@belenios.org.";
+         pcdata "To administer an election, you need to log in using one";
+         pcdata " of the authentication methods available in the upper";
+         pcdata " right corner of this page.";
+         contact;
        ]
      ] in
      let%lwt login_box = site_login_box () in

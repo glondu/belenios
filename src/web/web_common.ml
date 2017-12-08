@@ -28,6 +28,7 @@ open Web_serializable_j
 
 let spool_dir = ref "."
 let server_mail = ref "noreply@belenios.org"
+let contact_uri = ref None
 
 module LwtRandom = struct
 
