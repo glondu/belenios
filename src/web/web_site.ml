@@ -1550,7 +1550,8 @@ let () =
 
 let content_type_of_file = function
   | ESRaw -> "application/json; charset=utf-8"
-  | ESKeys | ESTParams | ESBallots | ESETally | ESResult -> "application/json"
+  | ESTParams | ESETally | ESResult -> "application/json"
+  | ESKeys | ESBallots -> "text/plain" (* should be "application/json-seq", but we don't use RS *)
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
 let handle_pseudo_file uuid f site_user =
