@@ -395,6 +395,33 @@ let election_setup uuid se () =
       form_description;
     ]
   in
+  let form_contact =
+    post_form ~service:election_setup_contact
+      (fun contact ->
+        [
+          div [
+              pcdata "Contact: ";
+              let value =
+                match se.se_metadata.e_contact with
+                | Some x -> x
+                | None -> ""
+              in
+              string_input ~name:contact ~input_type:`Text ~value ();
+            ];
+          div [
+              pcdata "(If non-empty, this will be added to emails sent by the server. This is free-form, but we suggest that you use \"Name <user@example.org>\".)";
+            ];
+          div [
+              string_input ~input_type:`Submit ~value:"Save changes" ();
+            ];
+        ]) uuid
+  in
+  let div_contact =
+    div [
+        h2 [pcdata "Contact"];
+        form_contact;
+      ]
+  in
   let has_credentials = match se.se_metadata.e_cred_authority with
     | None -> false
     | Some _ -> true
@@ -505,6 +532,8 @@ let election_setup uuid se () =
     div_description;
     hr ();
     div_languages;
+    hr ();
+    div_contact;
     hr ();
     div_questions;
     hr ();
@@ -2420,3 +2449,8 @@ let booth uuid =
     ];
   ] in
   return @@ html ~a:[a_dir `Ltr; a_xml_lang L.lang] head body
+
+let contact_footer metadata please_contact =
+  match metadata.e_contact with
+  | None -> ""
+  | Some x -> Printf.sprintf "\n\n%s\n\n  %s" please_contact x

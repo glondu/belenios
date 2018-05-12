@@ -131,7 +131,7 @@ Password: %s
 Page of the election: %s
 
 Note that you are allowed to vote several times.  Only the last vote
-counts."
+counts.%s"
 
 
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -154,7 +154,7 @@ Credential: %s
 Page of the election: %s
 
 Note that you are allowed to vote several times.  Only the last vote
-counts."
+counts.%s"
 
 
 let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -177,6 +177,8 @@ You can check its presence in the ballot box, accessible at
 
 Results will be published on the election page
 
-  %s
+  %s%s
 
 -- \nBelenios"
+
+let please_contact = "To get more information, please contact:"

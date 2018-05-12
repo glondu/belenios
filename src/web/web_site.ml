@@ -378,6 +378,7 @@ let create_new_election owner cred auth =
     e_cred_authority;
     e_trustees = None;
     e_languages = Some ["en"; "fr"];
+    e_contact = Some "Name <user@example.org>";
   } in
   let question = {
     q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
@@ -521,6 +522,19 @@ let () =
     )
 
 let () =
+  Any.register ~service:election_setup_contact
+    (fun uuid contact ->
+      with_setup_election uuid (fun se ->
+          let contact = if contact = "" then None else Some contact in
+          se.se_metadata <- {
+              se.se_metadata with
+              e_contact = contact
+            };
+          redir_preapply election_setup uuid ()
+        )
+    )
+
+let () =
   Any.register ~service:election_setup_description
     (fun uuid (name, description) ->
       with_setup_election uuid (fun se ->
@@ -532,14 +546,15 @@ let () =
         )
     )
 
-let generate_password langs title url id =
+let generate_password metadata langs title url id =
   let email, login = split_identity id in
   let%lwt salt = generate_token () in
   let%lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
   let bodies = List.map (fun lang ->
     let module L = (val Web_i18n.get_lang lang) in
-    Printf.sprintf L.mail_password title login password url
+    let contact = T.contact_footer metadata L.please_contact in
+    Printf.sprintf L.mail_password title login password url contact
   ) langs in
   let body = PString.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
@@ -565,7 +580,7 @@ let handle_password se uuid ~force voters =
         match id.sv_password with
         | Some _ when not force -> return_unit
         | None | Some _ ->
-           let%lwt x = generate_password langs title url id.sv_id in
+           let%lwt x = generate_password se.se_metadata langs title url id.sv_id in
            return (id.sv_password <- Some x)
       ) voters
   in
@@ -604,7 +619,7 @@ let () =
             (try%lwt
                let%lwt _ = Ocsipersist.find table user in
                let langs = get_languages metadata.e_languages in
-               let%lwt x = generate_password langs title url user in
+               let%lwt x = generate_password metadata langs title url user in
                Ocsipersist.add table user x >>
                  dump_passwords (!spool_dir / raw_string_of_uuid uuid) table >>
                  T.generic_page ~title:"Success" ~service
@@ -863,7 +878,8 @@ let () =
                   let langs = get_languages se.se_metadata.e_languages in
                   let bodies = List.map (fun lang ->
                                    let module L = (val Web_i18n.get_lang lang) in
-                                   Printf.sprintf L.mail_credential title login cred url
+                                   let contact = T.contact_footer se.se_metadata L.please_contact in
+                                   Printf.sprintf L.mail_credential title login cred url contact
                                  ) langs in
                   let body = PString.concat "\n\n----------\n\n" bodies in
                   let body = body ^ "\n\n-- \nBelenios" in

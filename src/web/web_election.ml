@@ -51,7 +51,9 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
 
       let send_confirmation_email user email hash =
         let title = E.election.e_params.e_name in
-        let x = (E.election.e_params.e_uuid, ()) in
+        let uuid = E.election.e_params.e_uuid in
+        let%lwt metadata = Web_persist.get_election_metadata uuid in
+        let x = (uuid, ()) in
         let url1 = Eliom_uri.make_string_uri ~absolute:true
           ~service:Web_services.election_pretty_ballots x |> rewrite_prefix
         in
@@ -61,7 +63,8 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
         let%lwt language = Eliom_reference.get Web_state.language in
         let module L = (val Web_i18n.get_lang language) in
         let subject = Printf.sprintf L.mail_confirmation_subject title in
-        let body = Printf.sprintf L.mail_confirmation user title hash url1 url2 in
+        let contact = Web_templates.contact_footer metadata L.please_contact in
+        let body = Printf.sprintf L.mail_confirmation user title hash url1 url2 contact in
         send_email email subject body
 
       let do_cast rawballot (user, date) =

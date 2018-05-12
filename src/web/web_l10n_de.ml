@@ -131,7 +131,7 @@ Benutzername: %s
 Passwort: %s
 Website der Abstimmung: %s
 
-Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt."
+Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt.%s"
 
 
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -154,7 +154,7 @@ Benutzername: %s
 Wählernummer: %s
 Website der Abstimmung: %s
 
-Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt."
+Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt.%s"
 
 
 let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -178,6 +178,8 @@ Wahlurne befindet:
 
 Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:
 
-  %s
+  %s%s
 
 -- \nBelenios"
+
+let please_contact = "To get more information, please contact:"

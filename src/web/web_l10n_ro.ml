@@ -132,7 +132,7 @@ Parola: %s
 Pagina alegerii: %s
 
 Rețineți că este posibil să votați de mai multe ori.
-Numai ultimul vot va fi luat în considerare."
+Numai ultimul vot va fi luat în considerare.%s"
 
 
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -156,7 +156,7 @@ Cod de votare: %s
 Pagina alegerii: %s
 
 Rețineți că este posibil să votați de mai multe ori.
-Numai ultimul vot va fi luat în considerare."
+Numai ultimul vot va fi luat în considerare.%s"
 
 
 let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -179,6 +179,8 @@ Puteți verifica prezența acestuia în urma de vot, accesibilă la
 
 Rezultatele vor fi publicate pe pagina de alegere
 
-  %s
+  %s%s
 
 -- \nBelenios"
+
+let please_contact = "To get more information, please contact:"

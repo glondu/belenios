@@ -132,7 +132,7 @@ Mot de passe : %s
 Page de l'élection : %s
 
 Notez que vous pouvez voter plusieurs fois. Seul le dernier vote est
-pris en compte."
+pris en compte.%s"
 
 
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -156,7 +156,7 @@ Code de vote : %s
 Page de l'élection : %s
 
 Notez que vous pouvez voter plusieurs fois. Seul le dernier vote est
-pris en compte."
+pris en compte.%s"
 
 
 let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -179,6 +179,8 @@ Vous pouvez vérifier sa présence dans l'urne, accessible au
 
 Les résultats seront publiés sur la page de l'élection
 
-  %s
+  %s%s
 
 -- \nBelenios"
+
+let please_contact = "Pour obtenir plus d'informations, veuillez contacter :"

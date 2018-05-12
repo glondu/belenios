@@ -40,6 +40,7 @@ let election_setup_questions = service ~path:["setup"; "questions"] ~get_params:
 let election_setup_questions_post = post_coservice ~fallback:election_setup_questions ~post_params:(string "questions") ()
 let election_setup_description = post_coservice ~fallback:election_setup ~post_params:(string "name" ** string "description") ()
 let election_setup_languages = post_coservice ~fallback:election_setup ~post_params:(string "languages") ()
+let election_setup_contact = post_coservice ~fallback:election_setup ~post_params:(string "contact") ()
 let election_setup_voters = service ~path:["setup"; "voters"] ~get_params:(uuid "uuid") ()
 let election_setup_voters_add = post_service ~fallback:election_setup_voters ~post_params:(string "voters") ()
 let election_setup_voters_remove = post_coservice ~fallback:election_setup_voters ~post_params:(string "voter") ()
