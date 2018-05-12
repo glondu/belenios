@@ -1626,13 +1626,15 @@ let election_admin election metadata state get_tokens_decrypt () =
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — Administration" in
   let state_form checked =
-    let service, value, msg =
+    let service, value, msg, msg2 =
       if checked then
         election_close, "Close election",
-        "The election is open. Voters can vote. "
+        "The election is open. Voters can vote. ",
+        " You may re-open the election when it is closed."
       else
         election_open, "Open election",
-        "The election is closed. No one can vote. "
+        "The election is closed. No one can vote. ",
+        ""
     in
     post_form
       ~service
@@ -1640,6 +1642,7 @@ let election_admin election metadata state get_tokens_decrypt () =
        [
          pcdata msg;
          string_input ~input_type:`Submit ~value ();
+         pcdata msg2;
        ]) (uuid, ())
   in
   let%lwt state_div =
@@ -1657,7 +1660,7 @@ let election_admin election metadata state get_tokens_decrypt () =
            (fun () ->
              [string_input
                  ~input_type:`Submit
-                 ~value:"Tally election"
+                 ~value:"Proceed to vote counting"
                  ();
               pcdata " Warning: this action is irreversible; the election will be definitively closed.";
              ]) (uuid, ());
@@ -1777,7 +1780,7 @@ let election_admin election metadata state get_tokens_decrypt () =
       post_form ~service:election_archive (fun () ->
         [
           string_input ~input_type:`Submit ~value:"Archive election" ();
-          pcdata " Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no tally).";
+          pcdata " Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).";
         ]
       ) (uuid, ());
     ]

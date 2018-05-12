@@ -380,10 +380,10 @@ let create_new_election owner cred auth =
     e_languages = Some ["en"; "fr"];
   } in
   let question = {
-    q_answers = [| "Answer 1"; "Answer 2"; "Blank" |];
+    q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
     q_blank = None;
     q_min = 1;
-    q_max = 1;
+    q_max = 2;
     q_question = "Question 1?";
   } in
   let se_questions = {
