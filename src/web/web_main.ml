@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
@@ -49,6 +50,12 @@ let () =
     source_file := Some file
   | Element ("maxmailsatonce", ["value", limit], []) ->
     Web_site.maxmailsatonce := int_of_string limit
+  | Element ("uuid", ["length", length], []) ->
+     let length = int_of_string length in
+     if length >= min_uuid_length then
+       Web_site.uuid_length := Some length
+     else
+       failwith "UUID length is too small"
   | Element ("contact", ["uri", uri], []) ->
     Web_common.contact_uri := Some uri
   | Element ("server", ["mail", mail], []) ->

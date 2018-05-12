@@ -38,6 +38,7 @@
       </site>
       <eliom module="_build/src/web/server.cma">
         <maxmailsatonce value="1000"/>
+        <uuid length="14"/>
         <!-- <contact uri="mailto:contact@example.org"/> -->
         <server mail="noreply@belenios.org"/>
         <auth name="demo"><dummy/></auth>

@@ -52,8 +52,8 @@ let sha256_b64 x =
   | Some i -> String.sub raw 0 i
   | None -> raw
 
-let pbkdf2_hex ~iterations ~salt x =
-  let salt = hex_toBits salt in
+let pbkdf2_generic toBits ~iterations ~salt x =
+  let salt = toBits salt in
   let derived = Js.Unsafe.meth_call sjcl "misc.pbkdf2"
     [|
       Js.string x |> Js.Unsafe.inject;
@@ -63,6 +63,9 @@ let pbkdf2_hex ~iterations ~salt x =
     |]
   in
   hex_fromBits derived
+
+let pbkdf2_hex = pbkdf2_generic hex_toBits
+let pbkdf2_utf8 = pbkdf2_generic utf8String_toBits
 
 let aes_hex ~key ~data =
   let key = hex_toBits key in

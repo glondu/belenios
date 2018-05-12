@@ -32,6 +32,7 @@ open Web_services
 
 let source_file = ref "belenios.tar.gz"
 let maxmailsatonce = ref 1000
+let uuid_length = ref None
 
 let ( / ) = Filename.concat
 
@@ -355,7 +356,12 @@ let () = File.register ~service:source_code
 
 let generate_uuid =
   let gen = Uuidm.v4_gen (Random.State.make_self_init ()) in
-  fun () -> uuid_of_raw_string (Uuidm.to_string (gen ()))
+  fun () ->
+  match !uuid_length with
+  | Some length ->
+     let%lwt token = generate_token ~length () in
+     return @@ uuid_of_raw_string token
+  | None -> return @@ uuid_of_raw_string @@ Uuidm.to_string @@ gen ()
 
 let redir_preapply s u () = Redirection.send (preapply s u)
 
@@ -369,7 +375,7 @@ let create_new_election owner cred auth =
     | `Dummy -> Some [{auth_system = "dummy"; auth_instance = "dummy"; auth_config = []}]
     | `CAS server -> Some [{auth_system = "cas"; auth_instance = "cas"; auth_config = ["server", server]}]
   in
-  let uuid = generate_uuid () in
+  let%lwt uuid = generate_uuid () in
   let uuid_s = raw_string_of_uuid uuid in
   let%lwt token = generate_token () in
   let se_metadata = {

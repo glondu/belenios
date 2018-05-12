@@ -169,7 +169,6 @@ let uuid =
   Eliom_parameter.user_type ~of_string:uuid_of_raw_string ~to_string:raw_string_of_uuid
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-let token_length = 14
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
 let random_char () =
@@ -179,10 +178,10 @@ let random_char () =
   in
   return (int_of_char (random_string rng 1).[0])
 
-let generate_token () =
-  let res = Bytes.create token_length in
+let generate_token ?(length=14) () =
+  let res = Bytes.create length in
   let rec loop i =
-    if i < token_length then (
+    if i < length then (
       let%lwt digit = random_char () in
       let digit = digit mod 58 in
       Bytes.set res i b58_digits.[digit];

@@ -21,3 +21,4 @@
 
 val source_file : string ref
 val maxmailsatonce : int ref
+val uuid_length : int option ref

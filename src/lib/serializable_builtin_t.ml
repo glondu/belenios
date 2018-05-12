@@ -25,10 +25,25 @@ type number = Z.t
 type uuid = string
 type int_or_null = int option
 
+let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+let min_uuid_length = 14 (* at least 82 bits of entropy *)
+
+let check token =
+  let n = String.length token in
+  n >= min_uuid_length &&
+    let rec loop i =
+      if i >= 0 then
+        let digit = try String.index digits token.[i] with Not_found -> -1 in
+        if digit >= 0 then loop (i-1) else false
+      else true
+    in loop (n-1)
+
 let uuid_of_raw_string x =
   match Uuidm.of_string x with
   | Some s -> Uuidm.to_string s
-  | None -> Printf.ksprintf invalid_arg "%S is not a valid UUID" x
+  | None ->
+     if check x then x
+     else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
 
 let raw_string_of_uuid x = x
 
