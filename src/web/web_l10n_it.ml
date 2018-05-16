@@ -145,17 +145,14 @@ let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
 
   %s
 
+Si prega di trovare qui sotto il suo codice di voto.  Per presentare
+una scheda elettorale, avrà bisogno di una password, spedita in una
+email separata. Faccia attenzione, la password e il codice di voto
+sono simili ma hanno un ruolo diverso. Il sistema le domanderà il suo
+codice di voto non appena entrato(a) nella cabina elettorale
+virtuale. Il nome di utente e la password sono necessari quando la sua
+scheda è pronta per essere presentata.
 
-Si prega di trovare qui sotto il suo nome di utente e il suo codice di
-voto.  Per presentare una scheda elettorale, avrà bisogno di una
-password, spedita in una email separata. Faccia attenzione, la
-password e il codice di voto sono simili ma hanno un ruolo diverso. Il
-sistema le domanderà il suo codice di voto non appena entrato(a) nella
-cabina elettorale virtuale. Il nome di utente e la password sono
-necessari quando la sua scheda è pronta per essere presentata.
-
-
-Nome utente : %s
 Codice di voto : %s
 Pagina dell'elezione : %s
 

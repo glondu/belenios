@@ -878,7 +878,7 @@ let () =
             let module CD = Credential.MakeDerive (G) in
             let%lwt creds =
               Lwt_list.fold_left_s (fun accu v ->
-                  let email, login = split_identity v.sv_id in
+                  let email, _ = split_identity v.sv_id in
                   let%lwt cred = CG.generate () in
                   let pub_cred =
                     let x = CD.derive uuid cred in
@@ -889,7 +889,7 @@ let () =
                   let bodies = List.map (fun lang ->
                                    let module L = (val Web_i18n.get_lang lang) in
                                    let contact = T.contact_footer se.se_metadata L.please_contact in
-                                   Printf.sprintf L.mail_credential title login cred url contact
+                                   Printf.sprintf L.mail_credential title cred url contact
                                  ) langs in
                   let body = PString.concat "\n\n----------\n\n" bodies in
                   let body = body ^ "\n\n-- \nBelenios" in

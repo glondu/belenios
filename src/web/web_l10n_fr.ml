@@ -143,15 +143,14 @@ let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
 
   %s
 
-Veuillez trouver ci-dessous votre nom d'utilisateur et votre code de
-vote. Pour soumettre un bulletin, vous aurez également besoin d'un
-mot de passe, envoyé dans un e-mail séparé. Soyez attentif(ve), le mot
-de passe et le code de vote se ressemblent mais jouent des rôles
-différents. Le système vous demandera votre code de vote dès l'entrée
-dans l'isoloir virtuel. Le nom d'utilisateur et le mot de passe sont
-nécessaires lorsque votre bulletin est prêt à être soumis.
+Veuillez trouver ci-dessous votre code de vote. Pour soumettre un
+bulletin, vous aurez également besoin d'un mot de passe, envoyé dans
+un e-mail séparé. Soyez attentif(ve), le mot de passe et le code de
+vote se ressemblent mais jouent des rôles différents. Le système vous
+demandera votre code de vote dès l'entrée dans l'isoloir virtuel. Le
+nom d'utilisateur et le mot de passe sont nécessaires lorsque votre
+bulletin est prêt à être soumis.
 
-Nom d'utilisateur : %s
 Code de vote : %s
 Page de l'élection : %s
 

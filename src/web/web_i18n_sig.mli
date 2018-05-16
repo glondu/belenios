@@ -113,7 +113,7 @@ module type LocalizedStrings = sig
   val mail_password_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_password : (string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_credential_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
-  val mail_credential : (string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
+  val mail_credential : (string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_confirmation_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_confirmation : (string -> string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val please_contact : string
