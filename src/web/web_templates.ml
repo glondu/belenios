@@ -1384,6 +1384,16 @@ let election_setup_confirm uuid se () =
          ]
     | _, _ -> pcdata ""
   in
+  let contact, div_contact_warning =
+    match se.se_metadata.e_contact with
+    | None ->
+       "No",
+       div [
+           b [pcdata "Warning:"];
+           pcdata " No contact was set!";
+         ]
+    | Some _ -> "Yes", pcdata ""
+  in
   let table_checklist = table [
     tr [
       td [pcdata "Voters?"];
@@ -1400,12 +1410,17 @@ let election_setup_confirm uuid se () =
     tr [
       td [pcdata "Trustees?"];
       td [pcdata trustees];
-    ]
+    ];
+    tr [
+      td [pcdata "Contact?"];
+      td [pcdata contact];
+    ];
   ] in
   let checklist = div [
     h2 [pcdata "Checklist"];
     table_checklist;
     div_trustee_warning;
+    div_contact_warning;
   ] in
   let form_create =
     if ready then
