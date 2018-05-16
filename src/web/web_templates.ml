@@ -354,7 +354,7 @@ let election_setup uuid se () =
               pcdata ")";
             ];
           div [
-              pcdata "(This is a space-separated list of languages that will be used in emails sent by the server.)";
+              pcdata "This is a space-separated list of languages that will be used in emails sent by the server.";
             ];
           div [
               string_input ~input_type:`Submit ~value:"Save changes" ();
@@ -409,7 +409,7 @@ let election_setup uuid se () =
               string_input ~name:contact ~input_type:`Text ~value ();
             ];
           div [
-              pcdata "(If non-empty, this will be added to emails sent by the server. This is free-form, but we suggest that you use \"Name <user@example.org>\".)";
+              pcdata "This contact will be added to emails sent to the voters.";
             ];
           div [
               string_input ~input_type:`Submit ~value:"Save changes" ();
@@ -2453,4 +2453,4 @@ let booth uuid =
 let contact_footer metadata please_contact =
   match metadata.e_contact with
   | None -> ""
-  | Some x -> Printf.sprintf "\n\n%s\n\n  %s" please_contact x
+  | Some x -> Printf.sprintf "\n\n%s\n  %s" please_contact x

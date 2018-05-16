@@ -173,12 +173,11 @@ a été enregistré. Votre numéro de suivi est
 
   %s
 
-Vous pouvez vérifier sa présence dans l'urne, accessible au
 
+Vous pouvez vérifier sa présence dans l'urne, accessible au
   %s
 
 Les résultats seront publiés sur la page de l'élection
-
   %s%s
 
 -- \nBelenios"

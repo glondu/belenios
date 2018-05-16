@@ -173,12 +173,11 @@ a fost înregistrat. Numărul vostru de identificare este
 
   %s
 
-Puteți verifica prezența acestuia în urma de vot, accesibilă la
 
+Puteți verifica prezența acestuia în urma de vot, accesibilă la
   %s
 
 Rezultatele vor fi publicate pe pagina de alegere
-
   %s%s
 
 -- \nBelenios"

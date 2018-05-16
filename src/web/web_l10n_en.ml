@@ -171,12 +171,11 @@ has been recorded. Your smart ballot tracker is
 
   %s
 
-You can check its presence in the ballot box, accessible at
 
+You can check its presence in the ballot box, accessible at
   %s
 
 Results will be published on the election page
-
   %s%s
 
 -- \nBelenios"

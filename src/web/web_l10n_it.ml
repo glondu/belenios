@@ -177,12 +177,11 @@ La sua scheda per l'elezione
 
   %s
 
-Può verificare la sua presenza nell'urna, accessibile su
 
+Può verificare la sua presenza nell'urna, accessibile su
   %s
 
 I risultati saranno pubblicati sulla pagina dell'elezione
-
   %s%s
 
 -- \nBelenios"

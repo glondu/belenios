@@ -171,13 +171,12 @@ wurde angenommen. Ihre Stimmennummer ist:
 
   %s
 
+
 Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der
 Wahlurne befindet:
-
   %s
 
 Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:
-
   %s%s
 
 -- \nBelenios"
