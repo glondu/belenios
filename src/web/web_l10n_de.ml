@@ -142,19 +142,24 @@ let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
 
   %s
 
-Am Ende der Mail finden Sie Ihre Wählernummer. Um abzustimmen
-benötigen sie außerdem noch Ihr Passwort, die Ihnen in einer seperaten
-Mail zugestellt wird. Obwohl Passwort und Wählernummer ähnlich
-aussehen, erfüllen sie zwei verschiedene Zwecke: die Wählernummer wird
-für die Verschlüsselung Ihrer Stimme in der virtuellen Wahlkabine
-benötigt, mit dem Passwort können Sie anschließend Ihre verschlüsselte
-Stimme auf den Wahlserver übertragen.
+%s
 
 Wählernummer: %s
 Website der Abstimmung: %s
 
 Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt.%s"
 
+let mail_credential_password =
+"Am Ende der Mail finden Sie Ihre Wählernummer. Um abzustimmen
+benötigen sie außerdem noch Ihr Passwort, die Ihnen in einer seperaten
+Mail zugestellt wird. Obwohl Passwort und Wählernummer ähnlich
+aussehen, erfüllen sie zwei verschiedene Zwecke: die Wählernummer wird
+für die Verschlüsselung Ihrer Stimme in der virtuellen Wahlkabine
+benötigt, mit dem Passwort können Sie anschließend Ihre verschlüsselte
+Stimme auf den Wahlserver übertragen."
+
+let mail_credential_cas =
+"Am Ende der Mail finden Sie Ihre Wählernummer."
 
 let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Ihre Stimme zur Abstimmung %s"

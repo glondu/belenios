@@ -879,6 +879,11 @@ let () =
             let%lwt creds =
               Lwt_list.fold_left_s (fun accu v ->
                   let email, _ = split_identity v.sv_id in
+                  let cas =
+                    match se.se_metadata.e_auth_config with
+                    | Some [{auth_system = "cas"; _}] -> true
+                    | _ -> false
+                  in
                   let%lwt cred = CG.generate () in
                   let pub_cred =
                     let x = CD.derive uuid cred in
@@ -888,8 +893,9 @@ let () =
                   let langs = get_languages se.se_metadata.e_languages in
                   let bodies = List.map (fun lang ->
                                    let module L = (val Web_i18n.get_lang lang) in
+                                   let intro = if cas then L.mail_credential_cas else L.mail_credential_password in
                                    let contact = T.contact_footer se.se_metadata L.please_contact in
-                                   Printf.sprintf L.mail_credential title cred url contact
+                                   Printf.sprintf L.mail_credential title intro cred url contact
                                  ) langs in
                   let body = PString.concat "\n\n----------\n\n" bodies in
                   let body = body ^ "\n\n-- \nBelenios" in

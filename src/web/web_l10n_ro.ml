@@ -143,12 +143,7 @@ let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
 
   %s
 
-Veți găsi mai jos codul de vot.  Pentru a depune votul vostru, vă
-trebuie o parolă, ce va fi trimisă într-un e-mail separat.  Aveți
-grijă, parola și codul de votare arată similare, dar joacă roluri
-diferite. Sistemul va solicita codul de votare la intrarea în cabina
-de vot.  Numele de utilizator și parola sunt necesare atunci când
-buletinul de vot este gata pentru depunere.
+%s
 
 Cod de votare: %s
 Pagina alegerii: %s
@@ -156,6 +151,16 @@ Pagina alegerii: %s
 Rețineți că este posibil să votați de mai multe ori.
 Numai ultimul vot va fi luat în considerare.%s"
 
+let mail_credential_password =
+"Veți găsi mai jos codul de vot.  Pentru a depune votul vostru, vă
+trebuie o parolă, ce va fi trimisă într-un e-mail separat.  Aveți
+grijă, parola și codul de votare arată similare, dar joacă roluri
+diferite. Sistemul va solicita codul de votare la intrarea în cabina
+de vot.  Numele de utilizator și parola sunt necesare atunci când
+buletinul de vot este gata pentru depunere."
+
+let mail_credential_cas =
+"Veți găsi mai jos codul de vot."
 
 let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Votul vostru pentru alegerea %s"
