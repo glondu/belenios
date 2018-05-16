@@ -258,3 +258,5 @@ let write_file ?uuid x lines =
         Lwt_list.iter_s (write_line oc) lines
       )
   )
+
+let default_contact = "Name <user@example.org>"

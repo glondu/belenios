@@ -384,7 +384,7 @@ let create_new_election owner cred auth =
     e_cred_authority;
     e_trustees = None;
     e_languages = Some ["en"; "fr"];
-    e_contact = Some "Name <user@example.org>";
+    e_contact = None;
   } in
   let question = {
     q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
@@ -531,7 +531,11 @@ let () =
   Any.register ~service:election_setup_contact
     (fun uuid contact ->
       with_setup_election uuid (fun se ->
-          let contact = if contact = "" then None else Some contact in
+          let contact =
+            if contact = "" || contact = default_contact then
+              None
+            else Some contact
+          in
           se.se_metadata <- {
               se.se_metadata with
               e_contact = contact

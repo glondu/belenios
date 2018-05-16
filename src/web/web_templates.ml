@@ -404,7 +404,7 @@ let election_setup uuid se () =
               let value =
                 match se.se_metadata.e_contact with
                 | Some x -> x
-                | None -> ""
+                | None -> default_contact
               in
               string_input ~name:contact ~input_type:`Text ~value ();
             ];
