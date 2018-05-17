@@ -37,25 +37,7 @@ let configure x =
       auth_instance, (auth_system, List.map snd auth_config)
     ) x
   in
-  Web_persist.set_auth_config None auth_config |> Lwt_main.run;
-  List.iter (fun {auth_system; auth_config; _} ->
-    match auth_system with
-    | "password" ->
-       let table = Ocsipersist.open_table "password_site" in
-       (match auth_config with
-       | [] -> ()
-       | ["db", file] ->
-          Ocsigen_messages.console (fun () ->
-            Printf.sprintf "Loading passwords from file %s" file
-          );
-         let db = Csv.load file in
-         List.iter (function
-         | username :: salt :: password :: _ ->
-            Ocsipersist.add table username (salt, password) |> Lwt_main.run
-         | _ -> failwith ("error while loading " ^ file)) db
-       | _ -> failwith "error in passwords configuration")
-    | _ -> ()
-  ) x
+  Web_persist.set_auth_config None auth_config |> Lwt_main.run
 
 let scope = Eliom_common.default_session_scope
 
@@ -76,7 +58,7 @@ let default_cont uuid () =
 let dummy_handler () name =
   match%lwt Eliom_reference.get auth_env with
   | None -> failwith "dummy handler was invoked without environment"
-  | Some (uuid, service) ->
+  | Some (uuid, service, _) ->
      Eliom_reference.set user (Some {uuid; service; name}) >>
      Eliom_reference.unset auth_env >>
      default_cont uuid ()
@@ -85,24 +67,45 @@ let () = Eliom_registration.Any.register ~service:dummy_post dummy_handler
 
 (** Password authentication *)
 
+let check_password_with_file db name password =
+  let%lwt db = Lwt_preemptive.detach Csv.load db in
+  try
+    begin
+      match
+        List.find (function
+            | username :: _ :: _ :: _ -> username = name
+            | _ -> false
+          ) db
+      with
+      | _ :: salt :: hashed :: _ ->
+         return (sha256_hex (salt ^ password) = hashed)
+      | _ -> return false
+    end
+  with Not_found -> return false
+
 let password_handler () (name, password) =
-  let%lwt uuid, service =
+  let%lwt uuid, service, config =
     match%lwt Eliom_reference.get auth_env with
     | None -> failwith "password handler was invoked without environment"
     | Some x -> return x
   in
-  let table =
-    "password_" ^
+  let%lwt ok =
     match uuid with
-    | None -> "site"
-    | Some u -> underscorize u
+    | None ->
+       begin
+         match config with
+         | [db] -> check_password_with_file db name password
+         | _ -> failwith "invalid configuration for admin site"
+       end
+    | Some uuid ->
+       let table = "password_" ^ underscorize uuid in
+       let table = Ocsipersist.open_table table in
+       try%lwt
+         let%lwt salt, hashed = Ocsipersist.find table name in
+         return (sha256_hex (salt ^ password) = hashed)
+       with Not_found -> return false
   in
-  let table = Ocsipersist.open_table table in
-  let%lwt salt, hashed =
-    try%lwt Ocsipersist.find table name
-    with Not_found -> fail_http 401
-  in
-  if sha256_hex (salt ^ password) = hashed then
+  if ok then
     Eliom_reference.set user (Some {uuid; service; name}) >>
     Eliom_reference.unset auth_env >>
     default_cont uuid ()
@@ -159,7 +162,7 @@ let get_cas_validation server ticket =
   | None -> return (`Error `Http)
 
 let cas_handler ticket () =
-  let%lwt uuid, service =
+  let%lwt uuid, service, _ =
     match%lwt Eliom_reference.get auth_env with
     | None -> failwith "cas handler was invoked without environment"
     | Some x -> return x
@@ -246,7 +249,7 @@ let oidc_get_name ocfg client_id client_secret code =
   | None -> return None
 
 let oidc_handler params () =
-  let%lwt uuid, service =
+  let%lwt uuid, service, _ =
     match%lwt Eliom_reference.get auth_env with
     | None -> failwith "oidc handler was invoked without environment"
     | Some x -> return x
@@ -309,7 +312,7 @@ let oidc_login_handler config () =
 (** Generic authentication *)
 
 let get_login_handler service uuid auth_system config =
-  Eliom_reference.set auth_env (Some (uuid, service)) >>
+  Eliom_reference.set auth_env (Some (uuid, service, config)) >>
   match auth_system with
   | "dummy" -> Web_templates.login_dummy () >>= Eliom_registration.Html5.send
   | "cas" -> cas_login_handler config ()
