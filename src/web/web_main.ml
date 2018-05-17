@@ -58,11 +58,18 @@ let () =
        failwith "UUID length is too small"
   | Element ("contact", ["uri", uri], []) ->
     Web_common.contact_uri := Some uri
-  | Element ("server", ["mail", mail], []) ->
-     if is_email mail then
-       server_mail := mail
-     else
-       Printf.ksprintf failwith "%s is not a valid e-mail address" mail
+  | Element ("server", attrs, []) ->
+     let set attr setter =
+       try
+         let mail = List.assoc attr attrs in
+         if is_email mail then
+           setter mail
+         else
+           Printf.ksprintf failwith "%s is not a valid e-mail address" mail
+       with Not_found -> ()
+     in
+     set "mail" (fun x -> server_mail := x);
+     set "return-path" (fun x -> return_path := Some x);
   | Element ("spool", ["dir", dir], []) ->
     spool_dir := Some dir
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->

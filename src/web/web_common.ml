@@ -28,6 +28,7 @@ open Web_serializable_j
 
 let spool_dir = ref "."
 let server_mail = ref "noreply@belenios.org"
+let return_path = ref None
 let contact_uri = ref None
 
 module LwtRandom = struct
@@ -195,6 +196,13 @@ let string_of_user {user_domain; user_name} =
 let underscorize x =
   String.map (function '-' -> '_' | c -> c) (raw_string_of_uuid x)
 
+let sendmail ?return_path message =
+  let mailer =
+    match return_path with
+    | None -> None
+    | Some x -> Some (Printf.sprintf "/usr/lib/sendmail -f %s" x) in
+  Netsendmail.sendmail ?mailer message
+
 let send_email recipient subject body =
   let contents =
     Netsendmail.compose
@@ -203,9 +211,11 @@ let send_email recipient subject body =
       ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
       ~subject body
   in
+  let return_path = !return_path in
+  let sendmail = sendmail ?return_path in
   let rec loop () =
     try%lwt
-      Lwt_preemptive.detach Netsendmail.sendmail contents
+      Lwt_preemptive.detach sendmail contents
     with Unix.Unix_error (Unix.EAGAIN, _, _) ->
       Lwt_unix.sleep 1. >> loop ()
   in loop ()
