@@ -27,7 +27,7 @@ open Web_serializable_builtin_t
 open Web_serializable_j
 
 let spool_dir = ref "."
-let server_mail = ref "noreply@belenios.org"
+let server_mail = ref "noreply@example.org"
 let return_path = ref None
 let contact_uri = ref None
 

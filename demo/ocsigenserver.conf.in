@@ -32,7 +32,7 @@
     <extension findlib-package="csv"/>
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
-      <!-- <redirect suburl="^$" dest="http://www.belenios.org"/> -->
+      <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
       <site path="static" charset="utf-8">
         <static dir="_SRCDIR_/_build/src/static" />
       </site>
@@ -40,7 +40,7 @@
         <maxmailsatonce value="1000"/>
         <uuid length="14"/>
         <!-- <contact uri="mailto:contact@example.org"/> -->
-        <server mail="noreply@belenios.org"/>
+        <server mail="noreply@example.org"/>
         <auth name="demo"><dummy/></auth>
         <auth name="local"><password db="demo/password_db.csv"/></auth>
         <!-- <auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth> -->
