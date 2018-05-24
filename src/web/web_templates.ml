@@ -35,6 +35,10 @@ open Eliom_content.Html5.F
 let site_title = "Election Server"
 let admin_background = " background: #FF9999;"
 
+let static x =
+  let service = Eliom_service.static_dir () in
+  make_uri ~service ["static"; x]
+
 let format_user ~site u =
   em [pcdata (if site then string_of_user u else u.user_name)]
 
@@ -120,14 +124,14 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
     | None ->
        div ~a:[a_style "float: right; padding: 10px;"] [
          img ~a:[a_height 70] ~alt:""
-           ~src:(uri_of_string (fun () -> "/static/placeholder.png")) ();
+           ~src:(static "placeholder.png") ();
        ]
     | Some x -> x
   in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang L.lang]
     (head (Eliom_content.Html5.F.title (pcdata title)) [
       script (pcdata "window.onbeforeunload = function () {};");
-      link ~rel:[`Stylesheet] ~href:(uri_of_string (fun () -> "/static/site.css")) ();
+      link ~rel:[`Stylesheet] ~href:(static "site.css") ();
     ])
     (body [
       div ~a:[a_id "wrapper"] [
@@ -136,7 +140,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
           div ~a:[a_style "float: left; padding: 10px;"] [
             a ~service:home [
               img ~alt:L.election_server ~a:[a_height 70]
-                ~src:(uri_of_string (fun () -> "/static/logo.png")) ();
+                ~src:(static "logo.png") ();
             ] ();
           ];
           login_box;
@@ -879,11 +883,11 @@ let election_setup_questions uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        script ~a:[a_src (uri_of_string (fun () -> "../static/sjcl.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn2.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/random.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_questions.js"))] (pcdata "");
+        script ~a:[a_src (static "sjcl.js")] (pcdata "");
+        script ~a:[a_src (static "jsbn.js")] (pcdata "");
+        script ~a:[a_src (static "jsbn2.js")] (pcdata "");
+        script ~a:[a_src (static "random.js")] (pcdata "");
+        script ~a:[a_src (static "tool_js_questions.js")] (pcdata "");
       ]
   in
   let content = [
@@ -1096,11 +1100,11 @@ let election_setup_credentials token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        script ~a:[a_src (uri_of_string (fun () -> "../static/sjcl.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn2.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/random.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_credgen.js"))] (pcdata "");
+        script ~a:[a_src (static "sjcl.js")] (pcdata "");
+        script ~a:[a_src (static "jsbn.js")] (pcdata "");
+        script ~a:[a_src (static "jsbn2.js")] (pcdata "");
+        script ~a:[a_src (static "random.js")] (pcdata "");
+        script ~a:[a_src (static "tool_js_credgen.js")] (pcdata "");
       ]
   in
   let div_textarea = div [group; voters; interactivity; form_textarea; disclaimer] in
@@ -1179,11 +1183,11 @@ let election_setup_trustee token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        script ~a:[a_src (uri_of_string (fun () -> "../static/sjcl.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn2.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/random.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_tkeygen.js"))] (pcdata "");
+        script ~a:[a_src (static "sjcl.js")] (pcdata "");
+        script ~a:[a_src (static "jsbn.js")] (pcdata "");
+        script ~a:[a_src (static "jsbn2.js")] (pcdata "");
+        script ~a:[a_src (static "random.js")] (pcdata "");
+        script ~a:[a_src (static "tool_js_tkeygen.js")] (pcdata "");
       ]
   in
   let content = [
@@ -1280,11 +1284,11 @@ let election_setup_threshold_trustee token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        script ~a:[a_src (uri_of_string (fun () -> "../static/sjcl.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/jsbn2.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/random.js"))] (pcdata "");
-        script ~a:[a_src (uri_of_string (fun () -> "../static/tool_js_ttkeygen.js"))] (pcdata "");
+        script ~a:[a_src (static "sjcl.js")] (pcdata "");
+        script ~a:[a_src (static "jsbn.js")] (pcdata "");
+        script ~a:[a_src (static "jsbn2.js")] (pcdata "");
+        script ~a:[a_src (static "random.js")] (pcdata "");
+        script ~a:[a_src (static "tool_js_ttkeygen.js")] (pcdata "");
       ]
   in
   let content = [
@@ -2229,11 +2233,11 @@ let tally_trustees election trustee_id token () =
         ) (uuid, ((), token));
     ];
     div [
-      script ~a:[a_src (uri_of_string (fun () -> "../../../static/sjcl.js"))] (pcdata "");
-      script ~a:[a_src (uri_of_string (fun () -> "../../../static/jsbn.js"))] (pcdata "");
-      script ~a:[a_src (uri_of_string (fun () -> "../../../static/jsbn2.js"))] (pcdata "");
-      script ~a:[a_src (uri_of_string (fun () -> "../../../static/random.js"))] (pcdata "");
-      script ~a:[a_src (uri_of_string (fun () -> "../../../static/tool_js_pd.js"))] (pcdata "");
+      script ~a:[a_src (static "sjcl.js")] (pcdata "");
+      script ~a:[a_src (static "jsbn.js")] (pcdata "");
+      script ~a:[a_src (static "jsbn2.js")] (pcdata "");
+      script ~a:[a_src (static "random.js")] (pcdata "");
+      script ~a:[a_src (static "tool_js_pd.js")] (pcdata "");
     ]
   ] in
   base ~title ~content ~uuid ()
@@ -2315,12 +2319,12 @@ let booth uuid =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let head = head (title (pcdata L.belenios_booth)) [
-    link ~rel:[`Stylesheet] ~href:(uri_of_string (fun () -> "/static/booth.css")) ();
-    script ~a:[a_src (uri_of_string (fun () -> "/static/sjcl.js"))] (pcdata "");
-    script ~a:[a_src (uri_of_string (fun () -> "/static/jsbn.js"))] (pcdata "");
-    script ~a:[a_src (uri_of_string (fun () -> "/static/jsbn2.js"))] (pcdata "");
-    script ~a:[a_src (uri_of_string (fun () -> "/static/random.js"))] (pcdata "");
-    script ~a:[a_src (uri_of_string (fun () -> "/static/booth.js"))] (pcdata "");
+    link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
+    script ~a:[a_src (static "sjcl.js")] (pcdata "");
+    script ~a:[a_src (static "jsbn.js")] (pcdata "");
+    script ~a:[a_src (static "jsbn2.js")] (pcdata "");
+    script ~a:[a_src (static "random.js")] (pcdata "");
+    script ~a:[a_src (static "booth.js")] (pcdata "");
   ] in
   let election_loader =
     div ~a:[a_id "election_loader"; a_style "display:none;"] [
@@ -2403,7 +2407,7 @@ let booth uuid =
         div ~a:[a_style "text-align:center;"] [
           div ~a:[a_id "encrypting_div"] [
             p [pcdata L.wait_while_encrypted];
-            img ~src:(uri_of_string (fun () -> "/static/encrypting.gif")) ~alt:L.encrypting ();
+            img ~src:(static "encrypting.gif") ~alt:L.encrypting ();
           ];
           div ~a:[a_id "ballot_div"; a_style "display:none;"] [ballot_form];
           Unsafe.data ("<button onclick=\"location.reload();\">"^L.restart^"</button>");
@@ -2417,11 +2421,11 @@ let booth uuid =
       div ~a:[a_id "header"] [
         div ~a:[a_style "float: left; padding: 15px;"] [
           img ~alt:L.election_server ~a:[a_height 70]
-            ~src:(uri_of_string (fun () -> "/static/logo.png")) ();
+            ~src:(static "logo.png") ();
         ];
         div ~a:[a_style "float: right; padding: 15px;"] [
           img ~alt:"" ~a:[a_height 70]
-            ~src:(uri_of_string (fun () -> "/static/placeholder.png")) ();
+            ~src:(static "placeholder.png") ();
         ];
         div ~a:[a_style "text-align:center; padding: 20px;"] [
           h1 ~a:[a_id "election_name"] [];
