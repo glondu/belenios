@@ -50,8 +50,8 @@ let election_setup_trustee_add_server = post_coservice ~fallback:election_setup 
 let election_setup_trustee_del = post_coservice ~fallback:election_setup ~post_params:(int "index") ()
 let election_setup_credential_authority = service ~path:["setup"; "credential-authority"] ~get_params:(uuid "uuid") ()
 let election_setup_credentials = service ~path:["setup"; "credentials"] ~get_params:(string "token") ()
-let election_setup_credentials_post = post_coservice ~fallback:election_setup_credentials ~post_params:(string "public_creds") ()
-let election_setup_credentials_post_file = post_coservice ~fallback:election_setup_credentials ~post_params:(file "public_creds") ()
+let election_setup_credentials_post = post_service ~fallback:election_setup_credentials ~post_params:(string "public_creds") ()
+let election_setup_credentials_post_file = post_service ~fallback:election_setup_credentials ~post_params:(file "public_creds") ()
 let election_setup_credentials_server = post_coservice ~fallback:election_setup ~post_params:unit ()
 
 let election_setup_trustees = service ~path:["setup"; "trustees"] ~get_params:(uuid "uuid") ()
