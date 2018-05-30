@@ -485,11 +485,11 @@ let election_setup uuid se () =
     div [
       h2 [pcdata "Trustees"];
       div [
-        pcdata "By default, the election server manages the keys of the ";
-        pcdata "election. If you do not wish the server to store any keys, ";
-        pcdata "click ";
-        a ~service:election_setup_trustees [pcdata "here"] uuid;
-        pcdata "."];
+          pcdata "By default, the election server manages the keys of the election (degraded privacy mode). ";
+          pcdata "For real elections, the key must be shared among independent trustees. Click ";
+          a ~service:election_setup_trustees [pcdata "here"] uuid;
+          pcdata " to set up the election key.";
+        ];
     ]
   in
   let div_credentials =
@@ -686,7 +686,9 @@ let election_setup_trustees uuid se () =
   in
   let div_content =
     div [
-      div [pcdata "If you do not wish the server to store any keys, you may nominate trustees. In that case, each trustee will create her own secret key. Be careful, once the election is over, you will need the contribution of each trustee to compute the result!"];
+      div [
+          pcdata "To set up the election key, you need to nominate trustees. Each trustee will create her own secret key.";
+        ];
       br ();
       div_trustees;
     ]
