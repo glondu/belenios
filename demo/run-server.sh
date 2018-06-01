@@ -24,4 +24,10 @@ sed \
   -e "s@_SRCDIR_@$PWD@g" \
   demo/ocsigenserver.conf.in > $BELENIOS_RUNDIR/etc/ocsigenserver.conf
 
-ocsigenserver -c $BELENIOS_RUNDIR/etc/ocsigenserver.conf "$@"
+OCSIGENSERVER=ocsigenserver
+
+if command -v ocsigenserver.opt > /dev/null; then
+  OCSIGENSERVER=ocsigenserver.opt
+fi
+
+exec $OCSIGENSERVER -c $BELENIOS_RUNDIR/etc/ocsigenserver.conf "$@"
