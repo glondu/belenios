@@ -35,6 +35,9 @@ open Eliom_content.Html5.F
 let site_title = "Election Server"
 let admin_background = " background: #FF9999;"
 
+let unsafe_a uri text =
+  Printf.ksprintf Unsafe.data "<a href=\"%s\">%s</a>" uri text
+
 let static x =
   let service = Eliom_service.static_dir () in
   make_uri ~service ["static"; x]
@@ -157,6 +160,8 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
           pcdata ". ";
           a ~service:source_code [pcdata L.get_the_source_code] ();
           pcdata ". ";
+          unsafe_a !gdpr_uri "Privacy policy";
+          pcdata ". ";
           administer;
           pcdata ".";
         ]
@@ -169,9 +174,6 @@ let format_election election =
   li [
     a ~service [pcdata e.e_name] (e.e_uuid, ());
   ]
-
-let unsafe_a uri text =
-  Printf.ksprintf Unsafe.data "<a href=\"%s\">%s</a>" uri text
 
 let admin_gdpr () =
   let title = site_title ^ " — Personal data processing notice" in
