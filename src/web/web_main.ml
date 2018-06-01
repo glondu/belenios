@@ -37,6 +37,7 @@ let () = CalendarLib.Time_Zone.(change Local)
 let spool_dir = ref None
 let source_file = ref None
 let auth_instances = ref []
+let gdpr_uri = ref None
 
 let () =
   Eliom_config.get_config () |>
@@ -58,6 +59,8 @@ let () =
        failwith "UUID length is too small"
   | Element ("contact", ["uri", uri], []) ->
     Web_common.contact_uri := Some uri
+  | Element ("gdpr", ["uri", uri], []) ->
+    gdpr_uri := Some uri
   | Element ("server", attrs, []) ->
      let set attr setter =
        try
@@ -82,6 +85,11 @@ let () =
     Printf.ksprintf failwith
       "invalid configuration for tag %s in belenios"
       tag
+
+let () =
+  match !gdpr_uri with
+  | None -> failwith "You must provide a GDPR URI"
+  | Some x -> Web_common.gdpr_uri := x
 
 (** Parse configuration from other sources *)
 

@@ -39,6 +39,7 @@
       <eliom module="_build/src/web/server.cma">
         <maxmailsatonce value="1000"/>
         <uuid length="14"/>
+        <gdpr uri="http://www.example.org/privacy_policy.html"/>
         <!-- <contact uri="mailto:contact@example.org"/> -->
         <server mail="noreply@example.org"/>
         <auth name="demo"><dummy/></auth>

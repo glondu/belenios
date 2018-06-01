@@ -92,7 +92,8 @@ module type LocalizedStrings = sig
   val password : string
   val login : string
   val password_login : string
-  val you_must_accept_cookies : string
+  val by_using_you_accept : string
+  val privacy_policy : string
   val accept : string
   val not_yet_open : string
   val come_back_later : string

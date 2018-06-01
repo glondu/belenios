@@ -1637,7 +1637,9 @@ let election_home election state () =
       div
         ~a:[a_style "border-style: solid; border-width: 1px;"]
         [
-          pcdata L.you_must_accept_cookies;
+          pcdata L.by_using_you_accept;
+          unsafe_a !gdpr_uri L.privacy_policy;
+          pcdata ". ";
           a ~service:set_cookie_disclaimer [pcdata L.accept] ();
         ]
     else pcdata ""
