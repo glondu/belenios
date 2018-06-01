@@ -157,7 +157,9 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
           footer;
           pcdata L.powered_by;
           a ~service:belenios_url [pcdata "Belenios"] ();
-          pcdata ". ";
+          Belenios_version.(
+            Printf.ksprintf pcdata " %s (%s)." version build
+          );
           a ~service:source_code [pcdata L.get_the_source_code] ();
           pcdata ". ";
           unsafe_a !gdpr_uri "Privacy policy";
