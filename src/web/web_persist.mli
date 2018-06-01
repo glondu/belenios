@@ -33,8 +33,14 @@ type election_state =
 val get_election_state : uuid -> election_state Lwt.t
 val set_election_state : uuid -> election_state -> unit Lwt.t
 
-val get_election_date : uuid -> datetime Lwt.t
-val set_election_date : uuid -> datetime -> unit Lwt.t
+type election_date =
+  [ `Creation
+  | `Finalization
+  | `Tally
+  | `Archive
+  ]
+val get_election_date : election_date -> uuid -> datetime option Lwt.t
+val set_election_date : election_date -> uuid -> datetime -> unit Lwt.t
 
 val get_partial_decryptions : uuid -> (int * string) list Lwt.t
 val set_partial_decryptions : uuid -> (int * string) list -> unit Lwt.t

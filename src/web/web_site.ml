@@ -274,7 +274,7 @@ let finalize_election uuid se =
   | _ -> return_unit) >>
   (* finish *)
   Web_persist.set_election_state uuid `Open >>
-  Web_persist.set_election_date uuid (now ())
+  Web_persist.set_election_date `Finalization uuid (now ())
 
 let cleanup_table ?uuid_s table =
   let table = Ocsipersist.open_table table in
@@ -303,6 +303,7 @@ let archive_election uuid =
   let%lwt () = cleanup_table ("ballots_" ^ uuid_u) in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_key.json") in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_keys.jsons") in
+  let%lwt () = Web_persist.set_election_date `Archive uuid (now ()) in
   return_unit
 
 let () = Any.register ~service:home
@@ -317,7 +318,11 @@ let get_finalized_elections_by_owner u =
     Lwt_list.fold_left_s (fun accu uuid ->
         let%lwt w = find_election uuid in
         let%lwt state = Web_persist.get_election_state uuid in
-        let%lwt date = Web_persist.get_election_date uuid in
+        let%lwt date = Web_persist.get_election_date `Finalization uuid in
+        let date = match date with
+          | None -> default_finalization_date
+          | Some x -> x
+        in
         let elections, tallied, archived = accu in
         match state with
         | `Tallied _ -> return (elections, (date, w) :: tallied, archived)
@@ -430,6 +435,7 @@ let create_new_election owner cred auth =
     se_threshold_trustees = None;
     se_threshold_parameters = None;
     se_threshold_error = None;
+    se_creation_date = Some (now ());
   } in
   let%lwt () = set_setup_election uuid se in
   let%lwt () = Ocsipersist.add election_credtokens token uuid_s in
@@ -1603,6 +1609,7 @@ let handle_election_tally_release (uuid, ()) () =
           write_file ~uuid (string_of_election_file ESResult) [result]
         in
         let%lwt () = Web_persist.set_election_state uuid (`Tallied result.result) in
+        let%lwt () = Web_persist.set_election_date `Tally uuid (now ()) in
         let%lwt () = Ocsipersist.remove election_tokens_decrypt uuid_s in
         redir_preapply election_home (uuid, ()) ()
       ) else forbidden ()

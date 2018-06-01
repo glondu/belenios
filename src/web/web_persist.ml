@@ -51,18 +51,41 @@ let get_election_state x =
 let set_election_state x s =
   Ocsipersist.add election_states (raw_string_of_uuid x) s
 
-let past = datetime_of_string "\"2015-10-01 00:00:00.000000\""
+type election_date =
+  [ `Creation
+  | `Finalization
+  | `Tally
+  | `Archive
+  ]
 
-let set_election_date uuid d =
-  let dates = string_of_election_dates { e_finalization = d } in
+let get_election_dates uuid =
+  match%lwt read_file ~uuid "dates.json" with
+  | Some [x] -> return (election_dates_of_string x)
+  | _ -> return {
+             e_creation = None;
+             e_finalization = None;
+             e_tally = None;
+             e_archive = None;
+           }
+
+let set_election_date kind uuid d =
+  let%lwt dates = get_election_dates uuid in
+  let dates = match kind with
+    | `Creation -> { dates with e_creation = Some d }
+    | `Finalization -> { dates with e_finalization = Some d }
+    | `Tally -> { dates with e_tally = Some d }
+    | `Archive -> { dates with e_archive = Some d }
+  in
+  let dates = string_of_election_dates dates in
   write_file ~uuid "dates.json" [dates]
 
-let get_election_date uuid =
-  match%lwt read_file ~uuid "dates.json" with
-  | Some [x] ->
-     let dates = election_dates_of_string x in
-     return dates.e_finalization
-  | _ -> return past
+let get_election_date kind uuid =
+  let%lwt dates = get_election_dates uuid in
+  match kind with
+  | `Creation -> return dates.e_creation
+  | `Finalization -> return dates.e_finalization
+  | `Tally -> return dates.e_tally
+  | `Archive -> return dates.e_archive
 
 let election_pds = Ocsipersist.open_table "election_pds"
 

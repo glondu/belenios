@@ -272,3 +272,5 @@ let write_file ?uuid x lines =
   )
 
 let default_contact = "Name <user@example.org>"
+
+let default_finalization_date = datetime_of_string "\"2015-10-01 00:00:00.000000\""
