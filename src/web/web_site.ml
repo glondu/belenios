@@ -327,8 +327,17 @@ let with_site_user f =
   | Some u -> f u
   | None -> forbidden ()
 
+let () =
+  Redirection.register ~service:admin_gdpr_accept
+    (fun () () ->
+      Eliom_reference.set Web_state.show_cookie_disclaimer false >>
+      return admin
+    )
+
 let () = Html5.register ~service:admin
   (fun () () ->
+    let%lwt gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
+    if gdpr then T.admin_gdpr () else
     let cont () = Redirection.send admin in
     Eliom_reference.set Web_state.cont [cont] >>
     let%lwt site_user = Web_state.get_site_user () in

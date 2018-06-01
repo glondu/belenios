@@ -23,6 +23,7 @@ open Serializable_t
 open Web_serializable_t
 open Signatures
 
+val admin_gdpr : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val admin : elections:('a election list * 'a election list * 'a election list * (uuid * string) list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

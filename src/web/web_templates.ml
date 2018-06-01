@@ -173,6 +173,27 @@ let format_election election =
 let unsafe_a uri text =
   Printf.ksprintf Unsafe.data "<a href=\"%s\">%s</a>" uri text
 
+let admin_gdpr () =
+  let title = site_title ^ " — Personal data processing notice" in
+  let content =
+    [
+      div [
+          pcdata "To use this site, you must accept our ";
+          unsafe_a !gdpr_uri "personal data policy";
+          pcdata ".";
+        ];
+      post_form ~service:admin_gdpr_accept
+        (fun () ->
+          [
+            div [
+                string_input ~input_type:`Submit ~value:"Accept" ();
+              ];
+          ]
+        ) ();
+    ]
+  in
+  base ~title ~content ()
+
 let admin ~elections () =
   let title = site_title ^ " — Administration" in
   match elections with

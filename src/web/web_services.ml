@@ -26,6 +26,7 @@ open Web_common
 
 let home = service ~path:[""] ~get_params:unit ()
 let admin = service ~path:["admin"] ~get_params:unit ()
+let admin_gdpr_accept = post_coservice ~csrf_safe:true ~fallback:admin ~post_params:unit ()
 let site_login = service ~path:["login"] ~get_params:(opt (string "service")) ()
 let logout = service ~path:["logout"] ~get_params:unit ()
 
