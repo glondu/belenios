@@ -105,7 +105,8 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
         match old_cred, old_record with
           | None, None ->
             (* first vote *)
-            if E.check_ballot ballot then (
+            let%lwt b = Lwt_preemptive.detach E.check_ballot ballot in
+            if b then (
               let hash = sha256_b64 rawballot in
               Ocsipersist.add cred_table credential (Some hash) >>
               Ocsipersist.add ballots_table hash rawballot >>
@@ -118,7 +119,8 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
           | Some h, Some (_, old_credential) ->
             (* revote *)
             if credential = old_credential then (
-              if E.check_ballot ballot then (
+              let%lwt b = Lwt_preemptive.detach E.check_ballot ballot in
+              if b then (
                 Ocsipersist.remove ballots_table h >>
                 let hash = sha256_b64 rawballot in
                 Ocsipersist.add cred_table credential (Some hash) >>
