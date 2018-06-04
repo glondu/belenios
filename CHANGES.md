@@ -1,3 +1,12 @@
+1.6 (2018-06-11)
+================
+
+ * Add (optional) contact info in emails sent by the server
+ * Use base 58 tokens as UUIDs for shorter URLs (optional)
+ * Add (optional) return path to mails sent by server
+ * Show personal data processing notice to election administrators
+ * Fix password regeneration when explicit usernames are used
+
 1.5 (2017-12-13)
 ================
 
