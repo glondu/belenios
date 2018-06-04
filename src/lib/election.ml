@@ -97,9 +97,11 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   (** ElGamal encryption. *)
   let eg_encrypt y r x =
+    (* FIXME: side channel *)
+    let g' = if x = 0 then G.one else g **~ Z.of_int x in
     {
       alpha = g **~ r;
-      beta = y **~ r *~ g **~ Z.of_int x;
+      beta = y **~ r *~ g';
     }
 
   let dummy_proof =
@@ -223,7 +225,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
             if i <> index_true then (
               random q >>= fun challenge ->
               random q >>= fun response ->
-              let nbeta = cS.beta / (g **~ Z.of_int (min+i-1)) in
+              let g' = if min+i-1 = 0 then G.one else g **~ Z.of_int (min+i-1) in
+              let nbeta = cS.beta / g' in
               let j = 2*i in
               overall_proof.(i) <- {challenge; response};
               commitments.(j) <- g **~ response *~ cS.alpha **~ challenge;
@@ -278,7 +281,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
           if i < max-min+2 then (
             random q >>= fun challenge ->
             random q >>= fun response ->
-            let nbeta = cS.beta / (g **~ Z.of_int (min+i-1)) in
+            let g' = if min+i-1 = 0 then G.one else g **~ Z.of_int (min+i-1) in
+            let nbeta = cS.beta / g' in
             let j = 2*i in
             overall_proof.(i) <- {challenge; response};
             commitments.(j) <- g **~ response *~ cS.alpha **~ challenge;
@@ -352,7 +356,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
             let {challenge; response} = overall_proof.(i) in
             if not (check_modulo q challenge && check_modulo q response) then
               raise Exit;
-            let nbeta = cS.beta / (g **~ Z.of_int (min+i-1)) in
+            let g' = if min+i-1 = 0 then G.one else g **~ Z.of_int (min+i-1) in
+            let nbeta = cS.beta / g' in
             let j = 2*i in
             commitments.(j) <- g **~ response *~ cS.alpha **~ challenge;
             commitments.(j+1) <- y **~ response *~ nbeta **~ challenge;
@@ -375,7 +380,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   let make_d min max =
     let n = max - min + 1 in
-    let d = Array.make n (invert (g **~ Z.of_int min)) in
+    let g' = if min = 0 then G.one else g **~ Z.of_int min in
+    let d = Array.make n (invert g') in
     for i = 1 to n-1 do
       d.(i) <- d.(i-1) *~ invg
     done;
@@ -591,7 +597,10 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let results = Array.mmap2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
-    Array.fforall2 (fun r1 r2 -> r1 =~ g **~ Z.of_int r2) results result
+    Array.fforall2 (fun r1 r2 ->
+        let g' = if r2 = 0 then G.one else g **~ Z.of_int r2 in
+        r1 =~ g'
+      ) results result
 
   let extract_tally r = r.result
 end
