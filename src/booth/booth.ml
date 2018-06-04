@@ -349,6 +349,7 @@ let drop_trailing_newline s =
 
 let loadElection () =
   setDisplayById "election_loader" "none";
+  setDisplayById "wait_div" "none";
   setDisplayById "booth_div" "block";
   let election_raw = getTextarea "election_params" |> drop_trailing_newline in
   let election_params = Election.(get_group (of_string election_raw)) in

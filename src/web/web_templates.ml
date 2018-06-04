@@ -2365,6 +2365,12 @@ let booth uuid =
     script ~a:[a_src (static "random.js")] (pcdata "");
     script ~a:[a_src (static "booth.js")] (pcdata "");
   ] in
+  let wait_div =
+    div ~a:[a_id "wait_div"] [
+        pcdata "Please wait... ";
+        img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
+      ]
+  in
   let election_loader =
     div ~a:[a_id "election_loader"; a_style "display:none;"] [
       h1 [pcdata "Election loader"];
@@ -2501,6 +2507,7 @@ let booth uuid =
     ]
   in
   let body = body [
+    wait_div;
     div ~a:[a_id "wrapper"] [
       election_loader;
       booth_div;
