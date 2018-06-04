@@ -620,6 +620,17 @@ let () =
     (fun (uuid, ()) () ->
       T.regenpwd uuid () >>= Html5.send)
 
+let find_user_id uuid user =
+  let uuid_s = raw_string_of_uuid uuid in
+  let db = Lwt_io.lines_of_file (!spool_dir / uuid_s / "voters.txt") in
+  let%lwt db = Lwt_stream.to_list db in
+  let rec loop = function
+    | [] -> Lwt.fail Not_found
+    | id :: xs ->
+       let _, login = split_identity id in
+       if login = user then return id else loop xs
+  in loop db
+
 let () =
   Any.register ~service:election_regenpwd_post
     (fun (uuid, ()) user ->
@@ -636,13 +647,13 @@ let () =
             in
             let service = preapply election_admin (uuid, ()) in
             (try%lwt
-               let%lwt _ = Ocsipersist.find table user in
+               let%lwt id = find_user_id uuid user in
                let langs = get_languages metadata.e_languages in
-               let%lwt x = generate_password metadata langs title url user in
+               let%lwt x = generate_password metadata langs title url id in
                Ocsipersist.add table user x >>
                  dump_passwords (!spool_dir / raw_string_of_uuid uuid) table >>
                  T.generic_page ~title:"Success" ~service
-                   ("A new password has been mailed to " ^ user ^ ".") ()
+                   ("A new password has been mailed to " ^ id ^ ".") ()
                >>= Html5.send
               with Not_found ->
                 T.generic_page ~title:"Error" ~service
