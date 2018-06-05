@@ -169,7 +169,15 @@ let finalize_election uuid se =
           return (y, Some trustees, `TP tp, `KEYS private_keys)
   in
   (* election parameters *)
-  let metadata = { se.se_metadata with e_trustees = trustees } in
+  let e_server_is_trustee = match private_keys with
+      | `KEY _ -> Some true
+      | `None | `KEYS _ -> None
+  in
+  let metadata = {
+      se.se_metadata with
+      e_trustees = trustees;
+      e_server_is_trustee;
+    } in
   let template = se.se_questions in
   let params = {
     e_description = template.t_description;
@@ -395,6 +403,7 @@ let create_new_election owner cred auth =
     e_trustees = None;
     e_languages = Some ["en"; "fr"];
     e_contact = None;
+    e_server_is_trustee = None;
   } in
   let question = {
     q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
