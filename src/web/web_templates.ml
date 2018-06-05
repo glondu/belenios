@@ -1871,6 +1871,18 @@ let election_admin election metadata state get_tokens_decrypt () =
          a ~service:election_update_credential [pcdata "Update a credential"] (uuid, ());
        ];
   in
+  let cas = match metadata.e_auth_config with
+    | Some [{auth_system = "cas"; _}] -> true
+    | _ -> false
+  in
+  let div_regenpwd =
+    if cas then
+      pcdata ""
+    else
+      div [
+          a ~service:election_regenpwd [pcdata "Regenerate and mail a password"] (uuid, ());
+        ]
+  in
   let content = [
     div [
       a ~service:Web_services.election_home [pcdata "Election home"] (uuid, ());
@@ -1885,9 +1897,7 @@ let election_admin election metadata state get_tokens_decrypt () =
     div [
       a ~service:election_missing_voters [pcdata "Missing voters"] (uuid, ());
     ];
-    div [
-      a ~service:election_regenpwd [pcdata "Regenerate and mail a password"] (uuid, ());
-    ];
+    div_regenpwd;
     div [state_div];
     div_archive;
   ] in
