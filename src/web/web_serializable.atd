@@ -102,6 +102,26 @@ type setup_election = {
   ?creation_date : datetime option;
 } <ocaml field_prefix="se_">
 
+(** {1 Types related to deleted elections} *)
+
+type authentication_method = [ CAS | Password | Unknown ]
+type credential_method = [ Automatic | Manual ]
+
+type deleted_election = {
+  uuid : uuid;
+  template : template;
+  owner : user;
+  nb_voters : int;
+  nb_ballots : int;
+  date : datetime;
+  tallied : bool;
+  authentication_method : authentication_method;
+  credential_method : credential_method;
+  nb_trustees : int;
+  ?trustees_threshold : int option;
+  server_is_trustee : bool;
+} <ocaml field_prefix="de_">
+
 (** {1 OpenID Connect-related types} *)
 
 type oidc_configuration = {

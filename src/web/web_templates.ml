@@ -1870,6 +1870,18 @@ let election_admin election metadata state get_tokens_decrypt () =
       ) (uuid, ());
     ]
   in
+  let div_delete =
+    div [
+        br ();
+        hr ();
+        post_form ~service:election_delete (fun () ->
+            [
+              string_input ~input_type:`Submit ~value:"Delete election" ();
+              pcdata " Warning: this action is irreversible.";
+            ]
+          ) (uuid, ());
+      ]
+  in
   let update_credential =
     match metadata.e_cred_authority with
     | Some "server" ->
@@ -1908,6 +1920,7 @@ let election_admin election metadata state get_tokens_decrypt () =
     div_regenpwd;
     div [state_div];
     div_archive;
+    div_delete;
   ] in
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()

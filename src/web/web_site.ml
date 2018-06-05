@@ -290,7 +290,7 @@ let cleanup_file f =
   try%lwt Lwt_unix.unlink f
   with _ -> return_unit
 
-let archive_election uuid =
+let delete_sensitive_data uuid =
   let uuid_s = raw_string_of_uuid uuid in
   let uuid_u = underscorize uuid in
   let%lwt () = cleanup_table ~uuid_s "election_states" in
@@ -303,7 +303,107 @@ let archive_election uuid =
   let%lwt () = cleanup_table ("ballots_" ^ uuid_u) in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_key.json") in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_keys.jsons") in
+  return_unit
+
+let archive_election uuid =
+  let%lwt () = delete_sensitive_data uuid in
   let%lwt () = Web_persist.set_election_date `Archive uuid (now ()) in
+  return_unit
+
+let delete_election uuid =
+  let uuid_s = raw_string_of_uuid uuid in
+  let%lwt () = delete_sensitive_data uuid in
+  let%lwt election = raw_find_election uuid in
+  let%lwt metadata = Web_persist.get_election_metadata uuid in
+  let de_template = {
+      t_description = "";
+      t_name = election.e_params.e_name;
+      t_questions =
+        Array.map (fun q ->
+            {
+              q_answers = Array.map (fun _ -> "") q.q_answers;
+              q_blank = q.q_blank;
+              q_min = q.q_min;
+              q_max = q.q_max;
+              q_question = "";
+            }
+          ) election.e_params.e_questions
+    }
+  in
+  let de_owner = match metadata.e_owner with
+    | None -> Printf.ksprintf failwith "election %s has no owner" uuid_s
+    | Some x -> x
+  in
+  let%lwt de_date =
+    let%lwt date = Web_persist.get_election_date `Tally uuid in
+    match date with
+    | Some x -> return x
+    | None ->
+       let%lwt date = Web_persist.get_election_date `Finalization uuid in
+       match date with
+       | Some x -> return x
+       | None ->
+          let%lwt date = Web_persist.get_election_date `Creation uuid in
+          match date with
+          | Some x -> return x
+          | None -> return default_finalization_date
+  in
+  let de_authentication_method = match metadata.e_auth_config with
+    | Some [{auth_system = "cas"; _}] -> `CAS
+    | Some [{auth_system = "password"; _}] -> `Password
+    | _ -> `Unknown
+  in
+  let de_credential_method = match metadata.e_cred_authority with
+    | Some "server" -> `Automatic
+    | _ -> `Manual
+  in
+  let%lwt de_trustees_threshold =
+    let%lwt threshold = Web_persist.get_threshold uuid in
+    match threshold with
+    | None -> return None
+    | Some x ->
+       let x = threshold_parameters_of_string Yojson.Safe.read_json x in
+       return (Some x.t_threshold)
+  in
+  let%lwt pks = Web_persist.get_public_keys uuid in
+  let%lwt voters = Web_persist.get_voters uuid in
+  let%lwt ballots = Web_persist.get_ballot_hashes uuid in
+  let%lwt result = Web_persist.get_election_result uuid in
+  let de = {
+      de_uuid = uuid;
+      de_template;
+      de_owner;
+      de_nb_voters = (match voters with None -> 0 | Some x -> List.length x);
+      de_nb_ballots = List.length ballots;
+      de_date;
+      de_tallied = result <> None;
+      de_authentication_method;
+      de_credential_method;
+      de_nb_trustees = (match pks with None -> 0 | Some x -> List.length x);
+      de_trustees_threshold;
+      de_server_is_trustee = metadata.e_server_is_trustee = Some true;
+    }
+  in
+  let%lwt () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
+  let files_to_delete = [
+      "election.json";
+      "ballots.jsons";
+      "dates.json";
+      "encrypted_tally.json";
+      "metadata.json";
+      "passwords.csv";
+      "public_creds.txt";
+      "public_keys.jsons";
+      "threshold.json";
+      "records";
+      "result.json";
+      "voters.txt";
+    ]
+  in
+  let%lwt () = Lwt_list.iter_p (fun x ->
+                   cleanup_file (!spool_dir / uuid_s / x)
+                 ) files_to_delete
+  in
   return_unit
 
 let () = Any.register ~service:home
@@ -1015,35 +1115,37 @@ let () =
         )
     )
 
+let destroy_election uuid se =
+  let uuid_s = raw_string_of_uuid uuid in
+  (* clean up credentials *)
+  let%lwt () =
+    let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
+    try%lwt Lwt_unix.unlink fname
+    with _ -> return_unit
+  in
+  (* clean up setup database *)
+  let%lwt () = Ocsipersist.remove election_credtokens se.se_public_creds in
+  let%lwt () =
+    Lwt_list.iter_s (fun {st_token; _} ->
+        if st_token <> "" then
+          Ocsipersist.remove election_pktokens st_token
+        else return_unit
+      ) se.se_public_keys
+  in
+  let%lwt () = match se.se_threshold_trustees with
+    | None -> return_unit
+    | Some ts ->
+       Lwt_list.iter_s (fun {stt_token; _} ->
+           Ocsipersist.remove election_tpktokens stt_token
+         ) ts
+  in
+  Ocsipersist.remove election_stable uuid_s
+
 let () =
   Any.register ~service:election_setup_destroy
     (fun uuid () ->
       with_setup_election ~save:false uuid (fun se ->
-          let uuid_s = raw_string_of_uuid uuid in
-          (* clean up credentials *)
-          let%lwt () =
-            let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
-            try%lwt Lwt_unix.unlink fname
-            with _ -> return_unit
-          in
-          (* clean up setup database *)
-          let%lwt () = Ocsipersist.remove election_credtokens se.se_public_creds in
-          let%lwt () =
-            Lwt_list.iter_s (fun {st_token; _} ->
-                if st_token <> "" then
-                  Ocsipersist.remove election_pktokens st_token
-                else return_unit
-              ) se.se_public_keys
-          in
-          let%lwt () = match se.se_threshold_trustees with
-            | None -> return_unit
-            | Some ts ->
-               Lwt_list.iter_s (fun {stt_token; _} ->
-                   Ocsipersist.remove election_tpktokens stt_token
-                 ) ts
-          in
-          let%lwt () = Ocsipersist.remove election_stable uuid_s in
-          Redirection.send admin
+          destroy_election uuid se >> Redirection.send admin
         )
     )
 
@@ -1288,6 +1390,17 @@ let () =
           ) else forbidden ()
         )
     )
+
+let () =
+  Any.register ~service:election_delete
+  (fun (uuid, ()) () ->
+    with_site_user (fun u ->
+        let%lwt metadata = Web_persist.get_election_metadata uuid in
+        if metadata.e_owner = Some u then (
+          delete_election uuid >> redir_preapply admin () ()
+        ) else forbidden ()
+      )
+  )
 
 let () =
   Any.register ~service:election_update_credential
