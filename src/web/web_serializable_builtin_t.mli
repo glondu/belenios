@@ -25,3 +25,7 @@ val raw_string_of_datetime : datetime -> string
 val raw_datetime_of_string : string -> datetime
 val datetime_compare : datetime -> datetime -> int
 val format_datetime : string -> datetime -> string
+
+type period
+val day : int -> period
+val datetime_add : datetime -> period -> datetime

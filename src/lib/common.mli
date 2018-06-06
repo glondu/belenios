@@ -50,6 +50,7 @@ end
 
 val list_join : 'a -> 'a list -> 'a list
 
+val option_get : 'a option -> 'a -> 'a
 val option_map : ('a -> 'b) -> 'a option -> 'b option
 
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit

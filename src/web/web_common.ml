@@ -273,4 +273,7 @@ let write_file ?uuid x lines =
 
 let default_contact = "Name <user@example.org>"
 
+let default_creation_date = datetime_of_string "\"2018-06-06 00:00:00.000000\""
 let default_finalization_date = datetime_of_string "\"2015-10-01 00:00:00.000000\""
+let default_tally_date = datetime_of_string "\"2018-06-06 00:00:00.000000\""
+let default_archive_date = datetime_of_string "\"2018-06-06 00:00:00.000000\""

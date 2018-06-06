@@ -2032,3 +2032,65 @@ let () =
             redir_preapply election_setup_threshold_trustee token ()
         )
     )
+
+let get_all_finalized_election_dates () =
+  Lwt_unix.files_of_directory !spool_dir |>
+    Lwt_stream.filter_map_s
+      (fun x ->
+        if x = "." || x = ".." then
+          return None
+        else (
+          try%lwt
+            let uuid = uuid_of_raw_string x in
+            let%lwt dates = read_file ~uuid "dates.json" in
+            let%lwt state = Web_persist.get_election_state uuid in
+            match dates with
+            | Some [x] ->
+               let state = `Finalized (state, election_dates_of_string x) in
+               return @@ Some (uuid, state)
+            | _ -> return None
+          with _ -> return None
+        )
+      ) |>
+    Lwt_stream.to_list
+
+let get_all_setup_election_dates () =
+  Ocsipersist.fold_step (fun k v accu ->
+      let se = setup_election_of_string v in
+      let uuid = uuid_of_raw_string k in
+      return ((uuid, `Setup se) :: accu)
+    ) election_stable []
+
+let process_election_for_data_policy (uuid, state) =
+  let now = now () in
+  let one_year_ago = datetime_add now (day (-365)) in
+  let one_week_ago = datetime_add now (day (-7)) in
+  match state with
+  | `Setup se ->
+     let t = option_get se.se_creation_date default_creation_date in
+     if datetime_compare t one_year_ago < 0 then destroy_election uuid se
+     else return_unit
+  | `Finalized ((`Open | `Closed | `EncryptedTally _), dates) ->
+     let t = option_get dates.e_finalization default_finalization_date in
+     if datetime_compare t one_year_ago < 0 then delete_election uuid
+     else return_unit
+  | `Finalized (`Archived, dates) ->
+     let t = option_get dates.e_archive default_archive_date in
+     if datetime_compare t one_year_ago < 0 then delete_election uuid
+     else return_unit
+  | `Finalized (`Tallied _, dates) ->
+     let t = option_get dates.e_tally default_tally_date in
+     if datetime_compare t one_week_ago < 0 then archive_election uuid
+     else return_unit
+
+let _ =
+  let open Ocsigen_messages in
+  let rec loop () =
+    let () = console (fun () -> "Data policy process started") in
+    let%lwt setup = get_all_setup_election_dates () in
+    let%lwt finalized = get_all_finalized_election_dates () in
+    let elections = setup @ finalized in
+    Lwt_list.iter_p process_election_for_data_policy elections >>
+      let () = console (fun () -> "Data policy process completed") in
+      Lwt_unix.sleep 3600. >> loop ()
+  in loop ()

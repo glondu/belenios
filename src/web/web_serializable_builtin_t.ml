@@ -49,3 +49,10 @@ let datetime_compare (a, _) (b, _) =
 
 let format_datetime fmt (a, _) =
   CalendarLib.Printer.Precise_Fcalendar.sprint fmt a
+
+type period = CalendarLib.Fcalendar.Precise.Period.t
+
+let day = CalendarLib.Fcalendar.Precise.Period.day
+
+let datetime_add (a, _) x =
+  CalendarLib.Fcalendar.Precise.add a x, None

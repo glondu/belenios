@@ -109,4 +109,8 @@ val read_file : ?uuid:uuid -> string -> string list option Lwt.t
 val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
 
 val default_contact : string
+
+val default_creation_date : datetime
 val default_finalization_date : datetime
+val default_tally_date : datetime
+val default_archive_date : datetime
