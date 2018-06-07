@@ -2,9 +2,11 @@ ALL_TARGETS := all.otarget
 ALL_TARGETS += $(if $(shell sh -c "command -v ocamlopt"),all-native.otarget)
 
 minimal:
+	rm -f _build/BUILD
 	ocamlbuild minimal.otarget
 
 all:
+	rm -f _build/BUILD
 	ocamlbuild $(ALL_TARGETS)
 
 check: minimal
