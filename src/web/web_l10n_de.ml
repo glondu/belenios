@@ -188,3 +188,15 @@ Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:
 -- \nBelenios"
 
 let please_contact = "To get more information, please contact:"
+
+let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "your ballot has a syntax error (%s)"
+let error_ProofCheck = "some proofs failed verification"
+let error_ElectionClosed = "the election is closed"
+let error_MissingCredential = "a credential is missing"
+let error_InvalidCredential = "your credential is invalid"
+let error_RevoteNotAllowed = "you are not allowed to revote"
+let error_ReusedCredential = "your credential has already been used"
+let error_WrongCredential = "you are not allowed to vote with this credential"
+let error_UsedCredential = "the credential has already been used"
+let error_CredentialNotFound = "the credential has not been found"
+let error_UnauthorizedVoter = "you are not allowed to vote"

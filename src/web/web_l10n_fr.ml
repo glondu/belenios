@@ -189,3 +189,15 @@ Les résultats seront publiés sur la page de l'élection
 -- \nBelenios"
 
 let please_contact = "Pour obtenir plus d'informations, veuillez contacter :"
+
+let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "votre bulletin a une erreur de syntaxe (%s)"
+let error_ProofCheck = "certaines preuves sont invalides"
+let error_ElectionClosed = "l'élection est fermée"
+let error_MissingCredential = "un code de vote manque"
+let error_InvalidCredential = "votre code de vote est invalide"
+let error_RevoteNotAllowed = "vous n'êtes pas autorisé(e) à revoter"
+let error_ReusedCredential = "votre code de vote a déjà été utilisé"
+let error_WrongCredential = "vous n'êtes pas autorisé(e) à voter avec ce code de vote"
+let error_UsedCredential = "le code de vote a déjà été utilisé"
+let error_CredentialNotFound = "le code de vote n'a pas été trouvé"
+let error_UnauthorizedVoter = "vous n'êtes pas autorisé(e) a voter"

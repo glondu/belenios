@@ -1309,7 +1309,9 @@ let () =
                   B.update_cred ~old ~new_ >>
                   String.send ("OK", "text/plain")
             with Error e ->
-               String.send ("Error: " ^ explain_error e, "text/plain")
+               let%lwt lang = Eliom_reference.get Web_state.language in
+               let l = Web_i18n.get_lang lang in
+               String.send ("Error: " ^ explain_error l e, "text/plain")
           ) else forbidden ()
         )
     )

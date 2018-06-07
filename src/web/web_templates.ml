@@ -2104,7 +2104,8 @@ let cast_confirmation election hash () =
 
 let cast_confirmed election ~result () =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang language) in
+  let l = Web_i18n.get_lang language in
+  let module L = (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let name = params.e_name in
@@ -2137,7 +2138,7 @@ let cast_confirmed election ~result () =
        ], L.thank_you_for_voting
     | `Error e ->
        [pcdata L.is_rejected_because;
-        pcdata (Web_common.explain_error e);
+        pcdata (Web_common.explain_error l e);
         pcdata ".";
        ], L.fail
   in

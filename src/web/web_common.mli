@@ -48,7 +48,7 @@ exception Error of error
 
 val fail : error -> 'a Lwt.t
 
-val explain_error : error -> string
+val explain_error : (module Web_i18n_sig.LocalizedStrings) -> error -> string
 
 val open_security_log : string -> unit Lwt.t
 (** Set the path to the security logger. *)

@@ -66,19 +66,20 @@ exception Error of error
 
 let fail e = Lwt.fail (Error e)
 
-let explain_error = function
-  | Serialization e ->
-    Printf.sprintf "your ballot has a syntax error (%s)" (Printexc.to_string e)
-  | ProofCheck -> "some proofs failed verification"
-  | ElectionClosed -> "the election is closed"
-  | MissingCredential -> "a credential is missing"
-  | InvalidCredential -> "your credential is invalid"
-  | RevoteNotAllowed -> "you are not allowed to revote"
-  | ReusedCredential -> "your credential has already been used"
-  | WrongCredential -> "you are not allowed to vote with this credential"
-  | UsedCredential -> "the credential has already been used"
-  | CredentialNotFound -> "the credential has not been found"
-  | UnauthorizedVoter -> "you are not allowed to vote"
+let explain_error l e =
+  let module L = (val l : Web_i18n_sig.LocalizedStrings) in
+  match e with
+  | Serialization e -> Printf.sprintf L.error_Serialization (Printexc.to_string e)
+  | ProofCheck -> L.error_ProofCheck
+  | ElectionClosed -> L.error_ElectionClosed
+  | MissingCredential -> L.error_MissingCredential
+  | InvalidCredential -> L.error_InvalidCredential
+  | RevoteNotAllowed -> L.error_RevoteNotAllowed
+  | ReusedCredential -> L.error_ReusedCredential
+  | WrongCredential -> L.error_WrongCredential
+  | UsedCredential -> L.error_UsedCredential
+  | CredentialNotFound -> L.error_CredentialNotFound
+  | UnauthorizedVoter -> L.error_UnauthorizedVoter
 
 let security_logfile = ref None
 

@@ -121,4 +121,15 @@ module type LocalizedStrings = sig
   val mail_confirmation_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_confirmation : (string -> string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val please_contact : string
+  val error_Serialization : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
+  val error_ProofCheck : string
+  val error_ElectionClosed : string
+  val error_MissingCredential : string
+  val error_InvalidCredential : string
+  val error_RevoteNotAllowed : string
+  val error_ReusedCredential : string
+  val error_WrongCredential : string
+  val error_UsedCredential : string
+  val error_CredentialNotFound : string
+  val error_UnauthorizedVoter : string
 end
