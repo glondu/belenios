@@ -38,6 +38,7 @@ let spool_dir = ref None
 let source_file = ref None
 let auth_instances = ref []
 let gdpr_uri = ref None
+let default_group_file = ref None
 
 let () =
   Eliom_config.get_config () |>
@@ -49,6 +50,8 @@ let () =
     Lwt_main.run (open_security_log file)
   | Element ("source", ["file", file], []) ->
     source_file := Some file
+  | Element ("default-group", ["file", file], []) ->
+    default_group_file := Some file
   | Element ("maxmailsatonce", ["value", limit], []) ->
     Web_site.maxmailsatonce := int_of_string limit
   | Element ("uuid", ["length", length], []) ->
@@ -116,8 +119,18 @@ let spool_dir =
   | Some d -> d
   | None -> failwith "missing <spool> in configuration"
 
+let%lwt default_group =
+  match !default_group_file with
+  | None -> failwith "missing <default-group> in configuration"
+  | Some x ->
+     let%lwt x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
+     match x with
+     | [x] -> return x
+     | _ -> failwith "invalid default group file"
+
 (** Build up the site *)
 
 let () = Web_site.source_file := source_file
 let () = Web_common.spool_dir := spool_dir
+let () = Web_site.default_group := default_group
 let () = Web_auth.configure (List.rev !auth_instances)
