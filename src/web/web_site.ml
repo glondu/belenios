@@ -1316,9 +1316,9 @@ let () =
 
 let () =
   Any.register ~service:election_vote
-    (fun (uuid, ()) () ->
+    (fun () () ->
       Eliom_reference.unset Web_state.ballot >>
-      Web_templates.booth uuid >>= Html5.send)
+      Web_templates.booth () >>= Html5.send)
 
 let () =
   Any.register ~service:election_cast

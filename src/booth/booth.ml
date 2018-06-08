@@ -368,20 +368,57 @@ let get_prefix str =
   let n = String.length str in
   if n >= 4 then String.sub str 0 (n-4) else str
 
-let () =
-  Dom_html.window##onload <- Dom_html.handler (fun _ ->
-    let s = Js.to_string Dom_html.window##location##pathname in
-    let url = get_prefix s in
-    withElementById "ballot_form" (fun e ->
+let get_url x =
+  let n = String.length x in
+  if n <= 1 || String.sub x 0 1 <> "#" then
+    None
+  else
+    let args = Url.decode_arguments (String.sub x 1 (n-1)) in
+    try Some (List.assoc "url" args)
+    with Not_found -> None
+
+let load_url url =
+  withElementById "ballot_form" (fun e ->
       Js.Opt.iter
         (Dom_html.CoerceTo.form e)
         (fun e -> e##action <- Js.string (url ^ "cast"))
     );
-    let open XmlHttpRequest in
-    Lwt.async (fun () ->
+  let open XmlHttpRequest in
+  Lwt.async (fun () ->
       lwt raw = get (url ^ "election.json") in
       let () = setTextarea "election_params" raw.content in
       Lwt.return (runHandler loadElection ())
+    )
+
+let load_url_handler _ =
+  let url = getTextarea "url" in
+  let encoded = Url.encode_arguments ["url", url] in
+  Dom_html.window##location##hash <- Js.string encoded;
+  load_url url;
+  Js._false
+
+let load_params_handler _ =
+  setDisplayById "div_ballot" "block";
+  setDisplayById "div_submit" "none";
+  setDisplayById "div_submit_manually" "block";
+  Lwt.async (fun () ->
+      Lwt.return (runHandler loadElection ())
     );
-    Js._false
-  )
+  Js._false
+
+let onload_handler _ =
+  let () =
+    withElementById "load_url"
+      (fun e -> e##onclick <- Dom_html.handler load_url_handler);
+    withElementById "load_params"
+      (fun e -> e##onclick <- Dom_html.handler load_params_handler);
+  in
+  let () =
+    match get_url (Js.to_string Dom_html.window##location##hash) with
+    | None ->
+       setDisplayById "wait_div" "none";
+       setDisplayById "election_loader" "block";
+    | Some url -> load_url url
+  in Js._false
+
+let () = Dom_html.window##onload <- Dom_html.handler onload_handler

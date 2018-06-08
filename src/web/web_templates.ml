@@ -269,8 +269,12 @@ let admin ~elections () =
     let%lwt login_box = site_login_box () in
     base ~title ?login_box ~content ()
 
-let make_button ~service ~disabled contents =
+let make_button ~service ?hash ~disabled contents =
   let uri = Eliom_uri.make_string_uri ~service () in
+  let uri = match hash with
+    | None -> uri
+    | Some x -> uri ^ "#" ^ x
+  in
   Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
     "<button onclick=\"location.href='%s';\" style=\"font-size:35px;\"%s>%s</button>"
     uri (if disabled then " disabled" else "")
@@ -1596,9 +1600,13 @@ let election_home election state () =
     in
     div ~a:[a_style "text-align:center;"] [
       div [
-        make_button
-          ~service:(Eliom_service.preapply election_vote (uuid, ()))
-          ~disabled L.start;
+          let url =
+            Eliom_uri.make_string_uri
+              ~service:election_home ~absolute:true (uuid, ()) |>
+              rewrite_prefix
+          in
+          let hash = Netencoding.Url.mk_url_encoded_parameters ["url", url] in
+          make_button ~service:election_vote ~hash ~disabled L.start;
         ];
       div [
         a
@@ -2354,7 +2362,9 @@ let login_password () =
   ] in
   base ~title:L.password_login ~content ()
 
-let booth uuid =
+let dummy_uuid = uuid_of_raw_string "00000000-0000-0000-0000-000000000000"
+
+let booth () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let head = head (title (pcdata L.belenios_booth)) [
@@ -2373,17 +2383,22 @@ let booth uuid =
   in
   let election_loader =
     div ~a:[a_id "election_loader"; a_style "display:none;"] [
-      h1 [pcdata "Election loader"];
-      pcdata "Election parameters:";
+      h1 [pcdata L.belenios_booth];
+      br ();
+      pcdata "Load an election by giving its URL:";
+      div [unsafe_textarea "url" ""];
+      div [button ~button_type:`Button ~a:[a_id "load_url"] [pcdata "Load URL"]];
+      br ();
+      pcdata "Load an election by giving its parameters:";
       div [unsafe_textarea "election_params" ""];
-      div [button ~button_type:`Button ~a:[a_id "load_election"] [pcdata "Load election"]];
+      div [button ~button_type:`Button ~a:[a_id "load_params"] [pcdata "Load parameters"]];
     ]
   in
   let text_choices = unsafe_textarea "choices" "" in
   let ballot_form =
     post_form ~a:[a_id "ballot_form"] ~service:election_cast_post
       (fun (encrypted_vote, _) -> [
-        div ~a:[a_style "display:none;"] [
+        div ~a:[a_id "div_ballot"; a_style "display:none;"] [
           pcdata "Encrypted ballot:";
           div [
             textarea
@@ -2404,10 +2419,15 @@ let booth uuid =
           pcdata L.we_invite_you_to_save_it;
         ];
         br ();
-        string_input ~input_type:`Submit ~value:L.continue ~a:[a_style "font-size:30px;"] ();
+        div ~a:[a_id "div_submit"] [
+            string_input ~input_type:`Submit ~value:L.continue ~a:[a_style "font-size:30px;"] ();
+          ];
+        div ~a:[a_id "div_submit_manually"; a_style "display:none;"] [
+            pcdata "You must submit your ballot manually.";
+          ];
         br (); br ();
        ])
-      (uuid, ())
+      (dummy_uuid, ())
   in
   let main =
     div ~a:[a_id "main"] [
@@ -2508,8 +2528,8 @@ let booth uuid =
   in
   let body = body [
     wait_div;
+    election_loader;
     div ~a:[a_id "wrapper"] [
-      election_loader;
       booth_div;
     ];
   ] in
