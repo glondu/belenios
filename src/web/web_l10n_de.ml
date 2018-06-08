@@ -63,6 +63,7 @@ let please_login_to_confirm = "Bitte melden Sie sich an um Ihre Stime zu bestät
 let your_ballot_for = "Ihre Stimme für "
 let has_been_received = " wurde empfangen, aber noch nicht gespeichert. "
 let nobody_can_see = "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt sehen."
+let you_have_already_voted = "Note: you have already voted. Your vote will be replaced."
 let go_back_to_election = "Zurück zur Wahl"
 let has_been_accepted = " wurde angenommen."
 let you_can_check_its_presence = "Sie können jederzeit überprüfen, dass Ihre Stimme in der "

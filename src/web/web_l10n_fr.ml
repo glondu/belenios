@@ -63,6 +63,7 @@ let please_login_to_confirm = "Veuillez vous connecter pour confirmer votre vote
 let your_ballot_for = "Votre bulletin pour "
 let has_been_received = " a été reçu, mais pas encore pris en compte. "
 let nobody_can_see = "Note: votre bulletin est chiffré et personne ne peut voir son contenu."
+let you_have_already_voted = "Note: vous avez déjà voté. Votre vote va être remplacé."
 let go_back_to_election = "Retourner à la page d'accueil de l'élection"
 let has_been_accepted = " a été accepté."
 let you_can_check_its_presence = "Vous pouvez vérifier sa présence dans l'"

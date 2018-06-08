@@ -64,6 +64,7 @@ module type LocalizedStrings = sig
   val your_ballot_for : string
   val has_been_received : string
   val nobody_can_see : string
+  val you_have_already_voted : string
   val go_back_to_election : string
   val has_been_accepted : string
   val you_can_check_its_presence : string

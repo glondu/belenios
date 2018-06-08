@@ -2047,6 +2047,16 @@ let cast_confirmation election hash () =
         pcdata L.please_login_to_confirm;
       ]
   in
+  let%lwt div_revote =
+    match user with
+    | None -> return @@ pcdata ""
+    | Some u ->
+       let%lwt revote = Web_persist.has_voted uuid u in
+       if revote then
+         return @@ p [b [pcdata L.you_have_already_voted]]
+       else
+         return @@ pcdata ""
+  in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
     pcdata L.input_credential;
     pcdata " — ";
@@ -2077,6 +2087,7 @@ let cast_confirmation election hash () =
     ];
     br ();
     p [pcdata L.nobody_can_see];
+    div_revote;
     user_div;
     p [
       (let service =

@@ -63,6 +63,7 @@ let please_login_to_confirm = "La preghiamo di connettersi per confermare il suo
 let your_ballot_for = "La sua scheda elettorale per "
 let has_been_received = " è stata ricevuta, ma non è ancora presa in considerazione. "
 let nobody_can_see = "Nota: la sua scheda è cifrata e nessuno può consultarla."
+let you_have_already_voted = "Note: you have already voted. Your vote will be replaced."
 let go_back_to_election = "Tornare alla pagina iniziale dell'elezione"
 let has_been_accepted = " è stata accettata."
 let you_can_check_its_presence = "È possibile verificare la sua presenza  nell'"

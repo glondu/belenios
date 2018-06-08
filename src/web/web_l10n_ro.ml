@@ -63,6 +63,7 @@ let please_login_to_confirm = "Vă rugăm să vă logați pentru a confirma votu
 let your_ballot_for = "Buletinul de vot pentru "
 let has_been_received = " a fost primit, dar nu a fost încă înregistrat. "
 let nobody_can_see = "Notă: buletinul de vot este criptat și nimeni nu-i poate vedea conținutul."
+let you_have_already_voted = "Note: you have already voted. Your vote will be replaced."
 let go_back_to_election = "Întoarcete la pagina de start a alegerii"
 let has_been_accepted = " a fost acceptat."
 let you_can_check_its_presence = "Puteți verifica prezența în "

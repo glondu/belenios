@@ -204,3 +204,12 @@ let get_ballot_by_hash uuid hash =
      let table = Ocsipersist.open_table ("ballots_" ^ underscorize uuid) in
      try%lwt Ocsipersist.find table hash >>= (fun x -> return @@ Some x)
      with Not_found -> return_none
+
+let has_voted uuid user =
+  let uuid_u = underscorize uuid in
+  let records_table = Ocsipersist.open_table ("records_" ^ uuid_u) in
+  try%lwt
+    let%lwt _ = Ocsipersist.find records_table (string_of_user user) in
+    return true
+  with Not_found ->
+    return false

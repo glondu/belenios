@@ -57,3 +57,5 @@ val get_threshold : uuid -> string option Lwt.t
 
 val get_ballot_hashes : uuid -> string list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
+
+val has_voted : uuid -> user -> bool Lwt.t
