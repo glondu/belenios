@@ -1,4 +1,4 @@
-1.6 (2018-06-11)
+1.6 (2018-06-13)
 ================
 
  * Add (optional) contact info in emails sent by the server
@@ -6,6 +6,8 @@
  * Add (optional) return path to mails sent by server
  * Show personal data processing notice to election administrators
  * Fix password regeneration when explicit usernames are used
+ * Make the booth independent of the server and usable offline
+ * Internationalize error messages
 
 1.5 (2017-12-13)
 ================
