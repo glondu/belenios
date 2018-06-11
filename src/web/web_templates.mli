@@ -37,19 +37,19 @@ val generic_page : title:string ->
     Eliom_service.service ->
   string -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val election_setup_pre : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup : uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_voters : uuid -> setup_election -> int -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_questions : uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_credential_authority : uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_credentials : string -> uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_trustees : uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_threshold_trustees : uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_trustee : string -> uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_threshold_trustee : string -> uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_import : uuid -> setup_election -> 'a election list * 'a election list * 'a election list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_import_trustees : uuid -> setup_election -> 'a election list * 'a election list * 'a election list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_setup_confirm : uuid -> setup_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_pre : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_voters : uuid -> draft_election -> int -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_questions : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_credential_authority : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_credentials : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_trustees : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_threshold_trustees : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_trustee : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_threshold_trustee : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_import : uuid -> draft_election -> 'a election list * 'a election list * 'a election list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_import_trustees : uuid -> draft_election -> 'a election list * 'a election list * 'a election list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_confirm : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val election_home : 'a election -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_admin : 'a election -> Web_serializable_j.metadata -> Web_persist.election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

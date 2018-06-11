@@ -221,7 +221,7 @@ let admin ~elections () =
      ] in
      let%lwt login_box = site_login_box () in
      base ~title ?login_box ~content ()
-  | Some (elections, tallied, archived, setup_elections) ->
+  | Some (elections, tallied, archived, draft_elections) ->
     let elections =
       match elections with
       | [] -> p [pcdata "You own no such elections!"]
@@ -237,24 +237,24 @@ let admin ~elections () =
       | [] -> p [pcdata "You own no such elections!"]
       | _ -> ul @@ List.map format_election archived
     in
-    let setup_elections =
-      match setup_elections with
+    let draft_elections =
+      match draft_elections with
       | [] -> p [pcdata "You own no such elections!"]
       | _ -> ul @@
          List.map (fun (k, title) ->
-           li [a ~service:election_setup [pcdata title] k]
-         ) setup_elections
+           li [a ~service:election_draft [pcdata title] k]
+         ) draft_elections
     in
     let content = [
       div [
         div [
-          a ~service:election_setup_pre [
+          a ~service:election_draft_pre [
             pcdata "Prepare a new election";
           ] ();
         ];
         div [br ()];
         h2 [pcdata "Elections being prepared"];
-        setup_elections;
+        draft_elections;
         div [br ()];
         h2 [pcdata "Elections you can administer"];
         elections;
@@ -318,7 +318,7 @@ let generic_page ~title ?service message () =
   ] in
   base ~title ~content ()
 
-let election_setup_pre () =
+let election_draft_pre () =
   let title = "Prepare a new election" in
   let cred_info = Eliom_service.Http.external_service
     ~prefix:"http://www.belenios.org"
@@ -327,7 +327,7 @@ let election_setup_pre () =
     ()
   in
   let form =
-    post_form ~service:election_setup_new
+    post_form ~service:election_draft_new
       (fun (credmgmt, (auth, cas_server)) ->
         [
           fieldset
@@ -372,10 +372,10 @@ let election_setup_pre () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_setup uuid se () =
+let election_draft uuid se () =
   let title = "Preparation of election " ^ se.se_questions.t_name in
   let form_languages =
-    post_form ~service:election_setup_languages
+    post_form ~service:election_draft_languages
       (fun languages ->
         [
           div [
@@ -401,7 +401,7 @@ let election_setup uuid se () =
       ]
   in
   let form_description =
-    post_form ~service:election_setup_description
+    post_form ~service:election_draft_description
       (fun (name, description) ->
         [
           div [
@@ -429,7 +429,7 @@ let election_setup uuid se () =
     ]
   in
   let form_contact =
-    post_form ~service:election_setup_contact
+    post_form ~service:election_draft_contact
       (fun contact ->
         [
           div [
@@ -463,7 +463,7 @@ let election_setup uuid se () =
     | Some [{auth_system = "password"; _}] -> `Password
     | Some [{auth_system = "dummy"; _}] -> `Dummy
     | Some [{auth_system = "cas"; auth_config = ["server", server]; _}] -> `CAS server
-    | _ -> failwith "unknown authentication scheme in election_setup"
+    | _ -> failwith "unknown authentication scheme in election_draft"
   in
   let div_auth =
     div [
@@ -472,7 +472,7 @@ let election_setup uuid se () =
       | `Password ->
          div [
            pcdata "Authentication scheme: password ";
-           post_form ~service:election_setup_auth_genpwd
+           post_form ~service:election_draft_auth_genpwd
              (fun () ->
                [string_input ~input_type:`Submit ~value:"Generate and mail missing passwords" ()]
              ) uuid;
@@ -491,7 +491,7 @@ let election_setup uuid se () =
   let div_questions =
     div [
       h2 [
-        a ~a:[a_id "edit_questions"] ~service:election_setup_questions
+        a ~a:[a_id "edit_questions"] ~service:election_draft_questions
           [pcdata "Edit questions"]
           uuid;
       ]
@@ -500,7 +500,7 @@ let election_setup uuid se () =
   let div_voters =
     div [
       h2 [
-        a ~a:[a_id "edit_voters"] ~service:election_setup_voters
+        a ~a:[a_id "edit_voters"] ~service:election_draft_voters
           [pcdata "Edit voters"]
           uuid
       ];
@@ -516,7 +516,7 @@ let election_setup uuid se () =
       div [
           pcdata "By default, the election server manages the keys of the election (degraded privacy mode). ";
           pcdata "For real elections, the key must be shared among independent trustees. Click ";
-          a ~service:election_setup_trustees [pcdata "here"] uuid;
+          a ~service:election_draft_trustees [pcdata "here"] uuid;
           pcdata " to set up the election key.";
         ];
     ]
@@ -532,13 +532,13 @@ let election_setup uuid se () =
         div [
           pcdata "Warning: this will freeze the voter list!";
           if has_credentials then (
-            post_form ~service:election_setup_credentials_server
+            post_form ~service:election_draft_credentials_server
               (fun () ->
                 [string_input ~input_type:`Submit ~value:"Generate on server" ()]
               ) uuid
           ) else (
             div [
-              a ~service:election_setup_credential_authority [pcdata "Credential management"] uuid;
+              a ~service:election_draft_credential_authority [pcdata "Credential management"] uuid;
             ]
           );
         ]
@@ -547,11 +547,11 @@ let election_setup uuid se () =
   in
   let link_confirm = div [
     h2 [pcdata "Finalize creation"];
-    a ~service:election_setup_confirm [pcdata "Create election"] uuid;
+    a ~service:election_draft_confirm [pcdata "Create election"] uuid;
   ] in
   let form_destroy =
     post_form
-      ~service:election_setup_destroy
+      ~service:election_draft_destroy
       (fun () ->
         [
           div [
@@ -615,11 +615,11 @@ Thank you for your help,
 
 -- \nThe election administrator."
 
-let election_setup_trustees uuid se () =
+let election_draft_trustees uuid se () =
   let title = "Trustees for election " ^ se.se_questions.t_name in
   let form_trustees_add =
     post_form
-      ~service:election_setup_trustee_add
+      ~service:election_draft_trustee_add
       (fun name ->
         [
           pcdata "Trustee's e-mail address: ";
@@ -632,7 +632,7 @@ let election_setup_trustees uuid se () =
     match List.filter (fun {st_id; _} -> st_id = "server") se.se_public_keys with
     | [] ->
        post_form
-         ~service:election_setup_trustee_add_server
+         ~service:election_draft_trustee_add_server
          (fun () ->
            [
              string_input ~input_type:`Submit ~value:"Add the server" ()
@@ -642,7 +642,7 @@ let election_setup_trustees uuid se () =
   in
   let mk_form_trustee_del value =
     post_form
-      ~service:election_setup_trustee_del
+      ~service:election_draft_trustee_del
       (fun name ->
         [
           int_input ~input_type:`Hidden ~name ~value ();
@@ -668,7 +668,7 @@ let election_setup_trustees uuid se () =
                td [
                    if t.st_token <> "" then (
                  let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
-                   ~absolute:true ~service:election_setup_trustee t.st_token
+                   ~absolute:true ~service:election_draft_trustee t.st_token
                  in
                  let body = Printf.sprintf mail_trustee_generation uri in
                  let subject = "Link to generate the decryption key" in
@@ -679,7 +679,7 @@ let election_setup_trustees uuid se () =
                ];
                td [
                    if t.st_token <> "" then (
-                   a ~service:election_setup_trustee [pcdata "Link"] t.st_token;
+                   a ~service:election_draft_trustee [pcdata "Link"] t.st_token;
                    ) else (
                      pcdata "(server)"
                    )
@@ -693,7 +693,7 @@ let election_setup_trustees uuid se () =
        )
   in
   let import_link = div [
-                        a ~service:Web_services.election_setup_import_trustees
+                        a ~service:Web_services.election_draft_import_trustees
                           [pcdata "Import trustees from another election"] uuid
                       ]
   in
@@ -723,8 +723,8 @@ let election_setup_trustees uuid se () =
     ]
   in
   let back_link = div [
-    a ~service:Web_services.election_setup
-      [pcdata "Go back to election setup"] uuid;
+    a ~service:Web_services.election_draft
+      [pcdata "Go back to election draft"] uuid;
   ] in
   let content = [
     div_content;
@@ -734,13 +734,13 @@ let election_setup_trustees uuid se () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_setup_threshold_trustees uuid se () =
+let election_draft_threshold_trustees uuid se () =
   let title = "Trustees for election " ^ se.se_questions.t_name in
   let show_add_remove = se.se_threshold = None in
   let form_trustees_add =
     if show_add_remove then
       post_form
-        ~service:election_setup_threshold_trustee_add
+        ~service:election_draft_threshold_trustee_add
         (fun name ->
           [
             pcdata "Trustee's e-mail address: ";
@@ -752,7 +752,7 @@ let election_setup_threshold_trustees uuid se () =
   in
   let mk_form_trustee_del value =
     post_form
-      ~service:election_setup_threshold_trustee_del
+      ~service:election_draft_threshold_trustee_del
       (fun name ->
         [
           int_input ~input_type:`Hidden ~name ~value ();
@@ -781,14 +781,14 @@ let election_setup_threshold_trustees uuid se () =
                    td [
                        let uri = rewrite_prefix @@
                                    Eliom_uri.make_string_uri
-                                     ~absolute:true ~service:election_setup_threshold_trustee t.stt_token
+                                     ~absolute:true ~service:election_draft_threshold_trustee t.stt_token
                        in
                        let body = Printf.sprintf mail_trustee_generation uri in
                        let subject = "Link to generate the decryption key" in
                        a_mailto ~dest:t.stt_id ~subject ~body "Mail"
                      ];
                    td [
-                       a ~service:election_setup_threshold_trustee [pcdata "Link"] t.stt_token;
+                       a ~service:election_draft_threshold_trustee [pcdata "Link"] t.stt_token;
                      ];
                    td [
                        pcdata (string_of_int (match t.stt_step with None -> 0 | Some x -> x));
@@ -818,7 +818,7 @@ let election_setup_threshold_trustees uuid se () =
           | Some i -> i
         in
         post_form
-          ~service:election_setup_threshold_set
+          ~service:election_draft_threshold_set
           (fun name ->
             [
               pcdata "Threshold: ";
@@ -861,8 +861,8 @@ let election_setup_threshold_trustees uuid se () =
     ]
   in
   let back_link = div [
-    a ~service:Web_services.election_setup
-      [pcdata "Go back to election setup"] uuid;
+    a ~service:Web_services.election_draft
+      [pcdata "Go back to election draft"] uuid;
   ] in
   let content = [
     div_content;
@@ -871,7 +871,7 @@ let election_setup_threshold_trustees uuid se () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_setup_credential_authority _ se () =
+let election_draft_credential_authority _ se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
   let content = [
     div [
@@ -880,11 +880,11 @@ let election_setup_credential_authority _ se () =
     ul [
       li [
         a
-          ~service:election_setup_credentials
+          ~service:election_draft_credentials
           [
             pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
               ~absolute:true
-              ~service:election_setup_credentials
+              ~service:election_draft_credentials
               se.se_public_creds
           ]
           se.se_public_creds;
@@ -897,12 +897,12 @@ let election_setup_credential_authority _ se () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_setup_questions uuid se () =
+let election_draft_questions uuid se () =
   let title = "Questions for election " ^ se.se_questions.t_name in
   let form =
     let value = string_of_template se.se_questions in
     post_form
-      ~service:election_setup_questions_post
+      ~service:election_draft_questions_post
       (fun name ->
        [
          div [pcdata "Questions:"];
@@ -928,11 +928,11 @@ let election_setup_questions uuid se () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_setup_voters uuid se maxvoters () =
+let election_draft_voters uuid se maxvoters () =
   let title = "Voters for election " ^ se.se_questions.t_name in
   let form =
     post_form
-      ~service:election_setup_voters_add
+      ~service:election_draft_voters_add
       (fun name ->
         [
           div [textarea ~a:[a_rows 20; a_cols 50] ~name ()];
@@ -941,7 +941,7 @@ let election_setup_voters uuid se maxvoters () =
   in
   let mk_remove_button id =
     post_form
-      ~service:election_setup_voters_remove
+      ~service:election_draft_voters_remove
       (fun name ->
         [
           string_input ~input_type:`Hidden ~name ~value:id ();
@@ -954,7 +954,7 @@ let election_setup_voters uuid se maxvoters () =
     | _ -> false
   in
   let mk_regen_passwd value =
-    post_form ~service:election_setup_voters_passwd
+    post_form ~service:election_draft_voters_passwd
       ~a:[a_style "display: inline;"]
       (fun name ->
         [
@@ -978,7 +978,7 @@ let election_setup_voters uuid se maxvoters () =
   in
   let form_passwords =
     if has_passwords then
-      post_form ~service:election_setup_auth_genpwd
+      post_form ~service:election_draft_auth_genpwd
         (fun () ->
           [string_input ~input_type:`Submit ~value:"Generate and mail missing passwords" ()]
         ) uuid
@@ -1000,7 +1000,7 @@ let election_setup_voters uuid se maxvoters () =
        ]
   in
   let back = div [
-    a ~service:Web_services.election_setup [pcdata "Return to setup page"] uuid;
+    a ~service:Web_services.election_draft [pcdata "Return to draft page"] uuid;
   ] in
   let div_add =
     if se.se_public_creds_received then
@@ -1022,7 +1022,7 @@ let election_setup_voters uuid se maxvoters () =
       ]
   in
   let div_import = div [
-    a ~service:election_setup_import
+    a ~service:election_draft_import
       [pcdata "Import voters from another election"]
       uuid
   ] in
@@ -1049,7 +1049,7 @@ let unsafe_textarea ?rows ?cols id contents =
     "<textarea id=\"%s\"%s%s>%s</textarea>"
     id rows cols contents
 
-let election_setup_credentials token uuid se () =
+let election_draft_credentials token uuid se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
   let div_link =
     let url = Eliom_uri.make_string_uri ~absolute:true
@@ -1062,7 +1062,7 @@ let election_setup_credentials token uuid se () =
   in
   let form_textarea =
     post_form ~a:[a_id "submit_form"; a_style "display:none;"]
-      ~service:election_setup_credentials_post
+      ~service:election_draft_credentials_post
       (fun name ->
        [div
           [div [pcdata "Public credentials:"];
@@ -1101,7 +1101,7 @@ let election_setup_credentials token uuid se () =
   in
   let form_file =
     post_form
-      ~service:election_setup_credentials_post_file
+      ~service:election_draft_credentials_post_file
       (fun name ->
        [div
           [h2 [pcdata "Submit by file"];
@@ -1153,7 +1153,7 @@ let election_setup_credentials token uuid se () =
     ) in
   base ~title ~content ()
 
-let election_setup_trustee token uuid se () =
+let election_draft_trustee token uuid se () =
   let title = "Trustee for election " ^ se.se_questions.t_name in
   let div_link =
     let url = Eliom_uri.make_string_uri ~absolute:true
@@ -1167,7 +1167,7 @@ let election_setup_trustee token uuid se () =
   let form =
     let trustee = List.find (fun x -> x.st_token = token) se.se_public_keys in
     let value = trustee.st_public_key in
-    let service = Eliom_service.preapply election_setup_trustee_post token in
+    let service = Eliom_service.preapply election_draft_trustee_post token in
     post_form
       ~service
       (fun name ->
@@ -1229,7 +1229,7 @@ let election_setup_trustee token uuid se () =
   ] in
   base ~title ~content ()
 
-let election_setup_threshold_trustee token uuid se () =
+let election_draft_threshold_trustee token uuid se () =
   let title = "Trustee for election " ^ se.se_questions.t_name in
   let div_link =
     let url = Eliom_uri.make_string_uri ~absolute:true
@@ -1289,7 +1289,7 @@ let election_setup_threshold_trustee token uuid se () =
   in
   let form =
     post_form
-      ~service:election_setup_threshold_trustee_post
+      ~service:election_draft_threshold_trustee_post
       ~a:[a_id "data_form"]
       (fun data ->
         [
@@ -1332,7 +1332,7 @@ let election_setup_threshold_trustee token uuid se () =
   in
   base ~title ~content ()
 
-let election_setup_importer ~service ~title uuid (elections, tallied, archived) () =
+let election_draft_importer ~service ~title uuid (elections, tallied, archived) () =
   let format_election election =
     let name = election.e_params.e_name in
     let uuid_s = raw_string_of_uuid election.e_params.e_uuid in
@@ -1367,17 +1367,17 @@ let election_setup_importer ~service ~title uuid (elections, tallied, archived) 
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_setup_import uuid se elections =
+let election_draft_import uuid se elections =
   let title = "Election " ^ se.se_questions.t_name ^ " — Import voters from another election" in
-  let service = election_setup_import_post in
-  election_setup_importer ~service ~title uuid elections
+  let service = election_draft_import_post in
+  election_draft_importer ~service ~title uuid elections
 
-let election_setup_import_trustees uuid se elections =
+let election_draft_import_trustees uuid se elections =
   let title = "Election " ^ se.se_questions.t_name ^ " — Import trustees from another election" in
-  let service = election_setup_import_trustees_post in
-  election_setup_importer ~service ~title uuid elections
+  let service = election_draft_import_trustees_post in
+  election_draft_importer ~service ~title uuid elections
 
-let election_setup_confirm uuid se () =
+let election_draft_confirm uuid se () =
   let title = "Election " ^ se.se_questions.t_name ^ " — Finalize creation" in
   let voters = Printf.sprintf "%d voter(s)" (List.length se.se_voters) in
   let ready = not (se.se_voters = []) in
@@ -1460,7 +1460,7 @@ let election_setup_confirm uuid se () =
   let form_create =
     if ready then
       post_form
-        ~service:election_setup_create
+        ~service:election_draft_create
         (fun () ->
           [div
               [h2 [pcdata "Finalize creation"];
@@ -1471,7 +1471,7 @@ let election_setup_confirm uuid se () =
     else div []
   in
   let back = div [
-    a ~service:Web_services.election_setup [pcdata "Return to setup page"] uuid;
+    a ~service:Web_services.election_draft [pcdata "Return to draft page"] uuid;
   ] in
   let content = [
     back;

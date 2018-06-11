@@ -64,19 +64,19 @@ type election_dates = {
 
 (** {1 Types related to elections being prepared} *)
 
-type setup_voter = {
+type draft_voter = {
   id : string;
   ?password <ocaml mutable> : (string * string) option;
 } <ocaml field_prefix="sv_">
 
-type setup_trustee = {
+type draft_trustee = {
   id : string;
   token : string;
   public_key <ocaml mutable> : string;
   ?private_key : number option;
 } <ocaml field_prefix="st_">
 
-type setup_threshold_trustee = {
+type draft_threshold_trustee = {
   id : string;
   token : string;
   ?step <ocaml mutable> : int option;
@@ -86,17 +86,17 @@ type setup_threshold_trustee = {
   ?voutput <ocaml mutable> : string option;
 } <ocaml field_prefix="stt_">
 
-type setup_election = {
+type draft_election = {
   owner : user;
   group : string;
-  voters <ocaml mutable> : setup_voter list;
+  voters <ocaml mutable> : draft_voter list;
   questions <ocaml mutable> : template;
-  public_keys <ocaml mutable> : setup_trustee list;
+  public_keys <ocaml mutable> : draft_trustee list;
   metadata <ocaml mutable> : metadata;
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;
   ?threshold <ocaml mutable> : int option;
-  ?threshold_trustees <ocaml mutable> : setup_threshold_trustee list option;
+  ?threshold_trustees <ocaml mutable> : draft_threshold_trustee list option;
   ?threshold_parameters <ocaml mutable> : string option;
   ?threshold_error <ocaml mutable> : string option;
   ?creation_date : datetime option;

@@ -56,7 +56,7 @@ into:
 
 ### Election life cycle
 
-An election starts by being in preparation (or "setup mode"), then
+An election starts by being in preparation (or "draft mode"), then
 becomes finalized. Then, it is immediately opened and can be closed
 and re-opened at will. When it is closed, the election administrator
 can initiate the tallying process. The encrypted tally is then
