@@ -49,7 +49,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
         with Not_found ->
           Ocsipersist.add cred_table cred None
 
-      let send_confirmation_email user email hash =
+      let send_confirmation_email revote user email hash =
         let title = E.election.e_params.e_name in
         let uuid = E.election.e_params.e_uuid in
         let%lwt metadata = Web_persist.get_election_metadata uuid in
@@ -64,7 +64,8 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
         let module L = (val Web_i18n.get_lang language) in
         let subject = Printf.sprintf L.mail_confirmation_subject title in
         let contact = Web_templates.contact_footer metadata L.please_contact in
-        let body = Printf.sprintf L.mail_confirmation user title hash url1 url2 contact in
+        let revote = if revote then L.this_vote_replaces else "" in
+        let body = Printf.sprintf L.mail_confirmation user title hash revote url1 url2 contact in
         send_email email subject body
 
       let do_cast rawballot (user, date) =
@@ -111,7 +112,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
               Ocsipersist.add cred_table credential (Some hash) >>
               Ocsipersist.add ballots_table hash rawballot >>
               Ocsipersist.add records_table user (date, credential) >>
-              send_confirmation_email login email hash >>
+              send_confirmation_email false login email hash >>
               return hash
             ) else (
               fail ProofCheck
@@ -126,7 +127,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
                 Ocsipersist.add cred_table credential (Some hash) >>
                 Ocsipersist.add ballots_table hash rawballot >>
                 Ocsipersist.add records_table user (date, credential) >>
-                send_confirmation_email login email hash >>
+                send_confirmation_email true login email hash >>
                 return hash
               ) else (
                 fail ProofCheck

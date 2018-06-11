@@ -175,7 +175,7 @@ Ihre Stimme zur Abstimmung
 
 wurde angenommen. Ihre Stimmennummer ist:
 
-  %s
+  %s%s
 
 
 Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der
@@ -187,6 +187,7 @@ Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:
 
 -- \nBelenios"
 
+let this_vote_replaces = "\n\nThis vote replaces any previous vote."
 let please_contact = "To get more information, please contact:"
 
 let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "your ballot has a syntax error (%s)"

@@ -179,7 +179,7 @@ La sua scheda per l'elezione
 
 è stata registrata. Il suo codice di verifica è
 
-  %s
+  %s%s
 
 
 Può verificare la sua presenza nell'urna, accessibile su
@@ -190,6 +190,7 @@ I risultati saranno pubblicati sulla pagina dell'elezione
 
 -- \nBelenios"
 
+let this_vote_replaces = "\n\nThis vote replaces any previous vote."
 let please_contact = "To get more information, please contact:"
 
 let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "your ballot has a syntax error (%s)"

@@ -177,7 +177,7 @@ Votre vote pour l'élection
 
 a été enregistré. Votre numéro de suivi est
 
-  %s
+  %s%s
 
 
 Vous pouvez vérifier sa présence dans l'urne, accessible au
@@ -188,6 +188,7 @@ Les résultats seront publiés sur la page de l'élection
 
 -- \nBelenios"
 
+let this_vote_replaces = "\n\nCe vote remplace le vote précédent."
 let please_contact = "Pour obtenir plus d'informations, veuillez contacter :"
 
 let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "votre bulletin a une erreur de syntaxe (%s)"

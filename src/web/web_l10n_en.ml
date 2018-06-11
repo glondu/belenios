@@ -174,7 +174,7 @@ Your vote for election
 
 has been recorded. Your smart ballot tracker is
 
-  %s
+  %s%s
 
 
 You can check its presence in the ballot box, accessible at
@@ -185,6 +185,7 @@ Results will be published on the election page
 
 -- \nBelenios"
 
+let this_vote_replaces = "\n\nThis vote replaces any previous vote."
 let please_contact = "To get more information, please contact:"
 
 let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "your ballot has a syntax error (%s)"
