@@ -349,7 +349,9 @@ let delete_election uuid =
           | None -> return default_validation_date
   in
   let de_authentication_method = match metadata.e_auth_config with
-    | Some [{auth_system = "cas"; _}] -> `CAS
+    | Some [{auth_system = "cas"; auth_config; _}] ->
+       let server = List.assoc "server" auth_config in
+       `CAS server
     | Some [{auth_system = "password"; _}] -> `Password
     | _ -> `Unknown
   in

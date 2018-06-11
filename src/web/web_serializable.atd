@@ -104,7 +104,7 @@ type draft_election = {
 
 (** {1 Types related to deleted elections} *)
 
-type authentication_method = [ CAS | Password | Unknown ]
+type authentication_method = [ CAS of string | Password | Unknown ]
 type credential_method = [ Automatic | Manual ]
 
 type deleted_election = {
