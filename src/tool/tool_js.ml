@@ -251,20 +251,20 @@ module ToolElection = struct
     let privkey = get_textarea "election_privkey" in
     set_textarea "election_pd" (X.decrypt privkey)
 
-  let finalize () =
+  let validate () =
     let module P : PARAMS = struct
       let election = get_election ()
       include Getters
     end in
     let module X = (val make (module P : PARAMS) : S) in
     let factors = get_textarea "election_factors" |> split_lines in
-    set_textarea "election_result" (X.finalize factors)
+    set_textarea "election_result" (X.validate factors)
 
   let cmds = [
     "do_encrypt", create_ballot;
     "do_verify", verify;
     "do_decrypt", decrypt;
-    "do_finalize", finalize;
+    "do_validate", validate;
   ]
 
 end

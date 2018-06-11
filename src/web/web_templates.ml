@@ -546,7 +546,7 @@ let election_draft uuid se () =
     ]
   in
   let link_confirm = div [
-    h2 [pcdata "Finalize creation"];
+    h2 [pcdata "Validate creation"];
     a ~service:election_draft_confirm [pcdata "Create election"] uuid;
   ] in
   let form_destroy =
@@ -1378,7 +1378,7 @@ let election_draft_import_trustees uuid se elections =
   election_draft_importer ~service ~title uuid elections
 
 let election_draft_confirm uuid se () =
-  let title = "Election " ^ se.se_questions.t_name ^ " — Finalize creation" in
+  let title = "Election " ^ se.se_questions.t_name ^ " — Validate creation" in
   let voters = Printf.sprintf "%d voter(s)" (List.length se.se_voters) in
   let ready = not (se.se_voters = []) in
   let ready, passwords =
@@ -1463,7 +1463,7 @@ let election_draft_confirm uuid se () =
         ~service:election_draft_create
         (fun () ->
           [div
-              [h2 [pcdata "Finalize creation"];
+              [h2 [pcdata "Validate creation"];
                string_input ~input_type:`Submit ~value:"Create election" ();
                pcdata " (Warning: this action is irreversible.)";
               ]]

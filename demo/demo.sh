@@ -82,7 +82,7 @@ mv partial_decryptions.tmp partial_decryptions.jsons
 
 header "Finalize tally"
 
-belenios-tool finalize
+belenios-tool validate
 
 header "Perform final verification"
 

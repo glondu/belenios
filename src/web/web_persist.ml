@@ -53,7 +53,7 @@ let set_election_state x s =
 
 type election_date =
   [ `Creation
-  | `Finalization
+  | `Validation
   | `Tally
   | `Archive
   ]
@@ -72,7 +72,7 @@ let set_election_date kind uuid d =
   let%lwt dates = get_election_dates uuid in
   let dates = match kind with
     | `Creation -> { dates with e_creation = Some d }
-    | `Finalization -> { dates with e_finalization = Some d }
+    | `Validation -> { dates with e_finalization = Some d }
     | `Tally -> { dates with e_tally = Some d }
     | `Archive -> { dates with e_archive = Some d }
   in
@@ -83,7 +83,7 @@ let get_election_date kind uuid =
   let%lwt dates = get_election_dates uuid in
   match kind with
   | `Creation -> return dates.e_creation
-  | `Finalization -> return dates.e_finalization
+  | `Validation -> return dates.e_finalization
   | `Tally -> return dates.e_tally
   | `Archive -> return dates.e_archive
 

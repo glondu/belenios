@@ -41,7 +41,7 @@ Then, the administrator must:
    credential authority;
  * (optionally) edit trustees. For good security there should be at
    least two trustees; a link is generated for each trustee;
- * finalize the election.
+ * validate the election.
 
 Each "link" above must be sent by the administrator to their intended
 recipient. Each link leads to an interface that will help its
@@ -57,14 +57,14 @@ into:
 ### Election life cycle
 
 An election starts by being in preparation (or "draft mode"), then
-becomes finalized. Then, it is immediately opened and can be closed
+becomes validated. Then, it is immediately opened and can be closed
 and re-opened at will. When it is closed, the election administrator
 can initiate the tallying process. The encrypted tally is then
 computed and published. After each trustee has computed his/her share
 of the decryption, the administrator triggers the release of the
 result.
 
-At any moment, a finalized election can be archived. This releases
+At any moment, a validated election can be archived. This releases
 some resources on the server and makes the election read-only. In
 particular, it is no longer possible to vote in or to tally an
 archived election. Be careful, this operation is not revertible.

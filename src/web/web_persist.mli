@@ -35,7 +35,7 @@ val set_election_state : uuid -> election_state -> unit Lwt.t
 
 type election_date =
   [ `Creation
-  | `Finalization
+  | `Validation
   | `Tally
   | `Archive
   ]

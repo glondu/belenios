@@ -104,7 +104,7 @@ several authentication mechanisms.
  2. Concatenate the `partial_decryption.json` received from each
     trustee into a `partial_decryptions.jsons`, in the same order as in
     `public_keys.jsons`.
- 3. Run `belenios-tool finalize`.  It will create
+ 3. Run `belenios-tool validate`.  It will create
     `result.json`. Publish this file, along with the files listed in
     the first step above. The whole set will enable universal
     verifiability.

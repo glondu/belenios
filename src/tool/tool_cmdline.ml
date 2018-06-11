@@ -386,7 +386,7 @@ module Election : CMDLINER_MODULE = struct
          let pdk = string_of_file pdk in
          print_endline (X.tdecrypt key pdk)
       | `Verify -> X.verify ()
-      | `Finalize ->
+      | `Validate ->
         let factors =
           let fname = dir/"partial_decryptions.jsons" in
           match load_from_file (fun x -> x) fname with
@@ -394,7 +394,7 @@ module Election : CMDLINER_MODULE = struct
           | None -> failwith "cannot load partial decryptions"
         in
         let oc = open_out (dir/"result.json") in
-        output_string oc (X.finalize factors);
+        output_string oc (X.validate factors);
         output_char oc '\n';
         close_out oc
       end;
@@ -469,17 +469,17 @@ module Election : CMDLINER_MODULE = struct
     Term.(ret (main $ url_t $ optdir_t $ key_t $ pdk_t)),
     Term.info "threshold-decrypt" ~doc ~man:decrypt_man
 
-  let finalize_cmd =
-    let doc = "finalizes an election" in
+  let validate_cmd =
+    let doc = "validates an election" in
     let man = [
       `S "DESCRIPTION";
       `P "This command reads partial decryptions done by trustees from file $(i,partial_decryptions.jsons), checks them, combines them into the final tally and prints the result to standard output.";
       `P "The result structure contains partial decryptions itself, so $(i,partial_decryptions.jsons) can be discarded afterwards.";
     ] @ common_man in
-    Term.(ret (pure main $ url_t $ optdir_t $ pure `Finalize)),
-    Term.info "finalize" ~doc ~man
+    Term.(ret (pure main $ url_t $ optdir_t $ pure `Validate)),
+    Term.info "validate" ~doc ~man
 
-  let cmds = [vote_cmd; verify_cmd; decrypt_cmd; tdecrypt_cmd; finalize_cmd]
+  let cmds = [vote_cmd; verify_cmd; decrypt_cmd; tdecrypt_cmd; validate_cmd]
 
 end
 

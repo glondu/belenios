@@ -91,7 +91,7 @@ let dump_passwords dir table =
     ) table
   ))
 
-let finalize_election uuid se =
+let validate_election uuid se =
   let uuid_s = raw_string_of_uuid uuid in
   (* voters *)
   let () =
@@ -274,7 +274,7 @@ let finalize_election uuid se =
   | _ -> return_unit) >>
   (* finish *)
   Web_persist.set_election_state uuid `Open >>
-  Web_persist.set_election_date `Finalization uuid (now ())
+  Web_persist.set_election_date `Validation uuid (now ())
 
 let cleanup_table ?uuid_s table =
   let table = Ocsipersist.open_table table in
@@ -339,14 +339,14 @@ let delete_election uuid =
     match date with
     | Some x -> return x
     | None ->
-       let%lwt date = Web_persist.get_election_date `Finalization uuid in
+       let%lwt date = Web_persist.get_election_date `Validation uuid in
        match date with
        | Some x -> return x
        | None ->
           let%lwt date = Web_persist.get_election_date `Creation uuid in
           match date with
           | Some x -> return x
-          | None -> return default_finalization_date
+          | None -> return default_validation_date
   in
   let de_authentication_method = match metadata.e_auth_config with
     | Some [{auth_system = "cas"; _}] -> `CAS
@@ -412,15 +412,15 @@ let () = Any.register ~service:home
     Redirection.send admin
   )
 
-let get_finalized_elections_by_owner u =
+let get_validated_elections_by_owner u =
   let%lwt elections, tallied, archived =
     Web_persist.get_elections_by_owner u >>=
     Lwt_list.fold_left_s (fun accu uuid ->
         let%lwt w = find_election uuid in
         let%lwt state = Web_persist.get_election_state uuid in
-        let%lwt date = Web_persist.get_election_date `Finalization uuid in
+        let%lwt date = Web_persist.get_election_date `Validation uuid in
         let date = match date with
-          | None -> default_finalization_date
+          | None -> default_validation_date
           | Some x -> x
         in
         let elections, tallied, archived = accu in
@@ -459,7 +459,7 @@ let () = Html5.register ~service:admin
       match site_user with
       | None -> return None
       | Some u ->
-         let%lwt elections, tallied, archived = get_finalized_elections_by_owner u in
+         let%lwt elections, tallied, archived = get_validated_elections_by_owner u in
          let%lwt draft_elections =
            Ocsipersist.fold_step (fun k v accu ->
              let v = draft_election_of_string v in
@@ -1108,7 +1108,7 @@ let () =
     (fun uuid () ->
       with_draft_election ~save:false uuid (fun se ->
           try%lwt
-            let%lwt () = finalize_election uuid se in
+            let%lwt () = validate_election uuid se in
             redir_preapply election_admin (uuid, ()) ()
           with e ->
             T.new_election_failure (`Exception e) () >>= Html5.send
@@ -1153,7 +1153,7 @@ let () =
   Html5.register ~service:election_draft_import
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          let%lwt elections = get_finalized_elections_by_owner se.se_owner in
+          let%lwt elections = get_validated_elections_by_owner se.se_owner in
           T.election_draft_import uuid se elections ()
         )
     )
@@ -1195,7 +1195,7 @@ let () =
   Html5.register ~service:election_draft_import_trustees
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          let%lwt elections = get_finalized_elections_by_owner se.se_owner in
+          let%lwt elections = get_validated_elections_by_owner se.se_owner in
           T.election_draft_import_trustees uuid se elections ()
         )
     )
@@ -2033,7 +2033,7 @@ let () =
         )
     )
 
-let get_all_finalized_election_dates () =
+let get_all_validated_election_dates () =
   Lwt_unix.files_of_directory !spool_dir |>
     Lwt_stream.filter_map_s
       (fun x ->
@@ -2046,7 +2046,7 @@ let get_all_finalized_election_dates () =
             let%lwt state = Web_persist.get_election_state uuid in
             match dates with
             | Some [x] ->
-               let state = `Finalized (state, election_dates_of_string x) in
+               let state = `Validated (state, election_dates_of_string x) in
                return @@ Some (uuid, state)
             | _ -> return None
           with _ -> return None
@@ -2070,15 +2070,15 @@ let process_election_for_data_policy (uuid, state) =
      let t = option_get se.se_creation_date default_creation_date in
      if datetime_compare t one_year_ago < 0 then destroy_election uuid se
      else return_unit
-  | `Finalized ((`Open | `Closed | `EncryptedTally _), dates) ->
-     let t = option_get dates.e_finalization default_finalization_date in
+  | `Validated ((`Open | `Closed | `EncryptedTally _), dates) ->
+     let t = option_get dates.e_finalization default_validation_date in
      if datetime_compare t one_year_ago < 0 then delete_election uuid
      else return_unit
-  | `Finalized (`Archived, dates) ->
+  | `Validated (`Archived, dates) ->
      let t = option_get dates.e_archive default_archive_date in
      if datetime_compare t one_year_ago < 0 then delete_election uuid
      else return_unit
-  | `Finalized (`Tallied _, dates) ->
+  | `Validated (`Tallied _, dates) ->
      let t = option_get dates.e_tally default_tally_date in
      if datetime_compare t one_week_ago < 0 then archive_election uuid
      else return_unit
@@ -2088,8 +2088,8 @@ let _ =
   let rec loop () =
     let () = console (fun () -> "Data policy process started") in
     let%lwt draft = get_all_draft_election_dates () in
-    let%lwt finalized = get_all_finalized_election_dates () in
-    let elections = draft @ finalized in
+    let%lwt validated = get_all_validated_election_dates () in
+    let elections = draft @ validated in
     Lwt_list.iter_p process_election_for_data_policy elections >>
       let () = console (fun () -> "Data policy process completed") in
       Lwt_unix.sleep 3600. >> loop ()
