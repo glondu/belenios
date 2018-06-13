@@ -2065,24 +2065,24 @@ let get_all_draft_election_dates () =
 
 let process_election_for_data_policy (uuid, state) =
   let now = now () in
-  let one_year_ago = datetime_add now (day (-365)) in
-  let one_week_ago = datetime_add now (day (-7)) in
+  let delete_t = datetime_add now (day (-days_to_delete)) in
+  let archive_t = datetime_add now (day (-days_to_archive)) in
   match state with
   | `Draft se ->
      let t = option_get se.se_creation_date default_creation_date in
-     if datetime_compare t one_year_ago < 0 then destroy_election uuid se
+     if datetime_compare t delete_t < 0 then destroy_election uuid se
      else return_unit
   | `Validated ((`Open | `Closed | `EncryptedTally _), dates) ->
      let t = option_get dates.e_finalization default_validation_date in
-     if datetime_compare t one_year_ago < 0 then delete_election uuid
+     if datetime_compare t delete_t < 0 then delete_election uuid
      else return_unit
   | `Validated (`Archived, dates) ->
      let t = option_get dates.e_archive default_archive_date in
-     if datetime_compare t one_year_ago < 0 then delete_election uuid
+     if datetime_compare t delete_t < 0 then delete_election uuid
      else return_unit
   | `Validated (`Tallied _, dates) ->
      let t = option_get dates.e_tally default_tally_date in
-     if datetime_compare t one_week_ago < 0 then archive_election uuid
+     if datetime_compare t archive_t < 0 then archive_election uuid
      else return_unit
 
 let _ =

@@ -1868,7 +1868,7 @@ let election_admin election metadata state get_tokens_decrypt () =
   let%lwt archive_date = match state with
     | `Tallied _ ->
        let%lwt t = Web_persist.get_election_date `Tally uuid in
-       let t = datetime_add (option_get t default_tally_date) (day 14) in
+       let t = datetime_add (option_get t default_tally_date) (day days_to_archive) in
        return @@
          div [
              pcdata "This election will be automatically archived after ";
@@ -1894,13 +1894,16 @@ let election_admin election metadata state get_tokens_decrypt () =
   let%lwt deletion_date = match state with
     | `Open | `Closed | `EncryptedTally _ ->
        let%lwt t = Web_persist.get_election_date `Validation uuid in
-       return @@ datetime_add (option_get t default_validation_date) (day 365)
+       let dt = day days_to_delete in
+       return @@ datetime_add (option_get t default_validation_date) dt
     | `Tallied _ ->
        let%lwt t = Web_persist.get_election_date `Tally uuid in
-       return @@ datetime_add (option_get t default_tally_date) (day 379)
+       let dt = day (days_to_archive + days_to_delete) in
+       return @@ datetime_add (option_get t default_tally_date) dt
     | `Archived ->
        let%lwt t = Web_persist.get_election_date `Archive uuid in
-       return @@ datetime_add (option_get t default_archive_date) (day 365)
+       let dt = day days_to_delete in
+       return @@ datetime_add (option_get t default_archive_date) dt
   in
   let div_delete =
     div [

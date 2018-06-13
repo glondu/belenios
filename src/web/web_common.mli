@@ -114,3 +114,6 @@ val default_creation_date : datetime
 val default_validation_date : datetime
 val default_tally_date : datetime
 val default_archive_date : datetime
+
+val days_to_archive : int
+val days_to_delete : int
