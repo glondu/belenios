@@ -24,6 +24,7 @@ open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
+open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_signatures
 open Web_common
@@ -550,12 +551,19 @@ let election_draft uuid se () =
     a ~service:election_draft_confirm [pcdata "Create election"] uuid;
   ] in
   let form_destroy =
+    let t = option_get se.se_creation_date default_creation_date in
+    let t = datetime_add t (day 365) in
     post_form
       ~service:election_draft_destroy
       (fun () ->
         [
           div [
               h2 [pcdata "Destroy election"];
+              div [
+                  pcdata "Note: this election will be automatically destroyed after ";
+                  pcdata (format_datetime t);
+                  pcdata ".";
+                ];
               string_input ~input_type:`Submit ~value:"Destroy election" ();
             ]
         ]
@@ -1857,11 +1865,24 @@ let election_admin election metadata state get_tokens_decrypt () =
          pcdata "This election is archived.";
        ]
   in
+  let%lwt archive_date = match state with
+    | `Tallied _ ->
+       let%lwt t = Web_persist.get_election_date `Tally uuid in
+       let t = datetime_add (option_get t default_tally_date) (day 14) in
+       return @@
+         div [
+             pcdata "This election will be automatically archived after ";
+             pcdata (format_datetime t);
+             pcdata ".";
+           ]
+    | _ -> return @@ pcdata ""
+  in
   let div_archive = match state with
     | `Archived -> pcdata ""
     | _ -> div [
       br ();
       hr ();
+      archive_date;
       post_form ~service:election_archive (fun () ->
         [
           string_input ~input_type:`Submit ~value:"Archive election" ();
@@ -1870,10 +1891,26 @@ let election_admin election metadata state get_tokens_decrypt () =
       ) (uuid, ());
     ]
   in
+  let%lwt deletion_date = match state with
+    | `Open | `Closed | `EncryptedTally _ ->
+       let%lwt t = Web_persist.get_election_date `Validation uuid in
+       return @@ datetime_add (option_get t default_validation_date) (day 365)
+    | `Tallied _ ->
+       let%lwt t = Web_persist.get_election_date `Tally uuid in
+       return @@ datetime_add (option_get t default_tally_date) (day 379)
+    | `Archived ->
+       let%lwt t = Web_persist.get_election_date `Archive uuid in
+       return @@ datetime_add (option_get t default_archive_date) (day 365)
+  in
   let div_delete =
     div [
         br ();
         hr ();
+        div [
+            pcdata "This election will be automatically deleted after ";
+            pcdata (format_datetime deletion_date);
+            pcdata ".";
+          ];
         post_form ~service:election_delete (fun () ->
             [
               string_input ~input_type:`Submit ~value:"Delete election" ();

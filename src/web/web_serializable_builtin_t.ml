@@ -47,7 +47,7 @@ let raw_datetime_of_string s =
 let datetime_compare (a, _) (b, _) =
   CalendarLib.Fcalendar.Precise.compare a b
 
-let format_datetime fmt (a, _) =
+let format_datetime ?(fmt = datetime_format) (a, _) =
   CalendarLib.Printer.Precise_Fcalendar.sprint fmt a
 
 type period = CalendarLib.Fcalendar.Precise.Period.t
