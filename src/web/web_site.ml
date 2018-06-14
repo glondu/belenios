@@ -2060,23 +2060,29 @@ let process_election_for_data_policy (uuid, state) =
   let now = now () in
   let delete_t = datetime_add now (day (-days_to_delete)) in
   let archive_t = datetime_add now (day (-days_to_archive)) in
+  let perform t ref_t comment action x =
+    if datetime_compare t ref_t < 0 then (
+      action x >>
+      return (
+          Printf.ksprintf Ocsigen_messages.warning
+            "Election %s was automatically %s"
+            (raw_string_of_uuid uuid) comment
+        )
+    ) else return_unit
+  in
   match state with
   | `Draft se ->
      let t = option_get se.se_creation_date default_creation_date in
-     if datetime_compare t delete_t < 0 then destroy_election uuid se
-     else return_unit
+     perform t delete_t "destroyed" (destroy_election uuid) se
   | `Validated ((`Open | `Closed | `EncryptedTally _), dates) ->
      let t = option_get dates.e_finalization default_validation_date in
-     if datetime_compare t delete_t < 0 then delete_election uuid
-     else return_unit
+     perform t delete_t "deleted" delete_election uuid
   | `Validated (`Archived, dates) ->
      let t = option_get dates.e_archive default_archive_date in
-     if datetime_compare t delete_t < 0 then delete_election uuid
-     else return_unit
+     perform t delete_t "deleted" delete_election uuid
   | `Validated (`Tallied _, dates) ->
      let t = option_get dates.e_tally default_tally_date in
-     if datetime_compare t archive_t < 0 then archive_election uuid
-     else return_unit
+     perform t archive_t "archived" archive_election uuid
 
 let _ =
   let open Ocsigen_messages in
