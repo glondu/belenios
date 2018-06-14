@@ -512,17 +512,10 @@ let create_new_election owner cred auth =
     e_contact = None;
     e_server_is_trustee = None;
   } in
-  let question = {
-    q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
-    q_blank = None;
-    q_min = 1;
-    q_max = 2;
-    q_question = "Question 1?";
-  } in
   let se_questions = {
     t_description = "Description of the election.";
     t_name = "Name of the election";
-    t_questions = [| question |];
+    t_questions = default_questions;
   } in
   let se = {
     se_owner = owner;

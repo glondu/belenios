@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Signatures
+open Serializable_t
 open Web_serializable_t
 
 val spool_dir : string ref
@@ -109,6 +110,7 @@ val read_file : ?uuid:uuid -> string -> string list option Lwt.t
 val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
 
 val default_contact : string
+val default_questions : question array
 
 val default_creation_date : datetime
 val default_validation_date : datetime

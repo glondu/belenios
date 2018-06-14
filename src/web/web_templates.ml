@@ -1387,8 +1387,16 @@ let election_draft_import_trustees uuid se elections =
 
 let election_draft_confirm uuid se () =
   let title = "Election " ^ se.se_questions.t_name ^ " — Validate creation" in
-  let voters = Printf.sprintf "%d voter(s)" (List.length se.se_voters) in
-  let ready = not (se.se_voters = []) in
+  let ready, questions =
+    if se.se_questions.t_questions = default_questions then
+      false, "Not edited"
+    else
+      true, "OK"
+  in
+  let ready, voters =
+    ready && not (se.se_voters = []),
+    Printf.sprintf "%d voter(s)" (List.length se.se_voters)
+  in
   let ready, passwords =
     match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] ->
@@ -1438,6 +1446,10 @@ let election_draft_confirm uuid se () =
     | Some _ -> "Yes", pcdata ""
   in
   let table_checklist = table [
+    tr [
+      td [pcdata "Questions?"];
+      td [pcdata questions];
+    ];
     tr [
       td [pcdata "Voters?"];
       td [pcdata voters];

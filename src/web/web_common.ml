@@ -23,6 +23,7 @@ open Lwt
 open Platform
 open Common
 open Serializable_builtin_t
+open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 
@@ -272,6 +273,17 @@ let write_file ?uuid x lines =
   )
 
 let default_contact = "Name <user@example.org>"
+
+let default_questions =
+  let question = {
+      q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
+      q_blank = None;
+      q_min = 1;
+      q_max = 2;
+      q_question = "Question 1?";
+    }
+  in
+  [| question |]
 
 let default_creation_date = datetime_of_string "\"2018-06-06 00:00:00.000000\""
 let default_validation_date = datetime_of_string "\"2015-10-01 00:00:00.000000\""
