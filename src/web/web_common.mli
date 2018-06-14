@@ -105,6 +105,7 @@ val string_of_languages : string list option -> string
 val languages_of_string : string -> string list
 
 val is_email : string -> bool
+val extract_email : string -> string option
 
 val read_file : ?uuid:uuid -> string -> string list option Lwt.t
 val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
@@ -119,3 +120,5 @@ val default_archive_date : datetime
 
 val days_to_archive : int
 val days_to_delete : int
+val days_to_mail : int
+val days_between_mails : int

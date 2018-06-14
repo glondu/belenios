@@ -56,6 +56,7 @@ type election_date =
   | `Validation
   | `Tally
   | `Archive
+  | `LastMail
   ]
 
 let get_election_dates uuid =
@@ -66,6 +67,7 @@ let get_election_dates uuid =
              e_finalization = None;
              e_tally = None;
              e_archive = None;
+             e_last_mail = None;
            }
 
 let set_election_date kind uuid d =
@@ -75,6 +77,7 @@ let set_election_date kind uuid d =
     | `Validation -> { dates with e_finalization = Some d }
     | `Tally -> { dates with e_tally = Some d }
     | `Archive -> { dates with e_archive = Some d }
+    | `LastMail -> { dates with e_last_mail = Some d }
   in
   let dates = string_of_election_dates dates in
   write_file ~uuid "dates.json" [dates]
@@ -86,6 +89,7 @@ let get_election_date kind uuid =
   | `Validation -> return dates.e_finalization
   | `Tally -> return dates.e_tally
   | `Archive -> return dates.e_archive
+  | `LastMail -> return dates.e_last_mail
 
 let election_pds = Ocsipersist.open_table "election_pds"
 

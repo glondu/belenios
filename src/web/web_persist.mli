@@ -38,6 +38,7 @@ type election_date =
   | `Validation
   | `Tally
   | `Archive
+  | `LastMail
   ]
 val get_election_date : election_date -> uuid -> datetime option Lwt.t
 val set_election_date : election_date -> uuid -> datetime -> unit Lwt.t

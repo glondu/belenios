@@ -2028,68 +2028,110 @@ let () =
         )
     )
 
-let get_all_validated_election_dates () =
+let extract_automatic_data_validated uuid_s =
+  let uuid = uuid_of_raw_string uuid_s in
+  let%lwt election = Web_persist.get_raw_election uuid in
+  match election with
+  | None -> return_none
+  | Some election ->
+     let election = Election.of_string election in
+     let%lwt metadata = Web_persist.get_election_metadata uuid in
+     let name = election.e_params.e_name in
+     let contact = metadata.e_contact in
+     let%lwt state = Web_persist.get_election_state uuid in
+     match state with
+     | `Open | `Closed | `EncryptedTally _ ->
+        let%lwt t = Web_persist.get_election_date `Validation uuid in
+        let t = option_get t default_validation_date in
+        let next_t = datetime_add t (day days_to_delete) in
+        return @@ Some (`Delete, uuid, next_t, name, contact)
+     | `Tallied _ ->
+        let%lwt t = Web_persist.get_election_date `Tally uuid in
+        let t = option_get t default_tally_date in
+        let next_t = datetime_add t (day days_to_archive) in
+        return @@ Some (`Archive, uuid, next_t, name, contact)
+     | `Archived ->
+        let%lwt t = Web_persist.get_election_date `Archive uuid in
+        let t = option_get t default_archive_date in
+        let next_t = datetime_add t (day days_to_delete) in
+        return @@ Some (`Delete, uuid, next_t, name, contact)
+
+let get_next_actions_validated () =
   Lwt_unix.files_of_directory !spool_dir |>
     Lwt_stream.filter_map_s
       (fun x ->
-        if x = "." || x = ".." then
-          return None
-        else (
-          try%lwt
-            let uuid = uuid_of_raw_string x in
-            let%lwt dates = read_file ~uuid "dates.json" in
-            let%lwt state = Web_persist.get_election_state uuid in
-            match dates with
-            | Some [x] ->
-               let state = `Validated (state, election_dates_of_string x) in
-               return @@ Some (uuid, state)
-            | _ -> return None
-          with _ -> return None
-        )
-      ) |>
-    Lwt_stream.to_list
+        if x = "." || x = ".." then return_none
+        else (try%lwt extract_automatic_data_validated x with _ -> return_none)
+      ) |> Lwt_stream.to_list
 
-let get_all_draft_election_dates () =
+let get_next_actions_draft () =
   Ocsipersist.fold_step (fun k v accu ->
-      let se = draft_election_of_string v in
       let uuid = uuid_of_raw_string k in
-      return ((uuid, `Draft se) :: accu)
+      let se = draft_election_of_string v in
+      let name = se.se_questions.t_name in
+      let contact = se.se_metadata.e_contact in
+      let%lwt t = Web_persist.get_election_date `Creation uuid in
+      let t = option_get t default_creation_date in
+      let next_t = datetime_add t (day days_to_delete) in
+      return ((`Destroy se, uuid, next_t, name, contact) :: accu)
     ) election_stable []
 
-let process_election_for_data_policy (uuid, state) =
+let mail_automatic_warning : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "The election %s (%s) will be automatically %s after %s.
+
+-- \nBelenios"
+
+let process_election_for_data_policy (action, uuid, next_t, name, contact) =
+  let uuid_s = raw_string_of_uuid uuid in
   let now = now () in
-  let delete_t = datetime_add now (day (-days_to_delete)) in
-  let archive_t = datetime_add now (day (-days_to_archive)) in
-  let perform t ref_t comment action x =
-    if datetime_compare t ref_t < 0 then (
-      action x >>
+  let action, comment = match action with
+    | `Destroy se -> (fun uuid -> destroy_election uuid se), "destroyed"
+    | `Delete -> delete_election, "deleted"
+    | `Archive -> archive_election, "archived"
+  in
+  if datetime_compare now next_t > 0 then (
+    action uuid >>
       return (
           Printf.ksprintf Ocsigen_messages.warning
-            "Election %s was automatically %s"
-            (raw_string_of_uuid uuid) comment
+            "Election %s has been automatically %s" uuid_s comment
         )
+  ) else (
+    let mail_t = datetime_add next_t (day (-days_to_mail)) in
+    if datetime_compare now mail_t > 0 then (
+      let%lwt last_t = Web_persist.get_election_date `LastMail uuid in
+      let send = match last_t with
+        | None -> true
+        | Some t ->
+           let next_mail_t = datetime_add t (day days_between_mails) in
+           datetime_compare now next_mail_t > 0
+      in
+      if send then (
+        match contact with
+        | None -> return_unit
+        | Some contact ->
+           match extract_email contact with
+           | None -> return_unit
+           | Some email ->
+              let subject =
+                Printf.sprintf "Election %s will be automatically %s soon"
+                  name comment
+              in
+              let body =
+                Printf.sprintf mail_automatic_warning
+                  name uuid_s comment (format_datetime next_t)
+              in
+              send_email email subject body >>
+                Web_persist.set_election_date `LastMail uuid now
+      ) else return_unit
     ) else return_unit
-  in
-  match state with
-  | `Draft se ->
-     let t = option_get se.se_creation_date default_creation_date in
-     perform t delete_t "destroyed" (destroy_election uuid) se
-  | `Validated ((`Open | `Closed | `EncryptedTally _), dates) ->
-     let t = option_get dates.e_finalization default_validation_date in
-     perform t delete_t "deleted" delete_election uuid
-  | `Validated (`Archived, dates) ->
-     let t = option_get dates.e_archive default_archive_date in
-     perform t delete_t "deleted" delete_election uuid
-  | `Validated (`Tallied _, dates) ->
-     let t = option_get dates.e_tally default_tally_date in
-     perform t archive_t "archived" archive_election uuid
+  )
 
 let _ =
   let open Ocsigen_messages in
   let rec loop () =
     let () = console (fun () -> "Data policy process started") in
-    let%lwt draft = get_all_draft_election_dates () in
-    let%lwt validated = get_all_validated_election_dates () in
+    let%lwt draft = get_next_actions_draft () in
+    let%lwt validated = get_next_actions_validated () in
     let elections = draft @ validated in
     Lwt_list.iter_p process_election_for_data_policy elections >>
       let () = console (fun () -> "Data policy process completed") in

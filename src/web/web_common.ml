@@ -244,13 +244,25 @@ let string_of_languages xs =
 let languages_of_string x =
   Pcre.split x
 
-let email_rex = Pcre.regexp
-  ~flags:[`CASELESS]
-  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,7}$"
+let email_rex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}"
 
-let is_email x =
-  try ignore (Pcre.pcre_exec ~rex:email_rex x); true
+let is_email =
+  let rex = Pcre.regexp ~flags:[`CASELESS] ("^" ^ email_rex ^ "$") in
+  fun x ->
+  try ignore (Pcre.pcre_exec ~rex x); true
   with Not_found -> false
+
+let extract_email =
+  let rex = Pcre.regexp ~flags:[`CASELESS] ("<(" ^ email_rex ^ ")>") in
+  fun x ->
+  if is_email x then
+    Some x
+  else (
+    try
+      let s = Pcre.exec ~rex x in
+      Some (Pcre.get_substring s 1)
+    with Not_found -> None
+  )
 
 let get_fname uuid x =
   match uuid with
@@ -292,3 +304,5 @@ let default_archive_date = datetime_of_string "\"2018-06-06 00:00:00.000000\""
 
 let days_to_archive = 14
 let days_to_delete = 365
+let days_to_mail = 30
+let days_between_mails = 7
