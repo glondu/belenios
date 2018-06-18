@@ -53,6 +53,8 @@ let extractQuestion q =
   numeric ".question_max" "Invalid maximum number of choices" >>= fun q_max ->
   if not (q_min <= q_max) then
     failwith "Minimum number of choices must be less than or equal to maximum number of choices!";
+  if (q_max = 0) then
+    failwith "Maximum number of choices must be greater than 0!";
   let answers = p2##querySelectorAll (Js.string ".question_answer") in
   let q_answers =
     Array.init
@@ -61,6 +63,8 @@ let extractQuestion q =
        let a = answers##item (i) >>= extractAnswer in
        Js.Opt.get a (fun () -> failwith "extractQuestion"))
   in
+  if (q_max > Array.length q_answers) then
+    failwith "Maximum number of choices is greater than number of choices!";
   return {q_question; q_blank; q_min; q_max; q_answers}
 
 let extractTemplate () =
