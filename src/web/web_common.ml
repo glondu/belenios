@@ -278,11 +278,13 @@ let read_file ?uuid x =
   with _ -> return_none
 
 let write_file ?uuid x lines =
+  let fname = get_fname uuid x in
+  let fname_new = fname ^ ".new" in
   Lwt_io.(
-    with_file Output (get_fname uuid x) (fun oc ->
+    with_file Output fname_new (fun oc ->
         Lwt_list.iter_s (write_line oc) lines
       )
-  )
+  ) >> Lwt_unix.rename fname_new fname
 
 let default_contact = "Name <user@example.org>"
 
