@@ -104,11 +104,36 @@ let compute_hash () =
     Js.null
   in Js._false
 
+let load_private_key_file _ =
+  document##getElementById (Js.string "private_key_file") >>= fun e ->
+  Dom_html.CoerceTo.input e >>= fun e ->
+  Js.Opt.option (Js.Optdef.to_option (e##files)) >>= fun e ->
+  e##item (0) >>= fun file ->
+  let reader = jsnew File.fileReader () in
+  reader##onload <-
+    Dom.handler (fun _ ->
+        let _ =
+          document##getElementById (Js.string "private_key") >>= fun e ->
+          Dom_html.CoerceTo.input e >>= fun e ->
+          File.CoerceTo.string (reader##result) >>= fun text ->
+          e##value <- text;
+          Js.some ()
+        in Js._false
+      );
+  reader##readAsText (file);
+  Js.some ()
+
 let main _ =
   let _ =
     document##getElementById (Js.string "compute") >>= fun e ->
     Dom_html.CoerceTo.button e >>= fun e ->
     e##onclick <- Dom_html.handler (wrap compute_partial_decryption);
+    Js.null
+  in
+  let _ =
+    document##getElementById (Js.string "private_key_file") >>= fun e ->
+    Dom_html.CoerceTo.input e >>= fun e ->
+    e##onchange <- Dom_html.handler (wrap load_private_key_file);
     Js.null
   in
   let _ =

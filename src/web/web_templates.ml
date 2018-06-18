@@ -2330,12 +2330,25 @@ let tally_trustees election trustee_id token () =
              unsafe_textarea "encrypted_private_key" epk
            ];
     );
+    hr ();
     div ~a:[a_id "input_private_key"] [
-      p [pcdata "Please enter your private key:"];
-      input
-        ~a:[a_id "private_key"; a_size 80]
-        ~input_type:`Text
-        ();
+        div [
+            p [pcdata "Please enter your private key:"];
+            input
+              ~a:[a_id "private_key"; a_size 80]
+              ~input_type:`Text
+              ();
+          ];
+        div [
+            p [pcdata "Or load it from a file:"];
+            input
+              ~a:[a_id "private_key_file"]
+              ~input_type:`File
+              ();
+          ];
+      ];
+    hr ();
+    div [
       button
         ~a:[a_id "compute"]
         ~button_type:`Button
