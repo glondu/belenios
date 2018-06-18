@@ -7,7 +7,7 @@
 \usepackage{bbm}
 \usepackage{hyperref}
 
-\newcommand{\version}{1.5}
+\newcommand{\version}{1.6}
 
 \newcommand{\F}{\mathbbm{F}}
 \newcommand{\G}{\mathbbm{G}}
@@ -195,7 +195,10 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
 
 \begin{itemize}
 \item $\jstring$: JSON string
-\item $\uuid$: UUID (see RFC 4122), encoded as a JSON string
+\item $\uuid$: UUID (either as defined in RFC 4122, or a string of
+  Base58 characters\footnote{Base58 characters are:
+    \texttt{123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz}}
+  of size at least 14), encoded as a JSON string
 \item $\I$: small integer, encoded as a JSON number
 \item $\B$: boolean, encoded as a JSON boolean
 \item $\N$, $\Z_q$, $\G$: big integer, written in base 10 and encoded as a
@@ -576,7 +579,8 @@ PBKDF2 (RFC 2898) with:
 \begin{itemize}
 \item $c$ as password;
 \item HMAC-SHA256 (RFC 2104, FIPS PUB 180-2) as pseudorandom function;
-\item the $\uuid$ (interpreted as a 16-byte array) of the election as
+\item the $\uuid$ (either interpreted as a 16-byte array in the RFC
+  4122 case, or directly itself in the Base58 case) of the election as
   salt;
 \item $1000$ iterations
 \end{itemize}
