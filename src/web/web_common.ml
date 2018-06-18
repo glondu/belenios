@@ -264,6 +264,13 @@ let extract_email =
     with Not_found -> None
   )
 
+let file_exists x =
+  try%lwt
+    Lwt_unix.(access x [R_OK]) >>
+    return true
+  with _ ->
+    return false
+
 let get_fname uuid x =
   match uuid with
   | None -> x
