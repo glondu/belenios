@@ -1387,11 +1387,24 @@ let election_draft_import_trustees uuid se elections =
 
 let election_draft_confirm uuid se () =
   let title = "Election " ^ se.se_questions.t_name ^ " — Validate creation" in
+  let ready = true in
+  let ready, name =
+    if se.se_questions.t_name = default_name then
+      false, "Not edited"
+    else
+      ready, "OK"
+  in
+  let ready, description =
+    if se.se_questions.t_description = default_description then
+      false, "Not edited"
+    else
+      ready, "OK"
+  in
   let ready, questions =
     if se.se_questions.t_questions = default_questions then
       false, "Not edited"
     else
-      true, "OK"
+      ready, "OK"
   in
   let ready, voters =
     ready && not (se.se_voters = []),
@@ -1446,6 +1459,14 @@ let election_draft_confirm uuid se () =
     | Some _ -> "Yes", pcdata ""
   in
   let table_checklist = table [
+    tr [
+      td [pcdata "Name?"];
+      td [pcdata name];
+    ];
+    tr [
+      td [pcdata "Description?"];
+      td [pcdata description];
+    ];
     tr [
       td [pcdata "Questions?"];
       td [pcdata questions];

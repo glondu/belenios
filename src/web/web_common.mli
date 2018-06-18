@@ -112,6 +112,8 @@ val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
 
 val default_contact : string
 val default_questions : question array
+val default_name : string
+val default_description : string
 
 val default_creation_date : datetime
 val default_validation_date : datetime

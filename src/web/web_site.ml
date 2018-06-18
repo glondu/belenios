@@ -513,8 +513,8 @@ let create_new_election owner cred auth =
     e_server_is_trustee = None;
   } in
   let se_questions = {
-    t_description = "Description of the election.";
-    t_name = "Name of the election";
+    t_description = default_description;
+    t_name = default_name;
     t_questions = default_questions;
   } in
   let se = {
