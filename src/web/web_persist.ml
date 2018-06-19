@@ -100,19 +100,6 @@ let get_partial_decryptions x =
 let set_partial_decryptions x pds =
   Ocsipersist.add election_pds (raw_string_of_uuid x) pds
 
-let auth_configs = Ocsipersist.open_table "auth_configs"
-
-let key_of_uuid_option = function
-  | None -> ""
-  | Some x -> raw_string_of_uuid x
-
-let get_auth_config x =
-  try%lwt Ocsipersist.find auth_configs (key_of_uuid_option x)
-  with Not_found -> return []
-
-let set_auth_config x c =
-  Ocsipersist.add auth_configs (key_of_uuid_option x) c
-
 let get_raw_election uuid =
   match%lwt read_file ~uuid "election.json" with
   | Some [x] -> return (Some x)
@@ -134,6 +121,12 @@ let get_election_metadata uuid =
   match%lwt read_file ~uuid "metadata.json" with
   | Some [x] -> return (metadata_of_string x)
   | _ -> return_empty_metadata
+
+let get_auth_config uuid =
+  let%lwt metadata = get_election_metadata uuid in
+  match metadata.e_auth_config with
+  | None -> return []
+  | Some x -> return (List.map compile_auth_config x)
 
 let get_elections_by_owner user =
   Lwt_unix.files_of_directory !spool_dir |>

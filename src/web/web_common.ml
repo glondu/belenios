@@ -27,6 +27,7 @@ open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 
+let site_auth_config = ref []
 let spool_dir = ref "."
 let server_mail = ref "noreply@example.org"
 let return_path = ref None
@@ -292,6 +293,9 @@ let write_file ?uuid x lines =
         Lwt_list.iter_s (write_line oc) lines
       )
   ) >> Lwt_unix.rename fname_new fname
+
+let compile_auth_config {auth_system; auth_instance; auth_config} =
+  auth_instance, (auth_system, List.map snd auth_config)
 
 let default_contact = "Name <user@example.org>"
 

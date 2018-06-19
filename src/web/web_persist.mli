@@ -46,8 +46,7 @@ val set_election_date : election_date -> uuid -> datetime -> unit Lwt.t
 val get_partial_decryptions : uuid -> (int * string) list Lwt.t
 val set_partial_decryptions : uuid -> (int * string) list -> unit Lwt.t
 
-val get_auth_config : uuid option -> (string * (string * string list)) list Lwt.t
-val set_auth_config : uuid option -> (string * (string * string list)) list -> unit Lwt.t
+val get_auth_config : uuid -> (string * (string * string list)) list Lwt.t
 
 val get_raw_election : uuid -> string option Lwt.t
 val get_election_metadata : uuid -> metadata Lwt.t

@@ -34,14 +34,6 @@ let next_lf str i =
   try Some (String.index_from str i '\n')
   with Not_found -> None
 
-let configure x =
-  let auth_config =
-    List.map (fun {auth_system; auth_instance; auth_config} ->
-      auth_instance, (auth_system, List.map snd auth_config)
-    ) x
-  in
-  Web_persist.set_auth_config None auth_config |> Lwt_main.run
-
 let scope = Eliom_common.default_session_scope
 
 let auth_env = Eliom_reference.eref ~scope None
@@ -331,7 +323,10 @@ let login_handler service uuid =
      cont_push (fun () -> Eliom_registration.Redirection.send (myself service)) >>
      Web_templates.already_logged_in () >>= Eliom_registration.Html5.send
   | None ->
-     let%lwt c = Web_persist.get_auth_config uuid in
+     let%lwt c = match uuid with
+       | None -> return !site_auth_config
+       | Some u -> Web_persist.get_auth_config u
+     in
      match service with
      | Some s ->
         let%lwt auth_system, config =

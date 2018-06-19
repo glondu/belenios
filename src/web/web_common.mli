@@ -23,6 +23,7 @@ open Signatures
 open Serializable_t
 open Web_serializable_t
 
+val site_auth_config : (string * (string * string list)) list ref
 val spool_dir : string ref
 val server_mail : string ref
 val return_path : string option ref
@@ -110,6 +111,8 @@ val extract_email : string -> string option
 val file_exists : string -> bool Lwt.t
 val read_file : ?uuid:uuid -> string -> string list option Lwt.t
 val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
+
+val compile_auth_config : auth_config -> string * (string * string list)
 
 val default_contact : string
 val default_questions : question array

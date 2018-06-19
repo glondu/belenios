@@ -209,18 +209,6 @@ let validate_election uuid se =
   let module W = (val Election.get_group election) in
   let module E = Election.Make (W) (LwtRandom) in
   let module B = Web_election.Make (E) in
-  (* set up authentication *)
-  let%lwt () =
-    match metadata.e_auth_config with
-    | None -> return ()
-    | Some xs ->
-       let auth_config =
-         List.map (fun {auth_system; auth_instance; auth_config} ->
-           auth_instance, (auth_system, List.map snd auth_config)
-         ) xs
-       in
-       Web_persist.set_auth_config (Some uuid) auth_config
-  in
   (* inject credentials *)
   let%lwt () =
     let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
@@ -292,7 +280,6 @@ let delete_sensitive_data uuid =
   let%lwt () = cleanup_table ~uuid_s "election_states" in
   let%lwt () = cleanup_table ~uuid_s "site_tokens_decrypt" in
   let%lwt () = cleanup_table ~uuid_s "election_pds" in
-  let%lwt () = cleanup_table ~uuid_s "auth_configs" in
   let%lwt () = cleanup_table ("records_" ^ uuid_u) in
   let%lwt () = cleanup_table ("creds_" ^ uuid_u) in
   let%lwt () = cleanup_table ("ballots_" ^ uuid_u) in
