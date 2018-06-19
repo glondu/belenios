@@ -1895,7 +1895,10 @@ let election_admin election metadata state get_tokens_decrypt () =
        ]
     | `Archived ->
        return @@ div [
-         pcdata "This election is archived.";
+         pcdata "This election is archived. ";
+         a ~service:election_download_archive [
+             pcdata "Download archive.";
+           ] (uuid, ());
        ]
   in
   let%lwt archive_date = match state with

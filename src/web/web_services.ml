@@ -97,6 +97,7 @@ let election_pretty_ballot = service ~path:["elections"] ~get_params:(suffix_pro
 let election_pretty_records = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "pretty-records")) ()
 
 let election_missing_voters = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "missing")) ()
+let election_download_archive = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "archive.zip")) ()
 
 let election_compute_encrypted_tally = post_coservice ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_tally_trustees = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "trustees" ** string "token")) ()

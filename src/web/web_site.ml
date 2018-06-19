@@ -400,6 +400,7 @@ let delete_election uuid =
       "records";
       "result.json";
       "voters.txt";
+      "archive.zip";
     ]
   in
   let%lwt () = Lwt_list.iter_p (fun x ->
@@ -1571,6 +1572,87 @@ let () =
               | None -> return []
             in
             T.pretty_records w (List.rev records) () >>= Html5.send
+          ) else forbidden ()
+        )
+    )
+
+let copy_file src dst =
+  let open Lwt_io in
+  chars_of_file src |> chars_to_file dst
+
+let try_copy_file src dst =
+  if%lwt file_exists src then copy_file src dst else return_unit
+
+let make_archive uuid =
+  let uuid_s = raw_string_of_uuid uuid in
+  let%lwt temp_dir =
+    Lwt_preemptive.detach (fun () ->
+        let temp_dir = Filename.temp_file "belenios" "archive" in
+        Sys.remove temp_dir;
+        Unix.mkdir temp_dir 0o700;
+        Unix.mkdir (temp_dir / "public") 0o755;
+        Unix.mkdir (temp_dir / "restricted") 0o700;
+        temp_dir
+      ) ()
+  in
+  let%lwt () =
+    Lwt_list.iter_p (fun x ->
+        try_copy_file (!spool_dir / uuid_s / x) (temp_dir / "public" / x)
+      ) [
+        "election.json";
+        "public_keys.jsons";
+        "threshold.json";
+        "public_creds.txt";
+        "ballots.jsons";
+        "result.json";
+      ]
+  in
+  let%lwt () =
+    Lwt_list.iter_p (fun x ->
+        try_copy_file (!spool_dir / uuid_s / x) (temp_dir / "restricted" / x)
+      ) [
+        "voters.txt";
+        "records";
+      ]
+  in
+  let command =
+    Printf.ksprintf Lwt_process.shell
+      "cd \"%s\" && zip -r archive public restricted" temp_dir
+  in
+  let%lwt r = Lwt_process.exec command in
+  match r with
+  | Unix.WEXITED 0 ->
+     let fname = !spool_dir / uuid_s / "archive.zip" in
+     let fname_new = fname ^ ".new" in
+     let%lwt () = copy_file (temp_dir / "archive.zip") fname_new in
+     let%lwt () = Lwt_unix.rename fname_new fname in
+     let command = "rm", [| "rm"; "-rf"; temp_dir |] in
+     let%lwt _ = Lwt_process.exec command in
+     return_unit
+  | _ ->
+     Printf.ksprintf Ocsigen_messages.errlog
+       "Error while creating archive.zip for election %s, temporary directory left in %s"
+       uuid_s temp_dir;
+     return_unit
+
+let () =
+  Any.register ~service:election_download_archive
+    (fun (uuid, ()) () ->
+      with_site_user (fun u ->
+          let%lwt metadata = Web_persist.get_election_metadata uuid in
+          let%lwt state = Web_persist.get_election_state uuid in
+          if metadata.e_owner = Some u then (
+            if state = `Archived then (
+              let uuid_s = raw_string_of_uuid uuid in
+              let archive_name = !spool_dir / uuid_s / "archive.zip" in
+              let%lwt b = file_exists archive_name in
+              let%lwt () = if not b then make_archive uuid else return_unit in
+              File.send ~content_type:"application/zip" archive_name
+            ) else (
+              let service = preapply election_admin (uuid, ()) in
+              T.generic_page ~title:"Error" ~service
+                "The election is not archived!" () >>= Html5.send
+            )
           ) else forbidden ()
         )
     )

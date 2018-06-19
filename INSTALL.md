@@ -20,6 +20,7 @@ The non-OCaml prerequisites are:
  * [SQLite3](https://www.sqlite.org/)
  * [OpenSSL](https://www.openssl.org/)
  * [Wget](https://www.gnu.org/software/wget/) or [curl](http://curl.haxx.se/)
+ * [Zip](http://www.info-zip.org/Zip.html)
  * [Unzip](http://www.info-zip.org/UnZip.html)
  * [aspcud](http://www.cs.uni-potsdam.de/wv/aspcud/) (optional)
  * [ncurses](http://invisible-island.net/ncurses/)
@@ -29,7 +30,7 @@ These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
 derivatives, they can be installed with the following command:
 
-    sudo apt install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
+    sudo apt install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
 
 If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully
