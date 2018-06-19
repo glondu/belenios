@@ -48,11 +48,16 @@ module String : sig
   val startswith : string -> string -> bool
 end
 
-val list_join : 'a -> 'a list -> 'a list
-val list_filter_map : ('a -> 'b option) -> 'a list -> 'b list
+module List : sig
+  include module type of List
+  val join : 'a -> 'a list -> 'a list
+  val filter_map : ('a -> 'b option) -> 'a list -> 'b list
+end
 
-val option_get : 'a option -> 'a -> 'a
-val option_map : ('a -> 'b) -> 'a option -> 'b option
+module Option : sig
+  val get : 'a option -> 'a -> 'a
+  val map : ('a -> 'b) -> 'a option -> 'b option
+end
 
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
 

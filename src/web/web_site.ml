@@ -247,7 +247,7 @@ let validate_election uuid se =
   (match metadata.e_auth_config with
   | Some [{auth_system = "password"; _}] ->
      let db =
-       list_filter_map (fun v ->
+       List.filter_map (fun v ->
            let _, login = split_identity v.sv_id in
            match v.sv_password with
            | Some (salt, hashed) -> Some [login; salt; hashed]
@@ -2117,17 +2117,17 @@ let extract_automatic_data_validated uuid_s =
      match state with
      | `Open | `Closed | `EncryptedTally _ ->
         let%lwt t = Web_persist.get_election_date `Validation uuid in
-        let t = option_get t default_validation_date in
+        let t = Option.get t default_validation_date in
         let next_t = datetime_add t (day days_to_delete) in
         return @@ Some (`Delete, uuid, next_t, name, contact)
      | `Tallied _ ->
         let%lwt t = Web_persist.get_election_date `Tally uuid in
-        let t = option_get t default_tally_date in
+        let t = Option.get t default_tally_date in
         let next_t = datetime_add t (day days_to_archive) in
         return @@ Some (`Archive, uuid, next_t, name, contact)
      | `Archived ->
         let%lwt t = Web_persist.get_election_date `Archive uuid in
-        let t = option_get t default_archive_date in
+        let t = Option.get t default_archive_date in
         let next_t = datetime_add t (day days_to_delete) in
         return @@ Some (`Delete, uuid, next_t, name, contact)
 
@@ -2146,7 +2146,7 @@ let get_next_actions_draft () =
       let name = se.se_questions.t_name in
       let contact = se.se_metadata.e_contact in
       let%lwt t = Web_persist.get_election_date `Creation uuid in
-      let t = option_get t default_creation_date in
+      let t = Option.get t default_creation_date in
       let next_t = datetime_add t (day days_to_delete) in
       return ((`Destroy se, uuid, next_t, name, contact) :: accu)
     ) election_stable []

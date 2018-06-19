@@ -78,7 +78,7 @@ let make_login_box ~site auth links =
           List.map (fun name ->
             a ~a:[a_id ("login_" ^ name)]
               ~service:(L.login (Some name)) [pcdata name] ()
-          ) |> list_join (pcdata ", ")
+          ) |> List.join (pcdata ", ")
         in
         div (
           [pcdata "Log in: ["] @ auth_systems @ [pcdata "]"]
@@ -549,7 +549,7 @@ let election_draft uuid se () =
     a ~service:election_draft_confirm [pcdata "Create election"] uuid;
   ] in
   let form_destroy =
-    let t = option_get se.se_creation_date default_creation_date in
+    let t = Option.get se.se_creation_date default_creation_date in
     let t = datetime_add t (day 365) in
     post_form
       ~service:election_draft_destroy
@@ -1902,7 +1902,7 @@ let election_admin election metadata state get_tokens_decrypt () =
   let%lwt archive_date = match state with
     | `Tallied _ ->
        let%lwt t = Web_persist.get_election_date `Tally uuid in
-       let t = datetime_add (option_get t default_tally_date) (day days_to_archive) in
+       let t = datetime_add (Option.get t default_tally_date) (day days_to_archive) in
        return @@
          div [
              pcdata "This election will be automatically archived after ";
@@ -1929,15 +1929,15 @@ let election_admin election metadata state get_tokens_decrypt () =
     | `Open | `Closed | `EncryptedTally _ ->
        let%lwt t = Web_persist.get_election_date `Validation uuid in
        let dt = day days_to_delete in
-       return @@ datetime_add (option_get t default_validation_date) dt
+       return @@ datetime_add (Option.get t default_validation_date) dt
     | `Tallied _ ->
        let%lwt t = Web_persist.get_election_date `Tally uuid in
        let dt = day (days_to_archive + days_to_delete) in
-       return @@ datetime_add (option_get t default_tally_date) dt
+       return @@ datetime_add (Option.get t default_tally_date) dt
     | `Archived ->
        let%lwt t = Web_persist.get_election_date `Archive uuid in
        let dt = day days_to_delete in
-       return @@ datetime_add (option_get t default_archive_date) dt
+       return @@ datetime_add (Option.get t default_archive_date) dt
   in
   let div_delete =
     div [
@@ -2416,7 +2416,7 @@ let login_choose auth_systems service () =
     auth_systems |>
     List.map (fun name ->
       a ~service:(service name) [pcdata name] ()
-    ) |> list_join (pcdata ", ")
+    ) |> List.join (pcdata ", ")
   in
   let content = [
     div [p (

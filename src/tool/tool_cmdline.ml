@@ -302,7 +302,7 @@ module Election : CMDLINER_MODULE = struct
 
     let get_public_keys () =
       load_from_file (fun x -> x) (X.dir/"public_keys.jsons") |>
-      option_map Array.of_list
+      Option.map Array.of_list
 
     let get_public_creds () =
       let file = "public_creds.txt" in

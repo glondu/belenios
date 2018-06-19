@@ -77,7 +77,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   let public_keys_with_pok =
     match threshold with
     | None ->
-       get_public_keys () |> option_map @@
+       get_public_keys () |> Option.map @@
        Array.map (trustee_public_key_of_string G.read)
     | Some t -> Some t.t_verification_keys
 
@@ -90,7 +90,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     | _ -> ()
 
   let public_keys =
-    option_map (
+    Option.map (
       Array.map (fun pk -> pk.trustee_public_key)
     ) public_keys_with_pok
 
@@ -103,7 +103,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   module GSet = Map.Make (G)
 
   let public_creds = lazy (
-    get_public_creds () |> option_map (fun creds ->
+    get_public_creds () |> Option.map (fun creds ->
       let res = ref GSet.empty in
       Stream.iter (fun x -> res := GSet.add (G.of_string x) false !res) creds;
       res
@@ -111,7 +111,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   )
 
   let ballots = lazy (
-    get_ballots () |> option_map (fun ballots ->
+    get_ballots () |> Option.map (fun ballots ->
       let res = ref [] in
       Stream.iter (fun x ->
         res := (ballot_of_string G.read x, sha256_b64 x) :: !res
@@ -140,7 +140,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     else Printf.ksprintf failwith "ballot %s failed tests" hash
 
   let ballots_check = lazy (
-    Lazy.force ballots |> option_map (List.iter cast)
+    Lazy.force ballots |> Option.map (List.iter cast)
   )
 
   let encrypted_tally =
@@ -156,7 +156,7 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   let vote privcred ballot =
     let sk =
-      privcred |> option_map (fun cred ->
+      privcred |> Option.map (fun cred ->
         let module CD = Credential.MakeDerive (G) in
         CD.derive election.e_params.e_uuid cred
       )

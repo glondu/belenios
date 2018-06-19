@@ -144,26 +144,32 @@ module String = struct
     xn >= sn && String.sub x 0 sn = s
 end
 
-let rec list_join sep = function
-  | [] -> []
-  | [x] -> [x]
-  | x :: xs -> x :: sep :: list_join sep xs
+module List = struct
+  include List
 
-let rec list_filter_map f = function
-  | [] -> []
-  | x :: xs ->
-     let ys = list_filter_map f xs in
-     match f x with
-     | None -> ys
-     | Some y -> y :: ys
+  let rec join sep = function
+    | [] -> []
+    | [x] -> [x]
+    | x :: xs -> x :: sep :: join sep xs
 
-let option_get x default_value = match x with
-  | None -> default_value
-  | Some x -> x
+  let rec filter_map f = function
+    | [] -> []
+    | x :: xs ->
+       let ys = filter_map f xs in
+       match f x with
+       | None -> ys
+       | Some y -> y :: ys
+end
 
-let option_map f = function
-  | Some x -> Some (f x)
-  | None -> None
+module Option = struct
+  let get x default_value = match x with
+    | None -> default_value
+    | Some x -> x
+
+  let map f = function
+    | Some x -> Some (f x)
+    | None -> None
+end
 
 let save_to filename writer x =
   let oc = open_out filename in
