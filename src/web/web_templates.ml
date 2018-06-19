@@ -674,7 +674,7 @@ let election_draft_trustees uuid se () =
                td [
                    if t.st_token <> "" then (
                  let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
-                   ~absolute:true ~service:election_draft_trustee t.st_token
+                   ~absolute:true ~service:election_draft_trustee (uuid, t.st_token)
                  in
                  let body = Printf.sprintf mail_trustee_generation uri in
                  let subject = "Link to generate the decryption key" in
@@ -685,7 +685,7 @@ let election_draft_trustees uuid se () =
                ];
                td [
                    if t.st_token <> "" then (
-                   a ~service:election_draft_trustee [pcdata "Link"] t.st_token;
+                   a ~service:election_draft_trustee [pcdata "Link"] (uuid, t.st_token);
                    ) else (
                      pcdata "(server)"
                    )
@@ -787,14 +787,14 @@ let election_draft_threshold_trustees uuid se () =
                    td [
                        let uri = rewrite_prefix @@
                                    Eliom_uri.make_string_uri
-                                     ~absolute:true ~service:election_draft_threshold_trustee t.stt_token
+                                     ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
                        in
                        let body = Printf.sprintf mail_trustee_generation uri in
                        let subject = "Link to generate the decryption key" in
                        a_mailto ~dest:t.stt_id ~subject ~body "Mail"
                      ];
                    td [
-                       a ~service:election_draft_threshold_trustee [pcdata "Link"] t.stt_token;
+                       a ~service:election_draft_threshold_trustee [pcdata "Link"] (uuid, t.stt_token);
                      ];
                    td [
                        pcdata (string_of_int (match t.stt_step with None -> 0 | Some x -> x));
@@ -877,7 +877,7 @@ let election_draft_threshold_trustees uuid se () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_draft_credential_authority _ se () =
+let election_draft_credential_authority uuid se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
   let content = [
     div [
@@ -891,9 +891,9 @@ let election_draft_credential_authority _ se () =
             pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
               ~absolute:true
               ~service:election_draft_credentials
-              se.se_public_creds
+              (uuid, se.se_public_creds)
           ]
-          se.se_public_creds;
+          (uuid, se.se_public_creds);
       ];
     ];
     div [
@@ -1096,7 +1096,7 @@ let election_draft_credentials token uuid se () =
                  ];
              ];
            div [string_input ~input_type:`Submit ~value:"Submit public credentials" ()]]])
-      token
+      (uuid, token)
   in
   let disclaimer =
     p
@@ -1114,7 +1114,7 @@ let election_draft_credentials token uuid se () =
            div [pcdata "Use this form to upload public credentials generated with the command-line tool."];
            div [file_input ~name ()];
            div [string_input ~input_type:`Submit ~value:"Submit" ()]]])
-      token
+      (uuid, token)
   in
   let group =
     div
@@ -1173,7 +1173,7 @@ let election_draft_trustee token uuid se () =
   let form =
     let trustee = List.find (fun x -> x.st_token = token) se.se_public_keys in
     let value = trustee.st_public_key in
-    let service = Eliom_service.preapply election_draft_trustee_post token in
+    let service = Eliom_service.preapply election_draft_trustee_post (uuid, token) in
     post_form
       ~service
       (fun name ->
@@ -1315,7 +1315,7 @@ let election_draft_threshold_trustee token uuid se () =
               div [string_input ~input_type:`Submit ~value:"Submit" ()];
             ];
         ]
-      ) token
+      ) (uuid, token)
   in
   let interactivity =
     div

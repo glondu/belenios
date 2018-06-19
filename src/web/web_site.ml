@@ -45,17 +45,8 @@ open Eliom_registration
 (* Table with draft elections. *)
 let election_stable = Ocsipersist.open_table "site_setup"
 
-(* Table with tokens given to trustees. *)
-let election_pktokens = Ocsipersist.open_table "site_pktokens"
-
-(* Table with tokens given to trustees (in threshold mode). *)
-let election_tpktokens = Ocsipersist.open_table "site_tpktokens"
-
 (* Table with tokens given to trustees (in threshold mode) to decrypt *)
 let election_tokens_decrypt = Ocsipersist.open_table "site_tokens_decrypt"
-
-(* Table with tokens given to credential authorities. *)
-let election_credtokens = Ocsipersist.open_table "site_credtokens"
 
 module T = Web_templates
 
@@ -227,21 +218,6 @@ let validate_election uuid se =
     | `KEYS x -> create_file "private_keys.jsons" (fun x -> x) x
   in
   (* clean up draft database *)
-  Ocsipersist.remove election_credtokens se.se_public_creds >>
-  Lwt_list.iter_s
-    (fun {st_token; _} ->
-      if st_token <> "" then (
-        Ocsipersist.remove election_pktokens st_token
-      ) else return_unit
-    )
-    se.se_public_keys >>
-  (match se.se_threshold_trustees with
-   | None -> return_unit
-   | Some ts ->
-      Lwt_list.iter_s
-        (fun x -> Ocsipersist.remove election_tpktokens x.stt_token)
-        ts
-  ) >>
   Ocsipersist.remove election_stable uuid_s >>
   (* write passwords *)
   (match metadata.e_auth_config with
@@ -484,7 +460,6 @@ let create_new_election owner cred auth =
     | `CAS server -> Some [{auth_system = "cas"; auth_instance = "cas"; auth_config = ["server", server]}]
   in
   let%lwt uuid = generate_uuid () in
-  let uuid_s = raw_string_of_uuid uuid in
   let%lwt token = generate_token () in
   let se_metadata = {
     e_owner = Some owner;
@@ -516,7 +491,6 @@ let create_new_election owner cred auth =
     se_creation_date = Some (now ());
   } in
   let%lwt () = set_draft_election uuid se in
-  let%lwt () = Ocsipersist.add election_credtokens token uuid_s in
   redir_preapply election_draft uuid ()
 
 let () = Html5.register ~service:election_draft_pre
@@ -865,7 +839,6 @@ let () =
             let%lwt st_token = generate_token () in
             let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None} in
             se.se_public_keys <- se.se_public_keys @ [trustee];
-            let%lwt () = Ocsipersist.add election_pktokens st_token (raw_string_of_uuid uuid) in
             redir_preapply election_draft_trustees uuid ()
           ) else (
             let msg = st_id ^ " is not a valid e-mail address!" in
@@ -896,29 +869,20 @@ let () =
   Any.register ~service:election_draft_trustee_del
     (fun uuid index ->
       with_draft_election uuid (fun se ->
-          let trustees, old =
+          let trustees =
             se.se_public_keys |>
               List.mapi (fun i x -> i, x) |>
-              List.partition (fun (i, _) -> i <> index) |>
-              (fun (x, y) -> List.map snd x, List.map snd y)
+              List.filter (fun (i, _) -> i <> index) |>
+              List.map snd
           in
           se.se_public_keys <- trustees;
-          let%lwt () =
-            Lwt_list.iter_s (fun {st_token; _} ->
-                if st_token <> "" then (
-                  Ocsipersist.remove election_pktokens st_token
-                ) else return_unit
-              ) old
-          in
           redir_preapply election_draft_trustees uuid ()
         )
     )
 
 let () =
   Html5.register ~service:election_draft_credentials
-    (fun token () ->
-     let%lwt uuid = Ocsipersist.find election_credtokens token in
-     let uuid = uuid_of_raw_string uuid in
+    (fun (uuid, token) () ->
      let%lwt se = get_draft_election uuid in
      T.election_draft_credentials token uuid se ()
     )
@@ -928,10 +892,9 @@ let wrap_handler f =
   with
   | e -> T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html5.send
 
-let handle_credentials_post token creds =
-  let%lwt uuid = Ocsipersist.find election_credtokens token in
-  let uuid = uuid_of_raw_string uuid in
+let handle_credentials_post uuid token creds =
   let%lwt se = get_draft_election uuid in
+  if se.se_public_creds <> token then forbidden () else
   if se.se_public_creds_received then forbidden () else
   let module G = (val Group.of_string se.se_group : GROUP) in
   let fname = !spool_dir / raw_string_of_uuid uuid ^ ".public_creds.txt" in
@@ -967,15 +930,15 @@ let handle_credentials_post token creds =
 
 let () =
   Any.register ~service:election_draft_credentials_post
-    (fun token creds ->
+    (fun (uuid, token) creds ->
      let s = Lwt_stream.of_string creds in
-     wrap_handler (fun () -> handle_credentials_post token s))
+     wrap_handler (fun () -> handle_credentials_post uuid token s))
 
 let () =
   Any.register ~service:election_draft_credentials_post_file
-    (fun token creds ->
+    (fun (uuid, token) creds ->
      let s = Lwt_io.chars_of_file creds.Ocsigen_extensions.tmp_filename in
-     wrap_handler (fun () -> handle_credentials_post token s))
+     wrap_handler (fun () -> handle_credentials_post uuid token s))
 
 module CG = Credential.MakeGenerate (LwtRandom)
 
@@ -1052,20 +1015,17 @@ let () =
 
 let () =
   Html5.register ~service:election_draft_trustee
-    (fun token () ->
-     let%lwt uuid = Ocsipersist.find election_pktokens token in
-     let uuid = uuid_of_raw_string uuid in
+    (fun (uuid, token) () ->
      let%lwt se = get_draft_election uuid in
      T.election_draft_trustee token uuid se ()
     )
 
 let () =
   Any.register ~service:election_draft_trustee_post
-    (fun token public_key ->
+    (fun (uuid, token) public_key ->
+     if token = "" then forbidden () else
      wrap_handler
        (fun () ->
-        let%lwt uuid = Ocsipersist.find election_pktokens token in
-        let uuid = uuid_of_raw_string uuid in
         Lwt_mutex.with_lock
           election_draft_mutex
           (fun () ->
@@ -1104,7 +1064,7 @@ let () =
         )
     )
 
-let destroy_election uuid se =
+let destroy_election uuid =
   let uuid_s = raw_string_of_uuid uuid in
   (* clean up credentials *)
   let%lwt () =
@@ -1113,28 +1073,13 @@ let destroy_election uuid se =
     with _ -> return_unit
   in
   (* clean up draft database *)
-  let%lwt () = Ocsipersist.remove election_credtokens se.se_public_creds in
-  let%lwt () =
-    Lwt_list.iter_s (fun {st_token; _} ->
-        if st_token <> "" then
-          Ocsipersist.remove election_pktokens st_token
-        else return_unit
-      ) se.se_public_keys
-  in
-  let%lwt () = match se.se_threshold_trustees with
-    | None -> return_unit
-    | Some ts ->
-       Lwt_list.iter_s (fun {stt_token; _} ->
-           Ocsipersist.remove election_tpktokens stt_token
-         ) ts
-  in
   Ocsipersist.remove election_stable uuid_s
 
 let () =
   Any.register ~service:election_draft_destroy
     (fun uuid () ->
-      with_draft_election ~save:false uuid (fun se ->
-          destroy_election uuid se >> Redirection.send admin
+      with_draft_election ~save:false uuid (fun _ ->
+          destroy_election uuid >> Redirection.send admin
         )
     )
 
@@ -1195,7 +1140,6 @@ let () =
   Any.register ~service:election_draft_import_trustees_post
     (fun uuid from ->
       with_draft_election uuid (fun se ->
-          let uuid_s = raw_string_of_uuid uuid in
           let%lwt metadata = Web_persist.get_election_metadata from in
           let%lwt threshold = Web_persist.get_threshold from in
           let%lwt public_keys = Web_persist.get_public_keys from in
@@ -1235,9 +1179,6 @@ let () =
                   se.se_threshold <- Some tp.t_threshold;
                   se.se_threshold_trustees <- Some se_threshold_trustees;
                   se.se_threshold_parameters <- Some raw_tp;
-                  Lwt_list.iter_s (fun {stt_token; _} ->
-                      Ocsipersist.add election_tpktokens stt_token uuid_s
-                    ) se_threshold_trustees >>
                   redir_preapply election_draft_threshold_trustees uuid ()
                | Some ts, None, Some pks when List.length ts = List.length pks ->
                   let module G = (val Group.of_string se.se_group) in
@@ -1268,11 +1209,6 @@ let () =
                       raise (TrusteeImportError "Imported keys are invalid for this election!")
                   in
                   se.se_public_keys <- se.se_public_keys @ trustees;
-                  Lwt_list.iter_s (fun {st_token; _} ->
-                      if st_token <> "" then (
-                        Ocsipersist.add election_pktokens st_token uuid_s
-                      ) else return_unit
-                    ) trustees >>
                   redir_preapply election_draft_trustees uuid ()
                | _, _, _ ->
                   [%lwt raise (TrusteeImportError "Could not retrieve trustees from selected election!")]
@@ -1939,7 +1875,6 @@ let () =
               | Some t -> Some (t @ [trustee])
             in
             se.se_threshold_trustees <- trustees;
-            let%lwt () = Ocsipersist.add election_tpktokens stt_token (raw_string_of_uuid uuid) in
             redir_preapply election_draft_threshold_trustees uuid ()
           ) else (
             let msg = stt_id ^ " is not a valid e-mail address!" in
@@ -1953,7 +1888,7 @@ let () =
   Any.register ~service:election_draft_threshold_trustee_del
     (fun uuid index ->
       with_draft_election uuid (fun se ->
-          let trustees, old =
+          let trustees =
             let trustees =
               match se.se_threshold_trustees with
               | None -> []
@@ -1961,36 +1896,27 @@ let () =
             in
             trustees |>
               List.mapi (fun i x -> i, x) |>
-              List.partition (fun (i, _) -> i <> index) |>
-              (fun (x, y) -> List.map snd x, List.map snd y)
+              List.filter (fun (i, _) -> i <> index) |>
+              List.map snd
           in
           let trustees = match trustees with [] -> None | x -> Some x in
           se.se_threshold_trustees <- trustees;
-          let%lwt () =
-            Lwt_list.iter_s (fun {stt_token; _} ->
-                Ocsipersist.remove election_tpktokens stt_token
-              ) old
-          in
           redir_preapply election_draft_threshold_trustees uuid ()
         )
     )
 
 let () =
   Html5.register ~service:election_draft_threshold_trustee
-    (fun token () ->
-      let%lwt uuid = Ocsipersist.find election_tpktokens token in
-      let uuid = uuid_of_raw_string uuid in
+    (fun (uuid, token) () ->
       let%lwt se = get_draft_election uuid in
       T.election_draft_threshold_trustee token uuid se ()
     )
 
 let () =
   Any.register ~service:election_draft_threshold_trustee_post
-    (fun token data ->
+    (fun (uuid, token) data ->
       wrap_handler
         (fun () ->
-          let%lwt uuid = Ocsipersist.find election_tpktokens token in
-          let uuid = uuid_of_raw_string uuid in
           Lwt_mutex.with_lock election_draft_mutex
             (fun () ->
               let%lwt se = get_draft_election uuid in
@@ -2099,7 +2025,7 @@ let () =
                 ) else return_unit
               ) >> set_draft_election uuid se
             ) >>
-            redir_preapply election_draft_threshold_trustee token ()
+            redir_preapply election_draft_threshold_trustee (uuid, token) ()
         )
     )
 
@@ -2148,7 +2074,7 @@ let get_next_actions_draft () =
       let%lwt t = Web_persist.get_election_date `Creation uuid in
       let t = Option.get t default_creation_date in
       let next_t = datetime_add t (day days_to_delete) in
-      return ((`Destroy se, uuid, next_t, name, contact) :: accu)
+      return ((`Destroy, uuid, next_t, name, contact) :: accu)
     ) election_stable []
 
 let mail_automatic_warning : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -2160,7 +2086,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
   let uuid_s = raw_string_of_uuid uuid in
   let now = now () in
   let action, comment = match action with
-    | `Destroy se -> (fun uuid -> destroy_election uuid se), "destroyed"
+    | `Destroy -> destroy_election, "destroyed"
     | `Delete -> delete_election, "deleted"
     | `Archive -> archive_election, "archived"
   in
