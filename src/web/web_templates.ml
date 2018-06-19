@@ -157,7 +157,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
           pcdata L.powered_by;
           a ~service:belenios_url [pcdata "Belenios"] ();
           Belenios_version.(
-            Printf.ksprintf pcdata " %s (%s)." version build
+            Printf.ksprintf pcdata " %s (%s). " version build
           );
           a ~service:source_code [pcdata L.get_the_source_code] ();
           pcdata ". ";
