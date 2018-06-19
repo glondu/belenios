@@ -84,12 +84,9 @@ let get_draft_election uuid =
 let set_draft_election uuid se =
   Ocsipersist.add election_stable (raw_string_of_uuid uuid) (string_of_draft_election se)
 
-let dump_passwords dir table =
-  Lwt_io.(with_file Output (dir / "passwords.csv") (fun oc ->
-    Ocsipersist.iter_step (fun voter (salt, hashed) ->
-      write_line oc (voter ^ "," ^ salt ^ "," ^ hashed)
-    ) table
-  ))
+let dump_passwords uuid db =
+  List.map (fun line -> PString.concat "," line) db |>
+    write_file ~uuid "passwords.csv"
 
 let validate_election uuid se =
   let uuid_s = raw_string_of_uuid uuid in
@@ -258,19 +255,18 @@ let validate_election uuid se =
         ts
   ) >>
   Ocsipersist.remove election_stable uuid_s >>
-  (* inject passwords *)
+  (* write passwords *)
   (match metadata.e_auth_config with
   | Some [{auth_system = "password"; _}] ->
-     let table = "password_" ^ underscorize uuid in
-     let table = Ocsipersist.open_table table in
-     Lwt_list.iter_s
-       (fun v ->
-         let _, login = split_identity v.sv_id in
-         match v.sv_password with
-         | Some x -> Ocsipersist.add table login x
-         | None -> return_unit
-       ) se.se_voters >>
-       dump_passwords (!spool_dir / uuid_s) table
+     let db =
+       list_filter_map (fun v ->
+           let _, login = split_identity v.sv_id in
+           match v.sv_password with
+           | Some (salt, hashed) -> Some [login; salt; hashed]
+           | None -> None
+       ) se.se_voters
+     in
+     if db <> [] then dump_passwords uuid db else return_unit
   | _ -> return_unit) >>
   (* finish *)
   Web_persist.set_election_state uuid `Open >>
@@ -297,7 +293,6 @@ let delete_sensitive_data uuid =
   let%lwt () = cleanup_table ~uuid_s "site_tokens_decrypt" in
   let%lwt () = cleanup_table ~uuid_s "election_pds" in
   let%lwt () = cleanup_table ~uuid_s "auth_configs" in
-  let%lwt () = cleanup_table ("password_" ^ uuid_u) in
   let%lwt () = cleanup_table ("records_" ^ uuid_u) in
   let%lwt () = cleanup_table ("creds_" ^ uuid_u) in
   let%lwt () = cleanup_table ("ballots_" ^ uuid_u) in
@@ -743,6 +738,18 @@ let find_user_id uuid user =
        if login = user then return id else loop xs
   in loop db
 
+let load_password_db uuid =
+  let uuid_s = raw_string_of_uuid uuid in
+  let db = !spool_dir / uuid_s / "passwords.csv" in
+  Lwt_preemptive.detach Csv.load db
+
+let rec replace_password username ((salt, hashed) as p) = function
+  | [] -> []
+  | ((username' :: _ :: _ :: rest) as x) :: xs ->
+     if username = username' then (username :: salt :: hashed :: rest) :: xs
+     else x :: (replace_password username p xs)
+  | x :: xs -> x :: (replace_password username p xs)
+
 let () =
   Any.register ~service:election_regenpwd_post
     (fun (uuid, ()) user ->
@@ -750,8 +757,6 @@ let () =
           let%lwt election = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
-            let table = "password_" ^ underscorize uuid in
-            let table = Ocsipersist.open_table table in
             let title = election.e_params.e_name in
             let url = Eliom_uri.make_string_uri
                         ~absolute:true ~service:election_home
@@ -761,9 +766,10 @@ let () =
             (try%lwt
                let%lwt id = find_user_id uuid user in
                let langs = get_languages metadata.e_languages in
+               let%lwt db = load_password_db uuid in
                let%lwt x = generate_password metadata langs title url id in
-               Ocsipersist.add table user x >>
-                 dump_passwords (!spool_dir / raw_string_of_uuid uuid) table >>
+               let db = replace_password user x db in
+               dump_passwords uuid db >>
                  T.generic_page ~title:"Success" ~service
                    ("A new password has been mailed to " ^ id ^ ".") ()
                >>= Html5.send

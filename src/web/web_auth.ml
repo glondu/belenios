@@ -22,10 +22,13 @@
 open Lwt
 open Eliom_service
 open Platform
+open Serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Web_state
 open Web_services
+
+let ( / ) = Filename.concat
 
 let next_lf str i =
   try Some (String.index_from str i '\n')
@@ -98,12 +101,9 @@ let password_handler () (name, password) =
          | _ -> failwith "invalid configuration for admin site"
        end
     | Some uuid ->
-       let table = "password_" ^ underscorize uuid in
-       let table = Ocsipersist.open_table table in
-       try%lwt
-         let%lwt salt, hashed = Ocsipersist.find table name in
-         return (sha256_hex (salt ^ password) = hashed)
-       with Not_found -> return false
+       let uuid_s = raw_string_of_uuid uuid in
+       let db = !spool_dir / uuid_s / "passwords.csv" in
+       check_password_with_file db name password
   in
   if ok then
     Eliom_reference.set user (Some {uuid; service; name}) >>

@@ -149,6 +149,14 @@ let rec list_join sep = function
   | [x] -> [x]
   | x :: xs -> x :: sep :: list_join sep xs
 
+let rec list_filter_map f = function
+  | [] -> []
+  | x :: xs ->
+     let ys = list_filter_map f xs in
+     match f x with
+     | None -> ys
+     | Some y -> y :: ys
+
 let option_get x default_value = match x with
   | None -> default_value
   | Some x -> x
