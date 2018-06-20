@@ -202,7 +202,7 @@ let raw_get_ballots_archived uuid =
   | None -> return Ballots.empty
 
 let archived_ballots_cache =
-  new BallotsCache.cache raw_get_ballots_archived 10
+  new BallotsCache.cache raw_get_ballots_archived ~timer:3600. 10
 
 let get_ballot_hashes uuid =
   match%lwt get_election_state uuid with

@@ -65,7 +65,7 @@ end
 module WCache = Ocsigen_cache.Make (WCacheTypes)
 
 let find_election =
-  let cache = new WCache.cache raw_find_election 100 in
+  let cache = new WCache.cache raw_find_election ~timer:3600. 100 in
   fun x -> cache#find x
 
 let get_draft_election uuid =
