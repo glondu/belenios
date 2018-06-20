@@ -181,11 +181,11 @@ let get_threshold uuid =
   | Some [x] -> return (Some x)
   | _ -> return_none
 
-module Ballots = Map.Make (String)
+module StringMap = Map.Make (String)
 
 module BallotsCacheTypes = struct
   type key = uuid
-  type value = string Ballots.t
+  type value = string StringMap.t
 end
 
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
@@ -196,10 +196,10 @@ let raw_get_ballots_archived uuid =
      return (
          List.fold_left (fun accu b ->
              let hash = sha256_b64 b in
-             Ballots.add hash b accu
-           ) Ballots.empty bs
+             StringMap.add hash b accu
+           ) StringMap.empty bs
        )
-  | None -> return Ballots.empty
+  | None -> return StringMap.empty
 
 let archived_ballots_cache =
   new BallotsCache.cache raw_get_ballots_archived ~timer:3600. 10
@@ -208,7 +208,7 @@ let get_ballot_hashes uuid =
   match%lwt get_election_state uuid with
   | `Archived ->
      let%lwt ballots = archived_ballots_cache#find uuid in
-     Ballots.bindings ballots |> List.map fst |> return
+     StringMap.bindings ballots |> List.map fst |> return
   | _ ->
      let uuid_s = raw_string_of_uuid uuid in
      let ballots = Lwt_unix.files_of_directory (!spool_dir / uuid_s / "ballots") in
@@ -220,7 +220,7 @@ let get_ballot_by_hash uuid hash =
   match%lwt get_election_state uuid with
   | `Archived ->
      let%lwt ballots = archived_ballots_cache#find uuid in
-     (try Some (Ballots.find hash ballots) with Not_found -> None) |> return
+     (try Some (StringMap.find hash ballots) with Not_found -> None) |> return
   | _ ->
      let%lwt ballot = read_file ~uuid ("ballots" / urlize hash) in
      match ballot with
