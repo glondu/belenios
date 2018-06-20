@@ -74,6 +74,14 @@ type credential_mapping = {
   ?ballot : string option;
 } <ocaml field_prefix="c_">
 
+type election_state =
+  [ Open
+  | Closed
+  | EncryptedTally of (int * int * string)
+  | Tallied
+  | Archived
+  ]
+
 (** {1 Types related to elections being prepared} *)
 
 type draft_voter = {

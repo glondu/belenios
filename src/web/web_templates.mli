@@ -51,8 +51,8 @@ val election_draft_import : uuid -> draft_election -> 'a election list * 'a elec
 val election_draft_import_trustees : uuid -> draft_election -> 'a election list * 'a election list * 'a election list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_draft_confirm : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
-val election_home : 'a election -> Web_persist.election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_admin : 'a election -> Web_serializable_j.metadata -> Web_persist.election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_home : 'a election -> election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_admin : 'a election -> Web_serializable_j.metadata -> election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val update_credential : 'a election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

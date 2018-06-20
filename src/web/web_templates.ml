@@ -1611,7 +1611,7 @@ let election_home election state () =
          b [pcdata hash];
          pcdata ".";
        ]
-    | `Tallied _ ->
+    | `Tallied ->
        [
          pcdata " ";
          b [pcdata L.election_has_been_tallied];
@@ -1887,7 +1887,7 @@ let election_admin election metadata state get_tokens_decrypt () =
          ];
          release_form;
        ]
-    | `Tallied _ ->
+    | `Tallied ->
        return @@ div [
          pcdata "This election has been tallied.";
        ]
@@ -1900,7 +1900,7 @@ let election_admin election metadata state get_tokens_decrypt () =
        ]
   in
   let%lwt archive_date = match state with
-    | `Tallied _ ->
+    | `Tallied ->
        let%lwt t = Web_persist.get_election_date `Tally uuid in
        let t = datetime_add (Option.get t default_tally_date) (day days_to_archive) in
        return @@
@@ -1930,7 +1930,7 @@ let election_admin election metadata state get_tokens_decrypt () =
        let%lwt t = Web_persist.get_election_date `Validation uuid in
        let dt = day days_to_delete in
        return @@ datetime_add (Option.get t default_validation_date) dt
-    | `Tallied _ ->
+    | `Tallied ->
        let%lwt t = Web_persist.get_election_date `Tally uuid in
        let dt = day (days_to_archive + days_to_delete) in
        return @@ datetime_add (Option.get t default_tally_date) dt

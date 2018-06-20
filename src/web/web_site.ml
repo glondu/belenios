@@ -251,7 +251,7 @@ let cleanup_file f =
 
 let delete_sensitive_data uuid =
   let uuid_s = raw_string_of_uuid uuid in
-  let%lwt () = cleanup_table ~uuid_s "election_states" in
+  let%lwt () = cleanup_file (!spool_dir / uuid_s / "state.json") in
   let%lwt () = cleanup_table ~uuid_s "site_tokens_decrypt" in
   let%lwt () = cleanup_table ~uuid_s "election_pds" in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "extended_records.jsons") in
@@ -384,7 +384,7 @@ let get_validated_elections_by_owner u =
         in
         let elections, tallied, archived = accu in
         match state with
-        | `Tallied _ -> return (elections, (date, w) :: tallied, archived)
+        | `Tallied -> return (elections, (date, w) :: tallied, archived)
         | `Archived -> return (elections, tallied, (date, w) :: archived)
         | _ -> return ((date, w) :: elections, tallied, archived)
     ) ([], [], [])
@@ -1719,7 +1719,7 @@ let handle_election_tally_release (uuid, ()) () =
           let result = string_of_result W.G.write result in
           write_file ~uuid (string_of_election_file ESResult) [result]
         in
-        let%lwt () = Web_persist.set_election_state uuid (`Tallied result.result) in
+        let%lwt () = Web_persist.set_election_state uuid `Tallied in
         let%lwt () = Web_persist.set_election_date `Tally uuid (now ()) in
         let%lwt () = Ocsipersist.remove election_tokens_decrypt uuid_s in
         redir_preapply election_home (uuid, ()) ()
@@ -2037,7 +2037,7 @@ let extract_automatic_data_validated uuid_s =
         let t = Option.get t default_validation_date in
         let next_t = datetime_add t (day days_to_delete) in
         return @@ Some (`Delete, uuid, next_t, name, contact)
-     | `Tallied _ ->
+     | `Tallied ->
         let%lwt t = Web_persist.get_election_date `Tally uuid in
         let t = Option.get t default_tally_date in
         let next_t = datetime_add t (day days_to_archive) in

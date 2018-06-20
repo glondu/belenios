@@ -34,22 +34,19 @@ let get_election_result uuid =
   | Some [x] -> return (Some (result_of_string Yojson.Safe.read_json x))
   | _ -> return_none
 
-type election_state =
-  [ `Open
-  | `Closed
-  | `EncryptedTally of int * int * string
-  | `Tallied of plaintext
-  | `Archived
-  ]
+let get_election_state uuid =
+  match%lwt read_file ~uuid "state.json" with
+  | Some [x] -> return @@ election_state_of_string x
+  | _ -> return `Archived
 
-let election_states = Ocsipersist.open_table "election_states"
-
-let get_election_state x =
-  try%lwt Ocsipersist.find election_states (raw_string_of_uuid x)
-  with Not_found -> return `Archived
-
-let set_election_state x s =
-  Ocsipersist.add election_states (raw_string_of_uuid x) s
+let set_election_state uuid s =
+  match s with
+  | `Archived ->
+     (
+       try%lwt Lwt_unix.unlink (!spool_dir / raw_string_of_uuid uuid / "state.json")
+       with _ -> return_unit
+     )
+  | _ -> write_file ~uuid "state.json" [string_of_election_state s]
 
 type election_date =
   [ `Creation

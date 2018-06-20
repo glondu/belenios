@@ -23,13 +23,6 @@ open Serializable_t
 open Common
 open Web_serializable_t
 
-type election_state =
-  [ `Open
-  | `Closed
-  | `EncryptedTally of int * int * string
-  | `Tallied of plaintext
-  | `Archived
-  ]
 val get_election_state : uuid -> election_state Lwt.t
 val set_election_state : uuid -> election_state -> unit Lwt.t
 
