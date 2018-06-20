@@ -294,6 +294,11 @@ let write_file ?uuid x lines =
       )
   ) >> Lwt_unix.rename fname_new fname
 
+let rmdir dir =
+  let command = "rm", [| "rm"; "-rf"; dir |] in
+  let%lwt _ = Lwt_process.exec command in
+  return_unit
+
 let compile_auth_config {auth_system; auth_instance; auth_config} =
   auth_instance, (auth_system, List.map snd auth_config)
 

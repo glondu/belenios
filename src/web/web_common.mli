@@ -111,6 +111,7 @@ val extract_email : string -> string option
 val file_exists : string -> bool Lwt.t
 val read_file : ?uuid:uuid -> string -> string list option Lwt.t
 val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
+val rmdir : string -> unit Lwt.t
 
 val compile_auth_config : auth_config -> string * (string * string list)
 

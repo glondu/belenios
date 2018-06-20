@@ -1555,9 +1555,7 @@ let make_archive uuid =
      let fname_new = fname ^ ".new" in
      let%lwt () = copy_file (temp_dir / "archive.zip") fname_new in
      let%lwt () = Lwt_unix.rename fname_new fname in
-     let command = "rm", [| "rm"; "-rf"; temp_dir |] in
-     let%lwt _ = Lwt_process.exec command in
-     return_unit
+     rmdir temp_dir
   | _ ->
      Printf.ksprintf Ocsigen_messages.errlog
        "Error while creating archive.zip for election %s, temporary directory left in %s"
