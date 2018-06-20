@@ -69,4 +69,7 @@ val remove_ballot : uuid -> string -> unit Lwt.t
 val dump_ballots : uuid -> unit Lwt.t
 val compute_encrypted_tally : uuid -> (int * string * string) Lwt.t
 
+val find_extended_record : uuid -> string -> (datetime * string) option Lwt.t
+val add_extended_record : uuid -> string -> datetime * string -> unit Lwt.t
+
 val has_voted : uuid -> user -> bool Lwt.t

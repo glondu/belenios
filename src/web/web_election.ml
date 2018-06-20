@@ -38,7 +38,6 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
     module G = E.G
 
       let uuid_u = underscorize uuid
-      let records_table = Ocsipersist.open_table ("records_" ^ uuid_u)
       let cred_table = Ocsipersist.open_table ("creds_" ^ uuid_u)
 
       let inject_cred cred =
@@ -97,10 +96,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
           try%lwt Ocsipersist.find cred_table credential
           with Not_found -> fail InvalidCredential
         and old_record =
-          try%lwt
-            let%lwt x = Ocsipersist.find records_table user in
-            Lwt.return (Some x)
-          with Not_found -> Lwt.return None
+          Web_persist.find_extended_record uuid user
         in
         match old_cred, old_record with
           | None, None ->
@@ -110,7 +106,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
               let hash = sha256_b64 rawballot in
               Ocsipersist.add cred_table credential (Some hash) >>
               Web_persist.add_ballot uuid hash rawballot >>
-              Ocsipersist.add records_table user (date, credential) >>
+              Web_persist.add_extended_record uuid user (date, credential) >>
               send_confirmation_email false login email hash >>
               return hash
             ) else (
@@ -125,7 +121,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
                 let hash = sha256_b64 rawballot in
                 Ocsipersist.add cred_table credential (Some hash) >>
                 Web_persist.add_ballot uuid hash rawballot >>
-                Ocsipersist.add records_table user (date, credential) >>
+                Web_persist.add_extended_record uuid user (date, credential) >>
                 send_confirmation_email true login email hash >>
                 return hash
               ) else (
@@ -171,21 +167,12 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
           ) cred_table
         )
 
-      let do_write_records () =
-        do_write ESRecords (fun oc ->
-          Ocsipersist.iter_step (fun u (d, _) ->
-            Printf.sprintf "%s %S\n" (string_of_datetime d) u |>
-            Lwt_io.write oc
-          ) records_table
-        )
-
       let mutex = Lwt_mutex.create ()
 
       let cast rawballot (user, date) =
         Lwt_mutex.with_lock mutex (fun () ->
           let%lwt r = do_cast rawballot (user, date) in
           do_write_ballots () >>
-          do_write_records () >>
           return r
         )
 
@@ -198,7 +185,6 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
       let update_files () =
         Lwt_mutex.with_lock mutex (fun () ->
           do_write_ballots () >>
-          do_write_records () >>
           do_write_creds ()
         )
 

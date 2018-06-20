@@ -270,11 +270,52 @@ let compute_encrypted_tally uuid =
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
      return (num_tallied, sha256_b64 tally, tally)
 
+module ExtendedRecordsCacheTypes = struct
+  type key = uuid
+  type value = (datetime * string) StringMap.t
+end
+
+module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
+
+let raw_get_extended_records uuid =
+  match%lwt read_file ~uuid "extended_records.jsons" with
+  | Some xs ->
+     let xs = List.map extended_record_of_string xs in
+     return (
+         List.fold_left (fun accu r ->
+             StringMap.add r.r_username (r.r_date, r.r_credential) accu
+           ) StringMap.empty xs
+       )
+  | None -> return StringMap.empty
+
+let dump_extended_records uuid rs =
+  let rs = StringMap.bindings rs in
+  let extended_records =
+    List.map (fun (r_username, (r_date, r_credential)) ->
+        string_of_extended_record {r_username; r_date; r_credential}
+      ) rs
+  in
+  let records =
+    List.map (fun (u, (d, _)) ->
+        Printf.sprintf "%s %S\n" (string_of_datetime d) u
+      ) rs
+  in
+  write_file ~uuid "extended_records.jsons" extended_records >>
+  write_file ~uuid (string_of_election_file ESRecords) records
+
+let extended_records_cache =
+  new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
+
+let find_extended_record uuid username =
+  let%lwt rs = extended_records_cache#find uuid in
+  return (try Some (StringMap.find username rs) with Not_found -> None)
+
+let add_extended_record uuid username r =
+  let%lwt rs = extended_records_cache#find uuid in
+  let rs = StringMap.add username r rs in
+  extended_records_cache#add uuid rs;
+  dump_extended_records uuid rs
+
 let has_voted uuid user =
-  let uuid_u = underscorize uuid in
-  let records_table = Ocsipersist.open_table ("records_" ^ uuid_u) in
-  try%lwt
-    let%lwt _ = Ocsipersist.find records_table (string_of_user user) in
-    return true
-  with Not_found ->
-    return false
+  let%lwt rs = extended_records_cache#find uuid in
+  return @@ StringMap.mem (string_of_user user) rs
