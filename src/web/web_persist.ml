@@ -241,15 +241,21 @@ let dump_ballots uuid =
   let%lwt ballots = load_ballots uuid in
   write_file ~uuid "ballots.jsons" ballots
 
-let add_ballot uuid hash ballot =
+let add_ballot uuid ballot =
+  let hash = sha256_b64 ballot in
   let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
   let%lwt () = try%lwt Lwt_unix.mkdir ballots_dir 0o755 with _ -> return_unit in
   write_file (ballots_dir / urlize hash) [ballot] >>
-  dump_ballots uuid
+  dump_ballots uuid >>
+  return hash
 
 let remove_ballot uuid hash =
   let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
   try%lwt Lwt_unix.unlink (ballots_dir / urlize hash) with _ -> return_unit
+
+let replace_ballot uuid hash ballot =
+  remove_ballot uuid hash >>
+  add_ballot uuid ballot
 
 let compute_encrypted_tally uuid =
   let%lwt election = get_raw_election uuid in

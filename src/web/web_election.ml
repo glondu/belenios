@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Lwt
-open Platform
 open Serializable_j
 open Signatures
 open Common
@@ -90,9 +89,8 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
             (* first vote *)
             let%lwt b = Lwt_preemptive.detach E.check_ballot ballot in
             if b then (
-              let hash = sha256_b64 rawballot in
+              let%lwt hash = Web_persist.add_ballot uuid rawballot in
               Web_persist.add_credential_mapping uuid credential (Some hash) >>
-              Web_persist.add_ballot uuid hash rawballot >>
               Web_persist.add_extended_record uuid user (date, credential) >>
               send_confirmation_email false login email hash >>
               return hash
@@ -104,10 +102,8 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
             if credential = old_credential then (
               let%lwt b = Lwt_preemptive.detach E.check_ballot ballot in
               if b then (
-                Web_persist.remove_ballot uuid h >>
-                let hash = sha256_b64 rawballot in
+                let%lwt hash = Web_persist.replace_ballot uuid h rawballot in
                 Web_persist.add_credential_mapping uuid credential (Some hash) >>
-                Web_persist.add_ballot uuid hash rawballot >>
                 Web_persist.add_extended_record uuid user (date, credential) >>
                 send_confirmation_email true login email hash >>
                 return hash
