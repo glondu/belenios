@@ -210,10 +210,11 @@ let get_ballot_hashes uuid =
      let%lwt ballots = archived_ballots_cache#find uuid in
      Ballots.bindings ballots |> List.map fst |> return
   | _ ->
-     let table = Ocsipersist.open_table ("ballots_" ^ underscorize uuid) in
-     Ocsipersist.fold_step (fun hash _ accu ->
-       return (hash :: accu)
-     ) table [] >>= (fun x -> return @@ List.rev x)
+     let uuid_s = raw_string_of_uuid uuid in
+     let ballots = Lwt_unix.files_of_directory (!spool_dir / uuid_s / "ballots") in
+     let%lwt ballots = Lwt_stream.to_list ballots in
+     let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
+     return (List.rev_map unurlize ballots)
 
 let get_ballot_by_hash uuid hash =
   match%lwt get_election_state uuid with
@@ -221,9 +222,53 @@ let get_ballot_by_hash uuid hash =
      let%lwt ballots = archived_ballots_cache#find uuid in
      (try Some (Ballots.find hash ballots) with Not_found -> None) |> return
   | _ ->
-     let table = Ocsipersist.open_table ("ballots_" ^ underscorize uuid) in
-     try%lwt Ocsipersist.find table hash >>= (fun x -> return @@ Some x)
-     with Not_found -> return_none
+     let%lwt ballot = read_file ~uuid ("ballots" / urlize hash) in
+     match ballot with
+     | Some [x] -> return (Some x)
+     | _ -> return_none
+
+let add_ballot uuid hash ballot =
+  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
+  let%lwt () = try%lwt Lwt_unix.mkdir ballots_dir 0o755 with _ -> return_unit in
+  write_file (ballots_dir / urlize hash) [ballot]
+
+let remove_ballot uuid hash =
+  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
+  try%lwt Lwt_unix.unlink (ballots_dir / urlize hash) with _ -> return_unit
+
+let load_ballots uuid =
+  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
+  let ballots = Lwt_unix.files_of_directory ballots_dir in
+  let%lwt ballots = Lwt_stream.to_list ballots in
+  Lwt_list.filter_map_p (fun x ->
+      match%lwt read_file (ballots_dir / x) with
+      | Some [x] -> return (Some x)
+      | _ -> return_none
+    ) ballots
+
+let dump_ballots uuid =
+  let%lwt ballots = load_ballots uuid in
+  write_file ~uuid "ballots.jsons" ballots
+
+let compute_encrypted_tally uuid =
+  let%lwt election = get_raw_election uuid in
+  match election with
+  | None -> Lwt.fail Not_found
+  | Some election ->
+     let election = Election.of_string election in
+     let module W = (val Election.get_group election) in
+     let module E = Election.Make (W) (LwtRandom) in
+     let%lwt ballots = load_ballots uuid in
+     let num_tallied, tally =
+       List.fold_left (fun (n, accu) rawballot ->
+           let ballot = ballot_of_string E.G.read rawballot in
+           let ciphertext = E.extract_ciphertext ballot in
+           n + 1, E.combine_ciphertexts accu ciphertext
+         ) (0, E.neutral_ciphertext ()) ballots
+     in
+     let tally = string_of_encrypted_tally E.G.write tally in
+     let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
+     return (num_tallied, sha256_b64 tally, tally)
 
 let has_voted uuid user =
   let uuid_u = underscorize uuid in

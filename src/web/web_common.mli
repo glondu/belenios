@@ -115,6 +115,9 @@ val rmdir : string -> unit Lwt.t
 
 val compile_auth_config : auth_config -> string * (string * string list)
 
+val urlize : string -> string
+val unurlize : string -> string
+
 val default_contact : string
 val default_questions : question array
 val default_name : string

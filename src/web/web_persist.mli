@@ -64,4 +64,9 @@ val get_threshold : uuid -> string option Lwt.t
 val get_ballot_hashes : uuid -> string list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 
+val add_ballot : uuid -> string -> string -> unit Lwt.t
+val remove_ballot : uuid -> string -> unit Lwt.t
+val dump_ballots : uuid -> unit Lwt.t
+val compute_encrypted_tally : uuid -> (int * string * string) Lwt.t
+
 val has_voted : uuid -> user -> bool Lwt.t

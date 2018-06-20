@@ -38,7 +38,6 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
     module G = E.G
 
       let uuid_u = underscorize uuid
-      let ballots_table = Ocsipersist.open_table ("ballots_" ^ uuid_u)
       let records_table = Ocsipersist.open_table ("records_" ^ uuid_u)
       let cred_table = Ocsipersist.open_table ("creds_" ^ uuid_u)
 
@@ -110,7 +109,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
             if b then (
               let hash = sha256_b64 rawballot in
               Ocsipersist.add cred_table credential (Some hash) >>
-              Ocsipersist.add ballots_table hash rawballot >>
+              Web_persist.add_ballot uuid hash rawballot >>
               Ocsipersist.add records_table user (date, credential) >>
               send_confirmation_email false login email hash >>
               return hash
@@ -122,10 +121,10 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
             if credential = old_credential then (
               let%lwt b = Lwt_preemptive.detach E.check_ballot ballot in
               if b then (
-                Ocsipersist.remove ballots_table h >>
+                Web_persist.remove_ballot uuid h >>
                 let hash = sha256_b64 rawballot in
                 Ocsipersist.add cred_table credential (Some hash) >>
-                Ocsipersist.add ballots_table hash rawballot >>
+                Web_persist.add_ballot uuid hash rawballot >>
                 Ocsipersist.add records_table user (date, credential) >>
                 send_confirmation_email true login email hash >>
                 return hash
@@ -163,11 +162,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
         Lwt_io.(with_file ~mode:Output (!spool_dir / raw_string_of_uuid uuid / string_of_election_file f))
 
       let do_write_ballots () =
-        do_write ESBallots (fun oc ->
-          Ocsipersist.iter_step (fun _ x ->
-            Lwt_io.write_line oc x
-          ) ballots_table
-        )
+        Web_persist.dump_ballots uuid
 
       let do_write_creds () =
         do_write ESCreds (fun oc ->
@@ -206,22 +201,5 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
           do_write_records () >>
           do_write_creds ()
         )
-
-      let compute_encrypted_tally () =
-        let%lwt num_tallied, tally =
-          Ocsipersist.fold_step
-            (fun _ rawballot (n, accu) ->
-              let ballot = ballot_of_string G.read rawballot in
-              let ciphertext = E.extract_ciphertext ballot in
-              return (n + 1, E.combine_ciphertexts accu ciphertext))
-            ballots_table (0, E.neutral_ciphertext ())
-        in
-        let tally = string_of_encrypted_tally G.write tally in
-        Lwt_mutex.with_lock mutex (fun () ->
-          do_write ESETally (fun oc ->
-            Lwt_io.write oc tally
-          )
-        ) >>
-        return (num_tallied, sha256_b64 tally, tally)
 
 end

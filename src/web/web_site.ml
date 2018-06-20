@@ -258,7 +258,7 @@ let delete_sensitive_data uuid =
   let%lwt () = cleanup_table ~uuid_s "election_pds" in
   let%lwt () = cleanup_table ("records_" ^ uuid_u) in
   let%lwt () = cleanup_table ("creds_" ^ uuid_u) in
-  let%lwt () = cleanup_table ("ballots_" ^ uuid_u) in
+  let%lwt () = rmdir (!spool_dir / uuid_s / "ballots") in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_key.json") in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_keys.jsons") in
   return_unit
@@ -1773,14 +1773,13 @@ let () =
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           let module W = (val Election.get_group election) in
           let module E = Election.Make (W) (LwtRandom) in
-          let module B = Web_election.Make (E) in
           if metadata.e_owner = Some u then (
             let%lwt () =
               match%lwt Web_persist.get_election_state uuid with
               | `Closed -> return ()
               | _ -> forbidden ()
             in
-            let%lwt nb, hash, tally = B.compute_encrypted_tally () in
+            let%lwt nb, hash, tally = Web_persist.compute_encrypted_tally uuid in
             let%lwt npks =
               match%lwt Web_persist.get_threshold uuid with
               | Some tp ->

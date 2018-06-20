@@ -302,6 +302,9 @@ let rmdir dir =
 let compile_auth_config {auth_system; auth_instance; auth_config} =
   auth_instance, (auth_system, List.map snd auth_config)
 
+let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)
+let unurlize = String.map (function '-' -> '+' | '_' -> '/' | c -> c)
+
 let default_contact = "Name <user@example.org>"
 
 let default_questions =
