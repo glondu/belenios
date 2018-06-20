@@ -227,15 +227,6 @@ let get_ballot_by_hash uuid hash =
      | Some [x] -> return (Some x)
      | _ -> return_none
 
-let add_ballot uuid hash ballot =
-  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
-  let%lwt () = try%lwt Lwt_unix.mkdir ballots_dir 0o755 with _ -> return_unit in
-  write_file (ballots_dir / urlize hash) [ballot]
-
-let remove_ballot uuid hash =
-  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
-  try%lwt Lwt_unix.unlink (ballots_dir / urlize hash) with _ -> return_unit
-
 let load_ballots uuid =
   let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
   let ballots = Lwt_unix.files_of_directory ballots_dir in
@@ -249,6 +240,16 @@ let load_ballots uuid =
 let dump_ballots uuid =
   let%lwt ballots = load_ballots uuid in
   write_file ~uuid "ballots.jsons" ballots
+
+let add_ballot uuid hash ballot =
+  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
+  let%lwt () = try%lwt Lwt_unix.mkdir ballots_dir 0o755 with _ -> return_unit in
+  write_file (ballots_dir / urlize hash) [ballot] >>
+  dump_ballots uuid
+
+let remove_ballot uuid hash =
+  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
+  try%lwt Lwt_unix.unlink (ballots_dir / urlize hash) with _ -> return_unit
 
 let compute_encrypted_tally uuid =
   let%lwt election = get_raw_election uuid in

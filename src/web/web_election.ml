@@ -128,21 +128,11 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
               Printf.sprintf "%s attempted to vote with already used credential %s" user credential
             ) >> fail ReusedCredential
 
-      let do_write_ballots () =
-        Web_persist.dump_ballots uuid
-
       let mutex = Lwt_mutex.create ()
 
       let cast rawballot (user, date) =
         Lwt_mutex.with_lock mutex (fun () ->
-          let%lwt r = do_cast rawballot (user, date) in
-          do_write_ballots () >>
-          return r
-        )
-
-      let update_files () =
-        Lwt_mutex.with_lock mutex (fun () ->
-          do_write_ballots ()
+          do_cast rawballot (user, date)
         )
 
 end

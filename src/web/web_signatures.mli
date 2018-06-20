@@ -58,5 +58,4 @@ type content =
 
 module type WEB_BALLOT_BOX = sig
   val cast : string -> user * datetime -> string Lwt.t
-  val update_files : unit -> unit Lwt.t
 end
