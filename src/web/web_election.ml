@@ -21,7 +21,6 @@
 
 open Lwt
 open Platform
-open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
@@ -29,23 +28,11 @@ open Web_serializable_j
 open Web_signatures
 open Web_common
 
-let ( / ) = Filename.concat
-
 module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
 
     let uuid = E.election.e_params.e_uuid
 
     module G = E.G
-
-      let uuid_u = underscorize uuid
-      let cred_table = Ocsipersist.open_table ("creds_" ^ uuid_u)
-
-      let inject_cred cred =
-        try%lwt
-          let%lwt _ = Ocsipersist.find cred_table cred in
-          failwith "trying to add duplicate credential"
-        with Not_found ->
-          Ocsipersist.add cred_table cred None
 
       let send_confirmation_email revote user email hash =
         let title = E.election.e_params.e_name in
@@ -93,7 +80,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
             | None -> fail MissingCredential
         in
         let%lwt old_cred =
-          try%lwt Ocsipersist.find cred_table credential
+          try%lwt Web_persist.find_credential_mapping uuid credential
           with Not_found -> fail InvalidCredential
         and old_record =
           Web_persist.find_extended_record uuid user
@@ -104,7 +91,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
             let%lwt b = Lwt_preemptive.detach E.check_ballot ballot in
             if b then (
               let hash = sha256_b64 rawballot in
-              Ocsipersist.add cred_table credential (Some hash) >>
+              Web_persist.add_credential_mapping uuid credential (Some hash) >>
               Web_persist.add_ballot uuid hash rawballot >>
               Web_persist.add_extended_record uuid user (date, credential) >>
               send_confirmation_email false login email hash >>
@@ -119,7 +106,7 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
               if b then (
                 Web_persist.remove_ballot uuid h >>
                 let hash = sha256_b64 rawballot in
-                Ocsipersist.add cred_table credential (Some hash) >>
+                Web_persist.add_credential_mapping uuid credential (Some hash) >>
                 Web_persist.add_ballot uuid hash rawballot >>
                 Web_persist.add_extended_record uuid user (date, credential) >>
                 send_confirmation_email true login email hash >>
@@ -141,31 +128,8 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
               Printf.sprintf "%s attempted to vote with already used credential %s" user credential
             ) >> fail ReusedCredential
 
-      let do_update_cred ~old ~new_ =
-        match%lwt Ocsipersist.fold_step (fun k v x ->
-          if sha256_hex k = old then (
-            match v with
-              | Some _ -> fail UsedCredential
-              | None -> return (Some k)
-          ) else return x
-        ) cred_table None with
-        | None -> fail CredentialNotFound
-        | Some x ->
-          Ocsipersist.remove cred_table x >>
-          Ocsipersist.add cred_table new_ None
-
-      let do_write f =
-        Lwt_io.(with_file ~mode:Output (!spool_dir / raw_string_of_uuid uuid / string_of_election_file f))
-
       let do_write_ballots () =
         Web_persist.dump_ballots uuid
-
-      let do_write_creds () =
-        do_write ESCreds (fun oc ->
-          Ocsipersist.iter_step (fun x _ ->
-            Lwt_io.write_line oc x
-          ) cred_table
-        )
 
       let mutex = Lwt_mutex.create ()
 
@@ -176,16 +140,9 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
           return r
         )
 
-      let update_cred ~old ~new_ =
-        Lwt_mutex.with_lock mutex (fun () ->
-          let%lwt r = do_update_cred ~old ~new_ in
-          do_write_creds () >> return r
-        )
-
       let update_files () =
         Lwt_mutex.with_lock mutex (fun () ->
-          do_write_ballots () >>
-          do_write_creds ()
+          do_write_ballots ()
         )
 
 end

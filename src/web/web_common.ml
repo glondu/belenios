@@ -197,9 +197,6 @@ let generate_token ?(length=14) () =
 let string_of_user {user_domain; user_name} =
   user_domain ^ ":" ^ user_name
 
-let underscorize x =
-  String.map (function '-' -> '_' | c -> c) (raw_string_of_uuid x)
-
 let sendmail ?return_path message =
   let mailer =
     match return_path with

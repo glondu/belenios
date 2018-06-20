@@ -319,3 +319,76 @@ let add_extended_record uuid username r =
 let has_voted uuid user =
   let%lwt rs = extended_records_cache#find uuid in
   return @@ StringMap.mem (string_of_user user) rs
+
+module CredMappingsCacheTypes = struct
+  type key = uuid
+  type value = string option StringMap.t
+end
+
+module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
+
+let raw_get_credential_mappings uuid =
+  match%lwt read_file ~uuid "credential_mappings.jsons" with
+  | Some xs ->
+     let xs = List.map credential_mapping_of_string xs in
+     return (
+         List.fold_left (fun accu x ->
+             StringMap.add x.c_credential x.c_ballot accu
+           ) StringMap.empty xs
+       )
+  | None -> return StringMap.empty
+
+let dump_credential_mappings uuid xs =
+  let xs = StringMap.bindings xs in
+  let mappings =
+    List.map (fun (c_credential, c_ballot) ->
+        string_of_credential_mapping {c_credential; c_ballot}
+      ) xs
+  in
+  let creds = List.map fst xs in
+  write_file ~uuid "credential_mappings.jsons" mappings >>
+  write_file ~uuid "public_creds.txt" creds
+
+let credential_mappings_cache =
+  new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
+
+let init_credential_mapping uuid xs =
+  let xs =
+    List.fold_left (fun accu x ->
+        if StringMap.mem x accu then
+          failwith "trying to add duplicate credential"
+        else
+          StringMap.add x None accu
+      ) StringMap.empty xs
+  in
+  credential_mappings_cache#add uuid xs;
+  dump_credential_mappings uuid xs
+
+let find_credential_mapping uuid cred =
+  let%lwt xs = credential_mappings_cache#find uuid in
+  return @@ StringMap.find cred xs
+
+let add_credential_mapping uuid cred mapping =
+  let%lwt xs = credential_mappings_cache#find uuid in
+  let xs = StringMap.add cred mapping xs in
+  credential_mappings_cache#add uuid xs;
+  dump_credential_mappings uuid xs
+
+let replace_credential uuid old_ new_ =
+  let%lwt xs = credential_mappings_cache#find uuid in
+  let old_cred =
+    StringMap.fold (fun k v accu ->
+        if sha256_hex k = old_ then (
+          match v with
+          | Some _ -> raise (Error UsedCredential)
+          | None -> Some k
+        ) else accu
+      ) xs None
+  in
+  match old_cred with
+  | None -> fail CredentialNotFound
+  | Some old_cred ->
+     let xs = StringMap.remove old_cred xs in
+     let xs = StringMap.add new_ None xs in
+     credential_mappings_cache#add uuid xs;
+     dump_credential_mappings uuid xs

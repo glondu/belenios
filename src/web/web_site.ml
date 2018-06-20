@@ -200,14 +200,13 @@ let validate_election uuid se =
   let module W = (val Election.get_group election) in
   let module E = Election.Make (W) (LwtRandom) in
   let module B = Web_election.Make (E) in
-  (* inject credentials *)
+  (* initialize credentials *)
   let%lwt () =
     let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
     match%lwt read_file fname with
     | Some xs ->
-       Lwt_list.iter_s B.inject_cred xs
-       >> B.update_files ()
-       >> Lwt_unix.unlink fname
+       Web_persist.init_credential_mapping uuid xs >>
+       Lwt_unix.unlink fname
     | None -> return_unit
   in
   (* create file with private keys, if any *)
@@ -252,12 +251,11 @@ let cleanup_file f =
 
 let delete_sensitive_data uuid =
   let uuid_s = raw_string_of_uuid uuid in
-  let uuid_u = underscorize uuid in
   let%lwt () = cleanup_table ~uuid_s "election_states" in
   let%lwt () = cleanup_table ~uuid_s "site_tokens_decrypt" in
   let%lwt () = cleanup_table ~uuid_s "election_pds" in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "extended_records.jsons") in
-  let%lwt () = cleanup_table ("creds_" ^ uuid_u) in
+  let%lwt () = cleanup_file (!spool_dir / uuid_s / "credential_mappings.jsons") in
   let%lwt () = rmdir (!spool_dir / uuid_s / "ballots") in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_key.json") in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_keys.jsons") in
@@ -1343,14 +1341,10 @@ let () =
   Any.register ~service:election_update_credential_post
     (fun (uuid, ()) (old, new_) ->
       with_site_user (fun u ->
-          let%lwt election = find_election uuid in
           let%lwt metadata = Web_persist.get_election_metadata uuid in
-          let module W = (val Election.get_group election) in
-          let module E = Election.Make (W) (LwtRandom) in
-          let module B = Web_election.Make (E) in
           if metadata.e_owner = Some u then (
             try%lwt
-                  B.update_cred ~old ~new_ >>
+                  Web_persist.replace_credential uuid old new_ >>
                   String.send ("OK", "text/plain")
             with Error e ->
                let%lwt lang = Eliom_reference.get Web_state.language in

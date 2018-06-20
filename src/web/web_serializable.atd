@@ -69,6 +69,11 @@ type extended_record = {
   credential : string;
 } <ocaml field_prefix="r_">
 
+type credential_mapping = {
+  credential : string;
+  ?ballot : string option;
+} <ocaml field_prefix="c_">
+
 (** {1 Types related to elections being prepared} *)
 
 type draft_voter = {
