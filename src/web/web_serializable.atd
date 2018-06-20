@@ -82,6 +82,8 @@ type election_state =
   | Archived
   ]
 
+type partial_decryptions = (int * string) list
+
 (** {1 Types related to elections being prepared} *)
 
 type draft_voter = {

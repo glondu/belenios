@@ -88,14 +88,14 @@ let get_election_date kind uuid =
   | `Archive -> return dates.e_archive
   | `LastMail -> return dates.e_last_mail
 
-let election_pds = Ocsipersist.open_table "election_pds"
+let get_partial_decryptions uuid =
+  match%lwt read_file ~uuid "partial_decryptions.json" with
+  | Some [x] -> return @@ partial_decryptions_of_string x
+  | _ -> return []
 
-let get_partial_decryptions x =
-  try%lwt Ocsipersist.find election_pds (raw_string_of_uuid x)
-  with Not_found -> return []
-
-let set_partial_decryptions x pds =
-  Ocsipersist.add election_pds (raw_string_of_uuid x) pds
+let set_partial_decryptions uuid pds =
+  write_file ~uuid "partial_decryptions.json"
+    [string_of_partial_decryptions pds]
 
 let get_raw_election uuid =
   match%lwt read_file ~uuid "election.json" with

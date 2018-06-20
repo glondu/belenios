@@ -36,8 +36,8 @@ type election_date =
 val get_election_date : election_date -> uuid -> datetime option Lwt.t
 val set_election_date : election_date -> uuid -> datetime -> unit Lwt.t
 
-val get_partial_decryptions : uuid -> (int * string) list Lwt.t
-val set_partial_decryptions : uuid -> (int * string) list -> unit Lwt.t
+val get_partial_decryptions : uuid -> partial_decryptions Lwt.t
+val set_partial_decryptions : uuid -> partial_decryptions -> unit Lwt.t
 
 val get_auth_config : uuid -> (string * (string * string list)) list Lwt.t
 
