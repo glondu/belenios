@@ -83,6 +83,7 @@ type election_state =
   ]
 
 type partial_decryptions = (int * string) list
+type decryption_tokens = string list
 
 (** {1 Types related to elections being prepared} *)
 

@@ -106,6 +106,15 @@ let set_partial_decryptions uuid pds =
   write_file ~uuid "partial_decryptions.json"
     [string_of_partial_decryptions pds]
 
+let get_decryption_tokens uuid =
+  match%lwt read_file ~uuid "decryption_tokens.json" with
+  | Some [x] -> return @@ Some (decryption_tokens_of_string x)
+  | _ -> return_none
+
+let set_decryption_tokens uuid pds =
+  write_file ~uuid "decryption_tokens.json"
+    [string_of_decryption_tokens pds]
+
 let get_raw_election uuid =
   match%lwt read_file ~uuid "election.json" with
   | Some [x] -> return (Some x)

@@ -42,9 +42,6 @@ module PString = String
 open Eliom_service
 open Eliom_registration
 
-(* Table with tokens given to trustees (in threshold mode) to decrypt *)
-let election_tokens_decrypt = Ocsipersist.open_table "site_tokens_decrypt"
-
 module T = Web_templates
 
 let raw_find_election uuid =
@@ -224,20 +221,10 @@ let validate_election uuid se =
   Web_persist.set_election_state uuid `Open >>
   Web_persist.set_election_date `Validation uuid (now ())
 
-let cleanup_table ?uuid_s table =
-  let table = Ocsipersist.open_table table in
-  match uuid_s with
-  | None ->
-     let%lwt indexes = Ocsipersist.fold_step (fun k _ accu ->
-       return (k :: accu)) table []
-     in
-     Lwt_list.iter_s (Ocsipersist.remove table) indexes
-  | Some u -> Ocsipersist.remove table u
-
 let delete_sensitive_data uuid =
   let uuid_s = raw_string_of_uuid uuid in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "state.json") in
-  let%lwt () = cleanup_table ~uuid_s "site_tokens_decrypt" in
+  let%lwt () = cleanup_file (!spool_dir / uuid_s / "decryption_tokens.json") in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "partial_decryptions.json") in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "extended_records.jsons") in
   let%lwt () = cleanup_file (!spool_dir / uuid_s / "credential_mappings.jsons") in
@@ -1228,7 +1215,6 @@ let () =
 let () =
   Any.register ~service:election_admin
     (fun (uuid, ()) () ->
-     let uuid_s = raw_string_of_uuid uuid in
      let%lwt w = find_election uuid in
      let%lwt metadata = Web_persist.get_election_metadata uuid in
      let%lwt site_user = Web_state.get_site_user () in
@@ -1236,14 +1222,14 @@ let () =
      | Some u when metadata.e_owner = Some u ->
         let%lwt state = Web_persist.get_election_state uuid in
         let get_tokens_decrypt () =
-          try%lwt
-            Ocsipersist.find election_tokens_decrypt uuid_s
-          with Not_found ->
+          match%lwt Web_persist.get_decryption_tokens uuid with
+          | Some x -> return x
+          | None ->
             match metadata.e_trustees with
             | None -> failwith "missing trustees in get_tokens_decrypt"
             | Some ts ->
                let%lwt ts = Lwt_list.map_s (fun _ -> generate_token ()) ts in
-               Ocsipersist.add election_tokens_decrypt uuid_s ts >>
+               Web_persist.set_decryption_tokens uuid ts >>
                return ts
         in
         T.election_admin w metadata state get_tokens_decrypt () >>= Html5.send
@@ -1548,14 +1534,14 @@ let () =
     )
 
 let find_trustee_id uuid token =
-  try%lwt
-    let%lwt tokens = Ocsipersist.find election_tokens_decrypt (raw_string_of_uuid uuid) in
+  match%lwt Web_persist.get_decryption_tokens uuid with
+  | None -> return (try int_of_string token with _ -> 0)
+  | Some tokens ->
     let rec find i = function
       | [] -> raise Not_found
       | t :: ts -> if t = token then i else find (i+1) ts
     in
     return (find 1 tokens)
-  with Not_found -> return (try int_of_string token with _ -> 0)
 
 let () =
   Any.register ~service:election_tally_trustees
@@ -1690,7 +1676,7 @@ let handle_election_tally_release (uuid, ()) () =
         in
         let%lwt () = Web_persist.set_election_state uuid `Tallied in
         let%lwt () = Web_persist.set_election_date `Tally uuid (now ()) in
-        let%lwt () = Ocsipersist.remove election_tokens_decrypt uuid_s in
+        let%lwt () = cleanup_file (!spool_dir / uuid_s / "decryption_tokens.json") in
         redir_preapply election_home (uuid, ()) ()
       ) else forbidden ()
     )
