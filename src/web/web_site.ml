@@ -42,9 +42,6 @@ module PString = String
 open Eliom_service
 open Eliom_registration
 
-(* Table with draft elections. *)
-let election_stable = Ocsipersist.open_table "site_setup"
-
 (* Table with tokens given to trustees (in threshold mode) to decrypt *)
 let election_tokens_decrypt = Ocsipersist.open_table "site_tokens_decrypt"
 
@@ -67,13 +64,6 @@ module WCache = Ocsigen_cache.Make (WCacheTypes)
 let find_election =
   let cache = new WCache.cache raw_find_election ~timer:3600. 100 in
   fun x -> cache#find x
-
-let get_draft_election uuid =
-  let%lwt se = Ocsipersist.find election_stable (raw_string_of_uuid uuid) in
-  return (draft_election_of_string se)
-
-let set_draft_election uuid se =
-  Ocsipersist.add election_stable (raw_string_of_uuid uuid) (string_of_draft_election se)
 
 let dump_passwords uuid db =
   List.map (fun line -> PString.concat "," line) db |>
@@ -187,7 +177,6 @@ let validate_election uuid se =
             Lwt_io.write oc (what v) >>
               Lwt_io.write oc "\n") xs)
   in
-  Lwt_unix.mkdir dir 0o700 >>
   (match pk_or_tp with
    | `PK pk -> create_file "public_keys.jsons" (string_of_trustee_public_key G.write) pk
    | `TP tp -> create_file "threshold.json" (string_of_threshold_parameters G.write) [tp]
@@ -202,7 +191,7 @@ let validate_election uuid se =
   let module B = Web_election.Make (E) in
   (* initialize credentials *)
   let%lwt () =
-    let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
+    let fname = !spool_dir / uuid_s / "public_creds.txt" in
     match%lwt read_file fname with
     | Some xs ->
        Web_persist.init_credential_mapping uuid xs >>
@@ -216,8 +205,8 @@ let validate_election uuid se =
     | `KEY x -> create_file "private_key.json" string_of_number [x]
     | `KEYS x -> create_file "private_keys.jsons" (fun x -> x) x
   in
-  (* clean up draft database *)
-  Ocsipersist.remove election_stable uuid_s >>
+  (* clean up draft *)
+  cleanup_file (!spool_dir / uuid_s / "draft.json") >>
   (* write passwords *)
   (match metadata.e_auth_config with
   | Some [{auth_system = "password"; _}] ->
@@ -244,10 +233,6 @@ let cleanup_table ?uuid_s table =
      in
      Lwt_list.iter_s (Ocsipersist.remove table) indexes
   | Some u -> Ocsipersist.remove table u
-
-let cleanup_file f =
-  try%lwt Lwt_unix.unlink f
-  with _ -> return_unit
 
 let delete_sensitive_data uuid =
   let uuid_s = raw_string_of_uuid uuid in
@@ -371,29 +356,21 @@ let () = Any.register ~service:home
     Redirection.send admin
   )
 
-let get_validated_elections_by_owner u =
-  let%lwt elections, tallied, archived =
-    Web_persist.get_elections_by_owner u >>=
-    Lwt_list.fold_left_s (fun accu uuid ->
-        let%lwt w = find_election uuid in
-        let%lwt state = Web_persist.get_election_state uuid in
-        let%lwt date = Web_persist.get_election_date `Validation uuid in
-        let date = match date with
-          | None -> default_validation_date
-          | Some x -> x
-        in
-        let elections, tallied, archived = accu in
-        match state with
-        | `Tallied -> return (elections, (date, w) :: tallied, archived)
-        | `Archived -> return (elections, tallied, (date, w) :: archived)
-        | _ -> return ((date, w) :: elections, tallied, archived)
-    ) ([], [], [])
+let get_elections_by_owner_sorted u =
+  let%lwt elections = Web_persist.get_elections_by_owner u in
+  let filter kind =
+    List.filter (fun (x, _, _, _) -> x = kind) elections |>
+    List.map (fun (_, a, b, c) -> a, b, c)
   in
+  let draft = filter `Draft in
+  let elections = filter `Validated in
+  let tallied = filter `Tallied in
+  let archived = filter `Archived in
   let sort l =
-    List.sort (fun (x, _) (y, _) -> datetime_compare x y) l |>
-    List.map (fun (_, x) -> x)
+    List.sort (fun (_, x, _) (_, y, _) -> datetime_compare x y) l |>
+    List.map (fun (x, _, y) -> x, y)
   in
-  return (sort elections, sort tallied, sort archived)
+  return (sort draft, sort elections, sort tallied, sort archived)
 
 let with_site_user f =
   match%lwt Web_state.get_site_user () with
@@ -418,16 +395,8 @@ let () = Html5.register ~service:admin
       match site_user with
       | None -> return None
       | Some u ->
-         let%lwt elections, tallied, archived = get_validated_elections_by_owner u in
-         let%lwt draft_elections =
-           Ocsipersist.fold_step (fun k v accu ->
-             let v = draft_election_of_string v in
-             if v.se_owner = u then
-               return ((uuid_of_raw_string k, v.se_questions.t_name) :: accu)
-             else return accu
-           ) election_stable []
-         in
-         return @@ Some (elections, tallied, archived, draft_elections)
+         let%lwt elections = get_elections_by_owner_sorted u in
+         return @@ Some elections
     in
     T.admin ~elections ()
   )
@@ -488,7 +457,8 @@ let create_new_election owner cred auth =
     se_threshold_error = None;
     se_creation_date = Some (now ());
   } in
-  let%lwt () = set_draft_election uuid se in
+  let%lwt () = Lwt_unix.mkdir (!spool_dir / raw_string_of_uuid uuid) 0o700 in
+  let%lwt () = Web_persist.set_draft_election uuid se in
   redir_preapply election_draft uuid ()
 
 let () = Html5.register ~service:election_draft_pre
@@ -514,10 +484,9 @@ let () = Any.register ~service:election_draft_new
 
 let with_draft_election_ro uuid f =
   with_site_user (fun u ->
-      let%lwt se = get_draft_election uuid in
-      if se.se_owner = u then
-        f se
-      else forbidden ()
+      match%lwt Web_persist.get_draft_election uuid with
+      | None -> fail_http 404
+      | Some se -> if se.se_owner = u then f se else forbidden ()
     )
 
 let () =
@@ -559,11 +528,13 @@ let election_draft_mutex = Lwt_mutex.create ()
 let with_draft_election ?(save = true) uuid f =
   with_site_user (fun u ->
       Lwt_mutex.with_lock election_draft_mutex (fun () ->
-          let%lwt se = get_draft_election uuid in
+          match%lwt Web_persist.get_draft_election uuid with
+          | None -> fail_http 404
+          | Some se ->
           if se.se_owner = u then (
             try%lwt
               let%lwt r = f se in
-              let%lwt () = if save then set_draft_election uuid se else return_unit in
+              let%lwt () = if save then Web_persist.set_draft_election uuid se else return_unit in
               return r
             with e ->
               let service = preapply election_draft uuid in
@@ -881,8 +852,9 @@ let () =
 let () =
   Html5.register ~service:election_draft_credentials
     (fun (uuid, token) () ->
-     let%lwt se = get_draft_election uuid in
-     T.election_draft_credentials token uuid se ()
+      match%lwt Web_persist.get_draft_election uuid with
+      | None -> fail_http 404
+      | Some se -> T.election_draft_credentials token uuid se ()
     )
 
 let wrap_handler f =
@@ -891,11 +863,13 @@ let wrap_handler f =
   | e -> T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html5.send
 
 let handle_credentials_post uuid token creds =
-  let%lwt se = get_draft_election uuid in
+  match%lwt Web_persist.get_draft_election uuid with
+  | None -> fail_http 404
+  | Some se ->
   if se.se_public_creds <> token then forbidden () else
   if se.se_public_creds_received then forbidden () else
   let module G = (val Group.of_string se.se_group : GROUP) in
-  let fname = !spool_dir / raw_string_of_uuid uuid ^ ".public_creds.txt" in
+  let fname = !spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
   Lwt_mutex.with_lock
     election_draft_mutex
     (fun () ->
@@ -922,7 +896,7 @@ let handle_credentials_post uuid token creds =
   in
   let () = se.se_metadata <- {se.se_metadata with e_cred_authority = None} in
   let () = se.se_public_creds_received <- true in
-  set_draft_election uuid se >>
+  Web_persist.set_draft_election uuid se >>
   T.generic_page ~title:"Success"
     "Credentials have been received and checked!" () >>= Html5.send
 
@@ -995,7 +969,7 @@ let () =
                 ) SSet.empty se.se_voters
             in
             let creds = SSet.elements creds in
-            let fname = !spool_dir / raw_string_of_uuid uuid ^ ".public_creds.txt" in
+            let fname = !spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
             let%lwt () =
               Lwt_io.with_file
                 ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
@@ -1014,8 +988,9 @@ let () =
 let () =
   Html5.register ~service:election_draft_trustee
     (fun (uuid, token) () ->
-     let%lwt se = get_draft_election uuid in
-     T.election_draft_trustee token uuid se ()
+      match%lwt Web_persist.get_draft_election uuid with
+      | None -> fail_http 404
+      | Some se -> T.election_draft_trustee token uuid se ()
     )
 
 let () =
@@ -1027,7 +1002,9 @@ let () =
         Lwt_mutex.with_lock
           election_draft_mutex
           (fun () ->
-           let%lwt se = get_draft_election uuid in
+           match%lwt Web_persist.get_draft_election uuid with
+           | None -> fail_http 404
+           | Some se ->
            let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
            let module G = (val Group.of_string se.se_group : GROUP) in
            let pk = trustee_public_key_of_string G.read public_key in
@@ -1035,7 +1012,7 @@ let () =
            if not (KG.check pk) then failwith "invalid public key";
            (* we keep pk as a string because of G.t *)
            t.st_public_key <- public_key;
-           set_draft_election uuid se
+           Web_persist.set_draft_election uuid se
           ) >> T.generic_page ~title:"Success"
             "Your key has been received and checked!"
             () >>= Html5.send
@@ -1063,15 +1040,7 @@ let () =
     )
 
 let destroy_election uuid =
-  let uuid_s = raw_string_of_uuid uuid in
-  (* clean up credentials *)
-  let%lwt () =
-    let fname = !spool_dir / uuid_s ^ ".public_creds.txt" in
-    try%lwt Lwt_unix.unlink fname
-    with _ -> return_unit
-  in
-  (* clean up draft database *)
-  Ocsipersist.remove election_stable uuid_s
+  rmdir (!spool_dir / raw_string_of_uuid uuid)
 
 let () =
   Any.register ~service:election_draft_destroy
@@ -1085,8 +1054,8 @@ let () =
   Html5.register ~service:election_draft_import
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          let%lwt elections = get_validated_elections_by_owner se.se_owner in
-          T.election_draft_import uuid se elections ()
+          let%lwt _, a, b, c = get_elections_by_owner_sorted se.se_owner in
+          T.election_draft_import uuid se (a, b, c) ()
         )
     )
 
@@ -1127,8 +1096,8 @@ let () =
   Html5.register ~service:election_draft_import_trustees
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          let%lwt elections = get_validated_elections_by_owner se.se_owner in
-          T.election_draft_import_trustees uuid se elections ()
+          let%lwt _, a, b, c = get_elections_by_owner_sorted se.se_owner in
+          T.election_draft_import_trustees uuid se (a, b, c) ()
         )
     )
 
@@ -1899,8 +1868,9 @@ let () =
 let () =
   Html5.register ~service:election_draft_threshold_trustee
     (fun (uuid, token) () ->
-      let%lwt se = get_draft_election uuid in
-      T.election_draft_threshold_trustee token uuid se ()
+      match%lwt Web_persist.get_draft_election uuid with
+      | None -> fail_http 404
+      | Some se -> T.election_draft_threshold_trustee token uuid se ()
     )
 
 let () =
@@ -1910,7 +1880,9 @@ let () =
         (fun () ->
           Lwt_mutex.with_lock election_draft_mutex
             (fun () ->
-              let%lwt se = get_draft_election uuid in
+              match%lwt Web_persist.get_draft_election uuid with
+              | None -> fail_http 404
+              | Some se ->
               let ts =
                 match se.se_threshold_trustees with
                 | None -> failwith "No threshold trustees"
@@ -2014,11 +1986,23 @@ let () =
                      se.se_threshold_error <- Some (Printexc.to_string e)
                   ); return_unit
                 ) else return_unit
-              ) >> set_draft_election uuid se
+              ) >> Web_persist.set_draft_election uuid se
             ) >>
             redir_preapply election_draft_threshold_trustee (uuid, token) ()
         )
     )
+
+let extract_automatic_data_draft uuid_s =
+  let uuid = uuid_of_raw_string uuid_s in
+  match%lwt Web_persist.get_draft_election uuid with
+  | None -> return_none
+  | Some se ->
+     let name = se.se_questions.t_name in
+     let contact = se.se_metadata.e_contact in
+     let%lwt t = Web_persist.get_election_date `Creation uuid in
+     let t = Option.get t default_creation_date in
+     let next_t = datetime_add t (day days_to_delete) in
+     return @@ Some (`Destroy, uuid, next_t, name, contact)
 
 let extract_automatic_data_validated uuid_s =
   let uuid = uuid_of_raw_string uuid_s in
@@ -2048,25 +2032,21 @@ let extract_automatic_data_validated uuid_s =
         let next_t = datetime_add t (day days_to_delete) in
         return @@ Some (`Delete, uuid, next_t, name, contact)
 
-let get_next_actions_validated () =
-  Lwt_unix.files_of_directory !spool_dir |>
-    Lwt_stream.filter_map_s
-      (fun x ->
-        if x = "." || x = ".." then return_none
-        else (try%lwt extract_automatic_data_validated x with _ -> return_none)
-      ) |> Lwt_stream.to_list
+let try_extract extract x =
+  try%lwt extract x with _ -> return_none
 
-let get_next_actions_draft () =
-  Ocsipersist.fold_step (fun k v accu ->
-      let uuid = uuid_of_raw_string k in
-      let se = draft_election_of_string v in
-      let name = se.se_questions.t_name in
-      let contact = se.se_metadata.e_contact in
-      let%lwt t = Web_persist.get_election_date `Creation uuid in
-      let t = Option.get t default_creation_date in
-      let next_t = datetime_add t (day days_to_delete) in
-      return ((`Destroy, uuid, next_t, name, contact) :: accu)
-    ) election_stable []
+let get_next_actions () =
+  Lwt_unix.files_of_directory !spool_dir |>
+  Lwt_stream.to_list >>=
+  Lwt_list.filter_map_p
+    (fun x ->
+      if x = "." || x = ".." then return_none
+      else (
+        match%lwt try_extract extract_automatic_data_draft x with
+        | None -> try_extract extract_automatic_data_validated x
+        | x -> return x
+      )
+    )
 
 let mail_automatic_warning : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "The election %s (%s) will be automatically %s after %s.
@@ -2122,9 +2102,7 @@ let _ =
   let open Ocsigen_messages in
   let rec loop () =
     let () = console (fun () -> "Data policy process started") in
-    let%lwt draft = get_next_actions_draft () in
-    let%lwt validated = get_next_actions_validated () in
-    let elections = draft @ validated in
+    let%lwt elections = get_next_actions () in
     Lwt_list.iter_p process_election_for_data_policy elections >>
       let () = console (fun () -> "Data policy process completed") in
       Lwt_unix.sleep 3600. >> loop ()

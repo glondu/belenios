@@ -23,6 +23,9 @@ open Serializable_t
 open Common
 open Web_serializable_t
 
+val get_draft_election : uuid -> draft_election option Lwt.t
+val set_draft_election : uuid -> draft_election -> unit Lwt.t
+
 val get_election_state : uuid -> election_state Lwt.t
 val set_election_state : uuid -> election_state -> unit Lwt.t
 
@@ -45,7 +48,13 @@ val get_raw_election : uuid -> string option Lwt.t
 val get_election_metadata : uuid -> metadata Lwt.t
 val get_election_result : uuid -> Yojson.Safe.json result option Lwt.t
 
-val get_elections_by_owner : user -> uuid list Lwt.t
+type election_kind =
+  [ `Draft
+  | `Validated
+  | `Tallied
+  | `Archived
+  ]
+val get_elections_by_owner : user -> (election_kind * uuid * datetime * string) list Lwt.t
 
 val get_voters : uuid -> string list option Lwt.t
 val get_passwords : uuid -> (string * string) SMap.t option Lwt.t

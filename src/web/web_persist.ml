@@ -21,6 +21,7 @@
 
 open Lwt
 open Platform
+open Signatures
 open Serializable_builtin_t
 open Serializable_j
 open Common
@@ -28,6 +29,14 @@ open Web_serializable_j
 open Web_common
 
 let ( / ) = Filename.concat
+
+let get_draft_election uuid =
+  match%lwt read_file ~uuid "draft.json" with
+  | Some [x] -> return @@ Some (draft_election_of_string x)
+  | _ -> return_none
+
+let set_draft_election uuid se =
+  write_file ~uuid "draft.json" [string_of_draft_election se]
 
 let get_election_result uuid =
   match%lwt read_file ~uuid "result.json" with
@@ -125,23 +134,61 @@ let get_auth_config uuid =
   | None -> return []
   | Some x -> return (List.map compile_auth_config x)
 
+type election_kind =
+  [ `Draft
+  | `Validated
+  | `Tallied
+  | `Archived
+  ]
+
 let get_elections_by_owner user =
   Lwt_unix.files_of_directory !spool_dir |>
-    Lwt_stream.filter_map_s
+    Lwt_stream.to_list >>=
+    Lwt_list.filter_map_p
       (fun x ->
         if x = "." || x = ".." then
           return None
         else (
           try
             let uuid = uuid_of_raw_string x in
-            let%lwt metadata = get_election_metadata uuid in
-            match metadata.e_owner with
-            | Some o when o = user -> return (Some uuid)
-            | _ -> return None
+            match%lwt get_draft_election uuid with
+            | None ->
+               (
+                 let%lwt metadata = get_election_metadata uuid in
+                 match metadata.e_owner with
+                 | Some o when o = user ->
+                    (
+                      match%lwt get_raw_election uuid with
+                      | None -> return_none
+                      | Some election ->
+                         let election = Election.of_string election in
+                         let%lwt kind, date =
+                           match%lwt get_election_state uuid with
+                           | `Open | `Closed | `EncryptedTally _ ->
+                              let%lwt date = get_election_date `Validation uuid in
+                              let date = Option.get date default_validation_date in
+                              return (`Validated, date)
+                           | `Tallied ->
+                              let%lwt date = get_election_date `Tally uuid in
+                              let date = Option.get date default_tally_date in
+                              return (`Tallied, date)
+                           | `Archived ->
+                              let%lwt date = get_election_date `Archive uuid in
+                              let date = Option.get date default_archive_date in
+                              return (`Archived, date)
+                         in
+                         return @@ Some (kind, uuid, date, election.e_params.e_name)
+                    )
+                 | _ -> return_none
+               )
+            | Some se ->
+               if se.se_owner = user then
+                 let date = Option.get se.se_creation_date default_creation_date in
+                 return @@ Some (`Draft, uuid, date, se.se_questions.t_name)
+               else return_none
           with _ -> return None
         )
-      ) |>
-    Lwt_stream.to_list
+      )
 
 let get_voters uuid =
   read_file ~uuid "voters.txt"

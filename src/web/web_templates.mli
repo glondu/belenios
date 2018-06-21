@@ -24,7 +24,7 @@ open Web_serializable_t
 open Signatures
 
 val admin_gdpr : unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val admin : elections:('a election list * 'a election list * 'a election list * (uuid * string) list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val admin : elections:((uuid * string) list * (uuid * string) list * (uuid * string) list * (uuid * string) list) option -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
@@ -47,8 +47,8 @@ val election_draft_trustees : uuid -> draft_election -> unit -> [> `Html ] Eliom
 val election_draft_threshold_trustees : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_draft_trustee : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_draft_threshold_trustee : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_draft_import : uuid -> draft_election -> 'a election list * 'a election list * 'a election list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
-val election_draft_import_trustees : uuid -> draft_election -> 'a election list * 'a election list * 'a election list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_import : uuid -> draft_election -> (uuid * string) list * (uuid * string) list * (uuid * string) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
+val election_draft_import_trustees : uuid -> draft_election -> (uuid * string) list * (uuid * string) list * (uuid * string) list -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 val election_draft_confirm : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t
 
 val election_home : 'a election -> election_state -> unit -> [> `Html ] Eliom_content.Html5.F.elt Lwt.t

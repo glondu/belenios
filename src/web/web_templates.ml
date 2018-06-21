@@ -169,13 +169,6 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
       ]]
      ]))
 
-let format_election election =
-  let e = election.e_params in
-  let service = election_admin in
-  li [
-    a ~service [pcdata e.e_name] (e.e_uuid, ());
-  ]
-
 let admin_gdpr () =
   let title = site_title ^ " — Personal data processing notice" in
   let content =
@@ -196,6 +189,16 @@ let admin_gdpr () =
     ]
   in
   base ~title ~content ()
+
+let format_election (uuid, name) =
+  li [
+    a ~service:election_admin [pcdata name] (uuid, ());
+  ]
+
+let format_draft_election (uuid, name) =
+  li [
+    a ~service:election_draft [pcdata name] uuid;
+  ]
 
 let admin ~elections () =
   let title = site_title ^ " — Administration" in
@@ -220,7 +223,12 @@ let admin ~elections () =
      ] in
      let%lwt login_box = site_login_box () in
      base ~title ?login_box ~content ()
-  | Some (elections, tallied, archived, draft_elections) ->
+  | Some (draft, elections, tallied, archived) ->
+    let draft =
+      match draft with
+      | [] -> p [pcdata "You own no such elections!"]
+      | _ -> ul @@ List.map format_draft_election draft
+    in
     let elections =
       match elections with
       | [] -> p [pcdata "You own no such elections!"]
@@ -236,14 +244,6 @@ let admin ~elections () =
       | [] -> p [pcdata "You own no such elections!"]
       | _ -> ul @@ List.map format_election archived
     in
-    let draft_elections =
-      match draft_elections with
-      | [] -> p [pcdata "You own no such elections!"]
-      | _ -> ul @@
-         List.map (fun (k, title) ->
-           li [a ~service:election_draft [pcdata title] k]
-         ) draft_elections
-    in
     let content = [
       div [
         div [
@@ -253,7 +253,7 @@ let admin ~elections () =
         ];
         div [br ()];
         h2 [pcdata "Elections being prepared"];
-        draft_elections;
+        draft;
         div [br ()];
         h2 [pcdata "Elections you can administer"];
         elections;
@@ -1339,18 +1339,21 @@ let election_draft_threshold_trustee token uuid se () =
   base ~title ~content ()
 
 let election_draft_importer ~service ~title uuid (elections, tallied, archived) () =
-  let format_election election =
-    let name = election.e_params.e_name in
-    let uuid_s = raw_string_of_uuid election.e_params.e_uuid in
+  let format_election (from_uuid, name) =
     let form = post_form ~service
       (fun from ->
         [
-          div [pcdata name; pcdata " ("; pcdata uuid_s; pcdata ")"];
+          div [
+              pcdata name;
+              pcdata " (";
+              pcdata (raw_string_of_uuid from_uuid);
+              pcdata ")"
+            ];
           div [
             user_type_input raw_string_of_uuid
               ~input_type:`Hidden
               ~name:from
-              ~value:election.e_params.e_uuid ();
+              ~value:from_uuid ();
             string_input ~input_type:`Submit ~value:"Import from this election" ();
           ]
         ]

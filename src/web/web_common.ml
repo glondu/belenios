@@ -291,6 +291,10 @@ let write_file ?uuid x lines =
       )
   ) >> Lwt_unix.rename fname_new fname
 
+let cleanup_file f =
+  try%lwt Lwt_unix.unlink f
+  with _ -> return_unit
+
 let rmdir dir =
   let command = "rm", [| "rm"; "-rf"; dir |] in
   let%lwt _ = Lwt_process.exec command in
