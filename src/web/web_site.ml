@@ -1049,6 +1049,7 @@ let () =
 let () =
   Any.register ~service:election_draft_import_post
     (fun uuid from ->
+      let from = uuid_of_raw_string from in
       with_draft_election uuid (fun se ->
           let from_s = raw_string_of_uuid from in
           let%lwt voters = Web_persist.get_voters from in
@@ -1093,6 +1094,7 @@ exception TrusteeImportError of string
 let () =
   Any.register ~service:election_draft_import_trustees_post
     (fun uuid from ->
+      let from = uuid_of_raw_string from in
       with_draft_election uuid (fun se ->
           let%lwt metadata = Web_persist.get_election_metadata from in
           let%lwt threshold = Web_persist.get_threshold from in

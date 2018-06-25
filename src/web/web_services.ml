@@ -72,9 +72,9 @@ let election_draft_destroy = post_coservice ~csrf_safe:true ~fallback:election_d
 let election_draft_auth_genpwd = post_coservice ~fallback:election_draft ~post_params:unit ()
 
 let election_draft_import = service ~path:["draft"; "import"] ~get_params:(uuid "uuid") ()
-let election_draft_import_post = post_coservice ~fallback:election_draft_import ~post_params:(uuid "from") ()
+let election_draft_import_post = post_coservice ~fallback:election_draft_import ~post_params:(string "from") ()
 let election_draft_import_trustees = service ~path:["draft"; "import-trustees"] ~get_params:(uuid "uuid") ()
-let election_draft_import_trustees_post = post_coservice ~fallback:election_draft_import_trustees ~post_params:(uuid "from") ()
+let election_draft_import_trustees_post = post_coservice ~fallback:election_draft_import_trustees ~post_params:(string "from") ()
 
 let election_home = service ~path:["elections"] ~get_params:(suffix (uuid "uuid" ** suffix_const "")) ()
 let set_cookie_disclaimer = coservice' ~get_params:unit ()

@@ -30,6 +30,7 @@ open Web_signatures
 open Web_common
 open Web_services
 open Eliom_content.Html5.F
+open Eliom_content.Html5.F.Form
 
 (* TODO: these pages should be redesigned *)
 
@@ -182,7 +183,7 @@ let admin_gdpr () =
         (fun () ->
           [
             div [
-                string_input ~input_type:`Submit ~value:"Accept" ();
+                input ~input_type:`Submit ~value:"Accept" string;
               ];
           ]
         ) ();
@@ -337,11 +338,11 @@ let election_draft_pre () =
             ])
             [
               div [
-                string_radio ~checked:true ~name:credmgmt ~value:"auto" ();
+                radio ~checked:true ~name:credmgmt ~value:"auto" string;
                 pcdata " Automatic (degraded mode - credentials will be handled by the server)";
               ];
               div [
-                string_radio ~name:credmgmt ~value:"manual" ();
+                radio ~name:credmgmt ~value:"manual" string;
                 pcdata " Manual (safe mode - a third party will handle the credentials)";
               ];
             ];
@@ -349,18 +350,18 @@ let election_draft_pre () =
             ~legend:(legend [pcdata "Authentication"])
             [
               div [
-                string_radio ~checked:true ~name:auth ~value:"password" ();
+                radio ~checked:true ~name:auth ~value:"password" string;
                 pcdata " Password (passwords will be emailed to voters)";
               ];
               div [
-                string_radio ~name:auth ~value:"cas" ();
+                radio ~name:auth ~value:"cas" string;
                 pcdata " CAS (external authentication server), server address: ";
-                string_input ~input_type:`Text ~name:cas_server ();
+                input ~input_type:`Text ~name:cas_server string;
                 pcdata " (for example: https://cas.inria.fr/cas)";
               ];
             ];
           div [
-            string_input ~input_type:`Submit ~value:"Proceed" ();
+            input ~input_type:`Submit ~value:"Proceed" string;
           ];
         ]
       ) ()
@@ -379,8 +380,8 @@ let election_draft uuid se () =
         [
           div [
               pcdata "Languages: ";
-              string_input ~name:languages ~input_type:`Text
-                ~value:(string_of_languages se.se_metadata.e_languages) ();
+              input ~name:languages ~input_type:`Text
+                ~value:(string_of_languages se.se_metadata.e_languages) string;
               pcdata " (Available languages: ";
               pcdata (string_of_languages (Some available_languages));
               pcdata ")";
@@ -389,7 +390,7 @@ let election_draft uuid se () =
               pcdata "This is a space-separated list of languages that will be used in emails sent by the server.";
             ];
           div [
-              string_input ~input_type:`Submit ~value:"Save changes" ();
+              input ~input_type:`Submit ~value:"Save changes" string;
             ];
         ]) uuid
   in
@@ -405,8 +406,8 @@ let election_draft uuid se () =
         [
           div [
             pcdata "Name of the election: ";
-            string_input ~name:name
-              ~input_type:`Text ~value:se.se_questions.t_name ();
+            input ~name:name
+              ~input_type:`Text ~value:se.se_questions.t_name string;
           ];
           div [
             div [pcdata "Description of the election: "];
@@ -416,7 +417,7 @@ let election_draft uuid se () =
             ];
           ];
           div [
-            string_input ~input_type:`Submit ~value:"Save changes" ();
+            input ~input_type:`Submit ~value:"Save changes" string;
           ];
         ]
       ) uuid
@@ -438,13 +439,13 @@ let election_draft uuid se () =
                 | Some x -> x
                 | None -> default_contact
               in
-              string_input ~name:contact ~input_type:`Text ~value ();
+              input ~name:contact ~input_type:`Text ~value string;
             ];
           div [
               pcdata "This contact will be added to emails sent to the voters.";
             ];
           div [
-              string_input ~input_type:`Submit ~value:"Save changes" ();
+              input ~input_type:`Submit ~value:"Save changes" string;
             ];
         ]) uuid
   in
@@ -473,7 +474,7 @@ let election_draft uuid se () =
            pcdata "Authentication scheme: password ";
            post_form ~service:election_draft_auth_genpwd
              (fun () ->
-               [string_input ~input_type:`Submit ~value:"Generate and mail missing passwords" ()]
+               [input ~input_type:`Submit ~value:"Generate and mail missing passwords" string]
              ) uuid;
          ]
       | `Dummy ->
@@ -533,7 +534,7 @@ let election_draft uuid se () =
           if has_credentials then (
             post_form ~service:election_draft_credentials_server
               (fun () ->
-                [string_input ~input_type:`Submit ~value:"Generate on server" ()]
+                [input ~input_type:`Submit ~value:"Generate on server" string]
               ) uuid
           ) else (
             div [
@@ -562,7 +563,7 @@ let election_draft uuid se () =
                   pcdata (format_datetime t);
                   pcdata ".";
                 ];
-              string_input ~input_type:`Submit ~value:"Destroy election" ();
+              input ~input_type:`Submit ~value:"Destroy election" string;
             ]
         ]
       ) uuid
@@ -629,8 +630,8 @@ let election_draft_trustees uuid se () =
       (fun name ->
         [
           pcdata "Trustee's e-mail address: ";
-          string_input ~input_type:`Text ~name ();
-          string_input ~input_type:`Submit ~value:"Add" ();
+          input ~input_type:`Text ~name string;
+          input ~input_type:`Submit ~value:"Add" string;
         ]
       ) uuid
   in
@@ -641,7 +642,7 @@ let election_draft_trustees uuid se () =
          ~service:election_draft_trustee_add_server
          (fun () ->
            [
-             string_input ~input_type:`Submit ~value:"Add the server" ()
+             input ~input_type:`Submit ~value:"Add the server" string
            ]
          ) uuid
     | _ -> pcdata ""
@@ -651,8 +652,8 @@ let election_draft_trustees uuid se () =
       ~service:election_draft_trustee_del
       (fun name ->
         [
-          int_input ~input_type:`Hidden ~name ~value ();
-          string_input ~input_type:`Submit ~value:"Remove" ();
+          input ~input_type:`Hidden ~name ~value int;
+          input ~input_type:`Submit ~value:"Remove" string;
         ]) uuid
   in
   let trustees = match se.se_public_keys with
@@ -750,8 +751,8 @@ let election_draft_threshold_trustees uuid se () =
         (fun name ->
           [
             pcdata "Trustee's e-mail address: ";
-            string_input ~input_type:`Text ~name ();
-            string_input ~input_type:`Submit ~value:"Add" ();
+            input ~input_type:`Text ~name string;
+            input ~input_type:`Submit ~value:"Add" string;
           ]
         ) uuid
     else pcdata ""
@@ -761,8 +762,8 @@ let election_draft_threshold_trustees uuid se () =
       ~service:election_draft_threshold_trustee_del
       (fun name ->
         [
-          int_input ~input_type:`Hidden ~name ~value ();
-          string_input ~input_type:`Submit ~value:"Remove" ();
+          input ~input_type:`Hidden ~name ~value int;
+          input ~input_type:`Submit ~value:"Remove" string;
       ]) uuid
   in
   let trustees = match se.se_threshold_trustees with
@@ -828,8 +829,8 @@ let election_draft_threshold_trustees uuid se () =
           (fun name ->
             [
               pcdata "Threshold: ";
-              int_input ~input_type:`Text ~name ~value ();
-              string_input ~input_type:`Submit ~value:"Set" ();
+              input ~input_type:`Text ~name ~value int;
+              input ~input_type:`Submit ~value:"Set" string;
             ]
           ) uuid
       ]
@@ -913,7 +914,7 @@ let election_draft_questions uuid se () =
        [
          div [pcdata "Questions:"];
          div [textarea ~a:[a_id "questions"; a_rows 5; a_cols 80] ~name ~value ()];
-         div [string_input ~input_type:`Submit ~value:"Save changes" ()]])
+         div [input ~input_type:`Submit ~value:"Save changes" string]])
       uuid
   in
   let interactivity =
@@ -942,7 +943,7 @@ let election_draft_voters uuid se maxvoters () =
       (fun name ->
         [
           div [textarea ~a:[a_rows 20; a_cols 50] ~name ()];
-          div [string_input ~input_type:`Submit ~value:"Add" ()]])
+          div [input ~input_type:`Submit ~value:"Add" string]])
       uuid
   in
   let mk_remove_button id =
@@ -950,8 +951,8 @@ let election_draft_voters uuid se maxvoters () =
       ~service:election_draft_voters_remove
       (fun name ->
         [
-          string_input ~input_type:`Hidden ~name ~value:id ();
-          string_input ~input_type:`Submit ~value:"Remove" ();
+          input ~input_type:`Hidden ~name ~value:id string;
+          input ~input_type:`Submit ~value:"Remove" string;
         ]
       ) uuid
   in
@@ -964,8 +965,8 @@ let election_draft_voters uuid se maxvoters () =
       ~a:[a_style "display: inline;"]
       (fun name ->
         [
-          string_input ~input_type:`Hidden ~name ~value ();
-          string_input ~input_type:`Submit ~value:"Send again" ();
+          input ~input_type:`Hidden ~name ~value string;
+          input ~input_type:`Submit ~value:"Send again" string;
         ]
       ) uuid
   in
@@ -986,7 +987,7 @@ let election_draft_voters uuid se maxvoters () =
     if has_passwords then
       post_form ~service:election_draft_auth_genpwd
         (fun () ->
-          [string_input ~input_type:`Submit ~value:"Generate and mail missing passwords" ()]
+          [input ~input_type:`Submit ~value:"Generate and mail missing passwords" string]
         ) uuid
     else pcdata ""
   in
@@ -1095,7 +1096,7 @@ let election_draft_credentials token uuid se () =
                    li [pcdata "Submit public credentials using the button below."];
                  ];
              ];
-           div [string_input ~input_type:`Submit ~value:"Submit public credentials" ()]]])
+           div [input ~input_type:`Submit ~value:"Submit public credentials" string]]])
       (uuid, token)
   in
   let disclaimer =
@@ -1113,7 +1114,7 @@ let election_draft_credentials token uuid se () =
           [h2 [pcdata "Submit by file"];
            div [pcdata "Use this form to upload public credentials generated with the command-line tool."];
            div [file_input ~name ()];
-           div [string_input ~input_type:`Submit ~value:"Submit" ()]]])
+           div [input ~input_type:`Submit ~value:"Submit" string]]])
       (uuid, token)
   in
   let group =
@@ -1203,7 +1204,7 @@ let election_draft_trustee token uuid se () =
                    li [pcdata "Submit your public key using the button below."];
                  ];
              ];
-           div [string_input ~input_type:`Submit ~value:"Submit public key" ()];
+           div [input ~input_type:`Submit ~value:"Submit public key" string];
          ]
        ]
       ) ()
@@ -1312,7 +1313,7 @@ let election_draft_threshold_trustee token uuid se () =
                   pcdata "Data: ";
                   textarea ~a:[a_id "data"] ~name:data ();
                 ];
-              div [string_input ~input_type:`Submit ~value:"Submit" ()];
+              div [input ~input_type:`Submit ~value:"Submit" string];
             ];
         ]
       ) (uuid, token)
@@ -1340,21 +1341,22 @@ let election_draft_threshold_trustee token uuid se () =
 
 let election_draft_importer ~service ~title uuid (elections, tallied, archived) () =
   let format_election (from_uuid, name) =
+    let from_uuid = raw_string_of_uuid from_uuid in
     let form = post_form ~service
       (fun from ->
         [
           div [
               pcdata name;
               pcdata " (";
-              pcdata (raw_string_of_uuid from_uuid);
+              pcdata from_uuid;
               pcdata ")"
             ];
           div [
-            user_type_input raw_string_of_uuid
+            input
               ~input_type:`Hidden
               ~name:from
-              ~value:from_uuid ();
-            string_input ~input_type:`Submit ~value:"Import from this election" ();
+              ~value:from_uuid string;
+            input ~input_type:`Submit ~value:"Import from this election" string;
           ]
         ]
       ) uuid
@@ -1506,7 +1508,7 @@ let election_draft_confirm uuid se () =
         (fun () ->
           [div
               [h2 [pcdata "Validate creation"];
-               string_input ~input_type:`Submit ~value:"Create election" ();
+               input ~input_type:`Submit ~value:"Create election" string;
                pcdata " (Warning: this action is irreversible.)";
               ]]
         ) uuid
@@ -1768,7 +1770,7 @@ let election_admin election metadata state get_tokens_decrypt () =
       (fun () ->
        [
          pcdata msg;
-         string_input ~input_type:`Submit ~value ();
+         input ~input_type:`Submit ~value string;
          pcdata msg2;
        ]) (uuid, ())
   in
@@ -1785,10 +1787,10 @@ let election_admin election metadata state get_tokens_decrypt () =
          post_form
            ~service:election_compute_encrypted_tally
            (fun () ->
-             [string_input
+             [input
                  ~input_type:`Submit
                  ~value:"Proceed to vote counting"
-                 ();
+                 string;
               pcdata " Warning: this action is irreversible; the election will be definitively closed.";
              ]) (uuid, ());
        ]
@@ -1861,10 +1863,10 @@ let election_admin election metadata state get_tokens_decrypt () =
          post_form
            ~service:election_tally_release
            (fun () ->
-             [string_input
+             [input
                  ~input_type:`Submit
                  ~value:"Compute the result"
-                 ()
+                 string
              ]) (uuid, ())
        in
        return @@ div [
@@ -1922,7 +1924,7 @@ let election_admin election metadata state get_tokens_decrypt () =
       archive_date;
       post_form ~service:election_archive (fun () ->
         [
-          string_input ~input_type:`Submit ~value:"Archive election" ();
+          input ~input_type:`Submit ~value:"Archive election" string;
           pcdata " Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).";
         ]
       ) (uuid, ());
@@ -1953,7 +1955,7 @@ let election_admin election metadata state get_tokens_decrypt () =
           ];
         post_form ~service:election_delete (fun () ->
             [
-              string_input ~input_type:`Submit ~value:"Delete election" ();
+              input ~input_type:`Submit ~value:"Delete election" string;
               pcdata " Warning: this action is irreversible.";
             ]
           ) (uuid, ());
@@ -2027,13 +2029,13 @@ let update_credential election () =
         ];
         p [
           pcdata "Hash of the old credential: ";
-          string_input ~name:old ~input_type:`Text ~a:[a_size 64] ();
+          input ~name:old ~input_type:`Text ~a:[a_size 64] string;
         ];
         p [
           pcdata "New credential: ";
-          string_input ~name:new_ ~input_type:`Text ~a:[a_size 617] ();
+          input ~name:new_ ~input_type:`Text ~a:[a_size 617] string;
         ];
-        p [string_input ~input_type:`Submit ~value:"Submit" ()];
+        p [input ~input_type:`Submit ~value:"Submit" string];
       ]
     ) (uuid, ())
   in
@@ -2049,9 +2051,9 @@ let regenpwd uuid () =
       [
         div [
           pcdata "Username: ";
-          string_input ~name:user ~input_type:`Text ();
+          input ~name:user ~input_type:`Text string;
         ];
-        div [string_input ~input_type:`Submit ~value:"Submit" ()];
+        div [input ~input_type:`Submit ~value:"Submit" string];
       ]
     ) (uuid, ())
   in
@@ -2068,7 +2070,7 @@ let cast_raw election () =
       [
         div [pcdata "Please paste your encrypted ballot in JSON format in the following box:"];
         div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
-        div [string_input ~input_type:`Submit ~value:"Submit" ()];
+        div [input ~input_type:`Submit ~value:"Submit" string];
       ]
     ) (uuid, ())
   in
@@ -2080,7 +2082,7 @@ let cast_raw election () =
           pcdata "File: ";
           file_input ~name ();
         ];
-        div [string_input ~input_type:`Submit ~value:"Submit" ()];
+        div [input ~input_type:`Submit ~value:"Submit" string];
       ]
     ) (uuid, ())
   in
@@ -2126,9 +2128,9 @@ let cast_confirmation election hash () =
           pcdata L.i_am;
           format_user ~site:false u;
           pcdata L.and_;
-          string_input
+          input
             ~a:[a_style "font-size: 20px; cursor: pointer;"]
-            ~input_type:`Submit ~value:L.i_cast_my_vote ();
+            ~input_type:`Submit ~value:L.i_cast_my_vote string;
           pcdata ".";
         ]
       ]) (uuid, ())
@@ -2362,19 +2364,19 @@ let tally_trustees election trustee_id token () =
             input
               ~a:[a_id "private_key"; a_size 80]
               ~input_type:`Text
-              ();
+              string;
           ];
         div [
             p [pcdata "Or load it from a file:"];
             input
               ~a:[a_id "private_key_file"]
               ~input_type:`File
-              ();
+              string;
           ];
       ];
     hr ();
     div [
-      button
+      button_no_value
         ~a:[a_id "compute"]
         ~button_type:`Button
         [pcdata "Compute decryption factors"];
@@ -2390,7 +2392,7 @@ let tally_trustees election trustee_id token () =
                 ~name:pd
                 ();
             ];
-            div [string_input ~input_type:`Submit ~value:"Submit" ()];
+            div [input ~input_type:`Submit ~value:"Submit" string];
           ]
         ) (uuid, ((), token));
     ];
@@ -2437,12 +2439,12 @@ let login_dummy () =
       [
         tablex [tbody [
           tr [
-            th [label ~a:[a_for name] [pcdata field_name]];
-            td [string_input ~a:[a_maxlength 50] ~input_type ~name ()];
+            th [label ~a:[a_for (Eliom_parameter.string_of_param_name name)] [pcdata field_name]];
+            td [input ~a:[a_maxlength 50] ~input_type ~name string];
           ]]
         ];
         div [
-          string_input ~input_type:`Submit ~value:"Login" ();
+          input ~input_type:`Submit ~value:"Login" string;
         ]
       ]) ()
   in
@@ -2459,16 +2461,16 @@ let login_password () =
       [
         tablex [tbody [
           tr [
-            th [label ~a:[a_for llogin] [pcdata L.username]];
-            td [string_input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin ()];
+            th [label ~a:[a_for (Eliom_parameter.string_of_param_name llogin)] [pcdata L.username]];
+            td [input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin string];
           ];
           tr [
-            th [label ~a:[a_for lpassword] [pcdata L.password]];
-            td [string_input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword ()];
+            th [label ~a:[a_for (Eliom_parameter.string_of_param_name lpassword)] [pcdata L.password]];
+            td [input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword string];
           ];
         ]];
         div [
-          string_input ~input_type:`Submit ~value:L.login ();
+          input ~input_type:`Submit ~value:L.login string;
         ]
       ]) ()
   in
@@ -2502,11 +2504,11 @@ let booth () =
       br ();
       pcdata "Load an election by giving its URL:";
       div [unsafe_textarea "url" ""];
-      div [button ~button_type:`Button ~a:[a_id "load_url"] [pcdata "Load URL"]];
+      div [button_no_value ~button_type:`Button ~a:[a_id "load_url"] [pcdata "Load URL"]];
       br ();
       pcdata "Load an election by giving its parameters:";
       div [unsafe_textarea "election_params" ""];
-      div [button ~button_type:`Button ~a:[a_id "load_params"] [pcdata "Load parameters"]];
+      div [button_no_value ~button_type:`Button ~a:[a_id "load_params"] [pcdata "Load parameters"]];
     ]
   in
   let text_choices = unsafe_textarea "choices" "" in
@@ -2535,7 +2537,7 @@ let booth () =
         ];
         br ();
         div ~a:[a_id "div_submit"] [
-            string_input ~input_type:`Submit ~value:L.continue ~a:[a_style "font-size:30px;"] ();
+            input ~input_type:`Submit ~value:L.continue ~a:[a_style "font-size:30px;"] string;
           ];
         div ~a:[a_id "div_submit_manually"; a_style "display:none;"] [
             pcdata "You must submit your ballot manually.";
