@@ -29,8 +29,8 @@ open Web_serializable_j
 open Web_signatures
 open Web_common
 open Web_services
-open Eliom_content.Html5.F
-open Eliom_content.Html5.F.Form
+open Eliom_content.Html.F
+open Eliom_content.Html.F.Form
 
 (* TODO: these pages should be redesigned *)
 
@@ -107,10 +107,10 @@ let site_auth = (module Site_auth : AUTH_SERVICES)
 let site_login_box () =
   make_login_box ~site:true site_auth site_links
 
-let belenios_url = Eliom_service.Http.external_service
+let belenios_url = Eliom_service.extern
   ~prefix:"http://www.belenios.org"
   ~path:[]
-  ~get_params:Eliom_parameter.unit
+  ~meth:(Eliom_service.Get Eliom_parameter.unit)
   ()
 
 let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
@@ -121,7 +121,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
     | None ->
        a ~service:admin [pcdata L.administer_elections] ()
     | Some uuid ->
-       a ~service:election_admin [pcdata L.administer_this_election] (uuid, ())
+       a ~service:election_admin [pcdata L.administer_this_election] uuid
   in
   let login_box = match login_box with
     | None ->
@@ -132,7 +132,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
     | Some x -> x
   in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang L.lang]
-    (head (Eliom_content.Html5.F.title (pcdata title)) [
+    (head (Eliom_content.Html.F.title (pcdata title)) [
       script (pcdata "window.onbeforeunload = function () {};");
       link ~rel:[`Stylesheet] ~href:(static "site.css") ();
     ])
@@ -193,7 +193,7 @@ let admin_gdpr () =
 
 let format_election (uuid, name) =
   li [
-    a ~service:election_admin [pcdata name] (uuid, ());
+    a ~service:election_admin [pcdata name] uuid;
   ]
 
 let format_draft_election (uuid, name) =
@@ -320,10 +320,10 @@ let generic_page ~title ?service message () =
 
 let election_draft_pre () =
   let title = "Prepare a new election" in
-  let cred_info = Eliom_service.Http.external_service
+  let cred_info = Eliom_service.extern
     ~prefix:"http://www.belenios.org"
     ~path:["setup.php"]
-    ~get_params:Eliom_parameter.unit
+    ~meth:(Eliom_service.Get Eliom_parameter.unit)
     ()
   in
   let form =
@@ -1654,7 +1654,7 @@ let election_home election state () =
         ];
       div [
         a
-          ~service:(Eliom_service.preapply election_cast (uuid, ()))
+          ~service:(Eliom_service.preapply election_cast uuid)
           [pcdata L.advanced_mode] ();
       ];
     ]
@@ -1772,7 +1772,7 @@ let election_admin election metadata state get_tokens_decrypt () =
          pcdata msg;
          input ~input_type:`Submit ~value string;
          pcdata msg2;
-       ]) (uuid, ())
+       ]) uuid
   in
   let%lwt state_div =
     match state with
@@ -1792,7 +1792,7 @@ let election_admin election metadata state get_tokens_decrypt () =
                  ~value:"Proceed to vote counting"
                  string;
               pcdata " Warning: this action is irreversible; the election will be definitively closed.";
-             ]) (uuid, ());
+             ]) uuid;
        ]
     | `EncryptedTally (npks, _, hash) ->
        let%lwt pds = Web_persist.get_partial_decryptions uuid in
@@ -1830,7 +1830,7 @@ let election_admin election metadata state get_tokens_decrypt () =
          List.map
            (fun ((name, trustee_id), token) ->
              let service = election_tally_trustees in
-             let x = (uuid, ((), token)) in
+             let x = (uuid, token) in
              let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
                ~absolute:true ~service x
              in
@@ -1867,7 +1867,7 @@ let election_admin election metadata state get_tokens_decrypt () =
                  ~input_type:`Submit
                  ~value:"Compute the result"
                  string
-             ]) (uuid, ())
+             ]) uuid
        in
        return @@ div [
          div [
@@ -1927,7 +1927,7 @@ let election_admin election metadata state get_tokens_decrypt () =
           input ~input_type:`Submit ~value:"Archive election" string;
           pcdata " Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).";
         ]
-      ) (uuid, ());
+      ) uuid;
     ]
   in
   let%lwt deletion_date = match state with
@@ -1958,7 +1958,7 @@ let election_admin election metadata state get_tokens_decrypt () =
               input ~input_type:`Submit ~value:"Delete election" string;
               pcdata " Warning: this action is irreversible.";
             ]
-          ) (uuid, ());
+          ) uuid;
       ]
   in
   let update_credential =
@@ -1967,7 +1967,7 @@ let election_admin election metadata state get_tokens_decrypt () =
        pcdata ""
     | _ ->
        div [
-         a ~service:election_update_credential [pcdata "Update a credential"] (uuid, ());
+         a ~service:election_update_credential [pcdata "Update a credential"] uuid;
        ];
   in
   let cas = match metadata.e_auth_config with
@@ -1979,7 +1979,7 @@ let election_admin election metadata state get_tokens_decrypt () =
       pcdata ""
     else
       div [
-          a ~service:election_regenpwd [pcdata "Regenerate and mail a password"] (uuid, ());
+          a ~service:election_regenpwd [pcdata "Regenerate and mail a password"] uuid;
         ]
   in
   let content = [
@@ -2037,7 +2037,7 @@ let update_credential election () =
         ];
         p [input ~input_type:`Submit ~value:"Submit" string];
       ]
-    ) (uuid, ())
+    ) uuid
   in
   let content = [
     form;
@@ -2055,7 +2055,7 @@ let regenpwd uuid () =
         ];
         div [input ~input_type:`Submit ~value:"Submit" string];
       ]
-    ) (uuid, ())
+    ) uuid
   in
   let content = [ form ] in
   let title = "Regenerate and mail password" in
@@ -2072,7 +2072,7 @@ let cast_raw election () =
         div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
         div [input ~input_type:`Submit ~value:"Submit" string];
       ]
-    ) (uuid, ())
+    ) uuid
   in
   let form_upload = post_form ~service:election_cast_post
     (fun (_, name) ->
@@ -2084,7 +2084,7 @@ let cast_raw election () =
         ];
         div [input ~input_type:`Submit ~value:"Submit" string];
       ]
-    ) (uuid, ())
+    ) uuid
   in
   let intro = div [
     div [
@@ -2133,7 +2133,7 @@ let cast_confirmation election hash () =
             ~input_type:`Submit ~value:L.i_cast_my_vote string;
           pcdata ".";
         ]
-      ]) (uuid, ())
+      ]) uuid
     | None ->
       div [
         pcdata L.please_login_to_confirm;
@@ -2394,7 +2394,7 @@ let tally_trustees election trustee_id token () =
             ];
             div [input ~input_type:`Submit ~value:"Submit" string];
           ]
-        ) (uuid, ((), token));
+        ) (uuid,  token);
     ];
     div [
       script ~a:[a_src (static "sjcl.js")] (pcdata "");
@@ -2439,7 +2439,7 @@ let login_dummy () =
       [
         tablex [tbody [
           tr [
-            th [label ~a:[a_for (Eliom_parameter.string_of_param_name name)] [pcdata field_name]];
+            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name name)] [pcdata field_name]];
             td [input ~a:[a_maxlength 50] ~input_type ~name string];
           ]]
         ];
@@ -2461,11 +2461,11 @@ let login_password () =
       [
         tablex [tbody [
           tr [
-            th [label ~a:[a_for (Eliom_parameter.string_of_param_name llogin)] [pcdata L.username]];
+            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [pcdata L.username]];
             td [input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin string];
           ];
           tr [
-            th [label ~a:[a_for (Eliom_parameter.string_of_param_name lpassword)] [pcdata L.password]];
+            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name lpassword)] [pcdata L.password]];
             td [input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword string];
           ];
         ]];
@@ -2519,7 +2519,7 @@ let booth () =
           pcdata "Encrypted ballot:";
           div [
             textarea
-              ~a:[a_id "ballot"; a_rows 1; a_cols 80; a_readonly `ReadOnly]
+              ~a:[a_id "ballot"; a_rows 1; a_cols 80; a_readonly ()]
               ~name:encrypted_vote ();
           ];
         ];
@@ -2544,7 +2544,7 @@ let booth () =
           ];
         br (); br ();
        ])
-      (dummy_uuid, ())
+      dummy_uuid
   in
   let main =
     div ~a:[a_id "main"] [

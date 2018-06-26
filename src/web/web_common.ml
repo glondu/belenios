@@ -166,12 +166,17 @@ let string_of_election_file = function
   | ESETally -> "encrypted_tally.json"
   | ESResult -> "result.json"
 
-let election_file = Eliom_parameter.user_type
-  ~of_string:election_file_of_string
-  ~to_string:string_of_election_file
+let election_file x =
+  Eliom_parameter.user_type
+    ~of_string:election_file_of_string
+    ~to_string:string_of_election_file
+    x
 
-let uuid =
-  Eliom_parameter.user_type ~of_string:uuid_of_raw_string ~to_string:raw_string_of_uuid
+let uuid x =
+  Eliom_parameter.user_type
+    ~of_string:uuid_of_raw_string
+    ~to_string:raw_string_of_uuid
+    x
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let prng = lazy (pseudo_rng (random_string secure_rng 16))

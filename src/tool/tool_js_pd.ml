@@ -123,6 +123,15 @@ let load_private_key_file _ =
   reader##readAsText (file);
   Js.some ()
 
+let get_uuid x =
+  let n = String.length x in
+  if n < 1 || x.[0] <> '?' then
+    None
+  else
+    let args = Url.decode_arguments (String.sub x 1 (n-1)) in
+    try Some (List.assoc "uuid" args)
+    with Not_found -> None
+
 let main _ =
   let _ =
     document##getElementById (Js.string "compute") >>= fun e ->
@@ -137,11 +146,14 @@ let main _ =
     Js.null
   in
   let _ =
+    match get_uuid (Js.to_string Dom_html.window##location##search) with
+    | None -> ()
+    | Some uuid ->
     Lwt.async (fun () ->
       let open XmlHttpRequest in
-      lwt e = get "../encrypted_tally.json" in
+      lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
       encrypted_tally := Some e.content;
-      lwt e = get "../election.json" in
+      lwt e = get ("../elections/" ^ uuid ^ "/election.json") in
       election := Some e.content;
       Lwt.return (compute_hash ()))
   in

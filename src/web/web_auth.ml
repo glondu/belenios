@@ -44,9 +44,9 @@ let default_cont uuid () =
   | None ->
      match uuid with
      | None ->
-        Eliom_registration.Redirection.send Web_services.admin
+        Eliom_registration.(Redirection.send (Redirection Web_services.admin))
      | Some u ->
-        Eliom_registration.Redirection.send (preapply Web_services.election_home (u, ()))
+        Eliom_registration.(Redirection.send (Redirection (preapply Web_services.election_home (u, ()))))
 
 (** Dummy authentication *)
 
@@ -110,9 +110,9 @@ let () = Eliom_registration.Any.register ~service:password_post password_handler
 
 let cas_server = Eliom_reference.eref ~scope None
 
-let login_cas = Eliom_service.Http.service
-  ~path:["auth"; "cas"]
-  ~get_params:Eliom_parameter.(opt (string "ticket"))
+let login_cas = Eliom_service.create
+  ~path:(Eliom_service.Path ["auth"; "cas"])
+  ~meth:(Eliom_service.Get Eliom_parameter.(opt (string "ticket")))
   ()
 
 let cas_self =
@@ -136,10 +136,10 @@ let parse_cas_validation info =
 
 let get_cas_validation server ticket =
   let url =
-    let cas_validate = Http.external_service
+    let cas_validate = Eliom_service.extern
       ~prefix:server
       ~path:["validate"]
-      ~get_params:Eliom_parameter.(string "service" ** string "ticket")
+      ~meth:(Eliom_service.Get Eliom_parameter.(string "service" ** string "ticket"))
       ()
     in
     let service = preapply cas_validate (Lazy.force cas_self, ticket) in
@@ -183,23 +183,23 @@ let cas_login_handler config () =
   match config with
   | [server] ->
      Eliom_reference.set cas_server (Some server) >>
-     let cas_login = Http.external_service
+     let cas_login = Eliom_service.extern
        ~prefix:server
        ~path:["login"]
-       ~get_params:Eliom_parameter.(string "service")
+       ~meth:(Eliom_service.Get Eliom_parameter.(string "service"))
        ()
      in
      let service = preapply cas_login (Lazy.force cas_self) in
-     Eliom_registration.Redirection.send service
+     Eliom_registration.(Redirection.send (Redirection service))
   | _ -> failwith "cas_login_handler invoked with bad config"
 
 (** OpenID Connect (OIDC) authentication *)
 
 let oidc_state = Eliom_reference.eref ~scope None
 
-let login_oidc = Eliom_service.Http.service
-  ~path:["auth"; "oidc"]
-  ~get_params:Eliom_parameter.any
+let login_oidc = Eliom_service.create
+  ~path:(Eliom_service.Path ["auth"; "oidc"])
+  ~meth:(Eliom_service.Get Eliom_parameter.any)
   ()
 
 let oidc_self =
@@ -289,16 +289,16 @@ let oidc_login_handler config () =
      let%lwt state = generate_token () in
      Eliom_reference.set oidc_state (Some (ocfg, client_id, client_secret, state)) >>
      let prefix, path = split_prefix_path ocfg.authorization_endpoint in
-     let auth_endpoint = Http.external_service ~prefix ~path
-       ~get_params:Eliom_parameter.(string "redirect_uri" **
+     let auth_endpoint = Eliom_service.extern ~prefix ~path
+       ~meth:(Eliom_service.Get Eliom_parameter.(string "redirect_uri" **
            string "response_type" ** string "client_id" **
-           string "scope" ** string "state" ** string "prompt")
+           string "scope" ** string "state" ** string "prompt"))
        ()
      in
      let service = preapply auth_endpoint
        (Lazy.force oidc_self, ("code", (client_id, ("openid email", (state, "consent")))))
      in
-     Eliom_registration.Redirection.send service
+     Eliom_registration.(Redirection.send (Redirection service))
   | _ -> failwith "oidc_login_handler invoked with bad config"
 
 (** Generic authentication *)
@@ -306,9 +306,9 @@ let oidc_login_handler config () =
 let get_login_handler service uuid auth_system config =
   Eliom_reference.set auth_env (Some (uuid, service, config)) >>
   match auth_system with
-  | "dummy" -> Web_templates.login_dummy () >>= Eliom_registration.Html5.send
+  | "dummy" -> Web_templates.login_dummy () >>= Eliom_registration.Html.send
   | "cas" -> cas_login_handler config ()
-  | "password" -> Web_templates.login_password () >>= Eliom_registration.Html5.send
+  | "password" -> Web_templates.login_password () >>= Eliom_registration.Html.send
   | "oidc" -> oidc_login_handler config ()
   | _ -> fail_http 404
 
@@ -320,8 +320,8 @@ let login_handler service uuid =
   in
   match%lwt Eliom_reference.get user with
   | Some _ ->
-     cont_push (fun () -> Eliom_registration.Redirection.send (myself service)) >>
-     Web_templates.already_logged_in () >>= Eliom_registration.Html5.send
+     cont_push (fun () -> Eliom_registration.(Redirection.send (Redirection (myself service)))) >>
+     Web_templates.already_logged_in () >>= Eliom_registration.Html.send
   | None ->
      let%lwt c = match uuid with
        | None -> return !site_auth_config
@@ -336,7 +336,7 @@ let login_handler service uuid =
         get_login_handler s uuid auth_system config
      | None ->
         match c with
-        | [s, _] -> Eliom_registration.Redirection.send (myself (Some s))
+        | [s, _] -> Eliom_registration.(Redirection.send (Redirection (myself (Some s))))
         | _ ->
            let builder =
              match uuid with
@@ -346,13 +346,13 @@ let login_handler service uuid =
                preapply Web_services.election_login ((u, ()), Some s)
            in
            Web_templates.login_choose (List.map fst c) builder () >>=
-           Eliom_registration.Html5.send
+           Eliom_registration.Html.send
 
 let logout_handler () =
   Eliom_reference.unset Web_state.user >>
   match%lwt cont_pop () with
   | Some f -> f ()
-  | None -> Eliom_registration.Redirection.send Web_services.home
+  | None -> Eliom_registration.(Redirection.send (Redirection Web_services.home))
 
 let () = Eliom_registration.Any.register ~service:site_login
   (fun service () -> login_handler service None)

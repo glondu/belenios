@@ -32,24 +32,16 @@ module type AUTH_LINKS = sig
 
   val login :
     string option ->
-    (unit, unit,
-     [< Eliom_service.service_method > `Get ],
-     [< Eliom_service.attached > `Attached ],
-     [< Eliom_service.service_kind > `Service ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Unregistrable ],
-     [> Eliom_service.http_service ])
-    Eliom_service.service
+    (unit, unit, Eliom_service.get, Eliom_service.att,
+     Eliom_service.non_co, Eliom_service.non_ext,
+     Eliom_service.non_reg, [ `WithoutSuffix ], unit, unit,
+     Eliom_service.non_ocaml) Eliom_service.t
 
   val logout :
-    (unit, unit,
-     [< Eliom_service.service_method > `Get ],
-     [< Eliom_service.attached > `Attached ],
-     [< Eliom_service.service_kind > `Service ],
-     [ `WithoutSuffix ], unit, unit,
-     [< Eliom_service.registrable > `Unregistrable ],
-     [> Eliom_service.http_service ])
-    Eliom_service.service
+    (unit, unit, Eliom_service.get, Eliom_service.att,
+     Eliom_service.non_co, Eliom_service.non_ext,
+     Eliom_service.non_reg, [ `WithoutSuffix ], unit, unit,
+     Eliom_service.non_ocaml) Eliom_service.t
 
 end
 
