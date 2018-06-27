@@ -150,7 +150,7 @@ let main _ =
     | None -> ()
     | Some uuid ->
     Lwt.async (fun () ->
-      let open XmlHttpRequest in
+      let open Lwt_xmlHttpRequest in
       lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
       encrypted_tally := Some e.content;
       lwt e = get ("../elections/" ^ uuid ^ "/election.json") in

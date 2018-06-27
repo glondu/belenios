@@ -38,6 +38,7 @@ module type AUTH_LINKS = sig
      Eliom_service.non_ocaml) Eliom_service.t
 
   val logout :
+    unit ->
     (unit, unit, Eliom_service.get, Eliom_service.att,
      Eliom_service.non_co, Eliom_service.non_ext,
      Eliom_service.non_reg, [ `WithoutSuffix ], unit, unit,

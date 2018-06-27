@@ -397,7 +397,7 @@ let load_url url =
           | None -> ()
           | Some url -> e##action <- Js.string url)
     );
-  let open XmlHttpRequest in
+  let open Lwt_xmlHttpRequest in
   Lwt.async (fun () ->
       lwt raw = get (url ^ "election.json") in
       let () = setTextarea "election_params" raw.content in

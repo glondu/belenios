@@ -92,7 +92,7 @@ eval `opam config env`
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 eliom=6.2.0 csv
+opam install --yes atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 eliom=6.3.0 csv js_of_ocaml-camlp4
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

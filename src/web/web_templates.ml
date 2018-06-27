@@ -64,7 +64,7 @@ let make_login_box ~site auth links =
           pcdata ".";
         ];
         div [
-          a ~a:[a_id "logout"] ~service:L.logout [pcdata "Log out"] ();
+          a ~a:[a_id "logout"] ~service:(L.logout ()) [pcdata "Log out"] ();
           pcdata ".";
         ];
       ]
@@ -93,7 +93,7 @@ let make_login_box ~site auth links =
 
 module Site_links = struct
   let login x = Eliom_service.preapply site_login x
-  let logout = Eliom_service.preapply logout ()
+  let logout () = Eliom_service.preapply logout ()
 end
 
 module Site_auth = struct
@@ -1537,7 +1537,7 @@ let election_login_box uuid =
   let module L = struct
     let login x =
       Eliom_service.preapply election_login ((uuid, ()), x)
-    let logout =
+    let logout () =
       Eliom_service.preapply logout ()
   end in
   let links = (module L : AUTH_LINKS) in

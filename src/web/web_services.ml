@@ -31,8 +31,6 @@ let logout = create ~path:(Path ["logout"]) ~meth:(Get unit) ()
 
 let source_code = create ~path:(Path ["belenios.tar.gz"]) ~meth:(Get unit) ()
 
-let tool = preapply (static_dir ()) ["static"; "belenios-tool.html"]
-
 let election_draft_new = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:(radio string "credmgmt" ** radio string "auth" ** string "cas_server") ()
 let election_draft_pre = create ~path:(Path ["draft"; "new"]) ~meth:(Get unit) ()
 let election_draft = create ~path:(Path ["draft"; "election"]) ~meth:(Get (uuid "uuid")) ()
