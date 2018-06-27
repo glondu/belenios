@@ -30,6 +30,7 @@
     <extension findlib-package="uuidm"/>
     <extension findlib-package="atdgen"/>
     <extension findlib-package="csv"/>
+    <extension findlib-package="calendar"/>
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
