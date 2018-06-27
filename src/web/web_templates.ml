@@ -551,7 +551,7 @@ let election_draft uuid se () =
   ] in
   let form_destroy =
     let t = Option.get se.se_creation_date default_creation_date in
-    let t = datetime_add t (day 365) in
+    let t = datetime_add t (day days_to_delete) in
     post_form
       ~service:election_draft_destroy
       (fun () ->
