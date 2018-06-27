@@ -86,13 +86,13 @@ echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init --no-setup
 eval `opam config env`
-opam switch 4.02.3
+opam switch 4.04.2
 eval `opam config env`
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes atdgen=1.12.0 zarith cryptokit uuidm calendar cmdliner sqlite3 eliom=6.2.0 csv
+opam install --yes atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 eliom=6.2.0 csv
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

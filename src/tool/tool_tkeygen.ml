@@ -59,7 +59,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     assert (KG.check public_key);
     let id = String.sub
       (sha256_hex (G.to_string public_key.trustee_public_key))
-      0 8 |> String.uppercase
+      0 8 |> String.uppercase_ascii
     in
     let priv = string_of_number private_key in
     let pub = string_of_trustee_public_key G.write public_key in
