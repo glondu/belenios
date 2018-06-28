@@ -41,8 +41,8 @@ variable, or it will take `~/.belenios` by default. Just run:
 
     ./opam-bootstrap.sh
 
-On a modern desktop system, this needs approximately 10 minutes and 1
-gigabyte of disk space.
+On a modern desktop system, this needs approximately 11 minutes and 2
+gigabytes of disk space.
 
 If everything goes successfully, follow the given instructions to
 update your shell environment, then run:
@@ -131,24 +131,12 @@ Additionnaly, you will need LaTeX to compile the specification.
 On Debian-based systems, you can install the dependencies needed to
 compile the documentation with:
 
-    sudo apt-get install markdown texlive
+    sudo apt install markdown texlive
 
 Once all the dependencies have been installed, the documentation can
 be compiled with:
 
     make doc
-
-Compilation using only official Debian packages
------------------------------------------------
-
-At the time of writing (07 Dec 2017), you need the stable version (stretch)
-of Debian (or Ubuntu) to be able to compile Belenios using only
-official Debian packages. On Ubuntu, you need to enable the "Universe"
-repository. Instead of using OPAM, the dependencies of Belenios can
-then be installed with:
-
-    sudo apt install libatdgen-ocaml-dev libzarith-ocaml-dev libcryptokit-ocaml-dev libuuidm-ocaml-dev libcalendar-ocaml-dev libcmdliner-ocaml-dev
-    sudo apt install ocsigenserver eliom libcsv-ocaml-dev
 
 Compiling on Windows using Cygwin
 ---------------------------------
@@ -188,14 +176,6 @@ tool_ section above.
 
 Troubleshooting
 ---------------
-
-### OCamlDuce incompatibility
-
-OCamlDuce is an optional transitive dependency of Belenios, but
-Belenios does not use it. If OCamlDuce was installed outside of OPAM
-(e.g. via your system package manager), you may face issues. You can
-work around them by uninstalling OCamlDuce and restarting the
-installation procedure.
 
 ### Missing sources
 
