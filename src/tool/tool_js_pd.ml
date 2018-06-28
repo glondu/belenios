@@ -152,7 +152,7 @@ let main _ =
     Lwt.async (fun () ->
       let open Lwt_xmlHttpRequest in
       lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
-      encrypted_tally := Some e.content;
+      encrypted_tally := Some (String.trim e.content);
       lwt e = get ("../elections/" ^ uuid ^ "/election.json") in
       election := Some e.content;
       Lwt.return (compute_hash ()))
