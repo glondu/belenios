@@ -25,7 +25,7 @@ open Serializable_j
 open Signatures
 open Common
 
-let document = Dom_html.window##document
+let document = Dom_html.window##.document
 
 let withElementById x f =
   Js.Opt.iter (document##getElementById (Js.string x)) f
@@ -33,7 +33,7 @@ let withElementById x f =
 let getHtmlById x =
   let r = ref x in
   withElementById x (fun x ->
-    Js.Opt.iter (x##textContent) (fun x -> r := Js.to_string x)
+    Js.Opt.iter (x##.textContent) (fun x -> r := Js.to_string x)
   ); !r
 
 let alert s : unit =
@@ -55,14 +55,14 @@ let runHandler handler () =
 
 let installHandler id handler =
   let f _ = runHandler handler () in
-  withElementById id (fun e -> e##onclick <- Dom_html.handler f)
+  withElementById id (fun e -> e##.onclick := Dom_html.handler f)
 
 let getTextarea id =
   let res = ref None in
   withElementById id (fun e ->
     Js.Opt.iter
       (Dom_html.CoerceTo.textarea e)
-      (fun x -> res := Some (Js.to_string (x##value)))
+      (fun x -> res := Some (Js.to_string (x##.value)))
   );
   match !res with
   | None -> raise Not_found
@@ -72,7 +72,7 @@ let setTextarea id z =
   withElementById id (fun e ->
     Js.Opt.iter
       (Dom_html.CoerceTo.textarea e)
-      (fun x -> x##value <- Js.string z)
+      (fun x -> x##.value := Js.string z)
   )
 
 let setNodeById id x =
@@ -82,7 +82,7 @@ let setNodeById id x =
   )
 
 let setDisplayById id x =
-  withElementById id (fun e -> e##style##display <- Js.string x)
+  withElementById id (fun e -> e##.style##.display := Js.string x)
 
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
@@ -95,7 +95,7 @@ module LwtJsRandom = struct
   let random q =
     let size = Z.bit_length q / 8 + 1 in
     fun () ->
-      lwt () = Lwt_js.yield () in
+      let%lwt () = Lwt_js.yield () in
       let r = random_string (Lazy.force prng) size in
       Lwt.return Z.(of_bits r mod q)
 end
@@ -106,21 +106,21 @@ let encryptBallot params cred plaintext () =
   let module E = Election.Make (P) (LwtJsRandom) in
   let module CD = Credential.MakeDerive (G) in
   let sk = CD.derive P.election.e_params.e_uuid cred in
-  lwt randomness = E.make_randomness () () in
-  lwt b = E.create_ballot ~sk randomness plaintext () in
+  let%lwt randomness = E.make_randomness () () in
+  let%lwt b = E.create_ballot ~sk randomness plaintext () in
   let s = string_of_ballot G.write b in
   setTextarea "ballot" s;
   setNodeById "ballot_tracker" (sha256_b64 s);
   setDisplayById "encrypting_div" "none";
   setDisplayById "ballot_div" "block";
-  Dom_html.window##onbeforeunload <- Dom_html.no_handler;
+  Dom_html.window##.onbeforeunload := Dom_html.no_handler;
   Lwt.return ()
 
 let progress_step n =
   let old_ = Printf.sprintf "progress%d" (n-1) in
   let new_ = Printf.sprintf "progress%d" n in
-  withElementById old_ (fun e -> e##setAttribute (Js.string "style", Js.string ""));
-  withElementById new_ (fun e -> e##setAttribute (Js.string "style", Js.string "font-weight: bold;"))
+  withElementById old_ (fun e -> e##setAttribute (Js.string "style") (Js.string ""));
+  withElementById new_ (fun e -> e##setAttribute (Js.string "style") (Js.string "font-weight: bold;"))
 
 let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
   (* Create div element for the current question. [i] and [(q,
@@ -159,13 +159,13 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         | Some x -> x
         | None -> failwith "error while casting checkbox"
       in
-      if answers.(i) > 0 then cb##checked <- Js.bool true;
-      checkbox##setAttribute (Js.string "type", Js.string "checkbox");
-      checkbox##setAttribute (Js.string "style", Js.string "cursor: pointer;");
+      if answers.(i) > 0 then cb##.checked := Js.bool true;
+      checkbox##setAttribute (Js.string "type") (Js.string "checkbox");
+      checkbox##setAttribute (Js.string "style") (Js.string "cursor: pointer;");
       Dom.appendChild div checkbox;
       let t = document##createTextNode (Js.string a) in
-      checkbox##onclick <- Dom_html.handler (fun _ ->
-        answers.(i) <- if Js.to_bool cb##checked then 1 else 0;
+      checkbox##.onclick := Dom_html.handler (fun _ ->
+        answers.(i) <- if Js.to_bool cb##.checked then 1 else 0;
         Js._true
       );
       Dom.appendChild div t;
@@ -215,7 +215,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   let () =
     (* previous button *)
     let btns = document##createElement (Js.string "div") in
-    btns##setAttribute (Js.string "style", Js.string "text-align: center;");
+    btns##setAttribute (Js.string "style") (Js.string "text-align: center;");
     let () =
       match prev with
       | [] ->
@@ -224,7 +224,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
       | r :: prev ->
         let b = document##createElement (Js.string "button") in
         let t = document##createTextNode (Js.string @@ getHtmlById "str_previous") in
-        b##onclick <- Dom_html.handler (fun _ ->
+        b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
               question_div num_questions (i - 1) prev r ((q, answers) :: next)
@@ -243,13 +243,13 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         (* last question, the button leads to encryption page *)
         let b = document##createElement (Js.string "button") in
         let t = document##createTextNode (Js.string @@ getHtmlById "str_next") in
-        b##onclick <- Dom_html.handler (fun _ ->
+        b##.onclick := Dom_html.handler (fun _ ->
          if check_constraints () then (
           let all = (q, answers) :: prev in
           let all_answers = List.rev_map snd all |> Array.of_list in
           let all_questions = List.rev_map fst all |> Array.of_list in
           setTextarea "choices" (string_of_plaintext all_answers);
-          question_div##style##display <- Js.string "none";
+          question_div##.style##.display := Js.string "none";
           withElementById "pretty_choices" (fun e ->
             Array.iteri (fun i a ->
               let q = all_questions.(i) in
@@ -290,7 +290,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
       | r :: next ->
         let b = document##createElement (Js.string "button") in
         let t = document##createTextNode (Js.string @@ getHtmlById "str_next") in
-        b##onclick <- Dom_html.handler (fun _ ->
+        b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
               question_div num_questions (i + 1) ((q, answers) :: prev) r next
@@ -322,14 +322,14 @@ let addQuestions sk params qs =
 
 let createStartButton params intro_div qs =
   let b = document##createElement (Js.string "button") in
-  b##setAttribute (Js.string "style", Js.string "font-size:20px;");
+  b##setAttribute (Js.string "style") (Js.string "font-size:20px;");
   let t = document##createTextNode (Js.string (getHtmlById "str_here")) in
-  b##onclick <- Dom_html.handler (fun _ ->
+  b##.onclick := Dom_html.handler (fun _ ->
     (match prompt (getHtmlById "enter_cred") with
     | Some cred when Credential.check cred ->
-      intro_div##style##display <- Js.string "none";
+      intro_div##.style##.display := Js.string "none";
       setDisplayById "question_div" "block";
-      Dom_html.window##onbeforeunload <- Dom_html.handler (fun _ ->
+      Dom_html.window##.onbeforeunload := Dom_html.handler (fun _ ->
         Js._false
       );
       progress_step 2;
@@ -395,11 +395,11 @@ let load_url url =
         (fun e ->
           match transform_url url with
           | None -> ()
-          | Some url -> e##action <- Js.string url)
+          | Some url -> e##.action := Js.string url)
     );
   let open Lwt_xmlHttpRequest in
   Lwt.async (fun () ->
-      lwt raw = get (url ^ "election.json") in
+      let%lwt raw = get (url ^ "election.json") in
       let () = setTextarea "election_params" raw.content in
       Lwt.return (runHandler loadElection ())
     )
@@ -407,7 +407,7 @@ let load_url url =
 let load_url_handler _ =
   let url = getTextarea "url" in
   let encoded = Url.encode_arguments ["url", url] in
-  Dom_html.window##location##hash <- Js.string encoded;
+  Dom_html.window##.location##.hash := Js.string encoded;
   load_url url;
   Js._false
 
@@ -423,16 +423,16 @@ let load_params_handler _ =
 let onload_handler _ =
   let () =
     withElementById "load_url"
-      (fun e -> e##onclick <- Dom_html.handler load_url_handler);
+      (fun e -> e##.onclick := Dom_html.handler load_url_handler);
     withElementById "load_params"
-      (fun e -> e##onclick <- Dom_html.handler load_params_handler);
+      (fun e -> e##.onclick := Dom_html.handler load_params_handler);
   in
   let () =
-    match get_url (Js.to_string Dom_html.window##location##hash) with
+    match get_url (Js.to_string Dom_html.window##.location##.hash) with
     | None ->
        setDisplayById "wait_div" "none";
        setDisplayById "election_loader" "block";
     | Some url -> load_url url
   in Js._false
 
-let () = Dom_html.window##onload <- Dom_html.handler onload_handler
+let () = Dom_html.window##.onload := Dom_html.handler onload_handler

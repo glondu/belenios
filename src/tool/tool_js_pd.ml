@@ -73,7 +73,7 @@ let compute_partial_decryption _ =
   let encrypted_tally = encrypted_tally_of_string P.G.read e in
   document##getElementById (Js.string "private_key") >>= fun e ->
   Dom_html.CoerceTo.input e >>= fun e ->
-  let pk_str = Js.to_string e##value in
+  let pk_str = Js.to_string e##.value in
   let private_key =
     try
       let epk = get_textarea "encrypted_private_key" in
@@ -107,16 +107,16 @@ let compute_hash () =
 let load_private_key_file _ =
   document##getElementById (Js.string "private_key_file") >>= fun e ->
   Dom_html.CoerceTo.input e >>= fun e ->
-  Js.Opt.option (Js.Optdef.to_option (e##files)) >>= fun e ->
+  Js.Opt.option (Js.Optdef.to_option (e##.files)) >>= fun e ->
   e##item (0) >>= fun file ->
-  let reader = jsnew File.fileReader () in
-  reader##onload <-
+  let reader = new%js File.fileReader in
+  reader##.onload :=
     Dom.handler (fun _ ->
         let _ =
           document##getElementById (Js.string "private_key") >>= fun e ->
           Dom_html.CoerceTo.input e >>= fun e ->
-          File.CoerceTo.string (reader##result) >>= fun text ->
-          e##value <- text;
+          File.CoerceTo.string (reader##.result) >>= fun text ->
+          e##.value := text;
           Js.some ()
         in Js._false
       );
@@ -136,28 +136,28 @@ let main _ =
   let _ =
     document##getElementById (Js.string "compute") >>= fun e ->
     Dom_html.CoerceTo.button e >>= fun e ->
-    e##onclick <- Dom_html.handler (wrap compute_partial_decryption);
+    e##.onclick := Dom_html.handler (wrap compute_partial_decryption);
     Js.null
   in
   let _ =
     document##getElementById (Js.string "private_key_file") >>= fun e ->
     Dom_html.CoerceTo.input e >>= fun e ->
-    e##onchange <- Dom_html.handler (wrap load_private_key_file);
+    e##.onchange := Dom_html.handler (wrap load_private_key_file);
     Js.null
   in
   let _ =
-    match get_uuid (Js.to_string Dom_html.window##location##search) with
+    match get_uuid (Js.to_string Dom_html.window##.location##.search) with
     | None -> ()
     | Some uuid ->
     Lwt.async (fun () ->
       let open Lwt_xmlHttpRequest in
-      lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
+      let%lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
       encrypted_tally := Some (String.trim e.content);
-      lwt e = get ("../elections/" ^ uuid ^ "/election.json") in
+      let%lwt e = get ("../elections/" ^ uuid ^ "/election.json") in
       election := Some e.content;
       Lwt.return (compute_hash ()))
   in
   Js._false
 
 let () =
-  Dom_html.window##onload <- Dom_html.handler main
+  Dom_html.window##.onload := Dom_html.handler main

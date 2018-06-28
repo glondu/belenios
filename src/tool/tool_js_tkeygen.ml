@@ -41,11 +41,11 @@ let fill_interactivity _ =
     (fun e ->
      let b = document##createElement (Js.string "button") in
      let t = document##createTextNode (Js.string "Generate a new keypair") in
-     b##onclick <- Dom_html.handler tkeygen;
+     b##.onclick := Dom_html.handler tkeygen;
      Dom.appendChild b t;
      Dom.appendChild e b;
     );
   Js._false
 
 let () =
-  Dom_html.window##onload <- Dom_html.handler fill_interactivity;
+  Dom_html.window##.onload := Dom_html.handler fill_interactivity;

@@ -33,7 +33,7 @@ let install_handler (id, handler) =
   in
   Js.Opt.iter
     (document##getElementById (Js.string id))
-    (fun e -> e##onclick <- Dom_html.handler f)
+    (fun e -> e##.onclick := Dom_html.handler f)
 
 module Tests = struct
 
@@ -293,7 +293,7 @@ let install_handlers () =
   List.iter install_handler cmds
 
 let () =
-  Dom_html.window##onload <- Dom_html.handler (fun _ ->
+  Dom_html.window##.onload := Dom_html.handler (fun _ ->
     install_handlers ();
     Js._false
   )

@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let document = Dom_html.window##document
+let document = Dom_html.window##.document
 
 let alert s : unit =
   let open Js.Unsafe in
@@ -32,7 +32,7 @@ let get_textarea id =
     (fun e ->
       Js.Opt.iter
         (Dom_html.CoerceTo.textarea e)
-        (fun x -> res := Some (Js.to_string (x##value)))
+        (fun x -> res := Some (Js.to_string (x##.value)))
     );
   match !res with
   | None -> raise Not_found
@@ -44,7 +44,7 @@ let set_textarea id z =
     (fun e ->
       Js.Opt.iter
         (Dom_html.CoerceTo.textarea e)
-        (fun x -> x##value <- Js.string z)
+        (fun x -> x##.value := Js.string z)
     )
 
 let get_input id =
@@ -54,7 +54,7 @@ let get_input id =
     (fun e ->
       Js.Opt.iter
         (Dom_html.CoerceTo.input e)
-        (fun x -> res := Some (Js.to_string (x##value)))
+        (fun x -> res := Some (Js.to_string (x##.value)))
     );
   match !res with
   | None -> raise Not_found
@@ -63,7 +63,7 @@ let get_input id =
 let set_element_display id x =
   Js.Opt.iter
     (document##getElementById (Js.string id))
-    (fun e -> e##style##display <- Js.string x)
+    (fun e -> e##.style##.display := Js.string x)
 
 let hide_element_by_id id = set_element_display id "none"
 
@@ -72,6 +72,6 @@ let set_download id mime fn x =
   Js.Opt.iter
     (document##getElementById (Js.string id))
     (fun e ->
-      e##setAttribute (Js.string "download", Js.string fn);
-      Js.Opt.iter (Dom_html.CoerceTo.a e) (fun e -> e##href <- x)
+      e##setAttribute (Js.string "download") (Js.string fn);
+      Js.Opt.iter (Dom_html.CoerceTo.a e) (fun e -> e##.href := x)
     )

@@ -33,7 +33,7 @@ let gen_cert e _ =
   let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
   let key, cert = T.step1 () in
   let id = sha256_hex cert.s_message in
-  e##innerHTML <- Js.string "";
+  e##.innerHTML := Js.string "";
   let t = document##createTextNode (Js.string (Printf.sprintf "Certificate %s has been generated!" id)) in
   Dom.appendChild e t;
   set_download "private_key" "text/plain" "private_key.txt" key;
@@ -46,7 +46,7 @@ let proceed step e textarea _ =
   let group = get_textarea "group" in
   let key =
     let r = ref "" in
-    Js.Opt.iter (Dom_html.CoerceTo.textarea textarea) (fun x -> r := Js.to_string x##value);
+    Js.Opt.iter (Dom_html.CoerceTo.textarea textarea) (fun x -> r := Js.to_string x##.value);
     !r
   in
   let certs = certs_of_string (get_textarea "certs") in
@@ -58,14 +58,14 @@ let proceed step e textarea _ =
   match step with
   | 3 ->
      let polynomial = T.step3 certs key threshold in
-     e##innerHTML <- Js.string "";
+     e##.innerHTML := Js.string "";
      set_textarea "data" (string_of_polynomial polynomial);
      Js._false
   | 5 ->
      let vinput = get_textarea "vinput" in
      let vinput = vinput_of_string vinput in
      let voutput = T.step5 certs key vinput in
-     e##innerHTML <- Js.string "";
+     e##.innerHTML := Js.string "";
      set_textarea "data" (string_of_voutput G.write voutput);
      Js._false
   | _ ->
@@ -93,7 +93,7 @@ let fill_interactivity _ =
       | 1 ->
          let b = document##createElement (Js.string "button") in
          let t = document##createTextNode (Js.string "Generate private key") in
-         b##onclick <- Dom_html.handler (gen_cert e);
+         b##.onclick := Dom_html.handler (gen_cert e);
          Dom.appendChild b t;
          Dom.appendChild e b;
       | 3 | 5 ->
@@ -101,13 +101,13 @@ let fill_interactivity _ =
          let t = document##createTextNode (Js.string "Private key: ") in
          Dom.appendChild div t;
          let textarea = Dom_html.createTextarea document in
-         textarea##rows <- 1;
-         textarea##cols <- 25;
+         textarea##.rows := 1;
+         textarea##.cols := 25;
          Dom.appendChild div textarea;
          Dom.appendChild e div;
          let b = document##createElement (Js.string "button") in
          let t = document##createTextNode (Js.string "Proceed") in
-         b##onclick <- Dom_html.handler (proceed step e textarea);
+         b##.onclick := Dom_html.handler (proceed step e textarea);
          Dom.appendChild b t;
          Dom.appendChild e b;
       | _ ->
@@ -116,4 +116,4 @@ let fill_interactivity _ =
   Js._false
 
 let () =
-  Dom_html.window##onload <- Dom_html.handler fill_interactivity;
+  Dom_html.window##.onload := Dom_html.handler fill_interactivity;

@@ -64,11 +64,11 @@ let fill_interactivity _ =
      Dom.appendChild e x;
      let b = document##createElement (Js.string "button") in
      let t = document##createTextNode (Js.string "Generate") in
-     b##onclick <- Dom_html.handler generate;
+     b##.onclick := Dom_html.handler generate;
      Dom.appendChild b t;
      Dom.appendChild x b;
     );
   Js._false
 
 let () =
-  Dom_html.window##onload <- Dom_html.handler fill_interactivity;
+  Dom_html.window##.onload := Dom_html.handler fill_interactivity;
