@@ -101,6 +101,9 @@ let () = dispatch & function
     (* the following avoids an ocamlfind warning, it should be built-in *)
     flag ["doc"; "thread"] (A"-thread");
 
+    (* there seems to be no built-in tag for this... *)
+    flag ["compile"; "interf"] (A"-no-keep-locs");
+
     rule "%.atd -> %_t.ml & %_t.mli" ~deps:["%.atd"] ~prods:["%_t.ml"; "%_t.mli"]
       (atdgen_action [A"-t"]);
     rule "%.atd -> %_j.ml & %_j.mli" ~deps:["%.atd"] ~prods:["%_j.ml"; "%_j.mli"]

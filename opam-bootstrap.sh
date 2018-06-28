@@ -86,7 +86,7 @@ echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init --no-setup
 eval `opam config env`
-opam switch 4.04.2
+opam switch 4.06.1
 eval `opam config env`
 
 echo
