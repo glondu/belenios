@@ -298,8 +298,8 @@ let add_ballot uuid ballot =
   let hash = sha256_b64 ballot in
   let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
   let%lwt () = try%lwt Lwt_unix.mkdir ballots_dir 0o755 with _ -> return_unit in
-  write_file (ballots_dir / urlize hash) [ballot] >>
-  dump_ballots uuid >>
+  let%lwt () = write_file (ballots_dir / urlize hash) [ballot] in
+  let%lwt () = dump_ballots uuid in
   return hash
 
 let remove_ballot uuid hash =
@@ -307,7 +307,7 @@ let remove_ballot uuid hash =
   try%lwt Lwt_unix.unlink (ballots_dir / urlize hash) with _ -> return_unit
 
 let replace_ballot uuid hash ballot =
-  remove_ballot uuid hash >>
+  let%lwt () = remove_ballot uuid hash in
   add_ballot uuid ballot
 
 let compute_encrypted_tally uuid =
@@ -360,7 +360,7 @@ let dump_extended_records uuid rs =
         Printf.sprintf "%s %S\n" (string_of_datetime d) u
       ) rs
   in
-  write_file ~uuid "extended_records.jsons" extended_records >>
+  let%lwt () = write_file ~uuid "extended_records.jsons" extended_records in
   write_file ~uuid (string_of_election_file ESRecords) records
 
 let extended_records_cache =
@@ -406,7 +406,7 @@ let dump_credential_mappings uuid xs =
       ) xs
   in
   let creds = List.map fst xs in
-  write_file ~uuid "credential_mappings.jsons" mappings >>
+  let%lwt () = write_file ~uuid "credential_mappings.jsons" mappings in
   write_file ~uuid "public_creds.txt" creds
 
 let credential_mappings_cache =

@@ -65,10 +65,12 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
         let user = string_of_user user in
         let%lwt state = Web_persist.get_election_state uuid in
         let voting_open = state = `Open in
-        if not voting_open then fail ElectionClosed else return () >>
-        if String.contains rawballot '\n' then (
-          fail (Serialization (Invalid_argument "multiline ballot"))
-        ) else return () >>
+        let%lwt () = if not voting_open then fail ElectionClosed else return_unit in
+        let%lwt () =
+          if String.contains rawballot '\n' then (
+            fail (Serialization (Invalid_argument "multiline ballot"))
+          ) else return_unit
+        in
         let%lwt ballot =
           try Lwt.return (ballot_of_string G.read rawballot)
           with e -> fail (Serialization e)
@@ -90,9 +92,9 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
             let%lwt b = Lwt_preemptive.detach E.check_ballot ballot in
             if b then (
               let%lwt hash = Web_persist.add_ballot uuid rawballot in
-              Web_persist.add_credential_mapping uuid credential (Some hash) >>
-              Web_persist.add_extended_record uuid user (date, credential) >>
-              send_confirmation_email false login email hash >>
+              let%lwt () = Web_persist.add_credential_mapping uuid credential (Some hash) in
+              let%lwt () = Web_persist.add_extended_record uuid user (date, credential) in
+              let%lwt () = send_confirmation_email false login email hash in
               return hash
             ) else (
               fail ProofCheck
@@ -103,26 +105,41 @@ module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX = struct
               let%lwt b = Lwt_preemptive.detach E.check_ballot ballot in
               if b then (
                 let%lwt hash = Web_persist.replace_ballot uuid h rawballot in
-                Web_persist.add_credential_mapping uuid credential (Some hash) >>
-                Web_persist.add_extended_record uuid user (date, credential) >>
-                send_confirmation_email true login email hash >>
+                let%lwt () = Web_persist.add_credential_mapping uuid credential (Some hash) in
+                let%lwt () = Web_persist.add_extended_record uuid user (date, credential) in
+                let%lwt () = send_confirmation_email true login email hash in
                 return hash
               ) else (
                 fail ProofCheck
               )
             ) else (
-              security_log (fun () ->
-                Printf.sprintf "%s attempted to revote with already used credential %s" user credential
-              ) >> fail WrongCredential
+              let%lwt () =
+                security_log (fun () ->
+                    Printf.sprintf
+                      "%s attempted to revote with already used credential %s"
+                      user credential
+                  )
+              in
+              fail WrongCredential
             )
           | None, Some _ ->
-            security_log (fun () ->
-              Printf.sprintf "%s attempted to revote using a new credential %s" user credential
-            ) >> fail RevoteNotAllowed
+             let%lwt () =
+               security_log (fun () ->
+                   Printf.sprintf
+                     "%s attempted to revote using a new credential %s"
+                     user credential
+                 )
+             in
+             fail RevoteNotAllowed
           | Some _, None ->
-            security_log (fun () ->
-              Printf.sprintf "%s attempted to vote with already used credential %s" user credential
-            ) >> fail ReusedCredential
+             let%lwt () =
+               security_log (fun () ->
+                   Printf.sprintf
+                     "%s attempted to vote with already used credential %s"
+                     user credential
+                 )
+             in
+             fail ReusedCredential
 
       let mutex = Lwt_mutex.create ()
 

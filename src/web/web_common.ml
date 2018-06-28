@@ -102,20 +102,19 @@ let open_security_log f =
 let security_log s =
   match !security_logfile with
     | None -> return ()
-    | Some ic -> Lwt_io.atomic (fun ic ->
-      Lwt_io.write ic (
-        string_of_datetime (now ())
-      ) >>
-      Lwt_io.write ic ": " >>
-      Lwt_io.write_line ic (s ()) >>
-      Lwt_io.flush ic
+    | Some ic ->
+       Lwt_io.atomic (fun ic ->
+           let%lwt () = Lwt_io.write ic (string_of_datetime (now ())) in
+           let%lwt () = Lwt_io.write ic ": " in
+           let%lwt () = Lwt_io.write_line ic (s ()) in
+           Lwt_io.flush ic
     ) ic
 
 let fail_http status =
-  [%lwt raise (
-    Ocsigen_extensions.Ocsigen_http_error
-      (Ocsigen_cookies.empty_cookieset, status)
-  )]
+  Lwt.fail (
+      Ocsigen_extensions.Ocsigen_http_error
+        (Ocsigen_cookies.empty_cookieset, status)
+    )
 
 let forbidden () = fail_http 403
 
@@ -223,7 +222,8 @@ let send_email recipient subject body =
     try%lwt
       Lwt_preemptive.detach sendmail contents
     with Unix.Unix_error (Unix.EAGAIN, _, _) ->
-      Lwt_unix.sleep 1. >> loop ()
+      let%lwt () = Lwt_unix.sleep 1. in
+      loop ()
   in loop ()
 
 let split_identity x =
@@ -269,7 +269,7 @@ let extract_email =
 
 let file_exists x =
   try%lwt
-    Lwt_unix.(access x [R_OK]) >>
+    let%lwt () = Lwt_unix.(access x [R_OK]) in
     return true
   with _ ->
     return false
@@ -290,11 +290,14 @@ let read_file ?uuid x =
 let write_file ?uuid x lines =
   let fname = get_fname uuid x in
   let fname_new = fname ^ ".new" in
-  Lwt_io.(
-    with_file Output fname_new (fun oc ->
-        Lwt_list.iter_s (write_line oc) lines
-      )
-  ) >> Lwt_unix.rename fname_new fname
+  let%lwt () =
+    Lwt_io.(
+      with_file Output fname_new (fun oc ->
+          Lwt_list.iter_s (write_line oc) lines
+        )
+    )
+  in
+  Lwt_unix.rename fname_new fname
 
 let cleanup_file f =
   try%lwt Lwt_unix.unlink f

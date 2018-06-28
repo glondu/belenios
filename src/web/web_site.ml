@@ -171,16 +171,17 @@ let validate_election uuid se =
       (fun oc ->
         Lwt_list.iter_s
           (fun v ->
-            Lwt_io.write oc (what v) >>
-              Lwt_io.write oc "\n") xs)
+            let%lwt () = Lwt_io.write oc (what v) in
+            Lwt_io.write oc "\n") xs)
   in
-  (match pk_or_tp with
-   | `PK pk -> create_file "public_keys.jsons" (string_of_trustee_public_key G.write) pk
-   | `TP tp -> create_file "threshold.json" (string_of_threshold_parameters G.write) [tp]
-  ) >>
-  create_file "voters.txt" (fun x -> x.sv_id) se.se_voters >>
-  create_file "metadata.json" string_of_metadata [metadata] >>
-  create_file "election.json" (fun x -> x) [raw_election] >>
+  let%lwt () =
+    match pk_or_tp with
+    | `PK pk -> create_file "public_keys.jsons" (string_of_trustee_public_key G.write) pk
+    | `TP tp -> create_file "threshold.json" (string_of_threshold_parameters G.write) [tp]
+  in
+  let%lwt () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in
+  let%lwt () = create_file "metadata.json" string_of_metadata [metadata] in
+  let%lwt () = create_file "election.json" (fun x -> x) [raw_election] in
   (* construct Web_election instance *)
   let election = Election.of_string raw_election in
   let module W = (val Election.get_group election) in
@@ -191,7 +192,7 @@ let validate_election uuid se =
     let fname = !spool_dir / uuid_s / "public_creds.txt" in
     match%lwt read_file fname with
     | Some xs ->
-       Web_persist.init_credential_mapping uuid xs >>
+       let%lwt () = Web_persist.init_credential_mapping uuid xs in
        Lwt_unix.unlink fname
     | None -> return_unit
   in
@@ -203,22 +204,24 @@ let validate_election uuid se =
     | `KEYS x -> create_file "private_keys.jsons" (fun x -> x) x
   in
   (* clean up draft *)
-  cleanup_file (!spool_dir / uuid_s / "draft.json") >>
+  let%lwt () = cleanup_file (!spool_dir / uuid_s / "draft.json") in
   (* write passwords *)
-  (match metadata.e_auth_config with
-  | Some [{auth_system = "password"; _}] ->
-     let db =
-       List.filter_map (fun v ->
-           let _, login = split_identity v.sv_id in
-           match v.sv_password with
-           | Some (salt, hashed) -> Some [login; salt; hashed]
-           | None -> None
-       ) se.se_voters
-     in
-     if db <> [] then dump_passwords uuid db else return_unit
-  | _ -> return_unit) >>
+  let%lwt () =
+    match metadata.e_auth_config with
+    | Some [{auth_system = "password"; _}] ->
+       let db =
+         List.filter_map (fun v ->
+             let _, login = split_identity v.sv_id in
+             match v.sv_password with
+             | Some (salt, hashed) -> Some [login; salt; hashed]
+             | None -> None
+           ) se.se_voters
+       in
+       if db <> [] then dump_passwords uuid db else return_unit
+    | _ -> return_unit
+  in
   (* finish *)
-  Web_persist.set_election_state uuid `Open >>
+  let%lwt () = Web_persist.set_election_state uuid `Open in
   Web_persist.set_election_date `Validation uuid (now ())
 
 let delete_sensitive_data uuid =
@@ -339,7 +342,7 @@ let delete_election uuid =
 
 let () = Any.register ~service:home
   (fun () () ->
-    Eliom_reference.unset Web_state.cont >>
+    let%lwt () = Eliom_reference.unset Web_state.cont in
     Redirection.send (Redirection admin)
   )
 
@@ -367,7 +370,7 @@ let with_site_user f =
 let () =
   Redirection.register ~service:admin_gdpr_accept
     (fun () () ->
-      Eliom_reference.set Web_state.show_cookie_disclaimer false >>
+      let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
       return (Redirection admin)
     )
 
@@ -376,7 +379,7 @@ let () = Html.register ~service:admin
     let%lwt gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
     if gdpr then T.admin_gdpr () else
     let cont () = Redirection.send (Redirection admin) in
-    Eliom_reference.set Web_state.cont [cont] >>
+    let%lwt () = Eliom_reference.set Web_state.cont [cont] in
     let%lwt site_user = Web_state.get_site_user () in
     let%lwt elections =
       match site_user with
@@ -606,7 +609,7 @@ let generate_password metadata langs title url id =
     let module L = (val Web_i18n.get_lang lang) in
     Printf.sprintf L.mail_password_subject title
   in
-  send_email email subject body >>
+  let%lwt () = send_email email subject body in
   return (salt, hashed)
 
 let handle_password se uuid ~force voters =
@@ -686,9 +689,9 @@ let () =
                let%lwt db = load_password_db uuid in
                let%lwt x = generate_password metadata langs title url id in
                let db = replace_password user x db in
-               dump_passwords uuid db >>
-                 T.generic_page ~title:"Success" ~service
-                   ("A new password has been mailed to " ^ id ^ ".") ()
+               let%lwt () = dump_passwords uuid db in
+               T.generic_page ~title:"Success" ~service
+                 ("A new password has been mailed to " ^ id ^ ".") ()
                >>= Html.send
               with Not_found ->
                 T.generic_page ~title:"Error" ~service
@@ -857,14 +860,15 @@ let handle_credentials_post uuid token creds =
   if se.se_public_creds_received then forbidden () else
   let module G = (val Group.of_string se.se_group : GROUP) in
   let fname = !spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
-  Lwt_mutex.with_lock
-    election_draft_mutex
-    (fun () ->
-     Lwt_io.with_file
-       ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
-       ~perm:0o600 ~mode:Lwt_io.Output fname
-       (fun oc -> Lwt_io.write_chars oc creds)
-    ) >>
+  let%lwt () =
+    Lwt_mutex.with_lock election_draft_mutex
+      (fun () ->
+        Lwt_io.with_file
+          ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+          ~perm:0o600 ~mode:Lwt_io.Output fname
+          (fun oc -> Lwt_io.write_chars oc creds)
+      )
+  in
   let%lwt () =
     let i = ref 1 in
     match%lwt read_file fname with
@@ -883,7 +887,7 @@ let handle_credentials_post uuid token creds =
   in
   let () = se.se_metadata <- {se.se_metadata with e_cred_authority = None} in
   let () = se.se_public_creds_received <- true in
-  Web_persist.set_draft_election uuid se >>
+  let%lwt () = Web_persist.set_draft_election uuid se in
   T.generic_page ~title:"Success"
     "Credentials have been received and checked!" () >>= Html.send
 
@@ -986,23 +990,25 @@ let () =
      if token = "" then forbidden () else
      wrap_handler
        (fun () ->
-        Lwt_mutex.with_lock
-          election_draft_mutex
-          (fun () ->
-           match%lwt Web_persist.get_draft_election uuid with
-           | None -> fail_http 404
-           | Some se ->
-           let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
-           let module G = (val Group.of_string se.se_group : GROUP) in
-           let pk = trustee_public_key_of_string G.read public_key in
-           let module KG = Trustees.MakeSimple (G) (LwtRandom) in
-           if not (KG.check pk) then failwith "invalid public key";
-           (* we keep pk as a string because of G.t *)
-           t.st_public_key <- public_key;
-           Web_persist.set_draft_election uuid se
-          ) >> T.generic_page ~title:"Success"
-            "Your key has been received and checked!"
-            () >>= Html.send
+         let%lwt () =
+           Lwt_mutex.with_lock election_draft_mutex
+             (fun () ->
+               match%lwt Web_persist.get_draft_election uuid with
+               | None -> fail_http 404
+               | Some se ->
+                  let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
+                  let module G = (val Group.of_string se.se_group : GROUP) in
+                  let pk = trustee_public_key_of_string G.read public_key in
+                  let module KG = Trustees.MakeSimple (G) (LwtRandom) in
+                  if not (KG.check pk) then failwith "invalid public key";
+                  (* we keep pk as a string because of G.t *)
+                  t.st_public_key <- public_key;
+                  Web_persist.set_draft_election uuid se
+             )
+         in
+         T.generic_page ~title:"Success"
+           "Your key has been received and checked!"
+           () >>= Html.send
        )
     )
 
@@ -1033,7 +1039,8 @@ let () =
   Any.register ~service:election_draft_destroy
     (fun uuid () ->
       with_draft_election ~save:false uuid (fun _ ->
-          destroy_election uuid >> Redirection.send (Redirection admin)
+          let%lwt () = destroy_election uuid in
+          Redirection.send (Redirection admin)
         )
     )
 
@@ -1167,7 +1174,7 @@ let () =
                   se.se_public_keys <- se.se_public_keys @ trustees;
                   redir_preapply election_draft_trustees uuid ()
                | _, _, _ ->
-                  [%lwt raise (TrusteeImportError "Could not retrieve trustees from selected election!")]
+                  Lwt.fail (TrusteeImportError "Could not retrieve trustees from selected election!")
           with
           | TrusteeImportError msg ->
              T.generic_page ~title:"Error"
@@ -1181,13 +1188,13 @@ let () =
     (fun (uuid, ()) () ->
       try%lwt
         let%lwt w = find_election uuid in
-        Eliom_reference.unset Web_state.ballot >>
+        let%lwt () = Eliom_reference.unset Web_state.ballot in
         let cont = redir_preapply election_home (uuid, ()) in
-        Eliom_reference.set Web_state.cont [cont] >>
+        let%lwt () = Eliom_reference.set Web_state.cont [cont] in
         match%lwt Eliom_reference.get Web_state.cast_confirmed with
         | Some result ->
-           Eliom_reference.unset Web_state.cast_confirmed >>
-           Eliom_reference.unset Web_state.user >>
+           let%lwt () = Eliom_reference.unset Web_state.cast_confirmed in
+           let%lwt () = Eliom_reference.unset Web_state.user in
            T.cast_confirmed w ~result () >>= Html.send
         | None ->
            let%lwt state = Web_persist.get_election_state uuid in
@@ -1203,7 +1210,7 @@ let () =
 let () =
   Any.register ~service:set_cookie_disclaimer
     (fun () () ->
-      Eliom_reference.set Web_state.show_cookie_disclaimer false >>
+      let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
       let%lwt cont = Web_state.cont_pop () in
       match cont with
       | Some f -> f ()
@@ -1231,13 +1238,13 @@ let () =
             | None -> failwith "missing trustees in get_tokens_decrypt"
             | Some ts ->
                let%lwt ts = Lwt_list.map_s (fun _ -> generate_token ()) ts in
-               Web_persist.set_decryption_tokens uuid ts >>
+               let%lwt () = Web_persist.set_decryption_tokens uuid ts in
                return ts
         in
         T.election_admin w metadata state get_tokens_decrypt () >>= Html.send
      | _ ->
         let cont = redir_preapply election_admin uuid in
-        Eliom_reference.set Web_state.cont [cont] >>
+        let%lwt () = Eliom_reference.set Web_state.cont [cont] in
         redir_preapply site_login None ()
     )
 
@@ -1251,8 +1258,8 @@ let election_set_state state uuid () =
           | _ -> forbidden ()
         in
         let state = if state then `Open else `Closed in
-        Web_persist.set_election_state uuid state >>
-          redir_preapply election_admin uuid ()
+        let%lwt () = Web_persist.set_election_state uuid state in
+        redir_preapply election_admin uuid ()
       ) else forbidden ()
     )
 
@@ -1265,8 +1272,8 @@ let () =
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
-            archive_election uuid >>
-              redir_preapply election_admin uuid ()
+            let%lwt () = archive_election uuid in
+            redir_preapply election_admin uuid ()
           ) else forbidden ()
         )
     )
@@ -1277,7 +1284,8 @@ let () =
     with_site_user (fun u ->
         let%lwt metadata = Web_persist.get_election_metadata uuid in
         if metadata.e_owner = Some u then (
-          delete_election uuid >> redir_preapply admin () ()
+          let%lwt () = delete_election uuid in
+          redir_preapply admin () ()
         ) else forbidden ()
       )
   )
@@ -1301,7 +1309,7 @@ let () =
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
             try%lwt
-                  Web_persist.replace_credential uuid old new_ >>
+                  let%lwt () = Web_persist.replace_credential uuid old new_ in
                   String.send ("OK", "text/plain")
             with Error e ->
                let%lwt lang = Eliom_reference.get Web_state.language in
@@ -1314,7 +1322,7 @@ let () =
 let () =
   Any.register ~service:election_vote
     (fun () () ->
-      Eliom_reference.unset Web_state.ballot >>
+      let%lwt () = Eliom_reference.unset Web_state.ballot in
       Web_templates.booth () >>= Html.send)
 
 let () =
@@ -1322,7 +1330,7 @@ let () =
     (fun uuid () ->
       let%lwt w = find_election uuid in
       let cont = redir_preapply election_cast uuid in
-      Eliom_reference.set Web_state.cont [cont] >>
+      let%lwt () = Eliom_reference.set Web_state.cont [cont] in
       match%lwt Eliom_reference.get Web_state.ballot with
       | Some b -> T.cast_confirmation w (sha256_b64 b) () >>= Html.send
       | None -> T.cast_raw w () >>= Html.send)
@@ -1340,8 +1348,8 @@ let () =
       in
       let the_ballot = PString.trim the_ballot in
       let cont = redir_preapply election_cast uuid in
-      Eliom_reference.set Web_state.cont [cont] >>
-      Eliom_reference.set Web_state.ballot (Some the_ballot) >>
+      let%lwt () = Eliom_reference.set Web_state.cont [cont] in
+      let%lwt () = Eliom_reference.set Web_state.ballot (Some the_ballot) in
       match user with
       | None -> redir_preapply election_login ((uuid, ()), None) ()
       | Some _ -> cont ())
@@ -1356,7 +1364,7 @@ let () =
       match%lwt Eliom_reference.get Web_state.ballot with
       | Some the_ballot ->
          begin
-           Eliom_reference.unset Web_state.ballot >>
+           let%lwt () = Eliom_reference.unset Web_state.ballot in
            match%lwt Web_state.get_election_user uuid with
            | Some u ->
               let record = u, now () in
@@ -1366,7 +1374,7 @@ let () =
                   return (`Valid hash)
                 with Error e -> return (`Error e)
               in
-              Eliom_reference.set Web_state.cast_confirmed (Some result) >>
+              let%lwt () = Eliom_reference.set Web_state.cast_confirmed (Some result) in
               redir_preapply election_home (uuid, ()) ()
            | None -> forbidden ()
          end
@@ -1741,21 +1749,22 @@ let () =
                  | Some pks -> return (List.length pks)
                  | None -> failwith "missing public keys and threshold parameters"
             in
-            Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) >>
-              let tally = encrypted_tally_of_string W.G.read tally in
-              let%lwt sk = Web_persist.get_private_key uuid in
-              match metadata.e_trustees with
-              | None ->
-                 (* no trustees: compute decryption and release tally *)
-                 let sk = match sk with
-                   | Some x -> x
-                   | None -> failwith "missing private key"
-                 in
-                 let%lwt pd = E.compute_factor tally sk in
-                 let pd = string_of_partial_decryption W.G.write pd in
-                 Web_persist.set_partial_decryptions uuid [1, pd]
-                 >> handle_election_tally_release uuid ()
-              | Some ts ->
+            let%lwt () = Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) in
+            let tally = encrypted_tally_of_string W.G.read tally in
+            let%lwt sk = Web_persist.get_private_key uuid in
+            match metadata.e_trustees with
+            | None ->
+               (* no trustees: compute decryption and release tally *)
+               let sk = match sk with
+                 | Some x -> x
+                 | None -> failwith "missing private key"
+               in
+               let%lwt pd = E.compute_factor tally sk in
+               let pd = string_of_partial_decryption W.G.write pd in
+               let%lwt () = Web_persist.set_partial_decryptions uuid [1, pd] in
+               handle_election_tally_release uuid ()
+            | Some ts ->
+               let%lwt () =
                  Lwt_list.iteri_s (fun i t ->
                      if t = "server" then (
                        match%lwt Web_persist.get_private_key uuid with
@@ -1766,7 +1775,8 @@ let () =
                        | None -> return_unit (* dead end *)
                      ) else return_unit
                    ) ts
-                 >> redir_preapply election_admin uuid ()
+               in
+               redir_preapply election_admin uuid ()
           ) else forbidden ()
         )
     )
@@ -1774,7 +1784,7 @@ let () =
 let () =
   Any.register ~service:set_language
     (fun lang () ->
-      Eliom_reference.set Web_state.language lang >>
+      let%lwt () = Eliom_reference.set Web_state.language lang in
       let%lwt cont = Web_state.cont_pop () in
       match cont with
       | Some f -> f ()
@@ -1866,117 +1876,124 @@ let () =
     (fun (uuid, token) data ->
       wrap_handler
         (fun () ->
-          Lwt_mutex.with_lock election_draft_mutex
-            (fun () ->
-              match%lwt Web_persist.get_draft_election uuid with
-              | None -> fail_http 404
-              | Some se ->
-              let ts =
-                match se.se_threshold_trustees with
-                | None -> failwith "No threshold trustees"
-                | Some xs -> Array.of_list xs
-              in
-              let i, t =
-                match Array.findi (fun i x ->
-                          if token = x.stt_token then Some (i, x) else None
-                        ) ts with
-                | Some (i, t) -> i, t
-                | None -> failwith "Trustee not found"
-              in
-              let get_certs () =
-                let certs = Array.map (fun x ->
-                                match x.stt_cert with
-                                | None -> failwith "Missing certificate"
-                                | Some y -> y
-                              ) ts in
-                {certs}
-              in
-              let get_polynomials () =
-                Array.map (fun x ->
-                    match x.stt_polynomial with
-                    | None -> failwith "Missing polynomial"
-                    | Some y -> y
-                  ) ts
-              in
-              let module G = (val Group.of_string se.se_group : GROUP) in
-              let module P = Trustees.MakePKI (G) (LwtRandom) in
-              let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
-              let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
-              (match t.stt_step with
-               | Some 1 ->
-                  let cert = cert_of_string data in
-                  if K.step1_check cert then (
-                    t.stt_cert <- Some cert;
-                    t.stt_step <- Some 2;
-                    return_unit
-                  ) else (
-                    failwith "Invalid certificate"
-                  )
-               | Some 3 ->
-                  let certs = get_certs () in
-                  let polynomial = polynomial_of_string data in
-                  if K.step3_check certs i polynomial then (
-                    t.stt_polynomial <- Some polynomial;
-                    t.stt_step <- Some 4;
-                    return_unit
-                  ) else (
-                    failwith "Invalid polynomial"
-                  )
-               | Some 5 ->
-                  let certs = get_certs () in
-                  let polynomials = get_polynomials () in
-                  let voutput = voutput_of_string G.read data in
-                  if K.step5_check certs i polynomials voutput then (
-                    t.stt_voutput <- Some data;
-                    t.stt_step <- Some 6;
-                    return_unit
-                  ) else (
-                    failwith "Invalid voutput"
-                  )
-               | _ -> failwith "Unknown step"
-              ) >> (
-                if Array.forall (fun x -> x.stt_step = Some 2) ts then (
-                  (try
-                     K.step2 (get_certs ());
-                     Array.iter (fun x -> x.stt_step <- Some 3) ts;
-                   with e ->
-                     se.se_threshold_error <- Some (Printexc.to_string e)
-                  ); return_unit
-                ) else return_unit
-              ) >> (
-                if Array.forall (fun x -> x.stt_step = Some 4) ts then (
-                  (try
-                     let certs = get_certs () in
-                     let polynomials = get_polynomials () in
-                     let vinputs = K.step4 certs polynomials in
-                     for j = 0 to Array.length ts - 1 do
-                       ts.(j).stt_vinput <- Some vinputs.(j)
-                     done;
-                     Array.iter (fun x -> x.stt_step <- Some 5) ts
-                   with e ->
-                     se.se_threshold_error <- Some (Printexc.to_string e)
-                  ); return_unit
-                ) else return_unit
-              ) >> (
-                if Array.forall (fun x -> x.stt_step = Some 6) ts then (
-                  (try
-                     let certs = get_certs () in
-                     let polynomials = get_polynomials () in
-                     let voutputs = Array.map (fun x ->
-                                        match x.stt_voutput with
-                                        | None -> failwith "Missing voutput"
-                                        | Some y -> voutput_of_string G.read y
-                                      ) ts in
-                     let p = K.step6 certs polynomials voutputs in
-                     se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write p);
-                     Array.iter (fun x -> x.stt_step <- Some 7) ts
-                   with e ->
-                     se.se_threshold_error <- Some (Printexc.to_string e)
-                  ); return_unit
-                ) else return_unit
-              ) >> Web_persist.set_draft_election uuid se
-            ) >>
-            redir_preapply election_draft_threshold_trustee (uuid, token) ()
+          let%lwt () =
+            Lwt_mutex.with_lock election_draft_mutex
+              (fun () ->
+                match%lwt Web_persist.get_draft_election uuid with
+                | None -> fail_http 404
+                | Some se ->
+                   let ts =
+                     match se.se_threshold_trustees with
+                     | None -> failwith "No threshold trustees"
+                     | Some xs -> Array.of_list xs
+                   in
+                   let i, t =
+                     match Array.findi (fun i x ->
+                               if token = x.stt_token then Some (i, x) else None
+                             ) ts with
+                     | Some (i, t) -> i, t
+                     | None -> failwith "Trustee not found"
+                   in
+                   let get_certs () =
+                     let certs = Array.map (fun x ->
+                                     match x.stt_cert with
+                                     | None -> failwith "Missing certificate"
+                                     | Some y -> y
+                                   ) ts in
+                     {certs}
+                   in
+                   let get_polynomials () =
+                     Array.map (fun x ->
+                         match x.stt_polynomial with
+                         | None -> failwith "Missing polynomial"
+                         | Some y -> y
+                       ) ts
+                   in
+                   let module G = (val Group.of_string se.se_group : GROUP) in
+                   let module P = Trustees.MakePKI (G) (LwtRandom) in
+                   let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
+                   let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
+                   let%lwt () =
+                     match t.stt_step with
+                     | Some 1 ->
+                        let cert = cert_of_string data in
+                        if K.step1_check cert then (
+                          t.stt_cert <- Some cert;
+                          t.stt_step <- Some 2;
+                          return_unit
+                        ) else (
+                          failwith "Invalid certificate"
+                        )
+                     | Some 3 ->
+                        let certs = get_certs () in
+                        let polynomial = polynomial_of_string data in
+                        if K.step3_check certs i polynomial then (
+                          t.stt_polynomial <- Some polynomial;
+                          t.stt_step <- Some 4;
+                          return_unit
+                        ) else (
+                          failwith "Invalid polynomial"
+                        )
+                     | Some 5 ->
+                        let certs = get_certs () in
+                        let polynomials = get_polynomials () in
+                        let voutput = voutput_of_string G.read data in
+                        if K.step5_check certs i polynomials voutput then (
+                          t.stt_voutput <- Some data;
+                          t.stt_step <- Some 6;
+                          return_unit
+                        ) else (
+                          failwith "Invalid voutput"
+                        )
+                     | _ -> failwith "Unknown step"
+                   in
+                   let%lwt () =
+                     if Array.forall (fun x -> x.stt_step = Some 2) ts then (
+                       (try
+                          K.step2 (get_certs ());
+                          Array.iter (fun x -> x.stt_step <- Some 3) ts;
+                        with e ->
+                          se.se_threshold_error <- Some (Printexc.to_string e)
+                       ); return_unit
+                     ) else return_unit
+                   in
+                   let%lwt () =
+                     if Array.forall (fun x -> x.stt_step = Some 4) ts then (
+                       (try
+                          let certs = get_certs () in
+                          let polynomials = get_polynomials () in
+                          let vinputs = K.step4 certs polynomials in
+                          for j = 0 to Array.length ts - 1 do
+                            ts.(j).stt_vinput <- Some vinputs.(j)
+                          done;
+                          Array.iter (fun x -> x.stt_step <- Some 5) ts
+                        with e ->
+                          se.se_threshold_error <- Some (Printexc.to_string e)
+                       ); return_unit
+                     ) else return_unit
+                   in
+                   let%lwt () =
+                     if Array.forall (fun x -> x.stt_step = Some 6) ts then (
+                       (try
+                          let certs = get_certs () in
+                          let polynomials = get_polynomials () in
+                          let voutputs = Array.map (fun x ->
+                                             match x.stt_voutput with
+                                             | None -> failwith "Missing voutput"
+                                             | Some y -> voutput_of_string G.read y
+                                           ) ts in
+                          let p = K.step6 certs polynomials voutputs in
+                          se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write p);
+                          Array.iter (fun x -> x.stt_step <- Some 7) ts
+                        with e ->
+                          se.se_threshold_error <- Some (Printexc.to_string e)
+                       ); return_unit
+                     ) else return_unit
+                   in
+                   Web_persist.set_draft_election uuid se
+              )
+          in
+          redir_preapply election_draft_threshold_trustee (uuid, token) ()
         )
     )
 
@@ -2050,11 +2067,11 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
     | `Archive -> archive_election, "archived"
   in
   if datetime_compare now next_t > 0 then (
-    action uuid >>
-      return (
-          Printf.ksprintf Ocsigen_messages.warning
-            "Election %s has been automatically %s" uuid_s comment
-        )
+    let%lwt () = action uuid in
+    return (
+        Printf.ksprintf Ocsigen_messages.warning
+          "Election %s has been automatically %s" uuid_s comment
+      )
   ) else (
     let mail_t = datetime_add next_t (day (-days_to_mail)) in
     if datetime_compare now mail_t > 0 then (
@@ -2080,8 +2097,8 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
                 Printf.sprintf mail_automatic_warning
                   name uuid_s comment (format_datetime next_t)
               in
-              send_email email subject body >>
-                Web_persist.set_election_date `LastMail uuid now
+              let%lwt () = send_email email subject body in
+              Web_persist.set_election_date `LastMail uuid now
       ) else return_unit
     ) else return_unit
   )
@@ -2091,7 +2108,8 @@ let _ =
   let rec loop () =
     let () = console (fun () -> "Data policy process started") in
     let%lwt elections = get_next_actions () in
-    Lwt_list.iter_p process_election_for_data_policy elections >>
-      let () = console (fun () -> "Data policy process completed") in
-      Lwt_unix.sleep 3600. >> loop ()
+    let%lwt () = Lwt_list.iter_p process_election_for_data_policy elections in
+    let () = console (fun () -> "Data policy process completed") in
+    let%lwt () = Lwt_unix.sleep 3600. in
+    loop ()
   in loop ()

@@ -54,8 +54,8 @@ let dummy_handler () name =
   match%lwt Eliom_reference.get auth_env with
   | None -> failwith "dummy handler was invoked without environment"
   | Some (uuid, service, _) ->
-     Eliom_reference.set user (Some {uuid; service; name}) >>
-     Eliom_reference.unset auth_env >>
+     let%lwt () = Eliom_reference.set user (Some {uuid; service; name}) in
+     let%lwt () = Eliom_reference.unset auth_env in
      default_cont uuid ()
 
 let () = Eliom_registration.Any.register ~service:dummy_post dummy_handler
@@ -98,8 +98,8 @@ let password_handler () (name, password) =
        check_password_with_file db name password
   in
   if ok then
-    Eliom_reference.set user (Some {uuid; service; name}) >>
-    Eliom_reference.unset auth_env >>
+    let%lwt () = Eliom_reference.set user (Some {uuid; service; name}) in
+    let%lwt () = Eliom_reference.unset auth_env in
     default_cont uuid ()
   else
     fail_http 401
@@ -149,7 +149,7 @@ let get_cas_validation server ticket =
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
      let%lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
-     Ocsigen_stream.finalize stream `Success >>
+     let%lwt () = Ocsigen_stream.finalize stream `Success in
      return (parse_cas_validation info)
   | None -> return (`Error `Http)
 
@@ -168,13 +168,13 @@ let cas_handler ticket () =
      in
      (match%lwt get_cas_validation server x with
      | `Yes (Some name) ->
-        Eliom_reference.set user (Some {uuid; service; name}) >>
+        let%lwt () = Eliom_reference.set user (Some {uuid; service; name}) in
         default_cont uuid ()
      | `No -> fail_http 401
      | `Yes None | `Error _ -> fail_http 502)
   | None ->
-     Eliom_reference.unset cas_server >>
-     Eliom_reference.unset auth_env >>
+     let%lwt () = Eliom_reference.unset cas_server in
+     let%lwt () = Eliom_reference.unset auth_env in
      default_cont uuid ()
 
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler
@@ -182,7 +182,7 @@ let () = Eliom_registration.Any.register ~service:login_cas cas_handler
 let cas_login_handler config () =
   match config with
   | [server] ->
-     Eliom_reference.set cas_server (Some server) >>
+     let%lwt () = Eliom_reference.set cas_server (Some server) in
      let cas_login = Eliom_service.extern
        ~prefix:server
        ~path:["login"]
@@ -219,7 +219,7 @@ let oidc_get_userinfo ocfg info =
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
      let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-     Ocsigen_stream.finalize stream `Success >>
+     let%lwt () = Ocsigen_stream.finalize stream `Success in
      let x = oidc_userinfo_of_string info in
      return (Some (match x.oidc_email with Some x -> x | None -> x.oidc_sub))
   | None -> return None
@@ -236,7 +236,7 @@ let oidc_get_name ocfg client_id client_secret code =
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
     let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-    Ocsigen_stream.finalize stream `Success >>
+    let%lwt () = Ocsigen_stream.finalize stream `Success in
     oidc_get_userinfo ocfg info
   | None -> return None
 
@@ -255,12 +255,12 @@ let oidc_handler params () =
       | None -> failwith "oidc handler was invoked without a state"
       | Some x -> return x
     in
-    Eliom_reference.unset oidc_state >>
-    Eliom_reference.unset auth_env >>
+    let%lwt () = Eliom_reference.unset oidc_state in
+    let%lwt () = Eliom_reference.unset auth_env in
     if state <> st then fail_http 401 else
     (match%lwt oidc_get_name ocfg client_id client_secret code with
     | Some name ->
-       Eliom_reference.set user (Some {uuid; service; name}) >>
+       let%lwt () = Eliom_reference.set user (Some {uuid; service; name}) in
        default_cont uuid ()
     | None -> fail_http 401)
   | _, _ -> default_cont uuid ()
@@ -273,7 +273,7 @@ let get_oidc_configuration server =
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
      let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-     Ocsigen_stream.finalize stream `Success >>
+     let%lwt () = Ocsigen_stream.finalize stream `Success in
      return (oidc_configuration_of_string info)
   | None -> fail_http 404
 
@@ -287,7 +287,7 @@ let oidc_login_handler config () =
   | [server; client_id; client_secret] ->
      let%lwt ocfg = get_oidc_configuration server in
      let%lwt state = generate_token () in
-     Eliom_reference.set oidc_state (Some (ocfg, client_id, client_secret, state)) >>
+     let%lwt () = Eliom_reference.set oidc_state (Some (ocfg, client_id, client_secret, state)) in
      let prefix, path = split_prefix_path ocfg.authorization_endpoint in
      let auth_endpoint = Eliom_service.extern ~prefix ~path
        ~meth:(Eliom_service.Get Eliom_parameter.(string "redirect_uri" **
@@ -304,7 +304,7 @@ let oidc_login_handler config () =
 (** Generic authentication *)
 
 let get_login_handler service uuid auth_system config =
-  Eliom_reference.set auth_env (Some (uuid, service, config)) >>
+  let%lwt () = Eliom_reference.set auth_env (Some (uuid, service, config)) in
   match auth_system with
   | "dummy" -> Web_templates.login_dummy () >>= Eliom_registration.Html.send
   | "cas" -> cas_login_handler config ()
@@ -320,7 +320,7 @@ let login_handler service uuid =
   in
   match%lwt Eliom_reference.get user with
   | Some _ ->
-     cont_push (fun () -> Eliom_registration.(Redirection.send (Redirection (myself service)))) >>
+     let%lwt () = cont_push (fun () -> Eliom_registration.(Redirection.send (Redirection (myself service)))) in
      Web_templates.already_logged_in () >>= Eliom_registration.Html.send
   | None ->
      let%lwt c = match uuid with
@@ -349,7 +349,7 @@ let login_handler service uuid =
            Eliom_registration.Html.send
 
 let logout_handler () =
-  Eliom_reference.unset Web_state.user >>
+  let%lwt () = Eliom_reference.unset Web_state.user in
   match%lwt cont_pop () with
   | Some f -> f ()
   | None -> Eliom_registration.(Redirection.send (Redirection Web_services.home))

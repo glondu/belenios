@@ -73,7 +73,9 @@ let cont_pop () =
   let open Eliom_reference in
   let%lwt fs = get cont in
   match fs with
-  | f :: fs -> set cont fs >> return (Some f)
+  | f :: fs ->
+     let%lwt () = set cont fs in
+     return (Some f)
   | [] -> return None
 
 
