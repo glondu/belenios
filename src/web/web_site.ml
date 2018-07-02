@@ -2054,7 +2054,11 @@ let get_next_actions () =
     )
 
 let mail_automatic_warning : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "The election %s (%s) will be automatically %s after %s.
+  "The election %s available at:
+
+  %s
+
+will be automatically %s after %s.
 
 -- \nBelenios"
 
@@ -2093,9 +2097,13 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
                 Printf.sprintf "Election %s will be automatically %s soon"
                   name comment
               in
+              let uri =
+                Eliom_uri.make_string_uri ~absolute:true
+                  ~service:election_home (uuid, ()) |> rewrite_prefix
+              in
               let body =
                 Printf.sprintf mail_automatic_warning
-                  name uuid_s comment (format_datetime next_t)
+                  name uri comment (format_datetime next_t)
               in
               let%lwt () = send_email email subject body in
               Web_persist.set_election_date `LastMail uuid now
