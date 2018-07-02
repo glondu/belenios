@@ -41,11 +41,21 @@ module LwtRandom = struct
   let bind = Lwt.bind
   let fail = Lwt.fail
 
-  let prng = lazy (pseudo_rng (random_string secure_rng 16))
+  let init_prng () = lazy (pseudo_rng (random_string secure_rng 16))
+
+  let prng = ref (init_prng ())
+
+  let _ =
+    let rec loop () =
+      let%lwt () = Lwt_unix.sleep 1800. in
+      prng := init_prng ();
+      loop ()
+    in
+    loop ()
 
   let random q =
     let size = bytes_to_sample q in
-    let%lwt rng = Lwt_preemptive.detach Lazy.force prng in
+    let%lwt rng = Lwt_preemptive.detach Lazy.force !prng in
     let r = random_string rng size in
     return Z.(of_bits r mod q)
 
