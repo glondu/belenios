@@ -95,3 +95,5 @@ let get_default_language () =
      String.sub lang 0 n
 
 let language = Eliom_reference.eref_from_fun ~scope get_default_language
+
+let signup_address = Eliom_reference.eref ~scope None

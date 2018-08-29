@@ -22,6 +22,7 @@
 open Serializable_t
 open Web_serializable_t
 open Signatures
+open Web_common
 
 val admin_gdpr : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val admin : elections:((uuid * string) list * (uuid * string) list * (uuid * string) list * (uuid * string) list) option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
@@ -75,6 +76,9 @@ val login_choose :
 
 val login_dummy : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val login_password : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
+val signup_captcha : captcha_error option -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val signup : string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

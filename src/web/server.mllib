@@ -27,5 +27,6 @@ Web_state
 Web_templates
 Web_auth
 Web_election
+Web_challenge
 Web_site
 Web_main

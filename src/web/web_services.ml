@@ -110,3 +110,10 @@ let dummy_post = create ~path:No_path ~meth:(Post (unit, string "username")) ()
 let password_post = create ~path:No_path ~meth:(Post (unit, string "username" ** string "password")) ()
 
 let set_language = create ~path:No_path ~meth:(Get (string "lang")) ()
+
+let signup_captcha = create ~path:(Path ["signup"; ""]) ~meth:(Get (opt (captcha_error "error"))) ()
+let signup_captcha_post = create_attached_post ~fallback:signup_captcha ~post_params:(string "challenge" ** string "response" ** string "email") ()
+let signup_captcha_img = create ~path:(Path ["signup"; "captcha"]) ~meth:(Get (string "challenge")) ()
+let signup_login = create ~path:(Path ["signup"; "login"]) ~meth:(Get (string "token")) ()
+let signup = create ~path:(Path ["signup"; "account"]) ~meth:(Get unit) ()
+let signup_post = create_attached_post ~fallback:signup ~post_params:(string "username" ** string "password") ()

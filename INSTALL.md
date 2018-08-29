@@ -25,12 +25,13 @@ The non-OCaml prerequisites are:
  * [aspcud](http://www.cs.uni-potsdam.de/wv/aspcud/) (optional)
  * [ncurses](http://invisible-island.net/ncurses/)
  * [uuidgen](https://www.kernel.org/pub/linux/utils/util-linux/)
+ * [GD-SecurityImage](https://metacpan.org/release/GD-SecurityImage)
 
 These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
 derivatives, they can be installed with the following command:
 
-    sudo apt install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
+    sudo apt install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip aspcud libncurses-dev uuid-runtime zlib1g-dev libgd-securityimage-perl
 
 If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully

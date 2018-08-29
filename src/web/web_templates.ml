@@ -2498,6 +2498,66 @@ let login_password () =
   ] in
   base ~title:L.password_login ~content ()
 
+let signup_captcha_img challenge =
+  let src = make_uri ~service:signup_captcha_img challenge in
+  img ~src ~alt:"CAPTCHA" ()
+
+let signup_captcha error challenge =
+  let form =
+    post_form ~service:signup_captcha_post
+      (fun (lchallenge, (lresponse, lemail)) ->
+        [
+          div [
+              pcdata "E-mail address: ";
+              input ~input_type:`Text ~name:lemail string;
+            ];
+          div [
+              input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
+              pcdata "Please enter ";
+              signup_captcha_img challenge;
+              pcdata " in the following box: ";
+              input ~input_type:`Text ~name:lresponse string;
+            ];
+          div [
+              input ~input_type:`Submit ~value:"Submit" string;
+            ];
+        ]
+      ) None
+  in
+  let error = match error with
+    | None -> pcdata ""
+    | Some BadCaptcha -> div [pcdata "Bad security code!"]
+    | Some BadAddress -> div [pcdata "Bad e-mail address!"]
+  in
+  let content = [error; form] in
+  base ~title:"Create an account" ~content ()
+
+let signup address =
+  let form =
+    post_form ~service:signup_post
+      (fun (lusername, lpassword) ->
+        [
+          div [
+              pcdata "Your e-mail address is: ";
+              pcdata address;
+              pcdata ".";
+            ];
+          div [
+              pcdata "Please choose a username: ";
+              input ~input_type:`Text ~name:lusername string;
+              pcdata " and a password: ";
+              input ~input_type:`Password ~name:lpassword string;
+              pcdata ".";
+            ];
+          div [
+              input ~input_type:`Submit ~value:"Submit" string;
+            ];
+        ]
+      ) ()
+  in
+  let content = [form] in
+  base ~title:"Create an account" ~content ()
+
 let booth () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in

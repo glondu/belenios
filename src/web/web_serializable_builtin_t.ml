@@ -53,6 +53,7 @@ let format_datetime ?(fmt = datetime_format) (a, _) =
 type period = CalendarLib.Fcalendar.Precise.Period.t
 
 let day = CalendarLib.Fcalendar.Precise.Period.day
+let second = CalendarLib.Fcalendar.Precise.Period.second
 
 let datetime_add (a, _) x =
   CalendarLib.Fcalendar.Precise.add a x, None

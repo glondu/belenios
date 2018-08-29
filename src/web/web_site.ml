@@ -2013,6 +2013,74 @@ let () =
         )
     )
 
+let () =
+  Html.register ~service:signup_captcha
+    (fun error () ->
+      let%lwt challenge = Web_challenge.create_captcha () in
+      T.signup_captcha error challenge
+    )
+
+let () =
+  Any.register ~service:signup_captcha_post
+    (fun _ (challenge, (response, email)) ->
+      let%lwt error =
+        let%lwt ok = Web_challenge.check_captcha ~challenge ~response in
+        if ok then
+          if is_email email then return None else return (Some BadAddress)
+        else return (Some BadCaptcha)
+      in
+      match error with
+      | None ->
+         let%lwt () = Web_challenge.send_confirmation_link email in
+         let message =
+           Printf.sprintf
+             "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation." email
+         in
+         T.generic_page ~title:"Account creation" message () >>= Html.send
+      | _ -> redir_preapply signup_captcha error ()
+    )
+
+let () =
+  String.register ~service:signup_captcha_img
+    (fun challenge () -> Web_challenge.get_captcha challenge)
+
+let () =
+  Any.register ~service:signup_login
+    (fun token () ->
+      let%lwt address = Web_challenge.confirm_link token in
+      match address with
+      | None -> forbidden ()
+      | Some address ->
+         let%lwt () = Eliom_reference.set Web_state.signup_address (Some address) in
+         redir_preapply signup () ()
+    )
+
+let () =
+  Any.register ~service:signup
+    (fun () () ->
+      let%lwt address = Eliom_reference.get Web_state.signup_address in
+      match address with
+      | None -> forbidden ()
+      | Some address -> T.signup address >>= Html.send
+    )
+
+let () =
+  Any.register ~service:signup_post
+    (fun () (username, password) ->
+      let%lwt email = Eliom_reference.get Web_state.signup_address in
+      match email with
+      | None -> forbidden ()
+      | Some email ->
+         let%lwt b = Web_auth.add_account ~username ~password ~email in
+         if b then
+           let%lwt () = Eliom_reference.unset Web_state.signup_address in
+           T.generic_page ~title:"Account creation" ~service:admin
+             "The account has been created." () >>= Html.send
+         else
+           T.generic_page ~title:"Account creation" ~service:signup
+             "The account creation failed. Usually, this is because the username is already taken. Please try again." () >>= Html.send
+    )
+
 let extract_automatic_data_draft uuid_s =
   let uuid = uuid_of_raw_string uuid_s in
   match%lwt Web_persist.get_draft_election uuid with

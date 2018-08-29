@@ -28,4 +28,5 @@ val format_datetime : ?fmt:string -> datetime -> string
 
 type period
 val day : int -> period
+val second : float -> period
 val datetime_add : datetime -> period -> datetime

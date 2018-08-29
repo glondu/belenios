@@ -188,6 +188,25 @@ let uuid x =
     ~to_string:raw_string_of_uuid
     x
 
+type captcha_error =
+  | BadCaptcha
+  | BadAddress
+
+let captcha_error_of_string = function
+  | "captcha" -> BadCaptcha
+  | "address" -> BadAddress
+  | _ -> invalid_arg "captcha_error_of_string"
+
+let string_of_captcha_error = function
+  | BadCaptcha -> "captcha"
+  | BadAddress -> "address"
+
+let captcha_error x =
+  Eliom_parameter.user_type
+    ~of_string:captcha_error_of_string
+    ~to_string:string_of_captcha_error
+    x
+
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
@@ -325,7 +344,26 @@ let rmdir dir =
   return_unit
 
 let compile_auth_config {auth_system; auth_instance; auth_config} =
-  auth_instance, (auth_system, List.map snd auth_config)
+  match auth_system with
+  | "password" ->
+     let auth_config =
+       match auth_config with
+       | [] ->
+          (* election configuration *)
+          []
+       | _ ->
+          (* site configuration *)
+          let db = List.assoc "db" auth_config in
+          let allowsignups =
+            match List.assoc_opt "allowsignups" auth_config with
+            | None -> false
+            | Some x -> bool_of_string x
+          in
+          [db; string_of_bool allowsignups]
+     in
+     auth_instance, (auth_system, auth_config)
+  | _ ->
+     auth_instance, (auth_system, List.map snd auth_config)
 
 let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)
 let unurlize = String.map (function '-' -> '+' | '_' -> '/' | c -> c)

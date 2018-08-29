@@ -91,6 +91,16 @@ val uuid :
    [ `One of uuid ] Eliom_parameter.param_name)
   Eliom_parameter.params_type
 
+type captcha_error =
+  | BadCaptcha
+  | BadAddress
+
+val captcha_error :
+  string ->
+  (captcha_error, [ `WithoutSuffix ],
+   [ `One of captcha_error ] Eliom_parameter.param_name)
+  Eliom_parameter.params_type
+
 val generate_token : ?length:int -> unit -> string Lwt.t
 
 val string_of_user : user -> string

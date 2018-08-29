@@ -89,7 +89,7 @@ let password_handler () (name, password) =
     | None ->
        begin
          match config with
-         | [db] -> check_password_with_file db name password
+         | db :: _ -> check_password_with_file db name password
          | _ -> failwith "invalid configuration for admin site"
        end
     | Some uuid ->
@@ -105,6 +105,41 @@ let password_handler () (name, password) =
     fail_http 401
 
 let () = Eliom_registration.Any.register ~service:password_post password_handler
+
+let get_password_db_fname () =
+  let rec find = function
+    | [] -> None
+    | (_, ("password", db :: allowsignups :: _)) :: _ when bool_of_string allowsignups -> Some db
+    | _ :: xs -> find xs
+  in find !site_auth_config
+
+let allowsignups () = get_password_db_fname () <> None
+
+let password_db_mutex = Lwt_mutex.create ()
+
+let do_add_account ~db_fname ~username ~password ~email () =
+  let%lwt db = Lwt_preemptive.detach Csv.load db_fname in
+  let%lwt salt = generate_token ~length:8 () in
+  let hashed = sha256_hex (salt ^ password) in
+  let rec append accu = function
+    | [] -> Some (List.rev ([username; salt; hashed; email] :: accu))
+    | ((username' :: _ :: _ :: _) as x) :: xs ->
+       if username = username' then None else append (x :: accu) xs
+    | _ :: _ -> None
+  in
+  match append [] db with
+  | None -> Lwt.return false
+  | Some db ->
+     let db = List.map (String.concat ",") db in
+     let%lwt () = write_file db_fname db in
+     Lwt.return true
+
+let add_account ~username ~password ~email =
+  match get_password_db_fname () with
+  | None -> forbidden ()
+  | Some db_fname ->
+     Lwt_mutex.with_lock password_db_mutex
+       (do_add_account ~db_fname ~username ~password ~email)
 
 (** CAS authentication *)
 

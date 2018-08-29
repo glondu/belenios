@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2018 Inria                                           *)
+(*  Copyright © 2018 Inria                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,28 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_builtin_t
-open Web_signatures
+(** Returns a challenge string, used to identify the captcha in
+   following functions. *)
+val create_captcha : unit -> string Lwt.t
 
-type user = {
-  uuid: uuid option;
-  service : string;
-  name : string;
-}
+(** Returns the image associated to a challenge. *)
+val get_captcha : challenge:string -> (string * string) Lwt.t
 
-val show_cookie_disclaimer : bool Eliom_reference.eref
+val check_captcha : challenge:string -> response:string -> bool Lwt.t
 
-val user : user option Eliom_reference.eref
-val get_site_user : unit -> Web_serializable_t.user option Lwt.t
-val get_election_user : uuid -> Web_serializable_t.user option Lwt.t
-
-val cont : (unit -> content) list Eliom_reference.eref
-val cont_push : (unit -> content) -> unit Lwt.t
-val cont_pop : unit -> (unit -> content) option Lwt.t
-
-val ballot : string option Eliom_reference.eref
-val cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option Eliom_reference.eref
-
-val language : string Eliom_reference.eref
-
-val signup_address : string option Eliom_reference.eref
+val send_confirmation_link : string -> unit Lwt.t
+val confirm_link : string -> string option Lwt.t

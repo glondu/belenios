@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+# Inspired by GD::SecurityImage manpage
+
+use strict;
+use GD::SecurityImage;
+use MIME::Base64 ();
+
+my $image = GD::SecurityImage->new(
+               width   => 80,
+               height  => 30,
+               lines   => 10,
+               gd_font => 'giant',
+            );
+$image->random();
+$image->create( normal => 'rect' );
+my($image_data, $mime_type, $random_number) = $image->out;
+
+print $mime_type;
+print "\n";
+print $random_number;
+print "\n";
+print MIME::Base64::encode($image_data);
