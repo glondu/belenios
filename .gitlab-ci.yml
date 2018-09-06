@@ -3,19 +3,15 @@ stages:
 
 build:
   stage: build
-  image: debian:9
+  # Image ocaml/opam2:debian-9 currently has ocaml version 4.06.1 and opam version 2.0.0
+  image: ocaml/opam2:debian-9
   script:
     # Install required packages
-    - apt-get update -qq && apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime zlib1g-dev git
-    # Install Opam via opam-bootstrap.sh, as recommended in INSTALL.md
-    - ./opam-bootstrap.sh
-    # Post-Opam installation procedure
-    - source ./env.sh
-    - eval `opam config env`
+    - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
+    # Install the same Opam packages that opam-bootstrap.sh installs
+    - eval `grep "opam install" ./opam-bootstrap.sh`
     # Compile belenios
     - make all
-    # Run a test of an election
-    - make check
     # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
     - make archive
     # Start belenios web server
@@ -24,4 +20,5 @@ build:
     - first_access_index_page_output=$(wget --retry-connrefused --no-check-certificate -T 30 http://localhost:8001 -O-)
     - echo $first_access_index_page_output
     - if [ "$(echo \"$first_access_index_page_output\" | grep '>Belenios</a>' | wc -l)" != "1" ]; then echo "[First page access] First page access does not show a single '>Belenios</a>' text, but it should" && exit 1; else echo "[First page access] First page access shows a single '>Belenios</a>' text, as expected"; fi
-
+    # Run a test of an election
+    - make check
