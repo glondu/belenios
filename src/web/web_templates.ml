@@ -156,7 +156,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
         div ~a:[a_id "bottom"] [
           footer;
           pcdata L.powered_by;
-          a ~service:belenios_url [pcdata "Belezzzznios"] ();
+          a ~service:belenios_url [pcdata "Belenios"] ();
           Belenios_version.(
             Printf.ksprintf pcdata " %s (%s). " version build
           );
