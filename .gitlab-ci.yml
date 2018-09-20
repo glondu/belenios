@@ -3,8 +3,8 @@ stages:
 
 build:
   stage: build
-  # Image ocaml/opam2:debian-9 currently has ocaml version 4.06.1 and opam version 2.0.0
-  # image: ocaml/opam2:debian-9
+  # Image ocaml/opam2:debian-9-ocaml-4.06 currently has ocaml version 4.06.1 and opam version 2.0.0 (whereas image ocaml/opam2:debian-9 currently has ocaml version 4.07.0)
+  # image: ocaml/opam2:debian-9-ocaml-4.06
   # Image swergas/beleniosbase:efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb is based on ocaml/opam2:debian-9 with all pre-installed apt packages and opam packages that are required by Belenios
   image: swergas/beleniosbase:efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb
   script:
