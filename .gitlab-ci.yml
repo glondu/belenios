@@ -13,7 +13,7 @@ build:
     # Install the same Opam packages that opam-bootstrap.sh installs
     # - eval `grep "opam install" ./opam-bootstrap.sh`
     # Compile belenios
-    - make all
+    - BELENIOS_DEBUG=1 make all
     # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
     - make archive
     # Start belenios web server
@@ -23,4 +23,4 @@ build:
     - echo $first_access_index_page_output
     - if [ "$(echo \"$first_access_index_page_output\" | grep '>Belenios</a>' | wc -l)" != "1" ]; then echo "[First page access] First page access does not show a single '>Belenios</a>' text, but it should" && exit 1; else echo "[First page access] First page access shows a single '>Belenios</a>' text, as expected"; fi
     # Run a test of an election
-    - make check
+    - BELENIOS_DEBUG=1 make check
