@@ -1017,7 +1017,10 @@ let election_draft_voters uuid se maxvoters () =
         div [
             pcdata "Please enter the identities of voters to add, one per line (max ";
             pcdata (string_of_int maxvoters);
-            pcdata "):"
+            pcdata ").";
+            br ();
+            b [pcdata "Warning:"];
+            pcdata " you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote.";
           ];
         form;
         div [
