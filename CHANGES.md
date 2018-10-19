@@ -1,3 +1,13 @@
+1.7 (2018-11-12)
+================
+
+ * Add automatic data archival/deletion policy
+ * Do not allow election validation if some items have not been edited
+ * Trustees can load their private key from a file
+ * Do no longer rely on Ocsipersist
+ * Port to OCaml 4.06.1 and Eliom 6.3.0
+ * Re-seed LwtRandom prng every 30 minutes
+
 1.6 (2018-06-13)
 ================
 
