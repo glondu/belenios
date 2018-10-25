@@ -78,6 +78,8 @@ let () =
      set "return-path" (fun x -> return_path := Some x);
   | Element ("spool", ["dir", dir], []) ->
     spool_dir := Some dir
+  | Element ("warning", ["file", file], []) ->
+     warning_file := Some file
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->
     set_rewrite_prefix ~src ~dst
   | Element ("auth", ["name", auth_instance],

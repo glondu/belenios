@@ -131,6 +131,12 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
        ]
     | Some x -> x
   in
+  let%lwt warning = match !warning_file with
+    | None -> return @@ pcdata ""
+    | Some f -> match%lwt read_file f with
+                | None -> return @@ pcdata ""
+                | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+  in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang L.lang]
     (head (Eliom_content.Html.F.title (pcdata title)) [
       script (pcdata "window.onbeforeunload = function () {};");
@@ -151,6 +157,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
           div ~a:[a_style "clear: both;"] [];
         ];
       ];
+      warning;
       div ~a:[a_id "main"] content;
       div ~a:[a_id "footer"; a_style "text-align: center;" ] [
         div ~a:[a_id "bottom"] [

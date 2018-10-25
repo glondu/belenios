@@ -33,6 +33,7 @@ let server_mail = ref "noreply@example.org"
 let return_path = ref None
 let contact_uri = ref None
 let gdpr_uri = ref ""
+let warning_file = ref None
 
 module LwtRandom = struct
 

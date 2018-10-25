@@ -50,6 +50,7 @@
         <default-group file="demo/groups/default.json"/>
         <log file="_RUNDIR_/log/security.log"/>
         <spool dir="_RUNDIR_/spool"/>
+        <warning file="demo/warning.html"/>
       </eliom>
     </host>
 
