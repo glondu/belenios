@@ -730,7 +730,7 @@ let () =
 (* see http://www.regular-expressions.info/email.html *)
 let identity_rex = Pcre.regexp
   ~flags:[`CASELESS]
-  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,7}(,[A-Z0-9._%+-]+)?$"
+  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}(,[A-Z0-9._%+-]+)?$"
 
 let is_identity x =
   try ignore (Pcre.pcre_exec ~rex:identity_rex x); true
