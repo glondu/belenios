@@ -21,10 +21,12 @@
 
 (* This module registers login/logout handlers by side-effects. *)
 
+open Web_common
+
 (** Password-protected admin account management *)
 
 (** Returns [true] if server configuration allows account creation. *)
 val allowsignups : unit -> bool
 
 (** Returns [true] if account creation succeeds. *)
-val add_account : username:string -> password:string -> email:string -> bool Lwt.t
+val add_account : username:string -> password:string -> email:string -> add_account_error option Lwt.t

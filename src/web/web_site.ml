@@ -2071,14 +2071,17 @@ let () =
       match email with
       | None -> forbidden ()
       | Some email ->
-         let%lwt b = Web_auth.add_account ~username ~password ~email in
-         if b then
-           let%lwt () = Eliom_reference.unset Web_state.signup_address in
-           T.generic_page ~title:"Account creation" ~service:admin
-             "The account has been created." () >>= Html.send
-         else
-           T.generic_page ~title:"Account creation" ~service:signup
-             "The account creation failed. Usually, this is because the username is already taken. Please try again." () >>= Html.send
+         match%lwt Web_auth.add_account ~username ~password ~email with
+         | None ->
+            let%lwt () = Eliom_reference.unset Web_state.signup_address in
+            T.generic_page ~title:"Account creation" ~service:admin
+              "The account has been created." () >>= Html.send
+         | Some UsernameTaken ->
+            T.generic_page ~title:"Account creation" ~service:signup
+              "The account creation failed because the username is already taken. Please try again with a different one." () >>= Html.send
+         | Some BadUsername ->
+            T.generic_page ~title:"Account creation" ~service:signup
+              "The account creation failed because the username is invalid. Please try again with a different one." () >>= Html.send
     )
 
 let extract_automatic_data_draft uuid_s =

@@ -101,6 +101,10 @@ val captcha_error :
    [ `One of captcha_error ] Eliom_parameter.param_name)
   Eliom_parameter.params_type
 
+type add_account_error =
+  | UsernameTaken
+  | BadUsername
+
 val generate_token : ?length:int -> unit -> string Lwt.t
 
 val string_of_user : user -> string

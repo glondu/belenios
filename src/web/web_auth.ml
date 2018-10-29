@@ -134,12 +134,24 @@ let do_add_account ~db_fname ~username ~password ~email () =
      let%lwt () = write_file db_fname db in
      Lwt.return true
 
+let username_rex = "^[A-Z0-9._%+-]+$"
+
+let is_username =
+  let rex = Pcre.regexp ~flags:[`CASELESS] username_rex in
+  fun x ->
+  try ignore (Pcre.pcre_exec ~rex x); true
+  with Not_found -> false
+
 let add_account ~username ~password ~email =
-  match get_password_db_fname () with
-  | None -> forbidden ()
-  | Some db_fname ->
-     Lwt_mutex.with_lock password_db_mutex
-       (do_add_account ~db_fname ~username ~password ~email)
+  if is_username username then
+    match get_password_db_fname () with
+    | None -> forbidden ()
+    | Some db_fname ->
+       if%lwt Lwt_mutex.with_lock password_db_mutex
+            (do_add_account ~db_fname ~username ~password ~email)
+       then return None
+       else return (Some UsernameTaken)
+  else return (Some BadUsername)
 
 (** CAS authentication *)
 
