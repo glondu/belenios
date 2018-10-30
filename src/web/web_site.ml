@@ -2026,7 +2026,7 @@ let () =
   Html.register ~service:signup_captcha
     (fun error () ->
       if%lwt Captcha_throttle.wait captcha_throttle 0 then
-        let%lwt challenge = Web_challenge.create_captcha () in
+        let%lwt challenge = Web_signup.create_captcha () in
         T.signup_captcha error challenge
       else
         let service = preapply signup_captcha None in
@@ -2038,14 +2038,14 @@ let () =
   Any.register ~service:signup_captcha_post
     (fun _ (challenge, (response, email)) ->
       let%lwt error =
-        let%lwt ok = Web_challenge.check_captcha ~challenge ~response in
+        let%lwt ok = Web_signup.check_captcha ~challenge ~response in
         if ok then
           if is_email email then return None else return (Some BadAddress)
         else return (Some BadCaptcha)
       in
       match error with
       | None ->
-         let%lwt () = Web_challenge.send_confirmation_link email in
+         let%lwt () = Web_signup.send_confirmation_link email in
          let message =
            Printf.sprintf
              "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation." email
@@ -2056,12 +2056,12 @@ let () =
 
 let () =
   String.register ~service:signup_captcha_img
-    (fun challenge () -> Web_challenge.get_captcha challenge)
+    (fun challenge () -> Web_signup.get_captcha challenge)
 
 let () =
   Any.register ~service:signup_login
     (fun token () ->
-      let%lwt address = Web_challenge.confirm_link token in
+      let%lwt address = Web_signup.confirm_link token in
       match address with
       | None -> forbidden ()
       | Some address ->
