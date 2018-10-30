@@ -30,3 +30,5 @@ val check_captcha : challenge:string -> response:string -> bool Lwt.t
 
 val send_confirmation_link : string -> unit Lwt.t
 val confirm_link : string -> string option Lwt.t
+
+val cracklib_check : string -> string option Lwt.t

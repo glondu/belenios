@@ -144,13 +144,16 @@ let is_username =
 
 let add_account ~username ~password ~email =
   if is_username username then
-    match get_password_db_fname () with
-    | None -> forbidden ()
-    | Some db_fname ->
-       if%lwt Lwt_mutex.with_lock password_db_mutex
-            (do_add_account ~db_fname ~username ~password ~email)
-       then return None
-       else return (Some UsernameTaken)
+    match%lwt Web_signup.cracklib_check password with
+    | Some e -> return (Some (BadPassword e))
+    | None ->
+       match get_password_db_fname () with
+       | None -> forbidden ()
+       | Some db_fname ->
+          if%lwt Lwt_mutex.with_lock password_db_mutex
+               (do_add_account ~db_fname ~username ~password ~email)
+          then return None
+          else return (Some UsernameTaken)
   else return (Some BadUsername)
 
 (** CAS authentication *)

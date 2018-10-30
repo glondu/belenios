@@ -104,6 +104,7 @@ val captcha_error :
 type add_account_error =
   | UsernameTaken
   | BadUsername
+  | BadPassword of string
 
 val generate_token : ?length:int -> unit -> string Lwt.t
 

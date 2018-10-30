@@ -134,3 +134,21 @@ let confirm_link token =
   | Some x ->
      links := SMap.remove token !links;
      Lwt.return (Some x.address)
+
+let cracklib =
+  let x = "cracklib-check" in (x, [| x |])
+
+let extract_comment x =
+  let n = String.length x in
+  match String.rindex_opt x ':' with
+  | Some i when i < n - 2 ->
+     let x = String.sub x (i + 2) (n - i - 3) in
+     if x = "OK" then None else Some x
+  | _ -> Some "unknown error"
+
+let cracklib_check password =
+  match String.index_opt password '\n' with
+  | None ->
+     let%lwt x = Lwt_process.pmap ~env:[| "LANG=C" |] cracklib password in
+     Lwt.return (extract_comment x)
+  | Some _ -> Lwt.return (Some "newline in password")

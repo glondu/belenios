@@ -210,6 +210,7 @@ let captcha_error x =
 type add_account_error =
   | UsernameTaken
   | BadUsername
+  | BadPassword of string
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let prng = lazy (pseudo_rng (random_string secure_rng 16))

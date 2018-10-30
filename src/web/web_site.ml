@@ -2096,6 +2096,11 @@ let () =
          | Some BadUsername ->
             T.generic_page ~title:"Account creation" ~service:signup
               "The account creation failed because the username is invalid. Please try again with a different one." () >>= Html.send
+         | Some (BadPassword e) ->
+            Printf.ksprintf
+              (fun x -> T.generic_page ~title:"Account creation" ~service:signup x () >>= Html.send)
+              "The account creation failed because the password is too weak (%s). Please try again with a different one"
+              e
     )
 
 let extract_automatic_data_draft uuid_s =
