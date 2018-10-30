@@ -2013,11 +2013,25 @@ let () =
         )
     )
 
+module HashedInt = struct
+  type t = int
+  let equal = (=)
+  let hash x = x
+end
+
+module Captcha_throttle = Lwt_throttle.Make (HashedInt)
+let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
+
 let () =
   Html.register ~service:signup_captcha
     (fun error () ->
-      let%lwt challenge = Web_challenge.create_captcha () in
-      T.signup_captcha error challenge
+      if%lwt Captcha_throttle.wait captcha_throttle 0 then
+        let%lwt challenge = Web_challenge.create_captcha () in
+        T.signup_captcha error challenge
+      else
+        let service = preapply signup_captcha None in
+        T.generic_page ~title:"Account creation" ~service
+          "You cannot create an account now. Please try later." ()
     )
 
 let () =
