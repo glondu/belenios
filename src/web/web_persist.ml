@@ -273,7 +273,7 @@ let get_ballot_by_hash uuid hash =
   match%lwt get_election_state uuid with
   | `Archived ->
      let%lwt ballots = archived_ballots_cache#find uuid in
-     (try Some (StringMap.find hash ballots) with Not_found -> None) |> return
+     return (StringMap.find_opt hash ballots)
   | _ ->
      let%lwt ballot = read_file ~uuid ("ballots" / urlize hash) in
      match ballot with
@@ -313,7 +313,7 @@ let replace_ballot uuid hash ballot =
 let compute_encrypted_tally uuid =
   let%lwt election = get_raw_election uuid in
   match election with
-  | None -> Lwt.fail Not_found
+  | None -> return None
   | Some election ->
      let election = Election.of_string election in
      let module W = (val Election.get_group election) in
@@ -328,7 +328,7 @@ let compute_encrypted_tally uuid =
      in
      let tally = string_of_encrypted_tally E.G.write tally in
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
-     return (num_tallied, sha256_b64 tally, tally)
+     return (Some (num_tallied, sha256_b64 tally, tally))
 
 module ExtendedRecordsCacheTypes = struct
   type key = uuid
@@ -368,7 +368,7 @@ let extended_records_cache =
 
 let find_extended_record uuid username =
   let%lwt rs = extended_records_cache#find uuid in
-  return (try Some (StringMap.find username rs) with Not_found -> None)
+  return (StringMap.find_opt username rs)
 
 let add_extended_record uuid username r =
   let%lwt rs = extended_records_cache#find uuid in

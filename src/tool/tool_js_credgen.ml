@@ -27,7 +27,11 @@ let generate _ =
     let raw = get_textarea "voters" in
     let rec loop i accu =
       if i >= 0 then
-        let j = try String.rindex_from raw i '\n' with Not_found -> -1 in
+        let j =
+          match String.rindex_from_opt raw i '\n' with
+          | Some x -> x
+          | None -> -1
+        in
         loop (j-1) (String.sub raw (j+1) (i-j) :: accu)
       else
         accu

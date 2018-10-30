@@ -582,10 +582,9 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       in
       let map = loop 0 G.one GMap.empty in
       fun x ->
-        try
-          GMap.find x map
-        with Not_found ->
-          invalid_arg "Cannot compute result"
+        match GMap.find_opt x map with
+        | Some x -> x
+        | None -> invalid_arg "Cannot compute result"
     in
     let result = Array.mmap log results in
     {num_tallied; encrypted_tally; partial_decryptions; result}

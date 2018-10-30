@@ -25,7 +25,7 @@ let alert s : unit =
   let open Js.Unsafe in
   fun_call (variable "alert") [| s |> Js.string |> inject |]
 
-let get_textarea id =
+let get_textarea_opt id =
   let res = ref None in
   Js.Opt.iter
     (document##getElementById (Js.string id))
@@ -34,9 +34,12 @@ let get_textarea id =
         (Dom_html.CoerceTo.textarea e)
         (fun x -> res := Some (Js.to_string (x##.value)))
     );
-  match !res with
-  | None -> raise Not_found
+  !res
+
+let get_textarea id =
+  match get_textarea_opt id with
   | Some x -> x
+  | None -> Printf.ksprintf failwith "<textarea> %s is missing" id
 
 let set_textarea id z =
   Js.Opt.iter
@@ -47,7 +50,7 @@ let set_textarea id z =
         (fun x -> x##.value := Js.string z)
     )
 
-let get_input id =
+let get_input_opt id =
   let res = ref None in
   Js.Opt.iter
     (document##getElementById (Js.string id))
@@ -56,9 +59,12 @@ let get_input id =
         (Dom_html.CoerceTo.input e)
         (fun x -> res := Some (Js.to_string (x##.value)))
     );
-  match !res with
-  | None -> raise Not_found
+  !res
+
+let get_input id =
+  match get_input_opt id with
   | Some x -> x
+  | None -> Printf.ksprintf failwith "<input> %s is missing" id
 
 let set_element_display id x =
   Js.Opt.iter

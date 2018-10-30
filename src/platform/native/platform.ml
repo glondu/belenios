@@ -194,8 +194,7 @@ let decrypt ~key ~iv ~ciphertext =
 type rng = Cryptokit.Random.rng
 
 let secure_rng =
-  if Belenios_version.debug &&
-    (try Sys.getenv "BELENIOS_USE_URANDOM" with Not_found -> "") <> ""
+  if Belenios_version.debug && Sys.getenv_opt "BELENIOS_USE_URANDOM" <> None
   then Cryptokit.Random.device_rng "/dev/urandom"
   else Cryptokit.Random.secure_rng
 

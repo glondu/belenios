@@ -183,7 +183,11 @@ let b64_order = "+/0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYz
 
 let compare_b64 a b =
   let na = String.length a and nb = String.length b in
-  let value_of c = try String.index b64_order c with Not_found -> -1 in
+  let value_of c =
+    match String.index_opt b64_order c with
+    | Some i -> i
+    | None -> -1
+  in
   let rec loop i =
     match (i < na), (i < nb) with
     | true, true ->

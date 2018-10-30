@@ -49,7 +49,7 @@ let sha256_b64 x =
     Js.Unsafe.meth_call sjcl "codec.base64.fromBits"
       [| sha256 x |] |> Js.to_string
   in
-  match (try Some (String.index raw '=') with Not_found -> None) with
+  match String.index_opt raw '=' with
   | Some i -> String.sub raw 0 i
   | None -> raw
 

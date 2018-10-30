@@ -66,13 +66,11 @@ let () =
     gdpr_uri := Some uri
   | Element ("server", attrs, []) ->
      let set attr setter =
-       try
-         let mail = List.assoc attr attrs in
-         if is_email mail then
-           setter mail
-         else
-           Printf.ksprintf failwith "%s is not a valid e-mail address" mail
-       with Not_found -> ()
+       match List.assoc_opt attr attrs with
+       | Some mail ->
+          if is_email mail then setter mail
+          else Printf.ksprintf failwith "%s is not a valid e-mail address" mail
+       | None -> ()
      in
      set "mail" (fun x -> server_mail := x);
      set "return-path" (fun x -> return_path := Some x);

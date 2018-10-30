@@ -125,10 +125,9 @@ module Make (P : PARSED_PARAMS) : S = struct
     | Some creds -> (fun b ->
       match b.signature with
       | Some s ->
-         (try
-            if GSet.find s.s_public_key !creds then false
-            else (creds := GSet.add s.s_public_key true !creds; true)
-          with Not_found -> false)
+         (match GSet.find_opt s.s_public_key !creds with
+          | Some false -> creds := GSet.add s.s_public_key true !creds; true
+          | _ -> false)
       | None -> false
     )
     | None -> (fun _ -> true)

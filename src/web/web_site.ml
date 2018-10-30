@@ -655,11 +655,11 @@ let find_user_id uuid user =
   let db = Lwt_io.lines_of_file (!spool_dir / uuid_s / "voters.txt") in
   let%lwt db = Lwt_stream.to_list db in
   let rec loop = function
-    | [] -> Lwt.fail Not_found
+    | [] -> None
     | id :: xs ->
        let _, login = split_identity id in
-       if login = user then return id else loop xs
-  in loop db
+       if login = user then Some id else loop xs
+  in return (loop db)
 
 let load_password_db uuid =
   let uuid_s = raw_string_of_uuid uuid in
@@ -686,8 +686,8 @@ let () =
                         (uuid, ()) |> rewrite_prefix
             in
             let service = preapply election_admin uuid in
-            (try%lwt
-               let%lwt id = find_user_id uuid user in
+            match%lwt find_user_id uuid user with
+            | Some id ->
                let langs = get_languages metadata.e_languages in
                let%lwt db = load_password_db uuid in
                let%lwt x = generate_password metadata langs title url id in
@@ -696,11 +696,10 @@ let () =
                T.generic_page ~title:"Success" ~service
                  ("A new password has been mailed to " ^ id ^ ".") ()
                >>= Html.send
-              with Not_found ->
-                T.generic_page ~title:"Error" ~service
-                  (user ^ " is not a registered user for this election.") ()
-                >>= Html.send
-            )
+            | None ->
+               T.generic_page ~title:"Error" ~service
+                 (user ^ " is not a registered user for this election.") ()
+               >>= Html.send
           ) else forbidden ()
         )
     )
@@ -736,8 +735,9 @@ let identity_rex = Pcre.regexp
   "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}(,[A-Z0-9._%+-]+)?$"
 
 let is_identity x =
-  try ignore (Pcre.pcre_exec ~rex:identity_rex x); true
-  with Not_found -> false
+  match pcre_exec_opt ~rex:identity_rex x with
+  | Some _ -> true
+  | None -> false
 
 let merge_voters a b f =
   let existing = List.fold_left (fun accu sv ->
@@ -760,10 +760,10 @@ let () =
           else (
             let voters = Pcre.split voters in
             let () =
-              try
-                let bad = List.find (fun x -> not (is_identity x)) voters in
-                Printf.ksprintf failwith "%S is not a valid identity" bad
-              with Not_found -> ()
+              match List.find_opt (fun x -> not (is_identity x)) voters with
+              | Some bad ->
+                 Printf.ksprintf failwith "%S is not a valid identity" bad
+              | None -> ()
             in
             se.se_voters <- merge_voters se.se_voters voters (fun _ -> None);
             redir_preapply election_draft_voters uuid ()
@@ -1071,8 +1071,7 @@ let () =
             | None -> fun _ -> None
             | Some p -> fun sv_id ->
                         let _, login = split_identity sv_id in
-                        try Some (SMap.find login p)
-                        with Not_found -> None
+                        SMap.find_opt login p
           in
           match voters with
           | Some voters ->
@@ -1561,11 +1560,11 @@ let () =
 
 let find_trustee_id uuid token =
   match%lwt Web_persist.get_decryption_tokens uuid with
-  | None -> return (try int_of_string token with _ -> 0)
+  | None -> return (int_of_string_opt token)
   | Some tokens ->
     let rec find i = function
-      | [] -> raise Not_found
-      | t :: ts -> if t = token then i else find (i+1) ts
+      | [] -> None
+      | t :: ts -> if t = token then Some i else find (i+1) ts
     in
     return (find 1 tokens)
 
@@ -1578,15 +1577,18 @@ let () =
         | `EncryptedTally _ -> return ()
         | _ -> fail_http 404
       in
-      let%lwt trustee_id = find_trustee_id uuid token in
-      let%lwt pds = Web_persist.get_partial_decryptions uuid in
-      if List.mem_assoc trustee_id pds then (
-        T.generic_page ~title:"Error"
-          "Your partial decryption has already been received and checked!"
-          () >>= Html.send
-      ) else (
-        T.tally_trustees w trustee_id token () >>= Html.send
-      ))
+      match%lwt find_trustee_id uuid token with
+      | Some trustee_id ->
+         let%lwt pds = Web_persist.get_partial_decryptions uuid in
+         if List.mem_assoc trustee_id pds then (
+           T.generic_page ~title:"Error"
+             "Your partial decryption has already been received and checked!"
+             () >>= Html.send
+         ) else (
+           T.tally_trustees w trustee_id token () >>= Html.send
+         )
+      | None -> forbidden ()
+    )
 
 let () =
   Any.register ~service:election_tally_trustees_post
@@ -1596,7 +1598,11 @@ let () =
         | `EncryptedTally _ -> return ()
         | _ -> forbidden ()
       in
-      let%lwt trustee_id = find_trustee_id uuid token in
+      let%lwt trustee_id =
+        match%lwt find_trustee_id uuid token with
+        | Some x -> return x
+        | None -> forbidden ()
+      in
       let%lwt pds = Web_persist.get_partial_decryptions uuid in
       let%lwt () =
         if List.mem_assoc trustee_id pds then forbidden () else return ()
@@ -1754,7 +1760,11 @@ let () =
               | `Closed -> return ()
               | _ -> forbidden ()
             in
-            let%lwt nb, hash, tally = Web_persist.compute_encrypted_tally uuid in
+            let%lwt nb, hash, tally =
+              match%lwt Web_persist.compute_encrypted_tally uuid with
+              | Some x -> return x
+              | None -> failwith "Anomaly in election_compute_encrypted_tally service handler. Please report." (* should not happen *)
+            in
             let%lwt npks =
               match%lwt Web_persist.get_threshold uuid with
               | Some tp ->

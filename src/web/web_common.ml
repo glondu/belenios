@@ -268,11 +268,9 @@ let send_email recipient subject body =
 
 let split_identity x =
   let n = String.length x in
-  try
-    let i = String.index x ',' in
-    String.sub x 0 i, String.sub x (i+1) (n-i-1)
-  with Not_found ->
-    x, x
+  match String.index_opt x ',' with
+  | Some i -> String.sub x 0 i, String.sub x (i+1) (n-i-1)
+  | None -> x, x
 
 let available_languages = ["en"; "fr"; "de"; "ro"; "it"]
 
@@ -287,13 +285,18 @@ let string_of_languages xs =
 let languages_of_string x =
   Pcre.split x
 
+let pcre_exec_opt ~rex x =
+  try Some (Pcre.exec ~rex x)
+  with Not_found -> None
+
 let email_rex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}"
 
 let is_email =
   let rex = Pcre.regexp ~flags:[`CASELESS] ("^" ^ email_rex ^ "$") in
   fun x ->
-  try ignore (Pcre.pcre_exec ~rex x); true
-  with Not_found -> false
+  match pcre_exec_opt ~rex x with
+  | Some _ -> true
+  | None -> false
 
 let extract_email =
   let rex = Pcre.regexp ~flags:[`CASELESS] ("<(" ^ email_rex ^ ")>") in
@@ -301,10 +304,9 @@ let extract_email =
   if is_email x then
     Some x
   else (
-    try
-      let s = Pcre.exec ~rex x in
-      Some (Pcre.get_substring s 1)
-    with Not_found -> None
+    match pcre_exec_opt ~rex x with
+    | Some s -> Some (Pcre.get_substring s 1)
+    | None -> None
   )
 
 let file_exists x =

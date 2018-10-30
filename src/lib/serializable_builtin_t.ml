@@ -33,8 +33,9 @@ let check token =
   n >= min_uuid_length &&
     let rec loop i =
       if i >= 0 then
-        let digit = try String.index digits token.[i] with Not_found -> -1 in
-        if digit >= 0 then loop (i-1) else false
+        match String.index_opt digits token.[i] with
+        | Some _ -> loop (i-1)
+        | None -> false
       else true
     in loop (n-1)
 

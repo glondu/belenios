@@ -31,8 +31,7 @@ open Web_services
 let ( / ) = Filename.concat
 
 let next_lf str i =
-  try Some (String.index_from str i '\n')
-  with Not_found -> None
+  String.index_from_opt str i '\n'
 
 let scope = Eliom_common.default_session_scope
 
@@ -64,19 +63,15 @@ let () = Eliom_registration.Any.register ~service:dummy_post dummy_handler
 
 let check_password_with_file db name password =
   let%lwt db = Lwt_preemptive.detach Csv.load db in
-  try
-    begin
-      match
-        List.find (function
-            | username :: _ :: _ :: _ -> username = name
-            | _ -> false
-          ) db
-      with
-      | _ :: salt :: hashed :: _ ->
-         return (sha256_hex (salt ^ password) = hashed)
-      | _ -> return false
-    end
-  with Not_found -> return false
+  match
+    List.find_opt (function
+        | username :: _ :: _ :: _ -> username = name
+        | _ -> false
+      ) db
+  with
+  | Some (_ :: salt :: hashed :: _) ->
+     return (sha256_hex (salt ^ password) = hashed)
+  | _ -> return false
 
 let password_handler () (name, password) =
   let%lwt uuid, service, config =
@@ -145,8 +140,9 @@ let username_rex = "^[A-Z0-9._%+-]+$"
 let is_username =
   let rex = Pcre.regexp ~flags:[`CASELESS] username_rex in
   fun x ->
-  try ignore (Pcre.pcre_exec ~rex x); true
-  with Not_found -> false
+  match pcre_exec_opt ~rex x with
+  | Some _ -> true
+  | None -> false
 
 let add_account ~username ~password ~email =
   if is_username username then
@@ -302,8 +298,8 @@ let oidc_handler params () =
     | None -> failwith "oidc handler was invoked without environment"
     | Some x -> return x
   in
-  let code = try Some (List.assoc "code" params) with Not_found -> None in
-  let state = try Some (List.assoc "state" params) with Not_found -> None in
+  let code = List.assoc_opt "code" params in
+  let state = List.assoc_opt "state" params in
   match code, state with
   | Some code, Some state ->
     let%lwt ocfg, client_id, client_secret, st =
@@ -370,8 +366,8 @@ let get_login_handler service uuid auth_system config =
   | _ -> fail_http 404
 
 let rec find_auth_instance x = function
-  | [] -> raise Not_found
-  | { auth_instance = i; auth_system = s; auth_config = c } :: _ when i = x -> s, c
+  | [] -> None
+  | { auth_instance = i; auth_system = s; auth_config = c } :: _ when i = x -> Some (s, c)
   | _ :: xs -> find_auth_instance x xs
 
 let login_handler service uuid =
@@ -392,8 +388,9 @@ let login_handler service uuid =
      match service with
      | Some s ->
         let%lwt auth_system, config =
-          try return @@ find_auth_instance s c
-          with Not_found -> fail_http 404
+          match find_auth_instance s c with
+          | Some x -> return x
+          | None -> fail_http 404
         in
         get_login_handler s uuid auth_system config
      | None ->

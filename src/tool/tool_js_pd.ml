@@ -75,20 +75,20 @@ let compute_partial_decryption _ =
   Dom_html.CoerceTo.input e >>= fun e ->
   let pk_str = Js.to_string e##.value in
   let private_key =
-    try
-      let epk = get_textarea "encrypted_private_key" in
-      let module PKI = Trustees.MakePKI (P.G) (DirectRandom) in
-      let module C = Trustees.MakeChannels (P.G) (DirectRandom) (PKI) in
-      let sk = PKI.derive_sk pk_str and dk = PKI.derive_dk pk_str in
-      let vk = P.G.(g **~ sk) in
-      let epk = C.recv dk vk epk in
-      (partial_decryption_key_of_string epk).pdk_decryption_key
-    with Not_found ->
-      basic_check_private_key pk_str;
-      try number_of_string pk_str
-      with e ->
-        Printf.ksprintf
-          failwith "Error in format of private key: %s" (Printexc.to_string e)
+    match get_textarea_opt "encrypted_private_key" with
+    | Some epk ->
+       let module PKI = Trustees.MakePKI (P.G) (DirectRandom) in
+       let module C = Trustees.MakeChannels (P.G) (DirectRandom) (PKI) in
+       let sk = PKI.derive_sk pk_str and dk = PKI.derive_dk pk_str in
+       let vk = P.G.(g **~ sk) in
+       let epk = C.recv dk vk epk in
+       (partial_decryption_key_of_string epk).pdk_decryption_key
+    | None ->
+       basic_check_private_key pk_str;
+       try number_of_string pk_str
+       with e ->
+         Printf.ksprintf
+           failwith "Error in format of private key: %s" (Printexc.to_string e)
   in
   let factor = E.compute_factor encrypted_tally private_key in
   set_textarea "pd" (string_of_partial_decryption P.G.write factor);
@@ -129,8 +129,7 @@ let get_uuid x =
     None
   else
     let args = Url.decode_arguments (String.sub x 1 (n-1)) in
-    try Some (List.assoc "uuid" args)
-    with Not_found -> None
+    List.assoc_opt "uuid" args
 
 let main _ =
   let _ =

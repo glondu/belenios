@@ -89,8 +89,9 @@ let get_default_language () =
   | [] -> "en"
   | (lang, _) :: _ ->
      let n =
-       try String.index lang '-'
-       with Not_found -> String.length lang
+       match String.index_opt lang '-' with
+       | Some x -> x
+       | None -> String.length lang
      in
      String.sub lang 0 n
 

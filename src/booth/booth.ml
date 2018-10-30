@@ -64,9 +64,7 @@ let getTextarea id =
       (Dom_html.CoerceTo.textarea e)
       (fun x -> res := Some (Js.to_string (x##.value)))
   );
-  match !res with
-  | None -> raise Not_found
-  | Some x -> x
+  !res
 
 let setTextarea id z =
   withElementById id (fun e ->
@@ -351,7 +349,11 @@ let loadElection () =
   setDisplayById "election_loader" "none";
   setDisplayById "wait_div" "none";
   setDisplayById "booth_div" "block";
-  let election_raw = getTextarea "election_params" |> drop_trailing_newline in
+  let election_raw =
+    match getTextarea "election_params" with
+    | Some x -> drop_trailing_newline x
+    | None -> failwith "election_params is missing"
+  in
   let election_params = Election.(get_group (of_string election_raw)) in
   let module P = (val election_params : ELECTION_DATA) in
   let params = P.election.e_params in
@@ -374,8 +376,7 @@ let get_url x =
     None
   else
     let args = Url.decode_arguments (String.sub x 1 (n-1)) in
-    try Some (List.assoc "url" args)
-    with Not_found -> None
+    List.assoc_opt "url" args
 
 let load_url url =
   let open Lwt_xmlHttpRequest in
@@ -386,11 +387,13 @@ let load_url url =
     )
 
 let load_url_handler _ =
-  let url = getTextarea "url" in
-  let encoded = Url.encode_arguments ["url", url] in
-  Dom_html.window##.location##.hash := Js.string encoded;
-  load_url url;
-  Js._false
+  (match getTextarea "url" with
+   | Some url ->
+      let encoded = Url.encode_arguments ["url", url] in
+      Dom_html.window##.location##.hash := Js.string encoded;
+      load_url url
+   | None -> ()
+  ); Js._false
 
 let load_params_handler _ =
   setDisplayById "div_ballot" "block";

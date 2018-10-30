@@ -56,16 +56,15 @@ end
 let check x =
   String.length x = token_length + 1 &&
   let rec loop i accu =
-    if i < token_length then (
-      let digit = String.index digits x.[i] in
-      loop (i+1) Z.(n58 * accu + of_int digit)
-    ) else accu
+    if i < token_length then
+      match String.index_opt digits x.[i] with
+      | Some digit -> loop (i+1) Z.(n58 * accu + of_int digit)
+      | None -> None
+    else Some accu
   in
-  try
-    let n = loop 0 Z.zero in
-    let checksum = String.index digits x.[token_length] in
-    Z.((n + of_int checksum) mod n53 =% zero)
-  with Not_found -> false
+  match loop 0 Z.zero, String.index_opt digits x.[token_length] with
+  | Some n, Some checksum -> Z.((n + of_int checksum) mod n53 =% zero)
+  | _, _ -> false
 
 let remove_dashes x =
   let n = String.length x in
