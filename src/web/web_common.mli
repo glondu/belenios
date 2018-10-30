@@ -23,7 +23,7 @@ open Signatures
 open Serializable_t
 open Web_serializable_t
 
-val site_auth_config : (string * (string * string list)) list ref
+val site_auth_config : auth_config list ref
 val spool_dir : string ref
 val server_mail : string ref
 val return_path : string option ref
@@ -128,8 +128,6 @@ val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
 
 val cleanup_file : string -> unit Lwt.t
 val rmdir : string -> unit Lwt.t
-
-val compile_auth_config : auth_config -> string * (string * string list)
 
 val urlize : string -> string
 val unurlize : string -> string

@@ -141,7 +141,7 @@ let get_auth_config uuid =
   let%lwt metadata = get_election_metadata uuid in
   match metadata.e_auth_config with
   | None -> return []
-  | Some x -> return (List.map compile_auth_config x)
+  | Some x -> return x
 
 type election_kind =
   [ `Draft

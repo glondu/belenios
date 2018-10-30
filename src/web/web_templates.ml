@@ -98,7 +98,7 @@ end
 
 module Site_auth = struct
   let get_user () = Web_state.get_site_user ()
-  let get_auth_systems () = return (List.map fst !site_auth_config)
+  let get_auth_systems () = return (List.map (fun x -> x.auth_instance) !site_auth_config)
 end
 
 let site_links = (module Site_links : AUTH_LINKS)
@@ -1550,7 +1550,7 @@ let election_login_box uuid =
       Web_state.get_election_user uuid
     let get_auth_systems () =
       let%lwt l = Web_persist.get_auth_config uuid in
-      return @@ List.map fst l
+      return @@ List.map (fun x -> x.auth_instance) l
   end in
   let auth = (module A : AUTH_SERVICES) in
   let module L = struct

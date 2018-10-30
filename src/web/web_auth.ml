@@ -88,8 +88,8 @@ let password_handler () (name, password) =
     match uuid with
     | None ->
        begin
-         match config with
-         | db :: _ -> check_password_with_file db name password
+         match List.assoc_opt "db" config with
+         | Some db -> check_password_with_file db name password
          | _ -> failwith "invalid configuration for admin site"
        end
     | Some uuid ->
@@ -106,10 +106,16 @@ let password_handler () (name, password) =
 
 let () = Eliom_registration.Any.register ~service:password_post password_handler
 
+let does_allow_signups c =
+  match List.assoc_opt "allowsignups" c with
+  | Some x -> bool_of_string x
+  | None -> false
+
 let get_password_db_fname () =
   let rec find = function
     | [] -> None
-    | (_, ("password", db :: allowsignups :: _)) :: _ when bool_of_string allowsignups -> Some db
+    | { auth_system = "password"; auth_config = c; _ } :: _
+         when does_allow_signups c -> List.assoc_opt "db" c
     | _ :: xs -> find xs
   in find !site_auth_config
 
@@ -230,8 +236,8 @@ let cas_handler ticket () =
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler
 
 let cas_login_handler config () =
-  match config with
-  | [server] ->
+  match List.assoc_opt "server" config with
+  | Some server ->
      let%lwt () = Eliom_reference.set cas_server (Some server) in
      let cas_login = Eliom_service.extern
        ~prefix:server
@@ -333,8 +339,9 @@ let split_prefix_path url =
   String.sub url 0 i, [String.sub url (i+1) (n-i-1)]
 
 let oidc_login_handler config () =
-  match config with
-  | [server; client_id; client_secret] ->
+  let get x = List.assoc_opt x config in
+  match get "server", get "client_id", get "client_secret" with
+  | Some server, Some client_id, Some client_secret ->
      let%lwt ocfg = get_oidc_configuration server in
      let%lwt state = generate_token () in
      let%lwt () = Eliom_reference.set oidc_state (Some (ocfg, client_id, client_secret, state)) in
@@ -362,6 +369,11 @@ let get_login_handler service uuid auth_system config =
   | "oidc" -> oidc_login_handler config ()
   | _ -> fail_http 404
 
+let rec find_auth_instance x = function
+  | [] -> raise Not_found
+  | { auth_instance = i; auth_system = s; auth_config = c } :: _ when i = x -> s, c
+  | _ :: xs -> find_auth_instance x xs
+
 let login_handler service uuid =
   let myself service =
     match uuid with
@@ -380,13 +392,13 @@ let login_handler service uuid =
      match service with
      | Some s ->
         let%lwt auth_system, config =
-          try return @@ List.assoc s c
+          try return @@ find_auth_instance s c
           with Not_found -> fail_http 404
         in
         get_login_handler s uuid auth_system config
      | None ->
         match c with
-        | [s, _] -> Eliom_registration.(Redirection.send (Redirection (myself (Some s))))
+        | [s] -> Eliom_registration.(Redirection.send (Redirection (myself (Some s.auth_instance))))
         | _ ->
            let builder =
              match uuid with
@@ -395,7 +407,7 @@ let login_handler service uuid =
              | Some u -> fun s ->
                preapply Web_services.election_login ((u, ()), Some s)
            in
-           Web_templates.login_choose (List.map fst c) builder () >>=
+           Web_templates.login_choose (List.map (fun x -> x.auth_instance) c) builder () >>=
            Eliom_registration.Html.send
 
 let logout_handler () =

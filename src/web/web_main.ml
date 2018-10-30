@@ -128,4 +128,4 @@ let%lwt default_group =
 let () = Web_site.source_file := source_file
 let () = Web_common.spool_dir := spool_dir
 let () = Web_site.default_group := default_group
-let () = Web_common.site_auth_config := (List.rev_map compile_auth_config !auth_instances)
+let () = Web_common.site_auth_config := List.rev !auth_instances

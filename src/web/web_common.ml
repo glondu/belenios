@@ -348,28 +348,6 @@ let rmdir dir =
   let%lwt _ = Lwt_process.exec command in
   return_unit
 
-let compile_auth_config {auth_system; auth_instance; auth_config} =
-  match auth_system with
-  | "password" ->
-     let auth_config =
-       match auth_config with
-       | [] ->
-          (* election configuration *)
-          []
-       | _ ->
-          (* site configuration *)
-          let db = List.assoc "db" auth_config in
-          let allowsignups =
-            match List.assoc_opt "allowsignups" auth_config with
-            | None -> false
-            | Some x -> bool_of_string x
-          in
-          [db; string_of_bool allowsignups]
-     in
-     auth_instance, (auth_system, auth_config)
-  | _ ->
-     auth_instance, (auth_system, List.map snd auth_config)
-
 let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)
 let unurlize = String.map (function '-' -> '+' | '_' -> '/' | c -> c)
 
