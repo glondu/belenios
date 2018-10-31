@@ -77,8 +77,6 @@ let set_element_display id x =
     (document##getElementById (Js.string id))
     (fun e -> e##.style##.display := Js.string x)
 
-let hide_element_by_id id = set_element_display id "none"
-
 let set_download id mime fn x =
   let x = (Js.string ("data:" ^ mime ^ ","))##concat (Js.encodeURI (Js.string x)) in
   Js.Opt.iter
