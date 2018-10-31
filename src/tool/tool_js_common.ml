@@ -25,6 +25,12 @@ let alert s : unit =
   let open Js.Unsafe in
   fun_call (variable "alert") [| s |> Js.string |> inject |]
 
+let prompt s =
+  let open Js.Unsafe in
+  Js.Opt.map
+    (fun_call (variable "prompt") [| s |> Js.string |> inject |])
+    Js.to_string |> Js.Opt.to_option
+
 let get_textarea_opt id =
   let res = ref None in
   Js.Opt.iter

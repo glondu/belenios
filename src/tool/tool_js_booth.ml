@@ -24,8 +24,7 @@ open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
-
-let document = Dom_html.window##.document
+open Tool_js_common
 
 let withElementById x f =
   Js.Opt.iter (document##getElementById (Js.string x)) f
@@ -35,16 +34,6 @@ let getHtmlById x =
   withElementById x (fun x ->
     Js.Opt.iter (x##.textContent) (fun x -> r := Js.to_string x)
   ); !r
-
-let alert s : unit =
-  let open Js.Unsafe in
-  fun_call (variable "alert") [| s |> Js.string |> inject |]
-
-let prompt s =
-  let open Js.Unsafe in
-  Js.Opt.map
-    (fun_call (variable "prompt") [| s |> Js.string |> inject |])
-    Js.to_string |> Js.Opt.to_option
 
 let runHandler handler () =
   (try handler ()
@@ -57,30 +46,11 @@ let installHandler id handler =
   let f _ = runHandler handler () in
   withElementById id (fun e -> e##.onclick := Dom_html.handler f)
 
-let getTextarea id =
-  let res = ref None in
-  withElementById id (fun e ->
-    Js.Opt.iter
-      (Dom_html.CoerceTo.textarea e)
-      (fun x -> res := Some (Js.to_string (x##.value)))
-  );
-  !res
-
-let setTextarea id z =
-  withElementById id (fun e ->
-    Js.Opt.iter
-      (Dom_html.CoerceTo.textarea e)
-      (fun x -> x##.value := Js.string z)
-  )
-
 let setNodeById id x =
   withElementById id (fun e ->
     let t = document##createTextNode (Js.string x) in
     Dom.appendChild e t
   )
-
-let setDisplayById id x =
-  withElementById id (fun e -> e##.style##.display := Js.string x)
 
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
@@ -107,10 +77,10 @@ let encryptBallot params cred plaintext () =
   let%lwt randomness = E.make_randomness () () in
   let%lwt b = E.create_ballot ~sk randomness plaintext () in
   let s = string_of_ballot G.write b in
-  setTextarea "ballot" s;
+  set_textarea "ballot" s;
   setNodeById "ballot_tracker" (sha256_b64 s);
-  setDisplayById "encrypting_div" "none";
-  setDisplayById "ballot_div" "block";
+  set_element_display "encrypting_div" "none";
+  set_element_display "ballot_div" "block";
   Dom_html.window##.onbeforeunload := Dom_html.no_handler;
   Lwt.return ()
 
@@ -246,7 +216,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
           let all = (q, answers) :: prev in
           let all_answers = List.rev_map snd all |> Array.of_list in
           let all_questions = List.rev_map fst all |> Array.of_list in
-          setTextarea "choices" (string_of_plaintext all_answers);
+          set_textarea "choices" (string_of_plaintext all_answers);
           question_div##.style##.display := Js.string "none";
           withElementById "pretty_choices" (fun e ->
             Array.iteri (fun i a ->
@@ -278,7 +248,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
             ) all_answers
           );
           Lwt_js_events.async (encryptBallot params sk all_answers);
-          setDisplayById "plaintext_div" "block";
+          set_element_display "plaintext_div" "block";
           progress_step 3;
           Js._false
          ) else Js._false
@@ -326,7 +296,7 @@ let createStartButton params intro_div qs =
     (match prompt (getHtmlById "enter_cred") with
     | Some cred when Credential.check cred ->
       intro_div##.style##.display := Js.string "none";
-      setDisplayById "question_div" "block";
+      set_element_display "question_div" "block";
       Dom_html.window##.onbeforeunload := Dom_html.handler (fun _ ->
         Js._false
       );
@@ -346,11 +316,11 @@ let drop_trailing_newline s =
   if n > 0 && s.[n-1] = '\n' then String.sub s 0 (n-1) else s
 
 let loadElection () =
-  setDisplayById "election_loader" "none";
-  setDisplayById "wait_div" "none";
-  setDisplayById "booth_div" "block";
+  set_element_display "election_loader" "none";
+  set_element_display "wait_div" "none";
+  set_element_display "booth_div" "block";
   let election_raw =
-    match getTextarea "election_params" with
+    match get_textarea_opt "election_params" with
     | Some x -> drop_trailing_newline x
     | None -> failwith "election_params is missing"
   in
@@ -382,12 +352,12 @@ let load_url url =
   let open Lwt_xmlHttpRequest in
   Lwt.async (fun () ->
       let%lwt raw = get (url ^ "election.json") in
-      let () = setTextarea "election_params" raw.content in
+      let () = set_textarea "election_params" raw.content in
       Lwt.return (runHandler loadElection ())
     )
 
 let load_url_handler _ =
-  (match getTextarea "url" with
+  (match get_textarea_opt "url" with
    | Some url ->
       let encoded = Url.encode_arguments ["url", url] in
       Dom_html.window##.location##.hash := Js.string encoded;
@@ -396,9 +366,9 @@ let load_url_handler _ =
   ); Js._false
 
 let load_params_handler _ =
-  setDisplayById "div_ballot" "block";
-  setDisplayById "div_submit" "none";
-  setDisplayById "div_submit_manually" "block";
+  set_element_display "div_ballot" "block";
+  set_element_display "div_submit" "none";
+  set_element_display "div_submit_manually" "block";
   Lwt.async (fun () ->
       Lwt.return (runHandler loadElection ())
     );
@@ -414,8 +384,8 @@ let onload_handler _ =
   let () =
     match get_url (Js.to_string Dom_html.window##.location##.hash) with
     | None ->
-       setDisplayById "wait_div" "none";
-       setDisplayById "election_loader" "block";
+       set_element_display "wait_div" "none";
+       set_element_display "election_loader" "block";
     | Some url -> load_url url
   in Js._false
 
