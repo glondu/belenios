@@ -27,7 +27,7 @@ let uuid_and_token = uuid "uuid" ** string "token"
 
 let home = create ~path:(Path [""]) ~meth:(Get unit) ()
 let admin = create ~path:(Path ["admin"]) ~meth:(Get unit) ()
-let admin_gdpr_accept = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:unit ()
+let privacy_notice_accept = create ~path:(Path ["accept-privacy"]) ~csrf_safe:true ~meth:(Post (privacy_cont "cont", unit)) ()
 let site_login = create ~path:(Path ["login"]) ~meth:(Get (opt (string "service"))) ()
 let logout = create ~path:(Path ["logout"]) ~meth:(Get unit) ()
 

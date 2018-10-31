@@ -368,16 +368,20 @@ let with_site_user f =
   | None -> forbidden ()
 
 let () =
-  Redirection.register ~service:admin_gdpr_accept
-    (fun () () ->
+  Redirection.register ~service:privacy_notice_accept
+    (fun cont () ->
       let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
-      return (Redirection admin)
+      let cont = match cont with
+        | ContAdmin -> Redirection admin
+        | ContSignup -> Redirection (preapply signup_captcha None)
+      in
+      return cont
     )
 
 let () = Html.register ~service:admin
   (fun () () ->
     let%lwt gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
-    if gdpr then T.admin_gdpr () else
+    if gdpr then T.privacy_notice ContAdmin else
     let cont () = Redirection.send (Redirection admin) in
     let%lwt () = Eliom_reference.set Web_state.cont [cont] in
     let%lwt site_user = Web_state.get_site_user () in
@@ -2035,6 +2039,8 @@ let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 let () =
   Html.register ~service:signup_captcha
     (fun error () ->
+      let%lwt gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
+      if gdpr then T.privacy_notice ContSignup else
       if%lwt Captcha_throttle.wait captcha_throttle 0 then
         let%lwt challenge = Web_signup.create_captcha () in
         T.signup_captcha error challenge

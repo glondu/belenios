@@ -188,6 +188,25 @@ let uuid x =
     ~to_string:raw_string_of_uuid
     x
 
+type privacy_cont =
+  | ContAdmin
+  | ContSignup
+
+let privacy_cont_of_string = function
+  | "admin" -> ContAdmin
+  | "signup" -> ContSignup
+  | _ -> invalid_arg "privacy_cont_of_string"
+
+let string_of_privacy_cont = function
+  | ContAdmin -> "admin"
+  | ContSignup -> "signup"
+
+let privacy_cont x =
+  Eliom_parameter.user_type
+    ~of_string:privacy_cont_of_string
+    ~to_string:string_of_privacy_cont
+    x
+
 type captcha_error =
   | BadCaptcha
   | BadAddress

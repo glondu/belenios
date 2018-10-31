@@ -91,6 +91,16 @@ val uuid :
    [ `One of uuid ] Eliom_parameter.param_name)
   Eliom_parameter.params_type
 
+type privacy_cont =
+  | ContAdmin
+  | ContSignup
+
+val privacy_cont :
+  string ->
+  (privacy_cont, [ `WithoutSuffix ],
+   [ `One of privacy_cont ] Eliom_parameter.param_name)
+  Eliom_parameter.params_type
+
 type captcha_error =
   | BadCaptcha
   | BadAddress

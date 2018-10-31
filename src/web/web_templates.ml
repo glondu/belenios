@@ -177,8 +177,9 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
       ]]
      ]))
 
-let admin_gdpr () =
+let privacy_notice cont =
   let title = site_title ^ " — Personal data processing notice" in
+  let service = Eliom_service.preapply privacy_notice_accept cont in
   let content =
     [
       div [
@@ -186,7 +187,7 @@ let admin_gdpr () =
           unsafe_a !gdpr_uri "personal data policy";
           pcdata ".";
         ];
-      post_form ~service:admin_gdpr_accept
+      post_form ~service
         (fun () ->
           [
             div [

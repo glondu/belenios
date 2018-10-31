@@ -24,7 +24,7 @@ open Web_serializable_t
 open Signatures
 open Web_common
 
-val admin_gdpr : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val privacy_notice : privacy_cont -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val admin : elections:((uuid * string) list * (uuid * string) list * (uuid * string) list * (uuid * string) list) option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
