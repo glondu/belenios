@@ -26,32 +26,6 @@ open Signatures
 open Common
 open Tool_js_common
 
-let withElementById x f =
-  Js.Opt.iter (document##getElementById (Js.string x)) f
-
-let getHtmlById x =
-  let r = ref x in
-  withElementById x (fun x ->
-    Js.Opt.iter (x##.textContent) (fun x -> r := Js.to_string x)
-  ); !r
-
-let runHandler handler () =
-  (try handler ()
-   with e ->
-     let msg = "Unexpected error: " ^ Printexc.to_string e in
-     alert msg
-  ); Js._false
-
-let installHandler id handler =
-  let f _ = runHandler handler () in
-  withElementById id (fun e -> e##.onclick := Dom_html.handler f)
-
-let setNodeById id x =
-  withElementById id (fun e ->
-    let t = document##createTextNode (Js.string x) in
-    Dom.appendChild e t
-  )
-
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
 module LwtJsRandom = struct
@@ -78,7 +52,7 @@ let encryptBallot params cred plaintext () =
   let%lwt b = E.create_ballot ~sk randomness plaintext () in
   let s = string_of_ballot G.write b in
   set_textarea "ballot" s;
-  setNodeById "ballot_tracker" (sha256_b64 s);
+  set_content "ballot_tracker" (sha256_b64 s);
   set_element_display "encrypting_div" "none";
   set_element_display "ballot_div" "block";
   Dom_html.window##.onbeforeunload := Dom_html.no_handler;
@@ -87,8 +61,8 @@ let encryptBallot params cred plaintext () =
 let progress_step n =
   let old_ = Printf.sprintf "progress%d" (n-1) in
   let new_ = Printf.sprintf "progress%d" n in
-  withElementById old_ (fun e -> e##setAttribute (Js.string "style") (Js.string ""));
-  withElementById new_ (fun e -> e##setAttribute (Js.string "style") (Js.string "font-weight: bold;"))
+  with_element old_ (fun e -> e##setAttribute (Js.string "style") (Js.string ""));
+  with_element new_ (fun e -> e##setAttribute (Js.string "style") (Js.string "font-weight: bold;"))
 
 let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
   (* Create div element for the current question. [i] and [(q,
@@ -104,7 +78,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   let () =
     let c = document##createElement (Js.string "div") in
     let fmt = Scanf.format_from_string
-      (getHtmlById "question_header") "%d%d%d%d"
+      (get_content "question_header") "%d%d%d%d"
     in
     let s = Printf.sprintf fmt
       (i + 1) num_questions q.q_min q.q_max
@@ -114,7 +88,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
     Dom.appendChild div c
   in
   let q_answers = match q.q_blank with
-    | Some true -> Array.append [|getHtmlById "str_blank_vote"|] q.q_answers
+    | Some true -> Array.append [|get_content "str_blank_vote"|] q.q_answers
     | _ -> q.q_answers
   in
   let () =
@@ -158,11 +132,11 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   let check_constraints () =
     let check_min_max total =
       if total < q.q_min then (
-        let fmt = Scanf.format_from_string (getHtmlById "at_least") "%d" in
+        let fmt = Scanf.format_from_string (get_content "at_least") "%d" in
         Printf.ksprintf alert fmt q.q_min;
         false
       ) else if total > q.q_max then (
-        let fmt = Scanf.format_from_string (getHtmlById "at_most") "%d" in
+        let fmt = Scanf.format_from_string (get_content "at_most") "%d" in
         Printf.ksprintf alert fmt q.q_max;
         false
       ) else true
@@ -173,7 +147,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
        let total = Array.fold_left (+) 0 answers' in
        if answers.(0) > 0 then (
          if total <> 0 then
-           (alert (getHtmlById "no_other_blank"); false)
+           (alert (get_content "no_other_blank"); false)
          else true
        ) else check_min_max total
     | _ ->
@@ -191,7 +165,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         ()
       | r :: prev ->
         let b = document##createElement (Js.string "button") in
-        let t = document##createTextNode (Js.string @@ getHtmlById "str_previous") in
+        let t = document##createTextNode (Js.string @@ get_content "str_previous") in
         b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
@@ -210,7 +184,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
       | [] ->
         (* last question, the button leads to encryption page *)
         let b = document##createElement (Js.string "button") in
-        let t = document##createTextNode (Js.string @@ getHtmlById "str_next") in
+        let t = document##createTextNode (Js.string @@ get_content "str_next") in
         b##.onclick := Dom_html.handler (fun _ ->
          if check_constraints () then (
           let all = (q, answers) :: prev in
@@ -218,7 +192,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
           let all_questions = List.rev_map fst all |> Array.of_list in
           set_textarea "choices" (string_of_plaintext all_answers);
           question_div##.style##.display := Js.string "none";
-          withElementById "pretty_choices" (fun e ->
+          with_element "pretty_choices" (fun e ->
             Array.iteri (fun i a ->
               let q = all_questions.(i) in
               let h = document##createElement (Js.string "h3") in
@@ -232,7 +206,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
                   incr checked;
                   let li = document##createElement (Js.string "li") in
                   let text = match q.q_blank with
-                    | Some true -> if i = 0 then getHtmlById "str_blank_vote" else q.q_answers.(i-1)
+                    | Some true -> if i = 0 then get_content "str_blank_vote" else q.q_answers.(i-1)
                     | _ -> q.q_answers.(i)
                   in
                   let t = document##createTextNode (Js.string text) in
@@ -241,7 +215,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
                 )
               ) a;
               if !checked = 0 then (
-                let t = document##createTextNode (Js.string @@ getHtmlById "str_nothing") in
+                let t = document##createTextNode (Js.string @@ get_content "str_nothing") in
                 Dom.appendChild ul t
               );
               Dom.appendChild e ul;
@@ -257,7 +231,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         Dom.appendChild btns b
       | r :: next ->
         let b = document##createElement (Js.string "button") in
-        let t = document##createTextNode (Js.string @@ getHtmlById "str_next") in
+        let t = document##createTextNode (Js.string @@ get_content "str_next") in
         b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
@@ -275,7 +249,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   div
 
 let addQuestions sk params qs =
-  withElementById "question_div" (fun e ->
+  with_element "question_div" (fun e ->
     let n = Array.length qs in
     let qs =
       Array.to_list qs |>
@@ -291,9 +265,9 @@ let addQuestions sk params qs =
 let createStartButton params intro_div qs =
   let b = document##createElement (Js.string "button") in
   b##setAttribute (Js.string "style") (Js.string "font-size:20px;");
-  let t = document##createTextNode (Js.string (getHtmlById "str_here")) in
+  let t = document##createTextNode (Js.string (get_content "str_here")) in
   b##.onclick := Dom_html.handler (fun _ ->
-    (match prompt (getHtmlById "enter_cred") with
+    (match prompt (get_content "enter_cred") with
     | Some cred when Credential.check cred ->
       intro_div##.style##.display := Js.string "none";
       set_element_display "question_div" "block";
@@ -303,7 +277,7 @@ let createStartButton params intro_div qs =
       progress_step 2;
       addQuestions cred params qs
     | Some _ ->
-       alert (getHtmlById "invalid_cred")
+       alert (get_content "invalid_cred")
     | None -> ()
     );
     Js._false
@@ -327,13 +301,13 @@ let loadElection () =
   let election_params = Election.(get_group (of_string election_raw)) in
   let module P = (val election_params : ELECTION_DATA) in
   let params = P.election.e_params in
-  setNodeById "election_name" params.e_name;
-  setNodeById "election_description" params.e_description;
-  setNodeById "election_uuid" (raw_string_of_uuid params.e_uuid);
-  setNodeById "election_fingerprint" P.election.e_fingerprint;
-  withElementById "intro" (fun e ->
+  set_content "election_name" params.e_name;
+  set_content "election_description" params.e_description;
+  set_content "election_uuid" (raw_string_of_uuid params.e_uuid);
+  set_content "election_fingerprint" P.election.e_fingerprint;
+  with_element "intro" (fun e ->
     let b = createStartButton election_params e params.e_questions in
-    withElementById "input_code" (fun e -> Dom.appendChild e b)
+    with_element "input_code" (fun e -> Dom.appendChild e b)
   )
 
 let get_prefix str =
@@ -353,7 +327,7 @@ let load_url url =
   Lwt.async (fun () ->
       let%lwt raw = get (url ^ "election.json") in
       let () = set_textarea "election_params" raw.content in
-      Lwt.return (runHandler loadElection ())
+      Lwt.return (run_handler loadElection ())
     )
 
 let load_url_handler _ =
@@ -370,15 +344,15 @@ let load_params_handler _ =
   set_element_display "div_submit" "none";
   set_element_display "div_submit_manually" "block";
   Lwt.async (fun () ->
-      Lwt.return (runHandler loadElection ())
+      Lwt.return (run_handler loadElection ())
     );
   Js._false
 
 let onload_handler _ =
   let () =
-    withElementById "load_url"
+    with_element "load_url"
       (fun e -> e##.onclick := Dom_html.handler load_url_handler);
-    withElementById "load_params"
+    with_element "load_params"
       (fun e -> e##.onclick := Dom_html.handler load_params_handler);
   in
   let () =

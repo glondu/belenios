@@ -31,10 +31,12 @@ let prompt s =
     (fun_call (variable "prompt") [| s |> Js.string |> inject |])
     Js.to_string |> Js.Opt.to_option
 
+let with_element x f =
+  Js.Opt.iter (document##getElementById (Js.string x)) f
+
 let get_textarea_opt id =
   let res = ref None in
-  Js.Opt.iter
-    (document##getElementById (Js.string id))
+  with_element id
     (fun e ->
       Js.Opt.iter
         (Dom_html.CoerceTo.textarea e)
@@ -48,8 +50,7 @@ let get_textarea id =
   | None -> Printf.ksprintf failwith "<textarea> %s is missing" id
 
 let set_textarea id z =
-  Js.Opt.iter
-    (document##getElementById (Js.string id))
+  with_element id
     (fun e ->
       Js.Opt.iter
         (Dom_html.CoerceTo.textarea e)
@@ -58,8 +59,7 @@ let set_textarea id z =
 
 let get_input_opt id =
   let res = ref None in
-  Js.Opt.iter
-    (document##getElementById (Js.string id))
+  with_element id
     (fun e ->
       Js.Opt.iter
         (Dom_html.CoerceTo.input e)
@@ -73,15 +73,31 @@ let get_input id =
   | None -> Printf.ksprintf failwith "<input> %s is missing" id
 
 let set_element_display id x =
-  Js.Opt.iter
-    (document##getElementById (Js.string id))
-    (fun e -> e##.style##.display := Js.string x)
+  with_element id (fun e -> e##.style##.display := Js.string x)
 
 let set_download id mime fn x =
   let x = (Js.string ("data:" ^ mime ^ ","))##concat (Js.encodeURI (Js.string x)) in
-  Js.Opt.iter
-    (document##getElementById (Js.string id))
+  with_element id
     (fun e ->
       e##setAttribute (Js.string "download") (Js.string fn);
       Js.Opt.iter (Dom_html.CoerceTo.a e) (fun e -> e##.href := x)
     )
+
+let get_content x =
+  let r = ref x in
+  with_element x (fun x ->
+    Js.Opt.iter (x##.textContent) (fun x -> r := Js.to_string x)
+  ); !r
+
+let set_content id x =
+  with_element id (fun e ->
+    let t = document##createTextNode (Js.string x) in
+    Dom.appendChild e t
+  )
+
+let run_handler handler () =
+  (try handler ()
+   with e ->
+     let msg = "Unexpected error: " ^ Printexc.to_string e in
+     alert msg
+  ); Js._false
