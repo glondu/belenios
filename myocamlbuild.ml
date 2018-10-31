@@ -132,8 +132,8 @@ let () = dispatch & function
     copy_rule "belenios-tool.html" "src/tool/belenios-tool.html" "src/static/belenios-tool.html";
 
     copy_rule "encrypting.gif" "ext/booth/encrypting.gif" "src/static/encrypting.gif";
-    copy_rule "booth.js" "src/booth/booth.js" "src/static/booth.js";
 
+    copy_rule "tool_js_booth.js" "src/tool/tool_js_booth.js" "src/static/tool_js_booth.js";
     copy_rule "tool_js_tkeygen.js" "src/tool/tool_js_tkeygen.js" "src/static/tool_js_tkeygen.js";
     copy_rule "tool_js_ttkeygen.js" "src/tool/tool_js_ttkeygen.js" "src/static/tool_js_ttkeygen.js";
     copy_rule "tool_js_credgen.js" "src/tool/tool_js_credgen.js" "src/static/tool_js_credgen.js";

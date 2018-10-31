@@ -2568,7 +2568,7 @@ let booth () =
     script ~a:[a_src (static "jsbn.js")] (pcdata "");
     script ~a:[a_src (static "jsbn2.js")] (pcdata "");
     script ~a:[a_src (static "random.js")] (pcdata "");
-    script ~a:[a_src (static "booth.js")] (pcdata "");
+    script ~a:[a_src (static "tool_js_booth.js")] (pcdata "");
   ] in
   let wait_div =
     div ~a:[a_id "wait_div"] [

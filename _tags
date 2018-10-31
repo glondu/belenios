@@ -3,7 +3,7 @@
 <src/platform/native/*>: package(zarith), package(cryptokit)
 <src/web/*.{ml,mli,byte,native,odoc}>: thread, package(eliom.server), package(lwt.ppx), package(calendar), package(csv)
 <src/tool/tool_cmdline.*>: package(zarith), package(cryptokit), package(cmdliner), use_platform-native
-<src/tool/tool_js*> or <src/platform/js/*> or <src/booth/*>: package(js_of_ocaml-lwt), package(js_of_ocaml-ppx), package(lwt.ppx), use_platform-js
+<src/tool/tool_js*> or <src/platform/js/*>: package(js_of_ocaml-lwt), package(js_of_ocaml-ppx), package(lwt.ppx), use_platform-js
 
 <**/*serializable_j.ml>: warn(-32)
 true: warn(A-4-6-29-44-45-48), safe_string
