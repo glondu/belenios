@@ -1,7 +1,7 @@
 stages:
+  - build_and_run_automated_test_scenario_1_with_preinstalled_image
   - build_and_test_with_preinstalled_image
   - build_and_test_with_debian_image
-  - build_and_run_automated_test_scenario_1_with_preinstalled_image
 
 build_and_test_with_preinstalled_image:
   stage: build_and_test_with_preinstalled_image
