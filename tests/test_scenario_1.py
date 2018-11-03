@@ -51,12 +51,14 @@ def wait_a_bit():
     time.sleep(WAIT_TIME_BETWEEN_EACH_STEP)
 
 def install_fake_sendmail():
+    # If the sendmail executable does not exist, script outputs an error like `mv: cannot stat '/usr/lib/sendmail': No such file or directory`. But this can be ignored as it does not cause any problem for the rest of the execution.
     subprocess.run(["sudo", "mv", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH, SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH + "_original"])
     fake_sendmail_absolute_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
     subprocess.run(["sudo", "ln", "--symbolic", fake_sendmail_absolute_path, SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH])
 
 def uninstall_fake_sendmail():
     subprocess.run(["sudo", "rm", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH])
+    # If the original sendmail executable did not exist at setUp(), sendmail_original does not exist now, and the script outputs an error like `mv: cannot stat '/usr/lib/sendmail_original': No such file or directory`. But this can be ignored as it does not cause any problem for the rest of the execution.
     subprocess.run(["sudo", "mv", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH + "_original", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH])
     subprocess.run(["sudo", "rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
 
@@ -142,6 +144,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     page_title_expected_content = "Administration"
     page_title_real_content = page_visible_title_element.get_attribute('innerText')
     assert page_title_expected_content in page_title_real_content, "Page title was: " + page_title_real_content
+    # Sometimes we get an error like `selenium.common.exceptions.StaleElementReferenceException: Message: The element reference of <h1> is stale; either the element is no longer attached to the DOM, it is not in the current frame context, or the document has been refreshed` or `selenium.common.exceptions.NoSuchElementException: Message: Unable to locate element: #header h1`. In this case, a solution can be to increase the wait duration variable WAIT_TIME_BETWEEN_EACH_STEP. TODO: Explore better solutions
 
     wait_a_bit()
 
