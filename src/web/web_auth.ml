@@ -47,15 +47,19 @@ let default_cont uuid () =
      | Some u ->
         Eliom_registration.(Redirection.send (Redirection (preapply Web_services.election_home (u, ()))))
 
+let generic_handler auth_system f =
+  match%lwt Eliom_reference.get auth_env with
+  | None -> Printf.ksprintf failwith "%s handler was invoked without environment" auth_system
+  | Some (uuid, service, config) ->
+     let%lwt () = Eliom_reference.unset auth_env in
+     let authenticate name = Eliom_reference.set user (Some {uuid; service; name}) in
+     let%lwt () = f uuid config authenticate in
+     default_cont uuid ()
+
 (** Dummy authentication *)
 
 let dummy_handler () name =
-  match%lwt Eliom_reference.get auth_env with
-  | None -> failwith "dummy handler was invoked without environment"
-  | Some (uuid, service, _) ->
-     let%lwt () = Eliom_reference.set user (Some {uuid; service; name}) in
-     let%lwt () = Eliom_reference.unset auth_env in
-     default_cont uuid ()
+  generic_handler "dummy" (fun _ _ authenticate -> authenticate name)
 
 let () = Eliom_registration.Any.register ~service:dummy_post dummy_handler
 
@@ -74,30 +78,22 @@ let check_password_with_file db name password =
   | _ -> return false
 
 let password_handler () (name, password) =
-  let%lwt uuid, service, config =
-    match%lwt Eliom_reference.get auth_env with
-    | None -> failwith "password handler was invoked without environment"
-    | Some x -> return x
-  in
-  let%lwt ok =
-    match uuid with
-    | None ->
-       begin
-         match List.assoc_opt "db" config with
-         | Some db -> check_password_with_file db name password
-         | _ -> failwith "invalid configuration for admin site"
-       end
-    | Some uuid ->
-       let uuid_s = raw_string_of_uuid uuid in
-       let db = !spool_dir / uuid_s / "passwords.csv" in
-       check_password_with_file db name password
-  in
-  if ok then
-    let%lwt () = Eliom_reference.set user (Some {uuid; service; name}) in
-    let%lwt () = Eliom_reference.unset auth_env in
-    default_cont uuid ()
-  else
-    fail_http 401
+  generic_handler "password" (fun uuid config authenticate ->
+      let%lwt ok =
+        match uuid with
+        | None ->
+           begin
+             match List.assoc_opt "db" config with
+             | Some db -> check_password_with_file db name password
+             | _ -> failwith "invalid configuration for admin site"
+           end
+        | Some uuid ->
+           let uuid_s = raw_string_of_uuid uuid in
+           let db = !spool_dir / uuid_s / "passwords.csv" in
+           check_password_with_file db name password
+      in
+      if ok then authenticate name else fail_http 401
+    )
 
 let () = Eliom_registration.Any.register ~service:password_post password_handler
 
@@ -206,28 +202,21 @@ let get_cas_validation server ticket =
   | None -> return (`Error `Http)
 
 let cas_handler ticket () =
-  let%lwt uuid, service, _ =
-    match%lwt Eliom_reference.get auth_env with
-    | None -> failwith "cas handler was invoked without environment"
-    | Some x -> return x
-  in
-  match ticket with
-  | Some x ->
-     let%lwt server =
-       match%lwt Eliom_reference.get cas_server with
-       | None -> failwith "cas handler was invoked without a server"
-       | Some x -> return x
-     in
-     (match%lwt get_cas_validation server x with
-     | `Yes (Some name) ->
-        let%lwt () = Eliom_reference.set user (Some {uuid; service; name}) in
-        default_cont uuid ()
-     | `No -> fail_http 401
-     | `Yes None | `Error _ -> fail_http 502)
-  | None ->
-     let%lwt () = Eliom_reference.unset cas_server in
-     let%lwt () = Eliom_reference.unset auth_env in
-     default_cont uuid ()
+  generic_handler "cas" (fun _ _ authenticate ->
+      match ticket with
+      | Some x ->
+         let%lwt server =
+           match%lwt Eliom_reference.get cas_server with
+           | None -> failwith "cas handler was invoked without a server"
+           | Some x -> return x
+         in
+         (match%lwt get_cas_validation server x with
+          | `Yes (Some name) -> authenticate name
+          | `No -> fail_http 401
+          | `Yes None | `Error _ -> fail_http 502
+         )
+      | None -> Eliom_reference.unset cas_server
+    )
 
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler
 
@@ -293,29 +282,24 @@ let oidc_get_name ocfg client_id client_secret code =
   | None -> return None
 
 let oidc_handler params () =
-  let%lwt uuid, service, _ =
-    match%lwt Eliom_reference.get auth_env with
-    | None -> failwith "oidc handler was invoked without environment"
-    | Some x -> return x
-  in
-  let code = List.assoc_opt "code" params in
-  let state = List.assoc_opt "state" params in
-  match code, state with
-  | Some code, Some state ->
-    let%lwt ocfg, client_id, client_secret, st =
-      match%lwt Eliom_reference.get oidc_state with
-      | None -> failwith "oidc handler was invoked without a state"
-      | Some x -> return x
-    in
-    let%lwt () = Eliom_reference.unset oidc_state in
-    let%lwt () = Eliom_reference.unset auth_env in
-    if state <> st then fail_http 401 else
-    (match%lwt oidc_get_name ocfg client_id client_secret code with
-    | Some name ->
-       let%lwt () = Eliom_reference.set user (Some {uuid; service; name}) in
-       default_cont uuid ()
-    | None -> fail_http 401)
-  | _, _ -> default_cont uuid ()
+  generic_handler "oidc" (fun _ _ authenticate ->
+      let code = List.assoc_opt "code" params in
+      let state = List.assoc_opt "state" params in
+      match code, state with
+      | Some code, Some state ->
+         let%lwt ocfg, client_id, client_secret, st =
+           match%lwt Eliom_reference.get oidc_state with
+           | None -> failwith "oidc handler was invoked without a state"
+           | Some x -> return x
+         in
+         let%lwt () = Eliom_reference.unset oidc_state in
+         if state <> st then fail_http 401 else
+           (match%lwt oidc_get_name ocfg client_id client_secret code with
+            | Some name -> authenticate name
+            | None -> fail_http 401
+           )
+      | _, _ -> return_unit
+    )
 
 let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler
 
