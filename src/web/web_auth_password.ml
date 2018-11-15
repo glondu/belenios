@@ -1,0 +1,121 @@
+(**************************************************************************)
+(*                                BELENIOS                                *)
+(*                                                                        *)
+(*  Copyright © 2012-2018 Inria                                           *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU Affero General Public License as        *)
+(*  published by the Free Software Foundation, either version 3 of the    *)
+(*  License, or (at your option) any later version, with the additional   *)
+(*  exemption that compiling, linking, and/or using OpenSSL is allowed.   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful, but   *)
+(*  WITHOUT ANY WARRANTY; without even the implied warranty of            *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *)
+(*  Affero General Public License for more details.                       *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU Affero General Public      *)
+(*  License along with this program.  If not, see                         *)
+(*  <http://www.gnu.org/licenses/>.                                       *)
+(**************************************************************************)
+
+open Lwt
+open Serializable_builtin_t
+open Web_serializable_j
+open Platform
+open Web_common
+
+let ( / ) = Filename.concat
+
+let check_password_with_file db name password =
+  let%lwt db = Lwt_preemptive.detach Csv.load db in
+  match
+    List.find_opt (function
+        | username :: _ :: _ :: _ -> username = name
+        | _ -> false
+      ) db
+  with
+  | Some (_ :: salt :: hashed :: _) ->
+     return (sha256_hex (salt ^ password) = hashed)
+  | _ -> return false
+
+let password_handler () (name, password) =
+  Web_auth.run_post_login_handler "password" (fun uuid config authenticate ->
+      let%lwt ok =
+        match uuid with
+        | None ->
+           begin
+             match List.assoc_opt "db" config with
+             | Some db -> check_password_with_file db name password
+             | _ -> failwith "invalid configuration for admin site"
+           end
+        | Some uuid ->
+           let uuid_s = raw_string_of_uuid uuid in
+           let db = !spool_dir / uuid_s / "passwords.csv" in
+           check_password_with_file db name password
+      in
+      if ok then authenticate name else fail_http 401
+    )
+
+let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler
+
+let does_allow_signups c =
+  match List.assoc_opt "allowsignups" c with
+  | Some x -> bool_of_string x
+  | None -> false
+
+let get_password_db_fname () =
+  let rec find = function
+    | [] -> None
+    | { auth_system = "password"; auth_config = c; _ } :: _
+         when does_allow_signups c -> List.assoc_opt "db" c
+    | _ :: xs -> find xs
+  in find !site_auth_config
+
+let allowsignups () = get_password_db_fname () <> None
+
+let password_db_mutex = Lwt_mutex.create ()
+
+let do_add_account ~db_fname ~username ~password ~email () =
+  let%lwt db = Lwt_preemptive.detach Csv.load db_fname in
+  let%lwt salt = generate_token ~length:8 () in
+  let hashed = sha256_hex (salt ^ password) in
+  let rec append accu = function
+    | [] -> Some (List.rev ([username; salt; hashed; email] :: accu))
+    | ((username' :: _ :: _ :: _) as x) :: xs ->
+       if username = username' then None else append (x :: accu) xs
+    | _ :: _ -> None
+  in
+  match append [] db with
+  | None -> Lwt.return false
+  | Some db ->
+     let db = List.map (String.concat ",") db in
+     let%lwt () = write_file db_fname db in
+     Lwt.return true
+
+let username_rex = "^[A-Z0-9._%+-]+$"
+
+let is_username =
+  let rex = Pcre.regexp ~flags:[`CASELESS] username_rex in
+  fun x ->
+  match pcre_exec_opt ~rex x with
+  | Some _ -> true
+  | None -> false
+
+let add_account ~username ~password ~email =
+  if is_username username then
+    match%lwt Web_signup.cracklib_check password with
+    | Some e -> return (Some (BadPassword e))
+    | None ->
+       match get_password_db_fname () with
+       | None -> forbidden ()
+       | Some db_fname ->
+          if%lwt Lwt_mutex.with_lock password_db_mutex
+               (do_add_account ~db_fname ~username ~password ~email)
+          then return None
+          else return (Some UsernameTaken)
+  else return (Some BadUsername)
+
+let () =
+  Web_auth.register_pre_login_handler "password"
+    (fun _ -> Web_templates.login_password () >>= Eliom_registration.Html.send)

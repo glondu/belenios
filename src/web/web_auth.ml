@@ -21,17 +21,17 @@
 
 open Lwt
 open Eliom_service
-open Platform
-open Serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Web_state
 open Web_services
 
-let ( / ) = Filename.concat
+type auth_config = (string * string) list
 
-let next_lf str i =
-  String.index_from_opt str i '\n'
+type result = Eliom_registration.Html.result
+
+type post_login_handler =
+  uuid option -> auth_config -> (string -> unit Lwt.t) -> unit Lwt.t
 
 let scope = Eliom_common.default_session_scope
 
@@ -47,7 +47,7 @@ let default_cont uuid () =
      | Some u ->
         Eliom_registration.(Redirection.send (Redirection (preapply Web_services.election_home (u, ()))))
 
-let generic_handler auth_system f =
+let run_post_login_handler auth_system f =
   match%lwt Eliom_reference.get auth_env with
   | None -> Printf.ksprintf failwith "%s handler was invoked without environment" auth_system
   | Some (uuid, service, config) ->
@@ -56,298 +56,18 @@ let generic_handler auth_system f =
      let%lwt () = f uuid config authenticate in
      default_cont uuid ()
 
-(** Dummy authentication *)
+type pre_login_handler = auth_config -> result Lwt.t
 
-let dummy_handler () name =
-  generic_handler "dummy" (fun _ _ authenticate -> authenticate name)
+let pre_login_handlers = ref []
 
-let () = Eliom_registration.Any.register ~service:dummy_post dummy_handler
-
-(** Password authentication *)
-
-let check_password_with_file db name password =
-  let%lwt db = Lwt_preemptive.detach Csv.load db in
-  match
-    List.find_opt (function
-        | username :: _ :: _ :: _ -> username = name
-        | _ -> false
-      ) db
-  with
-  | Some (_ :: salt :: hashed :: _) ->
-     return (sha256_hex (salt ^ password) = hashed)
-  | _ -> return false
-
-let password_handler () (name, password) =
-  generic_handler "password" (fun uuid config authenticate ->
-      let%lwt ok =
-        match uuid with
-        | None ->
-           begin
-             match List.assoc_opt "db" config with
-             | Some db -> check_password_with_file db name password
-             | _ -> failwith "invalid configuration for admin site"
-           end
-        | Some uuid ->
-           let uuid_s = raw_string_of_uuid uuid in
-           let db = !spool_dir / uuid_s / "passwords.csv" in
-           check_password_with_file db name password
-      in
-      if ok then authenticate name else fail_http 401
-    )
-
-let () = Eliom_registration.Any.register ~service:password_post password_handler
-
-let does_allow_signups c =
-  match List.assoc_opt "allowsignups" c with
-  | Some x -> bool_of_string x
-  | None -> false
-
-let get_password_db_fname () =
-  let rec find = function
-    | [] -> None
-    | { auth_system = "password"; auth_config = c; _ } :: _
-         when does_allow_signups c -> List.assoc_opt "db" c
-    | _ :: xs -> find xs
-  in find !site_auth_config
-
-let allowsignups () = get_password_db_fname () <> None
-
-let password_db_mutex = Lwt_mutex.create ()
-
-let do_add_account ~db_fname ~username ~password ~email () =
-  let%lwt db = Lwt_preemptive.detach Csv.load db_fname in
-  let%lwt salt = generate_token ~length:8 () in
-  let hashed = sha256_hex (salt ^ password) in
-  let rec append accu = function
-    | [] -> Some (List.rev ([username; salt; hashed; email] :: accu))
-    | ((username' :: _ :: _ :: _) as x) :: xs ->
-       if username = username' then None else append (x :: accu) xs
-    | _ :: _ -> None
-  in
-  match append [] db with
-  | None -> Lwt.return false
-  | Some db ->
-     let db = List.map (String.concat ",") db in
-     let%lwt () = write_file db_fname db in
-     Lwt.return true
-
-let username_rex = "^[A-Z0-9._%+-]+$"
-
-let is_username =
-  let rex = Pcre.regexp ~flags:[`CASELESS] username_rex in
-  fun x ->
-  match pcre_exec_opt ~rex x with
-  | Some _ -> true
-  | None -> false
-
-let add_account ~username ~password ~email =
-  if is_username username then
-    match%lwt Web_signup.cracklib_check password with
-    | Some e -> return (Some (BadPassword e))
-    | None ->
-       match get_password_db_fname () with
-       | None -> forbidden ()
-       | Some db_fname ->
-          if%lwt Lwt_mutex.with_lock password_db_mutex
-               (do_add_account ~db_fname ~username ~password ~email)
-          then return None
-          else return (Some UsernameTaken)
-  else return (Some BadUsername)
-
-(** CAS authentication *)
-
-let cas_server = Eliom_reference.eref ~scope None
-
-let login_cas = Eliom_service.create
-  ~path:(Eliom_service.Path ["auth"; "cas"])
-  ~meth:(Eliom_service.Get Eliom_parameter.(opt (string "ticket")))
-  ()
-
-let cas_self =
-  (* lazy so rewrite_prefix is called after server initialization *)
-  lazy (Eliom_uri.make_string_uri
-          ~absolute:true
-          ~service:(preapply login_cas None)
-          () |> rewrite_prefix)
-
-let parse_cas_validation info =
-  match next_lf info 0 with
-  | Some i ->
-     (match String.sub info 0 i with
-     | "yes" -> `Yes
-        (match next_lf info (i+1) with
-        | Some j -> Some (String.sub info (i+1) (j-i-1))
-        | None -> None)
-     | "no" -> `No
-     | _ -> `Error `Parsing)
-  | None -> `Error `Parsing
-
-let get_cas_validation server ticket =
-  let url =
-    let cas_validate = Eliom_service.extern
-      ~prefix:server
-      ~path:["validate"]
-      ~meth:(Eliom_service.Get Eliom_parameter.(string "service" ** string "ticket"))
-      ()
-    in
-    let service = preapply cas_validate (Lazy.force cas_self, ticket) in
-    Eliom_uri.make_string_uri ~absolute:true ~service ()
-  in
-  let%lwt reply = Ocsigen_http_client.get_url url in
-  match reply.Ocsigen_http_frame.frame_content with
-  | Some stream ->
-     let%lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
-     let%lwt () = Ocsigen_stream.finalize stream `Success in
-     return (parse_cas_validation info)
-  | None -> return (`Error `Http)
-
-let cas_handler ticket () =
-  generic_handler "cas" (fun _ _ authenticate ->
-      match ticket with
-      | Some x ->
-         let%lwt server =
-           match%lwt Eliom_reference.get cas_server with
-           | None -> failwith "cas handler was invoked without a server"
-           | Some x -> return x
-         in
-         (match%lwt get_cas_validation server x with
-          | `Yes (Some name) -> authenticate name
-          | `No -> fail_http 401
-          | `Yes None | `Error _ -> fail_http 502
-         )
-      | None -> Eliom_reference.unset cas_server
-    )
-
-let () = Eliom_registration.Any.register ~service:login_cas cas_handler
-
-let cas_login_handler config () =
-  match List.assoc_opt "server" config with
-  | Some server ->
-     let%lwt () = Eliom_reference.set cas_server (Some server) in
-     let cas_login = Eliom_service.extern
-       ~prefix:server
-       ~path:["login"]
-       ~meth:(Eliom_service.Get Eliom_parameter.(string "service"))
-       ()
-     in
-     let service = preapply cas_login (Lazy.force cas_self) in
-     Eliom_registration.(Redirection.send (Redirection service))
-  | _ -> failwith "cas_login_handler invoked with bad config"
-
-(** OpenID Connect (OIDC) authentication *)
-
-let oidc_state = Eliom_reference.eref ~scope None
-
-let login_oidc = Eliom_service.create
-  ~path:(Eliom_service.Path ["auth"; "oidc"])
-  ~meth:(Eliom_service.Get Eliom_parameter.any)
-  ()
-
-let oidc_self =
-  lazy (Eliom_uri.make_string_uri
-          ~absolute:true
-          ~service:(preapply login_oidc [])
-          () |> rewrite_prefix)
-
-let oidc_get_userinfo ocfg info =
-  let info = oidc_tokens_of_string info in
-  let access_token = info.oidc_access_token in
-  let url = ocfg.userinfo_endpoint in
-  let headers = Http_headers.(
-    add (name "Authorization") ("Bearer " ^ access_token) empty
-  ) in
-  let%lwt reply = Ocsigen_http_client.get_url ~headers url in
-  match reply.Ocsigen_http_frame.frame_content with
-  | Some stream ->
-     let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-     let%lwt () = Ocsigen_stream.finalize stream `Success in
-     let x = oidc_userinfo_of_string info in
-     return (Some (match x.oidc_email with Some x -> x | None -> x.oidc_sub))
-  | None -> return None
-
-let oidc_get_name ocfg client_id client_secret code =
-  let content = [
-    "code", code;
-    "client_id", client_id;
-    "client_secret", client_secret;
-    "redirect_uri", Lazy.force oidc_self;
-    "grant_type", "authorization_code";
-  ] in
-  let%lwt reply = Ocsigen_http_client.post_urlencoded_url ~content ocfg.token_endpoint in
-  match reply.Ocsigen_http_frame.frame_content with
-  | Some stream ->
-    let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-    let%lwt () = Ocsigen_stream.finalize stream `Success in
-    oidc_get_userinfo ocfg info
-  | None -> return None
-
-let oidc_handler params () =
-  generic_handler "oidc" (fun _ _ authenticate ->
-      let code = List.assoc_opt "code" params in
-      let state = List.assoc_opt "state" params in
-      match code, state with
-      | Some code, Some state ->
-         let%lwt ocfg, client_id, client_secret, st =
-           match%lwt Eliom_reference.get oidc_state with
-           | None -> failwith "oidc handler was invoked without a state"
-           | Some x -> return x
-         in
-         let%lwt () = Eliom_reference.unset oidc_state in
-         if state <> st then fail_http 401 else
-           (match%lwt oidc_get_name ocfg client_id client_secret code with
-            | Some name -> authenticate name
-            | None -> fail_http 401
-           )
-      | _, _ -> return_unit
-    )
-
-let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler
-
-let get_oidc_configuration server =
-  let url = server ^ "/.well-known/openid-configuration" in
-  let%lwt reply = Ocsigen_http_client.get_url url in
-  match reply.Ocsigen_http_frame.frame_content with
-  | Some stream ->
-     let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-     let%lwt () = Ocsigen_stream.finalize stream `Success in
-     return (oidc_configuration_of_string info)
+let get_pre_login_handler service uuid auth_system config =
+  let%lwt () = Eliom_reference.set auth_env (Some (uuid, service, config)) in
+  match List.assoc_opt auth_system !pre_login_handlers with
+  | Some handler -> handler config
   | None -> fail_http 404
 
-let split_prefix_path url =
-  let n = String.length url in
-  let i = String.rindex url '/' in
-  String.sub url 0 i, [String.sub url (i+1) (n-i-1)]
-
-let oidc_login_handler config () =
-  let get x = List.assoc_opt x config in
-  match get "server", get "client_id", get "client_secret" with
-  | Some server, Some client_id, Some client_secret ->
-     let%lwt ocfg = get_oidc_configuration server in
-     let%lwt state = generate_token () in
-     let%lwt () = Eliom_reference.set oidc_state (Some (ocfg, client_id, client_secret, state)) in
-     let prefix, path = split_prefix_path ocfg.authorization_endpoint in
-     let auth_endpoint = Eliom_service.extern ~prefix ~path
-       ~meth:(Eliom_service.Get Eliom_parameter.(string "redirect_uri" **
-           string "response_type" ** string "client_id" **
-           string "scope" ** string "state" ** string "prompt"))
-       ()
-     in
-     let service = preapply auth_endpoint
-       (Lazy.force oidc_self, ("code", (client_id, ("openid email", (state, "consent")))))
-     in
-     Eliom_registration.(Redirection.send (Redirection service))
-  | _ -> failwith "oidc_login_handler invoked with bad config"
-
-(** Generic authentication *)
-
-let get_login_handler service uuid auth_system config =
-  let%lwt () = Eliom_reference.set auth_env (Some (uuid, service, config)) in
-  match auth_system with
-  | "dummy" -> Web_templates.login_dummy () >>= Eliom_registration.Html.send
-  | "cas" -> cas_login_handler config ()
-  | "password" -> Web_templates.login_password () >>= Eliom_registration.Html.send
-  | "oidc" -> oidc_login_handler config ()
-  | _ -> fail_http 404
+let register_pre_login_handler auth_system handler =
+  pre_login_handlers := (auth_system, handler) :: !pre_login_handlers
 
 let rec find_auth_instance x = function
   | [] -> None
@@ -376,7 +96,7 @@ let login_handler service uuid =
           | Some x -> return x
           | None -> fail_http 404
         in
-        get_login_handler s uuid auth_system config
+        get_pre_login_handler s uuid auth_system config
      | None ->
         match c with
         | [s] -> Eliom_registration.(Redirection.send (Redirection (myself (Some s.auth_instance))))

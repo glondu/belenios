@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2018 Inria                                                *)
+(*  Copyright © 2012-2018 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,17 +19,17 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_serializable_t
+open Lwt
 
-type auth_config = (string * string) list
+let () =
+  Eliom_registration.Any.register ~service:Web_services.dummy_post
+    (fun () name ->
+      Web_auth.run_post_login_handler "dummy"
+        (fun _ _ authenticate -> authenticate name)
+    )
 
-type result = Eliom_registration.Html.result
-
-type pre_login_handler = auth_config -> result Lwt.t
-
-val register_pre_login_handler : string -> pre_login_handler -> unit
-
-type post_login_handler =
-  uuid option -> auth_config -> (string -> unit Lwt.t) -> unit Lwt.t
-
-val run_post_login_handler : string -> post_login_handler -> result Lwt.t
+let () =
+  Web_auth.register_pre_login_handler "dummy"
+    (fun _ ->
+      Web_templates.login_dummy () >>= Eliom_registration.Html.send
+    )

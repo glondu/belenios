@@ -2101,7 +2101,7 @@ let () =
       match email with
       | None -> forbidden ()
       | Some email ->
-         match%lwt Web_auth.add_account ~username ~password ~email with
+         match%lwt Web_auth_password.add_account ~username ~password ~email with
          | None ->
             let%lwt () = Eliom_reference.unset Web_state.signup_address in
             T.generic_page ~title:"Account creation" ~service:admin
