@@ -18,6 +18,11 @@ SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = "/tmp/sendmail_fake"
 USE_HEADLESS_BROWSER = True
 WAIT_TIME_BETWEEN_EACH_STEP = 0.05 # In seconds (float)
 
+NUMBER_OF_INVITED_VOTERS = 20 # This is N in description of Scenario 1. N is between 6 (quick test) and 1000 (load testing)
+NUMBER_OF_VOTING_VOTERS = 10 # This is K in description of Scenario 1. K is between 6 (quick test) and 1000 (load testing). K <= N
+NUMBER_OF_REVOTING_VOTERS = 5 # This is L in description of Scenario 1. L <= K
+NUMBER_OF_REGENERATED_PASSWORD_VOTERS = 4 # This is M in description of Scenario 1. M <= K
+ELECTION_TITLE = "My test election for Scenario 1"
 
 THIS_FILE_ABSOLUTE_PATH = os.path.abspath(__file__)
 GIT_REPOSITORY_ABSOLUTE_PATH = os.path.dirname(os.path.dirname(THIS_FILE_ABSOLUTE_PATH))
@@ -93,12 +98,6 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
 
   def administrator_creates_election(self):
-    number_of_voters = 20 # This is K in description of Scenario 1. K is between 6 (quick test) and 1000 (load testing). FIXME: Is this the same as N?
-    number_of_revoting_voters = 10 # This is L in description of Scenario 1. L <= K
-    number_of_regenerated_password_voters = 5 # This is M in description of Scenario 1. M <= K
-
-
-
     # # Setting up a new election (action of the administrator)
 
     # Edith has been given administrator rights on an online voting app called Belenios. She goes
@@ -170,7 +169,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     # She changes values of fields name and description of the election
     election_name_field_css_selector = "#main form input[name=__co_eliom_name]"
     election_name_field_element = browser.find_element_by_css_selector(election_name_field_css_selector)
-    election_name_field_value = "My test election for Scenario 1"
+    election_name_field_value = ELECTION_TITLE
     election_name_field_element.clear()
     election_name_field_element.send_keys(election_name_field_value)
 
@@ -230,8 +229,8 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
     wait_a_bit()
 
-    # She types N e-mail addresses (the list of voters)
-    email_addresses = random_email_addresses_generator(number_of_voters)
+    # She types N e-mail addresses (the list of invited voters)
+    email_addresses = random_email_addresses_generator(NUMBER_OF_INVITED_VOTERS)
     voters_list_field_css_selector = "#main form textarea"
     voters_list_field_element = browser.find_element_by_css_selector(voters_list_field_css_selector)
     voters_list_field_element.clear()
