@@ -1,4 +1,5 @@
 stages:
+  - build_and_run_automated_test_scenario_1_with_preinstalled_image
   - build_and_test_with_preinstalled_image
   - build_and_test_with_debian_image
 
@@ -45,3 +46,27 @@ build_and_test_with_debian_image:
     - if [ "$(echo \"$first_access_index_page_output\" | grep '>Belenios</a>' | wc -l)" != "1" ]; then echo "[First page access] First page access does not show a single '>Belenios</a>' text, but it should" && exit 1; else echo "[First page access] First page access shows a single '>Belenios</a>' text, as expected"; fi
     # Run a test of an election
     # - BELENIOS_DEBUG=1 make check
+
+build_and_run_automated_test_scenario_1_with_preinstalled_image:
+  stage: build_and_run_automated_test_scenario_1_with_preinstalled_image
+  # Image `swergas/beleniosbase:b97ee7e11a9f06ae15862e2210a10567f84f8a65d727262b8a5f0c513f9be5b6_test_scenario_environment` is built by `Dockerfile_test_scenario_environment`
+  image: swergas/beleniosbase:b97ee7e11a9f06ae15862e2210a10567f84f8a65d727262b8a5f0c513f9be5b6_test_scenario_environment
+  script:
+    # Install required packages
+    # - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
+    # Install the same Opam packages that opam-bootstrap.sh installs
+    # - eval `grep "opam install" ./opam-bootstrap.sh`
+    # Compile belenios
+    - BELENIOS_DEBUG=1 make all
+    # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
+    - make archive
+    # We don't need to start belenios web server, as it will be started by the automated test
+    # - ./demo/run-server.sh &
+    # Create a Python 3 virtual environment, where pip packages will be installed
+    - python3 -m venv venv
+    # Step into this new virtual environment
+    - source venv/bin/activate
+    # Install pip packages
+    - pip install -r requirements.txt
+    # Run the automated test scenario 1
+    - python3 ./tests/test_scenario_1.py
