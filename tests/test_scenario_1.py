@@ -16,7 +16,6 @@ from selenium.common.exceptions import StaleElementReferenceException
 SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
 SERVER_URL = "http://localhost:8001"
 DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY = "_run/spool"
-SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH = "/usr/lib/sendmail"
 FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "tests/tools/sendmail_fake.sh"
 SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = "/tmp/sendmail_fake"
 USE_HEADLESS_BROWSER = True
@@ -59,17 +58,12 @@ def remove_database_folder():
 def wait_a_bit():
     time.sleep(WAIT_TIME_BETWEEN_EACH_STEP)
 
-def install_fake_sendmail():
-    # If the sendmail executable does not exist, script outputs an error like `mv: cannot stat '/usr/lib/sendmail': No such file or directory`. But this can be ignored as it does not cause any problem for the rest of the execution.
-    subprocess.run(["sudo", "mv", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH, SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH + "_original"])
-    fake_sendmail_absolute_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
-    subprocess.run(["sudo", "ln", "--symbolic", fake_sendmail_absolute_path, SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH])
+def install_fake_sendmail_log_file():
+    subprocess.run(["rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
+    subprocess.run(["touch", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
 
-def uninstall_fake_sendmail():
-    subprocess.run(["sudo", "rm", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH])
-    # If the original sendmail executable did not exist at setUp(), sendmail_original does not exist now, and the script outputs an error like `mv: cannot stat '/usr/lib/sendmail_original': No such file or directory`. But this can be ignored as it does not cause any problem for the rest of the execution.
-    subprocess.run(["sudo", "mv", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH + "_original", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH])
-    subprocess.run(["sudo", "rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
+def uninstall_fake_sendmail_log_file():
+    subprocess.run(["rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
 
 
 class element_exists_and_contains_expected_text(object):
@@ -120,12 +114,14 @@ def wait_for_element_exists_and_contains_expected_text(browser, css_selector, ex
 
 class BeleniosTestElectionScenario1(unittest.TestCase):
   def setUp(self):
-    install_fake_sendmail()
+    install_fake_sendmail_log_file()
 
     remove_database_folder()
 
     server_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
-    self.server = subprocess.Popen([server_path], stdout=subprocess.PIPE)
+    fake_sendmail_absolute_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
+    custom_environment_variables = dict(os.environ, BELENIOS_SENDMAIL=fake_sendmail_absolute_path)
+    self.server = subprocess.Popen([server_path], stdout=subprocess.PIPE, env=custom_environment_variables)
 
     if USE_HEADLESS_BROWSER:
         from selenium.webdriver.firefox.options import Options
@@ -144,7 +140,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
     remove_database_folder()
 
-    uninstall_fake_sendmail()
+    uninstall_fake_sendmail_log_file()
 
 
   def administrator_creates_election(self):

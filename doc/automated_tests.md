@@ -4,11 +4,9 @@ Automated tests are stored in the `tests` directory.
 
 Technologies used to run these tests are: Python 3 in a virtual environment, `pip` (to install Python packages such as `selenium`), `selenium`, `firefox`, `geckodriver` (a firefox driver for selenium), `unittest`.
 
-These automated tests start the Belenios demo server (`demo/run-server.sh`), and set up a fake `sendmail` executable (similar to a mock), so that the Belenios server does not return an error when trying to send emails in the test environment (that has no `sendmail` installed nor configured), and so that the fake `sendmail` executable makes it possible to verify what emails have been sent and read their content, simply by reading the log file where it redirects all its input.
+These automated tests start the Belenios demo server (`demo/run-server.sh`), with the `BELENIOS_SENDMAIL` environment variable defined as the path to a fake `sendmail` executable (similar to a mock, provided in `tests/tools/sendmail_fake.sh`). This way, Belenios server does not return an error when trying to send emails in the test environment (that has no `sendmail` installed nor configured), and the fake `sendmail` executable makes it possible to verify what emails have been sent and read their content, simply by reading the log file where it redirects all its input (we use `/tmp/sendmail_fake` as location for this log file).
 
 Note: For example, during election creation procedure, a step sends emails to voters. If at this moment, a `sendmail` binary is not properly installed and configured (or replaced by a mock), the web page displays the following error message: `Netchannels.Command_failure(WEXITED 126)`
-
-Note: Steps `install_fake_sendmail()` and `uninstall_fake_sendmail()` of the automated test scripts imply that it is currently necessary that command `python ./tests/test_scenario_1.py` is executed as a sudoer (and for this to work properly using Continuous Integration, this sudoer must not have to write a sudo password when they execute a sudo command).
 
 When these automated tests start running, and when they end, they clean up Belenios database: Belenios database consists in directories and files under the `_run/spool` directory, for each election. So these are deleted during test setup. Belenios demo server stores initial admin users logins and passwords in `demo/password_db.csv`. This file is not deleted during test setup, and its contents are used to log in the adminstrator during the test and have this administrator create an election. 
 
