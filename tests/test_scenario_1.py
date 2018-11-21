@@ -7,6 +7,10 @@ import shutil
 import subprocess
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
 
 
 SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
@@ -66,6 +70,52 @@ def uninstall_fake_sendmail():
     # If the original sendmail executable did not exist at setUp(), sendmail_original does not exist now, and the script outputs an error like `mv: cannot stat '/usr/lib/sendmail_original': No such file or directory`. But this can be ignored as it does not cause any problem for the rest of the execution.
     subprocess.run(["sudo", "mv", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH + "_original", SENDMAIL_EXECUTABLE_FILE_ABSOLUTE_PATH])
     subprocess.run(["sudo", "rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
+
+
+class element_exists_and_contains_expected_text(object):
+  """
+  An expectation for checking that an element exists and its innerText attribute contains expected text.
+  This class is meant to be used in combination with Selenium's `WebDriverWait::until()`. For example:
+  ```
+  custom_wait = WebDriverWait(browser, 10)
+  smart_ballot_tracker_element = custom_wait.until(element_has_non_empty_content((By.ID, "my_id"), "my expected text"))
+  ```
+
+  :param locator: Selenium locator used to find the element. For example: `(By.ID, "my_id")`
+  :param expected_text: Text expected in element's innerText attribute (parameter type: string)
+  :return: The WebElement once its innerText attribute contains expected_text
+  """
+  def __init__(self, locator, expected_text):
+    self.locator = locator
+    self.expected_text = expected_text
+
+  def __call__(self, driver):
+    element = driver.find_element(*self.locator)   # Finding the referenced element
+    if not element:
+        return False
+    element_content = element.get_attribute('innerText').strip()
+    if self.expected_text in element_content:
+        return element
+    else:
+        return False
+
+
+def wait_for_element_exists_and_contains_expected_text(browser, css_selector, expected_text, wait_duration=10):
+    """
+    Waits for the presence of an element that matches CSS selector `css_selector` and that has an innerText attribute that contains string `expected_text`.
+    :param browser: Selenium browser
+    :param css_selector: CSS selector of the expected element
+    :param expected_text: String of the expected text that element must contain
+    :param wait_duration: Maximum duration in seconds that we wait for the presence of this element before raising an exception
+    :return: The WebElement once it matches expected conditions
+    """
+    try:
+        ignored_exceptions=(NoSuchElementException,StaleElementReferenceException,)
+        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
+        page_title_element = custom_wait.until(element_exists_and_contains_expected_text((By.CSS_SELECTOR, css_selector), expected_text))
+        return page_title_element
+    except:
+        raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds")
 
 
 class BeleniosTestElectionScenario1(unittest.TestCase):
@@ -136,16 +186,16 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     login_form_password_element.send_keys(login_form_password_value)
     login_form_password_element.submit()
 
-    wait_a_bit()
-
     # She verifies that she arrived on the administration page (instead of any login error page)
-    page_visible_title_element = browser.find_element_by_css_selector("#header h1")
-    page_title_expected_content = "Administration"
-    page_title_real_content = page_visible_title_element.get_attribute('innerText')
-    assert page_title_expected_content in page_title_real_content, "Page title was: " + page_title_real_content
-    # Sometimes we get an error like `selenium.common.exceptions.StaleElementReferenceException: Message: The element reference of <h1> is stale; either the element is no longer attached to the DOM, it is not in the current frame context, or the document has been refreshed` or `selenium.common.exceptions.NoSuchElementException: Message: Unable to locate element: #header h1`. In this case, a solution can be to increase the wait duration variable WAIT_TIME_BETWEEN_EACH_STEP. TODO: Explore better solutions
 
-    wait_a_bit()
+    # Here we use Selenium's Explicit Wait to wait for the h1 element of the page to contain expected text, meaning browser will have changed from login page to administration page. If we had used an Implicit Wait (with a defined duration) instead of an Explicit one, we risk to have some errors sometimes (we experienced them before doing this refactoring):
+    # - Sometimes we get an error like `selenium.common.exceptions.StaleElementReferenceException: Message: The element reference of <h1> is stale; either the element is no longer attached to the DOM, it is not in the current frame context, or the document has been refreshed` or `selenium.common.exceptions.NoSuchElementException: Message: Unable to locate element: #header h1`. This is because page content changed in between two of our instructions.
+    # - Value read from the page is still the value contained in previous page, because page content has not changed yet.
+
+    page_title_css_selector = "#header h1"
+    page_title_expected_content = "Administration"
+    page_title_element = wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content)
+    assert page_title_element
 
     # She clicks on the "Prepare a new election" link
     create_election_link_text = "Prepare a new election"
