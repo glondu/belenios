@@ -219,7 +219,7 @@ def repopulate_vote_confirmations_for_voters_from_sent_emails(voters_with_creden
 
           jaSjEsICnqaVYcFIkfcdajCZbpwaR0QmHZouYUwabuc
 
-
+        {This vote replaces any previous vote.}
         You can check its presence in the ballot box, accessible at
           http://localhost:8001/elections/imkV1i7hUR4dV3/ballots
 
@@ -227,15 +227,17 @@ def repopulate_vote_confirmations_for_voters_from_sent_emails(voters_with_creden
           http://localhost:8001/elections/imkV1i7hUR4dV3/
 
         --=20
+
+        (Where {...} means this string appears only in some cases, namely only if this notification corresponds to a re-vote)
         """
         vote_confirmation_email_subject_to_look_for = "Your vote for election " + election_title
         emails_with_vote_confirmation = [x for x in emails_to_selected_voter if x["subject"] == vote_confirmation_email_subject_to_look_for]
         if len(emails_with_vote_confirmation) == 0:
             raise Exception("No vote confirmation email found for voter " + voter_email_address)
-        email_with_vote_confirmation = emails_with_vote_confirmation[0]
+        email_with_vote_confirmation = emails_with_vote_confirmation[-1] # If voter received several vote confirmation emails (which happens when they revote), select the last one
 
         voter_smart_ballot_confirmation = ""
-        match = re.search(r'Your smart ballot tracker is(.*)You can check its presence in the ballot box', email_with_vote_confirmation["full_content"], re.MULTILINE | re.DOTALL)
+        match = re.search(r'Your smart ballot tracker is\s*(\S+)\s', email_with_vote_confirmation["full_content"], re.MULTILINE | re.DOTALL)
         if match:
             voter_smart_ballot_confirmation = match.group(1)
             voter_smart_ballot_confirmation = voter_smart_ballot_confirmation.strip()
@@ -778,17 +780,16 @@ pris en compte.
     self.log_out()
 
 
-  def voters_vote(self):
-    voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_VOTING_VOTERS] # TODO: "à faire avec K électeurs différents, avec au moins 3 sessions d'électeurs entrelacées"
-    # TODO: Should we also handle a case where not all invited voters vote? (abstention)
-    voters_who_will_vote_now_with_credentials = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
-
-    voters_who_will_vote_now_with_credentials_and_their_vote = populate_random_votes_for_voters(voters_who_will_vote_now_with_credentials)
-
+  """
+  :param voters: list of dict. Each element contains information about a voter (their e-mail address, the planned answers to each question they will cast)
+  """
+  def voters_cast_their_vote(self, voters):
     browser = self.browser
-    for voter_with_credentials in voters_who_will_vote_now_with_credentials_and_their_vote:
+    voters_count = len(voters)
+    for index, voter in enumerate(voters):
+        print("#### Current voter casting their vote: " + str(index+1) + "/" + str(voters_count))
         # Bob has received 2 emails containing an invitation to vote and all necessary credentials (election page URL, username, password). He goes to the election page URL.
-        browser.get(voter_with_credentials["election_page_url"])
+        browser.get(voter["election_page_url"])
 
         wait_a_bit()
 
@@ -817,7 +818,7 @@ pris en compte.
 
         # A modal opens (it is an HTML modal created using Window.prompt()), with an input field. He types his credential.
         credential_prompt = Alert(browser)
-        credential_prompt.send_keys(voter_with_credentials["credential"])
+        credential_prompt.send_keys(voter["credential"])
         credential_prompt.accept()
 
         wait_a_bit()
@@ -836,8 +837,8 @@ pris en compte.
         assert len(answers_elements) is 2
         question1_answer1_element = answers_elements[0]
         question1_answer2_element = answers_elements[1]
-        voter_vote_to_question_1_answer_1 = voter_with_credentials["votes"]["question1"]["answer1"]
-        voter_vote_to_question_1_answer_2 = voter_with_credentials["votes"]["question1"]["answer2"]
+        voter_vote_to_question_1_answer_1 = voter["votes"]["question1"]["answer1"]
+        voter_vote_to_question_1_answer_2 = voter["votes"]["question1"]["answer2"]
         voter_vote_to_question_1_answer_1_is_checked = question1_answer1_element.get_attribute('checked')
         voter_vote_to_question_1_answer_2_is_checked = question1_answer2_element.get_attribute('checked')
         assert voter_vote_to_question_1_answer_1_is_checked is None
@@ -882,7 +883,7 @@ pris en compte.
         smart_ballot_tracker_value = smart_ballot_tracker_element.get_attribute('innerText')
         assert len(smart_ballot_tracker_value) > 5 # TODO: Should we verify more accurately its value for coherence? What rules should we use?
 
-        voter_with_credentials["smart_ballot_tracker"] = smart_ballot_tracker_value
+        voter["smart_ballot_tracker"] = smart_ballot_tracker_value
 
         # He clicks on the "Continue" button
         next_button_expected_label = "Continue"
@@ -895,11 +896,11 @@ pris en compte.
         # He types his voter username and password, and submits the form
         username_field_css_selector = "#main input[name=username]"
         username_field_element = browser.find_element_by_css_selector(username_field_css_selector)
-        username_field_element.send_keys(voter_with_credentials["username"])
+        username_field_element.send_keys(voter["username"])
 
         password_field_css_selector = "#main input[name=password]"
         password_field_element = browser.find_element_by_css_selector(password_field_css_selector)
-        password_field_element.send_keys(voter_with_credentials["password"])
+        password_field_element.send_keys(voter["password"])
 
         password_field_element.submit()
 
@@ -910,7 +911,7 @@ pris en compte.
         ballot_tracker_element = browser.find_element_by_id(ballot_tracker_dom_id)
         ballot_tracker_element_value = ballot_tracker_element.get_attribute('innerText')
         assert len(ballot_tracker_element_value) > 5
-        assert ballot_tracker_element_value == voter_with_credentials["smart_ballot_tracker"]
+        assert ballot_tracker_element_value == voter["smart_ballot_tracker"]
 
         # He clicks on the "I cast my vote" button
         submit_button_css_selector = "#main input[type=submit]"
@@ -936,10 +937,10 @@ pris en compte.
         all_smart_ballot_trackers_css_selector = "#main ul li a"
         all_smart_ballot_trackers_elements = browser.find_elements_by_css_selector(all_smart_ballot_trackers_css_selector)
         assert len(all_smart_ballot_trackers_elements)
-        matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter_with_credentials["smart_ballot_tracker"]]
+        matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
         assert len(matches) is 1
 
-        # In a following pass, he checks his mailbox to find a new email with confirmation of his vote, and verifies the value of the smart ballot tracker written in this email is the same as the one he noted. This verification is done in a following pass because of an optimization, so that we only re-read and re-populate the sendmail_fake text file once for all users.
+        # In a following pass, he checks his mailbox to find a new email with confirmation of his vote, and verifies the value of the smart ballot tracker written in this email is the same as the one he noted. This verification is done in a separated pass because of an optimization, so that we only re-read and re-populate the sendmail_fake text file once for all users.
 
         # He closes the window (there is no log-out link, because user is not logged in: credentials are not remembered)
         # TODO: Is it really mandatory for the test to close the window? Re-opening a browser takes much more time, compared to just navigating to another URL.
@@ -947,15 +948,28 @@ pris en compte.
         self.browser = initialize_browser()
         browser = self.browser
 
-
-    voters_who_will_vote_now_with_credentials_and_their_vote = repopulate_vote_confirmations_for_voters_from_sent_emails(voters_who_will_vote_now_with_credentials_and_their_vote, ELECTION_TITLE)
-    for voter_with_credentials in voters_who_will_vote_now_with_credentials_and_their_vote:
+    # Start another pass, where we re-read and re-populate the sendmail_fake text file once for all users.
+    voters = repopulate_vote_confirmations_for_voters_from_sent_emails(voters, ELECTION_TITLE)
+    for voter in voters:
         # He checks his mailbox to find a new email with confirmation of his vote, and verifies the value of the smart ballot tracker written in this email is the same as the one he noted.
-        assert voter_with_credentials["smart_ballot_tracker"] == voter_with_credentials["smart_ballot_tracker_in_vote_confirmation_email"]
+        assert voter["smart_ballot_tracker"] == voter["smart_ballot_tracker_in_vote_confirmation_email"], "Ballot tracker read in vote confirmation email (" + voter["smart_ballot_tracker"] + ") is not the same as the one read on the vote confirmation page (" + voter["smart_ballot_tracker_in_vote_confirmation_email"] + ")"
+
+
+  def all_voters_vote(self):
+    voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_VOTING_VOTERS] # TODO: "à faire avec K électeurs différents, avec au moins 3 sessions d'électeurs entrelacées"
+    # TODO: Should we also handle a case where not all invited voters vote? (abstention)
+    voters_who_will_vote_now_with_credentials = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
+
+    voters_who_will_vote_now_with_credentials_and_their_vote = populate_random_votes_for_voters(voters_who_will_vote_now_with_credentials)
+    self.voters_cast_their_vote(voters_who_will_vote_now_with_credentials_and_their_vote)
+
 
   def some_voters_revote(self):
-    # TODO: implement this step (with L voters)
-    pass
+    voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_REVOTING_VOTERS] # TODO: Should we pick these voters in a different way than as a sequential subset of initial set?
+    voters_who_will_vote_now_with_credentials = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
+
+    voters_who_will_vote_now_with_credentials_and_their_vote = populate_random_votes_for_voters(voters_who_will_vote_now_with_credentials)
+    self.voters_cast_their_vote(voters_who_will_vote_now_with_credentials_and_their_vote)
 
 
   def test_scenario_1_simple_vote(self):
@@ -967,9 +981,9 @@ pris en compte.
     self.administrator_regenerates_passwords_for_some_voters()
     print("### Step complete: administrator_regenerates_passwords_for_some_voters")
 
-    print("### Starting step: voters_vote")
-    self.voters_vote()
-    print("### Step complete: voters_vote")
+    print("### Starting step: all_voters_vote")
+    self.all_voters_vote()
+    print("### Step complete: all_voters_vote")
 
     print("### Starting step: some_voters_revote")
     self.some_voters_revote()
