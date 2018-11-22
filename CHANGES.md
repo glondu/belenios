@@ -1,4 +1,4 @@
-1.7 (2018-11-12)
+1.7 (2018-11-26)
 ================
 
  * Add automatic data archival/deletion policy
@@ -7,6 +7,7 @@
  * Do no longer rely on Ocsipersist
  * Port to OCaml 4.06.1 and Eliom 6.3.0
  * Re-seed LwtRandom prng every 30 minutes
+ * Add a placeholder for warnings/announcements
 
 1.6 (2018-06-13)
 ================
