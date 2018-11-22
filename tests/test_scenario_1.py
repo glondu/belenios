@@ -274,6 +274,16 @@ def find_element_by_css_selector_and_label(browser, css_selector, expected_label
     return element
 
 
+def find_button_in_page_content_by_value(browser, expected_value):
+    css_selector = "#main input[value='" + expected_value + "']" # a more precise use case would be "#main form input[type=submit][value='...']"
+    return browser.find_element_by_css_selector(css_selector)
+
+
+def find_buttons_in_page_content_by_value(browser, expected_value):
+    css_selector = "#main input[value='" + expected_value + "']" # a more precise use case would be "#main form input[type=submit][value='...']"
+    return browser.find_elements_by_css_selector(css_selector)
+
+
 def initialize_browser():
     browser = None
     if USE_HEADLESS_BROWSER:
@@ -361,6 +371,16 @@ def wait_for_element_exists_and_contains_expected_text(browser, css_selector, ex
 
 
 class BeleniosTestElectionScenario1(unittest.TestCase):
+  """
+  Properties:
+  - server
+  - browser
+  - voters_email_addresses
+  - voters_email_addresses_who_have_lost_their_password
+  - voters_data
+  - election_page_url
+  """
+  
   def setUp(self):
     install_fake_sendmail_log_file()
 
@@ -373,6 +393,11 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
     self.browser = initialize_browser()
 
+    self.voters_email_addresses = []
+    self.voters_email_addresses_who_have_lost_their_password = []
+    self.voters_data = dict()
+    self.election_page_url = None
+
 
   def tearDown(self):
     self.browser.quit()
@@ -384,28 +409,42 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     uninstall_fake_sendmail_log_file()
 
 
-  def log_in_as_administrator(self):
-    # Edith has been given administrator rights on an online voting app called Belenios. She goes
-    # to check out its homepage
+  def update_voters_data(self, some_voters_data):
+    """
+    :param some_voters: a list of voter data
+    """
+    for voter in some_voters_data:
+        self.voters_data[voter["email_address"]] = voter
+
+
+  def log_in_as_administrator(self, from_a_login_page=False):
     browser = self.browser
-    browser.get(SERVER_URL)
 
-    # She notices the page title mentions an election
-    assert 'Election Server' in browser.title, "Browser title was: " + browser.title
+    if from_a_login_page:
+        local_login_link_label = "local"
+        browser.find_element_by_partial_link_text(local_login_link_label).click()
+    else:
+        # Edith has been given administrator rights on an online voting app called Belenios. She goes
+        # to check out its homepage
+        
+        browser.get(SERVER_URL)
 
-    # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
-    accept_button_label = "Accept"
-    accept_button_css_selector = "#main form input[type=submit][value='" + accept_button_label + "']"
-    button_elements = browser.find_elements_by_css_selector(accept_button_css_selector)
-    if len(button_elements) > 0:
-        assert len(button_elements) is 1
-        button_elements[0].click()
+        # She notices the page title mentions an election
+        assert 'Election Server' in browser.title, "Browser title was: " + browser.title
+
+        # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
+        accept_button_label = "Accept"
+        button_elements = find_buttons_in_page_content_by_value(browser, accept_button_label)
+        if len(button_elements) > 0:
+            assert len(button_elements) is 1
+            button_elements[0].click()
+
         wait_a_bit()
 
-    # She clicks on "local" to go to the login page
-    login_link_id = "login_local"
-    login_element = browser.find_element_by_id(login_link_id)
-    login_element.click()
+        # She clicks on "local" to go to the login page
+        login_link_id = "login_local"
+        login_element = browser.find_element_by_id(login_link_id)
+        login_element.click()
 
     # She enters her identifier and password and submits the form to log in
     login_form_username_value = "user1"
@@ -562,8 +601,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
     # She clicks on button "Generate on server"
     generate_on_server_button_label = "Generate on server"
-    generate_on_server_button_css_selector = "#main form input[value='" + generate_on_server_button_label + "']"
-    generate_on_server_button_element = browser.find_element_by_css_selector(generate_on_server_button_css_selector)
+    generate_on_server_button_element = find_button_in_page_content_by_value(browser, generate_on_server_button_label)
     generate_on_server_button_element.click()
 
     wait_a_bit()
@@ -652,8 +690,7 @@ pris en compte.
 
     # In "Authentication" section, she clicks on the "Generate and mail missing passwords" button
     generate_and_mail_missing_passwords_button_label = "Generate and mail missing passwords"
-    generate_and_mail_missing_passwords_button_css_selector = "#main form input[value='" + generate_and_mail_missing_passwords_button_label + "']"
-    generate_and_mail_missing_passwords_button_element = browser.find_element_by_css_selector(generate_and_mail_missing_passwords_button_css_selector)
+    generate_and_mail_missing_passwords_button_element = find_button_in_page_content_by_value(browser, generate_and_mail_missing_passwords_button_label)
     generate_and_mail_missing_passwords_button_element.click()
 
     wait_a_bit()
@@ -683,19 +720,21 @@ pris en compte.
 
     # In the "Validate creation" section, she clicks on the "Create election" button
     create_election_button_label = "Create election"
-    create_election_button_css_selector = "#main form input[value='" + create_election_button_label + "']"
-    create_election_button_element = browser.find_element_by_css_selector(create_election_button_css_selector)
+    create_election_button_element = find_button_in_page_content_by_value(browser, create_election_button_label)
     create_election_button_element.click()
 
     wait_a_bit()
 
     # She arrives back on the "My test election for Scenario 1 — Administration" page. Its contents have changed. There is now a text saying "The election is open. Voters can vote.", and there are now buttons "Close election", "Archive election", "Delete election"
 
+    # She remembers the URL of the voting page, that is where the "Election home" link points to
+    election_page_link_label = "Election home"
+    election_page_link_element = browser.find_element_by_partial_link_text(election_page_link_label)
+    self.election_page_url = election_page_link_element.get_attribute('href')
+
     # She checks that a "Close election" button is present (but she does not click on it)
     close_election_button_label = "Close election"
-    close_election_button_css_selector = "#main form input[value='" + close_election_button_label + "']"
-    close_election_button_elements = browser.find_elements_by_css_selector(close_election_button_css_selector)
-    assert len(close_election_button_elements)
+    close_election_button_element = find_button_in_page_content_by_value(browser, close_election_button_label)
 
     self.log_out()
 
@@ -731,10 +770,9 @@ pris en compte.
         username_field_element = browser.find_element_by_css_selector(username_field_css_selector)
         username_field_element.send_keys(email_address)
 
-        # She clicks on the "Submit" button (input[type=submit][value="Submit"])
+        # She clicks on the "Submit" button
         submit_button_label = "Submit"
-        submit_button_css_selector = "#main input[type=submit][value='" + submit_button_label + "']"
-        submit_button_element = browser.find_element_by_css_selector(submit_button_css_selector)
+        submit_button_element = find_button_in_page_content_by_value(browser, submit_button_label)
         submit_button_element.click()
 
         wait_a_bit()
@@ -958,18 +996,90 @@ pris en compte.
   def all_voters_vote(self):
     voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_VOTING_VOTERS] # TODO: "à faire avec K électeurs différents, avec au moins 3 sessions d'électeurs entrelacées"
     # TODO: Should we also handle a case where not all invited voters vote? (abstention)
-    voters_who_will_vote_now_with_credentials = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
-
-    voters_who_will_vote_now_with_credentials_and_their_vote = populate_random_votes_for_voters(voters_who_will_vote_now_with_credentials)
-    self.voters_cast_their_vote(voters_who_will_vote_now_with_credentials_and_their_vote)
+    voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
+    voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
+    self.update_voters_data(voters_who_will_vote_now_data)
+    self.voters_cast_their_vote(voters_who_will_vote_now_data)
 
 
   def some_voters_revote(self):
     voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_REVOTING_VOTERS] # TODO: Should we pick these voters in a different way than as a sequential subset of initial set?
-    voters_who_will_vote_now_with_credentials = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
+    voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
+    voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
+    self.update_voters_data(voters_who_will_vote_now_data)
+    self.voters_cast_their_vote(voters_who_will_vote_now_data)
 
-    voters_who_will_vote_now_with_credentials_and_their_vote = populate_random_votes_for_voters(voters_who_will_vote_now_with_credentials)
-    self.voters_cast_their_vote(voters_who_will_vote_now_with_credentials_and_their_vote)
+
+  def administrator_does_tallying_of_election(self):
+    browser = self.browser
+
+    # Alice goes to the election page
+    election_url = self.election_page_url #self.voters_data[self.voters_email_addresses[0]]["election_page_url"]
+    browser.get(election_url)
+
+    wait_a_bit()
+
+    # She clicks on the "Administer this election" link
+    administration_link_label = "Administer this election"
+    administration_link_element = browser.find_element_by_partial_link_text(administration_link_label)
+    administration_link_element.click()
+
+    # She logs in as administrator
+    self.log_in_as_administrator(from_a_login_page=True)
+
+    wait_a_bit()
+
+    # She clicks on the "Close election" button
+    close_election_button_label = "Close election"
+    close_election_button_element = find_button_in_page_content_by_value(browser, close_election_button_label)
+    close_election_button_element.click()
+
+    wait_a_bit()
+
+    # She clicks on the "Proceed to vote counting" button
+    proceed_button_label = "Proceed to vote counting"
+    proceed_button_element = find_button_in_page_content_by_value(browser, proceed_button_label)
+    proceed_button_element.click()
+
+    wait_a_bit()
+
+    # FIXME: If no voter has cast their vote, it shows a "Internal Server Error" "Error 500" page 
+
+    # She checks consistency of the result # FIXME: Does this mean that we check compared to what we know our fake voters have voted? Or only that the number of accepted ballots is the same as the number of voters who voted? For now, we choose the second option.
+
+    """
+    This screen looks like this:
+
+    This is the development version!
+    By using this site, you accept our <personal data policy>. <Accept>
+    <en> <fr> <de> <ro> <it>
+
+    This election has been tallied.
+
+        Question 1?
+        Answer 1    6
+        Answer 2    8
+
+    Number of accepted ballots: 10
+    You can also download the <result with cryptographic proofs>.
+
+    <See accepted ballots>
+
+    Where <...> is a link
+    """
+
+    main_css_id = "main"
+    main_element = browser.find_element_by_id(main_css_id)
+    main_text_content = main_element.get_attribute('innerText')
+
+    number_of_accepted_ballots = None
+    match = re.search(r'Number of accepted ballots:\s*(\d+)\s', main_text_content, re.MULTILINE | re.DOTALL)
+    if match:
+        number_of_accepted_ballots = match.group(1)
+        number_of_accepted_ballots = number_of_accepted_ballots.strip()
+    else:
+        raise Exception("Number of accepted ballots not found in election tally page: " + main_text_content)
+    assert str(number_of_accepted_ballots) == str(NUMBER_OF_VOTING_VOTERS), "Number of accepted ballots (" + str(number_of_accepted_ballots) + ") is not the same as number of voters (" + str(NUMBER_OF_VOTING_VOTERS) + ")"
 
 
   def test_scenario_1_simple_vote(self):
@@ -989,7 +1099,12 @@ pris en compte.
     self.some_voters_revote()
     print("### Step complete: some_voters_revote")
 
+    print("### Starting step: administrator_does_tallying_of_election")
+    self.administrator_does_tallying_of_election()
+    print("### Step complete: administrator_does_tallying_of_election")
+
     # TODO: implement next steps
+
 
 if __name__ == "__main__":
   unittest.main()
