@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*
 import unittest
 import time
 import string
@@ -18,7 +20,7 @@ SERVER_URL = "http://localhost:8001"
 DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY = "_run/spool"
 FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "tests/tools/sendmail_fake.sh"
 SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = "/tmp/sendmail_fake"
-USE_HEADLESS_BROWSER = True
+USE_HEADLESS_BROWSER = True # Set this to True if you run this test in Continuous Integration (it has no graphical display)
 WAIT_TIME_BETWEEN_EACH_STEP = 0.05 # In seconds (float)
 
 NUMBER_OF_INVITED_VOTERS = 20 # This is N in description of Scenario 1. N is between 6 (quick test) and 1000 (load testing)
@@ -51,6 +53,12 @@ def find_in_sent_emails(text):
         return text in fl.read()
 
 
+def count_occurences_in_sent_emails(text):
+    with open(SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH) as file:
+        count = file.read().count(text)
+    return count
+
+
 def remove_database_folder():
     shutil.rmtree(os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY), ignore_errors=True)
 
@@ -58,9 +66,11 @@ def remove_database_folder():
 def wait_a_bit():
     time.sleep(WAIT_TIME_BETWEEN_EACH_STEP)
 
+
 def install_fake_sendmail_log_file():
     subprocess.run(["rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
     subprocess.run(["touch", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
+
 
 def uninstall_fake_sendmail_log_file():
     subprocess.run(["rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
@@ -128,13 +138,13 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
         options = Options()
         options.add_argument("--headless")
         options.log.level = "trace"
-        self.driver = webdriver.Firefox(options=options)
+        self.browser = webdriver.Firefox(options=options)
     else:
-        self.driver = webdriver.Firefox()
+        self.browser = webdriver.Firefox()
 
 
   def tearDown(self):
-    self.driver.quit()
+    self.browser.quit()
 
     self.server.kill()
 
@@ -143,25 +153,23 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     uninstall_fake_sendmail_log_file()
 
 
-  def administrator_creates_election(self):
-    # # Setting up a new election (action of the administrator)
-
+  def log_in_as_administrator(self):
     # Edith has been given administrator rights on an online voting app called Belenios. She goes
     # to check out its homepage
-    browser = self.driver
+    browser = self.browser
     browser.get(SERVER_URL)
 
     # She notices the page title mentions an election
     assert 'Election Server' in browser.title, "Browser title was: " + browser.title
 
-    # She clicks on the "Accept" button to accept the personal data policy
-    accept_button_css_selector = '#main form input[type=submit]'
+    # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
+    accept_button_label = "Accept"
+    accept_button_css_selector = "#main form input[type=submit][value='" + accept_button_label + "']"
     button_elements = browser.find_elements_by_css_selector(accept_button_css_selector)
-    assert len(button_elements) is 1
-    button_elements
-    button_elements[0].click()
-
-    wait_a_bit()
+    if len(button_elements) > 0:
+        assert len(button_elements) is 1
+        button_elements[0].click()
+        wait_a_bit()
 
     # She clicks on "local" to go to the login page
     login_link_id = "login_local"
@@ -193,7 +201,28 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     page_title_element = wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content)
     assert page_title_element
 
+
+  def log_out(self):
+    browser = self.browser
+    # In the header of the page, she clicks on the "Log out" link
+    logout_link_css_id = "logout"
+    logout_element = browser.find_element_by_id(logout_link_css_id)
+    logout_element.click()
+
+    # She arrives back on the logged out home page. She checks that a login link is present
+    login_link_id = "login_local"
+    login_element = browser.find_element_by_id(login_link_id)
+
+
+  def administrator_creates_election(self):
+    # # Setting up a new election (action of the administrator)
+
+    # Edith has been given administrator rights on an online voting app called Belenios. She goes
+    # to check out its homepage and logs in
+    self.log_in_as_administrator()
+
     # She clicks on the "Prepare a new election" link
+    browser = self.browser
     create_election_link_text = "Prepare a new election"
     links_css_selector = "#main a"
     links_elements = browser.find_elements_by_css_selector(links_css_selector)
@@ -276,12 +305,12 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     wait_a_bit()
 
     # She types N e-mail addresses (the list of invited voters)
-    email_addresses = random_email_addresses_generator(NUMBER_OF_INVITED_VOTERS)
+    self.voters_email_addresses = random_email_addresses_generator(NUMBER_OF_INVITED_VOTERS)
     voters_list_field_css_selector = "#main form textarea"
     voters_list_field_element = browser.find_element_by_css_selector(voters_list_field_css_selector)
     voters_list_field_element.clear()
     is_first = True
-    for email_address in email_addresses:
+    for email_address in self.voters_email_addresses:
         if is_first:
             is_first = False
         else:
@@ -379,7 +408,7 @@ pris en compte.
 --=20
     """
 
-    email_address_to_look_for = email_addresses[0]
+    email_address_to_look_for = self.voters_email_addresses[0]
     text_to_look_for = 'To: "' + email_address_to_look_for + '"'
     email_address_found = find_in_sent_emails(text_to_look_for)
     assert email_address_found, "Text '" + email_address_to_look_for + "'' not found in fake sendmail log file"
@@ -444,17 +473,92 @@ pris en compte.
     close_election_button_elements = browser.find_elements_by_css_selector(close_election_button_css_selector)
     assert len(close_election_button_elements)
 
-    # In the header of the page, she clicks on the "Log out" link
-    logout_link_css_id = "logout"
-    logout_element = browser.find_element_by_id(logout_link_css_id)
-    logout_element.click()
-
-    # She arrives back on the logged out home page. She checks that a login link is present
-    login_link_id = "login_local"
-    login_element = browser.find_element_by_id(login_link_id)
+    self.log_out()
 
 
   def administrator_regenerates_passwords_for_some_voters(self):
+    # Edith has been contacted by some voters who say they lost their password. She wants to re-generate their passwords and have the platform send them by email. For this, she logs in as administrator.
+    self.log_in_as_administrator()
+    
+
+    # She remembers the list of voters who contacted her and said they lost their password. For this, we pick NUMBER_OF_REGENERATED_PASSWORD_VOTERS voters from all the voters. TODO: We could pick them randomly or force an overlap with voters that are in NUMBER_OF_REVOTING_VOTERS
+    browser = self.browser
+    self.voters_email_addresses_who_have_lost_their_password = self.voters_email_addresses[0:NUMBER_OF_REGENERATED_PASSWORD_VOTERS]
+
+    # She selects the election that she wants to edit (li a[href^="election/admin?uuid="][0])
+    election_to_edit_css_selector = "#main li a[href^='election/admin?uuid=']"
+    election_to_edit_elements = browser.find_elements_by_css_selector(election_to_edit_css_selector)
+    assert len(election_to_edit_elements) > 0
+    election_to_edit_elements[0].click()
+
+    wait_a_bit()
+
+    # She arrives to the election administration page. For each voter of the NUMBER_OF_REGENERATED_PASSWORD_VOTERS selected voters:
+    for email_address in self.voters_email_addresses_who_have_lost_their_password:
+        # She clicks on the "Regenerate and mail a password" link (a[href^="regenpwd?uuid="][0])
+        regenerate_and_mail_a_password_link_css_selector = "#main a[href^='regenpwd?uuid=']"
+        regenerate_and_mail_a_password_link_element = browser.find_element_by_css_selector(regenerate_and_mail_a_password_link_css_selector)
+        regenerate_and_mail_a_password_link_element.click()
+
+        wait_a_bit()
+
+        # She types the e-mail address of the voter in the "Username" field (input[type=text])
+        username_field_css_selector = "#main input[type=text]"
+        username_field_element = browser.find_element_by_css_selector(username_field_css_selector)
+        username_field_element.send_keys(email_address)
+
+        # She clicks on the "Submit" button (input[type=submit][value="Submit"])
+        submit_button_label = "Submit"
+        submit_button_css_selector = "#main input[type=submit][value='" + submit_button_label + "']"
+        submit_button_element = browser.find_element_by_css_selector(submit_button_css_selector)
+        submit_button_element.click()
+
+        wait_a_bit()
+
+        # She checks that the page shows a confirmation message similar to "A new password has been mailed to RMR4MY4XV5GUDNOR6XNH@mailinator.com"
+        confirmation_sentence_expected_text = "A new password has been mailed to"
+        confirmation_sentence_css_selector = "#main p"
+        confirmation_sentence_element = browser.find_element_by_css_selector(confirmation_sentence_css_selector)
+        confirmation_sentence_real_content = confirmation_sentence_element.get_attribute('innerText')
+        assert confirmation_sentence_expected_text in confirmation_sentence_real_content, "Confirmation sentence was: " + confirmation_sentence_real_content
+
+        # She clicks on the "Proceed" link
+        proceed_link_expected_label = "Proceed"
+        proceed_link_css_selector = "#main a"
+        proceed_link_element = browser.find_element_by_css_selector(proceed_link_css_selector)
+        proceed_link_element_real_label = proceed_link_element.get_attribute('innerText')
+        assert proceed_link_expected_label in proceed_link_element_real_label, "Proceed link label was: " + proceed_link_element_real_label
+        proceed_link_element.click()
+
+        wait_a_bit()
+
+        # She arrives back to the election administration page
+
+    """
+    Now we do a sanity check that server has really tried to send these emails. For this, we look for email addresses in the temporary file where our fake sendmail executable redirects its inputs to. There should be 3 occurences of "To : xxx@xxx" for users who have lost their password, with respective subjects:
+    - "Your credential for election My test election for Scenario 1"
+    - "Your password for election My test election for Scenario 1"
+    - "Your password for election My test election for Scenario 1"
+
+    And there should be only 2 occurences for other users, with respective subjects:
+    - "Your credential for election My test election for Scenario 1"
+    - "Your password for election My test election for Scenario 1"
+    """
+
+    for email_address in self.voters_email_addresses_who_have_lost_their_password:
+        text_to_look_for = 'To: "' + email_address + '"'
+        assert count_occurences_in_sent_emails(text_to_look_for) is 3
+
+    voters_email_addresses_who_have_not_lost_their_password = set(self.voters_email_addresses) - set(self.voters_email_addresses_who_have_lost_their_password)
+
+    for email_address in voters_email_addresses_who_have_not_lost_their_password:
+        text_to_look_for = 'To: "' + email_address + '"'
+        assert count_occurences_in_sent_emails(text_to_look_for) is 2
+
+    self.log_out()
+
+
+  def voters_vote(self):
     # TODO: implement this step
     pass
 
@@ -467,6 +571,10 @@ pris en compte.
     print("### Starting step: administrator_regenerates_passwords_for_some_voters")
     self.administrator_regenerates_passwords_for_some_voters()
     print("### Step complete: administrator_regenerates_passwords_for_some_voters")
+
+    print("### Starting step: voters_vote")
+    self.voters_vote()
+    print("### Step complete: voters_vote")
 
     # TODO: implement next steps
 
