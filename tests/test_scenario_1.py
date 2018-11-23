@@ -284,6 +284,19 @@ def find_buttons_in_page_content_by_value(browser, expected_value):
     return browser.find_elements_by_css_selector(css_selector)
 
 
+def initialize_server():
+    server_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
+    fake_sendmail_absolute_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
+    custom_environment_variables = dict(os.environ, BELENIOS_SENDMAIL=fake_sendmail_absolute_path)
+    server = subprocess.Popen([server_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, env=custom_environment_variables)
+    try:
+        out, err = server.communicate(timeout=1)
+        raise Exception("Error while trying to run the Belenios server: " + err)
+    except subprocess.TimeoutExpired: # Server process has not exited yet, so we suppose it is working correctly. For example: When port is already in use, server process exits quickly, with error details in its stderr
+        print("Server process has not exited yet, so we suppose it is working correctly")
+    return server
+
+
 def initialize_browser():
     browser = None
     if USE_HEADLESS_BROWSER:
@@ -386,10 +399,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
     remove_database_folder()
 
-    server_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
-    fake_sendmail_absolute_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
-    custom_environment_variables = dict(os.environ, BELENIOS_SENDMAIL=fake_sendmail_absolute_path)
-    self.server = subprocess.Popen([server_path], stdout=subprocess.PIPE, env=custom_environment_variables)
+    self.server = initialize_server()
 
     self.browser = initialize_browser()
 
