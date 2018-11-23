@@ -311,6 +311,38 @@ def initialize_browser():
     return browser
 
 
+def election_page_url_to_election_id(election_page_url):
+    """
+    From an election page URL like `http://localhost:8001/elections/JwCoBvR7thYcBG/`, we extract its UUID like `JwCoBvR7thYcBG`.
+    """
+    election_uuid = None
+    match = re.search(r'/elections/(.+)/$', election_page_url)
+    if match:
+        election_uuid = match.group(1)
+    else:
+        raise Exception("Could not extract UUID from this election page URL: ", election_page_url)
+    return election_uuid
+
+
+def verify_election_consistency(election_id):
+    election_folder = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id)
+    verification_tool_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
+    running_process = subprocess.Popen([verification_tool_path, "verify"], cwd=election_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    process_timeout = 15 # seconds
+    try:
+        outs, errs = running_process.communicate(timeout=process_timeout) # It looks like all output of this program is in stderr
+        match = re.search(r'^I: all checks passed$', errs, re.MULTILINE)
+        if match:
+            print("Verification of election consistency has been correctly processed")
+            assert match
+        else:
+            raise Exception ("Error: Verification of election consistency is wrong. STDOUT was: " + outs + " STDERR was:" + errs)
+    except subprocess.TimeoutExpired:
+        running_process.kill()
+        outs, errs = proc.communicate()
+        raise Exception ("Error: Verification took longer than " + process_timeout + " seconds. STDOUT was: " + outs + " STDERR was:" + errs)
+
+
 class element_has_non_empty_content(object):
   """
   An expectation for checking that an element has a non-empty innerText attribute.
@@ -392,6 +424,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
   - voters_email_addresses_who_have_lost_their_password
   - voters_data
   - election_page_url
+  - election_id
   """
   
   def setUp(self):
@@ -407,6 +440,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     self.voters_email_addresses_who_have_lost_their_password = []
     self.voters_data = dict()
     self.election_page_url = None
+    self.election_id = None
 
 
   def tearDown(self):
@@ -741,6 +775,9 @@ pris en compte.
     election_page_link_label = "Election home"
     election_page_link_element = browser.find_element_by_partial_link_text(election_page_link_label)
     self.election_page_url = election_page_link_element.get_attribute('href')
+    print("election_page_url:", self.election_page_url)
+    self.election_id = election_page_url_to_election_id(self.election_page_url)
+    print("election_id:", self.election_id)
 
     # She checks that a "Close election" button is present (but she does not click on it)
     close_election_button_label = "Close election"
@@ -1101,6 +1138,10 @@ pris en compte.
     self.administrator_regenerates_passwords_for_some_voters()
     print("### Step complete: administrator_regenerates_passwords_for_some_voters")
 
+    print("### Starting step: verify_election_consistency (0)")
+    verify_election_consistency(self.election_id)
+    print("### Step complete: verify_election_consistency (0)")
+
     print("### Starting step: all_voters_vote")
     self.all_voters_vote()
     print("### Step complete: all_voters_vote")
@@ -1109,11 +1150,19 @@ pris en compte.
     self.some_voters_revote()
     print("### Step complete: some_voters_revote")
 
+    print("### Starting step: verify_election_consistency (1)")
+    verify_election_consistency(self.election_id)
+    print("### Step complete: verify_election_consistency (1)")
+
     print("### Starting step: administrator_does_tallying_of_election")
     self.administrator_does_tallying_of_election()
     print("### Step complete: administrator_does_tallying_of_election")
 
-    # TODO: implement next steps
+    print("### Starting step: verify_election_consistency (2)")
+    verify_election_consistency(self.election_id)
+    print("### Step complete: verify_election_consistency (2)")
+
+    # TODO: also use `belenios-tool verify-diff`
 
 
 if __name__ == "__main__":
