@@ -966,7 +966,7 @@ pris en compte.
         custom_wait = WebDriverWait(browser, 10)
         smart_ballot_tracker_element = custom_wait.until(element_has_non_empty_content((By.ID, smart_ballot_tracker_css_id)))
         smart_ballot_tracker_value = smart_ballot_tracker_element.get_attribute('innerText')
-        assert len(smart_ballot_tracker_value) > 5 # TODO: Should we verify more accurately its value for coherence? What rules should we use?
+        assert len(smart_ballot_tracker_value) > 5
 
         voter["smart_ballot_tracker"] = smart_ballot_tracker_value
 
@@ -989,14 +989,14 @@ pris en compte.
 
         password_field_element.submit()
 
-        wait_a_bit()
-
         # He checks that the smart ballot tracker value that appears on screen is the same as the one he noted
-        ballot_tracker_dom_id = "ballot_tracker"
-        ballot_tracker_element = browser.find_element_by_id(ballot_tracker_dom_id)
-        ballot_tracker_element_value = ballot_tracker_element.get_attribute('innerText')
-        assert len(ballot_tracker_element_value) > 5
-        assert ballot_tracker_element_value == voter["smart_ballot_tracker"]
+        smart_ballot_tracker_verification_css_id = "ballot_tracker"
+        smart_ballot_tracker_verification_custom_wait = WebDriverWait(browser, 20)
+        smart_ballot_tracker_verification_element = smart_ballot_tracker_verification_custom_wait.until(element_has_non_empty_content((By.ID, smart_ballot_tracker_verification_css_id)))
+        smart_ballot_tracker_verification_value = smart_ballot_tracker_verification_element.get_attribute('innerText')
+        assert len(smart_ballot_tracker_verification_value) > 5
+
+        assert smart_ballot_tracker_verification_value == voter["smart_ballot_tracker"]
 
         # He clicks on the "I cast my vote" button
         submit_button_css_selector = "#main input[type=submit]"

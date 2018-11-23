@@ -2203,7 +2203,9 @@ let cast_confirmation election hash () =
       em [pcdata name];
       pcdata L.has_been_received;
       pcdata L.your_tracker_is;
-      b [pcdata hash];
+      b ~a:[a_id "ballot_tracker"] [
+        pcdata hash
+      ];
       pcdata ".";
       br ();
     ];
