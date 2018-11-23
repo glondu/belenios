@@ -2004,8 +2004,7 @@ let extract_automatic_data_draft uuid_s =
   | Some se ->
      let name = se.se_questions.t_name in
      let contact = se.se_metadata.e_contact in
-     let%lwt t = Web_persist.get_election_date `Creation uuid in
-     let t = Option.get t default_creation_date in
+     let t = Option.get se.se_creation_date default_creation_date in
      let next_t = datetime_add t (day days_to_delete) in
      return @@ Some (`Destroy, uuid, next_t, name, contact)
 
