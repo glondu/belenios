@@ -1399,58 +1399,61 @@ let election_draft_import_trustees uuid se elections =
   election_draft_importer ~service ~title uuid elections
 
 let election_draft_confirm uuid se () =
+  let notok x = span ~a:[a_style "color: red;"] [pcdata x] in
+  let ok x = pcdata x in
   let title = "Election " ^ se.se_questions.t_name ^ " — Validate creation" in
   let ready = true in
   let ready, name =
     if se.se_questions.t_name = default_name then
-      false, "Not edited"
+      false, notok "Not edited"
     else
-      ready, "OK"
+      ready, ok "OK"
   in
   let ready, description =
     if se.se_questions.t_description = default_description then
-      false, "Not edited"
+      false, notok "Not edited"
     else
-      ready, "OK"
+      ready, ok "OK"
   in
   let ready, questions =
     if se.se_questions.t_questions = default_questions then
-      false, "Not edited"
+      false, notok "Not edited"
     else
-      ready, "OK"
+      ready, ok "OK"
   in
   let ready, voters =
-    ready && not (se.se_voters = []),
-    Printf.sprintf "%d voter(s)" (List.length se.se_voters)
+    let b = not (se.se_voters = []) in
+    ready && b,
+    (if b then ok else notok) (Printf.sprintf "%d voter(s)" (List.length se.se_voters))
   in
   let ready, passwords =
     match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] ->
-       if List.for_all (fun v -> v.sv_password <> None) se.se_voters then ready, "OK"
-       else false, "Missing"
-    | _ -> ready, "Not applicable"
+       if List.for_all (fun v -> v.sv_password <> None) se.se_voters then ready, ok "OK"
+       else false, notok "Missing"
+    | _ -> ready, ok "Not applicable"
   in
   let ready, credentials =
     if se.se_public_creds_received then
-      ready, if se.se_metadata.e_cred_authority = None then "Received" else "Sent"
-    else false, "Missing"
+      ready, ok (if se.se_metadata.e_cred_authority = None then "Received" else "Sent")
+    else false, notok "Missing"
   in
   let ready, trustees =
     match se.se_public_keys with
-    | [] -> ready, "OK"
+    | [] -> ready, ok "OK"
     | _ :: _ ->
        match se.se_threshold_trustees with
        | None -> if List.for_all (fun {st_public_key; _} ->
                         st_public_key <> ""
-                      ) se.se_public_keys then ready, "OK" else false, "Missing"
+                      ) se.se_public_keys then ready, ok "OK" else false, notok "Missing"
        | Some _ ->
           if se.se_threshold_parameters <> None &&
                match se.se_threshold_trustees with
                | None -> false
                | Some ts ->
                   List.for_all (fun {stt_step; _} -> stt_step = Some 7) ts
-          then ready, "OK"
-          else false, "Missing"
+          then ready, ok "OK"
+          else false, notok "Missing"
   in
   let div_trustee_warning =
     match se.se_threshold_trustees, se.se_public_keys with
@@ -1474,39 +1477,45 @@ let election_draft_confirm uuid se () =
   let table_checklist = table [
     tr [
       td [pcdata "Name?"];
-      td [pcdata name];
+      td [name];
     ];
     tr [
       td [pcdata "Description?"];
-      td [pcdata description];
+      td [description];
     ];
     tr [
       td [pcdata "Questions?"];
-      td [pcdata questions];
+      td [questions];
     ];
     tr [
       td [pcdata "Voters?"];
-      td [pcdata voters];
+      td [voters];
     ];
     tr [
       td [pcdata "Passwords?"];
-      td [pcdata passwords];
+      td [passwords];
     ];
     tr [
       td [pcdata "Credentials?"];
-      td [pcdata credentials];
+      td [credentials];
     ];
     tr [
       td [pcdata "Trustees?"];
-      td [pcdata trustees];
+      td [trustees];
     ];
     tr [
       td [pcdata "Contact?"];
       td [pcdata contact];
     ];
   ] in
+  let status =
+    if ready then
+      span ~a:[a_style "color: green;"] [pcdata "election ready"]
+    else
+      span ~a:[a_style "color: red;"] [pcdata "election not ready"]
+  in
   let checklist = div [
-    h2 [pcdata "Checklist"];
+    h2 [pcdata "Checklist: "; status];
     table_checklist;
     div_trustee_warning;
     div_contact_warning;
