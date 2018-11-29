@@ -527,8 +527,9 @@ let with_draft_election ?(save = true) uuid f =
               let%lwt () = if save then Web_persist.set_draft_election uuid se else return_unit in
               return r
             with e ->
+              let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
               let service = preapply election_draft uuid in
-              T.generic_page ~title:"Error" ~service (Printexc.to_string e) () >>= Html.send
+              T.generic_page ~title:"Error" ~service msg () >>= Html.send
           ) else forbidden ()
         )
     )
