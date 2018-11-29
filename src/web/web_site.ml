@@ -616,6 +616,8 @@ let generate_password metadata langs title url id =
 let handle_password se uuid ~force voters =
   if List.length voters > !maxmailsatonce then
     Lwt.fail (Failure (Printf.sprintf "Cannot send passwords, there are too many voters (max is %d)" !maxmailsatonce))
+  else if se.se_questions.t_name = default_name then
+    Lwt.fail (Failure "The election name has not been edited!")
   else
   let title = se.se_questions.t_name in
   let url = Eliom_uri.make_string_uri ~absolute:true ~service:election_home
@@ -915,6 +917,8 @@ let () =
             Lwt.fail (Failure (Printf.sprintf "Cannot send credentials, there are too many voters (max is %d)" !maxmailsatonce))
           else if nvoters = 0 then
             Lwt.fail (Failure "No voters")
+          else if se.se_questions.t_name = default_name then
+            Lwt.fail (Failure "The election name has not been edited!")
           else if se.se_public_creds_received then
             forbidden ()
           else (
