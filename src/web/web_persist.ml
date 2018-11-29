@@ -357,7 +357,7 @@ let dump_extended_records uuid rs =
   in
   let records =
     List.map (fun (u, (d, _)) ->
-        Printf.sprintf "%s %S\n" (string_of_datetime d) u
+        Printf.sprintf "%s %S" (string_of_datetime d) u
       ) rs
   in
   let%lwt () = write_file ~uuid "extended_records.jsons" extended_records in
