@@ -28,7 +28,13 @@ val get_captcha : challenge:string -> (string * string) Lwt.t
 
 val check_captcha : challenge:string -> response:string -> bool Lwt.t
 
+type link_kind =
+  | CreateAccount
+  | ChangePassword of string
+
 val send_confirmation_link : string -> unit Lwt.t
-val confirm_link : string -> string option Lwt.t
+val send_changepw_link : address:string -> username:string -> unit Lwt.t
+
+val confirm_link : string -> (string * link_kind) option Lwt.t
 
 val cracklib_check : string -> string option Lwt.t

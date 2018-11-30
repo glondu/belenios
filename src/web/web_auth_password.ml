@@ -93,6 +93,20 @@ let do_add_account ~db_fname ~username ~password ~email () =
      let%lwt () = write_file db_fname db in
      Lwt.return true
 
+let do_change_password ~db_fname ~username ~password () =
+  let%lwt db = Lwt_preemptive.detach Csv.load db_fname in
+  let%lwt salt = generate_token ~length:8 () in
+  let hashed = sha256_hex (salt ^ password) in
+  let rec change accu = function
+    | [] -> accu
+    | (u :: _ :: _ :: x) :: xs when u = username ->
+       change ((u :: salt :: hashed :: x) :: accu) xs
+    | x :: xs -> change (x :: accu) xs
+  in
+  let db = List.rev_map (String.concat ",") (change [] db) in
+  let%lwt () = write_file db_fname db in
+  return_unit
+
 let username_rex = "^[A-Z0-9._%+-]+$"
 
 let is_username =
@@ -105,17 +119,44 @@ let is_username =
 let add_account ~username ~password ~email =
   if is_username username then
     match%lwt Web_signup.cracklib_check password with
-    | Some e -> return (Some (BadPassword e))
+    | Some e -> return (Pervasives.Error (BadPassword e))
     | None ->
        match get_password_db_fname () with
        | None -> forbidden ()
        | Some db_fname ->
           if%lwt Lwt_mutex.with_lock password_db_mutex
                (do_add_account ~db_fname ~username ~password ~email)
-          then return None
-          else return (Some UsernameTaken)
-  else return (Some BadUsername)
+          then return (Ok ())
+          else return (Pervasives.Error UsernameTaken)
+  else return (Pervasives.Error BadUsername)
+
+let change_password ~username ~password =
+  match%lwt Web_signup.cracklib_check password with
+  | Some e -> return (Pervasives.Error e)
+  | None ->
+     match get_password_db_fname () with
+     | None -> forbidden ()
+     | Some db_fname ->
+        let%lwt () =
+          Lwt_mutex.with_lock password_db_mutex
+            (do_change_password ~db_fname ~username ~password)
+        in return (Ok ())
 
 let () =
   Web_auth.register_pre_login_handler "password"
     (fun _ -> Web_templates.login_password () >>= Eliom_registration.Html.send)
+
+let lookup_account ~username ~email =
+  match get_password_db_fname () with
+  | None -> return None
+  | Some db ->
+     let%lwt db = Lwt_preemptive.detach Csv.load db in
+     match
+       List.find_opt (function
+           | u :: _ :: _ :: _ when u = username -> true
+           | _ :: _ :: _ :: e :: _ when e = email -> true
+           | _ -> false
+         ) db
+     with
+     | Some (u :: _ :: _ :: e :: _) when is_email e -> return (Some (u, e))
+     | _ -> return None

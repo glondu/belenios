@@ -79,9 +79,14 @@ let check_captcha ~challenge ~response =
      captchas := SMap.remove challenge !captchas;
      Lwt.return (response = x.response)
 
+type link_kind =
+  | CreateAccount
+  | ChangePassword of string
+
 type link = {
     address : string;
     l_expiration_time : datetime;
+    kind : link_kind;
 }
 
 let links = ref SMap.empty
@@ -98,7 +103,8 @@ let filter_links_by_address address table =
 let send_confirmation_link address =
   let%lwt token = generate_token ~length:20 () in
   let l_expiration_time = datetime_add (now ()) (day 1) in
-  let link = {address; l_expiration_time} in
+  let kind = CreateAccount in
+  let link = {address; l_expiration_time; kind} in
   let nlinks = filter_links_by_time (filter_links_by_address address !links) in
   links := SMap.add token link nlinks;
   let uri =
@@ -127,13 +133,46 @@ Belenios Server" address uri
   let%lwt () = send_email address "Belenios account creation" message in
   Lwt.return_unit
 
+let send_changepw_link ~address ~username =
+  let%lwt token = generate_token ~length:20 () in
+  let l_expiration_time = datetime_add (now ()) (day 1) in
+  let kind = ChangePassword username in
+  let link = {address; l_expiration_time; kind} in
+  let nlinks = filter_links_by_time (filter_links_by_address address !links) in
+  links := SMap.add token link nlinks;
+  let uri =
+    Eliom_uri.make_string_uri ~absolute:true ~service:Web_services.signup_login
+      token |> rewrite_prefix
+  in
+  let message =
+    Printf.sprintf "\
+Dear %s,
+
+There has been a request to change the password of your account on our
+Belenios server. To confirm this, please click on the following link:
+
+  %s
+
+or copy and paste it in a web browser.
+
+Warning: this link is valid for 1 day, and previous links sent to this
+address are no longer valid.
+
+Best regards,
+
+-- \n\
+Belenios Server" username uri
+  in
+  let%lwt () = send_email address "Belenios password change" message in
+  Lwt.return_unit
+
 let confirm_link token =
   links := filter_links_by_time !links;
   match SMap.find_opt token !links with
   | None -> Lwt.return None
   | Some x ->
      links := SMap.remove token !links;
-     Lwt.return (Some x.address)
+     Lwt.return (Some (x.address, x.kind))
 
 let cracklib =
   let x = "cracklib-check" in (x, [| x |])

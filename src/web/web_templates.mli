@@ -78,7 +78,9 @@ val login_dummy : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val login_password : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val signup_captcha : captcha_error option -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val signup_changepw : captcha_error option -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val signup : string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val changepw : username:string -> address:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

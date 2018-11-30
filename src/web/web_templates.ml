@@ -2504,6 +2504,11 @@ let signup_captcha_img challenge =
   let src = make_uri ~service:signup_captcha_img challenge in
   img ~src ~alt:"CAPTCHA" ()
 
+let format_captcha_error = function
+  | None -> pcdata ""
+  | Some BadCaptcha -> div [pcdata "Bad security code!"]
+  | Some BadAddress -> div [pcdata "Bad e-mail address!"]
+
 let signup_captcha error challenge =
   let form =
     post_form ~service:signup_captcha_post
@@ -2526,13 +2531,38 @@ let signup_captcha error challenge =
         ]
       ) None
   in
-  let error = match error with
-    | None -> pcdata ""
-    | Some BadCaptcha -> div [pcdata "Bad security code!"]
-    | Some BadAddress -> div [pcdata "Bad e-mail address!"]
-  in
+  let error = format_captcha_error error in
   let content = [error; form] in
   base ~title:"Create an account" ~content ()
+
+let signup_changepw error challenge =
+  let form =
+    post_form ~service:changepw_captcha_post
+      (fun (lchallenge, (lresponse, (lemail, lusername))) ->
+        [
+          div [
+              pcdata "E-mail address: ";
+              input ~input_type:`Text ~name:lemail string;
+              pcdata " or username: ";
+              input ~input_type:`Text ~name:lusername string;
+              pcdata ".";
+            ];
+          div [
+              input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
+              pcdata "Please enter ";
+              signup_captcha_img challenge;
+              pcdata " in the following box: ";
+              input ~input_type:`Text ~name:lresponse string;
+            ];
+          div [
+              input ~input_type:`Submit ~value:"Submit" string;
+            ];
+        ]
+      ) None
+  in
+  let error = format_captcha_error error in
+  let content = [error; form] in
+  base ~title:"Change password" ~content ()
 
 let signup address =
   let form =
@@ -2559,6 +2589,32 @@ let signup address =
   in
   let content = [form] in
   base ~title:"Create an account" ~content ()
+
+let changepw ~username ~address =
+  let form =
+    post_form ~service:changepw_post
+      (fun lpassword ->
+        [
+          div [
+              pcdata "Your username is: ";
+              pcdata username;
+              pcdata " and your e-mail address is: ";
+              pcdata address;
+              pcdata ".";
+            ];
+          div [
+              pcdata "Please choose a password: ";
+              input ~input_type:`Password ~name:lpassword string;
+              pcdata ".";
+            ];
+          div [
+              input ~input_type:`Submit ~value:"Submit" string;
+            ];
+        ]
+      ) ()
+  in
+  let content = [form] in
+  base ~title:"Change password" ~content ()
 
 let booth () =
   let%lwt language = Eliom_reference.get Web_state.language in

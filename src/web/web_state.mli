@@ -43,4 +43,4 @@ val cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option El
 
 val language : string Eliom_reference.eref
 
-val signup_address : string option Eliom_reference.eref
+val signup_address : (string * Web_signup.link_kind) option Eliom_reference.eref

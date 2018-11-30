@@ -2071,6 +2071,46 @@ let () =
     )
 
 let () =
+  Html.register ~service:changepw_captcha
+    (fun error () ->
+      if%lwt Captcha_throttle.wait captcha_throttle 1 then
+        let%lwt challenge = Web_signup.create_captcha () in
+        T.signup_changepw error challenge
+      else
+        let service = preapply changepw_captcha None in
+        T.generic_page ~title:"Change password" ~service
+          "You cannot change your password now. Please try later." ()
+    )
+
+let () =
+  Any.register ~service:changepw_captcha_post
+    (fun _ (challenge, (response, (email, username))) ->
+      let%lwt error =
+        let%lwt ok = Web_signup.check_captcha ~challenge ~response in
+        if ok then return None
+        else return (Some BadCaptcha)
+      in
+      match error with
+      | None ->
+         let%lwt () =
+           match%lwt Web_auth_password.lookup_account ~email ~username with
+           | None ->
+              return (
+                  Printf.ksprintf Ocsigen_messages.warning
+                    "Unsuccessful attempt to change the password of %S (%S)"
+                    username email
+                )
+           | Some (username, address) ->
+              Web_signup.send_changepw_link ~address ~username
+         in
+         let message =
+           "If possible, an e-mail was sent with a confirmation link. Please click on it to change your password."
+         in
+         T.generic_page ~title:"Change password" message () >>= Html.send
+      | _ -> redir_preapply changepw_captcha error ()
+    )
+
+let () =
   String.register ~service:signup_captcha_img
     (fun challenge () -> Web_signup.get_captcha challenge)
 
@@ -2091,7 +2131,8 @@ let () =
       let%lwt address = Eliom_reference.get Web_state.signup_address in
       match address with
       | None -> forbidden ()
-      | Some address -> T.signup address >>= Html.send
+      | Some (address, Web_signup.CreateAccount) -> T.signup address >>= Html.send
+      | Some (address, Web_signup.ChangePassword username) -> T.changepw ~username ~address >>= Html.send
     )
 
 let () =
@@ -2099,24 +2140,44 @@ let () =
     (fun () (username, password) ->
       let%lwt email = Eliom_reference.get Web_state.signup_address in
       match email with
-      | None -> forbidden ()
-      | Some email ->
-         match%lwt Web_auth_password.add_account ~username ~password ~email with
-         | None ->
+      | Some (email, Web_signup.CreateAccount) ->
+         (match%lwt Web_auth_password.add_account ~username ~password ~email with
+         | Ok () ->
             let%lwt () = Eliom_reference.unset Web_state.signup_address in
             T.generic_page ~title:"Account creation" ~service:admin
               "The account has been created." () >>= Html.send
-         | Some UsernameTaken ->
+         | Pervasives.Error UsernameTaken ->
             T.generic_page ~title:"Account creation" ~service:signup
               "The account creation failed because the username is already taken. Please try again with a different one." () >>= Html.send
-         | Some BadUsername ->
+         | Pervasives.Error BadUsername ->
             T.generic_page ~title:"Account creation" ~service:signup
               "The account creation failed because the username is invalid. Please try again with a different one." () >>= Html.send
-         | Some (BadPassword e) ->
+         | Pervasives.Error (BadPassword e) ->
             Printf.ksprintf
               (fun x -> T.generic_page ~title:"Account creation" ~service:signup x () >>= Html.send)
               "The account creation failed because the password is too weak (%s). Please try again with a different one"
               e
+         )
+      | _ -> forbidden ()
+    )
+
+let () =
+  Any.register ~service:changepw_post
+    (fun () password ->
+      match%lwt Eliom_reference.get Web_state.signup_address with
+      | Some (_, Web_signup.ChangePassword username) ->
+         (match%lwt Web_auth_password.change_password ~username ~password with
+          | Ok () ->
+             let%lwt () = Eliom_reference.unset Web_state.signup_address in
+             T.generic_page ~title:"Change password" ~service:admin
+               "The password has been changed." () >>= Html.send
+          | Pervasives.Error e ->
+             Printf.ksprintf
+               (fun x -> T.generic_page ~title:"Change password" ~service:signup x () >>= Html.send)
+               "The password is too weak (%s). Please try again with a different one"
+               e
+         )
+      | _ -> forbidden ()
     )
 
 let extract_automatic_data_draft uuid_s =

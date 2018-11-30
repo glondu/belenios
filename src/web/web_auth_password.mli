@@ -26,5 +26,7 @@ open Web_common
 (** Returns [true] if server configuration allows account creation. *)
 val allowsignups : unit -> bool
 
-(** Returns [true] if account creation succeeds. *)
-val add_account : username:string -> password:string -> email:string -> add_account_error option Lwt.t
+val add_account : username:string -> password:string -> email:string -> (unit, add_account_error) result Lwt.t
+val change_password : username:string -> password:string -> (unit, string) result Lwt.t
+
+val lookup_account : username:string -> email:string -> (string * string) option Lwt.t
