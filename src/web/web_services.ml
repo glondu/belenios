@@ -23,6 +23,8 @@ open Eliom_service
 open Eliom_parameter
 open Web_common
 
+let uuid_and_token = uuid "uuid" ** string "token"
+
 let home = create ~path:(Path [""]) ~meth:(Get unit) ()
 let admin = create ~path:(Path ["admin"]) ~meth:(Get unit) ()
 let admin_gdpr_accept = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:unit ()
@@ -47,9 +49,9 @@ let election_draft_trustee_add = create_attached_post ~fallback:election_draft ~
 let election_draft_trustee_add_server = create_attached_post ~fallback:election_draft ~post_params:unit ()
 let election_draft_trustee_del = create_attached_post ~fallback:election_draft ~post_params:(int "index") ()
 let election_draft_credential_authority = create ~path:(Path ["draft"; "credential-authority"]) ~meth:(Get (uuid "uuid")) ()
-let election_draft_credentials = create ~path:(Path ["draft"; "credentials"]) ~meth:(Get (uuid "uuid" ** string "token")) ()
-let election_draft_credentials_post = create_attached_post ~fallback:election_draft_credentials ~post_params:(string "public_creds") ()
-let election_draft_credentials_post_file = create_attached_post ~fallback:election_draft_credentials ~post_params:(file "public_creds") ()
+let election_draft_credentials = create ~path:(Path ["draft"; "credentials"]) ~meth:(Get uuid_and_token) ()
+let election_draft_credentials_post = create ~path:(Path ["draft"; "submit-credentials"]) ~meth:(Post (uuid_and_token, string "public_creds")) ()
+let election_draft_credentials_post_file = create ~path:(Path ["draft"; "submit-credentials-file"]) ~meth:(Post (uuid_and_token, file "public_creds")) ()
 let election_draft_credentials_server = create_attached_post ~fallback:election_draft ~post_params:unit ()
 
 let election_draft_trustees = create ~path:(Path ["draft"; "trustees"]) ~meth:(Get (uuid "uuid")) ()
