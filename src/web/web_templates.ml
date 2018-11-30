@@ -2084,17 +2084,17 @@ let regenpwd uuid () =
 let cast_raw election () =
   let params = election.e_params in
   let uuid = params.e_uuid in
-  let form_rawballot = post_form ~service:election_cast_post
-    (fun (name, _) ->
+  let form_rawballot = post_form ~service:election_submit_ballot
+    (fun name ->
       [
         div [pcdata "Please paste your encrypted ballot in JSON format in the following box:"];
         div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
         div [input ~input_type:`Submit ~value:"Submit" string];
       ]
-    ) uuid
+    ) ()
   in
-  let form_upload = post_form ~service:election_cast_post
-    (fun (_, name) ->
+  let form_upload = post_form ~service:election_submit_ballot_file
+    (fun name ->
       [
         div [pcdata "Alternatively, you can also upload a file containing your ballot:"];
         div [
@@ -2103,7 +2103,7 @@ let cast_raw election () =
         ];
         div [input ~input_type:`Submit ~value:"Submit" string];
       ]
-    ) uuid
+    ) ()
   in
   let intro = div [
     div [
@@ -2498,8 +2498,6 @@ let login_password () =
   ] in
   base ~title:L.password_login ~content ()
 
-let dummy_uuid = uuid_of_raw_string "00000000-0000-0000-0000-000000000000"
-
 let booth () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
@@ -2532,8 +2530,8 @@ let booth () =
   in
   let text_choices = unsafe_textarea "choices" "" in
   let ballot_form =
-    post_form ~a:[a_id "ballot_form"] ~service:election_cast_post
-      (fun (encrypted_vote, _) -> [
+    post_form ~a:[a_id "ballot_form"] ~service:election_submit_ballot
+      (fun encrypted_vote -> [
         div ~a:[a_id "div_ballot"; a_style "display:none;"] [
           pcdata "Encrypted ballot:";
           div [
@@ -2563,7 +2561,7 @@ let booth () =
           ];
         br (); br ();
        ])
-      dummy_uuid
+      ()
   in
   let main =
     div ~a:[a_id "main"] [

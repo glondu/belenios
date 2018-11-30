@@ -377,26 +377,7 @@ let get_url x =
     try Some (List.assoc "url" args)
     with Not_found -> None
 
-let transform_url =
-  let open Regexp in
-  let rex = regexp "^(.*)/elections/([^/]+)/$" in
-  fun url ->
-  match string_match rex url 0 with
-  | None -> None
-  | Some r ->
-     match matched_group r 1, matched_group r 2 with
-     | Some prefix, Some uuid -> Some (prefix ^ "/election/cast?uuid=" ^ uuid)
-     | _, _ -> None
-
 let load_url url =
-  withElementById "ballot_form" (fun e ->
-      Js.Opt.iter
-        (Dom_html.CoerceTo.form e)
-        (fun e ->
-          match transform_url url with
-          | None -> ()
-          | Some url -> e##.action := Js.string url)
-    );
   let open Lwt_xmlHttpRequest in
   Lwt.async (fun () ->
       let%lwt raw = get (url ^ "election.json") in

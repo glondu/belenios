@@ -1340,24 +1340,35 @@ let () =
       | Some b -> T.cast_confirmation w (sha256_b64 b) () >>= Html.send
       | None -> T.cast_raw w () >>= Html.send)
 
+let submit_ballot ballot =
+  let ballot = PString.trim ballot in
+  let%lwt uuid =
+    try
+      let ballot = ballot_of_string Yojson.Safe.read_json ballot in
+      return ballot.election_uuid
+    with _ -> fail_http 400
+  in
+  let%lwt user = Web_state.get_election_user uuid in
+  let cont = redir_preapply election_cast uuid in
+  let%lwt () = Eliom_reference.set Web_state.cont [cont] in
+  let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
+  match user with
+  | None -> redir_preapply election_login ((uuid, ()), None) ()
+  | Some _ -> cont ()
+
 let () =
-  Any.register ~service:election_cast_post
-    (fun uuid (ballot_raw, ballot_file) ->
-      let%lwt user = Web_state.get_election_user uuid in
-      let%lwt the_ballot = match ballot_raw, ballot_file with
-        | Some ballot, None -> return ballot
-        | None, Some fi ->
-           let fname = fi.Ocsigen_extensions.tmp_filename in
-           Lwt_stream.to_string (Lwt_io.chars_of_file fname)
-        | _, _ -> fail_http 400
+  Any.register ~service:election_submit_ballot
+    (fun () ballot -> submit_ballot ballot)
+
+let () =
+  Any.register ~service:election_submit_ballot_file
+    (fun () ballot ->
+      let%lwt ballot =
+        let fname = ballot.Ocsigen_extensions.tmp_filename in
+        Lwt_stream.to_string (Lwt_io.chars_of_file fname)
       in
-      let the_ballot = PString.trim the_ballot in
-      let cont = redir_preapply election_cast uuid in
-      let%lwt () = Eliom_reference.set Web_state.cont [cont] in
-      let%lwt () = Eliom_reference.set Web_state.ballot (Some the_ballot) in
-      match user with
-      | None -> redir_preapply election_login ((uuid, ()), None) ()
-      | Some _ -> cont ())
+      submit_ballot ballot
+    )
 
 let () =
   Any.register ~service:election_cast_confirm
