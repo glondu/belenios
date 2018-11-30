@@ -55,12 +55,12 @@ let election_draft_credentials_post_file = create ~path:(Path ["draft"; "submit-
 let election_draft_credentials_server = create_attached_post ~fallback:election_draft ~post_params:unit ()
 
 let election_draft_trustees = create ~path:(Path ["draft"; "trustees"]) ~meth:(Get (uuid "uuid")) ()
-let election_draft_trustee = create ~path:(Path ["draft"; "trustee"]) ~meth:(Get (uuid "uuid" ** string "token")) ()
-let election_draft_trustee_post = create_attached_post ~fallback:election_draft_trustee ~post_params:(string "public_key") ()
+let election_draft_trustee = create ~path:(Path ["draft"; "trustee"]) ~meth:(Get uuid_and_token) ()
+let election_draft_trustee_post = create ~path:(Path ["draft"; "submit-trustee"]) ~meth:(Post (uuid_and_token, string "public_key")) ()
 
 let election_draft_threshold_trustees = create ~path:(Path ["draft"; "threshold-trustees"]) ~meth:(Get (uuid "uuid")) ()
-let election_draft_threshold_trustee = create ~path:(Path ["draft"; "threshold-trustee"]) ~meth:(Get (uuid "uuid" ** string "token")) ()
-let election_draft_threshold_trustee_post = create_attached_post ~fallback:election_draft_threshold_trustee ~post_params:(string "data") ()
+let election_draft_threshold_trustee = create ~path:(Path ["draft"; "threshold-trustee"]) ~meth:(Get uuid_and_token) ()
+let election_draft_threshold_trustee_post = create ~path:(Path ["draft"; "submit-threshold-trustee"]) ~meth:(Post (uuid_and_token, string "data")) ()
 let election_draft_threshold_set = create_attached_post ~fallback:election_draft_threshold_trustees ~post_params:(int "threshold") ()
 let election_draft_threshold_trustee_add = create_attached_post ~fallback:election_draft_threshold_trustees ~post_params:(string "id") ()
 let election_draft_threshold_trustee_del = create_attached_post ~fallback:election_draft_threshold_trustees ~post_params:(int "index") ()
@@ -100,8 +100,8 @@ let election_missing_voters = create ~path:(Path ["elections"]) ~meth:(Get (suff
 let election_download_archive = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** suffix_const "archive.zip"))) ()
 
 let election_compute_encrypted_tally = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
-let election_tally_trustees = create ~path:(Path ["election"; "trustees"]) ~meth:(Get (uuid "uuid" ** string "token")) ()
-let election_tally_trustees_post = create_attached_post ~fallback:election_tally_trustees ~post_params:(string "partial_decryption") ()
+let election_tally_trustees = create ~path:(Path ["election"; "trustees"]) ~meth:(Get uuid_and_token) ()
+let election_tally_trustees_post = create ~path:(Path ["election"; "submit-partial-decryption"]) ~meth:(Post (uuid_and_token, string "partial_decryption")) ()
 let election_tally_release = create_attached_post ~fallback:election_admin ~post_params:unit ()
 
 let election_dir = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** election_file "file"))) ()
