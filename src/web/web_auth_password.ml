@@ -144,7 +144,10 @@ let change_password ~username ~password =
 
 let () =
   Web_auth.register_pre_login_handler "password"
-    (fun _ -> Web_templates.login_password () >>= Eliom_registration.Html.send)
+    (fun config ->
+      let allowsignups = does_allow_signups config in
+      Web_templates.login_password ~allowsignups >>= Eliom_registration.Html.send
+    )
 
 let lookup_account ~username ~email =
   match get_password_db_fname () with

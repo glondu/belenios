@@ -75,7 +75,7 @@ val login_choose :
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val login_dummy : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val login_password : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val login_password : allowsignups:bool -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val signup_captcha : captcha_error option -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val signup_changepw : captcha_error option -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

@@ -2474,9 +2474,21 @@ let login_dummy () =
   ] in
   base ~title ~content ()
 
-let login_password () =
+let login_password ~allowsignups =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
+  let signup =
+    if allowsignups then
+      div [
+          br ();
+          pcdata "You can also ";
+          a ~service:signup_captcha [pcdata "create an account"] None;
+          pcdata ", or ";
+          a ~service:changepw_captcha [pcdata "change your password"] None;
+          pcdata " (if you forgot it, for example).";
+        ]
+    else pcdata ""
+  in
   let form = post_form ~service:password_post
     (fun (llogin, lpassword) ->
       [
@@ -2497,6 +2509,7 @@ let login_password () =
   in
   let content = [
     form;
+    signup;
   ] in
   base ~title:L.password_login ~content ()
 
