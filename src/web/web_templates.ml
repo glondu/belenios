@@ -936,9 +936,28 @@ let election_draft_questions uuid se () =
         script ~a:[a_src (static "tool_js_questions.js")] (pcdata "");
       ]
   in
+  let preview =
+    let url =
+      Eliom_uri.make_string_uri
+        ~service:election_draft_preview ~absolute:true (uuid, ()) |>
+        rewrite_prefix |>
+        (fun x -> Filename.chop_suffix x "election.json")
+    in
+    let hash = Netencoding.Url.mk_url_encoded_parameters ["url", url] in
+    let service =
+      Eliom_uri.make_string_uri
+        ~service:election_vote ~absolute:true () |> rewrite_prefix
+    in
+    div [
+        hr ();
+        unsafe_a (service ^ "#" ^ hash) "Preview booth";
+        pcdata " (you can use any credential such as HsqB3C3y62Ekq4D)."
+      ]
+  in
   let content = [
     interactivity;
     form;
+    preview;
   ] in
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()

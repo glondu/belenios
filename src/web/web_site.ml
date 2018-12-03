@@ -726,6 +726,23 @@ let () =
     )
 
 let () =
+  Any.register ~service:election_draft_preview
+    (fun (uuid, ()) () ->
+      with_draft_election_ro uuid (fun se ->
+          let group = Group.of_string se.se_group in
+          let module G = (val group : GROUP) in
+          let params = {
+              e_description = se.se_questions.t_description;
+              e_name = se.se_questions.t_name;
+              e_public_key = {wpk_group = G.group; wpk_y = G.g};
+              e_questions = se.se_questions.t_questions;
+              e_uuid = uuid;
+            } in
+          String.send (string_of_params (write_wrapped_pubkey G.write_group G.write) params, "application/json")
+        )
+    )
+
+let () =
   Html.register ~service:election_draft_voters
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
@@ -1351,13 +1368,16 @@ let submit_ballot ballot =
       return ballot.election_uuid
     with _ -> fail_http 400
   in
-  let%lwt user = Web_state.get_election_user uuid in
-  let cont = redir_preapply election_cast uuid in
-  let%lwt () = Eliom_reference.set Web_state.cont [cont] in
-  let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
-  match user with
-  | None -> redir_preapply election_login ((uuid, ()), None) ()
-  | Some _ -> cont ()
+  match%lwt Web_persist.get_draft_election uuid with
+  | Some _ -> redir_preapply election_draft_questions uuid ()
+  | None ->
+     let%lwt user = Web_state.get_election_user uuid in
+     let cont = redir_preapply election_cast uuid in
+     let%lwt () = Eliom_reference.set Web_state.cont [cont] in
+     let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
+     match user with
+     | None -> redir_preapply election_login ((uuid, ()), None) ()
+     | Some _ -> cont ()
 
 let () =
   Any.register ~service:election_submit_ballot

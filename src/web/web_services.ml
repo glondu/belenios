@@ -38,6 +38,7 @@ let election_draft_pre = create ~path:(Path ["draft"; "new"]) ~meth:(Get unit) (
 let election_draft = create ~path:(Path ["draft"; "election"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_questions = create ~path:(Path ["draft"; "questions"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_questions_post = create_attached_post ~fallback:election_draft_questions ~post_params:(string "questions") ()
+let election_draft_preview = create ~path:(Path ["draft"; "preview"]) ~meth:(Get (suffix (uuid "uuid" ** suffix_const "election.json"))) ()
 let election_draft_description = create_attached_post ~fallback:election_draft ~post_params:(string "name" ** string "description") ()
 let election_draft_languages = create_attached_post ~fallback:election_draft ~post_params:(string "languages") ()
 let election_draft_contact = create_attached_post ~fallback:election_draft ~post_params:(string "contact") ()
