@@ -61,6 +61,8 @@ type election_dates = {
   ?tally : datetime option;
   ?archive : datetime option;
   ?last_mail : datetime option;
+  ?auto_open : datetime option;
+  ?auto_close : datetime option;
 } <ocaml field_prefix="e_">
 
 type extended_record = {

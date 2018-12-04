@@ -25,6 +25,7 @@ open Signatures
 open Serializable_builtin_t
 open Serializable_j
 open Common
+open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
@@ -43,20 +44,6 @@ let get_election_result uuid =
   | Some [x] -> return (Some (result_of_string Yojson.Safe.read_json x))
   | _ -> return_none
 
-let get_election_state uuid =
-  match%lwt read_file ~uuid "state.json" with
-  | Some [x] -> return @@ election_state_of_string x
-  | _ -> return `Archived
-
-let set_election_state uuid s =
-  match s with
-  | `Archived ->
-     (
-       try%lwt Lwt_unix.unlink (!spool_dir / raw_string_of_uuid uuid / "state.json")
-       with _ -> return_unit
-     )
-  | _ -> write_file ~uuid "state.json" [string_of_election_state s]
-
 type election_date =
   [ `Creation
   | `Validation
@@ -74,6 +61,8 @@ let get_election_dates uuid =
              e_tally = None;
              e_archive = None;
              e_last_mail = None;
+             e_auto_open = None;
+             e_auto_close = None;
            }
 
 let set_election_date kind uuid d =
@@ -96,6 +85,59 @@ let get_election_date kind uuid =
   | `Tally -> return dates.e_tally
   | `Archive -> return dates.e_archive
   | `LastMail -> return dates.e_last_mail
+
+type election_auto_dates = {
+    auto_open : datetime option;
+    auto_close : datetime option;
+}
+
+let get_election_auto_dates uuid =
+  let%lwt dates = get_election_dates uuid in
+  return {
+      auto_open = dates.e_auto_open;
+      auto_close = dates.e_auto_close;
+    }
+
+let set_election_auto_dates uuid x =
+  let%lwt dates = get_election_dates uuid in
+  let dates = { dates with
+                e_auto_open = x.auto_open;
+                e_auto_close = x.auto_close }
+  in
+  write_file ~uuid "dates.json" [string_of_election_dates dates]
+
+let set_election_state uuid s =
+  match s with
+  | `Archived ->
+     (
+       try%lwt Lwt_unix.unlink (!spool_dir / raw_string_of_uuid uuid / "state.json")
+       with _ -> return_unit
+     )
+  | _ -> write_file ~uuid "state.json" [string_of_election_state s]
+
+let get_election_state uuid =
+  match%lwt read_file ~uuid "state.json" with
+  | Some [x] ->
+     let state = election_state_of_string x and now = now () in
+     let%lwt dates = get_election_dates uuid in
+     let past = function
+       | None -> false
+       | Some t -> datetime_compare t now < 0
+     in
+     let new_state = match state with
+       | `Closed when past dates.e_auto_open -> `Open
+       | x -> x
+     in
+     let new_state = match new_state with
+       | `Open when past dates.e_auto_close -> `Closed
+       | x -> x
+     in
+     let%lwt () =
+       if new_state <> state then set_election_state uuid new_state
+       else return_unit
+     in
+     return new_state
+  | _ -> return `Archived
 
 let get_partial_decryptions uuid =
   match%lwt read_file ~uuid "partial_decryptions.json" with

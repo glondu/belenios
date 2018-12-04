@@ -1292,6 +1292,38 @@ let () = Any.register ~service:election_open (election_set_state true)
 let () = Any.register ~service:election_close (election_set_state false)
 
 let () =
+  Any.register ~service:election_auto_post
+    (fun uuid (auto_open, auto_close) ->
+      with_site_user (fun u ->
+          let%lwt metadata = Web_persist.get_election_metadata uuid in
+          if metadata.e_owner = Some u then (
+            let auto_dates =
+              try
+                let format x =
+                  if x = "" then None
+                  else Some (
+                           try datetime_of_string ("\"" ^ x ^ ".000000\"")
+                           with _ -> Printf.ksprintf failwith "%s is not a valid date!" x
+                         )
+                in
+                let auto_open = format auto_open in
+                let auto_close = format auto_close in
+                let open Web_persist in
+                Ok { auto_open; auto_close }
+              with Failure e -> Pervasives.Error e
+            in
+            match auto_dates with
+            | Ok x ->
+               let%lwt () = Web_persist.set_election_auto_dates uuid x in
+               redir_preapply election_admin uuid ()
+            | Pervasives.Error msg ->
+               let service = preapply election_admin uuid in
+               T.generic_page ~title:"Error" ~service msg () >>= Html.send
+          ) else forbidden ()
+        )
+    )
+
+let () =
   Any.register ~service:election_archive
     (fun uuid () ->
       with_site_user (fun u ->

@@ -84,6 +84,7 @@ let election_regenpwd_post = create_attached_post ~fallback:election_regenpwd ~p
 let election_login = create ~path:(Path ["elections"]) ~meth:(Get (suffix_prod (uuid "uuid" ** suffix_const "login") (opt (string "service")))) ()
 let election_open = create_attached_post ~fallback:election_admin ~post_params:unit ()
 let election_close = create_attached_post ~fallback:election_admin ~post_params:unit ()
+let election_auto_post = create_attached_post ~fallback:election_admin ~post_params:(string "open" ** string "close") ()
 let election_archive = create_attached_post ~fallback:election_admin ~post_params:unit ()
 let election_delete = create_attached_post ~fallback:election_admin ~post_params:unit ()
 let election_update_credential = create ~path:(Path ["election"; "update-cred"]) ~meth:(Get (uuid "uuid")) ()

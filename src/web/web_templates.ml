@@ -1794,6 +1794,31 @@ Thank you again for your help,
 let election_admin election metadata state get_tokens_decrypt () =
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — Administration" in
+  let auto_form () =
+    let open Web_persist in
+    let%lwt auto_dates = get_election_auto_dates uuid in
+    let format = function
+      | None -> ""
+      | Some x -> String.sub (string_of_datetime x) 1 19
+    in
+    return @@ post_form ~service:election_auto_post
+      (fun (lopen, lclose) ->
+        [
+          div [
+              pcdata "Automatically open the election at: ";
+              input ~name:lopen ~input_type:`Text ~value:(format auto_dates.auto_open) string;
+            ];
+          div [
+              pcdata "Automatically close the election at: ";
+              input ~name:lclose ~input_type:`Text ~value:(format auto_dates.auto_close) string;
+            ];
+          div [
+              input ~input_type:`Submit ~value:"Change automatic dates" string;
+              pcdata " (Enter dates in UTC, in format YYYY-MM-DD HH:MM:SS, leave empty for no date.)";
+            ];
+        ]
+      ) uuid
+  in
   let state_form checked =
     let service, value, msg, msg2 =
       if checked then
@@ -1817,13 +1842,20 @@ let election_admin election metadata state get_tokens_decrypt () =
   let%lwt state_div =
     match state with
     | `Open ->
+       let%lwt auto_form = auto_form () in
        return @@ div [
          state_form true;
+         hr ();
+         auto_form;
        ]
     | `Closed ->
+       let%lwt auto_form = auto_form () in
        return @@ div [
          state_form false;
+         hr ();
+         auto_form;
          br ();
+         hr ();
          post_form
            ~service:election_compute_encrypted_tally
            (fun () ->
