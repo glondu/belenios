@@ -1,3 +1,14 @@
+1.7.1 (2018-12-05)
+==================
+
+ * Do not output spurious empty lines in records file (bugfix: voting
+   records and missing voters were not working)
+ * More explicit checklist in election validation page
+ * Avoid sending password/credential emails when name has not been
+   edited
+ * Avoid hidden parameters in some services that are meant to be usable
+   from non-web clients
+
 1.7 (2018-11-26)
 ================
 
