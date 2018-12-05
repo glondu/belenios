@@ -212,12 +212,17 @@ let generate_token ?(length=14) () =
 let string_of_user {user_domain; user_name} =
   user_domain ^ ":" ^ user_name
 
+let mailer =
+  match Sys.getenv_opt "BELENIOS_SENDMAIL" with
+  | None -> "/usr/lib/sendmail"
+  | Some x -> x
+
 let sendmail ?return_path message =
   let mailer =
     match return_path with
-    | None -> None
-    | Some x -> Some (Printf.sprintf "/usr/lib/sendmail -f %s" x) in
-  Netsendmail.sendmail ?mailer message
+    | None -> mailer
+    | Some x -> Printf.sprintf "%s -f %s" mailer x in
+  Netsendmail.sendmail ~mailer message
 
 let send_email recipient subject body =
   let contents =
