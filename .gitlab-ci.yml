@@ -5,8 +5,8 @@ stages:
 
 build_and_test_with_preinstalled_image:
   stage: build_and_test_with_preinstalled_image
-  # Image glondu/beleniosbase:20181206-1 is built by Dockerfile_base_environment
-  image: glondu/beleniosbase:20181206-1
+  # Image glondu/beleniosbase:YYYYMMDD-N is built by Dockerfile_base_environment
+  image: glondu/beleniosbase:20181206-2
   script:
     # Initialize environment
     - source ~/env.sh
@@ -47,8 +47,8 @@ build_and_test_with_debian_image:
 
 build_and_run_automated_test_scenario_1_with_preinstalled_image:
   stage: build_and_run_automated_test_scenario_1_with_preinstalled_image
-  # Image glondu/beleniosbase-tests:20181206-1 is built by Dockerfile_test_scenario_environment
-  image: glondu/beleniosbase-tests:20181206-1
+  # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by Dockerfile_test_scenario_environment
+  image: glondu/beleniosbase-tests:20181206-2
   script:
     # Initialize environment
     - source ~/env.sh

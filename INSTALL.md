@@ -13,6 +13,7 @@ OCaml projects.
 The non-OCaml prerequisites are:
 
  * a POSIX system with a C compiler
+ * on Linux, [Bubblewrap](https://github.com/projectatomic/bubblewrap)
  * [GMP](http://gmplib.org/)
  * [PCRE](http://www.pcre.org/)
  * [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/)
@@ -32,7 +33,7 @@ These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
 derivatives, they can be installed with the following command:
 
-    sudo apt install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip aspcud libncurses-dev uuid-runtime zlib1g-dev libgd-securityimage-perl cracklib-runtime
+    sudo apt install bubblewrap build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip aspcud libncurses-dev uuid-runtime zlib1g-dev libgd-securityimage-perl cracklib-runtime
 
 If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully
@@ -43,7 +44,7 @@ variable, or it will take `~/.belenios` by default. Just run:
 
     ./opam-bootstrap.sh
 
-On a modern desktop system, this needs approximately 11 minutes and 2
+On a modern desktop system, this needs approximately 20 minutes and 2.6
 gigabytes of disk space.
 
 If everything goes successfully, follow the given instructions to

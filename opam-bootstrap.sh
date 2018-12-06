@@ -34,43 +34,26 @@ fi
 mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
 
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-wget http://caml.inria.fr/pub/distrib/ocaml-4.02/ocaml-4.02.3.tar.gz
-wget https://github.com/ocaml/opam/releases/download/1.2.2/opam-full-1.2.2.tar.gz
+wget https://github.com/ocaml/opam/releases/download/2.0.0/opam-full-2.0.0.tar.gz
 
 if which sha256sum >/dev/null; then
 sha256sum --check <<EOF
-928fb5f64f4e141980ba567ff57b62d8dc7b951b58be9590ffb1be2172887a72  ocaml-4.02.3.tar.gz
-15e617179251041f4bf3910257bbb8398db987d863dd3cfc288bdd958de58f00  opam-full-1.2.2.tar.gz
+9dad4fcb4f53878c9daa6285d8456ccc671e21bfa71544d1f926fb8a63bfed25  opam-full-2.0.0.tar.gz
 EOF
 else
     echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
 fi
 
-echo
-echo "=-=-= Compilation and installation of OCaml =-=-="
-echo
-cd "$BELENIOS_SYSROOT/bootstrap/src"
-tar -xzf ocaml-4.02.3.tar.gz
-cd ocaml-4.02.3
-./configure -prefix "$BELENIOS_SYSROOT/bootstrap"
-make world
-if ! grep -q ARCH=none config/Makefile; then
-  make opt
-  make opt.opt
-fi
-make install
 export PATH="$BELENIOS_SYSROOT/bootstrap/bin:$PATH"
 
 echo
 echo "=-=-= Compilation and installation of OPAM =-=-="
 echo
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-tar -xzf opam-full-1.2.2.tar.gz
-cd opam-full-1.2.2
-./configure -prefix "$BELENIOS_SYSROOT/bootstrap"
-make lib-ext
-make
-make install
+tar -xzf opam-full-2.0.0.tar.gz
+cd opam-full-2.0.0
+make cold CONFIGURE_ARGS="--prefix $BELENIOS_SYSROOT/bootstrap"
+make cold-install LIBINSTALL_DIR="$BELENIOS_SYSROOT/bootstrap/lib/ocaml"
 
 echo
 echo "=-=-= Generation of env.sh =-=-="
@@ -78,16 +61,15 @@ echo
 cat > $BELENIOS_SRC/env.sh <<EOF
 PATH="$BELENIOS_SYSROOT/bootstrap/bin:\$PATH"; export PATH;
 OPAMROOT=$OPAMROOT; export OPAMROOT;
-eval \`opam config env\`
+eval \$(opam env)
 EOF
 
 echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
-opam init --no-setup
-eval `opam config env`
-opam switch 4.06.1
-eval `opam config env`
+opam init --bare --no-setup
+opam switch create 4.06.1
+eval $(opam env)
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
