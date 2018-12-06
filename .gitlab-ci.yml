@@ -5,13 +5,11 @@ stages:
 
 build_and_test_with_preinstalled_image:
   stage: build_and_test_with_preinstalled_image
-  # Image swergas/beleniosbase:efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb is based on ocaml/opam2:debian-9 with all pre-installed apt packages and opam packages that are required by Belenios
-  image: swergas/beleniosbase:efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb
+  # Image glondu/beleniosbase:20181206-1 is built by Dockerfile_base_environment
+  image: glondu/beleniosbase:20181206-1
   script:
-    # Install required packages
-    # - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
-    # Install the same Opam packages that opam-bootstrap.sh installs
-    # - eval `grep "opam install" ./opam-bootstrap.sh`
+    # Initialize environment
+    - source ~/env.sh
     # Compile belenios
     - BELENIOS_DEBUG=1 make all
     # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
@@ -49,13 +47,11 @@ build_and_test_with_debian_image:
 
 build_and_run_automated_test_scenario_1_with_preinstalled_image:
   stage: build_and_run_automated_test_scenario_1_with_preinstalled_image
-  # Image `swergas/beleniosbase:b97ee7e11a9f06ae15862e2210a10567f84f8a65d727262b8a5f0c513f9be5b6_test_scenario_environment` is built by `Dockerfile_test_scenario_environment`
-  image: swergas/beleniosbase:b97ee7e11a9f06ae15862e2210a10567f84f8a65d727262b8a5f0c513f9be5b6_test_scenario_environment
+  # Image glondu/beleniosbase-tests:20181206-1 is built by Dockerfile_test_scenario_environment
+  image: glondu/beleniosbase-tests:20181206-1
   script:
-    # Install required packages
-    # - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
-    # Install the same Opam packages that opam-bootstrap.sh installs
-    # - eval `grep "opam install" ./opam-bootstrap.sh`
+    # Initialize environment
+    - source ~/env.sh
     # Compile belenios
     - BELENIOS_DEBUG=1 make all
     # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
