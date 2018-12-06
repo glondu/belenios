@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Js_of_ocaml
+
 let sjcl = Js.Unsafe.variable "sjcl"
 let sjcl_cipher_aes = Js.Unsafe.pure_js_expr "sjcl.cipher.aes"
 

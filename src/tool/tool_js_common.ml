@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Js_of_ocaml
+
 let document = Dom_html.window##.document
 
 let alert s : unit =
