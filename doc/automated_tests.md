@@ -53,9 +53,9 @@ gitlab-runner exec docker build_and_run_automated_test_scenario_1_with_preinstal
 Note: The Docker image has been built and pushed to Docker Hub using the following commands:
 
 ```
-sha256sum ./opam-bootstrap.sh # This outputs the checksum that you can use as docker image name
-docker build -t swergas/beleniosbase:b97ee7e11a9f06ae15862e2210a10567f84f8a65d727262b8a5f0c513f9be5b6_test_scenario_environment - < ./Dockerfile_test_scenario_environment
-sudo docker push swergas/beleniosbase:b97ee7e11a9f06ae15862e2210a10567f84f8a65d727262b8a5f0c513f9be5b6_test_scenario_environment
+docker build -t glondu/beleniosbase:20181206-1 -f Dockerfile_base_environment .
+docker build -t glondu/beleniosbase-tests:20181206-1 -f Dockerfile_test_scenario_environment .
+sudo docker push glondu/beleniosbase-tests:20181206-1
 ```
 
-
+We use `YYYYMMDD-N` for docker-tagging, where `YYYYMMDD` is the build date, and `N` is a sequence number.
