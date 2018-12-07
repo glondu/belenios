@@ -26,7 +26,6 @@ open Signatures
 open Common
 open Web_serializable_builtin_t
 open Web_serializable_j
-open Web_signatures
 open Web_common
 open Web_services
 open Eliom_content.Html.F
@@ -47,29 +46,27 @@ let static x =
 let format_user ~site u =
   em [pcdata (if site then string_of_user u else u.user_name)]
 
-let make_login_box ~site auth links =
-  let style = if site then admin_background else "" in
-  let style = "float: right; text-align: right;" ^ style in
-  let module S = (val auth : AUTH_SERVICES) in
-  let module L = (val links : AUTH_LINKS) in
-  let%lwt user = S.get_user () in
-  let%lwt auth_systems = S.get_auth_systems () in
+let login_box () =
+  let style = "float: right; text-align: right;" ^ admin_background in
+  let%lwt user = Web_state.get_site_user () in
+  let auth_systems = List.map (fun x -> x.auth_instance) !Web_config.site_auth_config in
+  let login x = Eliom_service.preapply site_login x in
+  let logout () = Eliom_service.preapply logout () in
   let body =
     match user with
     | Some user ->
       [
         div [
           pcdata "Logged in as ";
-          format_user ~site user;
+          format_user ~site:true user;
           pcdata ".";
         ];
         div [
-          a ~a:[a_id "logout"] ~service:(L.logout ()) [pcdata "Log out"] ();
+          a ~a:[a_id "logout"] ~service:(logout ()) [pcdata "Log out"] ();
           pcdata ".";
         ];
       ]
     | None ->
-       if site then
       [
         div [
           pcdata "Not logged in.";
@@ -78,34 +75,15 @@ let make_login_box ~site auth links =
           auth_systems |>
           List.map (fun name ->
             a ~a:[a_id ("login_" ^ name)]
-              ~service:(L.login (Some name)) [pcdata name] ()
+              ~service:(login (Some name)) [pcdata name] ()
           ) |> List.join (pcdata ", ")
         in
         div (
           [pcdata "Log in: ["] @ auth_systems @ [pcdata "]"]
         );
       ]
-        else []
   in
-  match body with
-  | [] -> return None
-  | _::_ -> return (Some (div ~a:[a_style style] body))
-
-module Site_links = struct
-  let login x = Eliom_service.preapply site_login x
-  let logout () = Eliom_service.preapply logout ()
-end
-
-module Site_auth = struct
-  let get_user () = Web_state.get_site_user ()
-  let get_auth_systems () = return (List.map (fun x -> x.auth_instance) !Web_config.site_auth_config)
-end
-
-let site_links = (module Site_links : AUTH_LINKS)
-let site_auth = (module Site_auth : AUTH_SERVICES)
-
-let site_login_box () =
-  make_login_box ~site:true site_auth site_links
+  return (div ~a:[a_style style] body)
 
 let belenios_url = Eliom_service.extern
   ~prefix:"http://www.belenios.org"
@@ -230,8 +208,8 @@ let admin ~elections () =
          contact;
        ]
      ] in
-     let%lwt login_box = site_login_box () in
-     base ~title ?login_box ~content ()
+     let%lwt login_box = login_box () in
+     base ~title ~login_box ~content ()
   | Some (draft, elections, tallied, archived) ->
     let draft =
       match draft with
@@ -274,8 +252,8 @@ let admin ~elections () =
         archived;
       ];
     ] in
-    let%lwt login_box = site_login_box () in
-    base ~title ?login_box ~content ()
+    let%lwt login_box = login_box () in
+    base ~title ~login_box ~content ()
 
 let make_button ~service ?hash ~disabled contents =
   let uri = Eliom_uri.make_string_uri ~service () in
@@ -309,8 +287,8 @@ let new_election_failure reason () =
       p [reason];
     ]
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let generic_page ~title ?service message () =
   let proceed = match service with
@@ -377,8 +355,8 @@ let election_draft_pre () =
   let content = [
     form
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let election_draft uuid se () =
   let title = "Preparation of election " ^ se.se_questions.t_name in
@@ -597,8 +575,8 @@ let election_draft uuid se () =
     hr ();
     form_destroy;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let mail_trustee_generation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Dear trustee,
@@ -746,8 +724,8 @@ let election_draft_trustees uuid se () =
     import_link;
     back_link;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let election_draft_threshold_trustees uuid se () =
   let title = "Trustees for election " ^ se.se_questions.t_name in
@@ -883,8 +861,8 @@ let election_draft_threshold_trustees uuid se () =
     div_content;
     back_link;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let election_draft_credential_authority uuid se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
@@ -909,8 +887,8 @@ let election_draft_credential_authority uuid se () =
       pcdata "Note that this authority will have to send each credential to each voter herself.";
     ];
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let election_draft_questions uuid se () =
   let title = "Questions for election " ^ se.se_questions.t_name in
@@ -959,8 +937,8 @@ let election_draft_questions uuid se () =
     form;
     preview;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let election_draft_voters uuid se maxvoters () =
   let title = "Voters for election " ^ se.se_questions.t_name in
@@ -1070,8 +1048,8 @@ let election_draft_voters uuid se maxvoters () =
     voters;
     div_add;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let unsafe_textarea ?rows ?cols id contents =
   let rows = match rows with
@@ -1406,8 +1384,8 @@ let election_draft_importer ~service ~title uuid (elections, tallied, archived) 
     h2 [pcdata "Archived elections"];
     itemize archived;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let election_draft_import uuid se elections =
   let title = "Election " ^ se.se_questions.t_name ^ " — Import voters from another election" in
@@ -1562,8 +1540,8 @@ let election_draft_confirm uuid se () =
     checklist;
     form_create;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let file uuid x = Eliom_service.preapply election_dir (uuid, x)
 
@@ -2054,8 +2032,8 @@ let election_admin election metadata state get_tokens_decrypt () =
     div_archive;
     div_delete;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let update_credential election () =
   let params = election.e_params in
@@ -2095,8 +2073,8 @@ let update_credential election () =
   let content = [
     form;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title:params.e_name ?login_box ~content ~uuid ()
+  let%lwt login_box = login_box () in
+  base ~title:params.e_name ~login_box ~content ~uuid ()
 
 let regenpwd uuid () =
   let form = post_form ~service:election_regenpwd_post
@@ -2112,8 +2090,8 @@ let regenpwd uuid () =
   in
   let content = [ form ] in
   let title = "Regenerate and mail password" in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ~uuid ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ~uuid ()
 
 let cast_raw election () =
   let params = election.e_params in
@@ -2379,8 +2357,8 @@ let pretty_records election records () =
     ];
     table;
   ] in
-  let%lwt login_box = site_login_box () in
-  base ~title ?login_box ~content ()
+  let%lwt login_box = login_box () in
+  base ~title ~login_box ~content ()
 
 let tally_trustees election trustee_id token () =
   let params = election.e_params in

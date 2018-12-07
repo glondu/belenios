@@ -21,31 +21,6 @@
 
 open Web_serializable_t
 
-module type AUTH_SERVICES = sig
-
-  val get_auth_systems : unit -> string list Lwt.t
-  val get_user : unit -> user option Lwt.t
-
-end
-
-module type AUTH_LINKS = sig
-
-  val login :
-    string option ->
-    (unit, unit, Eliom_service.get, Eliom_service.att,
-     Eliom_service.non_co, Eliom_service.non_ext,
-     Eliom_service.non_reg, [ `WithoutSuffix ], unit, unit,
-     Eliom_service.non_ocaml) Eliom_service.t
-
-  val logout :
-    unit ->
-    (unit, unit, Eliom_service.get, Eliom_service.att,
-     Eliom_service.non_co, Eliom_service.non_ext,
-     Eliom_service.non_reg, [ `WithoutSuffix ], unit, unit,
-     Eliom_service.non_ocaml) Eliom_service.t
-
-end
-
 type content =
     Eliom_registration.browser_content Eliom_registration.kind Lwt.t
 
