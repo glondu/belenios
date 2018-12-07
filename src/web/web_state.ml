@@ -20,47 +20,18 @@
 (**************************************************************************)
 
 open Lwt
-open Web_serializable_t
-
-type user = {
-  uuid: uuid option;
-  service : string;
-  name : string;
-}
 
 let scope = Eliom_common.default_session_scope
 
 let show_cookie_disclaimer = Eliom_reference.eref ~scope true
 
-let user = Eliom_reference.eref ~scope None
-
-let get_site_user () =
-  match%lwt Eliom_reference.get user with
-  | None -> return None
-  | Some u ->
-     match u.uuid with
-     | None ->
-        return @@ Some {
-          user_domain = u.service;
-          user_name = u.name;
-        }
-     | Some _ -> return None
+let site_user = Eliom_reference.eref ~scope None
+let election_user = Eliom_reference.eref ~scope None
 
 let get_election_user uuid =
-  match%lwt Eliom_reference.get user with
-  | None -> return None
-  | Some u ->
-     match u.uuid with
-     | None -> return None
-     | Some uuid' ->
-        if uuid = uuid' then
-          return @@ Some {
-            user_domain = u.service;
-            user_name = u.name
-          }
-        else
-          return None
-
+  match%lwt Eliom_reference.get election_user with
+  | Some (u, x) when u = uuid -> return (Some x)
+  | _ -> return None
 
 let cont = Eliom_reference.eref ~scope []
 

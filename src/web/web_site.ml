@@ -358,7 +358,7 @@ let get_elections_by_owner_sorted u =
   return (sort draft, sort elections, sort tallied, sort archived)
 
 let with_site_user f =
-  match%lwt Web_state.get_site_user () with
+  match%lwt Eliom_reference.get Web_state.site_user with
   | Some u -> f u
   | None -> forbidden ()
 
@@ -379,7 +379,7 @@ let () = Html.register ~service:admin
     if gdpr then T.privacy_notice ContAdmin else
     let cont () = Redirection.send (Redirection admin) in
     let%lwt () = Eliom_reference.set Web_state.cont [cont] in
-    let%lwt site_user = Web_state.get_site_user () in
+    let%lwt site_user = Eliom_reference.get Web_state.site_user in
     let%lwt elections =
       match site_user with
       | None -> return None
@@ -1214,7 +1214,7 @@ let () =
         match%lwt Eliom_reference.get Web_state.cast_confirmed with
         | Some result ->
            let%lwt () = Eliom_reference.unset Web_state.cast_confirmed in
-           let%lwt () = Eliom_reference.unset Web_state.user in
+           let%lwt () = Eliom_reference.unset Web_state.election_user in
            T.cast_confirmed w ~result () >>= Html.send
         | None ->
            let%lwt state = Web_persist.get_election_state uuid in
@@ -1246,7 +1246,7 @@ let () =
     (fun uuid () ->
      let%lwt w = find_election uuid in
      let%lwt metadata = Web_persist.get_election_metadata uuid in
-     let%lwt site_user = Web_state.get_site_user () in
+     let%lwt site_user = Eliom_reference.get Web_state.site_user in
      match site_user with
      | Some u when metadata.e_owner = Some u ->
         let%lwt state = Web_persist.get_election_state uuid in
@@ -1794,7 +1794,7 @@ let handle_pseudo_file uuid f site_user =
 let () =
   Any.register ~service:election_dir
     (fun (uuid, f) () ->
-     let%lwt site_user = Web_state.get_site_user () in
+     let%lwt site_user = Eliom_reference.get Web_state.site_user in
      handle_pseudo_file uuid f site_user)
 
 let () =

@@ -52,7 +52,12 @@ let run_post_login_handler auth_system f =
   | None -> Printf.ksprintf failwith "%s handler was invoked without environment" auth_system
   | Some (uuid, service, config) ->
      let%lwt () = Eliom_reference.unset auth_env in
-     let authenticate name = Eliom_reference.set user (Some {uuid; service; name}) in
+     let authenticate name =
+       let user = { user_domain = service; user_name = name } in
+       match uuid with
+       | None -> Eliom_reference.set Web_state.site_user (Some user)
+       | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
+     in
      let%lwt () = f uuid config authenticate in
      default_cont uuid ()
 
@@ -80,7 +85,11 @@ let login_handler service uuid =
     | None -> preapply site_login service
     | Some u -> preapply election_login ((u, ()), service)
   in
-  match%lwt Eliom_reference.get user with
+  let%lwt user = match uuid with
+    | None -> Eliom_reference.get Web_state.site_user
+    | Some uuid -> Web_state.get_election_user uuid
+  in
+  match user with
   | Some _ ->
      let%lwt () = cont_push (fun () -> Eliom_registration.(Redirection.send (Redirection (myself service)))) in
      Web_templates.already_logged_in () >>= Eliom_registration.Html.send
@@ -112,7 +121,7 @@ let login_handler service uuid =
            Eliom_registration.Html.send
 
 let logout_handler () =
-  let%lwt () = Eliom_reference.unset Web_state.user in
+  let%lwt () = Eliom_reference.unset Web_state.site_user in
   match%lwt cont_pop () with
   | Some f -> f ()
   | None -> Eliom_registration.(Redirection.send (Redirection Web_services.home))

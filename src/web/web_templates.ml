@@ -48,7 +48,7 @@ let format_user ~site u =
 
 let login_box () =
   let style = "float: right; text-align: right;" ^ admin_background in
-  let%lwt user = Web_state.get_site_user () in
+  let%lwt user = Eliom_reference.get Web_state.site_user in
   let auth_systems = List.map (fun x -> x.auth_instance) !Web_config.site_auth_config in
   let login x = Eliom_service.preapply site_login x in
   let logout () = Eliom_service.preapply logout () in

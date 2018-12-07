@@ -19,20 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_builtin_t
+open Web_serializable_t
 open Web_signatures
-
-type user = {
-  uuid: uuid option;
-  service : string;
-  name : string;
-}
 
 val show_cookie_disclaimer : bool Eliom_reference.eref
 
-val user : user option Eliom_reference.eref
-val get_site_user : unit -> Web_serializable_t.user option Lwt.t
-val get_election_user : uuid -> Web_serializable_t.user option Lwt.t
+val site_user : user option Eliom_reference.eref
+val election_user : (uuid * user) option Eliom_reference.eref
+val get_election_user : uuid -> user option Lwt.t
 
 val cont : (unit -> content) list Eliom_reference.eref
 val cont_push : (unit -> content) -> unit Lwt.t
