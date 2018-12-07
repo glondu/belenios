@@ -23,14 +23,6 @@ open Signatures
 open Serializable_t
 open Web_serializable_t
 
-val site_auth_config : auth_config list ref
-val spool_dir : string ref
-val server_mail : string ref
-val return_path : string option ref
-val contact_uri : string option ref
-val gdpr_uri : string ref
-val warning_file : string option ref
-
 module LwtRandom : RANDOM with type 'a t = 'a Lwt.t
 (** Lwt-compatible random number generation. *)
 

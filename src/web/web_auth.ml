@@ -86,7 +86,7 @@ let login_handler service uuid =
      Web_templates.already_logged_in () >>= Eliom_registration.Html.send
   | None ->
      let%lwt c = match uuid with
-       | None -> return !site_auth_config
+       | None -> return !Web_config.site_auth_config
        | Some u -> Web_persist.get_auth_config u
      in
      match service with

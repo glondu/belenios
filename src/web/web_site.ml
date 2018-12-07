@@ -30,11 +30,6 @@ open Web_serializable_j
 open Web_common
 open Web_services
 
-let source_file = ref "belenios.tar.gz"
-let maxmailsatonce = ref 1000
-let uuid_length = ref None
-let default_group = ref ""
-
 let ( / ) = Filename.concat
 
 module PString = String
@@ -163,7 +158,7 @@ let validate_election uuid se =
   } in
   let raw_election = string_of_params (write_wrapped_pubkey G.write_group G.write) params in
   (* write election files to disk *)
-  let dir = !spool_dir / uuid_s in
+  let dir = !Web_config.spool_dir / uuid_s in
   let create_file fname what xs =
     Lwt_io.with_file
       ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
@@ -189,7 +184,7 @@ let validate_election uuid se =
   let module B = Web_election.Make (E) in
   (* initialize credentials *)
   let%lwt () =
-    let fname = !spool_dir / uuid_s / "public_creds.txt" in
+    let fname = !Web_config.spool_dir / uuid_s / "public_creds.txt" in
     match%lwt read_file fname with
     | Some xs ->
        let%lwt () = Web_persist.init_credential_mapping uuid xs in
@@ -204,7 +199,7 @@ let validate_election uuid se =
     | `KEYS x -> create_file "private_keys.jsons" (fun x -> x) x
   in
   (* clean up draft *)
-  let%lwt () = cleanup_file (!spool_dir / uuid_s / "draft.json") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "draft.json") in
   (* write passwords *)
   let%lwt () =
     match metadata.e_auth_config with
@@ -226,14 +221,14 @@ let validate_election uuid se =
 
 let delete_sensitive_data uuid =
   let uuid_s = raw_string_of_uuid uuid in
-  let%lwt () = cleanup_file (!spool_dir / uuid_s / "state.json") in
-  let%lwt () = cleanup_file (!spool_dir / uuid_s / "decryption_tokens.json") in
-  let%lwt () = cleanup_file (!spool_dir / uuid_s / "partial_decryptions.json") in
-  let%lwt () = cleanup_file (!spool_dir / uuid_s / "extended_records.jsons") in
-  let%lwt () = cleanup_file (!spool_dir / uuid_s / "credential_mappings.jsons") in
-  let%lwt () = rmdir (!spool_dir / uuid_s / "ballots") in
-  let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_key.json") in
-  let%lwt () = cleanup_file (!spool_dir / uuid_s / "private_keys.jsons") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "state.json") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "partial_decryptions.json") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "extended_records.jsons") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "credential_mappings.jsons") in
+  let%lwt () = rmdir (!Web_config.spool_dir / uuid_s / "ballots") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_key.json") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_keys.jsons") in
   return_unit
 
 let archive_election uuid =
@@ -335,7 +330,7 @@ let delete_election uuid =
     ]
   in
   let%lwt () = Lwt_list.iter_p (fun x ->
-                   cleanup_file (!spool_dir / uuid_s / x)
+                   cleanup_file (!Web_config.spool_dir / uuid_s / x)
                  ) files_to_delete
   in
   return_unit
@@ -397,12 +392,12 @@ let () = Html.register ~service:admin
 
 let () = File.register ~service:source_code
   ~content_type:"application/x-gzip"
-  (fun () () -> return !source_file)
+  (fun () () -> return !Web_config.source_file)
 
 let generate_uuid =
   let gen = Uuidm.v4_gen (Random.State.make_self_init ()) in
   fun () ->
-  match !uuid_length with
+  match !Web_config.uuid_length with
   | Some length ->
      let%lwt token = generate_token ~length () in
      return @@ uuid_of_raw_string token
@@ -438,7 +433,7 @@ let create_new_election owner cred auth =
   } in
   let se = {
     se_owner = owner;
-    se_group = !default_group;
+    se_group = !Web_config.default_group;
     se_voters = [];
     se_questions;
     se_public_keys = [];
@@ -451,7 +446,7 @@ let create_new_election owner cred auth =
     se_threshold_error = None;
     se_creation_date = Some (now ());
   } in
-  let%lwt () = Lwt_unix.mkdir (!spool_dir / raw_string_of_uuid uuid) 0o700 in
+  let%lwt () = Lwt_unix.mkdir (!Web_config.spool_dir / raw_string_of_uuid uuid) 0o700 in
   let%lwt () = Web_persist.set_draft_election uuid se in
   redir_preapply election_draft uuid ()
 
@@ -618,8 +613,8 @@ let generate_password metadata langs title url id =
   return (salt, hashed)
 
 let handle_password se uuid ~force voters =
-  if List.length voters > !maxmailsatonce then
-    Lwt.fail (Failure (Printf.sprintf "Cannot send passwords, there are too many voters (max is %d)" !maxmailsatonce))
+  if List.length voters > !Web_config.maxmailsatonce then
+    Lwt.fail (Failure (Printf.sprintf "Cannot send passwords, there are too many voters (max is %d)" !Web_config.maxmailsatonce))
   else if se.se_questions.t_name = default_name then
     Lwt.fail (Failure "The election name has not been edited!")
   else
@@ -656,7 +651,7 @@ let () =
 
 let find_user_id uuid user =
   let uuid_s = raw_string_of_uuid uuid in
-  let db = Lwt_io.lines_of_file (!spool_dir / uuid_s / "voters.txt") in
+  let db = Lwt_io.lines_of_file (!Web_config.spool_dir / uuid_s / "voters.txt") in
   let%lwt db = Lwt_stream.to_list db in
   let rec loop = function
     | [] -> None
@@ -667,7 +662,7 @@ let find_user_id uuid user =
 
 let load_password_db uuid =
   let uuid_s = raw_string_of_uuid uuid in
-  let db = !spool_dir / uuid_s / "passwords.csv" in
+  let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
   Lwt_preemptive.detach Csv.load db
 
 let rec replace_password username ((salt, hashed) as p) = function
@@ -746,7 +741,7 @@ let () =
   Html.register ~service:election_draft_voters
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          T.election_draft_voters uuid se !maxmailsatonce ()
+          T.election_draft_voters uuid se !Web_config.maxmailsatonce ()
         )
     )
 
@@ -883,7 +878,7 @@ let handle_credentials_post uuid token creds =
   if se.se_public_creds <> token then forbidden () else
   if se.se_public_creds_received then forbidden () else
   let module G = (val Group.of_string se.se_group : GROUP) in
-  let fname = !spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
+  let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
   let%lwt () =
     Lwt_mutex.with_lock election_draft_mutex
       (fun () ->
@@ -934,8 +929,8 @@ let () =
     (fun uuid () ->
       with_draft_election uuid (fun se ->
           let nvoters = List.length se.se_voters in
-          if nvoters > !maxmailsatonce then
-            Lwt.fail (Failure (Printf.sprintf "Cannot send credentials, there are too many voters (max is %d)" !maxmailsatonce))
+          if nvoters > !Web_config.maxmailsatonce then
+            Lwt.fail (Failure (Printf.sprintf "Cannot send credentials, there are too many voters (max is %d)" !Web_config.maxmailsatonce))
           else if nvoters = 0 then
             Lwt.fail (Failure "No voters")
           else if se.se_questions.t_name = default_name then
@@ -986,7 +981,7 @@ let () =
                 ) SSet.empty se.se_voters
             in
             let creds = SSet.elements creds in
-            let fname = !spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
+            let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
             let%lwt () =
               Lwt_io.with_file
                 ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
@@ -1059,7 +1054,7 @@ let () =
     )
 
 let destroy_election uuid =
-  rmdir (!spool_dir / raw_string_of_uuid uuid)
+  rmdir (!Web_config.spool_dir / raw_string_of_uuid uuid)
 
 let () =
   Any.register ~service:election_draft_destroy
@@ -1556,7 +1551,7 @@ let make_archive uuid =
   in
   let%lwt () =
     Lwt_list.iter_p (fun x ->
-        try_copy_file (!spool_dir / uuid_s / x) (temp_dir / "public" / x)
+        try_copy_file (!Web_config.spool_dir / uuid_s / x) (temp_dir / "public" / x)
       ) [
         "election.json";
         "public_keys.jsons";
@@ -1568,7 +1563,7 @@ let make_archive uuid =
   in
   let%lwt () =
     Lwt_list.iter_p (fun x ->
-        try_copy_file (!spool_dir / uuid_s / x) (temp_dir / "restricted" / x)
+        try_copy_file (!Web_config.spool_dir / uuid_s / x) (temp_dir / "restricted" / x)
       ) [
         "voters.txt";
         "records";
@@ -1581,7 +1576,7 @@ let make_archive uuid =
   let%lwt r = Lwt_process.exec command in
   match r with
   | Unix.WEXITED 0 ->
-     let fname = !spool_dir / uuid_s / "archive.zip" in
+     let fname = !Web_config.spool_dir / uuid_s / "archive.zip" in
      let fname_new = fname ^ ".new" in
      let%lwt () = copy_file (temp_dir / "archive.zip") fname_new in
      let%lwt () = Lwt_unix.rename fname_new fname in
@@ -1601,7 +1596,7 @@ let () =
           if metadata.e_owner = Some u then (
             if state = `Archived then (
               let uuid_s = raw_string_of_uuid uuid in
-              let archive_name = !spool_dir / uuid_s / "archive.zip" in
+              let archive_name = !Web_config.spool_dir / uuid_s / "archive.zip" in
               let%lwt b = file_exists archive_name in
               let%lwt () = if not b then make_archive uuid else return_unit in
               File.send ~content_type:"application/zip" archive_name
@@ -1684,7 +1679,7 @@ let () =
       in
       let pk = pks.(trustee_id-1).trustee_public_key in
       let pd = partial_decryption_of_string W.G.read partial_decryption in
-      let et = !spool_dir / raw_string_of_uuid uuid / string_of_election_file ESETally in
+      let et = !Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file ESETally in
       let%lwt et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
       let et = encrypted_tally_of_string W.G.read et in
       if E.check_factor et pk pd then (
@@ -1714,7 +1709,7 @@ let handle_election_tally_release uuid () =
           | _ -> forbidden ()
         in
         let%lwt et =
-          !spool_dir / uuid_s / string_of_election_file ESETally |>
+          !Web_config.spool_dir / uuid_s / string_of_election_file ESETally |>
             Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
             wrap1 (encrypted_tally_of_string W.G.read)
         in
@@ -1764,7 +1759,7 @@ let handle_election_tally_release uuid () =
         in
         let%lwt () = Web_persist.set_election_state uuid `Tallied in
         let%lwt () = Web_persist.set_election_date `Tally uuid (now ()) in
-        let%lwt () = cleanup_file (!spool_dir / uuid_s / "decryption_tokens.json") in
+        let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
         redir_preapply election_home (uuid, ()) ()
       ) else forbidden ()
     )
@@ -1794,7 +1789,7 @@ let handle_pseudo_file uuid f site_user =
     ) else return ()
   in
   let content_type = content_type_of_file f in
-  File.send ~content_type (!spool_dir / raw_string_of_uuid uuid / string_of_election_file f)
+  File.send ~content_type (!Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file f)
 
 let () =
   Any.register ~service:election_dir
@@ -2275,7 +2270,7 @@ let try_extract extract x =
   try%lwt extract x with _ -> return_none
 
 let get_next_actions () =
-  Lwt_unix.files_of_directory !spool_dir |>
+  Lwt_unix.files_of_directory !Web_config.spool_dir |>
   Lwt_stream.to_list >>=
   Lwt_list.filter_map_p
     (fun x ->

@@ -20,6 +20,7 @@ Web_i18n
 Web_serializable_builtin_t
 Web_serializable_builtin_j
 Web_serializable_j
+Web_config
 Web_common
 Web_persist
 Web_services

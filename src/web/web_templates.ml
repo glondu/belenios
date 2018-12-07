@@ -98,7 +98,7 @@ end
 
 module Site_auth = struct
   let get_user () = Web_state.get_site_user ()
-  let get_auth_systems () = return (List.map (fun x -> x.auth_instance) !site_auth_config)
+  let get_auth_systems () = return (List.map (fun x -> x.auth_instance) !Web_config.site_auth_config)
 end
 
 let site_links = (module Site_links : AUTH_LINKS)
@@ -131,7 +131,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
        ]
     | Some x -> x
   in
-  let%lwt warning = match !warning_file with
+  let%lwt warning = match !Web_config.warning_file with
     | None -> return @@ pcdata ""
     | Some f -> match%lwt read_file f with
                 | None -> return @@ pcdata ""
@@ -169,7 +169,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
           );
           a ~service:source_code [pcdata L.get_the_source_code] ();
           pcdata ". ";
-          unsafe_a !gdpr_uri "Privacy policy";
+          unsafe_a !Web_config.gdpr_uri "Privacy policy";
           pcdata ". ";
           administer;
           pcdata ".";
@@ -184,7 +184,7 @@ let privacy_notice cont =
     [
       div [
           pcdata "To use this site, you must accept our ";
-          unsafe_a !gdpr_uri "personal data policy";
+          unsafe_a !Web_config.gdpr_uri "personal data policy";
           pcdata ".";
         ];
       post_form ~service
@@ -213,7 +213,7 @@ let admin ~elections () =
   let title = site_title ^ " — Administration" in
   match elections with
   | None ->
-     let contact = match !contact_uri with
+     let contact = match !Web_config.contact_uri with
        | None -> pcdata ""
        | Some uri ->
           div [
@@ -1755,7 +1755,7 @@ let election_home election state () =
         ~a:[a_style "border-style: solid; border-width: 1px;"]
         [
           pcdata L.by_using_you_accept;
-          unsafe_a !gdpr_uri L.privacy_policy;
+          unsafe_a !Web_config.gdpr_uri L.privacy_policy;
           pcdata ". ";
           a ~service:set_cookie_disclaimer [pcdata L.accept] ();
         ]
@@ -1907,7 +1907,7 @@ let election_admin election metadata state get_tokens_decrypt () =
                ~absolute:true ~service x
              in
              let link_content, dest = match name with
-               | None -> uri, !server_mail
+               | None -> uri, !Web_config.server_mail
                | Some name -> name, name
              in
              let mail, link =

@@ -110,7 +110,7 @@ let set_election_state uuid s =
   match s with
   | `Archived ->
      (
-       try%lwt Lwt_unix.unlink (!spool_dir / raw_string_of_uuid uuid / "state.json")
+       try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "state.json")
        with _ -> return_unit
      )
   | _ -> write_file ~uuid "state.json" [string_of_election_state s]
@@ -193,7 +193,7 @@ type election_kind =
   ]
 
 let get_elections_by_owner user =
-  Lwt_unix.files_of_directory !spool_dir |>
+  Lwt_unix.files_of_directory !Web_config.spool_dir |>
     Lwt_stream.to_list >>=
     Lwt_list.filter_map_p
       (fun x ->
@@ -246,7 +246,7 @@ let get_voters uuid =
 
 let get_passwords uuid =
   let csv =
-    try Some (Csv.load (!spool_dir / raw_string_of_uuid uuid / "passwords.csv"))
+    try Some (Csv.load (!Web_config.spool_dir / raw_string_of_uuid uuid / "passwords.csv"))
     with _ -> None
   in
   match csv with
@@ -306,7 +306,7 @@ let get_ballot_hashes uuid =
      StringMap.bindings ballots |> List.map fst |> return
   | _ ->
      let uuid_s = raw_string_of_uuid uuid in
-     let ballots = Lwt_unix.files_of_directory (!spool_dir / uuid_s / "ballots") in
+     let ballots = Lwt_unix.files_of_directory (!Web_config.spool_dir / uuid_s / "ballots") in
      let%lwt ballots = Lwt_stream.to_list ballots in
      let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
      return (List.rev_map unurlize ballots)
@@ -323,7 +323,7 @@ let get_ballot_by_hash uuid hash =
      | _ -> return_none
 
 let load_ballots uuid =
-  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
+  let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
   let ballots = Lwt_unix.files_of_directory ballots_dir in
   let%lwt ballots = Lwt_stream.to_list ballots in
   Lwt_list.filter_map_p (fun x ->
@@ -338,14 +338,14 @@ let dump_ballots uuid =
 
 let add_ballot uuid ballot =
   let hash = sha256_b64 ballot in
-  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
+  let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
   let%lwt () = try%lwt Lwt_unix.mkdir ballots_dir 0o755 with _ -> return_unit in
   let%lwt () = write_file (ballots_dir / urlize hash) [ballot] in
   let%lwt () = dump_ballots uuid in
   return hash
 
 let remove_ballot uuid hash =
-  let ballots_dir = !spool_dir / raw_string_of_uuid uuid / "ballots" in
+  let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
   try%lwt Lwt_unix.unlink (ballots_dir / urlize hash) with _ -> return_unit
 
 let replace_ballot uuid hash ballot =

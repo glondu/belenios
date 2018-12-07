@@ -51,7 +51,7 @@ let password_handler () (name, password) =
            end
         | Some uuid ->
            let uuid_s = raw_string_of_uuid uuid in
-           let db = !spool_dir / uuid_s / "passwords.csv" in
+           let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
            check_password_with_file db name password
       in
       if ok then authenticate name else fail_http 401
@@ -70,7 +70,7 @@ let get_password_db_fname () =
     | { auth_system = "password"; auth_config = c; _ } :: _
          when does_allow_signups c -> List.assoc_opt "db" c
     | _ :: xs -> find xs
-  in find !site_auth_config
+  in find !Web_config.site_auth_config
 
 let allowsignups () = get_password_db_fname () <> None
 

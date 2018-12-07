@@ -53,15 +53,15 @@ let () =
   | Element ("default-group", ["file", file], []) ->
     default_group_file := Some file
   | Element ("maxmailsatonce", ["value", limit], []) ->
-    Web_site.maxmailsatonce := int_of_string limit
+    Web_config.maxmailsatonce := int_of_string limit
   | Element ("uuid", ["length", length], []) ->
      let length = int_of_string length in
      if length >= min_uuid_length then
-       Web_site.uuid_length := Some length
+       Web_config.uuid_length := Some length
      else
        failwith "UUID length is too small"
   | Element ("contact", ["uri", uri], []) ->
-    Web_common.contact_uri := Some uri
+    Web_config.contact_uri := Some uri
   | Element ("gdpr", ["uri", uri], []) ->
     gdpr_uri := Some uri
   | Element ("server", attrs, []) ->
@@ -72,12 +72,12 @@ let () =
           else Printf.ksprintf failwith "%s is not a valid e-mail address" mail
        | None -> ()
      in
-     set "mail" (fun x -> server_mail := x);
-     set "return-path" (fun x -> return_path := Some x);
+     set "mail" (fun x -> Web_config.server_mail := x);
+     set "return-path" (fun x -> Web_config.return_path := Some x);
   | Element ("spool", ["dir", dir], []) ->
     spool_dir := Some dir
   | Element ("warning", ["file", file], []) ->
-     warning_file := Some file
+     Web_config.warning_file := Some file
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->
     set_rewrite_prefix ~src ~dst
   | Element ("auth", ["name", auth_instance],
@@ -92,7 +92,7 @@ let () =
 let () =
   match !gdpr_uri with
   | None -> failwith "You must provide a GDPR URI"
-  | Some x -> Web_common.gdpr_uri := x
+  | Some x -> Web_config.gdpr_uri := x
 
 (** Parse configuration from other sources *)
 
@@ -123,7 +123,7 @@ let%lwt default_group =
 
 (** Build up the site *)
 
-let () = Web_site.source_file := source_file
-let () = Web_common.spool_dir := spool_dir
-let () = Web_site.default_group := default_group
-let () = Web_common.site_auth_config := List.rev !auth_instances
+let () = Web_config.source_file := source_file
+let () = Web_config.spool_dir := spool_dir
+let () = Web_config.default_group := default_group
+let () = Web_config.site_auth_config := List.rev !auth_instances

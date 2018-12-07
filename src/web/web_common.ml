@@ -27,14 +27,6 @@ open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 
-let site_auth_config = ref []
-let spool_dir = ref "."
-let server_mail = ref "noreply@example.org"
-let return_path = ref None
-let contact_uri = ref None
-let gdpr_uri = ref ""
-let warning_file = ref None
-
 module LwtRandom = struct
 
   type 'a t = 'a Lwt.t
@@ -270,12 +262,12 @@ let sendmail ?return_path message =
 let send_email recipient subject body =
   let contents =
     Netsendmail.compose
-      ~from_addr:("Belenios public server", !server_mail)
+      ~from_addr:("Belenios public server", !Web_config.server_mail)
       ~to_addrs:[recipient, recipient]
       ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
       ~subject body
   in
-  let return_path = !return_path in
+  let return_path = !Web_config.return_path in
   let sendmail = sendmail ?return_path in
   let rec loop () =
     try%lwt
@@ -340,7 +332,7 @@ let get_fname uuid x =
   | None -> x
   | Some uuid ->
      let ( / ) = Filename.concat in
-     !spool_dir / raw_string_of_uuid uuid / x
+     !Web_config.spool_dir / raw_string_of_uuid uuid / x
 
 let read_file ?uuid x =
   try%lwt
