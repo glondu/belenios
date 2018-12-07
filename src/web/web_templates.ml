@@ -1565,24 +1565,6 @@ let election_draft_confirm uuid se () =
   let%lwt login_box = site_login_box () in
   base ~title ?login_box ~content ()
 
-let election_login_box uuid =
-  let module A = struct
-    let get_user () =
-      Web_state.get_election_user uuid
-    let get_auth_systems () =
-      let%lwt l = Web_persist.get_auth_config uuid in
-      return @@ List.map (fun x -> x.auth_instance) l
-  end in
-  let auth = (module A : AUTH_SERVICES) in
-  let module L = struct
-    let login x =
-      Eliom_service.preapply election_login ((uuid, ()), x)
-    let logout () =
-      Eliom_service.preapply logout ()
-  end in
-  let links = (module L : AUTH_LINKS) in
-  fun () -> make_login_box ~site:false auth links
-
 let file uuid x = Eliom_service.preapply election_dir (uuid, x)
 
 let audit_footer election =
@@ -1770,8 +1752,7 @@ let election_home election state () =
     br ();
     ballots_link;
   ] in
-  let%lwt login_box = election_login_box uuid () in
-  base ~title:params.e_name ?login_box ~content ~footer ~uuid ()
+  base ~title:params.e_name ~content ~footer ~uuid ()
 
 let mail_trustee_tally : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Dear trustee,
@@ -2182,9 +2163,8 @@ let cast_raw election () =
     h3 [ pcdata "Submit by file" ];
     form_upload;
   ] in
-  let%lwt login_box = election_login_box uuid () in
   let%lwt footer = audit_footer election in
-  base ~title:params.e_name ?login_box ~content ~uuid ~footer ()
+  base ~title:params.e_name ~content ~uuid ~footer ()
 
 let cast_confirmation election hash () =
   let%lwt language = Eliom_reference.get Web_state.language in
@@ -2374,8 +2354,7 @@ let pretty_ballots election hashes result () =
     ul ballots;
     links;
   ] in
-  let%lwt login_box = election_login_box uuid () in
-  base ~title ?login_box ~content ~uuid ()
+  base ~title ~content ~uuid ()
 
 let pretty_records election records () =
   let uuid = election.e_params.e_uuid in
