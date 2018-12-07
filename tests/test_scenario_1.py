@@ -27,7 +27,7 @@ USE_HEADLESS_BROWSER = True # Set this to True if you run this test in Continuou
 WAIT_TIME_BETWEEN_EACH_STEP = 0.05 # In seconds (float)
 
 NUMBER_OF_INVITED_VOTERS = 20 # This is N in description of Scenario 1. N is between 6 (quick test) and 1000 (load testing)
-NUMBER_OF_VOTING_VOTERS = 10 # This is K in description of Scenario 1. K is between 6 (quick test) and 1000 (load testing). K <= N
+NUMBER_OF_VOTING_VOTERS = 10 # This is K in description of Scenario 1. K is between 6 (quick test) and 1000 (load testing). K <= N. (Some invited voters don't vote, this is abstention, and its value is N - K)
 NUMBER_OF_REVOTING_VOTERS = 5 # This is L in description of Scenario 1. L <= K
 NUMBER_OF_REGENERATED_PASSWORD_VOTERS = 4 # This is M in description of Scenario 1. M <= K
 ELECTION_TITLE = "My test election for Scenario 1"
@@ -262,6 +262,7 @@ def install_fake_sendmail_log_file():
 def uninstall_fake_sendmail_log_file():
     subprocess.run(["rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
 
+
 def verify_element_label(element, expected_label):
     element_real_label = element.get_attribute('innerText')
     assert expected_label in element_real_label, 'Expected label "' + expected_label + '" not found in element label "' + element_real_label + "'"
@@ -324,14 +325,21 @@ def election_page_url_to_election_id(election_page_url):
     return election_uuid
 
 
-def verify_election_consistency(election_id):
+def verify_election_consistency(election_id, snapshot_folder=None):
+    """
+    :param snapshot_folder: Optional parameter. If provided, it will verify consistency of differences (evolution) between this snapshot folder and current election database folder
+    """
+
     election_folder = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id)
     verification_tool_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
-    running_process = subprocess.Popen([verification_tool_path, "verify"], cwd=election_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    command = [verification_tool_path, "verify"]
+    if snapshot_folder:
+        command = [verification_tool_path, "verify-diff", "--dir1=" + snapshot_folder, "--dir2=" + election_folder]
+    running_process = subprocess.Popen(command, cwd=election_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     process_timeout = 15 # seconds
     try:
         outs, errs = running_process.communicate(timeout=process_timeout) # It looks like all output of this program is in stderr
-        match = re.search(r'^I: all checks passed$', errs, re.MULTILINE)
+        match = re.search(r'^I: all (checks|tests) passed!?$', errs, re.MULTILINE)
         if match:
             print("Verification of election consistency has been correctly processed")
             assert match
@@ -341,6 +349,29 @@ def verify_election_consistency(election_id):
         running_process.kill()
         outs, errs = proc.communicate()
         raise Exception ("Error: Verification took longer than " + process_timeout + " seconds. STDOUT was: " + outs + " STDERR was:" + errs)
+
+
+def create_election_data_snapshot(election_id):
+    election_folder = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id)
+    process = subprocess.Popen(["mktemp", "-d"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    out, err = process.communicate(timeout=2)
+
+    temporary_folder_absolute_path = None
+    match = re.search(r'^\s*(\S+)\s*$', out)
+    if match:
+        temporary_folder_absolute_path = match.group(1)
+        print("temporary_folder_absolute_path:",temporary_folder_absolute_path)
+    else:
+        raise Exception("Could not extract absolute path from output of mktemp:", out)
+
+    # Remark: If this command is run before any vote is cast, files `public_creds.txt` and `ballots.jsons` do not exist yet 
+    subprocess.run(["cp", "election.json", "public_creds.txt", "public_keys.jsons", "ballots.jsons", temporary_folder_absolute_path], cwd=election_folder)
+
+    return temporary_folder_absolute_path
+
+
+def delete_election_data_snapshot(snapshot_folder):
+    subprocess.run(["rm", "-rf", snapshot_folder])
 
 
 class element_has_non_empty_content(object):
@@ -868,11 +899,11 @@ pris en compte.
   """
   :param voters: list of dict. Each element contains information about a voter (their e-mail address, the planned answers to each question they will cast)
   """
-  def voters_cast_their_vote(self, voters):
+  def some_voters_cast_their_vote(self, voters):
     browser = self.browser
     voters_count = len(voters)
     for index, voter in enumerate(voters):
-        print("#### Current voter casting their vote: " + str(index+1) + "/" + str(voters_count))
+        print("#### Current voter casting their vote in current batch: " + str(index+1) + "/" + str(voters_count))
         # Bob has received 2 emails containing an invitation to vote and all necessary credentials (election page URL, username, password). He goes to the election page URL.
         browser.get(voter["election_page_url"])
 
@@ -1042,11 +1073,54 @@ pris en compte.
 
   def all_voters_vote(self):
     voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_VOTING_VOTERS] # TODO: "à faire avec K électeurs différents, avec au moins 3 sessions d'électeurs entrelacées"
-    # TODO: Should we also handle a case where not all invited voters vote? (abstention)
     voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
     voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
     self.update_voters_data(voters_who_will_vote_now_data)
-    self.voters_cast_their_vote(voters_who_will_vote_now_data)
+    self.some_voters_cast_their_vote(voters_who_will_vote_now_data)
+
+
+  def all_voters_vote_in_sequences(self, verify_every_x_votes=5): # This function is an alias of some_voters_vote_in_sequences() using some default parameters, for readability
+    self.some_voters_vote_in_sequences(start_index=0, end_index=NUMBER_OF_VOTING_VOTERS, verify_every_x_votes=verify_every_x_votes)
+
+  def some_voters_vote_in_sequences(self, start_index=0, end_index=NUMBER_OF_VOTING_VOTERS, verify_every_x_votes=5):
+    if start_index < 0:
+        raise Exception("start_index cannot be below 0")
+    current_start_index = start_index
+    if end_index > NUMBER_OF_VOTING_VOTERS:
+        raise Exception("end_index cannot exceeed NUMBER_OF_VOTING_VOTERS")
+    voters_who_will_vote_now = self.voters_email_addresses[start_index:end_index] # TODO: "à faire avec K électeurs différents, avec au moins 3 sessions d'électeurs entrelacées"
+    voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
+    voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
+    self.update_voters_data(voters_who_will_vote_now_data)
+    snapshot_folder = None
+
+    while current_start_index < end_index:
+        increment = verify_every_x_votes # could be randomized
+        current_end_index = current_start_index + increment
+        if current_end_index > end_index:
+            current_end_index = end_index
+
+        if current_start_index > 0:
+            print("#### Starting substep: create_election_data_snapshot")
+            snapshot_folder = create_election_data_snapshot(self.election_id)
+            print("#### Substep complete: create_election_data_snapshot")
+        
+        try:
+            print("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index-1) + " are now going to vote")
+            self.some_voters_cast_their_vote(voters_who_will_vote_now_data[current_start_index:current_end_index])
+            print("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index-1) + " have now voted")
+
+            if current_start_index > 0:
+                print("#### Starting substep: verify_election_consistency")
+                verify_election_consistency(self.election_id, snapshot_folder)
+                print("#### Substep complete: verify_election_consistency")
+        finally:
+            if current_start_index > 0:
+                print("#### Starting substep: delete_election_data_snapshot")
+                delete_election_data_snapshot(snapshot_folder)
+                print("#### Substep complete: delete_election_data_snapshot")
+
+        current_start_index += increment
 
 
   def some_voters_revote(self):
@@ -1054,7 +1128,7 @@ pris en compte.
     voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
     voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
     self.update_voters_data(voters_who_will_vote_now_data)
-    self.voters_cast_their_vote(voters_who_will_vote_now_data)
+    self.some_voters_cast_their_vote(voters_who_will_vote_now_data)
 
 
   def administrator_does_tallying_of_election(self):
@@ -1142,25 +1216,40 @@ pris en compte.
     verify_election_consistency(self.election_id)
     print("### Step complete: verify_election_consistency (0)")
 
-    print("### Starting step: all_voters_vote")
-    self.all_voters_vote()
-    print("### Step complete: all_voters_vote")
-
-    print("### Starting step: some_voters_revote")
-    self.some_voters_revote()
-    print("### Step complete: some_voters_revote")
+    print("### Starting step: all_voters_vote_in_sequences")
+    self.all_voters_vote_in_sequences()
+    print("### Step complete: all_voters_vote_in_sequences")
 
     print("### Starting step: verify_election_consistency (1)")
     verify_election_consistency(self.election_id)
     print("### Step complete: verify_election_consistency (1)")
 
-    print("### Starting step: administrator_does_tallying_of_election")
-    self.administrator_does_tallying_of_election()
-    print("### Step complete: administrator_does_tallying_of_election")
+    print("### Starting step: create_election_data_snapshot (0)")
+    snapshot_folder = create_election_data_snapshot(self.election_id)
+    print("### Step complete: create_election_data_snapshot (0)")
+
+    try:
+        print("### Starting step: some_voters_revote")
+        self.some_voters_revote()
+        print("### Step complete: some_voters_revote")
+
+        print("### Starting step: verify_election_consistency diff (0)")
+        verify_election_consistency(self.election_id, snapshot_folder)
+    finally:
+        delete_election_data_snapshot(snapshot_folder)
+    print("### Step complete: verify_election_consistency diff (0)")
 
     print("### Starting step: verify_election_consistency (2)")
     verify_election_consistency(self.election_id)
     print("### Step complete: verify_election_consistency (2)")
+
+    print("### Starting step: administrator_does_tallying_of_election")
+    self.administrator_does_tallying_of_election()
+    print("### Step complete: administrator_does_tallying_of_election")
+
+    print("### Starting step: verify_election_consistency (3)")
+    verify_election_consistency(self.election_id)
+    print("### Step complete: verify_election_consistency (3)")
 
     # TODO: also use `belenios-tool verify-diff`
 
