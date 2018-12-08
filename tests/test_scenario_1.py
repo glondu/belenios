@@ -12,10 +12,10 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.alert import Alert
+from util.fake_sent_emails_manager import FakeSentEmailsManager
+from util.selenium_tools import element_has_non_empty_content, wait_for_element_exists_and_contains_expected_text
 
 
 SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
@@ -51,61 +51,14 @@ def random_generator(size=20, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
 
-def find_in_sent_emails(text):
-    with open(SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH) as fl:
-        return text in fl.read()
-
-
-def count_occurences_in_sent_emails(text):
-    with open(SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH) as file:
-        count = file.read().count(text)
-    return count
-
-
-def separate_sent_emails():
-    """
-    Converts the file that gathers all sent emails to an array with one element per sent email. Each element is a dictionary with fields "to", "subject", and "full_content".
-    :return: array
-    """
-
-    # Email content is encoded using "quoted-printable" encoding. Please refer to https://en.wikipedia.org/wiki/Quoted-printable for more information. For example, this enconding transforms "@" into "=40". TODO: We could improve this function by having it directly decode the part of the email that is encoded, using `quopri` library for example.
-    marker_for_end_of_email = "--=20"
-    result = []
-    with open(SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH) as file:
-        contents = file.read()
-        separated_emails = contents.split(marker_for_end_of_email)
-
-        if len(separated_emails[-1]) < 5: # The last sent email ends with marker_for_end_of_email, so we can ignore what comes after
-            separated_emails.pop()
-
-        for email_full_content in separated_emails:
-            email_to = ""
-            match = re.search(r'^To: "(.*)"', email_full_content, re.MULTILINE)
-            if match:
-                email_to = match.group(1)
-
-            email_subject = ""
-            match = re.search(r'^Subject: (.*)$', email_full_content, re.MULTILINE)
-            if match:
-                email_subject = match.group(1)
-
-            element = {
-                "to": email_to,
-                "subject": email_subject,
-                "full_content": email_full_content
-            }
-            result.append(element)
-    return result
-
-
-def populate_credential_and_password_for_voters_from_sent_emails(voters_email_addresses, election_title):
+def populate_credential_and_password_for_voters_from_sent_emails(fake_sent_emails_manager, voters_email_addresses, election_title):
     """
     Reads the file that gathers all sent emails to find, for each voter provided in array voters_email_addresses, their credential and their latest sent password. Returns an array, where each element is a dictionary with fields "email_address", "credential", "election_page_url", "username", and "password".
     :return: array
     """
 
     result = []
-    sent_emails = separate_sent_emails()
+    sent_emails = fake_sent_emails_manager.separate_sent_emails()
     for voter_email_address in voters_email_addresses:
         # Step 1: Gather all emails that have been sent to this voter's email address
         emails_to_selected_voter = [x for x in sent_emails if x["to"] == voter_email_address]
@@ -188,8 +141,8 @@ def populate_random_votes_for_voters(voters):
     return voters
 
 
-def repopulate_vote_confirmations_for_voters_from_sent_emails(voters_with_credentials, election_title):
-    sent_emails = separate_sent_emails()
+def repopulate_vote_confirmations_for_voters_from_sent_emails(fake_sent_emails_manager, voters_with_credentials, election_title):
+    sent_emails = fake_sent_emails_manager.separate_sent_emails()
     for voter in voters_with_credentials:
         voter_email_address = voter["email_address"]
         # Step 1: Gather all emails that have been sent to this voter's email address
@@ -255,15 +208,6 @@ def remove_database_folder():
 
 def wait_a_bit():
     time.sleep(WAIT_TIME_BETWEEN_EACH_STEP)
-
-
-def install_fake_sendmail_log_file():
-    subprocess.run(["rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
-    subprocess.run(["touch", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
-
-
-def uninstall_fake_sendmail_log_file():
-    subprocess.run(["rm", "-f", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH])
 
 
 def verify_element_label(element, expected_label):
@@ -367,85 +311,13 @@ def create_election_data_snapshot(election_id):
         raise Exception("Could not extract absolute path from output of mktemp:", out)
 
     # Remark: If this command is run before any vote is cast, files `public_creds.txt` and `ballots.jsons` do not exist yet
-    subprocess.run(["cp", "election.json", "public_creds.txt", "public_keys.jsons", "ballots.jsons", temporary_folder_absolute_path], cwd=election_folder)
+    subprocess.run(["cp", "election.json", "public_creds.txt", "public_keys.jsons", "ballots.jsons", temporary_folder_absolute_path], cwd=election_folder) # TODO: Execute a command that works on other OS, like `shutil.copy()`
 
     return temporary_folder_absolute_path
 
 
 def delete_election_data_snapshot(snapshot_folder):
-    subprocess.run(["rm", "-rf", snapshot_folder])
-
-
-class element_has_non_empty_content(object):
-    """
-    An expectation for checking that an element has a non-empty innerText attribute.
-    This class is meant to be used in combination with Selenium's `WebDriverWait::until()`. For example:
-    ```
-    custom_wait = WebDriverWait(browser, 10)
-    smart_ballot_tracker_element = custom_wait.until(element_has_non_empty_content((By.ID, "my_id")))
-    ```
-
-    :param locator: Selenium locator used to find the element. For example: `(By.ID, "my_id")`
-    :return: The WebElement once it has a non-empty innerText attribute
-    """
-    def __init__(self, locator):
-        self.locator = locator
-
-    def __call__(self, driver):
-        element = driver.find_element(*self.locator)   # Finding the referenced element
-        if not element:
-            return False
-        element_content = element.get_attribute('innerText').strip()
-        if len(element_content) > 0:
-            return element
-        else:
-            return False
-
-
-class element_exists_and_contains_expected_text(object):
-    """
-    An expectation for checking that an element exists and its innerText attribute contains expected text.
-    This class is meant to be used in combination with Selenium's `WebDriverWait::until()`. For example:
-    ```
-    custom_wait = WebDriverWait(browser, 10)
-    smart_ballot_tracker_element = custom_wait.until(element_has_non_empty_content((By.ID, "my_id"), "my expected text"))
-    ```
-
-    :param locator: Selenium locator used to find the element. For example: `(By.ID, "my_id")`
-    :param expected_text: Text expected in element's innerText attribute (parameter type: string)
-    :return: The WebElement once its innerText attribute contains expected_text
-    """
-    def __init__(self, locator, expected_text):
-        self.locator = locator
-        self.expected_text = expected_text
-
-    def __call__(self, driver):
-        element = driver.find_element(*self.locator)   # Finding the referenced element
-        if not element:
-            return False
-        element_content = element.get_attribute('innerText').strip()
-        if self.expected_text in element_content:
-            return element
-        else:
-            return False
-
-
-def wait_for_element_exists_and_contains_expected_text(browser, css_selector, expected_text, wait_duration=10):
-    """
-    Waits for the presence of an element that matches CSS selector `css_selector` and that has an innerText attribute that contains string `expected_text`.
-    :param browser: Selenium browser
-    :param css_selector: CSS selector of the expected element
-    :param expected_text: String of the expected text that element must contain
-    :param wait_duration: Maximum duration in seconds that we wait for the presence of this element before raising an exception
-    :return: The WebElement once it matches expected conditions
-    """
-    try:
-        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
-        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
-        page_title_element = custom_wait.until(element_exists_and_contains_expected_text((By.CSS_SELECTOR, css_selector), expected_text))
-        return page_title_element
-    except Exception:
-        raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds")
+    subprocess.run(["rm", "-rf", snapshot_folder]) # TODO: Execute a command that works on other OS, like `shutil.rmtree()`
 
 
 class BeleniosTestElectionScenario1(unittest.TestCase):
@@ -461,7 +333,8 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     """
 
     def setUp(self):
-        install_fake_sendmail_log_file()
+        self.fake_sent_emails_manager = FakeSentEmailsManager(SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
+        self.fake_sent_emails_manager.install_fake_sendmail_log_file()
 
         remove_database_folder()
 
@@ -483,7 +356,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         remove_database_folder()
 
-        uninstall_fake_sendmail_log_file()
+        self.fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
 
 
     def update_voters_data(self, some_voters_data):
@@ -752,7 +625,7 @@ pris en compte.
 
         email_address_to_look_for = self.voters_email_addresses[0]
         text_to_look_for = 'To: "' + email_address_to_look_for + '"'
-        email_address_found = find_in_sent_emails(text_to_look_for)
+        email_address_found = self.fake_sent_emails_manager.find_in_sent_emails(text_to_look_for)
         assert email_address_found, "Text '" + email_address_to_look_for + "'' not found in fake sendmail log file"
 
 
@@ -887,13 +760,13 @@ pris en compte.
 
         for email_address in self.voters_email_addresses_who_have_lost_their_password:
             text_to_look_for = 'To: "' + email_address + '"'
-            assert count_occurences_in_sent_emails(text_to_look_for) is 3
+            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) is 3
 
         voters_email_addresses_who_have_not_lost_their_password = set(self.voters_email_addresses) - set(self.voters_email_addresses_who_have_lost_their_password)
 
         for email_address in voters_email_addresses_who_have_not_lost_their_password:
             text_to_look_for = 'To: "' + email_address + '"'
-            assert count_occurences_in_sent_emails(text_to_look_for) is 2
+            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) is 2
 
         self.log_out()
 
@@ -1068,7 +941,7 @@ pris en compte.
             browser = self.browser
 
         # Start another pass, where we re-read and re-populate the sendmail_fake text file once for all users.
-        voters = repopulate_vote_confirmations_for_voters_from_sent_emails(voters, ELECTION_TITLE)
+        voters = repopulate_vote_confirmations_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters, ELECTION_TITLE)
         for voter in voters:
             # He checks his mailbox to find a new email with confirmation of his vote, and verifies the value of the smart ballot tracker written in this email is the same as the one he noted.
             assert voter["smart_ballot_tracker"] == voter["smart_ballot_tracker_in_vote_confirmation_email"], "Ballot tracker read in vote confirmation email (" + voter["smart_ballot_tracker"] + ") is not the same as the one read on the vote confirmation page (" + voter["smart_ballot_tracker_in_vote_confirmation_email"] + ")"
@@ -1076,7 +949,7 @@ pris en compte.
 
     def all_voters_vote(self):
         voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_VOTING_VOTERS] # TODO: "à faire avec K électeurs différents, avec au moins 3 sessions d'électeurs entrelacées"
-        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
+        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
         self.update_voters_data(voters_who_will_vote_now_data)
         self.some_voters_cast_their_vote(voters_who_will_vote_now_data)
@@ -1095,7 +968,7 @@ pris en compte.
         if end_index > NUMBER_OF_VOTING_VOTERS:
             raise Exception("end_index cannot exceeed NUMBER_OF_VOTING_VOTERS")
         voters_who_will_vote_now = self.voters_email_addresses[start_index:end_index] # TODO: "à faire avec K électeurs différents, avec au moins 3 sessions d'électeurs entrelacées"
-        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
+        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
         self.update_voters_data(voters_who_will_vote_now_data)
         snapshot_folder = None
@@ -1131,7 +1004,7 @@ pris en compte.
 
     def some_voters_revote(self):
         voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_REVOTING_VOTERS] # TODO: Should we pick these voters in a different way than as a sequential subset of initial set?
-        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(voters_who_will_vote_now, ELECTION_TITLE)
+        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
         self.update_voters_data(voters_who_will_vote_now_data)
         self.some_voters_cast_their_vote(voters_who_will_vote_now_data)
