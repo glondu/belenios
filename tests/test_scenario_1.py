@@ -10,12 +10,9 @@ import subprocess
 import re
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.alert import Alert
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import element_has_non_empty_content, wait_for_element_exists_and_contains_expected_text
+from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content
 
 
 SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
@@ -24,7 +21,8 @@ DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY = "_run/spool"
 FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "tests/tools/sendmail_fake.sh"
 SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = "/tmp/sendmail_fake"
 USE_HEADLESS_BROWSER = True # Set this to True if you run this test in Continuous Integration (it has no graphical display)
-WAIT_TIME_BETWEEN_EACH_STEP = 0.05 # In seconds (float)
+WAIT_TIME_BETWEEN_EACH_STEP = 0.05 # In seconds (float). Time we wait between each action that we tell Selenium driver to do in the browser. This referes to Selenium's "Implicit Wait" concept
+EXPLICIT_WAIT_TIMEOUT = 10 # In seconds. Maximum duration Selenium driver will wait for appearance of a specific DOM element expected in the page (for example when transitioning from a page to another). This referes to Selenium's "Explicit Wait" concept
 
 NUMBER_OF_INVITED_VOTERS = 20 # This is N in description of Scenario 1. N is between 6 (quick test) and 1000 (load testing)
 NUMBER_OF_VOTING_VOTERS = 10 # This is K in description of Scenario 1. K is between 6 (quick test) and 1000 (load testing). K <= N. (Some invited voters don't vote, this is abstention, and its value is N - K)
@@ -418,22 +416,19 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         page_title_css_selector = "#header h1"
         page_title_expected_content = "Administration"
-        page_title_element = wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content)
-        assert page_title_element
+        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content)
 
 
     def log_out(self):
         browser = self.browser
         # In the header of the page, she clicks on the "Log out" link
-        logout_link_css_id = "logout"
-        logout_element = browser.find_element_by_id(logout_link_css_id)
+        logout_link_css_selector = "#logout"
+        logout_element = wait_for_element_exists(browser, logout_link_css_selector, EXPLICIT_WAIT_TIMEOUT)
         logout_element.click()
 
-        wait_a_bit()
-
         # She arrives back on the logged out home page. She checks that a login link is present
-        login_link_id = "login_local"
-        browser.find_element_by_id(login_link_id)
+        login_link_css_selector = "#login_local"
+        wait_for_element_exists(browser, login_link_css_selector, EXPLICIT_WAIT_TIMEOUT)
 
 
     def administrator_creates_election(self):
@@ -783,37 +778,22 @@ pris en compte.
             # Bob has received 2 emails containing an invitation to vote and all necessary credentials (election page URL, username, password). He goes to the election page URL.
             browser.get(voter["election_page_url"])
 
-            wait_a_bit()
-
             # He clicks on the "Start" button
             start_button_expected_label = "Start"
             start_button_css_selector = "#main button"
-            start_button_element = browser.find_element_by_css_selector(start_button_css_selector)
-            verify_element_label(start_button_element, start_button_expected_label)
+            start_button_element = wait_for_element_exists_and_contains_expected_text(browser, start_button_css_selector, start_button_expected_label)
             start_button_element.click()
 
-            wait_a_bit()
-
             # A loading screen appears, then another screen appears. He clicks on the "Here" button
-            try:
-                here_button_expected_label = "here"
-                here_button_css_selector = "#input_code button"
-                here_button_element = WebDriverWait(browser, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, here_button_css_selector))
-                )
-                verify_element_label(here_button_element, here_button_expected_label)
-                here_button_element.click()
-            except Exception:
-                raise Exception("Could not find expected DOM element until timeout")
-
-            wait_a_bit()
+            here_button_expected_label = "here"
+            here_button_css_selector = "#input_code button"
+            here_button_element = wait_for_element_exists_and_contains_expected_text(browser, here_button_css_selector, here_button_expected_label)
+            here_button_element.click()
 
             # A modal opens (it is an HTML modal created using Window.prompt()), with an input field. He types his credential.
             credential_prompt = Alert(browser)
             credential_prompt.send_keys(voter["credential"])
             credential_prompt.accept()
-
-            wait_a_bit()
 
             # A new screen appears, which has a title "Step 2/6: Answer to questions", and a content:
             # "Question 1?"
@@ -825,7 +805,8 @@ pris en compte.
 
             # He fills his votes to each answer of the question
             answers_css_selector = "#question_div input[type=checkbox]"
-            answers_elements = browser.find_elements_by_css_selector(answers_css_selector) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
+            answers_elements = wait_for_elements_exist(browser, answers_css_selector) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
+
             assert len(answers_elements) is 2
             question1_answer1_element = answers_elements[0]
             question1_answer2_element = answers_elements[1]
@@ -840,16 +821,11 @@ pris en compte.
             if voter_vote_to_question_1_answer_2:
                 question1_answer2_element.click()
 
-            wait_a_bit()
-
             # He clicks on the "Next" button
             next_button_expected_label = "Next"
             next_button_css_selector = "#question_div button"
-            next_button_element = browser.find_element_by_css_selector(next_button_css_selector)
-            verify_element_label(next_button_element, next_button_expected_label)
+            next_button_element = wait_for_element_exists_and_contains_expected_text(browser, next_button_css_selector, next_button_expected_label)
             next_button_element.click()
-
-            wait_a_bit()
 
             """
             A new screen appears, showing:
@@ -869,9 +845,8 @@ pris en compte.
             """
 
             # He remembers the smart ballot tracker that is displayed.
-            smart_ballot_tracker_css_id = "ballot_tracker"
-            custom_wait = WebDriverWait(browser, 10)
-            smart_ballot_tracker_element = custom_wait.until(element_has_non_empty_content((By.ID, smart_ballot_tracker_css_id)))
+            smart_ballot_tracker_css_selector = "#ballot_tracker"
+            smart_ballot_tracker_element = wait_for_element_exists_and_has_non_empty_content(browser, smart_ballot_tracker_css_selector)
             smart_ballot_tracker_value = smart_ballot_tracker_element.get_attribute('innerText')
             assert len(smart_ballot_tracker_value) > 5
 
@@ -883,11 +858,9 @@ pris en compte.
             next_button_element = browser.find_element_by_css_selector(next_button_css_selector)
             next_button_element.click()
 
-            wait_a_bit()
-
             # He types his voter username and password, and submits the form
             username_field_css_selector = "#main input[name=username]"
-            username_field_element = browser.find_element_by_css_selector(username_field_css_selector)
+            username_field_element = wait_for_element_exists(browser, username_field_css_selector)
             username_field_element.send_keys(voter["username"])
 
             password_field_css_selector = "#main input[name=password]"
@@ -897,9 +870,8 @@ pris en compte.
             password_field_element.submit()
 
             # He checks that the smart ballot tracker value that appears on screen is the same as the one he noted
-            smart_ballot_tracker_verification_css_id = "ballot_tracker"
-            smart_ballot_tracker_verification_custom_wait = WebDriverWait(browser, 20)
-            smart_ballot_tracker_verification_element = smart_ballot_tracker_verification_custom_wait.until(element_has_non_empty_content((By.ID, smart_ballot_tracker_verification_css_id)))
+            smart_ballot_tracker_verification_css_selector = "#ballot_tracker"
+            smart_ballot_tracker_verification_element = wait_for_element_exists_and_has_non_empty_content(browser, smart_ballot_tracker_verification_css_selector, 20)
             smart_ballot_tracker_verification_value = smart_ballot_tracker_verification_element.get_attribute('innerText')
             assert len(smart_ballot_tracker_verification_value) > 5
 
