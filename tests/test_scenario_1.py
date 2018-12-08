@@ -360,7 +360,6 @@ def create_election_data_snapshot(election_id):
     match = re.search(r'^\s*(\S+)\s*$', out)
     if match:
         temporary_folder_absolute_path = match.group(1)
-        print("temporary_folder_absolute_path:",temporary_folder_absolute_path)
     else:
         raise Exception("Could not extract absolute path from output of mktemp:", out)
 
@@ -1111,9 +1110,9 @@ pris en compte.
             print("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index-1) + " have now voted")
 
             if current_start_index > 0:
-                print("#### Starting substep: verify_election_consistency")
+                print("#### Starting substep: verify_election_consistency using `belenios_tool verify-diff` (for a batch of votes)")
                 verify_election_consistency(self.election_id, snapshot_folder)
-                print("#### Substep complete: verify_election_consistency")
+                print("#### Substep complete: verify_election_consistency using `belenios_tool verify-diff` (for a batch of votes)")
         finally:
             if current_start_index > 0:
                 print("#### Starting substep: delete_election_data_snapshot")
@@ -1212,17 +1211,17 @@ pris en compte.
     self.administrator_regenerates_passwords_for_some_voters()
     print("### Step complete: administrator_regenerates_passwords_for_some_voters")
 
-    print("### Starting step: verify_election_consistency (0)")
+    print("### Starting step: verify_election_consistency using `belenios_tool verify` (0)")
     verify_election_consistency(self.election_id)
-    print("### Step complete: verify_election_consistency (0)")
+    print("### Step complete: verify_election_consistency using `belenios_tool verify` (0)")
 
     print("### Starting step: all_voters_vote_in_sequences")
     self.all_voters_vote_in_sequences()
     print("### Step complete: all_voters_vote_in_sequences")
 
-    print("### Starting step: verify_election_consistency (1)")
+    print("### Starting step: verify_election_consistency using `belenios_tool verify` (1)")
     verify_election_consistency(self.election_id)
-    print("### Step complete: verify_election_consistency (1)")
+    print("### Step complete: verify_election_consistency using `belenios_tool verify` (1)")
 
     print("### Starting step: create_election_data_snapshot (0)")
     snapshot_folder = create_election_data_snapshot(self.election_id)
@@ -1233,25 +1232,23 @@ pris en compte.
         self.some_voters_revote()
         print("### Step complete: some_voters_revote")
 
-        print("### Starting step: verify_election_consistency diff (0)")
+        print("### Starting step: verify_election_consistency using `belenios_tool verify-diff` (0)")
         verify_election_consistency(self.election_id, snapshot_folder)
     finally:
         delete_election_data_snapshot(snapshot_folder)
-    print("### Step complete: verify_election_consistency diff (0)")
+    print("### Step complete: verify_election_consistency using `belenios_tool verify-diff` (0)")
 
-    print("### Starting step: verify_election_consistency (2)")
+    print("### Starting step: verify_election_consistency using `belenios_tool verify` (2)")
     verify_election_consistency(self.election_id)
-    print("### Step complete: verify_election_consistency (2)")
+    print("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
 
     print("### Starting step: administrator_does_tallying_of_election")
     self.administrator_does_tallying_of_election()
     print("### Step complete: administrator_does_tallying_of_election")
 
-    print("### Starting step: verify_election_consistency (3)")
+    print("### Starting step: verify_election_consistency using `belenios_tool verify` (3)")
     verify_election_consistency(self.election_id)
-    print("### Step complete: verify_election_consistency (3)")
-
-    # TODO: also use `belenios-tool verify-diff`
+    print("### Step complete: verify_election_consistency using `belenios_tool verify` (3)")
 
 
 if __name__ == "__main__":
