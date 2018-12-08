@@ -7,6 +7,9 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
 
 
+DEFAULT_WAIT_DURATION = 10 # In seconds
+
+
 class element_has_non_empty_content(object):
     """
     An expectation for checking that an element has a non-empty innerText attribute.
@@ -31,6 +34,17 @@ class element_has_non_empty_content(object):
             return element
         else:
             return False
+
+
+class an_element_with_partial_link_text_exists(object):
+    def __init__(self, partial_link_text):
+        self.partial_link_text = partial_link_text
+
+    def __call__(self, driver):
+        element = driver.find_element_by_partial_link_text(self.partial_link_text)
+        if not element:
+            return False
+        return element
 
 
 class element_exists_and_contains_expected_text(object):
@@ -61,7 +75,7 @@ class element_exists_and_contains_expected_text(object):
             return False
 
 
-def wait_for_element_exists_and_contains_expected_text(browser, css_selector, expected_text, wait_duration=10):
+def wait_for_element_exists_and_contains_expected_text(browser, css_selector, expected_text, wait_duration=DEFAULT_WAIT_DURATION):
     """
     Waits for the presence of an element that matches CSS selector `css_selector` and that has an innerText attribute that contains string `expected_text`.
     :param browser: Selenium browser
@@ -79,7 +93,7 @@ def wait_for_element_exists_and_contains_expected_text(browser, css_selector, ex
         raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds")
 
 
-def wait_for_element_exists_and_has_non_empty_content(browser, css_selector, wait_duration=10):
+def wait_for_element_exists_and_has_non_empty_content(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
     try:
         ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
         custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
@@ -89,7 +103,17 @@ def wait_for_element_exists_and_has_non_empty_content(browser, css_selector, wai
         raise Exception("Could not find expected DOM element '" + css_selector + "' with non-empty content until timeout of " + str(wait_duration) + " seconds")
 
 
-def wait_for_element_exists(browser, css_selector, wait_duration=10):
+def wait_for_an_element_with_partial_link_text_exists(browser, partial_link_text, wait_duration=DEFAULT_WAIT_DURATION):
+    try:
+        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
+        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
+        element = custom_wait.until(an_element_with_partial_link_text_exists(partial_link_text))
+        return element
+    except Exception:
+        raise Exception("Could not find a DOM element that contains expected partial link text '" + partial_link_text + "' until timeout of " + str(wait_duration) + " seconds")
+
+
+def wait_for_element_exists(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
     try:
         return WebDriverWait(browser, wait_duration).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, css_selector))
@@ -98,7 +122,7 @@ def wait_for_element_exists(browser, css_selector, wait_duration=10):
         raise Exception("Could not find expected DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds")
 
 
-def wait_for_elements_exist(browser, css_selector, wait_duration=10):
+def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
     try:
         return WebDriverWait(browser, wait_duration).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_selector))

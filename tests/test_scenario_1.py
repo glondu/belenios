@@ -12,7 +12,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.alert import Alert
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content
+from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists
 
 
 SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
@@ -29,6 +29,8 @@ NUMBER_OF_VOTING_VOTERS = 10 # This is K in description of Scenario 1. K is betw
 NUMBER_OF_REVOTING_VOTERS = 5 # This is L in description of Scenario 1. L <= K
 NUMBER_OF_REGENERATED_PASSWORD_VOTERS = 4 # This is M in description of Scenario 1. M <= K
 ELECTION_TITLE = "My test election for Scenario 1"
+ADMINISTRATOR_USERNAME = "user1" # This value comes from file `demo/password_db.csv`, first row, first column
+ADMINISTRATOR_PASSWORD = "phiexoey" # This value comes from file `demo/password_db.csv`, first row, 4th column
 
 THIS_FILE_ABSOLUTE_PATH = os.path.abspath(__file__)
 GIT_REPOSITORY_ABSOLUTE_PATH = os.path.dirname(os.path.dirname(THIS_FILE_ABSOLUTE_PATH))
@@ -213,13 +215,6 @@ def verify_element_label(element, expected_label):
     assert expected_label in element_real_label, 'Expected label "' + expected_label + '" not found in element label "' + element_real_label + "'"
 
 
-def find_element_by_css_selector_and_label(browser, css_selector, expected_label=None):
-    element = browser.find_element_by_css_selector(css_selector)
-    if expected_label:
-        verify_element_label(element, expected_label)
-    return element
-
-
 def find_button_in_page_content_by_value(browser, expected_value):
     css_selector = "#main input[value='" + expected_value + "']" # a more precise use case would be "#main form input[type=submit][value='...']"
     return browser.find_element_by_css_selector(css_selector)
@@ -370,7 +365,8 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         if from_a_login_page:
             local_login_link_label = "local"
-            browser.find_element_by_partial_link_text(local_login_link_label).click()
+            local_login_link_element = wait_for_an_element_with_partial_link_text_exists(browser, local_login_link_label)
+            local_login_link_element.click()
         else:
             # Edith has been given administrator rights on an online voting app called Belenios. She goes
             # to check out its homepage
@@ -378,6 +374,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
             browser.get(SERVER_URL)
 
             # She notices the page title mentions an election
+            # TODO: Should we wait for the page to load here? It looks like we don't need to.
             assert 'Election Server' in browser.title, "Browser title was: " + browser.title
 
             # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
@@ -387,22 +384,20 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
                 assert len(button_elements) is 1
                 button_elements[0].click()
 
-            wait_a_bit()
-
             # She clicks on "local" to go to the login page
-            login_link_id = "login_local"
-            login_element = browser.find_element_by_id(login_link_id)
+            login_link_css_selector = "#login_local"
+            login_element = wait_for_element_exists(browser, login_link_css_selector)
             login_element.click()
 
         # She enters her identifier and password and submits the form to log in
-        login_form_username_value = "user1"
-        login_form_password_value = "phiexoey" # This is the 4th column of file demo/password_db.csv
+        login_form_username_value = ADMINISTRATOR_USERNAME
+        login_form_password_value = ADMINISTRATOR_PASSWORD
 
         login_form_username_css_selector = '#main form input[name=username]'
         login_form_password_css_selector = '#main form input[name=password]'
 
-        login_form_username_element = browser.find_element_by_css_selector(login_form_username_css_selector)
-        login_form_password_element = browser.find_element_by_css_selector(login_form_password_css_selector)
+        login_form_username_element = wait_for_element_exists(browser, login_form_username_css_selector)
+        login_form_password_element = wait_for_element_exists(browser, login_form_password_css_selector)
 
         login_form_username_element.send_keys(login_form_username_value)
         login_form_password_element.send_keys(login_form_password_value)
@@ -440,31 +435,22 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         # She clicks on the "Prepare a new election" link
         browser = self.browser
-        create_election_link_text = "Prepare a new election"
+        create_election_link_expected_content = "Prepare a new election"
         links_css_selector = "#main a"
-        links_elements = browser.find_elements_by_css_selector(links_css_selector)
-        assert len(links_elements)
-        create_election_link_element = links_elements[0]
-        verify_element_label(create_election_link_element, create_election_link_text)
+        create_election_link_element = wait_for_element_exists_and_contains_expected_text(browser, links_css_selector, create_election_link_expected_content)
         create_election_link_element.click()
-
-        wait_a_bit()
 
         # She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
         proceed_button_css_selector = "#main form input[type=submit]"
-        proceed_button_element = browser.find_element_by_css_selector(proceed_button_css_selector)
+        proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector)
         proceed_button_element.click()
-
-        wait_a_bit()
 
         # She changes values of fields name and description of the election
         election_name_field_css_selector = "#main form input[name=__co_eliom_name]"
-        election_name_field_element = browser.find_element_by_css_selector(election_name_field_css_selector)
+        election_name_field_element = wait_for_element_exists(browser, election_name_field_css_selector)
         election_name_field_value = ELECTION_TITLE
         election_name_field_element.clear()
         election_name_field_element.send_keys(election_name_field_value)
-
-        wait_a_bit()
 
         election_description_field_css_selector = "#main form textarea[name=__co_eliom_description]"
         election_description_field_element = browser.find_element_by_css_selector(election_description_field_css_selector)
@@ -472,24 +458,20 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
         election_description_field_element.clear()
         election_description_field_element.send_keys(election_description_field_value)
 
-        wait_a_bit()
-
         # She clicks on the "Save changes button" (the one that is next to the election description field)
         save_changes_button_css_selector = "#main > div:nth-child(1) form input[type=submit]" # Warning: form:nth-child(1) selects another form
         save_changes_button_element = browser.find_element_by_css_selector(save_changes_button_css_selector)
         save_changes_button_element.click()
 
-        wait_a_bit()
-
         # She clicks on the "Edit questions" link, to write her own questions
         edit_questions_link_css_selector = "#edit_questions"
-        edit_questions_link_element = browser.find_element_by_css_selector(edit_questions_link_css_selector)
+        edit_questions_link_element = wait_for_element_exists(browser, edit_questions_link_css_selector)
         edit_questions_link_element.click()
 
-        wait_a_bit()
-
         # She arrives on the Questions page. She checks that the page title is correct
-        find_element_by_css_selector_and_label(browser, "#header h1", "Questions for")
+        page_title_css_selector = "#header h1"
+        page_title_expected_content = "Questions for"
+        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content)
 
         # She removes answer 3
         question_to_remove = 3
@@ -882,8 +864,6 @@ pris en compte.
             submit_button_element = browser.find_element_by_css_selector(submit_button_css_selector)
             submit_button_element.click()
 
-            wait_a_bit()
-
             """
             Next screen looks like this:
             Your ballot for My test election for Scenario 1 has been accepted. Your smart ballot tracker is ISXe/rCNCVa9XcVeFgKglbpgo5SoZs4svT6dPbR5b6M. You can check its presence in the {ballot box} anytime during the election. A confirmation e-mail has been sent to you.
@@ -895,11 +875,12 @@ pris en compte.
 
             # He clicks on the "ballot box" link
             ballot_box_link_label = "ballot box"
-            browser.find_element_by_partial_link_text(ballot_box_link_label).click()
+            ballot_box_link_element = wait_for_an_element_with_partial_link_text_exists(browser, ballot_box_link_label)
+            ballot_box_link_element.click()
 
             # He checks that his smart ballot tracker appears in the list
             all_smart_ballot_trackers_css_selector = "#main ul li a"
-            all_smart_ballot_trackers_elements = browser.find_elements_by_css_selector(all_smart_ballot_trackers_css_selector)
+            all_smart_ballot_trackers_elements = wait_for_elements_exist(browser, all_smart_ballot_trackers_css_selector)
             assert len(all_smart_ballot_trackers_elements)
             matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
             assert len(matches) is 1
