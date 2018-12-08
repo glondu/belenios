@@ -336,10 +336,7 @@ let delete_election uuid =
   return_unit
 
 let () = Any.register ~service:home
-  (fun () () ->
-    let%lwt () = Eliom_reference.unset Web_state.cont in
-    Redirection.send (Redirection admin)
-  )
+  (fun () () -> Redirection.send (Redirection admin))
 
 let get_elections_by_owner_sorted u =
   let%lwt elections = Web_persist.get_elections_by_owner u in
@@ -377,8 +374,6 @@ let () = Html.register ~service:admin
   (fun () () ->
     let%lwt gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
     if gdpr then T.privacy_notice ContAdmin else
-    let cont () = Redirection.send (Redirection admin) in
-    let%lwt () = Eliom_reference.set Web_state.cont [cont] in
     let%lwt site_user = Eliom_reference.get Web_state.site_user in
     let%lwt elections =
       match site_user with
@@ -1209,8 +1204,6 @@ let () =
       try%lwt
         let%lwt w = find_election uuid in
         let%lwt () = Eliom_reference.unset Web_state.ballot in
-        let cont = redir_preapply election_home (uuid, ()) in
-        let%lwt () = Eliom_reference.set Web_state.cont [cont] in
         match%lwt Eliom_reference.get Web_state.cast_confirmed with
         | Some result ->
            let%lwt () = Eliom_reference.unset Web_state.cast_confirmed in
@@ -1227,19 +1220,20 @@ let () =
           L.come_back_later ()
           >>= Html.send)
 
+let get_cont_state cont =
+  let redir = match cont with
+    | ContSiteHome -> Redirection home
+    | ContSiteAdmin -> Redirection admin
+    | ContSiteElection uuid -> Redirection (preapply election_home (uuid, ()))
+  in
+  fun () -> Redirection.send redir
+
 let () =
   Any.register ~service:set_cookie_disclaimer
-    (fun () () ->
+    (fun cont () ->
       let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
-      let%lwt cont = Web_state.cont_pop () in
-      match cont with
-      | Some f -> f ()
-      | None ->
-         let%lwt lang = Eliom_reference.get Web_state.language in
-         let module L = (val Web_i18n.get_lang lang) in
-         T.generic_page ~title:L.cookies_are_blocked
-           L.please_enable_them ()
-           >>= Html.send)
+      get_cont_state cont ()
+    )
 
 let () =
   Any.register ~service:election_admin
@@ -1263,9 +1257,7 @@ let () =
         in
         T.election_admin w metadata state get_tokens_decrypt () >>= Html.send
      | _ ->
-        let cont = redir_preapply election_admin uuid in
-        let%lwt () = Eliom_reference.set Web_state.cont [cont] in
-        redir_preapply site_login None ()
+        redir_preapply site_login (None, ContSiteElection uuid) ()
     )
 
 let election_set_state state uuid () =
@@ -1381,8 +1373,6 @@ let () =
   Any.register ~service:election_cast
     (fun uuid () ->
       let%lwt w = find_election uuid in
-      let cont = redir_preapply election_cast uuid in
-      let%lwt () = Eliom_reference.set Web_state.cont [cont] in
       match%lwt Eliom_reference.get Web_state.ballot with
       | Some b -> T.cast_confirmation w (sha256_b64 b) () >>= Html.send
       | None -> T.cast_raw w () >>= Html.send)
@@ -1399,12 +1389,10 @@ let submit_ballot ballot =
   | Some _ -> redir_preapply election_draft_questions uuid ()
   | None ->
      let%lwt user = Web_state.get_election_user uuid in
-     let cont = redir_preapply election_cast uuid in
-     let%lwt () = Eliom_reference.set Web_state.cont [cont] in
      let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
      match user with
      | None -> redir_preapply election_login ((uuid, ()), None) ()
-     | Some _ -> cont ()
+     | Some _ -> redir_preapply election_cast uuid ()
 
 let () =
   Any.register ~service:election_submit_ballot
@@ -1860,12 +1848,10 @@ let () =
 
 let () =
   Any.register ~service:set_language
-    (fun lang () ->
+    (fun (lang, cont) () ->
       let%lwt () = Eliom_reference.set Web_state.language lang in
-      let%lwt cont = Web_state.cont_pop () in
-      match cont with
-      | Some f -> f ()
-      | None -> Redirection.send (Redirection home))
+      get_cont_state cont ()
+    )
 
 let () =
   Any.register ~service:election_draft_threshold_set

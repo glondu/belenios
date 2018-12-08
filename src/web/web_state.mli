@@ -20,17 +20,12 @@
 (**************************************************************************)
 
 open Web_serializable_t
-open Web_signatures
 
 val show_cookie_disclaimer : bool Eliom_reference.eref
 
 val site_user : user option Eliom_reference.eref
 val election_user : (uuid * user) option Eliom_reference.eref
 val get_election_user : uuid -> user option Lwt.t
-
-val cont : (unit -> content) list Eliom_reference.eref
-val cont_push : (unit -> content) -> unit Lwt.t
-val cont_pop : unit -> (unit -> content) option Lwt.t
 
 val ballot : string option Eliom_reference.eref
 val cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option Eliom_reference.eref

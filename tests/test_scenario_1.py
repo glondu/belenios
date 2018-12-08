@@ -449,9 +449,12 @@ pris en compte.
     logout_element = browser.find_element_by_id(logout_link_css_id)
     logout_element.click()
 
-    # She arrives back on the logged out home page. She checks that a login link is present
-    login_link_id = "login_local"
-    login_element = browser.find_element_by_id(login_link_id)
+    # She arrives on the election home page. She checks that the "Start" button is present
+    start_button_expected_label = "Start"
+    start_button_css_selector = "#main button"
+    start_button_element = browser.find_element_by_css_selector(start_button_css_selector)
+    start_button_real_label = start_button_element.get_attribute('innerText')
+    assert start_button_expected_label in start_button_real_label, 'Expected label "' + start_button_expected_label + '" not found in element label "' + start_button_real_label + "'"
 
 
   def administrator_regenerates_passwords_for_some_voters(self):

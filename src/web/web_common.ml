@@ -180,6 +180,29 @@ let uuid x =
     ~to_string:raw_string_of_uuid
     x
 
+type site_cont =
+  | ContSiteHome
+  | ContSiteAdmin
+  | ContSiteElection of uuid
+
+let site_cont_of_string x =
+  match Pcre.split ~pat:"/" x with
+  | ["home"] -> ContSiteHome
+  | ["admin"] -> ContSiteAdmin
+  | ["elections"; uuid] -> ContSiteElection (uuid_of_raw_string uuid)
+  | _ -> invalid_arg "site_login_cont_of_string"
+
+let string_of_site_cont = function
+  | ContSiteHome -> "home"
+  | ContSiteAdmin -> "admin"
+  | ContSiteElection uuid -> Printf.sprintf "elections/%s" (raw_string_of_uuid uuid)
+
+let site_cont x =
+  Eliom_parameter.user_type
+    ~of_string:site_cont_of_string
+    ~to_string:string_of_site_cont
+    x
+
 type privacy_cont =
   | ContAdmin
   | ContSignup

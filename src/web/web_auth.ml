@@ -23,7 +23,6 @@ open Lwt
 open Eliom_service
 open Web_serializable_j
 open Web_common
-open Web_state
 open Web_services
 
 type auth_config = (string * string) list
@@ -37,20 +36,10 @@ let scope = Eliom_common.default_session_scope
 
 let auth_env = Eliom_reference.eref ~scope None
 
-let default_cont uuid () =
-  match%lwt cont_pop () with
-  | Some f -> f ()
-  | None ->
-     match uuid with
-     | None ->
-        Eliom_registration.(Redirection.send (Redirection Web_services.admin))
-     | Some u ->
-        Eliom_registration.(Redirection.send (Redirection (preapply Web_services.election_home (u, ()))))
-
 let run_post_login_handler auth_system f =
   match%lwt Eliom_reference.get auth_env with
   | None -> Printf.ksprintf failwith "%s handler was invoked without environment" auth_system
-  | Some (uuid, service, config) ->
+  | Some (uuid, service, config, cont) ->
      let%lwt () = Eliom_reference.unset auth_env in
      let authenticate name =
        let user = { user_domain = service; user_name = name } in
@@ -59,14 +48,14 @@ let run_post_login_handler auth_system f =
        | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
      in
      let%lwt () = f uuid config authenticate in
-     default_cont uuid ()
+     cont ()
 
 type pre_login_handler = auth_config -> result Lwt.t
 
 let pre_login_handlers = ref []
 
-let get_pre_login_handler service uuid auth_system config =
-  let%lwt () = Eliom_reference.set auth_env (Some (uuid, service, config)) in
+let get_pre_login_handler service uuid auth_system cont config =
+  let%lwt () = Eliom_reference.set auth_env (Some (uuid, service, config, cont)) in
   match List.assoc_opt auth_system !pre_login_handlers with
   | Some handler -> handler config
   | None -> fail_http 404
@@ -79,20 +68,35 @@ let rec find_auth_instance x = function
   | { auth_instance = i; auth_system = s; auth_config = c } :: _ when i = x -> Some (s, c)
   | _ :: xs -> find_auth_instance x xs
 
-let login_handler service uuid =
+let get_cont login_or_logout x =
+  let open Eliom_registration in
+  let redir = match x with
+    | `Election uuid -> Redirection (preapply election_cast uuid)
+    | `Site ContSiteHome -> Redirection home
+    | `Site ContSiteAdmin -> Redirection admin
+    | `Site (ContSiteElection uuid) ->
+       match login_or_logout with
+       | `Login -> Redirection (preapply election_admin uuid)
+       | `Logout -> Redirection (preapply election_home (uuid, ()))
+  in
+  fun () -> Redirection.send redir
+
+let login_handler service kind =
+  let uuid = match kind with
+    | `Site _ -> None
+    | `Election uuid -> Some uuid
+  in
   let myself service =
-    match uuid with
-    | None -> preapply site_login service
-    | Some u -> preapply election_login ((u, ()), service)
+    match kind with
+    | `Site cont -> preapply site_login (service, cont)
+    | `Election uuid -> preapply election_login ((uuid, ()), service)
   in
   let%lwt user = match uuid with
     | None -> Eliom_reference.get Web_state.site_user
     | Some uuid -> Web_state.get_election_user uuid
   in
   match user with
-  | Some _ ->
-     let%lwt () = cont_push (fun () -> Eliom_registration.(Redirection.send (Redirection (myself service)))) in
-     Web_templates.already_logged_in () >>= Eliom_registration.Html.send
+  | Some _ -> get_cont `Login kind ()
   | None ->
      let%lwt c = match uuid with
        | None -> return !Web_config.site_auth_config
@@ -105,32 +109,31 @@ let login_handler service uuid =
           | Some x -> return x
           | None -> fail_http 404
         in
-        get_pre_login_handler s uuid auth_system config
+        let cont = get_cont `Login kind in
+        get_pre_login_handler s uuid auth_system cont config
      | None ->
         match c with
         | [s] -> Eliom_registration.(Redirection.send (Redirection (myself (Some s.auth_instance))))
         | _ ->
            let builder =
-             match uuid with
-             | None -> fun s ->
-               preapply Web_services.site_login (Some s)
-             | Some u -> fun s ->
-               preapply Web_services.election_login ((u, ()), Some s)
+             match kind with
+             | `Site cont -> fun s ->
+               preapply Web_services.site_login (Some s, cont)
+             | `Election uuid -> fun s ->
+               preapply Web_services.election_login ((uuid, ()), Some s)
            in
            Web_templates.login_choose (List.map (fun x -> x.auth_instance) c) builder () >>=
            Eliom_registration.Html.send
 
-let logout_handler () =
+let logout_handler cont =
   let%lwt () = Eliom_reference.unset Web_state.site_user in
-  match%lwt cont_pop () with
-  | Some f -> f ()
-  | None -> Eliom_registration.(Redirection.send (Redirection Web_services.home))
+  get_cont `Logout (`Site cont) ()
 
 let () = Eliom_registration.Any.register ~service:site_login
-  (fun service () -> login_handler service None)
+  (fun (service, cont) () -> login_handler service (`Site cont))
 
 let () = Eliom_registration.Any.register ~service:logout
-  (fun () () -> logout_handler ())
+  (fun cont () -> logout_handler cont)
 
 let () = Eliom_registration.Any.register ~service:election_login
-  (fun ((uuid, ()), service) () -> login_handler service (Some uuid))
+  (fun ((uuid, ()), service) () -> login_handler service (`Election uuid))

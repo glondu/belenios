@@ -33,23 +33,6 @@ let get_election_user uuid =
   | Some (u, x) when u = uuid -> return (Some x)
   | _ -> return None
 
-let cont = Eliom_reference.eref ~scope []
-
-let cont_push f =
-  let open Eliom_reference in
-  let%lwt fs = get cont in
-  set cont (f :: fs)
-
-let cont_pop () =
-  let open Eliom_reference in
-  let%lwt fs = get cont in
-  match fs with
-  | f :: fs ->
-     let%lwt () = set cont fs in
-     return (Some f)
-  | [] -> return None
-
-
 let ballot = Eliom_reference.eref ~scope None
 let cast_confirmed = Eliom_reference.eref ~scope None
 

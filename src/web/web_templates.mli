@@ -63,9 +63,6 @@ val pretty_records : 'a election -> (string * string) list -> unit -> [> `Html ]
 
 val tally_trustees : 'a election -> int -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-val already_logged_in :
-  unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
 val login_choose :
   string list ->
   (string -> (unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,

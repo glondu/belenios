@@ -83,6 +83,17 @@ val uuid :
    [ `One of uuid ] Eliom_parameter.param_name)
   Eliom_parameter.params_type
 
+type site_cont =
+  | ContSiteHome
+  | ContSiteAdmin
+  | ContSiteElection of uuid
+
+val site_cont :
+  string ->
+  (site_cont, [ `WithoutSuffix ],
+   [ `One of site_cont ] Eliom_parameter.param_name)
+  Eliom_parameter.params_type
+
 type privacy_cont =
   | ContAdmin
   | ContSignup

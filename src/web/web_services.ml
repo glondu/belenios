@@ -28,8 +28,8 @@ let uuid_and_token = uuid "uuid" ** string "token"
 let home = create ~path:(Path [""]) ~meth:(Get unit) ()
 let admin = create ~path:(Path ["admin"]) ~meth:(Get unit) ()
 let privacy_notice_accept = create ~path:(Path ["accept-privacy"]) ~csrf_safe:true ~meth:(Post (privacy_cont "cont", unit)) ()
-let site_login = create ~path:(Path ["login"]) ~meth:(Get (opt (string "service"))) ()
-let logout = create ~path:(Path ["logout"]) ~meth:(Get unit) ()
+let site_login = create ~path:(Path ["login"]) ~meth:(Get (opt (string "service") ** site_cont "cont")) ()
+let logout = create ~path:(Path ["logout"]) ~meth:(Get (site_cont "cont")) ()
 
 let source_code = create ~path:(Path ["belenios.tar.gz"]) ~meth:(Get unit) ()
 
@@ -77,7 +77,7 @@ let election_draft_import_trustees = create ~path:(Path ["draft"; "import-truste
 let election_draft_import_trustees_post = create_attached_post ~fallback:election_draft_import_trustees ~post_params:(string "from") ()
 
 let election_home = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** suffix_const ""))) ()
-let set_cookie_disclaimer = create ~path:No_path ~meth:(Get unit) ()
+let set_cookie_disclaimer = create ~path:No_path ~meth:(Get (site_cont "cont")) ()
 let election_admin = create ~path:(Path ["election"; "admin"]) ~meth:(Get (uuid "uuid")) ()
 let election_regenpwd = create ~path:(Path ["election"; "regenpwd"]) ~meth:(Get (uuid "uuid")) ()
 let election_regenpwd_post = create_attached_post ~fallback:election_regenpwd ~post_params:(string "user") ()
@@ -111,7 +111,7 @@ let election_dir = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "u
 let dummy_post = create ~path:No_path ~meth:(Post (unit, string "username")) ()
 let password_post = create ~path:No_path ~meth:(Post (unit, string "username" ** string "password")) ()
 
-let set_language = create ~path:No_path ~meth:(Get (string "lang")) ()
+let set_language = create ~path:No_path ~meth:(Get (string "lang" ** site_cont "cont")) ()
 
 let signup_captcha = create ~path:(Path ["signup"; ""]) ~meth:(Get (opt (captcha_error "error"))) ()
 let signup_captcha_post = create_attached_post ~fallback:signup_captcha ~post_params:(string "challenge" ** string "response" ** string "email") ()

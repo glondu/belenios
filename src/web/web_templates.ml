@@ -46,12 +46,16 @@ let static x =
 let format_user ~site u =
   em [pcdata (if site then string_of_user u else u.user_name)]
 
-let login_box () =
+let login_box ?cont () =
   let style = "float: right; text-align: right;" ^ admin_background in
   let%lwt user = Eliom_reference.get Web_state.site_user in
   let auth_systems = List.map (fun x -> x.auth_instance) !Web_config.site_auth_config in
-  let login x = Eliom_service.preapply site_login x in
-  let logout () = Eliom_service.preapply logout () in
+  let cont = match cont with
+    | None -> ContSiteHome
+    | Some x -> x
+  in
+  let login service = Eliom_service.preapply site_login (Some service, cont) in
+  let logout () = Eliom_service.preapply logout cont in
   let body =
     match user with
     | Some user ->
@@ -72,11 +76,10 @@ let login_box () =
           pcdata "Not logged in.";
         ];
         let auth_systems =
-          auth_systems |>
           List.map (fun name ->
-            a ~a:[a_id ("login_" ^ name)]
-              ~service:(login (Some name)) [pcdata name] ()
-          ) |> List.join (pcdata ", ")
+              a ~a:[a_id ("login_" ^ name)]
+                ~service:(login name) [pcdata name] ()
+            ) auth_systems |> List.join (pcdata ", ")
         in
         div (
           [pcdata "Log in: ["] @ auth_systems @ [pcdata "]"]
@@ -208,7 +211,7 @@ let admin ~elections () =
          contact;
        ]
      ] in
-     let%lwt login_box = login_box () in
+     let%lwt login_box = login_box ~cont:ContSiteAdmin () in
      base ~title ~login_box ~content ()
   | Some (draft, elections, tallied, archived) ->
     let draft =
@@ -1705,7 +1708,7 @@ let election_home election state () =
   let languages =
     div ~a:[a_class ["languages"]]
       (list_concat (pcdata " ") @@ List.map (fun lang ->
-        a ~service:set_language [pcdata lang] lang
+        a ~service:set_language [pcdata lang] (lang, ContSiteElection uuid)
        ) available_languages)
   in
   let%lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
@@ -1717,7 +1720,7 @@ let election_home election state () =
           pcdata L.by_using_you_accept;
           unsafe_a !Web_config.gdpr_uri L.privacy_policy;
           pcdata ". ";
-          a ~service:set_cookie_disclaimer [pcdata L.accept] ();
+          a ~service:set_cookie_disclaimer [pcdata L.accept] (ContSiteElection uuid);
         ]
     else pcdata ""
   in
@@ -2032,7 +2035,7 @@ let election_admin election metadata state get_tokens_decrypt () =
     div_archive;
     div_delete;
   ] in
-  let%lwt login_box = login_box () in
+  let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ()
 
 let update_credential election () =
@@ -2073,7 +2076,7 @@ let update_credential election () =
   let content = [
     form;
   ] in
-  let%lwt login_box = login_box () in
+  let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title:params.e_name ~login_box ~content ~uuid ()
 
 let regenpwd uuid () =
@@ -2090,7 +2093,7 @@ let regenpwd uuid () =
   in
   let content = [ form ] in
   let title = "Regenerate and mail password" in
-  let%lwt login_box = login_box () in
+  let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ~uuid ()
 
 let cast_raw election () =
@@ -2357,7 +2360,7 @@ let pretty_records election records () =
     ];
     table;
   ] in
-  let%lwt login_box = login_box () in
+  let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ()
 
 let tally_trustees election trustee_id token () =
@@ -2434,16 +2437,6 @@ let tally_trustees election trustee_id token () =
     ]
   ] in
   base ~title ~content ~uuid ()
-
-let already_logged_in () =
-  let title = "Already logged in" in
-  let content = [
-    div [
-      pcdata "You are already logged in as an administrator or on another election. You have to ";
-      a ~service:logout [pcdata "log out"] ();
-      pcdata " first."];
-  ] in
-  base ~title ~content ()
 
 let login_choose auth_systems service () =
   let auth_systems =
