@@ -36,6 +36,10 @@ THIS_FILE_ABSOLUTE_PATH = os.path.abspath(__file__)
 GIT_REPOSITORY_ABSOLUTE_PATH = os.path.dirname(os.path.dirname(THIS_FILE_ABSOLUTE_PATH))
 
 
+def console_log(*args, **kwargs):
+    print(*args, **kwargs, flush=True)
+
+
 def random_email_addresses_generator(size=20):
     res = []
     for x in range(size):
@@ -234,7 +238,7 @@ def initialize_server():
         out, err = server.communicate(timeout=1)
         raise Exception("Error while trying to run the Belenios server: " + err)
     except subprocess.TimeoutExpired: # Server process has not exited yet, so we suppose it is working correctly. For example: When port is already in use, server process exits quickly, with error details in its stderr
-        print("Server process has not exited yet, so we suppose it is working correctly")
+        console_log("Server process has not exited yet, so we suppose it is working correctly")
     return server
 
 
@@ -281,7 +285,7 @@ def verify_election_consistency(election_id, snapshot_folder=None):
         outs, errs = running_process.communicate(timeout=process_timeout) # It looks like all output of this program is in stderr
         match = re.search(r'^I: all (checks|tests) passed!?$', errs, re.MULTILINE)
         if match:
-            print("Verification of election consistency has been correctly processed")
+            console_log("Verification of election consistency has been correctly processed")
             assert match
         else:
             raise Exception("Error: Verification of election consistency is wrong. STDOUT was: " + outs + " STDERR was:" + errs)
@@ -658,9 +662,9 @@ pris en compte.
         election_page_link_label = "Election home"
         election_page_link_element = browser.find_element_by_partial_link_text(election_page_link_label)
         self.election_page_url = election_page_link_element.get_attribute('href')
-        print("election_page_url:", self.election_page_url)
+        console_log("election_page_url:", self.election_page_url)
         self.election_id = election_page_url_to_election_id(self.election_page_url)
-        print("election_id:", self.election_id)
+        console_log("election_id:", self.election_id)
 
         # She checks that a "Close election" button is present (but she does not click on it)
         close_election_button_label = "Close election"
@@ -756,7 +760,7 @@ pris en compte.
         browser = self.browser
         voters_count = len(voters)
         for index, voter in enumerate(voters):
-            print("#### Current voter casting their vote in current batch: " + str(index + 1) + "/" + str(voters_count))
+            console_log("#### Current voter casting their vote in current batch: " + str(index + 1) + "/" + str(voters_count))
             # Bob has received 2 emails containing an invitation to vote and all necessary credentials (election page URL, username, password). He goes to the election page URL.
             browser.get(voter["election_page_url"])
 
@@ -933,24 +937,24 @@ pris en compte.
                 current_end_index = end_index
 
             if current_start_index > 0:
-                print("#### Starting substep: create_election_data_snapshot")
+                console_log("#### Starting substep: create_election_data_snapshot")
                 snapshot_folder = create_election_data_snapshot(self.election_id)
-                print("#### Substep complete: create_election_data_snapshot")
+                console_log("#### Substep complete: create_election_data_snapshot")
 
             try:
-                print("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index - 1) + " are now going to vote")
+                console_log("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index - 1) + " are now going to vote")
                 self.some_voters_cast_their_vote(voters_who_will_vote_now_data[current_start_index:current_end_index])
-                print("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index - 1) + " have now voted")
+                console_log("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index - 1) + " have now voted")
 
                 if current_start_index > 0:
-                    print("#### Starting substep: verify_election_consistency using `belenios_tool verify-diff` (for a batch of votes)")
+                    console_log("#### Starting substep: verify_election_consistency using `belenios_tool verify-diff` (for a batch of votes)")
                     verify_election_consistency(self.election_id, snapshot_folder)
-                    print("#### Substep complete: verify_election_consistency using `belenios_tool verify-diff` (for a batch of votes)")
+                    console_log("#### Substep complete: verify_election_consistency using `belenios_tool verify-diff` (for a batch of votes)")
             finally:
                 if current_start_index > 0:
-                    print("#### Starting substep: delete_election_data_snapshot")
+                    console_log("#### Starting substep: delete_election_data_snapshot")
                     delete_election_data_snapshot(snapshot_folder)
-                    print("#### Substep complete: delete_election_data_snapshot")
+                    console_log("#### Substep complete: delete_election_data_snapshot")
 
             current_start_index += increment
 
@@ -1036,52 +1040,52 @@ pris en compte.
 
 
     def test_scenario_1_simple_vote(self):
-        print("### Starting step: administrator_creates_election")
+        console_log("### Starting step: administrator_creates_election")
         self.administrator_creates_election()
-        print("### Step complete: administrator_creates_election")
+        console_log("### Step complete: administrator_creates_election")
 
-        print("### Starting step: administrator_regenerates_passwords_for_some_voters")
+        console_log("### Starting step: administrator_regenerates_passwords_for_some_voters")
         self.administrator_regenerates_passwords_for_some_voters()
-        print("### Step complete: administrator_regenerates_passwords_for_some_voters")
+        console_log("### Step complete: administrator_regenerates_passwords_for_some_voters")
 
-        print("### Starting step: verify_election_consistency using `belenios_tool verify` (0)")
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (0)")
         verify_election_consistency(self.election_id)
-        print("### Step complete: verify_election_consistency using `belenios_tool verify` (0)")
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (0)")
 
-        print("### Starting step: all_voters_vote_in_sequences")
+        console_log("### Starting step: all_voters_vote_in_sequences")
         self.all_voters_vote_in_sequences()
-        print("### Step complete: all_voters_vote_in_sequences")
+        console_log("### Step complete: all_voters_vote_in_sequences")
 
-        print("### Starting step: verify_election_consistency using `belenios_tool verify` (1)")
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (1)")
         verify_election_consistency(self.election_id)
-        print("### Step complete: verify_election_consistency using `belenios_tool verify` (1)")
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (1)")
 
-        print("### Starting step: create_election_data_snapshot (0)")
+        console_log("### Starting step: create_election_data_snapshot (0)")
         snapshot_folder = create_election_data_snapshot(self.election_id)
-        print("### Step complete: create_election_data_snapshot (0)")
+        console_log("### Step complete: create_election_data_snapshot (0)")
 
         try:
-            print("### Starting step: some_voters_revote")
+            console_log("### Starting step: some_voters_revote")
             self.some_voters_revote()
-            print("### Step complete: some_voters_revote")
+            console_log("### Step complete: some_voters_revote")
 
-            print("### Starting step: verify_election_consistency using `belenios_tool verify-diff` (0)")
+            console_log("### Starting step: verify_election_consistency using `belenios_tool verify-diff` (0)")
             verify_election_consistency(self.election_id, snapshot_folder)
         finally:
             delete_election_data_snapshot(snapshot_folder)
-        print("### Step complete: verify_election_consistency using `belenios_tool verify-diff` (0)")
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify-diff` (0)")
 
-        print("### Starting step: verify_election_consistency using `belenios_tool verify` (2)")
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (2)")
         verify_election_consistency(self.election_id)
-        print("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
 
-        print("### Starting step: administrator_does_tallying_of_election")
+        console_log("### Starting step: administrator_does_tallying_of_election")
         self.administrator_does_tallying_of_election()
-        print("### Step complete: administrator_does_tallying_of_election")
+        console_log("### Step complete: administrator_does_tallying_of_election")
 
-        print("### Starting step: verify_election_consistency using `belenios_tool verify` (3)")
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (3)")
         verify_election_consistency(self.election_id)
-        print("### Step complete: verify_election_consistency using `belenios_tool verify` (3)")
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (3)")
 
 
 if __name__ == "__main__":

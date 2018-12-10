@@ -89,8 +89,8 @@ def wait_for_element_exists_and_contains_expected_text(browser, css_selector, ex
         custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
         element = custom_wait.until(element_exists_and_contains_expected_text((By.CSS_SELECTOR, css_selector), expected_text))
         return element
-    except Exception:
-        raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds")
+    except Exception as e:
+        raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds") from e
 
 
 def wait_for_element_exists_and_has_non_empty_content(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
@@ -99,8 +99,8 @@ def wait_for_element_exists_and_has_non_empty_content(browser, css_selector, wai
         custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
         element = custom_wait.until(element_has_non_empty_content((By.CSS_SELECTOR, css_selector)))
         return element
-    except Exception:
-        raise Exception("Could not find expected DOM element '" + css_selector + "' with non-empty content until timeout of " + str(wait_duration) + " seconds")
+    except Exception as e:
+        raise Exception("Could not find expected DOM element '" + css_selector + "' with non-empty content until timeout of " + str(wait_duration) + " seconds") from e
 
 
 def wait_for_an_element_with_partial_link_text_exists(browser, partial_link_text, wait_duration=DEFAULT_WAIT_DURATION):
@@ -109,8 +109,8 @@ def wait_for_an_element_with_partial_link_text_exists(browser, partial_link_text
         custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
         element = custom_wait.until(an_element_with_partial_link_text_exists(partial_link_text))
         return element
-    except Exception:
-        raise Exception("Could not find a DOM element that contains expected partial link text '" + partial_link_text + "' until timeout of " + str(wait_duration) + " seconds")
+    except Exception as e:
+        raise Exception("Could not find a DOM element that contains expected partial link text '" + partial_link_text + "' until timeout of " + str(wait_duration) + " seconds") from e
 
 
 def wait_for_element_exists(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
@@ -118,8 +118,8 @@ def wait_for_element_exists(browser, css_selector, wait_duration=DEFAULT_WAIT_DU
         return WebDriverWait(browser, wait_duration).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, css_selector))
         )
-    except Exception:
-        raise Exception("Could not find expected DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds")
+    except Exception as e:
+        raise Exception("Could not find expected DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
 
 
 def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
@@ -127,5 +127,5 @@ def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DU
         return WebDriverWait(browser, wait_duration).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_selector))
         )
-    except Exception:
-        raise Exception("Could not find expected DOM elements '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds")
+    except Exception as e:
+        raise Exception("Could not find expected DOM elements '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
