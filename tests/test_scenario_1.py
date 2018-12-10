@@ -219,13 +219,17 @@ def verify_element_label(element, expected_label):
     assert expected_label in element_real_label, 'Expected label "' + expected_label + '" not found in element label "' + element_real_label + "'"
 
 
+def build_css_selector_to_find_buttons_in_page_content_by_value(expected_value):
+    return "#main input[value='" + expected_value + "']" # A more precise use case would be "#main form input[type=submit][value='...']"
+
+
 def find_button_in_page_content_by_value(browser, expected_value):
-    css_selector = "#main input[value='" + expected_value + "']" # a more precise use case would be "#main form input[type=submit][value='...']"
+    css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(expected_value)
     return browser.find_element_by_css_selector(css_selector)
 
 
 def find_buttons_in_page_content_by_value(browser, expected_value):
-    css_selector = "#main input[value='" + expected_value + "']" # a more precise use case would be "#main form input[type=submit][value='...']"
+    css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(expected_value)
     return browser.find_elements_by_css_selector(css_selector)
 
 
@@ -483,8 +487,6 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
         remove_button_element = browser.find_element_by_css_selector(remove_button_css_selector)
         remove_button_element.click()
 
-        wait_a_bit()
-
         # She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
         save_changes_button_expected_label = "Save changes"
         button_elements = browser.find_elements_by_css_selector("button")
@@ -493,19 +495,15 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
         verify_element_label(save_changes_button_element, save_changes_button_expected_label)
         save_changes_button_element.click()
 
-        wait_a_bit()
-
         # She clicks on the "Edit voters" link, to then type the list of voters
         edit_voters_link_css_selector = "#edit_voters"
-        edit_voters_link_element = browser.find_element_by_css_selector(edit_voters_link_css_selector)
+        edit_voters_link_element = wait_for_element_exists(browser, edit_voters_link_css_selector)
         edit_voters_link_element.click()
-
-        wait_a_bit()
 
         # She types N e-mail addresses (the list of invited voters)
         self.voters_email_addresses = random_email_addresses_generator(NUMBER_OF_INVITED_VOTERS)
         voters_list_field_css_selector = "#main form textarea"
-        voters_list_field_element = browser.find_element_by_css_selector(voters_list_field_css_selector)
+        voters_list_field_element = wait_for_element_exists(browser, voters_list_field_css_selector)
         voters_list_field_element.clear()
         is_first = True
         for email_address in self.voters_email_addresses:
@@ -515,33 +513,26 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
                 voters_list_field_element.send_keys(Keys.ENTER)
             voters_list_field_element.send_keys(email_address)
 
-        wait_a_bit()
-
         # She clicks on the "Add" button to submit changes
         add_button_css_selector = "#main form input[type=submit]"
         add_button_element = browser.find_element_by_css_selector(add_button_css_selector)
         add_button_element.click()
 
-        wait_a_bit()
-
         # She clicks on "Return to draft page" link
         return_link_label = "Return to draft page"
-        browser.find_element_by_partial_link_text(return_link_label).click()
-
-        wait_a_bit()
+        return_link_element = wait_for_an_element_with_partial_link_text_exists(browser, return_link_label)
+        return_link_element.click()
 
         # She clicks on button "Generate on server"
         generate_on_server_button_label = "Generate on server"
-        generate_on_server_button_element = find_button_in_page_content_by_value(browser, generate_on_server_button_label)
+        generate_on_server_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(generate_on_server_button_label)
+        generate_on_server_button_element = wait_for_element_exists(browser, generate_on_server_button_css_selector)
         generate_on_server_button_element.click()
-
-        wait_a_bit()
 
         # (Server sends emails to voters.) She checks that server does not show any error that would happen when trying to send these emails (this can happen if sendmail is not configured)
         confirmation_sentence_expected_text = "Credentials have been generated and mailed!"
         confirmation_sentence_css_selector = "#main p"
-        confirmation_sentence_element = browser.find_element_by_css_selector(confirmation_sentence_css_selector)
-        verify_element_label(confirmation_sentence_element, confirmation_sentence_expected_text)
+        wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text)
 
         # Now we do a sanity check that server has really tried to send emails. For this, we look for email addresses in the temporary file where our fake sendmail executable redirects its inputs to.
 
@@ -613,54 +604,43 @@ pris en compte.
         # She clicks on the "Proceed" link
         proceed_link_expected_label = "Proceed"
         proceed_link_css_selector = "#main a"
-        proceed_link_element = browser.find_element_by_css_selector(proceed_link_css_selector)
-        verify_element_label(proceed_link_element, proceed_link_expected_label)
+        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label)
         proceed_link_element.click()
-
-        wait_a_bit()
 
         # In "Authentication" section, she clicks on the "Generate and mail missing passwords" button
         generate_and_mail_missing_passwords_button_label = "Generate and mail missing passwords"
-        generate_and_mail_missing_passwords_button_element = find_button_in_page_content_by_value(browser, generate_and_mail_missing_passwords_button_label)
+        generate_and_mail_missing_passwords_button_element = wait_for_element_exists(browser, build_css_selector_to_find_buttons_in_page_content_by_value(generate_and_mail_missing_passwords_button_label))
         generate_and_mail_missing_passwords_button_element.click()
-
-        wait_a_bit()
 
         # She checks that the page contains expected confirmation text, instead of an error (TODO: explain in which case an error can happen, and check that it does not show)
         confirmation_sentence_expected_text = "Passwords have been generated and mailed!"
         confirmation_sentence_css_selector = "#main p"
-        confirmation_sentence_element = browser.find_element_by_css_selector(confirmation_sentence_css_selector)
-        verify_element_label(confirmation_sentence_element, confirmation_sentence_expected_text)
+        wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text)
 
         # She clicks on the "Proceed" link
         proceed_link_expected_label = "Proceed"
         proceed_link_css_selector = "#main a"
-        proceed_link_element = browser.find_element_by_css_selector(proceed_link_css_selector)
-        verify_element_label(proceed_link_element, proceed_link_expected_label)
+        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label)
         proceed_link_element.click()
-
-        wait_a_bit()
 
         # In "Validate creation" section, she clicks on the "Create election" link
         create_election_link_label = "Create election"
-        browser.find_element_by_partial_link_text(create_election_link_label).click()
-
-        wait_a_bit()
+        create_election_link_element = wait_for_an_element_with_partial_link_text_exists(browser, create_election_link_label)
+        create_election_link_element.click()
 
         # She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters. For example, in this test scenario, it displays 2 warnings: "Warning: No trustees were set. This means that the server will manage the election key by itself.", and "Warning: No contact was set!"
 
         # In the "Validate creation" section, she clicks on the "Create election" button
         create_election_button_label = "Create election"
-        create_election_button_element = find_button_in_page_content_by_value(browser, create_election_button_label)
+        create_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(create_election_button_label)
+        create_election_button_element = wait_for_element_exists(browser, create_election_button_css_selector)
         create_election_button_element.click()
-
-        wait_a_bit()
 
         # She arrives back on the "My test election for Scenario 1 — Administration" page. Its contents have changed. There is now a text saying "The election is open. Voters can vote.", and there are now buttons "Close election", "Archive election", "Delete election"
 
         # She remembers the URL of the voting page, that is where the "Election home" link points to
         election_page_link_label = "Election home"
-        election_page_link_element = browser.find_element_by_partial_link_text(election_page_link_label)
+        election_page_link_element = wait_for_an_element_with_partial_link_text_exists(browser, election_page_link_label)
         self.election_page_url = election_page_link_element.get_attribute('href')
         console_log("election_page_url:", self.election_page_url)
         self.election_id = election_page_url_to_election_id(self.election_page_url)
@@ -668,7 +648,8 @@ pris en compte.
 
         # She checks that a "Close election" button is present (but she does not click on it)
         close_election_button_label = "Close election"
-        find_button_in_page_content_by_value(browser, close_election_button_label)
+        close_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(close_election_button_label)
+        wait_for_element_exists(browser, close_election_button_css_selector)
 
         self.log_out()
 
