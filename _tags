@@ -7,3 +7,4 @@
 
 <**/*serializable_j.ml>: warn(-32)
 true: warn(A-4-6-29-44-45-48), safe_string
+<venv>: not_hygienic
