@@ -2196,6 +2196,9 @@ let () =
          | Pervasives.Error UsernameTaken ->
             T.generic_page ~title:"Account creation" ~service:signup
               "The account creation failed because the username is already taken. Please try again with a different one." () >>= Html.send
+         | Pervasives.Error AddressTaken ->
+            T.generic_page ~title:"Account creation" ~service:signup
+              "The account creation failed because there is already an account with this address. Please try again with a different one." () >>= Html.send
          | Pervasives.Error BadUsername ->
             T.generic_page ~title:"Account creation" ~service:signup
               "The account creation failed because the username is invalid. Please try again with a different one." () >>= Html.send

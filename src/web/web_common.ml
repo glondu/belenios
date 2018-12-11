@@ -220,6 +220,7 @@ let captcha_error x =
 
 type add_account_error =
   | UsernameTaken
+  | AddressTaken
   | BadUsername
   | BadPassword of string
 

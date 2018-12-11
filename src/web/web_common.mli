@@ -105,6 +105,7 @@ val captcha_error :
 
 type add_account_error =
   | UsernameTaken
+  | AddressTaken
   | BadUsername
   | BadPassword of string
 

@@ -81,17 +81,17 @@ let do_add_account ~db_fname ~username ~password ~email () =
   let%lwt salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let rec append accu = function
-    | [] -> Some (List.rev ([username; salt; hashed; email] :: accu))
-    | ((username' :: _ :: _ :: _) as x) :: xs ->
-       if username = username' then None else append (x :: accu) xs
-    | _ :: _ -> None
+    | [] -> Ok (List.rev ([username; salt; hashed; email] :: accu))
+    | (u :: _ :: _ :: _) :: _ when u = username -> Pervasives.Error UsernameTaken
+    | (_ :: _ :: _ :: e :: _) :: _ when e = email -> Pervasives.Error AddressTaken
+    | x :: xs -> append (x :: accu) xs
   in
   match append [] db with
-  | None -> Lwt.return false
-  | Some db ->
+  | Pervasives.Error _ as x -> Lwt.return x
+  | Ok db ->
      let db = List.map (String.concat ",") db in
      let%lwt () = write_file db_fname db in
-     Lwt.return true
+     Lwt.return (Ok ())
 
 let do_change_password ~db_fname ~username ~password () =
   let%lwt db = Lwt_preemptive.detach Csv.load db_fname in
@@ -124,10 +124,8 @@ let add_account ~username ~password ~email =
        match get_password_db_fname () with
        | None -> forbidden ()
        | Some db_fname ->
-          if%lwt Lwt_mutex.with_lock password_db_mutex
-               (do_add_account ~db_fname ~username ~password ~email)
-          then return (Ok ())
-          else return (Pervasives.Error UsernameTaken)
+          Lwt_mutex.with_lock password_db_mutex
+            (do_add_account ~db_fname ~username ~password ~email)
   else return (Pervasives.Error BadUsername)
 
 let change_password ~username ~password =
