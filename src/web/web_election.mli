@@ -20,6 +20,10 @@
 (**************************************************************************)
 
 open Signatures
-open Web_signatures
+open Web_serializable_t
+
+module type WEB_BALLOT_BOX = sig
+  val cast : string -> user * datetime -> string Lwt.t
+end
 
 module Make (E : ELECTION with type 'a m = 'a Lwt.t) : WEB_BALLOT_BOX
