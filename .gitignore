@@ -2,4 +2,6 @@
 _build
 _run
 venv
+__pycache__
+geckodriver.log
 env.sh
