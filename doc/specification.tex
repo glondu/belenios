@@ -61,6 +61,20 @@ section~\ref{default-group}.
 
 \section{Parties}
 
+\newcommand{\pk}{\texttt{public\_key}}
+\newcommand{\sk}{\texttt{private\_key}}
+\newcommand{\proof}{\texttt{proof}}
+\newcommand{\iproof}{\texttt{iproof}}
+\newcommand{\ciphertext}{\texttt{ciphertext}}
+
+\newcommand{\pklabel}{\textsf{public\_key}}
+\newcommand{\pok}{\textsf{pok}}
+\newcommand{\challenge}{\textsf{challenge}}
+\newcommand{\response}{\textsf{response}}
+\newcommand{\alphalabel}{\textsf{alpha}}
+\newcommand{\betalabel}{\textsf{beta}}
+\newcommand{\Hash}{\mathcal{H}}
+
 \begin{itemize}
 \item $\mathcal{S}$: voting server
 \item $\mathcal{A}$: server administrator
@@ -106,7 +120,10 @@ partial decryption.
   \item $\mathcal{A}$ checks $k_z$
   \end{enumerate}
 \item $\mathcal{A}$ combines all the trustee public keys into the election
-  public key $y$
+  public key $y$:
+  \[
+  y=\prod_{z\in[1\dots m]}\pklabel(k_z)
+  \]
 \end{enumerate}
 
 \subsubsection{Threshold decryption support}
@@ -142,6 +159,10 @@ a partial decryption.
   \end{enumerate}
 \item $\mathcal{A}$ extracts encrypted decryption keys $K_1,\dots,K_m$ and
   \hyperref[threshold-params]{threshold parameters}
+\item $\mathcal{A}$ computes the election public key $y$:
+  \[
+  y=\prod_{z\in[1\dots m]} \textsf{coefexps}(\textsf{message}(\textsf{coefexps}(P_z)))_0
+  \]
 \end{enumerate}
 
 \subsection{Vote}
@@ -207,20 +228,6 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
 
 \subsection{Common structures}
 \label{common}
-
-\newcommand{\pk}{\texttt{public\_key}}
-\newcommand{\sk}{\texttt{private\_key}}
-\newcommand{\proof}{\texttt{proof}}
-\newcommand{\iproof}{\texttt{iproof}}
-\newcommand{\ciphertext}{\texttt{ciphertext}}
-
-\newcommand{\pklabel}{\textsf{public\_key}}
-\newcommand{\pok}{\textsf{pok}}
-\newcommand{\challenge}{\textsf{challenge}}
-\newcommand{\response}{\textsf{response}}
-\newcommand{\alphalabel}{\textsf{alpha}}
-\newcommand{\betalabel}{\textsf{beta}}
-\newcommand{\Hash}{\mathcal{H}}
 
 \begin{gather*}
   \proof=\left\{
@@ -465,6 +472,11 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
   \end{gather*}
   filled with $A_{i0},\dotsc,A_{it}$
 \end{itemize}
+
+The public key of the election will be:
+\[
+y=\prod_{z\in[1\dots m]}g^{f_z(0)}=\prod_{z\in[1\dots m]}A_{z0}
+\]
 
 \subsubsection{Vinputs}
 \label{vinputs}
