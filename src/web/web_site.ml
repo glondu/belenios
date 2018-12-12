@@ -177,11 +177,6 @@ let validate_election uuid se =
   let%lwt () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in
   let%lwt () = create_file "metadata.json" string_of_metadata [metadata] in
   let%lwt () = create_file "election.json" (fun x -> x) [raw_election] in
-  (* construct Web_election instance *)
-  let election = Election.of_string raw_election in
-  let module W = (val Election.get_group election) in
-  let module E = Election.Make (W) (LwtRandom) in
-  let module B = Web_election.Make (E) in
   (* initialize credentials *)
   let%lwt () =
     let fname = !Web_config.spool_dir / uuid_s / "public_creds.txt" in
