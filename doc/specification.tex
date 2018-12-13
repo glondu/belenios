@@ -159,10 +159,8 @@ a partial decryption.
   \end{enumerate}
 \item $\mathcal{A}$ extracts encrypted decryption keys $K_1,\dots,K_m$ and
   \hyperref[threshold-params]{threshold parameters}
-\item $\mathcal{A}$ computes the election public key $y$:
-  \[
-  y=\prod_{z\in[1\dots m]} \textsf{coefexps}(\textsf{message}(\textsf{coefexps}(P_z)))_0
-  \]
+\item $\mathcal{A}$ computes the election public key $y$ as specified
+  in section~\ref{polynomials}.
 \end{enumerate}
 
 \subsection{Vote}
