@@ -706,7 +706,7 @@ pris en compte.
         browser = self.browser
         self.voters_email_addresses_who_have_lost_their_password = self.voters_email_addresses[0:NUMBER_OF_REGENERATED_PASSWORD_VOTERS]
 
-        # She selects the election that she wants to edit (li a[href^="election/admin?uuid="][0])
+        # She selects the election that she wants to edit
         election_to_edit_css_selector = "#main li a[href^='election/admin?uuid=']"
         election_to_edit_elements = wait_for_elements_exist(browser, election_to_edit_css_selector, EXPLICIT_WAIT_TIMEOUT)
         assert len(election_to_edit_elements) > 0
@@ -716,14 +716,14 @@ pris en compte.
 
         # She arrives to the election administration page. For each voter of the NUMBER_OF_REGENERATED_PASSWORD_VOTERS selected voters:
         for email_address in self.voters_email_addresses_who_have_lost_their_password:
-            # She clicks on the "Regenerate and mail a password" link (a[href^="regenpwd?uuid="][0])
+            # She clicks on the "Regenerate and mail a password" link
             regenerate_and_mail_a_password_link_css_selector = "#main a[href^='regenpwd?uuid=']"
             regenerate_and_mail_a_password_link_element = wait_for_element_exists(browser, regenerate_and_mail_a_password_link_css_selector, EXPLICIT_WAIT_TIMEOUT)
             regenerate_and_mail_a_password_link_element.click()
 
             wait_a_bit()
 
-            # She types the e-mail address of the voter in the "Username" field (input[type=text])
+            # She types the e-mail address of the voter in the "Username" field
             username_field_css_selector = "#main input[type=text]"
             username_field_element = wait_for_element_exists(browser, username_field_css_selector, EXPLICIT_WAIT_TIMEOUT)
             username_field_element.send_keys(email_address)
@@ -1050,9 +1050,13 @@ pris en compte.
 
         # FIXME: If no voter has cast their vote, it shows a "Internal Server Error" "Error 500" page
 
-        # She checks consistency of the result # FIXME: Does this mean that we check compared to what we know our fake voters have voted? Or only that the number of accepted ballots is the same as the number of voters who voted? For now, we choose the second option.
-
         """
+        She checks consistency of the vote result:
+        - 1) She checks that the number of accepted ballots is the same as the number of voters who voted
+        - 2) For each available answer in the question, she checks that the total number of votes in favor of Answer X displayed in result page is the same as the sum of votes for Answer X in all votes of voters who voted that have been randomly generated in advance
+        - 3) She checks that each ballot content corresponds to content that of this vote that has been randomly generated in advance
+
+
         This screen looks like this:
 
         This is the development version!
@@ -1073,6 +1077,8 @@ pris en compte.
         Where <...> is a link
         """
 
+        # - 1) She checks that the number of accepted ballots is the same as the number of voters who voted
+
         main_css_selector = "#main"
         main_expected_content = "Number of accepted ballots:"
         main_element = wait_for_element_exists_and_contains_expected_text(browser, main_css_selector, main_expected_content, EXPLICIT_WAIT_TIMEOUT)
@@ -1086,6 +1092,13 @@ pris en compte.
         else:
             raise Exception("Number of accepted ballots not found in election tally page: " + main_text_content)
         assert str(number_of_accepted_ballots) == str(NUMBER_OF_VOTING_VOTERS), "Number of accepted ballots (" + str(number_of_accepted_ballots) + ") is not the same as number of voters (" + str(NUMBER_OF_VOTING_VOTERS) + ")"
+
+
+        # - 2) For each available answer in the question, she checks that the total number of votes in favor of Answer X displayed in result page is the same as the sum of votes for Answer X in all votes of voters who voted that have been randomly generated in advance
+        # TODO
+
+        # - 3) She checks that each ballot content corresponds to content that of this vote that has been randomly generated in advance
+        # TODO
 
 
     def test_scenario_1_simple_vote(self):
