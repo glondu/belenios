@@ -82,12 +82,12 @@ let do_add_account ~db_fname ~username ~password ~email () =
   let hashed = sha256_hex (salt ^ password) in
   let rec append accu = function
     | [] -> Ok (List.rev ([username; salt; hashed; email] :: accu))
-    | (u :: _ :: _ :: _) :: _ when u = username -> Pervasives.Error UsernameTaken
-    | (_ :: _ :: _ :: e :: _) :: _ when e = email -> Pervasives.Error AddressTaken
+    | (u :: _ :: _ :: _) :: _ when u = username -> Error UsernameTaken
+    | (_ :: _ :: _ :: e :: _) :: _ when e = email -> Error AddressTaken
     | x :: xs -> append (x :: accu) xs
   in
   match append [] db with
-  | Pervasives.Error _ as x -> Lwt.return x
+  | Error _ as x -> Lwt.return x
   | Ok db ->
      let db = List.map (String.concat ",") db in
      let%lwt () = write_file db_fname db in
@@ -119,18 +119,18 @@ let is_username =
 let add_account ~username ~password ~email =
   if is_username username then
     match%lwt Web_signup.cracklib_check password with
-    | Some e -> return (Pervasives.Error (BadPassword e))
+    | Some e -> return (Error (BadPassword e))
     | None ->
        match get_password_db_fname () with
        | None -> forbidden ()
        | Some db_fname ->
           Lwt_mutex.with_lock password_db_mutex
             (do_add_account ~db_fname ~username ~password ~email)
-  else return (Pervasives.Error BadUsername)
+  else return (Error BadUsername)
 
 let change_password ~username ~password =
   match%lwt Web_signup.cracklib_check password with
-  | Some e -> return (Pervasives.Error e)
+  | Some e -> return (Error e)
   | None ->
      match get_password_db_fname () with
      | None -> forbidden ()

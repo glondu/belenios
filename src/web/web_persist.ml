@@ -482,7 +482,7 @@ let replace_credential uuid old_ new_ =
     StringMap.fold (fun k v accu ->
         if sha256_hex k = old_ then (
           match v with
-          | Some _ -> raise (Error UsedCredential)
+          | Some _ -> raise (BeleniosWebError UsedCredential)
           | None -> Some k
         ) else accu
       ) xs None
@@ -502,16 +502,16 @@ let do_cast_ballot election ~rawballot ~user date =
     try
       if String.contains rawballot '\n' then invalid_arg "multiline ballot";
       Ok (ballot_of_string E.G.read rawballot)
-    with e -> Pervasives.Error (ECastSerialization e)
+    with e -> Error (ECastSerialization e)
   with
-  | Pervasives.Error _ as x -> return x
+  | Error _ as x -> return x
   | Ok ballot ->
      match ballot.signature with
-     | None -> return (Pervasives.Error ECastMissingCredential)
+     | None -> return (Error ECastMissingCredential)
      | Some s ->
         let credential = E.G.to_string s.s_public_key in
         match%lwt find_credential_mapping uuid credential with
-        | None -> return (Pervasives.Error ECastInvalidCredential)
+        | None -> return (Error ECastInvalidCredential)
         | Some old_cred ->
            let%lwt old_record = find_extended_record uuid user in
            match old_cred, old_record with
@@ -522,7 +522,7 @@ let do_cast_ballot election ~rawballot ~user date =
                 let%lwt () = add_credential_mapping uuid credential (Some hash) in
                 let%lwt () = add_extended_record uuid user (date, credential) in
                 return (Ok (hash, false))
-              ) else return (Pervasives.Error ECastProofCheck)
+              ) else return (Error ECastProofCheck)
            | Some hash, Some (_, old_credential) ->
               (* revote *)
               if credential = old_credential then (
@@ -531,10 +531,10 @@ let do_cast_ballot election ~rawballot ~user date =
                   let%lwt () = add_credential_mapping uuid credential (Some hash) in
                   let%lwt () = add_extended_record uuid user (date, credential) in
                   return (Ok (hash, true))
-                ) else return (Pervasives.Error ECastProofCheck)
-              ) else return (Pervasives.Error ECastWrongCredential)
-           | None, Some _ -> return (Pervasives.Error ECastRevoteNotAllowed)
-           | Some _, None -> return (Pervasives.Error ECastReusedCredential)
+                ) else return (Error ECastProofCheck)
+              ) else return (Error ECastWrongCredential)
+           | None, Some _ -> return (Error ECastRevoteNotAllowed)
+           | Some _, None -> return (Error ECastReusedCredential)
 
 let cast_mutex = Lwt_mutex.create ()
 

@@ -1292,13 +1292,13 @@ let () =
                 let auto_close = format auto_close in
                 let open Web_persist in
                 Ok { auto_open; auto_close }
-              with Failure e -> Pervasives.Error e
+              with Failure e -> Error e
             in
             match auto_dates with
             | Ok x ->
                let%lwt () = Web_persist.set_election_auto_dates uuid x in
                redir_preapply election_admin uuid ()
-            | Pervasives.Error msg ->
+            | Error msg ->
                let service = preapply election_admin uuid in
                T.generic_page ~title:"Error" ~service msg () >>= Html.send
           ) else forbidden ()
@@ -1350,7 +1350,7 @@ let () =
             try%lwt
                   let%lwt () = Web_persist.replace_credential uuid old new_ in
                   String.send ("OK", "text/plain")
-            with Error e ->
+            with BeleniosWebError e ->
                let%lwt lang = Eliom_reference.get Web_state.language in
                let l = Web_i18n.get_lang lang in
                String.send ("Error: " ^ explain_error l e, "text/plain")
@@ -1440,7 +1440,7 @@ let cast_ballot uuid ~rawballot ~user =
   | Ok (hash, revote) ->
      let%lwt () = send_confirmation_email uuid revote login email hash in
      return hash
-  | Pervasives.Error e ->
+  | Error e ->
      let msg = match e with
        | ECastWrongCredential -> Some "attempted to revote with already used credential"
        | ECastRevoteNotAllowed -> Some "attempted to revote using a new credential"
@@ -1467,7 +1467,7 @@ let () =
               try%lwt
                 let%lwt hash = cast_ballot uuid ~rawballot ~user in
                 return (`Valid hash)
-              with Error e -> return (`Error e)
+              with BeleniosWebError e -> return (`Error e)
             in
             let%lwt () = Eliom_reference.set Web_state.cast_confirmed (Some result) in
             redir_preapply election_home (uuid, ()) ()
@@ -2218,16 +2218,16 @@ let () =
             let%lwt () = Eliom_reference.unset Web_state.signup_address in
             T.generic_page ~title:"Account creation" ~service:admin
               "The account has been created." () >>= Html.send
-         | Pervasives.Error UsernameTaken ->
+         | Error UsernameTaken ->
             T.generic_page ~title:"Account creation" ~service:signup
               "The account creation failed because the username is already taken. Please try again with a different one." () >>= Html.send
-         | Pervasives.Error AddressTaken ->
+         | Error AddressTaken ->
             T.generic_page ~title:"Account creation" ~service:signup
               "The account creation failed because there is already an account with this address. Please try again with a different one." () >>= Html.send
-         | Pervasives.Error BadUsername ->
+         | Error BadUsername ->
             T.generic_page ~title:"Account creation" ~service:signup
               "The account creation failed because the username is invalid. Please try again with a different one." () >>= Html.send
-         | Pervasives.Error (BadPassword e) ->
+         | Error (BadPassword e) ->
             Printf.ksprintf
               (fun x -> T.generic_page ~title:"Account creation" ~service:signup x () >>= Html.send)
               "The account creation failed because the password is too weak (%s). Please try again with a different one"
@@ -2246,7 +2246,7 @@ let () =
              let%lwt () = Eliom_reference.unset Web_state.signup_address in
              T.generic_page ~title:"Change password" ~service:admin
                "The password has been changed." () >>= Html.send
-          | Pervasives.Error e ->
+          | Error e ->
              Printf.ksprintf
                (fun x -> T.generic_page ~title:"Change password" ~service:signup x () >>= Html.send)
                "The password is too weak (%s). Please try again with a different one"

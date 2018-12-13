@@ -70,9 +70,9 @@ type error =
   | UnauthorizedVoter
   | CastError of cast_error
 
-exception Error of error
+exception BeleniosWebError of error
 
-let fail e = Lwt.fail (Error e)
+let fail e = Lwt.fail (BeleniosWebError e)
 
 let explain_error l e =
   let module L = (val l : Web_i18n_sig.LocalizedStrings) in

@@ -42,7 +42,7 @@ type error =
   | UnauthorizedVoter
   | CastError of cast_error
 
-exception Error of error
+exception BeleniosWebError of error
 
 val fail : error -> 'a Lwt.t
 
