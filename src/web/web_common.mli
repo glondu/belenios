@@ -26,18 +26,21 @@ open Web_serializable_t
 module LwtRandom : RANDOM with type 'a t = 'a Lwt.t
 (** Lwt-compatible random number generation. *)
 
+type cast_error =
+  | ECastSerialization of exn
+  | ECastMissingCredential
+  | ECastInvalidCredential
+  | ECastProofCheck
+  | ECastWrongCredential
+  | ECastRevoteNotAllowed
+  | ECastReusedCredential
+
 type error =
-  | Serialization of exn
-  | ProofCheck
   | ElectionClosed
-  | MissingCredential
-  | InvalidCredential
-  | RevoteNotAllowed
-  | ReusedCredential
-  | WrongCredential
   | UsedCredential
   | CredentialNotFound
   | UnauthorizedVoter
+  | CastError of cast_error
 
 exception Error of error
 

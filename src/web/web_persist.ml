@@ -348,9 +348,9 @@ let remove_ballot uuid hash =
   let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
   try%lwt Lwt_unix.unlink (ballots_dir / urlize hash) with _ -> return_unit
 
-let replace_ballot uuid hash ballot =
+let replace_ballot uuid ~hash ~rawballot =
   let%lwt () = remove_ballot uuid hash in
-  add_ballot uuid ballot
+  add_ballot uuid rawballot
 
 let compute_encrypted_tally uuid =
   let%lwt election = get_raw_election uuid in
@@ -468,7 +468,7 @@ let init_credential_mapping uuid xs =
 
 let find_credential_mapping uuid cred =
   let%lwt xs = credential_mappings_cache#find uuid in
-  return @@ StringMap.find cred xs
+  return @@ StringMap.find_opt cred xs
 
 let add_credential_mapping uuid cred mapping =
   let%lwt xs = credential_mappings_cache#find uuid in
@@ -494,3 +494,56 @@ let replace_credential uuid old_ new_ =
      let xs = StringMap.add new_ None xs in
      credential_mappings_cache#add uuid xs;
      dump_credential_mappings uuid xs
+
+let do_cast_ballot election ~rawballot ~user date =
+  let module E = (val election : ELECTION) in
+  let uuid = E.election.e_params.e_uuid in
+  match
+    try
+      if String.contains rawballot '\n' then invalid_arg "multiline ballot";
+      Ok (ballot_of_string E.G.read rawballot)
+    with e -> Pervasives.Error (ECastSerialization e)
+  with
+  | Pervasives.Error _ as x -> return x
+  | Ok ballot ->
+     match ballot.signature with
+     | None -> return (Pervasives.Error ECastMissingCredential)
+     | Some s ->
+        let credential = E.G.to_string s.s_public_key in
+        match%lwt find_credential_mapping uuid credential with
+        | None -> return (Pervasives.Error ECastInvalidCredential)
+        | Some old_cred ->
+           let%lwt old_record = find_extended_record uuid user in
+           match old_cred, old_record with
+           | None, None ->
+              (* first vote *)
+              if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
+                let%lwt hash = add_ballot uuid rawballot in
+                let%lwt () = add_credential_mapping uuid credential (Some hash) in
+                let%lwt () = add_extended_record uuid user (date, credential) in
+                return (Ok (hash, false))
+              ) else return (Pervasives.Error ECastProofCheck)
+           | Some hash, Some (_, old_credential) ->
+              (* revote *)
+              if credential = old_credential then (
+                if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
+                  let%lwt hash = replace_ballot uuid ~hash ~rawballot in
+                  let%lwt () = add_credential_mapping uuid credential (Some hash) in
+                  let%lwt () = add_extended_record uuid user (date, credential) in
+                  return (Ok (hash, true))
+                ) else return (Pervasives.Error ECastProofCheck)
+              ) else return (Pervasives.Error ECastWrongCredential)
+           | None, Some _ -> return (Pervasives.Error ECastRevoteNotAllowed)
+           | Some _, None -> return (Pervasives.Error ECastReusedCredential)
+
+let cast_mutex = Lwt_mutex.create ()
+
+let cast_ballot uuid ~rawballot ~user date =
+  match%lwt get_raw_election uuid with
+  | None -> Lwt.fail Not_found
+  | Some raw_election ->
+     let election = Election.of_string raw_election in
+     let module W = (val Election.get_group election) in
+     let module E = Election.Make (W) (LwtRandom) in
+     Lwt_mutex.with_lock cast_mutex
+       (fun () -> do_cast_ballot (module E) ~rawballot ~user date)

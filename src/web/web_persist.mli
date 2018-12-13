@@ -22,6 +22,7 @@
 open Serializable_t
 open Common
 open Web_serializable_t
+open Web_common
 
 val get_draft_election : uuid -> draft_election option Lwt.t
 val set_draft_election : uuid -> draft_election -> unit Lwt.t
@@ -76,16 +77,11 @@ val get_threshold : uuid -> string option Lwt.t
 val get_ballot_hashes : uuid -> string list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 
-val add_ballot : uuid -> string -> string Lwt.t
-val replace_ballot : uuid -> string -> string -> string Lwt.t
 val compute_encrypted_tally : uuid -> (int * string * string) option Lwt.t
-
-val find_extended_record : uuid -> string -> (datetime * string) option Lwt.t
-val add_extended_record : uuid -> string -> datetime * string -> unit Lwt.t
 
 val has_voted : uuid -> user -> bool Lwt.t
 
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
-val find_credential_mapping : uuid -> string -> string option Lwt.t
-val add_credential_mapping : uuid -> string -> string option -> unit Lwt.t
 val replace_credential : uuid -> string -> string -> unit Lwt.t
+
+val cast_ballot : uuid -> rawballot:string -> user:string -> datetime -> (string * bool, cast_error) Pervasives.result Lwt.t

@@ -32,6 +32,5 @@ Web_auth_dummy
 Web_auth_password
 Web_auth_cas
 Web_auth_oidc
-Web_election
 Web_site
 Web_main

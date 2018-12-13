@@ -1403,31 +1403,75 @@ let () =
       submit_ballot ballot
     )
 
+let send_confirmation_email uuid revote user email hash =
+  let%lwt election = find_election uuid in
+  let title = election.e_params.e_name in
+  let%lwt metadata = Web_persist.get_election_metadata uuid in
+  let x = (uuid, ()) in
+  let url1 = Eliom_uri.make_string_uri ~absolute:true
+    ~service:Web_services.election_pretty_ballots x |> rewrite_prefix
+  in
+  let url2 = Eliom_uri.make_string_uri ~absolute:true
+    ~service:Web_services.election_home x |> rewrite_prefix
+  in
+  let%lwt language = Eliom_reference.get Web_state.language in
+  let module L = (val Web_i18n.get_lang language) in
+  let subject = Printf.sprintf L.mail_confirmation_subject title in
+  let contact = Web_templates.contact_footer metadata L.please_contact in
+  let revote = if revote then L.this_vote_replaces else "" in
+  let body = Printf.sprintf L.mail_confirmation user title hash revote url1 url2 contact in
+  send_email email subject body
+
+let cast_ballot uuid ~rawballot ~user =
+  let%lwt voters = read_file ~uuid "voters.txt" in
+  let%lwt email, login =
+    let rec loop = function
+      | x :: xs ->
+         let email, login = split_identity x in
+         if login = user.user_name then return (email, login) else loop xs
+      | [] -> fail UnauthorizedVoter
+    in loop (match voters with Some xs -> xs | None -> [])
+  in
+  let user = string_of_user user in
+  let%lwt state = Web_persist.get_election_state uuid in
+  let voting_open = state = `Open in
+  let%lwt () = if not voting_open then fail ElectionClosed else return_unit in
+  match%lwt Web_persist.cast_ballot uuid ~rawballot ~user (now ()) with
+  | Ok (hash, revote) ->
+     let%lwt () = send_confirmation_email uuid revote login email hash in
+     return hash
+  | Pervasives.Error e ->
+     let msg = match e with
+       | ECastWrongCredential -> Some "attempted to revote with already used credential"
+       | ECastRevoteNotAllowed -> Some "attempted to revote using a new credential"
+       | ECastReusedCredential -> Some "attempted to vote with already used credential"
+       | _ -> None
+     in
+     let%lwt () = match msg with
+       | Some msg -> security_log (fun () -> user ^ " " ^ msg)
+       | None -> return_unit
+     in
+     fail (CastError e)
+
 let () =
   Any.register ~service:election_cast_confirm
     (fun uuid () ->
-      let%lwt election = find_election uuid in
-      let module W = (val Election.get_group election) in
-      let module E = Election.Make (W) (LwtRandom) in
-      let module B = Web_election.Make (E) in
       match%lwt Eliom_reference.get Web_state.ballot with
-      | Some the_ballot ->
-         begin
-           let%lwt () = Eliom_reference.unset Web_state.ballot in
-           match%lwt Web_state.get_election_user uuid with
-           | Some u ->
-              let record = u, now () in
-              let%lwt result =
-                try%lwt
-                  let%lwt hash = B.cast the_ballot record in
-                  return (`Valid hash)
-                with Error e -> return (`Error e)
-              in
-              let%lwt () = Eliom_reference.set Web_state.cast_confirmed (Some result) in
-              redir_preapply election_home (uuid, ()) ()
-           | None -> forbidden ()
-         end
-      | None -> fail_http 404)
+      | None -> fail_http 404
+      | Some rawballot ->
+         let%lwt () = Eliom_reference.unset Web_state.ballot in
+         match%lwt Web_state.get_election_user uuid with
+         | None -> forbidden ()
+         | Some user ->
+            let%lwt result =
+              try%lwt
+                let%lwt hash = cast_ballot uuid ~rawballot ~user in
+                return (`Valid hash)
+              with Error e -> return (`Error e)
+            in
+            let%lwt () = Eliom_reference.set Web_state.cast_confirmed (Some result) in
+            redir_preapply election_home (uuid, ()) ()
+    )
 
 let () =
   Any.register ~service:election_pretty_ballots

@@ -54,18 +54,21 @@ module LwtRandom = struct
 
 end
 
+type cast_error =
+  | ECastSerialization of exn
+  | ECastMissingCredential
+  | ECastInvalidCredential
+  | ECastProofCheck
+  | ECastWrongCredential
+  | ECastRevoteNotAllowed
+  | ECastReusedCredential
+
 type error =
-  | Serialization of exn
-  | ProofCheck
   | ElectionClosed
-  | MissingCredential
-  | InvalidCredential
-  | RevoteNotAllowed
-  | ReusedCredential
-  | WrongCredential
   | UsedCredential
   | CredentialNotFound
   | UnauthorizedVoter
+  | CastError of cast_error
 
 exception Error of error
 
@@ -74,17 +77,17 @@ let fail e = Lwt.fail (Error e)
 let explain_error l e =
   let module L = (val l : Web_i18n_sig.LocalizedStrings) in
   match e with
-  | Serialization e -> Printf.sprintf L.error_Serialization (Printexc.to_string e)
-  | ProofCheck -> L.error_ProofCheck
   | ElectionClosed -> L.error_ElectionClosed
-  | MissingCredential -> L.error_MissingCredential
-  | InvalidCredential -> L.error_InvalidCredential
-  | RevoteNotAllowed -> L.error_RevoteNotAllowed
-  | ReusedCredential -> L.error_ReusedCredential
-  | WrongCredential -> L.error_WrongCredential
   | UsedCredential -> L.error_UsedCredential
   | CredentialNotFound -> L.error_CredentialNotFound
   | UnauthorizedVoter -> L.error_UnauthorizedVoter
+  | CastError (ECastSerialization e) -> Printf.sprintf L.error_Serialization (Printexc.to_string e)
+  | CastError ECastProofCheck -> L.error_ProofCheck
+  | CastError ECastMissingCredential -> L.error_MissingCredential
+  | CastError ECastInvalidCredential -> L.error_InvalidCredential
+  | CastError ECastRevoteNotAllowed -> L.error_RevoteNotAllowed
+  | CastError ECastReusedCredential -> L.error_ReusedCredential
+  | CastError ECastWrongCredential -> L.error_WrongCredential
 
 let security_logfile = ref None
 
