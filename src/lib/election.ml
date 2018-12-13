@@ -564,7 +564,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       in Z.(hash zkp commitments =% challenge)
     ) c f.decryption_factors f.decryption_proofs
 
-  type result = elt Serializable_t.result
+  type result = elt Serializable_t.election_result
 
   type combinator = factor list -> elt array array
 

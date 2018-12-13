@@ -41,7 +41,7 @@ let set_draft_election uuid se =
 
 let get_election_result uuid =
   match%lwt read_file ~uuid "result.json" with
-  | Some [x] -> return (Some (result_of_string Yojson.Safe.read_json x))
+  | Some [x] -> return (Some (election_result_of_string Yojson.Safe.read_json x))
   | _ -> return_none
 
 type election_date =

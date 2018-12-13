@@ -206,7 +206,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     in
     let result = E.compute_result nballots tally factors combinator in
     assert (E.check_result combinator result);
-    string_of_result G.write result
+    string_of_election_result G.write result
 
   let verify () =
     (match threshold with
@@ -221,7 +221,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     );
     (match get_result () with
     | Some result ->
-       let result = result_of_string G.read result in
+       let result = election_result_of_string G.read result in
        assert (fst (Lazy.force encrypted_tally) = result.encrypted_tally);
        let checker = E.check_factor result.encrypted_tally in
        let combinator = match threshold with

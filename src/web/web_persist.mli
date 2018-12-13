@@ -57,7 +57,7 @@ val get_auth_config : uuid -> auth_config list Lwt.t
 
 val get_raw_election : uuid -> string option Lwt.t
 val get_election_metadata : uuid -> metadata Lwt.t
-val get_election_result : uuid -> Yojson.Safe.json result option Lwt.t
+val get_election_result : uuid -> Yojson.Safe.json election_result option Lwt.t
 
 type election_kind =
   [ `Draft
@@ -84,4 +84,4 @@ val has_voted : uuid -> user -> bool Lwt.t
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
 val replace_credential : uuid -> string -> string -> unit Lwt.t
 
-val cast_ballot : uuid -> rawballot:string -> user:string -> datetime -> (string * bool, cast_error) Pervasives.result Lwt.t
+val cast_ballot : uuid -> rawballot:string -> user:string -> datetime -> (string * bool, cast_error) result Lwt.t

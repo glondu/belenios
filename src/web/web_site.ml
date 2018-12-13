@@ -1781,7 +1781,7 @@ let handle_election_tally_release uuid () =
         in
         let result = E.compute_result ntallied et pds combinator in
         let%lwt () =
-          let result = string_of_result W.G.write result in
+          let result = string_of_election_result W.G.write result in
           write_file ~uuid (string_of_election_file ESResult) [result]
         in
         let%lwt () = Web_persist.set_election_state uuid `Tallied in
