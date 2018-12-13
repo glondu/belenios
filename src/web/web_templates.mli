@@ -57,7 +57,7 @@ val update_credential : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.e
 val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_confirmation : 'a election -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_confirmed : 'a election -> result:[< `Error of Web_common.error | `Valid of string ] -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_confirmed : 'a election -> result:(string, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val pretty_ballots : 'a election -> string list -> Yojson.Safe.json election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val pretty_records : 'a election -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

@@ -2252,7 +2252,7 @@ let cast_confirmed election ~result () =
   ] in
   let result, step_title =
     match result with
-    | `Valid hash ->
+    | Ok hash ->
        [pcdata L.has_been_accepted;
         pcdata " ";
         pcdata L.your_tracker_is;
@@ -2265,7 +2265,7 @@ let cast_confirmed election ~result () =
         pcdata L.anytime_during_the_election;
         pcdata L.confirmation_email;
        ], L.thank_you_for_voting
-    | `Error e ->
+    | Error e ->
        [pcdata L.is_rejected_because;
         pcdata (Web_common.explain_error l e);
         pcdata ".";

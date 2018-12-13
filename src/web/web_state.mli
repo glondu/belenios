@@ -28,7 +28,7 @@ val election_user : (uuid * user) option Eliom_reference.eref
 val get_election_user : uuid -> user option Lwt.t
 
 val ballot : string option Eliom_reference.eref
-val cast_confirmed : [ `Error of Web_common.error | `Valid of string ] option Eliom_reference.eref
+val cast_confirmed : (string, Web_common.error) result option Eliom_reference.eref
 
 val language : string Eliom_reference.eref
 

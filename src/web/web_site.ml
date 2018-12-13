@@ -1466,8 +1466,8 @@ let () =
             let%lwt result =
               try%lwt
                 let%lwt hash = cast_ballot uuid ~rawballot ~user in
-                return (`Valid hash)
-              with BeleniosWebError e -> return (`Error e)
+                return (Ok hash)
+              with BeleniosWebError e -> return (Error e)
             in
             let%lwt () = Eliom_reference.set Web_state.cast_confirmed (Some result) in
             redir_preapply election_home (uuid, ()) ()
