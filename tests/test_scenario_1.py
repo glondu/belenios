@@ -369,6 +369,20 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
             self.voters_data[voter["email_address"]] = voter
 
 
+    def compute_number_of_votes_per_answer(self, voters_data=None):
+        if not voters_data:
+            voters_data = self.voters_data
+        votes_for_answers = {'answer1': 0, 'answer2': 0}
+        for k, v in voters_data.items():
+            answer1 = v['votes']['question1']['answer1']
+            answer2 = v['votes']['question1']['answer2']
+            if answer1:
+                votes_for_answers['answer1'] += 1
+            if answer2:
+                votes_for_answers['answer2'] += 1
+        return votes_for_answers
+
+
     def log_in_as_administrator(self, from_a_login_page=False):
         browser = self.browser
 
@@ -1095,7 +1109,21 @@ pris en compte.
 
 
         # - 2) For each available answer in the question, she checks that the total number of votes in favor of Answer X displayed in result page is the same as the sum of votes for Answer X in all votes of voters who voted that have been randomly generated in advance
-        # TODO
+
+        number_of_votes_per_answer = self.compute_number_of_votes_per_answer()
+        question_id = 1
+        for answer_id in range(1, 3):
+            base_selector = "#main li:nth-child(" + str(question_id) + ") tr:nth-child(" + str(answer_id) + ")"
+            answer_label_css_selector = base_selector + " td:nth-child(1)"
+            answer_total_css_selector = base_selector + " td:nth-child(2)"
+            answer_expected_label = "Answer " + str(answer_id)
+            answer_element = browser.find_element_by_css_selector(answer_label_css_selector)
+            verify_element_label(answer_element, answer_expected_label)
+            answer_total_real_value_element = browser.find_element_by_css_selector(answer_total_css_selector)
+            answer_total_real_value = answer_total_real_value_element.get_attribute('innerText').strip()
+            answer_total_expected_value = str(number_of_votes_per_answer['answer' + str(answer_id)])
+            assert answer_total_real_value == answer_total_expected_value, "Number of votes for Answer " + str(answer_id) + " displayed on vote result page  (" + answer_total_real_value + ") does not match expected value (" + answer_total_expected_value
+
 
         # - 3) She checks that each ballot content corresponds to content that of this vote that has been randomly generated in advance
         # TODO
