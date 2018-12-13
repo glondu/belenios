@@ -2206,7 +2206,9 @@ let cast_confirmation election hash () =
       em [pcdata name];
       pcdata L.has_been_received;
       pcdata L.your_tracker_is;
-      b [pcdata hash];
+      b ~a:[a_id "ballot_tracker"] [
+        pcdata hash
+      ];
       pcdata ".";
       br ();
     ];
@@ -2254,7 +2256,9 @@ let cast_confirmed election ~result () =
        [pcdata L.has_been_accepted;
         pcdata " ";
         pcdata L.your_tracker_is;
-        b [pcdata hash];
+        b ~a:[a_id "ballot_tracker"] [
+          pcdata hash
+        ];
         pcdata ". ";
         pcdata L.you_can_check_its_presence;
         a ~service:election_pretty_ballots [pcdata L.ballot_box] (uuid, ());
