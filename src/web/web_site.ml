@@ -1266,6 +1266,8 @@ let election_set_state state uuid () =
         in
         let state = if state then `Open else `Closed in
         let%lwt () = Web_persist.set_election_state uuid state in
+        let dates = Web_persist.({ auto_open = None; auto_close = None }) in
+        let%lwt () = Web_persist.set_election_auto_dates uuid dates in
         redir_preapply election_admin uuid ()
       ) else forbidden ()
     )
