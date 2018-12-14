@@ -361,6 +361,23 @@ let election_draft_pre () =
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
+let preview_booth uuid =
+  let url =
+    Eliom_uri.make_string_uri
+      ~service:election_draft_preview ~absolute:true (uuid, ()) |>
+      rewrite_prefix |>
+      (fun x -> Filename.chop_suffix x "election.json")
+  in
+  let hash = Netencoding.Url.mk_url_encoded_parameters ["url", url] in
+  let service =
+    Eliom_uri.make_string_uri
+      ~service:election_vote ~absolute:true () |> rewrite_prefix
+  in
+  span [
+      unsafe_a (service ^ "#" ^ hash) "Preview booth";
+      pcdata " (you can use any credential such as HsqB3C3y62Ekq4D)."
+    ]
+
 let election_draft uuid se () =
   let title = "Preparation of election " ^ se.se_questions.t_name in
   let form_languages =
@@ -483,7 +500,8 @@ let election_draft uuid se () =
         a ~a:[a_id "edit_questions"] ~service:election_draft_questions
           [pcdata "Edit questions"]
           uuid;
-      ]
+      ];
+      preview_booth uuid;
     ]
   in
   let div_voters =
@@ -917,24 +935,7 @@ let election_draft_questions uuid se () =
         script ~a:[a_src (static "tool_js_questions.js")] (pcdata "");
       ]
   in
-  let preview =
-    let url =
-      Eliom_uri.make_string_uri
-        ~service:election_draft_preview ~absolute:true (uuid, ()) |>
-        rewrite_prefix |>
-        (fun x -> Filename.chop_suffix x "election.json")
-    in
-    let hash = Netencoding.Url.mk_url_encoded_parameters ["url", url] in
-    let service =
-      Eliom_uri.make_string_uri
-        ~service:election_vote ~absolute:true () |> rewrite_prefix
-    in
-    div [
-        hr ();
-        unsafe_a (service ^ "#" ^ hash) "Preview booth";
-        pcdata " (you can use any credential such as HsqB3C3y62Ekq4D)."
-      ]
-  in
+  let preview = div [hr (); preview_booth uuid] in
   let content = [
     interactivity;
     form;
@@ -1487,7 +1488,7 @@ let election_draft_confirm uuid se () =
     ];
     tr [
       td [pcdata "Questions?"];
-      td [questions];
+      td [questions; pcdata " "; preview_booth uuid];
     ];
     tr [
       td [pcdata "Voters?"];

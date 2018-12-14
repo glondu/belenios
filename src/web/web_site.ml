@@ -1381,7 +1381,7 @@ let submit_ballot ballot =
     with _ -> fail_http 400
   in
   match%lwt Web_persist.get_draft_election uuid with
-  | Some _ -> redir_preapply election_draft_questions uuid ()
+  | Some _ -> redir_preapply election_draft uuid ()
   | None ->
      let%lwt user = Web_state.get_election_user uuid in
      let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
