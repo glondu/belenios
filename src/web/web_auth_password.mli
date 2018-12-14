@@ -23,9 +23,6 @@ open Web_common
 
 (** Password-protected admin account management *)
 
-(** Returns [true] if server configuration allows account creation. *)
-val allowsignups : unit -> bool
-
 val add_account : username:string -> password:string -> email:string -> (unit, add_account_error) result Lwt.t
 val change_password : username:string -> password:string -> (unit, string) result Lwt.t
 

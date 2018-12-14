@@ -72,8 +72,6 @@ let get_password_db_fname () =
     | _ :: xs -> find xs
   in find !Web_config.site_auth_config
 
-let allowsignups () = get_password_db_fname () <> None
-
 let password_db_mutex = Lwt_mutex.create ()
 
 let do_add_account ~db_fname ~username ~password ~email () =
