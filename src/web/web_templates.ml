@@ -2593,7 +2593,7 @@ let signup address error username =
     | Some e ->
        let msg = match e with
          | UsernameTaken -> "the username is already taken"
-         | AddressTaken -> "there is already an account with this address"
+         | AddressTaken -> "there is already an account with this e-mail address"
          | BadUsername -> "the username is invalid"
          | BadPassword e -> Printf.sprintf "the password is too weak (%s)" e
          | PasswordMismatch -> "the two passwords are not the same"

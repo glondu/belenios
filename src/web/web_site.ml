@@ -2181,7 +2181,7 @@ let () =
               Web_signup.send_changepw_link ~service ~address ~username
          in
          let message =
-           "If possible, an e-mail was sent with a confirmation link. Please click on it to change your password."
+           "If the account exists, an e-mail was sent with a confirmation link. Please click on it to change your password."
          in
          T.generic_page ~title:"Change password" message ()
       | _ -> changepw_captcha_handler service error email username

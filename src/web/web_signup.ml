@@ -116,7 +116,7 @@ let send_confirmation_link ~service address =
     Printf.sprintf "\
 Dear %s,
 
-Your e-mail address has been used to create a local account on our Belenios
+Your e-mail address has been used to create an account on our Belenios
 server. To confirm this creation, please click on the following link:
 
   %s
