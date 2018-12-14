@@ -360,7 +360,7 @@ let () =
       let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
       let cont = match cont with
         | ContAdmin -> Redirection admin
-        | ContSignup service -> Redirection (preapply signup_captcha (service, None))
+        | ContSignup service -> Redirection (preapply signup_captcha service)
       in
       return cont
     )
@@ -2108,23 +2108,27 @@ end
 module Captcha_throttle = Lwt_throttle.Make (HashedInt)
 let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 
+let signup_captcha_handler service error email =
+  if%lwt Captcha_throttle.wait captcha_throttle 0 then
+    let%lwt challenge = Web_signup.create_captcha () in
+    T.signup_captcha ~service error challenge email
+  else
+    let service = preapply signup_captcha service in
+    T.generic_page ~title:"Account creation" ~service
+      "You cannot create an account now. Please try later." ()
+
 let () =
   Html.register ~service:signup_captcha
-    (fun (service, error) () ->
-      let%lwt gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
-      if gdpr then T.privacy_notice (ContSignup service) else
-      if%lwt Captcha_throttle.wait captcha_throttle 0 then
-        let%lwt challenge = Web_signup.create_captcha () in
-        T.signup_captcha ~service error challenge
+    (fun service () ->
+      if%lwt Eliom_reference.get Web_state.show_cookie_disclaimer then
+        T.privacy_notice (ContSignup service)
       else
-        let service = preapply signup_captcha (service, None) in
-        T.generic_page ~title:"Account creation" ~service
-          "You cannot create an account now. Please try later." ()
+        signup_captcha_handler service None ""
     )
 
 let () =
-  Any.register ~service:signup_captcha_post
-    (fun (service, _) (challenge, (response, email)) ->
+  Html.register ~service:signup_captcha_post
+    (fun service (challenge, (response, email)) ->
       let%lwt error =
         let%lwt ok = Web_signup.check_captcha ~challenge ~response in
         if ok then
@@ -2138,25 +2142,26 @@ let () =
            Printf.sprintf
              "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation." email
          in
-         T.generic_page ~title:"Account creation" message () >>= Html.send
-      | _ -> redir_preapply signup_captcha (service, error) ()
+         T.generic_page ~title:"Account creation" message ()
+      | _ -> signup_captcha_handler service error email
     )
+
+let changepw_captcha_handler service error email username =
+  if%lwt Captcha_throttle.wait captcha_throttle 1 then
+    let%lwt challenge = Web_signup.create_captcha () in
+    T.signup_changepw ~service error challenge email username
+  else
+    let service = preapply changepw_captcha service in
+    T.generic_page ~title:"Change password" ~service
+      "You cannot change your password now. Please try later." ()
 
 let () =
   Html.register ~service:changepw_captcha
-    (fun (service, error) () ->
-      if%lwt Captcha_throttle.wait captcha_throttle 1 then
-        let%lwt challenge = Web_signup.create_captcha () in
-        T.signup_changepw ~service error challenge
-      else
-        let service = preapply changepw_captcha (service, None) in
-        T.generic_page ~title:"Change password" ~service
-          "You cannot change your password now. Please try later." ()
-    )
+    (fun service () -> changepw_captcha_handler service None "" "")
 
 let () =
-  Any.register ~service:changepw_captcha_post
-    (fun (service, _) (challenge, (response, (email, username))) ->
+  Html.register ~service:changepw_captcha_post
+    (fun service (challenge, (response, (email, username))) ->
       let%lwt error =
         let%lwt ok = Web_signup.check_captcha ~challenge ~response in
         if ok then return None
@@ -2178,8 +2183,8 @@ let () =
          let message =
            "If possible, an e-mail was sent with a confirmation link. Please click on it to change your password."
          in
-         T.generic_page ~title:"Change password" message () >>= Html.send
-      | _ -> redir_preapply changepw_captcha (service, error) ()
+         T.generic_page ~title:"Change password" message ()
+      | _ -> changepw_captcha_handler service error email username
     )
 
 let () =

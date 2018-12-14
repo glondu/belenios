@@ -2487,9 +2487,9 @@ let login_password ~service ~allowsignups =
       div [
           br ();
           pcdata "You can also ";
-          a ~service:signup_captcha [pcdata "create an account"] (service, None);
+          a ~service:signup_captcha [pcdata "create an account"] service;
           pcdata ", or ";
-          a ~service:changepw_captcha [pcdata "change your password"] (service, None);
+          a ~service:changepw_captcha [pcdata "change your password"] service;
           pcdata " (if you forgot it, for example).";
         ]
     else pcdata ""
@@ -2527,14 +2527,14 @@ let format_captcha_error = function
   | Some BadCaptcha -> div [pcdata "Bad security code!"]
   | Some BadAddress -> div [pcdata "Bad e-mail address!"]
 
-let signup_captcha ~service error challenge =
+let signup_captcha ~service error challenge email =
   let form =
     post_form ~service:signup_captcha_post
       (fun (lchallenge, (lresponse, lemail)) ->
         [
           div [
               pcdata "E-mail address: ";
-              input ~input_type:`Text ~name:lemail string;
+              input ~input_type:`Text ~name:lemail ~value:email string;
             ];
           div [
               input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
@@ -2547,22 +2547,22 @@ let signup_captcha ~service error challenge =
               input ~input_type:`Submit ~value:"Submit" string;
             ];
         ]
-      ) (service, None)
+      ) service
   in
   let error = format_captcha_error error in
   let content = [error; form] in
   base ~title:"Create an account" ~content ()
 
-let signup_changepw ~service error challenge =
+let signup_changepw ~service error challenge email username =
   let form =
     post_form ~service:changepw_captcha_post
       (fun (lchallenge, (lresponse, (lemail, lusername))) ->
         [
           div [
               pcdata "E-mail address: ";
-              input ~input_type:`Text ~name:lemail string;
+              input ~input_type:`Text ~name:lemail ~value:email string;
               pcdata " or username: ";
-              input ~input_type:`Text ~name:lusername string;
+              input ~input_type:`Text ~name:lusername ~value:username string;
               pcdata ".";
             ];
           div [
@@ -2576,7 +2576,7 @@ let signup_changepw ~service error challenge =
               input ~input_type:`Submit ~value:"Submit" string;
             ];
         ]
-      ) (service, None)
+      ) service
   in
   let error = format_captcha_error error in
   let content = [error; form] in

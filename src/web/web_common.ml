@@ -230,21 +230,6 @@ type captcha_error =
   | BadCaptcha
   | BadAddress
 
-let captcha_error_of_string = function
-  | "captcha" -> BadCaptcha
-  | "address" -> BadAddress
-  | _ -> invalid_arg "captcha_error_of_string"
-
-let string_of_captcha_error = function
-  | BadCaptcha -> "captcha"
-  | BadAddress -> "address"
-
-let captcha_error x =
-  Eliom_parameter.user_type
-    ~of_string:captcha_error_of_string
-    ~to_string:string_of_captcha_error
-    x
-
 type add_account_error =
   | UsernameTaken
   | AddressTaken

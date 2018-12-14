@@ -111,12 +111,6 @@ type captcha_error =
   | BadCaptcha
   | BadAddress
 
-val captcha_error :
-  string ->
-  (captcha_error, [ `WithoutSuffix ],
-   [ `One of captcha_error ] Eliom_parameter.param_name)
-  Eliom_parameter.params_type
-
 type add_account_error =
   | UsernameTaken
   | AddressTaken
