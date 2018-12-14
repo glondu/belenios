@@ -2202,39 +2202,25 @@ let () =
     )
 
 let () =
-  Any.register ~service:signup
+  Html.register ~service:signup
     (fun () () ->
       match%lwt Eliom_reference.get Web_state.signup_env with
       | None -> forbidden ()
-      | Some (_, address, Web_signup.CreateAccount) -> T.signup address >>= Html.send
-      | Some (_, address, Web_signup.ChangePassword username) -> T.changepw ~username ~address >>= Html.send
+      | Some (_, address, Web_signup.CreateAccount) -> T.signup address None ""
+      | Some (_, address, Web_signup.ChangePassword username) -> T.changepw ~username ~address
     )
 
 let () =
-  Any.register ~service:signup_post
+  Html.register ~service:signup_post
     (fun () (username, password) ->
       match%lwt Eliom_reference.get Web_state.signup_env with
       | Some (service, email, Web_signup.CreateAccount) ->
          let user = { user_name = username; user_domain = service } in
          (match%lwt Web_auth_password.add_account user ~password ~email with
-         | Ok () ->
-            let%lwt () = Eliom_reference.unset Web_state.signup_env in
-            T.generic_page ~title:"Account creation" ~service:admin
-              "The account has been created." () >>= Html.send
-         | Error UsernameTaken ->
-            T.generic_page ~title:"Account creation" ~service:signup
-              "The account creation failed because the username is already taken. Please try again with a different one." () >>= Html.send
-         | Error AddressTaken ->
-            T.generic_page ~title:"Account creation" ~service:signup
-              "The account creation failed because there is already an account with this address. Please try again with a different one." () >>= Html.send
-         | Error BadUsername ->
-            T.generic_page ~title:"Account creation" ~service:signup
-              "The account creation failed because the username is invalid. Please try again with a different one." () >>= Html.send
-         | Error (BadPassword e) ->
-            Printf.ksprintf
-              (fun x -> T.generic_page ~title:"Account creation" ~service:signup x () >>= Html.send)
-              "The account creation failed because the password is too weak (%s). Please try again with a different one"
-              e
+          | Ok () ->
+             let%lwt () = Eliom_reference.unset Web_state.signup_env in
+             T.generic_page ~title:"Account creation" ~service:admin "The account has been created." ()
+          | Error e -> T.signup email (Some e) username
          )
       | _ -> forbidden ()
     )

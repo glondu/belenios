@@ -2586,7 +2586,24 @@ let signup_changepw ~service error challenge email username =
   let content = [error; form] in
   base ~title:"Change password" ~content ()
 
-let signup address =
+let signup address error username =
+  let error = match error with
+    | None -> pcdata ""
+    | Some e ->
+       let msg = match e with
+         | UsernameTaken -> "the username is already taken"
+         | AddressTaken -> "there is already an account with this address"
+         | BadUsername -> "the username is invalid"
+         | BadPassword e -> Printf.sprintf "the password is too weak (%s)" e
+       in
+       div [
+           pcdata "The account creation ";
+           span ~a:[a_style "color: red;"] [pcdata "failed"];
+           pcdata " because ";
+           pcdata msg;
+           pcdata ". Please try again with a different one.";
+         ]
+  in
   let form =
     post_form ~service:signup_post
       (fun (lusername, lpassword) ->
@@ -2598,7 +2615,7 @@ let signup address =
             ];
           div [
               pcdata "Please choose a username: ";
-              input ~input_type:`Text ~name:lusername string;
+              input ~input_type:`Text ~name:lusername ~value:username string;
               pcdata " and a password: ";
               input ~input_type:`Password ~name:lpassword string;
               pcdata ".";
@@ -2609,7 +2626,7 @@ let signup address =
         ]
       ) ()
   in
-  let content = [form] in
+  let content = [error; form] in
   base ~title:"Create an account" ~content ()
 
 let changepw ~username ~address =
