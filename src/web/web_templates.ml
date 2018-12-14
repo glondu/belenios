@@ -2595,6 +2595,7 @@ let signup address error username =
          | AddressTaken -> "there is already an account with this address"
          | BadUsername -> "the username is invalid"
          | BadPassword e -> Printf.sprintf "the password is too weak (%s)" e
+         | PasswordMismatch -> "the two passwords are not the same"
        in
        div [
            pcdata "The account creation ";
@@ -2606,7 +2607,7 @@ let signup address error username =
   in
   let form =
     post_form ~service:signup_post
-      (fun (lusername, lpassword) ->
+      (fun (lusername, (lpassword, lpassword2)) ->
         [
           div [
               pcdata "Your e-mail address is: ";
@@ -2620,6 +2621,11 @@ let signup address error username =
               input ~input_type:`Password ~name:lpassword string;
               pcdata ".";
             ];
+          div[
+              pcdata "Type the password again: ";
+              input ~input_type:`Password ~name:lpassword2 string;
+              pcdata ".";
+            ];
           div [
               input ~input_type:`Submit ~value:"Submit" string;
             ];
@@ -2629,10 +2635,25 @@ let signup address error username =
   let content = [error; form] in
   base ~title:"Create an account" ~content ()
 
-let changepw ~username ~address =
+let changepw ~username ~address error =
+  let error = match error with
+    | None -> pcdata ""
+    | Some e ->
+       let reason = match e with
+         | `PasswordMismatch -> "the two passwords are not the same"
+         | `WeakPassword e -> Printf.sprintf "the new password is too weak (%s)" e
+       in
+       div [
+           pcdata "The change ";
+           span ~a:[a_style "color: red;"] [pcdata "failed"];
+           pcdata " because ";
+           pcdata reason;
+           pcdata ". Please try again with a different one.";
+         ]
+  in
   let form =
     post_form ~service:changepw_post
-      (fun lpassword ->
+      (fun (lpassword, lpassword2) ->
         [
           div [
               pcdata "Your username is: ";
@@ -2647,12 +2668,17 @@ let changepw ~username ~address =
               pcdata ".";
             ];
           div [
+              pcdata "Type the password again: ";
+              input ~input_type:`Password ~name:lpassword2 string;
+              pcdata ".";
+            ];
+          div [
               input ~input_type:`Submit ~value:"Submit" string;
             ];
         ]
       ) ()
   in
-  let content = [form] in
+  let content = [error; form] in
   base ~title:"Change password" ~content ()
 
 let booth () =

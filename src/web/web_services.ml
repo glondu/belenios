@@ -118,8 +118,8 @@ let signup_captcha_post = create_attached_post ~fallback:signup_captcha ~post_pa
 let signup_captcha_img = create ~path:(Path ["signup"; "captcha"]) ~meth:(Get (string "challenge")) ()
 let signup_login = create ~path:(Path ["signup"; "login"]) ~meth:(Get (string "token")) ()
 let signup = create ~path:(Path ["signup"; "account"]) ~meth:(Get unit) ()
-let signup_post = create_attached_post ~fallback:signup ~post_params:(string "username" ** string "password") ()
+let signup_post = create_attached_post ~fallback:signup ~post_params:(string "username" ** string "password" ** string "password2") ()
 
 let changepw_captcha = create ~path:(Path ["signup"; "changepw"]) ~meth:(Get (string "service")) ()
 let changepw_captcha_post = create_attached_post ~fallback:changepw_captcha ~post_params:(string "challenge" ** string "response" ** string "email" ** string "username") ()
-let changepw_post = create_attached_post ~fallback:signup ~post_params:(string "password") ()
+let changepw_post = create_attached_post ~fallback:signup ~post_params:(string "password" ** string "password2") ()

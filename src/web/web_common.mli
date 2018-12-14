@@ -116,6 +116,7 @@ type add_account_error =
   | AddressTaken
   | BadUsername
   | BadPassword of string
+  | PasswordMismatch
 
 val generate_token : ?length:int -> unit -> string Lwt.t
 

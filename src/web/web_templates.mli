@@ -77,7 +77,7 @@ val login_password : service:string -> allowsignups:bool -> [> `Html ] Eliom_con
 val signup_captcha : service:string -> captcha_error option -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val signup_changepw : service:string -> captcha_error option -> string -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val signup : string -> add_account_error option -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val changepw : username:string -> address:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val changepw : username:string -> address:string -> [`PasswordMismatch | `WeakPassword of string] option -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

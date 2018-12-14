@@ -2207,41 +2207,39 @@ let () =
       match%lwt Eliom_reference.get Web_state.signup_env with
       | None -> forbidden ()
       | Some (_, address, Web_signup.CreateAccount) -> T.signup address None ""
-      | Some (_, address, Web_signup.ChangePassword username) -> T.changepw ~username ~address
+      | Some (_, address, Web_signup.ChangePassword username) -> T.changepw ~username ~address None
     )
 
 let () =
   Html.register ~service:signup_post
-    (fun () (username, password) ->
+    (fun () (username, (password, password2)) ->
       match%lwt Eliom_reference.get Web_state.signup_env with
       | Some (service, email, Web_signup.CreateAccount) ->
-         let user = { user_name = username; user_domain = service } in
-         (match%lwt Web_auth_password.add_account user ~password ~email with
-          | Ok () ->
-             let%lwt () = Eliom_reference.unset Web_state.signup_env in
-             T.generic_page ~title:"Account creation" ~service:admin "The account has been created." ()
-          | Error e -> T.signup email (Some e) username
-         )
+         if password = password2 then (
+           let user = { user_name = username; user_domain = service } in
+           match%lwt Web_auth_password.add_account user ~password ~email with
+           | Ok () ->
+              let%lwt () = Eliom_reference.unset Web_state.signup_env in
+              T.generic_page ~title:"Account creation" ~service:admin "The account has been created." ()
+           | Error e -> T.signup email (Some e) username
+         ) else T.signup email (Some PasswordMismatch) username
       | _ -> forbidden ()
     )
 
 let () =
-  Any.register ~service:changepw_post
-    (fun () password ->
+  Html.register ~service:changepw_post
+    (fun () (password, password2) ->
       match%lwt Eliom_reference.get Web_state.signup_env with
-      | Some (service, _, Web_signup.ChangePassword username) ->
-         let user = { user_name = username; user_domain = service } in
-         (match%lwt Web_auth_password.change_password user ~password with
-          | Ok () ->
-             let%lwt () = Eliom_reference.unset Web_state.signup_env in
-             T.generic_page ~title:"Change password" ~service:admin
-               "The password has been changed." () >>= Html.send
-          | Error e ->
-             Printf.ksprintf
-               (fun x -> T.generic_page ~title:"Change password" ~service:signup x () >>= Html.send)
-               "The password is too weak (%s). Please try again with a different one"
-               e
-         )
+      | Some (service, address, Web_signup.ChangePassword username) ->
+         if password = password2 then (
+           let user = { user_name = username; user_domain = service } in
+           match%lwt Web_auth_password.change_password user ~password with
+           | Ok () ->
+              let%lwt () = Eliom_reference.unset Web_state.signup_env in
+              T.generic_page ~title:"Change password" ~service:admin
+                "The password has been changed." ()
+           | Error e -> T.changepw ~username ~address (Some (`WeakPassword e))
+         ) else T.changepw ~username ~address (Some `PasswordMismatch)
       | _ -> forbidden ()
     )
 
