@@ -2220,7 +2220,8 @@ let () =
            match%lwt Web_auth_password.add_account user ~password ~email with
            | Ok () ->
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
-              T.generic_page ~title:"Account creation" ~service:admin "The account has been created." ()
+              let service = preapply site_login (Some service, ContSiteAdmin) in
+              T.generic_page ~title:"Account creation" ~service "The account has been created." ()
            | Error e -> T.signup email (Some e) username
          ) else T.signup email (Some PasswordMismatch) username
       | _ -> forbidden ()
@@ -2236,8 +2237,8 @@ let () =
            match%lwt Web_auth_password.change_password user ~password with
            | Ok () ->
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
-              T.generic_page ~title:"Change password" ~service:admin
-                "The password has been changed." ()
+              let service = preapply site_login (Some service, ContSiteAdmin) in
+              T.generic_page ~title:"Change password" ~service "The password has been changed." ()
            | Error e -> T.changepw ~username ~address (Some (`WeakPassword e))
          ) else T.changepw ~username ~address (Some `PasswordMismatch)
       | _ -> forbidden ()
