@@ -8,6 +8,8 @@ import os
 import shutil
 import subprocess
 import re
+import sys
+from distutils.util import strtobool
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.alert import Alert
@@ -1179,4 +1181,32 @@ pris en compte.
 
 
 if __name__ == "__main__":
+    random_seed = os.getenv('RANDOM_SEED', None)
+    if not random_seed:
+        random_seed = random.randrange(sys.maxsize)
+    console_log("Python random seed being used:", random_seed)
+    random.seed(random_seed)
+
+    if os.getenv('USE_HEADLESS_BROWSER', None):
+        USE_HEADLESS_BROWSER = bool(strtobool(os.getenv('USE_HEADLESS_BROWSER')))
+
+    SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
+    WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', WAIT_TIME_BETWEEN_EACH_STEP))
+    EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', EXPLICIT_WAIT_TIMEOUT))
+    NUMBER_OF_INVITED_VOTERS = int(os.getenv('NUMBER_OF_INVITED_VOTERS', NUMBER_OF_INVITED_VOTERS))
+    NUMBER_OF_VOTING_VOTERS = int(os.getenv('NUMBER_OF_VOTING_VOTERS', NUMBER_OF_VOTING_VOTERS))
+    NUMBER_OF_REVOTING_VOTERS = int(os.getenv('NUMBER_OF_REVOTING_VOTERS', NUMBER_OF_REVOTING_VOTERS))
+    NUMBER_OF_REGENERATED_PASSWORD_VOTERS = int(os.getenv('NUMBER_OF_REGENERATED_PASSWORD_VOTERS', NUMBER_OF_REGENERATED_PASSWORD_VOTERS))
+    ADMINISTRATOR_USERNAME = os.getenv('ADMINISTRATOR_USERNAME', ADMINISTRATOR_USERNAME)
+    ADMINISTRATOR_PASSWORD = os.getenv('ADMINISTRATOR_PASSWORD', ADMINISTRATOR_PASSWORD)
+
+    console_log("USE_HEADLESS_BROWSER:", USE_HEADLESS_BROWSER)
+    console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
+    console_log("WAIT_TIME_BETWEEN_EACH_STEP:", WAIT_TIME_BETWEEN_EACH_STEP)
+    console_log("EXPLICIT_WAIT_TIMEOUT:", EXPLICIT_WAIT_TIMEOUT)
+    console_log("NUMBER_OF_INVITED_VOTERS:", NUMBER_OF_INVITED_VOTERS)
+    console_log("NUMBER_OF_VOTING_VOTERS:", NUMBER_OF_VOTING_VOTERS)
+    console_log("NUMBER_OF_REVOTING_VOTERS:", NUMBER_OF_REVOTING_VOTERS)
+    console_log("NUMBER_OF_REGENERATED_PASSWORD_VOTERS:", NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
+
     unittest.main()
