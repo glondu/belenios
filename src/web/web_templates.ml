@@ -1767,17 +1767,28 @@ let election_admin election metadata state get_tokens_decrypt () =
     return @@ post_form ~service:election_auto_post
       (fun (lopen, lclose) ->
         [
+          div [pcdata "Alternatively, you may setup automatic dates."];
           div [
-              pcdata "Automatically open the election at: ";
-              input ~name:lopen ~input_type:`Text ~value:(format auto_dates.auto_open) string;
+              b [pcdata "Note:"];
+              pcdata " times are in UTC. Now is ";
+              pcdata (format (Some (now ())));
+              pcdata ".";
             ];
-          div [
-              pcdata "Automatically close the election at: ";
-              input ~name:lclose ~input_type:`Text ~value:(format auto_dates.auto_close) string;
+          div ~a:[a_style "margin-left: 3em;"] [
+              div [
+                  pcdata "Automatically open the election at: ";
+                  input ~name:lopen ~input_type:`Text ~value:(format auto_dates.auto_open) string;
+                ];
+              div [
+                  pcdata "Automatically close the election at: ";
+                  input ~name:lclose ~input_type:`Text ~value:(format auto_dates.auto_close) string;
+                ];
+              div [
+                  pcdata "Enter dates in UTC, in format YYYY-MM-DD HH:MM:SS, leave empty for no date.";
+                ];
             ];
           div [
               input ~input_type:`Submit ~value:"Change automatic dates" string;
-              pcdata " (Enter dates in UTC, in format YYYY-MM-DD HH:MM:SS, leave empty for no date.)";
             ];
         ]
       ) uuid
@@ -1797,7 +1808,10 @@ let election_admin election metadata state get_tokens_decrypt () =
       ~service
       (fun () ->
        [
-         pcdata msg;
+         div ~a:[a_style "text-align: center;"] [
+             pcdata msg;
+           ];
+         br ();
          input ~input_type:`Submit ~value string;
          pcdata msg2;
        ]) uuid
@@ -1808,14 +1822,14 @@ let election_admin election metadata state get_tokens_decrypt () =
        let%lwt auto_form = auto_form () in
        return @@ div [
          state_form true;
-         hr ();
+         br ();
          auto_form;
        ]
     | `Closed ->
        let%lwt auto_form = auto_form () in
        return @@ div [
          state_form false;
-         hr ();
+         br ();
          auto_form;
          br ();
          hr ();
@@ -2032,6 +2046,7 @@ let election_admin election metadata state get_tokens_decrypt () =
       a ~service:election_missing_voters [pcdata "Missing voters"] (uuid, ());
     ];
     div_regenpwd;
+    hr ();
     div [state_div];
     div_archive;
     div_delete;
