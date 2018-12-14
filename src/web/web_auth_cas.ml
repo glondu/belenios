@@ -92,8 +92,8 @@ let cas_handler ticket () =
 
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler
 
-let cas_login_handler config =
-  match List.assoc_opt "server" config with
+let cas_login_handler a =
+  match List.assoc_opt "server" a.Web_serializable_t.auth_config with
   | Some server ->
      let%lwt () = Eliom_reference.set cas_server (Some server) in
      let cas_login = Eliom_service.extern

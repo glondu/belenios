@@ -17,6 +17,8 @@ mkdir -p \
   $BELENIOS_RUNDIR/spool \
   $BELENIOS_TMPDIR/run
 
+touch $BELENIOS_RUNDIR/password_db.csv
+
 sed \
   -e "s@_OCAML_STDLIBDIR_@$OCAML_STDLIBDIR@g" \
   -e "s@_TMPDIR_@$BELENIOS_TMPDIR@g" \

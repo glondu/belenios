@@ -21,8 +21,6 @@
 
 open Web_serializable_t
 
-type auth_config = (string * string) list
-
 type result = Eliom_registration.Html.result
 
 type pre_login_handler = auth_config -> result Lwt.t

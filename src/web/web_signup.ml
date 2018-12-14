@@ -84,6 +84,7 @@ type link_kind =
   | ChangePassword of string
 
 type link = {
+    service : string;
     address : string;
     l_expiration_time : datetime;
     kind : link_kind;
@@ -100,11 +101,11 @@ let filter_links_by_time table =
 let filter_links_by_address address table =
   SMap.filter (fun _ x -> x.address = address) table
 
-let send_confirmation_link address =
+let send_confirmation_link ~service address =
   let%lwt token = generate_token ~length:20 () in
   let l_expiration_time = datetime_add (now ()) (day 1) in
   let kind = CreateAccount in
-  let link = {address; l_expiration_time; kind} in
+  let link = {service; address; l_expiration_time; kind} in
   let nlinks = filter_links_by_time (filter_links_by_address address !links) in
   links := SMap.add token link nlinks;
   let uri =
@@ -133,11 +134,11 @@ Belenios Server" address uri
   let%lwt () = send_email address "Belenios account creation" message in
   Lwt.return_unit
 
-let send_changepw_link ~address ~username =
+let send_changepw_link ~service ~address ~username =
   let%lwt token = generate_token ~length:20 () in
   let l_expiration_time = datetime_add (now ()) (day 1) in
   let kind = ChangePassword username in
-  let link = {address; l_expiration_time; kind} in
+  let link = {service; address; l_expiration_time; kind} in
   let nlinks = filter_links_by_time (filter_links_by_address address !links) in
   links := SMap.add token link nlinks;
   let uri =
@@ -172,7 +173,7 @@ let confirm_link token =
   | None -> Lwt.return None
   | Some x ->
      links := SMap.remove token !links;
-     Lwt.return (Some (x.address, x.kind))
+     Lwt.return (Some (x.service, x.address, x.kind))
 
 let cracklib =
   let x = "cracklib-check" in (x, [| x |])

@@ -32,4 +32,4 @@ val cast_confirmed : (string, Web_common.error) result option Eliom_reference.er
 
 val language : string Eliom_reference.eref
 
-val signup_address : (string * Web_signup.link_kind) option Eliom_reference.eref
+val signup_env : (string * string * Web_signup.link_kind) option Eliom_reference.eref

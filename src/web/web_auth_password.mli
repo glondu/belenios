@@ -19,11 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Web_serializable_t
 open Web_common
 
 (** Password-protected admin account management *)
 
-val add_account : username:string -> password:string -> email:string -> (unit, add_account_error) result Lwt.t
-val change_password : username:string -> password:string -> (unit, string) result Lwt.t
+val add_account : user -> password:string -> email:string -> (unit, add_account_error) result Lwt.t
+val change_password : user -> password:string -> (unit, string) result Lwt.t
 
-val lookup_account : username:string -> email:string -> (string * string) option Lwt.t
+val lookup_account : service:string -> username:string -> email:string -> (string * string) option Lwt.t

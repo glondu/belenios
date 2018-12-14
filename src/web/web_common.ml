@@ -208,16 +208,17 @@ let site_cont x =
 
 type privacy_cont =
   | ContAdmin
-  | ContSignup
+  | ContSignup of string
 
-let privacy_cont_of_string = function
-  | "admin" -> ContAdmin
-  | "signup" -> ContSignup
+let privacy_cont_of_string x =
+  match Pcre.split ~pat:"/" x with
+  | ["admin"] -> ContAdmin
+  | ["signup"; service] -> ContSignup service
   | _ -> invalid_arg "privacy_cont_of_string"
 
 let string_of_privacy_cont = function
   | ContAdmin -> "admin"
-  | ContSignup -> "signup"
+  | ContSignup service -> "signup/" ^ service
 
 let privacy_cont x =
   Eliom_parameter.user_type

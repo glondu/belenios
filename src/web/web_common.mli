@@ -99,7 +99,7 @@ val site_cont :
 
 type privacy_cont =
   | ContAdmin
-  | ContSignup
+  | ContSignup of string
 
 val privacy_cont :
   string ->

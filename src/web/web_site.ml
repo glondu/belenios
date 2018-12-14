@@ -360,7 +360,7 @@ let () =
       let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
       let cont = match cont with
         | ContAdmin -> Redirection admin
-        | ContSignup -> Redirection (preapply signup_captcha None)
+        | ContSignup service -> Redirection (preapply signup_captcha (service, None))
       in
       return cont
     )
@@ -2110,21 +2110,21 @@ let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 
 let () =
   Html.register ~service:signup_captcha
-    (fun error () ->
+    (fun (service, error) () ->
       let%lwt gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
-      if gdpr then T.privacy_notice ContSignup else
+      if gdpr then T.privacy_notice (ContSignup service) else
       if%lwt Captcha_throttle.wait captcha_throttle 0 then
         let%lwt challenge = Web_signup.create_captcha () in
-        T.signup_captcha error challenge
+        T.signup_captcha ~service error challenge
       else
-        let service = preapply signup_captcha None in
+        let service = preapply signup_captcha (service, None) in
         T.generic_page ~title:"Account creation" ~service
           "You cannot create an account now. Please try later." ()
     )
 
 let () =
   Any.register ~service:signup_captcha_post
-    (fun _ (challenge, (response, email)) ->
+    (fun (service, _) (challenge, (response, email)) ->
       let%lwt error =
         let%lwt ok = Web_signup.check_captcha ~challenge ~response in
         if ok then
@@ -2133,30 +2133,30 @@ let () =
       in
       match error with
       | None ->
-         let%lwt () = Web_signup.send_confirmation_link email in
+         let%lwt () = Web_signup.send_confirmation_link ~service email in
          let message =
            Printf.sprintf
              "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation." email
          in
          T.generic_page ~title:"Account creation" message () >>= Html.send
-      | _ -> redir_preapply signup_captcha error ()
+      | _ -> redir_preapply signup_captcha (service, error) ()
     )
 
 let () =
   Html.register ~service:changepw_captcha
-    (fun error () ->
+    (fun (service, error) () ->
       if%lwt Captcha_throttle.wait captcha_throttle 1 then
         let%lwt challenge = Web_signup.create_captcha () in
-        T.signup_changepw error challenge
+        T.signup_changepw ~service error challenge
       else
-        let service = preapply changepw_captcha None in
+        let service = preapply changepw_captcha (service, None) in
         T.generic_page ~title:"Change password" ~service
           "You cannot change your password now. Please try later." ()
     )
 
 let () =
   Any.register ~service:changepw_captcha_post
-    (fun _ (challenge, (response, (email, username))) ->
+    (fun (service, _) (challenge, (response, (email, username))) ->
       let%lwt error =
         let%lwt ok = Web_signup.check_captcha ~challenge ~response in
         if ok then return None
@@ -2165,21 +2165,21 @@ let () =
       match error with
       | None ->
          let%lwt () =
-           match%lwt Web_auth_password.lookup_account ~email ~username with
+           match%lwt Web_auth_password.lookup_account ~service ~email ~username with
            | None ->
               return (
                   Printf.ksprintf Ocsigen_messages.warning
-                    "Unsuccessful attempt to change the password of %S (%S)"
-                    username email
+                    "Unsuccessful attempt to change the password of %S (%S) for service %s"
+                    username email service
                 )
            | Some (username, address) ->
-              Web_signup.send_changepw_link ~address ~username
+              Web_signup.send_changepw_link ~service ~address ~username
          in
          let message =
            "If possible, an e-mail was sent with a confirmation link. Please click on it to change your password."
          in
          T.generic_page ~title:"Change password" message () >>= Html.send
-      | _ -> redir_preapply changepw_captcha error ()
+      | _ -> redir_preapply changepw_captcha (service, error) ()
     )
 
 let () =
@@ -2189,33 +2189,31 @@ let () =
 let () =
   Any.register ~service:signup_login
     (fun token () ->
-      let%lwt address = Web_signup.confirm_link token in
-      match address with
+      match%lwt Web_signup.confirm_link token with
       | None -> forbidden ()
-      | Some address ->
-         let%lwt () = Eliom_reference.set Web_state.signup_address (Some address) in
+      | Some env ->
+         let%lwt () = Eliom_reference.set Web_state.signup_env (Some env) in
          redir_preapply signup () ()
     )
 
 let () =
   Any.register ~service:signup
     (fun () () ->
-      let%lwt address = Eliom_reference.get Web_state.signup_address in
-      match address with
+      match%lwt Eliom_reference.get Web_state.signup_env with
       | None -> forbidden ()
-      | Some (address, Web_signup.CreateAccount) -> T.signup address >>= Html.send
-      | Some (address, Web_signup.ChangePassword username) -> T.changepw ~username ~address >>= Html.send
+      | Some (_, address, Web_signup.CreateAccount) -> T.signup address >>= Html.send
+      | Some (_, address, Web_signup.ChangePassword username) -> T.changepw ~username ~address >>= Html.send
     )
 
 let () =
   Any.register ~service:signup_post
     (fun () (username, password) ->
-      let%lwt email = Eliom_reference.get Web_state.signup_address in
-      match email with
-      | Some (email, Web_signup.CreateAccount) ->
-         (match%lwt Web_auth_password.add_account ~username ~password ~email with
+      match%lwt Eliom_reference.get Web_state.signup_env with
+      | Some (service, email, Web_signup.CreateAccount) ->
+         let user = { user_name = username; user_domain = service } in
+         (match%lwt Web_auth_password.add_account user ~password ~email with
          | Ok () ->
-            let%lwt () = Eliom_reference.unset Web_state.signup_address in
+            let%lwt () = Eliom_reference.unset Web_state.signup_env in
             T.generic_page ~title:"Account creation" ~service:admin
               "The account has been created." () >>= Html.send
          | Error UsernameTaken ->
@@ -2239,11 +2237,12 @@ let () =
 let () =
   Any.register ~service:changepw_post
     (fun () password ->
-      match%lwt Eliom_reference.get Web_state.signup_address with
-      | Some (_, Web_signup.ChangePassword username) ->
-         (match%lwt Web_auth_password.change_password ~username ~password with
+      match%lwt Eliom_reference.get Web_state.signup_env with
+      | Some (service, _, Web_signup.ChangePassword username) ->
+         let user = { user_name = username; user_domain = service } in
+         (match%lwt Web_auth_password.change_password user ~password with
           | Ok () ->
-             let%lwt () = Eliom_reference.unset Web_state.signup_address in
+             let%lwt () = Eliom_reference.unset Web_state.signup_env in
              T.generic_page ~title:"Change password" ~service:admin
                "The password has been changed." () >>= Html.send
           | Error e ->

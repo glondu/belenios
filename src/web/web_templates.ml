@@ -2479,7 +2479,7 @@ let login_dummy () =
   ] in
   base ~title ~content ()
 
-let login_password ~allowsignups =
+let login_password ~service ~allowsignups =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let signup =
@@ -2487,9 +2487,9 @@ let login_password ~allowsignups =
       div [
           br ();
           pcdata "You can also ";
-          a ~service:signup_captcha [pcdata "create an account"] None;
+          a ~service:signup_captcha [pcdata "create an account"] (service, None);
           pcdata ", or ";
-          a ~service:changepw_captcha [pcdata "change your password"] None;
+          a ~service:changepw_captcha [pcdata "change your password"] (service, None);
           pcdata " (if you forgot it, for example).";
         ]
     else pcdata ""
@@ -2527,7 +2527,7 @@ let format_captcha_error = function
   | Some BadCaptcha -> div [pcdata "Bad security code!"]
   | Some BadAddress -> div [pcdata "Bad e-mail address!"]
 
-let signup_captcha error challenge =
+let signup_captcha ~service error challenge =
   let form =
     post_form ~service:signup_captcha_post
       (fun (lchallenge, (lresponse, lemail)) ->
@@ -2547,13 +2547,13 @@ let signup_captcha error challenge =
               input ~input_type:`Submit ~value:"Submit" string;
             ];
         ]
-      ) None
+      ) (service, None)
   in
   let error = format_captcha_error error in
   let content = [error; form] in
   base ~title:"Create an account" ~content ()
 
-let signup_changepw error challenge =
+let signup_changepw ~service error challenge =
   let form =
     post_form ~service:changepw_captcha_post
       (fun (lchallenge, (lresponse, (lemail, lusername))) ->
@@ -2576,7 +2576,7 @@ let signup_changepw error challenge =
               input ~input_type:`Submit ~value:"Submit" string;
             ];
         ]
-      ) None
+      ) (service, None)
   in
   let error = format_captcha_error error in
   let content = [error; form] in

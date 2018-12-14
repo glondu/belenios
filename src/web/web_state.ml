@@ -51,4 +51,4 @@ let get_default_language () =
 
 let language = Eliom_reference.eref_from_fun ~scope get_default_language
 
-let signup_address = Eliom_reference.eref ~scope None
+let signup_env = Eliom_reference.eref ~scope None

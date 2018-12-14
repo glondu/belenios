@@ -40,12 +40,12 @@ let check_password_with_file db name password =
   | _ -> return false
 
 let password_handler () (name, password) =
-  Web_auth.run_post_login_handler "password" (fun uuid config authenticate ->
+  Web_auth.run_post_login_handler "password" (fun uuid a authenticate ->
       let%lwt ok =
         match uuid with
         | None ->
            begin
-             match List.assoc_opt "db" config with
+             match List.assoc_opt "db" a.auth_config with
              | Some db -> check_password_with_file db name password
              | _ -> failwith "invalid configuration for admin site"
            end
@@ -64,11 +64,11 @@ let does_allow_signups c =
   | Some x -> bool_of_string x
   | None -> false
 
-let get_password_db_fname () =
+let get_password_db_fname service =
   let rec find = function
     | [] -> None
-    | { auth_system = "password"; auth_config = c; _ } :: _
-         when does_allow_signups c -> List.assoc_opt "db" c
+    | { auth_system = "password"; auth_config = c; auth_instance = i } :: _
+         when i = service && does_allow_signups c -> List.assoc_opt "db" c
     | _ :: xs -> find xs
   in find !Web_config.site_auth_config
 
@@ -114,39 +114,39 @@ let is_username =
   | Some _ -> true
   | None -> false
 
-let add_account ~username ~password ~email =
-  if is_username username then
+let add_account user ~password ~email =
+  if is_username user.user_name then
     match%lwt Web_signup.cracklib_check password with
     | Some e -> return (Error (BadPassword e))
     | None ->
-       match get_password_db_fname () with
+       match get_password_db_fname user.user_domain with
        | None -> forbidden ()
        | Some db_fname ->
           Lwt_mutex.with_lock password_db_mutex
-            (do_add_account ~db_fname ~username ~password ~email)
+            (do_add_account ~db_fname ~username:user.user_name ~password ~email)
   else return (Error BadUsername)
 
-let change_password ~username ~password =
+let change_password user ~password =
   match%lwt Web_signup.cracklib_check password with
   | Some e -> return (Error e)
   | None ->
-     match get_password_db_fname () with
+     match get_password_db_fname user.user_domain with
      | None -> forbidden ()
      | Some db_fname ->
         let%lwt () =
           Lwt_mutex.with_lock password_db_mutex
-            (do_change_password ~db_fname ~username ~password)
+            (do_change_password ~db_fname ~username:user.user_name ~password)
         in return (Ok ())
 
 let () =
   Web_auth.register_pre_login_handler "password"
-    (fun config ->
-      let allowsignups = does_allow_signups config in
-      Web_templates.login_password ~allowsignups >>= Eliom_registration.Html.send
+    (fun { auth_config; auth_instance = service; _ } ->
+      let allowsignups = does_allow_signups auth_config in
+      Web_templates.login_password ~service ~allowsignups >>= Eliom_registration.Html.send
     )
 
-let lookup_account ~username ~email =
-  match get_password_db_fname () with
+let lookup_account ~service ~username ~email =
+  match get_password_db_fname service with
   | None -> return None
   | Some db ->
      let%lwt db = Lwt_preemptive.detach Csv.load db in

@@ -32,9 +32,9 @@ type link_kind =
   | CreateAccount
   | ChangePassword of string
 
-val send_confirmation_link : string -> unit Lwt.t
-val send_changepw_link : address:string -> username:string -> unit Lwt.t
+val send_confirmation_link : service:string -> string -> unit Lwt.t
+val send_changepw_link : service:string -> address:string -> username:string -> unit Lwt.t
 
-val confirm_link : string -> (string * link_kind) option Lwt.t
+val confirm_link : string -> (string * string * link_kind) option Lwt.t
 
 val cracklib_check : string -> string option Lwt.t
