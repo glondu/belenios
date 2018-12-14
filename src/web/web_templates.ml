@@ -2524,8 +2524,12 @@ let signup_captcha_img challenge =
 
 let format_captcha_error = function
   | None -> pcdata ""
-  | Some BadCaptcha -> div [pcdata "Bad security code!"]
-  | Some BadAddress -> div [pcdata "Bad e-mail address!"]
+  | Some x ->
+     let msg = match x with
+       | BadCaptcha -> "Bad security code!"
+       | BadAddress -> "Bad e-mail address!"
+     in
+     div ~a:[a_style "color: red;"] [pcdata msg]
 
 let signup_captcha ~service error challenge email =
   let form =
