@@ -2,7 +2,14 @@
 
 Automated tests are stored in the `tests` directory.
 
-Technologies used to run these tests are: Python 3 in a virtual environment, `pip` (to install Python packages such as `selenium`), `selenium`, `firefox`, `geckodriver` (a firefox driver for selenium), `unittest`.
+Technologies used to run these tests are:
+
+- `python3`: Python 3. We us it in a virtual environment
+- `pip`: Python's package manager. We use it to install Python packages such as `selenium` (`pip` installs packages mentioned in `requirements.txt`)
+- `selenium`: Selenium's Python API documentation: https://selenium-python.readthedocs.io/)
+- `firefox`: The browser we use to run tests with Selenium. We can use standard Firefox, or `firefox-esr`, depending what is available on the system and which Firefox version is compatible with Selenium at the moment
+- `geckodriver`: A Firefox driver for Selenium
+- `unittest`: Python's standard test framework
 
 These automated tests start the Belenios demo server (`demo/run-server.sh`), with the `BELENIOS_SENDMAIL` environment variable defined as the path to a fake `sendmail` executable (similar to a mock, provided in `tests/tools/sendmail_fake.sh`). This way, Belenios server does not return an error when trying to send emails in the test environment (that has no `sendmail` installed nor configured), and the fake `sendmail` executable makes it possible to verify what emails have been sent and read their content, simply by reading the log file where it redirects all its input (we use `/tmp/sendmail_fake` as location for this log file).
 
@@ -10,7 +17,8 @@ Note: For example, during election creation procedure, a step sends emails to vo
 
 When these automated tests start running, and when they end, they clean up Belenios database: Belenios database consists in directories and files under the `_run/spool` directory, for each election. So these are deleted during test setup. Belenios demo server stores initial admin users logins and passwords in `demo/password_db.csv`. This file is not deleted during test setup, and its contents are used to log in the adminstrator during the test and have this administrator create an election. 
 
-Automated tests can be executed manually, or via Continuous Integration.
+Automated tests can be executed manually, or via Continuous Integration. Next sub-sections explain how to execute them in each of these 2 contexts.
+
 
 ## Executing automated test suites manually on your local machine
 
@@ -59,3 +67,29 @@ sudo docker push glondu/beleniosbase-tests:20181206-1
 ```
 
 We use `YYYYMMDD-N` for docker-tagging, where `YYYYMMDD` is the build date, and `N` is a sequence number.
+
+
+## Customizing configuration variables of Test Scenario 1
+
+Test `test_scenario_1.py` executes using some default configuration that can be customized, by setting some environment variables when executing the script.
+
+The list of configuration variables is:
+
+- `RANDOM_SEED`: An integer used as seed for the random number generator of Python. By default, a random seed is used. Seed used is displayed at every run of the test, so you can re-run the test using the same random seed by setting this configuration variable to the value displayed.
+- `USE_HEADLESS_BROWSER`: Set this to non-zero (True) if you run this test in Continuous Integration (it has no graphical display). Set this to 0 (False) if you want to see the browser open its graphical user interface and visually track progress ot the test. By default, the falue is True.
+- `WAIT_TIME_BETWEEN_EACH_STEP`: In seconds (float). Time we wait between each action that we tell Selenium driver to do in the browser. Set to 0 if you don't need to have the time to visually follow progress of actions in the browser
+- `EXPLICIT_WAIT_TIMEOUT`: In seconds. Maximum duration Selenium driver will wait for appearance of a specific DOM element expected in the page (for example when transitioning from a page to another). This referes to Selenium's "Explicit Wait" concept
+- `SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH`
+- `NUMBER_OF_INVITED_VOTERS`: This is N in description of Scenario 1. N is between 6 (quick test) and 1000 (load testing)
+- `NUMBER_OF_VOTING_VOTERS`: This is K in description of Scenario 1. K is between 6 (quick test) and 1000 (load testing). K <= N. (Some invited voters don't vote, this is abstention, and its value is N - K)
+- `NUMBER_OF_REVOTING_VOTERS`: This is L in description of Scenario 1. L <= K
+- `NUMBER_OF_REGENERATED_PASSWORD_VOTERS`: This is M in description of Scenario 1. M <= K
+- `SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH`: By default, this is "/tmp/sendmail_fake"
+- `ADMINISTRATOR_USERNAME`: By default, this value comes from file `demo/password_db.csv`, first row, first column
+- `ADMINISTRATOR_PASSWORD`: By default, this value comes from file `demo/password_db.csv`, first row, 4th column
+
+Here is an example of how you can set configuration variables and execute the test in your terminal:
+
+```
+RANDOM_SEED=222 WAIT_TIME_BETWEEN_EACH_STEP=1.2 USE_HEADLESS_BROWSER=0 NUMBER_OF_INVITED_VOTERS=4 python3 ./tests/test_scenario_1.py
+```
