@@ -53,7 +53,7 @@ def random_email_address_generator():
     return random_generator() + "@mailinator.com"
 
 
-def random_generator(size=20, chars=string.ascii_uppercase + string.digits):
+def random_generator(size=20, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
 
@@ -329,9 +329,9 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     Properties:
     - server
     - browser
-    - voters_email_addresses
+    - voters_email_addresses: A list of email addresses (strings)
     - voters_email_addresses_who_have_lost_their_password
-    - voters_data
+    - voters_data: A dictionary, indexed by email address (string), where each element is a dictionary of fields for the voter who is identified by this email address
     - election_page_url
     - election_id
     """
@@ -718,11 +718,11 @@ pris en compte.
         self.log_in_as_administrator()
 
 
-        # She remembers the list of voters who contacted her and said they lost their password. For this, we pick NUMBER_OF_REGENERATED_PASSWORD_VOTERS voters from all the voters. TODO: We could pick them randomly or force an overlap with voters that are in NUMBER_OF_REVOTING_VOTERS
-        browser = self.browser
-        self.voters_email_addresses_who_have_lost_their_password = self.voters_email_addresses[0:NUMBER_OF_REGENERATED_PASSWORD_VOTERS]
+        # She remembers the list of voters who contacted her and said they lost their password. For this, we pick randomly NUMBER_OF_REGENERATED_PASSWORD_VOTERS voters from all the voters.
+        self.voters_email_addresses_who_have_lost_their_password = random.sample(self.voters_email_addresses, NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
 
         # She selects the election that she wants to edit
+        browser = self.browser
         election_to_edit_css_selector = "#main li a[href^='election/admin?uuid=']"
         election_to_edit_elements = wait_for_elements_exist(browser, election_to_edit_css_selector, EXPLICIT_WAIT_TIMEOUT)
         assert len(election_to_edit_elements) > 0
