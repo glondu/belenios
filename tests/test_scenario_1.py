@@ -959,10 +959,11 @@ pris en compte.
             # In a following pass, he checks his mailbox to find a new email with confirmation of his vote, and verifies the value of the smart ballot tracker written in this email is the same as the one he noted. This verification is done in a separated pass because of an optimization, so that we only re-read and re-populate the sendmail_fake text file once for all users.
 
             # He closes the window (there is no log-out link, because user is not logged in: credentials are not remembered)
-            # TODO: Is it really mandatory for the test to close the window? Re-opening a browser takes much more time, compared to just navigating to another URL.
-            browser.quit()
-            self.browser = initialize_browser()
-            browser = self.browser
+            # It is not really mandatory for the test to close the window. Re-opening a browser takes much more time, compared to just navigating to another URL. So actually to save execution time, we choose to close the window only sometimes, randomly.
+            if random.randint(0, 10) <= 3:
+                browser.quit()
+                self.browser = initialize_browser()
+                browser = self.browser
 
         # Start another pass, where we re-read and re-populate the sendmail_fake text file once for all users.
         voters = repopulate_vote_confirmations_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters, ELECTION_TITLE)
