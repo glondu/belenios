@@ -329,11 +329,12 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     Properties:
     - server
     - browser
-    - voters_email_addresses: A list of email addresses (strings)
-    - voters_email_addresses_who_have_lost_their_password
-    - voters_data: A dictionary, indexed by email address (string), where each element is a dictionary of fields for the voter who is identified by this email address
-    - election_page_url
-    - election_id
+    - voters_email_addresses: A list of email addresses (strings). This is all users who are invited to vote
+    - voters_email_addresses_who_have_lost_their_password: A list of email addresses (strings). This is all users who have asked for a new password.
+    - voters_email_addresses_who_have_voted: A dictionary, indexed by email address (string), where each element value is True
+    - voters_data: A dictionary, indexed by email address (string), where each element is a dictionary of fields for the voter who is identified by this email address. This is data about all users who have voted.
+    - election_page_url: The election page URL (string). Example: "http://localhost:8001/elections/H5ecRG3wHZ21cp/"
+    - election_id: The election ID (string). Example: "H5ecRG3wHZ21cp"
     """
 
     def setUp(self):
@@ -348,6 +349,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         self.voters_email_addresses = []
         self.voters_email_addresses_who_have_lost_their_password = []
+        self.voters_email_addresses_who_have_voted = dict()
         self.voters_data = dict()
         self.election_page_url = None
         self.election_id = None
@@ -951,6 +953,9 @@ pris en compte.
             matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
             assert len(matches) is 1
 
+
+            self.voters_email_addresses_who_have_voted[voter["email_address"]] = True
+
             # In a following pass, he checks his mailbox to find a new email with confirmation of his vote, and verifies the value of the smart ballot tracker written in this email is the same as the one he noted. This verification is done in a separated pass because of an optimization, so that we only re-read and re-populate the sendmail_fake text file once for all users.
 
             # He closes the window (there is no log-out link, because user is not logged in: credentials are not remembered)
@@ -967,7 +972,11 @@ pris en compte.
 
 
     def all_voters_vote(self):
-        voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_VOTING_VOTERS] # TODO: "à faire avec K électeurs différents, avec au moins 3 sessions d'électeurs entrelacées"
+        """
+        This function selects a random set of `NUMBER_OF_VOTING_VOTERS` voters, and casts their vote.
+        Note: If you rather want to cast votes and check consistency for every batch of votes, see function `all_voters_vote_in_sequences()`.
+        """
+        voters_who_will_vote_now = random.sample(self.voters_email_addresses, NUMBER_OF_VOTING_VOTERS)
         voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
         self.update_voters_data(voters_who_will_vote_now_data)
@@ -976,17 +985,26 @@ pris en compte.
 
     def all_voters_vote_in_sequences(self, verify_every_x_votes=5):
         """
-        This function is an alias of some_voters_vote_in_sequences() using some default parameters, for readability
+        This function is a wrapper of some_voters_vote_in_sequences(), for readability.
+        It selects a random set of `NUMBER_OF_VOTING_VOTERS` voters, and casts their vote, in batches of `verify_every_x_votes`, and checks vote data consistency after every batch of votes (using `belenios_tool verify-diff` and a snapshot of election data copied in previous batch).
+        Note: If you rather want to cast votes without checking consistency, see function `all_voters_vote()`.
         """
-        self.some_voters_vote_in_sequences(start_index=0, end_index=NUMBER_OF_VOTING_VOTERS, verify_every_x_votes=verify_every_x_votes)
+        voters_who_will_vote_now = random.sample(self.voters_email_addresses, NUMBER_OF_VOTING_VOTERS)
+        self.some_voters_vote_in_sequences(voters_who_will_vote_now, start_index=0, end_index=NUMBER_OF_VOTING_VOTERS, verify_every_x_votes=verify_every_x_votes)
 
-    def some_voters_vote_in_sequences(self, start_index=0, end_index=NUMBER_OF_VOTING_VOTERS, verify_every_x_votes=5):
+    def some_voters_vote_in_sequences(self, voters=None, start_index=0, end_index=NUMBER_OF_VOTING_VOTERS, verify_every_x_votes=5):
+        """
+        Iterates over `voters` from index `start_index` to `end_index`, cast their vote, and checks vote data consistency for every batch of `verify_every_x_votes` votes (using `belenios_tool verify-diff` and a snapshot of election data copied in previous batch).
+        """
         if start_index < 0:
             raise Exception("start_index cannot be below 0")
         current_start_index = start_index
         if end_index > NUMBER_OF_VOTING_VOTERS:
             raise Exception("end_index cannot exceeed NUMBER_OF_VOTING_VOTERS")
-        voters_who_will_vote_now = self.voters_email_addresses[start_index:end_index] # TODO: "à faire avec K électeurs différents, avec au moins 3 sessions d'électeurs entrelacées"
+
+        if voters is None:
+            voters = self.voters_email_addresses
+        voters_who_will_vote_now = voters[start_index:end_index]
         voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
         self.update_voters_data(voters_who_will_vote_now_data)
@@ -1022,7 +1040,8 @@ pris en compte.
 
 
     def some_voters_revote(self):
-        voters_who_will_vote_now = self.voters_email_addresses[0:NUMBER_OF_REVOTING_VOTERS] # TODO: Should we pick these voters in a different way than as a sequential subset of initial set?
+        voters_list_we_pick_from = self.voters_email_addresses_who_have_voted.keys()
+        voters_who_will_vote_now = random.sample(voters_list_we_pick_from, NUMBER_OF_REVOTING_VOTERS)
         voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
         self.update_voters_data(voters_who_will_vote_now_data)
