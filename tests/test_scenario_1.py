@@ -936,7 +936,7 @@ pris en compte.
 
             {Go back to election}
 
-            Where {xxx} is a links_elements
+            Where {xxx} is a link
             """
 
             # He clicks on the "ballot box" link
@@ -1146,8 +1146,20 @@ pris en compte.
             assert answer_total_real_value == answer_total_expected_value, "Number of votes for Answer " + str(answer_id) + " displayed on vote result page  (" + answer_total_real_value + ") does not match expected value (" + answer_total_expected_value
 
 
-        # - 3) She checks that each ballot content corresponds to content that of this vote that has been randomly generated in advance
-        # TODO
+        # - 3) She checks that each smart ballot tracker in the ballot box page corresponds to the smart ballot tracker of one of our voters, and that there is only one of these, and that the number of smart ballot trackers in this page is the same as the number of voters who voted
+
+        all_ballots_link_label = "See accepted ballots"
+        all_ballots_link_element = wait_for_an_element_with_partial_link_text_exists(browser, all_ballots_link_label, EXPLICIT_WAIT_TIMEOUT)
+        all_ballots_link_element.click()
+
+        all_smart_ballot_trackers_css_selector = "#main ul li a"
+        all_smart_ballot_trackers_elements = wait_for_elements_exist(browser, all_smart_ballot_trackers_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        assert len(self.voters_email_addresses_who_have_voted) == NUMBER_OF_VOTING_VOTERS
+        assert len(all_smart_ballot_trackers_elements) == NUMBER_OF_VOTING_VOTERS
+        for voter_email_address in self.voters_email_addresses_who_have_voted:
+            voter = self.voters_data[voter_email_address]
+            matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
+            assert len(matches) is 1
 
 
     def test_scenario_1_simple_vote(self):
