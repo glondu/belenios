@@ -1596,17 +1596,43 @@ let rec list_concat elt = function
 
 let election_home election state () =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang language) in
+  let l = Web_i18n.get_lang language in
+  let module L = (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
+  let%lwt d = Web_persist.get_election_auto_dates uuid in
+  let now = now () in
   let state_ =
     match state with
     | `Closed ->
+       let it_will_open =
+         match d.Web_persist.auto_open with
+         | Some t when datetime_compare now t < 0 ->
+            span [
+                pcdata " ";
+                pcdata L.it_will_open_in;
+                pcdata (format_period l (datetime_sub t now));
+                pcdata ".";
+              ]
+         | _ -> pcdata ""
+       in
       [
         pcdata " ";
         b [pcdata L.election_currently_closed];
+        it_will_open;
       ]
-    | `Open -> []
+    | `Open ->
+       let it_will_close =
+         match d.Web_persist.auto_close with
+         | Some t when datetime_compare now t < 0 ->
+            span [
+                pcdata L.the_election_will_close_in;
+                pcdata (format_period l (datetime_sub t now));
+                pcdata ".";
+              ]
+         | _ -> pcdata ""
+       in
+       [it_will_close]
     | `EncryptedTally (_, _, hash) ->
        [
          pcdata " ";

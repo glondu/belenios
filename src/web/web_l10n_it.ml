@@ -111,6 +111,14 @@ let you_can_also_download = "È possibile scaricare il "
 let result_with_crypto_proofs = "risultato con le prove crittografiche"
 let blank_vote = "Scheda bianca"
 let no_other_blank = "Nessun'altra scelta è autorizzata quando la scheda è bianca"
+let it_will_open_in = "It will close in "
+let the_election_will_close_in = "The election will close in "
+let years = " year(s)"
+let months = " month(s)"
+let days = " day(s)"
+let hours = " hour(s)"
+let minutes = " minute(s)"
+let seconds = " second(s)"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

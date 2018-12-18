@@ -111,6 +111,14 @@ let you_can_also_download = "De asemenea, puteți descărca "
 let result_with_crypto_proofs = "rezultat cu dovada criptografică"
 let blank_vote = "Vot alb"
 let no_other_blank = "Nu puteți selecta o altă opțiune la un vot alb"
+let it_will_open_in = "It will close in "
+let the_election_will_close_in = "The election will close in "
+let years = " year(s)"
+let months = " month(s)"
+let days = " day(s)"
+let hours = " hour(s)"
+let minutes = " minute(s)"
+let seconds = " second(s)"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

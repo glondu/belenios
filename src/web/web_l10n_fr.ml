@@ -111,6 +111,14 @@ let you_can_also_download = "Vous pouvez également télécharger le "
 let result_with_crypto_proofs = "résultat avec les preuves cryptographiques"
 let blank_vote = "Vote blanc"
 let no_other_blank = "Vous ne pouvez pas sélectionner d'autres choix lors d'un vote blanc"
+let it_will_open_in = "Elle ouvrira dans "
+let the_election_will_close_in = "L'élection fermera dans "
+let years = " année(s)"
+let months = " mois"
+let days = " jour(s)"
+let hours = " heure(s)"
+let minutes = " minute(s)"
+let seconds = " seconde(s)"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

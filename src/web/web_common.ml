@@ -89,6 +89,26 @@ let explain_error l e =
   | CastError ECastReusedCredential -> L.error_ReusedCredential
   | CastError ECastWrongCredential -> L.error_WrongCredential
 
+let decompose_seconds s =
+  let h = int_of_float (s /. 3600.) in
+  let s = s -. float_of_int h *. 3600. in
+  let m = int_of_float (s /. 60.) in
+  let s = s -. float_of_int m *. 60. in
+  (h, m, int_of_float s)
+
+let format_period l x =
+  let module L = (val l : Web_i18n_sig.LocalizedStrings) in
+  let y, m, d, s = ymds x in
+  let y = if y = 0 then "" else string_of_int y ^ L.years in
+  let m = if m = 0 then "" else string_of_int m ^ L.months in
+  let d = if d = 0 then "" else string_of_int d ^ L.days in
+  let hrs, min, sec = decompose_seconds s in
+  let hrs = if hrs = 0 then "" else string_of_int hrs ^ L.hours in
+  let min = if min = 0 then "" else string_of_int min ^ L.minutes in
+  let sec = if sec = 0 then "" else string_of_int sec ^ L.seconds in
+  let approx = String.concat " " (List.filter (fun x -> x <> "") [y; m; d; hrs; min]) in
+  if approx = "" then sec else approx
+
 let security_logfile = ref None
 
 let open_security_log f =

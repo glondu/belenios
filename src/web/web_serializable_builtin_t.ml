@@ -57,3 +57,8 @@ let second = CalendarLib.Fcalendar.Precise.Period.second
 
 let datetime_add (a, _) x =
   CalendarLib.Fcalendar.Precise.add a x, None
+
+let datetime_sub (a, _) (b, _) =
+  CalendarLib.Fcalendar.Precise.sub a b
+
+let ymds = CalendarLib.Fcalendar.Precise.Period.ymds

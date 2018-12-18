@@ -112,6 +112,14 @@ module type LocalizedStrings = sig
   val result_with_crypto_proofs : string
   val blank_vote : string
   val no_other_blank : string
+  val it_will_open_in : string
+  val the_election_will_close_in : string
+  val years : string
+  val months : string
+  val days : string
+  val hours : string
+  val minutes : string
+  val seconds : string
   val mail_password_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_password : (string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_credential_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6

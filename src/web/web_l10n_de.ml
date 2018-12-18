@@ -111,6 +111,14 @@ let you_can_also_download = "Sie können außerdem das "
 let result_with_crypto_proofs = "Ergbnis mit den kryptographischen Beweisen herunterladen"
 let blank_vote = "ungültige Stimme"
 let no_other_blank = "Bei einer ungültigen Stimme sind keine anderen Auswahlmöglichkeiten vorhanden."
+let it_will_open_in = "It will close in "
+let the_election_will_close_in = "The election will close in "
+let years = " year(s)"
+let months = " month(s)"
+let days = " day(s)"
+let hours = " hour(s)"
+let minutes = " minute(s)"
+let seconds = " second(s)"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
