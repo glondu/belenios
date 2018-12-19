@@ -324,13 +324,15 @@ let get_ballot_by_hash uuid hash =
 
 let load_ballots uuid =
   let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
-  let ballots = Lwt_unix.files_of_directory ballots_dir in
-  let%lwt ballots = Lwt_stream.to_list ballots in
-  Lwt_list.filter_map_p (fun x ->
-      match%lwt read_file (ballots_dir / x) with
-      | Some [x] -> return (Some x)
-      | _ -> return_none
-    ) ballots
+  if%lwt Lwt_unix.file_exists ballots_dir then (
+    let ballots = Lwt_unix.files_of_directory ballots_dir in
+    let%lwt ballots = Lwt_stream.to_list ballots in
+    Lwt_list.filter_map_p (fun x ->
+        match%lwt read_file (ballots_dir / x) with
+        | Some [x] -> return (Some x)
+        | _ -> return_none
+      ) ballots
+  ) else return []
 
 let dump_ballots uuid =
   let%lwt ballots = load_ballots uuid in
