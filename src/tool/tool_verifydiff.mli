@@ -30,7 +30,6 @@ type verifydiff_error =
   | MissingCredentials
   | InvalidCredential
   | CredentialsMismatch
-  | MissingBallots
   | InvalidBallot
   | DuplicateBallot
   | BallotSignedByInvalidKey

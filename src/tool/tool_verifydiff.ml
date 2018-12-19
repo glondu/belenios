@@ -59,7 +59,6 @@ type verifydiff_error =
   | MissingCredentials
   | InvalidCredential
   | CredentialsMismatch
-  | MissingBallots
   | InvalidBallot
   | DuplicateBallot
   | BallotSignedByInvalidKey
@@ -79,7 +78,6 @@ let explain_error = function
   | MissingCredentials -> "missing credentials"
   | InvalidCredential -> "invalid credential"
   | CredentialsMismatch -> "credentials mismatch"
-  | MissingBallots -> "missing ballots"
   | InvalidBallot -> "invalid ballot"
   | DuplicateBallot -> "duplicate ballot"
   | BallotSignedByInvalidKey -> "ballot signed by invalid key"
@@ -170,7 +168,7 @@ let verifydiff dir1 dir2 =
   let module GMap = Map.Make (G) in
   let ballots dir =
     match load_from_file (ballot_of_string G.read) (dir / "ballots.jsons") with
-    | None -> raise (VerifydiffError MissingBallots)
+    | None -> GMap.empty
     | Some ballots ->
        if not (List.for_all E.check_ballot ballots) then
          raise (VerifydiffError InvalidBallot);
