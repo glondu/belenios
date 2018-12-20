@@ -783,10 +783,22 @@ let election_draft_threshold_trustees uuid se () =
              th [pcdata "Trustee"];
              th [pcdata "Mail"];
              th [pcdata "Link"];
-             th [pcdata "Step"];
+             th [pcdata "State"];
            ] @ (if show_add_remove then [th [pcdata "Remove"]] else [])
          ) ::
            List.mapi (fun i t ->
+               let state =
+                 match t.stt_step with
+                 | None -> "init"
+                 | Some 1 -> "1a"
+                 | Some 2 -> "1b"
+                 | Some 3 -> "2a"
+                 | Some 4 -> "2b"
+                 | Some 5 -> "3a"
+                 | Some 6 -> "3b"
+                 | Some 7 -> "done"
+                 | _ -> "unknown"
+               in
              tr (
                  [
                    td [
@@ -805,50 +817,52 @@ let election_draft_threshold_trustees uuid se () =
                        a ~service:election_draft_threshold_trustee [pcdata "Link"] (uuid, t.stt_token);
                      ];
                    td [
-                       pcdata (string_of_int (match t.stt_step with None -> 0 | Some x -> x));
+                       pcdata state;
                      ];
                  ] @ (if show_add_remove then [td [mk_form_trustee_del i]] else [])
                )
              ) ts
          );
        div [
-           pcdata "Meaning of steps:";
+           pcdata "Meaning of states:";
            ul [
-               li [pcdata "0: administrator needs to set threshold"];
-               li [pcdata "1: action needed from trustee: generate private key"];
-               li [pcdata "2, 4, 6: waiting for other trustees"];
-               li [pcdata "3, 5: action needed from trustee: enter private key"];
-               li [pcdata "7: the key establishment protocol is finished"];
+               li [pcdata "init: administrator needs to set threshold"];
+               li [pcdata "1a: action needed from trustee: generate private key"];
+               li [pcdata "2a, 3a: action needed from trustee: enter private key"];
+               li [pcdata "1b, 2b, 3b: waiting for other trustees"];
+               li [pcdata "done: the key establishment protocol is finished"];
              ];
          ];
        br ();
        ]
   in
   let form_threshold =
-    div [
-        let value =
-          match se.se_threshold with
-          | None -> 0
-          | Some i -> i
-        in
-        post_form
-          ~service:election_draft_threshold_set
-          (fun name ->
-            [
-              pcdata "Threshold: ";
-              input ~input_type:`Text ~name ~value int;
-              input ~input_type:`Submit ~value:"Set" string;
-            ]
-          ) uuid
-      ]
-  in
-  let threshold_warning =
-    if show_add_remove then pcdata "" else
-      div [
-          b [pcdata "Warning:"];
-          pcdata " any change will re-initialize the whole process.";
-          pcdata " To edit trustees and restart the process, set to 0.";
-        ]
+    match se.se_threshold_trustees with
+    | None -> pcdata ""
+    | Some ts ->
+       match se.se_threshold with
+       | None ->
+          post_form ~service:election_draft_threshold_set
+            (fun name ->
+              [
+                pcdata "Threshold: ";
+                input ~input_type:`Text ~name int;
+                input ~input_type:`Submit ~value:"Set" string;
+                pcdata " (the threshold must be smaller than the number of trustees)";
+              ]
+            ) uuid
+       | Some i ->
+          post_form ~service:election_draft_threshold_set
+            (fun name ->
+              [
+                pcdata (string_of_int i);
+                pcdata " out of ";
+                pcdata (string_of_int (List.length ts));
+                pcdata " trustees will be needed to decrypt the result. ";
+                input ~input_type:`Hidden ~name ~value:0 int;
+                input ~input_type:`Submit ~value:"Reset" string;
+              ]
+            ) uuid
   in
   let maybe_error =
     match se.se_threshold_error with
@@ -857,10 +871,9 @@ let election_draft_threshold_trustees uuid se () =
   in
   let div_content =
     div [
-      div [pcdata "On this page, you can configure a group of trustees such that only a threshold of them is needed to perform the decryption."];
+      div [pcdata "On this page, you can configure a group of trustees such that only a subset of them is needed to perform the decryption."];
       br ();
       form_threshold;
-      threshold_warning;
       br ();
       trustees;
       (if se.se_threshold_trustees <> None then

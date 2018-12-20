@@ -1913,7 +1913,7 @@ let () =
                se.se_threshold <- maybe_threshold;
                redir_preapply election_draft_threshold_trustees uuid ()
              ) else (
-               let msg = "The threshold must be positive and lesser than the number of trustees!" in
+               let msg = "The threshold must be positive and smaller than the number of trustees!" in
                let service = preapply election_draft_threshold_trustees uuid in
                T.generic_page ~title:"Error" ~service msg () >>= Html.send
              )
