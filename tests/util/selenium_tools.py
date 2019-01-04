@@ -90,7 +90,7 @@ def wait_for_element_exists_and_contains_expected_text(browser, css_selector, ex
         element = custom_wait.until(element_exists_and_contains_expected_text((By.CSS_SELECTOR, css_selector), expected_text))
         return element
     except Exception as e:
-        raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds") from e
+        raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds. Page source was: " + str(browser.page_source.encode("utf-8"))) from e
 
 
 def wait_for_element_exists_and_has_non_empty_content(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):

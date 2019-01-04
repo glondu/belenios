@@ -15,27 +15,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.alert import Alert
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists
-
-
-SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
-SERVER_URL = "http://localhost:8001"
-DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY = "_run/spool"
-FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "tests/tools/sendmail_fake.sh"
-SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = "/tmp/sendmail_fake"
-USE_HEADLESS_BROWSER = True # Set this to True if you run this test in Continuous Integration (it has no graphical display)
-WAIT_TIME_BETWEEN_EACH_STEP = 0 # In seconds (float). Time we wait between each action that we tell Selenium driver to do in the browser. Set to 0 if you don't need to have the time to visually follow progress of actions in the browser
-EXPLICIT_WAIT_TIMEOUT = 10 # In seconds. Maximum duration Selenium driver will wait for appearance of a specific DOM element expected in the page (for example when transitioning from a page to another). This referes to Selenium's "Explicit Wait" concept
-
-NUMBER_OF_INVITED_VOTERS = 20 # This is N in description of Scenario 1. N is between 6 (quick test) and 1000 (load testing)
-NUMBER_OF_VOTING_VOTERS = 10 # This is K in description of Scenario 1. K is between 6 (quick test) and 1000 (load testing). K <= N. (Some invited voters don't vote, this is abstention, and its value is N - K)
-NUMBER_OF_REVOTING_VOTERS = 5 # This is L in description of Scenario 1. L <= K
-NUMBER_OF_REGENERATED_PASSWORD_VOTERS = 4 # This is M in description of Scenario 1. M <= K
-ELECTION_TITLE = "My test election for Scenario 1"
-ADMINISTRATOR_USERNAME = "user1" # This value comes from file `demo/password_db.csv`, first row, first column
-ADMINISTRATOR_PASSWORD = "phiexoey" # This value comes from file `demo/password_db.csv`, first row, 4th column
-
-THIS_FILE_ABSOLUTE_PATH = os.path.abspath(__file__)
-GIT_REPOSITORY_ABSOLUTE_PATH = os.path.dirname(os.path.dirname(THIS_FILE_ABSOLUTE_PATH))
+import settings
 
 
 def console_log(*args, **kwargs):
@@ -209,12 +189,13 @@ def repopulate_vote_confirmations_for_voters_from_sent_emails(fake_sent_emails_m
 
 
 def remove_database_folder():
-    shutil.rmtree(os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY), ignore_errors=True)
+    print("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
+    shutil.rmtree(os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY), ignore_errors=True)
 
 
 def wait_a_bit():
-    if WAIT_TIME_BETWEEN_EACH_STEP > 0:
-        time.sleep(WAIT_TIME_BETWEEN_EACH_STEP)
+    if settings.WAIT_TIME_BETWEEN_EACH_STEP > 0:
+        time.sleep(settings.WAIT_TIME_BETWEEN_EACH_STEP)
 
 
 def verify_element_label(element, expected_label):
@@ -237,8 +218,8 @@ def find_buttons_in_page_content_by_value(browser, expected_value):
 
 
 def initialize_server():
-    server_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
-    fake_sendmail_absolute_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
+    server_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
+    fake_sendmail_absolute_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY)
     custom_environment_variables = dict(os.environ, BELENIOS_SENDMAIL=fake_sendmail_absolute_path)
     server = subprocess.Popen([server_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, env=custom_environment_variables)
     try:
@@ -251,7 +232,7 @@ def initialize_server():
 
 def initialize_browser():
     browser = None
-    if USE_HEADLESS_BROWSER:
+    if settings.USE_HEADLESS_BROWSER:
         from selenium.webdriver.firefox.options import Options
         options = Options()
         options.add_argument("--headless")
@@ -259,7 +240,7 @@ def initialize_browser():
         browser = webdriver.Firefox(options=options)
     else:
         browser = webdriver.Firefox()
-    browser.implicitly_wait(WAIT_TIME_BETWEEN_EACH_STEP) # In seconds
+    browser.implicitly_wait(settings.WAIT_TIME_BETWEEN_EACH_STEP) # In seconds
     return browser
 
 
@@ -281,8 +262,8 @@ def verify_election_consistency(election_id, snapshot_folder=None):
     :param snapshot_folder: Optional parameter. If provided, it will verify consistency of differences (evolution) between this snapshot folder and current election database folder
     """
 
-    election_folder = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id)
-    verification_tool_path = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
+    election_folder = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id)
+    verification_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
     command = [verification_tool_path, "verify"]
     if snapshot_folder:
         command = [verification_tool_path, "verify-diff", "--dir1=" + snapshot_folder, "--dir2=" + election_folder]
@@ -303,7 +284,7 @@ def verify_election_consistency(election_id, snapshot_folder=None):
 
 
 def create_election_data_snapshot(election_id):
-    election_folder = os.path.join(GIT_REPOSITORY_ABSOLUTE_PATH, DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id)
+    election_folder = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id)
     process = subprocess.Popen(["mktemp", "-d"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     out, err = process.communicate(timeout=2)
 
@@ -324,6 +305,75 @@ def delete_election_data_snapshot(snapshot_folder):
     subprocess.run(["rm", "-rf", snapshot_folder]) # TODO: Execute a command that works on other OS, like `shutil.rmtree()`
 
 
+def log_in_as_administrator(browser, from_a_login_page=False):
+    if from_a_login_page:
+        local_login_link_label = "local"
+        local_login_link_element = wait_for_an_element_with_partial_link_text_exists(browser, local_login_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        local_login_link_element.click()
+    else:
+        # Edith has been given administrator rights on an online voting app called Belenios. She goes
+        # to check out its homepage
+
+        browser.get(settings.SERVER_URL)
+
+        wait_a_bit()
+
+        # She notices the page title mentions an election
+        # TODO: Should we wait for the page to load here? It looks like we don't need to.
+        assert 'Election Server' in browser.title, "Browser title was: " + browser.title
+
+        # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
+        accept_button_label = "Accept"
+        button_elements = find_buttons_in_page_content_by_value(browser, accept_button_label)
+        if len(button_elements) > 0:
+            assert len(button_elements) is 1
+            button_elements[0].click()
+
+        # She clicks on "local" to go to the login page
+        login_link_css_selector = "#login_local"
+        login_element = wait_for_element_exists(browser, login_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        login_element.click()
+
+    wait_a_bit()
+
+    # She enters her identifier and password and submits the form to log in
+    login_form_username_value = settings.ADMINISTRATOR_USERNAME
+    login_form_password_value = settings.ADMINISTRATOR_PASSWORD
+
+    login_form_username_css_selector = '#main form input[name=username]'
+    login_form_password_css_selector = '#main form input[name=password]'
+
+    login_form_username_element = wait_for_element_exists(browser, login_form_username_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+    login_form_password_element = wait_for_element_exists(browser, login_form_password_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+
+    login_form_username_element.send_keys(login_form_username_value)
+    login_form_password_element.send_keys(login_form_password_value)
+
+    wait_a_bit()
+
+    login_form_password_element.submit()
+
+    # She verifies that she arrived on the administration page (instead of any login error page)
+
+    # Here we use Selenium's Explicit Wait to wait for the h1 element of the page to contain expected text, meaning browser will have changed from login page to administration page. If we had used an Implicit Wait (with a defined duration) instead of an Explicit one, we risk to have some errors sometimes (we experienced them before doing this refactoring):
+    # - Sometimes we get an error like `selenium.common.exceptions.StaleElementReferenceException: Message: The element reference of <h1> is stale; either the element is no longer attached to the DOM, it is not in the current frame context, or the document has been refreshed` or `selenium.common.exceptions.NoSuchElementException: Message: Unable to locate element: #header h1`. This is because page content changed in between two of our instructions.
+    # - Value read from the page is still the value contained in previous page, because page content has not changed yet.
+
+    page_title_css_selector = "#header h1"
+    page_title_expected_content = "Administration"
+    wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
+
+
+def log_out(browser):
+    # In the header of the page, she clicks on the "Log out" link
+    logout_link_css_selector = "#logout"
+    logout_element = wait_for_element_exists(browser, logout_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+    logout_element.click()
+
+    # She arrives on the election home page. She checks that the "Start" button is present
+    wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", settings.EXPLICIT_WAIT_TIMEOUT)
+
+
 class BeleniosTestElectionScenario1(unittest.TestCase):
     """
     Properties:
@@ -338,7 +388,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     """
 
     def setUp(self):
-        self.fake_sent_emails_manager = FakeSentEmailsManager(SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
+        self.fake_sent_emails_manager = FakeSentEmailsManager(settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
         self.fake_sent_emails_manager.install_fake_sendmail_log_file()
 
         remove_database_folder()
@@ -392,13 +442,13 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         if from_a_login_page:
             local_login_link_label = "local"
-            local_login_link_element = wait_for_an_element_with_partial_link_text_exists(browser, local_login_link_label, EXPLICIT_WAIT_TIMEOUT)
+            local_login_link_element = wait_for_an_element_with_partial_link_text_exists(browser, local_login_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
             local_login_link_element.click()
         else:
             # Edith has been given administrator rights on an online voting app called Belenios. She goes
             # to check out its homepage
 
-            browser.get(SERVER_URL)
+            browser.get(settings.SERVER_URL)
 
             wait_a_bit()
 
@@ -415,20 +465,20 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
             # She clicks on "local" to go to the login page
             login_link_css_selector = "#login_local"
-            login_element = wait_for_element_exists(browser, login_link_css_selector, EXPLICIT_WAIT_TIMEOUT)
+            login_element = wait_for_element_exists(browser, login_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             login_element.click()
 
         wait_a_bit()
 
         # She enters her identifier and password and submits the form to log in
-        login_form_username_value = ADMINISTRATOR_USERNAME
-        login_form_password_value = ADMINISTRATOR_PASSWORD
+        login_form_username_value = settings.ADMINISTRATOR_USERNAME
+        login_form_password_value = settings.ADMINISTRATOR_PASSWORD
 
         login_form_username_css_selector = '#main form input[name=username]'
         login_form_password_css_selector = '#main form input[name=password]'
 
-        login_form_username_element = wait_for_element_exists(browser, login_form_username_css_selector, EXPLICIT_WAIT_TIMEOUT)
-        login_form_password_element = wait_for_element_exists(browser, login_form_password_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        login_form_username_element = wait_for_element_exists(browser, login_form_username_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        login_form_password_element = wait_for_element_exists(browser, login_form_password_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
 
         login_form_username_element.send_keys(login_form_username_value)
         login_form_password_element.send_keys(login_form_password_value)
@@ -445,47 +495,48 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         page_title_css_selector = "#header h1"
         page_title_expected_content = "Administration"
-        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, EXPLICIT_WAIT_TIMEOUT)
+        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
 
     def log_out(self):
         browser = self.browser
         # In the header of the page, she clicks on the "Log out" link
         logout_link_css_selector = "#logout"
-        logout_element = wait_for_element_exists(browser, logout_link_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        logout_element = wait_for_element_exists(browser, logout_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         logout_element.click()
 
         # She arrives on the election home page. She checks that the "Start" button is present
-        wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", EXPLICIT_WAIT_TIMEOUT)
+        wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", settings.EXPLICIT_WAIT_TIMEOUT)
 
 
     def administrator_creates_election(self):
         # # Setting up a new election (action of the administrator)
 
+        browser = self.browser
+
         # Edith has been given administrator rights on an online voting app called Belenios. She goes
         # to check out its homepage and logs in
-        self.log_in_as_administrator()
+        log_in_as_administrator(browser)
 
         # She clicks on the "Prepare a new election" link
-        browser = self.browser
         create_election_link_expected_content = "Prepare a new election"
         links_css_selector = "#main a"
-        create_election_link_element = wait_for_element_exists_and_contains_expected_text(browser, links_css_selector, create_election_link_expected_content, EXPLICIT_WAIT_TIMEOUT)
+        create_election_link_element = wait_for_element_exists_and_contains_expected_text(browser, links_css_selector, create_election_link_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
         create_election_link_element.click()
 
         wait_a_bit()
 
         # She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
         proceed_button_css_selector = "#main form input[type=submit]"
-        proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         proceed_button_element.click()
 
         wait_a_bit()
 
         # She changes values of fields name and description of the election
         election_name_field_css_selector = "#main form input[name=__co_eliom_name]"
-        election_name_field_element = wait_for_element_exists(browser, election_name_field_css_selector, EXPLICIT_WAIT_TIMEOUT)
-        election_name_field_value = ELECTION_TITLE
+        election_name_field_element = wait_for_element_exists(browser, election_name_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        election_name_field_value = settings.ELECTION_TITLE
         election_name_field_element.clear()
         election_name_field_element.send_keys(election_name_field_value)
 
@@ -508,7 +559,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         # She clicks on the "Edit questions" link, to write her own questions
         edit_questions_link_css_selector = "#edit_questions"
-        edit_questions_link_element = wait_for_element_exists(browser, edit_questions_link_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        edit_questions_link_element = wait_for_element_exists(browser, edit_questions_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         edit_questions_link_element.click()
 
         wait_a_bit()
@@ -516,7 +567,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
         # She arrives on the Questions page. She checks that the page title is correct
         page_title_css_selector = "#header h1"
         page_title_expected_content = "Questions for"
-        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, EXPLICIT_WAIT_TIMEOUT)
+        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
         # She removes answer 3
         question_to_remove = 3
@@ -538,15 +589,15 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         # She clicks on the "Edit voters" link, to then type the list of voters
         edit_voters_link_css_selector = "#edit_voters"
-        edit_voters_link_element = wait_for_element_exists(browser, edit_voters_link_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        edit_voters_link_element = wait_for_element_exists(browser, edit_voters_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         edit_voters_link_element.click()
 
         wait_a_bit()
 
         # She types N e-mail addresses (the list of invited voters)
-        self.voters_email_addresses = random_email_addresses_generator(NUMBER_OF_INVITED_VOTERS)
+        self.voters_email_addresses = random_email_addresses_generator(settings.NUMBER_OF_INVITED_VOTERS)
         voters_list_field_css_selector = "#main form textarea"
-        voters_list_field_element = wait_for_element_exists(browser, voters_list_field_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        voters_list_field_element = wait_for_element_exists(browser, voters_list_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         voters_list_field_element.clear()
         is_first = True
         for email_address in self.voters_email_addresses:
@@ -567,7 +618,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
 
         # She clicks on "Return to draft page" link
         return_link_label = "Return to draft page"
-        return_link_element = wait_for_an_element_with_partial_link_text_exists(browser, return_link_label, EXPLICIT_WAIT_TIMEOUT)
+        return_link_element = wait_for_an_element_with_partial_link_text_exists(browser, return_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
         return_link_element.click()
 
         wait_a_bit()
@@ -575,7 +626,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
         # She clicks on button "Generate on server"
         generate_on_server_button_label = "Generate on server"
         generate_on_server_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(generate_on_server_button_label)
-        generate_on_server_button_element = wait_for_element_exists(browser, generate_on_server_button_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        generate_on_server_button_element = wait_for_element_exists(browser, generate_on_server_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         generate_on_server_button_element.click()
 
         wait_a_bit()
@@ -583,7 +634,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
         # (Server sends emails to voters.) She checks that server does not show any error that would happen when trying to send these emails (this can happen if sendmail is not configured)
         confirmation_sentence_expected_text = "Credentials have been generated and mailed!"
         confirmation_sentence_css_selector = "#main p"
-        wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, EXPLICIT_WAIT_TIMEOUT)
+        wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
 
         # Now we do a sanity check that server has really tried to send emails. For this, we look for email addresses in the temporary file where our fake sendmail executable redirects its inputs to.
 
@@ -655,14 +706,14 @@ pris en compte.
         # She clicks on the "Proceed" link
         proceed_link_expected_label = "Proceed"
         proceed_link_css_selector = "#main a"
-        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, EXPLICIT_WAIT_TIMEOUT)
+        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
         proceed_link_element.click()
 
         wait_a_bit()
 
         # In "Authentication" section, she clicks on the "Generate and mail missing passwords" button
         generate_and_mail_missing_passwords_button_label = "Generate and mail missing passwords"
-        generate_and_mail_missing_passwords_button_element = wait_for_element_exists(browser, build_css_selector_to_find_buttons_in_page_content_by_value(generate_and_mail_missing_passwords_button_label), EXPLICIT_WAIT_TIMEOUT)
+        generate_and_mail_missing_passwords_button_element = wait_for_element_exists(browser, build_css_selector_to_find_buttons_in_page_content_by_value(generate_and_mail_missing_passwords_button_label), settings.EXPLICIT_WAIT_TIMEOUT)
         generate_and_mail_missing_passwords_button_element.click()
 
         wait_a_bit()
@@ -670,19 +721,19 @@ pris en compte.
         # She checks that the page contains expected confirmation text, instead of an error (TODO: explain in which case an error can happen, and check that it does not show)
         confirmation_sentence_expected_text = "Passwords have been generated and mailed!"
         confirmation_sentence_css_selector = "#main p"
-        wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, EXPLICIT_WAIT_TIMEOUT)
+        wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
 
         # She clicks on the "Proceed" link
         proceed_link_expected_label = "Proceed"
         proceed_link_css_selector = "#main a"
-        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, EXPLICIT_WAIT_TIMEOUT)
+        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
         proceed_link_element.click()
 
         wait_a_bit()
 
         # In "Validate creation" section, she clicks on the "Create election" link
         create_election_link_label = "Create election"
-        create_election_link_element = wait_for_an_element_with_partial_link_text_exists(browser, create_election_link_label, EXPLICIT_WAIT_TIMEOUT)
+        create_election_link_element = wait_for_an_element_with_partial_link_text_exists(browser, create_election_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
         create_election_link_element.click()
 
         wait_a_bit()
@@ -692,7 +743,7 @@ pris en compte.
         # In the "Validate creation" section, she clicks on the "Create election" button
         create_election_button_label = "Create election"
         create_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(create_election_button_label)
-        create_election_button_element = wait_for_element_exists(browser, create_election_button_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        create_election_button_element = wait_for_element_exists(browser, create_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         create_election_button_element.click()
 
         wait_a_bit()
@@ -701,7 +752,7 @@ pris en compte.
 
         # She remembers the URL of the voting page, that is where the "Election home" link points to
         election_page_link_label = "Election home"
-        election_page_link_element = wait_for_an_element_with_partial_link_text_exists(browser, election_page_link_label, EXPLICIT_WAIT_TIMEOUT)
+        election_page_link_element = wait_for_an_element_with_partial_link_text_exists(browser, election_page_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
         self.election_page_url = election_page_link_element.get_attribute('href')
         console_log("election_page_url:", self.election_page_url)
         self.election_id = election_page_url_to_election_id(self.election_page_url)
@@ -710,23 +761,24 @@ pris en compte.
         # She checks that a "Close election" button is present (but she does not click on it)
         close_election_button_label = "Close election"
         close_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(close_election_button_label)
-        wait_for_element_exists(browser, close_election_button_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        wait_for_element_exists(browser, close_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
 
-        self.log_out()
+        log_out(browser)
 
 
     def administrator_regenerates_passwords_for_some_voters(self):
         # Edith has been contacted by some voters who say they lost their password. She wants to re-generate their passwords and have the platform send them by email. For this, she logs in as administrator.
-        self.log_in_as_administrator()
+        browser = self.browser
+        log_in_as_administrator(browser)
 
 
         # She remembers the list of voters who contacted her and said they lost their password. For this, we pick randomly NUMBER_OF_REGENERATED_PASSWORD_VOTERS voters from all the voters.
-        self.voters_email_addresses_who_have_lost_their_password = random.sample(self.voters_email_addresses, NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
+        self.voters_email_addresses_who_have_lost_their_password = random.sample(self.voters_email_addresses, settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
 
         # She selects the election that she wants to edit
         browser = self.browser
         election_to_edit_css_selector = "#main li a[href^='election/admin?uuid=']"
-        election_to_edit_elements = wait_for_elements_exist(browser, election_to_edit_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        election_to_edit_elements = wait_for_elements_exist(browser, election_to_edit_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         assert len(election_to_edit_elements) > 0
         election_to_edit_elements[0].click()
 
@@ -736,14 +788,14 @@ pris en compte.
         for email_address in self.voters_email_addresses_who_have_lost_their_password:
             # She clicks on the "Regenerate and mail a password" link
             regenerate_and_mail_a_password_link_css_selector = "#main a[href^='regenpwd?uuid=']"
-            regenerate_and_mail_a_password_link_element = wait_for_element_exists(browser, regenerate_and_mail_a_password_link_css_selector, EXPLICIT_WAIT_TIMEOUT)
+            regenerate_and_mail_a_password_link_element = wait_for_element_exists(browser, regenerate_and_mail_a_password_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             regenerate_and_mail_a_password_link_element.click()
 
             wait_a_bit()
 
             # She types the e-mail address of the voter in the "Username" field
             username_field_css_selector = "#main input[type=text]"
-            username_field_element = wait_for_element_exists(browser, username_field_css_selector, EXPLICIT_WAIT_TIMEOUT)
+            username_field_element = wait_for_element_exists(browser, username_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             username_field_element.send_keys(email_address)
 
             wait_a_bit()
@@ -758,12 +810,12 @@ pris en compte.
             # She checks that the page shows a confirmation message similar to "A new password has been mailed to RMR4MY4XV5GUDNOR6XNH@mailinator.com"
             confirmation_sentence_expected_text = "A new password has been mailed to"
             confirmation_sentence_css_selector = "#main p"
-            wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, EXPLICIT_WAIT_TIMEOUT)
+            wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
 
             # She clicks on the "Proceed" link
             proceed_link_expected_label = "Proceed"
             proceed_link_css_selector = "#main a"
-            proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, EXPLICIT_WAIT_TIMEOUT)
+            proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
             proceed_link_element.click()
 
             wait_a_bit()
@@ -791,7 +843,7 @@ pris en compte.
             text_to_look_for = 'To: "' + email_address + '"'
             assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) is 2
 
-        self.log_out()
+        log_out(browser)
 
 
 
@@ -811,7 +863,7 @@ pris en compte.
             # He clicks on the "Start" button
             start_button_expected_label = "Start"
             start_button_css_selector = "#main button"
-            start_button_element = wait_for_element_exists_and_contains_expected_text(browser, start_button_css_selector, start_button_expected_label, EXPLICIT_WAIT_TIMEOUT)
+            start_button_element = wait_for_element_exists_and_contains_expected_text(browser, start_button_css_selector, start_button_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
             start_button_element.click()
 
             wait_a_bit()
@@ -819,7 +871,7 @@ pris en compte.
             # A loading screen appears, then another screen appears. He clicks on the "Here" button
             here_button_expected_label = "here"
             here_button_css_selector = "#input_code button"
-            here_button_element = wait_for_element_exists_and_contains_expected_text(browser, here_button_css_selector, here_button_expected_label, EXPLICIT_WAIT_TIMEOUT)
+            here_button_element = wait_for_element_exists_and_contains_expected_text(browser, here_button_css_selector, here_button_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
             here_button_element.click()
 
             wait_a_bit()
@@ -841,7 +893,7 @@ pris en compte.
 
             # He fills his votes to each answer of the question
             answers_css_selector = "#question_div input[type=checkbox]"
-            answers_elements = wait_for_elements_exist(browser, answers_css_selector, EXPLICIT_WAIT_TIMEOUT) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
+            answers_elements = wait_for_elements_exist(browser, answers_css_selector, settings.EXPLICIT_WAIT_TIMEOUT) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
 
             assert len(answers_elements) is 2
             question1_answer1_element = answers_elements[0]
@@ -862,7 +914,7 @@ pris en compte.
             # He clicks on the "Next" button
             next_button_expected_label = "Next"
             next_button_css_selector = "#question_div button"
-            next_button_element = wait_for_element_exists_and_contains_expected_text(browser, next_button_css_selector, next_button_expected_label, EXPLICIT_WAIT_TIMEOUT)
+            next_button_element = wait_for_element_exists_and_contains_expected_text(browser, next_button_css_selector, next_button_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
             next_button_element.click()
 
             wait_a_bit()
@@ -886,7 +938,7 @@ pris en compte.
 
             # He remembers the smart ballot tracker that is displayed.
             smart_ballot_tracker_css_selector = "#ballot_tracker"
-            smart_ballot_tracker_element = wait_for_element_exists_and_has_non_empty_content(browser, smart_ballot_tracker_css_selector, EXPLICIT_WAIT_TIMEOUT)
+            smart_ballot_tracker_element = wait_for_element_exists_and_has_non_empty_content(browser, smart_ballot_tracker_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             smart_ballot_tracker_value = smart_ballot_tracker_element.get_attribute('innerText')
             assert len(smart_ballot_tracker_value) > 5
 
@@ -902,7 +954,7 @@ pris en compte.
 
             # He types his voter username and password, and submits the form
             username_field_css_selector = "#main input[name=username]"
-            username_field_element = wait_for_element_exists(browser, username_field_css_selector, EXPLICIT_WAIT_TIMEOUT)
+            username_field_element = wait_for_element_exists(browser, username_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             username_field_element.send_keys(voter["username"])
 
             password_field_css_selector = "#main input[name=password]"
@@ -917,7 +969,7 @@ pris en compte.
 
             # He checks that the smart ballot tracker value that appears on screen is the same as the one he noted
             smart_ballot_tracker_verification_css_selector = "#ballot_tracker"
-            smart_ballot_tracker_verification_element = wait_for_element_exists_and_has_non_empty_content(browser, smart_ballot_tracker_verification_css_selector, EXPLICIT_WAIT_TIMEOUT)
+            smart_ballot_tracker_verification_element = wait_for_element_exists_and_has_non_empty_content(browser, smart_ballot_tracker_verification_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             smart_ballot_tracker_verification_value = smart_ballot_tracker_verification_element.get_attribute('innerText')
             assert len(smart_ballot_tracker_verification_value) > 5
 
@@ -941,14 +993,14 @@ pris en compte.
 
             # He clicks on the "ballot box" link
             ballot_box_link_label = "ballot box"
-            ballot_box_link_element = wait_for_an_element_with_partial_link_text_exists(browser, ballot_box_link_label, EXPLICIT_WAIT_TIMEOUT)
+            ballot_box_link_element = wait_for_an_element_with_partial_link_text_exists(browser, ballot_box_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
             ballot_box_link_element.click()
 
             wait_a_bit()
 
             # He checks that his smart ballot tracker appears in the list
             all_smart_ballot_trackers_css_selector = "#main ul li a"
-            all_smart_ballot_trackers_elements = wait_for_elements_exist(browser, all_smart_ballot_trackers_css_selector, EXPLICIT_WAIT_TIMEOUT)
+            all_smart_ballot_trackers_elements = wait_for_elements_exist(browser, all_smart_ballot_trackers_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             assert len(all_smart_ballot_trackers_elements)
             matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
             assert len(matches) is 1
@@ -966,7 +1018,7 @@ pris en compte.
                 browser = self.browser
 
         # Start another pass, where we re-read and re-populate the sendmail_fake text file once for all users.
-        voters = repopulate_vote_confirmations_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters, ELECTION_TITLE)
+        voters = repopulate_vote_confirmations_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters, settings.ELECTION_TITLE)
         for voter in voters:
             # He checks his mailbox to find a new email with confirmation of his vote, and verifies the value of the smart ballot tracker written in this email is the same as the one he noted.
             assert voter["smart_ballot_tracker"] == voter["smart_ballot_tracker_in_vote_confirmation_email"], "Ballot tracker read in vote confirmation email (" + voter["smart_ballot_tracker"] + ") is not the same as the one read on the vote confirmation page (" + voter["smart_ballot_tracker_in_vote_confirmation_email"] + ")"
@@ -977,8 +1029,8 @@ pris en compte.
         This function selects a random set of `NUMBER_OF_VOTING_VOTERS` voters, and casts their vote.
         Note: If you rather want to cast votes and check consistency for every batch of votes, see function `all_voters_vote_in_sequences()`.
         """
-        voters_who_will_vote_now = random.sample(self.voters_email_addresses, NUMBER_OF_VOTING_VOTERS)
-        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, ELECTION_TITLE)
+        voters_who_will_vote_now = random.sample(self.voters_email_addresses, settings.NUMBER_OF_VOTING_VOTERS)
+        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, settings.ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
         self.update_voters_data(voters_who_will_vote_now_data)
         self.some_voters_cast_their_vote(voters_who_will_vote_now_data)
@@ -990,23 +1042,25 @@ pris en compte.
         It selects a random set of `NUMBER_OF_VOTING_VOTERS` voters, and casts their vote, in batches of `verify_every_x_votes`, and checks vote data consistency after every batch of votes (using `belenios_tool verify-diff` and a snapshot of election data copied in previous batch).
         Note: If you rather want to cast votes without checking consistency, see function `all_voters_vote()`.
         """
-        voters_who_will_vote_now = random.sample(self.voters_email_addresses, NUMBER_OF_VOTING_VOTERS)
-        self.some_voters_vote_in_sequences(voters_who_will_vote_now, start_index=0, end_index=NUMBER_OF_VOTING_VOTERS, verify_every_x_votes=verify_every_x_votes)
+        voters_who_will_vote_now = random.sample(self.voters_email_addresses, settings.NUMBER_OF_VOTING_VOTERS)
+        self.some_voters_vote_in_sequences(voters_who_will_vote_now, start_index=0, end_index=settings.NUMBER_OF_VOTING_VOTERS, verify_every_x_votes=verify_every_x_votes)
 
-    def some_voters_vote_in_sequences(self, voters=None, start_index=0, end_index=NUMBER_OF_VOTING_VOTERS, verify_every_x_votes=5):
+    def some_voters_vote_in_sequences(self, voters=None, start_index=0, end_index=None, verify_every_x_votes=5):
         """
         Iterates over `voters` from index `start_index` to `end_index`, cast their vote, and checks vote data consistency for every batch of `verify_every_x_votes` votes (using `belenios_tool verify-diff` and a snapshot of election data copied in previous batch).
         """
         if start_index < 0:
             raise Exception("start_index cannot be below 0")
         current_start_index = start_index
-        if end_index > NUMBER_OF_VOTING_VOTERS:
+        if end_index is None:
+            end_index = settings.NUMBER_OF_VOTING_VOTERS
+        elif end_index > settings.NUMBER_OF_VOTING_VOTERS:
             raise Exception("end_index cannot exceeed NUMBER_OF_VOTING_VOTERS")
 
         if voters is None:
             voters = self.voters_email_addresses
         voters_who_will_vote_now = voters[start_index:end_index]
-        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, ELECTION_TITLE)
+        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, settings.ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
         self.update_voters_data(voters_who_will_vote_now_data)
         snapshot_folder = None
@@ -1042,8 +1096,8 @@ pris en compte.
 
     def some_voters_revote(self):
         voters_list_we_pick_from = self.voters_email_addresses_who_have_voted.keys()
-        voters_who_will_vote_now = random.sample(voters_list_we_pick_from, NUMBER_OF_REVOTING_VOTERS)
-        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, ELECTION_TITLE)
+        voters_who_will_vote_now = random.sample(voters_list_we_pick_from, settings.NUMBER_OF_REVOTING_VOTERS)
+        voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, settings.ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
         self.update_voters_data(voters_who_will_vote_now_data)
         self.some_voters_cast_their_vote(voters_who_will_vote_now_data)
@@ -1060,18 +1114,18 @@ pris en compte.
 
         # She clicks on the "Administer this election" link
         administration_link_label = "Administer this election"
-        administration_link_element = wait_for_an_element_with_partial_link_text_exists(browser, administration_link_label, EXPLICIT_WAIT_TIMEOUT)
+        administration_link_element = wait_for_an_element_with_partial_link_text_exists(browser, administration_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
         administration_link_element.click()
 
         # She logs in as administrator
-        self.log_in_as_administrator(from_a_login_page=True)
+        log_in_as_administrator(browser, from_a_login_page=True)
 
         wait_a_bit()
 
         # She clicks on the "Close election" button
         close_election_button_label = "Close election"
         close_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(close_election_button_label)
-        close_election_button_element = wait_for_element_exists(browser, close_election_button_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        close_election_button_element = wait_for_element_exists(browser, close_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         close_election_button_element.click()
 
         wait_a_bit()
@@ -1079,7 +1133,7 @@ pris en compte.
         # She clicks on the "Proceed to vote counting" button
         proceed_button_label = "Proceed to vote counting"
         proceed_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(proceed_button_label)
-        proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector, EXPLICIT_WAIT_TIMEOUT)
+        proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         proceed_button_element.click()
 
         wait_a_bit()
@@ -1117,7 +1171,7 @@ pris en compte.
 
         main_css_selector = "#main"
         main_expected_content = "Number of accepted ballots:"
-        main_element = wait_for_element_exists_and_contains_expected_text(browser, main_css_selector, main_expected_content, EXPLICIT_WAIT_TIMEOUT)
+        main_element = wait_for_element_exists_and_contains_expected_text(browser, main_css_selector, main_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
         main_text_content = main_element.get_attribute('innerText')
 
         number_of_accepted_ballots = None
@@ -1127,7 +1181,7 @@ pris en compte.
             number_of_accepted_ballots = number_of_accepted_ballots.strip()
         else:
             raise Exception("Number of accepted ballots not found in election tally page: " + main_text_content)
-        assert str(number_of_accepted_ballots) == str(NUMBER_OF_VOTING_VOTERS), "Number of accepted ballots (" + str(number_of_accepted_ballots) + ") is not the same as number of voters (" + str(NUMBER_OF_VOTING_VOTERS) + ")"
+        assert str(number_of_accepted_ballots) == str(settings.NUMBER_OF_VOTING_VOTERS), "Number of accepted ballots (" + str(number_of_accepted_ballots) + ") is not the same as number of voters (" + str(settings.NUMBER_OF_VOTING_VOTERS) + ")"
 
 
         # - 2) For each available answer in the question, she checks that the total number of votes in favor of Answer X displayed in result page is the same as the sum of votes for Answer X in all votes of voters who voted that have been randomly generated in advance
@@ -1150,13 +1204,13 @@ pris en compte.
         # - 3) She checks that each smart ballot tracker in the ballot box page corresponds to the smart ballot tracker of one of our voters, and that there is only one of these, and that the number of smart ballot trackers in this page is the same as the number of voters who voted
 
         all_ballots_link_label = "See accepted ballots"
-        all_ballots_link_element = wait_for_an_element_with_partial_link_text_exists(browser, all_ballots_link_label, EXPLICIT_WAIT_TIMEOUT)
+        all_ballots_link_element = wait_for_an_element_with_partial_link_text_exists(browser, all_ballots_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
         all_ballots_link_element.click()
 
         all_smart_ballot_trackers_css_selector = "#main ul li a"
-        all_smart_ballot_trackers_elements = wait_for_elements_exist(browser, all_smart_ballot_trackers_css_selector, EXPLICIT_WAIT_TIMEOUT)
-        assert len(self.voters_email_addresses_who_have_voted) == NUMBER_OF_VOTING_VOTERS
-        assert len(all_smart_ballot_trackers_elements) == NUMBER_OF_VOTING_VOTERS
+        all_smart_ballot_trackers_elements = wait_for_elements_exist(browser, all_smart_ballot_trackers_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        assert len(self.voters_email_addresses_who_have_voted) == settings.NUMBER_OF_VOTING_VOTERS
+        assert len(all_smart_ballot_trackers_elements) == settings.NUMBER_OF_VOTING_VOTERS
         for voter_email_address in self.voters_email_addresses_who_have_voted:
             voter = self.voters_data[voter_email_address]
             matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
@@ -1220,25 +1274,25 @@ if __name__ == "__main__":
     random.seed(random_seed)
 
     if os.getenv('USE_HEADLESS_BROWSER', None):
-        USE_HEADLESS_BROWSER = bool(strtobool(os.getenv('USE_HEADLESS_BROWSER')))
+        settings.USE_HEADLESS_BROWSER = bool(strtobool(os.getenv('USE_HEADLESS_BROWSER')))
 
-    SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
-    WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', WAIT_TIME_BETWEEN_EACH_STEP))
-    EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', EXPLICIT_WAIT_TIMEOUT))
-    NUMBER_OF_INVITED_VOTERS = int(os.getenv('NUMBER_OF_INVITED_VOTERS', NUMBER_OF_INVITED_VOTERS))
-    NUMBER_OF_VOTING_VOTERS = int(os.getenv('NUMBER_OF_VOTING_VOTERS', NUMBER_OF_VOTING_VOTERS))
-    NUMBER_OF_REVOTING_VOTERS = int(os.getenv('NUMBER_OF_REVOTING_VOTERS', NUMBER_OF_REVOTING_VOTERS))
-    NUMBER_OF_REGENERATED_PASSWORD_VOTERS = int(os.getenv('NUMBER_OF_REGENERATED_PASSWORD_VOTERS', NUMBER_OF_REGENERATED_PASSWORD_VOTERS))
-    ADMINISTRATOR_USERNAME = os.getenv('ADMINISTRATOR_USERNAME', ADMINISTRATOR_USERNAME)
-    ADMINISTRATOR_PASSWORD = os.getenv('ADMINISTRATOR_PASSWORD', ADMINISTRATOR_PASSWORD)
+    settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
+    settings.WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', settings.WAIT_TIME_BETWEEN_EACH_STEP))
+    settings.EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', settings.EXPLICIT_WAIT_TIMEOUT))
+    settings.NUMBER_OF_INVITED_VOTERS = int(os.getenv('NUMBER_OF_INVITED_VOTERS', settings.NUMBER_OF_INVITED_VOTERS))
+    settings.NUMBER_OF_VOTING_VOTERS = int(os.getenv('NUMBER_OF_VOTING_VOTERS', settings.NUMBER_OF_VOTING_VOTERS))
+    settings.NUMBER_OF_REVOTING_VOTERS = int(os.getenv('NUMBER_OF_REVOTING_VOTERS', settings.NUMBER_OF_REVOTING_VOTERS))
+    settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS = int(os.getenv('NUMBER_OF_REGENERATED_PASSWORD_VOTERS', settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS))
+    settings.ADMINISTRATOR_USERNAME = os.getenv('ADMINISTRATOR_USERNAME', settings.ADMINISTRATOR_USERNAME)
+    settings.ADMINISTRATOR_PASSWORD = os.getenv('ADMINISTRATOR_PASSWORD', settings.ADMINISTRATOR_PASSWORD)
 
-    console_log("USE_HEADLESS_BROWSER:", USE_HEADLESS_BROWSER)
-    console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
-    console_log("WAIT_TIME_BETWEEN_EACH_STEP:", WAIT_TIME_BETWEEN_EACH_STEP)
-    console_log("EXPLICIT_WAIT_TIMEOUT:", EXPLICIT_WAIT_TIMEOUT)
-    console_log("NUMBER_OF_INVITED_VOTERS:", NUMBER_OF_INVITED_VOTERS)
-    console_log("NUMBER_OF_VOTING_VOTERS:", NUMBER_OF_VOTING_VOTERS)
-    console_log("NUMBER_OF_REVOTING_VOTERS:", NUMBER_OF_REVOTING_VOTERS)
-    console_log("NUMBER_OF_REGENERATED_PASSWORD_VOTERS:", NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
+    console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
+    console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
+    console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
+    console_log("EXPLICIT_WAIT_TIMEOUT:", settings.EXPLICIT_WAIT_TIMEOUT)
+    console_log("NUMBER_OF_INVITED_VOTERS:", settings.NUMBER_OF_INVITED_VOTERS)
+    console_log("NUMBER_OF_VOTING_VOTERS:", settings.NUMBER_OF_VOTING_VOTERS)
+    console_log("NUMBER_OF_REVOTING_VOTERS:", settings.NUMBER_OF_REVOTING_VOTERS)
+    console_log("NUMBER_OF_REGENERATED_PASSWORD_VOTERS:", settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
 
     unittest.main()
