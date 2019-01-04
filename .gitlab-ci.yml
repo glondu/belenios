@@ -1,5 +1,5 @@
 stages:
-  - build_and_run_automated_test_scenario_1_with_preinstalled_image
+  - build_and_run_automated_test_scenarios_with_preinstalled_image
   - build_and_test_with_preinstalled_image
   - build_and_test_with_debian_image
 
@@ -45,8 +45,8 @@ build_and_test_with_debian_image:
     # Run a test of an election
     # - BELENIOS_DEBUG=1 make check
 
-build_and_run_automated_test_scenario_1_with_preinstalled_image:
-  stage: build_and_run_automated_test_scenario_1_with_preinstalled_image
+build_and_run_automated_test_scenarios_with_preinstalled_image:
+  stage: build_and_run_automated_test_scenarios_with_preinstalled_image
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by Dockerfile_test_scenario_environment
   image: glondu/beleniosbase-tests:20181206-2
   script:
@@ -64,5 +64,7 @@ build_and_run_automated_test_scenario_1_with_preinstalled_image:
     - source venv/bin/activate
     # Install pip packages
     - pip install -r requirements.txt
+    # Run the automated test scenario 2
+    - python3 ./tests/test_scenario_2.py
     # Run the automated test scenario 1
     - python3 ./tests/test_scenario_1.py
