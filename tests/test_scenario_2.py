@@ -15,10 +15,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.alert import Alert
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists
-from test_scenario_1 import console_log, remove_database_folder, initialize_server, initialize_browser, log_in_as_administrator, log_out, wait_a_bit
+from test_scenario_1 import console_log, remove_database_folder, initialize_server, initialize_browser, log_in_as_administrator, log_out, wait_a_bit, verify_element_label, random_email_addresses_generator, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, build_css_selector_to_find_buttons_in_page_content_by_value
 import settings
-
-settings.USE_HEADLESS_BROWSER = False
 
 
 class BeleniosTestElectionScenario2(unittest.TestCase):
@@ -65,17 +63,72 @@ class BeleniosTestElectionScenario2(unittest.TestCase):
 
         browser = self.browser
 
-        # Edith has been given administrator rights on an online voting app called Belenios. She goes
+        # Alice has been given administrator rights on an online voting app called Belenios. She goes
         # to check out its homepage and logs in
         log_in_as_administrator(browser)
 
-        # She clicks on the "Prepare a new election" link
-        create_election_link_expected_content = "Prepare a new election"
-        links_css_selector = "#main a"
-        create_election_link_element = wait_for_element_exists_and_contains_expected_text(browser, links_css_selector, create_election_link_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
-        create_election_link_element.click()
+        # She starts creation of the election:
+        # - She clicks on the "Prepare a new election" link
+        # - She picks the Credential management method: manual
+        # (- She keeps default value for Authentication method: it is Password, not CAS)
+        # - She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
+        # - She changes values of fields name and description of the election
+        # - She clicks on the "Save changes button" (the one that is next to the election description field)
+        administrator_starts_creation_of_election(browser, True)
+
+        # She edits election's questions:
+        # - She clicks on the "Edit questions" link, to write her own questions
+        # - She arrives on the Questions page. She checks that the page title is correct
+        # - She removes answer 3
+        # - She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
+        administrator_edits_election_questions(browser)
+
+        # She sets election's voters:
+        # - She clicks on the "Edit voters" link, to then type the list of voters
+        # - She types N e-mail addresses (the list of invited voters)
+        # - She clicks on the "Add" button to submit changes
+        # - She clicks on "Return to draft page" link
+        self.voters_email_addresses = random_email_addresses_generator(settings.NUMBER_OF_INVITED_VOTERS)
+        administrator_sets_election_voters(browser, self.voters_email_addresses)
+
+        # In "Authentication" section, she clicks on the "Generate and mail missing passwords" button
+        generate_and_mail_missing_passwords_button_label = "Generate and mail missing passwords"
+        generate_and_mail_missing_passwords_button_element = wait_for_element_exists(browser, build_css_selector_to_find_buttons_in_page_content_by_value(generate_and_mail_missing_passwords_button_label), settings.EXPLICIT_WAIT_TIMEOUT)
+        generate_and_mail_missing_passwords_button_element.click()
 
         wait_a_bit()
+
+        # She checks that the page contains expected confirmation text, instead of an error (TODO: explain in which case an error can happen, and check that it does not show)
+        confirmation_sentence_expected_text = "Passwords have been generated and mailed!"
+        confirmation_sentence_css_selector = "#main p"
+        wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
+
+        # She clicks on the "Proceed" link (this redirects to the "Preparation of election" page)
+        proceed_link_expected_label = "Proceed"
+        proceed_link_css_selector = "#main a"
+        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        proceed_link_element.click()
+
+        wait_a_bit()
+
+        # In "Credentials" section, she clicks on "Credential management" link
+        credential_management_expected_label = "Credential management"
+        credential_management_link_element = wait_for_an_element_with_partial_link_text_exists(browser, credential_management_expected_label)
+        credential_management_link_element.click()
+
+        # She remembers the link displayed
+        link_for_credential_authority_css_selector = "#main a"
+        link_for_credential_authority_element = wait_for_element_exists_and_has_non_empty_content(browser, link_for_credential_authority_css_selector)
+        link_label = link_for_credential_authority_element.get_attribute('innerText').strip()
+        self.certificate_authority_link = link_label
+
+        # She sends the remembered link to the certificate authority by email (actually we don't need to send anything because we will act as the certificate authority)
+
+        # She closes the browser. Cecily, the Certificate Authority, receives the email sent by Alice, and opens the link in it.
+        browser.quit()
+        self.browser = initialize_browser()
+        browser = self.browser
+        browser.get(self.certificate_authority_link)
 
         # TODO: continue creation of election
 
@@ -105,6 +158,8 @@ if __name__ == "__main__":
     settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS = int(os.getenv('NUMBER_OF_REGENERATED_PASSWORD_VOTERS', settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS))
     settings.ADMINISTRATOR_USERNAME = os.getenv('ADMINISTRATOR_USERNAME', settings.ADMINISTRATOR_USERNAME)
     settings.ADMINISTRATOR_PASSWORD = os.getenv('ADMINISTRATOR_PASSWORD', settings.ADMINISTRATOR_PASSWORD)
+    settings.ELECTION_TITLE = os.getenv('ELECTION_TITLE', settings.ELECTION_TITLE)
+    settings.ELECTION_DESCRIPTION = os.getenv('ELECTION_DESCRIPTION', settings.ELECTION_DESCRIPTION)
 
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
@@ -114,5 +169,7 @@ if __name__ == "__main__":
     console_log("NUMBER_OF_VOTING_VOTERS:", settings.NUMBER_OF_VOTING_VOTERS)
     console_log("NUMBER_OF_REVOTING_VOTERS:", settings.NUMBER_OF_REVOTING_VOTERS)
     console_log("NUMBER_OF_REGENERATED_PASSWORD_VOTERS:", settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
+    console_log("ELECTION_TITLE:", settings.ELECTION_TITLE)
+    console_log("ELECTION_DESCRIPTION:", settings.ELECTION_DESCRIPTION)
 
     unittest.main()

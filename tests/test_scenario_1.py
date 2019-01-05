@@ -189,7 +189,6 @@ def repopulate_vote_confirmations_for_voters_from_sent_emails(fake_sent_emails_m
 
 
 def remove_database_folder():
-    print("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
     shutil.rmtree(os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY), ignore_errors=True)
 
 
@@ -311,7 +310,7 @@ def log_in_as_administrator(browser, from_a_login_page=False):
         local_login_link_element = wait_for_an_element_with_partial_link_text_exists(browser, local_login_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
         local_login_link_element.click()
     else:
-        # Edith has been given administrator rights on an online voting app called Belenios. She goes
+        # Alice has been given administrator rights on an online voting app called Belenios. She goes
         # to check out its homepage
 
         browser.get(settings.SERVER_URL)
@@ -372,6 +371,167 @@ def log_out(browser):
 
     # She arrives on the election home page. She checks that the "Start" button is present
     wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", settings.EXPLICIT_WAIT_TIMEOUT)
+
+
+def administrator_starts_creation_of_election(browser, manual_credential_management=False, election_title=None, election_description=None):
+    """
+    Initial browser (required) state: administrator has just logged in
+    Final browser state: on the "Preparation of election" page
+
+    Alice, as an administrator, starts creation of the election:
+    - She clicks on the "Prepare a new election" link
+    - She picks the Credential management method she wants (function paramenter `manual_credential_management`)
+    (- She keeps default value for Authentication method: it is Password, not CAS)
+    - She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
+    - She changes values of fields name and description of the election
+    - She clicks on the "Save changes button" (the one that is next to the election description field)
+    """
+
+    if election_title is None:
+        election_title = settings.ELECTION_TITLE
+
+    if election_description is None:
+        election_description = settings.ELECTION_DESCRIPTION
+
+    # She clicks on the "Prepare a new election" link
+    create_election_link_expected_content = "Prepare a new election"
+    links_css_selector = "#main a"
+    create_election_link_element = wait_for_element_exists_and_contains_expected_text(browser, links_css_selector, create_election_link_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
+    create_election_link_element.click()
+
+    wait_a_bit()
+
+    if manual_credential_management:
+        # She selects the "Manual" radio button, under section "Credential management"
+        manual_mode_radio_button_css_selector = "#main input[type=radio][value=manual]"
+        manual_mode_radio_button_element = wait_for_element_exists(browser, manual_mode_radio_button_css_selector)
+        manual_mode_radio_button_element.click()
+
+    wait_a_bit()
+
+    # She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
+    proceed_button_css_selector = "#main form input[type=submit]"
+    proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+    proceed_button_element.click()
+
+    wait_a_bit()
+
+    # She changes values of fields name and description of the election
+    election_name_field_css_selector = "#main form input[name=__co_eliom_name]"
+    election_name_field_element = wait_for_element_exists(browser, election_name_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+    election_name_field_value = election_title
+    election_name_field_element.clear()
+    election_name_field_element.send_keys(election_name_field_value)
+
+    wait_a_bit()
+
+    election_description_field_css_selector = "#main form textarea[name=__co_eliom_description]"
+    election_description_field_element = browser.find_element_by_css_selector(election_description_field_css_selector)
+    election_description_field_value = election_description
+    election_description_field_element.clear()
+    election_description_field_element.send_keys(election_description_field_value)
+
+    wait_a_bit()
+
+    # She clicks on the "Save changes button" (the one that is next to the election description field)
+    save_changes_button_css_selector = "#main > div:nth-child(1) form input[type=submit]" # Warning: form:nth-child(1) selects another form
+    save_changes_button_element = browser.find_element_by_css_selector(save_changes_button_css_selector)
+    save_changes_button_element.click()
+
+    wait_a_bit()
+
+
+def administrator_edits_election_questions(browser):
+    """
+    Initial browser (required) state: on the "Preparation of election" page, with questions not edited yet
+    Final browser state: on the "Preparation of election" page (with questions edited)
+
+    Alice, as an administrator who has just created an election, configures its questions:
+    - She clicks on the "Edit questions" link, to write her own questions
+    - She arrives on the Questions page. She checks that the page title is correct
+    - She removes answer 3
+    - She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
+    """
+
+    # She clicks on the "Edit questions" link, to write her own questions
+    edit_questions_link_css_selector = "#edit_questions"
+    edit_questions_link_element = wait_for_element_exists(browser, edit_questions_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+    edit_questions_link_element.click()
+
+    wait_a_bit()
+
+    # She arrives on the Questions page. She checks that the page title is correct
+    page_title_css_selector = "#header h1"
+    page_title_expected_content = "Questions for"
+    wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
+
+    # She removes answer 3
+    question_to_remove = 3
+    remove_button_css_selector = ".question_answers > div:nth-child(" + str(question_to_remove) + ") button:nth-child(2)"
+    remove_button_element = browser.find_element_by_css_selector(remove_button_css_selector)
+    remove_button_element.click()
+
+    wait_a_bit()
+
+    # She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
+    save_changes_button_expected_label = "Save changes"
+    button_elements = browser.find_elements_by_css_selector("button")
+    assert len(button_elements)
+    save_changes_button_element = button_elements[-1]
+    verify_element_label(save_changes_button_element, save_changes_button_expected_label)
+    save_changes_button_element.click()
+
+    wait_a_bit()
+
+
+def administrator_sets_election_voters(browser, voters_email_addresses):
+    """
+    Initial browser (required) state: on the "Preparation of election" page, with voters not set yet
+    Final browser state: on the "Preparation of election" page (with voters set)
+
+    :param voters_email_addresses: an array of voters' email addresses, for example generated using `random_email_addresses_generator()`
+
+    Alice, as an administrator who has just created an election, sets its voters:
+    - She clicks on the "Edit voters" link, to then type the list of voters
+    - She types N e-mail addresses (the list of invited voters)
+    - She clicks on the "Add" button to submit changes
+    - She clicks on "Return to draft page" link
+    """
+
+    # She clicks on the "Edit voters" link, to then type the list of voters
+    edit_voters_link_css_selector = "#edit_voters"
+    edit_voters_link_element = wait_for_element_exists(browser, edit_voters_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+    edit_voters_link_element.click()
+
+    wait_a_bit()
+
+    # She types N e-mail addresses (the list of invited voters)
+    voters_list_field_css_selector = "#main form textarea"
+    voters_list_field_element = wait_for_element_exists(browser, voters_list_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+    voters_list_field_element.clear()
+    is_first = True
+    for email_address in voters_email_addresses:
+        if is_first:
+            is_first = False
+        else:
+            voters_list_field_element.send_keys(Keys.ENTER)
+        voters_list_field_element.send_keys(email_address)
+
+    wait_a_bit()
+
+    # She clicks on the "Add" button to submit changes
+    add_button_css_selector = "#main form input[type=submit]"
+    add_button_element = browser.find_element_by_css_selector(add_button_css_selector)
+    add_button_element.click()
+
+    wait_a_bit()
+
+    # She clicks on "Return to draft page" link
+    return_link_label = "Return to draft page"
+    return_link_element = wait_for_an_element_with_partial_link_text_exists(browser, return_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
+    return_link_element.click()
+
+    wait_a_bit()
 
 
 class BeleniosTestElectionScenario1(unittest.TestCase):
@@ -445,7 +605,7 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
             local_login_link_element = wait_for_an_element_with_partial_link_text_exists(browser, local_login_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
             local_login_link_element.click()
         else:
-            # Edith has been given administrator rights on an online voting app called Belenios. She goes
+            # Alice has been given administrator rights on an online voting app called Belenios. She goes
             # to check out its homepage
 
             browser.get(settings.SERVER_URL)
@@ -498,130 +658,37 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
         wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
 
-    def log_out(self):
-        browser = self.browser
-        # In the header of the page, she clicks on the "Log out" link
-        logout_link_css_selector = "#logout"
-        logout_element = wait_for_element_exists(browser, logout_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        logout_element.click()
-
-        # She arrives on the election home page. She checks that the "Start" button is present
-        wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", settings.EXPLICIT_WAIT_TIMEOUT)
-
-
     def administrator_creates_election(self):
         # # Setting up a new election (action of the administrator)
 
         browser = self.browser
 
-        # Edith has been given administrator rights on an online voting app called Belenios. She goes
+        # Alice has been given administrator rights on an online voting app called Belenios. She goes
         # to check out its homepage and logs in
         log_in_as_administrator(browser)
 
-        # She clicks on the "Prepare a new election" link
-        create_election_link_expected_content = "Prepare a new election"
-        links_css_selector = "#main a"
-        create_election_link_element = wait_for_element_exists_and_contains_expected_text(browser, links_css_selector, create_election_link_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
-        create_election_link_element.click()
+        # She starts creation of the election:
+        # - She clicks on the "Prepare a new election" link
+        # (- She keeps default values on the form: Credential management is automatic (not manual), and Authentication method is Password, not CAS)
+        # - She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
+        # - She changes values of fields name and description of the election
+        # - She clicks on the "Save changes button" (the one that is next to the election description field)
+        administrator_starts_creation_of_election(browser)
 
-        wait_a_bit()
+        # She edits election's questions:
+        # - She clicks on the "Edit questions" link, to write her own questions
+        # - She arrives on the Questions page. She checks that the page title is correct
+        # - She removes answer 3
+        # - She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
+        administrator_edits_election_questions(browser)
 
-        # She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
-        proceed_button_css_selector = "#main form input[type=submit]"
-        proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        proceed_button_element.click()
-
-        wait_a_bit()
-
-        # She changes values of fields name and description of the election
-        election_name_field_css_selector = "#main form input[name=__co_eliom_name]"
-        election_name_field_element = wait_for_element_exists(browser, election_name_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        election_name_field_value = settings.ELECTION_TITLE
-        election_name_field_element.clear()
-        election_name_field_element.send_keys(election_name_field_value)
-
-        wait_a_bit()
-
-        election_description_field_css_selector = "#main form textarea[name=__co_eliom_description]"
-        election_description_field_element = browser.find_element_by_css_selector(election_description_field_css_selector)
-        election_description_field_value = "This is the description of my test election for Scenario 1"
-        election_description_field_element.clear()
-        election_description_field_element.send_keys(election_description_field_value)
-
-        wait_a_bit()
-
-        # She clicks on the "Save changes button" (the one that is next to the election description field)
-        save_changes_button_css_selector = "#main > div:nth-child(1) form input[type=submit]" # Warning: form:nth-child(1) selects another form
-        save_changes_button_element = browser.find_element_by_css_selector(save_changes_button_css_selector)
-        save_changes_button_element.click()
-
-        wait_a_bit()
-
-        # She clicks on the "Edit questions" link, to write her own questions
-        edit_questions_link_css_selector = "#edit_questions"
-        edit_questions_link_element = wait_for_element_exists(browser, edit_questions_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        edit_questions_link_element.click()
-
-        wait_a_bit()
-
-        # She arrives on the Questions page. She checks that the page title is correct
-        page_title_css_selector = "#header h1"
-        page_title_expected_content = "Questions for"
-        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
-
-        # She removes answer 3
-        question_to_remove = 3
-        remove_button_css_selector = ".question_answers > div:nth-child(" + str(question_to_remove) + ") button:nth-child(2)"
-        remove_button_element = browser.find_element_by_css_selector(remove_button_css_selector)
-        remove_button_element.click()
-
-        wait_a_bit()
-
-        # She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
-        save_changes_button_expected_label = "Save changes"
-        button_elements = browser.find_elements_by_css_selector("button")
-        assert len(button_elements)
-        save_changes_button_element = button_elements[-1]
-        verify_element_label(save_changes_button_element, save_changes_button_expected_label)
-        save_changes_button_element.click()
-
-        wait_a_bit()
-
-        # She clicks on the "Edit voters" link, to then type the list of voters
-        edit_voters_link_css_selector = "#edit_voters"
-        edit_voters_link_element = wait_for_element_exists(browser, edit_voters_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        edit_voters_link_element.click()
-
-        wait_a_bit()
-
-        # She types N e-mail addresses (the list of invited voters)
+        # She sets election's voters:
+        # - She clicks on the "Edit voters" link, to then type the list of voters
+        # - She types N e-mail addresses (the list of invited voters)
+        # - She clicks on the "Add" button to submit changes
+        # - She clicks on "Return to draft page" link
         self.voters_email_addresses = random_email_addresses_generator(settings.NUMBER_OF_INVITED_VOTERS)
-        voters_list_field_css_selector = "#main form textarea"
-        voters_list_field_element = wait_for_element_exists(browser, voters_list_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        voters_list_field_element.clear()
-        is_first = True
-        for email_address in self.voters_email_addresses:
-            if is_first:
-                is_first = False
-            else:
-                voters_list_field_element.send_keys(Keys.ENTER)
-            voters_list_field_element.send_keys(email_address)
-
-        wait_a_bit()
-
-        # She clicks on the "Add" button to submit changes
-        add_button_css_selector = "#main form input[type=submit]"
-        add_button_element = browser.find_element_by_css_selector(add_button_css_selector)
-        add_button_element.click()
-
-        wait_a_bit()
-
-        # She clicks on "Return to draft page" link
-        return_link_label = "Return to draft page"
-        return_link_element = wait_for_an_element_with_partial_link_text_exists(browser, return_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
-        return_link_element.click()
-
-        wait_a_bit()
+        administrator_sets_election_voters(browser, self.voters_email_addresses)
 
         # She clicks on button "Generate on server"
         generate_on_server_button_label = "Generate on server"
@@ -767,7 +834,7 @@ pris en compte.
 
 
     def administrator_regenerates_passwords_for_some_voters(self):
-        # Edith has been contacted by some voters who say they lost their password. She wants to re-generate their passwords and have the platform send them by email. For this, she logs in as administrator.
+        # Alice has been contacted by some voters who say they lost their password. She wants to re-generate their passwords and have the platform send them by email. For this, she logs in as administrator.
         browser = self.browser
         log_in_as_administrator(browser)
 
@@ -1285,6 +1352,8 @@ if __name__ == "__main__":
     settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS = int(os.getenv('NUMBER_OF_REGENERATED_PASSWORD_VOTERS', settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS))
     settings.ADMINISTRATOR_USERNAME = os.getenv('ADMINISTRATOR_USERNAME', settings.ADMINISTRATOR_USERNAME)
     settings.ADMINISTRATOR_PASSWORD = os.getenv('ADMINISTRATOR_PASSWORD', settings.ADMINISTRATOR_PASSWORD)
+    settings.ELECTION_TITLE = os.getenv('ELECTION_TITLE', settings.ELECTION_TITLE)
+    settings.ELECTION_DESCRIPTION = os.getenv('ELECTION_DESCRIPTION', settings.ELECTION_DESCRIPTION)
 
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
@@ -1294,5 +1363,7 @@ if __name__ == "__main__":
     console_log("NUMBER_OF_VOTING_VOTERS:", settings.NUMBER_OF_VOTING_VOTERS)
     console_log("NUMBER_OF_REVOTING_VOTERS:", settings.NUMBER_OF_REVOTING_VOTERS)
     console_log("NUMBER_OF_REGENERATED_PASSWORD_VOTERS:", settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
+    console_log("ELECTION_TITLE:", settings.ELECTION_TITLE)
+    console_log("ELECTION_DESCRIPTION:", settings.ELECTION_DESCRIPTION)
 
     unittest.main()

@@ -17,6 +17,7 @@ NUMBER_OF_VOTING_VOTERS = 10 # This is K in description of Scenario 1. K is betw
 NUMBER_OF_REVOTING_VOTERS = 5 # This is L in description of Scenario 1. L <= K
 NUMBER_OF_REGENERATED_PASSWORD_VOTERS = 4 # This is M in description of Scenario 1. M <= K
 ELECTION_TITLE = "My test election for Scenario 1"
+ELECTION_DESCRIPTION = "This is the description of my test election for Scenario 1"
 ADMINISTRATOR_USERNAME = "user1" # This value comes from file `demo/password_db.csv`, first row, first column
 ADMINISTRATOR_PASSWORD = "phiexoey" # This value comes from file `demo/password_db.csv`, first row, 4th column
 
