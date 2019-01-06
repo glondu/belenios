@@ -22,3 +22,10 @@ ADMINISTRATOR_USERNAME = "user1" # This value comes from file `demo/password_db.
 ADMINISTRATOR_PASSWORD = "phiexoey" # This value comes from file `demo/password_db.csv`, first row, 4th column
 
 GIT_REPOSITORY_ABSOLUTE_PATH = dirname(dirname(abspath(__file__)))
+
+
+# These variables are used by Scenario 2 only
+BROWSER_DOWNLOAD_FOLDER = "/tmp"
+ADMINISTRATOR_EMAIL_ADDRESS = "alice_aka_election_administrator@mailinator.com"
+CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = "cecily_aka_election_credential_authority@mailinator.com"
+TRUSTEES_EMAIL_ADDRESSES = ["tom_aka_trustee_1@mailinator.com", "taylor_aka_trustee_2@mailinator.com"]

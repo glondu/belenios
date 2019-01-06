@@ -60,3 +60,28 @@ class FakeSentEmailsManager:
 
     def uninstall_fake_sendmail_log_file(self):
         subprocess.run(["rm", "-f", self.log_file_path]) # TODO: Execute a command that works on other OS, like `os.remove()`
+
+
+    def send_email(self, from_email_address, to_email_address, subject, content):
+        from datetime import datetime
+        username_and_email_format = "\"{username}\" <{email_address}>"
+        from_label = username_and_email_format.format(username=from_email_address, email_address=from_email_address)
+        to_label = username_and_email_format.format(username=to_email_address, email_address=to_email_address)
+        date_label = datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
+        full_content_format = """\
+Content-type: text/plain; charset="UTF-8"
+Content-transfer-encoding: quoted-printable
+From: {from_label}
+To: {to_label}
+Subject: {subject}
+MIME-Version: 1.0
+X-Mailer: Belenios Automated Tests
+Date: {date_label}
+
+{content}
+
+--=20\
+"""
+        full_content = full_content_format.format(from_label=from_label, to_label=to_label, subject=subject, date_label=date_label, content=content)
+        with open(self.log_file_path, "a") as myfile:
+            myfile.write(full_content)
