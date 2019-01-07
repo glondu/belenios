@@ -129,3 +129,7 @@ def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DU
         )
     except Exception as e:
         raise Exception("Could not find expected DOM elements '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
+
+
+def set_element_attribute(browser, element_dom_id, attribute_key, attribute_value):
+    browser.execute_script("let el = document.getElementById('" + element_dom_id + "'); el.setAttribute('" + attribute_key + "','" + attribute_value + "');")

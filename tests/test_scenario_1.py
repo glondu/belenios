@@ -239,7 +239,8 @@ def initialize_browser(for_scenario_2=False):
         profile.set_preference('browser.download.folderList', 2) # Can be set to either 0, 1, or 2. When set to 0, Firefox will save all files downloaded via the browser on the user's desktop. When set to 1, these downloads are stored in the Downloads folder. When set to 2, the location specified for the most recent download is utilized again.
         profile.set_preference('browser.download.manager.showWhenStarting', False)
         profile.set_preference('browser.download.dir', settings.BROWSER_DOWNLOAD_FOLDER)
-        profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/plain')
+        mime_types_that_should_be_downloaded = ['text/plain', 'application/json']
+        profile.set_preference('browser.helperApps.neverAsk.saveToDisk', ';'.join(mime_types_that_should_be_downloaded))
 
     if settings.USE_HEADLESS_BROWSER:
         from selenium.webdriver.firefox.options import Options
@@ -255,6 +256,7 @@ def initialize_browser(for_scenario_2=False):
             browser = webdriver.Firefox(profile)
         else:
             browser = webdriver.Firefox()
+        # browser.maximize_window() # make the browser window use all available screen space. FIXME: When enabled, some clicks are not triggered anymore
     browser.implicitly_wait(settings.WAIT_TIME_BETWEEN_EACH_STEP) # In seconds
     return browser
 
@@ -462,7 +464,7 @@ def administrator_edits_election_questions(browser):
     Initial browser (required) state: on the "Preparation of election" page, with questions not edited yet
     Final browser state: on the "Preparation of election" page (with questions edited)
 
-    Alice, as an administrator who has just created an election, configures its questions:
+    Alice, as an administrator who has recently started creating an election (election status is draft), configures its questions:
     - She clicks on the "Edit questions" link, to write her own questions
     - She arrives on the Questions page. She checks that the page title is correct
     - She removes answer 3
@@ -507,7 +509,7 @@ def administrator_sets_election_voters(browser, voters_email_addresses):
 
     :param voters_email_addresses: an array of voters' email addresses, for example generated using `random_email_addresses_generator()`
 
-    Alice, as an administrator who has just created an election, sets its voters:
+    Alice, as an administrator who has recently started creating an election (election status is draft), sets its voters:
     - She clicks on the "Edit voters" link, to then type the list of voters
     - She types N e-mail addresses (the list of invited voters)
     - She clicks on the "Add" button to submit changes
@@ -548,6 +550,54 @@ def administrator_sets_election_voters(browser, voters_email_addresses):
     return_link_element.click()
 
     wait_a_bit()
+
+
+def administrator_validates_creation_of_election(browser):
+    """
+    :return: election page URL
+
+    Initial browser (required) state: on the "Preparation of election" page, with election not yet completely created
+    Final browser state: on the "Preparation of election" page (with election completely created)
+
+    Alice, as an administrator who has recently started creating an election (election status is draft), finalizes the creation of the election:
+    - In "Validate creation" section, she clicks on the "Create election" link
+    - (She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters. For example, in this test scenario, it displays 2 warnings: "Warning: No trustees were set. This means that the server will manage the election key by itself.", and "Warning: No contact was set!")
+    - In the "Validate creation" section, she clicks on the "Create election" button
+    - (She arrives back on the "My test election for Scenario 1 — Administration" page. Its contents have changed. There is now a text saying "The election is open. Voters can vote.", and there are now buttons "Close election", "Archive election", "Delete election")
+    - She remembers the URL of the voting page, that is where the "Election home" link points to
+    - She checks that a "Close election" button is present (but she does not click on it)
+    """
+
+    # In "Validate creation" section, she clicks on the "Create election" link
+    create_election_link_label = "Create election"
+    create_election_link_element = wait_for_an_element_with_partial_link_text_exists(browser, create_election_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
+    create_election_link_element.click()
+
+    wait_a_bit()
+
+    # She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters. For example, in this test scenario, it displays 2 warnings: "Warning: No trustees were set. This means that the server will manage the election key by itself.", and "Warning: No contact was set!"
+
+    # In the "Validate creation" section, she clicks on the "Create election" button
+    create_election_button_label = "Create election"
+    create_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(create_election_button_label)
+    create_election_button_element = wait_for_element_exists(browser, create_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+    create_election_button_element.click()
+
+    wait_a_bit()
+
+    # She arrives back on the "My test election for Scenario 1 — Administration" page. Its contents have changed. There is now a text saying "The election is open. Voters can vote.", and there are now buttons "Close election", "Archive election", "Delete election"
+
+    # She remembers the URL of the voting page, that is where the "Election home" link points to
+    election_page_link_label = "Election home"
+    election_page_link_element = wait_for_an_element_with_partial_link_text_exists(browser, election_page_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
+    election_page_url = election_page_link_element.get_attribute('href')
+
+    # She checks that a "Close election" button is present (but she does not click on it)
+    close_election_button_label = "Close election"
+    close_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(close_election_button_label)
+    wait_for_element_exists(browser, close_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+
+    return election_page_url
 
 
 class BeleniosTestElectionScenario1(unittest.TestCase):
@@ -806,7 +856,7 @@ pris en compte.
         confirmation_sentence_css_selector = "#main p"
         wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
 
-        # She clicks on the "Proceed" link
+        # She clicks on the "Proceed" link (this redirects to the "Preparation of election" page)
         proceed_link_expected_label = "Proceed"
         proceed_link_css_selector = "#main a"
         proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
@@ -814,37 +864,10 @@ pris en compte.
 
         wait_a_bit()
 
-        # In "Validate creation" section, she clicks on the "Create election" link
-        create_election_link_label = "Create election"
-        create_election_link_element = wait_for_an_element_with_partial_link_text_exists(browser, create_election_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
-        create_election_link_element.click()
-
-        wait_a_bit()
-
-        # She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters. For example, in this test scenario, it displays 2 warnings: "Warning: No trustees were set. This means that the server will manage the election key by itself.", and "Warning: No contact was set!"
-
-        # In the "Validate creation" section, she clicks on the "Create election" button
-        create_election_button_label = "Create election"
-        create_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(create_election_button_label)
-        create_election_button_element = wait_for_element_exists(browser, create_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        create_election_button_element.click()
-
-        wait_a_bit()
-
-        # She arrives back on the "My test election for Scenario 1 — Administration" page. Its contents have changed. There is now a text saying "The election is open. Voters can vote.", and there are now buttons "Close election", "Archive election", "Delete election"
-
-        # She remembers the URL of the voting page, that is where the "Election home" link points to
-        election_page_link_label = "Election home"
-        election_page_link_element = wait_for_an_element_with_partial_link_text_exists(browser, election_page_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
-        self.election_page_url = election_page_link_element.get_attribute('href')
+        self.election_page_url = administrator_validates_creation_of_election(browser)
         console_log("election_page_url:", self.election_page_url)
         self.election_id = election_page_url_to_election_id(self.election_page_url)
         console_log("election_id:", self.election_id)
-
-        # She checks that a "Close election" button is present (but she does not click on it)
-        close_election_button_label = "Close election"
-        close_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(close_election_button_label)
-        wait_for_element_exists(browser, close_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
 
         log_out(browser)
 
