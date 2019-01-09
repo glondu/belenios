@@ -730,7 +730,10 @@ let election_draft_trustees uuid se () =
   let div_content =
     div [
       div [
-          pcdata "To set up the election key, you need to nominate trustees. Each trustee will create her own secret key.";
+          pcdata "To set up the election key, you need to nominate trustees. Each trustee will create her own secret key. ";
+          pcdata "To set up the election so that only a subset of trustees is needed, click ";
+          a ~service:election_draft_threshold_trustees [pcdata "here"] uuid;
+          pcdata ".";
         ];
       br ();
       div_trustees;
