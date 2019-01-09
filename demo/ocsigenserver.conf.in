@@ -37,6 +37,9 @@
       <site path="static" charset="utf-8">
         <static dir="_SRCDIR_/_build/src/static" />
       </site>
+      <site path="monitor">
+        <eliom findlib-package="eliom.server.monitor.start"/>
+      </site>
       <eliom module="_build/src/web/server.cma">
         <maxmailsatonce value="1000"/>
         <uuid length="14"/>
