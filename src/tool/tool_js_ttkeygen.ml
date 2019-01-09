@@ -20,11 +20,26 @@
 (**************************************************************************)
 
 open Js_of_ocaml
-open Platform
 open Serializable_j
 open Signatures
 open Common
 open Tool_js_common
+
+let set_step i =
+  with_element "current_step" (fun e ->
+      e##.innerHTML := Js.string "";
+      let t = Printf.sprintf "Step %d/3" i in
+      let t = document##createTextNode (Js.string t) in
+      Dom.appendChild e t
+    )
+
+let set_explain str =
+  with_element "explain" (fun e ->
+      e##.innerHTML := Js.string "";
+      let t = document##createTextNode (Js.string str) in
+      Dom.appendChild e t;
+      Dom.appendChild e (document##createElement (Js.string "br"));
+    )
 
 let gen_cert e _ =
   let group = get_textarea "group" in
@@ -33,21 +48,20 @@ let gen_cert e _ =
   let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
   let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
   let key, cert = T.step1 () in
-  let id = sha256_hex cert.s_message in
   e##.innerHTML := Js.string "";
-  let t = document##createTextNode (Js.string (Printf.sprintf "Certificate %s has been generated!" id)) in
-  Dom.appendChild e t;
   set_download "private_key" "text/plain" "private_key.txt" key;
   set_element_display "key_helper" "block";
   let cert = string_of_cert cert in
   set_textarea "data" cert;
   Js._false
 
-let proceed step e textarea _ =
+let proceed step _ =
   let group = get_textarea "group" in
   let key =
     let r = ref "" in
-    Js.Opt.iter (Dom_html.CoerceTo.textarea textarea) (fun x -> r := Js.to_string x##.value);
+    with_element "compute_private_key" (fun e ->
+        Js.Opt.iter (Dom_html.CoerceTo.input e) (fun x -> r := Js.to_string x##.value)
+      );
     !r
   in
   let certs = certs_of_string (get_textarea "certs") in
@@ -59,15 +73,13 @@ let proceed step e textarea _ =
   match step with
   | 3 ->
      let polynomial = T.step3 certs key threshold in
-     e##.innerHTML := Js.string "";
-     set_textarea "data" (string_of_polynomial polynomial);
+     set_textarea "compute_data" (string_of_polynomial polynomial);
      Js._false
   | 5 ->
      let vinput = get_textarea "vinput" in
      let vinput = vinput_of_string vinput in
      let voutput = T.step5 certs key vinput in
-     e##.innerHTML := Js.string "";
-     set_textarea "data" (string_of_voutput G.write voutput);
+     set_textarea "compute_data" (string_of_voutput G.write voutput);
      Js._false
   | _ ->
      alert "Unexpected state!";
@@ -83,34 +95,35 @@ let fill_interactivity _ =
          set_element_display "data_form" "none";
          let t = document##createTextNode (Js.string "Waiting for the election administrator to set the threshold... Reload the page to check progress.") in
          Dom.appendChild e t
-      | 2 | 4 | 6 ->
+      | 2 | 4 ->
+         set_step (step / 2);
          set_element_display "data_form" "none";
          let t = document##createTextNode (Js.string "Waiting for the other trustees... Reload the page to check progress.") in
          Dom.appendChild e t
-      | 7 ->
+      | 6 | 7 ->
+         set_step 3;
          set_element_display "data_form" "none";
-         let t = document##createTextNode (Js.string "The key establishment protocol is finished!") in
+         let t = document##createTextNode (Js.string "Your job in the key establishment protocol is done! Your private key will be needed to decrypt the election result.") in
          Dom.appendChild e t
       | 1 ->
+         set_step 1;
          let b = document##createElement (Js.string "button") in
          let t = document##createTextNode (Js.string "Generate private key") in
          b##.onclick := Dom_html.handler (gen_cert e);
          Dom.appendChild b t;
          Dom.appendChild e b;
       | 3 | 5 ->
-         let div = document##createElement (Js.string "div") in
-         let t = document##createTextNode (Js.string "Private key: ") in
-         Dom.appendChild div t;
-         let textarea = Dom_html.createTextarea document in
-         textarea##.rows := 1;
-         textarea##.cols := 25;
-         Dom.appendChild div textarea;
-         Dom.appendChild e div;
-         let b = document##createElement (Js.string "button") in
-         let t = document##createTextNode (Js.string "Proceed") in
-         b##.onclick := Dom_html.handler (proceed step e textarea);
-         Dom.appendChild b t;
-         Dom.appendChild e b;
+         let explain = match step with
+           | 3 -> "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
+           | 5 -> "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
+           | _ -> failwith "impossible step"
+         in
+         set_step ((step + 1) / 2);
+         set_explain explain;
+         set_element_display "compute_form" "block";
+         with_element "compute_button" (fun e ->
+             e##.onclick := Dom_html.handler (proceed step)
+           );
       | _ ->
          alert "Unexpected state!"
     );

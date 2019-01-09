@@ -1263,6 +1263,14 @@ let election_draft_trustee token uuid se () =
 
 let election_draft_threshold_trustee token uuid se () =
   let title = "Trustee for election " ^ se.se_questions.t_name in
+  let header =
+    div ~a:[a_style "text-align:center;"] [
+        h2 [pcdata "Collaborative key generation"];
+        div ~a:[a_id "current_step"] [
+            pcdata "Step 0/3"
+          ];
+      ]
+  in
   let div_link =
     let url = Eliom_uri.make_string_uri ~absolute:true
                 ~service:election_home (uuid, ()) |> rewrite_prefix
@@ -1327,22 +1335,55 @@ let election_draft_threshold_trustee token uuid se () =
       (fun data ->
         [
           div ~a:[a_id "key_helper"; a_style "display:none;"] [
-              div [a ~service:home ~a:[a_id "private_key"] [pcdata "Private key"] ()];
               b [pcdata "Instructions:"];
               ol [
-                  li [pcdata "download your private key using the link above;"];
-                  li [pcdata "submit public data using the button below."];
+                  li [
+                      pcdata "Download your ";
+                      a ~service:home ~a:[a_id "private_key"] [pcdata "private key"] ();
+                      pcdata " and save it to a secure location."
+                    ];
+                  li [
+                      pcdata "Submit data using the following button: ";
+                      input ~input_type:`Submit ~value:"Submit" string;
+                      pcdata ".";
+                      div [
+                          pcdata "Data: ";
+                          textarea ~a:[a_id "data"] ~name:data ();
+                        ];
+                    ];
                 ];
-            ];
-          div [
-              div [
-                  pcdata "Data: ";
-                  textarea ~a:[a_id "data"] ~name:data ();
-                ];
-              div [input ~input_type:`Submit ~value:"Submit" string];
             ];
         ]
       ) (uuid, token)
+  in
+  let form_compute =
+    div ~a:[a_id "compute_form"; a_style "display: none;"] [
+        b [pcdata "Instructions:"];
+        ol [
+            li [
+                pcdata "Enter your private key: ";
+                input ~input_type:`Text ~a:[a_id "compute_private_key"] string;
+                pcdata " ";
+                button_no_value ~a:[a_id "compute_button"] ~button_type:`Button [
+                    pcdata "Proceed";
+                  ];
+              ];
+            li [
+                pcdata "Submit data using the following button:";
+                post_form
+                  ~service:election_draft_threshold_trustee_post
+                  (fun data ->
+                    [
+                      input ~input_type:`Submit ~value:"Submit" string;
+                      div [
+                          pcdata "Data: ";
+                          textarea ~a:[a_id "compute_data"] ~name:data ();
+                        ];
+                    ]
+                  ) (uuid, token);
+              ];
+          ];
+      ]
   in
   let interactivity =
     div
@@ -1356,11 +1397,14 @@ let election_draft_threshold_trustee token uuid se () =
       ]
   in
   let content = [
+      header;
       div_link;
+      br ();
+      div ~a:[a_id "explain"] [];
       inputs;
       interactivity;
-      br ();
       form;
+      form_compute;
     ]
   in
   base ~title ~content ()
