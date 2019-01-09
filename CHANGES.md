@@ -1,3 +1,15 @@
+1.8 (2018-02-01)
+================
+
+ * Add the possibility to override sendmail via an environment variable
+ * Use opam 2.0.0 in bootstrap script
+ * Web server:
+   + Add some automated tests
+   + Add the possibility to create administrator accounts
+   + Add booth preview
+   + Add automatic open / close dates
+   + Unhide support for threshold decryption
+
 1.7.1 (2018-12-05)
 ==================
 
