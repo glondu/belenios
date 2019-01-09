@@ -2493,44 +2493,60 @@ let tally_trustees election trustee_id token () =
            ];
     );
     hr ();
-    div ~a:[a_id "input_private_key"] [
-        div [
-            p [pcdata "Please enter your private key:"];
-            input
-              ~a:[a_id "private_key"; a_size 80]
-              ~input_type:`Text
-              string;
-          ];
-        div [
-            p [pcdata "Or load it from a file:"];
-            input
-              ~a:[a_id "private_key_file"]
-              ~input_type:`File
-              string;
+    div [
+        b [pcdata "Instructions:"];
+        ol [
+            li [
+                div ~a:[a_id "input_private_key"] [
+                    div [
+                        p [pcdata "Please enter your private key:"];
+                        input
+                          ~a:[a_id "private_key"; a_size 80]
+                          ~input_type:`Text
+                          string;
+                      ];
+                    div [
+                        p [pcdata "Or load it from a file:"];
+                        input
+                          ~a:[a_id "private_key_file"]
+                          ~input_type:`File
+                          string;
+                      ];
+                  ];
+                br ();
+              ];
+            li [
+                div [
+                    button_no_value
+                      ~a:[a_id "compute"]
+                      ~button_type:`Button
+                      [pcdata "Compute decryption factors"];
+                  ];
+                br ();
+              ];
+            li [
+                div ~a:[a_id "pd_done"] [
+                    post_form
+                      ~service:election_tally_trustees_post
+                      (fun pd ->
+                        [
+                          div [
+                              input ~input_type:`Submit ~value:"Submit" string;
+                              pcdata " your contribution to decryption.";
+                            ];
+                          div [
+                              pcdata "Data: ";
+                              textarea
+                                ~a:[a_rows 5; a_cols 40; a_id "pd"]
+                                ~name:pd
+                                ();
+                            ];
+                        ]
+                      ) (uuid,  token);
+                  ];
+              ];
           ];
       ];
-    hr ();
-    div [
-      button_no_value
-        ~a:[a_id "compute"]
-        ~button_type:`Button
-        [pcdata "Compute decryption factors"];
-    ];
-    div ~a:[a_id "pd_done"] [
-      post_form
-        ~service:election_tally_trustees_post
-        (fun pd ->
-          [
-            div [
-              textarea
-                ~a:[a_rows 5; a_cols 40; a_id "pd"]
-                ~name:pd
-                ();
-            ];
-            div [input ~input_type:`Submit ~value:"Submit" string];
-          ]
-        ) (uuid,  token);
-    ];
     div [
       script ~a:[a_src (static "sjcl.js")] (pcdata "");
       script ~a:[a_src (static "jsbn.js")] (pcdata "");
