@@ -133,3 +133,8 @@ def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DU
 
 def set_element_attribute(browser, element_dom_id, attribute_key, attribute_value):
     browser.execute_script("let el = document.getElementById('" + element_dom_id + "'); el.setAttribute('" + attribute_key + "','" + attribute_value + "');")
+
+
+def verify_element_label(element, expected_label):
+    element_real_label = element.get_attribute('innerText')
+    assert expected_label in element_real_label, 'Expected label "' + expected_label + '" not found in element label "' + element_real_label + "'"
