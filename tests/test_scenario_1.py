@@ -9,7 +9,7 @@ from distutils.util import strtobool
 from selenium.webdriver.common.alert import Alert
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, verify_element_label
-from util.election_testing import console_log, random_email_addresses_generator, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, repopulate_vote_confirmations_for_voters_from_sent_emails, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, find_button_in_page_content_by_value, find_buttons_in_page_content_by_value, initialize_server, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
+from util.election_testing import console_log, random_email_addresses_generator, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, repopulate_vote_confirmations_for_voters_from_sent_emails, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, find_button_in_page_content_by_value, initialize_server, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 import settings
 
 
@@ -74,67 +74,6 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
             if answer2:
                 votes_for_answers['answer2'] += 1
         return votes_for_answers
-
-
-    def log_in_as_administrator(self, from_a_login_page=False):
-        browser = self.browser
-
-        if from_a_login_page:
-            local_login_link_label = "local"
-            local_login_link_element = wait_for_an_element_with_partial_link_text_exists(browser, local_login_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
-            local_login_link_element.click()
-        else:
-            # Alice has been given administrator rights on an online voting app called Belenios. She goes
-            # to check out its homepage
-
-            browser.get(settings.SERVER_URL)
-
-            wait_a_bit()
-
-            # She notices the page title mentions an election
-            # TODO: Should we wait for the page to load here? It looks like we don't need to.
-            assert 'Election Server' in browser.title, "Browser title was: " + browser.title
-
-            # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
-            accept_button_label = "Accept"
-            button_elements = find_buttons_in_page_content_by_value(browser, accept_button_label)
-            if len(button_elements) > 0:
-                assert len(button_elements) is 1
-                button_elements[0].click()
-
-            # She clicks on "local" to go to the login page
-            login_link_css_selector = "#login_local"
-            login_element = wait_for_element_exists(browser, login_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-            login_element.click()
-
-        wait_a_bit()
-
-        # She enters her identifier and password and submits the form to log in
-        login_form_username_value = settings.ADMINISTRATOR_USERNAME
-        login_form_password_value = settings.ADMINISTRATOR_PASSWORD
-
-        login_form_username_css_selector = '#main form input[name=username]'
-        login_form_password_css_selector = '#main form input[name=password]'
-
-        login_form_username_element = wait_for_element_exists(browser, login_form_username_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        login_form_password_element = wait_for_element_exists(browser, login_form_password_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-
-        login_form_username_element.send_keys(login_form_username_value)
-        login_form_password_element.send_keys(login_form_password_value)
-
-        wait_a_bit()
-
-        login_form_password_element.submit()
-
-        # She verifies that she arrived on the administration page (instead of any login error page)
-
-        # Here we use Selenium's Explicit Wait to wait for the h1 element of the page to contain expected text, meaning browser will have changed from login page to administration page. If we had used an Implicit Wait (with a defined duration) instead of an Explicit one, we risk to have some errors sometimes (we experienced them before doing this refactoring):
-        # - Sometimes we get an error like `selenium.common.exceptions.StaleElementReferenceException: Message: The element reference of <h1> is stale; either the element is no longer attached to the DOM, it is not in the current frame context, or the document has been refreshed` or `selenium.common.exceptions.NoSuchElementException: Message: Unable to locate element: #header h1`. This is because page content changed in between two of our instructions.
-        # - Value read from the page is still the value contained in previous page, because page content has not changed yet.
-
-        page_title_css_selector = "#header h1"
-        page_title_expected_content = "Administration"
-        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
 
     def administrator_creates_election(self):
