@@ -195,7 +195,7 @@ type election_kind =
 let get_elections_by_owner user =
   Lwt_unix.files_of_directory !Web_config.spool_dir |>
     Lwt_stream.to_list >>=
-    Lwt_list.filter_map_p
+    Lwt_list.filter_map_s
       (fun x ->
         if x = "." || x = ".." then
           return None
@@ -327,7 +327,7 @@ let load_ballots uuid =
   if%lwt Lwt_unix.file_exists ballots_dir then (
     let ballots = Lwt_unix.files_of_directory ballots_dir in
     let%lwt ballots = Lwt_stream.to_list ballots in
-    Lwt_list.filter_map_p (fun x ->
+    Lwt_list.filter_map_s (fun x ->
         match%lwt read_file (ballots_dir / x) with
         | Some [x] -> return (Some x)
         | _ -> return_none

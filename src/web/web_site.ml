@@ -2291,7 +2291,7 @@ let try_extract extract x =
 let get_next_actions () =
   Lwt_unix.files_of_directory !Web_config.spool_dir |>
   Lwt_stream.to_list >>=
-  Lwt_list.filter_map_p
+  Lwt_list.filter_map_s
     (fun x ->
       if x = "." || x = ".." then return_none
       else (
@@ -2364,7 +2364,7 @@ let () =
   let rec loop () =
     let () = console (fun () -> "Data policy process started") in
     let%lwt elections = get_next_actions () in
-    let%lwt () = Lwt_list.iter_p process_election_for_data_policy elections in
+    let%lwt () = Lwt_list.iter_s process_election_for_data_policy elections in
     let () = console (fun () -> "Data policy process completed") in
     let%lwt () = Lwt_unix.sleep 3600. in
     loop ()
