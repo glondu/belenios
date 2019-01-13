@@ -13,11 +13,14 @@ from util.election_testing import console_log, random_email_addresses_generator,
 import settings
 
 
-class BeleniosTestElectionScenario1(unittest.TestCase):
+class BeleniosElectionTestBase(unittest.TestCase):
     """
+    A base class that is meant to be derived, to implement a real test of an election.
+
     Properties:
     - server
     - browser
+    - fake_sent_emails_manager: An instance of FakeSentEmailsManager
     - voters_email_addresses: A list of email addresses (strings). This is all users who are invited to vote
     - voters_email_addresses_who_have_lost_their_password: A list of email addresses (strings). This is all users who have asked for a new password.
     - voters_email_addresses_who_have_voted: A dictionary, indexed by email address (string), where each element value is True
@@ -26,32 +29,19 @@ class BeleniosTestElectionScenario1(unittest.TestCase):
     - election_id: The election ID (string). Example: "H5ecRG3wHZ21cp"
     """
 
-    def setUp(self):
-        self.fake_sent_emails_manager = FakeSentEmailsManager(settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
-        self.fake_sent_emails_manager.install_fake_sendmail_log_file()
 
-        remove_database_folder()
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
 
-        self.server = initialize_server()
-
-        self.browser = initialize_browser()
-
+        self.server = None
+        self.browser = None
+        self.fake_sent_emails_manager = None
         self.voters_email_addresses = []
         self.voters_email_addresses_who_have_lost_their_password = []
         self.voters_email_addresses_who_have_voted = dict()
         self.voters_data = dict()
         self.election_page_url = None
         self.election_id = None
-
-
-    def tearDown(self):
-        self.browser.quit()
-
-        self.server.kill()
-
-        remove_database_folder()
-
-        self.fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
 
 
     def update_voters_data(self, some_voters_data):
@@ -673,6 +663,29 @@ pris en compte.
             voter = self.voters_data[voter_email_address]
             matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
             assert len(matches) is 1
+
+
+
+class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
+    def setUp(self):
+        self.fake_sent_emails_manager = FakeSentEmailsManager(settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
+        self.fake_sent_emails_manager.install_fake_sendmail_log_file()
+
+        remove_database_folder()
+
+        self.server = initialize_server()
+
+        self.browser = initialize_browser()
+
+
+    def tearDown(self):
+        self.browser.quit()
+
+        self.server.kill()
+
+        remove_database_folder()
+
+        self.fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
 
 
     def test_scenario_1_simple_vote(self):

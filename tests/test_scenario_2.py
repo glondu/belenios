@@ -17,6 +17,7 @@ from selenium.webdriver.common.alert import Alert
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, verify_element_label
 from util.election_testing import console_log, random_email_addresses_generator, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, repopulate_vote_confirmations_for_voters_from_sent_emails, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, find_button_in_page_content_by_value, find_buttons_in_page_content_by_value, initialize_server, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
+from test_scenario_1 import BeleniosElectionTestBase
 import settings
 
 
@@ -24,18 +25,35 @@ def initialize_browser_for_scenario_2():
     return initialize_browser(for_scenario_2=True)
 
 
-class BeleniosTestElectionScenario2(unittest.TestCase):
+class BeleniosTestElectionScenario2(BeleniosElectionTestBase):
     """
     Properties:
     - server
     - browser
-    - voters_email_addresses
-    - voters_email_addresses_who_have_lost_their_password
-    - voters_data
-    - election_page_url
-    - election_id
-    - draft_election_administration_page_url
+    - fake_sent_emails_manager: An instance of FakeSentEmailsManager
+    - voters_email_addresses: A list of email addresses (strings). This is all users who are invited to vote
+    - voters_email_addresses_who_have_lost_their_password: A list of email addresses (strings). This is all users who have asked for a new password.
+    - voters_email_addresses_who_have_voted: A dictionary, indexed by email address (string), where each element value is True
+    - voters_data: A dictionary, indexed by email address (string), where each element is a dictionary of fields for the voter who is identified by this email address. This is data about all users who have voted.
+    - election_page_url: The election page URL (string). Example: "http://localhost:8001/elections/H5ecRG3wHZ21cp/"
+    - election_id: The election ID (string). Example: "H5ecRG3wHZ21cp"
+    - draft_election_administration_page_url: URL of the draft election administration page
+    - credential_authority_link
+    - credential_authority_file_paths
+    - links_for_trustees
+    - temporary_files_to_remove_after_test
     """
+
+
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+
+        self.draft_election_administration_page_url = None
+        self.credential_authority_link = None
+        self.credential_authority_file_paths = dict() # A dict where key is a label describing the file and value is the absolute path to file
+        self.links_for_trustees = []
+        self.temporary_files_to_remove_after_test = []
+
 
     def setUp(self):
         self.fake_sent_emails_manager = FakeSentEmailsManager(settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
@@ -46,18 +64,6 @@ class BeleniosTestElectionScenario2(unittest.TestCase):
         self.server = initialize_server()
 
         self.browser = initialize_browser_for_scenario_2()
-
-        self.voters_email_addresses = []
-        self.voters_email_addresses_who_have_lost_their_password = []
-        self.voters_data = dict()
-        self.election_page_url = None
-        self.election_id = None
-
-        self.draft_election_administration_page_url = None
-        self.credential_authority_link = None
-        self.credential_authority_file_paths = dict() # A dict where key is a label describing the file and value is the absolute path to file
-        self.links_for_trustees = []
-        self.temporary_files_to_remove_after_test = []
 
 
     def tearDown(self):
@@ -238,8 +244,8 @@ counts."""
                     voter_private_credential = match.group(2)
                 else:
                     raise Exception("File creds.txt has wrong format")
-            custom_content = content.format(election_title=settings.ELECTION_TITLE, credential=voter_private_credential, election_url=self.election_page_url)
-            self.fake_sent_emails_manager.send_email(from_email_address, voter_email_address, subject, custom_content)
+                custom_content = content.format(election_title=settings.ELECTION_TITLE, credential=voter_private_credential, election_url=self.election_page_url)
+                self.fake_sent_emails_manager.send_email(from_email_address, voter_email_address, subject, custom_content)
 
 
     def administrator_invites_trustees(self):
@@ -394,13 +400,9 @@ The election administrator.\
         # She logs out
         log_out(browser)
 
-        # She closes the window
+        # She closes the window, and re-opens it (for next emulated user)
         browser.quit()
-
-
-    def all_voters_vote_in_sequences(self):
-        # TODO: Implement this step
-        pass
+        self.browser = initialize_browser_for_scenario_2()
 
 
     def test_scenario_2_manual_vote(self):
@@ -424,9 +426,36 @@ The election administrator.\
         self.administrator_completes_creation_of_election()
         console_log("### Step complete: administrator_completes_creation_of_election")
 
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (0)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (0)")
+
         console_log("### Starting step: all_voters_vote_in_sequences")
         self.all_voters_vote_in_sequences()
         console_log("### Step complete: all_voters_vote_in_sequences")
+
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (1)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (1)")
+
+        console_log("### Starting step: create_election_data_snapshot (0)")
+        snapshot_folder = create_election_data_snapshot(self.election_id)
+        console_log("### Step complete: create_election_data_snapshot (0)")
+
+        try:
+            console_log("### Starting step: some_voters_revote")
+            self.some_voters_revote()
+            console_log("### Step complete: some_voters_revote")
+
+            console_log("### Starting step: verify_election_consistency using `belenios_tool verify-diff` (0)")
+            verify_election_consistency(self.election_id, snapshot_folder)
+        finally:
+            delete_election_data_snapshot(snapshot_folder)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify-diff` (0)")
+
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (2)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
 
         # TODO: Continue implementation of Scenario 2
 
