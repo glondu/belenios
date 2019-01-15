@@ -1,5 +1,5 @@
 stages:
-  - build_and_run_automated_test_scenario_1_with_preinstalled_image
+  - build_and_run_automated_test_scenarios_with_preinstalled_image
   - build_and_test_with_preinstalled_image
   - build_and_test_with_debian_image
 
@@ -30,6 +30,9 @@ build_and_test_with_debian_image:
   script:
     # Install required packages
     - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
+    # Trying a fix against unavailability of http://forge.ocamlcore.org, using http://forge-static.ocamlcore.org instead
+    - opam pin add calendar http://forge-static.ocamlcore.org/frs/download.php/1481/calendar-2.04.tar.gz
+    - opam pin add ocamlify http://forge-static.ocamlcore.org/frs/download.php/379/ocamlify-0.0.1.tar.gz
     # Install the same Opam packages that opam-bootstrap.sh installs
     - eval `grep "opam install" ./opam-bootstrap.sh`
     # Compile belenios
@@ -45,8 +48,8 @@ build_and_test_with_debian_image:
     # Run a test of an election
     # - BELENIOS_DEBUG=1 make check
 
-build_and_run_automated_test_scenario_1_with_preinstalled_image:
-  stage: build_and_run_automated_test_scenario_1_with_preinstalled_image
+build_and_run_automated_test_scenarios_with_preinstalled_image:
+  stage: build_and_run_automated_test_scenarios_with_preinstalled_image
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by Dockerfile_test_scenario_environment
   image: glondu/beleniosbase-tests:20181206-2
   script:
@@ -64,5 +67,7 @@ build_and_run_automated_test_scenario_1_with_preinstalled_image:
     - source venv/bin/activate
     # Install pip packages
     - pip install -r requirements.txt
+    # Run the automated test scenario 2
+    - python3 ./tests/test_scenario_2.py
     # Run the automated test scenario 1
     - python3 ./tests/test_scenario_1.py
