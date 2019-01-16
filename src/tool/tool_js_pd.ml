@@ -48,8 +48,8 @@ let basic_check_private_key s =
     if i < n then
       match s.[i] with
       | '"' -> middle (i+1)
-      | _ -> failwith "Must start with a double quote"
-    else failwith "Too short"
+      | _ -> failwith "Must start with a double quote (character given was another character)"
+    else failwith "Must start with a double quote (empty string given)"
   and middle i =
     if i < n then
       match s.[i] with

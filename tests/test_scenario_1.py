@@ -551,44 +551,11 @@ pris en compte.
         self.some_voters_cast_their_vote(voters_who_will_vote_now_data)
 
 
-    def administrator_does_tallying_of_election(self):
-        browser = self.browser
-
-        # Alice goes to the election page
-        election_url = self.election_page_url # Could also be obtained with self.voters_data[self.voters_email_addresses[0]]["election_page_url"]
-        browser.get(election_url)
-
-        wait_a_bit()
-
-        # She clicks on the "Administer this election" link
-        administration_link_label = "Administer this election"
-        administration_link_element = wait_for_an_element_with_partial_link_text_exists(browser, administration_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
-        administration_link_element.click()
-
-        # She logs in as administrator
-        log_in_as_administrator(browser, from_a_login_page=True)
-
-        wait_a_bit()
-
-        # She clicks on the "Close election" button
-        close_election_button_label = "Close election"
-        close_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(close_election_button_label)
-        close_election_button_element = wait_for_element_exists(browser, close_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        close_election_button_element.click()
-
-        wait_a_bit()
-
-        # She clicks on the "Proceed to vote counting" button
-        proceed_button_label = "Proceed to vote counting"
-        proceed_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(proceed_button_label)
-        proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        proceed_button_element.click()
-
-        wait_a_bit()
-
-        # FIXME: If no voter has cast their vote, it shows a "Internal Server Error" "Error 500" page
-
+    def administrator_verifies_vote_results(self):
         """
+        Initial browser (required) state: on the vote results page
+        Final browser state: on the accepted ballots page
+
         She checks consistency of the vote result:
         - 1) She checks that the number of accepted ballots is the same as the number of voters who voted
         - 2) For each available answer in the question, she checks that the total number of votes in favor of Answer X displayed in result page is the same as the sum of votes for Answer X in all votes of voters who voted that have been randomly generated in advance
@@ -614,6 +581,8 @@ pris en compte.
 
         Where <...> is a link
         """
+
+        browser = self.browser
 
         # - 1) She checks that the number of accepted ballots is the same as the number of voters who voted
 
@@ -686,6 +655,46 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
         remove_database_folder()
 
         self.fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
+
+
+    def administrator_does_tallying_of_election(self):
+        browser = self.browser
+
+        # Alice goes to the election page
+        election_url = self.election_page_url # Could also be obtained with self.voters_data[self.voters_email_addresses[0]]["election_page_url"]
+        browser.get(election_url)
+
+        wait_a_bit()
+
+        # She clicks on the "Administer this election" link
+        administration_link_label = "Administer this election"
+        administration_link_element = wait_for_an_element_with_partial_link_text_exists(browser, administration_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        administration_link_element.click()
+
+        # She logs in as administrator
+        log_in_as_administrator(browser, from_a_login_page=True)
+
+        wait_a_bit()
+
+        # She clicks on the "Close election" button
+        close_election_button_label = "Close election"
+        close_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(close_election_button_label)
+        close_election_button_element = wait_for_element_exists(browser, close_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        close_election_button_element.click()
+
+        wait_a_bit()
+
+        # She clicks on the "Proceed to vote counting" button
+        proceed_button_label = "Proceed to vote counting"
+        proceed_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(proceed_button_label)
+        proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        proceed_button_element.click()
+
+        wait_a_bit()
+
+        # FIXME: If no voter has cast their vote, it shows a "Internal Server Error" "Error 500" page
+
+        self.administrator_verifies_vote_results()
 
 
     def test_scenario_1_simple_vote(self):
