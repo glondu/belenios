@@ -1,22 +1,18 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*
+# coding: utf-8
 import unittest
-import time
-import string
 import random
 import os
-import shutil
 import subprocess
 import re
 import sys
 from uuid import uuid4
 from distutils.util import strtobool
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.alert import Alert
+from selenium.common.exceptions import UnexpectedAlertPresentException
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, verify_element_label
-from util.election_testing import console_log, random_email_addresses_generator, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, repopulate_vote_confirmations_for_voters_from_sent_emails, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, find_button_in_page_content_by_value, find_buttons_in_page_content_by_value, initialize_server, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
+from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute
+from util.election_testing import console_log, random_email_addresses_generator, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
+from util.election_test_base import BeleniosElectionTestBase
 import settings
 
 
@@ -24,18 +20,41 @@ def initialize_browser_for_scenario_2():
     return initialize_browser(for_scenario_2=True)
 
 
-class BeleniosTestElectionScenario2(unittest.TestCase):
+class BeleniosTestElectionScenario2(BeleniosElectionTestBase):
     """
     Properties:
     - server
     - browser
-    - voters_email_addresses
-    - voters_email_addresses_who_have_lost_their_password
-    - voters_data
-    - election_page_url
-    - election_id
-    - draft_election_administration_page_url
+    - fake_sent_emails_manager: An instance of FakeSentEmailsManager
+    - voters_email_addresses: A list of email addresses (strings). This is all users who are invited to vote
+    - voters_email_addresses_who_have_lost_their_password: A list of email addresses (strings). This is all users who have asked for a new password.
+    - voters_email_addresses_who_have_voted: A dictionary, indexed by email address (string), where each element value is True
+    - voters_data: A dictionary, indexed by email address (string), where each element is a dictionary of fields for the voter who is identified by this email address. This is data about all users who have voted.
+    - election_page_url: The election page URL (string). Example: "http://localhost:8001/elections/H5ecRG3wHZ21cp/"
+    - election_id: The election ID (string). Example: "H5ecRG3wHZ21cp"
+    - draft_election_administration_page_url: URL of the draft election administration page
+    - credential_authority_link
+    - credential_authority_file_paths
+    - links_for_trustees
+    - downloaded_files_paths_per_trustee
+    - temporary_files_to_remove_after_test
+    - encrypted_tally_hash
+    - closed_election_tally_links_for_trustees
     """
+
+
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+
+        self.draft_election_administration_page_url = None
+        self.credential_authority_link = None
+        self.credential_authority_file_paths = dict() # A dict where key is a label describing the file and value is the absolute path to file
+        self.links_for_trustees = []
+        self.downloaded_files_paths_per_trustee = dict() # A dict where key is trustee email address, and value is a dict where key is file label (for example "private key" or "public key"), and value is the absolute path to the file
+        self.temporary_files_to_remove_after_test = []
+        self.encrypted_tally_hash = None
+        self.closed_election_tally_links_for_trustees = []
+
 
     def setUp(self):
         self.fake_sent_emails_manager = FakeSentEmailsManager(settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
@@ -46,18 +65,6 @@ class BeleniosTestElectionScenario2(unittest.TestCase):
         self.server = initialize_server()
 
         self.browser = initialize_browser_for_scenario_2()
-
-        self.voters_email_addresses = []
-        self.voters_email_addresses_who_have_lost_their_password = []
-        self.voters_data = dict()
-        self.election_page_url = None
-        self.election_id = None
-
-        self.draft_election_administration_page_url = None
-        self.credential_authority_link = None
-        self.credential_authority_file_paths = dict() # A dict where key is a label describing the file and value is the absolute path to file
-        self.links_for_trustees = []
-        self.temporary_files_to_remove_after_test = []
 
 
     def tearDown(self):
@@ -184,11 +191,11 @@ class BeleniosTestElectionScenario2(unittest.TestCase):
         link_css_selectors = ["#" + el for el in link_css_ids]
         for idx, link_css_id in enumerate(link_css_ids):
             link_element = wait_for_element_exists(browser, link_css_selectors[idx])
-            target_filename = str(uuid4()) # TODO: save filename in a class instance property, so that we can import it afterwards
+            target_filename = str(uuid4())
             set_element_attribute(browser, link_css_id, 'download', target_filename)
             link_element.click()
             file_absolute_path = os.path.join(settings.BROWSER_DOWNLOAD_FOLDER, target_filename)
-            self.credential_authority_file_paths[file_labels[idx]] = file_absolute_path
+            self.credential_authority_file_paths[file_labels[idx]] = file_absolute_path # we save the filename in a class instance property, so that we can read the file afterwards (to extract trustee credentials and send them by email to trustees)
             self.remember_temporary_file_to_remove_after_test(file_absolute_path)
 
         wait_a_bit()
@@ -238,8 +245,8 @@ counts."""
                     voter_private_credential = match.group(2)
                 else:
                     raise Exception("File creds.txt has wrong format")
-            custom_content = content.format(election_title=settings.ELECTION_TITLE, credential=voter_private_credential, election_url=self.election_page_url)
-            self.fake_sent_emails_manager.send_email(from_email_address, voter_email_address, subject, custom_content)
+                custom_content = content.format(election_title=settings.ELECTION_TITLE, credential=voter_private_credential, election_url=self.election_page_url)
+                self.fake_sent_emails_manager.send_email(from_email_address, voter_email_address, subject, custom_content)
 
 
     def administrator_invites_trustees(self):
@@ -344,14 +351,18 @@ The election administrator.\
             # He clicks on the "private key" and "public key" links, to download the private key and the public key (files are respectively saved by default to private_key.json and public_key.json, but we decide to save them as a unique file name)
             link_css_ids = ["private_key", "public_key"]
             link_expected_labels = ["private key", "public key"]
+            self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
             for idx2, link_css_id in enumerate(link_css_ids):
-                link_target_filename = str(uuid4()) # TODO: save filename in a class instance property, so that we can import it afterwards
+                link_target_filename = str(uuid4())
                 set_element_attribute(browser, link_css_id, 'download', link_target_filename)
                 link_expected_label = link_expected_labels[idx2]
                 link_element = wait_for_an_element_with_partial_link_text_exists(browser, link_expected_label)
                 assert link_element.get_attribute('id') == link_css_id
                 link_element.click()
-                self.remember_temporary_file_to_remove_after_test(os.path.join(settings.BROWSER_DOWNLOAD_FOLDER, link_target_filename))
+                file_absolute_path = os.path.join(settings.BROWSER_DOWNLOAD_FOLDER, link_target_filename)
+                # We save the filename in a class instance property, so that we can import the file afterwards (during partial decryption step)
+                self.downloaded_files_paths_per_trustee[trustee_email_address][link_expected_labels[idx2]] = file_absolute_path
+                self.remember_temporary_file_to_remove_after_test(file_absolute_path)
 
             # He clicks on the "Submit public key" button
             submit_button_expected_label = "Submit public key"
@@ -394,13 +405,191 @@ The election administrator.\
         # She logs out
         log_out(browser)
 
+        # She closes the window, and re-opens it (for next emulated user)
+        browser.quit()
+        self.browser = initialize_browser_for_scenario_2()
+
+
+    def administrator_starts_tallying_of_election(self):
+        browser = self.browser
+
+        # Alice goes to the election page
+        election_url = self.election_page_url # Could also be obtained with self.voters_data[self.voters_email_addresses[0]]["election_page_url"]
+        browser.get(election_url)
+
+        wait_a_bit()
+
+        # She clicks on the "Administer this election" link
+        administration_link_label = "Administer this election"
+        administration_link_element = wait_for_an_element_with_partial_link_text_exists(browser, administration_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        administration_link_element.click()
+
+        # She logs in as administrator
+        log_in_as_administrator(browser, from_a_login_page=True)
+
+        wait_a_bit()
+
+        # She clicks on the "Close election" button
+        close_election_button_label = "Close election"
+        close_election_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(close_election_button_label)
+        close_election_button_element = wait_for_element_exists(browser, close_election_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        close_election_button_element.click()
+
+        wait_a_bit()
+
+        # She clicks on the "Proceed to vote counting" button
+        proceed_button_label = "Proceed to vote counting"
+        proceed_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(proceed_button_label)
+        proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        proceed_button_element.click()
+
+        wait_a_bit()
+
+        # She remembers the encrypted tally hash
+        encrypted_tally_hash_css_selector = "#encrypted_tally_hash"
+        encrypted_tally_hash_element = wait_for_element_exists_and_has_non_empty_content(browser, encrypted_tally_hash_css_selector)
+        self.encrypted_tally_hash = encrypted_tally_hash_element.get_attribute('innerText')
+
+        # She remembers the link to send to each trustee, so they can tally the election
+        self.closed_election_tally_links_for_trustees = []
+        for idx, email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
+            trustee_link_css_selector = "#main table tr:nth-child(" + str(idx + 2) + ") td:nth-child(3) a"
+            trustee_link_element = wait_for_element_exists_and_has_non_empty_content(browser, trustee_link_css_selector)
+            self.closed_election_tally_links_for_trustees.append(trustee_link_element.get_attribute('href'))
+
+        # She sends to each trustee an email containing their own link
+        subject = "Link to tally the election"
+        content_format = """\
+Dear trustee,
+
+The election is now closed. Here's the link to proceed to tally:
+
+{link_for_trustee}
+
+Here's the instructions:
+1. Follow the link.
+2. Enter your private decryption key in the first box and click on
+"generate decryption factors"
+3. The second box is now filled with crypto material. Please press the
+button "submit".
+
+Thank you again for your help,
+
+-- 
+The election administrator.\
+"""
+        for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
+            custom_content = content_format.format(link_for_trustee=self.closed_election_tally_links_for_trustees[idx])
+            self.fake_sent_emails_manager.send_email(settings.ADMINISTRATOR_EMAIL_ADDRESS, trustee_email_address, subject, custom_content)
+
         # She closes the window
         browser.quit()
 
 
-    def all_voters_vote_in_sequences(self):
-        # TODO: Implement this step
-        pass
+    def trustees_do_partial_decryption(self):
+        # Tom and Talyor are trustees and open the link that Alice, election administrator, has sent to them.
+        for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
+            self.browser = initialize_browser_for_scenario_2()
+            browser = self.browser
+            link_for_trustee = self.closed_election_tally_links_for_trustees[idx]
+            browser.get(link_for_trustee)
+
+            wait_a_bit()
+
+            # We verify that the encrypted election hash is the same as the one that has been displayed to election administrator
+            encrypted_tally_hash_css_selector = "#hash"
+            encrypted_tally_hash_element = wait_for_element_exists_and_has_non_empty_content(browser, encrypted_tally_hash_css_selector)
+            encrypted_tally_hash = encrypted_tally_hash_element.get_attribute('innerText')
+            assert encrypted_tally_hash == self.encrypted_tally_hash, "Error: Encrypted tally hash displayed to trustee (" + encrypted_tally_hash + ") is not the same as the one displayed to election administrator (" + self.encrypted_tally_hash + ")."
+
+            # He verifies that the "private key" input field is empty (at the beginning)
+            private_key_field_css_selector = "#private_key"
+            private_key_field_element = wait_for_element_exists(browser, private_key_field_css_selector)
+            assert private_key_field_element.get_attribute('value') == ""
+
+            # He clicks on the "Browse..." button and selects his private key file (initially downloaded as `private_key.json` by default)
+            browse_button_css_selector = "input[id=private_key_file][type=file]"
+            browse_button_element = wait_for_element_exists(browser, browse_button_css_selector)
+            path_of_file_to_upload = self.downloaded_files_paths_per_trustee[trustee_email_address]["private key"]
+            browse_button_element.clear()
+            browse_button_element.send_keys(path_of_file_to_upload)
+
+            # He waits until the "private key" input field (that has id "#private_key") becomes not empty anymore. This is because once the user has selected the file to upload, the Javascript code in the page detects that a file has been selected, reads it, and fills "private key" input field with file's contents. The computation triggered by click on the "Compute decryption factors" button will use the value of this field, not directly the uploaded file contents.
+            private_key_field_expected_non_empty_attribute = "value"
+            wait_for_element_exists_and_has_non_empty_attribute(browser, private_key_field_css_selector, private_key_field_expected_non_empty_attribute)
+
+            # He clicks on the "Compute decryption factors" button
+            compute_button_css_selector = "button[id=compute]"
+            compute_button_element = wait_for_element_exists(browser, compute_button_css_selector)
+            compute_button_element.click()
+
+            # He checks that the text field below (used as visual feedback) now contains text
+            visual_feedback_css_selector = "#pd"
+            visual_feedback_expected_non_empty_attribute = "value"
+            try:
+                wait_for_element_exists_and_has_non_empty_attribute(browser, visual_feedback_css_selector, visual_feedback_expected_non_empty_attribute, 60 * 2)
+            except UnexpectedAlertPresentException as e:
+                raise Exception("An alert was displayed at a moment when no alert should be displayed. Alert displayed probably contains error information about uploaded file contents.") from e
+
+            # He clicks on the "Submit" button
+            submit_button_css_selector = "#pd_done input[type=submit]"
+            submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
+            submit_button_element.click()
+
+            wait_a_bit()
+
+            # He checks that next screen contains a confirmation sentence
+            confirmation_sentence_expected_text = "Your partial decryption has been received and checked!"
+            confirmation_sentence_css_selector = "#main p"
+            wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
+
+            # He closes the window
+            browser.quit()
+
+
+    def administrator_finishes_tallying_of_election(self):
+        self.browser = initialize_browser_for_scenario_2()
+        browser = self.browser
+
+        # Alice goes to the election page
+        election_url = self.election_page_url
+        browser.get(election_url)
+
+        wait_a_bit()
+
+        # She clicks on the "Administer this election" link
+        administration_link_label = "Administer this election"
+        administration_link_element = wait_for_an_element_with_partial_link_text_exists(browser, administration_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        administration_link_element.click()
+
+        # She logs in as administrator
+        log_in_as_administrator(browser, from_a_login_page=True)
+
+        wait_a_bit()
+
+        # She checks that encrypted tally hash is still the same as the first time it has been displayed to her
+        encrypted_tally_hash_css_selector = "#encrypted_tally_hash"
+        encrypted_tally_hash_element = wait_for_element_exists_and_has_non_empty_content(browser, encrypted_tally_hash_css_selector)
+        encrypted_tally_hash = encrypted_tally_hash_element.get_attribute('innerText')
+        assert encrypted_tally_hash == self.encrypted_tally_hash, "Error: Encrypted tally hash displayed to trustee (" + encrypted_tally_hash + ") is not the same as the one displayed to election administrator (" + self.encrypted_tally_hash + ")."
+
+        # She checks that the "DONE?" column of each trustee is to "Yes"
+        expected_label = "Yes"
+        yes_cells_selector = "#main table tr td:nth-last-child(1)"
+        yes_cells_elements = wait_for_elements_exist(browser, yes_cells_selector)
+        assert len(yes_cells_elements) > 0, "Error: could not find last cell in table in page"
+        for element in yes_cells_elements:
+            assert element.get_attribute('innerText') == expected_label, "Error: The last cell of a row in table that is displayed in page has a value that is '" + element.get_attribute('innerText') + "' instead of expected '" + expected_label + "'"
+
+        # She clicks on the "Compute the result" button
+        compute_result_button_expected_label = "Compute the result"
+        compute_result_button_css_selector = "#main input[type=submit][value='" + compute_result_button_expected_label + "']"
+        compute_result_button_element = wait_for_element_exists(browser, compute_result_button_css_selector)
+        compute_result_button_element.click()
+
+        wait_a_bit()
+
+        self.administrator_verifies_vote_results()
 
 
     def test_scenario_2_manual_vote(self):
@@ -424,11 +613,52 @@ The election administrator.\
         self.administrator_completes_creation_of_election()
         console_log("### Step complete: administrator_completes_creation_of_election")
 
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (0)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (0)")
+
         console_log("### Starting step: all_voters_vote_in_sequences")
         self.all_voters_vote_in_sequences()
         console_log("### Step complete: all_voters_vote_in_sequences")
 
-        # TODO: Continue implementation of Scenario 2
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (1)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (1)")
+
+        console_log("### Starting step: create_election_data_snapshot (0)")
+        snapshot_folder = create_election_data_snapshot(self.election_id)
+        console_log("### Step complete: create_election_data_snapshot (0)")
+
+        try:
+            console_log("### Starting step: some_voters_revote")
+            self.some_voters_revote()
+            console_log("### Step complete: some_voters_revote")
+
+            console_log("### Starting step: verify_election_consistency using `belenios_tool verify-diff` (0)")
+            verify_election_consistency(self.election_id, snapshot_folder)
+        finally:
+            delete_election_data_snapshot(snapshot_folder)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify-diff` (0)")
+
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (2)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
+
+        console_log("### Starting step: administrator_starts_tallying_of_election")
+        self.administrator_starts_tallying_of_election()
+        console_log("### Step complete: administrator_starts_tallying_of_election")
+
+        console_log("### Starting step: trustees_do_partial_decryption")
+        self.trustees_do_partial_decryption()
+        console_log("### Step complete: trustees_do_partial_decryption")
+
+        console_log("### Starting step: administrator_finishes_tallying_of_election")
+        self.administrator_finishes_tallying_of_election()
+        console_log("### Step complete: administrator_finishes_tallying_of_election")
+
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (3)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (3)")
 
 
 if __name__ == "__main__":

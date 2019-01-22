@@ -2012,7 +2012,9 @@ let election_admin election metadata state get_tokens_decrypt () =
              [pcdata "encrypted tally"]
              (uuid, ESETally);
            pcdata " has been computed. Its hash is ";
-           b [pcdata hash];
+           b ~a:[a_id "encrypted_tally_hash"] [
+             pcdata hash
+           ];
            pcdata ".";
          ];
          div [

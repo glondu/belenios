@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*
+# coding: utf-8
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,7 +10,35 @@ from selenium.common.exceptions import StaleElementReferenceException
 DEFAULT_WAIT_DURATION = 10 # In seconds
 
 
-class element_has_non_empty_content(object):
+class element_has_non_empty_attribute(object):
+    """
+    An expectation for checking that an element has a non-empty value for given attribute.
+    This class is meant to be used in combination with Selenium's `WebDriverWait::until()`. For example:
+    ```
+    custom_wait = WebDriverWait(browser, 10)
+    smart_ballot_tracker_element = custom_wait.until(element_has_non_empty_attribute((By.ID, "my_id"), 'value'))
+    ```
+
+    :param locator: Selenium locator used to find the element. For example: `(By.ID, "my_id")`
+    :param attribute: HTML attribute. For example 'innerText' (see `element_has_non_empty_content()` for this), or 'value'
+    :return: The WebElement once it has a non-empty innerText attribute
+    """
+    def __init__(self, locator, attribute):
+        self.locator = locator
+        self.attribute = attribute
+
+    def __call__(self, driver):
+        element = driver.find_element(*self.locator)   # Finding the referenced element
+        if not element:
+            return False
+        element_content = element.get_attribute(self.attribute).strip()
+        if len(element_content) > 0:
+            return element
+        else:
+            return False
+
+
+class element_has_non_empty_content(element_has_non_empty_attribute):
     """
     An expectation for checking that an element has a non-empty innerText attribute.
     This class is meant to be used in combination with Selenium's `WebDriverWait::until()`. For example:
@@ -23,17 +51,7 @@ class element_has_non_empty_content(object):
     :return: The WebElement once it has a non-empty innerText attribute
     """
     def __init__(self, locator):
-        self.locator = locator
-
-    def __call__(self, driver):
-        element = driver.find_element(*self.locator)   # Finding the referenced element
-        if not element:
-            return False
-        element_content = element.get_attribute('innerText').strip()
-        if len(element_content) > 0:
-            return element
-        else:
-            return False
+        super().__init__(locator, 'innerText')
 
 
 class an_element_with_partial_link_text_exists(object):
@@ -93,14 +111,18 @@ def wait_for_element_exists_and_contains_expected_text(browser, css_selector, ex
         raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds. Page source was: " + str(browser.page_source.encode("utf-8"))) from e
 
 
-def wait_for_element_exists_and_has_non_empty_content(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
+def wait_for_element_exists_and_has_non_empty_attribute(browser, css_selector, attribute, wait_duration=DEFAULT_WAIT_DURATION):
     try:
         ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
         custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
-        element = custom_wait.until(element_has_non_empty_content((By.CSS_SELECTOR, css_selector)))
+        element = custom_wait.until(element_has_non_empty_attribute((By.CSS_SELECTOR, css_selector), attribute))
         return element
     except Exception as e:
-        raise Exception("Could not find expected DOM element '" + css_selector + "' with non-empty content until timeout of " + str(wait_duration) + " seconds") from e
+        raise Exception("Could not find expected DOM element '" + css_selector + "' with non-empty attribute '" + attribute + "' until timeout of " + str(wait_duration) + " seconds") from e
+
+
+def wait_for_element_exists_and_has_non_empty_content(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
+    return wait_for_element_exists_and_has_non_empty_attribute(browser, css_selector, 'innerText', wait_duration)
 
 
 def wait_for_an_element_with_partial_link_text_exists(browser, partial_link_text, wait_duration=DEFAULT_WAIT_DURATION):
