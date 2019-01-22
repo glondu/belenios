@@ -29,8 +29,8 @@ Verifications all along the process is done using command line tools `belenios-t
 
 ## Detailed steps of the Test Scenario 1 process
 
-- Creation of the election (action of the administrator)
-    - Starting creation of the election
+- Starting setup of the election (action of the administrator)
+    - Creation of the draft election
         - Alice has been given administrator rights on an online voting app called Belenios. She goes to check out its homepage and logs in.
         - She clicks on the "Prepare a new election" link
         - (She keeps default values on the form: Credential management is automatic (not manual), and Authentication method is Password, not CAS)
@@ -44,7 +44,7 @@ Verifications all along the process is done using command line tools `belenios-t
         - She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
     - Setting election's voters
         - She clicks on the "Edit voters" link, to then type the list of voters
-        - She types N e-mail addresses (the list of invited voters)
+        - She types `N` e-mail addresses (the list of invited voters)
         - She clicks on the "Add" button to submit changes
         - She clicks on "Return to draft page" link
     - She clicks on button "Generate on server"
@@ -73,7 +73,7 @@ Verifications all along the process is done using command line tools `belenios-t
         - She checks that the page shows a confirmation message similar to "A new password has been mailed to name@email.com"
         - She clicks on the "Proceed" link (She arrives back to the election administration page)
         - We do a sanity check that server has really tried to send these emails, and to these users only.
-    - Log out and close the browser window
+    - She logs out and closes the browser window
 - Verify election consistency (using command line tool `belenios_tool verify`)
 - All voting electors cast their vote (`K` electors vote). We check vote data consistency for every batch of `X` votes (using `belenios_tool verify-diff` and a snapshot of election data copied in previous batch). For each batch of `X` voters:
     - Create election data snapshot

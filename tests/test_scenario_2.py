@@ -160,7 +160,10 @@ class BeleniosTestElectionScenario2(BeleniosElectionTestBase):
 
         # She sends the remembered link to the credential authority by email (actually we don't need to send anything because we will act as the credential authority)
 
-        # She closes the browser
+        # Optionnaly, she logs out
+        # log_out(browser)
+
+        # She closes the browser window
         browser.quit()
 
 
@@ -185,7 +188,7 @@ class BeleniosTestElectionScenario2(BeleniosElectionTestBase):
 
         wait_a_bit()
 
-        # She clicks on the "private credentials" and "public credentials" links and downloads these files. Files are by default downloaded to /tmp using filenames creds.txt and public_creds.txt respectively, but we choose to name them using an unique identifier instead.
+        # She clicks on the "private credentials" and "public credentials" links and downloads these files. Files are by default downloaded to /tmp using filenames `creds.txt` and `public_creds.txt` respectively, but we choose to name them using an unique identifier instead.
         link_css_ids = ["creds", "public_creds"]
         file_labels = ["private credentials", "public credentials"]
         link_css_selectors = ["#" + el for el in link_css_ids]
@@ -323,12 +326,15 @@ The election administrator.\
             custom_content = content_format.format(link_for_trustee=self.links_for_trustees[idx])
             self.fake_sent_emails_manager.send_email(settings.ADMINISTRATOR_EMAIL_ADDRESS, trustee_email_address, subject, custom_content)
 
+        # Optionnaly, she logs out
+        # log_out(browser)
+
         # She closes the window
         browser.quit()
 
 
     def trustees_generate_election_private_keys(self):
-        # Each trustee will do the following process
+        # Each trustee (Tom and Taylor) will do the following process
         for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
             # Trustee opens link that has been sent to him by election administrator
             link_for_this_trustee = self.links_for_trustees[idx] # TODO: Decide either not send trustee email at all or read trustee link from email content
@@ -348,7 +354,7 @@ The election administrator.\
             generate_button_element = wait_for_element_exists_and_contains_expected_text(browser, generate_button_css_selector, generate_button_expected_label)
             generate_button_element.click()
 
-            # He clicks on the "private key" and "public key" links, to download the private key and the public key (files are respectively saved by default to private_key.json and public_key.json, but we decide to save them as a unique file name)
+            # He clicks on the "private key" and "public key" links, to download the private key and the public key (files are respectively saved by default as `private_key.json` and `public_key.json`, but we decide to save them as a unique file name)
             link_css_ids = ["private_key", "public_key"]
             link_expected_labels = ["private key", "public key"]
             self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
@@ -482,13 +488,17 @@ The election administrator.\
             custom_content = content_format.format(link_for_trustee=self.closed_election_tally_links_for_trustees[idx])
             self.fake_sent_emails_manager.send_email(settings.ADMINISTRATOR_EMAIL_ADDRESS, trustee_email_address, subject, custom_content)
 
+        # She logs out
+        log_out(browser)
+
         # She closes the window
         browser.quit()
 
 
     def trustees_do_partial_decryption(self):
-        # Tom and Talyor are trustees and open the link that Alice, election administrator, has sent to them.
+        # Each trustee (Tom and Taylor) will do the following process:
         for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
+            # He opens the link that Alice (the election administrator) has sent to him
             self.browser = initialize_browser_for_scenario_2()
             browser = self.browser
             link_for_trustee = self.closed_election_tally_links_for_trustees[idx]
