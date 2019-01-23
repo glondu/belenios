@@ -92,7 +92,7 @@ let validate_election uuid se =
          | [] ->
             let%lwt private_key = KG.generate () in
             let%lwt public_key = KG.prove private_key in
-            return (None, [public_key], `KEY private_key)
+            return (None, [webize_trustee_public_key true public_key], `KEY private_key)
          | _ :: _ ->
             let private_key =
               List.fold_left (fun accu {st_private_key; _} ->
@@ -109,13 +109,14 @@ let validate_election uuid se =
             return (
                 Some (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
                 (List.map
-                   (fun {st_public_key; _} ->
+                   (fun {st_public_key; st_private_key; _} ->
                      if st_public_key = "" then failwith "some public keys are missing";
-                     trustee_public_key_of_string G.read st_public_key
+                     let pk = trustee_public_key_of_string G.read st_public_key in
+                     webize_trustee_public_key (st_private_key <> None) pk
                    ) se.se_public_keys),
                 private_key)
        in
-       let y = KG.combine (Array.of_list public_keys) in
+       let y = KG.combine (Array.of_list (List.map unwebize_trustee_public_key public_keys)) in
        return (y, trustees, `PK public_keys, private_key)
     | Some ts ->
        match se.se_threshold_parameters with
@@ -171,7 +172,7 @@ let validate_election uuid se =
   in
   let%lwt () =
     match pk_or_tp with
-    | `PK pk -> create_file "public_keys.jsons" (string_of_trustee_public_key G.write) pk
+    | `PK pk -> create_file "public_keys.jsons" (string_of_web_trustee_public_key G.write) pk
     | `TP tp -> create_file "threshold.json" (string_of_threshold_parameters G.write) [tp]
   in
   let%lwt () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in

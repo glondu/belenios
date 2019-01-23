@@ -149,6 +149,9 @@ val rmdir : string -> unit Lwt.t
 val urlize : string -> string
 val unurlize : string -> string
 
+val webize_trustee_public_key : bool -> 'a trustee_public_key -> 'a web_trustee_public_key
+val unwebize_trustee_public_key : 'a web_trustee_public_key -> 'a trustee_public_key
+
 val default_contact : string
 val default_questions : question array
 val default_name : string

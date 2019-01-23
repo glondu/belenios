@@ -27,6 +27,7 @@ type number <ocaml predef from="Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
 type string_set <ocaml predef from="Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
+type proof <ocaml predef from="Serializable"> = abstract
 type template <ocaml predef from="Serializable"> = abstract
 type cert <ocaml predef from="Serializable"> = abstract
 type polynomial <ocaml predef from="Serializable"> = abstract
@@ -86,6 +87,13 @@ type election_state =
 
 type partial_decryptions = (int * string) list
 type decryption_tokens = string list
+
+(* The following is a supertype of trustee_public_key *)
+type 'a web_trustee_public_key = {
+  pok : proof;
+  public_key : 'a;
+  ?server : bool option;
+} <ocaml field_prefix="web_trustee_">
 
 (** {1 Types related to elections being prepared} *)
 

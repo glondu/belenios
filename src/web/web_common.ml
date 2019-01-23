@@ -398,6 +398,19 @@ let rmdir dir =
 let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)
 let unurlize = String.map (function '-' -> '+' | '_' -> '/' | c -> c)
 
+let webize_trustee_public_key server pk =
+  {
+    web_trustee_pok = pk.trustee_pok;
+    web_trustee_public_key = pk.trustee_public_key;
+    web_trustee_server = if server then Some true else None;
+  }
+
+let unwebize_trustee_public_key pk =
+  {
+    trustee_pok = pk.web_trustee_pok;
+    trustee_public_key = pk.web_trustee_public_key;
+  }
+
 let default_contact = "Name <user@example.org>"
 
 let default_questions =
