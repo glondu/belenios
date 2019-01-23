@@ -47,7 +47,6 @@ let election_draft_voters_add = create_attached_post ~fallback:election_draft_vo
 let election_draft_voters_remove = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voter") ()
 let election_draft_voters_passwd = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voter") ()
 let election_draft_trustee_add = create_attached_post ~fallback:election_draft ~post_params:(string "id") ()
-let election_draft_trustee_add_server = create_attached_post ~fallback:election_draft ~post_params:unit ()
 let election_draft_trustee_del = create_attached_post ~fallback:election_draft ~post_params:(int "index") ()
 let election_draft_credential_authority = create ~path:(Path ["draft"; "credential-authority"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_credentials = create ~path:(Path ["draft"; "credentials"]) ~meth:(Get uuid_and_token) ()

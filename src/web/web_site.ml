@@ -799,10 +799,27 @@ let () =
         )
     )
 
+let trustee_add_server se =
+  let st_id = "server" and st_token = "" in
+  let module G = (val Group.of_string se.se_group) in
+  let module K = Trustees.MakeSimple (G) (LwtRandom) in
+  let%lwt private_key = K.generate () in
+  let%lwt public_key = K.prove private_key in
+  let st_public_key = string_of_trustee_public_key G.write public_key in
+  let st_private_key = Some private_key in
+  let trustee = {st_id; st_token; st_public_key; st_private_key} in
+  se.se_public_keys <- se.se_public_keys @ [trustee];
+  return_unit
+
 let () =
   Any.register ~service:election_draft_trustee_add
     (fun uuid st_id ->
       with_draft_election uuid (fun se ->
+          let%lwt () =
+            if List.exists (fun x -> x.st_id = "server") se.se_public_keys then
+              return_unit
+            else trustee_add_server se
+          in
           if is_email st_id then (
             let%lwt st_token = generate_token () in
             let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None} in
@@ -813,23 +830,6 @@ let () =
             let service = preapply election_draft_trustees uuid in
             T.generic_page ~title:"Error" ~service msg () >>= Html.send
           )
-        )
-    )
-
-let () =
-  Any.register ~service:election_draft_trustee_add_server
-    (fun uuid () ->
-      with_draft_election uuid (fun se ->
-          let st_id = "server" and st_token = "" in
-          let module G = (val Group.of_string se.se_group) in
-          let module K = Trustees.MakeSimple (G) (LwtRandom) in
-          let%lwt private_key = K.generate () in
-          let%lwt public_key = K.prove private_key in
-          let st_public_key = string_of_trustee_public_key G.write public_key in
-          let st_private_key = Some private_key in
-          let trustee = {st_id; st_token; st_public_key; st_private_key} in
-          se.se_public_keys <- se.se_public_keys @ [trustee];
-          redir_preapply election_draft_trustees uuid ()
         )
     )
 

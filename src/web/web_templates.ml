@@ -642,18 +642,6 @@ let election_draft_trustees uuid se () =
         ]
       ) uuid
   in
-  let form_trustees_add_server =
-    match List.filter (fun {st_id; _} -> st_id = "server") se.se_public_keys with
-    | [] ->
-       post_form
-         ~service:election_draft_trustee_add_server
-         (fun () ->
-           [
-             input ~input_type:`Submit ~value:"Add the server" string
-           ]
-         ) uuid
-    | _ -> pcdata ""
-  in
   let mk_form_trustee_del value =
     post_form
       ~service:election_draft_trustee_del
@@ -701,7 +689,7 @@ let election_draft_trustees uuid se () =
                td [
                  pcdata (if t.st_public_key = "" then "No" else "Yes");
                ];
-               td [mk_form_trustee_del i];
+               td [if t.st_id = "server" then pcdata "(cannot be removed)" else mk_form_trustee_del i];
              ]
            ) ts
        )
@@ -723,7 +711,6 @@ let election_draft_trustees uuid se () =
                ]
            else pcdata "");
           form_trustees_add;
-          form_trustees_add_server;
         ]
     else pcdata ""
   in
