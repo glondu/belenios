@@ -280,7 +280,7 @@ counts."""
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
             submit_button_element.click()
 
-            trustee_link_css_selector = "#main table tr:nth-child(" + str(idx + 2) + ") td:nth-child(3) a"
+            trustee_link_css_selector = "#main table tr:nth-child(" + str(idx + 3) + ") td:nth-child(3) a"
             trustee_link_element = wait_for_element_exists_and_has_non_empty_content(browser, trustee_link_css_selector)
             self.links_for_trustees.append(trustee_link_element.get_attribute('href'))
 
