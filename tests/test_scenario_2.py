@@ -517,16 +517,23 @@ The election administrator.\
             private_key_field_element = wait_for_element_exists(browser, private_key_field_css_selector)
             assert private_key_field_element.get_attribute('value') == ""
 
-            # He clicks on the "Browse..." button and selects his private key file (initially downloaded as `private_key.json` by default)
-            browse_button_css_selector = "input[id=private_key_file][type=file]"
-            browse_button_element = wait_for_element_exists(browser, browse_button_css_selector)
-            path_of_file_to_upload = self.downloaded_files_paths_per_trustee[trustee_email_address]["private key"]
-            browse_button_element.clear()
-            browse_button_element.send_keys(path_of_file_to_upload)
+            # One trustee uploads his private key file, the other copy-pastes its contents into the form field
+            private_key_file = self.downloaded_files_paths_per_trustee[trustee_email_address]["private key"]
+            if idx % 2 == 0:
+                # He clicks on the "Browse..." button and selects his private key file (initially downloaded as `private_key.json` by default)
+                browse_button_css_selector = "input[id=private_key_file][type=file]"
+                browse_button_element = wait_for_element_exists(browser, browse_button_css_selector)
+                path_of_file_to_upload = private_key_file
+                browse_button_element.clear()
+                browse_button_element.send_keys(path_of_file_to_upload)
 
-            # He waits until the "private key" input field (that has id "#private_key") becomes not empty anymore. This is because once the user has selected the file to upload, the Javascript code in the page detects that a file has been selected, reads it, and fills "private key" input field with file's contents. The computation triggered by click on the "Compute decryption factors" button will use the value of this field, not directly the uploaded file contents.
-            private_key_field_expected_non_empty_attribute = "value"
-            wait_for_element_exists_and_has_non_empty_attribute(browser, private_key_field_css_selector, private_key_field_expected_non_empty_attribute)
+                # He waits until the "private key" input field (that has id "#private_key") becomes not empty anymore. This is because once the user has selected the file to upload, the Javascript code in the page detects that a file has been selected, reads it, and fills "private key" input field with file's contents. The computation triggered by click on the "Compute decryption factors" button will use the value of this field, not directly the uploaded file contents.
+                private_key_field_expected_non_empty_attribute = "value"
+                wait_for_element_exists_and_has_non_empty_attribute(browser, private_key_field_css_selector, private_key_field_expected_non_empty_attribute)
+            else:
+                with open(private_key_file) as myfile:
+                    private_key_field_element.send_keys(myfile.read())
+                wait_a_bit()
 
             # He clicks on the "Compute decryption factors" button
             compute_button_css_selector = "button[id=compute]"
