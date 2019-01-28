@@ -2056,7 +2056,7 @@ let election_admin election metadata state get_tokens_decrypt () =
       pcdata ""
     else
       div [
-          a ~service:election_regenpwd [pcdata "Regenerate and mail a password"] uuid;
+          a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [pcdata "Regenerate and mail a password"] uuid;
         ]
   in
   let content = [

@@ -231,7 +231,7 @@ pris en compte.
         # She arrives to the election administration page. For each voter of the NUMBER_OF_REGENERATED_PASSWORD_VOTERS selected voters:
         for email_address in self.voters_email_addresses_who_have_lost_their_password:
             # She clicks on the "Regenerate and mail a password" link
-            regenerate_and_mail_a_password_link_css_selector = "#main a[href^='regenpwd?uuid=']"
+            regenerate_and_mail_a_password_link_css_selector = "#election_regenpwd"
             regenerate_and_mail_a_password_link_element = wait_for_element_exists(browser, regenerate_and_mail_a_password_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             regenerate_and_mail_a_password_link_element.click()
 
