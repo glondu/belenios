@@ -221,7 +221,7 @@ pris en compte.
 
         # She selects the election that she wants to edit
         browser = self.browser
-        election_to_edit_css_selector = "#main li a[href^='election/admin?uuid=']"
+        election_to_edit_css_selector = "#election_admin_" + str(self.election_id)
         election_to_edit_elements = wait_for_elements_exist(browser, election_to_edit_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         assert len(election_to_edit_elements) > 0
         election_to_edit_elements[0].click()
