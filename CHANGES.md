@@ -1,7 +1,8 @@
-1.8 (2018-02-01)
+1.8 (2018-02-04)
 ================
 
  * Add the possibility to override sendmail via an environment variable
+ * Use SOURCE_DATE_EPOCH if available
  * Use opam 2.0.0 in bootstrap script
  * Web server:
    + Add some automated tests
@@ -9,6 +10,10 @@
    + Add booth preview
    + Add automatic open / close dates
    + Unhide support for threshold decryption
+   + Fixed a bug that caused some elections to not appear in the
+     administrator's listing when the election pool is big
+   + Force the server to be a trustee in basic mode
+   + Record in trustee public keys whether the server has the private key
 
 1.7.1 (2018-12-05)
 ==================
