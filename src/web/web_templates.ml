@@ -718,8 +718,8 @@ let election_draft_trustees uuid se () =
     div [
       div [
           pcdata "To set up the election key, you need to nominate trustees. Each trustee will create her own secret key. ";
-          pcdata "To set up the election so that only a subset of trustees is needed, click ";
-          a ~service:election_draft_threshold_trustees [pcdata "here"] uuid;
+          pcdata "To set up the election so that only a subset of trustees is needed, go to the ";
+          a ~service:election_draft_threshold_trustees [pcdata "threshold mode"] uuid;
           pcdata ".";
         ];
       br ();
@@ -826,9 +826,9 @@ let election_draft_threshold_trustees uuid se () =
        br ();
        ]
   in
-  let form_threshold =
+  let form_threshold, form_reset =
     match se.se_threshold_trustees with
-    | None -> pcdata ""
+    | None -> pcdata "", pcdata ""
     | Some ts ->
        match se.se_threshold with
        | None ->
@@ -840,17 +840,20 @@ let election_draft_threshold_trustees uuid se () =
                 input ~input_type:`Submit ~value:"Set" string;
                 pcdata " (the threshold must be smaller than the number of trustees)";
               ]
-            ) uuid
+            ) uuid,
+          pcdata ""
        | Some i ->
+          div [
+              pcdata (string_of_int i);
+              pcdata " out of ";
+              pcdata (string_of_int (List.length ts));
+              pcdata " trustees will be needed to decrypt the result.";
+            ],
           post_form ~service:election_draft_threshold_set
             (fun name ->
               [
-                pcdata (string_of_int i);
-                pcdata " out of ";
-                pcdata (string_of_int (List.length ts));
-                pcdata " trustees will be needed to decrypt the result. ";
                 input ~input_type:`Hidden ~name ~value:0 int;
-                input ~input_type:`Submit ~value:"Reset" string;
+                input ~input_type:`Submit ~value:"Reset threshold" string;
               ]
             ) uuid
   in
@@ -875,6 +878,7 @@ let election_draft_threshold_trustees uuid se () =
           ]
        else pcdata "");
       form_trustees_add;
+      form_reset;
     ]
   in
   let back_link = div [
@@ -883,6 +887,7 @@ let election_draft_threshold_trustees uuid se () =
   ] in
   let content = [
     div_content;
+    br ();
     back_link;
   ] in
   let%lwt login_box = login_box () in
