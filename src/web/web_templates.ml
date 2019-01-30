@@ -1321,6 +1321,10 @@ let election_draft_threshold_trustee token uuid se () =
             pcdata "Vinput: ";
             unsafe_textarea "vinput" (match trustee.stt_vinput with None -> "" | Some x -> string_of_vinput x);
           ];
+        div [
+            pcdata "Voutput: ";
+            unsafe_textarea "voutput" (match trustee.stt_voutput with None -> "" | Some x -> x);
+          ];
       ]
   in
   let form =

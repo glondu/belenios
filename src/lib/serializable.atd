@@ -28,6 +28,8 @@ type uuid <ocaml predef from="Serializable_builtin"> = abstract
 
 (** {2 Basic cryptographic datastructures} *)
 
+type 'a group_element = 'a
+
 type 'a ciphertext = {
   alpha : 'a;
   beta : 'a;

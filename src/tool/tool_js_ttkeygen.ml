@@ -103,8 +103,19 @@ let fill_interactivity _ =
       | 6 | 7 ->
          set_step 3;
          set_element_display "data_form" "none";
-         let t = document##createTextNode (Js.string "Your job in the key establishment protocol is done! Your private key will be needed to decrypt the election result.") in
-         Dom.appendChild e t
+         let t = document##createTextNode (Js.string "Your job in the key establishment protocol is done! Please download your ") in
+         Dom.appendChild e t;
+         let a = document##createTextNode (Js.string "public key") in
+         let t = Dom_html.createA document in
+         t##setAttribute (Js.string "id") (Js.string "public_key");
+         Dom.appendChild t a;
+         Dom.appendChild e t;
+         let t = document##createTextNode (Js.string " and check that it is in the public threshold parameters when the election is open. Your private key will be needed to decrypt the election result.") in
+         Dom.appendChild e t;
+         let group = get_textarea "group" in
+         let module G = (val Group.of_string group : GROUP) in
+         let voutput = voutput_of_string G.read (get_textarea "voutput") in
+         set_download "public_key" "application/json" "public_key.json" (string_of_group_element G.write voutput.vo_public_key.trustee_public_key)
       | 1 ->
          set_step 1;
          let b = document##createElement (Js.string "button") in
