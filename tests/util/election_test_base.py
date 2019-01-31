@@ -175,9 +175,8 @@ pris en compte.
 
 
         # She clicks on the "Proceed" link
-        proceed_link_expected_label = "Proceed"
-        proceed_link_css_selector = "#main a"
-        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        proceed_link_css_selector = "#generic_proceed_link"
+        proceed_link_element = wait_for_element_exists(browser, proceed_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         proceed_link_element.click()
 
         wait_a_bit()
@@ -195,9 +194,8 @@ pris en compte.
         wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
 
         # She clicks on the "Proceed" link (this redirects to the "Preparation of election" page)
-        proceed_link_expected_label = "Proceed"
-        proceed_link_css_selector = "#main a"
-        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        proceed_link_css_selector = "#generic_proceed_link"
+        proceed_link_element = wait_for_element_exists(browser, proceed_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         proceed_link_element.click()
 
         wait_a_bit()
@@ -257,9 +255,8 @@ pris en compte.
             wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
 
             # She clicks on the "Proceed" link
-            proceed_link_expected_label = "Proceed"
-            proceed_link_css_selector = "#main a"
-            proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+            proceed_link_css_selector = "#generic_proceed_link"
+            proceed_link_element = wait_for_element_exists(browser, proceed_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             proceed_link_element.click()
 
             wait_a_bit()

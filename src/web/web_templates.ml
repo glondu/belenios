@@ -298,7 +298,7 @@ let generic_page ~title ?service message () =
     | None -> pcdata ""
     | Some service ->
        div [
-         a ~service [pcdata "Proceed"] ();
+         a ~service ~a:[a_id "generic_proceed_link"] [pcdata "Proceed"] ();
        ]
   in
   let content = [
