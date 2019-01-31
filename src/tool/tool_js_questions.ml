@@ -85,6 +85,7 @@ let extractTemplate () =
 
 let rec createAnswer a =
   let container = Dom_html.createDiv document in
+  container##.className := Js.string "question_answer_item";
   let t = document##createTextNode (Js.string "Answer: ") in
   let u = Dom_html.createInput document in
   u##.className := Js.string "question_answer";
@@ -100,6 +101,7 @@ let rec createAnswer a =
     return ()
   in
   btn##.onclick := handler f;
+  btn##.className := Js.string "btn_remove";
   Dom.appendChild btn btn_text;
   Dom.appendChild container btn;
   let insert_text = document##createTextNode (Js.string "Insert") in
@@ -111,6 +113,7 @@ let rec createAnswer a =
     return ()
   in
   insert_btn##.onclick := handler f;
+  insert_btn##.className := Js.string "btn_insert";
   Dom.appendChild insert_btn insert_text;
   Dom.appendChild container insert_btn;
   container
