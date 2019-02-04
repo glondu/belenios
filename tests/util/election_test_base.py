@@ -175,9 +175,8 @@ pris en compte.
 
 
         # She clicks on the "Proceed" link
-        proceed_link_expected_label = "Proceed"
-        proceed_link_css_selector = "#main a"
-        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        proceed_link_css_selector = "#generic_proceed_link"
+        proceed_link_element = wait_for_element_exists(browser, proceed_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         proceed_link_element.click()
 
         wait_a_bit()
@@ -195,9 +194,8 @@ pris en compte.
         wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
 
         # She clicks on the "Proceed" link (this redirects to the "Preparation of election" page)
-        proceed_link_expected_label = "Proceed"
-        proceed_link_css_selector = "#main a"
-        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        proceed_link_css_selector = "#generic_proceed_link"
+        proceed_link_element = wait_for_element_exists(browser, proceed_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         proceed_link_element.click()
 
         wait_a_bit()
@@ -221,7 +219,7 @@ pris en compte.
 
         # She selects the election that she wants to edit
         browser = self.browser
-        election_to_edit_css_selector = "#main li a[href^='election/admin?uuid=']"
+        election_to_edit_css_selector = "#election_admin_" + str(self.election_id)
         election_to_edit_elements = wait_for_elements_exist(browser, election_to_edit_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         assert len(election_to_edit_elements) > 0
         election_to_edit_elements[0].click()
@@ -231,7 +229,7 @@ pris en compte.
         # She arrives to the election administration page. For each voter of the NUMBER_OF_REGENERATED_PASSWORD_VOTERS selected voters:
         for email_address in self.voters_email_addresses_who_have_lost_their_password:
             # She clicks on the "Regenerate and mail a password" link
-            regenerate_and_mail_a_password_link_css_selector = "#main a[href^='regenpwd?uuid=']"
+            regenerate_and_mail_a_password_link_css_selector = "#election_regenpwd"
             regenerate_and_mail_a_password_link_element = wait_for_element_exists(browser, regenerate_and_mail_a_password_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             regenerate_and_mail_a_password_link_element.click()
 
@@ -257,9 +255,8 @@ pris en compte.
             wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
 
             # She clicks on the "Proceed" link
-            proceed_link_expected_label = "Proceed"
-            proceed_link_css_selector = "#main a"
-            proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+            proceed_link_css_selector = "#generic_proceed_link"
+            proceed_link_element = wait_for_element_exists(browser, proceed_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
             proceed_link_element.click()
 
             wait_a_bit()

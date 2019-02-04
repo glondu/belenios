@@ -102,7 +102,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
     | None ->
        a ~service:admin [pcdata L.administer_elections] ()
     | Some uuid ->
-       a ~service:election_admin [pcdata L.administer_this_election] uuid
+       a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [pcdata L.administer_this_election] uuid
   in
   let login_box = match login_box with
     | None ->
@@ -182,12 +182,12 @@ let privacy_notice cont =
 
 let format_election (uuid, name) =
   li [
-    a ~service:election_admin [pcdata name] uuid;
+    a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [pcdata name] uuid;
   ]
 
 let format_draft_election (uuid, name) =
   li [
-    a ~service:election_draft [pcdata name] uuid;
+    a ~service:election_draft ~a:[a_id ("election_draft_" ^ (raw_string_of_uuid uuid))] [pcdata name] uuid;
   ]
 
 let admin ~elections () =
@@ -298,7 +298,7 @@ let generic_page ~title ?service message () =
     | None -> pcdata ""
     | Some service ->
        div [
-         a ~service [pcdata "Proceed"] ();
+         a ~service ~a:[a_id "generic_proceed_link"] [pcdata "Proceed"] ();
        ]
   in
   let content = [
@@ -2112,7 +2112,7 @@ let election_admin election metadata state get_tokens_decrypt () =
       pcdata ""
     else
       div [
-          a ~service:election_regenpwd [pcdata "Regenerate and mail a password"] uuid;
+          a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [pcdata "Regenerate and mail a password"] uuid;
         ]
   in
   let content = [

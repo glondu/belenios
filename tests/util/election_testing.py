@@ -475,7 +475,7 @@ def administrator_edits_election_questions(browser):
 
     # She removes answer 3
     question_to_remove = 3
-    remove_button_css_selector = ".question_answers > div:nth-child(" + str(question_to_remove) + ") button:nth-child(2)"
+    remove_button_css_selector = ".question_answer_item:nth-child(" + str(question_to_remove) + ") .btn_remove"
     remove_button_element = browser.find_element_by_css_selector(remove_button_css_selector)
     remove_button_element.click()
 
