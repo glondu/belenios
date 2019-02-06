@@ -5,7 +5,7 @@ if [ -d ../.git ] && which git >/dev/null 2>&1; then
     BUILD=${BUILD:-$(git describe)}
 else
     DATE=${SOURCE_DATE_EPOCH:-$(date +%s)}
-    DATE=$(date -d @$DATE +%Y%m%d)
+    DATE=$(date -u -d @$DATE +%Y%m%d)
     BUILD=${BUILD:-$DATE}
 fi
 
