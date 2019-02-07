@@ -62,8 +62,8 @@ let encryptBallot params cred plaintext () =
 let progress_step n =
   let old_ = Printf.sprintf "progress%d" (n-1) in
   let new_ = Printf.sprintf "progress%d" n in
-  with_element old_ (fun e -> e##setAttribute (Js.string "style") (Js.string ""));
-  with_element new_ (fun e -> e##setAttribute (Js.string "style") (Js.string "font-weight: bold;"))
+  with_element old_ (fun e -> e##.style##.fontWeight := Js.string "normal");
+  with_element new_ (fun e -> e##.style##.fontWeight := Js.string "bold")
 
 let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
   (* Create div element for the current question. [i] and [(q,
@@ -96,19 +96,13 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
     let choices = document##createElement (Js.string "div") in
     let choices_divs = Array.mapi (fun i a ->
       let div = document##createElement (Js.string "div") in
-      let checkbox = document##createElement (Js.string "input") in
-      let cb =
-        match Js.Opt.to_option (Dom_html.CoerceTo.input checkbox) with
-        | Some x -> x
-        | None -> failwith "error while casting checkbox"
-      in
-      if answers.(i) > 0 then cb##.checked := Js.bool true;
-      checkbox##setAttribute (Js.string "type") (Js.string "checkbox");
-      checkbox##setAttribute (Js.string "style") (Js.string "cursor: pointer;");
+      let checkbox = Dom_html.createInput ~_type:(Js.string "checkbox") document in
+      if answers.(i) > 0 then checkbox##.checked := Js.bool true;
+      checkbox##.style##.cursor := Js.string "pointer";
       Dom.appendChild div checkbox;
       let t = document##createTextNode (Js.string a) in
       checkbox##.onclick := Dom_html.handler (fun _ ->
-        answers.(i) <- if Js.to_bool cb##.checked then 1 else 0;
+        answers.(i) <- if Js.to_bool checkbox##.checked then 1 else 0;
         Js._true
       );
       Dom.appendChild div t;
@@ -158,7 +152,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   let () =
     (* previous button *)
     let btns = document##createElement (Js.string "div") in
-    btns##setAttribute (Js.string "style") (Js.string "text-align: center;");
+    btns##.style##.textAlign := Js.string "center";
     let () =
       match prev with
       | [] ->
@@ -265,7 +259,7 @@ let addQuestions sk params qs =
 
 let createStartButton params intro_div qs =
   let b = document##createElement (Js.string "button") in
-  b##setAttribute (Js.string "style") (Js.string "font-size:20px;");
+  b##.style##.fontSize := Js.string "20px";
   let t = document##createTextNode (Js.string (get_content "str_here")) in
   b##.onclick := Dom_html.handler (fun _ ->
     (match prompt (get_content "enter_cred") with

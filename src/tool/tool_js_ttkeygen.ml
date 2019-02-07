@@ -107,7 +107,7 @@ let fill_interactivity _ =
          Dom.appendChild e t;
          let a = document##createTextNode (Js.string "public key") in
          let t = Dom_html.createA document in
-         t##setAttribute (Js.string "id") (Js.string "public_key");
+         t##.id := Js.string "public_key";
          Dom.appendChild t a;
          Dom.appendChild e t;
          let t = document##createTextNode (Js.string " and check that it is in the public threshold parameters when the election is open. Your private key will be needed to decrypt the election result.") in
