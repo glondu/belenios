@@ -26,19 +26,23 @@ open Common
 open Tool_js_common
 
 let set_step i =
-  with_element "current_step" (fun e ->
+  js_ignore (
+      document##getElementById (Js.string "current_step") >>= fun e ->
       e##.innerHTML := Js.string "";
       let t = Printf.sprintf "Step %d/3" i in
       let t = document##createTextNode (Js.string t) in
-      Dom.appendChild e t
+      Dom.appendChild e t;
+      return_unit
     )
 
 let set_explain str =
-  with_element "explain" (fun e ->
+  js_ignore (
+      document##getElementById (Js.string "explain") >>= fun e ->
       e##.innerHTML := Js.string "";
       let t = document##createTextNode (Js.string str) in
       Dom.appendChild e t;
-      Dom.appendChild e (document##createElement (Js.string "br"));
+      Dom.appendChild e (Dom_html.createBr document);
+      return_unit
     )
 
 let gen_cert e _ =
@@ -55,15 +59,11 @@ let gen_cert e _ =
   set_textarea "data" cert;
   Js._false
 
-let proceed step _ =
+let proceed step =
   let group = get_textarea "group" in
-  let key =
-    let r = ref "" in
-    with_element "compute_private_key" (fun e ->
-        Js.Opt.iter (Dom_html.CoerceTo.input e) (fun x -> r := Js.to_string x##.value)
-      );
-    !r
-  in
+  document##getElementById (Js.string "compute_private_key") >>= fun e ->
+  Dom_html.CoerceTo.input e >>= fun e ->
+  let key = Js.to_string e##.value in
   let certs = certs_of_string (get_textarea "certs") in
   let threshold = int_of_string (get_textarea "threshold") in
   let module G = (val Group.of_string group : GROUP) in
@@ -74,71 +74,72 @@ let proceed step _ =
   | 3 ->
      let polynomial = T.step3 certs key threshold in
      set_textarea "compute_data" (string_of_polynomial polynomial);
-     Js._false
+     return_unit
   | 5 ->
      let vinput = get_textarea "vinput" in
      let vinput = vinput_of_string vinput in
      let voutput = T.step5 certs key vinput in
      set_textarea "compute_data" (string_of_voutput G.write voutput);
-     Js._false
+     return_unit
   | _ ->
      alert "Unexpected state!";
-     Js._false
+     return_unit
 
-let fill_interactivity _ =
-  Js.Opt.iter
-    (document##getElementById (Js.string "interactivity"))
-    (fun e ->
-      let step = int_of_string (get_textarea "step") in
-      match step with
-      | 0 ->
-         set_element_display "data_form" "none";
-         let t = document##createTextNode (Js.string "Waiting for the election administrator to set the threshold... Reload the page to check progress.") in
-         Dom.appendChild e t
-      | 2 | 4 ->
-         set_step (step / 2);
-         set_element_display "data_form" "none";
-         let t = document##createTextNode (Js.string "Waiting for the other trustees... Reload the page to check progress.") in
-         Dom.appendChild e t
-      | 6 | 7 ->
-         set_step 3;
-         set_element_display "data_form" "none";
-         let t = document##createTextNode (Js.string "Your job in the key establishment protocol is done! Please download your ") in
-         Dom.appendChild e t;
-         let a = document##createTextNode (Js.string "public key") in
-         let t = Dom_html.createA document in
-         t##.id := Js.string "public_key";
-         Dom.appendChild t a;
-         Dom.appendChild e t;
-         let t = document##createTextNode (Js.string " and check that it is in the public threshold parameters when the election is open. Your private key will be needed to decrypt the election result.") in
-         Dom.appendChild e t;
-         let group = get_textarea "group" in
-         let module G = (val Group.of_string group : GROUP) in
-         let voutput = voutput_of_string G.read (get_textarea "voutput") in
-         set_download "public_key" "application/json" "public_key.json" (string_of_group_element G.write voutput.vo_public_key.trustee_public_key)
-      | 1 ->
-         set_step 1;
-         let b = document##createElement (Js.string "button") in
-         let t = document##createTextNode (Js.string "Generate private key") in
-         b##.onclick := Dom_html.handler (gen_cert e);
-         Dom.appendChild b t;
-         Dom.appendChild e b;
-      | 3 | 5 ->
-         let explain = match step with
-           | 3 -> "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
-           | 5 -> "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
-           | _ -> failwith "impossible step"
-         in
-         set_step ((step + 1) / 2);
-         set_explain explain;
-         set_element_display "compute_form" "block";
-         with_element "compute_button" (fun e ->
-             e##.onclick := Dom_html.handler (proceed step)
-           );
-      | _ ->
-         alert "Unexpected state!"
-    );
-  Js._false
+let main () =
+  document##getElementById (Js.string "interactivity") >>= fun e ->
+  let step = int_of_string (get_textarea "step") in
+  match step with
+  | 0 ->
+     set_element_display "data_form" "none";
+     let t = document##createTextNode (Js.string "Waiting for the election administrator to set the threshold... Reload the page to check progress.") in
+     Dom.appendChild e t;
+     return_unit
+  | 2 | 4 ->
+     set_step (step / 2);
+     set_element_display "data_form" "none";
+     let t = document##createTextNode (Js.string "Waiting for the other trustees... Reload the page to check progress.") in
+     Dom.appendChild e t;
+     return_unit
+  | 6 | 7 ->
+     set_step 3;
+     set_element_display "data_form" "none";
+     let t = document##createTextNode (Js.string "Your job in the key establishment protocol is done! Please download your ") in
+     Dom.appendChild e t;
+     let a = document##createTextNode (Js.string "public key") in
+     let t = Dom_html.createA document in
+     t##.id := Js.string "public_key";
+     Dom.appendChild t a;
+     Dom.appendChild e t;
+     let t = document##createTextNode (Js.string " and check that it is in the public threshold parameters when the election is open. Your private key will be needed to decrypt the election result.") in
+     Dom.appendChild e t;
+     let group = get_textarea "group" in
+     let module G = (val Group.of_string group : GROUP) in
+     let voutput = voutput_of_string G.read (get_textarea "voutput") in
+     set_download "public_key" "application/json" "public_key.json" (string_of_group_element G.write voutput.vo_public_key.trustee_public_key);
+     return_unit
+  | 1 ->
+     set_step 1;
+     let b = document##createElement (Js.string "button") in
+     let t = document##createTextNode (Js.string "Generate private key") in
+     b##.onclick := Dom_html.handler (gen_cert e);
+     Dom.appendChild b t;
+     Dom.appendChild e b;
+     return_unit
+  | 3 | 5 ->
+     let explain = match step with
+       | 3 -> "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
+       | 5 -> "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
+       | _ -> failwith "impossible step"
+     in
+     set_step ((step + 1) / 2);
+     set_explain explain;
+     set_element_display "compute_form" "block";
+     document##getElementById (Js.string "compute_button") >>= fun e ->
+     e##.onclick := Dom_html.handler (fun _ -> wrap_for_handler (proceed step));
+     return_unit
+  | _ ->
+     alert "Unexpected state!";
+     return_unit
 
 let () =
-  Dom_html.window##.onload := Dom_html.handler fill_interactivity;
+  Dom_html.window##.onload := Dom_html.handler (fun _ -> wrap_for_handler (main ()))

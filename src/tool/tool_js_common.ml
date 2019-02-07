@@ -24,15 +24,23 @@ open Common
 
 let document = Dom_html.document
 
+let ( >>= ) = Js.Opt.bind
+
+let js_ignore x =
+  Js.Opt.get x (fun () -> ())
+
+let return_unit =
+  Js.some ()
+
+let wrap_for_handler x =
+  js_ignore x; Js._false
+
 let alert s =
   Dom_html.window##alert (Js.string s)
 
 let prompt s =
   let x = Dom_html.window##prompt (Js.string s) (Js.string "") in
   Js.Opt.to_option (Js.Opt.map x Js.to_string)
-
-let with_element x f =
-  Option.iter f (Dom_html.getElementById_opt x)
 
 let get_textarea_opt id =
   Option.map (fun x -> Js.to_string x##.value)
@@ -57,7 +65,11 @@ let get_input id =
   | None -> Printf.ksprintf failwith "<input> %s is missing" id
 
 let set_element_display id x =
-  with_element id (fun e -> e##.style##.display := Js.string x)
+  js_ignore (
+      document##getElementById (Js.string id) >>= fun e ->
+      e##.style##.display := Js.string x;
+      return_unit
+    )
 
 let set_download id mime fn x =
   let x = (Js.string ("data:" ^ mime ^ ","))##concat (Js.encodeURI (Js.string x)) in
@@ -68,16 +80,19 @@ let set_download id mime fn x =
      e##.href := x
 
 let get_content x =
-  let r = ref x in
-  with_element x (fun x ->
-    Js.Opt.iter (x##.textContent) (fun x -> r := Js.to_string x)
-  ); !r
+  Js.Opt.get (
+      document##getElementById (Js.string x) >>= fun e ->
+      e##.textContent >>= fun x ->
+      Js.some (Js.to_string x)
+    ) (fun () -> x)
 
 let set_content id x =
-  with_element id (fun e ->
-    let t = document##createTextNode (Js.string x) in
-    Dom.appendChild e t
-  )
+  js_ignore (
+      document##getElementById (Js.string id) >>= fun e ->
+      let t = document##createTextNode (Js.string x) in
+      Dom.appendChild e t;
+      return_unit
+    )
 
 let run_handler handler () =
   (try handler ()

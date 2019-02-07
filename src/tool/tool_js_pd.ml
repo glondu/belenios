@@ -28,8 +28,6 @@ open Tool_js_common
 let election = ref None
 let encrypted_tally = ref None
 
-let ( >>= ) = Js.Opt.bind
-
 let wrap f x =
   (try
      Js.Opt.case (f x)

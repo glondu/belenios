@@ -60,10 +60,15 @@ let encryptBallot params cred plaintext () =
   Lwt.return ()
 
 let progress_step n =
-  let old_ = Printf.sprintf "progress%d" (n-1) in
-  let new_ = Printf.sprintf "progress%d" n in
-  with_element old_ (fun e -> e##.style##.fontWeight := Js.string "normal");
-  with_element new_ (fun e -> e##.style##.fontWeight := Js.string "bold")
+  js_ignore (
+      let old_ = Printf.sprintf "progress%d" (n-1) in
+      document##getElementById (Js.string old_) >>= fun old_ ->
+      old_##.style##.fontWeight := Js.string "normal";
+      let new_ = Printf.sprintf "progress%d" n in
+      document##getElementById (Js.string new_) >>= fun new_ ->
+      new_##.style##.fontWeight := Js.string "bold";
+      return_unit
+    )
 
 let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
   (* Create div element for the current question. [i] and [(q,
@@ -187,35 +192,37 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
           let all_questions = List.rev_map fst all |> Array.of_list in
           set_textarea "choices" (string_of_plaintext all_answers);
           question_div##.style##.display := Js.string "none";
-          with_element "pretty_choices" (fun e ->
-            Array.iteri (fun i a ->
-              let q = all_questions.(i) in
-              let h = document##createElement (Js.string "h3") in
-              let t = document##createTextNode (Js.string q.q_question) in
-              Dom.appendChild h t;
-              Dom.appendChild e h;
-              let ul = document##createElement (Js.string "ul") in
-              let checked = ref 0 in
+          js_ignore (
+              document##getElementById (Js.string "pretty_choices") >>= fun e ->
               Array.iteri (fun i a ->
-                if a > 0 then (
-                  incr checked;
-                  let li = document##createElement (Js.string "li") in
-                  let text = match q.q_blank with
-                    | Some true -> if i = 0 then get_content "str_blank_vote" else q.q_answers.(i-1)
-                    | _ -> q.q_answers.(i)
-                  in
-                  let t = document##createTextNode (Js.string text) in
-                  Dom.appendChild li t;
-                  Dom.appendChild ul li;
-                )
-              ) a;
-              if !checked = 0 then (
-                let t = document##createTextNode (Js.string @@ get_content "str_nothing") in
-                Dom.appendChild ul t
-              );
-              Dom.appendChild e ul;
-            ) all_answers
-          );
+                  let q = all_questions.(i) in
+                  let h = document##createElement (Js.string "h3") in
+                  let t = document##createTextNode (Js.string q.q_question) in
+                  Dom.appendChild h t;
+                  Dom.appendChild e h;
+                  let ul = document##createElement (Js.string "ul") in
+                  let checked = ref 0 in
+                  Array.iteri (fun i a ->
+                      if a > 0 then (
+                        incr checked;
+                        let li = document##createElement (Js.string "li") in
+                        let text = match q.q_blank with
+                          | Some true -> if i = 0 then get_content "str_blank_vote" else q.q_answers.(i-1)
+                          | _ -> q.q_answers.(i)
+                        in
+                        let t = document##createTextNode (Js.string text) in
+                        Dom.appendChild li t;
+                        Dom.appendChild ul li;
+                      )
+                    ) a;
+                  if !checked = 0 then (
+                    let t = document##createTextNode (Js.string @@ get_content "str_nothing") in
+                    Dom.appendChild ul t
+                  );
+                  Dom.appendChild e ul;
+                ) all_answers;
+              return_unit
+            );
           Lwt_js_events.async (encryptBallot params sk all_answers);
           set_element_display "plaintext_div" "block";
           progress_step 3;
@@ -244,18 +251,20 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   div
 
 let addQuestions sk params qs =
-  with_element "question_div" (fun e ->
-    let n = Array.length qs in
-    let qs =
-      Array.to_list qs |>
-      List.map (fun q -> q, Array.make (Election.question_length q) 0)
-    in
-    match qs with
-    | [] -> failwith "no questions"
-    | q :: next ->
-      let div = createQuestionNode sk params e n 0 [] q next in
-      Dom.appendChild e div
-  )
+  js_ignore (
+      document##getElementById (Js.string "question_div") >>= fun e ->
+      let n = Array.length qs in
+      let qs =
+        Array.to_list qs |>
+          List.map (fun q -> q, Array.make (Election.question_length q) 0)
+      in
+      match qs with
+      | [] -> failwith "no questions"
+      | q :: next ->
+         let div = createQuestionNode sk params e n 0 [] q next in
+         Dom.appendChild e div;
+         return_unit
+    )
 
 let createStartButton params intro_div qs =
   let b = document##createElement (Js.string "button") in
@@ -300,9 +309,12 @@ let loadElection () =
   set_content "election_description" params.e_description;
   set_content "election_uuid" (raw_string_of_uuid params.e_uuid);
   set_content "election_fingerprint" P.election.e_fingerprint;
-  with_element "intro" (fun e ->
-    let b = createStartButton election_params e params.e_questions in
-    with_element "input_code" (fun e -> Dom.appendChild e b)
+  js_ignore (
+      document##getElementById (Js.string "intro") >>= fun e ->
+      let b = createStartButton election_params e params.e_questions in
+      document##getElementById (Js.string "input_code") >>= fun e ->
+      Dom.appendChild e b;
+      return_unit
   )
 
 let get_prefix str =
@@ -344,12 +356,13 @@ let load_params_handler _ =
   Js._false
 
 let onload_handler _ =
-  let () =
-    with_element "load_url"
-      (fun e -> e##.onclick := Dom_html.handler load_url_handler);
-    with_element "load_params"
-      (fun e -> e##.onclick := Dom_html.handler load_params_handler);
-  in
+  js_ignore (
+      document##getElementById (Js.string "load_url") >>= fun e ->
+      e##.onclick := Dom_html.handler load_url_handler;
+      document##getElementById (Js.string "load_params") >>= fun e ->
+      e##.onclick := Dom_html.handler load_params_handler;
+      return_unit
+    );
   let () =
     match get_url (Js.to_string Dom_html.window##.location##.hash) with
     | None ->
