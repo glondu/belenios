@@ -162,6 +162,10 @@ module List = struct
 end
 
 module Option = struct
+  let iter f = function
+    | None -> ()
+    | Some x -> f x
+
   let get x default_value = match x with
     | None -> default_value
     | Some x -> x

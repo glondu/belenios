@@ -20,31 +20,23 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Common
 
-let document = Dom_html.window##.document
+let document = Dom_html.document
 
-let alert s : unit =
-  let open Js.Unsafe in
-  fun_call (variable "alert") [| s |> Js.string |> inject |]
+let alert s =
+  Dom_html.window##alert (Js.string s)
 
 let prompt s =
-  let open Js.Unsafe in
-  Js.Opt.map
-    (fun_call (variable "prompt") [| s |> Js.string |> inject |])
-    Js.to_string |> Js.Opt.to_option
+  let x = Dom_html.window##prompt (Js.string s) (Js.string "") in
+  Js.Opt.to_option (Js.Opt.map x Js.to_string)
 
 let with_element x f =
-  Js.Opt.iter (document##getElementById (Js.string x)) f
+  Option.iter f (Dom_html.getElementById_opt x)
 
 let get_textarea_opt id =
-  let res = ref None in
-  with_element id
-    (fun e ->
-      Js.Opt.iter
-        (Dom_html.CoerceTo.textarea e)
-        (fun x -> res := Some (Js.to_string (x##.value)))
-    );
-  !res
+  Option.map (fun x -> Js.to_string x##.value)
+    (Dom_html.getElementById_coerce id Dom_html.CoerceTo.textarea)
 
 let get_textarea id =
   match get_textarea_opt id with
@@ -52,22 +44,12 @@ let get_textarea id =
   | None -> Printf.ksprintf failwith "<textarea> %s is missing" id
 
 let set_textarea id z =
-  with_element id
-    (fun e ->
-      Js.Opt.iter
-        (Dom_html.CoerceTo.textarea e)
-        (fun x -> x##.value := Js.string z)
-    )
+  Option.iter (fun x -> x##.value := Js.string z)
+    (Dom_html.getElementById_coerce id Dom_html.CoerceTo.textarea)
 
 let get_input_opt id =
-  let res = ref None in
-  with_element id
-    (fun e ->
-      Js.Opt.iter
-        (Dom_html.CoerceTo.input e)
-        (fun x -> res := Some (Js.to_string (x##.value)))
-    );
-  !res
+  Option.map (fun x -> Js.to_string x##.value)
+    (Dom_html.getElementById_coerce id Dom_html.CoerceTo.input)
 
 let get_input id =
   match get_input_opt id with
@@ -79,11 +61,11 @@ let set_element_display id x =
 
 let set_download id mime fn x =
   let x = (Js.string ("data:" ^ mime ^ ","))##concat (Js.encodeURI (Js.string x)) in
-  with_element id
-    (fun e ->
-      e##setAttribute (Js.string "download") (Js.string fn);
-      Js.Opt.iter (Dom_html.CoerceTo.a e) (fun e -> e##.href := x)
-    )
+  match Dom_html.getElementById_coerce id Dom_html.CoerceTo.a with
+  | None -> ()
+  | Some e ->
+     e##setAttribute (Js.string "download") (Js.string fn);
+     e##.href := x
 
 let get_content x =
   let r = ref x in
