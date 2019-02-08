@@ -173,44 +173,63 @@ let random_string rng n =
   let hex_words = hex_fromBits words in
   string_of_hex hex_words n
 
+module Jsbn = struct
+  open Js
+
+  class type bigint =
+    object
+      method add : bigint t -> bigint t meth
+      method subtract : bigint t -> bigint t meth
+      method multiply : bigint t -> bigint t meth
+      method _mod : bigint t -> bigint t meth
+      method intValue : int meth
+      method toString : js_string t meth
+      method compareTo : bigint t -> int meth
+      method modPow : bigint t -> bigint t -> bigint t meth
+      method modInverse : bigint t -> bigint t meth
+      method bitLength : int meth
+      method isProbablePrime : int -> int meth
+    end
+
+  class type lib =
+    object
+      method _ZERO : bigint t readonly_prop
+      method _ONE : bigint t readonly_prop
+    end
+
+  let lib : lib t = Unsafe.global##._BigInteger
+  let of_string_base : (js_string t -> int -> bigint t) constr = Unsafe.global##._BigInteger
+end
+
 module Z = struct
-  open Js.Unsafe
-  type t = any
+  type t = Jsbn.bigint Js.t
 
-  let lib = variable "BigInteger"
-  let zero = get lib "ZERO"
-  let one = get lib "ONE"
+  let zero = Jsbn.lib##._ZERO
+  let one = Jsbn.lib##._ONE
 
-  let of_string_base b x = new_obj lib
-    [|
-      x |> Js.string |> inject;
-      b |> float_of_int |> Js.number_of_float |> inject;
-    |]
-
+  let of_string_base b x = new%js Jsbn.of_string_base (Js.string x) b
   let of_string x = of_string_base 10 x
   let of_int x = x |> string_of_int |> of_string
-  let ( + ) x y = meth_call x "add" [| y |]
-  let ( - ) x y = meth_call x "subtract" [| y |]
-  let ( * ) x y = meth_call x "multiply" [| y |]
-  let ( mod ) x y = meth_call x "mod" [| y |]
+  let ( + ) x y = x##add y
+  let ( - ) x y = x##subtract y
+  let ( * ) x y = x##multiply y
+  let ( mod ) x y = x##_mod y
 
-  let to_int x = meth_call x "intValue" [| |]
-  let to_string x = meth_call x "toString" [| |] |> Js.to_string
-  let compare x y = meth_call x "compareTo" [| y |]
+  let to_int x = x##intValue
+  let to_string x = x##toString |> Js.to_string
+  let compare x y = x##compareTo y
   let ( =% ) x y = compare x y = 0
   let geq x y = compare x y >= 0
   let lt x y = compare x y < 0
-  let powm x y m = meth_call x "modPow" [| y; m |]
-  let invert x m = meth_call x "modInverse" [| m |]
-  let bit_length x = meth_call x "bitLength" [| |]
+  let powm x y m = x##modPow y m
+  let invert x m = x##modInverse m
+  let bit_length x = x##bitLength
 
   let erem x y =
     let r = x mod y in
     if lt r zero then r + y else r
 
-  let probab_prime x n =
-    meth_call x "isProbablePrime" [| n |> float_of_int |> Js.number_of_float |> inject |] |>
-    Js.float_of_number |> int_of_float
+  let probab_prime x n = x##isProbablePrime n
 
   let z256 = of_int 256
 
