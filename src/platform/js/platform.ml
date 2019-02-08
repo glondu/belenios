@@ -21,50 +21,112 @@
 
 open Js_of_ocaml
 
-let sjcl = Js.Unsafe.variable "sjcl"
-let sjcl_cipher_aes = Js.Unsafe.pure_js_expr "sjcl.cipher.aes"
+module Sjcl = struct
+  open Js
+
+  type bits
+
+  class type codec =
+    object
+      method fromBits : bits -> js_string t meth
+      method toBits : js_string t -> bits meth
+    end
+
+  class type codecs =
+    object
+      method hex : codec t readonly_prop
+      method utf8String : codec t readonly_prop
+      method base64 : codec t readonly_prop
+    end
+
+  class type hash =
+    object
+      method hash : js_string t -> bits meth
+    end
+
+  class type hashes =
+    object
+      method sha256 : hash t readonly_prop
+    end
+
+  class type cipher =
+    object
+      method encrypt : bits -> bits meth
+    end
+
+  class type ciphers =
+    object
+      method aes : (bits -> cipher t) constr readonly_prop
+    end
+
+  class type mode =
+    object
+      method encrypt : cipher t -> bits -> bits -> bits meth
+      method decrypt : cipher t -> bits -> bits -> bits meth
+    end
+
+  class type modes =
+    object
+      method ccm : mode t readonly_prop
+    end
+
+  class type random =
+    object
+      method randomWords : int -> bits meth
+    end
+
+  class type misc =
+    object
+      method pbkdf2 : js_string t -> bits -> int -> int -> bits meth
+    end
+
+  class type sjcl =
+    object
+      method codec : codecs t readonly_prop
+      method hash : hashes t readonly_prop
+      method cipher : ciphers t readonly_prop
+      method mode : modes t readonly_prop
+      method random : random t readonly_prop
+      method misc : misc t readonly_prop
+    end
+
+  let sjcl : sjcl t = Unsafe.global##.sjcl
+
+  let hex = sjcl##.codec##.hex
+  let utf8String = sjcl##.codec##.utf8String
+  let base64 = sjcl##.codec##.base64
+  let sha256 = sjcl##.hash##.sha256
+  let aes = sjcl##.cipher##.aes
+  let ccm = sjcl##.mode##.ccm
+end
 
 let hex_fromBits x =
-  Js.Unsafe.meth_call sjcl "codec.hex.fromBits"
-    [| x |] |> Js.to_string
+  Sjcl.hex##fromBits x |> Js.to_string
 
 let hex_toBits x =
-  Js.Unsafe.meth_call sjcl "codec.hex.toBits"
-    [| Js.string x |> Js.Unsafe.inject |]
+  Sjcl.hex##toBits (Js.string x)
 
 let utf8String_fromBits x =
-  Js.Unsafe.meth_call sjcl "codec.utf8String.fromBits"
-    [| x |] |> Js.to_string
+  Sjcl.utf8String##fromBits x |> Js.to_string
 
 let utf8String_toBits x =
-  Js.Unsafe.meth_call sjcl "codec.utf8String.toBits"
-    [| Js.string x |> Js.Unsafe.inject |]
+  Sjcl.utf8String##toBits (Js.string x)
 
 let sha256 x =
-  Js.Unsafe.meth_call sjcl "hash.sha256.hash"
-    [| Js.string x |> Js.Unsafe.inject |]
+  Sjcl.sha256##hash (Js.string x)
 
-let sha256_hex x = hex_fromBits (sha256 x)
+let sha256_hex x =
+  hex_fromBits (sha256 x)
 
 let sha256_b64 x =
-  let raw =
-    Js.Unsafe.meth_call sjcl "codec.base64.fromBits"
-      [| sha256 x |] |> Js.to_string
-  in
+  let raw = Sjcl.base64##fromBits (sha256 x) |> Js.to_string in
   match String.index_opt raw '=' with
   | Some i -> String.sub raw 0 i
   | None -> raw
 
 let pbkdf2_generic toBits ~iterations ~salt x =
   let salt = toBits salt in
-  let derived = Js.Unsafe.meth_call sjcl "misc.pbkdf2"
-    [|
-      Js.string x |> Js.Unsafe.inject;
-      salt;
-      Js.Unsafe.inject iterations;
-      Js.Unsafe.inject 256;
-    |]
-  in
+  let derived = Sjcl.sjcl##.misc##pbkdf2 (Js.string x) salt iterations 256 in
   hex_fromBits derived
 
 let pbkdf2_hex = pbkdf2_generic hex_toBits
@@ -73,29 +135,27 @@ let pbkdf2_utf8 = pbkdf2_generic utf8String_toBits
 let aes_hex ~key ~data =
   let key = hex_toBits key in
   let data = hex_toBits data in
-  let cipher = Js.Unsafe.(new_obj sjcl_cipher_aes [| key |]) in
-  let output = Js.Unsafe.meth_call cipher "encrypt" [| data |] in
+  let cipher = new%js Sjcl.aes key in
+  let output = cipher##encrypt data in
   hex_fromBits output
 
 let encrypt ~key ~iv ~plaintext =
   let key = hex_toBits key in
   let iv = hex_toBits iv in
   let plaintext = utf8String_toBits plaintext in
-  let prf = Js.Unsafe.(new_obj sjcl_cipher_aes [| key |]) in
-  let ciphertext = Js.Unsafe.meth_call sjcl "mode.ccm.encrypt" [| prf; plaintext; iv |] in
+  let prf = new%js Sjcl.aes key in
+  let ciphertext = Sjcl.ccm##encrypt prf plaintext iv in
   hex_fromBits ciphertext
 
 let decrypt ~key ~iv ~ciphertext =
   let key = hex_toBits key in
   let iv = hex_toBits iv in
   let ciphertext = hex_toBits ciphertext in
-  let prf = Js.Unsafe.(new_obj sjcl_cipher_aes [| key |]) in
-  let plaintext = Js.Unsafe.meth_call sjcl "mode.ccm.decrypt" [| prf; ciphertext; iv |] in
+  let prf = new%js Sjcl.aes key in
+  let plaintext = Sjcl.ccm##decrypt prf ciphertext iv in
   utf8String_fromBits plaintext
 
 type rng = unit -> unit
-
-let sjcl_random = Js.Unsafe.get sjcl "random"
 
 (* PRNG is initialized in random.js *)
 let secure_rng () = ()
@@ -109,12 +169,8 @@ let string_of_hex hex n =
 
 let random_string rng n =
   let () = rng () in
-  let words = Js.Unsafe.meth_call sjcl_random "randomWords"
-    [| n/4+1 |> float_of_int |> Js.number_of_float |> Js.Unsafe.inject |]
-  in
-  let hex_words = Js.Unsafe.meth_call sjcl "codec.hex.fromBits"
-    [| words |] |> Js.to_string
-  in
+  let words = Sjcl.sjcl##.random##randomWords (n/4+1) in
+  let hex_words = hex_fromBits words in
   string_of_hex hex_words n
 
 module Z = struct
