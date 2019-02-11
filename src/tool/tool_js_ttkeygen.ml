@@ -119,7 +119,7 @@ let main () =
      return_unit
   | 1 ->
      set_step 1;
-     let b = document##createElement (Js.string "button") in
+     let b = Dom_html.createButton document in
      let t = document##createTextNode (Js.string "Generate private key") in
      b##.onclick := Dom_html.handler (gen_cert e);
      Dom.appendChild b t;

@@ -40,7 +40,7 @@ let fill_interactivity _ =
   Js.Opt.iter
     (document##getElementById (Js.string "interactivity"))
     (fun e ->
-     let b = document##createElement (Js.string "button") in
+     let b = Dom_html.createButton document in
      let t = document##createTextNode (Js.string "Generate a new keypair") in
      b##.onclick := Dom_html.handler tkeygen;
      Dom.appendChild b t;

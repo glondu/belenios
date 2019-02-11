@@ -65,9 +65,9 @@ let fill_interactivity _ =
   Js.Opt.iter
     (document##getElementById (Js.string "interactivity"))
     (fun e ->
-     let x = document##createElement (Js.string "div") in
+     let x = Dom_html.createDiv document in
      Dom.appendChild e x;
-     let b = document##createElement (Js.string "button") in
+     let b = Dom_html.createButton document in
      let t = document##createTextNode (Js.string "Generate") in
      b##.onclick := Dom_html.handler generate;
      Dom.appendChild b t;

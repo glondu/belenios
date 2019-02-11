@@ -74,15 +74,15 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   (* Create div element for the current question. [i] and [(q,
      answers)] point to the current question. [List.rev prev @ [q,
      answers] @ next] is the list of all questions. *)
-  let div = document##createElement (Js.string "div") in
+  let div = Dom_html.createDiv document in
   let () =
-    let c = document##createElement (Js.string "h2") in
+    let c = Dom_html.createH2 document in
     let t = document##createTextNode (Js.string q.q_question) in
     Dom.appendChild c t;
     Dom.appendChild div c
   in
   let () =
-    let c = document##createElement (Js.string "div") in
+    let c = Dom_html.createDiv document in
     let fmt = Scanf.format_from_string
       (get_content "question_header") "%d%d%d%d"
     in
@@ -98,9 +98,9 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
     | _ -> q.q_answers
   in
   let () =
-    let choices = document##createElement (Js.string "div") in
+    let choices = Dom_html.createDiv document in
     let choices_divs = Array.mapi (fun i a ->
-      let div = document##createElement (Js.string "div") in
+      let div = Dom_html.createDiv document in
       let checkbox = Dom_html.createInput ~_type:(Js.string "checkbox") document in
       if answers.(i) > 0 then checkbox##.checked := Js.bool true;
       checkbox##.style##.cursor := Js.string "pointer";
@@ -156,7 +156,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   in
   let () =
     (* previous button *)
-    let btns = document##createElement (Js.string "div") in
+    let btns = Dom_html.createDiv document in
     btns##.style##.textAlign := Js.string "center";
     let () =
       match prev with
@@ -164,7 +164,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         (* first question, no "Previous" button *)
         ()
       | r :: prev ->
-        let b = document##createElement (Js.string "button") in
+        let b = Dom_html.createButton document in
         let t = document##createTextNode (Js.string @@ get_content "str_previous") in
         b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
@@ -183,7 +183,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
       match next with
       | [] ->
         (* last question, the button leads to encryption page *)
-        let b = document##createElement (Js.string "button") in
+        let b = Dom_html.createButton document in
         let t = document##createTextNode (Js.string @@ get_content "str_next") in
         b##.onclick := Dom_html.handler (fun _ ->
          if check_constraints () then (
@@ -196,16 +196,16 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
               document##getElementById (Js.string "pretty_choices") >>= fun e ->
               Array.iteri (fun i a ->
                   let q = all_questions.(i) in
-                  let h = document##createElement (Js.string "h3") in
+                  let h = Dom_html.createH3 document in
                   let t = document##createTextNode (Js.string q.q_question) in
                   Dom.appendChild h t;
                   Dom.appendChild e h;
-                  let ul = document##createElement (Js.string "ul") in
+                  let ul = Dom_html.createUl document in
                   let checked = ref 0 in
                   Array.iteri (fun i a ->
                       if a > 0 then (
                         incr checked;
-                        let li = document##createElement (Js.string "li") in
+                        let li = Dom_html.createLi document in
                         let text = match q.q_blank with
                           | Some true -> if i = 0 then get_content "str_blank_vote" else q.q_answers.(i-1)
                           | _ -> q.q_answers.(i)
@@ -232,7 +232,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         Dom.appendChild b t;
         Dom.appendChild btns b
       | r :: next ->
-        let b = document##createElement (Js.string "button") in
+        let b = Dom_html.createButton document in
         let t = document##createTextNode (Js.string @@ get_content "str_next") in
         b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
@@ -267,7 +267,7 @@ let addQuestions sk params qs =
     )
 
 let createStartButton params intro_div qs =
-  let b = document##createElement (Js.string "button") in
+  let b = Dom_html.createButton document in
   b##.style##.fontSize := Js.string "20px";
   let t = document##createTextNode (Js.string (get_content "str_here")) in
   b##.onclick := Dom_html.handler (fun _ ->
