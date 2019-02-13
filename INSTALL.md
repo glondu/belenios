@@ -134,7 +134,7 @@ Additionnaly, you will need LaTeX to compile the specification.
 On Debian-based systems, you can install the dependencies needed to
 compile the documentation with:
 
-    sudo apt install markdown texlive
+    sudo apt install markdown texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra lmodern
 
 Once all the dependencies have been installed, the documentation can
 be compiled with:
