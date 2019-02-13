@@ -37,16 +37,14 @@ let tkeygen _ =
   Js._false
 
 let fill_interactivity _ =
-  Js.Opt.iter
-    (document##getElementById (Js.string "interactivity"))
-    (fun e ->
-     let b = Dom_html.createButton document in
-     let t = document##createTextNode (Js.string "Generate a new keypair") in
-     b##.onclick := Dom_html.handler tkeygen;
-     Dom.appendChild b t;
-     Dom.appendChild e b;
-    );
-  Js._false
+  let () =
+    document##getElementById (Js.string "interactivity") >>== fun e ->
+    let b = Dom_html.createButton document in
+    let t = document##createTextNode (Js.string "Generate a new keypair") in
+    b##.onclick := Dom_html.handler tkeygen;
+    Dom.appendChild b t;
+    Dom.appendChild e b
+  in Js._false
 
 let () =
   Dom_html.window##.onload := Dom_html.handler fill_interactivity;

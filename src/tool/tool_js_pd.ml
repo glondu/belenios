@@ -91,16 +91,15 @@ let compute_partial_decryption _ =
   in
   let factor = E.compute_factor encrypted_tally private_key in
   set_textarea "pd" (string_of_partial_decryption P.G.write factor);
-  Js.some ()
+  return_unit
 
 let compute_hash () =
-  let _ =
-    Js.Opt.option !encrypted_tally >>= fun e ->
+  let () =
+    Js.Opt.option !encrypted_tally >>== fun e ->
     let hash = sha256_b64 e in
-    document##getElementById (Js.string "hash") >>= fun e ->
+    document##getElementById (Js.string "hash") >>== fun e ->
     let t = document##createTextNode (Js.string hash) in
-    Dom.appendChild e t;
-    Js.null
+    Dom.appendChild e t
   in Js._false
 
 let load_private_key_file _ =
@@ -111,16 +110,15 @@ let load_private_key_file _ =
   let reader = new%js File.fileReader in
   reader##.onload :=
     Dom.handler (fun _ ->
-        let _ =
-          document##getElementById (Js.string "private_key") >>= fun e ->
-          Dom_html.CoerceTo.input e >>= fun e ->
-          File.CoerceTo.string (reader##.result) >>= fun text ->
-          e##.value := text;
-          Js.some ()
+        let () =
+          document##getElementById (Js.string "private_key") >>== fun e ->
+          Dom_html.CoerceTo.input e >>== fun e ->
+          File.CoerceTo.string (reader##.result) >>== fun text ->
+          e##.value := text
         in Js._false
       );
   reader##readAsText (file);
-  Js.some ()
+  return_unit
 
 let get_uuid x =
   let n = String.length x in
@@ -131,31 +129,29 @@ let get_uuid x =
     List.assoc_opt "uuid" args
 
 let main _ =
-  let _ =
-    document##getElementById (Js.string "compute") >>= fun e ->
-    Dom_html.CoerceTo.button e >>= fun e ->
-    e##.onclick := Dom_html.handler (wrap compute_partial_decryption);
-    Js.null
+  let () =
+    document##getElementById (Js.string "compute") >>== fun e ->
+    Dom_html.CoerceTo.button e >>== fun e ->
+    e##.onclick := Dom_html.handler (wrap compute_partial_decryption)
   in
-  let _ =
-    document##getElementById (Js.string "private_key_file") >>= fun e ->
-    Dom_html.CoerceTo.input e >>= fun e ->
-    e##.onchange := Dom_html.handler (wrap load_private_key_file);
-    Js.null
+  let () =
+    document##getElementById (Js.string "private_key_file") >>== fun e ->
+    Dom_html.CoerceTo.input e >>== fun e ->
+    e##.onchange := Dom_html.handler (wrap load_private_key_file)
   in
-  let _ =
+  let () =
     match get_uuid (Js.to_string Dom_html.window##.location##.search) with
     | None -> ()
     | Some uuid ->
-    Lwt.async (fun () ->
-      let open Lwt_xmlHttpRequest in
-      let%lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
-      encrypted_tally := Some (String.trim e.content);
-      let%lwt e = get ("../elections/" ^ uuid ^ "/election.json") in
-      election := Some e.content;
-      Lwt.return (compute_hash ()))
-  in
-  Js._false
+       Lwt.async (fun () ->
+           let open Lwt_xmlHttpRequest in
+           let%lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
+           encrypted_tally := Some (String.trim e.content);
+           let%lwt e = get ("../elections/" ^ uuid ^ "/election.json") in
+           election := Some e.content;
+           Lwt.return (compute_hash ())
+         )
+  in Js._false
 
 let () =
   Dom_html.window##.onload := Dom_html.handler main

@@ -26,14 +26,10 @@ let document = Dom_html.document
 
 let ( >>= ) = Js.Opt.bind
 
-let js_ignore x =
-  Js.Opt.get x (fun () -> ())
+let ( >>== ) = Js.Opt.iter
 
 let return_unit =
   Js.some ()
-
-let wrap_for_handler x =
-  js_ignore x; Js._false
 
 let alert s =
   Dom_html.window##alert (Js.string s)
@@ -65,11 +61,8 @@ let get_input id =
   | None -> Printf.ksprintf failwith "<input> %s is missing" id
 
 let set_element_display id x =
-  js_ignore (
-      document##getElementById (Js.string id) >>= fun e ->
-      e##.style##.display := Js.string x;
-      return_unit
-    )
+  document##getElementById (Js.string id) >>== fun e ->
+  e##.style##.display := Js.string x
 
 let set_download id mime fn x =
   let x = (Js.string ("data:" ^ mime ^ ","))##concat (Js.encodeURI (Js.string x)) in
@@ -87,12 +80,9 @@ let get_content x =
     ) (fun () -> x)
 
 let set_content id x =
-  js_ignore (
-      document##getElementById (Js.string id) >>= fun e ->
-      let t = document##createTextNode (Js.string x) in
-      Dom.appendChild e t;
-      return_unit
-    )
+  document##getElementById (Js.string id) >>== fun e ->
+  let t = document##createTextNode (Js.string x) in
+  Dom.appendChild e t
 
 let run_handler handler () =
   (try handler ()

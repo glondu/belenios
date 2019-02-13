@@ -23,7 +23,6 @@ open Js_of_ocaml
 open Serializable_j
 open Tool_js_common
 
-let (>>=) = Js.Opt.bind
 let return = Js.Opt.return
 let handler f = Dom_html.handler (fun e -> ignore (f e); Js._false)
 

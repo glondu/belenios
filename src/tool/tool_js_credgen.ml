@@ -62,18 +62,16 @@ let generate _ =
   Js._false
 
 let fill_interactivity _ =
-  Js.Opt.iter
-    (document##getElementById (Js.string "interactivity"))
-    (fun e ->
-     let x = Dom_html.createDiv document in
-     Dom.appendChild e x;
-     let b = Dom_html.createButton document in
-     let t = document##createTextNode (Js.string "Generate") in
-     b##.onclick := Dom_html.handler generate;
-     Dom.appendChild b t;
-     Dom.appendChild x b;
-    );
-  Js._false
+  let () =
+    document##getElementById (Js.string "interactivity") >>== fun e ->
+    let x = Dom_html.createDiv document in
+    Dom.appendChild e x;
+    let b = Dom_html.createButton document in
+    let t = document##createTextNode (Js.string "Generate") in
+    b##.onclick := Dom_html.handler generate;
+    Dom.appendChild b t;
+    Dom.appendChild x b
+  in Js._false
 
 let () =
   Dom_html.window##.onload := Dom_html.handler fill_interactivity;

@@ -26,24 +26,18 @@ open Common
 open Tool_js_common
 
 let set_step i =
-  js_ignore (
-      document##getElementById (Js.string "current_step") >>= fun e ->
-      e##.innerHTML := Js.string "";
-      let t = Printf.sprintf "Step %d/3" i in
-      let t = document##createTextNode (Js.string t) in
-      Dom.appendChild e t;
-      return_unit
-    )
+  document##getElementById (Js.string "current_step") >>== fun e ->
+  e##.innerHTML := Js.string "";
+  let t = Printf.sprintf "Step %d/3" i in
+  let t = document##createTextNode (Js.string t) in
+  Dom.appendChild e t
 
 let set_explain str =
-  js_ignore (
-      document##getElementById (Js.string "explain") >>= fun e ->
-      e##.innerHTML := Js.string "";
-      let t = document##createTextNode (Js.string str) in
-      Dom.appendChild e t;
-      Dom.appendChild e (Dom_html.createBr document);
-      return_unit
-    )
+  document##getElementById (Js.string "explain") >>== fun e ->
+  e##.innerHTML := Js.string "";
+  let t = document##createTextNode (Js.string str) in
+  Dom.appendChild e t;
+  Dom.appendChild e (Dom_html.createBr document)
 
 let gen_cert e _ =
   let group = get_textarea "group" in
@@ -61,8 +55,8 @@ let gen_cert e _ =
 
 let proceed step =
   let group = get_textarea "group" in
-  document##getElementById (Js.string "compute_private_key") >>= fun e ->
-  Dom_html.CoerceTo.input e >>= fun e ->
+  document##getElementById (Js.string "compute_private_key") >>== fun e ->
+  Dom_html.CoerceTo.input e >>== fun e ->
   let key = Js.to_string e##.value in
   let certs = certs_of_string (get_textarea "certs") in
   let threshold = int_of_string (get_textarea "threshold") in
@@ -73,33 +67,28 @@ let proceed step =
   match step with
   | 3 ->
      let polynomial = T.step3 certs key threshold in
-     set_textarea "compute_data" (string_of_polynomial polynomial);
-     return_unit
+     set_textarea "compute_data" (string_of_polynomial polynomial)
   | 5 ->
      let vinput = get_textarea "vinput" in
      let vinput = vinput_of_string vinput in
      let voutput = T.step5 certs key vinput in
-     set_textarea "compute_data" (string_of_voutput G.write voutput);
-     return_unit
+     set_textarea "compute_data" (string_of_voutput G.write voutput)
   | _ ->
-     alert "Unexpected state!";
-     return_unit
+     alert "Unexpected state!"
 
 let main () =
-  document##getElementById (Js.string "interactivity") >>= fun e ->
+  document##getElementById (Js.string "interactivity") >>== fun e ->
   let step = int_of_string (get_textarea "step") in
   match step with
   | 0 ->
      set_element_display "data_form" "none";
      let t = document##createTextNode (Js.string "Waiting for the election administrator to set the threshold... Reload the page to check progress.") in
-     Dom.appendChild e t;
-     return_unit
+     Dom.appendChild e t
   | 2 | 4 ->
      set_step (step / 2);
      set_element_display "data_form" "none";
      let t = document##createTextNode (Js.string "Waiting for the other trustees... Reload the page to check progress.") in
-     Dom.appendChild e t;
-     return_unit
+     Dom.appendChild e t
   | 6 | 7 ->
      set_step 3;
      set_element_display "data_form" "none";
@@ -115,16 +104,14 @@ let main () =
      let group = get_textarea "group" in
      let module G = (val Group.of_string group : GROUP) in
      let voutput = voutput_of_string G.read (get_textarea "voutput") in
-     set_download "public_key" "application/json" "public_key.json" (string_of_group_element G.write voutput.vo_public_key.trustee_public_key);
-     return_unit
+     set_download "public_key" "application/json" "public_key.json" (string_of_group_element G.write voutput.vo_public_key.trustee_public_key)
   | 1 ->
      set_step 1;
      let b = Dom_html.createButton document in
      let t = document##createTextNode (Js.string "Generate private key") in
      b##.onclick := Dom_html.handler (gen_cert e);
      Dom.appendChild b t;
-     Dom.appendChild e b;
-     return_unit
+     Dom.appendChild e b
   | 3 | 5 ->
      let explain = match step with
        | 3 -> "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
@@ -134,12 +121,10 @@ let main () =
      set_step ((step + 1) / 2);
      set_explain explain;
      set_element_display "compute_form" "block";
-     document##getElementById (Js.string "compute_button") >>= fun e ->
-     e##.onclick := Dom_html.handler (fun _ -> wrap_for_handler (proceed step));
-     return_unit
+     document##getElementById (Js.string "compute_button") >>== fun e ->
+     e##.onclick := Dom_html.handler (fun _ -> proceed step; Js._false)
   | _ ->
-     alert "Unexpected state!";
-     return_unit
+     alert "Unexpected state!"
 
 let () =
-  Dom_html.window##.onload := Dom_html.handler (fun _ -> wrap_for_handler (main ()))
+  Dom_html.window##.onload := Dom_html.handler (fun _ -> main (); Js._false)
