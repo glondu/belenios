@@ -116,11 +116,11 @@ The total duration of this Continuous Integration script is 24 min 07 sec on its
 
 ### Second strategy: Installation of Belenios from a Docker image that already has OCaml and Opam installed
 
-The classical Continuous Integration script seen un previous section downloads OCaml and Opam from their sources, compiles them and installs them. This step lasts several minutes (around 6 minutes, mainly during the construction of the "world"). It is possible to use a Docker image that has already pre-installed these tools on a linux distribution. The downloaded Docker image will then be a bit heavier than a classical linux distribution, but we save computation time.
+The classical Continuous Integration script seen in previous section downloads OCaml and Opam from their sources, compiles them and installs them. This step lasts several minutes (around 6 minutes, mainly during the construction of the "world"). It is possible to use a Docker image that has already pre-installed these tools on a linux distribution. The downloaded Docker image will then be a bit heavier than a classical linux distribution, but we save computation time.
 
-OCaml developers maintain Docker Hub repositories `ocaml/opam` and `ocaml/opam2` (respectively for Opam 1.x.x and Opam 2.x.x), that contain images of several different linux distributions (including Debian 9), on which som versions of OCaml and Opam have been installed.
+OCaml developers maintain Docker Hub repositories `ocaml/opam` and `ocaml/opam2` (respectively for Opam 1.x.x and Opam 2.x.x), that contain images of several different linux distributions (including Debian 9), on which some versions of OCaml and Opam have been installed.
 
-The classical installtion procedure of Belenios currently uses OCaml 4.02.3 and Opam 1.2.2. I have not been able to make work the installation of the Opam packages with a Docker image that has this version of Opam installed, because of an dependencies resolution error. But, with an image that has Opam 2.0.0 installed, there was no problem, so I have chosen this version (image `ocaml/opam2:debian-9`).
+The classical installtion procedure of Belenios currently uses OCaml 4.02.3 and Opam 1.2.2. I have not been able to make work the installation of the Opam packages with a Docker image that has this version of Opam installed, because of a dependencies resolution error. But, with an image that has Opam 2.0.0 installed, there was no problem, so I have chosen this version (image `ocaml/opam2:debian-9`).
 
 Regarding script `.gitlab-ci.yml`, the difference with the classical installation procedure (that uses a Debian 9 image), resides in the fact that instead of executing the whole `opam-bootstrap.sh` script, we execute only the part of it that installs Opam packages: ```eval `grep "opam install" ./opam-bootstrap.sh` ```
 
@@ -251,7 +251,7 @@ At 4 min 24 sec, it has finished running the `make all` command and has begun ru
 
 Total execution time: 11 min 25 sec.
 
-Moving from image `ocaml/opam2:debian-9` to `swergas/beleniosbase:efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb` changed total execution time from 7 min 31 sec à 11 min 25 sec, that is a diminution of 6 min 06 sec (diminution of 34.82 %).
+Moving from image `ocaml/opam2:debian-9` to `swergas/beleniosbase:efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb` changed total execution time from 17 min 31 sec to 11 min 25 sec, that is a diminution of 6 min 06 sec (diminution of 34.82 %).
 
 
 ### Using urandom instead of random
@@ -263,7 +263,7 @@ So we decided to use urandom instead of random in our Continuous Integration scr
 
 ### Using a fixed version of Ocaml
 
-We [noticed](https://github.com/glondu/belenios/pull/2#issuecomment-423271172) that Docker image `ocaml/opam2:debian-9` regularly gets re-built using a different version of OCaml (it is a kind of `latest` tag for the debian distribution). Some of these builds containe a version of OCaml that breaks the build script. So, in order to use an image that always has a version of OCaml that we know works, we stabilize the version number used, by using an image name that mentions precisely the OCaml version used, for example `ocaml/opam2:debian-9-ocaml-4.06` instead of just `ocaml/opam2:debian-9`.
+We [noticed](https://github.com/glondu/belenios/pull/2#issuecomment-423271172) that Docker image `ocaml/opam2:debian-9` regularly gets re-built using a different version of OCaml (it is a kind of `latest` tag for the debian distribution). Some of these builds contain a version of OCaml that breaks the build script. So, in order to use an image that always has a version of OCaml that we know works, we stabilize the version number used, by using an image name that mentions precisely the OCaml version used, for example `ocaml/opam2:debian-9-ocaml-4.06` instead of just `ocaml/opam2:debian-9`.
 
 
 ### Recap of total execution durations

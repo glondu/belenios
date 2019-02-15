@@ -50,7 +50,7 @@ Note: We cannot run the Belenios server from a folder that is not the git reposi
 
 For this, we run a Docker image (built from `Dockerfile_test_scenario_environment`) that preinstalls compatible versions of `firefox-esr`, `geckodriver`, `python`, and python virtual environment.
 
-File `.gitlab-ci.yml` defines a task `build_and_run_automated_test_scenario_1_with_preinstalled_image` that uses this docker image, compiles belenios, creates a python virtual environment, step into it, install pip required packages, and then executes the automated test suite.
+File `.gitlab-ci.yml` defines a task `build_and_run_automated_test_scenario_1_with_preinstalled_image` that uses this docker image, compiles belenios, creates a python virtual environment, steps into it, installs pip required packages, and then executes the automated test suite.
 
 Note: You can execute this Continuous Integration task as if you were running GitlabCI, by executing the following command:
 
