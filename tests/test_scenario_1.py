@@ -122,6 +122,11 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
         verify_election_consistency(self.election_id)
         console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (3)")
 
+        console_log("### Starting step: voter votes after the election is closed")
+        self.one_voter_revotes_after_the_election_is_closed()
+        console_log("### Step complete: voter votes after the election is closed")
+
+
 
 if __name__ == "__main__":
     random_seed = os.getenv('RANDOM_SEED', None)

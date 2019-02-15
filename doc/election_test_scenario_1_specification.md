@@ -113,6 +113,4 @@ Verifications all along the process is done using command line tools `belenios-t
         - For each available answer in the question, she checks that the total number of votes in favor of Answer X displayed in result page is the same as the sum of votes for Answer X in all votes of voters who voted that have been randomly generated in advance
         - She checks that each ballot content corresponds to content that of this vote that has been randomly generated in advance
 - Verify election consistency (using command line tool `belenios_tool verify`)
-
-
-
+- One voter tries to revote and faces an error message "Your ballot for Test vote after close is rejected, because the election is closed." after authentication
