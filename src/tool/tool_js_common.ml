@@ -84,6 +84,13 @@ let set_content id x =
   let t = document##createTextNode (Js.string x) in
   Dom.appendChild e t
 
+let clear_content (e : #Dom.node Js.t) =
+  while Js.to_bool e##hasChildNodes do
+    e##.firstChild >>== fun x ->
+    let _ = e##removeChild x in
+    ()
+  done
+
 let run_handler handler () =
   (try handler ()
    with e ->

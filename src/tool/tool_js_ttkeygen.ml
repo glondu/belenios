@@ -27,14 +27,14 @@ open Tool_js_common
 
 let set_step i =
   document##getElementById (Js.string "current_step") >>== fun e ->
-  e##.innerHTML := Js.string "";
+  clear_content e;
   let t = Printf.sprintf "Step %d/3" i in
   let t = document##createTextNode (Js.string t) in
   Dom.appendChild e t
 
 let set_explain str =
   document##getElementById (Js.string "explain") >>== fun e ->
-  e##.innerHTML := Js.string "";
+  clear_content e;
   let t = document##createTextNode (Js.string str) in
   Dom.appendChild e t;
   Dom.appendChild e (Dom_html.createBr document)
@@ -46,7 +46,7 @@ let gen_cert e _ =
   let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
   let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
   let key, cert = T.step1 () in
-  e##.innerHTML := Js.string "";
+  clear_content e;
   set_download "private_key" "text/plain" "private_key.txt" key;
   set_element_display "key_helper" "block";
   let cert = string_of_cert cert in
