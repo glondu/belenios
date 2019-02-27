@@ -59,11 +59,11 @@ let election_fingerprint = "Fingerabdruck der Abstimmung: "
 let i_am = "Ich bin "
 let and_ = " und "
 let i_cast_my_vote = "ich schicke meine Stimme ab"
-let please_login_to_confirm = "Bitte melden Sie sich an um Ihre Stime zu bestätigen."
+let please_login_to_confirm = "Bitte melden Sie sich an um Ihre Stimme zu bestätigen."
 let your_ballot_for = "Ihre Stimme für "
 let has_been_received = " wurde empfangen, aber noch nicht gespeichert. "
 let nobody_can_see = "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt sehen."
-let you_have_already_voted = "Note: you have already voted. Your vote will be replaced."
+let you_have_already_voted = "Hinweis: Sie haben schon abgestimmt. Ihre vorherige Stimme wird ersetzt."
 let go_back_to_election = "Zurück zur Wahl"
 let has_been_accepted = " wurde angenommen."
 let you_can_check_its_presence = "Sie können jederzeit überprüfen, dass Ihre Stimme in der "
@@ -92,8 +92,8 @@ let username = "Benutzername:"
 let password = "Passwort:"
 let login = "Login"
 let password_login = "Login mit Passwort"
-let by_using_you_accept = "By using this site, you accept our "
-let privacy_policy = "personal data policy"
+let by_using_you_accept = "Wenn Sie diese Seite benutzen akzeptieren sie unsere "
+let privacy_policy = "Datenschutzbestimmungen"
 let accept = "Bestätigen"
 let not_yet_open = "Entschuldigung, die Abstimmung ist noch nicht geöffnet."
 let come_back_later = "Diese Abstimmung gibt es noch nicht. Bitte kommen Sie später wieder."
@@ -108,17 +108,17 @@ let election_has_been_tallied = "Diese Abstimmung wurde ausgezählt."
 let election_archived = "Diese Abstimmung wurde archiviert."
 let number_accepted_ballots = "Anzahl angenommener Stimmen: "
 let you_can_also_download = "Sie können außerdem das "
-let result_with_crypto_proofs = "Ergbnis mit den kryptographischen Beweisen herunterladen"
+let result_with_crypto_proofs = "Ergebnis mit den kryptographischen Beweisen herunterladen"
 let blank_vote = "ungültige Stimme"
 let no_other_blank = "Bei einer ungültigen Stimme sind keine anderen Auswahlmöglichkeiten vorhanden."
-let it_will_open_in = "It will open in "
-let the_election_will_close_in = "The election will close in "
-let years = " year(s)"
-let months = " month(s)"
-let days = " day(s)"
-let hours = " hour(s)"
-let minutes = " minute(s)"
-let seconds = " second(s)"
+let it_will_open_in = "Sie öffnet in "
+let the_election_will_close_in = "Die Abstimmung schließt in "
+let years = " Jahr(en)"
+let months = " Monat(en)"
+let days = " Tag(en)"
+let hours = " Stunde(n)"
+let minutes = " Minute(n)"
+let seconds = " Sekunde(n)"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
@@ -131,7 +131,7 @@ let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
 
 Am Ende der Mail finden Sie Ihren Benutzername und Ihr Passwort. Um
 abzustimmen benötigen sie außerdem noch Ihre Wählernummer, die Ihnen
-in einer seperaten Mail zugestellt wird. Obwohl Passwort und
+in einer separaten Mail zugestellt wird. Obwohl Passwort und
 Wählernummer ähnlich aussehen, erfüllen sie zwei verschiedene Zwecke:
 die Wählernummer wird für die Verschlüsselung Ihrer Stimme in der
 virtuellen Wahlkabine benötigt, mit dem Passwort können Sie
@@ -161,7 +161,7 @@ Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt.%s"
 
 let mail_credential_password =
 "Am Ende der Mail finden Sie Ihre Wählernummer. Um abzustimmen
-benötigen sie außerdem noch Ihr Passwort, die Ihnen in einer seperaten
+benötigen sie außerdem noch Ihr Passwort, die Ihnen in einer separaten
 Mail zugestellt wird. Obwohl Passwort und Wählernummer ähnlich
 aussehen, erfüllen sie zwei verschiedene Zwecke: die Wählernummer wird
 für die Verschlüsselung Ihrer Stimme in der virtuellen Wahlkabine
@@ -195,17 +195,17 @@ Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:
 
 -- \nBelenios"
 
-let this_vote_replaces = "\n\nThis vote replaces any previous vote."
-let please_contact = "To get more information, please contact:"
+let this_vote_replaces = "\n\nDiese Stimme ersetzt eine eventuelle vorherige Stimme."
+let please_contact = "Für mehr Informationen wenden Sie sich bitte an:"
 
-let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "your ballot has a syntax error (%s)"
-let error_ProofCheck = "some proofs failed verification"
-let error_ElectionClosed = "the election is closed"
-let error_MissingCredential = "a credential is missing"
-let error_InvalidCredential = "your credential is invalid"
-let error_RevoteNotAllowed = "you are not allowed to revote"
-let error_ReusedCredential = "your credential has already been used"
-let error_WrongCredential = "you are not allowed to vote with this credential"
-let error_UsedCredential = "the credential has already been used"
-let error_CredentialNotFound = "the credential has not been found"
-let error_UnauthorizedVoter = "you are not allowed to vote"
+let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "Ihre Stimme enthält einen Syntaxfehler (%s)"
+let error_ProofCheck = "Einige Beweise konnten nicht verifiziert werden"
+let error_ElectionClosed = "Die Abstimmung ist beendet"
+let error_MissingCredential = "Die Wählernummer fehlt"
+let error_InvalidCredential = "Ihre Wählernummer ist ungültig"
+let error_RevoteNotAllowed = "Sie dürfen nicht erneut abstimmen"
+let error_ReusedCredential = "Ihre Wählernummer wurde schon benutzt"
+let error_WrongCredential = "Sie dürfen nicht mit dieser Wählernummer abstimmen"
+let error_UsedCredential = "Diese Wählernummer wurde schon benutzt"
+let error_CredentialNotFound = "Diese Wählernummer konnte nicht gefunden werden"
+let error_UnauthorizedVoter = "Sie dürfen nicht abstimmen"
