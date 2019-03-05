@@ -45,35 +45,3 @@ let read_number = make_read "read_number" Z.of_string
 let write_uuid = make_write raw_string_of_uuid
 
 let read_uuid = make_read "read_uuid" uuid_of_raw_string
-
-(** {1 Serializers for type int_or_null} *)
-
-let write_int_or_null buf = function
-  | Some n -> Bi_outbuf.add_string buf (string_of_int n)
-  | None -> Bi_outbuf.add_string buf "null"
-
-let int_or_null_of_json = function
-  | `Int i -> Some i
-  | `Null -> None
-  | _ -> invalid_arg "int_or_null_of_json: unexpected input"
-
-let read_int_or_null state buf =
-  int_or_null_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
-
-(** {1 Serializers for type string_set} *)
-
-let write_string_set buf set =
-  `List (SSet.elements set |> List.map (fun x -> `String x)) |>
-  Yojson.Safe.to_outbuf buf
-
-let string_set_of_json = function
-  | `List xs ->
-    List.fold_left (fun accu x ->
-      match x with
-      | `String y -> SSet.add y accu
-      | _ -> invalid_arg "string_set_of_json: a string was expected"
-    ) SSet.empty xs
-  | _ -> invalid_arg "string_set_of_json: a list was expected"
-
-let read_string_set state buf =
-  Yojson.Safe.from_lexbuf ~stream:true state buf |> string_set_of_json

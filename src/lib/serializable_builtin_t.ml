@@ -23,7 +23,6 @@ open Platform
 
 type number = Z.t
 type uuid = string
-type int_or_null = int option
 
 let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let min_uuid_length = 14 (* at least 82 bits of entropy *)
@@ -47,7 +46,3 @@ let uuid_of_raw_string x =
      else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
 
 let raw_string_of_uuid x = x
-
-module SSet = Set.Make(String)
-
-type string_set = SSet.t

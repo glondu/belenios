@@ -25,7 +25,6 @@
 
 type number <ocaml predef from="Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
-type string_set <ocaml predef from="Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
 type proof <ocaml predef from="Serializable"> = abstract
 type template <ocaml predef from="Serializable"> = abstract

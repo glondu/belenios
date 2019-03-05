@@ -23,13 +23,8 @@ open Platform
 
 type number = Z.t
 type uuid
-type int_or_null = int option
 
 val min_uuid_length : int
 
 val uuid_of_raw_string : string -> uuid
 val raw_string_of_uuid : uuid -> string
-
-module SSet : Set.S with type elt = string
-
-type string_set = SSet.t

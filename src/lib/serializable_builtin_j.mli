@@ -30,13 +30,3 @@ val read_number : Yojson.Safe.lexer_state -> Lexing.lexbuf -> number
 
 val write_uuid : Bi_outbuf.t -> uuid -> unit
 val read_uuid : Yojson.Safe.lexer_state -> Lexing.lexbuf -> uuid
-
-(** {1 Serializers for type int_or_null} *)
-
-val write_int_or_null : Bi_outbuf.t -> int_or_null -> unit
-val read_int_or_null : Yojson.Safe.lexer_state -> Lexing.lexbuf -> int_or_null
-
-(** {1 Serializers for type string_set} *)
-
-val write_string_set : Bi_outbuf.t -> string_set -> unit
-val read_string_set :  Yojson.Safe.lexer_state -> Lexing.lexbuf -> string_set

@@ -202,6 +202,7 @@ let compare_b64 a b =
     | false, false -> 0
   in loop 0
 
+module SSet = Set.Make(String)
 module SMap = Map.Make(String)
 
 (** Direct random monad *)
