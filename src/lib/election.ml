@@ -486,6 +486,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         let s_response = Z.(erem (w - x * s_challenge) q) in
         return (Some {s_public_key = y; s_challenge; s_response})
     ) >>= fun signature ->
+    let answers = Array.map (fun x -> Yojson.Safe.from_string (Question_std_j.string_of_answer G.write x)) answers in
     return {
       answers;
       election_hash = election.e_fingerprint;
@@ -513,6 +514,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     | _, _ -> false
 
   let check_ballot b =
+    let answers = Array.map (fun x -> Question_std_j.answer_of_string G.read (Yojson.Safe.to_string x)) b.answers in
     let p = election.e_params in
     b.election_uuid = p.e_uuid &&
     b.election_hash = election.e_fingerprint &&
@@ -524,14 +526,16 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
           check_modulo q s_response &&
           let commitment = g **~ s_response *~ y **~ s_challenge in
           let prefix = make_sig_prefix zkp commitment in
-          let contents = make_sig_contents b.answers in
+          let contents = make_sig_contents answers in
           Z.(s_challenge =% G.hash prefix contents)
         in ok, zkp
       | None -> true, ""
     in ok &&
-    Array.forall2 (verify_answer p.e_public_key zkp) p.e_questions b.answers
+    Array.forall2 (verify_answer p.e_public_key zkp) p.e_questions answers
 
-  let extract_ciphertext b = Array.map (fun x -> x.choices) b.answers
+  let extract_ciphertext b =
+    let answers = Array.map (fun x -> Question_std_j.answer_of_string G.read (Yojson.Safe.to_string x)) b.answers in
+    Array.map (fun x -> x.choices) answers
 
   type factor = elt partial_decryption
 

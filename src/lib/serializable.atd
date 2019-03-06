@@ -23,12 +23,12 @@
 
 (** {2 Predefined types} *)
 
+type json <ocaml module="Yojson.Safe"> = abstract
 type number <ocaml predef from="Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
 type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
 type proof <ocaml predef from="Serializable_core"> = abstract
 type question <ocaml predef from="Question_std"> = abstract
-type 'a answer <ocaml predef from="Question_std"> = abstract
 
 (** {2 Basic cryptographic datastructures} *)
 
@@ -80,7 +80,7 @@ type 'a signature = {
 } <ocaml field_prefix="s_">
 
 type 'a ballot = {
-  answers : 'a answer list <ocaml repr="array">;
+  answers : json list <ocaml repr="array">;
   election_hash : string;
   election_uuid : uuid;
   ?signature : 'a signature option;
