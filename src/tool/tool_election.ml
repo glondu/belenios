@@ -160,7 +160,7 @@ module Make (P : PARSED_PARAMS) : S = struct
         CD.derive election.e_params.e_uuid cred
       )
     in
-    let b = E.create_ballot ?sk (E.make_randomness ()) ballot in
+    let b = E.create_ballot ?sk ballot in
     assert (E.check_ballot b);
     string_of_ballot G.write b
 

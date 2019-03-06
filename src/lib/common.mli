@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures
+open Signatures_core
 
 module Array : sig
   include module type of Array

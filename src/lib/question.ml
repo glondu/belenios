@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2018 Inria                                           *)
+(*  Copyright © 2012-2019 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,13 +19,46 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-(** Election primitives *)
+open Signatures_core
+open Serializable_core_t
 
-open Signatures
+type question = Question_std_t.question
 
-val of_string : string -> Yojson.Safe.json election
-val get_group : Yojson.Safe.json election -> (module ELECTION_DATA)
+let read_question = Question_std_j.read_question
+let write_question = Question_std_j.write_question
 
-module Make (W : ELECTION_DATA) (M : RANDOM) :
-  ELECTION with type elt = W.G.t and type 'a m = 'a M.t
-(** Implementation of {!Signatures.ELECTION}. *)
+module type S = sig
+  type elt
+  type 'a m
+
+  val create_answer : question -> public_key:elt -> prefix:string -> int array -> Yojson.Safe.json m
+  val verify_answer : question -> public_key:elt -> prefix:string -> Yojson.Safe.json -> bool
+
+  val extract_ciphertexts : Yojson.Safe.json -> elt ciphertext array
+end
+
+module Make (M : RANDOM) (G : GROUP) = struct
+  type elt = G.t
+  type 'a m = 'a M.t
+  let ( >>= ) = M.bind
+  module Q = Question_std.Make (M) (G)
+
+  let create_answer q ~public_key ~prefix m =
+    Q.create_answer q ~public_key ~prefix m >>= fun answer ->
+    answer
+    |> Question_std_j.string_of_answer G.write
+    |> Yojson.Safe.from_string
+    |> M.return
+
+  let verify_answer q ~public_key ~prefix a =
+    a
+    |> Yojson.Safe.to_string
+    |> Question_std_j.answer_of_string G.read
+    |> Q.verify_answer q ~public_key ~prefix
+
+  let extract_ciphertexts a =
+    a
+    |> Yojson.Safe.to_string
+    |> Question_std_j.answer_of_string G.read
+    |> Q.extract_ciphertexts
+end

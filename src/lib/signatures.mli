@@ -171,14 +171,7 @@ module type ELECTION = sig
       answers and cryptographic proofs that they satisfy the election
       constraints. *)
 
-  type randomness
-  (** Randomness needed to create a ballot. *)
-
-  val make_randomness : unit -> randomness m
-  (** Creates randomness for [create_ballot] below. The result can be
-      kept for Benaloh-style auditing. *)
-
-  val create_ballot : ?sk:private_key -> randomness -> plaintext -> ballot m
+  val create_ballot : ?sk:private_key -> plaintext -> ballot m
   (** [create_ballot r answers] creates a ballot, or raises
       [Invalid_argument] if [answers] doesn't satisfy the election
       constraints. The private key, if given, will be used to sign
