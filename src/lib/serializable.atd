@@ -25,25 +25,14 @@
 
 type number <ocaml predef from="Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
+type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
+type proof <ocaml predef from="Serializable_core"> = abstract
+type question <ocaml predef from="Question_std"> = abstract
+type 'a answer <ocaml predef from="Question_std"> = abstract
 
 (** {2 Basic cryptographic datastructures} *)
 
 type 'a group_element = 'a
-
-type 'a ciphertext = {
-  alpha : 'a;
-  beta : 'a;
-}
-<doc text="An ElGamal ciphertext.">
-
-type proof = {
-  challenge : number;
-  response : number;
-}
-<doc text="A Fiat-Shamir non-interactive zero-knowledge proof of knowledge (ZKP).">
-
-type disjunctive_proof = proof list <ocaml repr="array">
-<doc text="A disjunctive ZKP. The size of the array is the number of disjuncts. ">
 
 (** {2 Trustees} *)
 
@@ -67,14 +56,6 @@ type ('a, 'b) wrapped_pubkey = {
 } <ocaml field_prefix="wpk_">
 <doc text="A public key wrapped with its group parameters.">
 
-type question = {
-  answers : string list <ocaml repr="array">;
-  ?blank : bool option;
-  min : int;
-  max : int;
-  question : string;
-} <ocaml field_prefix="q_">
-
 type 'a params = {
   description : string;
   name : string;
@@ -90,16 +71,6 @@ type template = {
   questions : question list <ocaml repr="array">;
 } <ocaml field_prefix="t_">
 <doc text="Election template.">
-
-type 'a answer = {
-  choices : 'a ciphertext list <ocaml repr="array">;
-  individual_proofs : disjunctive_proof list <ocaml repr="array">;
-  overall_proof : disjunctive_proof;
-  ?blank_proof : disjunctive_proof option;
-}
-<doc text="An answer to a question. It consists of a weight for each
-choice, a proof that each of these weights is 0 or 1, and an overall
-proof that the total weight is within bounds.">
 
 (* FIXME: merge this with trustee_public_key *)
 type 'a signature = {

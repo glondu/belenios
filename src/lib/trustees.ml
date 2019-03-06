@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Platform
+open Serializable_core_t
 open Serializable_j
 open Signatures
 open Common

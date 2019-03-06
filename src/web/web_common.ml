@@ -23,6 +23,7 @@ open Lwt
 open Platform
 open Common
 open Serializable_builtin_t
+open Question_std_t
 open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j

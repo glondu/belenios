@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Question_std_t
 open Serializable_j
 open Tool_js_common
 

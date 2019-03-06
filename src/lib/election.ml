@@ -20,6 +20,8 @@
 (**************************************************************************)
 
 open Platform
+open Serializable_core_j
+open Question_std_t
 open Serializable_j
 open Signatures
 open Common

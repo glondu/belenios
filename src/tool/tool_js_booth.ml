@@ -22,6 +22,7 @@
 open Js_of_ocaml
 open Platform
 open Serializable_builtin_t
+open Question_std_t
 open Serializable_j
 open Signatures
 open Common

@@ -2,6 +2,8 @@ src/platform/native/Belenios_version
 src/platform/native/Platform
 Serializable_builtin_t
 Serializable_builtin_j
+Serializable_core_j
+Question_std_j
 Serializable_j
 Common
 Group_field
