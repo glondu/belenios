@@ -22,7 +22,6 @@
 open Js_of_ocaml
 open Platform
 open Serializable_builtin_t
-open Question_std_t
 open Serializable_j
 open Signatures
 open Common
@@ -72,6 +71,7 @@ let progress_step n =
   in ()
 
 let rec createQuestionNode sk params question_div num_questions i prev (Question.Standard q, answers) next =
+  let open Question_std_t in
   (* Create div element for the current question. [i] and [(q,
      answers)] point to the current question. [List.rev prev @ [q,
      answers] @ next] is the list of all questions. *)

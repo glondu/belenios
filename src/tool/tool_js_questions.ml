@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Js_of_ocaml
-open Question_std_t
 open Serializable_j
 open Tool_js_common
 
@@ -66,6 +65,7 @@ let extractQuestion q =
   in
   if (q_max > Array.length q_answers) then
     failwith "Maximum number of choices is greater than number of choices!";
+  let open Question_std_t in
   return (Question.Standard {q_question; q_blank; q_min; q_max; q_answers})
 
 let extractTemplate () =
@@ -119,6 +119,7 @@ let rec createAnswer a =
   container
 
 let rec createQuestion (Question.Standard q) =
+  let open Question_std_t in
   let container = Dom_html.createDiv document in
   (* question text and remove/insert buttons *)
   let x = Dom_html.createDiv document in
@@ -249,6 +250,7 @@ let createTemplate template =
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add a question") in
   let f _ =
+    let open Question_std_t in
     let x = createQuestion (Question.Standard {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]}) in
     Dom.appendChild h_questions_div x
   in

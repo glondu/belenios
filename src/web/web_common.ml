@@ -23,7 +23,6 @@ open Lwt
 open Platform
 open Common
 open Serializable_builtin_t
-open Question_std_t
 open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
@@ -415,6 +414,7 @@ let unwebize_trustee_public_key pk =
 let default_contact = "Name <user@example.org>"
 
 let default_questions =
+  let open Question_std_t in
   let question = {
       q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
       q_blank = None;

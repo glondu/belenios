@@ -21,7 +21,6 @@
 
 open Lwt
 open Serializable_builtin_t
-open Question_std_t
 open Serializable_j
 open Signatures
 open Common
@@ -1754,6 +1753,7 @@ let election_home election state () =
        let questions = Array.to_list election.e_params.e_questions in
        return @@ div [
          ul (List.mapi (fun i (Question.Standard x) ->
+           let open Question_std_t in
            let answers = Array.to_list x.q_answers in
            let answers = match x.q_blank with
              | Some true -> L.blank_vote :: answers
