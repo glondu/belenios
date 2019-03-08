@@ -29,65 +29,7 @@ open Serializable_t
 type 'a reader = Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
 type 'a writer = Bi_outbuf.t -> 'a -> unit
 
-(** A group suitable for discrete logarithm-based cryptography. *)
-module type GROUP = sig
-  (** The following interface is redundant: it is assumed, but not
-      checked, that usual mathematical relations hold. *)
-
-  type t
-  (** The type of elements. Note that it may be larger than the group
-      itself, hence the [check] function below. *)
-
-  val check : t -> bool
-  (** Check group membership. *)
-
-  val one : t
-  (** The neutral element of the group. *)
-
-  val g : t
-  (** A generator of the group. *)
-
-  val q : Z.t
-  (** The order of [g]. *)
-
-  val ( *~ ) : t -> t -> t
-  (** Multiplication. *)
-
-  val ( **~ ) : t -> Z.t -> t
-  (** Exponentiation. *)
-
-  val ( =~ ) : t -> t -> bool
-  (** Equality test. *)
-
-  val invert : t -> t
-  (** Inversion. *)
-
-  val to_string : t -> string
-  (** Conversion to string. *)
-
-  val of_string : string -> t
-  (** Conversion from string. *)
-
-  val read : t reader
-  (** Reading from a stream. *)
-
-  val write : t writer
-  (** Writing to a stream. *)
-
-  val hash : string -> t array -> Z.t
-  (** Hash an array of elements into an integer mod [q]. The string
-      argument is a string that is prepended before computing the hash. *)
-
-  val compare : t -> t -> int
-  (** A total ordering over the elements of the group. *)
-
-  type group
-  (** Serializable description of the group. *)
-
-  val group : group
-  val write_group : group writer
-
-end
+module type GROUP = Signatures_core.GROUP
 
 (** A public key with its group *)
 module type WRAPPED_PUBKEY = sig
@@ -95,21 +37,8 @@ module type WRAPPED_PUBKEY = sig
   val y : G.t
 end
 
-(** Monad signature. *)
-module type MONAD = sig
-  type 'a t
-  val return : 'a -> 'a t
-  val bind : 'a t -> ('a -> 'b t) -> 'b t
-  val fail : exn -> 'a t
-end
-
-(** Random number generation. *)
-module type RANDOM = sig
-  include MONAD
-
-  val random : Z.t -> Z.t t
-  (** [random q] returns a random number modulo [q]. *)
-end
+module type MONAD = Signatures_core.MONAD
+module type RANDOM = Signatures_core.RANDOM
 
 (** Election data needed for cryptographic operations. *)
 type 'a election = {
