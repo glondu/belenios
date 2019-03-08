@@ -370,6 +370,7 @@ let compute_encrypted_tally uuid =
            n + 1, E.combine_ciphertexts accu ciphertext
          ) (0, E.neutral_ciphertext ()) ballots
      in
+     let tally = Shape.of_array_array tally in
      let tally = string_of_encrypted_tally E.G.write tally in
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
      return (Some (num_tallied, sha256_b64 tally, tally))

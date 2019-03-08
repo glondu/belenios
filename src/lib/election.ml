@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Platform
+open Serializable_builtin_t
 open Serializable_core_j
 open Serializable_j
 open Signatures
@@ -113,20 +114,6 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       else return (Array.of_list accu)
     in loop (pred (Array.length xs)) []
 
-  let sswap xs =
-    let rec loop_outer i accu =
-      if i >= 0 then (
-        let x = xs.(i) in
-        let rec loop_inner j accu =
-          if j >= 0
-          then x.(j) >>= fun r -> loop_inner (pred j) (r::accu)
-          else return (Array.of_list accu)
-        in
-        loop_inner (Array.length x - 1) [] >>= fun ys ->
-        loop_outer (pred i) (ys::accu)
-      ) else return (Array.of_list accu)
-    in loop_outer (Array.length xs - 1) []
-
   let create_answer y zkp q m =
     Q.create_answer q ~public_key:y ~prefix:zkp m
 
@@ -206,13 +193,23 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     fs_prove [| g; alpha |] x (hash zkp)
 
   let check_ciphertext c =
-    Array.fforall (fun {alpha; beta} -> G.check alpha && G.check beta) c
+    Shape.forall (fun {alpha; beta} -> G.check alpha && G.check beta) c
+
+  let rec swaps = function
+    | SAtomic x -> x >>= fun x -> return (SAtomic x)
+    | SArray x ->
+       let rec loop i accu =
+         if i >= 0
+         then swaps x.(i) >>= fun x -> loop (pred i) (x::accu)
+         else return (SArray (Array.of_list accu))
+       in
+       loop (pred (Array.length x)) []
 
   let compute_factor c x =
     if check_ciphertext c then (
-      let res = Array.mmap (eg_factor x) c in
-      let decryption_factors, decryption_proofs = Array.ssplit res in
-      sswap decryption_proofs >>= fun decryption_proofs ->
+      let res = Shape.map (eg_factor x) c in
+      let decryption_factors, decryption_proofs = Shape.split res in
+      swaps decryption_proofs >>= fun decryption_proofs ->
       return {decryption_factors; decryption_proofs}
     ) else (
       fail (Invalid_argument "Invalid ciphertext")
@@ -220,7 +217,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   let check_factor c y f =
     let zkp = "decrypt|" ^ G.to_string y ^ "|" in
-    Array.fforall3 (fun {alpha; _} f {challenge; response} ->
+    Shape.forall3 (fun {alpha; _} f {challenge; response} ->
       check_modulo q challenge &&
       check_modulo q response &&
       let commitments =
@@ -233,11 +230,11 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   type result = elt Serializable_t.election_result
 
-  type combinator = factor list -> elt array array
+  type combinator = factor list -> elt shape
 
   let compute_result num_tallied encrypted_tally partial_decryptions combinator =
     let factors = combinator partial_decryptions in
-    let results = Array.mmap2 (fun {beta; _} f ->
+    let results = Shape.map2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
     let log =
@@ -253,17 +250,17 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         | Some x -> x
         | None -> invalid_arg "Cannot compute result"
     in
-    let result = Array.mmap log results in
+    let result = Shape.map log results in
     {num_tallied; encrypted_tally; partial_decryptions; result}
 
   let check_result combinator r =
     let {encrypted_tally; partial_decryptions; result; _} = r in
     check_ciphertext encrypted_tally &&
     let factors = combinator partial_decryptions in
-    let results = Array.mmap2 (fun {beta; _} f ->
+    let results = Shape.map2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
-    Array.fforall2 (fun r1 r2 ->
+    Shape.forall2 (fun r1 r2 ->
         let g' = if r2 = 0 then G.one else g **~ Z.of_int r2 in
         r1 =~ g'
       ) results result

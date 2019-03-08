@@ -26,6 +26,7 @@
 type json <ocaml module="Yojson.Safe"> = abstract
 type number <ocaml predef from="Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
+type 'a shape <ocaml predef from="Serializable_builtin"> = abstract
 type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
 type proof <ocaml predef from="Serializable_core"> = abstract
 type question <ocaml module="Question"> = abstract
@@ -87,19 +88,19 @@ type 'a ballot = {
 }
 
 type 'a partial_decryption = {
-  decryption_factors : 'a list <ocaml repr="array"> list <ocaml repr="array">;
-  decryption_proofs : proof list <ocaml repr="array"> list <ocaml repr="array">;
+  decryption_factors : 'a shape;
+  decryption_proofs : proof shape;
 }
 
 type plaintext = int list <ocaml repr="array"> list <ocaml repr="array">
 
-type 'a encrypted_tally = 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">
+type 'a encrypted_tally = 'a ciphertext shape
 
 type 'a election_result = {
   num_tallied : int;
   encrypted_tally : 'a encrypted_tally;
   partial_decryptions : 'a partial_decryption list;
-  result : plaintext;
+  result : int shape;
 }
 
 (** {2 PKI support} *)

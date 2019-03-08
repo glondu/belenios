@@ -30,3 +30,8 @@ val read_number : Yojson.Safe.lexer_state -> Lexing.lexbuf -> number
 
 val write_uuid : Bi_outbuf.t -> uuid -> unit
 val read_uuid : Yojson.Safe.lexer_state -> Lexing.lexbuf -> uuid
+
+(** {1 Serializers for type shape} *)
+
+val write_shape : (Bi_outbuf.t -> 'a -> unit) -> Bi_outbuf.t -> 'a shape -> unit
+val read_shape : (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a shape

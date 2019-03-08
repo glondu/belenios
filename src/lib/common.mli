@@ -26,6 +26,7 @@ module Array : sig
   val exists : ('a -> bool) -> 'a array -> bool
   val forall : ('a -> bool) -> 'a array -> bool
   val forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
+  val forall3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
   val fforall : ('a -> bool) -> 'a array array -> bool
   val fforall2 : ('a -> 'b -> bool) ->
     'a array array -> 'b array array -> bool
@@ -58,6 +59,20 @@ module Option : sig
   val iter : ('a -> unit) -> 'a option -> unit
   val get : 'a option -> 'a -> 'a
   val map : ('a -> 'b) -> 'a option -> 'b option
+end
+
+module Shape : sig
+  type 'a t =
+    | SAtomic of 'a
+    | SArray of 'a t array
+  val of_array_array : 'a array array -> 'a t
+  val to_array_array : 'a t -> 'a array array
+  val map : ('a -> 'b) -> 'a t -> 'b t
+  val map2 : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t
+  val split : ('a * 'b) t -> 'a t * 'b t
+  val forall : ('a -> bool) -> 'a t -> bool
+  val forall2 : ('a -> 'b -> bool) -> 'a t -> 'b t -> bool
+  val forall3 : ('a -> 'b -> 'c -> bool) -> 'a t -> 'b t -> 'c t -> bool
 end
 
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit

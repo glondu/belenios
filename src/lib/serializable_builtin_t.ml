@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Platform
+open Common
 
 type number = Z.t
 type uuid = string
@@ -46,3 +47,7 @@ let uuid_of_raw_string x =
      else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
 
 let raw_string_of_uuid x = x
+
+type 'a shape = 'a Shape.t =
+  | SAtomic of 'a
+  | SArray of 'a shape array

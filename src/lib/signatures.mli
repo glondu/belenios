@@ -191,9 +191,9 @@ module type ELECTION = sig
       private key share and the encrypted tally, and contains a
       cryptographic proof that he or she didn't cheat. *)
 
-  val compute_factor : ciphertext -> private_key -> factor m
+  val compute_factor : elt Serializable_t.ciphertext shape -> private_key -> factor m
 
-  val check_factor : ciphertext -> public_key -> factor -> bool
+  val check_factor : elt Serializable_t.ciphertext shape -> public_key -> factor -> bool
   (** [check_factor c pk f] checks that [f], supposedly submitted by a
       trustee whose public_key is [pk], is valid with respect to the
       encrypted tally [c]. *)
@@ -204,16 +204,16 @@ module type ELECTION = sig
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 
-  type combinator = factor list -> elt array array
+  type combinator = factor list -> elt shape
 
-  val compute_result : int -> ciphertext -> factor list -> combinator -> result
+  val compute_result : int -> elt Serializable_t.ciphertext shape -> factor list -> combinator -> result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
 
   val check_result : combinator -> result -> bool
 
-  val extract_tally : result -> plaintext
+  val extract_tally : result -> int shape
   (** Extract the plaintext result of the election. *)
 end
 
@@ -258,5 +258,5 @@ module type PEDERSEN = sig
   val combine : elt threshold_parameters -> elt
 
   type checker = elt -> elt partial_decryption -> bool
-  val combine_factors : checker -> elt threshold_parameters -> elt partial_decryption list -> elt array array
+  val combine_factors : checker -> elt threshold_parameters -> elt partial_decryption list -> elt shape
 end

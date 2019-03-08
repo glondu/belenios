@@ -75,12 +75,12 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
   let combine_factors checker pks pds =
     let dummy =
       match pds with
-      | x :: _ -> Array.mmap (fun _ -> G.one) x.decryption_factors
+      | x :: _ -> Shape.map (fun _ -> G.one) x.decryption_factors
       | [] -> failwith "no partial decryptions"
     in
     assert (Array.forall (fun pk -> List.exists (checker pk) pds) pks);
     List.fold_left (fun a b ->
-      Array.mmap2 ( *~ ) a b.decryption_factors
+      Shape.map2 ( *~ ) a b.decryption_factors
     ) dummy pds
 
 end
@@ -255,7 +255,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
   let combine_factors checker t pds =
     let dummy =
       match pds with
-      | x :: _ -> Array.mmap (fun _ -> G.one) x.decryption_factors
+      | x :: _ -> Shape.map (fun _ -> G.one) x.decryption_factors
       | [] -> failwith "no partial decryptions"
     in
     let pds_with_ids =
@@ -283,7 +283,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     let indexes = List.map fst pds_with_ids in
     List.fold_left (fun a (j, b) ->
         let l = lagrange indexes j in
-        Array.mmap2 (fun x y -> x *~ y **~ l) a b.decryption_factors
+        Shape.map2 (fun x y -> x *~ y **~ l) a b.decryption_factors
       ) dummy pds_with_ids
 
   let combine t =

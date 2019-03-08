@@ -46,6 +46,15 @@ module Array = struct
        else true
      in check (pred n))
 
+  let forall3 f a b c =
+    let n = Array.length a in
+    n = Array.length b &&
+    n = Array.length c &&
+    (let rec check i =
+       if i >= 0 then f a.(i) b.(i) c.(i) && check (pred i)
+       else true
+     in check (pred n))
+
   let fforall f xs =
     let rec loop_outer i =
       if i >= 0 then
@@ -173,6 +182,61 @@ module Option = struct
   let map f = function
     | Some x -> Some (f x)
     | None -> None
+end
+
+module Shape = struct
+  type 'a t =
+    | SAtomic of 'a
+    | SArray of 'a t array
+
+  let of_array_array x =
+    SArray (
+        Array.map (fun x ->
+            SArray (Array.map (fun x -> SAtomic x) x)
+          ) x
+      )
+
+  let to_array_array = function
+    | SAtomic _ -> invalid_arg "Shape.to_array_array"
+    | SArray x ->
+       Array.map (function
+           | SAtomic _ -> invalid_arg "Shape.to_array_array"
+           | SArray x ->
+              Array.map (function
+                  | SAtomic x -> x
+                  | SArray _ -> invalid_arg "Shape.to_array_array"
+                ) x
+         ) x
+
+  let rec map f = function
+    | SAtomic x -> SAtomic (f x)
+    | SArray x -> SArray (Array.map (map f) x)
+
+  let rec map2 f a b =
+    match a, b with
+    | SAtomic x, SAtomic y -> SAtomic (f x y)
+    | SArray x, SArray y -> SArray (Array.map2 (map2 f) x y)
+    | _, _ -> invalid_arg "Shape.map2"
+
+  let split x =
+    map fst x, map snd x
+
+  let rec forall p = function
+    | SAtomic x -> p x
+    | SArray x -> Array.forall (forall p) x
+
+  let rec forall2 p x y =
+    match x, y with
+    | SAtomic x, SAtomic y -> p x y
+    | SArray x, SArray y -> Array.forall2 (forall2 p) x y
+    | _, _ -> invalid_arg "Shape.forall2"
+
+  let rec forall3 p x y z =
+    match x, y, z with
+    | SAtomic x, SAtomic y, SAtomic z -> p x y z
+    | SArray x, SArray y, SArray z -> Array.forall3 (forall3 p) x y z
+    | _, _, _ -> invalid_arg "Shape.forall3"
+
 end
 
 let save_to filename writer x =

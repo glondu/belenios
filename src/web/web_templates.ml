@@ -1749,7 +1749,7 @@ let election_home election state () =
     let%lwt result = Web_persist.get_election_result uuid in
     match result with
     | Some r ->
-       let result = r.result in
+       let result = Shape.to_array_array r.result in
        let questions = Array.to_list election.e_params.e_questions in
        return @@ div [
          ul (List.mapi (fun i (Question.Standard x) ->

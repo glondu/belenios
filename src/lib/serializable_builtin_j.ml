@@ -45,3 +45,19 @@ let read_number = make_read "read_number" Z.of_string
 let write_uuid = make_write raw_string_of_uuid
 
 let read_uuid = make_read "read_uuid" uuid_of_raw_string
+
+(** {1 Serializers for type shape} *)
+
+let rec write_shape write buf = function
+  | SAtomic x -> write buf x
+  | SArray xs -> Atdgen_runtime.Oj_run.write_array (write_shape write) buf xs
+
+let rec read_shape read state buf =
+  Yojson.Safe.read_space state buf;
+  let open Lexing in
+  if buf.lex_curr_pos >= buf.lex_buffer_len then buf.refill_buff buf;
+  if buf.lex_curr_pos >= buf.lex_buffer_len then Yojson.json_error "Unexpected end of input";
+  if Bytes.get buf.lex_buffer buf.lex_curr_pos = '[' then
+    SArray (Yojson.Safe.read_array (read_shape read) state buf)
+  else
+    SAtomic (read state buf)
