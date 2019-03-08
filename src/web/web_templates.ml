@@ -1753,7 +1753,7 @@ let election_home election state () =
        let result = r.result in
        let questions = Array.to_list election.e_params.e_questions in
        return @@ div [
-         ul (List.mapi (fun i x ->
+         ul (List.mapi (fun i (Question.Standard x) ->
            let answers = Array.to_list x.q_answers in
            let answers = match x.q_blank with
              | Some true -> L.blank_vote :: answers

@@ -22,7 +22,6 @@
 open Lwt
 open Platform
 open Serializable_builtin_t
-open Question_std_t
 open Serializable_j
 open Signatures
 open Common
@@ -241,16 +240,7 @@ let delete_election uuid =
   let de_template = {
       t_description = "";
       t_name = election.e_params.e_name;
-      t_questions =
-        Array.map (fun q ->
-            {
-              q_answers = Array.map (fun _ -> "") q.q_answers;
-              q_blank = q.q_blank;
-              q_min = q.q_min;
-              q_max = q.q_max;
-              q_question = "";
-            }
-          ) election.e_params.e_questions
+      t_questions = Array.map Question.erase_question election.e_params.e_questions;
     }
   in
   let de_owner = match metadata.e_owner with

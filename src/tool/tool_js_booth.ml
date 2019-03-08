@@ -71,7 +71,7 @@ let progress_step n =
     new_##.style##.fontWeight := Js.string "bold"
   in ()
 
-let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
+let rec createQuestionNode sk params question_div num_questions i prev (Question.Standard q, answers) next =
   (* Create div element for the current question. [i] and [(q,
      answers)] point to the current question. [List.rev prev @ [q,
      answers] @ next] is the list of all questions. *)
@@ -170,7 +170,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
-              question_div num_questions (i - 1) prev r ((q, answers) :: next)
+              question_div num_questions (i - 1) prev r ((Question.Standard q, answers) :: next)
             in
             Dom.replaceChild question_div ndiv div;
             Js._false
@@ -188,7 +188,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         let t = document##createTextNode (Js.string @@ get_content "str_next") in
         b##.onclick := Dom_html.handler (fun _ ->
          if check_constraints () then (
-          let all = (q, answers) :: prev in
+          let all = (Question.Standard q, answers) :: prev in
           let all_answers = List.rev_map snd all |> Array.of_list in
           let all_questions = List.rev_map fst all |> Array.of_list in
           set_textarea "choices" (string_of_plaintext all_answers);
@@ -196,7 +196,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
           let () =
             document##getElementById (Js.string "pretty_choices") >>== fun e ->
             Array.iteri (fun i a ->
-                let q = all_questions.(i) in
+                let Question.Standard q = all_questions.(i) in
                 let h = Dom_html.createH3 document in
                 let t = document##createTextNode (Js.string q.q_question) in
                 Dom.appendChild h t;
@@ -237,7 +237,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
-              question_div num_questions (i + 1) ((q, answers) :: prev) r next
+              question_div num_questions (i + 1) ((Question.Standard q, answers) :: prev) r next
             in
             Dom.replaceChild question_div ndiv div;
             Js._false
@@ -255,7 +255,7 @@ let addQuestions sk params qs =
   let n = Array.length qs in
   let qs =
     Array.to_list qs |>
-      List.map (fun q -> q, Array.make (Question_std.question_length q) 0)
+      List.map (fun (Question.Standard q) -> Question.Standard q, Array.make (Question_std.question_length q) 0)
   in
   match qs with
   | [] -> failwith "no questions"

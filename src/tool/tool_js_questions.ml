@@ -66,7 +66,7 @@ let extractQuestion q =
   in
   if (q_max > Array.length q_answers) then
     failwith "Maximum number of choices is greater than number of choices!";
-  return {q_question; q_blank; q_min; q_max; q_answers}
+  return (Question.Standard {q_question; q_blank; q_min; q_max; q_answers})
 
 let extractTemplate () =
   let t_name = get_input "election_name" in
@@ -118,7 +118,7 @@ let rec createAnswer a =
   Dom.appendChild container insert_btn;
   container
 
-let rec createQuestion q =
+let rec createQuestion (Question.Standard q) =
   let container = Dom_html.createDiv document in
   (* question text and remove/insert buttons *)
   let x = Dom_html.createDiv document in
@@ -142,7 +142,7 @@ let rec createQuestion q =
   let insert_text = document##createTextNode (Js.string "Insert") in
   let insert_btn = Dom_html.createButton document in
   let f _ =
-    let x = createQuestion {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]} in
+    let x = createQuestion (Question.Standard {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]}) in
     container##.parentNode >>= fun p ->
     Dom.insertBefore p x (Js.some container);
     return ()
@@ -249,7 +249,7 @@ let createTemplate template =
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add a question") in
   let f _ =
-    let x = createQuestion {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]} in
+    let x = createQuestion (Question.Standard {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]}) in
     Dom.appendChild h_questions_div x
   in
   b##.onclick := handler f;

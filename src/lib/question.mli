@@ -22,10 +22,14 @@
 open Signatures_core
 open Serializable_core_t
 
-type question = Question_std_t.question
+type question =
+  | Standard of Question_std_t.question
 
 val read_question : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question
 val write_question : Bi_outbuf.t -> question -> unit
+
+val neutral_shape : question -> unit array
+val erase_question : question -> question
 
 module type S = sig
   type elt

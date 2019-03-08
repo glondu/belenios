@@ -22,10 +22,25 @@
 open Signatures_core
 open Serializable_core_t
 
-type question = Question_std_t.question
+type question =
+  | Standard of Question_std_t.question
 
-let read_question = Question_std_j.read_question
-let write_question = Question_std_j.write_question
+let read_question l b = Standard (Question_std_j.read_question l b)
+let write_question b (Standard q) = Question_std_j.write_question b q
+
+let neutral_shape = function
+  | Standard q -> Array.make (Question_std.question_length q) ()
+
+let erase_question = function
+  | Standard q ->
+     let open Question_std_t in
+     Standard {
+         q_answers = Array.map (fun _ -> "") q.q_answers;
+         q_blank = q.q_blank;
+         q_min = q.q_min;
+         q_max = q.q_max;
+         q_question = "";
+       }
 
 module type S = sig
   type elt
@@ -43,14 +58,14 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let ( >>= ) = M.bind
   module Q = Question_std.Make (M) (G)
 
-  let create_answer q ~public_key ~prefix m =
+  let create_answer (Standard q) ~public_key ~prefix m =
     Q.create_answer q ~public_key ~prefix m >>= fun answer ->
     answer
     |> Question_std_j.string_of_answer G.write
     |> Yojson.Safe.from_string
     |> M.return
 
-  let verify_answer q ~public_key ~prefix a =
+  let verify_answer (Standard q) ~public_key ~prefix a =
     a
     |> Yojson.Safe.to_string
     |> Question_std_j.answer_of_string G.read

@@ -423,7 +423,7 @@ let default_questions =
       q_question = "Question 1?";
     }
   in
-  [| question |]
+  [| Question.Standard question |]
 
 let default_name = "Name of the election"
 let default_description = "Description of the election."
