@@ -29,7 +29,7 @@ let read_question l b = Standard (Question_std_j.read_question l b)
 let write_question b (Standard q) = Question_std_j.write_question b q
 
 let neutral_shape = function
-  | Standard q -> Array.make (Question_std.question_length q) ()
+  | Standard q -> Some (Array.make (Question_std.question_length q) ())
 
 let erase_question = function
   | Standard q ->

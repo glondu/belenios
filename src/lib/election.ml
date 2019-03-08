@@ -83,9 +83,11 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     }
 
   let neutral_ciphertext () =
-    Array.map (fun q ->
-        Array.map (fun () -> dummy_ciphertext) (Question.neutral_shape q)
-      ) election.e_params.e_questions
+    Array.map Question.neutral_shape election.e_params.e_questions
+    |> Array.map (Option.map (Array.map (fun () -> dummy_ciphertext)))
+    |> Array.to_list
+    |> List.filter_map (fun x -> x)
+    |> Array.of_list
 
   let combine_ciphertexts = Array.mmap2 eg_combine
 

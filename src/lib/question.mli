@@ -28,7 +28,7 @@ type question =
 val read_question : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question
 val write_question : Bi_outbuf.t -> question -> unit
 
-val neutral_shape : question -> unit array
+val neutral_shape : question -> unit array option
 val erase_question : question -> question
 
 module type S = sig
