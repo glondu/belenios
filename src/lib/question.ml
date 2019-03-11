@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Signatures_core
+open Serializable_builtin_t
 open Serializable_core_t
 
 type question =
@@ -50,6 +51,9 @@ module type S = sig
   val verify_answer : question -> public_key:elt -> prefix:string -> Yojson.Safe.json -> bool
 
   val extract_ciphertexts : Yojson.Safe.json -> elt ciphertext array
+
+  val compute_result : num_tallied:int -> question -> elt shape -> int shape
+  val check_result : question -> elt shape -> int shape -> bool
 end
 
 module Make (M : RANDOM) (G : GROUP) = struct
@@ -76,4 +80,12 @@ module Make (M : RANDOM) (G : GROUP) = struct
     |> Yojson.Safe.to_string
     |> Question_std_j.answer_of_string G.read
     |> Q.extract_ciphertexts
+
+  let compute_result ~num_tallied =
+    let compute_std = lazy (Q.compute_result ~num_tallied) in
+    fun (Standard q) x ->
+    Lazy.force compute_std q x
+
+  let check_result (Standard q) x r =
+    Q.check_result q x r
 end

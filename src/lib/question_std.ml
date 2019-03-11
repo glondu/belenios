@@ -22,6 +22,7 @@
 open Platform
 open Common
 open Signatures_core
+open Serializable_builtin_t
 open Serializable_core_t
 open Question_std_t
 
@@ -42,6 +43,9 @@ module type S = sig
   val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
 
   val extract_ciphertexts : elt answer -> elt ciphertext array
+
+  val compute_result : num_tallied:int -> question -> elt shape -> int shape
+  val check_result : question -> elt shape -> int shape -> bool
 end
 
 module Make (M : RANDOM) (G : GROUP) = struct
@@ -418,4 +422,28 @@ module Make (M : RANDOM) (G : GROUP) = struct
     | _, _ -> false
 
   let extract_ciphertexts a = a.choices
+
+  let compute_result ~num_tallied =
+    let log =
+      let module GMap = Map.Make(G) in
+      let rec loop i cur accu =
+        if i <= num_tallied
+        then loop (succ i) (cur *~ g) (GMap.add cur i accu)
+        else accu
+      in
+      let map = loop 0 G.one GMap.empty in
+      fun x ->
+        match GMap.find_opt x map with
+        | Some x -> x
+        | None -> invalid_arg "Cannot compute result"
+    in
+    fun _ x ->
+    Shape.map log x
+
+  let check_result _ x r =
+    Shape.forall2 (fun x r ->
+        let g' = if r = 0 then G.one else g **~ Z.of_int r in
+        x =~ g'
+      ) x r
+
 end

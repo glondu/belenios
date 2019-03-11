@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Signatures_core
+open Serializable_builtin_t
 open Question_std_t
 
 val question_length : question -> int
@@ -32,6 +33,9 @@ module type S = sig
   val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
 
   val extract_ciphertexts : elt answer -> elt ciphertext array
+
+  val compute_result : num_tallied:int -> question -> elt shape -> int shape
+  val check_result : question -> elt shape -> int shape -> bool
 end
 
 module Make (M : RANDOM) (G : GROUP) : S with type 'a m = 'a M.t and type elt = G.t

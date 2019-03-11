@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Signatures_core
+open Serializable_builtin_t
 open Serializable_core_t
 
 type question =
@@ -39,6 +40,9 @@ module type S = sig
   val verify_answer : question -> public_key:elt -> prefix:string -> Yojson.Safe.json -> bool
 
   val extract_ciphertexts : Yojson.Safe.json -> elt ciphertext array
+
+  val compute_result : num_tallied:int -> question -> elt shape -> int shape
+  val check_result : question -> elt shape -> int shape -> bool
 end
 
 module Make (M : RANDOM) (G : GROUP) : S with type 'a m = 'a M.t and type elt = G.t

@@ -237,20 +237,13 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let results = Shape.map2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
-    let log =
-      let module GMap = Map.Make(G) in
-      let rec loop i cur accu =
-        if i <= num_tallied
-        then loop (succ i) (cur *~ g) (GMap.add cur i accu)
-        else accu
-      in
-      let map = loop 0 G.one GMap.empty in
-      fun x ->
-        match GMap.find_opt x map with
-        | Some x -> x
-        | None -> invalid_arg "Cannot compute result"
+    let result =
+      match results with
+      | SAtomic _ ->
+         invalid_arg "Election.compute_result: cannot compute result"
+      | SArray xs ->
+         SArray (Array.map2 (Q.compute_result ~num_tallied) election.e_params.e_questions xs)
     in
-    let result = Shape.map log results in
     {num_tallied; encrypted_tally; partial_decryptions; result}
 
   let check_result combinator r =
@@ -260,10 +253,10 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let results = Shape.map2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
-    Shape.forall2 (fun r1 r2 ->
-        let g' = if r2 = 0 then G.one else g **~ Z.of_int r2 in
-        r1 =~ g'
-      ) results result
+    match results, result with
+    | SArray xs, SArray rs ->
+       Array.forall3 Q.check_result election.e_params.e_questions xs rs
+    | _, _ -> false
 
   let extract_tally r = r.result
 end
