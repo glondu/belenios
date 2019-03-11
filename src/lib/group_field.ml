@@ -39,7 +39,12 @@ let map_and_concat_with_commas f xs =
 
 (** Finite field arithmetic *)
 
-let check_params {p; q; g} =
+let check_params {p; q; g; embedding} =
+  (match embedding with
+   | None -> true
+   | Some {padding; bits_per_int} ->
+      padding > 0 && bits_per_int > 0 && bits_per_int < 32
+  ) &&
   Z.probab_prime p 20 > 0 &&
   Z.probab_prime q 20 > 0 &&
   check_modulo p g &&
@@ -51,7 +56,7 @@ module type GROUP = Signatures.GROUP
   and type group = ff_params
 
 let unsafe_make group =
-  let {p; q; g} = group in
+  let {p; q; g; embedding} = group in
   let module G = struct
     open Z
     type t = Z.t
@@ -66,6 +71,43 @@ let unsafe_make group =
     let check x = check_modulo p x && x **~ q =~ one
     let to_string = Z.to_string
     let of_string = Z.of_string
+
+    let of_ints =
+      match embedding with
+      | None ->
+         fun _ -> failwith "Group_field.of_bits: missing parameters"
+      | Some {padding; bits_per_int} ->
+         let mask_per_int = pred (1 lsl bits_per_int) in
+         fun xs ->
+         let n = Array.length xs in
+         let rec encode_int i accu =
+           if i < n then
+             let x = xs.(i) land mask_per_int in
+             encode_int (succ i) (Z.shift_left accu bits_per_int + of_int x)
+           else
+             Z.shift_left accu padding
+         in
+         let rec find_element accu =
+           if check accu then accu else find_element (accu + one)
+         in
+         find_element (encode_int 0 zero)
+
+    let to_ints =
+      match embedding with
+      | None ->
+         fun _ -> failwith "Group_field.to_bits: missing parameters"
+      | Some {padding; bits_per_int} ->
+         let mask_per_int = shift_left one bits_per_int - one in
+         fun n x ->
+         let xs = Array.make n 0 in
+         let rec decode_int i x =
+           if i >= 0 then (
+             xs.(i) <- to_int (logand x mask_per_int);
+             decode_int (pred i) (shift_right x bits_per_int)
+           )
+         in
+         decode_int (pred n) (shift_right x padding);
+         xs
 
     let read state buf =
       match Yojson.Safe.from_lexbuf ~stream:true state buf with

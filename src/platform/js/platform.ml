@@ -189,6 +189,9 @@ module Jsbn = struct
       method modInverse : bigint t -> bigint t meth
       method bitLength : int meth
       method isProbablePrime : int -> int meth
+      method shiftLeft : int -> bigint t meth
+      method shiftRight : int -> bigint t meth
+      method _and : bigint t -> bigint t meth
     end
 
   class type lib =
@@ -240,4 +243,8 @@ module Z = struct
       then loop (res * z256 + of_int (int_of_char x.[i])) (pred i)
       else res
     in loop zero (pred n)
+
+  let shift_left x n = x##shiftLeft n
+  let shift_right x n = x##shiftRight n
+  let logand x y = x##_and y
 end

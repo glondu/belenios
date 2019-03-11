@@ -65,6 +65,13 @@ module type GROUP = sig
   val of_string : string -> t
   (** Conversion from string. *)
 
+  val of_ints : int array -> t
+  (** Convert an int array to a group element. *)
+
+  val to_ints : int -> t -> int array
+  (** Convert a group element to an int array. The first argument is
+     the size of the array. *)
+
   val read : t reader
   (** Reading from a stream. *)
 

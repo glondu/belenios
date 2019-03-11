@@ -44,10 +44,16 @@ type 'a trustee_public_key = {
 
 (** {2 Elections} *)
 
+type ff_embedding = {
+  padding : int;
+  bits_per_int : int;
+}
+
 type ff_params = {
   g : number;
   p : number;
   q : number;
+  ?embedding : ff_embedding option;
 }
 <doc text="Parameters for a multiplicative subgroup of a finite field.">
 
