@@ -76,18 +76,6 @@ module type ELECTION = sig
   type private_key = Z.t
   type public_key = elt
 
-  (** {2 Ciphertexts} *)
-
-  type ciphertext = elt Serializable_t.ciphertext array array
-  (** A ciphertext that can be homomorphically combined. *)
-
-  val neutral_ciphertext : unit -> ciphertext
-  (** The neutral element for [combine_ciphertext] below. *)
-
-  val combine_ciphertexts : ciphertext -> ciphertext -> ciphertext
-  (** Combine two ciphertexts. The encrypted tally of an election is
-      the combination of all ciphertexts of valid cast ballots. *)
-
   (** {2 Ballots} *)
 
   type plaintext = Serializable_t.plaintext
@@ -110,8 +98,9 @@ module type ELECTION = sig
   (** [check_ballot b] checks all the cryptographic proofs in [b]. All
       ballots produced by [create_ballot] should pass this check. *)
 
-  val extract_ciphertext : ballot -> ciphertext
-  (** Extract the ciphertext from a ballot. *)
+  (** {2 Tally} *)
+
+  val process_ballots : ballot array -> elt Serializable_t.ciphertext shape
 
   (** {2 Partial decryptions} *)
 

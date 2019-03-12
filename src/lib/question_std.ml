@@ -42,7 +42,7 @@ module type S = sig
   val create_answer : question -> public_key:elt -> prefix:string -> int array -> elt answer m
   val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
 
-  val extract_ciphertexts : elt answer -> elt ciphertext array
+  val extract_ciphertexts : elt answer -> elt ciphertext shape
 
   val compute_result : num_tallied:int -> question -> elt shape -> int shape
   val check_result : question -> elt shape -> int shape -> bool
@@ -421,7 +421,8 @@ module Make (M : RANDOM) (G : GROUP) = struct
        eg_disj_verify y d zkp a.overall_proof sumc
     | _, _ -> false
 
-  let extract_ciphertexts a = a.choices
+  let extract_ciphertexts a =
+    SArray (Array.map (fun x -> SAtomic x) a.choices)
 
   let compute_result ~num_tallied =
     let log =

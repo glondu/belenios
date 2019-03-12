@@ -68,7 +68,6 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   let ( / ) x y = x *~ invert y
 
-  type ciphertext = elt Serializable_t.ciphertext array array
 
   let dummy_ciphertext =
     {
@@ -82,15 +81,6 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       alpha = c1.alpha *~ c2.alpha;
       beta = c1.beta *~ c2.beta;
     }
-
-  let neutral_ciphertext () =
-    Array.map Question.neutral_shape election.e_params.e_questions
-    |> Array.map (Option.map (Array.map (fun () -> dummy_ciphertext)))
-    |> Array.to_list
-    |> List.filter_map (fun x -> x)
-    |> Array.of_list
-
-  let combine_ciphertexts = Array.mmap2 eg_combine
 
   type plaintext = int array array
   type ballot = elt Serializable_t.ballot
@@ -126,7 +116,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         List.flatten (
           List.map (fun {alpha; beta} ->
             [alpha; beta]
-          ) (Array.to_list (Q.extract_ciphertexts a))
+          ) (Array.to_list (Shape.to_array (Q.extract_ciphertexts a)))
         )
       ) (Array.to_list answers)
     ) |> Array.of_list
@@ -182,8 +172,20 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     in ok &&
     Array.forall2 (verify_answer p.e_public_key zkp) p.e_questions b.answers
 
-  let extract_ciphertext b =
-    Array.map Q.extract_ciphertexts b.answers
+  let process_ballots bs =
+    let bs = Array.map (fun b -> Array.map Q.extract_ciphertexts b.answers) bs in
+    SArray (
+        Array.mapi (fun i q ->
+            match Question.neutral_shape q with
+            | Some s ->
+               let s = Shape.map (fun _ -> dummy_ciphertext) s in
+               Array.fold_left (fun accu b ->
+                   Shape.map2 eg_combine accu b.(i)
+                 ) s bs
+            | None ->
+               SArray (Array.map (fun b -> b.(i)) bs)
+          ) election.e_params.e_questions
+      )
 
   type factor = elt partial_decryption
 

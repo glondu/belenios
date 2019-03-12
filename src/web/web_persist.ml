@@ -363,14 +363,9 @@ let compute_encrypted_tally uuid =
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
      let%lwt ballots = load_ballots uuid in
-     let num_tallied, tally =
-       List.fold_left (fun (n, accu) rawballot ->
-           let ballot = ballot_of_string E.G.read rawballot in
-           let ciphertext = E.extract_ciphertext ballot in
-           n + 1, E.combine_ciphertexts accu ciphertext
-         ) (0, E.neutral_ciphertext ()) ballots
-     in
-     let tally = Shape.of_array_array tally in
+     let ballots = Array.map (ballot_of_string E.G.read) (Array.of_list ballots) in
+     let tally = E.process_ballots ballots in
+     let num_tallied = Array.length ballots in
      let tally = string_of_encrypted_tally E.G.write tally in
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
      return (Some (num_tallied, sha256_b64 tally, tally))

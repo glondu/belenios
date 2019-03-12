@@ -30,7 +30,7 @@ let read_question l b = Standard (Question_std_j.read_question l b)
 let write_question b (Standard q) = Question_std_j.write_question b q
 
 let neutral_shape = function
-  | Standard q -> Some (Array.make (Question_std.question_length q) ())
+  | Standard q -> Some (SArray (Array.make (Question_std.question_length q) (SAtomic ())))
 
 let erase_question = function
   | Standard q ->
@@ -50,7 +50,7 @@ module type S = sig
   val create_answer : question -> public_key:elt -> prefix:string -> int array -> Yojson.Safe.json m
   val verify_answer : question -> public_key:elt -> prefix:string -> Yojson.Safe.json -> bool
 
-  val extract_ciphertexts : Yojson.Safe.json -> elt ciphertext array
+  val extract_ciphertexts : Yojson.Safe.json -> elt ciphertext shape
 
   val compute_result : num_tallied:int -> question -> elt shape -> int shape
   val check_result : question -> elt shape -> int shape -> bool

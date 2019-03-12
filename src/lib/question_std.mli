@@ -32,7 +32,7 @@ module type S = sig
   val create_answer : question -> public_key:elt -> prefix:string -> int array -> elt answer m
   val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
 
-  val extract_ciphertexts : elt answer -> elt ciphertext array
+  val extract_ciphertexts : elt answer -> elt ciphertext shape
 
   val compute_result : num_tallied:int -> question -> elt shape -> int shape
   val check_result : question -> elt shape -> int shape -> bool

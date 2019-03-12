@@ -147,13 +147,9 @@ module Make (P : PARSED_PARAMS) : S = struct
         match Lazy.force ballots with
         | None -> failwith "ballots.jsons is missing"
         | Some ballots ->
-           let tally =
-             List.fold_left (fun accu (b, _) ->
-                 E.combine_ciphertexts (E.extract_ciphertext b) accu
-               ) (E.neutral_ciphertext ()) ballots
-           in
-           Shape.of_array_array tally,
-           List.length ballots
+           let ballots = Array.map fst (Array.of_list ballots) in
+           E.process_ballots ballots,
+           Array.length ballots
       )
 
   let vote privcred ballot =

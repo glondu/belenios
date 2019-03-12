@@ -189,6 +189,14 @@ module Shape = struct
     | SAtomic of 'a
     | SArray of 'a t array
 
+  let to_array = function
+    | SAtomic _ -> invalid_arg "Shape.to_array"
+    | SArray xs ->
+       Array.map (function
+           | SAtomic x -> x
+           | SArray _ -> invalid_arg "Shape.to_array"
+         ) xs
+
   let of_array_array x =
     SArray (
         Array.map (fun x ->
