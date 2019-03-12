@@ -70,6 +70,7 @@ module Shape : sig
   val to_array_array : 'a t -> 'a array array
   val map : ('a -> 'b) -> 'a t -> 'b t
   val map2 : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t
+  val flatten : 'a t -> 'a list
   val split : ('a * 'b) t -> 'a t * 'b t
   val forall : ('a -> bool) -> 'a t -> bool
   val forall2 : ('a -> 'b -> bool) -> 'a t -> 'b t -> bool

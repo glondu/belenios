@@ -116,7 +116,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         List.flatten (
           List.map (fun {alpha; beta} ->
             [alpha; beta]
-          ) (Array.to_list (Shape.to_array (Q.extract_ciphertexts a)))
+          ) (Shape.flatten (Q.extract_ciphertexts a))
         )
       ) (Array.to_list answers)
     ) |> Array.of_list

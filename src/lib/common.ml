@@ -226,6 +226,10 @@ module Shape = struct
     | SArray x, SArray y -> SArray (Array.map2 (map2 f) x y)
     | _, _ -> invalid_arg "Shape.map2"
 
+  let rec flatten = function
+    | SAtomic x -> [x]
+    | SArray xs -> Array.map flatten xs |> Array.to_list |> List.flatten
+
   let split x =
     map fst x, map snd x
 
