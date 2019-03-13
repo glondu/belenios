@@ -111,15 +111,13 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     "sig|" ^ zkp ^ "|" ^ G.to_string commitment ^ "|"
 
   let make_sig_contents answers =
-    List.flatten (
-      List.map (fun a ->
-        List.flatten (
-          List.map (fun {alpha; beta} ->
-            [alpha; beta]
-          ) (Shape.flatten (Q.extract_ciphertexts a))
-        )
-      ) (Array.to_list answers)
-    ) |> Array.of_list
+    Array.map2 Q.extract_ciphertexts election.e_params.e_questions answers
+    |> Array.map Shape.flatten
+    |> Array.to_list
+    |> List.flatten
+    |> List.map (fun {alpha; beta} -> [alpha; beta])
+    |> List.flatten
+    |> Array.of_list
 
   let create_ballot ?sk m =
     let p = election.e_params in
@@ -173,7 +171,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     Array.forall2 (verify_answer p.e_public_key zkp) p.e_questions b.answers
 
   let process_ballots bs =
-    let bs = Array.map (fun b -> Array.map Q.extract_ciphertexts b.answers) bs in
+    let bs = Array.map (fun b -> Array.map2 Q.extract_ciphertexts election.e_params.e_questions b.answers) bs in
     SArray (
         Array.mapi (fun i q ->
             match Question.neutral_shape q with

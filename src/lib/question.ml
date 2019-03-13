@@ -25,12 +25,38 @@ open Serializable_core_t
 
 type question =
   | Standard of Question_std_t.question
+  | Open of Question_open_t.question
 
-let read_question l b = Standard (Question_std_j.read_question l b)
-let write_question b (Standard q) = Question_std_j.write_question b q
+let read_question l b =
+  let x = Yojson.Safe.read_json l b in
+  match x with
+  | `Assoc o ->
+     (match List.assoc_opt "type" o with
+      | None ->
+         Standard (Question_std_j.question_of_string (Yojson.Safe.to_string x))
+      | Some (`String "open") ->
+         (match List.assoc_opt "value" o with
+          | None -> failwith "Question.read_question: value is missing"
+          | Some v -> Open (Question_open_j.question_of_string (Yojson.Safe.to_string v))
+         )
+      | Some _ ->
+         failwith "Question.read_question: unexpected type"
+     )
+  | _ -> failwith "Question.read_question: unexpected JSON value"
+
+let write_question b = function
+  | Standard q -> Question_std_j.write_question b q
+  | Open q ->
+     let o = [
+         "type", `String "open";
+         "value", Yojson.Safe.from_string (Question_open_j.string_of_question q);
+       ]
+     in
+     Yojson.Safe.write_json b (`Assoc o)
 
 let neutral_shape = function
   | Standard q -> Some (SArray (Array.make (Question_std.question_length q) (SAtomic ())))
+  | Open _ -> None
 
 let erase_question = function
   | Standard q ->
@@ -42,6 +68,12 @@ let erase_question = function
          q_max = q.q_max;
          q_question = "";
        }
+  | Open q ->
+     let open Question_open_t in
+     Open {
+         q_answers = Array.map (fun _ -> "") q.q_answers;
+         q_question = "";
+       }
 
 module type S = sig
   type elt
@@ -50,7 +82,7 @@ module type S = sig
   val create_answer : question -> public_key:elt -> prefix:string -> int array -> Yojson.Safe.json m
   val verify_answer : question -> public_key:elt -> prefix:string -> Yojson.Safe.json -> bool
 
-  val extract_ciphertexts : Yojson.Safe.json -> elt ciphertext shape
+  val extract_ciphertexts : question -> Yojson.Safe.json -> elt ciphertext shape
 
   val compute_result : num_tallied:int -> question -> elt shape -> int shape
   val check_result : question -> elt shape -> int shape -> bool
@@ -60,32 +92,60 @@ module Make (M : RANDOM) (G : GROUP) = struct
   type elt = G.t
   type 'a m = 'a M.t
   let ( >>= ) = M.bind
-  module Q = Question_std.Make (M) (G)
 
-  let create_answer (Standard q) ~public_key ~prefix m =
-    Q.create_answer q ~public_key ~prefix m >>= fun answer ->
-    answer
-    |> Question_std_j.string_of_answer G.write
-    |> Yojson.Safe.from_string
-    |> M.return
+  module QStandard = Question_std.Make (M) (G)
+  module QOpen = Question_open.Make (M) (G)
 
-  let verify_answer (Standard q) ~public_key ~prefix a =
-    a
-    |> Yojson.Safe.to_string
-    |> Question_std_j.answer_of_string G.read
-    |> Q.verify_answer q ~public_key ~prefix
+  let create_answer q ~public_key ~prefix m =
+    match q with
+    | Standard q ->
+       QStandard.create_answer q ~public_key ~prefix m >>= fun answer ->
+       answer
+       |> Question_std_j.string_of_answer G.write
+       |> Yojson.Safe.from_string
+       |> M.return
+    | Open q ->
+       QOpen.create_answer q ~public_key ~prefix m >>= fun answer ->
+       answer
+       |> Question_open_j.string_of_answer G.write
+       |> Yojson.Safe.from_string
+       |> M.return
 
-  let extract_ciphertexts a =
-    a
-    |> Yojson.Safe.to_string
-    |> Question_std_j.answer_of_string G.read
-    |> Q.extract_ciphertexts
+  let verify_answer q ~public_key ~prefix a =
+    match q with
+    | Standard q ->
+       a
+       |> Yojson.Safe.to_string
+       |> Question_std_j.answer_of_string G.read
+       |> QStandard.verify_answer q ~public_key ~prefix
+    | Open q ->
+       a
+       |> Yojson.Safe.to_string
+       |> Question_open_j.answer_of_string G.read
+       |> QOpen.verify_answer q ~public_key ~prefix
+
+  let extract_ciphertexts q a =
+    match q with
+    | Standard _ ->
+       a
+       |> Yojson.Safe.to_string
+       |> Question_std_j.answer_of_string G.read
+       |> QStandard.extract_ciphertexts
+    | Open _ ->
+       a
+       |> Yojson.Safe.to_string
+       |> Question_open_j.answer_of_string G.read
+       |> QOpen.extract_ciphertexts
 
   let compute_result ~num_tallied =
-    let compute_std = lazy (Q.compute_result ~num_tallied) in
-    fun (Standard q) x ->
-    Lazy.force compute_std q x
+    let compute_std = lazy (QStandard.compute_result ~num_tallied) in
+    fun q x ->
+    match q with
+    | Standard q -> Lazy.force compute_std q x
+    | Open q -> QOpen.compute_result q x
 
-  let check_result (Standard q) x r =
-    Q.check_result q x r
+  let check_result q x r =
+    match q with
+    | Standard q -> QStandard.check_result q x r
+    | Open q -> QOpen.check_result q x r
 end

@@ -21,28 +21,18 @@
 
 open Signatures_core
 open Serializable_builtin_t
-open Serializable_core_t
-
-type question =
-  | Standard of Question_std_t.question
-  | Open of Question_open_t.question
-
-val read_question : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question
-val write_question : Bi_outbuf.t -> question -> unit
-
-val neutral_shape : question -> unit shape option
-val erase_question : question -> question
+open Question_open_t
 
 module type S = sig
   type elt
   type 'a m
 
-  val create_answer : question -> public_key:elt -> prefix:string -> int array -> Yojson.Safe.json m
-  val verify_answer : question -> public_key:elt -> prefix:string -> Yojson.Safe.json -> bool
+  val create_answer : question -> public_key:elt -> prefix:string -> int array -> elt answer m
+  val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
 
-  val extract_ciphertexts : question -> Yojson.Safe.json -> elt ciphertext shape
+  val extract_ciphertexts : elt answer -> elt ciphertext shape
 
-  val compute_result : num_tallied:int -> question -> elt shape -> int shape
+  val compute_result : question -> elt shape -> int shape
   val check_result : question -> elt shape -> int shape -> bool
 end
 

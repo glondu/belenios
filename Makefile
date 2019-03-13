@@ -12,6 +12,7 @@ all:
 check: minimal
 	demo/demo.sh
 	demo/demo-threshold.sh
+	demo/demo-open.sh
 
 clean:
 	-ocamlbuild -clean

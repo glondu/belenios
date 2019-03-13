@@ -19,31 +19,22 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures_core
-open Serializable_builtin_t
-open Serializable_core_t
+<doc text="Serializable datatypes for open questions">
 
-type question =
-  | Standard of Question_std_t.question
-  | Open of Question_open_t.question
+(** {2 Predefined types} *)
 
-val read_question : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question
-val write_question : Bi_outbuf.t -> question -> unit
+type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
+type proof <ocaml predef from="Serializable_core"> = abstract
 
-val neutral_shape : question -> unit shape option
-val erase_question : question -> question
+(** {2 Questions and answers} *)
 
-module type S = sig
-  type elt
-  type 'a m
+type question = {
+  answers : string list <ocaml repr="array">;
+  question : string;
+} <ocaml field_prefix="q_">
 
-  val create_answer : question -> public_key:elt -> prefix:string -> int array -> Yojson.Safe.json m
-  val verify_answer : question -> public_key:elt -> prefix:string -> Yojson.Safe.json -> bool
-
-  val extract_ciphertexts : question -> Yojson.Safe.json -> elt ciphertext shape
-
-  val compute_result : num_tallied:int -> question -> elt shape -> int shape
-  val check_result : question -> elt shape -> int shape -> bool
-end
-
-module Make (M : RANDOM) (G : GROUP) : S with type 'a m = 'a M.t and type elt = G.t
+type 'a answer = {
+  choices : 'a ciphertext;
+  proof : proof;
+}
+<doc text="An answer to a question.">

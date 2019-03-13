@@ -1,0 +1,1 @@
+{"description":"Description of the election.","name":"Name of the election","questions":[{"answers":["Answer 1","Answer 2"],"min":0,"max":1,"question":"Question 1?"},{"answers":["Answer 1","Answer 2"],"blank":true,"min":1,"max":1,"question":"Question 2?"},{"type":"open","value":{"answers":["Answer 1","Answer 2","Answer 3"],"question":"Question 3?"}}]}
