@@ -66,6 +66,7 @@ module Shape : sig
     | SAtomic of 'a
     | SArray of 'a t array
   val to_array : 'a t -> 'a array
+  val to_shape_array : 'a t -> 'a t array
   val of_array_array : 'a array array -> 'a t
   val to_array_array : 'a t -> 'a array array
   val map : ('a -> 'b) -> 'a t -> 'b t

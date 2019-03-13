@@ -1650,6 +1650,42 @@ let rec list_concat elt = function
   | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
   | ([_] | []) as xs -> xs
 
+let format_question_result l q r =
+  let module L = (val l : Web_i18n_sig.LocalizedStrings) in
+  match q with
+  | Question.Standard x ->
+     let r = Shape.to_array r in
+     let open Question_std_t in
+     let answers = Array.to_list x.q_answers in
+     let answers = match x.q_blank with
+       | Some true -> L.blank_vote :: answers
+       | _ -> answers
+     in
+     let answers =
+       List.mapi (fun j x ->
+           tr [td [pcdata x]; td [pcdata @@ string_of_int r.(j)]]
+         ) answers
+     in
+     let answers =
+       match answers with
+       | [] -> pcdata ""
+       | y :: ys ->
+          match x.q_blank with
+          | Some true -> table (ys @ [y])
+          | _ -> table (y :: ys)
+     in
+     li [
+         pcdata x.q_question;
+         answers;
+       ]
+  | Question.Open x ->
+     let open Question_open_t in
+     li [
+         pcdata x.q_question;
+         pcdata " ";
+         em [pcdata "(open)"];
+       ]
+
 let election_home election state () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let l = Web_i18n.get_lang language in
@@ -1749,32 +1785,12 @@ let election_home election state () =
     let%lwt result = Web_persist.get_election_result uuid in
     match result with
     | Some r ->
-       let result = Shape.to_array_array r.result in
-       let questions = Array.to_list election.e_params.e_questions in
+       let result = Shape.to_shape_array r.result in
        return @@ div [
-         ul (List.mapi (fun i (Question.Standard x) ->
-           let open Question_std_t in
-           let answers = Array.to_list x.q_answers in
-           let answers = match x.q_blank with
-             | Some true -> L.blank_vote :: answers
-             | _ -> answers
-           in
-           let answers = List.mapi (fun j x ->
-             tr [td [pcdata x]; td [pcdata @@ string_of_int result.(i).(j)]]
-           ) answers in
-           let answers =
-             match answers with
-             | [] -> pcdata ""
-             | y :: ys ->
-                match x.q_blank with
-                | Some true -> table (ys @ [y])
-                | _ -> table (y :: ys)
-           in
-           li [
-             pcdata x.q_question;
-             answers;
-           ]
-         ) questions);
+         ul (
+             Array.map2 (format_question_result l) election.e_params.e_questions result
+             |> Array.to_list
+           );
          div [
            pcdata L.number_accepted_ballots;
            pcdata (string_of_int r.num_tallied);
