@@ -70,12 +70,8 @@ let progress_step n =
     new_##.style##.fontWeight := Js.string "bold"
   in ()
 
-let rec createQuestionNode sk params question_div num_questions i prev (Question.Standard q, answers) next =
+let appendStdQuestion div num_questions i q answers =
   let open Question_std_t in
-  (* Create div element for the current question. [i] and [(q,
-     answers)] point to the current question. [List.rev prev @ [q,
-     answers] @ next] is the list of all questions. *)
-  let div = Dom_html.createDiv document in
   let () =
     let c = Dom_html.createH2 document in
     let t = document##createTextNode (Js.string q.q_question) in
@@ -155,6 +151,44 @@ let rec createQuestionNode sk params question_div num_questions i prev (Question
        let total = Array.fold_left (+) 0 answers in
        check_min_max total
   in
+  check_constraints
+
+let appendStdSummary e a q =
+  let open Question_std_t in
+  let h = Dom_html.createH3 document in
+  let t = document##createTextNode (Js.string q.q_question) in
+  Dom.appendChild h t;
+  Dom.appendChild e h;
+  let ul = Dom_html.createUl document in
+  let checked = ref 0 in
+  Array.iteri (fun i a ->
+      if a > 0 then (
+        incr checked;
+        let li = Dom_html.createLi document in
+        let text = match q.q_blank with
+          | Some true -> if i = 0 then get_content "str_blank_vote" else q.q_answers.(i-1)
+          | _ -> q.q_answers.(i)
+        in
+        let t = document##createTextNode (Js.string text) in
+        Dom.appendChild li t;
+        Dom.appendChild ul li;
+      )
+    ) a;
+  if !checked = 0 then (
+    let t = document##createTextNode (Js.string @@ get_content "str_nothing") in
+    Dom.appendChild ul t
+  );
+  Dom.appendChild e ul
+
+let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
+  (* Create div element for the current question. [i] and [(q,
+     answers)] point to the current question. [List.rev prev @ [q,
+     answers] @ next] is the list of all questions. *)
+  let div = Dom_html.createDiv document in
+  let check_constraints =
+    match q with
+    | Question.Standard q -> appendStdQuestion div num_questions i q answers
+  in
   let () =
     (* previous button *)
     let btns = Dom_html.createDiv document in
@@ -170,7 +204,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (Question
         b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
-              question_div num_questions (i - 1) prev r ((Question.Standard q, answers) :: next)
+              question_div num_questions (i - 1) prev r ((q, answers) :: next)
             in
             Dom.replaceChild question_div ndiv div;
             Js._false
@@ -188,7 +222,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (Question
         let t = document##createTextNode (Js.string @@ get_content "str_next") in
         b##.onclick := Dom_html.handler (fun _ ->
          if check_constraints () then (
-          let all = (Question.Standard q, answers) :: prev in
+          let all = (q, answers) :: prev in
           let all_answers = List.rev_map snd all |> Array.of_list in
           let all_questions = List.rev_map fst all |> Array.of_list in
           set_textarea "choices" (string_of_plaintext all_answers);
@@ -196,31 +230,8 @@ let rec createQuestionNode sk params question_div num_questions i prev (Question
           let () =
             document##getElementById (Js.string "pretty_choices") >>== fun e ->
             Array.iteri (fun i a ->
-                let Question.Standard q = all_questions.(i) in
-                let h = Dom_html.createH3 document in
-                let t = document##createTextNode (Js.string q.q_question) in
-                Dom.appendChild h t;
-                Dom.appendChild e h;
-                let ul = Dom_html.createUl document in
-                let checked = ref 0 in
-                Array.iteri (fun i a ->
-                    if a > 0 then (
-                      incr checked;
-                      let li = Dom_html.createLi document in
-                      let text = match q.q_blank with
-                        | Some true -> if i = 0 then get_content "str_blank_vote" else q.q_answers.(i-1)
-                        | _ -> q.q_answers.(i)
-                      in
-                      let t = document##createTextNode (Js.string text) in
-                      Dom.appendChild li t;
-                      Dom.appendChild ul li;
-                    )
-                  ) a;
-                if !checked = 0 then (
-                  let t = document##createTextNode (Js.string @@ get_content "str_nothing") in
-                  Dom.appendChild ul t
-                );
-                Dom.appendChild e ul;
+                match all_questions.(i) with
+                | Question.Standard q -> appendStdSummary e a q
               ) all_answers
           in
           Lwt_js_events.async (encryptBallot params sk all_answers);
@@ -237,7 +248,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (Question
         b##.onclick := Dom_html.handler (fun _ ->
           if check_constraints () then (
             let ndiv = createQuestionNode sk params
-              question_div num_questions (i + 1) ((Question.Standard q, answers) :: prev) r next
+              question_div num_questions (i + 1) ((q, answers) :: prev) r next
             in
             Dom.replaceChild question_div ndiv div;
             Js._false
@@ -255,7 +266,11 @@ let addQuestions sk params qs =
   let n = Array.length qs in
   let qs =
     Array.to_list qs |>
-      List.map (fun (Question.Standard q) -> Question.Standard q, Array.make (Question_std.question_length q) 0)
+      List.map (fun q ->
+          match q with
+          | Question.Standard x -> q, Array.make (Question_std.question_length x) 0
+          | Question.Open x -> q, Array.make (Array.length x.Question_open_t.q_answers) 0
+        )
   in
   match qs with
   | [] -> failwith "no questions"
