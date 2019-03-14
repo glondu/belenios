@@ -39,6 +39,7 @@ let source_file = ref None
 let auth_instances = ref []
 let gdpr_uri = ref None
 let default_group_file = ref None
+let nh_group_file = ref None
 
 let () =
   Eliom_config.get_config () |>
@@ -52,6 +53,8 @@ let () =
     source_file := Some file
   | Element ("default-group", ["file", file], []) ->
     default_group_file := Some file
+  | Element ("nh-group", ["file", file], []) ->
+    nh_group_file := Some file
   | Element ("maxmailsatonce", ["value", limit], []) ->
     Web_config.maxmailsatonce := int_of_string limit
   | Element ("uuid", ["length", length], []) ->
@@ -121,9 +124,19 @@ let%lwt default_group =
      | [x] -> return x
      | _ -> failwith "invalid default group file"
 
+let%lwt nh_group =
+  match !nh_group_file with
+  | None -> failwith "missing <nh-group> in configuration"
+  | Some x ->
+     let%lwt x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
+     match x with
+     | [x] -> return x
+     | _ -> failwith "invalid NH group file"
+
 (** Build up the site *)
 
 let () = Web_config.source_file := source_file
 let () = Web_config.spool_dir := spool_dir
 let () = Web_config.default_group := default_group
+let () = Web_config.nh_group := nh_group
 let () = Web_config.site_auth_config := List.rev !auth_instances

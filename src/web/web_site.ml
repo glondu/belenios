@@ -387,7 +387,7 @@ let generate_uuid =
 
 let redir_preapply s u () = Redirection.send (Redirection (preapply s u))
 
-let create_new_election owner cred auth =
+let create_new_election owner cred auth group =
   let e_cred_authority = match cred with
     | `Automatic -> Some "server"
     | `Manual -> None
@@ -396,6 +396,10 @@ let create_new_election owner cred auth =
     | `Password -> Some [{auth_system = "password"; auth_instance = "password"; auth_config = []}]
     | `Dummy -> Some [{auth_system = "dummy"; auth_instance = "dummy"; auth_config = []}]
     | `CAS server -> Some [{auth_system = "cas"; auth_instance = "cas"; auth_config = ["server", server]}]
+  in
+  let se_group = match group with
+    | `Default -> !Web_config.default_group
+    | `NH -> !Web_config.nh_group
   in
   let%lwt uuid = generate_uuid () in
   let%lwt token = generate_token () in
@@ -415,7 +419,7 @@ let create_new_election owner cred auth =
   } in
   let se = {
     se_owner = owner;
-    se_group = !Web_config.default_group;
+    se_group;
     se_voters = [];
     se_questions;
     se_public_keys = [];
@@ -436,7 +440,7 @@ let () = Html.register ~service:election_draft_pre
   (fun () () -> T.election_draft_pre ())
 
 let () = Any.register ~service:election_draft_new
-  (fun () (credmgmt, (auth, cas_server)) ->
+  (fun () (credmgmt, (auth, (cas_server, group))) ->
     with_site_user (fun u ->
         let%lwt credmgmt = match credmgmt with
           | Some "auto" -> return `Automatic
@@ -449,7 +453,12 @@ let () = Any.register ~service:election_draft_new
           | Some "cas" -> return @@ `CAS cas_server
           | _ -> fail_http 400
         in
-        create_new_election u credmgmt auth
+        let%lwt group = match group with
+          | Some "default" -> return `Default
+          | Some "nh" -> return `NH
+          | _ -> fail_http 400
+        in
+        create_new_election u credmgmt auth group
       )
   )
 

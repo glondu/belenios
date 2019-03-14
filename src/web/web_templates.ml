@@ -317,7 +317,7 @@ let election_draft_pre () =
   in
   let form =
     post_form ~service:election_draft_new
-      (fun (credmgmt, (auth, cas_server)) ->
+      (fun (credmgmt, (auth, (cas_server, group))) ->
         [
           fieldset
             ~legend:(legend [
@@ -348,6 +348,18 @@ let election_draft_pre () =
                 input ~input_type:`Text ~name:cas_server string;
                 pcdata " (for example: https://cas.inria.fr/cas)";
               ];
+            ];
+          fieldset
+            ~legend:(legend [pcdata "Group"])
+            [
+              div [
+                  radio ~checked:true ~name:group ~value:"default" string;
+                  pcdata " Homomorphic";
+                ];
+              div [
+                  radio ~name:group ~value:"nh" string;
+                  pcdata " Non-homomorphic";
+                ];
             ];
           div [
             input ~input_type:`Submit ~value:"Proceed" string;
