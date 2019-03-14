@@ -46,15 +46,6 @@ let extractQuestion q =
     try return (int_of_string x)
     with _ -> failwith (error_msg ^ ": " ^ x ^ ".")
   in
-  p2##querySelector (Js.string ".question_blank") >>= fun q_blank ->
-  Dom_html.CoerceTo.input q_blank >>= fun q_blank ->
-  let q_blank = if Js.to_bool q_blank##.checked then Some true else None in
-  numeric ".question_min" "Invalid minimum number of choices" >>= fun q_min ->
-  numeric ".question_max" "Invalid maximum number of choices" >>= fun q_max ->
-  if not (q_min <= q_max) then
-    failwith "Minimum number of choices must be less than or equal to maximum number of choices!";
-  if (q_max = 0) then
-    failwith "Maximum number of choices must be greater than 0!";
   let answers = p2##querySelectorAll (Js.string ".question_answer") in
   let q_answers =
     Array.init
@@ -63,10 +54,23 @@ let extractQuestion q =
        let a = answers##item (i) >>= extractAnswer in
        Js.Opt.get a (fun () -> failwith "extractQuestion"))
   in
-  if (q_max > Array.length q_answers) then
-    failwith "Maximum number of choices is greater than number of choices!";
-  let open Question_std_t in
-  return (Question.Standard {q_question; q_blank; q_min; q_max; q_answers})
+  match Js.Opt.to_option (p2##querySelector (Js.string ".question_blank")) with
+  | Some q_blank ->
+     Dom_html.CoerceTo.input q_blank >>= fun q_blank ->
+     let q_blank = if Js.to_bool q_blank##.checked then Some true else None in
+     numeric ".question_min" "Invalid minimum number of choices" >>= fun q_min ->
+     numeric ".question_max" "Invalid maximum number of choices" >>= fun q_max ->
+     if not (q_min <= q_max) then
+       failwith "Minimum number of choices must be less than or equal to maximum number of choices!";
+     if (q_max = 0) then
+       failwith "Maximum number of choices must be greater than 0!";
+     if (q_max > Array.length q_answers) then
+       failwith "Maximum number of choices is greater than number of choices!";
+     let open Question_std_t in
+     return (Question.Standard {q_question; q_blank; q_min; q_max; q_answers})
+  | None ->
+     let open Question_open_t in
+     return (Question.Open {q_question; q_answers})
 
 let extractTemplate () =
   let t_name = get_input "election_name" in
@@ -118,8 +122,40 @@ let rec createAnswer a =
   Dom.appendChild container insert_btn;
   container
 
-let rec createQuestion (Question.Standard q) =
-  let open Question_std_t in
+let createStdQuestionPropDiv min max blank =
+  let container = Dom_html.createDiv document in
+  let x = Dom_html.createDiv document in
+  let t = document##createTextNode (Js.string "The voter has to choose between ") in
+  Dom.appendChild x t;
+  let h_min = Dom_html.createInput document in
+  Dom.appendChild x h_min;
+  h_min##.className := Js.string "question_min";
+  h_min##.size := 5;
+  h_min##.value := Js.string (string_of_int min);
+  let t = document##createTextNode (Js.string " and ") in
+  Dom.appendChild x t;
+  let h_max = Dom_html.createInput document in
+  Dom.appendChild x h_max;
+  h_max##.className := Js.string "question_max";
+  h_max##.size := 5;
+  h_max##.value := Js.string (string_of_int max);
+  let t = document##createTextNode (Js.string " answers.") in
+  Dom.appendChild x t;
+  Dom.appendChild container x;
+  (* is blank allowed? *)
+  let x = Dom_html.createDiv document in
+  let h_blank = Dom_html.createInput ~_type:(Js.string "checkbox") document in
+  h_blank##.className := Js.string "question_blank";
+  h_blank##.checked := Js.(match blank with Some true -> _true | _ -> _false);
+  Dom.appendChild x h_blank;
+  let t = document##createTextNode (Js.string "Blank vote is allowed") in
+  Dom.appendChild x t;
+  Dom.appendChild container x;
+  container
+
+let default_props = None, 0, 1
+
+let rec createQuestionDiv question answers props =
   let container = Dom_html.createDiv document in
   (* question text and remove/insert buttons *)
   let x = Dom_html.createDiv document in
@@ -129,7 +165,7 @@ let rec createQuestion (Question.Standard q) =
   Dom.appendChild x h_question;
   h_question##.className := Js.string "question_question";
   h_question##.size := 60;
-  h_question##.value := Js.string q.q_question;
+  h_question##.value := Js.string question;
   let remove_text = document##createTextNode (Js.string "Remove") in
   let remove_btn = Dom_html.createButton document in
   let f _ =
@@ -143,7 +179,7 @@ let rec createQuestion (Question.Standard q) =
   let insert_text = document##createTextNode (Js.string "Insert") in
   let insert_btn = Dom_html.createButton document in
   let f _ =
-    let x = createQuestion (Question.Standard {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]}) in
+    let x = createQuestionDiv "" [||] (Some default_props) in
     container##.parentNode >>= fun p ->
     Dom.insertBefore p x (Js.some container);
     return ()
@@ -153,33 +189,35 @@ let rec createQuestion (Question.Standard q) =
   Dom.appendChild x insert_btn;
   Dom.appendChild container x;
   (* properties *)
+  let prop_div_h =
+    let blank, min, max =
+      match props with
+      | Some x -> x
+      | None -> default_props
+    in
+    createStdQuestionPropDiv min max blank
+  in
+  let prop_div_nh = Dom_html.createDiv document in
   let x = Dom_html.createDiv document in
-  let t = document##createTextNode (Js.string "The voter has to choose between ") in
-  Dom.appendChild x t;
-  let h_min = Dom_html.createInput document in
-  Dom.appendChild x h_min;
-  h_min##.className := Js.string "question_min";
-  h_min##.size := 5;
-  h_min##.value := Js.string (string_of_int q.q_min);
-  let t = document##createTextNode (Js.string " and ") in
-  Dom.appendChild x t;
-  let h_max = Dom_html.createInput document in
-  Dom.appendChild x h_max;
-  h_max##.className := Js.string "question_max";
-  h_max##.size := 5;
-  h_max##.value := Js.string (string_of_int q.q_max);
-  let t = document##createTextNode (Js.string " answers.") in
-  Dom.appendChild x t;
   Dom.appendChild container x;
-  (* is blank allowed? *)
-  let x = Dom_html.createDiv document in
-  let h_blank = Dom_html.createInput ~_type:(Js.string "checkbox") document in
-  h_blank##.className := Js.string "question_blank";
-  h_blank##.checked := Js.(match q.q_blank with Some true -> _true | _ -> _false);
-  Dom.appendChild x h_blank;
-  let t = document##createTextNode (Js.string "Blank vote is allowed") in
-  Dom.appendChild x t;
-  Dom.appendChild container x;
+  let cb_type = Dom_html.createInput ~_type:(Js.string "checkbox") document in
+  (match props with
+   | Some _ ->
+      Dom.appendChild container prop_div_h;
+      cb_type##.checked := Js._true
+   | None ->
+      Dom.appendChild container prop_div_nh;
+      cb_type##.checked := Js._false
+  );
+  let f _ =
+    if Js.to_bool cb_type##.checked then
+      Dom.replaceChild container prop_div_h prop_div_nh
+    else
+      Dom.replaceChild container prop_div_nh prop_div_h
+  in
+  cb_type##.onchange := handler f;
+  Dom.appendChild x cb_type;
+  Dom.appendChild x (document##createTextNode (Js.string "Homomorphic tally"));
   (* answers *)
   let h_answers = Dom_html.createDiv document in
   h_answers##.className := Js.string "question_answers";
@@ -188,7 +226,7 @@ let rec createQuestion (Question.Standard q) =
     (fun a ->
      let x = createAnswer a in
      Dom.appendChild h_answers x)
-    q.q_answers;
+    answers;
   (* button for adding answer *)
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
@@ -206,6 +244,18 @@ let rec createQuestion (Question.Standard q) =
   Dom.appendChild container x;
   (* return *)
   container
+
+let createQuestion q =
+  let question, answers, props =
+    match q with
+    | Question.Standard q ->
+       let open Question_std_t in
+       q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max)
+    | Question.Open q ->
+       let open Question_open_t in
+       q.q_question, q.q_answers, None
+  in
+  createQuestionDiv question answers props
 
 let createTemplate template =
   let container = Dom_html.createDiv document in
