@@ -153,6 +153,49 @@ let appendStdQuestion div num_questions i q answers =
   in
   check_constraints
 
+let appendOpenQuestion div q answers =
+  let open Question_open_t in
+  let () =
+    let c = Dom_html.createH2 document in
+    let t = document##createTextNode (Js.string q.q_question) in
+    Dom.appendChild c t;
+    Dom.appendChild div c
+  in
+  let () =
+    let choices = Dom_html.createDiv document in
+    let choices_divs = Array.mapi (fun i a ->
+      let div = Dom_html.createDiv document in
+      let input = Dom_html.createInput document in
+      input##.size := 5;
+      input##.value := Js.string (string_of_int answers.(i));
+      Dom.appendChild div input;
+      let t = document##createTextNode (Js.string (" " ^ a)) in
+      input##.onchange :=
+        Dom_html.handler (fun _ ->
+            let x =
+              try
+                let x = int_of_string (Js.to_string input##.value) in
+                if x < 0 then raise Exit;
+                x
+              with _ ->
+                alert "Value must be a non-negative integer";
+                0
+            in
+            answers.(i) <- x;
+            Js._true
+          );
+      Dom.appendChild div t;
+      div
+    ) q.q_answers
+    in
+    for i = 0 to Array.length choices_divs - 1 do
+      Dom.appendChild choices choices_divs.(i)
+    done;
+    Dom.appendChild div choices
+  in
+  let check_constraints () = true in
+  check_constraints
+
 let appendStdSummary e a q =
   let open Question_std_t in
   let h = Dom_html.createH3 document in
@@ -180,6 +223,22 @@ let appendStdSummary e a q =
   );
   Dom.appendChild e ul
 
+let appendOpenSummary e a q =
+  let open Question_open_t in
+  let h = Dom_html.createH3 document in
+  let t = document##createTextNode (Js.string q.q_question) in
+  Dom.appendChild h t;
+  Dom.appendChild e h;
+  let ul = Dom_html.createUl document in
+  Array.iteri (fun i a ->
+      let li = Dom_html.createLi document in
+      let text = Printf.sprintf "%d (%s)" a q.q_answers.(i) in
+      let t = document##createTextNode (Js.string text) in
+      Dom.appendChild li t;
+      Dom.appendChild ul li;
+    ) a;
+  Dom.appendChild e ul
+
 let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
   (* Create div element for the current question. [i] and [(q,
      answers)] point to the current question. [List.rev prev @ [q,
@@ -188,6 +247,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   let check_constraints =
     match q with
     | Question.Standard q -> appendStdQuestion div num_questions i q answers
+    | Question.Open q -> appendOpenQuestion div q answers
   in
   let () =
     (* previous button *)
@@ -232,6 +292,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
             Array.iteri (fun i a ->
                 match all_questions.(i) with
                 | Question.Standard q -> appendStdSummary e a q
+                | Question.Open q -> appendOpenSummary e a q
               ) all_answers
           in
           Lwt_js_events.async (encryptBallot params sk all_answers);
