@@ -20,8 +20,6 @@
 (**************************************************************************)
 
 open Signatures_core
-open Serializable_builtin_t
-open Serializable_core_t
 
 type question =
   | Standard of Question_std_t.question
@@ -71,23 +69,7 @@ let erase_question = function
          q_question = "";
        }
 
-module type S = sig
-  type elt
-  type 'a m
-
-  val create_answer : question -> public_key:elt -> prefix:string -> int array -> Yojson.Safe.json m
-  val verify_answer : question -> public_key:elt -> prefix:string -> Yojson.Safe.json -> bool
-
-  val extract_ciphertexts : question -> Yojson.Safe.json -> elt ciphertext shape
-  val process_ciphertexts : question -> elt ciphertext shape array -> elt ciphertext shape
-
-  val compute_result : num_tallied:int -> question -> elt shape -> int shape
-  val check_result : question -> elt shape -> int shape -> bool
-end
-
 module Make (M : RANDOM) (G : GROUP) = struct
-  type elt = G.t
-  type 'a m = 'a M.t
   let ( >>= ) = M.bind
 
   module QStandard = Question_std.Make (M) (G)
@@ -123,16 +105,16 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let extract_ciphertexts q a =
     match q with
-    | Standard _ ->
+    | Standard q ->
        a
        |> Yojson.Safe.to_string
        |> Question_std_j.answer_of_string G.read
-       |> QStandard.extract_ciphertexts
-    | Open _ ->
+       |> QStandard.extract_ciphertexts q
+    | Open q ->
        a
        |> Yojson.Safe.to_string
        |> Question_open_j.answer_of_string G.read
-       |> QOpen.extract_ciphertexts
+       |> QOpen.extract_ciphertexts q
 
   let process_ciphertexts q e =
     match q with
@@ -144,7 +126,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     fun q x ->
     match q with
     | Standard q -> Lazy.force compute_std q x
-    | Open q -> QOpen.compute_result q x
+    | Open q -> QOpen.compute_result ~num_tallied q x
 
   let check_result q x r =
     match q with

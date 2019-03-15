@@ -19,19 +19,21 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures_core
+open Serializable_builtin_t
+open Serializable_core_t
 
-type question =
-  | Standard of Question_std_t.question
-  | Open of Question_open_t.question
+module type QUESTION = sig
+  type question
+  type answer
+  type elt
+  type 'a m
 
-val read_question : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question
-val write_question : Bi_outbuf.t -> question -> unit
+  val create_answer : question -> public_key:elt -> prefix:string -> int array -> answer m
+  val verify_answer : question -> public_key:elt -> prefix:string -> answer -> bool
 
-val erase_question : question -> question
+  val extract_ciphertexts : question -> answer -> elt ciphertext shape
+  val process_ciphertexts : question -> elt ciphertext shape array -> elt ciphertext shape
 
-module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
-       with type 'a m := 'a M.t
-        and type elt := G.t
-        and type question := question
-        and type answer := Yojson.Safe.json
+  val compute_result : num_tallied:int -> question -> elt shape -> int shape
+  val check_result : question -> elt shape -> int shape -> bool
+end

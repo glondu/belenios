@@ -27,23 +27,7 @@ open Question_open_t
 
 let check_modulo p x = Z.(geq x zero && lt x p)
 
-module type S = sig
-  type elt
-  type 'a m
-
-  val create_answer : question -> public_key:elt -> prefix:string -> int array -> elt answer m
-  val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
-
-  val extract_ciphertexts : elt answer -> elt ciphertext shape
-  val process_ciphertexts : question -> elt ciphertext shape array -> elt ciphertext shape
-
-  val compute_result : question -> elt shape -> int shape
-  val check_result : question -> elt shape -> int shape -> bool
-end
-
 module Make (M : RANDOM) (G : GROUP) = struct
-  type elt = G.t
-  type 'a m = 'a M.t
   let ( >>= ) = M.bind
   open G
 
@@ -69,7 +53,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let zkp = Printf.sprintf "raweg|%s|%s,%s,%s|" prefix (G.to_string y) (G.to_string alpha) (G.to_string beta) in
     Z.(challenge =% G.hash zkp [| commitment |])
 
-  let extract_ciphertexts a =
+  let extract_ciphertexts _ a =
     SAtomic a.choices
 
   let compare_ciphertexts x y =
@@ -83,7 +67,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     Array.fast_sort compare_ciphertexts es;
     SArray es
 
-  let compute_result q x =
+  let compute_result ~num_tallied:_ q x =
     let n = Array.length q.q_answers in
     let rec aux = function
       | SAtomic x -> SArray (Array.map (fun x -> SAtomic x) (G.to_ints n x))
@@ -91,5 +75,5 @@ module Make (M : RANDOM) (G : GROUP) = struct
     in aux x
 
   let check_result q x r =
-    r = compute_result q x
+    r = compute_result 0 q x
 end

@@ -35,23 +35,8 @@ let question_length q =
                              | Some true -> 1
                              | _ -> 0
 
-module type S = sig
-  type elt
-  type 'a m
-
-  val create_answer : question -> public_key:elt -> prefix:string -> int array -> elt answer m
-  val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
-
-  val extract_ciphertexts : elt answer -> elt ciphertext shape
-  val process_ciphertexts : question -> elt ciphertext shape array -> elt ciphertext shape
-
-  val compute_result : num_tallied:int -> question -> elt shape -> int shape
-  val check_result : question -> elt shape -> int shape -> bool
-end
 
 module Make (M : RANDOM) (G : GROUP) = struct
-  type elt = G.t
-  type 'a m = 'a M.t
   open M
   open G
 
@@ -422,7 +407,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
        eg_disj_verify y d zkp a.overall_proof sumc
     | _, _ -> false
 
-  let extract_ciphertexts a =
+  let extract_ciphertexts _ a =
     SArray (Array.map (fun x -> SAtomic x) a.choices)
 
   let process_ciphertexts q es =

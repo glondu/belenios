@@ -20,23 +20,12 @@
 (**************************************************************************)
 
 open Signatures_core
-open Serializable_builtin_t
 open Question_std_t
 
 val question_length : question -> int
 
-module type S = sig
-  type elt
-  type 'a m
-
-  val create_answer : question -> public_key:elt -> prefix:string -> int array -> elt answer m
-  val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
-
-  val extract_ciphertexts : elt answer -> elt ciphertext shape
-  val process_ciphertexts : question -> elt ciphertext shape array -> elt ciphertext shape
-
-  val compute_result : num_tallied:int -> question -> elt shape -> int shape
-  val check_result : question -> elt shape -> int shape -> bool
-end
-
-module Make (M : RANDOM) (G : GROUP) : S with type 'a m = 'a M.t and type elt = G.t
+module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
+       with type 'a m := 'a M.t
+        and type elt := G.t
+        and type question := question
+        and type answer := G.t answer
