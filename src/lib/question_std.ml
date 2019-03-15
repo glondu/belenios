@@ -43,6 +43,7 @@ module type S = sig
   val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
 
   val extract_ciphertexts : elt answer -> elt ciphertext shape
+  val process_ciphertexts : question -> elt ciphertext shape array -> elt ciphertext shape
 
   val compute_result : num_tallied:int -> question -> elt shape -> int shape
   val check_result : question -> elt shape -> int shape -> bool
@@ -423,6 +424,10 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let extract_ciphertexts a =
     SArray (Array.map (fun x -> SAtomic x) a.choices)
+
+  let process_ciphertexts q es =
+    let neutral = SArray (Array.make (question_length q) (SAtomic dummy_ciphertext)) in
+    Array.fold_left (Shape.map2 eg_combine) neutral es
 
   let compute_result ~num_tallied =
     let log =

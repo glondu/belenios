@@ -54,10 +54,6 @@ let write_question b = function
      in
      Yojson.Safe.write_json b (`Assoc o)
 
-let neutral_shape = function
-  | Standard q -> Some (SArray (Array.make (Question_std.question_length q) (SAtomic ())))
-  | Open _ -> None
-
 let erase_question = function
   | Standard q ->
      let open Question_std_t in
@@ -83,6 +79,7 @@ module type S = sig
   val verify_answer : question -> public_key:elt -> prefix:string -> Yojson.Safe.json -> bool
 
   val extract_ciphertexts : question -> Yojson.Safe.json -> elt ciphertext shape
+  val process_ciphertexts : question -> elt ciphertext shape array -> elt ciphertext shape
 
   val compute_result : num_tallied:int -> question -> elt shape -> int shape
   val check_result : question -> elt shape -> int shape -> bool
@@ -136,6 +133,11 @@ module Make (M : RANDOM) (G : GROUP) = struct
        |> Yojson.Safe.to_string
        |> Question_open_j.answer_of_string G.read
        |> QOpen.extract_ciphertexts
+
+  let process_ciphertexts q e =
+    match q with
+    | Standard q -> QStandard.process_ciphertexts q e
+    | Open q -> QOpen.process_ciphertexts q e
 
   let compute_result ~num_tallied =
     let compute_std = lazy (QStandard.compute_result ~num_tallied) in

@@ -35,6 +35,7 @@ module type S = sig
   val verify_answer : question -> public_key:elt -> prefix:string -> elt answer -> bool
 
   val extract_ciphertexts : elt answer -> elt ciphertext shape
+  val process_ciphertexts : question -> elt ciphertext shape array -> elt ciphertext shape
 
   val compute_result : question -> elt shape -> int shape
   val check_result : question -> elt shape -> int shape -> bool
@@ -70,6 +71,17 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let extract_ciphertexts a =
     SAtomic a.choices
+
+  let compare_ciphertexts x y =
+    match x, y with
+    | SAtomic x, SAtomic y ->
+       let c = G.compare x.alpha y.alpha in
+       if c = 0 then G.compare x.beta y.beta else c
+    | _, _ -> invalid_arg "Question_open.compare_ciphertexts"
+
+  let process_ciphertexts _ es =
+    Array.fast_sort compare_ciphertexts es;
+    SArray es
 
   let compute_result q x =
     let n = Array.length q.q_answers in

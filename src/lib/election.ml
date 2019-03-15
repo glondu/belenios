@@ -68,20 +68,6 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   let ( / ) x y = x *~ invert y
 
-
-  let dummy_ciphertext =
-    {
-      alpha = G.one;
-      beta = G.one;
-    }
-
-  (** Multiply two ElGamal ciphertexts. *)
-  let eg_combine c1 c2 =
-    {
-      alpha = c1.alpha *~ c2.alpha;
-      beta = c1.beta *~ c2.beta;
-    }
-
   type plaintext = int array array
   type ballot = elt Serializable_t.ballot
 
@@ -171,17 +157,9 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     Array.forall2 (verify_answer p.e_public_key zkp) p.e_questions b.answers
 
   let process_ballots bs =
-    let bs = Array.map (fun b -> Array.map2 Q.extract_ciphertexts election.e_params.e_questions b.answers) bs in
     SArray (
         Array.mapi (fun i q ->
-            match Question.neutral_shape q with
-            | Some s ->
-               let s = Shape.map (fun _ -> dummy_ciphertext) s in
-               Array.fold_left (fun accu b ->
-                   Shape.map2 eg_combine accu b.(i)
-                 ) s bs
-            | None ->
-               SArray (Array.map (fun b -> b.(i)) bs)
+            Q.process_ciphertexts q (Array.map (fun b -> Q.extract_ciphertexts q b.answers.(i)) bs)
           ) election.e_params.e_questions
       )
 
