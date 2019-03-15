@@ -55,83 +55,11 @@ module Array = struct
        else true
      in check (pred n))
 
-  let fforall f xs =
-    let rec loop_outer i =
-      if i >= 0 then
-        let x = xs.(i) in
-        let n = Array.length x in
-        let rec loop_inner j =
-          if j >= 0 then f x.(j) && loop_inner (pred j)
-          else loop_outer (pred i)
-        in loop_inner (pred n)
-      else true
-    in
-    let n = Array.length xs in
-    loop_outer (pred n)
-
-  let fforall2 f xs ys =
-    let rec loop_outer i =
-      if i >= 0 then
-        let x = xs.(i) and y = ys.(i) in
-        let n = Array.length x in
-        n = Array.length y &&
-        let rec loop_inner j =
-          if j >= 0 then f x.(j) y.(j) && loop_inner (pred j)
-          else loop_outer (pred i)
-        in loop_inner (pred n)
-      else true
-    in
-    let n = Array.length xs in
-    n = Array.length ys &&
-    loop_outer (pred n)
-
-  let fforall3 f xs ys zs =
-    let rec loop_outer i =
-      if i >= 0 then
-        let x = xs.(i) and y = ys.(i) and z = zs.(i) in
-        let n = Array.length x in
-        n = Array.length y &&
-        n = Array.length z &&
-        let rec loop_inner j =
-          if j >= 0 then f x.(j) y.(j) z.(j) && loop_inner (pred j)
-          else loop_outer (pred i)
-        in loop_inner (pred n)
-      else true
-    in
-    let n = Array.length xs in
-    n = Array.length ys &&
-    n = Array.length zs &&
-    loop_outer (pred n)
-
   let map2 f a b =
     Array.mapi (fun i ai -> f ai b.(i)) a
 
   let map3 f a b c =
     Array.mapi (fun i ai -> f ai b.(i) c.(i)) a
-
-  let mmap f a =
-    Array.map (fun ai ->
-      Array.map f ai
-    ) a
-
-  let mmap2 f a b =
-    Array.mapi (fun i ai ->
-      let bi = b.(i) in
-      Array.mapi (fun j aj ->
-        f aj bi.(j)
-      ) ai
-    ) a
-
-  let mmap3 f a b c =
-    Array.mapi (fun i ai ->
-      let bi = b.(i) and ci = c.(i) in
-      Array.mapi (fun j aj ->
-        f aj bi.(j) ci.(j)
-      ) ai
-    ) a
-
-  let ssplit a =
-    mmap fst a, mmap snd a
 
   let findi f a =
     let n = Array.length a in
@@ -200,25 +128,6 @@ module Shape = struct
   let to_shape_array = function
     | SAtomic _ -> invalid_arg "Shape.to_shape_array"
     | SArray xs -> xs
-
-  let of_array_array x =
-    SArray (
-        Array.map (fun x ->
-            SArray (Array.map (fun x -> SAtomic x) x)
-          ) x
-      )
-
-  let to_array_array = function
-    | SAtomic _ -> invalid_arg "Shape.to_array_array"
-    | SArray x ->
-       Array.map (function
-           | SAtomic _ -> invalid_arg "Shape.to_array_array"
-           | SArray x ->
-              Array.map (function
-                  | SAtomic x -> x
-                  | SArray _ -> invalid_arg "Shape.to_array_array"
-                ) x
-         ) x
 
   let rec map f = function
     | SAtomic x -> SAtomic (f x)

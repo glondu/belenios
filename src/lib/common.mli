@@ -27,20 +27,9 @@ module Array : sig
   val forall : ('a -> bool) -> 'a array -> bool
   val forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
   val forall3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
-  val fforall : ('a -> bool) -> 'a array array -> bool
-  val fforall2 : ('a -> 'b -> bool) ->
-    'a array array -> 'b array array -> bool
-  val fforall3 : ('a -> 'b -> 'c -> bool) ->
-    'a array array -> 'b array array -> 'c array array -> bool
   val map2 : ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
   val map3 : ('a -> 'b -> 'c -> 'd) ->
     'a array -> 'b array -> 'c array -> 'd array
-  val mmap : ('a -> 'b) -> 'a array array -> 'b array array
-  val mmap2 : ('a -> 'b -> 'c) ->
-    'a array array -> 'b array array -> 'c array array
-  val mmap3 : ('a -> 'b -> 'c -> 'd) ->
-    'a array array -> 'b array array -> 'c array array -> 'd array array
-  val ssplit : ('a * 'b) array array -> 'a array array * 'b array array
   val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
 end
 
@@ -67,8 +56,6 @@ module Shape : sig
     | SArray of 'a t array
   val to_array : 'a t -> 'a array
   val to_shape_array : 'a t -> 'a t array
-  val of_array_array : 'a array array -> 'a t
-  val to_array_array : 'a t -> 'a array array
   val map : ('a -> 'b) -> 'a t -> 'b t
   val map2 : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t
   val flatten : 'a t -> 'a list
