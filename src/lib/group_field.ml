@@ -123,7 +123,21 @@ let unsafe_make group =
       let x = prefix ^ (map_and_concat_with_commas Z.to_string xs) in
       let z = Z.of_string_base 16 (sha256_hex x) in
       Z.(z mod q)
+
     let compare = Z.compare
+
+    let get_generator =
+      let cofactor = Z.((p - one) / q) in
+      fun i ->
+      let s = Printf.sprintf "ggen|%d" i in
+      let h = Z.of_string_base 16 (sha256_hex s) in
+      let h = Z.powm h cofactor p in
+      (* it is very unlikely (but theoretically possible) that one of the following assertions fails *)
+      assert (Z.(compare h zero) <> 0);
+      assert (Z.(compare h one) <> 0);
+      assert (Z.(compare h g) <> 0);
+      h
+
     type group = ff_params
     let group = group
     let write_group = write_ff_params

@@ -215,6 +215,9 @@ module ToolElection = struct
       | [r] -> Some r
       | _ -> invalid_arg "invalid result"
 
+    let get_shuffles () =
+      None
+
     let print_msg x = alert x
   end
 

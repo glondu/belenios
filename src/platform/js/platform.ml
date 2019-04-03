@@ -181,6 +181,7 @@ module Jsbn = struct
       method add : bigint t -> bigint t meth
       method subtract : bigint t -> bigint t meth
       method multiply : bigint t -> bigint t meth
+      method divide : bigint t -> bigint t meth
       method _mod : bigint t -> bigint t meth
       method intValue : int meth
       method toString : js_string t meth
@@ -216,6 +217,7 @@ module Z = struct
   let ( + ) x y = x##add y
   let ( - ) x y = x##subtract y
   let ( * ) x y = x##multiply y
+  let ( / ) x y = x##divide y
   let ( mod ) x y = x##_mod y
 
   let to_int x = x##intValue

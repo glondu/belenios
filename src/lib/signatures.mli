@@ -102,6 +102,12 @@ module type ELECTION = sig
 
   val process_ballots : ballot array -> elt Serializable_t.ciphertext shape
 
+  val extract_nh_ciphertexts : elt encrypted_tally -> elt nh_ciphertexts
+  val merge_nh_ciphertexts : elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally
+
+  val shuffle_ciphertexts : elt nh_ciphertexts -> (elt nh_ciphertexts * elt shuffle_proofs) m
+  val check_shuffle : elt nh_ciphertexts -> elt nh_ciphertexts -> elt shuffle_proofs -> bool
+
   (** {2 Partial decryptions} *)
 
   type factor = elt partial_decryption
@@ -177,4 +183,15 @@ module type PEDERSEN = sig
 
   type checker = elt -> elt partial_decryption -> bool
   val combine_factors : checker -> elt threshold_parameters -> elt partial_decryption list -> elt shape
+end
+
+module type MIXNET = sig
+  type 'a m
+  type elt
+
+  type 'a proof
+
+  val gen_shuffle : elt -> elt ciphertext array -> (elt ciphertext array * number array * int array) m
+  val gen_shuffle_proof : elt -> elt ciphertext array -> elt ciphertext array -> number array -> int array -> elt proof m
+  val check_shuffle_proof : elt -> elt ciphertext array -> elt ciphertext array -> elt proof -> bool
 end

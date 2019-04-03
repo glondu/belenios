@@ -60,6 +60,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   module G = W.G
   module Q = Question.Make (M) (G)
+  module Mix = Mixnet.Make (M) (G)
   open G
   let election = W.election
 
@@ -162,6 +163,52 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
             Q.process_ciphertexts q (Array.map (fun b -> Q.extract_ciphertexts q b.answers.(i)) bs)
           ) election.e_params.e_questions
       )
+
+  let extract_nh_ciphertexts x =
+    let x = Shape.to_shape_array x in
+    let rec loop i accu =
+      if i >= 0 then (
+        match election.e_params.e_questions.(i) with
+        | Question.Standard _ -> loop (i-1) accu
+        | Question.Open _ -> loop (i-1) (Shape.to_array x.(i) :: accu)
+      ) else Array.of_list accu
+    in
+    loop (Array.length x - 1) []
+
+  let merge_nh_ciphertexts cc x =
+    let x = Array.copy (Shape.to_shape_array x) in
+    let n = Array.length x and m = Array.length cc in
+    let rec loop i j =
+      if i < n then (
+        assert (j < m);
+        match election.e_params.e_questions.(i) with
+        | Question.Standard _ -> loop (i+1) j
+        | Question.Open _ ->
+           x.(i) <- Shape.of_array cc.(j);
+           loop (i+1) (j+1)
+      ) else (
+        assert (j = m);
+        SArray x
+      )
+    in
+    loop 0 0
+
+  let shuffle_ciphertexts cc =
+    let y = election.e_params.e_public_key in
+    let rec loop i accu =
+      if i >= 0 then (
+        let c = cc.(i) in
+        Mix.gen_shuffle y c >>= fun (c', r', psi) ->
+        Mix.gen_shuffle_proof y c c' r' psi >>= fun pi ->
+        loop (i-1) ((c', pi) :: accu)
+      ) else
+        M.return Array.(split (of_list accu))
+    in
+    loop (Array.length cc - 1) []
+
+  let check_shuffle cc cc' p =
+    let y = election.e_params.e_public_key in
+    Array.forall3 (Mix.check_shuffle_proof y) cc cc' p
 
   type factor = elt partial_decryption
 

@@ -72,6 +72,12 @@ head -n3 ballots.jsons > "$tdir/ballots.jsons"
 belenios-tool verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"
 
+header "Shuffle ciphertexts"
+
+belenios-tool shuffle > shuffles.jsons
+echo >&2
+belenios-tool shuffle >> shuffles.jsons
+
 header "Perform decryption"
 
 for u in *.privkey; do

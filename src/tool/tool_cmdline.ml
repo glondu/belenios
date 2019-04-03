@@ -316,6 +316,12 @@ module Election : CMDLINER_MODULE = struct
       try Some (lines_of_file (X.dir / file))
       with _ -> None
 
+    let get_shuffles () =
+      let file = "shuffles.jsons" in
+      Printf.eprintf "I: loading %s...\n%!" file;
+      try Some (lines_of_file (X.dir / file))
+      with _ -> None
+
     let get_result () =
       load_from_file (fun x -> x) (X.dir/"result.json") |> function
       | None -> None
@@ -397,6 +403,10 @@ module Election : CMDLINER_MODULE = struct
         output_string oc (X.validate factors);
         output_char oc '\n';
         close_out oc
+      | `Shuffle ->
+         let cc, p = X.shuffle_ciphertexts () in
+         print_endline p;
+         print_endline cc
       end;
       if cleanup then rm_rf dir
     )
@@ -479,7 +489,17 @@ module Election : CMDLINER_MODULE = struct
     Term.(ret (pure main $ url_t $ optdir_t $ pure `Validate)),
     Term.info "validate" ~doc ~man
 
-  let cmds = [vote_cmd; verify_cmd; decrypt_cmd; tdecrypt_cmd; validate_cmd]
+  let shuffle_cmd =
+    let doc = "shuffle ciphertexts" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command shuffles non-homomorphic ciphertexts and prints on standard output the shuffle proof and the shuffled ciphertexts.";
+      ] @ common_man
+    in
+    Term.(ret (pure main $ url_t $ optdir_t $ pure `Shuffle)),
+    Term.info "shuffle" ~doc ~man
+
+  let cmds = [vote_cmd; verify_cmd; decrypt_cmd; tdecrypt_cmd; validate_cmd; shuffle_cmd]
 
 end
 

@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2018 Inria                                           *)
+(*  Copyright © 2012-2019 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,47 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val sha256_hex : string -> string
-val sha256_b64 : string -> string
-val pbkdf2_hex : iterations:int -> salt:string -> string -> string
-val pbkdf2_utf8 : iterations:int -> salt:string -> string -> string
+open Signatures
+open Serializable_t
 
-val aes_hex : key:string -> data:string -> string
-
-(** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
-val encrypt : key:string -> iv:string -> plaintext:string -> string
-val decrypt : key:string -> iv:string -> ciphertext:string -> string
-
-type rng
-val secure_rng : rng
-val pseudo_rng : string -> rng
-val random_string : rng -> int -> string
-
-module Z : sig
-  type t
-  val zero : t
-  val one : t
-  val of_int : int -> t
-  val of_string : string -> t
-  val of_string_base : int -> string -> t
-  val ( + ) : t -> t -> t
-  val ( - ) : t -> t -> t
-  val ( * ) : t -> t -> t
-  val ( / ) : t -> t -> t
-  val ( mod ) : t -> t -> t
-  val erem : t -> t -> t
-  val to_int : t -> int
-  val to_string : t -> string
-  val compare : t -> t -> int
-  val ( =% ) : t -> t -> bool
-  val geq : t -> t -> bool
-  val lt : t -> t -> bool
-  val powm : t -> t -> t -> t
-  val invert : t -> t -> t
-  val probab_prime : t -> int -> int
-  val bit_length : t -> int
-  val of_bits : string -> t
-  val shift_left : t -> int -> t
-  val shift_right : t -> int -> t
-  val logand : t -> t -> t
-end
+module Make (M : RANDOM) (G : GROUP) : MIXNET
+       with type 'a m := 'a M.t
+        and type elt := G.t
+        and type 'a proof := 'a shuffle_proof

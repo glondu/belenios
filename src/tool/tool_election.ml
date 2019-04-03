@@ -30,6 +30,7 @@ module type PARAMS = sig
   val get_threshold : unit -> string option
   val get_public_creds : unit -> string Stream.t option
   val get_ballots : unit -> string Stream.t option
+  val get_shuffles : unit -> string Stream.t option
   val get_result : unit -> string option
   val print_msg : string -> unit
 end
@@ -40,6 +41,7 @@ module type S = sig
   val tdecrypt : string -> string -> string
   val validate : string list -> string
   val verify : unit -> unit
+  val shuffle_ciphertexts : unit -> string * string
 end
 
 module type PARSED_PARAMS = sig
@@ -142,7 +144,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     Lazy.force ballots |> Option.map (List.iter cast)
   )
 
-  let encrypted_tally =
+  let raw_encrypted_tally =
     lazy (
         match Lazy.force ballots with
         | None -> failwith "ballots.jsons is missing"
@@ -150,6 +152,51 @@ module Make (P : PARSED_PARAMS) : S = struct
            let ballots = Array.map fst (Array.of_list ballots) in
            E.process_ballots ballots,
            Array.length ballots
+      )
+
+  let shuffles =
+    lazy (
+        get_shuffles ()
+        |> Option.map (fun s ->
+               let shuffles = ref [] and shuffle_proofs = ref [] in
+               let rec loop () =
+                 if (try Stream.empty s; true with Stream.Failure -> false) then
+                   !shuffles, !shuffle_proofs
+                 else (
+                   shuffle_proofs := (shuffle_proofs_of_string G.read (Stream.next s)) :: !shuffle_proofs;
+                   shuffles := (nh_ciphertexts_of_string G.read (Stream.next s)) :: !shuffles;
+                   loop ()
+                 )
+               in
+               loop ()
+             )
+      )
+
+  let shuffles_check =
+    lazy (
+        let rtally, _ = Lazy.force raw_encrypted_tally in
+        let cc = E.extract_nh_ciphertexts rtally in
+        let rec loop i cc shuffles shuffle_proofs =
+          match shuffles, shuffle_proofs with
+          | s :: shuffles, p :: shuffle_proofs ->
+             if E.check_shuffle cc s p then
+               loop (i+1) s shuffles shuffle_proofs
+             else
+               Printf.ksprintf failwith "shuffle #%d failed tests" i
+          | [], [] -> true
+          | _, _ -> failwith "shuffles failed tests"
+        in
+        match Lazy.force shuffles with
+        | Some (ss, pp) -> loop 0 cc (List.rev ss) (List.rev pp)
+        | None -> true
+      )
+
+  let encrypted_tally =
+    lazy (
+        let raw_encrypted_tally, ntally = Lazy.force raw_encrypted_tally in
+        match Lazy.force shuffles with
+        | Some (cc :: _, _) -> E.merge_nh_ciphertexts cc raw_encrypted_tally, ntally
+        | _ -> raw_encrypted_tally, ntally
       )
 
   let vote privcred ballot =
@@ -218,6 +265,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     | Some () -> ()
     | None -> print_msg "W: no ballots to check"
     );
+    assert (Lazy.force shuffles_check);
     (match get_result () with
     | Some result ->
        let result = election_result_of_string G.read result in
@@ -231,6 +279,13 @@ module Make (P : PARSED_PARAMS) : S = struct
     | None -> print_msg "W: no result to check"
     );
     print_msg "I: all checks passed"
+
+  let shuffle_ciphertexts () =
+    let cc, _ = Lazy.force encrypted_tally in
+    let cc = E.extract_nh_ciphertexts cc in
+    let cc', p = E.shuffle_ciphertexts cc in
+    string_of_nh_ciphertexts G.write cc',
+    string_of_shuffle_proofs G.write p
 
 end
 

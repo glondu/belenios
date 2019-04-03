@@ -31,6 +31,7 @@ module Array : sig
   val map3 : ('a -> 'b -> 'c -> 'd) ->
     'a array -> 'b array -> 'c array -> 'd array
   val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
+  val split : ('a * 'b) array -> 'a array * 'b array
 end
 
 module String : sig
@@ -54,6 +55,7 @@ module Shape : sig
   type 'a t =
     | SAtomic of 'a
     | SArray of 'a t array
+  val of_array : 'a array -> 'a t
   val to_array : 'a t -> 'a array
   val to_shape_array : 'a t -> 'a t array
   val map : ('a -> 'b) -> 'a t -> 'b t

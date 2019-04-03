@@ -71,6 +71,9 @@ module Array = struct
       else None
     in loop 0
 
+  let split a =
+    Array.map fst a, Array.map snd a
+
 end
 
 module String = struct
@@ -116,6 +119,9 @@ module Shape = struct
   type 'a t =
     | SAtomic of 'a
     | SArray of 'a t array
+
+  let of_array x =
+    SArray (Array.map (fun x -> SAtomic x) x)
 
   let to_array = function
     | SAtomic _ -> invalid_arg "Shape.to_array"

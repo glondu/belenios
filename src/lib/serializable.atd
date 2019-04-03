@@ -102,6 +102,20 @@ type plaintext = int list <ocaml repr="array"> list <ocaml repr="array">
 
 type 'a encrypted_tally = 'a ciphertext shape
 
+(** {2 Mixnets} *)
+
+type 'a nh_ciphertexts = 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">
+
+type 'a shuffle_proof =
+  (('a * 'a * 'a * ('a * 'a) * 'a list <ocaml repr="array">) *
+     (number * number * number * number *
+        number list <ocaml repr="array"> * number list <ocaml repr="array">) *
+       'a list <ocaml repr="array"> * 'a list <ocaml repr="array">)
+
+type 'a shuffle_proofs = 'a shuffle_proof list <ocaml repr="array">
+
+(** {2 Election result} *)
+
 type 'a election_result = {
   num_tallied : int;
   encrypted_tally : 'a encrypted_tally;
