@@ -262,10 +262,9 @@ module Make (P : PARSED_PARAMS) : S = struct
      | None -> ignore (Lazy.force pks)
     );
     (match Lazy.force ballots_check with
-    | Some () -> ()
+    | Some () -> assert (Lazy.force shuffles_check)
     | None -> print_msg "W: no ballots to check"
     );
-    assert (Lazy.force shuffles_check);
     (match get_result () with
     | Some result ->
        let result = election_result_of_string G.read result in
