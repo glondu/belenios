@@ -118,13 +118,25 @@ module Make (M : RANDOM) (G : GROUP) = struct
     done;
     M.return (cc, rr)
 
+  module GMap = Map.Make (G)
+
+  let make_get_generator_indep () =
+    let to_avoid = ref GMap.empty in
+    fun n ->
+    let x = G.get_generator n in
+    match GMap.find_opt x !to_avoid with
+    | None -> to_avoid := GMap.add x n !to_avoid; x
+    | Some n' ->
+       Printf.ksprintf failwith "Generator #%d collides with #%d!" n n'
+
   let gen_shuffle_proof y ee ee' rr' psi =
+    let get_generator_indep = make_get_generator_indep () in
     let n = Array.length ee in
-    let h = G.get_generator (-1) in
+    let h = get_generator_indep (-1) in
     assert (n = Array.length ee');
     assert (n = Array.length rr');
     assert (n = Array.length psi);
-    let hh = Array.init n G.get_generator in
+    let hh = Array.init n get_generator_indep in
     gen_permutation_commitment psi hh >>= fun (cc, rr) ->
     let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in
     let uu = get_nizkp_challenges n ("shuffle-challenges|" ^ str1) in
@@ -166,8 +178,9 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let check_modulo p x = Z.(geq x zero && lt x p)
 
   let check_shuffle_proof y ee ee' proof =
+    let get_generator_indep = make_get_generator_indep () in
     let n = Array.length ee in
-    let h = G.get_generator (-1) in
+    let h = get_generator_indep (-1) in
     n = Array.length ee' &&
     let t, s, cc, cc_hat = proof in
     let t1, t2, t3, (t41, t42), tt_hat = t in
@@ -184,7 +197,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     Array.forall G.check tt_hat &&
     Array.forall (check_modulo G.q) ss_hat &&
     Array.forall (check_modulo G.q) ss' &&
-    let hh = Array.init n G.get_generator in
+    let hh = Array.init n get_generator_indep in
     let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in
     let uu = get_nizkp_challenges n ("shuffle-challenges|" ^ str1) in
     let str2 = str_elts [| t1; t2; t3; t41; t42 |] ^ str_elts tt_hat in
