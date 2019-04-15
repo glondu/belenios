@@ -318,9 +318,11 @@ module Election : CMDLINER_MODULE = struct
 
     let get_shuffles () =
       let file = "shuffles.jsons" in
-      Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (lines_of_file (X.dir / file))
-      with _ -> None
+      if Sys.file_exists (X.dir / file) then (
+        Printf.eprintf "I: loading %s...\n%!" file;
+        try Some (lines_of_file (X.dir / file))
+        with _ -> None
+      ) else None
 
     let get_result () =
       load_from_file (fun x -> x) (X.dir/"result.json") |> function
@@ -399,8 +401,9 @@ module Election : CMDLINER_MODULE = struct
           | Some factors -> factors
           | None -> failwith "cannot load partial decryptions"
         in
+        let result = X.validate factors in
         let oc = open_out (dir/"result.json") in
-        output_string oc (X.validate factors);
+        output_string oc result;
         output_char oc '\n';
         close_out oc
       | `Shuffle ->

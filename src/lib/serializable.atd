@@ -114,11 +114,17 @@ type 'a shuffle_proof =
 
 type 'a shuffle_proofs = 'a shuffle_proof list <ocaml repr="array">
 
+type 'a shuffle = {
+  ciphertexts : 'a nh_ciphertexts;
+  proofs : 'a shuffle_proofs;
+} <ocaml field_prefix="shuffle_">
+
 (** {2 Election result} *)
 
 type 'a election_result = {
   num_tallied : int;
   encrypted_tally : 'a encrypted_tally;
+  ?shuffles : 'a shuffle list option;
   partial_decryptions : 'a partial_decryption list;
   result : int shape;
 }

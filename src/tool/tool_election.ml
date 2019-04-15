@@ -154,22 +154,42 @@ module Make (P : PARSED_PARAMS) : S = struct
            Array.length ballots
       )
 
+  let result =
+    lazy (
+        get_result ()
+        |> Option.map (election_result_of_string G.read)
+      )
+
   let shuffles =
     lazy (
-        get_shuffles ()
-        |> Option.map (fun s ->
-               let shuffles = ref [] and shuffle_proofs = ref [] in
-               let rec loop () =
-                 if (try Stream.empty s; true with Stream.Failure -> false) then
-                   !shuffles, !shuffle_proofs
-                 else (
-                   shuffle_proofs := (shuffle_proofs_of_string G.read (Stream.next s)) :: !shuffle_proofs;
-                   shuffles := (nh_ciphertexts_of_string G.read (Stream.next s)) :: !shuffles;
-                   loop ()
-                 )
-               in
+        match Lazy.force result, get_shuffles () with
+        | Some _, Some _ -> failwith "both shuffles.jsons and result.json exist"
+        | None, None -> None
+        | Some result, None ->
+           result.shuffles
+           |> Option.map (fun s ->
+                  let ciphertexts = ref [] and proofs = ref [] in
+                  let rec loop = function
+                    | [] -> !ciphertexts, !proofs
+                    | {shuffle_ciphertexts; shuffle_proofs} :: xs ->
+                       ciphertexts := shuffle_ciphertexts :: !ciphertexts;
+                       proofs := shuffle_proofs :: !proofs;
+                       loop xs
+                  in
+                  loop s
+                )
+        | None, Some s ->
+           let shuffles = ref [] and shuffle_proofs = ref [] in
+           let rec loop () =
+             if (try Stream.empty s; true with Stream.Failure -> false) then
+               Some (!shuffles, !shuffle_proofs)
+             else (
+               shuffle_proofs := (shuffle_proofs_of_string G.read (Stream.next s)) :: !shuffle_proofs;
+               shuffles := (nh_ciphertexts_of_string G.read (Stream.next s)) :: !shuffles;
                loop ()
              )
+           in
+           loop ()
       )
 
   let shuffles_check =
@@ -250,7 +270,17 @@ module Make (P : PARSED_PARAMS) : S = struct
          KG.combine_factors checker (Lazy.force pks)
       | Some t -> KP.combine_factors checker t
     in
-    let result = E.compute_result nballots tally factors combinator in
+    let shuffles = match Lazy.force shuffles with
+      | None -> None
+      | Some (ciphertexts, proofs) ->
+         let shuffles =
+           List.rev_map (fun (shuffle_ciphertexts, shuffle_proofs) ->
+               {shuffle_ciphertexts; shuffle_proofs}
+             ) (List.combine ciphertexts proofs)
+         in
+         Some shuffles
+    in
+    let result = E.compute_result ?shuffles nballots tally factors combinator in
     assert (E.check_result combinator result);
     string_of_election_result G.write result
 
@@ -265,9 +295,8 @@ module Make (P : PARSED_PARAMS) : S = struct
     | Some () -> assert (Lazy.force shuffles_check)
     | None -> print_msg "W: no ballots to check"
     );
-    (match get_result () with
+    (match Lazy.force result with
     | Some result ->
-       let result = election_result_of_string G.read result in
        assert (fst (Lazy.force encrypted_tally) = result.encrypted_tally);
        let checker = E.check_factor result.encrypted_tally in
        let combinator = match threshold with

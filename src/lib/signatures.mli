@@ -130,7 +130,7 @@ module type ELECTION = sig
 
   type combinator = factor list -> elt shape
 
-  val compute_result : int -> elt Serializable_t.ciphertext shape -> factor list -> combinator -> result
+  val compute_result : ?shuffles:elt shuffle list -> int -> elt Serializable_t.ciphertext shape -> factor list -> combinator -> result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)

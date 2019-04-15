@@ -257,7 +257,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   type combinator = factor list -> elt shape
 
-  let compute_result num_tallied encrypted_tally partial_decryptions combinator =
+  let compute_result ?shuffles num_tallied encrypted_tally partial_decryptions combinator =
     let factors = combinator partial_decryptions in
     let results = Shape.map2 (fun {beta; _} f ->
       beta / f
@@ -269,7 +269,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       | SArray xs ->
          SArray (Array.map2 (Q.compute_result ~num_tallied) election.e_params.e_questions xs)
     in
-    {num_tallied; encrypted_tally; partial_decryptions; result}
+    {num_tallied; encrypted_tally; shuffles; partial_decryptions; result}
 
   let check_result combinator r =
     let {encrypted_tally; partial_decryptions; result; _} = r in
