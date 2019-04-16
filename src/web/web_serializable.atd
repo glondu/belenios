@@ -120,7 +120,7 @@ type draft_threshold_trustee = {
 
 type draft_election = {
   owner : user;
-  group : string;
+  group <ocaml mutable> : string;
   voters <ocaml mutable> : draft_voter list;
   questions <ocaml mutable> : template;
   public_keys <ocaml mutable> : draft_trustee list;

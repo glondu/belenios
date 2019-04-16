@@ -411,6 +411,14 @@ let unwebize_trustee_public_key pk =
     trustee_public_key = pk.web_trustee_public_key;
   }
 
+let get_suitable_group_kind {t_questions; _} =
+  let group = ref `H in
+  Array.iter (function
+      | Question.Open _ -> group := `NH
+      | Question.Standard _ -> ()
+    ) t_questions;
+  !group
+
 let default_contact = "Name <user@example.org>"
 
 let default_questions =
