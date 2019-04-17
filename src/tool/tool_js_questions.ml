@@ -216,6 +216,8 @@ let rec createQuestionDiv question answers props =
       Dom.replaceChild container prop_div_nh prop_div_h
   in
   cb_type##.onchange := handler f;
+  if not (Js.to_bool (Js.Unsafe.pure_js_expr "allow_nh")) then
+    cb_type##.disabled := Js._true;
   Dom.appendChild x cb_type;
   Dom.appendChild x (document##createTextNode (Js.string "Homomorphic tally"));
   (* answers *)

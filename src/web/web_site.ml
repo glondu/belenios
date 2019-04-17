@@ -685,14 +685,6 @@ let () =
         )
     )
 
-let is_group_fixed se =
-  se.se_public_creds_received
-  || se.se_public_keys <> []
-  || (match se.se_threshold_trustees with
-      | Some l -> l <> []
-      | None -> false
-     )
-
 let () =
   Html.register ~service:election_draft_questions
     (fun uuid () ->

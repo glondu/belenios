@@ -419,6 +419,14 @@ let get_suitable_group_kind {t_questions; _} =
     ) t_questions;
   !group
 
+let is_group_fixed se =
+  se.se_public_creds_received
+  || se.se_public_keys <> []
+  || (match se.se_threshold_trustees with
+      | Some l -> l <> []
+      | None -> false
+     )
+
 let default_contact = "Name <user@example.org>"
 
 let default_questions =

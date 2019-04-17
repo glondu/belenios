@@ -932,10 +932,16 @@ let election_draft_questions uuid se () =
          div [input ~input_type:`Submit ~value:"Save changes" string]])
       uuid
   in
+  let allow_nh =
+    match get_suitable_group_kind se.se_questions with
+    | `NH -> true
+    | `H -> not (is_group_fixed se)
+  in
   let interactivity =
     div
       ~a:[a_id "interactivity"]
       [
+        script (Printf.ksprintf pcdata "var allow_nh = %b;" allow_nh);
         script ~a:[a_src (static "sjcl.js")] (pcdata "");
         script ~a:[a_src (static "jsbn.js")] (pcdata "");
         script ~a:[a_src (static "jsbn2.js")] (pcdata "");
