@@ -205,7 +205,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let c = get_nizkp_challenge ("shuffle-challenge|" ^ str2 ^ str3) in
     let c_bar = (Array.fold_left ( *~ ) one cc) *~ invert (Array.fold_left ( *~ ) one hh) in
     let u = Z.(Array.fold_left ( * ) one uu mod G.q) in
-    let c_hat = cc_hat.(pred n) *~ invert (h **~ u) in
+    let c_hat = (if n = 0 then h else cc_hat.(pred n)) *~ invert (h **~ u) in
     let c_tilde = Array.fold_left ( *~ ) one (Array.map2 ( **~ ) cc uu) in
     let a' = Array.fold_left ( *~ ) one (Array.map2 (fun x u -> x.beta **~ u) ee uu) in
     let b' = Array.fold_left ( *~ ) one (Array.map2 (fun x u -> x.alpha **~ u) ee uu) in
