@@ -1377,20 +1377,8 @@ let () =
 
 let submit_ballot ballot =
   let ballot = PString.trim ballot in
-  let%lwt uuid =
-    try
-      let ballot = ballot_of_string Yojson.Safe.read_json ballot in
-      return ballot.election_uuid
-    with _ -> fail_http 400
-  in
-  match%lwt Web_persist.get_draft_election uuid with
-  | Some _ -> redir_preapply election_draft uuid ()
-  | None ->
-     let%lwt user = Web_state.get_election_user uuid in
-     let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
-     match user with
-     | None -> redir_preapply election_login ((uuid, ()), None) ()
-     | Some _ -> redir_preapply election_cast uuid ()
+  let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
+  redir_preapply election_submit_ballot_check () ()
 
 let () =
   Any.register ~service:election_submit_ballot
@@ -1404,6 +1392,30 @@ let () =
         Lwt_stream.to_string (Lwt_io.chars_of_file fname)
       in
       submit_ballot ballot
+    )
+
+let () =
+  Any.register ~service:election_submit_ballot_check
+    (fun () () ->
+      match%lwt Eliom_reference.get Web_state.ballot with
+      | None ->
+         let%lwt lang = Eliom_reference.get Web_state.language in
+         let module L = (val Web_i18n.get_lang lang) in
+         T.generic_page ~title:L.cookies_are_blocked L.please_enable_them ()
+         >>= Html.send
+      | Some ballot ->
+         match
+           try
+             let ballot = ballot_of_string Yojson.Safe.read_json ballot in
+             Some ballot.election_uuid
+           with _ -> None
+         with
+         | None ->
+            T.generic_page ~title:"Error" "Ill-formed ballot" () >>= Html.send
+         | Some uuid ->
+            match%lwt Web_persist.get_draft_election uuid with
+            | Some _ -> redir_preapply election_draft uuid ()
+            | None -> redir_preapply election_login ((uuid, ()), None) ()
     )
 
 let send_confirmation_email uuid revote user email hash =
