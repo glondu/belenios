@@ -311,7 +311,7 @@ let election_draft_pre () =
   let title = "Prepare a new election" in
   let cred_info = Eliom_service.extern
     ~prefix:"http://www.belenios.org"
-    ~path:["setup.php"]
+    ~path:["setup.html"]
     ~meth:(Eliom_service.Get Eliom_parameter.unit)
     ()
   in
