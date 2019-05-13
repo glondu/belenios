@@ -44,6 +44,17 @@ let get_election_result uuid =
   | Some [x] -> return (Some (election_result_of_string Yojson.Safe.read_json x))
   | _ -> return_none
 
+let get_election_result_hidden uuid =
+  Lwt_unix.file_exists (!Web_config.spool_dir / raw_string_of_uuid uuid / "hide_result")
+
+let set_election_result_hidden uuid hidden =
+  if hidden then (
+    write_file ~uuid "hide_result" []
+  ) else (
+    try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "hide_result")
+    with _ -> return_unit
+  )
+
 type election_date =
   [ `Creation
   | `Validation

@@ -1747,8 +1747,14 @@ let election_home election state () =
   in
   let%lwt middle =
     let%lwt result = Web_persist.get_election_result uuid in
+    let%lwt hidden = Web_persist.get_election_result_hidden uuid in
+    let%lwt is_admin =
+      let%lwt metadata = Web_persist.get_election_metadata uuid in
+      let%lwt site_user = Eliom_reference.get Web_state.site_user in
+      return (metadata.e_owner = site_user)
+    in
     match result with
-    | Some r ->
+    | Some r when not hidden || is_admin ->
        let result = r.result in
        let questions = Array.to_list election.e_params.e_questions in
        return @@ div [
@@ -1786,6 +1792,11 @@ let election_home election state () =
            pcdata ".";
          ];
        ]
+    | Some _ ->
+       return @@
+         div [
+             pcdata "The result for this election is currently not publicly available.";
+           ]
     | None -> return go_to_the_booth
   in
   let languages =
@@ -2026,8 +2037,22 @@ let election_admin election metadata state get_tokens_decrypt () =
          release_form;
        ]
     | `Tallied ->
+       let%lwt hidden = Web_persist.get_election_result_hidden uuid in
+       let form_toggle =
+         if hidden then
+           post_form ~service:election_show_result
+             (fun () ->
+               [input ~input_type:`Submit ~value:"Publish the result" string]
+             ) uuid
+         else
+           post_form ~service:election_hide_result
+             (fun () ->
+               [input ~input_type:`Submit ~value:"Hide the result" string]
+             ) uuid
+       in
        return @@ div [
          pcdata "This election has been tallied.";
+         form_toggle;
        ]
     | `Archived ->
        return @@ div [

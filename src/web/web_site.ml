@@ -321,6 +321,7 @@ let delete_election uuid =
       "threshold.json";
       "records";
       "result.json";
+      "hide_result";
       "voters.txt";
       "archive.zip";
     ]
@@ -1276,6 +1277,18 @@ let election_set_state state uuid () =
 let () = Any.register ~service:election_open (election_set_state true)
 let () = Any.register ~service:election_close (election_set_state false)
 
+let election_set_result_hidden hidden uuid () =
+  with_site_user (fun u ->
+      let%lwt metadata = Web_persist.get_election_metadata uuid in
+      if metadata.e_owner = Some u then (
+        let%lwt () = Web_persist.set_election_result_hidden uuid hidden in
+        redir_preapply election_admin uuid ()
+      ) else forbidden ()
+    )
+
+let () = Any.register ~service:election_hide_result (election_set_result_hidden true)
+let () = Any.register ~service:election_show_result (election_set_result_hidden false)
+
 let () =
   Any.register ~service:election_auto_post
     (fun uuid (auto_open, auto_close) ->
@@ -1817,10 +1830,11 @@ let content_type_of_file = function
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
 let handle_pseudo_file uuid f site_user =
-  let confidential =
+  let%lwt confidential =
     match f with
-    | ESRaw | ESKeys | ESTParams | ESBallots | ESETally | ESResult | ESCreds -> false
-    | ESRecords | ESVoters -> true
+    | ESRaw | ESKeys | ESTParams | ESBallots | ESETally | ESCreds -> return false
+    | ESRecords | ESVoters -> return true
+    | ESResult -> Web_persist.get_election_result_hidden uuid
   in
   let%lwt () =
     if confidential then (
