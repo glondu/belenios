@@ -1754,7 +1754,7 @@ let election_home election state () =
       return (metadata.e_owner = site_user)
     in
     match result with
-    | Some r when not hidden || is_admin ->
+    | Some r when hidden = None || is_admin ->
        let result = r.result in
        let questions = Array.to_list election.e_params.e_questions in
        return @@ div [
@@ -1793,9 +1793,16 @@ let election_home election state () =
          ];
        ]
     | Some _ ->
+       let t =
+         match hidden with
+         | Some t -> t
+         | None -> failwith "Impossible case in election_admin"
+       in
        return @@
          div [
-             pcdata "The result for this election is currently not publicly available.";
+             pcdata "The result of this election is currently not publicly available. It will be in ";
+             pcdata (format_period l (datetime_sub t now));
+             pcdata ".";
            ]
     | None -> return go_to_the_booth
   in
@@ -2039,16 +2046,28 @@ let election_admin election metadata state get_tokens_decrypt () =
     | `Tallied ->
        let%lwt hidden = Web_persist.get_election_result_hidden uuid in
        let form_toggle =
-         if hidden then
-           post_form ~service:election_show_result
-             (fun () ->
-               [input ~input_type:`Submit ~value:"Publish the result" string]
-             ) uuid
-         else
-           post_form ~service:election_hide_result
-             (fun () ->
-               [input ~input_type:`Submit ~value:"Hide the result" string]
-             ) uuid
+         match hidden with
+         | Some _ ->
+            post_form ~service:election_show_result
+              (fun () ->
+                [input ~input_type:`Submit ~value:"Publish the result now" string]
+              ) uuid
+         | None ->
+            post_form ~service:election_hide_result
+              (fun date ->
+                [
+                  div [
+                      input ~input_type:`Submit ~value:"Hide the result until" string;
+                      pcdata " ";
+                      input ~name:date ~input_type:`Text string;
+                    ];
+                  div [
+                      pcdata "Enter the date in UTC, in format YYYY-MM-DD HH:MM:SS. For example, now is ";
+                      pcdata (String.sub (string_of_datetime (now ())) 1 19);
+                      pcdata ".";
+                    ];
+                ]
+              ) uuid
        in
        return @@ div [
          pcdata "This election has been tallied.";

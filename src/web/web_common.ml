@@ -433,3 +433,4 @@ let days_to_archive = 7
 let days_to_delete = 365
 let days_to_mail = 30
 let days_between_mails = 7
+let days_to_publish_result = 7

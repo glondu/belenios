@@ -1277,17 +1277,42 @@ let election_set_state state uuid () =
 let () = Any.register ~service:election_open (election_set_state true)
 let () = Any.register ~service:election_close (election_set_state false)
 
-let election_set_result_hidden hidden uuid () =
+let election_set_result_hidden f uuid x =
   with_site_user (fun u ->
       let%lwt metadata = Web_persist.get_election_metadata uuid in
       if metadata.e_owner = Some u then (
-        let%lwt () = Web_persist.set_election_result_hidden uuid hidden in
-        redir_preapply election_admin uuid ()
+        try%lwt
+          let%lwt () = Web_persist.set_election_result_hidden uuid (f x) in
+          redir_preapply election_admin uuid ()
+        with
+        | Failure msg ->
+           let service = preapply election_admin uuid in
+           T.generic_page ~title:"Error" ~service msg () >>= Html.send
       ) else forbidden ()
     )
 
-let () = Any.register ~service:election_hide_result (election_set_result_hidden true)
-let () = Any.register ~service:election_show_result (election_set_result_hidden false)
+let parse_datetime_from_post x =
+  try datetime_of_string ("\"" ^ x ^ ".000000\"")
+  with _ -> Printf.ksprintf failwith "%s is not a valid date!" x
+
+let () =
+  Any.register ~service:election_hide_result
+    (election_set_result_hidden
+       (fun x ->
+         let t = parse_datetime_from_post x in
+         let max = datetime_add (now ()) (day days_to_publish_result) in
+         if datetime_compare t max > 0 then
+           Printf.ksprintf failwith
+             "The date must be less than %d days in the future!"
+             days_to_publish_result
+         else
+           Some t
+       )
+    )
+
+let () =
+  Any.register ~service:election_show_result
+    (election_set_result_hidden (fun () -> None))
 
 let () =
   Any.register ~service:election_auto_post
@@ -1299,10 +1324,7 @@ let () =
               try
                 let format x =
                   if x = "" then None
-                  else Some (
-                           try datetime_of_string ("\"" ^ x ^ ".000000\"")
-                           with _ -> Printf.ksprintf failwith "%s is not a valid date!" x
-                         )
+                  else Some (parse_datetime_from_post x)
                 in
                 let auto_open = format auto_open in
                 let auto_close = format auto_close in
@@ -1834,7 +1856,10 @@ let handle_pseudo_file uuid f site_user =
     match f with
     | ESRaw | ESKeys | ESTParams | ESBallots | ESETally | ESCreds -> return false
     | ESRecords | ESVoters -> return true
-    | ESResult -> Web_persist.get_election_result_hidden uuid
+    | ESResult ->
+       match%lwt Web_persist.get_election_result_hidden uuid with
+       | None -> return false
+       | Some _ -> return true
   in
   let%lwt () =
     if confidential then (

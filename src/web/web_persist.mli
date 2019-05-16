@@ -59,8 +59,8 @@ val get_raw_election : uuid -> string option Lwt.t
 val get_election_metadata : uuid -> metadata Lwt.t
 val get_election_result : uuid -> Yojson.Safe.json election_result option Lwt.t
 
-val get_election_result_hidden : uuid -> bool Lwt.t
-val set_election_result_hidden : uuid -> bool -> unit Lwt.t
+val get_election_result_hidden : uuid -> datetime option Lwt.t
+val set_election_result_hidden : uuid -> datetime option -> unit Lwt.t
 
 type election_kind =
   [ `Draft
