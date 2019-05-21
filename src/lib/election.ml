@@ -179,8 +179,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let x = Array.copy (Shape.to_shape_array x) in
     let n = Array.length x and m = Array.length cc in
     let rec loop i j =
-      if i < n then (
-        assert (j < m);
+      if i < n && j < m then (
         match election.e_params.e_questions.(i) with
         | Question.Standard _ -> loop (i+1) j
         | Question.Open _ ->
