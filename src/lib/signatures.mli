@@ -100,7 +100,7 @@ module type ELECTION = sig
 
   (** {2 Tally} *)
 
-  val process_ballots : ballot array -> elt Serializable_t.ciphertext shape
+  val process_ballots : ballot array -> elt encrypted_tally
 
   val extract_nh_ciphertexts : elt encrypted_tally -> elt nh_ciphertexts
   val merge_nh_ciphertexts : elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally
