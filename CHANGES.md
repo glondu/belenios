@@ -1,4 +1,15 @@
-1.8 (2018-02-04)
+1.9 (2019-05-28)
+================
+
+ * Fix use of SOURCE_DATE_EPOCH
+ * Web server:
+   + Fix a bug that seldom caused the server to not perform its
+     partial decryption
+   + Check that cookies are not blocked on ballot submission
+   + Add the possibility to temporarily hide the result from the
+     public
+
+1.8 (2019-02-04)
 ================
 
  * Add the possibility to override sendmail via an environment variable
