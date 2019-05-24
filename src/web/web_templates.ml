@@ -1800,7 +1800,7 @@ let election_home election state () =
        in
        return @@
          div [
-             pcdata "The result of this election is currently not publicly available. It will be in ";
+             pcdata L.result_currently_not_public;
              pcdata (format_period l (datetime_sub t now));
              pcdata ".";
            ]
