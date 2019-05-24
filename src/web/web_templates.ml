@@ -2057,7 +2057,10 @@ let election_admin election metadata state get_tokens_decrypt () =
               (fun date ->
                 [
                   div [
-                      input ~input_type:`Submit ~value:"Hide the result until" string;
+                      Printf.ksprintf pcdata "You may postpone the publication of the election result up to %d days in the future." days_to_publish_result;
+                    ];
+                  div [
+                      input ~input_type:`Submit ~value:"Postpone publication until" string;
                       pcdata " ";
                       input ~name:date ~input_type:`Text string;
                     ];
@@ -2070,7 +2073,9 @@ let election_admin election metadata state get_tokens_decrypt () =
               ) uuid
        in
        return @@ div [
-         pcdata "This election has been tallied.";
+         div [pcdata "This election has been tallied."];
+         br ();
+         hr ();
          form_toggle;
        ]
     | `Archived ->
