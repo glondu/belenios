@@ -1800,9 +1800,8 @@ let election_home election state () =
        in
        return @@
          div [
-             pcdata L.result_currently_not_public;
-             pcdata (format_period l (datetime_sub t now));
-             pcdata ".";
+             Printf.ksprintf pcdata L.result_currently_not_public
+               (format_period l (datetime_sub t now));
            ]
     | None -> return go_to_the_booth
   in
