@@ -169,3 +169,4 @@ val days_to_archive : int
 val days_to_delete : int
 val days_to_mail : int
 val days_between_mails : int
+val days_to_publish_result : int

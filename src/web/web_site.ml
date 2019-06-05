@@ -312,6 +312,7 @@ let delete_election uuid =
       "threshold.json";
       "records";
       "result.json";
+      "hide_result";
       "voters.txt";
       "archive.zip";
     ]
@@ -1276,6 +1277,43 @@ let election_set_state state uuid () =
 let () = Any.register ~service:election_open (election_set_state true)
 let () = Any.register ~service:election_close (election_set_state false)
 
+let election_set_result_hidden f uuid x =
+  with_site_user (fun u ->
+      let%lwt metadata = Web_persist.get_election_metadata uuid in
+      if metadata.e_owner = Some u then (
+        try%lwt
+          let%lwt () = Web_persist.set_election_result_hidden uuid (f x) in
+          redir_preapply election_admin uuid ()
+        with
+        | Failure msg ->
+           let service = preapply election_admin uuid in
+           T.generic_page ~title:"Error" ~service msg () >>= Html.send
+      ) else forbidden ()
+    )
+
+let parse_datetime_from_post x =
+  try datetime_of_string ("\"" ^ x ^ ".000000\"")
+  with _ -> Printf.ksprintf failwith "%s is not a valid date!" x
+
+let () =
+  Any.register ~service:election_hide_result
+    (election_set_result_hidden
+       (fun x ->
+         let t = parse_datetime_from_post x in
+         let max = datetime_add (now ()) (day days_to_publish_result) in
+         if datetime_compare t max > 0 then
+           Printf.ksprintf failwith
+             "The date must be less than %d days in the future!"
+             days_to_publish_result
+         else
+           Some t
+       )
+    )
+
+let () =
+  Any.register ~service:election_show_result
+    (election_set_result_hidden (fun () -> None))
+
 let () =
   Any.register ~service:election_auto_post
     (fun uuid (auto_open, auto_close) ->
@@ -1286,10 +1324,7 @@ let () =
               try
                 let format x =
                   if x = "" then None
-                  else Some (
-                           try datetime_of_string ("\"" ^ x ^ ".000000\"")
-                           with _ -> Printf.ksprintf failwith "%s is not a valid date!" x
-                         )
+                  else Some (parse_datetime_from_post x)
                 in
                 let auto_open = format auto_open in
                 let auto_close = format auto_close in
@@ -1377,20 +1412,8 @@ let () =
 
 let submit_ballot ballot =
   let ballot = PString.trim ballot in
-  let%lwt uuid =
-    try
-      let ballot = ballot_of_string Yojson.Safe.read_json ballot in
-      return ballot.election_uuid
-    with _ -> fail_http 400
-  in
-  match%lwt Web_persist.get_draft_election uuid with
-  | Some _ -> redir_preapply election_draft uuid ()
-  | None ->
-     let%lwt user = Web_state.get_election_user uuid in
-     let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
-     match user with
-     | None -> redir_preapply election_login ((uuid, ()), None) ()
-     | Some _ -> redir_preapply election_cast uuid ()
+  let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
+  redir_preapply election_submit_ballot_check () ()
 
 let () =
   Any.register ~service:election_submit_ballot
@@ -1404,6 +1427,30 @@ let () =
         Lwt_stream.to_string (Lwt_io.chars_of_file fname)
       in
       submit_ballot ballot
+    )
+
+let () =
+  Any.register ~service:election_submit_ballot_check
+    (fun () () ->
+      match%lwt Eliom_reference.get Web_state.ballot with
+      | None ->
+         let%lwt lang = Eliom_reference.get Web_state.language in
+         let module L = (val Web_i18n.get_lang lang) in
+         T.generic_page ~title:L.cookies_are_blocked L.please_enable_them ()
+         >>= Html.send
+      | Some ballot ->
+         match
+           try
+             let ballot = ballot_of_string Yojson.Safe.read_json ballot in
+             Some ballot.election_uuid
+           with _ -> None
+         with
+         | None ->
+            T.generic_page ~title:"Error" "Ill-formed ballot" () >>= Html.send
+         | Some uuid ->
+            match%lwt Web_persist.get_draft_election uuid with
+            | Some _ -> redir_preapply election_draft uuid ()
+            | None -> redir_preapply election_login ((uuid, ()), None) ()
     )
 
 let send_confirmation_email uuid revote user email hash =
@@ -1805,10 +1852,14 @@ let content_type_of_file = function
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
 let handle_pseudo_file uuid f site_user =
-  let confidential =
+  let%lwt confidential =
     match f with
-    | ESRaw | ESKeys | ESTParams | ESBallots | ESETally | ESResult | ESCreds -> false
-    | ESRecords | ESVoters -> true
+    | ESRaw | ESKeys | ESTParams | ESBallots | ESETally | ESCreds -> return false
+    | ESRecords | ESVoters -> return true
+    | ESResult ->
+       match%lwt Web_persist.get_election_result_hidden uuid with
+       | None -> return false
+       | Some _ -> return true
   in
   let%lwt () =
     if confidential then (

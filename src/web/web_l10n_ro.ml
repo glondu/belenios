@@ -119,6 +119,7 @@ let days = " zi(le) "
 let hours = " ora(e)"
 let minutes = " minut(e)"
 let seconds = " secundă(e)"
+let result_currently_not_public : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "Rezultatul acestei alegeri nu este disponibil deocamdată. Va fi disponibil în %s."
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

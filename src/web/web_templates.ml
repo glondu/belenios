@@ -311,7 +311,7 @@ let election_draft_pre () =
   let title = "Prepare a new election" in
   let cred_info = Eliom_service.extern
     ~prefix:"http://www.belenios.org"
-    ~path:["setup.php"]
+    ~path:["setup.html"]
     ~meth:(Eliom_service.Get Eliom_parameter.unit)
     ()
   in
@@ -1789,8 +1789,14 @@ let election_home election state () =
   in
   let%lwt middle =
     let%lwt result = Web_persist.get_election_result uuid in
+    let%lwt hidden = Web_persist.get_election_result_hidden uuid in
+    let%lwt is_admin =
+      let%lwt metadata = Web_persist.get_election_metadata uuid in
+      let%lwt site_user = Eliom_reference.get Web_state.site_user in
+      return (metadata.e_owner = site_user)
+    in
     match result with
-    | Some r ->
+    | Some r when hidden = None || is_admin ->
        let result = Shape.to_shape_array r.result in
        return @@ div [
          ul (
@@ -1809,6 +1815,17 @@ let election_home election state () =
            pcdata ".";
          ];
        ]
+    | Some _ ->
+       let t =
+         match hidden with
+         | Some t -> t
+         | None -> failwith "Impossible case in election_admin"
+       in
+       return @@
+         div [
+             Printf.ksprintf pcdata L.result_currently_not_public
+               (format_period l (datetime_sub t now));
+           ]
     | None -> return go_to_the_booth
   in
   let languages =
@@ -2049,8 +2066,39 @@ let election_admin election metadata state get_tokens_decrypt () =
          release_form;
        ]
     | `Tallied ->
+       let%lwt hidden = Web_persist.get_election_result_hidden uuid in
+       let form_toggle =
+         match hidden with
+         | Some _ ->
+            post_form ~service:election_show_result
+              (fun () ->
+                [input ~input_type:`Submit ~value:"Publish the result now" string]
+              ) uuid
+         | None ->
+            post_form ~service:election_hide_result
+              (fun date ->
+                [
+                  div [
+                      Printf.ksprintf pcdata "You may postpone the publication of the election result up to %d days in the future." days_to_publish_result;
+                    ];
+                  div [
+                      input ~input_type:`Submit ~value:"Postpone publication until" string;
+                      pcdata " ";
+                      input ~name:date ~input_type:`Text string;
+                    ];
+                  div [
+                      pcdata "Enter the date in UTC, in format YYYY-MM-DD HH:MM:SS. For example, now is ";
+                      pcdata (String.sub (string_of_datetime (now ())) 1 19);
+                      pcdata ".";
+                    ];
+                ]
+              ) uuid
+       in
        return @@ div [
-         pcdata "This election has been tallied.";
+         div [pcdata "This election has been tallied."];
+         br ();
+         hr ();
+         form_toggle;
        ]
     | `Archived ->
        return @@ div [

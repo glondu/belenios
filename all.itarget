@@ -1,5 +1,4 @@
 minimal.otarget
-src/lib/lib.cma
 src/web/server.cma
 src/static/logo.png
 src/static/placeholder.png

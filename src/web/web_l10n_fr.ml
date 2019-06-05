@@ -119,6 +119,7 @@ let days = " jour(s)"
 let hours = " heure(s)"
 let minutes = " minute(s)"
 let seconds = " seconde(s)"
+let result_currently_not_public : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "Le résultat de cette élection n'est actuellement pas public. Il le sera dans %s."
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

@@ -38,17 +38,17 @@ module LwtRandom = struct
 
   let prng = ref (init_prng ())
 
-  let _ =
+  let () =
     let rec loop () =
       let%lwt () = Lwt_unix.sleep 1800. in
       prng := init_prng ();
       loop ()
     in
-    loop ()
+    Lwt.async loop
 
   let random q =
     let size = bytes_to_sample q in
-    let%lwt rng = Lwt_preemptive.detach Lazy.force !prng in
+    let rng = Lazy.force !prng in
     let r = random_string rng size in
     return Z.(of_bits r mod q)
 
@@ -261,10 +261,7 @@ let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
 let random_char () =
-  let%lwt rng =
-    if Lazy.is_val prng then return (Lazy.force prng) else
-    Lwt_preemptive.detach (fun () -> Lazy.force prng) ()
-  in
+  let rng = Lazy.force prng in
   return (int_of_char (random_string rng 1).[0])
 
 let generate_token ?(length=14) () =
@@ -453,3 +450,4 @@ let days_to_archive = 7
 let days_to_delete = 365
 let days_to_mail = 30
 let days_between_mails = 7
+let days_to_publish_result = 7
