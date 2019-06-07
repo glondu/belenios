@@ -1878,6 +1878,31 @@ let () =
      let%lwt site_user = Eliom_reference.get Web_state.site_user in
      handle_pseudo_file uuid f site_user)
 
+module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
+
+let perform_server_side_decryption uuid e metadata tally =
+  let module E = (val e : ELECTION_LWT) in
+  let tally = encrypted_tally_of_string E.G.read tally in
+  let decrypt i =
+    match%lwt Web_persist.get_private_key uuid with
+    | Some sk ->
+       let%lwt pd = E.compute_factor tally sk in
+       let pd = string_of_partial_decryption E.G.write pd in
+       Web_persist.set_partial_decryptions uuid [i, pd]
+    | None -> return_unit
+  in
+  match metadata.e_trustees with
+  | None ->
+     let%lwt () = decrypt 1 in
+     return_true
+  | Some ts ->
+     let%lwt () =
+       Lwt_list.iteri_s (fun i t ->
+           if t = "server" then decrypt (i+1) else return_unit
+         ) ts
+     in
+     return_false
+
 let () =
   Any.register ~service:election_compute_encrypted_tally
     (fun uuid () ->
@@ -1908,33 +1933,10 @@ let () =
                  | None -> failwith "missing public keys and threshold parameters"
             in
             let%lwt () = Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) in
-            let tally = encrypted_tally_of_string W.G.read tally in
-            let%lwt sk = Web_persist.get_private_key uuid in
-            match metadata.e_trustees with
-            | None ->
-               (* no trustees: compute decryption and release tally *)
-               let sk = match sk with
-                 | Some x -> x
-                 | None -> failwith "missing private key"
-               in
-               let%lwt pd = E.compute_factor tally sk in
-               let pd = string_of_partial_decryption W.G.write pd in
-               let%lwt () = Web_persist.set_partial_decryptions uuid [1, pd] in
-               handle_election_tally_release uuid ()
-            | Some ts ->
-               let%lwt () =
-                 Lwt_list.iteri_s (fun i t ->
-                     if t = "server" then (
-                       match%lwt Web_persist.get_private_key uuid with
-                       | Some k ->
-                          let%lwt pd = E.compute_factor tally k in
-                          let pd = string_of_partial_decryption W.G.write pd in
-                          Web_persist.set_partial_decryptions uuid [i+1, pd]
-                       | None -> return_unit (* dead end *)
-                     ) else return_unit
-                   ) ts
-               in
-               redir_preapply election_admin uuid ()
+            if%lwt perform_server_side_decryption uuid (module E) metadata tally then
+              handle_election_tally_release uuid ()
+            else
+              redir_preapply election_admin uuid ()
           ) else forbidden ()
         )
     )
