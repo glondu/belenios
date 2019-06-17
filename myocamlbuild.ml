@@ -139,6 +139,7 @@ let () = dispatch & function
     copy_rule "tool_js_credgen.js" "src/tool/tool_js_credgen.js" "src/static/tool_js_credgen.js";
     copy_rule "tool_js_questions.js" "src/tool/tool_js_questions.js" "src/static/tool_js_questions.js";
     copy_rule "tool_js_pd.js" "src/tool/tool_js_pd.js" "src/static/tool_js_pd.js";
+    copy_rule "tool_js_shuffle.js" "src/tool/tool_js_shuffle.js" "src/static/tool_js_shuffle.js";
 
     List.iter
       copy_static

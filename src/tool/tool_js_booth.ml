@@ -27,22 +27,6 @@ open Signatures
 open Common
 open Tool_js_common
 
-let prng = lazy (pseudo_rng (random_string secure_rng 16))
-
-module LwtJsRandom = struct
-  type 'a t = unit -> 'a Lwt.t
-  let return x () = Lwt.return x
-  let bind x f () = Lwt.bind (x ()) (fun y -> f y ())
-  let fail x () = Lwt.fail x
-
-  let random q =
-    let size = Z.bit_length q / 8 + 1 in
-    fun () ->
-      let%lwt () = Lwt_js.yield () in
-      let r = random_string (Lazy.force prng) size in
-      Lwt.return Z.(of_bits r mod q)
-end
-
 let encryptBallot params cred plaintext () =
   let module P = (val params : ELECTION_DATA) in
   let module G = P.G in

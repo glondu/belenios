@@ -2568,7 +2568,12 @@ let shuffle election token =
   let title = params.e_name ^ " — Shuffle" in
   let content = [
       div [pcdata "It is now time to shuffle encrypted ballots."];
+      div ~a:[a_id "wait_div"] [
+          pcdata "Please wait... ";
+          img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
+        ];
       post_form ~service:election_shuffle_post
+        ~a:[a_id "submit_form"; a_style "display:none;"]
         (fun nshuffle ->
           [
             div [
@@ -2580,6 +2585,13 @@ let shuffle election token =
               ];
           ]
         ) (uuid, token);
+      div [
+          script ~a:[a_src (static "sjcl.js")] (pcdata "");
+          script ~a:[a_src (static "jsbn.js")] (pcdata "");
+          script ~a:[a_src (static "jsbn2.js")] (pcdata "");
+          script ~a:[a_src (static "random.js")] (pcdata "");
+          script ~a:[a_src (static "tool_js_shuffle.js")] (pcdata "");
+        ];
     ]
   in
   base ~title ~content ~uuid ()

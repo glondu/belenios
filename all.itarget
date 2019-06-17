@@ -9,3 +9,4 @@ src/static/tool_js_ttkeygen.js
 src/static/tool_js_credgen.js
 src/static/tool_js_questions.js
 src/static/tool_js_pd.js
+src/static/tool_js_shuffle.js

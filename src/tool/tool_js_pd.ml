@@ -120,14 +120,6 @@ let load_private_key_file _ =
   reader##readAsText (file);
   return_unit
 
-let get_uuid x =
-  let n = String.length x in
-  if n < 1 || x.[0] <> '?' then
-    None
-  else
-    let args = Url.decode_arguments (String.sub x 1 (n-1)) in
-    List.assoc_opt "uuid" args
-
 let main _ =
   let () =
     document##getElementById (Js.string "compute") >>== fun e ->
@@ -140,7 +132,7 @@ let main _ =
     e##.onchange := Dom_html.handler (wrap load_private_key_file)
   in
   let () =
-    match get_uuid (Js.to_string Dom_html.window##.location##.search) with
+    match List.assoc_opt "uuid" (get_params ()) with
     | None -> ()
     | Some uuid ->
        Lwt.async (fun () ->
