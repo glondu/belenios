@@ -80,6 +80,7 @@ let appendStdQuestion div num_questions i q answers =
   in
   let () =
     let choices = Dom_html.createDiv document in
+    choices##.className := Js.string "answer_div";
     let choices_divs = Array.mapi (fun i a ->
       let div = Dom_html.createDiv document in
       let checkbox = Dom_html.createInput ~_type:(Js.string "checkbox") document in
@@ -147,6 +148,7 @@ let appendOpenQuestion div q answers =
   in
   let () =
     let choices = Dom_html.createDiv document in
+    choices##.className := Js.string "answer_div";
     let choices_divs = Array.mapi (fun i a ->
       let div = Dom_html.createDiv document in
       let input = Dom_html.createInput document in

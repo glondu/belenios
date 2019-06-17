@@ -1976,7 +1976,7 @@ let election_admin election metadata state get_tokens_decrypt () =
            div [
                div [
                    pcdata "The ballots are being shuffled. ";
-                   a ~service:election_shuffle_link [
+                   a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [
                        pcdata "Shuffle link";
                      ] (uuid, token);
                    pcdata ".";

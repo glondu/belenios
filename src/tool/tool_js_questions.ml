@@ -201,6 +201,7 @@ let rec createQuestionDiv question answers props =
   let x = Dom_html.createDiv document in
   Dom.appendChild container x;
   let cb_type = Dom_html.createInput ~_type:(Js.string "checkbox") document in
+  cb_type##.className := Js.string "homomorphic_tally";
   (match props with
    | Some _ ->
       Dom.appendChild container prop_div_h;

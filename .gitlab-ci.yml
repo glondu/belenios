@@ -64,6 +64,8 @@ build_and_run_automated_test_scenarios_with_preinstalled_image:
     - source venv/bin/activate
     # Install pip packages
     - pip install -r requirements.txt
+    # Run the automated test scenario 3
+    - python3 ./tests/test_scenario_3.py
     # Run the automated test scenario 2
     - python3 ./tests/test_scenario_2.py
     # Run the automated test scenario 1

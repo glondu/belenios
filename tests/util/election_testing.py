@@ -449,7 +449,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
     wait_a_bit()
 
 
-def administrator_edits_election_questions(browser):
+def administrator_edits_election_questions(browser, nh_question=False):
     """
     Initial browser (required) state: on the "Preparation of election" page, with questions not edited yet
     Final browser state: on the "Preparation of election" page (with questions edited)
@@ -472,6 +472,12 @@ def administrator_edits_election_questions(browser):
     page_title_css_selector = "#header h1"
     page_title_expected_content = "Questions for"
     wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
+
+    if nh_question:
+        # She unchecks "Homomorphic tally"
+        htally_css_selector = ".homomorphic_tally"
+        htally_checkbox_element = browser.find_element_by_css_selector(htally_css_selector)
+        htally_checkbox_element.click()
 
     # She removes answer 3
     question_to_remove = 3

@@ -63,7 +63,7 @@ class BeleniosElectionTestBase(unittest.TestCase):
         return votes_for_answers
 
 
-    def administrator_creates_election(self):
+    def administrator_creates_election(self, nh_question=False):
         # # Setting up a new election (action of the administrator)
 
         browser = self.browser
@@ -85,7 +85,7 @@ class BeleniosElectionTestBase(unittest.TestCase):
         # - She arrives on the Questions page. She checks that the page title is correct
         # - She removes answer 3
         # - She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
-        administrator_edits_election_questions(browser)
+        administrator_edits_election_questions(browser, nh_question)
 
         # She sets election's voters:
         # - She clicks on the "Edit voters" link, to then type the list of voters
@@ -333,7 +333,7 @@ pris en compte.
         # (where "[ ]" is a checkbox, and [Next] is a button)
 
         # He fills his votes to each answer of the question
-        answers_css_selector = "#question_div input[type=checkbox]"
+        answers_css_selector = ".answer_div input"
         answers_elements = wait_for_elements_exist(browser, answers_css_selector, settings.EXPLICIT_WAIT_TIMEOUT) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
 
         assert len(answers_elements) is 2
@@ -341,14 +341,20 @@ pris en compte.
         question1_answer2_element = answers_elements[1]
         voter_vote_to_question_1_answer_1 = voter["votes"]["question1"]["answer1"]
         voter_vote_to_question_1_answer_2 = voter["votes"]["question1"]["answer2"]
-        voter_vote_to_question_1_answer_1_is_checked = question1_answer1_element.get_attribute('checked')
-        voter_vote_to_question_1_answer_2_is_checked = question1_answer2_element.get_attribute('checked')
-        assert voter_vote_to_question_1_answer_1_is_checked is None
-        assert voter_vote_to_question_1_answer_2_is_checked is None
-        if voter_vote_to_question_1_answer_1:
-            question1_answer1_element.click()
-        if voter_vote_to_question_1_answer_2:
-            question1_answer2_element.click()
+        if question1_answer1_element.get_attribute('type') == 'checkbox':
+            voter_vote_to_question_1_answer_1_is_checked = question1_answer1_element.get_attribute('checked')
+            voter_vote_to_question_1_answer_2_is_checked = question1_answer2_element.get_attribute('checked')
+            assert voter_vote_to_question_1_answer_1_is_checked is None
+            assert voter_vote_to_question_1_answer_2_is_checked is None
+            if voter_vote_to_question_1_answer_1:
+                question1_answer1_element.click()
+            if voter_vote_to_question_1_answer_2:
+                question1_answer2_element.click()
+        else:
+            if voter_vote_to_question_1_answer_1:
+                question1_answer1_element.send_keys("1")
+            if voter_vote_to_question_1_answer_2:
+                question1_answer2_element.send_keys("1")
 
         wait_a_bit()
 
