@@ -326,10 +326,13 @@ let get_ballot_hashes uuid =
      StringMap.bindings ballots |> List.map fst |> return
   | _ ->
      let uuid_s = raw_string_of_uuid uuid in
-     let ballots = Lwt_unix.files_of_directory (!Web_config.spool_dir / uuid_s / "ballots") in
-     let%lwt ballots = Lwt_stream.to_list ballots in
-     let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
-     return (List.rev_map unurlize ballots)
+     try%lwt
+       let ballots = Lwt_unix.files_of_directory (!Web_config.spool_dir / uuid_s / "ballots") in
+       let%lwt ballots = Lwt_stream.to_list ballots in
+       let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
+       return (List.rev_map unurlize ballots)
+     with Unix.Unix_error(Unix.ENOENT, "opendir", _) ->
+       return []
 
 let get_ballot_by_hash uuid hash =
   match%lwt get_election_state uuid with
