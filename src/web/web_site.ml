@@ -313,6 +313,8 @@ let delete_election uuid =
       "records";
       "result.json";
       "hide_result";
+      "shuffle_token";
+      "shuffles.jsons";
       "voters.txt";
       "archive.zip";
     ]
@@ -1829,7 +1831,9 @@ let handle_election_tally_release uuid () =
              let module K = Trustees.MakePedersen (W.G) (LwtRandom) (P) (C) in
              return (K.combine_factors checker tp)
         in
-        let result = E.compute_result ntallied et pds combinator in
+        let%lwt shuffles = Web_persist.get_shuffles uuid in
+        let shuffles = Option.map (List.map (shuffle_of_string W.G.read)) shuffles in
+        let result = E.compute_result ?shuffles ntallied et pds combinator in
         let%lwt () =
           let result = string_of_election_result W.G.write result in
           write_file ~uuid (string_of_election_file ESResult) [result]
@@ -1837,6 +1841,8 @@ let handle_election_tally_release uuid () =
         let%lwt () = Web_persist.set_election_state uuid `Tallied in
         let%lwt () = Web_persist.set_election_date `Tally uuid (now ()) in
         let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
+        let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "shuffles.jsons") in
+        let%lwt () = Web_persist.clear_shuffle_token uuid in
         redir_preapply election_home (uuid, ()) ()
       ) else forbidden ()
     )
@@ -1877,6 +1883,13 @@ let () =
     (fun (uuid, f) () ->
      let%lwt site_user = Eliom_reference.get Web_state.site_user in
      handle_pseudo_file uuid f site_user)
+
+let () =
+  Any.register ~service:election_nh_ciphertexts
+    (fun uuid () ->
+      let%lwt x = Web_persist.get_nh_ciphertexts uuid in
+      String.send (x, "application/json")
+    )
 
 module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
 
@@ -1922,15 +1935,91 @@ let () =
               | Some x -> return x
               | None -> failwith "Anomaly in election_compute_encrypted_tally service handler. Please report." (* should not happen *)
             in
+            if Election.has_nh_questions E.election then (
+              let%lwt () = Web_persist.set_election_state uuid `Shuffling in
+              redir_preapply election_admin uuid ()
+            ) else (
+              let%lwt npks =
+                match%lwt Web_persist.get_threshold uuid with
+                | Some tp ->
+                   let tp = threshold_parameters_of_string W.G.read tp in
+                   return (Array.length tp.t_verification_keys)
+                | None ->
+                   match%lwt Web_persist.get_public_keys uuid with
+                   | Some pks -> return (List.length pks)
+                   | None -> failwith "missing public keys and threshold parameters"
+              in
+              let%lwt () = Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) in
+              if%lwt perform_server_side_decryption uuid (module E) metadata tally then
+                handle_election_tally_release uuid ()
+              else
+                redir_preapply election_admin uuid ()
+            )
+          ) else forbidden ()
+        )
+    )
+
+let () =
+  Any.register ~service:election_shuffle_link
+    (fun (uuid, token) () ->
+      let%lwt expected_token = Web_persist.get_shuffle_token uuid in
+      if token = expected_token then (
+        let%lwt election = find_election uuid in
+        T.shuffle election token >>= Html.send
+      ) else forbidden ()
+    )
+
+let () =
+  Any.register ~service:election_shuffle_post
+    (fun (uuid, token) shuffle ->
+      let%lwt expected_token = Web_persist.get_shuffle_token uuid in
+      if token = expected_token then (
+        let shuffle = try Ok (shuffle_of_string Yojson.Safe.read_json shuffle) with e -> Error e in
+        match shuffle with
+        | Ok shuffle ->
+           let ciphertexts = string_of_nh_ciphertexts Yojson.Safe.write_json shuffle.shuffle_ciphertexts in
+           let proofs = string_of_shuffle_proofs Yojson.Safe.write_json shuffle.shuffle_proofs in
+           if%lwt Web_persist.append_to_shuffles uuid ~ciphertexts ~proofs then (
+             let%lwt () = Web_persist.clear_shuffle_token uuid in
+             T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
+           ) else
+             T.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send
+        | Error e ->
+           T.generic_page ~title:"Error" (Printf.sprintf "Data is invalid! (%s)" (Printexc.to_string e)) () >>= Html.send
+      ) else forbidden ()
+    )
+
+let () =
+  Any.register ~service:election_decrypt (fun uuid () ->
+      with_site_user (fun u ->
+          let%lwt election = find_election uuid in
+          let%lwt metadata = Web_persist.get_election_metadata uuid in
+          let module W = (val Election.get_group election) in
+          let module E = Election.Make (W) (LwtRandom) in
+          if metadata.e_owner = Some u then (
+            let%lwt () =
+              match%lwt Web_persist.get_election_state uuid with
+              | `Shuffling -> return ()
+              | _ -> forbidden ()
+            in
+            let%lwt hash, tally =
+              match%lwt Web_persist.compute_encrypted_tally_after_shuffling uuid with
+              | Some x -> return x
+              | None -> Lwt.fail (Failure "election_decrypt handler: compute_encrypted_tally_after_shuffling")
+            in
+            let%lwt nb =
+              let%lwt x = Web_persist.get_ballot_hashes uuid in
+              return (List.length x)
+            in
             let%lwt npks =
               match%lwt Web_persist.get_threshold uuid with
               | Some tp ->
-                 let tp = threshold_parameters_of_string W.G.read tp in
+                 let tp = threshold_parameters_of_string E.G.read tp in
                  return (Array.length tp.t_verification_keys)
               | None ->
                  match%lwt Web_persist.get_public_keys uuid with
                  | Some pks -> return (List.length pks)
-                 | None -> failwith "missing public keys and threshold parameters"
+                 | None -> Lwt.fail (Failure "election_decrypt handler: missing public keys and threshold parameters")
             in
             let%lwt () = Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) in
             if%lwt perform_server_side_decryption uuid (module E) metadata tally then
@@ -2323,7 +2412,7 @@ let extract_automatic_data_validated uuid_s =
      let contact = metadata.e_contact in
      let%lwt state = Web_persist.get_election_state uuid in
      match state with
-     | `Open | `Closed | `EncryptedTally _ ->
+     | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
         let%lwt t = Web_persist.get_election_date `Validation uuid in
         let t = Option.get t default_validation_date in
         let next_t = datetime_add t (day days_to_delete) in

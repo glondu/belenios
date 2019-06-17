@@ -26,6 +26,8 @@ open Signatures
 val of_string : string -> Yojson.Safe.json election
 val get_group : Yojson.Safe.json election -> (module ELECTION_DATA)
 
+val has_nh_questions : 'a election -> bool
+
 module Make (W : ELECTION_DATA) (M : RANDOM) :
   ELECTION with type elt = W.G.t and type 'a m = 'a M.t
 (** Implementation of {!Signatures.ELECTION}. *)

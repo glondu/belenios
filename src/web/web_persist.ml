@@ -235,7 +235,7 @@ let get_elections_by_owner user =
                          let election = Election.of_string election in
                          let%lwt kind, date =
                            match%lwt get_election_state uuid with
-                           | `Open | `Closed | `EncryptedTally _ ->
+                           | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
                               let%lwt date = get_election_date `Validation uuid in
                               let date = Option.get date default_validation_date in
                               return (`Validated, date)
@@ -392,6 +392,106 @@ let compute_encrypted_tally uuid =
      let tally = string_of_encrypted_tally E.G.write tally in
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
      return (Some (num_tallied, sha256_b64 tally, tally))
+
+let get_shuffle_token uuid =
+  match%lwt read_file ~uuid "shuffle_token" with
+  | Some [x] -> return x
+  | _ ->
+     let%lwt token = generate_token () in
+     let%lwt () = write_file ~uuid "shuffle_token" [token] in
+     return token
+
+let clear_shuffle_token uuid =
+  let f = !Web_config.spool_dir / raw_string_of_uuid uuid / "shuffle_token" in
+  try%lwt Lwt_unix.unlink f with _ -> return_unit
+
+let get_nh_ciphertexts uuid =
+  match%lwt get_raw_election uuid with
+  | None -> Lwt.fail (Failure "get_nh_ciphertexts: election not found")
+  | Some election ->
+     let election = Election.of_string election in
+     let module W = (val Election.get_group election) in
+     let module E = Election.Make (W) (LwtRandom) in
+     let%lwt current =
+       match%lwt read_file ~uuid "shuffles.jsons" with
+       | None -> return []
+       | Some x -> return x
+     in
+     match List.rev current with
+     | [] ->
+        let%lwt tally =
+          match%lwt read_file ~uuid (string_of_election_file ESETally) with
+          | Some [x] -> return (encrypted_tally_of_string E.G.read x)
+          | _ -> Lwt.fail (Failure "append_to_shuffles: encrypted tally not found or invalid")
+        in
+        return (string_of_nh_ciphertexts E.G.write (E.extract_nh_ciphertexts tally))
+     | x :: _ -> return x
+
+let get_shuffles uuid =
+  match%lwt get_raw_election uuid with
+  | None -> return_none
+  | Some election ->
+     let election = Election.of_string election in
+     let module W = (val Election.get_group election) in
+     let module E = Election.Make (W) (LwtRandom) in
+     match%lwt read_file ~uuid "shuffles.jsons" with
+     | None -> return_none
+     | Some x ->
+        let rec loop accu = function
+          | p :: c :: rest ->
+             let shuffle_ciphertexts = nh_ciphertexts_of_string E.G.read c in
+             let shuffle_proofs = shuffle_proofs_of_string E.G.read p in
+             let shuffle = string_of_shuffle E.G.write {shuffle_ciphertexts; shuffle_proofs} in
+             loop (shuffle :: accu) rest
+          | [] -> return_some (List.rev accu)
+          | [_] -> Lwt.fail (Failure "get_shuffles: odd number of lines")
+        in
+        loop [] x
+
+let compute_encrypted_tally_after_shuffling uuid =
+  let%lwt election = get_raw_election uuid in
+  match election with
+  | None -> return_none
+  | Some election ->
+     let election = Election.of_string election in
+     let module W = (val Election.get_group election) in
+     let module E = Election.Make (W) (LwtRandom) in
+     match%lwt read_file ~uuid (string_of_election_file ESETally) with
+     | Some [x] ->
+        let tally = encrypted_tally_of_string E.G.read x in
+        let%lwt nh = get_nh_ciphertexts uuid in
+        let nh = nh_ciphertexts_of_string E.G.read nh in
+        let tally = E.merge_nh_ciphertexts nh tally in
+        let tally = string_of_encrypted_tally E.G.write tally in
+        let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
+        return_some (sha256_b64 tally, tally)
+     | _ -> return_none
+
+let shuffle_mutex = Lwt_mutex.create ()
+
+let append_to_shuffles uuid ~ciphertexts ~proofs =
+  match%lwt get_raw_election uuid with
+  | None -> Lwt.fail (Failure "append_to_shuffles: election not found")
+  | Some election ->
+     let election = Election.of_string election in
+     let module W = (val Election.get_group election) in
+     let module E = Election.Make (W) (LwtRandom) in
+     let proofs_ = shuffle_proofs_of_string E.G.read proofs in
+     let ciphertexts_ = nh_ciphertexts_of_string E.G.read ciphertexts in
+     Lwt_mutex.with_lock shuffle_mutex (fun () ->
+         let%lwt last_ciphertext = get_nh_ciphertexts uuid in
+         let last_ciphertext = nh_ciphertexts_of_string E.G.read last_ciphertext in
+         if E.check_shuffle last_ciphertext ciphertexts_ proofs_ then (
+           let%lwt current =
+             match%lwt read_file ~uuid "shuffles.jsons" with
+             | None -> return []
+             | Some x -> return x
+           in
+           let new_ = current @ [proofs; ciphertexts] in
+           let%lwt () = write_file ~uuid "shuffles.jsons" new_ in
+           return true
+         ) else return false
+       )
 
 module ExtendedRecordsCacheTypes = struct
   type key = uuid

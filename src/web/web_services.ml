@@ -104,6 +104,10 @@ let election_missing_voters = create ~path:(Path ["elections"]) ~meth:(Get (suff
 let election_download_archive = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** suffix_const "archive.zip"))) ()
 
 let election_compute_encrypted_tally = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
+let election_nh_ciphertexts = create ~path:(Path ["election"; "nh-ciphertexts"]) ~meth:(Get (uuid "uuid")) ()
+let election_shuffle_link = create ~path:(Path ["election"; "shuffle"]) ~meth:(Get uuid_and_token) ()
+let election_shuffle_post = create ~path:(Path ["election"; "submit-shuffle"]) ~meth:(Post (uuid_and_token, string "shuffle")) ()
+let election_decrypt = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_tally_trustees = create ~path:(Path ["election"; "trustees"]) ~meth:(Get uuid_and_token) ()
 let election_tally_trustees_post = create ~path:(Path ["election"; "submit-partial-decryption"]) ~meth:(Post (uuid_and_token, string "partial_decryption")) ()
 let election_tally_release = create_attached_post ~fallback:election_admin ~post_params:unit ()

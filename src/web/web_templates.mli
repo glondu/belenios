@@ -61,6 +61,8 @@ val cast_confirmed : 'a election -> result:(string, Web_common.error) result -> 
 val pretty_ballots : 'a election -> string list -> Yojson.Safe.json election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val pretty_records : 'a election -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
+val shuffle : 'a election -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
 val tally_trustees : 'a election -> int -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val login_choose :

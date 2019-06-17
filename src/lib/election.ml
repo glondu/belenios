@@ -47,6 +47,12 @@ let get_group x =
 
 (** Helper functions *)
 
+let has_nh_questions e =
+  Array.exists (function
+      | Question.Open _ -> true
+      | Question.Standard _ -> false
+    ) e.e_params.e_questions
+
 let check_modulo p x = Z.(geq x zero && lt x p)
 
 (** Homomorphic elections *)

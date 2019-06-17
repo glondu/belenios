@@ -82,6 +82,16 @@ val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 
 val compute_encrypted_tally : uuid -> (int * string * string) option Lwt.t
 
+val get_shuffles : uuid -> string list option Lwt.t
+val compute_encrypted_tally_after_shuffling : uuid -> (string * string) option Lwt.t
+
+val get_shuffle_token : uuid -> string Lwt.t
+val clear_shuffle_token : uuid -> unit Lwt.t
+
+val get_nh_ciphertexts : uuid -> string Lwt.t
+
+val append_to_shuffles : uuid -> ciphertexts:string -> proofs:string -> bool Lwt.t
+
 val has_voted : uuid -> user -> bool Lwt.t
 
 val init_credential_mapping : uuid -> string list -> unit Lwt.t

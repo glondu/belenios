@@ -79,6 +79,7 @@ type credential_mapping = {
 type election_state =
   [ Open
   | Closed
+  | Shuffling
   | EncryptedTally of (int * int * string)
   | Tallied
   | Archived

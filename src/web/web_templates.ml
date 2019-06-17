@@ -1731,6 +1731,11 @@ let election_home election state () =
          | _ -> pcdata ""
        in
        [it_will_close]
+    | `Shuffling ->
+       [
+         pcdata " ";
+         b [pcdata L.election_closed_being_tallied];
+       ]
     | `EncryptedTally (_, _, hash) ->
        [
          pcdata " ";
@@ -1965,6 +1970,25 @@ let election_admin election metadata state get_tokens_decrypt () =
               pcdata " Warning: this action is irreversible; the election will be definitively closed.";
              ]) uuid;
        ]
+    | `Shuffling ->
+       let%lwt token = Web_persist.get_shuffle_token uuid in
+       return (
+           div [
+               div [
+                   pcdata "The ballots are being shuffled. ";
+                   a ~service:election_shuffle_link [
+                       pcdata "Shuffle link";
+                     ] (uuid, token);
+                   pcdata ".";
+                 ];
+               post_form ~service:election_decrypt
+                 (fun () ->
+                   [
+                     input ~input_type:`Submit ~value:"Proceed to decryption" string;
+                   ]
+                 ) uuid;
+             ]
+         )
     | `EncryptedTally (npks, _, hash) ->
        let%lwt pds = Web_persist.get_partial_decryptions uuid in
        let%lwt tp = Web_persist.get_threshold uuid in
@@ -2135,7 +2159,7 @@ let election_admin election metadata state get_tokens_decrypt () =
     ]
   in
   let%lwt deletion_date = match state with
-    | `Open | `Closed | `EncryptedTally _ ->
+    | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
        let%lwt t = Web_persist.get_election_date `Validation uuid in
        let dt = day days_to_delete in
        return @@ datetime_add (Option.get t default_validation_date) dt
@@ -2537,6 +2561,28 @@ let pretty_records election records () =
   ] in
   let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ()
+
+let shuffle election token =
+  let params = election.e_params in
+  let uuid = params.e_uuid in
+  let title = params.e_name ^ " — Shuffle" in
+  let content = [
+      div [pcdata "It is now time to shuffle encrypted ballots."];
+      post_form ~service:election_shuffle_post
+        (fun nshuffle ->
+          [
+            div [
+                input ~input_type:`Submit ~value:"Submit" string;
+              ];
+            div [
+                pcdata "Data: ";
+                textarea ~a:[a_rows 5; a_cols 40; a_id "shuffle"] ~name:nshuffle ();
+              ];
+          ]
+        ) (uuid, token);
+    ]
+  in
+  base ~title ~content ~uuid ()
 
 let tally_trustees election trustee_id token () =
   let params = election.e_params in
