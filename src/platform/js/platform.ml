@@ -21,6 +21,8 @@
 
 open Js_of_ocaml
 
+let debug x = Firebug.console##log (Js.string x)
+
 module Sjcl = struct
   open Js
 

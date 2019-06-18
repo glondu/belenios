@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+let debug x = prerr_endline x
+
 let sha256_hex x = Cryptokit.(x |>
   hash_string (Hash.sha256 ()) |>
   transform_string (Hexa.encode ())
