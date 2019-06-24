@@ -182,9 +182,7 @@ let validate_election uuid se =
   let%lwt () =
     let fname = !Web_config.spool_dir / uuid_s / "public_creds.txt" in
     match%lwt read_file fname with
-    | Some xs ->
-       let%lwt () = Web_persist.init_credential_mapping uuid xs in
-       Lwt_unix.unlink fname
+    | Some xs -> Web_persist.init_credential_mapping uuid xs
     | None -> return_unit
   in
   (* create file with private keys, if any *)
