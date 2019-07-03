@@ -1241,6 +1241,32 @@ let () =
      match site_user with
      | Some u when metadata.e_owner = Some u ->
         let%lwt state = Web_persist.get_election_state uuid in
+        let module W = (val Election.get_group w) in
+        let module E = Election.Make (W) (LwtRandom) in
+        let%lwt pending_server_shuffle =
+          match state with
+          | `Shuffling ->
+             if Election.has_nh_questions E.election then
+               match%lwt Web_persist.get_shuffles uuid with
+               | None -> return_true
+               | Some _ -> return_false
+             else return_false
+          | _ -> return_false
+        in
+        let%lwt () =
+          if pending_server_shuffle then (
+            let%lwt cc = Web_persist.get_nh_ciphertexts uuid in
+            let cc = nh_ciphertexts_of_string E.G.read cc in
+            let%lwt ciphertexts, proofs = E.shuffle_ciphertexts cc in
+            let ciphertexts = string_of_nh_ciphertexts E.G.write ciphertexts in
+            let proofs = string_of_shuffle_proofs E.G.write proofs in
+            if%lwt Web_persist.append_to_shuffles uuid ~ciphertexts ~proofs then (
+              return_unit
+            ) else (
+              Lwt.fail (Failure (Printf.sprintf "Automatic shuffle by server has failed for election %s!" (raw_string_of_uuid uuid)))
+            )
+          ) else return_unit
+        in
         let get_tokens_decrypt () =
           match%lwt Web_persist.get_decryption_tokens uuid with
           | Some x -> return x
