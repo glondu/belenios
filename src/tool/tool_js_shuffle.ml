@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Js_of_ocaml
 open Serializable_j
 open Common
 open Tool_js_common
@@ -34,13 +35,18 @@ let shuffle election ciphertexts =
 let () =
   Lwt.async (fun () ->
       let%lwt _ = Lwt_js_events.onload () in
-      let uuid = List.assoc "uuid" (get_params ()) in
-      let open Lwt_xmlHttpRequest in
-      let%lwt election = get ("../elections/" ^ uuid ^ "/election.json") in
-      let%lwt ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
-      let%lwt shuffle = shuffle election.content ciphertexts.content in
-      set_textarea "shuffle" shuffle;
-      set_element_display "wait_div" "none";
-      set_element_display "submit_form" "block";
-      Lwt.return_unit
+      match Dom_html.getElementById_coerce "compute_shuffle" Dom_html.CoerceTo.button with
+      | None -> Lwt.return_unit
+      | Some btn ->
+         let%lwt _ = Lwt_js_events.click btn in
+         set_element_display "controls_div" "none";
+         set_element_display "wait_div" "block";
+         let uuid = List.assoc "uuid" (get_params ()) in
+         let open Lwt_xmlHttpRequest in
+         let%lwt election = get ("../elections/" ^ uuid ^ "/election.json") in
+         let%lwt ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
+         let%lwt shuffle = shuffle election.content ciphertexts.content in
+         set_textarea "shuffle" shuffle;
+         set_element_display "wait_div" "none";
+         Lwt.return_unit
     )

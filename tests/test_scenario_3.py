@@ -75,6 +75,10 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
 
         wait_a_bit()
 
+        # She clicks on the "Compute shuffle" button
+        wait_for_element_exists(browser, "#compute_shuffle", settings.EXPLICIT_WAIT_TIMEOUT).click()
+        wait_a_bit()
+
         # She waits for the "shuffle" textarea to be filled
         wait_for_element_exists_and_has_non_empty_attribute(browser, "#shuffle", "value", settings.EXPLICIT_WAIT_TIMEOUT)
 

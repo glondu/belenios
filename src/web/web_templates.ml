@@ -2568,12 +2568,15 @@ let shuffle election token =
   let title = params.e_name ^ " — Shuffle" in
   let content = [
       div [pcdata "It is now time to shuffle encrypted ballots."];
-      div ~a:[a_id "wait_div"] [
+      div ~a:[a_id "controls_div"] [
+          button_no_value ~button_type:`Button ~a:[a_id "compute_shuffle"] [pcdata "Compute shuffle"];
+        ];
+      div ~a:[a_id "wait_div"; a_style "display:none;"] [
           pcdata "Please wait... ";
           img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
         ];
       post_form ~service:election_shuffle_post
-        ~a:[a_id "submit_form"; a_style "display:none;"]
+        ~a:[a_id "submit_form"]
         (fun nshuffle ->
           [
             div [
