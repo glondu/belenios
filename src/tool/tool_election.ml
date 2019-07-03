@@ -199,7 +199,7 @@ module Make (P : PARSED_PARAMS) : S = struct
         let rec loop i cc shuffles shuffle_proofs =
           match shuffles, shuffle_proofs with
           | s :: shuffles, p :: shuffle_proofs ->
-             if E.check_shuffle cc s p then
+             if E.check_shuffle cc {shuffle_ciphertexts = s; shuffle_proofs = p} then
                loop (i+1) s shuffles shuffle_proofs
              else
                Printf.ksprintf failwith "shuffle #%d failed tests" i
@@ -311,9 +311,9 @@ module Make (P : PARSED_PARAMS) : S = struct
   let shuffle_ciphertexts () =
     let cc, _ = Lazy.force encrypted_tally in
     let cc = E.extract_nh_ciphertexts cc in
-    let cc', p = E.shuffle_ciphertexts cc in
-    string_of_nh_ciphertexts G.write cc',
-    string_of_shuffle_proofs G.write p
+    let {shuffle_ciphertexts; shuffle_proofs} = E.shuffle_ciphertexts cc in
+    string_of_nh_ciphertexts G.write shuffle_ciphertexts,
+    string_of_shuffle_proofs G.write shuffle_proofs
 
 end
 

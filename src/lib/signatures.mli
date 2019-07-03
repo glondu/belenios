@@ -105,8 +105,8 @@ module type ELECTION = sig
   val extract_nh_ciphertexts : elt encrypted_tally -> elt nh_ciphertexts
   val merge_nh_ciphertexts : elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally
 
-  val shuffle_ciphertexts : elt nh_ciphertexts -> (elt nh_ciphertexts * elt shuffle_proofs) m
-  val check_shuffle : elt nh_ciphertexts -> elt nh_ciphertexts -> elt shuffle_proofs -> bool
+  val shuffle_ciphertexts : elt nh_ciphertexts -> elt shuffle m
+  val check_shuffle : elt nh_ciphertexts -> elt shuffle -> bool
 
   (** {2 Partial decryptions} *)
 

@@ -1257,10 +1257,9 @@ let () =
           if pending_server_shuffle then (
             let%lwt cc = Web_persist.get_nh_ciphertexts uuid in
             let cc = nh_ciphertexts_of_string E.G.read cc in
-            let%lwt ciphertexts, proofs = E.shuffle_ciphertexts cc in
-            let ciphertexts = string_of_nh_ciphertexts E.G.write ciphertexts in
-            let proofs = string_of_shuffle_proofs E.G.write proofs in
-            if%lwt Web_persist.append_to_shuffles uuid ~ciphertexts ~proofs then (
+            let%lwt shuffle = E.shuffle_ciphertexts cc in
+            let shuffle = string_of_shuffle E.G.write shuffle in
+            if%lwt Web_persist.append_to_shuffles uuid shuffle then (
               return_unit
             ) else (
               Lwt.fail (Failure (Printf.sprintf "Automatic shuffle by server has failed for election %s!" (raw_string_of_uuid uuid)))
@@ -1998,17 +1997,13 @@ let () =
     (fun (uuid, token) shuffle ->
       let%lwt expected_token = Web_persist.get_shuffle_token uuid in
       if token = expected_token then (
-        let shuffle = try Ok (shuffle_of_string Yojson.Safe.read_json shuffle) with e -> Error e in
-        match shuffle with
-        | Ok shuffle ->
-           let ciphertexts = string_of_nh_ciphertexts Yojson.Safe.write_json shuffle.shuffle_ciphertexts in
-           let proofs = string_of_shuffle_proofs Yojson.Safe.write_json shuffle.shuffle_proofs in
-           if%lwt Web_persist.append_to_shuffles uuid ~ciphertexts ~proofs then (
-             let%lwt () = Web_persist.clear_shuffle_token uuid in
-             T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
-           ) else
-             T.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send
-        | Error e ->
+        match%lwt Web_persist.append_to_shuffles uuid shuffle with
+        | true ->
+           let%lwt () = Web_persist.clear_shuffle_token uuid in
+           T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
+        | false ->
+           T.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send
+        | exception e ->
            T.generic_page ~title:"Error" (Printf.sprintf "Data is invalid! (%s)" (Printexc.to_string e)) () >>= Html.send
       ) else forbidden ()
     )

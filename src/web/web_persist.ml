@@ -422,7 +422,7 @@ let get_nh_ciphertexts uuid =
         let%lwt tally =
           match%lwt read_file ~uuid (string_of_election_file ESETally) with
           | Some [x] -> return (encrypted_tally_of_string E.G.read x)
-          | _ -> Lwt.fail (Failure "append_to_shuffles: encrypted tally not found or invalid")
+          | _ -> Lwt.fail (Failure "get_nh_ciphertexts: encrypted tally not found or invalid")
         in
         return (string_of_nh_ciphertexts E.G.write (E.extract_nh_ciphertexts tally))
      | x :: _ -> return x
@@ -469,24 +469,25 @@ let compute_encrypted_tally_after_shuffling uuid =
 
 let shuffle_mutex = Lwt_mutex.create ()
 
-let append_to_shuffles uuid ~ciphertexts ~proofs =
+let append_to_shuffles uuid shuffle =
   match%lwt get_raw_election uuid with
   | None -> Lwt.fail (Failure "append_to_shuffles: election not found")
   | Some election ->
      let election = Election.of_string election in
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
-     let proofs_ = shuffle_proofs_of_string E.G.read proofs in
-     let ciphertexts_ = nh_ciphertexts_of_string E.G.read ciphertexts in
+     let shuffle = shuffle_of_string E.G.read shuffle in
      Lwt_mutex.with_lock shuffle_mutex (fun () ->
          let%lwt last_ciphertext = get_nh_ciphertexts uuid in
          let last_ciphertext = nh_ciphertexts_of_string E.G.read last_ciphertext in
-         if E.check_shuffle last_ciphertext ciphertexts_ proofs_ then (
+         if E.check_shuffle last_ciphertext shuffle then (
            let%lwt current =
              match%lwt read_file ~uuid "shuffles.jsons" with
              | None -> return []
              | Some x -> return x
            in
+           let proofs = string_of_shuffle_proofs E.G.write shuffle.shuffle_proofs in
+           let ciphertexts = string_of_nh_ciphertexts E.G.write shuffle.shuffle_ciphertexts in
            let new_ = current @ [proofs; ciphertexts] in
            let%lwt () = write_file ~uuid "shuffles.jsons" new_ in
            return true

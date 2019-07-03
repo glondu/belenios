@@ -206,14 +206,16 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         Mix.gen_shuffle y c >>= fun (c', r', psi) ->
         Mix.gen_shuffle_proof y c c' r' psi >>= fun pi ->
         loop (i-1) ((c', pi) :: accu)
-      ) else
-        M.return Array.(split (of_list accu))
+      ) else (
+        let shuffle_ciphertexts, shuffle_proofs = Array.(split (of_list accu)) in
+        M.return {shuffle_ciphertexts; shuffle_proofs}
+      )
     in
     loop (Array.length cc - 1) []
 
-  let check_shuffle cc cc' p =
+  let check_shuffle cc s =
     let y = election.e_params.e_public_key in
-    Array.forall3 (Mix.check_shuffle_proof y) cc cc' p
+    Array.forall3 (Mix.check_shuffle_proof y) cc s.shuffle_ciphertexts s.shuffle_proofs
 
   type factor = elt partial_decryption
 
