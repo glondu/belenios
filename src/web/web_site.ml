@@ -2291,8 +2291,8 @@ let () =
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply site_login (Some service, ContSiteAdmin) in
               T.generic_page ~title:"Change password" ~service "The password has been changed." ()
-           | Error e -> T.changepw ~username ~address (Some (`WeakPassword e))
-         ) else T.changepw ~username ~address (Some `PasswordMismatch)
+           | Error e -> T.changepw ~username ~address (Some e)
+         ) else T.changepw ~username ~address (Some PasswordMismatch)
       | _ -> forbidden ()
     )
 

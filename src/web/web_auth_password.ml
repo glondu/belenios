@@ -28,6 +28,7 @@ open Web_common
 let ( / ) = Filename.concat
 
 let check_password_with_file db name password =
+  let name = String.trim name in
   let%lwt db = Lwt_preemptive.detach Csv.load db in
   match
     List.find_opt (function
@@ -36,7 +37,7 @@ let check_password_with_file db name password =
       ) db
   with
   | Some (_ :: salt :: hashed :: _) ->
-     return (sha256_hex (salt ^ password) = hashed)
+     return (sha256_hex (salt ^ String.trim password) = hashed)
   | _ -> return false
 
 let password_handler () (name, password) =
@@ -115,28 +116,32 @@ let is_username =
   | None -> false
 
 let add_account user ~password ~email =
-  if is_username user.user_name then
+  if String.trim password = password then (
+    if is_username user.user_name then
+      match%lwt Web_signup.cracklib_check password with
+      | Some e -> return (Error (BadPassword e))
+      | None ->
+         match get_password_db_fname user.user_domain with
+         | None -> forbidden ()
+         | Some db_fname ->
+            Lwt_mutex.with_lock password_db_mutex
+              (do_add_account ~db_fname ~username:user.user_name ~password ~email)
+    else return (Error BadUsername)
+  ) else return (Error BadSpaceInPassword)
+
+let change_password user ~password =
+  if String.trim password = password then (
     match%lwt Web_signup.cracklib_check password with
     | Some e -> return (Error (BadPassword e))
     | None ->
        match get_password_db_fname user.user_domain with
        | None -> forbidden ()
        | Some db_fname ->
-          Lwt_mutex.with_lock password_db_mutex
-            (do_add_account ~db_fname ~username:user.user_name ~password ~email)
-  else return (Error BadUsername)
-
-let change_password user ~password =
-  match%lwt Web_signup.cracklib_check password with
-  | Some e -> return (Error e)
-  | None ->
-     match get_password_db_fname user.user_domain with
-     | None -> forbidden ()
-     | Some db_fname ->
-        let%lwt () =
-          Lwt_mutex.with_lock password_db_mutex
-            (do_change_password ~db_fname ~username:user.user_name ~password)
-        in return (Ok ())
+          let%lwt () =
+            Lwt_mutex.with_lock password_db_mutex
+              (do_change_password ~db_fname ~username:user.user_name ~password)
+          in return (Ok ())
+  ) else return (Error BadSpaceInPassword)
 
 let () =
   Web_auth.register_pre_login_handler "password"
@@ -146,6 +151,7 @@ let () =
     )
 
 let lookup_account ~service ~username ~email =
+  let username = String.trim username in
   match get_password_db_fname service with
   | None -> return None
   | Some db ->

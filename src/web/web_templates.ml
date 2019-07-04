@@ -2760,6 +2760,7 @@ let signup address error username =
          | BadUsername -> "the username is invalid"
          | BadPassword e -> Printf.sprintf "the password is too weak (%s)" e
          | PasswordMismatch -> "the two passwords are not the same"
+         | BadSpaceInPassword -> "the password starts or ends with a space"
        in
        div [
            pcdata "The account creation ";
@@ -2804,8 +2805,10 @@ let changepw ~username ~address error =
     | None -> pcdata ""
     | Some e ->
        let reason = match e with
-         | `PasswordMismatch -> "the two passwords are not the same"
-         | `WeakPassword e -> Printf.sprintf "the new password is too weak (%s)" e
+         | PasswordMismatch -> "the two passwords are not the same"
+         | BadPassword e -> Printf.sprintf "the new password is too weak (%s)" e
+         | BadSpaceInPassword -> "the new password starts or ends with a space"
+         | _ -> " of an unknown reason"
        in
        div [
            pcdata "The change ";
