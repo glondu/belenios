@@ -256,6 +256,7 @@ type add_account_error =
   | BadUsername
   | BadPassword of string
   | PasswordMismatch
+  | BadSpaceInPassword
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let prng = lazy (pseudo_rng (random_string secure_rng 16))

@@ -120,6 +120,7 @@ type add_account_error =
   | BadUsername
   | BadPassword of string
   | PasswordMismatch
+  | BadSpaceInPassword
 
 val generate_token : ?length:int -> unit -> string Lwt.t
 
