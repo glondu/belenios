@@ -146,7 +146,7 @@ let appendOpenQuestion div q answers =
     Dom.appendChild c t;
     Dom.appendChild div c
   in
-  let () =
+  let inputs =
     let choices = Dom_html.createDiv document in
     choices##.className := Js.string "answer_div";
     let choices_divs = Array.mapi (fun i a ->
@@ -171,15 +171,27 @@ let appendOpenQuestion div q answers =
             Js._true
           );
       Dom.appendChild div t;
-      div
+      input, div
     ) q.q_answers
     in
     for i = 0 to Array.length choices_divs - 1 do
-      Dom.appendChild choices choices_divs.(i)
+      Dom.appendChild choices (snd choices_divs.(i))
     done;
-    Dom.appendChild div choices
+    Dom.appendChild div choices;
+    Array.map fst choices_divs
   in
-  let check_constraints () = true in
+  let check_constraints () =
+    let n = Array.length inputs - 1 in
+    let rec loop i =
+      if i < n then
+        if Js.string (string_of_int answers.(i)) <> inputs.(i)##.value then (
+          alert "At least one of the answers is invalid!";
+          false
+        ) else loop (i + 1)
+      else true
+    in
+    loop 0
+  in
   check_constraints
 
 let appendStdSummary e a q =
