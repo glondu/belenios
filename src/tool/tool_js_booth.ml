@@ -184,7 +184,16 @@ let appendOpenQuestion div q answers =
     let n = Array.length inputs - 1 in
     let rec loop i =
       if i < n then
-        if Js.string (string_of_int answers.(i)) <> inputs.(i)##.value then (
+        let valid =
+          let x =
+            try Some (int_of_string (Js.to_string inputs.(i)##.value))
+            with _ -> None
+          in
+          match x with
+          | Some y -> y = answers.(i)
+          | None -> false
+        in
+        if not valid then (
           alert "At least one of the answers is invalid!";
           false
         ) else loop (i + 1)
