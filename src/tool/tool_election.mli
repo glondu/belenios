@@ -15,7 +15,7 @@ module type S = sig
   val tdecrypt : string -> string -> string
   val validate : string list -> string
   val verify : unit -> unit
-  val shuffle_ciphertexts : unit -> string * string
+  val shuffle_ciphertexts : unit -> string
 end
 
 val make : (module PARAMS) -> (module S)

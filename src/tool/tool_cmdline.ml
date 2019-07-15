@@ -407,9 +407,8 @@ module Election : CMDLINER_MODULE = struct
         output_char oc '\n';
         close_out oc
       | `Shuffle ->
-         let cc, p = X.shuffle_ciphertexts () in
-         print_endline p;
-         print_endline cc
+         let s = X.shuffle_ciphertexts () in
+         print_endline s
       end;
       if cleanup then rm_rf dir
     )

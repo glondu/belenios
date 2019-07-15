@@ -425,7 +425,9 @@ let get_nh_ciphertexts uuid =
           | _ -> Lwt.fail (Failure "get_nh_ciphertexts: encrypted tally not found or invalid")
         in
         return (string_of_nh_ciphertexts E.G.write (E.extract_nh_ciphertexts tally))
-     | x :: _ -> return x
+     | x :: _ ->
+        let s = shuffle_of_string E.G.read x in
+        return (string_of_nh_ciphertexts E.G.write s.shuffle_ciphertexts)
 
 let get_shuffles uuid =
   match%lwt get_raw_election uuid with
@@ -438,13 +440,8 @@ let get_shuffles uuid =
      | None -> return_none
      | Some x ->
         let rec loop accu = function
-          | p :: c :: rest ->
-             let shuffle_ciphertexts = nh_ciphertexts_of_string E.G.read c in
-             let shuffle_proofs = shuffle_proofs_of_string E.G.read p in
-             let shuffle = string_of_shuffle E.G.write {shuffle_ciphertexts; shuffle_proofs} in
-             loop (shuffle :: accu) rest
+          | s :: rest -> loop (s :: accu) rest
           | [] -> return_some (List.rev accu)
-          | [_] -> Lwt.fail (Failure "get_shuffles: odd number of lines")
         in
         loop [] x
 
@@ -486,9 +483,7 @@ let append_to_shuffles uuid shuffle =
              | None -> return []
              | Some x -> return x
            in
-           let proofs = string_of_shuffle_proofs E.G.write shuffle.shuffle_proofs in
-           let ciphertexts = string_of_nh_ciphertexts E.G.write shuffle.shuffle_ciphertexts in
-           let new_ = current @ [proofs; ciphertexts] in
+           let new_ = current @ [string_of_shuffle E.G.write shuffle] in
            let%lwt () = write_file ~uuid "shuffles.jsons" new_ in
            return true
          ) else return false

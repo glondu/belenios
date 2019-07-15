@@ -41,7 +41,7 @@ module type S = sig
   val tdecrypt : string -> string -> string
   val validate : string list -> string
   val verify : unit -> unit
-  val shuffle_ciphertexts : unit -> string * string
+  val shuffle_ciphertexts : unit -> string
 end
 
 module type PARSED_PARAMS = sig
@@ -165,57 +165,41 @@ module Make (P : PARSED_PARAMS) : S = struct
         match Lazy.force result, get_shuffles () with
         | Some _, Some _ -> failwith "both shuffles.jsons and result.json exist"
         | None, None -> None
-        | Some result, None ->
-           result.shuffles
-           |> Option.map (fun s ->
-                  let ciphertexts = ref [] and proofs = ref [] in
-                  let rec loop = function
-                    | [] -> !ciphertexts, !proofs
-                    | {shuffle_ciphertexts; shuffle_proofs} :: xs ->
-                       ciphertexts := shuffle_ciphertexts :: !ciphertexts;
-                       proofs := shuffle_proofs :: !proofs;
-                       loop xs
-                  in
-                  loop s
-                )
+        | Some result, None -> result.shuffles
         | None, Some s ->
-           let shuffles = ref [] and shuffle_proofs = ref [] in
-           let rec loop () =
+           let rec loop accu =
              if (try Stream.empty s; true with Stream.Failure -> false) then
-               Some (!shuffles, !shuffle_proofs)
-             else (
-               shuffle_proofs := (shuffle_proofs_of_string G.read (Stream.next s)) :: !shuffle_proofs;
-               shuffles := (nh_ciphertexts_of_string G.read (Stream.next s)) :: !shuffles;
-               loop ()
-             )
+               Some (List.rev accu)
+             else
+               let s = shuffle_of_string G.read (Stream.next s) in
+               loop (s :: accu)
            in
-           loop ()
+           loop []
       )
 
   let shuffles_check =
     lazy (
         let rtally, _ = Lazy.force raw_encrypted_tally in
         let cc = E.extract_nh_ciphertexts rtally in
-        let rec loop i cc shuffles shuffle_proofs =
-          match shuffles, shuffle_proofs with
-          | s :: shuffles, p :: shuffle_proofs ->
-             if E.check_shuffle cc {shuffle_ciphertexts = s; shuffle_proofs = p} then
-               loop (i+1) s shuffles shuffle_proofs
+        let rec loop i cc ss =
+          match ss with
+          | s :: ss ->
+             if E.check_shuffle cc s then
+               loop (i+1) s.shuffle_ciphertexts ss
              else
                Printf.ksprintf failwith "shuffle #%d failed tests" i
-          | [], [] -> true
-          | _, _ -> failwith "shuffles failed tests"
+          | [] -> true
         in
         match Lazy.force shuffles with
-        | Some (ss, pp) -> loop 0 cc (List.rev ss) (List.rev pp)
+        | Some ss -> loop 0 cc ss
         | None -> true
       )
 
   let encrypted_tally =
     lazy (
         let raw_encrypted_tally, ntally = Lazy.force raw_encrypted_tally in
-        match Lazy.force shuffles with
-        | Some (cc :: _, _) -> E.merge_nh_ciphertexts cc raw_encrypted_tally, ntally
+        match Option.map List.rev (Lazy.force shuffles) with
+        | Some (s :: _) -> E.merge_nh_ciphertexts s.shuffle_ciphertexts raw_encrypted_tally, ntally
         | _ -> raw_encrypted_tally, ntally
       )
 
@@ -270,16 +254,7 @@ module Make (P : PARSED_PARAMS) : S = struct
          KG.combine_factors checker (Lazy.force pks)
       | Some t -> KP.combine_factors checker t
     in
-    let shuffles = match Lazy.force shuffles with
-      | None -> None
-      | Some (ciphertexts, proofs) ->
-         let shuffles =
-           List.rev_map (fun (shuffle_ciphertexts, shuffle_proofs) ->
-               {shuffle_ciphertexts; shuffle_proofs}
-             ) (List.combine ciphertexts proofs)
-         in
-         Some shuffles
-    in
+    let shuffles = Lazy.force shuffles in
     let result = E.compute_result ?shuffles nballots tally factors combinator in
     assert (E.check_result combinator result);
     string_of_election_result G.write result
@@ -311,9 +286,8 @@ module Make (P : PARSED_PARAMS) : S = struct
   let shuffle_ciphertexts () =
     let cc, _ = Lazy.force encrypted_tally in
     let cc = E.extract_nh_ciphertexts cc in
-    let {shuffle_ciphertexts; shuffle_proofs} = E.shuffle_ciphertexts cc in
-    string_of_nh_ciphertexts G.write shuffle_ciphertexts,
-    string_of_shuffle_proofs G.write shuffle_proofs
+    let s = E.shuffle_ciphertexts cc in
+    string_of_shuffle G.write s
 
 end
 
