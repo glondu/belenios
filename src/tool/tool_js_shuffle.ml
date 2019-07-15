@@ -48,5 +48,7 @@ let () =
          let%lwt shuffle = shuffle election.content ciphertexts.content in
          set_textarea "shuffle" shuffle;
          set_element_display "wait_div" "none";
+         set_content "hash" (Platform.sha256_b64 shuffle);
+         set_element_display "hash_div" "block";
          Lwt.return_unit
     )

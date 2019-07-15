@@ -1802,6 +1802,18 @@ let election_home election state () =
     in
     match result with
     | Some r when hidden = None || is_admin ->
+       let shuffles =
+         match r.shuffles with
+         | None -> pcdata ""
+         | Some ss ->
+            div [
+                pcdata "Applied shuffles are:";
+                ul @@ List.map (fun s ->
+                          let s = string_of_shuffle Yojson.Safe.write_json s in
+                          li [pcdata (Platform.sha256_b64 s)]
+                        ) ss
+              ]
+       in
        let result = Shape.to_shape_array r.result in
        return @@ div [
          ul (
@@ -1812,6 +1824,7 @@ let election_home election state () =
            pcdata L.number_accepted_ballots;
            pcdata (string_of_int r.num_tallied);
          ];
+         shuffles;
          div [
            pcdata L.you_can_also_download;
            a ~service:election_dir
@@ -1971,15 +1984,26 @@ let election_admin election metadata state get_tokens_decrypt () =
              ]) uuid;
        ]
     | `Shuffling ->
+       let%lwt shuffles = Web_persist.get_shuffles uuid in
+       let shuffles =
+         match shuffles with
+         | None -> failwith "Web_templates.admin, state Shuffling: no shuffles"
+         | Some ss -> ul (List.map (fun s -> li [pcdata (Platform.sha256_b64 s)]) ss)
+       in
        let%lwt token = Web_persist.get_shuffle_token uuid in
        return (
            div [
                div [
-                   pcdata "The ballots are being shuffled. ";
-                   a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [
-                       pcdata "Shuffle link";
-                     ] (uuid, token);
-                   pcdata ".";
+                   div [pcdata "The ballots are being shuffled."];
+                   div [
+                       pcdata "Shuffles applied so far:";
+                       shuffles;
+                     ];
+                   div [
+                       a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [
+                           pcdata "New shuffle";
+                         ] (uuid, token);
+                     ];
                  ];
                post_form ~service:election_decrypt
                  (fun () ->
@@ -2574,6 +2598,11 @@ let shuffle election token =
       div ~a:[a_id "wait_div"; a_style "display:none;"] [
           pcdata "Please wait... ";
           img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
+        ];
+      div ~a:[a_id "hash_div"; a_style "display:none;"] [
+          pcdata "The hash of your shuffle is: ";
+          b ~a:[a_id "hash"] [];
+          pcdata ".";
         ];
       post_form ~service:election_shuffle_post
         ~a:[a_id "submit_form"]
