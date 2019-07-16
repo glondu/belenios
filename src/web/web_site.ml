@@ -454,23 +454,23 @@ let is_http_url =
 
 let () = Any.register ~service:election_draft_new
   (fun () (credmgmt, (auth, cas_server)) ->
-    let cas_server = PString.trim cas_server in
-    if is_http_url cas_server then
-      with_site_user (fun u ->
-          let%lwt credmgmt = match credmgmt with
-            | Some "auto" -> return `Automatic
-            | Some "manual" -> return `Manual
-            | _ -> fail_http 400
-          in
-          let%lwt auth = match auth with
-            | Some "password" -> return `Password
-            | Some "dummy" -> return `Dummy
-            | Some "cas" -> return @@ `CAS cas_server
-            | _ -> fail_http 400
-          in
-          create_new_election u credmgmt auth
-        )
-    else T.generic_page ~title:"Error" "Bad CAS server!" () >>= Html.send
+    with_site_user (fun u ->
+        let%lwt credmgmt = match credmgmt with
+          | Some "auto" -> return `Automatic
+          | Some "manual" -> return `Manual
+          | _ -> fail_http 400
+        in
+        let%lwt auth = match auth with
+          | Some "password" -> return `Password
+          | Some "dummy" -> return `Dummy
+          | Some "cas" -> return @@ `CAS (PString.trim cas_server)
+          | _ -> fail_http 400
+        in
+        match auth with
+        | `CAS cas_server when not (is_http_url cas_server) ->
+           T.generic_page ~title:"Error" "Bad CAS server!" () >>= Html.send
+        | _ -> create_new_election u credmgmt auth
+      )
   )
 
 let with_draft_election_ro uuid f =
