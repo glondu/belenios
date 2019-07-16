@@ -436,22 +436,34 @@ let create_new_election owner cred auth =
 let () = Html.register ~service:election_draft_pre
   (fun () () -> T.election_draft_pre ())
 
+let http_rex = "^https?://[a-z/.-]+$"
+
+let is_http_url =
+  let rex = Pcre.regexp ~flags:[`CASELESS] http_rex in
+  fun x ->
+  match pcre_exec_opt ~rex x with
+  | Some _ -> true
+  | None -> false
+
 let () = Any.register ~service:election_draft_new
   (fun () (credmgmt, (auth, cas_server)) ->
-    with_site_user (fun u ->
-        let%lwt credmgmt = match credmgmt with
-          | Some "auto" -> return `Automatic
-          | Some "manual" -> return `Manual
-          | _ -> fail_http 400
-        in
-        let%lwt auth = match auth with
-          | Some "password" -> return `Password
-          | Some "dummy" -> return `Dummy
-          | Some "cas" -> return @@ `CAS cas_server
-          | _ -> fail_http 400
-        in
-        create_new_election u credmgmt auth
-      )
+    let cas_server = PString.trim cas_server in
+    if is_http_url cas_server then
+      with_site_user (fun u ->
+          let%lwt credmgmt = match credmgmt with
+            | Some "auto" -> return `Automatic
+            | Some "manual" -> return `Manual
+            | _ -> fail_http 400
+          in
+          let%lwt auth = match auth with
+            | Some "password" -> return `Password
+            | Some "dummy" -> return `Dummy
+            | Some "cas" -> return @@ `CAS cas_server
+            | _ -> fail_http 400
+          in
+          create_new_election u credmgmt auth
+        )
+    else T.generic_page ~title:"Error" "Bad CAS server!" () >>= Html.send
   )
 
 let with_draft_election_ro uuid f =
