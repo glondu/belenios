@@ -20,7 +20,7 @@ def initialize_browser_for_scenario_2():
     return initialize_browser(for_scenario_2=True)
 
 
-class BeleniosTestElectionScenario2(BeleniosElectionTestBase):
+class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
     """
     Properties:
     - server
@@ -102,8 +102,10 @@ class BeleniosTestElectionScenario2(BeleniosElectionTestBase):
         # - She picks the Credential management method: manual
         # (- She keeps default value for Authentication method: it is Password, not CAS)
         # - She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
-        # - She changes values of fields name and description of the election
+        # - In the "Name and description of the election" section, she changes values of fields name and description of the election
         # - She clicks on the "Save changes button" (the one that is next to the election description field)
+        # - In "Contact" section, she changes the value of "contact" field
+        # - She clicks on the "Save changes" button (the one that is in the "Contact" section)
         administrator_starts_creation_of_election(browser, True)
 
         # She remembers the URL of the draft election administration page
@@ -609,7 +611,10 @@ The election administrator.\
         self.administrator_verifies_vote_results()
 
 
+class BeleniosTestElectionScenario2(BeleniosTestElectionScenario2Base):
+
     def test_scenario_2_manual_vote(self):
+        console_log("### Running test method BeleniosTestElectionScenario2::test_scenario_2_manual_vote()")
         console_log("### Starting step: administrator_starts_creation_of_manual_election")
         self.administrator_starts_creation_of_manual_election()
         console_log("### Step complete: administrator_starts_creation_of_manual_election")
@@ -699,6 +704,7 @@ if __name__ == "__main__":
     settings.ADMINISTRATOR_PASSWORD = os.getenv('ADMINISTRATOR_PASSWORD', settings.ADMINISTRATOR_PASSWORD)
     settings.ELECTION_TITLE = os.getenv('ELECTION_TITLE', settings.ELECTION_TITLE)
     settings.ELECTION_DESCRIPTION = os.getenv('ELECTION_DESCRIPTION', settings.ELECTION_DESCRIPTION)
+    settings.INITIATOR_CONTACT = os.getenv('INITIATOR_CONTACT', settings.INITIATOR_CONTACT)
     settings.BROWSER_DOWNLOAD_FOLDER = os.getenv('BROWSER_DOWNLOAD_FOLDER', settings.BROWSER_DOWNLOAD_FOLDER)
     settings.ADMINISTRATOR_EMAIL_ADDRESS = os.getenv('ADMINISTRATOR_EMAIL_ADDRESS', settings.ADMINISTRATOR_EMAIL_ADDRESS)
     settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = os.getenv('CREDENTIAL_AUTHORITY_EMAIL_ADDRESS', settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)
@@ -714,6 +720,7 @@ if __name__ == "__main__":
     console_log("NUMBER_OF_REGENERATED_PASSWORD_VOTERS:", settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
     console_log("ELECTION_TITLE:", settings.ELECTION_TITLE)
     console_log("ELECTION_DESCRIPTION:", settings.ELECTION_DESCRIPTION)
+    console_log("INITIATOR_CONTACT:", settings.INITIATOR_CONTACT)
     console_log("BROWSER_DOWNLOAD_FOLDER:", settings.BROWSER_DOWNLOAD_FOLDER)
     console_log("ADMINISTRATOR_EMAIL_ADDRESS:", settings.ADMINISTRATOR_EMAIL_ADDRESS)
     console_log("CREDENTIAL_AUTHORITY_EMAIL_ADDRESS:", settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)
