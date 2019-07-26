@@ -1,7 +1,9 @@
-Scenario 3: Vote with vote codes in manual mode and manual trustees, using a threshold for trustees
+Scenario 4: Vote with vote codes in manual mode and manual trustees, using a threshold for trustees
 =================================
 
 ## Introduction and parameters
+
+This scenario is adapted from scenario 2.
 
 Protagonists to emulate: election administrator, credential authority, `T` trustees, `K` electors, an auditor.
 
