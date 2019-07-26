@@ -17,7 +17,7 @@ from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browse
 import settings
 
 
-class BeleniosTestElectionScenario3(BeleniosTestElectionScenario2Base):
+class BeleniosTestElectionScenario4(BeleniosTestElectionScenario2Base):
     """
     Properties:
     - server
@@ -115,6 +115,9 @@ class BeleniosTestElectionScenario3(BeleniosTestElectionScenario2Base):
 
         wait_a_bit()
 
+        # (She checks that in the table, the "STATE" column is "1a" on every row)
+        # TODO
+
         # She sends to each trustee an email containing their own link
         subject = "Link to generate the decryption key"
         content_format = """\
@@ -159,8 +162,81 @@ The election administrator.\
         browser.quit()
 
 
+    def trustees_do_initialization_step_1_of_3(self):
+        # Trustees initialization step 1/3: Trustees generate election private keys. Each of the `T` (aka `NUMBER_OF_TRUSTEES`) trustees will do the following process:
+        for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
+            # Trustee opens link that has been sent to him by election administrator
+            link_for_this_trustee = self.links_for_trustees[idx] # TODO: Decide either not send trustee email at all or read trustee link from email content
+            self.browser = initialize_browser_for_scenario_2()
+            browser = self.browser
+            browser.get(link_for_this_trustee)
+
+            # He checks that the page content shows the same election URL as the one the administrator saw
+            election_url_css_selector = "#main ul li"
+            election_url_element = wait_for_element_exists_and_has_non_empty_content(browser, election_url_css_selector)
+            election_url_content = election_url_element.get_attribute('innerText').strip()
+            assert election_url_content == self.election_page_url
+
+            # He clicks on the "Generate private key" button
+            generate_button_css_selector = "#interactivity button"
+            generate_button_expected_label = "Generate private key"
+            generate_button_element = wait_for_element_exists_and_contains_expected_text(browser, generate_button_css_selector, generate_button_expected_label)
+            generate_button_element.click()
+
+            # He clicks on the "private key" link, to download the private key (file is saved by default as `private_key.txt`)
+            link_css_ids = ["private_key"]
+            link_expected_labels = ["private key"]
+            self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
+            for idx2, link_css_id in enumerate(link_css_ids):
+                link_target_filename = str(uuid4())
+                set_element_attribute(browser, link_css_id, 'download', link_target_filename)
+                link_expected_label = link_expected_labels[idx2]
+                link_element = wait_for_an_element_with_partial_link_text_exists(browser, link_expected_label)
+                assert link_element.get_attribute('id') == link_css_id
+                link_element.click()
+                file_absolute_path = os.path.join(settings.BROWSER_DOWNLOAD_FOLDER, link_target_filename)
+                # We save the filename in a class instance property, so that we can import the file afterwards (during partial decryption step)
+                self.downloaded_files_paths_per_trustee[trustee_email_address][link_expected_labels[idx2]] = file_absolute_path
+                self.remember_temporary_file_to_remove_after_test(file_absolute_path)
+
+            # He clicks on the "Submit" button
+            submit_button_expected_label = "Submit"
+            submit_button_css_selector = "#main input[type=submit][value='" + submit_button_expected_label + "']"
+            submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
+            submit_button_element.click()
+
+            # He checks that the next page shows the expected confirmation sentence (If trustee was the last one in the list, he checks that page contains text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key.", else he checks for sentence "Waiting for the other trustees... Reload the page to check progress.")
+            if idx == settings.NUMBER_OF_TRUSTEES - 1:
+                expected_confirmation_label = "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
+            else:
+                expected_confirmation_label = "Waiting for the other trustees... Reload the page to check progress."
+            expected_confirmation_css_selector = "#main"
+            wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
+
+            # He closes the window
+            browser.quit()
+
+            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "1b" instead of "1a")
+            # TODO
+
+
+    def trustees_do_initialization_step_2_of_3(self):
+        # Trustees initialization step 2/3: Trustees generate their share of the decryption key. Each of the `T` (aka `NUMBER_OF_TRUSTEES`) trustees will do the following process:
+        for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
+            # TODO
+            # Trustee opens link that has been sent to him by election administrator
+            # He checks that the page content shows the same election URL as the one the administrator saw
+            # He checks the presence of text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
+            # In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
+            # He clicks on the "Proceed" button
+            # He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
+            # If he is not the last trustee in the list, he checks that the next page contains text "Waiting for the other trustees... Reload the page to check progress.". Else, he checks that the next page contains text "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
+            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "2b" instead of "2a")
+            pass
+
+
     def test_scenario_3_manual_vote_with_threshold(self):
-        console_log("### Running test method BeleniosTestElectionScenario3::test_scenario_3_manual_vote_with_threshold()")
+        console_log("### Running test method BeleniosTestElectionScenario4::test_scenario_3_manual_vote_with_threshold()")
         console_log("### Starting step: administrator_starts_creation_of_manual_election")
         self.administrator_starts_creation_of_manual_election()
         console_log("### Step complete: administrator_starts_creation_of_manual_election")
@@ -173,12 +249,16 @@ The election administrator.\
         self.administrator_invites_trustees_and_sets_threshold()
         console_log("### Step complete: administrator_invites_trustees_and_sets_threshold")
 
+        console_log("### Starting step: trustees_do_initialization_step_1_of_3")
+        self.trustees_do_initialization_step_1_of_3()
+        console_log("### Step complete: trustees_do_initialization_step_1_of_3")
 
+        # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on every row, the "STATE" column is now "2a")
         # TODO
 
-        # console_log("### Starting step: trustees_generate_election_private_keys")
-        # self.trustees_generate_election_private_keys()
-        # console_log("### Step complete: trustees_generate_election_private_keys")
+        console_log("### Starting step: trustees_do_initialization_step_2_of_3")
+        self.trustees_do_initialization_step_2_of_3()
+        console_log("### Step complete: trustees_do_initialization_step_2_of_3")
 
         # console_log("### Starting step: administrator_completes_creation_of_election")
         # self.administrator_completes_creation_of_election()

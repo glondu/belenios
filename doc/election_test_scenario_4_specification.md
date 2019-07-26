@@ -76,6 +76,7 @@ Verifications all along the process is done using command line tools `belenios-t
     - She clicks on the "threshold mode" link
     - In the field next to "Threshold:", she types `U`, and clicks on the "Set" button
     - She adds `T` trustees (their email address), and remembers the link she will send to each trustee
+    - (She checks that in the table, the "STATE" column is "1a" on every row)
     - She sends to each trustee an email containing their own link
     - She logs out and closes the window
 - Trustees initialization step 1/3: Trustees generate election private keys. Each of the `T` trustees will do the following process:
@@ -84,10 +85,10 @@ Verifications all along the process is done using command line tools `belenios-t
     - He clicks on the "Generate private key" button
     - He clicks on the "private key" link, to download the private key (file is saved by default as `private_key.txt`)
     - He clicks on the "Submit" button
-    - He checks that the next page shows the expected confirmation sentence ("Waiting for the other trustees... Reload the page to check progress.")
+    - He checks that the next page shows the expected confirmation sentence (If trustee was the last one in the list, he checks that page contains text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
+, else he checks for sentence "Waiting for the other trustees... Reload the page to check progress.")
     - He closes the window
     - (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "1b" instead of "1a")
-    - If trustee was the last one in the list, he checks that page contains text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
 - (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on every row, the "STATE" column is now "2a")
 - Trustees initialization step 2/3: Trustees generate their share of the decryption key. Each of the `T` trustees will do the following process:
     - Trustee opens link that has been sent to him by election administrator
