@@ -299,19 +299,83 @@ The election administrator.\
     def trustees_do_initialization_step_3_of_3(self):
         # Trustees initialization step 3/3: Trustees do the final checks so that the election can be validated. Each of the `T` (aka `NUMBER_OF_TRUSTEES`) trustees will do the following process:
         for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
-            # TODO
             # Trustee opens link that has been sent to him by election administrator
-            # He checks that the page content shows the same election URL as the one the administrator saw
-            # He checks the presence of text "Step 3/3"
-            # He checks the presence of text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
-            # In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
-            # He clicks on the "Proceed" button
-            # He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
-            # He checks that the next page contains text "Your job in the key establishment protocol is done!"
-            # He clicks on the "public key" link and downloads the file (file is saved by default as `public_key.json`)
-            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "3b" instead of "3a")
-            pass
+            link_for_this_trustee = self.links_for_trustees[idx] # TODO: Decide either not send trustee email at all or read trustee link from email content
+            self.browser = initialize_browser_for_scenario_2()
+            browser = self.browser
+            browser.get(link_for_this_trustee)
 
+            wait_a_bit()
+
+            # He checks that the page content shows the same election URL as the one the administrator saw
+            election_url_css_selector = "#main ul li"
+            election_url_element = wait_for_element_exists_and_has_non_empty_content(browser, election_url_css_selector)
+            election_url_content = election_url_element.get_attribute('innerText').strip()
+            assert election_url_content == self.election_page_url
+
+            # He checks the presence of text "Step 3/3"
+            expected_confirmation_label = "Step 3/3"
+            expected_confirmation_css_selector = "#main"
+            wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
+
+            # In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
+            private_key_storage_label = "private key"
+            private_key_file = self.downloaded_files_paths_per_trustee[trustee_email_address][private_key_storage_label]
+            private_key_css_selector = "#compute_private_key"
+            private_key_element = wait_for_element_exists(browser, private_key_css_selector)
+            private_key_element.clear()
+            with open(private_key_file) as myfile:
+                private_key_element.send_keys(myfile.read())
+
+            wait_a_bit()
+
+            # He clicks on the "Proceed" button
+            proceed_button_css_selector = "#compute_button"
+            proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector)
+            proceed_button_element.click()
+
+            # He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
+            data_field_css_selector = "#compute_data"
+            data_field_expected_non_empty_attribute = "value"
+            wait_for_element_exists_and_has_non_empty_attribute(browser, data_field_css_selector, data_field_expected_non_empty_attribute)
+
+            submit_button_expected_label = "Submit"
+            submit_button_css_selector = "#compute_form input[type=submit][value=" + submit_button_expected_label + "]"
+            submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
+            submit_button_element.click()
+
+            wait_a_bit()
+
+            # He checks that the next page contains text "Your job in the key establishment protocol is done!"
+            expected_confirmation_label = "Your job in the key establishment protocol is done!"
+            expected_confirmation_css_selector = "#main"
+            wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
+
+            wait_a_bit()
+
+            # He clicks on the "public key" link and downloads the file (file is saved by default as `public_key.json`)
+            link_css_ids = ["public_key"]
+            link_expected_labels = ["public key"]
+            self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
+            for idx2, link_css_id in enumerate(link_css_ids):
+                link_target_filename = str(uuid4())
+                set_element_attribute(browser, link_css_id, 'download', link_target_filename)
+                link_expected_label = link_expected_labels[idx2]
+                link_element = wait_for_an_element_with_partial_link_text_exists(browser, link_expected_label)
+                assert link_element.get_attribute('id') == link_css_id
+                link_element.click()
+                file_absolute_path = os.path.join(settings.BROWSER_DOWNLOAD_FOLDER, link_target_filename)
+                # We save the filename in a class instance property, so that we can import the file afterwards (during partial decryption step)
+                self.downloaded_files_paths_per_trustee[trustee_email_address][link_expected_labels[idx2]] = file_absolute_path
+                self.remember_temporary_file_to_remove_after_test(file_absolute_path)
+
+            wait_a_bit()
+
+            # He closes the window
+            browser.quit()
+
+            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "3b" instead of "3a")
+            # TODO
 
     def test_scenario_3_manual_vote_with_threshold(self):
         console_log("### Running test method BeleniosTestElectionScenario4::test_scenario_3_manual_vote_with_threshold()")

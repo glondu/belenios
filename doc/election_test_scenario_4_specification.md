@@ -98,17 +98,18 @@ Verifications all along the process is done using command line tools `belenios-t
     - He clicks on the "Proceed" button
     - He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
     - If he is not the last trustee in the list, he checks that the next page contains text "Waiting for the other trustees... Reload the page to check progress.". Else, he checks that the next page contains text "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
+    - He closes the window
     - (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "2b" instead of "2a")
 - Trustees initialization step 3/3: Trustees do the final checks so that the election can be validated. Each of the `T` trustees will do the following process:
     - Trustee opens link that has been sent to him by election administrator
     - He checks that the page content shows the same election URL as the one the administrator saw
     - He checks the presence of text "Step 3/3"
-    - He checks the presence of text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
     - In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
     - He clicks on the "Proceed" button
     - He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
     - He checks that the next page contains text "Your job in the key establishment protocol is done!"
     - He clicks on the "public key" link and downloads the file (file is saved by default as `public_key.json`)
+    - He closes the window
     - (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "3b" instead of "3a")
 - Administrator completes setup of the election
     - Alice, as an administrator of an election, wants to finalize her draft election creation, to start the vote. She opens a browser and logs in as administrator
