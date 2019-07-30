@@ -171,6 +171,8 @@ The election administrator.\
             browser = self.browser
             browser.get(link_for_this_trustee)
 
+            wait_a_bit()
+
             # He checks that the page content shows the same election URL as the one the administrator saw
             election_url_css_selector = "#main ul li"
             election_url_element = wait_for_element_exists_and_has_non_empty_content(browser, election_url_css_selector)
@@ -182,6 +184,8 @@ The election administrator.\
             generate_button_expected_label = "Generate private key"
             generate_button_element = wait_for_element_exists_and_contains_expected_text(browser, generate_button_css_selector, generate_button_expected_label)
             generate_button_element.click()
+
+            wait_a_bit()
 
             # He clicks on the "private key" link, to download the private key (file is saved by default as `private_key.txt`)
             link_css_ids = ["private_key"]
@@ -199,11 +203,15 @@ The election administrator.\
                 self.downloaded_files_paths_per_trustee[trustee_email_address][link_expected_labels[idx2]] = file_absolute_path
                 self.remember_temporary_file_to_remove_after_test(file_absolute_path)
 
+            wait_a_bit()
+
             # He clicks on the "Submit" button
             submit_button_expected_label = "Submit"
             submit_button_css_selector = "#main input[type=submit][value='" + submit_button_expected_label + "']"
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
             submit_button_element.click()
+
+            wait_a_bit()
 
             # He checks that the next page shows the expected confirmation sentence (If trustee was the last one in the list, he checks that page contains text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key.", else he checks for sentence "Waiting for the other trustees... Reload the page to check progress.")
             if idx == settings.NUMBER_OF_TRUSTEES - 1:
@@ -212,6 +220,8 @@ The election administrator.\
                 expected_confirmation_label = "Waiting for the other trustees... Reload the page to check progress."
             expected_confirmation_css_selector = "#main"
             wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
+
+            wait_a_bit()
 
             # He closes the window
             browser.quit()
@@ -223,15 +233,83 @@ The election administrator.\
     def trustees_do_initialization_step_2_of_3(self):
         # Trustees initialization step 2/3: Trustees generate their share of the decryption key. Each of the `T` (aka `NUMBER_OF_TRUSTEES`) trustees will do the following process:
         for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
+            # Trustee opens link that has been sent to him by election administrator
+            link_for_this_trustee = self.links_for_trustees[idx] # TODO: Decide either not send trustee email at all or read trustee link from email content
+            self.browser = initialize_browser_for_scenario_2()
+            browser = self.browser
+            browser.get(link_for_this_trustee)
+
+            wait_a_bit()
+
+            # He checks that the page content shows the same election URL as the one the administrator saw
+            election_url_css_selector = "#main ul li"
+            election_url_element = wait_for_element_exists_and_has_non_empty_content(browser, election_url_css_selector)
+            election_url_content = election_url_element.get_attribute('innerText').strip()
+            assert election_url_content == self.election_page_url
+
+            # He checks the presence of text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
+            expected_confirmation_label = "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
+            expected_confirmation_css_selector = "#main"
+            wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
+
+            # In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
+            private_key_storage_label = "private key"
+            private_key_file = self.downloaded_files_paths_per_trustee[trustee_email_address][private_key_storage_label]
+            private_key_css_selector = "#compute_private_key"
+            private_key_element = wait_for_element_exists(browser, private_key_css_selector)
+            private_key_element.clear()
+            with open(private_key_file) as myfile:
+                private_key_element.send_keys(myfile.read())
+
+            wait_a_bit()
+
+            # He clicks on the "Proceed" button
+            proceed_button_css_selector = "#compute_button"
+            proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector)
+            proceed_button_element.click()
+
+            # He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
+            data_field_css_selector = "#compute_data"
+            data_field_expected_non_empty_attribute = "value"
+            wait_for_element_exists_and_has_non_empty_attribute(browser, data_field_css_selector, data_field_expected_non_empty_attribute)
+
+            submit_button_expected_label = "Submit"
+            submit_button_css_selector = "#compute_form input[type=submit][value=" + submit_button_expected_label + "]"
+            submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
+            submit_button_element.click()
+
+            wait_a_bit()
+
+            # If he is not the last trustee in the list, he checks that the next page contains text "Waiting for the other trustees... Reload the page to check progress.". Else, he checks that the next page contains text "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
+            if idx == settings.NUMBER_OF_TRUSTEES - 1:
+                expected_confirmation_label = "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
+            else:
+                expected_confirmation_label = "Waiting for the other trustees... Reload the page to check progress."
+            expected_confirmation_css_selector = "#main"
+            wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
+
+            wait_a_bit()
+
+            # He closes the window
+            browser.quit()
+
+            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "2b" instead of "2a")
+            # TODO
+
+    def trustees_do_initialization_step_3_of_3(self):
+        # Trustees initialization step 3/3: Trustees do the final checks so that the election can be validated. Each of the `T` (aka `NUMBER_OF_TRUSTEES`) trustees will do the following process:
+        for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
             # TODO
             # Trustee opens link that has been sent to him by election administrator
             # He checks that the page content shows the same election URL as the one the administrator saw
+            # He checks the presence of text "Step 3/3"
             # He checks the presence of text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
             # In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
             # He clicks on the "Proceed" button
             # He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
-            # If he is not the last trustee in the list, he checks that the next page contains text "Waiting for the other trustees... Reload the page to check progress.". Else, he checks that the next page contains text "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
-            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "2b" instead of "2a")
+            # He checks that the next page contains text "Your job in the key establishment protocol is done!"
+            # He clicks on the "public key" link and downloads the file (file is saved by default as `public_key.json`)
+            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "3b" instead of "3a")
             pass
 
 
@@ -259,6 +337,10 @@ The election administrator.\
         console_log("### Starting step: trustees_do_initialization_step_2_of_3")
         self.trustees_do_initialization_step_2_of_3()
         console_log("### Step complete: trustees_do_initialization_step_2_of_3")
+
+        console_log("### Starting step: trustees_do_initialization_step_3_of_3")
+        self.trustees_do_initialization_step_3_of_3()
+        console_log("### Step complete: trustees_do_initialization_step_3_of_3")
 
         # console_log("### Starting step: administrator_completes_creation_of_election")
         # self.administrator_completes_creation_of_election()
