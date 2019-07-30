@@ -377,8 +377,62 @@ The election administrator.\
             # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "3b" instead of "3a")
             # TODO
 
-    def test_scenario_3_manual_vote_with_threshold(self):
-        console_log("### Running test method BeleniosTestElectionScenario4::test_scenario_3_manual_vote_with_threshold()")
+    def administrator_completes_creation_of_election(self):
+        # Alice, as an administrator of an election, wants to finalize her draft election creation, to start the vote.
+        # She opens a browser
+        self.browser = initialize_browser_for_scenario_2()
+        browser = self.browser
+
+        # She logs in as administrator
+        log_in_as_administrator(browser)
+
+        # She goes to the draft election administration page
+        browser.get(self.draft_election_administration_page_url)
+
+        # In the "Trustees" section, she clicks on "here"
+        # TODO: use a better selector: edit Belenios page to use an ID in this DOM element
+        setup_election_key_link_label = "here"
+        setup_election_key_link_element = wait_for_an_element_with_partial_link_text_exists(browser, setup_election_key_link_label)
+        setup_election_key_link_element.click()
+
+        # She checks that in the table on all rows, the "STATE" column is now "done"
+        state_column_css_selector = "#main table tr td:last-of-type"
+        state_expected_label = "done"
+        state_cells_elements = wait_for_elements_exist(browser, state_column_css_selector)
+        assert len(state_cells_elements) > 0, "Error: could not find last column cells of table in page"
+        for element in state_cells_elements:
+            assert element.get_attribute('innerText') == state_expected_label, "Error: The last cell of a row in table that is displayed in page has a value that is '" + element.get_attribute('innerText') + "' instead of expected '" + state_expected_label + "'"
+
+        wait_a_bit()
+
+        # She clicks on the "Go back to election draft" link
+        go_back_link_label = "Go back to election draft"
+        go_back_link_element = wait_for_an_element_with_partial_link_text_exists(browser, go_back_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        go_back_link_element.click()
+
+        # - In "Validate creation" section, she clicks on the "Create election" link
+        # - (She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters.)
+        # - She checks the presence of text "election ready"
+        # - In the "Validate creation" section, she clicks on the "Create election" button
+        # - (She arrives back on the "My test election for Scenario 1 — Administration" page. Its contents have changed. There is now a text saying "The election is open. Voters can vote.", and there are now buttons "Close election", "Archive election", "Delete election")
+        # - She remembers the URL of the voting page, that is where the "Election home" link points to
+        # - She checks that a "Close election" button is present (but she does not click on it)
+        self.election_page_url = administrator_validates_creation_of_election(browser)
+        console_log("election_page_url:", self.election_page_url)
+        self.election_id = election_page_url_to_election_id(self.election_page_url)
+        console_log("election_id:", self.election_id)
+
+        wait_a_bit()
+
+        # She logs out
+        log_out(browser)
+
+        # She closes the window, and re-opens it (for next emulated user)
+        browser.quit()
+        self.browser = initialize_browser_for_scenario_2()
+
+    def test_scenario_4_manual_vote_with_threshold(self):
+        console_log("### Running test method BeleniosTestElectionScenario4::test_scenario_4_manual_vote_with_threshold()")
         console_log("### Starting step: administrator_starts_creation_of_manual_election")
         self.administrator_starts_creation_of_manual_election()
         console_log("### Step complete: administrator_starts_creation_of_manual_election")
@@ -406,40 +460,42 @@ The election administrator.\
         self.trustees_do_initialization_step_3_of_3()
         console_log("### Step complete: trustees_do_initialization_step_3_of_3")
 
-        # console_log("### Starting step: administrator_completes_creation_of_election")
-        # self.administrator_completes_creation_of_election()
-        # console_log("### Step complete: administrator_completes_creation_of_election")
+        console_log("### Starting step: administrator_completes_creation_of_election")
+        self.administrator_completes_creation_of_election()
+        console_log("### Step complete: administrator_completes_creation_of_election")
 
-        # console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (0)")
-        # verify_election_consistency(self.election_id)
-        # console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (0)")
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (0)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (0)")
 
-        # console_log("### Starting step: all_voters_vote_in_sequences")
-        # self.all_voters_vote_in_sequences()
-        # console_log("### Step complete: all_voters_vote_in_sequences")
+        console_log("### Starting step: all_voters_vote_in_sequences")
+        self.all_voters_vote_in_sequences()
+        console_log("### Step complete: all_voters_vote_in_sequences")
 
-        # console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (1)")
-        # verify_election_consistency(self.election_id)
-        # console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (1)")
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (1)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (1)")
 
-        # console_log("### Starting step: create_election_data_snapshot (0)")
-        # snapshot_folder = create_election_data_snapshot(self.election_id)
-        # console_log("### Step complete: create_election_data_snapshot (0)")
+        console_log("### Starting step: create_election_data_snapshot (0)")
+        snapshot_folder = create_election_data_snapshot(self.election_id)
+        console_log("### Step complete: create_election_data_snapshot (0)")
 
-        # try:
-        #     console_log("### Starting step: some_voters_revote")
-        #     self.some_voters_revote()
-        #     console_log("### Step complete: some_voters_revote")
+        try:
+            console_log("### Starting step: some_voters_revote")
+            self.some_voters_revote()
+            console_log("### Step complete: some_voters_revote")
 
-        #     console_log("### Starting step: verify_election_consistency using `belenios_tool verify-diff` (0)")
-        #     verify_election_consistency(self.election_id, snapshot_folder)
-        # finally:
-        #     delete_election_data_snapshot(snapshot_folder)
-        # console_log("### Step complete: verify_election_consistency using `belenios_tool verify-diff` (0)")
+            console_log("### Starting step: verify_election_consistency using `belenios_tool verify-diff` (0)")
+            verify_election_consistency(self.election_id, snapshot_folder)
+        finally:
+            delete_election_data_snapshot(snapshot_folder)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify-diff` (0)")
 
-        # console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (2)")
-        # verify_election_consistency(self.election_id)
-        # console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (2)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
+
+        # TODO
 
         # console_log("### Starting step: administrator_starts_tallying_of_election")
         # self.administrator_starts_tallying_of_election()

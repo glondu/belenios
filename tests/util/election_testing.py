@@ -303,7 +303,7 @@ def create_election_data_snapshot(election_id):
         raise Exception("Could not extract absolute path from output of mktemp:", out)
 
     # Remark: If this command is run before any vote is cast, files `public_creds.txt` and `ballots.jsons` do not exist yet
-    subprocess.run(["cp", "election.json", "public_creds.txt", "public_keys.jsons", "ballots.jsons", temporary_folder_absolute_path], cwd=election_folder) # TODO: Execute a command that works on other OS, like `shutil.copy()`
+    subprocess.run(["cp", "election.json", "public_creds.txt", "public_keys.jsons", "ballots.jsons", "threshold.json", temporary_folder_absolute_path], cwd=election_folder) # TODO: Execute a command that works on other OS, like `shutil.copy()`
 
     return temporary_folder_absolute_path
 
@@ -587,6 +587,11 @@ def administrator_validates_creation_of_election(browser):
     wait_a_bit()
 
     # She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters. For example, in this test scenario, it displays 2 warnings: "Warning: No trustees were set. This means that the server will manage the election key by itself.", and "Warning: No contact was set!"
+
+    # She checks the presence of text "election ready"
+    expected_confirmation_label = "election ready"
+    expected_confirmation_css_selector = "#main"
+    wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 
     # In the "Validate creation" section, she clicks on the "Create election" button
     create_election_button_label = "Create election"

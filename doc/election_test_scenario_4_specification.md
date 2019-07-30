@@ -114,7 +114,7 @@ Verifications all along the process is done using command line tools `belenios-t
 - Administrator completes setup of the election
     - Alice, as an administrator of an election, wants to finalize her draft election creation, to start the vote. She opens a browser and logs in as administrator
     - She goes to the draft election administration page
-    - In the "Trustees" section clicks on "here". She checks that in the table on all rows, the "STATE" column is now "done"
+    - In the "Trustees" section, she clicks on "here". She checks that in the table on all rows, the "STATE" column is now "done"
     - She clicks on the "Go back to election draft" link
     - In "Validate creation" section, she clicks on the "Create election" link
     - (She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters. For example, in this test scenario, it displays 2 warnings: "Warning: No trustees were set. This means that the server will manage the election key by itself.", and "Warning: No contact was set!")
