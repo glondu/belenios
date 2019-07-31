@@ -10,7 +10,7 @@ from uuid import uuid4
 from distutils.util import strtobool
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute
+from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute, verify_all_elements_have_attribute_value
 from util.election_testing import console_log, random_email_addresses_generator, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 from util.election_test_base import BeleniosElectionTestBase
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
@@ -190,7 +190,8 @@ The election administrator.\
             # He clicks on the "private key" link, to download the private key (file is saved by default as `private_key.txt`)
             link_css_ids = ["private_key"]
             link_expected_labels = ["private key"]
-            self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
+            if trustee_email_address not in self.downloaded_files_paths_per_trustee:
+                self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
             for idx2, link_css_id in enumerate(link_css_ids):
                 link_target_filename = str(uuid4())
                 set_element_attribute(browser, link_css_id, 'download', link_target_filename)
@@ -356,7 +357,8 @@ The election administrator.\
             # He clicks on the "public key" link and downloads the file (file is saved by default as `public_key.json`)
             link_css_ids = ["public_key"]
             link_expected_labels = ["public key"]
-            self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
+            if trustee_email_address not in self.downloaded_files_paths_per_trustee:
+                self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
             for idx2, link_css_id in enumerate(link_css_ids):
                 link_target_filename = str(uuid4())
                 set_element_attribute(browser, link_css_id, 'download', link_target_filename)
@@ -397,11 +399,9 @@ The election administrator.\
 
         # She checks that in the table on all rows, the "STATE" column is now "done"
         state_column_css_selector = "#main table tr td:last-of-type"
-        state_expected_label = "done"
-        state_cells_elements = wait_for_elements_exist(browser, state_column_css_selector)
-        assert len(state_cells_elements) > 0, "Error: could not find last column cells of table in page"
-        for element in state_cells_elements:
-            assert element.get_attribute('innerText') == state_expected_label, "Error: The last cell of a row in table that is displayed in page has a value that is '" + element.get_attribute('innerText') + "' instead of expected '" + state_expected_label + "'"
+        attribute_name = "innerText"
+        attribute_value = "done"
+        verify_all_elements_have_attribute_value(browser, state_column_css_selector, attribute_name, attribute_value)
 
         wait_a_bit()
 
@@ -495,23 +495,21 @@ The election administrator.\
         verify_election_consistency(self.election_id)
         console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
 
-        # TODO
+        console_log("### Starting step: administrator_starts_tallying_of_election")
+        self.administrator_starts_tallying_of_election(settings.TRUSTEES_THRESHOLD_VALUE)
+        console_log("### Step complete: administrator_starts_tallying_of_election")
 
-        # console_log("### Starting step: administrator_starts_tallying_of_election")
-        # self.administrator_starts_tallying_of_election()
-        # console_log("### Step complete: administrator_starts_tallying_of_election")
+        console_log("### Starting step: trustees_do_partial_decryption")
+        self.trustees_do_partial_decryption(settings.TRUSTEES_THRESHOLD_VALUE)
+        console_log("### Step complete: trustees_do_partial_decryption")
 
-        # console_log("### Starting step: trustees_do_partial_decryption")
-        # self.trustees_do_partial_decryption()
-        # console_log("### Step complete: trustees_do_partial_decryption")
+        console_log("### Starting step: administrator_finishes_tallying_of_election")
+        self.administrator_finishes_tallying_of_election(settings.TRUSTEES_THRESHOLD_VALUE)
+        console_log("### Step complete: administrator_finishes_tallying_of_election")
 
-        # console_log("### Starting step: administrator_finishes_tallying_of_election")
-        # self.administrator_finishes_tallying_of_election()
-        # console_log("### Step complete: administrator_finishes_tallying_of_election")
-
-        # console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (3)")
-        # verify_election_consistency(self.election_id)
-        # console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (3)")
+        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (3)")
+        verify_election_consistency(self.election_id)
+        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (3)")
 
 
 if __name__ == "__main__":

@@ -117,7 +117,7 @@ Verifications all along the process is done using command line tools `belenios-t
     - In the "Trustees" section, she clicks on "here". She checks that in the table on all rows, the "STATE" column is now "done"
     - She clicks on the "Go back to election draft" link
     - In "Validate creation" section, she clicks on the "Create election" link
-    - (She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters. For example, in this test scenario, it displays 2 warnings: "Warning: No trustees were set. This means that the server will manage the election key by itself.", and "Warning: No contact was set!")
+    - (She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters.)
     - She checks the presence of text "election ready"
     - In the "Validate creation" section, she clicks on the "Create election" button
     - (She arrives back on the "My test election for Scenario 1 — Administration" page. Its contents have changed. There is now a text saying "The election is open. Voters can vote.", and there are now buttons "Close election", "Archive election", "Delete election")
@@ -158,6 +158,8 @@ Verifications all along the process is done using command line tools `belenios-t
     - She logs in as administrator
     - She clicks on the "Close election" button
     - She clicks on the "Proceed to vote counting" button
+    - She checks the presence of text "We are now waiting for trustees... At least ${U} trustee(s) must act."
+    - She checks that in the table on every content row, the "DONE?" column is "No"
     - She remembers the encrypted tally hash
     - She remembers the link to send to each trustee, so they can tally the election
     - She sends to each trustee an email containing their own link
