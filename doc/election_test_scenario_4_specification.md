@@ -15,7 +15,7 @@ Electors use their browser and read emails sent by the server and by the credent
 
 `M` electors ask administrator to re-generate their password, and vote with their re-generated password (with `M <= K`).
 
-A threshold of `U` trustees are needed (among all `T` trustees) to validate the vote.
+A threshold of `U` trustees are needed (among all `T` trustees, with `U <= T`) to validate the vote.
 
 The auditor makes web requests, has a persistent state, and runs the commandline version of the Belenios tool.
 
@@ -31,7 +31,7 @@ Verifications all along the process is done using command line tools `belenios-t
     - `belenios-tool verify` does a static verification (it verifies that vote data at current time is coherent)
     - `belenios-tool verify-diff` does a dynamic verification (it verifies that current state of vote data is a possible/legitimate evolution of a vote data snapshot that has been saved during a previous step of the process) 
 
-## Detailed steps of the Test Scenario 1 process
+## Detailed steps of the Test Scenario 4 process
 
 - Starting setup of the election (action of the administrator)
     - Creation of the draft election

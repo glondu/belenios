@@ -27,7 +27,7 @@ Verifications all along the process is done using command line tools `belenios-t
     - `belenios-tool verify` does a static verification (it verifies that vote data at current time is coherent)
     - `belenios-tool verify-diff` does a dynamic verification (it verifies that current state of vote data is a possible/legitimate evolution of a vote data snapshot that has been saved during a previous step of the process) 
 
-## Detailed steps of the Test Scenario 1 process
+## Detailed steps of the Test Scenario 2 process
 
 - Starting setup of the election (action of the administrator)
     - Creation of the draft election
