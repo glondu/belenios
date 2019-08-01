@@ -17,6 +17,18 @@ from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browse
 import settings
 
 
+def verify_all_trustee_states_in_table(browser, expected_value):
+    state_column_css_selector = "#main table tr td:last-of-type"
+    attribute_name = "innerText"
+    verify_all_elements_have_attribute_value(browser, state_column_css_selector, attribute_name, expected_value)
+
+
+def verify_trustee_state_in_table(browser, current_trustee_id, expected_value):
+    table_row_padding = 2
+    state_column_css_selector = "#main table tr:nth-of-type(" + str(current_trustee_id + table_row_padding) + ") td:last-of-type"
+    wait_for_element_exists_and_contains_expected_text(browser, state_column_css_selector, expected_value)
+
+
 class BeleniosTestElectionScenario4(BeleniosTestElectionScenario2Base):
     """
     Properties:
@@ -115,8 +127,9 @@ class BeleniosTestElectionScenario4(BeleniosTestElectionScenario2Base):
 
         wait_a_bit()
 
-        # (She checks that in the table, the "STATE" column is "1a" on every row)
-        # TODO
+        # She checks that in the table, the "STATE" column is "1a" on every row
+        expected_value = "1a"
+        verify_all_trustee_states_in_table(browser, expected_value)
 
         # She sends to each trustee an email containing their own link
         subject = "Link to generate the decryption key"
@@ -227,8 +240,35 @@ The election administrator.\
             # He closes the window
             browser.quit()
 
-            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "1b" instead of "1a")
-            # TODO
+            # Administrator logs in, and selects the election by clicking on its link
+            self.browser = initialize_browser_for_scenario_2()
+            browser = self.browser
+
+            log_in_as_administrator(browser)
+
+            browser.get(self.draft_election_administration_page_url)
+
+            wait_a_bit()
+
+            # In the trustees section, she clicks on the "here" link
+            setup_election_key_link_label = "here"
+            setup_election_key_link_element = wait_for_an_element_with_partial_link_text_exists(browser, setup_election_key_link_label)
+            setup_election_key_link_element.click()
+
+            wait_a_bit()
+
+            # If current trustee is the last one, she checks that in the table, the "STATE" column is now "2a" on every row. Else, she checks that in the table on the current trustee row, the "STATE" column is now "1b" (instead of "1a")
+            if idx == settings.NUMBER_OF_TRUSTEES - 1:
+                expected_value = "2a"
+                verify_all_trustee_states_in_table(browser, expected_value)
+            else:
+                expected_value = "1b"
+                verify_trustee_state_in_table(browser, idx, expected_value)
+
+            wait_a_bit()
+
+            # She closes the window
+            browser.quit()
 
 
     def trustees_do_initialization_step_2_of_3(self):
@@ -294,8 +334,35 @@ The election administrator.\
             # He closes the window
             browser.quit()
 
-            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "2b" instead of "2a")
-            # TODO
+            # Administrator logs in, and selects the election by clicking on its link
+            self.browser = initialize_browser_for_scenario_2()
+            browser = self.browser
+
+            log_in_as_administrator(browser)
+
+            browser.get(self.draft_election_administration_page_url)
+
+            wait_a_bit()
+
+            # In the trustees section, she clicks on the "here" link
+            setup_election_key_link_label = "here"
+            setup_election_key_link_element = wait_for_an_element_with_partial_link_text_exists(browser, setup_election_key_link_label)
+            setup_election_key_link_element.click()
+
+            wait_a_bit()
+
+            # If current trustee is the last one, she checks that in the table, the "STATE" column is now "3a" on every row. Else, she checks that in the table on the current trustee row, the "STATE" column is now "2b" (instead of "2a")
+            if idx == settings.NUMBER_OF_TRUSTEES - 1:
+                expected_value = "3a"
+                verify_all_trustee_states_in_table(browser, expected_value)
+            else:
+                expected_value = "2b"
+                verify_trustee_state_in_table(browser, idx, expected_value)
+
+            wait_a_bit()
+
+            # She closes the window
+            browser.quit()
 
     def trustees_do_initialization_step_3_of_3(self):
         # Trustees initialization step 3/3: Trustees do the final checks so that the election can be validated. Each of the `T` (aka `NUMBER_OF_TRUSTEES`) trustees will do the following process:
@@ -376,8 +443,35 @@ The election administrator.\
             # He closes the window
             browser.quit()
 
-            # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "3b" instead of "3a")
-            # TODO
+            # Administrator logs in, and selects the election by clicking on its link
+            self.browser = initialize_browser_for_scenario_2()
+            browser = self.browser
+
+            log_in_as_administrator(browser)
+
+            browser.get(self.draft_election_administration_page_url)
+
+            wait_a_bit()
+
+            # In the trustees section, she clicks on the "here" link
+            setup_election_key_link_label = "here"
+            setup_election_key_link_element = wait_for_an_element_with_partial_link_text_exists(browser, setup_election_key_link_label)
+            setup_election_key_link_element.click()
+
+            wait_a_bit()
+
+            # If current trustee is the last one, she checks that in the table, the "STATE" column is now "done" on every row. Else, she checks that in the table on the current trustee row, the "STATE" column is now "3b" (instead of "3a")
+            if idx == settings.NUMBER_OF_TRUSTEES - 1:
+                expected_value = "done"
+                verify_all_trustee_states_in_table(browser, expected_value)
+            else:
+                expected_value = "3b"
+                verify_trustee_state_in_table(browser, idx, expected_value)
+
+            wait_a_bit()
+
+            # She closes the window
+            browser.quit()
 
     def administrator_completes_creation_of_election(self):
         # Alice, as an administrator of an election, wants to finalize her draft election creation, to start the vote.
@@ -448,9 +542,6 @@ The election administrator.\
         console_log("### Starting step: trustees_do_initialization_step_1_of_3")
         self.trustees_do_initialization_step_1_of_3()
         console_log("### Step complete: trustees_do_initialization_step_1_of_3")
-
-        # (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on every row, the "STATE" column is now "2a")
-        # TODO
 
         console_log("### Starting step: trustees_do_initialization_step_2_of_3")
         self.trustees_do_initialization_step_2_of_3()
