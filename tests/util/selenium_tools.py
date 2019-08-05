@@ -160,3 +160,22 @@ def set_element_attribute(browser, element_dom_id, attribute_key, attribute_valu
 def verify_element_label(element, expected_label):
     element_real_label = element.get_attribute('innerText')
     assert expected_label in element_real_label, 'Expected label "' + expected_label + '" not found in element label "' + element_real_label + "'"
+
+
+def verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value):
+    elements = wait_for_elements_exist(browser, elements_css_selector)
+    assert len(elements) > 0, "Error: could not find any element in page matching this CSS selector"
+    for element in elements:
+        assert element.get_attribute(attribute_name) == attribute_value, "Error: One of the elements corresponding to this CSS selector has a value of '" + element.get_attribute(attribute_name) + "' instead of expected '" + attribute_value + "'"
+
+
+def verify_some_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value, necessary_elements):
+    elements = wait_for_elements_exist(browser, elements_css_selector)
+    assert len(elements) > 0, "Error: could not find any element in page matching this CSS selector"
+    elements_matching_condition = 0
+    for element in elements:
+        if element.get_attribute(attribute_name) == attribute_value:
+            elements_matching_condition += 1
+        if elements_matching_condition >= necessary_elements:
+            break
+    assert elements_matching_condition >= necessary_elements, "Error: Not enough elements corresponding to this CSS selector have a value of '" + attribute_value + "' (" + str(elements_matching_condition) + " instead of expected minimum of " + str(necessary_elements) + ")"

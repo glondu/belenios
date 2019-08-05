@@ -20,6 +20,7 @@ ELECTION_TITLE = "My test election for Scenario 1"
 ELECTION_DESCRIPTION = "This is the description of my test election for Scenario 1"
 ADMINISTRATOR_USERNAME = "user1" # This value comes from file `demo/password_db.csv`, first row, first column
 ADMINISTRATOR_PASSWORD = "phiexoey" # This value comes from file `demo/password_db.csv`, first row, 4th column
+INITIATOR_CONTACT = "Election initiator <election.initiator@mytestelection.com>"
 
 GIT_REPOSITORY_ABSOLUTE_PATH = dirname(dirname(abspath(__file__)))
 
@@ -28,4 +29,6 @@ GIT_REPOSITORY_ABSOLUTE_PATH = dirname(dirname(abspath(__file__)))
 BROWSER_DOWNLOAD_FOLDER = "/tmp"
 ADMINISTRATOR_EMAIL_ADDRESS = "alice_aka_election_administrator@mailinator.com"
 CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = "cecily_aka_election_credential_authority@mailinator.com"
-TRUSTEES_EMAIL_ADDRESSES = ["tom_aka_trustee_1@mailinator.com", "taylor_aka_trustee_2@mailinator.com"]
+NUMBER_OF_TRUSTEES = 5
+TRUSTEES_EMAIL_ADDRESSES = ["tom_aka_trustee_1@mailinator.com", "taylor_aka_trustee_2@mailinator.com", "tania_aka_trustee_3@mailinator.com", "tiffany_aka_trustee_4@mailinator.com", "theresa_aka_trustee_5@mailinator.com"]
+TRUSTEES_THRESHOLD_VALUE = 3

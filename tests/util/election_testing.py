@@ -303,7 +303,7 @@ def create_election_data_snapshot(election_id):
         raise Exception("Could not extract absolute path from output of mktemp:", out)
 
     # Remark: If this command is run before any vote is cast, files `public_creds.txt` and `ballots.jsons` do not exist yet
-    subprocess.run(["cp", "election.json", "public_creds.txt", "public_keys.jsons", "ballots.jsons", temporary_folder_absolute_path], cwd=election_folder) # TODO: Execute a command that works on other OS, like `shutil.copy()`
+    subprocess.run(["cp", "election.json", "public_creds.txt", "public_keys.jsons", "ballots.jsons", "threshold.json", temporary_folder_absolute_path], cwd=election_folder) # TODO: Execute a command that works on other OS, like `shutil.copy()`
 
     return temporary_folder_absolute_path
 
@@ -381,7 +381,7 @@ def log_out(browser):
     wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", settings.EXPLICIT_WAIT_TIMEOUT)
 
 
-def administrator_starts_creation_of_election(browser, manual_credential_management=False, election_title=None, election_description=None):
+def administrator_starts_creation_of_election(browser, manual_credential_management=False, election_title=None, election_description=None, initiator_contact=None):
     """
     Initial browser (required) state: administrator has just logged in
     Final browser state: on the "Preparation of election" page
@@ -391,8 +391,10 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
     - She picks the Credential management method she wants (function paramenter `manual_credential_management`)
     (- She keeps default value for Authentication method: it is Password, not CAS)
     - She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
-    - She changes values of fields name and description of the election
+    - In the "Name and description of the election" section, she changes values of fields name and description of the election
     - She clicks on the "Save changes button" (the one that is next to the election description field)
+    - In "Contact" section, she changes the value of "contact" field
+    - She clicks on the "Save changes" button (the one that is in the "Contact" section)
     """
 
     if election_title is None:
@@ -400,6 +402,9 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
 
     if election_description is None:
         election_description = settings.ELECTION_DESCRIPTION
+
+    if initiator_contact is None:
+        initiator_contact = settings.INITIATOR_CONTACT
 
     # She clicks on the "Prepare a new election" link
     create_election_link_expected_content = "Prepare a new election"
@@ -424,7 +429,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
 
     wait_a_bit()
 
-    # She changes values of fields name and description of the election
+    # In the "Name and description of the election" section, she changes values of fields name and description of the election
     election_name_field_css_selector = "#main form input[name=__co_eliom_name]"
     election_name_field_element = wait_for_element_exists(browser, election_name_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
     election_name_field_value = election_title
@@ -441,10 +446,26 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
 
     wait_a_bit()
 
-    # She clicks on the "Save changes button" (the one that is next to the election description field)
-    save_changes_button_css_selector = "#main > div:nth-child(1) form input[type=submit]" # Warning: form:nth-child(1) selects another form
+    # She clicks on the "Save changes" button (the one that is next to the election description field)
+    save_changes_button_css_selector = "#main > div:nth-of-type(1) form input[type=submit]" # Warning: form:nth-child(1) selects another form
     save_changes_button_element = browser.find_element_by_css_selector(save_changes_button_css_selector)
     save_changes_button_element.click()
+
+    wait_a_bit()
+
+    # In "Contact" section, she changes the value of "contact" field
+    election_contact_field_css_selector = "#main form input[name=__co_eliom_contact]"
+    election_contact_field_element = browser.find_element_by_css_selector(election_contact_field_css_selector)
+    election_contact_field_value = initiator_contact
+    election_contact_field_element.clear()
+    election_contact_field_element.send_keys(election_contact_field_value)
+
+    wait_a_bit()
+
+    # She clicks on the "Save changes" button (the one that is in the "Contact" section)
+    contact_section_save_changes_button_css_selector = "#main > div:nth-of-type(3) form input[type=submit]" # Warning: form:nth-child(1) selects another form
+    contact_section_save_changes_button_element = browser.find_element_by_css_selector(contact_section_save_changes_button_css_selector)
+    contact_section_save_changes_button_element.click()
 
     wait_a_bit()
 
@@ -572,6 +593,11 @@ def administrator_validates_creation_of_election(browser):
     wait_a_bit()
 
     # She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters. For example, in this test scenario, it displays 2 warnings: "Warning: No trustees were set. This means that the server will manage the election key by itself.", and "Warning: No contact was set!"
+
+    # She checks the presence of text "election ready"
+    expected_confirmation_label = "election ready"
+    expected_confirmation_css_selector = "#main"
+    wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 
     # In the "Validate creation" section, she clicks on the "Create election" button
     create_election_button_label = "Create election"

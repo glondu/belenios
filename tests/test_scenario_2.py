@@ -10,7 +10,7 @@ from uuid import uuid4
 from distutils.util import strtobool
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute
+from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute, verify_all_elements_have_attribute_value, verify_some_elements_have_attribute_value
 from util.election_testing import console_log, random_email_addresses_generator, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 from util.election_test_base import BeleniosElectionTestBase
 import settings
@@ -20,7 +20,7 @@ def initialize_browser_for_scenario_2():
     return initialize_browser(for_scenario_2=True)
 
 
-class BeleniosTestElectionScenario2(BeleniosElectionTestBase):
+class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
     """
     Properties:
     - server
@@ -102,8 +102,10 @@ class BeleniosTestElectionScenario2(BeleniosElectionTestBase):
         # - She picks the Credential management method: manual
         # (- She keeps default value for Authentication method: it is Password, not CAS)
         # - She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
-        # - She changes values of fields name and description of the election
+        # - In the "Name and description of the election" section, she changes values of fields name and description of the election
         # - She clicks on the "Save changes button" (the one that is next to the election description field)
+        # - In "Contact" section, she changes the value of "contact" field
+        # - She clicks on the "Save changes" button (the one that is in the "Contact" section)
         administrator_starts_creation_of_election(browser, True)
 
         # She remembers the URL of the draft election administration page
@@ -283,7 +285,9 @@ counts."""
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
             submit_button_element.click()
 
-            trustee_link_css_selector = "#main table tr:nth-child(" + str(idx + 3) + ") td:nth-child(3) a"
+            wait_a_bit()
+
+            trustee_link_css_selector = "#main table tr:nth-of-type(" + str(idx + 3) + ") td:nth-of-type(3) a" # First row of table corresponds to column titles. Second row correpond to server trustee.
             trustee_link_element = wait_for_element_exists_and_has_non_empty_content(browser, trustee_link_css_selector)
             self.links_for_trustees.append(trustee_link_element.get_attribute('href'))
 
@@ -416,7 +420,7 @@ The election administrator.\
         self.browser = initialize_browser_for_scenario_2()
 
 
-    def administrator_starts_tallying_of_election(self):
+    def administrator_starts_tallying_of_election(self, with_threshold=None):
         browser = self.browser
 
         # Alice goes to the election page
@@ -451,15 +455,30 @@ The election administrator.\
 
         wait_a_bit()
 
+        if with_threshold is not None:
+            # She checks the presence of text "We are now waiting for trustees... At least ${U} trustee(s) must act."
+            expected_confirmation_label = "We are now waiting for trustees... At least " + str(with_threshold) + " trustee(s) must act."
+            expected_confirmation_css_selector = "#main"
+            wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
+
+            # She checks that in the table on every content row, the "DONE?" column is "No"
+            elements_css_selector = "#main table tr td:nth-of-type(4)"
+            attribute_name = "innerText"
+            attribute_value = "No"
+            verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value)
+
         # She remembers the encrypted tally hash
         encrypted_tally_hash_css_selector = "#encrypted_tally_hash"
         encrypted_tally_hash_element = wait_for_element_exists_and_has_non_empty_content(browser, encrypted_tally_hash_css_selector)
         self.encrypted_tally_hash = encrypted_tally_hash_element.get_attribute('innerText')
 
         # She remembers the link to send to each trustee, so they can tally the election
+        row_padding = 3
+        if with_threshold:
+            row_padding = 2
         self.closed_election_tally_links_for_trustees = []
         for idx, email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
-            trustee_link_css_selector = "#main table tr:nth-child(" + str(idx + 3) + ") td:nth-child(3) a"
+            trustee_link_css_selector = "#main table tr:nth-of-type(" + str(idx + row_padding) + ") td:nth-of-type(3) a" # First row consists in column titles. If there is no threshold for trustees, second row is for server.
             trustee_link_element = wait_for_element_exists_and_has_non_empty_content(browser, trustee_link_css_selector)
             self.closed_election_tally_links_for_trustees.append(trustee_link_element.get_attribute('href'))
 
@@ -495,9 +514,11 @@ The election administrator.\
         browser.quit()
 
 
-    def trustees_do_partial_decryption(self):
-        # Each trustee (Tom and Taylor) will do the following process:
+    def trustees_do_partial_decryption(self, max_trustees=None):
+        # Each of the `T` trustees (limited to `max_trustees`) will do the following process:
         for idx, trustee_email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
+            if max_trustees is not None and idx >= max_trustees: # TODO: Maybe we should pick trustees randomly in the list of trustees instead of always the first few ones?
+                break
             # He opens the link that Alice (the election administrator) has sent to him
             self.browser = initialize_browser_for_scenario_2()
             browser = self.browser
@@ -564,7 +585,7 @@ The election administrator.\
             browser.quit()
 
 
-    def administrator_finishes_tallying_of_election(self):
+    def administrator_finishes_tallying_of_election(self, max_trustees=None):
         self.browser = initialize_browser_for_scenario_2()
         browser = self.browser
 
@@ -590,13 +611,14 @@ The election administrator.\
         encrypted_tally_hash = encrypted_tally_hash_element.get_attribute('innerText')
         assert encrypted_tally_hash == self.encrypted_tally_hash, "Error: Encrypted tally hash displayed to trustee (" + encrypted_tally_hash + ") is not the same as the one displayed to election administrator (" + self.encrypted_tally_hash + ")."
 
-        # She checks that the "DONE?" column of each trustee is to "Yes"
+        # She checks that the "DONE?" column of each trustee is to "Yes" (or if there is a threshold on trustees, she checks that at least `max_trustees` have a "Yes")
         expected_label = "Yes"
         yes_cells_selector = "#main table tr td:nth-last-child(1)"
-        yes_cells_elements = wait_for_elements_exist(browser, yes_cells_selector)
-        assert len(yes_cells_elements) > 0, "Error: could not find last cell in table in page"
-        for element in yes_cells_elements:
-            assert element.get_attribute('innerText') == expected_label, "Error: The last cell of a row in table that is displayed in page has a value that is '" + element.get_attribute('innerText') + "' instead of expected '" + expected_label + "'"
+        attribute_name = "innerText"
+        if max_trustees is None:
+            verify_all_elements_have_attribute_value(browser, yes_cells_selector, attribute_name, expected_label)
+        else:
+            verify_some_elements_have_attribute_value(browser, yes_cells_selector, attribute_name, expected_label, max_trustees)
 
         # She clicks on the "Compute the result" button
         compute_result_button_expected_label = "Compute the result"
@@ -609,7 +631,10 @@ The election administrator.\
         self.administrator_verifies_vote_results()
 
 
+class BeleniosTestElectionScenario2(BeleniosTestElectionScenario2Base):
+
     def test_scenario_2_manual_vote(self):
+        console_log("### Running test method BeleniosTestElectionScenario2::test_scenario_2_manual_vote()")
         console_log("### Starting step: administrator_starts_creation_of_manual_election")
         self.administrator_starts_creation_of_manual_election()
         console_log("### Step complete: administrator_starts_creation_of_manual_election")
@@ -699,6 +724,7 @@ if __name__ == "__main__":
     settings.ADMINISTRATOR_PASSWORD = os.getenv('ADMINISTRATOR_PASSWORD', settings.ADMINISTRATOR_PASSWORD)
     settings.ELECTION_TITLE = os.getenv('ELECTION_TITLE', settings.ELECTION_TITLE)
     settings.ELECTION_DESCRIPTION = os.getenv('ELECTION_DESCRIPTION', settings.ELECTION_DESCRIPTION)
+    settings.INITIATOR_CONTACT = os.getenv('INITIATOR_CONTACT', settings.INITIATOR_CONTACT)
     settings.BROWSER_DOWNLOAD_FOLDER = os.getenv('BROWSER_DOWNLOAD_FOLDER', settings.BROWSER_DOWNLOAD_FOLDER)
     settings.ADMINISTRATOR_EMAIL_ADDRESS = os.getenv('ADMINISTRATOR_EMAIL_ADDRESS', settings.ADMINISTRATOR_EMAIL_ADDRESS)
     settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = os.getenv('CREDENTIAL_AUTHORITY_EMAIL_ADDRESS', settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)
@@ -714,6 +740,7 @@ if __name__ == "__main__":
     console_log("NUMBER_OF_REGENERATED_PASSWORD_VOTERS:", settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
     console_log("ELECTION_TITLE:", settings.ELECTION_TITLE)
     console_log("ELECTION_DESCRIPTION:", settings.ELECTION_DESCRIPTION)
+    console_log("INITIATOR_CONTACT:", settings.INITIATOR_CONTACT)
     console_log("BROWSER_DOWNLOAD_FOLDER:", settings.BROWSER_DOWNLOAD_FOLDER)
     console_log("ADMINISTRATOR_EMAIL_ADDRESS:", settings.ADMINISTRATOR_EMAIL_ADDRESS)
     console_log("CREDENTIAL_AUTHORITY_EMAIL_ADDRESS:", settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)

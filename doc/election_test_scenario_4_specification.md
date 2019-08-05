@@ -1,9 +1,11 @@
-Scenario 2: Vote with vote codes in manual mode and manual trustees
+Scenario 4: Vote with vote codes in manual mode and manual trustees, using a threshold for trustees
 =================================
 
 ## Introduction and parameters
 
-Protagonists to emulate: election administrator, credential authority, 2 trustees, `K` electors, an auditor.
+This scenario is adapted from scenario 2.
+
+Protagonists to emulate: election administrator, credential authority, `T` trustees, `K` electors, an auditor.
 
 Administrator and trustees uses only thier browser. Credential authority uses her browser and sends emails.
 
@@ -12,6 +14,8 @@ Electors use their browser and read emails sent by the server and by the credent
 `L` electors re-vote (with `L <= K`)
 
 `M` electors ask administrator to re-generate their password, and vote with their re-generated password (with `M <= K`).
+
+A threshold of `U` trustees are needed (among all `T` trustees, with `U <= T`) to validate the vote.
 
 The auditor makes web requests, has a persistent state, and runs the commandline version of the Belenios tool.
 
@@ -27,7 +31,7 @@ Verifications all along the process is done using command line tools `belenios-t
     - `belenios-tool verify` does a static verification (it verifies that vote data at current time is coherent)
     - `belenios-tool verify-diff` does a dynamic verification (it verifies that current state of vote data is a possible/legitimate evolution of a vote data snapshot that has been saved during a previous step of the process) 
 
-## Detailed steps of the Test Scenario 2 process
+## Detailed steps of the Test Scenario 4 process
 
 - Starting setup of the election (action of the administrator)
     - Creation of the draft election
@@ -36,8 +40,9 @@ Verifications all along the process is done using command line tools `belenios-t
         - She picks the Credential management method: manual
         - (She keeps default value for Authentication method: it is Password, not CAS)
         - She clicks on the "Proceed" button (this redirects to the "Preparation of election" page)
-        - She changes values of fields name and description of the election
+        - In the "Name and description of the election" section, she changes values of fields name and description of the election
         - She clicks on the "Save changes button" (the one that is next to the election description field)
+        - In the "Contact" section, the changes values of field "Contact:", and clicks on the "Save changes button" of this section
         - She remembers the URL of the draft election administration page
     - Edition of election's questions
         - She clicks on the "Edit questions" link, to write her own questions
@@ -65,25 +70,55 @@ Verifications all along the process is done using command line tools `belenios-t
     - She checks that redirected page shows correct confirmation sentence
     - She closes the window
     - She reads the private credentials file (`creds.txt`) and sends credential emails to voters
-- Continuing setup of the election: Administrator invites trustees
+- Continuing setup of the election: Administrator invites trustees and sets threshold
     - Administrator logs in and goes to the election draft page
-    - In the trustees section, she clicks on the "here" link
-    - She adds two trustees (their email address), and remembers the link she will send to each trustee
+    - In the "Trustees" section, she clicks on the "here" link
+    - She clicks on the "threshold mode" link
+    - In the field next to "Threshold:", she types `U`, and clicks on the "Set" button
+    - She adds `T` trustees (their email address), and remembers the link she will send to each trustee
+    - (She checks that in the table, the "STATE" column is "1a" on every row)
     - She sends to each trustee an email containing their own link
     - She logs out and closes the window
-- Trustees generate election private keys. Each trustee (Tom and Taylor) will do the following process:
+- Trustees initialization step 1/3: Trustees generate election private keys. Each of the `T` trustees will do the following process:
     - Trustee opens link that has been sent to him by election administrator
     - He checks that the page content shows the same election URL as the one the administrator saw
-    - He clicks on the "Generate a new keypair" button
-    - He clicks on the "private key" and "public key" links, to download the private key and the public key (files are respectively saved by default as `private_key.json` and `public_key.json`)
-    - He clicks on the "Submit public key" button
-    - He checks that the next page shows the expected confirmation sentence
+    - He clicks on the "Generate private key" button
+    - He clicks on the "private key" link, to download the private key (file is saved by default as `private_key.txt`)
+    - He clicks on the "Submit" button
+    - He checks that the next page shows the expected confirmation sentence (If trustee was the last one in the list, he checks that page contains text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
+, else he checks for sentence "Waiting for the other trustees... Reload the page to check progress.")
     - He closes the window
+    - (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "1b" instead of "1a")
+- (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on every row, the "STATE" column is now "2a")
+- Trustees initialization step 2/3: Trustees generate their share of the decryption key. Each of the `T` trustees will do the following process:
+    - Trustee opens link that has been sent to him by election administrator
+    - He checks that the page content shows the same election URL as the one the administrator saw
+    - He checks the presence of text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
+    - In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
+    - He clicks on the "Proceed" button
+    - He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
+    - If he is not the last trustee in the list, he checks that the next page contains text "Waiting for the other trustees... Reload the page to check progress.". Else, he checks that the next page contains text "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
+    - He closes the window
+    - (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "2b" instead of "2a")
+- Trustees initialization step 3/3: Trustees do the final checks so that the election can be validated. Each of the `T` trustees will do the following process:
+    - Trustee opens link that has been sent to him by election administrator
+    - He checks that the page content shows the same election URL as the one the administrator saw
+    - He checks the presence of text "Step 3/3"
+    - In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
+    - He clicks on the "Proceed" button
+    - He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
+    - He checks that the next page contains text "Your job in the key establishment protocol is done!"
+    - He clicks on the "public key" link and downloads the file (file is saved by default as `public_key.json`)
+    - He closes the window
+    - (Administrator logs in, selects the election by clicking on its link, and in the "Trustees" section clicks on "here". She checks that in the table on the current trustee row, the "STATE" column is now "3b" instead of "3a")
 - Administrator completes setup of the election
     - Alice, as an administrator of an election, wants to finalize her draft election creation, to start the vote. She opens a browser and logs in as administrator
     - She goes to the draft election administration page
+    - In the "Trustees" section, she clicks on "here". She checks that in the table on all rows, the "STATE" column is now "done"
+    - She clicks on the "Go back to election draft" link
     - In "Validate creation" section, she clicks on the "Create election" link
-    - (She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters. For example, in this test scenario, it displays 2 warnings: "Warning: No trustees were set. This means that the server will manage the election key by itself.", and "Warning: No contact was set!")
+    - (She arrives on the "Checklist" page, that lists all main parameters of the election for review, and that flags incoherent or misconfigured parameters.)
+    - She checks the presence of text "election ready"
     - In the "Validate creation" section, she clicks on the "Create election" button
     - (She arrives back on the "My test election for Scenario 1 — Administration" page. Its contents have changed. There is now a text saying "The election is open. Voters can vote.", and there are now buttons "Close election", "Archive election", "Delete election")
     - She remembers the URL of the voting page, that is where the "Election home" link points to
@@ -123,6 +158,8 @@ Verifications all along the process is done using command line tools `belenios-t
     - She logs in as administrator
     - She clicks on the "Close election" button
     - She clicks on the "Proceed to vote counting" button
+    - She checks the presence of text "We are now waiting for trustees... At least ${U} trustee(s) must act."
+    - She checks that in the table on every content row, the "DONE?" column is "No"
     - She remembers the encrypted tally hash
     - She remembers the link to send to each trustee, so they can tally the election
     - She sends to each trustee an email containing their own link
