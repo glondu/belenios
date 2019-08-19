@@ -28,17 +28,20 @@ open Web_common
 let ( / ) = Filename.concat
 
 let check_password_with_file db name password =
-  let name = String.trim name in
+  let name = String.trim name |> String.lowercase_ascii in
   let%lwt db = Lwt_preemptive.detach Csv.load db in
   match
     List.find_opt (function
-        | username :: _ :: _ :: _ -> username = name
+        | username :: _ :: _ :: _ -> String.lowercase_ascii username = name
         | _ -> false
       ) db
   with
-  | Some (_ :: salt :: hashed :: _) ->
-     return (sha256_hex (salt ^ String.trim password) = hashed)
-  | _ -> return false
+  | Some (u :: salt :: hashed :: _) ->
+     if sha256_hex (salt ^ String.trim password) = hashed then
+       return_some u
+     else
+       return_none
+  | _ -> return_none
 
 let password_handler () (name, password) =
   Web_auth.run_post_login_handler "password" (fun uuid a authenticate ->
@@ -55,7 +58,9 @@ let password_handler () (name, password) =
            let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
            check_password_with_file db name password
       in
-      if ok then authenticate name else fail_http 401
+      match ok with
+      | Some name -> authenticate name
+      | None -> fail_http 401
     )
 
 let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler
@@ -76,13 +81,15 @@ let get_password_db_fname service =
 let password_db_mutex = Lwt_mutex.create ()
 
 let do_add_account ~db_fname ~username ~password ~email () =
+  let username_ = String.lowercase_ascii username in
+  let email_ = String.lowercase_ascii email in
   let%lwt db = Lwt_preemptive.detach Csv.load db_fname in
   let%lwt salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let rec append accu = function
     | [] -> Ok (List.rev ([username; salt; hashed; email] :: accu))
-    | (u :: _ :: _ :: _) :: _ when u = username -> Error UsernameTaken
-    | (_ :: _ :: _ :: e :: _) :: _ when e = email -> Error AddressTaken
+    | (u :: _ :: _ :: _) :: _ when String.lowercase_ascii u = username_ -> Error UsernameTaken
+    | (_ :: _ :: _ :: e :: _) :: _ when String.lowercase_ascii e = email_ -> Error AddressTaken
     | x :: xs -> append (x :: accu) xs
   in
   match append [] db with
@@ -93,12 +100,13 @@ let do_add_account ~db_fname ~username ~password ~email () =
      Lwt.return (Ok ())
 
 let do_change_password ~db_fname ~username ~password () =
+  let username = String.lowercase_ascii username in
   let%lwt db = Lwt_preemptive.detach Csv.load db_fname in
   let%lwt salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let rec change accu = function
     | [] -> accu
-    | (u :: _ :: _ :: x) :: xs when u = username ->
+    | (u :: _ :: _ :: x) :: xs when String.lowercase_ascii u = username ->
        change ((u :: salt :: hashed :: x) :: accu) xs
     | x :: xs -> change (x :: accu) xs
   in
@@ -151,15 +159,16 @@ let () =
     )
 
 let lookup_account ~service ~username ~email =
-  let username = String.trim username in
+  let username = String.trim username |> String.lowercase_ascii in
+  let email = email |> String.lowercase_ascii in
   match get_password_db_fname service with
   | None -> return None
   | Some db ->
      let%lwt db = Lwt_preemptive.detach Csv.load db in
      match
        List.find_opt (function
-           | u :: _ :: _ :: _ when u = username -> true
-           | _ :: _ :: _ :: e :: _ when e = email -> true
+           | u :: _ :: _ :: _ when String.lowercase_ascii u = username -> true
+           | _ :: _ :: _ :: e :: _ when String.lowercase_ascii e = email -> true
            | _ -> false
          ) db
      with
