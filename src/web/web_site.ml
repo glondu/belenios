@@ -586,11 +586,19 @@ let () =
   Any.register ~service:election_draft_description
     (fun uuid (name, description) ->
       with_draft_election uuid (fun se ->
-          se.se_questions <- {se.se_questions with
-                               t_name = name;
-                               t_description = description;
-                             };
-          redir_preapply election_draft uuid ()
+          if PString.length name > max_election_name_size then (
+            let msg =
+              Printf.sprintf "The election name must be %d bytes or less!"
+                max_election_name_size
+            in
+            T.generic_page ~title:"Error" msg () >>= Html.send
+          ) else (
+            se.se_questions <- {se.se_questions with
+                                 t_name = name;
+                                 t_description = description;
+                               };
+            redir_preapply election_draft uuid ()
+          )
         )
     )
 
