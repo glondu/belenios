@@ -215,6 +215,7 @@ let bytes_to_sample q =
 
 module DirectRandom = struct
   type 'a t = 'a
+  let yield () = ()
   let return x = x
   let bind x f = f x
   let fail e = raise e

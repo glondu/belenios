@@ -116,6 +116,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   let fs_prove gs x oracle =
     random q >>= fun w ->
     let commitments = Array.map (fun g -> g **~ w) gs in
+    M.yield () >>= fun () ->
     let challenge = oracle commitments in
     let response = Z.((w + x * challenge) mod q) in
     return {challenge; response}
@@ -138,7 +139,9 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       response >>= fun response ->
       proofs.(i) <- {challenge; response};
       commitments.(2*i) <- g **~ response / alpha **~ challenge;
+      M.yield () >>= fun () ->
       commitments.(2*i+1) <- y **~ response / (beta *~ d.(i)) **~ challenge;
+      M.yield () >>= fun () ->
       total_challenges := Z.(!total_challenges + challenge);
       return ()
     in
@@ -196,9 +199,11 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         random q >>= fun challenge1 ->
         random q >>= fun response1 ->
         let commitmentA1 = g **~ response1 *~ cS.alpha **~ challenge1 in
+        M.yield () >>= fun () ->
         let commitmentB1 = y **~ response1 *~ cS.beta **~ challenge1 in
         random q >>= fun w ->
         let commitmentA0 = g **~ w and commitmentB0 = y **~ w in
+        M.yield () >>= fun () ->
         let prefix = Printf.sprintf "bproof0|%s|" zkp in
         let h = G.hash prefix [|commitmentA0; commitmentB0; commitmentA1; commitmentB1|] in
         let challenge0 = Z.(erem (h - challenge1) q) in
@@ -218,7 +223,9 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         let commitments = Array.make (2*(max-min+2)) g in
         let total_challenges = ref challenge0 in
         commitments.(0) <- g **~ response0 *~ c0.alpha **~ challenge0;
+        M.yield () >>= fun () ->
         commitments.(1) <- y **~ response0 *~ (c0.beta / g) **~ challenge0;
+        M.yield () >>= fun () ->
         let index_true = mS-min+1 in
         let rec loop i =
           if i < max-min+2 then (
@@ -230,7 +237,9 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
               let j = 2*i in
               overall_proof.(i) <- {challenge; response};
               commitments.(j) <- g **~ response *~ cS.alpha **~ challenge;
+              M.yield () >>= fun () ->
               commitments.(j+1) <- y **~ response *~ nbeta **~ challenge;
+              M.yield () >>= fun () ->
               total_challenges := Z.(!total_challenges + challenge);
               loop (i+1)
             ) else loop (i+1)
@@ -241,6 +250,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         let j = 2 * index_true in
         commitments.(j) <- g **~ w;
         commitments.(j+1) <- y **~ w;
+        M.yield () >>= fun () ->
         let prefix = Printf.sprintf "bproof1|%s|" zkp in
         let h = G.hash prefix commitments in
         let challenge = Z.(erem (h - !total_challenges) q) in
@@ -258,9 +268,11 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         random q >>= fun challenge0 ->
         random q >>= fun response0 ->
         let commitmentA0 = g **~ response0 *~ c0.alpha **~ challenge0 in
+        M.yield () >>= fun () ->
         let commitmentB0 = y **~ response0 *~ c0.beta **~ challenge0 in
         random q >>= fun w ->
         let commitmentA1 = g **~ w and commitmentB1 = y **~ w in
+        M.yield () >>= fun () ->
         let prefix = Printf.sprintf "bproof0|%s|" zkp in
         let h = G.hash prefix [|commitmentA0; commitmentB0; commitmentA1; commitmentB1|] in
         let challenge1 = Z.(erem (h - challenge0) q) in
@@ -286,7 +298,9 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
             let j = 2*i in
             overall_proof.(i) <- {challenge; response};
             commitments.(j) <- g **~ response *~ cS.alpha **~ challenge;
+            M.yield () >>= fun () ->
             commitments.(j+1) <- y **~ response *~ nbeta **~ challenge;
+            M.yield () >>= fun () ->
             total_challenges := Z.(!total_challenges + challenge);
             loop (i+1)
           ) else return ()
@@ -295,6 +309,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         random q >>= fun w ->
         commitments.(0) <- g **~ w;
         commitments.(1) <- y **~ w;
+        M.yield () >>= fun () ->
         let prefix = Printf.sprintf "bproof1|%s|" zkp in
         let h = G.hash prefix commitments in
         let challenge = Z.(erem (h - !total_challenges) q) in
@@ -412,7 +427,9 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let n = Array.length r in
     assert (n = Array.length m);
     let choices = Array.map2 (eg_encrypt y) r m in
+    M.yield () >>= fun () ->
     let individual_proofs = Array.map3 (eg_disj_prove y d01 zkp) m r choices in
+    M.yield () >>= fun () ->
     swap individual_proofs >>= fun individual_proofs ->
     match q.q_blank with
     | Some true ->

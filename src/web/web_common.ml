@@ -30,6 +30,7 @@ open Web_serializable_j
 module LwtRandom = struct
 
   type 'a t = 'a Lwt.t
+  let yield = Lwt_main.yield
   let return = Lwt.return
   let bind = Lwt.bind
   let fail = Lwt.fail

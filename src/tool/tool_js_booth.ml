@@ -31,6 +31,7 @@ let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
 module LwtJsRandom = struct
   type 'a t = unit -> 'a Lwt.t
+  let yield () () = Lwt_js.yield ()
   let return x () = Lwt.return x
   let bind x f () = Lwt.bind (x ()) (fun y -> f y ())
   let fail x () = Lwt.fail x
