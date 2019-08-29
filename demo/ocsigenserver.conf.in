@@ -9,7 +9,7 @@
     <datadir>_RUNDIR_/lib</datadir>
 
     <uploaddir>_RUNDIR_/upload</uploaddir>
-    <maxuploadfilesize>128kB</maxuploadfilesize>
+    <maxuploadfilesize>1024kB</maxuploadfilesize>
 
     <commandpipe>_TMPDIR_/run/ocsigenserver_command</commandpipe>
 

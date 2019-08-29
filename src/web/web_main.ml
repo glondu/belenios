@@ -28,7 +28,7 @@ open Web_common
 
 (* FIXME: the following should be in configuration file... but
    <maxrequestbodysize> doesn't work *)
-let () = Ocsigen_config.set_maxrequestbodysizeinmemory 128000
+let () = Ocsigen_config.set_maxrequestbodysizeinmemory 1048576 (* 1 MB *)
 
 let () = CalendarLib.Time_Zone.(change Local)
 
