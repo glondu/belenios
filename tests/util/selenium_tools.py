@@ -143,6 +143,13 @@ def wait_for_element_exists(browser, css_selector, wait_duration=DEFAULT_WAIT_DU
     except Exception as e:
         raise Exception("Could not find expected DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
 
+def wait_for_element_visible(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
+    try:
+        return WebDriverWait(browser, wait_duration).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, css_selector))
+        )
+    except Exception as e:
+        raise Exception("Could not find expected visible DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
 
 def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
     try:

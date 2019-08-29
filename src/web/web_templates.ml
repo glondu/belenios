@@ -2592,10 +2592,13 @@ let shuffle election token =
   let title = params.e_name ^ " — Shuffle" in
   let content = [
       div [pcdata "It is now time to shuffle encrypted ballots."];
-      div ~a:[a_id "controls_div"] [
+      div ~a:[a_id "estimation"] [
+          pcdata "Estimating computation time...";
+        ];
+      div ~a:[a_id "controls_div"; a_style "display: none;"] [
           button_no_value ~button_type:`Button ~a:[a_id "compute_shuffle"] [pcdata "Compute shuffle"];
         ];
-      div ~a:[a_id "wait_div"; a_style "display:none;"] [
+      div ~a:[a_id "wait_div"] [
           pcdata "Please wait... ";
           img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
         ];

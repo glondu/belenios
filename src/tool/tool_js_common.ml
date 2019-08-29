@@ -92,6 +92,10 @@ let clear_content (e : #Dom.node Js.t) =
     ()
   done
 
+let clear_content_by_id id =
+  document##getElementById (Js.string id) >>== fun e ->
+  clear_content e
+
 let run_handler handler () =
   (try handler ()
    with e ->

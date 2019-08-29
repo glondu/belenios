@@ -6,7 +6,7 @@ import os
 import sys
 from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_an_element_with_partial_link_text_exists, wait_for_element_exists_and_has_non_empty_attribute, wait_for_element_exists_and_contains_expected_text
+from util.selenium_tools import wait_for_element_exists, wait_for_an_element_with_partial_link_text_exists, wait_for_element_exists_and_has_non_empty_attribute, wait_for_element_exists_and_contains_expected_text, wait_for_element_visible
 from util.election_testing import console_log, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out
 from util.election_test_base import BeleniosElectionTestBase
 import settings
@@ -82,7 +82,7 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
         wait_a_bit()
 
         # She clicks on the "Compute shuffle" button
-        wait_for_element_exists(browser, "#compute_shuffle", settings.EXPLICIT_WAIT_TIMEOUT).click()
+        wait_for_element_visible(browser, "#compute_shuffle", settings.EXPLICIT_WAIT_TIMEOUT).click()
         wait_a_bit()
 
         # She waits for the "shuffle" textarea to be filled

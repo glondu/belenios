@@ -24,28 +24,76 @@ open Serializable_j
 open Common
 open Tool_js_common
 
+let eta = ref 0
+
 let shuffle election ciphertexts =
   let election = Election.(get_group (of_string election)) in
   let module W = (val election) in
   let module E = Election.Make (W) (LwtJsRandom) in
   let ciphertexts = nh_ciphertexts_of_string E.G.read ciphertexts in
-  let%lwt shuffle = E.shuffle_ciphertexts ciphertexts in
-  Lwt.return (string_of_shuffle E.G.write shuffle)
+  let full_shuffle () =
+    let id =
+      if !eta > 0 then
+        let start = (new%js Js.date_now)##valueOf in
+        let stop = start +. float_of_int !eta *. 1000. in
+        let update () =
+          let now = (new%js Js.date_now)##valueOf in
+          let eta = max 0 (int_of_float (ceil ((stop -. now) /. 1000.))) in
+          clear_content_by_id "estimation";
+          set_content "estimation"
+            (Printf.sprintf "Estimated remaining time: %d second(s)" eta)
+        in
+        Some (Dom_html.window##setInterval (Js.wrap_callback update) 500.)
+      else
+        None
+    in
+    let%lwt shuffle = E.shuffle_ciphertexts ciphertexts in
+    let r = string_of_shuffle E.G.write shuffle in
+    let () =
+      match id with
+      | Some x ->
+         Dom_html.window##clearInterval x;
+         clear_content_by_id "estimation";
+      | None -> ()
+    in
+    Lwt.return r
+  in
+  let bench_shuffle () =
+    let n =
+      Array.fold_left (fun accu x -> accu + Array.length x) 0 ciphertexts
+    in
+    let%lwt x = LwtJsRandom.random E.G.q in
+    let start = new%js Js.date_now in
+    let _ = E.G.(g **~ x) in
+    let stop = new%js Js.date_now in
+    set_element_display "controls_div" "block";
+    set_element_display "wait_div" "none";
+    let delta = (stop##valueOf -. start##valueOf) /. 1000. in
+    (* cost is 11n+7 modpows, we add another n for the overhead *)
+    eta := int_of_float (ceil (delta *. float_of_int (12 * n + 7)));
+    clear_content_by_id "estimation";
+    set_content "estimation"
+      (Printf.sprintf "Estimated computation time: %d second(s)" !eta);
+    Lwt.return_unit
+  in
+  Lwt.async bench_shuffle;
+  full_shuffle
 
 let () =
   Lwt.async (fun () ->
       let%lwt _ = Lwt_js_events.onload () in
+      let uuid = List.assoc "uuid" (get_params ()) in
+      let open Lwt_xmlHttpRequest in
+      let%lwt election = get ("../elections/" ^ uuid ^ "/election.json") in
+      let%lwt ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
+      let full_shuffle = shuffle election.content ciphertexts.content in
       match Dom_html.getElementById_coerce "compute_shuffle" Dom_html.CoerceTo.button with
       | None -> Lwt.return_unit
       | Some btn ->
          let%lwt _ = Lwt_js_events.click btn in
          set_element_display "controls_div" "none";
          set_element_display "wait_div" "block";
-         let uuid = List.assoc "uuid" (get_params ()) in
-         let open Lwt_xmlHttpRequest in
-         let%lwt election = get ("../elections/" ^ uuid ^ "/election.json") in
-         let%lwt ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
-         let%lwt shuffle = shuffle election.content ciphertexts.content in
+         let%lwt shuffle = full_shuffle () in
          set_textarea "shuffle" shuffle;
          set_element_display "wait_div" "none";
          set_content "hash" (Platform.sha256_b64 shuffle);
