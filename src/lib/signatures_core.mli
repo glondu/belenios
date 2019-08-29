@@ -99,6 +99,7 @@ end
 (** Monad signature. *)
 module type MONAD = sig
   type 'a t
+  val yield : unit -> unit t
   val return : 'a -> 'a t
   val bind : 'a t -> ('a -> 'b t) -> 'b t
   val fail : exn -> 'a t

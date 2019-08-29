@@ -29,7 +29,7 @@ let shuffle election ciphertexts =
   let module W = (val election) in
   let module E = Election.Make (W) (LwtJsRandom) in
   let ciphertexts = nh_ciphertexts_of_string E.G.read ciphertexts in
-  let%lwt shuffle = E.shuffle_ciphertexts ciphertexts () in
+  let%lwt shuffle = E.shuffle_ciphertexts ciphertexts in
   Lwt.return (string_of_shuffle E.G.write shuffle)
 
 let () =

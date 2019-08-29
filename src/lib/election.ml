@@ -84,6 +84,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   let fs_prove gs x oracle =
     random q >>= fun w ->
     let commitments = Array.map (fun g -> g **~ w) gs in
+    M.yield () >>= fun () ->
     let challenge = oracle commitments in
     let response = Z.((w + x * challenge) mod q) in
     return {challenge; response}

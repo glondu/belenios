@@ -33,7 +33,7 @@ let encryptBallot params cred plaintext () =
   let module E = Election.Make (P) (LwtJsRandom) in
   let module CD = Credential.MakeDerive (G) in
   let sk = CD.derive P.election.e_params.e_uuid cred in
-  let%lwt b = E.create_ballot ~sk plaintext () in
+  let%lwt b = E.create_ballot ~sk plaintext in
   let s = string_of_ballot G.write b in
   set_textarea "ballot" s;
   set_content "ballot_tracker" (sha256_b64 s);

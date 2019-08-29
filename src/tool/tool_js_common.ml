@@ -105,18 +105,18 @@ let get_params () =
   if n < 1 || x.[0] <> '?' then []
   else Url.decode_arguments (String.sub x 1 (n-1))
 
-module LwtJsRandom : Signatures.RANDOM with type 'a t = unit -> 'a Lwt.t = struct
-  type 'a t = unit -> 'a Lwt.t
-  let return x () = Lwt.return x
-  let bind x f () = Lwt.bind (x ()) (fun y -> f y ())
-  let fail x () = Lwt.fail x
+module LwtJsRandom : Signatures.RANDOM with type 'a t = 'a Lwt.t = struct
+  type 'a t = 'a Lwt.t
+  let yield = Lwt_js.yield
+  let return = Lwt.return
+  let bind = Lwt.bind
+  let fail = Lwt.fail
 
   let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
   let random q =
     let size = Z.bit_length q / 8 + 1 in
-    fun () ->
-      let%lwt () = Lwt_js.yield () in
-      let r = random_string (Lazy.force prng) size in
-      Lwt.return Z.(of_bits r mod q)
+    let%lwt () = Lwt_js.yield () in
+    let r = random_string (Lazy.force prng) size in
+    Lwt.return Z.(of_bits r mod q)
 end
