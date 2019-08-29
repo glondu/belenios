@@ -30,18 +30,17 @@ open Tool_js_common
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
 module LwtJsRandom = struct
-  type 'a t = unit -> 'a Lwt.t
-  let yield () () = Lwt_js.yield ()
-  let return x () = Lwt.return x
-  let bind x f () = Lwt.bind (x ()) (fun y -> f y ())
-  let fail x () = Lwt.fail x
+  type 'a t = 'a Lwt.t
+  let yield = Lwt_js.yield
+  let return = Lwt.return
+  let bind = Lwt.bind
+  let fail = Lwt.fail
 
   let random q =
     let size = Z.bit_length q / 8 + 1 in
-    fun () ->
-      let%lwt () = Lwt_js.yield () in
-      let r = random_string (Lazy.force prng) size in
-      Lwt.return Z.(of_bits r mod q)
+    let%lwt () = Lwt_js.yield () in
+    let r = random_string (Lazy.force prng) size in
+    Lwt.return Z.(of_bits r mod q)
 end
 
 let encryptBallot params cred plaintext () =
@@ -50,8 +49,8 @@ let encryptBallot params cred plaintext () =
   let module E = Election.Make (P) (LwtJsRandom) in
   let module CD = Credential.MakeDerive (G) in
   let sk = CD.derive P.election.e_params.e_uuid cred in
-  let%lwt randomness = E.make_randomness () () in
-  let%lwt b = E.create_ballot ~sk randomness plaintext () in
+  let%lwt randomness = E.make_randomness () in
+  let%lwt b = E.create_ballot ~sk randomness plaintext in
   let s = string_of_ballot G.write b in
   set_textarea "ballot" s;
   set_content "ballot_tracker" (sha256_b64 s);
