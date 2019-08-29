@@ -28,6 +28,39 @@ module Make (M : RANDOM) (G : GROUP) = struct
   open G
   let ( >>= ) = M.bind
 
+  let mmap2 f a b =
+    let n = Array.length a in
+    assert (n = Array.length b);
+    if n > 0 then
+      let r = Array.make n (f a.(0) b.(0)) in
+      M.yield () >>= fun () ->
+      let rec loop i =
+        if i < n then (
+          r.(i) <- f a.(i) b.(i);
+          M.yield () >>= fun () ->
+          loop (succ i)
+        ) else M.return r
+      in
+      loop 1
+    else M.return [||]
+
+  let mmap3 f a b c =
+    let n = Array.length a in
+    assert (n = Array.length b);
+    assert (n = Array.length c);
+    if n > 0 then
+      let r = Array.make n (f a.(0) b.(0) c.(0)) in
+      M.yield () >>= fun () ->
+      let rec loop i =
+        if i < n then (
+          r.(i) <- f a.(i) b.(i) c.(i);
+          M.yield () >>= fun () ->
+          loop (succ i)
+        ) else M.return r
+      in
+      loop 1
+    else M.return [||]
+
   let randoms n =
     let res = Array.make n Z.zero in
     let rec loop i =
@@ -65,7 +98,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let n = Array.length e in
     gen_permutation n >>= fun psi ->
     randoms n >>= fun r ->
-    let e = Array.map2 (re_encrypt y) e r in
+    mmap2 (re_encrypt y) e r >>= fun e ->
     let e = Array.init n (fun i -> e.(psi.(i))) in
     M.return (e, r, psi)
 
@@ -112,11 +145,15 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let n = Array.length uu in
     randoms n >>= fun rr ->
     let cc = Array.make n G.one in
-    for i = 0 to pred n do
-      let ccpred = if i = 0 then c0 else cc.(pred i) in
-      cc.(i) <- (g **~ rr.(i)) *~ (ccpred **~ uu.(i));
-    done;
-    M.return (cc, rr)
+    let rec loop i =
+      if i < n then (
+        let ccpred = if i = 0 then c0 else cc.(pred i) in
+        cc.(i) <- (g **~ rr.(i)) *~ (ccpred **~ uu.(i));
+        M.yield () >>= fun () ->
+        loop (succ i)
+      ) else M.return (cc, rr)
+    in
+    loop 0
 
   module GMap = Map.Make (G)
 
@@ -149,11 +186,15 @@ module Make (M : RANDOM) (G : GROUP) = struct
     randoms n >>= fun ww_hat ->
     randoms n >>= fun ww' ->
     let t1 = g **~ w1 and t2 = g **~ w2 in
-    let t3 = Array.fold_left ( *~ ) (g **~ w3) (Array.map2 ( **~ ) hh ww') in
-    let t41 = Array.fold_left ( *~ ) (invert (y **~ w4)) (Array.map2 (fun e' w' -> e'.beta **~ w') ee' ww') in
-    let t42 = Array.fold_left ( *~ ) (invert (g **~ w4)) (Array.map2 (fun e' w' -> e'.alpha **~ w') ee' ww') in
+    M.yield () >>= fun () ->
+    mmap2 ( **~ ) hh ww' >>= fun t3_ ->
+    let t3 = Array.fold_left ( *~ ) (g **~ w3) t3_ in
+    mmap2 (fun e' w' -> e'.beta **~ w') ee' ww' >>= fun t41_ ->
+    let t41 = Array.fold_left ( *~ ) (invert (y **~ w4)) t41_ in
+    mmap2 (fun e' w' -> e'.alpha **~ w') ee' ww' >>= fun t42_ ->
+    let t42 = Array.fold_left ( *~ ) (invert (g **~ w4)) t42_ in
     let cc_hat' = Array.init n (fun i -> if i = 0 then h else cc_hat.(pred i)) in
-    let tt_hat = Array.map3 (fun w_hat w' c_hat -> (g **~ w_hat) *~ (c_hat **~ w')) ww_hat ww' cc_hat' in
+    mmap3 (fun w_hat w' c_hat -> (g **~ w_hat) *~ (c_hat **~ w')) ww_hat ww' cc_hat' >>= fun tt_hat ->
     let t = (t1, t2, t3, (t41, t42), tt_hat) in
     let str2 = str_elts [| t1; t2; t3; t41; t42 |] ^ str_elts tt_hat in
     let str3 = str1 ^ str_elts cc_hat ^ G.to_string y in
