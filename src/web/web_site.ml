@@ -347,6 +347,14 @@ let with_site_user f =
   | Some u -> f u
   | None -> forbidden ()
 
+let without_site_user f =
+  match%lwt Eliom_reference.get Web_state.site_user with
+  | None -> f ()
+  | Some _ ->
+     T.generic_page ~title:"Error"
+       "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
+       () >>= Html.send
+
 let () =
   Redirection.register ~service:privacy_notice_accept
     (fun cont () ->
@@ -579,11 +587,19 @@ let () =
   Any.register ~service:election_draft_description
     (fun uuid (name, description) ->
       with_draft_election uuid (fun se ->
-          se.se_questions <- {se.se_questions with
-                               t_name = name;
-                               t_description = description;
-                             };
-          redir_preapply election_draft uuid ()
+          if PString.length name > max_election_name_size then (
+            let msg =
+              Printf.sprintf "The election name must be %d bytes or less!"
+                max_election_name_size
+            in
+            T.generic_page ~title:"Error" msg () >>= Html.send
+          ) else (
+            se.se_questions <- {se.se_questions with
+                                 t_name = name;
+                                 t_description = description;
+                               };
+            redir_preapply election_draft uuid ()
+          )
         )
     )
 
@@ -863,11 +879,13 @@ let () =
     )
 
 let () =
-  Html.register ~service:election_draft_credentials
+  Any.register ~service:election_draft_credentials
     (fun (uuid, token) () ->
-      match%lwt Web_persist.get_draft_election uuid with
-      | None -> fail_http 404
-      | Some se -> T.election_draft_credentials token uuid se ()
+      without_site_user (fun () ->
+          match%lwt Web_persist.get_draft_election uuid with
+          | None -> fail_http 404
+          | Some se -> T.election_draft_credentials token uuid se () >>= Html.send
+        )
     )
 
 let wrap_handler f =
@@ -917,14 +935,20 @@ let handle_credentials_post uuid token creds =
 let () =
   Any.register ~service:election_draft_credentials_post
     (fun (uuid, token) creds ->
-     let s = Lwt_stream.of_string creds in
-     wrap_handler (fun () -> handle_credentials_post uuid token s))
+      without_site_user (fun () ->
+          let s = Lwt_stream.of_string creds in
+          wrap_handler (fun () -> handle_credentials_post uuid token s)
+        )
+    )
 
 let () =
   Any.register ~service:election_draft_credentials_post_file
     (fun (uuid, token) creds ->
-     let s = Lwt_io.chars_of_file creds.Ocsigen_extensions.tmp_filename in
-     wrap_handler (fun () -> handle_credentials_post uuid token s))
+      without_site_user (fun () ->
+          let s = Lwt_io.chars_of_file creds.Ocsigen_extensions.tmp_filename in
+          wrap_handler (fun () -> handle_credentials_post uuid token s)
+        )
+    )
 
 module CG = Credential.MakeGenerate (LwtRandom)
 
@@ -1002,39 +1026,45 @@ let () =
     )
 
 let () =
-  Html.register ~service:election_draft_trustee
+  Any.register ~service:election_draft_trustee
     (fun (uuid, token) () ->
-      match%lwt Web_persist.get_draft_election uuid with
-      | None -> fail_http 404
-      | Some se -> T.election_draft_trustee token uuid se ()
+      without_site_user (fun () ->
+          match%lwt Web_persist.get_draft_election uuid with
+          | None -> fail_http 404
+          | Some se -> T.election_draft_trustee token uuid se () >>= Html.send
+        )
     )
 
 let () =
   Any.register ~service:election_draft_trustee_post
     (fun (uuid, token) public_key ->
-     if token = "" then forbidden () else
-     wrap_handler
-       (fun () ->
-         let%lwt () =
-           Lwt_mutex.with_lock election_draft_mutex
-             (fun () ->
-               match%lwt Web_persist.get_draft_election uuid with
-               | None -> fail_http 404
-               | Some se ->
-                  let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
-                  let module G = (val Group.of_string se.se_group : GROUP) in
-                  let pk = trustee_public_key_of_string G.read public_key in
-                  let module KG = Trustees.MakeSimple (G) (LwtRandom) in
-                  if not (KG.check pk) then failwith "invalid public key";
-                  (* we keep pk as a string because of G.t *)
-                  t.st_public_key <- public_key;
-                  Web_persist.set_draft_election uuid se
-             )
-         in
-         T.generic_page ~title:"Success"
-           "Your key has been received and checked!"
-           () >>= Html.send
-       )
+      without_site_user (fun () ->
+          if token = "" then
+            forbidden ()
+          else
+            wrap_handler
+              (fun () ->
+                let%lwt () =
+                  Lwt_mutex.with_lock election_draft_mutex
+                    (fun () ->
+                      match%lwt Web_persist.get_draft_election uuid with
+                      | None -> fail_http 404
+                      | Some se ->
+                         let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
+                         let module G = (val Group.of_string se.se_group : GROUP) in
+                         let pk = trustee_public_key_of_string G.read public_key in
+                         let module KG = Trustees.MakeSimple (G) (LwtRandom) in
+                         if not (KG.check pk) then failwith "invalid public key";
+                         (* we keep pk as a string because of G.t *)
+                         t.st_public_key <- public_key;
+                         Web_persist.set_draft_election uuid se
+                    )
+                in
+                T.generic_page ~title:"Success"
+                  "Your key has been received and checked!"
+                  () >>= Html.send
+              )
+        )
     )
 
 let () =
@@ -2142,17 +2172,22 @@ let () =
     )
 
 let () =
-  Html.register ~service:election_draft_threshold_trustee
+  Any.register ~service:election_draft_threshold_trustee
     (fun (uuid, token) () ->
-      match%lwt Web_persist.get_draft_election uuid with
-      | None -> fail_http 404
-      | Some se -> T.election_draft_threshold_trustee token uuid se ()
+      without_site_user (fun () ->
+          match%lwt Web_persist.get_draft_election uuid with
+          | None -> fail_http 404
+          | Some se -> T.election_draft_threshold_trustee token uuid se () >>= Html.send
+        )
     )
+
+let wrap_handler_without_site_user f =
+  without_site_user (fun () -> wrap_handler f)
 
 let () =
   Any.register ~service:election_draft_threshold_trustee_post
     (fun (uuid, token) data ->
-      wrap_handler
+      wrap_handler_without_site_user
         (fun () ->
           let%lwt () =
             Lwt_mutex.with_lock election_draft_mutex
