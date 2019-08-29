@@ -7,7 +7,7 @@ import sys
 from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_an_element_with_partial_link_text_exists, wait_for_element_exists_and_has_non_empty_attribute, wait_for_element_exists_and_contains_expected_text
-from util.election_testing import console_log, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator
+from util.election_testing import console_log, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out
 from util.election_test_base import BeleniosElectionTestBase
 import settings
 
@@ -69,9 +69,15 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
 
         wait_a_bit()
 
-        # She clicks on the "Shuffle link" link
+        # She looks for the "Shuffle link" link
         shuffle_element = wait_for_element_exists(browser, "#shuffle-link", settings.EXPLICIT_WAIT_TIMEOUT)
-        shuffle_element.click()
+        shuffle_link = shuffle_element.get_attribute("href")
+        console_log("Shuffle link is " + shuffle_link);
+
+        # She logs out and goes to the shuffle link
+        log_out(browser)
+        wait_a_bit()
+        browser.get(shuffle_link)
 
         wait_a_bit()
 
@@ -98,6 +104,9 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
         administration_link_label = "Administer this election"
         administration_link_element = wait_for_an_element_with_partial_link_text_exists(browser, administration_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
         administration_link_element.click()
+
+        # She logs in as administrator
+        log_in_as_administrator(browser, from_a_login_page=True)
 
         # She clicks on the "Proceed to decryption" button
         decrypt_button_label = "Proceed to decryption"

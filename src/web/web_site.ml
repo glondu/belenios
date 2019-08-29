@@ -2027,27 +2027,31 @@ let () =
 let () =
   Any.register ~service:election_shuffle_link
     (fun (uuid, token) () ->
-      let%lwt expected_token = Web_persist.get_shuffle_token uuid in
-      if token = expected_token then (
-        let%lwt election = find_election uuid in
-        T.shuffle election token >>= Html.send
-      ) else forbidden ()
+      without_site_user (fun () ->
+          let%lwt expected_token = Web_persist.get_shuffle_token uuid in
+          if token = expected_token then (
+            let%lwt election = find_election uuid in
+            T.shuffle election token >>= Html.send
+          ) else forbidden ()
+        )
     )
 
 let () =
   Any.register ~service:election_shuffle_post
     (fun (uuid, token) shuffle ->
-      let%lwt expected_token = Web_persist.get_shuffle_token uuid in
-      if token = expected_token then (
-        match%lwt Web_persist.append_to_shuffles uuid shuffle with
-        | true ->
-           let%lwt () = Web_persist.clear_shuffle_token uuid in
-           T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
-        | false ->
-           T.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send
-        | exception e ->
-           T.generic_page ~title:"Error" (Printf.sprintf "Data is invalid! (%s)" (Printexc.to_string e)) () >>= Html.send
-      ) else forbidden ()
+      without_site_user (fun () ->
+          let%lwt expected_token = Web_persist.get_shuffle_token uuid in
+          if token = expected_token then (
+            match%lwt Web_persist.append_to_shuffles uuid shuffle with
+            | true ->
+               let%lwt () = Web_persist.clear_shuffle_token uuid in
+               T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
+            | false ->
+               T.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send
+            | exception e ->
+               T.generic_page ~title:"Error" (Printf.sprintf "Data is invalid! (%s)" (Printexc.to_string e)) () >>= Html.send
+          ) else forbidden ()
+        )
     )
 
 let () =
