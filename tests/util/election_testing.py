@@ -495,10 +495,10 @@ def administrator_edits_election_questions(browser, nh_question=False):
     wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
     if nh_question:
-        # She unchecks "Homomorphic tally"
-        htally_css_selector = ".homomorphic_tally"
-        htally_checkbox_element = browser.find_element_by_css_selector(htally_css_selector)
-        htally_checkbox_element.click()
+        # She checks "Non homomorphic tally"
+        nhtally_css_selector = ".nonhomomorphic_tally"
+        nhtally_checkbox_element = browser.find_element_by_css_selector(nhtally_css_selector)
+        nhtally_checkbox_element.click()
 
     # She removes answer 3
     question_to_remove = 3

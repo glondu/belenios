@@ -201,26 +201,26 @@ let rec createQuestionDiv question answers props =
   let x = Dom_html.createDiv document in
   Dom.appendChild container x;
   let cb_type = Dom_html.createInput ~_type:(Js.string "checkbox") document in
-  cb_type##.className := Js.string "homomorphic_tally";
+  cb_type##.className := Js.string "nonhomomorphic_tally";
   (match props with
    | Some _ ->
       Dom.appendChild container prop_div_h;
-      cb_type##.checked := Js._true
+      cb_type##.checked := Js._false
    | None ->
       Dom.appendChild container prop_div_nh;
-      cb_type##.checked := Js._false
+      cb_type##.checked := Js._true
   );
   let f _ =
     if Js.to_bool cb_type##.checked then
-      Dom.replaceChild container prop_div_h prop_div_nh
-    else
       Dom.replaceChild container prop_div_nh prop_div_h
+    else
+      Dom.replaceChild container prop_div_h prop_div_nh
   in
   cb_type##.onchange := handler f;
   if not (Js.to_bool (Js.Unsafe.pure_js_expr "allow_nh")) then
     cb_type##.disabled := Js._true;
   Dom.appendChild x cb_type;
-  Dom.appendChild x (document##createTextNode (Js.string "Homomorphic tally"));
+  Dom.appendChild x (document##createTextNode (Js.string "Non homomorphic tally (experimental)"));
   (* answers *)
   let h_answers = Dom_html.createDiv document in
   h_answers##.className := Js.string "question_answers";
