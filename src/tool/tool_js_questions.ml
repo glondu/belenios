@@ -67,10 +67,10 @@ let extractQuestion q =
      if (q_max > Array.length q_answers) then
        failwith "Maximum number of choices is greater than number of choices!";
      let open Question_h_t in
-     return (Question.Standard {q_question; q_blank; q_min; q_max; q_answers})
+     return (Question.Homomorphic {q_question; q_blank; q_min; q_max; q_answers})
   | None ->
      let open Question_nh_t in
-     return (Question.Open {q_question; q_answers})
+     return (Question.NonHomomorphic {q_question; q_answers})
 
 let extractTemplate () =
   let t_name = get_input "election_name" in
@@ -122,7 +122,7 @@ let rec createAnswer a =
   Dom.appendChild container insert_btn;
   container
 
-let createStdQuestionPropDiv min max blank =
+let createHomomorphicQuestionPropDiv min max blank =
   let container = Dom_html.createDiv document in
   let x = Dom_html.createDiv document in
   let t = document##createTextNode (Js.string "The voter has to choose between ") in
@@ -195,7 +195,7 @@ let rec createQuestionDiv question answers props =
       | Some x -> x
       | None -> default_props
     in
-    createStdQuestionPropDiv min max blank
+    createHomomorphicQuestionPropDiv min max blank
   in
   let prop_div_nh = Dom_html.createDiv document in
   let x = Dom_html.createDiv document in
@@ -251,10 +251,10 @@ let rec createQuestionDiv question answers props =
 let createQuestion q =
   let question, answers, props =
     match q with
-    | Question.Standard q ->
+    | Question.Homomorphic q ->
        let open Question_h_t in
        q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max)
-    | Question.Open q ->
+    | Question.NonHomomorphic q ->
        let open Question_nh_t in
        q.q_question, q.q_answers, None
   in
@@ -304,7 +304,7 @@ let createTemplate template =
   let t = document##createTextNode (Js.string "Add a question") in
   let f _ =
     let open Question_h_t in
-    let x = createQuestion (Question.Standard {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]}) in
+    let x = createQuestion (Question.Homomorphic {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]}) in
     Dom.appendChild h_questions_div x
   in
   b##.onclick := handler f;

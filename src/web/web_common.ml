@@ -413,8 +413,8 @@ let unwebize_trustee_public_key pk =
 let get_suitable_group_kind {t_questions; _} =
   let group = ref `H in
   Array.iter (function
-      | Question.Open _ -> group := `NH
-      | Question.Standard _ -> ()
+      | Question.NonHomomorphic _ -> group := `NH
+      | Question.Homomorphic _ -> ()
     ) t_questions;
   !group
 
@@ -438,7 +438,7 @@ let default_questions =
       q_question = "Question 1?";
     }
   in
-  [| Question.Standard question |]
+  [| Question.Homomorphic question |]
 
 let default_name = "Name of the election"
 let default_description = "Description of the election."

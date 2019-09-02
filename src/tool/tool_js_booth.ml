@@ -54,7 +54,7 @@ let progress_step n =
     new_##.style##.fontWeight := Js.string "bold"
   in ()
 
-let appendStdQuestion div num_questions i q answers =
+let appendHomomorphicQuestion div num_questions i q answers =
   let open Question_h_t in
   let () =
     let c = Dom_html.createH2 document in
@@ -138,7 +138,7 @@ let appendStdQuestion div num_questions i q answers =
   in
   check_constraints
 
-let appendOpenQuestion div q answers =
+let appendNonHomomorphicQuestion div q answers =
   let open Question_nh_t in
   let () =
     let c = Dom_html.createH2 document in
@@ -203,7 +203,7 @@ let appendOpenQuestion div q answers =
   in
   check_constraints
 
-let appendStdSummary e a q =
+let appendHomomorphicSummary e a q =
   let open Question_h_t in
   let h = Dom_html.createH3 document in
   let t = document##createTextNode (Js.string q.q_question) in
@@ -230,7 +230,7 @@ let appendStdSummary e a q =
   );
   Dom.appendChild e ul
 
-let appendOpenSummary e a q =
+let appendNonHomomorphicSummary e a q =
   let open Question_nh_t in
   let h = Dom_html.createH3 document in
   let t = document##createTextNode (Js.string q.q_question) in
@@ -253,8 +253,8 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
   let div = Dom_html.createDiv document in
   let check_constraints =
     match q with
-    | Question.Standard q -> appendStdQuestion div num_questions i q answers
-    | Question.Open q -> appendOpenQuestion div q answers
+    | Question.Homomorphic q -> appendHomomorphicQuestion div num_questions i q answers
+    | Question.NonHomomorphic q -> appendNonHomomorphicQuestion div q answers
   in
   let () =
     (* previous button *)
@@ -298,8 +298,8 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
             document##getElementById (Js.string "pretty_choices") >>== fun e ->
             Array.iteri (fun i a ->
                 match all_questions.(i) with
-                | Question.Standard q -> appendStdSummary e a q
-                | Question.Open q -> appendOpenSummary e a q
+                | Question.Homomorphic q -> appendHomomorphicSummary e a q
+                | Question.NonHomomorphic q -> appendNonHomomorphicSummary e a q
               ) all_answers
           in
           Lwt_js_events.async (encryptBallot params sk all_answers);
@@ -336,8 +336,8 @@ let addQuestions sk params qs =
     Array.to_list qs |>
       List.map (fun q ->
           match q with
-          | Question.Standard x -> q, Array.make (Question_h.question_length x) 0
-          | Question.Open x -> q, Array.make (Array.length x.Question_nh_t.q_answers) 0
+          | Question.Homomorphic x -> q, Array.make (Question_h.question_length x) 0
+          | Question.NonHomomorphic x -> q, Array.make (Array.length x.Question_nh_t.q_answers) 0
         )
   in
   match qs with

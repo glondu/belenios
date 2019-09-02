@@ -1659,7 +1659,7 @@ let rec list_concat elt = function
 let format_question_result l q r =
   let module L = (val l : Web_i18n_sig.LocalizedStrings) in
   match q with
-  | Question.Standard x ->
+  | Question.Homomorphic x ->
      let r = Shape.to_array r in
      let open Question_h_t in
      let answers = Array.to_list x.q_answers in
@@ -1684,12 +1684,12 @@ let format_question_result l q r =
          pcdata x.q_question;
          answers;
        ]
-  | Question.Open x ->
+  | Question.NonHomomorphic x ->
      let open Question_nh_t in
      li [
          pcdata x.q_question;
          pcdata " ";
-         em [pcdata "(open)"];
+         em [pcdata "(non-homomorphic)"];
        ]
 
 let election_home election state () =

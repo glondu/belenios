@@ -22,8 +22,8 @@
 open Signatures_core
 
 type question =
-  | Standard of Question_h_t.question
-  | Open of Question_nh_t.question
+  | Homomorphic of Question_h_t.question
+  | NonHomomorphic of Question_nh_t.question
 
 let read_question l b =
   let x = Yojson.Safe.read_json l b in
@@ -31,11 +31,11 @@ let read_question l b =
   | `Assoc o ->
      (match List.assoc_opt "type" o with
       | None ->
-         Standard (Question_h_j.question_of_string (Yojson.Safe.to_string x))
-      | Some (`String "open") ->
+         Homomorphic (Question_h_j.question_of_string (Yojson.Safe.to_string x))
+      | Some (`String "NonHomomorphic") ->
          (match List.assoc_opt "value" o with
           | None -> failwith "Question.read_question: value is missing"
-          | Some v -> Open (Question_nh_j.question_of_string (Yojson.Safe.to_string v))
+          | Some v -> NonHomomorphic (Question_nh_j.question_of_string (Yojson.Safe.to_string v))
          )
       | Some _ ->
          failwith "Question.read_question: unexpected type"
@@ -43,28 +43,28 @@ let read_question l b =
   | _ -> failwith "Question.read_question: unexpected JSON value"
 
 let write_question b = function
-  | Standard q -> Question_h_j.write_question b q
-  | Open q ->
+  | Homomorphic q -> Question_h_j.write_question b q
+  | NonHomomorphic q ->
      let o = [
-         "type", `String "open";
+         "type", `String "NonHomomorphic";
          "value", Yojson.Safe.from_string (Question_nh_j.string_of_question q);
        ]
      in
      Yojson.Safe.write_json b (`Assoc o)
 
 let erase_question = function
-  | Standard q ->
+  | Homomorphic q ->
      let open Question_h_t in
-     Standard {
+     Homomorphic {
          q_answers = Array.map (fun _ -> "") q.q_answers;
          q_blank = q.q_blank;
          q_min = q.q_min;
          q_max = q.q_max;
          q_question = "";
        }
-  | Open q ->
+  | NonHomomorphic q ->
      let open Question_nh_t in
-     Open {
+     NonHomomorphic {
          q_answers = Array.map (fun _ -> "") q.q_answers;
          q_question = "";
        }
@@ -72,19 +72,19 @@ let erase_question = function
 module Make (M : RANDOM) (G : GROUP) = struct
   let ( >>= ) = M.bind
 
-  module QStandard = Question_h.Make (M) (G)
-  module QOpen = Question_nh.Make (M) (G)
+  module QHomomorphic = Question_h.Make (M) (G)
+  module QNonHomomorphic = Question_nh.Make (M) (G)
 
   let create_answer q ~public_key ~prefix m =
     match q with
-    | Standard q ->
-       QStandard.create_answer q ~public_key ~prefix m >>= fun answer ->
+    | Homomorphic q ->
+       QHomomorphic.create_answer q ~public_key ~prefix m >>= fun answer ->
        answer
        |> Question_h_j.string_of_answer G.write
        |> Yojson.Safe.from_string
        |> M.return
-    | Open q ->
-       QOpen.create_answer q ~public_key ~prefix m >>= fun answer ->
+    | NonHomomorphic q ->
+       QNonHomomorphic.create_answer q ~public_key ~prefix m >>= fun answer ->
        answer
        |> Question_nh_j.string_of_answer G.write
        |> Yojson.Safe.from_string
@@ -92,44 +92,44 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let verify_answer q ~public_key ~prefix a =
     match q with
-    | Standard q ->
+    | Homomorphic q ->
        a
        |> Yojson.Safe.to_string
        |> Question_h_j.answer_of_string G.read
-       |> QStandard.verify_answer q ~public_key ~prefix
-    | Open q ->
+       |> QHomomorphic.verify_answer q ~public_key ~prefix
+    | NonHomomorphic q ->
        a
        |> Yojson.Safe.to_string
        |> Question_nh_j.answer_of_string G.read
-       |> QOpen.verify_answer q ~public_key ~prefix
+       |> QNonHomomorphic.verify_answer q ~public_key ~prefix
 
   let extract_ciphertexts q a =
     match q with
-    | Standard q ->
+    | Homomorphic q ->
        a
        |> Yojson.Safe.to_string
        |> Question_h_j.answer_of_string G.read
-       |> QStandard.extract_ciphertexts q
-    | Open q ->
+       |> QHomomorphic.extract_ciphertexts q
+    | NonHomomorphic q ->
        a
        |> Yojson.Safe.to_string
        |> Question_nh_j.answer_of_string G.read
-       |> QOpen.extract_ciphertexts q
+       |> QNonHomomorphic.extract_ciphertexts q
 
   let process_ciphertexts q e =
     match q with
-    | Standard q -> QStandard.process_ciphertexts q e
-    | Open q -> QOpen.process_ciphertexts q e
+    | Homomorphic q -> QHomomorphic.process_ciphertexts q e
+    | NonHomomorphic q -> QNonHomomorphic.process_ciphertexts q e
 
   let compute_result ~num_tallied =
-    let compute_std = lazy (QStandard.compute_result ~num_tallied) in
+    let compute_h = lazy (QHomomorphic.compute_result ~num_tallied) in
     fun q x ->
     match q with
-    | Standard q -> Lazy.force compute_std q x
-    | Open q -> QOpen.compute_result ~num_tallied q x
+    | Homomorphic q -> Lazy.force compute_h q x
+    | NonHomomorphic q -> QNonHomomorphic.compute_result ~num_tallied q x
 
   let check_result q x r =
     match q with
-    | Standard q -> QStandard.check_result q x r
-    | Open q -> QOpen.check_result q x r
+    | Homomorphic q -> QHomomorphic.check_result q x r
+    | NonHomomorphic q -> QNonHomomorphic.check_result q x r
 end

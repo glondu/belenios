@@ -49,8 +49,8 @@ let get_group x =
 
 let has_nh_questions e =
   Array.exists (function
-      | Question.Open _ -> true
-      | Question.Standard _ -> false
+      | Question.NonHomomorphic _ -> true
+      | Question.Homomorphic _ -> false
     ) e.e_params.e_questions
 
 let check_modulo p x = Z.(geq x zero && lt x p)
@@ -176,8 +176,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let rec loop i accu =
       if i >= 0 then (
         match election.e_params.e_questions.(i) with
-        | Question.Standard _ -> loop (i-1) accu
-        | Question.Open _ -> loop (i-1) (Shape.to_array x.(i) :: accu)
+        | Question.Homomorphic _ -> loop (i-1) accu
+        | Question.NonHomomorphic _ -> loop (i-1) (Shape.to_array x.(i) :: accu)
       ) else Array.of_list accu
     in
     loop (Array.length x - 1) []
@@ -188,8 +188,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let rec loop i j =
       if i < n && j < m then (
         match election.e_params.e_questions.(i) with
-        | Question.Standard _ -> loop (i+1) j
-        | Question.Open _ ->
+        | Question.Homomorphic _ -> loop (i+1) j
+        | Question.NonHomomorphic _ ->
            x.(i) <- Shape.of_array cc.(j);
            loop (i+1) (j+1)
       ) else (

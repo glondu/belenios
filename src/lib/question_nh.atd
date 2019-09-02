@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-<doc text="Serializable datatypes for open questions">
+<doc text="Serializable datatypes for non-homomorphic questions">
 
 (** {2 Predefined types} *)
 

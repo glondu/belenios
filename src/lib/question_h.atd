@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-<doc text="Serializable datatypes for standard questions">
+<doc text="Serializable datatypes for homomorphic questions">
 
 (** {2 Predefined types} *)
 
