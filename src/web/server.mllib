@@ -3,10 +3,10 @@ src/platform/native/Platform
 Serializable_builtin_t
 Serializable_builtin_j
 Serializable_core_j
-Question_std_j
-Question_std
-Question_open_j
-Question_open
+Question_h_j
+Question_h
+Question_nh_j
+Question_nh
 Question
 Serializable_j
 Common

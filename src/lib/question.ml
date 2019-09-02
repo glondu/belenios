@@ -22,8 +22,8 @@
 open Signatures_core
 
 type question =
-  | Standard of Question_std_t.question
-  | Open of Question_open_t.question
+  | Standard of Question_h_t.question
+  | Open of Question_nh_t.question
 
 let read_question l b =
   let x = Yojson.Safe.read_json l b in
@@ -31,11 +31,11 @@ let read_question l b =
   | `Assoc o ->
      (match List.assoc_opt "type" o with
       | None ->
-         Standard (Question_std_j.question_of_string (Yojson.Safe.to_string x))
+         Standard (Question_h_j.question_of_string (Yojson.Safe.to_string x))
       | Some (`String "open") ->
          (match List.assoc_opt "value" o with
           | None -> failwith "Question.read_question: value is missing"
-          | Some v -> Open (Question_open_j.question_of_string (Yojson.Safe.to_string v))
+          | Some v -> Open (Question_nh_j.question_of_string (Yojson.Safe.to_string v))
          )
       | Some _ ->
          failwith "Question.read_question: unexpected type"
@@ -43,18 +43,18 @@ let read_question l b =
   | _ -> failwith "Question.read_question: unexpected JSON value"
 
 let write_question b = function
-  | Standard q -> Question_std_j.write_question b q
+  | Standard q -> Question_h_j.write_question b q
   | Open q ->
      let o = [
          "type", `String "open";
-         "value", Yojson.Safe.from_string (Question_open_j.string_of_question q);
+         "value", Yojson.Safe.from_string (Question_nh_j.string_of_question q);
        ]
      in
      Yojson.Safe.write_json b (`Assoc o)
 
 let erase_question = function
   | Standard q ->
-     let open Question_std_t in
+     let open Question_h_t in
      Standard {
          q_answers = Array.map (fun _ -> "") q.q_answers;
          q_blank = q.q_blank;
@@ -63,7 +63,7 @@ let erase_question = function
          q_question = "";
        }
   | Open q ->
-     let open Question_open_t in
+     let open Question_nh_t in
      Open {
          q_answers = Array.map (fun _ -> "") q.q_answers;
          q_question = "";
@@ -72,21 +72,21 @@ let erase_question = function
 module Make (M : RANDOM) (G : GROUP) = struct
   let ( >>= ) = M.bind
 
-  module QStandard = Question_std.Make (M) (G)
-  module QOpen = Question_open.Make (M) (G)
+  module QStandard = Question_h.Make (M) (G)
+  module QOpen = Question_nh.Make (M) (G)
 
   let create_answer q ~public_key ~prefix m =
     match q with
     | Standard q ->
        QStandard.create_answer q ~public_key ~prefix m >>= fun answer ->
        answer
-       |> Question_std_j.string_of_answer G.write
+       |> Question_h_j.string_of_answer G.write
        |> Yojson.Safe.from_string
        |> M.return
     | Open q ->
        QOpen.create_answer q ~public_key ~prefix m >>= fun answer ->
        answer
-       |> Question_open_j.string_of_answer G.write
+       |> Question_nh_j.string_of_answer G.write
        |> Yojson.Safe.from_string
        |> M.return
 
@@ -95,12 +95,12 @@ module Make (M : RANDOM) (G : GROUP) = struct
     | Standard q ->
        a
        |> Yojson.Safe.to_string
-       |> Question_std_j.answer_of_string G.read
+       |> Question_h_j.answer_of_string G.read
        |> QStandard.verify_answer q ~public_key ~prefix
     | Open q ->
        a
        |> Yojson.Safe.to_string
-       |> Question_open_j.answer_of_string G.read
+       |> Question_nh_j.answer_of_string G.read
        |> QOpen.verify_answer q ~public_key ~prefix
 
   let extract_ciphertexts q a =
@@ -108,12 +108,12 @@ module Make (M : RANDOM) (G : GROUP) = struct
     | Standard q ->
        a
        |> Yojson.Safe.to_string
-       |> Question_std_j.answer_of_string G.read
+       |> Question_h_j.answer_of_string G.read
        |> QStandard.extract_ciphertexts q
     | Open q ->
        a
        |> Yojson.Safe.to_string
-       |> Question_open_j.answer_of_string G.read
+       |> Question_nh_j.answer_of_string G.read
        |> QOpen.extract_ciphertexts q
 
   let process_ciphertexts q e =

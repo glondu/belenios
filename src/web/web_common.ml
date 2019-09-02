@@ -429,7 +429,7 @@ let is_group_fixed se =
 let default_contact = "Name <user@example.org>"
 
 let default_questions =
-  let open Question_std_t in
+  let open Question_h_t in
   let question = {
       q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
       q_blank = None;

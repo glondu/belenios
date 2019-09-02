@@ -24,7 +24,7 @@ open Common
 open Signatures_core
 open Serializable_builtin_t
 open Serializable_core_t
-open Question_std_t
+open Question_h_t
 
 (** Helper functions *)
 

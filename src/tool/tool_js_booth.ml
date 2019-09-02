@@ -55,7 +55,7 @@ let progress_step n =
   in ()
 
 let appendStdQuestion div num_questions i q answers =
-  let open Question_std_t in
+  let open Question_h_t in
   let () =
     let c = Dom_html.createH2 document in
     let t = document##createTextNode (Js.string q.q_question) in
@@ -139,7 +139,7 @@ let appendStdQuestion div num_questions i q answers =
   check_constraints
 
 let appendOpenQuestion div q answers =
-  let open Question_open_t in
+  let open Question_nh_t in
   let () =
     let c = Dom_html.createH2 document in
     let t = document##createTextNode (Js.string q.q_question) in
@@ -204,7 +204,7 @@ let appendOpenQuestion div q answers =
   check_constraints
 
 let appendStdSummary e a q =
-  let open Question_std_t in
+  let open Question_h_t in
   let h = Dom_html.createH3 document in
   let t = document##createTextNode (Js.string q.q_question) in
   Dom.appendChild h t;
@@ -231,7 +231,7 @@ let appendStdSummary e a q =
   Dom.appendChild e ul
 
 let appendOpenSummary e a q =
-  let open Question_open_t in
+  let open Question_nh_t in
   let h = Dom_html.createH3 document in
   let t = document##createTextNode (Js.string q.q_question) in
   Dom.appendChild h t;
@@ -336,8 +336,8 @@ let addQuestions sk params qs =
     Array.to_list qs |>
       List.map (fun q ->
           match q with
-          | Question.Standard x -> q, Array.make (Question_std.question_length x) 0
-          | Question.Open x -> q, Array.make (Array.length x.Question_open_t.q_answers) 0
+          | Question.Standard x -> q, Array.make (Question_h.question_length x) 0
+          | Question.Open x -> q, Array.make (Array.length x.Question_nh_t.q_answers) 0
         )
   in
   match qs with

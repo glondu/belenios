@@ -66,10 +66,10 @@ let extractQuestion q =
        failwith "Maximum number of choices must be greater than 0!";
      if (q_max > Array.length q_answers) then
        failwith "Maximum number of choices is greater than number of choices!";
-     let open Question_std_t in
+     let open Question_h_t in
      return (Question.Standard {q_question; q_blank; q_min; q_max; q_answers})
   | None ->
-     let open Question_open_t in
+     let open Question_nh_t in
      return (Question.Open {q_question; q_answers})
 
 let extractTemplate () =
@@ -252,10 +252,10 @@ let createQuestion q =
   let question, answers, props =
     match q with
     | Question.Standard q ->
-       let open Question_std_t in
+       let open Question_h_t in
        q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max)
     | Question.Open q ->
-       let open Question_open_t in
+       let open Question_nh_t in
        q.q_question, q.q_answers, None
   in
   createQuestionDiv question answers props
@@ -303,7 +303,7 @@ let createTemplate template =
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add a question") in
   let f _ =
-    let open Question_std_t in
+    let open Question_h_t in
     let x = createQuestion (Question.Standard {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]}) in
     Dom.appendChild h_questions_div x
   in

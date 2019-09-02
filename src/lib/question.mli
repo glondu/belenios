@@ -22,8 +22,8 @@
 open Signatures_core
 
 type question =
-  | Standard of Question_std_t.question
-  | Open of Question_open_t.question
+  | Standard of Question_h_t.question
+  | Open of Question_nh_t.question
 
 val read_question : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question
 val write_question : Bi_outbuf.t -> question -> unit

@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Signatures_core
-open Question_open_t
+open Question_nh_t
 
 module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
        with type 'a m := 'a M.t

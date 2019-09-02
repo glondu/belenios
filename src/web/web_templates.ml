@@ -1661,7 +1661,7 @@ let format_question_result l q r =
   match q with
   | Question.Standard x ->
      let r = Shape.to_array r in
-     let open Question_std_t in
+     let open Question_h_t in
      let answers = Array.to_list x.q_answers in
      let answers = match x.q_blank with
        | Some true -> L.blank_vote :: answers
@@ -1685,7 +1685,7 @@ let format_question_result l q r =
          answers;
        ]
   | Question.Open x ->
-     let open Question_open_t in
+     let open Question_nh_t in
      li [
          pcdata x.q_question;
          pcdata " ";

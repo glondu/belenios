@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Signatures_core
-open Question_std_t
+open Question_h_t
 
 val question_length : question -> int
 

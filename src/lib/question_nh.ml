@@ -23,7 +23,7 @@ open Platform
 open Signatures_core
 open Serializable_builtin_t
 open Serializable_core_t
-open Question_open_t
+open Question_nh_t
 
 let check_modulo p x = Z.(geq x zero && lt x p)
 
@@ -61,7 +61,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     | SAtomic x, SAtomic y ->
        let c = G.compare x.alpha y.alpha in
        if c = 0 then G.compare x.beta y.beta else c
-    | _, _ -> invalid_arg "Question_open.compare_ciphertexts"
+    | _, _ -> invalid_arg "Question_nh.compare_ciphertexts"
 
   let process_ciphertexts _ es =
     Array.fast_sort compare_ciphertexts es;
