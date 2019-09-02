@@ -41,7 +41,7 @@ belenios-tool trustee-keygen $group
 cat *.pubkey > public_keys.jsons
 
 # Generate election parameters
-belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/questions-open.json
+belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/questions-nh.json
 
 header "Simulate votes"
 
