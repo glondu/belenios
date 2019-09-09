@@ -443,7 +443,7 @@ let create_new_election owner cred auth =
 let () = Html.register ~service:election_draft_pre
   (fun () () -> T.election_draft_pre ())
 
-let http_rex = "^https?://[a-z/.-]+$"
+let http_rex = "^https?://[a-z0-9/.-]+$"
 
 let is_http_url =
   let rex = Pcre.regexp ~flags:[`CASELESS] http_rex in
