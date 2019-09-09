@@ -47,6 +47,13 @@ variable, or it will take `~/.belenios` by default. Just run:
 On a modern desktop system, this needs approximately 20 minutes and 2.6
 gigabytes of disk space.
 
+If you intend to communicate the source files of belenios on your web server,
+like in the example provided, you will need an archive file belenios.tar.gz.
+You can make one from the current directory by issueing the following command
+before any other make command.
+
+    make archive
+
 If everything goes successfully, follow the given instructions to
 update your shell environment, then run:
 
