@@ -74,8 +74,8 @@ Verifications all along the process is done using command line tools `belenios-t
     - Administrator logs in and goes to the election draft page
     - In the "Trustees" section, she clicks on the "here" link
     - She clicks on the "threshold mode" link
-    - In the field next to "Threshold:", she types `U`, and clicks on the "Set" button
     - She adds `T` trustees (their email address), and remembers the link she will send to each trustee
+    - In the field next to "Threshold:", she types `U`, and clicks on the "Set" button
     - (She checks that in the table, the "STATE" column is "1a" on every row)
     - She sends to each trustee an email containing their own link
     - She logs out and closes the window
