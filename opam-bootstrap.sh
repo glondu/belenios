@@ -34,11 +34,11 @@ fi
 mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
 
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-wget https://github.com/ocaml/opam/releases/download/2.0.0/opam-full-2.0.0.tar.gz
+wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-full-2.0.5.tar.gz
 
 if which sha256sum >/dev/null; then
 sha256sum --check <<EOF
-9dad4fcb4f53878c9daa6285d8456ccc671e21bfa71544d1f926fb8a63bfed25  opam-full-2.0.0.tar.gz
+776c7e64d6e24c2ef1efd1e6a71d36e007645efae94eaf860c05c1929effc76f  opam-full-2.0.5.tar.gz
 EOF
 else
     echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
@@ -50,8 +50,8 @@ echo
 echo "=-=-= Compilation and installation of OPAM =-=-="
 echo
 cd "$BELENIOS_SYSROOT/bootstrap/src"
-tar -xzf opam-full-2.0.0.tar.gz
-cd opam-full-2.0.0
+tar -xzf opam-full-2.0.5.tar.gz
+cd opam-full-2.0.5
 make cold CONFIGURE_ARGS="--prefix $BELENIOS_SYSROOT/bootstrap"
 make cold-install LIBINSTALL_DIR="$BELENIOS_SYSROOT/bootstrap/lib/ocaml"
 

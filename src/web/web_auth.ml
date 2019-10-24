@@ -38,8 +38,8 @@ let run_post_login_handler auth_system f =
   match%lwt Eliom_reference.get auth_env with
   | None -> Printf.ksprintf failwith "%s handler was invoked without environment" auth_system
   | Some (uuid, a, cont) ->
-     let%lwt () = Eliom_reference.unset auth_env in
      let authenticate name =
+       let%lwt () = Eliom_reference.unset auth_env in
        let user = { user_domain = a.auth_instance; user_name = name } in
        match uuid with
        | None -> Eliom_reference.set Web_state.site_user (Some user)
