@@ -345,7 +345,10 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
   \right\}
 \end{gather*}
 
-A private key is a random number $x$ modulo $q$. The corresponding
+A private key is a number $x$ modulo $q$, chosen at random in the
+basic decryption mode, and computed after several interactions in the
+threshold mode.
+The corresponding
 $\pklabel$ is $X=g^x$. A $\tpk$ is a bundle of this public key with a
 \hyperref[common]{$\proof$} of knowledge computed as follows:
 \begin{enumerate}
@@ -622,7 +625,8 @@ Trustee $\mathcal{T}_j$ fills $\textsf{vo}_j$ as follows:
   \]
 \item \textsf{public\_key} is set to a
   \hyperref[trustee-keys]{\texttt{trustee\_public\_key}} structure
-  built using $S_j$ as private key.
+  built using $S_j$ as private key, which computes the corresponding
+  public key and a proof of knowledge of $S_j$.
 \end{itemize}
 The administrator checks $\textsf{vo}_j$ as follows:
 \begin{itemize}
