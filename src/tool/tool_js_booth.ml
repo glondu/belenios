@@ -253,10 +253,10 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
      answers)] point to the current question. [List.rev prev @ [q,
      answers] @ next] is the list of all questions. *)
   let div = Dom_html.createDiv document in
-  let check_constraints =
+  let nh, check_constraints =
     match q with
-    | Question.Homomorphic q -> appendHomomorphicQuestion div num_questions i q answers
-    | Question.NonHomomorphic q -> appendNonHomomorphicQuestion div q answers
+    | Question.Homomorphic q -> false, appendHomomorphicQuestion div num_questions i q answers
+    | Question.NonHomomorphic q -> true, appendNonHomomorphicQuestion div q answers
   in
   let () =
     (* previous button *)
@@ -328,6 +328,14 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
         Dom.appendChild btns b;
     in
     Dom.appendChild div btns
+  in
+  let () =
+    if nh then (
+      let d = Dom_html.createDiv document in
+      d##.style##.marginTop := Js.string "1em";
+      Dom.appendChild div d;
+      Dom.appendChild d (document##createTextNode (Js.string "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."))
+    )
   in
   div
 
