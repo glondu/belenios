@@ -36,3 +36,11 @@ button {
     font-size: 28px;
     padding-bottom: 28px;
 }
+.hybrid_box {
+    border-style: solid;
+    border-width: 1px;
+    background: #E5E5E5;
+    margin-bottom: 2em;
+    margin-left: 10%;
+    margin-right: 10%;
+}

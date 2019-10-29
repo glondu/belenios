@@ -495,7 +495,9 @@ def administrator_edits_election_questions(browser, nh_question=False):
     wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
     if nh_question:
-        # She checks "Non homomorphic tally"
+        # She ticks "Tick the box to activate this mode."
+        browser.find_element_by_css_selector("#hybrid_mode").click()
+        # She ticks "Alternative"
         nhtally_css_selector = ".nonhomomorphic_tally"
         nhtally_checkbox_element = browser.find_element_by_css_selector(nhtally_css_selector)
         nhtally_checkbox_element.click()

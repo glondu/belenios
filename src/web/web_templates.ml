@@ -937,6 +937,33 @@ let election_draft_questions uuid se () =
     | `NH -> true
     | `H -> not (is_group_fixed se)
   in
+  let hybrid_box =
+    div ~a:[a_class ["hybrid_box"]]
+      [
+        div [pcdata "Alternative voting methods (warning, still experimental):"];
+        div
+          [
+            pcdata "You may wish voters to rank candidates or give each candidate a score.";
+            pcdata "This allows deciding the winner according to your favorite counting method ";
+            pcdata "(e.g. Condorcet, STV, majority judgement).";
+          ];
+        div [pcdata "Note that:"];
+        ol
+          [
+            li [pcdata "the after-the-vote procedure will require more steps;"];
+            li
+              [
+                pcdata "you will be given the raw results (shuffled list of ballots) ";
+                pcdata "and you will need to apply your counting method yourself."
+              ];
+          ];
+        div
+          [
+            input ~a:[a_id "hybrid_mode"] ~input_type:`Checkbox string;
+            pcdata "Tick the box to activate this mode.";
+          ];
+      ]
+  in
   let interactivity =
     div
       ~a:[a_id "interactivity"]
@@ -947,6 +974,7 @@ let election_draft_questions uuid se () =
         script ~a:[a_src (static "jsbn2.js")] (pcdata "");
         script ~a:[a_src (static "random.js")] (pcdata "");
         script ~a:[a_src (static "tool_js_questions.js")] (pcdata "");
+        hybrid_box;
       ]
   in
   let preview = div [hr (); preview_booth uuid] in

@@ -26,6 +26,30 @@ open Tool_js_common
 let return = Js.Opt.return
 let handler f = Dom_html.handler (fun e -> ignore (f e); Js._false)
 
+let hybrid_mode = ref false
+
+let default_question_h =
+  let open Question_h_t in
+  Question.Homomorphic
+    {
+      q_question = "";
+      q_min = 0;
+      q_max = 1;
+      q_blank = None;
+      q_answers = [||];
+    }
+
+let default_question_nh =
+  let open Question_nh_t in
+  Question.NonHomomorphic
+    {
+      q_question = "";
+      q_answers = [||];
+    }
+
+let default_question () =
+  if !hybrid_mode then default_question_nh else default_question_h
+
 (* Getting the OCaml structure out of the DOM *)
 
 let extractAnswer a =
@@ -155,8 +179,18 @@ let createHomomorphicQuestionPropDiv min max blank =
 
 let default_props = None, 0, 1
 
+let gensym =
+  let counter = ref 0 in
+  fun () -> incr counter; !counter
+
+let deleteQuestion q =
+  q##.parentNode >>= fun x ->
+  Dom.removeChild x q;
+  return ()
+
 let rec createQuestionDiv question answers props =
   let container = Dom_html.createDiv document in
+  container##.className := Js.string "question";
   (* question text and remove/insert buttons *)
   let x = Dom_html.createDiv document in
   let t = document##createTextNode (Js.string "Question: ") in
@@ -179,7 +213,8 @@ let rec createQuestionDiv question answers props =
   let insert_text = document##createTextNode (Js.string "Insert") in
   let insert_btn = Dom_html.createButton document in
   let f _ =
-    let x = createQuestionDiv "" [||] (Some default_props) in
+    let p = if !hybrid_mode then None else Some default_props in
+    let x = createQuestionDiv "" [||] p in
     container##.parentNode >>= fun p ->
     Dom.insertBefore p x (Js.some container);
     return ()
@@ -197,30 +232,44 @@ let rec createQuestionDiv question answers props =
     in
     createHomomorphicQuestionPropDiv min max blank
   in
+  let type_div = Dom_html.createDiv document in
+  type_div##.style##.display := if !hybrid_mode then Js.string "block" else Js.string "none";
+  Dom.appendChild container type_div;
   let prop_div_nh = Dom_html.createDiv document in
+  Dom.appendChild prop_div_nh (document##createTextNode (Js.string "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."));
+  let _type = Js.string "radio" and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
   let x = Dom_html.createDiv document in
-  Dom.appendChild container x;
-  let cb_type = Dom_html.createInput ~_type:(Js.string "checkbox") document in
+  Dom.appendChild type_div x;
+  let cb_type_classical = Dom_html.createInput ~_type ~name document in
+  Dom.appendChild x cb_type_classical;
+  Dom.appendChild x (document##createTextNode (Js.string "Classical (selection of answers)"));
+  let x = Dom_html.createDiv document in
+  Dom.appendChild type_div x;
+  let cb_type = Dom_html.createInput ~_type ~name document in
   cb_type##.className := Js.string "nonhomomorphic_tally";
   (match props with
    | Some _ ->
       Dom.appendChild container prop_div_h;
-      cb_type##.checked := Js._false
+      cb_type_classical##.checked := Js._true
    | None ->
       Dom.appendChild container prop_div_nh;
       cb_type##.checked := Js._true
   );
-  let f _ =
-    if Js.to_bool cb_type##.checked then
-      Dom.replaceChild container prop_div_nh prop_div_h
-    else
-      Dom.replaceChild container prop_div_h prop_div_nh
+  let f =
+    handler
+      (fun _ ->
+        if Js.to_bool cb_type##.checked then
+          Dom.replaceChild container prop_div_nh prop_div_h
+        else
+          Dom.replaceChild container prop_div_h prop_div_nh
+      )
   in
-  cb_type##.onchange := handler f;
+  cb_type##.onchange := f;
+  cb_type_classical##.onchange := f;
   if not (Js.to_bool (Js.Unsafe.pure_js_expr "allow_nh")) then
     cb_type##.disabled := Js._true;
   Dom.appendChild x cb_type;
-  Dom.appendChild x (document##createTextNode (Js.string "Non homomorphic tally (experimental)"));
+  Dom.appendChild x (document##createTextNode (Js.string "Alternative (voters assign a number to each candidate)"));
   (* answers *)
   let h_answers = Dom_html.createDiv document in
   h_answers##.className := Js.string "question_answers";
@@ -303,8 +352,7 @@ let createTemplate template =
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string "Add a question") in
   let f _ =
-    let open Question_h_t in
-    let x = createQuestion (Question.Homomorphic {q_question=""; q_blank=None; q_min=0; q_max=1; q_answers=[||]}) in
+    let x = createQuestion (default_question ()) in
     Dom.appendChild h_questions_div x
   in
   b##.onclick := handler f;
@@ -336,15 +384,61 @@ let createTemplate template =
   (* return *)
   container
 
+(* Handling of hybrid checkbox *)
+
+let q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |]
+
+let first_question_h =
+  let open Question_h_t in
+  Question.Homomorphic
+    {
+      q_question = "Question 1?";
+      q_min = 1;
+      q_max = 2;
+      q_blank = None;
+      q_answers;
+    }
+
+let first_question_nh =
+  let open Question_nh_t in
+  Question.NonHomomorphic
+    {
+      q_question = "Give a rank to each candidate (a number between 1 and 3)";
+      q_answers;
+    }
+
+let handle_hybrid e _ =
+  hybrid_mode := Js.to_bool e##.checked;
+  let qs = document##querySelectorAll (Js.string ".question") in
+  for i = 0 to qs##.length do
+    ignore (qs##item i >>= deleteQuestion)
+  done;
+  let q = if !hybrid_mode then first_question_nh else first_question_h in
+  document##getElementById (Js.string "election_questions") >>= fun qsdiv ->
+  Dom.appendChild qsdiv (createQuestion q);
+  return ()
+
 (* Entry point *)
 
 let fill_interactivity _ =
   document##getElementById (Js.string "interactivity") >>= fun e ->
   let t = template_of_string (get_textarea "questions") in
+  let has_nh =
+    Array.exists
+      (function
+       | Question.NonHomomorphic _ -> true
+       | _ -> false
+      ) t.t_questions
+  in
+  hybrid_mode := has_nh;
   let div = createTemplate t in
   Dom.appendChild e div;
   document##querySelector (Js.string "form") >>= fun x ->
   x##.style##.display := Js.string "none";
+  document##getElementById (Js.string "hybrid_mode") >>= fun e ->
+  Dom_html.CoerceTo.input e >>= fun e ->
+  e##.checked := Js.bool !hybrid_mode;
+  e##.onchange := handler (handle_hybrid e);
   return ()
 
 let () =
