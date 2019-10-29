@@ -162,12 +162,14 @@ let appendNonHomomorphicQuestion div q answers =
               try
                 let x = int_of_string (Js.to_string input##.value) in
                 if x < 0 then raise Exit;
+                if x > 255 then raise Exit;
                 x
               with _ ->
-                alert "Value must be a non-negative integer";
-                0
+                alert "Value must be an integer between 0 and 255.";
+                answers.(i)
             in
             answers.(i) <- x;
+            input##.value := Js.string (string_of_int x);
             Js._true
           );
       Dom.appendChild div t;
