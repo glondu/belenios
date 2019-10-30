@@ -1684,7 +1684,7 @@ let rec list_concat elt = function
   | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
   | ([_] | []) as xs -> xs
 
-let format_question_result l q r =
+let format_question_result uuid l (i, q) r =
   let module L = (val l : Web_i18n_sig.LocalizedStrings) in
   match q with
   | Question.Homomorphic x ->
@@ -1709,15 +1709,24 @@ let format_question_result l q r =
           | _ -> table (y :: ys)
      in
      li [
-         pcdata x.q_question;
+         div ~a:[a_class ["result_question"]] [pcdata x.q_question];
          answers;
        ]
   | Question.NonHomomorphic x ->
      let open Question_nh_t in
      li [
-         pcdata x.q_question;
-         pcdata " ";
-         em [pcdata "(non-homomorphic)"];
+         div ~a:[a_class ["result_question"]] [pcdata x.q_question];
+         div [
+             pcdata "The raw results can be viewed in the ";
+             a ~service:election_dir [pcdata "JSON result"] (uuid, ESResult);
+             pcdata ", with the JavaScript query ";
+             span ~a:[a_class ["result_jsquery"]] [
+                 pcdata ".result[";
+                 pcdata (string_of_int i);
+                 pcdata "]";
+               ];
+             pcdata ".";
+           ];
        ]
 
 let election_home election state () =
@@ -1845,7 +1854,7 @@ let election_home election state () =
        let result = Shape.to_shape_array r.result in
        return @@ div [
          ul (
-             Array.map2 (format_question_result l) election.e_params.e_questions result
+             Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) election.e_params.e_questions) result
              |> Array.to_list
            );
          div [

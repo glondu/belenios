@@ -44,3 +44,10 @@ button {
     margin-left: 10%;
     margin-right: 10%;
 }
+.result_question {
+    font-weight: bold;
+    font-style: italic;
+}
+.result_jsquery {
+    font-family: monospace;
+}
