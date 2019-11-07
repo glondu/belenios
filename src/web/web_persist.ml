@@ -432,10 +432,7 @@ let get_nh_ciphertexts uuid =
 let get_shuffles uuid =
   match%lwt get_raw_election uuid with
   | None -> return_none
-  | Some election ->
-     let election = Election.of_string election in
-     let module W = (val Election.get_group election) in
-     let module E = Election.Make (W) (LwtRandom) in
+  | Some _ ->
      match%lwt read_file ~uuid "shuffles.jsons" with
      | None -> return_none
      | Some x ->
