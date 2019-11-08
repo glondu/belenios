@@ -69,45 +69,6 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
 
         wait_a_bit()
 
-        # She looks for the "Shuffle link" link
-        shuffle_element = wait_for_element_exists(browser, "#shuffle-link", settings.EXPLICIT_WAIT_TIMEOUT)
-        shuffle_link = shuffle_element.get_attribute("href")
-        console_log("Shuffle link is " + shuffle_link);
-
-        # She logs out and goes to the shuffle link
-        log_out(browser)
-        wait_a_bit()
-        browser.get(shuffle_link)
-
-        wait_a_bit()
-
-        # She clicks on the "Compute shuffle" button
-        wait_for_element_visible(browser, "#compute_shuffle", settings.EXPLICIT_WAIT_TIMEOUT).click()
-        wait_a_bit()
-
-        # She waits for the "shuffle" textarea to be filled
-        wait_for_element_exists_and_has_non_empty_attribute(browser, "#shuffle", "value", settings.EXPLICIT_WAIT_TIMEOUT)
-
-        # She clicks on the "Submit" button
-        submit_element = wait_for_element_exists(browser, "input", settings.EXPLICIT_WAIT_TIMEOUT)
-        submit_element.click()
-
-        wait_a_bit()
-
-        wait_for_element_exists_and_contains_expected_text(browser, "h1", "Success", settings.EXPLICIT_WAIT_TIMEOUT)
-
-        wait_a_bit()
-
-        browser.get(election_url)
-
-        # She clicks on the "Administer this election" link
-        administration_link_label = "Administer this election"
-        administration_link_element = wait_for_an_element_with_partial_link_text_exists(browser, administration_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
-        administration_link_element.click()
-
-        # She logs in as administrator
-        log_in_as_administrator(browser, from_a_login_page=True)
-
         # She clicks on the "Proceed to decryption" button
         decrypt_button_label = "Proceed to decryption"
         decrypt_button_css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(decrypt_button_label)

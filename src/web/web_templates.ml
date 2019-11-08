@@ -1931,6 +1931,12 @@ Thank you again for your help,
 
 -- \nThe election administrator."
 
+type web_shuffler = {
+    ws_trustee : string;
+    mutable ws_select : string option;
+    mutable ws_hash : string option;
+}
+
 let election_admin election metadata state get_tokens_decrypt () =
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — Administration" in
@@ -2021,33 +2027,108 @@ let election_admin election metadata state get_tokens_decrypt () =
              ]) uuid;
        ]
     | `Shuffling ->
-       let%lwt shuffles = Web_persist.get_shuffles uuid in
-       let shuffles =
-         match shuffles with
-         | None -> failwith "Web_templates.admin, state Shuffling: no shuffles"
-         | Some ss -> ul (List.map (fun s -> li [pcdata (Platform.sha256_b64 s)]) ss)
+       let shufflers =
+         match metadata.e_trustees with
+         | None -> [{ws_trustee = "server"; ws_select = None; ws_hash = None}]
+         | Some ts ->
+            List.map
+              (fun ws_trustee ->
+                {ws_trustee; ws_select = None; ws_hash = None}
+              ) ts
        in
-       let%lwt token = Web_persist.get_shuffle_token uuid in
+       let%lwt () =
+         match%lwt Web_persist.get_shuffle_hashes uuid with
+         | None -> failwith "shuffle hashes are missing"
+         | Some hashes ->
+            List.iter
+              (fun x ->
+                match List.find_opt (fun y -> y.ws_trustee = x.sh_trustee) shufflers with
+                | Some y -> y.ws_hash <- Some x.sh_hash
+                | None -> ()
+              ) hashes;
+            return_unit
+       in
+       let%lwt select_disabled =
+         match%lwt Web_persist.get_shuffle_token uuid with
+         | None -> return_false
+         | Some t ->
+            match List.find_opt (fun x -> x.ws_trustee = t.tk_trustee) shufflers with
+            | Some y -> y.ws_select <- Some t.tk_token; return_true
+            | None -> return_false
+       in
+       let table_contents =
+         List.map
+           (fun x ->
+             let skip, hash, done_ =
+               let mk_skip disabled =
+                 post_form ~service:election_shuffler_skip_confirm
+                   (fun (nuuid, ntrustee) ->
+                     let a = if disabled then [a_disabled ()] else [] in
+                     [
+                       input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                       input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
+                       input ~a ~input_type:`Submit ~value:"Skip" string;
+                     ]
+                   ) ()
+               in
+               match x.ws_hash with
+               | None -> mk_skip false, pcdata "", false
+               | Some h -> mk_skip true, pcdata (if h = "" then "(skipped)" else h), true
+             in
+             tr
+               [
+                 td [pcdata x.ws_trustee];
+                 td
+                   [
+                     match x.ws_select with
+                     | Some token ->
+                        a ~service:election_shuffle_link ~a:[a_id "shuffle-link"]
+                          [pcdata "Link"] (uuid, token)
+                     | None ->
+                        post_form ~service:election_shuffler_select
+                          (fun (nuuid, ntrustee) ->
+                            let a = if select_disabled || done_ then [a_disabled ()] else [] in
+                            [
+                              input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                              input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
+                              input ~a ~input_type:`Submit ~value:"Select this trustee" string;
+                            ]
+                          ) ()
+                   ];
+                 td [if done_ then pcdata "Yes" else pcdata "No"];
+                 td [skip];
+                 td [hash];
+               ]
+           ) shufflers
+       in
+       let proceed =
+         if List.for_all (fun x -> x.ws_hash <> None) shufflers then
+           post_form ~service:election_decrypt
+             (fun () ->
+               [
+                 input ~input_type:`Submit ~value:"Proceed to decryption" string;
+               ]
+             ) uuid
+         else
+           pcdata ""
+       in
        return (
            div [
                div [
-                   div [pcdata "The ballots are being shuffled."];
-                   div [
-                       pcdata "Shuffles applied so far:";
-                       shuffles;
-                     ];
-                   div [
-                       a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [
-                           pcdata "New shuffle";
-                         ] (uuid, token);
-                     ];
+                   div ~a:[a_style "text-align: center;"]
+                     [pcdata "Shuffling of ballots"];
+                   table
+                     (tr
+                        [
+                          th [pcdata "Trustee"];
+                          th [];
+                          th [pcdata "Done?"];
+                          th [];
+                          th [pcdata "Hash"];
+                        ] :: table_contents
+                     );
                  ];
-               post_form ~service:election_decrypt
-                 (fun () ->
-                   [
-                     input ~input_type:`Submit ~value:"Proceed to decryption" string;
-                   ]
-                 ) uuid;
+               proceed;
              ]
          )
     | `EncryptedTally (npks, _, hash) ->
@@ -2622,6 +2703,28 @@ let pretty_records election records () =
   ] in
   let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ()
+
+let election_shuffler_skip_confirm uuid trustee =
+  let title = "Skipping trustee " ^ trustee in
+  let content =
+    [
+      post_form ~service:election_shuffler_skip
+        (fun (nuuid, ntrustee) ->
+          [
+            div [pcdata "You may skip a trustee if they do not answer. Be aware that this reduces the security."];
+            div
+              [
+                input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                input ~input_type:`Hidden ~name:ntrustee ~value:trustee string;
+                input ~input_type:`Submit ~value:"Confirm" string;
+                pcdata " ";
+                a ~service:Web_services.election_admin [pcdata "Cancel"] uuid;
+              ]
+          ]
+        ) ()
+    ]
+  in
+  base ~title ~content ()
 
 let shuffle election token =
   let params = election.e_params in

@@ -394,15 +394,18 @@ let compute_encrypted_tally uuid =
      return (Some (num_tallied, sha256_b64 tally, tally))
 
 let get_shuffle_token uuid =
-  match%lwt read_file ~uuid "shuffle_token" with
-  | Some [x] -> return x
-  | _ ->
-     let%lwt token = generate_token () in
-     let%lwt () = write_file ~uuid "shuffle_token" [token] in
-     return token
+  match%lwt read_file ~uuid "shuffle_token.json" with
+  | Some [x] -> return_some (shuffle_token_of_string x)
+  | _ -> return_none
+
+let gen_shuffle_token uuid tk_trustee =
+  let%lwt tk_token = generate_token () in
+  let t = {tk_trustee; tk_token} in
+  let%lwt () = write_file ~uuid "shuffle_token.json" [string_of_shuffle_token t] in
+  return t
 
 let clear_shuffle_token uuid =
-  let f = !Web_config.spool_dir / raw_string_of_uuid uuid / "shuffle_token" in
+  let f = !Web_config.spool_dir / raw_string_of_uuid uuid / "shuffle_token.json" in
   try%lwt Lwt_unix.unlink f with _ -> return_unit
 
 let get_nh_ciphertexts uuid =
@@ -442,6 +445,31 @@ let get_shuffles uuid =
         in
         loop [] x
 
+let get_shuffle_hashes uuid =
+  match%lwt read_file ~uuid "shuffle_hashes.jsons" with
+  | None -> return_none
+  | Some x ->
+     let rec loop accu = function
+       | s :: rest -> loop (shuffle_hash_of_string s :: accu) rest
+       | [] -> return_some (List.rev accu)
+     in
+     loop [] x
+
+let add_shuffle_hash uuid sh =
+  let%lwt current =
+    match%lwt get_shuffle_hashes uuid with
+    | None -> return []
+    | Some x -> return x
+  in
+  let () =
+    if List.exists (fun x -> x.sh_trustee = sh.sh_trustee) current then (
+      Printf.ksprintf failwith "add_shuffle_hash(%s, %s): existing trustee"
+        (raw_string_of_uuid uuid) sh.sh_trustee
+    )
+  in
+  let new_ = current @ [sh] in
+  write_file ~uuid "shuffle_hashes.jsons" (List.map string_of_shuffle_hash new_)
+
 let compute_encrypted_tally_after_shuffling uuid =
   let%lwt election = get_raw_election uuid in
   match election with
@@ -480,10 +508,11 @@ let append_to_shuffles uuid shuffle =
              | None -> return []
              | Some x -> return x
            in
-           let new_ = current @ [string_of_shuffle E.G.write shuffle] in
+           let shuffle_ = string_of_shuffle E.G.write shuffle in
+           let new_ = current @ [shuffle_] in
            let%lwt () = write_file ~uuid "shuffles.jsons" new_ in
-           return true
-         ) else return false
+           return_some (sha256_b64 shuffle_)
+         ) else return_none
        )
 
 module ExtendedRecordsCacheTypes = struct

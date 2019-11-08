@@ -135,6 +135,18 @@ type draft_election = {
   ?creation_date : datetime option;
 } <ocaml field_prefix="se_">
 
+(** {1 Types related to elections being tallied} *)
+
+type shuffle_hash = {
+    trustee : string;
+    hash : string;
+} <ocaml field_prefix="sh_">
+
+type shuffle_token = {
+    trustee : string;
+    token : string;
+} <ocaml field_prefix="tk_">
+
 (** {1 Types related to deleted elections} *)
 
 type authentication_method = [ CAS of string | Password | Unknown ]

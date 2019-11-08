@@ -1301,11 +1301,12 @@ let () =
             let cc = nh_ciphertexts_of_string E.G.read cc in
             let%lwt shuffle = E.shuffle_ciphertexts cc in
             let shuffle = string_of_shuffle E.G.write shuffle in
-            if%lwt Web_persist.append_to_shuffles uuid shuffle then (
-              return_unit
-            ) else (
-              Lwt.fail (Failure (Printf.sprintf "Automatic shuffle by server has failed for election %s!" (raw_string_of_uuid uuid)))
-            )
+            match%lwt Web_persist.append_to_shuffles uuid shuffle with
+            | Some h ->
+               let sh = {sh_trustee = "server"; sh_hash = h} in
+               Web_persist.add_shuffle_hash uuid sh
+            | None ->
+               Lwt.fail (Failure (Printf.sprintf "Automatic shuffle by server has failed for election %s!" (raw_string_of_uuid uuid)))
           ) else return_unit
         in
         let get_tokens_decrypt () =
@@ -2029,10 +2030,11 @@ let () =
     (fun (uuid, token) () ->
       without_site_user (fun () ->
           let%lwt expected_token = Web_persist.get_shuffle_token uuid in
-          if token = expected_token then (
-            let%lwt election = find_election uuid in
-            T.shuffle election token >>= Html.send
-          ) else forbidden ()
+          match expected_token with
+          | Some x when token = x.tk_token ->
+             let%lwt election = find_election uuid in
+             T.shuffle election token >>= Html.send
+          | _ -> forbidden ()
         )
     )
 
@@ -2041,15 +2043,60 @@ let () =
     (fun (uuid, token) shuffle ->
       without_site_user (fun () ->
           let%lwt expected_token = Web_persist.get_shuffle_token uuid in
-          if token = expected_token then (
-            match%lwt Web_persist.append_to_shuffles uuid shuffle with
-            | true ->
-               let%lwt () = Web_persist.clear_shuffle_token uuid in
-               T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
-            | false ->
-               T.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send
-            | exception e ->
-               T.generic_page ~title:"Error" (Printf.sprintf "Data is invalid! (%s)" (Printexc.to_string e)) () >>= Html.send
+          match expected_token with
+          | Some x when token = x.tk_token ->
+             (match%lwt Web_persist.append_to_shuffles uuid shuffle with
+              | Some h ->
+                 let%lwt () = Web_persist.clear_shuffle_token uuid in
+                 let sh = {sh_trustee = x.tk_trustee; sh_hash = h} in
+                 let%lwt () = Web_persist.add_shuffle_hash uuid sh in
+                 T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
+              | None ->
+                 T.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send
+              | exception e ->
+                 T.generic_page ~title:"Error" (Printf.sprintf "Data is invalid! (%s)" (Printexc.to_string e)) () >>= Html.send
+             )
+          | _ -> forbidden ()
+        )
+    )
+
+let () =
+  Any.register ~service:election_shuffler_select
+    (fun () (uuid, trustee) ->
+      let uuid = uuid_of_raw_string uuid in
+      with_site_user (fun u ->
+          let%lwt metadata = Web_persist.get_election_metadata uuid in
+          if metadata.e_owner = Some u then (
+            let%lwt () = Web_persist.clear_shuffle_token uuid in
+            let%lwt _ = Web_persist.gen_shuffle_token uuid trustee in
+            redir_preapply election_admin uuid ()
+          ) else forbidden ()
+        )
+    )
+
+let () =
+  Any.register ~service:election_shuffler_skip_confirm
+    (fun () (uuid, trustee) ->
+      let uuid = uuid_of_raw_string uuid in
+      with_site_user (fun u ->
+          let%lwt metadata = Web_persist.get_election_metadata uuid in
+          if metadata.e_owner = Some u then (
+            T.election_shuffler_skip_confirm uuid trustee >>= Html.send
+          ) else forbidden ()
+        )
+    )
+
+let () =
+  Any.register ~service:election_shuffler_skip
+    (fun () (uuid, trustee) ->
+      let uuid = uuid_of_raw_string uuid in
+      with_site_user (fun u ->
+          let%lwt metadata = Web_persist.get_election_metadata uuid in
+          if metadata.e_owner = Some u then (
+            let%lwt () = Web_persist.clear_shuffle_token uuid in
+            let sh = {sh_trustee = trustee; sh_hash = ""} in
+            let%lwt () = Web_persist.add_shuffle_hash uuid sh in
+            redir_preapply election_admin uuid ()
           ) else forbidden ()
         )
     )
