@@ -258,15 +258,20 @@ let admin ~elections () =
     let%lwt login_box = login_box () in
     base ~title ~login_box ~content ()
 
-let make_button ~service ?hash ~disabled contents =
+let make_button ~service ?hash ?style ~disabled contents =
   let uri = Eliom_uri.make_string_uri ~service () in
   let uri = match hash with
     | None -> uri
     | Some x -> uri ^ "#" ^ x
   in
+  let style =
+    match style with
+    | None -> ""
+    | Some x -> Printf.sprintf " style=\"%s\"" x
+  in
   Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
-    "<button onclick=\"location.href='%s';\" style=\"font-size:35px;\"%s>%s</button>"
-    uri (if disabled then " disabled" else "")
+    "<button onclick=\"location.href='%s';\"%s%s>%s</button>"
+    uri style (if disabled then " disabled" else "")
     contents
 
 let a_mailto ~dest ~subject ~body contents =
@@ -1820,7 +1825,7 @@ let election_home election state () =
               rewrite_prefix
           in
           let hash = Netencoding.Url.mk_url_encoded_parameters ["url", url] in
-          make_button ~service:election_vote ~hash ~disabled L.start;
+          make_button ~service:election_vote ~hash ~style:"font-size:35px;" ~disabled L.start;
         ];
       div [
         a
@@ -2731,32 +2736,42 @@ let shuffle election token =
   let uuid = params.e_uuid in
   let title = params.e_name ^ " — Shuffle" in
   let content = [
-      div [pcdata "It is now time to shuffle encrypted ballots."];
+      div [pcdata "As a trustee, your first role is to shuffle the encrypted ballots."];
+      div [
+          pcdata "Current list of ballots: ";
+          unsafe_textarea ~rows:5 ~cols:40 "current_ballots" "";
+          pcdata " ";
+          let service = Eliom_service.preapply election_nh_ciphertexts uuid in
+          make_button ~service ~disabled:false "Download as a file";
+        ];
       div ~a:[a_id "estimation"] [
           pcdata "Estimating computation time...";
-        ];
-      div ~a:[a_id "controls_div"; a_style "display: none;"] [
-          button_no_value ~button_type:`Button ~a:[a_id "compute_shuffle"] [pcdata "Compute shuffle"];
         ];
       div ~a:[a_id "wait_div"] [
           pcdata "Please wait... ";
           img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
         ];
-      div ~a:[a_id "hash_div"; a_style "display:none;"] [
-          pcdata "The hash of your shuffle is: ";
-          b ~a:[a_id "hash"] [];
-          pcdata ".";
+      div ~a:[a_id "controls_div"; a_style "display: none;"] [
+          button_no_value ~button_type:`Button ~a:[a_id "compute_shuffle"] [pcdata "Compute shuffle"];
         ];
       post_form ~service:election_shuffle_post
         ~a:[a_id "submit_form"]
         (fun nshuffle ->
           [
             div [
-                input ~input_type:`Submit ~value:"Submit" string;
+                pcdata "Shuffled list of ballots: ";
+                textarea ~a:[a_rows 5; a_cols 40; a_id "shuffle"] ~name:nshuffle ();
+              ];
+            div ~a:[a_id "hash_div"; a_style "display:none;"] [
+                div [
+                    pcdata "The hash of your shuffle is: ";
+                    b ~a:[a_id "hash"] [];
+                    pcdata ".";
+                  ];
+                div [pcdata "You must record this hash and check that it appears on the result page of the election."];
               ];
             div [
-                pcdata "Data: ";
-                textarea ~a:[a_rows 5; a_cols 40; a_id "shuffle"] ~name:nshuffle ();
+                input ~input_type:`Submit ~value:"Submit" string;
               ];
           ]
         ) (uuid, token);
