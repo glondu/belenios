@@ -1936,6 +1936,24 @@ Thank you again for your help,
 
 -- \nThe election administrator."
 
+let mail_shuffle : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Dear trustee,
+
+You will find below the link to shuffle encrypted ballots.
+
+  %s
+
+Here's the instructions:
+1. click on the link
+2. click on \"Compute shuffle\"
+3. the hash of your shuffle will appear. Save it.
+4. when the election result is published, make sure that the hash of
+   your shuffle appears in the result.
+
+Thank you for your help,
+
+-- \nThe election administrator."
+
 type web_shuffler = {
     ws_trustee : string;
     mutable ws_select : string option;
@@ -2087,8 +2105,20 @@ let election_admin election metadata state get_tokens_decrypt () =
                    [
                      match x.ws_select with
                      | Some token ->
-                        a ~service:election_shuffle_link ~a:[a_id "shuffle-link"]
-                          [pcdata "Link"] (uuid, token)
+                        let uri =
+                          rewrite_prefix @@
+                            Eliom_uri.make_string_uri
+                              ~absolute:true ~service:election_shuffle_link (uuid, token)
+                        in
+                        let body = Printf.sprintf mail_shuffle uri in
+                        let subject = "Link to shuffle encrypted ballots" in
+                        div
+                          [
+                            a_mailto ~dest:x.ws_trustee ~subject ~body "Mail";
+                            pcdata " | ";
+                            a ~service:election_shuffle_link ~a:[a_id "shuffle-link"]
+                              [pcdata "Link"] (uuid, token)
+                          ]
                      | None ->
                         post_form ~service:election_shuffler_select
                           (fun (nuuid, ntrustee) ->
