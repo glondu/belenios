@@ -1,3 +1,22 @@
+1.9.1 (2019-10-24)
+==================
+
+ * Specification:
+   + Link to Meadows instead of eprint (easier to read)
+   + Be more verbose about checks to do during the election
+ * Web server:
+   + Avoid error 500 on "accepted ballots" page when no ballots have
+     been cast
+   + Trim usernames and passwords before checking them
+   + Trim and check CAS server addresses
+   + Case-insensitive comparison of usernames
+   + Set a limit on election names to prevent abuse
+   + Protect third-party pages (creds, trustee) from authenticated
+     users
+   + Avoid error 500 when attempting to authenticate several times in
+     a row
+ * Use opam 2.0.5 in bootstrap script
+
 1.9 (2019-05-28)
 ================
 
