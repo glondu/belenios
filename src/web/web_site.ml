@@ -273,10 +273,10 @@ let delete_election uuid =
   let%lwt de_trustees_threshold =
     let%lwt threshold = Web_persist.get_threshold uuid in
     match threshold with
-    | None -> return None
+    | None -> return_none
     | Some x ->
        let x = threshold_parameters_of_string Yojson.Safe.read_json x in
-       return (Some x.t_threshold)
+       return_some x.t_threshold
   in
   let%lwt pks = Web_persist.get_public_keys uuid in
   let%lwt voters = Web_persist.get_voters uuid in
@@ -373,10 +373,10 @@ let () = Html.register ~service:admin
     let%lwt site_user = Eliom_reference.get Web_state.site_user in
     let%lwt elections =
       match site_user with
-      | None -> return None
+      | None -> return_none
       | Some u ->
          let%lwt elections = get_elections_by_owner_sorted u in
-         return @@ Some elections
+         return_some elections
     in
     T.admin ~elections ()
   )
@@ -523,16 +523,16 @@ let with_draft_election ?(save = true) uuid f =
           match%lwt Web_persist.get_draft_election uuid with
           | None -> fail_http 404
           | Some se ->
-          if se.se_owner = u then (
-            try%lwt
-              let%lwt r = f se in
-              let%lwt () = if save then Web_persist.set_draft_election uuid se else return_unit in
-              return r
-            with e ->
-              let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
-              let service = preapply election_draft uuid in
-              T.generic_page ~title:"Error" ~service msg () >>= Html.send
-          ) else forbidden ()
+             if se.se_owner = u then (
+               match%lwt f se with
+               | r ->
+                  let%lwt () = if save then Web_persist.set_draft_election uuid se else return_unit in
+                  return r
+               | exception e ->
+                  let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
+                  let service = preapply election_draft uuid in
+                  T.generic_page ~title:"Error" ~service msg () >>= Html.send
+             ) else forbidden ()
         )
     )
 
@@ -889,8 +889,7 @@ let () =
     )
 
 let wrap_handler f =
-  try%lwt f ()
-  with
+  try%lwt f () with
   | e -> T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html.send
 
 let handle_credentials_post uuid token creds =
@@ -1079,11 +1078,10 @@ let () =
   Any.register ~service:election_draft_create
     (fun uuid () ->
       with_draft_election ~save:false uuid (fun se ->
-          try%lwt
-            let%lwt () = validate_election uuid se in
-            redir_preapply election_admin uuid ()
-          with e ->
-            T.new_election_failure (`Exception e) () >>= Html.send
+          match%lwt validate_election uuid se with
+          | () -> redir_preapply election_admin uuid ()
+          | exception e ->
+             T.new_election_failure (`Exception e) () >>= Html.send
         )
     )
 
@@ -1240,24 +1238,26 @@ let () =
 let () =
   Any.register ~service:election_home
     (fun (uuid, ()) () ->
-      try%lwt
-        let%lwt w = find_election uuid in
-        let%lwt () = Eliom_reference.unset Web_state.ballot in
-        match%lwt Eliom_reference.get Web_state.cast_confirmed with
-        | Some result ->
-           let%lwt () = Eliom_reference.unset Web_state.cast_confirmed in
-           let%lwt () = Eliom_reference.unset Web_state.election_user in
-           T.cast_confirmed w ~result () >>= Html.send
-        | None ->
-           let%lwt state = Web_persist.get_election_state uuid in
-           T.election_home w state () >>= Html.send
-      with Not_found ->
-        let%lwt lang = Eliom_reference.get Web_state.language in
-        let module L = (val Web_i18n.get_lang lang) in
-        T.generic_page ~title:L.not_yet_open
-          ~service:(preapply election_home (uuid, ()))
-          L.come_back_later ()
-          >>= Html.send)
+      match%lwt find_election uuid with
+      | w ->
+         let%lwt () = Eliom_reference.unset Web_state.ballot in
+         (match%lwt Eliom_reference.get Web_state.cast_confirmed with
+          | Some result ->
+             let%lwt () = Eliom_reference.unset Web_state.cast_confirmed in
+             let%lwt () = Eliom_reference.unset Web_state.election_user in
+             T.cast_confirmed w ~result () >>= Html.send
+          | None ->
+             let%lwt state = Web_persist.get_election_state uuid in
+             T.election_home w state () >>= Html.send
+         )
+      | exception Not_found ->
+         let%lwt lang = Eliom_reference.get Web_state.language in
+         let module L = (val Web_i18n.get_lang lang) in
+         T.generic_page ~title:L.not_yet_open
+           ~service:(preapply election_home (uuid, ()))
+           L.come_back_later ()
+         >>= Html.send
+    )
 
 let get_cont_state cont =
   let redir = match cont with
@@ -1349,19 +1349,17 @@ let election_set_result_hidden f uuid x =
   with_site_user (fun u ->
       let%lwt metadata = Web_persist.get_election_metadata uuid in
       if metadata.e_owner = Some u then (
-        try%lwt
-          let%lwt () = Web_persist.set_election_result_hidden uuid (f x) in
-          redir_preapply election_admin uuid ()
-        with
-        | Failure msg ->
+        match%lwt Web_persist.set_election_result_hidden uuid (f x) with
+        | () -> redir_preapply election_admin uuid ()
+        | exception Failure msg ->
            let service = preapply election_admin uuid in
            T.generic_page ~title:"Error" ~service msg () >>= Html.send
       ) else forbidden ()
     )
 
 let parse_datetime_from_post x =
-  try datetime_of_string ("\"" ^ x ^ ".000000\"")
-  with _ -> Printf.ksprintf failwith "%s is not a valid date!" x
+  try datetime_of_string ("\"" ^ x ^ ".000000\"") with
+  | _ -> Printf.ksprintf failwith "%s is not a valid date!" x
 
 let () =
   Any.register ~service:election_hide_result
@@ -1453,10 +1451,9 @@ let () =
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
-            try%lwt
-                  let%lwt () = Web_persist.replace_credential uuid old new_ in
-                  String.send ("OK", "text/plain")
-            with BeleniosWebError e ->
+            match%lwt Web_persist.replace_credential uuid old new_ with
+            | () -> String.send ("OK", "text/plain")
+            | exception BeleniosWebError e ->
                let%lwt lang = Eliom_reference.get Web_state.language in
                let l = Web_i18n.get_lang lang in
                String.send ("Error: " ^ explain_error l e, "text/plain")
@@ -1507,15 +1504,11 @@ let () =
          T.generic_page ~title:L.cookies_are_blocked L.please_enable_them ()
          >>= Html.send
       | Some ballot ->
-         match
-           try
-             let ballot = ballot_of_string Yojson.Safe.read_json ballot in
-             Some ballot.election_uuid
-           with _ -> None
-         with
-         | None ->
+         match ballot_of_string Yojson.Safe.read_json ballot with
+         | exception _ ->
             T.generic_page ~title:"Error" "Ill-formed ballot" () >>= Html.send
-         | Some uuid ->
+         | ballot ->
+            let uuid = ballot.election_uuid in
             match%lwt Web_persist.get_draft_election uuid with
             | Some _ -> redir_preapply election_draft uuid ()
             | None -> redir_preapply election_login ((uuid, ()), None) ()
@@ -1582,10 +1575,9 @@ let () =
          | None -> forbidden ()
          | Some user ->
             let%lwt result =
-              try%lwt
-                let%lwt hash = cast_ballot uuid ~rawballot ~user in
-                return (Ok hash)
-              with BeleniosWebError e -> return (Error e)
+              match%lwt cast_ballot uuid ~rawballot ~user with
+              | hash -> return (Ok hash)
+              | exception BeleniosWebError e -> return (Error e)
             in
             let%lwt () = Eliom_reference.set Web_state.cast_confirmed (Some result) in
             redir_preapply election_home (uuid, ()) ()
@@ -2394,8 +2386,8 @@ let () =
       let%lwt error =
         let%lwt ok = Web_signup.check_captcha ~challenge ~response in
         if ok then
-          if is_email email then return None else return (Some BadAddress)
-        else return (Some BadCaptcha)
+          if is_email email then return_none else return_some BadAddress
+        else return_some BadCaptcha
       in
       match error with
       | None ->
@@ -2426,8 +2418,8 @@ let () =
     (fun service (challenge, (response, (email, username))) ->
       let%lwt error =
         let%lwt ok = Web_signup.check_captcha ~challenge ~response in
-        if ok then return None
-        else return (Some BadCaptcha)
+        if ok then return_none
+        else return_some BadCaptcha
       in
       match error with
       | None ->
@@ -2515,7 +2507,7 @@ let extract_automatic_data_draft uuid_s =
      let contact = se.se_metadata.e_contact in
      let t = Option.get se.se_creation_date default_creation_date in
      let next_t = datetime_add t (day days_to_delete) in
-     return @@ Some (`Destroy, uuid, next_t, name, contact)
+     return_some (`Destroy, uuid, next_t, name, contact)
 
 let extract_automatic_data_validated uuid_s =
   let uuid = uuid_of_raw_string uuid_s in
@@ -2533,17 +2525,17 @@ let extract_automatic_data_validated uuid_s =
         let%lwt t = Web_persist.get_election_date `Validation uuid in
         let t = Option.get t default_validation_date in
         let next_t = datetime_add t (day days_to_delete) in
-        return @@ Some (`Delete, uuid, next_t, name, contact)
+        return_some (`Delete, uuid, next_t, name, contact)
      | `Tallied ->
         let%lwt t = Web_persist.get_election_date `Tally uuid in
         let t = Option.get t default_tally_date in
         let next_t = datetime_add t (day days_to_archive) in
-        return @@ Some (`Archive, uuid, next_t, name, contact)
+        return_some (`Archive, uuid, next_t, name, contact)
      | `Archived ->
         let%lwt t = Web_persist.get_election_date `Archive uuid in
         let t = Option.get t default_archive_date in
         let next_t = datetime_add t (day days_to_delete) in
-        return @@ Some (`Delete, uuid, next_t, name, contact)
+        return_some (`Delete, uuid, next_t, name, contact)
 
 let try_extract extract x =
   try%lwt extract x with _ -> return_none

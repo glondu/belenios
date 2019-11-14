@@ -170,10 +170,10 @@ Belenios Server" username uri
 let confirm_link token =
   links := filter_links_by_time !links;
   match SMap.find_opt token !links with
-  | None -> Lwt.return None
+  | None -> Lwt.return_none
   | Some x ->
      links := SMap.remove token !links;
-     Lwt.return (Some (x.service, x.address, x.kind))
+     Lwt.return_some (x.service, x.address, x.kind)
 
 let cracklib =
   let x = "cracklib-check" in (x, [| x |])
@@ -191,4 +191,4 @@ let cracklib_check password =
   | None ->
      let%lwt x = Lwt_process.pmap ~env:[| "LANG=C" |] cracklib password in
      Lwt.return (extract_comment x)
-  | Some _ -> Lwt.return (Some "newline in password")
+  | Some _ -> Lwt.return_some "newline in password"

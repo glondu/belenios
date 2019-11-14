@@ -2825,7 +2825,7 @@ let tally_trustees election trustee_id token () =
   let%lwt encrypted_private_key =
     match%lwt Web_persist.get_private_keys uuid with
     | None -> return_none
-    | Some keys -> return (Some (List.nth keys (trustee_id-1)))
+    | Some keys -> return_some (List.nth keys (trustee_id-1))
   in
   let content = [
     p [pcdata "It is now time to compute your partial decryption factors."];

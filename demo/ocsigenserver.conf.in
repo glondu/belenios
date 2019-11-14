@@ -41,6 +41,7 @@
         <eliom findlib-package="eliom.server.monitor.start"/>
       </site>
       <eliom module="_build/src/web/server.cma">
+        <maxrequestbodysizeinmemory value="1048576"/>
         <maxmailsatonce value="1000"/>
         <uuid length="14"/>
         <gdpr uri="http://www.example.org/privacy_policy.html"/>

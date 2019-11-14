@@ -26,10 +26,6 @@ open Web_common
 
 (** Global initialization *)
 
-(* FIXME: the following should be in configuration file... but
-   <maxrequestbodysize> doesn't work *)
-let () = Ocsigen_config.set_maxrequestbodysizeinmemory 1048576 (* 1 MB *)
-
 let () = CalendarLib.Time_Zone.(change Local)
 
 (** Parse configuration from <eliom> *)
@@ -47,6 +43,8 @@ let () =
   List.iter @@ function
   | PCData x ->
     Ocsigen_extensions.Configuration.ignore_blank_pcdata ~in_tag:"belenios" x
+  | Element ("maxrequestbodysizeinmemory", ["value", m], []) ->
+     Ocsigen_config.set_maxrequestbodysizeinmemory (int_of_string m)
   | Element ("log", ["file", file], []) ->
     Lwt_main.run (open_security_log file)
   | Element ("source", ["file", file], []) ->
