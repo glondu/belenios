@@ -31,9 +31,10 @@ let stream_to_list s =
 let lines_of_file fname =
   let ic = open_in fname in
   Stream.from (fun _ ->
-    try Some (input_line ic)
-    with End_of_file -> close_in ic; None
-  )
+      match input_line ic with
+      | line -> Some line
+      | exception End_of_file -> close_in ic; None
+    )
 
 let string_of_file f =
   lines_of_file f |> stream_to_list |> String.concat "\n"

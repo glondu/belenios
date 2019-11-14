@@ -84,8 +84,8 @@ let compute_partial_decryption _ =
        (partial_decryption_key_of_string epk).pdk_decryption_key
     | None ->
        basic_check_private_key pk_str;
-       try number_of_string pk_str
-       with e ->
+       try number_of_string pk_str with
+       | e ->
          Printf.ksprintf
            failwith "Error in format of private key: %s" (Printexc.to_string e)
   in

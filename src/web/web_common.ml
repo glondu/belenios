@@ -303,11 +303,10 @@ let send_email recipient subject body =
   let return_path = !Web_config.return_path in
   let sendmail = sendmail ?return_path in
   let rec loop () =
-    try%lwt
-      Lwt_preemptive.detach sendmail contents
-    with Unix.Unix_error (Unix.EAGAIN, _, _) ->
-      let%lwt () = Lwt_unix.sleep 1. in
-      loop ()
+    try%lwt Lwt_preemptive.detach sendmail contents with
+    | Unix.Unix_error (Unix.EAGAIN, _, _) ->
+       let%lwt () = Lwt_unix.sleep 1. in
+       loop ()
   in loop ()
 
 let split_identity x =
@@ -330,8 +329,7 @@ let languages_of_string x =
   Pcre.split x
 
 let pcre_exec_opt ~rex x =
-  try Some (Pcre.exec ~rex x)
-  with Not_found -> None
+  try Some (Pcre.exec ~rex x) with Not_found -> None
 
 let email_rex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}"
 
@@ -354,11 +352,9 @@ let extract_email =
   )
 
 let file_exists x =
-  try%lwt
-    let%lwt () = Lwt_unix.(access x [R_OK]) in
-    return true
-  with _ ->
-    return false
+  match%lwt Lwt_unix.(access x [R_OK]) with
+  | () -> return true
+  | exception _ -> return false
 
 let get_fname uuid x =
   match uuid with
@@ -368,10 +364,9 @@ let get_fname uuid x =
      !Web_config.spool_dir / raw_string_of_uuid uuid / x
 
 let read_file ?uuid x =
-  try%lwt
-    let%lwt lines = Lwt_io.lines_of_file (get_fname uuid x) |> Lwt_stream.to_list in
-    return (Some lines)
-  with _ -> return_none
+  match%lwt Lwt_io.lines_of_file (get_fname uuid x) |> Lwt_stream.to_list with
+  | lines -> return_some lines
+  | exception _ -> return_none
 
 let write_file ?uuid x lines =
   let fname = get_fname uuid x in
@@ -386,8 +381,8 @@ let write_file ?uuid x lines =
   Lwt_unix.rename fname_new fname
 
 let cleanup_file f =
-  try%lwt Lwt_unix.unlink f
-  with _ -> return_unit
+  try%lwt Lwt_unix.unlink f with
+  | _ -> return_unit
 
 let rmdir dir =
   let command = "rm", [| "rm"; "-rf"; dir |] in

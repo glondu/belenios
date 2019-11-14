@@ -43,8 +43,8 @@ let extractQuestion q =
     p2##querySelector (Js.string selector) >>= fun x ->
     Dom_html.CoerceTo.input x >>= fun x ->
     let x = Js.to_string x##.value in
-    try return (int_of_string x)
-    with _ -> failwith (error_msg ^ ": " ^ x ^ ".")
+    try return (int_of_string x) with
+    | _ -> failwith (error_msg ^ ": " ^ x ^ ".")
   in
   p2##querySelector (Js.string ".question_blank") >>= fun q_blank ->
   Dom_html.CoerceTo.input q_blank >>= fun q_blank ->

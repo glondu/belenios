@@ -33,14 +33,16 @@ let stream_to_list s =
 let lines_of_file fname =
   let ic = open_in fname in
   Stream.from (fun _ ->
-    try Some (input_line ic)
-    with End_of_file -> close_in ic; None
-  )
+      match input_line ic with
+      | line -> Some line
+      | exception End_of_file -> close_in ic; None
+    )
 
 let lines_of_stdin () =
   Stream.from (fun _ ->
-      try Some (input_line stdin)
-      with End_of_file -> None
+      match input_line stdin with
+      | line -> Some line
+      | exception End_of_file -> None
     )
 
 let string_of_file f =
@@ -86,12 +88,11 @@ let get_mandatory_opt name = function
   | None -> failcmd "%s is mandatory" name
 
 let wrap_main f =
-  try
-    let () = f () in `Ok ()
-  with
-  | Cmdline_error e -> `Error (true, e)
-  | Failure e -> `Error (false, e)
-  | e -> `Error (false, Printexc.to_string e)
+  match f () with
+  | () -> `Ok ()
+  | exception Cmdline_error e -> `Error (true, e)
+  | exception Failure e -> `Error (false, e)
+  | exception e -> `Error (false, Printexc.to_string e)
 
 module type CMDLINER_MODULE = sig
   val cmds : (unit Cmdliner.Term.t * Cmdliner.Term.info) list
@@ -297,8 +298,7 @@ module Election : CMDLINER_MODULE = struct
     let get_threshold () =
       let file = "threshold.json" in
       Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (string_of_file (X.dir / file))
-      with _ -> None
+      try Some (string_of_file (X.dir / file)) with _ -> None
 
     let get_public_keys () =
       load_from_file (fun x -> x) (X.dir/"public_keys.jsons") |>
@@ -307,14 +307,12 @@ module Election : CMDLINER_MODULE = struct
     let get_public_creds () =
       let file = "public_creds.txt" in
       Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (lines_of_file (X.dir / file))
-      with _ -> None
+      try Some (lines_of_file (X.dir / file)) with _ -> None
 
     let get_ballots () =
       let file = "ballots.jsons" in
       Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (lines_of_file (X.dir / file))
-      with _ -> None
+      try Some (lines_of_file (X.dir / file)) with _ -> None
 
     let get_result () =
       load_from_file (fun x -> x) (X.dir/"result.json") |> function

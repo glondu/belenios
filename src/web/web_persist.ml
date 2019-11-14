@@ -47,10 +47,9 @@ let get_election_result uuid =
 let set_election_result_hidden uuid hidden =
   match hidden with
   | None ->
-    (
-      try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "hide_result")
-      with _ -> return_unit
-    )
+     (try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "hide_result") with
+      | _ -> return_unit
+     )
   | Some d -> write_file ~uuid "hide_result" [string_of_datetime d]
 
 let get_election_result_hidden uuid =
@@ -129,9 +128,8 @@ let set_election_auto_dates uuid x =
 let set_election_state uuid s =
   match s with
   | `Archived ->
-     (
-       try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "state.json")
-       with _ -> return_unit
+     (try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "state.json") with
+      | _ -> return_unit
      )
   | _ -> write_file ~uuid "state.json" [string_of_election_state s]
 
@@ -326,13 +324,12 @@ let get_ballot_hashes uuid =
      StringMap.bindings ballots |> List.map fst |> return
   | _ ->
      let uuid_s = raw_string_of_uuid uuid in
-     try%lwt
-       let ballots = Lwt_unix.files_of_directory (!Web_config.spool_dir / uuid_s / "ballots") in
-       let%lwt ballots = Lwt_stream.to_list ballots in
-       let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
-       return (List.rev_map unurlize ballots)
-     with Unix.Unix_error(Unix.ENOENT, "opendir", _) ->
-       return []
+     match%lwt Lwt_unix.files_of_directory (!Web_config.spool_dir / uuid_s / "ballots") |> Lwt_stream.to_list with
+     | ballots ->
+        let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
+        return (List.rev_map unurlize ballots)
+     | exception Unix.Unix_error(Unix.ENOENT, "opendir", _) ->
+        return []
 
 let get_ballot_by_hash uuid hash =
   match%lwt get_election_state uuid with
