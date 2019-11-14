@@ -162,7 +162,7 @@ let lookup_account ~service ~username ~email =
   let username = String.trim username |> String.lowercase_ascii in
   let email = email |> String.lowercase_ascii in
   match get_password_db_fname service with
-  | None -> return None
+  | None -> return_none
   | Some db ->
      let%lwt db = Lwt_preemptive.detach Csv.load db in
      match
@@ -172,5 +172,5 @@ let lookup_account ~service ~username ~email =
            | _ -> false
          ) db
      with
-     | Some (u :: _ :: _ :: e :: _) when is_email e -> return (Some (u, e))
-     | _ -> return None
+     | Some (u :: _ :: _ :: e :: _) when is_email e -> return_some (u, e)
+     | _ -> return_none

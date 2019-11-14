@@ -282,10 +282,10 @@ let delete_election uuid =
   let%lwt de_trustees_threshold =
     let%lwt threshold = Web_persist.get_threshold uuid in
     match threshold with
-    | None -> return None
+    | None -> return_none
     | Some x ->
        let x = threshold_parameters_of_string Yojson.Safe.read_json x in
-       return (Some x.t_threshold)
+       return_some x.t_threshold
   in
   let%lwt pks = Web_persist.get_public_keys uuid in
   let%lwt voters = Web_persist.get_voters uuid in
@@ -380,10 +380,10 @@ let () = Html.register ~service:admin
     let%lwt site_user = Eliom_reference.get Web_state.site_user in
     let%lwt elections =
       match site_user with
-      | None -> return None
+      | None -> return_none
       | Some u ->
          let%lwt elections = get_elections_by_owner_sorted u in
-         return @@ Some elections
+         return_some elections
     in
     T.admin ~elections ()
   )
@@ -2223,8 +2223,8 @@ let () =
       let%lwt error =
         let%lwt ok = Web_signup.check_captcha ~challenge ~response in
         if ok then
-          if is_email email then return None else return (Some BadAddress)
-        else return (Some BadCaptcha)
+          if is_email email then return_none else return_some BadAddress
+        else return_some BadCaptcha
       in
       match error with
       | None ->
@@ -2255,8 +2255,8 @@ let () =
     (fun service (challenge, (response, (email, username))) ->
       let%lwt error =
         let%lwt ok = Web_signup.check_captcha ~challenge ~response in
-        if ok then return None
-        else return (Some BadCaptcha)
+        if ok then return_none
+        else return_some BadCaptcha
       in
       match error with
       | None ->
@@ -2344,7 +2344,7 @@ let extract_automatic_data_draft uuid_s =
      let contact = se.se_metadata.e_contact in
      let t = Option.get se.se_creation_date default_creation_date in
      let next_t = datetime_add t (day days_to_delete) in
-     return @@ Some (`Destroy, uuid, next_t, name, contact)
+     return_some (`Destroy, uuid, next_t, name, contact)
 
 let extract_automatic_data_validated uuid_s =
   let uuid = uuid_of_raw_string uuid_s in
@@ -2362,17 +2362,17 @@ let extract_automatic_data_validated uuid_s =
         let%lwt t = Web_persist.get_election_date `Validation uuid in
         let t = Option.get t default_validation_date in
         let next_t = datetime_add t (day days_to_delete) in
-        return @@ Some (`Delete, uuid, next_t, name, contact)
+        return_some (`Delete, uuid, next_t, name, contact)
      | `Tallied ->
         let%lwt t = Web_persist.get_election_date `Tally uuid in
         let t = Option.get t default_tally_date in
         let next_t = datetime_add t (day days_to_archive) in
-        return @@ Some (`Archive, uuid, next_t, name, contact)
+        return_some (`Archive, uuid, next_t, name, contact)
      | `Archived ->
         let%lwt t = Web_persist.get_election_date `Archive uuid in
         let t = Option.get t default_archive_date in
         let next_t = datetime_add t (day days_to_delete) in
-        return @@ Some (`Delete, uuid, next_t, name, contact)
+        return_some (`Delete, uuid, next_t, name, contact)
 
 let try_extract extract x =
   try%lwt extract x with _ -> return_none

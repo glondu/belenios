@@ -52,8 +52,8 @@ let oidc_get_userinfo ocfg info =
      let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
      let%lwt () = Ocsigen_stream.finalize stream `Success in
      let x = oidc_userinfo_of_string info in
-     return (Some (match x.oidc_email with Some x -> x | None -> x.oidc_sub))
-  | None -> return None
+     return_some (match x.oidc_email with Some x -> x | None -> x.oidc_sub)
+  | None -> return_none
 
 let oidc_get_name ocfg client_id client_secret code =
   let content = [
@@ -69,7 +69,7 @@ let oidc_get_name ocfg client_id client_secret code =
     let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
     let%lwt () = Ocsigen_stream.finalize stream `Success in
     oidc_get_userinfo ocfg info
-  | None -> return None
+  | None -> return_none
 
 let oidc_handler params () =
   Web_auth.run_post_login_handler "oidc" (fun _ _ authenticate ->

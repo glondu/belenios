@@ -33,7 +33,7 @@ let ( / ) = Filename.concat
 
 let get_draft_election uuid =
   match%lwt read_file ~uuid "draft.json" with
-  | Some [x] -> return @@ Some (draft_election_of_string x)
+  | Some [x] -> return_some (draft_election_of_string x)
   | _ -> return_none
 
 let set_draft_election uuid se =
@@ -41,7 +41,7 @@ let set_draft_election uuid se =
 
 let get_election_result uuid =
   match%lwt read_file ~uuid "result.json" with
-  | Some [x] -> return (Some (election_result_of_string Yojson.Safe.read_json x))
+  | Some [x] -> return_some (election_result_of_string Yojson.Safe.read_json x)
   | _ -> return_none
 
 let set_election_result_hidden uuid hidden =
@@ -57,7 +57,7 @@ let get_election_result_hidden uuid =
   | Some [x] ->
      let t = datetime_of_string x in
      if datetime_compare (now ()) t < 0 then
-       return (Some t)
+       return_some t
      else
        let%lwt () = set_election_result_hidden uuid None in
        return_none
@@ -168,7 +168,7 @@ let set_partial_decryptions uuid pds =
 
 let get_decryption_tokens uuid =
   match%lwt read_file ~uuid "decryption_tokens.json" with
-  | Some [x] -> return @@ Some (decryption_tokens_of_string x)
+  | Some [x] -> return_some (decryption_tokens_of_string x)
   | _ -> return_none
 
 let set_decryption_tokens uuid pds =
@@ -177,7 +177,7 @@ let set_decryption_tokens uuid pds =
 
 let get_raw_election uuid =
   match%lwt read_file ~uuid "election.json" with
-  | Some [x] -> return (Some x)
+  | Some [x] -> return_some x
   | _ -> return_none
 
 let empty_metadata = {
@@ -216,7 +216,7 @@ let get_elections_by_owner user =
     Lwt_list.filter_map_s
       (fun x ->
         if x = "." || x = ".." then
-          return None
+          return_none
         else (
           try
             let uuid = uuid_of_raw_string x in
@@ -246,16 +246,16 @@ let get_elections_by_owner user =
                               let date = Option.get date default_archive_date in
                               return (`Archived, date)
                          in
-                         return @@ Some (kind, uuid, date, election.e_params.e_name)
+                         return_some (kind, uuid, date, election.e_params.e_name)
                     )
                  | _ -> return_none
                )
             | Some se ->
                if se.se_owner = user then
                  let date = Option.get se.se_creation_date default_creation_date in
-                 return @@ Some (`Draft, uuid, date, se.se_questions.t_name)
+                 return_some (`Draft, uuid, date, se.se_questions.t_name)
                else return_none
-          with _ -> return None
+          with _ -> return_none
         )
       )
 
@@ -276,14 +276,14 @@ let get_passwords uuid =
           SMap.add login (salt, hash) accu
        | _ -> accu
      ) SMap.empty csv in
-     return @@ Some res
+     return_some res
 
 let get_public_keys uuid =
   read_file ~uuid "public_keys.jsons"
 
 let get_private_key uuid =
   match%lwt read_file ~uuid "private_key.json" with
-  | Some [x] -> return (Some (number_of_string x))
+  | Some [x] -> return_some (number_of_string x)
   | _ -> return_none
 
 let get_private_keys uuid =
@@ -291,7 +291,7 @@ let get_private_keys uuid =
 
 let get_threshold uuid =
   match%lwt read_file ~uuid "threshold.json" with
-  | Some [x] -> return (Some x)
+  | Some [x] -> return_some x
   | _ -> return_none
 
 module StringMap = Map.Make (String)
@@ -339,7 +339,7 @@ let get_ballot_by_hash uuid hash =
   | _ ->
      let%lwt ballot = read_file ~uuid ("ballots" / urlize hash) in
      match ballot with
-     | Some [x] -> return (Some x)
+     | Some [x] -> return_some x
      | _ -> return_none
 
 let load_ballots uuid =
@@ -349,7 +349,7 @@ let load_ballots uuid =
     let%lwt ballots = Lwt_stream.to_list ballots in
     Lwt_list.filter_map_s (fun x ->
         match%lwt read_file (ballots_dir / x) with
-        | Some [x] -> return (Some x)
+        | Some [x] -> return_some x
         | _ -> return_none
       ) ballots
   ) else return []
@@ -377,7 +377,7 @@ let replace_ballot uuid ~hash ~rawballot =
 let compute_encrypted_tally uuid =
   let%lwt election = get_raw_election uuid in
   match election with
-  | None -> return None
+  | None -> return_none
   | Some election ->
      let election = Election.of_string election in
      let module W = (val Election.get_group election) in
@@ -392,7 +392,7 @@ let compute_encrypted_tally uuid =
      in
      let tally = string_of_encrypted_tally E.G.write tally in
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
-     return (Some (num_tallied, sha256_b64 tally, tally))
+     return_some (num_tallied, sha256_b64 tally, tally)
 
 module ExtendedRecordsCacheTypes = struct
   type key = uuid

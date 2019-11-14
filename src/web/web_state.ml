@@ -30,8 +30,8 @@ let election_user = Eliom_reference.eref ~scope None
 
 let get_election_user uuid =
   match%lwt Eliom_reference.get election_user with
-  | Some (u, x) when u = uuid -> return (Some x)
-  | _ -> return None
+  | Some (u, x) when u = uuid -> return_some x
+  | _ -> return_none
 
 let ballot = Eliom_reference.eref ~scope None
 let cast_confirmed = Eliom_reference.eref ~scope None
