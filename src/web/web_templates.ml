@@ -1733,7 +1733,7 @@ let format_question_result uuid l (i, q) r =
                  pcdata (string_of_int i);
                  pcdata "]";
                ];
-             pcdata ".";
+             pcdata ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement).";
            ];
        ]
 
