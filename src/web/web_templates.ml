@@ -482,11 +482,14 @@ let election_draft uuid se () =
       match auth with
       | `Password ->
          div [
-           pcdata "Authentication scheme: password ";
-           post_form ~service:election_draft_auth_genpwd
-             (fun () ->
-               [input ~input_type:`Submit ~value:"Generate and mail missing passwords" string]
-             ) uuid;
+           pcdata "Authentication scheme: password";
+           if List.for_all (fun v -> v.sv_password <> None) se.se_voters then
+             div [pcdata "All passwords have been sent!"]
+           else
+             post_form ~service:election_draft_auth_genpwd
+               (fun () ->
+                 [input ~input_type:`Submit ~value:"Generate and mail missing passwords" string]
+               ) uuid;
          ]
       | `Dummy ->
          div [
