@@ -215,8 +215,22 @@ voters), credentials can be recovered:
 \begin{enumerate}
 \item $\mathcal{A}$ stops $\mathcal{S}$ and computes the initial
   \hyperref[tally]{$\etally$} $\Pi_0$
-\item $\mathcal{M}_1,\dots,\mathcal{M}_p$ shuffle non-homomorphic
-  answers, producing a shuffled $\etally$ $\Pi$
+\item $\mathcal{A}$ extracts the non-homomorphic ciphertexts from the
+  encrypted tally (see
+  section~\ref{shuffles}):
+  \[\tilde\Pi_0=\textsf{nh\_ciphertexts}(\Pi_0)\]
+\item for $z\in[1\dots m]$:
+  \begin{enumerate}
+  \item $\mathcal{A}$ sends $\tilde\Pi_{z-1}$ to $\mathcal{T}_z$
+  \item $\mathcal{T}_z$ runs the shuffle algorithm, producing a
+    \hyperref[shuffles]{$\texttt{shuffle}$} $\sigma_z$ and sends it to
+    $\mathcal{A}$
+  \item $\mathcal{A}$ verifies $\sigma_z$ and extracts
+    $\tilde\Pi_z=\textsf{ciphertexts}(\sigma_z)$
+  \end{enumerate}
+\item $\mathcal{A}$ merges shuffled non-homomorphic ciphertexts with
+  homomorphic ciphertexts, i.e. builds $\Pi$ such
+  that:\[\tilde\Pi_m=\textsf{nh\_ciphertexts}(\Pi)\]
 \item for $z\in[1\dots m]$ (or, if in threshold mode, a subset of it
   of size at least $t+1$),
   \begin{enumerate}
@@ -228,7 +242,8 @@ voters), credentials can be recovered:
   \end{enumerate}
 \item $\mathcal{A}$ combines all the partial decryptions, computes and publishes
   the election \hyperref[election-result]{\result}
- \item $\mathcal{T}_z$ checks that $\delta_z$ appears in {\result}
+\item $\mathcal{T}_z$ checks that $\delta_z$ and $\sigma_z$ appears in
+  {\result}
 \end{enumerate}
 
 \subsection{Audit}
@@ -780,6 +795,22 @@ big.
 \newcommand{\iprove}{\textsf{iprove}}
 
 \begin{gather*}
+  \election=\left\{
+    \begin{array}{rcl}
+      \textsf{description}&:&\jstring\\
+      \textsf{name}&:&\jstring\\
+      \textsf{public\_key}&:&\texttt{wrapped\_pk}\\
+      \textsf{questions}&:&\texttt{question}^\ast\\
+      \textsf{uuid}&:&\texttt{uuid}
+    \end{array}
+  \right\}
+\end{gather*}
+
+The $\election$ structure includes all public data related to an
+election and is sent to each voter. It uses the $\texttt{wrapped\_pk}$
+defined below:
+
+\begin{gather*}
   \texttt{embedding}=\left\{
     \begin{array}{rcl}
       \textsf{padding}&:&\I\\
@@ -811,18 +842,6 @@ group parameters in a \texttt{wrapped\_pk} structure. The
 \texttt{embedding} structure is required when the election includes a
 non-homomorphic question; its meaning will be explained in
 section~\ref{nh-answers}.
-
-\begin{gather*}
-  \election=\left\{
-    \begin{array}{rcl}
-      \textsf{description}&:&\jstring\\
-      \textsf{name}&:&\jstring\\
-      \textsf{public\_key}&:&\texttt{wrapped\_pk}\\
-      \textsf{questions}&:&\texttt{question}^\ast\\
-      \textsf{uuid}&:&\texttt{uuid}
-    \end{array}
-  \right\}
-\end{gather*}
 
 During an election, the following data needs to be public in order to
 verify the setup phase and to validate ballots:
@@ -862,7 +881,9 @@ verify the setup phase and to validate ballots:
 \end{gather*}
 
 The structure of an answer to a \hyperref[elections]{$\question$}
-depends on the type of the question.
+depends on the type of the question. In all cases, a
+\hyperref[credentials]{credential} $c$ is needed. Let $s=\secret(c)$,
+and $S=g^s$ written in base 10.
 
 \subsubsection{Homomorphic answers}
 
@@ -884,11 +905,8 @@ Gamal-like fashion) into a $\ciphertext$ as follows:
 \end{enumerate}
 where $y$ is the election public key.
 
-To compute the proofs, the voter needs a
-\hyperref[credentials]{credential} $c$. Let $s=\secret(c)$, and
-$S=g^s$ written in base 10. The individual proof that $m\in[0\dots1]$
-is computed by running $\iprove(S,r,m,0,1)$ (see
-section~\ref{iproof}).
+The individual proof that $m\in[0\dots1]$ is computed by running
+$\iprove(S,r,m,0,1)$ (see section~\ref{iproof}).
 
 When a blank vote is not allowed, $\oproof$ proves that
 $M\in[\minlabel\dots\maxlabel]$ and is computed by running
@@ -1268,17 +1286,25 @@ permutation, and a zero-knowledge proof of the permutation is
 computed. All these shuffles are then assembled into a
 $\texttt{shuffle}$ structure:
 \begin{gather*}
-  \texttt{shuffle\_proof}=
-  (\G\times\G\times\G\times(\G\times\G)\times\G^\ast)\times
-  (\Z_q\times\Z_q\times\Z_q\times\Z_q\times\Z_q^\ast\times\Z_q^\ast)\times
-  \G^\ast\times\G^\ast
-  \\
   \texttt{shuffle}=\left\{
     \begin{array}{rcl}
       \textsf{ciphertexts}&:&\ciphertext^\ast{}^\ast\\
       \textsf{proofs}&:&\texttt{shuffle\_proof}^\ast
     \end{array}
   \right\}
+\end{gather*}
+which uses the following auxiliary types:
+\begin{gather*}
+  \begin{array}{rcl}
+    \texttt{shuffle\_commitment\_rand}&=&\G\times\G\times\G\times(\G\times\G)\times\G^\ast\\
+    \texttt{shuffle\_response}&=&\Z_q\times\Z_q\times\Z_q\times\Z_q\times\Z_q^\ast\times\Z_q^\ast\\
+    \texttt{shuffle\_commitment\_perm}&=&\G^\ast\\
+    \texttt{shuffle\_chained\_challenges}&=&\G^\ast\\
+    \texttt{shuffle\_proof}&=&\texttt{shuffle\_commitment\_rand}\\
+                                      &\times&\texttt{shuffle\_response}\\
+                                      &\times&\texttt{shuffle\_commitment\_perm}\\
+                                      &\times&\texttt{shuffle\_chained\_challenges}
+  \end{array}
 \end{gather*}
 For each non-homomorphic question $i$:
 \begin{enumerate}
@@ -1392,14 +1418,14 @@ as follows:
   \[
     \resultlabel_{i,j}=\log_g\left(\frac{\betalabel(a'_{i,j})}{F_{i,j}}\right)
   \]
-  Here, the discrete logarithm can be easily computed because it is
-  bounded by $\ntallied$;
+  where $j$ represents an answer. The discrete logarithm can be easily
+  computed because it is bounded by $\ntallied$;
 \item if question $i$ is non-homomorphic,
   \[
     \resultlabel_{i,j}=\textsf{group\_decode}_{\kappa,p}\left(\frac{\betalabel(a'_{i,j})}{F_{i,j}}\right)
   \]
-  where $\textsf{group\_decode}$ is the inverse of
-  $\textsf{group\_encode}$ from section~\ref{nh-answers}.
+  where $j$ represents a ballot, and $\textsf{group\_decode}$ is the
+  inverse of $\textsf{group\_encode}$ from section~\ref{nh-answers}.
 \end{itemize}
 If the election has non-homomorphic questions, the $\textsf{shuffles}$
 field is set to the computed $\texttt{shuffle}$ structures; otherwise,
@@ -1770,7 +1796,7 @@ algorithms, please refer to the CHVote System Specification.
   \begin{framed}
     \noindent\paragraph{Input}
     \begin{itemize}
-    \item $i\in\N$: number of the independent generator to get
+    \item $i\in\Z$: number of the independent generator to get
     \end{itemize}
     \noindent\paragraph{State (shared between all runs)}
     \begin{itemize}
