@@ -236,7 +236,10 @@ let rec createQuestionDiv question answers props =
   type_div##.style##.display := if !hybrid_mode then Js.string "block" else Js.string "none";
   Dom.appendChild container type_div;
   let prop_div_nh = Dom_html.createDiv document in
-  Dom.appendChild prop_div_nh (document##createTextNode (Js.string "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."));
+  let nh_explain = Dom_html.createDiv document in
+  nh_explain##.className := Js.string "nh_explain";
+  Dom.appendChild nh_explain (document##createTextNode (Js.string "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."));
+  Dom.appendChild prop_div_nh nh_explain;
   let _type = Js.string "radio" and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
   let x = Dom_html.createDiv document in
   Dom.appendChild type_div x;

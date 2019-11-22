@@ -43,6 +43,15 @@ button {
     margin-bottom: 2em;
     margin-left: 10%;
     margin-right: 10%;
+    font-size: 80%;
+    padding: 3px;
+    line-height: 2.2ex;
+}
+.nh_explain {
+    font-size: 90%;
+    line-height: 2.2ex;
+    font-style: italic;
+    margin-bottom: 2ex;
 }
 .result_question {
     font-weight: bold;
