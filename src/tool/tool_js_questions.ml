@@ -28,23 +28,25 @@ let handler f = Dom_html.handler (fun e -> ignore (f e); Js._false)
 
 let hybrid_mode = ref false
 
+let q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |]
+
 let default_question_h =
   let open Question_h_t in
   Question.Homomorphic
     {
-      q_question = "";
-      q_min = 0;
-      q_max = 1;
+      q_question = "Question?";
+      q_min = 1;
+      q_max = 2;
       q_blank = None;
-      q_answers = [||];
+      q_answers;
     }
 
 let default_question_nh =
   let open Question_nh_t in
   Question.NonHomomorphic
     {
-      q_question = "";
-      q_answers = [||];
+      q_question = "Give a rank to each candidate (a number between 1 and 3)";
+      q_answers;
     }
 
 let default_question () =
@@ -188,7 +190,16 @@ let deleteQuestion q =
   Dom.removeChild x q;
   return ()
 
-let rec createQuestionDiv question answers props =
+let rec createQuestion q =
+  let question, answers, props =
+    match q with
+    | Question.Homomorphic q ->
+       let open Question_h_t in
+       q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max)
+    | Question.NonHomomorphic q ->
+       let open Question_nh_t in
+       q.q_question, q.q_answers, None
+  in
   let container = Dom_html.createDiv document in
   container##.className := Js.string "question";
   (* question text and remove/insert buttons *)
@@ -213,8 +224,7 @@ let rec createQuestionDiv question answers props =
   let insert_text = document##createTextNode (Js.string "Insert") in
   let insert_btn = Dom_html.createButton document in
   let f _ =
-    let p = if !hybrid_mode then None else Some default_props in
-    let x = createQuestionDiv "" [||] p in
+    let x = createQuestion (default_question ()) in
     container##.parentNode >>= fun p ->
     Dom.insertBefore p x (Js.some container);
     return ()
@@ -261,10 +271,12 @@ let rec createQuestionDiv question answers props =
   let f =
     handler
       (fun _ ->
+        container##.parentNode >>= fun parent ->
         if Js.to_bool cb_type##.checked then
-          Dom.replaceChild container prop_div_nh prop_div_h
+          Dom.replaceChild parent (createQuestion default_question_nh) container
         else
-          Dom.replaceChild container prop_div_h prop_div_nh
+          Dom.replaceChild parent (createQuestion default_question_h) container;
+        return ()
       )
   in
   cb_type##.onchange := f;
@@ -299,18 +311,6 @@ let rec createQuestionDiv question answers props =
   Dom.appendChild container x;
   (* return *)
   container
-
-let createQuestion q =
-  let question, answers, props =
-    match q with
-    | Question.Homomorphic q ->
-       let open Question_h_t in
-       q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max)
-    | Question.NonHomomorphic q ->
-       let open Question_nh_t in
-       q.q_question, q.q_answers, None
-  in
-  createQuestionDiv question answers props
 
 let createTemplate template =
   let container = Dom_html.createDiv document in
@@ -389,36 +389,14 @@ let createTemplate template =
 
 (* Handling of hybrid checkbox *)
 
-let q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |]
-
-let first_question_h =
-  let open Question_h_t in
-  Question.Homomorphic
-    {
-      q_question = "Question 1?";
-      q_min = 1;
-      q_max = 2;
-      q_blank = None;
-      q_answers;
-    }
-
-let first_question_nh =
-  let open Question_nh_t in
-  Question.NonHomomorphic
-    {
-      q_question = "Give a rank to each candidate (a number between 1 and 3)";
-      q_answers;
-    }
-
 let handle_hybrid e _ =
   hybrid_mode := Js.to_bool e##.checked;
   let qs = document##querySelectorAll (Js.string ".question") in
   for i = 0 to qs##.length do
     ignore (qs##item i >>= deleteQuestion)
   done;
-  let q = if !hybrid_mode then first_question_nh else first_question_h in
   document##getElementById (Js.string "election_questions") >>= fun qsdiv ->
-  Dom.appendChild qsdiv (createQuestion q);
+  Dom.appendChild qsdiv (createQuestion (default_question ()));
   return ()
 
 (* Entry point *)
