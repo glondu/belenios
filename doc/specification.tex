@@ -50,6 +50,7 @@
 \tableofcontents
 
 \section{Introduction}
+{\it References.}
 This document is a specification of the voting protocol implemented in
 Belenios \version.
 A high level description of Belenios and some statistics about its
@@ -78,14 +79,36 @@ proved in~\cite{wpes2013,asiacrypt12}.
     homomorphically or shuffled and randomized, using mixnets. The
     mixnet algorithms are taken from the CHVote specification~\cite{CHVote}.
 \end{itemize}
-% Veronique : c'est un cauchemar toutes ces refs... ;-)
-
 
 % has been conducted with EasyCrypt and shows
 % More discussion, theoretical explanations and
 % bibliographical references can be found in an article
 % available online.\footnote{\url{https://hal.inria.fr/hal-02066930/document}}
 
+{\it Types of supported elections.}
+Belenios supports two main types of questions.
+In the \emph{homomorphic case}, voters can select between $k_1$ and
+$k_2$ candidates out of $k$ candidates. This case is called
+homomorphic because the result of the election for such questions is
+the number of votes received for each candidate. No more information
+is leaked.
+In the \emph{non homomorphic case}, voters can give a number to each
+candidate. This can be used to rank candidates or grade them. Then the
+(raw) result of the election is simply the list of votes, as emitted
+by the voters, in
+a random order, to preserve privacy.
+Any couting method can be then  applied
+(e.g. Condorcet, STV, or majority judgement) although Belenios does
+not offer support for this.
+The non homomorphic case  therefore offers much more flexibility, at
+the cost of extra steps during the tally (in order to securely shuffle
+the ballots).
+Belenios supports both types of questions and an election can even
+mix homomorphic and non homomorphic questions.
+% and slightly less privacy
+\medskip
+
+{\it Group parameters}
 The cryptography involved in Belenios needs a cyclic group $\G$ where
 discrete logarithms are hard to compute. We will denote by $g$ a
 generator and $q$ its order. We use a multiplicative notation for the
@@ -116,7 +139,7 @@ section~\ref{default-group}.
 \item $\mathcal{C}$: credential authority
 \item $\mathcal{T}_1,\dots,\mathcal{T}_m$: trustees
 \item $\mathcal{V}_1,\dots,\mathcal{V}_n$: voters
-\item $\mathcal{M}_1,\dots,\mathcal{M}_p$: shufflers (if using non-homomorphic questions)
+%\item $\mathcal{M}_1,\dots,\mathcal{M}_p$: shufflers (if using non-homomorphic questions)
 \item $\mathcal{S}$: voting server \\
   The voting server maintains the public data $D$ that
 consists of:
@@ -250,7 +273,9 @@ voters), credentials can be recovered:
   encrypted tally (see
   section~\ref{shuffles}):
   \[\tilde\Pi_0=\textsf{nh\_ciphertexts}(\Pi_0)\]
-\item for $z\in[1\dots m]$:
+\item if the election contains a non homomorphic part, that is, if
+  $\tilde\Pi_0\neq []$,
+ then for $z\in[1\dots m]$:
   \begin{enumerate}
   \item $\mathcal{A}$ sends $\tilde\Pi_{z-1}$ to $\mathcal{T}_z$
   \item $\mathcal{T}_z$ runs the shuffle algorithm, producing a
@@ -328,7 +353,10 @@ The auditor retrieve the election data $D$ and in
   \item she checks that $B$ corresponds to the board
       monitored so far thus performs all
     the checks described at step 2 of section~\ref{sec:audit-voting};
-  \item she checks that the proofs of the result $r$ are valid w.r.t. $B$.
+  \item she checks that the proofs of the result $r$ are valid
+    w.r.t. $B$.
+She checks in particular the proofs of correct decryption and the
+proofs of correct shuffling (when shufllers have been used).
 \end{enumerate}
 To ease verification of the trustees and the credential authorities,
 it is possible to display the hash of their public data (e.g. the
