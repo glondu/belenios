@@ -2229,7 +2229,16 @@ let () =
 let () =
   Any.register ~service:election_draft_threshold_trustee
     (fun (uuid, token) () ->
-      without_site_user (fun () ->
+      without_site_user
+        ~fallback:(fun u ->
+          match%lwt Web_persist.get_draft_election uuid with
+          | None -> fail_http 404
+          | Some se ->
+             if se.se_owner = u then (
+               T.election_draft_threshold_trustees ~token uuid se () >>= Html.send
+             ) else forbidden ()
+        )
+        (fun () ->
           match%lwt Web_persist.get_draft_election uuid with
           | None -> fail_http 404
           | Some se -> T.election_draft_threshold_trustee token uuid se () >>= Html.send

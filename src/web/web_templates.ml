@@ -779,7 +779,7 @@ let election_draft_trustees ?token uuid se () =
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
-let election_draft_threshold_trustees uuid se () =
+let election_draft_threshold_trustees ?token uuid se () =
   let title = "Trustees for election " ^ se.se_questions.t_name in
   let show_add_remove = se.se_threshold = None in
   let form_trustees_add =
@@ -807,65 +807,98 @@ let election_draft_threshold_trustees uuid se () =
   let trustees = match se.se_threshold_trustees with
     | None -> pcdata ""
     | Some ts ->
-       div [
-       table (
-         tr (
-           [
-             th [pcdata "Trustee"];
-             th [pcdata "Mail"];
-             th [pcdata "Link"];
-             th [pcdata "State"];
-           ] @ (if show_add_remove then [th [pcdata "Remove"]] else [])
-         ) ::
-           List.mapi (fun i t ->
-               let state =
-                 match t.stt_step with
-                 | None -> "init"
-                 | Some 1 -> "1a"
-                 | Some 2 -> "1b"
-                 | Some 3 -> "2a"
-                 | Some 4 -> "2b"
-                 | Some 5 -> "3a"
-                 | Some 6 -> "3b"
-                 | Some 7 -> "done"
-                 | _ -> "unknown"
-               in
-             tr (
+       let ts =
+         List.mapi (fun i t ->
+             let this_line =
+               match token with
+               | Some x when x = t.stt_token -> true
+               | _ -> false
+             in
+             let state =
+               match t.stt_step with
+               | None -> "init"
+               | Some 1 -> "1a"
+               | Some 2 -> "1b"
+               | Some 3 -> "2a"
+               | Some 4 -> "2b"
+               | Some 5 -> "3a"
+               | Some 6 -> "3b"
+               | Some 7 -> "done"
+               | _ -> "unknown"
+             in
+             let first_line =
+               tr (
+                   [
+                     td [
+                         pcdata t.stt_id;
+                       ];
+                     td [
+                         let uri = rewrite_prefix @@
+                                     Eliom_uri.make_string_uri
+                                       ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
+                         in
+                         let body = Printf.sprintf mail_trustee_generation uri in
+                         let subject = "Link to generate the decryption key" in
+                         a_mailto ~dest:t.stt_id ~subject ~body "Mail"
+                       ];
+                     td [
+                         if this_line then
+                           a ~service:election_draft_threshold_trustees [pcdata "Hide link"] uuid
+                         else
+                           a ~service:election_draft_threshold_trustee [pcdata "Link"] (uuid, t.stt_token)
+                       ];
+                     td [
+                         pcdata state;
+                       ];
+                   ] @ (if show_add_remove then [td [mk_form_trustee_del i]] else [])
+                 )
+             in
+             let second_line =
+               if this_line then
                  [
-                   td [
-                       pcdata t.stt_id;
-                     ];
-                   td [
-                       let uri = rewrite_prefix @@
-                                   Eliom_uri.make_string_uri
-                                     ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
-                       in
-                       let body = Printf.sprintf mail_trustee_generation uri in
-                       let subject = "Link to generate the decryption key" in
-                       a_mailto ~dest:t.stt_id ~subject ~body "Mail"
-                     ];
-                   td [
-                       a ~service:election_draft_threshold_trustee [pcdata "Link"] (uuid, t.stt_token);
-                     ];
-                   td [
-                       pcdata state;
-                     ];
-                 ] @ (if show_add_remove then [td [mk_form_trustee_del i]] else [])
-               )
-             ) ts
-         );
+                   tr
+                     [
+                       td ~a:[a_colspan (if show_add_remove then 5 else 4)]
+                         [
+                           pcdata "The link that must be sent to trustee ";
+                           pcdata t.stt_id;
+                           pcdata " is:";
+                           br ();
+                           Eliom_uri.make_string_uri ~absolute:true
+                             ~service:election_draft_threshold_trustee
+                             (uuid, t.stt_token)
+                           |> rewrite_prefix |> pcdata
+                         ]
+                     ]
+                 ]
+               else []
+             in
+             first_line :: second_line
+           ) ts
+       in
        div [
-           pcdata "Meaning of states:";
-           ul [
-               li [pcdata "init: administrator needs to set threshold"];
-               li [pcdata "1a: action needed from trustee: generate private key"];
-               li [pcdata "2a, 3a: action needed from trustee: enter private key"];
-               li [pcdata "1b, 2b, 3b: waiting for other trustees"];
-               li [pcdata "done: the key establishment protocol is finished"];
+           table (
+               tr (
+                   [
+                     th [pcdata "Trustee"];
+                     th [pcdata "Mail"];
+                     th [pcdata "Link"];
+                     th [pcdata "State"];
+                   ] @ (if show_add_remove then [th [pcdata "Remove"]] else [])
+                 ) :: (List.flatten ts)
+             );
+           div [
+               pcdata "Meaning of states:";
+               ul [
+                   li [pcdata "init: administrator needs to set threshold"];
+                   li [pcdata "1a: action needed from trustee: generate private key"];
+                   li [pcdata "2a, 3a: action needed from trustee: enter private key"];
+                   li [pcdata "1b, 2b, 3b: waiting for other trustees"];
+                   li [pcdata "done: the key establishment protocol is finished"];
+                 ];
              ];
-         ];
-       br ();
-       ]
+           br ();
+         ]
   in
   let form_threshold, form_reset =
     match se.se_threshold_trustees with
