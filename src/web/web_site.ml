@@ -2586,11 +2586,7 @@ let get_next_actions () =
     )
 
 let mail_automatic_warning : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "The election %s available at:
-
-  %s
-
-will be automatically %s after %s.
+  "The election %s will be automatically %s after %s.
 
 -- \nBelenios"
 
@@ -2629,13 +2625,9 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
                 Printf.sprintf "Election %s will be automatically %s soon"
                   name comment
               in
-              let uri =
-                Eliom_uri.make_string_uri ~absolute:true
-                  ~service:election_home (uuid, ()) |> rewrite_prefix
-              in
               let body =
                 Printf.sprintf mail_automatic_warning
-                  name uri comment (format_datetime next_t)
+                  name comment (format_datetime next_t)
               in
               let%lwt () = send_email email subject body in
               Web_persist.set_election_date `LastMail uuid now
@@ -2643,13 +2635,11 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
     ) else return_unit
   )
 
-let () =
+let rec data_policy_loop () =
   let open Ocsigen_messages in
-  let rec loop () =
-    let () = console (fun () -> "Data policy process started") in
-    let%lwt elections = get_next_actions () in
-    let%lwt () = Lwt_list.iter_s process_election_for_data_policy elections in
-    let () = console (fun () -> "Data policy process completed") in
-    let%lwt () = Lwt_unix.sleep 3600. in
-    loop ()
-  in Lwt.async loop
+  let () = accesslog "Data policy process started" in
+  let%lwt elections = get_next_actions () in
+  let%lwt () = Lwt_list.iter_s process_election_for_data_policy elections in
+  let () = accesslog "Data policy process completed" in
+  let%lwt () = Lwt_unix.sleep 3600. in
+  data_policy_loop ()
