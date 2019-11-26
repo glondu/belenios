@@ -2448,13 +2448,11 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
     ) else return_unit
   )
 
-let () =
+let rec data_policy_loop () =
   let open Ocsigen_messages in
-  let rec loop () =
-    let () = console (fun () -> "Data policy process started") in
-    let%lwt elections = get_next_actions () in
-    let%lwt () = Lwt_list.iter_s process_election_for_data_policy elections in
-    let () = console (fun () -> "Data policy process completed") in
-    let%lwt () = Lwt_unix.sleep 3600. in
-    loop ()
-  in Lwt.async loop
+  let () = accesslog "Data policy process started" in
+  let%lwt elections = get_next_actions () in
+  let%lwt () = Lwt_list.iter_s process_election_for_data_policy elections in
+  let () = accesslog "Data policy process completed" in
+  let%lwt () = Lwt_unix.sleep 3600. in
+  data_policy_loop ()

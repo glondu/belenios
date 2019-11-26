@@ -125,3 +125,4 @@ let () = Web_config.source_file := source_file
 let () = Web_config.spool_dir := spool_dir
 let () = Web_config.default_group := default_group
 let () = Web_config.site_auth_config := List.rev !auth_instances
+let () = Lwt.async Web_site.data_policy_loop
