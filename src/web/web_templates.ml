@@ -2029,7 +2029,7 @@ type web_shuffler = {
     mutable ws_hash : string option;
 }
 
-let election_admin election metadata state get_tokens_decrypt () =
+let election_admin ?shuffle_token election metadata state get_tokens_decrypt () =
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — Administration" in
   let auto_form () =
@@ -2167,42 +2167,72 @@ let election_admin election metadata state get_tokens_decrypt () =
                | None -> mk_skip false, pcdata "", false
                | Some h -> mk_skip true, pcdata (if h = "" then "(skipped)" else h), true
              in
-             tr
-               [
-                 td [pcdata x.ws_trustee];
-                 td
-                   [
-                     match x.ws_select with
-                     | Some token ->
-                        let uri =
-                          rewrite_prefix @@
-                            Eliom_uri.make_string_uri
-                              ~absolute:true ~service:election_shuffle_link (uuid, token)
-                        in
-                        let body = Printf.sprintf mail_shuffle uri in
-                        let subject = "Link to shuffle encrypted ballots" in
-                        div
-                          [
-                            a_mailto ~dest:x.ws_trustee ~subject ~body "Mail";
-                            pcdata " | ";
-                            a ~service:election_shuffle_link ~a:[a_id "shuffle-link"]
-                              [pcdata "Link"] (uuid, token)
-                          ]
-                     | None ->
-                        post_form ~service:election_shuffler_select
-                          (fun (nuuid, ntrustee) ->
-                            let a = if select_disabled || done_ then [a_disabled ()] else [] in
+             let this_line =
+               match shuffle_token with
+                 | Some y when x.ws_select = Some y -> true
+                 | _ -> false
+             in
+             let first_line =
+               tr
+                 [
+                   td [pcdata x.ws_trustee];
+                   td
+                     [
+                       match x.ws_select with
+                       | Some token ->
+                          let uri =
+                            rewrite_prefix @@
+                              Eliom_uri.make_string_uri
+                                ~absolute:true ~service:election_shuffle_link (uuid, token)
+                          in
+                          let body = Printf.sprintf mail_shuffle uri in
+                          let subject = "Link to shuffle encrypted ballots" in
+                          div
                             [
-                              input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
-                              input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
-                              input ~a ~input_type:`Submit ~value:"Select this trustee" string;
+                              a_mailto ~dest:x.ws_trustee ~subject ~body "Mail";
+                              pcdata " | ";
+                              if this_line then
+                                a ~service:election_admin [pcdata "Hide link"] uuid
+                              else
+                                a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [pcdata "Link"] (uuid, token)
                             ]
-                          ) ()
-                   ];
-                 td [if done_ then pcdata "Yes" else pcdata "No"];
-                 td [skip];
-                 td [hash];
-               ]
+                       | None ->
+                          post_form ~service:election_shuffler_select
+                            (fun (nuuid, ntrustee) ->
+                              let a = if select_disabled || done_ then [a_disabled ()] else [] in
+                              [
+                                input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                                input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
+                                input ~a ~input_type:`Submit ~value:"Select this trustee" string;
+                              ]
+                            ) ()
+                     ];
+                   td [if done_ then pcdata "Yes" else pcdata "No"];
+                   td [skip];
+                   td [hash];
+                 ]
+             in
+             let second_line =
+               match this_line, x.ws_select with
+               | true, Some token ->
+                  [
+                    tr
+                      [
+                        td ~a:[a_colspan 5]
+                          [
+                            pcdata "The link that must be sent to trustee ";
+                            pcdata x.ws_trustee;
+                            pcdata " is:";
+                            br ();
+                            Eliom_uri.make_string_uri ~absolute:true
+                              ~service:election_shuffle_link (uuid, token)
+                            |> rewrite_prefix |> pcdata
+                          ]
+                      ]
+                  ]
+               | _, _ -> []
+             in
+             first_line :: second_line
            ) shufflers
        in
        let proceed =
@@ -2229,7 +2259,7 @@ let election_admin election metadata state get_tokens_decrypt () =
                           th [pcdata "Done?"];
                           th [];
                           th [pcdata "Hash"];
-                        ] :: table_contents
+                        ] :: (List.flatten table_contents)
                      );
                  ];
                proceed;
