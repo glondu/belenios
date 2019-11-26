@@ -347,13 +347,16 @@ let with_site_user f =
   | Some u -> f u
   | None -> forbidden ()
 
-let without_site_user f =
+let without_site_user ?fallback f =
   match%lwt Eliom_reference.get Web_state.site_user with
   | None -> f ()
-  | Some _ ->
-     T.generic_page ~title:"Error"
-       "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
-       () >>= Html.send
+  | Some u ->
+     match fallback with
+     | Some g -> g u
+     | None ->
+        T.generic_page ~title:"Error"
+          "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
+          () >>= Html.send
 
 let () =
   Redirection.register ~service:privacy_notice_accept
@@ -1027,7 +1030,16 @@ let () =
 let () =
   Any.register ~service:election_draft_trustee
     (fun (uuid, token) () ->
-      without_site_user (fun () ->
+      without_site_user
+        ~fallback:(fun u ->
+          match%lwt Web_persist.get_draft_election uuid with
+          | None -> fail_http 404
+          | Some se ->
+             if se.se_owner = u then (
+               T.election_draft_trustees ~token uuid se () >>= Html.send
+             ) else forbidden ()
+        )
+        (fun () ->
           match%lwt Web_persist.get_draft_election uuid with
           | None -> fail_http 404
           | Some se -> T.election_draft_trustee token uuid se () >>= Html.send

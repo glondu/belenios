@@ -43,7 +43,7 @@ val election_draft_voters : uuid -> draft_election -> int -> unit -> [> `Html ] 
 val election_draft_questions : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val election_draft_credential_authority : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val election_draft_credentials : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val election_draft_trustees : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val election_draft_trustees : ?token:string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val election_draft_threshold_trustees : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val election_draft_trustee : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val election_draft_threshold_trustee : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

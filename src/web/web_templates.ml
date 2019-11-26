@@ -637,7 +637,7 @@ Thank you for your help,
 
 -- \nThe election administrator."
 
-let election_draft_trustees uuid se () =
+let election_draft_trustees ?token uuid se () =
   let title = "Trustees for election " ^ se.se_questions.t_name in
   let form_trustees_add =
     post_form
@@ -662,45 +662,78 @@ let election_draft_trustees uuid se () =
   let trustees = match se.se_public_keys with
     | [] -> pcdata ""
     | ts ->
-       table (
-         tr [
-           th [pcdata "Trustee"];
-           th [pcdata "Mail"];
-           th [pcdata "Link"];
-           th [pcdata "Done?"];
-           th [pcdata "Remove"];
-         ] ::
-           List.mapi (fun i t ->
-             tr [
-               td [
-                 pcdata t.st_id;
-               ];
-               td [
-                   if t.st_token <> "" then (
-                 let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
-                   ~absolute:true ~service:election_draft_trustee (uuid, t.st_token)
-                 in
-                 let body = Printf.sprintf mail_trustee_generation uri in
-                 let subject = "Link to generate the decryption key" in
-                 a_mailto ~dest:t.st_id ~subject ~body "Mail"
-                   ) else (
-                     pcdata "(server)"
-                   )
-               ];
-               td [
-                   if t.st_token <> "" then (
-                   a ~service:election_draft_trustee [pcdata "Link"] (uuid, t.st_token);
-                   ) else (
-                     pcdata "(server)"
-                   )
-               ];
-               td [
-                 pcdata (if t.st_public_key = "" then "No" else "Yes");
-               ];
-               td [if t.st_id = "server" then pcdata "(cannot be removed)" else mk_form_trustee_del i];
-             ]
+       let ts =
+         List.mapi
+           (fun i t ->
+             let this_line =
+               match token with
+               | Some x when x = t.st_token -> true
+               | _ -> false
+             in
+             let first_line =
+               tr [
+                   td [
+                       pcdata t.st_id;
+                     ];
+                   td [
+                       if t.st_token <> "" then (
+                         let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
+                                                       ~absolute:true ~service:election_draft_trustee (uuid, t.st_token)
+                         in
+                         let body = Printf.sprintf mail_trustee_generation uri in
+                         let subject = "Link to generate the decryption key" in
+                         a_mailto ~dest:t.st_id ~subject ~body "Mail"
+                       ) else (
+                         pcdata "(server)"
+                       )
+                     ];
+                   td [
+                       if t.st_token <> "" then (
+                         if this_line then
+                           a ~service:election_draft_trustees [pcdata "Hide link"] uuid
+                         else
+                           a ~service:election_draft_trustee [pcdata "Link"] (uuid, t.st_token);
+                       ) else (
+                         pcdata "(server)"
+                       )
+                     ];
+                   td [
+                       pcdata (if t.st_public_key = "" then "No" else "Yes");
+                     ];
+                   td [if t.st_id = "server" then pcdata "(cannot be removed)" else mk_form_trustee_del i];
+                 ]
+             in
+             let second_line =
+               if this_line then
+                 [
+                   tr
+                     [
+                       td ~a:[a_colspan 5]
+                         [
+                           pcdata "The link that must be sent to trustee ";
+                           pcdata t.st_id;
+                           pcdata " is:";
+                           br ();
+                           Eliom_uri.make_string_uri ~absolute:true
+                             ~service:election_draft_trustee (uuid, t.st_token)
+                           |> rewrite_prefix |> pcdata
+                         ]
+                     ]
+                 ]
+               else []
+             in
+             first_line :: second_line
            ) ts
-       )
+       in
+       table (
+           tr [
+               th [pcdata "Trustee"];
+               th [pcdata "Mail"];
+               th [pcdata "Link"];
+               th [pcdata "Done?"];
+               th [pcdata "Remove"];
+             ] :: (List.flatten ts)
+         )
   in
   let import_link = div [
                         a ~service:Web_services.election_draft_import_trustees
