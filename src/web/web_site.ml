@@ -1286,7 +1286,7 @@ let () =
       get_cont_state cont ()
     )
 
-let election_admin_handler ?shuffle_token uuid =
+let election_admin_handler ?shuffle_token ?tally_token uuid =
      let%lwt w = find_election uuid in
      let%lwt metadata = Web_persist.get_election_metadata uuid in
      let%lwt site_user = Eliom_reference.get Web_state.site_user in
@@ -1330,7 +1330,7 @@ let election_admin_handler ?shuffle_token uuid =
                let%lwt () = Web_persist.set_decryption_tokens uuid ts in
                return ts
         in
-        T.election_admin ?shuffle_token w metadata state get_tokens_decrypt () >>= Html.send
+        T.election_admin ?shuffle_token ?tally_token w metadata state get_tokens_decrypt () >>= Html.send
      | _ ->
         redir_preapply site_login (None, ContSiteElection uuid) ()
 
@@ -1772,23 +1772,29 @@ let find_trustee_id uuid token =
 let () =
   Any.register ~service:election_tally_trustees
     (fun (uuid, token) () ->
-      let%lwt w = find_election uuid in
-      let%lwt () =
-        match%lwt Web_persist.get_election_state uuid with
-        | `EncryptedTally _ -> return ()
-        | _ -> fail_http 404
-      in
-      match%lwt find_trustee_id uuid token with
-      | Some trustee_id ->
-         let%lwt pds = Web_persist.get_partial_decryptions uuid in
-         if List.mem_assoc trustee_id pds then (
-           T.generic_page ~title:"Error"
-             "Your partial decryption has already been received and checked!"
-             () >>= Html.send
-         ) else (
-           T.tally_trustees w trustee_id token () >>= Html.send
-         )
-      | None -> forbidden ()
+      without_site_user
+        ~fallback:(fun _ ->
+          election_admin_handler ~tally_token:token uuid
+        )
+        (fun () ->
+          let%lwt w = find_election uuid in
+          let%lwt () =
+            match%lwt Web_persist.get_election_state uuid with
+            | `EncryptedTally _ -> return ()
+            | _ -> fail_http 404
+          in
+          match%lwt find_trustee_id uuid token with
+          | Some trustee_id ->
+             let%lwt pds = Web_persist.get_partial_decryptions uuid in
+             if List.mem_assoc trustee_id pds then (
+               T.generic_page ~title:"Error"
+                 "Your partial decryption has already been received and checked!"
+                 () >>= Html.send
+             ) else (
+               T.tally_trustees w trustee_id token () >>= Html.send
+             )
+          | None -> forbidden ()
+        )
     )
 
 let () =

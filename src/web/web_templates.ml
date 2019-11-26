@@ -2029,7 +2029,7 @@ type web_shuffler = {
     mutable ws_hash : string option;
 }
 
-let election_admin ?shuffle_token election metadata state get_tokens_decrypt () =
+let election_admin ?shuffle_token ?tally_token election metadata state get_tokens_decrypt () =
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — Administration" in
   let auto_form () =
@@ -2300,6 +2300,11 @@ let election_admin ?shuffle_token election metadata state get_tokens_decrypt () 
        let trustees =
          List.map
            (fun ((name, trustee_id), token) ->
+             let this_line =
+               match tally_token with
+               | Some x when x = token -> true
+               | _ -> false
+             in
              let service = election_tally_trustees in
              let x = (uuid, token) in
              let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
@@ -2317,17 +2322,40 @@ let election_admin ?shuffle_token election metadata state get_tokens_decrypt () 
                  let body = Printf.sprintf mail_trustee_tally uri in
                  let subject = "Link to tally the election" in
                  a_mailto ~dest ~subject ~body "Mail",
-                 a ~service [pcdata "Link"] x
+                 if this_line then
+                   a ~service:election_admin [pcdata "Hide link"] uuid
+                 else
+                   a ~service [pcdata "Link"] x
                )
              in
-             tr [
-               td [pcdata link_content];
-               td [mail];
-               td [link];
-               td [
-                 pcdata (if List.mem_assoc trustee_id pds then "Yes" else "No")
-               ];
-             ]
+             let first_line =
+               tr [
+                   td [pcdata link_content];
+                   td [mail];
+                   td [link];
+                   td [
+                       pcdata (if List.mem_assoc trustee_id pds then "Yes" else "No")
+                     ];
+                 ]
+             in
+             let second_line =
+               if this_line then
+                 [
+                   tr
+                     [
+                       td ~a:[a_colspan 4]
+                         [
+                           pcdata "The link that must be sent to trustee ";
+                           pcdata link_content;
+                           pcdata " is:";
+                           br ();
+                           pcdata uri;
+                         ]
+                     ]
+                 ]
+               else []
+             in
+             first_line :: second_line
            ) trustees
        in
        let release_form =
@@ -2361,7 +2389,7 @@ let election_admin ?shuffle_token election metadata state get_tokens_decrypt () 
                th [pcdata "Mail"];
                th [pcdata "Link"];
                th [pcdata "Done?"];
-             ] :: trustees)
+             ] :: List.flatten trustees)
          ];
          release_form;
        ]
