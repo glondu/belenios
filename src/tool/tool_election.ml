@@ -151,7 +151,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   let encrypted_tally =
     lazy (
         match Lazy.force ballots with
-        | None -> failwith "ballots.jsons is missing"
+        | None -> E.neutral_ciphertext (), 0
         | Some ballots ->
            List.fold_left (fun accu (b, _) ->
                E.combine_ciphertexts (E.extract_ciphertext b) accu
