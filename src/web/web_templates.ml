@@ -362,13 +362,7 @@ let election_draft_pre () =
   base ~title ~login_box ~content ()
 
 let preview_booth uuid =
-  let url =
-    Eliom_uri.make_string_uri
-      ~service:election_draft_preview ~absolute:true (uuid, ()) |>
-      rewrite_prefix |>
-      (fun x -> Filename.chop_suffix x "election.json")
-  in
-  let hash = Netencoding.Url.mk_url_encoded_parameters ["url", url] in
+  let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
   let service =
     Eliom_uri.make_string_uri
       ~service:election_vote ~absolute:true () |> rewrite_prefix
@@ -1730,12 +1724,7 @@ let election_home election state () =
     in
     div ~a:[a_style "text-align:center;"] [
       div [
-          let url =
-            Eliom_uri.make_string_uri
-              ~service:election_home ~absolute:true (uuid, ()) |>
-              rewrite_prefix
-          in
-          let hash = Netencoding.Url.mk_url_encoded_parameters ["url", url] in
+          let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
           make_button ~service:election_vote ~hash ~disabled L.start;
         ];
       div [
@@ -2869,11 +2858,11 @@ let booth () =
     div ~a:[a_id "election_loader"; a_style "display:none;"] [
       h1 [pcdata L.belenios_booth];
       br ();
-      pcdata "Load an election by giving its URL:";
-      div [unsafe_textarea "url" ""];
-      div [button_no_value ~button_type:`Button ~a:[a_id "load_url"] [pcdata "Load URL"]];
+      pcdata "Load an election on this server by giving its UUID:";
+      div [unsafe_textarea "uuid" ""];
+      div [button_no_value ~button_type:`Button ~a:[a_id "load_uuid"] [pcdata "Load from UUID"]];
       br ();
-      pcdata "Load an election by giving its parameters:";
+      pcdata "Load any election by giving its parameters:";
       div [unsafe_textarea "election_params" ""];
       div [button_no_value ~button_type:`Button ~a:[a_id "load_params"] [pcdata "Load parameters"]];
     ]

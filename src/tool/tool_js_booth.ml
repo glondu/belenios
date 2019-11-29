@@ -315,28 +315,34 @@ let get_prefix str =
   let n = String.length str in
   if n >= 4 then String.sub str 0 (n-4) else str
 
-let get_url x =
+let get_uuid x =
   let n = String.length x in
   if n <= 1 || String.sub x 0 1 <> "#" then
     None
   else
     let args = Url.decode_arguments (String.sub x 1 (n-1)) in
-    List.assoc_opt "url" args
+    List.assoc_opt "uuid" args
 
-let load_url url =
+let load_uuid uuid =
   let open Lwt_xmlHttpRequest in
   Lwt.async (fun () ->
-      let%lwt raw = get (url ^ "election.json") in
-      let () = set_textarea "election_params" raw.content in
+      let%lwt raw =
+        let%lwt x = Printf.ksprintf get "elections/%s/election.json" uuid in
+        if x.code = 404 then (
+          let%lwt x = Printf.ksprintf get "draft/preview/%s/election.json" uuid in
+          Lwt.return x.content
+        ) else Lwt.return x.content
+      in
+      let () = set_textarea "election_params" raw in
       Lwt.return (run_handler loadElection ())
     )
 
-let load_url_handler _ =
-  (match get_textarea_opt "url" with
-   | Some url ->
-      let encoded = Url.encode_arguments ["url", url] in
+let load_uuid_handler _ =
+  (match get_textarea_opt "uuid" with
+   | Some uuid ->
+      let encoded = Url.encode_arguments ["uuid", uuid] in
       Dom_html.window##.location##.hash := Js.string encoded;
-      load_url url
+      load_uuid uuid
    | None -> ()
   ); Js._false
 
@@ -351,19 +357,19 @@ let load_params_handler _ =
 
 let onload_handler _ =
   let () =
-    document##getElementById (Js.string "load_url") >>== fun e ->
-    e##.onclick := Dom_html.handler load_url_handler
+    document##getElementById (Js.string "load_uuid") >>== fun e ->
+    e##.onclick := Dom_html.handler load_uuid_handler
   in
   let () =
     document##getElementById (Js.string "load_params") >>== fun e ->
     e##.onclick := Dom_html.handler load_params_handler;
   in
   let () =
-    match get_url (Js.to_string Dom_html.window##.location##.hash) with
+    match get_uuid (Js.to_string Dom_html.window##.location##.hash) with
     | None ->
        set_element_display "wait_div" "none";
        set_element_display "election_loader" "block";
-    | Some url -> load_url url
+    | Some uuid -> load_uuid uuid
   in Js._false
 
 let () = Dom_html.window##.onload := Dom_html.handler onload_handler
