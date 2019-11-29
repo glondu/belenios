@@ -2262,12 +2262,9 @@ let cast_raw election () =
       pcdata "You can create an encrypted ballot by using the command line tool ";
       pcdata "(available in the ";
       a ~service:source_code [pcdata "sources"] ();
-      pcdata "), or its ";
-      a ~service:(Eliom_service.static_dir ()) [
-        pcdata "web interface";
-      ] ["static"; "belenios-tool.html"];
-      pcdata ". A specification of encrypted ballots is also available in the ";
-      pcdata "sources.";
+      pcdata "), or any booth (you can use the ";
+      a ~service:election_vote [pcdata "booth of this server"] ();
+      pcdata " or any other booth of the same version). A specification of encrypted ballots is also available in the sources.";
     ];
     div [
       a ~service:Web_services.election_home
