@@ -107,7 +107,13 @@ module Make (P : PARSED_PARAMS) : S = struct
   let public_creds = lazy (
     get_public_creds () |> Option.map (fun creds ->
       let res = ref GSet.empty in
-      Stream.iter (fun x -> res := GSet.add (G.of_string x) false !res) creds;
+      Stream.iter
+        (fun x ->
+          let y = G.of_string x in
+          if not (G.check y) then
+            Printf.ksprintf failwith "%s is not a valid public credential" x;
+          res := GSet.add y false !res
+        ) creds;
       res
     )
   )
@@ -147,7 +153,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   let raw_encrypted_tally =
     lazy (
         match Lazy.force ballots with
-        | None -> failwith "ballots.jsons is missing"
+        | None -> E.process_ballots [||], 0
         | Some ballots ->
            let ballots = Array.map fst (Array.of_list ballots) in
            E.process_ballots ballots,

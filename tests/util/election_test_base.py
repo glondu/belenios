@@ -292,8 +292,7 @@ pris en compte.
         browser = self.browser
 
         if direct:
-            url = voter["election_page_url"]
-            browser.get(settings.SERVER_URL + "/vote.html#" + urlencode({"url": url}))
+            browser.get(settings.SERVER_URL + "/vote.html#" + urlencode({"uuid": self.election_id}))
 
         else:
             # Bob has received 2 emails containing an invitation to vote and all necessary credentials (election page URL, username, password). He goes to the election page URL.

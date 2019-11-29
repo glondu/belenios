@@ -153,6 +153,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       | Some {s_public_key = y; s_challenge; s_response} ->
         let zkp = G.to_string y in
         let ok =
+          G.check y &&
           check_modulo q s_challenge &&
           check_modulo q s_response &&
           let commitment = g **~ s_response *~ y **~ s_challenge in

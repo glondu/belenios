@@ -1235,7 +1235,7 @@ let () =
                                   KG.check pk) trustees then
                       raise (TrusteeImportError "Imported keys are invalid for this election!")
                   in
-                  se.se_public_keys <- se.se_public_keys @ trustees;
+                  se.se_public_keys <- trustees;
                   redir_preapply election_draft_trustees uuid ()
                | _, _, _ ->
                   Lwt.fail (TrusteeImportError "Could not retrieve trustees from selected election!")
