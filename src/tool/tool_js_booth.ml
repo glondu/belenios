@@ -165,7 +165,7 @@ let appendNonHomomorphicQuestion div q answers =
                 if x > 255 then raise Exit;
                 x
               with _ ->
-                alert "Value must be an integer between 0 and 255.";
+                alert (get_content "alert_0_255");
                 answers.(i)
             in
             answers.(i) <- x;
@@ -196,7 +196,7 @@ let appendNonHomomorphicQuestion div q answers =
           | None -> false
         in
         if not valid then (
-          alert "At least one of the answers is invalid!";
+          alert (get_content "at_least_one_invalid");
           false
         ) else loop (i + 1)
       else true
@@ -334,7 +334,7 @@ let rec createQuestionNode sk params question_div num_questions i prev (q, answe
       let d = Dom_html.createDiv document in
       d##.style##.marginTop := Js.string "1em";
       Dom.appendChild div d;
-      Dom.appendChild d (document##createTextNode (Js.string "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."))
+      Dom.appendChild d (document##createTextNode (Js.string (get_content "warning_0_255")))
     )
   in
   div

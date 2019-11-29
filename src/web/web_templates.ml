@@ -150,7 +150,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
           );
           a ~service:source_code [pcdata L.get_the_source_code] ();
           pcdata ". ";
-          unsafe_a !Web_config.gdpr_uri "Privacy policy";
+          unsafe_a !Web_config.gdpr_uri L.privacy_policy_short;
           pcdata ". ";
           administer;
           pcdata ".";
@@ -1791,15 +1791,15 @@ let format_question_result uuid l (i, q) r =
      li [
          div ~a:[a_class ["result_question"]] [pcdata x.q_question];
          div [
-             pcdata "The raw results can be viewed in the ";
-             a ~service:election_dir [pcdata "JSON result"] (uuid, ESResult);
-             pcdata ", with the JavaScript query ";
+             pcdata L.the_raw_results;
+             a ~service:election_dir [pcdata L.json_result] (uuid, ESResult);
+             pcdata L.with_the_jsquery;
              span ~a:[a_class ["result_jsquery"]] [
                  pcdata ".result[";
                  pcdata (string_of_int i);
                  pcdata "]";
                ];
-             pcdata ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement).";
+             pcdata L.it_contains_all_clear;
            ];
        ]
 
@@ -1918,7 +1918,7 @@ let election_home election state () =
          | None -> pcdata ""
          | Some ss ->
             div [
-                pcdata "Applied shuffles are:";
+                pcdata L.applied_shuffles_are;
                 ul @@ List.map (fun s ->
                           let s = string_of_shuffle Yojson.Safe.write_json s in
                           li [pcdata (Platform.sha256_b64 s)]
@@ -3435,6 +3435,9 @@ let booth () =
         span ~a:[a_id "invalid_cred"] [pcdata L.invalid_cred];
         span ~a:[a_id "str_blank_vote"] [pcdata L.blank_vote];
         span ~a:[a_id "no_other_blank"] [pcdata L.no_other_blank];
+        span ~a:[a_id "warning_0_255"] [pcdata L.warning_0_255];
+        span ~a:[a_id "alert_0_255"] [pcdata L.alert_0_255];
+        span ~a:[a_id "at_least_one_invalid"] [pcdata L.at_least_one_invalid];
       ];
     ]
   in

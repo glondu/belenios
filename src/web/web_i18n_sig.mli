@@ -36,6 +36,9 @@ module type LocalizedStrings = sig
   val invalid_cred : string
   val input_credential : string
   val answer_to_questions : string
+  val warning_0_255 : string
+  val alert_0_255 : string
+  val at_least_one_invalid : string
   val review_and_encrypt : string
   val authenticate : string
   val confirm : string
@@ -95,6 +98,7 @@ module type LocalizedStrings = sig
   val password_login : string
   val by_using_you_accept : string
   val privacy_policy : string
+  val privacy_policy_short : string
   val accept : string
   val not_yet_open : string
   val come_back_later : string
@@ -110,6 +114,11 @@ module type LocalizedStrings = sig
   val number_accepted_ballots : string
   val you_can_also_download : string
   val result_with_crypto_proofs : string
+  val the_raw_results : string
+  val json_result : string
+  val with_the_jsquery : string
+  val it_contains_all_clear : string
+  val applied_shuffles_are : string
   val blank_vote : string
   val no_other_blank : string
   val it_will_open_in : string
