@@ -1940,33 +1940,33 @@ let () =
                  | None -> failwith "missing public keys and threshold parameters"
             in
             let%lwt () = Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) in
-            let tally = encrypted_tally_of_string W.G.read tally in
-            let%lwt sk = Web_persist.get_private_key uuid in
-            match metadata.e_trustees with
-            | None ->
-               (* no trustees: compute decryption and release tally *)
-               let sk = match sk with
-                 | Some x -> x
-                 | None -> failwith "missing private key"
-               in
-               let%lwt pd = E.compute_factor tally sk in
-               let pd = string_of_partial_decryption W.G.write pd in
-               let%lwt () = Web_persist.set_partial_decryptions uuid [1, pd] in
-               handle_election_tally_release uuid ()
-            | Some ts ->
-               let%lwt () =
-                 Lwt_list.iteri_s (fun i t ->
+            (* compute decryption of server *)
+            let trustees =
+              match metadata.e_trustees with
+              | None -> ["server"]
+              | Some ts -> ts
+            in
+            let%lwt has_other_trustees =
+              trustees
+              |> List.mapi (fun i t -> i, t)
+              |> Lwt_list.exists_s
+                   (fun (i, t) ->
                      if t = "server" then (
                        match%lwt Web_persist.get_private_key uuid with
-                       | Some k ->
-                          let%lwt pd = E.compute_factor tally k in
+                       | Some sk ->
+                          let tally = encrypted_tally_of_string W.G.read tally in
+                          let%lwt pd = E.compute_factor tally sk in
                           let pd = string_of_partial_decryption W.G.write pd in
-                          Web_persist.set_partial_decryptions uuid [i+1, pd]
-                       | None -> return_unit (* dead end *)
-                     ) else return_unit
-                   ) ts
-               in
-               redir_preapply election_admin uuid ()
+                          let%lwt () = Web_persist.set_partial_decryptions uuid [i+1, pd] in
+                          return_false
+                       | None -> failwith "missing private key for server"
+                     ) else return_true
+                   )
+            in
+            if has_other_trustees then
+              redir_preapply election_admin uuid ()
+            else
+              handle_election_tally_release uuid ()
           ) else forbidden ()
         )
     )
