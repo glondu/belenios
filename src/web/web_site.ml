@@ -1979,19 +1979,25 @@ let perform_server_side_decryption uuid e metadata tally =
        let%lwt pd = E.compute_factor tally sk in
        let pd = string_of_partial_decryption E.G.write pd in
        Web_persist.set_partial_decryptions uuid [i, pd]
-    | None -> return_unit
+    | None ->
+       Printf.ksprintf failwith
+         "missing private key for server in election %s"
+         (raw_string_of_uuid uuid)
   in
-  match metadata.e_trustees with
-  | None ->
-     let%lwt () = decrypt 1 in
-     return_true
-  | Some ts ->
-     let%lwt () =
-       Lwt_list.iteri_s (fun i t ->
-           if t = "server" then decrypt (i+1) else return_unit
-         ) ts
-     in
-     return_false
+  let trustees =
+    match metadata.e_trustees with
+    | None -> ["server"]
+    | Some ts -> ts
+  in
+  trustees
+  |> List.mapi (fun i t -> i, t)
+  |> Lwt_list.exists_s
+       (fun (i, t) ->
+         if t = "server" then (
+           let%lwt () = decrypt (i + 1) in
+           return_false
+         ) else return_true
+       )
 
 let () =
   Any.register ~service:election_compute_encrypted_tally
@@ -2028,9 +2034,9 @@ let () =
               in
               let%lwt () = Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) in
               if%lwt perform_server_side_decryption uuid (module E) metadata tally then
-                handle_election_tally_release uuid ()
-              else
                 redir_preapply election_admin uuid ()
+              else
+                handle_election_tally_release uuid ()
             )
           ) else forbidden ()
         )
@@ -2150,9 +2156,9 @@ let () =
             in
             let%lwt () = Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) in
             if%lwt perform_server_side_decryption uuid (module E) metadata tally then
-              handle_election_tally_release uuid ()
-            else
               redir_preapply election_admin uuid ()
+            else
+              handle_election_tally_release uuid ()
           ) else forbidden ()
         )
     )
