@@ -9,6 +9,7 @@
 \usepackage{framed}
 \usepackage{stmaryrd}
 \usepackage{xcolor}
+\usepackage{placeins}
 
 \newcommand{\version}{1.10}
 
@@ -68,12 +69,12 @@ based on a ``folklore'' scheme:
 Pedersen’s~\cite{Pedersen} Distributed Key Generation (DKG) that has several variations.
 The variant considered in Belenios is described in~\cite{wpes2013} and
 proved in~\cite{wpes2013,asiacrypt12}.
-\item Ballots are formed of an ElGamal encryption of the votes and a
+\item Ballots are composed of an ElGamal encryption of the votes and a
   zero-knowledge proof of well-formedness, as for the Helios
   protocol~\cite{Helios}. Compared to Helios, we support blank votes,
   which required to adapt the zero-knowledge proofs, as specified and
-  proved in~\cite{note-Pierrick}. Additionnally, ballots are signed to
-  avoid ballot stuffing, as introduced in~\cite{CGGI-esorics14} but also
+  proved in~\cite{note-Pierrick}. Additionally, ballots are signed to
+  avoid ballot stuffing, as introduced in~\cite{CGGI-esorics14} and also
   described in~\cite{Belenios-Meadows2019}.
   \item During the tally phase, Belenios supports two modes. Ballots are either combined
     homomorphically or shuffled and randomized, using mixnets. The
@@ -92,19 +93,19 @@ $k_2$ candidates out of $k$ candidates. This case is called
 homomorphic because the result of the election for such questions is
 the number of votes received for each candidate. No more information
 is leaked.
-In the \emph{non homomorphic case}, voters can give a number to each
+In the \emph{non-homomorphic case}, voters can give a number to each
 candidate. This can be used to rank candidates or grade them. Then the
 (raw) result of the election is simply the list of votes, as emitted
 by the voters, in
 a random order, to preserve privacy.
-Any couting method can be then  applied
+Any counting method can then be  applied
 (e.g. Condorcet, STV, or majority judgement) although Belenios does
 not offer support for this.
-The non homomorphic case  therefore offers much more flexibility, at
+The non-homomorphic case  therefore offers much more flexibility, at
 the cost of extra steps during the tally (in order to securely shuffle
 the ballots).
 Belenios supports both types of questions and an election can even
-mix homomorphic and non homomorphic questions.
+mix homomorphic and non-homomorphic questions.
 % and slightly less privacy
 \medskip
 
@@ -165,7 +166,7 @@ consists of:
   $c_1,\dots,c_n$ and computes
   $L=\shuffle(\public(c_1),\dots,\public(c_n))$
 \item for $j\in[1\dots n]$, $\mathcal{C}$ sends $c_j$ to $\mathcal{V}_j$
-\item \label{item-forget} (optionnal) $\mathcal{C}$ forgets $c_1,\dots,c_n$
+\item \label{item-forget} (optional) $\mathcal{C}$ forgets $c_1,\dots,c_n$
  \item $\mathcal{C}$ sends $L$ to $\mathcal{A}$
 \item $\mathcal{A}$ and $\mathcal{T}_1,\dotsc,\mathcal{T}_m$ run a key establishment protocol
   (either \ref{no-threshold} or \ref{threshold})
@@ -176,7 +177,7 @@ consists of:
   {$\uuid$} $u$.
 \end{enumerate}
 Step~\ref{item-forget} is optional. It offers a better protection
-against ballot stuffng in case $\mathcal{C}$ unintentionally leaks
+against ballot stuffing in case $\mathcal{C}$ unintentionally leaks
 private credentials.
 
 \subsubsection{Basic decryption support}
@@ -203,7 +204,7 @@ all need to contribute to the tally.
 \subsubsection{Threshold decryption support}
 \label{threshold}
 The trustees jointly compute the public election key such that
-only a subgroup of $t+1$  of them will be needed to compute the tally.
+only a subset of $t+1$  of them will be needed to compute the tally.
 
 \begin{enumerate}
 \item for $z\in[1\dots m]$,
@@ -273,7 +274,7 @@ voters), credentials can be recovered:
   encrypted tally (see
   section~\ref{shuffles}):
   \[\tilde\Pi_0=\textsf{nh\_ciphertexts}(\Pi_0)\]
-\item if the election contains a non homomorphic part, that is, if
+\item if the election contains a non-homomorphic part, that is, if
   $\tilde\Pi_0\neq []$,
  then for $z\in[1\dots m]$:
   \begin{enumerate}
@@ -317,7 +318,7 @@ always record at least the last audited board. Then:
 \begin{enumerate}
 \item she retrieves the election data $D = (E,PK,L,B,r)$ where $B$ is the list of ballots;
   \begin{itemize}
-  \item she records $B$;
+  \item she records $D$;
   \item for $b\in B$, she checks that the proofs of $b$ are valid and that
   the signature of $b$ is valid and corresponds to one of the keys in
   $L$;
@@ -343,15 +344,15 @@ There is no tool support on the web interface for these checks,
 instead the command line tool \texttt{verify-diff} can be used.
 
 \subsubsection{After the tally}
-The auditor retrieve the election data $D$ and in
+The auditor retrieves the election data $D$ and in
   particular the list $B$ of ballots and the
   \hyperref[election-result]{\result} $r$. Then:
 
   \begin{enumerate}
-  \item she checks consistency of $B$, that is, perform all
+  \item she checks consistency of $B$, that is, performs all
     the checks described at step 1 of section~\ref{sec:audit-voting};
   \item she checks that $B$ corresponds to the board
-      monitored so far thus performs all
+      monitored so far, thus performs all
     the checks described at step 2 of section~\ref{sec:audit-voting};
   \item she checks that the proofs of the result $r$ are valid
     w.r.t. $B$.
@@ -1023,6 +1024,9 @@ vector of integers will be encoded into a single ciphertext:
   \[
     \Hash_{\textsf{raweg}}(S,y,\alpha,\beta,A)=\shatwo(\verb=raweg|=S\verb=|=y\verb=,=\alpha\verb=,=\beta\verb=|=A)\mod q
   \]
+  where \verb=raweg=, the vertical bars and the commas are verbatim and
+  numbers are written in base 10. The result is interpreted as a 256-bit
+  big-endian number.
 \end{itemize}
 The proof is verified as follows:
 \begin{enumerate}
@@ -1316,8 +1320,8 @@ question:
     C_{i,k}=\choices(\answers(B_k)_i)
   \]
 \end{itemize}
-In the end, the encrypted tally is isomorphic to an array of arrays of
-ciphertexts:
+In the end, in both cases, the encrypted tally is isomorphic to an
+array of arrays of ciphertexts:
 \[
 \etally\approx\ciphertext^\ast{}^\ast
 \]
@@ -1327,7 +1331,7 @@ ciphertexts:
 
 If the election has non-homomorphic questions, let us say $n$ out of
 $m$ ($1\leq n\leq m$), non-homomorphic ciphertexts must be
-shuffled. They are first extracted from the encrypted tally $a$: if
+shuffled. They are first extracted from the encrypted tally~$a$: if
 $i_1,\dots,i_n$ are the indices of the non-homomorphic questions,
 \[
   b=\textsf{nh\_ciphertexts}(a)=[a_{i_1},\dots,a_{i_n}]
@@ -1341,8 +1345,8 @@ Shuffles are done in the same way as the CHVote system\footnote{See
   version 1.3.2 of the CHVote System Specification at~\cite{CHVote}}.
 %  \url{https://eprint.iacr.org/2017/325}}. 
 For each non-homomorphic
-question, its ciphertexts are re-encrypted and applied a random
-permutation, and a zero-knowledge proof of the permutation is
+question, its ciphertexts are re-encrypted and randomly
+permuted, and a zero-knowledge proof of the permutation is
 computed. All these shuffles are then assembled into a
 $\texttt{shuffle}$ structure:
 \begin{gather*}
@@ -1994,6 +1998,8 @@ algorithms, please refer to the CHVote System Specification.
   \caption{Function $\mathsf{GetNIZPKChallenge}(S)$}
   \label{get-nizkp-challenge}
 \end{table}
+
+\FloatBarrier
 
 \bibliographystyle{abbrv}
 \bibliography{references}
