@@ -1,3 +1,19 @@
+1.10 (2019-12-09)
+=================
+
+ * Add support for non-homomorphic questions (experimental)
+ * Check group membership of signature verification key more often
+ * Command-line tool:
+   + Assume there is no ballots when ballots.jsons is missing
+ * Web server:
+   + Move setting of maxrequestbodysizeinmemory to configuration
+   + Rework presentation of links that must be sent to third-parties
+   + Bugfixes in the data policy loop:
+     - its first iteration was done with the wrong spool dir
+     - it died when trying to send warning e-mails
+   + Update JSBN
+   + Importing non-threshold trustees replaces current trustees
+
 1.9.1 (2019-10-24)
 ==================
 
