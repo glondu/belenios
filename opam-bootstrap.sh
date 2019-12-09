@@ -68,13 +68,13 @@ echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init --bare --no-setup
-opam switch create 4.06.1
+opam switch create 4.08.1 ocaml-base-compiler.4.08.1
 eval $(opam env)
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes dune atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 ssl js_of_ocaml csv js_of_ocaml-tyxml=3.3.0 js_of_ocaml-lwt=3.3.0 eliom=6.7.0
+opam install --yes atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 csv eliom=6.8.0
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

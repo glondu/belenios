@@ -78,8 +78,8 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let psi = Array.make n 0 in
     let rec loop i =
       if i < n then
-        M.random (Z.of_int Pervasives.(n - i)) >>= fun k ->
-        let k = Pervasives.(Z.to_int k + i) in
+        M.random (Z.of_int Stdlib.(n - i)) >>= fun k ->
+        let k = Stdlib.(Z.to_int k + i) in
         psi.(i) <- tmp.(k);
         tmp.(k) <- tmp.(i);
         loop (succ i)

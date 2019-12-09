@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Js_of_ocaml_lwt
 open Platform
 open Serializable_j
 open Common
@@ -136,7 +137,7 @@ let main _ =
     | None -> ()
     | Some uuid ->
        Lwt.async (fun () ->
-           let open Lwt_xmlHttpRequest in
+           let open Js_of_ocaml_lwt.XmlHttpRequest in
            let%lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
            encrypted_tally := Some (String.trim e.content);
            let%lwt e = get ("../elections/" ^ uuid ^ "/election.json") in

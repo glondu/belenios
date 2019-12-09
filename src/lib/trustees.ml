@@ -269,7 +269,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
         ) pds
     in
     let pds_with_ids =
-      let compare (a, _) (b, _) = Pervasives.compare a b in
+      let compare (a, _) (b, _) = Stdlib.compare a b in
       List.sort_uniq compare pds_with_ids
     in
     let rec take n accu xs =

@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Js_of_ocaml_lwt
 open Serializable_j
 open Common
 open Tool_js_common
@@ -83,7 +84,7 @@ let () =
   Lwt.async (fun () ->
       let%lwt _ = Lwt_js_events.onload () in
       let uuid = List.assoc "uuid" (get_params ()) in
-      let open Lwt_xmlHttpRequest in
+      let open Js_of_ocaml_lwt.XmlHttpRequest in
       let%lwt election = get ("../elections/" ^ uuid ^ "/election.json") in
       let%lwt ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
       set_textarea "current_ballots" ciphertexts.content;

@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Js_of_ocaml_lwt
 open Platform
 open Serializable_builtin_t
 open Serializable_j
@@ -417,7 +418,7 @@ let get_uuid x =
     List.assoc_opt "uuid" args
 
 let load_uuid uuid =
-  let open Lwt_xmlHttpRequest in
+  let open Js_of_ocaml_lwt.XmlHttpRequest in
   Lwt.async (fun () ->
       let%lwt raw =
         let%lwt x = Printf.ksprintf get "elections/%s/election.json" uuid in
