@@ -180,6 +180,15 @@ tool_ section above.
 Troubleshooting
 ---------------
 
+### Bootstrap fails if dune is already installed
+
+The script `opam-bootstrap.sh` fails when a not suitable version of
+dune is already installed in your `$PATH`. This is due to [a bug in
+opam](https://github.com/ocaml/opam/issues/3987). If you face this
+issue, either uninstall dune before running `opam-bootstrap.sh`, or
+manage to get opam running by other means, and directly use it to
+install the dependencies of Belenios.
+
 ### Missing sources
 
 The instructions outlined in this document and in the
