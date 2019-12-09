@@ -44,7 +44,7 @@ let static x =
   make_uri ~service ["static"; x]
 
 let format_user ~site u =
-  em [pcdata (if site then string_of_user u else u.user_name)]
+  em [txt (if site then string_of_user u else u.user_name)]
 
 let login_box ?cont () =
   let style = "float: right; text-align: right;" ^ admin_background in
@@ -61,28 +61,28 @@ let login_box ?cont () =
     | Some user ->
       [
         div [
-          pcdata "Logged in as ";
+          txt "Logged in as ";
           format_user ~site:true user;
-          pcdata ".";
+          txt ".";
         ];
         div [
-          a ~a:[a_id "logout"] ~service:(logout ()) [pcdata "Log out"] ();
-          pcdata ".";
+          a ~a:[a_id "logout"] ~service:(logout ()) [txt "Log out"] ();
+          txt ".";
         ];
       ]
     | None ->
       [
         div [
-          pcdata "Not logged in.";
+          txt "Not logged in.";
         ];
         let auth_systems =
           List.map (fun name ->
               a ~a:[a_id ("login_" ^ name)]
-                ~service:(login name) [pcdata name] ()
-            ) auth_systems |> List.join (pcdata ", ")
+                ~service:(login name) [txt name] ()
+            ) auth_systems |> List.join (txt ", ")
         in
         div (
-          [pcdata "Log in: ["] @ auth_systems @ [pcdata "]"]
+          [txt "Log in: ["] @ auth_systems @ [txt "]"]
         );
       ]
   in
@@ -100,9 +100,9 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
   let administer =
     match uuid with
     | None ->
-       a ~service:admin [pcdata L.administer_elections] ()
+       a ~service:admin [txt L.administer_elections] ()
     | Some uuid ->
-       a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [pcdata L.administer_this_election] uuid
+       a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt L.administer_this_election] uuid
   in
   let login_box = match login_box with
     | None ->
@@ -113,14 +113,14 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
     | Some x -> x
   in
   let%lwt warning = match !Web_config.warning_file with
-    | None -> return @@ pcdata ""
+    | None -> return @@ txt ""
     | Some f -> match%lwt read_file f with
-                | None -> return @@ pcdata ""
+                | None -> return @@ txt ""
                 | Some x -> return @@ Unsafe.data (String.concat "\n" x)
   in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang L.lang]
-    (head (Eliom_content.Html.F.title (pcdata title)) [
-      script (pcdata "window.onbeforeunload = function () {};");
+    (head (Eliom_content.Html.F.title (txt title)) [
+      script (txt "window.onbeforeunload = function () {};");
       link ~rel:[`Stylesheet] ~href:(static "site.css") ();
     ])
     (body [
@@ -134,7 +134,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
             ] ();
           ];
           login_box;
-          h1 ~a:[a_style "text-align: center; padding: 20px;"] [pcdata title];
+          h1 ~a:[a_style "text-align: center; padding: 20px;"] [txt title];
           div ~a:[a_style "clear: both;"] [];
         ];
       ];
@@ -143,17 +143,17 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
       div ~a:[a_id "footer"; a_style "text-align: center;" ] [
         div ~a:[a_id "bottom"] [
           footer;
-          pcdata L.powered_by;
-          a ~service:belenios_url [pcdata "Belenios"] ();
+          txt L.powered_by;
+          a ~service:belenios_url [txt "Belenios"] ();
           Belenios_version.(
-            Printf.ksprintf pcdata " %s (%s). " version build
+            Printf.ksprintf txt " %s (%s). " version build
           );
-          a ~service:source_code [pcdata L.get_the_source_code] ();
-          pcdata ". ";
+          a ~service:source_code [txt L.get_the_source_code] ();
+          txt ". ";
           unsafe_a !Web_config.gdpr_uri L.privacy_policy_short;
-          pcdata ". ";
+          txt ". ";
           administer;
-          pcdata ".";
+          txt ".";
         ]
       ]]
      ]))
@@ -164,9 +164,9 @@ let privacy_notice cont =
   let content =
     [
       div [
-          pcdata "To use this site, you must accept our ";
+          txt "To use this site, you must accept our ";
           unsafe_a !Web_config.gdpr_uri "personal data policy";
-          pcdata ".";
+          txt ".";
         ];
       post_form ~service
         (fun () ->
@@ -182,12 +182,12 @@ let privacy_notice cont =
 
 let format_election (uuid, name) =
   li [
-    a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [pcdata name] uuid;
+    a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt name] uuid;
   ]
 
 let format_draft_election (uuid, name) =
   li [
-    a ~service:election_draft ~a:[a_id ("election_draft_" ^ (raw_string_of_uuid uuid))] [pcdata name] uuid;
+    a ~service:election_draft ~a:[a_id ("election_draft_" ^ (raw_string_of_uuid uuid))] [txt name] uuid;
   ]
 
 let admin ~elections () =
@@ -195,19 +195,19 @@ let admin ~elections () =
   match elections with
   | None ->
      let contact = match !Web_config.contact_uri with
-       | None -> pcdata ""
+       | None -> txt ""
        | Some uri ->
           div [
-              pcdata "If you do not have any account, you may ";
+              txt "If you do not have any account, you may ";
               unsafe_a uri "contact us";
-              pcdata ".";
+              txt ".";
             ]
      in
      let content = [
        div [
-         pcdata "To administer an election, you need to log in using one";
-         pcdata " of the authentication methods available in the upper";
-         pcdata " right corner of this page.";
+         txt "To administer an election, you need to log in using one";
+         txt " of the authentication methods available in the upper";
+         txt " right corner of this page.";
          contact;
        ]
      ] in
@@ -216,42 +216,42 @@ let admin ~elections () =
   | Some (draft, elections, tallied, archived) ->
     let draft =
       match draft with
-      | [] -> p [pcdata "You own no such elections!"]
+      | [] -> p [txt "You own no such elections!"]
       | _ -> ul @@ List.map format_draft_election draft
     in
     let elections =
       match elections with
-      | [] -> p [pcdata "You own no such elections!"]
+      | [] -> p [txt "You own no such elections!"]
       | _ -> ul @@ List.map format_election elections
     in
     let tallied =
       match tallied with
-      | [] -> p [pcdata "You own no such elections!"]
+      | [] -> p [txt "You own no such elections!"]
       | _ -> ul @@ List.map format_election tallied
     in
     let archived =
       match archived with
-      | [] -> p [pcdata "You own no such elections!"]
+      | [] -> p [txt "You own no such elections!"]
       | _ -> ul @@ List.map format_election archived
     in
     let content = [
       div [
         div [
           a ~service:election_draft_pre [
-            pcdata "Prepare a new election";
+            txt "Prepare a new election";
           ] ();
         ];
         div [br ()];
-        h2 [pcdata "Elections being prepared"];
+        h2 [txt "Elections being prepared"];
         draft;
         div [br ()];
-        h2 [pcdata "Elections you can administer"];
+        h2 [txt "Elections you can administer"];
         elections;
         div [br ()];
-        h2 [pcdata "Tallied elections"];
+        h2 [txt "Tallied elections"];
         tallied;
         div [br ()];
-        h2 [pcdata "Archived elections"];
+        h2 [txt "Archived elections"];
         archived;
       ];
     ] in
@@ -286,12 +286,12 @@ let new_election_failure reason () =
   let title = "Create new election" in
   let reason =
     match reason with
-    | `Exists -> pcdata "An election with the same UUID already exists."
-    | `Exception e -> pcdata @@ Printexc.to_string e
+    | `Exists -> txt "An election with the same UUID already exists."
+    | `Exception e -> txt @@ Printexc.to_string e
   in
   let content = [
     div [
-      p [pcdata "The creation failed."];
+      p [txt "The creation failed."];
       p [reason];
     ]
   ] in
@@ -300,14 +300,14 @@ let new_election_failure reason () =
 
 let generic_page ~title ?service message () =
   let proceed = match service with
-    | None -> pcdata ""
+    | None -> txt ""
     | Some service ->
        div [
-         a ~service ~a:[a_id "generic_proceed_link"] [pcdata "Proceed"] ();
+         a ~service ~a:[a_id "generic_proceed_link"] [txt "Proceed"] ();
        ]
   in
   let content = [
-    p [pcdata message];
+    p [txt message];
     proceed;
   ] in
   base ~title ~content ()
@@ -326,32 +326,32 @@ let election_draft_pre () =
         [
           fieldset
             ~legend:(legend [
-              pcdata "Credential management (";
-              a ~service:cred_info [pcdata "more info"] ();
-              pcdata ")";
+              txt "Credential management (";
+              a ~service:cred_info [txt "more info"] ();
+              txt ")";
             ])
             [
               div [
                 radio ~checked:true ~name:credmgmt ~value:"auto" string;
-                pcdata " Automatic (degraded mode - credentials will be handled by the server)";
+                txt " Automatic (degraded mode - credentials will be handled by the server)";
               ];
               div [
                 radio ~name:credmgmt ~value:"manual" string;
-                pcdata " Manual (safe mode - a third party will handle the credentials)";
+                txt " Manual (safe mode - a third party will handle the credentials)";
               ];
             ];
           fieldset
-            ~legend:(legend [pcdata "Authentication"])
+            ~legend:(legend [txt "Authentication"])
             [
               div [
                 radio ~checked:true ~name:auth ~value:"password" string;
-                pcdata " Password (passwords will be emailed to voters)";
+                txt " Password (passwords will be emailed to voters)";
               ];
               div [
                 radio ~name:auth ~value:"cas" string;
-                pcdata " CAS (external authentication server), server address: ";
+                txt " CAS (external authentication server), server address: ";
                 input ~input_type:`Text ~name:cas_server string;
-                pcdata " (for example: https://cas.inria.fr/cas)";
+                txt " (for example: https://cas.inria.fr/cas)";
               ];
             ];
           div [
@@ -374,7 +374,7 @@ let preview_booth uuid =
   in
   span [
       unsafe_a (service ^ "#" ^ hash) "Preview booth";
-      pcdata " (you can use any credential such as HsqB3C3y62Ekq4D)."
+      txt " (you can use any credential such as HsqB3C3y62Ekq4D)."
     ]
 
 let election_draft uuid se () =
@@ -384,15 +384,15 @@ let election_draft uuid se () =
       (fun languages ->
         [
           div [
-              pcdata "Languages: ";
+              txt "Languages: ";
               input ~name:languages ~input_type:`Text
                 ~value:(string_of_languages se.se_metadata.e_languages) string;
-              pcdata " (Available languages: ";
-              pcdata (string_of_languages (Some available_languages));
-              pcdata ")";
+              txt " (Available languages: ";
+              txt (string_of_languages (Some available_languages));
+              txt ")";
             ];
           div [
-              pcdata "This is a space-separated list of languages that will be used in emails sent by the server.";
+              txt "This is a space-separated list of languages that will be used in emails sent by the server.";
             ];
           div [
               input ~input_type:`Submit ~value:"Save changes" string;
@@ -401,7 +401,7 @@ let election_draft uuid se () =
   in
   let div_languages =
     div [
-        h2 [pcdata "Languages"];
+        h2 [txt "Languages"];
         form_languages;
       ]
   in
@@ -410,12 +410,12 @@ let election_draft uuid se () =
       (fun (name, description) ->
         [
           div [
-            pcdata "Name of the election: ";
+            txt "Name of the election: ";
             input ~name:name
               ~input_type:`Text ~value:se.se_questions.t_name string;
           ];
           div [
-            div [pcdata "Description of the election: "];
+            div [txt "Description of the election: "];
             div [
               textarea ~name:description ~a:[a_cols 80]
                 ~value:se.se_questions.t_description ();
@@ -429,7 +429,7 @@ let election_draft uuid se () =
   in
   let div_description =
     div [
-      h2 [pcdata "Name and description of the election"];
+      h2 [txt "Name and description of the election"];
       form_description;
     ]
   in
@@ -438,7 +438,7 @@ let election_draft uuid se () =
       (fun contact ->
         [
           div [
-              pcdata "Contact: ";
+              txt "Contact: ";
               let value =
                 match se.se_metadata.e_contact with
                 | Some x -> x
@@ -447,7 +447,7 @@ let election_draft uuid se () =
               input ~name:contact ~input_type:`Text ~value string;
             ];
           div [
-              pcdata "This contact will be added to emails sent to the voters.";
+              txt "This contact will be added to emails sent to the voters.";
             ];
           div [
               input ~input_type:`Submit ~value:"Save changes" string;
@@ -456,7 +456,7 @@ let election_draft uuid se () =
   in
   let div_contact =
     div [
-        h2 [pcdata "Contact"];
+        h2 [txt "Contact"];
         form_contact;
       ]
   in
@@ -472,13 +472,13 @@ let election_draft uuid se () =
   in
   let div_auth =
     div [
-      h2 [pcdata "Authentication"];
+      h2 [txt "Authentication"];
       match auth with
       | `Password ->
          div [
-           pcdata "Authentication scheme: password";
+           txt "Authentication scheme: password";
            if List.for_all (fun v -> v.sv_password <> None) se.se_voters then
-             div [pcdata "All passwords have been sent!"]
+             div [txt "All passwords have been sent!"]
            else
              post_form ~service:election_draft_auth_genpwd
                (fun () ->
@@ -487,12 +487,12 @@ let election_draft uuid se () =
          ]
       | `Dummy ->
          div [
-           pcdata "Authentication scheme: dummy"
+           txt "Authentication scheme: dummy"
          ]
       | `CAS server ->
          div [
-           pcdata "Authentication scheme: CAS with server ";
-           pcdata server;
+           txt "Authentication scheme: CAS with server ";
+           txt server;
          ]
     ]
   in
@@ -500,7 +500,7 @@ let election_draft uuid se () =
     div [
       h2 [
         a ~a:[a_id "edit_questions"] ~service:election_draft_questions
-          [pcdata "Edit questions"]
+          [txt "Edit questions"]
           uuid;
       ];
       preview_booth uuid;
@@ -510,36 +510,36 @@ let election_draft uuid se () =
     div [
       h2 [
         a ~a:[a_id "edit_voters"] ~service:election_draft_voters
-          [pcdata "Edit voters"]
+          [txt "Edit voters"]
           uuid
       ];
       div [
-        pcdata @@ string_of_int @@ List.length se.se_voters;
-        pcdata " voter(s) registered";
+        txt @@ string_of_int @@ List.length se.se_voters;
+        txt " voter(s) registered";
       ];
     ]
   in
   let div_trustees =
     div [
-      h2 [pcdata "Trustees"];
+      h2 [txt "Trustees"];
       div [
-          pcdata "By default, the election server manages the keys of the election (degraded privacy mode). ";
-          pcdata "For real elections, the key must be shared among independent trustees. Click ";
-          a ~service:election_draft_trustees [pcdata "here"] uuid;
-          pcdata " to set up the election key.";
+          txt "By default, the election server manages the keys of the election (degraded privacy mode). ";
+          txt "For real elections, the key must be shared among independent trustees. Click ";
+          a ~service:election_draft_trustees [txt "here"] uuid;
+          txt " to set up the election key.";
         ];
     ]
   in
   let div_credentials =
     div [
-      h2 [pcdata "Credentials"];
+      h2 [txt "Credentials"];
       if se.se_public_creds_received then (
         div [
-          pcdata "Credentials have already been generated!"
+          txt "Credentials have already been generated!"
         ]
       ) else (
         div [
-          pcdata "Warning: this will freeze the voter list!";
+          txt "Warning: this will freeze the voter list!";
           if has_credentials then (
             post_form ~service:election_draft_credentials_server
               (fun () ->
@@ -547,7 +547,7 @@ let election_draft uuid se () =
               ) uuid
           ) else (
             div [
-              a ~service:election_draft_credential_authority [pcdata "Credential management"] uuid;
+              a ~service:election_draft_credential_authority [txt "Credential management"] uuid;
             ]
           );
         ]
@@ -555,8 +555,8 @@ let election_draft uuid se () =
     ]
   in
   let link_confirm = div [
-    h2 [pcdata "Validate creation"];
-    a ~service:election_draft_confirm [pcdata "Create election"] uuid;
+    h2 [txt "Validate creation"];
+    a ~service:election_draft_confirm [txt "Create election"] uuid;
   ] in
   let form_destroy =
     let t = Option.get se.se_creation_date default_creation_date in
@@ -566,11 +566,11 @@ let election_draft uuid se () =
       (fun () ->
         [
           div [
-              h2 [pcdata "Destroy election"];
+              h2 [txt "Destroy election"];
               div [
-                  pcdata "Note: this election will be automatically destroyed after ";
-                  pcdata (format_datetime t);
-                  pcdata ".";
+                  txt "Note: this election will be automatically destroyed after ";
+                  txt (format_datetime t);
+                  txt ".";
                 ];
               input ~input_type:`Submit ~value:"Destroy election" string;
             ]
@@ -638,7 +638,7 @@ let election_draft_trustees ?token uuid se () =
       ~service:election_draft_trustee_add
       (fun name ->
         [
-          pcdata "Trustee's e-mail address: ";
+          txt "Trustee's e-mail address: ";
           input ~input_type:`Text ~name string;
           input ~input_type:`Submit ~value:"Add" string;
         ]
@@ -654,7 +654,7 @@ let election_draft_trustees ?token uuid se () =
         ]) uuid
   in
   let trustees = match se.se_public_keys with
-    | [] -> pcdata ""
+    | [] -> txt ""
     | ts ->
        let ts =
          List.mapi
@@ -667,7 +667,7 @@ let election_draft_trustees ?token uuid se () =
              let first_line =
                tr [
                    td [
-                       pcdata t.st_id;
+                       txt t.st_id;
                      ];
                    td [
                        if t.st_token <> "" then (
@@ -678,23 +678,23 @@ let election_draft_trustees ?token uuid se () =
                          let subject = "Link to generate the decryption key" in
                          a_mailto ~dest:t.st_id ~subject ~body "Mail"
                        ) else (
-                         pcdata "(server)"
+                         txt "(server)"
                        )
                      ];
                    td [
                        if t.st_token <> "" then (
                          if this_line then
-                           a ~service:election_draft_trustees [pcdata "Hide link"] uuid
+                           a ~service:election_draft_trustees [txt "Hide link"] uuid
                          else
-                           a ~service:election_draft_trustee [pcdata "Link"] (uuid, t.st_token);
+                           a ~service:election_draft_trustee [txt "Link"] (uuid, t.st_token);
                        ) else (
-                         pcdata "(server)"
+                         txt "(server)"
                        )
                      ];
                    td [
-                       pcdata (if t.st_public_key = "" then "No" else "Yes");
+                       txt (if t.st_public_key = "" then "No" else "Yes");
                      ];
-                   td [if t.st_id = "server" then pcdata "(cannot be removed)" else mk_form_trustee_del i];
+                   td [if t.st_id = "server" then txt "(cannot be removed)" else mk_form_trustee_del i];
                  ]
              in
              let second_line =
@@ -704,13 +704,13 @@ let election_draft_trustees ?token uuid se () =
                      [
                        td ~a:[a_colspan 5]
                          [
-                           pcdata "The link that must be sent to trustee ";
-                           pcdata t.st_id;
-                           pcdata " is:";
+                           txt "The link that must be sent to trustee ";
+                           txt t.st_id;
+                           txt " is:";
                            br ();
                            Eliom_uri.make_string_uri ~absolute:true
                              ~service:election_draft_trustee (uuid, t.st_token)
-                           |> rewrite_prefix |> pcdata
+                           |> rewrite_prefix |> txt
                          ]
                      ]
                  ]
@@ -721,17 +721,17 @@ let election_draft_trustees ?token uuid se () =
        in
        table (
            tr [
-               th [pcdata "Trustee"];
-               th [pcdata "Mail"];
-               th [pcdata "Link"];
-               th [pcdata "Done?"];
-               th [pcdata "Remove"];
+               th [txt "Trustee"];
+               th [txt "Mail"];
+               th [txt "Link"];
+               th [txt "Done?"];
+               th [txt "Remove"];
              ] :: (List.flatten ts)
          )
   in
   let import_link = div [
                         a ~service:Web_services.election_draft_import_trustees
-                          [pcdata "Import trustees from another election"] uuid
+                          [txt "Import trustees from another election"] uuid
                       ]
   in
   let div_trustees =
@@ -740,22 +740,22 @@ let election_draft_trustees ?token uuid se () =
           trustees;
           (if se.se_public_keys <> [] then
              div [
-                 pcdata "There is one link per trustee. Send each trustee her link.";
+                 txt "There is one link per trustee. Send each trustee her link.";
                  br ();
                  br ();
                ]
-           else pcdata "");
+           else txt "");
           form_trustees_add;
         ]
-    else pcdata ""
+    else txt ""
   in
   let div_content =
     div [
       div [
-          pcdata "To set up the election key, you need to nominate trustees. Each trustee will create her own secret key. ";
-          pcdata "To set up the election so that only a subset of trustees is needed, go to the ";
-          a ~service:election_draft_threshold_trustees [pcdata "threshold mode"] uuid;
-          pcdata ".";
+          txt "To set up the election key, you need to nominate trustees. Each trustee will create her own secret key. ";
+          txt "To set up the election so that only a subset of trustees is needed, go to the ";
+          a ~service:election_draft_threshold_trustees [txt "threshold mode"] uuid;
+          txt ".";
         ];
       br ();
       div_trustees;
@@ -763,7 +763,7 @@ let election_draft_trustees ?token uuid se () =
   in
   let back_link = div [
     a ~service:Web_services.election_draft
-      [pcdata "Go back to election draft"] uuid;
+      [txt "Go back to election draft"] uuid;
   ] in
   let content = [
     div_content;
@@ -782,12 +782,12 @@ let election_draft_threshold_trustees ?token uuid se () =
         ~service:election_draft_threshold_trustee_add
         (fun name ->
           [
-            pcdata "Trustee's e-mail address: ";
+            txt "Trustee's e-mail address: ";
             input ~input_type:`Text ~name string;
             input ~input_type:`Submit ~value:"Add" string;
           ]
         ) uuid
-    else pcdata ""
+    else txt ""
   in
   let mk_form_trustee_del value =
     post_form
@@ -799,7 +799,7 @@ let election_draft_threshold_trustees ?token uuid se () =
       ]) uuid
   in
   let trustees = match se.se_threshold_trustees with
-    | None -> pcdata ""
+    | None -> txt ""
     | Some ts ->
        let ts =
          List.mapi (fun i t ->
@@ -824,7 +824,7 @@ let election_draft_threshold_trustees ?token uuid se () =
                tr (
                    [
                      td [
-                         pcdata t.stt_id;
+                         txt t.stt_id;
                        ];
                      td [
                          let uri = rewrite_prefix @@
@@ -837,12 +837,12 @@ let election_draft_threshold_trustees ?token uuid se () =
                        ];
                      td [
                          if this_line then
-                           a ~service:election_draft_threshold_trustees [pcdata "Hide link"] uuid
+                           a ~service:election_draft_threshold_trustees [txt "Hide link"] uuid
                          else
-                           a ~service:election_draft_threshold_trustee [pcdata "Link"] (uuid, t.stt_token)
+                           a ~service:election_draft_threshold_trustee [txt "Link"] (uuid, t.stt_token)
                        ];
                      td [
-                         pcdata state;
+                         txt state;
                        ];
                    ] @ (if show_add_remove then [td [mk_form_trustee_del i]] else [])
                  )
@@ -854,14 +854,14 @@ let election_draft_threshold_trustees ?token uuid se () =
                      [
                        td ~a:[a_colspan (if show_add_remove then 5 else 4)]
                          [
-                           pcdata "The link that must be sent to trustee ";
-                           pcdata t.stt_id;
-                           pcdata " is:";
+                           txt "The link that must be sent to trustee ";
+                           txt t.stt_id;
+                           txt " is:";
                            br ();
                            Eliom_uri.make_string_uri ~absolute:true
                              ~service:election_draft_threshold_trustee
                              (uuid, t.stt_token)
-                           |> rewrite_prefix |> pcdata
+                           |> rewrite_prefix |> txt
                          ]
                      ]
                  ]
@@ -874,21 +874,21 @@ let election_draft_threshold_trustees ?token uuid se () =
            table (
                tr (
                    [
-                     th [pcdata "Trustee"];
-                     th [pcdata "Mail"];
-                     th [pcdata "Link"];
-                     th [pcdata "State"];
-                   ] @ (if show_add_remove then [th [pcdata "Remove"]] else [])
+                     th [txt "Trustee"];
+                     th [txt "Mail"];
+                     th [txt "Link"];
+                     th [txt "State"];
+                   ] @ (if show_add_remove then [th [txt "Remove"]] else [])
                  ) :: (List.flatten ts)
              );
            div [
-               pcdata "Meaning of states:";
+               txt "Meaning of states:";
                ul [
-                   li [pcdata "init: administrator needs to set threshold"];
-                   li [pcdata "1a: action needed from trustee: generate private key"];
-                   li [pcdata "2a, 3a: action needed from trustee: enter private key"];
-                   li [pcdata "1b, 2b, 3b: waiting for other trustees"];
-                   li [pcdata "done: the key establishment protocol is finished"];
+                   li [txt "init: administrator needs to set threshold"];
+                   li [txt "1a: action needed from trustee: generate private key"];
+                   li [txt "2a, 3a: action needed from trustee: enter private key"];
+                   li [txt "1b, 2b, 3b: waiting for other trustees"];
+                   li [txt "done: the key establishment protocol is finished"];
                  ];
              ];
            br ();
@@ -896,26 +896,26 @@ let election_draft_threshold_trustees ?token uuid se () =
   in
   let form_threshold, form_reset =
     match se.se_threshold_trustees with
-    | None -> pcdata "", pcdata ""
+    | None -> txt "", txt ""
     | Some ts ->
        match se.se_threshold with
        | None ->
           post_form ~service:election_draft_threshold_set
             (fun name ->
               [
-                pcdata "Threshold: ";
+                txt "Threshold: ";
                 input ~input_type:`Text ~name int;
                 input ~input_type:`Submit ~value:"Set" string;
-                pcdata " (the threshold must be smaller than the number of trustees)";
+                txt " (the threshold must be smaller than the number of trustees)";
               ]
             ) uuid,
-          pcdata ""
+          txt ""
        | Some i ->
           div [
-              pcdata (string_of_int i);
-              pcdata " out of ";
-              pcdata (string_of_int (List.length ts));
-              pcdata " trustees will be needed to decrypt the result.";
+              txt (string_of_int i);
+              txt " out of ";
+              txt (string_of_int (List.length ts));
+              txt " trustees will be needed to decrypt the result.";
             ],
           post_form ~service:election_draft_threshold_set
             (fun name ->
@@ -927,31 +927,31 @@ let election_draft_threshold_trustees ?token uuid se () =
   in
   let maybe_error =
     match se.se_threshold_error with
-    | None -> pcdata ""
-    | Some e -> div [b [pcdata "ERROR: "]; pcdata e; br (); br ()]
+    | None -> txt ""
+    | Some e -> div [b [txt "ERROR: "]; txt e; br (); br ()]
   in
   let div_content =
     div [
-      div [pcdata "On this page, you can configure a group of trustees such that only a subset of them is needed to perform the decryption."];
+      div [txt "On this page, you can configure a group of trustees such that only a subset of them is needed to perform the decryption."];
       br ();
       form_threshold;
       br ();
       trustees;
       (if se.se_threshold_trustees <> None then
           div [
-            pcdata "There is one link per trustee. Send each trustee her link.";
+            txt "There is one link per trustee. Send each trustee her link.";
             br ();
             br ();
             maybe_error;
           ]
-       else pcdata "");
+       else txt "");
       form_trustees_add;
       form_reset;
     ]
   in
   let back_link = div [
     a ~service:Web_services.election_draft
-      [pcdata "Go back to election draft"] uuid;
+      [txt "Go back to election draft"] uuid;
   ] in
   let content = [
     div_content;
@@ -965,14 +965,14 @@ let election_draft_credential_authority uuid se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
   let content = [
     div [
-      pcdata "Please send the credential authority the following link:";
+      txt "Please send the credential authority the following link:";
     ];
     ul [
       li [
         a
           ~service:election_draft_credentials
           [
-            pcdata @@ rewrite_prefix @@ Eliom_uri.make_string_uri
+            txt @@ rewrite_prefix @@ Eliom_uri.make_string_uri
               ~absolute:true
               ~service:election_draft_credentials
               (uuid, se.se_public_creds)
@@ -981,7 +981,7 @@ let election_draft_credential_authority uuid se () =
       ];
     ];
     div [
-      pcdata "Note that this authority will have to send each credential to each voter herself.";
+      txt "Note that this authority will have to send each credential to each voter herself.";
     ];
   ] in
   let%lwt login_box = login_box () in
@@ -995,7 +995,7 @@ let election_draft_questions uuid se () =
       ~service:election_draft_questions_post
       (fun name ->
        [
-         div [pcdata "Questions:"];
+         div [txt "Questions:"];
          div [textarea ~a:[a_id "questions"; a_rows 5; a_cols 80] ~name ~value ()];
          div [input ~input_type:`Submit ~value:"Save changes" string]])
       uuid
@@ -1008,27 +1008,27 @@ let election_draft_questions uuid se () =
   let hybrid_box =
     div ~a:[a_class ["hybrid_box"]]
       [
-        div [pcdata "Alternative voting methods (warning, still experimental):"];
+        div [txt "Alternative voting methods (warning, still experimental):"];
         div
           [
-            pcdata "You may wish voters to rank candidates or give each candidate a score.";
-            pcdata "This allows deciding the winner according to your favorite counting method ";
-            pcdata "(e.g. Condorcet, STV, majority judgement).";
+            txt "You may wish voters to rank candidates or give each candidate a score.";
+            txt "This allows deciding the winner according to your favorite counting method ";
+            txt "(e.g. Condorcet, STV, majority judgement).";
           ];
-        div [pcdata "Note that:"];
+        div [txt "Note that:"];
         ol
           [
-            li [pcdata "the after-the-vote procedure will require more steps;"];
+            li [txt "the after-the-vote procedure will require more steps;"];
             li
               [
-                pcdata "you will be given the raw results (shuffled list of ballots) ";
-                pcdata "and you will need to apply your counting method yourself."
+                txt "you will be given the raw results (shuffled list of ballots) ";
+                txt "and you will need to apply your counting method yourself."
               ];
           ];
         div
           [
             input ~a:[a_id "hybrid_mode"] ~input_type:`Checkbox string;
-            pcdata "Tick the box to activate this mode.";
+            txt "Tick the box to activate this mode.";
           ];
       ]
   in
@@ -1036,12 +1036,12 @@ let election_draft_questions uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        script (Printf.ksprintf pcdata "var allow_nh = %b;" allow_nh);
-        script ~a:[a_src (static "sjcl.js")] (pcdata "");
-        script ~a:[a_src (static "jsbn.js")] (pcdata "");
-        script ~a:[a_src (static "jsbn2.js")] (pcdata "");
-        script ~a:[a_src (static "random.js")] (pcdata "");
-        script ~a:[a_src (static "tool_js_questions.js")] (pcdata "");
+        script (Printf.ksprintf txt "var allow_nh = %b;" allow_nh);
+        script ~a:[a_src (static "sjcl.js")] (txt "");
+        script ~a:[a_src (static "jsbn.js")] (txt "");
+        script ~a:[a_src (static "jsbn2.js")] (txt "");
+        script ~a:[a_src (static "random.js")] (txt "");
+        script ~a:[a_src (static "tool_js_questions.js")] (txt "");
         hybrid_box;
       ]
   in
@@ -1090,13 +1090,13 @@ let election_draft_voters uuid se maxvoters () =
       ) uuid
   in
   let format_password_cell x = match x.sv_password with
-    | Some _ -> [pcdata "Yes "; mk_regen_passwd x.sv_id]
-    | None -> [pcdata "No"]
+    | Some _ -> [txt "Yes "; mk_regen_passwd x.sv_id]
+    | None -> [txt "No"]
   in
   let voters =
     List.map (fun v ->
       tr (
-        [td [pcdata v.sv_id]] @
+        [td [txt v.sv_id]] @
         (if has_passwords then [td (format_password_cell v)] else []) @
         (if se.se_public_creds_received then [] else [td [mk_remove_button v.sv_id]])
       )
@@ -1108,51 +1108,51 @@ let election_draft_voters uuid se maxvoters () =
         (fun () ->
           [input ~input_type:`Submit ~value:"Generate and mail missing passwords" string]
         ) uuid
-    else pcdata ""
+    else txt ""
   in
   let voters =
     match voters with
-    | [] -> div [pcdata "No voters"]
+    | [] -> div [txt "No voters"]
     | _ :: _ ->
        div [
          form_passwords;
          br ();
          table
            (tr (
-             [th [pcdata "Identity"]] @
-               (if has_passwords then [th [pcdata "Password sent?"]] else []) @
-               (if se.se_public_creds_received then [] else [th [pcdata "Remove"]])
+             [th [txt "Identity"]] @
+               (if has_passwords then [th [txt "Password sent?"]] else []) @
+               (if se.se_public_creds_received then [] else [th [txt "Remove"]])
             ) :: voters)
        ]
   in
   let back = div [
-    a ~service:Web_services.election_draft [pcdata "Return to draft page"] uuid;
+    a ~service:Web_services.election_draft [txt "Return to draft page"] uuid;
   ] in
   let div_add =
     if se.se_public_creds_received then
-      pcdata ""
+      txt ""
     else
       div [
         div [
-            pcdata "Please enter the identities of voters to add, one per line (max ";
-            pcdata (string_of_int maxvoters);
-            pcdata ").";
+            txt "Please enter the identities of voters to add, one per line (max ";
+            txt (string_of_int maxvoters);
+            txt ").";
             br ();
-            b [pcdata "Warning:"];
-            pcdata " you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote.";
+            b [txt "Warning:"];
+            txt " you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote.";
           ];
         form;
         div [
-          b [pcdata "Note:"];
-          pcdata " An identity is either an e-mail address, or \"address,login\",";
-          pcdata " where \"address\" is an e-mail address and \"login\" the";
-          pcdata " associated login for authentication.";
+          b [txt "Note:"];
+          txt " An identity is either an e-mail address, or \"address,login\",";
+          txt " where \"address\" is an e-mail address and \"login\" the";
+          txt " associated login for authentication.";
         ];
       ]
   in
   let div_import = div [
     a ~service:election_draft_import
-      [pcdata "Import voters from another election"]
+      [txt "Import voters from another election"]
       uuid
   ] in
   let content = [
@@ -1185,8 +1185,8 @@ let election_draft_credentials token uuid se () =
                 ~service:election_home (uuid, ()) |> rewrite_prefix
     in
     div [
-        pcdata "The link to the election will be:";
-        ul [li [pcdata url]];
+        txt "The link to the election will be:";
+        ul [li [txt url]];
       ]
   in
   let form_textarea =
@@ -1194,28 +1194,28 @@ let election_draft_credentials token uuid se () =
       ~service:election_draft_credentials_post
       (fun name ->
        [div
-          [div [pcdata "Public credentials:"];
+          [div [txt "Public credentials:"];
            div [textarea ~a:[a_id "pks"; a_rows 5; a_cols 40] ~name ()];
-           div ~a:[a_style "display:none;"] [a ~service:home ~a:[a_id "hashed"] [pcdata "Hashed public credentials"] ()];
+           div ~a:[a_style "display:none;"] [a ~service:home ~a:[a_id "hashed"] [txt "Hashed public credentials"] ()];
            div [
-               b [pcdata "Instructions:"];
+               b [txt "Instructions:"];
                ol [
                    li [
-                       pcdata "Download ";
-                       a ~service:home ~a:[a_id "creds"] [pcdata "private credentials"] ();
-                       pcdata " and save the file to a secure location.";
+                       txt "Download ";
+                       a ~service:home ~a:[a_id "creds"] [txt "private credentials"] ();
+                       txt " and save the file to a secure location.";
                        br ();
-                       pcdata "You will use it to send credentials to voters.";
+                       txt "You will use it to send credentials to voters.";
                      ];
                    li [
-                       pcdata "Download ";
-                       a ~service:home ~a:[a_id "public_creds"] [pcdata "public credentials"] ();
-                       pcdata " and save the file.";
+                       txt "Download ";
+                       a ~service:home ~a:[a_id "public_creds"] [txt "public credentials"] ();
+                       txt " and save the file.";
                        br ();
-                       pcdata "Once the election is open, you must check that";
-                       pcdata " the file published by the server matches.";
+                       txt "Once the election is open, you must check that";
+                       txt " the file published by the server matches.";
                      ];
-                   li [pcdata "Submit public credentials using the button below."];
+                   li [txt "Submit public credentials using the button below."];
                  ];
              ];
            div [input ~input_type:`Submit ~value:"Submit public credentials" string]]])
@@ -1224,8 +1224,8 @@ let election_draft_credentials token uuid se () =
   let disclaimer =
     p
       [
-        b [pcdata "Note:"];
-        pcdata " submitting a large (> 200) number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below.";
+        b [txt "Note:"];
+        txt " submitting a large (> 200) number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below.";
       ]
   in
   let form_file =
@@ -1233,8 +1233,8 @@ let election_draft_credentials token uuid se () =
       ~service:election_draft_credentials_post_file
       (fun name ->
        [div
-          [h2 [pcdata "Submit by file"];
-           div [pcdata "Use this form to upload public credentials generated with the command-line tool."];
+          [h2 [txt "Submit by file"];
+           div [txt "Use this form to upload public credentials generated with the command-line tool."];
            div [file_input ~name ()];
            div [input ~input_type:`Submit ~value:"Submit" string]]])
       (uuid, token)
@@ -1243,16 +1243,16 @@ let election_draft_credentials token uuid se () =
     div
       ~a:[a_style "display:none;"]
       [
-        div [pcdata "UUID:"];
+        div [txt "UUID:"];
         div [unsafe_textarea "uuid" (raw_string_of_uuid uuid)];
-        div [pcdata "Group parameters:"];
+        div [txt "Group parameters:"];
         div [unsafe_textarea "group" se.se_group];
       ]
   in
   let voters =
     let value = String.concat "\n" (List.map (fun x -> x.sv_id) se.se_voters) in
     div [
-      div [pcdata "List of voters:"];
+      div [txt "List of voters:"];
       div [unsafe_textarea ~rows:5 ~cols:40 "voters" value];
     ]
   in
@@ -1260,18 +1260,18 @@ let election_draft_credentials token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        script ~a:[a_src (static "sjcl.js")] (pcdata "");
-        script ~a:[a_src (static "jsbn.js")] (pcdata "");
-        script ~a:[a_src (static "jsbn2.js")] (pcdata "");
-        script ~a:[a_src (static "random.js")] (pcdata "");
-        script ~a:[a_src (static "tool_js_credgen.js")] (pcdata "");
+        script ~a:[a_src (static "sjcl.js")] (txt "");
+        script ~a:[a_src (static "jsbn.js")] (txt "");
+        script ~a:[a_src (static "jsbn2.js")] (txt "");
+        script ~a:[a_src (static "random.js")] (txt "");
+        script ~a:[a_src (static "tool_js_credgen.js")] (txt "");
       ]
   in
   let div_textarea = div [group; voters; interactivity; form_textarea; disclaimer] in
   let content =
     if se.se_public_creds_received then (
       [
-        div [pcdata "Credentials have already been generated!"];
+        div [txt "Credentials have already been generated!"];
       ]
     ) else (
       [
@@ -1289,8 +1289,8 @@ let election_draft_trustee token uuid se () =
                 ~service:election_home (uuid, ()) |> rewrite_prefix
     in
     div [
-        pcdata "The link to the election will be:";
-        ul [li [pcdata url]];
+        txt "The link to the election will be:";
+        ul [li [txt url]];
       ]
   in
   let form =
@@ -1302,28 +1302,28 @@ let election_draft_trustee token uuid se () =
       (fun name ->
        [
          div ~a:[a_id "submit_form"; a_style "display:none;"] [
-           div [pcdata "Public key:"];
+           div [txt "Public key:"];
            div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ~value ()];
            div [
-               b [pcdata "Instructions:"];
+               b [txt "Instructions:"];
                ol [
                    li [
-                       pcdata "Download your ";
-                       a ~service:home ~a:[a_id "private_key"] [pcdata "private key"] ();
-                       pcdata " and save it to a secure location.";
+                       txt "Download your ";
+                       a ~service:home ~a:[a_id "private_key"] [txt "private key"] ();
+                       txt " and save it to a secure location.";
                        br ();
-                       pcdata "You will use it to decrypt the final result.";
+                       txt "You will use it to decrypt the final result.";
                      ];
                    li [
-                       pcdata "Download your ";
-                       a ~service:home ~a:[a_id "public_key"] [pcdata "public key"] ();
-                       pcdata " and save it.";
+                       txt "Download your ";
+                       a ~service:home ~a:[a_id "public_key"] [txt "public key"] ();
+                       txt " and save it.";
                        br ();
-                       pcdata "Once the election is open, you must check that";
-                       pcdata " it is present in the set of public keys";
-                       pcdata " published by the server.";
+                       txt "Once the election is open, you must check that";
+                       txt " it is present in the set of public keys";
+                       txt " published by the server.";
                      ];
-                   li [pcdata "Submit your public key using the button below."];
+                   li [txt "Submit your public key using the button below."];
                  ];
              ];
            div [input ~input_type:`Submit ~value:"Submit public key" string];
@@ -1335,7 +1335,7 @@ let election_draft_trustee token uuid se () =
     div
       ~a:[a_style "display:none;"]
       [
-        div [pcdata "Group parameters:"];
+        div [txt "Group parameters:"];
         div [unsafe_textarea "group" se.se_group];
       ]
   in
@@ -1343,11 +1343,11 @@ let election_draft_trustee token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        script ~a:[a_src (static "sjcl.js")] (pcdata "");
-        script ~a:[a_src (static "jsbn.js")] (pcdata "");
-        script ~a:[a_src (static "jsbn2.js")] (pcdata "");
-        script ~a:[a_src (static "random.js")] (pcdata "");
-        script ~a:[a_src (static "tool_js_tkeygen.js")] (pcdata "");
+        script ~a:[a_src (static "sjcl.js")] (txt "");
+        script ~a:[a_src (static "jsbn.js")] (txt "");
+        script ~a:[a_src (static "jsbn2.js")] (txt "");
+        script ~a:[a_src (static "random.js")] (txt "");
+        script ~a:[a_src (static "tool_js_tkeygen.js")] (txt "");
       ]
   in
   let content = [
@@ -1362,9 +1362,9 @@ let election_draft_threshold_trustee token uuid se () =
   let title = "Trustee for election " ^ se.se_questions.t_name in
   let header =
     div ~a:[a_style "text-align:center;"] [
-        h2 [pcdata "Collaborative key generation"];
+        h2 [txt "Collaborative key generation"];
         div ~a:[a_id "current_step"] [
-            pcdata "Step 0/3"
+            txt "Step 0/3"
           ];
       ]
   in
@@ -1373,8 +1373,8 @@ let election_draft_threshold_trustee token uuid se () =
                 ~service:election_home (uuid, ()) |> rewrite_prefix
     in
     div [
-        pcdata "The link to the election will be:";
-        ul [li [pcdata url]];
+        txt "The link to the election will be:";
+        ul [li [txt url]];
       ]
   in
   let%lwt trustee =
@@ -1404,27 +1404,27 @@ let election_draft_threshold_trustee token uuid se () =
   let inputs =
     div ~a:[a_style "display:none;"] [
         div [
-            pcdata "Step: ";
+            txt "Step: ";
             unsafe_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);
           ];
         div [
-            pcdata "Group parameters: ";
+            txt "Group parameters: ";
             unsafe_textarea "group" se.se_group;
           ];
         div [
-            pcdata "Certificates: ";
+            txt "Certificates: ";
             unsafe_textarea "certs" (string_of_certs certs);
           ];
         div [
-            pcdata "Threshold: ";
+            txt "Threshold: ";
             unsafe_textarea "threshold" (string_of_int threshold);
           ];
         div [
-            pcdata "Vinput: ";
+            txt "Vinput: ";
             unsafe_textarea "vinput" (match trustee.stt_vinput with None -> "" | Some x -> string_of_vinput x);
           ];
         div [
-            pcdata "Voutput: ";
+            txt "Voutput: ";
             unsafe_textarea "voutput" (match trustee.stt_voutput with None -> "" | Some x -> x);
           ];
       ]
@@ -1436,19 +1436,19 @@ let election_draft_threshold_trustee token uuid se () =
       (fun data ->
         [
           div ~a:[a_id "key_helper"; a_style "display:none;"] [
-              b [pcdata "Instructions:"];
+              b [txt "Instructions:"];
               ol [
                   li [
-                      pcdata "Download your ";
-                      a ~service:home ~a:[a_id "private_key"] [pcdata "private key"] ();
-                      pcdata " and save it to a secure location."
+                      txt "Download your ";
+                      a ~service:home ~a:[a_id "private_key"] [txt "private key"] ();
+                      txt " and save it to a secure location."
                     ];
                   li [
-                      pcdata "Submit data using the following button: ";
+                      txt "Submit data using the following button: ";
                       input ~input_type:`Submit ~value:"Submit" string;
-                      pcdata ".";
+                      txt ".";
                       div [
-                          pcdata "Data: ";
+                          txt "Data: ";
                           textarea ~a:[a_id "data"] ~name:data ();
                         ];
                     ];
@@ -1459,25 +1459,25 @@ let election_draft_threshold_trustee token uuid se () =
   in
   let form_compute =
     div ~a:[a_id "compute_form"; a_style "display: none;"] [
-        b [pcdata "Instructions:"];
+        b [txt "Instructions:"];
         ol [
             li [
-                pcdata "Enter your private key: ";
+                txt "Enter your private key: ";
                 input ~input_type:`Text ~a:[a_id "compute_private_key"] string;
-                pcdata " ";
+                txt " ";
                 button_no_value ~a:[a_id "compute_button"] ~button_type:`Button [
-                    pcdata "Proceed";
+                    txt "Proceed";
                   ];
               ];
             li [
-                pcdata "Submit data using the following button:";
+                txt "Submit data using the following button:";
                 post_form
                   ~service:election_draft_threshold_trustee_post
                   (fun data ->
                     [
                       input ~input_type:`Submit ~value:"Submit" string;
                       div [
-                          pcdata "Data: ";
+                          txt "Data: ";
                           textarea ~a:[a_id "compute_data"] ~name:data ();
                         ];
                     ]
@@ -1490,11 +1490,11 @@ let election_draft_threshold_trustee token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        script ~a:[a_src (static "sjcl.js")] (pcdata "");
-        script ~a:[a_src (static "jsbn.js")] (pcdata "");
-        script ~a:[a_src (static "jsbn2.js")] (pcdata "");
-        script ~a:[a_src (static "random.js")] (pcdata "");
-        script ~a:[a_src (static "tool_js_ttkeygen.js")] (pcdata "");
+        script ~a:[a_src (static "sjcl.js")] (txt "");
+        script ~a:[a_src (static "jsbn.js")] (txt "");
+        script ~a:[a_src (static "jsbn2.js")] (txt "");
+        script ~a:[a_src (static "random.js")] (txt "");
+        script ~a:[a_src (static "tool_js_ttkeygen.js")] (txt "");
       ]
   in
   let content = [
@@ -1517,10 +1517,10 @@ let election_draft_importer ~service ~title uuid (elections, tallied, archived) 
       (fun from ->
         [
           div [
-              pcdata name;
-              pcdata " (";
-              pcdata from_uuid;
-              pcdata ")"
+              txt name;
+              txt " (";
+              txt from_uuid;
+              txt ")"
             ];
           div [
             input
@@ -1535,15 +1535,15 @@ let election_draft_importer ~service ~title uuid (elections, tallied, archived) 
     li [form]
   in
   let itemize xs = match xs with
-    | [] -> p [pcdata "You own no such elections!"]
+    | [] -> p [txt "You own no such elections!"]
     | _ -> ul @@ List.map format_election xs
   in
   let content = [
-    h2 [pcdata "Elections you can administer"];
+    h2 [txt "Elections you can administer"];
     itemize elections;
-    h2 [pcdata "Tallied elections"];
+    h2 [txt "Tallied elections"];
     itemize tallied;
-    h2 [pcdata "Archived elections"];
+    h2 [txt "Archived elections"];
     itemize archived;
   ] in
   let%lwt login_box = login_box () in
@@ -1560,8 +1560,8 @@ let election_draft_import_trustees uuid se elections =
   election_draft_importer ~service ~title uuid elections
 
 let election_draft_confirm uuid se () =
-  let notok x = span ~a:[a_style "color: red;"] [pcdata x] in
-  let ok x = pcdata x in
+  let notok x = span ~a:[a_style "color: red;"] [txt x] in
+  let ok x = txt x in
   let title = "Election " ^ se.se_questions.t_name ^ " — Validate creation" in
   let ready = true in
   let ready, name =
@@ -1620,63 +1620,63 @@ let election_draft_confirm uuid se () =
     match se.se_threshold_trustees, se.se_public_keys with
     | None, [] ->
        div [
-           b [pcdata "Warning:"];
-           pcdata " No trustees were set. This means that the server will manage the election key by itself.";
+           b [txt "Warning:"];
+           txt " No trustees were set. This means that the server will manage the election key by itself.";
          ]
-    | _, _ -> pcdata ""
+    | _, _ -> txt ""
   in
   let contact, div_contact_warning =
     match se.se_metadata.e_contact with
     | None ->
        "No",
        div [
-           b [pcdata "Warning:"];
-           pcdata " No contact was set!";
+           b [txt "Warning:"];
+           txt " No contact was set!";
          ]
-    | Some _ -> "Yes", pcdata ""
+    | Some _ -> "Yes", txt ""
   in
   let table_checklist = table [
     tr [
-      td [pcdata "Name?"];
+      td [txt "Name?"];
       td [name];
     ];
     tr [
-      td [pcdata "Description?"];
+      td [txt "Description?"];
       td [description];
     ];
     tr [
-      td [pcdata "Questions?"];
-      td [questions; pcdata " "; preview_booth uuid];
+      td [txt "Questions?"];
+      td [questions; txt " "; preview_booth uuid];
     ];
     tr [
-      td [pcdata "Voters?"];
+      td [txt "Voters?"];
       td [voters];
     ];
     tr [
-      td [pcdata "Passwords?"];
+      td [txt "Passwords?"];
       td [passwords];
     ];
     tr [
-      td [pcdata "Credentials?"];
+      td [txt "Credentials?"];
       td [credentials];
     ];
     tr [
-      td [pcdata "Trustees?"];
+      td [txt "Trustees?"];
       td [trustees];
     ];
     tr [
-      td [pcdata "Contact?"];
-      td [pcdata contact];
+      td [txt "Contact?"];
+      td [txt contact];
     ];
   ] in
   let status =
     if ready then
-      span ~a:[a_style "color: green;"] [pcdata "election ready"]
+      span ~a:[a_style "color: green;"] [txt "election ready"]
     else
-      span ~a:[a_style "color: red;"] [pcdata "election not ready"]
+      span ~a:[a_style "color: red;"] [txt "election not ready"]
   in
   let checklist = div [
-    h2 [pcdata "Checklist: "; status];
+    h2 [txt "Checklist: "; status];
     table_checklist;
     div_trustee_warning;
     div_contact_warning;
@@ -1687,15 +1687,15 @@ let election_draft_confirm uuid se () =
         ~service:election_draft_create
         (fun () ->
           [div
-              [h2 [pcdata "Validate creation"];
+              [h2 [txt "Validate creation"];
                input ~input_type:`Submit ~value:"Create election" string;
-               pcdata " (Warning: this action is irreversible.)";
+               txt " (Warning: this action is irreversible.)";
               ]]
         ) uuid
     else div []
   in
   let back = div [
-    a ~service:Web_services.election_draft [pcdata "Return to draft page"] uuid;
+    a ~service:Web_services.election_draft [txt "Return to draft page"] uuid;
   ] in
   let content = [
     back;
@@ -1715,35 +1715,35 @@ let audit_footer election =
     match%lwt Web_persist.get_threshold election.e_params.e_uuid with
     | None ->
        return (a ~service:(file uuid ESKeys) [
-                   pcdata L.trustee_public_keys
+                   txt L.trustee_public_keys
                  ] ())
     | Some _ ->
        return (a ~service:(file uuid ESTParams) [
-                   pcdata "threshold parameters"
+                   txt "threshold parameters"
                  ] ())
   in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
       div [
-        pcdata L.election_fingerprint;
-        code [ pcdata election.e_fingerprint ];
+        txt L.election_fingerprint;
+        code [ txt election.e_fingerprint ];
       ];
       div [
-        pcdata L.audit_data;
+        txt L.audit_data;
         a ~service:(file uuid ESRaw) [
-          pcdata L.parameters
+          txt L.parameters
         ] ();
-        pcdata ", ";
+        txt ", ";
         pk_or_tp;
-        pcdata ", ";
+        txt ", ";
         a ~service:(file uuid ESCreds) [
-          pcdata L.public_credentials
+          txt L.public_credentials
         ] ();
-        pcdata ", ";
+        txt ", ";
         a ~service:(file uuid ESBallots) [
-          pcdata L.ballots
+          txt L.ballots
         ] ();
-        pcdata ".";
+        txt ".";
       ];
     ]
   ]
@@ -1765,35 +1765,35 @@ let format_question_result uuid l (i, q) r =
      in
      let answers =
        List.mapi (fun j x ->
-           tr [td [pcdata x]; td [pcdata @@ string_of_int r.(j)]]
+           tr [td [txt x]; td [txt @@ string_of_int r.(j)]]
          ) answers
      in
      let answers =
        match answers with
-       | [] -> pcdata ""
+       | [] -> txt ""
        | y :: ys ->
           match x.q_blank with
           | Some true -> table (ys @ [y])
           | _ -> table (y :: ys)
      in
      li [
-         div ~a:[a_class ["result_question"]] [pcdata x.q_question];
+         div ~a:[a_class ["result_question"]] [txt x.q_question];
          answers;
        ]
   | Question.NonHomomorphic x ->
      let open Question_nh_t in
      li [
-         div ~a:[a_class ["result_question"]] [pcdata x.q_question];
+         div ~a:[a_class ["result_question"]] [txt x.q_question];
          div [
-             pcdata L.the_raw_results;
-             a ~service:election_dir [pcdata L.json_result] (uuid, ESResult);
-             pcdata L.with_the_jsquery;
+             txt L.the_raw_results;
+             a ~service:election_dir [txt L.json_result] (uuid, ESResult);
+             txt L.with_the_jsquery;
              span ~a:[a_class ["result_jsquery"]] [
-                 pcdata ".result[";
-                 pcdata (string_of_int i);
-                 pcdata "]";
+                 txt ".result[";
+                 txt (string_of_int i);
+                 txt "]";
                ];
-             pcdata L.it_contains_all_clear;
+             txt L.it_contains_all_clear;
            ];
        ]
 
@@ -1812,16 +1812,16 @@ let election_home election state () =
          match d.Web_persist.auto_open with
          | Some t when datetime_compare now t < 0 ->
             span [
-                pcdata " ";
-                pcdata L.it_will_open_in;
-                pcdata (format_period l (datetime_sub t now));
-                pcdata ".";
+                txt " ";
+                txt L.it_will_open_in;
+                txt (format_period l (datetime_sub t now));
+                txt ".";
               ]
-         | _ -> pcdata ""
+         | _ -> txt ""
        in
       [
-        pcdata " ";
-        b [pcdata L.election_currently_closed];
+        txt " ";
+        b [txt L.election_currently_closed];
         it_will_open;
       ]
     | `Open ->
@@ -1829,40 +1829,40 @@ let election_home election state () =
          match d.Web_persist.auto_close with
          | Some t when datetime_compare now t < 0 ->
             span [
-                pcdata L.the_election_will_close_in;
-                pcdata (format_period l (datetime_sub t now));
-                pcdata ".";
+                txt L.the_election_will_close_in;
+                txt (format_period l (datetime_sub t now));
+                txt ".";
               ]
-         | _ -> pcdata ""
+         | _ -> txt ""
        in
        [it_will_close]
     | `Shuffling ->
        [
-         pcdata " ";
-         b [pcdata L.election_closed_being_tallied];
+         txt " ";
+         b [txt L.election_closed_being_tallied];
        ]
     | `EncryptedTally (_, _, hash) ->
        [
-         pcdata " ";
-         b [pcdata L.election_closed_being_tallied];
-         pcdata L.the;
+         txt " ";
+         b [txt L.election_closed_being_tallied];
+         txt L.the;
          a
            ~service:election_dir
-           [pcdata L.encrypted_tally]
+           [txt L.encrypted_tally]
            (uuid, ESETally);
-         pcdata L.hash_is;
-         b [pcdata hash];
-         pcdata ".";
+         txt L.hash_is;
+         b [txt hash];
+         txt ".";
        ]
     | `Tallied ->
        [
-         pcdata " ";
-         b [pcdata L.election_has_been_tallied];
+         txt " ";
+         b [txt L.election_has_been_tallied];
        ]
     | `Archived ->
        [
-         pcdata " ";
-         b [pcdata L.election_archived];
+         txt " ";
+         b [txt L.election_archived];
        ]
   in
   let ballots_link =
@@ -1870,7 +1870,7 @@ let election_home election state () =
         a
           ~a:[a_style "font-size:25px;"]
           ~service:election_pretty_ballots [
-            pcdata L.see_accepted_ballots
+            txt L.see_accepted_ballots
           ] (uuid, ())
       ]
   in
@@ -1888,7 +1888,7 @@ let election_home election state () =
       div [
         a
           ~service:(Eliom_service.preapply election_cast uuid)
-          [pcdata L.advanced_mode] ();
+          [txt L.advanced_mode] ();
       ];
     ]
   in
@@ -1904,13 +1904,13 @@ let election_home election state () =
     | Some r when hidden = None || is_admin ->
        let shuffles =
          match r.shuffles with
-         | None -> pcdata ""
+         | None -> txt ""
          | Some ss ->
             div [
-                pcdata L.applied_shuffles_are;
+                txt L.applied_shuffles_are;
                 ul @@ List.map (fun s ->
                           let s = string_of_shuffle Yojson.Safe.write_json s in
-                          li [pcdata (Platform.sha256_b64 s)]
+                          li [txt (Platform.sha256_b64 s)]
                         ) ss
               ]
        in
@@ -1921,16 +1921,16 @@ let election_home election state () =
              |> Array.to_list
            );
          div [
-           pcdata L.number_accepted_ballots;
-           pcdata (string_of_int r.num_tallied);
+           txt L.number_accepted_ballots;
+           txt (string_of_int r.num_tallied);
          ];
          shuffles;
          div [
-           pcdata L.you_can_also_download;
+           txt L.you_can_also_download;
            a ~service:election_dir
-             [pcdata L.result_with_crypto_proofs]
+             [txt L.result_with_crypto_proofs]
              (uuid, ESResult);
-           pcdata ".";
+           txt ".";
          ];
        ]
     | Some _ ->
@@ -1941,15 +1941,15 @@ let election_home election state () =
        in
        return @@
          div [
-             Printf.ksprintf pcdata L.result_currently_not_public
+             Printf.ksprintf txt L.result_currently_not_public
                (format_period l (datetime_sub t now));
            ]
     | None -> return go_to_the_booth
   in
   let languages =
     div ~a:[a_class ["languages"]]
-      (list_concat (pcdata " ") @@ List.map (fun lang ->
-        a ~service:set_language [pcdata lang] (lang, ContSiteElection uuid)
+      (list_concat (txt " ") @@ List.map (fun lang ->
+        a ~service:set_language [txt lang] (lang, ContSiteElection uuid)
        ) available_languages)
   in
   let%lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
@@ -1958,12 +1958,12 @@ let election_home election state () =
       div
         ~a:[a_style "border-style: solid; border-width: 1px;"]
         [
-          pcdata L.by_using_you_accept;
+          txt L.by_using_you_accept;
           unsafe_a !Web_config.gdpr_uri L.privacy_policy;
-          pcdata ". ";
-          a ~service:set_cookie_disclaimer [pcdata L.accept] (ContSiteElection uuid);
+          txt ". ";
+          a ~service:set_cookie_disclaimer [txt L.accept] (ContSiteElection uuid);
         ]
-    else pcdata ""
+    else txt ""
   in
   let content = [
     cookie_disclaimer;
@@ -2031,24 +2031,24 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
     return @@ post_form ~service:election_auto_post
       (fun (lopen, lclose) ->
         [
-          div [pcdata "Alternatively, you may setup automatic dates."];
+          div [txt "Alternatively, you may setup automatic dates."];
           div [
-              b [pcdata "Note:"];
-              pcdata " times are in UTC. Now is ";
-              pcdata (format (Some (now ())));
-              pcdata ".";
+              b [txt "Note:"];
+              txt " times are in UTC. Now is ";
+              txt (format (Some (now ())));
+              txt ".";
             ];
           div ~a:[a_style "margin-left: 3em;"] [
               div [
-                  pcdata "Automatically open the election at: ";
+                  txt "Automatically open the election at: ";
                   input ~name:lopen ~input_type:`Text ~value:(format auto_dates.auto_open) string;
                 ];
               div [
-                  pcdata "Automatically close the election at: ";
+                  txt "Automatically close the election at: ";
                   input ~name:lclose ~input_type:`Text ~value:(format auto_dates.auto_close) string;
                 ];
               div [
-                  pcdata "Enter dates in UTC, in format YYYY-MM-DD HH:MM:SS, leave empty for no date.";
+                  txt "Enter dates in UTC, in format YYYY-MM-DD HH:MM:SS, leave empty for no date.";
                 ];
             ];
           div [
@@ -2073,11 +2073,11 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
       (fun () ->
        [
          div ~a:[a_style "text-align: center;"] [
-             pcdata msg;
+             txt msg;
            ];
          br ();
          input ~input_type:`Submit ~value string;
-         pcdata msg2;
+         txt msg2;
        ]) uuid
   in
   let%lwt state_div =
@@ -2104,7 +2104,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                  ~input_type:`Submit
                  ~value:"Proceed to vote counting"
                  string;
-              pcdata " Warning: this action is irreversible; the election will be definitively closed.";
+              txt " Warning: this action is irreversible; the election will be definitively closed.";
              ]) uuid;
        ]
     | `Shuffling ->
@@ -2153,8 +2153,8 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                    ) ()
                in
                match x.ws_hash with
-               | None -> mk_skip false, pcdata "", false
-               | Some h -> mk_skip true, pcdata (if h = "" then "(skipped)" else h), true
+               | None -> mk_skip false, txt "", false
+               | Some h -> mk_skip true, txt (if h = "" then "(skipped)" else h), true
              in
              let this_line =
                match shuffle_token with
@@ -2164,7 +2164,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
              let first_line =
                tr
                  [
-                   td [pcdata x.ws_trustee];
+                   td [txt x.ws_trustee];
                    td
                      [
                        match x.ws_select with
@@ -2179,11 +2179,11 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                           div
                             [
                               a_mailto ~dest:x.ws_trustee ~subject ~body "Mail";
-                              pcdata " | ";
+                              txt " | ";
                               if this_line then
-                                a ~service:election_admin [pcdata "Hide link"] uuid
+                                a ~service:election_admin [txt "Hide link"] uuid
                               else
-                                a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [pcdata "Link"] (uuid, token)
+                                a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [txt "Link"] (uuid, token)
                             ]
                        | None ->
                           post_form ~service:election_shuffler_select
@@ -2196,7 +2196,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                               ]
                             ) ()
                      ];
-                   td [if done_ then pcdata "Yes" else pcdata "No"];
+                   td [if done_ then txt "Yes" else txt "No"];
                    td [skip];
                    td [hash];
                  ]
@@ -2209,13 +2209,13 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                       [
                         td ~a:[a_colspan 5]
                           [
-                            pcdata "The link that must be sent to trustee ";
-                            pcdata x.ws_trustee;
-                            pcdata " is:";
+                            txt "The link that must be sent to trustee ";
+                            txt x.ws_trustee;
+                            txt " is:";
                             br ();
                             Eliom_uri.make_string_uri ~absolute:true
                               ~service:election_shuffle_link (uuid, token)
-                            |> rewrite_prefix |> pcdata
+                            |> rewrite_prefix |> txt
                           ]
                       ]
                   ]
@@ -2233,21 +2233,21 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                ]
              ) uuid
          else
-           pcdata ""
+           txt ""
        in
        return (
            div [
                div [
                    div ~a:[a_style "text-align: center;"]
-                     [pcdata "Shuffling of ballots"];
+                     [txt "Shuffling of ballots"];
                    table
                      (tr
                         [
-                          th [pcdata "Trustee"];
+                          th [txt "Trustee"];
                           th [];
-                          th [pcdata "Done?"];
+                          th [txt "Done?"];
                           th [];
-                          th [pcdata "Hash"];
+                          th [txt "Hash"];
                         ] :: (List.flatten table_contents)
                      );
                  ];
@@ -2264,8 +2264,8 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
        in
        let threshold_or_not =
          match tp with
-         | None -> pcdata ""
-         | Some tp -> pcdata (Printf.sprintf " At least %d trustee(s) must act." tp.t_threshold)
+         | None -> txt ""
+         | Some tp -> txt (Printf.sprintf " At least %d trustee(s) must act." tp.t_threshold)
        in
        let trustees =
          let rec loop i ts =
@@ -2305,25 +2305,25 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
              in
              let mail, link =
                if link_content = "server" then (
-                 pcdata "(server)",
-                 pcdata "(server)"
+                 txt "(server)",
+                 txt "(server)"
                ) else (
                  let body = Printf.sprintf mail_trustee_tally uri in
                  let subject = "Link to tally the election" in
                  a_mailto ~dest ~subject ~body "Mail",
                  if this_line then
-                   a ~service:election_admin [pcdata "Hide link"] uuid
+                   a ~service:election_admin [txt "Hide link"] uuid
                  else
-                   a ~service [pcdata "Link"] x
+                   a ~service [txt "Link"] x
                )
              in
              let first_line =
                tr [
-                   td [pcdata link_content];
+                   td [txt link_content];
                    td [mail];
                    td [link];
                    td [
-                       pcdata (if List.mem_assoc trustee_id pds then "Yes" else "No")
+                       txt (if List.mem_assoc trustee_id pds then "Yes" else "No")
                      ];
                  ]
              in
@@ -2334,11 +2334,11 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                      [
                        td ~a:[a_colspan 4]
                          [
-                           pcdata "The link that must be sent to trustee ";
-                           pcdata link_content;
-                           pcdata " is:";
+                           txt "The link that must be sent to trustee ";
+                           txt link_content;
+                           txt " is:";
                            br ();
-                           pcdata uri;
+                           txt uri;
                          ]
                      ]
                  ]
@@ -2359,25 +2359,25 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
        in
        return @@ div [
          div [
-           pcdata "The ";
+           txt "The ";
            a
              ~service:election_dir
-             [pcdata "encrypted tally"]
+             [txt "encrypted tally"]
              (uuid, ESETally);
-           pcdata " has been computed. Its hash is ";
+           txt " has been computed. Its hash is ";
            b ~a:[a_id "encrypted_tally_hash"] [
-             pcdata hash
+             txt hash
            ];
-           pcdata ".";
+           txt ".";
          ];
          div [
-           div [pcdata "We are now waiting for trustees..."; threshold_or_not];
+           div [txt "We are now waiting for trustees..."; threshold_or_not];
            table
              (tr [
-               th [pcdata "Trustee"];
-               th [pcdata "Mail"];
-               th [pcdata "Link"];
-               th [pcdata "Done?"];
+               th [txt "Trustee"];
+               th [txt "Mail"];
+               th [txt "Link"];
+               th [txt "Done?"];
              ] :: List.flatten trustees)
          ];
          release_form;
@@ -2396,32 +2396,32 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
               (fun date ->
                 [
                   div [
-                      Printf.ksprintf pcdata "You may postpone the publication of the election result up to %d days in the future." days_to_publish_result;
+                      Printf.ksprintf txt "You may postpone the publication of the election result up to %d days in the future." days_to_publish_result;
                     ];
                   div [
                       input ~input_type:`Submit ~value:"Postpone publication until" string;
-                      pcdata " ";
+                      txt " ";
                       input ~name:date ~input_type:`Text string;
                     ];
                   div [
-                      pcdata "Enter the date in UTC, in format YYYY-MM-DD HH:MM:SS. For example, now is ";
-                      pcdata (String.sub (string_of_datetime (now ())) 1 19);
-                      pcdata ".";
+                      txt "Enter the date in UTC, in format YYYY-MM-DD HH:MM:SS. For example, now is ";
+                      txt (String.sub (string_of_datetime (now ())) 1 19);
+                      txt ".";
                     ];
                 ]
               ) uuid
        in
        return @@ div [
-         div [pcdata "This election has been tallied."];
+         div [txt "This election has been tallied."];
          br ();
          hr ();
          form_toggle;
        ]
     | `Archived ->
        return @@ div [
-         pcdata "This election is archived. ";
+         txt "This election is archived. ";
          a ~service:election_download_archive [
-             pcdata "Download archive.";
+             txt "Download archive.";
            ] (uuid, ());
        ]
   in
@@ -2431,14 +2431,14 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
        let t = datetime_add (Option.get t default_tally_date) (day days_to_archive) in
        return @@
          div [
-             pcdata "This election will be automatically archived after ";
-             pcdata (format_datetime t);
-             pcdata ".";
+             txt "This election will be automatically archived after ";
+             txt (format_datetime t);
+             txt ".";
            ]
-    | _ -> return @@ pcdata ""
+    | _ -> return @@ txt ""
   in
   let div_archive = match state with
-    | `Archived -> pcdata ""
+    | `Archived -> txt ""
     | _ -> div [
       br ();
       hr ();
@@ -2446,7 +2446,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
       post_form ~service:election_archive (fun () ->
         [
           input ~input_type:`Submit ~value:"Archive election" string;
-          pcdata " Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).";
+          txt " Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).";
         ]
       ) uuid;
     ]
@@ -2470,14 +2470,14 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
         br ();
         hr ();
         div [
-            pcdata "This election will be automatically deleted after ";
-            pcdata (format_datetime deletion_date);
-            pcdata ".";
+            txt "This election will be automatically deleted after ";
+            txt (format_datetime deletion_date);
+            txt ".";
           ];
         post_form ~service:election_delete (fun () ->
             [
               input ~input_type:`Submit ~value:"Delete election" string;
-              pcdata " Warning: this action is irreversible.";
+              txt " Warning: this action is irreversible.";
             ]
           ) uuid;
       ]
@@ -2485,10 +2485,10 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   let update_credential =
     match metadata.e_cred_authority with
     | Some "server" ->
-       pcdata ""
+       txt ""
     | _ ->
        div [
-         a ~service:election_update_credential [pcdata "Update a credential"] uuid;
+         a ~service:election_update_credential [txt "Update a credential"] uuid;
        ];
   in
   let cas = match metadata.e_auth_config with
@@ -2497,25 +2497,25 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   in
   let div_regenpwd =
     if cas then
-      pcdata ""
+      txt ""
     else
       div [
-          a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [pcdata "Regenerate and mail a password"] uuid;
+          a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [txt "Regenerate and mail a password"] uuid;
         ]
   in
   let content = [
     div [
-      a ~service:Web_services.election_home [pcdata "Election home"] (uuid, ());
+      a ~service:Web_services.election_home [txt "Election home"] (uuid, ());
     ];
     update_credential;
     div [
-      a ~service:election_dir [pcdata "Voter list"] (uuid, ESVoters);
+      a ~service:election_dir [txt "Voter list"] (uuid, ESVoters);
     ];
     div [
-      a ~service:election_pretty_records [pcdata "Voting records"] (uuid, ());
+      a ~service:election_pretty_records [txt "Voting records"] (uuid, ());
     ];
     div [
-      a ~service:election_missing_voters [pcdata "Missing voters"] (uuid, ());
+      a ~service:election_missing_voters [txt "Missing voters"] (uuid, ());
     ];
     div_regenpwd;
     hr ();
@@ -2534,27 +2534,27 @@ let update_credential election () =
       [
         div [
           p [
-            pcdata "\
+            txt "\
               This form allows you to change a single credential at \
               a time. To get the hash of a credential, run the \
               following command:\
             ";
           ];
           pre [
-            pcdata "printf old-credential | sha256sum";
+            txt "printf old-credential | sha256sum";
           ];
           p [
-            pcdata "In the above command, ";
-            code [pcdata "old-credential"];
-            pcdata " should look like a big number written in base 10.";
+            txt "In the above command, ";
+            code [txt "old-credential"];
+            txt " should look like a big number written in base 10.";
           ];
         ];
         p [
-          pcdata "Hash of the old credential: ";
+          txt "Hash of the old credential: ";
           input ~name:old ~input_type:`Text ~a:[a_size 64] string;
         ];
         p [
-          pcdata "New credential: ";
+          txt "New credential: ";
           input ~name:new_ ~input_type:`Text ~a:[a_size 617] string;
         ];
         p [input ~input_type:`Submit ~value:"Submit" string];
@@ -2572,7 +2572,7 @@ let regenpwd uuid () =
     (fun user ->
       [
         div [
-          pcdata "Username: ";
+          txt "Username: ";
           input ~name:user ~input_type:`Text string;
         ];
         div [input ~input_type:`Submit ~value:"Submit" string];
@@ -2590,7 +2590,7 @@ let cast_raw election () =
   let form_rawballot = post_form ~service:election_submit_ballot
     (fun name ->
       [
-        div [pcdata "Please paste your encrypted ballot in JSON format in the following box:"];
+        div [txt "Please paste your encrypted ballot in JSON format in the following box:"];
         div [textarea ~a:[a_rows 10; a_cols 40] ~name ()];
         div [input ~input_type:`Submit ~value:"Submit" string];
       ]
@@ -2599,9 +2599,9 @@ let cast_raw election () =
   let form_upload = post_form ~service:election_submit_ballot_file
     (fun name ->
       [
-        div [pcdata "Alternatively, you can also upload a file containing your ballot:"];
+        div [txt "Alternatively, you can also upload a file containing your ballot:"];
         div [
-          pcdata "File: ";
+          txt "File: ";
           file_input ~name ();
         ];
         div [input ~input_type:`Submit ~value:"Submit" string];
@@ -2610,23 +2610,23 @@ let cast_raw election () =
   in
   let intro = div [
     div [
-      pcdata "You can create an encrypted ballot by using the command line tool ";
-      pcdata "(available in the ";
-      a ~service:source_code [pcdata "sources"] ();
-      pcdata "), or any booth (you can use the ";
-      a ~service:election_vote [pcdata "booth of this server"] ();
-      pcdata " or any other booth of the same version). A specification of encrypted ballots is also available in the sources.";
+      txt "You can create an encrypted ballot by using the command line tool ";
+      txt "(available in the ";
+      a ~service:source_code [txt "sources"] ();
+      txt "), or any booth (you can use the ";
+      a ~service:election_vote [txt "booth of this server"] ();
+      txt " or any other booth of the same version). A specification of encrypted ballots is also available in the sources.";
     ];
     div [
       a ~service:Web_services.election_home
-        [pcdata "Back to election home"] (uuid, ());
+        [txt "Back to election home"] (uuid, ());
     ];
   ] in
   let content = [
     intro;
-    h3 [ pcdata "Submit by copy/paste" ];
+    h3 [ txt "Submit by copy/paste" ];
     form_rawballot;
-    h3 [ pcdata "Submit by file" ];
+    h3 [ txt "Submit by file" ];
     form_upload;
   ] in
   let%lwt footer = audit_footer election in
@@ -2643,62 +2643,62 @@ let cast_confirmation election hash () =
     | Some u ->
       post_form ~service:election_cast_confirm (fun () -> [
         p ~a:[a_style "text-align: center; padding: 10px;"] [
-          pcdata L.i_am;
+          txt L.i_am;
           format_user ~site:false u;
-          pcdata L.and_;
+          txt L.and_;
           input
             ~a:[a_style "font-size: 20px; cursor: pointer;"]
             ~input_type:`Submit ~value:L.i_cast_my_vote string;
-          pcdata ".";
+          txt ".";
         ]
       ]) uuid
     | None ->
       div [
-        pcdata L.please_login_to_confirm;
+        txt L.please_login_to_confirm;
       ]
   in
   let%lwt div_revote =
     match user with
-    | None -> return @@ pcdata ""
+    | None -> return @@ txt ""
     | Some u ->
        let%lwt revote = Web_persist.has_voted uuid u in
        if revote then
-         return @@ p [b [pcdata L.you_have_already_voted]]
+         return @@ p [b [txt L.you_have_already_voted]]
        else
-         return @@ pcdata ""
+         return @@ txt ""
   in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-    pcdata L.input_credential;
-    pcdata " — ";
-    pcdata L.answer_to_questions;
-    pcdata " — ";
-    pcdata L.review_and_encrypt;
-    pcdata " — ";
-    pcdata L.authenticate;
-    pcdata " — ";
-    b [pcdata L.confirm];
-    pcdata " — ";
-    pcdata L.done_;
+    txt L.input_credential;
+    txt " — ";
+    txt L.answer_to_questions;
+    txt " — ";
+    txt L.review_and_encrypt;
+    txt " — ";
+    txt L.authenticate;
+    txt " — ";
+    b [txt L.confirm];
+    txt " — ";
+    txt L.done_;
     hr ();
   ] in
   let content = [
     progress;
     div ~a:[a_class ["current_step"]] [
-        pcdata L.booth_step5;
+        txt L.booth_step5;
     ];
     p [
-      pcdata L.your_ballot_for;
-      em [pcdata name];
-      pcdata L.has_been_received;
-      pcdata L.your_tracker_is;
+      txt L.your_ballot_for;
+      em [txt name];
+      txt L.has_been_received;
+      txt L.your_tracker_is;
       b ~a:[a_id "ballot_tracker"] [
-        pcdata hash
+        txt hash
       ];
-      pcdata ".";
+      txt ".";
       br ();
     ];
     br ();
-    p [pcdata L.nobody_can_see];
+    p [txt L.nobody_can_see];
     div_revote;
     user_div;
     p [
@@ -2707,9 +2707,9 @@ let cast_confirmation election hash () =
           Web_services.election_home (uuid, ())
       in
       a ~service [
-        pcdata L.go_back_to_election
+        txt L.go_back_to_election
       ] ());
-      pcdata ".";
+      txt ".";
     ];
   ] in
   base ~title:name ~content ~uuid ()
@@ -2722,54 +2722,54 @@ let cast_confirmed election ~result () =
   let uuid = params.e_uuid in
   let name = params.e_name in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-    pcdata L.input_credential;
-    pcdata " — ";
-    pcdata L.answer_to_questions;
-    pcdata " — ";
-    pcdata L.review_and_encrypt;
-    pcdata " — ";
-    pcdata L.authenticate;
-    pcdata " — ";
-    pcdata L.confirm;
-    pcdata " — ";
-    b [pcdata L.done_];
+    txt L.input_credential;
+    txt " — ";
+    txt L.answer_to_questions;
+    txt " — ";
+    txt L.review_and_encrypt;
+    txt " — ";
+    txt L.authenticate;
+    txt " — ";
+    txt L.confirm;
+    txt " — ";
+    b [txt L.done_];
     hr ();
   ] in
   let result, step_title =
     match result with
     | Ok hash ->
-       [pcdata L.has_been_accepted;
-        pcdata " ";
-        pcdata L.your_tracker_is;
+       [txt L.has_been_accepted;
+        txt " ";
+        txt L.your_tracker_is;
         b ~a:[a_id "ballot_tracker"] [
-          pcdata hash
+          txt hash
         ];
-        pcdata ". ";
-        pcdata L.you_can_check_its_presence;
-        a ~service:election_pretty_ballots [pcdata L.ballot_box] (uuid, ());
-        pcdata L.anytime_during_the_election;
-        pcdata L.confirmation_email;
+        txt ". ";
+        txt L.you_can_check_its_presence;
+        a ~service:election_pretty_ballots [txt L.ballot_box] (uuid, ());
+        txt L.anytime_during_the_election;
+        txt L.confirmation_email;
        ], L.thank_you_for_voting
     | Error e ->
-       [pcdata L.is_rejected_because;
-        pcdata (Web_common.explain_error l e);
-        pcdata ".";
+       [txt L.is_rejected_because;
+        txt (Web_common.explain_error l e);
+        txt ".";
        ], L.fail
   in
   let content = [
     progress;
     div ~a:[a_class ["current_step"]] [
-        pcdata L.booth_step6;
-        pcdata step_title;
+        txt L.booth_step6;
+        txt step_title;
     ];
     p ([
-      pcdata L.your_ballot_for;
-      em [pcdata name];
+      txt L.your_ballot_for;
+      em [txt name];
       ] @ result);
     p
       [a
          ~service:Web_services.election_home
-         [pcdata L.go_back_to_election]
+         [txt L.go_back_to_election]
          (uuid, ())];
   ] in
   base ~title:name ~content ~uuid ()
@@ -2789,7 +2789,7 @@ let pretty_ballots election hashes result () =
        li
          [a
             ~service:election_pretty_ballot
-            [pcdata h]
+            [txt h]
             ((uuid, ()), h)]
       ) hashes
   in
@@ -2797,26 +2797,26 @@ let pretty_ballots election hashes result () =
     p
       [a
          ~service:Web_services.election_home
-         [pcdata L.go_back_to_election]
+         [txt L.go_back_to_election]
          (uuid, ())]
   in
   let number = match !nballots, result with
     | n, None ->
        div [
-         pcdata (string_of_int n);
-         pcdata L.ballots_have_been_accepted_so_far;
+         txt (string_of_int n);
+         txt L.ballots_have_been_accepted_so_far;
        ]
     | n, Some r when n = r.num_tallied ->
        div [
-         pcdata (string_of_int n);
-         pcdata L.ballots_have_been_accepted;
+         txt (string_of_int n);
+         txt L.ballots_have_been_accepted;
        ]
     | n, Some r -> (* should not happen *)
        div [
-         pcdata (string_of_int n);
-         pcdata L.ballots_have_been_accepted_and;
-         pcdata (string_of_int r.num_tallied);
-         pcdata L.have_been_tallied;
+         txt (string_of_int n);
+         txt L.ballots_have_been_accepted_and;
+         txt (string_of_int r.num_tallied);
+         txt L.have_been_tallied;
        ]
   in
   let content = [
@@ -2830,22 +2830,22 @@ let pretty_records election records () =
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — Records" in
   let records = List.map (fun (date, voter) ->
-    tr [td [pcdata date]; td [pcdata voter]]
+    tr [td [txt date]; td [txt voter]]
   ) records in
   let table = match records with
-    | [] -> div [pcdata "Nobody voted!"]
+    | [] -> div [txt "Nobody voted!"]
     | _ ->
        div [
          table
-           (tr [th [pcdata "Date/Time (UTC)"]; th [pcdata "Username"]]
+           (tr [th [txt "Date/Time (UTC)"]; th [txt "Username"]]
             :: records);
        ]
   in
   let content = [
     div [
-      pcdata "You can also access the ";
-      a ~service:election_dir [pcdata "raw data"] (uuid, ESRecords);
-      pcdata ".";
+      txt "You can also access the ";
+      a ~service:election_dir [txt "raw data"] (uuid, ESRecords);
+      txt ".";
     ];
     table;
   ] in
@@ -2859,14 +2859,14 @@ let election_shuffler_skip_confirm uuid trustee =
       post_form ~service:election_shuffler_skip
         (fun (nuuid, ntrustee) ->
           [
-            div [pcdata "You may skip a trustee if they do not answer. Be aware that this reduces the security."];
+            div [txt "You may skip a trustee if they do not answer. Be aware that this reduces the security."];
             div
               [
                 input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
                 input ~input_type:`Hidden ~name:ntrustee ~value:trustee string;
                 input ~input_type:`Submit ~value:"Confirm" string;
-                pcdata " ";
-                a ~service:Web_services.election_admin [pcdata "Cancel"] uuid;
+                txt " ";
+                a ~service:Web_services.election_admin [txt "Cancel"] uuid;
               ]
           ]
         ) ()
@@ -2879,39 +2879,39 @@ let shuffle election token =
   let uuid = params.e_uuid in
   let title = params.e_name ^ " — Shuffle" in
   let content = [
-      div [pcdata "As a trustee, your first role is to shuffle the encrypted ballots."];
+      div [txt "As a trustee, your first role is to shuffle the encrypted ballots."];
       div [
-          pcdata "Current list of ballots: ";
+          txt "Current list of ballots: ";
           unsafe_textarea ~rows:5 ~cols:40 "current_ballots" "";
-          pcdata " ";
+          txt " ";
           let service = Eliom_service.preapply election_nh_ciphertexts uuid in
           make_button ~service ~disabled:false "Download as a file";
         ];
       div ~a:[a_id "estimation"] [
-          pcdata "Estimating computation time...";
+          txt "Estimating computation time...";
         ];
       div ~a:[a_id "wait_div"] [
-          pcdata "Please wait... ";
+          txt "Please wait... ";
           img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
         ];
       div ~a:[a_id "controls_div"; a_style "display: none;"] [
-          button_no_value ~button_type:`Button ~a:[a_id "compute_shuffle"] [pcdata "Compute shuffle"];
+          button_no_value ~button_type:`Button ~a:[a_id "compute_shuffle"] [txt "Compute shuffle"];
         ];
       post_form ~service:election_shuffle_post
         ~a:[a_id "submit_form"]
         (fun nshuffle ->
           [
             div [
-                pcdata "Shuffled list of ballots: ";
+                txt "Shuffled list of ballots: ";
                 textarea ~a:[a_rows 5; a_cols 40; a_id "shuffle"] ~name:nshuffle ();
               ];
             div ~a:[a_id "hash_div"; a_style "display:none;"] [
                 div [
-                    pcdata "The hash of your shuffle is: ";
+                    txt "The hash of your shuffle is: ";
                     b ~a:[a_id "hash"] [];
-                    pcdata ".";
+                    txt ".";
                   ];
-                div [pcdata "You must record this hash and check that it appears on the result page of the election."];
+                div [txt "You must record this hash and check that it appears on the result page of the election."];
               ];
             div [
                 input ~input_type:`Submit ~value:"Submit" string;
@@ -2919,11 +2919,11 @@ let shuffle election token =
           ]
         ) (uuid, token);
       div [
-          script ~a:[a_src (static "sjcl.js")] (pcdata "");
-          script ~a:[a_src (static "jsbn.js")] (pcdata "");
-          script ~a:[a_src (static "jsbn2.js")] (pcdata "");
-          script ~a:[a_src (static "random.js")] (pcdata "");
-          script ~a:[a_src (static "tool_js_shuffle.js")] (pcdata "");
+          script ~a:[a_src (static "sjcl.js")] (txt "");
+          script ~a:[a_src (static "jsbn.js")] (txt "");
+          script ~a:[a_src (static "jsbn2.js")] (txt "");
+          script ~a:[a_src (static "random.js")] (txt "");
+          script ~a:[a_src (static "tool_js_shuffle.js")] (txt "");
         ];
     ]
   in
@@ -2941,15 +2941,15 @@ let tally_trustees election trustee_id token () =
     | Some keys -> return_some (List.nth keys (trustee_id-1))
   in
   let content = [
-    p [pcdata "It is now time to compute your partial decryption factors."];
+    p [txt "It is now time to compute your partial decryption factors."];
     p [
-      pcdata "The hash of the encrypted tally is ";
+      txt "The hash of the encrypted tally is ";
       b [span ~a:[a_id "hash"] []];
-      pcdata "."
+      txt "."
     ];
     (
       match encrypted_private_key with
-      | None -> pcdata ""
+      | None -> txt ""
       | Some epk ->
          div ~a:[a_style "display:none;"] [
              unsafe_textarea "encrypted_private_key" epk
@@ -2957,19 +2957,19 @@ let tally_trustees election trustee_id token () =
     );
     hr ();
     div [
-        b [pcdata "Instructions:"];
+        b [txt "Instructions:"];
         ol [
             li [
                 div ~a:[a_id "input_private_key"] [
                     div [
-                        p [pcdata "Please enter your private key:"];
+                        p [txt "Please enter your private key:"];
                         input
                           ~a:[a_id "private_key"; a_size 80]
                           ~input_type:`Text
                           string;
                       ];
                     div [
-                        p [pcdata "Or load it from a file:"];
+                        p [txt "Or load it from a file:"];
                         input
                           ~a:[a_id "private_key_file"]
                           ~input_type:`File
@@ -2983,7 +2983,7 @@ let tally_trustees election trustee_id token () =
                     button_no_value
                       ~a:[a_id "compute"]
                       ~button_type:`Button
-                      [pcdata "Compute decryption factors"];
+                      [txt "Compute decryption factors"];
                   ];
                 br ();
               ];
@@ -2995,10 +2995,10 @@ let tally_trustees election trustee_id token () =
                         [
                           div [
                               input ~input_type:`Submit ~value:"Submit" string;
-                              pcdata " your contribution to decryption.";
+                              txt " your contribution to decryption.";
                             ];
                           div [
-                              pcdata "Data: ";
+                              txt "Data: ";
                               textarea
                                 ~a:[a_rows 5; a_cols 40; a_id "pd"]
                                 ~name:pd
@@ -3011,11 +3011,11 @@ let tally_trustees election trustee_id token () =
           ];
       ];
     div [
-      script ~a:[a_src (static "sjcl.js")] (pcdata "");
-      script ~a:[a_src (static "jsbn.js")] (pcdata "");
-      script ~a:[a_src (static "jsbn2.js")] (pcdata "");
-      script ~a:[a_src (static "random.js")] (pcdata "");
-      script ~a:[a_src (static "tool_js_pd.js")] (pcdata "");
+      script ~a:[a_src (static "sjcl.js")] (txt "");
+      script ~a:[a_src (static "jsbn.js")] (txt "");
+      script ~a:[a_src (static "jsbn2.js")] (txt "");
+      script ~a:[a_src (static "random.js")] (txt "");
+      script ~a:[a_src (static "tool_js_pd.js")] (txt "");
     ]
   ] in
   base ~title ~content ~uuid ()
@@ -3024,12 +3024,12 @@ let login_choose auth_systems service () =
   let auth_systems =
     auth_systems |>
     List.map (fun name ->
-      a ~service:(service name) [pcdata name] ()
-    ) |> List.join (pcdata ", ")
+      a ~service:(service name) [txt name] ()
+    ) |> List.join (txt ", ")
   in
   let content = [
     div [p (
-      [pcdata "Please log in: ["] @ auth_systems @ [pcdata "]"]
+      [txt "Please log in: ["] @ auth_systems @ [txt "]"]
     )]
   ] in
   base ~title:"Log in" ~content ()
@@ -3043,7 +3043,7 @@ let login_dummy () =
       [
         tablex [tbody [
           tr [
-            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name name)] [pcdata field_name]];
+            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name name)] [txt field_name]];
             td [input ~a:[a_maxlength 50] ~input_type ~name string];
           ]]
         ];
@@ -3064,24 +3064,24 @@ let login_password ~service ~allowsignups =
     if allowsignups then
       div [
           br ();
-          pcdata "You can also ";
-          a ~service:signup_captcha [pcdata "create an account"] service;
-          pcdata ", or ";
-          a ~service:changepw_captcha [pcdata "change your password"] service;
-          pcdata " (if you forgot it, for example).";
+          txt "You can also ";
+          a ~service:signup_captcha [txt "create an account"] service;
+          txt ", or ";
+          a ~service:changepw_captcha [txt "change your password"] service;
+          txt " (if you forgot it, for example).";
         ]
-    else pcdata ""
+    else txt ""
   in
   let form = post_form ~service:password_post
     (fun (llogin, lpassword) ->
       [
         tablex [tbody [
           tr [
-            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [pcdata L.username]];
+            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [txt L.username]];
             td [input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin string];
           ];
           tr [
-            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name lpassword)] [pcdata L.password]];
+            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name lpassword)] [txt L.password]];
             td [input ~a:[a_maxlength 50] ~input_type:`Password ~name:lpassword string];
           ];
         ]];
@@ -3101,13 +3101,13 @@ let signup_captcha_img challenge =
   img ~src ~alt:"CAPTCHA" ()
 
 let format_captcha_error = function
-  | None -> pcdata ""
+  | None -> txt ""
   | Some x ->
      let msg = match x with
        | BadCaptcha -> "Bad security code!"
        | BadAddress -> "Bad e-mail address!"
      in
-     div ~a:[a_style "color: red;"] [pcdata msg]
+     div ~a:[a_style "color: red;"] [txt msg]
 
 let signup_captcha ~service error challenge email =
   let form =
@@ -3115,14 +3115,14 @@ let signup_captcha ~service error challenge email =
       (fun (lchallenge, (lresponse, lemail)) ->
         [
           div [
-              pcdata "E-mail address: ";
+              txt "E-mail address: ";
               input ~input_type:`Text ~name:lemail ~value:email string;
             ];
           div [
               input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
-              pcdata "Please enter ";
+              txt "Please enter ";
               signup_captcha_img challenge;
-              pcdata " in the following box: ";
+              txt " in the following box: ";
               input ~input_type:`Text ~name:lresponse string;
             ];
           div [
@@ -3141,17 +3141,17 @@ let signup_changepw ~service error challenge email username =
       (fun (lchallenge, (lresponse, (lemail, lusername))) ->
         [
           div [
-              pcdata "E-mail address: ";
+              txt "E-mail address: ";
               input ~input_type:`Text ~name:lemail ~value:email string;
-              pcdata " or username: ";
+              txt " or username: ";
               input ~input_type:`Text ~name:lusername ~value:username string;
-              pcdata ".";
+              txt ".";
             ];
           div [
               input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
-              pcdata "Please enter ";
+              txt "Please enter ";
               signup_captcha_img challenge;
-              pcdata " in the following box: ";
+              txt " in the following box: ";
               input ~input_type:`Text ~name:lresponse string;
             ];
           div [
@@ -3166,7 +3166,7 @@ let signup_changepw ~service error challenge email username =
 
 let signup address error username =
   let error = match error with
-    | None -> pcdata ""
+    | None -> txt ""
     | Some e ->
        let msg = match e with
          | UsernameTaken -> "the username is already taken"
@@ -3177,11 +3177,11 @@ let signup address error username =
          | BadSpaceInPassword -> "the password starts or ends with a space"
        in
        div [
-           pcdata "The account creation ";
-           span ~a:[a_style "color: red;"] [pcdata "failed"];
-           pcdata " because ";
-           pcdata msg;
-           pcdata ". Please try again with a different one.";
+           txt "The account creation ";
+           span ~a:[a_style "color: red;"] [txt "failed"];
+           txt " because ";
+           txt msg;
+           txt ". Please try again with a different one.";
          ]
   in
   let form =
@@ -3189,21 +3189,21 @@ let signup address error username =
       (fun (lusername, (lpassword, lpassword2)) ->
         [
           div [
-              pcdata "Your e-mail address is: ";
-              pcdata address;
-              pcdata ".";
+              txt "Your e-mail address is: ";
+              txt address;
+              txt ".";
             ];
           div [
-              pcdata "Please choose a username: ";
+              txt "Please choose a username: ";
               input ~input_type:`Text ~name:lusername ~value:username string;
-              pcdata " and a password: ";
+              txt " and a password: ";
               input ~input_type:`Password ~name:lpassword string;
-              pcdata ".";
+              txt ".";
             ];
           div[
-              pcdata "Type the password again: ";
+              txt "Type the password again: ";
               input ~input_type:`Password ~name:lpassword2 string;
-              pcdata ".";
+              txt ".";
             ];
           div [
               input ~input_type:`Submit ~value:"Submit" string;
@@ -3216,7 +3216,7 @@ let signup address error username =
 
 let changepw ~username ~address error =
   let error = match error with
-    | None -> pcdata ""
+    | None -> txt ""
     | Some e ->
        let reason = match e with
          | PasswordMismatch -> "the two passwords are not the same"
@@ -3225,11 +3225,11 @@ let changepw ~username ~address error =
          | _ -> " of an unknown reason"
        in
        div [
-           pcdata "The change ";
-           span ~a:[a_style "color: red;"] [pcdata "failed"];
-           pcdata " because ";
-           pcdata reason;
-           pcdata ". Please try again with a different one.";
+           txt "The change ";
+           span ~a:[a_style "color: red;"] [txt "failed"];
+           txt " because ";
+           txt reason;
+           txt ". Please try again with a different one.";
          ]
   in
   let form =
@@ -3237,21 +3237,21 @@ let changepw ~username ~address error =
       (fun (lpassword, lpassword2) ->
         [
           div [
-              pcdata "Your username is: ";
-              pcdata username;
-              pcdata " and your e-mail address is: ";
-              pcdata address;
-              pcdata ".";
+              txt "Your username is: ";
+              txt username;
+              txt " and your e-mail address is: ";
+              txt address;
+              txt ".";
             ];
           div [
-              pcdata "Please choose a password: ";
+              txt "Please choose a password: ";
               input ~input_type:`Password ~name:lpassword string;
-              pcdata ".";
+              txt ".";
             ];
           div [
-              pcdata "Type the password again: ";
+              txt "Type the password again: ";
               input ~input_type:`Password ~name:lpassword2 string;
-              pcdata ".";
+              txt ".";
             ];
           div [
               input ~input_type:`Submit ~value:"Submit" string;
@@ -3265,31 +3265,31 @@ let changepw ~username ~address error =
 let booth () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
-  let head = head (title (pcdata L.belenios_booth)) [
+  let head = head (title (txt L.belenios_booth)) [
     link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
-    script ~a:[a_src (static "sjcl.js")] (pcdata "");
-    script ~a:[a_src (static "jsbn.js")] (pcdata "");
-    script ~a:[a_src (static "jsbn2.js")] (pcdata "");
-    script ~a:[a_src (static "random.js")] (pcdata "");
-    script ~a:[a_src (static "tool_js_booth.js")] (pcdata "");
+    script ~a:[a_src (static "sjcl.js")] (txt "");
+    script ~a:[a_src (static "jsbn.js")] (txt "");
+    script ~a:[a_src (static "jsbn2.js")] (txt "");
+    script ~a:[a_src (static "random.js")] (txt "");
+    script ~a:[a_src (static "tool_js_booth.js")] (txt "");
   ] in
   let wait_div =
     div ~a:[a_id "wait_div"] [
-        pcdata "Please wait... ";
+        txt "Please wait... ";
         img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
       ]
   in
   let election_loader =
     div ~a:[a_id "election_loader"; a_style "display:none;"] [
-      h1 [pcdata L.belenios_booth];
+      h1 [txt L.belenios_booth];
       br ();
-      pcdata "Load an election on this server by giving its UUID:";
+      txt "Load an election on this server by giving its UUID:";
       div [unsafe_textarea "uuid" ""];
-      div [button_no_value ~button_type:`Button ~a:[a_id "load_uuid"] [pcdata "Load from UUID"]];
+      div [button_no_value ~button_type:`Button ~a:[a_id "load_uuid"] [txt "Load from UUID"]];
       br ();
-      pcdata "Load any election by giving its parameters:";
+      txt "Load any election by giving its parameters:";
       div [unsafe_textarea "election_params" ""];
-      div [button_no_value ~button_type:`Button ~a:[a_id "load_params"] [pcdata "Load parameters"]];
+      div [button_no_value ~button_type:`Button ~a:[a_id "load_params"] [txt "Load parameters"]];
     ]
   in
   let text_choices = unsafe_textarea "choices" "" in
@@ -3297,7 +3297,7 @@ let booth () =
     post_form ~a:[a_id "ballot_form"] ~service:election_submit_ballot
       (fun encrypted_vote -> [
         div ~a:[a_id "div_ballot"; a_style "display:none;"] [
-          pcdata "Encrypted ballot:";
+          txt "Encrypted ballot:";
           div [
             textarea
               ~a:[a_id "ballot"; a_rows 1; a_cols 80; a_readonly ()]
@@ -3305,23 +3305,23 @@ let booth () =
           ];
         ];
         p [
-          pcdata L.successfully_encrypted;
-          b [pcdata L.not_cast_yet];
-          pcdata L.qmark;
+          txt L.successfully_encrypted;
+          b [txt L.not_cast_yet];
+          txt L.qmark;
         ];
         p [
-          pcdata L.your_tracker_is;
+          txt L.your_tracker_is;
           span ~a:[a_id "ballot_tracker"] [];
         ];
         p [
-          pcdata L.we_invite_you_to_save_it;
+          txt L.we_invite_you_to_save_it;
         ];
         br ();
         div ~a:[a_id "div_submit"] [
             input ~input_type:`Submit ~value:L.continue ~a:[a_style "font-size:30px;"] string;
           ];
         div ~a:[a_id "div_submit_manually"; a_style "display:none;"] [
-            pcdata "You must submit your ballot manually.";
+            txt "You must submit your ballot manually.";
           ];
         br (); br ();
        ])
@@ -3330,46 +3330,46 @@ let booth () =
   let main =
     div ~a:[a_id "main"] [
       div ~a:[a_style "text-align:center; margin-bottom:20px;"] [
-        span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [pcdata L.input_credential];
-        pcdata " — ";
-        span ~a:[a_id "progress2"] [pcdata L.answer_to_questions];
-        pcdata " — ";
-        span ~a:[a_id "progress3"] [pcdata L.review_and_encrypt];
-        pcdata " — ";
-        span ~a:[a_id "progress4"] [pcdata L.authenticate];
-        pcdata " — ";
-        span ~a:[a_id "progress5"] [pcdata L.confirm];
-        pcdata " — ";
-        span ~a:[a_id "progress6"] [pcdata L.done_];
+        span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [txt L.input_credential];
+        txt " — ";
+        span ~a:[a_id "progress2"] [txt L.answer_to_questions];
+        txt " — ";
+        span ~a:[a_id "progress3"] [txt L.review_and_encrypt];
+        txt " — ";
+        span ~a:[a_id "progress4"] [txt L.authenticate];
+        txt " — ";
+        span ~a:[a_id "progress5"] [txt L.confirm];
+        txt " — ";
+        span ~a:[a_id "progress6"] [txt L.done_];
         hr ();
       ];
       div ~a:[a_id "intro"; a_style "text-align:center;"] [
         div ~a:[a_class ["current_step"]] [
-          pcdata L.booth_step1;
+          txt L.booth_step1;
         ];
         br (); br ();
         p ~a:[a_id "input_code"; a_style "font-size:20px;"] [
-          pcdata L.input_your_credential;
+          txt L.input_your_credential;
         ];
         br (); br ();
       ];
       div ~a:[a_id "question_div"; a_style "display:none;"] [
         div ~a:[a_class ["current_step"]] [
-          pcdata L.booth_step2;
+          txt L.booth_step2;
         ];
       ];
       div ~a:[a_id "plaintext_div"; a_style "display:none;"] [
         div ~a:[a_class ["current_step"]] [
-          pcdata L.booth_step3;
+          txt L.booth_step3;
         ];
         div ~a:[a_id "pretty_choices"] [];
         div ~a:[a_style "display:none;"] [
-          pcdata "Plaintext raw ballot:";
+          txt "Plaintext raw ballot:";
           div [text_choices];
         ];
         div ~a:[a_style "text-align:center;"] [
           div ~a:[a_id "encrypting_div"] [
-            p [pcdata L.wait_while_encrypted];
+            p [txt L.wait_while_encrypted];
             img ~src:(static "encrypting.gif") ~alt:L.encrypting ();
           ];
           div ~a:[a_id "ballot_div"; a_style "display:none;"] [ballot_form];
@@ -3400,30 +3400,30 @@ let booth () =
       div ~a:[a_id "footer"] [
         div ~a:[a_id "bottom"] [
           div [
-            pcdata L.election_uuid;
+            txt L.election_uuid;
             span ~a:[a_id "election_uuid"] [];
           ];
           div [
-            pcdata L.election_fingerprint;
+            txt L.election_fingerprint;
             span ~a:[a_id "election_fingerprint"] [];
           ];
         ];
       ];
       div ~a:[a_style "display:none;"] [
-        span ~a:[a_id "str_here"] [pcdata L.here];
-        span ~a:[a_id "question_header"] [pcdata L.question_header];
-        span ~a:[a_id "at_least"] [pcdata L.at_least];
-        span ~a:[a_id "at_most"] [pcdata L.at_most];
-        span ~a:[a_id "str_previous"] [pcdata L.previous];
-        span ~a:[a_id "str_next"] [pcdata L.next];
-        span ~a:[a_id "str_nothing"] [pcdata L.nothing];
-        span ~a:[a_id "enter_cred"] [pcdata L.enter_cred];
-        span ~a:[a_id "invalid_cred"] [pcdata L.invalid_cred];
-        span ~a:[a_id "str_blank_vote"] [pcdata L.blank_vote];
-        span ~a:[a_id "no_other_blank"] [pcdata L.no_other_blank];
-        span ~a:[a_id "warning_0_255"] [pcdata L.warning_0_255];
-        span ~a:[a_id "alert_0_255"] [pcdata L.alert_0_255];
-        span ~a:[a_id "at_least_one_invalid"] [pcdata L.at_least_one_invalid];
+        span ~a:[a_id "str_here"] [txt L.here];
+        span ~a:[a_id "question_header"] [txt L.question_header];
+        span ~a:[a_id "at_least"] [txt L.at_least];
+        span ~a:[a_id "at_most"] [txt L.at_most];
+        span ~a:[a_id "str_previous"] [txt L.previous];
+        span ~a:[a_id "str_next"] [txt L.next];
+        span ~a:[a_id "str_nothing"] [txt L.nothing];
+        span ~a:[a_id "enter_cred"] [txt L.enter_cred];
+        span ~a:[a_id "invalid_cred"] [txt L.invalid_cred];
+        span ~a:[a_id "str_blank_vote"] [txt L.blank_vote];
+        span ~a:[a_id "no_other_blank"] [txt L.no_other_blank];
+        span ~a:[a_id "warning_0_255"] [txt L.warning_0_255];
+        span ~a:[a_id "alert_0_255"] [txt L.alert_0_255];
+        span ~a:[a_id "at_least_one_invalid"] [txt L.at_least_one_invalid];
       ];
     ]
   in
