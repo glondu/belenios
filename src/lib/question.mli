@@ -34,4 +34,4 @@ module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
        with type 'a m := 'a M.t
         and type elt := G.t
         and type question := question
-        and type answer := Yojson.Safe.json
+        and type answer := Yojson.Safe.t

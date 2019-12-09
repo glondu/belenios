@@ -23,8 +23,8 @@
 
 open Signatures
 
-val of_string : string -> Yojson.Safe.json election
-val get_group : Yojson.Safe.json election -> (module ELECTION_DATA)
+val of_string : string -> Yojson.Safe.t election
+val get_group : Yojson.Safe.t election -> (module ELECTION_DATA)
 
 val has_nh_questions : 'a election -> bool
 

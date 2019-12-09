@@ -23,7 +23,7 @@
 
 (** {2 Predefined types} *)
 
-type json <ocaml module="Yojson.Safe"> = abstract
+type json <ocaml module="Yojson.Safe" t="t"> = abstract
 type number <ocaml predef from="Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
 type 'a shape <ocaml predef from="Serializable_builtin"> = abstract

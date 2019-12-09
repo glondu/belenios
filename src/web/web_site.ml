@@ -48,7 +48,7 @@ let raw_find_election uuid =
 
 module WCacheTypes = struct
   type key = uuid
-  type value = Yojson.Safe.json election
+  type value = Yojson.Safe.t election
 end
 
 module WCache = Ocsigen_cache.Make (WCacheTypes)
