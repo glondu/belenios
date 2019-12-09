@@ -39,7 +39,7 @@ let nh_group_file = ref None
 
 let () =
   Eliom_config.get_config () |>
-  let open Simplexmlparser in
+  let open Xml in
   List.iter @@ function
   | PCData x ->
     Ocsigen_extensions.Configuration.ignore_blank_pcdata ~in_tag:"belenios" x
@@ -97,39 +97,45 @@ let () =
 
 (** Parse configuration from other sources *)
 
-let%lwt source_file =
-  match !source_file with
-  | Some f ->
-    let%lwt b = file_exists f in
-    if b then (
-      return f
-    ) else (
-      Printf.ksprintf failwith "file %s does not exist" f
+let source_file =
+  Lwt_main.run
+    (match !source_file with
+     | Some f ->
+        let%lwt b = file_exists f in
+        if b then (
+          return f
+        ) else (
+          Printf.ksprintf failwith "file %s does not exist" f
+        )
+     | None -> failwith "missing <source> in configuration"
     )
-  | None -> failwith "missing <source> in configuration"
 
 let spool_dir =
   match !spool_dir with
   | Some d -> d
   | None -> failwith "missing <spool> in configuration"
 
-let%lwt default_group =
-  match !default_group_file with
-  | None -> failwith "missing <default-group> in configuration"
-  | Some x ->
-     let%lwt x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
-     match x with
-     | [x] -> return x
-     | _ -> failwith "invalid default group file"
+let default_group =
+  Lwt_main.run
+    (match !default_group_file with
+     | None -> failwith "missing <default-group> in configuration"
+     | Some x ->
+        let%lwt x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
+        match x with
+        | [x] -> return x
+        | _ -> failwith "invalid default group file"
+    )
 
-let%lwt nh_group =
-  match !nh_group_file with
-  | None -> failwith "missing <nh-group> in configuration"
-  | Some x ->
-     let%lwt x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
-     match x with
-     | [x] -> return x
-     | _ -> failwith "invalid NH group file"
+let nh_group =
+  Lwt_main.run
+    (match !nh_group_file with
+     | None -> failwith "missing <nh-group> in configuration"
+     | Some x ->
+        let%lwt x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
+        match x with
+        | [x] -> return x
+        | _ -> failwith "invalid NH group file"
+    )
 
 (** Build up the site *)
 
