@@ -74,7 +74,7 @@ eval $(opam env)
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes dune atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 ssl js_of_ocaml csv js_of_ocaml-tyxml=3.3.0 js_of_ocaml-lwt=3.3.0 eliom=6.5.0
+opam install --yes dune atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 ssl js_of_ocaml csv js_of_ocaml-tyxml=3.3.0 js_of_ocaml-lwt=3.3.0 eliom=6.6.0
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
