@@ -31,7 +31,7 @@ build_and_test_with_debian_image:
     # Install required packages
     - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip aspcud libncurses-dev uuid-runtime zlib1g-dev
     # Install the same Opam packages that opam-bootstrap.sh installs
-    - eval `grep "opam install" ./opam-bootstrap.sh`
+    - eval `grep "opam install" ./opam-bootstrap.sh | sed s/6.9.2/6.9.1/`
     # Compile belenios
     - BELENIOS_DEBUG=1 make all
     # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
