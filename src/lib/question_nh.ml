@@ -20,12 +20,11 @@
 (**************************************************************************)
 
 open Platform
+open Common
 open Signatures_core
 open Serializable_builtin_t
 open Serializable_core_t
 open Question_nh_t
-
-let check_modulo p x = Z.(geq x zero && lt x p)
 
 module Make (M : RANDOM) (G : GROUP) = struct
   let ( >>= ) = M.bind

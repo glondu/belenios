@@ -25,10 +25,6 @@ open Serializable_j
 open Signatures
 open Common
 
-(** Helper functions *)
-
-let check_modulo p x = Z.(geq x zero && lt x p)
-
 (** Distributed key generation *)
 
 module MakeSimple (G : GROUP) (M : RANDOM) = struct

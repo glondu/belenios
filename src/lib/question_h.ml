@@ -28,8 +28,6 @@ open Question_h_t
 
 (** Helper functions *)
 
-let check_modulo p x = Z.(geq x zero && lt x p)
-
 let question_length q =
   Array.length q.q_answers + match q.q_blank with
                              | Some true -> 1

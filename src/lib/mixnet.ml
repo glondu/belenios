@@ -216,8 +216,6 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let s = (s1, s2, s3, s4, ss_hat, ss') in
     M.return (t, s, cc, cc_hat)
 
-  let check_modulo p x = Z.(geq x zero && lt x p)
-
   let check_shuffle_proof y ee ee' proof =
     let get_generator_indep = make_get_generator_indep () in
     let n = Array.length ee in

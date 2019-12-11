@@ -53,8 +53,6 @@ let has_nh_questions e =
       | Question.Homomorphic _ -> false
     ) e.e_params.e_questions
 
-let check_modulo p x = Z.(geq x zero && lt x p)
-
 (** Homomorphic elections *)
 
 module Make (W : ELECTION_DATA) (M : RANDOM) = struct

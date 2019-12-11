@@ -208,6 +208,8 @@ let bytes_to_sample q =
      negligible *)
   Z.bit_length q / 8 + 17
 
+let check_modulo p x = Z.(compare x zero >= 0 && compare x p < 0)
+
 module DirectRandom = struct
   type 'a t = 'a
   let yield () = ()

@@ -68,8 +68,8 @@ module Tests = struct
     check "prime" (fun () -> Z.probab_prime m 5 > 0);
     check "eq" (fun () -> Z.(c =% c));
     check "neq" (fun () -> Z.(not (c =% d)));
-    check "geq" (fun () -> Z.geq c d);
-    check "lt" (fun () -> Z.lt d c);
+    check "geq" (fun () -> Z.compare c d >= 0);
+    check "lt" (fun () -> Z.compare d c < 0);
     let i = Z.of_string "272660753928370030481696309961224617984" in
     check "bit_length" (fun () -> Z.bit_length i = 128);
     let j = Z.of_bits "\x81\xab\xd3\xed\x0b\x19\x2e\x40\x7a\xca" in

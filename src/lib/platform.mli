@@ -54,8 +54,6 @@ module Z : sig
   val to_string : t -> string
   val compare : t -> t -> int
   val ( =% ) : t -> t -> bool
-  val geq : t -> t -> bool
-  val lt : t -> t -> bool
   val powm : t -> t -> t -> t
   val invert : t -> t -> t
   val probab_prime : t -> int -> int

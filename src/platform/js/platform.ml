@@ -226,15 +226,13 @@ module Z = struct
   let to_string x = x##toString |> Js.to_string
   let compare x y = x##compareTo y
   let ( =% ) x y = compare x y = 0
-  let geq x y = compare x y >= 0
-  let lt x y = compare x y < 0
   let powm x y m = x##modPow y m
   let invert x m = x##modInverse m
   let bit_length x = x##bitLength
 
   let erem x y =
     let r = x mod y in
-    if lt r zero then r + y else r
+    if compare r zero < 0 then r + y else r
 
   let probab_prime x n = x##isProbablePrime n
 

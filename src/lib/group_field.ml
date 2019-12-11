@@ -25,8 +25,6 @@ open Common
 
 (** Helper functions *)
 
-let check_modulo p x = Z.(geq x zero && lt x p)
-
 let map_and_concat_with_commas f xs =
   let n = Array.length xs in
   let res = Buffer.create (n * 1024) in
