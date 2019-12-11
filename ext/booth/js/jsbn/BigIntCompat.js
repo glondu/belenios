@@ -1225,7 +1225,7 @@
     // Copyright © 2019 Inria
     // See "LICENSE" for details
 
-    var hasNativeBigInt = true;
+    var hasNativeBigInt = typeof BigInt !== 'undefined';
 
     if (hasNativeBigInt) {
         function toJSBN(a) { return new BigInteger(a.toString()); }
