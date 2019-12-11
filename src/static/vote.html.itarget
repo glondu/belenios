@@ -1,6 +1,5 @@
 sjcl.js
-jsbn.js
-jsbn2.js
+BigIntCompat.js
 random.js
 tool_js_booth.js
 encrypting.gif

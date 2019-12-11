@@ -62,7 +62,7 @@ module Tests = struct
     check "int_roundtrip_b" (int_roundtrip b d);
     let m = Z.of_int 181944121 in
     check "mod" (fun () -> Z.to_int Z.((c * d) mod m) = 30881634);
-    check "erem" (fun () -> Z.to_int Z.((zero - c * d) mod m) = 151062487);
+    check "erem" (fun () -> Z.to_int Z.(erem (zero - c * d) m) = 151062487);
     check "powm" (fun () -> Z.to_int (Z.powm c d m) = 81171525);
     check "invert" (fun () -> Z.to_int (Z.invert c m) = 54455411);
     check "prime" (fun () -> Z.probab_prime m 5 > 0);

@@ -1038,8 +1038,7 @@ let election_draft_questions uuid se () =
       [
         script (Printf.ksprintf txt "var allow_nh = %b;" allow_nh);
         script ~a:[a_src (static "sjcl.js")] (txt "");
-        script ~a:[a_src (static "jsbn.js")] (txt "");
-        script ~a:[a_src (static "jsbn2.js")] (txt "");
+        script ~a:[a_src (static "BigIntCompat.js")] (txt "");
         script ~a:[a_src (static "random.js")] (txt "");
         script ~a:[a_src (static "tool_js_questions.js")] (txt "");
         hybrid_box;
@@ -1261,8 +1260,7 @@ let election_draft_credentials token uuid se () =
       ~a:[a_id "interactivity"]
       [
         script ~a:[a_src (static "sjcl.js")] (txt "");
-        script ~a:[a_src (static "jsbn.js")] (txt "");
-        script ~a:[a_src (static "jsbn2.js")] (txt "");
+        script ~a:[a_src (static "BigIntCompat.js")] (txt "");
         script ~a:[a_src (static "random.js")] (txt "");
         script ~a:[a_src (static "tool_js_credgen.js")] (txt "");
       ]
@@ -1344,8 +1342,7 @@ let election_draft_trustee token uuid se () =
       ~a:[a_id "interactivity"]
       [
         script ~a:[a_src (static "sjcl.js")] (txt "");
-        script ~a:[a_src (static "jsbn.js")] (txt "");
-        script ~a:[a_src (static "jsbn2.js")] (txt "");
+        script ~a:[a_src (static "BigIntCompat.js")] (txt "");
         script ~a:[a_src (static "random.js")] (txt "");
         script ~a:[a_src (static "tool_js_tkeygen.js")] (txt "");
       ]
@@ -1491,8 +1488,7 @@ let election_draft_threshold_trustee token uuid se () =
       ~a:[a_id "interactivity"]
       [
         script ~a:[a_src (static "sjcl.js")] (txt "");
-        script ~a:[a_src (static "jsbn.js")] (txt "");
-        script ~a:[a_src (static "jsbn2.js")] (txt "");
+        script ~a:[a_src (static "BigIntCompat.js")] (txt "");
         script ~a:[a_src (static "random.js")] (txt "");
         script ~a:[a_src (static "tool_js_ttkeygen.js")] (txt "");
       ]
@@ -2920,8 +2916,7 @@ let shuffle election token =
         ) (uuid, token);
       div [
           script ~a:[a_src (static "sjcl.js")] (txt "");
-          script ~a:[a_src (static "jsbn.js")] (txt "");
-          script ~a:[a_src (static "jsbn2.js")] (txt "");
+          script ~a:[a_src (static "BigIntCompat.js")] (txt "");
           script ~a:[a_src (static "random.js")] (txt "");
           script ~a:[a_src (static "tool_js_shuffle.js")] (txt "");
         ];
@@ -3012,8 +3007,7 @@ let tally_trustees election trustee_id token () =
       ];
     div [
       script ~a:[a_src (static "sjcl.js")] (txt "");
-      script ~a:[a_src (static "jsbn.js")] (txt "");
-      script ~a:[a_src (static "jsbn2.js")] (txt "");
+      script ~a:[a_src (static "BigIntCompat.js")] (txt "");
       script ~a:[a_src (static "random.js")] (txt "");
       script ~a:[a_src (static "tool_js_pd.js")] (txt "");
     ]
@@ -3268,8 +3262,7 @@ let booth () =
   let head = head (title (txt L.belenios_booth)) [
     link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
     script ~a:[a_src (static "sjcl.js")] (txt "");
-    script ~a:[a_src (static "jsbn.js")] (txt "");
-    script ~a:[a_src (static "jsbn2.js")] (txt "");
+    script ~a:[a_src (static "BigIntCompat.js")] (txt "");
     script ~a:[a_src (static "random.js")] (txt "");
     script ~a:[a_src (static "tool_js_booth.js")] (txt "");
   ] in

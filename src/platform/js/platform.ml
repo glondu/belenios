@@ -175,66 +175,66 @@ let random_string rng n =
   let hex_words = hex_fromBits words in
   string_of_hex hex_words n
 
-module Jsbn = struct
+module BigIntCompat = struct
   open Js
-
-  class type bigint =
-    object
-      method add : bigint t -> bigint t meth
-      method subtract : bigint t -> bigint t meth
-      method multiply : bigint t -> bigint t meth
-      method divide : bigint t -> bigint t meth
-      method _mod : bigint t -> bigint t meth
-      method intValue : int meth
-      method toString : js_string t meth
-      method compareTo : bigint t -> int meth
-      method modPow : bigint t -> bigint t -> bigint t meth
-      method modInverse : bigint t -> bigint t meth
-      method bitLength : int meth
-      method isProbablePrime : int -> int meth
-      method shiftLeft : int -> bigint t meth
-      method shiftRight : int -> bigint t meth
-      method _and : bigint t -> bigint t meth
-    end
+  type bigint
 
   class type lib =
     object
-      method _ZERO : bigint t readonly_prop
-      method _ONE : bigint t readonly_prop
+      method _ZERO : bigint readonly_prop
+      method _ONE : bigint readonly_prop
+      method ofInt : int -> bigint meth
+      method ofString : js_string t -> bigint meth
+      method ofHex : js_string t -> bigint meth
+      method add : bigint -> bigint -> bigint meth
+      method subtract : bigint -> bigint -> bigint meth
+      method multiply : bigint -> bigint -> bigint meth
+      method divide : bigint -> bigint -> bigint meth
+      method _mod : bigint -> bigint -> bigint meth
+      method toInt : bigint -> int meth
+      method toString : bigint -> js_string t meth
+      method compare : bigint -> bigint -> int meth
+      method modPow : bigint -> bigint -> bigint -> bigint meth
+      method modInverse : bigint -> bigint -> bigint meth
+      method bitLength : bigint -> int meth
+      method isProbablePrime : bigint -> int -> int meth
+      method shiftLeft : bigint -> int -> bigint meth
+      method shiftRight : bigint -> int -> bigint meth
+      method _and : bigint -> bigint -> bigint meth
     end
 
-  let lib : lib t = Unsafe.global##._BigInteger
-  let of_string_base : (js_string t -> int -> bigint t) constr = Unsafe.global##._BigInteger
+  let lib : lib t = Unsafe.global##._BigIntCompat
 end
 
 module Z = struct
-  type t = Jsbn.bigint Js.t
+  open BigIntCompat
+  type t = bigint
 
-  let zero = Jsbn.lib##._ZERO
-  let one = Jsbn.lib##._ONE
+  let zero = lib##._ZERO
+  let one = lib##._ONE
 
-  let of_hex x = new%js Jsbn.of_string_base (Js.string x) 16
-  let of_string x = new%js Jsbn.of_string_base (Js.string x) 10
-  let of_int x = x |> string_of_int |> of_string
-  let ( + ) x y = x##add y
-  let ( - ) x y = x##subtract y
-  let ( * ) x y = x##multiply y
-  let ( / ) x y = x##divide y
-  let ( mod ) x y = x##_mod y
+  let of_hex x = lib##ofHex (Js.string x)
+  let of_string x = lib##ofString (Js.string x)
+  let of_int x = lib##ofInt x
+  let ( + ) x y = lib##add x y
+  let ( - ) x y = lib##subtract x y
+  let ( * ) x y = lib##multiply x y
+  let ( / ) x y = lib##divide x y
+  let ( mod ) x y = lib##_mod x y
 
-  let to_int x = x##intValue
-  let to_string x = x##toString |> Js.to_string
-  let compare x y = x##compareTo y
+  let to_int x = lib##toInt x
+  let to_string x = lib##toString x |> Js.to_string
+  let compare x y = lib##compare x y
   let ( =% ) x y = compare x y = 0
-  let powm x y m = x##modPow y m
-  let invert x m = x##modInverse m
-  let bit_length x = x##bitLength
+  let powm x y m = lib##modPow x y m
+  let invert x m = lib##modInverse x m
+  let bit_length x = lib##bitLength x
 
   let erem x y =
     let r = x mod y in
     if compare r zero < 0 then r + y else r
 
-  let probab_prime x n = x##isProbablePrime n
+  let probab_prime x n = lib##isProbablePrime x n
 
   let z256 = of_int 256
 
@@ -246,7 +246,7 @@ module Z = struct
       else res
     in loop zero (pred n)
 
-  let shift_left x n = x##shiftLeft n
-  let shift_right x n = x##shiftRight n
-  let logand x y = x##_and y
+  let shift_left x n = lib##shiftLeft x n
+  let shift_right x n = lib##shiftRight x n
+  let logand x y = lib##_and x y
 end
