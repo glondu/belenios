@@ -105,10 +105,10 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     in loop 0
 
   let derive_sk p =
-    Z.of_string_base 16 (sha256_hex ("sk|" ^ p))
+    Z.of_hex (sha256_hex ("sk|" ^ p))
 
   let derive_dk p =
-    Z.of_string_base 16 (sha256_hex ("dk|" ^ p))
+    Z.of_hex (sha256_hex ("dk|" ^ p))
 
   let sign sk s_message =
     M.bind (M.random G.q) (fun w ->

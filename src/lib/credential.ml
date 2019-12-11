@@ -87,6 +87,6 @@ module MakeDerive (G : GROUP) = struct
       | None ->
          pbkdf2_utf8 ~iterations:1000 ~salt:uuid x
     in
-    Z.(of_string_base 16 derived mod G.q)
+    Z.(of_hex derived mod G.q)
 
 end

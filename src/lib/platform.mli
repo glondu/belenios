@@ -43,7 +43,7 @@ module Z : sig
   val one : t
   val of_int : int -> t
   val of_string : string -> t
-  val of_string_base : int -> string -> t
+  val of_hex : string -> t
   val ( + ) : t -> t -> t
   val ( - ) : t -> t -> t
   val ( * ) : t -> t -> t

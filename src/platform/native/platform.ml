@@ -205,6 +205,7 @@ let random_string = Cryptokit.Random.string
 
 module Z = struct
   include Z
+  let of_hex x = of_string_base 16 x
   let ( =% ) = equal
   let bit_length x = Stdlib.(String.length (to_bits x) * 8)
 

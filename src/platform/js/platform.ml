@@ -213,8 +213,8 @@ module Z = struct
   let zero = Jsbn.lib##._ZERO
   let one = Jsbn.lib##._ONE
 
-  let of_string_base b x = new%js Jsbn.of_string_base (Js.string x) b
-  let of_string x = of_string_base 10 x
+  let of_hex x = new%js Jsbn.of_string_base (Js.string x) 16
+  let of_string x = new%js Jsbn.of_string_base (Js.string x) 10
   let of_int x = x |> string_of_int |> of_string
   let ( + ) x y = x##add y
   let ( - ) x y = x##subtract y

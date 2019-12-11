@@ -119,12 +119,12 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let h = sha256_hex str in
     Array.init n (fun i ->
         let i = sha256_hex (string_of_int i) in
-        Z.(of_string_base 16 (sha256_hex (h ^ i)) mod G.q)
+        Z.(of_hex (sha256_hex (h ^ i)) mod G.q)
       )
 
   let get_nizkp_challenge str =
     let h = sha256_hex str in
-    Z.(of_string_base 16 h mod G.q)
+    Z.(of_hex h mod G.q)
 
   let str_egs e =
     let b = Buffer.create 1024 in
