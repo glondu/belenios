@@ -128,14 +128,12 @@ module type ELECTION = sig
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 
-  type combinator = factor list -> elt shape
-
-  val compute_result : ?shuffles:elt shuffle list -> int -> elt Serializable_t.ciphertext shape -> factor list -> combinator -> result
+  val compute_result : ?shuffles:elt shuffle list -> int -> elt Serializable_t.ciphertext shape -> factor list -> elt trustees -> result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
 
-  val check_result : combinator -> result -> bool
+  val check_result : elt trustees -> result -> bool
 
   val extract_tally : result -> int shape
   (** Extract the plaintext result of the election. *)
@@ -180,9 +178,6 @@ module type PEDERSEN = sig
 
   val check : elt threshold_parameters -> bool
   val combine : elt threshold_parameters -> elt
-
-  type checker = elt -> elt partial_decryption -> bool
-  val combine_factors : checker -> elt threshold_parameters -> elt partial_decryption list -> elt shape
 end
 
 module type MIXNET = sig

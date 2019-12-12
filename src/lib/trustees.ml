@@ -66,19 +66,6 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
       y *~ trustee_public_key
     ) G.one pks
 
-  type checker = G.t -> G.t partial_decryption -> bool
-
-  let combine_factors checker pks pds =
-    let dummy =
-      match pds with
-      | x :: _ -> Shape.map (fun _ -> G.one) x.decryption_factors
-      | [] -> failwith "no partial decryptions"
-    in
-    assert (Array.forall (fun pk -> List.exists (checker pk) pds) pks);
-    List.fold_left (fun a b ->
-      Shape.map2 ( *~ ) a b.decryption_factors
-    ) dummy pds
-
 end
 
 module MakePKI (G : GROUP) (M : RANDOM) = struct
@@ -238,49 +225,6 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     Array.forall2 (fun vk computed_vk ->
         vk.trustee_public_key =~ computed_vk
       ) t.t_verification_keys computed_vks
-
-  type checker = elt -> elt partial_decryption -> bool
-
-  let lagrange indexes j =
-    List.fold_left (fun accu k ->
-        let kj = k - j in
-        if kj = 0 then accu
-        else Z.(accu * (of_int k) * invert (of_int kj) q mod q)
-      ) Z.one indexes
-
-  let combine_factors checker t pds =
-    let dummy =
-      match pds with
-      | x :: _ -> Shape.map (fun _ -> G.one) x.decryption_factors
-      | [] -> failwith "no partial decryptions"
-    in
-    let pds_with_ids =
-      List.map (fun pd ->
-          match Array.findi (fun i vk ->
-                    if checker vk.trustee_public_key pd then Some i else None
-                  ) t.t_verification_keys
-          with
-          | Some i -> i+1, pd
-          | None -> raise (PedersenFailure "a partial decryption does not correspond to any verification key")
-        ) pds
-    in
-    let pds_with_ids =
-      let compare (a, _) (b, _) = Stdlib.compare a b in
-      List.sort_uniq compare pds_with_ids
-    in
-    let rec take n accu xs =
-      if n > 0 then
-        match xs with
-        | [] -> raise (PedersenFailure "not enough partial decryptions")
-        | x :: xs -> take (n-1) (x :: accu) xs
-      else accu
-    in
-    let pds_with_ids = take t.t_threshold [] pds_with_ids in
-    let indexes = List.map fst pds_with_ids in
-    List.fold_left (fun a (j, b) ->
-        let l = lagrange indexes j in
-        Shape.map2 (fun x y -> x *~ y **~ l) a b.decryption_factors
-      ) dummy pds_with_ids
 
   let combine t =
     t.t_coefexps
@@ -474,5 +418,74 @@ module MakePedersen (G : GROUP) (M : RANDOM)
       t_coefexps = Array.map (fun x -> x.p_coefexps) polynomials;
       t_verification_keys = Array.map (fun x -> x.vo_public_key) voutputs;
     }
+
+end
+
+module MakeCombinator (G : GROUP) = struct
+
+  let lagrange indexes j =
+    List.fold_left (fun accu k ->
+        let kj = k - j in
+        if kj = 0 then accu
+        else Z.(accu * (of_int k) * invert (of_int kj) G.q mod G.q)
+      ) Z.one indexes
+
+  let combine_factors trustees check partial_decryptions =
+    (* neutral factor *)
+    let dummy =
+      match partial_decryptions with
+      | x :: _ -> Shape.map (fun _ -> G.one) x.decryption_factors
+      | [] -> failwith "no partial decryptions"
+    in
+    let partial_decryptions =
+      List.map (fun x -> x, ref true) partial_decryptions
+    in
+    let check t (x, unchecked) =
+      let r = check t x in
+      if r then unchecked := false;
+      r
+    in
+    (* compute synthetic factor for each trustee_kind *)
+    let factors =
+      List.map
+        (function
+         | `Single t ->
+            (match List.find_opt (check t.trustee_public_key) partial_decryptions with
+             | None -> failwith "missing partial decryption"
+             | Some (pd, _) -> pd.decryption_factors
+            )
+         | `Pedersen p ->
+            let rec take n accu xs =
+              if n > 0 then
+                match xs with
+                | [] -> raise (PedersenFailure "not enough partial decryptions")
+                | x :: xs -> take (n-1) (x :: accu) xs
+              else accu
+            in
+            let pds_with_ids =
+              Array.to_list p.t_verification_keys
+              |> List.map (fun t -> List.find_opt (check t.trustee_public_key) partial_decryptions)
+              |> List.mapi
+                   (fun i x ->
+                     match x with
+                     | Some (x, _) -> [i+1, x]
+                     | None -> []
+                   )
+              |> List.flatten
+              |> take p.t_threshold []
+            in
+            let indexes = List.map fst pds_with_ids in
+            List.fold_left
+              (fun a (j, b) ->
+                let l = lagrange indexes j in
+                Shape.map2 G.(fun x y -> x *~ y **~ l) a b.decryption_factors
+              ) dummy pds_with_ids
+        ) trustees
+    in
+    (* check that all partial decryptions have been used *)
+    if List.exists (fun (_, x) -> !x) partial_decryptions then
+      failwith "unused partial decryption";
+    (* combine all factors into one *)
+    List.fold_left (fun a b -> Shape.map2 G.( *~ ) a b) dummy factors
 
 end

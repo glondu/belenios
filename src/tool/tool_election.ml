@@ -76,12 +76,32 @@ module Make (P : PARSED_PARAMS) : S = struct
     | None -> None
     | Some x -> Some (threshold_parameters_of_string G.read x)
 
-  let public_keys_with_pok =
+  let trustees =
     match threshold with
     | None ->
-       get_public_keys () |> Option.map @@
-       Array.map (trustee_public_key_of_string G.read)
-    | Some t -> Some t.t_verification_keys
+       get_public_keys ()
+       |> Option.map
+            (fun x ->
+              x
+              |> Array.to_list
+              |> List.map (trustee_public_key_of_string G.read)
+              |> List.map (fun x -> `Single x)
+            )
+    | Some t -> Some [`Pedersen t]
+
+  let public_keys_with_pok =
+    trustees
+    |> Option.map
+         (fun x ->
+           x
+           |> List.map
+                (function
+                 | `Single x -> [x]
+                 | `Pedersen t -> Array.to_list t.t_verification_keys
+                )
+           |> List.flatten
+           |> Array.of_list
+         )
 
   let () =
     match public_keys_with_pok, threshold with
@@ -253,17 +273,13 @@ module Make (P : PARSED_PARAMS) : S = struct
   let validate factors =
     let factors = List.map (partial_decryption_of_string G.read) factors in
     let tally, nballots = Lazy.force encrypted_tally in
-    let checker = E.check_factor tally in
-    let combinator =
-      match threshold with
-      | None ->
-         KG.combine_factors checker (Lazy.force pks)
-      | Some t -> KP.combine_factors checker t
-    in
     let shuffles = Lazy.force shuffles in
-    let result = E.compute_result ?shuffles nballots tally factors combinator in
-    assert (E.check_result combinator result);
-    string_of_election_result G.write result
+    match trustees with
+    | Some trustees ->
+       let result = E.compute_result ?shuffles nballots tally factors trustees in
+       assert (E.check_result trustees result);
+       string_of_election_result G.write result
+    | None -> failwith "missing trustees"
 
   let verify () =
     (match threshold with
@@ -276,16 +292,12 @@ module Make (P : PARSED_PARAMS) : S = struct
     | Some () -> assert (Lazy.force shuffles_check)
     | None -> print_msg "W: no ballots to check"
     );
-    (match Lazy.force result with
-    | Some result ->
+    (match Lazy.force result, trustees with
+    | Some result, Some trustees ->
        assert (fst (Lazy.force encrypted_tally) = result.encrypted_tally);
-       let checker = E.check_factor result.encrypted_tally in
-       let combinator = match threshold with
-         | None -> KG.combine_factors checker (Lazy.force pks)
-         | Some t -> KP.combine_factors checker t
-       in
-       assert (E.check_result combinator result)
-    | None -> print_msg "W: no result to check"
+       assert (E.check_result trustees result)
+    | Some _, None -> failwith "missing trustees"
+    | None, _ -> print_msg "W: no result to check"
     );
     print_msg "I: all checks passed"
 

@@ -262,10 +262,11 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   type result = elt Serializable_t.election_result
 
-  type combinator = factor list -> elt shape
+  module Combinator = Trustees.MakeCombinator (G)
 
-  let compute_result ?shuffles num_tallied encrypted_tally partial_decryptions combinator =
-    let factors = combinator partial_decryptions in
+  let compute_result ?shuffles num_tallied encrypted_tally partial_decryptions trustees =
+    let check = check_factor encrypted_tally in
+    let factors = Combinator.combine_factors trustees check partial_decryptions in
     let results = Shape.map2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in
@@ -278,10 +279,11 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     in
     {num_tallied; encrypted_tally; shuffles; partial_decryptions; result}
 
-  let check_result combinator r =
+  let check_result trustees r =
     let {encrypted_tally; partial_decryptions; result; _} = r in
     check_ciphertext encrypted_tally &&
-    let factors = combinator partial_decryptions in
+    let check = check_factor encrypted_tally in
+    let factors = Combinator.combine_factors trustees check partial_decryptions in
     let results = Shape.map2 (fun {beta; _} f ->
       beta / f
     ) encrypted_tally factors in

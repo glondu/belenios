@@ -1886,31 +1886,23 @@ let handle_election_tally_release uuid () =
         let%lwt () =
           if List.length pds < threshold then fail_http 404 else return_unit
         in
-        let checker = E.check_factor et in
-        let%lwt combinator =
+        let%lwt trustees =
           match tp with
           | None ->
-             let module K = Trustees.MakeSimple (W.G) (LwtRandom) in
              let%lwt pks =
                match%lwt Web_persist.get_public_keys uuid with
-               | Some l -> return (Array.of_list l)
+               | Some l -> return l
                | _ -> fail_http 404
              in
-             let pks =
-               Array.map (fun pk ->
-                   (trustee_public_key_of_string W.G.read pk).trustee_public_key
-                 ) pks
-             in
-             return (K.combine_factors checker pks)
-          | Some tp ->
-             let module P = Trustees.MakePKI (W.G) (LwtRandom) in
-             let module C = Trustees.MakeChannels (W.G) (LwtRandom) (P) in
-             let module K = Trustees.MakePedersen (W.G) (LwtRandom) (P) (C) in
-             return (K.combine_factors checker tp)
+             pks
+             |> List.map (trustee_public_key_of_string W.G.read)
+             |> List.map (fun x -> `Single x)
+             |> return
+          | Some tp -> return [`Pedersen tp]
         in
         let%lwt shuffles = Web_persist.get_shuffles uuid in
         let shuffles = Option.map (List.map (shuffle_of_string W.G.read)) shuffles in
-        let result = E.compute_result ?shuffles ntallied et pds combinator in
+        let result = E.compute_result ?shuffles ntallied et pds trustees in
         let%lwt () =
           let result = string_of_election_result W.G.write result in
           write_file ~uuid (string_of_election_file ESResult) [result]
