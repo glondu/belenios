@@ -122,15 +122,15 @@ let () = dispatch & function
     platform_rules "native";
     platform_rules "js";
 
-    copy_rule "BigIntCompat.js" "ext/booth/js/jsbn/BigIntCompat.js" "src/static/BigIntCompat.js";
-    copy_rule "sjcl.js" "ext/booth/js/sjcl/sjcl.js" "src/static/sjcl.js";
+    copy_rule "BigIntCompat.js" "ext/jsbn/BigIntCompat.js" "src/static/BigIntCompat.js";
+    copy_rule "sjcl.js" "ext/sjcl/sjcl.js" "src/static/sjcl.js";
     copy_rule "random.js" "src/platform/js/random.js" "src/static/random.js";
 
     copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
     copy_rule "belenios-tool.js" "src/tool/tool_js.js" "src/static/tool_js.js";
     copy_rule "belenios-tool.html" "src/tool/belenios-tool.html" "src/static/belenios-tool.html";
 
-    copy_rule "encrypting.gif" "ext/booth/encrypting.gif" "src/static/encrypting.gif";
+    copy_rule "encrypting.gif" "ext/images/encrypting.gif" "src/static/encrypting.gif";
 
     copy_rule "tool_js_booth.js" "src/tool/tool_js_booth.js" "src/static/tool_js_booth.js";
     copy_rule "tool_js_tkeygen.js" "src/tool/tool_js_tkeygen.js" "src/static/tool_js_tkeygen.js";
