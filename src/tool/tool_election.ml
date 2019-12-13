@@ -26,8 +26,7 @@ open Common
 
 module type PARAMS = sig
   val election : string
-  val get_public_keys : unit -> string array option
-  val get_threshold : unit -> string option
+  val get_trustees : unit -> string option
   val get_public_creds : unit -> string Stream.t option
   val get_ballots : unit -> string Stream.t option
   val get_shuffles : unit -> string Stream.t option
@@ -70,23 +69,8 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Load and check trustee keys, if present *)
 
-  let threshold =
-    match get_threshold () with
-    | None -> None
-    | Some x -> Some (threshold_parameters_of_string G.read x)
-
   let trustees =
-    match threshold with
-    | None ->
-       get_public_keys ()
-       |> Option.map
-            (fun x ->
-              x
-              |> Array.to_list
-              |> List.map (trustee_public_key_of_string G.read)
-              |> List.map (fun x -> `Single x)
-            )
-    | Some t -> Some [`Pedersen t]
+    get_trustees () |> Option.map (trustees_of_string G.read)
 
   let public_keys_with_pok =
     trustees
@@ -256,13 +240,14 @@ module Make (P : PARSED_PARAMS) : S = struct
     let pdk = C.recv dk vk pdk in
     let pdk = (partial_decryption_key_of_string pdk).pdk_decryption_key in
     let pvk = G.(g **~ pdk) in
-    (match threshold with
-     | None -> print_msg "W: threshold parameters are missing"
-     | Some t ->
+    (match trustees with
+     | None -> print_msg "W: trustees are missing"
+     | Some [`Pedersen t] ->
         if Array.forall (fun x ->
                not G.(x.trustee_public_key =~ pvk)
              ) t.t_verification_keys then
           print_msg "W: your key is not present in threshold parameters"
+     | Some _ -> print_msg "W: trustees are not supported"
     );
     let tally, _ = Lazy.force encrypted_tally in
     let factor = E.compute_factor tally pdk in

@@ -301,13 +301,30 @@ module Election : CMDLINER_MODULE = struct
       try Some (string_of_file (X.dir / file)) with _ -> None
 
     let get_public_keys () =
-      load_from_file (fun x -> x) (X.dir/"public_keys.jsons") |>
-      Option.map Array.of_list
+      load_from_file (fun x -> x) (X.dir/"public_keys.jsons")
 
     let get_public_creds () =
       let file = "public_creds.txt" in
       Printf.eprintf "I: loading %s...\n%!" file;
       try Some (lines_of_file (X.dir / file)) with _ -> None
+
+    let get_trustees () =
+      match get_threshold () with
+      | Some t ->
+         t
+         |> threshold_parameters_of_string Yojson.Safe.read_json
+         |> (fun x -> [`Pedersen x])
+         |> string_of_trustees Yojson.Safe.write_json
+         |> (fun x -> Some x)
+      | None ->
+         get_public_keys ()
+         |> Option.map
+              (fun pks ->
+                pks
+                |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+                |> List.map (fun x -> `Single x)
+                |> string_of_trustees Yojson.Safe.write_json
+              )
 
     let get_ballots () =
       let file = "ballots.jsons" in

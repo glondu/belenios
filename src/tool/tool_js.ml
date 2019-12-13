@@ -205,11 +205,18 @@ module ToolElection = struct
   module Getters = struct
 
     let get_public_keys () =
-      let raw = get_textarea "election_pks" |> split_lines in
-      let pks = Array.of_list raw in
-      if Array.length pks = 0 then None else Some pks
+      let pks = get_textarea "election_pks" |> split_lines in
+      if pks = [] then None else Some pks
 
-    let get_threshold () = None
+    let get_trustees () =
+      get_public_keys ()
+      |> Option.map
+           (fun x ->
+             x
+             |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+             |> List.map (fun x -> `Single x)
+             |> string_of_trustees Yojson.Safe.write_json
+           )
 
     let get_public_creds () =
       let raw = get_textarea "election_pubcreds" |> split_lines in

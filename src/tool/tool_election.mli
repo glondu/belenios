@@ -1,7 +1,6 @@
 module type PARAMS = sig
   val election : string
-  val get_public_keys : unit -> string array option
-  val get_threshold : unit -> string option
+  val get_trustees : unit -> string option
   val get_public_creds : unit -> string Stream.t option
   val get_ballots : unit -> string Stream.t option
   val get_shuffles : unit -> string Stream.t option
