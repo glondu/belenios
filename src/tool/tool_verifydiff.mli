@@ -21,11 +21,10 @@
 
 type verifydiff_error =
   | ElectionMismatch
-  | PublicKeysMismatch
-  | MissingPublicKeys
+  | MissingTrustees
   | InvalidTrustees
   | PublicKeyMismatch
-  | ThresholdMismatch
+  | TrusteesMismatch
   | MissingCredentials
   | InvalidCredential
   | CredentialsMismatch

@@ -51,11 +51,10 @@ let ( / ) = Filename.concat
 
 type verifydiff_error =
   | ElectionMismatch
-  | PublicKeysMismatch
-  | MissingPublicKeys
+  | MissingTrustees
   | InvalidTrustees
   | PublicKeyMismatch
-  | ThresholdMismatch
+  | TrusteesMismatch
   | MissingCredentials
   | InvalidCredential
   | CredentialsMismatch
@@ -69,11 +68,10 @@ exception VerifydiffError of verifydiff_error
 
 let explain_error = function
   | ElectionMismatch -> "election mismatch"
-  | PublicKeysMismatch -> "public keys mismatch"
-  | MissingPublicKeys -> "missing public keys"
+  | MissingTrustees -> "missing trustees"
   | InvalidTrustees -> "invalid trustees"
   | PublicKeyMismatch -> "public key mismatch"
-  | ThresholdMismatch -> "threshold parameters mismatch"
+  | TrusteesMismatch -> "trustees mismatch"
   | MissingCredentials -> "missing credentials"
   | InvalidCredential -> "invalid credential"
   | CredentialsMismatch -> "credentials mismatch"
@@ -88,6 +86,22 @@ let () =
       | VerifydiffError e -> Some ("verify-diff error: " ^ explain_error e)
       | _ -> None)
 
+let load_trustees dir =
+  match string_of_file_opt (dir / "threshold.json") with
+  | Some t ->
+     t
+     |> threshold_parameters_of_string Yojson.Safe.read_json
+     |> (fun x -> [`Pedersen x])
+     |> string_of_trustees Yojson.Safe.write_json
+  | None ->
+     match load_from_file (fun x -> x) (dir / "public_keys.jsons") with
+     | Some x ->
+        x
+        |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+        |> List.map (fun x -> `Single x)
+        |> string_of_trustees Yojson.Safe.write_json
+     | None -> raise (VerifydiffError MissingTrustees)
+
 let verifydiff dir1 dir2 =
   (* the elections must be the same *)
   let election = string_of_file (dir1 / "election.json") in
@@ -95,34 +109,16 @@ let verifydiff dir1 dir2 =
     let election2 = string_of_file (dir2 / "election.json") in
     if election2 <> election then raise (VerifydiffError ElectionMismatch)
   in
-  (* the public keys must be the same *)
-  let pks = load_from_file (fun x -> x) (dir1 / "public_keys.jsons") in
+  (* the trustees must be the same *)
+  let trustees = load_trustees dir1 in
   let () =
-    let pks2 = load_from_file (fun x -> x) (dir2 / "public_keys.jsons") in
-    if pks2 <> pks then raise (VerifydiffError PublicKeysMismatch)
+    let trustees2 = load_trustees dir2 in
+    if trustees2 <> trustees then raise (VerifydiffError TrusteesMismatch)
   in
-  (* the threshold parameters must be the same *)
-  let threshold = string_of_file_opt (dir1 / "threshold.json") in
-  let () =
-    let t2 = string_of_file_opt (dir2 / "threshold.json") in
-    if t2 <> threshold then raise (VerifydiffError ThresholdMismatch)
-  in
-  (* the public keys / threshold parameters must be valid *)
   let module ED = (val Election.(get_group (of_string election))) in
   let open ED in
   let module E = Election.Make (ED) (DirectRandom) in
-  let trustees =
-    match threshold with
-    | None ->
-       let pks = match pks with
-         | None -> raise (VerifydiffError MissingPublicKeys)
-         | Some pks -> List.map (trustee_public_key_of_string G.read) pks
-       in
-       List.map (fun x -> `Single x) pks
-    | Some t ->
-       let t = threshold_parameters_of_string G.read t in
-       [`Pedersen t]
-  in
+  let trustees = trustees_of_string G.read trustees in
   let module K = Trustees.MakeCombinator (G) in
   if not (K.check trustees) then
     raise (VerifydiffError InvalidTrustees);
