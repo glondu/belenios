@@ -93,7 +93,8 @@ let validate_election uuid se =
          | [] ->
             let%lwt private_key = KG.generate () in
             let%lwt public_key = KG.prove private_key in
-            return (None, [webize_trustee_public_key true public_key], `KEY private_key)
+            let public_key = { public_key with trustee_comment = Some "server" } in
+            return (None, [webize_trustee_public_key public_key], `KEY private_key)
          | _ :: _ ->
             let private_key =
               List.fold_left (fun accu {st_private_key; _} ->
@@ -113,7 +114,12 @@ let validate_election uuid se =
                    (fun {st_public_key; st_private_key; _} ->
                      if st_public_key = "" then failwith "some public keys are missing";
                      let pk = trustee_public_key_of_string G.read st_public_key in
-                     webize_trustee_public_key (st_private_key <> None) pk
+                     let pk =
+                       if st_private_key <> None then
+                         { pk with trustee_comment = Some "server" }
+                       else pk
+                     in
+                     webize_trustee_public_key pk
                    ) se.se_public_keys),
                 private_key)
        in

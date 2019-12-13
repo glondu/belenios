@@ -40,6 +40,7 @@ type 'a group_element = 'a
 type 'a trustee_public_key = {
   pok : proof;
   public_key : 'a;
+  ?comment : string option;
 } <ocaml field_prefix="trustee_">
 
 (** {2 Elections} *)

@@ -150,7 +150,7 @@ val rmdir : string -> unit Lwt.t
 val urlize : string -> string
 val unurlize : string -> string
 
-val webize_trustee_public_key : bool -> 'a trustee_public_key -> 'a web_trustee_public_key
+val webize_trustee_public_key : 'a trustee_public_key -> 'a web_trustee_public_key
 val unwebize_trustee_public_key : 'a web_trustee_public_key -> 'a trustee_public_key
 
 val get_suitable_group_kind : template -> [ `H | `NH ]

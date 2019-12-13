@@ -71,7 +71,7 @@ module MakeCombinator (G : GROUP) = struct
 
   let ( / ) x y = G.(x *~ invert y)
 
-  let check_single {trustee_pok; trustee_public_key = y} =
+  let check_single {trustee_pok; trustee_public_key = y; _} =
     G.check y &&
     let {challenge; response} = trustee_pok in
     check_modulo G.q challenge &&
@@ -205,7 +205,7 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
     let trustee_public_key = g **~ x in
     let zkp = "pok|" ^ G.to_string trustee_public_key ^ "|" in
     fs_prove [| g |] x (G.hash zkp) >>= fun trustee_pok ->
-    return {trustee_pok; trustee_public_key}
+    return {trustee_pok; trustee_public_key; trustee_comment = None}
 
 end
 
