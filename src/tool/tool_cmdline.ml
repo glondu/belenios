@@ -613,10 +613,25 @@ module Mkelection : CMDLINER_MODULE = struct
         let uuid = get_mandatory_opt "--uuid" uuid
         let template = get_mandatory_opt "--template" template |> string_of_file
         let get_public_keys () =
-          Some (lines_of_file (dir / "public_keys.jsons") |> stream_to_list |> Array.of_list)
+          Some (lines_of_file (dir / "public_keys.jsons") |> stream_to_list)
         let get_threshold () =
           let fn = dir / "threshold.json" in
           if Sys.file_exists fn then Some (string_of_file fn) else None
+        let get_trustees () =
+          match get_threshold () with
+          | Some t ->
+             t
+             |> threshold_parameters_of_string Yojson.Safe.read_json
+             |> (fun x -> [`Pedersen x])
+             |> string_of_trustees Yojson.Safe.write_json
+          | None ->
+             match get_public_keys () with
+             | None -> failwith "trustees are missing"
+             | Some t ->
+                t
+                |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+                |> List.map (fun x -> `Single x)
+                |> string_of_trustees Yojson.Safe.write_json
       end in
       let module R = (val make (module P : PARAMS) : S) in
       let params = R.mkelection () in

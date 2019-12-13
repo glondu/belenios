@@ -187,9 +187,12 @@ module Mkelection = struct
       let uuid = get_textarea "election_uuid"
       let group = get_textarea "election_group"
       let template = get_textarea "mkelection_template"
-      let get_public_keys () =
-        Some (get_textarea "mkelection_pks" |> split_lines |> Array.of_list)
-      let get_threshold () = None
+      let get_trustees () =
+        get_textarea "mkelection_pks"
+        |> split_lines
+        |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+        |> List.map (fun x -> `Single x)
+        |> string_of_trustees Yojson.Safe.write_json
     end in
     let module X = (val make (module P : PARAMS) : S) in
     set_textarea "mkelection_output" (X.mkelection ())

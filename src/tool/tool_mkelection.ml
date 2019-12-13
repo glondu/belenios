@@ -22,14 +22,12 @@
 open Serializable_builtin_t
 open Serializable_j
 open Signatures
-open Common
 
 module type PARAMS = sig
   val uuid : string
   val group : string
   val template : string
-  val get_public_keys : unit -> string array option
-  val get_threshold : unit -> string option
+  val get_trustees : unit -> string
 end
 
 module type S = sig
@@ -40,8 +38,7 @@ module type PARSED_PARAMS = sig
   val uuid : uuid
   val template : template
   module G : GROUP
-  val get_public_keys : unit -> G.t trustee_public_key array option
-  val get_threshold : unit -> G.t threshold_parameters option
+  val get_trustees : unit -> G.t trustees
 end
 
 let parse_params p =
@@ -50,14 +47,8 @@ let parse_params p =
     let uuid = uuid_of_raw_string P.uuid
     let template = template_of_string P.template
     module G = (val Group.of_string P.group : GROUP)
-    let get_public_keys () =
-      match P.get_public_keys () with
-      | None -> None
-      | Some xs -> Some (Array.map (trustee_public_key_of_string G.read) xs)
-    let get_threshold () =
-      match P.get_threshold () with
-      | None -> None
-      | Some t -> Some (threshold_parameters_of_string G.read t)
+    let get_trustees () =
+      P.get_trustees () |> trustees_of_string G.read
   end
   in (module R : PARSED_PARAMS)
 
@@ -68,18 +59,7 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   module K = Trustees.MakeCombinator (G)
 
-  let trustees =
-    match get_threshold () with
-    | None ->
-       (match get_public_keys () with
-        | Some keys ->
-           keys
-           |> Array.to_list
-           |> List.map (fun x -> `Single x)
-        | None -> failwith "trustee keys are missing"
-       )
-    | Some t -> [`Pedersen t]
-
+  let trustees = get_trustees ()
   let y = K.combine_keys trustees
 
   (* Setup election *)
