@@ -50,13 +50,14 @@ module Make (P : PARSED_PARAMS) : S = struct
   (* Generate key *)
 
   module KG = Trustees.MakeSimple (G) (DirectRandom)
+  module K = Trustees.MakeCombinator (G)
 
   type keypair = { id : string; priv : string; pub : string }
 
   let trustee_keygen () =
     let private_key = KG.generate () in
     let public_key = KG.prove private_key in
-    assert (KG.check public_key);
+    assert (K.check [`Single public_key]);
     let id = String.sub
       (sha256_hex (G.to_string public_key.trustee_public_key))
       0 8 |> String.uppercase_ascii

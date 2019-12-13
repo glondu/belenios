@@ -53,8 +53,7 @@ type verifydiff_error =
   | ElectionMismatch
   | PublicKeysMismatch
   | MissingPublicKeys
-  | InvalidPublicKeys
-  | InvalidThreshold
+  | InvalidTrustees
   | PublicKeyMismatch
   | ThresholdMismatch
   | MissingCredentials
@@ -72,8 +71,7 @@ let explain_error = function
   | ElectionMismatch -> "election mismatch"
   | PublicKeysMismatch -> "public keys mismatch"
   | MissingPublicKeys -> "missing public keys"
-  | InvalidPublicKeys -> "invalid public keys"
-  | InvalidThreshold -> "invalid threshold parameters"
+  | InvalidTrustees -> "invalid trustees"
   | PublicKeyMismatch -> "public key mismatch"
   | ThresholdMismatch -> "threshold parameters mismatch"
   | MissingCredentials -> "missing credentials"
@@ -116,24 +114,18 @@ let verifydiff dir1 dir2 =
   let trustees =
     match threshold with
     | None ->
-       let module K = Trustees.MakeSimple (G) (DirectRandom) in
        let pks = match pks with
          | None -> raise (VerifydiffError MissingPublicKeys)
          | Some pks -> List.map (trustee_public_key_of_string G.read) pks
        in
-       if not (List.for_all K.check pks) then
-         raise (VerifydiffError InvalidPublicKeys);
        List.map (fun x -> `Single x) pks
     | Some t ->
        let t = threshold_parameters_of_string G.read t in
-       let module P = Trustees.MakePKI (G) (DirectRandom) in
-       let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
-       let module K = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
-       if not (K.check t) then
-         raise (VerifydiffError InvalidThreshold);
        [`Pedersen t]
   in
   let module K = Trustees.MakeCombinator (G) in
+  if not (K.check trustees) then
+    raise (VerifydiffError InvalidTrustees);
   let y = K.combine_keys trustees in
   (* the public keys must correspond to the public key of election *)
   let () =

@@ -23,8 +23,7 @@ type verifydiff_error =
   | ElectionMismatch
   | PublicKeysMismatch
   | MissingPublicKeys
-  | InvalidPublicKeys
-  | InvalidThreshold
+  | InvalidTrustees
   | PublicKeyMismatch
   | ThresholdMismatch
   | MissingCredentials

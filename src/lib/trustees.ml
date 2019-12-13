@@ -25,6 +25,162 @@ open Serializable_j
 open Signatures
 open Common
 
+exception PedersenFailure of string
+
+module MakeVerificator (G : GROUP) = struct
+
+  let verify vk {s_message; s_signature = { challenge; response }} =
+    check_modulo G.q challenge &&
+    check_modulo G.q response &&
+    let commitment = G.(g **~ response *~ vk **~ challenge) in
+    let prefix = "sigmsg|" ^ s_message ^ "|" in
+    Z.(challenge =% G.hash prefix [|commitment|])
+
+  let verify_cert x =
+    let keys = cert_keys_of_string G.read x.s_message in
+    verify keys.cert_verification x
+
+  let compute_verification_keys coefexps =
+    let n = Array.length coefexps in
+    assert (n > 0);
+    let threshold = Array.length coefexps.(0) in
+    assert (threshold > 0);
+    Array.init n (fun j ->
+        let jj = Z.of_int (j+1) in
+        let rec loop_compute_vk i vk =
+          if i < n then
+            let c = coefexps.(i) in
+            assert (threshold = Array.length c);
+            let rec loop k jk accu =
+              if k < threshold then
+                loop (k+1) Z.(jk * jj) G.(accu *~ (c.(k) **~ jk))
+              else accu
+            in
+            let computed_gsij = loop 0 Z.one G.one in
+            loop_compute_vk (i+1) G.(vk *~ computed_gsij)
+          else vk
+        in
+        loop_compute_vk 0 G.one
+      )
+
+end
+
+module MakeCombinator (G : GROUP) = struct
+
+  module V = MakeVerificator (G)
+
+  let ( / ) x y = G.(x *~ invert y)
+
+  let check_single {trustee_pok; trustee_public_key = y} =
+    G.check y &&
+    let {challenge; response} = trustee_pok in
+    check_modulo G.q challenge &&
+    check_modulo G.q response &&
+    let commitment = G.(g **~ response / (y **~ challenge)) in
+    let zkp = "pok|" ^ G.to_string y ^ "|" in
+    Z.(challenge =% G.hash zkp [| commitment |])
+
+  let check_pedersen t =
+    Array.forall V.verify_cert t.t_certs &&
+    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) t.t_certs in
+    Array.forall2 (fun cert x ->
+        V.verify cert.cert_verification x
+      ) certs t.t_coefexps &&
+    let coefexps = Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps) t.t_coefexps in
+    Array.forall check_single t.t_verification_keys &&
+    let computed_vks = V.compute_verification_keys coefexps in
+    t.t_threshold = Array.length coefexps.(0) &&
+    Array.forall2 G.(fun vk computed_vk ->
+        vk.trustee_public_key =~ computed_vk
+      ) t.t_verification_keys computed_vks
+
+  let check trustees =
+    trustees
+    |> List.for_all
+         (function
+          | `Single t -> check_single t
+          | `Pedersen t -> check_pedersen t
+         )
+
+  let combine_keys trustees =
+    trustees
+    |> List.map
+         (function
+          | `Single t -> t.trustee_public_key
+          | `Pedersen p ->
+             p.t_coefexps
+             |> Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps)
+             |> Array.fold_left (fun accu x -> G.(accu *~ x.(0))) G.one
+         )
+    |> List.fold_left G.( *~ ) G.one
+
+  let lagrange indexes j =
+    List.fold_left (fun accu k ->
+        let kj = k - j in
+        if kj = 0 then accu
+        else Z.(accu * (of_int k) * invert (of_int kj) G.q mod G.q)
+      ) Z.one indexes
+
+  let combine_factors trustees check partial_decryptions =
+    (* neutral factor *)
+    let dummy =
+      match partial_decryptions with
+      | x :: _ -> Shape.map (fun _ -> G.one) x.decryption_factors
+      | [] -> failwith "no partial decryptions"
+    in
+    let partial_decryptions =
+      List.map (fun x -> x, ref true) partial_decryptions
+    in
+    let check t (x, unchecked) =
+      let r = check t x in
+      if r then unchecked := false;
+      r
+    in
+    (* compute synthetic factor for each trustee_kind *)
+    let factors =
+      List.map
+        (function
+         | `Single t ->
+            (match List.find_opt (check t.trustee_public_key) partial_decryptions with
+             | None -> failwith "missing partial decryption"
+             | Some (pd, _) -> pd.decryption_factors
+            )
+         | `Pedersen p ->
+            let rec take n accu xs =
+              if n > 0 then
+                match xs with
+                | [] -> raise (PedersenFailure "not enough partial decryptions")
+                | x :: xs -> take (n-1) (x :: accu) xs
+              else accu
+            in
+            let pds_with_ids =
+              Array.to_list p.t_verification_keys
+              |> List.map (fun t -> List.find_opt (check t.trustee_public_key) partial_decryptions)
+              |> List.mapi
+                   (fun i x ->
+                     match x with
+                     | Some (x, _) -> [i+1, x]
+                     | None -> []
+                   )
+              |> List.flatten
+              |> take p.t_threshold []
+            in
+            let indexes = List.map fst pds_with_ids in
+            List.fold_left
+              (fun a (j, b) ->
+                let l = lagrange indexes j in
+                Shape.map2 G.(fun x y -> x *~ y **~ l) a b.decryption_factors
+              ) dummy pds_with_ids
+        ) trustees
+    in
+    (* check that all partial decryptions have been used *)
+    if List.exists (fun (_, x) -> !x) partial_decryptions then
+      failwith "unused partial decryption";
+    (* combine all factors into one *)
+    List.fold_left (fun a b -> Shape.map2 G.( *~ ) a b) dummy factors
+
+end
+
 (** Distributed key generation *)
 
 module MakeSimple (G : GROUP) (M : RANDOM) = struct
@@ -32,7 +188,6 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
   open M
 
   let ( >>= ) = bind
-  let ( / ) x y = x *~ invert y
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
@@ -51,15 +206,6 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
     let zkp = "pok|" ^ G.to_string trustee_public_key ^ "|" in
     fs_prove [| g |] x (G.hash zkp) >>= fun trustee_pok ->
     return {trustee_pok; trustee_public_key}
-
-  let check {trustee_pok; trustee_public_key = y} =
-    G.check y &&
-    let {challenge; response} = trustee_pok in
-    check_modulo q challenge &&
-    check_modulo q response &&
-    let commitment = g **~ response / (y **~ challenge) in
-    let zkp = "pok|" ^ G.to_string y ^ "|" in
-    Z.(challenge =% G.hash zkp [| commitment |])
 
 end
 
@@ -98,13 +244,6 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
         M.return { s_message; s_signature }
       )
 
-  let verify vk {s_message; s_signature = { challenge; response }} =
-    check_modulo G.q challenge &&
-    check_modulo G.q response &&
-    let commitment = G.(g **~ response *~ vk **~ challenge) in
-    let prefix = "sigmsg|" ^ s_message ^ "|" in
-    Z.(challenge =% G.hash prefix [|commitment|])
-
   let encrypt y plaintext =
     M.bind (M.random G.q) (fun r ->
         M.bind (M.random G.q) (fun key ->
@@ -133,10 +272,7 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     let cert = string_of_cert_keys G.write cert_keys in
     sign sk cert
 
-  let verify_cert x =
-    let keys = cert_keys_of_string G.read x.s_message in
-    verify keys.cert_verification x
-
+    include MakeVerificator (G)
 end
 
 module MakeChannels (G : GROUP) (M : RANDOM)
@@ -167,8 +303,6 @@ module MakeChannels (G : GROUP) (M : RANDOM)
 
 end
 
-exception PedersenFailure of string
-
 module MakePedersen (G : GROUP) (M : RANDOM)
          (P : PKI with type 'a m = 'a M.t
                    and type private_key = Z.t
@@ -183,43 +317,8 @@ module MakePedersen (G : GROUP) (M : RANDOM)
   let (>>=) = M.bind
 
   module K = MakeSimple (G) (M)
-
-  let compute_verification_keys coefexps =
-    let n = Array.length coefexps in
-    assert (n > 0);
-    let threshold = Array.length coefexps.(0) in
-    assert (threshold > 0);
-    Array.init n (fun j ->
-        let jj = Z.of_int (j+1) in
-        let rec loop_compute_vk i vk =
-          if i < n then
-            let c = coefexps.(i) in
-            assert (threshold = Array.length c);
-            let rec loop k jk accu =
-              if k < threshold then
-                loop (k+1) Z.(jk * jj) (accu *~ (c.(k) **~ jk))
-              else accu
-            in
-            let computed_gsij = loop 0 Z.one one in
-            loop_compute_vk (i+1) (vk *~ computed_gsij)
-          else vk
-        in
-        loop_compute_vk 0 one
-      )
-
-  let check t =
-    Array.forall P.verify_cert t.t_certs &&
-    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) t.t_certs in
-    Array.forall2 (fun cert x ->
-        P.verify cert.cert_verification x
-      ) certs t.t_coefexps &&
-    let coefexps = Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps) t.t_coefexps in
-    Array.forall K.check t.t_verification_keys &&
-    let computed_vks = compute_verification_keys coefexps in
-    t.t_threshold = Array.length coefexps.(0) &&
-    Array.forall2 (fun vk computed_vk ->
-        vk.trustee_public_key =~ computed_vk
-      ) t.t_verification_keys computed_vks
+  module V = MakeVerificator (G)
+  module L = MakeCombinator (G)
 
   let step1 () =
     P.genkey () >>= fun seed ->
@@ -375,8 +474,8 @@ module MakePedersen (G : GROUP) (M : RANDOM)
           (raw_coefexps_of_string G.read x.s_message).coefexps
         )
     in
-    let computed_vk = (compute_verification_keys coefexps).(i) in
-    K.check voutput.vo_public_key &&
+    let computed_vk = (V.compute_verification_keys coefexps).(i) in
+    L.check [`Single voutput.vo_public_key] &&
     voutput.vo_public_key.trustee_public_key =~ computed_vk
 
   let step6 certs polynomials voutputs =
@@ -394,10 +493,10 @@ module MakePedersen (G : GROUP) (M : RANDOM)
           (raw_coefexps_of_string G.read x.s_message).coefexps
         )
     in
-    let computed_vks = compute_verification_keys coefexps in
+    let computed_vks = V.compute_verification_keys coefexps in
     for j = 0 to n - 1 do
       let voutput = voutputs.(j) in
-      if not (K.check voutput.vo_public_key) then
+      if not (L.check [`Single voutput.vo_public_key]) then
         raise (PedersenFailure (Printf.sprintf "pok %d does not validate" (j+1)));
       if not (voutput.vo_public_key.trustee_public_key =~ computed_vks.(j)) then
         raise (PedersenFailure (Printf.sprintf "verification key %d is incorrect" (j+1)));
@@ -408,86 +507,5 @@ module MakePedersen (G : GROUP) (M : RANDOM)
       t_coefexps = Array.map (fun x -> x.p_coefexps) polynomials;
       t_verification_keys = Array.map (fun x -> x.vo_public_key) voutputs;
     }
-
-end
-
-module MakeCombinator (G : GROUP) = struct
-
-  let combine_keys trustees =
-    trustees
-    |> List.map
-         (function
-          | `Single t -> t.trustee_public_key
-          | `Pedersen p ->
-             p.t_coefexps
-             |> Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps)
-             |> Array.fold_left (fun accu x -> G.(accu *~ x.(0))) G.one
-         )
-    |> List.fold_left G.( *~ ) G.one
-
-  let lagrange indexes j =
-    List.fold_left (fun accu k ->
-        let kj = k - j in
-        if kj = 0 then accu
-        else Z.(accu * (of_int k) * invert (of_int kj) G.q mod G.q)
-      ) Z.one indexes
-
-  let combine_factors trustees check partial_decryptions =
-    (* neutral factor *)
-    let dummy =
-      match partial_decryptions with
-      | x :: _ -> Shape.map (fun _ -> G.one) x.decryption_factors
-      | [] -> failwith "no partial decryptions"
-    in
-    let partial_decryptions =
-      List.map (fun x -> x, ref true) partial_decryptions
-    in
-    let check t (x, unchecked) =
-      let r = check t x in
-      if r then unchecked := false;
-      r
-    in
-    (* compute synthetic factor for each trustee_kind *)
-    let factors =
-      List.map
-        (function
-         | `Single t ->
-            (match List.find_opt (check t.trustee_public_key) partial_decryptions with
-             | None -> failwith "missing partial decryption"
-             | Some (pd, _) -> pd.decryption_factors
-            )
-         | `Pedersen p ->
-            let rec take n accu xs =
-              if n > 0 then
-                match xs with
-                | [] -> raise (PedersenFailure "not enough partial decryptions")
-                | x :: xs -> take (n-1) (x :: accu) xs
-              else accu
-            in
-            let pds_with_ids =
-              Array.to_list p.t_verification_keys
-              |> List.map (fun t -> List.find_opt (check t.trustee_public_key) partial_decryptions)
-              |> List.mapi
-                   (fun i x ->
-                     match x with
-                     | Some (x, _) -> [i+1, x]
-                     | None -> []
-                   )
-              |> List.flatten
-              |> take p.t_threshold []
-            in
-            let indexes = List.map fst pds_with_ids in
-            List.fold_left
-              (fun a (j, b) ->
-                let l = lagrange indexes j in
-                Shape.map2 G.(fun x y -> x *~ y **~ l) a b.decryption_factors
-              ) dummy pds_with_ids
-        ) trustees
-    in
-    (* check that all partial decryptions have been used *)
-    if List.exists (fun (_, x) -> !x) partial_decryptions then
-      failwith "unused partial decryption";
-    (* combine all factors into one *)
-    List.fold_left (fun a b -> Shape.map2 G.( *~ ) a b) dummy factors
 
 end

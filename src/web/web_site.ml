@@ -1063,8 +1063,8 @@ let () =
                          let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
                          let module G = (val Group.of_string se.se_group : GROUP) in
                          let pk = trustee_public_key_of_string G.read public_key in
-                         let module KG = Trustees.MakeSimple (G) (LwtRandom) in
-                         if not (KG.check pk) then failwith "invalid public key";
+                         let module K = Trustees.MakeCombinator (G) in
+                         if not (K.check [`Single pk]) then failwith "invalid public key";
                          (* we keep pk as a string because of G.t *)
                          t.st_public_key <- public_key;
                          Web_persist.set_draft_election uuid se
@@ -1177,9 +1177,9 @@ let () =
                   let module G = (val Group.of_string se.se_group : GROUP) in
                   let module P = Trustees.MakePKI (G) (LwtRandom) in
                   let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
-                  let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
+                  let module K = Trustees.MakeCombinator (G) in
                   let tp = threshold_parameters_of_string G.read raw_tp in
-                  if not (K.check tp) then
+                  if not (K.check [`Pedersen tp]) then
                     raise (TrusteeImportError "Imported threshold trustees are invalid for this election!");
                   let%lwt privs = Web_persist.get_private_keys from in
                   let%lwt se_threshold_trustees =
@@ -1227,11 +1227,18 @@ let () =
                            return {st_id; st_token; st_public_key; st_private_key})
                   in
                   let () =
+                    let module K = Trustees.MakeCombinator (G) in
                     (* check that imported keys are valid *)
-                    if not @@ List.for_all (fun t ->
-                                  let pk = t.st_public_key in
-                                  let pk = trustee_public_key_of_string G.read pk in
-                                  KG.check pk) trustees then
+                    let trustees =
+                      trustees
+                      |> List.map
+                           (fun x ->
+                             x.st_public_key
+                             |> trustee_public_key_of_string G.read
+                             |> (fun x -> `Single x)
+                           )
+                    in
+                    if not (K.check trustees) then
                       raise (TrusteeImportError "Imported keys are invalid for this election!")
                   in
                   se.se_public_keys <- trustees;

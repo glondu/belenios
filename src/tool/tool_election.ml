@@ -63,11 +63,8 @@ module Make (P : PARSED_PARAMS) : S = struct
   open P
   module E = Election.Make (P) (DirectRandom)
 
-  module KG = Trustees.MakeSimple (G) (DirectRandom)
-
   module P = Trustees.MakePKI (G) (DirectRandom)
   module C = Trustees.MakeChannels (G) (DirectRandom) (P)
-  module KP = Trustees.MakePedersen (G) (DirectRandom) (P) (C)
 
   module K = Trustees.MakeCombinator (G)
 
@@ -106,13 +103,12 @@ module Make (P : PARSED_PARAMS) : S = struct
          )
 
   let () =
-    match trustees, public_keys_with_pok, threshold with
-    | Some trustees, Some pks, None ->
-      assert (Array.forall KG.check pks);
+    match trustees with
+    | Some trustees ->
+      assert (K.check trustees);
       let y' = K.combine_keys trustees in
       assert G.(election.e_params.e_public_key =~ y')
-    | None, Some _, None -> failwith "missing trustees"
-    | _ -> ()
+    | None -> failwith "missing trustees"
 
   let public_keys =
     Option.map (
@@ -285,12 +281,11 @@ module Make (P : PARSED_PARAMS) : S = struct
     | None -> failwith "missing trustees"
 
   let verify () =
-    (match threshold, trustees with
-     | Some t, Some trustees ->
-        assert (KP.check t);
+    (match trustees with
+     | Some trustees ->
+        assert (K.check trustees);
         assert G.(election.e_params.e_public_key =~ K.combine_keys trustees)
-     | Some _, None -> failwith "missing trustees"
-     | None, _ -> ignore (Lazy.force pks)
+     | None -> failwith "missing trustees"
     );
     (match Lazy.force ballots_check with
     | Some () -> assert (Lazy.force shuffles_check)

@@ -37,9 +37,6 @@ module MakeSimple (G : GROUP) (M : RANDOM) : sig
   (** [prove x] returns the public key associated to [x] and a zero-
       knowledge proof of its knowledge. *)
 
-  val check : G.t trustee_public_key -> bool
-  (** Check a public key and its proof. *)
-
 end
 (** Simple distributed generation of an election public key. *)
 
@@ -69,6 +66,9 @@ module MakePedersen (G : GROUP) (M : RANDOM)
             and type elt = G.t
 
 module MakeCombinator (G : GROUP) : sig
+
+  val check : G.t trustees -> bool
+  (** Check consistency of a set of trustees. *)
 
   val combine_keys : G.t trustees -> G.t
   (** Compute the public key associated to a set of trustees. *)
