@@ -294,6 +294,26 @@ let get_threshold uuid =
   | Some [x] -> return_some x
   | _ -> return_none
 
+let get_trustees uuid =
+  match%lwt get_threshold uuid with
+  | Some x ->
+     x
+     |> threshold_parameters_of_string Yojson.Safe.read_json
+     |> (fun x -> [`Pedersen x])
+     |> string_of_trustees Yojson.Safe.write_json
+     |> return
+  | None ->
+     match%lwt get_public_keys uuid with
+     | Some x ->
+        x
+        |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+        |> List.map (fun x -> `Single x)
+        |> string_of_trustees Yojson.Safe.write_json
+        |> return
+     | None ->
+        Printf.ksprintf failwith "missing trustees for election %s"
+          (raw_string_of_uuid uuid)
+
 module StringMap = Map.Make (String)
 
 module BallotsCacheTypes = struct

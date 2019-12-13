@@ -1871,9 +1871,9 @@ let handle_election_tally_release uuid () =
       let module W = (val Election.get_group election) in
       let module E = Election.Make (W) (LwtRandom) in
       if metadata.e_owner = Some u then (
-        let%lwt npks, ntallied =
+        let%lwt ntallied =
           match%lwt Web_persist.get_election_state uuid with
-          | `EncryptedTally (npks, ntallied, _) -> return (npks, ntallied)
+          | `EncryptedTally (_, ntallied, _) -> return ntallied
           | _ -> forbidden ()
         in
         let%lwt et =
@@ -1881,37 +1881,11 @@ let handle_election_tally_release uuid () =
             Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
             wrap1 (encrypted_tally_of_string W.G.read)
         in
-        let%lwt tp = Web_persist.get_threshold uuid in
-        let tp =
-          match tp with
-          | None -> None
-          | Some tp -> Some (threshold_parameters_of_string W.G.read tp)
-        in
-        let threshold =
-          match tp with
-          | None -> npks
-          | Some tp -> tp.t_threshold
-        in
+        let%lwt trustees = Web_persist.get_trustees uuid in
+        let trustees = trustees_of_string W.G.read trustees in
         let%lwt pds = Web_persist.get_partial_decryptions uuid in
         let pds = List.map snd pds in
         let pds = List.map (partial_decryption_of_string W.G.read) pds in
-        let%lwt () =
-          if List.length pds < threshold then fail_http 404 else return_unit
-        in
-        let%lwt trustees =
-          match tp with
-          | None ->
-             let%lwt pks =
-               match%lwt Web_persist.get_public_keys uuid with
-               | Some l -> return l
-               | _ -> fail_http 404
-             in
-             pks
-             |> List.map (trustee_public_key_of_string W.G.read)
-             |> List.map (fun x -> `Single x)
-             |> return
-          | Some tp -> return [`Pedersen tp]
-        in
         let%lwt shuffles = Web_persist.get_shuffles uuid in
         let shuffles = Option.map (List.map (shuffle_of_string W.G.read)) shuffles in
         let result = E.compute_result ?shuffles ntallied et pds trustees in
