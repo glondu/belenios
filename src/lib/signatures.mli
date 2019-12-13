@@ -177,7 +177,6 @@ module type PEDERSEN = sig
   val step6 : certs -> polynomial array -> elt voutput array -> elt threshold_parameters
 
   val check : elt threshold_parameters -> bool
-  val combine : elt threshold_parameters -> elt
 end
 
 module type MIXNET = sig

@@ -66,21 +66,21 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Setup trustees *)
 
-  let y =
+  module K = Trustees.MakeCombinator (G)
+
+  let trustees =
     match get_threshold () with
     | None ->
-       let public_keys =
-         match get_public_keys () with
-         | Some keys -> keys
-         | None -> failwith "trustee keys are missing"
-       in
-       let module K = Trustees.MakeSimple (G) (DirectRandom) in
-       K.combine public_keys
-    | Some t ->
-       let module P = Trustees.MakePKI (G) (DirectRandom) in
-       let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
-       let module K = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
-       K.combine t
+       (match get_public_keys () with
+        | Some keys ->
+           keys
+           |> Array.to_list
+           |> List.map (fun x -> `Single x)
+        | None -> failwith "trustee keys are missing"
+       )
+    | Some t -> [`Pedersen t]
+
+  let y = K.combine_keys trustees
 
   (* Setup election *)
 

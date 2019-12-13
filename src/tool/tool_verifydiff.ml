@@ -113,7 +113,7 @@ let verifydiff dir1 dir2 =
   let module ED = (val Election.(get_group (of_string election))) in
   let open ED in
   let module E = Election.Make (ED) (DirectRandom) in
-  let y =
+  let trustees =
     match threshold with
     | None ->
        let module K = Trustees.MakeSimple (G) (DirectRandom) in
@@ -123,7 +123,7 @@ let verifydiff dir1 dir2 =
        in
        if not (List.for_all K.check pks) then
          raise (VerifydiffError InvalidPublicKeys);
-       K.combine (Array.of_list pks)
+       List.map (fun x -> `Single x) pks
     | Some t ->
        let t = threshold_parameters_of_string G.read t in
        let module P = Trustees.MakePKI (G) (DirectRandom) in
@@ -131,8 +131,10 @@ let verifydiff dir1 dir2 =
        let module K = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
        if not (K.check t) then
          raise (VerifydiffError InvalidThreshold);
-       K.combine t
+       [`Pedersen t]
   in
+  let module K = Trustees.MakeCombinator (G) in
+  let y = K.combine_keys trustees in
   (* the public keys must correspond to the public key of election *)
   let () =
     if not G.(election.e_params.e_public_key =~ y) then

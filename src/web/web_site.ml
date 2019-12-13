@@ -83,6 +83,7 @@ let validate_election uuid se =
   (* trustees *)
   let group = Group.of_string se.se_group in
   let module G = (val group : GROUP) in
+  let module K = Trustees.MakeCombinator (G) in
   let%lwt y, trustees, pk_or_tp, private_keys =
     match se.se_threshold_trustees with
     | None ->
@@ -116,16 +117,14 @@ let validate_election uuid se =
                    ) se.se_public_keys),
                 private_key)
        in
-       let y = KG.combine (Array.of_list (List.map unwebize_trustee_public_key public_keys)) in
+       let tt = List.map (fun x -> `Single (unwebize_trustee_public_key x)) public_keys in
+       let y = K.combine_keys tt in
        return (y, trustees, `PK public_keys, private_key)
     | Some ts ->
        match se.se_threshold_parameters with
        | None -> failwith "key establishment not finished"
        | Some tp ->
           let tp = threshold_parameters_of_string G.read tp in
-          let module P = Trustees.MakePKI (G) (LwtRandom) in
-          let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
-          let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
           let trustees = List.map (fun {stt_id; _} -> stt_id) ts in
           let private_keys =
             List.map (fun {stt_voutput; _} ->
@@ -136,7 +135,7 @@ let validate_election uuid se =
                 | None -> failwith "inconsistent state"
               ) ts
           in
-          let y = K.combine tp in
+          let y = K.combine_keys [`Pedersen tp] in
           return (y, Some trustees, `TP tp, `KEYS private_keys)
   in
   (* election parameters *)

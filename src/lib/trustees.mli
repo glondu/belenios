@@ -40,9 +40,6 @@ module MakeSimple (G : GROUP) (M : RANDOM) : sig
   val check : G.t trustee_public_key -> bool
   (** Check a public key and its proof. *)
 
-  val combine : G.t trustee_public_key array -> G.t
-  (** Combine all public key shares into an election public key. *)
-
 end
 (** Simple distributed generation of an election public key. *)
 
@@ -72,8 +69,14 @@ module MakePedersen (G : GROUP) (M : RANDOM)
             and type elt = G.t
 
 module MakeCombinator (G : GROUP) : sig
+
+  val combine_keys : G.t trustees -> G.t
+  (** Compute the public key associated to a set of trustees. *)
+
   val combine_factors :
     G.t trustees ->
     (G.t -> G.t partial_decryption -> bool) ->
     G.t partial_decryption list -> G.t shape
+  (** Compute synthetic decryption factors. *)
+
 end

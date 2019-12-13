@@ -61,11 +61,6 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
     let zkp = "pok|" ^ G.to_string y ^ "|" in
     Z.(challenge =% G.hash zkp [| commitment |])
 
-  let combine pks =
-    Array.fold_left (fun y {trustee_public_key; _} ->
-      y *~ trustee_public_key
-    ) G.one pks
-
 end
 
 module MakePKI (G : GROUP) (M : RANDOM) = struct
@@ -225,11 +220,6 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     Array.forall2 (fun vk computed_vk ->
         vk.trustee_public_key =~ computed_vk
       ) t.t_verification_keys computed_vks
-
-  let combine t =
-    t.t_coefexps
-    |> Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps)
-    |> Array.fold_left (fun accu x -> G.(accu *~ x.(0))) G.one
 
   let step1 () =
     P.genkey () >>= fun seed ->
@@ -422,6 +412,18 @@ module MakePedersen (G : GROUP) (M : RANDOM)
 end
 
 module MakeCombinator (G : GROUP) = struct
+
+  let combine_keys trustees =
+    trustees
+    |> List.map
+         (function
+          | `Single t -> t.trustee_public_key
+          | `Pedersen p ->
+             p.t_coefexps
+             |> Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps)
+             |> Array.fold_left (fun accu x -> G.(accu *~ x.(0))) G.one
+         )
+    |> List.fold_left G.( *~ ) G.one
 
   let lagrange indexes j =
     List.fold_left (fun accu k ->
