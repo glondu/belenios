@@ -1977,6 +1977,26 @@ let perform_server_side_decryption uuid e metadata tally =
          ) else return_true
        )
 
+let transition_to_encrypted_tally uuid e metadata tally nb hash =
+  let%lwt npks =
+    let%lwt trustees = Web_persist.get_trustees uuid in
+    trustees_of_string Yojson.Safe.read_json trustees
+    |> List.map
+         (function
+          | `Single _ -> 1
+          | `Pedersen t -> Array.length t.t_verification_keys
+         )
+    |> List.fold_left ( + ) 0
+    |> return
+  in
+  let%lwt () =
+    Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash))
+  in
+  if%lwt perform_server_side_decryption uuid e metadata tally then
+    redir_preapply election_admin uuid ()
+  else
+    handle_election_tally_release uuid ()
+
 let () =
   Any.register ~service:election_compute_encrypted_tally
     (fun uuid () ->
@@ -2000,21 +2020,7 @@ let () =
               let%lwt () = Web_persist.set_election_state uuid `Shuffling in
               redir_preapply election_admin uuid ()
             ) else (
-              let%lwt npks =
-                match%lwt Web_persist.get_threshold uuid with
-                | Some tp ->
-                   let tp = threshold_parameters_of_string W.G.read tp in
-                   return (Array.length tp.t_verification_keys)
-                | None ->
-                   match%lwt Web_persist.get_public_keys uuid with
-                   | Some pks -> return (List.length pks)
-                   | None -> failwith "missing public keys and threshold parameters"
-              in
-              let%lwt () = Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) in
-              if%lwt perform_server_side_decryption uuid (module E) metadata tally then
-                redir_preapply election_admin uuid ()
-              else
-                handle_election_tally_release uuid ()
+              transition_to_encrypted_tally uuid (module E) metadata tally nb hash
             )
           ) else forbidden ()
         )
@@ -2122,21 +2128,7 @@ let () =
               let%lwt x = Web_persist.get_ballot_hashes uuid in
               return (List.length x)
             in
-            let%lwt npks =
-              match%lwt Web_persist.get_threshold uuid with
-              | Some tp ->
-                 let tp = threshold_parameters_of_string E.G.read tp in
-                 return (Array.length tp.t_verification_keys)
-              | None ->
-                 match%lwt Web_persist.get_public_keys uuid with
-                 | Some pks -> return (List.length pks)
-                 | None -> Lwt.fail (Failure "election_decrypt handler: missing public keys and threshold parameters")
-            in
-            let%lwt () = Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash)) in
-            if%lwt perform_server_side_decryption uuid (module E) metadata tally then
-              redir_preapply election_admin uuid ()
-            else
-              handle_election_tally_release uuid ()
+            transition_to_encrypted_tally uuid (module E) metadata tally nb hash
           ) else forbidden ()
         )
     )
