@@ -1864,11 +1864,12 @@ let handle_election_tally_release uuid () =
       let module W = (val Election.get_group election) in
       let module E = Election.Make (W) (LwtRandom) in
       if metadata.e_owner = Some u then (
-        let%lwt ntallied =
+        let%lwt () =
           match%lwt Web_persist.get_election_state uuid with
-          | `EncryptedTally (_, ntallied, _) -> return ntallied
+          | `EncryptedTally _ -> return_unit
           | _ -> forbidden ()
         in
+        let%lwt ntallied = Web_persist.get_ballot_hashes uuid >|= List.length in
         let%lwt et =
           !Web_config.spool_dir / uuid_s / string_of_election_file ESETally |>
             Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
