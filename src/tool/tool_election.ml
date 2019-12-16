@@ -227,7 +227,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     let sk = number_of_string privkey in
     let pk = G.(g **~ sk) in
     if Array.forall (fun x -> not G.(x =~ pk)) (Lazy.force pks) then (
-      print_msg "W: your key is not present in public_keys.jsons";
+      print_msg "W: your key is not present in trustees.jsons";
     );
     let tally, _ = Lazy.force encrypted_tally in
     let factor = E.compute_factor tally sk in

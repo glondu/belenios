@@ -25,7 +25,7 @@ in an election should start by auditing the election data.
 During an election, you should have access to the following files:
 
  * `election.json`: election parameters
- * `public_keys.jsons`: trustees' public keys
+ * `trustees.json`: trustees' public keys
  * `public_creds.txt`: the public keys associated to valid credentials
  * `ballots.jsons`: accepted ballots
 
@@ -74,11 +74,12 @@ Administrator's guide
  5. Ask each trustee to generate a keypair. Concatenate all trustee
     public keys into a `$DIR/public_keys.jsons` file.
  6. Edit `$BELENIOS/demo/templates/questions.json`.
- 7. Go to `$DIR` and run: `belenios-tool mkelection --uuid $UUID
+ 7. Go to `$DIR` and run: `belenios-tool mktrustees`.
+ 8. Go to `$DIR` and run: `belenios-tool mkelection --uuid $UUID
     --group $BELENIOS/demo/groups/default.json --template
     $BELENIOS/demo/templates/questions.json`. It should generate
     `election.json`.
- 8. Create an empty `ballots.jsons` file in `$DIR`.
+ 9. Create an empty `ballots.jsons` file in `$DIR`.
 
 ### Running the election
 
@@ -100,10 +101,9 @@ several authentication mechanisms.
 ### Tallying the election
 
  1. Go to the election directory, which must contain `election.json`,
-    `public_keys.jsons`, `public_creds.txt` and `ballots.jsons`.
+    `trustees.json`, `public_creds.txt` and `ballots.jsons`.
  2. Concatenate the `partial_decryption.json` received from each
-    trustee into a `partial_decryptions.jsons`, in the same order as in
-    `public_keys.jsons`.
+    trustee into a `partial_decryptions.jsons`.
  3. Run `belenios-tool validate`.  It will create
     `result.json`. Publish this file, along with the files listed in
     the first step above. The whole set will enable universal
@@ -156,7 +156,7 @@ It will generate two files, `XXXXXXXX.public` and `XXXXXXXX.private`,
 containing respectively the public and the private key. Send the
 public key file to the server administrator, and keep the private key
 with extreme care. When the election is open, you must check that
-your public key is present in the published `public_keys.jsons`.
+your public key is present in the published `trustees.json`.
 
 ### Partial decryption
 

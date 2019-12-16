@@ -295,36 +295,15 @@ module Election : CMDLINER_MODULE = struct
 
   module MakeGetters (X : sig val dir : string end) = struct
 
-    let get_threshold () =
-      let file = "threshold.json" in
-      Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (string_of_file (X.dir / file)) with _ -> None
-
-    let get_public_keys () =
-      load_from_file (fun x -> x) (X.dir/"public_keys.jsons")
-
     let get_public_creds () =
       let file = "public_creds.txt" in
       Printf.eprintf "I: loading %s...\n%!" file;
       try Some (lines_of_file (X.dir / file)) with _ -> None
 
     let get_trustees () =
-      match get_threshold () with
-      | Some t ->
-         t
-         |> threshold_parameters_of_string Yojson.Safe.read_json
-         |> (fun x -> [`Pedersen x])
-         |> string_of_trustees Yojson.Safe.write_json
-         |> (fun x -> Some x)
-      | None ->
-         get_public_keys ()
-         |> Option.map
-              (fun pks ->
-                pks
-                |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
-                |> List.map (fun x -> `Single x)
-                |> string_of_trustees Yojson.Safe.write_json
-              )
+      let file = "trustees.json" in
+      Printf.eprintf "I: loading %s...\n%!" file;
+      try Some (string_of_file (X.dir / file)) with _ -> None
 
     let get_ballots () =
       let file = "ballots.jsons" in
@@ -367,7 +346,7 @@ module Election : CMDLINER_MODULE = struct
         | Some u ->
            if not (
              download dir u "election.json" &&
-             download dir u "public_keys.jsons" &&
+             download dir u "trustees.json" &&
              download dir u "public_creds.txt" &&
              download dir u "ballots.jsons" &&
              download dir u "result.json"
@@ -603,20 +582,17 @@ module Credgen : CMDLINER_MODULE = struct
 
 end
 
-module Mkelection : CMDLINER_MODULE = struct
-  open Tool_mkelection
-
-  let main dir group uuid template =
-    wrap_main (fun () ->
-      let module P = struct
-        let group = get_mandatory_opt "--group" group |> string_of_file
-        let uuid = get_mandatory_opt "--uuid" uuid
-        let template = get_mandatory_opt "--template" template |> string_of_file
+module Mktrustees : CMDLINER_MODULE = struct
+  let main dir =
+    wrap_main
+      (fun () ->
         let get_public_keys () =
           Some (lines_of_file (dir / "public_keys.jsons") |> stream_to_list)
+        in
         let get_threshold () =
           let fn = dir / "threshold.json" in
           if Sys.file_exists fn then Some (string_of_file fn) else None
+        in
         let get_trustees () =
           match get_threshold () with
           | Some t ->
@@ -632,6 +608,42 @@ module Mkelection : CMDLINER_MODULE = struct
                 |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
                 |> List.map (fun x -> `Single x)
                 |> string_of_trustees Yojson.Safe.write_json
+        in
+        let trustees = get_trustees () in
+        let oc = open_out (dir / "trustees.json") in
+        output_string oc trustees;
+        output_char oc '\n';
+        close_out oc
+      )
+
+  let mktrustees_cmd =
+    let doc = "create a trustee parameter file" in
+    let man = [
+      `S "DESCRIPTION";
+      `P "This command reads $(i,public_keys.jsons) (or $(i,threshold.json) if it exists). It then generates an $(i,trustees.json) file.";
+    ] @ common_man in
+    Term.(ret (pure main $ dir_t)),
+    Term.info "mktrustees" ~doc ~man
+
+  let cmds = [mktrustees_cmd]
+
+end
+
+module Mkelection : CMDLINER_MODULE = struct
+  open Tool_mkelection
+
+  let main dir group uuid template =
+    wrap_main (fun () ->
+      let module P = struct
+        let group = get_mandatory_opt "--group" group |> string_of_file
+        let uuid = get_mandatory_opt "--uuid" uuid
+        let template = get_mandatory_opt "--template" template |> string_of_file
+        let get_trustees () =
+          let fn = dir / "trustees.json" in
+          if Sys.file_exists fn then
+            string_of_file fn
+          else
+            failwith "trustees are missing"
       end in
       let module R = (val make (module P : PARAMS) : S) in
       let params = R.mkelection () in
@@ -689,7 +701,17 @@ module Verifydiff : CMDLINER_MODULE = struct
 
 end
 
-let cmds = Tkeygen.cmds @ Ttkeygen.cmds @ Election.cmds @ Credgen.cmds @ Mkelection.cmds @ Verifydiff.cmds
+let cmds =
+  List.flatten
+    [
+      Tkeygen.cmds;
+      Ttkeygen.cmds;
+      Election.cmds;
+      Credgen.cmds;
+      Mktrustees.cmds;
+      Mkelection.cmds;
+      Verifydiff.cmds;
+    ]
 
 let default_cmd =
   let open Belenios_version in

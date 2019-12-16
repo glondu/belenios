@@ -74,7 +74,7 @@ archived election. Be careful, this operation is not revertible.
 During the election, the following files are published:
 
  * `election.json`: election parameters
- * `public_keys.jsons`: trustees' public keys
+ * `trustees.json`: trustees' public keys
  * `public_creds.txt`: the public keys associated to valid credentials
  * `ballots.jsons`: accepted ballots
 

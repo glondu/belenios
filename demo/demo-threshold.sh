@@ -53,6 +53,10 @@ for u in *.key; do
 done
 cat *.voutput | ttkeygen --certs certs.jsons --step 6 --polynomials polynomials.jsons > threshold.json
 
+# Generate trustee parameters
+belenios-tool mktrustees
+rm threshold.json
+
 # Generate election parameters
 belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/questions.json
 
@@ -80,7 +84,7 @@ belenios-tool verify
 header "Simulate and verify update"
 
 tdir="$(mktemp -d)"
-cp election.json threshold.json public_creds.txt "$tdir"
+cp election.json trustees.json public_creds.txt "$tdir"
 head -n3 ballots.jsons > "$tdir/ballots.jsons"
 belenios-tool verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"

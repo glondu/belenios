@@ -40,6 +40,10 @@ belenios-tool trustee-keygen $group
 belenios-tool trustee-keygen $group
 cat *.pubkey > public_keys.jsons
 
+# Generate trustee parameters
+belenios-tool mktrustees
+rm public_keys.jsons
+
 # Generate election parameters
 belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/questions.json
 
@@ -67,7 +71,7 @@ belenios-tool verify
 header "Simulate and verify update"
 
 tdir="$(mktemp -d)"
-cp election.json public_creds.txt public_keys.jsons "$tdir"
+cp election.json public_creds.txt trustees.json "$tdir"
 head -n3 ballots.jsons > "$tdir/ballots.jsons"
 belenios-tool verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"

@@ -87,20 +87,9 @@ let () =
       | _ -> None)
 
 let load_trustees dir =
-  match string_of_file_opt (dir / "threshold.json") with
-  | Some t ->
-     t
-     |> threshold_parameters_of_string Yojson.Safe.read_json
-     |> (fun x -> [`Pedersen x])
-     |> string_of_trustees Yojson.Safe.write_json
-  | None ->
-     match load_from_file (fun x -> x) (dir / "public_keys.jsons") with
-     | Some x ->
-        x
-        |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
-        |> List.map (fun x -> `Single x)
-        |> string_of_trustees Yojson.Safe.write_json
-     | None -> raise (VerifydiffError MissingTrustees)
+  match string_of_file_opt (dir / "trustees.json") with
+  | Some t -> t
+  | None -> raise (VerifydiffError MissingTrustees)
 
 let verifydiff dir1 dir2 =
   (* the elections must be the same *)

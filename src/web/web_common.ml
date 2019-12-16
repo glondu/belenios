@@ -160,8 +160,7 @@ let set_rewrite_prefix ~src ~dst =
 
 type election_file =
   | ESRaw
-  | ESKeys
-  | ESTParams
+  | ESTrustees
   | ESCreds
   | ESBallots
   | ESVoters
@@ -171,8 +170,7 @@ type election_file =
 
 let election_file_of_string = function
   | "election.json" -> ESRaw
-  | "public_keys.jsons" -> ESKeys
-  | "threshold.json" -> ESTParams
+  | "trustees.json" -> ESTrustees
   | "public_creds.txt" -> ESCreds
   | "ballots.jsons" -> ESBallots
   | "records" -> ESRecords
@@ -183,8 +181,7 @@ let election_file_of_string = function
 
 let string_of_election_file = function
   | ESRaw -> "election.json"
-  | ESKeys -> "public_keys.jsons"
-  | ESTParams -> "threshold.json"
+  | ESTrustees -> "trustees.json"
   | ESCreds -> "public_creds.txt"
   | ESBallots -> "ballots.jsons"
   | ESRecords -> "records"

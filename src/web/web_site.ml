@@ -84,17 +84,17 @@ let validate_election uuid se =
   let group = Group.of_string se.se_group in
   let module G = (val group : GROUP) in
   let module K = Trustees.MakeCombinator (G) in
-  let%lwt y, trustees, pk_or_tp, private_keys =
+  let%lwt trustee_names, trustees, private_keys =
     match se.se_threshold_trustees with
     | None ->
-       let module KG = Trustees.MakeSimple (G) (LwtRandom) in
-       let%lwt trustees, public_keys, private_key =
+       let%lwt trustee_names, trustees, private_key =
          match se.se_public_keys with
          | [] ->
+            let module KG = Trustees.MakeSimple (G) (LwtRandom) in
             let%lwt private_key = KG.generate () in
             let%lwt public_key = KG.prove private_key in
             let public_key = { public_key with trustee_comment = Some "server" } in
-            return (None, [webize_trustee_public_key public_key], `KEY private_key)
+            return (["server"], [`Single public_key], `KEY private_key)
          | _ :: _ ->
             let private_key =
               List.fold_left (fun accu {st_private_key; _} ->
@@ -109,7 +109,7 @@ let validate_election uuid se =
               | _ -> failwith "multiple private keys"
             in
             return (
-                Some (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
+                (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
                 (List.map
                    (fun {st_public_key; st_private_key; _} ->
                      if st_public_key = "" then failwith "some public keys are missing";
@@ -119,19 +119,17 @@ let validate_election uuid se =
                          { pk with trustee_comment = Some "server" }
                        else pk
                      in
-                     webize_trustee_public_key pk
+                     `Single pk
                    ) se.se_public_keys),
                 private_key)
        in
-       let tt = List.map (fun x -> `Single (unwebize_trustee_public_key x)) public_keys in
-       let y = K.combine_keys tt in
-       return (y, trustees, `PK public_keys, private_key)
+       return (trustee_names, trustees, private_key)
     | Some ts ->
        match se.se_threshold_parameters with
        | None -> failwith "key establishment not finished"
        | Some tp ->
           let tp = threshold_parameters_of_string G.read tp in
-          let trustees = List.map (fun {stt_id; _} -> stt_id) ts in
+          let trustee_names = List.map (fun {stt_id; _} -> stt_id) ts in
           let private_keys =
             List.map (fun {stt_voutput; _} ->
                 match stt_voutput with
@@ -141,9 +139,9 @@ let validate_election uuid se =
                 | None -> failwith "inconsistent state"
               ) ts
           in
-          let y = K.combine_keys [`Pedersen tp] in
-          return (y, Some trustees, `TP tp, `KEYS private_keys)
+          return (trustee_names, [`Pedersen tp], `KEYS private_keys)
   in
+  let y = K.combine_keys trustees in
   (* election parameters *)
   let e_server_is_trustee = match private_keys with
       | `KEY _ -> Some true
@@ -151,7 +149,7 @@ let validate_election uuid se =
   in
   let metadata = {
       se.se_metadata with
-      e_trustees = trustees;
+      e_trustees = Some trustee_names;
       e_server_is_trustee;
     } in
   let template = se.se_questions in
@@ -175,11 +173,7 @@ let validate_election uuid se =
             let%lwt () = Lwt_io.write oc (what v) in
             Lwt_io.write oc "\n") xs)
   in
-  let%lwt () =
-    match pk_or_tp with
-    | `PK pk -> create_file "public_keys.jsons" (string_of_web_trustee_public_key G.write) pk
-    | `TP tp -> create_file "threshold.json" (string_of_threshold_parameters G.write) [tp]
-  in
+  let%lwt () = create_file "trustees.json" (string_of_trustees G.write) [trustees] in
   let%lwt () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in
   let%lwt () = create_file "metadata.json" string_of_metadata [metadata] in
   let%lwt () = create_file "election.json" (fun x -> x) [raw_election] in
@@ -311,8 +305,7 @@ let delete_election uuid =
       "metadata.json";
       "passwords.csv";
       "public_creds.txt";
-      "public_keys.jsons";
-      "threshold.json";
+      "trustees.json";
       "records";
       "result.json";
       "hide_result";
@@ -1709,8 +1702,7 @@ let make_archive uuid =
         try_copy_file (!Web_config.spool_dir / uuid_s / x) (temp_dir / "public" / x)
       ) [
         "election.json";
-        "public_keys.jsons";
-        "threshold.json";
+        "trustees.json";
         "public_creds.txt";
         "ballots.jsons";
         "result.json";
@@ -1902,14 +1894,14 @@ let () =
 
 let content_type_of_file = function
   | ESRaw -> "application/json; charset=utf-8"
-  | ESTParams | ESETally | ESResult -> "application/json"
-  | ESKeys | ESBallots -> "text/plain" (* should be "application/json-seq", but we don't use RS *)
+  | ESTrustees | ESETally | ESResult -> "application/json"
+  | ESBallots -> "text/plain" (* should be "application/json-seq", but we don't use RS *)
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
 let handle_pseudo_file uuid f site_user =
   let%lwt confidential =
     match f with
-    | ESRaw | ESKeys | ESTParams | ESBallots | ESETally | ESCreds -> return false
+    | ESRaw | ESTrustees | ESBallots | ESETally | ESCreds -> return false
     | ESRecords | ESVoters -> return true
     | ESResult ->
        match%lwt Web_persist.get_election_result_hidden uuid with

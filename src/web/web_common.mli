@@ -65,8 +65,7 @@ val set_rewrite_prefix : src:string -> dst:string -> unit
 
 type election_file =
   | ESRaw
-  | ESKeys
-  | ESTParams
+  | ESTrustees
   | ESCreds
   | ESBallots
   | ESVoters
