@@ -1173,84 +1173,77 @@ let () =
       let from = uuid_of_raw_string from in
       with_draft_election uuid (fun se ->
           let%lwt metadata = Web_persist.get_election_metadata from in
-          let%lwt threshold = Web_persist.get_threshold from in
-          let%lwt public_keys = Web_persist.get_public_keys from in
           try%lwt
-               match metadata.e_trustees, threshold, public_keys with
-               | Some ts, Some raw_tp, None ->
-                  if se.se_threshold_trustees <> None then
-                    raise (TrusteeImportError "Importing threshold trustees after having already added ones is not supported");
-                  let module G = (val Group.of_string se.se_group : GROUP) in
-                  let module P = Trustees.MakePKI (G) (LwtRandom) in
-                  let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
-                  let module K = Trustees.MakeCombinator (G) in
-                  let tp = threshold_parameters_of_string G.read raw_tp in
-                  if not (K.check [`Pedersen tp]) then
-                    raise (TrusteeImportError "Imported threshold trustees are invalid for this election!");
-                  let%lwt privs = Web_persist.get_private_keys from in
-                  let%lwt se_threshold_trustees =
-                    match privs with
-                    | Some privs ->
-                       let rec loop ts pubs privs accu =
-                         match ts, pubs, privs with
-                         | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
-                            let%lwt stt_token = generate_token () in
-                            let stt_voutput = {vo_public_key; vo_private_key} in
-                            let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
-                            let stt = {
-                                stt_id; stt_token; stt_voutput;
-                                stt_step = Some 7; stt_cert = None;
-                                stt_polynomial = None; stt_vinput = None;
-                              } in
-                            loop ts pubs privs (stt :: accu)
-                         | [], [], [] -> return (List.rev accu)
-                         | _, _, _ -> raise (TrusteeImportError "Inconsistency in imported election!")
-                       in loop ts (Array.to_list tp.t_verification_keys) privs []
-                    | None -> raise (TrusteeImportError "Encrypted decryption keys are missing!")
-                  in
-                  se.se_threshold <- Some tp.t_threshold;
-                  se.se_threshold_trustees <- Some se_threshold_trustees;
-                  se.se_threshold_parameters <- Some raw_tp;
-                  redir_preapply election_draft_threshold_trustees uuid ()
-               | Some ts, None, Some pks when List.length ts = List.length pks ->
-                  let module G = (val Group.of_string se.se_group) in
-                  let module KG = Trustees.MakeSimple (G) (LwtRandom) in
-                  let%lwt trustees =
-                    List.combine ts pks
-                    |> Lwt_list.map_p
-                         (fun (st_id, st_public_key) ->
-                           let%lwt st_token, st_private_key, st_public_key =
-                             if st_id = "server" then (
-                               let%lwt private_key = KG.generate () in
-                               let%lwt public_key = KG.prove private_key in
-                               let public_key = string_of_trustee_public_key G.write public_key in
-                               return ("", Some private_key, public_key)
-                             ) else (
-                               let%lwt st_token = generate_token () in
-                               return (st_token, None, st_public_key)
-                             )
-                           in
-                           return {st_id; st_token; st_public_key; st_private_key})
-                  in
-                  let () =
-                    let module K = Trustees.MakeCombinator (G) in
-                    (* check that imported keys are valid *)
-                    let trustees =
-                      trustees
-                      |> List.map
-                           (fun x ->
-                             x.st_public_key
-                             |> trustee_public_key_of_string G.read
-                             |> (fun x -> `Single x)
-                           )
-                    in
-                    if not (K.check trustees) then
-                      raise (TrusteeImportError "Imported keys are invalid for this election!")
-                  in
-                  se.se_public_keys <- trustees;
-                  redir_preapply election_draft_trustees uuid ()
-               | _, _, _ ->
-                  Lwt.fail (TrusteeImportError "Could not retrieve trustees from selected election!")
+                match metadata.e_trustees with
+                | None -> Lwt.fail (TrusteeImportError "Could not retrieve trustees from selected election!")
+                | Some names ->
+                   let%lwt trustees = Web_persist.get_trustees from in
+                   let module G = (val Group.of_string se.se_group : GROUP) in
+                   let module K = Trustees.MakeCombinator (G) in
+                   let trustees = trustees_of_string G.read trustees in
+                   if not (K.check trustees) then
+                     Lwt.fail (TrusteeImportError "Imported trustees are invalid for this election!")
+                   else
+                     match trustees with
+                     | [`Pedersen t] ->
+                        let%lwt privs = Web_persist.get_private_keys from in
+                        let%lwt se_threshold_trustees =
+                          match privs with
+                          | Some privs ->
+                             let rec loop ts pubs privs accu =
+                               match ts, pubs, privs with
+                               | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
+                                  let%lwt stt_token = generate_token () in
+                                  let stt_voutput = {vo_public_key; vo_private_key} in
+                                  let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
+                                  let stt = {
+                                      stt_id; stt_token; stt_voutput;
+                                      stt_step = Some 7; stt_cert = None;
+                                      stt_polynomial = None; stt_vinput = None;
+                                    } in
+                                  loop ts pubs privs (stt :: accu)
+                               | [], [], [] -> return (List.rev accu)
+                               | _, _, _ -> Lwt.fail (TrusteeImportError "Inconsistency in imported election!")
+                             in loop names (Array.to_list t.t_verification_keys) privs []
+                          | None -> Lwt.fail (TrusteeImportError "Encrypted decryption keys are missing!")
+                        in
+                        se.se_threshold <- Some t.t_threshold;
+                        se.se_threshold_trustees <- Some se_threshold_trustees;
+                        se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write t);
+                        redir_preapply election_draft_threshold_trustees uuid ()
+                     | ts ->
+                        let%lwt ts =
+                          try
+                            List.map
+                              (function
+                               | `Single x -> x
+                               | `Pedersen _ -> raise (TrusteeImportError "Unsupported trustees!")
+                              ) ts
+                            |> return
+                          with
+                          | e -> Lwt.fail e
+                        in
+                        let%lwt ts =
+                          let module KG = Trustees.MakeSimple (G) (LwtRandom) in
+                          List.combine names ts
+                          |> Lwt_list.map_p
+                               (fun (st_id, public_key) ->
+                                 let%lwt st_token, st_private_key, st_public_key =
+                                   if st_id = "server" then (
+                                     let%lwt private_key = KG.generate () in
+                                     let%lwt public_key = KG.prove private_key in
+                                     let public_key = string_of_trustee_public_key G.write public_key in
+                                     return ("", Some private_key, public_key)
+                                   ) else (
+                                     let%lwt st_token = generate_token () in
+                                     let public_key = string_of_trustee_public_key G.write public_key in
+                                     return (st_token, None, public_key)
+                                   )
+                                 in
+                                 return {st_id; st_token; st_public_key; st_private_key})
+                        in
+                        se.se_public_keys <- ts;
+                        redir_preapply election_draft_trustees uuid ()
           with
           | TrusteeImportError msg ->
              T.generic_page ~title:"Error"
