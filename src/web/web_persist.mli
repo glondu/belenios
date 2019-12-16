@@ -72,10 +72,8 @@ val get_elections_by_owner : user -> (election_kind * uuid * datetime * string) 
 
 val get_voters : uuid -> string list option Lwt.t
 val get_passwords : uuid -> (string * string) SMap.t option Lwt.t
-val get_public_keys : uuid -> string list option Lwt.t
 val get_private_key : uuid -> number option Lwt.t
 val get_private_keys : uuid -> string list option Lwt.t
-val get_threshold : uuid -> string option Lwt.t
 val get_trustees : uuid -> string Lwt.t
 
 val get_ballot_hashes : uuid -> string list Lwt.t
