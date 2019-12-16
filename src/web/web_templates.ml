@@ -1835,18 +1835,10 @@ let election_home election state () =
          txt " ";
          b [txt L.election_closed_being_tallied];
        ]
-    | `EncryptedTally (_, _, hash) ->
+    | `EncryptedTally _ ->
        [
          txt " ";
          b [txt L.election_closed_being_tallied];
-         txt L.the;
-         a
-           ~service:election_dir
-           [txt L.encrypted_tally]
-           (uuid, ESETally);
-         txt L.hash_is;
-         b [txt hash];
-         txt ".";
        ]
     | `Tallied ->
        [
@@ -2248,7 +2240,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                proceed;
              ]
          )
-    | `EncryptedTally (_, _, hash) ->
+    | `EncryptedTally _ ->
        let%lwt pds = Web_persist.get_partial_decryptions uuid in
        let%lwt trustees = Web_persist.get_trustees uuid in
        let trustees = trustees_of_string Yojson.Safe.read_json trustees in
@@ -2359,11 +2351,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
              ~service:election_dir
              [txt "encrypted tally"]
              (uuid, ESETally);
-           txt " has been computed. Its hash is ";
-           b ~a:[a_id "encrypted_tally_hash"] [
-             txt hash
-           ];
-           txt ".";
+           txt " has been computed."
          ];
          div [
            div [txt "We are now waiting for trustees..."; threshold_or_not];
