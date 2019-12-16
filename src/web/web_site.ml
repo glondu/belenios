@@ -1826,17 +1826,17 @@ let () =
       let module W = (val Election.get_group election) in
       let module E = Election.Make (W) (LwtRandom) in
       let%lwt pks =
-        match%lwt Web_persist.get_threshold uuid with
-        | Some tp ->
-           let tp = threshold_parameters_of_string W.G.read tp in
-           return tp.t_verification_keys
-        | None ->
-           match%lwt Web_persist.get_public_keys uuid with
-           | None -> failwith "no public keys in election_tally_trustees_post"
-           | Some pks ->
-              let pks = Array.of_list pks in
-              let pks = Array.map (trustee_public_key_of_string W.G.read) pks in
-              return pks
+        let%lwt trustees = Web_persist.get_trustees uuid in
+        let trustees = trustees_of_string W.G.read trustees in
+        match trustees with
+        | [`Pedersen t] -> return t.t_verification_keys
+        | ts ->
+           List.map
+             (function
+              | `Single x -> x
+              | `Pedersen _ -> failwith "unsupported trustees in election_tally_trustees_post"
+             ) ts
+           |> Array.of_list |> return
       in
       let pk = pks.(trustee_id-1).trustee_public_key in
       let pd = partial_decryption_of_string W.G.read partial_decryption in
