@@ -2250,18 +2250,19 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                proceed;
              ]
          )
-    | `EncryptedTally (npks, _, hash) ->
+    | `EncryptedTally (_, _, hash) ->
        let%lwt pds = Web_persist.get_partial_decryptions uuid in
-       let%lwt tp = Web_persist.get_threshold uuid in
-       let tp =
-         match tp with
-         | None -> None
-         | Some tp -> Some (threshold_parameters_of_string Yojson.Safe.read_json tp)
+       let%lwt trustees = Web_persist.get_trustees uuid in
+       let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+       let threshold, npks =
+         match trustees with
+         | [`Pedersen t] -> Some t.t_threshold, Array.length t.t_verification_keys
+         | ts -> None, List.length ts
        in
        let threshold_or_not =
-         match tp with
+         match threshold with
          | None -> txt ""
-         | Some tp -> txt (Printf.sprintf " At least %d trustee(s) must act." tp.t_threshold)
+         | Some x -> txt (Printf.sprintf " At least %d trustee(s) must act." x)
        in
        let trustees =
          let rec loop i ts =
@@ -2277,7 +2278,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
        in
        let rec seq i j = if i >= j then [] else i :: (seq (i+1) j) in
        let%lwt trustee_tokens =
-         match tp with
+         match threshold with
          | None -> return (List.map string_of_int (seq 1 (npks+1)))
          | Some _ -> get_tokens_decrypt ()
        in
