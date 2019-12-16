@@ -42,7 +42,6 @@ class BeleniosTestElectionScenario4(BeleniosTestElectionScenario2Base):
     - links_for_trustees
     - downloaded_files_paths_per_trustee
     - temporary_files_to_remove_after_test
-    - encrypted_tally_hash
     - closed_election_tally_links_for_trustees
     """
 
@@ -58,7 +57,6 @@ class BeleniosTestElectionScenario4(BeleniosTestElectionScenario2Base):
         self.links_for_trustees = []
         self.downloaded_files_paths_per_trustee = dict() # A dict where key is trustee email address, and value is a dict where key is file label (for example "private key" or "public key"), and value is the absolute path to the file
         self.temporary_files_to_remove_after_test = []
-        self.encrypted_tally_hash = None
         self.closed_election_tally_links_for_trustees = []
 
 

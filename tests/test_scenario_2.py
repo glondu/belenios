@@ -38,7 +38,6 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
     - links_for_trustees
     - downloaded_files_paths_per_trustee
     - temporary_files_to_remove_after_test
-    - encrypted_tally_hash
     - closed_election_tally_links_for_trustees
     """
 
@@ -52,7 +51,6 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         self.links_for_trustees = []
         self.downloaded_files_paths_per_trustee = dict() # A dict where key is trustee email address, and value is a dict where key is file label (for example "private key" or "public key"), and value is the absolute path to the file
         self.temporary_files_to_remove_after_test = []
-        self.encrypted_tally_hash = None
         self.closed_election_tally_links_for_trustees = []
 
 
@@ -467,11 +465,6 @@ The election administrator.\
             attribute_value = "No"
             verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value)
 
-        # She remembers the encrypted tally hash
-        encrypted_tally_hash_css_selector = "#encrypted_tally_hash"
-        encrypted_tally_hash_element = wait_for_element_exists_and_has_non_empty_content(browser, encrypted_tally_hash_css_selector)
-        self.encrypted_tally_hash = encrypted_tally_hash_element.get_attribute('innerText')
-
         # She remembers the link to send to each trustee, so they can tally the election
         row_padding = 3
         if with_threshold:
@@ -526,12 +519,6 @@ The election administrator.\
             browser.get(link_for_trustee)
 
             wait_a_bit()
-
-            # We verify that the encrypted election hash is the same as the one that has been displayed to election administrator
-            encrypted_tally_hash_css_selector = "#hash"
-            encrypted_tally_hash_element = wait_for_element_exists_and_has_non_empty_content(browser, encrypted_tally_hash_css_selector)
-            encrypted_tally_hash = encrypted_tally_hash_element.get_attribute('innerText')
-            assert encrypted_tally_hash == self.encrypted_tally_hash, "Error: Encrypted tally hash displayed to trustee (" + encrypted_tally_hash + ") is not the same as the one displayed to election administrator (" + self.encrypted_tally_hash + ")."
 
             # He verifies that the "private key" input field is empty (at the beginning)
             private_key_field_css_selector = "#private_key"
@@ -604,12 +591,6 @@ The election administrator.\
         log_in_as_administrator(browser, from_a_login_page=True)
 
         wait_a_bit()
-
-        # She checks that encrypted tally hash is still the same as the first time it has been displayed to her
-        encrypted_tally_hash_css_selector = "#encrypted_tally_hash"
-        encrypted_tally_hash_element = wait_for_element_exists_and_has_non_empty_content(browser, encrypted_tally_hash_css_selector)
-        encrypted_tally_hash = encrypted_tally_hash_element.get_attribute('innerText')
-        assert encrypted_tally_hash == self.encrypted_tally_hash, "Error: Encrypted tally hash displayed to trustee (" + encrypted_tally_hash + ") is not the same as the one displayed to election administrator (" + self.encrypted_tally_hash + ")."
 
         # She checks that the "DONE?" column of each trustee is to "Yes" (or if there is a threshold on trustees, she checks that at least `max_trustees` have a "Yes")
         expected_label = "Yes"
