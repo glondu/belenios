@@ -275,15 +275,16 @@ let delete_election uuid =
     | Some "server" -> `Automatic
     | _ -> `Manual
   in
-  let%lwt de_trustees_threshold =
-    let%lwt threshold = Web_persist.get_threshold uuid in
-    match threshold with
-    | None -> return_none
-    | Some x ->
-       let x = threshold_parameters_of_string Yojson.Safe.read_json x in
-       return_some x.t_threshold
+  let%lwt de_trustees =
+    let%lwt trustees = Web_persist.get_trustees uuid in
+    trustees_of_string Yojson.Safe.read_json trustees
+    |> List.map
+         (function
+          | `Single _ -> `Single
+          | `Pedersen t -> `Pedersen (t.t_threshold, Array.length t.t_verification_keys)
+         )
+    |> return
   in
-  let%lwt pks = Web_persist.get_public_keys uuid in
   let%lwt voters = Web_persist.get_voters uuid in
   let%lwt ballots = Web_persist.get_ballot_hashes uuid in
   let%lwt result = Web_persist.get_election_result uuid in
@@ -297,8 +298,7 @@ let delete_election uuid =
       de_tallied = result <> None;
       de_authentication_method;
       de_credential_method;
-      de_nb_trustees = (match pks with None -> 0 | Some x -> List.length x);
-      de_trustees_threshold;
+      de_trustees;
       de_server_is_trustee = metadata.e_server_is_trustee = Some true;
     }
   in

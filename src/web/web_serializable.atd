@@ -152,6 +152,8 @@ type shuffle_token = {
 type authentication_method = [ CAS of string | Password | Unknown ]
 type credential_method = [ Automatic | Manual ]
 
+type deleted_trustee = [ Single | Pedersen of (int * int) ]
+
 type deleted_election = {
   uuid : uuid;
   template : template;
@@ -162,8 +164,7 @@ type deleted_election = {
   tallied : bool;
   authentication_method : authentication_method;
   credential_method : credential_method;
-  nb_trustees : int;
-  ?trustees_threshold : int option;
+  trustees : deleted_trustee list;
   server_is_trustee : bool;
 } <ocaml field_prefix="de_">
 
