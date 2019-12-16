@@ -79,12 +79,12 @@ val get_trustees : uuid -> string Lwt.t
 val get_ballot_hashes : uuid -> string list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 
-val compute_encrypted_tally : uuid -> (int * string * string) option Lwt.t
+val compute_encrypted_tally : uuid -> string option Lwt.t
 
 val get_shuffles : uuid -> string list option Lwt.t
 val get_shuffle_hashes : uuid -> shuffle_hash list option Lwt.t
 val add_shuffle_hash : uuid -> shuffle_hash -> unit Lwt.t
-val compute_encrypted_tally_after_shuffling : uuid -> (string * string) option Lwt.t
+val compute_encrypted_tally_after_shuffling : uuid -> string option Lwt.t
 
 val get_shuffle_token : uuid -> shuffle_token option Lwt.t
 val gen_shuffle_token : uuid -> string -> shuffle_token Lwt.t

@@ -1971,20 +1971,9 @@ let perform_server_side_decryption uuid e metadata tally =
          ) else return_true
        )
 
-let transition_to_encrypted_tally uuid e metadata tally nb hash =
-  let%lwt npks =
-    let%lwt trustees = Web_persist.get_trustees uuid in
-    trustees_of_string Yojson.Safe.read_json trustees
-    |> List.map
-         (function
-          | `Single _ -> 1
-          | `Pedersen t -> Array.length t.t_verification_keys
-         )
-    |> List.fold_left ( + ) 0
-    |> return
-  in
+let transition_to_encrypted_tally uuid e metadata tally =
   let%lwt () =
-    Web_persist.set_election_state uuid (`EncryptedTally (npks, nb, hash))
+    Web_persist.set_election_state uuid (`EncryptedTally (0, 0, ""))
   in
   if%lwt perform_server_side_decryption uuid e metadata tally then
     redir_preapply election_admin uuid ()
@@ -2005,7 +1994,7 @@ let () =
               | `Closed -> return ()
               | _ -> forbidden ()
             in
-            let%lwt nb, hash, tally =
+            let%lwt tally =
               match%lwt Web_persist.compute_encrypted_tally uuid with
               | Some x -> return x
               | None -> failwith "Anomaly in election_compute_encrypted_tally service handler. Please report." (* should not happen *)
@@ -2014,7 +2003,7 @@ let () =
               let%lwt () = Web_persist.set_election_state uuid `Shuffling in
               redir_preapply election_admin uuid ()
             ) else (
-              transition_to_encrypted_tally uuid (module E) metadata tally nb hash
+              transition_to_encrypted_tally uuid (module E) metadata tally
             )
           ) else forbidden ()
         )
@@ -2113,16 +2102,12 @@ let () =
               | `Shuffling -> return ()
               | _ -> forbidden ()
             in
-            let%lwt hash, tally =
+            let%lwt tally =
               match%lwt Web_persist.compute_encrypted_tally_after_shuffling uuid with
               | Some x -> return x
               | None -> Lwt.fail (Failure "election_decrypt handler: compute_encrypted_tally_after_shuffling")
             in
-            let%lwt nb =
-              let%lwt x = Web_persist.get_ballot_hashes uuid in
-              return (List.length x)
-            in
-            transition_to_encrypted_tally uuid (module E) metadata tally nb hash
+            transition_to_encrypted_tally uuid (module E) metadata tally
           ) else forbidden ()
         )
     )

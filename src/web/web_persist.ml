@@ -405,10 +405,9 @@ let compute_encrypted_tally uuid =
      let%lwt ballots = load_ballots uuid in
      let ballots = Array.map (ballot_of_string E.G.read) (Array.of_list ballots) in
      let tally = E.process_ballots ballots in
-     let num_tallied = Array.length ballots in
      let tally = string_of_encrypted_tally E.G.write tally in
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
-     return_some (num_tallied, sha256_b64 tally, tally)
+     return_some tally
 
 let get_shuffle_token uuid =
   match%lwt read_file ~uuid "shuffle_token.json" with
@@ -503,7 +502,7 @@ let compute_encrypted_tally_after_shuffling uuid =
         let tally = E.merge_nh_ciphertexts nh tally in
         let tally = string_of_encrypted_tally E.G.write tally in
         let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
-        return_some (sha256_b64 tally, tally)
+        return_some tally
      | _ -> return_none
 
 let shuffle_mutex = Lwt_mutex.create ()
