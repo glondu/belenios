@@ -1708,15 +1708,13 @@ let audit_footer election =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let%lwt pk_or_tp =
-    match%lwt Web_persist.get_threshold election.e_params.e_uuid with
-    | None ->
-       return (a ~service:(file uuid ESKeys) [
-                   txt L.trustee_public_keys
-                 ] ())
-    | Some _ ->
-       return (a ~service:(file uuid ESTParams) [
-                   txt "threshold parameters"
-                 ] ())
+    let%lwt trustees = Web_persist.get_trustees uuid in
+    let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+    match trustees with
+    | [`Pedersen _] ->
+       return (a ~service:(file uuid ESTParams) [txt "threshold parameters"] ())
+    | _ ->
+       return (a ~service:(file uuid ESKeys) [txt L.trustee_public_keys] ())
   in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
