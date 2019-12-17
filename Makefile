@@ -10,6 +10,7 @@ all:
 	ocamlbuild $(ALL_TARGETS)
 
 check: minimal
+	mkdir -p demo/data
 	demo/demo.sh
 	demo/demo-threshold.sh
 	demo/demo-nh.sh
