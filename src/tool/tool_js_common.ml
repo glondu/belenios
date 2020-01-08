@@ -98,11 +98,10 @@ let clear_content_by_id id =
   clear_content e
 
 let run_handler handler () =
-  (try handler ()
-   with e ->
+  try handler () with
+  | e ->
      let msg = "Unexpected error: " ^ Printexc.to_string e in
      alert msg
-  ); Js._false
 
 let get_params () =
   let x = Js.to_string Dom_html.window##.location##.search in

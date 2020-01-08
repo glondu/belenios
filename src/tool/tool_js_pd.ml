@@ -95,13 +95,11 @@ let compute_partial_decryption _ =
   return_unit
 
 let compute_hash () =
-  let () =
-    Js.Opt.option !encrypted_tally >>== fun e ->
-    let hash = sha256_b64 e in
-    document##getElementById (Js.string "hash") >>== fun e ->
-    let t = document##createTextNode (Js.string hash) in
-    Dom.appendChild e t
-  in Js._false
+  Js.Opt.option !encrypted_tally >>== fun e ->
+  let hash = sha256_b64 e in
+  document##getElementById (Js.string "hash") >>== fun e ->
+  let t = document##createTextNode (Js.string hash) in
+  Dom.appendChild e t
 
 let load_private_key_file _ =
   document##getElementById (Js.string "private_key_file") >>= fun e ->
