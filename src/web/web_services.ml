@@ -46,7 +46,7 @@ let election_draft_voters = create ~path:(Path ["draft"; "voters"]) ~meth:(Get (
 let election_draft_voters_add = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voters") ()
 let election_draft_voters_remove = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voter") ()
 let election_draft_voters_passwd = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voter") ()
-let election_draft_trustee_add = create_attached_post ~fallback:election_draft ~post_params:(string "id") ()
+let election_draft_trustee_add = create_attached_post ~fallback:election_draft ~post_params:(string "id" ** string "comment") ()
 let election_draft_trustee_del = create_attached_post ~fallback:election_draft ~post_params:(int "index") ()
 let election_draft_credential_authority = create ~path:(Path ["draft"; "credential-authority"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_credentials = create ~path:(Path ["draft"; "credentials"]) ~meth:(Get uuid_and_token) ()
@@ -62,7 +62,7 @@ let election_draft_threshold_trustees = create ~path:(Path ["draft"; "threshold-
 let election_draft_threshold_trustee = create ~path:(Path ["draft"; "threshold-trustee"]) ~meth:(Get uuid_and_token) ()
 let election_draft_threshold_trustee_post = create ~path:(Path ["draft"; "submit-threshold-trustee"]) ~meth:(Post (uuid_and_token, string "data")) ()
 let election_draft_threshold_set = create_attached_post ~fallback:election_draft_threshold_trustees ~post_params:(int "threshold") ()
-let election_draft_threshold_trustee_add = create_attached_post ~fallback:election_draft_threshold_trustees ~post_params:(string "id") ()
+let election_draft_threshold_trustee_add = create_attached_post ~fallback:election_draft_threshold_trustees ~post_params:(string "id" ** string "comment") ()
 let election_draft_threshold_trustee_del = create_attached_post ~fallback:election_draft_threshold_trustees ~post_params:(int "index") ()
 
 let election_draft_confirm = create ~path:(Path ["draft"; "confirm"]) ~meth:(Get (uuid "uuid")) ()

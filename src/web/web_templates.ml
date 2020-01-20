@@ -636,10 +636,12 @@ let election_draft_trustees ?token uuid se () =
   let form_trustees_add =
     post_form
       ~service:election_draft_trustee_add
-      (fun name ->
+      (fun (n_id, n_comment) ->
         [
           txt "Trustee's e-mail address: ";
-          input ~input_type:`Text ~name string;
+          input ~input_type:`Text ~name:n_id string;
+          txt ", public name: ";
+          input ~input_type:`Text ~name:n_comment string;
           input ~input_type:`Submit ~value:"Add" string;
         ]
       ) uuid
@@ -668,6 +670,11 @@ let election_draft_trustees ?token uuid se () =
                tr [
                    td [
                        txt t.st_id;
+                     ];
+                   td [
+                       match t.st_comment with
+                       | None -> txt "(not available)"
+                       | Some x -> txt x
                      ];
                    td [
                        if t.st_token <> "" then (
@@ -702,7 +709,7 @@ let election_draft_trustees ?token uuid se () =
                  [
                    tr
                      [
-                       td ~a:[a_colspan 5]
+                       td ~a:[a_colspan 6]
                          [
                            txt "The link that must be sent to trustee ";
                            txt t.st_id;
@@ -722,6 +729,7 @@ let election_draft_trustees ?token uuid se () =
        table (
            tr [
                th [txt "Trustee"];
+               th [txt "Public name"];
                th [txt "Mail"];
                th [txt "Link"];
                th [txt "Done?"];
@@ -780,10 +788,12 @@ let election_draft_threshold_trustees ?token uuid se () =
     if show_add_remove then
       post_form
         ~service:election_draft_threshold_trustee_add
-        (fun name ->
+        (fun (n_id, n_comment) ->
           [
             txt "Trustee's e-mail address: ";
-            input ~input_type:`Text ~name string;
+            input ~input_type:`Text ~name:n_id string;
+            txt ", public name: ";
+            input ~input_type:`Text ~name:n_comment string;
             input ~input_type:`Submit ~value:"Add" string;
           ]
         ) uuid
@@ -827,6 +837,11 @@ let election_draft_threshold_trustees ?token uuid se () =
                          txt t.stt_id;
                        ];
                      td [
+                         match t.stt_comment with
+                         | None -> txt "(not available)"
+                         | Some x -> txt x
+                       ];
+                     td [
                          let uri = rewrite_prefix @@
                                      Eliom_uri.make_string_uri
                                        ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
@@ -852,7 +867,7 @@ let election_draft_threshold_trustees ?token uuid se () =
                  [
                    tr
                      [
-                       td ~a:[a_colspan (if show_add_remove then 5 else 4)]
+                       td ~a:[a_colspan (if show_add_remove then 6 else 5)]
                          [
                            txt "The link that must be sent to trustee ";
                            txt t.stt_id;
@@ -875,6 +890,7 @@ let election_draft_threshold_trustees ?token uuid se () =
                tr (
                    [
                      th [txt "Trustee"];
+                     th [txt "Public name"];
                      th [txt "Mail"];
                      th [txt "Link"];
                      th [txt "State"];

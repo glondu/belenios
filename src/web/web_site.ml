@@ -111,14 +111,10 @@ let validate_election uuid se =
             return (
                 (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
                 (List.map
-                   (fun {st_public_key; st_private_key; _} ->
+                   (fun {st_public_key; st_comment; _} ->
                      if st_public_key = "" then failwith "some public keys are missing";
                      let pk = trustee_public_key_of_string G.read st_public_key in
-                     let pk =
-                       if st_private_key <> None then
-                         { pk with trustee_comment = Some "server" }
-                       else pk
-                     in
+                     let pk = { pk with trustee_comment = st_comment } in
                      `Single pk
                    ) se.se_public_keys),
                 private_key)
@@ -129,6 +125,12 @@ let validate_election uuid se =
        | None -> failwith "key establishment not finished"
        | Some tp ->
           let tp = threshold_parameters_of_string G.read tp in
+          let commented =
+            List.combine (Array.to_list tp.t_verification_keys) ts
+            |> List.map (fun (k, t) -> { k with trustee_comment = t.stt_comment })
+            |> Array.of_list
+          in
+          let tp = { tp with t_verification_keys = commented } in
           let trustee_names = List.map (fun {stt_id; _} -> stt_id) ts in
           let private_keys =
             List.map (fun {stt_voutput; _} ->
@@ -838,13 +840,14 @@ let trustee_add_server se =
   let%lwt public_key = K.prove private_key in
   let st_public_key = string_of_trustee_public_key G.write public_key in
   let st_private_key = Some private_key in
-  let trustee = {st_id; st_token; st_public_key; st_private_key} in
+  let st_comment = Some "server" in
+  let trustee = {st_id; st_token; st_public_key; st_private_key; st_comment} in
   se.se_public_keys <- se.se_public_keys @ [trustee];
   return_unit
 
 let () =
   Any.register ~service:election_draft_trustee_add
-    (fun uuid st_id ->
+    (fun uuid (st_id, comment) ->
       with_draft_election uuid (fun se ->
           let%lwt () =
             if List.exists (fun x -> x.st_id = "server") se.se_public_keys then
@@ -853,7 +856,8 @@ let () =
           in
           if is_email st_id then (
             let%lwt st_token = generate_token () in
-            let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None} in
+            let st_comment = Some comment in
+            let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None; st_comment} in
             se.se_public_keys <- se.se_public_keys @ [trustee];
             redir_preapply election_draft_trustees uuid ()
           ) else (
@@ -1186,6 +1190,7 @@ let () =
                              let rec loop ts pubs privs accu =
                                match ts, pubs, privs with
                                | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
+                                  let stt_comment = vo_public_key.trustee_comment in
                                   let%lwt stt_token = generate_token () in
                                   let stt_voutput = {vo_public_key; vo_private_key} in
                                   let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
@@ -1193,6 +1198,7 @@ let () =
                                       stt_id; stt_token; stt_voutput;
                                       stt_step = Some 7; stt_cert = None;
                                       stt_polynomial = None; stt_vinput = None;
+                                      stt_comment;
                                     } in
                                   loop ts pubs privs (stt :: accu)
                                | [], [], [] -> return (List.rev accu)
@@ -1233,7 +1239,8 @@ let () =
                                      return (st_token, None, public_key)
                                    )
                                  in
-                                 return {st_id; st_token; st_public_key; st_private_key})
+                                 let st_comment = public_key.trustee_comment in
+                                 return {st_id; st_token; st_public_key; st_private_key; st_comment})
                         in
                         se.se_public_keys <- ts;
                         redir_preapply election_draft_trustees uuid ()
@@ -2139,14 +2146,16 @@ let () =
 
 let () =
   Any.register ~service:election_draft_threshold_trustee_add
-    (fun uuid stt_id ->
+    (fun uuid (stt_id, comment) ->
       with_draft_election uuid (fun se ->
           if is_email stt_id then (
+            let stt_comment = Some comment in
             let%lwt stt_token = generate_token () in
             let trustee = {
                 stt_id; stt_token; stt_step = None;
                 stt_cert = None; stt_polynomial = None;
                 stt_vinput = None; stt_voutput = None;
+                stt_comment;
               } in
             let trustees =
               match se.se_threshold_trustees with
