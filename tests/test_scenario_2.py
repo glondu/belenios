@@ -285,7 +285,7 @@ counts."""
 
             wait_a_bit()
 
-            trustee_link_css_selector = "#main table tr:nth-of-type(" + str(idx + 3) + ") td:nth-of-type(3) a" # First row of table corresponds to column titles. Second row correpond to server trustee.
+            trustee_link_css_selector = "#main table tr:nth-of-type(" + str(idx + 3) + ") td:nth-of-type(4) a" # First row of table corresponds to column titles. Second row correpond to server trustee.
             trustee_link_element = wait_for_element_exists_and_has_non_empty_content(browser, trustee_link_css_selector)
             self.links_for_trustees.append(trustee_link_element.get_attribute('href'))
 

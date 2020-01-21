@@ -98,7 +98,7 @@ class BeleniosTestElectionScenario4(BeleniosTestElectionScenario2Base):
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
             submit_button_element.click()
 
-            trustee_link_css_selector = "#main table tbody tr:nth-of-type(" + str(idx + 2) + ") td:nth-of-type(3) a"
+            trustee_link_css_selector = "#main table tbody tr:nth-of-type(" + str(idx + 2) + ") td:nth-of-type(4) a"
             trustee_link_element = wait_for_element_exists_and_has_non_empty_content(browser, trustee_link_css_selector)
             self.links_for_trustees.append(trustee_link_element.get_attribute('href'))
 
