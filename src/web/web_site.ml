@@ -1318,7 +1318,7 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
             let shuffle = string_of_shuffle E.G.write shuffle in
             match%lwt Web_persist.append_to_shuffles uuid shuffle with
             | Some h ->
-               let sh = {sh_trustee = "server"; sh_hash = h} in
+               let sh = {sh_trustee = "server"; sh_hash = h; sh_comment = Some "server"} in
                Web_persist.add_shuffle_hash uuid sh
             | None ->
                Lwt.fail (Failure (Printf.sprintf "Automatic shuffle by server has failed for election %s!" (raw_string_of_uuid uuid)))
@@ -1879,9 +1879,23 @@ let handle_election_tally_release uuid () =
         let%lwt pds = Web_persist.get_partial_decryptions uuid in
         let pds = List.map snd pds in
         let pds = List.map (partial_decryption_of_string W.G.read) pds in
-        let%lwt shuffles = Web_persist.get_shuffles uuid in
-        let shuffles = Option.map (List.map (shuffle_of_string W.G.read)) shuffles in
-        let result = E.compute_result ?shuffles ntallied et pds trustees in
+        let%lwt shuffles, shufflers =
+          match%lwt Web_persist.get_shuffles uuid with
+          | None -> return (None, None)
+          | Some s ->
+             let s = List.map (shuffle_of_string W.G.read) s in
+             match%lwt Web_persist.get_shuffle_hashes uuid with
+             | None -> return (Some s, None)
+             | Some x ->
+                let x =
+                  x
+                  |> List.map (fun x -> if x.sh_hash = "" then [] else [x.sh_comment])
+                  |> List.flatten
+                in
+                assert (List.length s = List.length x);
+                return (Some s, Some x)
+        in
+        let result = E.compute_result ?shuffles ?shufflers ntallied et pds trustees in
         let%lwt () =
           let result = string_of_election_result W.G.write result in
           write_file ~uuid (string_of_election_file ESResult) [result]
@@ -2035,7 +2049,7 @@ let () =
              (match%lwt Web_persist.append_to_shuffles uuid shuffle with
               | Some h ->
                  let%lwt () = Web_persist.clear_shuffle_token uuid in
-                 let sh = {sh_trustee = x.tk_trustee; sh_hash = h} in
+                 let sh = {sh_trustee = x.tk_trustee; sh_hash = h; sh_comment = x.tk_comment} in
                  let%lwt () = Web_persist.add_shuffle_hash uuid sh in
                  T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
               | None ->
@@ -2047,15 +2061,40 @@ let () =
         )
     )
 
+let extract_comments trustees =
+  trustees
+  |> List.map
+       (function
+        | `Pedersen x ->
+           x.t_verification_keys
+           |> Array.to_list
+           |> List.map (fun x -> x.trustee_comment)
+        | `Single x -> [x.trustee_comment]
+       )
+  |> List.flatten
+
+let get_trustee_comments uuid =
+  let%lwt trustees = Web_persist.get_trustees uuid in
+  let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+  return (extract_comments trustees)
+
+let get_trustee_comment uuid metadata trustee =
+  match metadata.e_trustees with
+  | None -> return_none
+  | Some xs ->
+     let%lwt comments = get_trustee_comments uuid in
+     return (List.assoc trustee (List.combine xs comments))
+
 let () =
   Any.register ~service:election_shuffler_select
     (fun () (uuid, trustee) ->
       let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
+          let%lwt comment = get_trustee_comment uuid metadata trustee in
           if metadata.e_owner = Some u then (
             let%lwt () = Web_persist.clear_shuffle_token uuid in
-            let%lwt _ = Web_persist.gen_shuffle_token uuid trustee in
+            let%lwt _ = Web_persist.gen_shuffle_token uuid trustee comment in
             redir_preapply election_admin uuid ()
           ) else forbidden ()
         )
@@ -2079,9 +2118,10 @@ let () =
       let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
+          let%lwt sh_comment = get_trustee_comment uuid metadata trustee in
           if metadata.e_owner = Some u then (
             let%lwt () = Web_persist.clear_shuffle_token uuid in
-            let sh = {sh_trustee = trustee; sh_hash = ""} in
+            let sh = {sh_trustee = trustee; sh_hash = ""; sh_comment} in
             let%lwt () = Web_persist.add_shuffle_hash uuid sh in
             redir_preapply election_admin uuid ()
           ) else forbidden ()

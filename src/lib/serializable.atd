@@ -120,12 +120,15 @@ type 'a shuffle = {
   proofs : 'a shuffle_proofs;
 } <ocaml field_prefix="shuffle_">
 
+type shuffler = string nullable
+
 (** {2 Election result} *)
 
 type 'a election_result = {
   num_tallied : int;
   encrypted_tally : 'a encrypted_tally;
   ?shuffles : 'a shuffle list option;
+  ?shufflers : shuffler list option;
   partial_decryptions : 'a partial_decryption list;
   result : int shape;
 }

@@ -88,7 +88,7 @@ val add_shuffle_hash : uuid -> shuffle_hash -> unit Lwt.t
 val compute_encrypted_tally_after_shuffling : uuid -> string option Lwt.t
 
 val get_shuffle_token : uuid -> shuffle_token option Lwt.t
-val gen_shuffle_token : uuid -> string -> shuffle_token Lwt.t
+val gen_shuffle_token : uuid -> string -> shuffler -> shuffle_token Lwt.t
 val clear_shuffle_token : uuid -> unit Lwt.t
 
 val get_nh_ciphertexts : uuid -> string Lwt.t

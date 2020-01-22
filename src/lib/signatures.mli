@@ -128,7 +128,9 @@ module type ELECTION = sig
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 
-  val compute_result : ?shuffles:elt shuffle list -> int -> elt Serializable_t.ciphertext shape -> factor list -> elt trustees -> result
+  val compute_result :
+    ?shuffles:elt shuffle list -> ?shufflers:shuffler list ->
+    int -> elt Serializable_t.ciphertext shape -> factor list -> elt trustees -> result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)

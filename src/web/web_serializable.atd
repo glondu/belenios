@@ -142,11 +142,13 @@ type draft_election = {
 type shuffle_hash = {
     trustee : string;
     hash : string;
+    ?comment : string option;
 } <ocaml field_prefix="sh_">
 
 type shuffle_token = {
     trustee : string;
     token : string;
+    ?comment : string option;
 } <ocaml field_prefix="tk_">
 
 (** {1 Types related to deleted elections} *)
