@@ -132,9 +132,11 @@ module MakeCombinator (G : GROUP) = struct
       List.map (fun x -> x, ref true) partial_decryptions
     in
     let check t (x, unchecked) =
-      let r = check t x in
-      if r then unchecked := false;
-      r
+      if !unchecked then (
+        let r = check t x in
+        if r then unchecked := false;
+        r
+      ) else false
     in
     (* compute synthetic factor for each trustee_kind *)
     let factors =
