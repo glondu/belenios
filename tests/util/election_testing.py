@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import re
+import json
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label
@@ -187,6 +188,12 @@ def remove_database_folder():
     shutil.rmtree(os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY), ignore_errors=True)
 
 
+def remove_credentials_files(credential_file_id):
+    if credential_file_id:
+        for extension in [".privcreds", ".pubcreds", ".hashcreds"]:
+            os.remove(credential_file_id + extension)
+
+
 def wait_a_bit():
     if settings.WAIT_TIME_BETWEEN_EACH_STEP > 0:
         time.sleep(settings.WAIT_TIME_BETWEEN_EACH_STEP)
@@ -264,6 +271,19 @@ def election_page_url_to_election_id(election_page_url):
     return election_uuid
 
 
+def admin_election_draft_page_url_to_election_id(election_page_url):
+    """
+    From an election page URL like `http://localhost:8001/draft/credentials?token=k3GDN78v16etPW&uuid=3YbExvoPyAyujZ`, we extract its UUID like `3YbExvoPyAyujZ`.
+    """
+    election_uuid = None
+    match = re.search(r'uuid=(.+)$', election_page_url)
+    if match:
+        election_uuid = match.group(1)
+    else:
+        raise Exception("Could not extract UUID from this election page URL: ", election_page_url)
+    return election_uuid
+
+
 def verify_election_consistency(election_id, snapshot_folder=None):
     """
     :param snapshot_folder: Optional parameter. If provided, it will verify consistency of differences (evolution) between this snapshot folder and current election database folder
@@ -288,6 +308,91 @@ def verify_election_consistency(election_id, snapshot_folder=None):
         running_process.kill()
         outs, errs = running_process.communicate()
         raise Exception("Error: Verification took longer than " + process_timeout + " seconds. STDOUT was: " + outs + " STDERR was:" + errs)
+
+
+def belenios_tool_generate_credentials(election_id, number_of_voters=None):
+    """
+    Use local CLI belenios-tool to generate a number of credentials corresponding to the number of voters. Example:
+    ```
+    ./_build/belenios-tool credgen --uuid dmGuNVL1meanZt --group ./demo/groups/default.json --count 5
+    5 private credentials with ids saved to ./1579802689.privcreds
+    5 public credentials saved to ./1579802689.pubcreds
+    5 hashed public credentials with ids saved to ./1579802689.hashcreds
+    ```
+    """
+
+    if not number_of_voters:
+        number_of_voters = settings.NUMBER_OF_INVITED_VOTERS
+    generated_files_destination_folder = settings.GIT_REPOSITORY_ABSOLUTE_PATH
+    belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
+    crypto_group_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "demo/groups/default.json")
+    command = [belenios_tool_path, "credgen", "--uuid", election_id, "--group", crypto_group_path, "--count", str(number_of_voters)]
+    running_process = subprocess.Popen(command, cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    process_timeout = 15 * number_of_voters # seconds
+    credential_file_id = None
+    try:
+        outs, errs = running_process.communicate(timeout=process_timeout) # It looks like all output of this program is in stderr
+        match = re.search(r'private credentials with ids saved to \./(.+)\.privcreds', outs, re.MULTILINE)
+        if match:
+            assert match
+            console_log("Credentials have been generated successfully")
+            credential_file_id = match.group(1)
+        else:
+            raise Exception("Error: Credentials generation went wrong. STDOUT was: " + outs + " STDERR was:" + errs)
+    except subprocess.TimeoutExpired:
+        running_process.kill()
+        outs, errs = running_process.communicate()
+        raise Exception("Error: Credentials generation took longer than " + process_timeout + " seconds. STDOUT was: " + outs + " STDERR was:" + errs)
+    return os.path.join(generated_files_destination_folder, credential_file_id)
+
+
+def belenios_tool_generate_ballots(voters_data, global_credential_file_id, vote_page_url):
+    generated_files_destination_folder = settings.GIT_REPOSITORY_ABSOLUTE_PATH # TODO: generate a temporary folder and remove it after load test has run
+    belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
+
+    i = 0
+    for k, v in voters_data.items():
+        i += 1
+        # Extract voter private credential from global private credentials file (it corresponds to row `i` in the file) and write it to its own file
+        voter_credential_file = os.path.join(generated_files_destination_folder, "voter_row_" + str(i) + "_privcred.txt")
+        command = "tail -n +" + str(i) + " " + global_credential_file_id + ".privcreds | head -n 1 | cut -d' ' -f2 > " + voter_credential_file
+        running_process = subprocess.Popen(command, cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
+        process_timeout = 15 # seconds
+        try:
+            outs, errs = running_process.communicate(timeout=process_timeout)
+        except subprocess.TimeoutExpired:
+            running_process.kill()
+            outs, errs = running_process.communicate()
+            raise Exception("Error: Extraction of voter private credential from global private credentials file took longer than " + str(process_timeout) + " seconds. STDOUT was: " + outs + " STDERR was:" + errs)
+
+        # Write array of voter's answers to questions in a file: This is his non-encrypted ballot, written as a JSON array where each element is the answer to the `i`th question. This answer is itself an array of zeros or ones depending on whether voter checked or not the checkbox corresponding to this answer.
+        voter_uncrypted_ballot_file = os.path.join(generated_files_destination_folder, "voter_row_" + str(i) + "_uncrypted_ballot.json")
+        voter_uncrypted_ballot_content = json.dumps(convert_voter_votes_to_json_uncrypted_ballot(v))
+        console_log("voter_uncrypted_ballot_file:", voter_uncrypted_ballot_file)
+        try:
+            with open(voter_uncrypted_ballot_file, 'w') as myfile:
+                myfile.write(voter_uncrypted_ballot_content)
+        except:
+            raise Exception("Error: Could not write voter's answers (his uncrypted ballot) to a file")
+
+        # Execute belenios-tool to generate a vote ballot for voter
+        voter_crypted_ballot_file = "voter_row_" + str(i) + "_crypted_ballot.json"
+        command = [belenios_tool_path, "vote", "--url", vote_page_url, "--privcred", voter_credential_file, "--ballot", voter_uncrypted_ballot_file, ">", voter_crypted_ballot_file]
+        running_process = subprocess.Popen(" ".join(command), cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
+        process_timeout = 30 # seconds
+        try:
+            outs, errs = running_process.communicate(timeout=process_timeout)
+        except subprocess.TimeoutExpired:
+            running_process.kill()
+            outs, errs = running_process.communicate()
+            raise Exception("Error: Generation of voter's encrypted ballot file took longer than " + str(process_timeout) + " seconds. STDOUT was: " + outs + " STDERR was:" + errs)
+
+
+def convert_voter_votes_to_json_uncrypted_ballot(voter):
+    answer1 = 1 if voter["votes"]["question1"]["answer1"] is True else 0
+    answer2 = 1 if voter["votes"]["question1"]["answer2"] is True else 0
+    return [[answer1, answer2]]
+
 
 
 def create_election_data_snapshot(election_id):

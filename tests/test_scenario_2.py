@@ -225,6 +225,10 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         # She reads the private credentials file (creds.txt) and sends credential emails to voters
         # TODO: Should we check that creds.txt contains the exact same voters email addresses as the ones that admin has added?
         private_credentials_file_path = self.credential_authority_file_paths["private credentials"]
+        self.credential_authority_sends_credentials_to_voters_from_credentials_file(private_credentials_file_path)
+
+
+    def credential_authority_sends_credentials_to_voters_from_credentials_file(self, private_credentials_file_path, voters_email_addresses=None):
         from_email_address = settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS
         subject = "Your credential for election " + settings.ELECTION_TITLE
         content = """You are listed as a voter for the election
@@ -243,16 +247,21 @@ Page of the election: {election_url}
 Note that you are allowed to vote several times.  Only the last vote
 counts."""
         with open(private_credentials_file_path) as myfile:
+            i = 0
             for line in myfile:
+                voter_email_address = None
                 match = re.search(r'^(\S+)\s(\S+)$', line)
                 if match:
-                    voter_email_address = match.group(1)
+                    if voters_email_addresses is not None:
+                        voter_email_address = voters_email_addresses[i]
+                    else:
+                        voter_email_address = match.group(1)
                     voter_private_credential = match.group(2)
                 else:
                     raise Exception("File creds.txt has wrong format")
                 custom_content = content.format(election_title=settings.ELECTION_TITLE, credential=voter_private_credential, election_url=self.election_page_url)
                 self.fake_sent_emails_manager.send_email(from_email_address, voter_email_address, subject, custom_content)
-
+                i += 1
 
     def administrator_invites_trustees(self):
         self.browser = initialize_browser_for_scenario_2()
