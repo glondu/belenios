@@ -460,10 +460,6 @@ let election_draft uuid se () =
         form_contact;
       ]
   in
-  let has_credentials = match se.se_metadata.e_cred_authority with
-    | None -> false
-    | Some _ -> true
-  in
   let auth = match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] -> `Password
     | Some [{auth_system = "dummy"; _}] -> `Dummy
@@ -540,7 +536,7 @@ let election_draft uuid se () =
       ) else (
         div [
           txt "Warning: this will freeze the voter list!";
-          if has_credentials then (
+          if se.se_metadata.e_cred_authority = Some "server" then (
             post_form ~service:election_draft_credentials_server
               (fun () ->
                 [input ~input_type:`Submit ~value:"Generate on server" string]
@@ -979,13 +975,37 @@ let election_draft_threshold_trustees ?token uuid se () =
 
 let election_draft_credential_authority uuid se () =
   let title = "Credentials for election " ^ se.se_questions.t_name in
+  let public_name_form =
+    post_form ~service:election_draft_set_credential_authority
+      (fun name ->
+        let value =
+          match se.se_metadata.e_cred_authority with
+          | Some x -> x
+          | None -> ""
+        in
+        [
+          txt "Public name of the credential authority: ";
+          input ~input_type:`Text ~name ~value string;
+          input ~input_type:`Submit ~value:"Set" string;
+        ]
+      ) uuid
+  in
+  let back =
+    div [
+        a ~service:Web_services.election_draft
+          [txt "Back to election preparation page"] uuid;
+      ]
+  in
   let content = [
+    back;
+    public_name_form;
     div [
       txt "Please send the credential authority the following link:";
     ];
     ul [
       li [
         a
+          ~a:[a_id "credential_authority_link"]
           ~service:election_draft_credentials
           [
             txt @@ rewrite_prefix @@ Eliom_uri.make_string_uri
@@ -1606,9 +1626,14 @@ let election_draft_confirm uuid se () =
        else false, notok "Missing"
     | _ -> ready, ok "Not applicable"
   in
+  let ready, credential_authority =
+    match se.se_metadata.e_cred_authority with
+    | None -> false, notok "Missing"
+    | Some _ -> ready, ok "OK"
+  in
   let ready, credentials =
     if se.se_public_creds_received then
-      ready, ok (if se.se_metadata.e_cred_authority = None then "Received" else "Sent")
+      ready, ok (if se.se_metadata.e_cred_authority = Some "server" then "Sent" else "Received")
     else false, notok "Missing"
   in
   let ready, trustees =
@@ -1667,6 +1692,10 @@ let election_draft_confirm uuid se () =
     tr [
       td [txt "Passwords?"];
       td [passwords];
+    ];
+    tr [
+      td [txt "Credential authority?"];
+      td [credential_authority];
     ];
     tr [
       td [txt "Credentials?"];

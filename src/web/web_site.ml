@@ -540,6 +540,26 @@ let with_draft_election ?(save = true) uuid f =
     )
 
 let () =
+  Any.register ~service:election_draft_set_credential_authority
+    (fun uuid name ->
+      with_draft_election uuid (fun se ->
+          let service = Eliom_service.preapply election_draft_credential_authority uuid in
+          match (
+            match name with
+            | "" -> Ok None
+            | "server" -> Error ("Invalid public name for credential authority!")
+            | x -> Ok (Some x)
+          ) with
+          | Ok e_cred_authority ->
+             se.se_metadata <- {se.se_metadata with e_cred_authority};
+             let msg = "The public name of the credential authority has been set successfully!" in
+             T.generic_page ~title:"Success" ~service msg () >>= Html.send
+          | Error msg ->
+             T.generic_page ~title:"Error" ~service msg () >>= Html.send
+        )
+    )
+
+let () =
   Any.register ~service:election_draft_languages
     (fun uuid languages ->
       with_draft_election uuid (fun se ->
@@ -930,7 +950,6 @@ let handle_credentials_post uuid token creds =
          )
     | None -> return_unit
   in
-  let () = se.se_metadata <- {se.se_metadata with e_cred_authority = None} in
   let () = se.se_public_creds_received <- true in
   let%lwt () = Web_persist.set_draft_election uuid se in
   T.generic_page ~title:"Success"

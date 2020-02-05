@@ -49,6 +49,7 @@ let election_draft_voters_passwd = create_attached_post ~fallback:election_draft
 let election_draft_trustee_add = create_attached_post ~fallback:election_draft ~post_params:(string "id" ** string "comment") ()
 let election_draft_trustee_del = create_attached_post ~fallback:election_draft ~post_params:(int "index") ()
 let election_draft_credential_authority = create ~path:(Path ["draft"; "credential-authority"]) ~meth:(Get (uuid "uuid")) ()
+let election_draft_set_credential_authority = create_attached_post ~fallback:election_draft_credential_authority ~post_params:(string "name") ()
 let election_draft_credentials = create ~path:(Path ["draft"; "credentials"]) ~meth:(Get uuid_and_token) ()
 let election_draft_credentials_post = create ~path:(Path ["draft"; "submit-credentials"]) ~meth:(Post (uuid_and_token, string "public_creds")) ()
 let election_draft_credentials_post_file = create ~path:(Path ["draft"; "submit-credentials-file"]) ~meth:(Post (uuid_and_token, file "public_creds")) ()

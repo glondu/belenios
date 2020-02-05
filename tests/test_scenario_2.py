@@ -152,8 +152,27 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
 
         wait_a_bit()
 
+        # She fills in her public name, then clicks on "Set"
+        credential_authority_css_selector = "#main form input[name=__co_eliom_name]"
+        credential_authority_element = wait_for_element_exists(browser, credential_authority_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        credential_authority_element.clear()
+        credential_authority_element.send_keys("Cecily");
+        credential_authority_set_css_selector = "#main form input[type=submit]"
+        credential_authority_set_element = browser.find_element_by_css_selector(credential_authority_set_css_selector)
+        credential_authority_set_element.click()
+
+        wait_a_bit()
+
+        # She clicks on the "Proceed" link
+        proceed_link_expected_label = "Proceed"
+        proceed_link_css_selector = "#main a"
+        proceed_link_element = wait_for_element_exists_and_contains_expected_text(browser, proceed_link_css_selector, proceed_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        proceed_link_element.click()
+
+        wait_a_bit()
+
         # She remembers the link displayed
-        link_for_credential_authority_css_selector = "#main a"
+        link_for_credential_authority_css_selector = "#credential_authority_link"
         link_for_credential_authority_element = wait_for_element_exists_and_has_non_empty_content(browser, link_for_credential_authority_css_selector)
         link_label = link_for_credential_authority_element.get_attribute('innerText').strip()
         self.credential_authority_link = link_label
