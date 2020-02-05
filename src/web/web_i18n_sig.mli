@@ -84,7 +84,6 @@ module type LocalizedStrings = sig
   val audit_data : string
   val parameters : string
   val public_credentials : string
-  val trustee_public_keys : string
   val ballots : string
   val election_server : string
   val accepted_ballots : string
@@ -106,9 +105,6 @@ module type LocalizedStrings = sig
   val please_enable_them : string
   val election_currently_closed : string
   val election_closed_being_tallied : string
-  val the : string
-  val encrypted_tally : string
-  val hash_is : string
   val election_has_been_tallied : string
   val election_archived : string
   val number_accepted_ballots : string
