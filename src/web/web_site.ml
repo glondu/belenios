@@ -1452,34 +1452,6 @@ let () =
   )
 
 let () =
-  Any.register ~service:election_update_credential
-    (fun uuid () ->
-      with_site_user (fun u ->
-          let%lwt w = find_election uuid in
-          let%lwt metadata = Web_persist.get_election_metadata uuid in
-          if metadata.e_owner = Some u then (
-            T.update_credential w () >>= Html.send
-          ) else forbidden ()
-        )
-    )
-
-let () =
-  Any.register ~service:election_update_credential_post
-    (fun uuid (old, new_) ->
-      with_site_user (fun u ->
-          let%lwt metadata = Web_persist.get_election_metadata uuid in
-          if metadata.e_owner = Some u then (
-            match%lwt Web_persist.replace_credential uuid old new_ with
-            | () -> String.send ("OK", "text/plain")
-            | exception BeleniosWebError e ->
-               let%lwt lang = Eliom_reference.get Web_state.language in
-               let l = Web_i18n.get_lang lang in
-               String.send ("Error: " ^ explain_error l e, "text/plain")
-          ) else forbidden ()
-        )
-    )
-
-let () =
   Any.register ~service:election_vote
     (fun () () ->
       let%lwt () = Eliom_reference.unset Web_state.ballot in

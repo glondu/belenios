@@ -660,25 +660,6 @@ let add_credential_mapping uuid cred mapping =
   credential_mappings_cache#add uuid xs;
   dump_credential_mappings uuid xs
 
-let replace_credential uuid old_ new_ =
-  let%lwt xs = credential_mappings_cache#find uuid in
-  let old_cred =
-    StringMap.fold (fun k v accu ->
-        if sha256_hex k = old_ then (
-          match v with
-          | Some _ -> raise (BeleniosWebError UsedCredential)
-          | None -> Some k
-        ) else accu
-      ) xs None
-  in
-  match old_cred with
-  | None -> fail CredentialNotFound
-  | Some old_cred ->
-     let xs = StringMap.remove old_cred xs in
-     let xs = StringMap.add new_ None xs in
-     credential_mappings_cache#add uuid xs;
-     dump_credential_mappings uuid xs
-
 let do_cast_ballot election ~rawballot ~user date =
   let module E = (val election : ELECTION) in
   let uuid = E.election.e_params.e_uuid in

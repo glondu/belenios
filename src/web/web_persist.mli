@@ -98,6 +98,5 @@ val append_to_shuffles : uuid -> string -> string option Lwt.t
 val has_voted : uuid -> user -> bool Lwt.t
 
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
-val replace_credential : uuid -> string -> string -> unit Lwt.t
 
 val cast_ballot : uuid -> rawballot:string -> user:string -> datetime -> (string * bool, cast_error) result Lwt.t

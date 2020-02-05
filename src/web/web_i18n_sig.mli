@@ -148,7 +148,5 @@ module type LocalizedStrings = sig
   val error_RevoteNotAllowed : string
   val error_ReusedCredential : string
   val error_WrongCredential : string
-  val error_UsedCredential : string
-  val error_CredentialNotFound : string
   val error_UnauthorizedVoter : string
 end

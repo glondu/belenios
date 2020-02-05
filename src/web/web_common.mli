@@ -38,8 +38,6 @@ type cast_error =
 
 type error =
   | ElectionClosed
-  | UsedCredential
-  | CredentialNotFound
   | UnauthorizedVoter
   | CastError of cast_error
 

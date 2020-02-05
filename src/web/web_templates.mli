@@ -53,7 +53,6 @@ val election_draft_confirm : uuid -> draft_election -> unit -> [> `Html ] Eliom_
 
 val election_home : 'a election -> election_state -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val election_admin : ?shuffle_token:string -> ?tally_token:string -> 'a election -> Web_serializable_j.metadata -> election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val update_credential : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_confirmation : 'a election -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

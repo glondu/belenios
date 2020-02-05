@@ -66,8 +66,6 @@ type cast_error =
 
 type error =
   | ElectionClosed
-  | UsedCredential
-  | CredentialNotFound
   | UnauthorizedVoter
   | CastError of cast_error
 
@@ -79,8 +77,6 @@ let explain_error l e =
   let module L = (val l : Web_i18n_sig.LocalizedStrings) in
   match e with
   | ElectionClosed -> L.error_ElectionClosed
-  | UsedCredential -> L.error_UsedCredential
-  | CredentialNotFound -> L.error_CredentialNotFound
   | UnauthorizedVoter -> L.error_UnauthorizedVoter
   | CastError (ECastSerialization e) -> Printf.sprintf L.error_Serialization (Printexc.to_string e)
   | CastError ECastProofCheck -> L.error_ProofCheck

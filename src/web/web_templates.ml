@@ -2472,15 +2472,6 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
           ) uuid;
       ]
   in
-  let update_credential =
-    match metadata.e_cred_authority with
-    | Some "server" ->
-       txt ""
-    | _ ->
-       div [
-         a ~service:election_update_credential [txt "Update a credential"] uuid;
-       ];
-  in
   let cas = match metadata.e_auth_config with
     | Some [{auth_system = "cas"; _}] -> true
     | _ -> false
@@ -2497,7 +2488,6 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
     div [
       a ~service:Web_services.election_home [txt "Election home"] (uuid, ());
     ];
-    update_credential;
     div [
       a ~service:election_dir [txt "Voter list"] (uuid, ESVoters);
     ];
@@ -2515,47 +2505,6 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   ] in
   let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ()
-
-let update_credential election () =
-  let params = election.e_params in
-  let uuid = params.e_uuid in
-  let form = post_form ~service:election_update_credential_post
-    (fun (old, new_) ->
-      [
-        div [
-          p [
-            txt "\
-              This form allows you to change a single credential at \
-              a time. To get the hash of a credential, run the \
-              following command:\
-            ";
-          ];
-          pre [
-            txt "printf old-credential | sha256sum";
-          ];
-          p [
-            txt "In the above command, ";
-            code [txt "old-credential"];
-            txt " should look like a big number written in base 10.";
-          ];
-        ];
-        p [
-          txt "Hash of the old credential: ";
-          input ~name:old ~input_type:`Text ~a:[a_size 64] string;
-        ];
-        p [
-          txt "New credential: ";
-          input ~name:new_ ~input_type:`Text ~a:[a_size 617] string;
-        ];
-        p [input ~input_type:`Submit ~value:"Submit" string];
-      ]
-    ) uuid
-  in
-  let content = [
-    form;
-  ] in
-  let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
-  base ~title:params.e_name ~login_box ~content ~uuid ()
 
 let regenpwd uuid () =
   let form = post_form ~service:election_regenpwd_post
