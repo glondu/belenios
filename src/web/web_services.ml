@@ -117,8 +117,8 @@ let election_tally_release = create_attached_post ~fallback:election_admin ~post
 
 let election_dir = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** election_file "file"))) ()
 
-let dummy_post = create ~path:No_path ~meth:(Post (unit, string "username")) ()
-let password_post = create ~path:No_path ~meth:(Post (unit, string "username" ** string "password")) ()
+let dummy_post = create ~path:No_path ~meth:(Post (unit, string "state" ** string "username")) ()
+let password_post = create ~path:No_path ~meth:(Post (unit, string "state" ** string "username" ** string "password")) ()
 
 let set_language = create ~path:No_path ~meth:(Get (string "lang" ** site_cont "cont")) ()
 

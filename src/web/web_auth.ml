@@ -34,28 +34,32 @@ let scope = Eliom_common.default_session_scope
 
 let auth_env = Eliom_reference.eref ~scope None
 
-let run_post_login_handler auth_system f =
+let run_post_login_handler ~auth_system ~state f =
   match%lwt Eliom_reference.get auth_env with
   | None -> Printf.ksprintf failwith "%s handler was invoked without environment" auth_system
-  | Some (uuid, a, cont) ->
-     let authenticate name =
-       let%lwt () = Eliom_reference.unset auth_env in
-       let user = { user_domain = a.auth_instance; user_name = name } in
-       match uuid with
-       | None -> Eliom_reference.set Web_state.site_user (Some user)
-       | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
-     in
-     let%lwt () = f uuid a authenticate in
-     cont ()
+  | Some (uuid, a, cont, st) ->
+     if auth_system = a.auth_system && st = state then
+       let authenticate name =
+         let%lwt () = Eliom_reference.unset auth_env in
+         let user = { user_domain = a.auth_instance; user_name = name } in
+         match uuid with
+         | None -> Eliom_reference.set Web_state.site_user (Some user)
+         | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
+       in
+       let%lwt () = f uuid a authenticate in
+       cont ()
+     else
+       fail_http 401
 
-type pre_login_handler = auth_config -> result Lwt.t
+type pre_login_handler = auth_config -> state:string -> result Lwt.t
 
 let pre_login_handlers = ref []
 
 let get_pre_login_handler uuid cont a =
-  let%lwt () = Eliom_reference.set auth_env (Some (uuid, a, cont)) in
+  let%lwt state = generate_token () in
+  let%lwt () = Eliom_reference.set auth_env (Some (uuid, a, cont, state)) in
   match List.assoc_opt a.auth_system !pre_login_handlers with
-  | Some handler -> handler a
+  | Some handler -> handler a ~state
   | None -> fail_http 404
 
 let register_pre_login_handler auth_system handler =

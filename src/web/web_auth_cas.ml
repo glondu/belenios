@@ -32,15 +32,14 @@ let cas_server = Eliom_reference.eref ~scope None
 
 let login_cas = Eliom_service.create
   ~path:(Eliom_service.Path ["auth"; "cas"])
-  ~meth:(Eliom_service.Get Eliom_parameter.(opt (string "ticket")))
+  ~meth:(Eliom_service.Get Eliom_parameter.(string "state" ** opt (string "ticket")))
   ()
 
-let cas_self =
-  (* lazy so rewrite_prefix is called after server initialization *)
-  lazy (Eliom_uri.make_string_uri
-          ~absolute:true
-          ~service:(preapply login_cas None)
-          () |> rewrite_prefix)
+let cas_self ~state =
+  Eliom_uri.make_string_uri
+    ~absolute:true
+    ~service:(preapply login_cas (state, None))
+    () |> rewrite_prefix
 
 let parse_cas_validation info =
   match next_lf info 0 with
@@ -54,7 +53,7 @@ let parse_cas_validation info =
      | _ -> `Error `Parsing)
   | None -> `Error `Parsing
 
-let get_cas_validation server ticket =
+let get_cas_validation server ~state ticket =
   let url =
     let cas_validate = Eliom_service.extern
       ~prefix:server
@@ -62,7 +61,7 @@ let get_cas_validation server ticket =
       ~meth:(Eliom_service.Get Eliom_parameter.(string "service" ** string "ticket"))
       ()
     in
-    let service = preapply cas_validate (Lazy.force cas_self, ticket) in
+    let service = preapply cas_validate (cas_self ~state, ticket) in
     Eliom_uri.make_string_uri ~absolute:true ~service ()
   in
   let%lwt reply = Ocsigen_http_client.get_url url in
@@ -73,8 +72,9 @@ let get_cas_validation server ticket =
      return (parse_cas_validation info)
   | None -> return (`Error `Http)
 
-let cas_handler ticket () =
-  Web_auth.run_post_login_handler "cas" (fun _ _ authenticate ->
+let cas_handler (state, ticket) () =
+  Web_auth.run_post_login_handler ~auth_system:"cas" ~state
+    (fun _ _ authenticate ->
       match ticket with
       | Some x ->
          let%lwt server =
@@ -82,7 +82,7 @@ let cas_handler ticket () =
            | None -> failwith "cas handler was invoked without a server"
            | Some x -> return x
          in
-         (match%lwt get_cas_validation server x with
+         (match%lwt get_cas_validation server ~state x with
           | `Yes (Some name) -> authenticate name
           | `No -> fail_http 401
           | `Yes None | `Error _ -> fail_http 502
@@ -92,7 +92,7 @@ let cas_handler ticket () =
 
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler
 
-let cas_login_handler a =
+let cas_login_handler a ~state =
   match List.assoc_opt "server" a.Web_serializable_t.auth_config with
   | Some server ->
      let%lwt () = Eliom_reference.set cas_server (Some server) in
@@ -102,7 +102,7 @@ let cas_login_handler a =
        ~meth:(Eliom_service.Get Eliom_parameter.(string "service"))
        ()
      in
-     let service = preapply cas_login (Lazy.force cas_self) in
+     let service = preapply cas_login (cas_self ~state) in
      Eliom_registration.(Redirection.send (Redirection service))
   | _ -> failwith "cas_login_handler invoked with bad config"
 

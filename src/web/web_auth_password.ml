@@ -43,8 +43,9 @@ let check_password_with_file db name password =
        return_none
   | _ -> return_none
 
-let password_handler () (name, password) =
-  Web_auth.run_post_login_handler "password" (fun uuid a authenticate ->
+let password_handler () (state, (name, password)) =
+  Web_auth.run_post_login_handler ~auth_system:"password" ~state
+    (fun uuid a authenticate ->
       let%lwt ok =
         match uuid with
         | None ->
@@ -153,9 +154,9 @@ let change_password user ~password =
 
 let () =
   Web_auth.register_pre_login_handler "password"
-    (fun { auth_config; auth_instance = service; _ } ->
+    (fun { auth_config; auth_instance = service; _ } ~state ->
       let allowsignups = does_allow_signups auth_config in
-      Web_templates.login_password ~service ~allowsignups >>= Eliom_registration.Html.send
+      Web_templates.login_password ~service ~allowsignups ~state >>= Eliom_registration.Html.send
     )
 
 let lookup_account ~service ~username ~email =
