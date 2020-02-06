@@ -419,7 +419,7 @@ def delete_election_data_snapshot(snapshot_folder):
 
 def log_in_as_administrator(browser, from_a_login_page=False):
     if from_a_login_page:
-        local_login_link_label = "local"
+        local_login_link_label = settings.LOGIN_MODE
         local_login_link_element = wait_for_an_element_with_partial_link_text_exists(browser, local_login_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
         local_login_link_element.click()
     else:
@@ -442,7 +442,7 @@ def log_in_as_administrator(browser, from_a_login_page=False):
             button_elements[0].click()
 
         # She clicks on "local" to go to the login page
-        login_link_css_selector = "#login_local"
+        login_link_css_selector = "#login_" + settings.LOGIN_MODE
         login_element = wait_for_element_exists(browser, login_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         login_element.click()
 

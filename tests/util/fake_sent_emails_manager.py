@@ -23,6 +23,12 @@ class FakeSentEmailsManager:
             count = file.read().count(text)
         return count
 
+    def count_lines(self):
+        with open(self.log_file_path) as f:
+            for i, l in enumerate(f):
+                pass
+        return i + 1
+
 
     def separate_sent_emails(self):
         """
