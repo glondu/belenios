@@ -26,10 +26,6 @@ open Web_common
 let next_lf str i =
   String.index_from_opt str i '\n'
 
-let scope = Eliom_common.default_session_scope
-
-let cas_server = Eliom_reference.eref ~scope None
-
 let login_cas = Eliom_service.create
   ~path:(Eliom_service.Path ["auth"; "cas"])
   ~meth:(Eliom_service.Get Eliom_parameter.(string "state" ** opt (string "ticket")))
@@ -74,20 +70,16 @@ let get_cas_validation server ~state ticket =
 
 let cas_handler (state, ticket) () =
   Web_auth.run_post_login_handler ~auth_system:"cas" ~state
-    (fun _ _ authenticate ->
-      match ticket with
-      | Some x ->
-         let%lwt server =
-           match%lwt Eliom_reference.get cas_server with
-           | None -> failwith "cas handler was invoked without a server"
-           | Some x -> return x
-         in
+    (fun _ a authenticate ->
+      match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
+      | Some x, Some server ->
          (match%lwt get_cas_validation server ~state x with
           | `Yes (Some name) -> authenticate name
           | `No -> fail_http 401
           | `Yes None | `Error _ -> fail_http 502
          )
-      | None -> Eliom_reference.unset cas_server
+      | None, _ -> return_unit
+      | _, None -> fail_http 503
     )
 
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler
@@ -95,7 +87,6 @@ let () = Eliom_registration.Any.register ~service:login_cas cas_handler
 let cas_login_handler a ~state =
   match List.assoc_opt "server" a.Web_serializable_t.auth_config with
   | Some server ->
-     let%lwt () = Eliom_reference.set cas_server (Some server) in
      let cas_login = Eliom_service.extern
        ~prefix:server
        ~path:["login"]
