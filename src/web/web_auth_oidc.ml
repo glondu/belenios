@@ -72,24 +72,23 @@ let oidc_get_name ocfg client_id client_secret code =
   | None -> return_none
 
 let oidc_handler params () =
-  Web_auth.run_post_login_handler "oidc" (fun _ _ authenticate ->
-      let code = List.assoc_opt "code" params in
-      let state = List.assoc_opt "state" params in
-      match code, state with
-      | Some code, Some state ->
-         let%lwt ocfg, client_id, client_secret, st =
+  let code = List.assoc_opt "code" params in
+  let state = List.assoc_opt "state" params in
+  match code, state with
+  | Some code, Some state ->
+     Web_auth.run_post_login_handler ~auth_system:"oidc" ~state
+       (fun _ _ authenticate ->
+         let%lwt ocfg, client_id, client_secret =
            match%lwt Eliom_reference.get oidc_state with
            | None -> failwith "oidc handler was invoked without a state"
            | Some x -> return x
          in
          let%lwt () = Eliom_reference.unset oidc_state in
-         if state <> st then fail_http 401 else
-           (match%lwt oidc_get_name ocfg client_id client_secret code with
-            | Some name -> authenticate name
-            | None -> fail_http 401
-           )
-      | _, _ -> return_unit
-    )
+         match%lwt oidc_get_name ocfg client_id client_secret code with
+         | Some name -> authenticate name
+         | None -> fail_http 401
+       )
+  | _, _ -> fail_http 401
 
 let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler
 
@@ -108,13 +107,12 @@ let split_prefix_path url =
   let i = String.rindex url '/' in
   String.sub url 0 i, [String.sub url (i+1) (n-i-1)]
 
-let oidc_login_handler a =
+let oidc_login_handler a ~state =
   let get x = List.assoc_opt x a.auth_config in
   match get "server", get "client_id", get "client_secret" with
   | Some server, Some client_id, Some client_secret ->
      let%lwt ocfg = get_oidc_configuration server in
-     let%lwt state = generate_token () in
-     let%lwt () = Eliom_reference.set oidc_state (Some (ocfg, client_id, client_secret, state)) in
+     let%lwt () = Eliom_reference.set oidc_state (Some (ocfg, client_id, client_secret)) in
      let prefix, path = split_prefix_path ocfg.authorization_endpoint in
      let auth_endpoint = Eliom_service.extern ~prefix ~path
        ~meth:(Eliom_service.Get Eliom_parameter.(string "redirect_uri" **

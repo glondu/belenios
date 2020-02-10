@@ -23,13 +23,13 @@ open Lwt
 
 let () =
   Eliom_registration.Any.register ~service:Web_services.dummy_post
-    (fun () name ->
-      Web_auth.run_post_login_handler "dummy"
+    (fun () (state, name) ->
+      Web_auth.run_post_login_handler ~auth_system:"dummy" ~state
         (fun _ _ authenticate -> authenticate name)
     )
 
 let () =
   Web_auth.register_pre_login_handler "dummy"
-    (fun _ ->
-      Web_templates.login_dummy () >>= Eliom_registration.Html.send
+    (fun _ ~state ->
+      Web_templates.login_dummy ~state >>= Eliom_registration.Html.send
     )

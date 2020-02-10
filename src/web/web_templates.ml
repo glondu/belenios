@@ -3000,13 +3000,14 @@ let login_choose auth_systems service () =
   ] in
   base ~title:"Log in" ~content ()
 
-let login_dummy () =
+let login_dummy ~state =
   let title, field_name, input_type =
     "Dummy login", "Username:", `Text
   in
   let form = post_form ~service:dummy_post
-    (fun name ->
+    (fun (nstate, name) ->
       [
+        input ~input_type:`Hidden ~name:nstate ~value:state string;
         tablex [tbody [
           tr [
             th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name name)] [txt field_name]];
@@ -3023,7 +3024,7 @@ let login_dummy () =
   ] in
   base ~title ~content ()
 
-let login_password ~service ~allowsignups =
+let login_password ~service ~allowsignups ~state =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
   let signup =
@@ -3039,8 +3040,9 @@ let login_password ~service ~allowsignups =
     else txt ""
   in
   let form = post_form ~service:password_post
-    (fun (llogin, lpassword) ->
+    (fun (lstate, (llogin, lpassword)) ->
       [
+        input ~input_type:`Hidden ~name:lstate ~value:state string;
         tablex [tbody [
           tr [
             th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [txt L.username]];
