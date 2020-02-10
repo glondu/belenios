@@ -454,7 +454,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
     wait_a_bit()
 
     # In "Contact" section, she changes the value of "contact" field
-    election_contact_field_css_selector = "#main form input[name=__co_eliom_contact]"
+    election_contact_field_css_selector = "#form_contact input[name=__co_eliom_contact]"
     election_contact_field_element = browser.find_element_by_css_selector(election_contact_field_css_selector)
     election_contact_field_value = initiator_contact
     election_contact_field_element.clear()
@@ -463,9 +463,25 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
     wait_a_bit()
 
     # She clicks on the "Save changes" button (the one that is in the "Contact" section)
-    contact_section_save_changes_button_css_selector = "#main > div:nth-of-type(3) form input[type=submit]" # Warning: form:nth-child(1) selects another form
+    contact_section_save_changes_button_css_selector = "#form_contact input[type=submit]"
     contact_section_save_changes_button_element = browser.find_element_by_css_selector(contact_section_save_changes_button_css_selector)
     contact_section_save_changes_button_element.click()
+
+    wait_a_bit()
+
+    # In "Public name of the administrator" section, she changes the value of "name" field
+    admin_name_field_css_selector = "#form_admin_name input[name=__co_eliom_name]"
+    admin_name_field_element = browser.find_element_by_css_selector(admin_name_field_css_selector)
+    admin_name_field_value = "Election initiator"
+    admin_name_field_element.clear()
+    admin_name_field_element.send_keys(admin_name_field_value)
+
+    wait_a_bit()
+
+    # She clicks on the "Save changes" button (the one that is in the "Contact" section)
+    admin_name_save_changes_button_css_selector = "#form_admin_name input[type=submit]"
+    admin_name_save_changes_button_element = browser.find_element_by_css_selector(admin_name_save_changes_button_css_selector)
+    admin_name_save_changes_button_element.click()
 
     wait_a_bit()
 

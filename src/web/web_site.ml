@@ -419,6 +419,7 @@ let create_new_election owner cred auth =
     e_languages = Some ["en"; "fr"];
     e_contact = None;
     e_server_is_trustee = None;
+    e_admin_name = None;
   } in
   let se_questions = {
     t_description = default_description;
@@ -602,6 +603,16 @@ let () =
               se.se_metadata with
               e_contact = contact
             };
+          redir_preapply election_draft uuid ()
+        )
+    )
+
+let () =
+  Any.register ~service:election_draft_admin_name
+    (fun uuid name ->
+      with_draft_election uuid (fun se ->
+          let e_admin_name = if name = "" then None else Some name in
+          se.se_metadata <- {se.se_metadata with e_admin_name};
           redir_preapply election_draft uuid ()
         )
     )

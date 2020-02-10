@@ -433,8 +433,35 @@ let election_draft uuid se () =
       form_description;
     ]
   in
+  let form_admin_name =
+    post_form ~service:election_draft_admin_name ~a:[a_id "form_admin_name"]
+      (fun name ->
+        [
+          div [
+              txt "Public name of the administrator: ";
+              let value =
+                match se.se_metadata.e_admin_name with
+                | Some x -> x
+                | None -> ""
+              in
+              input ~name ~input_type:`Text ~value string;
+            ];
+          div [
+              txt "This name will be published on the election result page.";
+            ];
+          div [
+              input ~input_type:`Submit ~value:"Save changes" string;
+            ];
+        ]) uuid
+  in
+  let div_admin_name =
+    div [
+        h2 [txt "Public name of the administrator"];
+        form_admin_name;
+      ]
+  in
   let form_contact =
-    post_form ~service:election_draft_contact
+    post_form ~service:election_draft_contact ~a:[a_id "form_contact"]
       (fun contact ->
         [
           div [
@@ -575,6 +602,8 @@ let election_draft uuid se () =
   in
   let content = [
     div_description;
+    hr ();
+    div_admin_name;
     hr ();
     div_languages;
     hr ();
@@ -1608,6 +1637,12 @@ let election_draft_confirm uuid se () =
     else
       ready, ok "OK"
   in
+  let ready, admin_name =
+    if se.se_metadata.e_admin_name = None then
+      false, notok "Missing"
+    else
+      ready, ok "OK"
+  in
   let ready, questions =
     if se.se_questions.t_questions = default_questions then
       false, notok "Not edited"
@@ -1681,6 +1716,10 @@ let election_draft_confirm uuid se () =
       td [txt "Description?"];
       td [description];
     ];
+    tr [
+        td [txt "Public name of the administrator?"];
+        td [admin_name];
+      ];
     tr [
       td [txt "Questions?"];
       td [questions; txt " "; preview_booth uuid];

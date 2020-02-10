@@ -42,6 +42,7 @@ let election_draft_preview = create ~path:(Path ["draft"; "preview"]) ~meth:(Get
 let election_draft_description = create_attached_post ~fallback:election_draft ~post_params:(string "name" ** string "description") ()
 let election_draft_languages = create_attached_post ~fallback:election_draft ~post_params:(string "languages") ()
 let election_draft_contact = create_attached_post ~fallback:election_draft ~post_params:(string "contact") ()
+let election_draft_admin_name = create_attached_post ~fallback:election_draft ~post_params:(string "name") ()
 let election_draft_voters = create ~path:(Path ["draft"; "voters"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_voters_add = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voters") ()
 let election_draft_voters_remove = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voter") ()
