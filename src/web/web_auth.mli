@@ -25,9 +25,9 @@ type result = Eliom_registration.Html.result
 
 type pre_login_handler = auth_config -> state:string -> result Lwt.t
 
-val register_pre_login_handler : string -> pre_login_handler -> unit
-
 type post_login_handler =
   uuid option -> auth_config -> (string -> unit Lwt.t) -> unit Lwt.t
 
-val run_post_login_handler : auth_system:string -> state:string -> post_login_handler -> result Lwt.t
+val register_pre_login_handler :
+  auth_system:string -> pre_login_handler ->
+  state:string -> post_login_handler -> result Lwt.t

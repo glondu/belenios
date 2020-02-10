@@ -68,22 +68,6 @@ let get_cas_validation server ~state ticket =
      return (parse_cas_validation info)
   | None -> return (`Error `Http)
 
-let cas_handler (state, ticket) () =
-  Web_auth.run_post_login_handler ~auth_system:"cas" ~state
-    (fun _ a authenticate ->
-      match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
-      | Some x, Some server ->
-         (match%lwt get_cas_validation server ~state x with
-          | `Yes (Some name) -> authenticate name
-          | `No -> fail_http 401
-          | `Yes None | `Error _ -> fail_http 502
-         )
-      | None, _ -> return_unit
-      | _, None -> fail_http 503
-    )
-
-let () = Eliom_registration.Any.register ~service:login_cas cas_handler
-
 let cas_login_handler a ~state =
   match List.assoc_opt "server" a.Web_serializable_t.auth_config with
   | Some server ->
@@ -97,4 +81,21 @@ let cas_login_handler a ~state =
      Eliom_registration.(Redirection.send (Redirection service))
   | _ -> failwith "cas_login_handler invoked with bad config"
 
-let () = Web_auth.register_pre_login_handler "cas" cas_login_handler
+let run_post_login_handler =
+  Web_auth.register_pre_login_handler ~auth_system:"cas" cas_login_handler
+
+let cas_handler (state, ticket) () =
+  run_post_login_handler ~state
+    (fun _ a authenticate ->
+      match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
+      | Some x, Some server ->
+         (match%lwt get_cas_validation server ~state x with
+          | `Yes (Some name) -> authenticate name
+          | `No -> fail_http 401
+          | `Yes None | `Error _ -> fail_http 502
+         )
+      | None, _ -> return_unit
+      | _, None -> fail_http 503
+    )
+
+let () = Eliom_registration.Any.register ~service:login_cas cas_handler

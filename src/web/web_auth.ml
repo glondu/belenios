@@ -62,8 +62,9 @@ let get_pre_login_handler uuid cont a =
   | Some handler -> handler a ~state
   | None -> fail_http 404
 
-let register_pre_login_handler auth_system handler =
-  pre_login_handlers := (auth_system, handler) :: !pre_login_handlers
+let register_pre_login_handler ~auth_system handler =
+  pre_login_handlers := (auth_system, handler) :: !pre_login_handlers;
+  run_post_login_handler ~auth_system
 
 let rec find_auth_instance x = function
   | [] -> None

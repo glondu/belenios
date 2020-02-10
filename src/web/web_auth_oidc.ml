@@ -71,32 +71,6 @@ let oidc_get_name ocfg client_id client_secret code =
     oidc_get_userinfo ocfg info
   | None -> return_none
 
-let oidc_handler params () =
-  let code = List.assoc_opt "code" params in
-  let state = List.assoc_opt "state" params in
-  match code, state with
-  | Some code, Some state ->
-     Web_auth.run_post_login_handler ~auth_system:"oidc" ~state
-       (fun _ a authenticate ->
-         let get x = List.assoc_opt x a.auth_config in
-         match get "client_id", get "client_secret" with
-         | Some client_id, Some client_secret ->
-            let%lwt ocfg =
-              match%lwt Eliom_reference.get oidc_config with
-              | None -> failwith "oidc handler was invoked without discovered configuration"
-              | Some x -> return x
-            in
-            let%lwt () = Eliom_reference.unset oidc_config in
-            (match%lwt oidc_get_name ocfg client_id client_secret code with
-             | Some name -> authenticate name
-             | None -> fail_http 401
-            )
-         | _, _ -> fail_http 503
-       )
-  | _, _ -> fail_http 401
-
-let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler
-
 let get_oidc_configuration server =
   let url = server ^ "/.well-known/openid-configuration" in
   let%lwt reply = Ocsigen_http_client.get_url url in
@@ -131,4 +105,31 @@ let oidc_login_handler a ~state =
      Eliom_registration.(Redirection.send (Redirection service))
   | _ -> failwith "oidc_login_handler invoked with bad config"
 
-let () = Web_auth.register_pre_login_handler "oidc" oidc_login_handler
+let run_post_login_handler =
+  Web_auth.register_pre_login_handler ~auth_system:"oidc" oidc_login_handler
+
+let oidc_handler params () =
+  let code = List.assoc_opt "code" params in
+  let state = List.assoc_opt "state" params in
+  match code, state with
+  | Some code, Some state ->
+     run_post_login_handler ~state
+       (fun _ a authenticate ->
+         let get x = List.assoc_opt x a.auth_config in
+         match get "client_id", get "client_secret" with
+         | Some client_id, Some client_secret ->
+            let%lwt ocfg =
+              match%lwt Eliom_reference.get oidc_config with
+              | None -> failwith "oidc handler was invoked without discovered configuration"
+              | Some x -> return x
+            in
+            let%lwt () = Eliom_reference.unset oidc_config in
+            (match%lwt oidc_get_name ocfg client_id client_secret code with
+             | Some name -> authenticate name
+             | None -> fail_http 401
+            )
+         | _, _ -> fail_http 503
+       )
+  | _, _ -> fail_http 401
+
+let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler

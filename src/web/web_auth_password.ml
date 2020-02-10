@@ -43,8 +43,20 @@ let check_password_with_file db name password =
        return_none
   | _ -> return_none
 
+let does_allow_signups c =
+  match List.assoc_opt "allowsignups" c with
+  | Some x -> bool_of_string x
+  | None -> false
+
+let run_post_login_handler =
+  Web_auth.register_pre_login_handler ~auth_system:"password"
+    (fun { auth_config; auth_instance = service; _ } ~state ->
+      let allowsignups = does_allow_signups auth_config in
+      Web_templates.login_password ~service ~allowsignups ~state >>= Eliom_registration.Html.send
+    )
+
 let password_handler () (state, (name, password)) =
-  Web_auth.run_post_login_handler ~auth_system:"password" ~state
+  run_post_login_handler ~state
     (fun uuid a authenticate ->
       let%lwt ok =
         match uuid with
@@ -65,11 +77,6 @@ let password_handler () (state, (name, password)) =
     )
 
 let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler
-
-let does_allow_signups c =
-  match List.assoc_opt "allowsignups" c with
-  | Some x -> bool_of_string x
-  | None -> false
 
 let get_password_db_fname service =
   let rec find = function
@@ -151,13 +158,6 @@ let change_password user ~password =
               (do_change_password ~db_fname ~username:user.user_name ~password)
           in return (Ok ())
   ) else return (Error BadSpaceInPassword)
-
-let () =
-  Web_auth.register_pre_login_handler "password"
-    (fun { auth_config; auth_instance = service; _ } ~state ->
-      let allowsignups = does_allow_signups auth_config in
-      Web_templates.login_password ~service ~allowsignups ~state >>= Eliom_registration.Html.send
-    )
 
 let lookup_account ~service ~username ~email =
   let username = String.trim username |> String.lowercase_ascii in
