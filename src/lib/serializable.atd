@@ -133,6 +133,20 @@ type 'a election_result = {
   result : int shape;
 }
 
+(** {2 Election report} *)
+
+type trustee_checksum = {
+  checksum : string;
+  ?comment : string option;
+} <ocaml field_prefix="tc_">
+
+type election_checksums = {
+  election : string;
+  trustees : trustee_checksum list;
+  public_credentials : string;
+  ?shuffles : trustee_checksum list option;
+} <ocaml field_prefix="ec_">
+
 (** {2 PKI support} *)
 
 type signed_msg = {

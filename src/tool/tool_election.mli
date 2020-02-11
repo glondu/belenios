@@ -15,6 +15,7 @@ module type S = sig
   val validate : string list -> string
   val verify : unit -> unit
   val shuffle_ciphertexts : unit -> string
+  val checksums : unit -> string
 end
 
 val make : (module PARAMS) -> (module S)

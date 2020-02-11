@@ -403,6 +403,8 @@ module Election : CMDLINER_MODULE = struct
       | `Shuffle ->
          let s = X.shuffle_ciphertexts () in
          print_endline s
+      | `Checksums ->
+         X.checksums () |> print_endline
       end;
       if cleanup then rm_rf dir
     )
@@ -495,7 +497,26 @@ module Election : CMDLINER_MODULE = struct
     Term.(ret (pure main $ url_t $ optdir_t $ pure `Shuffle)),
     Term.info "shuffle" ~doc ~man
 
-  let cmds = [vote_cmd; verify_cmd; decrypt_cmd; tdecrypt_cmd; validate_cmd; shuffle_cmd]
+  let checksums_cmd =
+    let doc = "compute checksums" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command computes checksums needed to audit an election.";
+      ] @ common_man
+    in
+    Term.(ret (pure main $ url_t $ optdir_t $ pure `Checksums)),
+    Term.info "checksums" ~doc ~man
+
+  let cmds =
+    [
+      vote_cmd;
+      verify_cmd;
+      decrypt_cmd;
+      tdecrypt_cmd;
+      validate_cmd;
+      shuffle_cmd;
+      checksums_cmd
+    ]
 
 end
 

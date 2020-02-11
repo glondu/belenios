@@ -31,3 +31,7 @@ val has_nh_questions : 'a election -> bool
 module Make (W : ELECTION_DATA) (M : RANDOM) :
   ELECTION with type elt = W.G.t and type 'a m = 'a M.t
 (** Implementation of {!Signatures.ELECTION}. *)
+
+val compute_checksums :
+  election:string -> ?result:string -> trustees:string ->
+  public_credentials:string -> Serializable_t.election_checksums

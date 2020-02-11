@@ -41,10 +41,12 @@ module type S = sig
   val validate : string list -> string
   val verify : unit -> unit
   val shuffle_ciphertexts : unit -> string
+  val checksums : unit -> string
 end
 
 module type PARSED_PARAMS = sig
   include PARAMS
+  val election_as_string : string
   include ELECTION_DATA
 end
 
@@ -53,6 +55,7 @@ let parse_params p =
   let params = Election.(get_group (of_string P.election)) in
   let module R = struct
     include P
+    let election_as_string = election
     include (val params : ELECTION_DATA)
   end in
   (module R : PARSED_PARAMS)
@@ -69,8 +72,11 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Load and check trustee keys, if present *)
 
+  let trustees_as_string =
+    get_trustees ()
+
   let trustees =
-    get_trustees () |> Option.map (trustees_of_string G.read)
+    Option.map (trustees_of_string G.read) trustees_as_string
 
   let public_keys_with_pok =
     trustees
@@ -163,9 +169,11 @@ module Make (P : PARSED_PARAMS) : S = struct
            Array.length ballots
       )
 
+  let result_as_string = lazy (get_result ())
+
   let result =
     lazy (
-        get_result ()
+        Lazy.force result_as_string
         |> Option.map (election_result_of_string G.read)
       )
 
@@ -290,6 +298,27 @@ module Make (P : PARSED_PARAMS) : S = struct
     let cc = E.extract_nh_ciphertexts cc in
     let s = E.shuffle_ciphertexts cc in
     string_of_shuffle G.write s
+
+  let checksums () =
+    let election = election_as_string in
+    let result = Lazy.force result_as_string in
+    let trustees =
+      match trustees_as_string with
+      | None -> failwith "missing trustees"
+      | Some x -> x
+    in
+    let public_credentials =
+      match Lazy.force public_creds with
+      | None -> failwith "missing public credentials"
+      | Some public_creds ->
+         !public_creds
+         |> GSet.bindings
+         |> List.map fst
+         |> List.map (fun x -> G.to_string x ^ "\n")
+         |> String.concat ""
+    in
+    Election.compute_checksums ~election ?result ~trustees ~public_credentials
+    |> string_of_election_checksums
 
 end
 
