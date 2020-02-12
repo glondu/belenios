@@ -93,7 +93,7 @@ let validate_election uuid se =
             let module KG = Trustees.MakeSimple (G) (LwtRandom) in
             let%lwt private_key = KG.generate () in
             let%lwt public_key = KG.prove private_key in
-            let public_key = { public_key with trustee_comment = Some "server" } in
+            let public_key = { public_key with trustee_name = Some "server" } in
             return (["server"], [`Single public_key], `KEY private_key)
          | _ :: _ ->
             let private_key =
@@ -111,10 +111,10 @@ let validate_election uuid se =
             return (
                 (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
                 (List.map
-                   (fun {st_public_key; st_comment; _} ->
+                   (fun {st_public_key; st_name; _} ->
                      if st_public_key = "" then failwith "some public keys are missing";
                      let pk = trustee_public_key_of_string G.read st_public_key in
-                     let pk = { pk with trustee_comment = st_comment } in
+                     let pk = { pk with trustee_name = st_name } in
                      `Single pk
                    ) se.se_public_keys),
                 private_key)
@@ -125,12 +125,12 @@ let validate_election uuid se =
        | None -> failwith "key establishment not finished"
        | Some tp ->
           let tp = threshold_parameters_of_string G.read tp in
-          let commented =
+          let named =
             List.combine (Array.to_list tp.t_verification_keys) ts
-            |> List.map (fun (k, t) -> { k with trustee_comment = t.stt_comment })
+            |> List.map (fun (k, t) -> { k with trustee_name = t.stt_name })
             |> Array.of_list
           in
-          let tp = { tp with t_verification_keys = commented } in
+          let tp = { tp with t_verification_keys = named } in
           let trustee_names = List.map (fun {stt_id; _} -> stt_id) ts in
           let private_keys =
             List.map (fun {stt_voutput; _} ->
@@ -879,14 +879,14 @@ let trustee_add_server se =
   let%lwt public_key = K.prove private_key in
   let st_public_key = string_of_trustee_public_key G.write public_key in
   let st_private_key = Some private_key in
-  let st_comment = Some "server" in
-  let trustee = {st_id; st_token; st_public_key; st_private_key; st_comment} in
+  let st_name = Some "server" in
+  let trustee = {st_id; st_token; st_public_key; st_private_key; st_name} in
   se.se_public_keys <- se.se_public_keys @ [trustee];
   return_unit
 
 let () =
   Any.register ~service:election_draft_trustee_add
-    (fun uuid (st_id, comment) ->
+    (fun uuid (st_id, name) ->
       with_draft_election uuid (fun se ->
           let%lwt () =
             if List.exists (fun x -> x.st_id = "server") se.se_public_keys then
@@ -895,8 +895,8 @@ let () =
           in
           if is_email st_id then (
             let%lwt st_token = generate_token () in
-            let st_comment = Some comment in
-            let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None; st_comment} in
+            let st_name = Some name in
+            let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None; st_name} in
             se.se_public_keys <- se.se_public_keys @ [trustee];
             redir_preapply election_draft_trustees uuid ()
           ) else (
@@ -1228,7 +1228,7 @@ let () =
                              let rec loop ts pubs privs accu =
                                match ts, pubs, privs with
                                | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
-                                  let stt_comment = vo_public_key.trustee_comment in
+                                  let stt_name = vo_public_key.trustee_name in
                                   let%lwt stt_token = generate_token () in
                                   let stt_voutput = {vo_public_key; vo_private_key} in
                                   let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
@@ -1236,7 +1236,7 @@ let () =
                                       stt_id; stt_token; stt_voutput;
                                       stt_step = Some 7; stt_cert = None;
                                       stt_polynomial = None; stt_vinput = None;
-                                      stt_comment;
+                                      stt_name;
                                     } in
                                   loop ts pubs privs (stt :: accu)
                                | [], [], [] -> return (List.rev accu)
@@ -1277,8 +1277,8 @@ let () =
                                      return (st_token, None, public_key)
                                    )
                                  in
-                                 let st_comment = public_key.trustee_comment in
-                                 return {st_id; st_token; st_public_key; st_private_key; st_comment})
+                                 let st_name = public_key.trustee_name in
+                                 return {st_id; st_token; st_public_key; st_private_key; st_name})
                         in
                         se.se_public_keys <- ts;
                         redir_preapply election_draft_trustees uuid ()
@@ -1356,7 +1356,7 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
             let shuffle = string_of_shuffle E.G.write shuffle in
             match%lwt Web_persist.append_to_shuffles uuid shuffle with
             | Some h ->
-               let sh = {sh_trustee = "server"; sh_hash = h; sh_comment = Some "server"} in
+               let sh = {sh_trustee = "server"; sh_hash = h; sh_name = Some "server"} in
                Web_persist.add_shuffle_hash uuid sh
             | None ->
                Lwt.fail (Failure (Printf.sprintf "Automatic shuffle by server has failed for election %s!" (raw_string_of_uuid uuid)))
@@ -1899,7 +1899,7 @@ let handle_election_tally_release uuid () =
              | Some x ->
                 let x =
                   x
-                  |> List.map (fun x -> if x.sh_hash = "" then [] else [x.sh_comment])
+                  |> List.map (fun x -> if x.sh_hash = "" then [] else [x.sh_name])
                   |> List.flatten
                 in
                 assert (List.length s = List.length x);
@@ -2059,7 +2059,7 @@ let () =
              (match%lwt Web_persist.append_to_shuffles uuid shuffle with
               | Some h ->
                  let%lwt () = Web_persist.clear_shuffle_token uuid in
-                 let sh = {sh_trustee = x.tk_trustee; sh_hash = h; sh_comment = x.tk_comment} in
+                 let sh = {sh_trustee = x.tk_trustee; sh_hash = h; sh_name = x.tk_name} in
                  let%lwt () = Web_persist.add_shuffle_hash uuid sh in
                  T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
               | None ->
@@ -2071,29 +2071,29 @@ let () =
         )
     )
 
-let extract_comments trustees =
+let extract_names trustees =
   trustees
   |> List.map
        (function
         | `Pedersen x ->
            x.t_verification_keys
            |> Array.to_list
-           |> List.map (fun x -> x.trustee_comment)
-        | `Single x -> [x.trustee_comment]
+           |> List.map (fun x -> x.trustee_name)
+        | `Single x -> [x.trustee_name]
        )
   |> List.flatten
 
-let get_trustee_comments uuid =
+let get_trustee_names uuid =
   let%lwt trustees = Web_persist.get_trustees uuid in
   let trustees = trustees_of_string Yojson.Safe.read_json trustees in
-  return (extract_comments trustees)
+  return (extract_names trustees)
 
-let get_trustee_comment uuid metadata trustee =
+let get_trustee_name uuid metadata trustee =
   match metadata.e_trustees with
   | None -> return_none
   | Some xs ->
-     let%lwt comments = get_trustee_comments uuid in
-     return (List.assoc trustee (List.combine xs comments))
+     let%lwt names = get_trustee_names uuid in
+     return (List.assoc trustee (List.combine xs names))
 
 let () =
   Any.register ~service:election_shuffler_select
@@ -2101,10 +2101,10 @@ let () =
       let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
-          let%lwt comment = get_trustee_comment uuid metadata trustee in
+          let%lwt name = get_trustee_name uuid metadata trustee in
           if metadata.e_owner = Some u then (
             let%lwt () = Web_persist.clear_shuffle_token uuid in
-            let%lwt _ = Web_persist.gen_shuffle_token uuid trustee comment in
+            let%lwt _ = Web_persist.gen_shuffle_token uuid trustee name in
             redir_preapply election_admin uuid ()
           ) else forbidden ()
         )
@@ -2128,10 +2128,10 @@ let () =
       let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
-          let%lwt sh_comment = get_trustee_comment uuid metadata trustee in
+          let%lwt sh_name = get_trustee_name uuid metadata trustee in
           if metadata.e_owner = Some u then (
             let%lwt () = Web_persist.clear_shuffle_token uuid in
-            let sh = {sh_trustee = trustee; sh_hash = ""; sh_comment} in
+            let sh = {sh_trustee = trustee; sh_hash = ""; sh_name} in
             let%lwt () = Web_persist.add_shuffle_hash uuid sh in
             redir_preapply election_admin uuid ()
           ) else forbidden ()
@@ -2196,16 +2196,16 @@ let () =
 
 let () =
   Any.register ~service:election_draft_threshold_trustee_add
-    (fun uuid (stt_id, comment) ->
+    (fun uuid (stt_id, name) ->
       with_draft_election uuid (fun se ->
           if is_email stt_id then (
-            let stt_comment = Some comment in
+            let stt_name = Some name in
             let%lwt stt_token = generate_token () in
             let trustee = {
                 stt_id; stt_token; stt_step = None;
                 stt_cert = None; stt_polynomial = None;
                 stt_vinput = None; stt_voutput = None;
-                stt_comment;
+                stt_name;
               } in
             let trustees =
               match se.se_threshold_trustees with

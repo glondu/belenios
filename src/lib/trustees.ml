@@ -207,7 +207,7 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
     let trustee_public_key = g **~ x in
     let zkp = "pok|" ^ G.to_string trustee_public_key ^ "|" in
     fs_prove [| g |] x (G.hash zkp) >>= fun trustee_pok ->
-    return {trustee_pok; trustee_public_key; trustee_comment = None}
+    return {trustee_pok; trustee_public_key; trustee_name = None}
 
 end
 

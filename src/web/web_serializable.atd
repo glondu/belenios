@@ -107,7 +107,7 @@ type draft_trustee = {
   token : string;
   public_key <ocaml mutable> : string;
   ?private_key : number option;
-  ?comment : string option;
+  ?name : string option;
 } <ocaml field_prefix="st_">
 
 type draft_threshold_trustee = {
@@ -118,7 +118,7 @@ type draft_threshold_trustee = {
   ?polynomial <ocaml mutable> : polynomial option;
   ?vinput <ocaml mutable> : vinput option;
   ?voutput <ocaml mutable> : string option;
-  ?comment : string option;
+  ?name : string option;
 } <ocaml field_prefix="stt_">
 
 type draft_election = {
@@ -143,13 +143,13 @@ type draft_election = {
 type shuffle_hash = {
     trustee : string;
     hash : string;
-    ?comment : string option;
+    ?name : string option;
 } <ocaml field_prefix="sh_">
 
 type shuffle_token = {
     trustee : string;
     token : string;
-    ?comment : string option;
+    ?name : string option;
 } <ocaml field_prefix="tk_">
 
 (** {1 Types related to deleted elections} *)

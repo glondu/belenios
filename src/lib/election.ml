@@ -302,8 +302,8 @@ let compute_checksums ~election ?result ~trustees ~public_credentials =
   let ec_public_credentials = sha256_b64 public_credentials in
   let tc_of_tpk k =
     let tc_checksum = sha256_b64 (Yojson.Safe.to_string k.trustee_public_key) in
-    let tc_comment = k.trustee_comment in
-    {tc_checksum; tc_comment}
+    let tc_name = k.trustee_name in
+    {tc_checksum; tc_name}
   in
   let ec_trustees =
     trustees
@@ -327,7 +327,7 @@ let compute_checksums ~election ?result ~trustees ~public_credentials =
                (fun (shuffle, shuffler) ->
                  let shuffle = string_of_shuffle Yojson.Safe.write_json shuffle in
                  let tc_checksum = sha256_b64 shuffle in
-                 {tc_checksum; tc_comment = shuffler}
+                 {tc_checksum; tc_name = shuffler}
                )
           |> (fun x -> Some x)
        | Some shuffles, None ->
@@ -336,7 +336,7 @@ let compute_checksums ~election ?result ~trustees ~public_credentials =
                (fun shuffle ->
                  let shuffle = string_of_shuffle Yojson.Safe.write_json shuffle in
                  let tc_checksum = sha256_b64 shuffle in
-                 {tc_checksum; tc_comment = None}
+                 {tc_checksum; tc_name = None}
                )
           |> (fun x -> Some x)
        | None, None -> None

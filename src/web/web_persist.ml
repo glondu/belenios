@@ -439,9 +439,9 @@ let get_shuffle_token uuid =
   | Some [x] -> return_some (shuffle_token_of_string x)
   | _ -> return_none
 
-let gen_shuffle_token uuid tk_trustee tk_comment =
+let gen_shuffle_token uuid tk_trustee tk_name =
   let%lwt tk_token = generate_token () in
-  let t = {tk_trustee; tk_token; tk_comment} in
+  let t = {tk_trustee; tk_token; tk_name} in
   let%lwt () = write_file ~uuid "shuffle_token.json" [string_of_shuffle_token t] in
   return t
 

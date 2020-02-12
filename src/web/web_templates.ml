@@ -697,7 +697,7 @@ let election_draft_trustees ?token uuid se () =
                        txt t.st_id;
                      ];
                    td [
-                       match t.st_comment with
+                       match t.st_name with
                        | None -> txt "(not available)"
                        | Some x -> txt x
                      ];
@@ -862,7 +862,7 @@ let election_draft_threshold_trustees ?token uuid se () =
                          txt t.stt_id;
                        ];
                      td [
-                         match t.stt_comment with
+                         match t.stt_name with
                          | None -> txt "(not available)"
                          | Some x -> txt x
                        ];
