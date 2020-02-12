@@ -161,6 +161,8 @@ let validate_election uuid se =
     e_public_key = {wpk_group = G.group; wpk_y = y};
     e_questions = template.t_questions;
     e_uuid = uuid;
+    e_administrator = se.se_administrator;
+    e_credential_authority = metadata.e_cred_authority;
   } in
   let raw_election = string_of_params (write_wrapped_pubkey G.write_group G.write) params in
   (* write election files to disk *)
@@ -240,6 +242,8 @@ let delete_election uuid =
       t_description = "";
       t_name = election.e_params.e_name;
       t_questions = Array.map Question.erase_question election.e_params.e_questions;
+      t_administrator = None;
+      t_credential_authority = None;
     }
   in
   let de_owner = match metadata.e_owner with
@@ -419,12 +423,13 @@ let create_new_election owner cred auth =
     e_languages = Some ["en"; "fr"];
     e_contact = None;
     e_server_is_trustee = None;
-    e_admin_name = None;
   } in
   let se_questions = {
     t_description = default_description;
     t_name = default_name;
     t_questions = default_questions;
+    t_administrator = None;
+    t_credential_authority = None;
   } in
   let se = {
     se_owner = owner;
@@ -440,6 +445,7 @@ let create_new_election owner cred auth =
     se_threshold_parameters = None;
     se_threshold_error = None;
     se_creation_date = Some (now ());
+    se_administrator = None;
   } in
   let%lwt () = Lwt_unix.mkdir (!Web_config.spool_dir / raw_string_of_uuid uuid) 0o700 in
   let%lwt () = Web_persist.set_draft_election uuid se in
@@ -611,8 +617,8 @@ let () =
   Any.register ~service:election_draft_admin_name
     (fun uuid name ->
       with_draft_election uuid (fun se ->
-          let e_admin_name = if name = "" then None else Some name in
-          se.se_metadata <- {se.se_metadata with e_admin_name};
+          let administrator = if name = "" then None else Some name in
+          se.se_administrator <- administrator;
           redir_preapply election_draft uuid ()
         )
     )
@@ -786,6 +792,8 @@ let () =
               e_public_key = {wpk_group = G.group; wpk_y = G.g};
               e_questions = se.se_questions.t_questions;
               e_uuid = uuid;
+              e_administrator = se.se_administrator;
+              e_credential_authority = se.se_metadata.e_cred_authority;
             } in
           String.send (string_of_params (write_wrapped_pubkey G.write_group G.write) params, "application/json")
         )

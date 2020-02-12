@@ -109,7 +109,9 @@ let extractTemplate () =
        let q = questions##item (i) >>= extractQuestion in
        Js.Opt.get q (fun () -> failwith "extractTemplate"))
   in
-  {t_name; t_description; t_questions}
+  let t_administrator = None in
+  let t_credential_authority = None in
+  {t_name; t_description; t_questions; t_administrator; t_credential_authority}
 
 (* Injecting the OCaml structure into the DOM *)
 

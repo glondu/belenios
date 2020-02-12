@@ -53,7 +53,6 @@ type metadata = {
   ?languages : string list option;
   ?contact : string option;
   ?server_is_trustee : bool option;
-  ?admin_name : string option;
 } <ocaml field_prefix="e_">
 
 type election_dates = {
@@ -136,6 +135,7 @@ type draft_election = {
   ?threshold_parameters <ocaml mutable> : string option;
   ?threshold_error <ocaml mutable> : string option;
   ?creation_date : datetime option;
+  ?administrator <ocaml mutable> : string option;
 } <ocaml field_prefix="se_">
 
 (** {1 Types related to elections being tallied} *)

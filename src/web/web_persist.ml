@@ -188,7 +188,6 @@ let empty_metadata = {
   e_languages = None;
   e_contact = None;
   e_server_is_trustee = None;
-  e_admin_name = None;
 }
 
 let return_empty_metadata = return empty_metadata

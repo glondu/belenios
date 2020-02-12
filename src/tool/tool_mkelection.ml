@@ -70,6 +70,8 @@ module Make (P : PARSED_PARAMS) : S = struct
     e_public_key = {wpk_group = G.group; wpk_y = y};
     e_questions = template.t_questions;
     e_uuid = uuid;
+    e_administrator = template.t_administrator;
+    e_credential_authority = template.t_credential_authority;
   }
 
   (* Generate and serialize election.json *)

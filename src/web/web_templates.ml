@@ -440,7 +440,7 @@ let election_draft uuid se () =
           div [
               txt "Public name of the administrator: ";
               let value =
-                match se.se_metadata.e_admin_name with
+                match se.se_administrator with
                 | Some x -> x
                 | None -> ""
               in
@@ -1638,7 +1638,7 @@ let election_draft_confirm uuid se () =
       ready, ok "OK"
   in
   let ready, admin_name =
-    if se.se_metadata.e_admin_name = None then
+    if se.se_administrator = None then
       false, notok "Missing"
     else
       ready, ok "OK"

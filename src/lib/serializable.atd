@@ -70,6 +70,8 @@ type 'a params = {
   public_key : 'a;
   questions : question list <ocaml repr="array">;
   uuid : uuid;
+  ?administrator : string option;
+  ?credential_authority : string option;
 } <ocaml field_prefix="e_">
 <doc text="Election parameters relevant for creating a ballot.">
 
@@ -77,6 +79,8 @@ type template = {
   description : string;
   name : string;
   questions : question list <ocaml repr="array">;
+  ?administrator : string option;
+  ?credential_authority : string option;
 } <ocaml field_prefix="t_">
 <doc text="Election template.">
 
