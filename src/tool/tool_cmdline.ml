@@ -525,7 +525,6 @@ module Credgen : CMDLINER_MODULE = struct
 
   let params_priv = "private credentials with ids", ".privcreds", 0o400
   let params_pub = "public credentials", ".pubcreds", 0o444
-  let params_hash = "hashed public credentials with ids", ".hashcreds", 0o400
 
   let save (info, ext, perm) basename things =
     let fname = basename ^ ext in
@@ -561,18 +560,17 @@ module Credgen : CMDLINER_MODULE = struct
       | `Derive c ->
         print_endline (R.derive c)
       | `Generate ids ->
-        let privs, pubs, hashs =
-          List.fold_left (fun (privs, pubs, hashs) id ->
-            let priv, pub, hash = R.generate () in
-            let priv = id ^ " " ^ priv and hash = id ^ " " ^ hash in
-            priv::privs, pub::pubs, hash::hashs
-          ) ([], [], []) ids
+        let privs, pubs =
+          List.fold_left (fun (privs, pubs) id ->
+            let priv, pub = R.generate () in
+            let priv = id ^ " " ^ priv in
+            priv::privs, pub::pubs
+          ) ([], []) ids
         in
         let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
         let base = dir / timestamp in
         save params_priv base (List.rev privs);
-        save params_pub base (List.sort compare pubs);
-        save params_hash base (List.rev hashs)
+        save params_pub base (List.sort compare pubs)
     )
 
   let count_t =
@@ -581,7 +579,7 @@ module Credgen : CMDLINER_MODULE = struct
     Arg.(value & opt (some int) None the_info)
 
   let file_t =
-    let doc = "Read identities from $(docv) and generate an additional $(i,T.hashcreds) with identities associated with hashed public credentials. These hashed public credentials are used by the hotline to update a public credential on the web server. One credential will be generated for each line of $(docv)." in
+    let doc = "Read identities from $(docv). One credential will be generated for each line of $(docv)." in
     let the_info = Arg.info ["file"] ~docv:"FILE" ~doc in
     Arg.(value & opt (some file) None the_info)
 

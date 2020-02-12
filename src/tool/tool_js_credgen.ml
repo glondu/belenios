@@ -43,21 +43,19 @@ let generate _ =
     let group = get_textarea "group"
   end in
   let module X = (val make (module P : PARAMS) : S) in
-  let privs, pubs, hashs =
+  let privs, pubs =
     List.fold_left
-      (fun (privs, pubs, hashs) id ->
-       let priv, pub, hash = X.generate () in
-       let priv = id ^ " " ^ priv and hash = id ^ " " ^ hash in
-       priv::privs, pub::pubs, hash::hashs
-      ) ([], [], []) ids
+      (fun (privs, pubs) id ->
+       let priv, pub = X.generate () in
+       let priv = id ^ " " ^ priv in
+       priv::privs, pub::pubs
+      ) ([], []) ids
   in
   let text_pks = pubs |> List.sort compare |> String.concat "\n" in
   set_textarea "pks" text_pks;
   set_download "public_creds" "text/plain" "public_creds.txt" text_pks;
   let text_creds = (privs |> List.rev |> String.concat "\n") ^ "\n" in
   set_download "creds" "text/plain" "creds.txt" text_creds;
-  let text_hashed = (hashs |> List.rev |> String.concat "\n") ^ "\n" in
-  set_download "hashed" "text/plain" "hashed.txt" text_hashed;
   set_element_display "submit_form" "inline";
   Js._false
 

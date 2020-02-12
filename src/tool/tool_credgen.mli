@@ -5,7 +5,7 @@ end
 
 module type S = sig
   val derive : string -> string
-  val generate : unit -> string * string * string
+  val generate : unit -> string * string
 end
 
 val make : (module PARAMS) -> (module S)

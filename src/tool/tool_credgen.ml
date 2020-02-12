@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Serializable_builtin_t
-open Platform
 open Signatures
 open Common
 
@@ -31,7 +30,7 @@ end
 
 module type S = sig
   val derive : string -> string
-  val generate : unit -> string * string * string
+  val generate : unit -> string * string
 end
 
 module type PARSED_PARAMS = sig
@@ -58,13 +57,12 @@ module Make (P : PARSED_PARAMS) : S = struct
     let y = G.(g **~ x) in
     G.to_string y
 
-  let compute_pub_and_hash priv =
+  let compute_pub priv =
     let pub = derive priv in
-    let hashed = sha256_hex pub in
-    priv, pub, hashed
+    priv, pub
 
   let generate () =
-    CG.generate () |> compute_pub_and_hash
+    CG.generate () |> compute_pub
 
 end
 

@@ -1260,7 +1260,6 @@ let election_draft_credentials token uuid se () =
        [div
           [div [txt "Public credentials:"];
            div [textarea ~a:[a_id "pks"; a_rows 5; a_cols 40] ~name ()];
-           div ~a:[a_style "display:none;"] [a ~service:home ~a:[a_id "hashed"] [txt "Hashed public credentials"] ()];
            div [
                b [txt "Instructions:"];
                ol [
