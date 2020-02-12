@@ -560,17 +560,15 @@ module Credgen : CMDLINER_MODULE = struct
       | `Derive c ->
         print_endline (R.derive c)
       | `Generate ids ->
-        let privs, pubs =
-          List.fold_left (fun (privs, pubs) id ->
-            let priv, pub = R.generate () in
-            let priv = id ^ " " ^ priv in
-            priv::privs, pub::pubs
-          ) ([], []) ids
+        let privs, pubs = R.generate ids in
+        let privs =
+          List.combine ids privs
+          |> List.map (fun (id, priv) -> id ^ " " ^ priv)
         in
         let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
         let base = dir / timestamp in
-        save params_priv base (List.rev privs);
-        save params_pub base (List.sort compare pubs)
+        save params_priv base privs;
+        save params_pub base pubs
     )
 
   let count_t =

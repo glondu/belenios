@@ -30,7 +30,7 @@ end
 
 module type S = sig
   val derive : string -> string
-  val generate : unit -> string * string
+  val generate : string list -> string list * string list
 end
 
 module type PARSED_PARAMS = sig
@@ -52,17 +52,24 @@ module Make (P : PARSED_PARAMS) : S = struct
   module CG = Credential.MakeGenerate (DirectRandom)
   module CD = Credential.MakeDerive (G)
 
-  let derive x =
+  module CredSet = Set.Make (G)
+
+  let derive_in_group x =
     let x = CD.derive uuid x in
-    let y = G.(g **~ x) in
-    G.to_string y
+    G.(g **~ x)
 
-  let compute_pub priv =
-    let pub = derive priv in
-    priv, pub
+  let derive x =
+    G.to_string (derive_in_group x)
 
-  let generate () =
-    CG.generate () |> compute_pub
+  let generate ids =
+    let privs, pubs =
+      List.fold_left
+        (fun (privs, pubs) _ ->
+          let priv = CG.generate () in
+          priv::privs, CredSet.add (derive_in_group priv) pubs
+        ) ([], CredSet.empty) ids
+    in
+    privs, (CredSet.elements pubs |> List.map G.to_string)
 
 end
 

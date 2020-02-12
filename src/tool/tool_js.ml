@@ -150,17 +150,15 @@ module Credgen = struct
       let group = get_textarea "election_group"
     end in
     let module X = (val make (module P : PARAMS) : S) in
-    let privs, pubs =
-      List.fold_left (fun (privs, pubs) id ->
-        let priv, pub = X.generate () in
-        let priv = id ^ " " ^ priv in
-        priv::privs, pub::pubs
-      ) ([], []) ids
+    let privs, pubs = X.generate ids in
+    let privs =
+      List.combine ids privs
+      |> List.map (fun (id, priv) -> id ^ " " ^ priv)
     in
     set_textarea "credgen_generated_creds"
-      (privs |> List.rev |> String.concat "\n");
+      (privs |> String.concat "\n");
     set_textarea "credgen_generated_pks"
-      (pubs |> List.sort compare |> String.concat "\n")
+      (pubs |> String.concat "\n")
 
   let generate_n () =
     get_textarea "credgen_number" |>
