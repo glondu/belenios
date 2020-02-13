@@ -631,9 +631,7 @@ let dump_credential_mappings uuid xs =
         string_of_credential_mapping {c_credential; c_ballot}
       ) xs
   in
-  let creds = List.map fst xs in
-  let%lwt () = write_file ~uuid "credential_mappings.jsons" mappings in
-  write_file ~uuid "public_creds.txt" creds
+  write_file ~uuid "credential_mappings.jsons" mappings
 
 let credential_mappings_cache =
   new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
