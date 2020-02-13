@@ -28,6 +28,7 @@ type uuid <ocaml predef from="Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
 type proof <ocaml predef from="Serializable"> = abstract
 type template <ocaml predef from="Serializable"> = abstract
+type election_checksums <ocaml predef from="Serializable"> = abstract
 type cert <ocaml predef from="Serializable"> = abstract
 type polynomial <ocaml predef from="Serializable"> = abstract
 type vinput <ocaml predef from="Serializable"> = abstract
@@ -94,6 +95,13 @@ type 'a web_trustee_public_key = {
   public_key : 'a;
   ?server : bool option;
 } <ocaml field_prefix="web_trustee_">
+
+type audit_cache = {
+  num_voters : int;
+  voters_hash : string;
+  checksums : election_checksums;
+  ?threshold : int option;
+} <ocaml field_prefix="cache_">
 
 (** {1 Types related to elections being prepared} *)
 

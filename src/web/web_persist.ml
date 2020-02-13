@@ -710,3 +710,65 @@ let cast_ballot uuid ~rawballot ~user date =
      let module E = Election.Make (W) (LwtRandom) in
      Lwt_mutex.with_lock cast_mutex
        (fun () -> do_cast_ballot (module E) ~rawballot ~user date)
+
+let get_raw_election_result uuid =
+  match%lwt read_file ~uuid "result.json" with
+  | Some [x] -> return_some x
+  | _ -> return_none
+
+let compute_audit_cache uuid =
+  match%lwt get_raw_election uuid with
+  | None ->
+     Printf.ksprintf failwith
+       "compute_cache: %s does not exist" (raw_string_of_uuid uuid)
+  | Some election ->
+     let%lwt voters =
+       match%lwt read_file ~uuid "voters.txt" with
+       | Some x -> return x
+       | None -> failwith "voters.txt is missing"
+     in
+     let cache_num_voters = List.length voters in
+     let cache_voters_hash = sha256_b64 (String.concat "\n" voters ^ "\n") in
+     let%lwt result = get_raw_election_result uuid in
+     let%lwt trustees = get_trustees uuid in
+     let%lwt credentials =
+       match%lwt read_file ~uuid "public_creds.txt" with
+       | Some x -> return x
+       | None -> failwith "public_creds.txt is missing"
+     in
+     let public_credentials = String.concat "\n" credentials ^ "\n" in
+     let cache_checksums =
+       Election.compute_checksums ~election ?result
+         ~trustees ~public_credentials
+     in
+     let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+     let cache_threshold =
+       match trustees with
+       | [`Pedersen t] -> Some t.t_threshold
+       | _ -> None
+     in
+     return {
+         cache_num_voters;
+         cache_voters_hash;
+         cache_checksums;
+         cache_threshold;
+       }
+
+let get_audit_cache uuid =
+  let%lwt cache =
+    match%lwt read_file ~uuid "audit_cache.json" with
+    | Some [x] ->
+       let cache = try Some (audit_cache_of_string x) with _ -> None in
+       return cache
+    | _ -> return_none
+  in
+  match cache with
+  | Some x -> return x
+  | None ->
+     let%lwt cache = compute_audit_cache uuid in
+     let%lwt () = write_file ~uuid "audit_cache.json" [string_of_audit_cache cache] in
+     return cache
+
+let remove_audit_cache uuid =
+  try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "audit_cache.json") with
+  | _ -> return_unit

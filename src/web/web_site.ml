@@ -319,6 +319,7 @@ let delete_election uuid =
       "shuffles.jsons";
       "voters.txt";
       "archive.zip";
+      "audit_cache.json";
     ]
   in
   let%lwt () = Lwt_list.iter_p (fun x ->
@@ -1910,6 +1911,7 @@ let handle_election_tally_release uuid () =
           let result = string_of_election_result W.G.write result in
           write_file ~uuid (string_of_election_file ESResult) [result]
         in
+        let%lwt () = Web_persist.remove_audit_cache uuid in
         let%lwt () = Web_persist.set_election_state uuid `Tallied in
         let%lwt () = Web_persist.set_election_date `Tally uuid (now ()) in
         let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in

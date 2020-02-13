@@ -114,7 +114,6 @@ module type LocalizedStrings = sig
   val json_result : string
   val with_the_jsquery : string
   val it_contains_all_clear : string
-  val applied_shuffles_are : string
   val blank_vote : string
   val no_other_blank : string
   val it_will_open_in : string

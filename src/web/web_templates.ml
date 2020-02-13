@@ -1962,18 +1962,6 @@ let election_home election state () =
     in
     match result with
     | Some r when hidden = None || is_admin ->
-       let shuffles =
-         match r.shuffles with
-         | None -> txt ""
-         | Some ss ->
-            div [
-                txt L.applied_shuffles_are;
-                ul @@ List.map (fun s ->
-                          let s = string_of_shuffle Yojson.Safe.write_json s in
-                          li [txt (Platform.sha256_b64 s)]
-                        ) ss
-              ]
-       in
        let result = Shape.to_shape_array r.result in
        return @@ div [
          ul (
@@ -1984,7 +1972,6 @@ let election_home election state () =
            txt L.number_accepted_ballots;
            txt (string_of_int r.num_tallied);
          ];
-         shuffles;
          div [
            txt L.you_can_also_download;
            a ~service:election_dir
@@ -2025,6 +2012,71 @@ let election_home election state () =
         ]
     else txt ""
   in
+  let%lwt cache = Web_persist.get_audit_cache uuid in
+  let checksums = cache.cache_checksums in
+  let num_trustees = List.length checksums.ec_trustees in
+  let threshold =
+    match cache.cache_threshold with
+    | None -> num_trustees
+    | Some x -> x
+  in
+  let div_admin =
+    div [
+        Printf.ksprintf txt
+          "This election is administered by %s."
+          (Option.get params.e_administrator "N/A");
+      ]
+  in
+  let div_voters =
+    div [
+        Printf.ksprintf txt
+          "The voter list has %d voter(s) and fingerprint %s."
+          cache.cache_num_voters cache.cache_voters_hash;
+      ]
+  in
+  let format_tc xs =
+    ul (
+        List.map
+          (fun x ->
+            let name = Option.get x.tc_name "N/A" in
+            li [Printf.ksprintf txt "%s (%s)" name x.tc_checksum]
+          ) xs
+      )
+  in
+  let div_trustees =
+    div [
+        Printf.ksprintf txt
+          "%d of the following %d authority(ies) are needed to decrypt the election result:"
+          threshold num_trustees;
+        format_tc checksums.ec_trustees;
+      ]
+  in
+  let div_credentials =
+    div [
+        Printf.ksprintf txt
+          "Credentials were generated and sent by %s and have fingerprint %s."
+          (Option.get params.e_credential_authority "N/A")
+          checksums.ec_public_credentials;
+      ]
+  in
+  let div_shuffles =
+    match checksums.ec_shuffles with
+    | None -> txt ""
+    | Some xs ->
+       div [
+           txt "Trustees shuffled the ballots in the following order:";
+           format_tc xs;
+         ]
+  in
+  let div_audit =
+    div ~a:[a_class ["hybrid_box"]] [
+      div_admin;
+      div_voters;
+      div_trustees;
+      div_credentials;
+      div_shuffles;
+    ]
+  in
   let content = [
     cookie_disclaimer;
     languages;
@@ -2033,6 +2085,8 @@ let election_home election state () =
     middle;
     br ();
     ballots_link;
+    br ();
+    div_audit;
   ] in
   base ~title:params.e_name ~content ~footer ~uuid ()
 
