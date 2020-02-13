@@ -958,16 +958,17 @@ let handle_credentials_post uuid token creds =
     let i = ref 1 in
     match%lwt read_file fname with
     | Some xs ->
-       return (
-           List.iter (fun x ->
-               try
-                 let x = G.of_string x in
-                 if not (G.check x) then raise Exit;
-                 incr i
-               with _ ->
-                 Printf.ksprintf failwith "invalid credential at line %d" !i
-             ) xs
-         )
+       let () =
+         List.iter (fun x ->
+             try
+               let x = G.of_string x in
+               if not (G.check x) then raise Exit;
+               incr i
+             with _ ->
+               Printf.ksprintf failwith "invalid credential at line %d" !i
+           ) xs
+       in
+       write_file fname xs
     | None -> return_unit
   in
   let () = se.se_public_creds_received <- true in
