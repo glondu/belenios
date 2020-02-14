@@ -1,10 +1,39 @@
+1.11 (dev)
+==========
+
+ * Update OCaml/Eliom stack to 4.08.1/6.10.1
+ * Switch to unified trustees: handle trustees with a single kind of
+   file `trustees.json` instead of previously `public_keys.jsons` or
+   `threshold.json`
+ * Command-line tool:
+   + Add `mktrustees` command to generate `trustees.json` from one
+     of the two previous files
+   + Add `checksums` command to compute all checksums relevant in
+     auditing an election
+   + In `credgen`, do no longer generate file with individual public
+     credential hashes
+ * Web client:
+   + Use JavaScript's native BigInt when available
+ * Web server:
+   + Fix a vulnerability in the authentication system
+   + Add a temporary automatic migration procedure of an election pool
+     to unified trustees
+   + The encrypted tally hash is no longer displayed
+   + Add public names to the election administrator and the credential
+     authority (they are stored in `election.json`)
+   + Add public names to trustees (they are stored in `trustees.json`)
+   + Record shuffling order in `result.json`
+   + Remove the possibility to replace a credential in a validated
+     election
+   + Add (much) more auditing data to election home
+
 1.10 (2019-12-09)
 =================
 
  * Add support for non-homomorphic questions (experimental)
  * Check group membership of signature verification key more often
  * Command-line tool:
-   + Assume there is no ballots when ballots.jsons is missing
+   + Assume there is no ballots when `ballots.jsons` is missing
  * Web server:
    + Move setting of maxrequestbodysizeinmemory to configuration
    + Rework presentation of links that must be sent to third-parties

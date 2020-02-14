@@ -1,3 +1,17 @@
+1.11
+====
+
+ * The switch to unified trustees changed:
+   + the format of the pool: instead of one of `public_keys.jsons` or
+     `threshold.json`, only a single `trustees.json` is expected. The
+     spool will be automatically converted during the first run of
+     this version of the web server. Next versions will only support
+     the new scheme.
+   + the format of `deleted.json` files: `nb_trustees` and
+     `trustees_threshold` fields have been replaced by a new
+     `trustees` field reflecting `trustees.json` structure. No
+     provisions were made to convert existing files.
+
 1.7
 ===
 
