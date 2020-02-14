@@ -1,4 +1,7 @@
 *~
+*.bbl
+*.blg
+*.dvi
 _build
 _run
 venv
