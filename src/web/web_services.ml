@@ -53,6 +53,7 @@ let election_draft_credentials = create ~path:(Path ["draft"; "credentials"]) ~m
 let election_draft_credentials_post = create ~path:(Path ["draft"; "submit-credentials"]) ~meth:(Post (uuid_and_token, string "public_creds")) ()
 let election_draft_credentials_post_file = create ~path:(Path ["draft"; "submit-credentials-file"]) ~meth:(Post (uuid_and_token, file "public_creds")) ()
 let election_draft_credentials_server = create_attached_post ~fallback:election_draft ~post_params:unit ()
+let election_draft_credentials_get = create ~path:(Path ["draft"; "get-credentials"]) ~meth:(Get (uuid "uuid")) ()
 
 let election_draft_trustees = create ~path:(Path ["draft"; "trustees"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_trustee = create ~path:(Path ["draft"; "trustee"]) ~meth:(Get uuid_and_token) ()

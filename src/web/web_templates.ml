@@ -460,10 +460,6 @@ let election_draft uuid se () =
         form_contact;
       ]
   in
-  let has_credentials = match se.se_metadata.e_cred_authority with
-    | None -> false
-    | Some _ -> true
-  in
   let auth = match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] -> `Password
     | Some [{auth_system = "dummy"; _}] -> `Dummy
@@ -530,17 +526,27 @@ let election_draft uuid se () =
         ];
     ]
   in
+  let cred_auth_is_server = se.se_metadata.e_cred_authority = Some "server" in
   let div_credentials =
     div [
       h2 [pcdata "Credentials"];
       if se.se_public_creds_received then (
+        let div_private_creds =
+          if cred_auth_is_server then
+            div [
+                a ~service:election_draft_credentials_get
+                  [pcdata "Download private credentials"] uuid
+              ]
+          else pcdata ""
+        in
         div [
-          pcdata "Credentials have already been generated!"
+          div [pcdata "Credentials have already been generated!"];
+          div_private_creds;
         ]
       ) else (
         div [
           pcdata "Warning: this will freeze the voter list!";
-          if has_credentials then (
+          if cred_auth_is_server then (
             post_form ~service:election_draft_credentials_server
               (fun () ->
                 [input ~input_type:`Submit ~value:"Generate on server" string]
