@@ -430,7 +430,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
     wait_a_bit()
 
     # In the "Name and description of the election" section, she changes values of fields name and description of the election
-    election_name_field_css_selector = "#main form input[name=__co_eliom_name]"
+    election_name_field_css_selector = "#name_and_description_form input[name=__co_eliom_name]"
     election_name_field_element = wait_for_element_exists(browser, election_name_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
     election_name_field_value = election_title
     election_name_field_element.clear()
@@ -438,7 +438,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
 
     wait_a_bit()
 
-    election_description_field_css_selector = "#main form textarea[name=__co_eliom_description]"
+    election_description_field_css_selector = "#name_and_description_form textarea[name=__co_eliom_description]"
     election_description_field_element = browser.find_element_by_css_selector(election_description_field_css_selector)
     election_description_field_value = election_description
     election_description_field_element.clear()
@@ -447,7 +447,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
     wait_a_bit()
 
     # She clicks on the "Save changes" button (the one that is next to the election description field)
-    save_changes_button_css_selector = "#main > div:nth-of-type(1) form input[type=submit]" # Warning: form:nth-child(1) selects another form
+    save_changes_button_css_selector = "#name_and_description_form input[type=submit]"
     save_changes_button_element = browser.find_element_by_css_selector(save_changes_button_css_selector)
     save_changes_button_element.click()
 

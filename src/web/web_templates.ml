@@ -407,6 +407,7 @@ let election_draft uuid se () =
   in
   let form_description =
     post_form ~service:election_draft_description
+      ~a:[a_id "name_and_description_form"]
       (fun (name, description) ->
         [
           div [
