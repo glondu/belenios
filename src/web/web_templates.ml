@@ -554,17 +554,27 @@ let election_draft uuid se () =
         ];
     ]
   in
+  let cred_auth_is_server = se.se_metadata.e_cred_authority = Some "server" in
   let div_credentials =
     div [
       h2 [txt "Credentials"];
       if se.se_public_creds_received then (
+        let div_private_creds =
+          if cred_auth_is_server then
+            div [
+                a ~service:election_draft_credentials_get
+                  [txt "Download private credentials"] uuid
+              ]
+          else txt ""
+        in
         div [
-          txt "Credentials have already been generated!"
+          div [txt "Credentials have already been generated!"];
+          div_private_creds;
         ]
       ) else (
         div [
           txt "Warning: this will freeze the voter list!";
-          if se.se_metadata.e_cred_authority = Some "server" then (
+          if cred_auth_is_server then (
             post_form ~service:election_draft_credentials_server
               (fun () ->
                 [input ~input_type:`Submit ~value:"Generate on server" string]

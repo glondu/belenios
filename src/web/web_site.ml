@@ -197,6 +197,8 @@ let validate_election uuid se =
   in
   (* clean up draft *)
   let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "draft.json") in
+  (* clean up private credentials, if any *)
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_creds.txt") in
   (* write passwords *)
   let%lwt () =
     match metadata.e_auth_config with
@@ -1021,8 +1023,8 @@ let () =
             let module G = (val Group.of_string se.se_group : GROUP) in
             let module CSet = Set.Make (G) in
             let module CD = Credential.MakeDerive (G) in
-            let%lwt creds =
-              Lwt_list.fold_left_s (fun accu v ->
+            let%lwt public_creds, private_creds =
+              Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
                   let email, _ = split_identity v.sv_id in
                   let cas =
                     match se.se_metadata.e_auth_config with
@@ -1049,23 +1051,35 @@ let () =
                     Printf.sprintf L.mail_credential_subject title
                   in
                   let%lwt () = send_email email subject body in
-                  return @@ CSet.add pub_cred accu
-                ) CSet.empty se.se_voters
+                  return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)
+                ) (CSet.empty, []) se.se_voters
             in
-            let creds = CSet.elements creds |> List.map G.to_string in
+            let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
+            let%lwt () = write_file ~uuid "private_creds.txt" private_creds in
+            let public_creds = CSet.elements public_creds |> List.map G.to_string in
             let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
             let%lwt () =
               Lwt_io.with_file
                 ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
                 ~perm:0o600 ~mode:Lwt_io.Output fname
                 (fun oc ->
-                  Lwt_list.iter_s (Lwt_io.write_line oc) creds)
+                  Lwt_list.iter_s (Lwt_io.write_line oc) public_creds)
             in
             se.se_public_creds_received <- true;
             let service = preapply election_draft uuid in
             T.generic_page ~title:"Success" ~service
-              "Credentials have been generated and mailed!" () >>= Html.send
+              "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential." () >>= Html.send
           )
+        )
+    )
+
+let () =
+  Any.register ~service:election_draft_credentials_get
+    (fun uuid () ->
+      with_draft_election_ro uuid
+        (fun _ ->
+          File.send ~content_type:"text/plain"
+            (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.txt")
         )
     )
 
