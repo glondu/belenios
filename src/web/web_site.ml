@@ -1019,6 +1019,7 @@ let () =
                         (uuid, ()) |> rewrite_prefix
             in
             let module G = (val Group.of_string se.se_group : GROUP) in
+            let module CSet = Set.Make (G) in
             let module CD = Credential.MakeDerive (G) in
             let%lwt creds =
               Lwt_list.fold_left_s (fun accu v ->
@@ -1031,8 +1032,7 @@ let () =
                   let%lwt cred = CG.generate () in
                   let pub_cred =
                     let x = CD.derive uuid cred in
-                    let y = G.(g **~ x) in
-                    G.to_string y
+                    G.(g **~ x)
                   in
                   let langs = get_languages se.se_metadata.e_languages in
                   let bodies = List.map (fun lang ->
@@ -1049,10 +1049,10 @@ let () =
                     Printf.sprintf L.mail_credential_subject title
                   in
                   let%lwt () = send_email email subject body in
-                  return @@ SSet.add pub_cred accu
-                ) SSet.empty se.se_voters
+                  return @@ CSet.add pub_cred accu
+                ) CSet.empty se.se_voters
             in
-            let creds = SSet.elements creds in
+            let creds = CSet.elements creds |> List.map G.to_string in
             let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
             let%lwt () =
               Lwt_io.with_file
