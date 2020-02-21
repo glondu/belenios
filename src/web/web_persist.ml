@@ -63,14 +63,6 @@ let get_election_result_hidden uuid =
        return_none
   | _ -> return_none
 
-type election_date =
-  [ `Creation
-  | `Validation
-  | `Tally
-  | `Archive
-  | `LastMail
-  ]
-
 let get_election_dates uuid =
   match%lwt read_file ~uuid "dates.json" with
   | Some [x] -> return (election_dates_of_string x)
@@ -84,45 +76,7 @@ let get_election_dates uuid =
              e_auto_close = None;
            }
 
-let set_election_date kind uuid d =
-  let%lwt dates = get_election_dates uuid in
-  let dates = match kind with
-    | `Creation -> { dates with e_creation = Some d }
-    | `Validation -> { dates with e_finalization = Some d }
-    | `Tally -> { dates with e_tally = Some d }
-    | `Archive -> { dates with e_archive = Some d }
-    | `LastMail -> { dates with e_last_mail = Some d }
-  in
-  let dates = string_of_election_dates dates in
-  write_file ~uuid "dates.json" [dates]
-
-let get_election_date kind uuid =
-  let%lwt dates = get_election_dates uuid in
-  match kind with
-  | `Creation -> return dates.e_creation
-  | `Validation -> return dates.e_finalization
-  | `Tally -> return dates.e_tally
-  | `Archive -> return dates.e_archive
-  | `LastMail -> return dates.e_last_mail
-
-type election_auto_dates = {
-    auto_open : datetime option;
-    auto_close : datetime option;
-}
-
-let get_election_auto_dates uuid =
-  let%lwt dates = get_election_dates uuid in
-  return {
-      auto_open = dates.e_auto_open;
-      auto_close = dates.e_auto_close;
-    }
-
-let set_election_auto_dates uuid x =
-  let%lwt dates = get_election_dates uuid in
-  let dates = { dates with
-                e_auto_open = x.auto_open;
-                e_auto_close = x.auto_close }
-  in
+let set_election_dates uuid dates =
   write_file ~uuid "dates.json" [string_of_election_dates dates]
 
 let set_election_state uuid s =
@@ -225,19 +179,17 @@ let get_elections_by_owner user =
                       | None -> return_none
                       | Some election ->
                          let election = Election.of_string election in
+                         let%lwt dates = get_election_dates uuid in
                          let%lwt kind, date =
                            match%lwt get_election_state uuid with
                            | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-                              let%lwt date = get_election_date `Validation uuid in
-                              let date = Option.get date default_validation_date in
+                              let date = Option.get dates.e_finalization default_validation_date in
                               return (`Validated, date)
                            | `Tallied ->
-                              let%lwt date = get_election_date `Tally uuid in
-                              let date = Option.get date default_tally_date in
+                              let date = Option.get dates.e_tally default_tally_date in
                               return (`Tallied, date)
                            | `Archived ->
-                              let%lwt date = get_election_date `Archive uuid in
-                              let date = Option.get date default_archive_date in
+                              let date = Option.get dates.e_archive default_archive_date in
                               return (`Archived, date)
                          in
                          return_some (kind, uuid, date, election.e_params.e_name)

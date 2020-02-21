@@ -30,22 +30,8 @@ val set_draft_election : uuid -> draft_election -> unit Lwt.t
 val get_election_state : uuid -> election_state Lwt.t
 val set_election_state : uuid -> election_state -> unit Lwt.t
 
-type election_date =
-  [ `Creation
-  | `Validation
-  | `Tally
-  | `Archive
-  | `LastMail
-  ]
-val get_election_date : election_date -> uuid -> datetime option Lwt.t
-val set_election_date : election_date -> uuid -> datetime -> unit Lwt.t
-
-type election_auto_dates = {
-    auto_open : datetime option;
-    auto_close : datetime option;
-}
-val get_election_auto_dates : uuid -> election_auto_dates Lwt.t
-val set_election_auto_dates : uuid -> election_auto_dates -> unit Lwt.t
+val get_election_dates : uuid -> election_dates Lwt.t
+val set_election_dates : uuid -> election_dates -> unit Lwt.t
 
 val get_partial_decryptions : uuid -> partial_decryptions Lwt.t
 val set_partial_decryptions : uuid -> partial_decryptions -> unit Lwt.t

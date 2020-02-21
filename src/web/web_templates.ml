@@ -1882,13 +1882,13 @@ let election_home election state () =
   let module L = (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
-  let%lwt d = Web_persist.get_election_auto_dates uuid in
+  let%lwt dates = Web_persist.get_election_dates uuid in
   let now = now () in
   let state_ =
     match state with
     | `Closed ->
        let it_will_open =
-         match d.Web_persist.auto_open with
+         match dates.e_auto_open with
          | Some t when datetime_compare now t < 0 ->
             span [
                 txt " ";
@@ -1905,7 +1905,7 @@ let election_home election state () =
       ]
     | `Open ->
        let it_will_close =
-         match d.Web_persist.auto_close with
+         match dates.e_auto_close with
          | Some t when datetime_compare now t < 0 ->
             span [
                 txt L.the_election_will_close_in;
@@ -2148,7 +2148,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   let title = election.e_params.e_name ^ " — Administration" in
   let auto_form () =
     let open Web_persist in
-    let%lwt auto_dates = get_election_auto_dates uuid in
+    let%lwt dates = get_election_dates uuid in
     let format = function
       | None -> ""
       | Some x -> String.sub (string_of_datetime x) 1 19
@@ -2166,11 +2166,11 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
           div ~a:[a_style "margin-left: 3em;"] [
               div [
                   txt "Automatically open the election at: ";
-                  input ~name:lopen ~input_type:`Text ~value:(format auto_dates.auto_open) string;
+                  input ~name:lopen ~input_type:`Text ~value:(format dates.e_auto_open) string;
                 ];
               div [
                   txt "Automatically close the election at: ";
-                  input ~name:lclose ~input_type:`Text ~value:(format auto_dates.auto_close) string;
+                  input ~name:lclose ~input_type:`Text ~value:(format dates.e_auto_close) string;
                 ];
               div [
                   txt "Enter dates in UTC, in format YYYY-MM-DD HH:MM:SS, leave empty for no date.";
@@ -2547,10 +2547,11 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
            ] (uuid, ());
        ]
   in
+  let%lwt dates = Web_persist.get_election_dates uuid in
   let%lwt archive_date = match state with
     | `Tallied ->
-       let%lwt t = Web_persist.get_election_date `Tally uuid in
-       let t = datetime_add (Option.get t default_tally_date) (day days_to_archive) in
+       let t = Option.get dates.e_tally default_tally_date in
+       let t = datetime_add t (day days_to_archive) in
        return @@
          div [
              txt "This election will be automatically archived after ";
@@ -2575,17 +2576,14 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   in
   let%lwt deletion_date = match state with
     | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-       let%lwt t = Web_persist.get_election_date `Validation uuid in
-       let dt = day days_to_delete in
-       return @@ datetime_add (Option.get t default_validation_date) dt
+       let t = Option.get dates.e_finalization default_validation_date in
+       return @@ datetime_add t (day days_to_delete)
     | `Tallied ->
-       let%lwt t = Web_persist.get_election_date `Tally uuid in
-       let dt = day (days_to_archive + days_to_delete) in
-       return @@ datetime_add (Option.get t default_tally_date) dt
+       let t = Option.get dates.e_tally default_tally_date in
+       return @@ datetime_add t (day (days_to_archive + days_to_delete))
     | `Archived ->
-       let%lwt t = Web_persist.get_election_date `Archive uuid in
-       let dt = day days_to_delete in
-       return @@ datetime_add (Option.get t default_archive_date) dt
+       let t = Option.get dates.e_archive default_archive_date in
+       return @@ datetime_add t (day days_to_delete)
   in
   let div_delete =
     div [

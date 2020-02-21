@@ -216,7 +216,8 @@ let validate_election uuid se =
   in
   (* finish *)
   let%lwt () = Web_persist.set_election_state uuid `Open in
-  Web_persist.set_election_date `Validation uuid (now ())
+  let%lwt dates = Web_persist.get_election_dates uuid in
+  Web_persist.set_election_dates uuid {dates with e_finalization = Some (now ())}
 
 let delete_sensitive_data uuid =
   let uuid_s = raw_string_of_uuid uuid in
@@ -232,8 +233,8 @@ let delete_sensitive_data uuid =
 
 let archive_election uuid =
   let%lwt () = delete_sensitive_data uuid in
-  let%lwt () = Web_persist.set_election_date `Archive uuid (now ()) in
-  return_unit
+  let%lwt dates = Web_persist.get_election_dates uuid in
+  Web_persist.set_election_dates uuid {dates with e_archive = Some (now ())}
 
 let delete_election uuid =
   let uuid_s = raw_string_of_uuid uuid in
@@ -252,19 +253,17 @@ let delete_election uuid =
     | None -> Printf.ksprintf failwith "election %s has no owner" uuid_s
     | Some x -> x
   in
-  let%lwt de_date =
-    let%lwt date = Web_persist.get_election_date `Tally uuid in
-    match date with
-    | Some x -> return x
+  let%lwt dates = Web_persist.get_election_dates uuid in
+  let de_date =
+    match dates.e_tally with
+    | Some x -> x
     | None ->
-       let%lwt date = Web_persist.get_election_date `Validation uuid in
-       match date with
-       | Some x -> return x
+       match dates.e_finalization with
+       | Some x -> x
        | None ->
-          let%lwt date = Web_persist.get_election_date `Creation uuid in
-          match date with
-          | Some x -> return x
-          | None -> return default_validation_date
+          match dates.e_creation with
+          | Some x -> x
+          | None -> default_validation_date
   in
   let de_authentication_method = match metadata.e_auth_config with
     | Some [{auth_system = "cas"; auth_config; _}] ->
@@ -1408,8 +1407,11 @@ let election_set_state state uuid () =
         in
         let state = if state then `Open else `Closed in
         let%lwt () = Web_persist.set_election_state uuid state in
-        let dates = Web_persist.({ auto_open = None; auto_close = None }) in
-        let%lwt () = Web_persist.set_election_auto_dates uuid dates in
+        let%lwt dates = Web_persist.get_election_dates uuid in
+        let%lwt () =
+          Web_persist.set_election_dates uuid
+            {dates with e_auto_open = None; e_auto_close = None}
+        in
         redir_preapply election_admin uuid ()
       ) else forbidden ()
     )
@@ -1464,15 +1466,16 @@ let () =
                   if x = "" then None
                   else Some (parse_datetime_from_post x)
                 in
-                let auto_open = format auto_open in
-                let auto_close = format auto_close in
-                let open Web_persist in
-                Ok { auto_open; auto_close }
+                Ok (format auto_open, format auto_close)
               with Failure e -> Error e
             in
             match auto_dates with
-            | Ok x ->
-               let%lwt () = Web_persist.set_election_auto_dates uuid x in
+            | Ok (e_auto_open, e_auto_close) ->
+               let%lwt dates = Web_persist.get_election_dates uuid in
+               let%lwt () =
+                 Web_persist.set_election_dates uuid
+                   {dates with e_auto_open; e_auto_close}
+               in
                redir_preapply election_admin uuid ()
             | Error msg ->
                let service = preapply election_admin uuid in
@@ -1928,7 +1931,8 @@ let handle_election_tally_release uuid () =
         in
         let%lwt () = Web_persist.remove_audit_cache uuid in
         let%lwt () = Web_persist.set_election_state uuid `Tallied in
-        let%lwt () = Web_persist.set_election_date `Tally uuid (now ()) in
+        let%lwt dates = Web_persist.get_election_dates uuid in
+        let%lwt () = Web_persist.set_election_dates uuid {dates with e_tally = Some (now ())} in
         let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
         let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "shuffles.jsons") in
         let%lwt () = Web_persist.clear_shuffle_token uuid in
@@ -2575,20 +2579,18 @@ let extract_automatic_data_validated uuid_s =
      let name = election.e_params.e_name in
      let contact = metadata.e_contact in
      let%lwt state = Web_persist.get_election_state uuid in
+     let%lwt dates = Web_persist.get_election_dates uuid in
      match state with
      | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-        let%lwt t = Web_persist.get_election_date `Validation uuid in
-        let t = Option.get t default_validation_date in
+        let t = Option.get dates.e_finalization default_validation_date in
         let next_t = datetime_add t (day days_to_delete) in
         return_some (`Delete, uuid, next_t, name, contact)
      | `Tallied ->
-        let%lwt t = Web_persist.get_election_date `Tally uuid in
-        let t = Option.get t default_tally_date in
+        let t = Option.get dates.e_tally default_tally_date in
         let next_t = datetime_add t (day days_to_archive) in
         return_some (`Archive, uuid, next_t, name, contact)
      | `Archived ->
-        let%lwt t = Web_persist.get_election_date `Archive uuid in
-        let t = Option.get t default_archive_date in
+        let t = Option.get dates.e_archive default_archive_date in
         let next_t = datetime_add t (day days_to_delete) in
         return_some (`Delete, uuid, next_t, name, contact)
 
@@ -2630,8 +2632,8 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
   ) else (
     let mail_t = datetime_add next_t (day (-days_to_mail)) in
     if datetime_compare now mail_t > 0 then (
-      let%lwt last_t = Web_persist.get_election_date `LastMail uuid in
-      let send = match last_t with
+      let%lwt dates = Web_persist.get_election_dates uuid in
+      let send = match dates.e_last_mail with
         | None -> true
         | Some t ->
            let next_mail_t = datetime_add t (day days_between_mails) in
@@ -2653,7 +2655,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
                   name comment (format_datetime next_t)
               in
               let%lwt () = send_email email subject body in
-              Web_persist.set_election_date `LastMail uuid now
+              Web_persist.set_election_dates uuid {dates with e_last_mail = Some now}
       ) else return_unit
     ) else return_unit
   )
