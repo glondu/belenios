@@ -197,12 +197,6 @@ let get_election_metadata uuid =
   | Some [x] -> return (metadata_of_string x)
   | _ -> return_empty_metadata
 
-let get_auth_config uuid =
-  let%lwt metadata = get_election_metadata uuid in
-  match metadata.e_auth_config with
-  | None -> return []
-  | Some x -> return x
-
 type election_kind =
   [ `Draft
   | `Validated

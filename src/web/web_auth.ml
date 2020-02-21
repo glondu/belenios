@@ -103,7 +103,11 @@ let login_handler service kind =
   | None ->
      let%lwt c = match uuid with
        | None -> return !Web_config.site_auth_config
-       | Some u -> Web_persist.get_auth_config u
+       | Some uuid ->
+          let%lwt metadata = Web_persist.get_election_metadata uuid in
+          match metadata.e_auth_config with
+          | None -> return []
+          | Some x -> return x
      in
      match service with
      | Some s ->

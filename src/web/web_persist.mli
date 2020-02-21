@@ -53,8 +53,6 @@ val set_partial_decryptions : uuid -> partial_decryptions -> unit Lwt.t
 val get_decryption_tokens : uuid -> decryption_tokens option Lwt.t
 val set_decryption_tokens : uuid -> decryption_tokens -> unit Lwt.t
 
-val get_auth_config : uuid -> auth_config list Lwt.t
-
 val get_raw_election : uuid -> string option Lwt.t
 val get_election_metadata : uuid -> metadata Lwt.t
 val get_election_result : uuid -> Yojson.Safe.t election_result option Lwt.t
