@@ -476,8 +476,6 @@ let compute_encrypted_tally_after_shuffling uuid =
         return_some tally
      | _ -> return_none
 
-let shuffle_mutex = Lwt_mutex.create ()
-
 let append_to_shuffles uuid shuffle =
   match%lwt get_raw_election uuid with
   | None -> Lwt.fail (Failure "append_to_shuffles: election not found")
@@ -486,7 +484,7 @@ let append_to_shuffles uuid shuffle =
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
      let shuffle = shuffle_of_string E.G.read shuffle in
-     Lwt_mutex.with_lock shuffle_mutex (fun () ->
+     Web_election_mutex.with_lock uuid (fun () ->
          let%lwt last_ciphertext = get_nh_ciphertexts uuid in
          let last_ciphertext = nh_ciphertexts_of_string E.G.read last_ciphertext in
          if E.check_shuffle last_ciphertext shuffle then (
@@ -645,8 +643,6 @@ let do_cast_ballot election ~rawballot ~user date =
            | None, Some _ -> return (Error ECastRevoteNotAllowed)
            | Some _, None -> return (Error ECastReusedCredential)
 
-let cast_mutex = Lwt_mutex.create ()
-
 let cast_ballot uuid ~rawballot ~user date =
   match%lwt get_raw_election uuid with
   | None -> Lwt.fail Not_found
@@ -654,7 +650,7 @@ let cast_ballot uuid ~rawballot ~user date =
      let election = Election.of_string raw_election in
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
-     Lwt_mutex.with_lock cast_mutex
+     Web_election_mutex.with_lock uuid
        (fun () -> do_cast_ballot (module E) ~rawballot ~user date)
 
 let get_raw_election_result uuid =

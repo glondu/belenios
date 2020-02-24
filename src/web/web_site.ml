@@ -527,11 +527,9 @@ let () =
         )
     )
 
-let election_draft_mutex = Lwt_mutex.create ()
-
 let with_draft_election ?(save = true) uuid f =
   with_site_user (fun u ->
-      Lwt_mutex.with_lock election_draft_mutex (fun () ->
+      Web_election_mutex.with_lock uuid (fun () ->
           match%lwt Web_persist.get_draft_election uuid with
           | None -> fail_http 404
           | Some se ->
@@ -947,7 +945,7 @@ let handle_credentials_post uuid token creds =
   let module G = (val Group.of_string se.se_group : GROUP) in
   let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
   let%lwt () =
-    Lwt_mutex.with_lock election_draft_mutex
+    Web_election_mutex.with_lock uuid
       (fun () ->
         Lwt_io.with_file
           ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
@@ -1111,7 +1109,7 @@ let () =
             wrap_handler
               (fun () ->
                 let%lwt () =
-                  Lwt_mutex.with_lock election_draft_mutex
+                  Web_election_mutex.with_lock uuid
                     (fun () ->
                       match%lwt Web_persist.get_draft_election uuid with
                       | None -> fail_http 404
@@ -2292,7 +2290,7 @@ let () =
       wrap_handler_without_site_user
         (fun () ->
           let%lwt () =
-            Lwt_mutex.with_lock election_draft_mutex
+            Web_election_mutex.with_lock uuid
               (fun () ->
                 match%lwt Web_persist.get_draft_election uuid with
                 | None -> fail_http 404
