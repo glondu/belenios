@@ -376,8 +376,8 @@ The election administrator.\
             generate_button_element.click()
 
             # He clicks on the "private key" and "public key" links, to download the private key and the public key (files are respectively saved by default as `private_key.json` and `public_key.json`, but we decide to save them as a unique file name)
-            link_css_ids = ["private_key", "public_key"]
-            link_expected_labels = ["private key", "public key"]
+            link_css_ids = ["private_key"]
+            link_expected_labels = ["private key"]
             self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
             for idx2, link_css_id in enumerate(link_css_ids):
                 link_target_filename = str(uuid4())

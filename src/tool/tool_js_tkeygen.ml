@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Serializable_j
 open Tool_js_common
 open Tool_tkeygen
 
@@ -30,8 +31,12 @@ let tkeygen _ =
   let module X = (val make (module P : PARAMS) : S) in
   let open X in
   let {id=_; priv; pub} = trustee_keygen () in
+  let hash =
+    let pub = trustee_public_key_of_string Yojson.Safe.read_json pub in
+    Platform.sha256_b64 (Yojson.Safe.to_string pub.trustee_public_key)
+  in
   set_textarea "pk" pub;
-  set_download "public_key" "application/json" "public_key.json" pub;
+  set_content "public_key_fp" hash;
   set_download "private_key" "application/json" "private_key.json" priv;
   set_element_display "submit_form" "inline";
   Js._false

@@ -1382,6 +1382,10 @@ let election_draft_trustee token uuid se () =
            div [txt "Public key:"];
            div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ~value ()];
            div [
+               txt "Fingerprint of the public key: ";
+               span ~a:[a_id "public_key_fp"] [];
+             ];
+           div [
                b [txt "Instructions:"];
                ol [
                    li [
@@ -1392,9 +1396,7 @@ let election_draft_trustee token uuid se () =
                        txt "You will use it to decrypt the final result.";
                      ];
                    li [
-                       txt "Download your ";
-                       a ~service:home ~a:[a_id "public_key"] [txt "public key"] ();
-                       txt " and save it.";
+                       txt "Save the fingerprint above.";
                        br ();
                        txt "Once the election is open, you must check that";
                        txt " it is present in the set of public keys";
