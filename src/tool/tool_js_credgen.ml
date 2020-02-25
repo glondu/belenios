@@ -50,7 +50,8 @@ let generate _ =
   in
   let text_pks = (pubs |> String.concat "\n") ^ "\n" in
   set_textarea "pks" text_pks;
-  set_download "public_creds" "text/plain" "public_creds.txt" text_pks;
+  let hash = Platform.sha256_b64 text_pks in
+  set_content "public_creds_fp" hash;
   let text_creds = (privs |> String.concat "\n") ^ "\n" in
   set_download "creds" "text/plain" "creds.txt" text_creds;
   set_element_display "submit_form" "inline";

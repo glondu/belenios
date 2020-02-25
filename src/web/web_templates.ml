@@ -1272,6 +1272,10 @@ let election_draft_credentials token uuid se () =
           [div [txt "Public credentials:"];
            div [textarea ~a:[a_id "pks"; a_rows 5; a_cols 40] ~name ()];
            div [
+               txt "Fingerprint of public credentials: ";
+               span ~a:[a_id "public_creds_fp"] [];
+             ];
+           div [
                b [txt "Instructions:"];
                ol [
                    li [
@@ -1282,12 +1286,10 @@ let election_draft_credentials token uuid se () =
                        txt "You will use it to send credentials to voters.";
                      ];
                    li [
-                       txt "Download ";
-                       a ~service:home ~a:[a_id "public_creds"] [txt "public credentials"] ();
-                       txt " and save the file.";
+                       txt "Save the two fingerprints above. ";
                        br ();
                        txt "Once the election is open, you must check that";
-                       txt " the file published by the server matches.";
+                       txt " they match with what is published by the server.";
                      ];
                    li [txt "Submit public credentials using the button below."];
                  ];
@@ -1325,9 +1327,11 @@ let election_draft_credentials token uuid se () =
   in
   let voters =
     let value = String.concat "\n" (List.map (fun x -> x.sv_id) se.se_voters) in
+    let hash = Platform.sha256_b64 (value ^ "\n") in
     div [
       div [txt "List of voters:"];
       div [unsafe_textarea ~rows:5 ~cols:40 "voters" value];
+      div [txt "Fingerprint of voters: "; txt hash];
     ]
   in
   let interactivity =
