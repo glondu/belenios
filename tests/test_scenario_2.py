@@ -208,8 +208,8 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         wait_a_bit()
 
         # She clicks on the "private credentials" and "public credentials" links and downloads these files. Files are by default downloaded to /tmp using filenames `creds.txt` and `public_creds.txt` respectively, but we choose to name them using an unique identifier instead.
-        link_css_ids = ["creds", "public_creds"]
-        file_labels = ["private credentials", "public credentials"]
+        link_css_ids = ["creds"]
+        file_labels = ["private credentials"]
         link_css_selectors = ["#" + el for el in link_css_ids]
         for idx, link_css_id in enumerate(link_css_ids):
             link_element = wait_for_element_exists(browser, link_css_selectors[idx])
