@@ -16,6 +16,7 @@
     <charset>utf-8</charset>
 
     <findlib path="_OCAML_STDLIBDIR_"/>
+    <findlib path="_build/lib"/>
 
     <extension findlib-package="ocsigenserver.ext.staticmod"/>
     <extension findlib-package="ocsigenserver.ext.redirectmod"/>
@@ -26,12 +27,6 @@
 
     <extension findlib-package="eliom.server"/>
 
-    <extension findlib-package="zarith"/>
-    <extension findlib-package="uuidm"/>
-    <extension findlib-package="atdgen"/>
-    <extension findlib-package="csv"/>
-    <extension findlib-package="calendar"/>
-
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
       <site path="static" charset="utf-8">
@@ -40,7 +35,7 @@
       <site path="monitor">
         <eliom findlib-package="eliom.server.monitor.start"/>
       </site>
-      <eliom module="_build/src/web/server.cma">
+      <eliom findlib-package="belenios.server">
         <maxrequestbodysizeinmemory value="1048576"/>
         <maxmailsatonce value="1000"/>
         <uuid length="14"/>

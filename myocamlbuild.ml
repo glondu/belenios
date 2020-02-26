@@ -53,18 +53,18 @@ let build_rule () =
   in
   rule "BUILD" ~deps ~prod builder
 
+let read_build () =
+  let ic = open_in "BUILD" in
+  let version = input_line ic in
+  let build = input_line ic in
+  close_in ic;
+  version, build
+
 let version_rules kind =
-  let file = "BUILD" in
-  let deps = [file; "src/platform/" ^ kind ^ "/belenios_version.mli"] in
+  let deps = ["BUILD"; "src/platform/" ^ kind ^ "/belenios_version.mli"] in
   let prod = "src/platform/" ^ kind ^ "/belenios_version.ml" in
   let builder _ _ =
-    let version, build =
-      let ic = open_in file in
-      let version = input_line ic in
-      let build = input_line ic in
-      close_in ic;
-      version, build
-    in
+    let version, build = read_build () in
     let lines = Printf.([
       sprintf "let version = \"%s\"" version;
       sprintf "let build = \"%s\"" build;
@@ -77,6 +77,16 @@ let version_rules kind =
     "src/lib/belenios_version.mli"
     ("src/platform/" ^ kind ^ "/belenios_version.mli");
   rule ("BUILD -> " ^ kind ^ "/belenios_version.ml") ~deps ~prod builder
+
+let meta_rule () =
+  let meta_in = "META.in" in
+  let deps = [meta_in; "BUILD"] in
+  let prod = "lib/belenios/META" in
+  let builder _ _ =
+    let version, _ = read_build () in
+    Cmd (S [A "sed"; A (Printf.sprintf "s/@VERSION@/%s/" version); P meta_in; Sh ">"; P prod])
+  in
+  rule "META" ~deps ~prod builder
 
 let copy_static f =
   let base = Filename.basename f in
@@ -117,6 +127,7 @@ let () = dispatch & function
       );
 
     build_rule ();
+    meta_rule ();
     version_rules "native";
     version_rules "js";
     platform_rules "native";
@@ -139,6 +150,9 @@ let () = dispatch & function
     copy_rule "tool_js_questions.js" "src/tool/tool_js_questions.js" "src/static/tool_js_questions.js";
     copy_rule "tool_js_pd.js" "src/tool/tool_js_pd.js" "src/static/tool_js_pd.js";
     copy_rule "tool_js_shuffle.js" "src/tool/tool_js_shuffle.js" "src/static/tool_js_shuffle.js";
+
+    copy_rule "server.cma" "src/web/server.cma" "lib/belenios/server.cma";
+    copy_rule "server.cmxs" "src/web/server.cmxs" "lib/belenios/server.cmxs";
 
     List.iter
       copy_static

@@ -1,0 +1,9 @@
+description = "Belenios: verifiable online voting system"
+version = "@VERSION@"
+
+package "server" (
+  description = "Belenios Server"
+  requires = "zarith uuidm atdgen csv calendar"
+  archive(byte) = "server.cma"
+  archive(native) = "server.cmxa"
+)

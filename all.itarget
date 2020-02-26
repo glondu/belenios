@@ -1,5 +1,6 @@
 minimal.otarget
-src/web/server.cma
+lib/belenios/server.cma
+lib/belenios/META
 src/static/logo.png
 src/static/placeholder.png
 src/static/belenios-tool.html.otarget
