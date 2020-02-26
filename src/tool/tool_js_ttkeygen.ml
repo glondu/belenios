@@ -92,19 +92,12 @@ let main () =
   | 6 | 7 ->
      set_step 3;
      set_element_display "data_form" "none";
-     let t = document##createTextNode (Js.string "Your job in the key establishment protocol is done! Please download your ") in
-     Dom.appendChild e t;
-     let a = document##createTextNode (Js.string "public key") in
-     let t = Dom_html.createA document in
-     t##.id := Js.string "public_key";
-     Dom.appendChild t a;
-     Dom.appendChild e t;
-     let t = document##createTextNode (Js.string " and check that it is in the public threshold parameters when the election is open. Your private key will be needed to decrypt the election result.") in
-     Dom.appendChild e t;
-     let group = get_textarea "group" in
-     let module G = (val Group.of_string group : GROUP) in
-     let voutput = voutput_of_string G.read (get_textarea "voutput") in
-     set_download "public_key" "application/json" "public_key.json" (string_of_group_element G.write voutput.vo_public_key.trustee_public_key)
+     let voutput = voutput_of_string Yojson.Safe.read_json (get_textarea "voutput") in
+     let pk = Yojson.Safe.to_string voutput.vo_public_key.trustee_public_key in
+     let fp = Platform.sha256_b64 pk in
+     let msg = "Your job in the key establishment protocol is done! The fingerprint of your public key is " ^ fp ^ ". Check that it is published by the server when the election is open. Your private key will be needed to decrypt the election result." in
+     let t = document##createTextNode (Js.string msg) in
+     Dom.appendChild e t
   | 1 ->
      set_step 1;
      let b = Dom_html.createButton document in

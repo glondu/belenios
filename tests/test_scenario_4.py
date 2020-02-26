@@ -414,25 +414,6 @@ The election administrator.\
 
             wait_a_bit()
 
-            # He clicks on the "public key" link and downloads the file (file is saved by default as `public_key.json`)
-            link_css_ids = ["public_key"]
-            link_expected_labels = ["public key"]
-            if trustee_email_address not in self.downloaded_files_paths_per_trustee:
-                self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
-            for idx2, link_css_id in enumerate(link_css_ids):
-                link_target_filename = str(uuid4())
-                set_element_attribute(browser, link_css_id, 'download', link_target_filename)
-                link_expected_label = link_expected_labels[idx2]
-                link_element = wait_for_an_element_with_partial_link_text_exists(browser, link_expected_label)
-                assert link_element.get_attribute('id') == link_css_id
-                link_element.click()
-                file_absolute_path = os.path.join(settings.BROWSER_DOWNLOAD_FOLDER, link_target_filename)
-                # We save the filename in a class instance property, so that we can import the file afterwards (during partial decryption step)
-                self.downloaded_files_paths_per_trustee[trustee_email_address][link_expected_labels[idx2]] = file_absolute_path
-                self.remember_temporary_file_to_remove_after_test(file_absolute_path)
-
-            wait_a_bit()
-
             # He closes the window
             browser.quit()
 
