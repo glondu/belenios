@@ -24,6 +24,7 @@ class FakeSentEmailsManager:
         return count
 
     def count_lines(self):
+        i = 0
         with open(self.log_file_path) as f:
             for i, l in enumerate(f):
                 pass

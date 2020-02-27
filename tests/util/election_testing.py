@@ -10,7 +10,7 @@ import re
 import json
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, verify_all_elements_have_attribute_value
 import settings
 
 
@@ -476,14 +476,17 @@ def log_in_as_administrator(browser, from_a_login_page=False):
     wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
 
-def log_out(browser):
+def log_out(browser, election_id=None):
     # In the header of the page, she clicks on the "Log out" link
     logout_link_css_selector = "#logout"
     logout_element = wait_for_element_exists(browser, logout_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
     logout_element.click()
 
     # She arrives on the election home page. She checks that the "Start" button is present
-    wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", settings.EXPLICIT_WAIT_TIMEOUT)
+    if election_id:
+        verify_all_elements_have_attribute_value(browser, "#main button", "onclick", "location.href='../../vote.html#uuid=" + election_id + "';")
+    else:
+        wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", settings.EXPLICIT_WAIT_TIMEOUT) # This solution is less robust to variations in browser language settings
 
 
 def administrator_starts_creation_of_election(browser, manual_credential_management=False, election_title=None, election_description=None, initiator_contact=None):

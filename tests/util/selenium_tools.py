@@ -143,6 +143,7 @@ def wait_for_element_exists(browser, css_selector, wait_duration=DEFAULT_WAIT_DU
     except Exception as e:
         raise Exception("Could not find expected DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
 
+
 def wait_for_element_visible(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
     try:
         return WebDriverWait(browser, wait_duration).until(
@@ -150,6 +151,7 @@ def wait_for_element_visible(browser, css_selector, wait_duration=DEFAULT_WAIT_D
         )
     except Exception as e:
         raise Exception("Could not find expected visible DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
+
 
 def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
     try:
@@ -169,8 +171,8 @@ def verify_element_label(element, expected_label):
     assert expected_label in element_real_label, 'Expected label "' + expected_label + '" not found in element label "' + element_real_label + "'"
 
 
-def verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value):
-    elements = wait_for_elements_exist(browser, elements_css_selector)
+def verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value, wait_duration=DEFAULT_WAIT_DURATION):
+    elements = wait_for_elements_exist(browser, elements_css_selector, wait_duration)
     assert len(elements) > 0, "Error: could not find any element in page matching this CSS selector"
     for element in elements:
         assert element.get_attribute(attribute_name) == attribute_value, "Error: One of the elements corresponding to this CSS selector has a value of '" + element.get_attribute(attribute_name) + "' instead of expected '" + attribute_value + "'"

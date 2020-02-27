@@ -422,7 +422,7 @@ The election administrator.\
         console_log("election_id:", self.election_id)
 
         # She logs out
-        log_out(browser)
+        log_out(browser, self.election_id)
 
         # She closes the window, and re-opens it (for next emulated user)
         browser.quit()
