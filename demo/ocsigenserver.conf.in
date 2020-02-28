@@ -15,7 +15,6 @@
 
     <charset>utf-8</charset>
 
-    <findlib path="_OCAML_STDLIBDIR_"/>
     <findlib path="_build/lib"/>
 
     <extension findlib-package="ocsigenserver.ext.staticmod"/>
