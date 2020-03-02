@@ -108,3 +108,14 @@ Here is how you can build your own prepared database (for example if you want to
 You can now execute automated tests locally and analyse their results. If you want to update or replace the prepared database used in the Continuous Integration / Continuous Delivery pipeline, download its compressed file, unzip its contents and merge them into your local `_run/spool` folder. Then compress the whole folder and upload its compressed version to a public URL and replace the URL in `.gitlab-ci.yml` by your own.
 
 Good to know: If you version the prepared database using a git repository like gitlab or github, the VCS platform automatically generates a compressed file associated to latest commit on master branch and to commits which have tags. So you don't need to compress and upload the file yourself, just copy its URL and paste it into `.gitlab-ci.yml`.
+
+## Monkey testing and fuzz testing
+
+You can execute test `test_fuzz.py` the following way:
+
+```
+START_SERVER=1 LOGIN_MODE="local" USE_HEADLESS_BROWSER=0 WAIT_TIME_BETWEEN_EACH_STEP=0.02 python ./tests/test_fuzz.py 
+```
+
+For environment variable `WAIT_TIME_BETWEEN_EACH_STEP`, do not set a value below 0.02 seconds, otherwise hypothesis test becomes flaky.
+
