@@ -72,3 +72,34 @@ build_and_run_automated_test_scenarios_with_preinstalled_image:
     - python3 ./tests/test_scenario_2.py
     # Run the automated test scenario 1
     - python3 ./tests/test_scenario_1.py
+
+build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_database:
+  stage: test
+  # Image swergas/beleniosbase-tests-with-prepared-database:latest is built by Dockerfile_test_scenario_environment_with_prepared_database
+  image: swergas/beleniosbase-tests-with-prepared-database:latest
+  script:
+    # Initialize environment
+    - source ~/env.sh
+    # Copy database
+    - mkdir -p _run/spool
+    - cp -R ~/belenios-prepared-database/* _run/spool
+    # Compile belenios
+    - BELENIOS_DEBUG=1 make all
+    # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
+    - make archive
+    # We don't need to start belenios web server, as it will be started by the automated test
+    # - ./demo/run-server.sh &
+    # Create a Python 3 virtual environment, where pip packages will be installed
+    - python3 -m venv venv
+    # Step into this new virtual environment
+    - source venv/bin/activate
+    # Install pip packages
+    - pip install -r requirements.txt
+    # Run the automated test scenario 4
+    - python3 ./tests/test_scenario_4.py
+    # Run the automated test scenario 3
+    - python3 ./tests/test_scenario_3.py
+    # Run the automated test scenario 2
+    - python3 ./tests/test_scenario_2.py
+    # Run the automated test scenario 1
+    - python3 ./tests/test_scenario_1.py
