@@ -207,11 +207,15 @@ def wait_for_an_element_with_link_text_exists(browser, link_text, wait_duration=
 
 def wait_for_element_exists(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
     try:
-        return WebDriverWait(browser, wait_duration).until(
+        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
+        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
+        element = custom_wait.until(
             EC.presence_of_element_located((By.CSS_SELECTOR, css_selector))
         )
+        return element
     except Exception as e:
         raise Exception("Could not find expected DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
+
 
 
 def wait_for_element_visible(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
@@ -221,6 +225,7 @@ def wait_for_element_visible(browser, css_selector, wait_duration=DEFAULT_WAIT_D
         )
     except Exception as e:
         raise Exception("Could not find expected visible DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
+
 
 
 def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):

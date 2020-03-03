@@ -11,7 +11,7 @@ import json
 from functools import partial, wraps
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, wait_for_element_exists_and_attribute_contains_expected_text
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, wait_for_element_exists_and_attribute_contains_expected_text, verify_all_elements_have_attribute_value
 import settings
 
 
@@ -88,12 +88,12 @@ def random_generator(size=20, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
 
-# Yield successive n-sized 
-# chunks from l. 
-def divide_chunks(l, n): 
-    # looping till length l 
-    for i in range(0, len(l), n):  
-        yield l[i:i + n] 
+# Yield successive n-sized
+# chunks from l.
+def divide_chunks(l, n):
+    # looping till length l
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
 
 
 def populate_credential_and_password_for_voters_from_sent_emails(fake_sent_emails_manager, voters_email_addresses, election_title):
@@ -439,8 +439,8 @@ def belenios_tool_generate_ballots(voters_data, global_credential_file_id, vote_
         try:
             with open(voter_uncrypted_ballot_file, 'w') as myfile:
                 myfile.write(voter_uncrypted_ballot_content)
-        except:
-            raise Exception("Error: Could not write voter's answers (his uncrypted ballot) to a file")
+        except Exception as e:
+            raise Exception("Error: Could not write voter's answers (his uncrypted ballot) to a file.") from e
 
         # Execute belenios-tool to generate a vote ballot for voter
         voter_crypted_ballot_file = "voter_row_" + str(i) + "_crypted_ballot.json"
@@ -459,7 +459,6 @@ def convert_voter_votes_to_json_uncrypted_ballot(voter):
     answer1 = 1 if voter["votes"]["question1"]["answer1"] is True else 0
     answer2 = 1 if voter["votes"]["question1"]["answer2"] is True else 0
     return [[answer1, answer2]]
-
 
 
 def create_election_data_snapshot(election_id):

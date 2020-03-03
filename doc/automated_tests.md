@@ -111,11 +111,30 @@ Good to know: If you version the prepared database using a git repository like g
 
 ## Monkey testing and fuzz testing
 
+### Notes related to monkey testing and fuzz testing
+
+For environment variable `WAIT_TIME_BETWEEN_EACH_STEP`, do not set a value below 0.02 seconds, otherwise hypothesis test becomes flaky.
+
+### Fuzz testing of the login form
+
 You can execute test `test_fuzz.py` the following way:
 
 ```
 START_SERVER=1 LOGIN_MODE="local" USE_HEADLESS_BROWSER=0 WAIT_TIME_BETWEEN_EACH_STEP=0.02 python ./tests/test_fuzz.py 
 ```
 
-For environment variable `WAIT_TIME_BETWEEN_EACH_STEP`, do not set a value below 0.02 seconds, otherwise hypothesis test becomes flaky.
+### Fuzz testing of the voting process
 
+You can execute test `test_fuzz_vote.py` in any of the 2 following ways:
+
+- Let the script create its own election, and then running a dumb monkey who fuzz tests with random input as ballot, and then running a smart monkey who fuzz tests with a properly structured but still incorrect ballot (this enables him to move to the login step)
+
+```
+SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/your/repository/_build/src/static/mail.txt FAKE_SENT_EMAILS_FILE_RELATIVE_URL=static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 python tests/test_fuzz_vote.py
+```
+
+- Run these tests on an already existing election. For this, you provide the election ID as well as a username and password for a voter who has been already invited.
+
+```
+WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 ELECTION_ID=4qjJRMg4b26ax5 VOTER_USERNAME=nrmt1fl7z05zaqnn0luo@mailinator.com VOTER_PASSWORD=LLP3269TVNDMF6 python tests/test_fuzz_vote.py
+```
