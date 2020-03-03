@@ -5,23 +5,23 @@
 
     <port>8001</port>
 
-    <logdir>_RUNDIR_/log</logdir>
-    <datadir>_RUNDIR_/lib</datadir>
+    <logdir>_VARDIR_/log</logdir>
+    <datadir>_VARDIR_/lib</datadir>
 
-    <uploaddir>_RUNDIR_/upload</uploaddir>
+    <uploaddir>_VARDIR_/upload</uploaddir>
     <maxuploadfilesize>1024kB</maxuploadfilesize>
 
-    <commandpipe>_TMPDIR_/run/ocsigenserver_command</commandpipe>
+    <commandpipe>_RUNDIR_/ocsigenserver_command</commandpipe>
 
     <charset>utf-8</charset>
 
-    <findlib path="_build/lib"/>
+    <findlib path="_LIBDIR_"/>
 
     <extension findlib-package="ocsigenserver.ext.staticmod"/>
     <extension findlib-package="ocsigenserver.ext.redirectmod"/>
 
     <extension findlib-package="ocsigenserver.ext.ocsipersist-sqlite">
-      <database file="_RUNDIR_/lib/ocsidb"/>
+      <database file="_VARDIR_/lib/ocsidb"/>
     </extension>
 
     <extension findlib-package="eliom.server"/>
@@ -29,7 +29,7 @@
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
       <site path="static" charset="utf-8">
-        <static dir="_SRCDIR_/_build/src/static" />
+        <static dir="_STATICDIR_" />
       </site>
       <site path="monitor">
         <eliom findlib-package="eliom.server.monitor.start"/>
@@ -41,16 +41,16 @@
         <gdpr uri="http://www.example.org/privacy_policy.html"/>
         <!-- <contact uri="mailto:contact@example.org"/> -->
         <server mail="noreply@example.org"/>
-        <auth name="demo"><dummy/></auth>
-        <auth name="local"><password db="demo/password_db.csv"/></auth>
-        <auth name="public"><password db="_RUNDIR_/password_db.csv" allowsignups="true"/></auth>
+        <auth name="demo"><dummy/></auth> <!-- DEMO -->
+        <auth name="local"><password db="demo/password_db.csv"/></auth> <!-- DEMO -->
+        <auth name="public"><password db="_VARDIR_/password_db.csv" allowsignups="true"/></auth>
         <!-- <auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth> -->
-        <source file="../belenios.tar.gz"/>
-        <default-group file="demo/groups/default.json"/>
-        <nh-group file="demo/groups/rfc3526-2048.json"/>
-        <log file="_RUNDIR_/log/security.log"/>
-        <spool dir="_RUNDIR_/spool"/>
-        <warning file="demo/warning.html"/>
+        <source file="_STATICDIR_/belenios.tar.gz"/>
+        <default-group file="_GROUPDIR_/default.json"/>
+        <nh-group file="_GROUPDIR_/rfc3526-2048.json"/>
+        <log file="_VARDIR_/log/security.log"/>
+        <spool dir="_VARDIR_/spool"/>
+        <warning file="_VARDIR_/warning.html"/>
       </eliom>
     </host>
 

@@ -1,28 +1,47 @@
 #!/bin/sh
 
-if [ ! -d _build ]; then
-  echo "This script should be run from the root of the (built) source tree!"
-  exit 1
+set -e
+
+if [ -d _build ]; then
+    : ${BELENIOS_CONFIG:=demo/ocsigenserver.conf.in}
+    : ${BELENIOS_VARDIR:=_run}
+    : ${BELENIOS_RUNDIR:=/tmp/belenios}
+    : ${BELENIOS_LIBDIR:=_build/lib}
+    : ${BELENIOS_STATICDIR:=_build/src/static}
+    : ${BELENIOS_GROUPDIR:=demo/groups}
 fi
 
-BELENIOS_RUNDIR=${BELENIOS_RUNDIR:-_run}
-BELENIOS_TMPDIR=${BELENIOS_TMPDIR:-/tmp/belenios}
+check_nonempty_var () {
+    if eval [ -z "\$$1" ]; then
+        echo "$1 must be set!"
+        exit 1
+    fi
+}
+
+check_nonempty_var BELENIOS_CONFIG
+check_nonempty_var BELENIOS_VARDIR
+check_nonempty_var BELENIOS_RUNDIR
+check_nonempty_var BELENIOS_LIBDIR
+check_nonempty_var BELENIOS_STATICDIR
+check_nonempty_var BELENIOS_GROUPDIR
 
 mkdir -p \
-  $BELENIOS_RUNDIR/etc \
-  $BELENIOS_RUNDIR/log \
-  $BELENIOS_RUNDIR/lib \
-  $BELENIOS_RUNDIR/upload \
-  $BELENIOS_RUNDIR/spool \
-  $BELENIOS_TMPDIR/run
+      $BELENIOS_VARDIR/etc \
+      $BELENIOS_VARDIR/log \
+      $BELENIOS_VARDIR/lib \
+      $BELENIOS_VARDIR/upload \
+      $BELENIOS_VARDIR/spool \
+      $BELENIOS_RUNDIR
 
-touch $BELENIOS_RUNDIR/password_db.csv
+touch $BELENIOS_VARDIR/password_db.csv
 
 sed \
-  -e "s@_TMPDIR_@$BELENIOS_TMPDIR@g" \
-  -e "s@_RUNDIR_@$BELENIOS_RUNDIR@g" \
-  -e "s@_SRCDIR_@$PWD@g" \
-  demo/ocsigenserver.conf.in > $BELENIOS_RUNDIR/etc/ocsigenserver.conf
+    -e "s@_VARDIR_@$BELENIOS_VARDIR@g" \
+    -e "s@_RUNDIR_@$BELENIOS_RUNDIR@g" \
+    -e "s@_LIBDIR_@$BELENIOS_LIBDIR@g" \
+    -e "s@_STATICDIR_@$BELENIOS_STATICDIR@g" \
+    -e "s@_GROUPDIR_@$BELENIOS_GROUPDIR@g" \
+    $BELENIOS_CONFIG > $BELENIOS_VARDIR/etc/ocsigenserver.conf
 
 OCSIGENSERVER=ocsigenserver
 
@@ -30,4 +49,4 @@ if command -v ocsigenserver.opt > /dev/null; then
   OCSIGENSERVER=ocsigenserver.opt
 fi
 
-exec $OCSIGENSERVER -c $BELENIOS_RUNDIR/etc/ocsigenserver.conf "$@"
+exec $OCSIGENSERVER -c $BELENIOS_VARDIR/etc/ocsigenserver.conf "$@"

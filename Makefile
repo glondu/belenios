@@ -38,10 +38,9 @@ archive:
 	@if [ `git status --porcelain | grep -v '^?? ' | wc -l ` -eq 0 ]; then \
 	  COMMIT_ID=`git describe --tags`; \
 	  VERSION=`cat VERSION`; \
+	  mkdir -p _build/src/static; \
 	  if [ "$$(printf $$COMMIT_ID | head -c$$(printf $$VERSION | wc -c))" = "$$VERSION" ]; then \
-	    git archive --prefix=belenios-$$COMMIT_ID/ $$COMMIT_ID | gzip -9n > ../belenios-$$COMMIT_ID.tar.gz; \
-	    ln -sf belenios-$$COMMIT_ID.tar.gz ../belenios.tar.gz; \
-	    ls -l ../belenios.tar.gz; \
+	    git archive --prefix=belenios-$$COMMIT_ID/ $$COMMIT_ID | gzip -9n > _build/src/static/belenios.tar.gz; \
 	  else \
 	    echo "VERSION is not up-to-date!"; exit 1; \
 	  fi; \
