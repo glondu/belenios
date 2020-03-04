@@ -2,21 +2,34 @@
 # coding: utf-8
 import re
 import subprocess
+import tempfile
 
 
 class FakeSentEmailsManager:
-    def __init__(self, log_file_path):
+    def __init__(self, log_file_path=None):
+        if log_file_path is None:
+            (file_handle, log_file_path) = tempfile.mkstemp(text=True)
         self.log_file_path = log_file_path
         # self.install_fake_sendmail_log_file()
+
 
     def find_in_sent_emails(self, text):
         with open(self.log_file_path) as fl:
             return text in fl.read()
 
+
     def count_occurences_in_sent_emails(self, text):
         with open(self.log_file_path) as file:
             count = file.read().count(text)
         return count
+
+    def count_lines(self):
+        i = 0
+        with open(self.log_file_path) as f:
+            for i, l in enumerate(f):
+                pass
+        return i + 1
+
 
     def separate_sent_emails(self):
         """
@@ -52,6 +65,7 @@ class FakeSentEmailsManager:
                 }
                 result.append(element)
         return result
+
 
     def install_fake_sendmail_log_file(self):
         subprocess.run(["rm", "-f", self.log_file_path]) # TODO: Execute a command that works on other OS, like `os.remove()`
