@@ -190,7 +190,7 @@ def remove_database_folder():
 
 def remove_credentials_files(credential_file_id):
     if credential_file_id:
-        for extension in [".privcreds", ".pubcreds", ".hashcreds"]:
+        for extension in [".privcreds", ".pubcreds"]:
             os.remove(credential_file_id + extension)
 
 
