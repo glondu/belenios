@@ -1312,7 +1312,6 @@ let () =
          (match%lwt Eliom_reference.get Web_state.cast_confirmed with
           | Some result ->
              let%lwt () = Eliom_reference.unset Web_state.cast_confirmed in
-             let%lwt () = Eliom_reference.unset Web_state.election_user in
              T.cast_confirmed w ~result () >>= Html.send
           | None ->
              let%lwt state = Web_persist.get_election_state uuid in
@@ -1616,6 +1615,7 @@ let () =
       | None -> fail_http 404
       | Some rawballot ->
          let%lwt () = Eliom_reference.unset Web_state.ballot in
+         let%lwt () = Eliom_reference.unset Web_state.election_user in
          match%lwt Web_state.get_election_user uuid with
          | None -> forbidden ()
          | Some user ->
