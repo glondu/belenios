@@ -37,13 +37,6 @@ Execute the script:
 BELENIOS_USE_URANDOM=1 USE_HEADLESS_BROWSER=0 SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/_build/src/static/mail.txt FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY=tests/tools/sendmail_fake_to_static.sh FAKE_SENT_EMAILS_FILE_RELATIVE_URL=static/mail.txt python ./tests/load_testing_set_up.py
 ````
 
-where `sendmail_fake_to_static.sh` contains something like this:
-
-```
-#!/bin/sh
-exec cat >> /path/to/belenios/git/repository/_build/src/static/mail.txt
-```
-
 Else (the Application Under Test is a distant Belenios server):
 
 Execute the script:
