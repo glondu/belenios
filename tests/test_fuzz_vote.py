@@ -107,6 +107,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
             self.election_id = settings.ELECTION_ID
         else:
             # Download server's sent emails text file, so that we know up to which line number we have to ignore its contents (this is its last line)
+            temporary_fake_sent_emails_manager = None
             try:
                 temporary_fake_sent_emails_manager = self.download_all_sent_emails()
                 self.fake_sent_emails_initial_lines_count = temporary_fake_sent_emails_manager.count_lines()
@@ -138,6 +139,8 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
 
             settings.VOTER_USERNAME = invited_voters_who_will_vote_data[0]["username"]
             settings.VOTER_PASSWORD = invited_voters_who_will_vote_data[0]["password"]
+        console_log("Going to vote as VOTER_USERNAME:", settings.VOTER_USERNAME)
+        console_log("Going to vote as VOTER_PASSWORD:", settings.VOTER_PASSWORD)
 
 
     def tearDown(self):
@@ -158,6 +161,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
             (file_handle, log_file_path) = tempfile.mkstemp(text=True)
             target_fake_sent_emails_manager = FakeSentEmailsManager(log_file_path)
         distant_fake_emails_file_url = urljoin(settings.SERVER_URL, settings.FAKE_SENT_EMAILS_FILE_RELATIVE_URL) # TODO: maybe we should build this URL by picking link value in alert banner on distant server home page
+        console_log("distant_fake_emails_file_url:", distant_fake_emails_file_url)
         urllib.request.urlretrieve(distant_fake_emails_file_url, target_fake_sent_emails_manager.log_file_path)
         console_log("#### Distant fake sent emails have been saved in:", target_fake_sent_emails_manager.log_file_path)
         return target_fake_sent_emails_manager
@@ -169,45 +173,78 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
         self.submit_prepared_ballot(ballot)
 
 
-    @unittest.skip("Work in progress")
     @given(ballotDataFormat)
     @hypothesis_settings(deadline=None, suppress_health_check=[HealthCheck.large_base_example, HealthCheck.data_too_large])
     def test_submit_prepared_ballot_by_smart_monkey(self, ballot):
-        browser = self.browser
-        ballot['election_uuid'] = self.election_id
-        printable_ballot = json.dumps(ballot)
-        console_log("submitting ballot:", printable_ballot)
-        result = self.submit_prepared_ballot(printable_ballot)
-        if result:
-            # Our ballot is not detected as ill-formed, so we arrive on the log in screen
-            log_in(browser, settings.VOTER_USERNAME, settings.VOTER_PASSWORD)
-            # We arrive on the next screen, which asks us to confirm ballot submission
-            submit_button_css_selector = "input[type=submit]"
-            submit_button_element = wait_for_element_exists(browser, submit_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-            submit_button_element.click()
+        try:
+            browser = self.browser
+            ballot['election_uuid'] = self.election_id
+            printable_ballot = json.dumps(ballot)
+            console_log("### Starting a new Monkey navigation that will try to submit ballot:", printable_ballot)
+            result = self.submit_prepared_ballot(printable_ballot)
+            if result:
+                console_log("#### Page title was 'Password login', so we log in")
+                # Our ballot is not detected as ill-formed, so we arrive on the log in screen
+                log_in(browser, settings.VOTER_USERNAME, settings.VOTER_PASSWORD)
+                console_log("#### Analyzing page title, expecting it not to be 'Unauthorized'")
+                # If user provided a wrong username/password combination, the resulting page is a browser error page like `<h1>Unauthorized</h1><p>Error 401</p>`
+                page_title_css_selector = "h1"
+                page_title_element = wait_for_element_exists(browser, page_title_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+                assert page_title_element != "Unauthorized"
+                console_log("#### Page title was not 'Unauthorized', so we click on confirm ballot submission button")
+                # We arrive on the next screen, which asks us to confirm ballot submission
+                submit_button_css_selector = "input[type=submit]"
+                submit_button_element = wait_for_element_exists(browser, submit_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+                submit_button_element.click()
 
-            # We check wether the ballot has been received and parsed without errors
-            current_step_css_selector = "#main .current_step"
-            current_step_element = wait_for_element_exists(browser, current_step_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-            current_step_label = current_step_element.get_attribute('innerText')
-            assert current_step_label == "Step 6/6: FAIL!" # TODO: Handle case where ballot is accepted. Maybe also it could be necessary to better detect any case that falls outside these 2 situations.
-            # Close browser session (otherwise fro next iteration, server will reuse data about visitor and we won't see the login screen)
+                # We check wether the ballot has been received and parsed without errors
+                current_step_label = None
+                attempts = 0
+                max_attempts = 5
+                while(attempts < max_attempts):
+                    try:
+                        console_log("#### Analyzing (iteration", attempts, ") whether result page (after click on confirm ballot submission button) has as step title 'Step 6/6: FAIL!' because ballot content is invalid")
+                        current_step_css_selector = "#main .current_step"
+                        current_step_element = wait_for_element_exists(browser, current_step_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+                        current_step_label = current_step_element.get_attribute('innerText')
+                        console_log("#### Step title is:", current_step_label)
+                        if current_step_label == "Step 6/6: FAIL!":
+                            console_log("#### Page step title was 'Step 6/6: FAIL!', which is what we expected. So the full test is correct.")
+                            return
+                        else:
+                            # TODO: Handle very improbable case where ballot is accepted (for now we would consider that this is a test failure). Maybe also it could be necessary to better detect any case that falls outside these 2 situations.
+                            console_log("#### Step title is unexpected. So the full test is incorrect.")
+                            raise Exception("Step title is unexpected:", current_step_label)
+                    except Exception as e:
+                        console_log("Retrying after exception", e)
+                        attempts += 1
+                        time.sleep(1)
+                if attempts >= max_attempts:
+                    raise Exception("Could not locate expected element")
+                assert current_step_label == "Step 6/6: FAIL!"
+        except Exception as e:
+            console_log("Exception received", e)
             browser.quit()
             self.browser = initialize_browser()
+            raise e
 
 
     def submit_prepared_ballot(self, ballot):
         browser = self.browser
+        console_log("#### Going to election page")
         go_to_election_page(browser, self.election_id)
 
+        console_log("#### Clicking on 'en' language link")
         language_label = "en"
         language_link_element = wait_for_an_element_with_partial_link_text_exists(browser, language_label, settings.EXPLICIT_WAIT_TIMEOUT)
         language_link_element.click()
 
+        console_log("#### Clicking on 'Advanced mode' link")
         partial_link_text = "Advanced mode"
         link_element = wait_for_an_element_with_partial_link_text_exists(browser, partial_link_text, settings.EXPLICIT_WAIT_TIMEOUT)
         link_element.click()
 
+        console_log("#### Filling ballot field with text representation of ballot and clicking on Submit button")
         field_css_selector = "form[action=submit-ballot] textarea[name=encrypted_vote]"
         field_element = wait_for_element_exists(browser, field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         field_element.clear()
@@ -217,10 +254,12 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
         wait_a_bit()
 
         attempts = 0
-        while(attempts < 5):
+        max_attempts = 5
+        while(attempts < max_attempts):
             page_title_label = None
             page_content_label = None
             try:
+                console_log("#### Analyzing (iteration", attempts, ") contents of page returned after having clicked on Submit button, expecting title to be either 'Ill-formed ballot' or 'Password login'")
                 page_title_css_selector = "#header h1"
                 page_title_element = wait_for_element_exists(browser, page_title_css_selector)
                 page_title_label = page_title_element.get_attribute('innerText') # Here we sometimes get a stale element. This is why we run this inside a loop with several attempts
@@ -229,20 +268,24 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
                 page_content_element = wait_for_element_exists(browser, page_content_css_selector)
                 page_content_label = page_content_element.get_attribute('innerText')
 
+                console_log("#### Page title was", page_title_label, "and page content was", page_content_label)
                 if page_title_label == "Error":
                     assert page_content_label == "Ill-formed ballot"
                     return 0
                 elif page_title_label == "Password login":
                     return 1
                 else:
-                    # Unknown case. TODO: This case happens sometimes but I don't understand why. Data is: ('Unexpected page content', 'My test election for Scenario 1', 'Input credential — Answer to questions — Review and encrypt — Authenticate — Confirm — Done\nStep 5/6: Confirm\n\nYour ballot for My test election for Scenario 1 has been received, but not recorded yet. Your smart ballot tracker is pB220puh0fcM4sauHfE9viFCIwGujASjhypguMw8Dd8.\n\n\n\n\n\nNote: your ballot is encrypted and nobody can see its contents.\n\nI am piwd254k6u3veto04v33@mailinator.com and .\n\nGo back to election.')
-                    # User has not logged in yet but his ballot is accepted? (it looks like the application behaves as if user was authenticated)
+                    # This case happens sometimes, because Selenium has not yet replaced its DOM with the new DOM of the page (maybe because server has not responded yet or page loading is not yet complete).
+                    # In this situation, data is still: ('Unexpected page content', 'USERNAME:\t\nPASSWORD:\t')
+                    # Or: ('Unexpected page content', 'My test election for Scenario 1', 'Username:Password:')
                     raise Exception("Unexpected page content", page_title_label, page_content_label)
             except Exception as e:
                 console_log("Retrying after exception", e)
                 attempts += 1
                 time.sleep(1)
-        if attempts > 4:
+        if attempts >= max_attempts:
+            # browser.quit()
+            # self.browser = initialize_browser()
             raise Exception("Could not locate expected element")
 
 
