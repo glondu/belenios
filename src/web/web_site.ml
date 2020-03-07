@@ -1615,10 +1615,10 @@ let () =
       | None -> fail_http 404
       | Some rawballot ->
          let%lwt () = Eliom_reference.unset Web_state.ballot in
-         let%lwt () = Eliom_reference.unset Web_state.election_user in
          match%lwt Web_state.get_election_user uuid with
          | None -> forbidden ()
          | Some user ->
+            let%lwt () = Eliom_reference.unset Web_state.election_user in
             let%lwt result =
               match%lwt cast_ballot uuid ~rawballot ~user with
               | hash -> return (Ok hash)
