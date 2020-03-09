@@ -71,7 +71,7 @@ def log_in(browser, username, password):
     wait_a_bit()
 
 
-class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
+class BeleniosMonkeyTestFuzzLogin(BeleniosTestElectionScenario2Base):
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)

@@ -106,7 +106,7 @@ def try_n_times(max_attempts):
     return decorator_try_n_times
 
 
-class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
+class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
@@ -295,7 +295,8 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
         try:
             page_title = verify_page_title(browser)
             assert page_title in ["Error", "Password login"]
-            return page_title except Exception as e:
+            return page_title
+        except Exception as e:
             console_log("Could not locate expected element. Exception received:", e)
             # browser.quit()
             # self.browser = initialize_browser()
