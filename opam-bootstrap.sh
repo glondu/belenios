@@ -68,14 +68,18 @@ EOF
 echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
-opam init --bare --no-setup
+cd "$BELENIOS_SYSROOT"
+git clone https://github.com/ocaml/opam-repository.git
+cd opam-repository
+git reset --hard 0200b396894c6cfae40d7175530747bda96e3195
+opam init --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
 opam switch create 4.08.1 ocaml-base-compiler.4.08.1
 eval $(opam env)
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 csv eliom=6.10.1
+opam install --yes atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 csv eliom
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
