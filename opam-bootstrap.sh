@@ -4,6 +4,13 @@ set -e
 
 BELENIOS_SRC="${BELENIOS_SRC:-$PWD}"
 
+# Check that Dune is not installed
+# cf. https://github.com/ocaml/opam/issues/3987
+if command -v dune >/dev/null; then
+    echo "Please uninstall Dune first, or remove it from your PATH."
+    exit 1
+fi
+
 echo
 echo "=-=-= Download and check tarballs =-=-="
 echo
