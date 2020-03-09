@@ -4,12 +4,6 @@ set -e
 
 BELENIOS_SRC="${BELENIOS_SRC:-$PWD}"
 
-# Check that OCamlDuce is not installed
-if which ocamlduce >/dev/null; then
-    echo "Please uninstall OCamlDuce first, or remove it from your PATH."
-    exit 1
-fi
-
 echo
 echo "=-=-= Download and check tarballs =-=-="
 echo
