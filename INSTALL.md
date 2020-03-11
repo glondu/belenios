@@ -23,7 +23,6 @@ The non-OCaml prerequisites are:
  * [Wget](https://www.gnu.org/software/wget/) or [curl](http://curl.haxx.se/)
  * [Zip](http://www.info-zip.org/Zip.html)
  * [Unzip](http://www.info-zip.org/UnZip.html)
- * [aspcud](http://www.cs.uni-potsdam.de/wv/aspcud/) (optional)
  * [ncurses](http://invisible-island.net/ncurses/)
  * [uuidgen](https://www.kernel.org/pub/linux/utils/util-linux/)
  * [GD-SecurityImage](https://metacpan.org/release/GD-SecurityImage)
@@ -33,7 +32,7 @@ These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
 derivatives, they can be installed with the following command:
 
-    sudo apt install bubblewrap build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip aspcud libncurses-dev uuid-runtime zlib1g-dev libgd-securityimage-perl cracklib-runtime
+    sudo apt install bubblewrap build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev uuid-runtime zlib1g-dev libgd-securityimage-perl cracklib-runtime
 
 If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully
@@ -222,9 +221,6 @@ If ocsigenserver fails to install because of a SSL-related error:
  * edit `opam-bootstrap.sh` by adding ` ssl=0.5.2` to the `opam
    install` call;
  * run `./opam-bootstrap.sh`.
-
-An alternative could be to install aspcud before running
-`opam-bootstrap.sh`.
 
 ### Errors while compiling Belenios itself
 
