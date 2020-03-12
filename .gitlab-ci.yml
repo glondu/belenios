@@ -1,5 +1,6 @@
 stages:
   - test
+  - deploy
 
 build_and_test_with_preinstalled_image:
   stage: test
