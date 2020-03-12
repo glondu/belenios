@@ -1,5 +1,0 @@
-# Docker image used as FROM has been generated from ./Dockerfile_base_environment
-FROM glondu/beleniosbase-tests:20191210-1
-
-ENV PREPARED_DATABASE_VERSION v0.01
-RUN wget https://gitlab.com/swergas/belenios-prepared-database/-/archive/$PREPARED_DATABASE_VERSION/belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && tar -zxf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && rm -rf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && mv belenios-prepared-database-$PREPARED_DATABASE_VERSION belenios-prepared-database

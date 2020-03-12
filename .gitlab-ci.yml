@@ -74,15 +74,19 @@ build_and_run_automated_test_scenarios_with_preinstalled_image:
     - python3 ./tests/test_scenario_1.py
 
 build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_database:
-  stage: test
-  # Image swergas/beleniosbase-tests-with-prepared-database:latest is built by Dockerfile_test_scenario_environment_with_prepared_database
-  image: swergas/beleniosbase-tests-with-prepared-database:latest
+  stage: deploy
+  rules:
+    - changes:
+        - VERSION
+  image: glondu/beleniosbase-tests:20191210-1
+  variables:
+    PREPARED_DATABASE_VERSION: v0.01
   script:
     # Initialize environment
     - source ~/env.sh
-    # Copy database
+    # Import prepared database
     - mkdir -p _run/spool
-    - cp -R ~/belenios-prepared-database/* _run/spool
+    - wget https://gitlab.com/swergas/belenios-prepared-database/-/archive/$PREPARED_DATABASE_VERSION/belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && tar -zxf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && mv belenios-prepared-database-$PREPARED_DATABASE_VERSION/* _run/spool && rm -rf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz belenios-prepared-database-$PREPARED_DATABASE_VERSION
     # Compile belenios
     - BELENIOS_DEBUG=1 make all
     # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
