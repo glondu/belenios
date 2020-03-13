@@ -311,6 +311,8 @@ let appendQuestionNavigation question_div sk params qs =
   btns##.style##.textAlign := Js.string "center";
   let btn_prev = createLabeledButton (get_content "str_previous") in
   let btn_next = createLabeledButton (get_content "str_next") in
+  btn_prev##.id := Js.string "btn_prev";
+  btn_next##.id := Js.string "btn_next";
   Dom.appendChild btns btn_prev;
   Dom.appendChild btns btn_next;
   btn_prev##.style##.display := Js.string "none";
