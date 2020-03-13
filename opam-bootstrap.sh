@@ -4,9 +4,10 @@ set -e
 
 BELENIOS_SRC="${BELENIOS_SRC:-$PWD}"
 
-# Check that OCamlDuce is not installed
-if which ocamlduce >/dev/null; then
-    echo "Please uninstall OCamlDuce first, or remove it from your PATH."
+# Check that Dune is not installed
+# cf. https://github.com/ocaml/opam/issues/3987
+if command -v dune >/dev/null; then
+    echo "Please uninstall Dune first, or remove it from your PATH."
     exit 1
 fi
 
@@ -67,14 +68,18 @@ EOF
 echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
-opam init --bare --no-setup
+cd "$BELENIOS_SYSROOT"
+git clone https://github.com/ocaml/opam-repository.git
+cd opam-repository
+git reset --hard 0200b396894c6cfae40d7175530747bda96e3195
+opam init --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
 opam switch create 4.08.1 ocaml-base-compiler.4.08.1
 eval $(opam env)
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 csv eliom=6.10.1
+opam install --yes atdgen zarith cryptokit uuidm calendar cmdliner sqlite3 csv eliom
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

@@ -359,7 +359,7 @@ pris en compte.
 
         # He clicks on the "Next" button
         next_button_expected_label = "Next"
-        next_button_css_selector = "#question_div button"
+        next_button_css_selector = "#btn_next"
         next_button_element = wait_for_element_exists_and_contains_expected_text(browser, next_button_css_selector, next_button_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
         next_button_element.click()
 

@@ -55,7 +55,14 @@ let progress_step n =
     new_##.style##.fontWeight := Js.string "bold"
   in ()
 
-let appendHomomorphicQuestion div num_questions i q answers =
+type questionWidget =
+  {
+    div : Dom_html.divElement Js.t;
+    extract_answers : unit -> (int array * Dom_html.divElement Js.t) option;
+  }
+
+let createHomomorphicQuestionWidget q =
+  let div = Dom_html.createDiv document in
   let open Question_h_t in
   let () =
     let c = Dom_html.createH2 document in
@@ -66,11 +73,9 @@ let appendHomomorphicQuestion div num_questions i q answers =
   let () =
     let c = Dom_html.createDiv document in
     let fmt = Scanf.format_from_string
-      (get_content "question_header") "%d%d%d%d"
+      (get_content "question_header") "%d%d"
     in
-    let s = Printf.sprintf fmt
-      (i + 1) num_questions q.q_min q.q_max
-    in
+    let s = Printf.sprintf fmt q.q_min q.q_max in
     let t = document##createTextNode (Js.string s) in
     Dom.appendChild c t;
     Dom.appendChild div c
@@ -79,6 +84,7 @@ let appendHomomorphicQuestion div num_questions i q answers =
     | Some true -> Array.append [|get_content "str_blank_vote"|] q.q_answers
     | _ -> q.q_answers
   in
+  let answers = Array.make (Array.length q_answers) 0 in
   let () =
     let choices = Dom_html.createDiv document in
     choices##.className := Js.string "answer_div";
@@ -137,9 +143,45 @@ let appendHomomorphicQuestion div num_questions i q answers =
        let total = Array.fold_left (+) 0 answers in
        check_min_max total
   in
-  check_constraints
+  let create_summary () =
+    let e = Dom_html.createDiv document in
+    let h = Dom_html.createH3 document in
+    let t = document##createTextNode (Js.string q.q_question) in
+    Dom.appendChild h t;
+    Dom.appendChild e h;
+    let ul = Dom_html.createUl document in
+    let checked = ref 0 in
+    Array.iteri
+      (fun i a ->
+        if a > 0 then (
+          incr checked;
+          let li = Dom_html.createLi document in
+          let text = match q.q_blank with
+            | Some true -> if i = 0 then get_content "str_blank_vote" else q.q_answers.(i-1)
+            | _ -> q.q_answers.(i)
+          in
+          let t = document##createTextNode (Js.string text) in
+          Dom.appendChild li t;
+          Dom.appendChild ul li;
+        )
+      ) answers;
+    if !checked = 0 then (
+      let t = document##createTextNode (Js.string @@ get_content "str_nothing") in
+      Dom.appendChild ul t
+    );
+    Dom.appendChild e ul;
+    e
+  in
+  let extract_answers () =
+    if check_constraints () then
+      Some (Array.copy answers, create_summary ())
+    else
+      None
+  in
+  {div; extract_answers}
 
-let appendNonHomomorphicQuestion div q answers =
+let createNonHomomorphicQuestionWidget q =
+  let div = Dom_html.createDiv document in
   let open Question_nh_t in
   let () =
     let c = Dom_html.createH2 document in
@@ -147,6 +189,7 @@ let appendNonHomomorphicQuestion div q answers =
     Dom.appendChild c t;
     Dom.appendChild div c
   in
+  let answers = Array.make (Array.length q.q_answers) 0 in
   let inputs =
     let choices = Dom_html.createDiv document in
     choices##.className := Js.string "answer_div";
@@ -183,6 +226,12 @@ let appendNonHomomorphicQuestion div q answers =
     Dom.appendChild div choices;
     Array.map fst choices_divs
   in
+  let () =
+    let d = Dom_html.createDiv document in
+    d##.style##.margin := Js.string "1em";
+    Dom.appendChild div d;
+    Dom.appendChild d (document##createTextNode (Js.string (get_content "warning_0_255")))
+  in
   let check_constraints () =
     let n = Array.length inputs - 1 in
     let rec loop i =
@@ -204,158 +253,112 @@ let appendNonHomomorphicQuestion div q answers =
     in
     loop 0
   in
-  check_constraints
-
-let appendHomomorphicSummary e a q =
-  let open Question_h_t in
-  let h = Dom_html.createH3 document in
-  let t = document##createTextNode (Js.string q.q_question) in
-  Dom.appendChild h t;
-  Dom.appendChild e h;
-  let ul = Dom_html.createUl document in
-  let checked = ref 0 in
-  Array.iteri (fun i a ->
-      if a > 0 then (
-        incr checked;
+  let create_summary () =
+    let e = Dom_html.createDiv document in
+    let h = Dom_html.createH3 document in
+    let t = document##createTextNode (Js.string q.q_question) in
+    Dom.appendChild h t;
+    Dom.appendChild e h;
+    let ul = Dom_html.createUl document in
+    Array.iteri
+      (fun i a ->
         let li = Dom_html.createLi document in
-        let text = match q.q_blank with
-          | Some true -> if i = 0 then get_content "str_blank_vote" else q.q_answers.(i-1)
-          | _ -> q.q_answers.(i)
-        in
+        let text = Printf.sprintf "%d (%s)" a q.q_answers.(i) in
         let t = document##createTextNode (Js.string text) in
         Dom.appendChild li t;
         Dom.appendChild ul li;
-      )
-    ) a;
-  if !checked = 0 then (
-    let t = document##createTextNode (Js.string @@ get_content "str_nothing") in
-    Dom.appendChild ul t
-  );
-  Dom.appendChild e ul
-
-let appendNonHomomorphicSummary e a q =
-  let open Question_nh_t in
-  let h = Dom_html.createH3 document in
-  let t = document##createTextNode (Js.string q.q_question) in
-  Dom.appendChild h t;
-  Dom.appendChild e h;
-  let ul = Dom_html.createUl document in
-  Array.iteri (fun i a ->
-      let li = Dom_html.createLi document in
-      let text = Printf.sprintf "%d (%s)" a q.q_answers.(i) in
-      let t = document##createTextNode (Js.string text) in
-      Dom.appendChild li t;
-      Dom.appendChild ul li;
-    ) a;
-  Dom.appendChild e ul
-
-let rec createQuestionNode sk params question_div num_questions i prev (q, answers) next =
-  (* Create div element for the current question. [i] and [(q,
-     answers)] point to the current question. [List.rev prev @ [q,
-     answers] @ next] is the list of all questions. *)
-  let div = Dom_html.createDiv document in
-  let nh, check_constraints =
-    match q with
-    | Question.Homomorphic q -> false, appendHomomorphicQuestion div num_questions i q answers
-    | Question.NonHomomorphic q -> true, appendNonHomomorphicQuestion div q answers
+      ) answers;
+    Dom.appendChild e ul;
+    e
   in
-  let () =
-    (* previous button *)
-    let btns = Dom_html.createDiv document in
-    btns##.style##.textAlign := Js.string "center";
-    let () =
-      match prev with
-      | [] ->
-        (* first question, no "Previous" button *)
-        ()
-      | r :: prev ->
-        let b = Dom_html.createButton document in
-        let t = document##createTextNode (Js.string @@ get_content "str_previous") in
-        b##.onclick := Dom_html.handler (fun _ ->
-          if check_constraints () then (
-            let ndiv = createQuestionNode sk params
-              question_div num_questions (i - 1) prev r ((q, answers) :: next)
-            in
-            Dom.replaceChild question_div ndiv div;
-            Js._false
-          ) else Js._false
-        );
-        Dom.appendChild b t;
-        Dom.appendChild btns b;
-    in
-    let () =
-      (* next button *)
-      match next with
-      | [] ->
-        (* last question, the button leads to encryption page *)
-        let b = Dom_html.createButton document in
-        let t = document##createTextNode (Js.string @@ get_content "str_next") in
-        b##.onclick := Dom_html.handler (fun _ ->
-         if check_constraints () then (
-          let all = (q, answers) :: prev in
-          let all_answers = List.rev_map snd all |> Array.of_list in
-          let all_questions = List.rev_map fst all |> Array.of_list in
-          set_textarea "choices" (string_of_plaintext all_answers);
-          question_div##.style##.display := Js.string "none";
-          let () =
-            document##getElementById (Js.string "pretty_choices") >>== fun e ->
-            Array.iteri (fun i a ->
-                match all_questions.(i) with
-                | Question.Homomorphic q -> appendHomomorphicSummary e a q
-                | Question.NonHomomorphic q -> appendNonHomomorphicSummary e a q
-              ) all_answers
-          in
-          Lwt_js_events.async (encryptBallot params sk all_answers);
-          set_element_display "plaintext_div" "block";
-          progress_step 3;
-          Js._false
-         ) else Js._false
-        );
-        Dom.appendChild b t;
-        Dom.appendChild btns b
-      | r :: next ->
-        let b = Dom_html.createButton document in
-        let t = document##createTextNode (Js.string @@ get_content "str_next") in
-        b##.onclick := Dom_html.handler (fun _ ->
-          if check_constraints () then (
-            let ndiv = createQuestionNode sk params
-              question_div num_questions (i + 1) ((q, answers) :: prev) r next
-            in
-            Dom.replaceChild question_div ndiv div;
-            Js._false
-          ) else Js._false
-        );
-        Dom.appendChild b t;
-        Dom.appendChild btns b;
-    in
-    Dom.appendChild div btns
+  let extract_answers () =
+    if check_constraints () then
+      Some (Array.copy answers, create_summary ())
+    else
+      None
   in
-  let () =
-    if nh then (
-      let d = Dom_html.createDiv document in
-      d##.style##.marginTop := Js.string "1em";
-      Dom.appendChild div d;
-      Dom.appendChild d (document##createTextNode (Js.string (get_content "warning_0_255")))
-    )
-  in
-  div
+  {div; extract_answers}
 
-let addQuestions sk params qs =
-  document##getElementById (Js.string "question_div") >>== fun e ->
+let createQuestionWidget = function
+  | Question.Homomorphic q -> createHomomorphicQuestionWidget q
+  | Question.NonHomomorphic q -> createNonHomomorphicQuestionWidget q
+
+let createLabeledButton label =
+  let b = Dom_html.createButton document in
+  let t = document##createTextNode (Js.string label) in
+  Dom.appendChild b t;
+  b
+
+let arrayMapOptionGet xs =
+  try
+    Array.map
+      (function
+       | Some x -> x
+       | None -> raise Exit
+      ) xs
+    |> (fun x -> Some x)
+  with
+  | Exit -> None
+
+let appendQuestionNavigation question_div sk params qs =
+  let qs = Array.map createQuestionWidget qs in
   let n = Array.length qs in
-  let qs =
-    Array.to_list qs |>
-      List.map (fun q ->
-          match q with
-          | Question.Homomorphic x -> q, Array.make (Question_h.question_length x) 0
-          | Question.NonHomomorphic x -> q, Array.make (Array.length x.Question_nh_t.q_answers) 0
-        )
-  in
-  match qs with
-  | [] -> failwith "no questions"
-  | q :: next ->
-     let div = createQuestionNode sk params e n 0 [] q next in
-     Dom.appendChild e div
+  let answers = Array.make n None in
+  if n < 1 then failwith "no questions";
+  let cur = ref 0 in
+  Dom.appendChild question_div qs.(!cur).div;
+  let btns = Dom_html.createDiv document in
+  btns##.style##.textAlign := Js.string "center";
+  let btn_prev = createLabeledButton (get_content "str_previous") in
+  let btn_next = createLabeledButton (get_content "str_next") in
+  btn_prev##.id := Js.string "btn_prev";
+  btn_next##.id := Js.string "btn_next";
+  Dom.appendChild btns btn_prev;
+  Dom.appendChild btns btn_next;
+  btn_prev##.style##.display := Js.string "none";
+  btn_prev##.onclick :=
+    Dom_html.handler
+      (fun _ ->
+        answers.(!cur) <- qs.(!cur).extract_answers ();
+        match answers.(!cur) with
+        | None -> Js._false
+        | Some _ ->
+           decr cur;
+           let d = if !cur = 0 then "none" else "inline" in
+           btn_prev##.style##.display := Js.string d;
+           Dom.replaceChild question_div qs.(!cur).div qs.(!cur + 1).div;
+           Js._true
+      );
+  btn_next##.onclick :=
+    Dom_html.handler
+      (fun _ ->
+        answers.(!cur) <- qs.(!cur).extract_answers ();
+        match answers.(!cur) with
+        | None -> Js._false
+        | Some _ ->
+           if !cur < n - 1 then (
+             incr cur;
+             btn_prev##.style##.display := Js.string "inline";
+             Dom.replaceChild question_div qs.(!cur).div qs.(!cur - 1).div;
+             Js._true
+           ) else (
+             match arrayMapOptionGet answers with
+             | None -> Js._false
+             | Some answers ->
+                question_div##.style##.display := Js.string "none";
+                let plaintext = Array.map fst answers in
+                set_textarea "choices" (string_of_plaintext plaintext);
+                let () =
+                  document##getElementById (Js.string "pretty_choices") >>== fun e ->
+                  Array.iter (fun (_, a) -> Dom.appendChild e a) answers
+                in
+                Lwt_js_events.async (encryptBallot params sk plaintext);
+                set_element_display "plaintext_div" "block";
+                progress_step 3;
+                Js._true
+           )
+      );
+  Dom.appendChild question_div btns
 
 let createStartButton params intro_div qs =
   let b = Dom_html.createButton document in
@@ -370,7 +373,8 @@ let createStartButton params intro_div qs =
         Js._false
       );
       progress_step 2;
-      addQuestions cred params qs
+      document##getElementById (Js.string "question_div") >>== fun e ->
+      appendQuestionNavigation e cred params qs
     | Some _ ->
        alert (get_content "invalid_cred")
     | None -> ()
