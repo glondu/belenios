@@ -11,7 +11,7 @@ If the Application Under Test is your local Belenios server:
 In a local terminal, start your Belenios server:
 
 ```
-BELENIOS_SENDMAIL=/path/to/tests/tools/sendmail_fake_to_static.sh demo/run-server.sh
+BELENIOS_SENDMAIL=tests/tools/sendmail_fake_to_static.sh demo/run-server.sh
 ```
 
 Else (the Application Under Test is a distant Belenios server):

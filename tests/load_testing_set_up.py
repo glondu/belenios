@@ -111,7 +111,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
         belenios_tool_generate_ballots(self.voters_data, self.credential_file_id, self.election_page_url)
 
     def export_all_votes_csv(self):
-        generated_files_destination_folder = settings.GIT_REPOSITORY_ABSOLUTE_PATH # TODO: generate a temporary folder and remove it after load test has run
+        generated_files_destination_folder = settings.GENERATED_FILES_DESTINATION_FOLDER
         csv_file_path = os.path.join(generated_files_destination_folder, 'all_votes.csv')
         with open(csv_file_path, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -140,6 +140,9 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
 
 
     def test_load_testing_set_up(self):
+        # Create (if it does not exist) folder that will contain all files created by this script
+        os.makedirs(settings.GENERATED_FILES_DESTINATION_FOLDER, exist_ok=True)
+
         # Download server's sent emails text file, so that we know up to which line number we have to ignore its contents (this is its last line)
         try:
             temporary_fake_sent_emails_manager = self.download_all_sent_emails()
@@ -229,6 +232,7 @@ if __name__ == "__main__":
     settings.ADMINISTRATOR_PASSWORD = os.getenv('ADMINISTRATOR_PASSWORD', settings.ADMINISTRATOR_PASSWORD)
     settings.ELECTION_TITLE = os.getenv('ELECTION_TITLE', settings.ELECTION_TITLE)
     settings.ELECTION_DESCRIPTION = os.getenv('ELECTION_DESCRIPTION', settings.ELECTION_DESCRIPTION)
+    settings.GENERATED_FILES_DESTINATION_FOLDER = os.getenv('GENERATED_FILES_DESTINATION_FOLDER', settings.GENERATED_FILES_DESTINATION_FOLDER)
 
     console_log("SERVER_URL:", settings.SERVER_URL)
     console_log("START_SERVER:", settings.START_SERVER)
@@ -244,5 +248,6 @@ if __name__ == "__main__":
     console_log("LOGIN_MODE:", settings.LOGIN_MODE)
     console_log("ELECTION_TITLE:", settings.ELECTION_TITLE)
     console_log("ELECTION_DESCRIPTION:", settings.ELECTION_DESCRIPTION)
+    console_log("GENERATED_FILES_DESTINATION_FOLDER:", settings.GENERATED_FILES_DESTINATION_FOLDER)
 
     unittest.main()

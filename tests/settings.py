@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-from os.path import abspath, dirname
+from os.path import abspath, dirname, join
 
 SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
 SERVER_URL = "http://localhost:8001"
@@ -26,6 +26,7 @@ ADMINISTRATOR_PASSWORD = "phiexoey" # This value comes from file `demo/password_
 INITIATOR_CONTACT = "Election initiator <election.initiator@mytestelection.com>"
 
 GIT_REPOSITORY_ABSOLUTE_PATH = dirname(dirname(abspath(__file__)))
+GENERATED_FILES_DESTINATION_FOLDER = join(GIT_REPOSITORY_ABSOLUTE_PATH, "_testdata")
 
 
 # These variables are used by Scenario 2 only

@@ -323,7 +323,7 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None):
 
     if not number_of_voters:
         number_of_voters = settings.NUMBER_OF_INVITED_VOTERS
-    generated_files_destination_folder = settings.GIT_REPOSITORY_ABSOLUTE_PATH
+    generated_files_destination_folder = settings.GENERATED_FILES_DESTINATION_FOLDER
     belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
     crypto_group_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "demo/groups/default.json")
     command = [belenios_tool_path, "credgen", "--uuid", election_id, "--group", crypto_group_path, "--count", str(number_of_voters)]
@@ -347,7 +347,7 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None):
 
 
 def belenios_tool_generate_ballots(voters_data, global_credential_file_id, vote_page_url):
-    generated_files_destination_folder = settings.GIT_REPOSITORY_ABSOLUTE_PATH # TODO: generate a temporary folder and remove it after load test has run
+    generated_files_destination_folder = settings.GENERATED_FILES_DESTINATION_FOLDER
     belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
 
     i = 0
