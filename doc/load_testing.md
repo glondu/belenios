@@ -41,18 +41,18 @@ source venv/bin/activate
 
 If the Application Under Test is your local Belenios server:
 
-Execute the script:
+Adapt and execute the script:
 
 ````
-BELENIOS_USE_URANDOM=1 USE_HEADLESS_BROWSER=0 SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/_build/src/static/mail.txt FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY=tests/tools/sendmail_fake_to_static.sh FAKE_SENT_EMAILS_FILE_RELATIVE_URL=static/mail.txt python ./tests/load_testing_set_up.py
+BELENIOS_USE_URANDOM=1 USE_HEADLESS_BROWSER=0 SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/_build/src/static/mail.txt FAKE_SENT_EMAILS_FILE_RELATIVE_URL=static/mail.txt FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY=tests/tools/sendmail_fake_to_static.sh NUMBER_OF_INVITED_VOTERS=500 NUMBER_OF_VOTING_VOTERS=250 python ./tests/load_testing_set_up.py
 ````
 
 Else (the Application Under Test is a distant Belenios server):
 
-Execute the script:
+Adapt and execute the script:
 
 ```
-SERVER_URL=https://belenios2.lhs.loria.fr BELENIOS_USE_URANDOM=1 USE_HEADLESS_BROWSER=0 LOGIN_MODE=public ADMINISTRATOR_USERNAME=your_belenios_administrator_user_login ADMINISTRATOR_PASSWORD=your_belenios_administrator_user_password SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/belenios/git/repository/_build/src/static/mail.txt FAKE_SENT_EMAILS_FILE_RELATIVE_URL=mail/mails.txt FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY=tests/tools/sendmail_fake_to_static.sh python ./tests/load_testing_set_up.py
+SERVER_URL=https://belenios2.lhs.loria.fr BELENIOS_USE_URANDOM=1 USE_HEADLESS_BROWSER=0 LOGIN_MODE=public ADMINISTRATOR_USERNAME=your_belenios_administrator_user_login ADMINISTRATOR_PASSWORD=your_belenios_administrator_user_password SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/belenios/git/repository/_build/src/static/mail.txt FAKE_SENT_EMAILS_FILE_RELATIVE_URL=mail/mails.txt FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY=tests/tools/sendmail_fake_to_static.sh NUMBER_OF_INVITED_VOTERS=500 NUMBER_OF_VOTING_VOTERS=250 python ./tests/load_testing_set_up.py
 ```
 
 This prints in the output several things including the ID of the election. Copy it for later. This also creates files `voter_row_{i}_crypted_ballot.json`, `voter_row_{i}_privcred.txt`, `voter_row_{i}_uncrypted_ballot.json` for each voter `{i}`. This also creates file `all_votes.csv`.
