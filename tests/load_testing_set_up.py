@@ -144,6 +144,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
         os.makedirs(settings.GENERATED_FILES_DESTINATION_FOLDER, exist_ok=True)
 
         # Download server's sent emails text file, so that we know up to which line number we have to ignore its contents (this is its last line)
+        temporary_fake_sent_emails_manager = None
         try:
             temporary_fake_sent_emails_manager = self.download_all_sent_emails()
             self.fake_sent_emails_initial_lines_count = temporary_fake_sent_emails_manager.count_lines()

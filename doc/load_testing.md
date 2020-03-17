@@ -4,6 +4,16 @@ To set up a load test that will make fake users submit encrypted ballot files, y
 
 ## Set up a load test
 
+### Compile Belenios with debug flag
+
+You need to compile `belenios-tool` with `BELENIOS_DEBUG=1` environment variable, and execute `belenios-tool` with `BELENIOS_USE_URANDOM=1` environment variable, in order to speed up generation of a high amount of ballots files. In these conditions, `belenios-tool` generates random numbers using `/dev/urandom` instead of `/dev/random`, which is much faster and reduces a lot the probability to exhaust the random numbers pool, which would lead to timeout errors when executing `belenios-tool` automatically (using `tests/load_testing_set_up.py`).
+
+```
+make clean
+_build/sanitize.sh
+BELENIOS_DEBUG=1 make all
+```
+
 ### Start the server
 
 If the Application Under Test is your local Belenios server:
