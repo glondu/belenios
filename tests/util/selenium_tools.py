@@ -65,6 +65,17 @@ class an_element_with_partial_link_text_exists(object):
         return element
 
 
+class an_element_with_link_text_exists(object):
+    def __init__(self, link_text):
+        self.link_text = link_text
+
+    def __call__(self, driver):
+        element = driver.find_element_by_link_text(self.link_text)
+        if not element:
+            return False
+        return element
+
+
 class element_exists_and_contains_expected_text(object):
     """
     An expectation for checking that an element exists and its innerText attribute contains expected text.
@@ -133,6 +144,16 @@ def wait_for_an_element_with_partial_link_text_exists(browser, partial_link_text
         return element
     except Exception as e:
         raise Exception("Could not find a DOM element that contains expected partial link text '" + partial_link_text + "' until timeout of " + str(wait_duration) + " seconds") from e
+
+
+def wait_for_an_element_with_link_text_exists(browser, link_text, wait_duration=DEFAULT_WAIT_DURATION):
+    try:
+        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
+        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
+        element = custom_wait.until(an_element_with_link_text_exists(link_text))
+        return element
+    except Exception as e:
+        raise Exception("Could not find a DOM element that has expected link text '" + link_text + "' until timeout of " + str(wait_duration) + " seconds") from e
 
 
 def wait_for_element_exists(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):

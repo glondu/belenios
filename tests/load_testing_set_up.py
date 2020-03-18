@@ -115,7 +115,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
         csv_file_path = os.path.join(generated_files_destination_folder, 'all_votes.csv')
         with open(csv_file_path, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            csvwriter.writerow(['voter_email_address', 'voter_password', 'voter_credential', 'voter_encrypted_ballot_file_path', 'election_page_url'])
+            csvwriter.writerow(['voter_email_address', 'voter_password', 'voter_credential', 'voter_encrypted_ballot_file_name', 'election_page_url'])
             i = 0
             for k, v in self.voters_data.items():
                 i += 1
@@ -123,7 +123,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
                 voter_password = v['password']
                 voter_credential = v['credential']
                 voter_crypted_ballot_file = "voter_row_" + str(i) + "_crypted_ballot.json"
-                voter_encrypted_ballot_file_path = os.path.join(generated_files_destination_folder, voter_crypted_ballot_file)
+                voter_encrypted_ballot_file_path = voter_crypted_ballot_file # or for absolute path: os.path.join(generated_files_destination_folder, voter_crypted_ballot_file)
                 election_page_url = v['election_page_url']
                 csvwriter.writerow([voter_email_address, voter_password, voter_credential, voter_encrypted_ballot_file_path, election_page_url])
 
@@ -200,7 +200,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
         self.generate_vote_ballots()
         console_log("### Step complete: generate_vote_ballots")
 
-        # Export a CSV file to be imported by the jmeter load testing script. It contains fields 'voter_email_address', 'voter_password', 'voter_credential', 'voter_encrypted_ballot_file_path', 'election_page_url'
+        # Export a CSV file to be imported by the jmeter load testing script. It contains fields 'voter_email_address', 'voter_password', 'voter_credential', 'voter_encrypted_ballot_file_name', 'election_page_url'
         console_log("### Starting step: export_all_votes_csv")
         self.export_all_votes_csv()
         console_log("### Step complete: export_all_votes_csv")
