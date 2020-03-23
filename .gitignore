@@ -4,6 +4,7 @@
 *.dvi
 _build
 _run
+_testdata
 venv
 __pycache__
 geckodriver.log
