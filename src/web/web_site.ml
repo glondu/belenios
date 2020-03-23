@@ -843,8 +843,30 @@ let () =
                  Printf.ksprintf failwith "%S is not a valid identity" bad
               | None -> ()
             in
-            se.se_voters <- merge_voters se.se_voters voters (fun _ -> None);
-            redir_preapply election_draft_voters uuid ()
+            let voters = merge_voters se.se_voters voters (fun _ -> None) in
+            let uses_password_auth =
+              match se.se_metadata.e_auth_config with
+              | Some configs ->
+                 List.exists
+                   (fun {auth_system; _} -> auth_system = "password")
+                   configs
+              | None -> false
+            in
+            let cred_auth_is_server =
+              se.se_metadata.e_cred_authority = Some "server"
+            in
+            if
+              (uses_password_auth || cred_auth_is_server)
+              && List.length voters > !Web_config.maxmailsatonce
+            then
+              Lwt.fail
+                (Failure
+                   (Printf.sprintf "There are too many voters (max is %d)"
+                      !Web_config.maxmailsatonce))
+            else (
+              se.se_voters <- voters;
+              redir_preapply election_draft_voters uuid ()
+            )
           )
         )
     )
