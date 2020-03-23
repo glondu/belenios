@@ -33,6 +33,14 @@ def random_generator(size=20, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
 
+# Yield successive n-sized 
+# chunks from l. 
+def divide_chunks(l, n): 
+    # looping till length l 
+    for i in range(0, len(l), n):  
+        yield l[i:i + n] 
+
+
 def populate_credential_and_password_for_voters_from_sent_emails(fake_sent_emails_manager, voters_email_addresses, election_title):
     """
     Reads the file that gathers all sent emails to find, for each voter provided in array voters_email_addresses, their credential and their latest sent password. Returns an array, where each element is a dictionary with fields "email_address", "credential", "election_page_url", "username", and "password".
@@ -666,26 +674,35 @@ def administrator_sets_election_voters(browser, voters_email_addresses):
 
     wait_a_bit()
 
-    # She types N e-mail addresses (the list of invited voters)
-    voters_list_field_css_selector = "#main form textarea"
-    voters_list_field_element = wait_for_element_exists(browser, voters_list_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-    voters_list_field_element.clear()
-    is_first = True
-    for email_address in voters_email_addresses:
-        if is_first:
-            is_first = False
-        else:
-            voters_list_field_element.send_keys(Keys.ENTER)
-        voters_list_field_element.send_keys(email_address)
+    # Split voters_email_addresses into batches of maximum 1000 elements (this is a limit imposed by Belenios UI)
+    splitted_voters_email_addresses = list(divide_chunks(voters_email_addresses, 1000))
 
-    wait_a_bit()
+    for batch_of_email_addresses in splitted_voters_email_addresses:
+        # She types N e-mail addresses (the list of invited voters)
+        voters_list_field_css_selector = "#main form textarea"
+        voters_list_field_element = wait_for_element_exists(browser, voters_list_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        voters_list_field_element.clear()
+        last_email_address_typed = None
+        is_first = True
+        for email_address in batch_of_email_addresses:
+            if is_first:
+                is_first = False
+            else:
+                voters_list_field_element.send_keys(Keys.ENTER)
+            voters_list_field_element.send_keys(email_address)
+            last_email_address_typed = email_address
 
-    # She clicks on the "Add" button to submit changes
-    add_button_css_selector = "#main form input[type=submit]"
-    add_button_element = browser.find_element_by_css_selector(add_button_css_selector)
-    add_button_element.click()
+        wait_a_bit()
 
-    wait_a_bit()
+        # She clicks on the "Add" button to submit changes
+        voters_list_field_element.submit()
+
+        wait_a_bit()
+
+        # She waits until the returned page displays the last email address typed
+        if last_email_address_typed:
+            expected_email_address_css_selector = "tr:last-child td:first-child"
+            wait_for_element_exists_and_contains_expected_text(browser, expected_email_address_css_selector, last_email_address_typed)
 
     # She clicks on "Return to draft page" link
     return_link_label = "Return to draft page"
