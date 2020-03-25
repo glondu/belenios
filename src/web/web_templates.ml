@@ -31,6 +31,8 @@ open Web_services
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 
+let ( / ) = Filename.concat
+
 (* TODO: these pages should be redesigned *)
 
 let site_title = "Election Server"
@@ -1600,10 +1602,26 @@ let election_draft_confirm uuid se () =
        else false, notok "Missing"
     | _ -> ready, ok "Not applicable"
   in
+  let cred_auth_is_server = se.se_metadata.e_cred_authority = Some "server" in
   let ready, credentials =
     if se.se_public_creds_received then
-      ready, ok (if se.se_metadata.e_cred_authority = None then "Received" else "Sent")
+      ready, ok (if cred_auth_is_server then "Sent" else "Received")
     else false, notok "Missing"
+  in
+  let%lwt private_creds_downloaded =
+    file_exists (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.downloaded")
+  in
+  let private_creds =
+    if cred_auth_is_server && not private_creds_downloaded then
+      span
+        [
+          notok "Not downloaded.";
+          pcdata " Please ";
+          a ~service:election_draft_credentials_get [pcdata "download"] uuid;
+          pcdata " and save them securely.";
+        ]
+    else
+      ok "OK"
   in
   let ready, trustees =
     match se.se_public_keys with
@@ -1665,6 +1683,10 @@ let election_draft_confirm uuid se () =
     tr [
       td [pcdata "Credentials?"];
       td [credentials];
+    ];
+    tr [
+      td [pcdata "Private credentials?"];
+      td [private_creds];
     ];
     tr [
       td [pcdata "Trustees?"];
