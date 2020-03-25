@@ -199,6 +199,7 @@ let validate_election uuid se =
   let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "draft.json") in
   (* clean up private credentials, if any *)
   let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_creds.txt") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_creds.downloaded") in
   (* write passwords *)
   let%lwt () =
     match metadata.e_auth_config with
@@ -1097,6 +1098,7 @@ let () =
     (fun uuid () ->
       with_draft_election_ro uuid
         (fun _ ->
+          let%lwt () = write_file ~uuid "private_creds.downloaded" [] in
           File.send ~content_type:"text/plain"
             (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.txt")
         )
