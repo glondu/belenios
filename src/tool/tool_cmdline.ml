@@ -433,7 +433,7 @@ module Election : CMDLINER_MODULE = struct
 
   let privcreds_t =
     let doc = "Read private credentials from file $(docv)." in
-    let the_info = Arg.info ["privkeys"] ~docv:"PRIVCREDS" ~doc in
+    let the_info = Arg.info ["privcreds"] ~docv:"PRIVCREDS" ~doc in
     Arg.(value & opt (some file) None the_info)
 
   let vote_cmd =
