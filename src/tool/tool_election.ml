@@ -42,6 +42,7 @@ module type S = sig
   val verify : unit -> unit
   val shuffle_ciphertexts : unit -> string
   val checksums : unit -> string
+  val compute_voters : string list -> string list
 end
 
 module type PARSED_PARAMS = sig
@@ -319,6 +320,34 @@ module Make (P : PARSED_PARAMS) : S = struct
     in
     Election.compute_checksums ~election ?result ~trustees ~public_credentials
     |> string_of_election_checksums
+
+  let split line =
+    match String.index_opt line ' ' with
+    | None -> Printf.ksprintf failwith "Invalid private credential line (%S)" line
+    | Some i -> String.sub line 0 i, String.sub line (i + 1) (String.length line - i - 1)
+
+  let compute_voters privcreds =
+    let module D = Credential.MakeDerive (G) in
+    let module GMap = Map.Make (G) in
+    let map =
+      List.fold_left
+        (fun accu line ->
+          let id, cred = split line in
+          GMap.add G.(g **~ D.derive election.e_params.e_uuid cred) id accu
+        ) GMap.empty privcreds
+    in
+    (match Lazy.force ballots with
+     | None -> []
+     | Some bs -> bs)
+    |> List.map
+         (fun (b, h) ->
+           match b.signature with
+           | None -> Printf.ksprintf failwith "Missing signature in ballot %s" h
+           | Some s ->
+              match GMap.find_opt s.s_public_key map with
+              | None -> Printf.ksprintf failwith "Unknown public key in ballot %s" h
+              | Some id -> id
+         )
 
 end
 

@@ -405,6 +405,8 @@ module Election : CMDLINER_MODULE = struct
          print_endline s
       | `Checksums ->
          X.checksums () |> print_endline
+      | `ComputeVoters privcreds ->
+         X.compute_voters privcreds |> List.iter print_endline
       end;
       if cleanup then rm_rf dir
     )
@@ -427,6 +429,11 @@ module Election : CMDLINER_MODULE = struct
   let pdk_t =
     let doc = "Read (encrypted) decryption key from file $(docv)." in
     let the_info = Arg.info ["decryption-key"] ~docv:"KEY" ~doc in
+    Arg.(value & opt (some file) None the_info)
+
+  let privcreds_t =
+    let doc = "Read private credentials from file $(docv)." in
+    let the_info = Arg.info ["privkeys"] ~docv:"PRIVCREDS" ~doc in
     Arg.(value & opt (some file) None the_info)
 
   let vote_cmd =
@@ -507,6 +514,27 @@ module Election : CMDLINER_MODULE = struct
     Term.(ret (pure main $ url_t $ optdir_t $ pure `Checksums)),
     Term.info "checksums" ~doc ~man
 
+  let compute_voters_cmd =
+    let doc = "compute actual voters" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command computes the list of voters that actually voted in an election, from the list of ballots and private credentials.";
+      ] @ common_man
+    in
+    let main =
+      Term.pure
+        (fun u d privcreds ->
+          let privcreds =
+            get_mandatory_opt "--privcreds" privcreds
+            |> lines_of_file
+            |> stream_to_list
+          in
+          main u d (`ComputeVoters privcreds)
+        )
+    in
+    Term.(ret (main $ url_t $ optdir_t $ privcreds_t)),
+    Term.info "compute-voters" ~doc ~man
+
   let cmds =
     [
       vote_cmd;
@@ -515,7 +543,8 @@ module Election : CMDLINER_MODULE = struct
       tdecrypt_cmd;
       validate_cmd;
       shuffle_cmd;
-      checksums_cmd
+      checksums_cmd;
+      compute_voters_cmd;
     ]
 
 end
