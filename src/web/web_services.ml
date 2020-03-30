@@ -78,6 +78,7 @@ let election_draft_import_post = create_attached_post ~fallback:election_draft_i
 let election_draft_import_trustees = create ~path:(Path ["draft"; "import-trustees"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_import_trustees_post = create_attached_post ~fallback:election_draft_import_trustees ~post_params:(string "from") ()
 
+let election_home_dir = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid"))) ()
 let election_home = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** suffix_const ""))) ()
 let set_cookie_disclaimer = create ~path:No_path ~meth:(Get (site_cont "cont")) ()
 let election_admin = create ~path:(Path ["election"; "admin"]) ~meth:(Get (uuid "uuid")) ()

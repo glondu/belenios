@@ -1328,6 +1328,12 @@ let () =
     )
 
 let () =
+  Redirection.register ~service:election_home_dir
+    (fun uuid () ->
+      return (Redirection (preapply election_home (uuid, ())))
+    )
+
+let () =
   Any.register ~service:election_home
     (fun (uuid, ()) () ->
       match%lwt find_election uuid with
