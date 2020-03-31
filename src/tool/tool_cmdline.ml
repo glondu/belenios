@@ -377,6 +377,7 @@ module Election : CMDLINER_MODULE = struct
         in
         print_endline (X.vote (Some privcred) ballot)
       | `Decrypt privkey ->
+        X.verify ();
         let privkey =
           match load_from_file (fun x -> x) privkey with
           | Some [privkey] -> privkey
