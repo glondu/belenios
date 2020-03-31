@@ -297,7 +297,7 @@ end
 
 (** Computing checksums *)
 
-let compute_checksums ~election ?result ~trustees ~public_credentials =
+let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials =
   let ec_election = sha256_b64 election in
   let ec_public_credentials = sha256_b64 public_credentials in
   let tc_of_tpk k =
@@ -315,31 +315,37 @@ let compute_checksums ~election ?result ~trustees ~public_credentials =
          )
     |> List.flatten
   in
+  let combine shuffles shufflers =
+    match shuffles, shufflers with
+    | Some shuffles, Some shufflers ->
+       List.combine shuffles shufflers
+       |> List.map
+            (fun (shuffle, shuffler) ->
+              let shuffle = string_of_shuffle Yojson.Safe.write_json shuffle in
+              let tc_checksum = sha256_b64 shuffle in
+              {tc_checksum; tc_name = shuffler}
+            )
+       |> (fun x -> Some x)
+    | Some shuffles, None ->
+       shuffles
+       |> List.map
+            (fun shuffle ->
+              let shuffle = string_of_shuffle Yojson.Safe.write_json shuffle in
+              let tc_checksum = sha256_b64 shuffle in
+              {tc_checksum; tc_name = None}
+            )
+       |> (fun x -> Some x)
+    | None, None -> None
+    | _, _ -> failwith "ill-formed result"
+  in
   let ec_shuffles =
-    match result with
-    | None -> None
-    | Some result ->
+    match result_or_shuffles with
+    | `Nothing -> None
+    | `Shuffles (shuffles, shufflers) ->
+       let shuffles = List.map (shuffle_of_string Yojson.Safe.read_json) shuffles in
+       combine (Some shuffles) shufflers
+    | `Result result ->
        let result = election_result_of_string Yojson.Safe.read_json result in
-       match result.shuffles, result.shufflers with
-       | Some shuffles, Some shufflers ->
-          List.combine shuffles shufflers
-          |> List.map
-               (fun (shuffle, shuffler) ->
-                 let shuffle = string_of_shuffle Yojson.Safe.write_json shuffle in
-                 let tc_checksum = sha256_b64 shuffle in
-                 {tc_checksum; tc_name = shuffler}
-               )
-          |> (fun x -> Some x)
-       | Some shuffles, None ->
-          shuffles
-          |> List.map
-               (fun shuffle ->
-                 let shuffle = string_of_shuffle Yojson.Safe.write_json shuffle in
-                 let tc_checksum = sha256_b64 shuffle in
-                 {tc_checksum; tc_name = None}
-               )
-          |> (fun x -> Some x)
-       | None, None -> None
-       | _, _ -> failwith "ill-formed result"
+       combine result.shuffles result.shufflers
   in
   {ec_election; ec_trustees; ec_public_credentials; ec_shuffles}

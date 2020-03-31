@@ -178,30 +178,36 @@ module Make (P : PARSED_PARAMS) : S = struct
         |> Option.map (election_result_of_string G.read)
       )
 
-  let shuffles =
+  let shuffles_as_text =
     lazy (
         match Lazy.force result, get_shuffles () with
         | Some _, Some _ -> failwith "both shuffles.jsons and result.json exist"
         | None, None -> None
-        | Some result, None -> result.shuffles
+        | Some result, None ->
+           result.shuffles
+           |> Option.map (List.map (string_of_shuffle G.write))
         | None, Some s ->
            let rec loop accu =
              if (try Stream.empty s; true with Stream.Failure -> false) then
                Some (List.rev accu)
              else
-               let s = shuffle_of_string G.read (Stream.next s) in
-               loop (s :: accu)
+               loop (Stream.next s :: accu)
            in
            loop []
+      )
+
+  let shuffles =
+    lazy
+      (
+        Lazy.force shuffles_as_text
+        |> Option.map (List.map (shuffle_of_string G.read))
       )
 
   let shuffles_hash =
     lazy
       (
-        Lazy.force shuffles
-        |> Option.map
-             (List.map
-                (fun s -> sha256_b64 (string_of_shuffle G.write s)))
+        Lazy.force shuffles_as_text
+        |> Option.map (List.map sha256_b64)
       )
 
   let shuffles_check =
@@ -319,7 +325,14 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   let checksums () =
     let election = election_as_string in
-    let result = Lazy.force result_as_string in
+    let result_or_shuffles =
+      match Lazy.force result_as_string with
+      | Some r -> `Result r
+      | None ->
+         match Lazy.force shuffles_as_text with
+         | None -> `Nothing
+         | Some shuffles -> `Shuffles (shuffles, None)
+    in
     let trustees =
       match trustees_as_string with
       | None -> failwith "missing trustees"
@@ -335,7 +348,7 @@ module Make (P : PARSED_PARAMS) : S = struct
          |> List.map (fun x -> G.to_string x ^ "\n")
          |> String.concat ""
     in
-    Election.compute_checksums ~election ?result ~trustees ~public_credentials
+    Election.compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
     |> string_of_election_checksums
 
   let split line =

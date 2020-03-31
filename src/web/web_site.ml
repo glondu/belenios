@@ -1399,7 +1399,8 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
             match%lwt Web_persist.append_to_shuffles uuid shuffle with
             | Some h ->
                let sh = {sh_trustee = "server"; sh_hash = h; sh_name = Some "server"} in
-               Web_persist.add_shuffle_hash uuid sh
+               let%lwt () = Web_persist.add_shuffle_hash uuid sh in
+               Web_persist.remove_audit_cache uuid
             | None ->
                Lwt.fail (Failure (Printf.sprintf "Automatic shuffle by server has failed for election %s!" (raw_string_of_uuid uuid)))
           ) else return_unit
@@ -2110,6 +2111,7 @@ let () =
                  let%lwt () = Web_persist.clear_shuffle_token uuid in
                  let sh = {sh_trustee = x.tk_trustee; sh_hash = h; sh_name = x.tk_name} in
                  let%lwt () = Web_persist.add_shuffle_hash uuid sh in
+                 let%lwt () = Web_persist.remove_audit_cache uuid in
                  T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
               | None ->
                  T.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send

@@ -671,7 +671,19 @@ let compute_audit_cache uuid =
      in
      let cache_num_voters = List.length voters in
      let cache_voters_hash = sha256_b64 (String.concat "\n" voters ^ "\n") in
-     let%lwt result = get_raw_election_result uuid in
+     let%lwt result_or_shuffles =
+       match%lwt get_raw_election_result uuid with
+       | Some r -> return (`Result r)
+       | None ->
+          match%lwt get_shuffles uuid with
+          | None -> return `Nothing
+          | Some shuffles ->
+             match%lwt get_shuffle_hashes uuid with
+             | None -> return `Nothing
+             | Some sh ->
+                let shufflers = List.map (fun x -> x.sh_name) sh in
+                return (`Shuffles (shuffles, Some shufflers))
+     in
      let%lwt trustees = get_trustees uuid in
      let%lwt credentials =
        match%lwt read_file ~uuid "public_creds.txt" with
@@ -680,7 +692,7 @@ let compute_audit_cache uuid =
      in
      let public_credentials = String.concat "\n" credentials ^ "\n" in
      let cache_checksums =
-       Election.compute_checksums ~election ?result
+       Election.compute_checksums ~election result_or_shuffles
          ~trustees ~public_credentials
      in
      let trustees = trustees_of_string Yojson.Safe.read_json trustees in

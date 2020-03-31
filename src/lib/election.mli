@@ -33,5 +33,9 @@ module Make (W : ELECTION_DATA) (M : RANDOM) :
 (** Implementation of {!Signatures.ELECTION}. *)
 
 val compute_checksums :
-  election:string -> ?result:string -> trustees:string ->
-  public_credentials:string -> Serializable_t.election_checksums
+  election:string ->
+  [`Nothing
+  | `Shuffles of string list * string option list option
+  | `Result of string] ->
+  trustees:string -> public_credentials:string ->
+  Serializable_t.election_checksums
