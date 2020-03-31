@@ -195,6 +195,15 @@ module Make (P : PARSED_PARAMS) : S = struct
            loop []
       )
 
+  let shuffles_hash =
+    lazy
+      (
+        Lazy.force shuffles
+        |> Option.map
+             (List.map
+                (fun s -> sha256_b64 (string_of_shuffle G.write s)))
+      )
+
   let shuffles_check =
     lazy (
         let rtally, _ = Lazy.force raw_encrypted_tally in
@@ -237,6 +246,14 @@ module Make (P : PARSED_PARAMS) : S = struct
     let pk = G.(g **~ sk) in
     if Array.forall (fun x -> not G.(x =~ pk)) (Lazy.force pks) then (
       print_msg "W: your key is not present in trustees.jsons";
+    );
+    (match Lazy.force shuffles_hash with
+     | None -> ()
+     | Some shuffles ->
+        shuffles
+        |> List.iter
+             (fun s ->
+               Printf.ksprintf print_msg "I: shuffle %s has been applied" s)
     );
     let tally, _ = Lazy.force encrypted_tally in
     let factor = E.compute_factor tally sk in
