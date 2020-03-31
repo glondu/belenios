@@ -163,6 +163,7 @@ type election_file =
   | ESRecords
   | ESETally
   | ESResult
+  | ESShuffles
 
 let election_file_of_string = function
   | "election.json" -> ESRaw
@@ -173,6 +174,7 @@ let election_file_of_string = function
   | "voters.txt" -> ESVoters
   | "encrypted_tally.json" -> ESETally
   | "result.json" -> ESResult
+  | "shuffles.jsons" -> ESShuffles
   | x -> invalid_arg ("election_dir_item: " ^ x)
 
 let string_of_election_file = function
@@ -184,6 +186,7 @@ let string_of_election_file = function
   | ESVoters -> "voters.txt"
   | ESETally -> "encrypted_tally.json"
   | ESResult -> "result.json"
+  | ESShuffles -> "shuffles.jsons"
 
 let election_file x =
   Eliom_parameter.user_type

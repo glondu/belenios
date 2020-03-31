@@ -1975,13 +1975,13 @@ let () =
 let content_type_of_file = function
   | ESRaw -> "application/json; charset=utf-8"
   | ESTrustees | ESETally | ESResult -> "application/json"
-  | ESBallots -> "text/plain" (* should be "application/json-seq", but we don't use RS *)
+  | ESBallots | ESShuffles -> "text/plain" (* should be "application/json-seq", but we don't use RS *)
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
 let handle_pseudo_file uuid f site_user =
   let%lwt confidential =
     match f with
-    | ESRaw | ESTrustees | ESBallots | ESETally | ESCreds -> return false
+    | ESRaw | ESTrustees | ESBallots | ESETally | ESCreds | ESShuffles -> return false
     | ESRecords | ESVoters -> return true
     | ESResult ->
        match%lwt Web_persist.get_election_result_hidden uuid with
