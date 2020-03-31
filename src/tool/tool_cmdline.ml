@@ -348,8 +348,8 @@ module Election : CMDLINER_MODULE = struct
              download dir u "election.json" &&
              download dir u "trustees.json" &&
              download dir u "public_creds.txt" &&
-             download dir u "ballots.jsons" &&
-             download dir u "result.json"
+             (download dir u "ballots.jsons" || true) &&
+             (download dir u "result.json" || download dir u "shuffles.jsons" || true)
            ) then
              Printf.eprintf "W: some errors occurred while downloading\n%!";
       in
