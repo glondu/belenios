@@ -101,6 +101,7 @@ let election_cast_confirm = create_attached_post ~csrf_safe:true ~fallback:elect
 let election_pretty_ballots = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** suffix_const "ballots"))) ()
 let election_pretty_ballot = create ~path:(Path ["elections"]) ~meth:(Get (suffix_prod (uuid "uuid" ** suffix_const "ballot") (string "hash"))) ()
 let election_pretty_records = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** suffix_const "pretty-records"))) ()
+let election_project_result = create ~path:(Path ["elections"]) ~meth:(Get (suffix_prod (uuid "uuid" ** suffix_const "project-result") (int "index"))) ()
 
 let election_missing_voters = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** suffix_const "missing"))) ()
 let election_download_archive = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** suffix_const "archive.zip"))) ()

@@ -112,7 +112,6 @@ module type LocalizedStrings = sig
   val result_with_crypto_proofs : string
   val the_raw_results : string
   val json_result : string
-  val with_the_jsquery : string
   val it_contains_all_clear : string
   val blank_vote : string
   val no_other_blank : string

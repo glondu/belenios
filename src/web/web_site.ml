@@ -1743,6 +1743,33 @@ let () =
         )
     )
 
+let () =
+  Any.register ~service:election_project_result
+    (fun ((uuid, ()), index) () ->
+      let%lwt hidden =
+        match%lwt Web_persist.get_election_result_hidden uuid with
+        | None -> return_false
+        | Some _ -> return_true
+      in
+      let%lwt () =
+        if hidden then (
+          let%lwt metadata = Web_persist.get_election_metadata uuid in
+          let%lwt site_user = Eliom_reference.get Web_state.site_user in
+          match site_user with
+          | Some u when metadata.e_owner = Some u -> return_unit
+          | _ -> forbidden ()
+        ) else return_unit
+      in
+      match%lwt Web_persist.get_election_result uuid with
+      | None -> fail_http 404
+      | Some result ->
+         let full = Shape.to_shape_array result.result in
+         if index < 0 || index >= Array.length full then
+           fail_http 404
+         else
+           String.send (string_of_raw_result full.(index), "application/json")
+    )
+
 let copy_file src dst =
   let open Lwt_io in
   chars_of_file src |> chars_to_file dst

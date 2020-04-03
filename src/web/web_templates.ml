@@ -1893,13 +1893,7 @@ let format_question_result uuid l (i, q) r =
          div ~a:[a_class ["result_question"]] [txt x.q_question];
          div [
              txt L.the_raw_results;
-             a ~service:election_dir [txt L.json_result] (uuid, ESResult);
-             txt L.with_the_jsquery;
-             span ~a:[a_class ["result_jsquery"]] [
-                 txt ".result[";
-                 txt (string_of_int i);
-                 txt "]";
-               ];
+             a ~service:election_project_result [txt L.json_result] ((uuid, ()), i);
              txt L.it_contains_all_clear;
            ];
        ]
