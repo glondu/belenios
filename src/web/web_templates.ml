@@ -2067,8 +2067,8 @@ let election_home election state () =
           cache.cache_num_voters cache.cache_voters_hash;
       ]
   in
-  let format_tc xs =
-    ul (
+  let format_tc id xs =
+    ul ~a:[a_id id] (
         List.map
           (fun x ->
             let name = Option.get x.tc_name "N/A" in
@@ -2081,7 +2081,7 @@ let election_home election state () =
         Printf.ksprintf txt
           "%d of the following %d authority(ies) are needed to decrypt the election result:"
           threshold num_trustees;
-        format_tc checksums.ec_trustees;
+        format_tc "trustees" checksums.ec_trustees;
       ]
   in
   let div_credentials =
@@ -2098,7 +2098,7 @@ let election_home election state () =
     | Some xs ->
        div [
            txt "Trustees shuffled the ballots in the following order:";
-           format_tc xs;
+           format_tc "shuffles" xs;
          ]
   in
   let div_audit =
