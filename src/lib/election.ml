@@ -338,14 +338,15 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
     | None, None -> None
     | _, _ -> failwith "ill-formed result"
   in
-  let ec_shuffles =
+  let ec_shuffles, ec_encrypted_tally =
     match result_or_shuffles with
-    | `Nothing -> None
+    | `Nothing -> None, None
     | `Shuffles (shuffles, shufflers) ->
        let shuffles = List.map (shuffle_of_string Yojson.Safe.read_json) shuffles in
-       combine (Some shuffles) shufflers
+       combine (Some shuffles) shufflers, None
     | `Result result ->
        let result = election_result_of_string Yojson.Safe.read_json result in
-       combine result.shuffles result.shufflers
+       let tally = string_of_encrypted_tally Yojson.Safe.write_json result.encrypted_tally in
+       combine result.shuffles result.shufflers, Some (sha256_b64 tally)
   in
-  {ec_election; ec_trustees; ec_public_credentials; ec_shuffles}
+  {ec_election; ec_trustees; ec_public_credentials; ec_shuffles; ec_encrypted_tally}

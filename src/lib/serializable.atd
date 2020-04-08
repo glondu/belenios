@@ -151,6 +151,7 @@ type election_checksums = {
   trustees : trustee_checksum list;
   public_credentials : string;
   ?shuffles : trustee_checksum list option;
+  ?encrypted_tally : string option;
 } <ocaml field_prefix="ec_">
 
 (** {2 PKI support} *)

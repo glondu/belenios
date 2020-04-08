@@ -2101,6 +2101,16 @@ let election_home election state () =
            format_tc "shuffles" xs;
          ]
   in
+  let div_tally =
+    match checksums.ec_encrypted_tally with
+    | None -> txt ""
+    | Some x ->
+       div [
+           Printf.ksprintf txt
+             "The fingerprint of the encrypted tally is %s."
+             x
+         ]
+  in
   let div_audit =
     div ~a:[a_class ["hybrid_box"]] [
       div_admin;
@@ -2108,6 +2118,7 @@ let election_home election state () =
       div_trustees;
       div_credentials;
       div_shuffles;
+      div_tally;
     ]
   in
   let content = [
