@@ -3,8 +3,9 @@
 import unittest
 import os
 import csv
+import time
 from distutils.util import strtobool
-from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_link_text_exists, verify_all_elements_have_attribute_value
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_has_non_empty_content, verify_all_elements_have_attribute_value
 from util.election_testing import console_log, wait_a_bit
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
 import settings
@@ -18,6 +19,7 @@ class BeleniosVoteWithPreparedBallots(BeleniosTestElectionScenario2Base):
 
     def setUp(self):
         self.browser = initialize_browser_for_scenario_2()
+        self.browser.set_page_load_timeout(60 * 2) # If we don't set this page load timeout, sometimes some WebDriverWait stay stuck because page has not finished loading
 
 
     def tearDown(self):
@@ -30,34 +32,44 @@ class BeleniosVoteWithPreparedBallots(BeleniosTestElectionScenario2Base):
         csv_file_path = os.path.join(generated_files_destination_folder, 'all_votes.csv')
         with open(csv_file_path, 'r', newline='') as csvfile:
             csvreader = csv.DictReader(csvfile, delimiter=',', quotechar='|')
+            i = 0
             for row in csvreader:
+                i += 1
+                if i <= settings.SKIP_ROWS_IN_CSV_FILE:
+                    continue
+
                 voter_email_address = row['voter_email_address']
                 voter_password = row['voter_password']
                 voter_encrypted_ballot_file_name = row['voter_encrypted_ballot_file_name']
                 election_page_url = row['election_page_url']
+                console_log("Casting vote for CSV row", i, "(voter", voter_email_address, ")")
 
                 # Go to election home
+                # console_log("Go to election home")
                 browser.get(election_page_url)
 
                 wait_a_bit()
 
                 # Click on "en" language
+                # console_log("Click on 'en' language")
                 english_language_link_expected_label = "en"
                 english_language_link_element = wait_for_an_element_with_link_text_exists(browser, english_language_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
                 english_language_link_element.click()
 
                 wait_a_bit()
 
-                # Click on advanced mode
+                # Click on "Advanced mode"
+                # console_log("Click on 'Advanced mode'")
                 advanced_mode_link_expected_label = "Advanced mode"
                 advanced_mode_link_element = wait_for_an_element_with_link_text_exists(browser, advanced_mode_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
                 advanced_mode_link_element.click()
 
                 wait_a_bit()
 
-                # Browse file and submit it
+                # Browse encrypted ballot file and submit it
+                # console_log("Browse encrypted ballot file and submit it")
                 browse_button_css_selector = "form input[name=encrypted_vote][type=file]"
-                browse_button_element = wait_for_element_exists(browser, browse_button_css_selector)
+                browse_button_element = wait_for_element_exists(browser, browse_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
                 path_of_file_to_upload = os.path.join(generated_files_destination_folder, voter_encrypted_ballot_file_name)
                 browse_button_element.clear()
                 browse_button_element.send_keys(path_of_file_to_upload)
@@ -66,38 +78,60 @@ class BeleniosVoteWithPreparedBallots(BeleniosTestElectionScenario2Base):
                 wait_a_bit()
 
                 # Submit login form
+                # console_log("Submit login form")
                 username_field_css_selector = "form input[name=username]"
-                username_field_element = wait_for_element_exists(browser, username_field_css_selector)
+                username_field_element = wait_for_element_exists(browser, username_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
                 username_field_element.clear()
                 username_field_element.send_keys(voter_email_address)
                 password_field_css_selector = "form input[name=password]"
-                password_field_element = wait_for_element_exists(browser, password_field_css_selector)
+                password_field_element = wait_for_element_exists(browser, password_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
                 password_field_element.clear()
                 password_field_element.send_keys(voter_password)
                 password_field_element.submit()
 
                 wait_a_bit()
 
-                # Verify that page contains a ballot tracker
-                ballot_tracker_css_selector = "#ballot_tracker"
-                ballot_tracker_element = wait_for_element_exists(browser, ballot_tracker_css_selector)
-                my_ballot_tracker = ballot_tracker_element.get_attribute('innerText')
 
-                # Click "I cast my vote" button
-                submit_button_css_selector = "form input[type=submit]"
-                submit_button_expected_content = "I cast my vote"
-                verify_all_elements_have_attribute_value(browser, submit_button_css_selector, "value", submit_button_expected_content)
-                submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
-                submit_button_element.click()
+                current_attempt = 0
+                max_attempts = 5
+                while(current_attempt < max_attempts):
+                    # Verify that page contains a ballot tracker
+                    console_log("Verify that page contains a ballot tracker")
+                    ballot_tracker_css_selector = "#ballot_tracker"
+                    ballot_tracker_element = wait_for_element_exists_and_has_non_empty_content(browser, ballot_tracker_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+                    smart_ballot_tracker_verification_value = ballot_tracker_element.get_attribute('innerText')
+                    assert len(smart_ballot_tracker_verification_value) > 5
 
-                wait_a_bit()
+                    wait_a_bit()
+                    time.sleep(1)
 
-                # Verify that vote has been accepted by the server
-                current_step_css_selector = ".current_step"
-                current_step_expected_content = "Step 6/6: Thank you for voting!"
-                wait_for_element_exists_and_contains_expected_text(browser, current_step_css_selector, current_step_expected_content)
+                    # Click "I cast my vote" button
+                    console_log("Click 'I cast my vote' button")
+                    submit_button_css_selector = "form input[type=submit]"
+                    submit_button_expected_content = "I cast my vote"
+                    verify_all_elements_have_attribute_value(browser, submit_button_css_selector, "value", submit_button_expected_content)
+                    wait_a_bit()
+                    submit_button_element = wait_for_element_exists(browser, submit_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+                    submit_button_element.click()
+
+                    wait_a_bit()
+
+                    try:
+                        # Verify that vote has been accepted by the server
+                        console_log("Verify that vote has been accepted by the server")
+                        current_step_css_selector = ".current_step"
+                        current_step_expected_content = "Step 6/6: Thank you for voting!"
+                        wait_for_element_exists_and_contains_expected_text(browser, current_step_css_selector, current_step_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
+                        break
+                    except Exception as e:
+                        console_log("Warning! Retrying after exception", e)
+                        current_attempt += 1
+                        time.sleep(1)
+                else:
+                    raise Exception("Could not locate element after ", max_attempts, " attempts")
 
                 # Go to all ballots page
+                console_log("Go to all ballots page")
                 all_ballots_link_expected_label = "ballot box"
                 all_ballots_element = wait_for_an_element_with_link_text_exists(browser, all_ballots_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
                 all_ballots_element.click()
@@ -105,7 +139,8 @@ class BeleniosVoteWithPreparedBallots(BeleniosTestElectionScenario2Base):
                 wait_a_bit()
 
                 # Verify presence of my ballot
-                my_ballot_tracker_link_element = wait_for_an_element_with_link_text_exists(browser, my_ballot_tracker, settings.EXPLICIT_WAIT_TIMEOUT)
+                console_log("Verify presence of my ballot")
+                my_ballot_tracker_link_element = wait_for_an_element_with_link_text_exists(browser, smart_ballot_tracker_verification_value, settings.EXPLICIT_WAIT_TIMEOUT)
                 my_ballot_tracker_link_element.click()
 
 
@@ -125,9 +160,12 @@ if __name__ == "__main__":
 
     settings.GENERATED_FILES_DESTINATION_FOLDER = os.getenv('GENERATED_FILES_DESTINATION_FOLDER', settings.GENERATED_FILES_DESTINATION_FOLDER)
 
+    settings.SKIP_ROWS_IN_CSV_FILE = int(os.getenv('SKIP_ROWS_IN_CSV_FILE', 0))
+
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
     console_log("EXPLICIT_WAIT_TIMEOUT:", settings.EXPLICIT_WAIT_TIMEOUT)
     console_log("GENERATED_FILES_DESTINATION_FOLDER:", settings.GENERATED_FILES_DESTINATION_FOLDER)
+    console_log("SKIP_ROWS_IN_CSV_FILE:", settings.SKIP_ROWS_IN_CSV_FILE)
 
     unittest.main()
