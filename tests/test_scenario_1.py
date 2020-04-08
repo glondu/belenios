@@ -7,7 +7,7 @@ import sys
 from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_an_element_with_partial_link_text_exists
-from util.election_testing import console_log, remove_database_folder, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator
+from util.election_testing import console_log, remove_database_folder, remove_election_from_database, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator
 from util.election_test_base import BeleniosElectionTestBase
 import settings
 
@@ -17,7 +17,10 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
         self.fake_sent_emails_manager = FakeSentEmailsManager(settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
         self.fake_sent_emails_manager.install_fake_sendmail_log_file()
 
-        remove_database_folder()
+        if settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_DATABASE:
+            remove_database_folder()
+        elif settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_ELECTION:
+            pass
 
         self.server = initialize_server()
 
@@ -29,7 +32,11 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
 
         self.server.kill()
 
-        remove_database_folder()
+        if settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_DATABASE:
+            remove_database_folder()
+        elif settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_ELECTION:
+            if self.election_id:
+                remove_election_from_database(self.election_id)
 
         self.fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
 
@@ -141,6 +148,14 @@ if __name__ == "__main__":
     settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     settings.WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', settings.WAIT_TIME_BETWEEN_EACH_STEP))
     settings.EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', settings.EXPLICIT_WAIT_TIMEOUT))
+
+    if os.getenv('CLEAN_UP_POLICY', None):
+        input_clean_up_policy = os.getenv('CLEAN_UP_POLICY')
+        if hasattr(settings.CLEAN_UP_POLICIES, input_clean_up_policy):
+            settings.CLEAN_UP_POLICY = getattr(settings.CLEAN_UP_POLICIES, input_clean_up_policy)
+        else:
+            raise Exception("Error: Unknown value for CLEAN_UP_POLICY:", input_clean_up_policy)
+
     settings.NUMBER_OF_INVITED_VOTERS = int(os.getenv('NUMBER_OF_INVITED_VOTERS', settings.NUMBER_OF_INVITED_VOTERS))
     settings.NUMBER_OF_VOTING_VOTERS = int(os.getenv('NUMBER_OF_VOTING_VOTERS', settings.NUMBER_OF_VOTING_VOTERS))
     settings.NUMBER_OF_REVOTING_VOTERS = int(os.getenv('NUMBER_OF_REVOTING_VOTERS', settings.NUMBER_OF_REVOTING_VOTERS))
@@ -154,6 +169,8 @@ if __name__ == "__main__":
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
     console_log("EXPLICIT_WAIT_TIMEOUT:", settings.EXPLICIT_WAIT_TIMEOUT)
+    console_log("CLEAN_UP_POLICY:", settings.CLEAN_UP_POLICY)
+
     console_log("NUMBER_OF_INVITED_VOTERS:", settings.NUMBER_OF_INVITED_VOTERS)
     console_log("NUMBER_OF_VOTING_VOTERS:", settings.NUMBER_OF_VOTING_VOTERS)
     console_log("NUMBER_OF_REVOTING_VOTERS:", settings.NUMBER_OF_REVOTING_VOTERS)

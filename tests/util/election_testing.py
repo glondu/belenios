@@ -10,7 +10,7 @@ import re
 import json
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, verify_all_elements_have_attribute_value
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, verify_all_elements_have_attribute_value, wait_for_an_element_with_link_text_exists
 import settings
 
 
@@ -186,6 +186,10 @@ def repopulate_vote_confirmations_for_voters_from_sent_emails(fake_sent_emails_m
 
 def remove_database_folder():
     shutil.rmtree(os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY), ignore_errors=True)
+
+
+def remove_election_from_database(election_id):
+    shutil.rmtree(os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id), ignore_errors=True)
 
 
 def remove_credentials_files(credential_file_id):
