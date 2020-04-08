@@ -206,7 +206,7 @@ pris en compte.
         self.election_id = election_page_url_to_election_id(self.election_page_url)
         console_log("election_id:", self.election_id)
 
-        log_out(browser)
+        log_out(browser, self.election_id)
 
 
     def administrator_regenerates_passwords_for_some_voters(self):
@@ -285,7 +285,7 @@ pris en compte.
             text_to_look_for = 'To: "' + email_address + '"'
             assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) is 2
 
-        log_out(browser)
+        log_out(browser, self.election_id)
 
 
     def one_voter_votes(self, voter, direct=False):

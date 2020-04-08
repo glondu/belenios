@@ -493,7 +493,7 @@ The election administrator.\
         wait_a_bit()
 
         # She logs out
-        log_out(browser)
+        log_out(browser, self.election_id)
 
         # She closes the window, and re-opens it (for next emulated user)
         browser.quit()
