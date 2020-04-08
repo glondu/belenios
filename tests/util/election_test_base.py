@@ -5,7 +5,7 @@ import random
 import re
 from urllib.parse import urlencode
 from selenium.webdriver.common.alert import Alert
-from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, verify_element_label
+from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, verify_element_label, wait_for_an_element_with_link_text_exists
 from util.election_testing import console_log, random_email_addresses_generator, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, repopulate_vote_confirmations_for_voters_from_sent_emails, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, find_button_in_page_content_by_value, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 import settings
 
@@ -299,6 +299,11 @@ pris en compte.
             browser.get(voter["election_page_url"])
 
             wait_a_bit()
+
+            # He clicks on "en" language
+            english_language_link_expected_label = "en"
+            english_language_link_element = wait_for_an_element_with_link_text_exists(browser, english_language_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+            english_language_link_element.click()
 
             # He clicks on the "Start" button
             start_button_expected_label = "Start"
