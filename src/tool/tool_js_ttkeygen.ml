@@ -49,7 +49,9 @@ let gen_cert e _ =
   clear_content e;
   set_download "private_key" "text/plain" "private_key.txt" key;
   set_element_display "key_helper" "block";
+  let fp = Platform.sha256_b64 cert.s_message in
   let cert = string_of_cert cert in
+  set_content "pki_fp" fp;
   set_textarea "data" cert;
   Js._false
 

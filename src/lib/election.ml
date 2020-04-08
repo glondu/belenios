@@ -305,15 +305,36 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
     let tc_name = k.trustee_name in
     {tc_checksum; tc_name}
   in
+  let trustees = trustees_of_string Yojson.Safe.read_json trustees in
   let ec_trustees =
     trustees
-    |> trustees_of_string Yojson.Safe.read_json
     |> List.map
          (function
           | `Single k -> [tc_of_tpk k]
           | `Pedersen p -> List.map tc_of_tpk (Array.to_list p.t_verification_keys)
          )
     |> List.flatten
+  in
+  let ec_pki =
+    List.fold_left
+      (fun accu t ->
+        match t with
+        | `Single _ -> accu
+        | `Pedersen p ->
+           (
+             List.combine (Array.to_list p.t_verification_keys) (Array.to_list p.t_certs)
+             |> List.map
+                  (fun (k, x) ->
+                    {
+                      tc_name = k.trustee_name;
+                      tc_checksum = sha256_b64 x.s_message;
+                    }
+                  )
+           ) :: accu
+      ) [] trustees
+    |> List.rev
+    |> List.flatten
+    |> (fun x -> if x = [] then None else Some x)
   in
   let combine shuffles shufflers =
     match shuffles, shufflers with
@@ -349,4 +370,7 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
        let tally = string_of_encrypted_tally Yojson.Safe.write_json result.encrypted_tally in
        combine result.shuffles result.shufflers, Some (sha256_b64 tally)
   in
-  {ec_election; ec_trustees; ec_public_credentials; ec_shuffles; ec_encrypted_tally}
+  {
+    ec_election; ec_pki; ec_trustees;
+    ec_public_credentials; ec_shuffles; ec_encrypted_tally
+  }

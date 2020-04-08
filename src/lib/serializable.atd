@@ -148,6 +148,7 @@ type trustee_checksum = {
 
 type election_checksums = {
   election : string;
+  ?pki : trustee_checksum list option;
   trustees : trustee_checksum list;
   public_credentials : string;
   ?shuffles : trustee_checksum list option;

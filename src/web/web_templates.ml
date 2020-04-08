@@ -1524,6 +1524,11 @@ let election_draft_threshold_trustee token uuid se () =
                       txt " and save it to a secure location."
                     ];
                   li [
+                      txt "The fingerprint of your PKI public key is ";
+                      span ~a:[a_id "pki_fp"] [];
+                      txt ". Save it so that you can check later that it appears on the election home.";
+                    ];
+                  li [
                       txt "Submit data using the following button: ";
                       input ~input_type:`Submit ~value:"Submit" string;
                       txt ".";
@@ -2076,6 +2081,15 @@ let election_home election state () =
           ) xs
       )
   in
+  let div_pki =
+    match checksums.ec_pki with
+    | None -> txt ""
+    | Some xs ->
+       div [
+           txt "The PKI public keys of trustees are the following:";
+           format_tc "pki" xs;
+         ]
+  in
   let div_trustees =
     div [
         Printf.ksprintf txt
@@ -2115,6 +2129,7 @@ let election_home election state () =
     div ~a:[a_class ["hybrid_box"]] [
       div_admin;
       div_voters;
+      div_pki;
       div_trustees;
       div_credentials;
       div_shuffles;
