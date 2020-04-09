@@ -26,6 +26,8 @@ def verify_trustee_state_in_table(browser, current_trustee_id, expected_value):
 
 class BeleniosTestElectionScenario4(BeleniosTestElectionScenario2Base):
     """
+    As this class inherits from `BeleniosTestElectionScenario2Base`, it uses its `setUp()` and `tearDown()` methods, which includes clean up of election or whole database depending on the value of environment variable `CLEAN_UP_POLICY`.
+
     Properties:
     - server
     - browser
@@ -590,6 +592,15 @@ if __name__ == "__main__":
     settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     settings.WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', settings.WAIT_TIME_BETWEEN_EACH_STEP))
     settings.EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', settings.EXPLICIT_WAIT_TIMEOUT))
+
+    settings.EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', settings.EXPLICIT_WAIT_TIMEOUT))
+    if os.getenv('CLEAN_UP_POLICY', None):
+        input_clean_up_policy = os.getenv('CLEAN_UP_POLICY')
+        if hasattr(settings.CLEAN_UP_POLICIES, input_clean_up_policy):
+            settings.CLEAN_UP_POLICY = getattr(settings.CLEAN_UP_POLICIES, input_clean_up_policy)
+        else:
+            raise Exception("Error: Unknown value for CLEAN_UP_POLICY:", input_clean_up_policy)
+
     settings.NUMBER_OF_INVITED_VOTERS = int(os.getenv('NUMBER_OF_INVITED_VOTERS', settings.NUMBER_OF_INVITED_VOTERS))
     settings.NUMBER_OF_VOTING_VOTERS = int(os.getenv('NUMBER_OF_VOTING_VOTERS', settings.NUMBER_OF_VOTING_VOTERS))
     settings.NUMBER_OF_REVOTING_VOTERS = int(os.getenv('NUMBER_OF_REVOTING_VOTERS', settings.NUMBER_OF_REVOTING_VOTERS))
@@ -610,6 +621,8 @@ if __name__ == "__main__":
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
     console_log("EXPLICIT_WAIT_TIMEOUT:", settings.EXPLICIT_WAIT_TIMEOUT)
+    console_log("CLEAN_UP_POLICY:", settings.CLEAN_UP_POLICY)
+
     console_log("NUMBER_OF_INVITED_VOTERS:", settings.NUMBER_OF_INVITED_VOTERS)
     console_log("NUMBER_OF_VOTING_VOTERS:", settings.NUMBER_OF_VOTING_VOTERS)
     console_log("NUMBER_OF_REVOTING_VOTERS:", settings.NUMBER_OF_REVOTING_VOTERS)
