@@ -3073,7 +3073,7 @@ let login_dummy ~state =
         tablex [tbody [
           tr [
             th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name name)] [pcdata field_name]];
-            td [input ~a:[a_maxlength 50] ~input_type ~name string];
+            td [input ~a:[a_maxlength 100] ~input_type ~name string];
           ]]
         ];
         div [
@@ -3108,7 +3108,7 @@ let login_password ~service ~allowsignups ~state =
         tablex [tbody [
           tr [
             th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [pcdata L.username]];
-            td [input ~a:[a_maxlength 50] ~input_type:`Text ~name:llogin string];
+            td [input ~a:[a_maxlength 100] ~input_type:`Text ~name:llogin string];
           ];
           tr [
             th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name lpassword)] [pcdata L.password]];
