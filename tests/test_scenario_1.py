@@ -7,7 +7,7 @@ import sys
 from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_an_element_with_partial_link_text_exists
-from util.election_testing import console_log, remove_database_folder, remove_election_from_database, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator
+from util.election_testing import console_log, ConsoleLogDuration, remove_database_folder, remove_election_from_database, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator
 from util.election_test_base import BeleniosElectionTestBase
 import settings
 
@@ -82,56 +82,46 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
 
 
     def test_scenario_1_simple_vote(self):
-        console_log("### Starting step: administrator_creates_election")
-        self.administrator_creates_election()
-        console_log("### Step complete: administrator_creates_election")
+        with ConsoleLogDuration("### administrator_creates_election"):
+            self.administrator_creates_election()
 
-        console_log("### Starting step: administrator_regenerates_passwords_for_some_voters")
-        self.administrator_regenerates_passwords_for_some_voters()
-        console_log("### Step complete: administrator_regenerates_passwords_for_some_voters")
+        with ConsoleLogDuration("### administrator_regenerates_passwords_for_some_voters"):
+            self.administrator_regenerates_passwords_for_some_voters()
 
-        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (0)")
-        verify_election_consistency(self.election_id)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (0)")
+        with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify` (#0)"):
+            verify_election_consistency(self.election_id)
 
-        console_log("### Starting step: all_voters_vote_in_sequences")
-        self.all_voters_vote_in_sequences()
-        console_log("### Step complete: all_voters_vote_in_sequences")
+        with ConsoleLogDuration("### all_voters_vote_in_sequences"):
+            self.all_voters_vote_in_sequences()
 
-        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (1)")
-        verify_election_consistency(self.election_id)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (1)")
+        with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify` (#1)"):
+            verify_election_consistency(self.election_id)
 
-        console_log("### Starting step: create_election_data_snapshot (0)")
-        snapshot_folder = create_election_data_snapshot(self.election_id)
-        console_log("### Step complete: create_election_data_snapshot (0)")
+        with ConsoleLogDuration("### create_election_data_snapshot (#0)"):
+            snapshot_folder = create_election_data_snapshot(self.election_id)
+            console_log("snapshot_folder: ", snapshot_folder)
 
         try:
-            console_log("### Starting step: some_voters_revote")
-            self.some_voters_revote()
-            console_log("### Step complete: some_voters_revote")
+            with ConsoleLogDuration("### some_voters_revote"):
+                self.some_voters_revote()
 
-            console_log("### Starting step: verify_election_consistency using `belenios_tool verify-diff` (0)")
-            verify_election_consistency(self.election_id, snapshot_folder)
+            with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify-diff` (#2)"):
+                verify_election_consistency(self.election_id, snapshot_folder)
         finally:
-            delete_election_data_snapshot(snapshot_folder)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify-diff` (0)")
+            with ConsoleLogDuration("### delete_election_data_snapshot"):
+                delete_election_data_snapshot(snapshot_folder)
 
-        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (2)")
-        verify_election_consistency(self.election_id)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
+        with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify` (#3)"):
+            verify_election_consistency(self.election_id)
 
-        console_log("### Starting step: administrator_does_tallying_of_election")
-        self.administrator_does_tallying_of_election()
-        console_log("### Step complete: administrator_does_tallying_of_election")
+        with ConsoleLogDuration("### administrator_does_tallying_of_election"):
+            self.administrator_does_tallying_of_election()
 
-        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (3)")
-        verify_election_consistency(self.election_id)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (3)")
+        with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify` (#4)"):
+            verify_election_consistency(self.election_id)
 
-        console_log("### Starting step: voter votes after the election is closed")
-        self.one_voter_revotes_after_the_election_is_closed()
-        console_log("### Step complete: voter votes after the election is closed")
+        with ConsoleLogDuration("### one_voter_revotes_after_the_election_is_closed"):
+            self.one_voter_revotes_after_the_election_is_closed()
 
 
 
