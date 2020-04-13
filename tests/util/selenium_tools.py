@@ -80,7 +80,40 @@ class an_element_with_link_text_exists(object):
         return element
 
 
-class element_exists_and_contains_expected_text(object):
+class element_exists_and_attribute_contains_expected_text(object):
+    """
+    An expectation for checking that an element exists and its given attribute contains expected text.
+    This class is meant to be used in combination with Selenium's `WebDriverWait::until()`. For example:
+    ```
+    custom_wait = WebDriverWait(browser, 10)
+    smart_ballot_tracker_element = custom_wait.until(element_exists_and_attribute_contains_expected_text((By.ID, "my_id"), "class", "hello"))
+    ```
+
+    :param locator: Selenium locator used to find the element. For example: `(By.ID, "my_id")`
+    :param attribute: Attribute of the element that should contain expected text (parameter type: string)
+    :param expected_text: Text expected in element's given attribute (parameter type: string)
+    :return: The WebElement once its innerText attribute contains expected_text
+    """
+    def __init__(self, locator, attribute, expected_text):
+        self.locator = locator
+        self.attribute = attribute
+        self.expected_text = expected_text
+
+    def transform_attribute_content(self, content):
+        return content
+
+    def __call__(self, driver):
+        element = driver.find_element(*self.locator)   # Finding the referenced element
+        if not element:
+            return False
+        element_content = self.transform_attribute_content(element.get_attribute(self.attribute))
+        if self.expected_text in element_content:
+            return element
+        else:
+            return False
+
+
+class element_exists_and_contains_expected_text(element_exists_and_attribute_contains_expected_text):
     """
     An expectation for checking that an element exists and its innerText attribute contains expected text.
     This class is meant to be used in combination with Selenium's `WebDriverWait::until()`. For example:
@@ -94,18 +127,11 @@ class element_exists_and_contains_expected_text(object):
     :return: The WebElement once its innerText attribute contains expected_text
     """
     def __init__(self, locator, expected_text):
-        self.locator = locator
-        self.expected_text = expected_text
+        super().__init__(locator, 'innerText', expected_text)
 
-    def __call__(self, driver):
-        element = driver.find_element(*self.locator)   # Finding the referenced element
-        if not element:
-            return False
-        element_content = element.get_attribute('innerText').strip()
-        if self.expected_text in element_content:
-            return element
-        else:
-            return False
+    def transform_attribute_content(self, content):
+        return content.strip()
+
 
 
 def wait_for_element_exists_and_contains_expected_text(browser, css_selector, expected_text, wait_duration=DEFAULT_WAIT_DURATION):
@@ -124,6 +150,25 @@ def wait_for_element_exists_and_contains_expected_text(browser, css_selector, ex
         return element
     except Exception as e:
         raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
+
+
+def wait_for_element_exists_and_attribute_contains_expected_text(browser, css_selector, attribute, expected_text, wait_duration=DEFAULT_WAIT_DURATION):
+    """
+    Waits for the presence of an element that matches CSS selector `css_selector` and that has an innerText attribute that contains string `expected_text`.
+    :param browser: Selenium browser
+    :param css_selector: CSS selector of the expected element
+    :param attribute: String. Name of the element's attribute that will be inspected
+    :param expected_text: String of the expected text that element must contain
+    :param wait_duration: Maximum duration in seconds that we wait for the presence of this element before raising an exception
+    :return: The WebElement once it matches expected conditions
+    """
+    try:
+        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
+        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
+        element = custom_wait.until(element_exists_and_attribute_contains_expected_text((By.CSS_SELECTOR, css_selector), attribute, expected_text))
+        return element
+    except Exception as e:
+        raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds. Page source was: " + str(browser.page_source.encode("utf-8"))) from e
 
 
 def wait_for_element_exists_and_has_non_empty_attribute(browser, css_selector, attribute, wait_duration=DEFAULT_WAIT_DURATION):
