@@ -10,6 +10,7 @@
 
     <uploaddir>_VARDIR_/upload</uploaddir>
     <maxuploadfilesize>1024kB</maxuploadfilesize>
+    <maxconnected>500</maxconnected>
 
     <commandpipe>_RUNDIR_/ocsigenserver_command</commandpipe>
 
