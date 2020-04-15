@@ -45,6 +45,16 @@ let lines_of_stdin () =
       | exception End_of_file -> None
     )
 
+let chars_of_stdin () =
+  let buf = Buffer.create 1024 in
+  let rec loop () =
+    match input_char stdin with
+    | c -> Buffer.add_char buf c; loop ()
+    | exception End_of_file -> ()
+  in
+  loop ();
+  Buffer.contents buf
+
 let string_of_file f =
   lines_of_file f |> stream_to_list |> String.concat "\n"
 
@@ -96,6 +106,27 @@ let wrap_main f =
 
 module type CMDLINER_MODULE = sig
   val cmds : (unit Cmdliner.Term.t * Cmdliner.Term.info) list
+end
+
+module Shasum : CMDLINER_MODULE = struct
+
+  let main () =
+    wrap_main (fun () -> chars_of_stdin () |> sha256_b64 |> print_endline)
+
+  let sha256_b64_cmd =
+    let doc = "compute SHA256 of standard input and encode it in Base64Compact" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command compute the SHA256 of standard input and encode it in Base64Compact. This computation is frequent when auditing an election. This single shell command is equivalent to the following shell pipeline:";
+        `Pre "sha256sum | xxd -r -p | base64 | tr -d \"=\"";
+        `P "but does not need each individual command to be available.";
+      ] @ common_man
+    in
+    Term.(ret (pure main $ pure ())),
+    Term.info "sha256-b64" ~doc ~man
+
+  let cmds = [sha256_b64_cmd]
+
 end
 
 let group_t =
@@ -751,6 +782,7 @@ end
 let cmds =
   List.flatten
     [
+      Shasum.cmds;
       Tkeygen.cmds;
       Ttkeygen.cmds;
       Election.cmds;
