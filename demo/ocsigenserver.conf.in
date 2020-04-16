@@ -9,6 +9,14 @@
     <datadir>_VARDIR_/lib</datadir>
 
     <uploaddir>_VARDIR_/upload</uploaddir>
+
+    <!--
+      The following limits are there to avoid flooding the server.
+      <maxuploadfilesize> might need to be increased for handling large
+      elections.
+      <maxconnected> is related to the number of simultaneous voters
+      visiting the server.
+    -->
     <maxuploadfilesize>1024kB</maxuploadfilesize>
     <maxconnected>500</maxconnected>
 
@@ -36,6 +44,14 @@
         <eliom findlib-package="eliom.server.monitor.start"/>
       </site>
       <eliom findlib-package="belenios.server">
+        <!--
+          The following can be adjusted to the capacity of your system.
+          If <maxrequestbodysizeinmemory> is too small, large elections
+          might fail, in particular with so-called alternative questions
+          with many voters.
+          <maxmailsatonce> depends heavily on how sending emails is
+          handled by your system.
+        -->
         <maxrequestbodysizeinmemory value="1048576"/>
         <maxmailsatonce value="1000"/>
         <uuid length="14"/>
