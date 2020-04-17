@@ -8,14 +8,69 @@ import shutil
 import subprocess
 import re
 import json
+from functools import partial, wraps
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, verify_all_elements_have_attribute_value
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, wait_for_element_exists_and_attribute_contains_expected_text
 import settings
 
 
 def console_log(*args, **kwargs):
     print(*args, **kwargs, flush=True)
+
+
+class PrintDuration:
+    """
+    Prints time elapsed during an operation. Prints title of the operation, when its execution starts and ends. When it ends, it also prints the total time elapsed between start and end.
+    This class is meant to be used as a With Statement Context Manager. Here is an example:
+    ```
+    with PrintDuration("My task"):
+        calling_a_function(parameters)
+    ```
+    """
+    def __init__(self, title=None, print_function=None):
+        self.title = title or "Operation"
+        if print_function is None:
+            self.print_function = print
+        else:
+            self.print_function = print_function
+
+    def __enter__(self):
+        self.timing1 = time.perf_counter()
+        self.print_function(self.title + ": Starting execution")
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        timing2 = time.perf_counter()
+        self.print_function(self.title + ": Execution complete. Duration: " + str(timing2 - self.timing1) + " seconds")
+
+
+"""
+A particular case of PrintDuration, which uses `console_log()` as its `print_function`.
+This class is meant to be used as a With Statement Context Manager. Here is an example:
+```
+with ConsoleLogDuration("My task"):
+    calling_a_function(parameters)
+```
+"""
+ConsoleLogDuration = partial(PrintDuration, print_function=console_log)
+
+
+def try_several_times(max_attempts):
+    def decorator_try_several_times(func):
+        @wraps(func)
+        def wrapper_try_several_times(*args, **kwargs):
+            current_attempt = 1
+            while(current_attempt <= max_attempts):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    console_log(f"Attempt {current_attempt} failed. Error was:", e)
+                    current_attempt += 1
+                    time.sleep(1)
+            if current_attempt > max_attempts:
+                raise Exception(f"Error. Failed after {current_attempt-1} attempts.")
+        return wrapper_try_several_times
+    return decorator_try_several_times
 
 
 def random_email_addresses_generator(size=20):
@@ -194,6 +249,10 @@ def repopulate_vote_confirmations_for_voters_from_sent_emails(fake_sent_emails_m
 
 def remove_database_folder():
     shutil.rmtree(os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY), ignore_errors=True)
+
+
+def remove_election_from_database(election_id):
+    shutil.rmtree(os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id), ignore_errors=True)
 
 
 def remove_credentials_files(credential_file_id):
@@ -484,6 +543,10 @@ def log_in_as_administrator(browser, from_a_login_page=False):
     wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
 
+def election_home_find_start_button(browser):
+    return wait_for_element_exists_and_attribute_contains_expected_text(browser, "#main button", "onclick", "location.href='../../vote.html#uuid=", settings.EXPLICIT_WAIT_TIMEOUT)
+
+
 def log_out(browser, election_id=None):
     # In the header of the page, she clicks on the "Log out" link
     logout_link_css_selector = "#logout"
@@ -491,10 +554,15 @@ def log_out(browser, election_id=None):
     logout_element.click()
 
     # She arrives on the election home page. She checks that the "Start" button is present
-    if election_id:
-        verify_all_elements_have_attribute_value(browser, "#main button", "onclick", "location.href='../../vote.html#uuid=" + election_id + "';")
-    else:
-        wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", settings.EXPLICIT_WAIT_TIMEOUT) # This solution is less robust to variations in browser language settings
+
+    # v1:
+    # if election_id:
+    #     verify_all_elements_have_attribute_value(browser, "#main button", "onclick", "location.href='../../vote.html#uuid=" + election_id + "';")
+    # else:
+    #     wait_for_element_exists_and_contains_expected_text(browser, "#main button", "Start", settings.EXPLICIT_WAIT_TIMEOUT) # This solution is less robust to variations in browser language settings
+
+    # v2:
+    election_home_find_start_button(browser)
 
 
 def administrator_starts_creation_of_election(browser, manual_credential_management=False, election_title=None, election_description=None, initiator_contact=None):

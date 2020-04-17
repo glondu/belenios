@@ -2,6 +2,7 @@
 # coding: utf-8
 
 from os.path import abspath, dirname, join
+from enum import Enum, unique
 
 SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
 SERVER_URL = "http://localhost:8001"
@@ -27,6 +28,15 @@ INITIATOR_CONTACT = "Election initiator <election.initiator@mytestelection.com>"
 
 GIT_REPOSITORY_ABSOLUTE_PATH = dirname(dirname(abspath(__file__)))
 GENERATED_FILES_DESTINATION_FOLDER = join(GIT_REPOSITORY_ABSOLUTE_PATH, "_testdata")
+
+
+@unique
+class CLEAN_UP_POLICIES(Enum):
+    REMOVE_DATABASE = "REMOVE_DATABASE"
+    REMOVE_ELECTION = "REMOVE_ELECTION"
+
+
+CLEAN_UP_POLICY = CLEAN_UP_POLICIES.REMOVE_DATABASE
 
 
 # These variables are used by Scenario 2 only

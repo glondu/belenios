@@ -10,6 +10,10 @@ from selenium.common.exceptions import StaleElementReferenceException
 DEFAULT_WAIT_DURATION = 10 # In seconds
 
 
+def printable_page_source(browser):
+    return "Page source was: " + str(browser.page_source.encode("utf-8"))
+
+
 class element_has_non_empty_attribute(object):
     """
     An expectation for checking that an element has a non-empty value for given attribute.
@@ -76,7 +80,40 @@ class an_element_with_link_text_exists(object):
         return element
 
 
-class element_exists_and_contains_expected_text(object):
+class element_exists_and_attribute_contains_expected_text(object):
+    """
+    An expectation for checking that an element exists and its given attribute contains expected text.
+    This class is meant to be used in combination with Selenium's `WebDriverWait::until()`. For example:
+    ```
+    custom_wait = WebDriverWait(browser, 10)
+    smart_ballot_tracker_element = custom_wait.until(element_exists_and_attribute_contains_expected_text((By.ID, "my_id"), "class", "hello"))
+    ```
+
+    :param locator: Selenium locator used to find the element. For example: `(By.ID, "my_id")`
+    :param attribute: Attribute of the element that should contain expected text (parameter type: string)
+    :param expected_text: Text expected in element's given attribute (parameter type: string)
+    :return: The WebElement once its innerText attribute contains expected_text
+    """
+    def __init__(self, locator, attribute, expected_text):
+        self.locator = locator
+        self.attribute = attribute
+        self.expected_text = expected_text
+
+    def transform_attribute_content(self, content):
+        return content
+
+    def __call__(self, driver):
+        element = driver.find_element(*self.locator)   # Finding the referenced element
+        if not element:
+            return False
+        element_content = self.transform_attribute_content(element.get_attribute(self.attribute))
+        if self.expected_text in element_content:
+            return element
+        else:
+            return False
+
+
+class element_exists_and_contains_expected_text(element_exists_and_attribute_contains_expected_text):
     """
     An expectation for checking that an element exists and its innerText attribute contains expected text.
     This class is meant to be used in combination with Selenium's `WebDriverWait::until()`. For example:
@@ -90,18 +127,11 @@ class element_exists_and_contains_expected_text(object):
     :return: The WebElement once its innerText attribute contains expected_text
     """
     def __init__(self, locator, expected_text):
-        self.locator = locator
-        self.expected_text = expected_text
+        super().__init__(locator, 'innerText', expected_text)
 
-    def __call__(self, driver):
-        element = driver.find_element(*self.locator)   # Finding the referenced element
-        if not element:
-            return False
-        element_content = element.get_attribute('innerText').strip()
-        if self.expected_text in element_content:
-            return element
-        else:
-            return False
+    def transform_attribute_content(self, content):
+        return content.strip()
+
 
 
 def wait_for_element_exists_and_contains_expected_text(browser, css_selector, expected_text, wait_duration=DEFAULT_WAIT_DURATION):
@@ -119,6 +149,25 @@ def wait_for_element_exists_and_contains_expected_text(browser, css_selector, ex
         element = custom_wait.until(element_exists_and_contains_expected_text((By.CSS_SELECTOR, css_selector), expected_text))
         return element
     except Exception as e:
+        raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
+
+
+def wait_for_element_exists_and_attribute_contains_expected_text(browser, css_selector, attribute, expected_text, wait_duration=DEFAULT_WAIT_DURATION):
+    """
+    Waits for the presence of an element that matches CSS selector `css_selector` and that has an innerText attribute that contains string `expected_text`.
+    :param browser: Selenium browser
+    :param css_selector: CSS selector of the expected element
+    :param attribute: String. Name of the element's attribute that will be inspected
+    :param expected_text: String of the expected text that element must contain
+    :param wait_duration: Maximum duration in seconds that we wait for the presence of this element before raising an exception
+    :return: The WebElement once it matches expected conditions
+    """
+    try:
+        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
+        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
+        element = custom_wait.until(element_exists_and_attribute_contains_expected_text((By.CSS_SELECTOR, css_selector), attribute, expected_text))
+        return element
+    except Exception as e:
         raise Exception("Could not find expected DOM element '" + css_selector + "' with text content '" + expected_text + "' until timeout of " + str(wait_duration) + " seconds. Page source was: " + str(browser.page_source.encode("utf-8"))) from e
 
 
@@ -129,7 +178,7 @@ def wait_for_element_exists_and_has_non_empty_attribute(browser, css_selector, a
         element = custom_wait.until(element_has_non_empty_attribute((By.CSS_SELECTOR, css_selector), attribute))
         return element
     except Exception as e:
-        raise Exception("Could not find expected DOM element '" + css_selector + "' with non-empty attribute '" + attribute + "' until timeout of " + str(wait_duration) + " seconds") from e
+        raise Exception("Could not find expected DOM element '" + css_selector + "' with non-empty attribute '" + attribute + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
 
 
 def wait_for_element_exists_and_has_non_empty_content(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
@@ -143,7 +192,7 @@ def wait_for_an_element_with_partial_link_text_exists(browser, partial_link_text
         element = custom_wait.until(an_element_with_partial_link_text_exists(partial_link_text))
         return element
     except Exception as e:
-        raise Exception("Could not find a DOM element that contains expected partial link text '" + partial_link_text + "' until timeout of " + str(wait_duration) + " seconds") from e
+        raise Exception("Could not find a DOM element that contains expected partial link text '" + partial_link_text + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
 
 
 def wait_for_an_element_with_link_text_exists(browser, link_text, wait_duration=DEFAULT_WAIT_DURATION):
@@ -153,7 +202,7 @@ def wait_for_an_element_with_link_text_exists(browser, link_text, wait_duration=
         element = custom_wait.until(an_element_with_link_text_exists(link_text))
         return element
     except Exception as e:
-        raise Exception("Could not find a DOM element that has expected link text '" + link_text + "' until timeout of " + str(wait_duration) + " seconds") from e
+        raise Exception("Could not find a DOM element that has expected link text '" + link_text + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
 
 
 def wait_for_element_exists(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
@@ -162,7 +211,7 @@ def wait_for_element_exists(browser, css_selector, wait_duration=DEFAULT_WAIT_DU
             EC.presence_of_element_located((By.CSS_SELECTOR, css_selector))
         )
     except Exception as e:
-        raise Exception("Could not find expected DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
+        raise Exception("Could not find expected DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
 
 
 def wait_for_element_visible(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
@@ -171,7 +220,7 @@ def wait_for_element_visible(browser, css_selector, wait_duration=DEFAULT_WAIT_D
             EC.visibility_of_element_located((By.CSS_SELECTOR, css_selector))
         )
     except Exception as e:
-        raise Exception("Could not find expected visible DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
+        raise Exception("Could not find expected visible DOM element '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
 
 
 def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
@@ -180,7 +229,7 @@ def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DU
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_selector))
         )
     except Exception as e:
-        raise Exception("Could not find expected DOM elements '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds") from e
+        raise Exception("Could not find expected DOM elements '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
 
 
 def set_element_attribute(browser, element_dom_id, attribute_key, attribute_value):
@@ -194,18 +243,18 @@ def verify_element_label(element, expected_label):
 
 def verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value, wait_duration=DEFAULT_WAIT_DURATION):
     elements = wait_for_elements_exist(browser, elements_css_selector, wait_duration)
-    assert len(elements) > 0, "Error: could not find any element in page matching this CSS selector"
+    assert len(elements) > 0, "Error: could not find any element in page matching this CSS selector" + printable_page_source(browser)
     for element in elements:
-        assert element.get_attribute(attribute_name) == attribute_value, "Error: One of the elements corresponding to this CSS selector has a value of '" + element.get_attribute(attribute_name) + "' instead of expected '" + attribute_value + "'"
+        assert element.get_attribute(attribute_name) == attribute_value, "Error: One of the elements corresponding to this CSS selector has a value of '" + element.get_attribute(attribute_name) + "' instead of expected '" + attribute_value + "'" + printable_page_source(browser)
 
 
 def verify_some_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value, necessary_elements):
     elements = wait_for_elements_exist(browser, elements_css_selector)
-    assert len(elements) > 0, "Error: could not find any element in page matching this CSS selector"
+    assert len(elements) > 0, "Error: could not find any element in page matching this CSS selector." + printable_page_source(browser)
     elements_matching_condition = 0
     for element in elements:
         if element.get_attribute(attribute_name) == attribute_value:
             elements_matching_condition += 1
         if elements_matching_condition >= necessary_elements:
             break
-    assert elements_matching_condition >= necessary_elements, "Error: Not enough elements corresponding to this CSS selector have a value of '" + attribute_value + "' (" + str(elements_matching_condition) + " instead of expected minimum of " + str(necessary_elements) + ")"
+    assert elements_matching_condition >= necessary_elements, "Error: Not enough elements corresponding to this CSS selector have a value of '" + attribute_value + "' (" + str(elements_matching_condition) + " instead of expected minimum of " + str(necessary_elements) + ")." + printable_page_source(browser)

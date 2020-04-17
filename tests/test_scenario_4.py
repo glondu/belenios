@@ -7,7 +7,7 @@ import sys
 from uuid import uuid4
 from distutils.util import strtobool
 from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute, verify_all_elements_have_attribute_value
-from util.election_testing import console_log, wait_a_bit, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_validates_creation_of_election
+from util.election_testing import console_log, ConsoleLogDuration, wait_a_bit, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_validates_creation_of_election
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
 import settings
 
@@ -26,6 +26,8 @@ def verify_trustee_state_in_table(browser, current_trustee_id, expected_value):
 
 class BeleniosTestElectionScenario4(BeleniosTestElectionScenario2Base):
     """
+    As this class inherits from `BeleniosTestElectionScenario2Base`, it uses its `setUp()` and `tearDown()` methods, which includes clean up of election or whole database depending on the value of environment variable `CLEAN_UP_POLICY`.
+
     Properties:
     - server
     - browser
@@ -493,7 +495,7 @@ The election administrator.\
         wait_a_bit()
 
         # She logs out
-        log_out(browser)
+        log_out(browser, self.election_id)
 
         # She closes the window, and re-opens it (for next emulated user)
         browser.quit()
@@ -501,80 +503,63 @@ The election administrator.\
 
     def test_scenario_4_manual_vote_with_threshold(self):
         console_log("### Running test method BeleniosTestElectionScenario4::test_scenario_4_manual_vote_with_threshold()")
-        console_log("### Starting step: administrator_starts_creation_of_manual_election")
-        self.administrator_starts_creation_of_manual_election()
-        console_log("### Step complete: administrator_starts_creation_of_manual_election")
+        with ConsoleLogDuration("### administrator_starts_creation_of_manual_election"):
+            self.administrator_starts_creation_of_manual_election()
 
-        console_log("### Starting step: credential_authority_sends_credentials_to_voters")
-        self.credential_authority_sends_credentials_to_voters()
-        console_log("### Step complete: credential_authority_sends_credentials_to_voters")
+        with ConsoleLogDuration("### credential_authority_sends_credentials_to_voters"):
+            self.credential_authority_sends_credentials_to_voters()
 
-        console_log("### Starting step: administrator_invites_trustees_and_sets_threshold")
-        self.administrator_invites_trustees_and_sets_threshold()
-        console_log("### Step complete: administrator_invites_trustees_and_sets_threshold")
+        with ConsoleLogDuration("### administrator_invites_trustees_and_sets_threshold"):
+            self.administrator_invites_trustees_and_sets_threshold()
 
-        console_log("### Starting step: trustees_do_initialization_step_1_of_3")
-        self.trustees_do_initialization_step_1_of_3()
-        console_log("### Step complete: trustees_do_initialization_step_1_of_3")
+        with ConsoleLogDuration("### trustees_do_initialization_step_1_of_3"):
+            self.trustees_do_initialization_step_1_of_3()
 
-        console_log("### Starting step: trustees_do_initialization_step_2_of_3")
-        self.trustees_do_initialization_step_2_of_3()
-        console_log("### Step complete: trustees_do_initialization_step_2_of_3")
+        with ConsoleLogDuration("### trustees_do_initialization_step_2_of_3"):
+            self.trustees_do_initialization_step_2_of_3()
 
-        console_log("### Starting step: trustees_do_initialization_step_3_of_3")
-        self.trustees_do_initialization_step_3_of_3()
-        console_log("### Step complete: trustees_do_initialization_step_3_of_3")
+        with ConsoleLogDuration("### trustees_do_initialization_step_3_of_3"):
+            self.trustees_do_initialization_step_3_of_3()
 
-        console_log("### Starting step: administrator_completes_creation_of_election")
-        self.administrator_completes_creation_of_election()
-        console_log("### Step complete: administrator_completes_creation_of_election")
+        with ConsoleLogDuration("### administrator_completes_creation_of_election"):
+            self.administrator_completes_creation_of_election()
 
-        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (0)")
-        verify_election_consistency(self.election_id)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (0)")
+        with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify` (#0)"):
+            verify_election_consistency(self.election_id)
 
-        console_log("### Starting step: all_voters_vote_in_sequences")
-        self.all_voters_vote_in_sequences()
-        console_log("### Step complete: all_voters_vote_in_sequences")
+        with ConsoleLogDuration("### all_voters_vote_in_sequences"):
+            self.all_voters_vote_in_sequences()
 
-        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (1)")
-        verify_election_consistency(self.election_id)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (1)")
+        with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify` (#1)"):
+            verify_election_consistency(self.election_id)
 
-        console_log("### Starting step: create_election_data_snapshot (0)")
-        snapshot_folder = create_election_data_snapshot(self.election_id)
-        console_log("### Step complete: create_election_data_snapshot (0)")
+        with ConsoleLogDuration("### create_election_data_snapshot (#0)"):
+            snapshot_folder = create_election_data_snapshot(self.election_id)
 
         try:
-            console_log("### Starting step: some_voters_revote")
-            self.some_voters_revote()
-            console_log("### Step complete: some_voters_revote")
+            with ConsoleLogDuration("### some_voters_revote"):
+                self.some_voters_revote()
 
-            console_log("### Starting step: verify_election_consistency using `belenios_tool verify-diff` (0)")
-            verify_election_consistency(self.election_id, snapshot_folder)
+            with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify-diff` (#2)"):
+                verify_election_consistency(self.election_id, snapshot_folder)
         finally:
-            delete_election_data_snapshot(snapshot_folder)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify-diff` (0)")
+            with ConsoleLogDuration("### delete_election_data_snapshot"):
+                delete_election_data_snapshot(snapshot_folder)
 
-        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (2)")
-        verify_election_consistency(self.election_id)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (2)")
+        with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify` (#3)"):
+            verify_election_consistency(self.election_id)
 
-        console_log("### Starting step: administrator_starts_tallying_of_election")
-        self.administrator_starts_tallying_of_election(settings.TRUSTEES_THRESHOLD_VALUE)
-        console_log("### Step complete: administrator_starts_tallying_of_election")
+        with ConsoleLogDuration("### administrator_starts_tallying_of_election"):
+            self.administrator_starts_tallying_of_election(settings.TRUSTEES_THRESHOLD_VALUE)
 
-        console_log("### Starting step: trustees_do_partial_decryption")
-        self.trustees_do_partial_decryption(settings.TRUSTEES_THRESHOLD_VALUE)
-        console_log("### Step complete: trustees_do_partial_decryption")
+        with ConsoleLogDuration("### trustees_do_partial_decryption"):
+            self.trustees_do_partial_decryption(settings.TRUSTEES_THRESHOLD_VALUE)
 
-        console_log("### Starting step: administrator_finishes_tallying_of_election")
-        self.administrator_finishes_tallying_of_election(settings.TRUSTEES_THRESHOLD_VALUE)
-        console_log("### Step complete: administrator_finishes_tallying_of_election")
+        with ConsoleLogDuration("### administrator_finishes_tallying_of_election"):
+            self.administrator_finishes_tallying_of_election(settings.TRUSTEES_THRESHOLD_VALUE)
 
-        console_log("### Starting step: verify_election_consistency using `belenios_tool verify` (3)")
-        verify_election_consistency(self.election_id)
-        console_log("### Step complete: verify_election_consistency using `belenios_tool verify` (3)")
+        with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify` (#4)"):
+            verify_election_consistency(self.election_id)
 
 
 if __name__ == "__main__":
@@ -590,6 +575,15 @@ if __name__ == "__main__":
     settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     settings.WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', settings.WAIT_TIME_BETWEEN_EACH_STEP))
     settings.EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', settings.EXPLICIT_WAIT_TIMEOUT))
+
+    settings.EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', settings.EXPLICIT_WAIT_TIMEOUT))
+    if os.getenv('CLEAN_UP_POLICY', None):
+        input_clean_up_policy = os.getenv('CLEAN_UP_POLICY')
+        if hasattr(settings.CLEAN_UP_POLICIES, input_clean_up_policy):
+            settings.CLEAN_UP_POLICY = getattr(settings.CLEAN_UP_POLICIES, input_clean_up_policy)
+        else:
+            raise Exception("Error: Unknown value for CLEAN_UP_POLICY:", input_clean_up_policy)
+
     settings.NUMBER_OF_INVITED_VOTERS = int(os.getenv('NUMBER_OF_INVITED_VOTERS', settings.NUMBER_OF_INVITED_VOTERS))
     settings.NUMBER_OF_VOTING_VOTERS = int(os.getenv('NUMBER_OF_VOTING_VOTERS', settings.NUMBER_OF_VOTING_VOTERS))
     settings.NUMBER_OF_REVOTING_VOTERS = int(os.getenv('NUMBER_OF_REVOTING_VOTERS', settings.NUMBER_OF_REVOTING_VOTERS))
@@ -610,6 +604,8 @@ if __name__ == "__main__":
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
     console_log("EXPLICIT_WAIT_TIMEOUT:", settings.EXPLICIT_WAIT_TIMEOUT)
+    console_log("CLEAN_UP_POLICY:", settings.CLEAN_UP_POLICY)
+
     console_log("NUMBER_OF_INVITED_VOTERS:", settings.NUMBER_OF_INVITED_VOTERS)
     console_log("NUMBER_OF_VOTING_VOTERS:", settings.NUMBER_OF_VOTING_VOTERS)
     console_log("NUMBER_OF_REVOTING_VOTERS:", settings.NUMBER_OF_REVOTING_VOTERS)
