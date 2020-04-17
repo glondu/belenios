@@ -6,7 +6,7 @@ import os
 import sys
 from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_an_element_with_partial_link_text_exists
+from util.selenium_tools import wait_for_element_exists, wait_for_an_element_with_partial_link_text_exists, wait_for_an_element_with_link_text_exists
 from util.election_testing import console_log, ConsoleLogDuration, remove_database_folder, remove_election_from_database, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator
 from util.election_test_base import BeleniosElectionTestBase
 import settings
@@ -47,6 +47,13 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
         # Alice goes to the election page
         election_url = self.election_page_url # Could also be obtained with self.voters_data[self.voters_email_addresses[0]]["election_page_url"]
         browser.get(election_url)
+
+        wait_a_bit()
+
+        # She clicks on "en" language
+        english_language_link_expected_label = "en"
+        english_language_link_element = wait_for_an_element_with_link_text_exists(browser, english_language_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
+        english_language_link_element.click()
 
         wait_a_bit()
 
