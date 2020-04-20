@@ -93,3 +93,18 @@ Here is an example of how you can set configuration variables and execute the te
 ```
 RANDOM_SEED=222 WAIT_TIME_BETWEEN_EACH_STEP=1.2 USE_HEADLESS_BROWSER=0 NUMBER_OF_INVITED_VOTERS=4 python3 ./tests/test_scenario_1.py
 ```
+
+## Prepared database
+
+You can construct a prepared database (contents of folder `_run/spool`) with several elections and invited voters, and optionnaly with some voters who have already submitted their ballot. Building such a database, loading it into Belenios and executing automated tests on it make it possible to evaluate any difference in behaviour or in duration between an "empty" Belenios server and a "crowded" one.
+
+File `.gitlab-ci.yml` defines a task `build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_database` that downloads a prepared database and places it into `_run/spool` before executing tests. This task is only executed once in a while (at every new release of Belenios), not at every commit.
+
+Here is how you can build your own prepared database (for example if you want to add new elections to the prepared database used in this task):
+
+- Execute the Python/Selenium script which creates an election, invites some voters, generates their ballots, and stores them into a CSV file: See section `Execute the script that creates the election and generates ballot files and the aggregated votes CSV file`
+- Execute the JMeter script which, for each row of the previously generated CSV file, submits a voter's ballot to the election: See section `Load testing: Executing scenario of vote with already prepared ballots, using JMeter`
+
+You can now execute automated tests locally and analyse their results. If you want to update or replace the prepared database used in the Continuous Integration / Continuous Delivery pipeline, download its compressed file, unzip its contents and merge them into your local `_run/spool` folder. Then compress the whole folder and upload its compressed version to a public URL and replace the URL in `.gitlab-ci.yml` by your own.
+
+Good to know: If you version the prepared database using a git repository like gitlab or github, the VCS platform automatically generates a compressed file associated to latest commit on master branch and to commits which have tags. So you don't need to compress and upload the file yourself, just copy its URL and paste it into `.gitlab-ci.yml`.

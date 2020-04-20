@@ -1,5 +1,6 @@
 stages:
   - test
+  - deploy
 
 build_and_test_with_preinstalled_image:
   stage: test
@@ -52,6 +53,41 @@ build_and_run_automated_test_scenarios_with_preinstalled_image:
   script:
     # Initialize environment
     - source ~/env.sh
+    # Compile belenios
+    - BELENIOS_DEBUG=1 make all
+    # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
+    - make archive
+    # We don't need to start belenios web server, as it will be started by the automated test
+    # - ./demo/run-server.sh &
+    # Create a Python 3 virtual environment, where pip packages will be installed
+    - python3 -m venv venv
+    # Step into this new virtual environment
+    - source venv/bin/activate
+    # Install pip packages
+    - pip install -r requirements.txt
+    # Run the automated test scenario 4
+    - python3 ./tests/test_scenario_4.py
+    # Run the automated test scenario 3
+    - python3 ./tests/test_scenario_3.py
+    # Run the automated test scenario 2
+    - python3 ./tests/test_scenario_2.py
+    # Run the automated test scenario 1
+    - python3 ./tests/test_scenario_1.py
+
+build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_database:
+  stage: deploy
+  rules:
+    - changes:
+        - VERSION
+  image: glondu/beleniosbase-tests:20191210-1
+  variables:
+    PREPARED_DATABASE_VERSION: v0.01
+  script:
+    # Initialize environment
+    - source ~/env.sh
+    # Import prepared database
+    - mkdir -p _run/spool
+    - wget https://gitlab.com/swergas/belenios-prepared-database/-/archive/$PREPARED_DATABASE_VERSION/belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && tar -zxf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && mv belenios-prepared-database-$PREPARED_DATABASE_VERSION/* _run/spool && rm -rf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz belenios-prepared-database-$PREPARED_DATABASE_VERSION
     # Compile belenios
     - BELENIOS_DEBUG=1 make all
     # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
