@@ -172,7 +172,7 @@ pris en compte.
         email_address_to_look_for = self.voters_email_addresses[0]
         text_to_look_for = 'To: "' + email_address_to_look_for + '"'
         email_address_found = self.fake_sent_emails_manager.find_in_sent_emails(text_to_look_for)
-        assert email_address_found, "Text '" + email_address_to_look_for + "'' not found in fake sendmail log file"
+        assert email_address_found, "Text '" + email_address_to_look_for + "' not found in fake sendmail log file"
 
 
         # She clicks on the "Proceed" link
