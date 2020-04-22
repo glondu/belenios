@@ -4,15 +4,11 @@ import unittest
 import random
 import os
 import sys
-import json
-import time
 from urllib.parse import urljoin, urlsplit
-from html.parser import HTMLParser
-from hypothesis import given, HealthCheck, strategies as st, settings as hypothesis_settings
+# from html.parser import HTMLParser
 from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_an_element_with_partial_link_text_exists, wait_for_element_exists_and_does_not_contain_expected_text
-from util.election_testing import console_log, remove_database_folder, remove_election_from_database, initialize_server, wait_a_bit, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, try_several_times
+from util.election_testing import console_log, remove_database_folder, remove_election_from_database, initialize_server, wait_a_bit, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser
 import settings
 
@@ -34,23 +30,24 @@ def get_link_element_url(link_element):
     return link_element.get_attribute('href')
 
 
-# A kind of geofencing
+def representation_of_element(element):
+    return element.get_attribute("outerHTML")
+
+
 def verify_fence(initial_url, href_value):
+    """
+    A kind of geofencing: We filter out URLs which are out of the scope of the test
+    """
     target_url = urljoin(initial_url, href_value)
+
+    # If this link points to a different host (domain name), we abort
     if urlsplit(target_url).hostname != urlsplit(initial_url).hostname:
-        # Different host
+        return False
+
+    # If this link points to a downloadable element which works correctly for sure or which we don't want to test (for example because it would be tested too often or would take too much resources to download), we abort
+    if "belenios.tar.gz" in target_url:
         return False
     return True
-
-
-def get_all_visible_links(browser):
-    all_links = browser.find_elements_by_css_selector("a[href]")
-
-    def displayed(el):
-        return el.is_displayed()
-
-    displayed_links = list(filter(displayed, all_links))
-    return displayed_links
 
 
 def fence_filter_generator(initial_page_url):
@@ -60,9 +57,20 @@ def fence_filter_generator(initial_page_url):
     return inner
 
 
+def element_is_visible_filter(el):
+    return el.is_displayed()
+
+
+def get_all_visible_links(browser):
+    all_links = browser.find_elements_by_css_selector("a[href]")
+
+    displayed_links = list(filter(element_is_visible_filter, all_links))
+    return displayed_links
+
+
 def get_all_clickable_elements_in_page(browser, fence_filter):
     # TODO: add buttons, etc
-    return get_all_clickable_links_in_page(browser, fence_filter)
+    return get_all_clickable_links_in_page(browser, fence_filter) + get_all_input_type_submit_buttons_in_page(browser)
 
 
 def get_all_clickable_links_in_page(browser, fence_filter):
@@ -76,6 +84,28 @@ def get_all_clickable_links_in_page(browser, fence_filter):
     # for link_element in accepted_links:
     #     console_log(get_link_element_url(link_element))
     return accepted_links
+
+
+def get_all_input_type_submit_buttons_in_page(browser):
+    all_input_type_submit_buttons = browser.find_elements_by_css_selector("button, input[type=submit]")
+    # console_log("### all_input_type_submit_buttons:")
+    # for element in all_input_type_submit_buttons:
+    #     console_log(representation_of_element(element))
+    displayed_elements = list(filter(element_is_visible_filter, all_input_type_submit_buttons))
+    # console_log("### displayed_elements:")
+    # for element in displayed_elements:
+    #     console_log(representation_of_element(element))
+    return displayed_elements
+
+
+def verify_page_is_not_an_error_page(browser):
+    # Belenios web server returns a "Unauthorized" "Error 401" page in several situations, for example when we pick the "local" login method and submit an empty login form. For now, we consider this behaviour as normal.
+    # But what we consider an unexpected error is other types of errors returned by the server, for example "Internal Server Error", "Error 500".
+    error_content = ["Internal Server Error", "Error 500"]
+    page_source = browser.page_source
+    for content in error_content:
+        if content in page_source:
+            raise Exception("Server returned an unexpected error page. Page content was:", page_source)
 
 
 class SeleniumMonkeyClicker():
@@ -92,19 +122,22 @@ class SeleniumMonkeyClicker():
 
     def start(self, maximum_actions_in_visit=100):
         probability_to_go_back = 0.25
-        probability_to_go_back_when_dead_end = 0.25
+        probability_to_go_back_when_dead_end = 1 # 0.25
 
+        console_log("## First action in visit goes to page:", self.initial_page_url)
         self.browser.get(self.initial_page_url)
         current_actions_in_visit = 1
 
         fence_filter = fence_filter_generator(self.initial_page_url)
 
         while current_actions_in_visit < maximum_actions_in_visit:
+            current_actions_in_visit += 1
+            console_log("## current_actions_in_visit:", current_actions_in_visit)
+            verify_page_is_not_an_error_page(self.browser)
             random_result = random.random()
             if random_result < probability_to_go_back:
                 if current_actions_in_visit >= 2:
                     console_log("### Deciding to go back")
-                    current_actions_in_visit += 1
                     self.go_back()
             else:
                 clickable_elements = get_all_clickable_elements_in_page(self.browser, fence_filter)
@@ -113,17 +146,15 @@ class SeleniumMonkeyClicker():
                     random_result2 = random.random()
                     if random_result2 < probability_to_go_back_when_dead_end:
                         console_log("### Deciding to go back")
-                        current_actions_in_visit += 1
                         self.go_back()
                         continue
                     else:
                         console_log("### Deciding to end visit here.")
                         break
                 else:
-                    selected_link_element = random.choice(clickable_elements)
-                    console_log("### Choosing randomly link:", get_link_element_url(selected_link_element))
-                    selected_link_element.click()
-                    current_actions_in_visit += 1
+                    selected_element = random.choice(clickable_elements)
+                    console_log("### We choose randomly this element:", representation_of_element(selected_element))
+                    selected_element.click()
                     wait_a_bit()
 
         console_log("### SeleniumMonkeyClicker visit is now complete.")
@@ -132,31 +163,6 @@ class SeleniumMonkeyClicker():
 
 def get_election_url(election_id):
     return "/".join([settings.SERVER_URL, "elections", election_id, ""])
-
-
-def go_to_election_page(browser, election_id):
-    browser.get(get_election_url(election_id))
-
-
-def log_in(browser, username, password):
-    # She enters her identifier and password and submits the form to log in
-    login_form_username_value = username # correct value: settings.ADMINISTRATOR_USERNAME
-    login_form_password_value = password # correct value: settings.ADMINISTRATOR_PASSWORD
-
-    login_form_username_css_selector = '#main form input[name=username]'
-    login_form_password_css_selector = '#main form input[name=password]'
-
-    login_form_username_element = wait_for_element_exists(browser, login_form_username_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-    login_form_password_element = wait_for_element_exists(browser, login_form_password_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-
-    login_form_username_element.send_keys(login_form_username_value)
-    login_form_password_element.send_keys(login_form_password_value)
-
-    wait_a_bit()
-
-    login_form_password_element.submit()
-
-    wait_a_bit()
 
 
 class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
