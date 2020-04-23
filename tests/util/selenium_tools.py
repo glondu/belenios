@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
+from util.execution import try_several_times
 
 
 DEFAULT_WAIT_DURATION = 10 # In seconds
@@ -12,6 +13,30 @@ DEFAULT_WAIT_DURATION = 10 # In seconds
 
 def printable_page_source(browser):
     return "Page source was: " + str(browser.page_source.encode("utf-8"))
+
+
+def element_is_visible_filter(el):
+    return el.is_displayed()
+
+
+def representation_of_element(element):
+    return element.get_attribute("outerHTML")
+
+
+@try_several_times(max_attempts=3, sleep_duration=3)
+def find_visible_element_and_attribute_contains_expected_text(browser, css_selector, attribute_name, expected_content, timeout):
+    # In normal vote page, several elements have the "current_step" CSS class, and they have different `innerText`. The actual current step on screen corresponds to the `innerText` value of such an element which is visible (that is which has no ancestor which has `style="display: none;"`)
+    all_current_step_elements = browser.find_elements_by_css_selector(css_selector)
+    visible_current_step_elements = filter(element_is_visible_filter, all_current_step_elements)
+    for element in visible_current_step_elements:
+        if expected_content in element.get_attribute(attribute_name):
+            return element
+    page_source = str(browser.page_source.encode("utf-8"))
+    raise Exception(f"Page does not contain a visible element which would have an attribute '{attribute_name}' valued '{expected_content}'. Page source was: {page_source}")
+
+
+def find_visible_element_which_contains_expected_text(browser, css_selector, expected_content, timeout):
+    return find_visible_element_and_attribute_contains_expected_text(browser, css_selector, 'innerText', expected_content, timeout)
 
 
 class element_has_non_empty_attribute(object):
