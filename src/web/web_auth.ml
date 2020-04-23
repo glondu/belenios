@@ -36,7 +36,7 @@ let auth_env = Eliom_reference.eref ~scope None
 
 let run_post_login_handler ~auth_system ~state f =
   match%lwt Eliom_reference.get auth_env with
-  | None -> forbidden ()
+  | None -> Eliom_registration.Action.send ()
   | Some (uuid, a, cont, st) ->
      if auth_system = a.auth_system && st = state then
        let authenticate name =
