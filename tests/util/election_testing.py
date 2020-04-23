@@ -55,7 +55,10 @@ with ConsoleLogDuration("My task"):
 ConsoleLogDuration = partial(PrintDuration, print_function=console_log)
 
 
-def try_several_times(max_attempts):
+def try_several_times(max_attempts, sleep_duration=1):
+    """
+    `sleep_duration` is in seconds
+    """
     def decorator_try_several_times(func):
         @wraps(func)
         def wrapper_try_several_times(*args, **kwargs):
@@ -66,7 +69,7 @@ def try_several_times(max_attempts):
                 except Exception as e:
                     console_log(f"Attempt {current_attempt} failed. Error was:", e)
                     current_attempt += 1
-                    time.sleep(1)
+                    time.sleep(sleep_duration)
             if current_attempt > max_attempts:
                 raise Exception(f"Error. Failed after {current_attempt-1} attempts.")
         return wrapper_try_several_times
