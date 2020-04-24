@@ -4,10 +4,10 @@ import unittest
 import random
 import re
 from urllib.parse import urlencode
-from selenium.webdriver.common.alert import Alert
-from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, verify_element_label, wait_for_an_element_with_link_text_exists
+from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label
 from util.election_testing import random_email_addresses_generator, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, repopulate_vote_confirmations_for_voters_from_sent_emails, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, find_button_in_page_content_by_value, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 from util.execution import console_log
+from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page, BallotBoxPage
 import settings
 
 
@@ -291,6 +291,7 @@ pris en compte.
 
     def one_voter_votes(self, voter, direct=False):
         browser = self.browser
+        timeout = settings.EXPLICIT_WAIT_TIMEOUT
 
         if direct:
             browser.get(settings.SERVER_URL + "/vote.html#" + urlencode({"uuid": self.election_id}))
@@ -302,30 +303,18 @@ pris en compte.
             wait_a_bit()
 
             # He clicks on "en" language
-            english_language_link_expected_label = "en"
-            english_language_link_element = wait_for_an_element_with_link_text_exists(browser, english_language_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
-            english_language_link_element.click()
+            election_home_page = ElectionHomePage(browser, timeout)
+            election_home_page.click_on_language_link("en")
 
             # He clicks on the "Start" button
-            start_button_expected_label = "Start"
-            start_button_css_selector = "#main button"
-            start_button_element = wait_for_element_exists_and_contains_expected_text(browser, start_button_css_selector, start_button_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
-            start_button_element.click()
+            election_home_page.click_on_start_button()
 
         wait_a_bit()
 
-        # A loading screen appears, then another screen appears. He clicks on the "Here" button
-        here_button_expected_label = "here"
-        here_button_css_selector = "#input_code button"
-        here_button_element = wait_for_element_exists_and_contains_expected_text(browser, here_button_css_selector, here_button_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
-        here_button_element.click()
-
-        wait_a_bit()
-
-        # A modal opens (it is an HTML modal created using Window.prompt()), with an input field. He types his credential.
-        credential_prompt = Alert(browser)
-        credential_prompt.send_keys(voter["credential"])
-        credential_prompt.accept()
+        # A loading screen appears, then another screen appears. He clicks on the "Here" button. A modal opens (it is an HTML modal created using Window.prompt()), with an input field. He types his credential.
+        step_1_page = NormalVoteStep1Page(browser, timeout)
+        step_1_page.verify_page()
+        step_1_page.click_on_here_button_and_type_voter_credential(voter["credential"])
 
         wait_a_bit()
 
@@ -336,6 +325,8 @@ pris en compte.
         # [ ] "Answer 2"
         # [Next]
         # (where "[ ]" is a checkbox, and [Next] is a button)
+        step_2_page = NormalVoteStep2Page(browser, timeout)
+        step_2_page.verify_page()
 
         # He fills his votes to each answer of the question
         answers_css_selector = ".answer_div input"
@@ -364,10 +355,7 @@ pris en compte.
         wait_a_bit()
 
         # He clicks on the "Next" button
-        next_button_expected_label = "Next"
-        next_button_css_selector = "#btn_next"
-        next_button_element = wait_for_element_exists_and_contains_expected_text(browser, next_button_css_selector, next_button_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
-        next_button_element.click()
+        step_2_page.click_on_next_button()
 
         wait_a_bit()
 
@@ -387,51 +375,35 @@ pris en compte.
         [Continue]
         [Restart]
         """
-
+        step_3_page = NormalVoteStep3Page(browser, timeout)
+        step_3_page.verify_page()
         # He remembers the smart ballot tracker that is displayed.
-        smart_ballot_tracker_css_selector = "#ballot_tracker"
-        smart_ballot_tracker_element = wait_for_element_exists_and_has_non_empty_content(browser, smart_ballot_tracker_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        smart_ballot_tracker_value = smart_ballot_tracker_element.get_attribute('innerText')
+        smart_ballot_tracker_value = step_3_page.get_smart_ballot_tracker_value()
         assert len(smart_ballot_tracker_value) > 5
-
         voter["smart_ballot_tracker"] = smart_ballot_tracker_value
 
         # He clicks on the "Continue" button
-        next_button_expected_label = "Continue"
-        next_button_css_selector = "#div_submit input[type=submit][value='" + next_button_expected_label + "']"
-        next_button_element = browser.find_element_by_css_selector(next_button_css_selector)
-        next_button_element.click()
+        step_3_page.click_on_continue_button()
 
         wait_a_bit()
+
+        # He arrives on the login page, with a login form (as he has not already logged in during this visit, he does not arrive directly on the step 5 page)
+        login_page = VoterLoginPage(browser, timeout)
+        login_page.verify_page()
 
         # He types his voter username and password, and submits the form
-        username_field_css_selector = "#main input[name=username]"
-        username_field_element = wait_for_element_exists(browser, username_field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        username_field_element.send_keys(voter["username"])
-
-        password_field_css_selector = "#main input[name=password]"
-        password_field_element = browser.find_element_by_css_selector(password_field_css_selector)
-        password_field_element.send_keys(voter["password"])
+        login_page.log_in(voter["username"], voter["password"])
 
         wait_a_bit()
 
-        password_field_element.submit()
-
-        wait_a_bit()
-
-        # He checks that the smart ballot tracker value that appears on screen is the same as the one he noted
-        smart_ballot_tracker_verification_css_selector = "#ballot_tracker"
-        smart_ballot_tracker_verification_element = wait_for_element_exists_and_has_non_empty_content(browser, smart_ballot_tracker_verification_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-        smart_ballot_tracker_verification_value = smart_ballot_tracker_verification_element.get_attribute('innerText')
-        assert len(smart_ballot_tracker_verification_value) > 5
-
-        assert smart_ballot_tracker_verification_value == voter["smart_ballot_tracker"]
+        # He verifies that he is now on step 5 and that page content is correct (page contains 'has been received, but not recorded yet'; page contains a ballot tracker which is the same as the one he noted; page contains voter's username)
+        step_5_page = NormalVoteStep5Page(browser, timeout)
+        step_5_page.verify_page(smart_ballot_tracker_value, voter["username"])
 
         # He clicks on the "I cast my vote" button
-        submit_button_css_selector = "#main input[type=submit]"
-        submit_button_element = browser.find_element_by_css_selector(submit_button_css_selector)
-        submit_button_element.click()
+        step_5_page.click_on_i_cast_my_vote_button()
 
+        wait_a_bit()
 
 
     def some_voters_cast_their_vote(self, voters):
@@ -439,6 +411,7 @@ pris en compte.
         :param voters: list of dict. Each element contains information about a voter (their e-mail address, the planned answers to each question they will cast)
         """
         browser = self.browser
+        timeout = settings.EXPLICIT_WAIT_TIMEOUT
         voters_count = len(voters)
         for index, voter in enumerate(voters):
             console_log("#### Current voter casting their vote in current batch: " + str(index + 1) + "/" + str(voters_count))
@@ -455,20 +428,19 @@ pris en compte.
             Where {xxx} is a link
             """
 
-            # He clicks on the "ballot box" link
-            ballot_box_link_label = "ballot box"
-            ballot_box_link_element = wait_for_an_element_with_partial_link_text_exists(browser, ballot_box_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
-            ballot_box_link_element.click()
+            # He verifies that he is on step 6 and that page content is correct (page contains 'has been accepted'; page contains a ballot tracker which is the same as the one he noted)
+            step_6_page = NormalVoteStep6Page(browser, timeout)
+            step_6_page.verify_page(voter["smart_ballot_tracker"])
+
+            # He clicks on the 'ballot box' link
+            step_6_page.click_on_ballot_box_link()
 
             wait_a_bit()
 
             # He checks that his smart ballot tracker appears in the list
-            all_smart_ballot_trackers_css_selector = "#main ul li a"
-            all_smart_ballot_trackers_elements = wait_for_elements_exist(browser, all_smart_ballot_trackers_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-            assert len(all_smart_ballot_trackers_elements)
-            matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
-            assert len(matches) is 1
-
+            ballot_box_page = BallotBoxPage(browser, timeout)
+            ballot_box_page.verify_page(voter["smart_ballot_tracker"])
+            ballot_box_page.click_on_ballot_link(voter["smart_ballot_tracker"])
 
             self.voters_email_addresses_who_have_voted[voter["email_address"]] = True
 

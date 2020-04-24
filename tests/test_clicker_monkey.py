@@ -9,7 +9,7 @@ from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.election_testing import remove_database_folder, remove_election_from_database, initialize_server, wait_a_bit, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters
 from util.selenium_tools import wait_for_an_element_with_link_text_exists
-from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page
+from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page, BallotBoxPage
 from util.monkeys import SeleniumClickerMonkey, SeleniumFormFillerMonkey
 from util.execution import console_log
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser
@@ -226,7 +226,7 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
         console_log("## Filling log in form and submitting it")
         login_page.log_in(settings.VOTER_USERNAME, settings.VOTER_PASSWORD)
 
-        console_log("## Verify that we are on step 5 and that page content is correct (page contains 'has been received, but not recorded yet'; page contains a ballot tracker which is not empty; page contains voter's username)")
+        console_log("## Verify that we are on step 5 and that page content is correct (page contains 'has been received, but not recorded yet'; page contains a ballot tracker which is the same as the one we noted; page contains voter's username)")
         step_5_page = NormalVoteStep5Page(browser, timeout)
         step_5_page.verify_page(step_3_smart_ballot_tracker_value, settings.VOTER_USERNAME)
 
@@ -242,7 +242,7 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
 
         wait_a_bit()
 
-        console_log("## Verify that we are on step 6 and that page content is correct (page contains 'has been accepted'; page contains a ballot tracker which is not empty)")
+        console_log("## Verify that we are on step 6 and that page content is correct (page contains 'has been accepted'; page contains a ballot tracker which is the same as the one we noted)")
         step_6_page = NormalVoteStep6Page(browser, timeout)
         step_6_page.verify_page(step_3_smart_ballot_tracker_value)
 
@@ -253,14 +253,17 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
         # We can click on the "Go back to election" link
         # We can go back. This goes to another page which looks like the "Advanced mode" page. This looks like a small bug.
 
-        console_log("Click on the 'ballot box' link")
+        console_log("## Click on the 'ballot box' link")
         step_6_page.click_on_ballot_box_link()
 
         wait_a_bit()
 
-        console_log("Verify that ballot box page contains a link labelled as voter's smart ballot tracker, and click on it")
-        my_ballot_link = wait_for_an_element_with_link_text_exists(browser, step_3_smart_ballot_tracker_value)
-        my_ballot_link.click()
+        console_log("## Verify that ballot box page contains a link labelled as voter's smart ballot tracker, and click on it")
+        ballot_box_page = BallotBoxPage(browser, timeout)
+        ballot_box_page.verify_page(step_3_smart_ballot_tracker_value)
+        ballot_box_page.click_on_ballot_link(step_3_smart_ballot_tracker_value)
+
+        console_log("## Verify that my ballot page is not an error page")
         verify_page_is_not_an_error_page(browser)
 
 

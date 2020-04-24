@@ -56,7 +56,7 @@ def try_several_times(max_attempts, sleep_duration=1):
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
-                    console_log(f"Attempt {current_attempt} failed. Error was:", e)
+                    console_log(f"Attempt {current_attempt} of {max_attempts} failed. Error was: {e}")
                     current_attempt += 1
                     time.sleep(sleep_duration)
             if current_attempt > max_attempts:

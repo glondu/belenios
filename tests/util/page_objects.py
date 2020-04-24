@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 from selenium.webdriver.common.alert import Alert
-from util.selenium_tools import find_visible_element_which_contains_expected_text, wait_for_element_exists, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, find_visible_element_and_attribute_contains_expected_text
+from util.selenium_tools import wait_for_an_element_exists_and_is_visible_and_contains_expected_text, wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text, wait_for_element_exists, wait_for_elements_exist, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content
 from util.election_testing import wait_a_bit
 from util.execution import console_log
 
@@ -26,7 +26,7 @@ class VoterLoginPage(VerifiablePage):
 
 
     def verify_page(self):
-        find_visible_element_which_contains_expected_text(self.browser, "h1", "Password login", self.timeout)
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "h1", "Password login", self.timeout)
 
 
     def log_in(self, username, password):
@@ -68,8 +68,7 @@ class NormalVoteGenericStepPage(VerifiablePage):
 
 
     def verify_step_title(self):
-        console_log(f"**Verifying that current step contains '{self.expected_step_content}")
-        find_visible_element_which_contains_expected_text(self.browser, self.current_step_css_selector, self.expected_step_content, self.timeout)
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, self.current_step_css_selector, self.expected_step_content, self.timeout)
 
 
     def verify_page(self):
@@ -100,7 +99,7 @@ class NormalVoteStep2Page(NormalVoteGenericStepPage):
 
     def click_on_next_button(self):
         step_2_parent_css_selector = "#question_div"
-        next_button = find_visible_element_which_contains_expected_text(self.browser, step_2_parent_css_selector + " button", "Next", self.timeout)
+        next_button = wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_2_parent_css_selector + " button", "Next", self.timeout)
         next_button.click()
 
 
@@ -124,7 +123,7 @@ class NormalVoteStep3Page(NormalVoteGenericStepWithBallotTrackerPage):
     def verify_page_body(self):
         step_3_parent_css_selector = "#ballot_div"
         step_3_expected_success_content = "Your ballot has been successfully encrypted"
-        find_visible_element_which_contains_expected_text(self.browser, step_3_parent_css_selector, step_3_expected_success_content, self.timeout)
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_3_parent_css_selector,  step_3_expected_success_content, self.timeout)
         self.verify_ballot_tracker_value()
 
 
@@ -134,7 +133,7 @@ class NormalVoteStep3Page(NormalVoteGenericStepWithBallotTrackerPage):
 
 
     def click_on_continue_button(self):
-        continue_button = find_visible_element_and_attribute_contains_expected_text(self.browser, "input[type=submit]", "value", "Continue", self.timeout)
+        continue_button = wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text(self.browser, "input[type=submit]", "value", "Continue", self.timeout)
         continue_button.click()
 
     # TODO: click_on_restart_button
@@ -147,12 +146,12 @@ class NormalVoteStep5Page(NormalVoteGenericStepWithBallotTrackerPage):
     def verify_page_body(self, expected_ballot_tracker, expected_username):
         step_5_parent_css_selector = "#main"
         step_5_expected_success_content = "has been received, but not recorded yet"
-        find_visible_element_which_contains_expected_text(self.browser, step_5_parent_css_selector, step_5_expected_success_content, self.timeout)
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_5_parent_css_selector, step_5_expected_success_content, self.timeout)
         self.verify_ballot_tracker_value()
         ballot_tracker_value = self.get_smart_ballot_tracker_value()
         assert ballot_tracker_value == expected_ballot_tracker
 
-        find_visible_element_which_contains_expected_text(self.browser, step_5_parent_css_selector, expected_username, self.timeout)
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_5_parent_css_selector, expected_username, self.timeout)
 
 
     def verify_page(self, expected_ballot_tracker, expected_username):
@@ -162,7 +161,7 @@ class NormalVoteStep5Page(NormalVoteGenericStepWithBallotTrackerPage):
 
     def click_on_i_cast_my_vote_button(self):
         i_cast_my_vote_button_label = "I cast my vote"
-        i_cast_my_vote_button_element = find_visible_element_and_attribute_contains_expected_text(self.browser, "input[type=submit]", "value", i_cast_my_vote_button_label, self.timeout)
+        i_cast_my_vote_button_element = wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text(self.browser, "input[type=submit]", "value", i_cast_my_vote_button_label, self.timeout)
         i_cast_my_vote_button_element.click()
 
     # TODO: click_on_go_back_to_election_link
@@ -175,7 +174,7 @@ class NormalVoteStep6Page(NormalVoteGenericStepWithBallotTrackerPage):
     def verify_page_body(self, expected_ballot_tracker):
         step_6_parent_css_selector = "#main"
         expected_step_6_body_content = "has been accepted"
-        find_visible_element_which_contains_expected_text(self.browser, step_6_parent_css_selector, expected_step_6_body_content, self.timeout)
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_6_parent_css_selector, expected_step_6_body_content, self.timeout)
         self.verify_ballot_tracker_value()
         ballot_tracker_value = self.get_smart_ballot_tracker_value()
         assert ballot_tracker_value == expected_ballot_tracker
@@ -192,3 +191,27 @@ class NormalVoteStep6Page(NormalVoteGenericStepWithBallotTrackerPage):
         ballot_box_link_element.click()
 
     # TODO: click_on_go_back_to_election_link
+
+
+class BallotBoxPage(VerifiablePage):
+    def verify_header(self):
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "#header h1", "Accepted ballots", self.timeout)
+
+
+    def verify_presence_of_expected_ballot_tracker(self, expected_ballot_tracker):
+        all_smart_ballot_trackers_css_selector = "#main ul li a"
+        all_smart_ballot_trackers_elements = wait_for_elements_exist(self.browser, all_smart_ballot_trackers_css_selector, self.timeout)
+        assert len(all_smart_ballot_trackers_elements)
+        matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == expected_ballot_tracker]
+        assert len(matches) == 1
+
+
+    def verify_page(self, expected_ballot_tracker=None):
+        self.verify_header()
+        if expected_ballot_tracker:
+            self.verify_presence_of_expected_ballot_tracker(expected_ballot_tracker)
+
+
+    def click_on_ballot_link(self, ballot_tracker):
+        link_element = wait_for_an_element_with_link_text_exists(self.browser, ballot_tracker, self.timeout)
+        link_element.click()

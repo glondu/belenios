@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
-from util.execution import try_several_times
 
 
 DEFAULT_WAIT_DURATION = 10 # In seconds
@@ -23,20 +22,46 @@ def representation_of_element(element):
     return element.get_attribute("outerHTML")
 
 
-@try_several_times(max_attempts=3, sleep_duration=3)
-def find_visible_element_and_attribute_contains_expected_text(browser, css_selector, attribute_name, expected_content, timeout):
-    # In normal vote page, several elements have the "current_step" CSS class, and they have different `innerText`. The actual current step on screen corresponds to the `innerText` value of such an element which is visible (that is which has no ancestor which has `style="display: none;"`)
-    all_current_step_elements = browser.find_elements_by_css_selector(css_selector)
-    visible_current_step_elements = filter(element_is_visible_filter, all_current_step_elements)
-    for element in visible_current_step_elements:
-        if expected_content in element.get_attribute(attribute_name):
-            return element
-    page_source = str(browser.page_source.encode("utf-8"))
-    raise Exception(f"Page does not contain a visible element which would have an attribute '{attribute_name}' valued '{expected_content}'. Page source was: {page_source}")
+class an_element_exists_and_is_visible_and_attribute_contains_expected_text(object):
+    def __init__(self, locator, attribute_name, expected_content):
+        self.locator = locator
+        self.attribute_name = attribute_name
+        self.expected_content = expected_content
+
+    def __call__(self, driver):
+        elements = driver.find_elements(*self.locator)
+        if not elements:
+            return False
+        visible_elements = filter(element_is_visible_filter, elements)
+        if not visible_elements:
+            return False
+        for element in visible_elements:
+            if self.expected_content in element.get_attribute(self.attribute_name):
+                return element
+        return False
 
 
-def find_visible_element_which_contains_expected_text(browser, css_selector, expected_content, timeout):
-    return find_visible_element_and_attribute_contains_expected_text(browser, css_selector, 'innerText', expected_content, timeout)
+def wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text(browser, css_selector, attribute_name, expected_text, wait_duration=DEFAULT_WAIT_DURATION):
+    """
+    Waits for the presence of an element that matches CSS selector `css_selector` and which is currently visible in the page, and which has an attribute `attribute_name` which contains string `expected_text`.
+    :param browser: Selenium browser
+    :param css_selector: CSS selector of the expected element
+    :param attribute_name: Name of the HTML attribute of the DOM element which should contain `expected_text`
+    :param expected_text: String of the expected text that element must contain
+    :param wait_duration: Maximum duration in seconds that we wait for the presence of this element before raising an exception
+    :return: The WebElement once it matches expected conditions
+    """
+    try:
+        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
+        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
+        element = custom_wait.until(an_element_exists_and_is_visible_and_attribute_contains_expected_text((By.CSS_SELECTOR, css_selector), attribute_name, expected_text))
+        return element
+    except Exception as e:
+        raise Exception(f"Could not find expected DOM element '{css_selector}' with attribute '{attribute_name}' which contains text content '{expected_text}' until timeout of {str(wait_duration)} seconds. " + printable_page_source(browser)) from e
+
+
+def wait_for_an_element_exists_and_is_visible_and_contains_expected_text(browser, css_selector, expected_text, wait_duration=DEFAULT_WAIT_DURATION):
+    return wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text(browser, css_selector, "innerText", expected_text, wait_duration)
 
 
 class element_has_non_empty_attribute(object):
