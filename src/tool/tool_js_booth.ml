@@ -202,19 +202,15 @@ let createNonHomomorphicQuestionWidget q =
       let t = document##createTextNode (Js.string (" " ^ a)) in
       input##.onchange :=
         Dom_html.handler (fun _ ->
-            let x =
-              try
-                let x = int_of_string (Js.to_string input##.value) in
-                if x < 0 then raise Exit;
-                if x > 255 then raise Exit;
-                x
-              with _ ->
-                alert (get_content "alert_0_255");
-                answers.(i)
-            in
-            answers.(i) <- x;
-            input##.value := Js.string (string_of_int x);
-            Js._true
+            try
+              let x = int_of_string (Js.to_string input##.value) in
+              if x < 0 then raise Exit;
+              if x > 255 then raise Exit;
+              answers.(i) <- x;
+              Js._true
+            with _ ->
+              alert (get_content "alert_0_255");
+              Js._false
           );
       Dom.appendChild div t;
       input, div
