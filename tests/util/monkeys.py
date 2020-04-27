@@ -129,10 +129,6 @@ class SeleniumClickerMonkey():
 
 
 class SeleniumFormFillerMonkey():
-    browser = None
-    form_css_selector = None
-
-
     def __init__(self, browser, form_css_selector="form"):
         self.browser = browser
         self.form_css_selector = form_css_selector
@@ -157,7 +153,8 @@ class SeleniumFormFillerMonkey():
             checkboxes_to_check = random.sample(all_input_type_checkbox_elements, number_of_checkboxes_to_check)
             for element in checkboxes_to_check:
                 console_log("clicking element", representation_of_element(element))
-                element.click()
+                if not element.is_selected():
+                    element.click()
 
         # TODO: handle other types of form fields (examples: input[type=text], input[type=password], textarea, input[type=file], input[type=radio])
 
@@ -166,3 +163,92 @@ class SeleniumFormFillerMonkey():
     #     form_element = self.browser.find_element_by_css_selector(self.form_css_selector)
     #     submit_button = form_element.find_element_by_css_selector("input[type=submit]")
     #     submit_button.click()
+
+
+class StateForSmartMonkey():
+    def __init__(self, browser, timeout, previous_state_class=None):
+        # console_log("StateForSmartMonkey::__init__() with previous_state_class:", previous_state_class)
+        self.browser = browser
+        self.timeout = timeout
+        self.previous_state_class = previous_state_class
+        self.page = None
+
+
+    def go_back(self):
+        if not self.previous_state_class:
+            raise NotImplementedError()
+        self.browser.back()
+        return self.previous_state_class(self.browser, self.timeout)
+
+
+    def get_all_possible_actions(self):
+        raise NotImplementedError() # or return []
+
+
+    def verify_page(self, in_memory):
+        """
+        Child classes can override this method and make use of `in_memory` parameter to pass necessary data to `self.page.verify_page()`.
+        """
+        if self.page:
+            return self.page.verify_page()
+
+
+class SmartMonkeyWithMemoryAndKnownStateMachine():
+    def __init__(self, initial_state, in_memory=None, probability_to_go_back=0.25):
+        self.current_state = initial_state
+        self.probability_to_go_back = probability_to_go_back
+        if in_memory:
+            self.in_memory = in_memory
+        else:
+            self.in_memory = dict()
+
+
+    def get_memory(self):
+        return self.in_memory
+
+
+    def get_memory_element(self, key, default_value=None):
+        return self.in_memory.get(key, default_value)
+
+
+    def set_memory_element(self, key, value):
+        self.in_memory[key] = value
+
+
+    def go_back(self):
+        console_log("Trying to go back")
+        try:
+            self.current_state = self.current_state.go_back()
+        except Exception as e:
+            raise Exception("Failed going back.") from e
+
+    def execute_a_random_action(self):
+        if random.random() < self.probability_to_go_back:
+            try:
+                self.go_back()
+                return
+            except Exception as e:
+                console_log("Failed going back. Trying something else. Exception was:", e)
+
+        possible_actions = self.current_state.get_all_possible_actions()
+        console_log("possible_actions:", possible_actions)
+        if len(possible_actions):
+            random_action = random.choice(possible_actions)
+            console_log("random_action:", random_action)
+            self.current_state = random_action(in_memory=self.in_memory)
+        else:
+            console_log("List of possible actions is empty. Trying to go back")
+            try:
+                self.go_back()
+                return
+            except Exception as e:
+                raise Exception("Cannot execute a random action, because list of posible actions is empty, and cannot go back.")
+
+
+    def has_possible_actions(self):
+        possible_actions = self.current_state.get_all_possible_actions()
+        return len(possible_actions) > 0
+
+
+    def verify_page(self):
+        return self.current_state.verify_page(in_memory=self.in_memory)
