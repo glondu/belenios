@@ -114,7 +114,7 @@ class NormalVoteStep2Page(NormalVoteGenericStepPage):
     def click_on_next_button_but_form_is_not_filled(self):
         self.click_on_next_button()
 
-        # Another modal opens (it is an HTML modal created using Window.alert()).
+        # A modal opens (it is an HTML modal created using Window.alert()).
         failure_alert = Alert(self.browser)
         failure_alert.accept()
 

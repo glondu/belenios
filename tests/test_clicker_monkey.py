@@ -132,7 +132,6 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
         monkey.start(100)
 
 
-    @unittest.skip("TODO: remove skip")
     def test_sometimes_smart_monkey_votes(self):
         console_log("# test_sometimes_smart_monkey_votes()")
         browser = self.browser
@@ -144,8 +143,10 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
         wait_a_bit()
 
         console_log("## Starting monkey behaviour for a few clicks:")
-        monkey = SeleniumClickerMonkey(browser, election_url)
-        monkey.start(3)
+        monkey = SeleniumClickerMonkey(browser, election_url, verify_page_is_not_an_error_page)
+        # Warning: Do not set a very high value to `maximum_monkey_clicks`. This is because some links clicked by the monkey trigger a download confirmation modal. There seems to be no way in Selenium to click cancel in this modal. As we don't tell the monkey to accept the download (we don't want to), the monkey continues its navigation with the modal still open. Modals stack.
+        maximum_monkey_clicks = 50
+        monkey.start(maximum_monkey_clicks)
 
         console_log("## Going to election page again", election_url)
         browser.get(election_url)
