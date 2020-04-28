@@ -2,6 +2,8 @@
 # coding: utf-8
 import random
 from urllib.parse import urljoin, urlsplit
+from selenium.common.exceptions import NoAlertPresentException
+
 from util.election_testing import wait_a_bit
 from util.execution import console_log
 from util.selenium_tools import representation_of_element, element_is_visible_filter
@@ -21,9 +23,14 @@ def verify_fence(initial_url, href_value):
     if urlsplit(target_url).hostname != urlsplit(initial_url).hostname:
         return False
 
-    # If this link points to a downloadable element which works correctly for sure or which we don't want to test (for example because it would be tested too often or would take too much resources to download), we abort
-    if "belenios.tar.gz" in target_url:
-        return False
+    # We abort if this link:
+    # - points to a downloadable element which works correctly for sure or which we don't want to test (for example because it would be tested too often or would take too much resources to download)
+    # - is the election creation page (if monkey accesses the administration panel by logging in using the "demo" mode)
+    # - is the election edition page (if monkey accesses the administration panel by logging in using the "demo" mode)
+    forbidden_urls = ["belenios.tar.gz", "election.json", "trustees.json", "ballot.json", "/draft/new", "/draft/election?uuid="]
+    for url in forbidden_urls:
+        if url in target_url:
+            return False
     return True
 
 
@@ -95,7 +102,7 @@ class SeleniumClickerMonkey():
         self.browser.get(self.initial_page_url)
         current_actions_in_visit = 1
 
-        fence_filter = fence_filter_generator(self.initial_page_url)
+        fence_filter = fence_filter_generator(self.initial_page_url) # TODO: decouple by having the monkey constructor provide the fence function
 
         while current_actions_in_visit < maximum_actions_in_visit:
             current_actions_in_visit += 1
@@ -124,6 +131,21 @@ class SeleniumClickerMonkey():
                     console_log("### We choose randomly this element:", representation_of_element(selected_element))
                     selected_element.click()
                     wait_a_bit()
+
+                    looking_for_alert = True
+                    while looking_for_alert:
+                        try:
+                            alert = self.browser.switch_to.alert
+                            console_log("* We encounter an Alert")
+                            random_result3 = random.random()
+                            if random_result3 < 0.5:
+                                console_log("* We decide to accept the Alert")
+                                alert.accept()
+                            else:
+                                console_log("* We decide to dismiss the Alert")
+                                alert.dismiss()
+                        except NoAlertPresentException:
+                            looking_for_alert = False
 
         console_log("### SeleniumClickerMonkey visit is now complete.")
 

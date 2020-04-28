@@ -121,7 +121,6 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
         return target_fake_sent_emails_manager
 
 
-    @unittest.skip("Bug discovered using Monkey Testing: Logging in and clicking browser's Back button and logging in again produces an Internal Server Error")
     def test_clicker_monkey_on_election_home(self):
         console_log("# test_clicker_monkey_on_election_home()")
         browser = self.browser
@@ -129,7 +128,7 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
         console_log("## Going to election page:", election_url)
 
         monkey = SeleniumClickerMonkey(browser, election_url, verify_page_is_not_an_error_page)
-        monkey.start(100)
+        monkey.start(200)
 
 
     def test_sometimes_smart_monkey_votes(self):
