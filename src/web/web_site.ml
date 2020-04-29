@@ -1417,6 +1417,10 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
                return ts
         in
         T.election_admin ?shuffle_token ?tally_token w metadata state get_tokens_decrypt () >>= Html.send
+     | Some _ ->
+        let msg = "You are not allowed to administer this election!" in
+        T.generic_page ~title:"Forbidden" msg ()
+        >>= Html.send ~code:403
      | _ ->
         redir_preapply site_login (None, ContSiteElection uuid) ()
 
