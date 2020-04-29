@@ -2177,8 +2177,8 @@ You will find below the link to shuffle encrypted ballots.
 Here's the instructions:
 1. click on the link
 2. click on \"Compute shuffle\"
-3. the hash of your shuffle will appear. Save it.
-4. when the election result is published, make sure that the hash of
+3. the fingerprint of your shuffle will appear. Save it.
+4. when the election result is published, make sure that the fingerprint of
    your shuffle appears in the result.
 
 Thank you for your help,
@@ -2292,7 +2292,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
        in
        let%lwt () =
          match%lwt Web_persist.get_shuffle_hashes uuid with
-         | None -> failwith "shuffle hashes are missing"
+         | None -> failwith "shuffle fingerprints are missing"
          | Some hashes ->
             List.iter
               (fun x ->
@@ -2420,7 +2420,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                           th [];
                           th [txt "Done?"];
                           th [];
-                          th [txt "Hash"];
+                          th [txt "Fingerprint"];
                         ] :: (List.flatten table_contents)
                      );
                  ];
@@ -3024,11 +3024,11 @@ let shuffle election token =
               ];
             div ~a:[a_id "hash_div"; a_style "display:none;"] [
                 div [
-                    txt "The hash of your shuffle is: ";
+                    txt "The fingerprint of your shuffle is: ";
                     b ~a:[a_id "hash"] [];
                     txt ".";
                   ];
-                div [txt "You must record this hash and check that it appears on the result page of the election."];
+                div [txt "You must record this fingerprint and check that it appears on the result page of the election."];
               ];
             div [
                 input ~input_type:`Submit ~value:"Submit" string;
@@ -3059,7 +3059,7 @@ let tally_trustees election trustee_id token () =
   let content = [
     p [txt "It is now time to compute your partial decryption factors."];
     p [
-      txt "The hash of the encrypted tally is ";
+      txt "The fingerprint of the encrypted tally is ";
       b [span ~a:[a_id "hash"] []];
       txt "."
     ];
