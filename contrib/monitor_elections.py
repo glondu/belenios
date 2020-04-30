@@ -172,7 +172,10 @@ def check_hash_ballots(data):
 # Verify that the data printed on the page of the election is
 # consistent with the other audit files.
 def check_index_html(data):
-    dom = xml.dom.minidom.parseString(data['index.html'])
+    # when the election is closed, there is a "disabled" attributed
+    # without value that the xml parser does not like. We remove it.
+    st = data['index.html'].decode().replace('disabled>Start', '>Start')
+    dom = xml.dom.minidom.parseString(st)
     fail = False
     msg = b""
 
