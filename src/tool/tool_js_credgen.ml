@@ -24,8 +24,8 @@ open Tool_js_common
 open Tool_credgen
 
 let generate _ =
+  let raw = get_textarea "voters" in
   let ids =
-    let raw = get_textarea "voters" in
     let rec loop i accu =
       if i >= 0 then
         let j =
@@ -36,7 +36,7 @@ let generate _ =
         loop (j-1) (String.sub raw (j+1) (i-j) :: accu)
       else
         accu
-    in loop (String.length raw - 1) []
+    in loop (String.length raw - 2) []
   in
   let module P : PARAMS = struct
     let uuid = get_textarea "uuid"
@@ -54,6 +54,7 @@ let generate _ =
   set_content "public_creds_fp" hash;
   let text_creds = (privs |> String.concat "\n") ^ "\n" in
   set_download "creds" "text/plain" "creds.txt" text_creds;
+  set_download "voters_txt" "text/plain" "voters.txt" raw;
   set_element_display "submit_form" "inline";
   Js._false
 

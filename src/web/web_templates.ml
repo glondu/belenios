@@ -1288,6 +1288,18 @@ let election_draft_credentials token uuid se () =
                        txt "You will use it to send credentials to voters.";
                      ];
                    li [
+                       txt "Save the link to the election.";
+                       br ();
+                       txt "You must check that the same link is given to the voters.";
+                     ];
+                   li [
+                       txt "Download ";
+                       a ~service:home ~a:[a_id "voters_txt"] [txt "the list of voters"] ();
+                       txt ".";
+                       br ();
+                       txt "This list must be the one approved by the election commission.";
+                     ];
+                   li [
                        txt "Save the two fingerprints above. ";
                        br ();
                        txt "Once the election is open, you must check that";
@@ -1329,7 +1341,8 @@ let election_draft_credentials token uuid se () =
   in
   let voters =
     let value = String.concat "\n" (List.map (fun x -> x.sv_id) se.se_voters) in
-    let hash = Platform.sha256_b64 (value ^ "\n") in
+    let value = value ^ "\n" in
+    let hash = Platform.sha256_b64 value in
     div [
       div [txt "List of voters:"];
       div [unsafe_textarea ~rows:5 ~cols:40 "voters" value];
