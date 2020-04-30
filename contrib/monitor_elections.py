@@ -75,7 +75,7 @@ def check_or_create_dir(wdir, uuid):
 # When no ballot have been cast yet, ballots.jsons does not exist.
 audit_files=['election.json', 'public_creds.txt', 'trustees.json',
         'ballots', 'index.html']
-optional_audit_files=['ballots.jsons','result.json']
+optional_audit_files=['ballots.jsons','result.json','shuffles.jsons']
 
 def download_audit_data(url, uuid):
     link = url + '/elections/' + uuid
@@ -274,7 +274,9 @@ def check_index_html(data):
         else:
             logme("  PKI fingerprints ok")
 
-    # shuffles fingerprint and encrypted tally vs result.json (if present)
+    # encrypted tally vs result.json (if present)
+    # (and extract shuffles if present)
+    shuf_array = None
     if data['result.json'] != b'':
         jsn = json.loads(data['result.json'])
         if 'encrypted_tally' in jsn:
@@ -296,29 +298,37 @@ def check_index_html(data):
                 fail = True
             else:
                 logme("  encrypted tally fingerprint ok")
-            
         if 'shuffles' in jsn:
-            hashs = []
-            hashs2 = []
-            for s in jsn['shuffles']:
-                # convert to a string as Belenios use it for hashing
-                ss = json.JSONEncoder().encode(s).replace(' ', '')
-                m = hashlib.sha256()
-                m.update(ss.encode())
-                hashs.append(base64.b64encode(m.digest()).decode().strip('='))
-            # in index.html, the shuffles are in the ul with id 'shuffles'
-            for shuf in [ x for x in dom.getElementsByTagName("ul") if
-                    x.getAttribute('id') == 'shuffles'
-                    ][0].getElementsByTagName("li"):
-                s = shuf.firstChild.data
-                # reuse same pattern as for trustees
-                mat = pat.match(s)
-                hashs2.append(mat.group(2))
-            if (not hashs == hashs2):
-                msg = msg + "Error: Wrong shuffles fingerprint of election {}\n".format(uuid).encode()
-                fail = True
-            else:
-                logme("  shuffles fingerprints ok")
+            shuf_array=jsn['shuffles']
+    elif data['shuffles.jsons'] != b'':
+        # not exactly the same as in result.json: one json per line...
+        shuf_array = []
+        for line in data['shuffles.jsons'].decode().splitlines():
+            shuf_array.append(json.loads(line))
+    
+    # shuffles fingerprint vs result.json or shuffles.jsons (if present)
+    if shuf_array != None:
+        hashs = []
+        hashs2 = []
+        for s in shuf_array:
+            # convert to a string as Belenios use it for hashing
+            ss = json.JSONEncoder().encode(s).replace(' ', '')
+            m = hashlib.sha256()
+            m.update(ss.encode())
+            hashs.append(base64.b64encode(m.digest()).decode().strip('='))
+        # in index.html, the shuffles are in the ul with id 'shuffles'
+        for shuf in [ x for x in dom.getElementsByTagName("ul") if
+                x.getAttribute('id') == 'shuffles'
+                ][0].getElementsByTagName("li"):
+            s = shuf.firstChild.data
+            # reuse same pattern as for trustees
+            mat = pat.match(s)
+            hashs2.append(mat.group(2))
+        if (not hashs == hashs2):
+            msg = msg + "Error: Wrong shuffles fingerprint of election {}\n".format(uuid).encode()
+            fail = True
+        else:
+            logme("  shuffles fingerprints ok")
 
     if not fail:
         logme("Successfully checked index.html of {}".format(uuid))
