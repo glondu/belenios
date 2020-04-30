@@ -8,7 +8,7 @@ import time
 from distutils.util import strtobool
 
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.election_testing import remove_database_folder, remove_election_from_database, initialize_server, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters
+from util.election_testing import remove_database_folder, remove_election_from_database, initialize_server, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, election_id_to_election_home_page_url
 from util.page_objects import BallotBoxPage
 from util.state_machine import ElectionHomePageState, NormalVoteStep6PageState
 from util.monkeys import SmartMonkeyWithMemoryAndKnownStateMachine
@@ -17,8 +17,43 @@ from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browse
 import settings
 
 
-def get_election_url(election_id):
-    return "/".join([settings.SERVER_URL, "elections", election_id, ""])
+def smart_monkey_votes(browser, timeout, election_url, voter_username, voter_password, voter_credential, voter_decided_vote=None):
+    console_log("## Going to election page:", election_url)
+    browser.get(election_url)
+
+    election_home_page_state = ElectionHomePageState(browser, timeout)
+    election_home_page_state.page.click_on_language_link("en")
+    in_memory = {
+        "voter_username": voter_username,
+        "voter_password": voter_password,
+        "voter_credential": voter_credential,
+    }
+    if voter_decided_vote:
+        in_memory["voter_decided_vote"] = voter_decided_vote
+    smart_monkey = SmartMonkeyWithMemoryAndKnownStateMachine(election_home_page_state, in_memory=in_memory)
+    console_log(f"smart_monkey.current_state: {smart_monkey.current_state}")
+    current_iteration = 1
+    while not isinstance(smart_monkey.current_state, NormalVoteStep6PageState):
+        smart_monkey.verify_page()
+        current_iteration += 1
+        console_log(f"executing action number {current_iteration}")
+        try:
+            smart_monkey.execute_a_random_action()
+        except Exception as e:
+            console_log(f"Exception while executing `smart_monkey.execute_a_random_action()`. Page state was {smart_monkey.current_state} and exception was: {repr(e)}")
+            time.sleep(10)
+            raise Exception("Exception while executing `smart_monkey.execute_a_random_action()`") from e
+        console_log(f"smart_monkey.current_state: {smart_monkey.current_state}")
+
+    if isinstance(smart_monkey.current_state, NormalVoteStep6PageState):
+        console_log("Ending monkey behaviour here because we have completed the vote")
+        smart_monkey.verify_page()
+        console_log("Clicking on the ballot box link and verifying presence of voter's smart ballot tracker")
+        smart_monkey.current_state.page.click_on_ballot_box_link()
+        ballot_box_page = BallotBoxPage(browser, timeout)
+        voter_validated_smart_ballot_tracker = smart_monkey.get_memory_element("voter_validated_smart_ballot_tracker")
+        ballot_box_page.verify_page(voter_validated_smart_ballot_tracker)
+        return voter_validated_smart_ballot_tracker
 
 
 class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
@@ -116,49 +151,12 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
         console_log("# test_very_smart_monkey_votes()")
         browser = self.browser
         timeout = settings.EXPLICIT_WAIT_TIMEOUT
-        election_url = get_election_url(self.election_id)
-        console_log("## Going to election page:", election_url)
-        browser.get(election_url)
+        election_url = election_id_to_election_home_page_url(self.election_id)
 
-        election_home_page_state = ElectionHomePageState(browser, timeout)
-        election_home_page_state.page.click_on_language_link("en")
-        in_memory = {
-            "voter_username": settings.VOTER_USERNAME,
-            "voter_password": settings.VOTER_PASSWORD,
-            "voter_credential": settings.VOTER_CREDENTIAL,
-        }
-        smart_monkey = SmartMonkeyWithMemoryAndKnownStateMachine(election_home_page_state, in_memory=in_memory)
-        console_log(f"smart_monkey.current_state: {smart_monkey.current_state}")
-        console_log(f"smart_monkey.in_memory: {smart_monkey.in_memory}")
-        current_iteration = 1
-        while not isinstance(smart_monkey.current_state, NormalVoteStep6PageState):
-            smart_monkey.verify_page()
-            current_iteration += 1
-            console_log(f"executing action number {current_iteration}")
-            try:
-                smart_monkey.execute_a_random_action()
-            except Exception as e:
-                console_log("Exception while executing `smart_monkey.execute_a_random_action()`:", repr(e))
-                time.sleep(10)
-                raise Exception("Exception while executing `smart_monkey.execute_a_random_action()`") from e
-            console_log(f"smart_monkey.current_state: {smart_monkey.current_state}")
-            console_log(f"smart_monkey.in_memory: {smart_monkey.in_memory}")
-
-            if isinstance(smart_monkey.current_state, NormalVoteStep6PageState):
-                console_log("Ending monkey behaviour here because we have completed the vote")
-                smart_monkey.verify_page()
-                console_log("Clicking on the ballot box link and verifying presence of voter's smart ballot tracker")
-                smart_monkey.current_state.page.click_on_ballot_box_link()
-                ballot_box_page = BallotBoxPage(browser, timeout)
-                ballot_box_page.verify_page(smart_monkey.get_memory_element("voter_validated_smart_ballot_tracker"))
+        smart_monkey_votes(browser, timeout, election_url, settings.VOTER_USERNAME, settings.VOTER_PASSWORD, settings.VOTER_CREDENTIAL)
 
 
 if __name__ == "__main__":
-    if not hasattr(settings, "LOGIN_MODE"):
-        settings.LOGIN_MODE = "local"
-    if not hasattr(settings, "START_SERVER"):
-        settings.START_SERVER = True
-
     random_seed = os.getenv('RANDOM_SEED', None)
     if not random_seed:
         random_seed = random.randrange(sys.maxsize)

@@ -329,28 +329,8 @@ pris en compte.
         step_2_page.verify_page()
 
         # He fills his votes to each answer of the question
-        answers_css_selector = ".answer_div input"
-        answers_elements = wait_for_elements_exist(browser, answers_css_selector, settings.EXPLICIT_WAIT_TIMEOUT) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
-
-        assert len(answers_elements) is 2
-        question1_answer1_element = answers_elements[0]
-        question1_answer2_element = answers_elements[1]
-        voter_vote_to_question_1_answer_1 = voter["votes"]["question1"]["answer1"]
-        voter_vote_to_question_1_answer_2 = voter["votes"]["question1"]["answer2"]
-        if question1_answer1_element.get_attribute('type') == 'checkbox':
-            voter_vote_to_question_1_answer_1_is_checked = question1_answer1_element.get_attribute('checked')
-            voter_vote_to_question_1_answer_2_is_checked = question1_answer2_element.get_attribute('checked')
-            assert voter_vote_to_question_1_answer_1_is_checked is None
-            assert voter_vote_to_question_1_answer_2_is_checked is None
-            if voter_vote_to_question_1_answer_1:
-                question1_answer1_element.click()
-            if voter_vote_to_question_1_answer_2:
-                question1_answer2_element.click()
-        else:
-            if voter_vote_to_question_1_answer_1:
-                question1_answer1_element.send_keys("1")
-            if voter_vote_to_question_1_answer_2:
-                question1_answer2_element.send_keys("1")
+        vote_data = voter["votes"]
+        step_2_page.fill_vote_form(vote_data)
 
         wait_a_bit()
 
@@ -502,7 +482,7 @@ pris en compte.
 
     def some_voters_vote_in_sequences(self, voters=None, start_index=0, end_index=None, verify_every_x_votes=5):
         """
-        Iterates over `voters` from index `start_index` to `end_index`, cast their vote, and checks vote data consistency for every batch of `verify_every_x_votes` votes (using `belenios_tool verify-diff` and a snapshot of election data copied in previous batch).
+        Iterates over `voters` from index `start_index` (included) to `end_index` (not included), cast their vote, and checks vote data consistency for every batch of `verify_every_x_votes` votes (using `belenios_tool verify-diff` and a snapshot of election data copied in previous batch).
         """
         if start_index < 0:
             raise Exception("start_index cannot be below 0")
@@ -532,9 +512,11 @@ pris en compte.
                 console_log("#### Substep complete: create_election_data_snapshot")
 
             try:
-                console_log("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index - 1) + " are now going to vote")
-                self.some_voters_cast_their_vote(voters_who_will_vote_now_data[current_start_index:current_end_index])
-                console_log("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index - 1) + " have now voted")
+                console_log("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index - 1) + " included are now going to vote")
+                sublist_start_index = current_start_index - start_index
+                sublist_end_index = current_end_index - start_index
+                self.some_voters_cast_their_vote(voters_who_will_vote_now_data[sublist_start_index:sublist_end_index])
+                console_log("#### A batch of " + str(current_end_index - current_start_index) + " voters, indexed " + str(current_start_index) + " to " + str(current_end_index - 1) + " included have now voted")
 
                 if current_start_index > 0:
                     console_log("#### Starting substep: verify_election_consistency using `belenios_tool verify-diff` (for a batch of votes)")

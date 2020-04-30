@@ -280,6 +280,10 @@ def election_page_url_to_election_id(election_page_url):
     return election_uuid
 
 
+def election_id_to_election_home_page_url(election_id):
+    return "/".join([settings.SERVER_URL, "elections", election_id, ""])
+
+
 def admin_election_draft_page_url_to_election_id(election_page_url):
     """
     From an election page URL like `http://localhost:8001/draft/credentials?token=k3GDN78v16etPW&uuid=3YbExvoPyAyujZ`, we extract its UUID like `3YbExvoPyAyujZ`.

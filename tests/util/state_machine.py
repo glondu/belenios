@@ -58,7 +58,6 @@ class ElectionHomePageState(StateForSmartMonkey):
 
 class NormalVoteStep1PageState(StateForSmartMonkey):
     def __init__(self, *args, **kwargs):
-        # console_log("NormalVoteStep1PageState::__init__() with", args, kwargs)
         super().__init__(*args, **kwargs)
         self.page = NormalVoteStep1Page(self.browser, self.timeout)
 
@@ -72,9 +71,14 @@ class NormalVoteStep1PageState(StateForSmartMonkey):
             self.page.click_on_here_button_and_type_wrong_voter_credential("aaa") # TODO: randomize input (fuzz). Also sometimes the second alert message is not caught, so maybe we should create a wait_* function for alerts
             return self
 
+        def click_on_here_button_and_cancel(in_memory=None):
+            self.page.click_on_here_button_and_cancel()
+            return self
+
         return [
             click_on_here_button_and_type_correct_voter_credential,
-            click_on_here_button_and_type_wrong_voter_credential
+            # click_on_here_button_and_type_wrong_voter_credential, # TODO: fix flaky detection of Alert
+            click_on_here_button_and_cancel,
         ]
 
 
@@ -95,11 +99,16 @@ class NormalVoteStep2PageState(StateForSmartMonkey):
                 return self
 
         def fill_form(in_memory=None):
-            step_2_parent_css_selector = "#question_div"
-            form_filler_monkey = SeleniumFormFillerMonkey(self.browser, step_2_parent_css_selector) # Warning: In the DOM of the vote page, step 2, checkboxes are not in a `<form>`.
-            form_filler_monkey.fill_form()
+            decided_vote = in_memory.get("voter_decided_vote", None)
+            if decided_vote:
+                self.page.fill_vote_form(decided_vote)
+            else:
+                step_2_parent_css_selector = "#question_div"
+                form_filler_monkey = SeleniumFormFillerMonkey(self.browser, step_2_parent_css_selector) # Warning: In the DOM of the vote page, step 2, checkboxes are not in a `<form>`.
+                form_filler_monkey.fill_form()
             self.form_has_been_filled = True
             return self
+
         return [
             click_on_next_button,
             fill_form
@@ -159,7 +168,7 @@ class NormalVoteLoginPageState(StateForSmartMonkey):
             self.page.click_on_login_button()
             if self.form_is_filled_with_correct_data:
                 in_memory["voter_has_logged_in"] = True
-                return NormalVoteStep5PageState(self.browser, self.timeout, ElectionHomePageState) # Why previous state of step5 is not step3?
+                return NormalVoteStep5PageState(self.browser, self.timeout, NormalVoteStep5PageState) # Previous state of step5 is step5 again, and if we go back again we arrive on ElectionHomePageState. Why is it not step3?
             else:
                 return UnauthorizedPageState(self.browser, self.timeout, NormalVoteLoginPageState)
 

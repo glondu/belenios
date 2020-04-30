@@ -2,7 +2,7 @@
 # coding: utf-8
 import time
 from selenium.webdriver.common.alert import Alert
-from util.selenium_tools import wait_for_an_element_exists_and_is_visible_and_contains_expected_text, wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text, wait_for_element_exists, wait_for_elements_exist, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content
+from util.selenium_tools import wait_for_an_element_exists_and_is_visible_and_contains_expected_text, wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text, wait_for_element_exists, wait_for_elements_exist, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_alert
 from util.election_testing import wait_a_bit, election_home_find_start_button
 
 
@@ -78,16 +78,23 @@ class NormalVoteStep1Page(NormalVoteGenericStepPage):
     expected_step_content = "Step 1/6: Input credential"
 
 
-    def click_on_here_button_and_type_voter_credential(self, voter_credential):
+    def click_on_here_button(self):
         here_button_label = "here"
         here_button_css_selector = "#main button"
         here_button_element = wait_for_element_exists_and_contains_expected_text(self.browser, here_button_css_selector, here_button_label, self.timeout)
         here_button_element.click()
 
+        # A modal opens (it is an HTML modal created using Window.prompt()), with an input field.
+
+
+    def click_on_here_button_and_type_voter_credential(self, voter_credential):
+        self.click_on_here_button()
+
         wait_a_bit()
 
-        # A modal opens (it is an HTML modal created using Window.prompt()), with an input field. He types his credential.
-        credential_prompt = Alert(self.browser)
+        # A modal opens (it is an HTML modal created using Window.prompt()), with an input field. He types his credential and clicks on "OK" button of the modal.
+        # credential_prompt = Alert(self.browser)
+        credential_prompt = wait_for_an_alert(self.browser)
         credential_prompt.send_keys(voter_credential)
         credential_prompt.accept()
 
@@ -95,14 +102,38 @@ class NormalVoteStep1Page(NormalVoteGenericStepPage):
     def click_on_here_button_and_type_wrong_voter_credential(self, voter_credential):
         self.click_on_here_button_and_type_voter_credential(voter_credential)
 
-        # Another modal opens (it is an HTML modal created using Window.alert()).
-        time.sleep(2)
-        failure_alert = Alert(self.browser)
+        # Another modal opens (it is an HTML modal created using Window.alert()), saying that this is a wrong credential. He clicks on the "OK" button of the second modal.
+
+        time.sleep(1)
+        # failure_alert = Alert(self.browser)
+        failure_alert = wait_for_an_alert(self.browser)
         failure_alert.accept()
+
+
+    def click_on_here_button_and_cancel(self):
+        self.click_on_here_button()
+
+        wait_a_bit()
+
+        # A modal opens (it is an HTML modal created using Window.prompt()), with an input field. He clicks on the "Cancel" button of the modal.
+        # credential_prompt = Alert(self.browser)
+        credential_prompt = wait_for_an_alert(self.browser)
+        credential_prompt.dismiss()
 
 
 class NormalVoteStep2Page(NormalVoteGenericStepPage):
     expected_step_content = "Step 2/6: Answer to questions"
+    answers_css_selector = ".answer_div input"
+
+
+    def verify_page_body(self):
+        answers_elements = wait_for_elements_exist(self.browser, self.answers_css_selector, self.timeout)
+        assert len(answers_elements) == 2
+
+
+    def verify_page(self):
+        NormalVoteGenericStepPage.verify_page(self)
+        self.verify_page_body()
 
 
     def click_on_next_button(self):
@@ -117,6 +148,46 @@ class NormalVoteStep2Page(NormalVoteGenericStepPage):
         # A modal opens (it is an HTML modal created using Window.alert()).
         failure_alert = Alert(self.browser)
         failure_alert.accept()
+
+
+    def fill_vote_form(self, vote_data):
+
+        """
+        Parameter `vote_data` is a dict with the following structure:
+        ```
+        {
+            "question1": {
+                "answer1": False,
+                "answer2": True,
+            }
+        }
+        ```
+        For now, only one question is supported, with only 2 possible answers.
+        """
+
+        answers_elements = wait_for_elements_exist(self.browser, self.answers_css_selector, self.timeout) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
+
+        assert len(answers_elements) == 2
+        question1_answer1_element = answers_elements[0]
+        question1_answer2_element = answers_elements[1]
+        voter_vote_to_question_1_answer_1 = vote_data["question1"]["answer1"]
+        voter_vote_to_question_1_answer_2 = vote_data["question1"]["answer2"]
+        if question1_answer1_element.get_attribute('type') == 'checkbox':
+            voter_vote_to_question_1_answer_1_is_checked = question1_answer1_element.get_attribute('checked')
+            voter_vote_to_question_1_answer_2_is_checked = question1_answer2_element.get_attribute('checked')
+            if voter_vote_to_question_1_answer_1 and not voter_vote_to_question_1_answer_1_is_checked:
+                question1_answer1_element.click()
+            if not voter_vote_to_question_1_answer_1 and voter_vote_to_question_1_answer_1_is_checked:
+                question1_answer1_element.click()
+            if voter_vote_to_question_1_answer_2 and not voter_vote_to_question_1_answer_2_is_checked:
+                question1_answer2_element.click()
+            if not voter_vote_to_question_1_answer_2 and voter_vote_to_question_1_answer_2_is_checked:
+                question1_answer2_element.click()
+        else:
+            if voter_vote_to_question_1_answer_1:
+                question1_answer1_element.send_keys("1")
+            if voter_vote_to_question_1_answer_2:
+                question1_answer2_element.send_keys("1")
 
 
 class NormalVoteGenericStepWithBallotTrackerPage(NormalVoteGenericStepPage):

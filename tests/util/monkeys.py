@@ -95,6 +95,9 @@ class SeleniumClickerMonkey():
 
 
     def start(self, maximum_actions_in_visit=100):
+        """
+        Warning: Do not set a very high value to `maximum_actions_in_visit`. This is because some links clicked by the monkey trigger a download confirmation modal. There seems to be no way in Selenium to click cancel in this modal. As we don't tell the monkey to accept the download (we don't want to), the monkey continues its navigation with the modal still open. Modals stack. You can avoid some or all downloads by customizing your fence function.
+        """
         probability_to_go_back = 0.25
         probability_to_go_back_when_dead_end = 1 # 0.25
 
@@ -216,7 +219,7 @@ class StateForSmartMonkey():
 
 
 class SmartMonkeyWithMemoryAndKnownStateMachine():
-    def __init__(self, initial_state, in_memory=None, probability_to_go_back=0.25):
+    def __init__(self, initial_state, in_memory=None, probability_to_go_back=0.15):
         self.current_state = initial_state
         self.probability_to_go_back = probability_to_go_back
         if in_memory:
@@ -253,10 +256,10 @@ class SmartMonkeyWithMemoryAndKnownStateMachine():
                 console_log("Failed going back. Trying something else. Exception was:", e)
 
         possible_actions = self.current_state.get_all_possible_actions()
-        console_log("possible_actions:", possible_actions)
+        console_log("possible_actions:", [action.__name__ for action in possible_actions])
         if len(possible_actions):
             random_action = random.choice(possible_actions)
-            console_log("random_action:", random_action)
+            console_log("action picked at random:", random_action.__name__)
             self.current_state = random_action(in_memory=self.in_memory)
         else:
             console_log("List of possible actions is empty. Trying to go back")
@@ -264,7 +267,7 @@ class SmartMonkeyWithMemoryAndKnownStateMachine():
                 self.go_back()
                 return
             except Exception as e:
-                raise Exception("Cannot execute a random action, because list of posible actions is empty, and cannot go back.")
+                raise Exception("Cannot execute a random action, because list of posible actions is empty, and cannot go back.") from e
 
 
     def has_possible_actions(self):

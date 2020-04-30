@@ -3,8 +3,7 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, NoAlertPresentException
 
 
 DEFAULT_WAIT_DURATION = 10 # In seconds
@@ -20,6 +19,34 @@ def element_is_visible_filter(el):
 
 def representation_of_element(element):
     return element.get_attribute("outerHTML")
+
+
+class an_alert_is_present(object):
+    """
+    An expectation for checking that an Alert is present.
+    """
+    def __init__(self):
+        pass
+
+    def __call__(self, driver):
+        alert = driver.switch_to.alert
+        return alert
+
+
+def wait_for_an_alert(browser, wait_duration=DEFAULT_WAIT_DURATION):
+    """
+    Waits for the presence of an Alert.
+    :param browser: Selenium browser
+    :param wait_duration: Maximum duration in seconds that we wait for the presence of this element before raising an exception
+    :return: The Alert
+    """
+    try:
+        ignored_exceptions = (NoAlertPresentException,)
+        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
+        alert = custom_wait.until(an_alert_is_present())
+        return alert
+    except Exception as e:
+        raise Exception(f"Could not find expected Alert until timeout of {str(wait_duration)} seconds. " + printable_page_source(browser)) from e
 
 
 class an_element_exists_and_is_visible_and_attribute_contains_expected_text(object):
