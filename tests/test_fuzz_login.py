@@ -84,7 +84,7 @@ class BeleniosMonkeyTestFuzzLogin(BeleniosTestElectionScenario2Base):
         except Exception:
             administration_page = AdministrationHomeLoggedInPage(browser, timeout)
             administration_page.verify_page()
-            console_log(f"### Warning: Submitting random input (\"{username}\", \"{password}\") to log in form directs to administration logged in page.")
+            console_log(f"### Warning: Submitting random input (\"{username}\", \"{password}\") to log in form directs to administration logged in page.") # Or should we rather re-raise an exception because it is very unlikely?
 
 
 if __name__ == "__main__":

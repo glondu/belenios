@@ -5,6 +5,7 @@ import random
 import os
 import sys
 from distutils.util import strtobool
+from urllib.parse import urljoin, urlsplit
 
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.election_testing import remove_database_folder, remove_election_from_database, initialize_server, wait_a_bit, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters
@@ -24,6 +25,27 @@ def verify_page_is_not_an_error_page(browser):
         if content in page_source:
             page_source = str(browser.page_source.encode("utf-8"))
             raise Exception(f"Server returned an unexpected error page. Page source was: {page_source}")
+
+
+def belenios_fence_filter(initial_page_url, href_value):
+    """
+    A kind of geofencing: We filter out URLs which are out of the scope of the test
+    """
+    target_url = urljoin(initial_page_url, href_value)
+
+    # If this link points to a different host (domain name), we abort
+    if urlsplit(target_url).hostname != urlsplit(initial_page_url).hostname:
+        return False
+
+    # We abort if this link:
+    # - points to a downloadable element which works correctly for sure or which we don't want to test (for example because it would be tested too often or would take too much resources to download)
+    # - is the election creation page (if monkey accesses the administration panel by logging in using the "demo" mode)
+    # - is the election edition page (if monkey accesses the administration panel by logging in using the "demo" mode)
+    forbidden_urls = ["belenios.tar.gz", "election.json", "trustees.json", "ballot.json", "/draft/new", "/draft/election?uuid="]
+    for url in forbidden_urls:
+        if url in target_url:
+            return False
+    return True
 
 
 def get_election_url(election_id):
@@ -127,7 +149,7 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
         election_url = get_election_url(self.election_id)
         console_log("## Going to election page:", election_url)
 
-        monkey = SeleniumClickerMonkey(browser, election_url, verify_page_is_not_an_error_page)
+        monkey = SeleniumClickerMonkey(browser, election_url, 0.25, belenios_fence_filter, verify_page_is_not_an_error_page)
         monkey.start(200)
 
 
@@ -142,7 +164,7 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
         wait_a_bit()
 
         console_log("## Starting clicker monkey behaviour")
-        monkey = SeleniumClickerMonkey(browser, election_url, verify_page_is_not_an_error_page)
+        monkey = SeleniumClickerMonkey(browser, election_url, 0.25, belenios_fence_filter, verify_page_is_not_an_error_page)
         maximum_monkey_clicks = 50
         monkey.start(maximum_monkey_clicks)
         console_log("## End of clicker monkey behaviour")

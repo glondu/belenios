@@ -13,53 +13,32 @@ def get_link_element_url(link_element):
     return link_element.get_attribute('href')
 
 
-def verify_fence(initial_url, href_value):
-    """
-    A kind of geofencing: We filter out URLs which are out of the scope of the test
-    """
-    target_url = urljoin(initial_url, href_value)
-
-    # If this link points to a different host (domain name), we abort
-    if urlsplit(target_url).hostname != urlsplit(initial_url).hostname:
-        return False
-
-    # We abort if this link:
-    # - points to a downloadable element which works correctly for sure or which we don't want to test (for example because it would be tested too often or would take too much resources to download)
-    # - is the election creation page (if monkey accesses the administration panel by logging in using the "demo" mode)
-    # - is the election edition page (if monkey accesses the administration panel by logging in using the "demo" mode)
-    forbidden_urls = ["belenios.tar.gz", "election.json", "trustees.json", "ballot.json", "/draft/new", "/draft/election?uuid="]
-    for url in forbidden_urls:
-        if url in target_url:
-            return False
-    return True
-
-
-def fence_filter_generator(initial_page_url):
+def fence_filter_for_links_generator(fence_filter_function, initial_page_url):
     def inner(link_element):
         link_url = get_link_element_url(link_element)
-        return verify_fence(initial_page_url, link_url)
+        return fence_filter_function(initial_page_url, link_url)
     return inner
 
 
 def get_all_visible_links(browser):
     all_links = browser.find_elements_by_css_selector("a[href]")
-
     displayed_links = list(filter(element_is_visible_filter, all_links))
     return displayed_links
 
 
-def get_all_clickable_elements_in_page(browser, fence_filter):
-    return get_all_clickable_links_in_page(browser, fence_filter) + get_all_input_type_submit_buttons_in_page(browser)
+def get_all_clickable_elements_in_page(browser, fence_filter_function, initial_page_url):
+    return get_all_clickable_links_in_page(browser, fence_filter_function, initial_page_url) + get_all_buttons_in_page(browser)
 
 
-def get_all_clickable_links_in_page(browser, fence_filter):
+def get_all_clickable_links_in_page(browser, fence_filter_function, initial_page_url):
     all_visible_links = get_all_visible_links(browser)
-    accepted_links = list(filter(fence_filter, all_visible_links))
+    fence_filter_for_links = fence_filter_for_links_generator(fence_filter_function, initial_page_url)
+    accepted_links = list(filter(fence_filter_for_links, all_visible_links))
     return accepted_links
 
 
-def get_all_input_type_submit_buttons_in_page(browser):
-    all_input_type_submit_buttons = browser.find_elements_by_css_selector("button, input[type=submit]")
+def get_all_buttons_in_page(browser):
+    all_input_type_submit_buttons = browser.find_elements_by_css_selector("button, input[type=submit]") # Possible improvement: Are there other possible types of buttons we should detect? Not in Belenios. Maybe file browse buttons, but these are special.
     displayed_elements = list(filter(element_is_visible_filter, all_input_type_submit_buttons))
     return displayed_elements
 
@@ -79,10 +58,25 @@ def verify_page_is_not_an_error_page(browser):
             raise Exception(f"Server returned an unexpected error page. Page source was: {page_source}")
 
 
+def default_fence_filter(initial_page_url, href_value):
+    target_url = urljoin(initial_page_url, href_value)
+
+    # If this link points to a different host (domain name), we abort
+    if urlsplit(target_url).hostname != urlsplit(initial_page_url).hostname:
+        return False
+
+
 class SeleniumClickerMonkey():
-    def __init__(self, browser, initial_page_url, verify_page_is_not_an_error_page_function=None):
+    def __init__(self, browser, initial_page_url, probability_to_go_back=0.25, fence_filter_function=None, verify_page_is_not_an_error_page_function=None):
         self.browser = browser
         self.initial_page_url = initial_page_url
+        self.probability_to_go_back = probability_to_go_back
+
+        if fence_filter_function is None:
+            self.fence_filter_function = default_fence_filter
+        else:
+            self.fence_filter_function = fence_filter_function
+
         if verify_page_is_not_an_error_page_function is None:
             self.verify_page_is_not_an_error_page_function = verify_page_is_not_an_error_page
         else:
@@ -98,14 +92,12 @@ class SeleniumClickerMonkey():
         """
         Warning: Do not set a very high value to `maximum_actions_in_visit`. This is because some links clicked by the monkey trigger a download confirmation modal. There seems to be no way in Selenium to click cancel in this modal. As we don't tell the monkey to accept the download (we don't want to), the monkey continues its navigation with the modal still open. Modals stack. You can avoid some or all downloads by customizing your fence function.
         """
-        probability_to_go_back = 0.25
+        # Possibility of improvement: Detect also when a button (not only a link) redirects to a page which is outside of the fence filter
         probability_to_go_back_when_dead_end = 1 # 0.25
 
         console_log("## First action in visit goes to page:", self.initial_page_url)
         self.browser.get(self.initial_page_url)
         current_actions_in_visit = 1
-
-        fence_filter = fence_filter_generator(self.initial_page_url) # TODO: decouple by having the monkey constructor provide the fence function
 
         while current_actions_in_visit < maximum_actions_in_visit:
             current_actions_in_visit += 1
@@ -113,12 +105,12 @@ class SeleniumClickerMonkey():
             if self.verify_page_is_not_an_error_page_function:
                 self.verify_page_is_not_an_error_page_function(self.browser)
             random_result = random.random()
-            if random_result < probability_to_go_back:
+            if random_result < self.probability_to_go_back:
                 if current_actions_in_visit >= 2:
                     console_log("### Deciding to go back")
                     self.go_back()
             else:
-                clickable_elements = get_all_clickable_elements_in_page(self.browser, fence_filter)
+                clickable_elements = get_all_clickable_elements_in_page(self.browser, self.fence_filter_function, self.initial_page_url)
                 if not len(clickable_elements):
                     console_log("### No more clickable element to click on.")
                     random_result2 = random.random()
