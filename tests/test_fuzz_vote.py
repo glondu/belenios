@@ -5,13 +5,13 @@ import random
 import os
 import sys
 import json
-import time
 from hypothesis import given, HealthCheck, strategies as st, settings as hypothesis_settings
 from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_an_element_with_partial_link_text_exists, wait_for_element_exists_and_does_not_contain_expected_text
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_does_not_contain_expected_text
 from util.election_testing import console_log, remove_database_folder, initialize_server, wait_a_bit, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters
 from util.execution import try_several_times
+from util.page_objects import ElectionHomePage, VoterLoginPage
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser
 import settings
 
@@ -66,27 +66,6 @@ ballotDataFormat = st.fixed_dictionaries(
 def go_to_election_page(browser, election_id):
     election_page_url = "/".join([settings.SERVER_URL, "elections", election_id, ""])
     browser.get(election_page_url)
-
-
-def log_in(browser, username, password):
-    # She enters her identifier and password and submits the form to log in
-    login_form_username_value = username # correct value: settings.ADMINISTRATOR_USERNAME
-    login_form_password_value = password # correct value: settings.ADMINISTRATOR_PASSWORD
-
-    login_form_username_css_selector = '#main form input[name=username]'
-    login_form_password_css_selector = '#main form input[name=password]'
-
-    login_form_username_element = wait_for_element_exists(browser, login_form_username_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-    login_form_password_element = wait_for_element_exists(browser, login_form_password_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-
-    login_form_username_element.send_keys(login_form_username_value)
-    login_form_password_element.send_keys(login_form_password_value)
-
-    wait_a_bit()
-
-    login_form_password_element.submit()
-
-    wait_a_bit()
 
 
 class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
@@ -179,6 +158,7 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
     def test_submit_prepared_ballot_by_smart_monkey_v2(self, ballot):
         try:
             browser = self.browser
+            timeout = settings.EXPLICIT_WAIT_TIMEOUT
             ballot['election_uuid'] = self.election_id
             printable_ballot = json.dumps(ballot)
             console_log("### Starting a new Monkey navigation that will try to submit ballot:", printable_ballot)
@@ -186,21 +166,27 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
             if result:
                 console_log("#### Page title was 'Password login', so we log in")
                 # Our ballot is not detected as ill-formed, so we arrive on the log in screen
-                log_in(browser, settings.VOTER_USERNAME, settings.VOTER_PASSWORD)
+                console_log("#### Verify that we are on login page")
+                login_page = VoterLoginPage(browser, timeout)
+                login_page.verify_page()
+
+                console_log("## Filling log in form and submitting it")
+                login_page.log_in(settings.VOTER_USERNAME, settings.VOTER_PASSWORD)
+
                 console_log("#### Analyzing page title, expecting it not to be 'Unauthorized'")
                 # If user provided a wrong username/password combination, the resulting page is a browser error page like `<h1>Unauthorized</h1><p>Error 401</p>`
                 page_title_css_selector = "h1"
                 expected_text_1 = "Password login"
                 expected_text_2 = "Unauthorized"
-                page_title_element = wait_for_element_exists_and_does_not_contain_expected_text(browser, page_title_css_selector, expected_text_1, settings.EXPLICIT_WAIT_TIMEOUT)
-                page_title_element = wait_for_element_exists_and_does_not_contain_expected_text(browser, page_title_css_selector, expected_text_2, settings.EXPLICIT_WAIT_TIMEOUT)
+                page_title_element = wait_for_element_exists_and_does_not_contain_expected_text(browser, page_title_css_selector, expected_text_1, timeout)
+                page_title_element = wait_for_element_exists_and_does_not_contain_expected_text(browser, page_title_css_selector, expected_text_2, timeout)
                 page_title_label = page_title_element.get_attribute('innerText')
                 assert page_title_label != expected_text_1
                 assert page_title_label != expected_text_2
                 console_log("#### Page title was not 'Unauthorized', so we click on confirm ballot submission button")
                 # We arrive on the next screen, which asks us to confirm ballot submission
                 submit_button_css_selector = "input[type=submit]"
-                submit_button_element = wait_for_element_exists(browser, submit_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+                submit_button_element = wait_for_element_exists(browser, submit_button_css_selector, timeout)
                 submit_button_element.click()
 
                 # We check wether the ballot has been received and parsed without errors
@@ -208,7 +194,7 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
                 def verify_step_label(browser, current_attempt=0):
                     console_log("#### Analyzing (attempt", current_attempt, ") whether result page (after click on confirm ballot submission button) has as step title 'Step 6/6: FAIL!' because ballot content is invalid")
                     current_step_css_selector = "#main .current_step"
-                    current_step_element = wait_for_element_exists(browser, current_step_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+                    current_step_element = wait_for_element_exists(browser, current_step_css_selector, timeout)
                     current_step_label = current_step_element.get_attribute('innerText')
                     console_log("#### Step title is:", current_step_label)
                     if current_step_label == "Step 6/6: FAIL!":
@@ -230,22 +216,20 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
 
     def submit_prepared_ballot(self, ballot):
         browser = self.browser
+        timeout = settings.EXPLICIT_WAIT_TIMEOUT
         console_log("#### Going to election page")
         go_to_election_page(browser, self.election_id)
 
         console_log("#### Clicking on 'en' language link")
-        language_label = "en"
-        language_link_element = wait_for_an_element_with_partial_link_text_exists(browser, language_label, settings.EXPLICIT_WAIT_TIMEOUT)
-        language_link_element.click()
+        election_home_page = ElectionHomePage(browser, timeout)
+        election_home_page.click_on_language_link("en")
 
         console_log("#### Clicking on 'Advanced mode' link")
-        partial_link_text = "Advanced mode"
-        link_element = wait_for_an_element_with_partial_link_text_exists(browser, partial_link_text, settings.EXPLICIT_WAIT_TIMEOUT)
-        link_element.click()
+        election_home_page.click_on_advanced_mode_link()
 
         console_log("#### Filling ballot field with text representation of ballot and clicking on Submit button")
         field_css_selector = "form[action=submit-ballot] textarea[name=encrypted_vote]"
-        field_element = wait_for_element_exists(browser, field_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
+        field_element = wait_for_element_exists(browser, field_css_selector, timeout)
         field_element.clear()
         field_element.send_keys(ballot)
         field_element.submit()
