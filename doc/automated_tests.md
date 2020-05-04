@@ -113,28 +113,80 @@ Good to know: If you version the prepared database using a git repository like g
 
 ### Notes related to monkey testing and fuzz testing
 
-For environment variable `WAIT_TIME_BETWEEN_EACH_STEP`, do not set a value below 0.02 seconds, otherwise hypothesis test becomes flaky.
+Several tests have a same general behaviour in common, which depends on the value you set in some environment variables when you execute the test. Here are notes about some of them:
 
-### Fuzz testing of the login form
+- `WAIT_TIME_BETWEEN_EACH_STEP`: Do not set a value below 0.02 seconds, otherwise hypothesis test becomes flaky.
+- `START_SERVER`: Can be set to `0` or `1` to respectively use an already running Belenios server or let the script start its own Belenios server.
+- `ELECTION_ID`: If you do not provide a value to this variable, the test will try to create an election, invite voters, and fill other variables from it with correct values extracted from data obtained during the creation of the election (`VOTER_USERNAME`, `VOTER_PASSWORD`, `VOTER_CREDENTIAL`). If you do provide a value to `ELECTION_ID`, you should also provide a value to these other variables.
 
-You can execute test `test_fuzz.py` the following way:
+### Fuzz testing of the main login form
+
+You can execute test `test_fuzz_login.py` the following way:
 
 ```
-START_SERVER=1 LOGIN_MODE="local" USE_HEADLESS_BROWSER=0 WAIT_TIME_BETWEEN_EACH_STEP=0.02 python ./tests/test_fuzz.py 
+START_SERVER=1 LOGIN_MODE="local" USE_HEADLESS_BROWSER=0 WAIT_TIME_BETWEEN_EACH_STEP=0.02 python ./tests/test_fuzz_login.py 
 ```
 
-### Fuzz testing of the voting process
+### Fuzz testing of the "Advanced mode" voting process
 
-You can execute test `test_fuzz_vote.py` in any of the 2 following ways:
+Fuzz testing of the "Advanced mode" voting process consists in:
 
-- Let the script create its own election, and then running a dumb monkey who fuzz tests with random input as ballot, and then running a smart monkey who fuzz tests with a properly structured but still incorrect ballot (this enables him to move to the login step)
+- opening the URL of an election
+- clicking on the "Advanced mode" link
+- trying to vote with a dumb monkey who fuzz tests with random input as ballot, submits it and verifies that he receives a failure message saying that ballot content is invalid
+- and then trying to vote with a smart monkey who fuzz tests with a properly structured but still incorrect ballot (this enables him to move to the login step)
+- logging in using a correct combination of username and password
+- verifying that user arrives on Step 5
+- clicking on confirm ballot subscription button
+- verifying that user arrives on Step 6, and that it displays a failure message (because ballot content is invalid)
+
+This test is implemented in file `test_fuzz_vote.py`. It can be executed either on an already existing election, or it can create a new election itself and then execute the test. Here are examples of both ways of using it:
+
+- Let the script create its own election
 
 ```
 SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/your/repository/_build/src/static/mail.txt FAKE_SENT_EMAILS_FILE_RELATIVE_URL=static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 python tests/test_fuzz_vote.py
 ```
 
-- Run these tests on an already existing election. For this, you provide the election ID as well as a username and password for a voter who has been already invited.
+- Use an already existing election. For this, you provide the election ID as well as a username and password for a voter who has been already invited.
 
 ```
 WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 ELECTION_ID=4qjJRMg4b26ax5 VOTER_USERNAME=nrmt1fl7z05zaqnn0luo@mailinator.com VOTER_PASSWORD=LLP3269TVNDMF6 python tests/test_fuzz_vote.py
+```
+
+### Clicker Monkey testing 
+
+There are 2 tests in `test_clicker_monkey.py`:
+
+- `test_clicker_monkey_on_election_home()`: Clicker Monkey goes to the home page of the election, and clicks randomly on links and buttons, up to 200 times. It uses a fence function to ignore pages which match certain criteria: these are pages which are out of the scope of analysis (pages outside of the Belenios server domain or sub-domain). On every other page, it verifies that the page is not an unexpected error page. It randomly clicks on the "Previous" button of the browser (which goes back on the previous page).
+- `test_sometimes_smart_monkey_votes()`: It starts like previous test, but for only up to 50 clicks. Then, the visitor does a normal vote and verifies everything went correctly. This test verifies that a single visitor who does random actions at the beginning of his visit can still complete a vote without problem.
+
+Here is an example of how to execute these tests:
+
+```
+START_SERVER=0 CLEAN_UP_POLICY=DO_NOTHING SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/_build/src/static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 python ./tests/test_clicker_monkey.py
+```
+
+### Smart Monkey testing
+
+File `test_smart_monkey.py` executes a very smart monkey, who has memory and who knows perfectly the state machine of the voting process. Smart monkey receives at initialization some data to store in its memory (username, password, credential) and during the vote process, it will also store the smart ballot tracker which gets displayed and then check on the following pages that it does still appear and that its value is the same as the initial one. The smart monkey constantly knows which state of the state machine corresponds to the current page he is seeing, and what is the list of possible actions to do on this page. It decides randomly which action to do. Among these actions are clicking on a link or a button, as well as filling a form (or modal) with wrong data or with correct data. It can also decide to click on the "Previous" button of the browser, especially when it arrives on a dead end (a page with no available action from it, for example an "Unauthorized" page). After each action that the smart monkey does, it then verifies that the page he arrives on corresponds to the expected destination state of this transition in the state machine (and not to another page or to an error page). It stops running only once he has completed a vote. Then, the test verifies that the smart monkey's smart ballot tracker is displayed on the ballot box page.
+
+This whole test verifies that a user who has a very random behaviour, but who really wants to vote correctly, can correctly vote.
+
+You can execute it the following way:
+
+```
+ELECTION_ID=Vq7erXgTVs983H VOTER_USERNAME=3gzyo249nqgpjhx1puae@mailinator.com VOTER_PASSWORD=dtx96KfMEuHqxd VOTER_CREDENTIAL=cbsopJ6QxpeLAyh START_SERVER=0 CLEAN_UP_POLICY=DO_NOTHING SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/home/quentin/prog/gitlab.inria.fr/belenios-forks/belenios-swergas/_build/src/static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 python ./tests/test_smart_monkey.py
+```
+
+### Test Scenario 2 with a mix of normal voters and Smart Monkeys
+
+File `test_scenario_2_with_monkeys.py` executes a variation on "Scenario 2: Vote with vote codes in manual mode and manual trustees" (which is implemented in `test_scenario_2.py`). This test creates an election with trustees, invites voters, and makes several voters vote. A first part of voters execute a normal vote. A second part of voters are Smart Monkeys, with a behaviour described in previous "Smart Monkey testing" section. A third part of voters execute also a normal vote. Some randomly selected voters revote. Then administrator starts tallying the election, trustees do the validation, and administrator completes the tallying of the election. Administrator verifies that global vote results corresponds to the expected ones. Several verifications of the consistency of the election occur during the whole process, exactly like in the initial Scenario 2 test.
+
+This whole test verifies that despite having some smart monkey voters, other voters can vote correctly and the whole election continues to work as expected and to produce expected vote results.
+
+You can execute it the following way:
+
+```
+USE_HEADLESS_BROWSER=0 NUMBER_OF_INVITED_VOTERS=30 NUMBER_OF_VOTING_VOTERS=15 NUMBER_OF_MONKEY_VOTING_VOTERS=7 NUMBER_OF_VOTING_VOTERS_IN_FIRST_PART=4 NUMBER_OF_REVOTING_VOTERS=1 python3 ./tests/test_scenario_2_with_monkeys.py
 ```
