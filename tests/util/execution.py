@@ -46,6 +46,7 @@ ConsoleLogDuration = partial(PrintDuration, print_function=console_log)
 
 def try_several_times(max_attempts, sleep_duration=1):
     """
+    This is a Python decorator.
     `sleep_duration` is in seconds
     """
     def decorator_try_several_times(func):
