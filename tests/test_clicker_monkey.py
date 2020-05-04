@@ -18,7 +18,7 @@ import settings
 def verify_page_is_not_an_error_page(browser):
     # Belenios web server returns a "Unauthorized" "Error 401" page in several situations, for example when we pick the "local" login method and submit an empty login form. For now, we consider this behaviour as normal.
     # But what we consider an unexpected error is other types of errors returned by the server, for example "Internal Server Error", "Error 500".
-    error_content = ["Internal Server Error", "Error 500"]
+    error_content = ["Internal Server Error", "Error 500", "Not Found", "Error 404"]
     page_source = browser.page_source
     for content in error_content:
         if content in page_source:
