@@ -238,10 +238,12 @@ def initialize_server():
 def initialize_browser(for_scenario_2=False):
     browser = None
 
+    profile = webdriver.FirefoxProfile()
+    profile.set_preference("intl.accept_languages", "en-us")
+
     if for_scenario_2:
         # Test Scenario 2 requires users to download things from their browser.
         # Define a custom profile for Firefox, to automatically download files that a page asks user to download, without asking. This is because Selenium can't control downloads.
-        profile = webdriver.FirefoxProfile()
         profile.set_preference('browser.download.folderList', 2) # Can be set to either 0, 1, or 2. When set to 0, Firefox will save all files downloaded via the browser on the user's desktop. When set to 1, these downloads are stored in the Downloads folder. When set to 2, the location specified for the most recent download is utilized again.
         profile.set_preference('browser.download.manager.showWhenStarting', False)
         profile.set_preference('browser.download.dir', settings.BROWSER_DOWNLOAD_FOLDER)
@@ -253,15 +255,9 @@ def initialize_browser(for_scenario_2=False):
         options = Options()
         options.add_argument("--headless")
         options.log.level = "trace"
-        if for_scenario_2:
-            browser = webdriver.Firefox(profile, options=options)
-        else:
-            browser = webdriver.Firefox(options=options)
+        browser = webdriver.Firefox(profile, options=options)
     else:
-        if for_scenario_2:
-            browser = webdriver.Firefox(profile)
-        else:
-            browser = webdriver.Firefox()
+        browser = webdriver.Firefox(profile)
         # browser.maximize_window() # make the browser window use all available screen space. FIXME: When enabled, some clicks are not triggered anymore
     browser.implicitly_wait(settings.WAIT_TIME_BETWEEN_EACH_STEP) # In seconds
     return browser
