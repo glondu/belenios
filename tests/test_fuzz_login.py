@@ -9,8 +9,8 @@ import hypothesis.strategies as st
 from hypothesis import settings as hypothesis_settings
 from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists
-from util.election_testing import console_log, remove_database_folder, wait_a_bit, initialize_server, find_buttons_in_page_content_by_value
+from util.election_testing import console_log, remove_database_folder, wait_a_bit, initialize_server
+from util.page_objects import ServerHomePage, VoterLoginPage, UnauthorizedPage, AdministrationHomeLoggedInPage
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
 import settings
 
@@ -27,46 +27,20 @@ def go_to_log_in_page(browser):
     # Alice has been given administrator rights on an online voting app called Belenios. She goes
     # to check out its homepage
 
+    timeout = settings.EXPLICIT_WAIT_TIMEOUT
     browser.get(settings.SERVER_URL)
 
     wait_a_bit()
 
-    # She notices the page title mentions an election
-    # TODO: Should we wait for the page to load here? It looks like we don't need to.
-    assert 'Election Server' in browser.title, "Browser title was: " + browser.title
+    # She verifies she is on the server home page
+    server_home_page = ServerHomePage(browser, timeout)
+    server_home_page.verify_page()
 
     # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
-    accept_button_label = "Accept"
-    button_elements = find_buttons_in_page_content_by_value(browser, accept_button_label)
-    if len(button_elements) > 0:
-        assert len(button_elements) == 1
-        button_elements[0].click()
+    server_home_page.click_on_accept_button_in_personal_data_policy_modal_if_available()
 
     # She clicks on "local" to go to the login page
-    login_link_css_selector = "#login_" + settings.LOGIN_MODE
-    login_element = wait_for_element_exists(browser, login_link_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-    login_element.click()
-
-    wait_a_bit()
-
-
-def log_in(browser, username, password):
-    # She enters her identifier and password and submits the form to log in
-    login_form_username_value = username # correct value: settings.ADMINISTRATOR_USERNAME
-    login_form_password_value = password # correct value: settings.ADMINISTRATOR_PASSWORD
-
-    login_form_username_css_selector = '#main form input[name=username]'
-    login_form_password_css_selector = '#main form input[name=password]'
-
-    login_form_username_element = wait_for_element_exists(browser, login_form_username_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-    login_form_password_element = wait_for_element_exists(browser, login_form_password_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
-
-    login_form_username_element.send_keys(login_form_username_value)
-    login_form_password_element.send_keys(login_form_password_value)
-
-    wait_a_bit()
-
-    login_form_password_element.submit()
+    server_home_page.click_on_login_link(settings.LOGIN_MODE)
 
     wait_a_bit()
 
@@ -98,15 +72,19 @@ class BeleniosMonkeyTestFuzzLogin(BeleniosTestElectionScenario2Base):
     @hypothesis_settings(deadline=None)
     def test_log_in(self, username, password):
         browser = self.browser
+        timeout = settings.EXPLICIT_WAIT_TIMEOUT
         go_to_log_in_page(browser)
-        log_in(browser, username, password)
+        login_page = VoterLoginPage(browser, timeout)
+        login_page.verify_page()
+        login_page.log_in(username, password)
 
-        page_element_css_selector = "h1"
-        page_element = wait_for_element_exists(browser, page_element_css_selector)
-
-        page_source = get_browser_page_content(browser)
-        # console_log("page_source:", page_source)
-        assert b"Unauthorized" in page_source or b"Administration" in page_source
+        try:
+            unauthorized_page = UnauthorizedPage(browser, timeout)
+            unauthorized_page.verify_page()
+        except Exception:
+            administration_page = AdministrationHomeLoggedInPage(browser, timeout)
+            administration_page.verify_page()
+            console_log(f"### Warning: Submitting random input (\"{username}\", \"{password}\") to log in form directs to administration logged in page.")
 
 
 if __name__ == "__main__":

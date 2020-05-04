@@ -170,7 +170,7 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
                 login_page = VoterLoginPage(browser, timeout)
                 login_page.verify_page()
 
-                console_log("## Filling log in form and submitting it")
+                console_log("#### Filling log in form and submitting it")
                 login_page.log_in(settings.VOTER_USERNAME, settings.VOTER_PASSWORD)
 
                 console_log("#### Analyzing page title, expecting it not to be 'Unauthorized'")

@@ -3,7 +3,7 @@
 import time
 from selenium.webdriver.common.alert import Alert
 from util.selenium_tools import wait_for_an_element_exists_and_is_visible_and_contains_expected_text, wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text, wait_for_element_exists, wait_for_elements_exist, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_alert
-from util.election_testing import wait_a_bit, election_home_find_start_button
+from util.election_testing import wait_a_bit, election_home_find_start_button, find_buttons_in_page_content_by_value
 
 
 class SeleniumPageObjectModel():
@@ -270,7 +270,21 @@ class UnauthorizedPage(VerifiablePage):
 
 class ServerHomePage(VerifiablePage):
     def verify_page(self):
-        assert self.browser.current_url.endswith("/admin") is True
+        assert self.browser.current_url.endswith("/admin") is True # There seems to be no content-based way to test that we are on the server home page. Another test we could use is this one: `assert 'Election Server' in browser.title, "Browser title was: " + browser.title`
+
+
+    def click_on_login_link(self, login_type):
+        public_link_element = wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "#header a", login_type, self.timeout)
+        public_link_element.click()
+
+
+    def click_on_accept_button_in_personal_data_policy_modal_if_available(self):
+        # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
+        accept_button_label = "Accept"
+        button_elements = find_buttons_in_page_content_by_value(self.browser, accept_button_label)
+        if len(button_elements) > 0:
+            assert len(button_elements) == 1
+            button_elements[0].click()
 
 
 class NormalVoteStep5Page(NormalVoteGenericStepWithBallotTrackerPage, ClickableLogoPage):
@@ -365,3 +379,9 @@ class AdvancedModeVotePage(VerifiablePage):
         self.click_on_link_with_expected_label("Back to election home")
 
     # TODO: other links in the page, fill both forms, submit them
+
+
+class AdministrationHomeLoggedInPage(VerifiablePage):
+    def verify_page(self):
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "h1", "Administration", self.timeout)
+        wait_for_an_element_with_link_text_exists(self.browser, "Log out", self.timeout)
