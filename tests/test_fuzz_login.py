@@ -8,19 +8,10 @@ from hypothesis import given
 import hypothesis.strategies as st
 from hypothesis import settings as hypothesis_settings
 from distutils.util import strtobool
-from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.election_testing import console_log, remove_database_folder, wait_a_bit, initialize_server
+from util.election_testing import console_log, wait_a_bit, initialize_server
 from util.page_objects import ServerHomePage, VoterLoginPage, UnauthorizedPage, AdministrationHomeLoggedInPage
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
 import settings
-
-
-def get_browser_page_content(browser):
-    """
-    Returns something like: b'<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="fr" prefix="og: http://ogp.me/ns#"><head>\n        \n        <meta charset="utf-8" />'
-    """
-
-    return browser.page_source.encode("utf-8")
 
 
 def go_to_log_in_page(browser):
@@ -52,10 +43,7 @@ class BeleniosMonkeyTestFuzzLogin(BeleniosTestElectionScenario2Base):
 
 
     def setUp(self):
-        self.fake_sent_emails_manager = FakeSentEmailsManager(settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
-        self.fake_sent_emails_manager.install_fake_sendmail_log_file()
         if settings.START_SERVER:
-            remove_database_folder()
             self.server = initialize_server()
         self.browser = initialize_browser_for_scenario_2()
 
@@ -64,8 +52,6 @@ class BeleniosMonkeyTestFuzzLogin(BeleniosTestElectionScenario2Base):
         self.browser.quit()
         if settings.START_SERVER:
             self.server.kill()
-            remove_database_folder()
-        self.fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
 
 
     @given(st.text(), st.text())
@@ -106,31 +92,15 @@ if __name__ == "__main__":
     if os.getenv('USE_HEADLESS_BROWSER', None):
         settings.USE_HEADLESS_BROWSER = bool(strtobool(os.getenv('USE_HEADLESS_BROWSER')))
 
-    settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     settings.WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', settings.WAIT_TIME_BETWEEN_EACH_STEP)) # Do not set a value below 0.02 seconds, otherwise hypothesis test becomes flaky.
     settings.EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', settings.EXPLICIT_WAIT_TIMEOUT))
-    settings.NUMBER_OF_INVITED_VOTERS = int(os.getenv('NUMBER_OF_INVITED_VOTERS', settings.NUMBER_OF_INVITED_VOTERS))
-    settings.NUMBER_OF_VOTING_VOTERS = int(os.getenv('NUMBER_OF_VOTING_VOTERS', settings.NUMBER_OF_VOTING_VOTERS))
-    settings.NUMBER_OF_REVOTING_VOTERS = int(os.getenv('NUMBER_OF_REVOTING_VOTERS', settings.NUMBER_OF_REVOTING_VOTERS))
-    settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS = int(os.getenv('NUMBER_OF_REGENERATED_PASSWORD_VOTERS', settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS))
     settings.LOGIN_MODE = os.getenv('LOGIN_MODE', settings.LOGIN_MODE)
-    settings.ADMINISTRATOR_USERNAME = os.getenv('ADMINISTRATOR_USERNAME', settings.ADMINISTRATOR_USERNAME)
-    settings.ADMINISTRATOR_PASSWORD = os.getenv('ADMINISTRATOR_PASSWORD', settings.ADMINISTRATOR_PASSWORD)
-    settings.ELECTION_TITLE = os.getenv('ELECTION_TITLE', settings.ELECTION_TITLE)
-    settings.ELECTION_DESCRIPTION = os.getenv('ELECTION_DESCRIPTION', settings.ELECTION_DESCRIPTION)
 
     console_log("SERVER_URL:", settings.SERVER_URL)
     console_log("START_SERVER:", settings.START_SERVER)
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
-    console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
     console_log("EXPLICIT_WAIT_TIMEOUT:", settings.EXPLICIT_WAIT_TIMEOUT)
-    console_log("NUMBER_OF_INVITED_VOTERS:", settings.NUMBER_OF_INVITED_VOTERS)
-    console_log("NUMBER_OF_VOTING_VOTERS:", settings.NUMBER_OF_VOTING_VOTERS)
-    console_log("NUMBER_OF_REVOTING_VOTERS:", settings.NUMBER_OF_REVOTING_VOTERS)
-    console_log("NUMBER_OF_REGENERATED_PASSWORD_VOTERS:", settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
     console_log("LOGIN_MODE:", settings.LOGIN_MODE)
-    console_log("ELECTION_TITLE:", settings.ELECTION_TITLE)
-    console_log("ELECTION_DESCRIPTION:", settings.ELECTION_DESCRIPTION)
 
     unittest.main()
