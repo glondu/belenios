@@ -1290,7 +1290,7 @@ let election_draft_credentials token uuid se () =
                    li [
                        txt "Save the link to the election.";
                        br ();
-                       txt "You must check that the same link is given to the voters.";
+                       txt "You should check that the same link is given to the voters.";
                      ];
                    li [
                        txt "Download ";
@@ -1397,7 +1397,7 @@ let election_draft_trustee token uuid se () =
            div [txt "Public key:"];
            div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ~value ()];
            div [
-               txt "Fingerprint of the public key: ";
+               txt "Fingerprint of the verification key: ";
                span ~a:[a_id "public_key_fp"] [];
              ];
            div [
@@ -1409,6 +1409,11 @@ let election_draft_trustee token uuid se () =
                        txt " and save it to a secure location.";
                        br ();
                        txt "You will use it to decrypt the final result.";
+                     ];
+                   li [
+                       txt "Save the link to the election.";
+                       br ();
+                       txt "You should check that the same link is given to the voters.";
                      ];
                    li [
                        txt "Save the fingerprint above.";
@@ -1534,10 +1539,17 @@ let election_draft_threshold_trustee token uuid se () =
                   li [
                       txt "Download your ";
                       a ~service:home ~a:[a_id "private_key"] [txt "private key"] ();
-                      txt " and save it to a secure location."
+                      txt " and save it to a secure location.";
+                      br ();
+                      txt "You will use it in the next steps and to decrypt the final result.";
                     ];
+                   li [
+                       txt "Save the link to the election.";
+                       br ();
+                       txt "You should check that the same link is given to the voters.";
+                     ];
                   li [
-                      txt "The fingerprint of your PKI public key is ";
+                      txt "The fingerprint of your public key is ";
                       span ~a:[a_id "pki_fp"] [];
                       txt ". Save it so that you can check later that it appears on the election home.";
                     ];
@@ -1547,7 +1559,7 @@ let election_draft_threshold_trustee token uuid se () =
                       txt ".";
                       div [
                           txt "Data: ";
-                          textarea ~a:[a_id "data"] ~name:data ();
+                          textarea ~a:[a_id "data"; a_rows 5; a_cols 40] ~name:data ();
                         ];
                     ];
                 ];
@@ -1576,7 +1588,7 @@ let election_draft_threshold_trustee token uuid se () =
                       input ~input_type:`Submit ~value:"Submit" string;
                       div [
                           txt "Data: ";
-                          textarea ~a:[a_id "compute_data"] ~name:data ();
+                          textarea ~a:[a_id "compute_data"; a_rows 5; a_cols 40] ~name:data ();
                         ];
                     ]
                   ) (uuid, token);
