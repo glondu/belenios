@@ -3,6 +3,7 @@
 import random
 from urllib.parse import urljoin, urlsplit
 from selenium.common.exceptions import NoAlertPresentException
+from time import sleep
 
 from util.election_testing import wait_a_bit
 from util.execution import console_log
@@ -86,6 +87,26 @@ class SeleniumClickerMonkey():
     def go_back(self):
         self.browser.back()
         wait_a_bit()
+        self.handle_alerts()
+        wait_a_bit()
+
+
+    def handle_alerts(self):
+        looking_for_alert = True
+        while looking_for_alert:
+            try:
+                alert = self.browser.switch_to.alert
+                console_log("* We encounter an Alert")
+                random_result3 = random.random()
+                if random_result3 < 0.5:
+                    console_log("* We decide to accept the Alert")
+                    alert.accept()
+                else:
+                    console_log("* We decide to dismiss the Alert")
+                    alert.dismiss()
+                sleep(1)
+            except NoAlertPresentException:
+                looking_for_alert = False
 
 
     def start(self, maximum_actions_in_visit=100):
@@ -106,7 +127,7 @@ class SeleniumClickerMonkey():
                 self.verify_page_is_not_an_error_page_function(self.browser)
             random_result = random.random()
             if random_result < self.probability_to_go_back:
-                if current_actions_in_visit >= 2:
+                if current_actions_in_visit > 2:
                     console_log("### Deciding to go back")
                     self.go_back()
             else:
@@ -126,21 +147,7 @@ class SeleniumClickerMonkey():
                     console_log("### We choose randomly this element:", representation_of_element(selected_element))
                     selected_element.click()
                     wait_a_bit()
-
-                    looking_for_alert = True
-                    while looking_for_alert:
-                        try:
-                            alert = self.browser.switch_to.alert
-                            console_log("* We encounter an Alert")
-                            random_result3 = random.random()
-                            if random_result3 < 0.5:
-                                console_log("* We decide to accept the Alert")
-                                alert.accept()
-                            else:
-                                console_log("* We decide to dismiss the Alert")
-                                alert.dismiss()
-                        except NoAlertPresentException:
-                            looking_for_alert = False
+                    self.handle_alerts()
 
         console_log("### SeleniumClickerMonkey visit is now complete.")
 

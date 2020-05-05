@@ -118,6 +118,7 @@ Several tests have a same general behaviour in common, which depends on the valu
 - `WAIT_TIME_BETWEEN_EACH_STEP`: Do not set a value below 0.02 seconds, otherwise hypothesis test becomes flaky.
 - `START_SERVER`: Can be set to `0` or `1` to respectively use an already running Belenios server or let the script start its own Belenios server.
 - `ELECTION_ID`: If you do not provide a value to this variable, the test will try to create an election, invite voters, and fill other variables from it with correct values extracted from data obtained during the creation of the election (`VOTER_USERNAME`, `VOTER_PASSWORD`, `VOTER_CREDENTIAL`). If you do provide a value to `ELECTION_ID`, you should also provide a value to these other variables.
+- `USE_HEADLESS_BROWSER`: Can be set to `0` or `1` to respectively display the Graphical User Interface of the browser while executing the test (this is a useful visual feedback for debugging), or to execute its headless mode which opens no window. If you set it to `0`, make sure that you don't change focus during execution (with your mouse or while switching windows on your computer), as it interferes with the automatic instructions that the browser receives from Selenium (for example, detection of Alerts becomes flaky).
 
 ### Fuzz testing of the main login form
 
