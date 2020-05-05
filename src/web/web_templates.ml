@@ -2080,9 +2080,15 @@ let election_home election state () =
   in
   let div_voters =
     div [
-        Printf.ksprintf txt
-          "The voter list has %d voter(s) and fingerprint %s."
-          cache.cache_num_voters cache.cache_voters_hash;
+        txt "The ";
+        b [txt "voter list"];
+        txt " has ";
+        txt (string_of_int cache.cache_num_voters);
+        txt " voter(s) and ";
+        b [txt "fingerprint"];
+        txt " ";
+        txt cache.cache_voters_hash;
+        txt ".";
       ]
   in
   let format_tc id xs =
@@ -2099,15 +2105,24 @@ let election_home election state () =
     | None -> txt ""
     | Some xs ->
        div [
-           txt "The PKI public keys of trustees are the following:";
+           txt "The ";
+           b [txt "public keys"];
+           txt " of trustees are the following ones:";
            format_tc "pki" xs;
          ]
   in
   let div_trustees =
     div [
         Printf.ksprintf txt
-          "%d of the following %d authority(ies) are needed to decrypt the election result:"
+          "%d of %d trustee(s) are needed to decrypt the election result."
           threshold num_trustees;
+      ]
+  in
+  let div_verification =
+    div [
+        txt "The ";
+        b [txt "verification keys"];
+        txt " of trustees are the following ones:";
         format_tc "trustees" checksums.ec_trustees;
       ]
   in
@@ -2142,8 +2157,9 @@ let election_home election state () =
     div ~a:[a_class ["hybrid_box"]] [
       div_admin;
       div_voters;
-      div_pki;
       div_trustees;
+      div_pki;
+      div_verification;
       div_credentials;
       div_shuffles;
       div_tally;
