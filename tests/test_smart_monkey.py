@@ -7,13 +7,12 @@ import sys
 import time
 from distutils.util import strtobool
 
-from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.election_testing import remove_database_folder, remove_election_from_database, initialize_server, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, election_id_to_election_home_page_url
+from util.election_testing import election_id_to_election_home_page_url
 from util.page_objects import BallotBoxPage
 from util.state_machine import ElectionHomePageState, NormalVoteStep6PageState
 from util.monkeys import SmartMonkeyWithMemoryAndKnownStateMachine
 from util.execution import console_log
-from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser
+from test_fuzz_vote import BeleniosTestElectionWithCreationBase
 import settings
 
 
@@ -56,97 +55,7 @@ def smart_monkey_votes(browser, timeout, election_url, voter_username, voter_pas
         return voter_validated_smart_ballot_tracker
 
 
-class BeleniosMonkeyTestClicker(BeleniosTestElectionScenario2Base):
-
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-        self.distant_fake_sent_emails_manager = None
-        self.fake_sent_emails_initial_lines_count = None
-
-
-    def setUp(self):
-        self.fake_sent_emails_manager = FakeSentEmailsManager(settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
-        self.fake_sent_emails_manager.install_fake_sendmail_log_file()
-        if settings.START_SERVER:
-            if settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_DATABASE:
-                remove_database_folder()
-            elif settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_ELECTION or settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.DO_NOTHING:
-                pass
-            self.server = initialize_server()
-        self.browser = initialize_browser()
-        if settings.ELECTION_ID:
-            self.election_id = settings.ELECTION_ID
-        else:
-            # Download server's sent emails text file, so that we know up to which line number we have to ignore its contents (this is its last line)
-            temporary_fake_sent_emails_manager = None
-            try:
-                temporary_fake_sent_emails_manager = self.download_all_sent_emails()
-                self.fake_sent_emails_initial_lines_count = temporary_fake_sent_emails_manager.count_lines()
-                console_log("### Initial lines count of server's fake sent emails file:", self.fake_sent_emails_initial_lines_count)
-            finally:
-                if temporary_fake_sent_emails_manager:
-                    temporary_fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
-
-            self.administrator_creates_election()
-
-            console_log("### Starting step: download_all_sent_emails")
-            self.distant_fake_sent_emails_manager = self.download_all_sent_emails()
-            console_log("### Step complete: download_all_sent_emails")
-
-            # Concatenate (distant) Belenios server's sent emails file (starting after line `fake_sent_emails_initial_lines_count`) and local credential authority's sent emails file into file `self.distant_fake_sent_emails_manager.log_file_path`, so that `self.generate_vote_ballots()` can parse it and find all information it needs.
-            import subprocess
-            import tempfile
-            (file_handle, log_file_path) = tempfile.mkstemp(text=True)
-            with open(log_file_path, 'w') as f:
-                subprocess.run(["tail", "-n", "+" + str(self.fake_sent_emails_initial_lines_count + 1), self.distant_fake_sent_emails_manager.log_file_path], stdout=f)
-                subprocess.run(["cat", self.fake_sent_emails_manager.log_file_path], stdout=f)
-            subprocess.run(["cp", log_file_path, self.distant_fake_sent_emails_manager.log_file_path])
-            subprocess.run(["rm", "-f", log_file_path])
-
-            invited_voters_who_will_vote = random.sample(self.voters_email_addresses, settings.NUMBER_OF_VOTING_VOTERS)
-            invited_voters_who_will_vote_data = populate_credential_and_password_for_voters_from_sent_emails(self.distant_fake_sent_emails_manager, invited_voters_who_will_vote, settings.ELECTION_TITLE)
-            invited_voters_who_will_vote_data = populate_random_votes_for_voters(invited_voters_who_will_vote_data)
-            self.update_voters_data(invited_voters_who_will_vote_data)
-
-            selected_voter = invited_voters_who_will_vote_data[0]
-            settings.VOTER_USERNAME = selected_voter["username"]
-            settings.VOTER_PASSWORD = selected_voter["password"]
-            settings.VOTER_CREDENTIAL = selected_voter["credential"]
-        console_log("Going to vote using VOTER_USERNAME:", settings.VOTER_USERNAME)
-        console_log("Going to vote using VOTER_PASSWORD:", settings.VOTER_PASSWORD)
-        console_log("Going to vote using VOTER_CREDENTIAL:", settings.VOTER_CREDENTIAL)
-
-
-    def tearDown(self):
-        self.browser.quit()
-        if settings.START_SERVER:
-            self.server.kill()
-            if settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_DATABASE:
-                remove_database_folder()
-            elif settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_ELECTION:
-                if self.election_id:
-                    remove_election_from_database(self.election_id)
-            elif settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.DO_NOTHING:
-                pass
-        self.fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
-        if self.distant_fake_sent_emails_manager is not None:
-            self.distant_fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
-
-
-    def download_all_sent_emails(self, target_fake_sent_emails_manager=None):
-        from urllib.parse import urljoin
-        import urllib.request
-        if not target_fake_sent_emails_manager:
-            import tempfile
-            (file_handle, log_file_path) = tempfile.mkstemp(text=True)
-            target_fake_sent_emails_manager = FakeSentEmailsManager(log_file_path)
-        distant_fake_emails_file_url = urljoin(settings.SERVER_URL, settings.FAKE_SENT_EMAILS_FILE_RELATIVE_URL) # TODO: maybe we should build this URL by picking link value in alert banner on distant server home page
-        console_log("distant_fake_emails_file_url:", distant_fake_emails_file_url)
-        urllib.request.urlretrieve(distant_fake_emails_file_url, target_fake_sent_emails_manager.log_file_path)
-        console_log("#### Distant fake sent emails have been saved in:", target_fake_sent_emails_manager.log_file_path)
-        return target_fake_sent_emails_manager
-
-
+class BeleniosMonkeyTestClicker(BeleniosTestElectionWithCreationBase):
     def test_very_smart_monkey_votes(self):
         console_log("# test_very_smart_monkey_votes()")
         browser = self.browser

@@ -9,7 +9,7 @@ from hypothesis import given, HealthCheck, strategies as st, settings as hypothe
 from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_does_not_contain_expected_text
-from util.election_testing import console_log, remove_database_folder, initialize_server, wait_a_bit, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters
+from util.election_testing import console_log, remove_database_folder, initialize_server, wait_a_bit, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, election_id_to_election_home_page_url, remove_election_from_database
 from util.execution import try_several_times
 from util.page_objects import ElectionHomePage, VoterLoginPage
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser
@@ -63,13 +63,7 @@ ballotDataFormat = st.fixed_dictionaries(
 ) # a JSON object
 
 
-def go_to_election_page(browser, election_id):
-    election_page_url = "/".join([settings.SERVER_URL, "elections", election_id, ""])
-    browser.get(election_page_url)
-
-
-class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
-
+class BeleniosTestElectionWithCreationBase(BeleniosTestElectionScenario2Base):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         self.distant_fake_sent_emails_manager = None
@@ -80,7 +74,10 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
         self.fake_sent_emails_manager = FakeSentEmailsManager(settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
         self.fake_sent_emails_manager.install_fake_sendmail_log_file()
         if settings.START_SERVER:
-            remove_database_folder()
+            if settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_DATABASE:
+                remove_database_folder()
+            elif settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_ELECTION or settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.DO_NOTHING:
+                pass
             self.server = initialize_server()
         self.browser = initialize_browser()
         if settings.ELECTION_ID:
@@ -117,17 +114,26 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
             invited_voters_who_will_vote_data = populate_random_votes_for_voters(invited_voters_who_will_vote_data)
             self.update_voters_data(invited_voters_who_will_vote_data)
 
-            settings.VOTER_USERNAME = invited_voters_who_will_vote_data[0]["username"]
-            settings.VOTER_PASSWORD = invited_voters_who_will_vote_data[0]["password"]
-        console_log("Going to vote as VOTER_USERNAME:", settings.VOTER_USERNAME)
-        console_log("Going to vote as VOTER_PASSWORD:", settings.VOTER_PASSWORD)
+            selected_voter = invited_voters_who_will_vote_data[0]
+            settings.VOTER_USERNAME = selected_voter["username"]
+            settings.VOTER_PASSWORD = selected_voter["password"]
+            settings.VOTER_CREDENTIAL = selected_voter["credential"]
+        console_log("Going to vote using VOTER_USERNAME:", settings.VOTER_USERNAME)
+        console_log("Going to vote using VOTER_PASSWORD:", settings.VOTER_PASSWORD)
+        console_log("Going to vote using VOTER_CREDENTIAL:", settings.VOTER_CREDENTIAL)
 
 
     def tearDown(self):
         self.browser.quit()
         if settings.START_SERVER:
             self.server.kill()
-            remove_database_folder()
+            if settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_DATABASE:
+                remove_database_folder()
+            elif settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.REMOVE_ELECTION:
+                if self.election_id:
+                    remove_election_from_database(self.election_id)
+            elif settings.CLEAN_UP_POLICY == settings.CLEAN_UP_POLICIES.DO_NOTHING:
+                pass
         self.fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
         if self.distant_fake_sent_emails_manager is not None:
             self.distant_fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
@@ -147,6 +153,7 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
         return target_fake_sent_emails_manager
 
 
+class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionWithCreationBase):
     @given(st.text())
     @hypothesis_settings(deadline=None)
     def test_submit_prepared_ballot_by_dumb_monkey(self, ballot):
@@ -218,7 +225,8 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
         browser = self.browser
         timeout = settings.EXPLICIT_WAIT_TIMEOUT
         console_log("#### Going to election page")
-        go_to_election_page(browser, self.election_id)
+        election_page_url = election_id_to_election_home_page_url(self.election_id)
+        browser.get(election_page_url)
 
         console_log("#### Clicking on 'en' language link")
         election_home_page = ElectionHomePage(browser, timeout)
@@ -271,11 +279,6 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionScenario2Base):
 
 
 if __name__ == "__main__":
-    if not hasattr(settings, "LOGIN_MODE"):
-        settings.LOGIN_MODE = "local"
-    if not hasattr(settings, "START_SERVER"):
-        settings.START_SERVER = True
-
     random_seed = os.getenv('RANDOM_SEED', None)
     if not random_seed:
         random_seed = random.randrange(sys.maxsize)
@@ -292,11 +295,19 @@ if __name__ == "__main__":
     settings.ELECTION_ID = os.getenv('ELECTION_ID', None) or None
     settings.VOTER_USERNAME = os.getenv('VOTER_USERNAME', None) or None
     settings.VOTER_PASSWORD = os.getenv('VOTER_PASSWORD', None) or None
+    settings.VOTER_CREDENTIAL = os.getenv('VOTER_CREDENTIAL', None) or None
     settings.FAKE_SENT_EMAILS_FILE_RELATIVE_URL = os.getenv('FAKE_SENT_EMAILS_FILE_RELATIVE_URL', "static/mail.txt")
 
     settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     settings.WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', settings.WAIT_TIME_BETWEEN_EACH_STEP)) # Do not set a value below 0.02 seconds, otherwise hypothesis test becomes flaky.
     settings.EXPLICIT_WAIT_TIMEOUT = int(os.getenv('EXPLICIT_WAIT_TIMEOUT', settings.EXPLICIT_WAIT_TIMEOUT))
+    if os.getenv('CLEAN_UP_POLICY', None):
+        input_clean_up_policy = os.getenv('CLEAN_UP_POLICY')
+        if hasattr(settings.CLEAN_UP_POLICIES, input_clean_up_policy):
+            settings.CLEAN_UP_POLICY = getattr(settings.CLEAN_UP_POLICIES, input_clean_up_policy)
+        else:
+            raise Exception("Error: Unknown value for CLEAN_UP_POLICY:", input_clean_up_policy)
+
     settings.NUMBER_OF_INVITED_VOTERS = int(os.getenv('NUMBER_OF_INVITED_VOTERS', settings.NUMBER_OF_INVITED_VOTERS))
     settings.NUMBER_OF_VOTING_VOTERS = int(os.getenv('NUMBER_OF_VOTING_VOTERS', settings.NUMBER_OF_VOTING_VOTERS))
     settings.NUMBER_OF_REVOTING_VOTERS = int(os.getenv('NUMBER_OF_REVOTING_VOTERS', settings.NUMBER_OF_REVOTING_VOTERS))
@@ -310,6 +321,7 @@ if __name__ == "__main__":
     console_log("SERVER_URL:", settings.SERVER_URL)
     console_log("START_SERVER:", settings.START_SERVER)
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
+
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
     console_log("EXPLICIT_WAIT_TIMEOUT:", settings.EXPLICIT_WAIT_TIMEOUT)
