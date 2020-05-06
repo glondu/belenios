@@ -1288,11 +1288,6 @@ let election_draft_credentials token uuid se () =
                        txt "You will use it to send credentials to voters.";
                      ];
                    li [
-                       txt "Save the link to the election.";
-                       br ();
-                       txt "You should check that the same link is given to the voters.";
-                     ];
-                   li [
                        txt "Download ";
                        a ~service:home ~a:[a_id "voters_txt"] [txt "the list of voters"] ();
                        txt ".";
@@ -1409,11 +1404,6 @@ let election_draft_trustee token uuid se () =
                        txt " and save it to a secure location.";
                        br ();
                        txt "You will use it to decrypt the final result.";
-                     ];
-                   li [
-                       txt "Save the link to the election.";
-                       br ();
-                       txt "You should check that the same link is given to the voters.";
                      ];
                    li [
                        txt "Save the fingerprint above.";
@@ -1543,11 +1533,6 @@ let election_draft_threshold_trustee token uuid se () =
                       br ();
                       txt "You will use it in the next steps and to decrypt the final result.";
                     ];
-                   li [
-                       txt "Save the link to the election.";
-                       br ();
-                       txt "You should check that the same link is given to the voters.";
-                     ];
                   li [
                       txt "The fingerprint of your public key is ";
                       span ~a:[a_id "pki_fp"] [];
