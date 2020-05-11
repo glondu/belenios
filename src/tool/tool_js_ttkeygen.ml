@@ -99,7 +99,8 @@ let main () =
      let fp = Platform.sha256_b64 pk in
      let msg = "Your job in the key establishment protocol is done! The fingerprint of your verification key is " ^ fp ^ ". Check that it is published by the server when the election is open. Your private key will be needed to decrypt the election result." in
      let t = document##createTextNode (Js.string msg) in
-     Dom.appendChild e t
+     Dom.appendChild e t;
+     set_element_display "div_instructions" "block"
   | 1 ->
      set_step 1;
      let b = Dom_html.createButton document in

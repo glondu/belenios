@@ -1632,6 +1632,18 @@ let election_draft_threshold_trustee token uuid se () =
         script ~a:[a_src (static "tool_js_ttkeygen.js")] (txt "");
       ]
   in
+  let div_instructions =
+    div ~a:[a_id "div_instructions"; a_style "display: none;"]
+      [
+        b [txt "Instructions"];
+        ol [
+            li [txt "Save the fingerprint above."];
+            li [txt "Once the election is open, you must check that it is present in the set of verification keys published by the server."];
+            li [txt "Remember that you must also check the presence of your public key."];
+            li [txt "Remember to store securely you private key."];
+          ];
+      ]
+  in
   let content = [
       header;
       div_link;
@@ -1641,6 +1653,7 @@ let election_draft_threshold_trustee token uuid se () =
       interactivity;
       form;
       form_compute;
+      div_instructions;
     ]
   in
   base ~title ~content ()
