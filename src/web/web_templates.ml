@@ -1065,6 +1065,47 @@ let election_draft_credential_authority uuid se () =
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
+let election_draft_credentials_done se () =
+  let title = "Credentials for election " ^ se.se_questions.t_name in
+  let content =
+    [
+      div [txt "Credentials have been received and checked!"];
+      div [
+          div [b [txt "Instructions"]];
+          div [
+              txt "Once the election is open, check that:";
+              ol [
+                  li [
+                      txt "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:";
+                      pre [txt "sha256sum voters.txt | xxd -p -r | base64 | tr -d \"=\""];
+                      txt "(or ";
+                      code [txt "shasum -a256"];
+                      txt " instead of ";
+                      code [txt "sha256sum"];
+                      txt ");"
+                    ];
+                  li [
+                      txt "the fingerprint of public credentials matches what has been saved, for example with the following command:";
+                      pre [txt "sha256sum public_creds.txt | xxd -p -r | base64 | tr -d \"=\""];
+                      txt "(or ";
+                      code [txt "shasum -a256"];
+                      txt " instead of ";
+                      code [txt "sha256sum"];
+                      txt ");"
+                    ];
+                  li [
+                      txt "you can send again a private credential to its rightful owner in case of loss."
+                    ];
+                ];
+            ];
+          div [
+              txt "Once the election is over, the file creds.txt must be destroyed.";
+            ];
+        ];
+    ]
+  in
+  base ~title ~content ()
+
 let election_draft_questions uuid se () =
   let title = "Questions for election " ^ se.se_questions.t_name in
   let form =

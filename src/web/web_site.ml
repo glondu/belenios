@@ -995,8 +995,7 @@ let handle_credentials_post uuid token creds =
   in
   let () = se.se_public_creds_received <- true in
   let%lwt () = Web_persist.set_draft_election uuid se in
-  T.generic_page ~title:"Success"
-    "Credentials have been received and checked!" () >>= Html.send
+  T.election_draft_credentials_done se () >>= Html.send
 
 let () =
   Any.register ~service:election_draft_credentials_post
