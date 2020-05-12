@@ -26,7 +26,7 @@ The non-OCaml prerequisites are:
  * [ncurses](http://invisible-island.net/ncurses/)
  * [uuidgen](https://www.kernel.org/pub/linux/utils/util-linux/)
  * [GD-SecurityImage](https://metacpan.org/release/GD-SecurityImage)
- * [cracklib](http://sourceforge.net/projects/cracklib)
+ * [cracklib](https://github.com/cracklib/cracklib)
 
 These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
@@ -75,13 +75,13 @@ Command-line tool
 
 To compile the command-line tool, you will need:
 
- * [OCaml](http://caml.inria.fr/)
+ * [OCaml](https://ocaml.org/)
  * [Findlib](http://projects.camlcity.org/projects/findlib.html)
- * [Zarith](https://forge.ocamlcore.org/projects/zarith/)
+ * [Zarith](https://github.com/ocaml/Zarith)
  * [Uuidm](http://erratique.ch/software/uuidm)
- * [Cryptokit](https://forge.ocamlcore.org/projects/cryptokit/)
- * [Atdgen](http://mjambon.com/atdgen)
- * [Yojson](http://mjambon.com/yojson.html)
+ * [Cryptokit](https://github.com/xavierleroy/cryptokit)
+ * [Atdgen](https://github.com/ahrefs/atd)
+ * [Yojson](https://github.com/ocaml-community/yojson)
  * [Cmdliner](http://erratique.ch/software/cmdliner)
 
 With OPAM, these dependencies can be installed with the following
@@ -105,7 +105,7 @@ The web server has the following additional dependencies:
 
  * [Calendar](http://calendar.forge.ocamlcore.org/)
  * [Eliom](http://ocsigen.org/eliom/)
- * [Csv](https://forge.ocamlcore.org/projects/csv/)
+ * [Csv](https://github.com/Chris00/ocaml-csv)
 
 With OPAM, you can install them with:
 
