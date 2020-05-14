@@ -15,7 +15,7 @@ static_files = {
         'sjcl.js'               : '56c2f11c54347c8eea42c6534a94a638a0134307be1c7d0fb306074e4c60b150',
         'tool_js_booth.js'      : 'a8da8e83c93a15324e97ba0862c014fb48edceda16b0f28621c3523dc1878367',
         'tool_js_credgen.js'    : '880b0a9fb12f240a5aec7f04ef573809064716bd6d88501fc9ca3c4e4341a6e8',
-        'tool_js.js'            : 'e08dc80dbde03414a74727cbc7476cc49e80171abfcb06885a7aa859e6aeffe9',
+        'tool_js.js'            : 'c06bead705ec99dc3d268e7e9294ed1e367a14cb3b3659de66a00147a62e2a53',
         'tool_js_pd.js'         : 'caa572461549b929eea837e31c9185232fd99c0003a25c45003eadafb01791a9',
         'tool_js_questions.js'  : '5f7a221ad47620b49a15bb3ce83aa6bbf9e831cd8615caa0c6d2e1bab806333e',
         'tool_js_shuffle.js'    : 'b3da510b058215ea173a9450fca6d4caa30428c0d2d83a9c89d4c3ebee03d85e',
