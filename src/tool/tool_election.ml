@@ -263,6 +263,8 @@ module Make (P : PARSED_PARAMS) : S = struct
              (fun s ->
                Printf.ksprintf print_msg "I: shuffle %s has been applied" s)
     );
+    if Election.has_nh_questions E.election then
+      print_msg "W: you should check that your shuffle appears in the list of applied shuffles";
     let tally, _ = Lazy.force encrypted_tally in
     let factor = E.compute_factor tally sk in
     assert (E.check_factor tally pk factor);
