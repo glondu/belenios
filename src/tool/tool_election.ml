@@ -254,7 +254,9 @@ module Make (P : PARSED_PARAMS) : S = struct
       print_msg "W: your key is not present in trustees.jsons";
     );
     (match Lazy.force shuffles_hash with
-     | None -> ()
+     | None | Some [] ->
+        if Election.has_nh_questions E.election then
+          failwith "the election has non-homomorphic questions and no shuffles were found";
      | Some shuffles ->
         shuffles
         |> List.iter
