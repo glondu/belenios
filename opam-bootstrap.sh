@@ -71,7 +71,7 @@ echo
 cd "$BELENIOS_SYSROOT"
 git clone https://github.com/ocaml/opam-repository.git
 cd opam-repository
-git reset --hard 0200b396894c6cfae40d7175530747bda96e3195
+git reset --hard b05d48934714c55dcc3c11ea41dc9f53ca80bb76
 opam init --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
 opam switch create 4.08.1 ocaml-base-compiler.4.08.1
 eval $(opam env)
