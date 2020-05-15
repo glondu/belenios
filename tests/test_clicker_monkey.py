@@ -20,6 +20,8 @@ def verify_page_is_not_an_error_page(browser):
     # But what we consider an unexpected error is other types of errors returned by the server, for example "Internal Server Error", "Error 500".
     error_content = ["Internal Server Error", "Error 500", "Not Found", "Error 404"]
     page_source = browser.page_source
+    if not page_source or not len(page_source):
+        raise Exception(f"Server returned an unexpected blank page. Page source was: {page_source}")
     for content in error_content:
         if content in page_source:
             page_source = str(browser.page_source.encode("utf-8"))
@@ -252,4 +254,4 @@ if __name__ == "__main__":
     console_log("ELECTION_TITLE:", settings.ELECTION_TITLE)
     console_log("ELECTION_DESCRIPTION:", settings.ELECTION_DESCRIPTION)
 
-    unittest.main()
+    unittest.main(failfast=True)

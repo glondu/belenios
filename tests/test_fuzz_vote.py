@@ -322,6 +322,7 @@ if __name__ == "__main__":
     console_log("START_SERVER:", settings.START_SERVER)
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
 
+    console_log("FAKE_SENT_EMAILS_FILE_RELATIVE_URL:", settings.FAKE_SENT_EMAILS_FILE_RELATIVE_URL)
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
     console_log("EXPLICIT_WAIT_TIMEOUT:", settings.EXPLICIT_WAIT_TIMEOUT)
@@ -333,4 +334,4 @@ if __name__ == "__main__":
     console_log("ELECTION_TITLE:", settings.ELECTION_TITLE)
     console_log("ELECTION_DESCRIPTION:", settings.ELECTION_DESCRIPTION)
 
-    unittest.main()
+    unittest.main(failfast=True)

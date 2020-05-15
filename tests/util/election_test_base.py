@@ -4,7 +4,7 @@ import unittest
 import random
 import re
 from urllib.parse import urlencode
-from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label
+from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, printable_page_source
 from util.election_testing import random_email_addresses_generator, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, repopulate_vote_confirmations_for_voters_from_sent_emails, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, find_button_in_page_content_by_value, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 from util.execution import console_log
 from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page, BallotBoxPage
@@ -596,7 +596,7 @@ pris en compte.
             number_of_accepted_ballots = number_of_accepted_ballots.strip()
         else:
             raise Exception("Number of accepted ballots not found in election tally page: " + main_text_content)
-        assert str(number_of_accepted_ballots) == str(settings.NUMBER_OF_VOTING_VOTERS), "Number of accepted ballots (" + str(number_of_accepted_ballots) + ") is not the same as number of voters (" + str(settings.NUMBER_OF_VOTING_VOTERS) + ")"
+        assert str(number_of_accepted_ballots) == str(settings.NUMBER_OF_VOTING_VOTERS), "Number of accepted ballots (" + str(number_of_accepted_ballots) + ") is not the same as number of voters (" + str(settings.NUMBER_OF_VOTING_VOTERS) + ")" + printable_page_source(browser)
 
 
         # - 2) For each available answer in the question, she checks that the total number of votes in favor of Answer X displayed in result page is the same as the sum of votes for Answer X in all votes of voters who voted that have been randomly generated in advance
@@ -613,7 +613,7 @@ pris en compte.
             answer_total_real_value_element = browser.find_element_by_css_selector(answer_total_css_selector)
             answer_total_real_value = answer_total_real_value_element.get_attribute('innerText').strip()
             answer_total_expected_value = str(number_of_votes_per_answer['answer' + str(answer_id)])
-            assert answer_total_real_value == answer_total_expected_value, "Number of votes for Answer " + str(answer_id) + " displayed on vote result page  (" + answer_total_real_value + ") does not match expected value (" + answer_total_expected_value
+            assert answer_total_real_value == answer_total_expected_value, "Number of votes for Answer " + str(answer_id) + " displayed on vote result page  (" + answer_total_real_value + ") does not match expected value (" + answer_total_expected_value + "). " + printable_page_source(browser)
 
 
         # - 3) She checks that each smart ballot tracker in the ballot box page corresponds to the smart ballot tracker of one of our voters, and that there is only one of these, and that the number of smart ballot trackers in this page is the same as the number of voters who voted
