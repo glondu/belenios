@@ -181,6 +181,7 @@ let validate_election uuid se =
   let%lwt () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in
   let%lwt () = create_file "metadata.json" string_of_metadata [metadata] in
   let%lwt () = create_file "election.json" (fun x -> x) [raw_election] in
+  let%lwt () = create_file "ballots.jsons" (fun x -> x) [] in
   (* initialize credentials *)
   let%lwt () =
     let fname = !Web_config.spool_dir / uuid_s / "public_creds.txt" in
