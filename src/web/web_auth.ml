@@ -98,9 +98,9 @@ let login_handler service kind =
     | None -> Eliom_reference.get Web_state.site_user
     | Some uuid -> Web_state.get_election_user uuid
   in
-  match user with
-  | Some _ -> get_cont `Login kind ()
-  | None ->
+  match user, uuid with
+  | Some _, None -> get_cont `Login kind ()
+  | Some _, Some _ | None, _ ->
      let%lwt c = match uuid with
        | None -> return !Web_config.site_auth_config
        | Some uuid ->
