@@ -74,7 +74,7 @@ let rec find_auth_instance x = function
 let get_cont login_or_logout x =
   let open Eliom_registration in
   let redir = match x with
-    | `Election uuid -> Redirection (preapply election_cast uuid)
+    | `Election uuid -> Redirection (preapply election_cast_fallback uuid)
     | `Site ContSiteHome -> Redirection home
     | `Site ContSiteAdmin -> Redirection admin
     | `Site (ContSiteElection uuid) ->

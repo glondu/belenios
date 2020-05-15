@@ -276,6 +276,21 @@ let make_button ~service ?hash ?style ~disabled contents =
     uri style (if disabled then " disabled" else "")
     contents
 
+let make_a_with_hash ~service ?hash ?style contents =
+  let uri = Eliom_uri.make_string_uri ~service () in
+  let uri = match hash with
+    | None -> uri
+    | Some x -> uri ^ "#" ^ x
+  in
+  let style =
+    match style with
+    | None -> ""
+    | Some x -> Printf.sprintf " style=\"%s\"" x
+  in
+  Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
+    "<a href=\"%s\"%s>%s</a>"
+    uri style contents
+
 let a_mailto ~dest ~subject ~body contents =
   let uri = Printf.sprintf "mailto:%s?subject=%s&amp;body=%s" dest
     (Netencoding.Url.encode ~plus:false subject)
@@ -2910,6 +2925,34 @@ let cast_confirmation election hash () =
     ];
   ] in
   base ~title:name ~content ~uuid ()
+
+let lost_ballot election () =
+  let%lwt language = Eliom_reference.get Web_state.language in
+  let l = Web_i18n.get_lang language in
+  let module L = (val l) in
+  let title = election.e_params.e_name in
+  let uuid = election.e_params.e_uuid in
+  let service = Web_services.election_vote in
+  let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
+  let content =
+    [
+      div [
+          b [txt "Warning:"];
+          txt " Your vote was not recorded!";
+        ];
+      div [
+          txt "If you want to vote, you must ";
+          make_a_with_hash ~service ~hash "start from the beginning";
+          txt ".";
+        ];
+      div [
+          a ~service:Web_services.election_home [
+              txt L.go_back_to_election
+            ] (uuid, ());
+        ];
+    ]
+  in
+  base ~title ~content ~uuid ()
 
 let cast_confirmed election ~result () =
   let%lwt language = Eliom_reference.get Web_state.language in

@@ -57,6 +57,7 @@ val election_admin : ?shuffle_token:string -> ?tally_token:string -> 'a election
 val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_confirmation : 'a election -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val lost_ballot : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_confirmed : 'a election -> result:(string, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val pretty_ballots : 'a election -> string list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val pretty_records : 'a election -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

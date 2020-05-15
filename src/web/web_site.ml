@@ -1549,10 +1549,10 @@ let () =
 let () =
   Any.register ~service:election_cast
     (fun uuid () ->
-      let%lwt w = find_election uuid in
-      match%lwt Eliom_reference.get Web_state.ballot with
-      | Some b -> T.cast_confirmation w (sha256_b64 b) () >>= Html.send
-      | None -> T.cast_raw w () >>= Html.send)
+      match%lwt find_election uuid with
+      | w -> T.cast_raw w () >>= Html.send
+      | exception Not_found -> fail_http 404
+    )
 
 let submit_ballot ballot =
   let ballot = PString.trim ballot in
@@ -1644,10 +1644,26 @@ let cast_ballot uuid ~rawballot ~user =
      fail (CastError e)
 
 let () =
+  Any.register ~service:election_cast_fallback
+    (fun uuid () ->
+      match%lwt find_election uuid with
+      | w ->
+         (match%lwt Eliom_reference.get Web_state.ballot with
+          | Some b -> T.cast_confirmation w (sha256_b64 b) () >>= Html.send
+          | None -> T.lost_ballot w () >>= Html.send
+         )
+      | exception Not_found -> fail_http 404
+    )
+
+let () =
   Any.register ~service:election_cast_confirm
     (fun uuid () ->
       match%lwt Eliom_reference.get Web_state.ballot with
-      | None -> fail_http 404
+      | None ->
+         (match%lwt find_election uuid with
+          | w -> T.lost_ballot w () >>= Html.send
+          | exception Not_found -> fail_http 404
+         )
       | Some rawballot ->
          let%lwt () = Eliom_reference.unset Web_state.ballot in
          match%lwt Web_state.get_election_user uuid with
