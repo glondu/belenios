@@ -28,48 +28,11 @@ open Web_services
 type result = Eliom_registration.Html.result
 
 type post_login_handler =
-  uuid option -> auth_config -> (string -> unit Lwt.t) -> unit Lwt.t
+  uuid option -> auth_config -> (string -> unit Lwt.t) -> (unit, unit) Stdlib.result Lwt.t
 
 let scope = Eliom_common.default_session_scope
 
 let auth_env = Eliom_reference.eref ~scope None
-
-let run_post_login_handler ~auth_system ~state f =
-  match%lwt Eliom_reference.get auth_env with
-  | None -> Eliom_registration.Action.send ()
-  | Some (uuid, a, cont, st) ->
-     if auth_system = a.auth_system && st = state then
-       let authenticate name =
-         let%lwt () = Eliom_reference.unset auth_env in
-         let user = { user_domain = a.auth_instance; user_name = name } in
-         match uuid with
-         | None -> Eliom_reference.set Web_state.site_user (Some user)
-         | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
-       in
-       let%lwt () = f uuid a authenticate in
-       cont ()
-     else
-       fail_http 401
-
-type pre_login_handler = auth_config -> state:string -> result Lwt.t
-
-let pre_login_handlers = ref []
-
-let get_pre_login_handler uuid cont a =
-  let%lwt state = generate_token () in
-  let%lwt () = Eliom_reference.set auth_env (Some (uuid, a, cont, state)) in
-  match List.assoc_opt a.auth_system !pre_login_handlers with
-  | Some handler -> handler a ~state
-  | None -> fail_http 404
-
-let register_pre_login_handler ~auth_system handler =
-  pre_login_handlers := (auth_system, handler) :: !pre_login_handlers;
-  run_post_login_handler ~auth_system
-
-let rec find_auth_instance x = function
-  | [] -> None
-  | { auth_instance = i; _ } as y :: _ when i = x -> Some y
-  | _ :: xs -> find_auth_instance x xs
 
 let get_cont login_or_logout x =
   let open Eliom_registration in
@@ -83,6 +46,53 @@ let get_cont login_or_logout x =
        | `Logout -> Redirection (preapply election_home (uuid, ()))
   in
   fun () -> Redirection.send redir
+
+let restart_login service = function
+  | `Election uuid -> preapply election_login ((uuid, ()), Some service)
+  | `Site cont -> preapply site_login (Some service, cont)
+
+let run_post_login_handler ~auth_system ~state f =
+  match%lwt Eliom_reference.get auth_env with
+  | None -> Eliom_registration.Action.send ()
+  | Some (uuid, a, kind, st) ->
+     let restart_login () =
+       let service = restart_login a.auth_instance kind in
+       Web_templates.login_failed ~service ()
+       >>= Eliom_registration.Html.send ~code:401
+     in
+     if auth_system = a.auth_system && st = state then
+       let authenticate name =
+         let%lwt () = Eliom_reference.unset auth_env in
+         let user = { user_domain = a.auth_instance; user_name = name } in
+         match uuid with
+         | None -> Eliom_reference.set Web_state.site_user (Some user)
+         | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
+       in
+       match%lwt f uuid a authenticate with
+       | Ok () -> get_cont `Login kind ()
+       | Error () -> restart_login ()
+     else
+       restart_login ()
+
+type pre_login_handler = auth_config -> state:string -> result Lwt.t
+
+let pre_login_handlers = ref []
+
+let get_pre_login_handler uuid kind a =
+  let%lwt state = generate_token () in
+  let%lwt () = Eliom_reference.set auth_env (Some (uuid, a, kind, state)) in
+  match List.assoc_opt a.auth_system !pre_login_handlers with
+  | Some handler -> handler a ~state
+  | None -> fail_http 404
+
+let register_pre_login_handler ~auth_system handler =
+  pre_login_handlers := (auth_system, handler) :: !pre_login_handlers;
+  run_post_login_handler ~auth_system
+
+let rec find_auth_instance x = function
+  | [] -> None
+  | { auth_instance = i; _ } as y :: _ when i = x -> Some y
+  | _ :: xs -> find_auth_instance x xs
 
 let login_handler service kind =
   let uuid = match kind with
@@ -116,8 +126,7 @@ let login_handler service kind =
           | Some x -> return x
           | None -> fail_http 404
         in
-        let cont = get_cont `Login kind in
-        get_pre_login_handler uuid cont a
+        get_pre_login_handler uuid kind a
      | None ->
         match c with
         | [s] -> Eliom_registration.(Redirection.send (Redirection (myself (Some s.auth_instance))))

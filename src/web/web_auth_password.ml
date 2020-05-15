@@ -82,8 +82,8 @@ let password_handler () (state, (name, password)) =
            check_password_with_file db name password
       in
       match ok with
-      | Some name -> authenticate name
-      | None -> fail_http 401
+      | Some name -> authenticate name >>= fun x -> return (Ok x)
+      | None -> return (Error ())
     )
 
 let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler

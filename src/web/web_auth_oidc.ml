@@ -125,8 +125,8 @@ let oidc_handler params () =
             in
             let%lwt () = Eliom_reference.unset oidc_config in
             (match%lwt oidc_get_name ocfg client_id client_secret code with
-             | Some name -> authenticate name
-             | None -> fail_http 401
+             | Some name -> authenticate name >>= fun x -> return (Ok x)
+             | None -> return (Error ())
             )
          | _, _ -> fail_http 503
        )

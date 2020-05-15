@@ -3336,6 +3336,20 @@ let login_password ~service ~allowsignups ~state =
   ] in
   base ~title:L.password_login ~content ()
 
+let login_failed ~service () =
+  let title = "Authentication failed" in
+  let content =
+    [
+      div [txt "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."];
+      div [
+          txt "You can ";
+          a ~service [txt "try to log in again"] ();
+          txt ".";
+        ];
+    ]
+  in
+  base ~title ~content ()
+
 let signup_captcha_img challenge =
   let src = make_uri ~service:signup_captcha_img challenge in
   img ~src ~alt:"CAPTCHA" ()

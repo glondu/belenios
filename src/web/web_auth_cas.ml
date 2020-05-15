@@ -90,11 +90,11 @@ let cas_handler (state, ticket) () =
       match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
       | Some x, Some server ->
          (match%lwt get_cas_validation server ~state x with
-          | `Yes (Some name) -> authenticate name
-          | `No -> fail_http 401
+          | `Yes (Some name) -> authenticate name >>= fun x -> return (Ok x)
+          | `No -> return (Error ())
           | `Yes None | `Error _ -> fail_http 502
          )
-      | None, _ -> return_unit
+      | None, _ -> return (Ok ())
       | _, None -> fail_http 503
     )
 

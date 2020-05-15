@@ -78,6 +78,13 @@ val login_choose :
 val login_dummy : state:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val login_password : service:string -> allowsignups:bool -> state:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
+val login_failed :
+  service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,
+                    [< `WithSuffix | `WithoutSuffix ], 'e, unit,
+                    Eliom_service.non_ocaml)
+                   Eliom_service.t ->
+  unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
 val signup_captcha : service:string -> captcha_error option -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val signup_changepw : service:string -> captcha_error option -> string -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val signup : string -> add_account_error option -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
