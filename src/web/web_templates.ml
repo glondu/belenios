@@ -586,6 +586,11 @@ let election_draft uuid se () =
         in
         div [
           div [txt "Credentials have already been generated!"];
+          div [
+              a ~service:election_draft_credential_authority [
+                  txt "Edit credential authority name";
+                ] uuid;
+            ];
           div_private_creds;
         ]
       ) else (
