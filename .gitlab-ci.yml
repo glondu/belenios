@@ -149,3 +149,5 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
     - python ./tests/test_clicker_monkey.py
     # Execute smart monkey testing
     - python ./tests/test_smart_monkey.py
+    # Execute test scenario 2 with a mix of normal voters and smart monkeys
+    - NUMBER_OF_INVITED_VOTERS=10 NUMBER_OF_VOTING_VOTERS=5 NUMBER_OF_MONKEY_VOTING_VOTERS=3 NUMBER_OF_VOTING_VOTERS_IN_FIRST_PART=1 NUMBER_OF_REVOTING_VOTERS=1 python ./tests/test_scenario_2_with_monkeys.py
