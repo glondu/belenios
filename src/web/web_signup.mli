@@ -35,6 +35,7 @@ type link_kind =
 val send_confirmation_link : service:string -> string -> unit Lwt.t
 val send_changepw_link : service:string -> address:string -> username:string -> unit Lwt.t
 
-val confirm_link : string -> (string * string * link_kind) option Lwt.t
+val confirm_link : string -> (string * string * string * link_kind) option Lwt.t
+val remove_link : string -> unit Lwt.t
 
 val cracklib_check : string -> string option Lwt.t

@@ -171,9 +171,12 @@ let confirm_link token =
   links := filter_links_by_time !links;
   match SMap.find_opt token !links with
   | None -> Lwt.return_none
-  | Some x ->
-     links := SMap.remove token !links;
-     Lwt.return_some (x.service, x.address, x.kind)
+  | Some x -> Lwt.return_some (token, x.service, x.address, x.kind)
+
+let remove_link token =
+  links := filter_links_by_time !links;
+  links := SMap.remove token !links;
+  Lwt.return_unit
 
 let cracklib =
   let x = "cracklib-check" in (x, [| x |])

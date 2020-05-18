@@ -2596,19 +2596,20 @@ let () =
     (fun () () ->
       match%lwt Eliom_reference.get Web_state.signup_env with
       | None -> forbidden ()
-      | Some (_, address, Web_signup.CreateAccount) -> T.signup address None ""
-      | Some (_, address, Web_signup.ChangePassword username) -> T.changepw ~username ~address None
+      | Some (_, _, address, Web_signup.CreateAccount) -> T.signup address None ""
+      | Some (_, _, address, Web_signup.ChangePassword username) -> T.changepw ~username ~address None
     )
 
 let () =
   Html.register ~service:signup_post
     (fun () (username, (password, password2)) ->
       match%lwt Eliom_reference.get Web_state.signup_env with
-      | Some (service, email, Web_signup.CreateAccount) ->
+      | Some (token, service, email, Web_signup.CreateAccount) ->
          if password = password2 then (
            let user = { user_name = username; user_domain = service } in
            match%lwt Web_auth_password.add_account user ~password ~email with
            | Ok () ->
+              let%lwt () = Web_signup.remove_link token in
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply site_login (Some service, ContSiteAdmin) in
               T.generic_page ~title:"Account creation" ~service "The account has been created." ()
@@ -2621,11 +2622,12 @@ let () =
   Html.register ~service:changepw_post
     (fun () (password, password2) ->
       match%lwt Eliom_reference.get Web_state.signup_env with
-      | Some (service, address, Web_signup.ChangePassword username) ->
+      | Some (token, service, address, Web_signup.ChangePassword username) ->
          if password = password2 then (
            let user = { user_name = username; user_domain = service } in
            match%lwt Web_auth_password.change_password user ~password with
            | Ok () ->
+              let%lwt () = Web_signup.remove_link token in
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply site_login (Some service, ContSiteAdmin) in
               T.generic_page ~title:"Change password" ~service "The password has been changed." ()
