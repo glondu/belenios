@@ -654,30 +654,64 @@ let election_draft uuid se () =
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
-let mail_trustee_generation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+let mail_trustee_generation_basic : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Dear trustee,
 
-You will find below the link to generate your private decryption key, used to tally the election.
+You will find below the link to generate your private decryption key,
+used to tally the election.
 
   %s
 
-Here's the instructions:
-1. click on the link
-2. click on \"generate a new key pair\"
-3. your private key will appear in another window or tab. Make sure
-   you SAVE IT properly otherwise it will not possible to tally and the
-   election will be canceled.
-4. in the first window, click on \"submit\" to send the public part of
-   your key, used encrypt the votes. For verification purposes, you
-   should save this part (that starts with {\"pok\":{\"challenge\":\") ), for
-   example sending yourself an email.
+Here are the instructions:
+1. Click on the link.
+2. Click on \"Generate a new key pair\".
+3. Download your private key. Make sure you SAVE IT properly otherwise
+   it will not be possible to tally and the election will be canceled.
+4. Save the fingerprint of your verification key. Once the election
+   is open, you must check that it is present in the set of verification
+   keys published by the server.
+5. Click on \"Submit\" to send your verification key, used to encrypt
+   the votes.
 
 Regarding your private key, it is crucial you save it (otherwise the
 election will be canceled) and store it securely (if your private key
 is known together with the private keys of the other trustees, then
 vote privacy is no longer guaranteed). We suggest two options:
-1. you may store the key on a USB stick and store it in a safe.
-2. Or you may simply print it and store it in a safe.
+1. you may store the key on a USB stick and store it in a safe;
+2. or you may simply print it and store it in a safe.
+Of course, more cryptographic solutions are welcome as well.
+
+Thank you for your help,
+
+-- \nThe election administrator."
+
+let mail_trustee_generation_threshold : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
+  "Dear trustee,
+
+You will find below the link to generate your private decryption key,
+used to tally the election.
+
+  %s
+
+Follow the instructions. There will be 3 steps. All trustees must have
+completed one step before you can proceed to the next one.
+
+Don't forget to save:
+1. your private key. Make sure you SAVE IT properly otherwise you will
+   not be able to participate to the tally and the election may be
+   canceled;
+3. the fingerprint of your public key;
+4. the fingerprint of your verification key.
+
+Once the election is open, you must check that the fingerprints of
+your two keys are present in the set of keys published by the server.
+
+Regarding your private key, it is crucial you save it (otherwise the
+election may be canceled) and store it securely (if your private key
+is known together with the private keys of the other trustees, then
+vote privacy is no longer guaranteed). We suggest two options:
+1. you may store the key on a USB stick and store it in a safe;
+2. or you may simply print it and store it in a safe.
 Of course, more cryptographic solutions are welcome as well.
 
 Thank you for your help,
@@ -734,7 +768,7 @@ let election_draft_trustees ?token uuid se () =
                          let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
                                                        ~absolute:true ~service:election_draft_trustee (uuid, t.st_token)
                          in
-                         let body = Printf.sprintf mail_trustee_generation uri in
+                         let body = Printf.sprintf mail_trustee_generation_basic uri in
                          let subject = "Link to generate the decryption key" in
                          a_mailto ~dest:t.st_id ~subject ~body "Mail"
                        ) else (
@@ -899,7 +933,7 @@ let election_draft_threshold_trustees ?token uuid se () =
                                      Eliom_uri.make_string_uri
                                        ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
                          in
-                         let body = Printf.sprintf mail_trustee_generation uri in
+                         let body = Printf.sprintf mail_trustee_generation_threshold uri in
                          let subject = "Link to generate the decryption key" in
                          a_mailto ~dest:t.stt_id ~subject ~body "Mail"
                        ];
