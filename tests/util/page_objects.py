@@ -268,6 +268,11 @@ class UnauthorizedPage(VerifiablePage):
         wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "h1", "Unauthorized", self.timeout)
 
 
+class GeneralLoginFailedPage(VerifiablePage):
+    def verify_page(self):
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "h1", "Authentication failed", self.timeout)
+
+
 class ServerHomePage(VerifiablePage):
     def verify_page(self):
         assert self.browser.current_url.endswith("/admin") is True # There seems to be no content-based way to test that we are on the server home page. Another test we could use is this one: `assert 'Election Server' in browser.title, "Browser title was: " + browser.title`
