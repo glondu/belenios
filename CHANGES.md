@@ -1,10 +1,16 @@
-1.11 (dev)
-==========
+1.11 (2020-05-25)
+=================
 
- * Update OCaml/Eliom stack to 4.08.1/6.10.1
+ * Update OCaml/Eliom stack to 4.08.1/6.12.0
+ * In `opam-bootstrap.sh`, enforce a specific revision of
+   opam-repository for reproducibility
  * Switch to unified trustees: handle trustees with a single kind of
    file `trustees.json` instead of previously `public_keys.jsons` or
    `threshold.json`
+ * Add monitoring scripts
+ * Documentation:
+   + Add _Who does what during a Belenios election?_ (in English and
+     French)
  * Command-line tool:
    + Add `mktrustees` command to generate `trustees.json` from one
      of the two previous files
@@ -12,13 +18,16 @@
      auditing an election
    + In `credgen`, do no longer generate file with individual public
      credential hashes
+   + Add `compute-voters` command to compute the voter list (to be
+     executed by the credential authority)
+   + Add `sha256-b64` command
  * Web client:
    + Use JavaScript's native BigInt when available
+   + Import SJCL sources for DFSG compliance
  * Web server:
    + Fix a vulnerability in the authentication system
    + Add a temporary automatic migration procedure of an election pool
      to unified trustees
-   + The encrypted tally hash is no longer displayed
    + Add public names to the election administrator and the credential
      authority (they are stored in `election.json`)
    + Add public names to trustees (they are stored in `trustees.json`)
@@ -26,6 +35,19 @@
    + Remove the possibility to replace a credential in a validated
      election
    + Add (much) more auditing data to election home
+   + Add the possibility to download private credentials in automatic
+     mode
+   + Voters must always log in to confirm their vote
+   + Export `shuffles.jsons` during the shuffling phase, show applied
+     shuffles even before the final result is released
+   + For alternative questions, offer a direct link to results instead
+     of giving a JS query
+   + Allow administrators to log in with their email address
+ * Tests:
+   + Load testing support:
+     - Add Selenium scripts to create and populate an election with
+       many voters
+   + Allow testing with a prepared database
 
 1.10 (2019-12-09)
 =================
