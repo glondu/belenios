@@ -165,7 +165,7 @@ class NormalVoteLoginPageState(StateForSmartMonkey):
             self.page.click_on_login_button()
             if self.form_is_filled_with_correct_data:
                 in_memory["voter_has_logged_in"] = True
-                return NormalVoteStep5PageState(self.browser, self.timeout, NormalVoteStep5PageState) # Previous state of step5 is step5 again, and if we go back again we arrive on ElectionHomePageState. Why is it not step3?
+                return NormalVoteStep5PageState(self.browser, self.timeout, NormalVoteLoginPageState)
             else:
                 return LoginFailedPageState(self.browser, self.timeout, NormalVoteLoginPageState)
 
