@@ -9,7 +9,7 @@ import hypothesis.strategies as st
 from hypothesis import settings as hypothesis_settings
 from distutils.util import strtobool
 from util.election_testing import console_log, wait_a_bit, initialize_server
-from util.page_objects import ServerHomePage, VoterLoginPage, GeneralLoginFailedPage, AdministrationHomeLoggedInPage
+from util.page_objects import ServerHomePage, VoterLoginPage, LoginFailedPage, AdministrationHomeLoggedInPage
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
 import settings
 
@@ -65,7 +65,7 @@ class BeleniosMonkeyTestFuzzLogin(BeleniosTestElectionScenario2Base):
         login_page.log_in(username, password)
 
         try:
-            unauthorized_page = GeneralLoginFailedPage(browser, timeout)
+            unauthorized_page = LoginFailedPage(browser, timeout)
             unauthorized_page.verify_page()
         except Exception:
             administration_page = AdministrationHomeLoggedInPage(browser, timeout)

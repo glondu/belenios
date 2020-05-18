@@ -268,9 +268,13 @@ class UnauthorizedPage(VerifiablePage):
         wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "h1", "Unauthorized", self.timeout)
 
 
-class GeneralLoginFailedPage(VerifiablePage):
+class LoginFailedPage(VerifiablePage, ClickableLogoPage):
     def verify_page(self):
         wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "h1", "Authentication failed", self.timeout)
+
+
+    def click_on_try_to_log_in_again_link(self):
+        self.click_on_link_with_expected_label("try to log in again")
 
 
 class ServerHomePage(VerifiablePage):

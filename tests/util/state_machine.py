@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 from util.monkeys import SeleniumFormFillerMonkey, StateForSmartMonkey
-from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page, BallotBoxPage, UnauthorizedPage, ServerHomePage, AdvancedModeVotePage
+from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page, BallotBoxPage, UnauthorizedPage, ServerHomePage, AdvancedModeVotePage, LoginFailedPage
 from util.execution import console_log
 
 
@@ -135,10 +135,7 @@ class NormalVoteStep3PageState(StateForSmartMonkey):
         def click_on_continue_button(in_memory):
             self.save_smart_ballot_tracker_value(in_memory)
             self.page.click_on_continue_button()
-            if in_memory.get('voter_has_logged_in', False):
-                return NormalVoteStep5PageState(self.browser, self.timeout, NormalVoteStep1PageState) # Why previous state of step5 is not step3? (or login step?)
-            else:
-                return NormalVoteLoginPageState(self.browser, self.timeout, NormalVoteStep1PageState) # Why previous state of login step (which is the fourth step) is not step3?
+            return NormalVoteLoginPageState(self.browser, self.timeout, NormalVoteStep1PageState) # Why previous state of login step (which is the fourth step) is not step3?
 
         return [
             click_on_restart_button,
@@ -170,7 +167,7 @@ class NormalVoteLoginPageState(StateForSmartMonkey):
                 in_memory["voter_has_logged_in"] = True
                 return NormalVoteStep5PageState(self.browser, self.timeout, NormalVoteStep5PageState) # Previous state of step5 is step5 again, and if we go back again we arrive on ElectionHomePageState. Why is it not step3?
             else:
-                return UnauthorizedPageState(self.browser, self.timeout, NormalVoteLoginPageState)
+                return LoginFailedPageState(self.browser, self.timeout, NormalVoteLoginPageState)
 
         def click_on_logo_image(in_memory=None):
             self.page.click_on_logo_image()
@@ -224,6 +221,27 @@ class UnauthorizedPageState(StateForSmartMonkey):
 
     def get_all_possible_actions(self):
         return []
+
+
+class LoginFailedPageState(StateForSmartMonkey):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.page = LoginFailedPage(self.browser, self.timeout)
+
+
+    def get_all_possible_actions(self):
+        def click_on_logo_image(in_memory=None):
+            self.page.click_on_logo_image()
+            return ServerHomePageState(self.browser, self.timeout, LoginFailedPageState)
+
+        def click_on_try_to_log_in_again_link(in_memory=None):
+            self.page.click_on_try_to_log_in_again_link()
+            return NormalVoteLoginPageState(self.browser, self.timeout, NormalVoteLoginPageState)
+
+        return [
+            click_on_logo_image,
+            click_on_try_to_log_in_again_link,
+        ]
 
 
 class ServerHomePageState(StateForSmartMonkey):
