@@ -173,8 +173,8 @@ class NormalVoteStep2Page(NormalVoteGenericStepPage):
         voter_vote_to_question_1_answer_1 = vote_data["question1"]["answer1"]
         voter_vote_to_question_1_answer_2 = vote_data["question1"]["answer2"]
         if question1_answer1_element.get_attribute('type') == 'checkbox':
-            voter_vote_to_question_1_answer_1_is_checked = question1_answer1_element.get_attribute('checked')
-            voter_vote_to_question_1_answer_2_is_checked = question1_answer2_element.get_attribute('checked')
+            voter_vote_to_question_1_answer_1_is_checked = question1_answer1_element.is_selected()
+            voter_vote_to_question_1_answer_2_is_checked = question1_answer2_element.is_selected()
             if voter_vote_to_question_1_answer_1 and not voter_vote_to_question_1_answer_1_is_checked:
                 question1_answer1_element.click()
             if not voter_vote_to_question_1_answer_1 and voter_vote_to_question_1_answer_1_is_checked:
