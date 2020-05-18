@@ -218,13 +218,14 @@ class StateForSmartMonkey():
 
 
 class SmartMonkeyWithMemoryAndKnownStateMachine():
-    def __init__(self, initial_state, in_memory=None, probability_to_go_back=0.15):
+    def __init__(self, initial_state, in_memory=None, probability_to_go_back=0.15, verbose=False):
         self.current_state = initial_state
         self.probability_to_go_back = probability_to_go_back
         if in_memory:
             self.in_memory = in_memory
         else:
             self.in_memory = dict()
+        self.verbose = verbose
 
 
     def get_memory(self):
@@ -240,7 +241,8 @@ class SmartMonkeyWithMemoryAndKnownStateMachine():
 
 
     def go_back(self):
-        console_log("Trying to go back")
+        if self.verbose:
+            console_log("Trying to go back")
         try:
             self.current_state = self.current_state.go_back()
         except Exception as e:
@@ -255,13 +257,16 @@ class SmartMonkeyWithMemoryAndKnownStateMachine():
                 console_log("Failed going back. Trying something else. Exception was:", e)
 
         possible_actions = self.current_state.get_all_possible_actions()
-        console_log("possible_actions:", [action.__name__ for action in possible_actions])
+        if self.verbose:
+            console_log("possible_actions:", [action.__name__ for action in possible_actions])
         if len(possible_actions):
             random_action = random.choice(possible_actions)
-            console_log("action picked at random:", random_action.__name__)
+            if self.verbose:
+                console_log("action picked at random:", random_action.__name__)
             self.current_state = random_action(in_memory=self.in_memory)
         else:
-            console_log("List of possible actions is empty. Trying to go back")
+            if self.verbose:
+                console_log("List of possible actions is empty. Trying to go back")
             try:
                 self.go_back()
                 return
