@@ -7,12 +7,13 @@ import sys
 from distutils.util import strtobool
 from util.election_testing import verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters
 from util.execution import console_log, ConsoleLogDuration
-from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
+from test_scenario_2 import initialize_browser_for_scenario_2
+from test_fuzz_vote import BeleniosTestElectionWithCreationBase
 from test_smart_monkey import smart_monkey_votes
 import settings
 
 
-class BeleniosTestElectionScenario2WithMonkeys(BeleniosTestElectionScenario2Base):
+class BeleniosTestElectionScenario2WithMonkeys(BeleniosTestElectionWithCreationBase):
 
     def test_scenario_2_manual_vote_with_monkeys(self):
         console_log("### Running test method BeleniosTestElectionScenario2WithMonkeys::test_scenario_2_manual_vote_with_monkeys()")
@@ -34,7 +35,9 @@ class BeleniosTestElectionScenario2WithMonkeys(BeleniosTestElectionScenario2Base
         with ConsoleLogDuration("### verify_election_consistency using `belenios_tool verify` (#0)"):
             verify_election_consistency(self.election_id)
 
+        self.voters_data = {} # We reset this (set by `BeleniosTestElectionWithCreationBase`) because we generate voters data in several parts
         voters_who_will_vote = random.sample(self.voters_email_addresses, settings.NUMBER_OF_VOTING_VOTERS)
+        console_log("voters who will vote:", voters_who_will_vote)
         start_index_of_voters_who_vote_in_first_part = 0
         end_index_of_voters_who_vote_in_first_part = settings.NUMBER_OF_VOTING_VOTERS_IN_FIRST_PART
         console_log(f"number of (normal) voters who will vote in first part: {end_index_of_voters_who_vote_in_first_part} (indexes {start_index_of_voters_who_vote_in_first_part} included to {end_index_of_voters_who_vote_in_first_part} excluded)")
@@ -55,6 +58,7 @@ class BeleniosTestElectionScenario2WithMonkeys(BeleniosTestElectionScenario2Base
             voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, smart_monkey_voters_who_will_vote_now, settings.ELECTION_TITLE)
             voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
             self.update_voters_data(voters_who_will_vote_now_data)
+
             for idx, voter in enumerate(voters_who_will_vote_now_data):
                 console_log(f"#### Voting as smart monkey {idx+1} of {settings.NUMBER_OF_MONKEY_VOTING_VOTERS}")
                 voter_email_address = voter["email_address"]
@@ -115,9 +119,14 @@ if __name__ == "__main__":
     console_log("Python random seed being used:", random_seed)
     random.seed(random_seed)
 
+    settings.SERVER_URL = os.getenv('SERVER_URL', settings.SERVER_URL)
+    if os.getenv('START_SERVER', None):
+        settings.START_SERVER = bool(strtobool(os.getenv('START_SERVER')))
+
     if os.getenv('USE_HEADLESS_BROWSER', None):
         settings.USE_HEADLESS_BROWSER = bool(strtobool(os.getenv('USE_HEADLESS_BROWSER')))
 
+    settings.FAKE_SENT_EMAILS_FILE_RELATIVE_URL = os.getenv('FAKE_SENT_EMAILS_FILE_RELATIVE_URL', "static/mail.txt")
     settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     settings.WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', settings.WAIT_TIME_BETWEEN_EACH_STEP))
 
@@ -145,7 +154,10 @@ if __name__ == "__main__":
     settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = os.getenv('CREDENTIAL_AUTHORITY_EMAIL_ADDRESS', settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)
     # TODO: settings.TRUSTEES_EMAIL_ADDRESSES (it cannot be manipulated the same way because it is an array)
 
+    console_log("SERVER_URL:", settings.SERVER_URL)
+    console_log("START_SERVER:", settings.START_SERVER)
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
+    console_log("FAKE_SENT_EMAILS_FILE_RELATIVE_URL:", settings.FAKE_SENT_EMAILS_FILE_RELATIVE_URL)
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
     console_log("EXPLICIT_WAIT_TIMEOUT:", settings.EXPLICIT_WAIT_TIMEOUT)
