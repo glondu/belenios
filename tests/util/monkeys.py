@@ -245,14 +245,17 @@ class SmartMonkeyWithMemoryAndKnownStateMachine():
             console_log("Trying to go back")
         try:
             self.current_state = self.current_state.go_back()
+            return "go_back"
         except Exception as e:
             raise Exception("Failed going back.") from e
 
     def execute_a_random_action(self):
+        """
+        Returns the name of the action which has been randomly chosen and executed.
+        """
         if random.random() < self.probability_to_go_back:
             try:
-                self.go_back()
-                return
+                return self.go_back()
             except Exception as e:
                 console_log("Failed going back. Trying something else. Exception was:", e)
 
@@ -264,12 +267,12 @@ class SmartMonkeyWithMemoryAndKnownStateMachine():
             if self.verbose:
                 console_log("action picked at random:", random_action.__name__)
             self.current_state = random_action(in_memory=self.in_memory)
+            return random_action.__name__
         else:
             if self.verbose:
                 console_log("List of possible actions is empty. Trying to go back")
             try:
-                self.go_back()
-                return
+                return self.go_back()
             except Exception as e:
                 raise Exception("Cannot execute a random action, because list of posible actions is empty, and cannot go back.") from e
 

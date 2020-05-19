@@ -37,7 +37,8 @@ def smart_monkey_votes(browser, timeout, election_url, voter_username, voter_pas
         current_iteration += 1
         console_log(f"executing action number {current_iteration}")
         try:
-            smart_monkey.execute_a_random_action()
+            executed_action = smart_monkey.execute_a_random_action()
+            console_log(f"executed action was: {executed_action}")
         except Exception as e:
             console_log(f"Exception while executing `smart_monkey.execute_a_random_action()`. Page state was {smart_monkey.current_state} and exception was: {repr(e)}")
             time.sleep(10)
