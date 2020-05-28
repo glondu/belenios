@@ -584,13 +584,19 @@ let election_draft uuid se () =
               ]
           else txt ""
         in
+        let div_edit_credential_authority_name =
+          if cred_auth_is_server then
+            txt ""
+          else
+            div [
+                a ~service:election_draft_credential_authority [
+                    txt "Edit credential authority name";
+                  ] uuid;
+              ]
+        in
         div [
           div [txt "Credentials have already been generated!"];
-          div [
-              a ~service:election_draft_credential_authority [
-                  txt "Edit credential authority name";
-                ] uuid;
-            ];
+          div_edit_credential_authority_name;
           div_private_creds;
         ]
       ) else (

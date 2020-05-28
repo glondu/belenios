@@ -554,10 +554,13 @@ let () =
       with_draft_election uuid (fun se ->
           let service = Eliom_service.preapply election_draft_credential_authority uuid in
           match (
-            match name with
-            | "" -> Ok None
-            | "server" -> Error ("Invalid public name for credential authority!")
-            | x -> Ok (Some x)
+            if se.se_metadata.e_cred_authority = Some "server" then
+              Error "You cannot set the credential authority for this election!"
+            else
+              match name with
+              | "" -> Ok None
+              | "server" -> Error "Invalid public name for credential authority!"
+              | x -> Ok (Some x)
           ) with
           | Ok e_cred_authority ->
              se.se_metadata <- {se.se_metadata with e_cred_authority};
