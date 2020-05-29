@@ -11,7 +11,7 @@
 \usepackage{xcolor}
 \usepackage{placeins}
 
-\newcommand{\version}{1.10}
+\newcommand{\version}{1.11}
 
 \newcommand{\F}{\mathbbm{F}}
 \newcommand{\G}{\mathbbm{G}}
@@ -413,7 +413,7 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
   \right\}
 \end{gather*}
 
-\subsection{Trustee keys}
+\subsection{Verification keys}
 \label{trustee-keys}
 
 \begin{gather*}
@@ -449,6 +449,7 @@ number. The proof is verified as follows:
 \end{enumerate}
 
 \subsection{Messages specific to threshold decryption support}
+\label{threshold}
 
 \subsubsection{Public key infrastructure}
 \label{pki}
@@ -743,6 +744,37 @@ The administrator fills it as follows:
   $\textsf{public\_key}(\textsf{vo}_1),\dotsc,\textsf{public\_key}(\textsf{vo}_m)$
 \end{itemize}
 
+\subsection{Trustees}
+\label{trustees}
+
+\begin{gather*}
+  \texttt{trustees}=\texttt{trustee\_kind}^\ast\\
+  \texttt{trustee\_kind}=
+  [\texttt{"Single"},\texttt{trustee\_public\_key}]\mid
+  [\texttt{"Pedersen"},\texttt{threshold\_parameters}]
+\end{gather*}
+
+A $\texttt{trustees}$ structure is associated to each election. Such a
+structure is a list of either a single verification key as described in
+section~\ref{trustee-keys}, or threshold parameters as described in
+section~\ref{threshold}.  Each item describes how a partial decryption
+is computed: either a specific (mandatory) verification key is used to
+compute a share, or a subset of a set of (optional) verification keys
+are used to compute a share.
+
+The generality of this definition allows to mix mandatory and optional
+trustees during decryption. For example, in an election with 3
+mandatory trustees, the $\texttt{trustees}$ structure will look like:
+\[
+  [[\texttt{"Single"},\dotsc],[\texttt{"Single"},\dotsc],[\texttt{"Single"},\dotsc]]
+\]
+and in an election where only one trustee is mandatory, and a subset
+of another set of trustees (with a threshold) is needed to decrypt the
+result, will have a $\texttt{trustees}$ structure that looks like:
+\[
+  [[\texttt{"Single"},\dotsc],[\texttt{"Pedersen"},\dotsc]]
+\]
+
 \subsection{Credentials}
 \label{credentials}
 
@@ -903,13 +935,12 @@ group parameters in a \texttt{wrapped\_pk} structure. The
 non-homomorphic question; its meaning will be explained in
 section~\ref{nh-answers}.
 
-During an election, the following data needs to be public in order to
+During an election, the following data need to be public in order to
 verify the setup phase and to validate ballots:
 \begin{itemize}
 \item the $\election$ structure described above;
-\item all the $\tpk$s, or the
-  $\texttt{threshold\_parameters}$, that were generated during the
-  \hyperref[election-setup]{setup phase};
+\item the $\texttt{trustees}$ structure described in
+  section~\ref{trustees};
 \item the set $L$ of public credentials.
 \end{itemize}
 
