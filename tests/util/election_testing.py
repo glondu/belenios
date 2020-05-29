@@ -8,69 +8,11 @@ import shutil
 import subprocess
 import re
 import json
-from functools import partial, wraps
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, wait_for_element_exists_and_attribute_contains_expected_text
+from util.execution import console_log
 import settings
-
-
-def console_log(*args, **kwargs):
-    print(*args, **kwargs, flush=True)
-
-
-class PrintDuration:
-    """
-    Prints time elapsed during an operation. Prints title of the operation, when its execution starts and ends. When it ends, it also prints the total time elapsed between start and end.
-    This class is meant to be used as a With Statement Context Manager. Here is an example:
-    ```
-    with PrintDuration("My task"):
-        calling_a_function(parameters)
-    ```
-    """
-    def __init__(self, title=None, print_function=None):
-        self.title = title or "Operation"
-        if print_function is None:
-            self.print_function = print
-        else:
-            self.print_function = print_function
-
-    def __enter__(self):
-        self.timing1 = time.perf_counter()
-        self.print_function(self.title + ": Starting execution")
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        timing2 = time.perf_counter()
-        self.print_function(self.title + ": Execution complete. Duration: " + str(timing2 - self.timing1) + " seconds")
-
-
-"""
-A particular case of PrintDuration, which uses `console_log()` as its `print_function`.
-This class is meant to be used as a With Statement Context Manager. Here is an example:
-```
-with ConsoleLogDuration("My task"):
-    calling_a_function(parameters)
-```
-"""
-ConsoleLogDuration = partial(PrintDuration, print_function=console_log)
-
-
-def try_several_times(max_attempts):
-    def decorator_try_several_times(func):
-        @wraps(func)
-        def wrapper_try_several_times(*args, **kwargs):
-            current_attempt = 1
-            while(current_attempt <= max_attempts):
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    console_log(f"Attempt {current_attempt} failed. Error was:", e)
-                    current_attempt += 1
-                    time.sleep(1)
-            if current_attempt > max_attempts:
-                raise Exception(f"Error. Failed after {current_attempt-1} attempts.")
-        return wrapper_try_several_times
-    return decorator_try_several_times
 
 
 def random_email_addresses_generator(size=20):
@@ -88,12 +30,12 @@ def random_generator(size=20, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
 
-# Yield successive n-sized 
-# chunks from l. 
-def divide_chunks(l, n): 
-    # looping till length l 
-    for i in range(0, len(l), n):  
-        yield l[i:i + n] 
+# Yield successive n-sized
+# chunks from l.
+def divide_chunks(l, n):
+    # looping till length l
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
 
 
 def populate_credential_and_password_for_voters_from_sent_emails(fake_sent_emails_manager, voters_email_addresses, election_title):
@@ -296,10 +238,12 @@ def initialize_server():
 def initialize_browser(for_scenario_2=False):
     browser = None
 
+    profile = webdriver.FirefoxProfile()
+    profile.set_preference("intl.accept_languages", "en-us")
+
     if for_scenario_2:
         # Test Scenario 2 requires users to download things from their browser.
         # Define a custom profile for Firefox, to automatically download files that a page asks user to download, without asking. This is because Selenium can't control downloads.
-        profile = webdriver.FirefoxProfile()
         profile.set_preference('browser.download.folderList', 2) # Can be set to either 0, 1, or 2. When set to 0, Firefox will save all files downloaded via the browser on the user's desktop. When set to 1, these downloads are stored in the Downloads folder. When set to 2, the location specified for the most recent download is utilized again.
         profile.set_preference('browser.download.manager.showWhenStarting', False)
         profile.set_preference('browser.download.dir', settings.BROWSER_DOWNLOAD_FOLDER)
@@ -311,15 +255,9 @@ def initialize_browser(for_scenario_2=False):
         options = Options()
         options.add_argument("--headless")
         options.log.level = "trace"
-        if for_scenario_2:
-            browser = webdriver.Firefox(profile, options=options)
-        else:
-            browser = webdriver.Firefox(options=options)
+        browser = webdriver.Firefox(profile, options=options)
     else:
-        if for_scenario_2:
-            browser = webdriver.Firefox(profile)
-        else:
-            browser = webdriver.Firefox()
+        browser = webdriver.Firefox(profile)
         # browser.maximize_window() # make the browser window use all available screen space. FIXME: When enabled, some clicks are not triggered anymore
     browser.implicitly_wait(settings.WAIT_TIME_BETWEEN_EACH_STEP) # In seconds
     return browser
@@ -336,6 +274,10 @@ def election_page_url_to_election_id(election_page_url):
     else:
         raise Exception("Could not extract UUID from this election page URL: ", election_page_url)
     return election_uuid
+
+
+def election_id_to_election_home_page_url(election_id):
+    return "/".join([settings.SERVER_URL, "elections", election_id, ""])
 
 
 def admin_election_draft_page_url_to_election_id(election_page_url):
@@ -439,8 +381,8 @@ def belenios_tool_generate_ballots(voters_data, global_credential_file_id, vote_
         try:
             with open(voter_uncrypted_ballot_file, 'w') as myfile:
                 myfile.write(voter_uncrypted_ballot_content)
-        except:
-            raise Exception("Error: Could not write voter's answers (his uncrypted ballot) to a file")
+        except Exception as e:
+            raise Exception("Error: Could not write voter's answers (his uncrypted ballot) to a file.") from e
 
         # Execute belenios-tool to generate a vote ballot for voter
         voter_crypted_ballot_file = "voter_row_" + str(i) + "_crypted_ballot.json"
@@ -459,7 +401,6 @@ def convert_voter_votes_to_json_uncrypted_ballot(voter):
     answer1 = 1 if voter["votes"]["question1"]["answer1"] is True else 0
     answer2 = 1 if voter["votes"]["question1"]["answer2"] is True else 0
     return [[answer1, answer2]]
-
 
 
 def create_election_data_snapshot(election_id):

@@ -7,6 +7,7 @@ from enum import Enum, unique
 SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
 SERVER_URL = "http://localhost:8001"
 START_SERVER = False
+ELECTION_ID = None
 DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY = "_run/spool"
 FAKE_SENDMAIL_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "tests/tools/sendmail_fake.sh"
 SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = "/tmp/sendmail_fake"
@@ -17,6 +18,8 @@ EXPLICIT_WAIT_TIMEOUT = 30 # In seconds. Maximum duration Selenium driver will w
 
 NUMBER_OF_INVITED_VOTERS = 20 # This is N in description of Scenario 1. N is between 6 (quick test) and 1000 (load testing)
 NUMBER_OF_VOTING_VOTERS = 10 # This is K in description of Scenario 1. K is between 6 (quick test) and 1000 (load testing). K <= N. (Some invited voters don't vote, this is abstention, and its value is N - K)
+NUMBER_OF_MONKEY_VOTING_VOTERS = 4 # In test `test_scenario_2_with_monkeys.py`, this is the number of voters who will act as smart monkeys (who complete their vote). This set of users are part of the bigger set NUMBER_OF_VOTING_VOTERS, so NUMBER_OF_MONKEY_VOTING_VOTERS <= NUMBER_OF_VOTING_VOTERS. If NUMBER_OF_MONKEY_VOTING_VOTERS > 0, then its value must make result the of `(NUMBER_OF_VOTING_VOTERS - NUMBER_OF_MONKEY_VOTING_VOTERS) / 2` be an integer.
+NUMBER_OF_VOTING_VOTERS_IN_FIRST_PART = 3 # In test `test_scenario_2_with_monkeys.py`, this is the number of non-monkey voters who will vote at first. Then NUMBER_OF_MONKEY_VOTING_VOTERS monkeys vote. Then (NUMBER_OF_VOTING_VOTERS - NUMBER_OF_VOTING_VOTERS_IN_FIRST_PART - NUMBER_OF_MONKEY_VOTING_VOTERS) vote.
 NUMBER_OF_REVOTING_VOTERS = 5 # This is L in description of Scenario 1. L <= K
 NUMBER_OF_REGENERATED_PASSWORD_VOTERS = 4 # This is M in description of Scenario 1. M <= K
 ELECTION_TITLE = "My test election for Scenario 1"
@@ -34,6 +37,7 @@ GENERATED_FILES_DESTINATION_FOLDER = join(GIT_REPOSITORY_ABSOLUTE_PATH, "_testda
 class CLEAN_UP_POLICIES(Enum):
     REMOVE_DATABASE = "REMOVE_DATABASE"
     REMOVE_ELECTION = "REMOVE_ELECTION"
+    DO_NOTHING = "DO_NOTHING"
 
 
 CLEAN_UP_POLICY = CLEAN_UP_POLICIES.REMOVE_DATABASE
