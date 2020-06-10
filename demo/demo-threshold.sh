@@ -53,6 +53,10 @@ for u in *.key; do
 done
 cat *.voutput | ttkeygen --certs certs.jsons --step 6 --polynomials polynomials.jsons > threshold.json
 
+# Generate mandatory (server) key
+belenios-tool trustee-keygen $group
+cat *.pubkey > public_keys.jsons
+
 # Generate trustee parameters
 belenios-tool mktrustees
 rm threshold.json
@@ -89,13 +93,20 @@ head -n3 ballots.jsons > "$tdir/ballots.jsons"
 belenios-tool verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"
 
-header "Perform decryption"
+header "Perform decryption (threshold)"
 
 for u in *.key; do
     belenios-tool threshold-decrypt --key $u --decryption-key ${u%.key}.dkey
     echo >&2
 done > partial_decryptions.tmp
 head -n2 partial_decryptions.tmp > partial_decryptions.jsons
+
+header "Perform decryption (mandatory)"
+
+for u in *.privkey; do
+    belenios-tool decrypt --privkey $u
+    echo >&2
+done >> partial_decryptions.jsons
 
 header "Finalize tally"
 

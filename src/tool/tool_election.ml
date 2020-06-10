@@ -278,12 +278,16 @@ module Make (P : PARSED_PARAMS) : S = struct
     let pvk = G.(g **~ pdk) in
     (match trustees with
      | None -> print_msg "W: trustees are missing"
-     | Some [`Pedersen t] ->
-        if Array.forall (fun x ->
-               not G.(x.trustee_public_key =~ pvk)
-             ) t.t_verification_keys then
-          print_msg "W: your key is not present in threshold parameters"
-     | Some _ -> print_msg "W: trustees are not supported"
+     | Some ts ->
+        if not @@ List.exists
+                    (function
+                     | `Single _ -> false
+                     | `Pedersen t ->
+                        Array.exists
+                          (fun x -> G.(x.trustee_public_key =~ pvk))
+                          t.t_verification_keys
+                    ) ts
+        then print_msg "W: your key is not present in threshold parameters"
     );
     let tally, _ = Lazy.force encrypted_tally in
     let factor = E.compute_factor tally pdk in

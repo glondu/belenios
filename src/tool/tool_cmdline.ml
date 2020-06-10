@@ -672,20 +672,25 @@ module Mktrustees : CMDLINER_MODULE = struct
           if Sys.file_exists fn then Some (string_of_file fn) else None
         in
         let get_trustees () =
-          match get_threshold () with
-          | Some t ->
-             t
-             |> threshold_parameters_of_string Yojson.Safe.read_json
-             |> (fun x -> [`Pedersen x])
-             |> string_of_trustees Yojson.Safe.write_json
-          | None ->
-             match get_public_keys () with
-             | None -> failwith "trustees are missing"
-             | Some t ->
-                t
-                |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
-                |> List.map (fun x -> `Single x)
-                |> string_of_trustees Yojson.Safe.write_json
+          let singles =
+            match get_public_keys () with
+            | None -> []
+            | Some t ->
+               t
+               |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+               |> List.map (fun x -> `Single x)
+          in
+          let pedersens =
+            match get_threshold () with
+            | None -> []
+            | Some t ->
+               t
+               |> threshold_parameters_of_string Yojson.Safe.read_json
+               |> (fun x -> [`Pedersen x])
+          in
+          match singles @ pedersens with
+          | [] -> failwith "trustees are missing"
+          | trustees -> string_of_trustees Yojson.Safe.write_json trustees
         in
         let trustees = get_trustees () in
         let oc = open_out (dir / "trustees.json") in
@@ -698,7 +703,7 @@ module Mktrustees : CMDLINER_MODULE = struct
     let doc = "create a trustee parameter file" in
     let man = [
       `S "DESCRIPTION";
-      `P "This command reads $(i,public_keys.jsons) (or $(i,threshold.json) if it exists). It then generates an $(i,trustees.json) file.";
+      `P "This command reads $(i,public_keys.jsons) and $(i,threshold.json) (if any). It then generates an $(i,trustees.json) file.";
     ] @ common_man in
     Term.(ret (pure main $ dir_t)),
     Term.info "mktrustees" ~doc ~man
