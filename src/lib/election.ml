@@ -311,30 +311,32 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
     |> List.map
          (function
           | `Single k -> [tc_of_tpk k]
-          | `Pedersen p -> List.map tc_of_tpk (Array.to_list p.t_verification_keys)
+          | `Pedersen _ -> []
          )
     |> List.flatten
   in
-  let ec_pki =
-    List.fold_left
-      (fun accu t ->
-        match t with
-        | `Single _ -> accu
-        | `Pedersen p ->
-           (
-             List.combine (Array.to_list p.t_verification_keys) (Array.to_list p.t_certs)
-             |> List.map
-                  (fun (k, x) ->
-                    {
-                      tc_name = k.trustee_name;
-                      tc_checksum = sha256_b64 x.s_message;
-                    }
-                  )
-           ) :: accu
-      ) [] trustees
-    |> List.rev
+  let ec_trustees_threshold =
+    trustees
+    |> List.map
+         (function
+          | `Single _ -> []
+          | `Pedersen p ->
+             let ts_trustees =
+               List.combine (Array.to_list p.t_verification_keys) (Array.to_list p.t_certs)
+               |> List.map
+                    (fun (key, cert) ->
+                      {
+                        ttc_name = key.trustee_name;
+                        ttc_pki_key = sha256_b64 cert.s_message;
+                        ttc_verification_key =
+                          sha256_b64 (Yojson.Safe.to_string key.trustee_public_key);
+                      }
+                    )
+             in
+             [{ ts_trustees; ts_threshold = p.t_threshold }]
+         )
     |> List.flatten
-    |> (fun x -> if x = [] then None else Some x)
+    |> (fun x -> Some x)
   in
   let combine shuffles shufflers =
     match shuffles, shufflers with
@@ -371,6 +373,6 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
        combine result.shuffles result.shufflers, Some (sha256_b64 tally)
   in
   {
-    ec_election; ec_pki; ec_trustees;
+    ec_election; ec_pki = None; ec_trustees; ec_trustees_threshold;
     ec_public_credentials; ec_shuffles; ec_encrypted_tally
   }

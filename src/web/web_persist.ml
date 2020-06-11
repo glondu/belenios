@@ -695,17 +695,11 @@ let compute_audit_cache uuid =
        Election.compute_checksums ~election result_or_shuffles
          ~trustees ~public_credentials
      in
-     let trustees = trustees_of_string Yojson.Safe.read_json trustees in
-     let cache_threshold =
-       match trustees with
-       | [`Pedersen t] -> Some t.t_threshold
-       | _ -> None
-     in
      return {
          cache_num_voters;
          cache_voters_hash;
          cache_checksums;
-         cache_threshold;
+         cache_threshold = None;
        }
 
 let get_audit_cache uuid =
@@ -717,8 +711,8 @@ let get_audit_cache uuid =
     | _ -> return_none
   in
   match cache with
-  | Some x -> return x
-  | None ->
+  | Some x when x.cache_checksums.ec_trustees_threshold <> None -> return x
+  | _ ->
      let%lwt cache = compute_audit_cache uuid in
      let%lwt () = write_file ~uuid "audit_cache.json" [string_of_audit_cache cache] in
      return cache

@@ -146,10 +146,22 @@ type trustee_checksum = {
   ?name : string option;
 } <ocaml field_prefix="tc_">
 
+type trustee_threshold_checksum = {
+  pki_key : string;
+  verification_key : string;
+  ?name : string option
+} <ocaml field_prefix="ttc_">
+
+type trustee_threshold_set = {
+  trustees : trustee_threshold_checksum list;
+  threshold : int;
+} <ocaml field_prefix="ts_">
+
 type election_checksums = {
   election : string;
   ?pki : trustee_checksum list option;
   trustees : trustee_checksum list;
+  ?trustees_threshold : trustee_threshold_set list option;
   public_credentials : string;
   ?shuffles : trustee_checksum list option;
   ?encrypted_tally : string option;

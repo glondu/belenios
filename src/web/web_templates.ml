@@ -2176,12 +2176,6 @@ let election_home election state () =
   in
   let%lwt cache = Web_persist.get_audit_cache uuid in
   let checksums = cache.cache_checksums in
-  let num_trustees = List.length checksums.ec_trustees in
-  let threshold =
-    match cache.cache_threshold with
-    | None -> num_trustees
-    | Some x -> x
-  in
   let div_admin =
     div [
         Printf.ksprintf txt
@@ -2211,32 +2205,47 @@ let election_home election state () =
           ) xs
       )
   in
-  let div_pki =
-    match checksums.ec_pki with
-    | None -> txt ""
-    | Some xs ->
+  let div_trustees_mandatory =
+    match checksums.ec_trustees with
+    | [] -> txt ""
+    | l ->
        div [
-           txt "The ";
-           b [txt "public keys"];
-           txt " of trustees are the following ones:";
-           format_tc "pki" xs;
+           txt "All of the following trustees (";
+           b [txt "verification keys"];
+           txt ") are needed to decrypt the result:";
+           format_tc "trustees" l;
          ]
   in
-  let div_trustees =
-    div [
-        Printf.ksprintf txt
-          "%d of %d trustee(s) are needed to decrypt the election result."
-          threshold num_trustees;
-      ]
+  let format_ttc className xs =
+    ul ~a:[a_class [className]] (
+        List.map
+          (fun x ->
+            let name = Option.get x.ttc_name "N/A" in
+            li [
+                Printf.ksprintf txt "%s (%s) [%s]"
+                  name x.ttc_verification_key x.ttc_pki_key
+              ]
+          ) xs
+      )
   in
-  let div_verification =
-    div [
-        txt "The ";
-        b [txt "verification keys"];
-        txt " of trustees are the following ones:";
-        format_tc "trustees" checksums.ec_trustees;
-      ]
+  let divs_trustees_threshold =
+    match checksums.ec_trustees_threshold with
+    | None -> []
+    | Some l ->
+       List.map
+         (fun x ->
+           div [
+               Printf.ksprintf txt "%d of the following %d trustees ("
+                 x.ts_threshold (List.length x.ts_trustees);
+               b [txt "verification keys"];
+               txt ") [";
+               b [txt "public keys"];
+               txt "] are needed to decrypt the election result:";
+               format_ttc "trustees_threshold" x.ts_trustees;
+             ]
+         ) l
   in
+  let div_trustees = div (div_trustees_mandatory :: divs_trustees_threshold) in
   let div_credentials =
     div [
         Printf.ksprintf txt
@@ -2269,8 +2278,6 @@ let election_home election state () =
       div_admin;
       div_voters;
       div_trustees;
-      div_pki;
-      div_verification;
       div_credentials;
       div_shuffles;
       div_tally;
