@@ -1268,35 +1268,40 @@ let () =
                    if not (K.check trustees) then
                      Lwt.fail (TrusteeImportError "Imported trustees are invalid for this election!")
                    else
+                     let import_pedersen t names =
+                       let%lwt privs = Web_persist.get_private_keys from in
+                       let%lwt se_threshold_trustees =
+                         match privs with
+                         | Some privs ->
+                            let rec loop ts pubs privs accu =
+                              match ts, pubs, privs with
+                              | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
+                                 let stt_name = vo_public_key.trustee_name in
+                                 let%lwt stt_token = generate_token () in
+                                 let stt_voutput = {vo_public_key; vo_private_key} in
+                                 let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
+                                 let stt = {
+                                     stt_id; stt_token; stt_voutput;
+                                     stt_step = Some 7; stt_cert = None;
+                                     stt_polynomial = None; stt_vinput = None;
+                                     stt_name;
+                                   } in
+                                 loop ts pubs privs (stt :: accu)
+                              | [], [], [] -> return (List.rev accu)
+                              | _, _, _ -> Lwt.fail (TrusteeImportError "Inconsistency in imported election!")
+                            in loop names (Array.to_list t.t_verification_keys) privs []
+                         | None -> Lwt.fail (TrusteeImportError "Encrypted decryption keys are missing!")
+                       in
+                       se.se_threshold <- Some t.t_threshold;
+                       se.se_threshold_trustees <- Some se_threshold_trustees;
+                       se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write t);
+                       redir_preapply election_draft_threshold_trustees uuid ()
+                     in
                      match trustees with
                      | [`Pedersen t] ->
-                        let%lwt privs = Web_persist.get_private_keys from in
-                        let%lwt se_threshold_trustees =
-                          match privs with
-                          | Some privs ->
-                             let rec loop ts pubs privs accu =
-                               match ts, pubs, privs with
-                               | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
-                                  let stt_name = vo_public_key.trustee_name in
-                                  let%lwt stt_token = generate_token () in
-                                  let stt_voutput = {vo_public_key; vo_private_key} in
-                                  let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
-                                  let stt = {
-                                      stt_id; stt_token; stt_voutput;
-                                      stt_step = Some 7; stt_cert = None;
-                                      stt_polynomial = None; stt_vinput = None;
-                                      stt_name;
-                                    } in
-                                  loop ts pubs privs (stt :: accu)
-                               | [], [], [] -> return (List.rev accu)
-                               | _, _, _ -> Lwt.fail (TrusteeImportError "Inconsistency in imported election!")
-                             in loop names (Array.to_list t.t_verification_keys) privs []
-                          | None -> Lwt.fail (TrusteeImportError "Encrypted decryption keys are missing!")
-                        in
-                        se.se_threshold <- Some t.t_threshold;
-                        se.se_threshold_trustees <- Some se_threshold_trustees;
-                        se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write t);
-                        redir_preapply election_draft_threshold_trustees uuid ()
+                        import_pedersen t names
+                     | [`Single x; `Pedersen t] when x.trustee_name = Some "server" ->
+                        import_pedersen t (List.tl names)
                      | ts ->
                         let%lwt ts =
                           try
