@@ -368,10 +368,10 @@ def verify_element_label(element, expected_label):
     assert expected_label in element_real_label, 'Expected label "' + expected_label + '" not found in element label "' + element_real_label + "'"
 
 
-def verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value, wait_duration=DEFAULT_WAIT_DURATION):
+def verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value, wait_duration=DEFAULT_WAIT_DURATION, extractor=(lambda x: x)):
     elements = wait_for_elements_exist(browser, elements_css_selector, wait_duration)
     assert len(elements) > 0, "Error: could not find any element in page matching this CSS selector" + printable_page_source(browser)
-    for element in elements:
+    for element in extractor(elements):
         assert element.get_attribute(attribute_name) == attribute_value, "Error: One of the elements corresponding to this CSS selector has a value of '" + element.get_attribute(attribute_name) + "' instead of expected '" + attribute_value + "'" + printable_page_source(browser)
 
 

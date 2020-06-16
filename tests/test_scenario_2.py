@@ -506,15 +506,13 @@ The election administrator.\
             elements_css_selector = "#main table tr td:nth-of-type(4)"
             attribute_name = "innerText"
             attribute_value = "No"
-            verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value)
+            verify_all_elements_have_attribute_value(browser, elements_css_selector, attribute_name, attribute_value, extractor=(lambda x: x[1:]))
 
         # She remembers the link to send to each trustee, so they can tally the election
         row_padding = 3
-        if with_threshold:
-            row_padding = 2
         self.closed_election_tally_links_for_trustees = []
         for idx, email_address in enumerate(settings.TRUSTEES_EMAIL_ADDRESSES):
-            trustee_link_css_selector = "#main table tr:nth-of-type(" + str(idx + row_padding) + ") td:nth-of-type(3) a" # First row consists in column titles. If there is no threshold for trustees, second row is for server.
+            trustee_link_css_selector = "#main table tr:nth-of-type(" + str(idx + row_padding) + ") td:nth-of-type(3) a" # First row consists in column titles. Second row is for server.
             trustee_link_element = wait_for_element_exists_and_has_non_empty_content(browser, trustee_link_css_selector)
             self.closed_election_tally_links_for_trustees.append(trustee_link_element.get_attribute('href'))
 
