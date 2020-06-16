@@ -2579,9 +2579,16 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
        let%lwt trustees = Web_persist.get_trustees uuid in
        let trustees = trustees_of_string Yojson.Safe.read_json trustees in
        let threshold, npks =
-         match trustees with
-         | [`Pedersen t] -> Some t.t_threshold, Array.length t.t_verification_keys
-         | ts -> None, List.length ts
+         let rec loop trustees threshold npks =
+           match trustees with
+           | [] -> threshold, npks
+           | `Single _ :: ts -> loop ts threshold (npks + 1)
+           | `Pedersen t :: ts ->
+              match threshold with
+              | Some _ -> failwith "Unsupported: two Pedersen"
+              | None -> loop ts (Some t.t_threshold) (npks + Array.length t.t_verification_keys)
+         in
+         loop trustees None 0
        in
        let threshold_or_not =
          match threshold with
@@ -3229,7 +3236,17 @@ let tally_trustees election trustee_id token () =
   let%lwt encrypted_private_key =
     match%lwt Web_persist.get_private_keys uuid with
     | None -> return_none
-    | Some keys -> return_some (List.nth keys (trustee_id-1))
+    | Some keys ->
+       (* there is one Pedersen trustee *)
+       let%lwt trustees = Web_persist.get_trustees uuid in
+       let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+       let rec loop i ts =
+         match ts with
+         | [] -> return_none (* an error, actually *)
+         | `Single _ :: ts -> loop (i - 1) ts
+         | `Pedersen _ :: _ -> return_some (List.nth keys i)
+       in
+       loop (trustee_id - 1) trustees
   in
   let content = [
     p [txt "It is now time to compute your partial decryption factors."];

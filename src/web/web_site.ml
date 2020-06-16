@@ -84,13 +84,13 @@ let validate_election uuid se =
   let group = Group.of_string se.se_group in
   let module G = (val group : GROUP) in
   let module K = Trustees.MakeCombinator (G) in
+  let module KG = Trustees.MakeSimple (G) (LwtRandom) in
   let%lwt trustee_names, trustees, private_keys =
     match se.se_threshold_trustees with
     | None ->
        let%lwt trustee_names, trustees, private_key =
          match se.se_public_keys with
          | [] ->
-            let module KG = Trustees.MakeSimple (G) (LwtRandom) in
             let%lwt private_key = KG.generate () in
             let%lwt public_key = KG.prove private_key in
             let public_key = { public_key with trustee_name = Some "server" } in
@@ -141,13 +141,20 @@ let validate_election uuid se =
                 | None -> failwith "inconsistent state"
               ) ts
           in
-          return (trustee_names, [`Pedersen tp], `KEYS private_keys)
+          let%lwt server_private_key = KG.generate () in
+          let%lwt server_public_key = KG.prove server_private_key in
+          let server_public_key = { server_public_key with trustee_name = Some "server" } in
+          return (
+              "server" :: trustee_names,
+              [`Single server_public_key; `Pedersen tp],
+              `KEYS (server_private_key, private_keys)
+            )
   in
   let y = K.combine_keys trustees in
   (* election parameters *)
   let e_server_is_trustee = match private_keys with
-      | `KEY _ -> Some true
-      | `None | `KEYS _ -> None
+      | `KEY _ | `KEYS _ -> Some true
+      | `None -> None
   in
   let metadata = {
       se.se_metadata with
@@ -194,7 +201,9 @@ let validate_election uuid se =
     match private_keys with
     | `None -> return_unit
     | `KEY x -> create_file "private_key.json" string_of_number [x]
-    | `KEYS x -> create_file "private_keys.jsons" (fun x -> x) x
+    | `KEYS (x, y) ->
+       create_file "private_key.json" string_of_number [x];%lwt
+       create_file "private_keys.jsons" (fun x -> x) y
   in
   (* clean up draft *)
   let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "draft.json") in
@@ -1409,6 +1418,7 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
           ) else return_unit
         in
         let get_tokens_decrypt () =
+          (* this function is called only when there is a Pedersen trustee *)
           match%lwt Web_persist.get_decryption_tokens uuid with
           | Some x -> return x
           | None ->
@@ -1935,15 +1945,15 @@ let () =
       let%lwt pks =
         let%lwt trustees = Web_persist.get_trustees uuid in
         let trustees = trustees_of_string W.G.read trustees in
-        match trustees with
-        | [`Pedersen t] -> return t.t_verification_keys
-        | ts ->
-           List.map
+        trustees
+        |> List.map
              (function
-              | `Single x -> x
-              | `Pedersen _ -> failwith "unsupported trustees in election_tally_trustees_post"
-             ) ts
-           |> Array.of_list |> return
+              | `Single x -> [x]
+              | `Pedersen t -> Array.to_list t.t_verification_keys
+             )
+        |> List.flatten
+        |> Array.of_list
+        |> return
       in
       let pk = pks.(trustee_id-1).trustee_public_key in
       let pd = partial_decryption_of_string W.G.read partial_decryption in
