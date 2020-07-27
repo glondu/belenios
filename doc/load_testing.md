@@ -10,7 +10,6 @@ You need to compile `belenios-tool` with `BELENIOS_DEBUG=1` environment variable
 
 ```
 make clean
-_build/sanitize.sh
 BELENIOS_DEBUG=1 make all
 ```
 

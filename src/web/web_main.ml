@@ -24,10 +24,6 @@ open Serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
-(** Global initialization *)
-
-let () = CalendarLib.Time_Zone.(change Local)
-
 (** Parse configuration from <eliom> *)
 
 let spool_dir = ref None
