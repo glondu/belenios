@@ -11,7 +11,7 @@ Technologies used to run these tests are:
 - `geckodriver`: A Firefox driver for Selenium
 - `unittest`: Python's standard test framework
 
-These automated tests start the Belenios demo server (`demo/run-server.sh`), with the `BELENIOS_SENDMAIL` environment variable defined as the path to a fake `sendmail` executable (similar to a mock, provided in `tests/tools/sendmail_fake.sh`). This way, Belenios server does not return an error when trying to send emails in the test environment (that has no `sendmail` installed nor configured), and the fake `sendmail` executable makes it possible to verify what emails have been sent and read their content, simply by reading the log file where it redirects all its input (we use `/tmp/sendmail_fake` as location for this log file).
+These automated tests start the Belenios demo server (`demo/run-server.sh`), with the `BELENIOS_SENDMAIL` environment variable defined as the path to a fake `sendmail` executable (similar to a mock, provided in `tests/selenium/tools/sendmail_fake.sh`). This way, Belenios server does not return an error when trying to send emails in the test environment (that has no `sendmail` installed nor configured), and the fake `sendmail` executable makes it possible to verify what emails have been sent and read their content, simply by reading the log file where it redirects all its input (we use `/tmp/sendmail_fake` as location for this log file).
 
 Note: For example, during election creation procedure, a step sends emails to voters. If at this moment, a `sendmail` binary is not properly installed and configured (or replaced by a mock), the web page displays the following error message: `Netchannels.Command_failure(WEXITED 126)`
 
@@ -36,7 +36,7 @@ make archive
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python ./tests/test_scenario_1.py
+python ./tests/selenium/test_scenario_1.py
 ```
 
 Note: Depending on the version of `firefox` that you use, you may need to adjust the version of `geckodriver` to download and install. Please refer to this compatibility table: https://firefox-source-docs.mozilla.org/testing/geckodriver/geckodriver/Support.html
@@ -91,7 +91,7 @@ The list of configuration variables is:
 Here is an example of how you can set configuration variables and execute the test in your terminal:
 
 ```
-RANDOM_SEED=222 WAIT_TIME_BETWEEN_EACH_STEP=1.2 USE_HEADLESS_BROWSER=0 NUMBER_OF_INVITED_VOTERS=4 python3 ./tests/test_scenario_1.py
+RANDOM_SEED=222 WAIT_TIME_BETWEEN_EACH_STEP=1.2 USE_HEADLESS_BROWSER=0 NUMBER_OF_INVITED_VOTERS=4 python3 ./tests/selenium/test_scenario_1.py
 ```
 
 ## Prepared database
@@ -125,7 +125,7 @@ Several tests have a same general behaviour in common, which depends on the valu
 You can execute test `test_fuzz_login.py` the following way:
 
 ```
-START_SERVER=1 LOGIN_MODE="local" USE_HEADLESS_BROWSER=0 WAIT_TIME_BETWEEN_EACH_STEP=0.02 python ./tests/test_fuzz_login.py 
+START_SERVER=1 LOGIN_MODE="local" USE_HEADLESS_BROWSER=0 WAIT_TIME_BETWEEN_EACH_STEP=0.02 python ./tests/selenium/test_fuzz_login.py 
 ```
 
 ### Fuzz testing of the "Advanced mode" voting process
@@ -146,13 +146,13 @@ This test is implemented in file `test_fuzz_vote.py`. It can be executed either 
 - Let the script create its own election
 
 ```
-SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/your/repository/_build/src/static/mail.txt FAKE_SENT_EMAILS_FILE_RELATIVE_URL=static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 python tests/test_fuzz_vote.py
+SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/your/repository/_build/src/static/mail.txt FAKE_SENT_EMAILS_FILE_RELATIVE_URL=static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 python ./tests/selenium/test_fuzz_vote.py
 ```
 
 - Use an already existing election. For this, you provide the election ID as well as a username and password for a voter who has been already invited.
 
 ```
-WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 ELECTION_ID=4qjJRMg4b26ax5 VOTER_USERNAME=nrmt1fl7z05zaqnn0luo@mailinator.com VOTER_PASSWORD=LLP3269TVNDMF6 python tests/test_fuzz_vote.py
+WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 ELECTION_ID=4qjJRMg4b26ax5 VOTER_USERNAME=nrmt1fl7z05zaqnn0luo@mailinator.com VOTER_PASSWORD=LLP3269TVNDMF6 python ./tests/selenium/test_fuzz_vote.py
 ```
 
 ### Clicker Monkey testing 
@@ -165,7 +165,7 @@ There are 2 tests in `test_clicker_monkey.py`:
 Here is an example of how to execute these tests:
 
 ```
-START_SERVER=0 CLEAN_UP_POLICY=DO_NOTHING SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/_build/src/static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 python ./tests/test_clicker_monkey.py
+START_SERVER=0 CLEAN_UP_POLICY=DO_NOTHING SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/_build/src/static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 python ./tests/selenium/test_clicker_monkey.py
 ```
 
 ### Smart Monkey testing
@@ -177,7 +177,7 @@ This whole test verifies that a user who has a very random behaviour, but who re
 You can execute it the following way:
 
 ```
-ELECTION_ID=Vq7erXgTVs983H VOTER_USERNAME=3gzyo249nqgpjhx1puae@mailinator.com VOTER_PASSWORD=dtx96KfMEuHqxd VOTER_CREDENTIAL=cbsopJ6QxpeLAyh START_SERVER=0 CLEAN_UP_POLICY=DO_NOTHING SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/home/quentin/prog/gitlab.inria.fr/belenios-forks/belenios-swergas/_build/src/static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 python ./tests/test_smart_monkey.py
+ELECTION_ID=Vq7erXgTVs983H VOTER_USERNAME=3gzyo249nqgpjhx1puae@mailinator.com VOTER_PASSWORD=dtx96KfMEuHqxd VOTER_CREDENTIAL=cbsopJ6QxpeLAyh START_SERVER=0 CLEAN_UP_POLICY=DO_NOTHING SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/home/quentin/prog/gitlab.inria.fr/belenios-forks/belenios-swergas/_build/src/static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 python ./tests/selenium/test_smart_monkey.py
 ```
 
 ### Test Scenario 2 with a mix of normal voters and Smart Monkeys
@@ -189,5 +189,5 @@ This whole test verifies that despite having some smart monkey voters, other vot
 You can execute it the following way:
 
 ```
-USE_HEADLESS_BROWSER=0 NUMBER_OF_INVITED_VOTERS=30 NUMBER_OF_VOTING_VOTERS=15 NUMBER_OF_MONKEY_VOTING_VOTERS=7 NUMBER_OF_VOTING_VOTERS_IN_FIRST_PART=4 NUMBER_OF_REVOTING_VOTERS=1 python3 ./tests/test_scenario_2_with_monkeys.py
+USE_HEADLESS_BROWSER=0 NUMBER_OF_INVITED_VOTERS=30 NUMBER_OF_VOTING_VOTERS=15 NUMBER_OF_MONKEY_VOTING_VOTERS=7 NUMBER_OF_VOTING_VOTERS_IN_FIRST_PART=4 NUMBER_OF_REVOTING_VOTERS=1 python3 ./tests/selenium/test_scenario_2_with_monkeys.py
 ```
