@@ -784,6 +784,43 @@ module Verifydiff : CMDLINER_MODULE = struct
 
 end
 
+module Methods : CMDLINER_MODULE = struct
+
+  let main nchoices =
+    wrap_main (fun () ->
+        let ballots = chars_of_stdin () |> condorcet_ballots_of_string in
+        let nchoices =
+          if nchoices = 0 then
+            if Array.length ballots > 0 then Array.length ballots.(0) else 0
+          else nchoices
+        in
+        if nchoices <= 0 then
+          failcmd "invalid --nchoices parameter (or could not infer it)"
+        else
+          ballots
+          |> Schulze.compute ~nchoices
+          |> string_of_schulze_result
+          |> print_endline
+      )
+
+  let nchoices_t =
+    let doc = "Number of choices. If 0, try to infer it." in
+    Arg.(value & opt int 0 & info ["nchoices"] ~docv:"N" ~doc)
+
+  let schulze_cmd =
+    let doc = "compute Schulze result" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command reads on standard input JSON-formatted ballots and interprets them as Condorcet rankings on $(i,N) choices. It then computes the result according to the Schulze method and prints it on standard output.";
+      ] @ common_man
+    in
+    Term.(ret (pure main $ nchoices_t)),
+    Term.info "method-schulze" ~doc ~man
+
+  let cmds = [schulze_cmd]
+
+end
+
 let cmds =
   List.flatten
     [
@@ -795,6 +832,7 @@ let cmds =
       Mktrustees.cmds;
       Mkelection.cmds;
       Verifydiff.cmds;
+      Methods.cmds;
     ]
 
 let default_cmd =
