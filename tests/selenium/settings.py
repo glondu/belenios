@@ -29,7 +29,7 @@ ADMINISTRATOR_USERNAME = "user1" # This value comes from file `demo/password_db.
 ADMINISTRATOR_PASSWORD = "phiexoey" # This value comes from file `demo/password_db.csv`, first row, 4th column
 INITIATOR_CONTACT = "Election initiator <election.initiator@mytestelection.com>"
 
-GIT_REPOSITORY_ABSOLUTE_PATH = dirname(dirname(abspath(__file__)))
+GIT_REPOSITORY_ABSOLUTE_PATH = dirname(dirname(dirname(abspath(__file__))))
 GENERATED_FILES_DESTINATION_FOLDER = join(GIT_REPOSITORY_ABSOLUTE_PATH, "_testdata")
 
 
