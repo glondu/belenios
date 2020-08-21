@@ -96,6 +96,21 @@ let meta_rule () =
   in
   rule "META" ~deps ~prod builder
 
+let sjcl_rule () =
+  let deps = ["ext/sjcl/core/sjcl.otarget"] in
+  let prod = "ext/sjcl/sjcl.js" in
+  let builder _ _ =
+    let files =
+      string_list_of_file "ext/sjcl/core/sjcl.itarget"
+      |> List.map (fun x -> P ("ext/sjcl/core" / x))
+    in
+    Seq [
+        Cmd (S [A "cat"; S files; Sh ">"; P prod]);
+        Cmd (S [A "echo"; A "belenios.sjcl = sjcl;"; Sh ">>"; P prod]);
+      ]
+  in
+  rule "sjcl.js" ~deps ~prod builder
+
 let copy_static f =
   let base = Filename.basename f in
   copy_rule base f ("src/static" / base)
@@ -136,6 +151,9 @@ let () = dispatch & function
 
     build_rule ();
     meta_rule ();
+
+    sjcl_rule ();
+
     version_rules "native";
     version_rules "js";
     platform_rules "native";
