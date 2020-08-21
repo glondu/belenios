@@ -64,11 +64,9 @@ let build_rule () =
   rule "BUILD" ~deps ~prod builder
 
 let read_build () =
-  let ic = open_in "BUILD" in
-  let version = input_line ic in
-  let build = input_line ic in
-  close_in ic;
-  version, build
+  match string_list_of_file "BUILD" with
+  | version :: build :: _ -> version, build
+  | _ -> failwith "File BUILD is too short!"
 
 let version_rules kind =
   let deps = ["BUILD"; "src/platform/" ^ kind ^ "/belenios_version.mli"] in
