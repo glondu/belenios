@@ -1,7 +1,6 @@
 open Ocamlbuild_plugin
 
 let javascript_libs = [
-    "src/platform/js/setup.js";
     "ext/sjcl/sjcl.js";
     "ext/jsbn/BigIntCompatFull.js";
     "src/platform/js/random.js";
@@ -125,6 +124,21 @@ let bigint_rule () =
   in
   rule "BigIntCompatFull.js" ~deps ~prod builder
 
+let wrap_tool name =
+  let full_name = "tool_js_" ^ name ^ ".js" in
+  let dep = "src/tool" / full_name in
+  let deps = [dep] in
+  let prod = "src/static" / full_name in
+  let builder _ _ =
+    Seq [
+        (* FIXME: the following is fragile and should be done by js_of_ocaml itself *)
+        Cmd (S [A "echo"; A "\"use strict\";(function(g){var belenios={};"; Sh ">"; P prod]);
+        Cmd (S [A "sed"; A "s/(function(){return this}())/(g)/g"; P dep; Sh ">>"; P prod]);
+        Cmd (S [A "echo"; A "}(this));"; Sh ">>"; P prod]);
+      ]
+  in
+  rule prod ~deps ~prod builder
+
 let copy_static f =
   let base = Filename.basename f in
   copy_rule base f ("src/static" / base)
@@ -180,13 +194,15 @@ let () = dispatch & function
 
     copy_rule "encrypting.gif" "ext/images/encrypting.gif" "src/static/encrypting.gif";
 
-    copy_rule "tool_js_booth.js" "src/tool/tool_js_booth.js" "src/static/tool_js_booth.js";
-    copy_rule "tool_js_tkeygen.js" "src/tool/tool_js_tkeygen.js" "src/static/tool_js_tkeygen.js";
-    copy_rule "tool_js_ttkeygen.js" "src/tool/tool_js_ttkeygen.js" "src/static/tool_js_ttkeygen.js";
-    copy_rule "tool_js_credgen.js" "src/tool/tool_js_credgen.js" "src/static/tool_js_credgen.js";
-    copy_rule "tool_js_questions.js" "src/tool/tool_js_questions.js" "src/static/tool_js_questions.js";
-    copy_rule "tool_js_pd.js" "src/tool/tool_js_pd.js" "src/static/tool_js_pd.js";
-    copy_rule "tool_js_shuffle.js" "src/tool/tool_js_shuffle.js" "src/static/tool_js_shuffle.js";
+    List.iter wrap_tool [
+        "booth";
+        "tkeygen";
+        "ttkeygen";
+        "credgen";
+        "questions";
+        "pd";
+        "shuffle";
+      ];
 
     copy_rule "server.cma" "src/web/server.cma" "lib/belenios/server.cma";
     copy_rule "server.cmxs" "src/web/server.cmxs" "lib/belenios/server.cmxs";
