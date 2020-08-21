@@ -3,7 +3,7 @@ open Ocamlbuild_plugin
 let javascript_libs = [
     "src/platform/js/setup.js";
     "ext/sjcl/sjcl.js";
-    "ext/jsbn/BigIntCompat.js";
+    "ext/jsbn/BigIntCompatFull.js";
     "src/platform/js/random.js";
   ]
 
@@ -111,6 +111,20 @@ let sjcl_rule () =
   in
   rule "sjcl.js" ~deps ~prod builder
 
+let bigint_rule () =
+  let deps = ["ext/jsbn/BigIntCompat.otarget"] in
+  let prod = "ext/jsbn/BigIntCompatFull.js" in
+  let builder _ _ =
+    let files =
+      string_list_of_file "ext/jsbn/BigIntCompat.itarget"
+      |> List.map (fun x -> P ("ext/jsbn" / x))
+    in
+    Seq [
+        Cmd (S [A "cat"; S files; Sh ">"; P prod]);
+      ]
+  in
+  rule "BigIntCompatFull.js" ~deps ~prod builder
+
 let copy_static f =
   let base = Filename.basename f in
   copy_rule base f ("src/static" / base)
@@ -153,6 +167,7 @@ let () = dispatch & function
     meta_rule ();
 
     sjcl_rule ();
+    bigint_rule ();
 
     version_rules "native";
     version_rules "js";
