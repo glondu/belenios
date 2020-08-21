@@ -1,5 +1,15 @@
 open Ocamlbuild_plugin
 
+let javascript_libs = [
+    "src/platform/js/setup.js";
+    "ext/sjcl/sjcl.js";
+    "ext/jsbn/BigIntCompat.js";
+    "src/platform/js/random.js";
+  ]
+
+let javascript_to_link =
+  S (List.map (fun x -> P x) javascript_libs)
+
 let debug =
   try Sys.getenv "BELENIOS_DEBUG" <> ""
   with Not_found -> false
@@ -21,7 +31,7 @@ let atdgen_action opts env build =
   Cmd (S [A"cd"; P d; Sh"&&"; A"atdgen"; S opts; P f])
 
 let js_of_ocaml env build =
-  Cmd (S [A"js_of_ocaml"; P (env "%.byte")])
+  Cmd (S [A"js_of_ocaml"; javascript_to_link; P (env "%.byte")])
 
 let ( / ) = Filename.concat
 
@@ -119,7 +129,7 @@ let () = dispatch & function
     rule "%.atd -> %_j.ml & %_j.mli" ~deps:["%.atd"] ~prods:["%_j.ml"; "%_j.mli"]
       (atdgen_action [A"-j"; A"-j-std"]);
 
-    rule "%.byte -> %.js" ~deps:["%.byte"] ~prods:["%.js"] js_of_ocaml;
+    rule "%.byte -> %.js" ~deps:("%.byte" :: javascript_libs) ~prods:["%.js"] js_of_ocaml;
 
     rule "%.md -> %.html" ~deps:["%.md"] ~prods:["%.html"]
       (fun env build ->
@@ -132,10 +142,6 @@ let () = dispatch & function
     version_rules "js";
     platform_rules "native";
     platform_rules "js";
-
-    copy_rule "BigIntCompat.js" "ext/jsbn/BigIntCompat.js" "src/static/BigIntCompat.js";
-    copy_rule "sjcl.js" "ext/sjcl/sjcl.js" "src/static/sjcl.js";
-    copy_rule "random.js" "src/platform/js/random.js" "src/static/random.js";
 
     copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
     copy_rule "belenios-tool.js" "src/tool/tool_js.js" "src/static/tool_js.js";

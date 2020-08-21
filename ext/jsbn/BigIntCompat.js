@@ -1337,9 +1337,9 @@
     var hasNativeBigInt = typeof BigInt !== 'undefined';
 
     if (hasNativeBigInt) {
-        this.BigIntCompat = getNative();
+        belenios.BigIntCompat = getNative();
     } else {
-        this.BigIntCompat = getJsbn();
+        belenios.BigIntCompat = getJsbn();
     }
 
 }).call(this);

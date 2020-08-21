@@ -92,7 +92,7 @@ module Sjcl = struct
       method misc : misc t readonly_prop
     end
 
-  let sjcl : sjcl t = Unsafe.global##.sjcl
+  let sjcl : sjcl t = Unsafe.global##.belenios##.sjcl
 
   let hex = sjcl##.codec##.hex
   let utf8String = sjcl##.codec##.utf8String
@@ -203,7 +203,7 @@ module BigIntCompat = struct
       method _and : bigint -> bigint -> bigint meth
     end
 
-  let lib : lib t = Unsafe.global##._BigIntCompat
+  let lib : lib t = Unsafe.global##.belenios##._BigIntCompat
 end
 
 module Z = struct

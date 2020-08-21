@@ -5,3 +5,4 @@ sjcl.js: sjcl-full.js
 
 sjcl-full.js: $(SOURCES)
 	cat $^ > $@
+	echo "belenios.sjcl = sjcl;" >> $@
