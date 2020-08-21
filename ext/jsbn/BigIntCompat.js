@@ -1225,9 +1225,7 @@
     // Copyright © 2019 Inria
     // See "LICENSE" for details
 
-    var hasNativeBigInt = typeof BigInt !== 'undefined';
-
-    if (hasNativeBigInt) {
+    function getNative () {
         function toJSBN(a) { return new BigInteger(a.toString()); }
         function ofJSBN(a) { return BigInt(a.toString()); }
         var ZERO = BigInt(0);
@@ -1256,7 +1254,7 @@
             }
             return [r1, s1, t1];
         }
-        this.BigIntCompat = {
+        return {
             ZERO: ZERO,
             ONE: ONE,
             ofInt: function(n) { return BigInt(n); },
@@ -1309,8 +1307,10 @@
             shiftRight: function(a, b) { return a >> BigInt(b); },
             and: function(a, b) { return a & b; }
         };
-    } else {
-        this.BigIntCompat = {
+    }
+
+    function getJsbn () {
+        return {
             ZERO: BigInteger.ZERO,
             ONE: BigInteger.ONE,
             ofInt: function(n) { return new BigInteger(n.toString()); },
@@ -1332,6 +1332,14 @@
             shiftRight: function(a, b) { return a.shiftRight(b); },
             and: function(a, b) { return a.and(b); }
         };
+    }
+
+    var hasNativeBigInt = typeof BigInt !== 'undefined';
+
+    if (hasNativeBigInt) {
+        this.BigIntCompat = getNative();
+    } else {
+        this.BigIntCompat = getJsbn();
     }
 
 }).call(this);
