@@ -10,17 +10,14 @@ import urllib.request
 
 static_files = {
         # javascript
-        'BigIntCompat.js'       : '615e2613776c52363289c7abff0a831ca2a69d4709d5f6ee7e1455514edf3e50',
-        'random.js'             : 'f641c8981f043ffb3a7b69306f2cb428ed26e99998a41e75b6ccdabd2cdb919d',
-        'sjcl.js'               : '56c2f11c54347c8eea42c6534a94a638a0134307be1c7d0fb306074e4c60b150',
-        'tool_js_booth.js'      : 'aff7b9d931bcb61c04563d787f83739469f42f20b5b77870ae3b811b1aeaf2d6',
-        'tool_js_credgen.js'    : '11c39ade5c107d39ceca5c0a32f3e2e46bfc6846ec729f83b78680f518673762',
-        'tool_js.js'            : '3118dd73e05b89a37693bbc0fab4ed74cf91c072cc741b2cc4a1f36e5f10cabc',
-        'tool_js_pd.js'         : '9eb9d313033b93aa87b6a19ca29bcfa09ec70b7a442f7726430193106c3c6a98',
-        'tool_js_questions.js'  : '08d3b55fab43b193c6b047f2cf9d18e47860593a385d64a9b803314afed1a68e',
-        'tool_js_shuffle.js'    : 'de87b7994cb115f730e0c18dab4a6d39a4a20e047dcf057dadfdb3cf9018d03b',
-        'tool_js_tkeygen.js'    : '710e34c2edb92e291c04c668ddb5b72d1a59fdcaaeabc0c9c172964b5cf8d16e',
-        'tool_js_ttkeygen.js'   : '4470d7f0a3aeef7f37e11b9074d5b3e62526d1902e34b532dbf775cc904d7dc6',
+        'tool_js_booth.js'      : 'd6d6d2717e8b5f0a7781b911a967059c6241710a0c5ba8fb8aacba1055f699d3',
+        'tool_js_credgen.js'    : '581838bc57907b24905540b1242143511b6f9dcd9c99fbc2fc4744f0d140e60f',
+        'tool_js.js'            : '2159022723b7b0fff085522f965bd3227522c837d733aca3ef12a266e1d14e18',
+        'tool_js_pd.js'         : '0165ba8e78a7ef3a25973c8f37f3939c4b65dbd665e5b5437b409706cd5837be',
+        'tool_js_questions.js'  : '2d7e344abc5b8df6eaf5609308a5f4dacdeb8f260a7d8c04ef88588416f2efbe',
+        'tool_js_shuffle.js'    : '24d48277c9fa9d77336d4b4e80bb66aff0bb97bcd3438e01cfbbfe47bb8b5554',
+        'tool_js_tkeygen.js'    : '58cde1d451951fb03e65c480d3eba65889db776ef48ca57bd3483d8ad3feb99c',
+        'tool_js_ttkeygen.js'   : '3dcda4652270e76ed1ffd279c92a9cb8a9033cca47fce46e42277b53d1433df6',
         # css
         'booth.css'             : 'af6478624138e1ada82715672891cb771ed79512d39c7a62456b6ab28e724450',
         'reset.css'             : '25ee6a8343352160afb705985f6a67167e448cdc91d60b2c36937a5c45861a0c',
@@ -35,11 +32,11 @@ static_files = {
 }
 
 vote_file = {
-        'fr'     : 'c14f8b6b08205b983da318a7df47e6159af39dd1e22f69e6c9a1babf6900251e',
-        'en'     : 'fcf678a7e0c4a9ff3d9701d996ae98ed80839d8af8d3d3d5335e7cb4656ff86d',
-        'de'     : '03448063e39cc72a6ab7a7f7c5be95b9eeb00b76c360cb1a1eb7720320b2d8eb',
-        'it'     : 'd2d02ced5a14f2c804a7eb7e8773fdf9ab5f9d7771975c4a157105caea4a68ae',
-        'ro'     : 'a0d852da0acc191868fc0fd3af8e1d5d4b6ad837050a73a866a904256c1efd4e'
+        'fr'     : 'abc5dd5519f7647b27bc71088ea958cff49239ed773680eb69fd8149148b7557',
+        'en'     : '2dfdd06853988e5f8b3b93d4f6f356a2a3a147fb04ab748508cce25774667222',
+        'de'     : '9847a8151c99daf7904ba6f61ae48786f1b918337ec0e542815cdbf51123607b',
+        'it'     : '50f9ba063c1b8ed8c4e42a5517bcc3bd6b6163b3c96c27b15fbecb60975ee0be',
+        'ro'     : 'd7fbd386cbdd6d7834b47ba57563b43974789505b09e96a0908beb32c5172119'
 }
 
 def hash_votefile(url, lang):
