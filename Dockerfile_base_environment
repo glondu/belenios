@@ -3,6 +3,8 @@ RUN apt-get update -qq && apt-get upgrade -qq && apt-get install -qq bubblewrap 
 RUN useradd --create-home belenios
 COPY .opamrc-nosandbox /home/belenios/.opamrc
 COPY opam-bootstrap.sh /home/belenios
+RUN mkdir -p /home/belenios/ext/opam
+COPY ext/opam/bootstrap-ocaml.sh /home/belenios/ext/opam
 USER belenios
 WORKDIR /home/belenios
 RUN ./opam-bootstrap.sh
