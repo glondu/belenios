@@ -53,6 +53,7 @@ echo
 cd "$BELENIOS_SYSROOT/bootstrap/src"
 tar -xzf opam-full-2.0.7.tar.gz
 cd opam-full-2.0.7
+cp $BELENIOS_SRC/ext/opam/bootstrap-ocaml.sh $BELENIOS_SYSROOT/bootstrap/src/opam-full-2.0.7/shell
 make cold CONFIGURE_ARGS="--prefix $BELENIOS_SYSROOT/bootstrap"
 make cold-install LIBINSTALL_DIR="$BELENIOS_SYSROOT/bootstrap/lib/ocaml"
 
