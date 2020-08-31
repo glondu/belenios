@@ -114,7 +114,7 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
   rules:
     - changes:
         - VERSION
-  image: glondu/beleniosbase-tests:20191210-1
+  image: glondu/beleniosbase-tests:20200824-1
   variables:
     WAIT_TIME_BETWEEN_EACH_STEP: "0.02"
     USE_HEADLESS_BROWSER: "1"
