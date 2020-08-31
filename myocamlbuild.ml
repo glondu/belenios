@@ -1,5 +1,14 @@
 open Ocamlbuild_plugin
 
+let javascript_libs = [
+    "ext/sjcl/sjcl.js";
+    "ext/jsbn/BigIntCompatFull.js";
+    "src/platform/js/random.js";
+  ]
+
+let javascript_to_link =
+  S (List.map (fun x -> P x) javascript_libs)
+
 let debug =
   try Sys.getenv "BELENIOS_DEBUG" <> ""
   with Not_found -> false
@@ -21,7 +30,7 @@ let atdgen_action opts env build =
   Cmd (S [A"cd"; P d; Sh"&&"; A"atdgen"; S opts; P f])
 
 let js_of_ocaml env build =
-  Cmd (S [A"js_of_ocaml"; P (env "%.byte")])
+  Cmd (S [A"js_of_ocaml"; javascript_to_link; P (env "%.byte")])
 
 let ( / ) = Filename.concat
 
@@ -54,11 +63,9 @@ let build_rule () =
   rule "BUILD" ~deps ~prod builder
 
 let read_build () =
-  let ic = open_in "BUILD" in
-  let version = input_line ic in
-  let build = input_line ic in
-  close_in ic;
-  version, build
+  match string_list_of_file "BUILD" with
+  | version :: build :: _ -> version, build
+  | _ -> failwith "File BUILD is too short!"
 
 let version_rules kind =
   let deps = ["BUILD"; "src/platform/" ^ kind ^ "/belenios_version.mli"] in
@@ -87,6 +94,50 @@ let meta_rule () =
     Cmd (S [A "sed"; A (Printf.sprintf "s/@VERSION@/%s/" version); P meta_in; Sh ">"; P prod])
   in
   rule "META" ~deps ~prod builder
+
+let sjcl_rule () =
+  let deps = ["ext/sjcl/core/sjcl.otarget"] in
+  let prod = "ext/sjcl/sjcl.js" in
+  let builder _ _ =
+    let files =
+      string_list_of_file "ext/sjcl/core/sjcl.itarget"
+      |> List.map (fun x -> P ("ext/sjcl/core" / x))
+    in
+    Seq [
+        Cmd (S [A "cat"; S files; Sh ">"; P prod]);
+        Cmd (S [A "echo"; A "belenios.sjcl = sjcl;"; Sh ">>"; P prod]);
+      ]
+  in
+  rule "sjcl.js" ~deps ~prod builder
+
+let bigint_rule () =
+  let deps = ["ext/jsbn/BigIntCompat.otarget"] in
+  let prod = "ext/jsbn/BigIntCompatFull.js" in
+  let builder _ _ =
+    let files =
+      string_list_of_file "ext/jsbn/BigIntCompat.itarget"
+      |> List.map (fun x -> P ("ext/jsbn" / x))
+    in
+    Seq [
+        Cmd (S [A "cat"; S files; Sh ">"; P prod]);
+      ]
+  in
+  rule "BigIntCompatFull.js" ~deps ~prod builder
+
+let wrap_tool name =
+  let full_name = "tool_js_" ^ name ^ ".js" in
+  let dep = "src/tool" / full_name in
+  let deps = [dep] in
+  let prod = "src/static" / full_name in
+  let builder _ _ =
+    Seq [
+        (* FIXME: the following is fragile and should be done by js_of_ocaml itself *)
+        Cmd (S [A "echo"; A "\"use strict\";(function(g){var belenios={};"; Sh ">"; P prod]);
+        Cmd (S [A "sed"; A "s/(function(){return this}())/(g)/g"; P dep; Sh ">>"; P prod]);
+        Cmd (S [A "echo"; A "}(this));"; Sh ">>"; P prod]);
+      ]
+  in
+  rule prod ~deps ~prod builder
 
 let copy_static f =
   let base = Filename.basename f in
@@ -119,7 +170,7 @@ let () = dispatch & function
     rule "%.atd -> %_j.ml & %_j.mli" ~deps:["%.atd"] ~prods:["%_j.ml"; "%_j.mli"]
       (atdgen_action [A"-j"; A"-j-std"]);
 
-    rule "%.byte -> %.js" ~deps:["%.byte"] ~prods:["%.js"] js_of_ocaml;
+    rule "%.byte -> %.js" ~deps:("%.byte" :: javascript_libs) ~prods:["%.js"] js_of_ocaml;
 
     rule "%.md -> %.html" ~deps:["%.md"] ~prods:["%.html"]
       (fun env build ->
@@ -128,14 +179,14 @@ let () = dispatch & function
 
     build_rule ();
     meta_rule ();
+
+    sjcl_rule ();
+    bigint_rule ();
+
     version_rules "native";
     version_rules "js";
     platform_rules "native";
     platform_rules "js";
-
-    copy_rule "BigIntCompat.js" "ext/jsbn/BigIntCompat.js" "src/static/BigIntCompat.js";
-    copy_rule "sjcl.js" "ext/sjcl/sjcl.js" "src/static/sjcl.js";
-    copy_rule "random.js" "src/platform/js/random.js" "src/static/random.js";
 
     copy_rule "belenios-tool" ("src/tool/tool_cmdline" ^ exe_suffix) "belenios-tool";
     copy_rule "belenios-tool.js" "src/tool/tool_js.js" "src/static/tool_js.js";
@@ -143,13 +194,15 @@ let () = dispatch & function
 
     copy_rule "encrypting.gif" "ext/images/encrypting.gif" "src/static/encrypting.gif";
 
-    copy_rule "tool_js_booth.js" "src/tool/tool_js_booth.js" "src/static/tool_js_booth.js";
-    copy_rule "tool_js_tkeygen.js" "src/tool/tool_js_tkeygen.js" "src/static/tool_js_tkeygen.js";
-    copy_rule "tool_js_ttkeygen.js" "src/tool/tool_js_ttkeygen.js" "src/static/tool_js_ttkeygen.js";
-    copy_rule "tool_js_credgen.js" "src/tool/tool_js_credgen.js" "src/static/tool_js_credgen.js";
-    copy_rule "tool_js_questions.js" "src/tool/tool_js_questions.js" "src/static/tool_js_questions.js";
-    copy_rule "tool_js_pd.js" "src/tool/tool_js_pd.js" "src/static/tool_js_pd.js";
-    copy_rule "tool_js_shuffle.js" "src/tool/tool_js_shuffle.js" "src/static/tool_js_shuffle.js";
+    List.iter wrap_tool [
+        "booth";
+        "tkeygen";
+        "ttkeygen";
+        "credgen";
+        "questions";
+        "pd";
+        "shuffle";
+      ];
 
     copy_rule "server.cma" "src/web/server.cma" "lib/belenios/server.cma";
     copy_rule "server.cmxs" "src/web/server.cmxs" "lib/belenios/server.cmxs";

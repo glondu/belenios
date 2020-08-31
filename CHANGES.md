@@ -1,3 +1,16 @@
+1.12 (2020-08-31)
+=================
+
+ * Web client:
+   + Harden against browser extensions that pollute the global
+     namespace
+   + Use pristine sources of JavaScript libraries in the build process
+ * Web server:
+   + Do not allow to set credential authority name in automatic mode
+   + Remove useless CalendarLib initialization (it was causing errors
+     in some time zones)
+ * Minor changes in tests and doc
+
 1.11 (2020-05-25)
 =================
 

@@ -21,6 +21,8 @@
 
 open Js_of_ocaml
 
+let belenios = Js.Unsafe.variable "belenios"
+
 let debug x = Firebug.console##log (Js.string x)
 
 module Sjcl = struct
@@ -92,7 +94,7 @@ module Sjcl = struct
       method misc : misc t readonly_prop
     end
 
-  let sjcl : sjcl t = Unsafe.global##.sjcl
+  let sjcl : sjcl t = belenios##.sjcl
 
   let hex = sjcl##.codec##.hex
   let utf8String = sjcl##.codec##.utf8String
@@ -203,7 +205,7 @@ module BigIntCompat = struct
       method _and : bigint -> bigint -> bigint meth
     end
 
-  let lib : lib t = Unsafe.global##._BigIntCompat
+  let lib : lib t = belenios##._BigIntCompat
 end
 
 module Z = struct
