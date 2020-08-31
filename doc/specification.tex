@@ -146,7 +146,8 @@ section~\ref{default-group}.
 consists of:
   \begin{itemize}
   \item the election data $E$
-  \item the list $PK$ of public keys of the trustees
+  \item the structure $PK$ that contains the verification keys of the
+    trustees and other verification material
   \item the list $L$ of public credentials
   \item the list $B$ of accepted ballots
   \item the result of the election {\result} (once the election is tallied)
@@ -189,12 +190,12 @@ private credentials.
 
 The \hyperref[trustees]{\texttt{trustees}} structure consists of
 \texttt{"Single"} or \texttt{"Pedersen"} items. For each of these
-items, one or several trustees run the matching protocol below to
-produce a sub-key $y_\gamma$. Once all protocols have been run,
+items, one or several trustees run the corresponding protocol below to
+produce a sub-key $y_\tau$. Once all protocols have been run,
 $\mathcal{A}$ synthesizes the global election public key $y$ from the
 sub-keys computed in each protocol by multiplying them:
 \[
-  y=\prod_\gamma y_\gamma
+  y=\prod_\tau y_\tau
 \]
 
 \paragraph{\texttt{"Single"} protocol}
@@ -203,22 +204,22 @@ This protocol involves a single trustee $\mathcal{T}$, whose presence
 will be required to compute the tally.
 \begin{enumerate}
 \item $\mathcal{T}$ generates a \hyperref[trustee-keys]{$\tpk$}
-  $k$ and sends it to $\mathcal{A}$
-\item $\mathcal{A}$ checks $k$
+  $\gamma$ and sends it to $\mathcal{A}$
+\item $\mathcal{A}$ checks $\gamma$
 \end{enumerate}
 Later, when the election is open:
 \begin{enumerate}
-\item $\mathcal{T}$ checks that $k$ appears in the set of public
+\item $\mathcal{T}$ checks that $\gamma$ appears in the set of verification
   keys $PK$ of the election of {$\uuid$} $u$ (the id of the election
   should be publicly known)
 \end{enumerate}
 The sub-key for this protocol is the $\textsf{public\_key}$ field of
-$k$.
+$\gamma$.
 
 \paragraph{\texttt{"Pedersen"} protocol}
 
 This protocol involves $\mu$ trustees
-$\mathcal{T}_1,\dots,\mathcal{T}_\mu$ such that a only a subset of
+$\mathcal{T}_1,\dots,\mathcal{T}_\mu$ such that only a subset of
 $t+1$ of them will be needed to compute the tally.
 \begin{enumerate}
 \item for $z\in[1\dots \mu]$,
@@ -251,11 +252,11 @@ $t+1$ of them will be needed to compute the tally.
 Later, when the election is open:
 \begin{enumerate}
 \item for $z\in[1\dots \mu]$, $\mathcal{T}_z$ checks that $\gamma_z$
-  appears in the set of public keys $PK$ of the election of {$\uuid$}
+  appears in the set of verification keys $PK$ of the election of {$\uuid$}
   $u$ (the id of the election should be publicly known).
 \end{enumerate}
-The sub-key for this protocol is computed as specified in
-section~\ref{polynomials}.
+The sub-key for this protocol is computed from the polynomials of each
+trustee as specified in section~\ref{polynomials}.
 
 \subsection{Vote}
 
@@ -791,6 +792,9 @@ result, will have a $\texttt{trustees}$ structure that looks like:
 \[
   [[\texttt{"Single"},\dotsc],[\texttt{"Pedersen"},\dotsc]]
 \]
+As explained in section~\ref{process-filling-trustees}, the sub-keys
+of each item (\texttt{"Single"} or \texttt{"Pedersen"}) are then
+combined to form the global election key.
 
 \subsection{Credentials}
 \label{credentials}
@@ -1508,22 +1512,22 @@ The $\etallylabel$ field is set to the encrypted tally $a'$.
 
 The decryption factors are combined for each ciphertext to build
 synthetic ones $F_{i,j}$. The way this combination is done depends on
-the $\texttt{trustees}$ structure. For each of its items, a sub-factor
-$F_{i,j,\gamma}$ is computed:
+the $\texttt{trustees}$ structure, the list $PK$. For each item of
+index $\tau$ in $PK$, a sub-factor $F_{i,j,\tau}$ is computed:
 \begin{itemize}
 \item for a \texttt{"Single"} item corresponding to trustee
   $\mathcal{T}_z$:
   \[
-    F_{i,j,\gamma}=\pdlabel_{z,i,j}
+    F_{i,j,\tau}=\pdlabel_{z,i,j}
   \]
 \item for a \texttt{"Pedersen"} item corresponding to trustees
   $\mathcal{T}_{z_1},\dots,\mathcal{T}_{z_\mu}$:
   \[
-    F_{i,j,\gamma}=\prod_{\delta\in\mathcal{I}}(\pdlabel_{z_\delta,i,j})^{\lambda_\delta^{\mathcal{I}}}
+    F_{i,j,\tau}=\prod_{\delta\in\mathcal{I}}(\pdlabel_{z_\delta,i,j})^{\lambda_\delta^{\mathcal{I}}}
   \]
   where $\mathcal{I}$ is the set of ($t+1$) indexes of supplied
   partial decryptions, relative to
-  $\mathcal{T}_{z_1},\dots,\mathcal{T}_{z_\mu}$, and
+  $\mathcal{T}_{z_1},\dots,\mathcal{T}_{z_\mu}$ (i.e. $\mathcal{I}\subseteq\{1,\dots,\mu\}$), and
   $\lambda_\delta^{\mathcal{I}}$ are the Lagrange coefficients:
   \[
     \lambda_\delta^{\mathcal{I}}=\prod_{k\in\mathcal{I}\backslash\{\delta\}}\frac{k}{k-\delta}\mod q
@@ -1531,7 +1535,7 @@ $F_{i,j,\gamma}$ is computed:
 \end{itemize}
 The synthetic factor is then computed as the product of all sub-factors:
 \[
-  F_{i,j}=\prod_\gamma F_{i,j,\gamma}
+  F_{i,j}=\prod_\tau F_{i,j,\tau}
 \]
 
 The $\resultlabel$ field of the $\result$ structure is then computed
