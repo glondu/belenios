@@ -168,8 +168,12 @@ consists of:
 \item for $j\in[1\dots n]$, $\mathcal{C}$ sends $c_j$ to $\mathcal{V}_j$
 \item \label{item-forget} (optional) $\mathcal{C}$ forgets $c_1,\dots,c_n$
  \item $\mathcal{C}$ sends $L$ to $\mathcal{A}$
-\item $\mathcal{A}$ and $\mathcal{T}_1,\dotsc,\mathcal{T}_m$ run a key establishment protocol
-  (either \ref{no-threshold} or \ref{threshold})
+ \item $\mathcal{A}$ defines the shape of the
+   \hyperref[trustees]{$\texttt{trustees}$} structure that will be
+   used in the election;
+ \item $\mathcal{A}$ and $\mathcal{T}_1,\dotsc,\mathcal{T}_m$ run key
+   establishment protocols (see \ref{process-filling-trustees}) as
+     needed to fill in the $\texttt{trustees}$ structure;
 \item $\mathcal{A}$ creates the \hyperref[elections]{$\election$} $E$
 \item $\mathcal{A}$ loads $E$ and $L$ into $\mathcal{S}$ and starts it
 \item $\mathcal{C}$ checks that the list of public credentials $L$
@@ -180,50 +184,60 @@ Step~\ref{item-forget} is optional. It offers a better protection
 against ballot stuffing in case $\mathcal{C}$ unintentionally leaks
 private credentials.
 
-\subsubsection{Basic decryption support}
-\label{no-threshold}
-The trustees jointly compute the public election key. They will
-all need to contribute to the tally.
+\subsubsection{Filling in the \texttt{trustees} structure}
+\label{process-filling-trustees}
 
-\begin{enumerate}
-\item for $z\in[1\dots m]$,
-  \begin{enumerate}
-  \item $\mathcal{T}_z$ generates a \hyperref[trustee-keys]{$\tpk$} $k_z$ and
-    sends it to $\mathcal{A}$
-  \item $\mathcal{A}$ checks $k_z$
-  \end{enumerate}
-\item $\mathcal{A}$ combines all the trustee public keys into the election
-  public key $y$:
-  \[
-  y=\prod_{z\in[1\dots m]}\pklabel(k_z)
+The \hyperref[trustees]{\texttt{trustees}} structure consists of
+\texttt{"Single"} or \texttt{"Pedersen"} items. For each of these
+items, one or several trustees run the matching protocol below to
+produce a sub-key $y_\gamma$. Once all protocols have been run,
+$\mathcal{A}$ synthesizes the global election public key $y$ from the
+sub-keys computed in each protocol by multiplying them:
+\[
+  y=\prod_\gamma y_\gamma
 \]
-\item for $z\in[1\dots m]$,  $\mathcal{T}_z$ checks that $k_z$ appears in the set of public keys $PK$ of the election of {$\uuid$} $u$ (the
-    id of the election should be publicly known).
-\end{enumerate}
 
-\subsubsection{Threshold decryption support}
-\label{threshold}
-The trustees jointly compute the public election key such that
-only a subset of $t+1$  of them will be needed to compute the tally.
+\paragraph{\texttt{"Single"} protocol}
 
+This protocol involves a single trustee $\mathcal{T}$, whose presence
+will be required to compute the tally.
 \begin{enumerate}
-\item for $z\in[1\dots m]$,
+\item $\mathcal{T}$ generates a \hyperref[trustee-keys]{$\tpk$}
+  $k$ and sends it to $\mathcal{A}$
+\item $\mathcal{A}$ checks $k$
+\end{enumerate}
+Later, when the election is open:
+\begin{enumerate}
+\item $\mathcal{T}$ checks that $k$ appears in the set of public
+  keys $PK$ of the election of {$\uuid$} $u$ (the id of the election
+  should be publicly known)
+\end{enumerate}
+The sub-key for this protocol is the $\textsf{public\_key}$ field of
+$k$.
+
+\paragraph{\texttt{"Pedersen"} protocol}
+
+This protocol involves $\mu$ trustees
+$\mathcal{T}_1,\dots,\mathcal{T}_\mu$ such that a only a subset of
+$t+1$ of them will be needed to compute the tally.
+\begin{enumerate}
+\item for $z\in[1\dots \mu]$,
   \begin{enumerate}
   \item $\mathcal{T}_z$ generates a \hyperref[certificates]{$\cert$} $\gamma_z$
     and sends it to $\mathcal{A}$
   \item $\mathcal{A}$ checks $\gamma_z$
   \end{enumerate}
-\item $\mathcal{A}$ assembles $\Gamma=\gamma_1,\dotsc,\gamma_n$
-\item for $z\in[1\dots m]$,
+\item $\mathcal{A}$ assembles $\Gamma=\gamma_1,\dotsc,\gamma_\mu$
+\item for $z\in[1\dots \mu]$,
   \begin{enumerate}
   \item $\mathcal{A}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{T}_z$ generates a \hyperref[polynomials]{$\poly$} $P_z$ and
     sends it to $\mathcal{A}$
   \item $\mathcal{A}$ checks $P_z$
   \end{enumerate}
-\item for $z\in[1\dots m]$, $\mathcal{A}$ computes a
+\item for $z\in[1\dots \mu]$, $\mathcal{A}$ computes a
   \hyperref[vinputs]{$\vinput$} $\textsf{vi}_z$
-\item for $z\in[1\dots m]$,
+\item for $z\in[1\dots \mu]$,
   \begin{enumerate}
   \item $\mathcal{A}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{A}$ sends $\textsf{vi}_z$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
@@ -231,14 +245,17 @@ only a subset of $t+1$  of them will be needed to compute the tally.
     sends it to $\mathcal{A}$
   \item $\mathcal{A}$ checks $\textsf{vo}_z$
   \end{enumerate}
-\item $\mathcal{A}$ extracts encrypted decryption keys $K_1,\dots,K_m$ and
+\item $\mathcal{A}$ extracts encrypted decryption keys $K_1,\dots,K_\mu$ and
   \hyperref[threshold-params]{threshold parameters}
-\item $\mathcal{A}$ computes the election public key $y$ as specified
-  in section~\ref{polynomials}.
-\item for $z\in[1\dots m]$,  $\mathcal{T}_z$ checks that $\gamma_z$ appears
-    in the set of public keys $PK$ of the election of {$\uuid$} $u$ (the
-    id of the election should be publicly known).
-  \end{enumerate}
+\end{enumerate}
+Later, when the election is open:
+\begin{enumerate}
+\item for $z\in[1\dots \mu]$, $\mathcal{T}_z$ checks that $\gamma_z$
+  appears in the set of public keys $PK$ of the election of {$\uuid$}
+  $u$ (the id of the election should be publicly known).
+\end{enumerate}
+The sub-key for this protocol is computed as specified in
+section~\ref{polynomials}.
 
 \subsection{Vote}
 
@@ -645,7 +662,7 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
   filled with $A_{i0},\dotsc,A_{it}$
 \end{itemize}
 
-The public key of the election will be:
+The sub-key for this protocol run will be:
 \[
 y=\prod_{z\in[1\dots m]}g^{f_z(0)}=\prod_{z\in[1\dots m]}A_{z0}
 \]
@@ -1490,20 +1507,31 @@ B=\frac{\alphalabel(a'_{i,j})^\response}{\dfactors_{i,j}^\challenge}
 The $\etallylabel$ field is set to the encrypted tally $a'$.
 
 The decryption factors are combined for each ciphertext to build
-synthetic ones $F_{i,j}$. With basic decryption support:
+synthetic ones $F_{i,j}$. The way this combination is done depends on
+the $\texttt{trustees}$ structure. For each of its items, a sub-factor
+$F_{i,j,\gamma}$ is computed:
+\begin{itemize}
+\item for a \texttt{"Single"} item corresponding to trustee
+  $\mathcal{T}_z$:
+  \[
+    F_{i,j,\gamma}=\pdlabel_{z,i,j}
+  \]
+\item for a \texttt{"Pedersen"} item corresponding to trustees
+  $\mathcal{T}_{z_1},\dots,\mathcal{T}_{z_\mu}$:
+  \[
+    F_{i,j,\gamma}=\prod_{\delta\in\mathcal{I}}(\pdlabel_{z_\delta,i,j})^{\lambda_\delta^{\mathcal{I}}}
+  \]
+  where $\mathcal{I}$ is the set of ($t+1$) indexes of supplied
+  partial decryptions, relative to
+  $\mathcal{T}_{z_1},\dots,\mathcal{T}_{z_\mu}$, and
+  $\lambda_\delta^{\mathcal{I}}$ are the Lagrange coefficients:
+  \[
+    \lambda_\delta^{\mathcal{I}}=\prod_{k\in\mathcal{I}\backslash\{\delta\}}\frac{k}{k-\delta}\mod q
+  \]
+\end{itemize}
+The synthetic factor is then computed as the product of all sub-factors:
 \[
-F_{i,j}=\prod_{z\in[1\dots m]}\pdlabel_{z,i,j}
-\]
-where $m$ is the number of trustees. With threshold decryption
-support:
-\[
-F_{i,j}=\prod_{z\in\mathcal{I}}(\pdlabel_{z,i,j})^{\lambda_z^{\mathcal{I}}}
-\]
-where $\mathcal{I}=\{z_1,\dotsc,z_{t+1}\}$ is the set of indexes of
-supplied partial decryptions, and $\lambda_z^{\mathcal{I}}$ are the
-Lagrange coefficients:
-\[
-  \lambda_z^{\mathcal{I}}=\prod_{k\in\mathcal{I}\backslash\{z\}}\frac{k}{k-z}\mod q
+  F_{i,j}=\prod_\gamma F_{i,j,\gamma}
 \]
 
 The $\resultlabel$ field of the $\result$ structure is then computed
