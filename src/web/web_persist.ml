@@ -608,7 +608,10 @@ let do_cast_ballot election ~rawballot ~user date =
   match
     try
       if String.contains rawballot '\n' then invalid_arg "multiline ballot";
-      Ok (ballot_of_string E.G.read rawballot)
+      let ballot = ballot_of_string E.G.read rawballot in
+      if string_of_ballot E.G.write ballot <> rawballot then
+        invalid_arg "ballot not in canonical form";
+      Ok ballot
     with e -> Error (ECastSerialization e)
   with
   | Error _ as x -> return x
