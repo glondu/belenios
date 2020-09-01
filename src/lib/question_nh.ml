@@ -74,5 +74,5 @@ module Make (M : RANDOM) (G : GROUP) = struct
     in aux x
 
   let check_result q x r =
-    r = compute_result 0 q x
+    r = compute_result ~num_tallied:0 q x
 end

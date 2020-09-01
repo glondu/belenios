@@ -381,7 +381,7 @@ let () =
       let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
       let cont = match cont with
         | ContAdmin -> Redirection admin
-        | ContSignup service -> Redirection (preapply signup_captcha service)
+        | ContSignup service -> Redirection (preapply ~service:signup_captcha service)
       in
       return cont
     )
@@ -414,7 +414,7 @@ let generate_uuid =
      return @@ uuid_of_raw_string token
   | None -> return @@ uuid_of_raw_string @@ Uuidm.to_string @@ gen ()
 
-let redir_preapply s u () = Redirection.send (Redirection (preapply s u))
+let redir_preapply s u () = Redirection.send (Redirection (preapply ~service:s u))
 
 let create_new_election owner cred auth =
   let e_cred_authority = match cred with
@@ -551,7 +551,7 @@ let with_draft_election ?(save = true) uuid f =
                   return r
                | exception e ->
                   let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
-                  let service = preapply election_draft uuid in
+                  let service = preapply ~service:election_draft uuid in
                   T.generic_page ~title:"Error" ~service msg () >>= Html.send
              ) else forbidden ()
         )
@@ -561,7 +561,7 @@ let () =
   Any.register ~service:election_draft_set_credential_authority
     (fun uuid name ->
       with_draft_election uuid (fun se ->
-          let service = Eliom_service.preapply election_draft_credential_authority uuid in
+          let service = Eliom_service.preapply ~service:election_draft_credential_authority uuid in
           match (
             if se.se_metadata.e_cred_authority = Some "server" then
               Error "You cannot set the credential authority for this election!"
@@ -587,7 +587,7 @@ let () =
           let langs = languages_of_string languages in
           match langs with
           | [] ->
-             let service = preapply election_draft uuid in
+             let service = preapply ~service:election_draft uuid in
              T.generic_page ~title:"Error" ~service
                "You must select at least one language!" () >>= Html.send
           | _ :: _ ->
@@ -604,7 +604,7 @@ let () =
                  };
                 redir_preapply election_draft uuid ()
              | l :: _ ->
-                let service = preapply election_draft uuid in
+                let service = preapply ~service:election_draft uuid in
                 T.generic_page ~title:"Error" ~service
                   ("No such language: " ^ l) () >>= Html.send
         )
@@ -697,7 +697,7 @@ let handle_password se uuid ~force voters =
            return (id.sv_password <- Some x)
       ) voters
   in
-  let service = preapply election_draft uuid in
+  let service = preapply ~service:election_draft uuid in
   T.generic_page ~title:"Success" ~service
     "Passwords have been generated and mailed!" () >>= Html.send
 
@@ -749,7 +749,7 @@ let () =
                         ~absolute:true ~service:election_home
                         (uuid, ()) |> rewrite_prefix
             in
-            let service = preapply election_admin uuid in
+            let service = preapply ~service:election_admin uuid in
             match%lwt find_user_id uuid user with
             | Some id ->
                let langs = get_languages metadata.e_languages in
@@ -937,7 +937,7 @@ let () =
             redir_preapply election_draft_trustees uuid ()
           ) else (
             let msg = st_id ^ " is not a valid e-mail address!" in
-            let service = preapply election_draft_trustees uuid in
+            let service = preapply ~service:election_draft_trustees uuid in
             T.generic_page ~title:"Error" ~service msg () >>= Html.send
           )
         )
@@ -1098,7 +1098,7 @@ let () =
                   Lwt_list.iter_s (Lwt_io.write_line oc) public_creds)
             in
             se.se_public_creds_received <- true;
-            let service = preapply election_draft uuid in
+            let service = preapply ~service:election_draft uuid in
             T.generic_page ~title:"Success" ~service
               "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential." () >>= Html.send
           )
@@ -1232,7 +1232,7 @@ let () =
              )
           | None ->
              T.generic_page ~title:"Error"
-               ~service:(preapply election_draft_voters uuid)
+               ~service:(preapply ~service:election_draft_voters uuid)
                (Printf.sprintf
                   "Could not retrieve voter list from election %s"
                   from_s)
@@ -1339,7 +1339,7 @@ let () =
           with
           | TrusteeImportError msg ->
              T.generic_page ~title:"Error"
-               ~service:(preapply election_draft_trustees uuid)
+               ~service:(preapply ~service:election_draft_trustees uuid)
                msg () >>= Html.send
         )
     )
@@ -1347,7 +1347,7 @@ let () =
 let () =
   Redirection.register ~service:election_home_dir
     (fun uuid () ->
-      return (Redirection (preapply election_home (uuid, ())))
+      return (Redirection (preapply ~service:election_home (uuid, ())))
     )
 
 let () =
@@ -1368,7 +1368,7 @@ let () =
          let%lwt lang = Eliom_reference.get Web_state.language in
          let module L = (val Web_i18n.get_lang lang) in
          T.generic_page ~title:L.not_yet_open
-           ~service:(preapply election_home (uuid, ()))
+           ~service:(preapply ~service:election_home (uuid, ()))
            L.come_back_later ()
          >>= Html.send
     )
@@ -1377,7 +1377,7 @@ let get_cont_state cont =
   let redir = match cont with
     | ContSiteHome -> Redirection home
     | ContSiteAdmin -> Redirection admin
-    | ContSiteElection uuid -> Redirection (preapply election_home (uuid, ()))
+    | ContSiteElection uuid -> Redirection (preapply ~service:election_home (uuid, ()))
   in
   fun () -> Redirection.send redir
 
@@ -1476,7 +1476,7 @@ let election_set_result_hidden f uuid x =
         match%lwt Web_persist.set_election_result_hidden uuid (f x) with
         | () -> redir_preapply election_admin uuid ()
         | exception Failure msg ->
-           let service = preapply election_admin uuid in
+           let service = preapply ~service:election_admin uuid in
            T.generic_page ~title:"Error" ~service msg () >>= Html.send
       ) else forbidden ()
     )
@@ -1528,7 +1528,7 @@ let () =
                in
                redir_preapply election_admin uuid ()
             | Error msg ->
-               let service = preapply election_admin uuid in
+               let service = preapply ~service:election_admin uuid in
                T.generic_page ~title:"Error" ~service msg () >>= Html.send
           ) else forbidden ()
         )
@@ -1878,7 +1878,7 @@ let () =
               let%lwt () = if not b then make_archive uuid else return_unit in
               File.send ~content_type:"application/zip" archive_name
             ) else (
-              let service = preapply election_admin uuid in
+              let service = preapply ~service:election_admin uuid in
               T.generic_page ~title:"Error" ~service
                 "The election is not archived!" () >>= Html.send
             )
@@ -1972,7 +1972,7 @@ let () =
           "Your partial decryption has been received and checked!" () >>=
         Html.send
       ) else (
-        let service = preapply election_tally_trustees (uuid, token) in
+        let service = preapply ~service:election_tally_trustees (uuid, token) in
         T.generic_page ~title:"Error" ~service
           "The partial decryption didn't pass validation!" () >>=
         Html.send
@@ -2291,7 +2291,7 @@ let () =
           match se.se_threshold_trustees with
           | None ->
              let msg = "Please add some trustees first!" in
-             let service = preapply election_draft_threshold_trustees uuid in
+             let service = preapply ~service:election_draft_threshold_trustees uuid in
              T.generic_page ~title:"Error" ~service msg () >>= Html.send
           | Some xs ->
              let maybe_threshold, step =
@@ -2304,7 +2304,7 @@ let () =
                redir_preapply election_draft_threshold_trustees uuid ()
              ) else (
                let msg = "The threshold must be positive and smaller than the number of trustees!" in
-               let service = preapply election_draft_threshold_trustees uuid in
+               let service = preapply ~service:election_draft_threshold_trustees uuid in
                T.generic_page ~title:"Error" ~service msg () >>= Html.send
              )
         )
@@ -2332,7 +2332,7 @@ let () =
             redir_preapply election_draft_threshold_trustees uuid ()
           ) else (
             let msg = stt_id ^ " is not a valid e-mail address!" in
-            let service = preapply election_draft_threshold_trustees uuid in
+            let service = preapply ~service:election_draft_threshold_trustees uuid in
             T.generic_page ~title:"Error" ~service msg () >>= Html.send
           )
         )
@@ -2521,7 +2521,7 @@ let signup_captcha_handler service error email =
     let%lwt challenge = Web_signup.create_captcha () in
     T.signup_captcha ~service error challenge email
   else
-    let service = preapply signup_captcha service in
+    let service = preapply ~service:signup_captcha service in
     T.generic_page ~title:"Account creation" ~service
       "You cannot create an account now. Please try later." ()
 
@@ -2559,7 +2559,7 @@ let changepw_captcha_handler service error email username =
     let%lwt challenge = Web_signup.create_captcha () in
     T.signup_changepw ~service error challenge email username
   else
-    let service = preapply changepw_captcha service in
+    let service = preapply ~service:changepw_captcha service in
     T.generic_page ~title:"Change password" ~service
       "You cannot change your password now. Please try later." ()
 
@@ -2597,7 +2597,7 @@ let () =
 
 let () =
   String.register ~service:signup_captcha_img
-    (fun challenge () -> Web_signup.get_captcha challenge)
+    (fun challenge () -> Web_signup.get_captcha ~challenge)
 
 let () =
   Any.register ~service:signup_login
@@ -2629,7 +2629,7 @@ let () =
            | Ok () ->
               let%lwt () = Web_signup.remove_link token in
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
-              let service = preapply site_login (Some service, ContSiteAdmin) in
+              let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
               T.generic_page ~title:"Account creation" ~service "The account has been created." ()
            | Error e -> T.signup email (Some e) username
          ) else T.signup email (Some PasswordMismatch) username
@@ -2647,7 +2647,7 @@ let () =
            | Ok () ->
               let%lwt () = Web_signup.remove_link token in
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
-              let service = preapply site_login (Some service, ContSiteAdmin) in
+              let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
               T.generic_page ~title:"Change password" ~service "The password has been changed." ()
            | Error e -> T.changepw ~username ~address (Some e)
          ) else T.changepw ~username ~address (Some PasswordMismatch)

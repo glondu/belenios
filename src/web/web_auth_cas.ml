@@ -34,7 +34,7 @@ let login_cas = Eliom_service.create
 let cas_self ~state =
   Eliom_uri.make_string_uri
     ~absolute:true
-    ~service:(preapply login_cas (state, None))
+    ~service:(preapply ~service:login_cas (state, None))
     () |> rewrite_prefix
 
 let parse_cas_validation info =
@@ -57,7 +57,7 @@ let get_cas_validation server ~state ticket =
       ~meth:(Eliom_service.Get Eliom_parameter.(string "service" ** string "ticket"))
       ()
     in
-    let service = preapply cas_validate (cas_self ~state, ticket) in
+    let service = preapply ~service:cas_validate (cas_self ~state, ticket) in
     Eliom_uri.make_string_uri ~absolute:true ~service ()
   in
   let%lwt reply = Ocsigen_http_client.get_url url in
@@ -77,7 +77,7 @@ let cas_login_handler a ~state =
        ~meth:(Eliom_service.Get Eliom_parameter.(string "service"))
        ()
      in
-     let service = preapply cas_login (cas_self ~state) in
+     let service = preapply ~service:cas_login (cas_self ~state) in
      Eliom_registration.(Redirection.send (Redirection service))
   | _ -> failwith "cas_login_handler invoked with bad config"
 

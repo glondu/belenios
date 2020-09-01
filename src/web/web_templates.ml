@@ -56,8 +56,8 @@ let login_box ?cont () =
     | None -> ContSiteHome
     | Some x -> x
   in
-  let login service = Eliom_service.preapply site_login (Some service, cont) in
-  let logout () = Eliom_service.preapply logout cont in
+  let login service = Eliom_service.preapply ~service:site_login (Some service, cont) in
+  let logout () = Eliom_service.preapply ~service:logout cont in
   let body =
     match user with
     | Some user ->
@@ -162,7 +162,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
 
 let privacy_notice cont =
   let title = site_title ^ " — Personal data processing notice" in
-  let service = Eliom_service.preapply privacy_notice_accept cont in
+  let service = Eliom_service.preapply ~service:privacy_notice_accept cont in
   let content =
     [
       div [
@@ -1478,7 +1478,7 @@ let election_draft_trustee token uuid se () =
   let form =
     let trustee = List.find (fun x -> x.st_token = token) se.se_public_keys in
     let value = trustee.st_public_key in
-    let service = Eliom_service.preapply election_draft_trustee_post (uuid, token) in
+    let service = Eliom_service.preapply ~service:election_draft_trustee_post (uuid, token) in
     post_form
       ~service
       (fun name ->
@@ -1940,7 +1940,7 @@ let election_draft_confirm uuid se () =
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
-let file uuid x = Eliom_service.preapply election_dir (uuid, x)
+let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
 let audit_footer election =
   let uuid = election.e_params.e_uuid in
@@ -2097,7 +2097,7 @@ let election_home election state () =
         ];
       div [
         a
-          ~service:(Eliom_service.preapply election_cast uuid)
+          ~service:(Eliom_service.preapply ~service:election_cast uuid)
           [txt L.advanced_mode] ();
       ];
     ]
@@ -2963,7 +2963,7 @@ let cast_confirmation election hash () =
     p [
       (let service =
         Eliom_service.preapply
-          Web_services.election_home (uuid, ())
+          ~service:Web_services.election_home (uuid, ())
       in
       a ~service [
         txt L.go_back_to_election
@@ -3171,7 +3171,7 @@ let shuffle election token =
           txt "Current list of ballots: ";
           unsafe_textarea ~rows:5 ~cols:40 "current_ballots" "";
           txt " ";
-          let service = Eliom_service.preapply election_nh_ciphertexts uuid in
+          let service = Eliom_service.preapply ~service:election_nh_ciphertexts uuid in
           make_button ~service ~disabled:false "Download as a file";
         ];
       div ~a:[a_id "estimation"] [

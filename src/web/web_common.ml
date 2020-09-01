@@ -369,7 +369,7 @@ let write_file ?uuid x lines =
   let fname_new = fname ^ ".new" in
   let%lwt () =
     Lwt_io.(
-      with_file Output fname_new (fun oc ->
+      with_file ~mode:Output fname_new (fun oc ->
           Lwt_list.iter_s (write_line oc) lines
         )
     )

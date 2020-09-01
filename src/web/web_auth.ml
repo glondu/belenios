@@ -37,19 +37,19 @@ let auth_env = Eliom_reference.eref ~scope None
 let get_cont login_or_logout x =
   let open Eliom_registration in
   let redir = match x with
-    | `Election uuid -> Redirection (preapply election_cast_fallback uuid)
+    | `Election uuid -> Redirection (preapply ~service:election_cast_fallback uuid)
     | `Site ContSiteHome -> Redirection home
     | `Site ContSiteAdmin -> Redirection admin
     | `Site (ContSiteElection uuid) ->
        match login_or_logout with
-       | `Login -> Redirection (preapply election_admin uuid)
-       | `Logout -> Redirection (preapply election_home (uuid, ()))
+       | `Login -> Redirection (preapply ~service:election_admin uuid)
+       | `Logout -> Redirection (preapply ~service:election_home (uuid, ()))
   in
   fun () -> Redirection.send redir
 
 let restart_login service = function
-  | `Election uuid -> preapply election_login ((uuid, ()), Some service)
-  | `Site cont -> preapply site_login (Some service, cont)
+  | `Election uuid -> preapply ~service:election_login ((uuid, ()), Some service)
+  | `Site cont -> preapply ~service:site_login (Some service, cont)
 
 let run_post_login_handler ~auth_system ~state f =
   match%lwt Eliom_reference.get auth_env with
@@ -101,8 +101,8 @@ let login_handler service kind =
   in
   let myself service =
     match kind with
-    | `Site cont -> preapply site_login (service, cont)
-    | `Election uuid -> preapply election_login ((uuid, ()), service)
+    | `Site cont -> preapply ~service:site_login (service, cont)
+    | `Election uuid -> preapply ~service:election_login ((uuid, ()), service)
   in
   let%lwt user = match uuid with
     | None -> Eliom_reference.get Web_state.site_user
@@ -134,9 +134,9 @@ let login_handler service kind =
            let builder =
              match kind with
              | `Site cont -> fun s ->
-               preapply Web_services.site_login (Some s, cont)
+               preapply ~service:Web_services.site_login (Some s, cont)
              | `Election uuid -> fun s ->
-               preapply Web_services.election_login ((uuid, ()), Some s)
+               preapply ~service:Web_services.election_login ((uuid, ()), Some s)
            in
            Web_templates.login_choose (List.map (fun x -> x.auth_instance) c) builder () >>=
            Eliom_registration.Html.send

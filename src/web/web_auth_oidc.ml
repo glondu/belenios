@@ -36,7 +36,7 @@ let login_oidc = Eliom_service.create
 let oidc_self =
   lazy (Eliom_uri.make_string_uri
           ~absolute:true
-          ~service:(preapply login_oidc [])
+          ~service:(preapply ~service:login_oidc [])
           () |> rewrite_prefix)
 
 let oidc_get_userinfo ocfg info =
@@ -99,7 +99,7 @@ let oidc_login_handler a ~state =
            string "scope" ** string "state" ** string "prompt"))
        ()
      in
-     let service = preapply auth_endpoint
+     let service = preapply ~service:auth_endpoint
        (Lazy.force oidc_self, ("code", (client_id, ("openid email", (state, "consent")))))
      in
      Eliom_registration.(Redirection.send (Redirection service))
