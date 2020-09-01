@@ -1,3 +1,28 @@
+dev
+===
+
+ * Handle mix of Single and Pedersen trustees thoughout codebase and
+   specification
+ * Add support to apply various counting methods to a set of ballots
+   coming out of an non-homomorphic question, in the command-line tool
+   and the web server: Condorcet-Schulze and Majority Judgment
+ * Web server:
+   + In threshold mode, add a mandatory server-owned key
+   + Accept only ballots in canonical form
+   + Do not allow change of trustee public key once one has been
+     received
+ * Translations:
+   + Switch i18n to gettext and use Weblate
+   + Add support for translating the admin interface
+   + Add Norwegian Bokmål (nb), Spanish (es), Ukrainian (uk),
+     Czech (cs)
+ * Tests:
+   + Add monkey testing
+ * Contributed scripts:
+   + check_hash.py: use an external reference file with hashes
+ * Switch the build system to dune
+ * Drop support for old-style UUIDs
+
 1.12 (2020-08-31)
 =================
 
