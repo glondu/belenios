@@ -6,7 +6,7 @@
 <src/tool/tool_js*> or <src/platform/js/*>: package(js_of_ocaml-lwt), package(js_of_ocaml-ppx), package(lwt_ppx), use_platform-js
 
 <**/*serializable_j.ml>: warn(-32)
-true: warn(A-4-29-44-45-48), safe_string
+true: warn(A-4-29-44-48), safe_string
 <venv>: not_hygienic
 
 <tests/debian-votes/convert.*>: package(pcre), package(cryptokit), use_platform-native
