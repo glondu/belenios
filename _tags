@@ -1,5 +1,5 @@
 <**/*.{ml,mli,byte,native,odoc}>: debug, annot, package(uuidm), package(atdgen), package(yojson)
-<src/lib/{platform,belenios_version}.mli>: opaque
+<src/platform/*.mli>: opaque
 <src/platform/native/*>: package(zarith), package(cryptokit)
 <src/web/*.{ml,mli,byte,native,odoc}>: thread, package(eliom.server), package(lwt_ppx), package(calendar), package(csv)
 <src/tool/tool_cmdline.*>: package(zarith), package(cryptokit), package(cmdliner), use_platform-native
@@ -9,5 +9,4 @@
 true: warn(A-4-6-29-44-45-48), safe_string
 <venv>: not_hygienic
 
-"src/lib": include
 <tests/debian-votes/convert.*>: package(pcre), package(cryptokit), use_platform-native

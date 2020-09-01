@@ -35,7 +35,6 @@ let js_of_ocaml env build =
 let ( / ) = Filename.concat
 
 let platform_rules kind =
-  let lib = "src" / "lib" in
   let platform_dir = "src" / "platform" in
   let platform_mod = platform_dir / kind / "platform" in
   let platform_lib = platform_dir / "platform-" ^ kind in
@@ -50,7 +49,7 @@ let platform_rules kind =
           mllib)
   );
   dep ["file:" ^ ml] [mli];
-  copy_rule mli (lib / "platform.mli") mli;
+  copy_rule mli (platform_dir / "platform.mli") mli;
   ocaml_lib platform_lib
 
 let build_rule () =
@@ -81,7 +80,7 @@ let version_rules kind =
   in
   copy_rule
     (kind / "belenios_tool.mli")
-    "src/lib/belenios_version.mli"
+    "src/platform/belenios_version.mli"
     ("src/platform/" ^ kind ^ "/belenios_version.mli");
   rule ("BUILD -> " ^ kind ^ "/belenios_version.ml") ~deps ~prod builder
 
@@ -152,12 +151,10 @@ let () = dispatch & function
 
   | After_rules ->
 
-    Pathname.define_context "src/web" ["src/lib"];
-    Pathname.define_context "src/tool" ["src/lib"];
-    Pathname.define_context "src/booth" ["src/lib"];
-    Pathname.define_context "demo" ["src/lib"];
-    Pathname.define_context "stuff" ["src/lib"];
-    Pathname.define_context "." ["src/lib"];
+    Pathname.define_context "src/lib" ["src/platform"];
+    Pathname.define_context "src/tool" ["src/platform"; "src/lib"];
+    Pathname.define_context "src/web" ["src/platform"; "src/lib"];
+    Pathname.define_context "tests/debian-votes" ["src/platform"; "src/lib"];
 
     (* the following avoids an ocamlfind warning, it should be built-in *)
     flag ["doc"; "thread"] (A"-thread");
