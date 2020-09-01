@@ -1,0 +1,49 @@
+(install
+ (files booth.css site.css logo.png placeholder.png)
+ (section share)
+ (package belenios-server))
+
+(install
+ (files tool_js.js tool_js_booth.js tool_js_credgen.js tool_js_questions.js tool_js_tkeygen.js tool_js_ttkeygen.js tool_js_pd.js tool_js_shuffle.js)
+ (section share)
+ (package belenios-server))
+
+(rule
+ (target tool_js.js)
+ (deps ../tool/tool_js.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target tool_js_booth.js)
+ (deps ../tool/tool_js_booth.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target tool_js_credgen.js)
+ (deps ../tool/tool_js_credgen.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target tool_js_questions.js)
+ (deps ../tool/tool_js_questions.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target tool_js_tkeygen.js)
+ (deps ../tool/tool_js_tkeygen.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target tool_js_ttkeygen.js)
+ (deps ../tool/tool_js_ttkeygen.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target tool_js_pd.js)
+ (deps ../tool/tool_js_pd.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target tool_js_shuffle.js)
+ (deps ../tool/tool_js_shuffle.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))

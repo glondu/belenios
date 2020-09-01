@@ -1,0 +1,16 @@
+(library
+ (name belenios_server)
+ (public_name belenios-server)
+ (libraries belenios-platform-native belenios lwt calendar csv eliom.server)
+ (preprocess (pps lwt_ppx))
+ (modules_without_implementation web_i18n_sig))
+
+(rule
+ (targets web_serializable_t.ml web_serializable_t.mli)
+ (deps web_serializable.atd)
+ (action (run atdgen -t %{deps})))
+
+(rule
+ (targets web_serializable_j.ml web_serializable_j.mli)
+ (deps web_serializable.atd)
+ (action (run atdgen -j -j-std %{deps})))

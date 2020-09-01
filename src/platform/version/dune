@@ -1,0 +1,3 @@
+(rule
+ (target belenios_version.ml)
+ (action (with-stdout-to %{target} (run ./gen.sh))))

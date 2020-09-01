@@ -1,0 +1,4 @@
+(install
+ (files reset.css style.css styled-elements.css superfish.css)
+ (section share)
+ (package belenios-server))
