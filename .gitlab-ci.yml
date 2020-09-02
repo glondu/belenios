@@ -119,7 +119,7 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
     USE_HEADLESS_BROWSER: "1"
     START_SERVER: "0"
     BELENIOS_SENDMAIL: "tests/selenium/tools/sendmail_fake_to_static.sh"
-    SENT_EMAILS_TEXT_FILE_RELATIVE_PATH: "_build/src/static/mail.txt"
+    SENT_EMAILS_TEXT_FILE_RELATIVE_PATH: "_run/usr/share/belenios-server/mail.txt"
     FAKE_SENT_EMAILS_FILE_RELATIVE_URL: "static/mail.txt"
     SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH: "$CI_PROJECT_DIR/$SENT_EMAILS_TEXT_FILE_RELATIVE_PATH"
     CLEAN_UP_POLICY: "DO_NOTHING"
@@ -133,7 +133,7 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
     - mv belenios-tool _build/
     # Create the file where sent emails will be stored
     - touch $SENT_EMAILS_TEXT_FILE_RELATIVE_PATH
-    # Start belenios web server and tell it to redirect sent emails to `_build/src/static/mail.txt` (because of environment variable `BELENIOS_SENDMAIL`)
+    # Start belenios web server and tell it to redirect sent emails to `mail.txt` (because of environment variable `BELENIOS_SENDMAIL`)
     - ./demo/run-server.sh &
     # Create a Python 3 virtual environment, where pip packages will be installed
     - python3 -m venv venv

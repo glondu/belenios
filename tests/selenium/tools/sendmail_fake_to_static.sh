@@ -1,2 +1,2 @@
 #!/bin/sh
-exec cat >> _build/src/static/mail.txt
+exec cat >> _run/usr/share/belenios-server/mail.txt
