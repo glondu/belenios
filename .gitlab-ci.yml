@@ -9,18 +9,16 @@ build_and_test_with_preinstalled_image:
   script:
     # Initialize environment
     - source ~/env.sh
+    # Run command-line tool tests
+    - make check
     # Compile belenios
-    - BELENIOS_DEBUG=1 make all
-    # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
-    - make archive
+    - make build-release-server
     # Start belenios web server
     - ./demo/run-server.sh &
     # Access the localhost web page, print page output for debug purposes, and check validity of page output
     - first_access_index_page_output=$(wget --retry-connrefused --no-check-certificate -T 30 http://localhost:8001 -O-)
     - echo $first_access_index_page_output
     - if [ "$(echo \"$first_access_index_page_output\" | grep '>Belenios</a>' | wc -l)" != "1" ]; then echo "[First page access] First page access does not show a single '>Belenios</a>' text, but it should" && exit 1; else echo "[First page access] First page access shows a single '>Belenios</a>' text, as expected"; fi
-    # Run a test of an election
-    - BELENIOS_DEBUG=1 make check
 
 build_and_test_with_debian_image:
   stage: test
@@ -34,17 +32,16 @@ build_and_test_with_debian_image:
     - opam update
     - eval `grep "opam install" ./opam-bootstrap.sh`
     # Compile belenios
-    - BELENIOS_DEBUG=1 make all
-    # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
-    - make archive
+    - make build-debug-tool
+    - cp _build/belenios-tool .
+    - make build-release-server
+    - mv belenios-tool _build/
     # Start belenios web server
     - ./demo/run-server.sh &
     # Access the localhost web page, print page output for debug purposes, and check validity of page output
     - first_access_index_page_output=$(wget --retry-connrefused --no-check-certificate -T 30 http://localhost:8001 -O-)
     - echo $first_access_index_page_output
     - if [ "$(echo \"$first_access_index_page_output\" | grep '>Belenios</a>' | wc -l)" != "1" ]; then echo "[First page access] First page access does not show a single '>Belenios</a>' text, but it should" && exit 1; else echo "[First page access] First page access shows a single '>Belenios</a>' text, as expected"; fi
-    # Run a test of an election
-    # - BELENIOS_DEBUG=1 make check
 
 build_and_run_automated_test_scenarios_with_preinstalled_image:
   stage: test
@@ -54,9 +51,10 @@ build_and_run_automated_test_scenarios_with_preinstalled_image:
     # Initialize environment
     - source ~/env.sh
     # Compile belenios
-    - BELENIOS_DEBUG=1 make all
-    # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
-    - make archive
+    - make build-debug-tool
+    - cp _build/belenios-tool .
+    - make build-release-server
+    - mv belenios-tool _build/
     # We don't need to start belenios web server, as it will be started by the automated test
     # - ./demo/run-server.sh &
     # Create a Python 3 virtual environment, where pip packages will be installed
@@ -89,9 +87,10 @@ build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_data
     - mkdir -p _run/spool
     - wget https://gitlab.inria.fr/belenios/belenios-prepared-database/-/archive/$PREPARED_DATABASE_VERSION/belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && tar -zxf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && mv belenios-prepared-database-$PREPARED_DATABASE_VERSION/* _run/spool && rm -rf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz belenios-prepared-database-$PREPARED_DATABASE_VERSION
     # Compile belenios
-    - BELENIOS_DEBUG=1 make all
-    # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
-    - make archive
+    - make build-debug-tool
+    - cp _build/belenios-tool .
+    - make build-release-server
+    - mv belenios-tool _build/
     # We don't need to start belenios web server, as it will be started by the automated test
     # - ./demo/run-server.sh &
     # Create a Python 3 virtual environment, where pip packages will be installed
@@ -128,9 +127,10 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
     # Initialize environment
     - source ~/env.sh
     # Compile belenios
-    - BELENIOS_DEBUG=1 make all
-    # Create a bundled version of belenios (this produces a belenios.tar.gz file, which is needed by the web server)
-    - make archive
+    - make build-debug-tool
+    - cp _build/belenios-tool .
+    - make build-release-server
+    - mv belenios-tool _build/
     # Create the file where sent emails will be stored
     - touch $SENT_EMAILS_TEXT_FILE_RELATIVE_PATH
     # Start belenios web server and tell it to redirect sent emails to `_build/src/static/mail.txt` (because of environment variable `BELENIOS_SENDMAIL`)

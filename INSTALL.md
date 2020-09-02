@@ -50,15 +50,14 @@ gigabytes of disk space.
 If everything goes successfully, follow the given instructions to
 update your shell environment, then run:
 
-    make all
+    make build-release-server
 
 and you can skip the next two sections and go directly to the
 _Documentation_ section.
 
-You can also compile a debug version by using the `BELENIOS_DEBUG`
-environment variable:
+You can also compile a debug version by using:
 
-    BELENIOS_DEBUG=1 make all
+    make build-debug-server
 
 Note that this version may introduce vulnerabilities and should not be
 used in production!
@@ -77,7 +76,7 @@ Command-line tool
 To compile the command-line tool, you will need:
 
  * [OCaml](https://ocaml.org/)
- * [Findlib](http://projects.camlcity.org/projects/findlib.html)
+ * [Dune](https://dune.build/)
  * [Zarith](https://github.com/ocaml/Zarith)
  * [Uuidm](http://erratique.ch/software/uuidm)
  * [Cryptokit](https://github.com/xavierleroy/cryptokit)
@@ -88,16 +87,17 @@ To compile the command-line tool, you will need:
 With OPAM, these dependencies can be installed with the following
 command:
 
-    opam install atdgen zarith cryptokit uuidm cmdliner
+    opam install dune atdgen zarith cryptokit uuidm cmdliner
 
 Once all the dependencies have been installed, the command-line tool
 can be compiled with:
 
     make
 
-It produces a single executable, `belenios-tool`, in the `_build/`
-directory. You can install it in your `PATH` (which we will assume in
-the guides), or refer to it with a full path.
+It produces a single executable, `belenios-tool`, in the
+`_build/install/default/bin` directory. You can install it in your
+`PATH` (which we will assume in the guides), or refer to it with a
+full path.
 
 Web server
 ----------
@@ -115,26 +115,22 @@ With OPAM, you can install them with:
 Once all the dependencies have been installed, the Eliom module can be
 compiled with:
 
-    make all
+    make build-release-server
 
-It will produce a single Eliom module, `server.cma`, in the
-`_build/src/web` directory. See `demo/ocsigenserver.conf.in` for an
-ocsigenserver configuration template, and the _Server administrator's
-guide_ for more information on how to use it.
+It will produce a full installation of Belenios, its libraries and its
+server, in the `_run/usr` directory. See `demo/ocsigenserver.conf.in`
+for an ocsigenserver configuration template, and the _Server
+administrator's guide_ for more information on how to use it.
 
 Documentation
 -------------
 
-To generate HTML files from `.md` ones, you will need:
-
- * [Markdown](http://daringfireball.net/projects/markdown/)
-
-Additionnaly, you will need LaTeX to compile the specification.
+You will need LaTeX to compile the specification.
 
 On Debian-based systems, you can install the dependencies needed to
 compile the documentation with:
 
-    sudo apt install markdown texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra lmodern texlive-science
+    sudo apt install texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra lmodern texlive-science
 
 Once all the dependencies have been installed, the documentation can
 be compiled with:

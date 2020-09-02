@@ -5,6 +5,7 @@
 *.install
 .merlin
 _build
+_releases
 _run
 _testdata
 venv

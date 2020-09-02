@@ -6,8 +6,8 @@ if [ -d _build ]; then
     : ${BELENIOS_CONFIG:=demo/ocsigenserver.conf.in}
     : ${BELENIOS_VARDIR:=_run}
     : ${BELENIOS_RUNDIR:=/tmp/belenios}
-    : ${BELENIOS_LIBDIR:=_build/lib}
-    : ${BELENIOS_STATICDIR:=_build/src/static}
+    : ${BELENIOS_LIBDIR:=_run/usr/lib}
+    : ${BELENIOS_STATICDIR:=_run/usr/share/belenios-server}
     : ${BELENIOS_GROUPDIR:=demo/groups}
 fi
 

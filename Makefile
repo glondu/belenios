@@ -1,46 +1,49 @@
-ALL_TARGETS := all.otarget
-ALL_TARGETS += $(if $(shell sh -c "command -v ocamlopt"),all-native.otarget)
-
 minimal:
-	rm -f _build/BUILD
-	ocamlbuild minimal.otarget
+	dune build -p belenios-platform,belenios-platform-native,belenios,belenios-tool
 
-all:
-	rm -f _build/BUILD
-	ocamlbuild $(ALL_TARGETS)
+build-debug-server:
+	dune clean
+	BELENIOS_DEBUG=1 dune build
+	rm -rf _run/usr
+	dune install --destdir=_run --prefix=/usr 2>/dev/null
+	git archive --prefix=belenios-debug/ HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
-check: minimal
+build-release-server:
+	dune clean
+	BELENIOS_DEBUG= dune build --release
+	rm -rf _run/usr
+	dune install --destdir=_run --prefix=/usr 2>/dev/null
+	git archive --prefix="belenios-$(shell git describe --tags)/" HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
+
+build-debug-tool:
+	dune clean
+	BELENIOS_DEBUG=1 dune build
+	cp _build/install/default/bin/belenios-tool _build/
+
+check:
+	$(MAKE) build-debug-tool
 	mkdir -p demo/data
 	demo/demo.sh
 	demo/demo-threshold.sh
 	demo/demo-nh.sh
 
 clean:
-	-ocamlbuild -clean
-	rm -rf _build
-	rm -f *~
-
-tree: _build/tree.html
-
-_build/tree.html: _build/_digests
-	mkdir -p _build
-	tree -o $@ -H '..'  -I '_build|_run|*~'
+	dune clean
 
 .PHONY: doc
 doc:
-	ocamlbuild doc.otarget
 	$(MAKE) doc/specification.pdf
 
 doc/specification.pdf: doc/specification.tex
 	cd doc && for u in 1 2 3; do pdflatex specification.tex; done
 
-archive:
+release:
 	@if [ `git status --porcelain | grep -v '^?? ' | wc -l ` -eq 0 ]; then \
 	  COMMIT_ID=`git describe --tags`; \
 	  VERSION=`cat VERSION`; \
-	  mkdir -p _build/src/static; \
+	  mkdir -p _releases; \
 	  if [ "$$(printf $$COMMIT_ID | head -c$$(printf $$VERSION | wc -c))" = "$$VERSION" ]; then \
-	    git archive --prefix=belenios-$$COMMIT_ID/ $$COMMIT_ID | gzip -9n > _build/src/static/belenios.tar.gz; \
+	    git archive --prefix=belenios-$$COMMIT_ID/ $$COMMIT_ID | gzip -9n > _releases/belenios-$$COMMIT_ID.tar.gz; \
 	  else \
 	    echo "VERSION is not up-to-date!"; exit 1; \
 	  fi; \

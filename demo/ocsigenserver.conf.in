@@ -34,6 +34,7 @@
     </extension>
 
     <extension findlib-package="eliom.server"/>
+    <extension findlib-package="belenios-platform-native"/>
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
@@ -43,7 +44,7 @@
       <site path="monitor">
         <eliom findlib-package="eliom.server.monitor.start"/>
       </site>
-      <eliom findlib-package="belenios.server">
+      <eliom findlib-package="belenios-server">
         <!--
           The following can be adjusted to the capacity of your system.
           If <maxrequestbodysizeinmemory> is too small, large elections
