@@ -2,7 +2,6 @@ minimal:
 	dune build -p belenios-platform,belenios-platform-native,belenios,belenios-tool
 
 build-debug-server:
-	dune clean
 	BELENIOS_DEBUG=1 dune build
 	rm -rf _run/usr
 	dune install --destdir=_run --prefix=/usr 2>/dev/null
