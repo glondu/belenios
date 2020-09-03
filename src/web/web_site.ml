@@ -2003,19 +2003,27 @@ let handle_election_tally_release uuid () =
                 assert (List.length s = List.length x);
                 return (Some s, Some x)
         in
-        let result = E.compute_result ?shuffles ?shufflers ntallied et pds trustees in
-        let%lwt () =
-          let result = string_of_election_result W.G.write result in
-          write_file ~uuid (string_of_election_file ESResult) [result]
-        in
-        let%lwt () = Web_persist.remove_audit_cache uuid in
-        let%lwt () = Web_persist.set_election_state uuid `Tallied in
-        let%lwt dates = Web_persist.get_election_dates uuid in
-        let%lwt () = Web_persist.set_election_dates uuid {dates with e_tally = Some (now ())} in
-        let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
-        let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "shuffles.jsons") in
-        let%lwt () = Web_persist.clear_shuffle_token uuid in
-        redir_preapply election_home (uuid, ()) ()
+        match E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
+        | Ok result ->
+           let%lwt () =
+             let result = string_of_election_result W.G.write result in
+             write_file ~uuid (string_of_election_file ESResult) [result]
+           in
+           let%lwt () = Web_persist.remove_audit_cache uuid in
+           let%lwt () = Web_persist.set_election_state uuid `Tallied in
+           let%lwt dates = Web_persist.get_election_dates uuid in
+           let%lwt () = Web_persist.set_election_dates uuid {dates with e_tally = Some (now ())} in
+           let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
+           let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "shuffles.jsons") in
+           let%lwt () = Web_persist.clear_shuffle_token uuid in
+           redir_preapply election_home (uuid, ()) ()
+        | Error e ->
+           let msg =
+             Printf.sprintf
+               "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
+               (Trustees.string_of_combination_error e)
+           in
+           T.generic_page ~title:"Error" msg () >>= Html.send
       ) else forbidden ()
     )
 
