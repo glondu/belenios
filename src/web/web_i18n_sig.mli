@@ -99,8 +99,8 @@ module type LocalizedStrings = sig
   val privacy_policy : string
   val privacy_policy_short : string
   val accept : string
-  val not_yet_open : string
-  val come_back_later : string
+  val not_found : string
+  val election_does_not_exist : string
   val cookies_are_blocked : string
   val please_enable_them : string
   val election_currently_closed : string
