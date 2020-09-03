@@ -2,6 +2,7 @@
 *.bbl
 *.blg
 *.dvi
+.merlin
 _build
 _run
 _testdata
