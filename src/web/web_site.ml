@@ -1898,22 +1898,26 @@ let () =
           match%lwt find_election uuid with
           | None -> election_not_found ()
           | Some w ->
-          let%lwt () =
-            match%lwt Web_persist.get_election_state uuid with
-            | `EncryptedTally _ -> return ()
-            | _ -> fail_http 404
-          in
-          match%lwt find_trustee_id uuid token with
-          | Some trustee_id ->
-             let%lwt pds = Web_persist.get_partial_decryptions uuid in
-             if List.mem_assoc trustee_id pds then (
-               T.generic_page ~title:"Error"
-                 "Your partial decryption has already been received and checked!"
-                 () >>= Html.send
-             ) else (
-               T.tally_trustees w trustee_id token () >>= Html.send
-             )
-          | None -> forbidden ()
+             match%lwt Web_persist.get_election_state uuid with
+             | `EncryptedTally _ ->
+                (match%lwt find_trustee_id uuid token with
+                 | Some trustee_id ->
+                    let%lwt pds = Web_persist.get_partial_decryptions uuid in
+                    if List.mem_assoc trustee_id pds then (
+                      T.generic_page ~title:"Error"
+                        "Your partial decryption has already been received and checked!"
+                        () >>= Html.send
+                    ) else (
+                      T.tally_trustees w trustee_id token () >>= Html.send
+                    )
+                 | None -> forbidden ()
+                )
+             | `Open | `Closed | `Shuffling ->
+                let msg = "The election is not ready to be tallied. Please come back later." in
+                T.generic_page ~title:"Forbidden" msg () >>= Html.send ~code:403
+             | `Tallied | `Archived ->
+                let msg = "The election has already been tallied." in
+                T.generic_page ~title:"Forbidden" msg () >>= Html.send ~code:403
         )
     )
 
