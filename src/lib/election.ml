@@ -266,31 +266,39 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   let compute_result ?shuffles ?shufflers num_tallied encrypted_tally partial_decryptions trustees =
     let check = check_factor encrypted_tally in
-    let factors = Combinator.combine_factors trustees check partial_decryptions in
-    let results = Shape.map2 (fun {beta; _} f ->
-      beta / f
-    ) encrypted_tally factors in
-    let result =
-      match results with
-      | SAtomic _ ->
-         invalid_arg "Election.compute_result: cannot compute result"
-      | SArray xs ->
-         SArray (Array.map2 (Q.compute_result ~num_tallied) election.e_params.e_questions xs)
-    in
-    {num_tallied; encrypted_tally; shuffles; shufflers; partial_decryptions; result}
+    match Combinator.combine_factors trustees check partial_decryptions with
+    | Ok factors ->
+       let results =
+         Shape.map2 (fun {beta; _} f ->
+             beta / f
+           ) encrypted_tally factors
+       in
+       let result =
+         match results with
+         | SAtomic _ ->
+            invalid_arg "Election.compute_result: cannot compute result"
+         | SArray xs ->
+            SArray (Array.map2 (Q.compute_result ~num_tallied) election.e_params.e_questions xs)
+       in
+       Ok {num_tallied; encrypted_tally; shuffles; shufflers; partial_decryptions; result}
+    | Error e -> Error e
 
   let check_result trustees r =
     let {encrypted_tally; partial_decryptions; result; _} = r in
     check_ciphertext encrypted_tally &&
     let check = check_factor encrypted_tally in
-    let factors = Combinator.combine_factors trustees check partial_decryptions in
-    let results = Shape.map2 (fun {beta; _} f ->
-      beta / f
-    ) encrypted_tally factors in
-    match results, result with
-    | SArray xs, SArray rs ->
-       Array.forall3 Q.check_result election.e_params.e_questions xs rs
-    | _, _ -> false
+    match Combinator.combine_factors trustees check partial_decryptions with
+    | Error _ -> false
+    | Ok factors ->
+       let results =
+         Shape.map2 (fun {beta; _} f ->
+             beta / f
+           ) encrypted_tally factors
+       in
+       match results, result with
+       | SArray xs, SArray rs ->
+          Array.forall3 Q.check_result election.e_params.e_questions xs rs
+       | _, _ -> false
 
   let extract_tally r = r.result
 end

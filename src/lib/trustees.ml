@@ -65,6 +65,13 @@ module MakeVerificator (G : GROUP) = struct
 
 end
 
+exception CombinationError of combination_error
+
+let string_of_combination_error = function
+  | MissingPartialDecryption -> "a partial decryption is missing"
+  | NotEnoughPartialDecryptions -> "not enough partial decryptions"
+  | UnusedPartialDecryption -> "unused partial decryption"
+
 module MakeCombinator (G : GROUP) = struct
 
   module V = MakeVerificator (G)
@@ -121,7 +128,7 @@ module MakeCombinator (G : GROUP) = struct
         else Z.(accu * (of_int k) * invert (of_int kj) G.q mod G.q)
       ) Z.one indexes
 
-  let combine_factors trustees check partial_decryptions =
+  let combine_factors_exc trustees check partial_decryptions =
     (* neutral factor *)
     let dummy =
       match partial_decryptions with
@@ -144,14 +151,14 @@ module MakeCombinator (G : GROUP) = struct
         (function
          | `Single t ->
             (match List.find_opt (check t.trustee_public_key) partial_decryptions with
-             | None -> failwith "missing partial decryption"
+             | None -> raise (CombinationError MissingPartialDecryption)
              | Some (pd, _) -> pd.decryption_factors
             )
          | `Pedersen p ->
             let rec take n accu xs =
               if n > 0 then
                 match xs with
-                | [] -> raise (PedersenFailure "not enough partial decryptions")
+                | [] -> raise (CombinationError NotEnoughPartialDecryptions)
                 | x :: xs -> take (n-1) (x :: accu) xs
               else accu
             in
@@ -177,9 +184,13 @@ module MakeCombinator (G : GROUP) = struct
     in
     (* check that all partial decryptions have been used *)
     if List.exists (fun (_, x) -> !x) partial_decryptions then
-      failwith "unused partial decryption";
+      raise (CombinationError UnusedPartialDecryption);
     (* combine all factors into one *)
     List.fold_left (fun a b -> Shape.map2 G.( *~ ) a b) dummy factors
+
+  let combine_factors trustees check partial_decryptions =
+    try Ok (combine_factors_exc trustees check partial_decryptions)
+    with CombinationError e -> Error e
 
 end
 

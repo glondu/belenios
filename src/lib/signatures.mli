@@ -55,6 +55,11 @@ module type ELECTION_DATA = sig
   val election : G.t election
 end
 
+type combination_error =
+  | MissingPartialDecryption
+  | NotEnoughPartialDecryptions
+  | UnusedPartialDecryption
+
 (** Cryptographic primitives for an election with homomorphic tally. *)
 module type ELECTION = sig
 
@@ -130,7 +135,8 @@ module type ELECTION = sig
 
   val compute_result :
     ?shuffles:elt shuffle list -> ?shufflers:shuffler list ->
-    int -> elt Serializable_t.ciphertext shape -> factor list -> elt trustees -> result
+    int -> elt Serializable_t.ciphertext shape -> factor list -> elt trustees ->
+    (result, combination_error) Stdlib.result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)

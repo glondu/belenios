@@ -300,9 +300,12 @@ module Make (P : PARSED_PARAMS) : S = struct
     let shuffles = Lazy.force shuffles in
     match trustees with
     | Some trustees ->
-       let result = E.compute_result ?shuffles nballots tally factors trustees in
-       assert (E.check_result trustees result);
-       string_of_election_result G.write result
+       (match E.compute_result ?shuffles nballots tally factors trustees with
+        | Ok result ->
+           assert (E.check_result trustees result);
+           string_of_election_result G.write result
+        | Error e -> failwith (Trustees.string_of_combination_error e)
+       )
     | None -> failwith "missing trustees"
 
   let verify () =

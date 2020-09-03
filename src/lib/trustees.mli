@@ -65,6 +65,8 @@ module MakePedersen (G : GROUP) (M : RANDOM)
   PEDERSEN with type 'a m = 'a M.t
             and type elt = G.t
 
+val string_of_combination_error : combination_error -> string
+
 module MakeCombinator (G : GROUP) : sig
 
   val check : G.t trustees -> bool
@@ -76,7 +78,7 @@ module MakeCombinator (G : GROUP) : sig
   val combine_factors :
     G.t trustees ->
     (G.t -> G.t partial_decryption -> bool) ->
-    G.t partial_decryption list -> G.t shape
+    G.t partial_decryption list -> (G.t shape, combination_error) result
   (** Compute synthetic decryption factors. *)
 
 end
