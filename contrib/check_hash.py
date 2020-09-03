@@ -10,14 +10,14 @@ import urllib.request
 
 static_files = {
         # javascript
-        'tool_js_booth.js'      : 'bb2533e1a910d8290f91a86c82f1b0ebc30d0c6179d3c0a2b703762d3f91e28e',
+        'tool_js_booth.js'      : '78d10fa9795e403fb965d089468e51c01e752d037a559c171d8b477f90ee2884',
         'tool_js_credgen.js'    : '956fbbb1d5f4fe4a59dda5ab49d56b8c3134f1ccd55de1e3d64f3108537a00a3',
-        'tool_js.js'            : '4d537493b4b74a85e3d56963a45eebc2e23a5f6fe21e766841b1dc11c5efc323',
-        'tool_js_pd.js'         : '41fb1739a252b744b990267ae03d8087726cdd210a97ca4a55526830677f3536',
+        'tool_js.js'            : '67c93754feaceb6fd9f120bf71aba40f1236eb12af155ac24fa486aecf76a46d',
+        'tool_js_pd.js'         : '8e525108f01ef52bc581ff796ee9e84a6203836514da5f74a0a46835ab29b6a1',
         'tool_js_questions.js'  : 'e2d9af44fb6ff1bc0e77c3d39191e872c9387f1079003281d81e8675c793521d',
-        'tool_js_shuffle.js'    : 'be53b1e4891d65f3022822e7e6338ebc3ade2d13562bb9aac89f12a2f20ef773',
-        'tool_js_tkeygen.js'    : '9c73f0b944475bdff911b4bbd0d3ac2899dac55717408269d10d8c9e1d476004',
-        'tool_js_ttkeygen.js'   : '45bda5c8a3d537ca7fd9643d72da16850bf4d4d2c4f78783894d68aa0ffb391e',
+        'tool_js_shuffle.js'    : '37a9ae6954f7496140c4c7b58d783e735520dca436e3fd18073d2686043e3e7a',
+        'tool_js_tkeygen.js'    : 'c706a9a4d4ebb55916d9e4776069e4f8edd4e547250ced3f7ebf06fb255a4770',
+        'tool_js_ttkeygen.js'   : '0534d8d7a943ca359e4505ef7aab28a6904d98a5fd6a20f3a67fba96526451be',
         # css
         'booth.css'             : 'af6478624138e1ada82715672891cb771ed79512d39c7a62456b6ab28e724450',
         'reset.css'             : '25ee6a8343352160afb705985f6a67167e448cdc91d60b2c36937a5c45861a0c',
