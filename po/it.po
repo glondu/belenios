@@ -1,0 +1,18 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: belenios 1.12\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-04 12:48+0000\n"
+"PO-Revision-Date: 2020-09-04 12:48+0000\n"
+"Last-Translator: Enea Milo\n"
+"Language-Team: Belenios Team <contact@belenios.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: ../src/web/web_templates.ml:106
+msgid "Administer elections"
+msgstr "Amministrare delle elezioni"
+

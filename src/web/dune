@@ -1,7 +1,7 @@
 (library
  (name belenios_server)
  (public_name belenios-server)
- (libraries belenios-platform-native belenios lwt calendar csv eliom.server)
+ (libraries belenios-platform-native belenios lwt calendar csv eliom.server gettext-camomile)
  (preprocess (pps lwt_ppx))
  (modules_without_implementation web_i18n_sig))
 

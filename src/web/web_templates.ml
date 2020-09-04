@@ -99,10 +99,11 @@ let belenios_url = Eliom_service.extern
 let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
+  let open (val Web_i18n.get_lang_gettext language) in
   let administer =
     match uuid with
     | None ->
-       a ~service:admin [txt L.administer_elections] ()
+       a ~service:admin [txt (s_ "Administer elections")] ()
     | Some uuid ->
        a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt L.administer_this_election] uuid
   in

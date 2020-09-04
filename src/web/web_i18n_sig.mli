@@ -77,7 +77,6 @@ module type LocalizedStrings = sig
   val thank_you_for_voting : string
   val is_rejected_because : string
   val fail : string
-  val administer_elections : string
   val administer_this_election : string
   val powered_by : string
   val get_the_source_code : string
@@ -143,4 +142,15 @@ module type LocalizedStrings = sig
   val error_ReusedCredential : string
   val error_WrongCredential : string
   val error_UnauthorizedVoter : string
+end
+
+module type GETTEXT = sig
+  val s_ : string -> string
+  val f_ : ('a, 'b, 'c, 'c, 'c, 'd) format6 -> ('a, 'b, 'c, 'c, 'c, 'd) format6
+  val sn_ : string -> string -> int -> string
+  val fn_ :
+    ('a, 'b, 'c, 'c, 'c, 'd) format6 ->
+    ('a, 'b, 'c, 'c, 'c, 'd) format6 ->
+    int ->
+    ('a, 'b, 'c, 'c, 'c, 'd) format6
 end

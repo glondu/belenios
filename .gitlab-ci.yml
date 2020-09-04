@@ -9,6 +9,7 @@ build_and_test_with_preinstalled_image:
   script:
     # Initialize environment
     - source ~/env.sh
+    - opam install --yes gettext-camomile
     # Run command-line tool tests
     - make check
     # Compile belenios
@@ -50,6 +51,7 @@ build_and_run_automated_test_scenarios_with_preinstalled_image:
   script:
     # Initialize environment
     - source ~/env.sh
+    - opam install --yes gettext-camomile
     # Compile belenios
     - make build-debug-tool
     - cp _build/belenios-tool .
@@ -83,6 +85,7 @@ build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_data
   script:
     # Initialize environment
     - source ~/env.sh
+    - opam install --yes gettext-camomile
     # Import prepared database
     - mkdir -p _run/spool
     - wget https://gitlab.inria.fr/belenios/belenios-prepared-database/-/archive/$PREPARED_DATABASE_VERSION/belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && tar -zxf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && mv belenios-prepared-database-$PREPARED_DATABASE_VERSION/* _run/spool && rm -rf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz belenios-prepared-database-$PREPARED_DATABASE_VERSION
@@ -126,6 +129,7 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
   script:
     # Initialize environment
     - source ~/env.sh
+    - opam install --yes gettext-camomile
     # Compile belenios
     - make build-debug-tool
     - cp _build/belenios-tool .
