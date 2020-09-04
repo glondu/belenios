@@ -12,7 +12,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: ../src/web/web_templates.ml:106
+#: ../src/web/web_templates.ml:105
 msgid "Administer elections"
 msgstr "Administrer des élections"
+
+#: ../src/web/web_templates.ml:107
+msgid "Administer this election"
+msgstr "Administrer cette élection"
+
+#: ../src/web/web_templates.ml:3688 ../src/web/web_templates.ml:134
+msgid "Election server"
+msgstr "Serveur d'élections"
+
+#: ../src/web/web_templates.ml:153
+msgid "Get the source code"
+msgstr "Obtenir le code source"
+
+#: ../src/web/web_templates.ml:148
+msgid "Powered by "
+msgstr "Propulsé par "
+
+#: ../src/web/web_templates.ml:155
+msgid "Privacy policy"
+msgstr "Politique de confidentialité"
 

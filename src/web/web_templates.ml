@@ -98,14 +98,13 @@ let belenios_url = Eliom_service.extern
 
 let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang language) in
   let open (val Web_i18n.get_lang_gettext language) in
   let administer =
     match uuid with
     | None ->
        a ~service:admin [txt (s_ "Administer elections")] ()
     | Some uuid ->
-       a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt L.administer_this_election] uuid
+       a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
   in
   let login_box = match login_box with
     | None ->
@@ -121,7 +120,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
                 | None -> return @@ txt ""
                 | Some x -> return @@ Unsafe.data (String.concat "\n" x)
   in
-  Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang L.lang]
+  Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang language]
     (head (Eliom_content.Html.F.title (txt title)) [
       script (txt "window.onbeforeunload = function () {};");
       link ~rel:[`Stylesheet] ~href:(static "site.css") ();
@@ -132,7 +131,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
         div [
           div ~a:[a_style "float: left; padding: 10px;"] [
             a ~service:home [
-              img ~alt:L.election_server ~a:[a_height 70]
+              img ~alt:(s_ "Election server") ~a:[a_height 70]
                 ~src:(static "logo.png") ();
             ] ();
           ];
@@ -146,14 +145,14 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
       div ~a:[a_id "footer"; a_style "text-align: center;" ] [
         div ~a:[a_id "bottom"] [
           footer;
-          txt L.powered_by;
+          txt (s_ "Powered by ");
           a ~service:belenios_url [txt "Belenios"] ();
           Belenios_version.(
             Printf.ksprintf txt " %s (%s). " version build
           );
-          a ~service:source_code [txt L.get_the_source_code] ();
+          a ~service:source_code [txt (s_ "Get the source code")] ();
           txt ". ";
-          unsafe_a !Web_config.gdpr_uri L.privacy_policy_short;
+          unsafe_a !Web_config.gdpr_uri (s_ "Privacy policy");
           txt ". ";
           administer;
           txt ".";
@@ -3571,6 +3570,7 @@ let changepw ~username ~address error =
 let booth () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
+  let open (val Web_i18n.get_lang_gettext language) in
   let head = head (title (txt L.belenios_booth)) [
     link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
     script ~a:[a_src (static "tool_js_booth.js")] (txt "");
@@ -3685,7 +3685,7 @@ let booth () =
     div ~a:[a_id "booth_div"; a_style "display:none;"] [
       div ~a:[a_id "header"] [
         div ~a:[a_style "float: left; padding: 15px;"] [
-          img ~alt:L.election_server ~a:[a_height 70]
+          img ~alt:(s_ "Election server") ~a:[a_height 70]
             ~src:(static "logo.png") ();
         ];
         div ~a:[a_style "float: right; padding: 15px;"] [
