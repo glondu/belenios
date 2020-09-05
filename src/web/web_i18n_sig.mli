@@ -40,10 +40,6 @@ module type LocalizedStrings = sig
   val thank_you_for_voting : string
   val is_rejected_because : string
   val fail : string
-  val audit_data : string
-  val parameters : string
-  val public_credentials : string
-  val ballots : string
   val accepted_ballots : string
   val ballots_have_been_accepted_so_far : string
   val ballots_have_been_accepted : string

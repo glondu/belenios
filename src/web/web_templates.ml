@@ -1945,7 +1945,6 @@ let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 let audit_footer election =
   let uuid = election.e_params.e_uuid in
   let%lwt language = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang language) in
   let open (val Web_i18n.get_lang_gettext language) in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
@@ -1954,19 +1953,19 @@ let audit_footer election =
         code [ txt election.e_fingerprint ];
       ];
       div [
-        txt L.audit_data;
+        txt (s_ "Audit data: ");
         a ~service:(file uuid ESRaw) [
-          txt L.parameters
+          txt (s_ "parameters")
         ] ();
         txt ", ";
         a ~service:(file uuid ESTrustees) [txt "trustees"] ();
         txt ", ";
         a ~service:(file uuid ESCreds) [
-          txt L.public_credentials
+          txt (s_ "public credentials")
         ] ();
         txt ", ";
         a ~service:(file uuid ESBallots) [
-          txt L.ballots
+          txt (s_ "ballots")
         ] ();
         txt ".";
       ];
