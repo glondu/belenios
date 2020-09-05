@@ -12,6 +12,7 @@ module type LANG = sig
 end
 
 module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i18n_sig.GETTEXT = struct
+  let lang = L.lang
   open GettextCategory
   open GettextTypes
   let t =

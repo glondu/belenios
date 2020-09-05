@@ -104,6 +104,7 @@ module type LocalizedStrings = sig
 end
 
 module type GETTEXT = sig
+  val lang : string
   val s_ : string -> string
   val f_ : ('a, 'b, 'c, 'c, 'c, 'd) format6 -> ('a, 'b, 'c, 'c, 'c, 'd) format6
   val sn_ : string -> string -> int -> string

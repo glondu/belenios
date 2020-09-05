@@ -120,7 +120,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
                 | None -> return @@ txt ""
                 | Some x -> return @@ Unsafe.data (String.concat "\n" x)
   in
-  Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang language]
+  Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
     (head (Eliom_content.Html.F.title (txt title)) [
       script (txt "window.onbeforeunload = function () {};");
       link ~rel:[`Stylesheet] ~href:(static "site.css") ();
@@ -3739,7 +3739,7 @@ let booth () =
       booth_div;
     ];
   ] in
-  return @@ html ~a:[a_dir `Ltr; a_xml_lang language] head body
+  return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
 
 let contact_footer metadata please_contact =
   match metadata.e_contact with
