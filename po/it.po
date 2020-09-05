@@ -12,6 +12,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
+#: ../src/web/web_templates.ml:3615
+msgid "!"
+msgstr " !"
+
+#: ../src/web/web_templates.ml:3724
+msgid "(nothing)"
+msgstr "(niente)"
+
 #: ../src/web/web_templates.ml:105
 msgid "Administer elections"
 msgstr "Amministrare delle elezioni"
@@ -20,19 +28,162 @@ msgstr "Amministrare delle elezioni"
 msgid "Administer this election"
 msgstr "Amministrare questa elezione"
 
-#: ../src/web/web_templates.ml:3688 ../src/web/web_templates.ml:134
+#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
+#. ../src/web/web_templates.ml:2935
+msgid "Answer to questions"
+msgstr "Risposta alle domande"
+
+#: ../src/web/web_templates.ml:3731
+msgid "At least one of the answers is invalid!"
+msgstr ""
+
+#: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
+#. ../src/web/web_templates.ml:2939
+msgid "Authenticate"
+msgstr "Autenticazione"
+
+#: ../src/web/web_templates.ml:3589 ../src/web/web_templates.ml:3577
+msgid "Belenios Booth"
+msgstr "Cabina elettorale Belenios"
+
+#: ../src/web/web_templates.ml:3727 ../src/web/web_templates.ml:1989
+msgid "Blank vote"
+msgstr "Scheda bianca"
+
+#: ../src/web/web_templates.ml:3646 ../src/web/web_templates.ml:3024
+#. ../src/web/web_templates.ml:2941
+msgid "Confirm"
+msgstr "Conferma"
+
+#: ../src/web/web_templates.ml:3626
+msgid "Continue"
+msgstr "Proseguire"
+
+#: ../src/web/web_templates.ml:3648 ../src/web/web_templates.ml:3026
+#. ../src/web/web_templates.ml:2943
+msgid "Done"
+msgstr "Finito"
+
+#: ../src/web/web_templates.ml:3708
+msgid "Election UUID: "
+msgstr "UUID dell'elezione : "
+
+#: ../src/web/web_templates.ml:3712 ../src/web/web_templates.ml:1953
+msgid "Election fingerprint: "
+msgstr "Impronta dell'elezione : "
+
+#: ../src/web/web_templates.ml:3691 ../src/web/web_templates.ml:134
 msgid "Election server"
 msgstr "Server delle elezioni"
+
+#: ../src/web/web_templates.ml:3678
+msgid "Encrypting..."
+msgstr "Cifratura in corso..."
 
 #: ../src/web/web_templates.ml:153
 msgid "Get the source code"
 msgstr "Ottenere il codice sorgente"
 
+#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
+#. ../src/web/web_templates.ml:2933
+msgid "Input credential"
+msgstr "Inserire il codice di voto"
+
+#: ../src/web/web_templates.ml:3657
+msgid "Input your credential "
+msgstr "Inserisca il suo codice di voto "
+
+#: ../src/web/web_templates.ml:3726
+msgid "Invalid credential!"
+msgstr "Codice di voto non valido !"
+
+#: ../src/web/web_templates.ml:3723
+msgid "Next"
+msgstr "Seguente"
+
+#: ../src/web/web_templates.ml:3728
+msgid "No other choices are allowed when voting blank"
+msgstr "Nessun'altra scelta è autorizzata quando la scheda è bianca"
+
+#: ../src/web/web_templates.ml:3725
+msgid "Please enter your credential:"
+msgstr "Si prega di inserire il codice di voto :"
+
+#: ../src/web/web_templates.ml:3677
+msgid "Please wait while your ballot is being encrypted..."
+msgstr "Si prega di pazientare, la cifratura della sua scheda elettorale è in corso..."
+
 #: ../src/web/web_templates.ml:148
 msgid "Powered by "
 msgstr "Utilizza "
 
+#: ../src/web/web_templates.ml:3722
+msgid "Previous"
+msgstr "Precedente"
+
 #: ../src/web/web_templates.ml:155
 msgid "Privacy policy"
 msgstr ""
+
+#: ../src/web/web_templates.ml:3681
+msgid "Restart"
+msgstr "Ricominciare"
+
+#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
+#. ../src/web/web_templates.ml:2937
+msgid "Review and encrypt"
+msgstr "Riepilogo e cifratura"
+
+#: ../src/web/web_templates.ml:3719
+msgid "Select between %d and %d answer(s)"
+msgstr "Selezionare tra %d e %d risposta(e)"
+
+#: ../src/web/web_templates.ml:3653
+msgid "Step 1/6: Input credential"
+msgstr "Fase 1/6 : Inserire il codice di voto"
+
+#: ../src/web/web_templates.ml:3663
+msgid "Step 2/6: Answer to questions"
+msgstr "Fase 2/6 : Risposta alle domande"
+
+#: ../src/web/web_templates.ml:3668
+msgid "Step 3/6: Review and encrypt"
+msgstr "Fase 3/6 : Riepilogo e cifratura"
+
+#: ../src/web/web_templates.ml:3730
+msgid "Value must be an integer between 0 and 255."
+msgstr ""
+
+#: ../src/web/web_templates.ml:3729
+msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
+msgstr ""
+
+#: ../src/web/web_templates.ml:3622
+msgid "We invite you to save it in order to check later that it is taken into account."
+msgstr "La preghiamo di registrarlo per potere verificare ulteriormente se il suo voto è stato preso in considerazione."
+
+#: ../src/web/web_templates.ml:3720
+msgid "You must select at least %d answer(s)"
+msgstr "Lei deve selezionare almeno %d risposta(e)"
+
+#: ../src/web/web_templates.ml:3721
+msgid "You must select at most %d answer(s)"
+msgstr "Lei deve selezionare al massimo %d risposta(e)"
+
+#: ../src/web/web_templates.ml:3613
+msgid "Your ballot has been successfully encrypted, "
+msgstr "La sua scheda elettorale è stata cifrata con successo, "
+
+#: ../src/web/web_templates.ml:3618 ../src/web/web_templates.ml:3034
+#. ../src/web/web_templates.ml:2955
+msgid "Your smart ballot tracker is "
+msgstr "Il suo codice di verifica è "
+
+#: ../src/web/web_templates.ml:3614
+msgid "but has not been cast yet"
+msgstr "ma non è stata ancora depositata nell'urna"
+
+#: ../src/web/web_templates.ml:3718
+msgid "here"
+msgstr "qui"
 

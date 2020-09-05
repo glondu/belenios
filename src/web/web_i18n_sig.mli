@@ -24,42 +24,8 @@ module type LocalizedStrings = sig
   val start : string
   val advanced_mode : string
   val see_accepted_ballots : string
-  val belenios_booth : string
-  val here : string
-  val question_header : string
-  val at_least : string
-  val at_most : string
-  val previous : string
-  val next : string
-  val nothing : string
-  val enter_cred : string
-  val invalid_cred : string
-  val input_credential : string
-  val answer_to_questions : string
-  val warning_0_255 : string
-  val alert_0_255 : string
-  val at_least_one_invalid : string
-  val review_and_encrypt : string
-  val authenticate : string
-  val confirm : string
-  val done_ : string
-  val booth_step1 : string
-  val booth_step2 : string
-  val booth_step3 : string
   val booth_step5 : string
   val booth_step6 : string
-  val input_your_credential : string
-  val wait_while_encrypted : string
-  val encrypting : string
-  val restart : string
-  val successfully_encrypted : string
-  val not_cast_yet : string
-  val qmark : string
-  val your_tracker_is : string
-  val we_invite_you_to_save_it : string
-  val continue : string
-  val election_uuid : string
-  val election_fingerprint : string
   val i_am : string
   val and_ : string
   val i_cast_my_vote : string
@@ -107,8 +73,6 @@ module type LocalizedStrings = sig
   val the_raw_results : string
   val json_result : string
   val it_contains_all_clear : string
-  val blank_vote : string
-  val no_other_blank : string
   val it_will_open_in : string
   val the_election_will_close_in : string
   val years : string

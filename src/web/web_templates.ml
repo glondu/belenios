@@ -1946,10 +1946,11 @@ let audit_footer election =
   let uuid = election.e_params.e_uuid in
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
+  let open (val Web_i18n.get_lang_gettext language) in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
       div [
-        txt L.election_fingerprint;
+        txt (s_ "Election fingerprint: ");
         code [ txt election.e_fingerprint ];
       ];
       div [
@@ -1978,13 +1979,14 @@ let rec list_concat elt = function
 
 let format_question_result uuid l (i, q) r =
   let module L = (val l : Web_i18n_sig.LocalizedStrings) in
+  let open (val Web_i18n.get_lang_gettext L.lang) in
   match q with
   | Question.Homomorphic x ->
      let r = Shape.to_array r in
      let open Question_h_t in
      let answers = Array.to_list x.q_answers in
      let answers = match x.q_blank with
-       | Some true -> L.blank_vote :: answers
+       | Some true -> s_ "Blank vote" :: answers
        | _ -> answers
      in
      let answers =
@@ -2894,6 +2896,7 @@ let cast_raw election () =
 let cast_confirmation election hash () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
+  let open (val Web_i18n.get_lang_gettext language) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let%lwt user = Web_state.get_election_user uuid in
@@ -2927,17 +2930,17 @@ let cast_confirmation election hash () =
          return @@ txt ""
   in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-    txt L.input_credential;
+    txt (s_ "Input credential");
     txt " — ";
-    txt L.answer_to_questions;
+    txt (s_ "Answer to questions");
     txt " — ";
-    txt L.review_and_encrypt;
+    txt (s_ "Review and encrypt");
     txt " — ";
-    txt L.authenticate;
+    txt (s_ "Authenticate");
     txt " — ";
-    b [txt L.confirm];
+    b [txt (s_ "Confirm")];
     txt " — ";
-    txt L.done_;
+    txt (s_ "Done");
     hr ();
   ] in
   let content = [
@@ -2949,7 +2952,7 @@ let cast_confirmation election hash () =
       txt L.your_ballot_for;
       em [txt name];
       txt L.has_been_received;
-      txt L.your_tracker_is;
+      txt (s_ "Your smart ballot tracker is ");
       b ~a:[a_id "ballot_tracker"] [
         txt hash
       ];
@@ -3005,21 +3008,22 @@ let cast_confirmed election ~result () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let l = Web_i18n.get_lang language in
   let module L = (val l) in
+  let open (val Web_i18n.get_lang_gettext language) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let name = params.e_name in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-    txt L.input_credential;
+    txt (s_ "Input credential");
     txt " — ";
-    txt L.answer_to_questions;
+    txt (s_ "Answer to questions");
     txt " — ";
-    txt L.review_and_encrypt;
+    txt (s_ "Review and encrypt");
     txt " — ";
-    txt L.authenticate;
+    txt (s_ "Authenticate");
     txt " — ";
-    txt L.confirm;
+    txt (s_ "Confirm");
     txt " — ";
-    b [txt L.done_];
+    b [txt (s_ "Done")];
     hr ();
   ] in
   let result, step_title =
@@ -3027,7 +3031,7 @@ let cast_confirmed election ~result () =
     | Ok hash ->
        [txt L.has_been_accepted;
         txt " ";
-        txt L.your_tracker_is;
+        txt (s_ "Your smart ballot tracker is ");
         b ~a:[a_id "ballot_tracker"] [
           txt hash
         ];
@@ -3569,9 +3573,8 @@ let changepw ~username ~address error =
 
 let booth () =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang language) in
   let open (val Web_i18n.get_lang_gettext language) in
-  let head = head (title (txt L.belenios_booth)) [
+  let head = head (title (txt (s_ "Belenios Booth"))) [
     link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
     script ~a:[a_src (static "tool_js_booth.js")] (txt "");
   ] in
@@ -3583,7 +3586,7 @@ let booth () =
   in
   let election_loader =
     div ~a:[a_id "election_loader"; a_style "display:none;"] [
-      h1 [txt L.belenios_booth];
+      h1 [txt (s_ "Belenios Booth")];
       br ();
       txt "Load an election on this server by giving its UUID:";
       div [unsafe_textarea "uuid" ""];
@@ -3607,20 +3610,20 @@ let booth () =
           ];
         ];
         p [
-          txt L.successfully_encrypted;
-          b [txt L.not_cast_yet];
-          txt L.qmark;
+          txt (s_ "Your ballot has been successfully encrypted, ");
+          b [txt (s_ "but has not been cast yet")];
+          txt (s_ "!");
         ];
         p [
-          txt L.your_tracker_is;
+          txt (s_ "Your smart ballot tracker is ");
           span ~a:[a_id "ballot_tracker"] [];
         ];
         p [
-          txt L.we_invite_you_to_save_it;
+          txt (s_ "We invite you to save it in order to check later that it is taken into account.");
         ];
         br ();
         div ~a:[a_id "div_submit"] [
-            input ~input_type:`Submit ~value:L.continue ~a:[a_style "font-size:30px;"] string;
+            input ~input_type:`Submit ~value:(s_ "Continue") ~a:[a_style "font-size:30px;"] string;
           ];
         div ~a:[a_id "div_submit_manually"; a_style "display:none;"] [
             txt "You must submit your ballot manually.";
@@ -3632,37 +3635,37 @@ let booth () =
   let main =
     div ~a:[a_id "main"] [
       div ~a:[a_style "text-align:center; margin-bottom:20px;"] [
-        span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [txt L.input_credential];
+        span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [txt (s_ "Input credential")];
         txt " — ";
-        span ~a:[a_id "progress2"] [txt L.answer_to_questions];
+        span ~a:[a_id "progress2"] [txt (s_ "Answer to questions")];
         txt " — ";
-        span ~a:[a_id "progress3"] [txt L.review_and_encrypt];
+        span ~a:[a_id "progress3"] [txt (s_ "Review and encrypt")];
         txt " — ";
-        span ~a:[a_id "progress4"] [txt L.authenticate];
+        span ~a:[a_id "progress4"] [txt (s_ "Authenticate")];
         txt " — ";
-        span ~a:[a_id "progress5"] [txt L.confirm];
+        span ~a:[a_id "progress5"] [txt (s_ "Confirm")];
         txt " — ";
-        span ~a:[a_id "progress6"] [txt L.done_];
+        span ~a:[a_id "progress6"] [txt (s_ "Done")];
         hr ();
       ];
       div ~a:[a_id "intro"; a_style "text-align:center;"] [
         div ~a:[a_class ["current_step"]] [
-          txt L.booth_step1;
+          txt (s_ "Step 1/6: Input credential");
         ];
         br (); br ();
         p ~a:[a_id "input_code"; a_style "font-size:20px;"] [
-          txt L.input_your_credential;
+          txt (s_ "Input your credential ");
         ];
         br (); br ();
       ];
       div ~a:[a_id "question_div"; a_style "display:none;"] [
         div ~a:[a_class ["current_step"]] [
-          txt L.booth_step2;
+          txt (s_ "Step 2/6: Answer to questions");
         ];
       ];
       div ~a:[a_id "plaintext_div"; a_style "display:none;"] [
         div ~a:[a_class ["current_step"]] [
-          txt L.booth_step3;
+          txt (s_ "Step 3/6: Review and encrypt");
         ];
         div ~a:[a_id "pretty_choices"] [];
         div ~a:[a_style "display:none;"] [
@@ -3671,11 +3674,11 @@ let booth () =
         ];
         div ~a:[a_style "text-align:center;"] [
           div ~a:[a_id "encrypting_div"] [
-            p [txt L.wait_while_encrypted];
-            img ~src:(static "encrypting.gif") ~alt:L.encrypting ();
+            p [txt (s_ "Please wait while your ballot is being encrypted...")];
+            img ~src:(static "encrypting.gif") ~alt:(s_ "Encrypting...") ();
           ];
           div ~a:[a_id "ballot_div"; a_style "display:none;"] [ballot_form];
-          Unsafe.data ("<button onclick=\"location.reload();\">"^L.restart^"</button>");
+          Unsafe.data ("<button onclick=\"location.reload();\">" ^ s_ "Restart" ^ "</button>");
           br (); br ();
         ];
       ];
@@ -3702,30 +3705,30 @@ let booth () =
       div ~a:[a_id "footer"] [
         div ~a:[a_id "bottom"] [
           div [
-            txt L.election_uuid;
+            txt (s_ "Election UUID: ");
             span ~a:[a_id "election_uuid"] [];
           ];
           div [
-            txt L.election_fingerprint;
+            txt (s_ "Election fingerprint: ");
             span ~a:[a_id "election_fingerprint"] [];
           ];
         ];
       ];
       div ~a:[a_style "display:none;"] [
-        span ~a:[a_id "str_here"] [txt L.here];
-        span ~a:[a_id "question_header"] [txt L.question_header];
-        span ~a:[a_id "at_least"] [txt L.at_least];
-        span ~a:[a_id "at_most"] [txt L.at_most];
-        span ~a:[a_id "str_previous"] [txt L.previous];
-        span ~a:[a_id "str_next"] [txt L.next];
-        span ~a:[a_id "str_nothing"] [txt L.nothing];
-        span ~a:[a_id "enter_cred"] [txt L.enter_cred];
-        span ~a:[a_id "invalid_cred"] [txt L.invalid_cred];
-        span ~a:[a_id "str_blank_vote"] [txt L.blank_vote];
-        span ~a:[a_id "no_other_blank"] [txt L.no_other_blank];
-        span ~a:[a_id "warning_0_255"] [txt L.warning_0_255];
-        span ~a:[a_id "alert_0_255"] [txt L.alert_0_255];
-        span ~a:[a_id "at_least_one_invalid"] [txt L.at_least_one_invalid];
+        span ~a:[a_id "str_here"] [txt (s_ "here")];
+        span ~a:[a_id "question_header"] [txt (s_ "Select between %d and %d answer(s)")];
+        span ~a:[a_id "at_least"] [txt (s_ "You must select at least %d answer(s)")];
+        span ~a:[a_id "at_most"] [txt (s_ "You must select at most %d answer(s)")];
+        span ~a:[a_id "str_previous"] [txt (s_ "Previous")];
+        span ~a:[a_id "str_next"] [txt (s_ "Next")];
+        span ~a:[a_id "str_nothing"] [txt (s_ "(nothing)")];
+        span ~a:[a_id "enter_cred"] [txt (s_ "Please enter your credential:")];
+        span ~a:[a_id "invalid_cred"] [txt (s_ "Invalid credential!")];
+        span ~a:[a_id "str_blank_vote"] [txt (s_ "Blank vote")];
+        span ~a:[a_id "no_other_blank"] [txt (s_ "No other choices are allowed when voting blank")];
+        span ~a:[a_id "warning_0_255"] [txt (s_ "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election.")];
+        span ~a:[a_id "alert_0_255"] [txt (s_ "Value must be an integer between 0 and 255.")];
+        span ~a:[a_id "at_least_one_invalid"] [txt (s_ "At least one of the answers is invalid!")];
       ];
     ]
   in
@@ -3736,7 +3739,7 @@ let booth () =
       booth_div;
     ];
   ] in
-  return @@ html ~a:[a_dir `Ltr; a_xml_lang L.lang] head body
+  return @@ html ~a:[a_dir `Ltr; a_xml_lang language] head body
 
 let contact_footer metadata please_contact =
   match metadata.e_contact with
