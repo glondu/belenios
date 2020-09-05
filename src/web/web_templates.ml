@@ -2019,8 +2019,8 @@ let format_question_result uuid l (i, q) r =
 
 let election_home election state () =
   let%lwt language = Eliom_reference.get Web_state.language in
+  let open (val Web_i18n.get_lang_gettext language) in
   let l = Web_i18n.get_lang language in
-  let module L = (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let%lwt dates = Web_persist.get_election_dates uuid in
@@ -2033,7 +2033,7 @@ let election_home election state () =
          | Some t when datetime_compare now t < 0 ->
             span [
                 txt " ";
-                txt L.it_will_open_in;
+                txt (s_ "It will open in ");
                 txt (format_period l (datetime_sub t now));
                 txt ".";
               ]
@@ -2041,7 +2041,7 @@ let election_home election state () =
        in
       [
         txt " ";
-        b [txt L.election_currently_closed];
+        b [txt (s_ "This election is currently closed.")];
         it_will_open;
       ]
     | `Open ->
@@ -2049,7 +2049,7 @@ let election_home election state () =
          match dates.e_auto_close with
          | Some t when datetime_compare now t < 0 ->
             span [
-                txt L.the_election_will_close_in;
+                txt (s_ "The election will close in ");
                 txt (format_period l (datetime_sub t now));
                 txt ".";
               ]
@@ -2059,22 +2059,22 @@ let election_home election state () =
     | `Shuffling ->
        [
          txt " ";
-         b [txt L.election_closed_being_tallied];
+         b [txt (s_ "The election is closed and being tallied.")];
        ]
     | `EncryptedTally _ ->
        [
          txt " ";
-         b [txt L.election_closed_being_tallied];
+         b [txt (s_ "The election is closed and being tallied.")];
        ]
     | `Tallied ->
        [
          txt " ";
-         b [txt L.election_has_been_tallied];
+         b [txt (s_ "This election has been tallied.")];
        ]
     | `Archived ->
        [
          txt " ";
-         b [txt L.election_archived];
+         b [txt (s_ "This election is archived.")];
        ]
   in
   let ballots_link =
@@ -2082,7 +2082,7 @@ let election_home election state () =
         a
           ~a:[a_style "font-size:25px;"]
           ~service:election_pretty_ballots [
-            txt L.see_accepted_ballots
+            txt (s_ "See accepted ballots")
           ] (uuid, ())
       ]
   in
@@ -2095,12 +2095,12 @@ let election_home election state () =
     div ~a:[a_style "text-align:center;"] [
       div [
           let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
-          make_button ~service:election_vote ~hash ~style:"font-size:35px;" ~disabled L.start;
+          make_button ~service:election_vote ~hash ~style:"font-size:35px;" ~disabled (s_ "Start");
         ];
       div [
         a
           ~service:(Eliom_service.preapply ~service:election_cast uuid)
-          [txt L.advanced_mode] ();
+          [txt (s_ "Advanced mode")] ();
       ];
     ]
   in
@@ -2121,13 +2121,13 @@ let election_home election state () =
              |> Array.to_list
            );
          div [
-           txt L.number_accepted_ballots;
+           txt (s_ "Number of accepted ballots: ");
            txt (string_of_int r.num_tallied);
          ];
          div [
-           txt L.you_can_also_download;
+           txt (s_ "You can also download the ");
            a ~service:election_dir
-             [txt L.result_with_crypto_proofs]
+             [txt (s_ "result with cryptographic proofs")]
              (uuid, ESResult);
            txt ".";
          ];
@@ -2140,7 +2140,8 @@ let election_home election state () =
        in
        return @@
          div [
-             Printf.ksprintf txt L.result_currently_not_public
+             Printf.ksprintf txt
+               (f_ "The result of this election is currently not publicly available. It will be in %s.")
                (format_period l (datetime_sub t now));
            ]
     | None -> return go_to_the_booth
@@ -2157,10 +2158,10 @@ let election_home election state () =
       div
         ~a:[a_style "border-style: solid; border-width: 1px;"]
         [
-          txt L.by_using_you_accept;
-          unsafe_a !Web_config.gdpr_uri L.privacy_policy;
+          txt (s_ "By using this site, you accept our ");
+          unsafe_a !Web_config.gdpr_uri (s_ "personal data policy");
           txt ". ";
-          a ~service:set_cookie_disclaimer [txt L.accept] (ContSiteElection uuid);
+          a ~service:set_cookie_disclaimer [txt (s_ "Accept")] (ContSiteElection uuid);
         ]
     else txt ""
   in

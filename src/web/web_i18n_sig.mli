@@ -21,9 +21,6 @@
 
 module type LocalizedStrings = sig
   val lang : string
-  val start : string
-  val advanced_mode : string
-  val see_accepted_ballots : string
   val booth_step5 : string
   val booth_step6 : string
   val i_am : string
@@ -56,32 +53,19 @@ module type LocalizedStrings = sig
   val password : string
   val login : string
   val password_login : string
-  val by_using_you_accept : string
-  val privacy_policy : string
-  val accept : string
   val not_found : string
   val election_does_not_exist : string
   val cookies_are_blocked : string
   val please_enable_them : string
-  val election_currently_closed : string
-  val election_closed_being_tallied : string
-  val election_has_been_tallied : string
-  val election_archived : string
-  val number_accepted_ballots : string
-  val you_can_also_download : string
-  val result_with_crypto_proofs : string
   val the_raw_results : string
   val json_result : string
   val it_contains_all_clear : string
-  val it_will_open_in : string
-  val the_election_will_close_in : string
   val years : string
   val months : string
   val days : string
   val hours : string
   val minutes : string
   val seconds : string
-  val result_currently_not_public : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_password_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_password : (string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_credential_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
