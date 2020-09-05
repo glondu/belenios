@@ -53,15 +53,6 @@ module type LocalizedStrings = sig
   val election_does_not_exist : string
   val cookies_are_blocked : string
   val please_enable_them : string
-  val the_raw_results : string
-  val json_result : string
-  val it_contains_all_clear : string
-  val years : string
-  val months : string
-  val days : string
-  val hours : string
-  val minutes : string
-  val seconds : string
   val mail_password_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_password : (string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_credential_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6

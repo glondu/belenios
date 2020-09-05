@@ -52,15 +52,6 @@ let not_found = "Not found"
 let election_does_not_exist = "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 let cookies_are_blocked = "Cookies sind deaktiviert"
 let please_enable_them = "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
-let the_raw_results = "The raw results can be viewed in the "
-let json_result = "JSON result"
-let it_contains_all_clear = ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
-let years = " Jahr(en)"
-let months = " Monat(en)"
-let days = " Tag(en)"
-let hours = " Stunde(n)"
-let minutes = " Minute(n)"
-let seconds = " Sekunde(n)"
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

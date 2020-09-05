@@ -1977,8 +1977,7 @@ let rec list_concat elt = function
   | ([_] | []) as xs -> xs
 
 let format_question_result uuid l (i, q) r =
-  let module L = (val l : Web_i18n_sig.LocalizedStrings) in
-  let open (val Web_i18n.get_lang_gettext L.lang) in
+  let open (val l : Web_i18n_sig.GETTEXT) in
   match q with
   | Question.Homomorphic x ->
      let r = Shape.to_array r in
@@ -2010,16 +2009,16 @@ let format_question_result uuid l (i, q) r =
      li [
          div ~a:[a_class ["result_question"]] [txt x.q_question];
          div [
-             txt L.the_raw_results;
-             a ~service:election_project_result [txt L.json_result] ((uuid, ()), i);
-             txt L.it_contains_all_clear;
+             txt (s_ "The raw results can be viewed in the ");
+             a ~service:election_project_result [txt (s_ "JSON result")] ((uuid, ()), i);
+             txt (s_ ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement).");
            ];
        ]
 
 let election_home election state () =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let open (val Web_i18n.get_lang_gettext language) in
-  let l = Web_i18n.get_lang language in
+  let l = Web_i18n.get_lang_gettext language in
+  let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let%lwt dates = Web_persist.get_election_dates uuid in
