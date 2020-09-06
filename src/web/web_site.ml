@@ -1051,6 +1051,31 @@ let () =
 
 module CG = Credential.MakeGenerate (LwtRandom)
 
+let mail_credential l title cas cred url contact =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (s_ "You are listed as a voter for the election"); add_newline b;
+  add_newline b;
+  add_string b "  "; add_string b title; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "You will find below your credential.");
+  if not cas then (
+    add_sentence b (s_ "To cast a vote, you will also need a password, sent in a separate email.");
+    add_sentence b (s_ "Be careful, passwords and credentials look similar but play different roles.");
+    add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
+    add_sentence b (s_ "Login and passwords are required once your ballot is ready to be cast.");
+  );
+  add_newline b;
+  add_newline b;
+  add_string b (s_ "Credential:"); add_string b " "; add_string b cred; add_newline b;
+  add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Note that you are allowed to vote several times.");
+  add_sentence b (s_ "Only the last vote counts.");
+  contact b;
+  contents b
+
 let () =
   Any.register ~service:election_draft_credentials_server
     (fun uuid () ->
@@ -1090,18 +1115,20 @@ let () =
                     G.(g **~ x)
                   in
                   let langs = get_languages se.se_metadata.e_languages in
-                  let bodies = List.map (fun lang ->
-                                   let module L = (val Web_i18n.get_lang lang) in
-                                   let intro = if cas then L.mail_credential_cas else L.mail_credential_password in
-                                   let contact = T.contact_footer se.se_metadata L.please_contact in
-                                   Printf.sprintf L.mail_credential title intro cred url contact
-                                 ) langs in
+                  let bodies =
+                    List.map
+                      (fun lang ->
+                        let l = Web_i18n.get_lang_gettext lang in
+                        let contact = T.contact_footer' l se.se_metadata in
+                        mail_credential l title cas cred url contact
+                      ) langs
+                  in
                   let body = PString.concat "\n\n----------\n\n" bodies in
                   let body = body ^ "\n\n-- \nBelenios" in
                   let subject =
                     let lang = List.hd langs in
-                    let module L = (val Web_i18n.get_lang lang) in
-                    Printf.sprintf L.mail_credential_subject title
+                    let open (val Web_i18n.get_lang_gettext lang) in
+                    Printf.sprintf (f_ "Your credential for election %s") title
                   in
                   let%lwt () = send_email email subject body in
                   return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)

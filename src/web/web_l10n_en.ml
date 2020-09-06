@@ -22,32 +22,6 @@
 let lang = "en"
 
 
-let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Your credential for election %s"
-
-let mail_credential : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "You are listed as a voter for the election
-
-  %s
-
-%s
-
-Credential: %s
-Page of the election: %s
-
-Note that you are allowed to vote several times.  Only the last vote
-counts.%s"
-
-let mail_credential_password =
-"You will find below your credential.  To cast a vote, you will also
-need a password, sent in a separate email.  Be careful, passwords and
-credentials look similar but play different roles.  You will be asked
-to enter your credential before entering the voting booth.  Login and
-passwords are required once your ballot is ready to be cast."
-
-let mail_credential_cas =
-"You will find below your credential."
-
 let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Your vote for election %s"
 
