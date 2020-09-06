@@ -211,6 +211,10 @@ msgstr "Sie öffnet in "
 msgid "JSON result"
 msgstr ""
 
+#: ../src/web/web_templates.ml:3380
+msgid "Login"
+msgstr ""
+
 #: ../src/web/web_templates.ml:3719
 msgid "Next"
 msgstr "Weiter"
@@ -230,6 +234,14 @@ msgstr "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt se
 #: ../src/web/web_templates.ml:2122
 msgid "Number of accepted ballots: "
 msgstr "Anzahl angenommener Stimmen: "
+
+#: ../src/web/web_templates.ml:3388
+msgid "Password login"
+msgstr "Login mit Passwort"
+
+#: ../src/web/web_templates.ml:3375
+msgid "Password:"
+msgstr "Passwort:"
 
 #: ../src/web/web_templates.ml:3721
 msgid "Please enter your credential:"
@@ -327,6 +339,10 @@ msgstr "Diese Abstimmung wurde archiviert."
 #: ../src/web/web_templates.ml:2042
 msgid "This election is currently closed."
 msgstr "Diese Abstimmung ist beendet."
+
+#: ../src/web/web_templates.ml:3371
+msgid "Username:"
+msgstr "Benutzername:"
 
 #: ../src/web/web_templates.ml:3726
 msgid "Value must be an integer between 0 and 255."

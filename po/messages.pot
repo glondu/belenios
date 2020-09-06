@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-06 05:43+0000\n"
+"POT-Creation-Date: 2020-09-06 05:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -216,6 +216,10 @@ msgstr ""
 msgid "JSON result"
 msgstr ""
 
+#: ../src/web/web_templates.ml:3380
+msgid "Login"
+msgstr ""
+
 #: ../src/web/web_templates.ml:3719
 msgid "Next"
 msgstr ""
@@ -234,6 +238,14 @@ msgstr ""
 
 #: ../src/web/web_templates.ml:2122
 msgid "Number of accepted ballots: "
+msgstr ""
+
+#: ../src/web/web_templates.ml:3388
+msgid "Password login"
+msgstr ""
+
+#: ../src/web/web_templates.ml:3375
+msgid "Password:"
 msgstr ""
 
 #: ../src/web/web_templates.ml:3721
@@ -331,6 +343,10 @@ msgstr ""
 
 #: ../src/web/web_templates.ml:2042
 msgid "This election is currently closed."
+msgstr ""
+
+#: ../src/web/web_templates.ml:3371
+msgid "Username:"
 msgstr ""
 
 #: ../src/web/web_templates.ml:3726

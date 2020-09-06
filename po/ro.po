@@ -211,6 +211,10 @@ msgstr "Se va deschide în "
 msgid "JSON result"
 msgstr ""
 
+#: ../src/web/web_templates.ml:3380
+msgid "Login"
+msgstr "Conectare"
+
 #: ../src/web/web_templates.ml:3719
 msgid "Next"
 msgstr "Următor"
@@ -230,6 +234,14 @@ msgstr "Notă: buletinul de vot este criptat și nimeni nu-i poate vedea conțin
 #: ../src/web/web_templates.ml:2122
 msgid "Number of accepted ballots: "
 msgstr "Numărul buletinelor de vot acceptate: "
+
+#: ../src/web/web_templates.ml:3388
+msgid "Password login"
+msgstr "Conectare folosind parola"
+
+#: ../src/web/web_templates.ml:3375
+msgid "Password:"
+msgstr "Parola:"
 
 #: ../src/web/web_templates.ml:3721
 msgid "Please enter your credential:"
@@ -327,6 +339,10 @@ msgstr "Această alegere este arhivată."
 #: ../src/web/web_templates.ml:2042
 msgid "This election is currently closed."
 msgstr "Această alegere este în prezent închisă."
+
+#: ../src/web/web_templates.ml:3371
+msgid "Username:"
+msgstr "Nume utilizator:"
 
 #: ../src/web/web_templates.ml:3726
 msgid "Value must be an integer between 0 and 255."

@@ -20,10 +20,6 @@
 (**************************************************************************)
 
 let lang = "fr"
-let username = "Nom d'utilisateur :"
-let password = "Mot de passe :"
-let login = "Se connecter"
-let password_login = "Connexion par mot de passe"
 let not_found = "Non trouvé"
 let election_does_not_exist = "Cette élection n'existe pas. Cela peut arriver quand l'élection n'a pas encore été ouverte ou a été supprimée."
 let cookies_are_blocked = "Les cookies sont bloqués"

@@ -20,10 +20,6 @@
 (**************************************************************************)
 
 let lang = "ro"
-let username = "Nume utilizator:"
-let password = "Parola:"
-let login = "Conectare"
-let password_login = "Conectare folosind parola"
 let not_found = "Not found"
 let election_does_not_exist = "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 let cookies_are_blocked = "Cookie-urile sunt blocate"

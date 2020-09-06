@@ -3349,7 +3349,7 @@ let login_dummy ~state =
 
 let login_password ~service ~allowsignups ~state =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang language) in
+  let open (val Web_i18n.get_lang_gettext language) in
   let signup =
     if allowsignups then
       div [
@@ -3368,16 +3368,16 @@ let login_password ~service ~allowsignups ~state =
         input ~input_type:`Hidden ~name:lstate ~value:state string;
         tablex [tbody [
           tr [
-            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [txt L.username]];
+            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [txt (s_ "Username:")]];
             td [input ~input_type:`Text ~name:llogin string];
           ];
           tr [
-            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name lpassword)] [txt L.password]];
+            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name lpassword)] [txt (s_ "Password:")]];
             td [input ~input_type:`Password ~name:lpassword string];
           ];
         ]];
         div [
-          input ~input_type:`Submit ~value:L.login string;
+          input ~input_type:`Submit ~value:(s_ "Login") string;
         ]
       ]) ()
   in
@@ -3385,7 +3385,7 @@ let login_password ~service ~allowsignups ~state =
     form;
     signup;
   ] in
-  base ~title:L.password_login ~content ()
+  base ~title:(s_ "Password login") ~content ()
 
 let login_failed ~service () =
   let title = "Authentication failed" in

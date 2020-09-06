@@ -211,6 +211,10 @@ msgstr ""
 msgid "JSON result"
 msgstr ""
 
+#: ../src/web/web_templates.ml:3380
+msgid "Login"
+msgstr "Connettersi"
+
 #: ../src/web/web_templates.ml:3719
 msgid "Next"
 msgstr "Seguente"
@@ -230,6 +234,14 @@ msgstr "Nota: la sua scheda è cifrata e nessuno può consultarla."
 #: ../src/web/web_templates.ml:2122
 msgid "Number of accepted ballots: "
 msgstr "Numero di schede accettate : "
+
+#: ../src/web/web_templates.ml:3388
+msgid "Password login"
+msgstr "Connessione tramite la password"
+
+#: ../src/web/web_templates.ml:3375
+msgid "Password:"
+msgstr "Password :"
 
 #: ../src/web/web_templates.ml:3721
 msgid "Please enter your credential:"
@@ -327,6 +339,10 @@ msgstr "Questa elezione è archiviata."
 #: ../src/web/web_templates.ml:2042
 msgid "This election is currently closed."
 msgstr "Questa elezione è chiusa per ora."
+
+#: ../src/web/web_templates.ml:3371
+msgid "Username:"
+msgstr "Nome utente :"
 
 #: ../src/web/web_templates.ml:3726
 msgid "Value must be an integer between 0 and 255."

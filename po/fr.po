@@ -211,6 +211,10 @@ msgstr "Elle ouvrira dans "
 msgid "JSON result"
 msgstr "résultat JSON"
 
+#: ../src/web/web_templates.ml:3380
+msgid "Login"
+msgstr "Se connecter"
+
 #: ../src/web/web_templates.ml:3719
 msgid "Next"
 msgstr "Suivant"
@@ -230,6 +234,14 @@ msgstr "Note: votre bulletin est chiffré et personne ne peut voir son contenu."
 #: ../src/web/web_templates.ml:2122
 msgid "Number of accepted ballots: "
 msgstr "Nombre de bulletins acceptés : "
+
+#: ../src/web/web_templates.ml:3388
+msgid "Password login"
+msgstr "Connexion par mot de passe"
+
+#: ../src/web/web_templates.ml:3375
+msgid "Password:"
+msgstr "Mot de passe :"
 
 #: ../src/web/web_templates.ml:3721
 msgid "Please enter your credential:"
@@ -327,6 +339,10 @@ msgstr "Cette élection est archivée."
 #: ../src/web/web_templates.ml:2042
 msgid "This election is currently closed."
 msgstr "Cette élection est actuellement fermée."
+
+#: ../src/web/web_templates.ml:3371
+msgid "Username:"
+msgstr "Nom d'utilisateur :"
 
 #: ../src/web/web_templates.ml:3726
 msgid "Value must be an integer between 0 and 255."

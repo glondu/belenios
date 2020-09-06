@@ -21,10 +21,6 @@
 
 module type LocalizedStrings = sig
   val lang : string
-  val username : string
-  val password : string
-  val login : string
-  val password_login : string
   val not_found : string
   val election_does_not_exist : string
   val cookies_are_blocked : string
