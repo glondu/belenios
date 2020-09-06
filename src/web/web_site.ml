@@ -652,7 +652,21 @@ let () =
         )
     )
 
-let mail_password l title login password url contact =
+let contact_footer l metadata =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  match metadata.e_contact with
+  | None -> fun _ -> ()
+  | Some x ->
+     fun b ->
+     let open Mail_formatter in
+     add_newline b;
+     add_newline b;
+     add_sentence b (s_ "To get more information, please contact:");
+     add_newline b;
+     add_string b "  ";
+     add_string b x
+
+let mail_password l title login password url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -673,7 +687,7 @@ let mail_password l title login password url contact =
   add_newline b;
   add_sentence b (s_ "Note that you are allowed to vote several times.");
   add_sentence b (s_ "Only the last vote counts.");
-  contact b;
+  contact_footer l metadata b;
   contents b
 
 let generate_password metadata langs title url id =
@@ -683,8 +697,7 @@ let generate_password metadata langs title url id =
   let hashed = sha256_hex (salt ^ password) in
   let bodies = List.map (fun lang ->
     let l = Web_i18n.get_lang_gettext lang in
-    let contact = T.contact_footer' l metadata in
-    mail_password l title login password url contact
+    mail_password l title login password url metadata
   ) langs in
   let body = PString.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
@@ -1051,7 +1064,7 @@ let () =
 
 module CG = Credential.MakeGenerate (LwtRandom)
 
-let mail_credential l title cas cred url contact =
+let mail_credential l title cas cred url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1073,7 +1086,7 @@ let mail_credential l title cas cred url contact =
   add_newline b;
   add_sentence b (s_ "Note that you are allowed to vote several times.");
   add_sentence b (s_ "Only the last vote counts.");
-  contact b;
+  contact_footer l metadata b;
   contents b
 
 let () =
@@ -1119,8 +1132,7 @@ let () =
                     List.map
                       (fun lang ->
                         let l = Web_i18n.get_lang_gettext lang in
-                        let contact = T.contact_footer' l se.se_metadata in
-                        mail_credential l title cas cred url contact
+                        mail_credential l title cas cred url se.se_metadata
                       ) langs
                   in
                   let body = PString.concat "\n\n----------\n\n" bodies in
@@ -1654,7 +1666,7 @@ let () =
             | None -> redir_preapply election_login ((uuid, ()), None) ()
     )
 
-let mail_confirmation l user title hash revote url1 url2 contact =
+let mail_confirmation l user title hash revote url1 url2 metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1680,7 +1692,7 @@ let mail_confirmation l user title hash revote url1 url2 contact =
   add_sentence b (s_ "Results will be published on the election page");
   add_newline b;
   add_string b "  "; add_string b url2;
-  contact b;
+  contact_footer l metadata b;
   add_newline b;
   add_newline b;
   add_string b "-- "; add_newline b;
@@ -1711,8 +1723,7 @@ let send_confirmation_email uuid revote user email hash =
   let l = Web_i18n.get_lang_gettext language in
   let open (val l) in
   let subject = Printf.sprintf (f_ "Your vote for election %s") title in
-  let contact = Web_templates.contact_footer' l metadata in
-  let body = mail_confirmation l user title hash revote url1 url2 contact in
+  let body = mail_confirmation l user title hash revote url1 url2 metadata in
   send_email email subject body
 
 let cast_ballot uuid ~rawballot ~user =
