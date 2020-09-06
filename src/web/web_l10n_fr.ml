@@ -20,30 +20,3 @@
 (**************************************************************************)
 
 let lang = "fr"
-
-
-let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Votre vote pour l'élection %s"
-
-let mail_confirmation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "%s,
-
-Votre vote pour l'élection
-
-  %s
-
-a été enregistré. Votre numéro de suivi est
-
-  %s%s
-
-
-Vous pouvez vérifier sa présence dans l'urne, accessible au
-  %s
-
-Les résultats seront publiés sur la page de l'élection
-  %s%s
-
--- \nBelenios"
-
-let this_vote_replaces = "\n\nCe vote remplace le vote précédent."
-let please_contact = "Pour obtenir plus d'informations, veuillez contacter :"

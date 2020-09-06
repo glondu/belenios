@@ -20,30 +20,3 @@
 (**************************************************************************)
 
 let lang = "en"
-
-
-let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Your vote for election %s"
-
-let mail_confirmation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Dear %s,
-
-Your vote for election
-
-  %s
-
-has been recorded. Your smart ballot tracker is
-
-  %s%s
-
-
-You can check its presence in the ballot box, accessible at
-  %s
-
-Results will be published on the election page
-  %s%s
-
--- \nBelenios"
-
-let this_vote_replaces = "\n\nThis vote replaces any previous vote."
-let please_contact = "To get more information, please contact:"

@@ -21,10 +21,6 @@
 
 module type LocalizedStrings = sig
   val lang : string
-  val mail_confirmation_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
-  val mail_confirmation : (string -> string -> string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
-  val this_vote_replaces : string
-  val please_contact : string
 end
 
 module type GETTEXT = sig

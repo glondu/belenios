@@ -1654,6 +1654,39 @@ let () =
             | None -> redir_preapply election_login ((uuid, ()), None) ()
     )
 
+let mail_confirmation l user title hash revote url1 url2 contact =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") user); add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Your vote for election"); add_newline b;
+  add_string b "  "; add_string b title; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "has been recorded.");
+  add_sentence b (s_ "Your smart ballot tracker is"); add_newline b;
+  add_newline b;
+  add_string b "  "; add_string b hash; add_newline b;
+  if revote then (
+     add_newline b;
+     add_sentence b (s_ "This vote replaces any previous vote.");
+     add_newline b;
+  );
+  add_newline b;
+  add_sentence b (s_ "You can check its presence in the ballot box, accessible at");
+  add_newline b;
+  add_string b "  "; add_string b url1; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Results will be published on the election page");
+  add_newline b;
+  add_string b "  "; add_string b url2;
+  contact b;
+  add_newline b;
+  add_newline b;
+  add_string b "-- "; add_newline b;
+  add_string b "Belenios";
+  contents b
+
 let send_confirmation_email uuid revote user email hash =
   let%lwt election =
     match%lwt find_election uuid with
@@ -1675,11 +1708,11 @@ let send_confirmation_email uuid revote user email hash =
     ~service:Web_services.election_home x |> rewrite_prefix
   in
   let%lwt language = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang language) in
-  let subject = Printf.sprintf L.mail_confirmation_subject title in
-  let contact = Web_templates.contact_footer metadata L.please_contact in
-  let revote = if revote then L.this_vote_replaces else "" in
-  let body = Printf.sprintf L.mail_confirmation user title hash revote url1 url2 contact in
+  let l = Web_i18n.get_lang_gettext language in
+  let open (val l) in
+  let subject = Printf.sprintf (f_ "Your vote for election %s") title in
+  let contact = Web_templates.contact_footer' l metadata in
+  let body = mail_confirmation l user title hash revote url1 url2 contact in
   send_email email subject body
 
 let cast_ballot uuid ~rawballot ~user =

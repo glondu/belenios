@@ -159,6 +159,10 @@ msgstr "Les cookies sont bloqués"
 msgid "Credential:"
 msgstr "Code de vote :"
 
+#: ../src/web/web_site.ml:1661
+msgid "Dear %s,"
+msgstr "%s,"
+
 #: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
 #. ../src/web/web_templates.ml:2941
 msgid "Done"
@@ -303,6 +307,10 @@ msgstr "Politique de confidentialité"
 msgid "Restart"
 msgstr "Recommencer"
 
+#: ../src/web/web_site.ml:1680
+msgid "Results will be published on the election page"
+msgstr "Les résultats seront publiés sur la page de l'élection"
+
 #: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
 #. ../src/web/web_templates.ml:2935
 msgid "Review and encrypt"
@@ -376,6 +384,10 @@ msgstr "Cette élection est archivée."
 msgid "This election is currently closed."
 msgstr "Cette élection est actuellement fermée."
 
+#: ../src/web/web_site.ml:1672
+msgid "This vote replaces any previous vote."
+msgstr "Ce vote remplace le vote précédent."
+
 #: ../src/web/web_site.ml:664
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
 msgstr "Pour soumettre un bulletin, vous aurez également besoin d'un code de vote, envoyé dans un e-mail séparé."
@@ -415,6 +427,10 @@ msgstr "Vous pouvez également télécharger le "
 #: ../src/web/web_templates.ml:3035
 msgid "You can check its presence in the "
 msgstr "Vous pouvez vérifier sa présence dans l'"
+
+#: ../src/web/web_site.ml:1676
+msgid "You can check its presence in the ballot box, accessible at"
+msgstr "Vous pouvez vérifier sa présence dans l'urne, accessible au"
 
 #: ../src/web/web_templates.ml:3716
 msgid "You must select at least %d answer(s)"
@@ -456,10 +472,22 @@ msgstr "Votre code de vote pour l'élection %s"
 msgid "Your password for election %s"
 msgstr "Votre mot de passe pour l'élection %s"
 
+#: ../src/web/web_site.ml:1667
+msgid "Your smart ballot tracker is"
+msgstr "Votre numéro de suivi est"
+
 #: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
 #. ../src/web/web_templates.ml:2953
 msgid "Your smart ballot tracker is "
 msgstr "Votre numéro de suivi est "
+
+#: ../src/web/web_site.ml:1663
+msgid "Your vote for election"
+msgstr "Votre vote pour l'élection"
+
+#: ../src/web/web_site.ml:1713
+msgid "Your vote for election %s"
+msgstr "Votre vote pour l'élection %s"
 
 #: ../src/web/web_common.ml:83
 msgid "a credential is missing"
@@ -476,6 +504,10 @@ msgstr "bulletins"
 #: ../src/web/web_templates.ml:3610
 msgid "but has not been cast yet"
 msgstr "mais n'a pas encore été déposé dans l'urne"
+
+#: ../src/web/web_site.ml:1666
+msgid "has been recorded."
+msgstr "a été enregistré."
 
 #: ../src/web/web_templates.ml:3714
 msgid "here"

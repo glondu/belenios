@@ -159,6 +159,10 @@ msgstr "Cookie-urile sunt blocate"
 msgid "Credential:"
 msgstr "Cod de votare:"
 
+#: ../src/web/web_site.ml:1661
+msgid "Dear %s,"
+msgstr "%s,"
+
 #: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
 #. ../src/web/web_templates.ml:2941
 msgid "Done"
@@ -303,6 +307,10 @@ msgstr ""
 msgid "Restart"
 msgstr "Reîncepe"
 
+#: ../src/web/web_site.ml:1680
+msgid "Results will be published on the election page"
+msgstr "Rezultatele vor fi publicate pe pagina alegerii"
+
 #: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
 #. ../src/web/web_templates.ml:2935
 msgid "Review and encrypt"
@@ -376,6 +384,10 @@ msgstr "Această alegere este arhivată."
 msgid "This election is currently closed."
 msgstr "Această alegere este în prezent închisă."
 
+#: ../src/web/web_site.ml:1672
+msgid "This vote replaces any previous vote."
+msgstr "Acest vot înlocuiește orice vot precedent."
+
 #: ../src/web/web_site.ml:664
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
 msgstr "Pentru a depune votul vostru, vă trebuie un cod de votare, ce va fi trimis într-un e-mail separat."
@@ -415,6 +427,10 @@ msgstr "De asemenea, puteți descărca "
 #: ../src/web/web_templates.ml:3035
 msgid "You can check its presence in the "
 msgstr "Puteți verifica prezența sa în "
+
+#: ../src/web/web_site.ml:1676
+msgid "You can check its presence in the ballot box, accessible at"
+msgstr "Puteți verifica prezența acestuia în urna de vot, accesibilă la"
 
 #: ../src/web/web_templates.ml:3716
 msgid "You must select at least %d answer(s)"
@@ -456,10 +472,22 @@ msgstr "Codul vostru de votare pentru alegere %s"
 msgid "Your password for election %s"
 msgstr "Parola voastră pentru alegere %s"
 
+#: ../src/web/web_site.ml:1667
+msgid "Your smart ballot tracker is"
+msgstr "Numărul vostru de identificare este"
+
 #: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
 #. ../src/web/web_templates.ml:2953
 msgid "Your smart ballot tracker is "
 msgstr "Numărul vostru de identificare este "
+
+#: ../src/web/web_site.ml:1663
+msgid "Your vote for election"
+msgstr "Votul vostru pentru alegerea"
+
+#: ../src/web/web_site.ml:1713
+msgid "Your vote for election %s"
+msgstr "Votul vostru pentru alegerea %s"
 
 #: ../src/web/web_common.ml:83
 msgid "a credential is missing"
@@ -476,6 +504,10 @@ msgstr "buletine de vot"
 #: ../src/web/web_templates.ml:3610
 msgid "but has not been cast yet"
 msgstr "dar încă nu a fost depus în urna de vot"
+
+#: ../src/web/web_site.ml:1666
+msgid "has been recorded."
+msgstr "a fost înregistrat."
 
 #: ../src/web/web_templates.ml:3714
 msgid "here"

@@ -159,6 +159,10 @@ msgstr "Cookies sind deaktiviert"
 msgid "Credential:"
 msgstr "Wählernummer:"
 
+#: ../src/web/web_site.ml:1661
+msgid "Dear %s,"
+msgstr "%s,"
+
 #: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
 #. ../src/web/web_templates.ml:2941
 msgid "Done"
@@ -303,6 +307,10 @@ msgstr "Datenschutzbestimmungen"
 msgid "Restart"
 msgstr "Erneut beginnen"
 
+#: ../src/web/web_site.ml:1680
+msgid "Results will be published on the election page"
+msgstr "Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:"
+
 #: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
 #. ../src/web/web_templates.ml:2935
 msgid "Review and encrypt"
@@ -376,6 +384,10 @@ msgstr "Diese Abstimmung wurde archiviert."
 msgid "This election is currently closed."
 msgstr "Diese Abstimmung ist beendet."
 
+#: ../src/web/web_site.ml:1672
+msgid "This vote replaces any previous vote."
+msgstr "Diese Stimme ersetzt eine eventuelle vorherige Stimme."
+
 #: ../src/web/web_site.ml:664
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
 msgstr "Um abzustimmen benötigen sie außerdem noch Ihre Wählernummer, die Ihnen in einer separaten Mail zugestellt wird."
@@ -415,6 +427,10 @@ msgstr "Sie können außerdem das "
 #: ../src/web/web_templates.ml:3035
 msgid "You can check its presence in the "
 msgstr "Sie können jederzeit überprüfen, dass Ihre Stimme in der "
+
+#: ../src/web/web_site.ml:1676
+msgid "You can check its presence in the ballot box, accessible at"
+msgstr "Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der Wahlurne befindet:"
 
 #: ../src/web/web_templates.ml:3716
 msgid "You must select at least %d answer(s)"
@@ -456,10 +472,22 @@ msgstr "Ihre Wählernummer für die Abstimmung %s"
 msgid "Your password for election %s"
 msgstr "Ihr Passwort für die Abstimmung %s"
 
+#: ../src/web/web_site.ml:1667
+msgid "Your smart ballot tracker is"
+msgstr "Ihre Stimmennummer ist:"
+
 #: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
 #. ../src/web/web_templates.ml:2953
 msgid "Your smart ballot tracker is "
 msgstr "Ihre Stimmennummer ist "
+
+#: ../src/web/web_site.ml:1663
+msgid "Your vote for election"
+msgstr "Ihre Stimme zur Abstimmung"
+
+#: ../src/web/web_site.ml:1713
+msgid "Your vote for election %s"
+msgstr "Ihre Stimme zur Abstimmung %s"
 
 #: ../src/web/web_common.ml:83
 msgid "a credential is missing"
@@ -476,6 +504,10 @@ msgstr "Stimmen"
 #: ../src/web/web_templates.ml:3610
 msgid "but has not been cast yet"
 msgstr "aber noch nicht abgeschickt"
+
+#: ../src/web/web_site.ml:1666
+msgid "has been recorded."
+msgstr "wurde angenommen."
 
 #: ../src/web/web_templates.ml:3714
 msgid "here"

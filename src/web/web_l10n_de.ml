@@ -20,31 +20,3 @@
 (**************************************************************************)
 
 let lang = "de"
-
-
-let mail_confirmation_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Ihre Stimme zur Abstimmung %s"
-
-let mail_confirmation : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "%s,
-
-Ihre Stimme zur Abstimmung
-
-  %s
-
-wurde angenommen. Ihre Stimmennummer ist:
-
-  %s%s
-
-
-Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der
-Wahlurne befindet:
-  %s
-
-Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:
-  %s%s
-
--- \nBelenios"
-
-let this_vote_replaces = "\n\nDiese Stimme ersetzt eine eventuelle vorherige Stimme."
-let please_contact = "Für mehr Informationen wenden Sie sich bitte an:"
