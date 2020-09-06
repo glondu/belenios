@@ -126,7 +126,7 @@ msgstr "Auditdaten: "
 msgid "Authenticate"
 msgstr "Authentifizieren"
 
-#: ../src/web/web_site.ml:1065 ../src/web/web_site.ml:665
+#: ../src/web/web_site.ml:1078 ../src/web/web_site.ml:679
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr ""
 
@@ -151,15 +151,15 @@ msgstr "Bestätigen"
 msgid "Continue"
 msgstr "Weiter"
 
-#: ../src/web/web_site.ml:1644
+#: ../src/web/web_site.ml:1656
 msgid "Cookies are blocked"
 msgstr "Cookies sind deaktiviert"
 
-#: ../src/web/web_site.ml:1071
+#: ../src/web/web_site.ml:1084
 msgid "Credential:"
 msgstr "Wählernummer:"
 
-#: ../src/web/web_site.ml:1661
+#: ../src/web/web_site.ml:1673
 msgid "Dear %s,"
 msgstr "%s,"
 
@@ -231,7 +231,7 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
-#: ../src/web/web_site.ml:1067 ../src/web/web_site.ml:667
+#: ../src/web/web_site.ml:1080 ../src/web/web_site.ml:681
 msgid "Login and passwords are required once your ballot is ready to be cast."
 msgstr ""
 
@@ -247,7 +247,7 @@ msgstr "Bei einer ungültigen Stimme sind keine anderen Auswahlmöglichkeiten vo
 msgid "Not found"
 msgstr ""
 
-#: ../src/web/web_site.ml:1074 ../src/web/web_site.ml:674
+#: ../src/web/web_site.ml:1087 ../src/web/web_site.ml:688
 msgid "Note that you are allowed to vote several times."
 msgstr ""
 
@@ -263,11 +263,11 @@ msgstr "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt se
 msgid "Number of accepted ballots: "
 msgstr "Anzahl angenommener Stimmen: "
 
-#: ../src/web/web_site.ml:1075 ../src/web/web_site.ml:675
+#: ../src/web/web_site.ml:1088 ../src/web/web_site.ml:689
 msgid "Only the last vote counts."
 msgstr ""
 
-#: ../src/web/web_site.ml:1072 ../src/web/web_site.ml:672
+#: ../src/web/web_site.ml:1085 ../src/web/web_site.ml:686
 msgid "Page of the election:"
 msgstr "Website der Abstimmung:"
 
@@ -275,7 +275,7 @@ msgstr "Website der Abstimmung:"
 msgid "Password login"
 msgstr "Login mit Passwort"
 
-#: ../src/web/web_templates.ml:3375 ../src/web/web_site.ml:671
+#: ../src/web/web_templates.ml:3375 ../src/web/web_site.ml:685
 msgid "Password:"
 msgstr "Passwort:"
 
@@ -307,7 +307,7 @@ msgstr "Datenschutzbestimmungen"
 msgid "Restart"
 msgstr "Erneut beginnen"
 
-#: ../src/web/web_site.ml:1680
+#: ../src/web/web_site.ml:1692
 msgid "Results will be published on the election page"
 msgstr "Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:"
 
@@ -384,23 +384,23 @@ msgstr "Diese Abstimmung wurde archiviert."
 msgid "This election is currently closed."
 msgstr "Diese Abstimmung ist beendet."
 
-#: ../src/web/web_site.ml:1672
+#: ../src/web/web_site.ml:1684
 msgid "This vote replaces any previous vote."
 msgstr "Diese Stimme ersetzt eine eventuelle vorherige Stimme."
 
-#: ../src/web/web_site.ml:664
+#: ../src/web/web_site.ml:678
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
 msgstr "Um abzustimmen benötigen sie außerdem noch Ihre Wählernummer, die Ihnen in einer separaten Mail zugestellt wird."
 
-#: ../src/web/web_site.ml:1064
+#: ../src/web/web_site.ml:1077
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr "Um abzustimmen benötigen sie außerdem noch Ihr Passwort, die Ihnen in einer separaten Mail zugestellt wird."
 
-#: ../src/web/web_templates.ml:3754
+#: ../src/web/web_site.ml:664
 msgid "To get more information, please contact:"
 msgstr "Für mehr Informationen wenden Sie sich bitte an:"
 
-#: ../src/web/web_templates.ml:3371 ../src/web/web_site.ml:670
+#: ../src/web/web_templates.ml:3371 ../src/web/web_site.ml:684
 msgid "Username:"
 msgstr "Benutzername:"
 
@@ -416,7 +416,7 @@ msgstr ""
 msgid "We invite you to save it in order to check later that it is taken into account."
 msgstr "Bitte Speichern Sie sie ab um später zu überprüfen, dass Ihre Stimme gezählt wurde."
 
-#: ../src/web/web_site.ml:1058 ../src/web/web_site.ml:659
+#: ../src/web/web_site.ml:1071 ../src/web/web_site.ml:673
 msgid "You are listed as a voter for the election"
 msgstr "Sie sind für die folgende Abstimmung als Wähler eingetragen:"
 
@@ -428,7 +428,7 @@ msgstr "Sie können außerdem das "
 msgid "You can check its presence in the "
 msgstr "Sie können jederzeit überprüfen, dass Ihre Stimme in der "
 
-#: ../src/web/web_site.ml:1676
+#: ../src/web/web_site.ml:1688
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der Wahlurne befindet:"
 
@@ -440,15 +440,15 @@ msgstr "Sie müssen mindestens %d Antworten auswählen"
 msgid "You must select at most %d answer(s)"
 msgstr "Sie müssen maximal %d Antworten auswählen"
 
-#: ../src/web/web_site.ml:1066 ../src/web/web_site.ml:666
+#: ../src/web/web_site.ml:1079 ../src/web/web_site.ml:680
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr ""
 
-#: ../src/web/web_site.ml:1062
+#: ../src/web/web_site.ml:1075
 msgid "You will find below your credential."
 msgstr "Am Ende der Mail finden Sie Ihre Wählernummer."
 
-#: ../src/web/web_site.ml:663
+#: ../src/web/web_site.ml:677
 msgid "You will find below your login and password."
 msgstr "Am Ende der Mail finden Sie Ihren Benutzername und Ihr Passwort."
 
@@ -460,19 +460,19 @@ msgstr "Ihre Stimme für "
 msgid "Your ballot has been successfully encrypted, "
 msgstr "Ihre Stimme wurde erfolgreich verschlüsselt, "
 
-#: ../src/web/web_site.ml:1644
+#: ../src/web/web_site.ml:1656
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
 
-#: ../src/web/web_site.ml:1131
+#: ../src/web/web_site.ml:1143
 msgid "Your credential for election %s"
 msgstr "Ihre Wählernummer für die Abstimmung %s"
 
-#: ../src/web/web_site.ml:694
+#: ../src/web/web_site.ml:707
 msgid "Your password for election %s"
 msgstr "Ihr Passwort für die Abstimmung %s"
 
-#: ../src/web/web_site.ml:1667
+#: ../src/web/web_site.ml:1679
 msgid "Your smart ballot tracker is"
 msgstr "Ihre Stimmennummer ist:"
 
@@ -481,11 +481,11 @@ msgstr "Ihre Stimmennummer ist:"
 msgid "Your smart ballot tracker is "
 msgstr "Ihre Stimmennummer ist "
 
-#: ../src/web/web_site.ml:1663
+#: ../src/web/web_site.ml:1675
 msgid "Your vote for election"
 msgstr "Ihre Stimme zur Abstimmung"
 
-#: ../src/web/web_site.ml:1713
+#: ../src/web/web_site.ml:1725
 msgid "Your vote for election %s"
 msgstr "Ihre Stimme zur Abstimmung %s"
 
@@ -505,7 +505,7 @@ msgstr "Stimmen"
 msgid "but has not been cast yet"
 msgstr "aber noch nicht abgeschickt"
 
-#: ../src/web/web_site.ml:1666
+#: ../src/web/web_site.ml:1678
 msgid "has been recorded."
 msgstr "wurde angenommen."
 
