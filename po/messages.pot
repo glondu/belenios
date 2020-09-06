@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-06 05:56+0000\n"
+"POT-Creation-Date: 2020-09-06 06:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -152,6 +152,10 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
+#: ../src/web/web_site.ml:1593
+msgid "Cookies are blocked"
+msgstr ""
+
 #: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
 #. ../src/web/web_templates.ml:2941
 msgid "Done"
@@ -226,6 +230,10 @@ msgstr ""
 
 #: ../src/web/web_templates.ml:3724
 msgid "No other choices are allowed when voting blank"
+msgstr ""
+
+#: ../src/web/web_site.ml:50
+msgid "Not found"
 msgstr ""
 
 #: ../src/web/web_templates.ml:2926
@@ -333,6 +341,10 @@ msgstr ""
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr ""
 
+#: ../src/web/web_site.ml:50
+msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
+msgstr ""
+
 #: ../src/web/web_templates.ml:2070
 msgid "This election has been tallied."
 msgstr ""
@@ -383,6 +395,10 @@ msgstr ""
 
 #: ../src/web/web_templates.ml:3609
 msgid "Your ballot has been successfully encrypted, "
+msgstr ""
+
+#: ../src/web/web_site.ml:1593
+msgid "Your browser seems to block cookies. Please enable them."
 msgstr ""
 
 #: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030

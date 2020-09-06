@@ -147,6 +147,10 @@ msgstr "Confirmation"
 msgid "Continue"
 msgstr "Continuer"
 
+#: ../src/web/web_site.ml:1593
+msgid "Cookies are blocked"
+msgstr "Les cookies sont bloqués"
+
 #: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
 #. ../src/web/web_templates.ml:2941
 msgid "Done"
@@ -222,6 +226,10 @@ msgstr "Suivant"
 #: ../src/web/web_templates.ml:3724
 msgid "No other choices are allowed when voting blank"
 msgstr "Vous ne pouvez pas sélectionner d'autres choix lors d'un vote blanc"
+
+#: ../src/web/web_site.ml:50
+msgid "Not found"
+msgstr "Non trouvé"
 
 #: ../src/web/web_templates.ml:2926
 msgid "Note: you have already voted. Your vote will be replaced."
@@ -328,6 +336,10 @@ msgstr "Les résultats bruts peuvent être consultés dans le "
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr "Le résultat de cette élection n'est actuellement pas public. Il le sera dans %s."
 
+#: ../src/web/web_site.ml:50
+msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
+msgstr "Cette élection n'existe pas. Cela peut arriver quand l'élection n'a pas encore été ouverte ou a été supprimée."
+
 #: ../src/web/web_templates.ml:2070
 msgid "This election has been tallied."
 msgstr "Cette élection a été dépouillée."
@@ -379,6 +391,10 @@ msgstr "Votre bulletin pour "
 #: ../src/web/web_templates.ml:3609
 msgid "Your ballot has been successfully encrypted, "
 msgstr "Votre bulletin a été chiffré avec succès, "
+
+#: ../src/web/web_site.ml:1593
+msgid "Your browser seems to block cookies. Please enable them."
+msgstr "Votre navigateur semble bloquer les cookies. Veuillez les activer."
 
 #: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
 #. ../src/web/web_templates.ml:2953

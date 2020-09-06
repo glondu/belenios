@@ -20,10 +20,6 @@
 (**************************************************************************)
 
 let lang = "ro"
-let not_found = "Not found"
-let election_does_not_exist = "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
-let cookies_are_blocked = "Cookie-urile sunt blocate"
-let please_enable_them = "Browser-ul dumneavoastră pare să blocheze cookie-urile. Vă rugăm să le activați."
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

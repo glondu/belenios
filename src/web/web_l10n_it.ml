@@ -20,10 +20,6 @@
 (**************************************************************************)
 
 let lang = "it"
-let not_found = "Not found"
-let election_does_not_exist = "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
-let cookies_are_blocked = "I cookies sono bloccati"
-let please_enable_them = "Il suo browser non accetta i cookies. Si prega di attivarli."
 
 
 let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =

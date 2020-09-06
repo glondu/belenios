@@ -21,10 +21,6 @@
 
 module type LocalizedStrings = sig
   val lang : string
-  val not_found : string
-  val election_does_not_exist : string
-  val cookies_are_blocked : string
-  val please_enable_them : string
   val mail_password_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_password : (string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val mail_credential_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6

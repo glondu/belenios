@@ -46,8 +46,8 @@ let find_election uuid =
 
 let election_not_found () =
   let%lwt lang = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang lang) in
-  T.generic_page ~title:L.not_found L.election_does_not_exist ()
+  let open (val Web_i18n.get_lang_gettext lang) in
+  T.generic_page ~title:(s_ "Not found") (s_ "This election does not exist. This may happen for elections that have not yet been open or have been deleted.") ()
   >>= Html.send ~code:404
 
 let dump_passwords uuid db =
@@ -1589,8 +1589,8 @@ let () =
       match%lwt Eliom_reference.get Web_state.ballot with
       | None ->
          let%lwt lang = Eliom_reference.get Web_state.language in
-         let module L = (val Web_i18n.get_lang lang) in
-         T.generic_page ~title:L.cookies_are_blocked L.please_enable_them ()
+         let open (val Web_i18n.get_lang_gettext lang) in
+         T.generic_page ~title:(s_ "Cookies are blocked") (s_ "Your browser seems to block cookies. Please enable them.") ()
          >>= Html.send
       | Some ballot ->
          match ballot_of_string Yojson.Safe.read_json ballot with

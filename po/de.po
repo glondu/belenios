@@ -147,6 +147,10 @@ msgstr "Bestätigen"
 msgid "Continue"
 msgstr "Weiter"
 
+#: ../src/web/web_site.ml:1593
+msgid "Cookies are blocked"
+msgstr "Cookies sind deaktiviert"
+
 #: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
 #. ../src/web/web_templates.ml:2941
 msgid "Done"
@@ -222,6 +226,10 @@ msgstr "Weiter"
 #: ../src/web/web_templates.ml:3724
 msgid "No other choices are allowed when voting blank"
 msgstr "Bei einer ungültigen Stimme sind keine anderen Auswahlmöglichkeiten vorhanden."
+
+#: ../src/web/web_site.ml:50
+msgid "Not found"
+msgstr ""
 
 #: ../src/web/web_templates.ml:2926
 msgid "Note: you have already voted. Your vote will be replaced."
@@ -328,6 +336,10 @@ msgstr ""
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr "Das Ergebnis dieser Abstimmung ist derzeit noch nicht verfügbar. Es wird in %s veröffentlicht."
 
+#: ../src/web/web_site.ml:50
+msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
+msgstr ""
+
 #: ../src/web/web_templates.ml:2070
 msgid "This election has been tallied."
 msgstr "Diese Abstimmung wurde ausgezählt."
@@ -379,6 +391,10 @@ msgstr "Ihre Stimme für "
 #: ../src/web/web_templates.ml:3609
 msgid "Your ballot has been successfully encrypted, "
 msgstr "Ihre Stimme wurde erfolgreich verschlüsselt, "
+
+#: ../src/web/web_site.ml:1593
+msgid "Your browser seems to block cookies. Please enable them."
+msgstr "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
 
 #: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
 #. ../src/web/web_templates.ml:2953
