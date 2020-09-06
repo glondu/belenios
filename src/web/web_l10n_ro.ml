@@ -22,30 +22,6 @@
 let lang = "ro"
 
 
-let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Parola voastră pentru alegere %s"
-
-let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Sunteți înregistrat(ă) ca votant(ă) pentru alegerea
-
-  %s
-
-Mai jos veți găsi numele de utilizator și parola. Pentru a
-depune votul vostru, vă trebuie un cod de votare, ce va fi
-trimis într-un e-mail separat.  Aveți grijă, parola și codul
-de votare arată similare, dar joacă roluri diferite. Sistemul
-va solicita codul de votare la intrarea în cabina de vot.
-Numele de utilizator și parola sunt necesare atunci când
-buletinul de vot este gata pentru depunere.
-
-Nume utilizator: %s
-Parola: %s
-Pagina alegerii: %s
-
-Rețineți că este posibil să votați de mai multe ori.
-Numai ultimul vot va fi luat în considerare.%s"
-
-
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Codul vostru de votare pentru alegere %s"
 

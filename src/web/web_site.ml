@@ -652,22 +652,46 @@ let () =
         )
     )
 
+let mail_password l title login password url contact =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (s_ "You are listed as a voter for the election"); add_newline b;
+  add_newline b;
+  add_string b "  "; add_string b title; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "You will find below your login and password.");
+  add_sentence b (s_ "To cast a vote, you will also need a credential, sent in a separate email.");
+  add_sentence b (s_ "Be careful, passwords and credentials look similar but play different roles.");
+  add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
+  add_sentence b (s_ "Login and passwords are required once your ballot is ready to be cast.");
+  add_newline b;
+  add_newline b;
+  add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
+  add_string b (s_ "Password:"); add_string b " "; add_string b password; add_newline b;
+  add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Note that you are allowed to vote several times.");
+  add_sentence b (s_ "Only the last vote counts.");
+  contact b;
+  contents b
+
 let generate_password metadata langs title url id =
   let email, login = split_identity id in
   let%lwt salt = generate_token () in
   let%lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
   let bodies = List.map (fun lang ->
-    let module L = (val Web_i18n.get_lang lang) in
-    let contact = T.contact_footer metadata L.please_contact in
-    Printf.sprintf L.mail_password title login password url contact
+    let l = Web_i18n.get_lang_gettext lang in
+    let contact = T.contact_footer' l metadata in
+    mail_password l title login password url contact
   ) langs in
   let body = PString.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
   let subject =
     let lang = List.hd langs in
-    let module L = (val Web_i18n.get_lang lang) in
-    Printf.sprintf L.mail_password_subject title
+    let open (val Web_i18n.get_lang_gettext lang) in
+    Printf.sprintf (f_ "Your password for election %s") title
   in
   let%lwt () = send_email email subject body in
   return (salt, hashed)

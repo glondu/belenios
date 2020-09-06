@@ -126,6 +126,10 @@ msgstr "Date de audit: "
 msgid "Authenticate"
 msgstr "Autentificare"
 
+#: ../src/web/web_site.ml:665
+msgid "Be careful, passwords and credentials look similar but play different roles."
+msgstr "Aveți grijă, parola și codul de votare arată similare, dar joacă roluri diferite."
+
 #: ../src/web/web_templates.ml:3585 ../src/web/web_templates.ml:3573
 msgid "Belenios Booth"
 msgstr "Cabina de vot Belenios"
@@ -147,7 +151,7 @@ msgstr "Confirmare"
 msgid "Continue"
 msgstr "Continuă"
 
-#: ../src/web/web_site.ml:1593
+#: ../src/web/web_site.ml:1617
 msgid "Cookies are blocked"
 msgstr "Cookie-urile sunt blocate"
 
@@ -219,6 +223,10 @@ msgstr ""
 msgid "Login"
 msgstr "Conectare"
 
+#: ../src/web/web_site.ml:667
+msgid "Login and passwords are required once your ballot is ready to be cast."
+msgstr "Numele de utilizator și parola sunt necesare atunci când buletinul de vot este gata pentru depunere."
+
 #: ../src/web/web_templates.ml:3719
 msgid "Next"
 msgstr "Următor"
@@ -230,6 +238,10 @@ msgstr "Nu puteți selecta o altă opțiune la un vot alb"
 #: ../src/web/web_site.ml:50
 msgid "Not found"
 msgstr ""
+
+#: ../src/web/web_site.ml:674
+msgid "Note that you are allowed to vote several times."
+msgstr "Rețineți că este posibil să votați de mai multe ori."
 
 #: ../src/web/web_templates.ml:2926
 msgid "Note: you have already voted. Your vote will be replaced."
@@ -243,11 +255,19 @@ msgstr "Notă: buletinul de vot este criptat și nimeni nu-i poate vedea conțin
 msgid "Number of accepted ballots: "
 msgstr "Numărul buletinelor de vot acceptate: "
 
+#: ../src/web/web_site.ml:675
+msgid "Only the last vote counts."
+msgstr "Numai ultimul vot va fi luat în considerare."
+
+#: ../src/web/web_site.ml:672
+msgid "Page of the election:"
+msgstr "Pagina alegerii:"
+
 #: ../src/web/web_templates.ml:3388
 msgid "Password login"
 msgstr "Conectare folosind parola"
 
-#: ../src/web/web_templates.ml:3375
+#: ../src/web/web_templates.ml:3375 ../src/web/web_site.ml:671
 msgid "Password:"
 msgstr "Parola:"
 
@@ -352,7 +372,15 @@ msgstr "Această alegere este arhivată."
 msgid "This election is currently closed."
 msgstr "Această alegere este în prezent închisă."
 
-#: ../src/web/web_templates.ml:3371
+#: ../src/web/web_site.ml:664
+msgid "To cast a vote, you will also need a credential, sent in a separate email."
+msgstr "Pentru a depune votul vostru, vă trebuie un cod de votare, ce va fi trimis într-un e-mail separat."
+
+#: ../src/web/web_templates.ml:3754
+msgid "To get more information, please contact:"
+msgstr ""
+
+#: ../src/web/web_templates.ml:3371 ../src/web/web_site.ml:670
 msgid "Username:"
 msgstr "Nume utilizator:"
 
@@ -367,6 +395,10 @@ msgstr ""
 #: ../src/web/web_templates.ml:3618
 msgid "We invite you to save it in order to check later that it is taken into account."
 msgstr "Vă invităm să-l salvați pentru a verifica ulterior că votul vostru este luat în considerare."
+
+#: ../src/web/web_site.ml:659
+msgid "You are listed as a voter for the election"
+msgstr "Sunteți înregistrat(ă) ca votant(ă) pentru alegerea"
 
 #: ../src/web/web_templates.ml:2126
 msgid "You can also download the "
@@ -384,6 +416,14 @@ msgstr "Trebuie să selectați cel puțin %d răspuns(uri)"
 msgid "You must select at most %d answer(s)"
 msgstr "Trebuie să selectați cel mult %d răspuns(uri)"
 
+#: ../src/web/web_site.ml:666
+msgid "You will be asked to enter your credential before entering the voting booth."
+msgstr "Sistemul va solicita codul de votare la intrarea în cabina de vot."
+
+#: ../src/web/web_site.ml:663
+msgid "You will find below your login and password."
+msgstr "Mai jos veți găsi numele de utilizator și parola."
+
 #: ../src/web/web_templates.ml:3053 ../src/web/web_templates.ml:2950
 msgid "Your ballot for "
 msgstr "Buletinul de vot pentru "
@@ -392,9 +432,13 @@ msgstr "Buletinul de vot pentru "
 msgid "Your ballot has been successfully encrypted, "
 msgstr "Buletinul vostru de vot a fost criptat cu succes, "
 
-#: ../src/web/web_site.ml:1593
+#: ../src/web/web_site.ml:1617
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Browser-ul dumneavoastră pare să blocheze cookie-urile. Vă rugăm să le activați."
+
+#: ../src/web/web_site.ml:694
+msgid "Your password for election %s"
+msgstr "Parola voastră pentru alegere %s"
 
 #: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
 #. ../src/web/web_templates.ml:2953

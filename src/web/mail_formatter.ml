@@ -19,26 +19,55 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module type LocalizedStrings = sig
-  val lang : string
-  val mail_credential_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
-  val mail_credential : (string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
-  val mail_credential_password : string
-  val mail_credential_cas : string
-  val mail_confirmation_subject : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
-  val mail_confirmation : (string -> string -> string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
-  val this_vote_replaces : string
-  val please_contact : string
-end
+let width = 76
 
-module type GETTEXT = sig
-  val lang : string
-  val s_ : string -> string
-  val f_ : ('a, 'b, 'c, 'c, 'c, 'd) format6 -> ('a, 'b, 'c, 'c, 'c, 'd) format6
-  val sn_ : string -> string -> int -> string
-  val fn_ :
-    ('a, 'b, 'c, 'c, 'c, 'd) format6 ->
-    ('a, 'b, 'c, 'c, 'c, 'd) format6 ->
-    int ->
-    ('a, 'b, 'c, 'c, 'c, 'd) format6
-end
+type t =
+  {
+    buffer : Buffer.t;
+    mutable current : int;
+    mutable pending : bool;
+  }
+
+let create () =
+  {
+    buffer = Buffer.create 1000;
+    current = 0;
+    pending = false;
+  }
+
+let add_newline t =
+  Buffer.add_string t.buffer "\n";
+  t.current <- 0;
+  t.pending <- false
+
+let add_string t s =
+  Buffer.add_string t.buffer s;
+  t.current <- t.current + String.length s;
+  t.pending <- false
+
+let add_word t s =
+  let length = String.length s in
+  let pending = if t.pending then 1 else 0 in
+  if t.current + pending + length > width then (
+    add_newline t;
+    add_string t s;
+    t.pending <- true
+  ) else (
+    if t.pending then add_string t " ";
+    add_string t s;
+    t.pending <- true
+  )
+
+let add_sentence t s =
+  let n = String.length s in
+  let rec loop i =
+    if i < n then (
+      let j = try String.index_from s i ' ' with Not_found -> n in
+      add_word t (String.sub s i (j - i));
+      loop (j + 1)
+    )
+  in
+  loop 0
+
+let contents t =
+  Buffer.contents t.buffer

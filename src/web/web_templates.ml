@@ -3741,3 +3741,17 @@ let contact_footer metadata please_contact =
   match metadata.e_contact with
   | None -> ""
   | Some x -> Printf.sprintf "\n\n%s\n  %s" please_contact x
+
+let contact_footer' l metadata =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  match metadata.e_contact with
+  | None -> fun _ -> ()
+  | Some x ->
+     fun b ->
+     let open Mail_formatter in
+     add_newline b;
+     add_newline b;
+     add_sentence b (s_ "To get more information, please contact:");
+     add_newline b;
+     add_string b "  ";
+     add_string b x

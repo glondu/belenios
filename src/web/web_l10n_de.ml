@@ -22,29 +22,6 @@
 let lang = "de"
 
 
-let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Ihr Passwort für die Abstimmung %s"
-
-let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Sie sind für die folgende Abstimmung als Wähler eingetragen:
-
-  %s
-
-Am Ende der Mail finden Sie Ihren Benutzername und Ihr Passwort. Um
-abzustimmen benötigen sie außerdem noch Ihre Wählernummer, die Ihnen
-in einer separaten Mail zugestellt wird. Obwohl Passwort und
-Wählernummer ähnlich aussehen, erfüllen sie zwei verschiedene Zwecke:
-die Wählernummer wird für die Verschlüsselung Ihrer Stimme in der
-virtuellen Wahlkabine benötigt, mit dem Passwort können Sie
-anschließend Ihre verschlüsselte Stimme auf den Wahlserver übertragen.
-
-Benutzername: %s
-Passwort: %s
-Website der Abstimmung: %s
-
-Sie können so oft abstimmen wie Sie wollen, nur die letzte Stimme zählt.%s"
-
-
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Ihre Wählernummer für die Abstimmung %s"
 

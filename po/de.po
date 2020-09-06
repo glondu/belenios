@@ -126,6 +126,10 @@ msgstr "Auditdaten: "
 msgid "Authenticate"
 msgstr "Authentifizieren"
 
+#: ../src/web/web_site.ml:665
+msgid "Be careful, passwords and credentials look similar but play different roles."
+msgstr ""
+
 #: ../src/web/web_templates.ml:3585 ../src/web/web_templates.ml:3573
 msgid "Belenios Booth"
 msgstr "Belenios Wahlkabine"
@@ -147,7 +151,7 @@ msgstr "Bestätigen"
 msgid "Continue"
 msgstr "Weiter"
 
-#: ../src/web/web_site.ml:1593
+#: ../src/web/web_site.ml:1617
 msgid "Cookies are blocked"
 msgstr "Cookies sind deaktiviert"
 
@@ -219,6 +223,10 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
+#: ../src/web/web_site.ml:667
+msgid "Login and passwords are required once your ballot is ready to be cast."
+msgstr ""
+
 #: ../src/web/web_templates.ml:3719
 msgid "Next"
 msgstr "Weiter"
@@ -229,6 +237,10 @@ msgstr "Bei einer ungültigen Stimme sind keine anderen Auswahlmöglichkeiten vo
 
 #: ../src/web/web_site.ml:50
 msgid "Not found"
+msgstr ""
+
+#: ../src/web/web_site.ml:674
+msgid "Note that you are allowed to vote several times."
 msgstr ""
 
 #: ../src/web/web_templates.ml:2926
@@ -243,11 +255,19 @@ msgstr "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt se
 msgid "Number of accepted ballots: "
 msgstr "Anzahl angenommener Stimmen: "
 
+#: ../src/web/web_site.ml:675
+msgid "Only the last vote counts."
+msgstr ""
+
+#: ../src/web/web_site.ml:672
+msgid "Page of the election:"
+msgstr "Website der Abstimmung:"
+
 #: ../src/web/web_templates.ml:3388
 msgid "Password login"
 msgstr "Login mit Passwort"
 
-#: ../src/web/web_templates.ml:3375
+#: ../src/web/web_templates.ml:3375 ../src/web/web_site.ml:671
 msgid "Password:"
 msgstr "Passwort:"
 
@@ -352,7 +372,15 @@ msgstr "Diese Abstimmung wurde archiviert."
 msgid "This election is currently closed."
 msgstr "Diese Abstimmung ist beendet."
 
-#: ../src/web/web_templates.ml:3371
+#: ../src/web/web_site.ml:664
+msgid "To cast a vote, you will also need a credential, sent in a separate email."
+msgstr "Um abzustimmen benötigen sie außerdem noch Ihre Wählernummer, die Ihnen in einer separaten Mail zugestellt wird."
+
+#: ../src/web/web_templates.ml:3754
+msgid "To get more information, please contact:"
+msgstr "Für mehr Informationen wenden Sie sich bitte an:"
+
+#: ../src/web/web_templates.ml:3371 ../src/web/web_site.ml:670
 msgid "Username:"
 msgstr "Benutzername:"
 
@@ -367,6 +395,10 @@ msgstr ""
 #: ../src/web/web_templates.ml:3618
 msgid "We invite you to save it in order to check later that it is taken into account."
 msgstr "Bitte Speichern Sie sie ab um später zu überprüfen, dass Ihre Stimme gezählt wurde."
+
+#: ../src/web/web_site.ml:659
+msgid "You are listed as a voter for the election"
+msgstr "Sie sind für die folgende Abstimmung als Wähler eingetragen:"
 
 #: ../src/web/web_templates.ml:2126
 msgid "You can also download the "
@@ -384,6 +416,14 @@ msgstr "Sie müssen mindestens %d Antworten auswählen"
 msgid "You must select at most %d answer(s)"
 msgstr "Sie müssen maximal %d Antworten auswählen"
 
+#: ../src/web/web_site.ml:666
+msgid "You will be asked to enter your credential before entering the voting booth."
+msgstr ""
+
+#: ../src/web/web_site.ml:663
+msgid "You will find below your login and password."
+msgstr "Am Ende der Mail finden Sie Ihren Benutzername und Ihr Passwort."
+
 #: ../src/web/web_templates.ml:3053 ../src/web/web_templates.ml:2950
 msgid "Your ballot for "
 msgstr "Ihre Stimme für "
@@ -392,9 +432,13 @@ msgstr "Ihre Stimme für "
 msgid "Your ballot has been successfully encrypted, "
 msgstr "Ihre Stimme wurde erfolgreich verschlüsselt, "
 
-#: ../src/web/web_site.ml:1593
+#: ../src/web/web_site.ml:1617
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
+
+#: ../src/web/web_site.ml:694
+msgid "Your password for election %s"
+msgstr "Ihr Passwort für die Abstimmung %s"
 
 #: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
 #. ../src/web/web_templates.ml:2953

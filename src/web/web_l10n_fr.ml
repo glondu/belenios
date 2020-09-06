@@ -22,30 +22,6 @@
 let lang = "fr"
 
 
-let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Votre mot de passe pour l'élection %s"
-
-let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Vous êtes enregistré(e) en tant qu'électeur(trice) pour l'élection
-
-  %s
-
-Veuillez trouver ci-dessous votre nom d'utilisateur et votre mot de
-passe. Pour soumettre un bulletin, vous aurez également besoin d'un
-code de vote, envoyé dans un e-mail séparé. Soyez attentif(ve), le mot
-de passe et le code de vote se ressemblent mais jouent des rôles
-différents. Le système vous demandera votre code de vote dès l'entrée
-dans l'isoloir virtuel. Le nom d'utilisateur et le mot de passe sont
-nécessaires lorsque votre bulletin est prêt à être soumis.
-
-Nom d'utilisateur : %s
-Mot de passe : %s
-Page de l'élection : %s
-
-Notez que vous pouvez voter plusieurs fois. Seul le dernier vote est
-pris en compte.%s"
-
-
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Votre code de vote pour l'élection %s"
 

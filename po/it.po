@@ -126,6 +126,10 @@ msgstr "Dati d'audit : "
 msgid "Authenticate"
 msgstr "Autenticazione"
 
+#: ../src/web/web_site.ml:665
+msgid "Be careful, passwords and credentials look similar but play different roles."
+msgstr "Faccia attenzione, la password e il codice di voto sono simili ma hanno un ruolo diverso."
+
 #: ../src/web/web_templates.ml:3585 ../src/web/web_templates.ml:3573
 msgid "Belenios Booth"
 msgstr "Cabina elettorale Belenios"
@@ -147,7 +151,7 @@ msgstr "Conferma"
 msgid "Continue"
 msgstr "Proseguire"
 
-#: ../src/web/web_site.ml:1593
+#: ../src/web/web_site.ml:1617
 msgid "Cookies are blocked"
 msgstr "I cookies sono bloccati"
 
@@ -219,6 +223,10 @@ msgstr ""
 msgid "Login"
 msgstr "Connettersi"
 
+#: ../src/web/web_site.ml:667
+msgid "Login and passwords are required once your ballot is ready to be cast."
+msgstr "Il nome di utente e la password sono necessari quando la sua scheda è pronta per essere presentata."
+
 #: ../src/web/web_templates.ml:3719
 msgid "Next"
 msgstr "Seguente"
@@ -230,6 +238,10 @@ msgstr "Nessun'altra scelta è autorizzata quando la scheda è bianca"
 #: ../src/web/web_site.ml:50
 msgid "Not found"
 msgstr ""
+
+#: ../src/web/web_site.ml:674
+msgid "Note that you are allowed to vote several times."
+msgstr "Si nota che lei può votare più volte."
 
 #: ../src/web/web_templates.ml:2926
 msgid "Note: you have already voted. Your vote will be replaced."
@@ -243,11 +255,19 @@ msgstr "Nota: la sua scheda è cifrata e nessuno può consultarla."
 msgid "Number of accepted ballots: "
 msgstr "Numero di schede accettate : "
 
+#: ../src/web/web_site.ml:675
+msgid "Only the last vote counts."
+msgstr "Ma soltanto l'ultimo voto è preso in considerazione."
+
+#: ../src/web/web_site.ml:672
+msgid "Page of the election:"
+msgstr "Pagina dell'elezione :"
+
 #: ../src/web/web_templates.ml:3388
 msgid "Password login"
 msgstr "Connessione tramite la password"
 
-#: ../src/web/web_templates.ml:3375
+#: ../src/web/web_templates.ml:3375 ../src/web/web_site.ml:671
 msgid "Password:"
 msgstr "Password :"
 
@@ -352,7 +372,15 @@ msgstr "Questa elezione è archiviata."
 msgid "This election is currently closed."
 msgstr "Questa elezione è chiusa per ora."
 
-#: ../src/web/web_templates.ml:3371
+#: ../src/web/web_site.ml:664
+msgid "To cast a vote, you will also need a credential, sent in a separate email."
+msgstr "Per presentare una scheda elettorale, avrà bisogno di un codice di voto, spedito in una email separata."
+
+#: ../src/web/web_templates.ml:3754
+msgid "To get more information, please contact:"
+msgstr ""
+
+#: ../src/web/web_templates.ml:3371 ../src/web/web_site.ml:670
 msgid "Username:"
 msgstr "Nome utente :"
 
@@ -367,6 +395,10 @@ msgstr ""
 #: ../src/web/web_templates.ml:3618
 msgid "We invite you to save it in order to check later that it is taken into account."
 msgstr "La preghiamo di registrarlo per potere verificare ulteriormente se il suo voto è stato preso in considerazione."
+
+#: ../src/web/web_site.ml:659
+msgid "You are listed as a voter for the election"
+msgstr "Lei è registrato(a) in quanto elettore(trice) per l'elezione"
 
 #: ../src/web/web_templates.ml:2126
 msgid "You can also download the "
@@ -384,6 +416,14 @@ msgstr "Lei deve selezionare almeno %d risposta(e)"
 msgid "You must select at most %d answer(s)"
 msgstr "Lei deve selezionare al massimo %d risposta(e)"
 
+#: ../src/web/web_site.ml:666
+msgid "You will be asked to enter your credential before entering the voting booth."
+msgstr "Il sistema le domanderà il suo codice di voto non appena entrato(a) nella cabina elettorale virtuale."
+
+#: ../src/web/web_site.ml:663
+msgid "You will find below your login and password."
+msgstr "Si prega di trovare qui sotto il suo nome di utente e la sua password."
+
 #: ../src/web/web_templates.ml:3053 ../src/web/web_templates.ml:2950
 msgid "Your ballot for "
 msgstr "La sua scheda elettorale per "
@@ -392,9 +432,13 @@ msgstr "La sua scheda elettorale per "
 msgid "Your ballot has been successfully encrypted, "
 msgstr "La sua scheda elettorale è stata cifrata con successo, "
 
-#: ../src/web/web_site.ml:1593
+#: ../src/web/web_site.ml:1617
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Il suo browser non accetta i cookies. Si prega di attivarli."
+
+#: ../src/web/web_site.ml:694
+msgid "Your password for election %s"
+msgstr "La sua password per l'elezione %s"
 
 #: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
 #. ../src/web/web_templates.ml:2953

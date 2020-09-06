@@ -22,32 +22,6 @@
 let lang = "it"
 
 
-let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "La sua password per l'elezione %s"
-
-let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Lei è registrato(a) in quanto elettore(trice) per l'elezione
-
-  %s
-
-
-Si prega di trovare qui sotto il suo nome di utente e la sua password.
-Per presentare una scheda elettorale, avrà bisogno di un codice di
-voto, spedito in una email separata. Faccia attenzione, la password e
-il codice di voto sono simili ma hanno un ruolo diverso. Il sistema le
-domanderà il suo codice di voto non appena entrato(a) nella cabina
-elettorale virtuale. Il nome di utente e la password sono necessari
-quando la sua scheda è pronta per essere presentata.
-
-
-Nome utente : %s
-Password : %s
-Pagina dell'elezione : %s
-
-Si nota che lei può votare più volte. Ma soltanto l'ultimo voto è
-preso in considerazione.%s"
-
-
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Il suo codice di voto per l'elezione %s"
 

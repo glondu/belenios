@@ -22,29 +22,6 @@
 let lang = "en"
 
 
-let mail_password_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Your password for election %s"
-
-let mail_password : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "You are listed as a voter for the election
-
-  %s
-
-You will find below your login and password.  To cast a vote, you will
-also need a credential, sent in a separate email.  Be careful,
-passwords and credentials look similar but play different roles.  You
-will be asked to enter your credential before entering the voting
-booth.  Login and passwords are required once your ballot is ready to
-be cast.
-
-Username: %s
-Password: %s
-Page of the election: %s
-
-Note that you are allowed to vote several times.  Only the last vote
-counts.%s"
-
-
 let mail_credential_subject : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Your credential for election %s"
 

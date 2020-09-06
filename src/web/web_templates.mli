@@ -93,3 +93,4 @@ val changepw : username:string -> address:string -> add_account_error option -> 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val contact_footer : metadata -> string -> string
+val contact_footer' : (module Web_i18n_sig.GETTEXT) -> metadata -> Mail_formatter.t -> unit
