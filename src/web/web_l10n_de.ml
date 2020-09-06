@@ -20,11 +20,6 @@
 (**************************************************************************)
 
 let lang = "de"
-let accepted_ballots = "Angenommene Stimmen"
-let ballots_have_been_accepted_so_far = " Stimmen wurden bis jetzt angenommen."
-let ballots_have_been_accepted = " Stimmen wurden angenommen."
-let ballots_have_been_accepted_and = " Stimmen wurden angenommen, und "
-let have_been_tallied = " wurden gezählt."
 let username = "Benutzername:"
 let password = "Passwort:"
 let login = "Login"

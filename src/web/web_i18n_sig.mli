@@ -21,11 +21,6 @@
 
 module type LocalizedStrings = sig
   val lang : string
-  val accepted_ballots : string
-  val ballots_have_been_accepted_so_far : string
-  val ballots_have_been_accepted : string
-  val ballots_have_been_accepted_and : string
-  val have_been_tallied : string
   val username : string
   val password : string
   val login : string

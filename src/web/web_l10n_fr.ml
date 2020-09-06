@@ -20,11 +20,6 @@
 (**************************************************************************)
 
 let lang = "fr"
-let accepted_ballots = "Bulletins acceptés"
-let ballots_have_been_accepted_so_far = " bulletin(s) ont été accepté(s) jusqu'à présent."
-let ballots_have_been_accepted = " bulletin(s) ont été accepté(s)."
-let ballots_have_been_accepted_and = " bulletin(s) ont été accepté(s), et "
-let have_been_tallied = " ont été compté(s)."
 let username = "Nom d'utilisateur :"
 let password = "Mot de passe :"
 let login = "Se connecter"

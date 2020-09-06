@@ -3063,11 +3063,10 @@ let cast_confirmed election ~result () =
 
 let pretty_ballots election hashes result () =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang language) in
   let open (val Web_i18n.get_lang_gettext language) in
   let params = election.e_params in
   let uuid = params.e_uuid in
-  let title = params.e_name ^ " — " ^ L.accepted_ballots in
+  let title = params.e_name ^ " — " ^ s_ "Accepted ballots" in
   let nballots = ref 0 in
   let hashes = List.sort compare_b64 hashes in
   let ballots =
@@ -3092,19 +3091,19 @@ let pretty_ballots election hashes result () =
     | n, None ->
        div [
          txt (string_of_int n);
-         txt L.ballots_have_been_accepted_so_far;
+         txt (s_ " ballot(s) have been accepted so far.");
        ]
     | n, Some r when n = r.num_tallied ->
        div [
          txt (string_of_int n);
-         txt L.ballots_have_been_accepted;
+         txt (s_ " ballot(s) have been accepted.");
        ]
     | n, Some r -> (* should not happen *)
        div [
          txt (string_of_int n);
-         txt L.ballots_have_been_accepted_and;
+         txt (s_ " ballot(s) have been accepted, and ");
          txt (string_of_int r.num_tallied);
-         txt L.have_been_tallied;
+         txt (s_ " have been tallied.");
        ]
   in
   let content = [

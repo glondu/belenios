@@ -24,6 +24,18 @@ msgstr " și "
 msgid " anytime during the election."
 msgstr " în orice moment din perioada alegerii."
 
+#: ../src/web/web_templates.ml:3094
+msgid " ballot(s) have been accepted so far."
+msgstr " buletin(e) de vot au fost acceptat(e) până în prezent."
+
+#: ../src/web/web_templates.ml:3104
+msgid " ballot(s) have been accepted, and "
+msgstr " buletin(e) de vot au fost acceptat(e), și "
+
+#: ../src/web/web_templates.ml:3099
+msgid " ballot(s) have been accepted."
+msgstr " buletin(e) de vot au fost acceptat(e)."
+
 #: ../src/web/web_common.ml:101
 msgid " day(s)"
 msgstr " zi(le)"
@@ -35,6 +47,10 @@ msgstr " a fost acceptat."
 #: ../src/web/web_templates.ml:2952
 msgid " has been received, but not recorded yet. "
 msgstr " a fost primit, dar nu a fost încă înregistrat. "
+
+#: ../src/web/web_templates.ml:3106
+msgid " have been tallied."
+msgstr " au fost contorizate."
 
 #: ../src/web/web_common.ml:103
 msgid " hour(s)"
@@ -60,11 +76,11 @@ msgstr " secundă(e)"
 msgid " year(s)"
 msgstr " an(i)"
 
-#: ../src/web/web_templates.ml:3612
+#: ../src/web/web_templates.ml:3611
 msgid "!"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3721
+#: ../src/web/web_templates.ml:3720
 msgid "(nothing)"
 msgstr "(nimic)"
 
@@ -75,6 +91,10 @@ msgstr ""
 #: ../src/web/web_templates.ml:2162
 msgid "Accept"
 msgstr ""
+
+#: ../src/web/web_templates.ml:3069
+msgid "Accepted ballots"
+msgstr "Buletinele de vot acceptate"
 
 #: ../src/web/web_templates.ml:105
 msgid "Administer elections"
@@ -88,12 +108,12 @@ msgstr "Administrează această alegere"
 msgid "Advanced mode"
 msgstr "Mod avansat"
 
-#: ../src/web/web_templates.ml:3637 ../src/web/web_templates.ml:3014
+#: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3014
 #. ../src/web/web_templates.ml:2933
 msgid "Answer to questions"
 msgstr "Răspuns la întrebări"
 
-#: ../src/web/web_templates.ml:3728
+#: ../src/web/web_templates.ml:3727
 msgid "At least one of the answers is invalid!"
 msgstr ""
 
@@ -101,16 +121,16 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Date de audit: "
 
-#: ../src/web/web_templates.ml:3641 ../src/web/web_templates.ml:3018
+#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
 #. ../src/web/web_templates.ml:2937
 msgid "Authenticate"
 msgstr "Autentificare"
 
-#: ../src/web/web_templates.ml:3586 ../src/web/web_templates.ml:3574
+#: ../src/web/web_templates.ml:3585 ../src/web/web_templates.ml:3573
 msgid "Belenios Booth"
 msgstr "Cabina de vot Belenios"
 
-#: ../src/web/web_templates.ml:3724 ../src/web/web_templates.ml:1987
+#: ../src/web/web_templates.ml:3723 ../src/web/web_templates.ml:1987
 msgid "Blank vote"
 msgstr "Vot alb"
 
@@ -118,33 +138,33 @@ msgstr "Vot alb"
 msgid "By using this site, you accept our "
 msgstr "Folosind acest sit, acceptați "
 
-#: ../src/web/web_templates.ml:3643 ../src/web/web_templates.ml:3020
+#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
 #. ../src/web/web_templates.ml:2939
 msgid "Confirm"
 msgstr "Confirmare"
 
-#: ../src/web/web_templates.ml:3623
+#: ../src/web/web_templates.ml:3622
 msgid "Continue"
 msgstr "Continuă"
 
-#: ../src/web/web_templates.ml:3645 ../src/web/web_templates.ml:3022
+#: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
 #. ../src/web/web_templates.ml:2941
 msgid "Done"
 msgstr "Terminat"
 
-#: ../src/web/web_templates.ml:3705
+#: ../src/web/web_templates.ml:3704
 msgid "Election UUID: "
 msgstr "Codul UUID al alegerii: "
 
-#: ../src/web/web_templates.ml:3709 ../src/web/web_templates.ml:1952
+#: ../src/web/web_templates.ml:3708 ../src/web/web_templates.ml:1952
 msgid "Election fingerprint: "
 msgstr "Amprenta digitală a alegerii: "
 
-#: ../src/web/web_templates.ml:3688 ../src/web/web_templates.ml:134
+#: ../src/web/web_templates.ml:3687 ../src/web/web_templates.ml:134
 msgid "Election server"
 msgstr "Server al alegerii"
 
-#: ../src/web/web_templates.ml:3675
+#: ../src/web/web_templates.ml:3674
 msgid "Encrypting..."
 msgstr "Criptare în curs..."
 
@@ -156,7 +176,7 @@ msgstr "EȘEC!"
 msgid "Get the source code"
 msgstr "Obține codul sursă"
 
-#: ../src/web/web_templates.ml:3088 ../src/web/web_templates.ml:3059
+#: ../src/web/web_templates.ml:3087 ../src/web/web_templates.ml:3059
 #. ../src/web/web_templates.ml:2997
 #. ../src/web/web_templates.ml:2970
 msgid "Go back to election"
@@ -170,16 +190,16 @@ msgstr "Eu sunt "
 msgid "I cast my vote"
 msgstr "Am depus votul meu"
 
-#: ../src/web/web_templates.ml:3635 ../src/web/web_templates.ml:3012
+#: ../src/web/web_templates.ml:3634 ../src/web/web_templates.ml:3012
 #. ../src/web/web_templates.ml:2931
 msgid "Input credential"
 msgstr "Introducere cod de votare"
 
-#: ../src/web/web_templates.ml:3654
+#: ../src/web/web_templates.ml:3653
 msgid "Input your credential "
 msgstr "Introduceți codul vostru de votare "
 
-#: ../src/web/web_templates.ml:3723
+#: ../src/web/web_templates.ml:3722
 msgid "Invalid credential!"
 msgstr "Cod de votare invalid !"
 
@@ -191,11 +211,11 @@ msgstr "Se va deschide în "
 msgid "JSON result"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3720
+#: ../src/web/web_templates.ml:3719
 msgid "Next"
 msgstr "Următor"
 
-#: ../src/web/web_templates.ml:3725
+#: ../src/web/web_templates.ml:3724
 msgid "No other choices are allowed when voting blank"
 msgstr "Nu puteți selecta o altă opțiune la un vot alb"
 
@@ -211,7 +231,7 @@ msgstr "Notă: buletinul de vot este criptat și nimeni nu-i poate vedea conțin
 msgid "Number of accepted ballots: "
 msgstr "Numărul buletinelor de vot acceptate: "
 
-#: ../src/web/web_templates.ml:3722
+#: ../src/web/web_templates.ml:3721
 msgid "Please enter your credential:"
 msgstr "Vă rugăm să introduceți codul de votare:"
 
@@ -219,7 +239,7 @@ msgstr "Vă rugăm să introduceți codul de votare:"
 msgid "Please log in to confirm your vote."
 msgstr "Vă rugăm să vă logați pentru a confirma votul vostru."
 
-#: ../src/web/web_templates.ml:3674
+#: ../src/web/web_templates.ml:3673
 msgid "Please wait while your ballot is being encrypted..."
 msgstr "Vă rugăm să așteptați criptarea buletinului vostru de vot..."
 
@@ -227,7 +247,7 @@ msgstr "Vă rugăm să așteptați criptarea buletinului vostru de vot..."
 msgid "Powered by "
 msgstr "Realizat de "
 
-#: ../src/web/web_templates.ml:3719
+#: ../src/web/web_templates.ml:3718
 msgid "Previous"
 msgstr "Precedent"
 
@@ -235,11 +255,11 @@ msgstr "Precedent"
 msgid "Privacy policy"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3678
+#: ../src/web/web_templates.ml:3677
 msgid "Restart"
 msgstr "Reîncepe"
 
-#: ../src/web/web_templates.ml:3639 ../src/web/web_templates.ml:3016
+#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
 #. ../src/web/web_templates.ml:2935
 msgid "Review and encrypt"
 msgstr "Rezumat și criptare"
@@ -248,7 +268,7 @@ msgstr "Rezumat și criptare"
 msgid "See accepted ballots"
 msgstr "Consultă buletinele de vot acceptate"
 
-#: ../src/web/web_templates.ml:3716
+#: ../src/web/web_templates.ml:3715
 msgid "Select between %d and %d answer(s)"
 msgstr "Selectați între %d și %d rspuns(uri)"
 
@@ -256,15 +276,15 @@ msgstr "Selectați între %d și %d rspuns(uri)"
 msgid "Start"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3650
+#: ../src/web/web_templates.ml:3649
 msgid "Step 1/6: Input credential"
 msgstr "Pas 1/6: Introducere cod de votare"
 
-#: ../src/web/web_templates.ml:3660
+#: ../src/web/web_templates.ml:3659
 msgid "Step 2/6: Answer to questions"
 msgstr "Pas 2/6: Răspuns la întrebări"
 
-#: ../src/web/web_templates.ml:3665
+#: ../src/web/web_templates.ml:3664
 msgid "Step 3/6: Review and encrypt"
 msgstr "Pas 3/6: Rezumat și criptare"
 
@@ -308,15 +328,15 @@ msgstr "Această alegere este arhivată."
 msgid "This election is currently closed."
 msgstr "Această alegere este în prezent închisă."
 
-#: ../src/web/web_templates.ml:3727
+#: ../src/web/web_templates.ml:3726
 msgid "Value must be an integer between 0 and 255."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3726
+#: ../src/web/web_templates.ml:3725
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3619
+#: ../src/web/web_templates.ml:3618
 msgid "We invite you to save it in order to check later that it is taken into account."
 msgstr "Vă invităm să-l salvați pentru a verifica ulterior că votul vostru este luat în considerare."
 
@@ -328,11 +348,11 @@ msgstr "De asemenea, puteți descărca "
 msgid "You can check its presence in the "
 msgstr "Puteți verifica prezența sa în "
 
-#: ../src/web/web_templates.ml:3717
+#: ../src/web/web_templates.ml:3716
 msgid "You must select at least %d answer(s)"
 msgstr "Trebuie să selectați cel puțin %d răspuns(uri)"
 
-#: ../src/web/web_templates.ml:3718
+#: ../src/web/web_templates.ml:3717
 msgid "You must select at most %d answer(s)"
 msgstr "Trebuie să selectați cel mult %d răspuns(uri)"
 
@@ -340,11 +360,11 @@ msgstr "Trebuie să selectați cel mult %d răspuns(uri)"
 msgid "Your ballot for "
 msgstr "Buletinul de vot pentru "
 
-#: ../src/web/web_templates.ml:3610
+#: ../src/web/web_templates.ml:3609
 msgid "Your ballot has been successfully encrypted, "
 msgstr "Buletinul vostru de vot a fost criptat cu succes, "
 
-#: ../src/web/web_templates.ml:3615 ../src/web/web_templates.ml:3030
+#: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
 #. ../src/web/web_templates.ml:2953
 msgid "Your smart ballot tracker is "
 msgstr "Numărul vostru de identificare este "
@@ -361,11 +381,11 @@ msgstr "urna de vot"
 msgid "ballots"
 msgstr "buletine de vot"
 
-#: ../src/web/web_templates.ml:3611
+#: ../src/web/web_templates.ml:3610
 msgid "but has not been cast yet"
 msgstr "dar încă nu a fost depus în urna de vot"
 
-#: ../src/web/web_templates.ml:3715
+#: ../src/web/web_templates.ml:3714
 msgid "here"
 msgstr "aici"
 

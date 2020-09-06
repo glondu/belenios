@@ -20,11 +20,6 @@
 (**************************************************************************)
 
 let lang = "it"
-let accepted_ballots = "Schede elettorali accettate"
-let ballots_have_been_accepted_so_far = " scheda(e) accettata(e) finora."
-let ballots_have_been_accepted = " scheda(e) accettata(e)."
-let ballots_have_been_accepted_and = " scheda(e) accettata(e), e"
-let have_been_tallied = " sono state contate"
 let username = "Nome utente :"
 let password = "Password :"
 let login = "Connettersi"

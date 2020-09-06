@@ -20,11 +20,6 @@
 (**************************************************************************)
 
 let lang = "ro"
-let accepted_ballots = "Buletinele de vot acceptate"
-let ballots_have_been_accepted_so_far = " buletin(e) de vot au fost acceptat(e) până în prezent."
-let ballots_have_been_accepted = " buletin(e) de vot au fost acceptat(e)."
-let ballots_have_been_accepted_and = " buletin(e) de vot au fost acceptat(e), și "
-let have_been_tallied = " au fost contorizate."
 let username = "Nume utilizator:"
 let password = "Parola:"
 let login = "Conectare"
