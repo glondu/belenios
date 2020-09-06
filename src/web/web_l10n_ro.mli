@@ -1,1 +1,0 @@
-include Web_i18n_sig.LocalizedStrings

@@ -19,10 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module type LocalizedStrings = sig
-  val lang : string
-end
-
 module type GETTEXT = sig
   val lang : string
   val s_ : string -> string
