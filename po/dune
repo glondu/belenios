@@ -1,0 +1,28 @@
+(rule
+ (target de.mo)
+ (deps de.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target fr.mo)
+ (deps fr.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target it.mo)
+ (deps it.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target ro.mo)
+ (deps ro.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(install
+ (package belenios-server)
+ (section share)
+ (files
+  (de.mo as locales/de.mo)
+  (fr.mo as locales/fr.mo)
+  (it.mo as locales/it.mo)
+  (ro.mo as locales/ro.mo)))

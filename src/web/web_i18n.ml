@@ -39,7 +39,7 @@ module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i
       path = [];
       default = "belenios";
     }
-  let u = T.create t ("po/" ^ L.lang ^ ".mo") (fun x -> x)
+  let u = T.create t (Filename.concat !Web_config.locales_dir (L.lang ^ ".mo")) (fun x -> x)
   let s_ str = T.translate u false str None
   let f_ str = Scanf.format_from_string (T.translate u true (string_of_format str) None) str
   let sn_ str str_plural n = T.translate u false str (Some (str_plural, n))
@@ -56,8 +56,8 @@ let register lang =
   let module G = Belenios_Gettext (L) (GettextTranslate.Map) in
   Hashtbl.add langs lang (module G : Web_i18n_sig.GETTEXT)
 
-let () =
-  Lwt_main.run (Lwt_io.lines_of_file "po/LINGUAS" |> Lwt_stream.to_list)
+let init () =
+  ["de"; "fr"; "it"; "ro"]
   |> List.iter register
 
 let get_lang_gettext lang =

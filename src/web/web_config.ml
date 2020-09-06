@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 let site_auth_config = ref []
+let locales_dir = ref "."
 let spool_dir = ref "."
 let server_mail = ref "noreply@example.org"
 let return_path = ref None

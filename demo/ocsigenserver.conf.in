@@ -67,6 +67,7 @@
         <default-group file="_GROUPDIR_/default.json"/>
         <nh-group file="_GROUPDIR_/rfc3526-2048.json"/>
         <log file="_VARDIR_/log/security.log"/>
+        <locales dir="_STATICDIR_/locales"/>
         <spool dir="_VARDIR_/spool"/>
         <warning file="_VARDIR_/warning.html"/>
       </eliom>
