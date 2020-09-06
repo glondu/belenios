@@ -45,7 +45,7 @@ exception BeleniosWebError of error
 
 val fail : error -> 'a Lwt.t
 
-val explain_error : (module Web_i18n_sig.LocalizedStrings) -> error -> string
+val explain_error : (module Web_i18n_sig.GETTEXT) -> error -> string
 
 val format_period : (module Web_i18n_sig.GETTEXT) -> period -> string
 

@@ -20,15 +20,6 @@
 (**************************************************************************)
 
 let lang = "de"
-let booth_step6 = "Schritt 6/6: "
-let has_been_accepted = " wurde angenommen."
-let you_can_check_its_presence = "Sie können jederzeit überprüfen, dass Ihre Stimme in der "
-let ballot_box = "Wahlurne"
-let anytime_during_the_election = " vorhanden ist."
-let confirmation_email = " Sie erhalten eine Bestätigung per E-Mail."
-let thank_you_for_voting = "Vielen Dank für Ihre Stimme!"
-let is_rejected_because = " wurde abgelehnt, da "
-let fail = "FEHLER!"
 let accepted_ballots = "Angenommene Stimmen"
 let ballots_have_been_accepted_so_far = " Stimmen wurden bis jetzt angenommen."
 let ballots_have_been_accepted = " Stimmen wurden angenommen."
@@ -120,13 +111,3 @@ Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:
 
 let this_vote_replaces = "\n\nDiese Stimme ersetzt eine eventuelle vorherige Stimme."
 let please_contact = "Für mehr Informationen wenden Sie sich bitte an:"
-
-let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "Ihre Stimme enthält einen Syntaxfehler (%s)"
-let error_ProofCheck = "Einige Beweise konnten nicht verifiziert werden"
-let error_ElectionClosed = "Die Abstimmung ist beendet"
-let error_MissingCredential = "Die Wählernummer fehlt"
-let error_InvalidCredential = "Ihre Wählernummer ist ungültig"
-let error_RevoteNotAllowed = "Sie dürfen nicht erneut abstimmen"
-let error_ReusedCredential = "Ihre Wählernummer wurde schon benutzt"
-let error_WrongCredential = "Sie dürfen nicht mit dieser Wählernummer abstimmen"
-let error_UnauthorizedVoter = "Sie dürfen nicht abstimmen"

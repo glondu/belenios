@@ -21,15 +21,6 @@
 
 module type LocalizedStrings = sig
   val lang : string
-  val booth_step6 : string
-  val has_been_accepted : string
-  val you_can_check_its_presence : string
-  val ballot_box : string
-  val anytime_during_the_election : string
-  val confirmation_email : string
-  val thank_you_for_voting : string
-  val is_rejected_because : string
-  val fail : string
   val accepted_ballots : string
   val ballots_have_been_accepted_so_far : string
   val ballots_have_been_accepted : string
@@ -53,15 +44,6 @@ module type LocalizedStrings = sig
   val mail_confirmation : (string -> string -> string -> string -> string -> string -> string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
   val this_vote_replaces : string
   val please_contact : string
-  val error_Serialization : (string -> 'f, 'b, 'c, 'e, 'e, 'f) format6
-  val error_ProofCheck : string
-  val error_ElectionClosed : string
-  val error_MissingCredential : string
-  val error_InvalidCredential : string
-  val error_RevoteNotAllowed : string
-  val error_ReusedCredential : string
-  val error_WrongCredential : string
-  val error_UnauthorizedVoter : string
 end
 
 module type GETTEXT = sig

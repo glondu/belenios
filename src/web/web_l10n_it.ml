@@ -20,15 +20,6 @@
 (**************************************************************************)
 
 let lang = "it"
-let booth_step6 = "Fase 6/6 : "
-let has_been_accepted = " è stata accettata."
-let you_can_check_its_presence = "È possibile verificare la sua presenza  nell'"
-let ballot_box = "urna"
-let anytime_during_the_election = " ad ogni momento durante l'elezione."
-let confirmation_email = " Le è stata spedita una email di conferma."
-let thank_you_for_voting = "La ringraziamo per la sua partecipazione !"
-let is_rejected_because = "è rifiutato, perché"
-let fail = "FALLIMENTO !"
 let accepted_ballots = "Schede elettorali accettate"
 let ballots_have_been_accepted_so_far = " scheda(e) accettata(e) finora."
 let ballots_have_been_accepted = " scheda(e) accettata(e)."
@@ -123,13 +114,3 @@ I risultati saranno pubblicati sulla pagina dell'elezione
 
 let this_vote_replaces = "\n\nThis vote replaces any previous vote."
 let please_contact = "To get more information, please contact:"
-
-let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "your ballot has a syntax error (%s)"
-let error_ProofCheck = "some proofs failed verification"
-let error_ElectionClosed = "the election is closed"
-let error_MissingCredential = "a credential is missing"
-let error_InvalidCredential = "your credential is invalid"
-let error_RevoteNotAllowed = "you are not allowed to revote"
-let error_ReusedCredential = "your credential has already been used"
-let error_WrongCredential = "you are not allowed to vote with this credential"
-let error_UnauthorizedVoter = "you are not allowed to vote"

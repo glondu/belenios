@@ -3003,9 +3003,8 @@ let lost_ballot election () =
 
 let cast_confirmed election ~result () =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let l = Web_i18n.get_lang language in
-  let module L = (val l) in
-  let open (val Web_i18n.get_lang_gettext language) in
+  let l = Web_i18n.get_lang_gettext language in
+  let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let name = params.e_name in
@@ -3026,28 +3025,28 @@ let cast_confirmed election ~result () =
   let result, step_title =
     match result with
     | Ok hash ->
-       [txt L.has_been_accepted;
+       [txt (s_ " has been accepted.");
         txt " ";
         txt (s_ "Your smart ballot tracker is ");
         b ~a:[a_id "ballot_tracker"] [
           txt hash
         ];
         txt ". ";
-        txt L.you_can_check_its_presence;
-        a ~service:election_pretty_ballots [txt L.ballot_box] (uuid, ());
-        txt L.anytime_during_the_election;
-        txt L.confirmation_email;
-       ], L.thank_you_for_voting
+        txt (s_ "You can check its presence in the ");
+        a ~service:election_pretty_ballots [txt (s_ "ballot box")] (uuid, ());
+        txt (s_ " anytime during the election.");
+        txt (s_ " A confirmation e-mail has been sent to you.");
+       ], s_ "Thank you for voting!"
     | Error e ->
-       [txt L.is_rejected_because;
+       [txt (s_ " is rejected, because ");
         txt (Web_common.explain_error l e);
         txt ".";
-       ], L.fail
+       ], s_ "FAIL!"
   in
   let content = [
     progress;
     div ~a:[a_class ["current_step"]] [
-        txt L.booth_step6;
+        txt (s_ "Step 6/6: ");
         txt step_title;
     ];
     p ([

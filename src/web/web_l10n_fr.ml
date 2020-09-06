@@ -20,15 +20,6 @@
 (**************************************************************************)
 
 let lang = "fr"
-let booth_step6 = "Étape 6/6 : "
-let has_been_accepted = " a été accepté."
-let you_can_check_its_presence = "Vous pouvez vérifier sa présence dans l'"
-let ballot_box = "urne"
-let anytime_during_the_election = " à tout moment pendant l'élection."
-let confirmation_email = " Un e-mail de confirmation vous a été envoyé."
-let thank_you_for_voting = "Merci pour votre participation !"
-let is_rejected_because = " est refusé, parce que "
-let fail = "ÉCHEC !"
 let accepted_ballots = "Bulletins acceptés"
 let ballots_have_been_accepted_so_far = " bulletin(s) ont été accepté(s) jusqu'à présent."
 let ballots_have_been_accepted = " bulletin(s) ont été accepté(s)."
@@ -121,13 +112,3 @@ Les résultats seront publiés sur la page de l'élection
 
 let this_vote_replaces = "\n\nCe vote remplace le vote précédent."
 let please_contact = "Pour obtenir plus d'informations, veuillez contacter :"
-
-let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "votre bulletin a une erreur de syntaxe (%s)"
-let error_ProofCheck = "certaines preuves sont invalides"
-let error_ElectionClosed = "l'élection est fermée"
-let error_MissingCredential = "un code de vote manque"
-let error_InvalidCredential = "votre code de vote est invalide"
-let error_RevoteNotAllowed = "vous n'êtes pas autorisé(e) à revoter"
-let error_ReusedCredential = "votre code de vote a déjà été utilisé"
-let error_WrongCredential = "vous n'êtes pas autorisé(e) à voter avec ce code de vote"
-let error_UnauthorizedVoter = "vous n'êtes pas autorisé(e) a voter"

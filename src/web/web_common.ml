@@ -74,17 +74,17 @@ exception BeleniosWebError of error
 let fail e = Lwt.fail (BeleniosWebError e)
 
 let explain_error l e =
-  let module L = (val l : Web_i18n_sig.LocalizedStrings) in
+  let open (val l : Web_i18n_sig.GETTEXT) in
   match e with
-  | ElectionClosed -> L.error_ElectionClosed
-  | UnauthorizedVoter -> L.error_UnauthorizedVoter
-  | CastError (ECastSerialization e) -> Printf.sprintf L.error_Serialization (Printexc.to_string e)
-  | CastError ECastProofCheck -> L.error_ProofCheck
-  | CastError ECastMissingCredential -> L.error_MissingCredential
-  | CastError ECastInvalidCredential -> L.error_InvalidCredential
-  | CastError ECastRevoteNotAllowed -> L.error_RevoteNotAllowed
-  | CastError ECastReusedCredential -> L.error_ReusedCredential
-  | CastError ECastWrongCredential -> L.error_WrongCredential
+  | ElectionClosed -> s_ "the election is closed"
+  | UnauthorizedVoter -> s_ "you are not allowed to vote"
+  | CastError (ECastSerialization e) -> Printf.sprintf (f_ "your ballot has a syntax error (%s)") (Printexc.to_string e)
+  | CastError ECastProofCheck -> s_ "some proofs failed verification"
+  | CastError ECastMissingCredential -> s_ "a credential is missing"
+  | CastError ECastInvalidCredential -> s_ "your credential is invalid"
+  | CastError ECastRevoteNotAllowed -> s_ "you are not allowed to revote"
+  | CastError ECastReusedCredential -> s_ "your credential has already been used"
+  | CastError ECastWrongCredential -> s_ "you are not allowed to vote with this credential"
 
 let decompose_seconds s =
   let h = int_of_float (s /. 3600.) in

@@ -20,15 +20,6 @@
 (**************************************************************************)
 
 let lang = "ro"
-let booth_step6 = "Pas 6/6: "
-let has_been_accepted = " a fost acceptat."
-let you_can_check_its_presence = "Puteți verifica prezența sa în "
-let ballot_box = "urna de vot"
-let anytime_during_the_election = " în orice moment din perioada alegerii."
-let confirmation_email = " Un e-mail de confirmare v-a fost trimis."
-let thank_you_for_voting = "Vă mulțumim pentru participare!"
-let is_rejected_because = " este resprins, deoarece "
-let fail = "EȘEC!"
 let accepted_ballots = "Buletinele de vot acceptate"
 let ballots_have_been_accepted_so_far = " buletin(e) de vot au fost acceptat(e) până în prezent."
 let ballots_have_been_accepted = " buletin(e) de vot au fost acceptat(e)."
@@ -120,13 +111,3 @@ Rezultatele vor fi publicate pe pagina alegerii
 
 let this_vote_replaces = "\n\nAcest vot înlocuiește orice vot precedent."
 let please_contact = "Pentru a obține mai multe informații, va rugăm contactați:"
-
-let error_Serialization : ('a, 'b, 'c, 'd, 'e, 'f) format6 = "buletinul vostru de vot are o eroare sintactică (%s)"
-let error_ProofCheck = "unele dovezi sunt invalide"
-let error_ElectionClosed = "alegerea este inchisă"
-let error_MissingCredential = "un cod de votare lipsește"
-let error_InvalidCredential = "codul vostru de votare este invalid"
-let error_RevoteNotAllowed = "nu sunteți autorizați să revotați"
-let error_ReusedCredential = "codul vostru de votare a vost deja utilizat"
-let error_WrongCredential = "nu sunteți autorizați să votați cu acest cod de vot"
-let error_UnauthorizedVoter = "nu sunteți autorizați să votați"
