@@ -2894,7 +2894,6 @@ let cast_raw election () =
 
 let cast_confirmation election hash () =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let module L = (val Web_i18n.get_lang language) in
   let open (val Web_i18n.get_lang_gettext language) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -2904,18 +2903,18 @@ let cast_confirmation election hash () =
     | Some u ->
       post_form ~service:election_cast_confirm (fun () -> [
         p ~a:[a_style "text-align: center; padding: 10px;"] [
-          txt L.i_am;
+          txt (s_ "I am ");
           format_user ~site:false u;
-          txt L.and_;
+          txt (s_ " and ");
           input
             ~a:[a_style "font-size: 20px; cursor: pointer;"]
-            ~input_type:`Submit ~value:L.i_cast_my_vote string;
+            ~input_type:`Submit ~value:(s_ "I cast my vote") string;
           txt ".";
         ]
       ]) uuid
     | None ->
       div [
-        txt L.please_login_to_confirm;
+        txt (s_ "Please log in to confirm your vote.");
       ]
   in
   let%lwt div_revote =
@@ -2924,7 +2923,7 @@ let cast_confirmation election hash () =
     | Some u ->
        let%lwt revote = Web_persist.has_voted uuid u in
        if revote then
-         return @@ p [b [txt L.you_have_already_voted]]
+         return @@ p [b [txt (s_ "Note: you have already voted. Your vote will be replaced.")]]
        else
          return @@ txt ""
   in
@@ -2945,12 +2944,12 @@ let cast_confirmation election hash () =
   let content = [
     progress;
     div ~a:[a_class ["current_step"]] [
-        txt L.booth_step5;
+        txt (s_ "Step 5/6: Confirm");
     ];
     p [
-      txt L.your_ballot_for;
+      txt (s_ "Your ballot for ");
       em [txt name];
-      txt L.has_been_received;
+      txt (s_ " has been received, but not recorded yet. ");
       txt (s_ "Your smart ballot tracker is ");
       b ~a:[a_id "ballot_tracker"] [
         txt hash
@@ -2959,7 +2958,7 @@ let cast_confirmation election hash () =
       br ();
     ];
     br ();
-    p [txt L.nobody_can_see];
+    p [txt (s_ "Note: your ballot is encrypted and nobody can see its contents.")];
     div_revote;
     user_div;
     p [
@@ -2968,7 +2967,7 @@ let cast_confirmation election hash () =
           ~service:Web_services.election_home (uuid, ())
       in
       a ~service [
-        txt L.go_back_to_election
+        txt (s_ "Go back to election")
       ] ());
       txt ".";
     ];
@@ -2977,8 +2976,7 @@ let cast_confirmation election hash () =
 
 let lost_ballot election () =
   let%lwt language = Eliom_reference.get Web_state.language in
-  let l = Web_i18n.get_lang language in
-  let module L = (val l) in
+  let open (val Web_i18n.get_lang_gettext language) in
   let title = election.e_params.e_name in
   let uuid = election.e_params.e_uuid in
   let service = Web_services.election_vote in
@@ -2996,7 +2994,7 @@ let lost_ballot election () =
         ];
       div [
           a ~service:Web_services.election_home [
-              txt L.go_back_to_election
+              txt (s_ "Go back to election")
             ] (uuid, ());
         ];
     ]
@@ -3053,13 +3051,13 @@ let cast_confirmed election ~result () =
         txt step_title;
     ];
     p ([
-      txt L.your_ballot_for;
+      txt (s_ "Your ballot for ");
       em [txt name];
       ] @ result);
     p
       [a
          ~service:Web_services.election_home
-         [txt L.go_back_to_election]
+         [txt (s_ "Go back to election")]
          (uuid, ())];
   ] in
   base ~title:name ~content ~uuid ()
@@ -3067,6 +3065,7 @@ let cast_confirmed election ~result () =
 let pretty_ballots election hashes result () =
   let%lwt language = Eliom_reference.get Web_state.language in
   let module L = (val Web_i18n.get_lang language) in
+  let open (val Web_i18n.get_lang_gettext language) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let title = params.e_name ^ " — " ^ L.accepted_ballots in
@@ -3087,7 +3086,7 @@ let pretty_ballots election hashes result () =
     p
       [a
          ~service:Web_services.election_home
-         [txt L.go_back_to_election]
+         [txt (s_ "Go back to election")]
          (uuid, ())]
   in
   let number = match !nballots, result with

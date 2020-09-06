@@ -12,9 +12,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
+#: ../src/web/web_templates.ml:2908
+msgid " and "
+msgstr " et "
+
 #: ../src/web/web_common.ml:101
 msgid " day(s)"
 msgstr " jour(s)"
+
+#: ../src/web/web_templates.ml:2952
+msgid " has been received, but not recorded yet. "
+msgstr " a été reçu, mais pas encore pris en compte. "
 
 #: ../src/web/web_common.ml:103
 msgid " hour(s)"
@@ -36,11 +44,11 @@ msgstr " seconde(s)"
 msgid " year(s)"
 msgstr " année(s)"
 
-#: ../src/web/web_templates.ml:3614
+#: ../src/web/web_templates.ml:3613
 msgid "!"
 msgstr " !"
 
-#: ../src/web/web_templates.ml:3723
+#: ../src/web/web_templates.ml:3722
 msgid "(nothing)"
 msgstr "(rien)"
 
@@ -64,12 +72,12 @@ msgstr "Administrer cette élection"
 msgid "Advanced mode"
 msgstr "Mode avancé"
 
-#: ../src/web/web_templates.ml:3639 ../src/web/web_templates.ml:3017
-#. ../src/web/web_templates.ml:2934
+#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3015
+#. ../src/web/web_templates.ml:2933
 msgid "Answer to questions"
 msgstr "Réponse aux questions"
 
-#: ../src/web/web_templates.ml:3730
+#: ../src/web/web_templates.ml:3729
 msgid "At least one of the answers is invalid!"
 msgstr "Au moins une des réponses est incorrecte !"
 
@@ -77,16 +85,16 @@ msgstr "Au moins une des réponses est incorrecte !"
 msgid "Audit data: "
 msgstr "Données d'audit : "
 
-#: ../src/web/web_templates.ml:3643 ../src/web/web_templates.ml:3021
-#. ../src/web/web_templates.ml:2938
+#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3019
+#. ../src/web/web_templates.ml:2937
 msgid "Authenticate"
 msgstr "Authentification"
 
-#: ../src/web/web_templates.ml:3588 ../src/web/web_templates.ml:3576
+#: ../src/web/web_templates.ml:3587 ../src/web/web_templates.ml:3575
 msgid "Belenios Booth"
 msgstr "Isoloir Belenios"
 
-#: ../src/web/web_templates.ml:3726 ../src/web/web_templates.ml:1987
+#: ../src/web/web_templates.ml:3725 ../src/web/web_templates.ml:1987
 msgid "Blank vote"
 msgstr "Vote blanc"
 
@@ -94,33 +102,33 @@ msgstr "Vote blanc"
 msgid "By using this site, you accept our "
 msgstr "En utilisant ce site, vous acceptez notre "
 
-#: ../src/web/web_templates.ml:3645 ../src/web/web_templates.ml:3023
-#. ../src/web/web_templates.ml:2940
+#: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3021
+#. ../src/web/web_templates.ml:2939
 msgid "Confirm"
 msgstr "Confirmation"
 
-#: ../src/web/web_templates.ml:3625
+#: ../src/web/web_templates.ml:3624
 msgid "Continue"
 msgstr "Continuer"
 
-#: ../src/web/web_templates.ml:3647 ../src/web/web_templates.ml:3025
-#. ../src/web/web_templates.ml:2942
+#: ../src/web/web_templates.ml:3646 ../src/web/web_templates.ml:3023
+#. ../src/web/web_templates.ml:2941
 msgid "Done"
 msgstr "Terminé"
 
-#: ../src/web/web_templates.ml:3707
+#: ../src/web/web_templates.ml:3706
 msgid "Election UUID: "
 msgstr "UUID de l'élection : "
 
-#: ../src/web/web_templates.ml:3711 ../src/web/web_templates.ml:1952
+#: ../src/web/web_templates.ml:3710 ../src/web/web_templates.ml:1952
 msgid "Election fingerprint: "
 msgstr "Empreinte de l'élection : "
 
-#: ../src/web/web_templates.ml:3690 ../src/web/web_templates.ml:134
+#: ../src/web/web_templates.ml:3689 ../src/web/web_templates.ml:134
 msgid "Election server"
 msgstr "Serveur d'élections"
 
-#: ../src/web/web_templates.ml:3677
+#: ../src/web/web_templates.ml:3676
 msgid "Encrypting..."
 msgstr "Chiffrement en cours..."
 
@@ -128,16 +136,30 @@ msgstr "Chiffrement en cours..."
 msgid "Get the source code"
 msgstr "Obtenir le code source"
 
-#: ../src/web/web_templates.ml:3637 ../src/web/web_templates.ml:3015
-#. ../src/web/web_templates.ml:2932
+#: ../src/web/web_templates.ml:3089 ../src/web/web_templates.ml:3060
+#. ../src/web/web_templates.ml:2997
+#. ../src/web/web_templates.ml:2970
+msgid "Go back to election"
+msgstr "Retourner à la page d'accueil de l'élection"
+
+#: ../src/web/web_templates.ml:2906
+msgid "I am "
+msgstr "Je suis "
+
+#: ../src/web/web_templates.ml:2911
+msgid "I cast my vote"
+msgstr "je dépose mon bulletin dans l'urne"
+
+#: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3013
+#. ../src/web/web_templates.ml:2931
 msgid "Input credential"
 msgstr "Saisie du code de vote"
 
-#: ../src/web/web_templates.ml:3656
+#: ../src/web/web_templates.ml:3655
 msgid "Input your credential "
 msgstr "Saisissez votre code de vote "
 
-#: ../src/web/web_templates.ml:3725
+#: ../src/web/web_templates.ml:3724
 msgid "Invalid credential!"
 msgstr "Code de vote invalide !"
 
@@ -149,23 +171,35 @@ msgstr "Elle ouvrira dans "
 msgid "JSON result"
 msgstr "résultat JSON"
 
-#: ../src/web/web_templates.ml:3722
+#: ../src/web/web_templates.ml:3721
 msgid "Next"
 msgstr "Suivant"
 
-#: ../src/web/web_templates.ml:3727
+#: ../src/web/web_templates.ml:3726
 msgid "No other choices are allowed when voting blank"
 msgstr "Vous ne pouvez pas sélectionner d'autres choix lors d'un vote blanc"
+
+#: ../src/web/web_templates.ml:2926
+msgid "Note: you have already voted. Your vote will be replaced."
+msgstr "Note: vous avez déjà voté. Votre vote va être remplacé."
+
+#: ../src/web/web_templates.ml:2961
+msgid "Note: your ballot is encrypted and nobody can see its contents."
+msgstr "Note: votre bulletin est chiffré et personne ne peut voir son contenu."
 
 #: ../src/web/web_templates.ml:2122
 msgid "Number of accepted ballots: "
 msgstr "Nombre de bulletins acceptés : "
 
-#: ../src/web/web_templates.ml:3724
+#: ../src/web/web_templates.ml:3723
 msgid "Please enter your credential:"
 msgstr "Veuillez entrer votre code de vote :"
 
-#: ../src/web/web_templates.ml:3676
+#: ../src/web/web_templates.ml:2917
+msgid "Please log in to confirm your vote."
+msgstr "Veuillez vous connecter pour confirmer votre vote"
+
+#: ../src/web/web_templates.ml:3675
 msgid "Please wait while your ballot is being encrypted..."
 msgstr "Veuillez patienter, le chiffrement de votre bulletin est en cours..."
 
@@ -173,7 +207,7 @@ msgstr "Veuillez patienter, le chiffrement de votre bulletin est en cours..."
 msgid "Powered by "
 msgstr "Propulsé par "
 
-#: ../src/web/web_templates.ml:3721
+#: ../src/web/web_templates.ml:3720
 msgid "Previous"
 msgstr "Précédent"
 
@@ -181,12 +215,12 @@ msgstr "Précédent"
 msgid "Privacy policy"
 msgstr "Politique de confidentialité"
 
-#: ../src/web/web_templates.ml:3680
+#: ../src/web/web_templates.ml:3679
 msgid "Restart"
 msgstr "Recommencer"
 
-#: ../src/web/web_templates.ml:3641 ../src/web/web_templates.ml:3019
-#. ../src/web/web_templates.ml:2936
+#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3017
+#. ../src/web/web_templates.ml:2935
 msgid "Review and encrypt"
 msgstr "Récapitulatif et chiffrement"
 
@@ -194,7 +228,7 @@ msgstr "Récapitulatif et chiffrement"
 msgid "See accepted ballots"
 msgstr "Voir les bulletins acceptés"
 
-#: ../src/web/web_templates.ml:3718
+#: ../src/web/web_templates.ml:3717
 msgid "Select between %d and %d answer(s)"
 msgstr "Sélectionnez entre %d et %d réponse(s)"
 
@@ -202,17 +236,21 @@ msgstr "Sélectionnez entre %d et %d réponse(s)"
 msgid "Start"
 msgstr "Commencer"
 
-#: ../src/web/web_templates.ml:3652
+#: ../src/web/web_templates.ml:3651
 msgid "Step 1/6: Input credential"
 msgstr "Étape 1/6 : Saisie du code de vote"
 
-#: ../src/web/web_templates.ml:3662
+#: ../src/web/web_templates.ml:3661
 msgid "Step 2/6: Answer to questions"
 msgstr "Étape 2/6 : Réponse aux questions"
 
-#: ../src/web/web_templates.ml:3667
+#: ../src/web/web_templates.ml:3666
 msgid "Step 3/6: Review and encrypt"
 msgstr "Étape 3/6 : Récapitulatif et chiffrement"
+
+#: ../src/web/web_templates.ml:2947
+msgid "Step 5/6: Confirm"
+msgstr "Étape 5/6 : Confirmation"
 
 #: ../src/web/web_templates.ml:2065 ../src/web/web_templates.ml:2060
 msgid "The election is closed and being tallied."
@@ -242,15 +280,15 @@ msgstr "Cette élection est archivée."
 msgid "This election is currently closed."
 msgstr "Cette élection est actuellement fermée."
 
-#: ../src/web/web_templates.ml:3729
+#: ../src/web/web_templates.ml:3728
 msgid "Value must be an integer between 0 and 255."
 msgstr "La valeur doit être un entier entre 0 et 255."
 
-#: ../src/web/web_templates.ml:3728
+#: ../src/web/web_templates.ml:3727
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr "Attention: le système accepte n'importe quel nombre entre 0 et 255 mais, selon les règles de l'élection, les bulletins invalides (score trop élevé ou candidats pas classés correctement) seront rejetés à la fin de l'élection."
 
-#: ../src/web/web_templates.ml:3621
+#: ../src/web/web_templates.ml:3620
 msgid "We invite you to save it in order to check later that it is taken into account."
 msgstr "Nous vous invitons à le sauvegarder afin de vérifier ultérieurement que votre vote est bien pris en compte."
 
@@ -258,20 +296,24 @@ msgstr "Nous vous invitons à le sauvegarder afin de vérifier ultérieurement q
 msgid "You can also download the "
 msgstr "Vous pouvez également télécharger le "
 
-#: ../src/web/web_templates.ml:3719
+#: ../src/web/web_templates.ml:3718
 msgid "You must select at least %d answer(s)"
 msgstr "Vous devez sélectionner au moins %d réponse(s)"
 
-#: ../src/web/web_templates.ml:3720
+#: ../src/web/web_templates.ml:3719
 msgid "You must select at most %d answer(s)"
 msgstr "Vous devez sélectionner au plus %d réponse(s)"
 
-#: ../src/web/web_templates.ml:3612
+#: ../src/web/web_templates.ml:3054 ../src/web/web_templates.ml:2950
+msgid "Your ballot for "
+msgstr "Votre bulletin pour "
+
+#: ../src/web/web_templates.ml:3611
 msgid "Your ballot has been successfully encrypted, "
 msgstr "Votre bulletin a été chiffré avec succès, "
 
-#: ../src/web/web_templates.ml:3617 ../src/web/web_templates.ml:3033
-#. ../src/web/web_templates.ml:2954
+#: ../src/web/web_templates.ml:3616 ../src/web/web_templates.ml:3031
+#. ../src/web/web_templates.ml:2953
 msgid "Your smart ballot tracker is "
 msgstr "Votre numéro de suivi est "
 
@@ -279,11 +321,11 @@ msgstr "Votre numéro de suivi est "
 msgid "ballots"
 msgstr "bulletins"
 
-#: ../src/web/web_templates.ml:3613
+#: ../src/web/web_templates.ml:3612
 msgid "but has not been cast yet"
 msgstr "mais n'a pas encore été déposé dans l'urne"
 
-#: ../src/web/web_templates.ml:3717
+#: ../src/web/web_templates.ml:3716
 msgid "here"
 msgstr "ici"
 

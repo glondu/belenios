@@ -20,17 +20,7 @@
 (**************************************************************************)
 
 let lang = "de"
-let booth_step5 = "Schritt 5/6: Bestätigen"
 let booth_step6 = "Schritt 6/6: "
-let i_am = "Ich bin "
-let and_ = " und "
-let i_cast_my_vote = "ich schicke meine Stimme ab"
-let please_login_to_confirm = "Bitte melden Sie sich an um Ihre Stimme zu bestätigen."
-let your_ballot_for = "Ihre Stimme für "
-let has_been_received = " wurde empfangen, aber noch nicht gespeichert. "
-let nobody_can_see = "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt sehen."
-let you_have_already_voted = "Hinweis: Sie haben schon abgestimmt. Ihre vorherige Stimme wird ersetzt."
-let go_back_to_election = "Zurück zur Wahl"
 let has_been_accepted = " wurde angenommen."
 let you_can_check_its_presence = "Sie können jederzeit überprüfen, dass Ihre Stimme in der "
 let ballot_box = "Wahlurne"

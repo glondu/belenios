@@ -20,17 +20,7 @@
 (**************************************************************************)
 
 let lang = "ro"
-let booth_step5 = "Pas 5/6: Confirmare"
 let booth_step6 = "Pas 6/6: "
-let i_am = "Eu sunt "
-let and_ = " și "
-let i_cast_my_vote = "Am depus votul meu"
-let please_login_to_confirm = "Vă rugăm să vă logați pentru a confirma votul vostru."
-let your_ballot_for = "Buletinul de vot pentru "
-let has_been_received = " a fost primit, dar nu a fost încă înregistrat. "
-let nobody_can_see = "Notă: buletinul de vot este criptat și nimeni nu-i poate vedea conținutul."
-let you_have_already_voted = "Notă: ați votat deja. Votul vostru va fi înlocuit."
-let go_back_to_election = "Întoarcere la pagina de start a alegerii"
 let has_been_accepted = " a fost acceptat."
 let you_can_check_its_presence = "Puteți verifica prezența sa în "
 let ballot_box = "urna de vot"

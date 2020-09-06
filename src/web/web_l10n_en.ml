@@ -20,17 +20,7 @@
 (**************************************************************************)
 
 let lang = "en"
-let booth_step5 = "Step 5/6: Confirm"
 let booth_step6 = "Step 6/6: "
-let i_am = "I am "
-let and_ = " and "
-let i_cast_my_vote = "I cast my vote"
-let please_login_to_confirm = "Please log in to confirm your vote."
-let your_ballot_for = "Your ballot for "
-let has_been_received = " has been received, but not recorded yet. "
-let nobody_can_see = "Note: your ballot is encrypted and nobody can see its contents."
-let you_have_already_voted = "Note: you have already voted. Your vote will be replaced."
-let go_back_to_election = "Go back to election"
 let has_been_accepted = " has been accepted."
 let you_can_check_its_presence = "You can check its presence in the "
 let ballot_box = "ballot box"
