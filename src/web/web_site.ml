@@ -1673,6 +1673,7 @@ let mail_confirmation l user title hash revote url1 url2 metadata =
   add_sentence b (Printf.sprintf (f_ "Dear %s,") user); add_newline b;
   add_newline b;
   add_sentence b (s_ "Your vote for election"); add_newline b;
+  add_newline b;
   add_string b "  "; add_string b title; add_newline b;
   add_newline b;
   add_sentence b (s_ "has been recorded.");
