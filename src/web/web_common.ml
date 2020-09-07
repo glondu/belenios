@@ -74,17 +74,17 @@ exception BeleniosWebError of error
 let fail e = Lwt.fail (BeleniosWebError e)
 
 let explain_error l e =
-  let module L = (val l : Web_i18n_sig.LocalizedStrings) in
+  let open (val l : Web_i18n_sig.GETTEXT) in
   match e with
-  | ElectionClosed -> L.error_ElectionClosed
-  | UnauthorizedVoter -> L.error_UnauthorizedVoter
-  | CastError (ECastSerialization e) -> Printf.sprintf L.error_Serialization (Printexc.to_string e)
-  | CastError ECastProofCheck -> L.error_ProofCheck
-  | CastError ECastMissingCredential -> L.error_MissingCredential
-  | CastError ECastInvalidCredential -> L.error_InvalidCredential
-  | CastError ECastRevoteNotAllowed -> L.error_RevoteNotAllowed
-  | CastError ECastReusedCredential -> L.error_ReusedCredential
-  | CastError ECastWrongCredential -> L.error_WrongCredential
+  | ElectionClosed -> s_ "the election is closed"
+  | UnauthorizedVoter -> s_ "you are not allowed to vote"
+  | CastError (ECastSerialization e) -> Printf.sprintf (f_ "your ballot has a syntax error (%s)") (Printexc.to_string e)
+  | CastError ECastProofCheck -> s_ "some proofs failed verification"
+  | CastError ECastMissingCredential -> s_ "a credential is missing"
+  | CastError ECastInvalidCredential -> s_ "your credential is invalid"
+  | CastError ECastRevoteNotAllowed -> s_ "you are not allowed to revote"
+  | CastError ECastReusedCredential -> s_ "your credential has already been used"
+  | CastError ECastWrongCredential -> s_ "you are not allowed to vote with this credential"
 
 let decompose_seconds s =
   let h = int_of_float (s /. 3600.) in
@@ -94,15 +94,15 @@ let decompose_seconds s =
   (h, m, int_of_float s)
 
 let format_period l x =
-  let module L = (val l : Web_i18n_sig.LocalizedStrings) in
+  let open (val l : Web_i18n_sig.GETTEXT) in
   let y, m, d, s = ymds x in
-  let y = if y = 0 then "" else string_of_int y ^ L.years in
-  let m = if m = 0 then "" else string_of_int m ^ L.months in
-  let d = if d = 0 then "" else string_of_int d ^ L.days in
+  let y = if y = 0 then "" else string_of_int y ^ (s_ " year(s)") in
+  let m = if m = 0 then "" else string_of_int m ^ (s_ " month(s)") in
+  let d = if d = 0 then "" else string_of_int d ^ (s_ " day(s)") in
   let hrs, min, sec = decompose_seconds s in
-  let hrs = if hrs = 0 then "" else string_of_int hrs ^ L.hours in
-  let min = if min = 0 then "" else string_of_int min ^ L.minutes in
-  let sec = if sec = 0 then "" else string_of_int sec ^ L.seconds in
+  let hrs = if hrs = 0 then "" else string_of_int hrs ^ (s_ " hour(s)") in
+  let min = if min = 0 then "" else string_of_int min ^ (s_ " minute(s)") in
+  let sec = if sec = 0 then "" else string_of_int sec ^ (s_ " second(s)") in
   let approx = String.concat " " (List.filter (fun x -> x <> "") [y; m; d; hrs; min]) in
   if approx = "" then sec else approx
 

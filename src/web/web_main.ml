@@ -26,6 +26,7 @@ open Web_common
 
 (** Parse configuration from <eliom> *)
 
+let locales_dir = ref None
 let spool_dir = ref None
 let source_file = ref None
 let auth_instances = ref []
@@ -71,6 +72,8 @@ let () =
      in
      set "mail" (fun x -> Web_config.server_mail := x);
      set "return-path" (fun x -> Web_config.return_path := Some x);
+  | Element ("locales", ["dir", dir], []) ->
+    locales_dir := Some dir
   | Element ("spool", ["dir", dir], []) ->
     spool_dir := Some dir
   | Element ("warning", ["file", file], []) ->
@@ -106,6 +109,11 @@ let source_file =
      | None -> failwith "missing <source> in configuration"
     )
 
+let locales_dir =
+  match !locales_dir with
+  | Some d -> d
+  | None -> failwith "missing <locales> in configuration"
+
 let spool_dir =
   match !spool_dir with
   | Some d -> d
@@ -136,9 +144,11 @@ let nh_group =
 (** Build up the site *)
 
 let () = Web_config.source_file := source_file
+let () = Web_config.locales_dir := locales_dir
 let () = Web_config.spool_dir := spool_dir
 let () = Web_config.default_group := default_group
 let () = Web_config.nh_group := nh_group
 let () = Web_config.site_auth_config := List.rev !auth_instances
 let () = Lwt_main.run (Web_persist.convert_trustees ())
 let () = Lwt.async Web_site.data_policy_loop
+let () = Web_i18n.init ()

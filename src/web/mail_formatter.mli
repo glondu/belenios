@@ -19,18 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_serializable_t
+type t
 
-val site_auth_config : auth_config list ref
-val locales_dir : string ref
-val spool_dir : string ref
-val server_mail : string ref
-val return_path : string option ref
-val contact_uri : string option ref
-val gdpr_uri : string ref
-val warning_file : string option ref
-val source_file : string ref
-val maxmailsatonce : int ref
-val uuid_length : int option ref
-val default_group : string ref
-val nh_group : string ref
+val create : unit -> t
+val add_newline : t -> unit
+val add_string : t -> string -> unit
+val add_sentence : t -> string -> unit
+val contents : t -> string

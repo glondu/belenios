@@ -1,0 +1,563 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: belenios 1.12\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-04 12:48+0000\n"
+"PO-Revision-Date: 2020-09-04 12:48+0000\n"
+"Last-Translator: Jannik Dreier\n"
+"Language-Team: Belenios Team <contact@belenios.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: ../src/web/web_templates.ml:3038
+msgid " A confirmation e-mail has been sent to you."
+msgstr " Sie erhalten eine Bestätigung per E-Mail."
+
+#: ../src/web/web_templates.ml:2908
+msgid " and "
+msgstr " und "
+
+#: ../src/web/web_templates.ml:3037
+msgid " anytime during the election."
+msgstr " vorhanden ist."
+
+#: ../src/web/web_templates.ml:3094
+msgid " ballot(s) have been accepted so far."
+msgstr " Stimmen wurden bis jetzt angenommen."
+
+#: ../src/web/web_templates.ml:3104
+msgid " ballot(s) have been accepted, and "
+msgstr " Stimmen wurden angenommen, und "
+
+#: ../src/web/web_templates.ml:3099
+msgid " ballot(s) have been accepted."
+msgstr " Stimmen wurden angenommen."
+
+#: ../src/web/web_common.ml:101
+msgid " day(s)"
+msgstr " Tag(en)"
+
+#: ../src/web/web_templates.ml:3028
+msgid " has been accepted."
+msgstr " wurde angenommen."
+
+#: ../src/web/web_templates.ml:2952
+msgid " has been received, but not recorded yet. "
+msgstr " wurde empfangen, aber noch nicht gespeichert. "
+
+#: ../src/web/web_templates.ml:3106
+msgid " have been tallied."
+msgstr " wurden gezählt."
+
+#: ../src/web/web_common.ml:103
+msgid " hour(s)"
+msgstr " Stunde(n)"
+
+#: ../src/web/web_templates.ml:3041
+msgid " is rejected, because "
+msgstr " wurde abgelehnt, da "
+
+#: ../src/web/web_common.ml:104
+msgid " minute(s)"
+msgstr " Minute(n)"
+
+#: ../src/web/web_common.ml:100
+msgid " month(s)"
+msgstr " Monat(en)"
+
+#: ../src/web/web_common.ml:105
+msgid " second(s)"
+msgstr " Sekunde(n)"
+
+#: ../src/web/web_common.ml:99
+msgid " year(s)"
+msgstr " Jahr(en)"
+
+#: ../src/web/web_templates.ml:3611
+msgid "!"
+msgstr "!"
+
+#: ../src/web/web_templates.ml:3720
+msgid "(nothing)"
+msgstr "(nichts)"
+
+#: ../src/web/web_templates.ml:2014
+msgid ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
+msgstr ""
+
+#: ../src/web/web_templates.ml:2162
+msgid "Accept"
+msgstr "Bestätigen"
+
+#: ../src/web/web_templates.ml:3069
+msgid "Accepted ballots"
+msgstr "Angenommene Stimmen"
+
+#: ../src/web/web_templates.ml:105
+msgid "Administer elections"
+msgstr "Abstimmung verwalten"
+
+#: ../src/web/web_templates.ml:107
+msgid "Administer this election"
+msgstr "Diese Abstimmung verwalten"
+
+#: ../src/web/web_templates.ml:2101
+msgid "Advanced mode"
+msgstr "Erweiterter Modus"
+
+#: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3014
+#. ../src/web/web_templates.ml:2933
+msgid "Answer to questions"
+msgstr "Fragen beantworten"
+
+#: ../src/web/web_templates.ml:3727
+msgid "At least one of the answers is invalid!"
+msgstr ""
+
+#: ../src/web/web_templates.ml:1956
+msgid "Audit data: "
+msgstr "Auditdaten: "
+
+#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
+#. ../src/web/web_templates.ml:2937
+msgid "Authenticate"
+msgstr "Authentifizieren"
+
+#: ../src/web/web_site.ml:1078 ../src/web/web_site.ml:679
+msgid "Be careful, passwords and credentials look similar but play different roles."
+msgstr ""
+
+#: ../src/web/web_templates.ml:3585 ../src/web/web_templates.ml:3573
+msgid "Belenios Booth"
+msgstr "Belenios Wahlkabine"
+
+#: ../src/web/web_templates.ml:3723 ../src/web/web_templates.ml:1987
+msgid "Blank vote"
+msgstr "ungültige Stimme"
+
+#: ../src/web/web_templates.ml:2159
+msgid "By using this site, you accept our "
+msgstr "Wenn Sie diese Seite benutzen akzeptieren sie unsere "
+
+#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
+#. ../src/web/web_templates.ml:2939
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: ../src/web/web_templates.ml:3622
+msgid "Continue"
+msgstr "Weiter"
+
+#: ../src/web/web_site.ml:1656
+msgid "Cookies are blocked"
+msgstr "Cookies sind deaktiviert"
+
+#: ../src/web/web_site.ml:1084
+msgid "Credential:"
+msgstr "Wählernummer:"
+
+#: ../src/web/web_site.ml:1673
+msgid "Dear %s,"
+msgstr "%s,"
+
+#: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
+#. ../src/web/web_templates.ml:2941
+msgid "Done"
+msgstr "Fertig"
+
+#: ../src/web/web_templates.ml:3704
+msgid "Election UUID: "
+msgstr "Eindeutige Nummer der Abstimmung: "
+
+#: ../src/web/web_templates.ml:3708 ../src/web/web_templates.ml:1952
+msgid "Election fingerprint: "
+msgstr "Fingerabdruck der Abstimmung: "
+
+#: ../src/web/web_templates.ml:3687 ../src/web/web_templates.ml:134
+msgid "Election server"
+msgstr "Wahlserver"
+
+#: ../src/web/web_templates.ml:3674
+msgid "Encrypting..."
+msgstr "Verschlüssele..."
+
+#: ../src/web/web_templates.ml:3044
+msgid "FAIL!"
+msgstr "FEHLER!"
+
+#: ../src/web/web_templates.ml:153
+msgid "Get the source code"
+msgstr "Den Quellcode herunterladen"
+
+#: ../src/web/web_templates.ml:3087 ../src/web/web_templates.ml:3059
+#. ../src/web/web_templates.ml:2997
+#. ../src/web/web_templates.ml:2970
+msgid "Go back to election"
+msgstr "Zurück zur Wahl"
+
+#: ../src/web/web_templates.ml:2906
+msgid "I am "
+msgstr "Ich bin "
+
+#: ../src/web/web_templates.ml:2911
+msgid "I cast my vote"
+msgstr "ich schicke meine Stimme ab"
+
+#: ../src/web/web_templates.ml:3634 ../src/web/web_templates.ml:3012
+#. ../src/web/web_templates.ml:2931
+msgid "Input credential"
+msgstr "Wählernummer eingeben"
+
+#: ../src/web/web_templates.ml:3653
+msgid "Input your credential "
+msgstr "Bitte Wählernummer eingeben "
+
+#: ../src/web/web_templates.ml:3722
+msgid "Invalid credential!"
+msgstr "Falsche Wählernummer!"
+
+#: ../src/web/web_templates.ml:2034
+msgid "It will open in "
+msgstr "Sie öffnet in "
+
+#: ../src/web/web_templates.ml:2013
+msgid "JSON result"
+msgstr ""
+
+#: ../src/web/web_templates.ml:3380
+msgid "Login"
+msgstr ""
+
+#: ../src/web/web_site.ml:1080 ../src/web/web_site.ml:681
+msgid "Login and passwords are required once your ballot is ready to be cast."
+msgstr ""
+
+#: ../src/web/web_templates.ml:3719
+msgid "Next"
+msgstr "Weiter"
+
+#: ../src/web/web_templates.ml:3724
+msgid "No other choices are allowed when voting blank"
+msgstr "Bei einer ungültigen Stimme sind keine anderen Auswahlmöglichkeiten vorhanden."
+
+#: ../src/web/web_site.ml:50
+msgid "Not found"
+msgstr ""
+
+#: ../src/web/web_site.ml:1087 ../src/web/web_site.ml:688
+msgid "Note that you are allowed to vote several times."
+msgstr ""
+
+#: ../src/web/web_templates.ml:2926
+msgid "Note: you have already voted. Your vote will be replaced."
+msgstr "Hinweis: Sie haben schon abgestimmt. Ihre vorherige Stimme wird ersetzt."
+
+#: ../src/web/web_templates.ml:2961
+msgid "Note: your ballot is encrypted and nobody can see its contents."
+msgstr "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt sehen."
+
+#: ../src/web/web_templates.ml:2122
+msgid "Number of accepted ballots: "
+msgstr "Anzahl angenommener Stimmen: "
+
+#: ../src/web/web_site.ml:1088 ../src/web/web_site.ml:689
+msgid "Only the last vote counts."
+msgstr ""
+
+#: ../src/web/web_site.ml:1085 ../src/web/web_site.ml:686
+msgid "Page of the election:"
+msgstr "Website der Abstimmung:"
+
+#: ../src/web/web_templates.ml:3388
+msgid "Password login"
+msgstr "Login mit Passwort"
+
+#: ../src/web/web_templates.ml:3375 ../src/web/web_site.ml:685
+msgid "Password:"
+msgstr "Passwort:"
+
+#: ../src/web/web_templates.ml:3721
+msgid "Please enter your credential:"
+msgstr "Bitte geben Sie Ihre Wählernummer ein:"
+
+#: ../src/web/web_templates.ml:2917
+msgid "Please log in to confirm your vote."
+msgstr "Bitte melden Sie sich an um Ihre Stimme zu bestätigen."
+
+#: ../src/web/web_templates.ml:3673
+msgid "Please wait while your ballot is being encrypted..."
+msgstr "Bitte warten, Ihre Stimme wird verschlüsselt..."
+
+#: ../src/web/web_templates.ml:148
+msgid "Powered by "
+msgstr ""
+
+#: ../src/web/web_templates.ml:3718
+msgid "Previous"
+msgstr "Zurück"
+
+#: ../src/web/web_templates.ml:155
+msgid "Privacy policy"
+msgstr "Datenschutzbestimmungen"
+
+#: ../src/web/web_templates.ml:3677
+msgid "Restart"
+msgstr "Erneut beginnen"
+
+#: ../src/web/web_site.ml:1692
+msgid "Results will be published on the election page"
+msgstr "Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:"
+
+#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
+#. ../src/web/web_templates.ml:2935
+msgid "Review and encrypt"
+msgstr "Überprüfen und verschlüsseln"
+
+#: ../src/web/web_templates.ml:2083
+msgid "See accepted ballots"
+msgstr "angenommene Stimmen anzeigen"
+
+#: ../src/web/web_templates.ml:3715
+msgid "Select between %d and %d answer(s)"
+msgstr "Wählen Sie zwischen %d und %d Antworten aus"
+
+#: ../src/web/web_templates.ml:2096
+msgid "Start"
+msgstr ""
+
+#: ../src/web/web_templates.ml:3649
+msgid "Step 1/6: Input credential"
+msgstr "Schritt 1/6: Wählernummer eingeben"
+
+#: ../src/web/web_templates.ml:3659
+msgid "Step 2/6: Answer to questions"
+msgstr "Schritt 2/6: Fragen beantworten"
+
+#: ../src/web/web_templates.ml:3664
+msgid "Step 3/6: Review and encrypt"
+msgstr "Schritt 3/6: Überprüfen und verschlüsseln"
+
+#: ../src/web/web_templates.ml:2947
+msgid "Step 5/6: Confirm"
+msgstr "Schritt 5/6: Bestätigen"
+
+#: ../src/web/web_templates.ml:3049
+msgid "Step 6/6: "
+msgstr "Schritt 6/6: "
+
+#: ../src/web/web_templates.ml:3039
+msgid "Thank you for voting!"
+msgstr "Vielen Dank für Ihre Stimme!"
+
+#: ../src/web/web_templates.ml:2065 ../src/web/web_templates.ml:2060
+msgid "The election is closed and being tallied."
+msgstr "Diese Abstimmung ist beendet und wird ausgezählt."
+
+#: ../src/web/web_templates.ml:2050
+msgid "The election will close in "
+msgstr "Die Abstimmung schließt in "
+
+#: ../src/web/web_templates.ml:2012
+msgid "The raw results can be viewed in the "
+msgstr ""
+
+#: ../src/web/web_templates.ml:2142
+msgid "The result of this election is currently not publicly available. It will be in %s."
+msgstr "Das Ergebnis dieser Abstimmung ist derzeit noch nicht verfügbar. Es wird in %s veröffentlicht."
+
+#: ../src/web/web_site.ml:50
+msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
+msgstr ""
+
+#: ../src/web/web_templates.ml:2070
+msgid "This election has been tallied."
+msgstr "Diese Abstimmung wurde ausgezählt."
+
+#: ../src/web/web_templates.ml:2075
+msgid "This election is archived."
+msgstr "Diese Abstimmung wurde archiviert."
+
+#: ../src/web/web_templates.ml:2042
+msgid "This election is currently closed."
+msgstr "Diese Abstimmung ist beendet."
+
+#: ../src/web/web_site.ml:1684
+msgid "This vote replaces any previous vote."
+msgstr "Diese Stimme ersetzt eine eventuelle vorherige Stimme."
+
+#: ../src/web/web_site.ml:678
+msgid "To cast a vote, you will also need a credential, sent in a separate email."
+msgstr "Um abzustimmen benötigen sie außerdem noch Ihre Wählernummer, die Ihnen in einer separaten Mail zugestellt wird."
+
+#: ../src/web/web_site.ml:1077
+msgid "To cast a vote, you will also need a password, sent in a separate email."
+msgstr "Um abzustimmen benötigen sie außerdem noch Ihr Passwort, die Ihnen in einer separaten Mail zugestellt wird."
+
+#: ../src/web/web_site.ml:664
+msgid "To get more information, please contact:"
+msgstr "Für mehr Informationen wenden Sie sich bitte an:"
+
+#: ../src/web/web_templates.ml:3371 ../src/web/web_site.ml:684
+msgid "Username:"
+msgstr "Benutzername:"
+
+#: ../src/web/web_templates.ml:3726
+msgid "Value must be an integer between 0 and 255."
+msgstr ""
+
+#: ../src/web/web_templates.ml:3725
+msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
+msgstr ""
+
+#: ../src/web/web_templates.ml:3618
+msgid "We invite you to save it in order to check later that it is taken into account."
+msgstr "Bitte Speichern Sie sie ab um später zu überprüfen, dass Ihre Stimme gezählt wurde."
+
+#: ../src/web/web_site.ml:1071 ../src/web/web_site.ml:673
+msgid "You are listed as a voter for the election"
+msgstr "Sie sind für die folgende Abstimmung als Wähler eingetragen:"
+
+#: ../src/web/web_templates.ml:2126
+msgid "You can also download the "
+msgstr "Sie können außerdem das "
+
+#: ../src/web/web_templates.ml:3035
+msgid "You can check its presence in the "
+msgstr "Sie können jederzeit überprüfen, dass Ihre Stimme in der "
+
+#: ../src/web/web_site.ml:1688
+msgid "You can check its presence in the ballot box, accessible at"
+msgstr "Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der Wahlurne befindet:"
+
+#: ../src/web/web_templates.ml:3716
+msgid "You must select at least %d answer(s)"
+msgstr "Sie müssen mindestens %d Antworten auswählen"
+
+#: ../src/web/web_templates.ml:3717
+msgid "You must select at most %d answer(s)"
+msgstr "Sie müssen maximal %d Antworten auswählen"
+
+#: ../src/web/web_site.ml:1079 ../src/web/web_site.ml:680
+msgid "You will be asked to enter your credential before entering the voting booth."
+msgstr ""
+
+#: ../src/web/web_site.ml:1075
+msgid "You will find below your credential."
+msgstr "Am Ende der Mail finden Sie Ihre Wählernummer."
+
+#: ../src/web/web_site.ml:677
+msgid "You will find below your login and password."
+msgstr "Am Ende der Mail finden Sie Ihren Benutzername und Ihr Passwort."
+
+#: ../src/web/web_templates.ml:3053 ../src/web/web_templates.ml:2950
+msgid "Your ballot for "
+msgstr "Ihre Stimme für "
+
+#: ../src/web/web_templates.ml:3609
+msgid "Your ballot has been successfully encrypted, "
+msgstr "Ihre Stimme wurde erfolgreich verschlüsselt, "
+
+#: ../src/web/web_site.ml:1656
+msgid "Your browser seems to block cookies. Please enable them."
+msgstr "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
+
+#: ../src/web/web_site.ml:1143
+msgid "Your credential for election %s"
+msgstr "Ihre Wählernummer für die Abstimmung %s"
+
+#: ../src/web/web_site.ml:707
+msgid "Your password for election %s"
+msgstr "Ihr Passwort für die Abstimmung %s"
+
+#: ../src/web/web_site.ml:1679
+msgid "Your smart ballot tracker is"
+msgstr "Ihre Stimmennummer ist:"
+
+#: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
+#. ../src/web/web_templates.ml:2953
+msgid "Your smart ballot tracker is "
+msgstr "Ihre Stimmennummer ist "
+
+#: ../src/web/web_site.ml:1675
+msgid "Your vote for election"
+msgstr "Ihre Stimme zur Abstimmung"
+
+#: ../src/web/web_site.ml:1725
+msgid "Your vote for election %s"
+msgstr "Ihre Stimme zur Abstimmung %s"
+
+#: ../src/web/web_common.ml:83
+msgid "a credential is missing"
+msgstr "Die Wählernummer fehlt"
+
+#: ../src/web/web_templates.ml:3036
+msgid "ballot box"
+msgstr "Wahlurne"
+
+#: ../src/web/web_templates.ml:1968
+msgid "ballots"
+msgstr "Stimmen"
+
+#: ../src/web/web_templates.ml:3610
+msgid "but has not been cast yet"
+msgstr "aber noch nicht abgeschickt"
+
+#: ../src/web/web_site.ml:1678
+msgid "has been recorded."
+msgstr "wurde angenommen."
+
+#: ../src/web/web_templates.ml:3714
+msgid "here"
+msgstr "hier"
+
+#: ../src/web/web_templates.ml:1958
+msgid "parameters"
+msgstr "Parameter"
+
+#: ../src/web/web_templates.ml:2160
+msgid "personal data policy"
+msgstr "Datenschutzbestimmungen"
+
+#: ../src/web/web_templates.ml:1964
+msgid "public credentials"
+msgstr "Öffentliche Daten"
+
+#: ../src/web/web_templates.ml:2128
+msgid "result with cryptographic proofs"
+msgstr "Ergebnis mit den kryptographischen Beweisen herunterladen"
+
+#: ../src/web/web_common.ml:82
+msgid "some proofs failed verification"
+msgstr "Einige Beweise konnten nicht verifiziert werden"
+
+#: ../src/web/web_common.ml:79
+msgid "the election is closed"
+msgstr "Die Abstimmung ist beendet"
+
+#: ../src/web/web_common.ml:85
+msgid "you are not allowed to revote"
+msgstr "Sie dürfen nicht erneut abstimmen"
+
+#: ../src/web/web_common.ml:80
+msgid "you are not allowed to vote"
+msgstr "Sie dürfen nicht abstimmen"
+
+#: ../src/web/web_common.ml:87
+msgid "you are not allowed to vote with this credential"
+msgstr "Sie dürfen nicht mit dieser Wählernummer abstimmen"
+
+#: ../src/web/web_common.ml:81
+msgid "your ballot has a syntax error (%s)"
+msgstr "Ihre Stimme enthält einen Syntaxfehler (%s)"
+
+#: ../src/web/web_common.ml:86
+msgid "your credential has already been used"
+msgstr "Ihre Wählernummer wurde schon benutzt"
+
+#: ../src/web/web_common.ml:84
+msgid "your credential is invalid"
+msgstr "Ihre Wählernummer ist ungültig"
+

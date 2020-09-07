@@ -8,14 +8,13 @@ build-debug-server:
 	git archive --prefix=belenios-debug/ HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
 build-release-server:
-	dune clean
+	$(MAKE) clean
 	BELENIOS_DEBUG= dune build --release
 	rm -rf _run/usr
 	dune install --destdir=_run --prefix=/usr 2>/dev/null
 	git archive --prefix="belenios-$(shell git describe --tags)/" HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
 build-debug-tool:
-	dune clean
 	BELENIOS_DEBUG=1 dune build
 	cp _build/install/default/bin/belenios-tool _build/
 
@@ -28,6 +27,7 @@ check:
 
 clean:
 	dune clean
+	$(MAKE) -C po clean
 
 .PHONY: doc
 doc:

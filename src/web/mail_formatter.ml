@@ -19,18 +19,55 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_serializable_t
+let width = 72
 
-val site_auth_config : auth_config list ref
-val locales_dir : string ref
-val spool_dir : string ref
-val server_mail : string ref
-val return_path : string option ref
-val contact_uri : string option ref
-val gdpr_uri : string ref
-val warning_file : string option ref
-val source_file : string ref
-val maxmailsatonce : int ref
-val uuid_length : int option ref
-val default_group : string ref
-val nh_group : string ref
+type t =
+  {
+    buffer : Buffer.t;
+    mutable current : int;
+    mutable pending : bool;
+  }
+
+let create () =
+  {
+    buffer = Buffer.create 1000;
+    current = 0;
+    pending = false;
+  }
+
+let add_newline t =
+  Buffer.add_string t.buffer "\n";
+  t.current <- 0;
+  t.pending <- false
+
+let add_string t s =
+  Buffer.add_string t.buffer s;
+  t.current <- t.current + String.length s;
+  t.pending <- false
+
+let add_word t s =
+  let length = String.length s in
+  let pending = if t.pending then 1 else 0 in
+  if t.current + pending + length > width then (
+    add_newline t;
+    add_string t s;
+    t.pending <- true
+  ) else (
+    if t.pending then add_string t " ";
+    add_string t s;
+    t.pending <- true
+  )
+
+let add_sentence t s =
+  let n = String.length s in
+  let rec loop i =
+    if i < n then (
+      let j = try String.index_from s i ' ' with Not_found -> n in
+      add_word t (String.sub s i (j - i));
+      loop (j + 1)
+    )
+  in
+  loop 0
+
+let contents t =
+  Buffer.contents t.buffer
