@@ -97,8 +97,8 @@ let belenios_url = Eliom_service.extern
   ()
 
 let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let open (val Web_i18n.get_lang_gettext language) in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let administer =
     match uuid with
     | None ->
@@ -1944,8 +1944,8 @@ let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
 let audit_footer election =
   let uuid = election.e_params.e_uuid in
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let open (val Web_i18n.get_lang_gettext language) in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
       div [
@@ -2016,8 +2016,7 @@ let format_question_result uuid l (i, q) r =
        ]
 
 let election_home election state () =
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let l = Web_i18n.get_lang_gettext language in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -2893,8 +2892,8 @@ let cast_raw election () =
   base ~title:params.e_name ~content ~uuid ~footer ()
 
 let cast_confirmation election hash () =
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let open (val Web_i18n.get_lang_gettext language) in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let%lwt user = Web_state.get_election_user uuid in
@@ -2975,8 +2974,8 @@ let cast_confirmation election hash () =
   base ~title:name ~content ~uuid ()
 
 let lost_ballot election () =
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let open (val Web_i18n.get_lang_gettext language) in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let title = election.e_params.e_name in
   let uuid = election.e_params.e_uuid in
   let service = Web_services.election_vote in
@@ -3002,8 +3001,7 @@ let lost_ballot election () =
   base ~title ~content ~uuid ()
 
 let cast_confirmed election ~result () =
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let l = Web_i18n.get_lang_gettext language in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -3062,8 +3060,8 @@ let cast_confirmed election ~result () =
   base ~title:name ~content ~uuid ()
 
 let pretty_ballots election hashes result () =
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let open (val Web_i18n.get_lang_gettext language) in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let title = params.e_name ^ " — " ^ s_ "Accepted ballots" in
@@ -3348,8 +3346,8 @@ let login_dummy ~state =
   base ~title ~content ()
 
 let login_password ~service ~allowsignups ~state =
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let open (val Web_i18n.get_lang_gettext language) in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let signup =
     if allowsignups then
       div [
@@ -3568,8 +3566,8 @@ let changepw ~username ~address error =
   base ~title:"Change password" ~content ()
 
 let booth () =
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let open (val Web_i18n.get_lang_gettext language) in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let head = head (title (txt (s_ "Belenios Booth"))) [
     link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
     script ~a:[a_src (static "tool_js_booth.js")] (txt "");

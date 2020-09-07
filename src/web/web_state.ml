@@ -36,19 +36,6 @@ let get_election_user uuid =
 let ballot = Eliom_reference.eref ~scope None
 let cast_confirmed = Eliom_reference.eref ~scope None
 
-let get_default_language () =
-  let ri = Eliom_request_info.get_ri () in
-  let lazy langs = Ocsigen_request_info.accept_language ri in
-  match langs with
-  | [] -> "en"
-  | (lang, _) :: _ ->
-     let n =
-       match String.index_opt lang '-' with
-       | Some x -> x
-       | None -> String.length lang
-     in
-     String.sub lang 0 n
-
-let language = Eliom_reference.eref_from_fun ~scope get_default_language
+let language = Eliom_reference.eref ~scope None
 
 let signup_env = Eliom_reference.eref ~scope None

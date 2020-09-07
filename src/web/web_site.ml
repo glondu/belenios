@@ -45,8 +45,8 @@ let find_election uuid =
   | _ -> return_none
 
 let election_not_found () =
-  let%lwt lang = Eliom_reference.get Web_state.language in
-  let open (val Web_i18n.get_lang_gettext lang) in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   T.generic_page ~title:(s_ "Not found") (s_ "This election does not exist. This may happen for elections that have not yet been open or have been deleted.") ()
   >>= Html.send ~code:404
 
@@ -1651,8 +1651,8 @@ let () =
     (fun () () ->
       match%lwt Eliom_reference.get Web_state.ballot with
       | None ->
-         let%lwt lang = Eliom_reference.get Web_state.language in
-         let open (val Web_i18n.get_lang_gettext lang) in
+         let%lwt l = Web_i18n.get_preferred_gettext () in
+         let open (val l) in
          T.generic_page ~title:(s_ "Cookies are blocked") (s_ "Your browser seems to block cookies. Please enable them.") ()
          >>= Html.send
       | Some ballot ->
@@ -1720,8 +1720,7 @@ let send_confirmation_email uuid revote user email hash =
   let url2 = Eliom_uri.make_string_uri ~absolute:true
     ~service:Web_services.election_home x |> rewrite_prefix
   in
-  let%lwt language = Eliom_reference.get Web_state.language in
-  let l = Web_i18n.get_lang_gettext language in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
   let open (val l) in
   let subject = Printf.sprintf (f_ "Your vote for election %s") title in
   let body = mail_confirmation l user title hash revote url1 url2 metadata in
@@ -2406,7 +2405,7 @@ let () =
 let () =
   Any.register ~service:set_language
     (fun (lang, cont) () ->
-      let%lwt () = Eliom_reference.set Web_state.language lang in
+      let%lwt () = Eliom_reference.set Web_state.language (Some lang) in
       get_cont_state cont ()
     )
 

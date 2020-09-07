@@ -63,3 +63,24 @@ let init () =
 let get_lang_gettext lang =
   try Hashtbl.find langs lang
   with Not_found -> default_gettext
+
+let get_default_language () =
+  let ri = Eliom_request_info.get_ri () in
+  let lazy langs = Ocsigen_request_info.accept_language ri in
+  match langs with
+  | [] -> "en"
+  | (lang, _) :: _ ->
+     let n =
+       match String.index_opt lang '-' with
+       | Some x -> x
+       | None -> String.length lang
+     in
+     String.sub lang 0 n
+
+let get_preferred_gettext () =
+  let%lwt lang =
+    match%lwt Eliom_reference.get Web_state.language with
+    | None -> Lwt.return (get_default_language ())
+    | Some lang -> Lwt.return lang
+  in
+  Lwt.return (get_lang_gettext lang)

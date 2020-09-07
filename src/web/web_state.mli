@@ -30,6 +30,6 @@ val get_election_user : uuid -> user option Lwt.t
 val ballot : string option Eliom_reference.eref
 val cast_confirmed : (string, Web_common.error) result option Eliom_reference.eref
 
-val language : string Eliom_reference.eref
+val language : string option Eliom_reference.eref
 
 val signup_env : (string * string * string * Web_signup.link_kind) option Eliom_reference.eref
