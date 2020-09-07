@@ -1,1 +1,1 @@
-(dirs ext po src)
+(dirs ext po src tests)
