@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-06 09:10+0000\n"
+"POT-Creation-Date: 2020-09-08 15:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,27 +17,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: ../src/web/web_templates.ml:3038
+#: ../src/web/web_templates.ml:3036
 msgid " A confirmation e-mail has been sent to you."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2908
+#: ../src/web/web_templates.ml:2907
 msgid " and "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3037
+#: ../src/web/web_templates.ml:3035
 msgid " anytime during the election."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3094
+#: ../src/web/web_templates.ml:3092
 msgid " ballot(s) have been accepted so far."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3104
+#: ../src/web/web_templates.ml:3102
 msgid " ballot(s) have been accepted, and "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3099
+#: ../src/web/web_templates.ml:3097
 msgid " ballot(s) have been accepted."
 msgstr ""
 
@@ -45,15 +45,15 @@ msgstr ""
 msgid " day(s)"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3028
+#: ../src/web/web_templates.ml:3026
 msgid " has been accepted."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2952
+#: ../src/web/web_templates.ml:2951
 msgid " has been received, but not recorded yet. "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3106
+#: ../src/web/web_templates.ml:3104
 msgid " have been tallied."
 msgstr ""
 
@@ -61,7 +61,7 @@ msgstr ""
 msgid " hour(s)"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3041
+#: ../src/web/web_templates.ml:3039
 msgid " is rejected, because "
 msgstr ""
 
@@ -81,11 +81,11 @@ msgstr ""
 msgid " year(s)"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3611
+#: ../src/web/web_templates.ml:3609
 msgid "!"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3720
+#: ../src/tool/tool_js_booth.ml:165
 msgid "(nothing)"
 msgstr ""
 
@@ -93,11 +93,11 @@ msgstr ""
 msgid ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2162
+#: ../src/web/web_templates.ml:2161
 msgid "Accept"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3069
+#: ../src/web/web_templates.ml:3067
 msgid "Accepted ballots"
 msgstr ""
 
@@ -109,16 +109,16 @@ msgstr ""
 msgid "Administer this election"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2101
+#: ../src/web/web_templates.ml:2100
 msgid "Advanced mode"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3014
-#. ../src/web/web_templates.ml:2933
+#: ../src/web/web_templates.ml:3634 ../src/web/web_templates.ml:3012
+#. ../src/web/web_templates.ml:2932
 msgid "Answer to questions"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3727
+#: ../src/tool/tool_js_booth.ml:241
 msgid "At least one of the answers is invalid!"
 msgstr ""
 
@@ -126,8 +126,8 @@ msgstr ""
 msgid "Audit data: "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
-#. ../src/web/web_templates.ml:2937
+#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
+#. ../src/web/web_templates.ml:2936
 msgid "Authenticate"
 msgstr ""
 
@@ -135,24 +135,25 @@ msgstr ""
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3585 ../src/web/web_templates.ml:3573
+#: ../src/web/web_templates.ml:3583 ../src/web/web_templates.ml:3571
 msgid "Belenios Booth"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3723 ../src/web/web_templates.ml:1987
+#: ../src/web/web_templates.ml:1987 ../src/tool/tool_js_booth.ml:156
+#. ../src/tool/tool_js_booth.ml:82
 msgid "Blank vote"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2159
+#: ../src/web/web_templates.ml:2158
 msgid "By using this site, you accept our "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
-#. ../src/web/web_templates.ml:2939
+#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
+#. ../src/web/web_templates.ml:2938
 msgid "Confirm"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3622
+#: ../src/web/web_templates.ml:3620
 msgid "Continue"
 msgstr ""
 
@@ -168,28 +169,28 @@ msgstr ""
 msgid "Dear %s,"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3644 ../src/web/web_templates.ml:3022
-#. ../src/web/web_templates.ml:2941
+#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
+#. ../src/web/web_templates.ml:2940
 msgid "Done"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3704
+#: ../src/web/web_templates.ml:3702
 msgid "Election UUID: "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3708 ../src/web/web_templates.ml:1952
+#: ../src/web/web_templates.ml:3706 ../src/web/web_templates.ml:1952
 msgid "Election fingerprint: "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3687 ../src/web/web_templates.ml:134
+#: ../src/web/web_templates.ml:3685 ../src/web/web_templates.ml:134
 msgid "Election server"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3674
+#: ../src/web/web_templates.ml:3672
 msgid "Encrypting..."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3044
+#: ../src/web/web_templates.ml:3042
 msgid "FAIL!"
 msgstr ""
 
@@ -197,34 +198,34 @@ msgstr ""
 msgid "Get the source code"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3087 ../src/web/web_templates.ml:3059
-#. ../src/web/web_templates.ml:2997
-#. ../src/web/web_templates.ml:2970
+#: ../src/web/web_templates.ml:3085 ../src/web/web_templates.ml:3057
+#. ../src/web/web_templates.ml:2996
+#. ../src/web/web_templates.ml:2969
 msgid "Go back to election"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2906
+#: ../src/web/web_templates.ml:2905
 msgid "I am "
 msgstr ""
 
-#: ../src/web/web_templates.ml:2911
+#: ../src/web/web_templates.ml:2910
 msgid "I cast my vote"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3634 ../src/web/web_templates.ml:3012
-#. ../src/web/web_templates.ml:2931
+#: ../src/web/web_templates.ml:3632 ../src/web/web_templates.ml:3010
+#. ../src/web/web_templates.ml:2930
 msgid "Input credential"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3653
+#: ../src/web/web_templates.ml:3651
 msgid "Input your credential "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3722
+#: ../src/tool/tool_js_booth.ml:371
 msgid "Invalid credential!"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2034
+#: ../src/web/web_templates.ml:2033
 msgid "It will open in "
 msgstr ""
 
@@ -232,7 +233,7 @@ msgstr ""
 msgid "JSON result"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3380
+#: ../src/web/web_templates.ml:3378
 msgid "Login"
 msgstr ""
 
@@ -240,11 +241,11 @@ msgstr ""
 msgid "Login and passwords are required once your ballot is ready to be cast."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3719
+#: ../src/tool/tool_js_booth.ml:305
 msgid "Next"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3724
+#: ../src/tool/tool_js_booth.ml:135
 msgid "No other choices are allowed when voting blank"
 msgstr ""
 
@@ -256,15 +257,15 @@ msgstr ""
 msgid "Note that you are allowed to vote several times."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2926
+#: ../src/web/web_templates.ml:2925
 msgid "Note: you have already voted. Your vote will be replaced."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2961
+#: ../src/web/web_templates.ml:2960
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2122
+#: ../src/web/web_templates.ml:2121
 msgid "Number of accepted ballots: "
 msgstr ""
 
@@ -276,23 +277,23 @@ msgstr ""
 msgid "Page of the election:"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3388
+#: ../src/web/web_templates.ml:3386
 msgid "Password login"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3375 ../src/web/web_site.ml:685
+#: ../src/web/web_templates.ml:3373 ../src/web/web_site.ml:685
 msgid "Password:"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3721
+#: ../src/tool/tool_js_booth.ml:360
 msgid "Please enter your credential:"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2917
+#: ../src/web/web_templates.ml:2916
 msgid "Please log in to confirm your vote."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3673
+#: ../src/web/web_templates.ml:3671
 msgid "Please wait while your ballot is being encrypted..."
 msgstr ""
 
@@ -300,7 +301,7 @@ msgstr ""
 msgid "Powered by "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3718
+#: ../src/tool/tool_js_booth.ml:304
 msgid "Previous"
 msgstr ""
 
@@ -308,60 +309,60 @@ msgstr ""
 msgid "Privacy policy"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3677
+#: ../src/web/web_templates.ml:3675
 msgid "Restart"
 msgstr ""
 
-#: ../src/web/web_site.ml:1692
+#: ../src/web/web_site.ml:1693
 msgid "Results will be published on the election page"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
-#. ../src/web/web_templates.ml:2935
+#: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3014
+#. ../src/web/web_templates.ml:2934
 msgid "Review and encrypt"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2083
+#: ../src/web/web_templates.ml:2082
 msgid "See accepted ballots"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3715
+#: ../src/tool/tool_js_booth.ml:76
 msgid "Select between %d and %d answer(s)"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2096
+#: ../src/web/web_templates.ml:2095
 msgid "Start"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3649
+#: ../src/web/web_templates.ml:3647
 msgid "Step 1/6: Input credential"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3659
+#: ../src/web/web_templates.ml:3657
 msgid "Step 2/6: Answer to questions"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3664
+#: ../src/web/web_templates.ml:3662
 msgid "Step 3/6: Review and encrypt"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2947
+#: ../src/web/web_templates.ml:2946
 msgid "Step 5/6: Confirm"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3049
+#: ../src/web/web_templates.ml:3047
 msgid "Step 6/6: "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3039
+#: ../src/web/web_templates.ml:3037
 msgid "Thank you for voting!"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2065 ../src/web/web_templates.ml:2060
+#: ../src/web/web_templates.ml:2064 ../src/web/web_templates.ml:2059
 msgid "The election is closed and being tallied."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2050
+#: ../src/web/web_templates.ml:2049
 msgid "The election will close in "
 msgstr ""
 
@@ -369,7 +370,7 @@ msgstr ""
 msgid "The raw results can be viewed in the "
 msgstr ""
 
-#: ../src/web/web_templates.ml:2142
+#: ../src/web/web_templates.ml:2141
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr ""
 
@@ -377,19 +378,19 @@ msgstr ""
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2070
+#: ../src/web/web_templates.ml:2069
 msgid "This election has been tallied."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2075
+#: ../src/web/web_templates.ml:2074
 msgid "This election is archived."
 msgstr ""
 
-#: ../src/web/web_templates.ml:2042
+#: ../src/web/web_templates.ml:2041
 msgid "This election is currently closed."
 msgstr ""
 
-#: ../src/web/web_site.ml:1684
+#: ../src/web/web_site.ml:1685
 msgid "This vote replaces any previous vote."
 msgstr ""
 
@@ -405,19 +406,19 @@ msgstr ""
 msgid "To get more information, please contact:"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3371 ../src/web/web_site.ml:684
+#: ../src/web/web_templates.ml:3369 ../src/web/web_site.ml:684
 msgid "Username:"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3726
+#: ../src/tool/tool_js_booth.ml:208
 msgid "Value must be an integer between 0 and 255."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3725
+#: ../src/tool/tool_js_booth.ml:225
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3618
+#: ../src/web/web_templates.ml:3616
 msgid "We invite you to save it in order to check later that it is taken into account."
 msgstr ""
 
@@ -425,23 +426,23 @@ msgstr ""
 msgid "You are listed as a voter for the election"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2126
+#: ../src/web/web_templates.ml:2125
 msgid "You can also download the "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3035
+#: ../src/web/web_templates.ml:3033
 msgid "You can check its presence in the "
 msgstr ""
 
-#: ../src/web/web_site.ml:1688
+#: ../src/web/web_site.ml:1689
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3716
+#: ../src/tool/tool_js_booth.ml:122
 msgid "You must select at least %d answer(s)"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3717
+#: ../src/tool/tool_js_booth.ml:125
 msgid "You must select at most %d answer(s)"
 msgstr ""
 
@@ -457,11 +458,11 @@ msgstr ""
 msgid "You will find below your login and password."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3053 ../src/web/web_templates.ml:2950
+#: ../src/web/web_templates.ml:3051 ../src/web/web_templates.ml:2949
 msgid "Your ballot for "
 msgstr ""
 
-#: ../src/web/web_templates.ml:3609
+#: ../src/web/web_templates.ml:3607
 msgid "Your ballot has been successfully encrypted, "
 msgstr ""
 
@@ -477,12 +478,12 @@ msgstr ""
 msgid "Your password for election %s"
 msgstr ""
 
-#: ../src/web/web_site.ml:1679
+#: ../src/web/web_site.ml:1680
 msgid "Your smart ballot tracker is"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3614 ../src/web/web_templates.ml:3030
-#. ../src/web/web_templates.ml:2953
+#: ../src/web/web_templates.ml:3612 ../src/web/web_templates.ml:3028
+#. ../src/web/web_templates.ml:2952
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -498,7 +499,7 @@ msgstr ""
 msgid "a credential is missing"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3036
+#: ../src/web/web_templates.ml:3034
 msgid "ballot box"
 msgstr ""
 
@@ -506,15 +507,15 @@ msgstr ""
 msgid "ballots"
 msgstr ""
 
-#: ../src/web/web_templates.ml:3610
+#: ../src/web/web_templates.ml:3608
 msgid "but has not been cast yet"
 msgstr ""
 
-#: ../src/web/web_site.ml:1678
+#: ../src/web/web_site.ml:1679
 msgid "has been recorded."
 msgstr ""
 
-#: ../src/web/web_templates.ml:3714
+#: ../src/tool/tool_js_booth.ml:358
 msgid "here"
 msgstr ""
 
@@ -522,7 +523,7 @@ msgstr ""
 msgid "parameters"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2160
+#: ../src/web/web_templates.ml:2159
 msgid "personal data policy"
 msgstr ""
 
@@ -530,7 +531,7 @@ msgstr ""
 msgid "public credentials"
 msgstr ""
 
-#: ../src/web/web_templates.ml:2128
+#: ../src/web/web_templates.ml:2127
 msgid "result with cryptographic proofs"
 msgstr ""
 
