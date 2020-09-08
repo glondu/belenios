@@ -7,7 +7,7 @@
 (library
  (name belenios_tool_js_common)
  (wrapped false)
- (modules tool_js_common)
+ (modules tool_js_common tool_js_i18n)
  (libraries js_of_ocaml js_of_ocaml-lwt belenios-platform belenios)
  (preprocess (pps js_of_ocaml-ppx lwt_ppx)))
 

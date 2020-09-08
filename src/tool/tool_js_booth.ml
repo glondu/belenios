@@ -27,6 +27,7 @@ open Serializable_j
 open Signatures
 open Common
 open Tool_js_common
+open Tool_js_i18n.Gettext
 
 let encryptBallot params cred plaintext () =
   let module P = (val params : ELECTION_DATA) in
@@ -72,16 +73,13 @@ let createHomomorphicQuestionWidget q =
   in
   let () =
     let c = Dom_html.createDiv document in
-    let fmt = Scanf.format_from_string
-      (get_content "question_header") "%d%d"
-    in
-    let s = Printf.sprintf fmt q.q_min q.q_max in
+    let s = Printf.sprintf (f_ "Select between %d and %d answer(s)") q.q_min q.q_max in
     let t = document##createTextNode (Js.string s) in
     Dom.appendChild c t;
     Dom.appendChild div c
   in
   let q_answers = match q.q_blank with
-    | Some true -> Array.append [|get_content "str_blank_vote"|] q.q_answers
+    | Some true -> Array.append [|s_ "Blank vote"|] q.q_answers
     | _ -> q.q_answers
   in
   let answers = Array.make (Array.length q_answers) 0 in
@@ -121,12 +119,10 @@ let createHomomorphicQuestionWidget q =
   let check_constraints () =
     let check_min_max total =
       if total < q.q_min then (
-        let fmt = Scanf.format_from_string (get_content "at_least") "%d" in
-        Printf.ksprintf alert fmt q.q_min;
+        Printf.ksprintf alert (f_ "You must select at least %d answer(s)") q.q_min;
         false
       ) else if total > q.q_max then (
-        let fmt = Scanf.format_from_string (get_content "at_most") "%d" in
-        Printf.ksprintf alert fmt q.q_max;
+        Printf.ksprintf alert (f_ "You must select at most %d answer(s)") q.q_max;
         false
       ) else true
     in
@@ -136,7 +132,7 @@ let createHomomorphicQuestionWidget q =
        let total = Array.fold_left (+) 0 answers' in
        if answers.(0) > 0 then (
          if total <> 0 then
-           (alert (get_content "no_other_blank"); false)
+           (alert (s_ "No other choices are allowed when voting blank"); false)
          else true
        ) else check_min_max total
     | _ ->
@@ -157,7 +153,7 @@ let createHomomorphicQuestionWidget q =
           incr checked;
           let li = Dom_html.createLi document in
           let text = match q.q_blank with
-            | Some true -> if i = 0 then get_content "str_blank_vote" else q.q_answers.(i-1)
+            | Some true -> if i = 0 then s_ "Blank vote" else q.q_answers.(i-1)
             | _ -> q.q_answers.(i)
           in
           let t = document##createTextNode (Js.string text) in
@@ -166,7 +162,7 @@ let createHomomorphicQuestionWidget q =
         )
       ) answers;
     if !checked = 0 then (
-      let t = document##createTextNode (Js.string @@ get_content "str_nothing") in
+      let t = document##createTextNode (Js.string (s_ "(nothing)")) in
       Dom.appendChild ul t
     );
     Dom.appendChild e ul;
@@ -209,7 +205,7 @@ let createNonHomomorphicQuestionWidget q =
               answers.(i) <- x;
               Js._true
             with _ ->
-              alert (get_content "alert_0_255");
+              alert (s_ "Value must be an integer between 0 and 255.");
               Js._false
           );
       Dom.appendChild div t;
@@ -226,7 +222,7 @@ let createNonHomomorphicQuestionWidget q =
     let d = Dom_html.createDiv document in
     d##.style##.margin := Js.string "1em";
     Dom.appendChild div d;
-    Dom.appendChild d (document##createTextNode (Js.string (get_content "warning_0_255")))
+    Dom.appendChild d (document##createTextNode (Js.string (s_ "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election.")))
   in
   let check_constraints () =
     let n = Array.length inputs - 1 in
@@ -242,7 +238,7 @@ let createNonHomomorphicQuestionWidget q =
           | None -> false
         in
         if not valid then (
-          alert (get_content "at_least_one_invalid");
+          alert (s_ "At least one of the answers is invalid!");
           false
         ) else loop (i + 1)
       else true
@@ -305,8 +301,8 @@ let appendQuestionNavigation question_div sk params qs =
   Dom.appendChild question_div qs.(!cur).div;
   let btns = Dom_html.createDiv document in
   btns##.style##.textAlign := Js.string "center";
-  let btn_prev = createLabeledButton (get_content "str_previous") in
-  let btn_next = createLabeledButton (get_content "str_next") in
+  let btn_prev = createLabeledButton (s_ "Previous") in
+  let btn_next = createLabeledButton (s_ "Next") in
   btn_prev##.id := Js.string "btn_prev";
   btn_next##.id := Js.string "btn_next";
   Dom.appendChild btns btn_prev;
@@ -359,9 +355,9 @@ let appendQuestionNavigation question_div sk params qs =
 let createStartButton params intro_div qs =
   let b = Dom_html.createButton document in
   b##.style##.fontSize := Js.string "20px";
-  let t = document##createTextNode (Js.string (get_content "str_here")) in
+  let t = document##createTextNode (Js.string (s_ "here")) in
   b##.onclick := Dom_html.handler (fun _ ->
-    (match prompt (get_content "enter_cred") with
+    (match prompt (s_ "Please enter your credential:") with
     | Some cred when Credential.check cred ->
       intro_div##.style##.display := Js.string "none";
       set_element_display "question_div" "block";
@@ -372,7 +368,7 @@ let createStartButton params intro_div qs =
       document##getElementById (Js.string "question_div") >>== fun e ->
       appendQuestionNavigation e cred params qs
     | Some _ ->
-       alert (get_content "invalid_cred")
+       alert (s_ "Invalid credential!")
     | None -> ()
     );
     Js._false
@@ -409,15 +405,14 @@ let get_prefix str =
   let n = String.length str in
   if n >= 4 then String.sub str 0 (n-4) else str
 
-let get_uuid x =
+let get_params x =
   let n = String.length x in
   if n <= 1 || String.sub x 0 1 <> "#" then
-    None
+    []
   else
-    let args = Url.decode_arguments (String.sub x 1 (n-1)) in
-    List.assoc_opt "uuid" args
+    Url.decode_arguments (String.sub x 1 (n-1))
 
-let load_uuid uuid =
+let load_uuid uuid lang =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   Lwt.async (fun () ->
       let%lwt raw =
@@ -428,42 +423,50 @@ let load_uuid uuid =
         ) else Lwt.return x.content
       in
       let () = set_textarea "election_params" raw in
+      let%lwt () = Tool_js_i18n.init lang in
       Lwt.return (run_handler loadElection ())
     )
 
-let load_uuid_handler _ =
+let load_uuid_handler lang _ =
   (match get_textarea_opt "uuid" with
    | Some uuid ->
-      let encoded = Url.encode_arguments ["uuid", uuid] in
+      let encoded = Url.encode_arguments ["uuid", uuid; "lang", lang] in
       Dom_html.window##.location##.hash := Js.string encoded;
-      load_uuid uuid
+      load_uuid uuid lang
    | None -> ()
   ); Js._false
 
-let load_params_handler _ =
+let load_params_handler lang _ =
   set_element_display "div_ballot" "block";
   set_element_display "div_submit" "none";
   set_element_display "div_submit_manually" "block";
   Lwt.async (fun () ->
+      let%lwt () = Tool_js_i18n.init lang in
       Lwt.return (run_handler loadElection ())
     );
   Js._false
 
 let onload_handler _ =
+  let params = get_params (Js.to_string Dom_html.window##.location##.hash) in
+  let lang =
+    match List.assoc_opt "lang" params with
+    | Some x -> x
+    | None -> "en"
+  in
   let () =
     document##getElementById (Js.string "load_uuid") >>== fun e ->
-    e##.onclick := Dom_html.handler load_uuid_handler
+    e##.onclick := Dom_html.handler (load_uuid_handler lang)
   in
   let () =
     document##getElementById (Js.string "load_params") >>== fun e ->
-    e##.onclick := Dom_html.handler load_params_handler;
+    e##.onclick := Dom_html.handler (load_params_handler lang);
   in
   let () =
-    match get_uuid (Js.to_string Dom_html.window##.location##.hash) with
+    match List.assoc_opt "uuid" params with
     | None ->
        set_element_display "wait_div" "none";
        set_element_display "election_loader" "block";
-    | Some uuid -> load_uuid uuid
+    | Some uuid -> load_uuid uuid lang
   in Js._false
 
 let () = Dom_html.window##.onload := Dom_html.handler onload_handler

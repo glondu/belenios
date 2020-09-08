@@ -18,6 +18,26 @@
  (deps ro.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
+(rule
+ (target de.json)
+ (deps de.mo)
+ (action (with-stdout-to %{target} (run ../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target fr.json)
+ (deps fr.mo)
+ (action (with-stdout-to %{target} (run ../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target it.json)
+ (deps it.mo)
+ (action (with-stdout-to %{target} (run ../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target ro.json)
+ (deps ro.mo)
+ (action (with-stdout-to %{target} (run ../src/mo2json/mo2json.exe %{deps}))))
+
 (install
  (package belenios-server)
  (section share)
@@ -25,4 +45,8 @@
   (de.mo as locales/de.mo)
   (fr.mo as locales/fr.mo)
   (it.mo as locales/it.mo)
-  (ro.mo as locales/ro.mo)))
+  (ro.mo as locales/ro.mo)
+  (de.json as locales/de.json)
+  (fr.json as locales/fr.json)
+  (it.json as locales/it.json)
+  (ro.json as locales/ro.json)))

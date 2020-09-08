@@ -2091,7 +2091,7 @@ let election_home election state () =
     in
     div ~a:[a_style "text-align:center;"] [
       div [
-          let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
+          let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid; "lang", lang] in
           make_button ~service:election_vote ~hash ~style:"font-size:35px;" ~disabled (s_ "Start");
         ];
       div [
@@ -3707,22 +3707,6 @@ let booth () =
             span ~a:[a_id "election_fingerprint"] [];
           ];
         ];
-      ];
-      div ~a:[a_style "display:none;"] [
-        span ~a:[a_id "str_here"] [txt (s_ "here")];
-        span ~a:[a_id "question_header"] [txt (s_ "Select between %d and %d answer(s)")];
-        span ~a:[a_id "at_least"] [txt (s_ "You must select at least %d answer(s)")];
-        span ~a:[a_id "at_most"] [txt (s_ "You must select at most %d answer(s)")];
-        span ~a:[a_id "str_previous"] [txt (s_ "Previous")];
-        span ~a:[a_id "str_next"] [txt (s_ "Next")];
-        span ~a:[a_id "str_nothing"] [txt (s_ "(nothing)")];
-        span ~a:[a_id "enter_cred"] [txt (s_ "Please enter your credential:")];
-        span ~a:[a_id "invalid_cred"] [txt (s_ "Invalid credential!")];
-        span ~a:[a_id "str_blank_vote"] [txt (s_ "Blank vote")];
-        span ~a:[a_id "no_other_blank"] [txt (s_ "No other choices are allowed when voting blank")];
-        span ~a:[a_id "warning_0_255"] [txt (s_ "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election.")];
-        span ~a:[a_id "alert_0_255"] [txt (s_ "Value must be an integer between 0 and 255.")];
-        span ~a:[a_id "at_least_one_invalid"] [txt (s_ "At least one of the answers is invalid!")];
       ];
     ]
   in
