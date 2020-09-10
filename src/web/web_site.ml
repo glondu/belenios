@@ -2892,3 +2892,41 @@ let rec data_policy_loop () =
   let () = accesslog "Data policy process completed" in
   let%lwt () = Lwt_unix.sleep 3600. in
   data_policy_loop ()
+
+let () =
+  Any.register ~service:method_schulze
+    (fun (uuid, question) () ->
+      let%lwt l = Web_i18n.get_preferred_gettext () in
+      let open (val l) in
+      match%lwt find_election uuid with
+      | None -> election_not_found ()
+      | Some election ->
+         let questions = election.e_params.e_questions in
+         if 0 <= question && question < Array.length questions then (
+           match questions.(question) with
+           | Question.NonHomomorphic q ->
+              let nchoices = Array.length q.Question_nh_t.q_answers in
+              (match%lwt Web_persist.get_election_result uuid with
+               | Some result ->
+                  let ballots =
+                    (Shape.to_shape_array result.result).(question)
+                    |> Shape.to_shape_array
+                    |> Array.map Shape.to_array
+                  in
+                  let schulze = Schulze.compute ~nchoices ballots in
+                  T.schulze q schulze >>= Html.send
+               | None ->
+                  T.generic_page ~title:(s_ "Error")
+                    (s_ "The result of this election is not available.")
+                  () >>= Html.send ~code:404
+              )
+           | Question.Homomorphic _ ->
+              T.generic_page ~title:(s_ "Error")
+                (s_ "This question is homomorphic, the Schulze method cannot be applied to its result.")
+                () >>= Html.send ~code:403
+         ) else (
+           T.generic_page ~title:(s_ "Error")
+             (s_ "Invalid index for question.")
+             () >>= Html.send ~code:404
+         )
+    )

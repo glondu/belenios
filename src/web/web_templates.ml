@@ -2014,6 +2014,11 @@ let format_question_result uuid l (i, q) r =
              txt (s_ "The raw results can be viewed in the ");
              a ~service:election_project_result [txt (s_ "JSON result")] ((uuid, ()), i);
              txt (s_ ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement).");
+             txt " ";
+             txt (s_ "Available methods on this server:");
+             txt " ";
+             a ~service:method_schulze [txt "Schulze"] (uuid, i);
+             txt ".";
            ];
        ]
 
@@ -3720,3 +3725,34 @@ let booth () =
     ];
   ] in
   return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
+
+let schulze q r =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Schulze method" in
+  let explicit_winners =
+    List.map
+      (List.map
+         (fun i -> q.Question_nh_t.q_answers.(i))
+      ) r.schulze_winners
+  in
+  let pretty_winners =
+    List.map
+      (fun l ->
+        li [match l with
+            | [] -> failwith "anomaly in Web_templates.schulze"
+            | [x] -> txt x
+            | l -> div [
+                       txt (s_ "Tie:");
+                       ul (List.map (fun x -> li [txt x]) l);
+                     ]
+          ]
+      ) explicit_winners
+  in
+  let content =
+    [
+      txt (s_ "The Schulze winners are:");
+      ol pretty_winners;
+    ]
+  in
+  base ~title ~content ()

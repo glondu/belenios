@@ -136,3 +136,5 @@ let signup_post = create_attached_post ~fallback:signup ~post_params:(string "us
 let changepw_captcha = create ~path:(Path ["signup"; "changepw"]) ~meth:(Get (string "service")) ()
 let changepw_captcha_post = create_attached_post ~fallback:changepw_captcha ~post_params:(string "challenge" ** string "response" ** string "email" ** string "username") ()
 let changepw_post = create_attached_post ~fallback:signup ~post_params:(string "password" ** string "password2") ()
+
+let method_schulze = create ~path:(Path ["methods"; "schulze"]) ~meth:(Get (uuid "uuid" ** int "question")) ()
