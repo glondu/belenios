@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_platform
+open Belenios
 open Platform
 open Common
 open Web_serializable_builtin_t

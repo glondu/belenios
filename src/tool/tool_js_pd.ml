@@ -22,6 +22,7 @@
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_platform
+open Belenios
 open Platform
 open Serializable_j
 open Common

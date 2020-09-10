@@ -23,15 +23,15 @@
 
 (** {1 Predefined types} *)
 
-type number <ocaml predef from="Serializable_builtin"> = abstract
-type uuid <ocaml predef from="Serializable_builtin"> = abstract
+type number <ocaml predef from="Belenios.Serializable_builtin"> = abstract
+type uuid <ocaml predef from="Belenios.Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
-type proof <ocaml predef from="Serializable"> = abstract
-type template <ocaml predef from="Serializable"> = abstract
-type election_checksums <ocaml predef from="Serializable"> = abstract
-type cert <ocaml predef from="Serializable"> = abstract
-type polynomial <ocaml predef from="Serializable"> = abstract
-type vinput <ocaml predef from="Serializable"> = abstract
+type proof <ocaml predef from="Belenios.Serializable"> = abstract
+type template <ocaml predef from="Belenios.Serializable"> = abstract
+type election_checksums <ocaml predef from="Belenios.Serializable"> = abstract
+type cert <ocaml predef from="Belenios.Serializable"> = abstract
+type polynomial <ocaml predef from="Belenios.Serializable"> = abstract
+type vinput <ocaml predef from="Belenios.Serializable"> = abstract
 
 (** {1 Web-specific types} *)
 

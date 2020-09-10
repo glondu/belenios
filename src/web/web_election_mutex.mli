@@ -19,4 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
+
 val with_lock : Serializable_builtin_t.uuid -> (unit -> 'a Lwt.t) -> 'a Lwt.t

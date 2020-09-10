@@ -21,6 +21,7 @@
 
 open Js_of_ocaml
 open Belenios_platform
+open Belenios
 open Serializable_j
 open Signatures
 open Common
