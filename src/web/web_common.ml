@@ -20,6 +20,8 @@
 (**************************************************************************)
 
 open Lwt
+open Belenios_platform
+open Belenios
 open Platform
 open Common
 open Serializable_builtin_t

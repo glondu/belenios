@@ -19,7 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
 open Signatures
+open Belenios_platform
+open Belenios_tool_common
 open Serializable_j
 open Platform
 open Common

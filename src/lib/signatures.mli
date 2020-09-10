@@ -21,6 +21,7 @@
 
 (** Signatures *)
 
+open Belenios_platform
 open Platform
 open Serializable_t
 

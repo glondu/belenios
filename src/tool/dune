@@ -1,12 +1,10 @@
 (library
  (name belenios_tool_common)
- (wrapped false)
  (modules tool_verifydiff tool_tkeygen tool_election tool_credgen tool_mkelection)
  (libraries belenios))
 
 (library
  (name belenios_tool_js_common)
- (wrapped false)
  (modules tool_js_common tool_js_i18n)
  (libraries js_of_ocaml js_of_ocaml-lwt belenios-platform belenios)
  (preprocess (pps js_of_ocaml-ppx lwt_ppx)))

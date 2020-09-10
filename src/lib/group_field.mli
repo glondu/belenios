@@ -21,6 +21,7 @@
 
 (** Finite field arithmetic *)
 
+open Belenios_platform
 open Platform
 open Serializable_t
 
