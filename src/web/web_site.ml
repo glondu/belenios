@@ -697,16 +697,16 @@ let generate_password metadata langs title url id =
   let%lwt salt = generate_token () in
   let%lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
-  let bodies = List.map (fun lang ->
-    let l = Web_i18n.get_lang_gettext lang in
-    mail_password l title login password url metadata
+  let%lwt bodies = Lwt_list.map_s (fun lang ->
+    let%lwt l = Web_i18n.get_lang_gettext lang in
+    return (mail_password l title login password url metadata)
   ) langs in
   let body = PString.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
-  let subject =
-    let lang = List.hd langs in
-    let open (val Web_i18n.get_lang_gettext lang) in
-    Printf.sprintf (f_ "Your password for election %s") title
+  let%lwt subject =
+    let%lwt l = Web_i18n.get_lang_gettext (List.hd langs) in
+    let open (val l) in
+    Printf.kprintf return (f_ "Your password for election %s") title
   in
   let%lwt () = send_email email subject body in
   return (salt, hashed)
@@ -1130,19 +1130,19 @@ let () =
                     G.(g **~ x)
                   in
                   let langs = get_languages se.se_metadata.e_languages in
-                  let bodies =
-                    List.map
+                  let%lwt bodies =
+                    Lwt_list.map_s
                       (fun lang ->
-                        let l = Web_i18n.get_lang_gettext lang in
-                        mail_credential l title cas cred url se.se_metadata
+                        let%lwt l = Web_i18n.get_lang_gettext lang in
+                        return (mail_credential l title cas cred url se.se_metadata)
                       ) langs
                   in
                   let body = PString.concat "\n\n----------\n\n" bodies in
                   let body = body ^ "\n\n-- \nBelenios" in
-                  let subject =
-                    let lang = List.hd langs in
-                    let open (val Web_i18n.get_lang_gettext lang) in
-                    Printf.sprintf (f_ "Your credential for election %s") title
+                  let%lwt subject =
+                    let%lwt l = Web_i18n.get_lang_gettext (List.hd langs) in
+                    let open (val l) in
+                    Printf.ksprintf return (f_ "Your credential for election %s") title
                   in
                   let%lwt () = send_email email subject body in
                   return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)

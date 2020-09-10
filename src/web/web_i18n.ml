@@ -23,6 +23,7 @@ let langs = Hashtbl.create 10
 
 module type LANG = sig
   val lang : string
+  val mo_file : string
 end
 
 module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i18n_sig.GETTEXT = struct
@@ -39,30 +40,55 @@ module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i
       path = [];
       default = "belenios";
     }
-  let u = T.create t (Filename.concat !Web_config.locales_dir (L.lang ^ ".mo")) (fun x -> x)
+  let u = T.create t L.mo_file (fun x -> x)
   let s_ str = T.translate u false str None
   let f_ str = Scanf.format_from_string (T.translate u true (string_of_format str) None) str
   let sn_ str str_plural n = T.translate u false str (Some (str_plural, n))
   let fn_ str str_plural n = Scanf.format_from_string (T.translate u true (string_of_format str) (Some (string_of_format str_plural, n))) str
 end
 
+let build_gettext_input lang =
+  (module struct
+     let lang = lang
+     let mo_file = Filename.concat !Web_config.locales_dir (lang ^ ".mo")
+   end : LANG)
+
 let default_gettext =
-  let module L = struct let lang = "en" end in
+  let module L = (val build_gettext_input "en") in
   let module G = Belenios_Gettext (L) (GettextTranslate.Dummy) in
   (module G : Web_i18n_sig.GETTEXT)
 
-let register lang =
-  let module L = struct let lang = lang end in
-  let module G = Belenios_Gettext (L) (GettextTranslate.Map) in
-  Hashtbl.add langs lang (module G : Web_i18n_sig.GETTEXT)
-
-let init () =
-  ["de"; "fr"; "it"; "ro"]
-  |> List.iter register
+let lang_mutex = Lwt_mutex.create ()
 
 let get_lang_gettext lang =
-  try Hashtbl.find langs lang
-  with Not_found -> default_gettext
+  match Hashtbl.find_opt langs lang with
+  | Some l -> Lwt.return l
+  | None ->
+     Lwt_mutex.with_lock lang_mutex
+       (fun () ->
+         match Hashtbl.find_opt langs lang with
+         | Some l -> Lwt.return l
+         | None ->
+            let module L = (val build_gettext_input lang) in
+            if%lwt Lwt_unix.file_exists L.mo_file then (
+              let get () =
+                let module L = Belenios_Gettext (L) (GettextTranslate.Map) in
+                (module L : Web_i18n_sig.GETTEXT)
+              in
+              let%lwt l = Lwt_preemptive.detach get () in
+              Hashtbl.add langs lang l;
+              Lwt.return l
+            ) else (
+              Lwt.return default_gettext
+            )
+       )
+
+let parse_lang =
+  let rex = Pcre.regexp "^([a-z]{2})(?:-.*)?$" in
+  fun s ->
+  match Pcre.exec ~rex s with
+  | groups -> Some (Pcre.get_substring groups 1)
+  | exception Not_found -> None
 
 let get_default_language () =
   let ri = Eliom_request_info.get_ri () in
@@ -70,12 +96,9 @@ let get_default_language () =
   match langs with
   | [] -> "en"
   | (lang, _) :: _ ->
-     let n =
-       match String.index_opt lang '-' with
-       | Some x -> x
-       | None -> String.length lang
-     in
-     String.sub lang 0 n
+     match parse_lang lang with
+     | None -> "en"
+     | Some lang -> lang
 
 let get_preferred_gettext () =
   let%lwt lang =
@@ -83,4 +106,4 @@ let get_preferred_gettext () =
     | None -> Lwt.return (get_default_language ())
     | Some lang -> Lwt.return lang
   in
-  Lwt.return (get_lang_gettext lang)
+  get_lang_gettext lang
