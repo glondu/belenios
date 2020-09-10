@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Belenios_platform
 open Serializable_j
 open Tool_js_common
 open Tool_tkeygen

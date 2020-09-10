@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Belenios_platform
 open Tool_js_common
 open Tool_credgen
 

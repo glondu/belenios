@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Belenios_platform
 open Serializable_builtin_t
 open Serializable_j
 open Signatures

@@ -21,6 +21,7 @@
 
 open Js_of_ocaml
 open Js_of_ocaml_lwt
+open Belenios_platform
 open Platform
 open Common
 

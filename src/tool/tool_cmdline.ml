@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Signatures
+open Belenios_platform
 open Serializable_j
 open Platform
 open Common
