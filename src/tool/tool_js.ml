@@ -22,6 +22,7 @@
 open Js_of_ocaml
 open Belenios_platform
 open Belenios
+open Belenios_tool_common
 open Platform
 open Serializable_j
 open Tool_js_common

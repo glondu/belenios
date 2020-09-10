@@ -1,6 +1,5 @@
 (library
  (name belenios_tool_common)
- (wrapped false)
  (modules tool_verifydiff tool_tkeygen tool_election tool_credgen tool_mkelection)
  (libraries belenios))
 
