@@ -1,16 +1,18 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-09-04 12:48+0000\n"
-"Last-Translator: Stéphane Glondu\n"
-"Language-Team: Belenios Team <contact@belenios.org>\n"
+"PO-Revision-Date: 2020-09-11 15:23+0000\n"
+"Last-Translator: Stéphane Glondu <steph@glondu.net>\n"
+"Language-Team: French <https://hosted.weblate.org/projects/belenios/server/"
+"fr/>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.3-dev\n"
 
 #: ../src/web/web_templates.ml:3036
 msgid " A confirmation e-mail has been sent to you."
@@ -108,8 +110,8 @@ msgstr "Administrer cette élection"
 msgid "Advanced mode"
 msgstr "Mode avancé"
 
-#: ../src/web/web_templates.ml:3634 ../src/web/web_templates.ml:3012
 #. ../src/web/web_templates.ml:2932
+#: ../src/web/web_templates.ml:3634 ../src/web/web_templates.ml:3012
 msgid "Answer to questions"
 msgstr "Réponse aux questions"
 
@@ -121,8 +123,8 @@ msgstr "Au moins une des réponses est incorrecte !"
 msgid "Audit data: "
 msgstr "Données d'audit : "
 
-#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
 #. ../src/web/web_templates.ml:2936
+#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
 msgid "Authenticate"
 msgstr "Authentification"
 
@@ -134,8 +136,8 @@ msgstr "Soyez attentif(ve), le mot de passe et le code de vote se ressemblent ma
 msgid "Belenios Booth"
 msgstr "Isoloir Belenios"
 
-#: ../src/web/web_templates.ml:1987 ../src/tool/tool_js_booth.ml:156
 #. ../src/tool/tool_js_booth.ml:82
+#: ../src/web/web_templates.ml:1987 ../src/tool/tool_js_booth.ml:156
 msgid "Blank vote"
 msgstr "Vote blanc"
 
@@ -143,8 +145,8 @@ msgstr "Vote blanc"
 msgid "By using this site, you accept our "
 msgstr "En utilisant ce site, vous acceptez notre "
 
-#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
 #. ../src/web/web_templates.ml:2938
+#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
 msgid "Confirm"
 msgstr "Confirmation"
 
@@ -164,8 +166,8 @@ msgstr "Code de vote :"
 msgid "Dear %s,"
 msgstr "%s,"
 
-#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
 #. ../src/web/web_templates.ml:2940
+#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
 msgid "Done"
 msgstr "Terminé"
 
@@ -193,9 +195,9 @@ msgstr "ÉCHEC !"
 msgid "Get the source code"
 msgstr "Obtenir le code source"
 
-#: ../src/web/web_templates.ml:3085 ../src/web/web_templates.ml:3057
 #. ../src/web/web_templates.ml:2996
 #. ../src/web/web_templates.ml:2969
+#: ../src/web/web_templates.ml:3085 ../src/web/web_templates.ml:3057
 msgid "Go back to election"
 msgstr "Retourner à la page d'accueil de l'élection"
 
@@ -207,8 +209,8 @@ msgstr "Je suis "
 msgid "I cast my vote"
 msgstr "je dépose mon bulletin dans l'urne"
 
-#: ../src/web/web_templates.ml:3632 ../src/web/web_templates.ml:3010
 #. ../src/web/web_templates.ml:2930
+#: ../src/web/web_templates.ml:3632 ../src/web/web_templates.ml:3010
 msgid "Input credential"
 msgstr "Saisie du code de vote"
 
@@ -254,11 +256,11 @@ msgstr "Notez que vous pouvez voter plusieurs fois."
 
 #: ../src/web/web_templates.ml:2925
 msgid "Note: you have already voted. Your vote will be replaced."
-msgstr "Note: vous avez déjà voté. Votre vote va être remplacé."
+msgstr "Note : vous avez déjà voté. Votre vote va être remplacé."
 
 #: ../src/web/web_templates.ml:2960
 msgid "Note: your ballot is encrypted and nobody can see its contents."
-msgstr "Note: votre bulletin est chiffré et personne ne peut voir son contenu."
+msgstr "Note : votre bulletin est chiffré et personne ne peut voir son contenu."
 
 #: ../src/web/web_templates.ml:2121
 msgid "Number of accepted ballots: "
@@ -286,7 +288,7 @@ msgstr "Veuillez entrer votre code de vote :"
 
 #: ../src/web/web_templates.ml:2916
 msgid "Please log in to confirm your vote."
-msgstr "Veuillez vous connecter pour confirmer votre vote"
+msgstr "Veuillez vous connecter pour confirmer votre vote."
 
 #: ../src/web/web_templates.ml:3671
 msgid "Please wait while your ballot is being encrypted..."
@@ -312,8 +314,8 @@ msgstr "Recommencer"
 msgid "Results will be published on the election page"
 msgstr "Les résultats seront publiés sur la page de l'élection"
 
-#: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3014
 #. ../src/web/web_templates.ml:2934
+#: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3014
 msgid "Review and encrypt"
 msgstr "Récapitulatif et chiffrement"
 
@@ -411,7 +413,10 @@ msgstr "La valeur doit être un entier entre 0 et 255."
 
 #: ../src/tool/tool_js_booth.ml:225
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
-msgstr "Attention: le système accepte n'importe quel nombre entre 0 et 255 mais, selon les règles de l'élection, les bulletins invalides (score trop élevé ou candidats pas classés correctement) seront rejetés à la fin de l'élection."
+msgstr ""
+"Attention : le système accepte n'importe quel nombre entre 0 et 255 mais, "
+"selon les règles de l'élection, les bulletins invalides (score trop élevé ou "
+"candidats pas classés correctement) seront rejetés à la fin de l'élection."
 
 #: ../src/web/web_templates.ml:3616
 msgid "We invite you to save it in order to check later that it is taken into account."
@@ -427,7 +432,7 @@ msgstr "Vous pouvez également télécharger le "
 
 #: ../src/web/web_templates.ml:3033
 msgid "You can check its presence in the "
-msgstr "Vous pouvez vérifier sa présence dans l'"
+msgstr "Vous pouvez vérifier sa présence dans l' "
 
 #: ../src/web/web_site.ml:1689
 msgid "You can check its presence in the ballot box, accessible at"
@@ -477,8 +482,8 @@ msgstr "Votre mot de passe pour l'élection %s"
 msgid "Your smart ballot tracker is"
 msgstr "Votre numéro de suivi est"
 
-#: ../src/web/web_templates.ml:3612 ../src/web/web_templates.ml:3028
 #. ../src/web/web_templates.ml:2952
+#: ../src/web/web_templates.ml:3612 ../src/web/web_templates.ml:3028
 msgid "Your smart ballot tracker is "
 msgstr "Votre numéro de suivi est "
 
@@ -561,4 +566,3 @@ msgstr "votre code de vote a déjà été utilisé"
 #: ../src/web/web_common.ml:84
 msgid "your credential is invalid"
 msgstr "votre code de vote est invalide"
-
