@@ -21,8 +21,7 @@ check_nonempty_var BELENIOS_CONFIG
 check_nonempty_var BELENIOS_VARDIR
 check_nonempty_var BELENIOS_RUNDIR
 check_nonempty_var BELENIOS_LIBDIR
-check_nonempty_var BELENIOS_STATICDIR
-check_nonempty_var BELENIOS_GROUPDIR
+check_nonempty_var BELENIOS_SHAREDIR
 
 mkdir -p \
       $BELENIOS_VARDIR/etc \
