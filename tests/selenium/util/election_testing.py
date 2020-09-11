@@ -299,7 +299,7 @@ def verify_election_consistency(election_id, snapshot_folder=None):
     """
 
     election_folder = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id)
-    verification_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
+    verification_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_run/tool-debug/bin/belenios-tool")
     command = [verification_tool_path, "verify"]
     if snapshot_folder:
         command = [verification_tool_path, "verify-diff", "--dir1=" + snapshot_folder, "--dir2=" + election_folder]
@@ -323,7 +323,7 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None):
     """
     Use local CLI belenios-tool to generate a number of credentials corresponding to the number of voters. Example:
     ```
-    ./_build/belenios-tool credgen --uuid dmGuNVL1meanZt --group ./files/groups/default.json --count 5
+    ./_run/tool-debug/bin/belenios-tool credgen --uuid dmGuNVL1meanZt --group ./files/groups/default.json --count 5
     5 private credentials with ids saved to ./1579802689.privcreds
     5 public credentials saved to ./1579802689.pubcreds
     5 hashed public credentials with ids saved to ./1579802689.hashcreds
@@ -333,7 +333,7 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None):
     if not number_of_voters:
         number_of_voters = settings.NUMBER_OF_INVITED_VOTERS
     generated_files_destination_folder = settings.GENERATED_FILES_DESTINATION_FOLDER
-    belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
+    belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_run/tool-debug/bin/belenios-tool")
     crypto_group_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "files/groups/default.json")
     command = [belenios_tool_path, "credgen", "--uuid", election_id, "--group", crypto_group_path, "--count", str(number_of_voters)]
     running_process = subprocess.Popen(command, cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
@@ -357,7 +357,7 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None):
 
 def belenios_tool_generate_ballots(voters_data, global_credential_file_id, vote_page_url):
     generated_files_destination_folder = settings.GENERATED_FILES_DESTINATION_FOLDER
-    belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_build/belenios-tool")
+    belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_run/tool-debug/bin/belenios-tool")
 
     i = 0
     for k, v in voters_data.items():

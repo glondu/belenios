@@ -7,7 +7,7 @@ export BELENIOS_USE_URANDOM=1
 BELENIOS=${BELENIOS:-$PWD}
 
 belenios-tool () {
-    $BELENIOS/_build/belenios-tool "$@"
+    $BELENIOS/_run/tool-debug/bin/belenios-tool "$@"
 }
 
 header () {
