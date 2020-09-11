@@ -60,11 +60,12 @@ make cold-install LIBINSTALL_DIR="$BELENIOS_SYSROOT/bootstrap/lib/ocaml"
 echo
 echo "=-=-= Generation of env.sh =-=-="
 echo
-cat > $BELENIOS_SRC/env.sh <<EOF
+cat > $BELENIOS_SYSROOT/env.sh <<EOF
 PATH="$BELENIOS_SYSROOT/bootstrap/bin:\$PATH"; export PATH;
 OPAMROOT=$OPAMROOT; export OPAMROOT;
 eval \$(opam env)
 EOF
+ln -sf $BELENIOS_SYSROOT/env.sh $BELENIOS_SRC/env.sh
 
 echo
 echo "=-=-= Initialization of OPAM root =-=-="
