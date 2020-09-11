@@ -27,7 +27,7 @@ cd $DIR
 
 # Common options
 uuid="--uuid $UUID"
-group="--group $BELENIOS/demo/groups/default.json"
+group="--group $BELENIOS/files/groups/default.json"
 
 # Generate credentials
 belenios-tool credgen $uuid $group --count 5

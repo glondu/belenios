@@ -76,7 +76,7 @@ Administrator's guide
  6. Edit `$BELENIOS/demo/templates/questions.json`.
  7. Go to `$DIR` and run: `belenios-tool mktrustees`.
  8. Go to `$DIR` and run: `belenios-tool mkelection --uuid $UUID
-    --group $BELENIOS/demo/groups/default.json --template
+    --group $BELENIOS/files/groups/default.json --template
     $BELENIOS/demo/templates/questions.json`. It should generate
     `election.json`.
  9. Create an empty `ballots.jsons` file in `$DIR`.

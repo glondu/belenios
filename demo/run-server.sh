@@ -8,7 +8,7 @@ if [ -d _build ]; then
     : ${BELENIOS_RUNDIR:=/tmp/belenios}
     : ${BELENIOS_LIBDIR:=_run/usr/lib}
     : ${BELENIOS_STATICDIR:=_run/usr/share/belenios-server}
-    : ${BELENIOS_GROUPDIR:=demo/groups}
+    : ${BELENIOS_GROUPDIR:=files/groups}
 fi
 
 check_nonempty_var () {
