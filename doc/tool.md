@@ -9,7 +9,8 @@ Introduction
 administrative tasks related to elections, as well as verifications.
 If you do not wish to use the provided web server, a whole election
 can be organized using this tool. As an illustration of that, you can
-have a look at the `demo/demo.sh` script that simulates an election.
+have a look at the `tests/tool/demo.sh` script that simulates an
+election.
 
 This file documents how to use `belenios-tool`, from the point of view
 of the various roles involved in an election. You can also run it with
@@ -73,11 +74,11 @@ Administrator's guide
     credentials into `$DIR/public_creds.txt`.
  5. Ask each trustee to generate a keypair. Concatenate all trustee
     public keys into a `$DIR/public_keys.jsons` file.
- 6. Edit `$BELENIOS/demo/templates/questions.json`.
+ 6. Edit `$BELENIOS/tests/tool/templates/questions.json`.
  7. Go to `$DIR` and run: `belenios-tool mktrustees`.
  8. Go to `$DIR` and run: `belenios-tool mkelection --uuid $UUID
     --group $BELENIOS/files/groups/default.json --template
-    $BELENIOS/demo/templates/questions.json`. It should generate
+    $BELENIOS/tests/tool/templates/questions.json`. It should generate
     `election.json`.
  9. Create an empty `ballots.jsons` file in `$DIR`.
 

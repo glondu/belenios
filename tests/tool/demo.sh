@@ -4,7 +4,7 @@ set -e
 
 export BELENIOS_USE_URANDOM=1
 
-BELENIOS=${BELENIOS:-$PWD}
+BELENIOS=${BELENIOS:-$PWD/../..}
 
 belenios-tool () {
     $BELENIOS/_run/tool-debug/bin/belenios-tool "$@"
@@ -21,7 +21,7 @@ header "Setup election"
 UUID=`uuidgen`
 echo "UUID of the election is $UUID"
 
-DIR=$BELENIOS/demo/data/$UUID
+DIR=$BELENIOS/tests/tool/data/$UUID
 mkdir $DIR
 cd $DIR
 
@@ -35,34 +35,17 @@ mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
-ttkeygen () {
-    belenios-tool threshold-trustee-keygen $group "$@"
-}
-ttkeygen --step 1
-ttkeygen --step 1
-ttkeygen --step 1
-cat *.cert > certs.jsons
-ttkeygen --certs certs.jsons --step 2
-for u in *.key; do
-    ttkeygen --certs certs.jsons --key $u --step 3 --threshold 2
-done > polynomials.jsons
-ttkeygen --certs certs.jsons --step 4 --polynomials polynomials.jsons
-for u in *.key; do
-    b=${u%.key}
-    ttkeygen --certs certs.jsons --key $u --step 5 < $b.vinput > $b.voutput
-done
-cat *.voutput | ttkeygen --certs certs.jsons --step 6 --polynomials polynomials.jsons > threshold.json
-
-# Generate mandatory (server) key
+belenios-tool trustee-keygen $group
+belenios-tool trustee-keygen $group
 belenios-tool trustee-keygen $group
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters
 belenios-tool mktrustees
-rm threshold.json
+rm public_keys.jsons
 
 # Generate election parameters
-belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/questions.json
+belenios-tool mkelection $uuid $group --template $BELENIOS/tests/tool/templates/questions.json
 
 header "Simulate votes"
 
@@ -88,25 +71,18 @@ belenios-tool verify
 header "Simulate and verify update"
 
 tdir="$(mktemp -d)"
-cp election.json trustees.json public_creds.txt "$tdir"
+cp election.json public_creds.txt trustees.json "$tdir"
 head -n3 ballots.jsons > "$tdir/ballots.jsons"
 belenios-tool verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"
 
-header "Perform decryption (threshold)"
-
-for u in *.key; do
-    belenios-tool threshold-decrypt --key $u --decryption-key ${u%.key}.dkey
-    echo >&2
-done > partial_decryptions.tmp
-head -n2 partial_decryptions.tmp > partial_decryptions.jsons
-
-header "Perform decryption (mandatory)"
+header "Perform decryption"
 
 for u in *.privkey; do
     belenios-tool decrypt --privkey $u
     echo >&2
-done >> partial_decryptions.jsons
+done > partial_decryptions.tmp
+mv partial_decryptions.tmp partial_decryptions.jsons
 
 header "Finalize tally"
 

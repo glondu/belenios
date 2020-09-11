@@ -23,15 +23,13 @@ build-debug-tool:
 
 check:
 	$(MAKE) build-debug-tool
-	mkdir -p demo/data
-	demo/demo.sh
-	demo/demo-threshold.sh
-	demo/demo-nh.sh
+	$(MAKE) -C tests/tool check
 
 clean:
 	dune clean
 	dune clean $(DUNE_DEBUG_ARGS)
 	$(MAKE) -C po clean
+	$(MAKE) -C tests/tool clean
 
 .PHONY: doc
 doc:

@@ -4,7 +4,7 @@ set -e
 
 export BELENIOS_USE_URANDOM=1
 
-BELENIOS=${BELENIOS:-$PWD}
+BELENIOS=${BELENIOS:-$PWD/../..}
 
 belenios-tool () {
     $BELENIOS/_run/tool-debug/bin/belenios-tool "$@"
@@ -21,7 +21,7 @@ header "Setup election"
 UUID=`uuidgen`
 echo "UUID of the election is $UUID"
 
-DIR=$BELENIOS/demo/data/$UUID
+DIR=$BELENIOS/tests/tool/data/$UUID
 mkdir $DIR
 cd $DIR
 
@@ -45,7 +45,7 @@ belenios-tool mktrustees
 rm public_keys.jsons
 
 # Generate election parameters
-belenios-tool mkelection $uuid $group --template $BELENIOS/demo/templates/questions-nh.json
+belenios-tool mkelection $uuid $group --template $BELENIOS/tests/tool/templates/questions-nh.json
 
 header "Simulate votes"
 
