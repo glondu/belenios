@@ -7,8 +7,7 @@ if [ -d _build ]; then
     : ${BELENIOS_VARDIR:=_run}
     : ${BELENIOS_RUNDIR:=/tmp/belenios}
     : ${BELENIOS_LIBDIR:=_run/usr/lib}
-    : ${BELENIOS_STATICDIR:=_run/usr/share/belenios-server}
-    : ${BELENIOS_GROUPDIR:=files/groups}
+    : ${BELENIOS_SHAREDIR:=_run/usr/share/belenios-server}
 fi
 
 check_nonempty_var () {
@@ -39,8 +38,7 @@ sed \
     -e "s@_VARDIR_@$BELENIOS_VARDIR@g" \
     -e "s@_RUNDIR_@$BELENIOS_RUNDIR@g" \
     -e "s@_LIBDIR_@$BELENIOS_LIBDIR@g" \
-    -e "s@_STATICDIR_@$BELENIOS_STATICDIR@g" \
-    -e "s@_GROUPDIR_@$BELENIOS_GROUPDIR@g" \
+    -e "s@_SHAREDIR_@$BELENIOS_SHAREDIR@g" \
     $BELENIOS_CONFIG > $BELENIOS_VARDIR/etc/ocsigenserver.conf
 
 OCSIGENSERVER=ocsigenserver

@@ -39,7 +39,7 @@
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
       <site path="static" charset="utf-8">
-        <static dir="_STATICDIR_" />
+        <static dir="_SHAREDIR_" />
       </site>
       <site path="monitor">
         <eliom findlib-package="eliom.server.monitor.start"/>
@@ -63,11 +63,11 @@
         <auth name="local"><password db="demo/password_db.csv"/></auth> <!-- DEMO -->
         <auth name="public"><password db="_VARDIR_/password_db.csv" allowsignups="true"/></auth>
         <!-- <auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth> -->
-        <source file="_STATICDIR_/belenios.tar.gz"/>
-        <default-group file="_GROUPDIR_/default.json"/>
-        <nh-group file="_GROUPDIR_/rfc3526-2048.json"/>
+        <source file="_SHAREDIR_/belenios.tar.gz"/>
+        <default-group file="_SHAREDIR_/groups/default.json"/>
+        <nh-group file="_SHAREDIR_/groups/rfc3526-2048.json"/>
         <log file="_VARDIR_/log/security.log"/>
-        <locales dir="_STATICDIR_/locales"/>
+        <locales dir="_SHAREDIR_/locales"/>
         <spool dir="_VARDIR_/spool"/>
         <warning file="_VARDIR_/warning.html"/>
       </eliom>

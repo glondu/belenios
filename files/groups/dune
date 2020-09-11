@@ -1,0 +1,6 @@
+(install
+ (package belenios-server)
+ (section share)
+ (files
+  (default.json as groups/default.json)
+  (rfc-3526-2048.json as groups/rfc-3526-2048.json)))
