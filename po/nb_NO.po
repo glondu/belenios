@@ -8,561 +8,599 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2020-09-13 07:42+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
+"belenios/server/nb_NO/>\n"
 "Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.3-dev\n"
 
 #: ../src/web/web_templates.ml:3036
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " Bekreftelse sendt til deg per e-post"
 
 #: ../src/web/web_templates.ml:2907
 msgid " and "
-msgstr ""
+msgstr " og "
 
 #: ../src/web/web_templates.ml:3035
 msgid " anytime during the election."
-msgstr ""
+msgstr " når som helst under valget."
 
 #: ../src/web/web_templates.ml:3092
 msgid " ballot(s) have been accepted so far."
-msgstr ""
+msgstr " stemme(r) godtatt så langt."
 
 #: ../src/web/web_templates.ml:3102
 msgid " ballot(s) have been accepted, and "
-msgstr ""
+msgstr " stemme(r) har blitt godtatt, og "
 
 #: ../src/web/web_templates.ml:3097
 msgid " ballot(s) have been accepted."
-msgstr ""
+msgstr " stemme(r) har blitt godtatt."
 
 #: ../src/web/web_common.ml:101
 msgid " day(s)"
-msgstr ""
+msgstr " dag(er)"
 
 #: ../src/web/web_templates.ml:3026
 msgid " has been accepted."
-msgstr ""
+msgstr " har blitt godtatt."
 
 #: ../src/web/web_templates.ml:2951
 msgid " has been received, but not recorded yet. "
-msgstr ""
+msgstr " har blitt mottatt, men ikke er lagret enda. "
 
 #: ../src/web/web_templates.ml:3104
 msgid " have been tallied."
-msgstr ""
+msgstr " har blitt opptalt."
 
 #: ../src/web/web_common.ml:103
 msgid " hour(s)"
-msgstr ""
+msgstr " time(r)"
 
 #: ../src/web/web_templates.ml:3039
 msgid " is rejected, because "
-msgstr ""
+msgstr " har blitt avslått, fordi "
 
 #: ../src/web/web_common.ml:104
 msgid " minute(s)"
-msgstr ""
+msgstr " minutt(er)"
 
 #: ../src/web/web_common.ml:100
 msgid " month(s)"
-msgstr ""
+msgstr " måned(er)"
 
 #: ../src/web/web_common.ml:105
 msgid " second(s)"
-msgstr ""
+msgstr " sekund(er)"
 
 #: ../src/web/web_common.ml:99
 msgid " year(s)"
-msgstr ""
+msgstr " år"
 
 #: ../src/web/web_templates.ml:3609
 msgid "!"
-msgstr ""
+msgstr "!"
 
 #: ../src/tool/tool_js_booth.ml:165
 msgid "(nothing)"
-msgstr ""
+msgstr "(ingenting)"
 
 #: ../src/web/web_templates.ml:2014
+#, fuzzy
 msgid ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
 msgstr ""
+". Det alle innsendte stemmer i klartekst, i tilfeldig rekkefølge. Det er "
+"opptil deg å bruke din favoritt-tellemetode (f.eks. Condorcet, STV, "
+"flertallsbeslutning)."
 
 #: ../src/web/web_templates.ml:2161
 msgid "Accept"
-msgstr ""
+msgstr "Godta"
 
 #: ../src/web/web_templates.ml:3067
 msgid "Accepted ballots"
-msgstr ""
+msgstr "Godtatte stemmer"
 
 #: ../src/web/web_templates.ml:105
+#, fuzzy
 msgid "Administer elections"
-msgstr ""
+msgstr "Administrer valg"
 
 #: ../src/web/web_templates.ml:107
 msgid "Administer this election"
-msgstr ""
+msgstr "Administrer dette valget"
 
 #: ../src/web/web_templates.ml:2100
 msgid "Advanced mode"
-msgstr ""
+msgstr "Avansert modus"
 
 #. ../src/web/web_templates.ml:2932
 #: ../src/web/web_templates.ml:3634 ../src/web/web_templates.ml:3012
 msgid "Answer to questions"
-msgstr ""
+msgstr "Svar på spørsmål"
 
 #: ../src/tool/tool_js_booth.ml:241
 msgid "At least one of the answers is invalid!"
-msgstr ""
+msgstr "Minst ett av svarene er ugyldig!"
 
 #: ../src/web/web_templates.ml:1956
 msgid "Audit data: "
-msgstr ""
+msgstr "Valgopptellingsdata: "
 
 #. ../src/web/web_templates.ml:2936
 #: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
 msgid "Authenticate"
-msgstr ""
+msgstr "Identitetsbekreft"
 
 #: ../src/web/web_site.ml:1078 ../src/web/web_site.ml:679
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr ""
+"Vær forsiktig, passord og identitetsdetaljer ligner på hverandre, men er til "
+"forskjellige ting."
 
 #: ../src/web/web_templates.ml:3583 ../src/web/web_templates.ml:3571
 msgid "Belenios Booth"
-msgstr ""
+msgstr "Belenios-valgavlukke"
 
 #. ../src/tool/tool_js_booth.ml:82
 #: ../src/web/web_templates.ml:1987 ../src/tool/tool_js_booth.ml:156
 msgid "Blank vote"
-msgstr ""
+msgstr "Blank stemme"
 
 #: ../src/web/web_templates.ml:2158
 msgid "By using this site, you accept our "
-msgstr ""
+msgstr "Ved å bruke denne siden, godtar du vår "
 
 #. ../src/web/web_templates.ml:2938
 #: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
 msgid "Confirm"
-msgstr ""
+msgstr "Bekreft"
 
 #: ../src/web/web_templates.ml:3620
 msgid "Continue"
-msgstr ""
+msgstr "Fortsett"
 
 #: ../src/web/web_site.ml:1656
 msgid "Cookies are blocked"
-msgstr ""
+msgstr "Kaker er blokkert"
 
 #: ../src/web/web_site.ml:1084
 msgid "Credential:"
-msgstr ""
+msgstr "Identitetsdetalj:"
 
 #: ../src/web/web_site.ml:1673
 msgid "Dear %s,"
-msgstr ""
+msgstr "Kjære %s,"
 
 #. ../src/web/web_templates.ml:2940
 #: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
 msgid "Done"
-msgstr ""
+msgstr "Ferdig"
 
 #: ../src/web/web_templates.ml:3702
+#, fuzzy
 msgid "Election UUID: "
-msgstr ""
+msgstr "Valg-UUID: "
 
 #: ../src/web/web_templates.ml:3706 ../src/web/web_templates.ml:1952
 msgid "Election fingerprint: "
-msgstr ""
+msgstr "Valg-fingeravtrykk: "
 
 #: ../src/web/web_templates.ml:3685 ../src/web/web_templates.ml:134
 msgid "Election server"
-msgstr ""
+msgstr "Valg-tjener"
 
 #: ../src/web/web_templates.ml:3672
 msgid "Encrypting..."
-msgstr ""
+msgstr "Krypterer …"
 
 #: ../src/web/web_templates.ml:3042
 msgid "FAIL!"
-msgstr ""
+msgstr "FEIL!"
 
 #: ../src/web/web_templates.ml:153
 msgid "Get the source code"
-msgstr ""
+msgstr "Gå til kildekoden"
 
 #. ../src/web/web_templates.ml:2996
 #. ../src/web/web_templates.ml:2969
 #: ../src/web/web_templates.ml:3085 ../src/web/web_templates.ml:3057
 msgid "Go back to election"
-msgstr ""
+msgstr "Gå tilbake til valget"
 
 #: ../src/web/web_templates.ml:2905
 msgid "I am "
-msgstr ""
+msgstr "Jeg er "
 
 #: ../src/web/web_templates.ml:2910
 msgid "I cast my vote"
-msgstr ""
+msgstr "Jeg avgir min stemme"
 
 #. ../src/web/web_templates.ml:2930
 #: ../src/web/web_templates.ml:3632 ../src/web/web_templates.ml:3010
 msgid "Input credential"
-msgstr ""
+msgstr "Skriv inn identitetsdetalj"
 
 #: ../src/web/web_templates.ml:3651
 msgid "Input your credential "
-msgstr ""
+msgstr "Skriv inn din identitetsdetalj "
 
 #: ../src/tool/tool_js_booth.ml:371
 msgid "Invalid credential!"
-msgstr ""
+msgstr "Ugyldig identitetsdetalj!"
 
 #: ../src/web/web_templates.ml:2033
 msgid "It will open in "
-msgstr ""
+msgstr "Åpner om "
 
 #: ../src/web/web_templates.ml:2013
 msgid "JSON result"
-msgstr ""
+msgstr "JSON-resultat"
 
 #: ../src/web/web_templates.ml:3378
 msgid "Login"
-msgstr ""
+msgstr "Innlogging"
 
 #: ../src/web/web_site.ml:1080 ../src/web/web_site.ml:681
+#, fuzzy
 msgid "Login and passwords are required once your ballot is ready to be cast."
 msgstr ""
+"Innloggingsdetaljer og passord kreves når din stemme er klart til å bli "
+"avgitt."
 
 #: ../src/tool/tool_js_booth.ml:305
 msgid "Next"
-msgstr ""
+msgstr "Next"
 
 #: ../src/tool/tool_js_booth.ml:135
+#, fuzzy
 msgid "No other choices are allowed when voting blank"
-msgstr ""
+msgstr "Ingen andre valg tillates når blank stemme avgis"
 
 #: ../src/web/web_site.ml:50
 msgid "Not found"
-msgstr ""
+msgstr "Ikke funnet"
 
 #: ../src/web/web_site.ml:1087 ../src/web/web_site.ml:688
 msgid "Note that you are allowed to vote several times."
-msgstr ""
+msgstr "Merk at du tillates å stemme flere ganger."
 
 #: ../src/web/web_templates.ml:2925
 msgid "Note: you have already voted. Your vote will be replaced."
-msgstr ""
+msgstr "Merk: Du har allerede stemt. Din stemme vil bli erstattet."
 
 #: ../src/web/web_templates.ml:2960
 msgid "Note: your ballot is encrypted and nobody can see its contents."
-msgstr ""
+msgstr "Merk: Din stemme er kryptert og ingen kan se dens innhold."
 
 #: ../src/web/web_templates.ml:2121
 msgid "Number of accepted ballots: "
-msgstr ""
+msgstr "Antall godtatte stemmer: "
 
 #: ../src/web/web_site.ml:1088 ../src/web/web_site.ml:689
 msgid "Only the last vote counts."
-msgstr ""
+msgstr "Kun den siste stemmen teller."
 
 #: ../src/web/web_site.ml:1085 ../src/web/web_site.ml:686
 msgid "Page of the election:"
-msgstr ""
+msgstr "Side for valget:"
 
 #: ../src/web/web_templates.ml:3386
 msgid "Password login"
-msgstr ""
+msgstr "Passordsinnlogging"
 
 #: ../src/web/web_templates.ml:3373 ../src/web/web_site.ml:685
 msgid "Password:"
-msgstr ""
+msgstr "Passord:"
 
 #: ../src/tool/tool_js_booth.ml:360
 msgid "Please enter your credential:"
-msgstr ""
+msgstr "Skriv inn din identitetsdetalj:"
 
 #: ../src/web/web_templates.ml:2916
 msgid "Please log in to confirm your vote."
-msgstr ""
+msgstr "Logg inn for å bekrefte din stemme."
 
 #: ../src/web/web_templates.ml:3671
 msgid "Please wait while your ballot is being encrypted..."
-msgstr ""
+msgstr "Vent mens din stemme krypteres …"
 
 #: ../src/web/web_templates.ml:148
 msgid "Powered by "
-msgstr ""
+msgstr "Drevet av "
 
 #: ../src/tool/tool_js_booth.ml:304
 msgid "Previous"
-msgstr ""
+msgstr "Forrige"
 
 #: ../src/web/web_templates.ml:155
 msgid "Privacy policy"
-msgstr ""
+msgstr "Personvernspraksis"
 
 #: ../src/web/web_templates.ml:3675
 msgid "Restart"
-msgstr ""
+msgstr "Start på ny"
 
 #: ../src/web/web_site.ml:1693
 msgid "Results will be published on the election page"
-msgstr ""
+msgstr "Resultater vil bli vist på valgsiden"
 
 #. ../src/web/web_templates.ml:2934
 #: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3014
 msgid "Review and encrypt"
-msgstr ""
+msgstr "Gjennomse og krypter"
 
 #: ../src/web/web_templates.ml:2082
 msgid "See accepted ballots"
-msgstr ""
+msgstr "Se godkjente stemmer"
 
 #: ../src/tool/tool_js_booth.ml:76
 msgid "Select between %d and %d answer(s)"
-msgstr ""
+msgstr "Velg mellom %d og %d svar"
 
 #: ../src/web/web_templates.ml:2095
 msgid "Start"
-msgstr ""
+msgstr "Start"
 
 #: ../src/web/web_templates.ml:3647
 msgid "Step 1/6: Input credential"
-msgstr ""
+msgstr "Steg 1/6: Skriv inn identitetsdetalj"
 
 #: ../src/web/web_templates.ml:3657
 msgid "Step 2/6: Answer to questions"
-msgstr ""
+msgstr "Steg 2/6: Svar på spørsmålene"
 
 #: ../src/web/web_templates.ml:3662
 msgid "Step 3/6: Review and encrypt"
-msgstr ""
+msgstr "Steg 3/6: Gjennomse og krypter"
 
 #: ../src/web/web_templates.ml:2946
 msgid "Step 5/6: Confirm"
-msgstr ""
+msgstr "Steg 5/6: Bekreft"
 
 #: ../src/web/web_templates.ml:3047
 msgid "Step 6/6: "
-msgstr ""
+msgstr "Steg 6/6: "
 
 #: ../src/web/web_templates.ml:3037
 msgid "Thank you for voting!"
-msgstr ""
+msgstr "Takk for din stemme."
 
 #: ../src/web/web_templates.ml:2064 ../src/web/web_templates.ml:2059
 msgid "The election is closed and being tallied."
-msgstr ""
+msgstr "Valget er over og blir nå opptalt."
 
 #: ../src/web/web_templates.ml:2049
 msgid "The election will close in "
-msgstr ""
+msgstr "Valget stenger om "
 
 #: ../src/web/web_templates.ml:2012
+#, fuzzy
 msgid "The raw results can be viewed in the "
-msgstr ""
+msgstr "Rådataresultatene er å finne på "
 
 #: ../src/web/web_templates.ml:2141
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr ""
+"Resultatet av dette valget er ikke tilgjengelig offentlig. Det vil bli det "
+"om %s."
 
 #: ../src/web/web_site.ml:50
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 msgstr ""
+"Dette valget finnes ikke. Dette kan skje for valg som ikke har blitt åpnet "
+"enda, eller har blitt slettet."
 
 #: ../src/web/web_templates.ml:2069
 msgid "This election has been tallied."
-msgstr ""
+msgstr "Valget har blitt opptalt."
 
 #: ../src/web/web_templates.ml:2074
 msgid "This election is archived."
-msgstr ""
+msgstr "Dette valget har blitt arkivert."
 
 #: ../src/web/web_templates.ml:2041
+#, fuzzy
 msgid "This election is currently closed."
-msgstr ""
+msgstr "Dette valget er for tiden lukket."
 
 #: ../src/web/web_site.ml:1685
 msgid "This vote replaces any previous vote."
-msgstr ""
+msgstr "Denne stemmen erstatter min tidligere stemme."
 
 #: ../src/web/web_site.ml:678
+#, fuzzy
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
 msgstr ""
+"For å avgi en stemme, vil du også trenge en identitetsdetalj, sendt i egen "
+"e-post."
 
 #: ../src/web/web_site.ml:1077
+#, fuzzy
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
+"For å avgi en stemme, vil du også trenge et passord, sendt i egen e-post."
 
 #: ../src/web/web_site.ml:664
 msgid "To get more information, please contact:"
-msgstr ""
+msgstr "For mer info, kontakt:"
 
 #: ../src/web/web_templates.ml:3369 ../src/web/web_site.ml:684
 msgid "Username:"
-msgstr ""
+msgstr "Brukernavn:"
 
 #: ../src/tool/tool_js_booth.ml:208
 msgid "Value must be an integer between 0 and 255."
-msgstr ""
+msgstr "Verdi må være et heltall mellom 0 og 255."
 
 #: ../src/tool/tool_js_booth.ml:225
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
+"Advarsel: Systemet vil godta ethvert heltall mellom 0 og 255, men i henhold "
+"til valgreglene, vil ugyldige stemmer (poengsum som er for høy, eller "
+"kandidater som ikke er opplistet) bli avslått på slutten av hvert valg."
 
 #: ../src/web/web_templates.ml:3616
+#, fuzzy
 msgid "We invite you to save it in order to check later that it is taken into account."
 msgstr ""
+"Vi inviterer deg til å lagre den, for å senere sjekke at den har blitt "
+"opptalt."
 
 #: ../src/web/web_site.ml:1071 ../src/web/web_site.ml:673
 msgid "You are listed as a voter for the election"
-msgstr ""
+msgstr "Du er opplistet som stemmeberettighet for valget"
 
 #: ../src/web/web_templates.ml:2125
 msgid "You can also download the "
-msgstr ""
+msgstr "Du kan også laste ned "
 
 #: ../src/web/web_templates.ml:3033
 msgid "You can check its presence in the "
-msgstr ""
+msgstr "Du kan se om den finnes i "
 
 #: ../src/web/web_site.ml:1689
 msgid "You can check its presence in the ballot box, accessible at"
-msgstr ""
+msgstr "Du kan se om den finnes i valgurnen, tilgjengelig på"
 
 #: ../src/tool/tool_js_booth.ml:122
 msgid "You must select at least %d answer(s)"
-msgstr ""
+msgstr "Du må velge minst %d svar"
 
 #: ../src/tool/tool_js_booth.ml:125
+#, fuzzy
 msgid "You must select at most %d answer(s)"
-msgstr ""
+msgstr "Du kan ikke velge mer enn %d svar"
 
 #: ../src/web/web_site.ml:1079 ../src/web/web_site.ml:680
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr ""
+"Du vil bli spurt om å skrive inn din identitetsdetalj før du går inn i "
+"stemmeavlukket."
 
 #: ../src/web/web_site.ml:1075
 msgid "You will find below your credential."
-msgstr ""
+msgstr "Du vil finne din identitetsdetalj nedenfor."
 
 #: ../src/web/web_site.ml:677
 msgid "You will find below your login and password."
-msgstr ""
+msgstr "Du vil finne din innloggingsinfo og passordet ditt nedenfor."
 
 #: ../src/web/web_templates.ml:3051 ../src/web/web_templates.ml:2949
 msgid "Your ballot for "
-msgstr ""
+msgstr "Din stemme for "
 
 #: ../src/web/web_templates.ml:3607
 msgid "Your ballot has been successfully encrypted, "
-msgstr ""
+msgstr "Din stemme har blitt kryptert, "
 
 #: ../src/web/web_site.ml:1656
 msgid "Your browser seems to block cookies. Please enable them."
-msgstr ""
+msgstr "Din nettleser ser ut til å blokkere kaker. Tillat dem først."
 
 #: ../src/web/web_site.ml:1143
+#, fuzzy
 msgid "Your credential for election %s"
-msgstr ""
+msgstr "Din identitetsdetalj for valget %s"
 
 #: ../src/web/web_site.ml:707
 msgid "Your password for election %s"
-msgstr ""
+msgstr "Ditt passord for valget %s"
 
 #: ../src/web/web_site.ml:1680
 msgid "Your smart ballot tracker is"
-msgstr ""
+msgstr "Din smarte stemmesporer er"
 
 #. ../src/web/web_templates.ml:2952
 #: ../src/web/web_templates.ml:3612 ../src/web/web_templates.ml:3028
 msgid "Your smart ballot tracker is "
-msgstr ""
+msgstr "Din smarte stemmesporer er "
 
 #: ../src/web/web_site.ml:1675
+#, fuzzy
 msgid "Your vote for election"
-msgstr ""
+msgstr "Din stemme i valget"
 
 #: ../src/web/web_site.ml:1725
 msgid "Your vote for election %s"
-msgstr ""
+msgstr "Din stemme i valget %s"
 
 #: ../src/web/web_common.ml:83
 msgid "a credential is missing"
-msgstr ""
+msgstr "en identitetsdetalj mangler"
 
 #: ../src/web/web_templates.ml:3034
 msgid "ballot box"
-msgstr ""
+msgstr "valgurne"
 
 #: ../src/web/web_templates.ml:1968
 msgid "ballots"
-msgstr ""
+msgstr "stemmer"
 
 #: ../src/web/web_templates.ml:3608
 msgid "but has not been cast yet"
-msgstr ""
+msgstr "men har ikke blitt avgitt enda"
 
 #: ../src/web/web_site.ml:1679
+#, fuzzy
 msgid "has been recorded."
-msgstr ""
+msgstr "har blitt lagret."
 
 #: ../src/tool/tool_js_booth.ml:358
 msgid "here"
-msgstr ""
+msgstr "her"
 
 #: ../src/web/web_templates.ml:1958
 msgid "parameters"
-msgstr ""
+msgstr "parameter"
 
 #: ../src/web/web_templates.ml:2159
+#, fuzzy
 msgid "personal data policy"
-msgstr ""
+msgstr "personlig datapraksis"
 
 #: ../src/web/web_templates.ml:1964
 msgid "public credentials"
-msgstr ""
+msgstr "offentlige identitetsdetaljer"
 
 #: ../src/web/web_templates.ml:2127
 msgid "result with cryptographic proofs"
-msgstr ""
+msgstr "resultat med kryptografisk bevis"
 
 #: ../src/web/web_common.ml:82
 msgid "some proofs failed verification"
-msgstr ""
+msgstr "noen bevis kunne ikke bekreftes"
 
 #: ../src/web/web_common.ml:79
 msgid "the election is closed"
-msgstr ""
+msgstr "valget er over"
 
 #: ../src/web/web_common.ml:85
 msgid "you are not allowed to revote"
-msgstr ""
+msgstr "du tillates ikke å stemme på ny"
 
 #: ../src/web/web_common.ml:80
 msgid "you are not allowed to vote"
-msgstr ""
+msgstr "du tillates ikke å stemme"
 
 #: ../src/web/web_common.ml:87
 msgid "you are not allowed to vote with this credential"
-msgstr ""
+msgstr "du tillates ikke å stemme med denne identitetsdetaljen"
 
 #: ../src/web/web_common.ml:81
 msgid "your ballot has a syntax error (%s)"
-msgstr ""
+msgstr "din stemme har en syntaksfeil (%s)"
 
 #: ../src/web/web_common.ml:86
 msgid "your credential has already been used"
-msgstr ""
+msgstr "din identitetsdetalj har allerede blitt brukt"
 
 #: ../src/web/web_common.ml:84
 msgid "your credential is invalid"
-msgstr ""
+msgstr "din identitetsdetalj er ugyldig"
