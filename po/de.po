@@ -1,16 +1,18 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-09-04 12:48+0000\n"
-"Last-Translator: Jannik Dreier\n"
-"Language-Team: Belenios Team <contact@belenios.org>\n"
+"PO-Revision-Date: 2020-09-14 09:17+0000\n"
+"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/belenios/server/"
+"de/>\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.3-dev\n"
 
 #: ../src/web/web_templates.ml:3036
 msgid " A confirmation e-mail has been sent to you."
@@ -108,8 +110,8 @@ msgstr "Diese Abstimmung verwalten"
 msgid "Advanced mode"
 msgstr "Erweiterter Modus"
 
-#: ../src/web/web_templates.ml:3634 ../src/web/web_templates.ml:3012
 #. ../src/web/web_templates.ml:2932
+#: ../src/web/web_templates.ml:3634 ../src/web/web_templates.ml:3012
 msgid "Answer to questions"
 msgstr "Fragen beantworten"
 
@@ -121,8 +123,8 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Auditdaten: "
 
-#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
 #. ../src/web/web_templates.ml:2936
+#: ../src/web/web_templates.ml:3638 ../src/web/web_templates.ml:3016
 msgid "Authenticate"
 msgstr "Authentifizieren"
 
@@ -134,8 +136,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Belenios Wahlkabine"
 
-#: ../src/web/web_templates.ml:1987 ../src/tool/tool_js_booth.ml:156
 #. ../src/tool/tool_js_booth.ml:82
+#: ../src/web/web_templates.ml:1987 ../src/tool/tool_js_booth.ml:156
 msgid "Blank vote"
 msgstr "ungültige Stimme"
 
@@ -143,8 +145,8 @@ msgstr "ungültige Stimme"
 msgid "By using this site, you accept our "
 msgstr "Wenn Sie diese Seite benutzen akzeptieren sie unsere "
 
-#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
 #. ../src/web/web_templates.ml:2938
+#: ../src/web/web_templates.ml:3640 ../src/web/web_templates.ml:3018
 msgid "Confirm"
 msgstr "Bestätigen"
 
@@ -164,8 +166,8 @@ msgstr "Wählernummer:"
 msgid "Dear %s,"
 msgstr "%s,"
 
-#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
 #. ../src/web/web_templates.ml:2940
+#: ../src/web/web_templates.ml:3642 ../src/web/web_templates.ml:3020
 msgid "Done"
 msgstr "Fertig"
 
@@ -193,9 +195,9 @@ msgstr "FEHLER!"
 msgid "Get the source code"
 msgstr "Den Quellcode herunterladen"
 
-#: ../src/web/web_templates.ml:3085 ../src/web/web_templates.ml:3057
 #. ../src/web/web_templates.ml:2996
 #. ../src/web/web_templates.ml:2969
+#: ../src/web/web_templates.ml:3085 ../src/web/web_templates.ml:3057
 msgid "Go back to election"
 msgstr "Zurück zur Wahl"
 
@@ -207,8 +209,8 @@ msgstr "Ich bin "
 msgid "I cast my vote"
 msgstr "ich schicke meine Stimme ab"
 
-#: ../src/web/web_templates.ml:3632 ../src/web/web_templates.ml:3010
 #. ../src/web/web_templates.ml:2930
+#: ../src/web/web_templates.ml:3632 ../src/web/web_templates.ml:3010
 msgid "Input credential"
 msgstr "Wählernummer eingeben"
 
@@ -312,8 +314,8 @@ msgstr "Erneut beginnen"
 msgid "Results will be published on the election page"
 msgstr "Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:"
 
-#: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3014
 #. ../src/web/web_templates.ml:2934
+#: ../src/web/web_templates.ml:3636 ../src/web/web_templates.ml:3014
 msgid "Review and encrypt"
 msgstr "Überprüfen und verschlüsseln"
 
@@ -391,11 +393,15 @@ msgstr "Diese Stimme ersetzt eine eventuelle vorherige Stimme."
 
 #: ../src/web/web_site.ml:678
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
-msgstr "Um abzustimmen benötigen sie außerdem noch Ihre Wählernummer, die Ihnen in einer separaten Mail zugestellt wird."
+msgstr ""
+"Um abzustimmen benötigen sie außerdem noch Ihre Wählernummer, die Ihnen in "
+"einer separaten E-Mail zugestellt wird."
 
 #: ../src/web/web_site.ml:1077
 msgid "To cast a vote, you will also need a password, sent in a separate email."
-msgstr "Um abzustimmen benötigen sie außerdem noch Ihr Passwort, die Ihnen in einer separaten Mail zugestellt wird."
+msgstr ""
+"Um abzustimmen benötigen sie außerdem noch Ihr Passwort, die Ihnen in einer "
+"separaten E-Mail zugestellt wird."
 
 #: ../src/web/web_site.ml:664
 msgid "To get more information, please contact:"
@@ -447,7 +453,7 @@ msgstr ""
 
 #: ../src/web/web_site.ml:1075
 msgid "You will find below your credential."
-msgstr "Am Ende der Mail finden Sie Ihre Wählernummer."
+msgstr "Am Ende der Nachricht finden Sie Ihre Wählernummer."
 
 #: ../src/web/web_site.ml:677
 msgid "You will find below your login and password."
@@ -477,8 +483,8 @@ msgstr "Ihr Passwort für die Abstimmung %s"
 msgid "Your smart ballot tracker is"
 msgstr "Ihre Stimmennummer ist:"
 
-#: ../src/web/web_templates.ml:3612 ../src/web/web_templates.ml:3028
 #. ../src/web/web_templates.ml:2952
+#: ../src/web/web_templates.ml:3612 ../src/web/web_templates.ml:3028
 msgid "Your smart ballot tracker is "
 msgstr "Ihre Stimmennummer ist "
 
@@ -561,4 +567,3 @@ msgstr "Ihre Wählernummer wurde schon benutzt"
 #: ../src/web/web_common.ml:84
 msgid "your credential is invalid"
 msgstr "Ihre Wählernummer ist ungültig"
-

@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-09-11 15:23+0000\n"
-"Last-Translator: Stéphane Glondu <steph@glondu.net>\n"
+"PO-Revision-Date: 2020-09-14 09:17+0000\n"
+"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/server/"
 "fr/>\n"
 "Language: fr\n"
@@ -16,7 +16,7 @@ msgstr ""
 
 #: ../src/web/web_templates.ml:3036
 msgid " A confirmation e-mail has been sent to you."
-msgstr " Un e-mail de confirmation vous a été envoyé."
+msgstr " Un courriel de confirmation vous a été envoyé."
 
 #: ../src/web/web_templates.ml:2907
 msgid " and "
@@ -393,11 +393,15 @@ msgstr "Ce vote remplace le vote précédent."
 
 #: ../src/web/web_site.ml:678
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
-msgstr "Pour soumettre un bulletin, vous aurez également besoin d'un code de vote, envoyé dans un e-mail séparé."
+msgstr ""
+"Pour soumettre un bulletin, vous aurez également besoin d'un code de vote, "
+"envoyé dans un courriel séparé."
 
 #: ../src/web/web_site.ml:1077
 msgid "To cast a vote, you will also need a password, sent in a separate email."
-msgstr "Pour soumettre un bulletin, vous aurez également besoin d'un mot de passe, envoyé dans un e-mail séparé."
+msgstr ""
+"Pour soumettre un bulletin, vous aurez également besoin d'un mot de passe, "
+"envoyé dans un courriel séparé."
 
 #: ../src/web/web_site.ml:664
 msgid "To get more information, please contact:"
