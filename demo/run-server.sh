@@ -2,7 +2,7 @@
 
 set -e
 
-if [ -d _build ]; then
+if [ -d .git ]; then
     : ${BELENIOS_CONFIG:=demo/ocsigenserver.conf.in}
     : ${BELENIOS_VARDIR:=_run}
     : ${BELENIOS_RUNDIR:=/tmp/belenios}
