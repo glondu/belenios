@@ -24,7 +24,6 @@ The non-OCaml prerequisites are:
  * [Zip](http://www.info-zip.org/Zip.html)
  * [Unzip](http://www.info-zip.org/UnZip.html)
  * [ncurses](http://invisible-island.net/ncurses/)
- * [uuidgen](https://www.kernel.org/pub/linux/utils/util-linux/)
  * [GD-SecurityImage](https://metacpan.org/release/GD-SecurityImage)
  * [cracklib](https://github.com/cracklib/cracklib)
  * [jq](https://github.com/stedolan/jq)
@@ -33,7 +32,7 @@ These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
 derivatives, they can be installed with the following command:
 
-    sudo apt install bubblewrap build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev uuid-runtime zlib1g-dev libgd-securityimage-perl cracklib-runtime jq
+    sudo apt install bubblewrap build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime jq
 
 If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully
@@ -78,7 +77,6 @@ To compile the command-line tool, you will need:
  * [OCaml](https://ocaml.org/)
  * [Dune](https://dune.build/)
  * [Zarith](https://github.com/ocaml/Zarith)
- * [Uuidm](http://erratique.ch/software/uuidm)
  * [Cryptokit](https://github.com/xavierleroy/cryptokit)
  * [Atdgen](https://github.com/ahrefs/atd)
  * [Yojson](https://github.com/ocaml-community/yojson)
@@ -87,7 +85,7 @@ To compile the command-line tool, you will need:
 With OPAM, these dependencies can be installed with the following
 command:
 
-    opam install dune atdgen zarith cryptokit uuidm cmdliner
+    opam install dune atdgen zarith cryptokit cmdliner
 
 Once all the dependencies have been installed, the command-line tool
 can be compiled with:

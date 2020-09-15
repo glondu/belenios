@@ -65,7 +65,8 @@ Administrator's guide
 
 ### Setup a new election
 
- 1. Generate an UUID with the `uuidgen` command. Let it be `$UUID`.
+ 1. Generate an UUID with the `belenios-tool generate-token`
+    command. Let it be `$UUID`.
  2. Go to an empty directory. In the following, we denote by `$DIR`
     the full path to this directory and by `$BELENIOS` the full path
     to the Belenios source tree.

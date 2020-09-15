@@ -1,7 +1,7 @@
 (library
  (name belenios)
  (public_name belenios)
- (libraries yojson uuidm atdgen belenios_platform)
+ (libraries yojson atdgen belenios_platform)
  (modules_without_implementation question_sigs signatures signatures_core))
 
 (rule
