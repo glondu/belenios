@@ -257,23 +257,7 @@ type add_account_error =
   | PasswordMismatch
   | BadSpaceInPassword
 
-let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-let prng = lazy (pseudo_rng (random_string secure_rng 16))
-
-let random_char () =
-  let rng = Lazy.force prng in
-  return (int_of_char (random_string rng 1).[0])
-
-let generate_token ?(length=14) () =
-  let res = Bytes.create length in
-  let rec loop i =
-    if i < length then (
-      let%lwt digit = random_char () in
-      let digit = digit mod 58 in
-      Bytes.set res i b58_digits.[digit];
-      loop (i+1)
-    ) else return (Bytes.to_string res)
-  in loop 0
+include MakeGenerateToken (LwtRandom)
 
 let string_of_user {user_domain; user_name} =
   user_domain ^ ":" ^ user_name

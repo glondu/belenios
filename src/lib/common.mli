@@ -79,3 +79,7 @@ val bytes_to_sample : Platform.Z.t -> int
 val check_modulo : Platform.Z.t -> Platform.Z.t -> bool
 
 module DirectRandom : RANDOM with type 'a t = 'a
+
+module MakeGenerateToken (R : RANDOM) : sig
+  val generate_token : ?length:int -> unit -> string R.t
+end

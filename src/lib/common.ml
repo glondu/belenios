@@ -225,3 +225,24 @@ module DirectRandom = struct
     let r = random_string (Lazy.force prng) size in
     Z.(of_bits r mod q)
 end
+
+let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+let z58 = Z.of_int (String.length b58_digits)
+
+module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
+  let random_char () =
+    R.bind (R.random z58) (fun n -> R.return b58_digits.[Z.to_int n])
+
+  let generate_token ?(length=14) () =
+    let res = Bytes.create length in
+    let rec loop i =
+      if i < length then (
+        R.bind (random_char ())
+          (fun c ->
+            Bytes.set res i c;
+            loop (i + 1)
+          )
+      ) else R.return (Bytes.to_string res)
+    in
+    loop 0
+end
