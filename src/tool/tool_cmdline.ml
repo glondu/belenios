@@ -824,6 +824,33 @@ module Methods : CMDLINER_MODULE = struct
 
 end
 
+module GenerateToken : CMDLINER_MODULE = struct
+
+  let main length =
+    wrap_main (fun () ->
+        let module X = MakeGenerateToken (DirectRandom) in
+        X.generate_token ~length ()
+        |> print_endline
+      )
+
+  let length_t =
+    let doc = "Token length." in
+    Arg.(value & opt int 14 & info ["length"] ~docv:"L" ~doc)
+
+  let generate_token_cmd =
+    let doc = "generate a token" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command generates a random token suitable for an election identifier.";
+      ] @ common_man
+    in
+    Term.(ret (pure main $ length_t)),
+    Term.info "generate-token" ~doc ~man
+
+  let cmds = [generate_token_cmd]
+
+end
+
 let cmds =
   List.flatten
     [
@@ -836,6 +863,7 @@ let cmds =
       Mkelection.cmds;
       Verifydiff.cmds;
       Methods.cmds;
+      GenerateToken.cmds;
     ]
 
 let default_cmd =
