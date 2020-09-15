@@ -4,7 +4,7 @@ set -e
 
 export BELENIOS_USE_URANDOM=1
 
-BELENIOS=${BELENIOS:-$PWD/../..}
+BELENIOS=${BELENIOS:-$(dirname $(dirname $PWD))}
 
 belenios-tool () {
     $BELENIOS/_run/tool-debug/bin/belenios-tool "$@"
