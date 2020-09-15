@@ -1,7 +1,7 @@
 all:
 
 check:
-	mkdir data
+	mkdir -p data
 	./demo.sh
 	./demo-threshold.sh
 	./demo-nh.sh
