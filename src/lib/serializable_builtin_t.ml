@@ -41,11 +41,8 @@ let check token =
     in loop (n-1)
 
 let uuid_of_raw_string x =
-  match Uuidm.of_string x with
-  | Some s -> Uuidm.to_string s
-  | None ->
-     if check x then x
-     else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
+  if check x then x
+  else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
 
 let raw_string_of_uuid x = x
 

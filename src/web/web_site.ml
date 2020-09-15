@@ -402,14 +402,10 @@ let () = File.register ~service:source_code
   ~content_type:"application/x-gzip"
   (fun () () -> return !Web_config.source_file)
 
-let generate_uuid =
-  let gen = Uuidm.v4_gen (Random.State.make_self_init ()) in
-  fun () ->
-  match !Web_config.uuid_length with
-  | Some length ->
-     let%lwt token = generate_token ~length () in
-     return @@ uuid_of_raw_string token
-  | None -> return @@ uuid_of_raw_string @@ Uuidm.to_string @@ gen ()
+let generate_uuid () =
+  let length = !Web_config.uuid_length in
+  let%lwt token = generate_token ?length () in
+  return (uuid_of_raw_string token)
 
 let redir_preapply s u () = Redirection.send (Redirection (preapply ~service:s u))
 

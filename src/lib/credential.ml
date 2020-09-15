@@ -67,27 +67,11 @@ let check x =
   | Some n, Some checksum -> Z.((n + of_int checksum) mod n53 =% zero)
   | _, _ -> false
 
-let remove_dashes x =
-  let n = String.length x in
-  let res = Buffer.create n in
-  for i = 0 to n-1 do
-    let c = x.[i] in
-    if c <> '-' then Buffer.add_char res c;
-  done;
-  Buffer.contents res
-
 module MakeDerive (G : GROUP) = struct
 
   let derive uuid x =
     let uuid = raw_string_of_uuid uuid in
-    let derived =
-      match Uuidm.of_string uuid with
-      | Some _ -> (* old-style UUIDs *)
-         let salt = remove_dashes uuid in
-         pbkdf2_hex ~iterations:1000 ~salt x
-      | None ->
-         pbkdf2_utf8 ~iterations:1000 ~salt:uuid x
-    in
+    let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid x in
     Z.(of_hex derived mod G.q)
 
 end
