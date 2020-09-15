@@ -18,7 +18,7 @@ header () {
 
 header "Setup election"
 
-UUID=`uuidgen`
+UUID=`belenios-tool generate-token`
 echo "UUID of the election is $UUID"
 
 DIR=$BELENIOS/tests/tool/data/$UUID
