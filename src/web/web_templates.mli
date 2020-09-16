@@ -92,5 +92,6 @@ val signup : string -> add_account_error option -> string -> [> `Html ] Eliom_co
 val changepw : username:string -> address:string -> add_account_error option -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val booth_2 : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val schulze : Question_nh_t.question -> schulze_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

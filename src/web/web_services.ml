@@ -93,6 +93,7 @@ let election_auto_post = create_attached_post ~fallback:election_admin ~post_par
 let election_archive = create_attached_post ~fallback:election_admin ~post_params:unit ()
 let election_delete = create_attached_post ~fallback:election_admin ~post_params:unit ()
 let election_vote = create ~path:(Path ["vote.html"]) ~meth:(Get unit) ()
+let election_vote_2 = create ~path:(Path ["vote_2.html"]) ~meth:(Get unit) ()
 let election_cast = create ~path:(Path ["election"; "cast"]) ~meth:(Get (uuid "uuid")) ()
 let election_submit_ballot = create ~path:(Path ["election"; "submit-ballot"]) ~meth:(Post (unit, string "encrypted_vote")) ()
 let election_submit_ballot_file = create ~path:(Path ["election"; "submit-ballot-file"]) ~meth:(Post (unit, file "encrypted_vote")) ()

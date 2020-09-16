@@ -27,12 +27,13 @@ The non-OCaml prerequisites are:
  * [GD-SecurityImage](https://metacpan.org/release/GD-SecurityImage)
  * [cracklib](https://github.com/cracklib/cracklib)
  * [jq](https://github.com/stedolan/jq)
+ * [npm](https://www.npmjs.com/)
 
 These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
 derivatives, they can be installed with the following command:
 
-    sudo apt install bubblewrap build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime jq
+    sudo apt install bubblewrap build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime jq npm
 
 If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully
@@ -49,6 +50,7 @@ gigabytes of disk space.
 If everything goes successfully, follow the given instructions to
 update your shell environment, then run:
 
+    npm install
     make build-release-server
 
 and you can skip the next two sections and go directly to the
