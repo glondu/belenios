@@ -13,3 +13,4 @@ venv
 __pycache__
 geckodriver.log
 env.sh
+node_modules

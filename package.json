@@ -1,0 +1,31 @@
+{
+  "name": "belenios",
+  "version": "1.12.0",
+  "description": "Verifiable online voting system",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.inria.fr:belenios/belenios.git"
+  },
+  "keywords": [
+    "vote",
+    "voting",
+    "election",
+    "verifiable",
+    "ballot",
+    "democracy"
+  ],
+  "author": "Stéphane Glondu, Véronique Cortier, Pierrick Gaudry, Quentin Grimaud, Alicia Filipiak, Vincent Cheval",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
