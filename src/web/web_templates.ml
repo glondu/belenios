@@ -35,6 +35,10 @@ open Eliom_content.Html.F.Form
 
 let ( / ) = Filename.concat
 
+let rec list_concat elt = function
+  | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
+  | ([_] | []) as xs -> xs
+
 (* TODO: these pages should be redesigned *)
 
 let admin_background = " background: #FF9999;"
@@ -242,8 +246,16 @@ let admin ~elections () =
       | [] -> p [txt (s_ "You own no such elections!")]
       | _ -> ul @@ List.map format_election archived
     in
+    let languages =
+      div ~a:[a_class ["languages"]]
+        (list_concat (txt " ") @@
+           List.map (fun lang ->
+               a ~service:set_language [txt lang] (lang, ContSiteAdmin)
+             ) available_languages)
+    in
     let content = [
       div [
+        languages;
         div [
           a ~service:election_draft_pre [
             txt (s_ "Prepare a new election");
@@ -2046,10 +2058,6 @@ let audit_footer election =
       ];
     ]
   ]
-
-let rec list_concat elt = function
-  | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
-  | ([_] | []) as xs -> xs
 
 let format_question_result uuid l (i, q) r =
   let open (val l : Web_i18n_sig.GETTEXT) in
