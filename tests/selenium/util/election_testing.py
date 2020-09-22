@@ -440,7 +440,7 @@ def log_in_as_administrator(browser, from_a_login_page=False):
 
         # She notices the page title mentions an election
         # TODO: Should we wait for the page to load here? It looks like we don't need to.
-        assert 'Election Server' in browser.title, "Browser title was: " + browser.title
+        assert 'Election server' in browser.title, "Browser title was: " + browser.title
 
         # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
         accept_button_label = "Accept"
