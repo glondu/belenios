@@ -533,7 +533,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
 
     # She clicks on the "Prepare a new election" link
     create_election_link_expected_content = "Prepare a new election"
-    links_css_selector = "#main a"
+    links_css_selector = "#prepare_new_election"
     create_election_link_element = wait_for_element_exists_and_contains_expected_text(browser, links_css_selector, create_election_link_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
     create_election_link_element.click()
 

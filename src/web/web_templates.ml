@@ -257,7 +257,7 @@ let admin ~elections () =
       div [
         languages;
         div [
-          a ~service:election_draft_pre [
+          a ~a:[a_id "prepare_new_election"] ~service:election_draft_pre [
             txt (s_ "Prepare a new election");
           ] ();
         ];
