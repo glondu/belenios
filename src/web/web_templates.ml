@@ -37,7 +37,6 @@ let ( / ) = Filename.concat
 
 (* TODO: these pages should be redesigned *)
 
-let site_title = "Election Server"
 let admin_background = " background: #FF9999;"
 
 let unsafe_a uri text =
@@ -51,6 +50,8 @@ let format_user ~site u =
   em [txt (if site then string_of_user u else u.user_name)]
 
 let login_box ?cont () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let style = "float: right; text-align: right;" ^ admin_background in
   let%lwt user = Eliom_reference.get Web_state.site_user in
   let auth_systems = List.map (fun x -> x.auth_instance) !Web_config.site_auth_config in
@@ -65,19 +66,20 @@ let login_box ?cont () =
     | Some user ->
       [
         div [
-          txt "Logged in as ";
+          txt (s_ "Logged in as");
+          txt " ";
           format_user ~site:true user;
           txt ".";
         ];
         div [
-          a ~a:[a_id "logout"] ~service:(logout ()) [txt "Log out"] ();
+          a ~a:[a_id "logout"] ~service:(logout ()) [txt (s_ "Log out")] ();
           txt ".";
         ];
       ]
     | None ->
       [
         div [
-          txt "Not logged in.";
+          txt (s_ "Not logged in.");
         ];
         let auth_systems =
           List.map (fun name ->
@@ -86,8 +88,8 @@ let login_box ?cont () =
             ) auth_systems |> List.join (txt ", ")
         in
         div (
-          [txt "Log in: ["] @ auth_systems @ [txt "]"]
-        );
+            [txt (s_ "Log in:"); txt " ["] @ auth_systems @ [txt "]"]
+          );
       ]
   in
   return (div ~a:[a_style style] body)
@@ -163,20 +165,22 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
      ]))
 
 let privacy_notice cont =
-  let title = site_title ^ " — Personal data processing notice" in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Election server" ^ " — " ^ s_ "Personal data processing notice" in
   let service = Eliom_service.preapply ~service:privacy_notice_accept cont in
   let content =
     [
       div [
-          txt "To use this site, you must accept our ";
-          unsafe_a !Web_config.gdpr_uri "personal data policy";
+          txt (s_ "To use this site, you must accept our ");
+          unsafe_a !Web_config.gdpr_uri (s_ "personal data policy");
           txt ".";
         ];
       post_form ~service
         (fun () ->
           [
             div [
-                input ~input_type:`Submit ~value:"Accept" string;
+                input ~input_type:`Submit ~value:(s_ "Accept") string;
               ];
           ]
         ) ();
@@ -195,23 +199,23 @@ let format_draft_election (uuid, name) =
   ]
 
 let admin ~elections () =
-  let title = site_title ^ " — Administration" in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Election server" ^ " — " ^ s_ "Administration" in
   match elections with
   | None ->
      let contact = match !Web_config.contact_uri with
        | None -> txt ""
        | Some uri ->
           div [
-              txt "If you do not have any account, you may ";
-              unsafe_a uri "contact us";
+              txt (s_ "If you do not have any account, you may ");
+              unsafe_a uri (s_ "contact us");
               txt ".";
             ]
      in
      let content = [
        div [
-         txt "To administer an election, you need to log in using one";
-         txt " of the authentication methods available in the upper";
-         txt " right corner of this page.";
+         txt (s_ "To administer an election, you need to log in using one of the authentication methods available in the upper right corner of this page.");
          contact;
        ]
      ] in
@@ -220,42 +224,42 @@ let admin ~elections () =
   | Some (draft, elections, tallied, archived) ->
     let draft =
       match draft with
-      | [] -> p [txt "You own no such elections!"]
+      | [] -> p [txt (s_ "You own no such elections!")]
       | _ -> ul @@ List.map format_draft_election draft
     in
     let elections =
       match elections with
-      | [] -> p [txt "You own no such elections!"]
+      | [] -> p [txt (s_ "You own no such elections!")]
       | _ -> ul @@ List.map format_election elections
     in
     let tallied =
       match tallied with
-      | [] -> p [txt "You own no such elections!"]
+      | [] -> p [txt (s_ "You own no such elections!")]
       | _ -> ul @@ List.map format_election tallied
     in
     let archived =
       match archived with
-      | [] -> p [txt "You own no such elections!"]
+      | [] -> p [txt (s_ "You own no such elections!")]
       | _ -> ul @@ List.map format_election archived
     in
     let content = [
       div [
         div [
           a ~service:election_draft_pre [
-            txt "Prepare a new election";
+            txt (s_ "Prepare a new election");
           ] ();
         ];
         div [br ()];
-        h2 [txt "Elections being prepared"];
+        h2 [txt (s_ "Elections being prepared")];
         draft;
         div [br ()];
-        h2 [txt "Elections you can administer"];
+        h2 [txt (s_ "Elections you can administer")];
         elections;
         div [br ()];
-        h2 [txt "Tallied elections"];
+        h2 [txt (s_ "Tallied elections")];
         tallied;
         div [br ()];
-        h2 [txt "Archived elections"];
+        h2 [txt (s_ "Archived elections")];
         archived;
       ];
     ] in
@@ -302,15 +306,17 @@ let a_mailto ~dest ~subject ~body contents =
     uri contents
 
 let new_election_failure reason () =
-  let title = "Create new election" in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Create new election" in
   let reason =
     match reason with
-    | `Exists -> txt "An election with the same UUID already exists."
+    | `Exists -> txt (s_ "An election with the same UUID already exists.")
     | `Exception e -> txt @@ Printexc.to_string e
   in
   let content = [
     div [
-      p [txt "The creation failed."];
+      p [txt (s_ "The creation failed.")];
       p [reason];
     ]
   ] in
@@ -318,11 +324,13 @@ let new_election_failure reason () =
   base ~title ~login_box ~content ()
 
 let generic_page ~title ?service message () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let proceed = match service with
     | None -> txt ""
     | Some service ->
        div [
-         a ~service ~a:[a_id "generic_proceed_link"] [txt "Proceed"] ();
+         a ~service ~a:[a_id "generic_proceed_link"] [txt (s_ "Proceed")] ();
        ]
   in
   let content = [
@@ -332,7 +340,9 @@ let generic_page ~title ?service message () =
   base ~title ~content ()
 
 let election_draft_pre () =
-  let title = "Prepare a new election" in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Prepare a new election" in
   let cred_info = Eliom_service.extern
     ~prefix:"https://www.belenios.org"
     ~path:["setup.html"]
@@ -345,36 +355,42 @@ let election_draft_pre () =
         [
           fieldset
             ~legend:(legend [
-              txt "Credential management (";
-              a ~service:cred_info [txt "more info"] ();
+              txt (s_ "Credential management");
+              txt " (";
+              a ~service:cred_info [txt (s_ "more info")] ();
               txt ")";
             ])
             [
               div [
                 radio ~checked:true ~name:credmgmt ~value:"auto" string;
-                txt " Automatic (degraded mode - credentials will be handled by the server)";
+                txt " ";
+                txt (s_ "Automatic (degraded mode - credentials will be handled by the server)");
               ];
               div [
                 radio ~name:credmgmt ~value:"manual" string;
-                txt " Manual (safe mode - a third party will handle the credentials)";
+                txt " ";
+                txt (s_ "Manual (safe mode - a third party will handle the credentials)");
               ];
             ];
           fieldset
-            ~legend:(legend [txt "Authentication"])
+            ~legend:(legend [txt (s_ "Authentication")])
             [
               div [
                 radio ~checked:true ~name:auth ~value:"password" string;
-                txt " Password (passwords will be emailed to voters)";
+                txt " ";
+                txt (s_ "Password (passwords will be emailed to voters)");
               ];
               div [
                 radio ~name:auth ~value:"cas" string;
-                txt " CAS (external authentication server), server address: ";
+                txt " ";
+                txt (s_ "CAS (external authentication server), server address: ");
                 input ~input_type:`Text ~name:cas_server string;
-                txt " (for example: https://cas.inria.fr/cas)";
+                txt " ";
+                txt (s_ "(for example: https://cas.inria.fr/cas)");
               ];
             ];
           div [
-            input ~input_type:`Submit ~value:"Proceed" string;
+            input ~input_type:`Submit ~value:(s_ "Proceed") string;
           ];
         ]
       ) ()
@@ -385,42 +401,49 @@ let election_draft_pre () =
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
-let preview_booth uuid =
+let preview_booth l uuid =
+  let open (val l : Web_i18n_sig.GETTEXT) in
   let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
   let service =
     Eliom_uri.make_string_uri
       ~service:election_vote ~absolute:true () |> rewrite_prefix
   in
   span [
-      unsafe_a (service ^ "#" ^ hash) "Preview booth";
-      txt " (you can use any credential such as HsqB3C3y62Ekq4D)."
+      unsafe_a (service ^ "#" ^ hash) (s_ "Preview booth");
+      txt " ";
+      txt (Printf.sprintf (f_ "(you can use any credential such as %s).") "HsqB3C3y62Ekq4D");
     ]
 
 let election_draft uuid se () =
-  let title = "Preparation of election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Preparation of election %s") se.se_questions.t_name in
   let form_languages =
     post_form ~service:election_draft_languages
       (fun languages ->
         [
           div [
-              txt "Languages: ";
+              txt (s_ "Languages:");
+              txt " ";
               input ~name:languages ~input_type:`Text
                 ~value:(string_of_languages se.se_metadata.e_languages) string;
-              txt " (Available languages: ";
+              txt " (";
+              txt (s_ "Available languages:");
+              txt " ";
               txt (string_of_languages (Some available_languages));
               txt ")";
             ];
           div [
-              txt "This is a space-separated list of languages that will be used in emails sent by the server.";
+              txt (s_ "This is a space-separated list of languages that will be used in emails sent by the server.");
             ];
           div [
-              input ~input_type:`Submit ~value:"Save changes" string;
+              input ~input_type:`Submit ~value:(s_ "Save changes") string;
             ];
         ]) uuid
   in
   let div_languages =
     div [
-        h2 [txt "Languages"];
+        h2 [txt (s_ "Languages")];
         form_languages;
       ]
   in
@@ -430,26 +453,30 @@ let election_draft uuid se () =
       (fun (name, description) ->
         [
           div [
-            txt "Name of the election: ";
+            txt (s_ "Name of the election:");
+            txt " ";
             input ~name:name
               ~input_type:`Text ~value:se.se_questions.t_name string;
           ];
           div [
-            div [txt "Description of the election: "];
+            div [
+                txt (s_ "Description of the election:");
+                txt " ";
+              ];
             div [
               textarea ~name:description ~a:[a_cols 80]
                 ~value:se.se_questions.t_description ();
             ];
           ];
           div [
-            input ~input_type:`Submit ~value:"Save changes" string;
+            input ~input_type:`Submit ~value:(s_ "Save changes") string;
           ];
         ]
       ) uuid
   in
   let div_description =
     div [
-      h2 [txt "Name and description of the election"];
+      h2 [txt (s_ "Name and description of the election")];
       form_description;
     ]
   in
@@ -458,7 +485,8 @@ let election_draft uuid se () =
       (fun name ->
         [
           div [
-              txt "Public name of the administrator: ";
+              txt (s_ "Public name of the administrator:");
+              txt " ";
               let value =
                 match se.se_administrator with
                 | Some x -> x
@@ -467,16 +495,16 @@ let election_draft uuid se () =
               input ~name ~input_type:`Text ~value string;
             ];
           div [
-              txt "This name will be published on the election result page.";
+              txt (s_ "This name will be published on the election result page.");
             ];
           div [
-              input ~input_type:`Submit ~value:"Save changes" string;
+              input ~input_type:`Submit ~value:(s_ "Save changes") string;
             ];
         ]) uuid
   in
   let div_admin_name =
     div [
-        h2 [txt "Public name of the administrator"];
+        h2 [txt (s_ "Public name of the administrator")];
         form_admin_name;
       ]
   in
@@ -485,7 +513,8 @@ let election_draft uuid se () =
       (fun contact ->
         [
           div [
-              txt "Contact: ";
+              txt (s_ "Contact:");
+              txt " ";
               let value =
                 match se.se_metadata.e_contact with
                 | Some x -> x
@@ -494,16 +523,16 @@ let election_draft uuid se () =
               input ~name:contact ~input_type:`Text ~value string;
             ];
           div [
-              txt "This contact will be added to emails sent to the voters.";
+              txt (s_ "This contact will be added to emails sent to the voters.");
             ];
           div [
-              input ~input_type:`Submit ~value:"Save changes" string;
+              input ~input_type:`Submit ~value:(s_ "Save changes") string;
             ];
         ]) uuid
   in
   let div_contact =
     div [
-        h2 [txt "Contact"];
+        h2 [txt (s_ "Contact")];
         form_contact;
       ]
   in
@@ -515,26 +544,26 @@ let election_draft uuid se () =
   in
   let div_auth =
     div [
-      h2 [txt "Authentication"];
+      h2 [txt (s_ "Authentication")];
       match auth with
       | `Password ->
          div [
-           txt "Authentication scheme: password";
+           txt (s_ "Authentication scheme: password");
            if List.for_all (fun v -> v.sv_password <> None) se.se_voters then
-             div [txt "All passwords have been sent!"]
+             div [txt (s_ "All passwords have been sent!")]
            else
              post_form ~service:election_draft_auth_genpwd
                (fun () ->
-                 [input ~input_type:`Submit ~value:"Generate and mail missing passwords" string]
+                 [input ~input_type:`Submit ~value:(s_ "Generate and mail missing passwords") string]
                ) uuid;
          ]
       | `Dummy ->
          div [
-           txt "Authentication scheme: dummy"
+           txt (s_ "Authentication scheme: dummy")
          ]
       | `CAS server ->
          div [
-           txt "Authentication scheme: CAS with server ";
+           txt (s_ "Authentication scheme: CAS with server ");
            txt server;
          ]
     ]
@@ -543,46 +572,49 @@ let election_draft uuid se () =
     div [
       h2 [
         a ~a:[a_id "edit_questions"] ~service:election_draft_questions
-          [txt "Edit questions"]
+          [txt (s_ "Edit questions")]
           uuid;
       ];
-      preview_booth uuid;
+      preview_booth l uuid;
     ]
   in
   let div_voters =
     div [
       h2 [
         a ~a:[a_id "edit_voters"] ~service:election_draft_voters
-          [txt "Edit voters"]
+          [txt (s_ "Edit voters")]
           uuid
       ];
       div [
         txt @@ string_of_int @@ List.length se.se_voters;
-        txt " voter(s) registered";
+        txt (s_ " voter(s) registered");
       ];
     ]
   in
   let div_trustees =
     div [
-      h2 [txt "Trustees"];
+      h2 [txt (s_ "Trustees")];
       div [
-          txt "By default, the election server manages the keys of the election (degraded privacy mode). ";
-          txt "For real elections, the key must be shared among independent trustees. Click ";
-          a ~service:election_draft_trustees [txt "here"] uuid;
-          txt " to set up the election key.";
+          txt (s_ "By default, the election server manages the keys of the election (degraded privacy mode).");
+          txt " ";
+          txt (s_ "For real elections, the key must be shared among independent trustees.");
+          txt " ";
+          txt (s_ "Click ");
+          a ~service:election_draft_trustees [txt (s_ "here")] uuid;
+          txt (s_ " to set up the election key.");
         ];
     ]
   in
   let cred_auth_is_server = se.se_metadata.e_cred_authority = Some "server" in
   let div_credentials =
     div [
-      h2 [txt "Credentials"];
+      h2 [txt (s_ "Credentials")];
       if se.se_public_creds_received then (
         let div_private_creds =
           if cred_auth_is_server then
             div [
                 a ~service:election_draft_credentials_get
-                  [txt "Download private credentials"] uuid
+                  [txt (s_ "Download private credentials")] uuid
               ]
           else txt ""
         in
@@ -592,26 +624,26 @@ let election_draft uuid se () =
           else
             div [
                 a ~service:election_draft_credential_authority [
-                    txt "Edit credential authority name";
+                    txt (s_ "Edit credential authority name");
                   ] uuid;
               ]
         in
         div [
-          div [txt "Credentials have already been generated!"];
+          div [txt (s_ "Credentials have already been generated!")];
           div_edit_credential_authority_name;
           div_private_creds;
         ]
       ) else (
         div [
-          txt "Warning: this will freeze the voter list!";
+          txt (s_ "Warning: this will freeze the voter list!");
           if cred_auth_is_server then (
             post_form ~service:election_draft_credentials_server
               (fun () ->
-                [input ~input_type:`Submit ~value:"Generate on server" string]
+                [input ~input_type:`Submit ~value:(s_ "Generate on server") string]
               ) uuid
           ) else (
             div [
-              a ~service:election_draft_credential_authority [txt "Credential management"] uuid;
+              a ~service:election_draft_credential_authority [txt (s_ "Credential management")] uuid;
             ]
           );
         ]
@@ -619,8 +651,8 @@ let election_draft uuid se () =
     ]
   in
   let link_confirm = div [
-    h2 [txt "Validate creation"];
-    a ~service:election_draft_confirm [txt "Create election"] uuid;
+    h2 [txt (s_ "Validate creation")];
+    a ~service:election_draft_confirm [txt (s_ "Create election")] uuid;
   ] in
   let form_destroy =
     let t = Option.get se.se_creation_date default_creation_date in
@@ -630,13 +662,13 @@ let election_draft uuid se () =
       (fun () ->
         [
           div [
-              h2 [txt "Destroy election"];
+              h2 [txt (s_ "Destroy election")];
               div [
-                  txt "Note: this election will be automatically destroyed after ";
+                  txt (s_ "Note: this election will be automatically destroyed after ");
                   txt (format_datetime t);
                   txt ".";
                 ];
-              input ~input_type:`Submit ~value:"Destroy election" string;
+              input ~input_type:`Submit ~value:(s_ "Destroy election") string;
             ]
         ]
       ) uuid
@@ -732,17 +764,22 @@ Thank you for your help,
 -- \nThe election administrator."
 
 let election_draft_trustees ?token uuid se () =
-  let title = "Trustees for election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Trustees for election %s") se.se_questions.t_name in
   let form_trustees_add =
     post_form
       ~service:election_draft_trustee_add
       (fun (n_id, n_comment) ->
         [
-          txt "Trustee's e-mail address: ";
+          txt (s_ "Trustee's e-mail address:");
+          txt " ";
           input ~input_type:`Text ~name:n_id string;
-          txt ", public name: ";
+          txt ", ";
+          txt (s_ "public name:");
+          txt " ";
           input ~input_type:`Text ~name:n_comment string;
-          input ~input_type:`Submit ~value:"Add" string;
+          input ~input_type:`Submit ~value:(s_ "Add") string;
         ]
       ) uuid
   in
@@ -752,7 +789,7 @@ let election_draft_trustees ?token uuid se () =
       (fun name ->
         [
           input ~input_type:`Hidden ~name ~value int;
-          input ~input_type:`Submit ~value:"Remove" string;
+          input ~input_type:`Submit ~value:(s_ "Remove") string;
         ]) uuid
   in
   let trustees = match se.se_public_keys with
@@ -773,7 +810,7 @@ let election_draft_trustees ?token uuid se () =
                      ];
                    td [
                        match t.st_name with
-                       | None -> txt "(not available)"
+                       | None -> txt (s_ "(not available)")
                        | Some x -> txt x
                      ];
                    td [
@@ -782,26 +819,26 @@ let election_draft_trustees ?token uuid se () =
                                                        ~absolute:true ~service:election_draft_trustee (uuid, t.st_token)
                          in
                          let body = Printf.sprintf mail_trustee_generation_basic uri in
-                         let subject = "Link to generate the decryption key" in
-                         a_mailto ~dest:t.st_id ~subject ~body "Mail"
+                         let subject = s_ "Link to generate the decryption key" in
+                         a_mailto ~dest:t.st_id ~subject ~body (s_ "Mail")
                        ) else (
-                         txt "(server)"
+                         txt (s_ "(server)")
                        )
                      ];
                    td [
                        if t.st_token <> "" then (
                          if this_line then
-                           a ~service:election_draft_trustees [txt "Hide link"] uuid
+                           a ~service:election_draft_trustees [txt (s_ "Hide link")] uuid
                          else
-                           a ~service:election_draft_trustee [txt "Link"] (uuid, t.st_token);
+                           a ~service:election_draft_trustee [txt (s_ "Link")] (uuid, t.st_token);
                        ) else (
-                         txt "(server)"
+                         txt (s_ "(server)")
                        )
                      ];
                    td [
-                       txt (if t.st_public_key = "" then "No" else "Yes");
+                       txt (if t.st_public_key = "" then s_ "No" else s_ "Yes");
                      ];
-                   td [if t.st_id = "server" then txt "(cannot be removed)" else mk_form_trustee_del i];
+                   td [if t.st_id = "server" then txt (s_ "(cannot be removed)") else mk_form_trustee_del i];
                  ]
              in
              let second_line =
@@ -811,9 +848,9 @@ let election_draft_trustees ?token uuid se () =
                      [
                        td ~a:[a_colspan 6]
                          [
-                           txt "The link that must be sent to trustee ";
+                           txt (s_ "The link that must be sent to trustee ");
                            txt t.st_id;
-                           txt " is:";
+                           txt (s_ " is:");
                            br ();
                            Eliom_uri.make_string_uri ~absolute:true
                              ~service:election_draft_trustee (uuid, t.st_token)
@@ -828,18 +865,18 @@ let election_draft_trustees ?token uuid se () =
        in
        table (
            tr [
-               th [txt "Trustee"];
-               th [txt "Public name"];
-               th [txt "Mail"];
-               th [txt "Link"];
-               th [txt "Done?"];
-               th [txt "Remove"];
+               th [txt (s_ "Trustee")];
+               th [txt (s_ "Public name")];
+               th [txt (s_ "Mail")];
+               th [txt (s_ "Link")];
+               th [txt (s_ "Done?")];
+               th [txt (s_ "Remove")];
              ] :: (List.flatten ts)
          )
   in
   let import_link = div [
                         a ~service:Web_services.election_draft_import_trustees
-                          [txt "Import trustees from another election"] uuid
+                          [txt (s_ "Import trustees from another election")] uuid
                       ]
   in
   let div_trustees =
@@ -848,7 +885,7 @@ let election_draft_trustees ?token uuid se () =
           trustees;
           (if se.se_public_keys <> [] then
              div [
-                 txt "There is one link per trustee. Send each trustee her link.";
+                 txt (s_ "There is one link per trustee. Send each trustee her link.");
                  br ();
                  br ();
                ]
@@ -860,9 +897,10 @@ let election_draft_trustees ?token uuid se () =
   let div_content =
     div [
       div [
-          txt "To set up the election key, you need to nominate trustees. Each trustee will create her own secret key. ";
-          txt "To set up the election so that only a subset of trustees is needed, go to the ";
-          a ~service:election_draft_threshold_trustees [txt "threshold mode"] uuid;
+          txt (s_ "To set up the election key, you need to nominate trustees. Each trustee will create her own secret key.");
+          txt " ";
+          txt (s_ "To set up the election so that only a subset of trustees is needed, go to the ");
+          a ~service:election_draft_threshold_trustees [txt (s_ "threshold mode")] uuid;
           txt ".";
         ];
       br ();
@@ -871,7 +909,7 @@ let election_draft_trustees ?token uuid se () =
   in
   let back_link = div [
     a ~service:Web_services.election_draft
-      [txt "Go back to election draft"] uuid;
+      [txt (s_ "Go back to election draft")] uuid;
   ] in
   let content = [
     div_content;
@@ -882,7 +920,9 @@ let election_draft_trustees ?token uuid se () =
   base ~title ~login_box ~content ()
 
 let election_draft_threshold_trustees ?token uuid se () =
-  let title = "Trustees for election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Trustees for election %s") se.se_questions.t_name in
   let show_add_remove = se.se_threshold = None in
   let form_trustees_add =
     if show_add_remove then
@@ -890,11 +930,13 @@ let election_draft_threshold_trustees ?token uuid se () =
         ~service:election_draft_threshold_trustee_add
         (fun (n_id, n_comment) ->
           [
-            txt "Trustee's e-mail address: ";
+            txt (s_ "Trustee's e-mail address:");
+            txt " ";
             input ~input_type:`Text ~name:n_id string;
-            txt ", public name: ";
+            txt ", ";
+            txt (s_ "public name: ");
             input ~input_type:`Text ~name:n_comment string;
-            input ~input_type:`Submit ~value:"Add" string;
+            input ~input_type:`Submit ~value:(s_ "Add") string;
           ]
         ) uuid
     else txt ""
@@ -905,7 +947,7 @@ let election_draft_threshold_trustees ?token uuid se () =
       (fun name ->
         [
           input ~input_type:`Hidden ~name ~value int;
-          input ~input_type:`Submit ~value:"Remove" string;
+          input ~input_type:`Submit ~value:(s_ "Remove") string;
       ]) uuid
   in
   let trustees = match se.se_threshold_trustees with
@@ -938,7 +980,7 @@ let election_draft_threshold_trustees ?token uuid se () =
                        ];
                      td [
                          match t.stt_name with
-                         | None -> txt "(not available)"
+                         | None -> txt (s_ "(not available)")
                          | Some x -> txt x
                        ];
                      td [
@@ -947,14 +989,14 @@ let election_draft_threshold_trustees ?token uuid se () =
                                        ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
                          in
                          let body = Printf.sprintf mail_trustee_generation_threshold uri in
-                         let subject = "Link to generate the decryption key" in
-                         a_mailto ~dest:t.stt_id ~subject ~body "Mail"
+                         let subject = s_ "Link to generate the decryption key" in
+                         a_mailto ~dest:t.stt_id ~subject ~body (s_ "Mail")
                        ];
                      td [
                          if this_line then
-                           a ~service:election_draft_threshold_trustees [txt "Hide link"] uuid
+                           a ~service:election_draft_threshold_trustees [txt (s_ "Hide link")] uuid
                          else
-                           a ~service:election_draft_threshold_trustee [txt "Link"] (uuid, t.stt_token)
+                           a ~service:election_draft_threshold_trustee [txt (s_ "Link")] (uuid, t.stt_token)
                        ];
                      td [
                          txt state;
@@ -969,9 +1011,9 @@ let election_draft_threshold_trustees ?token uuid se () =
                      [
                        td ~a:[a_colspan (if show_add_remove then 6 else 5)]
                          [
-                           txt "The link that must be sent to trustee ";
+                           txt (s_ "The link that must be sent to trustee ");
                            txt t.stt_id;
-                           txt " is:";
+                           txt (s_ " is:");
                            br ();
                            Eliom_uri.make_string_uri ~absolute:true
                              ~service:election_draft_threshold_trustee
@@ -989,22 +1031,22 @@ let election_draft_threshold_trustees ?token uuid se () =
            table (
                tr (
                    [
-                     th [txt "Trustee"];
-                     th [txt "Public name"];
-                     th [txt "Mail"];
-                     th [txt "Link"];
-                     th [txt "State"];
-                   ] @ (if show_add_remove then [th [txt "Remove"]] else [])
+                     th [txt (s_ "Trustee")];
+                     th [txt (s_ "Public name")];
+                     th [txt (s_ "Mail")];
+                     th [txt (s_ "Link")];
+                     th [txt (s_ "State")];
+                   ] @ (if show_add_remove then [th [txt (s_ "Remove")]] else [])
                  ) :: (List.flatten ts)
              );
            div [
-               txt "Meaning of states:";
+               txt (s_ "Meaning of states:");
                ul [
-                   li [txt "init: administrator needs to set threshold"];
-                   li [txt "1a: action needed from trustee: generate private key"];
-                   li [txt "2a, 3a: action needed from trustee: enter private key"];
-                   li [txt "1b, 2b, 3b: waiting for other trustees"];
-                   li [txt "done: the key establishment protocol is finished"];
+                   li [txt (s_ "init: administrator needs to set threshold")];
+                   li [txt (s_ "1a: action needed from trustee: generate private key")];
+                   li [txt (s_ "2a, 3a: action needed from trustee: enter private key")];
+                   li [txt (s_ "1b, 2b, 3b: waiting for other trustees")];
+                   li [txt (s_ "done: the key establishment protocol is finished")];
                  ];
              ];
            br ();
@@ -1019,25 +1061,27 @@ let election_draft_threshold_trustees ?token uuid se () =
           post_form ~service:election_draft_threshold_set
             (fun name ->
               [
-                txt "Threshold: ";
+                txt (s_ "Threshold:");
+                txt " ";
                 input ~input_type:`Text ~name int;
-                input ~input_type:`Submit ~value:"Set" string;
-                txt " (the threshold must be smaller than the number of trustees)";
+                input ~input_type:`Submit ~value:(s_ "Set") string;
+                txt " ";
+                txt (s_ "(the threshold must be smaller than the number of trustees)");
               ]
             ) uuid,
           txt ""
        | Some i ->
           div [
               txt (string_of_int i);
-              txt " out of ";
+              txt (s_ " out of ");
               txt (string_of_int (List.length ts));
-              txt " trustees will be needed to decrypt the result.";
+              txt (s_ " trustees will be needed to decrypt the result.");
             ],
           post_form ~service:election_draft_threshold_set
             (fun name ->
               [
                 input ~input_type:`Hidden ~name ~value:0 int;
-                input ~input_type:`Submit ~value:"Reset threshold" string;
+                input ~input_type:`Submit ~value:(s_ "Reset threshold") string;
               ]
             ) uuid
   in
@@ -1048,14 +1092,14 @@ let election_draft_threshold_trustees ?token uuid se () =
   in
   let div_content =
     div [
-      div [txt "On this page, you can configure a group of trustees such that only a subset of them is needed to perform the decryption."];
+      div [txt (s_ "On this page, you can configure a group of trustees such that only a subset of them is needed to perform the decryption.")];
       br ();
       form_threshold;
       br ();
       trustees;
       (if se.se_threshold_trustees <> None then
           div [
-            txt "There is one link per trustee. Send each trustee her link.";
+            txt (s_ "There is one link per trustee. Send each trustee her link.");
             br ();
             br ();
             maybe_error;
@@ -1067,7 +1111,7 @@ let election_draft_threshold_trustees ?token uuid se () =
   in
   let back_link = div [
     a ~service:Web_services.election_draft
-      [txt "Go back to election draft"] uuid;
+      [txt (s_ "Go back to election draft")] uuid;
   ] in
   let content = [
     div_content;
@@ -1078,7 +1122,9 @@ let election_draft_threshold_trustees ?token uuid se () =
   base ~title ~login_box ~content ()
 
 let election_draft_credential_authority uuid se () =
-  let title = "Credentials for election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Credentials for election %s") se.se_questions.t_name in
   let public_name_form =
     post_form ~service:election_draft_set_credential_authority
       (fun name ->
@@ -1088,23 +1134,24 @@ let election_draft_credential_authority uuid se () =
           | None -> ""
         in
         [
-          txt "Public name of the credential authority: ";
+          txt (s_ "Public name of the credential authority:");
+          txt " ";
           input ~input_type:`Text ~name ~value string;
-          input ~input_type:`Submit ~value:"Set" string;
+          input ~input_type:`Submit ~value:(s_ "Set") string;
         ]
       ) uuid
   in
   let back =
     div [
         a ~service:Web_services.election_draft
-          [txt "Back to election preparation page"] uuid;
+          [txt (s_ "Back to election preparation page")] uuid;
       ]
   in
   let content = [
     back;
     public_name_form;
     div [
-      txt "Please send the credential authority the following link:";
+      txt (s_ "Please send the credential authority the following link:");
     ];
     ul [
       li [
@@ -1121,47 +1168,49 @@ let election_draft_credential_authority uuid se () =
       ];
     ];
     div [
-      txt "Note that this authority will have to send each credential to each voter herself.";
+      txt (s_ "Note that this authority will have to send each credential to each voter herself.");
     ];
   ] in
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let election_draft_credentials_done se () =
-  let title = "Credentials for election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Credentials for election %s") se.se_questions.t_name in
   let content =
     [
-      div [txt "Credentials have been received and checked!"];
+      div [txt (s_ "Credentials have been received and checked!")];
       div [
-          div [b [txt "Instructions"]];
+          div [b [txt (s_ "Instructions")]];
           div [
-              txt "Once the election is open, check that:";
+              txt (s_ "Once the election is open, check that:");
               ol [
                   li [
-                      txt "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:";
+                      txt (s_ "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:");
                       pre [txt "sha256sum voters.txt | xxd -p -r | base64 | tr -d \"=\""];
-                      txt "(or ";
+                      txt (s_ "(or ");
                       code [txt "shasum -a256"];
-                      txt " instead of ";
+                      txt (s_ " instead of ");
                       code [txt "sha256sum"];
                       txt ");"
                     ];
                   li [
-                      txt "the fingerprint of public credentials matches what has been saved, for example with the following command:";
+                      txt (s_ "the fingerprint of public credentials matches what has been saved, for example with the following command:");
                       pre [txt "sha256sum public_creds.txt | xxd -p -r | base64 | tr -d \"=\""];
-                      txt "(or ";
+                      txt (s_ "(or ");
                       code [txt "shasum -a256"];
-                      txt " instead of ";
+                      txt (s_ " instead of ");
                       code [txt "sha256sum"];
                       txt ");"
                     ];
                   li [
-                      txt "you can send again a private credential to its rightful owner in case of loss."
+                      txt (s_ "you can send again a private credential to its rightful owner in case of loss.")
                     ];
                 ];
             ];
           div [
-              txt "Once the election is over, the file creds.txt must be destroyed.";
+              txt (s_ "Once the election is over, the file creds.txt must be destroyed.");
             ];
         ];
     ]
@@ -1169,16 +1218,18 @@ let election_draft_credentials_done se () =
   base ~title ~content ()
 
 let election_draft_questions uuid se () =
-  let title = "Questions for election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Questions for election %s") se.se_questions.t_name in
   let form =
     let value = string_of_template se.se_questions in
     post_form
       ~service:election_draft_questions_post
       (fun name ->
        [
-         div [txt "Questions:"];
+         div [txt (s_ "Questions:")];
          div [textarea ~a:[a_id "questions"; a_rows 5; a_cols 80] ~name ~value ()];
-         div [input ~input_type:`Submit ~value:"Save changes" string]])
+         div [input ~input_type:`Submit ~value:(s_ "Save changes") string]])
       uuid
   in
   let allow_nh =
@@ -1189,27 +1240,25 @@ let election_draft_questions uuid se () =
   let hybrid_box =
     div ~a:[a_class ["hybrid_box"]]
       [
-        div [txt "Alternative voting methods (warning, still experimental):"];
+        div [txt (s_ "Alternative voting methods (warning, still experimental):")];
         div
           [
-            txt "You may wish voters to rank candidates or give each candidate a score.";
-            txt "This allows deciding the winner according to your favorite counting method ";
-            txt "(e.g. Condorcet, STV, majority judgement).";
+            txt (s_ "You may wish voters to rank candidates or give each candidate a score.");
+            txt (s_ "This allows deciding the winner according to your favorite counting method (e.g. Condorcet, STV, majority judgement).");
           ];
-        div [txt "Note that:"];
+        div [txt (s_ "Note that:")];
         ol
           [
-            li [txt "the after-the-vote procedure will require more steps;"];
+            li [txt (s_ "the after-the-vote procedure will require more steps;")];
             li
               [
-                txt "you will be given the raw results (shuffled list of ballots) ";
-                txt "and you will need to apply your counting method yourself."
+                txt (s_ "you will be given the raw results (shuffled list of ballots) and you will need to apply your counting method yourself.")
               ];
           ];
         div
           [
             input ~a:[a_id "hybrid_mode"] ~input_type:`Checkbox string;
-            txt "Tick the box to activate this mode.";
+            txt (s_ "Tick the box to activate this mode.");
           ];
       ]
   in
@@ -1222,7 +1271,7 @@ let election_draft_questions uuid se () =
         hybrid_box;
       ]
   in
-  let preview = div [hr (); preview_booth uuid] in
+  let preview = div [hr (); preview_booth l uuid] in
   let content = [
     interactivity;
     form;
@@ -1232,14 +1281,16 @@ let election_draft_questions uuid se () =
   base ~title ~login_box ~content ()
 
 let election_draft_voters uuid se maxvoters () =
-  let title = "Voters for election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Voters for election %s") se.se_questions.t_name in
   let form =
     post_form
       ~service:election_draft_voters_add
       (fun name ->
         [
           div [textarea ~a:[a_rows 20; a_cols 50] ~name ()];
-          div [input ~input_type:`Submit ~value:"Add" string]])
+          div [input ~input_type:`Submit ~value:(s_ "Add") string]])
       uuid
   in
   let mk_remove_button id =
@@ -1248,7 +1299,7 @@ let election_draft_voters uuid se maxvoters () =
       (fun name ->
         [
           input ~input_type:`Hidden ~name ~value:id string;
-          input ~input_type:`Submit ~value:"Remove" string;
+          input ~input_type:`Submit ~value:(s_ "Remove") string;
         ]
       ) uuid
   in
@@ -1262,13 +1313,13 @@ let election_draft_voters uuid se maxvoters () =
       (fun name ->
         [
           input ~input_type:`Hidden ~name ~value string;
-          input ~input_type:`Submit ~value:"Send again" string;
+          input ~input_type:`Submit ~value:(s_ "Send again") string;
         ]
       ) uuid
   in
   let format_password_cell x = match x.sv_password with
-    | Some _ -> [txt "Yes "; mk_regen_passwd x.sv_id]
-    | None -> [txt "No"]
+    | Some _ -> [txt (s_ "Yes"); txt " "; mk_regen_passwd x.sv_id]
+    | None -> [txt (s_ "No")]
   in
   let voters =
     List.map (fun v ->
@@ -1283,27 +1334,27 @@ let election_draft_voters uuid se maxvoters () =
     if has_passwords then
       post_form ~service:election_draft_auth_genpwd
         (fun () ->
-          [input ~input_type:`Submit ~value:"Generate and mail missing passwords" string]
+          [input ~input_type:`Submit ~value:(s_ "Generate and mail missing passwords") string]
         ) uuid
     else txt ""
   in
   let voters =
     match voters with
-    | [] -> div [txt "No voters"]
+    | [] -> div [txt (s_ "No voters")]
     | _ :: _ ->
        div [
          form_passwords;
          br ();
          table
            (tr (
-             [th [txt "Identity"]] @
-               (if has_passwords then [th [txt "Password sent?"]] else []) @
-               (if se.se_public_creds_received then [] else [th [txt "Remove"]])
+             [th [txt (s_ "Identity")]] @
+               (if has_passwords then [th [txt (s_ "Password sent?")]] else []) @
+               (if se.se_public_creds_received then [] else [th [txt (s_ "Remove")]])
             ) :: voters)
        ]
   in
   let back = div [
-    a ~service:Web_services.election_draft [txt "Return to draft page"] uuid;
+    a ~service:Web_services.election_draft [txt (s_ "Return to draft page")] uuid;
   ] in
   let div_add =
     if se.se_public_creds_received then
@@ -1311,25 +1362,26 @@ let election_draft_voters uuid se maxvoters () =
     else
       div [
         div [
-            txt "Please enter the identities of voters to add, one per line (max ";
+            txt (s_ "Please enter the identities of voters to add, one per line");
+            txt " (max ";
             txt (string_of_int maxvoters);
             txt ").";
             br ();
-            b [txt "Warning:"];
-            txt " you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote.";
+            b [txt (s_ "Warning:")];
+            txt " ";
+            txt (s_ "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote.");
           ];
         form;
         div [
-          b [txt "Note:"];
-          txt " An identity is either an e-mail address, or \"address,login\",";
-          txt " where \"address\" is an e-mail address and \"login\" the";
-          txt " associated login for authentication.";
+          b [txt (s_ "Note:")];
+          txt " ";
+          txt (s_ "An identity is either an e-mail address, or \"address,login\", where \"address\" is an e-mail address and \"login\" the associated login for authentication.");
         ];
       ]
   in
   let div_import = div [
     a ~service:election_draft_import
-      [txt "Import voters from another election"]
+      [txt (s_ "Import voters from another election")]
       uuid
   ] in
   let content = [
@@ -1356,13 +1408,15 @@ let unsafe_textarea ?rows ?cols id contents =
     id rows cols contents
 
 let election_draft_credentials token uuid se () =
-  let title = "Credentials for election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf "Credentials for election %s" se.se_questions.t_name in
   let div_link =
     let url = Eliom_uri.make_string_uri ~absolute:true
                 ~service:election_home (uuid, ()) |> rewrite_prefix
     in
     div [
-        txt "The link to the election will be:";
+        txt (s_ "The link to the election will be:");
         ul [li [txt url]];
       ]
   in
@@ -1371,46 +1425,47 @@ let election_draft_credentials token uuid se () =
       ~service:election_draft_credentials_post
       (fun name ->
        [div
-          [div [txt "Public credentials:"];
+          [div [txt (s_ "Public credentials:")];
            div [textarea ~a:[a_id "pks"; a_rows 5; a_cols 40] ~name ()];
            div [
-               txt "Fingerprint of public credentials: ";
+               txt (s_ "Fingerprint of public credentials:");
+               txt " ";
                span ~a:[a_id "public_creds_fp"] [];
              ];
            div [
-               b [txt "Instructions:"];
+               b [txt (s_ "Instructions:")];
                ol [
                    li [
-                       txt "Download ";
-                       a ~service:home ~a:[a_id "creds"] [txt "private credentials"] ();
-                       txt " and save the file to a secure location.";
+                       txt (s_ "Download ");
+                       a ~service:home ~a:[a_id "creds"] [txt (s_ "private credentials")] ();
+                       txt (s_ " and save the file to a secure location.");
                        br ();
-                       txt "You will use it to send credentials to voters.";
+                       txt (s_ "You will use it to send credentials to voters.");
                      ];
                    li [
-                       txt "Download ";
-                       a ~service:home ~a:[a_id "voters_txt"] [txt "the list of voters"] ();
+                       txt (s_ "Download ");
+                       a ~service:home ~a:[a_id "voters_txt"] [txt (s_ "the list of voters")] ();
                        txt ".";
                        br ();
-                       txt "This list must be the one approved by the election commission.";
+                       txt (s_ "This list must be the one approved by the election commission.");
                      ];
                    li [
-                       txt "Save the two fingerprints above. ";
+                       txt (s_ "Save the two fingerprints above.");
                        br ();
-                       txt "Once the election is open, you must check that";
-                       txt " they match with what is published by the server.";
+                       txt (s_ "Once the election is open, you must check that they match with what is published by the server.");
                      ];
-                   li [txt "Submit public credentials using the button below."];
+                   li [txt (s_ "Submit public credentials using the button below.")];
                  ];
              ];
-           div [input ~input_type:`Submit ~value:"Submit public credentials" string]]])
+           div [input ~input_type:`Submit ~value:(s_ "Submit public credentials") string]]])
       (uuid, token)
   in
   let disclaimer =
     p
       [
-        b [txt "Note:"];
-        txt " submitting a large (> 200) number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below.";
+        b [txt (s_ "Note:")];
+        txt " ";
+        txt (s_ "submitting a large number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below.");
       ]
   in
   let form_file =
@@ -1418,10 +1473,10 @@ let election_draft_credentials token uuid se () =
       ~service:election_draft_credentials_post_file
       (fun name ->
        [div
-          [h2 [txt "Submit by file"];
-           div [txt "Use this form to upload public credentials generated with the command-line tool."];
+          [h2 [txt (s_ "Submit by file")];
+           div [txt (s_ "Use this form to upload public credentials generated with the command-line tool.")];
            div [file_input ~name ()];
-           div [input ~input_type:`Submit ~value:"Submit" string]]])
+           div [input ~input_type:`Submit ~value:(s_ "Submit") string]]])
       (uuid, token)
   in
   let group =
@@ -1439,9 +1494,9 @@ let election_draft_credentials token uuid se () =
     let value = value ^ "\n" in
     let hash = Platform.sha256_b64 value in
     div [
-      div [txt "List of voters:"];
+      div [txt (s_ "List of voters:")];
       div [unsafe_textarea ~rows:5 ~cols:40 "voters" value];
-      div [txt "Fingerprint of voters: "; txt hash];
+      div [txt (s_ "Fingerprint of voters:"); txt " "; txt hash];
     ]
   in
   let interactivity =
@@ -1455,7 +1510,7 @@ let election_draft_credentials token uuid se () =
   let content =
     if se.se_public_creds_received then (
       [
-        div [txt "Credentials have already been generated!"];
+        div [txt (s_ "Credentials have already been generated!")];
       ]
     ) else (
       [
@@ -1467,13 +1522,15 @@ let election_draft_credentials token uuid se () =
   base ~title ~content ()
 
 let election_draft_trustee token uuid se () =
-  let title = "Trustee for election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
   let div_link =
     let url = Eliom_uri.make_string_uri ~absolute:true
                 ~service:election_home (uuid, ()) |> rewrite_prefix
     in
     div [
-        txt "The link to the election will be:";
+        txt (s_ "The link to the election will be:");
         ul [li [txt url]];
       ]
   in
@@ -1486,33 +1543,32 @@ let election_draft_trustee token uuid se () =
       (fun name ->
        [
          div ~a:[a_id "submit_form"; a_style "display:none;"] [
-           div [txt "Public key:"];
+           div [txt (s_ "Public key:")];
            div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ~value ()];
            div [
-               txt "Fingerprint of the verification key: ";
+               txt (s_ "Fingerprint of the verification key:");
+               txt " ";
                span ~a:[a_id "public_key_fp"] [];
              ];
            div [
-               b [txt "Instructions:"];
+               b [txt (s_ "Instructions:")];
                ol [
                    li [
-                       txt "Download your ";
-                       a ~service:home ~a:[a_id "private_key"] [txt "private key"] ();
-                       txt " and save it to a secure location.";
+                       txt (s_ "Download your ");
+                       a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
+                       txt (s_ " and save it to a secure location.");
                        br ();
-                       txt "You will use it to decrypt the final result.";
+                       txt (s_ "You will use it to decrypt the final result.");
                      ];
                    li [
-                       txt "Save the fingerprint above.";
+                       txt (s_ "Save the fingerprint above.");
                        br ();
-                       txt "Once the election is open, you must check that";
-                       txt " it is present in the set of public keys";
-                       txt " published by the server.";
+                       txt (s_ "Once the election is open, you must check that it is present in the set of public keys published by the server.");
                      ];
-                   li [txt "Submit your public key using the button below."];
+                   li [txt (s_ "Submit your public key using the button below.")];
                  ];
              ];
-           div [input ~input_type:`Submit ~value:"Submit public key" string];
+           div [input ~input_type:`Submit ~value:(s_ "Submit public key") string];
          ]
        ]
       ) ()
@@ -1541,12 +1597,14 @@ let election_draft_trustee token uuid se () =
   base ~title ~content ()
 
 let election_draft_threshold_trustee token uuid se () =
-  let title = "Trustee for election " ^ se.se_questions.t_name in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
   let header =
     div ~a:[a_style "text-align:center;"] [
-        h2 [txt "Collaborative key generation"];
+        h2 [txt (s_ "Collaborative key generation")];
         div ~a:[a_id "current_step"] [
-            txt "Step 0/3"
+            txt (s_ "Step 0/3")
           ];
       ]
   in
@@ -1555,7 +1613,7 @@ let election_draft_threshold_trustee token uuid se () =
                 ~service:election_home (uuid, ()) |> rewrite_prefix
     in
     div [
-        txt "The link to the election will be:";
+        txt (s_ "The link to the election will be:");
         ul [li [txt url]];
       ]
   in
@@ -1618,26 +1676,28 @@ let election_draft_threshold_trustee token uuid se () =
       (fun data ->
         [
           div ~a:[a_id "key_helper"; a_style "display:none;"] [
-              b [txt "Instructions:"];
+              b [txt (s_ "Instructions:")];
               ol [
                   li [
-                      txt "Download your ";
-                      a ~service:home ~a:[a_id "private_key"] [txt "private key"] ();
-                      txt " and save it to a secure location.";
+                      txt (s_ "Download your ");
+                      a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
+                      txt (s_ " and save it to a secure location.");
                       br ();
-                      txt "You will use it in the next steps and to decrypt the final result.";
+                      txt (s_ "You will use it in the next steps and to decrypt the final result.");
                     ];
                   li [
-                      txt "The fingerprint of your public key is ";
+                      txt (s_ "The fingerprint of your public key is ");
                       span ~a:[a_id "pki_fp"] [];
-                      txt ". Save it so that you can check later that it appears on the election home.";
+                      txt (s_ ". Save it so that you can check later that it appears on the election home.");
                     ];
                   li [
-                      txt "Submit data using the following button: ";
-                      input ~input_type:`Submit ~value:"Submit" string;
+                      txt (s_ "Submit data using the following button:");
+                      txt " ";
+                      input ~input_type:`Submit ~value:(s_ "Submit") string;
                       txt ".";
                       div [
-                          txt "Data: ";
+                          txt (s_ "Data:");
+                          txt " ";
                           textarea ~a:[a_id "data"; a_rows 5; a_cols 40] ~name:data ();
                         ];
                     ];
@@ -1648,25 +1708,27 @@ let election_draft_threshold_trustee token uuid se () =
   in
   let form_compute =
     div ~a:[a_id "compute_form"; a_style "display: none;"] [
-        b [txt "Instructions:"];
+        b [txt (s_ "Instructions:")];
         ol [
             li [
-                txt "Enter your private key: ";
+                txt (s_ "Enter your private key:");
+                txt " ";
                 input ~input_type:`Text ~a:[a_id "compute_private_key"] string;
                 txt " ";
                 button_no_value ~a:[a_id "compute_button"] ~button_type:`Button [
-                    txt "Proceed";
+                    txt (s_ "Proceed");
                   ];
               ];
             li [
-                txt "Submit data using the following button:";
+                txt (s_ "Submit data using the following button:");
                 post_form
                   ~service:election_draft_threshold_trustee_post
                   (fun data ->
                     [
-                      input ~input_type:`Submit ~value:"Submit" string;
+                      input ~input_type:`Submit ~value:(s_ "Submit") string;
                       div [
-                          txt "Data: ";
+                          txt (s_ "Data:");
+                          txt " ";
                           textarea ~a:[a_id "compute_data"; a_rows 5; a_cols 40] ~name:data ();
                         ];
                     ]
@@ -1685,12 +1747,12 @@ let election_draft_threshold_trustee token uuid se () =
   let div_instructions =
     div ~a:[a_id "div_instructions"; a_style "display: none;"]
       [
-        b [txt "Instructions"];
+        b [txt (s_ "Instructions")];
         ol [
-            li [txt "Save the fingerprint above."];
-            li [txt "Once the election is open, you must check that it is present in the set of verification keys published by the server."];
-            li [txt "Remember that you must also check the presence of your public key."];
-            li [txt "Remember to store securely you private key."];
+            li [txt (s_ "Save the fingerprint above.")];
+            li [txt (s_ "Once the election is open, you must check that it is present in the set of verification keys published by the server.")];
+            li [txt (s_ "Remember that you must also check the presence of your public key.")];
+            li [txt (s_ "Remember to store securely you private key.")];
           ];
       ]
   in
@@ -1708,7 +1770,8 @@ let election_draft_threshold_trustee token uuid se () =
   in
   base ~title ~content ()
 
-let election_draft_importer ~service ~title uuid (elections, tallied, archived) () =
+let election_draft_importer l ~service ~title uuid (elections, tallied, archived) =
+  let open (val l : Web_i18n_sig.GETTEXT) in
   let format_election (from_uuid, name) =
     let from_uuid = raw_string_of_uuid from_uuid in
     let form = post_form ~service
@@ -1725,7 +1788,7 @@ let election_draft_importer ~service ~title uuid (elections, tallied, archived) 
               ~input_type:`Hidden
               ~name:from
               ~value:from_uuid string;
-            input ~input_type:`Submit ~value:"Import from this election" string;
+            input ~input_type:`Submit ~value:(s_ "Import from this election") string;
           ]
         ]
       ) uuid
@@ -1733,81 +1796,87 @@ let election_draft_importer ~service ~title uuid (elections, tallied, archived) 
     li [form]
   in
   let itemize xs = match xs with
-    | [] -> p [txt "You own no such elections!"]
+    | [] -> p [txt (s_ "You own no such elections!")]
     | _ -> ul @@ List.map format_election xs
   in
   let content = [
-    h2 [txt "Elections you can administer"];
+    h2 [txt (s_ "Elections you can administer")];
     itemize elections;
-    h2 [txt "Tallied elections"];
+    h2 [txt (s_ "Tallied elections")];
     itemize tallied;
-    h2 [txt "Archived elections"];
+    h2 [txt (s_ "Archived elections")];
     itemize archived;
   ] in
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
-let election_draft_import uuid se elections =
-  let title = "Election " ^ se.se_questions.t_name ^ " — Import voters from another election" in
+let election_draft_import uuid se elections () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Import voters from another election" in
   let service = election_draft_import_post in
-  election_draft_importer ~service ~title uuid elections
+  election_draft_importer l ~service ~title uuid elections
 
-let election_draft_import_trustees uuid se elections =
-  let title = "Election " ^ se.se_questions.t_name ^ " — Import trustees from another election" in
+let election_draft_import_trustees uuid se elections () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Import trustees from another election" in
   let service = election_draft_import_trustees_post in
-  election_draft_importer ~service ~title uuid elections
+  election_draft_importer l ~service ~title uuid elections
 
 let election_draft_confirm uuid se () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let notok x = span ~a:[a_style "color: red;"] [txt x] in
   let ok x = txt x in
-  let title = "Election " ^ se.se_questions.t_name ^ " — Validate creation" in
+  let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Validate creation" in
   let ready = true in
   let ready, name =
     if se.se_questions.t_name = default_name then
-      false, notok "Not edited"
+      false, notok (s_ "Not edited")
     else
       ready, ok "OK"
   in
   let ready, description =
     if se.se_questions.t_description = default_description then
-      false, notok "Not edited"
+      false, notok (s_ "Not edited")
     else
       ready, ok "OK"
   in
   let ready, admin_name =
     if se.se_administrator = None then
-      false, notok "Missing"
+      false, notok (s_ "Missing")
     else
       ready, ok "OK"
   in
   let ready, questions =
     if se.se_questions.t_questions = default_questions then
-      false, notok "Not edited"
+      false, notok (s_ "Not edited")
     else
       ready, ok "OK"
   in
   let ready, voters =
     let b = not (se.se_voters = []) in
     ready && b,
-    (if b then ok else notok) (Printf.sprintf "%d voter(s)" (List.length se.se_voters))
+    (if b then ok else notok) (Printf.sprintf (f_ "%d voter(s)") (List.length se.se_voters))
   in
   let ready, passwords =
     match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] ->
        if List.for_all (fun v -> v.sv_password <> None) se.se_voters then ready, ok "OK"
-       else false, notok "Missing"
-    | _ -> ready, ok "Not applicable"
+       else false, notok (s_ "Missing")
+    | _ -> ready, ok (s_ "Not applicable")
   in
   let ready, credential_authority =
     match se.se_metadata.e_cred_authority with
-    | None -> false, notok "Missing"
+    | None -> false, notok (s_ "Missing")
     | Some _ -> ready, ok "OK"
   in
   let cred_auth_is_server = se.se_metadata.e_cred_authority = Some "server" in
   let ready, credentials =
     if se.se_public_creds_received then
-      ready, ok (if cred_auth_is_server then "Sent" else "Received")
-    else false, notok "Missing"
+      ready, ok (if cred_auth_is_server then s_ "Sent" else s_ "Received")
+    else false, notok (s_ "Missing")
   in
   let%lwt private_creds_downloaded =
     file_exists (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.downloaded")
@@ -1816,10 +1885,11 @@ let election_draft_confirm uuid se () =
     if cred_auth_is_server && not private_creds_downloaded then
       span
         [
-          notok "Not downloaded.";
-          txt " Please ";
-          a ~service:election_draft_credentials_get [txt "download"] uuid;
-          txt " and save them securely.";
+          notok (s_ "Not downloaded.");
+          txt " ";
+          txt (s_ "Please ");
+          a ~service:election_draft_credentials_get [txt (s_ "download")] uuid;
+          txt (s_ " and save them securely.");
         ]
     else
       ok "OK"
@@ -1831,7 +1901,7 @@ let election_draft_confirm uuid se () =
        match se.se_threshold_trustees with
        | None -> if List.for_all (fun {st_public_key; _} ->
                         st_public_key <> ""
-                      ) se.se_public_keys then ready, ok "OK" else false, notok "Missing"
+                      ) se.se_public_keys then ready, ok "OK" else false, notok (s_ "Missing")
        | Some _ ->
           if se.se_threshold_parameters <> None &&
                match se.se_threshold_trustees with
@@ -1839,14 +1909,15 @@ let election_draft_confirm uuid se () =
                | Some ts ->
                   List.for_all (fun {stt_step; _} -> stt_step = Some 7) ts
           then ready, ok "OK"
-          else false, notok "Missing"
+          else false, notok (s_ "Missing")
   in
   let div_trustee_warning =
     match se.se_threshold_trustees, se.se_public_keys with
     | None, [] ->
        div [
-           b [txt "Warning:"];
-           txt " No trustees were set. This means that the server will manage the election key by itself.";
+           b [txt (s_ "Warning:")];
+           txt " ";
+           txt (s_ "No trustees were set. This means that the server will manage the election key by itself.");
          ]
     | _, _ -> txt ""
   in
@@ -1855,65 +1926,66 @@ let election_draft_confirm uuid se () =
     | None ->
        "No",
        div [
-           b [txt "Warning:"];
-           txt " No contact was set!";
+           b [txt (s_ "Warning:")];
+           txt " ";
+           txt (s_ "No contact was set!");
          ]
-    | Some _ -> "Yes", txt ""
+    | Some _ -> s_ "Yes", txt ""
   in
   let table_checklist = table [
     tr [
-      td [txt "Name?"];
+      td [txt (s_ "Name?")];
       td [name];
     ];
     tr [
-      td [txt "Description?"];
+      td [txt (s_ "Description?")];
       td [description];
     ];
     tr [
-        td [txt "Public name of the administrator?"];
+        td [txt (s_ "Public name of the administrator?")];
         td [admin_name];
       ];
     tr [
-      td [txt "Questions?"];
-      td [questions; txt " "; preview_booth uuid];
+      td [txt (s_ "Questions?")];
+      td [questions; txt " "; preview_booth l uuid];
     ];
     tr [
-      td [txt "Voters?"];
+      td [txt (s_ "Voters?")];
       td [voters];
     ];
     tr [
-      td [txt "Passwords?"];
+      td [txt (s_ "Passwords?")];
       td [passwords];
     ];
     tr [
-      td [txt "Credential authority?"];
+      td [txt (s_ "Credential authority?")];
       td [credential_authority];
     ];
     tr [
-      td [txt "Credentials?"];
+      td [txt (s_ "Credentials?")];
       td [credentials];
     ];
     tr [
-      td [txt "Private credentials?"];
+      td [txt (s_ "Private credentials?")];
       td [private_creds];
     ];
     tr [
-      td [txt "Trustees?"];
+      td [txt (s_ "Trustees?")];
       td [trustees];
     ];
     tr [
-      td [txt "Contact?"];
+      td [txt (s_ "Contact?")];
       td [txt contact];
     ];
   ] in
   let status =
     if ready then
-      span ~a:[a_style "color: green;"] [txt "election ready"]
+      span ~a:[a_style "color: green;"] [txt (s_ "election ready")]
     else
-      span ~a:[a_style "color: red;"] [txt "election not ready"]
+      span ~a:[a_style "color: red;"] [txt (s_ "election not ready")]
   in
   let checklist = div [
-    h2 [txt "Checklist: "; status];
+    h2 [txt (s_ "Checklist:"); txt " "; status];
     table_checklist;
     div_trustee_warning;
     div_contact_warning;
@@ -1924,15 +1996,16 @@ let election_draft_confirm uuid se () =
         ~service:election_draft_create
         (fun () ->
           [div
-              [h2 [txt "Validate creation"];
-               input ~input_type:`Submit ~value:"Create election" string;
-               txt " (Warning: this action is irreversible.)";
+              [h2 [txt (s_ "Validate creation")];
+               input ~input_type:`Submit ~value:(s_ "Create election") string;
+               txt " ";
+               txt (s_ "(Warning: this action is irreversible.)");
               ]]
         ) uuid
     else div []
   in
   let back = div [
-    a ~service:Web_services.election_draft [txt "Return to draft page"] uuid;
+    a ~service:Web_services.election_draft [txt (s_ "Return to draft page")] uuid;
   ] in
   let content = [
     back;
@@ -2334,8 +2407,10 @@ type web_shuffler = {
 }
 
 let election_admin ?shuffle_token ?tally_token election metadata state get_tokens_decrypt () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let uuid = election.e_params.e_uuid in
-  let title = election.e_params.e_name ^ " — Administration" in
+  let title = election.e_params.e_name ^ " — " ^ s_ "Administration" in
   let auto_form () =
     let open Web_persist in
     let%lwt dates = get_election_dates uuid in
@@ -2346,28 +2421,31 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
     return @@ post_form ~service:election_auto_post
       (fun (lopen, lclose) ->
         [
-          div [txt "Alternatively, you may setup automatic dates."];
+          div [txt (s_ "Alternatively, you may setup automatic dates.")];
           div [
-              b [txt "Note:"];
-              txt " times are in UTC. Now is ";
+              b [txt (s_ "Note:")];
+              txt " ";
+              txt (s_ "times are in UTC. Now is ");
               txt (format (Some (now ())));
               txt ".";
             ];
           div ~a:[a_style "margin-left: 3em;"] [
               div [
-                  txt "Automatically open the election at: ";
+                  txt (s_ "Automatically open the election at:");
+                  txt " ";
                   input ~name:lopen ~input_type:`Text ~value:(format dates.e_auto_open) string;
                 ];
               div [
-                  txt "Automatically close the election at: ";
+                  txt (s_ "Automatically close the election at:");
+                  txt " ";
                   input ~name:lclose ~input_type:`Text ~value:(format dates.e_auto_close) string;
                 ];
               div [
-                  txt "Enter dates in UTC, in format YYYY-MM-DD HH:MM:SS, leave empty for no date.";
+                  txt (s_ "Enter dates in UTC, in format YYYY-MM-DD HH:MM:SS, leave empty for no date.");
                 ];
             ];
           div [
-              input ~input_type:`Submit ~value:"Change automatic dates" string;
+              input ~input_type:`Submit ~value:(s_ "Change automatic dates") string;
             ];
         ]
       ) uuid
@@ -2375,12 +2453,12 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   let state_form checked =
     let service, value, msg, msg2 =
       if checked then
-        election_close, "Close election",
-        "The election is open. Voters can vote. ",
-        " You may re-open the election when it is closed."
+        election_close, s_ "Close election",
+        s_ "The election is open. Voters can vote.",
+        s_ " You may re-open the election when it is closed."
       else
-        election_open, "Open election",
-        "The election is closed. No one can vote. ",
+        election_open, s_ "Open election",
+        s_ "The election is closed. No one can vote.",
         ""
     in
     post_form
@@ -2389,6 +2467,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
        [
          div ~a:[a_style "text-align: center;"] [
              txt msg;
+             txt " ";
            ];
          br ();
          input ~input_type:`Submit ~value string;
@@ -2417,9 +2496,10 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
            (fun () ->
              [input
                  ~input_type:`Submit
-                 ~value:"Proceed to vote counting"
+                 ~value:(s_ "Proceed to vote counting")
                  string;
-              txt " Warning: this action is irreversible; the election will be definitively closed.";
+              txt " ";
+              txt (s_ "Warning: this action is irreversible; the election will be definitively closed.");
              ]) uuid;
        ]
     | `Shuffling ->
@@ -2463,13 +2543,13 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                      [
                        input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
                        input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
-                       input ~a ~input_type:`Submit ~value:"Skip" string;
+                       input ~a ~input_type:`Submit ~value:(s_ "Skip") string;
                      ]
                    ) ()
                in
                match x.ws_hash with
                | None -> mk_skip false, txt "", false
-               | Some h -> mk_skip true, txt (if h = "" then "(skipped)" else h), true
+               | Some h -> mk_skip true, txt (if h = "" then s_ "(skipped)" else h), true
              in
              let this_line =
                match shuffle_token with
@@ -2490,15 +2570,15 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                                 ~absolute:true ~service:election_shuffle_link (uuid, token)
                           in
                           let body = Printf.sprintf mail_shuffle uri in
-                          let subject = "Link to shuffle encrypted ballots" in
+                          let subject = s_ "Link to shuffle encrypted ballots" in
                           div
                             [
-                              a_mailto ~dest:x.ws_trustee ~subject ~body "Mail";
+                              a_mailto ~dest:x.ws_trustee ~subject ~body (s_ "Mail");
                               txt " | ";
                               if this_line then
-                                a ~service:election_admin [txt "Hide link"] uuid
+                                a ~service:election_admin [txt (s_ "Hide link")] uuid
                               else
-                                a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [txt "Link"] (uuid, token)
+                                a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [txt (s_ "Link")] (uuid, token)
                             ]
                        | None ->
                           post_form ~service:election_shuffler_select
@@ -2507,11 +2587,11 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                               [
                                 input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
                                 input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
-                                input ~a ~input_type:`Submit ~value:"Select this trustee" string;
+                                input ~a ~input_type:`Submit ~value:(s_ "Select this trustee") string;
                               ]
                             ) ()
                      ];
-                   td [if done_ then txt "Yes" else txt "No"];
+                   td [if done_ then txt (s_ "Yes") else txt (s_ "No")];
                    td [skip];
                    td [hash];
                  ]
@@ -2524,9 +2604,9 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                       [
                         td ~a:[a_colspan 5]
                           [
-                            txt "The link that must be sent to trustee ";
+                            txt (s_ "The link that must be sent to trustee ");
                             txt x.ws_trustee;
-                            txt " is:";
+                            txt (s_ " is:");
                             br ();
                             Eliom_uri.make_string_uri ~absolute:true
                               ~service:election_shuffle_link (uuid, token)
@@ -2544,7 +2624,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
            post_form ~service:election_decrypt
              (fun () ->
                [
-                 input ~input_type:`Submit ~value:"Proceed to decryption" string;
+                 input ~input_type:`Submit ~value:(s_ "Proceed to decryption") string;
                ]
              ) uuid
          else
@@ -2554,15 +2634,15 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
            div [
                div [
                    div ~a:[a_style "text-align: center;"]
-                     [txt "Shuffling of ballots"];
+                     [txt (s_ "Shuffling of ballots")];
                    table
                      (tr
                         [
-                          th [txt "Trustee"];
+                          th [txt (s_ "Trustee")];
                           th [];
-                          th [txt "Done?"];
+                          th [txt (s_ "Done?")];
                           th [];
-                          th [txt "Fingerprint"];
+                          th [txt (s_ "Fingerprint")];
                         ] :: (List.flatten table_contents)
                      );
                  ];
@@ -2588,7 +2668,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
        let threshold_or_not =
          match threshold with
          | None -> txt ""
-         | Some x -> txt (Printf.sprintf " At least %d trustee(s) must act." x)
+         | Some x -> txt (" " ^ Printf.sprintf (f_ "At least %d trustee(s) must act.") x)
        in
        let trustees =
          let rec loop i ts =
@@ -2628,16 +2708,16 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
              in
              let mail, link =
                if link_content = "server" then (
-                 txt "(server)",
-                 txt "(server)"
+                 txt (s_ "(server)"),
+                 txt (s_ "(server)")
                ) else (
                  let body = Printf.sprintf mail_trustee_tally uri in
-                 let subject = "Link to tally the election" in
-                 a_mailto ~dest ~subject ~body "Mail",
+                 let subject = s_ "Link to tally the election" in
+                 a_mailto ~dest ~subject ~body (s_ "Mail"),
                  if this_line then
-                   a ~service:election_admin [txt "Hide link"] uuid
+                   a ~service:election_admin [txt (s_ "Hide link")] uuid
                  else
-                   a ~service [txt "Link"] x
+                   a ~service [txt (s_ "Link")] x
                )
              in
              let first_line =
@@ -2646,7 +2726,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                    td [mail];
                    td [link];
                    td [
-                       txt (if List.mem_assoc trustee_id pds then "Yes" else "No")
+                       txt (if List.mem_assoc trustee_id pds then (s_ "Yes") else (s_ "No"))
                      ];
                  ]
              in
@@ -2657,9 +2737,9 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                      [
                        td ~a:[a_colspan 4]
                          [
-                           txt "The link that must be sent to trustee ";
+                           txt (s_ "The link that must be sent to trustee ");
                            txt link_content;
-                           txt " is:";
+                           txt (s_ " is:");
                            br ();
                            txt uri;
                          ]
@@ -2676,27 +2756,27 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
            (fun () ->
              [input
                  ~input_type:`Submit
-                 ~value:"Compute the result"
+                 ~value:(s_ "Compute the result")
                  string
              ]) uuid
        in
        return @@ div [
          div [
-           txt "The ";
+           txt (s_ "The ");
            a
              ~service:election_dir
-             [txt "encrypted tally"]
+             [txt (s_ "encrypted tally")]
              (uuid, ESETally);
-           txt " has been computed."
+           txt (s_ " has been computed.")
          ];
          div [
-           div [txt "We are now waiting for trustees..."; threshold_or_not];
+           div [txt (s_ "We are now waiting for trustees..."); threshold_or_not];
            table
              (tr [
-               th [txt "Trustee"];
-               th [txt "Mail"];
-               th [txt "Link"];
-               th [txt "Done?"];
+               th [txt (s_ "Trustee")];
+               th [txt (s_ "Mail")];
+               th [txt (s_ "Link")];
+               th [txt (s_ "Done?")];
              ] :: List.flatten trustees)
          ];
          release_form;
@@ -2708,22 +2788,22 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
          | Some _ ->
             post_form ~service:election_show_result
               (fun () ->
-                [input ~input_type:`Submit ~value:"Publish the result now" string]
+                [input ~input_type:`Submit ~value:(s_ "Publish the result now") string]
               ) uuid
          | None ->
             post_form ~service:election_hide_result
               (fun date ->
                 [
                   div [
-                      Printf.ksprintf txt "You may postpone the publication of the election result up to %d days in the future." days_to_publish_result;
+                      Printf.ksprintf txt (f_ "You may postpone the publication of the election result up to %d days in the future.") days_to_publish_result;
                     ];
                   div [
-                      input ~input_type:`Submit ~value:"Postpone publication until" string;
+                      input ~input_type:`Submit ~value:(s_ "Postpone publication until") string;
                       txt " ";
                       input ~name:date ~input_type:`Text string;
                     ];
                   div [
-                      txt "Enter the date in UTC, in format YYYY-MM-DD HH:MM:SS. For example, now is ";
+                      txt (s_ "Enter the date in UTC, in format YYYY-MM-DD HH:MM:SS. For example, now is ");
                       txt (String.sub (string_of_datetime (now ())) 1 19);
                       txt ".";
                     ];
@@ -2731,16 +2811,17 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
               ) uuid
        in
        return @@ div [
-         div [txt "This election has been tallied."];
+         div [txt (s_ "This election has been tallied.")];
          br ();
          hr ();
          form_toggle;
        ]
     | `Archived ->
        return @@ div [
-         txt "This election is archived. ";
+         txt (s_ "This election is archived.");
+         txt " ";
          a ~service:election_download_archive [
-             txt "Download archive.";
+             txt (s_ "Download archive.");
            ] (uuid, ());
        ]
   in
@@ -2751,7 +2832,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
        let t = datetime_add t (day days_to_archive) in
        return @@
          div [
-             txt "This election will be automatically archived after ";
+             txt (s_ "This election will be automatically archived after ");
              txt (format_datetime t);
              txt ".";
            ]
@@ -2765,8 +2846,9 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
       archive_date;
       post_form ~service:election_archive (fun () ->
         [
-          input ~input_type:`Submit ~value:"Archive election" string;
-          txt " Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).";
+          input ~input_type:`Submit ~value:(s_ "Archive election") string;
+          txt " ";
+          txt (s_ "Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).");
         ]
       ) uuid;
     ]
@@ -2787,14 +2869,15 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
         br ();
         hr ();
         div [
-            txt "This election will be automatically deleted after ";
+            txt (s_ "This election will be automatically deleted after ");
             txt (format_datetime deletion_date);
             txt ".";
           ];
         post_form ~service:election_delete (fun () ->
             [
-              input ~input_type:`Submit ~value:"Delete election" string;
-              txt " Warning: this action is irreversible.";
+              input ~input_type:`Submit ~value:(s_ "Delete election") string;
+              txt " ";
+              txt (s_ "Warning: this action is irreversible.");
             ]
           ) uuid;
       ]
@@ -2808,21 +2891,21 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
       txt ""
     else
       div [
-          a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [txt "Regenerate and mail a password"] uuid;
+          a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [txt (s_ "Regenerate and mail a password")] uuid;
         ]
   in
   let content = [
     div [
-      a ~service:Web_services.election_home [txt "Election home"] (uuid, ());
+      a ~service:Web_services.election_home [txt (s_ "Election home")] (uuid, ());
     ];
     div [
-      a ~service:election_dir [txt "Voter list"] (uuid, ESVoters);
+      a ~service:election_dir [txt (s_ "Voter list")] (uuid, ESVoters);
     ];
     div [
-      a ~service:election_pretty_records [txt "Voting records"] (uuid, ());
+      a ~service:election_pretty_records [txt (s_ "Voting records")] (uuid, ());
     ];
     div [
-      a ~service:election_missing_voters [txt "Missing voters"] (uuid, ());
+      a ~service:election_missing_voters [txt (s_ "Missing voters")] (uuid, ());
     ];
     div_regenpwd;
     hr ();
@@ -2834,19 +2917,22 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   base ~title ~login_box ~content ()
 
 let regenpwd uuid () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let form = post_form ~service:election_regenpwd_post
     (fun user ->
       [
         div [
-          txt "Username: ";
+          txt (s_ "Username:");
+          txt " ";
           input ~name:user ~input_type:`Text string;
         ];
-        div [input ~input_type:`Submit ~value:"Submit" string];
+        div [input ~input_type:`Submit ~value:(s_ "Submit") string];
       ]
     ) uuid
   in
   let content = [ form ] in
-  let title = "Regenerate and mail password" in
+  let title = s_ "Regenerate and mail password" in
   let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ~uuid ()
 
@@ -2990,12 +3076,13 @@ let lost_ballot election () =
   let content =
     [
       div [
-          b [txt "Warning:"];
-          txt " Your vote was not recorded!";
+          b [txt (s_ "Warning:")];
+          txt " ";
+          txt (s_ "Your vote was not recorded!");
         ];
       div [
-          txt "If you want to vote, you must ";
-          make_a_with_hash ~service ~hash "start from the beginning";
+          txt (s_ "If you want to vote, you must ");
+          make_a_with_hash ~service ~hash (s_ "start from the beginning");
           txt ".";
         ];
       div [
@@ -3119,24 +3206,26 @@ let pretty_ballots election hashes result () =
   base ~title ~content ~uuid ()
 
 let pretty_records election records () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let uuid = election.e_params.e_uuid in
-  let title = election.e_params.e_name ^ " — Records" in
+  let title = election.e_params.e_name ^ " — " ^ s_ "Records" in
   let records = List.map (fun (date, voter) ->
     tr [td [txt date]; td [txt voter]]
   ) records in
   let table = match records with
-    | [] -> div [txt "Nobody voted!"]
+    | [] -> div [txt (s_ "Nobody voted!")]
     | _ ->
        div [
          table
-           (tr [th [txt "Date/Time (UTC)"]; th [txt "Username"]]
+           (tr [th [txt (s_ "Date/Time (UTC)")]; th [txt (s_ "Username")]]
             :: records);
        ]
   in
   let content = [
     div [
-      txt "You can also access the ";
-      a ~service:election_dir [txt "raw data"] (uuid, ESRecords);
+      txt (s_ "You can also access the ");
+      a ~service:election_dir [txt (s_ "raw data")] (uuid, ESRecords);
       txt ".";
     ];
     table;
@@ -3145,20 +3234,22 @@ let pretty_records election records () =
   base ~title ~login_box ~content ()
 
 let election_shuffler_skip_confirm uuid trustee =
-  let title = "Skipping trustee " ^ trustee in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = Printf.sprintf (f_ "Skipping trustee %s") trustee in
   let content =
     [
       post_form ~service:election_shuffler_skip
         (fun (nuuid, ntrustee) ->
           [
-            div [txt "You may skip a trustee if they do not answer. Be aware that this reduces the security."];
+            div [txt (s_ "You may skip a trustee if they do not answer. Be aware that this reduces the security.")];
             div
               [
                 input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
                 input ~input_type:`Hidden ~name:ntrustee ~value:trustee string;
-                input ~input_type:`Submit ~value:"Confirm" string;
+                input ~input_type:`Submit ~value:(s_ "Confirm") string;
                 txt " ";
-                a ~service:Web_services.election_admin [txt "Cancel"] uuid;
+                a ~service:Web_services.election_admin [txt (s_ "Cancel")] uuid;
               ]
           ]
         ) ()
@@ -3167,46 +3258,51 @@ let election_shuffler_skip_confirm uuid trustee =
   base ~title ~content ()
 
 let shuffle election token =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
-  let title = params.e_name ^ " — Shuffle" in
+  let title = params.e_name ^ " — " ^ s_ "Shuffle" in
   let content = [
-      div [txt "As a trustee, your first role is to shuffle the encrypted ballots."];
+      div [txt (s_ "As a trustee, your first role is to shuffle the encrypted ballots.")];
       div [
-          txt "Current list of ballots: ";
+          txt (s_ "Current list of ballots:");
+          txt " ";
           unsafe_textarea ~rows:5 ~cols:40 "current_ballots" "";
           txt " ";
           let service = Eliom_service.preapply ~service:election_nh_ciphertexts uuid in
-          make_button ~service ~disabled:false "Download as a file";
+          make_button ~service ~disabled:false (s_ "Download as a file");
         ];
       div ~a:[a_id "estimation"] [
-          txt "Estimating computation time...";
+          txt (s_ "Estimating computation time...");
         ];
       div ~a:[a_id "wait_div"] [
-          txt "Please wait... ";
-          img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
+          txt (s_ "Please wait... ");
+          img ~src:(static "encrypting.gif") ~alt:(s_ "Loading...") ();
         ];
       div ~a:[a_id "controls_div"; a_style "display: none;"] [
-          button_no_value ~button_type:`Button ~a:[a_id "compute_shuffle"] [txt "Compute shuffle"];
+          button_no_value ~button_type:`Button ~a:[a_id "compute_shuffle"] [txt (s_ "Compute shuffle")];
         ];
       post_form ~service:election_shuffle_post
         ~a:[a_id "submit_form"]
         (fun nshuffle ->
           [
             div [
-                txt "Shuffled list of ballots: ";
+                txt (s_ "Shuffled list of ballots:");
+                txt " ";
                 textarea ~a:[a_rows 5; a_cols 40; a_id "shuffle"] ~name:nshuffle ();
               ];
             div ~a:[a_id "hash_div"; a_style "display:none;"] [
                 div [
-                    txt "The fingerprint of your shuffle is: ";
+                    txt (s_ "The fingerprint of your shuffle is:");
+                    txt " ";
                     b ~a:[a_id "hash"] [];
                     txt ".";
                   ];
-                div [txt "You must record this fingerprint and check that it appears on the result page of the election."];
+                div [txt (s_ "You must record this fingerprint and check that it appears on the result page of the election.")];
               ];
             div [
-                input ~input_type:`Submit ~value:"Submit" string;
+                input ~input_type:`Submit ~value:(s_ "Submit") string;
               ];
           ]
         ) (uuid, token);
@@ -3218,10 +3314,12 @@ let shuffle election token =
   base ~title ~content ~uuid ()
 
 let tally_trustees election trustee_id token () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let title =
-    params.e_name ^ " — Partial decryption #" ^ string_of_int trustee_id
+    params.e_name ^ " — " ^ Printf.sprintf (f_ "Partial decryption #%d") trustee_id
   in
   let%lwt encrypted_private_key =
     match%lwt Web_persist.get_private_keys uuid with
@@ -3239,9 +3337,9 @@ let tally_trustees election trustee_id token () =
        loop (trustee_id - 1) trustees
   in
   let content = [
-    p [txt "It is now time to compute your partial decryption factors."];
+    p [txt (s_ "It is now time to compute your partial decryption factors.")];
     p [
-      txt "The fingerprint of the encrypted tally is ";
+      txt (s_ "The fingerprint of the encrypted tally is ");
       b [span ~a:[a_id "hash"] []];
       txt "."
     ];
@@ -3255,19 +3353,19 @@ let tally_trustees election trustee_id token () =
     );
     hr ();
     div [
-        b [txt "Instructions:"];
+        b [txt (s_ "Instructions:")];
         ol [
             li [
                 div ~a:[a_id "input_private_key"] [
                     div [
-                        p [txt "Please enter your private key:"];
+                        p [txt (s_ "Please enter your private key:")];
                         input
                           ~a:[a_id "private_key"; a_size 80]
                           ~input_type:`Text
                           string;
                       ];
                     div [
-                        p [txt "Or load it from a file:"];
+                        p [txt (s_ "Or load it from a file:")];
                         input
                           ~a:[a_id "private_key_file"]
                           ~input_type:`File
@@ -3281,7 +3379,7 @@ let tally_trustees election trustee_id token () =
                     button_no_value
                       ~a:[a_id "compute"]
                       ~button_type:`Button
-                      [txt "Compute decryption factors"];
+                      [txt (s_ "Compute decryption factors")];
                   ];
                 br ();
               ];
@@ -3292,8 +3390,8 @@ let tally_trustees election trustee_id token () =
                       (fun pd ->
                         [
                           div [
-                              input ~input_type:`Submit ~value:"Submit" string;
-                              txt " your contribution to decryption.";
+                              input ~input_type:`Submit ~value:(s_ "Submit") string;
+                              txt (s_ " your contribution to decryption.");
                             ];
                           div [
                               txt "Data: ";
@@ -3315,6 +3413,8 @@ let tally_trustees election trustee_id token () =
   base ~title ~content ~uuid ()
 
 let login_choose auth_systems service () =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let auth_systems =
     auth_systems |>
     List.map (fun name ->
@@ -3323,10 +3423,10 @@ let login_choose auth_systems service () =
   in
   let content = [
     div [p (
-      [txt "Please log in: ["] @ auth_systems @ [txt "]"]
+      [txt (s_ "Please log in:"); txt " ["] @ auth_systems @ [txt "]"]
     )]
   ] in
-  base ~title:"Log in" ~content ()
+  base ~title:(s_ "Log in") ~content ()
 
 let login_dummy ~state =
   let title, field_name, input_type =
@@ -3359,11 +3459,11 @@ let login_password ~service ~allowsignups ~state =
     if allowsignups then
       div [
           br ();
-          txt "You can also ";
-          a ~service:signup_captcha [txt "create an account"] service;
-          txt ", or ";
-          a ~service:changepw_captcha [txt "change your password"] service;
-          txt " (if you forgot it, for example).";
+          txt (s_ "You can also ");
+          a ~service:signup_captcha [txt (s_ "create an account")] service;
+          txt (s_ ", or ");
+          a ~service:changepw_captcha [txt (s_ "change your password")] service;
+          txt (s_ " (if you forgot it, for example).");
         ]
     else txt ""
   in
@@ -3393,13 +3493,15 @@ let login_password ~service ~allowsignups ~state =
   base ~title:(s_ "Password login") ~content ()
 
 let login_failed ~service () =
-  let title = "Authentication failed" in
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Authentication failed" in
   let content =
     [
-      div [txt "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."];
+      div [txt (s_ "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation.")];
       div [
-          txt "You can ";
-          a ~service [txt "try to log in again"] ();
+          txt (s_ "You can ");
+          a ~service [txt (s_ "try to log in again")] ();
           txt ".";
         ];
     ]
@@ -3410,88 +3512,98 @@ let signup_captcha_img challenge =
   let src = make_uri ~service:signup_captcha_img challenge in
   img ~src ~alt:"CAPTCHA" ()
 
-let format_captcha_error = function
+let format_captcha_error l e =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  match e with
   | None -> txt ""
   | Some x ->
      let msg = match x with
-       | BadCaptcha -> "Bad security code!"
-       | BadAddress -> "Bad e-mail address!"
+       | BadCaptcha -> s_ "Bad security code!"
+       | BadAddress -> s_ "Bad e-mail address!"
      in
      div ~a:[a_style "color: red;"] [txt msg]
 
 let signup_captcha ~service error challenge email =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let form =
     post_form ~service:signup_captcha_post
       (fun (lchallenge, (lresponse, lemail)) ->
         [
           div [
-              txt "E-mail address: ";
+              txt (s_ "E-mail address:");
+              txt " ";
               input ~input_type:`Text ~name:lemail ~value:email string;
             ];
           div [
               input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
-              txt "Please enter ";
+              txt (s_ "Please enter ");
               signup_captcha_img challenge;
-              txt " in the following box: ";
+              txt (s_ " in the following box: ");
               input ~input_type:`Text ~name:lresponse string;
             ];
           div [
-              input ~input_type:`Submit ~value:"Submit" string;
+              input ~input_type:`Submit ~value:(s_ "Submit") string;
             ];
         ]
       ) service
   in
-  let error = format_captcha_error error in
+  let error = format_captcha_error l error in
   let content = [error; form] in
-  base ~title:"Create an account" ~content ()
+  base ~title:(s_ "Create an account") ~content ()
 
 let signup_changepw ~service error challenge email username =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let form =
     post_form ~service:changepw_captcha_post
       (fun (lchallenge, (lresponse, (lemail, lusername))) ->
         [
           div [
-              txt "E-mail address: ";
+              txt (s_ "E-mail address:");
+              txt " ";
               input ~input_type:`Text ~name:lemail ~value:email string;
-              txt " or username: ";
+              txt (s_ " or username: ");
               input ~input_type:`Text ~name:lusername ~value:username string;
               txt ".";
             ];
           div [
               input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
-              txt "Please enter ";
+              txt (s_ "Please enter ");
               signup_captcha_img challenge;
-              txt " in the following box: ";
+              txt (s_ " in the following box: ");
               input ~input_type:`Text ~name:lresponse string;
             ];
           div [
-              input ~input_type:`Submit ~value:"Submit" string;
+              input ~input_type:`Submit ~value:(s_ "Submit") string;
             ];
         ]
       ) service
   in
-  let error = format_captcha_error error in
+  let error = format_captcha_error l error in
   let content = [error; form] in
-  base ~title:"Change password" ~content ()
+  base ~title:(s_ "Change password") ~content ()
 
 let signup address error username =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let error = match error with
     | None -> txt ""
     | Some e ->
        let msg = match e with
-         | UsernameTaken -> "the username is already taken"
-         | AddressTaken -> "there is already an account with this e-mail address"
-         | BadUsername -> "the username is invalid"
-         | BadPassword e -> Printf.sprintf "the password is too weak (%s)" e
-         | PasswordMismatch -> "the two passwords are not the same"
-         | BadSpaceInPassword -> "the password starts or ends with a space"
+         | UsernameTaken -> s_ "the username is already taken"
+         | AddressTaken -> s_ "there is already an account with this e-mail address"
+         | BadUsername -> s_ "the username is invalid"
+         | BadPassword e -> Printf.sprintf (f_ "the password is too weak (%s)") e
+         | PasswordMismatch -> s_ "the two passwords are not the same"
+         | BadSpaceInPassword -> s_ "the password starts or ends with a space"
        in
        div [
-           txt "The account creation ";
-           span ~a:[a_style "color: red;"] [txt "failed"];
-           txt " because ";
+           txt (s_ "The account creation ");
+           span ~a:[a_style "color: red;"] [txt (s_ "failed")];
+           txt (s_ " because ");
            txt msg;
-           txt ". Please try again with a different one.";
+           txt (s_ ". Please try again with a different one.");
          ]
   in
   let form =
@@ -3499,47 +3611,49 @@ let signup address error username =
       (fun (lusername, (lpassword, lpassword2)) ->
         [
           div [
-              txt "Your e-mail address is: ";
+              txt (s_ "Your e-mail address is: ");
               txt address;
               txt ".";
             ];
           div [
-              txt "Please choose a username: ";
+              txt (s_ "Please choose a username: ");
               input ~input_type:`Text ~name:lusername ~value:username string;
-              txt " and a password: ";
+              txt (s_ " and a password: ");
               input ~input_type:`Password ~name:lpassword string;
               txt ".";
             ];
           div[
-              txt "Type the password again: ";
+              txt (s_ "Type the password again: ");
               input ~input_type:`Password ~name:lpassword2 string;
               txt ".";
             ];
           div [
-              input ~input_type:`Submit ~value:"Submit" string;
+              input ~input_type:`Submit ~value:(s_ "Submit") string;
             ];
         ]
       ) ()
   in
   let content = [error; form] in
-  base ~title:"Create an account" ~content ()
+  base ~title:(s_ "Create an account") ~content ()
 
 let changepw ~username ~address error =
+  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let open (val l) in
   let error = match error with
     | None -> txt ""
     | Some e ->
        let reason = match e with
-         | PasswordMismatch -> "the two passwords are not the same"
-         | BadPassword e -> Printf.sprintf "the new password is too weak (%s)" e
-         | BadSpaceInPassword -> "the new password starts or ends with a space"
-         | _ -> " of an unknown reason"
+         | PasswordMismatch -> s_ "the two passwords are not the same"
+         | BadPassword e -> Printf.sprintf (f_ "the new password is too weak (%s)") e
+         | BadSpaceInPassword -> s_ "the new password starts or ends with a space"
+         | _ -> s_ "of an unknown reason"
        in
        div [
-           txt "The change ";
-           span ~a:[a_style "color: red;"] [txt "failed"];
-           txt " because ";
+           txt (s_ "The change ");
+           span ~a:[a_style "color: red;"] [txt (s_ "failed")];
+           txt (s_ " because ");
            txt reason;
-           txt ". Please try again with a different one.";
+           txt (s_ ". Please try again with a different one.");
          ]
   in
   let form =
@@ -3547,30 +3661,30 @@ let changepw ~username ~address error =
       (fun (lpassword, lpassword2) ->
         [
           div [
-              txt "Your username is: ";
+              txt (s_ "Your username is: ");
               txt username;
-              txt " and your e-mail address is: ";
+              txt (s_ " and your e-mail address is: ");
               txt address;
               txt ".";
             ];
           div [
-              txt "Please choose a password: ";
+              txt (s_ "Please choose a password: ");
               input ~input_type:`Password ~name:lpassword string;
               txt ".";
             ];
           div [
-              txt "Type the password again: ";
+              txt (s_ "Type the password again: ");
               input ~input_type:`Password ~name:lpassword2 string;
               txt ".";
             ];
           div [
-              input ~input_type:`Submit ~value:"Submit" string;
+              input ~input_type:`Submit ~value:(s_ "Submit") string;
             ];
         ]
       ) ()
   in
   let content = [error; form] in
-  base ~title:"Change password" ~content ()
+  base ~title:(s_ "Change password") ~content ()
 
 let booth () =
   let%lwt l = Web_i18n.get_preferred_gettext () in
@@ -3581,8 +3695,8 @@ let booth () =
   ] in
   let wait_div =
     div ~a:[a_id "wait_div"] [
-        txt "Please wait... ";
-        img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
+        txt (s_ "Please wait... ");
+        img ~src:(static "encrypting.gif") ~alt:(s_ "Loading...") ();
       ]
   in
   let election_loader =
