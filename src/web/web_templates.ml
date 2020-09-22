@@ -93,7 +93,7 @@ let login_box ?cont () =
   return (div ~a:[a_style style] body)
 
 let belenios_url = Eliom_service.extern
-  ~prefix:"http://www.belenios.org"
+  ~prefix:"https://www.belenios.org"
   ~path:[]
   ~meth:(Eliom_service.Get Eliom_parameter.unit)
   ()
@@ -334,7 +334,7 @@ let generic_page ~title ?service message () =
 let election_draft_pre () =
   let title = "Prepare a new election" in
   let cred_info = Eliom_service.extern
-    ~prefix:"http://www.belenios.org"
+    ~prefix:"https://www.belenios.org"
     ~path:["setup.html"]
     ~meth:(Eliom_service.Get Eliom_parameter.unit)
     ()

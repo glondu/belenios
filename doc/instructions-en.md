@@ -299,7 +299,7 @@ problem.
 Note: If the `belenios-tool` command-line tool is used, the trust in
 the audit verifications partly relies on the trust in this tool. It is
 possible to write independent verification software following Belenios
-specification available [here](http://www.belenios.org/specification.pdf).
+specification available [here](https://www.belenios.org/specification.pdf).
 
 
 Instructions for the administrator of the election
