@@ -225,7 +225,20 @@ let createNonHomomorphicQuestionWidget q =
     let d = Dom_html.createDiv document in
     d##.style##.margin := Js.string "1em";
     Dom.appendChild div d;
-    Dom.appendChild d (document##createTextNode (Js.string (s_ "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election.")))
+    let div_note = Dom_html.createDiv document in
+    Dom.appendChild d div_note;
+    Dom.appendChild div_note (document##createTextNode (Js.string (s_ "Notes:")));
+    let list = Dom_html.createUl document in
+    Dom.appendChild div_note list;
+    let item1 = Dom_html.createLi document in
+    Dom.appendChild list item1;
+    Dom.appendChild item1 (document##createTextNode (Js.string (s_ "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse.")));
+    let item2 = Dom_html.createLi document in
+    Dom.appendChild list item2;
+    Dom.appendChild item2 (document##createTextNode (Js.string (s_ "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc.")));
+    let div_warning = Dom_html.createDiv document in
+    Dom.appendChild d div_warning;
+    Dom.appendChild div_warning (document##createTextNode (Js.string (s_ "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election.")))
   in
   let check_constraints () =
     let n = Array.length inputs - 1 in
