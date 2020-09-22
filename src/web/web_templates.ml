@@ -2098,7 +2098,7 @@ let format_question_result uuid l (i, q) r =
              txt " ";
              txt (s_ "Available methods on this server:");
              txt " ";
-             a ~service:method_schulze [txt "Schulze"] (uuid, i);
+             a ~service:method_schulze [txt "Condorcet-Schulze"] (uuid, i);
              txt ".";
            ];
        ]
