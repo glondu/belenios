@@ -2509,7 +2509,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                  ~value:(s_ "Proceed to vote counting")
                  string;
               txt " ";
-              txt (s_ "Warning: This action is irreversible; the election definitively be closed.");
+              txt (s_ "Warning: This action is irreversible; the election will be definitively closed.");
              ]) uuid;
        ]
     | `Shuffling ->
