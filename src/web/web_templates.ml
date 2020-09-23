@@ -1257,6 +1257,7 @@ let election_draft_questions uuid se () =
         div
           [
             txt (s_ "You may wish voters to rank candidates or give each candidate a score.");
+            txt " ";
             txt (s_ "This allows deciding the winner according to your favorite counting method (e.g. Condorcet, STV, majority judgement).");
           ];
         div [txt (s_ "Note that:")];
