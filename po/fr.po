@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
 "PO-Revision-Date: 2020-09-23 10:58+0000\n"
-"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
+"Last-Translator: Pierrick Gaudry <pierrick.gaudry@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/server/"
 "fr/>\n"
 "Language: fr\n"
@@ -44,7 +44,7 @@ msgstr " et sauvez le fichier dans un endroit sécurisé."
 
 #: ../src/web/web_templates.ml:1904
 msgid " and save them securely."
-msgstr " et sauvegardez les de manière sécursée."
+msgstr " et sauvegardez les de manière sécurisée."
 
 #: ../src/web/web_templates.ml:3674
 msgid " and your e-mail address is: "
@@ -738,7 +738,7 @@ msgstr ""
 
 #: ../src/web/web_templates.ml:215
 msgid "If you do not have any account, you may "
-msgstr "Is vous n'avez pas de compte, vous pouvez "
+msgstr "Si vous n'avez pas de compte, vous pouvez "
 
 #: ../src/web/web_templates.ml:3092
 msgid "If you want to vote, you must "
@@ -1382,7 +1382,7 @@ msgstr "Soumettre les parties publiques des codes de vote"
 #: ../src/web/web_templates.ml:1469
 msgid "Submit public credentials using the button below."
 msgstr ""
-"Soumettez les parties publiques des codes de vote en utilisant le boutton ci-"
+"Soumettez les parties publiques des codes de vote en utilisant le bouton ci-"
 "dessous."
 
 #: ../src/web/web_templates.ml:1583
