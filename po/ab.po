@@ -267,7 +267,7 @@ msgid "Alternative voting methods (warning, still experimental):"
 msgstr ""
 
 #: ../src/web/web_templates.ml:2432
-msgid "Alternatively, you may setup automatic dates."
+msgid "Alternatively, you may set up automatic dates."
 msgstr ""
 
 #: ../src/web/web_templates.ml:326
