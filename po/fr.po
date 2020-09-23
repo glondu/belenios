@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-09-23 07:15+0000\n"
-"Last-Translator: Pierrick Gaudry <pierrick.gaudry@loria.fr>\n"
+"PO-Revision-Date: 2020-09-23 10:58+0000\n"
+"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/server/"
 "fr/>\n"
 "Language: fr\n"
@@ -48,7 +48,7 @@ msgstr " et sauvegardez les de manière sécursée."
 
 #: ../src/web/web_templates.ml:3674
 msgid " and your e-mail address is: "
-msgstr " at votre adresse e-mail est : "
+msgstr " et votre adresse e-mail est : "
 
 #: ../src/web/web_templates.ml:3137
 msgid " anytime during the election."
@@ -704,7 +704,7 @@ msgstr "Retourner à la page d'accueil de l'élection"
 
 #: ../src/web/web_templates.ml:1126 ../src/web/web_templates.ml:924
 msgid "Go back to election draft"
-msgstr ""
+msgstr "Retourner à la mise en place de l'élection"
 
 #. ../src/web/web_templates.ml:1009
 #. ../src/web/web_templates.ml:843
@@ -1692,7 +1692,7 @@ msgstr "Attention : cela figera la liste électorale !"
 
 #: ../src/web/web_templates.ml:2781
 msgid "We are now waiting for trustees..."
-msgstr ""
+msgstr "En attente des autorités de déchiffrement..."
 
 #: ../src/web/web_templates.ml:3745
 msgid "We invite you to save it in order to check later that it is taken into account."
@@ -1703,7 +1703,7 @@ msgstr "Nous vous invitons à le sauvegarder afin de vérifier ultérieurement q
 #. ../src/web/web_templates.ml:851
 #: ../src/web/web_templates.ml:2737 ../src/web/web_templates.ml:2602
 msgid "Yes"
-msgstr ""
+msgstr "Oui"
 
 #: ../src/web/web_site.ml:1069 ../src/web/web_site.ml:671
 msgid "You are listed as a voter for the election"
@@ -1711,15 +1711,15 @@ msgstr "Vous êtes enregistré(e) en tant qu'électeur(trice) pour l'élection"
 
 #: ../src/web/web_templates.ml:3511
 msgid "You can "
-msgstr ""
+msgstr "Vous pouvez "
 
 #: ../src/web/web_templates.ml:3470
 msgid "You can also "
-msgstr ""
+msgstr "Vous pouvez aussi "
 
 #: ../src/web/web_templates.ml:3235
 msgid "You can also access the "
-msgstr ""
+msgstr "Vous pouvez également accéder aux "
 
 #: ../src/web/web_templates.ml:2213
 msgid "You can also download the "
@@ -1736,18 +1736,26 @@ msgstr "Vous pouvez vérifier sa présence dans l'urne, accessible au"
 #: ../src/web/web_templates.ml:2806
 msgid "You may postpone the publication of the election result up to %d days in the future."
 msgstr ""
+"Vous pouvez reporter la publication du résultat de l'élection jusqu'à %d "
+"jours dans le futur."
 
 #: ../src/web/web_templates.ml:3253
 msgid "You may skip a trustee if they do not answer. Be aware that this reduces the security."
 msgstr ""
+"Vous pouvez ignorer une autorité de déchiffrement si elle ne répond pas. "
+"Soyez conscient que cela réduit la sécurité."
 
 #: ../src/web/web_templates.ml:1258
 msgid "You may wish voters to rank candidates or give each candidate a score."
 msgstr ""
+"Vous pouvez souhaiter que les électeurs ordonnent les candidats ou leur "
+"attribuent une note."
 
 #: ../src/web/web_templates.ml:3310
 msgid "You must record this fingerprint and check that it appears on the result page of the election."
 msgstr ""
+"Vous devez enregistrer cette empreinte et vérifier qu'elle apparait sur la "
+"page de résultat de l'élection."
 
 #: ../src/tool/tool_js_booth.ml:125
 msgid "You must select at least %d answer(s)"
@@ -1762,7 +1770,7 @@ msgstr "Vous devez sélectionner au plus %d réponse(s)"
 #. ../src/web/web_templates.ml:231
 #: ../src/web/web_templates.ml:1811 ../src/web/web_templates.ml:246
 msgid "You own no such elections!"
-msgstr ""
+msgstr "Vous n'avez aucune élection !"
 
 #: ../src/web/web_site.ml:1077 ../src/web/web_site.ml:678
 msgid "You will be asked to enter your credential before entering the voting booth."
@@ -1779,14 +1787,16 @@ msgstr "Veuillez trouver ci-dessous votre nom d'utilisateur et votre mot de pass
 #: ../src/web/web_templates.ml:1698
 msgid "You will use it in the next steps and to decrypt the final result."
 msgstr ""
+"Vous l'utiliserez dans les étapes suivantes et pour déchiffrer le résultat "
+"final."
 
 #: ../src/web/web_templates.ml:1573
 msgid "You will use it to decrypt the final result."
-msgstr ""
+msgstr "Vous l'utiliserez pour déchiffrer le résultat final."
 
 #: ../src/web/web_templates.ml:1455
 msgid "You will use it to send credentials to voters."
-msgstr ""
+msgstr "Vous l'utiliserez pour envoyer les codes de vote aux électeurs."
 
 #: ../src/web/web_templates.ml:3153 ../src/web/web_templates.ml:3050
 msgid "Your ballot for "
@@ -1806,7 +1816,7 @@ msgstr "Votre code de vote pour l'élection %s"
 
 #: ../src/web/web_templates.ml:3622
 msgid "Your e-mail address is: "
-msgstr ""
+msgstr "Votre adresse e-mail est : "
 
 #: ../src/web/web_site.ml:705
 msgid "Your password for election %s"
@@ -1823,7 +1833,7 @@ msgstr "Votre numéro de suivi est "
 
 #: ../src/web/web_templates.ml:3672
 msgid "Your username is: "
-msgstr ""
+msgstr "Votre identifiant est : "
 
 #: ../src/web/web_site.ml:1673
 msgid "Your vote for election"
@@ -1835,7 +1845,7 @@ msgstr "Votre vote pour l'élection %s"
 
 #: ../src/web/web_templates.ml:3089
 msgid "Your vote was not recorded!"
-msgstr ""
+msgstr "Votre vote n'a pas été enregistré !"
 
 #: ../src/web/web_common.ml:85
 msgid "a credential is missing"
@@ -1855,39 +1865,39 @@ msgstr "mais n'a pas encore été déposé dans l'urne"
 
 #: ../src/web/web_templates.ml:3473
 msgid "change your password"
-msgstr ""
+msgstr "changez votre mot de passe"
 
 #: ../src/web/web_templates.ml:216
 msgid "contact us"
-msgstr ""
+msgstr "contactez nous"
 
 #: ../src/web/web_templates.ml:3471
 msgid "create an account"
-msgstr ""
+msgstr "créer un compte"
 
 #: ../src/web/web_templates.ml:1061
 msgid "done: the key establishment protocol is finished"
-msgstr ""
+msgstr "Terminé : le protocole d'établissement de clé est terminé"
 
 #: ../src/web/web_templates.ml:1903
 msgid "download"
-msgstr ""
+msgstr "télécharger"
 
 #: ../src/web/web_templates.ml:1997
 msgid "election not ready"
-msgstr ""
+msgstr "élection pas encore prête"
 
 #: ../src/web/web_templates.ml:1995
 msgid "election ready"
-msgstr ""
+msgstr "élection prête"
 
 #: ../src/web/web_templates.ml:2776
 msgid "encrypted tally"
-msgstr ""
+msgstr "résultat chiffré"
 
 #: ../src/web/web_templates.ml:3661 ../src/web/web_templates.ml:3611
 msgid "failed"
-msgstr ""
+msgstr "a échoué"
 
 #: ../src/web/web_site.ml:1677
 msgid "has been recorded."
@@ -1899,15 +1909,15 @@ msgstr "ici"
 
 #: ../src/web/web_templates.ml:1057
 msgid "init: administrator needs to set threshold"
-msgstr ""
+msgstr "initialisation : l'administrateur doit définir le seuil"
 
 #: ../src/web/web_templates.ml:372
 msgid "more info"
-msgstr ""
+msgstr "plus d'information"
 
 #: ../src/web/web_templates.ml:3657
 msgid "of an unknown reason"
-msgstr ""
+msgstr "d'une raison inconnue"
 
 #: ../src/web/web_templates.ml:2045
 msgid "parameters"
@@ -1919,11 +1929,11 @@ msgstr "politique concernant les données personnelles"
 
 #: ../src/web/web_templates.ml:1452
 msgid "private credentials"
-msgstr ""
+msgstr "parties privées des codes de vote"
 
 #: ../src/web/web_templates.ml:1695 ../src/web/web_templates.ml:1570
 msgid "private key"
-msgstr ""
+msgstr "clé privée"
 
 #: ../src/web/web_templates.ml:2051
 msgid "public credentials"
@@ -1931,15 +1941,15 @@ msgstr "clés de vérification"
 
 #: ../src/web/web_templates.ml:791
 msgid "public name:"
-msgstr ""
+msgstr "nom public :"
 
 #: ../src/web/web_templates.ml:949
 msgid "public name: "
-msgstr ""
+msgstr "nom public : "
 
 #: ../src/web/web_templates.ml:3236
 msgid "raw data"
-msgstr ""
+msgstr "données brutes"
 
 #: ../src/web/web_templates.ml:2215
 msgid "result with cryptographic proofs"
@@ -1951,15 +1961,18 @@ msgstr "certaines preuves sont invalides"
 
 #: ../src/web/web_templates.ml:3093
 msgid "start from the beginning"
-msgstr ""
+msgstr "recommencer au début"
 
 #: ../src/web/web_templates.ml:1480
 msgid "submitting a large number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below."
 msgstr ""
+"soumettre un grand nombre de codes de vote à l'aide du formulaire ci-dessus "
+"peut échouer ; dans ce cas, vous devez utiliser l'outil en ligne de commande "
+"et le formulaire ci-dessous."
 
 #: ../src/web/web_templates.ml:1264
 msgid "the after-the-vote procedure will require more steps;"
-msgstr ""
+msgstr "la procédure après la phase de vote demandera plus d'étapes ;"
 
 #: ../src/web/web_common.ml:81
 msgid "the election is closed"
@@ -1968,58 +1981,63 @@ msgstr "l'élection est fermée"
 #: ../src/web/web_templates.ml:1211
 msgid "the fingerprint of public credentials matches what has been saved, for example with the following command:"
 msgstr ""
+"l'empreinte des parties publiques des codes de vote correspond à ce qui a "
+"été enregistré, par exemple à l'aide la commande suivante :"
 
 #: ../src/web/web_templates.ml:1459
 msgid "the list of voters"
-msgstr ""
+msgstr "la liste électorale"
 
 #: ../src/web/web_templates.ml:3655
 msgid "the new password is too weak (%s)"
-msgstr ""
+msgstr "le nouveau mot de passe est trop faible (%s)"
 
 #: ../src/web/web_templates.ml:3656
 msgid "the new password starts or ends with a space"
-msgstr ""
+msgstr "le nouveau mot de passe commence ou se termine par un espace"
 
 #: ../src/web/web_templates.ml:1202
 msgid "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:"
 msgstr ""
+"le nombre d'électeurs est correct, et l'empreinte de la liste électorale "
+"correspond à ce qui a été enregistré, par exemple à l'aide de la commande "
+"suivante :"
 
 #: ../src/web/web_templates.ml:3605
 msgid "the password is too weak (%s)"
-msgstr ""
+msgstr "le mot de passe est trop faible (%s)"
 
 #: ../src/web/web_templates.ml:3607
 msgid "the password starts or ends with a space"
-msgstr ""
+msgstr "le mot de passe commence ou se termine par un espace"
 
 #: ../src/web/web_templates.ml:3654 ../src/web/web_templates.ml:3606
 msgid "the two passwords are not the same"
-msgstr ""
+msgstr "les deux mots de passe ne sont pas identiques"
 
 #: ../src/web/web_templates.ml:3602
 msgid "the username is already taken"
-msgstr ""
+msgstr "l'identifiant est déjà utilisé"
 
 #: ../src/web/web_templates.ml:3604
 msgid "the username is invalid"
-msgstr ""
+msgstr "l'identifiant est invalide"
 
 #: ../src/web/web_templates.ml:3603
 msgid "there is already an account with this e-mail address"
-msgstr ""
+msgstr "il existe déjà un compte avec cette adresse e-mail"
 
 #: ../src/web/web_templates.ml:915
 msgid "threshold mode"
-msgstr ""
+msgstr "mode chiffrement à seuil"
 
 #: ../src/web/web_templates.ml:2436
 msgid "times are in UTC. Now is "
-msgstr ""
+msgstr "les dates sont en UTC. Maintenant, nous sommes le "
 
 #: ../src/web/web_templates.ml:3512
 msgid "try to log in again"
-msgstr ""
+msgstr "essayer de vous connecter à nouveau"
 
 #: ../src/web/web_common.ml:87
 msgid "you are not allowed to revote"
@@ -2036,6 +2054,8 @@ msgstr "vous n'êtes pas autorisé(e) à voter avec ce code de vote"
 #: ../src/web/web_templates.ml:1220
 msgid "you can send again a private credential to its rightful owner in case of loss."
 msgstr ""
+"vous pouvez renvoyer la partie privée d'un code de vote à l'électeur "
+"légitime en cas de perte."
 
 #: ../src/web/web_templates.ml:1384
 msgid "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote."
