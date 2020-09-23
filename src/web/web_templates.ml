@@ -946,7 +946,8 @@ let election_draft_threshold_trustees ?token uuid se () =
             txt " ";
             input ~input_type:`Text ~name:n_id string;
             txt ", ";
-            txt (s_ "public name: ");
+            txt (s_ "public name:");
+            txt " ";
             input ~input_type:`Text ~name:n_comment string;
             input ~input_type:`Submit ~value:(s_ "Add") string;
           ]
