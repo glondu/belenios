@@ -1,11 +1,10 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-09-23 10:58+0000\n"
-"Last-Translator: Pierrick Gaudry <pierrick.gaudry@loria.fr>\n"
+"PO-Revision-Date: 2020-09-23 11:58+0000\n"
+"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/server/"
 "fr/>\n"
 "Language: fr\n"
@@ -107,9 +106,9 @@ msgstr " au lieu de "
 msgid " is rejected, because "
 msgstr " est refusé, parce que "
 
-#: src/web/web_templates.ml:2751 src/web/web_templates.ml:2618
 #. src/web/web_templates.ml:1029
 #. src/web/web_templates.ml:865
+#: src/web/web_templates.ml:2751 src/web/web_templates.ml:2618
 msgid " is:"
 msgstr " est :"
 
@@ -186,9 +185,9 @@ msgstr "(rien)"
 msgid "(or "
 msgstr "(ou "
 
-#: src/web/web_templates.ml:2721 src/web/web_templates.ml:2720
 #. src/web/web_templates.ml:847
 #. src/web/web_templates.ml:837
+#: src/web/web_templates.ml:2721 src/web/web_templates.ml:2720
 msgid "(server)"
 msgstr "(serveur)"
 
@@ -243,8 +242,8 @@ msgstr "Accepter"
 msgid "Accepted ballots"
 msgstr "Bulletins acceptés"
 
-#: src/web/web_templates.ml:1306 src/web/web_templates.ml:952
 #. src/web/web_templates.ml:794
+#: src/web/web_templates.ml:1306 src/web/web_templates.ml:952
 msgid "Add"
 msgstr "Ajouter"
 
@@ -288,8 +287,8 @@ msgstr ""
 "\"adresse\" est une adresse e-mail et \"login\" est l'identifiant associé "
 "pour l'authentification."
 
-#: src/web/web_templates.ml:3764 src/web/web_templates.ml:3115
 #. src/web/web_templates.ml:3034
+#: src/web/web_templates.ml:3764 src/web/web_templates.ml:3115
 msgid "Answer to questions"
 msgstr "Réponse aux questions"
 
@@ -319,8 +318,8 @@ msgstr "Au moins une des réponses est incorrecte !"
 msgid "Audit data: "
 msgstr "Données d'audit : "
 
-#: src/web/web_templates.ml:3768 src/web/web_templates.ml:3119
 #. src/web/web_templates.ml:3038
+#: src/web/web_templates.ml:3768 src/web/web_templates.ml:3119
 msgid "Authenticate"
 msgstr "Authentification"
 
@@ -392,8 +391,8 @@ msgstr "Soyez attentif(ve), le mot de passe et le code de vote se ressemblent ma
 msgid "Belenios Booth"
 msgstr "Isoloir Belenios"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 #. src/web/web_templates.ml:2071
+#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 msgid "Blank vote"
 msgstr "Vote blanc"
 
@@ -451,9 +450,9 @@ msgstr "Calculer le mélange"
 msgid "Compute the result"
 msgstr "Calculer le résultat"
 
-#: src/web/web_templates.ml:3770 src/web/web_templates.ml:3259
 #. src/web/web_templates.ml:3121
 #. src/web/web_templates.ml:3040
+#: src/web/web_templates.ml:3770 src/web/web_templates.ml:3259
 msgid "Confirm"
 msgstr "Confirmation"
 
@@ -553,13 +552,13 @@ msgstr "Description ?"
 msgid "Destroy election"
 msgstr "Supprimer l'élection"
 
-#: src/web/web_templates.ml:3772 src/web/web_templates.ml:3123
 #. src/web/web_templates.ml:3042
+#: src/web/web_templates.ml:3772 src/web/web_templates.ml:3123
 msgid "Done"
 msgstr "Terminé"
 
-#: src/web/web_templates.ml:2788 src/web/web_templates.ml:2652
 #. src/web/web_templates.ml:884
+#: src/web/web_templates.ml:2788 src/web/web_templates.ml:2652
 msgid "Done?"
 msgstr "Terminé ?"
 
@@ -599,8 +598,8 @@ msgstr "Modifier les questions"
 msgid "Edit voters"
 msgstr "Modifier les électeurs"
 
-#: src/web/web_templates.ml:1845 src/web/web_templates.ml:1836
 #. src/web/web_templates.ml:1829
+#: src/web/web_templates.ml:1845 src/web/web_templates.ml:1836
 msgid "Election "
 msgstr "Élection "
 
@@ -616,9 +615,9 @@ msgstr "Empreinte de l'élection : "
 msgid "Election home"
 msgstr "Page principale de l'élection"
 
-#: src/web/web_templates.ml:3815 src/web/web_templates.ml:208
 #. src/web/web_templates.ml:174
 #. src/web/web_templates.ml:142
+#: src/web/web_templates.ml:3815 src/web/web_templates.ml:208
 msgid "Election server"
 msgstr "Serveur d'élections"
 
@@ -696,9 +695,9 @@ msgstr "Générer sur le serveur"
 msgid "Get the source code"
 msgstr "Obtenir le code source"
 
-#: src/web/web_templates.ml:3188 src/web/web_templates.ml:3160
 #. src/web/web_templates.ml:3099
 #. src/web/web_templates.ml:3071
+#: src/web/web_templates.ml:3188 src/web/web_templates.ml:3160
 msgid "Go back to election"
 msgstr "Retourner à la page d'accueil de l'élection"
 
@@ -708,9 +707,9 @@ msgstr "Retourner à la page d'accueil de l'élection"
 msgid "Go back to election draft"
 msgstr "Retourner à la mise en place de l'élection"
 
-#: src/web/web_templates.ml:2727 src/web/web_templates.ml:2588
 #. src/web/web_templates.ml:1010
 #. src/web/web_templates.ml:843
+#: src/web/web_templates.ml:2727 src/web/web_templates.ml:2588
 msgid "Hide link"
 msgstr "Cacher le lien"
 
@@ -758,8 +757,8 @@ msgstr "Importer les autorités de déchiffrement depuis une autre élection"
 msgid "Import voters from another election"
 msgstr "Importer la liste électorale depuis une autre élection"
 
-#: src/web/web_templates.ml:3762 src/web/web_templates.ml:3113
 #. src/web/web_templates.ml:3032
+#: src/web/web_templates.ml:3762 src/web/web_templates.ml:3113
 msgid "Input credential"
 msgstr "Saisie du code de vote"
 
@@ -771,10 +770,10 @@ msgstr "Saisissez votre code de vote "
 msgid "Instructions"
 msgstr "Instructions"
 
-#: src/web/web_templates.ml:3365 src/web/web_templates.ml:1724
 #. src/web/web_templates.ml:1692
 #. src/web/web_templates.ml:1567
 #. src/web/web_templates.ml:1449
+#: src/web/web_templates.ml:3365 src/web/web_templates.ml:1724
 msgid "Instructions:"
 msgstr "Instructions :"
 
@@ -806,12 +805,12 @@ msgstr "Langues"
 msgid "Languages:"
 msgstr "Langues :"
 
-#: src/web/web_templates.ml:2787 src/web/web_templates.ml:2729
 #. src/web/web_templates.ml:2590
 #. src/web/web_templates.ml:1050
 #. src/web/web_templates.ml:1012
 #. src/web/web_templates.ml:883
 #. src/web/web_templates.ml:845
+#: src/web/web_templates.ml:2787 src/web/web_templates.ml:2729
 msgid "Link"
 msgstr "Lien"
 
@@ -859,12 +858,12 @@ msgstr "Se connecter"
 msgid "Login and passwords are required once your ballot is ready to be cast."
 msgstr "Le nom d'utilisateur et le mot de passe sont nécessaires lorsque votre bulletin est prêt à être soumis."
 
-#: src/web/web_templates.ml:2786 src/web/web_templates.ml:2725
 #. src/web/web_templates.ml:2585
 #. src/web/web_templates.ml:1049
 #. src/web/web_templates.ml:1006
 #. src/web/web_templates.ml:882
 #. src/web/web_templates.ml:835
+#: src/web/web_templates.ml:2786 src/web/web_templates.ml:2725
 msgid "Mail"
 msgstr "E-mail"
 
@@ -876,11 +875,11 @@ msgstr "Manuel (mode sécurisé - un tiers se chargera des codes de vote)"
 msgid "Meaning of states:"
 msgstr "Signification des états :"
 
-#: src/web/web_templates.ml:1925 src/web/web_templates.ml:1917
 #. src/web/web_templates.ml:1892
 #. src/web/web_templates.ml:1885
 #. src/web/web_templates.ml:1880
 #. src/web/web_templates.ml:1861
+#: src/web/web_templates.ml:1925 src/web/web_templates.ml:1917
 msgid "Missing"
 msgstr "Manquant"
 
@@ -904,9 +903,9 @@ msgstr "Nom ?"
 msgid "Next"
 msgstr "Suivant"
 
-#: src/web/web_templates.ml:2738 src/web/web_templates.ml:2603
 #. src/web/web_templates.ml:1335
 #. src/web/web_templates.ml:851
+#: src/web/web_templates.ml:2738 src/web/web_templates.ml:2603
 msgid "No"
 msgstr "Non"
 
@@ -940,8 +939,8 @@ msgstr "Ne s'applique pas"
 msgid "Not downloaded."
 msgstr "Non téléchargés."
 
-#: src/web/web_templates.ml:1867 src/web/web_templates.ml:1855
 #. src/web/web_templates.ml:1849
+#: src/web/web_templates.ml:1867 src/web/web_templates.ml:1855
 msgid "Not edited"
 msgstr "Non modifié"
 
@@ -967,8 +966,8 @@ msgstr "Notez que vous pouvez voter plusieurs fois."
 msgid "Note that:"
 msgstr "Notez que :"
 
-#: src/web/web_templates.ml:2435 src/web/web_templates.ml:1479
 #. src/web/web_templates.ml:1389
+#: src/web/web_templates.ml:2435 src/web/web_templates.ml:1479
 msgid "Note:"
 msgstr "Note :"
 
@@ -1150,8 +1149,8 @@ msgstr "Politique de confidentialité"
 msgid "Private credentials?"
 msgstr "Parties privées des codes de vote ?"
 
-#: src/web/web_templates.ml:1732 src/web/web_templates.ml:405
 #. src/web/web_templates.ml:345
+#: src/web/web_templates.ml:1732 src/web/web_templates.ml:405
 msgid "Proceed"
 msgstr "Continuer"
 
@@ -1233,11 +1232,11 @@ msgstr ""
 msgid "Remember to store securely you private key."
 msgstr "N'oubliez pas de sauvegarder votre clé privée de manière sécurisée."
 
-#: src/web/web_templates.ml:1365 src/web/web_templates.ml:1315
 #. src/web/web_templates.ml:1052
 #. src/web/web_templates.ml:963
 #. src/web/web_templates.ml:885
 #. src/web/web_templates.ml:804
+#: src/web/web_templates.ml:1365 src/web/web_templates.ml:1315
 msgid "Remove"
 msgstr "Supprimer"
 
@@ -1253,15 +1252,15 @@ msgstr "Recommencer"
 msgid "Results will be published on the election page"
 msgstr "Les résultats seront publiés sur la page de l'élection"
 
-#: src/web/web_templates.ml:3766 src/web/web_templates.ml:3117
 #. src/web/web_templates.ml:3036
+#: src/web/web_templates.ml:3766 src/web/web_templates.ml:3117
 msgid "Review and encrypt"
 msgstr "Récapitulatif et chiffrement"
 
-#: src/web/web_templates.ml:1245 src/web/web_templates.ml:541
 #. src/web/web_templates.ml:513
 #. src/web/web_templates.ml:484
 #. src/web/web_templates.ml:452
+#: src/web/web_templates.ml:1245 src/web/web_templates.ml:541
 msgid "Save changes"
 msgstr "Sauvegarder les changements"
 
@@ -1353,7 +1352,6 @@ msgstr "Étape 5/6 : Confirmation"
 msgid "Step 6/6: "
 msgstr "Étape 6/6 : "
 
-#: src/web/web_templates.ml:3690 src/web/web_templates.ml:3640
 #. src/web/web_templates.ml:3587
 #. src/web/web_templates.ml:3555
 #. src/web/web_templates.ml:3402
@@ -1362,6 +1360,7 @@ msgstr "Étape 6/6 : "
 #. src/web/web_templates.ml:1741
 #. src/web/web_templates.ml:1709
 #. src/web/web_templates.ml:1492
+#: src/web/web_templates.ml:3690 src/web/web_templates.ml:3640
 msgid "Submit"
 msgstr "Soumettre"
 
@@ -1447,14 +1446,14 @@ msgstr "L'empreinte de votre clé publique est "
 msgid "The fingerprint of your shuffle is:"
 msgstr "L'empreinte de votre mélange est :"
 
-#: src/web/web_templates.ml:2749 src/web/web_templates.ml:2616
 #. src/web/web_templates.ml:1027
 #. src/web/web_templates.ml:863
+#: src/web/web_templates.ml:2749 src/web/web_templates.ml:2616
 msgid "The link that must be sent to trustee "
 msgstr "Le lien qui doit être envoyé à l'autorité "
 
-#: src/web/web_templates.ml:1629 src/web/web_templates.ml:1546
 #. src/web/web_templates.ml:1432
+#: src/web/web_templates.ml:1629 src/web/web_templates.ml:1546
 msgid "The link to the election will be:"
 msgstr "Le lien vers l'élection sera :"
 
@@ -1584,9 +1583,9 @@ msgstr ""
 msgid "To use this site, you must accept our "
 msgstr "Pour utiliser ce site, vous devez accepter nos "
 
-#: src/web/web_templates.ml:2785 src/web/web_templates.ml:2650
 #. src/web/web_templates.ml:1047
 #. src/web/web_templates.ml:880
+#: src/web/web_templates.ml:2785 src/web/web_templates.ml:2650
 msgid "Trustee"
 msgstr "Autorité de déchiffrement"
 
@@ -1624,13 +1623,13 @@ msgstr ""
 msgid "Username"
 msgstr "Identifiant"
 
-#: src/web/web_site.ml:682 src/web/web_templates.ml:3485
 #. src/web/web_templates.ml:2935
+#: src/web/web_site.ml:682 src/web/web_templates.ml:3485
 msgid "Username:"
 msgstr "Nom d'utilisateur :"
 
-#: src/web/web_templates.ml:2012 src/web/web_templates.ml:1845
 #. src/web/web_templates.ml:666
+#: src/web/web_templates.ml:2012 src/web/web_templates.ml:1845
 msgid "Validate creation"
 msgstr "Valider la création"
 
@@ -1654,9 +1653,9 @@ msgstr "Liste électorale ?"
 msgid "Voting records"
 msgstr "Liste d'émargement"
 
-#: src/web/web_templates.ml:3088 src/web/web_templates.ml:1942
 #. src/web/web_templates.ml:1931
 #. src/web/web_templates.ml:1383
+#: src/web/web_templates.ml:3088 src/web/web_templates.ml:1942
 msgid "Warning:"
 msgstr "Attention :"
 
@@ -1696,10 +1695,10 @@ msgstr "En attente des autorités de déchiffrement..."
 msgid "We invite you to save it in order to check later that it is taken into account."
 msgstr "Nous vous invitons à le sauvegarder afin de vérifier ultérieurement que votre vote est bien pris en compte."
 
-#: src/web/web_templates.ml:2738 src/web/web_templates.ml:2603
 #. src/web/web_templates.ml:1946
 #. src/web/web_templates.ml:1334
 #. src/web/web_templates.ml:851
+#: src/web/web_templates.ml:2738 src/web/web_templates.ml:2603
 msgid "Yes"
 msgstr "Oui"
 
@@ -1763,10 +1762,10 @@ msgstr "Vous devez sélectionner au moins %d réponse(s)"
 msgid "You must select at most %d answer(s)"
 msgstr "Vous devez sélectionner au plus %d réponse(s)"
 
-#: src/web/web_templates.ml:1812 src/web/web_templates.ml:246
 #. src/web/web_templates.ml:241
 #. src/web/web_templates.ml:236
 #. src/web/web_templates.ml:231
+#: src/web/web_templates.ml:1812 src/web/web_templates.ml:246
 msgid "You own no such elections!"
 msgstr "Vous n'avez aucune élection !"
 
@@ -1824,8 +1823,8 @@ msgstr "Votre mot de passe pour l'élection %s"
 msgid "Your smart ballot tracker is"
 msgstr "Votre numéro de suivi est"
 
-#: src/web/web_templates.ml:3742 src/web/web_templates.ml:3131
 #. src/web/web_templates.ml:3054
+#: src/web/web_templates.ml:3742 src/web/web_templates.ml:3131
 msgid "Your smart ballot tracker is "
 msgstr "Votre numéro de suivi est "
 
@@ -2054,10 +2053,15 @@ msgstr ""
 #: src/web/web_templates.ml:1385
 msgid "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote."
 msgstr ""
+"vous devez vous assurer que ces adresses e-mail sont valides. Vous ne "
+"pourrez plus modifier les adresses e-mail une fois l'élection mise en place. "
+"Les électeurs avec une adresse e-mail invalide ne pourront pas voter."
 
 #: src/web/web_templates.ml:1268
 msgid "you will be given the raw results (shuffled list of ballots) and you will need to apply your counting method yourself."
 msgstr ""
+"vous obtiendrez les résultats bruts (les bulletins en clair, dans un ordre "
+"aléatoire) et vous devrez appliquer votre méthode de comptage vous-même."
 
 #: src/web/web_common.ml:83
 msgid "your ballot has a syntax error (%s)"
@@ -2070,4 +2074,3 @@ msgstr "votre code de vote a déjà été utilisé"
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr "votre code de vote est invalide"
-
