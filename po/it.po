@@ -680,7 +680,9 @@ msgstr "Ottenere il codice sorgente"
 msgid "Go back to election"
 msgstr "Tornare alla pagina iniziale dell'elezione"
 
-#: src/web/web_templates.ml:1127 src/web/web_templates.ml:924
+#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
+#. src/web/web_templates.ml:1127
+#. src/web/web_templates.ml:924
 msgid "Go back to election draft"
 msgstr ""
 
@@ -1208,10 +1210,6 @@ msgstr "Ricominciare"
 #: src/web/web_site.ml:1691
 msgid "Results will be published on the election page"
 msgstr "I risultati saranno pubblicati sulla pagina dell'elezione"
-
-#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
-msgid "Return to draft page"
-msgstr ""
 
 #: src/web/web_templates.ml:3766 src/web/web_templates.ml:3117
 #. src/web/web_templates.ml:3036

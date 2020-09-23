@@ -687,7 +687,9 @@ msgstr "Gå til kildekoden"
 msgid "Go back to election"
 msgstr "Gå tilbake til valget"
 
-#: src/web/web_templates.ml:1127 src/web/web_templates.ml:924
+#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
+#. src/web/web_templates.ml:1127
+#. src/web/web_templates.ml:924
 msgid "Go back to election draft"
 msgstr ""
 
@@ -1217,10 +1219,6 @@ msgstr "Start på ny"
 #: src/web/web_site.ml:1691
 msgid "Results will be published on the election page"
 msgstr "Resultater vil bli vist på valgsiden"
-
-#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
-msgid "Return to draft page"
-msgstr ""
 
 #: src/web/web_templates.ml:3766 src/web/web_templates.ml:3117
 #. src/web/web_templates.ml:3036

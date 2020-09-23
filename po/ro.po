@@ -677,7 +677,9 @@ msgstr "Obține codul sursă"
 msgid "Go back to election"
 msgstr "Întoarcere la pagina de start a alegerii"
 
-#: src/web/web_templates.ml:1127 src/web/web_templates.ml:924
+#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
+#. src/web/web_templates.ml:1127
+#. src/web/web_templates.ml:924
 msgid "Go back to election draft"
 msgstr ""
 
@@ -1205,10 +1207,6 @@ msgstr "Reîncepe"
 #: src/web/web_site.ml:1691
 msgid "Results will be published on the election page"
 msgstr "Rezultatele vor fi publicate pe pagina alegerii"
-
-#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
-msgid "Return to draft page"
-msgstr ""
 
 #: src/web/web_templates.ml:3766 src/web/web_templates.ml:3117
 #. src/web/web_templates.ml:3036

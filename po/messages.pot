@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-23 10:56+0000\n"
+"POT-Creation-Date: 2020-09-23 12:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -682,7 +682,9 @@ msgstr ""
 msgid "Go back to election"
 msgstr ""
 
-#: src/web/web_templates.ml:1127 src/web/web_templates.ml:924
+#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
+#. src/web/web_templates.ml:1127
+#. src/web/web_templates.ml:924
 msgid "Go back to election draft"
 msgstr ""
 
@@ -1209,10 +1211,6 @@ msgstr ""
 
 #: src/web/web_site.ml:1691
 msgid "Results will be published on the election page"
-msgstr ""
-
-#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
-msgid "Return to draft page"
 msgstr ""
 
 #: src/web/web_templates.ml:3766 src/web/web_templates.ml:3117
