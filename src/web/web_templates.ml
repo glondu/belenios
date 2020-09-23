@@ -2429,7 +2429,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
     return @@ post_form ~service:election_auto_post
       (fun (lopen, lclose) ->
         [
-          div [txt (s_ "Alternatively, you may setup automatic dates.")];
+          div [txt (s_ "Alternatively, you may set up automatic dates.")];
           div [
               b [txt (s_ "Note:")];
               txt " ";
