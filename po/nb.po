@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2020-09-23 07:15+0000\n"
+"PO-Revision-Date: 2020-09-23 10:58+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "belenios/server/nb_NO/>\n"
@@ -1810,7 +1810,7 @@ msgstr "endre passordet ditt"
 
 #: src/web/web_templates.ml:216
 msgid "contact us"
-msgstr "kontakt oss"
+msgstr "kontakte oss"
 
 #: src/web/web_templates.ml:3472
 msgid "create an account"
@@ -1858,7 +1858,7 @@ msgstr ""
 
 #: src/web/web_templates.ml:3658
 msgid "of an unknown reason"
-msgstr ""
+msgstr "av en ukjent grunn"
 
 #: src/web/web_templates.ml:2046
 msgid "parameters"
@@ -1886,7 +1886,7 @@ msgstr "offentlig navn:"
 
 #: src/web/web_templates.ml:3237
 msgid "raw data"
-msgstr "rådata"
+msgstr "rådataen"
 
 #: src/web/web_templates.ml:2216
 msgid "result with cryptographic proofs"
