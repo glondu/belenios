@@ -832,7 +832,7 @@ let election_draft_trustees ?token uuid se () =
                          in
                          let body = Printf.sprintf mail_trustee_generation_basic uri in
                          let subject = s_ "Link to generate the decryption key" in
-                         a_mailto ~dest:t.st_id ~subject ~body (s_ "Mail")
+                         a_mailto ~dest:t.st_id ~subject ~body (s_ "E-mail")
                        ) else (
                          txt (s_ "(server)")
                        )
@@ -879,7 +879,7 @@ let election_draft_trustees ?token uuid se () =
            tr [
                th [txt (s_ "Trustee")];
                th [txt (s_ "Public name")];
-               th [txt (s_ "Mail")];
+               th [txt (s_ "E-mail")];
                th [txt (s_ "Link")];
                th [txt (s_ "Done?")];
                th [txt (s_ "Remove")];
@@ -897,7 +897,7 @@ let election_draft_trustees ?token uuid se () =
           trustees;
           (if se.se_public_keys <> [] then
              div [
-                 txt (s_ "There is one link per trustee. Send each trustee her link.");
+                 txt (s_ "There is one link per trustee. Send each trustee the respective link.");
                  br ();
                  br ();
                ]
@@ -909,7 +909,7 @@ let election_draft_trustees ?token uuid se () =
   let div_content =
     div [
       div [
-          txt (s_ "To set up the election key, you need to nominate trustees. Each trustee will create her own secret key.");
+          txt (s_ "To set up the election key, you need to nominate trustees. Each trustee will create a secret key.");
           txt " ";
           txt (s_ "To set up the election so that only a subset of trustees is needed, go to the ");
           a ~service:election_draft_threshold_trustees [txt (s_ "threshold mode")] uuid;
@@ -1003,7 +1003,7 @@ let election_draft_threshold_trustees ?token uuid se () =
                          in
                          let body = Printf.sprintf mail_trustee_generation_threshold uri in
                          let subject = s_ "Link to generate the decryption key" in
-                         a_mailto ~dest:t.stt_id ~subject ~body (s_ "Mail")
+                         a_mailto ~dest:t.stt_id ~subject ~body (s_ "E-mail")
                        ];
                      td [
                          if this_line then
@@ -1101,18 +1101,18 @@ let election_draft_threshold_trustees ?token uuid se () =
   let maybe_error =
     match se.se_threshold_error with
     | None -> txt ""
-    | Some e -> div [b [txt "ERROR: "]; txt e; br (); br ()]
+    | Some e -> div [b [txt "Error: "]; txt e; br (); br ()]
   in
   let div_content =
     div [
-      div [txt (s_ "On this page, you can configure a group of trustees such that only a subset of them is needed to perform the decryption.")];
+      div [txt (s_ "On this page, you can configure a group of trustees so that only a subset of them is needed to perform the decryption.")];
       br ();
       form_threshold;
       br ();
       trustees;
       (if se.se_threshold_trustees <> None then
           div [
-            txt (s_ "There is one link per trustee. Send each trustee her link.");
+            txt (s_ "There is one link per trustee. Send a link to each trustee.");
             br ();
             br ();
             maybe_error;
@@ -1181,7 +1181,7 @@ let election_draft_credential_authority uuid se () =
       ];
     ];
     div [
-      txt (s_ "Note that this authority will have to send each credential to each voter herself.");
+      txt (s_ "Note that this authority will personally have to send each credential to its respective voter.");
     ];
   ] in
   let%lwt login_box = login_box () in
@@ -1218,7 +1218,7 @@ let election_draft_credentials_done se () =
                       txt ");"
                     ];
                   li [
-                      txt (s_ "you can send again a private credential to its rightful owner in case of loss.")
+                      txt (s_ "you can send the private credential back to its rightful owner in case it gets lost.")
                     ];
                 ];
             ];
@@ -1702,7 +1702,7 @@ let election_draft_threshold_trustee token uuid se () =
                   li [
                       txt (s_ "The fingerprint of your public key is ");
                       span ~a:[a_id "pki_fp"] [];
-                      txt (s_ ". Save it so that you can check later that it appears on the election home.");
+                      txt (s_ ". Save it so that you can check that it appears on the election home later.");
                     ];
                   li [
                       txt (s_ "Submit data using the following button:");
@@ -1766,7 +1766,7 @@ let election_draft_threshold_trustee token uuid se () =
             li [txt (s_ "Save the fingerprint above.")];
             li [txt (s_ "Once the election is open, you must check that it is present in the set of verification keys published by the server.")];
             li [txt (s_ "Remember that you must also check the presence of your public key.")];
-            li [txt (s_ "Remember to store securely you private key.")];
+            li [txt (s_ "Remember to store you private key securely.")];
           ];
       ]
   in
@@ -1931,7 +1931,7 @@ let election_draft_confirm uuid se () =
        div [
            b [txt (s_ "Warning:")];
            txt " ";
-           txt (s_ "No trustees were set. This means that the server will manage the election key by itself.");
+           txt (s_ "No trustees were set. This means the server will manage the election key by itself.");
          ]
     | _, _ -> txt ""
   in
@@ -2013,7 +2013,7 @@ let election_draft_confirm uuid se () =
               [h2 [txt (s_ "Validate creation")];
                input ~input_type:`Submit ~value:(s_ "Create election") string;
                txt " ";
-               txt (s_ "(Warning: this action is irreversible.)");
+               txt (s_ "(Warning: This action is irreversible.)");
               ]]
         ) uuid
     else div []
@@ -2384,7 +2384,7 @@ The election is now closed. Here's the link to proceed to tally:
 Here's the instructions:
 1. Follow the link.
 2. Enter your private decryption key in the first box and click on
-   \"generate decryption factors\"
+   \"generate decryption factors\".
 3. The second box is now filled with crypto material. Please press the
    button \"submit\".
 
@@ -2395,15 +2395,15 @@ Thank you again for your help,
 let mail_shuffle : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Dear trustee,
 
-You will find below the link to shuffle encrypted ballots.
+Below you will find the link to shuffle encrypted ballots.
 
   %s
 
 Here's the instructions:
-1. click on the link
-2. click on \"Compute shuffle\"
-3. the fingerprint of your shuffle will appear. Save it.
-4. when the election result is published, make sure that the fingerprint of
+1. Click on the link.
+2. Click on \"Compute shuffle\".
+3. The fingerprint of your shuffle will appear. Save it.
+4. When the election result is published, make sure that the fingerprint of
    your shuffle appears in the result.
 
 Thank you for your help,
@@ -2451,7 +2451,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                   input ~name:lclose ~input_type:`Text ~value:(format dates.e_auto_close) string;
                 ];
               div [
-                  txt (s_ "Enter dates in UTC, in format YYYY-MM-DD HH:MM:SS, leave empty for no date.");
+                  txt (s_ "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date.");
                 ];
             ];
           div [
@@ -2509,7 +2509,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                  ~value:(s_ "Proceed to vote counting")
                  string;
               txt " ";
-              txt (s_ "Warning: this action is irreversible; the election will be definitively closed.");
+              txt (s_ "Warning: This action is irreversible; the election definitively be closed.");
              ]) uuid;
        ]
     | `Shuffling ->
@@ -2723,7 +2723,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                ) else (
                  let body = Printf.sprintf mail_trustee_tally uri in
                  let subject = s_ "Link to tally the election" in
-                 a_mailto ~dest ~subject ~body (s_ "Mail"),
+                 a_mailto ~dest ~subject ~body (s_ "E-mail"),
                  if this_line then
                    a ~service:election_admin [txt (s_ "Hide link")] uuid
                  else
@@ -2780,11 +2780,11 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
            txt (s_ " has been computed.")
          ];
          div [
-           div [txt (s_ "We are now waiting for trustees..."); threshold_or_not];
+           div [txt (s_ "Awaiting trustees…"); threshold_or_not];
            table
              (tr [
                th [txt (s_ "Trustee")];
-               th [txt (s_ "Mail")];
+               th [txt (s_ "E-mail")];
                th [txt (s_ "Link")];
                th [txt (s_ "Done?")];
              ] :: List.flatten trustees)
@@ -2813,7 +2813,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                       input ~name:date ~input_type:`Text string;
                     ];
                   div [
-                      txt (s_ "Enter the date in UTC, in format YYYY-MM-DD HH:MM:SS. For example, now is ");
+                      txt (s_ "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is ");
                       txt (String.sub (string_of_datetime (now ())) 1 19);
                       txt ".";
                     ];
@@ -2858,7 +2858,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
         [
           input ~input_type:`Submit ~value:(s_ "Archive election") string;
           txt " ";
-          txt (s_ "Warning: this action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).");
+          txt (s_ "Warning: This action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).");
         ]
       ) uuid;
     ]
@@ -2887,7 +2887,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
             [
               input ~input_type:`Submit ~value:(s_ "Delete election") string;
               txt " ";
-              txt (s_ "Warning: this action is irreversible.");
+              txt (s_ "Warning: This action is irreversible.");
             ]
           ) uuid;
       ]
@@ -2901,7 +2901,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
       txt ""
     else
       div [
-          a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [txt (s_ "Regenerate and mail a password")] uuid;
+          a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [txt (s_ "Regenerate and e-mail a password")] uuid;
         ]
   in
   let content = [
@@ -2942,7 +2942,7 @@ let regenpwd uuid () =
     ) uuid
   in
   let content = [ form ] in
-  let title = s_ "Regenerate and mail password" in
+  let title = s_ "Regenerate and e-mail password" in
   let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ~uuid ()
 
@@ -2972,7 +2972,7 @@ let cast_raw election () =
   in
   let intro = div [
     div [
-      txt "You can create an encrypted ballot by using the command line tool ";
+      txt "You can create an encrypted ballot by using the command-line tool ";
       txt "(available in the ";
       a ~service:source_code [txt "sources"] ();
       txt "), or any booth (you can use the ";
@@ -3025,7 +3025,7 @@ let cast_confirmation election hash () =
     | Some u ->
        let%lwt revote = Web_persist.has_voted uuid u in
        if revote then
-         return @@ p [b [txt (s_ "Note: you have already voted. Your vote will be replaced.")]]
+         return @@ p [b [txt (s_ "Note: You have already voted. Your vote will be replaced.")]]
        else
          return @@ txt ""
   in
@@ -3284,11 +3284,11 @@ let shuffle election token =
           make_button ~service ~disabled:false (s_ "Download as a file");
         ];
       div ~a:[a_id "estimation"] [
-          txt (s_ "Estimating computation time...");
+          txt (s_ "Estimating computation time…");
         ];
       div ~a:[a_id "wait_div"] [
-          txt (s_ "Please wait... ");
-          img ~src:(static "encrypting.gif") ~alt:(s_ "Loading...") ();
+          txt (s_ "Please wait… ");
+          img ~src:(static "encrypting.gif") ~alt:(s_ "Loading…") ();
         ];
       div ~a:[a_id "controls_div"; a_style "display: none;"] [
           button_no_value ~button_type:`Button ~a:[a_id "compute_shuffle"] [txt (s_ "Compute shuffle")];
@@ -3309,7 +3309,7 @@ let shuffle election token =
                     b ~a:[a_id "hash"] [];
                     txt ".";
                   ];
-                div [txt (s_ "You must record this fingerprint and check that it appears on the result page of the election.")];
+                div [txt (s_ "You must record this fingerprint and check that it appears on the election result page.")];
               ];
             div [
                 input ~input_type:`Submit ~value:(s_ "Submit") string;
@@ -3705,8 +3705,8 @@ let booth () =
   ] in
   let wait_div =
     div ~a:[a_id "wait_div"] [
-        txt (s_ "Please wait... ");
-        img ~src:(static "encrypting.gif") ~alt:(s_ "Loading...") ();
+        txt (s_ "Please wait… ");
+        img ~src:(static "encrypting.gif") ~alt:(s_ "Loading…") ();
       ]
   in
   let election_loader =
@@ -3735,8 +3735,8 @@ let booth () =
           ];
         ];
         p [
-          txt (s_ "Your ballot has been successfully encrypted, ");
-          b [txt (s_ "but has not been cast yet")];
+          txt (s_ "Your ballot has been encrypted, ");
+          b [txt (s_ "but not cast yet")];
           txt (s_ "!");
         ];
         p [
@@ -3744,7 +3744,7 @@ let booth () =
           span ~a:[a_id "ballot_tracker"] [];
         ];
         p [
-          txt (s_ "We invite you to save it in order to check later that it is taken into account.");
+          txt (s_ "Save it to check that it is taken into account later.");
         ];
         br ();
         div ~a:[a_id "div_submit"] [
@@ -3762,7 +3762,7 @@ let booth () =
       div ~a:[a_style "text-align:center; margin-bottom:20px;"] [
         span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [txt (s_ "Input credential")];
         txt " — ";
-        span ~a:[a_id "progress2"] [txt (s_ "Answer to questions")];
+        span ~a:[a_id "progress2"] [txt (s_ "Answers to questions")];
         txt " — ";
         span ~a:[a_id "progress3"] [txt (s_ "Review and encrypt")];
         txt " — ";
@@ -3799,8 +3799,8 @@ let booth () =
         ];
         div ~a:[a_style "text-align:center;"] [
           div ~a:[a_id "encrypting_div"] [
-            p [txt (s_ "Please wait while your ballot is being encrypted...")];
-            img ~src:(static "encrypting.gif") ~alt:(s_ "Encrypting...") ();
+            p [txt (s_ "Please wait while your ballot is being encrypted…")];
+            img ~src:(static "encrypting.gif") ~alt:(s_ "Encrypting…") ();
           ];
           div ~a:[a_id "ballot_div"; a_style "display:none;"] [ballot_form];
           Unsafe.data ("<button onclick=\"location.reload();\">" ^ s_ "Restart" ^ "</button>");
