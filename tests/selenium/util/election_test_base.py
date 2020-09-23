@@ -92,7 +92,7 @@ class BeleniosElectionTestBase(unittest.TestCase):
         # - She clicks on the "Edit voters" link, to then type the list of voters
         # - She types N e-mail addresses (the list of invited voters)
         # - She clicks on the "Add" button to submit changes
-        # - She clicks on "Return to draft page" link
+        # - She clicks on "Go back to election draft" link
         self.voters_email_addresses = random_email_addresses_generator(settings.NUMBER_OF_INVITED_VOTERS)
         administrator_sets_election_voters(browser, self.voters_email_addresses)
 

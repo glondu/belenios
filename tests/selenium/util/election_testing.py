@@ -673,7 +673,7 @@ def administrator_sets_election_voters(browser, voters_email_addresses):
     - She clicks on the "Edit voters" link, to then type the list of voters
     - She types N e-mail addresses (the list of invited voters)
     - She clicks on the "Add" button to submit changes
-    - She clicks on "Return to draft page" link
+    - She clicks on "Go back to election draft" link
     """
 
     # She clicks on the "Edit voters" link, to then type the list of voters
@@ -713,8 +713,8 @@ def administrator_sets_election_voters(browser, voters_email_addresses):
             expected_email_address_css_selector = "tr:last-child td:first-child"
             wait_for_element_exists_and_contains_expected_text(browser, expected_email_address_css_selector, last_email_address_typed)
 
-    # She clicks on "Return to draft page" link
-    return_link_label = "Return to draft page"
+    # She clicks on "Go back to election draft" link
+    return_link_label = "Go back to election draft"
     return_link_element = wait_for_an_element_with_partial_link_text_exists(browser, return_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
     return_link_element.click()
 
