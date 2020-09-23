@@ -3762,7 +3762,7 @@ let booth () =
       div ~a:[a_style "text-align:center; margin-bottom:20px;"] [
         span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [txt (s_ "Input credential")];
         txt " — ";
-        span ~a:[a_id "progress2"] [txt (s_ "Answers to questions")];
+        span ~a:[a_id "progress2"] [txt (s_ "Answer to questions")];
         txt " — ";
         span ~a:[a_id "progress3"] [txt (s_ "Review and encrypt")];
         txt " — ";
