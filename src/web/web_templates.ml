@@ -1367,7 +1367,7 @@ let election_draft_voters uuid se maxvoters () =
        ]
   in
   let back = div [
-    a ~service:Web_services.election_draft [txt (s_ "Return to draft page")] uuid;
+    a ~service:Web_services.election_draft [txt (s_ "Go back to election draft")] uuid;
   ] in
   let div_add =
     if se.se_public_creds_received then
@@ -2018,7 +2018,7 @@ let election_draft_confirm uuid se () =
     else div []
   in
   let back = div [
-    a ~service:Web_services.election_draft [txt (s_ "Return to draft page")] uuid;
+    a ~service:Web_services.election_draft [txt (s_ "Go back to election draft")] uuid;
   ] in
   let content = [
     back;
