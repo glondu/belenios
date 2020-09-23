@@ -9,7 +9,7 @@ clean:
 	rm -f *.bak
 
 $(POTFILE): POTFILES
-	ocaml-gettext --action extract --extract-pot $@ $^
+	cd .. && ocaml-gettext --action extract --extract-pot po/$@ $(shell cat $^)
 
 %.po: $(POTFILE)
 	ocaml-gettext --action merge --merge-pot $^ $@

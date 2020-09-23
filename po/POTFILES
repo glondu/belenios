@@ -1,4 +1,4 @@
-../src/web/web_common.ml
-../src/web/web_templates.ml
-../src/web/web_site.ml
-../src/tool/tool_js_booth.ml
+src/web/web_common.ml
+src/web/web_templates.ml
+src/web/web_site.ml
+src/tool/tool_js_booth.ml
