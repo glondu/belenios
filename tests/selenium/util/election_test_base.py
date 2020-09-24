@@ -278,13 +278,13 @@ pris en compte.
 
         for email_address in self.voters_email_addresses_who_have_lost_their_password:
             text_to_look_for = 'To: "' + email_address + '"'
-            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) is 3
+            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) == 3
 
         voters_email_addresses_who_have_not_lost_their_password = set(self.voters_email_addresses) - set(self.voters_email_addresses_who_have_lost_their_password)
 
         for email_address in voters_email_addresses_who_have_not_lost_their_password:
             text_to_look_for = 'To: "' + email_address + '"'
-            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) is 2
+            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) == 2
 
         log_out(browser, self.election_id)
 
@@ -629,4 +629,4 @@ pris en compte.
         for voter_email_address in self.voters_email_addresses_who_have_voted:
             voter = self.voters_data[voter_email_address]
             matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
-            assert len(matches) is 1
+            assert len(matches) == 1
