@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2020-09-23 10:58+0000\n"
+"PO-Revision-Date: 2020-09-24 08:04+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "belenios/server/nb_NO/>\n"
@@ -107,9 +106,9 @@ msgstr " i stedet for "
 msgid " is rejected, because "
 msgstr " har blitt avslått, fordi "
 
-#: src/web/web_templates.ml:2752 src/web/web_templates.ml:2619
 #. src/web/web_templates.ml:1029
 #. src/web/web_templates.ml:865
+#: src/web/web_templates.ml:2751 src/web/web_templates.ml:2618
 msgid " is:"
 msgstr " er:"
 
@@ -185,9 +184,9 @@ msgstr "(ingenting)"
 msgid "(or "
 msgstr "(eller "
 
-#: src/web/web_templates.ml:2722 src/web/web_templates.ml:2721
 #. src/web/web_templates.ml:847
 #. src/web/web_templates.ml:837
+#: src/web/web_templates.ml:2721 src/web/web_templates.ml:2720
 msgid "(server)"
 msgstr "(tjener)"
 
@@ -242,8 +241,8 @@ msgstr "Godta"
 msgid "Accepted ballots"
 msgstr "Godtatte stemmer"
 
-#: src/web/web_templates.ml:1307 src/web/web_templates.ml:952
 #. src/web/web_templates.ml:794
+#: src/web/web_templates.ml:1306 src/web/web_templates.ml:952
 msgid "Add"
 msgstr "Legg til"
 
@@ -282,9 +281,12 @@ msgstr "En avstemming med samme UUID finnes allerede."
 #: src/web/web_templates.ml:1392
 msgid "An identity is either an e-mail address, or \"address,login\", where \"address\" is an e-mail address and \"login\" the associated login for authentication."
 msgstr ""
+"En identitet er enten en e-postadresse, eller \"adresse,innlogging\", der "
+"\"adresse\" er en e-postadresse og \"innlogging\" er tilknyttet innlogging "
+"for identitetsbekreftelse."
 
-#: src/web/web_templates.ml:3765 src/web/web_templates.ml:3116
-#. src/web/web_templates.ml:3035
+#. src/web/web_templates.ml:3034
+#: src/web/web_templates.ml:3764 src/web/web_templates.ml:3115
 msgid "Answer to questions"
 msgstr "Svar på spørsmål"
 
@@ -312,8 +314,8 @@ msgstr "Minst ett av svarene er ugyldig!"
 msgid "Audit data: "
 msgstr "Valgopptellingsdata: "
 
-#: src/web/web_templates.ml:3769 src/web/web_templates.ml:3120
-#. src/web/web_templates.ml:3039
+#. src/web/web_templates.ml:3038
+#: src/web/web_templates.ml:3768 src/web/web_templates.ml:3119
 msgid "Authenticate"
 msgstr "Identitetsbekreft"
 
@@ -389,8 +391,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Belenios-valgavlukke"
 
+#. src/web/web_templates.ml:2071
 #: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
-#. src/web/web_templates.ml:2072
 msgid "Blank vote"
 msgstr "Blank stemme"
 
@@ -434,9 +436,10 @@ msgstr "Lukk valg"
 msgid "Collaborative key generation"
 msgstr ""
 
-#: src/web/web_templates.ml:3392
+#: src/web/web_templates.ml:3391
+#, fuzzy
 msgid "Compute decryption factors"
-msgstr ""
+msgstr "Regn ut dekrypteringsfaktorer"
 
 #: src/web/web_templates.ml:3294
 msgid "Compute shuffle"
@@ -444,11 +447,11 @@ msgstr ""
 
 #: src/web/web_templates.ml:2769
 msgid "Compute the result"
-msgstr ""
+msgstr "Regn ut resultatet"
 
-#: src/web/web_templates.ml:3771 src/web/web_templates.ml:3260
-#. src/web/web_templates.ml:3122
-#. src/web/web_templates.ml:3041
+#. src/web/web_templates.ml:3121
+#. src/web/web_templates.ml:3040
+#: src/web/web_templates.ml:3770 src/web/web_templates.ml:3259
 msgid "Confirm"
 msgstr "Bekreft"
 
@@ -486,11 +489,11 @@ msgstr "Opprett nytt valg"
 
 #: src/web/web_templates.ml:1975
 msgid "Credential authority?"
-msgstr ""
+msgstr "Identitetsdetalj-myndighet?"
 
 #: src/web/web_templates.ml:658 src/web/web_templates.ml:370
 msgid "Credential management"
-msgstr ""
+msgstr "Identitetsdetalj-håndtering"
 
 #: src/web/web_site.ml:1082
 msgid "Credential:"
@@ -498,27 +501,28 @@ msgstr "Identitetsdetalj:"
 
 #: src/web/web_templates.ml:623
 msgid "Credentials"
-msgstr ""
+msgstr "Identitetsdetaljer"
 
 #: src/web/web_templates.ml:1193 src/web/web_templates.ml:1140
+#, fuzzy
 msgid "Credentials for election %s"
-msgstr ""
+msgstr "Identitetsdetaljer for valget %s"
 
 #: src/web/web_templates.ml:1527 src/web/web_templates.ml:644
 msgid "Credentials have already been generated!"
-msgstr ""
+msgstr "Identitetsdetaljer har allerede blitt generert!"
 
 #: src/web/web_templates.ml:1196
 msgid "Credentials have been received and checked!"
-msgstr ""
+msgstr "Identitetsdetaljer har blitt mottatt og sjekket!"
 
 #: src/web/web_templates.ml:1979
 msgid "Credentials?"
-msgstr ""
+msgstr "Identitetsdetaljer?"
 
 #: src/web/web_templates.ml:3279
 msgid "Current list of ballots:"
-msgstr ""
+msgstr "Nåværende liste over valgsedler:"
 
 #: src/web/web_templates.ml:1744 src/web/web_templates.ml:1713
 msgid "Data:"
@@ -545,16 +549,17 @@ msgid "Description?"
 msgstr "Beskrivelse?"
 
 #: src/web/web_templates.ml:683 src/web/web_templates.ml:677
+#, fuzzy
 msgid "Destroy election"
-msgstr ""
+msgstr "Slett valget for godt"
 
-#: src/web/web_templates.ml:3773 src/web/web_templates.ml:3124
-#. src/web/web_templates.ml:3043
+#. src/web/web_templates.ml:3042
+#: src/web/web_templates.ml:3772 src/web/web_templates.ml:3123
 msgid "Done"
 msgstr "Ferdig"
 
-#: src/web/web_templates.ml:2789 src/web/web_templates.ml:2653
 #. src/web/web_templates.ml:884
+#: src/web/web_templates.ml:2788 src/web/web_templates.ml:2652
 msgid "Done?"
 msgstr "Ferdig?"
 
@@ -572,7 +577,7 @@ msgstr "Last ned som fil"
 
 #: src/web/web_templates.ml:629
 msgid "Download private credentials"
-msgstr ""
+msgstr "Last ned private identitetsdetaljer"
 
 #: src/web/web_templates.ml:1696 src/web/web_templates.ml:1571
 msgid "Download your "
@@ -601,10 +606,10 @@ msgstr "Rediger spørsmål"
 msgid "Edit voters"
 msgstr "Rediger stemmeberettigede"
 
-#: src/web/web_templates.ml:1846 src/web/web_templates.ml:1837
-#. src/web/web_templates.ml:1830
+#. src/web/web_templates.ml:1829
+#: src/web/web_templates.ml:1845 src/web/web_templates.ml:1836
 msgid "Election "
-msgstr ""
+msgstr "Valg "
 
 #: src/web/web_templates.ml:3833
 msgid "Election UUID: "
@@ -614,23 +619,25 @@ msgstr "Valg-UUID: "
 msgid "Election fingerprint: "
 msgstr "Valg-fingeravtrykk: "
 
-#: src/web/web_templates.ml:2909
+#: src/web/web_templates.ml:2908
+#, fuzzy
 msgid "Election home"
-msgstr ""
+msgstr "Valg-hjem"
 
-#: src/web/web_templates.ml:3816 src/web/web_templates.ml:208
 #. src/web/web_templates.ml:174
 #. src/web/web_templates.ml:142
+#: src/web/web_templates.ml:3815 src/web/web_templates.ml:208
 msgid "Election server"
 msgstr "Valg-tjener"
 
 #: src/web/web_templates.ml:265
+#, fuzzy
 msgid "Elections being prepared"
-msgstr ""
+msgstr "Valg som forberedes"
 
 #: src/web/web_templates.ml:1817 src/web/web_templates.ml:268
 msgid "Elections you can administer"
-msgstr ""
+msgstr "Valg du kan administrere"
 
 #: src/web/web_templates.ml:3803
 msgid "Encrypting…"
@@ -640,9 +647,11 @@ msgstr "Krypterer…"
 msgid "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date."
 msgstr ""
 
-#: src/web/web_templates.ml:2816
-msgid "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is "
+#: src/web/web_templates.ml:2815
+#, fuzzy
+msgid "Enter the date in UTC, in format YYYY-MM-DD HH:MM:SS. For example, now is "
 msgstr ""
+"Skriv inn dato i UTC-tid, i formatet YYYY-MM-DD HH:MM:SS. For eksempel, nå "
 
 #: src/web/web_templates.ml:1728
 msgid "Enter your private key:"
@@ -652,9 +661,9 @@ msgstr "Skriv inn din private nøkkel:"
 msgid "Error"
 msgstr "Feil"
 
-#: src/web/web_templates.ml:3287
+#: src/web/web_templates.ml:3286
 msgid "Estimating computation time…"
-msgstr ""
+msgstr "Beregner utregningstid…"
 
 #: src/web/web_templates.ml:3146
 msgid "FAIL!"
@@ -666,47 +675,50 @@ msgstr "Fingeravtrykk"
 
 #: src/web/web_templates.ml:1445
 msgid "Fingerprint of public credentials:"
-msgstr ""
+msgstr "Fingeravtrykk for offentlige identitetsdetaljer:"
 
 #: src/web/web_templates.ml:1563
 msgid "Fingerprint of the verification key:"
-msgstr ""
+msgstr "Fingeravtrykk for bekreftelsesnøkkel:"
 
-#: src/web/web_templates.ml:1513
+#: src/web/web_templates.ml:1512
+#, fuzzy
 msgid "Fingerprint of voters:"
-msgstr ""
+msgstr "Fingeravtrykk tilhørende stemmeberettigede:"
 
 #: src/web/web_templates.ml:612
+#, fuzzy
 msgid "For real elections, the key must be shared among independent trustees."
-msgstr ""
+msgstr "For virkelige valg, må nøkkelen deles mellom uavhengige betrodde."
 
-#: src/web/web_templates.ml:1351 src/web/web_templates.ml:569
+#: src/web/web_templates.ml:1350 src/web/web_templates.ml:569
+#, fuzzy
 msgid "Generate and mail missing passwords"
-msgstr ""
+msgstr "Generer og send manglende passord per e-post"
 
 #: src/web/web_templates.ml:654
 msgid "Generate on server"
-msgstr ""
+msgstr "Generer på tjener"
 
 #: src/web/web_templates.ml:161
 msgid "Get the source code"
 msgstr "Gå til kildekoden"
 
-#: src/web/web_templates.ml:3189 src/web/web_templates.ml:3161
-#. src/web/web_templates.ml:3100
-#. src/web/web_templates.ml:3072
+#. src/web/web_templates.ml:3099
+#. src/web/web_templates.ml:3071
+#: src/web/web_templates.ml:3188 src/web/web_templates.ml:3160
 msgid "Go back to election"
 msgstr "Gå tilbake til valget"
 
-#: src/web/web_templates.ml:2022 src/web/web_templates.ml:1371
 #. src/web/web_templates.ml:1127
 #. src/web/web_templates.ml:924
+#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
 msgid "Go back to election draft"
-msgstr ""
+msgstr "Gå tilbake til valgkladd"
 
-#: src/web/web_templates.ml:2728 src/web/web_templates.ml:2589
 #. src/web/web_templates.ml:1010
 #. src/web/web_templates.ml:843
+#: src/web/web_templates.ml:2727 src/web/web_templates.ml:2588
 msgid "Hide link"
 msgstr "Skjul lenke"
 
@@ -736,7 +748,7 @@ msgstr ""
 
 #: src/web/web_templates.ml:3094
 msgid "If you want to vote, you must "
-msgstr ""
+msgstr "Hvis du ønsker å stemme, må du "
 
 #: src/web/web_templates.ml:1805
 msgid "Import from this election"
@@ -750,8 +762,8 @@ msgstr "Importer betrodde fra et annet valg"
 msgid "Import voters from another election"
 msgstr "Importer stemmeberettigede fra et annet valg"
 
-#: src/web/web_templates.ml:3763 src/web/web_templates.ml:3114
-#. src/web/web_templates.ml:3033
+#. src/web/web_templates.ml:3032
+#: src/web/web_templates.ml:3762 src/web/web_templates.ml:3113
 msgid "Input credential"
 msgstr "Skriv inn identitetsdetalj"
 
@@ -763,10 +775,10 @@ msgstr "Skriv inn din identitetsdetalj "
 msgid "Instructions"
 msgstr "Instruks"
 
-#: src/web/web_templates.ml:3366 src/web/web_templates.ml:1725
-#. src/web/web_templates.ml:1693
-#. src/web/web_templates.ml:1568
-#. src/web/web_templates.ml:1450
+#. src/web/web_templates.ml:1692
+#. src/web/web_templates.ml:1567
+#. src/web/web_templates.ml:1449
+#: src/web/web_templates.ml:3365 src/web/web_templates.ml:1724
 msgid "Instructions:"
 msgstr "Instruks:"
 
@@ -776,7 +788,7 @@ msgstr "Ugyldig identitetsdetalj!"
 
 #: src/web/web_site.ml:2925
 msgid "Invalid index for question."
-msgstr ""
+msgstr "Ugyldig indeks for spørsmål."
 
 #: src/web/web_templates.ml:3350
 msgid "It is now time to compute your partial decryption factors."
@@ -792,24 +804,24 @@ msgstr "JSON-resultat"
 
 #: src/web/web_templates.ml:458
 msgid "Languages"
-msgstr ""
+msgstr "Språk"
 
 #: src/web/web_templates.ml:438
 msgid "Languages:"
-msgstr ""
+msgstr "Språk:"
 
-#: src/web/web_templates.ml:2788 src/web/web_templates.ml:2730
-#. src/web/web_templates.ml:2591
+#. src/web/web_templates.ml:2590
 #. src/web/web_templates.ml:1050
 #. src/web/web_templates.ml:1012
 #. src/web/web_templates.ml:883
 #. src/web/web_templates.ml:845
+#: src/web/web_templates.ml:2787 src/web/web_templates.ml:2729
 msgid "Link"
 msgstr "Lenke"
 
 #: src/web/web_templates.ml:1005 src/web/web_templates.ml:834
 msgid "Link to generate the decryption key"
-msgstr ""
+msgstr "Lenke for generering av dekrypteringsnøkkel"
 
 #: src/web/web_templates.ml:2583
 msgid "Link to shuffle encrypted ballots"
@@ -821,11 +833,12 @@ msgstr ""
 
 #: src/web/web_templates.ml:1511
 msgid "List of voters:"
-msgstr ""
+msgstr "Liste over stemmeberettigede:"
 
-#: src/web/web_templates.ml:3709 src/web/web_templates.ml:3291
+#: src/web/web_templates.ml:3708 src/web/web_templates.ml:3290
+#, fuzzy
 msgid "Loading…"
-msgstr ""
+msgstr "Laster inn…"
 
 #: src/web/web_templates.ml:3439
 msgid "Log in"
@@ -853,37 +866,45 @@ msgstr ""
 "Innloggingsdetaljer og passord kreves når din stemme er klart til å bli "
 "avgitt."
 
-#: src/web/web_templates.ml:2586 src/web/web_templates.ml:1049
+#. src/web/web_templates.ml:2585
+#. src/web/web_templates.ml:1049
+#. src/web/web_templates.ml:1006
+#. src/web/web_templates.ml:882
+#. src/web/web_templates.ml:835
+#: src/web/web_templates.ml:2786 src/web/web_templates.ml:2725
+#, fuzzy
 msgid "Mail"
-msgstr ""
+msgstr "E-post"
 
 #: src/web/web_templates.ml:384
+#, fuzzy
 msgid "Manual (safe mode - a third party will handle the credentials)"
-msgstr ""
+msgstr "Manuell (trygt modus - en tredjepart vil håndtere identitetsdetaljene)"
 
 #: src/web/web_templates.ml:1056
 msgid "Meaning of states:"
 msgstr ""
 
-#: src/web/web_templates.ml:1926 src/web/web_templates.ml:1918
-#. src/web/web_templates.ml:1893
-#. src/web/web_templates.ml:1886
-#. src/web/web_templates.ml:1881
-#. src/web/web_templates.ml:1862
+#. src/web/web_templates.ml:1892
+#. src/web/web_templates.ml:1885
+#. src/web/web_templates.ml:1880
+#. src/web/web_templates.ml:1861
+#: src/web/web_templates.ml:1925 src/web/web_templates.ml:1917
+#, fuzzy
 msgid "Missing"
-msgstr ""
+msgstr "Mangler"
 
 #: src/web/web_templates.ml:2918
 msgid "Missing voters"
-msgstr ""
+msgstr "Manglende stemmeberettigede"
 
 #: src/web/web_templates.ml:491
 msgid "Name and description of the election"
-msgstr ""
+msgstr "Navn og beskrivelse av valget"
 
 #: src/web/web_templates.ml:468
 msgid "Name of the election:"
-msgstr ""
+msgstr "Navn på valget:"
 
 #: src/web/web_templates.ml:1951
 msgid "Name?"
@@ -893,31 +914,36 @@ msgstr "Navn?"
 msgid "Next"
 msgstr "Next"
 
-#: src/web/web_templates.ml:2739 src/web/web_templates.ml:2604
-#. src/web/web_templates.ml:1336
+#. src/web/web_templates.ml:1335
 #. src/web/web_templates.ml:851
+#: src/web/web_templates.ml:2738 src/web/web_templates.ml:2603
 msgid "No"
 msgstr "Nei"
 
-#: src/web/web_templates.ml:1945
+#: src/web/web_templates.ml:1944
+#, fuzzy
 msgid "No contact was set!"
-msgstr ""
+msgstr "Ingen kontakt ble satt."
 
 #: src/tool/tool_js_booth.ml:138
 msgid "No other choices are allowed when voting blank"
 msgstr "Ingen andre valg tillates når blank stemme avgis"
 
-#: src/web/web_templates.ml:1934
+#: src/web/web_templates.ml:1933
+#, fuzzy
 msgid "No trustees were set. This means the server will manage the election key by itself."
 msgstr ""
+"Ingen betrodde ble satt. Dette betyr at tjeneren vil håndtere valgnøkkelen "
+"selv."
 
-#: src/web/web_templates.ml:1357
+#: src/web/web_templates.ml:1356
+#, fuzzy
 msgid "No voters"
-msgstr ""
+msgstr "Ingen stemmeberettigede"
 
 #: src/web/web_templates.ml:3227
 msgid "Nobody voted!"
-msgstr ""
+msgstr "Ingen stemte!"
 
 #: src/web/web_templates.ml:1882
 msgid "Not applicable"
@@ -925,12 +951,13 @@ msgstr ""
 
 #: src/web/web_templates.ml:1902
 msgid "Not downloaded."
-msgstr ""
+msgstr "Ikke nedlastet."
 
-#: src/web/web_templates.ml:1868 src/web/web_templates.ml:1856
-#. src/web/web_templates.ml:1850
+#. src/web/web_templates.ml:1849
+#: src/web/web_templates.ml:1867 src/web/web_templates.ml:1855
+#, fuzzy
 msgid "Not edited"
-msgstr ""
+msgstr "Ikke redigert"
 
 #: src/web/web_site.ml:52
 msgid "Not found"
@@ -938,11 +965,13 @@ msgstr "Ikke funnet"
 
 #: src/web/web_templates.ml:86
 msgid "Not logged in."
-msgstr ""
+msgstr "Ikke innlogget."
 
 #: src/web/web_templates.ml:1184
 msgid "Note that this authority will personally have to send each credential to its respective voter."
 msgstr ""
+"Merk at denne myndigheten vil måtte sende hver identitetsdetalj til hver "
+"stemmeberettigede selv."
 
 #: src/web/web_site.ml:1085 src/web/web_site.ml:686
 msgid "Note that you are allowed to vote several times."
@@ -950,20 +979,21 @@ msgstr "Merk at du tillates å stemme flere ganger."
 
 #: src/web/web_templates.ml:1263
 msgid "Note that:"
-msgstr ""
+msgstr "Merk at:"
 
-#: src/web/web_templates.ml:2436 src/web/web_templates.ml:1480
-#. src/web/web_templates.ml:1390
+#. src/web/web_templates.ml:1389
+#: src/web/web_templates.ml:2435 src/web/web_templates.ml:1479
 msgid "Note:"
-msgstr ""
+msgstr "Merk:"
 
 #: src/web/web_templates.ml:3028
 msgid "Note: You have already voted. Your vote will be replaced."
 msgstr ""
 
 #: src/web/web_templates.ml:679
+#, fuzzy
 msgid "Note: this election will be automatically destroyed after "
-msgstr ""
+msgstr "Merk: Dette valget vil automatisk bli slettet for godt etter "
 
 #: src/web/web_templates.ml:3063
 msgid "Note: your ballot is encrypted and nobody can see its contents."
@@ -971,7 +1001,7 @@ msgstr "Merk: Din stemme er kryptert og ingen kan se dens innhold."
 
 #: src/tool/tool_js_booth.ml:230
 msgid "Notes:"
-msgstr ""
+msgstr "Merknader:"
 
 #: src/web/web_templates.ml:2211
 msgid "Number of accepted ballots: "
@@ -983,7 +1013,7 @@ msgstr ""
 
 #: src/web/web_templates.ml:1200
 msgid "Once the election is open, check that:"
-msgstr ""
+msgstr "Når valget først er åpent, sjekk at:"
 
 #: src/web/web_templates.ml:1580
 msgid "Once the election is open, you must check that it is present in the set of public keys published by the server."
@@ -1022,8 +1052,9 @@ msgid "Partial decryption #%d"
 msgstr ""
 
 #: src/web/web_templates.ml:393
+#, fuzzy
 msgid "Password (passwords will be emailed to voters)"
-msgstr ""
+msgstr "Passord (passord vil bli sendt per e-post til stemmeberettigede)"
 
 #: src/web/web_templates.ml:3503
 msgid "Password login"
@@ -1083,7 +1114,7 @@ msgstr "Logg inn:"
 
 #: src/web/web_templates.ml:1167
 msgid "Please send the credential authority the following link:"
-msgstr ""
+msgstr "Send identitetsdetalj-myndigheten følgende lenke:"
 
 #: src/web/web_templates.ml:3802
 msgid "Please wait while your ballot is being encrypted…"
@@ -1093,9 +1124,10 @@ msgstr "Vent mens din stemme krypteres…"
 msgid "Please wait… "
 msgstr "Vent… "
 
-#: src/web/web_templates.ml:2811
+#: src/web/web_templates.ml:2810
+#, fuzzy
 msgid "Postpone publication until"
-msgstr ""
+msgstr "Avvent publisering til"
 
 #: src/web/web_templates.ml:156
 msgid "Powered by "
@@ -1103,11 +1135,11 @@ msgstr "Drevet av "
 
 #: src/web/web_templates.ml:432
 msgid "Preparation of election %s"
-msgstr ""
+msgstr "Forberedelse av valget %s"
 
 #: src/web/web_templates.ml:357 src/web/web_templates.ml:261
 msgid "Prepare a new election"
-msgstr ""
+msgstr "Forbered nytt valg"
 
 #: src/web/web_templates.ml:424
 msgid "Preview booth"
@@ -1123,10 +1155,10 @@ msgstr "Personvernspraksis"
 
 #: src/web/web_templates.ml:1983
 msgid "Private credentials?"
-msgstr ""
+msgstr "Private identitetsdetaljer?"
 
-#: src/web/web_templates.ml:1733 src/web/web_templates.ml:405
 #. src/web/web_templates.ml:345
+#: src/web/web_templates.ml:1732 src/web/web_templates.ml:405
 msgid "Proceed"
 msgstr "Fortsett"
 
@@ -1136,11 +1168,11 @@ msgstr "Fortsett til dekryptering"
 
 #: src/web/web_templates.ml:2509
 msgid "Proceed to vote counting"
-msgstr ""
+msgstr "Fortsett til stemmeopptelling"
 
 #: src/web/web_templates.ml:1442
 msgid "Public credentials:"
-msgstr ""
+msgstr "Offentlige identitetsdetaljer:"
 
 #: src/web/web_templates.ml:1560
 msgid "Public key:"
@@ -1164,15 +1196,16 @@ msgstr "Offentlig navn på administrator?"
 
 #: src/web/web_templates.ml:1150
 msgid "Public name of the credential authority:"
-msgstr ""
+msgstr "Offentlig navn på identitetsdetalj-myndigheten:"
 
 #: src/web/web_templates.ml:2801
 msgid "Publish the result now"
-msgstr ""
+msgstr "Publiser resultatet nå"
 
 #: src/web/web_templates.ml:1236
+#, fuzzy
 msgid "Questions for election %s"
-msgstr ""
+msgstr "Spørsmål for valget %s"
 
 #: src/web/web_templates.ml:1243
 msgid "Questions:"
@@ -1194,9 +1227,10 @@ msgstr ""
 msgid "Regenerate and e-mail a password"
 msgstr ""
 
-#: src/web/web_templates.ml:2945
+#: src/web/web_templates.ml:2944
+#, fuzzy
 msgid "Regenerate and e-mail password"
-msgstr ""
+msgstr "Regenerer og send passord per e-post"
 
 #: src/web/web_templates.ml:1768
 msgid "Remember that you must also check the presence of your public key."
@@ -1206,11 +1240,11 @@ msgstr ""
 msgid "Remember to store you private key securely."
 msgstr ""
 
-#: src/web/web_templates.ml:1366 src/web/web_templates.ml:1316
 #. src/web/web_templates.ml:1052
 #. src/web/web_templates.ml:963
 #. src/web/web_templates.ml:885
 #. src/web/web_templates.ml:804
+#: src/web/web_templates.ml:1365 src/web/web_templates.ml:1315
 msgid "Remove"
 msgstr "Fjern"
 
@@ -1226,15 +1260,15 @@ msgstr "Start på ny"
 msgid "Results will be published on the election page"
 msgstr "Resultater vil bli vist på valgsiden"
 
-#: src/web/web_templates.ml:3767 src/web/web_templates.ml:3118
-#. src/web/web_templates.ml:3037
+#. src/web/web_templates.ml:3036
+#: src/web/web_templates.ml:3766 src/web/web_templates.ml:3117
 msgid "Review and encrypt"
 msgstr "Gjennomse og krypter"
 
-#: src/web/web_templates.ml:1245 src/web/web_templates.ml:541
 #. src/web/web_templates.ml:513
 #. src/web/web_templates.ml:484
 #. src/web/web_templates.ml:452
+#: src/web/web_templates.ml:1245 src/web/web_templates.ml:541
 msgid "Save changes"
 msgstr "Lagre endringer"
 
@@ -1296,7 +1330,7 @@ msgstr "Hopp over"
 
 #: src/web/web_templates.ml:3249
 msgid "Skipping trustee %s"
-msgstr ""
+msgstr "Hopper over betrodd %s"
 
 #: src/web/web_templates.ml:2185
 msgid "Start"
@@ -1304,11 +1338,11 @@ msgstr "Start"
 
 #: src/web/web_templates.ml:1051
 msgid "State"
-msgstr ""
+msgstr "Tilstand"
 
 #: src/web/web_templates.ml:1621
 msgid "Step 0/3"
-msgstr ""
+msgstr "Steg 0/3"
 
 #: src/web/web_templates.ml:3778
 msgid "Step 1/6: Input credential"
@@ -1330,15 +1364,15 @@ msgstr "Steg 5/6: Bekreft"
 msgid "Step 6/6: "
 msgstr "Steg 6/6: "
 
-#: src/web/web_templates.ml:3691 src/web/web_templates.ml:3641
-#. src/web/web_templates.ml:3588
-#. src/web/web_templates.ml:3556
-#. src/web/web_templates.ml:3403
-#. src/web/web_templates.ml:3315
-#. src/web/web_templates.ml:2940
-#. src/web/web_templates.ml:1742
-#. src/web/web_templates.ml:1710
-#. src/web/web_templates.ml:1493
+#. src/web/web_templates.ml:3587
+#. src/web/web_templates.ml:3555
+#. src/web/web_templates.ml:3402
+#. src/web/web_templates.ml:3314
+#. src/web/web_templates.ml:2939
+#. src/web/web_templates.ml:1741
+#. src/web/web_templates.ml:1709
+#. src/web/web_templates.ml:1492
+#: src/web/web_templates.ml:3690 src/web/web_templates.ml:3640
 msgid "Submit"
 msgstr "Send inn"
 
@@ -1346,29 +1380,30 @@ msgstr "Send inn"
 msgid "Submit by file"
 msgstr "Send inn som fil"
 
-#: src/web/web_templates.ml:1737 src/web/web_templates.ml:1708
+#: src/web/web_templates.ml:1736 src/web/web_templates.ml:1707
+#, fuzzy
 msgid "Submit data using the following button:"
-msgstr ""
+msgstr "Send inn data med denne knappen:"
 
 #: src/web/web_templates.ml:1474
 msgid "Submit public credentials"
-msgstr ""
+msgstr "Send inn offentlige identitetsdetaljer"
 
 #: src/web/web_templates.ml:1471
 msgid "Submit public credentials using the button below."
-msgstr ""
+msgstr "Send inn offentlig identitetsdetalj ved bruk av knappen nedenfor."
 
 #: src/web/web_templates.ml:1585
 msgid "Submit public key"
-msgstr ""
+msgstr "Send inn offentlig nøkkel"
 
 #: src/web/web_templates.ml:1582
 msgid "Submit your public key using the button below."
-msgstr ""
+msgstr "Send inn din offentlige nøkkel ved bruk av knappen nedenfor."
 
 #: src/web/web_templates.ml:1819 src/web/web_templates.ml:271
 msgid "Tallied elections"
-msgstr ""
+msgstr "Opptalte valg"
 
 #: src/web/web_templates.ml:3141
 msgid "Thank you for voting!"
@@ -1386,13 +1421,15 @@ msgstr ""
 msgid "The account creation "
 msgstr ""
 
-#: src/web/web_templates.ml:3662
+#: src/web/web_templates.ml:3661
+#, fuzzy
 msgid "The change "
-msgstr ""
+msgstr "Endringen "
 
 #: src/web/web_templates.ml:331
+#, fuzzy
 msgid "The creation failed."
-msgstr ""
+msgstr "Opprettelse mislyktes."
 
 #: src/web/web_templates.ml:2154 src/web/web_templates.ml:2149
 msgid "The election is closed and being tallied."
@@ -1400,11 +1437,11 @@ msgstr "Valget er over og blir nå opptalt."
 
 #: src/web/web_templates.ml:2471
 msgid "The election is closed. No one can vote."
-msgstr ""
+msgstr "Valg over. Ingen kan stemme."
 
 #: src/web/web_templates.ml:2467
 msgid "The election is open. Voters can vote."
-msgstr ""
+msgstr "Valget er åpent. Stemmeberettigede kan stemme."
 
 #: src/web/web_templates.ml:2139
 msgid "The election will close in "
@@ -1412,26 +1449,26 @@ msgstr "Valget stenger om "
 
 #: src/web/web_templates.ml:3352
 msgid "The fingerprint of the encrypted tally is "
-msgstr ""
+msgstr "Fingeravtrykket av den krypterte opptellingen er "
 
 #: src/web/web_templates.ml:1703
 msgid "The fingerprint of your public key is "
-msgstr ""
+msgstr "Fingeravtrykket av din offentlige nøkkel er "
 
 #: src/web/web_templates.ml:3307
 msgid "The fingerprint of your shuffle is:"
 msgstr ""
 
-#: src/web/web_templates.ml:2750 src/web/web_templates.ml:2617
 #. src/web/web_templates.ml:1027
 #. src/web/web_templates.ml:863
+#: src/web/web_templates.ml:2749 src/web/web_templates.ml:2616
 msgid "The link that must be sent to trustee "
 msgstr ""
 
-#: src/web/web_templates.ml:1630 src/web/web_templates.ml:1547
-#. src/web/web_templates.ml:1433
+#. src/web/web_templates.ml:1432
+#: src/web/web_templates.ml:1629 src/web/web_templates.ml:1546
 msgid "The link to the election will be:"
-msgstr ""
+msgstr "Lenken til valget vil bli:"
 
 #: src/web/web_templates.ml:2097
 msgid "The raw results can be viewed in the "
@@ -1445,7 +1482,7 @@ msgstr ""
 
 #: src/web/web_site.ml:2916
 msgid "The result of this election is not available."
-msgstr ""
+msgstr "Resultatet av dette valget er ikke tilgjengelig."
 
 #: src/web/web_templates.ml:1115
 msgid "There is one link per trustee. Send a link to each trustee."
@@ -1483,11 +1520,11 @@ msgstr "Dette valget er for tiden lukket."
 
 #: src/web/web_templates.ml:2845
 msgid "This election will be automatically archived after "
-msgstr ""
+msgstr "Dette valget vil bli arkivert automatisk etter "
 
 #: src/web/web_templates.ml:2882
 msgid "This election will be automatically deleted after "
-msgstr ""
+msgstr "Dette valget vil bli slettet automatisk etter "
 
 #: src/web/web_templates.ml:449
 msgid "This is a space-separated list of languages that will be used in emails sent by the server."
@@ -1550,11 +1587,11 @@ msgstr ""
 
 #: src/web/web_templates.ml:179
 msgid "To use this site, you must accept our "
-msgstr ""
+msgstr "For å bruke denne siden, må du godta vår "
 
-#: src/web/web_templates.ml:2786 src/web/web_templates.ml:2651
 #. src/web/web_templates.ml:1047
 #. src/web/web_templates.ml:880
+#: src/web/web_templates.ml:2785 src/web/web_templates.ml:2650
 msgid "Trustee"
 msgstr ""
 
@@ -1590,13 +1627,13 @@ msgstr ""
 msgid "Username"
 msgstr "Brukernavn"
 
-#: src/web/web_site.ml:682 src/web/web_templates.ml:3486
-#. src/web/web_templates.ml:2936
+#. src/web/web_templates.ml:2935
+#: src/web/web_site.ml:682 src/web/web_templates.ml:3485
 msgid "Username:"
 msgstr "Brukernavn:"
 
-#: src/web/web_templates.ml:2013 src/web/web_templates.ml:1846
 #. src/web/web_templates.ml:666
+#: src/web/web_templates.ml:2012 src/web/web_templates.ml:1845
 msgid "Validate creation"
 msgstr ""
 
@@ -1606,23 +1643,25 @@ msgstr "Verdi må være et heltall mellom 0 og 255."
 
 #: src/web/web_templates.ml:2912
 msgid "Voter list"
-msgstr ""
+msgstr "Liste over stemmeberettigede"
 
-#: src/web/web_templates.ml:1300
+#: src/web/web_templates.ml:1299
+#, fuzzy
 msgid "Voters for election %s"
-msgstr ""
+msgstr "Stemmeberettigede for valg %s"
 
-#: src/web/web_templates.ml:1967
+#: src/web/web_templates.ml:1966
+#, fuzzy
 msgid "Voters?"
-msgstr ""
+msgstr "Stemmeberettigede?"
 
 #: src/web/web_templates.ml:2915
 msgid "Voting records"
 msgstr ""
 
-#: src/web/web_templates.ml:3089 src/web/web_templates.ml:1943
-#. src/web/web_templates.ml:1932
-#. src/web/web_templates.ml:1384
+#. src/web/web_templates.ml:1931
+#. src/web/web_templates.ml:1383
+#: src/web/web_templates.ml:3088 src/web/web_templates.ml:1942
 msgid "Warning:"
 msgstr "Advarsel:"
 
@@ -1647,12 +1686,23 @@ msgstr ""
 
 #: src/web/web_templates.ml:650
 msgid "Warning: this will freeze the voter list!"
-msgstr ""
+msgstr "Advarsel: Dette vil fryse listen over stemmeberettigede!"
 
-#: src/web/web_templates.ml:2739 src/web/web_templates.ml:2604
-#. src/web/web_templates.ml:1947
-#. src/web/web_templates.ml:1335
+#: src/web/web_templates.ml:2782
+#, fuzzy
+msgid "We are now waiting for trustees…"
+msgstr "Venter nå på betrodde…"
+
+#: src/web/web_templates.ml:3746
+msgid "We invite you to save it in order to check later that it is taken into account."
+msgstr ""
+"Vi inviterer deg til å lagre den, for å senere sjekke at den har blitt "
+"opptalt."
+
+#. src/web/web_templates.ml:1946
+#. src/web/web_templates.ml:1334
 #. src/web/web_templates.ml:851
+#: src/web/web_templates.ml:2738 src/web/web_templates.ml:2603
 msgid "Yes"
 msgstr "Ja"
 
@@ -1712,8 +1762,9 @@ msgstr "Du kan ikke velge mer enn %d svar"
 #. src/web/web_templates.ml:241
 #. src/web/web_templates.ml:236
 #. src/web/web_templates.ml:231
+#: src/web/web_templates.ml:1812 src/web/web_templates.ml:246
 msgid "You own no such elections!"
-msgstr ""
+msgstr "Du eier ingen slike valg!"
 
 #: src/web/web_site.ml:1077 src/web/web_site.ml:678
 msgid "You will be asked to enter your credential before entering the voting booth."
@@ -1759,7 +1810,7 @@ msgstr "Din identitetsdetalj for valget %s"
 
 #: src/web/web_templates.ml:3624
 msgid "Your e-mail address is: "
-msgstr ""
+msgstr "Din e-postadresse er: "
 
 #: src/web/web_site.ml:705
 msgid "Your password for election %s"
@@ -1769,8 +1820,8 @@ msgstr "Ditt passord for valget %s"
 msgid "Your smart ballot tracker is"
 msgstr "Din smarte stemmesporer er"
 
-#: src/web/web_templates.ml:3743 src/web/web_templates.ml:3132
-#. src/web/web_templates.ml:3055
+#. src/web/web_templates.ml:3054
+#: src/web/web_templates.ml:3742 src/web/web_templates.ml:3131
 msgid "Your smart ballot tracker is "
 msgstr "Din smarte stemmesporer er "
 
@@ -1856,7 +1907,7 @@ msgstr ""
 
 #: src/web/web_templates.ml:372
 msgid "more info"
-msgstr ""
+msgstr "mer info"
 
 #: src/web/web_templates.ml:3659
 msgid "of an unknown reason"
@@ -1872,7 +1923,7 @@ msgstr "personlig datapraksis"
 
 #: src/web/web_templates.ml:1454
 msgid "private credentials"
-msgstr ""
+msgstr "private identitetsdetaljer"
 
 #: src/web/web_templates.ml:1697 src/web/web_templates.ml:1572
 msgid "private key"
@@ -1898,9 +1949,10 @@ msgstr "resultat med kryptografisk bevis"
 msgid "some proofs failed verification"
 msgstr "noen bevis kunne ikke bekreftes"
 
-#: src/web/web_templates.ml:3095
+#: src/web/web_templates.ml:3094
+#, fuzzy
 msgid "start from the beginning"
-msgstr ""
+msgstr "start fra begynnelsen"
 
 #: src/web/web_templates.ml:1482
 msgid "submitting a large number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below."
@@ -1920,15 +1972,15 @@ msgstr ""
 
 #: src/web/web_templates.ml:1461
 msgid "the list of voters"
-msgstr ""
+msgstr "listen over stemmeberettigede"
 
 #: src/web/web_templates.ml:3657
 msgid "the new password is too weak (%s)"
-msgstr ""
+msgstr "det nye passordet er for svakt (%s)"
 
 #: src/web/web_templates.ml:3658
 msgid "the new password starts or ends with a space"
-msgstr ""
+msgstr "det nye passordet starter eller slutter med et mellomrom"
 
 #: src/web/web_templates.ml:1203
 msgid "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:"
@@ -1936,43 +1988,45 @@ msgstr ""
 
 #: src/web/web_templates.ml:3607
 msgid "the password is too weak (%s)"
-msgstr ""
+msgstr "passordet er for svakt (%s)"
 
 #: src/web/web_templates.ml:3609
 msgid "the password starts or ends with a space"
-msgstr ""
+msgstr "passordet starter eller slutter med et mellomrom"
 
 #: src/web/web_templates.ml:3656 src/web/web_templates.ml:3608
 msgid "the two passwords are not the same"
-msgstr ""
+msgstr "de to passordene stemmer ikke overens"
 
 #: src/web/web_templates.ml:3604
 msgid "the username is already taken"
-msgstr ""
+msgstr "brukernavnet er allerede i bruk"
 
 #: src/web/web_templates.ml:3606
 msgid "the username is invalid"
-msgstr ""
+msgstr "brukernavnet er ugyldig"
 
 #: src/web/web_templates.ml:3605
 msgid "there is already an account with this e-mail address"
-msgstr ""
+msgstr "det finnes allerede en konto med denne e-postadressen"
 
 #: src/web/web_templates.ml:915
 msgid "threshold mode"
-msgstr ""
+msgstr "terksel-modus"
 
-#: src/web/web_templates.ml:2438
+#: src/web/web_templates.ml:2437
+#, fuzzy
 msgid "times are in UTC. Now is "
-msgstr ""
+msgstr "tider i UTC. Nå "
 
 #: src/web/web_templates.ml:2050
 msgid "trustees"
 msgstr ""
 
-#: src/web/web_templates.ml:3514
+#: src/web/web_templates.ml:3513
+#, fuzzy
 msgid "try to log in again"
-msgstr ""
+msgstr "prøv å logge inn igjen"
 
 #: src/web/web_common.ml:87
 msgid "you are not allowed to revote"
@@ -2009,4 +2063,3 @@ msgstr "din identitetsdetalj har allerede blitt brukt"
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr "din identitetsdetalj er ugyldig"
-

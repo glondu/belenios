@@ -4,8 +4,8 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-09-23 11:58+0000\n"
-"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
+"PO-Revision-Date: 2020-09-24 08:04+0000\n"
+"Last-Translator: Pierrick Gaudry <pierrick.gaudry@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/server/"
 "fr/>\n"
 "Language: fr\n"
@@ -497,7 +497,7 @@ msgstr "Autorité de codes de vote ?"
 
 #: src/web/web_templates.ml:658 src/web/web_templates.ml:370
 msgid "Credential management"
-msgstr "Gestions des codes de vote"
+msgstr "Gestion des codes de vote"
 
 #: src/web/web_site.ml:1082
 msgid "Credential:"
@@ -707,9 +707,9 @@ msgstr "Obtenir le code source"
 msgid "Go back to election"
 msgstr "Retourner à la page d'accueil de l'élection"
 
-#: src/web/web_templates.ml:2022 src/web/web_templates.ml:1371
 #. src/web/web_templates.ml:1127
 #. src/web/web_templates.ml:924
+#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
 msgid "Go back to election draft"
 msgstr "Retourner à la mise en place de l'élection"
 
@@ -870,7 +870,7 @@ msgstr "E-mail"
 
 #: src/web/web_templates.ml:384
 msgid "Manual (safe mode - a third party will handle the credentials)"
-msgstr "Manuel (mode sécurisé - un tiers se chargera des codes de vote)"
+msgstr "Manuel (mode sécurisé : un tiers se chargera des codes de vote)"
 
 #: src/web/web_templates.ml:1056
 msgid "Meaning of states:"
@@ -974,7 +974,7 @@ msgstr ""
 
 #: src/web/web_templates.ml:679
 msgid "Note: this election will be automatically destroyed after "
-msgstr "Note : cette élection sera automatiquement supprimée après "
+msgstr "Note : cette élection sera automatiquement supprimée après le "
 
 #: src/web/web_templates.ml:3063
 msgid "Note: your ballot is encrypted and nobody can see its contents."
@@ -1503,11 +1503,11 @@ msgstr "Cette élection est actuellement fermée."
 
 #: src/web/web_templates.ml:2845
 msgid "This election will be automatically archived after "
-msgstr "Cette élection sera automatiquement archivée après "
+msgstr "Cette élection sera automatiquement archivée après le "
 
 #: src/web/web_templates.ml:2882
 msgid "This election will be automatically deleted after "
-msgstr "Cette élection sera automatiquement supprimée après "
+msgstr "Cette élection sera automatiquement supprimée après le "
 
 #: src/web/web_templates.ml:449
 msgid "This is a space-separated list of languages that will be used in emails sent by the server."
@@ -1851,7 +1851,7 @@ msgstr "changez votre mot de passe"
 
 #: src/web/web_templates.ml:216
 msgid "contact us"
-msgstr "contactez nous"
+msgstr "nous contacter"
 
 #: src/web/web_templates.ml:3473
 msgid "create an account"
@@ -2011,7 +2011,7 @@ msgstr "mode chiffrement à seuil"
 
 #: src/web/web_templates.ml:2438
 msgid "times are in UTC. Now is "
-msgstr "les dates sont en UTC. Maintenant, nous sommes le "
+msgstr "les dates sont en UTC. Actuellement, nous sommes le "
 
 #: src/web/web_templates.ml:2050
 msgid "trustees"
