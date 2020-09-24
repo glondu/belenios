@@ -220,6 +220,8 @@ msgstr ". Veuillez essayer de nouveau avec un mot de passe différent."
 #: src/web/web_templates.ml:1705
 msgid ". Save it so that you can check that it appears on the election home later."
 msgstr ""
+". Sauvegarder la de manière à vérifier plus tard qu'elle apparaît sur la "
+"page de l'élection."
 
 #: src/web/web_templates.ml:1059
 msgid "1a: action needed from trustee: generate private key"
@@ -372,7 +374,7 @@ msgstr "Méthodes disponibles sur ce serveur :"
 
 #: src/web/web_templates.ml:2783
 msgid "Awaiting trustees…"
-msgstr ""
+msgstr "En attente des autorités de déchiffrement…"
 
 #: src/web/web_templates.ml:1160
 msgid "Back to election preparation page"
@@ -590,7 +592,7 @@ msgstr "Télécharger votre "
 #. src/web/web_templates.ml:882
 #. src/web/web_templates.ml:835
 msgid "E-mail"
-msgstr ""
+msgstr "E-mail"
 
 #: src/web/web_templates.ml:3573 src/web/web_templates.ml:3544
 msgid "E-mail address:"
@@ -646,10 +648,14 @@ msgstr "Chiffrement en cours…"
 #: src/web/web_templates.ml:2454
 msgid "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date."
 msgstr ""
+"Entrez les dates en UTC, au format YYYY-MM-DD HH:MM:SS, laissez vide pour ne "
+"pas mettre de date."
 
 #: src/web/web_templates.ml:2816
 msgid "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is "
 msgstr ""
+"Entrez la date en UTC, au format YYYY-MM-DD HH:MM:SS. Par exemple, nous "
+"sommes actuellement "
 
 #: src/web/web_templates.ml:1728
 msgid "Enter your private key:"
@@ -921,6 +927,8 @@ msgstr "Vous ne pouvez pas sélectionner d'autres choix lors d'un vote blanc"
 #: src/web/web_templates.ml:1934
 msgid "No trustees were set. This means the server will manage the election key by itself."
 msgstr ""
+"Aucune autorité de déchiffrement n'a été donnée. Cela signifie que le "
+"serveur va gérer lui-même la clé de l'élection."
 
 #: src/web/web_templates.ml:1357
 msgid "No voters"
@@ -954,6 +962,8 @@ msgstr "Non connecté."
 #: src/web/web_templates.ml:1184
 msgid "Note that this authority will personally have to send each credential to its respective voter."
 msgstr ""
+"Notez que cette autorité devra envoyer elle-même à chaque électeur son code "
+"de vote."
 
 #: src/web/web_site.ml:1085 src/web/web_site.ml:686
 msgid "Note that you are allowed to vote several times."
@@ -970,7 +980,7 @@ msgstr "Note :"
 
 #: src/web/web_templates.ml:3028
 msgid "Note: You have already voted. Your vote will be replaced."
-msgstr ""
+msgstr "Note : vous avez déjà voté. Votre vote va être remplacé."
 
 #: src/web/web_templates.ml:679
 msgid "Note: this election will be automatically destroyed after "
@@ -991,6 +1001,9 @@ msgstr "Nombre de bulletins acceptés : "
 #: src/web/web_templates.ml:1108
 msgid "On this page, you can configure a group of trustees so that only a subset of them is needed to perform the decryption."
 msgstr ""
+"Sur cette page, vous pouvez configurer un groupe d'autorités de "
+"déchiffrement tel que seulement un sous-ensemble d'entre elles sera "
+"nécessaire pour effectuer le déchiffrement."
 
 #: src/web/web_templates.ml:1200
 msgid "Once the election is open, check that:"
@@ -1260,7 +1273,7 @@ msgstr "Sauvegarder les changements"
 
 #: src/web/web_templates.ml:3747
 msgid "Save it to check that it is taken into account later."
-msgstr ""
+msgstr "Nous vous invitons à le sauvegarder afin de vérifier ultérieurement que votre vote est bien pris en compte."
 
 #: src/web/web_templates.ml:1766 src/web/web_templates.ml:1578
 msgid "Save the fingerprint above."
@@ -1473,7 +1486,7 @@ msgstr "Il y a un lien par autorité. Envoyez à chaque autorité son lien."
 
 #: src/web/web_templates.ml:900
 msgid "There is one link per trustee. Send each trustee the respective link."
-msgstr ""
+msgstr "Il y a un lien par autorité. Envoyez à chaque autorité son lien."
 
 #: src/web/web_templates.ml:1261
 msgid "This allows deciding the winner according to your favorite counting method (e.g. Condorcet, STV, majority judgement)."
@@ -1572,6 +1585,8 @@ msgstr "Pour obtenir plus d'informations, veuillez contacter :"
 #: src/web/web_templates.ml:912
 msgid "To set up the election key, you need to nominate trustees. Each trustee will create a secret key."
 msgstr ""
+"Pour initialiser la clé de l'élection, vous devez nommer des autorités de "
+"déchiffrement. Chaque autorité créera sa propre clé secrète."
 
 #: src/web/web_templates.ml:914
 msgid "To set up the election so that only a subset of trustees is needed, go to the "
@@ -1666,10 +1681,15 @@ msgstr "Attention : cette action est irréversible."
 #: src/web/web_templates.ml:2861
 msgid "Warning: This action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting)."
 msgstr ""
+"Attention : cette action est irréversible. Archiver une élection la rend non-"
+"modifiable ; en particulier, l'élection sera définitivement fermée (plus "
+"possible de soumettre des votes, plus possible de dépouiller)."
 
 #: src/web/web_templates.ml:2512
 msgid "Warning: This action is irreversible; the election will be definitively closed."
 msgstr ""
+"Attention : cette action est irréversible ; l'élection sera définitivement "
+"fermée."
 
 #: src/tool/tool_js_booth.ml:241
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
@@ -1738,6 +1758,8 @@ msgstr ""
 #: src/web/web_templates.ml:3312
 msgid "You must record this fingerprint and check that it appears on the election result page."
 msgstr ""
+"Vous devez enregistrer cette empreinte et vérifier qu'elle apparait sur la "
+"page de résultat de l'élection."
 
 #: src/tool/tool_js_booth.ml:125
 msgid "You must select at least %d answer(s)"
@@ -2015,7 +2037,7 @@ msgstr "les dates sont en UTC. Actuellement, nous sommes le "
 
 #: src/web/web_templates.ml:2050
 msgid "trustees"
-msgstr ""
+msgstr "autorités de déchiffrement"
 
 #: src/web/web_templates.ml:3514
 msgid "try to log in again"
@@ -2036,6 +2058,8 @@ msgstr "vous n'êtes pas autorisé(e) à voter avec ce code de vote"
 #: src/web/web_templates.ml:1221
 msgid "you can send the private credential back to its rightful owner in case it gets lost."
 msgstr ""
+"vous pouvez renvoyer la partie privée d'un code de vote à l'électeur "
+"légitime en cas de perte."
 
 #: src/web/web_templates.ml:1386
 msgid "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote."
