@@ -2047,7 +2047,7 @@ let audit_footer election =
           txt (s_ "parameters")
         ] ();
         txt ", ";
-        a ~service:(file uuid ESTrustees) [txt "trustees"] ();
+        a ~service:(file uuid ESTrustees) [txt (s_ "trustees")] ();
         txt ", ";
         a ~service:(file uuid ESCreds) [
           txt (s_ "public credentials")
