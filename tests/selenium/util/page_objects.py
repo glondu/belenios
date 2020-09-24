@@ -209,7 +209,7 @@ class NormalVoteStep3Page(NormalVoteGenericStepWithBallotTrackerPage):
 
     def verify_page_body(self):
         step_3_parent_css_selector = "#ballot_div"
-        step_3_expected_success_content = "Your ballot has been successfully encrypted"
+        step_3_expected_success_content = "Your ballot has been encrypted"
         wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_3_parent_css_selector, step_3_expected_success_content, self.timeout)
         self.verify_ballot_tracker_value()
 

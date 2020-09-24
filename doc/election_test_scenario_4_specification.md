@@ -158,7 +158,7 @@ Verifications all along the process is done using command line tools `belenios-t
     - She logs in as administrator
     - She clicks on the "Close election" button
     - She clicks on the "Proceed to vote counting" button
-    - She checks the presence of text "We are now waiting for trustees... At least ${U} trustee(s) must act."
+    - She checks the presence of text "Awaiting trustees… At least ${U} trustee(s) must act."
     - She checks that in the table on every content row, the "DONE?" column is "No"
     - She remembers the encrypted tally hash
     - She remembers the link to send to each trustee, so they can tally the election

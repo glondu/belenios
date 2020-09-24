@@ -497,8 +497,8 @@ The election administrator.\
         wait_a_bit()
 
         if with_threshold is not None:
-            # She checks the presence of text "We are now waiting for trustees... At least ${U} trustee(s) must act."
-            expected_confirmation_label = "We are now waiting for trustees... At least " + str(with_threshold) + " trustee(s) must act."
+            # She checks the presence of text "Awaiting trustees… At least ${U} trustee(s) must act."
+            expected_confirmation_label = "Awaiting trustees… At least " + str(with_threshold) + " trustee(s) must act."
             expected_confirmation_css_selector = "#main"
             wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 

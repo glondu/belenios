@@ -346,7 +346,7 @@ pris en compte.
         Question 1?
         - Answer 1
 
-        Your ballot has been successfully encrypted, but has not been cast yet!
+        Your ballot has been encrypted, but has not been cast yet!
 
         Your smart ballot tracker is sLRilXoAYcodIrjWrOqPrVXLNlRyCJAqFeeHZ4WCajU
 
