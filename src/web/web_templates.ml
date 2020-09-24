@@ -2897,7 +2897,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
     | _ -> false
   in
   let div_regenpwd =
-    if cas then
+    if cas || (match state with `Open | `Closed -> false | _ -> true) then
       txt ""
     else
       div [
