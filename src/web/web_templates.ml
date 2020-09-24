@@ -1938,7 +1938,7 @@ let election_draft_confirm uuid se () =
   let contact, div_contact_warning =
     match se.se_metadata.e_contact with
     | None ->
-       "No",
+       s_ "No",
        div [
            b [txt (s_ "Warning:")];
            txt " ";
