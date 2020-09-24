@@ -707,9 +707,9 @@ msgstr "Obtenir le code source"
 msgid "Go back to election"
 msgstr "Retourner à la page d'accueil de l'élection"
 
+#: src/web/web_templates.ml:2022 src/web/web_templates.ml:1371
 #. src/web/web_templates.ml:1127
 #. src/web/web_templates.ml:924
-#: src/web/web_templates.ml:2021 src/web/web_templates.ml:1370
 msgid "Go back to election draft"
 msgstr "Retourner à la mise en place de l'élection"
 
