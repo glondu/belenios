@@ -1,229 +1,246 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2020-09-28 15:04+0000\n"
+"Last-Translator: RachelB <maresdelno@gmail.com>\n"
+"Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/server/"
+"es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.3-dev\n"
 
 #: src/web/web_templates.ml:3476
 msgid " (if you forgot it, for example)."
-msgstr ""
+msgstr " (si tú olvidas esto, por ejemplo)."
 
 #: src/web/web_templates.ml:3140
+#, fuzzy
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " Se ha enviado un email de confirmación a su correo."
 
 #: src/web/web_templates.ml:2468
 msgid " You may re-open the election when it is closed."
-msgstr ""
+msgstr " Usted debe reabrir la elección cuando esta cerrada."
 
 #: src/web/web_templates.ml:3010
 msgid " and "
-msgstr ""
+msgstr " y "
 
 #: src/web/web_templates.ml:3631
 msgid " and a password: "
-msgstr ""
+msgstr " y una contraseña: "
 
 #: src/web/web_templates.ml:1698 src/web/web_templates.ml:1573
+#, fuzzy
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " y guardar esto en una localización segura."
 
 #: src/web/web_templates.ml:1455
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " y guardar esto en una localización segura."
 
 #: src/web/web_templates.ml:1906
 msgid " and save them securely."
-msgstr ""
+msgstr " y guardar esto de forma segura."
 
 #: src/web/web_templates.ml:3676
+#, fuzzy
 msgid " and your e-mail address is: "
-msgstr ""
+msgstr " Su dirección de email es: "
 
 #: src/web/web_templates.ml:3139
 msgid " anytime during the election."
-msgstr ""
+msgstr " en cualquier momento durante la elección."
 
 #: src/web/web_templates.ml:3196
 msgid " ballot(s) have been accepted so far."
-msgstr ""
+msgstr " hasta ahora el voto/s ha sido aceptado."
 
 #: src/web/web_templates.ml:3206
 msgid " ballot(s) have been accepted, and "
-msgstr ""
+msgstr " hasta ahora el voto/s ha sido aceptado, y "
 
 #: src/web/web_templates.ml:3201
 msgid " ballot(s) have been accepted."
-msgstr ""
+msgstr " el voto/s ha sido aceptado."
 
 #: src/web/web_templates.ml:3664 src/web/web_templates.ml:3614
 msgid " because "
-msgstr ""
+msgstr " porque "
 
 #: src/web/web_common.ml:103
 msgid " day(s)"
-msgstr ""
+msgstr " día/s"
 
 #: src/web/web_templates.ml:3130
 msgid " has been accepted."
-msgstr ""
+msgstr " ha sido aceptado."
 
 #: src/web/web_templates.ml:2780
 msgid " has been computed."
-msgstr ""
+msgstr " ha sido computado."
 
 #: src/web/web_templates.ml:3054
 msgid " has been received, but not recorded yet. "
-msgstr ""
+msgstr " Ha sido recibido, pero no registrado aún. "
 
 #: src/web/web_templates.ml:3208
 msgid " have been tallied."
-msgstr ""
+msgstr " Ha sido escrutado."
 
 #: src/web/web_common.ml:105
 msgid " hour(s)"
-msgstr ""
+msgstr " Hora/s"
 
 #: src/web/web_templates.ml:3584 src/web/web_templates.ml:3552
 msgid " in the following box: "
-msgstr ""
+msgstr " en la siguiente caja: "
 
 #: src/web/web_templates.ml:1216 src/web/web_templates.ml:1207
 msgid " instead of "
-msgstr ""
+msgstr " en vez de "
 
 #: src/web/web_templates.ml:3143
 msgid " is rejected, because "
-msgstr ""
+msgstr " es rechazado, porque "
 
-#: src/web/web_templates.ml:2752 src/web/web_templates.ml:2619
 #. src/web/web_templates.ml:1029
 #. src/web/web_templates.ml:865
+#: src/web/web_templates.ml:2752 src/web/web_templates.ml:2619
 msgid " is:"
-msgstr ""
+msgstr " es:"
 
 #: src/web/web_common.ml:106
 msgid " minute(s)"
-msgstr ""
+msgstr " minuto/s"
 
 #: src/web/web_common.ml:102
 msgid " month(s)"
-msgstr ""
+msgstr " mes/es"
 
 #: src/web/web_templates.ml:3576
 msgid " or username: "
-msgstr ""
+msgstr " o nombre de usuario: "
 
 #: src/web/web_templates.ml:1089
 msgid " out of "
-msgstr ""
+msgstr " fuera de "
 
 #: src/web/web_common.ml:107
 msgid " second(s)"
-msgstr ""
+msgstr " segundo/s"
 
 #: src/web/web_templates.ml:616
+#, fuzzy
 msgid " to set up the election key."
-msgstr ""
+msgstr " establecer una clave de elección."
 
 #: src/web/web_templates.ml:1091
+#, fuzzy
 msgid " trustees will be needed to decrypt the result."
-msgstr ""
+msgstr " serán necesarios administradores para descifrar el resutado."
 
 #: src/web/web_templates.ml:602
 msgid " voter(s) registered"
-msgstr ""
+msgstr " elector/es registrado"
 
 #: src/web/web_common.ml:101
 msgid " year(s)"
-msgstr ""
+msgstr " año/s"
 
 #: src/web/web_templates.ml:3404
+#, fuzzy
 msgid " your contribution to decryption."
-msgstr ""
+msgstr " su contribución al descifrado."
 
 #: src/web/web_templates.ml:3740
 msgid "!"
-msgstr ""
+msgstr "!"
 
 #: src/web/web_templates.ml:1875
 msgid "%d voter(s)"
-msgstr ""
+msgstr "%d elector/es"
 
 #: src/web/web_templates.ml:2016
 msgid "(Warning: This action is irreversible.)"
-msgstr ""
+msgstr "(Atención: esta acción es irreversible)"
 
 #: src/web/web_templates.ml:853
 msgid "(cannot be removed)"
-msgstr ""
+msgstr "(no puede ser eliminado)"
 
 #: src/web/web_templates.ml:401
 msgid "(for example: https://cas.inria.fr/cas)"
-msgstr ""
+msgstr "(por ejemplo: https://cas.inria.fr/cas)"
 
 #: src/web/web_templates.ml:996 src/web/web_templates.ml:825
 msgid "(not available)"
-msgstr ""
+msgstr "(no disponible)"
 
 #: src/tool/tool_js_booth.ml:168
 msgid "(nothing)"
-msgstr ""
+msgstr "(nada)"
 
 #: src/web/web_templates.ml:1214 src/web/web_templates.ml:1205
 msgid "(or "
-msgstr ""
+msgstr "(or "
 
-#: src/web/web_templates.ml:2722 src/web/web_templates.ml:2721
 #. src/web/web_templates.ml:847
 #. src/web/web_templates.ml:837
+#: src/web/web_templates.ml:2722 src/web/web_templates.ml:2721
 msgid "(server)"
-msgstr ""
+msgstr "(servidor)"
 
 #: src/web/web_templates.ml:2562
 msgid "(skipped)"
-msgstr ""
+msgstr "(omitido)"
 
 #: src/web/web_templates.ml:1082
+#, fuzzy
 msgid "(the threshold must be smaller than the number of trustees)"
-msgstr ""
+msgstr "(el umbral debe ser menor que el número de administradores)"
 
 #: src/web/web_templates.ml:426
+#, fuzzy
 msgid "(you can use any credential such as %s)."
-msgstr ""
+msgstr "(puede usar algunas credenciales tales como %s)"
 
 #: src/web/web_templates.ml:3474
 msgid ", or "
-msgstr ""
+msgstr ", o "
 
 #: src/web/web_templates.ml:2099
+#, fuzzy
 msgid ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
 msgstr ""
+". Esto contiene todos los votos, en orden aleatorio. Tiene opción de emplear "
+"el método de recuento que desee (ej. Condorcet, STV, majority judgement)."
 
 #: src/web/web_templates.ml:3666 src/web/web_templates.ml:3616
 msgid ". Please try again with a different one."
-msgstr ""
+msgstr ". Porfavor inténtelo denuevo con otro diferente."
 
 #: src/web/web_templates.ml:1705
+#, fuzzy
 msgid ". Save it so that you can check that it appears on the election home later."
 msgstr ""
+". Guarde esto de manera que puede comprobar si aparece en la elección de "
+"inicio posteriormente."
 
 #: src/web/web_templates.ml:1059
+#, fuzzy
 msgid "1a: action needed from trustee: generate private key"
-msgstr ""
+msgstr "1a: acción necesaria por el administrador: generar una clave privada"
 
 #: src/web/web_templates.ml:1061
+#, fuzzy
 msgid "1b, 2b, 3b: waiting for other trustees"
-msgstr ""
+msgstr "1b, 2b, 3b: esperando por otros administradores"
 
 #: src/web/web_templates.ml:1060
 msgid "2a, 3a: action needed from trustee: enter private key"
@@ -231,14 +248,14 @@ msgstr ""
 
 #: src/web/web_templates.ml:2251 src/web/web_templates.ml:187
 msgid "Accept"
-msgstr ""
+msgstr "Aceptado"
 
 #: src/web/web_templates.ml:3171
 msgid "Accepted ballots"
-msgstr ""
+msgstr "Votos aceptados"
 
-#: src/web/web_templates.ml:1307 src/web/web_templates.ml:952
 #. src/web/web_templates.ml:794
+#: src/web/web_templates.ml:1307 src/web/web_templates.ml:952
 msgid "Add"
 msgstr ""
 
@@ -278,8 +295,8 @@ msgstr ""
 msgid "An identity is either an e-mail address, or \"address,login\", where \"address\" is an e-mail address and \"login\" the associated login for authentication."
 msgstr ""
 
-#: src/web/web_templates.ml:3765 src/web/web_templates.ml:3116
 #. src/web/web_templates.ml:3035
+#: src/web/web_templates.ml:3765 src/web/web_templates.ml:3116
 msgid "Answer to questions"
 msgstr ""
 
@@ -307,8 +324,8 @@ msgstr ""
 msgid "Audit data: "
 msgstr ""
 
-#: src/web/web_templates.ml:3769 src/web/web_templates.ml:3120
 #. src/web/web_templates.ml:3039
+#: src/web/web_templates.ml:3769 src/web/web_templates.ml:3120
 msgid "Authenticate"
 msgstr ""
 
@@ -380,8 +397,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 #. src/web/web_templates.ml:2072
+#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 msgid "Blank vote"
 msgstr ""
 
@@ -437,9 +454,9 @@ msgstr ""
 msgid "Compute the result"
 msgstr ""
 
-#: src/web/web_templates.ml:3771 src/web/web_templates.ml:3260
 #. src/web/web_templates.ml:3122
 #. src/web/web_templates.ml:3041
+#: src/web/web_templates.ml:3771 src/web/web_templates.ml:3260
 msgid "Confirm"
 msgstr ""
 
@@ -539,13 +556,13 @@ msgstr ""
 msgid "Destroy election"
 msgstr ""
 
-#: src/web/web_templates.ml:3773 src/web/web_templates.ml:3124
 #. src/web/web_templates.ml:3043
+#: src/web/web_templates.ml:3773 src/web/web_templates.ml:3124
 msgid "Done"
 msgstr ""
 
-#: src/web/web_templates.ml:2789 src/web/web_templates.ml:2653
 #. src/web/web_templates.ml:884
+#: src/web/web_templates.ml:2789 src/web/web_templates.ml:2653
 msgid "Done?"
 msgstr ""
 
@@ -569,10 +586,10 @@ msgstr ""
 msgid "Download your "
 msgstr ""
 
-#: src/web/web_templates.ml:2787 src/web/web_templates.ml:2726
 #. src/web/web_templates.ml:1006
 #. src/web/web_templates.ml:882
 #. src/web/web_templates.ml:835
+#: src/web/web_templates.ml:2787 src/web/web_templates.ml:2726
 msgid "E-mail"
 msgstr ""
 
@@ -592,8 +609,8 @@ msgstr ""
 msgid "Edit voters"
 msgstr ""
 
-#: src/web/web_templates.ml:1846 src/web/web_templates.ml:1837
 #. src/web/web_templates.ml:1830
+#: src/web/web_templates.ml:1846 src/web/web_templates.ml:1837
 msgid "Election "
 msgstr ""
 
@@ -609,9 +626,9 @@ msgstr ""
 msgid "Election home"
 msgstr ""
 
-#: src/web/web_templates.ml:3816 src/web/web_templates.ml:208
 #. src/web/web_templates.ml:174
 #. src/web/web_templates.ml:142
+#: src/web/web_templates.ml:3816 src/web/web_templates.ml:208
 msgid "Election server"
 msgstr ""
 
@@ -683,21 +700,21 @@ msgstr ""
 msgid "Get the source code"
 msgstr ""
 
-#: src/web/web_templates.ml:3189 src/web/web_templates.ml:3161
 #. src/web/web_templates.ml:3100
 #. src/web/web_templates.ml:3072
+#: src/web/web_templates.ml:3189 src/web/web_templates.ml:3161
 msgid "Go back to election"
 msgstr ""
 
-#: src/web/web_templates.ml:2022 src/web/web_templates.ml:1371
 #. src/web/web_templates.ml:1127
 #. src/web/web_templates.ml:924
+#: src/web/web_templates.ml:2022 src/web/web_templates.ml:1371
 msgid "Go back to election draft"
 msgstr ""
 
-#: src/web/web_templates.ml:2728 src/web/web_templates.ml:2589
 #. src/web/web_templates.ml:1010
 #. src/web/web_templates.ml:843
+#: src/web/web_templates.ml:2728 src/web/web_templates.ml:2589
 msgid "Hide link"
 msgstr ""
 
@@ -741,8 +758,8 @@ msgstr ""
 msgid "Import voters from another election"
 msgstr ""
 
-#: src/web/web_templates.ml:3763 src/web/web_templates.ml:3114
 #. src/web/web_templates.ml:3033
+#: src/web/web_templates.ml:3763 src/web/web_templates.ml:3114
 msgid "Input credential"
 msgstr ""
 
@@ -754,10 +771,10 @@ msgstr ""
 msgid "Instructions"
 msgstr ""
 
-#: src/web/web_templates.ml:3366 src/web/web_templates.ml:1725
 #. src/web/web_templates.ml:1693
 #. src/web/web_templates.ml:1568
 #. src/web/web_templates.ml:1450
+#: src/web/web_templates.ml:3366 src/web/web_templates.ml:1725
 msgid "Instructions:"
 msgstr ""
 
@@ -789,12 +806,12 @@ msgstr ""
 msgid "Languages:"
 msgstr ""
 
-#: src/web/web_templates.ml:2788 src/web/web_templates.ml:2730
 #. src/web/web_templates.ml:2591
 #. src/web/web_templates.ml:1050
 #. src/web/web_templates.ml:1012
 #. src/web/web_templates.ml:883
 #. src/web/web_templates.ml:845
+#: src/web/web_templates.ml:2788 src/web/web_templates.ml:2730
 msgid "Link"
 msgstr ""
 
@@ -854,11 +871,11 @@ msgstr ""
 msgid "Meaning of states:"
 msgstr ""
 
-#: src/web/web_templates.ml:1926 src/web/web_templates.ml:1918
 #. src/web/web_templates.ml:1893
 #. src/web/web_templates.ml:1886
 #. src/web/web_templates.ml:1881
 #. src/web/web_templates.ml:1862
+#: src/web/web_templates.ml:1926 src/web/web_templates.ml:1918
 msgid "Missing"
 msgstr ""
 
@@ -882,9 +899,9 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: src/web/web_templates.ml:2739 src/web/web_templates.ml:2604
 #. src/web/web_templates.ml:1336
 #. src/web/web_templates.ml:851
+#: src/web/web_templates.ml:2739 src/web/web_templates.ml:2604
 msgid "No"
 msgstr ""
 
@@ -916,8 +933,8 @@ msgstr ""
 msgid "Not downloaded."
 msgstr ""
 
-#: src/web/web_templates.ml:1868 src/web/web_templates.ml:1856
 #. src/web/web_templates.ml:1850
+#: src/web/web_templates.ml:1868 src/web/web_templates.ml:1856
 msgid "Not edited"
 msgstr ""
 
@@ -941,8 +958,8 @@ msgstr ""
 msgid "Note that:"
 msgstr ""
 
-#: src/web/web_templates.ml:2436 src/web/web_templates.ml:1480
 #. src/web/web_templates.ml:1390
+#: src/web/web_templates.ml:2436 src/web/web_templates.ml:1480
 msgid "Note:"
 msgstr ""
 
@@ -1114,8 +1131,8 @@ msgstr ""
 msgid "Private credentials?"
 msgstr ""
 
-#: src/web/web_templates.ml:1733 src/web/web_templates.ml:405
 #. src/web/web_templates.ml:345
+#: src/web/web_templates.ml:1733 src/web/web_templates.ml:405
 msgid "Proceed"
 msgstr ""
 
@@ -1195,11 +1212,11 @@ msgstr ""
 msgid "Remember to store you private key securely."
 msgstr ""
 
-#: src/web/web_templates.ml:1366 src/web/web_templates.ml:1316
 #. src/web/web_templates.ml:1052
 #. src/web/web_templates.ml:963
 #. src/web/web_templates.ml:885
 #. src/web/web_templates.ml:804
+#: src/web/web_templates.ml:1366 src/web/web_templates.ml:1316
 msgid "Remove"
 msgstr ""
 
@@ -1215,15 +1232,15 @@ msgstr ""
 msgid "Results will be published on the election page"
 msgstr ""
 
-#: src/web/web_templates.ml:3767 src/web/web_templates.ml:3118
 #. src/web/web_templates.ml:3037
+#: src/web/web_templates.ml:3767 src/web/web_templates.ml:3118
 msgid "Review and encrypt"
 msgstr ""
 
-#: src/web/web_templates.ml:1245 src/web/web_templates.ml:541
 #. src/web/web_templates.ml:513
 #. src/web/web_templates.ml:484
 #. src/web/web_templates.ml:452
+#: src/web/web_templates.ml:1245 src/web/web_templates.ml:541
 msgid "Save changes"
 msgstr ""
 
@@ -1319,7 +1336,6 @@ msgstr ""
 msgid "Step 6/6: "
 msgstr ""
 
-#: src/web/web_templates.ml:3691 src/web/web_templates.ml:3641
 #. src/web/web_templates.ml:3588
 #. src/web/web_templates.ml:3556
 #. src/web/web_templates.ml:3403
@@ -1328,6 +1344,7 @@ msgstr ""
 #. src/web/web_templates.ml:1742
 #. src/web/web_templates.ml:1710
 #. src/web/web_templates.ml:1493
+#: src/web/web_templates.ml:3691 src/web/web_templates.ml:3641
 msgid "Submit"
 msgstr ""
 
@@ -1411,14 +1428,14 @@ msgstr ""
 msgid "The fingerprint of your shuffle is:"
 msgstr ""
 
-#: src/web/web_templates.ml:2750 src/web/web_templates.ml:2617
 #. src/web/web_templates.ml:1027
 #. src/web/web_templates.ml:863
+#: src/web/web_templates.ml:2750 src/web/web_templates.ml:2617
 msgid "The link that must be sent to trustee "
 msgstr ""
 
-#: src/web/web_templates.ml:1630 src/web/web_templates.ml:1547
 #. src/web/web_templates.ml:1433
+#: src/web/web_templates.ml:1630 src/web/web_templates.ml:1547
 msgid "The link to the election will be:"
 msgstr ""
 
@@ -1534,9 +1551,9 @@ msgstr ""
 msgid "To use this site, you must accept our "
 msgstr ""
 
-#: src/web/web_templates.ml:2786 src/web/web_templates.ml:2651
 #. src/web/web_templates.ml:1047
 #. src/web/web_templates.ml:880
+#: src/web/web_templates.ml:2786 src/web/web_templates.ml:2651
 msgid "Trustee"
 msgstr ""
 
@@ -1572,13 +1589,13 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: src/web/web_site.ml:682 src/web/web_templates.ml:3486
 #. src/web/web_templates.ml:2936
+#: src/web/web_site.ml:682 src/web/web_templates.ml:3486
 msgid "Username:"
 msgstr ""
 
-#: src/web/web_templates.ml:2013 src/web/web_templates.ml:1846
 #. src/web/web_templates.ml:666
+#: src/web/web_templates.ml:2013 src/web/web_templates.ml:1846
 msgid "Validate creation"
 msgstr ""
 
@@ -1602,9 +1619,9 @@ msgstr ""
 msgid "Voting records"
 msgstr ""
 
-#: src/web/web_templates.ml:3089 src/web/web_templates.ml:1943
 #. src/web/web_templates.ml:1932
 #. src/web/web_templates.ml:1384
+#: src/web/web_templates.ml:3089 src/web/web_templates.ml:1943
 msgid "Warning:"
 msgstr ""
 
@@ -1628,10 +1645,10 @@ msgstr ""
 msgid "Warning: this will freeze the voter list!"
 msgstr ""
 
-#: src/web/web_templates.ml:2739 src/web/web_templates.ml:2604
 #. src/web/web_templates.ml:1947
 #. src/web/web_templates.ml:1335
 #. src/web/web_templates.ml:851
+#: src/web/web_templates.ml:2739 src/web/web_templates.ml:2604
 msgid "Yes"
 msgstr ""
 
@@ -1687,10 +1704,10 @@ msgstr ""
 msgid "You must select at most %d answer(s)"
 msgstr ""
 
-#: src/web/web_templates.ml:1813 src/web/web_templates.ml:246
 #. src/web/web_templates.ml:241
 #. src/web/web_templates.ml:236
 #. src/web/web_templates.ml:231
+#: src/web/web_templates.ml:1813 src/web/web_templates.ml:246
 msgid "You own no such elections!"
 msgstr ""
 
@@ -1746,8 +1763,8 @@ msgstr ""
 msgid "Your smart ballot tracker is"
 msgstr ""
 
-#: src/web/web_templates.ml:3743 src/web/web_templates.ml:3132
 #. src/web/web_templates.ml:3055
+#: src/web/web_templates.ml:3743 src/web/web_templates.ml:3132
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -1986,4 +2003,3 @@ msgstr ""
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr ""
-
