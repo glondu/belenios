@@ -39,8 +39,6 @@ module PString = String
 open Eliom_service
 open Eliom_registration
 
-module T = Web_templates
-
 let find_election uuid =
   match%lwt Web_persist.get_raw_election uuid with
   | Some raw_election -> return_some (Election.of_string raw_election)
@@ -49,7 +47,7 @@ let find_election uuid =
 let election_not_found () =
   let%lwt l = Web_i18n.get_preferred_gettext () in
   let open (val l) in
-  T.generic_page ~title:(s_ "Not found") (s_ "This election does not exist. This may happen for elections that have not yet been open or have been deleted.") ()
+  Pages_common.generic_page ~title:(s_ "Not found") (s_ "This election does not exist. This may happen for elections that have not yet been open or have been deleted.") ()
   >>= Html.send ~code:404
 
 let dump_passwords uuid db =
@@ -368,7 +366,7 @@ let without_site_user ?fallback f =
      match fallback with
      | Some g -> g u
      | None ->
-        T.generic_page ~title:"Error"
+        Pages_common.generic_page ~title:"Error"
           "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
           () >>= Html.send
 
@@ -386,7 +384,7 @@ let () =
 let () = Html.register ~service:admin
   (fun () () ->
     let%lwt gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
-    if gdpr then T.privacy_notice ContAdmin else
+    if gdpr then Pages_admin.privacy_notice ContAdmin else
     let%lwt site_user = Eliom_reference.get Web_state.site_user in
     let%lwt elections =
       match site_user with
@@ -395,7 +393,7 @@ let () = Html.register ~service:admin
          let%lwt elections = get_elections_by_owner_sorted u in
          return_some elections
     in
-    T.admin ~elections ()
+    Pages_admin.admin ~elections ()
   )
 
 let () = File.register ~service:source_code
@@ -458,7 +456,7 @@ let create_new_election owner cred auth =
   redir_preapply election_draft uuid ()
 
 let () = Html.register ~service:election_draft_pre
-  (fun () () -> T.election_draft_pre ())
+  (fun () () -> Pages_admin.election_draft_pre ())
 
 let http_rex = "^https?://[a-z0-9/.-]+$"
 
@@ -485,7 +483,7 @@ let () = Any.register ~service:election_draft_new
         in
         match auth with
         | `CAS cas_server when not (is_http_url cas_server) ->
-           T.generic_page ~title:"Error" "Bad CAS server!" () >>= Html.send
+           Pages_common.generic_page ~title:"Error" "Bad CAS server!" () >>= Html.send
         | _ -> create_new_election u credmgmt auth
       )
   )
@@ -501,7 +499,7 @@ let () =
   Html.register ~service:election_draft
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          T.election_draft uuid se ()
+          Pages_admin.election_draft uuid se ()
         )
     )
 
@@ -510,7 +508,7 @@ let () =
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
           match se.se_threshold_trustees with
-          | None -> T.election_draft_trustees uuid se () >>= Html.send
+          | None -> Pages_admin.election_draft_trustees uuid se () >>= Html.send
           | Some _ -> redir_preapply election_draft_threshold_trustees uuid ()
         )
     )
@@ -519,7 +517,7 @@ let () =
   Html.register ~service:election_draft_threshold_trustees
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          T.election_draft_threshold_trustees uuid se ()
+          Pages_admin.election_draft_threshold_trustees uuid se ()
         )
     )
 
@@ -527,7 +525,7 @@ let () =
   Html.register ~service:election_draft_credential_authority
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          T.election_draft_credential_authority uuid se ()
+          Pages_admin.election_draft_credential_authority uuid se ()
         )
     )
 
@@ -545,7 +543,7 @@ let with_draft_election ?(save = true) uuid f =
                | exception e ->
                   let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
                   let service = preapply ~service:election_draft uuid in
-                  T.generic_page ~title:"Error" ~service msg () >>= Html.send
+                  Pages_common.generic_page ~title:"Error" ~service msg () >>= Html.send
              ) else forbidden ()
         )
     )
@@ -567,9 +565,9 @@ let () =
           | Ok e_cred_authority ->
              se.se_metadata <- {se.se_metadata with e_cred_authority};
              let msg = "The public name of the credential authority has been set successfully!" in
-             T.generic_page ~title:"Success" ~service msg () >>= Html.send
+             Pages_common.generic_page ~title:"Success" ~service msg () >>= Html.send
           | Error msg ->
-             T.generic_page ~title:"Error" ~service msg () >>= Html.send
+             Pages_common.generic_page ~title:"Error" ~service msg () >>= Html.send
         )
     )
 
@@ -581,7 +579,7 @@ let () =
           match langs with
           | [] ->
              let service = preapply ~service:election_draft uuid in
-             T.generic_page ~title:"Error" ~service
+             Pages_common.generic_page ~title:"Error" ~service
                "You must select at least one language!" () >>= Html.send
           | _ :: _ ->
              let unavailable =
@@ -598,7 +596,7 @@ let () =
                 redir_preapply election_draft uuid ()
              | l :: _ ->
                 let service = preapply ~service:election_draft uuid in
-                T.generic_page ~title:"Error" ~service
+                Pages_common.generic_page ~title:"Error" ~service
                   ("No such language: " ^ l) () >>= Html.send
         )
     )
@@ -639,7 +637,7 @@ let () =
               Printf.sprintf "The election name must be %d bytes or less!"
                 max_election_name_size
             in
-            T.generic_page ~title:"Error" msg () >>= Html.send
+            Pages_common.generic_page ~title:"Error" msg () >>= Html.send
           ) else (
             se.se_questions <- {se.se_questions with
                                  t_name = name;
@@ -728,7 +726,7 @@ let handle_password se uuid ~force voters =
       ) voters
   in
   let service = preapply ~service:election_draft uuid in
-  T.generic_page ~title:"Success" ~service
+  Pages_common.generic_page ~title:"Success" ~service
     "Passwords have been generated and mailed!" () >>= Html.send
 
 let () =
@@ -742,7 +740,7 @@ let () =
 let () =
   Any.register ~service:election_regenpwd
     (fun uuid () ->
-      T.regenpwd uuid () >>= Html.send)
+      Pages_admin.regenpwd uuid () >>= Html.send)
 
 let find_user_id uuid user =
   let uuid_s = raw_string_of_uuid uuid in
@@ -789,11 +787,11 @@ let () =
                let%lwt x = generate_password metadata langs title url id in
                let db = replace_password user x db in
                let%lwt () = dump_passwords uuid db in
-               T.generic_page ~title:"Success" ~service
+               Pages_common.generic_page ~title:"Success" ~service
                  ("A new password has been mailed to " ^ id ^ ".") ()
                >>= Html.send
             | None ->
-               T.generic_page ~title:"Error" ~service
+               Pages_common.generic_page ~title:"Error" ~service
                  (user ^ " is not a registered user for this election.") ()
                >>= Html.send
           ) else forbidden ()
@@ -804,7 +802,7 @@ let () =
   Html.register ~service:election_draft_questions
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          T.election_draft_questions uuid se ()
+          Pages_admin.election_draft_questions uuid se ()
         )
     )
 
@@ -849,7 +847,7 @@ let () =
   Html.register ~service:election_draft_voters
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          T.election_draft_voters uuid se !Web_config.maxmailsatonce ()
+          Pages_admin.election_draft_voters uuid se !Web_config.maxmailsatonce ()
         )
     )
 
@@ -970,7 +968,7 @@ let () =
           ) else (
             let msg = st_id ^ " is not a valid e-mail address!" in
             let service = preapply ~service:election_draft_trustees uuid in
-            T.generic_page ~title:"Error" ~service msg () >>= Html.send
+            Pages_common.generic_page ~title:"Error" ~service msg () >>= Html.send
           )
         )
     )
@@ -996,13 +994,13 @@ let () =
       without_site_user (fun () ->
           match%lwt Web_persist.get_draft_election uuid with
           | None -> fail_http 404
-          | Some se -> T.election_draft_credentials token uuid se () >>= Html.send
+          | Some se -> Pages_admin.election_draft_credentials token uuid se () >>= Html.send
         )
     )
 
 let wrap_handler f =
   try%lwt f () with
-  | e -> T.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html.send
+  | e -> Pages_common.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html.send
 
 let handle_credentials_post uuid token creds =
   match%lwt Web_persist.get_draft_election uuid with
@@ -1040,7 +1038,7 @@ let handle_credentials_post uuid token creds =
   in
   let () = se.se_public_creds_received <- true in
   let%lwt () = Web_persist.set_draft_election uuid se in
-  T.election_draft_credentials_done se () >>= Html.send
+  Pages_admin.election_draft_credentials_done se () >>= Html.send
 
 let () =
   Any.register ~service:election_draft_credentials_post
@@ -1157,7 +1155,7 @@ let () =
             in
             se.se_public_creds_received <- true;
             let service = preapply ~service:election_draft uuid in
-            T.generic_page ~title:"Success" ~service
+            Pages_common.generic_page ~title:"Success" ~service
               "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential." () >>= Html.send
           )
         )
@@ -1183,13 +1181,13 @@ let () =
           | None -> fail_http 404
           | Some se ->
              if se.se_owner = u then (
-               T.election_draft_trustees ~token uuid se () >>= Html.send
+               Pages_admin.election_draft_trustees ~token uuid se () >>= Html.send
              ) else forbidden ()
         )
         (fun () ->
           match%lwt Web_persist.get_draft_election uuid with
           | None -> fail_http 404
-          | Some se -> T.election_draft_trustee token uuid se () >>= Html.send
+          | Some se -> Pages_admin.election_draft_trustee token uuid se () >>= Html.send
         )
     )
 
@@ -1218,7 +1216,7 @@ let () =
                          Web_persist.set_draft_election uuid se
                     )
                 in
-                T.generic_page ~title:"Success"
+                Pages_common.generic_page ~title:"Success"
                   "Your key has been received and checked!"
                   () >>= Html.send
               )
@@ -1229,7 +1227,7 @@ let () =
   Any.register ~service:election_draft_confirm
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
-          T.election_draft_confirm uuid se () >>= Html.send
+          Pages_admin.election_draft_confirm uuid se () >>= Html.send
         )
     )
 
@@ -1240,7 +1238,7 @@ let () =
           match%lwt validate_election uuid se with
           | () -> redir_preapply election_admin uuid ()
           | exception e ->
-             T.new_election_failure (`Exception e) () >>= Html.send
+             Pages_admin.new_election_failure (`Exception e) () >>= Html.send
         )
     )
 
@@ -1261,7 +1259,7 @@ let () =
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
           let%lwt _, a, b, c = get_elections_by_owner_sorted se.se_owner in
-          T.election_draft_import uuid se (a, b, c) ()
+          Pages_admin.election_draft_import uuid se (a, b, c) ()
         )
     )
 
@@ -1289,7 +1287,7 @@ let () =
                redir_preapply election_draft_voters uuid ()
              )
           | None ->
-             T.generic_page ~title:"Error"
+             Pages_common.generic_page ~title:"Error"
                ~service:(preapply ~service:election_draft_voters uuid)
                (Printf.sprintf
                   "Could not retrieve voter list from election %s"
@@ -1303,7 +1301,7 @@ let () =
     (fun uuid () ->
       with_draft_election_ro uuid (fun se ->
           let%lwt _, a, b, c = get_elections_by_owner_sorted se.se_owner in
-          T.election_draft_import_trustees uuid se (a, b, c) ()
+          Pages_admin.election_draft_import_trustees uuid se (a, b, c) ()
         )
     )
 
@@ -1396,7 +1394,7 @@ let () =
                         redir_preapply election_draft_trustees uuid ()
           with
           | TrusteeImportError msg ->
-             T.generic_page ~title:"Error"
+             Pages_common.generic_page ~title:"Error"
                ~service:(preapply ~service:election_draft_trustees uuid)
                msg () >>= Html.send
         )
@@ -1418,10 +1416,10 @@ let () =
          (match%lwt Eliom_reference.get Web_state.cast_confirmed with
           | Some result ->
              let%lwt () = Eliom_reference.unset Web_state.cast_confirmed in
-             T.cast_confirmed w ~result () >>= Html.send
+             Pages_voter.cast_confirmed w ~result () >>= Html.send
           | None ->
              let%lwt state = Web_persist.get_election_state uuid in
-             T.election_home w state () >>= Html.send
+             Pages_voter.election_home w state () >>= Html.send
          )
     )
 
@@ -1487,10 +1485,10 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
                let%lwt () = Web_persist.set_decryption_tokens uuid ts in
                return ts
         in
-        T.election_admin ?shuffle_token ?tally_token w metadata state get_tokens_decrypt () >>= Html.send
+        Pages_admin.election_admin ?shuffle_token ?tally_token w metadata state get_tokens_decrypt () >>= Html.send
      | _, Some _ ->
         let msg = "You are not allowed to administer this election!" in
-        T.generic_page ~title:"Forbidden" msg ()
+        Pages_common.generic_page ~title:"Forbidden" msg ()
         >>= Html.send ~code:403
      | _, _ ->
         redir_preapply site_login (None, ContSiteElection uuid) ()
@@ -1530,7 +1528,7 @@ let election_set_result_hidden f uuid x =
         | () -> redir_preapply election_admin uuid ()
         | exception Failure msg ->
            let service = preapply ~service:election_admin uuid in
-           T.generic_page ~title:"Error" ~service msg () >>= Html.send
+           Pages_common.generic_page ~title:"Error" ~service msg () >>= Html.send
       ) else forbidden ()
     )
 
@@ -1582,7 +1580,7 @@ let () =
                redir_preapply election_admin uuid ()
             | Error msg ->
                let service = preapply ~service:election_admin uuid in
-               T.generic_page ~title:"Error" ~service msg () >>= Html.send
+               Pages_common.generic_page ~title:"Error" ~service msg () >>= Html.send
           ) else forbidden ()
         )
     )
@@ -1615,13 +1613,13 @@ let () =
   Any.register ~service:election_vote
     (fun () () ->
       let%lwt () = Eliom_reference.unset Web_state.ballot in
-      Web_templates.booth () >>= Html.send)
+      Pages_voter.booth () >>= Html.send)
 
 let () =
   Any.register ~service:election_cast
     (fun uuid () ->
       match%lwt find_election uuid with
-      | Some w -> T.cast_raw w () >>= Html.send
+      | Some w -> Pages_voter.cast_raw w () >>= Html.send
       | None -> election_not_found ()
     )
 
@@ -1651,12 +1649,12 @@ let () =
       | None ->
          let%lwt l = Web_i18n.get_preferred_gettext () in
          let open (val l) in
-         T.generic_page ~title:(s_ "Cookies are blocked") (s_ "Your browser seems to block cookies. Please enable them.") ()
+         Pages_common.generic_page ~title:(s_ "Cookies are blocked") (s_ "Your browser seems to block cookies. Please enable them.") ()
          >>= Html.send
       | Some ballot ->
          match ballot_of_string Yojson.Safe.read_json ballot with
          | exception _ ->
-            T.generic_page ~title:"Error" "Ill-formed ballot" () >>= Html.send
+            Pages_common.generic_page ~title:"Error" "Ill-formed ballot" () >>= Html.send
          | ballot ->
             let uuid = ballot.election_uuid in
             match%lwt Web_persist.get_draft_election uuid with
@@ -1761,8 +1759,8 @@ let () =
       match%lwt find_election uuid with
       | Some w ->
          (match%lwt Eliom_reference.get Web_state.ballot with
-          | Some b -> T.cast_confirmation w (sha256_b64 b) () >>= Html.send
-          | None -> T.lost_ballot w () >>= Html.send
+          | Some b -> Pages_voter.cast_confirmation w (sha256_b64 b) () >>= Html.send
+          | None -> Pages_voter.lost_ballot w () >>= Html.send
          )
       | None -> election_not_found ()
     )
@@ -1773,7 +1771,7 @@ let () =
       match%lwt Eliom_reference.get Web_state.ballot with
       | None ->
          (match%lwt find_election uuid with
-          | Some w -> T.lost_ballot w () >>= Html.send
+          | Some w -> Pages_voter.lost_ballot w () >>= Html.send
           | None -> election_not_found ()
          )
       | Some rawballot ->
@@ -1798,7 +1796,7 @@ let () =
       | Some w ->
          let%lwt ballots = Web_persist.get_ballot_hashes uuid in
          let%lwt result = Web_persist.get_election_result uuid in
-         T.pretty_ballots w ballots result () >>= Html.send
+         Pages_voter.pretty_ballots w ballots result () >>= Html.send
       | None -> election_not_found ()
     )
 
@@ -1875,7 +1873,7 @@ let () =
                    )
               | None -> return []
             in
-            T.pretty_records w (List.rev records) () >>= Html.send
+            Pages_admin.pretty_records w (List.rev records) () >>= Html.send
           ) else forbidden ()
         )
     )
@@ -1978,7 +1976,7 @@ let () =
               File.send ~content_type:"application/zip" archive_name
             ) else (
               let service = preapply ~service:election_admin uuid in
-              T.generic_page ~title:"Error" ~service
+              Pages_common.generic_page ~title:"Error" ~service
                 "The election is not archived!" () >>= Html.send
             )
           ) else forbidden ()
@@ -2012,20 +2010,20 @@ let () =
                  | Some trustee_id ->
                     let%lwt pds = Web_persist.get_partial_decryptions uuid in
                     if List.mem_assoc trustee_id pds then (
-                      T.generic_page ~title:"Error"
+                      Pages_common.generic_page ~title:"Error"
                         "Your partial decryption has already been received and checked!"
                         () >>= Html.send
                     ) else (
-                      T.tally_trustees w trustee_id token () >>= Html.send
+                      Pages_admin.tally_trustees w trustee_id token () >>= Html.send
                     )
                  | None -> forbidden ()
                 )
              | `Open | `Closed | `Shuffling ->
                 let msg = "The election is not ready to be tallied. Please come back later." in
-                T.generic_page ~title:"Forbidden" msg () >>= Html.send ~code:403
+                Pages_common.generic_page ~title:"Forbidden" msg () >>= Html.send ~code:403
              | `Tallied | `Archived ->
                 let msg = "The election has already been tallied." in
-                T.generic_page ~title:"Forbidden" msg () >>= Html.send ~code:403
+                Pages_common.generic_page ~title:"Forbidden" msg () >>= Html.send ~code:403
         )
     )
 
@@ -2075,12 +2073,12 @@ let () =
       if E.check_factor et pk pd then (
         let pds = (trustee_id, partial_decryption) :: pds in
         let%lwt () = Web_persist.set_partial_decryptions uuid pds in
-        T.generic_page ~title:"Success"
+        Pages_common.generic_page ~title:"Success"
           "Your partial decryption has been received and checked!" () >>=
         Html.send
       ) else (
         let service = preapply ~service:election_tally_trustees (uuid, token) in
-        T.generic_page ~title:"Error" ~service
+        Pages_common.generic_page ~title:"Error" ~service
           "The partial decryption didn't pass validation!" () >>=
         Html.send
       ))
@@ -2147,7 +2145,7 @@ let handle_election_tally_release uuid () =
                "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
                (Trustees.string_of_combination_error e)
            in
-           T.generic_page ~title:"Error" msg () >>= Html.send
+           Pages_common.generic_page ~title:"Error" msg () >>= Html.send
       ) else forbidden ()
     )
 
@@ -2279,7 +2277,7 @@ let () =
           | Some x when token = x.tk_token ->
              (match%lwt find_election uuid with
               | None -> election_not_found ()
-              | Some election -> T.shuffle election token >>= Html.send
+              | Some election -> Pages_admin.shuffle election token >>= Html.send
              )
           | _ -> forbidden ()
         )
@@ -2298,11 +2296,11 @@ let () =
                  let sh = {sh_trustee = x.tk_trustee; sh_hash = h; sh_name = x.tk_name} in
                  let%lwt () = Web_persist.add_shuffle_hash uuid sh in
                  let%lwt () = Web_persist.remove_audit_cache uuid in
-                 T.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
+                 Pages_common.generic_page ~title:"Success" "The shuffle has been successfully applied!" () >>= Html.send
               | None ->
-                 T.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send
+                 Pages_common.generic_page ~title:"Error" "An error occurred while applying the shuffle." () >>= Html.send
               | exception e ->
-                 T.generic_page ~title:"Error" (Printf.sprintf "Data is invalid! (%s)" (Printexc.to_string e)) () >>= Html.send
+                 Pages_common.generic_page ~title:"Error" (Printf.sprintf "Data is invalid! (%s)" (Printexc.to_string e)) () >>= Html.send
              )
           | _ -> forbidden ()
         )
@@ -2354,7 +2352,7 @@ let () =
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
-            T.election_shuffler_skip_confirm uuid trustee >>= Html.send
+            Pages_admin.election_shuffler_skip_confirm uuid trustee >>= Html.send
           ) else forbidden ()
         )
     )
@@ -2415,7 +2413,7 @@ let () =
           | None ->
              let msg = "Please add some trustees first!" in
              let service = preapply ~service:election_draft_threshold_trustees uuid in
-             T.generic_page ~title:"Error" ~service msg () >>= Html.send
+             Pages_common.generic_page ~title:"Error" ~service msg () >>= Html.send
           | Some xs ->
              let maybe_threshold, step =
                if threshold = 0 then None, None
@@ -2428,7 +2426,7 @@ let () =
              ) else (
                let msg = "The threshold must be positive and smaller than the number of trustees!" in
                let service = preapply ~service:election_draft_threshold_trustees uuid in
-               T.generic_page ~title:"Error" ~service msg () >>= Html.send
+               Pages_common.generic_page ~title:"Error" ~service msg () >>= Html.send
              )
         )
     )
@@ -2456,7 +2454,7 @@ let () =
           ) else (
             let msg = stt_id ^ " is not a valid e-mail address!" in
             let service = preapply ~service:election_draft_threshold_trustees uuid in
-            T.generic_page ~title:"Error" ~service msg () >>= Html.send
+            Pages_common.generic_page ~title:"Error" ~service msg () >>= Html.send
           )
         )
     )
@@ -2491,13 +2489,13 @@ let () =
           | None -> fail_http 404
           | Some se ->
              if se.se_owner = u then (
-               T.election_draft_threshold_trustees ~token uuid se () >>= Html.send
+               Pages_admin.election_draft_threshold_trustees ~token uuid se () >>= Html.send
              ) else forbidden ()
         )
         (fun () ->
           match%lwt Web_persist.get_draft_election uuid with
           | None -> fail_http 404
-          | Some se -> T.election_draft_threshold_trustee token uuid se () >>= Html.send
+          | Some se -> Pages_admin.election_draft_threshold_trustee token uuid se () >>= Html.send
         )
     )
 
@@ -2642,17 +2640,17 @@ let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 let signup_captcha_handler service error email =
   if%lwt Captcha_throttle.wait captcha_throttle 0 then
     let%lwt challenge = Web_signup.create_captcha () in
-    T.signup_captcha ~service error challenge email
+    Pages_admin.signup_captcha ~service error challenge email
   else
     let service = preapply ~service:signup_captcha service in
-    T.generic_page ~title:"Account creation" ~service
+    Pages_common.generic_page ~title:"Account creation" ~service
       "You cannot create an account now. Please try later." ()
 
 let () =
   Html.register ~service:signup_captcha
     (fun service () ->
       if%lwt Eliom_reference.get Web_state.show_cookie_disclaimer then
-        T.privacy_notice (ContSignup service)
+        Pages_admin.privacy_notice (ContSignup service)
       else
         signup_captcha_handler service None ""
     )
@@ -2673,17 +2671,17 @@ let () =
            Printf.sprintf
              "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation." email
          in
-         T.generic_page ~title:"Account creation" message ()
+         Pages_common.generic_page ~title:"Account creation" message ()
       | _ -> signup_captcha_handler service error email
     )
 
 let changepw_captcha_handler service error email username =
   if%lwt Captcha_throttle.wait captcha_throttle 1 then
     let%lwt challenge = Web_signup.create_captcha () in
-    T.signup_changepw ~service error challenge email username
+    Pages_admin.signup_changepw ~service error challenge email username
   else
     let service = preapply ~service:changepw_captcha service in
-    T.generic_page ~title:"Change password" ~service
+    Pages_common.generic_page ~title:"Change password" ~service
       "You cannot change your password now. Please try later." ()
 
 let () =
@@ -2714,7 +2712,7 @@ let () =
          let message =
            "If the account exists, an e-mail was sent with a confirmation link. Please click on it to change your password."
          in
-         T.generic_page ~title:"Change password" message ()
+         Pages_common.generic_page ~title:"Change password" message ()
       | _ -> changepw_captcha_handler service error email username
     )
 
@@ -2737,8 +2735,8 @@ let () =
     (fun () () ->
       match%lwt Eliom_reference.get Web_state.signup_env with
       | None -> forbidden ()
-      | Some (_, _, address, Web_signup.CreateAccount) -> T.signup address None ""
-      | Some (_, _, address, Web_signup.ChangePassword username) -> T.changepw ~username ~address None
+      | Some (_, _, address, Web_signup.CreateAccount) -> Pages_admin.signup address None ""
+      | Some (_, _, address, Web_signup.ChangePassword username) -> Pages_admin.changepw ~username ~address None
     )
 
 let () =
@@ -2753,9 +2751,9 @@ let () =
               let%lwt () = Web_signup.remove_link token in
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
-              T.generic_page ~title:"Account creation" ~service "The account has been created." ()
-           | Error e -> T.signup email (Some e) username
-         ) else T.signup email (Some PasswordMismatch) username
+              Pages_common.generic_page ~title:"Account creation" ~service "The account has been created." ()
+           | Error e -> Pages_admin.signup email (Some e) username
+         ) else Pages_admin.signup email (Some PasswordMismatch) username
       | _ -> forbidden ()
     )
 
@@ -2771,9 +2769,9 @@ let () =
               let%lwt () = Web_signup.remove_link token in
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
-              T.generic_page ~title:"Change password" ~service "The password has been changed." ()
-           | Error e -> T.changepw ~username ~address (Some e)
-         ) else T.changepw ~username ~address (Some PasswordMismatch)
+              Pages_common.generic_page ~title:"Change password" ~service "The password has been changed." ()
+           | Error e -> Pages_admin.changepw ~username ~address (Some e)
+         ) else Pages_admin.changepw ~username ~address (Some PasswordMismatch)
       | _ -> forbidden ()
     )
 
@@ -2910,18 +2908,18 @@ let () =
                     |> Array.map Shape.to_array
                   in
                   let schulze = Schulze.compute ~nchoices ballots in
-                  T.schulze q schulze >>= Html.send
+                  Pages_voter.schulze q schulze >>= Html.send
                | None ->
-                  T.generic_page ~title:(s_ "Error")
+                  Pages_common.generic_page ~title:(s_ "Error")
                     (s_ "The result of this election is not available.")
                   () >>= Html.send ~code:404
               )
            | Question.Homomorphic _ ->
-              T.generic_page ~title:(s_ "Error")
+              Pages_common.generic_page ~title:(s_ "Error")
                 (s_ "This question is homomorphic, the Schulze method cannot be applied to its result.")
                 () >>= Html.send ~code:403
          ) else (
-           T.generic_page ~title:(s_ "Error")
+           Pages_common.generic_page ~title:(s_ "Error")
              (s_ "Invalid index for question.")
              () >>= Html.send ~code:404
          )

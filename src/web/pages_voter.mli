@@ -19,17 +19,18 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt
+open Belenios
+open Serializable_t
+open Web_serializable_t
+open Signatures
 
-let run_post_login_handler =
-  Web_auth.register_pre_login_handler ~auth_system:"dummy"
-    (fun _ ~state ->
-      Pages_common.login_dummy ~state >>= Eliom_registration.Html.send
-    )
+val election_home : 'a election -> election_state -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_confirmation : 'a election -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val lost_ballot : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_confirmed : 'a election -> result:(string, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val pretty_ballots : 'a election -> string list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-let () =
-  Eliom_registration.Any.register ~service:Web_services.dummy_post
-    (fun () (state, name) ->
-      run_post_login_handler ~state
-        (fun _ _ authenticate -> authenticate name >>= fun x -> return (Ok x))
-    )
+val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
+val schulze : Question_nh_t.question -> schulze_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
