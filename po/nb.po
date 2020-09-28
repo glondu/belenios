@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2020-09-24 08:04+0000\n"
+"PO-Revision-Date: 2020-09-28 15:04+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "belenios/server/nb_NO/>\n"
@@ -586,7 +585,7 @@ msgstr "Last ned din "
 #. src/web/pages_admin.ml:746
 #. src/web/pages_admin.ml:699
 msgid "E-mail"
-msgstr ""
+msgstr "E-post"
 
 #: src/web/pages_admin.ml:2714 src/web/pages_admin.ml:2685
 msgid "E-mail address:"
@@ -735,7 +734,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:134
 msgid "If you do not have any account, you may "
-msgstr ""
+msgstr "Hvis du ikke har en konto enda, kan du "
 
 #: src/web/pages_voter.ml:530
 msgid "If you want to vote, you must "
@@ -1027,7 +1026,7 @@ msgstr "Side for valget:"
 
 #: src/web/pages_admin.ml:2569
 msgid "Partial decryption #%d"
-msgstr ""
+msgstr "Delvis dekryptering #%d"
 
 #: src/web/pages_admin.ml:257
 msgid "Password (passwords will be emailed to voters)"
@@ -2017,4 +2016,3 @@ msgstr "din identitetsdetalj har allerede blitt brukt"
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr "din identitetsdetalj er ugyldig"
-
