@@ -21,13 +21,9 @@
 
 open Lwt
 open Belenios
-open Serializable_builtin_t
 open Common
-open Web_serializable_j
 open Web_common
 open Web_services
-
-let ( / ) = Filename.concat
 
 module PString = String
 
@@ -69,39 +65,6 @@ let () =
       let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
       get_cont_state cont ()
     )
-
-let content_type_of_file = function
-  | ESRaw -> "application/json; charset=utf-8"
-  | ESTrustees | ESETally | ESResult -> "application/json"
-  | ESBallots | ESShuffles -> "text/plain" (* should be "application/json-seq", but we don't use RS *)
-  | ESCreds | ESRecords | ESVoters -> "text/plain"
-
-let handle_pseudo_file uuid f site_user =
-  let%lwt confidential =
-    match f with
-    | ESRaw | ESTrustees | ESBallots | ESETally | ESCreds | ESShuffles -> return false
-    | ESRecords | ESVoters -> return true
-    | ESResult ->
-       match%lwt Web_persist.get_election_result_hidden uuid with
-       | None -> return false
-       | Some _ -> return true
-  in
-  let%lwt () =
-    if confidential then (
-      let%lwt metadata = Web_persist.get_election_metadata uuid in
-      match site_user with
-      | Some u when metadata.e_owner = Some u -> return ()
-      | _ -> forbidden ()
-    ) else return ()
-  in
-  let content_type = content_type_of_file f in
-  File.send ~content_type (!Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file f)
-
-let () =
-  Any.register ~service:election_dir
-    (fun (uuid, f) () ->
-     let%lwt site_user = Eliom_reference.get Web_state.site_user in
-     handle_pseudo_file uuid f site_user)
 
 let () =
   Any.register ~service:election_nh_ciphertexts
