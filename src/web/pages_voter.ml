@@ -33,6 +33,8 @@ open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 open Pages_common
 
+let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
+
 let rec list_concat elt = function
   | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
   | ([_] | []) as xs -> xs
@@ -41,7 +43,7 @@ let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
 let audit_footer election =
   let uuid = election.e_params.e_uuid in
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
@@ -114,7 +116,7 @@ let format_question_result uuid l (i, q) r =
        ]
 
 let election_home election state () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -431,7 +433,7 @@ let cast_raw election () =
   base ~title:params.e_name ~content ~uuid ~footer ()
 
 let cast_confirmation election hash () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -513,7 +515,7 @@ let cast_confirmation election hash () =
   base ~title:name ~content ~uuid ()
 
 let lost_ballot election () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = election.e_params.e_name in
   let uuid = election.e_params.e_uuid in
@@ -541,7 +543,7 @@ let lost_ballot election () =
   base ~title ~content ~uuid ()
 
 let cast_confirmed election ~result () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -600,7 +602,7 @@ let cast_confirmed election ~result () =
   base ~title:name ~content ~uuid ()
 
 let pretty_ballots election hashes result () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -652,7 +654,7 @@ let pretty_ballots election hashes result () =
   base ~title ~content ~uuid ()
 
 let booth () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let head = head (title (txt (s_ "Belenios Booth"))) [
     link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
@@ -806,7 +808,7 @@ let booth () =
   return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
 
 let schulze q r =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Schulze method" in
   let explicit_winners =
@@ -882,13 +884,13 @@ let generate_password metadata langs title url id =
   let%lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
   let%lwt bodies = Lwt_list.map_s (fun lang ->
-    let%lwt l = Web_i18n.get_lang_gettext lang in
+    let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
     return (mail_password l title login password url metadata)
   ) langs in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
   let%lwt subject =
-    let%lwt l = Web_i18n.get_lang_gettext (List.hd langs) in
+    let%lwt l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
     let open (val l) in
     Printf.kprintf return (f_ "Your password for election %s") title
   in

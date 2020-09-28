@@ -439,7 +439,7 @@ let load_uuid uuid lang =
         ) else Lwt.return x.content
       in
       let () = set_textarea "election_params" raw in
-      let%lwt () = Tool_js_i18n.init lang in
+      let%lwt () = Tool_js_i18n.init "voter" lang in
       Lwt.return (run_handler loadElection ())
     )
 
@@ -457,7 +457,7 @@ let load_params_handler lang _ =
   set_element_display "div_submit" "none";
   set_element_display "div_submit_manually" "block";
   Lwt.async (fun () ->
-      let%lwt () = Tool_js_i18n.init lang in
+      let%lwt () = Tool_js_i18n.init "voter" lang in
       Lwt.return (run_handler loadElection ())
     );
   Js._false

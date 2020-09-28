@@ -30,13 +30,15 @@ module PString = String
 open Eliom_service
 open Eliom_registration
 
+let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
+
 let find_election uuid =
   match%lwt Web_persist.get_raw_election uuid with
   | Some raw_election -> return_some (Election.of_string raw_election)
   | _ -> return_none
 
 let election_not_found () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   Pages_common.generic_page ~title:(s_ "Not found") (s_ "This election does not exist. This may happen for elections that have not yet been open or have been deleted.") ()
   >>= Html.send ~code:404

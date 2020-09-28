@@ -19,7 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let langs = Hashtbl.create 10
+let default_lang = "en"
+
+let components = Hashtbl.create 2
 
 module type LANG = sig
   val lang : string
@@ -47,20 +49,30 @@ module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i
   let fn_ str str_plural n = Scanf.format_from_string (T.translate u true (string_of_format str) (Some (string_of_format str_plural, n))) str
 end
 
-let build_gettext_input lang =
+let build_gettext_input _component lang =
   (module struct
      let lang = lang
      let mo_file = Filename.concat !Web_config.locales_dir (lang ^ ".mo")
    end : LANG)
 
-let default_gettext =
-  let module L = (val build_gettext_input "en") in
+let default_gettext component =
+  let module L = (val build_gettext_input component default_lang) in
   let module G = Belenios_Gettext (L) (GettextTranslate.Dummy) in
   (module G : Web_i18n_sig.GETTEXT)
 
+let () =
+  List.iter
+    (fun component ->
+      let h = Hashtbl.create 10 in
+      Hashtbl.add h default_lang (default_gettext component);
+      Hashtbl.add components component h
+    )
+    ["voter"; "admin"]
+
 let lang_mutex = Lwt_mutex.create ()
 
-let get_lang_gettext lang =
+let get_lang_gettext component lang =
+  let langs = Hashtbl.find components component in
   match Hashtbl.find_opt langs lang with
   | Some l -> Lwt.return l
   | None ->
@@ -69,7 +81,7 @@ let get_lang_gettext lang =
          match Hashtbl.find_opt langs lang with
          | Some l -> Lwt.return l
          | None ->
-            let module L = (val build_gettext_input lang) in
+            let module L = (val build_gettext_input component lang) in
             if%lwt Lwt_unix.file_exists L.mo_file then (
               let get () =
                 let module L = Belenios_Gettext (L) (GettextTranslate.Map) in
@@ -79,7 +91,7 @@ let get_lang_gettext lang =
               Hashtbl.add langs lang l;
               Lwt.return l
             ) else (
-              Lwt.return default_gettext
+              Lwt.return (Hashtbl.find langs default_lang)
             )
        )
 
@@ -90,20 +102,20 @@ let parse_lang =
   | groups -> Some (Pcre.get_substring groups 1)
   | exception Not_found -> None
 
-let get_default_language () =
+let get_preferred_language () =
   let ri = Eliom_request_info.get_ri () in
   let lazy langs = Ocsigen_request_info.accept_language ri in
   match langs with
-  | [] -> "en"
+  | [] -> default_lang
   | (lang, _) :: _ ->
      match parse_lang lang with
-     | None -> "en"
+     | None -> default_lang
      | Some lang -> lang
 
-let get_preferred_gettext () =
+let get_preferred_gettext component =
   let%lwt lang =
     match%lwt Eliom_reference.get Web_state.language with
-    | None -> Lwt.return (get_default_language ())
+    | None -> Lwt.return (get_preferred_language ())
     | Some lang -> Lwt.return lang
   in
-  get_lang_gettext lang
+  get_lang_gettext component lang

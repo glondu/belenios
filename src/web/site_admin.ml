@@ -1023,14 +1023,14 @@ let () =
                   let%lwt bodies =
                     Lwt_list.map_s
                       (fun lang ->
-                        let%lwt l = Web_i18n.get_lang_gettext lang in
+                        let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
                         return (Pages_voter.mail_credential l title cas cred url se.se_metadata)
                       ) langs
                   in
                   let body = PString.concat "\n\n----------\n\n" bodies in
                   let body = body ^ "\n\n-- \nBelenios" in
                   let%lwt subject =
-                    let%lwt l = Web_i18n.get_lang_gettext (List.hd langs) in
+                    let%lwt l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
                     let open (val l) in
                     Printf.ksprintf return (f_ "Your credential for election %s") title
                   in

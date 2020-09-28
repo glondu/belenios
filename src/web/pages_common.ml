@@ -46,8 +46,10 @@ let belenios_url = Eliom_service.extern
   ~meth:(Eliom_service.Get Eliom_parameter.unit)
   ()
 
+let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
+
 let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let administer =
     match uuid with
@@ -150,7 +152,7 @@ let a_mailto ~dest ~subject ~body contents =
     uri contents
 
 let generic_page ~title ?service message () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let proceed = match service with
     | None -> txt ""
@@ -179,7 +181,7 @@ let unsafe_textarea ?rows ?cols id contents =
     id rows cols contents
 
 let login_choose auth_systems service () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let auth_systems =
     auth_systems |>
@@ -219,7 +221,7 @@ let login_dummy ~state =
   base ~title ~content ()
 
 let login_password ~service ~allowsignups ~state =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let signup =
     if allowsignups then
@@ -259,7 +261,7 @@ let login_password ~service ~allowsignups ~state =
   base ~title:(s_ "Password login") ~content ()
 
 let login_failed ~service () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Authentication failed" in
   let content =

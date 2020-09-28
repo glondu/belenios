@@ -40,6 +40,8 @@ open Eliom_registration
 
 let ( / ) = Filename.concat
 
+let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
+
 (* Make sure this module is loaded after Site_admin *)
 let _ignored = Site_admin.data_policy_loop
 
@@ -104,7 +106,7 @@ let () =
     (fun () () ->
       match%lwt Eliom_reference.get Web_state.ballot with
       | None ->
-         let%lwt l = Web_i18n.get_preferred_gettext () in
+         let%lwt l = get_preferred_gettext () in
          let open (val l) in
          Pages_common.generic_page ~title:(s_ "Cookies are blocked") (s_ "Your browser seems to block cookies. Please enable them.") ()
          >>= Html.send
@@ -139,7 +141,7 @@ let send_confirmation_email uuid revote user email hash =
   let url2 = Eliom_uri.make_string_uri ~absolute:true
     ~service:Web_services.election_home x |> rewrite_prefix
   in
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let subject = Printf.sprintf (f_ "Your vote for election %s") title in
   let body = Pages_voter.mail_confirmation l user title hash revote url1 url2 metadata in
@@ -236,7 +238,7 @@ let () =
 let () =
   Any.register ~service:method_schulze
     (fun (uuid, question) () ->
-      let%lwt l = Web_i18n.get_preferred_gettext () in
+      let%lwt l = get_preferred_gettext () in
       let open (val l) in
       match%lwt find_election uuid with
       | None -> election_not_found ()

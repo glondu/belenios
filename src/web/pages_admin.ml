@@ -42,8 +42,10 @@ let rec list_concat elt = function
 
 let admin_background = " background: #FF9999;"
 
+let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
+
 let privacy_notice cont =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election server" ^ " — " ^ s_ "Personal data processing notice" in
   let service = Eliom_service.preapply ~service:privacy_notice_accept cont in
@@ -67,7 +69,7 @@ let privacy_notice cont =
   base ~title ~content ()
 
 let login_box ?cont () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let style = "float: right; text-align: right;" ^ admin_background in
   let%lwt user = Eliom_reference.get Web_state.site_user in
@@ -122,7 +124,7 @@ let format_draft_election (uuid, name) =
   ]
 
 let admin ~elections () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election server" ^ " — " ^ s_ "Administration" in
   match elections with
@@ -198,7 +200,7 @@ let admin ~elections () =
     base ~title ~login_box ~content ()
 
 let new_election_failure reason () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Create new election" in
   let reason =
@@ -216,7 +218,7 @@ let new_election_failure reason () =
   base ~title ~login_box ~content ()
 
 let election_draft_pre () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Prepare a new election" in
   let cred_info = Eliom_service.extern
@@ -291,7 +293,7 @@ let preview_booth l uuid =
     ]
 
 let election_draft uuid se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Preparation of election %s") se.se_questions.t_name in
   let form_languages =
@@ -640,7 +642,7 @@ Thank you for your help,
 -- \nThe election administrator."
 
 let election_draft_trustees ?token uuid se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Trustees for election %s") se.se_questions.t_name in
   let form_trustees_add =
@@ -796,7 +798,7 @@ let election_draft_trustees ?token uuid se () =
   base ~title ~login_box ~content ()
 
 let election_draft_threshold_trustees ?token uuid se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Trustees for election %s") se.se_questions.t_name in
   let show_add_remove = se.se_threshold = None in
@@ -999,7 +1001,7 @@ let election_draft_threshold_trustees ?token uuid se () =
   base ~title ~login_box ~content ()
 
 let election_draft_credential_authority uuid se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Credentials for election %s") se.se_questions.t_name in
   let public_name_form =
@@ -1052,7 +1054,7 @@ let election_draft_credential_authority uuid se () =
   base ~title ~login_box ~content ()
 
 let election_draft_credentials_done se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Credentials for election %s") se.se_questions.t_name in
   let content =
@@ -1095,7 +1097,7 @@ let election_draft_credentials_done se () =
   base ~title ~content ()
 
 let election_draft_questions uuid se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Questions for election %s") se.se_questions.t_name in
   let form =
@@ -1159,7 +1161,7 @@ let election_draft_questions uuid se () =
   base ~title ~login_box ~content ()
 
 let election_draft_voters uuid se maxvoters () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Voters for election %s") se.se_questions.t_name in
   let form =
@@ -1273,7 +1275,7 @@ let election_draft_voters uuid se maxvoters () =
   base ~title ~login_box ~content ()
 
 let election_draft_credentials token uuid se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf "Credentials for election %s" se.se_questions.t_name in
   let div_link =
@@ -1387,7 +1389,7 @@ let election_draft_credentials token uuid se () =
   base ~title ~content ()
 
 let election_draft_trustee token uuid se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
   let div_link =
@@ -1462,7 +1464,7 @@ let election_draft_trustee token uuid se () =
   base ~title ~content ()
 
 let election_draft_threshold_trustee token uuid se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
   let header =
@@ -1676,21 +1678,21 @@ let election_draft_importer l ~service ~title uuid (elections, tallied, archived
   base ~title ~login_box ~content ()
 
 let election_draft_import uuid se elections () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Import voters from another election" in
   let service = election_draft_import_post in
   election_draft_importer l ~service ~title uuid elections
 
 let election_draft_import_trustees uuid se elections () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Import trustees from another election" in
   let service = election_draft_import_trustees_post in
   election_draft_importer l ~service ~title uuid elections
 
 let election_draft_confirm uuid se () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let notok x = span ~a:[a_style "color: red;"] [txt x] in
   let ok x = txt x in
@@ -1923,7 +1925,7 @@ type web_shuffler = {
 }
 
 let election_admin ?shuffle_token ?tally_token election metadata state get_tokens_decrypt () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — " ^ s_ "Administration" in
@@ -2433,7 +2435,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   base ~title ~login_box ~content ()
 
 let regenpwd uuid () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let form = post_form ~service:election_regenpwd_post
     (fun user ->
@@ -2453,7 +2455,7 @@ let regenpwd uuid () =
   base ~title ~login_box ~content ~uuid ()
 
 let pretty_records election records () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — " ^ s_ "Records" in
@@ -2481,7 +2483,7 @@ let pretty_records election records () =
   base ~title ~login_box ~content ()
 
 let election_shuffler_skip_confirm uuid trustee =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Skipping trustee %s") trustee in
   let content =
@@ -2505,7 +2507,7 @@ let election_shuffler_skip_confirm uuid trustee =
   base ~title ~content ()
 
 let shuffle election token =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -2561,7 +2563,7 @@ let shuffle election token =
   base ~title ~content ~uuid ()
 
 let tally_trustees election trustee_id token () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -2675,7 +2677,7 @@ let format_captcha_error l e =
      div ~a:[a_style "color: red;"] [txt msg]
 
 let signup_captcha ~service error challenge email =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let form =
     post_form ~service:signup_captcha_post
@@ -2704,7 +2706,7 @@ let signup_captcha ~service error challenge email =
   base ~title:(s_ "Create an account") ~content ()
 
 let signup_changepw ~service error challenge email username =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let form =
     post_form ~service:changepw_captcha_post
@@ -2736,7 +2738,7 @@ let signup_changepw ~service error challenge email username =
   base ~title:(s_ "Change password") ~content ()
 
 let signup address error username =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let error = match error with
     | None -> txt ""
@@ -2788,7 +2790,7 @@ let signup address error username =
   base ~title:(s_ "Create an account") ~content ()
 
 let changepw ~username ~address error =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
+  let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let error = match error with
     | None -> txt ""

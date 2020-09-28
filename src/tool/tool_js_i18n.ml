@@ -2,7 +2,7 @@ open Js_of_ocaml
 
 let translations = ref (Js.Unsafe.obj [||] : Js.Unsafe.any)
 
-let init lang =
+let init _component lang =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let%lwt request = Printf.ksprintf get "static/locales/%s.json" lang in
   if request.code = 200 then
