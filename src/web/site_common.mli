@@ -19,33 +19,18 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
-open Serializable_t
-open Web_serializable_t
-open Signatures
+val find_election :
+  Web_serializable_t.uuid ->
+  Belenios.Serializable_j.json Belenios.Signatures.election option Lwt.t
 
-val election_home : 'a election -> election_state -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_confirmation : 'a election -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val lost_ballot : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_confirmed : 'a election -> result:(string, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val pretty_ballots : 'a election -> string list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val election_not_found :
+  unit -> Eliom_registration.Html.result Lwt.t
 
-val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val redir_preapply :
+  ('a, unit, Eliom_service.get, Eliom_service.att, 'b, 'c, 'd,
+   [< `WithSuffix | `WithoutSuffix ], 'e, unit, 'f)
+    Eliom_service.t -> 'a -> unit -> 'g Eliom_registration.kind Lwt.t
 
-val schulze : Question_nh_t.question -> schulze_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-val generate_password :
-  Web_serializable_t.metadata ->
-  string list ->
-  string -> string -> string -> (string * string) Lwt.t
-
-val mail_credential :
-  (module Web_i18n_sig.GETTEXT) ->
-  string ->
-  bool -> string -> string -> Web_serializable_t.metadata -> string
-
-val mail_confirmation :
-  (module Web_i18n_sig.GETTEXT) ->
-  string -> string -> string ->
-  bool -> string -> string -> Web_serializable_t.metadata -> string
+val wrap_handler :
+  (unit -> Eliom_registration.Html.result Lwt.t) ->
+  Eliom_registration.Html.result Lwt.t

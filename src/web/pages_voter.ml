@@ -835,3 +835,121 @@ let schulze q r =
     ]
   in
   base ~title ~content ()
+
+let contact_footer l metadata =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  match metadata.e_contact with
+  | None -> fun _ -> ()
+  | Some x ->
+     fun b ->
+     let open Mail_formatter in
+     add_newline b;
+     add_newline b;
+     add_sentence b (s_ "To get more information, please contact:");
+     add_newline b;
+     add_string b "  ";
+     add_string b x
+
+let mail_password l title login password url metadata =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (s_ "You are listed as a voter for the election"); add_newline b;
+  add_newline b;
+  add_string b "  "; add_string b title; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "You will find below your login and password.");
+  add_sentence b (s_ "To cast a vote, you will also need a credential, sent in a separate email.");
+  add_sentence b (s_ "Be careful, passwords and credentials look similar but play different roles.");
+  add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
+  add_sentence b (s_ "Login and passwords are required once your ballot is ready to be cast.");
+  add_newline b;
+  add_newline b;
+  add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
+  add_string b (s_ "Password:"); add_string b " "; add_string b password; add_newline b;
+  add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Note that you are allowed to vote several times.");
+  add_sentence b (s_ "Only the last vote counts.");
+  contact_footer l metadata b;
+  contents b
+
+open Belenios_platform.Platform
+
+let generate_password metadata langs title url id =
+  let email, login = split_identity id in
+  let%lwt salt = generate_token () in
+  let%lwt password = generate_token () in
+  let hashed = sha256_hex (salt ^ password) in
+  let%lwt bodies = Lwt_list.map_s (fun lang ->
+    let%lwt l = Web_i18n.get_lang_gettext lang in
+    return (mail_password l title login password url metadata)
+  ) langs in
+  let body = String.concat "\n\n----------\n\n" bodies in
+  let body = body ^ "\n\n-- \nBelenios" in
+  let%lwt subject =
+    let%lwt l = Web_i18n.get_lang_gettext (List.hd langs) in
+    let open (val l) in
+    Printf.kprintf return (f_ "Your password for election %s") title
+  in
+  let%lwt () = send_email email subject body in
+  return (salt, hashed)
+
+let mail_credential l title cas cred url metadata =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (s_ "You are listed as a voter for the election"); add_newline b;
+  add_newline b;
+  add_string b "  "; add_string b title; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "You will find below your credential.");
+  if not cas then (
+    add_sentence b (s_ "To cast a vote, you will also need a password, sent in a separate email.");
+    add_sentence b (s_ "Be careful, passwords and credentials look similar but play different roles.");
+    add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
+    add_sentence b (s_ "Login and passwords are required once your ballot is ready to be cast.");
+  );
+  add_newline b;
+  add_newline b;
+  add_string b (s_ "Credential:"); add_string b " "; add_string b cred; add_newline b;
+  add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Note that you are allowed to vote several times.");
+  add_sentence b (s_ "Only the last vote counts.");
+  contact_footer l metadata b;
+  contents b
+
+let mail_confirmation l user title hash revote url1 url2 metadata =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") user); add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Your vote for election"); add_newline b;
+  add_newline b;
+  add_string b "  "; add_string b title; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "has been recorded.");
+  add_sentence b (s_ "Your smart ballot tracker is"); add_newline b;
+  add_newline b;
+  add_string b "  "; add_string b hash; add_newline b;
+  if revote then (
+     add_newline b;
+     add_sentence b (s_ "This vote replaces any previous vote.");
+     add_newline b;
+  );
+  add_newline b;
+  add_sentence b (s_ "You can check its presence in the ballot box, accessible at");
+  add_newline b;
+  add_string b "  "; add_string b url1; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Results will be published on the election page");
+  add_newline b;
+  add_string b "  "; add_string b url2;
+  contact_footer l metadata b;
+  add_newline b;
+  add_newline b;
+  add_string b "-- "; add_newline b;
+  add_string b "Belenios";
+  contents b

@@ -20,9 +20,7 @@
 (**************************************************************************)
 
 open Lwt
-open Belenios_platform
 open Belenios
-open Platform
 open Serializable_builtin_t
 open Serializable_j
 open Signatures
@@ -31,6 +29,7 @@ open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Web_services
+open Site_common
 
 let ( / ) = Filename.concat
 
@@ -38,17 +37,6 @@ module PString = String
 
 open Eliom_service
 open Eliom_registration
-
-let find_election uuid =
-  match%lwt Web_persist.get_raw_election uuid with
-  | Some raw_election -> return_some (Election.of_string raw_election)
-  | _ -> return_none
-
-let election_not_found () =
-  let%lwt l = Web_i18n.get_preferred_gettext () in
-  let open (val l) in
-  Pages_common.generic_page ~title:(s_ "Not found") (s_ "This election does not exist. This may happen for elections that have not yet been open or have been deleted.") ()
-  >>= Html.send ~code:404
 
 let dump_passwords uuid db =
   List.map (fun line -> PString.concat "," line) db |>
@@ -396,16 +384,10 @@ let () = Html.register ~service:admin
     Pages_admin.admin ~elections ()
   )
 
-let () = File.register ~service:source_code
-  ~content_type:"application/x-gzip"
-  (fun () () -> return !Web_config.source_file)
-
 let generate_uuid () =
   let length = !Web_config.uuid_length in
   let%lwt token = generate_token ?length () in
   return (uuid_of_raw_string token)
-
-let redir_preapply s u () = Redirection.send (Redirection (preapply ~service:s u))
 
 let create_new_election owner cred auth =
   let e_cred_authority = match cred with
@@ -648,63 +630,6 @@ let () =
         )
     )
 
-let contact_footer l metadata =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  match metadata.e_contact with
-  | None -> fun _ -> ()
-  | Some x ->
-     fun b ->
-     let open Mail_formatter in
-     add_newline b;
-     add_newline b;
-     add_sentence b (s_ "To get more information, please contact:");
-     add_newline b;
-     add_string b "  ";
-     add_string b x
-
-let mail_password l title login password url metadata =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  let open Mail_formatter in
-  let b = create () in
-  add_sentence b (s_ "You are listed as a voter for the election"); add_newline b;
-  add_newline b;
-  add_string b "  "; add_string b title; add_newline b;
-  add_newline b;
-  add_sentence b (s_ "You will find below your login and password.");
-  add_sentence b (s_ "To cast a vote, you will also need a credential, sent in a separate email.");
-  add_sentence b (s_ "Be careful, passwords and credentials look similar but play different roles.");
-  add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
-  add_sentence b (s_ "Login and passwords are required once your ballot is ready to be cast.");
-  add_newline b;
-  add_newline b;
-  add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
-  add_string b (s_ "Password:"); add_string b " "; add_string b password; add_newline b;
-  add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
-  add_newline b;
-  add_sentence b (s_ "Note that you are allowed to vote several times.");
-  add_sentence b (s_ "Only the last vote counts.");
-  contact_footer l metadata b;
-  contents b
-
-let generate_password metadata langs title url id =
-  let email, login = split_identity id in
-  let%lwt salt = generate_token () in
-  let%lwt password = generate_token () in
-  let hashed = sha256_hex (salt ^ password) in
-  let%lwt bodies = Lwt_list.map_s (fun lang ->
-    let%lwt l = Web_i18n.get_lang_gettext lang in
-    return (mail_password l title login password url metadata)
-  ) langs in
-  let body = PString.concat "\n\n----------\n\n" bodies in
-  let body = body ^ "\n\n-- \nBelenios" in
-  let%lwt subject =
-    let%lwt l = Web_i18n.get_lang_gettext (List.hd langs) in
-    let open (val l) in
-    Printf.kprintf return (f_ "Your password for election %s") title
-  in
-  let%lwt () = send_email email subject body in
-  return (salt, hashed)
-
 let handle_password se uuid ~force voters =
   if List.length voters > !Web_config.maxmailsatonce then
     Lwt.fail (Failure (Printf.sprintf "Cannot send passwords, there are too many voters (max is %d)" !Web_config.maxmailsatonce))
@@ -721,7 +646,7 @@ let handle_password se uuid ~force voters =
         match id.sv_password with
         | Some _ when not force -> return_unit
         | None | Some _ ->
-           let%lwt x = generate_password se.se_metadata langs title url id.sv_id in
+           let%lwt x = Pages_voter.generate_password se.se_metadata langs title url id.sv_id in
            return (id.sv_password <- Some x)
       ) voters
   in
@@ -784,7 +709,7 @@ let () =
             | Some id ->
                let langs = get_languages metadata.e_languages in
                let%lwt db = load_password_db uuid in
-               let%lwt x = generate_password metadata langs title url id in
+               let%lwt x = Pages_voter.generate_password metadata langs title url id in
                let db = replace_password user x db in
                let%lwt () = dump_passwords uuid db in
                Pages_common.generic_page ~title:"Success" ~service
@@ -998,10 +923,6 @@ let () =
         )
     )
 
-let wrap_handler f =
-  try%lwt f () with
-  | e -> Pages_common.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html.send
-
 let handle_credentials_post uuid token creds =
   match%lwt Web_persist.get_draft_election uuid with
   | None -> fail_http 404
@@ -1060,31 +981,6 @@ let () =
 
 module CG = Credential.MakeGenerate (LwtRandom)
 
-let mail_credential l title cas cred url metadata =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  let open Mail_formatter in
-  let b = create () in
-  add_sentence b (s_ "You are listed as a voter for the election"); add_newline b;
-  add_newline b;
-  add_string b "  "; add_string b title; add_newline b;
-  add_newline b;
-  add_sentence b (s_ "You will find below your credential.");
-  if not cas then (
-    add_sentence b (s_ "To cast a vote, you will also need a password, sent in a separate email.");
-    add_sentence b (s_ "Be careful, passwords and credentials look similar but play different roles.");
-    add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
-    add_sentence b (s_ "Login and passwords are required once your ballot is ready to be cast.");
-  );
-  add_newline b;
-  add_newline b;
-  add_string b (s_ "Credential:"); add_string b " "; add_string b cred; add_newline b;
-  add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
-  add_newline b;
-  add_sentence b (s_ "Note that you are allowed to vote several times.");
-  add_sentence b (s_ "Only the last vote counts.");
-  contact_footer l metadata b;
-  contents b
-
 let () =
   Any.register ~service:election_draft_credentials_server
     (fun uuid () ->
@@ -1128,7 +1024,7 @@ let () =
                     Lwt_list.map_s
                       (fun lang ->
                         let%lwt l = Web_i18n.get_lang_gettext lang in
-                        return (mail_credential l title cas cred url se.se_metadata)
+                        return (Pages_voter.mail_credential l title cas cred url se.se_metadata)
                       ) langs
                   in
                   let body = PString.concat "\n\n----------\n\n" bodies in
@@ -1400,44 +1296,6 @@ let () =
         )
     )
 
-let () =
-  Redirection.register ~service:election_home_dir
-    (fun uuid () ->
-      return (Redirection (preapply ~service:election_home (uuid, ())))
-    )
-
-let () =
-  Any.register ~service:election_home
-    (fun (uuid, ()) () ->
-       match%lwt find_election uuid with
-       | None -> election_not_found ()
-       | Some w ->
-         let%lwt () = Eliom_reference.unset Web_state.ballot in
-         (match%lwt Eliom_reference.get Web_state.cast_confirmed with
-          | Some result ->
-             let%lwt () = Eliom_reference.unset Web_state.cast_confirmed in
-             Pages_voter.cast_confirmed w ~result () >>= Html.send
-          | None ->
-             let%lwt state = Web_persist.get_election_state uuid in
-             Pages_voter.election_home w state () >>= Html.send
-         )
-    )
-
-let get_cont_state cont =
-  let redir = match cont with
-    | ContSiteHome -> Redirection home
-    | ContSiteAdmin -> Redirection admin
-    | ContSiteElection uuid -> Redirection (preapply ~service:election_home (uuid, ()))
-  in
-  fun () -> Redirection.send redir
-
-let () =
-  Any.register ~service:set_cookie_disclaimer
-    (fun cont () ->
-      let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
-      get_cont_state cont ()
-    )
-
 let election_admin_handler ?shuffle_token ?tally_token uuid =
      let%lwt w = find_election uuid in
      let%lwt metadata = Web_persist.get_election_metadata uuid in
@@ -1608,207 +1466,6 @@ let () =
         ) else forbidden ()
       )
   )
-
-let () =
-  Any.register ~service:election_vote
-    (fun () () ->
-      let%lwt () = Eliom_reference.unset Web_state.ballot in
-      Pages_voter.booth () >>= Html.send)
-
-let () =
-  Any.register ~service:election_cast
-    (fun uuid () ->
-      match%lwt find_election uuid with
-      | Some w -> Pages_voter.cast_raw w () >>= Html.send
-      | None -> election_not_found ()
-    )
-
-let submit_ballot ballot =
-  let ballot = PString.trim ballot in
-  let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
-  redir_preapply election_submit_ballot_check () ()
-
-let () =
-  Any.register ~service:election_submit_ballot
-    (fun () ballot -> submit_ballot ballot)
-
-let () =
-  Any.register ~service:election_submit_ballot_file
-    (fun () ballot ->
-      let%lwt ballot =
-        let fname = ballot.Ocsigen_extensions.tmp_filename in
-        Lwt_stream.to_string (Lwt_io.chars_of_file fname)
-      in
-      submit_ballot ballot
-    )
-
-let () =
-  Any.register ~service:election_submit_ballot_check
-    (fun () () ->
-      match%lwt Eliom_reference.get Web_state.ballot with
-      | None ->
-         let%lwt l = Web_i18n.get_preferred_gettext () in
-         let open (val l) in
-         Pages_common.generic_page ~title:(s_ "Cookies are blocked") (s_ "Your browser seems to block cookies. Please enable them.") ()
-         >>= Html.send
-      | Some ballot ->
-         match ballot_of_string Yojson.Safe.read_json ballot with
-         | exception _ ->
-            Pages_common.generic_page ~title:"Error" "Ill-formed ballot" () >>= Html.send
-         | ballot ->
-            let uuid = ballot.election_uuid in
-            match%lwt Web_persist.get_draft_election uuid with
-            | Some _ -> redir_preapply election_draft uuid ()
-            | None -> redir_preapply election_login ((uuid, ()), None) ()
-    )
-
-let mail_confirmation l user title hash revote url1 url2 metadata =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  let open Mail_formatter in
-  let b = create () in
-  add_sentence b (Printf.sprintf (f_ "Dear %s,") user); add_newline b;
-  add_newline b;
-  add_sentence b (s_ "Your vote for election"); add_newline b;
-  add_newline b;
-  add_string b "  "; add_string b title; add_newline b;
-  add_newline b;
-  add_sentence b (s_ "has been recorded.");
-  add_sentence b (s_ "Your smart ballot tracker is"); add_newline b;
-  add_newline b;
-  add_string b "  "; add_string b hash; add_newline b;
-  if revote then (
-     add_newline b;
-     add_sentence b (s_ "This vote replaces any previous vote.");
-     add_newline b;
-  );
-  add_newline b;
-  add_sentence b (s_ "You can check its presence in the ballot box, accessible at");
-  add_newline b;
-  add_string b "  "; add_string b url1; add_newline b;
-  add_newline b;
-  add_sentence b (s_ "Results will be published on the election page");
-  add_newline b;
-  add_string b "  "; add_string b url2;
-  contact_footer l metadata b;
-  add_newline b;
-  add_newline b;
-  add_string b "-- "; add_newline b;
-  add_string b "Belenios";
-  contents b
-
-let send_confirmation_email uuid revote user email hash =
-  let%lwt election =
-    match%lwt find_election uuid with
-    | Some election -> return election
-    | None ->
-       let msg =
-         Printf.sprintf "send_confirmation_email: %s not found"
-           (raw_string_of_uuid uuid)
-       in
-       Lwt.fail (Failure msg)
-  in
-  let title = election.e_params.e_name in
-  let%lwt metadata = Web_persist.get_election_metadata uuid in
-  let x = (uuid, ()) in
-  let url1 = Eliom_uri.make_string_uri ~absolute:true
-    ~service:Web_services.election_pretty_ballots x |> rewrite_prefix
-  in
-  let url2 = Eliom_uri.make_string_uri ~absolute:true
-    ~service:Web_services.election_home x |> rewrite_prefix
-  in
-  let%lwt l = Web_i18n.get_preferred_gettext () in
-  let open (val l) in
-  let subject = Printf.sprintf (f_ "Your vote for election %s") title in
-  let body = mail_confirmation l user title hash revote url1 url2 metadata in
-  send_email email subject body
-
-let cast_ballot uuid ~rawballot ~user =
-  let%lwt voters = read_file ~uuid "voters.txt" in
-  let%lwt email, login =
-    let rec loop = function
-      | x :: xs ->
-         let email, login = split_identity x in
-         if login = user.user_name then return (email, login) else loop xs
-      | [] -> fail UnauthorizedVoter
-    in loop (match voters with Some xs -> xs | None -> [])
-  in
-  let user = string_of_user user in
-  let%lwt state = Web_persist.get_election_state uuid in
-  let voting_open = state = `Open in
-  let%lwt () = if not voting_open then fail ElectionClosed else return_unit in
-  match%lwt Web_persist.cast_ballot uuid ~rawballot ~user (now ()) with
-  | Ok (hash, revote) ->
-     let%lwt () = send_confirmation_email uuid revote login email hash in
-     return hash
-  | Error e ->
-     let msg = match e with
-       | ECastWrongCredential -> Some "attempted to revote with already used credential"
-       | ECastRevoteNotAllowed -> Some "attempted to revote using a new credential"
-       | ECastReusedCredential -> Some "attempted to vote with already used credential"
-       | _ -> None
-     in
-     let%lwt () = match msg with
-       | Some msg -> security_log (fun () -> user ^ " " ^ msg)
-       | None -> return_unit
-     in
-     fail (CastError e)
-
-let () =
-  Any.register ~service:election_cast_fallback
-    (fun uuid () ->
-      match%lwt find_election uuid with
-      | Some w ->
-         (match%lwt Eliom_reference.get Web_state.ballot with
-          | Some b -> Pages_voter.cast_confirmation w (sha256_b64 b) () >>= Html.send
-          | None -> Pages_voter.lost_ballot w () >>= Html.send
-         )
-      | None -> election_not_found ()
-    )
-
-let () =
-  Any.register ~service:election_cast_confirm
-    (fun uuid () ->
-      match%lwt Eliom_reference.get Web_state.ballot with
-      | None ->
-         (match%lwt find_election uuid with
-          | Some w -> Pages_voter.lost_ballot w () >>= Html.send
-          | None -> election_not_found ()
-         )
-      | Some rawballot ->
-         let%lwt () = Eliom_reference.unset Web_state.ballot in
-         match%lwt Web_state.get_election_user uuid with
-         | None -> forbidden ()
-         | Some user ->
-            let%lwt () = Eliom_reference.unset Web_state.election_user in
-            let%lwt result =
-              match%lwt cast_ballot uuid ~rawballot ~user with
-              | hash -> return (Ok hash)
-              | exception BeleniosWebError e -> return (Error e)
-            in
-            let%lwt () = Eliom_reference.set Web_state.cast_confirmed (Some result) in
-            redir_preapply election_home (uuid, ()) ()
-    )
-
-let () =
-  Any.register ~service:election_pretty_ballots
-    (fun (uuid, ()) () ->
-      match%lwt find_election uuid with
-      | Some w ->
-         let%lwt ballots = Web_persist.get_ballot_hashes uuid in
-         let%lwt result = Web_persist.get_election_result uuid in
-         Pages_voter.pretty_ballots w ballots result () >>= Html.send
-      | None -> election_not_found ()
-    )
-
-let () =
-  Any.register ~service:election_pretty_ballot
-    (fun ((uuid, ()), hash) () ->
-      let%lwt ballot = Web_persist.get_ballot_by_hash uuid hash in
-      match ballot with
-      | None -> fail_http 404
-      | Some b ->
-         String.send (b, "application/json") >>=
-           (fun x -> return @@ cast_unknown_content_kind x))
 
 let () =
   let rex = Pcre.regexp "\".*\" \".*:(.*)\"" in
@@ -2153,46 +1810,6 @@ let () =
   Any.register ~service:election_tally_release
     handle_election_tally_release
 
-let content_type_of_file = function
-  | ESRaw -> "application/json; charset=utf-8"
-  | ESTrustees | ESETally | ESResult -> "application/json"
-  | ESBallots | ESShuffles -> "text/plain" (* should be "application/json-seq", but we don't use RS *)
-  | ESCreds | ESRecords | ESVoters -> "text/plain"
-
-let handle_pseudo_file uuid f site_user =
-  let%lwt confidential =
-    match f with
-    | ESRaw | ESTrustees | ESBallots | ESETally | ESCreds | ESShuffles -> return false
-    | ESRecords | ESVoters -> return true
-    | ESResult ->
-       match%lwt Web_persist.get_election_result_hidden uuid with
-       | None -> return false
-       | Some _ -> return true
-  in
-  let%lwt () =
-    if confidential then (
-      let%lwt metadata = Web_persist.get_election_metadata uuid in
-      match site_user with
-      | Some u when metadata.e_owner = Some u -> return ()
-      | _ -> forbidden ()
-    ) else return ()
-  in
-  let content_type = content_type_of_file f in
-  File.send ~content_type (!Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file f)
-
-let () =
-  Any.register ~service:election_dir
-    (fun (uuid, f) () ->
-     let%lwt site_user = Eliom_reference.get Web_state.site_user in
-     handle_pseudo_file uuid f site_user)
-
-let () =
-  Any.register ~service:election_nh_ciphertexts
-    (fun uuid () ->
-      let%lwt x = Web_persist.get_nh_ciphertexts uuid in
-      String.send (x, "application/json")
-    )
-
 module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
 
 let perform_server_side_decryption uuid e metadata tally =
@@ -2396,13 +2013,6 @@ let () =
             transition_to_encrypted_tally uuid (module E) metadata tally
           ) else forbidden ()
         )
-    )
-
-let () =
-  Any.register ~service:set_language
-    (fun (lang, cont) () ->
-      let%lwt () = Eliom_reference.set Web_state.language (Some lang) in
-      get_cont_state cont ()
     )
 
 let () =
@@ -2886,41 +2496,3 @@ let rec data_policy_loop () =
   let () = accesslog "Data policy process completed" in
   let%lwt () = Lwt_unix.sleep 3600. in
   data_policy_loop ()
-
-let () =
-  Any.register ~service:method_schulze
-    (fun (uuid, question) () ->
-      let%lwt l = Web_i18n.get_preferred_gettext () in
-      let open (val l) in
-      match%lwt find_election uuid with
-      | None -> election_not_found ()
-      | Some election ->
-         let questions = election.e_params.e_questions in
-         if 0 <= question && question < Array.length questions then (
-           match questions.(question) with
-           | Question.NonHomomorphic q ->
-              let nchoices = Array.length q.Question_nh_t.q_answers in
-              (match%lwt Web_persist.get_election_result uuid with
-               | Some result ->
-                  let ballots =
-                    (Shape.to_shape_array result.result).(question)
-                    |> Shape.to_shape_array
-                    |> Array.map Shape.to_array
-                  in
-                  let schulze = Schulze.compute ~nchoices ballots in
-                  Pages_voter.schulze q schulze >>= Html.send
-               | None ->
-                  Pages_common.generic_page ~title:(s_ "Error")
-                    (s_ "The result of this election is not available.")
-                  () >>= Html.send ~code:404
-              )
-           | Question.Homomorphic _ ->
-              Pages_common.generic_page ~title:(s_ "Error")
-                (s_ "This question is homomorphic, the Schulze method cannot be applied to its result.")
-                () >>= Html.send ~code:403
-         ) else (
-           Pages_common.generic_page ~title:(s_ "Error")
-             (s_ "Invalid index for question.")
-             () >>= Html.send ~code:404
-         )
-    )

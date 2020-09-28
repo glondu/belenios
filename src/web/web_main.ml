@@ -151,4 +151,4 @@ let () = Web_config.default_group := default_group
 let () = Web_config.nh_group := nh_group
 let () = Web_config.site_auth_config := List.rev !auth_instances
 let () = Lwt_main.run (Web_persist.convert_trustees ())
-let () = Lwt.async Web_site.data_policy_loop
+let () = Lwt.async Site_admin.data_policy_loop
