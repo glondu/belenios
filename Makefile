@@ -2,16 +2,24 @@ DUNE_DEBUG_ARGS := --build-dir=_build-debug
 
 ifeq "$(BELENIOS_DEBUG)" "1"
     JAVASCRIPT_MODE := development
+    JAVASCRIPT_EXTENSION := 
 else
-    JAVASCRIPT_MODE := production.min
+    JAVASCRIPT_MODE := production
+    JAVASCRIPT_EXTENSION := .min
 endif
 
 REACT_JS_FOLDER := react/umd
-REACT_JS_FILENAME := react.$(JAVASCRIPT_MODE).js
+REACT_JS_FILENAME := react.$(JAVASCRIPT_MODE)$(JAVASCRIPT_EXTENSION).js
 REACT_JS_URL := $(REACT_JS_FOLDER)/$(REACT_JS_FILENAME)
 REACT_DOM_JS_FOLDER := react-dom/umd
-REACT_DOM_JS_FILENAME := react-dom.$(JAVASCRIPT_MODE).js
+REACT_DOM_JS_FILENAME := react-dom.$(JAVASCRIPT_MODE)$(JAVASCRIPT_EXTENSION).js
 REACT_DOM_JS_URL := $(REACT_DOM_JS_FOLDER)/$(REACT_DOM_JS_FILENAME)
+I18NEXT_JS_FOLDER := i18next/dist/umd
+I18NEXT_JS_FILENAME := i18next$(JAVASCRIPT_EXTENSION).js
+I18NEXT_JS_URL := $(I18NEXT_JS_FOLDER)/$(I18NEXT_JS_FILENAME)
+REACT_I18NEXT_JS_FOLDER := react-i18next/dist/umd
+REACT_I18NEXT_JS_FILENAME := react-i18next$(JAVASCRIPT_EXTENSION).js
+REACT_I18NEXT_JS_URL := $(REACT_I18NEXT_JS_FOLDER)/$(REACT_I18NEXT_JS_FILENAME)
 INITIAL_EXTERNAL_JS_FOLDER := node_modules
 PUBLIC_EXTERNAL_JS_FOLDER := _run/usr/share/belenios-server/node_modules
 PUBLIC_INTERNAL_JS_FOLDER := _run/usr/share/belenios-server/internal_modules
@@ -19,13 +27,17 @@ PUBLIC_INTERNAL_JS_FOLDER := _run/usr/share/belenios-server/internal_modules
 minimal:
 	dune build -p belenios-platform,belenios-platform-native,belenios,belenios-tool
 
-custom-javascript: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) src/booth/js/like_button.js
+custom-javascript: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) src/booth/js/i18n_init.js src/booth/js/shortcuts.js src/booth/js/like_button.js src/booth/js/translated_like_button.js src/booth/js/app.js
 	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_JS_FOLDER)
 	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL)
 	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_FOLDER)
 	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL)
+	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_FOLDER)
+	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL)
+	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_FOLDER)
+	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL)
 	mkdir -p $(PUBLIC_INTERNAL_JS_FOLDER)/booth/js
-	cp -r src/booth/js/like_button.js $(PUBLIC_INTERNAL_JS_FOLDER)/booth/js/like_button.js
+	cp -r src/booth/js/i18n_init.js src/booth/js/shortcuts.js src/booth/js/like_button.js src/booth/js/translated_like_button.js src/booth/js/app.js $(PUBLIC_INTERNAL_JS_FOLDER)/booth/js/
 
 build-debug-server:
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS)

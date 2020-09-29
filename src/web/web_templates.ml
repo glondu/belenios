@@ -3808,7 +3808,10 @@ let booth_2 () =
         div ~a:[a_class ["current_step"]] [
           txt (s_ "Step 1/6: Input credential");
         ];
+        div ~a:[a_id "language-selector-container"] [];
         div ~a:[a_id "like_button_container"] [];
+        div ~a:[a_id "translated_like_button_container"] [];
+        div ~a:[a_id "i18n-output"] [];
         br (); br ();
         p ~a:[a_id "input_code"; a_style "font-size:20px;"] [
           txt (s_ "Input your credential ");
@@ -3874,12 +3877,19 @@ let booth_2 () =
     ]
   in
   let open Belenios_version in
-  let javascript_mode = if debug then "development" else "production.min" in
+  let javascript_mode = if debug then "development" else "production" in
+  let javascript_extension = if debug then "" else ".min" in
   let external_javascript_folder = "node_modules" in
   let internal_javascript_folder = "internal_modules" in
-  let react_js_url = external_javascript_folder ^ "/react/umd/react." ^ javascript_mode ^ ".js" in
-  let react_dom_js_url = external_javascript_folder ^ "/react-dom/umd/react-dom." ^ javascript_mode ^ ".js" in
+  let react_js_url = external_javascript_folder ^ "/react/umd/react." ^ javascript_mode ^ javascript_extension ^ ".js" in
+  let react_dom_js_url = external_javascript_folder ^ "/react-dom/umd/react-dom." ^ javascript_mode ^ javascript_extension ^ ".js" in
+  let i18next_js_url = external_javascript_folder ^ "/i18next/dist/umd/i18next" ^ javascript_extension ^ ".js" in
+  let react_i18next_js_url = external_javascript_folder ^ "/react-i18next/dist/umd/react-i18next" ^ javascript_extension ^ ".js" in
+  let i18n_init_js_url = internal_javascript_folder ^ "/booth/js/i18n_init.js" in
+  let shortcuts_js_url = internal_javascript_folder ^ "/booth/js/shortcuts.js" in
   let like_button_js_url = internal_javascript_folder ^ "/booth/js/like_button.js" in
+  let translated_like_button_js_url = internal_javascript_folder ^ "/booth/js/translated_like_button.js" in
+  let app_js_url = internal_javascript_folder ^ "/booth/js/app.js" in
   let body = body [
     wait_div;
     election_loader;
@@ -3888,7 +3898,13 @@ let booth_2 () =
     ];
     script ~a:[a_src (static react_js_url)] (txt "");
     script ~a:[a_src (static react_dom_js_url)] (txt "");
+    script ~a:[a_src (static i18next_js_url)] (txt "");
+    script ~a:[a_src (static react_i18next_js_url)] (txt "");
+    script ~a:[a_src (static i18n_init_js_url)] (txt "");
+    script ~a:[a_src (static shortcuts_js_url)] (txt "");
     script ~a:[a_src (static like_button_js_url)] (txt "");
+    script ~a:[a_src (static translated_like_button_js_url)] (txt "");
+    script ~a:[a_src (static app_js_url)] (txt "");
   ] in
   return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
 
