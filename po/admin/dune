@@ -26,39 +26,39 @@
 (rule
  (target nb.json)
  (deps nb.mo)
- (action (with-stdout-to %{target} (run ../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target de.json)
  (deps de.mo)
- (action (with-stdout-to %{target} (run ../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target fr.json)
  (deps fr.mo)
- (action (with-stdout-to %{target} (run ../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target it.json)
  (deps it.mo)
- (action (with-stdout-to %{target} (run ../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target ro.json)
  (deps ro.mo)
- (action (with-stdout-to %{target} (run ../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (install
  (package belenios-server)
  (section share)
  (files
-  (de.mo as locales/de.mo)
-  (fr.mo as locales/fr.mo)
-  (it.mo as locales/it.mo)
-  (ro.mo as locales/ro.mo)
-  (nb.mo as locales/nb.mo)
-  (nb.json as locales/nb.json)
-  (de.json as locales/de.json)
-  (fr.json as locales/fr.json)
-  (it.json as locales/it.json)
-  (ro.json as locales/ro.json)))
+  (de.mo as locales/admin/de.mo)
+  (fr.mo as locales/admin/fr.mo)
+  (it.mo as locales/admin/it.mo)
+  (ro.mo as locales/admin/ro.mo)
+  (nb.mo as locales/admin/nb.mo)
+  (nb.json as locales/admin/nb.json)
+  (de.json as locales/admin/de.json)
+  (fr.json as locales/admin/fr.json)
+  (it.json as locales/admin/it.json)
+  (ro.json as locales/admin/ro.json)))

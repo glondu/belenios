@@ -1,229 +1,234 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: ab\n"
+"PO-Revision-Date: 2020-09-28 15:04+0000\n"
+"Last-Translator: RachelB <maresdelno@gmail.com>\n"
+"Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/server/"
+"es/>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.3-dev\n"
 
 #: src/web/pages_common.ml:232
 msgid " (if you forgot it, for example)."
-msgstr ""
+msgstr " (si tú olvidas esto, por ejemplo)."
 
 #: src/web/pages_voter.ml:576
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " Se ha enviado un email de confirmación a su correo."
 
 #: src/web/pages_admin.ml:1974
 msgid " You may re-open the election when it is closed."
-msgstr ""
+msgstr " Usted debe reabrir la elección cuando esta cerrada."
 
 #: src/web/pages_voter.ml:446
 msgid " and "
-msgstr ""
+msgstr " y "
 
 #: src/web/pages_admin.ml:2772
 msgid " and a password: "
-msgstr ""
+msgstr " y una contraseña: "
 
 #: src/web/pages_admin.ml:1549 src/web/pages_admin.ml:1424
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " y guardar esto en una localización segura."
 
 #: src/web/pages_admin.ml:1306
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " y guardar esto en una localización segura."
 
 #: src/web/pages_admin.ml:1757
 msgid " and save them securely."
-msgstr ""
+msgstr " y guardar esto de forma segura."
 
 #: src/web/pages_admin.ml:2817
 msgid " and your e-mail address is: "
-msgstr ""
+msgstr " Su dirección de email es: "
 
 #: src/web/pages_voter.ml:575
 msgid " anytime during the election."
-msgstr ""
+msgstr " en cualquier momento durante la elección."
 
 #: src/web/pages_voter.ml:632
 msgid " ballot(s) have been accepted so far."
-msgstr ""
+msgstr " hasta ahora el voto/s ha sido aceptado."
 
 #: src/web/pages_voter.ml:642
 msgid " ballot(s) have been accepted, and "
-msgstr ""
+msgstr " hasta ahora el voto/s ha sido aceptado, y "
 
 #: src/web/pages_voter.ml:637
 msgid " ballot(s) have been accepted."
-msgstr ""
+msgstr " el voto/s ha sido aceptado."
 
 #: src/web/pages_admin.ml:2805 src/web/pages_admin.ml:2755
 msgid " because "
-msgstr ""
+msgstr " porque "
 
 #: src/web/web_common.ml:103
 msgid " day(s)"
-msgstr ""
+msgstr " día/s"
 
 #: src/web/pages_voter.ml:566
 msgid " has been accepted."
-msgstr ""
+msgstr " ha sido aceptado."
 
 #: src/web/pages_admin.ml:2286
 msgid " has been computed."
-msgstr ""
+msgstr " ha sido computado."
 
 #: src/web/pages_voter.ml:490
 msgid " has been received, but not recorded yet. "
-msgstr ""
+msgstr " Ha sido recibido, pero no registrado aún. "
 
 #: src/web/pages_voter.ml:644
 msgid " have been tallied."
-msgstr ""
+msgstr " Ha sido escrutado."
 
 #: src/web/web_common.ml:105
 msgid " hour(s)"
-msgstr ""
+msgstr " Hora/s"
 
 #: src/web/pages_admin.ml:2725 src/web/pages_admin.ml:2693
 msgid " in the following box: "
-msgstr ""
+msgstr " en la siguiente caja: "
 
 #: src/web/pages_admin.ml:1080 src/web/pages_admin.ml:1071
 msgid " instead of "
-msgstr ""
+msgstr " en vez de "
 
 #: src/web/pages_voter.ml:579
 msgid " is rejected, because "
-msgstr ""
+msgstr " es rechazado, porque "
 
 #: src/web/pages_admin.ml:2258 src/web/pages_admin.ml:2125
 #. src/web/pages_admin.ml:893
 #. src/web/pages_admin.ml:729
 msgid " is:"
-msgstr ""
+msgstr " es:"
 
 #: src/web/web_common.ml:106
 msgid " minute(s)"
-msgstr ""
+msgstr " minuto/s"
 
 #: src/web/web_common.ml:102
 msgid " month(s)"
-msgstr ""
+msgstr " mes/es"
 
 #: src/web/pages_admin.ml:2717
 msgid " or username: "
-msgstr ""
+msgstr " o nombre de usuario: "
 
 #: src/web/pages_admin.ml:953
 msgid " out of "
-msgstr ""
+msgstr " fuera de "
 
 #: src/web/web_common.ml:107
 msgid " second(s)"
-msgstr ""
+msgstr " segundo/s"
 
 #: src/web/pages_admin.ml:480
 msgid " to set up the election key."
-msgstr ""
+msgstr " establecer una clave de elección."
 
 #: src/web/pages_admin.ml:955
 msgid " trustees will be needed to decrypt the result."
-msgstr ""
+msgstr " serán necesarios administradores para descifrar el resutado."
 
 #: src/web/pages_admin.ml:466
 msgid " voter(s) registered"
-msgstr ""
+msgstr " elector/es registrado"
 
 #: src/web/web_common.ml:101
 msgid " year(s)"
-msgstr ""
+msgstr " año/s"
 
 #: src/web/pages_admin.ml:2641
 msgid " your contribution to decryption."
-msgstr ""
+msgstr " su contribución al descifrado."
 
 #: src/web/pages_voter.ml:695
 msgid "!"
-msgstr ""
+msgstr "!"
 
 #: src/web/pages_admin.ml:1726
 msgid "%d voter(s)"
-msgstr ""
+msgstr "%d elector/es"
 
 #: src/web/pages_admin.ml:1867
 msgid "(Warning: This action is irreversible.)"
-msgstr ""
+msgstr "(Atención: esta acción es irreversible)"
 
 #: src/web/pages_admin.ml:717
 msgid "(cannot be removed)"
-msgstr ""
+msgstr "(no puede ser eliminado)"
 
 #: src/web/pages_admin.ml:265
 msgid "(for example: https://cas.inria.fr/cas)"
-msgstr ""
+msgstr "(por ejemplo: https://cas.inria.fr/cas)"
 
 #: src/web/pages_admin.ml:860 src/web/pages_admin.ml:689
 msgid "(not available)"
-msgstr ""
+msgstr "(no disponible)"
 
 #: src/tool/tool_js_booth.ml:168
 msgid "(nothing)"
-msgstr ""
+msgstr "(nada)"
 
 #: src/web/pages_admin.ml:1078 src/web/pages_admin.ml:1069
 msgid "(or "
-msgstr ""
+msgstr "(or "
 
 #: src/web/pages_admin.ml:2228 src/web/pages_admin.ml:2227
 #. src/web/pages_admin.ml:711
 #. src/web/pages_admin.ml:701
 msgid "(server)"
-msgstr ""
+msgstr "(servidor)"
 
 #: src/web/pages_admin.ml:2068
 msgid "(skipped)"
-msgstr ""
+msgstr "(omitido)"
 
 #: src/web/pages_admin.ml:946
 msgid "(the threshold must be smaller than the number of trustees)"
-msgstr ""
+msgstr "(el umbral debe ser menor que el número de administradores)"
 
 #: src/web/pages_admin.ml:290
 msgid "(you can use any credential such as %s)."
-msgstr ""
+msgstr "(puede usar algunas credenciales tales como %s)"
 
 #: src/web/pages_common.ml:230
 msgid ", or "
-msgstr ""
+msgstr ", o "
 
 #: src/web/pages_voter.ml:107
 msgid ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
 msgstr ""
+". Esto contiene todos los votos, en orden aleatorio. Tiene opción de emplear "
+"el método de recuento que desee (ej. Condorcet, STV, majority judgement)."
 
 #: src/web/pages_admin.ml:2807 src/web/pages_admin.ml:2757
 msgid ". Please try again with a different one."
-msgstr ""
+msgstr ". Porfavor inténtelo denuevo con otro diferente."
 
 #: src/web/pages_admin.ml:1556
 msgid ". Save it so that you can check that it appears on the election home later."
 msgstr ""
+". Guarde esto de manera que puede comprobar si aparece en la elección de "
+"inicio posteriormente."
 
 #: src/web/pages_admin.ml:923
 msgid "1a: action needed from trustee: generate private key"
-msgstr ""
+msgstr "1a: acción necesaria por el administrador: generar una clave privada"
 
 #: src/web/pages_admin.ml:925
 msgid "1b, 2b, 3b: waiting for other trustees"
-msgstr ""
+msgstr "1b, 2b, 3b: esperando por otros administradores"
 
 #: src/web/pages_admin.ml:924
 msgid "2a, 3a: action needed from trustee: enter private key"
@@ -231,11 +236,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:61 src/web/pages_voter.ml:259
 msgid "Accept"
-msgstr ""
+msgstr "Aceptado"
 
 #: src/web/pages_voter.ml:607
 msgid "Accepted ballots"
-msgstr ""
+msgstr "Votos aceptados"
 
 #: src/web/pages_admin.ml:1171 src/web/pages_admin.ml:816
 #. src/web/pages_admin.ml:658
@@ -1987,4 +1992,3 @@ msgstr ""
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr ""
-

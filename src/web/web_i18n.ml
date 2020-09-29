@@ -49,10 +49,12 @@ module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i
   let fn_ str str_plural n = Scanf.format_from_string (T.translate u true (string_of_format str) (Some (string_of_format str_plural, n))) str
 end
 
-let build_gettext_input _component lang =
+let ( / ) = Filename.concat
+
+let build_gettext_input component lang =
   (module struct
      let lang = lang
-     let mo_file = Filename.concat !Web_config.locales_dir (lang ^ ".mo")
+     let mo_file = !Web_config.locales_dir / component / (lang ^ ".mo")
    end : LANG)
 
 let default_gettext component =
