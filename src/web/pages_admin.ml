@@ -1371,6 +1371,7 @@ let election_draft_credentials token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
+        Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
         script ~a:[a_src (static "tool_js_credgen.js")] (txt "");
       ]
   in

@@ -25,6 +25,7 @@ open Belenios_tool_common
 open Belenios_tool_js_common
 open Tool_js_common
 open Tool_credgen
+open Tool_js_i18n.Gettext
 
 let generate _ =
   let raw = get_textarea "voters" in
@@ -67,11 +68,19 @@ let fill_interactivity _ =
     let x = Dom_html.createDiv document in
     Dom.appendChild e x;
     let b = Dom_html.createButton document in
-    let t = document##createTextNode (Js.string "Generate") in
+    let t = document##createTextNode (Js.string (s_ "Generate")) in
     b##.onclick := Dom_html.handler generate;
     Dom.appendChild b t;
     Dom.appendChild x b
   in Js._false
 
+let main e =
+  let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+  Lwt.async (fun () ->
+      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
+      ignore (fill_interactivity e);
+      Lwt.return_unit
+    )
+
 let () =
-  Dom_html.window##.onload := Dom_html.handler fill_interactivity;
+  Dom_html.window##.onload := Dom_html.handler main;
