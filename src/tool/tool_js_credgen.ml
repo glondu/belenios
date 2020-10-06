@@ -80,7 +80,8 @@ let main e =
       let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
       ignore (fill_interactivity e);
       Lwt.return_unit
-    )
+    );
+  Js._false
 
 let () =
   Dom_html.window##.onload := Dom_html.handler main;
