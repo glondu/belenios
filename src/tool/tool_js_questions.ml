@@ -24,6 +24,7 @@ open Belenios
 open Belenios_tool_js_common
 open Serializable_j
 open Tool_js_common
+open Tool_js_i18n.Gettext
 
 let return = Js.Opt.return
 let handler f = Dom_html.handler (fun e -> ignore (f e); Js._false)
@@ -86,14 +87,14 @@ let extractQuestion q =
   | Some q_blank ->
      Dom_html.CoerceTo.input q_blank >>= fun q_blank ->
      let q_blank = if Js.to_bool q_blank##.checked then Some true else None in
-     numeric ".question_min" "Invalid minimum number of choices" >>= fun q_min ->
-     numeric ".question_max" "Invalid maximum number of choices" >>= fun q_max ->
+     numeric ".question_min" (s_ "Invalid minimum number of choices") >>= fun q_min ->
+     numeric ".question_max" (s_ "Invalid maximum number of choices") >>= fun q_max ->
      if not (q_min <= q_max) then
-       failwith "Minimum number of choices must be less than or equal to maximum number of choices!";
+       failwith (s_ "Minimum number of choices must be less than or equal to maximum number of choices!");
      if (q_max = 0) then
-       failwith "Maximum number of choices must be greater than 0!";
+       failwith (s_ "Maximum number of choices must be greater than 0!");
      if (q_max > Array.length q_answers) then
-       failwith "Maximum number of choices is greater than number of choices!";
+       failwith (s_ "Maximum number of choices is greater than number of choices!");
      let open Question_h_t in
      return (Question.Homomorphic {q_question; q_blank; q_min; q_max; q_answers})
   | None ->
@@ -120,14 +121,14 @@ let extractTemplate () =
 let rec createAnswer a =
   let container = Dom_html.createDiv document in
   container##.className := Js.string "question_answer_item";
-  let t = document##createTextNode (Js.string "Answer: ") in
+  let t = document##createTextNode (Js.string (s_ "Answer: ")) in
   let u = Dom_html.createInput document in
   u##.className := Js.string "question_answer";
   u##.value := Js.string a;
   u##.size := 60;
   Dom.appendChild container t;
   Dom.appendChild container u;
-  let btn_text = document##createTextNode (Js.string "Remove") in
+  let btn_text = document##createTextNode (Js.string (s_ "Remove")) in
   let btn = Dom_html.createButton document in
   let f _ =
     container##.parentNode >>= fun x ->
@@ -138,7 +139,7 @@ let rec createAnswer a =
   btn##.className := Js.string "btn_remove";
   Dom.appendChild btn btn_text;
   Dom.appendChild container btn;
-  let insert_text = document##createTextNode (Js.string "Insert") in
+  let insert_text = document##createTextNode (Js.string (s_ "Insert")) in
   let insert_btn = Dom_html.createButton document in
   let f _ =
     let x = createAnswer "" in
@@ -155,14 +156,14 @@ let rec createAnswer a =
 let createHomomorphicQuestionPropDiv min max blank =
   let container = Dom_html.createDiv document in
   let x = Dom_html.createDiv document in
-  let t = document##createTextNode (Js.string "The voter has to choose between ") in
+  let t = document##createTextNode (Js.string (s_ "The voter has to choose between ")) in
   Dom.appendChild x t;
   let h_min = Dom_html.createInput document in
   Dom.appendChild x h_min;
   h_min##.className := Js.string "question_min";
   h_min##.size := 5;
   h_min##.value := Js.string (string_of_int min);
-  let t = document##createTextNode (Js.string " and ") in
+  let t = document##createTextNode (Js.string (s_ " and ")) in
   Dom.appendChild x t;
   let h_max = Dom_html.createInput document in
   Dom.appendChild x h_max;
@@ -178,7 +179,7 @@ let createHomomorphicQuestionPropDiv min max blank =
   h_blank##.className := Js.string "question_blank";
   h_blank##.checked := Js.(match blank with Some true -> _true | _ -> _false);
   Dom.appendChild x h_blank;
-  let t = document##createTextNode (Js.string "Blank vote is allowed") in
+  let t = document##createTextNode (Js.string (s_ "Blank vote is allowed")) in
   Dom.appendChild x t;
   Dom.appendChild container x;
   container
@@ -208,14 +209,14 @@ let rec createQuestion q =
   container##.className := Js.string "question";
   (* question text and remove/insert buttons *)
   let x = Dom_html.createDiv document in
-  let t = document##createTextNode (Js.string "Question: ") in
+  let t = document##createTextNode (Js.string (s_ "Question: ")) in
   Dom.appendChild x t;
   let h_question = Dom_html.createInput document in
   Dom.appendChild x h_question;
   h_question##.className := Js.string "question_question";
   h_question##.size := 60;
   h_question##.value := Js.string question;
-  let remove_text = document##createTextNode (Js.string "Remove") in
+  let remove_text = document##createTextNode (Js.string (s_ "Remove")) in
   let remove_btn = Dom_html.createButton document in
   let f _ =
     container##.parentNode >>= fun x ->
@@ -225,7 +226,7 @@ let rec createQuestion q =
   remove_btn##.onclick := handler f;
   Dom.appendChild remove_btn remove_text;
   Dom.appendChild x remove_btn;
-  let insert_text = document##createTextNode (Js.string "Insert") in
+  let insert_text = document##createTextNode (Js.string (s_ "Insert")) in
   let insert_btn = Dom_html.createButton document in
   let f _ =
     let x = createQuestion (default_question ()) in
@@ -252,14 +253,14 @@ let rec createQuestion q =
   let prop_div_nh = Dom_html.createDiv document in
   let nh_explain = Dom_html.createDiv document in
   nh_explain##.className := Js.string "nh_explain";
-  Dom.appendChild nh_explain (document##createTextNode (Js.string "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."));
+  Dom.appendChild nh_explain (document##createTextNode (Js.string (s_ "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election.")));
   Dom.appendChild prop_div_nh nh_explain;
   let _type = Js.string "radio" and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
   let x = Dom_html.createDiv document in
   Dom.appendChild type_div x;
   let cb_type_classical = Dom_html.createInput ~_type ~name document in
   Dom.appendChild x cb_type_classical;
-  Dom.appendChild x (document##createTextNode (Js.string "Classical (selection of answers)"));
+  Dom.appendChild x (document##createTextNode (Js.string (s_ "Classical (selection of answers)")));
   let x = Dom_html.createDiv document in
   Dom.appendChild type_div x;
   let cb_type = Dom_html.createInput ~_type ~name document in
@@ -288,7 +289,7 @@ let rec createQuestion q =
   if not (Js.to_bool (Js.Unsafe.pure_js_expr "allow_nh")) then
     cb_type##.disabled := Js._true;
   Dom.appendChild x cb_type;
-  Dom.appendChild x (document##createTextNode (Js.string "Alternative (voters assign a number to each candidate)"));
+  Dom.appendChild x (document##createTextNode (Js.string (s_ "Alternative (voters assign a number to each candidate)")));
   (* answers *)
   let h_answers = Dom_html.createDiv document in
   h_answers##.className := Js.string "question_answers";
@@ -301,7 +302,7 @@ let rec createQuestion q =
   (* button for adding answer *)
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
-  let t = document##createTextNode (Js.string "Add an answer") in
+  let t = document##createTextNode (Js.string (s_ "Add an answer")) in
   let f _ =
     let x = createAnswer "" in
     Dom.appendChild h_answers x
@@ -321,7 +322,7 @@ let createTemplate template =
   (* name *)
   let x = Dom_html.createDiv document in
   x##.style##.display := Js.string "none";
-  let t = document##createTextNode (Js.string "Name of the election: ") in
+  let t = document##createTextNode (Js.string (s_ "Name of the election: ")) in
   Dom.appendChild x t;
   let h_name = Dom_html.createInput document in
   h_name##.id := Js.string "election_name";
@@ -332,7 +333,7 @@ let createTemplate template =
   let x = Dom_html.createDiv document in
   x##.style##.display := Js.string "none";
   let y = Dom_html.createDiv document in
-  let t = document##createTextNode (Js.string "Description:") in
+  let t = document##createTextNode (Js.string (s_ "Description:")) in
   Dom.appendChild y t;
   Dom.appendChild x y;
   let y = Dom_html.createDiv document in
@@ -357,7 +358,7 @@ let createTemplate template =
   (* button for adding question *)
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
-  let t = document##createTextNode (Js.string "Add a question") in
+  let t = document##createTextNode (Js.string (s_ "Add a question")) in
   let f _ =
     let x = createQuestion (default_question ()) in
     Dom.appendChild h_questions_div x
@@ -371,7 +372,7 @@ let createTemplate template =
   Dom.appendChild container x;
   let x = Dom_html.createDiv document in
   let b = Dom_html.createButton document in
-  let t = document##createTextNode (Js.string "Save changes") in
+  let t = document##createTextNode (Js.string (s_ "Save changes")) in
   let f _ =
     try
       let template = extractTemplate () in
@@ -426,5 +427,13 @@ let fill_interactivity _ =
   e##.onchange := handler (handle_hybrid e);
   return ()
 
+let main e =
+  let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+  Lwt.async (fun () ->
+      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
+      ignore (fill_interactivity e);
+      Lwt.return_unit
+    )
+
 let () =
-  Dom_html.window##.onload := handler fill_interactivity;
+  Dom_html.window##.onload := handler main;

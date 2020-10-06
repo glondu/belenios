@@ -1147,6 +1147,7 @@ let election_draft_questions uuid se () =
       ~a:[a_id "interactivity"]
       [
         script (Printf.ksprintf txt "var allow_nh = %b;" allow_nh);
+        Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
         script ~a:[a_src (static "tool_js_questions.js")] (txt "");
         hybrid_box;
       ]
