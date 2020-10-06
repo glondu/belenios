@@ -27,6 +27,7 @@ open Belenios_tool_js_common
 open Serializable_j
 open Tool_js_common
 open Tool_tkeygen
+open Tool_js_i18n.Gettext
 
 let tkeygen _ =
   let module P : PARAMS = struct
@@ -49,11 +50,20 @@ let fill_interactivity _ =
   let () =
     document##getElementById (Js.string "interactivity") >>== fun e ->
     let b = Dom_html.createButton document in
-    let t = document##createTextNode (Js.string "Generate a new keypair") in
+    let t = document##createTextNode (Js.string (s_ "Generate a new keypair")) in
     b##.onclick := Dom_html.handler tkeygen;
     Dom.appendChild b t;
     Dom.appendChild e b
   in Js._false
 
+let main e =
+  let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+  Lwt.async (fun () ->
+      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
+      ignore (fill_interactivity e);
+      Lwt.return_unit
+    );
+  Js._false
+
 let () =
-  Dom_html.window##.onload := Dom_html.handler fill_interactivity;
+  Dom_html.window##.onload := Dom_html.handler main;
