@@ -28,6 +28,7 @@ open Platform
 open Serializable_j
 open Common
 open Tool_js_common
+open Tool_js_i18n.Gettext
 
 let election = ref None
 let encrypted_tally = ref None
@@ -50,21 +51,21 @@ let basic_check_private_key s =
     if i < n then
       match s.[i] with
       | '"' -> middle (i+1)
-      | _ -> failwith "Must start with a double quote (character given was another character)"
-    else failwith "Must start with a double quote (empty string given)"
+      | _ -> failwith (s_ "Must start with a double quote (character given was another character)")
+    else failwith (s_ "Must start with a double quote (empty string given)")
   and middle i =
     if i < n then
       match s.[i] with
       | '0'..'9' -> ending (i+1)
-      | _ -> failwith "Must have at least one digit"
-    else failwith "Too short"
+      | _ -> failwith (s_ "Must have at least one digit")
+    else failwith (s_ "Too short")
   and ending i =
     if i < n then
       match s.[i] with
       | '0'..'9' -> ending (i+1)
-      | '"' -> (if i+1 < n then failwith "Must end with a double quote")
-      | c -> Printf.ksprintf failwith "Illegal character: %c" c
-    else failwith "Must end with a double quote"
+      | '"' -> (if i+1 < n then failwith (s_ "Must end with a double quote"))
+      | c -> Printf.ksprintf failwith (f_ "Illegal character: %c") c
+    else failwith (s_ "Must end with a double quote")
   in leading 0
 
 let compute_partial_decryption _ =
@@ -91,7 +92,7 @@ let compute_partial_decryption _ =
        try number_of_string pk_str with
        | e ->
          Printf.ksprintf
-           failwith "Error in format of private key: %s" (Printexc.to_string e)
+           failwith (f_ "Error in format of private key: %s") (Printexc.to_string e)
   in
   let factor = E.compute_factor encrypted_tally private_key in
   set_textarea "pd" (string_of_partial_decryption P.G.write factor);
@@ -122,7 +123,7 @@ let load_private_key_file _ =
   reader##readAsText (file);
   return_unit
 
-let main _ =
+let fill_interactivity _ =
   let () =
     document##getElementById (Js.string "compute") >>== fun e ->
     Dom_html.CoerceTo.button e >>== fun e ->
@@ -146,6 +147,15 @@ let main _ =
            Lwt.return (compute_hash ())
          )
   in Js._false
+
+let main e =
+  let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+  Lwt.async (fun () ->
+      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
+      ignore (fill_interactivity e);
+      Lwt.return_unit
+    );
+  Js._false
 
 let () =
   Dom_html.window##.onload := Dom_html.handler main

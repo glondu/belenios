@@ -2661,6 +2661,7 @@ let tally_trustees election trustee_id token () =
           ];
       ];
     div [
+      Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
       script ~a:[a_src (static "tool_js_pd.js")] (txt "");
     ]
   ] in
