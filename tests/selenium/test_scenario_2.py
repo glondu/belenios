@@ -561,6 +561,8 @@ The election administrator.\
 
             wait_a_bit()
 
+            wait_for_element_exists_and_has_non_empty_content(browser, "#hash")
+
             # He verifies that the "private key" input field is empty (at the beginning)
             private_key_field_css_selector = "#private_key"
             private_key_field_element = wait_for_element_exists(browser, private_key_field_css_selector)
