@@ -1611,6 +1611,7 @@ let election_draft_threshold_trustee token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
+        Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
         script ~a:[a_src (static "tool_js_ttkeygen.js")] (txt "");
       ]
   in
