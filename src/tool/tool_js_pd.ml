@@ -123,7 +123,7 @@ let load_private_key_file _ =
   reader##readAsText (file);
   return_unit
 
-let fill_interactivity _ =
+let fill_interactivity () =
   let () =
     document##getElementById (Js.string "compute") >>== fun e ->
     Dom_html.CoerceTo.button e >>== fun e ->
@@ -134,28 +134,20 @@ let fill_interactivity _ =
     Dom_html.CoerceTo.input e >>== fun e ->
     e##.onchange := Dom_html.handler (wrap load_private_key_file)
   in
-  let () =
-    match List.assoc_opt "uuid" (get_params ()) with
-    | None -> ()
-    | Some uuid ->
-       Lwt.async (fun () ->
-           let open Js_of_ocaml_lwt.XmlHttpRequest in
-           let%lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
-           encrypted_tally := Some (String.trim e.content);
-           let%lwt e = get ("../elections/" ^ uuid ^ "/election.json") in
-           election := Some e.content;
-           Lwt.return (compute_hash ())
-         )
-  in Js._false
-
-let main e =
-  let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
-  Lwt.async (fun () ->
-      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
-      ignore (fill_interactivity e);
-      Lwt.return_unit
-    );
-  Js._false
+  match List.assoc_opt "uuid" (get_params ()) with
+  | None -> Lwt.return_unit
+  | Some uuid ->
+     let open Js_of_ocaml_lwt.XmlHttpRequest in
+     let%lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
+     encrypted_tally := Some (String.trim e.content);
+     let%lwt e = get ("../elections/" ^ uuid ^ "/election.json") in
+     election := Some e.content;
+     Lwt.return (compute_hash ())
 
 let () =
-  Dom_html.window##.onload := Dom_html.handler main
+  Lwt.async (fun () ->
+      let%lwt _ = Lwt_js_events.onload () in
+      let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
+      fill_interactivity ()
+    )
