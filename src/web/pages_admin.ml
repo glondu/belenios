@@ -1096,6 +1096,12 @@ let election_draft_credentials_done se () =
   in
   base ~title ~content ()
 
+let script_with_lang ~lang file =
+  div [
+      Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
+      script ~a:[a_src (static file)] (txt "");
+    ]
+
 let election_draft_questions uuid se () =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
@@ -1147,8 +1153,7 @@ let election_draft_questions uuid se () =
       ~a:[a_id "interactivity"]
       [
         script (Printf.ksprintf txt "var allow_nh = %b;" allow_nh);
-        Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
-        script ~a:[a_src (static "tool_js_questions.js")] (txt "");
+        script_with_lang ~lang "tool_js_questions.js";
         hybrid_box;
       ]
   in
@@ -1371,8 +1376,7 @@ let election_draft_credentials token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
-        script ~a:[a_src (static "tool_js_credgen.js")] (txt "");
+        script_with_lang ~lang "tool_js_credgen.js";
       ]
   in
   let div_textarea = div [group; voters; interactivity; form_textarea; disclaimer] in
@@ -1454,8 +1458,7 @@ let election_draft_trustee token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
-        script ~a:[a_src (static "tool_js_tkeygen.js")] (txt "");
+        script_with_lang ~lang "tool_js_tkeygen.js";
       ]
   in
   let content = [
@@ -1611,8 +1614,7 @@ let election_draft_threshold_trustee token uuid se () =
     div
       ~a:[a_id "interactivity"]
       [
-        Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
-        script ~a:[a_src (static "tool_js_ttkeygen.js")] (txt "");
+        script_with_lang ~lang "tool_js_ttkeygen.js";
       ]
   in
   let div_instructions =
@@ -2559,10 +2561,7 @@ let shuffle election token =
               ];
           ]
         ) (uuid, token);
-      div [
-          Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
-          script ~a:[a_src (static "tool_js_shuffle.js")] (txt "");
-        ];
+      script_with_lang ~lang "tool_js_shuffle.js";
     ]
   in
   base ~title ~content ~uuid ()
@@ -2660,10 +2659,7 @@ let tally_trustees election trustee_id token () =
               ];
           ];
       ];
-    div [
-      Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
-      script ~a:[a_src (static "tool_js_pd.js")] (txt "");
-    ]
+    script_with_lang ~lang "tool_js_pd.js";
   ] in
   base ~title ~content ~uuid ()
 
