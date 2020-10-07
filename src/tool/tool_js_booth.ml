@@ -428,61 +428,62 @@ let get_params x =
   else
     Url.decode_arguments (String.sub x 1 (n-1))
 
-let load_uuid uuid lang =
+let load_uuid uuid =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  Lwt.async (fun () ->
-      let%lwt raw =
-        let%lwt x = Printf.ksprintf get "elections/%s/election.json" uuid in
-        if x.code = 404 then (
-          let%lwt x = Printf.ksprintf get "draft/preview/%s/election.json" uuid in
-          Lwt.return x.content
-        ) else Lwt.return x.content
-      in
-      let () = set_textarea "election_params" raw in
-      let%lwt () = Tool_js_i18n.init "voter" lang in
-      Lwt.return (run_handler loadElection ())
-    )
+  let%lwt raw =
+    let%lwt x = Printf.ksprintf get "elections/%s/election.json" uuid in
+    if x.code = 404 then (
+      let%lwt x = Printf.ksprintf get "draft/preview/%s/election.json" uuid in
+      Lwt.return x.content
+    ) else Lwt.return x.content
+  in
+  set_textarea "election_params" raw;
+  run_handler loadElection ();
+  Lwt.return_unit
 
-let load_uuid_handler lang _ =
-  (match get_textarea_opt "uuid" with
-   | Some uuid ->
-      let encoded = Url.encode_arguments ["uuid", uuid; "lang", lang] in
-      Dom_html.window##.location##.hash := Js.string encoded;
-      load_uuid uuid lang
-   | None -> ()
-  ); Js._false
+let load_uuid_handler lang =
+  match get_textarea_opt "uuid" with
+  | Some uuid ->
+     let encoded = Url.encode_arguments ["uuid", uuid; "lang", lang] in
+     Dom_html.window##.location##.hash := Js.string encoded;
+     load_uuid uuid
+  | None -> Lwt.return_unit
 
-let load_params_handler lang _ =
+let load_params_handler () =
   set_element_display "div_ballot" "block";
   set_element_display "div_submit" "none";
   set_element_display "div_submit_manually" "block";
+  run_handler loadElection ();
+  Lwt.return_unit
+
+let () =
   Lwt.async (fun () ->
+      let%lwt _ = Lwt_js_events.onload () in
+      let params = get_params (Js.to_string Dom_html.window##.location##.hash) in
+      let lang =
+        match List.assoc_opt "lang" params with
+        | Some x -> x
+        | None -> "en"
+      in
       let%lwt () = Tool_js_i18n.init "voter" lang in
-      Lwt.return (run_handler loadElection ())
-    );
-  Js._false
-
-let onload_handler _ =
-  let params = get_params (Js.to_string Dom_html.window##.location##.hash) in
-  let lang =
-    match List.assoc_opt "lang" params with
-    | Some x -> x
-    | None -> "en"
-  in
-  let () =
-    document##getElementById (Js.string "load_uuid") >>== fun e ->
-    e##.onclick := Dom_html.handler (load_uuid_handler lang)
-  in
-  let () =
-    document##getElementById (Js.string "load_params") >>== fun e ->
-    e##.onclick := Dom_html.handler (load_params_handler lang);
-  in
-  let () =
-    match List.assoc_opt "uuid" params with
-    | None ->
-       set_element_display "wait_div" "none";
-       set_element_display "election_loader" "block";
-    | Some uuid -> load_uuid uuid lang
-  in Js._false
-
-let () = Dom_html.window##.onload := Dom_html.handler onload_handler
+      let () =
+        document##getElementById (Js.string "load_uuid") >>== fun e ->
+        Lwt_js_events.async (fun () ->
+            let%lwt _ = Lwt_js_events.click e in
+            load_uuid_handler lang
+          )
+      in
+      let () =
+        document##getElementById (Js.string "load_params") >>== fun e ->
+        Lwt_js_events.async (fun () ->
+            let%lwt _ = Lwt_js_events.click e in
+            load_params_handler ()
+          )
+      in
+      match List.assoc_opt "uuid" params with
+      | None ->
+         set_element_display "wait_div" "none";
+         set_element_display "election_loader" "block";
+         Lwt.return_unit
+      | Some uuid -> load_uuid uuid
+    )

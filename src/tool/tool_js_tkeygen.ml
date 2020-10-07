@@ -46,24 +46,19 @@ let tkeygen _ =
   set_element_display "submit_form" "inline";
   Js._false
 
-let fill_interactivity _ =
-  let () =
-    document##getElementById (Js.string "interactivity") >>== fun e ->
-    let b = Dom_html.createButton document in
-    let t = document##createTextNode (Js.string (s_ "Generate a new keypair")) in
-    b##.onclick := Dom_html.handler tkeygen;
-    Dom.appendChild b t;
-    Dom.appendChild e b
-  in Js._false
-
-let main e =
-  let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
-  Lwt.async (fun () ->
-      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
-      ignore (fill_interactivity e);
-      Lwt.return_unit
-    );
-  Js._false
+let fill_interactivity () =
+  document##getElementById (Js.string "interactivity") >>== fun e ->
+  let b = Dom_html.createButton document in
+  let t = document##createTextNode (Js.string (s_ "Generate a new keypair")) in
+  b##.onclick := Dom_html.handler tkeygen;
+  Dom.appendChild b t;
+  Dom.appendChild e b
 
 let () =
-  Dom_html.window##.onload := Dom_html.handler main;
+  Lwt.async (fun () ->
+      let%lwt _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
+      let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
+      fill_interactivity ();
+      Lwt.return_unit
+    )

@@ -406,7 +406,7 @@ let handle_hybrid e _ =
 
 (* Entry point *)
 
-let fill_interactivity _ =
+let fill_interactivity () =
   document##getElementById (Js.string "interactivity") >>= fun e ->
   let t = template_of_string (get_textarea "questions") in
   let has_nh =
@@ -427,13 +427,11 @@ let fill_interactivity _ =
   e##.onchange := handler (handle_hybrid e);
   return ()
 
-let main e =
-  let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+let () =
   Lwt.async (fun () ->
+      let%lwt _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
+      let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
       let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
-      ignore (fill_interactivity e);
+      ignore (fill_interactivity ());
       Lwt.return_unit
     )
-
-let () =
-  Dom_html.window##.onload := handler main;
