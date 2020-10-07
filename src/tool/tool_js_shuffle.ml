@@ -27,6 +27,7 @@ open Belenios_tool_js_common
 open Serializable_j
 open Common
 open Tool_js_common
+open Tool_js_i18n.Gettext
 
 let eta = ref 0
 
@@ -45,7 +46,7 @@ let shuffle election ciphertexts =
           let eta = max 0 (int_of_float (ceil ((stop -. now) /. 1000.))) in
           clear_content_by_id "estimation";
           set_content "estimation"
-            (Printf.sprintf "Estimated remaining time: %d second(s)" eta)
+            (Printf.sprintf (f_ "Estimated remaining time: %d second(s)") eta)
         in
         Some (Dom_html.window##setInterval (Js.wrap_callback update) 500.)
       else
@@ -77,7 +78,7 @@ let shuffle election ciphertexts =
     eta := int_of_float (ceil (delta *. float_of_int (12 * n + 7)));
     clear_content_by_id "estimation";
     set_content "estimation"
-      (Printf.sprintf "Estimated computation time: %d second(s)" !eta);
+      (Printf.sprintf (f_ "Estimated computation time: %d second(s)") !eta);
     Lwt.return_unit
   in
   Lwt.async bench_shuffle;
@@ -86,6 +87,8 @@ let shuffle election ciphertexts =
 let () =
   Lwt.async (fun () ->
       let%lwt _ = Lwt_js_events.onload () in
+      let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
       let uuid = List.assoc "uuid" (get_params ()) in
       let open Js_of_ocaml_lwt.XmlHttpRequest in
       let%lwt election = get ("../elections/" ^ uuid ^ "/election.json") in

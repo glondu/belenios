@@ -2560,6 +2560,7 @@ let shuffle election token =
           ]
         ) (uuid, token);
       div [
+          Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
           script ~a:[a_src (static "tool_js_shuffle.js")] (txt "");
         ];
     ]
