@@ -1971,23 +1971,43 @@ let mail_trustee_tally langs link =
   let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
   return (subject, body)
 
-let mail_shuffle : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Dear trustee,
+let mail_shuffle_body l link =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (s_ "Dear trustee,");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Below you will find the link to shuffle encrypted ballots.");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b link;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Instructions:");
+  add_newline b; add_string b "1. ";
+  add_sentence b (s_ "Follow the link.");
+  add_newline b; add_string b "2. ";
+  add_sentence b (s_ "Click on \"Compute shuffle\".");
+  add_newline b; add_string b "3. ";
+  add_sentence b (s_ "The fingerprint of your shuffle will appear. Save it.");
+  add_newline b; add_string b "4. ";
+  add_sentence b (s_ "When the election result is published, make sure that the fingerprint of your shuffle appears in the result.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Thank you for your help,");
+  add_newline b;
+  contents b
 
-Below you will find the link to shuffle encrypted ballots.
-
-  %s
-
-Here's the instructions:
-1. Click on the link.
-2. Click on \"Compute shuffle\".
-3. The fingerprint of your shuffle will appear. Save it.
-4. When the election result is published, make sure that the fingerprint of
-   your shuffle appears in the result.
-
-Thank you for your help,
-
--- \nThe election administrator."
+let mail_shuffle langs link =
+  let%lwt l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let open (val l) in
+  let subject = s_ "Link to shuffle encrypted ballots" in
+  let%lwt bodies =
+    Lwt_list.map_s (fun lang ->
+        let%lwt l = Web_i18n.get_lang_gettext "admin" lang in
+        return (mail_shuffle_body l link)
+      ) langs
+  in
+  let body = String.concat "\n\n----------\n\n" bodies in
+  let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
+  return (subject, body)
 
 type web_shuffler = {
     ws_trustee : string;
@@ -2122,8 +2142,8 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
             | Some y -> y.ws_select <- Some t.tk_token; return_true
             | None -> return_false
        in
-       let table_contents =
-         List.map
+       let%lwt table_contents =
+         Lwt_list.map_s
            (fun x ->
              let skip, hash, done_ =
                let mk_skip disabled =
@@ -2146,41 +2166,40 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                  | Some y when x.ws_select = Some y -> true
                  | _ -> false
              in
+             let%lwt cell =
+               match x.ws_select with
+               | Some token ->
+                  let uri =
+                    rewrite_prefix @@
+                      Eliom_uri.make_string_uri
+                        ~absolute:true ~service:election_shuffle_link (uuid, token)
+                  in
+                  let%lwt subject, body = mail_shuffle langs uri in
+                  return @@ div
+                    [
+                      a_mailto ~dest:x.ws_trustee ~subject ~body (s_ "Mail");
+                      txt " | ";
+                      if this_line then
+                        a ~service:election_admin [txt (s_ "Hide link")] uuid
+                      else
+                        a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [txt (s_ "Link")] (uuid, token)
+                    ]
+               | None ->
+                  return @@ post_form ~service:election_shuffler_select
+                    (fun (nuuid, ntrustee) ->
+                      let a = if select_disabled || done_ then [a_disabled ()] else [] in
+                      [
+                        input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                        input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
+                        input ~a ~input_type:`Submit ~value:(s_ "Select this trustee") string;
+                      ]
+                    ) ()
+             in
              let first_line =
                tr
                  [
                    td [txt x.ws_trustee];
-                   td
-                     [
-                       match x.ws_select with
-                       | Some token ->
-                          let uri =
-                            rewrite_prefix @@
-                              Eliom_uri.make_string_uri
-                                ~absolute:true ~service:election_shuffle_link (uuid, token)
-                          in
-                          let body = Printf.sprintf mail_shuffle uri in
-                          let subject = s_ "Link to shuffle encrypted ballots" in
-                          div
-                            [
-                              a_mailto ~dest:x.ws_trustee ~subject ~body (s_ "Mail");
-                              txt " | ";
-                              if this_line then
-                                a ~service:election_admin [txt (s_ "Hide link")] uuid
-                              else
-                                a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [txt (s_ "Link")] (uuid, token)
-                            ]
-                       | None ->
-                          post_form ~service:election_shuffler_select
-                            (fun (nuuid, ntrustee) ->
-                              let a = if select_disabled || done_ then [a_disabled ()] else [] in
-                              [
-                                input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
-                                input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
-                                input ~a ~input_type:`Submit ~value:(s_ "Select this trustee") string;
-                              ]
-                            ) ()
-                     ];
+                   td [cell];
                    td [if done_ then txt (s_ "Yes") else txt (s_ "No")];
                    td [skip];
                    td [hash];
@@ -2206,7 +2225,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                   ]
                | _, _ -> []
              in
-             first_line :: second_line
+             return (first_line :: second_line)
            ) shufflers
        in
        let proceed =
