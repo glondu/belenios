@@ -577,69 +577,111 @@ let election_draft uuid se () =
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
-let mail_trustee_generation_basic : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Dear trustee,
+let mail_trustee_generation_basic_body l link =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (s_ "Dear trustee,");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "You will find below the link to generate your private decryption key, used to tally the election.");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b link;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Here are the instructions:");
+  add_newline b; add_string b "1. ";
+  add_sentence b (s_ "Click on the link.");
+  add_newline b; add_string b "2. ";
+  add_sentence b (s_ "Click on \"Generate a new key pair\".");
+  add_newline b; add_string b "3. ";
+  add_sentence b (s_ "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled.");
+  add_newline b; add_string b "4. ";
+  add_sentence b (s_ "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server.");
+  add_newline b; add_string b "5. ";
+  add_sentence b (s_ "Click on \"Submit\" to send your verification key, used to encrypt the votes.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed).");
+  add_sentence b (s_ "We suggest two options:");
+  add_newline b; add_string b "1. ";
+  add_sentence b (s_ "you may store the key on a USB stick and store it in a safe;");
+  add_newline b; add_string b "2. ";
+  add_sentence b (s_ "or you may simply print it and store it in a safe.");
+  add_newline b;
+  add_sentence b (s_ "Of course, more cryptographic solutions are welcome as well.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Thank you for your help,");
+  add_newline b;
+  contents b
 
-You will find below the link to generate your private decryption key,
-used to tally the election.
+let mail_trustee_generation_basic langs link =
+  let%lwt l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let open (val l) in
+  let subject = s_ "Link to generate the decryption key" in
+  let%lwt bodies =
+    Lwt_list.map_s (fun lang ->
+        let%lwt l = Web_i18n.get_lang_gettext "admin" lang in
+        return (mail_trustee_generation_basic_body l link)
+      ) langs
+  in
+  let body = String.concat "\n\n----------\n\n" bodies in
+  let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
+  return (subject, body)
 
-  %s
+let mail_trustee_generation_threshold_body l link =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (s_ "Dear trustee,");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "You will find below the link to generate your private decryption key, used to tally the election.");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b link;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Follow the instructions.");
+  add_sentence b (s_ "There will be 3 steps.");
+  add_sentence b (s_ "All trustees must have completed one step before you can proceed to the next one.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Don't forget to save:");
+  add_newline b; add_string b "1. ";
+  add_sentence b (s_ "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;");
+  add_newline b; add_string b "2. ";
+  add_sentence b (s_ "the fingerprint of your public key;");
+  add_sentence b (s_ "the fingerprint of your verification key.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Once the election is open, you must check that the fingerprints of your two keys are present in the set of keys published by the server.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed).");
+  add_sentence b (s_ "We suggest two options:");
+  add_newline b; add_string b "1. ";
+  add_sentence b (s_ "you may store the key on a USB stick and store it in a safe;");
+  add_newline b; add_string b "2. ";
+  add_sentence b (s_ "or you may simply print it and store it in a safe.");
+  add_newline b;
+  add_sentence b (s_ "Of course, more cryptographic solutions are welcome as well.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Thank you for your help,");
+  add_newline b;
+  contents b
 
-Here are the instructions:
-1. Click on the link.
-2. Click on \"Generate a new key pair\".
-3. Download your private key. Make sure you SAVE IT properly otherwise
-   it will not be possible to tally and the election will be canceled.
-4. Save the fingerprint of your verification key. Once the election
-   is open, you must check that it is present in the set of verification
-   keys published by the server.
-5. Click on \"Submit\" to send your verification key, used to encrypt
-   the votes.
+let mail_trustee_generation_threshold langs link =
+  let%lwt l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let open (val l) in
+  let subject = s_ "Link to generate the decryption key" in
+  let%lwt bodies =
+    Lwt_list.map_s (fun lang ->
+        let%lwt l = Web_i18n.get_lang_gettext "admin" lang in
+        return (mail_trustee_generation_threshold_body l link)
+      ) langs
+  in
+  let body = String.concat "\n\n----------\n\n" bodies in
+  let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
+  return (subject, body)
 
-Regarding your private key, it is crucial you save it (otherwise the
-election will be canceled) and store it securely (if your private key
-is known together with the private keys of the other trustees, then
-vote privacy is no longer guaranteed). We suggest two options:
-1. you may store the key on a USB stick and store it in a safe;
-2. or you may simply print it and store it in a safe.
-Of course, more cryptographic solutions are welcome as well.
-
-Thank you for your help,
-
--- \nThe election administrator."
-
-let mail_trustee_generation_threshold : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Dear trustee,
-
-You will find below the link to generate your private decryption key,
-used to tally the election.
-
-  %s
-
-Follow the instructions. There will be 3 steps. All trustees must have
-completed one step before you can proceed to the next one.
-
-Don't forget to save:
-1. your private key. Make sure you SAVE IT properly otherwise you will
-   not be able to participate to the tally and the election may be
-   canceled;
-3. the fingerprint of your public key;
-4. the fingerprint of your verification key.
-
-Once the election is open, you must check that the fingerprints of
-your two keys are present in the set of keys published by the server.
-
-Regarding your private key, it is crucial you save it (otherwise the
-election may be canceled) and store it securely (if your private key
-is known together with the private keys of the other trustees, then
-vote privacy is no longer guaranteed). We suggest two options:
-1. you may store the key on a USB stick and store it in a safe;
-2. or you may simply print it and store it in a safe.
-Of course, more cryptographic solutions are welcome as well.
-
-Thank you for your help,
-
--- \nThe election administrator."
+let rec lwt_list_mapi f i = function
+  | [] -> return []
+  | x :: xs ->
+     let%lwt y = f i x in
+     let%lwt ys = lwt_list_mapi f (i + 1) xs in
+     return (y :: ys)
 
 let election_draft_trustees ?token uuid se () =
   let%lwt l = get_preferred_gettext () in
@@ -670,16 +712,29 @@ let election_draft_trustees ?token uuid se () =
           input ~input_type:`Submit ~value:(s_ "Remove") string;
         ]) uuid
   in
-  let trustees = match se.se_public_keys with
-    | [] -> txt ""
+  let langs = get_languages se.se_metadata.e_languages in
+  let%lwt trustees = match se.se_public_keys with
+    | [] -> return (txt "")
     | ts ->
-       let ts =
-         List.mapi
+       let%lwt ts =
+         lwt_list_mapi
            (fun i t ->
              let this_line =
                match token with
                | Some x when x = t.st_token -> true
                | _ -> false
+             in
+             let%lwt mail_cell =
+               if t.st_token <> "" then (
+                 let uri =
+                   rewrite_prefix
+                     (Eliom_uri.make_string_uri ~absolute:true ~service:election_draft_trustee (uuid, t.st_token))
+                 in
+                 let%lwt subject, body = mail_trustee_generation_basic langs uri in
+                 return (a_mailto ~dest:t.st_id ~subject ~body (s_ "E-mail"))
+               ) else (
+                 return (txt (s_ "(server)"))
+               )
              in
              let first_line =
                tr [
@@ -691,18 +746,7 @@ let election_draft_trustees ?token uuid se () =
                        | None -> txt (s_ "(not available)")
                        | Some x -> txt x
                      ];
-                   td [
-                       if t.st_token <> "" then (
-                         let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
-                                                       ~absolute:true ~service:election_draft_trustee (uuid, t.st_token)
-                         in
-                         let body = Printf.sprintf mail_trustee_generation_basic uri in
-                         let subject = s_ "Link to generate the decryption key" in
-                         a_mailto ~dest:t.st_id ~subject ~body (s_ "E-mail")
-                       ) else (
-                         txt (s_ "(server)")
-                       )
-                     ];
+                   td [mail_cell];
                    td [
                        if t.st_token <> "" then (
                          if this_line then
@@ -738,10 +782,10 @@ let election_draft_trustees ?token uuid se () =
                  ]
                else []
              in
-             first_line :: second_line
-           ) ts
+             return (first_line :: second_line)
+           ) 0 ts
        in
-       table (
+       return @@ table (
            tr [
                th [txt (s_ "Trustee")];
                th [txt (s_ "Public name")];
@@ -829,11 +873,13 @@ let election_draft_threshold_trustees ?token uuid se () =
           input ~input_type:`Submit ~value:(s_ "Remove") string;
       ]) uuid
   in
-  let trustees = match se.se_threshold_trustees with
-    | None -> txt ""
+  let langs = get_languages se.se_metadata.e_languages in
+  let%lwt trustees = match se.se_threshold_trustees with
+    | None -> return (txt "")
     | Some ts ->
-       let ts =
-         List.mapi (fun i t ->
+       let%lwt ts =
+         lwt_list_mapi
+           (fun i t ->
              let this_line =
                match token with
                | Some x when x = t.stt_token -> true
@@ -851,6 +897,14 @@ let election_draft_threshold_trustees ?token uuid se () =
                | Some 7 -> "done"
                | _ -> "unknown"
              in
+             let%lwt mail_cell =
+               let uri = rewrite_prefix
+                         @@ Eliom_uri.make_string_uri
+                              ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
+               in
+               let%lwt subject, body = mail_trustee_generation_threshold langs uri in
+               return (a_mailto ~dest:t.stt_id ~subject ~body (s_ "E-mail"))
+             in
              let first_line =
                tr (
                    [
@@ -862,15 +916,7 @@ let election_draft_threshold_trustees ?token uuid se () =
                          | None -> txt (s_ "(not available)")
                          | Some x -> txt x
                        ];
-                     td [
-                         let uri = rewrite_prefix @@
-                                     Eliom_uri.make_string_uri
-                                       ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
-                         in
-                         let body = Printf.sprintf mail_trustee_generation_threshold uri in
-                         let subject = s_ "Link to generate the decryption key" in
-                         a_mailto ~dest:t.stt_id ~subject ~body (s_ "E-mail")
-                       ];
+                     td [mail_cell];
                      td [
                          if this_line then
                            a ~service:election_draft_threshold_trustees [txt (s_ "Hide link")] uuid
@@ -903,10 +949,10 @@ let election_draft_threshold_trustees ?token uuid se () =
                  ]
                else []
              in
-             first_line :: second_line
-           ) ts
+             return (first_line :: second_line)
+           ) 0 ts
        in
-       div [
+       return @@ div [
            table (
                tr (
                    [
