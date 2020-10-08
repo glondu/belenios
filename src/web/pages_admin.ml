@@ -1934,23 +1934,42 @@ let election_draft_confirm uuid se () =
   let%lwt login_box = login_box () in
   base ~title ~login_box ~content ()
 
-let mail_trustee_tally : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "Dear trustee,
+let mail_trustee_tally_body l link =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (s_ "Dear trustee,");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "The election is now closed.");
+  add_sentence b (s_ "Here is the link to proceed to tally:");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b link;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Instructions:");
+  add_newline b; add_string b "1. ";
+  add_sentence b (s_ "Follow the link.");
+  add_newline b; add_string b "2. ";
+  add_sentence b (s_ "Enter your private decryption key in the first box and click on \"Generate decryption factors\".");
+  add_newline b; add_string b "3. ";
+  add_sentence b (s_ "The second box is now filled with crypto material. Please press the button \"Submit\".");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Thank you again for your help,");
+  add_newline b;
+  contents b
 
-The election is now closed. Here's the link to proceed to tally:
-
-  %s
-
-Here's the instructions:
-1. Follow the link.
-2. Enter your private decryption key in the first box and click on
-   \"generate decryption factors\".
-3. The second box is now filled with crypto material. Please press the
-   button \"submit\".
-
-Thank you again for your help,
-
--- \nThe election administrator."
+let mail_trustee_tally langs link =
+  let%lwt l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let open (val l) in
+  let subject = s_ "Link to tally the election" in
+  let%lwt bodies =
+    Lwt_list.map_s (fun lang ->
+        let%lwt l = Web_i18n.get_lang_gettext "admin" lang in
+        return (mail_trustee_tally_body l link)
+      ) langs
+  in
+  let body = String.concat "\n\n----------\n\n" bodies in
+  let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
+  return (subject, body)
 
 let mail_shuffle : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
   "Dear trustee,
@@ -1977,6 +1996,7 @@ type web_shuffler = {
 }
 
 let election_admin ?shuffle_token ?tally_token election metadata state get_tokens_decrypt () =
+  let langs = get_languages metadata.e_languages in
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let uuid = election.e_params.e_uuid in
@@ -2259,8 +2279,8 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
          | Some _ -> get_tokens_decrypt ()
        in
        let trustees = List.combine trustees trustee_tokens in
-       let trustees =
-         List.map
+       let%lwt trustees =
+         Lwt_list.map_s
            (fun ((name, trustee_id), token) ->
              let this_line =
                match tally_token with
@@ -2276,18 +2296,19 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                | None -> uri, !Web_config.server_mail
                | Some name -> name, name
              in
-             let mail, link =
+             let%lwt mail, link =
                if link_content = "server" then (
-                 txt (s_ "(server)"),
-                 txt (s_ "(server)")
+                 return (txt (s_ "(server)"), txt (s_ "(server)"))
                ) else (
-                 let body = Printf.sprintf mail_trustee_tally uri in
-                 let subject = s_ "Link to tally the election" in
-                 a_mailto ~dest ~subject ~body (s_ "E-mail"),
-                 if this_line then
-                   a ~service:election_admin [txt (s_ "Hide link")] uuid
-                 else
-                   a ~service [txt (s_ "Link")] x
+                 let%lwt subject, body = mail_trustee_tally langs uri in
+                 let mail = a_mailto ~dest ~subject ~body (s_ "E-mail") in
+                 let link =
+                   if this_line then
+                     a ~service:election_admin [txt (s_ "Hide link")] uuid
+                   else
+                     a ~service [txt (s_ "Link")] x
+                 in
+                 return (mail, link)
                )
              in
              let first_line =
@@ -2317,7 +2338,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                  ]
                else []
              in
-             first_line :: second_line
+             return (first_line :: second_line)
            ) trustees
        in
        let release_form =
