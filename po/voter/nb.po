@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -121,8 +122,8 @@ msgstr "Administrer dette valget"
 msgid "Advanced mode"
 msgstr "Avansert modus"
 
-#. src/web/pages_voter.ml:473
 #: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
+#. src/web/pages_voter.ml:473
 msgid "Answer to questions"
 msgstr "Svar på spørsmål"
 
@@ -134,8 +135,8 @@ msgstr "Minst ett av svarene er ugyldig!"
 msgid "Audit data: "
 msgstr "Valgopptellingsdata: "
 
-#. src/web/pages_voter.ml:477
 #: src/web/pages_voter.ml:726 src/web/pages_voter.ml:558
+#. src/web/pages_voter.ml:477
 msgid "Authenticate"
 msgstr "Identitetsbekreft"
 
@@ -163,8 +164,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Belenios-valgavlukke"
 
-#. src/web/pages_voter.ml:82
 #: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#. src/web/pages_voter.ml:82
 msgid "Blank vote"
 msgstr "Blank stemme"
 
@@ -172,8 +173,8 @@ msgstr "Blank stemme"
 msgid "By using this site, you accept our "
 msgstr "Ved å bruke denne siden, godtar du vår "
 
-#. src/web/pages_voter.ml:479
 #: src/web/pages_voter.ml:728 src/web/pages_voter.ml:560
+#. src/web/pages_voter.ml:479
 msgid "Confirm"
 msgstr "Bekreft"
 
@@ -193,8 +194,8 @@ msgstr "Identitetsdetalj:"
 msgid "Dear %s,"
 msgstr "Kjære %s,"
 
-#. src/web/pages_voter.ml:481
 #: src/web/pages_voter.ml:730 src/web/pages_voter.ml:562
+#. src/web/pages_voter.ml:481
 msgid "Done"
 msgstr "Ferdig"
 
@@ -226,9 +227,9 @@ msgstr "FEIL!"
 msgid "Get the source code"
 msgstr "Gå til kildekoden"
 
+#: src/web/pages_voter.ml:627 src/web/pages_voter.ml:599
 #. src/web/pages_voter.ml:538
 #. src/web/pages_voter.ml:510
-#: src/web/pages_voter.ml:627 src/web/pages_voter.ml:599
 msgid "Go back to election"
 msgstr "Gå tilbake til valget"
 
@@ -241,7 +242,6 @@ msgid "I cast my vote"
 msgstr "Jeg avgir min stemme"
 
 #: src/tool/tool_js_booth.ml:235
-#, fuzzy
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Hvis du blir spurt om å vurdere kandidater (flertallsvurdering) er 1 den "
@@ -257,8 +257,8 @@ msgstr ""
 msgid "If you want to vote, you must "
 msgstr "Hvis du ønsker å stemme, må du "
 
-#. src/web/pages_voter.ml:471
 #: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
+#. src/web/pages_voter.ml:471
 msgid "Input credential"
 msgstr "Skriv inn identitetsdetalj"
 
@@ -392,18 +392,16 @@ msgstr "Start på ny"
 msgid "Results will be published on the election page"
 msgstr "Resultater vil bli vist på valgsiden"
 
-#. src/web/pages_voter.ml:475
 #: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
+#. src/web/pages_voter.ml:475
 msgid "Review and encrypt"
 msgstr "Gjennomse og krypter"
 
 #: src/web/pages_voter.ml:704
-#, fuzzy
 msgid "Save it to check that it is taken into account later."
 msgstr "Lagre den for å sjekke at den har blitt tatt hensyn til senere."
 
 #: src/web/pages_voter.ml:813
-#, fuzzy
 msgid "Schulze method"
 msgstr "Schulze-metoden"
 
@@ -488,7 +486,6 @@ msgid "This election is currently closed."
 msgstr "Dette valget er for tiden lukket."
 
 #: src/web/site_voter.ml:267
-#, fuzzy
 msgid "This question is homomorphic, the Schulze method cannot be applied to its result."
 msgstr ""
 "Spørsmålet er homomorfisk, Schulze-metoden kan ikke legges til dets resultat."
@@ -601,8 +598,8 @@ msgstr "Ditt passord for valget %s"
 msgid "Your smart ballot tracker is"
 msgstr "Din smarte stemmesporer er"
 
-#. src/web/pages_voter.ml:493
 #: src/web/pages_voter.ml:700 src/web/pages_voter.ml:570
+#. src/web/pages_voter.ml:493
 msgid "Your smart ballot tracker is "
 msgstr "Din smarte stemmesporer er "
 
@@ -709,3 +706,4 @@ msgstr "din identitetsdetalj har allerede blitt brukt"
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr "din identitetsdetalj er ugyldig"
+
