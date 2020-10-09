@@ -1097,6 +1097,8 @@ let () =
 let () =
   Any.register ~service:election_draft_trustee
     (fun (uuid, token) () ->
+      let%lwt l = get_preferred_gettext () in
+      let open (val l) in
       without_site_user
         ~fallback:(fun u ->
           match%lwt Web_persist.get_draft_election uuid with
@@ -1109,7 +1111,16 @@ let () =
         (fun () ->
           match%lwt Web_persist.get_draft_election uuid with
           | None -> fail_http 404
-          | Some se -> Pages_admin.election_draft_trustee token uuid se () >>= Html.send
+          | Some se ->
+             match List.find_opt (fun t -> t.st_token = token) se.se_public_keys with
+             | None -> forbidden ()
+             | Some t ->
+                if t.st_public_key <> "" then
+                  let msg = s_ "Your public key has already been received!" in
+                  let title = s_ "Error" in
+                  Pages_common.generic_page ~title msg () >>= Html.send ~code:403
+                else
+                  Pages_admin.election_draft_trustee token uuid se () >>= Html.send
         )
     )
 
@@ -1122,28 +1133,38 @@ let () =
           if token = "" then
             forbidden ()
           else
-            wrap_handler
-              (fun () ->
-                let%lwt () =
-                  Web_election_mutex.with_lock uuid
-                    (fun () ->
-                      match%lwt Web_persist.get_draft_election uuid with
-                      | None -> fail_http 404
-                      | Some se ->
-                         let t = List.find (fun x -> token = x.st_token) se.se_public_keys in
-                         let module G = (val Group.of_string se.se_group : GROUP) in
-                         let pk = trustee_public_key_of_string G.read public_key in
-                         let module K = Trustees.MakeCombinator (G) in
-                         if not (K.check [`Single pk]) then failwith "invalid public key";
-                         (* we keep pk as a string because of G.t *)
-                         t.st_public_key <- public_key;
-                         Web_persist.set_draft_election uuid se
-                    )
-                in
-                Pages_common.generic_page ~title:(s_ "Success")
-                  (s_ "Your key has been received and checked!")
-                  () >>= Html.send
-              )
+            let%lwt title, msg, code =
+              Web_election_mutex.with_lock uuid
+                (fun () ->
+                  match%lwt Web_persist.get_draft_election uuid with
+                  | None -> fail_http 404
+                  | Some se ->
+                     match List.find_opt (fun x -> token = x.st_token) se.se_public_keys with
+                     | None -> forbidden ()
+                     | Some t ->
+                        if t.st_public_key <> "" then
+                          let msg = s_ "A public key already existed, the key you've just uploaded has been ignored!" in
+                          let title = s_ "Error" in
+                          return (title, msg, 400)
+                        else
+                          let module G = (val Group.of_string se.se_group : GROUP) in
+                          let pk = trustee_public_key_of_string G.read public_key in
+                          let module K = Trustees.MakeCombinator (G) in
+                          if not (K.check [`Single pk]) then
+                            let msg = s_ "Invalid public key!" in
+                            let title = s_ "Error" in
+                            return (title, msg, 400)
+                          else (
+                            (* we keep pk as a string because of G.t *)
+                            t.st_public_key <- public_key;
+                            let%lwt () = Web_persist.set_draft_election uuid se in
+                            let msg = s_ "Your key has been received and checked!" in
+                            let title = s_ "Success" in
+                            return (title, msg, 200)
+                          )
+                )
+            in
+            Pages_common.generic_page ~title msg () >>= Html.send ~code
         )
     )
 
