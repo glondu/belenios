@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
 "PO-Revision-Date: 2020-10-13 06:26+0000\n"
-"Last-Translator: Pierrick Gaudry <pierrick.gaudry@loria.fr>\n"
+"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
 "Language: fr\n"
@@ -1792,6 +1792,8 @@ msgstr ""
 #: src/web/site_admin.ml:550
 msgid "You cannot set the credential authority for this election!"
 msgstr ""
+"Vous ne pouvez pas définir l'autorité de génération des codes de vote pour "
+"cette élection !"
 
 #: src/web/pages_admin.ml:2408
 msgid "You may postpone the publication of the election result up to %d days in the future."
@@ -1819,7 +1821,7 @@ msgstr ""
 
 #: src/web/site_admin.ml:577
 msgid "You must select at least one language!"
-msgstr ""
+msgstr "Vous devez sélectionner au moins une langue !"
 
 #. src/web/pages_admin.ml:162
 #. src/web/pages_admin.ml:157
@@ -1831,6 +1833,8 @@ msgstr "Vous n'avez aucune élection !"
 #: src/web/pages_admin.ml:635 src/web/pages_admin.ml:586
 msgid "You will find below the link to generate your private decryption key, used to tally the election."
 msgstr ""
+"Vous trouverez ci-dessous le lien pour générer votre clé privée, utilisée "
+"pour dépouiller l'élection."
 
 #: src/web/pages_admin.ml:1605
 msgid "You will use it in the next steps and to decrypt the final result."
@@ -1857,18 +1861,22 @@ msgstr "Votre adresse e-mail est : "
 #: src/tool/tool_js_ttkeygen.ml:104
 msgid "Your job in the key establishment protocol is done! The fingerprint of your verification key is %s. Check that it is published by the server when the election is open. Your private key will be needed to decrypt the election result."
 msgstr ""
+"Votre travail dans le protocole d'établissement des clés est terminé ! "
+"L'empreinte de votre clé de vérification est %s. Vérifiez qu'elle est "
+"publiée par le serveur lorsque l'élection sera ouverte. Votre clé privée "
+"sera nécessaire pour décrypter le résultat de l'élection."
 
 #: src/web/site_admin.ml:1144
 msgid "Your key has been received and checked!"
-msgstr ""
+msgstr "Votre clé a été reçue et vérifiée !"
 
 #: src/web/site_admin.ml:1715
 msgid "Your partial decryption has already been received and checked!"
-msgstr ""
+msgstr "Votre déchiffrement partiel a déjà été reçu et vérifié !"
 
 #: src/web/site_admin.ml:1780
 msgid "Your partial decryption has been received and checked!"
-msgstr ""
+msgstr "Votre déchiffrement partiel a été reçu et vérifié !"
 
 #: src/web/pages_admin.ml:2905
 msgid "Your username is: "
@@ -1921,6 +1929,7 @@ msgstr "d'une raison inconnue"
 #: src/web/pages_admin.ml:657 src/web/pages_admin.ml:607
 msgid "or you may simply print it and store it in a safe."
 msgstr ""
+"ou vous pouvez simplement l'imprimer et la conserver dans un coffre-fort."
 
 #: src/web/pages_admin.ml:56
 msgid "personal data policy"
@@ -1961,11 +1970,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:647
 msgid "the fingerprint of your public key;"
-msgstr ""
+msgstr "l'empreinte de votre clé publique ;"
 
 #: src/web/pages_admin.ml:648
 msgid "the fingerprint of your verification key."
-msgstr ""
+msgstr "l’empreinte de votre clé de vérification."
 
 #: src/web/pages_admin.ml:1366
 msgid "the list of voters"
@@ -2034,6 +2043,8 @@ msgstr ""
 #: src/web/pages_admin.ml:655 src/web/pages_admin.ml:605
 msgid "you may store the key on a USB stick and store it in a safe;"
 msgstr ""
+"vous pouvez conserver la clé sur une clé USB et la mettre dans un coffre-"
+"fort ;"
 
 #: src/web/pages_admin.ml:1187
 msgid "you will be given the raw results (shuffled list of ballots) and you will need to apply your counting method yourself."
@@ -2044,3 +2055,5 @@ msgstr ""
 #: src/web/pages_admin.ml:645
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
 msgstr ""
+"votre clé privée. Veillez à bien l'ENREGISTRER, sinon vous ne pourrez pas "
+"participer au dépouillement et l'élection pourrait être annulée ;"
