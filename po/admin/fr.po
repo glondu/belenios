@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-10-11 11:39+0000\n"
-"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
+"PO-Revision-Date: 2020-10-13 06:26+0000\n"
+"Last-Translator: Pierrick Gaudry <pierrick.gaudry@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
 "Language: fr\n"
@@ -623,7 +623,7 @@ msgstr "Élections que vous pouvez administrer"
 
 #: src/web/site_admin.ml:1277
 msgid "Encrypted decryption keys are missing!"
-msgstr ""
+msgstr "Les chiffrés des clés de déchiffrement sont manquants !"
 
 #: src/web/pages_admin.ml:2054
 msgid "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date."
@@ -927,7 +927,7 @@ msgstr "Électeurs manquants"
 
 #: src/tool/tool_js_pd.ml:68 src/tool/tool_js_pd.ml:66
 msgid "Must end with a double quote"
-msgstr ""
+msgstr "Doit se terminer par un guillemet"
 
 #: src/tool/tool_js_pd.ml:60
 msgid "Must have at least one digit"
@@ -936,10 +936,11 @@ msgstr "Doit avoir au moins un chiffre"
 #: src/tool/tool_js_pd.ml:54
 msgid "Must start with a double quote (character given was another character)"
 msgstr ""
+"Doit débuter par un guillemet (le caractère fourni est un autre caractère)"
 
 #: src/tool/tool_js_pd.ml:55
 msgid "Must start with a double quote (empty string given)"
-msgstr ""
+msgstr "Doit débuter par un guillemet (la chaîne vide a été envoyée)"
 
 #: src/web/pages_admin.ml:357
 msgid "Name and description of the election"
@@ -970,7 +971,7 @@ msgstr "Aucun contact n'a été donné !"
 
 #: src/web/site_admin.ml:594
 msgid "No such language: %s"
-msgstr ""
+msgstr "Langue inconnue : %s"
 
 #: src/web/pages_admin.ml:1839
 msgid "No trustees were set. This means the server will manage the election key by itself."
@@ -1486,7 +1487,7 @@ msgstr "L'empreinte de votre mélange est :"
 
 #: src/web/pages_admin.ml:1990
 msgid "The fingerprint of your shuffle will appear. Save it."
-msgstr ""
+msgstr "L'empreinte de votre mélange va apparaître. Sauvegardez la."
 
 #. src/web/pages_admin.ml:939
 #. src/web/pages_admin.ml:773
@@ -1676,7 +1677,7 @@ msgstr "Entrez de nouveau le mot de passe : "
 
 #: src/web/site_admin.ml:1295
 msgid "Unsupported trustees!"
-msgstr ""
+msgstr "Autorités de déchiffrement non supportées !"
 
 #: src/web/pages_admin.ml:1396
 msgid "Use this form to upload public credentials generated with the command-line tool."
