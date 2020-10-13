@@ -724,16 +724,29 @@ let election_draft_trustees ?token uuid se () =
                | Some x when x = t.st_token -> true
                | _ -> false
              in
-             let%lwt mail_cell =
+             let%lwt mail_cell, link_cell =
                if t.st_token <> "" then (
-                 let uri =
-                   rewrite_prefix
-                     (Eliom_uri.make_string_uri ~absolute:true ~service:election_draft_trustee (uuid, t.st_token))
-                 in
-                 let%lwt subject, body = mail_trustee_generation_basic langs uri in
-                 return (a_mailto ~dest:t.st_id ~subject ~body (s_ "E-mail"))
+                 if t.st_public_key = "" then (
+                   let uri =
+                     rewrite_prefix
+                       (Eliom_uri.make_string_uri ~absolute:true ~service:election_draft_trustee (uuid, t.st_token))
+                   in
+                   let%lwt subject, body = mail_trustee_generation_basic langs uri in
+                   let mail_cell = a_mailto ~dest:t.st_id ~subject ~body (s_ "E-mail") in
+                   let link_cell =
+                     if this_line then
+                       a ~service:election_draft_trustees [txt (s_ "Hide link")] uuid
+                     else
+                       a ~service:election_draft_trustee [txt (s_ "Link")] (uuid, t.st_token);
+                   in
+                   return (mail_cell, link_cell)
+                 ) else (
+                   let cell = txt (s_ "(done)") in
+                   return (cell, cell)
+                 )
                ) else (
-                 return (txt (s_ "(server)"))
+                 let cell = txt (s_ "(server)") in
+                 return (cell, cell)
                )
              in
              let first_line =
@@ -747,16 +760,7 @@ let election_draft_trustees ?token uuid se () =
                        | Some x -> txt x
                      ];
                    td [mail_cell];
-                   td [
-                       if t.st_token <> "" then (
-                         if this_line then
-                           a ~service:election_draft_trustees [txt (s_ "Hide link")] uuid
-                         else
-                           a ~service:election_draft_trustee [txt (s_ "Link")] (uuid, t.st_token);
-                       ) else (
-                         txt (s_ "(server)")
-                       )
-                     ];
+                   td [link_cell];
                    td [
                        txt (if t.st_public_key = "" then s_ "No" else s_ "Yes");
                      ];
