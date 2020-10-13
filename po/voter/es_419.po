@@ -8,30 +8,32 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-08 08:52+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2020-10-13 06:26+0000\n"
+"Last-Translator: Oscar Yanez <oscar.yasu@gmail.com>\n"
+"Language-Team: Spanish (Latin America) <https://hosted.weblate.org/projects/"
+"belenios/voter/es_419/>\n"
 "Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.3-dev\n"
 
 #: src/web/pages_common.ml:234
 msgid " (if you forgot it, for example)."
-msgstr ""
+msgstr " (si usted lo ha olvidado, por ejemplo)."
 
 #: src/web/pages_voter.ml:578
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " Se le ha enviado un correo de confirmación."
 
 #: src/web/pages_voter.ml:448
 msgid " and "
-msgstr ""
+msgstr " y "
 
 #: src/web/pages_voter.ml:577
 msgid " anytime during the election."
-msgstr ""
+msgstr " en todo momento durante la elección."
 
 #: src/web/pages_voter.ml:634
 msgid " ballot(s) have been accepted so far."
