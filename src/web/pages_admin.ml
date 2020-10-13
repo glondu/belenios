@@ -1693,7 +1693,7 @@ let election_draft_threshold_trustee token uuid se () =
   in
   base ~title ~content ()
 
-let election_draft_importer l ~service ~title uuid (elections, tallied, archived) =
+let election_draft_importer l ~service ~title ~note uuid (elections, tallied, archived) =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let format_election (from_uuid, name) =
     let from_uuid = raw_string_of_uuid from_uuid in
@@ -1723,6 +1723,9 @@ let election_draft_importer l ~service ~title uuid (elections, tallied, archived
     | _ -> ul @@ List.map format_election xs
   in
   let content = [
+    b [txt (s_ "Note:")];
+    txt " ";
+    txt note;
     h2 [txt (s_ "Elections you can administer")];
     itemize elections;
     h2 [txt (s_ "Tallied elections")];
@@ -1737,15 +1740,17 @@ let election_draft_import uuid se elections () =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Import voters from another election" in
+  let note = s_ "Imported voters will have the same password as in the original election, and no new e-mail will be sent." in
   let service = election_draft_import_post in
-  election_draft_importer l ~service ~title uuid elections
+  election_draft_importer l ~service ~title ~note uuid elections
 
 let election_draft_import_trustees uuid se elections () =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Import trustees from another election" in
+  let note = s_ "Imported trustees will have the same keys as in the original election." in
   let service = election_draft_import_trustees_post in
-  election_draft_importer l ~service ~title uuid elections
+  election_draft_importer l ~service ~title ~note uuid elections
 
 let election_draft_confirm uuid se () =
   let%lwt l = get_preferred_gettext () in
