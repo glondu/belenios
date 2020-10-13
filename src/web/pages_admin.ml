@@ -597,7 +597,7 @@ let mail_trustee_generation_basic_body l link =
   add_newline b; add_string b "4. ";
   add_sentence b (s_ "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server.");
   add_newline b; add_string b "5. ";
-  add_sentence b (s_ "Click on \"Submit\" to send your verification key, used to encrypt the votes.");
+  add_sentence b (s_ "Click on \"Submit\" to send your verification key.");
   add_newline b; add_newline b;
   add_sentence b (s_ "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed).");
   add_sentence b (s_ "We suggest two options:");
@@ -1958,7 +1958,7 @@ let mail_trustee_tally_body l link =
   add_newline b; add_string b "1. ";
   add_sentence b (s_ "Follow the link.");
   add_newline b; add_string b "2. ";
-  add_sentence b (s_ "Enter your private decryption key in the first box and click on \"Generate decryption factors\".");
+  add_sentence b (s_ "Enter your private decryption key in the first box and click on \"Generate your contribution to decryption\".");
   add_newline b; add_string b "3. ";
   add_sentence b (s_ "The second box is now filled with crypto material. Please press the button \"Submit\".");
   add_newline b; add_newline b;
@@ -1998,7 +1998,7 @@ let mail_shuffle_body l link =
   add_newline b; add_string b "3. ";
   add_sentence b (s_ "The fingerprint of your shuffle will appear. Save it.");
   add_newline b; add_string b "4. ";
-  add_sentence b (s_ "When the election result is published, make sure that the fingerprint of your shuffle appears in the result.");
+  add_sentence b (s_ "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page.");
   add_newline b; add_newline b;
   add_sentence b (s_ "Thank you for your help,");
   add_newline b;
@@ -2727,7 +2727,7 @@ let tally_trustees election trustee_id token () =
                     button_no_value
                       ~a:[a_id "compute"]
                       ~button_type:`Button
-                      [txt (s_ "Compute decryption factors")];
+                      [txt (s_ "Generate your contribution to decryption")];
                   ];
                 br ();
               ];

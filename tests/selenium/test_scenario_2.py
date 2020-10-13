@@ -386,9 +386,9 @@ The election administrator.\
             election_url_content = election_url_element.get_attribute('innerText').strip()
             assert election_url_content == self.election_page_url
 
-            # He clicks on the "Generate a new keypair" button
+            # He clicks on the "Generate a key" button
             generate_button_css_selector = "#interactivity button"
-            generate_button_expected_label = "Generate a new keypair"
+            generate_button_expected_label = "Generate a key"
             generate_button_element = wait_for_element_exists_and_contains_expected_text(browser, generate_button_css_selector, generate_button_expected_label)
             generate_button_element.click()
 

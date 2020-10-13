@@ -49,7 +49,7 @@ let tkeygen _ =
 let fill_interactivity () =
   document##getElementById (Js.string "interactivity") >>== fun e ->
   let b = Dom_html.createButton document in
-  let t = document##createTextNode (Js.string (s_ "Generate a new keypair")) in
+  let t = document##createTextNode (Js.string (s_ "Generate a key")) in
   b##.onclick := Dom_html.handler tkeygen;
   Dom.appendChild b t;
   Dom.appendChild e b

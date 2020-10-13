@@ -94,7 +94,7 @@ let extractQuestion q =
      if (q_max = 0) then
        failwith (s_ "Maximum number of choices must be greater than 0!");
      if (q_max > Array.length q_answers) then
-       failwith (s_ "Maximum number of choices is greater than number of choices!");
+       failwith (s_ "The given maximum is greater than the number of choices!");
      let open Question_h_t in
      return (Question.Homomorphic {q_question; q_blank; q_min; q_max; q_answers})
   | None ->

@@ -630,7 +630,7 @@ let () =
           let open (val l) in
           if PString.length name > max_election_name_size then (
             let msg =
-              Printf.sprintf (f_ "The election name must be %d bytes or less!")
+              Printf.sprintf (f_ "The election name must be %d characters or less!")
                 max_election_name_size
             in
             Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
