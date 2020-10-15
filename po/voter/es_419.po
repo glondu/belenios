@@ -1,0 +1,700 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-08 08:52+0000\n"
+"PO-Revision-Date: 2020-10-13 11:50+0000\n"
+"Last-Translator: Oscar Yanez <oscar.yasu@gmail.com>\n"
+"Language-Team: Spanish (Latin America) <https://hosted.weblate.org/projects/"
+"belenios/voter/es_419/>\n"
+"Language: es_419\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.3-dev\n"
+
+#: src/web/pages_common.ml:234
+msgid " (if you forgot it, for example)."
+msgstr " (si usted lo ha olvidado, por ejemplo)."
+
+#: src/web/pages_voter.ml:578
+msgid " A confirmation e-mail has been sent to you."
+msgstr " Se le ha enviado un correo de confirmación."
+
+#: src/web/pages_voter.ml:448
+msgid " and "
+msgstr " y "
+
+#: src/web/pages_voter.ml:577
+msgid " anytime during the election."
+msgstr " en todo momento durante la elección."
+
+#: src/web/pages_voter.ml:634
+msgid " ballot(s) have been accepted so far."
+msgstr " boleta(s) han sido aceptadas hasta ahora."
+
+#: src/web/pages_voter.ml:644
+msgid " ballot(s) have been accepted, and "
+msgstr " boleta(s) han sido aceptadas, y "
+
+#: src/web/pages_voter.ml:639
+msgid " ballot(s) have been accepted."
+msgstr " boleta(s) han sido aceptadas."
+
+#: src/web/web_common.ml:103
+msgid " day(s)"
+msgstr " día(s)"
+
+#: src/web/pages_voter.ml:568
+msgid " has been accepted."
+msgstr " ha sido aceptado(a)."
+
+#: src/web/pages_voter.ml:492
+msgid " has been received, but not recorded yet. "
+msgstr " ha sido recibido(a), pero no ha sido registrado(a). "
+
+#: src/web/pages_voter.ml:646
+msgid " have been tallied."
+msgstr " han sido contabilizados."
+
+#: src/web/web_common.ml:105
+msgid " hour(s)"
+msgstr " hora(s)"
+
+#: src/web/pages_voter.ml:581
+msgid " is rejected, because "
+msgstr " ha sido rechazado(a) porque "
+
+#: src/web/web_common.ml:106
+msgid " minute(s)"
+msgstr " minuto(s)"
+
+#: src/web/web_common.ml:102
+msgid " month(s)"
+msgstr " mes(es)"
+
+#: src/web/web_common.ml:107
+msgid " second(s)"
+msgstr " segundo(s)"
+
+#: src/web/web_common.ml:101
+msgid " year(s)"
+msgstr " año(s)"
+
+#: src/web/pages_voter.ml:697
+msgid "!"
+msgstr "!"
+
+#: src/tool/tool_js_booth.ml:168
+msgid "(nothing)"
+msgstr "(nada)"
+
+#: src/web/pages_common.ml:232
+msgid ", or "
+msgstr ", o "
+
+#: src/web/pages_voter.ml:109
+msgid ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
+msgstr ""
+". Contiene todas las boletas depositadas en orden claro pero aleatorio. Le "
+"corresponde decidir si aplicará su método favorito de conteo (por ejemplo, "
+"Condorcet, STV, voto mayoritario)."
+
+#: src/web/pages_voter.ml:261
+msgid "Accept"
+msgstr "Aceptar"
+
+#: src/web/pages_voter.ml:609
+msgid "Accepted ballots"
+msgstr "Boletas aceptadas"
+
+#: src/web/pages_common.ml:57
+msgid "Administer elections"
+msgstr "Administrar elecciones"
+
+#: src/web/pages_common.ml:59
+msgid "Administer this election"
+msgstr "Administrar ésta elección"
+
+#: src/web/pages_voter.ml:200
+msgid "Advanced mode"
+msgstr "Modo avanzado"
+
+#. src/web/pages_voter.ml:473
+#: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
+msgid "Answer to questions"
+msgstr "Respuestas"
+
+#: src/tool/tool_js_booth.ml:257
+msgid "At least one of the answers is invalid!"
+msgstr "¡Por lo menos una de las respuestas no es válida!"
+
+#: src/web/pages_voter.ml:55
+msgid "Audit data: "
+msgstr "Datos de auditoría: "
+
+#. src/web/pages_voter.ml:477
+#: src/web/pages_voter.ml:726 src/web/pages_voter.ml:558
+msgid "Authenticate"
+msgstr "Autentificar"
+
+#: src/web/pages_common.ml:266
+msgid "Authentication failed"
+msgstr "Falla de autentificación"
+
+#: src/web/pages_common.ml:269
+msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
+msgstr ""
+"La autentificación ha fallado, probablemente por un nombre de usuario o "
+"contraseña equivocados, o usted no tiene autorización para realizar esta "
+"operación."
+
+#: src/web/pages_voter.ml:111
+msgid "Available methods on this server:"
+msgstr "Métodos disponibles en este servidor:"
+
+#: src/web/pages_voter.ml:911 src/web/pages_voter.ml:865
+msgid "Be careful, passwords and credentials look similar but play different roles."
+msgstr ""
+"Sea cuidadoso, las contraseñas y las acreditaciones se ven similares, pero "
+"desempeñan papeles diferentes."
+
+#: src/web/pages_voter.ml:671 src/web/pages_voter.ml:659
+msgid "Belenios Booth"
+msgstr "Urna Belenios"
+
+#. src/web/pages_voter.ml:82
+#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+msgid "Blank vote"
+msgstr "Voto en blanco"
+
+#: src/web/pages_voter.ml:258
+msgid "By using this site, you accept our "
+msgstr "Al utilizar este sitio, usted acepta nuestra "
+
+#. src/web/pages_voter.ml:479
+#: src/web/pages_voter.ml:728 src/web/pages_voter.ml:560
+msgid "Confirm"
+msgstr "Confirmación"
+
+#: src/web/pages_voter.ml:708
+msgid "Continue"
+msgstr "Continuar"
+
+#: src/web/site_voter.ml:111
+msgid "Cookies are blocked"
+msgstr "Las cookies están bloqueadas"
+
+#: src/web/pages_voter.ml:917
+msgid "Credential:"
+msgstr "Acreditación:"
+
+#: src/web/pages_voter.ml:929
+msgid "Dear %s,"
+msgstr "Estimado %s,"
+
+#. src/web/pages_voter.ml:481
+#: src/web/pages_voter.ml:730 src/web/pages_voter.ml:562
+msgid "Done"
+msgstr "Terminado"
+
+#: src/web/pages_voter.ml:790
+msgid "Election UUID: "
+msgstr "UUID de la elección: "
+
+#: src/web/pages_voter.ml:794 src/web/pages_voter.ml:51
+msgid "Election fingerprint: "
+msgstr "Identificador de la elección: "
+
+#: src/web/pages_voter.ml:773 src/web/pages_common.ml:86
+msgid "Election server"
+msgstr "Servidor de elecciones"
+
+#: src/web/pages_voter.ml:760
+msgid "Encrypting…"
+msgstr "Encriptando…"
+
+#: src/web/site_voter.ml:270 src/web/site_voter.ml:266 src/web/site_voter.ml:261
+msgid "Error"
+msgstr "Error"
+
+#: src/web/pages_voter.ml:584
+msgid "FAIL!"
+msgstr "¡FALLA!"
+
+#: src/web/pages_common.ml:105
+msgid "Get the source code"
+msgstr "Obtener el código fuente"
+
+#. src/web/pages_voter.ml:538
+#. src/web/pages_voter.ml:510
+#: src/web/pages_voter.ml:627 src/web/pages_voter.ml:599
+msgid "Go back to election"
+msgstr "Regresar a la página inicial de la elección"
+
+#: src/web/pages_voter.ml:446
+msgid "I am "
+msgstr "Yo soy "
+
+#: src/web/pages_voter.ml:451
+msgid "I cast my vote"
+msgstr "yo deposito mi boleta en la urna"
+
+#: src/tool/tool_js_booth.ml:235
+msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
+msgstr ""
+"Si se le solicita ponderar a los candidatos (voto mayoritario) entonces 1 es "
+"el mayor peso posible, y a mayor número, el peso es menor."
+
+#: src/tool/tool_js_booth.ml:238
+msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
+msgstr ""
+"Si se le solicita clasificar a los candidatos (Condorcet, STV, ...) utilice "
+"1 para su primera elección, 2 para la segunda, etc."
+
+#: src/web/pages_voter.ml:532
+msgid "If you want to vote, you must "
+msgstr "Si usted desea votar, usted debe "
+
+#. src/web/pages_voter.ml:471
+#: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
+msgid "Input credential"
+msgstr "Introduzca acreditación"
+
+#: src/web/pages_voter.ml:739
+msgid "Input your credential "
+msgstr "Introduzca su acreditación "
+
+#: src/tool/tool_js_booth.ml:387
+msgid "Invalid credential!"
+msgstr "¡Acreditación inválida!"
+
+#: src/web/site_voter.ml:271
+msgid "Invalid index for question."
+msgstr "Número de pregunta inválido."
+
+#: src/web/pages_voter.ml:133
+msgid "It will open in "
+msgstr "Abrirá en "
+
+#: src/web/pages_voter.ml:108
+msgid "JSON result"
+msgstr "resultados JSON"
+
+#: src/web/pages_voter.ml:666
+msgid "Loading…"
+msgstr "Cargando…"
+
+#: src/web/pages_common.ml:197
+msgid "Log in"
+msgstr "Ingrese"
+
+#: src/web/pages_common.ml:253
+msgid "Login"
+msgstr "Ingresar"
+
+#: src/web/pages_voter.ml:913 src/web/pages_voter.ml:867
+msgid "Login and passwords are required once your ballot is ready to be cast."
+msgstr ""
+"Su nombre usuario y su contraseña son necesarios una vez que su boleta está "
+"lista para ser depositada."
+
+#: src/tool/tool_js_booth.ml:321
+msgid "Next"
+msgstr "Siguiente"
+
+#: src/tool/tool_js_booth.ml:138
+msgid "No other choices are allowed when voting blank"
+msgstr ""
+
+#: src/web/site_common.ml:43
+msgid "Not found"
+msgstr ""
+
+#: src/web/pages_voter.ml:920 src/web/pages_voter.ml:874
+msgid "Note that you are allowed to vote several times."
+msgstr ""
+
+#: src/web/pages_voter.ml:466
+msgid "Note: You have already voted. Your vote will be replaced."
+msgstr ""
+
+#: src/web/pages_voter.ml:501
+msgid "Note: your ballot is encrypted and nobody can see its contents."
+msgstr ""
+
+#: src/tool/tool_js_booth.ml:230
+msgid "Notes:"
+msgstr ""
+
+#: src/web/pages_voter.ml:221
+msgid "Number of accepted ballots: "
+msgstr ""
+
+#: src/web/pages_voter.ml:921 src/web/pages_voter.ml:875
+msgid "Only the last vote counts."
+msgstr ""
+
+#: src/web/pages_voter.ml:918 src/web/pages_voter.ml:872
+msgid "Page of the election:"
+msgstr ""
+
+#: src/web/pages_common.ml:261
+msgid "Password login"
+msgstr ""
+
+#: src/web/pages_voter.ml:871 src/web/pages_common.ml:248
+msgid "Password:"
+msgstr ""
+
+#: src/tool/tool_js_booth.ml:376
+msgid "Please enter your credential:"
+msgstr ""
+
+#: src/web/pages_voter.ml:457
+msgid "Please log in to confirm your vote."
+msgstr ""
+
+#: src/web/pages_common.ml:194
+msgid "Please log in:"
+msgstr ""
+
+#: src/web/pages_voter.ml:759
+msgid "Please wait while your ballot is being encrypted…"
+msgstr ""
+
+#: src/web/pages_voter.ml:665
+msgid "Please wait… "
+msgstr ""
+
+#: src/web/pages_common.ml:100
+msgid "Powered by "
+msgstr ""
+
+#: src/tool/tool_js_booth.ml:320
+msgid "Previous"
+msgstr ""
+
+#: src/web/pages_common.ml:107
+msgid "Privacy policy"
+msgstr ""
+
+#: src/web/pages_common.ml:161
+msgid "Proceed"
+msgstr ""
+
+#: src/web/pages_voter.ml:763
+msgid "Restart"
+msgstr ""
+
+#: src/web/pages_voter.ml:949
+msgid "Results will be published on the election page"
+msgstr ""
+
+#. src/web/pages_voter.ml:475
+#: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
+msgid "Review and encrypt"
+msgstr ""
+
+#: src/web/pages_voter.ml:704
+msgid "Save it to check that it is taken into account later."
+msgstr ""
+
+#: src/web/pages_voter.ml:813
+msgid "Schulze method"
+msgstr ""
+
+#: src/web/pages_voter.ml:182
+msgid "See accepted ballots"
+msgstr ""
+
+#: src/tool/tool_js_booth.ml:79
+msgid "Select between %d and %d answer(s)"
+msgstr ""
+
+#: src/web/pages_voter.ml:195
+msgid "Start"
+msgstr ""
+
+#: src/web/pages_voter.ml:735
+msgid "Step 1/6: Input credential"
+msgstr ""
+
+#: src/web/pages_voter.ml:745
+msgid "Step 2/6: Answer to questions"
+msgstr ""
+
+#: src/web/pages_voter.ml:750
+msgid "Step 3/6: Review and encrypt"
+msgstr ""
+
+#: src/web/pages_voter.ml:487
+msgid "Step 5/6: Confirm"
+msgstr ""
+
+#: src/web/pages_voter.ml:589
+msgid "Step 6/6: "
+msgstr ""
+
+#: src/web/pages_voter.ml:579
+msgid "Thank you for voting!"
+msgstr ""
+
+#: src/web/pages_voter.ml:835
+msgid "The Schulze winners are:"
+msgstr ""
+
+#: src/web/pages_voter.ml:164 src/web/pages_voter.ml:159
+msgid "The election is closed and being tallied."
+msgstr ""
+
+#: src/web/pages_voter.ml:149
+msgid "The election will close in "
+msgstr ""
+
+#: src/web/pages_voter.ml:107
+msgid "The raw results can be viewed in the "
+msgstr ""
+
+#: src/web/pages_voter.ml:241
+msgid "The result of this election is currently not publicly available. It will be in %s."
+msgstr ""
+
+#: src/web/site_voter.ml:262
+msgid "The result of this election is not available."
+msgstr ""
+
+#: src/web/site_common.ml:43
+msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
+msgstr ""
+
+#: src/web/pages_voter.ml:169
+msgid "This election has been tallied."
+msgstr ""
+
+#: src/web/pages_voter.ml:174
+msgid "This election is archived."
+msgstr ""
+
+#: src/web/pages_voter.ml:141
+msgid "This election is currently closed."
+msgstr ""
+
+#: src/web/site_voter.ml:267
+msgid "This question is homomorphic, the Schulze method cannot be applied to its result."
+msgstr ""
+
+#: src/web/pages_voter.ml:941
+msgid "This vote replaces any previous vote."
+msgstr ""
+
+#: src/web/pages_voter.ml:827
+msgid "Tie:"
+msgstr ""
+
+#: src/web/pages_voter.ml:864
+msgid "To cast a vote, you will also need a credential, sent in a separate email."
+msgstr ""
+
+#: src/web/pages_voter.ml:910
+msgid "To cast a vote, you will also need a password, sent in a separate email."
+msgstr ""
+
+#: src/web/pages_voter.ml:850
+msgid "To get more information, please contact:"
+msgstr ""
+
+#: src/web/pages_voter.ml:870 src/web/pages_common.ml:244
+msgid "Username:"
+msgstr ""
+
+#: src/tool/tool_js_booth.ml:211
+msgid "Value must be an integer between 0 and 255."
+msgstr ""
+
+#: src/web/pages_voter.ml:527
+msgid "Warning:"
+msgstr ""
+
+#: src/tool/tool_js_booth.ml:241
+msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
+msgstr ""
+
+#: src/web/pages_voter.ml:904 src/web/pages_voter.ml:859
+msgid "You are listed as a voter for the election"
+msgstr ""
+
+#: src/web/pages_common.ml:271
+msgid "You can "
+msgstr ""
+
+#: src/web/pages_common.ml:230
+msgid "You can also "
+msgstr ""
+
+#: src/web/pages_voter.ml:225
+msgid "You can also download the "
+msgstr ""
+
+#: src/web/pages_voter.ml:575
+msgid "You can check its presence in the "
+msgstr ""
+
+#: src/web/pages_voter.ml:945
+msgid "You can check its presence in the ballot box, accessible at"
+msgstr ""
+
+#: src/tool/tool_js_booth.ml:125
+msgid "You must select at least %d answer(s)"
+msgstr ""
+
+#: src/tool/tool_js_booth.ml:128
+msgid "You must select at most %d answer(s)"
+msgstr ""
+
+#: src/web/pages_voter.ml:912 src/web/pages_voter.ml:866
+msgid "You will be asked to enter your credential before entering the voting booth."
+msgstr ""
+
+#: src/web/pages_voter.ml:908
+msgid "You will find below your credential."
+msgstr ""
+
+#: src/web/pages_voter.ml:863
+msgid "You will find below your login and password."
+msgstr ""
+
+#: src/web/pages_voter.ml:593 src/web/pages_voter.ml:490
+msgid "Your ballot for "
+msgstr ""
+
+#: src/web/pages_voter.ml:695
+msgid "Your ballot has been encrypted, "
+msgstr ""
+
+#: src/web/site_voter.ml:111
+msgid "Your browser seems to block cookies. Please enable them."
+msgstr ""
+
+#: src/web/pages_voter.ml:895
+msgid "Your password for election %s"
+msgstr ""
+
+#: src/web/pages_voter.ml:936
+msgid "Your smart ballot tracker is"
+msgstr ""
+
+#. src/web/pages_voter.ml:493
+#: src/web/pages_voter.ml:700 src/web/pages_voter.ml:570
+msgid "Your smart ballot tracker is "
+msgstr ""
+
+#: src/web/pages_voter.ml:931
+msgid "Your vote for election"
+msgstr ""
+
+#: src/web/site_voter.ml:146
+msgid "Your vote for election %s"
+msgstr ""
+
+#: src/web/pages_voter.ml:529
+msgid "Your vote was not recorded!"
+msgstr ""
+
+#: src/web/web_common.ml:85
+msgid "a credential is missing"
+msgstr ""
+
+#: src/web/pages_voter.ml:576
+msgid "ballot box"
+msgstr ""
+
+#: src/web/pages_voter.ml:67
+msgid "ballots"
+msgstr ""
+
+#: src/web/pages_voter.ml:696
+msgid "but not cast yet"
+msgstr ""
+
+#: src/web/pages_common.ml:233
+msgid "change your password"
+msgstr ""
+
+#: src/web/pages_common.ml:231
+msgid "create an account"
+msgstr ""
+
+#: src/web/pages_voter.ml:935
+msgid "has been recorded."
+msgstr ""
+
+#: src/tool/tool_js_booth.ml:374
+msgid "here"
+msgstr ""
+
+#: src/web/pages_voter.ml:57
+msgid "parameters"
+msgstr ""
+
+#: src/web/pages_voter.ml:259
+msgid "personal data policy"
+msgstr ""
+
+#: src/web/pages_voter.ml:63
+msgid "public credentials"
+msgstr ""
+
+#: src/web/pages_voter.ml:227
+msgid "result with cryptographic proofs"
+msgstr ""
+
+#: src/web/web_common.ml:84
+msgid "some proofs failed verification"
+msgstr ""
+
+#: src/web/pages_voter.ml:533
+msgid "start from the beginning"
+msgstr ""
+
+#: src/web/web_common.ml:81
+msgid "the election is closed"
+msgstr ""
+
+#: src/web/pages_voter.ml:60
+msgid "trustees"
+msgstr ""
+
+#: src/web/pages_common.ml:272
+msgid "try to log in again"
+msgstr ""
+
+#: src/web/web_common.ml:87
+msgid "you are not allowed to revote"
+msgstr ""
+
+#: src/web/web_common.ml:82
+msgid "you are not allowed to vote"
+msgstr ""
+
+#: src/web/web_common.ml:89
+msgid "you are not allowed to vote with this credential"
+msgstr ""
+
+#: src/web/web_common.ml:83
+msgid "your ballot has a syntax error (%s)"
+msgstr ""
+
+#: src/web/web_common.ml:88
+msgid "your credential has already been used"
+msgstr ""
+
+#: src/web/web_common.ml:86
+msgid "your credential is invalid"
+msgstr ""
