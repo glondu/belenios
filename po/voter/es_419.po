@@ -1,8 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -126,8 +122,8 @@ msgstr "Administrar ésta elección"
 msgid "Advanced mode"
 msgstr "Modo avanzado"
 
-#. src/web/pages_voter.ml:473
 #: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
+#. src/web/pages_voter.ml:473
 msgid "Answer to questions"
 msgstr "Respuestas"
 
@@ -139,8 +135,8 @@ msgstr "¡Por lo menos una de las respuestas no es válida!"
 msgid "Audit data: "
 msgstr "Datos de auditoría: "
 
-#. src/web/pages_voter.ml:477
 #: src/web/pages_voter.ml:726 src/web/pages_voter.ml:558
+#. src/web/pages_voter.ml:477
 msgid "Authenticate"
 msgstr "Autentificar"
 
@@ -169,8 +165,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Urna Belenios"
 
-#. src/web/pages_voter.ml:82
 #: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#. src/web/pages_voter.ml:82
 msgid "Blank vote"
 msgstr "Voto en blanco"
 
@@ -178,8 +174,8 @@ msgstr "Voto en blanco"
 msgid "By using this site, you accept our "
 msgstr "Al utilizar este sitio, usted acepta nuestra "
 
-#. src/web/pages_voter.ml:479
 #: src/web/pages_voter.ml:728 src/web/pages_voter.ml:560
+#. src/web/pages_voter.ml:479
 msgid "Confirm"
 msgstr "Confirmación"
 
@@ -199,8 +195,8 @@ msgstr "Acreditación:"
 msgid "Dear %s,"
 msgstr "Estimado %s,"
 
-#. src/web/pages_voter.ml:481
 #: src/web/pages_voter.ml:730 src/web/pages_voter.ml:562
+#. src/web/pages_voter.ml:481
 msgid "Done"
 msgstr "Terminado"
 
@@ -232,9 +228,9 @@ msgstr "¡FALLA!"
 msgid "Get the source code"
 msgstr "Obtener el código fuente"
 
+#: src/web/pages_voter.ml:627 src/web/pages_voter.ml:599
 #. src/web/pages_voter.ml:538
 #. src/web/pages_voter.ml:510
-#: src/web/pages_voter.ml:627 src/web/pages_voter.ml:599
 msgid "Go back to election"
 msgstr "Regresar a la página inicial de la elección"
 
@@ -262,8 +258,8 @@ msgstr ""
 msgid "If you want to vote, you must "
 msgstr "Si usted desea votar, usted debe "
 
-#. src/web/pages_voter.ml:471
 #: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
+#. src/web/pages_voter.ml:471
 msgid "Input credential"
 msgstr "Introduzca acreditación"
 
@@ -397,8 +393,8 @@ msgstr ""
 msgid "Results will be published on the election page"
 msgstr ""
 
-#. src/web/pages_voter.ml:475
 #: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
+#. src/web/pages_voter.ml:475
 msgid "Review and encrypt"
 msgstr ""
 
@@ -590,8 +586,8 @@ msgstr ""
 msgid "Your smart ballot tracker is"
 msgstr ""
 
-#. src/web/pages_voter.ml:493
 #: src/web/pages_voter.ml:700 src/web/pages_voter.ml:570
+#. src/web/pages_voter.ml:493
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -698,3 +694,4 @@ msgstr ""
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr ""
+
