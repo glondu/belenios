@@ -3885,6 +3885,7 @@ let booth_2 () =
   let react_dom_js_url = external_javascript_folder ^ "/react-dom/umd/react-dom." ^ javascript_mode ^ javascript_extension ^ ".js" in
   let i18next_js_url = external_javascript_folder ^ "/i18next/dist/umd/i18next" ^ javascript_extension ^ ".js" in
   let react_i18next_js_url = external_javascript_folder ^ "/react-i18next/dist/umd/react-i18next" ^ javascript_extension ^ ".js" in
+  let react_i18next_http_backend_js_url = external_javascript_folder ^ "/i18next-http-backend/i18nextHttpBackend" ^ javascript_extension ^ ".js" in
   let i18n_init_js_url = internal_javascript_folder ^ "/booth/js/i18n_init.js" in
   let shortcuts_js_url = internal_javascript_folder ^ "/booth/js/shortcuts.js" in
   let like_button_js_url = internal_javascript_folder ^ "/booth/js/like_button.js" in
@@ -3900,6 +3901,7 @@ let booth_2 () =
     script ~a:[a_src (static react_dom_js_url)] (txt "");
     script ~a:[a_src (static i18next_js_url)] (txt "");
     script ~a:[a_src (static react_i18next_js_url)] (txt "");
+    script ~a:[a_src (static react_i18next_http_backend_js_url)] (txt "");
     script ~a:[a_src (static i18n_init_js_url)] (txt "");
     script ~a:[a_src (static shortcuts_js_url)] (txt "");
     script ~a:[a_src (static like_button_js_url)] (txt "");

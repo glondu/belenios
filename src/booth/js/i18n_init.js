@@ -1,27 +1,17 @@
+const translationsBackendOptions = { // these are options to i18nextHttpBackend plugin of i18next
+  loadPath: '/static/translations/{{lng}}/translation.json'
+};
+
 i18next
+  .use(window.i18nextHttpBackend)
   .use(ReactI18next.initReactI18next) // passes i18n down to react-i18next
   .init({
     lng: "en",
     debug: true,
     fallbackLng: "en",
-    resources: {
-      en: {
-        translation: {
-          "Welcome to React": "Welcome to React and react-i18next",
-          "Like": "Like",
-          "You liked this": "You liked this."
-        }
-      },
-      fr: {
-        translation: {
-          "Welcome to React": "Bienvenue à React et à react-i18next",
-          "Like": "J'aime",
-          "You liked this": "Vous aimez ceci."
-        }
-      }
-    },
+    backend: translationsBackendOptions,
     interpolation: {
-      escapeValue: false
+      escapeValue: false // React already safes from XSS
     }
   }, function(err, t) {
     // init set content
