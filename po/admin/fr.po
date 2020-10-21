@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
 "PO-Revision-Date: 2020-10-22 15:26+0000\n"
-"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
+"Last-Translator: Vincent L <vincent.laporte+weblate@mailbox.org>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
 "Language: fr\n"
@@ -733,7 +733,7 @@ msgstr "Générer"
 
 #: src/tool/tool_js_tkeygen.ml:52
 msgid "Generate a key"
-msgstr ""
+msgstr "Générer une clef"
 
 #: src/web/pages_admin.ml:1273 src/web/pages_admin.ml:435
 msgid "Generate and mail missing passwords"
@@ -850,7 +850,7 @@ msgstr "Nombre minimum de choix non valide"
 
 #: src/web/site_admin.ml:1154
 msgid "Invalid public key!"
-msgstr ""
+msgstr "La clef publique est invalide !"
 
 #: src/web/site_admin.ml:554
 msgid "Invalid public name for credential authority!"
@@ -1489,7 +1489,7 @@ msgstr "Le nom de l'élection n'a pas été modifié !"
 
 #: src/web/site_admin.ml:633
 msgid "The election name must be %d characters or less!"
-msgstr ""
+msgstr "Le nom de l’élection de peut excéder %d octets !"
 
 #: src/web/pages_admin.ml:2690
 msgid "The fingerprint of the encrypted tally is "
