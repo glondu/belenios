@@ -46,6 +46,7 @@ let election_draft_admin_name = create_attached_post ~fallback:election_draft ~p
 let election_draft_voters = create ~path:(Path ["draft"; "voters"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_voters_add = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voters") ()
 let election_draft_voters_remove = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voter") ()
+let election_draft_voters_remove_all = create_attached_post ~fallback:election_draft_voters ~post_params:unit ()
 let election_draft_voters_passwd = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voter") ()
 let election_draft_trustee_add = create_attached_post ~fallback:election_draft ~post_params:(string "id" ** string "name") ()
 let election_draft_trustee_del = create_attached_post ~fallback:election_draft ~post_params:(int "index") ()

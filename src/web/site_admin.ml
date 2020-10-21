@@ -876,6 +876,19 @@ let () =
     )
 
 let () =
+  Any.register ~service:election_draft_voters_remove_all
+    (fun uuid () ->
+      with_draft_election uuid (fun se ->
+          if se.se_public_creds_received then
+            forbidden ()
+          else (
+            se.se_voters <- [];
+            redir_preapply election_draft_voters uuid ()
+          )
+        )
+    )
+
+let () =
   Any.register ~service:election_draft_voters_passwd
     (fun uuid voter ->
       with_draft_election uuid (fun se ->

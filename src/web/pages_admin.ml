@@ -1239,6 +1239,12 @@ let election_draft_voters uuid se maxvoters () =
         ]
       ) uuid
   in
+  let remove_all_button =
+    post_form ~service:election_draft_voters_remove_all
+      (fun () ->
+        [input ~input_type:`Submit ~value:(s_ "Remove all") string]
+      ) uuid
+  in
   let has_passwords = match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] -> true
     | _ -> false
@@ -1286,7 +1292,8 @@ let election_draft_voters uuid se maxvoters () =
              [th [txt (s_ "Identity")]] @
                (if has_passwords then [th [txt (s_ "Password sent?")]] else []) @
                (if se.se_public_creds_received then [] else [th [txt (s_ "Remove")]])
-            ) :: voters)
+            ) :: voters);
+         remove_all_button;
        ]
   in
   let back = div [
