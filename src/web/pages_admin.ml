@@ -2560,9 +2560,22 @@ let pretty_records election records () =
   let open (val l) in
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — " ^ s_ "Records" in
+  let nrecords = List.length records in
   let records = List.map (fun (date, voter) ->
     tr [td [txt date]; td [txt voter]]
   ) records in
+  let%lwt voters = Web_persist.get_voters uuid in
+  let nvoters =
+    match voters with
+    | None -> failwith "voter list not found"
+    | Some l -> List.length l
+  in
+  let summary =
+    div [
+        Printf.ksprintf txt
+          (f_ "Number of records: %d/%d") nrecords nvoters;
+      ]
+  in
   let table = match records with
     | [] -> div [txt (s_ "Nobody voted!")]
     | _ ->
@@ -2578,6 +2591,7 @@ let pretty_records election records () =
       a ~service:election_dir [txt (s_ "raw data")] (uuid, ESRecords);
       txt ".";
     ];
+    summary;
     table;
   ] in
   let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
