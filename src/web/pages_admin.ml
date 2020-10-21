@@ -1306,6 +1306,10 @@ let election_draft_voters uuid se maxvoters () =
             b [txt (s_ "Warning:")];
             txt " ";
             txt (s_ "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote.");
+            br ();
+            b [txt (s_ "Warning:")];
+            txt " ";
+            txt (s_ "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins.");
           ];
         form;
         div [
