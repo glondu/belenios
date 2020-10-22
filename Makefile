@@ -27,7 +27,7 @@ INITIAL_EXTERNAL_JS_FOLDER := node_modules
 PUBLIC_EXTERNAL_JS_FOLDER := _run/usr/share/belenios-server/node_modules
 PUBLIC_INTERNAL_JS_FOLDER := _run/usr/share/belenios-server/internal_modules
 INITIAL_TRANSLATIONS_FOLDER := frontend_translations
-PUBLIC_TRANSLATIONS_FOLDER := _run/usr/share/belenios-server/translations
+PUBLIC_TRANSLATIONS_FOLDER := _run/usr/share/belenios-server/locales/frontend
 
 minimal:
 	dune build -p belenios-platform,belenios-platform-native,belenios,belenios-tool
@@ -45,7 +45,8 @@ custom-javascript: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTER
 	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL)
 	mkdir -p $(PUBLIC_INTERNAL_JS_FOLDER)/booth/js
 	cp -r src/booth/js/i18n_init.js src/booth/js/shortcuts.js src/booth/js/like_button.js src/booth/js/translated_like_button.js src/booth/js/app.js $(PUBLIC_INTERNAL_JS_FOLDER)/booth/js/
-	cp -r $(INITIAL_TRANSLATIONS_FOLDER) $(PUBLIC_TRANSLATIONS_FOLDER)
+	mkdir -p $(PUBLIC_TRANSLATIONS_FOLDER)
+	cp -r $(INITIAL_TRANSLATIONS_FOLDER)/* $(PUBLIC_TRANSLATIONS_FOLDER)/
 
 build-debug-server:
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS)

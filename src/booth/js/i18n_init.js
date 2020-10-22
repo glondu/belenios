@@ -1,5 +1,5 @@
 const translationsBackendOptions = { // these are options to i18nextHttpBackend plugin of i18next
-  loadPath: '/static/translations/{{lng}}/translation.json'
+  loadPath: '/static/locales/frontend/{{lng}}.json'
 };
 
 i18next
