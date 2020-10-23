@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-10-22 15:26+0000\n"
+"PO-Revision-Date: 2020-10-24 14:26+0000\n"
 "Last-Translator: Vincent L <vincent.laporte+weblate@mailbox.org>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.3.1\n"
+"X-Generator: Weblate 4.3.2-dev\n"
 
 #: src/web/pages_admin.ml:2077
 msgid " You may re-open the election when it is closed."
@@ -402,7 +402,7 @@ msgstr "Cliquer sur \"Calcul du mélange des bulletins\"."
 
 #: src/web/pages_admin.ml:594
 msgid "Click on \"Generate a new key pair\"."
-msgstr "Cliquer sur \"Génération d'une nouvelle clé \"."
+msgstr "Cliquer sur « Génération d’une nouvelle clé »."
 
 #: src/web/pages_admin.ml:600
 msgid "Click on \"Submit\" to send your verification key."
