@@ -1,16 +1,19 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-09-04 12:48+0000\n"
-"Last-Translator: Sergiu Bursuc\n"
-"Language-Team: Belenios Team <contact@belenios.org>\n"
+"PO-Revision-Date: 2020-10-24 14:26+0000\n"
+"Last-Translator: SORIN STRATULAT <sorinica@gmail.com>\n"
+"Language-Team: Romanian <https://hosted.weblate.org/projects/belenios/voter/"
+"ro/>\n"
+"Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Weblate 4.3.2-dev\n"
 
 #: src/web/pages_common.ml:234
 msgid " (if you forgot it, for example)."
@@ -22,7 +25,7 @@ msgstr " Un e-mail de confirmare v-a fost trimis."
 
 #: src/web/pages_voter.ml:448
 msgid " and "
-msgstr " și "
+msgstr " si "
 
 #: src/web/pages_voter.ml:577
 msgid " anytime during the election."
@@ -98,7 +101,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:261
 msgid "Accept"
-msgstr ""
+msgstr "Accepta"
 
 #: src/web/pages_voter.ml:609
 msgid "Accepted ballots"
@@ -116,8 +119,8 @@ msgstr "Administrează această alegere"
 msgid "Advanced mode"
 msgstr "Mod avansat"
 
-#: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
 #. src/web/pages_voter.ml:473
+#: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
 msgid "Answer to questions"
 msgstr "Răspuns la întrebări"
 
@@ -129,8 +132,8 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Date de audit: "
 
-#: src/web/pages_voter.ml:726 src/web/pages_voter.ml:558
 #. src/web/pages_voter.ml:477
+#: src/web/pages_voter.ml:726 src/web/pages_voter.ml:558
 msgid "Authenticate"
 msgstr "Autentificare"
 
@@ -154,8 +157,8 @@ msgstr "Aveți grijă, parola și codul de votare arată similare, dar joacă ro
 msgid "Belenios Booth"
 msgstr "Cabina de vot Belenios"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:82
+#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 msgid "Blank vote"
 msgstr "Vot alb"
 
@@ -163,8 +166,8 @@ msgstr "Vot alb"
 msgid "By using this site, you accept our "
 msgstr "Folosind acest sit, acceptați "
 
-#: src/web/pages_voter.ml:728 src/web/pages_voter.ml:560
 #. src/web/pages_voter.ml:479
+#: src/web/pages_voter.ml:728 src/web/pages_voter.ml:560
 msgid "Confirm"
 msgstr "Confirmare"
 
@@ -184,8 +187,8 @@ msgstr "Cod de votare:"
 msgid "Dear %s,"
 msgstr "%s,"
 
-#: src/web/pages_voter.ml:730 src/web/pages_voter.ml:562
 #. src/web/pages_voter.ml:481
+#: src/web/pages_voter.ml:730 src/web/pages_voter.ml:562
 msgid "Done"
 msgstr "Terminat"
 
@@ -199,7 +202,7 @@ msgstr "Amprenta digitală a alegerii: "
 
 #: src/web/pages_voter.ml:773 src/web/pages_common.ml:86
 msgid "Election server"
-msgstr "Server al alegerii"
+msgstr "Serverul alegerii"
 
 #: src/web/pages_voter.ml:760
 msgid "Encrypting…"
@@ -207,7 +210,7 @@ msgstr "Criptare în curs…"
 
 #: src/web/site_voter.ml:270 src/web/site_voter.ml:266 src/web/site_voter.ml:261
 msgid "Error"
-msgstr ""
+msgstr "Eroare"
 
 #: src/web/pages_voter.ml:584
 msgid "FAIL!"
@@ -217,9 +220,9 @@ msgstr "EȘEC!"
 msgid "Get the source code"
 msgstr "Obține codul sursă"
 
-#: src/web/pages_voter.ml:627 src/web/pages_voter.ml:599
 #. src/web/pages_voter.ml:538
 #. src/web/pages_voter.ml:510
+#: src/web/pages_voter.ml:627 src/web/pages_voter.ml:599
 msgid "Go back to election"
 msgstr "Întoarcere la pagina de start a alegerii"
 
@@ -243,8 +246,8 @@ msgstr ""
 msgid "If you want to vote, you must "
 msgstr ""
 
-#: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
 #. src/web/pages_voter.ml:471
+#: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
 msgid "Input credential"
 msgstr "Introducere cod de votare"
 
@@ -270,7 +273,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:666
 msgid "Loading…"
-msgstr ""
+msgstr "Incarcare…"
 
 #: src/web/pages_common.ml:197
 msgid "Log in"
@@ -350,7 +353,7 @@ msgstr "Vă rugăm să așteptați criptarea buletinului vostru de vot…"
 
 #: src/web/pages_voter.ml:665
 msgid "Please wait… "
-msgstr ""
+msgstr "Va rugam sa asteptati... "
 
 #: src/web/pages_common.ml:100
 msgid "Powered by "
@@ -366,7 +369,7 @@ msgstr ""
 
 #: src/web/pages_common.ml:161
 msgid "Proceed"
-msgstr ""
+msgstr "Continuati"
 
 #: src/web/pages_voter.ml:763
 msgid "Restart"
@@ -376,8 +379,8 @@ msgstr "Reîncepe"
 msgid "Results will be published on the election page"
 msgstr "Rezultatele vor fi publicate pe pagina alegerii"
 
-#: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
 #. src/web/pages_voter.ml:475
+#: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
 msgid "Review and encrypt"
 msgstr "Rezumat și criptare"
 
@@ -569,8 +572,8 @@ msgstr "Parola voastră pentru alegere %s"
 msgid "Your smart ballot tracker is"
 msgstr "Numărul vostru de identificare este"
 
-#: src/web/pages_voter.ml:700 src/web/pages_voter.ml:570
 #. src/web/pages_voter.ml:493
+#: src/web/pages_voter.ml:700 src/web/pages_voter.ml:570
 msgid "Your smart ballot tracker is "
 msgstr "Numărul vostru de identificare este "
 
@@ -677,4 +680,3 @@ msgstr "codul vostru de votare a vost deja utilizat"
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr "codul vostru de votare este invalid"
-
