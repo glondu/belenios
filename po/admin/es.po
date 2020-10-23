@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
 "PO-Revision-Date: 2020-10-24 14:26+0000\n"
-"Last-Translator: Agustin Borgna <agustinborgna@gmail.com>\n"
+"Last-Translator: Vincent L <vincent.laporte+weblate@mailbox.org>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
 "Language: es\n"
@@ -173,7 +173,7 @@ msgstr "2a, 3a: acción necesaria del agente: ingresar clave privada"
 
 #: src/web/site_admin.ml:734
 msgid "A new password has been mailed to %s."
-msgstr "Una nueva contraseña fua enviada a %s."
+msgstr "Una nueva contraseña fue enviada a %s."
 
 #: src/web/site_admin.ml:1146
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
@@ -256,7 +256,7 @@ msgstr ""
 
 #: src/tool/tool_js_questions.ml:124
 msgid "Answer: "
-msgstr ""
+msgstr "Respuesta : "
 
 #: src/web/pages_admin.ml:2468
 msgid "Archive election"
@@ -276,19 +276,19 @@ msgstr "Por lo menos %d autoridad(es) deben participar."
 
 #: src/web/pages_admin.ml:425 src/web/pages_admin.ml:254
 msgid "Authentication"
-msgstr ""
+msgstr "Autenticación"
 
 #: src/web/pages_admin.ml:444
 msgid "Authentication scheme: CAS with server "
-msgstr ""
+msgstr "Esquema de autenticación : CAS con servidor "
 
 #: src/web/pages_admin.ml:440
 msgid "Authentication scheme: dummy"
-msgstr ""
+msgstr "Esquema de autenticación : dummy"
 
 #: src/web/pages_admin.ml:429
 msgid "Authentication scheme: password"
-msgstr ""
+msgstr "Esquema de autenticación : contraseña"
 
 #: src/web/pages_admin.ml:245
 msgid "Automatic (degraded mode - credentials will be handled by the server)"
@@ -310,11 +310,11 @@ msgstr "Abrir la elección automáticamente al:"
 
 #: src/web/pages_admin.ml:309
 msgid "Available languages:"
-msgstr ""
+msgstr "Idiomas disponibles :"
 
 #: src/web/pages_admin.ml:2392
 msgid "Awaiting trustees…"
-msgstr ""
+msgstr "Esperando agentes…"
 
 #: src/web/pages_admin.ml:1076
 msgid "Back to election preparation page"
@@ -322,11 +322,11 @@ msgstr "Volver a la página de preparación de la elección"
 
 #: src/web/site_admin.ml:474
 msgid "Bad CAS server!"
-msgstr ""
+msgstr "Servidor CAS defectuoso !"
 
 #: src/web/pages_admin.ml:2772
 msgid "Bad e-mail address!"
-msgstr ""
+msgstr "Dirección de correo electrónico incorrecta !"
 
 #: src/web/pages_admin.ml:2771
 msgid "Bad security code!"
@@ -353,7 +353,7 @@ msgstr "CAS (servidor de autentificación externo), dirección del servidor: "
 
 #: src/web/pages_admin.ml:2602
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: src/web/site_admin.ml:1016
 msgid "Cannot send credentials, there are too many voters (max is %d)"
@@ -376,7 +376,7 @@ msgstr "Cambiar las fechas automáticas"
 #. src/web/pages_admin.ml:2835
 #: src/web/site_admin.ml:2469 src/web/site_admin.ml:2408
 msgid "Change password"
-msgstr ""
+msgstr "Cambiar la contraseña"
 
 #: src/web/pages_admin.ml:1916
 msgid "Checklist:"
