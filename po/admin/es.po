@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2020-10-24 14:26+0000\n"
-"Last-Translator: Vincent L <vincent.laporte+weblate@mailbox.org>\n"
+"PO-Revision-Date: 2020-10-26 12:26+0000\n"
+"Last-Translator: Agustin Borgna <agustinborgna@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
 "Language: es\n"
@@ -450,31 +450,31 @@ msgstr "No se pudo recuperar la lista de votantes para la elección %s"
 
 #: src/web/pages_admin.ml:2887 src/web/pages_admin.ml:2803
 msgid "Create an account"
-msgstr ""
+msgstr "Crear una cuenta"
 
 #: src/web/pages_admin.ml:1928 src/web/pages_admin.ml:533
 msgid "Create election"
-msgstr ""
+msgstr "Crear elección"
 
 #: src/web/pages_admin.ml:205
 msgid "Create new election"
-msgstr ""
+msgstr "Crear una nueva elección"
 
 #: src/web/pages_admin.ml:1889
 msgid "Credential authority?"
-msgstr ""
+msgstr "Autoridad de credenciales?"
 
 #: src/web/pages_admin.ml:524 src/web/pages_admin.ml:236
 msgid "Credential management"
-msgstr ""
+msgstr "Gestión de credenciales"
 
 #: src/web/pages_admin.ml:489
 msgid "Credentials"
-msgstr ""
+msgstr "Credenciales"
 
 #: src/web/pages_admin.ml:1109 src/web/pages_admin.ml:1056
 msgid "Credentials for election %s"
-msgstr ""
+msgstr "Credenciales para la elección %s"
 
 #: src/web/pages_admin.ml:1436 src/web/pages_admin.ml:510
 msgid "Credentials have already been generated!"
