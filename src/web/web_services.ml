@@ -139,3 +139,4 @@ let changepw_captcha_post = create_attached_post ~fallback:changepw_captcha ~pos
 let changepw_post = create_attached_post ~fallback:signup ~post_params:(string "password" ** string "password2") ()
 
 let method_schulze = create ~path:(Path ["methods"; "schulze"]) ~meth:(Get (uuid "uuid" ** int "question")) ()
+let method_mj = create ~path:(Path ["methods"; "mj"]) ~meth:(Get (uuid "uuid" ** int "question" ** opt (int "ngrades"))) ()

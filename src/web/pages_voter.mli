@@ -35,6 +35,9 @@ val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val schulze : Question_nh_t.question -> schulze_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
+val majority_judgment_select : uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val majority_judgment : Question_nh_t.question -> mj_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
 val generate_password :
   Web_serializable_t.metadata ->
   string list ->

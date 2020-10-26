@@ -111,6 +111,8 @@ let format_question_result uuid l (i, q) r =
              txt (s_ "Available methods on this server:");
              txt " ";
              a ~service:method_schulze [txt "Condorcet-Schulze"] (uuid, i);
+             txt ", ";
+             a ~service:method_mj [txt (s_ "Majority Judgment")] (uuid, (i, None));
              txt ".";
            ];
        ]
@@ -834,6 +836,62 @@ let schulze q r =
     [
       txt (s_ "The Schulze winners are:");
       ol pretty_winners;
+    ]
+  in
+  base ~title ~content ()
+
+let majority_judgment_select uuid question =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Majority Judgment method" in
+  let form =
+    get_form ~service:method_mj
+      (fun (uuidn, (questionn, ngradesn)) -> [
+           input ~input_type:`Hidden ~name:uuidn ~value:uuid (user raw_string_of_uuid);
+           input ~input_type:`Hidden ~name:questionn ~value:question int;
+           txt (s_ "Number of grades:");
+           txt " ";
+           input ~input_type:`Text ~name:ngradesn int;
+           input ~input_type:`Submit ~value:(s_ "Continue") string;
+         ]
+      )
+  in
+  let content = [form] in
+  base ~title ~content ()
+
+let majority_judgment q r =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Majority Judgment method" in
+  let explicit_winners =
+    List.map
+      (List.map
+         (fun i -> q.Question_nh_t.q_answers.(i))
+      ) r.mj_winners
+  in
+  let pretty_winners =
+    List.map
+      (fun l ->
+        li [match l with
+            | [] -> failwith "anomaly in Pages_voter.majority_judgment"
+            | [x] -> txt x
+            | l -> div [
+                       txt (s_ "Tie:");
+                       ul (List.map (fun x -> li [txt x]) l);
+                     ]
+          ]
+      ) explicit_winners
+  in
+  let spoiled = "data:application/json," ^ string_of_mj_ballots r.mj_spoiled in
+  let spoiled = "<a href=\"" ^ spoiled ^ "\">" ^ s_ "Spoiled ballots" ^ "</a>" in
+  let spoiled = Unsafe.data spoiled in
+  let content =
+    [
+      div [
+          txt (s_ "The Majority Judgment winners are:");
+          ol pretty_winners;
+        ];
+      div [spoiled];
     ]
   in
   base ~title ~content ()
