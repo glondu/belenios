@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-10-24 14:26+0000\n"
+"PO-Revision-Date: 2020-10-27 09:34+0000\n"
 "Last-Translator: Vincent L <vincent.laporte+weblate@mailbox.org>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
@@ -508,7 +508,7 @@ msgstr "Liste courante des bulletins :"
 
 #: src/web/site_admin.ml:1991
 msgid "Data is invalid! (%s)"
-msgstr "La date n'est pas valide ! (%s)"
+msgstr "Les données ne sont pas valides ! (%s)"
 
 #: src/web/pages_admin.ml:1653 src/web/pages_admin.ml:1622
 msgid "Data:"
