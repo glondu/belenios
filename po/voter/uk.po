@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2020-10-26 12:26+0000\n"
+"PO-Revision-Date: 2020-10-27 09:34+0000\n"
 "Last-Translator: Andrii Shachykov <andrii.shachykov@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/belenios/voter/"
 "uk/>\n"
@@ -400,301 +400,316 @@ msgstr "Результати будуть опубліковані на стор
 #. src/web/pages_voter.ml:475
 #: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
 msgid "Review and encrypt"
-msgstr ""
+msgstr "Переглянути та зашифрувати"
 
 #: src/web/pages_voter.ml:704
 msgid "Save it to check that it is taken into account later."
-msgstr ""
+msgstr "Збережіть його, щоб перевірити врахування голосу пізніше."
 
 #: src/web/pages_voter.ml:813
 msgid "Schulze method"
-msgstr ""
+msgstr "Метод Шульце"
 
 #: src/web/pages_voter.ml:182
 msgid "See accepted ballots"
-msgstr ""
+msgstr "Переглянути прийняті бюлетені"
 
 #: src/tool/tool_js_booth.ml:79
 msgid "Select between %d and %d answer(s)"
-msgstr ""
+msgstr "Виберіть між %d та %d відповіддю(-ями)"
 
 #: src/web/pages_voter.ml:195
 msgid "Start"
-msgstr ""
+msgstr "Почати"
 
 #: src/web/pages_voter.ml:735
 msgid "Step 1/6: Input credential"
-msgstr ""
+msgstr "Крок 1/6: Введіть посвідчення"
 
 #: src/web/pages_voter.ml:745
 msgid "Step 2/6: Answer to questions"
-msgstr ""
+msgstr "Крок 2/6: Дайте відповідь на запитання"
 
 #: src/web/pages_voter.ml:750
 msgid "Step 3/6: Review and encrypt"
-msgstr ""
+msgstr "Крок 3/6: Перегляньте та зашифруйте"
 
 #: src/web/pages_voter.ml:487
 msgid "Step 5/6: Confirm"
-msgstr ""
+msgstr "Крок 5/6: Підтвердьте"
 
 #: src/web/pages_voter.ml:589
 msgid "Step 6/6: "
-msgstr ""
+msgstr "Крок 6/6: "
 
 #: src/web/pages_voter.ml:579
 msgid "Thank you for voting!"
-msgstr ""
+msgstr "Дякуємо за голосування!"
 
 #: src/web/pages_voter.ml:835
 msgid "The Schulze winners are:"
-msgstr ""
+msgstr "Переможцями по Шульце стали:"
 
 #: src/web/pages_voter.ml:164 src/web/pages_voter.ml:159
 msgid "The election is closed and being tallied."
-msgstr ""
+msgstr "Вибори закриті і підраховуються."
 
 #: src/web/pages_voter.ml:149
 msgid "The election will close in "
-msgstr ""
+msgstr "Вибори закриються через "
 
 #: src/web/pages_voter.ml:107
 msgid "The raw results can be viewed in the "
-msgstr ""
+msgstr "Необроблені результати можна переглянути в "
 
 #: src/web/pages_voter.ml:241
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr ""
+"Результат цих виборів наразі недоступний у відкритому доступі. Це "
+"відбудеться через %s."
 
 #: src/web/site_voter.ml:262
 msgid "The result of this election is not available."
-msgstr ""
+msgstr "Результат цих виборів недоступний."
 
 #: src/web/site_common.ml:43
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 msgstr ""
+"Цих виборів не існує. Це може статися для виборів, які ще не були відкриті "
+"або були видалені."
 
 #: src/web/pages_voter.ml:169
 msgid "This election has been tallied."
-msgstr ""
+msgstr "Ці вибори були підраховані."
 
 #: src/web/pages_voter.ml:174
 msgid "This election is archived."
-msgstr ""
+msgstr "Ці вибори заархівовані."
 
 #: src/web/pages_voter.ml:141
 msgid "This election is currently closed."
-msgstr ""
+msgstr "Наразі ці вибори закриті."
 
 #: src/web/site_voter.ml:267
 msgid "This question is homomorphic, the Schulze method cannot be applied to its result."
 msgstr ""
+"Це питання гомоморфне, метод Шульце не може бути застосований до його "
+"результату."
 
 #: src/web/pages_voter.ml:941
 msgid "This vote replaces any previous vote."
-msgstr ""
+msgstr "Цей голос замінює будь-який попередній голос."
 
 #: src/web/pages_voter.ml:827
 msgid "Tie:"
-msgstr ""
+msgstr "Нічия:"
 
 #: src/web/pages_voter.ml:864
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
 msgstr ""
+"Щоб проголосувати, вам також знадобиться посвідчення, надіслане в окремому "
+"електронному листі."
 
 #: src/web/pages_voter.ml:910
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
+"Щоб проголосувати, вам також знадобиться посвідчення, надіслане в окремому "
+"електронному листі."
 
 #: src/web/pages_voter.ml:850
 msgid "To get more information, please contact:"
-msgstr ""
+msgstr "Для отримання додаткової інформації, будь ласка, зв'яжіться з:"
 
 #: src/web/pages_voter.ml:870 src/web/pages_common.ml:244
 msgid "Username:"
-msgstr ""
+msgstr "Ім'я користувача:"
 
 #: src/tool/tool_js_booth.ml:211
 msgid "Value must be an integer between 0 and 255."
-msgstr ""
+msgstr "Значення має бути цілим числом від 0 до 255."
 
 #: src/web/pages_voter.ml:527
 msgid "Warning:"
-msgstr ""
+msgstr "Увага:"
 
 #: src/tool/tool_js_booth.ml:241
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
+"Увага: система прийматиме будь-яке ціле число від 0 до 255, але, згідно з "
+"правилами виборів, недійсні бюлетені (бал занадто високий або кандидати не "
+"мають належного рейтингу) будуть відхилені в кінці виборів."
 
 #: src/web/pages_voter.ml:904 src/web/pages_voter.ml:859
 msgid "You are listed as a voter for the election"
-msgstr ""
+msgstr "Вас внесли до списку виборців на ціх виборах"
 
 #: src/web/pages_common.ml:271
 msgid "You can "
-msgstr ""
+msgstr "Ви можете "
 
 #: src/web/pages_common.ml:230
 msgid "You can also "
-msgstr ""
+msgstr "Ви також можете "
 
 #: src/web/pages_voter.ml:225
 msgid "You can also download the "
-msgstr ""
+msgstr "Ви також можете завантажити "
 
 #: src/web/pages_voter.ml:575
 msgid "You can check its presence in the "
-msgstr ""
+msgstr "Ви можете перевірити його присутність у "
 
 #: src/web/pages_voter.ml:945
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
+"Ви можете перевірити його наявність у виборчій скриньці, доступній за адресою"
 
 #: src/tool/tool_js_booth.ml:125
 msgid "You must select at least %d answer(s)"
-msgstr ""
+msgstr "Ви повинні вибрати принаймні %d відповідь(-і)"
 
 #: src/tool/tool_js_booth.ml:128
 msgid "You must select at most %d answer(s)"
-msgstr ""
+msgstr "Ви повинні вибрати не більше %d відповіді(-ей)"
 
 #: src/web/pages_voter.ml:912 src/web/pages_voter.ml:866
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr ""
+"Вас попросять ввести своє посвідчення перед входом у кабіну для голосування."
 
 #: src/web/pages_voter.ml:908
 msgid "You will find below your credential."
-msgstr ""
+msgstr "Нижче ви знайдете ваше посвідчення."
 
 #: src/web/pages_voter.ml:863
 msgid "You will find below your login and password."
-msgstr ""
+msgstr "Нижче ви знайдете логін та пароль."
 
 #: src/web/pages_voter.ml:593 src/web/pages_voter.ml:490
 msgid "Your ballot for "
-msgstr ""
+msgstr "Ваш бюлетень за "
 
 #: src/web/pages_voter.ml:695
 msgid "Your ballot has been encrypted, "
-msgstr ""
+msgstr "Ваш бюлетень було зашифровано, "
 
 #: src/web/site_voter.ml:111
 msgid "Your browser seems to block cookies. Please enable them."
-msgstr ""
+msgstr "Здається, ваш браузер блокує файли cookie. Будь ласка, увімкніть їх."
 
 #: src/web/pages_voter.ml:895
 msgid "Your password for election %s"
-msgstr ""
+msgstr "Ваш пароль для виборів %s"
 
 #: src/web/pages_voter.ml:936
 msgid "Your smart ballot tracker is"
-msgstr ""
+msgstr "Ваш смарт-трекер бюлетеню"
 
 #. src/web/pages_voter.ml:493
 #: src/web/pages_voter.ml:700 src/web/pages_voter.ml:570
 msgid "Your smart ballot tracker is "
-msgstr ""
+msgstr "Ваш смарт-трекер бюлетеню "
 
 #: src/web/pages_voter.ml:931
 msgid "Your vote for election"
-msgstr ""
+msgstr "Ваш голос на виборах"
 
 #: src/web/site_voter.ml:146
 msgid "Your vote for election %s"
-msgstr ""
+msgstr "Ваш голос на виборах %s"
 
 #: src/web/pages_voter.ml:529
 msgid "Your vote was not recorded!"
-msgstr ""
+msgstr "Ваш голос не був записаний!"
 
 #: src/web/web_common.ml:85
 msgid "a credential is missing"
-msgstr ""
+msgstr "посвідчення відсутнє"
 
 #: src/web/pages_voter.ml:576
 msgid "ballot box"
-msgstr ""
+msgstr "виборча скринька"
 
 #: src/web/pages_voter.ml:67
 msgid "ballots"
-msgstr ""
+msgstr "бюлетені"
 
 #: src/web/pages_voter.ml:696
 msgid "but not cast yet"
-msgstr ""
+msgstr "але ще не подані"
 
 #: src/web/pages_common.ml:233
 msgid "change your password"
-msgstr ""
+msgstr "змінити ваш пароль"
 
 #: src/web/pages_common.ml:231
 msgid "create an account"
-msgstr ""
+msgstr "створити обліковий запис"
 
 #: src/web/pages_voter.ml:935
 msgid "has been recorded."
-msgstr ""
+msgstr "було записано."
 
 #: src/tool/tool_js_booth.ml:374
 msgid "here"
-msgstr ""
+msgstr "тут"
 
 #: src/web/pages_voter.ml:57
 msgid "parameters"
-msgstr ""
+msgstr "параметри"
 
 #: src/web/pages_voter.ml:259
 msgid "personal data policy"
-msgstr ""
+msgstr "політика щодо персональних даних"
 
 #: src/web/pages_voter.ml:63
 msgid "public credentials"
-msgstr ""
+msgstr "публічне посвідчення"
 
 #: src/web/pages_voter.ml:227
 msgid "result with cryptographic proofs"
-msgstr ""
+msgstr "результат із криптографічними доказами"
 
 #: src/web/web_common.ml:84
 msgid "some proofs failed verification"
-msgstr ""
+msgstr "деякі докази не вдалося перевірити"
 
 #: src/web/pages_voter.ml:533
 msgid "start from the beginning"
-msgstr ""
+msgstr "почати з початку"
 
 #: src/web/web_common.ml:81
 msgid "the election is closed"
-msgstr ""
+msgstr "вибори закриті"
 
 #: src/web/pages_voter.ml:60
 msgid "trustees"
-msgstr ""
+msgstr "довірені органи"
 
 #: src/web/pages_common.ml:272
 msgid "try to log in again"
-msgstr ""
+msgstr "спробуйте увійти знову"
 
 #: src/web/web_common.ml:87
 msgid "you are not allowed to revote"
-msgstr ""
+msgstr "вам не дозволено переголосувати"
 
 #: src/web/web_common.ml:82
 msgid "you are not allowed to vote"
-msgstr ""
+msgstr "вам не дозволено голосувати"
 
 #: src/web/web_common.ml:89
 msgid "you are not allowed to vote with this credential"
-msgstr ""
+msgstr "вам не дозволено голосувати з цим посвідченням"
 
 #: src/web/web_common.ml:83
 msgid "your ballot has a syntax error (%s)"
-msgstr ""
+msgstr "ваш бюлетень містить синтаксичну помилку (%s)"
 
 #: src/web/web_common.ml:88
 msgid "your credential has already been used"
-msgstr ""
+msgstr "ваше посвідчення вже було використано"
 
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
-msgstr ""
+msgstr "ваше посвідчення недійсне"
