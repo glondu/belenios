@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2020-10-26 12:26+0000\n"
-"Last-Translator: Agustin Borgna <agustinborgna@gmail.com>\n"
+"PO-Revision-Date: 2020-10-27 09:34+0000\n"
+"Last-Translator: Vincent L <vincent.laporte+weblate@mailbox.org>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
 "Language: es\n"
@@ -498,15 +498,15 @@ msgstr ""
 
 #: src/web/site_admin.ml:1991
 msgid "Data is invalid! (%s)"
-msgstr ""
+msgstr "¡ Los datos no son válidos ! (%s)"
 
 #: src/web/pages_admin.ml:1653 src/web/pages_admin.ml:1622
 msgid "Data:"
-msgstr ""
+msgstr "Datos :"
 
 #: src/web/pages_admin.ml:2571
 msgid "Date/Time (UTC)"
-msgstr ""
+msgstr "Fecha / hora (UTC)"
 
 #. src/web/pages_admin.ml:633
 #. src/web/pages_admin.ml:584
@@ -541,11 +541,11 @@ msgstr ""
 #. src/web/pages_admin.ml:798
 #: src/web/pages_admin.ml:2398 src/web/pages_admin.ml:2261
 msgid "Done?"
-msgstr ""
+msgstr "¿ Hecho ?"
 
 #: src/web/pages_admin.ml:1369 src/web/pages_admin.ml:1362
 msgid "Download "
-msgstr ""
+msgstr "Descargar "
 
 #: src/web/pages_admin.ml:2443
 msgid "Download archive."
@@ -576,7 +576,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2813 src/web/pages_admin.ml:2784
 msgid "E-mail address:"
-msgstr ""
+msgstr "Dirección de correo electrónico :"
 
 #: src/web/pages_admin.ml:505
 msgid "Edit credential authority name"
@@ -593,11 +593,11 @@ msgstr ""
 #. src/web/pages_admin.ml:1742
 #: src/web/pages_admin.ml:1760 src/web/pages_admin.ml:1750
 msgid "Election "
-msgstr ""
+msgstr "Elección "
 
 #: src/web/pages_admin.ml:2518
 msgid "Election home"
-msgstr ""
+msgstr "Página principal de la elección"
 
 #: src/web/pages_admin.ml:129 src/web/pages_admin.ml:50
 msgid "Election server"
@@ -676,19 +676,19 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2263
 msgid "Fingerprint"
-msgstr ""
+msgstr "Huella"
 
 #: src/web/pages_admin.ml:1354
 msgid "Fingerprint of public credentials:"
-msgstr ""
+msgstr "Huella de las acreditaciones públicas :"
 
 #: src/web/pages_admin.ml:1472
 msgid "Fingerprint of the verification key:"
-msgstr ""
+msgstr "Huella de la clave de verificación :"
 
 #: src/web/pages_admin.ml:1422
 msgid "Fingerprint of voters:"
-msgstr ""
+msgstr "Huella de los electores :"
 
 #: src/web/pages_admin.ml:639
 msgid "Follow the instructions."
@@ -1687,7 +1687,7 @@ msgstr ""
 #. src/web/pages_admin.ml:765
 #: src/web/pages_admin.ml:2348 src/web/pages_admin.ml:2212
 msgid "Yes"
-msgstr ""
+msgstr "Sí"
 
 #: src/web/site_admin.ml:1403
 msgid "You are not allowed to administer this election!"
@@ -1754,11 +1754,11 @@ msgstr ""
 
 #: src/web/site_admin.ml:1061
 msgid "Your credential for election %s"
-msgstr ""
+msgstr "Su acreditación por la elección %s"
 
 #: src/web/pages_admin.ml:2864
 msgid "Your e-mail address is: "
-msgstr ""
+msgstr "Su dirección de correo electrónico es : "
 
 #: src/tool/tool_js_ttkeygen.ml:104
 msgid "Your job in the key establishment protocol is done! The fingerprint of your verification key is %s. Check that it is published by the server when the election is open. Your private key will be needed to decrypt the election result."
@@ -1794,7 +1794,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1819
 msgid "download"
-msgstr ""
+msgstr "descargar"
 
 #: src/web/pages_admin.ml:1913
 msgid "election not ready"
@@ -1838,19 +1838,19 @@ msgstr "política de privacidad de datos personales"
 
 #: src/web/pages_admin.ml:1363
 msgid "private credentials"
-msgstr ""
+msgstr "acreditaciones privadas"
 
 #: src/web/pages_admin.ml:1606 src/web/pages_admin.ml:1481
 msgid "private key"
-msgstr ""
+msgstr "clave privada"
 
 #: src/web/pages_admin.ml:863 src/web/pages_admin.ml:699
 msgid "public name:"
-msgstr ""
+msgstr "nombre público :"
 
 #: src/web/pages_admin.ml:2578
 msgid "raw data"
-msgstr ""
+msgstr "datos crudos"
 
 #: src/web/pages_admin.ml:1391
 msgid "submitting a large number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below."
@@ -1866,11 +1866,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:647
 msgid "the fingerprint of your public key;"
-msgstr ""
+msgstr "la huella de su clave pública ;"
 
 #: src/web/pages_admin.ml:648
 msgid "the fingerprint of your verification key."
-msgstr ""
+msgstr "la huella de su clave de verificación."
 
 #: src/web/pages_admin.ml:1370
 msgid "the list of voters"
@@ -1878,11 +1878,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2897
 msgid "the new password is too weak (%s)"
-msgstr ""
+msgstr "la nueva contraseña es demasiado débil (%s)"
 
 #: src/web/pages_admin.ml:2898
 msgid "the new password starts or ends with a space"
-msgstr ""
+msgstr "la nueva contraseña empieza o acaba con un espacio"
 
 #: src/web/pages_admin.ml:1119
 msgid "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:"
@@ -1890,15 +1890,15 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2847
 msgid "the password is too weak (%s)"
-msgstr ""
+msgstr "la contraseña es demasiado débil (%s)"
 
 #: src/web/pages_admin.ml:2849
 msgid "the password starts or ends with a space"
-msgstr ""
+msgstr "la contraseña empieza o acaba con un espacio"
 
 #: src/web/pages_admin.ml:2896 src/web/pages_admin.ml:2848
 msgid "the two passwords are not the same"
-msgstr ""
+msgstr "las dos contraseñas no son idénticas"
 
 #: src/web/pages_admin.ml:2844
 msgid "the username is already taken"
