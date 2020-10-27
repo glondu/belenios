@@ -882,9 +882,12 @@ let majority_judgment q r =
           ]
       ) explicit_winners
   in
-  let spoiled = "data:application/json," ^ string_of_mj_ballots r.mj_spoiled in
-  let spoiled = "<a href=\"" ^ spoiled ^ "\">" ^ s_ "Spoiled ballots" ^ "</a>" in
-  let spoiled = Unsafe.data spoiled in
+  let spoiled () = "data:application/json," ^ string_of_mj_ballots r.mj_spoiled in
+  let spoiled = uri_of_string spoiled in
+  let spoiled =
+    Eliom_content.Html.F.Raw.a ~a:[a_href spoiled]
+      [txt (s_ "Spoiled ballots")]
+  in
   let content =
     [
       div [
