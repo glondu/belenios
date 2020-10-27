@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
 "PO-Revision-Date: 2020-10-28 21:26+0000\n"
-"Last-Translator: Oscar Yanez <oscar.yasu@gmail.com>\n"
+"Last-Translator: Agustin Borgna <agustinborgna@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
 "Language: es\n"
@@ -16,7 +16,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2077
 msgid " You may re-open the election when it is closed."
-msgstr " Usted debe reabrir la elección cuando esta cerrada."
+msgstr " Usted puede reabrir la elección cuando esta cerrada."
 
 #: src/tool/tool_js_questions.ml:166
 msgid " and "
@@ -161,11 +161,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:975
 msgid "1a: action needed from trustee: generate private key"
-msgstr "1a: acción necesaria por el administrador: generar una clave privada"
+msgstr "1a: acción necesaria del agente: generar una clave privada"
 
 #: src/web/pages_admin.ml:977
 msgid "1b, 2b, 3b: waiting for other trustees"
-msgstr "1b, 2b, 3b: esperando por otros administradores"
+msgstr "1b, 2b, 3b: esperando por otros agentes"
 
 #: src/web/pages_admin.ml:976
 msgid "2a, 3a: action needed from trustee: enter private key"
