@@ -258,7 +258,7 @@ let election_home election state () =
         ~a:[a_style "border-style: solid; border-width: 1px;"]
         [
           txt (s_ "By using this site, you accept our ");
-          unsafe_a !Web_config.gdpr_uri (s_ "personal data policy");
+          direct_a !Web_config.gdpr_uri (s_ "personal data policy");
           txt ". ";
           a ~service:set_cookie_disclaimer [txt (s_ "Accept")] (ContSiteElection uuid);
         ]
@@ -882,12 +882,8 @@ let majority_judgment q r =
           ]
       ) explicit_winners
   in
-  let spoiled () = "data:application/json," ^ string_of_mj_ballots r.mj_spoiled in
-  let spoiled = uri_of_string spoiled in
-  let spoiled =
-    Eliom_content.Html.F.Raw.a ~a:[a_href spoiled]
-      [txt (s_ "Spoiled ballots")]
-  in
+  let spoiled = "data:application/json," ^ string_of_mj_ballots r.mj_spoiled in
+  let spoiled = direct_a spoiled (s_ "Spoiled ballots") in
   let content =
     [
       div [

@@ -53,7 +53,7 @@ let privacy_notice cont =
     [
       div [
           txt (s_ "To use this site, you must accept our ");
-          unsafe_a !Web_config.gdpr_uri (s_ "personal data policy");
+          direct_a !Web_config.gdpr_uri (s_ "personal data policy");
           txt ".";
         ];
       post_form ~service
@@ -134,7 +134,7 @@ let admin ~elections () =
        | Some uri ->
           div [
               txt (s_ "If you do not have any account, you may ");
-              unsafe_a uri (s_ "contact us");
+              direct_a uri (s_ "contact us");
               txt ".";
             ]
      in
@@ -287,7 +287,7 @@ let preview_booth l uuid =
       ~service:election_vote ~absolute:true () |> rewrite_prefix
   in
   span [
-      unsafe_a (service ^ "#" ^ hash) (s_ "Preview booth");
+      direct_a (service ^ "#" ^ hash) (s_ "Preview booth");
       txt " ";
       txt (Printf.sprintf (f_ "(you can use any credential such as %s).") "HsqB3C3y62Ekq4D");
     ]

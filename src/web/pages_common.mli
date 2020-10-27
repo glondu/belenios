@@ -19,9 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val unsafe_a :
+val direct_a :
   string -> string ->
-  [> `A of 'a] Eliom_content.Html.elt
+  [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
 val make_button :
   service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,

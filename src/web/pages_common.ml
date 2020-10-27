@@ -30,8 +30,10 @@ open Web_services
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 
-let unsafe_a uri text =
-  Printf.ksprintf Unsafe.data "<a href=\"%s\">%s</a>" uri text
+let direct_a uri text =
+  Eliom_content.Html.F.Raw.a
+    ~a:[a_href (uri_of_string (fun () -> uri))]
+    [txt text]
 
 let static x =
   let service = Eliom_service.static_dir () in
@@ -104,7 +106,7 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
           );
           a ~service:source_code [txt (s_ "Get the source code")] ();
           txt ". ";
-          unsafe_a !Web_config.gdpr_uri (s_ "Privacy policy");
+          direct_a !Web_config.gdpr_uri (s_ "Privacy policy");
           txt ". ";
           administer;
           txt ".";
