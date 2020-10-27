@@ -257,3 +257,14 @@ type schulze_result = {
   strongest : condorcet_matrix;
   winners : int list list;
 } <ocaml field_prefix="schulze_">
+
+(** {2 Majority judgment} *)
+
+type mj_ballots = int list <ocaml repr="array"> list <ocaml repr="array">
+type mj_matrix = int list <ocaml repr="array"> list <ocaml repr="array">
+
+type mj_result = {
+  raw : mj_matrix;
+  spoiled : mj_ballots;
+  winners : int list list;
+} <ocaml field_prefix="mj_">
