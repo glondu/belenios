@@ -882,15 +882,15 @@ let majority_judgment q r =
           ]
       ) explicit_winners
   in
-  let spoiled = "data:application/json," ^ string_of_mj_ballots r.mj_spoiled in
-  let spoiled = direct_a spoiled (s_ "Spoiled ballots") in
+  let invalid = "data:application/json," ^ string_of_mj_ballots r.mj_invalid in
+  let invalid = direct_a invalid (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.mj_invalid)) in
   let content =
     [
       div [
           txt (s_ "The Majority Judgment winners are:");
           ol pretty_winners;
         ];
-      div [spoiled];
+      div [invalid];
     ]
   in
   base ~title ~content ()

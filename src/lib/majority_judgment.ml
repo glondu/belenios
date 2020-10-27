@@ -24,7 +24,7 @@ open Serializable_j
 let compute_matrix ~ngrades ~nchoices ballots =
   let n = Array.length ballots in
   let raw = Array.make_matrix nchoices ngrades 0 in
-  let rec add_ballot i spoiled =
+  let rec add_ballot i invalid =
     if i < n then (
       let ballot = ballots.(i) in
       assert (nchoices = Array.length ballot);
@@ -43,12 +43,12 @@ let compute_matrix ~ngrades ~nchoices ballots =
           ) else ()
         in
         fill 0;
-        add_ballot (i + 1) spoiled
-      ) else add_ballot (i + 1) (ballot :: spoiled)
-    ) else spoiled
+        add_ballot (i + 1) invalid
+      ) else add_ballot (i + 1) (ballot :: invalid)
+    ) else invalid
   in
-  let spoiled = add_ballot 0 [] in
-  raw, Array.of_list spoiled
+  let invalid = add_ballot 0 [] in
+  raw, Array.of_list invalid
 
 let compute_increasing_vector grades =
   let sum = Array.fold_left ( + ) 0 grades in
@@ -126,6 +126,6 @@ let compute_winners matrix =
   main 0 []
 
 let compute ~ngrades ~nchoices ballots =
-  let mj_raw, mj_spoiled = compute_matrix ~ngrades ~nchoices ballots in
+  let mj_raw, mj_invalid = compute_matrix ~ngrades ~nchoices ballots in
   let mj_winners = compute_winners mj_raw in
-  {mj_raw; mj_spoiled; mj_winners}
+  {mj_raw; mj_invalid; mj_winners}

@@ -265,6 +265,6 @@ type mj_matrix = int list <ocaml repr="array"> list <ocaml repr="array">
 
 type mj_result = {
   raw : mj_matrix;
-  spoiled : mj_ballots;
+  invalid : mj_ballots;
   winners : int list list;
 } <ocaml field_prefix="mj_">
