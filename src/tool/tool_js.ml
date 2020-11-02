@@ -315,11 +315,9 @@ let cmds =
   Mkelection.cmds @
   ToolElection.cmds
 
-let install_handlers () =
-  List.iter install_handler cmds
-
 let () =
-  Dom_html.window##.onload := Dom_html.handler (fun _ ->
-    install_handlers ();
-    Js._false
-  )
+  Lwt.async (fun () ->
+      let%lwt _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
+      List.iter install_handler cmds;
+      Lwt.return_unit
+    )

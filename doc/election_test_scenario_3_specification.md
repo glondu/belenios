@@ -48,7 +48,7 @@ Verifications all along the process is done using command line tools `belenios-t
         - She clicks on the "Edit voters" link, to then type the list of voters
         - She types `N` e-mail addresses (the list of invited voters)
         - She clicks on the "Add" button to submit changes
-        - She clicks on "Return to draft page" link
+        - She clicks on "Go back to election draft" link
     - She clicks on button "Generate on server"
     - (Server sends emails to voters.) She checks that server does not show any error that would happen when trying to send these emails (this can happen if sendmail is not configured)
     - We do a sanity check that server has really tried to send emails. (For this, we look for email addresses in the temporary file where our fake sendmail executable redirects its inputs to.)

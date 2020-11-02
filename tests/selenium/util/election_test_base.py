@@ -92,7 +92,7 @@ class BeleniosElectionTestBase(unittest.TestCase):
         # - She clicks on the "Edit voters" link, to then type the list of voters
         # - She types N e-mail addresses (the list of invited voters)
         # - She clicks on the "Add" button to submit changes
-        # - She clicks on "Return to draft page" link
+        # - She clicks on "Go back to election draft" link
         self.voters_email_addresses = random_email_addresses_generator(settings.NUMBER_OF_INVITED_VOTERS)
         administrator_sets_election_voters(browser, self.voters_email_addresses)
 
@@ -278,13 +278,13 @@ pris en compte.
 
         for email_address in self.voters_email_addresses_who_have_lost_their_password:
             text_to_look_for = 'To: "' + email_address + '"'
-            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) is 3
+            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) == 3
 
         voters_email_addresses_who_have_not_lost_their_password = set(self.voters_email_addresses) - set(self.voters_email_addresses_who_have_lost_their_password)
 
         for email_address in voters_email_addresses_who_have_not_lost_their_password:
             text_to_look_for = 'To: "' + email_address + '"'
-            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) is 2
+            assert self.fake_sent_emails_manager.count_occurences_in_sent_emails(text_to_look_for) == 2
 
         log_out(browser, self.election_id)
 
@@ -346,7 +346,7 @@ pris en compte.
         Question 1?
         - Answer 1
 
-        Your ballot has been successfully encrypted, but has not been cast yet!
+        Your ballot has been encrypted, but has not been cast yet!
 
         Your smart ballot tracker is sLRilXoAYcodIrjWrOqPrVXLNlRyCJAqFeeHZ4WCajU
 
@@ -629,4 +629,4 @@ pris en compte.
         for voter_email_address in self.voters_email_addresses_who_have_voted:
             voter = self.voters_data[voter_email_address]
             matches = [element for element in all_smart_ballot_trackers_elements if element.get_attribute('innerText') == voter["smart_ballot_tracker"]]
-            assert len(matches) is 1
+            assert len(matches) == 1

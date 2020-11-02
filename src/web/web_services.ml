@@ -46,6 +46,7 @@ let election_draft_admin_name = create_attached_post ~fallback:election_draft ~p
 let election_draft_voters = create ~path:(Path ["draft"; "voters"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_voters_add = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voters") ()
 let election_draft_voters_remove = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voter") ()
+let election_draft_voters_remove_all = create_attached_post ~fallback:election_draft_voters ~post_params:unit ()
 let election_draft_voters_passwd = create_attached_post ~fallback:election_draft_voters ~post_params:(string "voter") ()
 let election_draft_trustee_add = create_attached_post ~fallback:election_draft ~post_params:(string "id" ** string "name") ()
 let election_draft_trustee_del = create_attached_post ~fallback:election_draft ~post_params:(int "index") ()
@@ -139,3 +140,4 @@ let changepw_captcha_post = create_attached_post ~fallback:changepw_captcha ~pos
 let changepw_post = create_attached_post ~fallback:signup ~post_params:(string "password" ** string "password2") ()
 
 let method_schulze = create ~path:(Path ["methods"; "schulze"]) ~meth:(Get (uuid "uuid" ** int "question")) ()
+let method_mj = create ~path:(Path ["methods"; "mj"]) ~meth:(Get (uuid "uuid" ** int "question" ** opt (int "ngrades"))) ()

@@ -57,7 +57,7 @@ let run_post_login_handler ~auth_system ~state f =
   | Some (uuid, a, kind, st) ->
      let restart_login () =
        let service = restart_login a.auth_instance kind in
-       Web_templates.login_failed ~service ()
+       Pages_common.login_failed ~service ()
        >>= Eliom_registration.Html.send ~code:401
      in
      if auth_system = a.auth_system && st = state then
@@ -138,7 +138,7 @@ let login_handler service kind =
              | `Election uuid -> fun s ->
                preapply ~service:Web_services.election_login ((uuid, ()), Some s)
            in
-           Web_templates.login_choose (List.map (fun x -> x.auth_instance) c) builder () >>=
+           Pages_common.login_choose (List.map (fun x -> x.auth_instance) c) builder () >>=
            Eliom_registration.Html.send
 
 let logout_handler cont =

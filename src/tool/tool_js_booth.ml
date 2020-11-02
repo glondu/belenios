@@ -225,7 +225,20 @@ let createNonHomomorphicQuestionWidget q =
     let d = Dom_html.createDiv document in
     d##.style##.margin := Js.string "1em";
     Dom.appendChild div d;
-    Dom.appendChild d (document##createTextNode (Js.string (s_ "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election.")))
+    let div_note = Dom_html.createDiv document in
+    Dom.appendChild d div_note;
+    Dom.appendChild div_note (document##createTextNode (Js.string (s_ "Notes:")));
+    let list = Dom_html.createUl document in
+    Dom.appendChild div_note list;
+    let item1 = Dom_html.createLi document in
+    Dom.appendChild list item1;
+    Dom.appendChild item1 (document##createTextNode (Js.string (s_ "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse.")));
+    let item2 = Dom_html.createLi document in
+    Dom.appendChild list item2;
+    Dom.appendChild item2 (document##createTextNode (Js.string (s_ "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc.")));
+    let div_warning = Dom_html.createDiv document in
+    Dom.appendChild d div_warning;
+    Dom.appendChild div_warning (document##createTextNode (Js.string (s_ "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election.")))
   in
   let check_constraints () =
     let n = Array.length inputs - 1 in
@@ -415,61 +428,62 @@ let get_params x =
   else
     Url.decode_arguments (String.sub x 1 (n-1))
 
-let load_uuid uuid lang =
+let load_uuid uuid =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  Lwt.async (fun () ->
-      let%lwt raw =
-        let%lwt x = Printf.ksprintf get "elections/%s/election.json" uuid in
-        if x.code = 404 then (
-          let%lwt x = Printf.ksprintf get "draft/preview/%s/election.json" uuid in
-          Lwt.return x.content
-        ) else Lwt.return x.content
-      in
-      let () = set_textarea "election_params" raw in
-      let%lwt () = Tool_js_i18n.init lang in
-      Lwt.return (run_handler loadElection ())
-    )
+  let%lwt raw =
+    let%lwt x = Printf.ksprintf get "elections/%s/election.json" uuid in
+    if x.code = 404 then (
+      let%lwt x = Printf.ksprintf get "draft/preview/%s/election.json" uuid in
+      Lwt.return x.content
+    ) else Lwt.return x.content
+  in
+  set_textarea "election_params" raw;
+  run_handler loadElection ();
+  Lwt.return_unit
 
-let load_uuid_handler lang _ =
-  (match get_textarea_opt "uuid" with
-   | Some uuid ->
-      let encoded = Url.encode_arguments ["uuid", uuid; "lang", lang] in
-      Dom_html.window##.location##.hash := Js.string encoded;
-      load_uuid uuid lang
-   | None -> ()
-  ); Js._false
+let load_uuid_handler lang =
+  match get_textarea_opt "uuid" with
+  | Some uuid ->
+     let encoded = Url.encode_arguments ["uuid", uuid; "lang", lang] in
+     Dom_html.window##.location##.hash := Js.string encoded;
+     load_uuid uuid
+  | None -> Lwt.return_unit
 
-let load_params_handler lang _ =
+let load_params_handler () =
   set_element_display "div_ballot" "block";
   set_element_display "div_submit" "none";
   set_element_display "div_submit_manually" "block";
+  run_handler loadElection ();
+  Lwt.return_unit
+
+let () =
   Lwt.async (fun () ->
-      let%lwt () = Tool_js_i18n.init lang in
-      Lwt.return (run_handler loadElection ())
-    );
-  Js._false
-
-let onload_handler _ =
-  let params = get_params (Js.to_string Dom_html.window##.location##.hash) in
-  let lang =
-    match List.assoc_opt "lang" params with
-    | Some x -> x
-    | None -> "en"
-  in
-  let () =
-    document##getElementById (Js.string "load_uuid") >>== fun e ->
-    e##.onclick := Dom_html.handler (load_uuid_handler lang)
-  in
-  let () =
-    document##getElementById (Js.string "load_params") >>== fun e ->
-    e##.onclick := Dom_html.handler (load_params_handler lang);
-  in
-  let () =
-    match List.assoc_opt "uuid" params with
-    | None ->
-       set_element_display "wait_div" "none";
-       set_element_display "election_loader" "block";
-    | Some uuid -> load_uuid uuid lang
-  in Js._false
-
-let () = Dom_html.window##.onload := Dom_html.handler onload_handler
+      let%lwt _ = Lwt_js_events.onload () in
+      let params = get_params (Js.to_string Dom_html.window##.location##.hash) in
+      let lang =
+        match List.assoc_opt "lang" params with
+        | Some x -> x
+        | None -> "en"
+      in
+      let%lwt () = Tool_js_i18n.init "voter" lang in
+      let () =
+        document##getElementById (Js.string "load_uuid") >>== fun e ->
+        Lwt_js_events.async (fun () ->
+            let%lwt _ = Lwt_js_events.click e in
+            load_uuid_handler lang
+          )
+      in
+      let () =
+        document##getElementById (Js.string "load_params") >>== fun e ->
+        Lwt_js_events.async (fun () ->
+            let%lwt _ = Lwt_js_events.click e in
+            load_params_handler ()
+          )
+      in
+      match List.assoc_opt "uuid" params with
+      | None ->
+         set_element_display "wait_div" "none";
+         set_element_display "election_loader" "block";
+         Lwt.return_unit
+      | Some uuid -> load_uuid uuid
+    )

@@ -209,7 +209,7 @@ class NormalVoteStep3Page(NormalVoteGenericStepWithBallotTrackerPage):
 
     def verify_page_body(self):
         step_3_parent_css_selector = "#ballot_div"
-        step_3_expected_success_content = "Your ballot has been successfully encrypted"
+        step_3_expected_success_content = "Your ballot has been encrypted"
         wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_3_parent_css_selector, step_3_expected_success_content, self.timeout)
         self.verify_ballot_tracker_value()
 
@@ -279,7 +279,7 @@ class LoginFailedPage(VerifiablePage, ClickableLogoPage):
 
 class ServerHomePage(VerifiablePage):
     def verify_page(self):
-        assert self.browser.current_url.endswith("/admin") is True # There seems to be no content-based way to test that we are on the server home page. Another test we could use is this one: `assert 'Election Server' in browser.title, "Browser title was: " + browser.title`
+        assert self.browser.current_url.endswith("/admin") is True # There seems to be no content-based way to test that we are on the server home page. Another test we could use is this one: `assert 'Election server' in browser.title, "Browser title was: " + browser.title`
 
 
     def click_on_login_link(self, login_type):

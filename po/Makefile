@@ -1,15 +1,7 @@
-LINGUAS := $(shell cat LINGUAS)
-
-POFILES=$(addsuffix .po,$(LINGUAS))
-POTFILE=messages.pot
-
-all: $(POFILES)
+all:
+	$(MAKE) -C voter all
+	$(MAKE) -C admin all
 
 clean:
-	rm -f *.bak
-
-$(POTFILE): POTFILES
-	ocaml-gettext --action extract --extract-pot $@ $^
-
-%.po: $(POTFILE)
-	ocaml-gettext --action merge --merge-pot $^ $@
+	$(MAKE) -C voter clean
+	$(MAKE) -C admin clean

@@ -440,7 +440,7 @@ def log_in_as_administrator(browser, from_a_login_page=False):
 
         # She notices the page title mentions an election
         # TODO: Should we wait for the page to load here? It looks like we don't need to.
-        assert 'Election Server' in browser.title, "Browser title was: " + browser.title
+        assert 'Election server' in browser.title, "Browser title was: " + browser.title
 
         # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
         accept_button_label = "Accept"
@@ -533,7 +533,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
 
     # She clicks on the "Prepare a new election" link
     create_election_link_expected_content = "Prepare a new election"
-    links_css_selector = "#main a"
+    links_css_selector = "#prepare_new_election"
     create_election_link_element = wait_for_element_exists_and_contains_expected_text(browser, links_css_selector, create_election_link_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
     create_election_link_element.click()
 
@@ -673,7 +673,7 @@ def administrator_sets_election_voters(browser, voters_email_addresses):
     - She clicks on the "Edit voters" link, to then type the list of voters
     - She types N e-mail addresses (the list of invited voters)
     - She clicks on the "Add" button to submit changes
-    - She clicks on "Return to draft page" link
+    - She clicks on "Go back to election draft" link
     """
 
     # She clicks on the "Edit voters" link, to then type the list of voters
@@ -713,8 +713,8 @@ def administrator_sets_election_voters(browser, voters_email_addresses):
             expected_email_address_css_selector = "tr:last-child td:first-child"
             wait_for_element_exists_and_contains_expected_text(browser, expected_email_address_css_selector, last_email_address_typed)
 
-    # She clicks on "Return to draft page" link
-    return_link_label = "Return to draft page"
+    # She clicks on "Go back to election draft" link
+    return_link_label = "Go back to election draft"
     return_link_element = wait_for_an_element_with_partial_link_text_exists(browser, return_link_label, settings.EXPLICIT_WAIT_TIMEOUT)
     return_link_element.click()
 

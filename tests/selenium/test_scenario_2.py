@@ -128,7 +128,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         # - She clicks on the "Edit voters" link, to then type the list of voters
         # - She types N e-mail addresses (the list of invited voters)
         # - She clicks on the "Add" button to submit changes
-        # - She clicks on "Return to draft page" link
+        # - She clicks on "Go back to election draft" link
         self.voters_email_addresses = random_email_addresses_generator(settings.NUMBER_OF_INVITED_VOTERS)
         administrator_sets_election_voters(browser, self.voters_email_addresses)
 
@@ -386,9 +386,9 @@ The election administrator.\
             election_url_content = election_url_element.get_attribute('innerText').strip()
             assert election_url_content == self.election_page_url
 
-            # He clicks on the "Generate a new keypair" button
+            # He clicks on the "Generate a key" button
             generate_button_css_selector = "#interactivity button"
-            generate_button_expected_label = "Generate a new keypair"
+            generate_button_expected_label = "Generate a key"
             generate_button_element = wait_for_element_exists_and_contains_expected_text(browser, generate_button_css_selector, generate_button_expected_label)
             generate_button_element.click()
 
@@ -497,8 +497,8 @@ The election administrator.\
         wait_a_bit()
 
         if with_threshold is not None:
-            # She checks the presence of text "We are now waiting for trustees... At least ${U} trustee(s) must act."
-            expected_confirmation_label = "We are now waiting for trustees... At least " + str(with_threshold) + " trustee(s) must act."
+            # She checks the presence of text "Awaiting trustees… At least ${U} trustee(s) must act."
+            expected_confirmation_label = "Awaiting trustees… At least " + str(with_threshold) + " trustee(s) must act."
             expected_confirmation_css_selector = "#main"
             wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 
@@ -560,6 +560,8 @@ The election administrator.\
             browser.get(link_for_trustee)
 
             wait_a_bit()
+
+            wait_for_element_exists_and_has_non_empty_content(browser, "#hash")
 
             # He verifies that the "private key" input field is empty (at the beginning)
             private_key_field_css_selector = "#private_key"

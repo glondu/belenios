@@ -310,7 +310,7 @@ de problème.
 Note : Si l'outil en ligne de commande `belenios-tool` est utilisé, la
 confiance dans les tests effectués repose en partie dans la confiance
 en l'outil. Il est possible d'implémenter son propre logiciel de
-vérification à partir des spécifications de Belenios, disponibles [ici](http://www.belenios.org/specification.pdf).
+vérification à partir des spécifications de Belenios, disponibles [ici](https://www.belenios.org/specification.pdf).
 
 
 Instructions pour l'administrateur de l'élection

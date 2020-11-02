@@ -93,7 +93,7 @@ let common_man = [
   `P "This command is part of the Belenios command-line tool.";
   `P "To get more help on a specific subcommand, run:";
   `P "$(b,belenios-tool) $(i,COMMAND) $(b,--help)";
-  `P "See $(i,http://www.belenios.org/).";
+  `P "See $(i,https://www.belenios.org/).";
 ]
 
 let get_mandatory_opt name = function
@@ -789,7 +789,7 @@ end
 
 module Methods : CMDLINER_MODULE = struct
 
-  let main nchoices =
+  let schulze nchoices =
     wrap_main (fun () ->
         let ballots = chars_of_stdin () |> condorcet_ballots_of_string in
         let nchoices =
@@ -806,9 +806,35 @@ module Methods : CMDLINER_MODULE = struct
           |> print_endline
       )
 
+  let mj nchoices ngrades =
+    wrap_main (fun () ->
+        let ballots = chars_of_stdin () |> mj_ballots_of_string in
+        let nchoices =
+          if nchoices = 0 then
+            if Array.length ballots > 0 then Array.length ballots.(0) else 0
+          else nchoices
+        in
+        if nchoices <= 0 then
+          failcmd "invalid --nchoices parameter (or could not infer it)"
+        else
+          let ngrades =
+            match ngrades with
+            | None -> failcmd "--ngrades is missing"
+            | Some i -> if i > 0 then i else failcmd "invalid --ngrades paramater"
+          in
+          ballots
+          |> Majority_judgment.compute ~nchoices ~ngrades
+          |> string_of_mj_result
+          |> print_endline
+      )
+
   let nchoices_t =
     let doc = "Number of choices. If 0, try to infer it." in
     Arg.(value & opt int 0 & info ["nchoices"] ~docv:"N" ~doc)
+
+  let ngrades_t =
+    let doc = "Number of grades." in
+    Arg.(value & opt (some int) None & info ["ngrades"] ~docv:"G" ~doc)
 
   let schulze_cmd =
     let doc = "compute Schulze result" in
@@ -817,10 +843,20 @@ module Methods : CMDLINER_MODULE = struct
         `P "This command reads on standard input JSON-formatted ballots and interprets them as Condorcet rankings on $(i,N) choices. It then computes the result according to the Schulze method and prints it on standard output.";
       ] @ common_man
     in
-    Term.(ret (pure main $ nchoices_t)),
+    Term.(ret (pure schulze $ nchoices_t)),
     Term.info "method-schulze" ~doc ~man
 
-  let cmds = [schulze_cmd]
+  let mj_cmd =
+    let doc = "compute Majority Judgment result" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command reads on standard input JSON-formatted ballots and interprets them as grades (ranging from 1 (best) to $(i,G) (worst)) given to $(i,N) choices. It then computes the result according to the Majority Judgment method and prints it on standard output.";
+      ] @ common_man
+    in
+    Term.(ret (pure mj $ nchoices_t $ ngrades_t)),
+    Term.info "method-majority-judgment" ~doc ~man
+
+  let cmds = [schulze_cmd; mj_cmd]
 
 end
 

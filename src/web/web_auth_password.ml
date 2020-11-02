@@ -64,7 +64,7 @@ let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"password"
     (fun { auth_config; auth_instance = service; _ } ~state ->
       let allowsignups = does_allow_signups auth_config in
-      Web_templates.login_password ~service ~allowsignups ~state >>= Eliom_registration.Html.send
+      Pages_common.login_password ~service ~allowsignups ~state >>= Eliom_registration.Html.send
     )
 
 let password_handler () (state, (name, password)) =

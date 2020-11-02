@@ -25,6 +25,7 @@ open Belenios_tool_common
 open Belenios_tool_js_common
 open Tool_js_common
 open Tool_credgen
+open Tool_js_i18n.Gettext
 
 let generate _ =
   let raw = get_textarea "voters" in
@@ -61,17 +62,21 @@ let generate _ =
   set_element_display "submit_form" "inline";
   Js._false
 
-let fill_interactivity _ =
-  let () =
-    document##getElementById (Js.string "interactivity") >>== fun e ->
-    let x = Dom_html.createDiv document in
-    Dom.appendChild e x;
-    let b = Dom_html.createButton document in
-    let t = document##createTextNode (Js.string "Generate") in
-    b##.onclick := Dom_html.handler generate;
-    Dom.appendChild b t;
-    Dom.appendChild x b
-  in Js._false
+let fill_interactivity () =
+  document##getElementById (Js.string "interactivity") >>== fun e ->
+  let x = Dom_html.createDiv document in
+  Dom.appendChild e x;
+  let b = Dom_html.createButton document in
+  let t = document##createTextNode (Js.string (s_ "Generate")) in
+  b##.onclick := Dom_html.handler generate;
+  Dom.appendChild b t;
+  Dom.appendChild x b
 
 let () =
-  Dom_html.window##.onload := Dom_html.handler fill_interactivity;
+  Lwt.async (fun () ->
+      let%lwt _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
+      let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
+      fill_interactivity ();
+      Lwt.return_unit
+    )

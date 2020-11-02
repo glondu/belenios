@@ -53,7 +53,7 @@ Verifications all along the process is done using command line tools `belenios-t
         - She clicks on the "Edit voters" link, to then type the list of voters
         - She types `N` e-mail addresses (the list of invited voters)
         - She clicks on the "Add" button to submit changes
-        - She clicks on "Return to draft page" link
+        - She clicks on "Go back to election draft" link
         - In "Authentication" section, she clicks on the "Generate and mail missing passwords" button
         - She checks that the page contains expected confirmation text, instead of an error
         - She clicks on the "Proceed" link
@@ -158,7 +158,7 @@ Verifications all along the process is done using command line tools `belenios-t
     - She logs in as administrator
     - She clicks on the "Close election" button
     - She clicks on the "Proceed to vote counting" button
-    - She checks the presence of text "We are now waiting for trustees... At least ${U} trustee(s) must act."
+    - She checks the presence of text "Awaiting trustees… At least ${U} trustee(s) must act."
     - She checks that in the table on every content row, the "DONE?" column is "No"
     - She remembers the encrypted tally hash
     - She remembers the link to send to each trustee, so they can tally the election

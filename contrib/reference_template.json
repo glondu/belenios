@@ -1,0 +1,26 @@
+{
+    "/static/tool_js_booth.js"      : null,
+    "/static/tool_js_credgen.js"    : null,
+    "/static/tool_js.js"            : null,
+    "/static/tool_js_pd.js"         : null,
+    "/static/tool_js_questions.js"  : null,
+    "/static/tool_js_shuffle.js"    : null,
+    "/static/tool_js_tkeygen.js"    : null,
+    "/static/tool_js_ttkeygen.js"   : null,
+    "/static/booth.css"             : null,
+    "/static/reset.css"             : null,
+    "/static/site.css"              : null,
+    "/static/style.css"             : null,
+    "/static/styled-elements.css"   : null,
+    "/static/superfish.css"         : null,
+    "/static/encrypting.gif"        : null,
+    "/static/logo.png"              : null,
+    "/static/placeholder.png"       : null,
+    "/vote.html" : {
+        "fr"     : null,
+        "en"     : null,
+        "de"     : null,
+        "it"     : null,
+        "ro"     : null
+    }
+}
