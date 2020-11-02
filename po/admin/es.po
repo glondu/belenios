@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2020-10-31 10:26+0000\n"
+"PO-Revision-Date: 2020-11-02 14:36+0000\n"
 "Last-Translator: Vincent L <vincent.laporte+weblate@mailbox.org>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
@@ -1417,11 +1417,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2384
 msgid "The "
-msgstr ""
+msgstr "El "
 
 #: src/web/pages_admin.ml:2852
 msgid "The account creation "
-msgstr ""
+msgstr "La creación de cuenta "
 
 #: src/web/site_admin.ml:2449
 msgid "The account has been created."
@@ -1433,7 +1433,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:213
 msgid "The creation failed."
-msgstr ""
+msgstr "La creación falló."
 
 #: src/web/site_admin.ml:1464
 msgid "The date must be less than %d days in the future!"
@@ -1451,7 +1451,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2080
 msgid "The election is closed. No one can vote."
-msgstr ""
+msgstr "La elección está cerrada. Nadie puede votar."
 
 #: src/web/site_admin.ml:1700
 msgid "The election is not archived!"
@@ -1463,11 +1463,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1952
 msgid "The election is now closed."
-msgstr ""
+msgstr "La elección está ahora cerrada."
 
 #: src/web/pages_admin.ml:2076
 msgid "The election is open. Voters can vote."
-msgstr ""
+msgstr "La elección está abierta. Los electores pueden votar."
 
 #: src/web/site_admin.ml:1020 src/web/site_admin.ml:653
 msgid "The election name has not been edited!"
@@ -1475,15 +1475,15 @@ msgstr ""
 
 #: src/web/site_admin.ml:633
 msgid "The election name must be %d characters or less!"
-msgstr ""
+msgstr "¡ El nombre de la elección no puede tener más de %d octetos !"
 
 #: src/web/pages_admin.ml:2690
 msgid "The fingerprint of the encrypted tally is "
-msgstr ""
+msgstr "La huella del resultado cifrado es "
 
 #: src/web/pages_admin.ml:1612
 msgid "The fingerprint of your public key is "
-msgstr ""
+msgstr "La huella de su clave pública es "
 
 #: src/web/pages_admin.ml:2647
 msgid "The fingerprint of your shuffle is:"
@@ -1858,11 +1858,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2387
 msgid "encrypted tally"
-msgstr ""
+msgstr "resultado cifrado"
 
 #: src/web/pages_admin.ml:2903 src/web/pages_admin.ml:2853
 msgid "failed"
-msgstr ""
+msgstr "falló"
 
 #: src/web/pages_admin.ml:481
 msgid "here"
