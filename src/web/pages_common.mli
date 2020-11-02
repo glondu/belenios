@@ -37,13 +37,13 @@ val make_a_with_hash :
     Eliom_service.t ->
   ?hash:string ->
   ?style:string -> string ->
-  [> `A of 'g] Eliom_content.Html.elt
+  [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
 val a_mailto :
   dest:string ->
   subject:string ->
   body:string -> string ->
-  [> `A of 'a] Eliom_content.Html.elt
+  [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
 val unsafe_textarea :
   ?rows:int -> ?cols:int ->

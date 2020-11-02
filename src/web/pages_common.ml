@@ -136,22 +136,20 @@ let make_a_with_hash ~service ?hash ?style contents =
     | None -> uri
     | Some x -> uri ^ "#" ^ x
   in
+  let href = [a_href (uri_of_string (fun () -> uri))] in
   let style =
     match style with
-    | None -> ""
-    | Some x -> Printf.sprintf " style=\"%s\"" x
+    | None -> []
+    | Some x -> [a_style x]
   in
-  Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
-    "<a href=\"%s\"%s>%s</a>"
-    uri style contents
+  Eliom_content.Html.F.Raw.a ~a:(href @ style) [txt contents]
 
 let a_mailto ~dest ~subject ~body contents =
-  let uri = Printf.sprintf "mailto:%s?subject=%s&amp;body=%s" dest
+  let uri = Printf.sprintf "mailto:%s?subject=%s&body=%s" dest
     (Netencoding.Url.encode ~plus:false subject)
     (Netencoding.Url.encode ~plus:false body)
   in
-  Printf.ksprintf Unsafe.data "<a href=\"%s\">%s</a>"
-    uri contents
+  direct_a uri contents
 
 let generic_page ~title ?service message () =
   let%lwt l = get_preferred_gettext () in
