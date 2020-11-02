@@ -167,18 +167,17 @@ let generic_page ~title ?service message () =
   ] in
   base ~title ~content ()
 
-let unsafe_textarea ?rows ?cols id contents =
+let raw_textarea ?rows ?cols id contents =
+  let id = [a_id id] in
   let rows = match rows with
-    | None -> ""
-    | Some i -> Printf.sprintf " rows=\"%d\"" i
+    | None -> []
+    | Some i -> [a_rows i]
   in
   let cols = match cols with
-    | None -> ""
-    | Some i -> Printf.sprintf " cols=\"%d\"" i
+    | None -> []
+    | Some i -> [a_cols i]
   in
-  Printf.ksprintf Unsafe.data
-    "<textarea id=\"%s\"%s%s>%s</textarea>"
-    id rows cols contents
+  Eliom_content.Html.F.Raw.textarea ~a:(id @ rows @ cols) (txt contents)
 
 let login_choose auth_systems service () =
   let%lwt l = get_preferred_gettext () in

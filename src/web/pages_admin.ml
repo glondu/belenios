@@ -1418,9 +1418,9 @@ let election_draft_credentials token uuid se () =
       ~a:[a_style "display:none;"]
       [
         div [txt "UUID:"];
-        div [unsafe_textarea "uuid" (raw_string_of_uuid uuid)];
+        div [raw_textarea "uuid" (raw_string_of_uuid uuid)];
         div [txt "Group parameters:"];
-        div [unsafe_textarea "group" se.se_group];
+        div [raw_textarea "group" se.se_group];
       ]
   in
   let voters =
@@ -1429,7 +1429,7 @@ let election_draft_credentials token uuid se () =
     let hash = Platform.sha256_b64 value in
     div [
       div [txt (s_ "List of voters:")];
-      div [unsafe_textarea ~rows:5 ~cols:40 "voters" value];
+      div [raw_textarea ~rows:5 ~cols:40 "voters" value];
       div [txt (s_ "Fingerprint of voters:"); txt " "; txt hash];
     ]
   in
@@ -1512,7 +1512,7 @@ let election_draft_trustee token uuid se () =
       ~a:[a_style "display:none;"]
       [
         div [txt "Group parameters:"];
-        div [unsafe_textarea "group" se.se_group];
+        div [raw_textarea "group" se.se_group];
       ]
   in
   let interactivity =
@@ -1579,27 +1579,27 @@ let election_draft_threshold_trustee token uuid se () =
     div ~a:[a_style "display:none;"] [
         div [
             txt "Step: ";
-            unsafe_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);
+            raw_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);
           ];
         div [
             txt "Group parameters: ";
-            unsafe_textarea "group" se.se_group;
+            raw_textarea "group" se.se_group;
           ];
         div [
             txt "Certificates: ";
-            unsafe_textarea "certs" (string_of_certs certs);
+            raw_textarea "certs" (string_of_certs certs);
           ];
         div [
             txt "Threshold: ";
-            unsafe_textarea "threshold" (string_of_int threshold);
+            raw_textarea "threshold" (string_of_int threshold);
           ];
         div [
             txt "Vinput: ";
-            unsafe_textarea "vinput" (match trustee.stt_vinput with None -> "" | Some x -> string_of_vinput x);
+            raw_textarea "vinput" (match trustee.stt_vinput with None -> "" | Some x -> string_of_vinput x);
           ];
         div [
             txt "Voutput: ";
-            unsafe_textarea "voutput" (match trustee.stt_voutput with None -> "" | Some x -> x);
+            raw_textarea "voutput" (match trustee.stt_voutput with None -> "" | Some x -> x);
           ];
       ]
   in
@@ -2643,7 +2643,7 @@ let shuffle election token =
       div [
           txt (s_ "Current list of ballots:");
           txt " ";
-          unsafe_textarea ~rows:5 ~cols:40 "current_ballots" "";
+          raw_textarea ~rows:5 ~cols:40 "current_ballots" "";
           txt " ";
           let service = Eliom_service.preapply ~service:election_nh_ciphertexts uuid in
           make_button ~service ~disabled:false (s_ "Download as a file");
@@ -2721,7 +2721,7 @@ let tally_trustees election trustee_id token () =
       | None -> txt ""
       | Some epk ->
          div ~a:[a_style "display:none;"] [
-             unsafe_textarea "encrypted_private_key" epk
+             raw_textarea "encrypted_private_key" epk
            ];
     );
     hr ();

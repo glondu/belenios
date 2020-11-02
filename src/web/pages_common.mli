@@ -45,7 +45,7 @@ val a_mailto :
   body:string -> string ->
   [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
-val unsafe_textarea :
+val raw_textarea :
   ?rows:int -> ?cols:int ->
   string -> string -> [> `Textarea] Eliom_content.Html.elt
 

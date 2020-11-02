@@ -673,15 +673,15 @@ let booth () =
       h1 [txt (s_ "Belenios Booth")];
       br ();
       txt "Load an election on this server by giving its UUID:";
-      div [unsafe_textarea "uuid" ""];
+      div [raw_textarea "uuid" ""];
       div [button_no_value ~button_type:`Button ~a:[a_id "load_uuid"] [txt "Load from UUID"]];
       br ();
       txt "Load any election by giving its parameters:";
-      div [unsafe_textarea "election_params" ""];
+      div [raw_textarea "election_params" ""];
       div [button_no_value ~button_type:`Button ~a:[a_id "load_params"] [txt "Load parameters"]];
     ]
   in
-  let text_choices = unsafe_textarea "choices" "" in
+  let text_choices = raw_textarea "choices" "" in
   let ballot_form =
     post_form ~a:[a_id "ballot_form"] ~service:election_submit_ballot
       (fun encrypted_vote -> [
