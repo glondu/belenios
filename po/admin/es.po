@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2020-11-02 14:36+0000\n"
+"PO-Revision-Date: 2020-11-04 07:09+0000\n"
 "Last-Translator: Vincent L <vincent.laporte+weblate@mailbox.org>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
@@ -1460,6 +1460,7 @@ msgstr ""
 #: src/web/site_admin.ml:1744
 msgid "The election is not ready to be tallied. Please come back later."
 msgstr ""
+"La elección no está lista para el escrutinio. Por favor, vuelva más tarde."
 
 #: src/web/pages_admin.ml:1952
 msgid "The election is now closed."
