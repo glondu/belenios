@@ -46,7 +46,7 @@ val generate_password :
 val mail_credential :
   (module Web_i18n_sig.GETTEXT) ->
   string ->
-  bool -> string -> string -> Web_serializable_t.metadata -> string
+  bool -> login:string -> string -> string -> Web_serializable_t.metadata -> string
 
 val mail_confirmation :
   (module Web_i18n_sig.GETTEXT) ->

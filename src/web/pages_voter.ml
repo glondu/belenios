@@ -954,7 +954,7 @@ let generate_password metadata langs title url id =
   let%lwt () = send_email email subject body in
   return (salt, hashed)
 
-let mail_credential l title cas cred url metadata =
+let mail_credential l title cas ~login cred url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -971,6 +971,7 @@ let mail_credential l title cas cred url metadata =
   );
   add_newline b;
   add_newline b;
+  add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Credential:"); add_string b " "; add_string b cred; add_newline b;
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;

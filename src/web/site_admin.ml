@@ -1047,7 +1047,7 @@ let () =
             let module CD = Credential.MakeDerive (G) in
             let%lwt public_creds, private_creds =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
-                  let email, _ = split_identity v.sv_id in
+                  let email, login = split_identity v.sv_id in
                   let cas =
                     match se.se_metadata.e_auth_config with
                     | Some [{auth_system = "cas"; _}] -> true
@@ -1063,7 +1063,7 @@ let () =
                     Lwt_list.map_s
                       (fun lang ->
                         let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
-                        return (Pages_voter.mail_credential l title cas cred url se.se_metadata)
+                        return (Pages_voter.mail_credential l title cas ~login cred url se.se_metadata)
                       ) langs
                   in
                   let body = PString.concat "\n\n----------\n\n" bodies in
