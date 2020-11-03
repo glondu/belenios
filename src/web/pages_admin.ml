@@ -2171,7 +2171,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                    (fun (nuuid, ntrustee) ->
                      let a = if disabled then [a_disabled ()] else [] in
                      [
-                       input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                       input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
                        input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
                        input ~a ~input_type:`Submit ~value:(s_ "Skip") string;
                      ]
@@ -2209,7 +2209,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                     (fun (nuuid, ntrustee) ->
                       let a = if select_disabled || done_ then [a_disabled ()] else [] in
                       [
-                        input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                        input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
                         input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
                         input ~a ~input_type:`Submit ~value:(s_ "Select this trustee") string;
                       ]
@@ -2620,7 +2620,7 @@ let election_shuffler_skip_confirm uuid trustee =
             div [txt (s_ "You may skip a trustee if they do not answer. Be aware that this reduces the security.")];
             div
               [
-                input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
                 input ~input_type:`Hidden ~name:ntrustee ~value:trustee string;
                 input ~input_type:`Submit ~value:(s_ "Confirm") string;
                 txt " ";

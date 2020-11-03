@@ -2034,7 +2034,6 @@ let get_trustee_name uuid metadata trustee =
 let () =
   Any.register ~service:election_shuffler_select
     (fun () (uuid, trustee) ->
-      let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           let%lwt name = get_trustee_name uuid metadata trustee in
@@ -2049,7 +2048,6 @@ let () =
 let () =
   Any.register ~service:election_shuffler_skip_confirm
     (fun () (uuid, trustee) ->
-      let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
@@ -2061,7 +2059,6 @@ let () =
 let () =
   Any.register ~service:election_shuffler_skip
     (fun () (uuid, trustee) ->
-      let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           let%lwt sh_name = get_trustee_name uuid metadata trustee in
