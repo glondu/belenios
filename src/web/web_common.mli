@@ -93,6 +93,8 @@ type site_cont =
   | ContSiteAdmin
   | ContSiteElection of uuid
 
+val string_of_site_cont : site_cont -> string
+
 val site_cont :
   string ->
   (site_cont, [ `WithoutSuffix ],

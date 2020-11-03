@@ -50,7 +50,7 @@ let belenios_url = Eliom_service.extern
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
-let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
+let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let administer =
@@ -67,6 +67,11 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
            ~src:(static "placeholder.png") ();
        ]
     | Some x -> x
+  in
+  let lang_box =
+    match lang_box with
+    | None -> div []
+    | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
   let%lwt warning = match !Web_config.warning_file with
     | None -> return @@ txt ""
@@ -95,7 +100,11 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
         ];
       ];
       warning;
-      div ~a:[a_id "main"] content;
+      div ~a:[a_id "main"]
+        [
+          lang_box;
+          div content;
+        ];
       div ~a:[a_id "footer"; a_style "text-align: center;" ] [
         div ~a:[a_id "bottom"] [
           footer;
@@ -113,6 +122,23 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
         ]
       ]]
      ]))
+
+let lang_box l cont =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let langs = List.map (fun l -> Option ([], l, None, l = lang)) available_languages in
+  let form =
+    get_form ~service:set_language
+      (fun (nlang, ncont) ->
+        [
+          input ~input_type:`Hidden ~name:ncont ~value:cont (user string_of_site_cont);
+          txt (s_ "Language:");
+          txt " ";
+          select ~name:nlang string (List.hd langs) (List.tl langs);
+          input ~input_type:`Submit ~value:(s_ "Set") string;
+        ]
+      )
+  in
+  div ~a:[a_class ["lang_box"]] [form]
 
 let make_button ~service ?hash ?style ~disabled contents =
   let uri = Eliom_uri.make_string_uri ~service () in

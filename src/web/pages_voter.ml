@@ -35,10 +35,6 @@ open Pages_common
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
-let rec list_concat elt = function
-  | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
-  | ([_] | []) as xs -> xs
-
 let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
 let audit_footer election =
@@ -245,12 +241,6 @@ let election_home election state () =
            ]
     | None -> return go_to_the_booth
   in
-  let languages =
-    div ~a:[a_class ["languages"]]
-      (list_concat (txt " ") @@ List.map (fun lang ->
-        a ~service:set_language [txt lang] (lang, ContSiteElection uuid)
-       ) available_languages)
-  in
   let%lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
   let cookie_disclaimer =
     if scd then
@@ -375,7 +365,6 @@ let election_home election state () =
   in
   let content = [
     cookie_disclaimer;
-    languages;
     p state_;
     br ();
     middle;
@@ -384,7 +373,8 @@ let election_home election state () =
     br ();
     div_audit;
   ] in
-  base ~title:params.e_name ~content ~footer ~uuid ()
+  let lang_box = lang_box l (ContSiteElection uuid) in
+  base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
 
 let cast_raw election () =
   let params = election.e_params in

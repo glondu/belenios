@@ -60,12 +60,18 @@ val base :
   title:string ->
   ?login_box:[< Html_types.div_content_fun > `Div `H1 ]
     Eliom_content.Html.elt ->
+  ?lang_box:[< Html_types.div_content_fun > `Div ]
+    Eliom_content.Html.elt ->
   content:[< Html_types.div_content_fun ] Eliom_content.Html.elt
     list ->
   ?footer:[< Html_types.div_content_fun > `A `Div `PCDATA ]
     Eliom_content.Html.elt ->
   ?uuid:Web_serializable_t.uuid ->
   unit -> [> Html_types.html ] Eliom_content.Html.elt Lwt.t
+
+val lang_box :
+  (module Web_i18n_sig.GETTEXT) -> Web_common.site_cont ->
+  [> Html_types.div ] Eliom_content.Html.elt
 
 val generic_page :
   title:string ->

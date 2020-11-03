@@ -36,10 +36,6 @@ open Pages_common
 
 let ( / ) = Filename.concat
 
-let rec list_concat elt = function
-  | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
-  | ([_] | []) as xs -> xs
-
 let admin_background = " background: #FF9999;"
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
@@ -167,16 +163,8 @@ let admin ~elections () =
       | [] -> p [txt (s_ "You own no such elections!")]
       | _ -> ul @@ List.map format_election archived
     in
-    let languages =
-      div ~a:[a_class ["languages"]]
-        (list_concat (txt " ") @@
-           List.map (fun lang ->
-               a ~service:set_language [txt lang] (lang, ContSiteAdmin)
-             ) available_languages)
-    in
     let content = [
       div [
-        languages;
         div [
           a ~a:[a_id "prepare_new_election"] ~service:election_draft_pre [
             txt (s_ "Prepare a new election");
@@ -197,7 +185,8 @@ let admin ~elections () =
       ];
     ] in
     let%lwt login_box = login_box () in
-    base ~title ~login_box ~content ()
+    let lang_box = lang_box l ContSiteAdmin in
+    base ~lang_box ~title ~login_box ~content ()
 
 let new_election_failure reason () =
   let%lwt l = get_preferred_gettext () in
