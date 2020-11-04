@@ -15,31 +15,31 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.3-dev\n"
 
-#: src/web/pages_common.ml:234
+#: src/web/pages_common.ml:259
 msgid " (if you forgot it, for example)."
 msgstr " (hvis du glemte det, for eksempel)."
 
-#: src/web/pages_voter.ml:578
+#: src/web/pages_voter.ml:570
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Bekreftelse sendt til deg per e-post"
 
-#: src/web/pages_voter.ml:448
+#: src/web/pages_voter.ml:440
 msgid " and "
 msgstr " og "
 
-#: src/web/pages_voter.ml:577
+#: src/web/pages_voter.ml:569
 msgid " anytime during the election."
 msgstr " når som helst under valget."
 
-#: src/web/pages_voter.ml:634
+#: src/web/pages_voter.ml:626
 msgid " ballot(s) have been accepted so far."
 msgstr " stemme(r) godtatt så langt."
 
-#: src/web/pages_voter.ml:644
+#: src/web/pages_voter.ml:636
 msgid " ballot(s) have been accepted, and "
 msgstr " stemme(r) har blitt godtatt, og "
 
-#: src/web/pages_voter.ml:639
+#: src/web/pages_voter.ml:631
 msgid " ballot(s) have been accepted."
 msgstr " stemme(r) har blitt godtatt."
 
@@ -47,15 +47,15 @@ msgstr " stemme(r) har blitt godtatt."
 msgid " day(s)"
 msgstr " dag(er)"
 
-#: src/web/pages_voter.ml:568
+#: src/web/pages_voter.ml:560
 msgid " has been accepted."
 msgstr " har blitt godtatt."
 
-#: src/web/pages_voter.ml:492
+#: src/web/pages_voter.ml:484
 msgid " has been received, but not recorded yet. "
 msgstr " har blitt mottatt, men ikke er lagret enda. "
 
-#: src/web/pages_voter.ml:646
+#: src/web/pages_voter.ml:638
 msgid " have been tallied."
 msgstr " har blitt opptalt."
 
@@ -63,7 +63,7 @@ msgstr " har blitt opptalt."
 msgid " hour(s)"
 msgstr " time(r)"
 
-#: src/web/pages_voter.ml:581
+#: src/web/pages_voter.ml:573
 msgid " is rejected, because "
 msgstr " har blitt avslått, fordi "
 
@@ -83,47 +83,51 @@ msgstr " sekund(er)"
 msgid " year(s)"
 msgstr " år"
 
-#: src/web/pages_voter.ml:697
+#: src/web/pages_voter.ml:689
 msgid "!"
 msgstr "!"
+
+#: src/web/pages_voter.ml:876
+msgid "%d invalid ballot(s)"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:168
 msgid "(nothing)"
 msgstr "(ingenting)"
 
-#: src/web/pages_common.ml:232
+#: src/web/pages_common.ml:257
 msgid ", or "
 msgstr ", eller "
 
-#: src/web/pages_voter.ml:109
+#: src/web/pages_voter.ml:105
 msgid ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
 msgstr ""
 ". Det alle innsendte stemmer i klartekst, i tilfeldig rekkefølge. Det er "
 "opptil deg å bruke din favoritt-tellemetode (f.eks. Condorcet, STV, "
 "flertallsbeslutning)."
 
-#: src/web/pages_voter.ml:261
+#: src/web/pages_voter.ml:253
 msgid "Accept"
 msgstr "Godta"
 
-#: src/web/pages_voter.ml:609
+#: src/web/pages_voter.ml:601
 msgid "Accepted ballots"
 msgstr "Godtatte stemmer"
 
-#: src/web/pages_common.ml:57
+#: src/web/pages_common.ml:59
 msgid "Administer elections"
 msgstr "Administrer valg"
 
-#: src/web/pages_common.ml:59
+#: src/web/pages_common.ml:61
 msgid "Administer this election"
 msgstr "Administrer dette valget"
 
-#: src/web/pages_voter.ml:200
+#: src/web/pages_voter.ml:198
 msgid "Advanced mode"
 msgstr "Avansert modus"
 
-#: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
-#. src/web/pages_voter.ml:473
+#: src/web/pages_voter.ml:714 src/web/pages_voter.ml:546
+#. src/web/pages_voter.ml:465
 msgid "Answer to questions"
 msgstr "Svar på spørsmål"
 
@@ -131,54 +135,54 @@ msgstr "Svar på spørsmål"
 msgid "At least one of the answers is invalid!"
 msgstr "Minst ett av svarene er ugyldig!"
 
-#: src/web/pages_voter.ml:55
+#: src/web/pages_voter.ml:51
 msgid "Audit data: "
 msgstr "Valgopptellingsdata: "
 
-#: src/web/pages_voter.ml:726 src/web/pages_voter.ml:558
-#. src/web/pages_voter.ml:477
+#: src/web/pages_voter.ml:718 src/web/pages_voter.ml:550
+#. src/web/pages_voter.ml:469
 msgid "Authenticate"
 msgstr "Identitetsbekreft"
 
-#: src/web/pages_common.ml:266
+#: src/web/pages_common.ml:291
 msgid "Authentication failed"
 msgstr "Identitetsbekreftelse mislyktes"
 
-#: src/web/pages_common.ml:269
+#: src/web/pages_common.ml:294
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Identitetsbekreftelse mislyktes, antagelig som følge av feil brukernavn "
 "eller passord, eller så tillates du ikke å utføre denne handlingen."
 
-#: src/web/pages_voter.ml:111
+#: src/web/pages_voter.ml:107
 msgid "Available methods on this server:"
 msgstr "Tilgjengelige metoder på denne tjeneren:"
 
-#: src/web/pages_voter.ml:911 src/web/pages_voter.ml:865
+#: src/web/pages_voter.ml:958 src/web/pages_voter.ml:912
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr ""
 "Vær forsiktig, passord og identitetsdetaljer ligner på hverandre, men er til "
 "forskjellige ting."
 
-#: src/web/pages_voter.ml:671 src/web/pages_voter.ml:659
+#: src/web/pages_voter.ml:663 src/web/pages_voter.ml:651
 msgid "Belenios Booth"
 msgstr "Belenios-valgavlukke"
 
 #: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
-#. src/web/pages_voter.ml:82
+#. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "Blank stemme"
 
-#: src/web/pages_voter.ml:258
+#: src/web/pages_voter.ml:250
 msgid "By using this site, you accept our "
 msgstr "Ved å bruke denne siden, godtar du vår "
 
-#: src/web/pages_voter.ml:728 src/web/pages_voter.ml:560
-#. src/web/pages_voter.ml:479
+#: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
+#. src/web/pages_voter.ml:471
 msgid "Confirm"
 msgstr "Bekreft"
 
-#: src/web/pages_voter.ml:708
+#: src/web/pages_voter.ml:845 src/web/pages_voter.ml:700
 msgid "Continue"
 msgstr "Fortsett"
 
@@ -186,58 +190,62 @@ msgstr "Fortsett"
 msgid "Cookies are blocked"
 msgstr "Kaker er blokkert"
 
-#: src/web/pages_voter.ml:917
+#: src/web/pages_voter.ml:965
 msgid "Credential:"
 msgstr "Identitetsdetalj:"
 
-#: src/web/pages_voter.ml:929
+#: src/web/pages_voter.ml:977
 msgid "Dear %s,"
 msgstr "Kjære %s,"
 
-#: src/web/pages_voter.ml:730 src/web/pages_voter.ml:562
-#. src/web/pages_voter.ml:481
+#: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
+#. src/web/pages_voter.ml:473
 msgid "Done"
 msgstr "Ferdig"
 
-#: src/web/pages_voter.ml:790
+#: src/web/pages_voter.ml:782
 msgid "Election UUID: "
 msgstr "Valg-UUID: "
 
-#: src/web/pages_voter.ml:794 src/web/pages_voter.ml:51
+#: src/web/pages_voter.ml:786 src/web/pages_voter.ml:47
 msgid "Election fingerprint: "
 msgstr "Valg-fingeravtrykk: "
 
-#: src/web/pages_voter.ml:773 src/web/pages_common.ml:86
+#: src/web/pages_voter.ml:765 src/web/pages_common.ml:93
 msgid "Election server"
 msgstr "Valg-tjener"
 
-#: src/web/pages_voter.ml:760
+#: src/web/pages_voter.ml:752
 msgid "Encrypting…"
 msgstr "Krypterer…"
 
-#: src/web/site_voter.ml:270 src/web/site_voter.ml:266 src/web/site_voter.ml:261
+#: src/web/site_voter.ml:320 src/web/site_voter.ml:315 src/web/site_voter.ml:309
+#. src/web/site_voter.ml:305
+#. src/web/site_voter.ml:270
+#. src/web/site_voter.ml:266
+#. src/web/site_voter.ml:261
 msgid "Error"
 msgstr "Feil"
 
-#: src/web/pages_voter.ml:584
+#: src/web/pages_voter.ml:576
 msgid "FAIL!"
 msgstr "FEIL!"
 
-#: src/web/pages_common.ml:105
+#: src/web/pages_common.ml:116
 msgid "Get the source code"
 msgstr "Gå til kildekoden"
 
-#: src/web/pages_voter.ml:627 src/web/pages_voter.ml:599
-#. src/web/pages_voter.ml:538
-#. src/web/pages_voter.ml:510
+#: src/web/pages_voter.ml:619 src/web/pages_voter.ml:591
+#. src/web/pages_voter.ml:530
+#. src/web/pages_voter.ml:502
 msgid "Go back to election"
 msgstr "Gå tilbake til valget"
 
-#: src/web/pages_voter.ml:446
+#: src/web/pages_voter.ml:438
 msgid "I am "
 msgstr "Jeg er "
 
-#: src/web/pages_voter.ml:451
+#: src/web/pages_voter.ml:443
 msgid "I cast my vote"
 msgstr "Jeg avgir min stemme"
 
@@ -253,16 +261,16 @@ msgstr ""
 "Hvis du blir spurt om å vurdere kandidater (Condorcet, STV, …) bruk 1 for "
 "førstevalg, 2 for andrevalg, osv."
 
-#: src/web/pages_voter.ml:532
+#: src/web/pages_voter.ml:524
 msgid "If you want to vote, you must "
 msgstr "Hvis du ønsker å stemme, må du "
 
-#: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
-#. src/web/pages_voter.ml:471
+#: src/web/pages_voter.ml:712 src/web/pages_voter.ml:544
+#. src/web/pages_voter.ml:463
 msgid "Input credential"
 msgstr "Skriv inn identitetsdetalj"
 
-#: src/web/pages_voter.ml:739
+#: src/web/pages_voter.ml:731
 msgid "Input your credential "
 msgstr "Skriv inn din identitetsdetalj "
 
@@ -270,35 +278,47 @@ msgstr "Skriv inn din identitetsdetalj "
 msgid "Invalid credential!"
 msgstr "Ugyldig identitetsdetalj!"
 
-#: src/web/site_voter.ml:271
+#: src/web/site_voter.ml:321 src/web/site_voter.ml:271
 msgid "Invalid index for question."
 msgstr "Ugyldig indeks for spørsmål."
 
-#: src/web/pages_voter.ml:133
+#: src/web/pages_voter.ml:131
 msgid "It will open in "
 msgstr "Åpner om "
 
-#: src/web/pages_voter.ml:108
+#: src/web/pages_voter.ml:104
 msgid "JSON result"
 msgstr "JSON-resultat"
 
-#: src/web/pages_voter.ml:666
+#: src/web/pages_common.ml:134
+msgid "Language:"
+msgstr ""
+
+#: src/web/pages_voter.ml:658
 msgid "Loading…"
 msgstr "Laster inn…"
 
-#: src/web/pages_common.ml:197
+#: src/web/pages_common.ml:222
 msgid "Log in"
 msgstr "Logg inn"
 
-#: src/web/pages_common.ml:253
+#: src/web/pages_common.ml:278
 msgid "Login"
 msgstr "Innlogging"
 
-#: src/web/pages_voter.ml:913 src/web/pages_voter.ml:867
+#: src/web/pages_voter.ml:960 src/web/pages_voter.ml:914
 msgid "Login and passwords are required once your ballot is ready to be cast."
 msgstr ""
 "Innloggingsdetaljer og passord kreves når din stemme er klart til å bli "
 "avgitt."
+
+#: src/web/pages_voter.ml:111
+msgid "Majority Judgment"
+msgstr ""
+
+#: src/web/pages_voter.ml:855 src/web/pages_voter.ml:836
+msgid "Majority Judgment method"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:321
 msgid "Next"
@@ -312,15 +332,15 @@ msgstr "Ingen andre valg tillates når blank stemme avgis"
 msgid "Not found"
 msgstr "Ikke funnet"
 
-#: src/web/pages_voter.ml:920 src/web/pages_voter.ml:874
+#: src/web/pages_voter.ml:968 src/web/pages_voter.ml:921
 msgid "Note that you are allowed to vote several times."
 msgstr "Merk at du tillates å stemme flere ganger."
 
-#: src/web/pages_voter.ml:466
+#: src/web/pages_voter.ml:458
 msgid "Note: You have already voted. Your vote will be replaced."
 msgstr "Merk: Du har allerede stemt. Din stemme vil bli erstattet."
 
-#: src/web/pages_voter.ml:501
+#: src/web/pages_voter.ml:493
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr "Merk: Din stemme er kryptert og ingen kan se dens innhold."
 
@@ -328,23 +348,27 @@ msgstr "Merk: Din stemme er kryptert og ingen kan se dens innhold."
 msgid "Notes:"
 msgstr "Merknader:"
 
-#: src/web/pages_voter.ml:221
+#: src/web/pages_voter.ml:219
 msgid "Number of accepted ballots: "
 msgstr "Antall godtatte stemmer: "
 
-#: src/web/pages_voter.ml:921 src/web/pages_voter.ml:875
+#: src/web/pages_voter.ml:842
+msgid "Number of grades:"
+msgstr ""
+
+#: src/web/pages_voter.ml:969 src/web/pages_voter.ml:922
 msgid "Only the last vote counts."
 msgstr "Kun den siste stemmen teller."
 
-#: src/web/pages_voter.ml:918 src/web/pages_voter.ml:872
+#: src/web/pages_voter.ml:966 src/web/pages_voter.ml:919
 msgid "Page of the election:"
 msgstr "Side for valget:"
 
-#: src/web/pages_common.ml:261
+#: src/web/pages_common.ml:286
 msgid "Password login"
 msgstr "Passordsinnlogging"
 
-#: src/web/pages_voter.ml:871 src/web/pages_common.ml:248
+#: src/web/pages_voter.ml:918 src/web/pages_common.ml:273
 msgid "Password:"
 msgstr "Passord:"
 
@@ -352,23 +376,23 @@ msgstr "Passord:"
 msgid "Please enter your credential:"
 msgstr "Skriv inn din identitetsdetalj:"
 
-#: src/web/pages_voter.ml:457
+#: src/web/pages_voter.ml:449
 msgid "Please log in to confirm your vote."
 msgstr "Logg inn for å bekrefte din stemme."
 
-#: src/web/pages_common.ml:194
+#: src/web/pages_common.ml:219
 msgid "Please log in:"
 msgstr "Logg inn:"
 
-#: src/web/pages_voter.ml:759
+#: src/web/pages_voter.ml:751
 msgid "Please wait while your ballot is being encrypted…"
 msgstr "Vent mens din stemme krypteres…"
 
-#: src/web/pages_voter.ml:665
+#: src/web/pages_voter.ml:657
 msgid "Please wait… "
 msgstr "Vent… "
 
-#: src/web/pages_common.ml:100
+#: src/web/pages_common.ml:111
 msgid "Powered by "
 msgstr "Drevet av "
 
@@ -376,36 +400,36 @@ msgstr "Drevet av "
 msgid "Previous"
 msgstr "Forrige"
 
-#: src/web/pages_common.ml:107
+#: src/web/pages_common.ml:118
 msgid "Privacy policy"
 msgstr "Personvernspraksis"
 
-#: src/web/pages_common.ml:161
+#: src/web/pages_common.ml:187
 msgid "Proceed"
 msgstr "Fortsett"
 
-#: src/web/pages_voter.ml:763
+#: src/web/pages_voter.ml:755
 msgid "Restart"
 msgstr "Start på ny"
 
-#: src/web/pages_voter.ml:949
+#: src/web/pages_voter.ml:997
 msgid "Results will be published on the election page"
 msgstr "Resultater vil bli vist på valgsiden"
 
-#: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
-#. src/web/pages_voter.ml:475
+#: src/web/pages_voter.ml:716 src/web/pages_voter.ml:548
+#. src/web/pages_voter.ml:467
 msgid "Review and encrypt"
 msgstr "Gjennomse og krypter"
 
-#: src/web/pages_voter.ml:704
+#: src/web/pages_voter.ml:696
 msgid "Save it to check that it is taken into account later."
 msgstr "Lagre den for å sjekke at den har blitt tatt hensyn til senere."
 
-#: src/web/pages_voter.ml:813
+#: src/web/pages_voter.ml:805
 msgid "Schulze method"
 msgstr "Schulze-metoden"
 
-#: src/web/pages_voter.ml:182
+#: src/web/pages_voter.ml:180
 msgid "See accepted ballots"
 msgstr "Se godkjente stemmer"
 
@@ -413,57 +437,69 @@ msgstr "Se godkjente stemmer"
 msgid "Select between %d and %d answer(s)"
 msgstr "Velg mellom %d og %d svar"
 
-#: src/web/pages_voter.ml:195
+#: src/web/pages_common.ml:137
+msgid "Set"
+msgstr ""
+
+#: src/web/pages_voter.ml:193
 msgid "Start"
 msgstr "Start"
 
-#: src/web/pages_voter.ml:735
+#: src/web/pages_voter.ml:727
 msgid "Step 1/6: Input credential"
 msgstr "Steg 1/6: Skriv inn identitetsdetalj"
 
-#: src/web/pages_voter.ml:745
+#: src/web/pages_voter.ml:737
 msgid "Step 2/6: Answer to questions"
 msgstr "Steg 2/6: Svar på spørsmålene"
 
-#: src/web/pages_voter.ml:750
+#: src/web/pages_voter.ml:742
 msgid "Step 3/6: Review and encrypt"
 msgstr "Steg 3/6: Gjennomse og krypter"
 
-#: src/web/pages_voter.ml:487
+#: src/web/pages_voter.ml:479
 msgid "Step 5/6: Confirm"
 msgstr "Steg 5/6: Bekreft"
 
-#: src/web/pages_voter.ml:589
+#: src/web/pages_voter.ml:581
 msgid "Step 6/6: "
 msgstr "Steg 6/6: "
 
-#: src/web/pages_voter.ml:579
+#: src/web/pages_voter.ml:571
 msgid "Thank you for voting!"
 msgstr "Takk for din stemme."
 
-#: src/web/pages_voter.ml:835
+#: src/web/pages_voter.ml:880
+msgid "The Majority Judgment winners are:"
+msgstr ""
+
+#: src/web/pages_voter.ml:827
 msgid "The Schulze winners are:"
 msgstr "Schulze-vinnerne er:"
 
-#: src/web/pages_voter.ml:164 src/web/pages_voter.ml:159
+#: src/web/pages_voter.ml:162 src/web/pages_voter.ml:157
 msgid "The election is closed and being tallied."
 msgstr "Valget er over og blir nå opptalt."
 
-#: src/web/pages_voter.ml:149
+#: src/web/pages_voter.ml:147
 msgid "The election will close in "
 msgstr "Valget stenger om "
 
-#: src/web/pages_voter.ml:107
+#: src/web/site_voter.ml:310
+msgid "The number of grades is invalid"
+msgstr ""
+
+#: src/web/pages_voter.ml:103
 msgid "The raw results can be viewed in the "
 msgstr "Rådataresultatene er å finne på "
 
-#: src/web/pages_voter.ml:241
+#: src/web/pages_voter.ml:239
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr ""
 "Resultatet av dette valget er ikke tilgjengelig offentlig. Det vil bli det "
 "om %s."
 
-#: src/web/site_voter.ml:262
+#: src/web/site_voter.ml:306 src/web/site_voter.ml:262
 msgid "The result of this election is not available."
 msgstr "Resultatet av dette valget er ikke tilgjengelig."
 
@@ -473,47 +509,52 @@ msgstr ""
 "Dette valget finnes ikke. Dette kan skje for valg som ikke har blitt åpnet "
 "enda, eller har blitt slettet."
 
-#: src/web/pages_voter.ml:169
+#: src/web/pages_voter.ml:167
 msgid "This election has been tallied."
 msgstr "Valget har blitt opptalt."
 
-#: src/web/pages_voter.ml:174
+#: src/web/pages_voter.ml:172
 msgid "This election is archived."
 msgstr "Dette valget har blitt arkivert."
 
-#: src/web/pages_voter.ml:141
+#: src/web/pages_voter.ml:139
 msgid "This election is currently closed."
 msgstr "Dette valget er for tiden lukket."
+
+#: src/web/site_voter.ml:316
+msgid "This question is homomorphic, the Majority Judgment method cannot be applied to its result."
+msgstr ""
 
 #: src/web/site_voter.ml:267
 msgid "This question is homomorphic, the Schulze method cannot be applied to its result."
 msgstr ""
 "Spørsmålet er homomorfisk, Schulze-metoden kan ikke legges til dets resultat."
 
-#: src/web/pages_voter.ml:941
+#: src/web/pages_voter.ml:989
 msgid "This vote replaces any previous vote."
 msgstr "Denne stemmen erstatter min tidligere stemme."
 
-#: src/web/pages_voter.ml:827
+#: src/web/pages_voter.ml:869 src/web/pages_voter.ml:819
 msgid "Tie:"
 msgstr "Uavgjort:"
 
-#: src/web/pages_voter.ml:864
+#: src/web/pages_voter.ml:911
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
 msgstr ""
 "For å avgi en stemme, vil du også trenge en identitetsdetalj, sendt i egen "
 "e-post."
 
-#: src/web/pages_voter.ml:910
+#: src/web/pages_voter.ml:957
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "For å avgi en stemme, vil du også trenge et passord, sendt i egen e-post."
 
-#: src/web/pages_voter.ml:850
+#: src/web/pages_voter.ml:897
 msgid "To get more information, please contact:"
 msgstr "For mer info, kontakt:"
 
-#: src/web/pages_voter.ml:870 src/web/pages_common.ml:244
+#: src/web/pages_voter.ml:964 src/web/pages_voter.ml:917
+#. src/web/pages_common.ml:269
 msgid "Username:"
 msgstr "Brukernavn:"
 
@@ -521,7 +562,7 @@ msgstr "Brukernavn:"
 msgid "Value must be an integer between 0 and 255."
 msgstr "Verdi må være et heltall mellom 0 og 255."
 
-#: src/web/pages_voter.ml:527
+#: src/web/pages_voter.ml:519
 msgid "Warning:"
 msgstr "Advarsel:"
 
@@ -532,27 +573,27 @@ msgstr ""
 "til valgreglene, vil ugyldige stemmer (poengsum som er for høy, eller "
 "kandidater som ikke er opplistet) bli avslått på slutten av hvert valg."
 
-#: src/web/pages_voter.ml:904 src/web/pages_voter.ml:859
+#: src/web/pages_voter.ml:951 src/web/pages_voter.ml:906
 msgid "You are listed as a voter for the election"
 msgstr "Du er opplistet som stemmeberettighet for valget"
 
-#: src/web/pages_common.ml:271
+#: src/web/pages_common.ml:296
 msgid "You can "
 msgstr "Du kan "
 
-#: src/web/pages_common.ml:230
+#: src/web/pages_common.ml:255
 msgid "You can also "
 msgstr "Du kan også "
 
-#: src/web/pages_voter.ml:225
+#: src/web/pages_voter.ml:223
 msgid "You can also download the "
 msgstr "Du kan også laste ned "
 
-#: src/web/pages_voter.ml:575
+#: src/web/pages_voter.ml:567
 msgid "You can check its presence in the "
 msgstr "Du kan se om den finnes i "
 
-#: src/web/pages_voter.ml:945
+#: src/web/pages_voter.ml:993
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Du kan se om den finnes i valgurnen, tilgjengelig på"
 
@@ -564,25 +605,25 @@ msgstr "Du må velge minst %d svar"
 msgid "You must select at most %d answer(s)"
 msgstr "Du kan ikke velge mer enn %d svar"
 
-#: src/web/pages_voter.ml:912 src/web/pages_voter.ml:866
+#: src/web/pages_voter.ml:959 src/web/pages_voter.ml:913
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr ""
 "Du vil bli spurt om å skrive inn din identitetsdetalj før du går inn i "
 "stemmeavlukket."
 
-#: src/web/pages_voter.ml:908
+#: src/web/pages_voter.ml:955
 msgid "You will find below your credential."
 msgstr "Du vil finne din identitetsdetalj nedenfor."
 
-#: src/web/pages_voter.ml:863
+#: src/web/pages_voter.ml:910
 msgid "You will find below your login and password."
 msgstr "Du vil finne din innloggingsinfo og passordet ditt nedenfor."
 
-#: src/web/pages_voter.ml:593 src/web/pages_voter.ml:490
+#: src/web/pages_voter.ml:585 src/web/pages_voter.ml:482
 msgid "Your ballot for "
 msgstr "Din stemme for "
 
-#: src/web/pages_voter.ml:695
+#: src/web/pages_voter.ml:687
 msgid "Your ballot has been encrypted, "
 msgstr "Din stemme har blitt kryptert, "
 
@@ -590,20 +631,20 @@ msgstr "Din stemme har blitt kryptert, "
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Din nettleser ser ut til å blokkere kaker. Tillat dem først."
 
-#: src/web/pages_voter.ml:895
+#: src/web/pages_voter.ml:942
 msgid "Your password for election %s"
 msgstr "Ditt passord for valget %s"
 
-#: src/web/pages_voter.ml:936
+#: src/web/pages_voter.ml:984
 msgid "Your smart ballot tracker is"
 msgstr "Din smarte stemmesporer er"
 
-#: src/web/pages_voter.ml:700 src/web/pages_voter.ml:570
-#. src/web/pages_voter.ml:493
+#: src/web/pages_voter.ml:692 src/web/pages_voter.ml:562
+#. src/web/pages_voter.ml:485
 msgid "Your smart ballot tracker is "
 msgstr "Din smarte stemmesporer er "
 
-#: src/web/pages_voter.ml:931
+#: src/web/pages_voter.ml:979
 msgid "Your vote for election"
 msgstr "Din stemme i valget"
 
@@ -611,7 +652,7 @@ msgstr "Din stemme i valget"
 msgid "Your vote for election %s"
 msgstr "Din stemme i valget %s"
 
-#: src/web/pages_voter.ml:529
+#: src/web/pages_voter.ml:521
 msgid "Your vote was not recorded!"
 msgstr "Din stemme ble ikke registrert!"
 
@@ -619,27 +660,27 @@ msgstr "Din stemme ble ikke registrert!"
 msgid "a credential is missing"
 msgstr "en identitetsdetalj mangler"
 
-#: src/web/pages_voter.ml:576
+#: src/web/pages_voter.ml:568
 msgid "ballot box"
 msgstr "valgurne"
 
-#: src/web/pages_voter.ml:67
+#: src/web/pages_voter.ml:63
 msgid "ballots"
 msgstr "stemmer"
 
-#: src/web/pages_voter.ml:696
+#: src/web/pages_voter.ml:688
 msgid "but not cast yet"
 msgstr "men har ikke blitt avgitt enda"
 
-#: src/web/pages_common.ml:233
+#: src/web/pages_common.ml:258
 msgid "change your password"
 msgstr "endre passordet ditt"
 
-#: src/web/pages_common.ml:231
+#: src/web/pages_common.ml:256
 msgid "create an account"
 msgstr "opprett en konto"
 
-#: src/web/pages_voter.ml:935
+#: src/web/pages_voter.ml:983
 msgid "has been recorded."
 msgstr "har blitt lagret."
 
@@ -647,19 +688,19 @@ msgstr "har blitt lagret."
 msgid "here"
 msgstr "her"
 
-#: src/web/pages_voter.ml:57
+#: src/web/pages_voter.ml:53
 msgid "parameters"
 msgstr "parameter"
 
-#: src/web/pages_voter.ml:259
+#: src/web/pages_voter.ml:251
 msgid "personal data policy"
 msgstr "personlig datapraksis"
 
-#: src/web/pages_voter.ml:63
+#: src/web/pages_voter.ml:59
 msgid "public credentials"
 msgstr "offentlige identitetsdetaljer"
 
-#: src/web/pages_voter.ml:227
+#: src/web/pages_voter.ml:225
 msgid "result with cryptographic proofs"
 msgstr "resultat med kryptografisk bevis"
 
@@ -667,7 +708,7 @@ msgstr "resultat med kryptografisk bevis"
 msgid "some proofs failed verification"
 msgstr "noen bevis kunne ikke bekreftes"
 
-#: src/web/pages_voter.ml:533
+#: src/web/pages_voter.ml:525
 msgid "start from the beginning"
 msgstr "start fra begynnelsen"
 
@@ -675,11 +716,11 @@ msgstr "start fra begynnelsen"
 msgid "the election is closed"
 msgstr "valget er over"
 
-#: src/web/pages_voter.ml:60
+#: src/web/pages_voter.ml:56
 msgid "trustees"
 msgstr "betrodde"
 
-#: src/web/pages_common.ml:272
+#: src/web/pages_common.ml:297
 msgid "try to log in again"
 msgstr "prøv å logge inn igjen"
 
