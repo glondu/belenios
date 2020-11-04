@@ -32,7 +32,7 @@ PUBLIC_TRANSLATIONS_FOLDER := _run/usr/share/belenios-server/locales/frontend
 minimal:
 	dune build -p belenios-platform,belenios-platform-native,belenios,belenios-tool
 
-custom-javascript: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) src/booth/js/i18n_init.mjs src/booth/js/shortcuts.js src/booth/js/app.mjs src/booth/js/app.css
+custom-javascript: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) src/booth/js/i18n_init.mjs src/booth/js/shortcuts.js src/booth/js/app.mjs src/booth/js/app.css src/booth/js/components
 	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_JS_FOLDER)
 	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL)
 	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_FOLDER)

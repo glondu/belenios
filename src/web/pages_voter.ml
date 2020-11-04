@@ -828,6 +828,7 @@ let booth_2 () =
   let head = head (title (txt (s_ "Belenios Booth"))) [
     (*link ~rel:[`Stylesheet] ~href:(static app_css_url) ();*)
     Printf.ksprintf Unsafe.data ("<link rel=\"stylesheet\" href=\"/static/internal_modules/booth/js/app.css\">");
+    (* TODO: Add `<link rel="modulepreload" href="...">` for all `.mjs` files (`app.mjs` and all files it loads) *)
   ] in
   let body = body [
     div ~a:[a_id "vote-app"] [];
