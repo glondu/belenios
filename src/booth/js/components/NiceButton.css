@@ -1,0 +1,38 @@
+.nice-button {
+  border: 1px solid;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.nice-button:hover {
+  cursor: pointer;
+}
+
+.nice-button[disabled]:hover {
+  cursor: initial;
+}
+
+.nice-button[disabled] {
+  opacity: 0.5;
+}
+
+.nice-button--blue {
+  background: #1097e6;
+  color: white;
+  border-color: #a0dcff #5fc4ff #21adff;
+  background-image: linear-gradient(to bottom, #25a5f0, #1097e6 66%, #0f8ad3);
+}
+
+.nice-button--white {
+  background: white;
+  color: black;
+  border-color: black;
+}
+
+.nice-button--default {
+  background: #9d9d9d;
+  color: white;
+  border-color: #dfdfdf #d0d0d0 #a6a6a6;
+  background-image: linear-gradient(to bottom, #b0b0b0, #888 66%, #828282);
+}

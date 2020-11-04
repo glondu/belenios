@@ -1,0 +1,6 @@
+@import "common.css"; /* This component requires common `.noselect` */
+
+.classic-vote-candidates-list {
+  margin: 17px auto;
+  max-width: 550px;
+}

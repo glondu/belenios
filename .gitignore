@@ -14,3 +14,4 @@ __pycache__
 geckodriver.log
 env.sh
 node_modules
+*.stories.mjs

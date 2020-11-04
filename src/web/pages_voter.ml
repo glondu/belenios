@@ -810,155 +810,6 @@ let booth () =
   return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
 
 let booth_2 () =
-  let%lwt l = get_preferred_gettext () in
-  let open (val l) in
-  let head = head (title (txt (s_ "Belenios Booth"))) [
-    link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
-    script ~a:[a_src (static "tool_js_booth.js")] (txt "");
-  ] in
-  let wait_div =
-    div ~a:[a_id "wait_div"] [
-        txt "Please wait... ";
-        img ~src:(static "encrypting.gif") ~alt:"Loading..." ();
-      ]
-  in
-  let election_loader =
-    div ~a:[a_id "election_loader"; a_style "display:none;"] [
-      h1 [txt (s_ "Belenios Booth")];
-      br ();
-      txt "Load an election on this server by giving its UUID:";
-      div [unsafe_textarea "uuid" ""];
-      div [button_no_value ~button_type:`Button ~a:[a_id "load_uuid"] [txt "Load from UUID"]];
-      br ();
-      txt "Load any election by giving its parameters:";
-      div [unsafe_textarea "election_params" ""];
-      div [button_no_value ~button_type:`Button ~a:[a_id "load_params"] [txt "Load parameters"]];
-    ]
-  in
-  let text_choices = unsafe_textarea "choices" "" in
-  let ballot_form =
-    post_form ~a:[a_id "ballot_form"] ~service:election_submit_ballot
-      (fun encrypted_vote -> [
-        div ~a:[a_id "div_ballot"; a_style "display:none;"] [
-          txt "Encrypted ballot:";
-          div [
-            textarea
-              ~a:[a_id "ballot"; a_rows 1; a_cols 80; a_readonly ()]
-              ~name:encrypted_vote ();
-          ];
-        ];
-        p [
-          txt (s_ "Your ballot has been successfully encrypted, ");
-          b [txt (s_ "but has not been cast yet")];
-          txt (s_ "!");
-        ];
-        p [
-          txt (s_ "Your smart ballot tracker is ");
-          span ~a:[a_id "ballot_tracker"] [];
-        ];
-        p [
-          txt (s_ "We invite you to save it in order to check later that it is taken into account.");
-        ];
-        br ();
-        div ~a:[a_id "div_submit"] [
-            input ~input_type:`Submit ~value:(s_ "Continue") ~a:[a_style "font-size:30px;"] string;
-          ];
-        div ~a:[a_id "div_submit_manually"; a_style "display:none;"] [
-            txt "You must submit your ballot manually.";
-          ];
-        br (); br ();
-       ])
-      ()
-  in
-  let main =
-    div ~a:[a_id "main"] [
-      div ~a:[a_style "text-align:center; margin-bottom:20px;"] [
-        span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [txt (s_ "Input credential")];
-        txt " — ";
-        span ~a:[a_id "progress2"] [txt (s_ "Answer to questions")];
-        txt " — ";
-        span ~a:[a_id "progress3"] [txt (s_ "Review and encrypt")];
-        txt " — ";
-        span ~a:[a_id "progress4"] [txt (s_ "Authenticate")];
-        txt " — ";
-        span ~a:[a_id "progress5"] [txt (s_ "Confirm")];
-        txt " — ";
-        span ~a:[a_id "progress6"] [txt (s_ "Done")];
-        hr ();
-      ];
-      h1 [txt ("DO NOT CAST YOUR VOTE HERE, THIS IS A WORK IN PROGRESS PAGE")];
-      div ~a:[a_id "intro"; a_style "text-align:center;"] [
-        div ~a:[a_class ["current_step"]] [
-          txt (s_ "Step 1/6: Input credential");
-        ];
-        div ~a:[a_id "language-selector-container"] [];
-        div ~a:[a_id "like_button_container"] [];
-        div ~a:[a_id "translated_like_button_container"] [];
-        div ~a:[a_id "i18n-output"] [];
-        br (); br ();
-        p ~a:[a_id "input_code"; a_style "font-size:20px;"] [
-          txt (s_ "Input your credential ");
-        ];
-        br (); br ();
-      ];
-      div ~a:[a_id "question_div"; a_style "display:none;"] [
-        div ~a:[a_class ["current_step"]] [
-          txt (s_ "Step 2/6: Answer to questions");
-        ];
-      ];
-      div ~a:[a_id "plaintext_div"; a_style "display:none;"] [
-        div ~a:[a_class ["current_step"]] [
-          txt (s_ "Step 3/6: Review and encrypt");
-        ];
-        div ~a:[a_id "pretty_choices"] [];
-        div ~a:[a_style "display:none;"] [
-          txt "Plaintext raw ballot:";
-          div [text_choices];
-        ];
-        div ~a:[a_style "text-align:center;"] [
-          div ~a:[a_id "encrypting_div"] [
-            p [txt (s_ "Please wait while your ballot is being encrypted...")];
-            img ~src:(static "encrypting.gif") ~alt:(s_ "Encrypting...") ();
-          ];
-          div ~a:[a_id "ballot_div"; a_style "display:none;"] [ballot_form];
-          Unsafe.data ("<button onclick=\"location.reload();\">" ^ s_ "Restart" ^ "</button>");
-          br (); br ();
-        ];
-      ];
-    ]
-  in
-  let booth_div =
-    div ~a:[a_id "booth_div"; a_style "display:none;"] [
-      div ~a:[a_id "header"] [
-        div ~a:[a_style "float: left; padding: 15px;"] [
-          img ~alt:(s_ "Election server") ~a:[a_height 70]
-            ~src:(static "logo.png") ();
-        ];
-        div ~a:[a_style "float: right; padding: 15px;"] [
-          img ~alt:"" ~a:[a_height 70]
-            ~src:(static "placeholder.png") ();
-        ];
-        div ~a:[a_style "text-align:center; padding: 20px;"] [
-          h1 ~a:[a_id "election_name"] [];
-          p ~a:[a_id "election_description"] [];
-        ];
-        div ~a:[a_style "clear: both;"] [];
-      ];
-      main;
-      div ~a:[a_id "footer"] [
-        div ~a:[a_id "bottom"] [
-          div [
-            txt (s_ "Election UUID: ");
-            span ~a:[a_id "election_uuid"] [];
-          ];
-          div [
-            txt (s_ "Election fingerprint: ");
-            span ~a:[a_id "election_fingerprint"] [];
-          ];
-        ];
-      ];
-    ]
-  in
   let open Belenios_platform.Belenios_version in
   let javascript_mode = if debug then "development" else "production" in
   let javascript_extension = if debug then "" else ".min" in
@@ -969,27 +820,25 @@ let booth_2 () =
   let i18next_js_url = external_javascript_folder ^ "/i18next/dist/umd/i18next" ^ javascript_extension ^ ".js" in
   let react_i18next_js_url = external_javascript_folder ^ "/react-i18next/dist/umd/react-i18next" ^ javascript_extension ^ ".js" in
   let react_i18next_http_backend_js_url = external_javascript_folder ^ "/i18next-http-backend/i18nextHttpBackend" ^ javascript_extension ^ ".js" in
-  let i18n_init_js_url = internal_javascript_folder ^ "/booth/js/i18n_init.js" in
   let shortcuts_js_url = internal_javascript_folder ^ "/booth/js/shortcuts.js" in
-  let like_button_js_url = internal_javascript_folder ^ "/booth/js/like_button.js" in
-  let translated_like_button_js_url = internal_javascript_folder ^ "/booth/js/translated_like_button.js" in
-  let app_js_url = internal_javascript_folder ^ "/booth/js/app.js" in
+  (*let app_js_url = internal_javascript_folder ^ "/booth/js/app.mjs" in*)
+  (*let app_css_url = internal_javascript_folder ^ "/booth/js/app.css" in*)
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let head = head (title (txt (s_ "Belenios Booth"))) [
+    (*link ~rel:[`Stylesheet] ~href:(static app_css_url) ();*)
+    Printf.ksprintf Unsafe.data ("<link rel=\"stylesheet\" href=\"/static/internal_modules/booth/js/app.css\">");
+  ] in
   let body = body [
-    wait_div;
-    election_loader;
-    div ~a:[a_id "wrapper"] [
-      booth_div;
-    ];
+    div ~a:[a_id "vote-app"] [];
     script ~a:[a_src (static react_js_url)] (txt "");
     script ~a:[a_src (static react_dom_js_url)] (txt "");
     script ~a:[a_src (static i18next_js_url)] (txt "");
     script ~a:[a_src (static react_i18next_js_url)] (txt "");
     script ~a:[a_src (static react_i18next_http_backend_js_url)] (txt "");
-    script ~a:[a_src (static i18n_init_js_url)] (txt "");
     script ~a:[a_src (static shortcuts_js_url)] (txt "");
-    script ~a:[a_src (static like_button_js_url)] (txt "");
-    script ~a:[a_src (static translated_like_button_js_url)] (txt "");
-    script ~a:[a_src (static app_js_url)] (txt "");
+    (*script ~a:[a_type "module"; a_src (static app_js_url)] (txt "");*)
+    Printf.ksprintf Unsafe.data ("<script type=\"module\" src=\"/static/internal_modules/booth/js/app.mjs\"></script>");
   ] in
   return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
 

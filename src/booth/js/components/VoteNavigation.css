@@ -1,0 +1,57 @@
+@import "NiceButton.css";
+
+.vote-navigation-container {
+  width: 100%;
+  background: #666;
+  margin-top: 30px;
+}
+
+.vote-navigation {
+  display: flex;
+  justify-content: space-between;
+  color: #fff;
+  padding: 0 10px;
+  font-size: 14px;
+  max-width: 550px;
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 640px) {
+  .vote-navigation {
+    padding: 0 2px;
+  }
+
+  .vote-navigation__info {
+    padding: 0 1px;
+  }
+}
+
+@media screen and (min-width: 640px) {
+  .vote-navigation {
+    padding: 0 10px;
+  }
+
+  .vote-navigation__info {
+    padding: 0 5px;
+  }
+}
+
+.vote-navigation__info {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.vote-navigation__previous-button-container, .vote-navigation__next-button-container {
+  padding: 15px;
+  margin: 1px;
+}
+
+.vote-navigation__previous-button::before {
+  content: "<\a0\a0";
+}
+
+.vote-navigation__next-button::after {
+  content: "\a0\a0>";
+}
