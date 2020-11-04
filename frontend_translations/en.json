@@ -22,5 +22,10 @@
   "Input your credential": "Input your credential",
   "here": "here",
   "Please enter your credential": "Please enter your credential:",
-  "Invalid credential!": "Invalid credential!"
+  "Invalid credential!": "Invalid credential!",
+  "questionConstraintNoBlankAndOther": "You cannot check blank vote and another answer.",
+  "questionConstraintNoLessThanMin": "This question does not accept less than {{count}} answer checked.",
+  "questionConstraintNoLessThanMin_plural": "This question does not accept less than {{count}} answers checked.",
+  "questionConstraintNoMoreThanMax": "This question does not accept more than {{count}} answer checked.",
+  "questionConstraintNoMoreThanMax_plural": "This question does not accept more than {{count}} answers checked."
 }

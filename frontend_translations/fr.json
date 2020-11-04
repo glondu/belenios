@@ -22,5 +22,10 @@
   "Input your credential": "Saisissez votre code de vote",
   "here": "ici",
   "Please enter your credential": "Veuillez saisir votre code de vote :",
-  "Invalid credential!": "Code de vote invalide !"
+  "Invalid credential!": "Code de vote invalide !",
+  "questionConstraintNoBlankAndOther": "Vous ne pouvez pas cocher à la fois le vote blanc et une autre réponse.",
+  "questionConstraintNoLessThanMin": "Cette question n'accepte pas moins de {{count}} réponse cochée.",
+  "questionConstraintNoLessThanMin_plural": "Cette question n'accepte pas moins de {{count}} réponses cochées.",
+  "questionConstraintNoMoreThanMax": "Cette question n'accepte pas plus de {{count}} réponse cochée.",
+  "questionConstraintNoMoreThanMax_plural": "Cette question n'accepte pas plus de {{count}} réponses cochées."
 }

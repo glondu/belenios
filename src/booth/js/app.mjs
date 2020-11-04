@@ -1,9 +1,8 @@
 import i18n_init from "./i18n_init.mjs";
 import PageHeader from "./components/PageHeader.mjs";
 import { VoteBreadcrumb } from "./components/Breadcrumb.mjs";
+import AllQuestionsWithPagination from "./components/AllQuestionsWithPagination.mjs";
 import InputCredentialSection from "./components/InputCredentialSection.mjs";
-import QuestionWithVotableAnswers from "./components/QuestionWithVotableAnswers.mjs";
-import VoteNavigation from "./components/VoteNavigation.mjs";
 import PageFooter from "./components/PageFooter.mjs";
 
 function getHashParametersFromURL(){
@@ -196,6 +195,7 @@ function TranslatableVoteApp({uuid, lang, onVoteSubmit, t}){
             AllQuestionsWithPagination,
             {
               electionData: electionData,
+              extractVoterSelectedAnswersFromFields: extractVoterSelectedAnswersFromFields,
               onVoteSubmit: function(event, electionData){
                 return onVoteSubmit(event, electionData, credential);
               }
@@ -266,95 +266,9 @@ function extractVoterSelectedAnswersFromFields(electionData){
       const blank_value = blank_el.checked ? 1 : 0;
       answers_to_question = [blank_value, ...answers_to_question];
     }
-    const number_of_answers_checked = answers_to_question.reduce(
-      function(accumulator, value, index){
-        const answer_value = value === 1 ? 1 : 0;
-        return accumulator + answer_value;
-      },
-      0
-    );
-    if (question_type == "radio" && number_of_answers_checked > 1){
-      console.error("Several answers are checked but question type should be radio.");
-    }
     return answers_to_question;
   });
   return vote_of_voter_per_question;
-}
-
-
-/* We chose to not use a `<form>`, because it could increase possibilities to leak voter's choices. Instead, we use `<input type="checkbox">` or `<input type="radio">` fields outside of a `<form>`, and classic `<button>` for navigation between questions ("Previous" and "Next" labels). */
-class AllQuestionsWithPagination extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      current_question_index: props.current_question_index
-    };
-    this.onClickPrevious = this.onClickPrevious.bind(this);
-    this.onClickNext = this.onClickNext.bind(this);
-  }
-
-  static get defaultProps() {
-    return {
-      current_question_index: 0,
-      electionData: null,
-      onVoteSubmit: null
-    };
-  }
-
-  onClickPrevious(){
-    console.log("onClickPrevious");
-    if (this.state.current_question_index-1 >= 0){
-      this.setState({current_question_index: this.state.current_question_index-1});
-      window.scrollTo(0, 0); // Scroll to top of the page
-    }
-  }
-
-  onClickNext(event){
-    console.log("onClickNext");
-    if (this.state.current_question_index+1 < this.props.electionData.questions.length){
-      this.setState({current_question_index: this.state.current_question_index+1});
-      window.scrollTo(0, 0); // Scroll to top of the page
-    }
-    else {
-      // TODO: go to verification page
-      if (this.props.onVoteSubmit){
-        return this.props.onVoteSubmit(event, this.props.electionData);
-      }
-    }
-  }
-
-  render(){
-    const renderedQuestions = this.props.electionData.questions.map(function(question, question_index){
-      return e(
-        QuestionWithVotableAnswers,
-        {
-          answers: question.answers,
-          minimum_answers: question.min,
-          maximum_answers: question.max,
-          question: question.question,
-          blankVoteAllowed: question.blank,
-          identifierPrefix: `question_${question_index}_`,
-          visible: this.state.current_question_index === question_index ? true : false
-        }
-      )
-    }, this);
-
-    const renderedPagination = e(
-      VoteNavigation,
-      {
-        question_index: this.state.current_question_index,
-        questions_length: this.props.electionData.questions.length,
-        onClickPreviousButton: this.onClickPrevious,
-        onClickNextButton: this.onClickNext
-      }
-    );
-    return e(
-      React.Fragment,
-      null,
-      ...renderedQuestions,
-      renderedPagination
-    );
-  }
 }
 
 main();
