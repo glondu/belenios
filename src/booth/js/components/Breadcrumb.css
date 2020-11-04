@@ -6,13 +6,13 @@
 
 @media screen and (max-width: 640px) {
   .breadcrumb {
-    padding: 6px;
+    padding: 6px 0;
   }
 }
 
 @media screen and (min-width: 640px) {
   .breadcrumb {
-    padding: 10px;
+    padding: 10px 0;
   }
 }
 
@@ -26,13 +26,17 @@
   padding-bottom: 5px;
 }
 
-.breadcrumb__step-separator::after {
-  content: ">";
+.breadcrumb__step-separator {
   flex-grow: 1;
+  text-align: center;
 }
 
-.breadcrumb__step-separator:last-child {
-  display: none;
+.breadcrumb__step-separator::after {
+  content: ">";
+}
+
+.breadcrumb__step-separator:last-child, .breadcrumb__step-separator:first-child {
+  visibility: hidden;
 }
 
 @media screen and (max-width: 640px) {

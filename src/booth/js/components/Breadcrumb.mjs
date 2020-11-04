@@ -43,6 +43,12 @@ function Breadcrumb(props) {
     {
       className: "breadcrumb"
     },
+    e(
+      'div',
+      {
+        className: "breadcrumb__step-separator"
+      }
+    ),
     ...renderedSteps
   );
 }
