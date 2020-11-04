@@ -105,7 +105,7 @@ let validate_election uuid se =
        return (trustee_names, trustees, private_key)
     | Some ts ->
        match se.se_threshold_parameters with
-       | None -> failwith "key establishment not finished"
+       | None -> failwith "keys not yet established"
        | Some tp ->
           let tp = threshold_parameters_of_string G.read tp in
           let named =
@@ -359,7 +359,7 @@ let without_site_user ?fallback f =
      | Some g -> g u
      | None ->
         Pages_common.generic_page ~title:(s_ "Error")
-          (s_ "This page is not accessible to authenticated administrators, because it is meant to be used by third parties.")
+          (s_ "Page inaccessible for authenticated administrators, as it is meant to be used by third parties.")
           () >>= Html.send
 
 let () =
@@ -547,17 +547,17 @@ let () =
           let service = Eliom_service.preapply ~service:election_draft_credential_authority uuid in
           match (
             if se.se_metadata.e_cred_authority = Some "server" then
-              Error (s_ "You cannot set the credential authority for this election!")
+              Error (s_ "You cannot set the credential authority for this election.")
             else
               match name with
               | "" -> Ok None
-              | "server" -> Error (s_ "Invalid public name for credential authority!")
+              | "server" -> Error (s_ "Invalid public name for credential authority.")
               | x -> Ok (Some x)
           ) with
           | Ok e_cred_authority ->
              se.se_metadata <- {se.se_metadata with e_cred_authority};
-             let msg = s_ "The public name of the credential authority has been set successfully!" in
-             Pages_common.generic_page ~title:(s_ "Success") ~service msg () >>= Html.send
+             let msg = s_ "Public name of the credential authority set." in
+             Pages_common.generic_page ~title:(s_ "Done") ~service msg () >>= Html.send
           | Error msg ->
              Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
         )
@@ -574,7 +574,7 @@ let () =
           | [] ->
              let service = preapply ~service:election_draft uuid in
              Pages_common.generic_page ~title:(s_ "Error") ~service
-               (s_ "You must select at least one language!") () >>= Html.send
+               (s_ "Select at least one language.") () >>= Html.send
           | _ :: _ ->
              let unavailable =
                List.filter (fun x ->
@@ -630,7 +630,7 @@ let () =
           let open (val l) in
           if PString.length name > max_election_name_size then (
             let msg =
-              Printf.sprintf (f_ "The election name must be %d characters or less!")
+              Printf.sprintf (f_ "The election name must be %d characters or less.")
                 max_election_name_size
             in
             Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
@@ -648,9 +648,9 @@ let handle_password se uuid ~force voters =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
   if List.length voters > !Web_config.maxmailsatonce then
-    Lwt.fail (Failure (Printf.sprintf (f_ "Cannot send passwords, there are too many voters (max is %d)") !Web_config.maxmailsatonce))
+    Lwt.fail (Failure (Printf.sprintf (f_ "Cannot send passwords, as there are too many voters (max is %d)") !Web_config.maxmailsatonce))
   else if se.se_questions.t_name = default_name then
-    Lwt.fail (Failure (s_ "The election name has not been edited!"))
+    Lwt.fail (Failure (s_ "Election name unchanged."))
   else
   let title = se.se_questions.t_name in
   let url = Eliom_uri.make_string_uri ~absolute:true ~service:election_home
@@ -667,8 +667,8 @@ let handle_password se uuid ~force voters =
       ) voters
   in
   let service = preapply ~service:election_draft uuid in
-  Pages_common.generic_page ~title:(s_ "Success") ~service
-    (s_ "Passwords have been generated and mailed!") () >>= Html.send
+  Pages_common.generic_page ~title:(s_ "Done") ~service
+    (s_ "Passwords generated and sent via e-mail.") () >>= Html.send
 
 let () =
   Any.register ~service:election_draft_auth_genpwd
@@ -730,8 +730,8 @@ let () =
                let%lwt x = Pages_voter.generate_password metadata langs title url id in
                let db = replace_password user x db in
                let%lwt () = dump_passwords uuid db in
-               Pages_common.generic_page ~title:(s_ "Success") ~service
-                 (Printf.sprintf (f_ "A new password has been mailed to %s.") id) ()
+               Pages_common.generic_page ~title:(s_ "Done") ~service
+                 (Printf.sprintf (f_ "New password sent via e-mail to %s.") id) ()
                >>= Html.send
             | None ->
                Pages_common.generic_page ~title:(s_ "Error") ~service
@@ -852,7 +852,7 @@ let () =
             then
               Lwt.fail
                 (Failure
-                   (Printf.sprintf (f_ "There are too many voters (max is %d)")
+                   (Printf.sprintf (f_ "There can not be more than %d voters.")
                       !Web_config.maxmailsatonce))
             else (
               se.se_voters <- voters;
@@ -1026,11 +1026,11 @@ let () =
           let open (val l) in
           let nvoters = List.length se.se_voters in
           if nvoters > !Web_config.maxmailsatonce then
-            Lwt.fail (Failure (Printf.sprintf (f_ "Cannot send credentials, there are too many voters (max is %d)") !Web_config.maxmailsatonce))
+            Lwt.fail (Failure (Printf.sprintf (f_ "Cannot send credentials, there can not be more than %d voters.") !Web_config.maxmailsatonce))
           else if nvoters = 0 then
             Lwt.fail (Failure (s_ "No voters"))
           else if se.se_questions.t_name = default_name then
-            Lwt.fail (Failure (s_ "The election name has not been edited!"))
+            Lwt.fail (Failure (s_ "Election name unchanged."))
           else if se.se_public_creds_received then
             forbidden ()
           else (
@@ -1090,8 +1090,8 @@ let () =
             in
             se.se_public_creds_received <- true;
             let service = preapply ~service:election_draft uuid in
-            Pages_common.generic_page ~title:(s_ "Success") ~service
-              (s_ "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential.") () >>= Html.send
+            Pages_common.generic_page ~title:(s_ "Done") ~service
+              (s_ "Credentials generated and sent via e-mail. Download your private credentials (and store them securely), in case someone loses theirs.") () >>= Html.send
           )
         )
     )
@@ -1129,7 +1129,7 @@ let () =
              | None -> forbidden ()
              | Some t ->
                 if t.st_public_key <> "" then
-                  let msg = s_ "Your public key has already been received!" in
+                  let msg = s_ "Your public key has already been received." in
                   let title = s_ "Error" in
                   Pages_common.generic_page ~title msg () >>= Html.send ~code:403
                 else
@@ -1156,7 +1156,7 @@ let () =
                      | None -> forbidden ()
                      | Some t ->
                         if t.st_public_key <> "" then
-                          let msg = s_ "A public key already existed, the key you've just uploaded has been ignored!" in
+                          let msg = s_ "A public key already existed, the key you've just uploaded has been ignored." in
                           let title = s_ "Error" in
                           return (title, msg, 400)
                         else
@@ -1164,15 +1164,15 @@ let () =
                           let pk = trustee_public_key_of_string G.read public_key in
                           let module K = Trustees.MakeCombinator (G) in
                           if not (K.check [`Single pk]) then
-                            let msg = s_ "Invalid public key!" in
+                            let msg = s_ "Invalid public key" in
                             let title = s_ "Error" in
                             return (title, msg, 400)
                           else (
                             (* we keep pk as a string because of G.t *)
                             t.st_public_key <- public_key;
                             let%lwt () = Web_persist.set_draft_election uuid se in
-                            let msg = s_ "Your key has been received and checked!" in
-                            let title = s_ "Success" in
+                            let msg = s_ "Your key has been received and checked." in
+                            let title = s_ "Done" in
                             return (title, msg, 200)
                           )
                 )
@@ -1250,7 +1250,7 @@ let () =
              Pages_common.generic_page ~title:(s_ "Error")
                ~service:(preapply ~service:election_draft_voters uuid)
                (Printf.sprintf
-                  (f_ "Could not retrieve voter list from election %s")
+                  (f_ "Could not retrieve voter list from the \"%s\" election")
                   from_s)
                () >>= Html.send
         )
@@ -1277,14 +1277,14 @@ let () =
           let%lwt metadata = Web_persist.get_election_metadata from in
           try%lwt
                 match metadata.e_trustees with
-                | None -> Lwt.fail (TrusteeImportError (s_ "Could not retrieve trustees from selected election!"))
+                | None -> Lwt.fail (TrusteeImportError (s_ "Could not retrieve trustees from selected election."))
                 | Some names ->
                    let%lwt trustees = Web_persist.get_trustees from in
                    let module G = (val Group.of_string se.se_group : GROUP) in
                    let module K = Trustees.MakeCombinator (G) in
                    let trustees = trustees_of_string G.read trustees in
                    if not (K.check trustees) then
-                     Lwt.fail (TrusteeImportError (s_ "Imported trustees are invalid for this election!"))
+                     Lwt.fail (TrusteeImportError (s_ "Imported trustees invalid for this election!"))
                    else
                      let import_pedersen t names =
                        let%lwt privs = Web_persist.get_private_keys from in
@@ -1308,7 +1308,7 @@ let () =
                               | [], [], [] -> return (List.rev accu)
                               | _, _, _ -> Lwt.fail (TrusteeImportError (s_ "Inconsistency in imported election!"))
                             in loop names (Array.to_list t.t_verification_keys) privs []
-                         | None -> Lwt.fail (TrusteeImportError (s_ "Encrypted decryption keys are missing!"))
+                         | None -> Lwt.fail (TrusteeImportError (s_ "Encrypted decryption keys missing!"))
                        in
                        se.se_threshold <- Some t.t_threshold;
                        se.se_threshold_trustees <- Some se_threshold_trustees;
@@ -1396,7 +1396,7 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
                let%lwt () = Web_persist.add_shuffle_hash uuid sh in
                Web_persist.remove_audit_cache uuid
             | None ->
-               Lwt.fail (Failure (Printf.sprintf (f_ "Automatic shuffle by server has failed for election %s!") (raw_string_of_uuid uuid)))
+               Lwt.fail (Failure (Printf.sprintf (f_ "Automatic shuffle by server failed for the \"%s\" election!") (raw_string_of_uuid uuid)))
           ) else return_unit
         in
         let get_tokens_decrypt () =
@@ -1688,7 +1688,7 @@ let make_archive uuid =
      rmdir temp_dir
   | _ ->
      Printf.ksprintf Ocsigen_messages.errlog
-       "Error while creating archive.zip for election %s, temporary directory left in %s"
+       "Could not create archive.zip for the \"%s\" election , temporary directory left in %s"
        uuid_s temp_dir;
      return_unit
 
@@ -1754,10 +1754,10 @@ let () =
                  | None -> forbidden ()
                 )
              | `Open | `Closed | `Shuffling ->
-                let msg = s_ "The election is not ready to be tallied. Please come back later." in
+                let msg = s_ "The election can not be tallied yet. Please come back later." in
                 Pages_common.generic_page ~title:(s_ "Forbidden") msg () >>= Html.send ~code:403
              | `Tallied | `Archived ->
-                let msg = s_ "The election has already been tallied." in
+                let msg = s_ "Election already tallied." in
                 Pages_common.generic_page ~title:(s_ "Forbidden") msg () >>= Html.send ~code:403
         )
     )
@@ -1810,8 +1810,8 @@ let () =
       if E.check_factor et pk pd then (
         let pds = (trustee_id, partial_decryption) :: pds in
         let%lwt () = Web_persist.set_partial_decryptions uuid pds in
-        Pages_common.generic_page ~title:(s_ "Success")
-          (s_ "Your partial decryption has been received and checked!") () >>=
+        Pages_common.generic_page ~title:(s_ "Done")
+          (s_ "Your partial decryption is received and checked!") () >>=
         Html.send
       ) else (
         let service = preapply ~service:election_tally_trustees (uuid, token) in
@@ -1881,7 +1881,7 @@ let handle_election_tally_release uuid () =
         | Error e ->
            let msg =
              Printf.sprintf
-               (f_ "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job.")
+               (f_ "Could not compute the result (%s). Most likely some trustee has not done their job.")
                (Trustees.string_of_combination_error e)
            in
            Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
@@ -1997,11 +1997,11 @@ let () =
                  let sh = {sh_trustee = x.tk_trustee; sh_hash = h; sh_name = x.tk_name} in
                  let%lwt () = Web_persist.add_shuffle_hash uuid sh in
                  let%lwt () = Web_persist.remove_audit_cache uuid in
-                 Pages_common.generic_page ~title:(s_ "Success") (s_ "The shuffle has been successfully applied!") () >>= Html.send
+                 Pages_common.generic_page ~title:(s_ "Success") (s_ "The shuffle has been applied!") () >>= Html.send
               | None ->
-                 Pages_common.generic_page ~title:(s_ "Error") (s_ "An error occurred while applying the shuffle.") () >>= Html.send
+                 Pages_common.generic_page ~title:(s_ "Error") (s_ "Could not carry out the shuffle.") () >>= Html.send
               | exception e ->
-                 Pages_common.generic_page ~title:(s_ "Error") (Printf.sprintf (f_ "Data is invalid! (%s)") (Printexc.to_string e)) () >>= Html.send
+                 Pages_common.generic_page ~title:(s_ "Error") (Printf.sprintf (f_ "Invalid data! (%s)") (Printexc.to_string e)) () >>= Html.send
              )
           | _ -> forbidden ()
         )
@@ -2104,7 +2104,7 @@ let () =
           let open (val l) in
           match se.se_threshold_trustees with
           | None ->
-             let msg = s_ "Please add some trustees first!" in
+             let msg = s_ "Please add some trustees first." in
              let service = preapply ~service:election_draft_threshold_trustees uuid in
              Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
           | Some xs ->
@@ -2117,7 +2117,7 @@ let () =
                se.se_threshold <- maybe_threshold;
                redir_preapply election_draft_threshold_trustees uuid ()
              ) else (
-               let msg = s_ "The threshold must be positive and smaller than the number of trustees!" in
+               let msg = s_ "The threshold must be positive and smaller than the number of trustees." in
                let service = preapply ~service:election_draft_threshold_trustees uuid in
                Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
              )
@@ -2147,7 +2147,7 @@ let () =
             se.se_threshold_trustees <- trustees;
             redir_preapply election_draft_threshold_trustees uuid ()
           ) else (
-            let msg = Printf.sprintf (f_ "%s is not a valid e-mail address!") stt_id in
+            let msg = Printf.sprintf (f_ "\"%s\" is not a valid e-mail address.") stt_id in
             let service = preapply ~service:election_draft_threshold_trustees uuid in
             Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
           )
@@ -2368,7 +2368,7 @@ let () =
          let%lwt () = Web_signup.send_confirmation_link ~service email in
          let message =
            Printf.sprintf
-             (f_ "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation.") email
+             (f_ "Confirmation link sent to %s via e-mail. Please click it to complete account creation.") email
          in
          Pages_common.generic_page ~title:(s_ "Account creation") message ()
       | _ -> signup_captcha_handler service error email
@@ -2406,14 +2406,14 @@ let () =
            | None ->
               return (
                   Printf.ksprintf Ocsigen_messages.warning
-                    "Unsuccessful attempt to change the password of %S (%S) for service %s"
+                    "Could not change the password of %S (%S) for the %s service"
                     username email service
                 )
            | Some (username, address) ->
               Web_signup.send_changepw_link ~service ~address ~username
          in
          let message =
-           s_ "If the account exists, an e-mail was sent with a confirmation link. Please click on it to change your password."
+           s_ "If the account exists, an e-mail containing a confirmation link will be sent. Please click it to change your password."
          in
          Pages_common.generic_page ~title:(s_ "Change password") message ()
       | _ -> changepw_captcha_handler service error email username
@@ -2456,7 +2456,7 @@ let () =
               let%lwt () = Web_signup.remove_link token in
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
-              Pages_common.generic_page ~title:(s_ "Account creation") ~service (s_ "The account has been created.") ()
+              Pages_common.generic_page ~title:(s_ "Account creation") ~service (s_ "Account created.") ()
            | Error e -> Pages_admin.signup email (Some e) username
          ) else Pages_admin.signup email (Some PasswordMismatch) username
       | _ -> forbidden ()
@@ -2476,7 +2476,7 @@ let () =
               let%lwt () = Web_signup.remove_link token in
               let%lwt () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
-              Pages_common.generic_page ~title:(s_ "Change password") ~service (s_ "The password has been changed.") ()
+              Pages_common.generic_page ~title:(s_ "Change password") ~service (s_ "Password changed.") ()
            | Error e -> Pages_admin.changepw ~username ~address (Some e)
          ) else Pages_admin.changepw ~username ~address (Some PasswordMismatch)
       | _ -> forbidden ()
@@ -2552,7 +2552,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
     let%lwt () = action uuid in
     return (
         Printf.ksprintf Ocsigen_messages.warning
-          "Election %s has been automatically %s" uuid_s comment
+          "Election %s automatically %s" uuid_s comment
       )
   ) else (
     let mail_t = datetime_add next_t (day (-days_to_mail)) in
