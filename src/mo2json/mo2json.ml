@@ -9,8 +9,8 @@ let build_string_map mo =
         match translation with
         | Singular (str_id, str) ->
            StringMap.add str_id (str, None) accu
-        | Plural (str_id, str_plural, lst) ->
-           StringMap.add str_id (str_plural, Some lst) accu
+        | Plural (str_id, _, _) ->
+           Printf.ksprintf failwith "unsupported: Plural(%S, _, _)" str_id
       ) StringMap.empty mo
   in
   map
