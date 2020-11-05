@@ -195,7 +195,7 @@ msgstr "Přístupový kód:"
 
 #: src/web/pages_voter.ml:977
 msgid "Dear %s,"
-msgstr "Vážený/vážená %,"
+msgstr "Vážený/vážená %s,"
 
 #: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
 #. src/web/pages_voter.ml:473

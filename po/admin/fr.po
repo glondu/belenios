@@ -306,7 +306,7 @@ msgstr ""
 
 #: src/web/site_admin.ml:1399
 msgid "Automatic shuffle by server has failed for election %s!"
-msgstr "Le mélange automatique du serveur a échoué pour l'élection % !"
+msgstr "Le mélange automatique du serveur a échoué pour l'élection %s !"
 
 #: src/web/pages_admin.ml:2058
 msgid "Automatically close the election at:"
