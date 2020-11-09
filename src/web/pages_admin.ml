@@ -270,7 +270,13 @@ let election_draft_pre () =
 
 let preview_booth l uuid =
   let open (val l : Web_i18n_sig.GETTEXT) in
-  let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
+  let hash =
+    Netencoding.Url.mk_url_encoded_parameters
+      [
+        "uuid", raw_string_of_uuid uuid;
+        "lang", lang;
+      ]
+  in
   let service =
     Eliom_uri.make_string_uri
       ~service:election_vote ~absolute:true () |> rewrite_prefix
