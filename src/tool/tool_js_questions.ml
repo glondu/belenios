@@ -430,8 +430,7 @@ let fill_interactivity () =
 let () =
   Lwt.async (fun () ->
       let%lwt _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
-      let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
-      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
+      let%lwt () = Tool_js_i18n.auto_init "admin" in
       ignore (fill_interactivity ());
       Lwt.return_unit
     )

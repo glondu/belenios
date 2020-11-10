@@ -1,4 +1,5 @@
-val init : string -> string -> unit Lwt.t
+val init : string -> string -> string -> unit Lwt.t
+val auto_init : string -> unit Lwt.t
 
 module Gettext : sig
   val s_ : string -> string

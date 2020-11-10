@@ -1142,9 +1142,13 @@ let election_draft_credentials_done se () =
   base ~title ~content ()
 
 let script_with_lang ~lang file =
+  let file = static file in
+  let dir = Filename.dirname (string_of_uri file) in
   div [
-      Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
-      script ~a:[a_src (static file)] (txt "");
+      Printf.ksprintf Unsafe.data
+        "<script>var belenios_lang = %S; var belenios_dir = %S;</script>"
+        lang dir;
+      script ~a:[a_src file] (txt "");
     ]
 
 let election_draft_questions uuid se () =
