@@ -1047,7 +1047,7 @@ let () =
             let module CD = Credential.MakeDerive (G) in
             let%lwt public_creds, private_creds =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
-                  let email, login = split_identity v.sv_id in
+                  let recipient, login = split_identity v.sv_id in
                   let cas =
                     match se.se_metadata.e_auth_config with
                     | Some [{auth_system = "cas"; _}] -> true
@@ -1073,7 +1073,7 @@ let () =
                     let open (val l) in
                     Printf.ksprintf return (f_ "Your credential for election %s") title
                   in
-                  let%lwt () = send_email email subject body in
+                  let%lwt () = send_email ~recipient ~subject ~body in
                   return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)
                 ) (CSet.empty, []) se.se_voters
             in
@@ -2570,7 +2570,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
         | Some contact ->
            match extract_email contact with
            | None -> return_unit
-           | Some email ->
+           | Some recipient ->
               let subject =
                 Printf.sprintf "Election %s will be automatically %s soon"
                   name comment
@@ -2579,7 +2579,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
                 Printf.sprintf mail_automatic_warning
                   name comment (format_datetime next_t)
               in
-              let%lwt () = send_email email subject body in
+              let%lwt () = send_email ~recipient ~subject ~body in
               Web_persist.set_election_dates uuid {dates with e_last_mail = Some now}
       ) else return_unit
     ) else return_unit

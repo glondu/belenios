@@ -127,7 +127,7 @@ val generate_token : ?length:int -> unit -> string Lwt.t
 
 val string_of_user : user -> string
 
-val send_email : string -> string -> string -> unit Lwt.t
+val send_email : recipient:string -> subject:string -> body:string -> unit Lwt.t
 
 val split_identity : string -> string * string
 

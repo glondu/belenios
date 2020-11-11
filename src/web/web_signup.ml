@@ -114,7 +114,7 @@ let send_confirmation_link ~service address =
     Eliom_uri.make_string_uri ~absolute:true ~service:Web_services.signup_login
       token |> rewrite_prefix
   in
-  let message =
+  let body =
     Printf.sprintf "\
 Dear %s,
 
@@ -133,7 +133,8 @@ Best regards,
 -- \n\
 Belenios Server" address uri
   in
-  let%lwt () = send_email address "Belenios account creation" message in
+  let subject = "Belenios account creation" in
+  let%lwt () = send_email ~recipient:address ~subject ~body in
   Lwt.return_unit
 
 let send_changepw_link ~service ~address ~username =
@@ -147,7 +148,7 @@ let send_changepw_link ~service ~address ~username =
     Eliom_uri.make_string_uri ~absolute:true ~service:Web_services.signup_login
       token |> rewrite_prefix
   in
-  let message =
+  let body =
     Printf.sprintf "\
 Dear %s,
 
@@ -164,9 +165,10 @@ address are no longer valid.
 Best regards,
 
 -- \n\
-Belenios Server" username uri
+Belenios Server" address uri
   in
-  let%lwt () = send_email address "Belenios password change" message in
+  let subject = "Belenios password change" in
+  let%lwt () = send_email ~recipient:address ~subject ~body in
   Lwt.return_unit
 
 let confirm_link token =

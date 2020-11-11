@@ -274,7 +274,7 @@ let sendmail ?return_path message =
     | Some x -> Printf.sprintf "%s -f %s" mailer x in
   Netsendmail.sendmail ~mailer message
 
-let send_email recipient subject body =
+let send_email ~recipient ~subject ~body =
   let contents =
     Netsendmail.compose
       ~from_addr:("Belenios public server", !Web_config.server_mail)
