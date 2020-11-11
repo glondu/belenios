@@ -662,7 +662,7 @@ let handle_password se uuid ~force voters =
         match id.sv_password with
         | Some _ when not force -> return_unit
         | None | Some _ ->
-           let%lwt x = Pages_voter.generate_password se.se_metadata langs title url id.sv_id in
+           let%lwt x = Pages_voter.generate_password se.se_metadata langs title uuid url id.sv_id in
            return (id.sv_password <- Some x)
       ) voters
   in
@@ -727,7 +727,7 @@ let () =
             | Some id ->
                let langs = get_languages metadata.e_languages in
                let%lwt db = load_password_db uuid in
-               let%lwt x = Pages_voter.generate_password metadata langs title url id in
+               let%lwt x = Pages_voter.generate_password metadata langs title uuid url id in
                let db = replace_password user x db in
                let%lwt () = dump_passwords uuid db in
                Pages_common.generic_page ~title:(s_ "Success") ~service
@@ -1073,7 +1073,7 @@ let () =
                     let open (val l) in
                     Printf.ksprintf return (f_ "Your credential for election %s") title
                   in
-                  let%lwt () = send_email ~recipient ~subject ~body in
+                  let%lwt () = send_email (MailCredential uuid) ~recipient ~subject ~body in
                   return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)
                 ) (CSet.empty, []) se.se_voters
             in
@@ -2579,7 +2579,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
                 Printf.sprintf mail_automatic_warning
                   name comment (format_datetime next_t)
               in
-              let%lwt () = send_email ~recipient ~subject ~body in
+              let%lwt () = send_email (MailAutomaticWarning uuid) ~recipient ~subject ~body in
               Web_persist.set_election_dates uuid {dates with e_last_mail = Some now}
       ) else return_unit
     ) else return_unit

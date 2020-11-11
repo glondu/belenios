@@ -274,7 +274,23 @@ let sendmail ?return_path message =
     | Some x -> Printf.sprintf "%s -f %s" mailer x in
   Netsendmail.sendmail ~mailer message
 
-let send_email ~recipient ~subject ~body =
+type mail_kind =
+  | MailCredential of uuid
+  | MailPassword of uuid
+  | MailConfirmation of uuid
+  | MailAutomaticWarning of uuid
+  | MailAccountCreation
+  | MailPasswordChange
+
+let stringuuid_of_mail_kind = function
+  | MailCredential uuid -> "credential", Some uuid
+  | MailPassword uuid -> "password", Some uuid
+  | MailConfirmation uuid -> "confirmation", Some uuid
+  | MailAutomaticWarning uuid -> "autowarning", Some uuid
+  | MailAccountCreation -> "account-creation", None
+  | MailPasswordChange -> "password-change", None
+
+let send_email kind ~recipient ~subject ~body =
   let contents =
     Netsendmail.compose
       ~from_addr:("Belenios public server", !Web_config.server_mail)
@@ -287,6 +303,14 @@ let send_email ~recipient ~subject ~body =
   let date = format_datetime ~fmt:"%Y%m%d%H%M%S" (now ()) in
   let message_id = Printf.sprintf "<%s.%s@%s>" date token !Web_config.domain in
   headers#update_field "Message-ID" message_id;
+  headers#update_field "Belenios-Domain" !Web_config.domain;
+  let reason, uuid = stringuuid_of_mail_kind kind in
+  headers#update_field "Belenios-Reason" reason;
+  let () =
+    match uuid with
+    | None -> ()
+    | Some uuid -> headers#update_field "Belenios-UUID" (raw_string_of_uuid uuid)
+  in
   let return_path = !Web_config.return_path in
   let sendmail = sendmail ?return_path in
   let rec loop () =

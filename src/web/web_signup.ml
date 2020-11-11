@@ -134,7 +134,7 @@ Best regards,
 Belenios Server" address uri
   in
   let subject = "Belenios account creation" in
-  let%lwt () = send_email ~recipient:address ~subject ~body in
+  let%lwt () = send_email MailAccountCreation ~recipient:address ~subject ~body in
   Lwt.return_unit
 
 let send_changepw_link ~service ~address ~username =
@@ -168,7 +168,7 @@ Best regards,
 Belenios Server" address uri
   in
   let subject = "Belenios password change" in
-  let%lwt () = send_email ~recipient:address ~subject ~body in
+  let%lwt () = send_email MailPasswordChange ~recipient:address ~subject ~body in
   Lwt.return_unit
 
 let confirm_link token =

@@ -925,7 +925,7 @@ let mail_password l title login password url metadata =
 
 open Belenios_platform.Platform
 
-let generate_password metadata langs title url id =
+let generate_password metadata langs title uuid url id =
   let recipient, login = split_identity id in
   let%lwt salt = generate_token () in
   let%lwt password = generate_token () in
@@ -941,7 +941,7 @@ let generate_password metadata langs title url id =
     let open (val l) in
     Printf.kprintf return (f_ "Your password for election %s") title
   in
-  let%lwt () = send_email ~recipient ~subject ~body in
+  let%lwt () = send_email (MailPassword uuid) ~recipient ~subject ~body in
   return (salt, hashed)
 
 let mail_credential l title cas ~login cred url metadata =

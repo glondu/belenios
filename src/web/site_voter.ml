@@ -145,7 +145,7 @@ let send_confirmation_email uuid revote user recipient hash =
   let open (val l) in
   let subject = Printf.sprintf (f_ "Your vote for election %s") title in
   let body = Pages_voter.mail_confirmation l user title hash revote url1 url2 metadata in
-  send_email ~recipient ~subject ~body
+  send_email (MailConfirmation uuid) ~recipient ~subject ~body
 
 let cast_ballot uuid ~rawballot ~user =
   let%lwt voters = read_file ~uuid "voters.txt" in

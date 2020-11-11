@@ -127,7 +127,15 @@ val generate_token : ?length:int -> unit -> string Lwt.t
 
 val string_of_user : user -> string
 
-val send_email : recipient:string -> subject:string -> body:string -> unit Lwt.t
+type mail_kind =
+  | MailCredential of uuid
+  | MailPassword of uuid
+  | MailConfirmation of uuid
+  | MailAutomaticWarning of uuid
+  | MailAccountCreation
+  | MailPasswordChange
+
+val send_email : mail_kind -> recipient:string -> subject:string -> body:string -> unit Lwt.t
 
 val split_identity : string -> string * string
 
