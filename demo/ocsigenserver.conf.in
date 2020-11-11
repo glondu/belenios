@@ -45,6 +45,8 @@
         <eliom findlib-package="eliom.server.monitor.start"/>
       </site>
       <eliom findlib-package="belenios-server">
+        <!-- Domain name used in Message-ID -->
+        <domain name="belenios.example.org"/>
         <!--
           The following can be adjusted to the capacity of your system.
           If <maxrequestbodysizeinmemory> is too small, large elections

@@ -282,6 +282,11 @@ let send_email ~recipient ~subject ~body =
       ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
       ~subject body
   in
+  let headers, _ = contents in
+  let%lwt token = generate_token ~length:6 () in
+  let date = format_datetime ~fmt:"%Y%m%d%H%M%S" (now ()) in
+  let message_id = Printf.sprintf "<%s.%s@%s>" date token !Web_config.domain in
+  headers#update_field "Message-ID" message_id;
   let return_path = !Web_config.return_path in
   let sendmail = sendmail ?return_path in
   let rec loop () =
