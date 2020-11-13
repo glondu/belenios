@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "i18n-extract": "echo 'Extracting translated strings from Javascript files and updating frontend_translations/*.json...' && npx i18next-parser"
   },
   "repository": {
     "type": "git",
