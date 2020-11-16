@@ -1,9 +1,11 @@
 ifeq "$(BELENIOS_DEBUG)" "1"
     JAVASCRIPT_MODE := development
     JAVASCRIPT_EXTENSION := 
+    VOTE_PAGE := vote_development.html
 else
     JAVASCRIPT_MODE := production
     JAVASCRIPT_EXTENSION := .min
+    VOTE_PAGE := vote.html
 endif
 
 REACT_JS_FOLDER := react/umd
@@ -28,7 +30,7 @@ INITIAL_TRANSLATIONS_FOLDER := translations
 PUBLIC_TRANSLATIONS_FOLDER := $(DESTDIR)/frontend/translations
 
 # The `DESTDIR` variable is used as in [https://www.gnu.org/prep/standards/html_node/DESTDIR.html]. Use value `../_run/usr/share/belenios-server` to install Belenios.
-install: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) booth/i18n_init.mjs booth/shortcuts.js booth/app.mjs booth/app.css booth/vote.html booth/components
+install: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) booth/i18n_init.mjs booth/shortcuts.js booth/app.mjs booth/app.css booth/$(VOTE_PAGE) booth/components
 	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_JS_FOLDER)
 	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL)
 	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_FOLDER)
@@ -40,7 +42,8 @@ install: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOL
 	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_FOLDER)
 	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL)
 	mkdir -p $(PUBLIC_INTERNAL_JS_FOLDER)/booth
-	cp -r booth/i18n_init.mjs booth/shortcuts.js booth/app.css booth/app.mjs booth/vote.html booth/components $(PUBLIC_INTERNAL_JS_FOLDER)/booth/
+	cp -r booth/i18n_init.mjs booth/shortcuts.js booth/app.css booth/app.mjs booth/components $(PUBLIC_INTERNAL_JS_FOLDER)/booth/
+	cp -r booth/$(VOTE_PAGE) $(PUBLIC_INTERNAL_JS_FOLDER)/booth/vote.html
 	mkdir -p $(PUBLIC_TRANSLATIONS_FOLDER)
 	cp -r $(INITIAL_TRANSLATIONS_FOLDER)/* $(PUBLIC_TRANSLATIONS_FOLDER)/
 
