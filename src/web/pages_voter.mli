@@ -32,7 +32,6 @@ val cast_confirmed : 'a election -> result:(string, Web_common.error) result -> 
 val pretty_ballots : 'a election -> string list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val booth_2 : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val schulze : Question_nh_t.question -> schulze_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

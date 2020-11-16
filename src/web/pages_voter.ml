@@ -809,40 +809,6 @@ let booth () =
   ] in
   return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
 
-let booth_2 () =
-  let open Belenios_platform.Belenios_version in
-  let javascript_mode = if debug then "development" else "production" in
-  let javascript_extension = if debug then "" else ".min" in
-  let external_javascript_folder = "node_modules" in
-  let internal_javascript_folder = "internal_modules" in
-  let react_js_url = external_javascript_folder ^ "/react/umd/react." ^ javascript_mode ^ javascript_extension ^ ".js" in
-  let react_dom_js_url = external_javascript_folder ^ "/react-dom/umd/react-dom." ^ javascript_mode ^ javascript_extension ^ ".js" in
-  let i18next_js_url = external_javascript_folder ^ "/i18next/dist/umd/i18next" ^ javascript_extension ^ ".js" in
-  let react_i18next_js_url = external_javascript_folder ^ "/react-i18next/dist/umd/react-i18next" ^ javascript_extension ^ ".js" in
-  let react_i18next_http_backend_js_url = external_javascript_folder ^ "/i18next-http-backend/i18nextHttpBackend" ^ javascript_extension ^ ".js" in
-  let shortcuts_js_url = internal_javascript_folder ^ "/booth/js/shortcuts.js" in
-  (*let app_js_url = internal_javascript_folder ^ "/booth/js/app.mjs" in*)
-  (*let app_css_url = internal_javascript_folder ^ "/booth/js/app.css" in*)
-  let%lwt l = get_preferred_gettext () in
-  let open (val l) in
-  let head = head (title (txt (s_ "Belenios Booth"))) [
-    (*link ~rel:[`Stylesheet] ~href:(static app_css_url) ();*)
-    Printf.ksprintf Unsafe.data ("<link rel=\"stylesheet\" href=\"/static/internal_modules/booth/js/app.css\">");
-    (* TODO: Add `<link rel="modulepreload" href="...">` for all `.mjs` files (`app.mjs` and all files it loads) *)
-  ] in
-  let body = body [
-    div ~a:[a_id "vote-app"] [];
-    script ~a:[a_src (static react_js_url)] (txt "");
-    script ~a:[a_src (static react_dom_js_url)] (txt "");
-    script ~a:[a_src (static i18next_js_url)] (txt "");
-    script ~a:[a_src (static react_i18next_js_url)] (txt "");
-    script ~a:[a_src (static react_i18next_http_backend_js_url)] (txt "");
-    script ~a:[a_src (static shortcuts_js_url)] (txt "");
-    (*script ~a:[a_type "module"; a_src (static app_js_url)] (txt "");*)
-    Printf.ksprintf Unsafe.data ("<script type=\"module\" src=\"/static/internal_modules/booth/js/app.mjs\"></script>");
-  ] in
-  return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
-
 let schulze q r =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
