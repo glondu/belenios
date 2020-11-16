@@ -99,7 +99,7 @@ function GenericPage({title=null, subTitle=null, children}){
   );
 }
 
-function TranslatableVoteApp({uuid=null, lang="en", beleniosEncryptBallot=null, t}){
+function TranslatableVoteApp({uuid=null, beleniosEncryptBallot=null, t}){
   const [currentStep, setCurrentStep] = React.useState(1);
   const [electionData, setElectionData] = React.useState({});
   const [electionFingerprint, setElectionFingerprint] = React.useState("");
@@ -275,13 +275,15 @@ const VoteApp = ReactI18next.withTranslation()(TranslatableVoteApp);
 
 const afterI18nInitialized = (uuid, lang) => {
   return function(){
+    document.title = i18next.t("Belenios booth");
+    document.querySelector("html").setAttribute("lang", 
+i18next.languages[0] || "en");
     const container = document.querySelector("#vote-app");
     ReactDOM.render(
       e(
         VoteApp,
         {
           uuid: uuid,
-          lang: lang,
           beleniosEncryptBallot: beleniosEncryptBallot
         }
       ),
