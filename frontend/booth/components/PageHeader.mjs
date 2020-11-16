@@ -14,7 +14,7 @@ function TranslatablePageHeader({title, subTitle, t}) {
       e(
         "img",
         {
-          src: "./static/logo.png",
+          src: "/static/logo.png",
           alt: t("Election server"),
           title: t("Election server")
         }

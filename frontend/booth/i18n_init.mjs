@@ -1,6 +1,6 @@
 function i18n_init(language_code="en", onInitialized=null, onLanguageChanged=null){
   const translationsBackendOptions = { // these are options to i18nextHttpBackend plugin of i18next
-    loadPath: '/static/locales/frontend/{{lng}}.json'
+    loadPath: '../translations/{{lng}}.json'
   };
 
   i18next
