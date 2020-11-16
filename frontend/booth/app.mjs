@@ -7,6 +7,8 @@ import InputCredentialSection from "./components/InputCredentialSection.mjs";
 import ReviewEncryptSection from "./components/ReviewEncryptSection.mjs";
 import { PageFooter, EmptyPageFooter } from "./components/PageFooter.mjs";
 
+const relativeServerRootFolder = "../../..";
+
 function getHashParametersFromURL(){
   const url_hash_parameters = window.location.hash.substr(1);
   return url_hash_parameters.split('&').reduce(function (result, item) {
@@ -115,10 +117,10 @@ function TranslatableVoteApp({uuid=null, beleniosEncryptBallot=null, t}){
   };
 
   const loadElectionDataFromUuid = (uuid) => {
-    fetch(`/elections/${uuid}/election.json`)
+    fetch(`${relativeServerRootFolder}/elections/${uuid}/election.json`)
       .then(response => {
         if(!response.ok){
-          return fetch(`/draft/preview/${uuid}/election.json`);
+          return fetch(`${relativeServerRootFolder}/draft/preview/${uuid}/election.json`);
         }
         return response;
       })
