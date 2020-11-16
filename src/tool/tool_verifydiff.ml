@@ -120,13 +120,17 @@ let verifydiff dir1 dir2 =
   in
   (* load both public_creds.txt and check that their contents is valid *)
   let module GSet = Set.Make (G) in
+  let parse x =
+    let cred, w = extract_weight x in
+    G.of_string cred, w
+  in
   let creds dir =
-    match load_from_file G.of_string (dir / "public_creds.txt") with
+    match load_from_file parse (dir / "public_creds.txt") with
     | None -> raise (VerifydiffError MissingCredentials)
     | Some creds ->
-       if not (List.for_all G.check creds) then
+       if not (List.for_all (fun (x, _) -> G.check x) creds) then
          raise (VerifydiffError InvalidCredential);
-       List.fold_left (fun accu x -> GSet.add x accu) GSet.empty creds
+       List.fold_left (fun accu (x, _) -> GSet.add x accu) GSet.empty creds
   in
   let creds1 = creds dir1 and creds2 = creds dir2 in
   (* both public_creds.txt have the same cardinal *)
