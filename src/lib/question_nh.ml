@@ -64,6 +64,14 @@ module Make (M : RANDOM) (G : GROUP) = struct
     | _, _ -> invalid_arg "Question_nh.compare_ciphertexts"
 
   let process_ciphertexts _ es =
+    let es =
+      Array.map
+        (fun (w, e) ->
+          if w <> 1 then (
+            invalid_arg "Question_nh.process_ciphertexts"
+          ) else e
+        ) es
+    in
     Array.fast_sort compare_ciphertexts es;
     SArray es
 

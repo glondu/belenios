@@ -94,6 +94,8 @@ module type ELECTION = sig
       answers and cryptographic proofs that they satisfy the election
       constraints. *)
 
+  type weighted_ballot = int * ballot
+
   val create_ballot : ?sk:private_key -> plaintext -> ballot m
   (** [create_ballot r answers] creates a ballot, or raises
       [Invalid_argument] if [answers] doesn't satisfy the election
@@ -106,7 +108,7 @@ module type ELECTION = sig
 
   (** {2 Tally} *)
 
-  val process_ballots : ballot array -> elt encrypted_tally
+  val process_ballots : weighted_ballot array -> elt encrypted_tally
 
   val extract_nh_ciphertexts : elt encrypted_tally -> elt nh_ciphertexts
   val merge_nh_ciphertexts : elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally

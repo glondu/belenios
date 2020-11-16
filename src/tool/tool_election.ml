@@ -167,7 +167,9 @@ module Make (P : PARSED_PARAMS) : S = struct
         match Lazy.force ballots with
         | None -> E.process_ballots [||], 0
         | Some ballots ->
-           let ballots = Array.map fst (Array.of_list ballots) in
+           let ballots =
+             Array.map (fun (b, _) -> 1, b) (Array.of_list ballots)
+           in
            E.process_ballots ballots,
            Array.length ballots
       )

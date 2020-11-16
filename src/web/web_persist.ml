@@ -377,6 +377,7 @@ let compute_encrypted_tally uuid =
      let module E = Election.Make (W) (LwtRandom) in
      let%lwt ballots = load_ballots uuid in
      let ballots = Array.map (ballot_of_string E.G.read) (Array.of_list ballots) in
+     let ballots = Array.map (fun x -> 1, x) ballots in
      let tally = E.process_ballots ballots in
      let tally = string_of_encrypted_tally E.G.write tally in
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
