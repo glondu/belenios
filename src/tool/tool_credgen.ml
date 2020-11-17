@@ -70,7 +70,7 @@ module Make (P : PARSED_PARAMS) : S = struct
           priv::privs, CredSet.add (derive_in_group priv) pubs
         ) ([], CredSet.empty) ids
     in
-    privs, (CredSet.elements pubs |> List.map G.to_string)
+    List.rev privs, (CredSet.elements pubs |> List.map G.to_string)
 
 end
 
