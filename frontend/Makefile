@@ -8,6 +8,10 @@ else
     VOTE_PAGE := vote.html
 endif
 
+ifeq "$(DESTDIR)" ""
+	DESTDIR := ./build
+endif
+
 REACT_JS_FOLDER := react/umd
 REACT_JS_FILENAME := react.$(JAVASCRIPT_MODE)$(JAVASCRIPT_EXTENSION).js
 REACT_JS_URL := $(REACT_JS_FOLDER)/$(REACT_JS_FILENAME)
@@ -24,10 +28,10 @@ REACT_I18NEXT_JS_FOLDER := react-i18next/dist/umd
 REACT_I18NEXT_JS_FILENAME := react-i18next$(JAVASCRIPT_EXTENSION).js
 REACT_I18NEXT_JS_URL := $(REACT_I18NEXT_JS_FOLDER)/$(REACT_I18NEXT_JS_FILENAME)
 INITIAL_EXTERNAL_JS_FOLDER := node_modules
-PUBLIC_EXTERNAL_JS_FOLDER := $(DESTDIR)/frontend/node_modules
-PUBLIC_INTERNAL_JS_FOLDER := $(DESTDIR)/frontend
+PUBLIC_EXTERNAL_JS_FOLDER := $(DESTDIR)/node_modules
+PUBLIC_INTERNAL_JS_FOLDER := $(DESTDIR)
 INITIAL_TRANSLATIONS_FOLDER := translations
-PUBLIC_TRANSLATIONS_FOLDER := $(DESTDIR)/frontend/translations
+PUBLIC_TRANSLATIONS_FOLDER := $(DESTDIR)/translations
 
 # The `DESTDIR` variable is used as in [https://www.gnu.org/prep/standards/html_node/DESTDIR.html]. Use value `../_run/usr/share/belenios-server` to install Belenios.
 install: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) booth/i18n_init.mjs booth/shortcuts.js booth/app.mjs booth/app.css booth/$(VOTE_PAGE) booth/components

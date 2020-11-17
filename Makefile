@@ -7,7 +7,7 @@ build-debug-server:
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS)
 	rm -rf _run/usr
 	dune install $(DUNE_DEBUG_ARGS) --destdir=_run --prefix=/usr 2>/dev/null
-	BELENIOS_DEBUG=1 $(MAKE) DESTDIR=../_run/usr/share/belenios-server -C frontend
+	BELENIOS_DEBUG=1 $(MAKE) DESTDIR=../_run/usr/share/belenios-server/frontend -C frontend
 	git archive --prefix=belenios-debug/ HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
 build-release-server:
@@ -15,7 +15,7 @@ build-release-server:
 	BELENIOS_DEBUG= dune build --release
 	rm -rf _run/usr
 	dune install --destdir=_run --prefix=/usr 2>/dev/null
-	BELENIOS_DEBUG= $(MAKE) DESTDIR=../_run/usr/share/belenios-server -C frontend
+	BELENIOS_DEBUG= $(MAKE) DESTDIR=../_run/usr/share/belenios-server/frontend -C frontend
 	git archive --prefix="belenios-$(shell git describe --tags)/" HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
 build-debug-tool:
