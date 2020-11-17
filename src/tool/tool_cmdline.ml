@@ -828,6 +828,20 @@ module Methods : CMDLINER_MODULE = struct
           |> print_endline
       )
 
+  let stv nseats =
+    wrap_main (fun () ->
+        let nseats =
+          match nseats with
+          | None -> failcmd "--nseats is missing"
+          | Some i -> if i > 0 then i else failcmd "invalid --nseats parameter"
+        in
+        chars_of_stdin ()
+        |> stv_raw_ballots_of_string
+        |> Stv.compute ~nseats
+        |> string_of_stv_result
+        |> print_endline
+      )
+
   let nchoices_t =
     let doc = "Number of choices. If 0, try to infer it." in
     Arg.(value & opt int 0 & info ["nchoices"] ~docv:"N" ~doc)
@@ -835,6 +849,10 @@ module Methods : CMDLINER_MODULE = struct
   let ngrades_t =
     let doc = "Number of grades." in
     Arg.(value & opt (some int) None & info ["ngrades"] ~docv:"G" ~doc)
+
+  let nseats_t =
+    let doc = "Number of seats." in
+    Arg.(value & opt (some int) None & info ["nseats"] ~docv:"N" ~doc)
 
   let schulze_cmd =
     let doc = "compute Schulze result" in
@@ -856,7 +874,17 @@ module Methods : CMDLINER_MODULE = struct
     Term.(ret (pure mj $ nchoices_t $ ngrades_t)),
     Term.info "method-majority-judgment" ~doc ~man
 
-  let cmds = [schulze_cmd; mj_cmd]
+  let stv_cmd =
+    let doc = "compute Single Transferable Vote result" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command reads on standard input JSON-formatted ballots and interprets them as rankings of choices (ranging from 1 (best) to $(i,X) (worst)). It then computes the result according to the Single Transferable Vote method and prints it on standard output.";
+      ] @ common_man
+    in
+    Term.(ret (pure stv $ nseats_t)),
+    Term.info "method-stv" ~doc ~man
+
+  let cmds = [schulze_cmd; mj_cmd; stv_cmd]
 
 end
 
