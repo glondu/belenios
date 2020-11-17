@@ -170,7 +170,7 @@ let createHomomorphicQuestionPropDiv min max blank =
   h_max##.className := Js.string "question_max";
   h_max##.size := 5;
   h_max##.value := Js.string (string_of_int max);
-  let t = document##createTextNode (Js.string " answers.") in
+  let t = document##createTextNode (Js.string (s_ " answers.")) in
   Dom.appendChild x t;
   Dom.appendChild container x;
   (* is blank allowed? *)
