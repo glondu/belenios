@@ -58,8 +58,10 @@ cat > votes.txt <<EOF
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
-    belenios-tool vote --privcred <(echo "$cred") --ballot <(echo "$vote")
-    echo "Voter $id voted" >&2
+    BALLOT="$(belenios-tool vote --privcred <(echo "$cred") --ballot <(echo "$vote"))"
+    HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
+    echo "$BALLOT"
+    echo "Voter $id voted with $HASH" >&2
     echo >&2
 done > ballots.tmp
 mv ballots.tmp ballots.jsons
