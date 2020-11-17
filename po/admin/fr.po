@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-11-05 04:35+0000\n"
-"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
+"PO-Revision-Date: 2020-11-13 17:58+0000\n"
+"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
 "Language: fr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.3.2-dev\n"
+"X-Generator: Weblate 4.4-dev\n"
 
 #: src/web/pages_admin.ml:2077
 msgid " You may re-open the election when it is closed."
@@ -740,7 +740,7 @@ msgstr "Générer"
 
 #: src/tool/tool_js_tkeygen.ml:52
 msgid "Generate a key"
-msgstr "Générer une clef"
+msgstr "Générer une clé"
 
 #: src/web/pages_admin.ml:1268 src/web/pages_admin.ml:424
 msgid "Generate and mail missing passwords"
@@ -857,7 +857,7 @@ msgstr "Nombre minimum de choix non valide"
 
 #: src/web/site_admin.ml:1167
 msgid "Invalid public key!"
-msgstr "La clef publique est invalide !"
+msgstr "La clé publique est invalide !"
 
 #: src/web/site_admin.ml:554
 msgid "Invalid public name for credential authority!"
