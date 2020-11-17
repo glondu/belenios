@@ -6,6 +6,7 @@ check:
 	./demo-threshold.sh
 	./demo-nh.sh
 	./demo-mj.sh
+	./demo-stv.sh
 
 clean:
 	rm -rf data
