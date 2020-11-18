@@ -1,0 +1,78 @@
+@import "common.css"; /* This component requires common `.clickable` */
+
+.candidate-with-checkbox {
+  background-color: #eee;
+  border-radius: 7px;
+  height: 55px;
+  margin-bottom: 7px;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.candidate-with-checkbox:hover {
+  background-color: #ddd;
+}
+
+.candidate-with-checkbox label {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  padding: 10px 10px 10px 20px;
+  border-radius: 7px;
+}
+
+/* Customize appearance of checkboxes (by hiding it and replacing its UI with a span.checkbox-appearance) */
+
+.candidate-with-checkbox input[type="checkbox"], .candidate-with-checkbox input[type="radio"] {
+  opacity: 0;
+  width: 1em;
+  height: 1em;
+  position: absolute;
+  left: -100px;
+}
+
+.candidate-with-checkbox input[type="checkbox"] ~ label .checkbox-appearance {
+  content:'';
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+}
+
+.candidate-with-checkbox input[type="radio"] ~ label .radio-button-appearance {
+  content:'';
+  border: 2px solid #ccc;
+  border-radius: 18px;
+  background-color: #fff;
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+}
+
+.candidate-with-checkbox input[type="checkbox"]:checked ~ label, .candidate-with-checkbox input[type="radio"]:checked ~ label {
+  background-color: #c4ffcc;
+}
+
+.candidate-with-checkbox input[type="checkbox"]:checked ~ label .checkbox-appearance, .candidate-with-checkbox input[type="radio"]:checked ~ label .radio-button-appearance {
+  background-color: #007ad6;
+  border-color: #007ad6;
+}
+
+.candidate-with-checkbox input[type="checkbox"]:checked ~ label .checkbox-appearance::after, .candidate-with-checkbox input[type="radio"]:checked ~ label .radio-button-appearance::after {
+  content: "✓";
+  color: white;
+  font-size: 20px;
+  padding-left: 2px;
+  line-height: 100%;
+}
+
+/* End of Customize appearance of checkboxes */
+
+.candidate-with-checkbox .candidate-info {
+  display: inline-block;
+  padding-left: 15px;
+  font-size: 12px;
+}

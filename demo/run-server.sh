@@ -40,6 +40,8 @@ sed \
     -e "s@_SHAREDIR_@$BELENIOS_SHAREDIR@g" \
     $BELENIOS_CONFIG > $BELENIOS_VARDIR/etc/ocsigenserver.conf
 
+cp demo/mime.types $BELENIOS_VARDIR/etc/mime.types
+
 OCSIGENSERVER=ocsigenserver
 
 if command -v ocsigenserver.opt > /dev/null; then

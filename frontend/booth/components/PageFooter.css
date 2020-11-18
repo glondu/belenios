@@ -1,0 +1,10 @@
+.page-footer {
+  border-radius: 0 0 10px 10px;
+  background: #363636;
+  color: rgb(134, 134, 134);
+  text-align: center;
+  padding: 2px;
+  line-height: 1.5em;
+  font-size: 12px;
+  min-height: 8px;
+}

@@ -1,0 +1,37 @@
+/* UI Components try to respect [BEM](http://getbem.com/naming/) for the naming of their CSS classes */
+@import "./components/PageHeader.css";
+@import "./components/Breadcrumb.css";
+@import "./components/CandidateWithCheckbox.css";
+@import "./components/ClassicVoteCandidatesList.css";
+@import "./components/QuestionWithVotableAnswers.css";
+@import "./components/PageFooter.css";
+@import "./components/VoteNavigation.css";
+@import "./components/NiceButton.css";
+@import "./components/ClassicVoteReview.css";
+
+body {
+  background: #E5E4E2;
+  font-family: 'Ubuntu', arial, serif;
+  font-weight: lighter;
+}
+
+@media screen and (max-width: 640px) {
+  body {
+    margin: 0;
+  }
+}
+
+@media screen and (min-width: 640px) {
+  body {
+    margin: 8px;
+  }
+}
+
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-body {
+  background: white;
+}

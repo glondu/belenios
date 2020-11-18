@@ -75,12 +75,6 @@ let () =
       Pages_voter.booth () >>= Html.send)
 
 let () =
-  Any.register ~service:election_vote_2
-    (fun () () ->
-      let%lwt () = Eliom_reference.unset Web_state.ballot in
-      Pages_voter.booth_2 () >>= Html.send)
-
-let () =
   Any.register ~service:election_cast
     (fun uuid () ->
       match%lwt find_election uuid with

@@ -5,6 +5,8 @@
 
     <port>8001</port>
 
+    <mimefile>_VARDIR_/etc/mime.types</mimefile>
+
     <logdir>_VARDIR_/log</logdir>
     <datadir>_VARDIR_/lib</datadir>
 

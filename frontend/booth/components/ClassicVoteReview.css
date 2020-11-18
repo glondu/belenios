@@ -1,0 +1,13 @@
+.classic-vote-review {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px auto;
+  max-width: 500px;
+}
+
+.classic-vote-review__answers-to-question {
+  background: #c5ffcc;
+  border-radius: 10px;
+  padding: 15px 40px;
+}
