@@ -465,7 +465,7 @@ let () =
         | Some x -> x
         | None -> "en"
       in
-      let%lwt () = Tool_js_i18n.init "voter" lang in
+      let%lwt () = Tool_js_i18n.init "static" "voter" lang in
       let () =
         document##getElementById (Js.string "load_uuid") >>== fun e ->
         Lwt_js_events.async (fun () ->

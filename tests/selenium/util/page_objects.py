@@ -2,6 +2,7 @@
 # coding: utf-8
 import time
 from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.support.select import Select
 from util.selenium_tools import wait_for_an_element_exists_and_is_visible_and_contains_expected_text, wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text, wait_for_element_exists, wait_for_elements_exist, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_alert
 from util.election_testing import wait_a_bit, election_home_find_start_button, find_buttons_in_page_content_by_value
 
@@ -37,7 +38,10 @@ class ElectionHomePage(VerifiablePage):
 
 
     def click_on_language_link(self, language_link_label):
-        self.click_on_link_with_expected_label(language_link_label)
+        select = Select(wait_for_element_exists(self.browser, ".lang_box select", self.timeout))
+        select.select_by_visible_text(language_link_label)
+        submit = wait_for_element_exists(self.browser, ".lang_box input[type=submit]", self.timeout)
+        submit.click()
 
 
     def click_on_start_button(self):

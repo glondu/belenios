@@ -662,7 +662,7 @@ let handle_password se uuid ~force voters =
         match id.sv_password with
         | Some _ when not force -> return_unit
         | None | Some _ ->
-           let%lwt x = Pages_voter.generate_password se.se_metadata langs title url id.sv_id in
+           let%lwt x = Pages_voter.generate_password se.se_metadata langs title uuid url id.sv_id in
            return (id.sv_password <- Some x)
       ) voters
   in
@@ -727,7 +727,7 @@ let () =
             | Some id ->
                let langs = get_languages metadata.e_languages in
                let%lwt db = load_password_db uuid in
-               let%lwt x = Pages_voter.generate_password metadata langs title url id in
+               let%lwt x = Pages_voter.generate_password metadata langs title uuid url id in
                let db = replace_password user x db in
                let%lwt () = dump_passwords uuid db in
                Pages_common.generic_page ~title:(s_ "Success") ~service
@@ -1047,7 +1047,7 @@ let () =
             let module CD = Credential.MakeDerive (G) in
             let%lwt public_creds, private_creds =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
-                  let email, _ = split_identity v.sv_id in
+                  let recipient, login = split_identity v.sv_id in
                   let cas =
                     match se.se_metadata.e_auth_config with
                     | Some [{auth_system = "cas"; _}] -> true
@@ -1063,7 +1063,7 @@ let () =
                     Lwt_list.map_s
                       (fun lang ->
                         let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
-                        return (Pages_voter.mail_credential l title cas cred url se.se_metadata)
+                        return (Pages_voter.mail_credential l title cas ~login cred url se.se_metadata)
                       ) langs
                   in
                   let body = PString.concat "\n\n----------\n\n" bodies in
@@ -1073,7 +1073,7 @@ let () =
                     let open (val l) in
                     Printf.ksprintf return (f_ "Your credential for election %s") title
                   in
-                  let%lwt () = send_email email subject body in
+                  let%lwt () = send_email (MailCredential uuid) ~recipient ~subject ~body in
                   return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)
                 ) (CSet.empty, []) se.se_voters
             in
@@ -2034,7 +2034,6 @@ let get_trustee_name uuid metadata trustee =
 let () =
   Any.register ~service:election_shuffler_select
     (fun () (uuid, trustee) ->
-      let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           let%lwt name = get_trustee_name uuid metadata trustee in
@@ -2049,7 +2048,6 @@ let () =
 let () =
   Any.register ~service:election_shuffler_skip_confirm
     (fun () (uuid, trustee) ->
-      let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
@@ -2061,7 +2059,6 @@ let () =
 let () =
   Any.register ~service:election_shuffler_skip
     (fun () (uuid, trustee) ->
-      let uuid = uuid_of_raw_string uuid in
       with_site_user (fun u ->
           let%lwt metadata = Web_persist.get_election_metadata uuid in
           let%lwt sh_name = get_trustee_name uuid metadata trustee in
@@ -2573,7 +2570,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
         | Some contact ->
            match extract_email contact with
            | None -> return_unit
-           | Some email ->
+           | Some recipient ->
               let subject =
                 Printf.sprintf "Election %s will be automatically %s soon"
                   name comment
@@ -2582,7 +2579,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
                 Printf.sprintf mail_automatic_warning
                   name comment (format_datetime next_t)
               in
-              let%lwt () = send_email email subject body in
+              let%lwt () = send_email (MailAutomaticWarning uuid) ~recipient ~subject ~body in
               Web_persist.set_election_dates uuid {dates with e_last_mail = Some now}
       ) else return_unit
     ) else return_unit

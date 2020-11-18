@@ -87,8 +87,7 @@ let shuffle election ciphertexts =
 let () =
   Lwt.async (fun () ->
       let%lwt _ = Lwt_js_events.onload () in
-      let belenios_lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
-      let%lwt () = Tool_js_i18n.init "admin" belenios_lang in
+      let%lwt () = Tool_js_i18n.auto_init "admin" in
       let uuid = List.assoc "uuid" (get_params ()) in
       let open Js_of_ocaml_lwt.XmlHttpRequest in
       let%lwt election = get ("../elections/" ^ uuid ^ "/election.json") in

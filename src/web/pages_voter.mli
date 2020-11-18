@@ -41,12 +41,12 @@ val majority_judgment : Question_nh_t.question -> mj_result -> [> `Html ] Eliom_
 val generate_password :
   Web_serializable_t.metadata ->
   string list ->
-  string -> string -> string -> (string * string) Lwt.t
+  string -> uuid -> string -> string -> (string * string) Lwt.t
 
 val mail_credential :
   (module Web_i18n_sig.GETTEXT) ->
   string ->
-  bool -> string -> string -> Web_serializable_t.metadata -> string
+  bool -> login:string -> string -> string -> Web_serializable_t.metadata -> string
 
 val mail_confirmation :
   (module Web_i18n_sig.GETTEXT) ->

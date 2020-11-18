@@ -2,12 +2,17 @@ open Js_of_ocaml
 
 let translations = ref (Js.Unsafe.obj [||] : Js.Unsafe.any)
 
-let init component lang =
+let init dir component lang =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let%lwt request = Printf.ksprintf get "static/locales/%s/%s.json" component lang in
+  let%lwt request = Printf.ksprintf get "%s/locales/%s/%s.json" dir component lang in
   if request.code = 200 then
     translations := Js._JSON##parse (Js.string request.content);
   Lwt.return_unit
+
+let auto_init component =
+  let lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+  let dir = Js.to_string (Js.Unsafe.pure_js_expr "belenios_dir") in
+  init dir component lang
 
 module Gettext = struct
   let s_ str_id =

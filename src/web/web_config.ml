@@ -32,3 +32,4 @@ let maxmailsatonce = ref 1000
 let uuid_length = ref None
 let default_group = ref ""
 let nh_group = ref ""
+let domain = ref ""

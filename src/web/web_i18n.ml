@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 let default_lang = "en"
+let devel_lang = "en_devel"
 
 let components = Hashtbl.create 2
 
@@ -58,7 +59,7 @@ let build_gettext_input component lang =
    end : LANG)
 
 let default_gettext component =
-  let module L = (val build_gettext_input component default_lang) in
+  let module L = (val build_gettext_input component devel_lang) in
   let module G = Belenios_Gettext (L) (GettextTranslate.Dummy) in
   (module G : Web_i18n_sig.GETTEXT)
 
@@ -66,7 +67,7 @@ let () =
   List.iter
     (fun component ->
       let h = Hashtbl.create 10 in
-      Hashtbl.add h default_lang (default_gettext component);
+      Hashtbl.add h devel_lang (default_gettext component);
       Hashtbl.add components component h
     )
     ["voter"; "admin"]
@@ -93,7 +94,7 @@ let get_lang_gettext component lang =
               Hashtbl.add langs lang l;
               Lwt.return l
             ) else (
-              Lwt.return (Hashtbl.find langs default_lang)
+              Lwt.return (Hashtbl.find langs devel_lang)
             )
        )
 

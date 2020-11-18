@@ -35,10 +35,6 @@ open Pages_common
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
-let rec list_concat elt = function
-  | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
-  | ([_] | []) as xs -> xs
-
 let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
 let audit_footer election =
@@ -245,12 +241,6 @@ let election_home election state () =
            ]
     | None -> return go_to_the_booth
   in
-  let languages =
-    div ~a:[a_class ["languages"]]
-      (list_concat (txt " ") @@ List.map (fun lang ->
-        a ~service:set_language [txt lang] (lang, ContSiteElection uuid)
-       ) available_languages)
-  in
   let%lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
   let cookie_disclaimer =
     if scd then
@@ -375,7 +365,6 @@ let election_home election state () =
   in
   let content = [
     cookie_disclaimer;
-    languages;
     p state_;
     br ();
     middle;
@@ -384,7 +373,8 @@ let election_home election state () =
     br ();
     div_audit;
   ] in
-  base ~title:params.e_name ~content ~footer ~uuid ()
+  let lang_box = lang_box l (ContSiteElection uuid) in
+  base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
 
 let cast_raw election () =
   let params = election.e_params in
@@ -673,15 +663,15 @@ let booth () =
       h1 [txt (s_ "Belenios Booth")];
       br ();
       txt "Load an election on this server by giving its UUID:";
-      div [unsafe_textarea "uuid" ""];
+      div [raw_textarea "uuid" ""];
       div [button_no_value ~button_type:`Button ~a:[a_id "load_uuid"] [txt "Load from UUID"]];
       br ();
       txt "Load any election by giving its parameters:";
-      div [unsafe_textarea "election_params" ""];
+      div [raw_textarea "election_params" ""];
       div [button_no_value ~button_type:`Button ~a:[a_id "load_params"] [txt "Load parameters"]];
     ]
   in
-  let text_choices = unsafe_textarea "choices" "" in
+  let text_choices = raw_textarea "choices" "" in
   let ballot_form =
     post_form ~a:[a_id "ballot_form"] ~service:election_submit_ballot
       (fun encrypted_vote -> [
@@ -935,8 +925,8 @@ let mail_password l title login password url metadata =
 
 open Belenios_platform.Platform
 
-let generate_password metadata langs title url id =
-  let email, login = split_identity id in
+let generate_password metadata langs title uuid url id =
+  let recipient, login = split_identity id in
   let%lwt salt = generate_token () in
   let%lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
@@ -951,10 +941,10 @@ let generate_password metadata langs title url id =
     let open (val l) in
     Printf.kprintf return (f_ "Your password for election %s") title
   in
-  let%lwt () = send_email email subject body in
+  let%lwt () = send_email (MailPassword uuid) ~recipient ~subject ~body in
   return (salt, hashed)
 
-let mail_credential l title cas cred url metadata =
+let mail_credential l title cas ~login cred url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -971,6 +961,7 @@ let mail_credential l title cas cred url metadata =
   );
   add_newline b;
   add_newline b;
+  add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Credential:"); add_string b " "; add_string b cred; add_newline b;
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;

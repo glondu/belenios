@@ -50,7 +50,7 @@ let belenios_url = Eliom_service.extern
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
-let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
+let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let administer =
@@ -67,6 +67,11 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
            ~src:(static "placeholder.png") ();
        ]
     | Some x -> x
+  in
+  let lang_box =
+    match lang_box with
+    | None -> div []
+    | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
   let%lwt warning = match !Web_config.warning_file with
     | None -> return @@ txt ""
@@ -95,7 +100,11 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
         ];
       ];
       warning;
-      div ~a:[a_id "main"] content;
+      div ~a:[a_id "main"]
+        [
+          lang_box;
+          div content;
+        ];
       div ~a:[a_id "footer"; a_style "text-align: center;" ] [
         div ~a:[a_id "bottom"] [
           footer;
@@ -113,6 +122,23 @@ let base ~title ?login_box ~content ?(footer = div []) ?uuid () =
         ]
       ]]
      ]))
+
+let lang_box l cont =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let langs = List.map (fun l -> Option ([], l, None, l = lang)) available_languages in
+  let form =
+    get_form ~service:set_language
+      (fun (nlang, ncont) ->
+        [
+          input ~input_type:`Hidden ~name:ncont ~value:cont (user string_of_site_cont);
+          txt (s_ "Language:");
+          txt " ";
+          select ~name:nlang string (List.hd langs) (List.tl langs);
+          input ~input_type:`Submit ~value:(s_ "Set") string;
+        ]
+      )
+  in
+  div ~a:[a_class ["lang_box"]] [form]
 
 let make_button ~service ?hash ?style ~disabled contents =
   let uri = Eliom_uri.make_string_uri ~service () in
@@ -136,22 +162,20 @@ let make_a_with_hash ~service ?hash ?style contents =
     | None -> uri
     | Some x -> uri ^ "#" ^ x
   in
+  let href = [a_href (uri_of_string (fun () -> uri))] in
   let style =
     match style with
-    | None -> ""
-    | Some x -> Printf.sprintf " style=\"%s\"" x
+    | None -> []
+    | Some x -> [a_style x]
   in
-  Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
-    "<a href=\"%s\"%s>%s</a>"
-    uri style contents
+  Eliom_content.Html.F.Raw.a ~a:(href @ style) [txt contents]
 
 let a_mailto ~dest ~subject ~body contents =
-  let uri = Printf.sprintf "mailto:%s?subject=%s&amp;body=%s" dest
+  let uri = Printf.sprintf "mailto:%s?subject=%s&body=%s" dest
     (Netencoding.Url.encode ~plus:false subject)
     (Netencoding.Url.encode ~plus:false body)
   in
-  Printf.ksprintf Unsafe.data "<a href=\"%s\">%s</a>"
-    uri contents
+  direct_a uri contents
 
 let generic_page ~title ?service message () =
   let%lwt l = get_preferred_gettext () in
@@ -169,18 +193,17 @@ let generic_page ~title ?service message () =
   ] in
   base ~title ~content ()
 
-let unsafe_textarea ?rows ?cols id contents =
+let raw_textarea ?rows ?cols id contents =
+  let id = [a_id id] in
   let rows = match rows with
-    | None -> ""
-    | Some i -> Printf.sprintf " rows=\"%d\"" i
+    | None -> []
+    | Some i -> [a_rows i]
   in
   let cols = match cols with
-    | None -> ""
-    | Some i -> Printf.sprintf " cols=\"%d\"" i
+    | None -> []
+    | Some i -> [a_cols i]
   in
-  Printf.ksprintf Unsafe.data
-    "<textarea id=\"%s\"%s%s>%s</textarea>"
-    id rows cols contents
+  Eliom_content.Html.F.Raw.textarea ~a:(id @ rows @ cols) (txt contents)
 
 let login_choose auth_systems service () =
   let%lwt l = get_preferred_gettext () in

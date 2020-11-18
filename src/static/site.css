@@ -62,3 +62,6 @@ button {
     font-size: 90%;
     background-color: #EEEEEE;
 }
+.lang_box {
+    float: right;
+}

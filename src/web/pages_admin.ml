@@ -36,10 +36,6 @@ open Pages_common
 
 let ( / ) = Filename.concat
 
-let rec list_concat elt = function
-  | x :: ((_ :: _) as xs) -> x :: elt :: (list_concat elt xs)
-  | ([_] | []) as xs -> xs
-
 let admin_background = " background: #FF9999;"
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
@@ -167,16 +163,8 @@ let admin ~elections () =
       | [] -> p [txt (s_ "You own no such elections!")]
       | _ -> ul @@ List.map format_election archived
     in
-    let languages =
-      div ~a:[a_class ["languages"]]
-        (list_concat (txt " ") @@
-           List.map (fun lang ->
-               a ~service:set_language [txt lang] (lang, ContSiteAdmin)
-             ) available_languages)
-    in
     let content = [
       div [
-        languages;
         div [
           a ~a:[a_id "prepare_new_election"] ~service:election_draft_pre [
             txt (s_ "Prepare a new election");
@@ -197,7 +185,8 @@ let admin ~elections () =
       ];
     ] in
     let%lwt login_box = login_box () in
-    base ~title ~login_box ~content ()
+    let lang_box = lang_box l ContSiteAdmin in
+    base ~lang_box ~title ~login_box ~content ()
 
 let new_election_failure reason () =
   let%lwt l = get_preferred_gettext () in
@@ -281,7 +270,13 @@ let election_draft_pre () =
 
 let preview_booth l uuid =
   let open (val l : Web_i18n_sig.GETTEXT) in
-  let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
+  let hash =
+    Netencoding.Url.mk_url_encoded_parameters
+      [
+        "uuid", raw_string_of_uuid uuid;
+        "lang", lang;
+      ]
+  in
   let service =
     Eliom_uri.make_string_uri
       ~service:election_vote ~absolute:true () |> rewrite_prefix
@@ -1147,9 +1142,13 @@ let election_draft_credentials_done se () =
   base ~title ~content ()
 
 let script_with_lang ~lang file =
+  let file = static file in
+  let dir = Filename.dirname (string_of_uri file) in
   div [
-      Printf.ksprintf Unsafe.data "<script>var belenios_lang = \"%s\";</script>" lang;
-      script ~a:[a_src (static file)] (txt "");
+      Printf.ksprintf Unsafe.data
+        "<script>var belenios_lang = %S; var belenios_dir = %S;</script>"
+        lang dir;
+      script ~a:[a_src file] (txt "");
     ]
 
 let election_draft_questions uuid se () =
@@ -1240,10 +1239,13 @@ let election_draft_voters uuid se maxvoters () =
       ) uuid
   in
   let remove_all_button =
-    post_form ~service:election_draft_voters_remove_all
-      (fun () ->
-        [input ~input_type:`Submit ~value:(s_ "Remove all") string]
-      ) uuid
+    if se.se_public_creds_received then
+      div []
+    else
+      post_form ~service:election_draft_voters_remove_all
+        (fun () ->
+          [input ~input_type:`Submit ~value:(s_ "Remove all") string]
+        ) uuid
   in
   let has_passwords = match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] -> true
@@ -1418,9 +1420,9 @@ let election_draft_credentials token uuid se () =
       ~a:[a_style "display:none;"]
       [
         div [txt "UUID:"];
-        div [unsafe_textarea "uuid" (raw_string_of_uuid uuid)];
+        div [raw_textarea "uuid" (raw_string_of_uuid uuid)];
         div [txt "Group parameters:"];
-        div [unsafe_textarea "group" se.se_group];
+        div [raw_textarea "group" se.se_group];
       ]
   in
   let voters =
@@ -1429,7 +1431,7 @@ let election_draft_credentials token uuid se () =
     let hash = Platform.sha256_b64 value in
     div [
       div [txt (s_ "List of voters:")];
-      div [unsafe_textarea ~rows:5 ~cols:40 "voters" value];
+      div [raw_textarea ~rows:5 ~cols:40 "voters" value];
       div [txt (s_ "Fingerprint of voters:"); txt " "; txt hash];
     ]
   in
@@ -1512,7 +1514,7 @@ let election_draft_trustee token uuid se () =
       ~a:[a_style "display:none;"]
       [
         div [txt "Group parameters:"];
-        div [unsafe_textarea "group" se.se_group];
+        div [raw_textarea "group" se.se_group];
       ]
   in
   let interactivity =
@@ -1579,27 +1581,27 @@ let election_draft_threshold_trustee token uuid se () =
     div ~a:[a_style "display:none;"] [
         div [
             txt "Step: ";
-            unsafe_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);
+            raw_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);
           ];
         div [
             txt "Group parameters: ";
-            unsafe_textarea "group" se.se_group;
+            raw_textarea "group" se.se_group;
           ];
         div [
             txt "Certificates: ";
-            unsafe_textarea "certs" (string_of_certs certs);
+            raw_textarea "certs" (string_of_certs certs);
           ];
         div [
             txt "Threshold: ";
-            unsafe_textarea "threshold" (string_of_int threshold);
+            raw_textarea "threshold" (string_of_int threshold);
           ];
         div [
             txt "Vinput: ";
-            unsafe_textarea "vinput" (match trustee.stt_vinput with None -> "" | Some x -> string_of_vinput x);
+            raw_textarea "vinput" (match trustee.stt_vinput with None -> "" | Some x -> string_of_vinput x);
           ];
         div [
             txt "Voutput: ";
-            unsafe_textarea "voutput" (match trustee.stt_voutput with None -> "" | Some x -> x);
+            raw_textarea "voutput" (match trustee.stt_voutput with None -> "" | Some x -> x);
           ];
       ]
   in
@@ -2171,7 +2173,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                    (fun (nuuid, ntrustee) ->
                      let a = if disabled then [a_disabled ()] else [] in
                      [
-                       input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                       input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
                        input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
                        input ~a ~input_type:`Submit ~value:(s_ "Skip") string;
                      ]
@@ -2209,7 +2211,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                     (fun (nuuid, ntrustee) ->
                       let a = if select_disabled || done_ then [a_disabled ()] else [] in
                       [
-                        input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                        input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
                         input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
                         input ~a ~input_type:`Submit ~value:(s_ "Select this trustee") string;
                       ]
@@ -2620,7 +2622,7 @@ let election_shuffler_skip_confirm uuid trustee =
             div [txt (s_ "You may skip a trustee if they do not answer. Be aware that this reduces the security.")];
             div
               [
-                input ~input_type:`Hidden ~name:nuuid ~value:(raw_string_of_uuid uuid) string;
+                input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
                 input ~input_type:`Hidden ~name:ntrustee ~value:trustee string;
                 input ~input_type:`Submit ~value:(s_ "Confirm") string;
                 txt " ";
@@ -2643,7 +2645,7 @@ let shuffle election token =
       div [
           txt (s_ "Current list of ballots:");
           txt " ";
-          unsafe_textarea ~rows:5 ~cols:40 "current_ballots" "";
+          raw_textarea ~rows:5 ~cols:40 "current_ballots" "";
           txt " ";
           let service = Eliom_service.preapply ~service:election_nh_ciphertexts uuid in
           make_button ~service ~disabled:false (s_ "Download as a file");
@@ -2721,7 +2723,7 @@ let tally_trustees election trustee_id token () =
       | None -> txt ""
       | Some epk ->
          div ~a:[a_style "display:none;"] [
-             unsafe_textarea "encrypted_private_key" epk
+             raw_textarea "encrypted_private_key" epk
            ];
     );
     hr ();
