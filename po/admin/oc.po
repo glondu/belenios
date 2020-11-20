@@ -8,14 +8,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-17 09:34+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2020-11-20 19:49+0000\n"
+"Last-Translator: Quentin PAGÈS <quentinantonin@free.fr>\n"
+"Language-Team: Occitan <https://hosted.weblate.org/projects/belenios/admin/"
+"oc/>\n"
 "Language: oc\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.4-dev\n"
 
 #: src/web/pages_admin.ml:2090
 msgid " You may re-open the election when it is closed."
@@ -23,7 +25,7 @@ msgstr ""
 
 #: src/tool/tool_js_questions.ml:166
 msgid " and "
-msgstr ""
+msgstr " e "
 
 #: src/web/pages_admin.ml:2898
 msgid " and a password: "
@@ -435,7 +437,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2914 src/web/pages_admin.ml:2830
 msgid "Create an account"
-msgstr ""
+msgstr "Crear un compte"
 
 #: src/web/pages_admin.ml:1941 src/web/pages_admin.ml:528
 msgid "Create election"
