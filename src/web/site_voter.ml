@@ -309,6 +309,31 @@ let () =
         )
     )
 
+let () =
+  Any.register ~service:method_stv
+    (fun (uuid, (question, nseats)) () ->
+      handle_method uuid question
+        (fun l q continuation ->
+          let open (val l : Web_i18n_sig.GETTEXT) in
+          match nseats with
+          | None ->
+             Pages_voter.stv_select uuid question
+             >>= Html.send
+          | Some nseats ->
+             if nseats > 0 then (
+               continuation
+                 (fun ballots ->
+                   let stv = Stv.compute ~nseats ballots in
+                   Pages_voter.stv q stv >>= Html.send
+                 )
+             ) else (
+               Pages_common.generic_page ~title:(s_ "Error")
+                 (s_ "The number of seats is invalid") ()
+               >>= Html.send ~code:400
+             )
+        )
+    )
+
 let content_type_of_file = function
   | ESRaw -> "application/json; charset=utf-8"
   | ESTrustees | ESETally | ESResult -> "application/json"
