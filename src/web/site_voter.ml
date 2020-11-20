@@ -235,92 +235,78 @@ let () =
          String.send (b, "application/json") >>=
            (fun x -> return @@ cast_unknown_content_kind x))
 
+let handle_method uuid question f =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  match%lwt find_election uuid with
+  | None -> election_not_found ()
+  | Some election ->
+     let questions = election.e_params.e_questions in
+     if 0 <= question && question < Array.length questions then (
+       match questions.(question) with
+       | Question.NonHomomorphic q ->
+          f l q
+            (fun continuation ->
+              match%lwt Web_persist.get_election_result uuid with
+              | Some result ->
+                 (Shape.to_shape_array result.result).(question)
+                 |> Shape.to_shape_array
+                 |> Array.map Shape.to_array
+                 |> continuation
+              | None ->
+                 Pages_common.generic_page ~title:(s_ "Error")
+                   (s_ "The result of this election is not available.") ()
+                 >>= Html.send ~code:404
+            )
+       | Question.Homomorphic _ ->
+          Pages_common.generic_page ~title:(s_ "Error")
+            (s_ "This question is homomorphic, this method cannot be applied to its result.")
+            ()
+          >>= Html.send ~code:403
+     ) else (
+       Pages_common.generic_page ~title:(s_ "Error")
+         (s_ "Invalid index for question.") ()
+       >>= Html.send ~code:404
+     )
+
 let () =
   Any.register ~service:method_schulze
     (fun (uuid, question) () ->
-      let%lwt l = get_preferred_gettext () in
-      let open (val l) in
-      match%lwt find_election uuid with
-      | None -> election_not_found ()
-      | Some election ->
-         let questions = election.e_params.e_questions in
-         if 0 <= question && question < Array.length questions then (
-           match questions.(question) with
-           | Question.NonHomomorphic q ->
+      handle_method uuid question
+        (fun _ q continuation ->
+          continuation
+            (fun ballots ->
               let nchoices = Array.length q.Question_nh_t.q_answers in
-              (match%lwt Web_persist.get_election_result uuid with
-               | Some result ->
-                  let ballots =
-                    (Shape.to_shape_array result.result).(question)
-                    |> Shape.to_shape_array
-                    |> Array.map Shape.to_array
-                  in
-                  let schulze = Schulze.compute ~nchoices ballots in
-                  Pages_voter.schulze q schulze >>= Html.send
-               | None ->
-                  Pages_common.generic_page ~title:(s_ "Error")
-                    (s_ "The result of this election is not available.")
-                  () >>= Html.send ~code:404
-              )
-           | Question.Homomorphic _ ->
-              Pages_common.generic_page ~title:(s_ "Error")
-                (s_ "This question is homomorphic, the Schulze method cannot be applied to its result.")
-                () >>= Html.send ~code:403
-         ) else (
-           Pages_common.generic_page ~title:(s_ "Error")
-             (s_ "Invalid index for question.")
-             () >>= Html.send ~code:404
-         )
+              let schulze = Schulze.compute ~nchoices ballots in
+              Pages_voter.schulze q schulze >>= Html.send
+            )
+        )
     )
 
 let () =
   Any.register ~service:method_mj
     (fun (uuid, (question, ngrades)) () ->
-      let%lwt l = get_preferred_gettext () in
-      let open (val l) in
-      match%lwt find_election uuid with
-      | None -> election_not_found ()
-      | Some election ->
-         let questions = election.e_params.e_questions in
-         if 0 <= question && question < Array.length questions then (
-           match questions.(question) with
-           | Question.NonHomomorphic q ->
-              (match ngrades with
-               | None ->
-                  Pages_voter.majority_judgment_select uuid question
-                  >>= Html.send
-               | Some ngrades ->
-                  if 0 < ngrades then (
-                    let nchoices = Array.length q.Question_nh_t.q_answers in
-                    match%lwt Web_persist.get_election_result uuid with
-                    | Some result ->
-                       let ballots =
-                         (Shape.to_shape_array result.result).(question)
-                         |> Shape.to_shape_array
-                         |> Array.map Shape.to_array
-                       in
-                       let mj = Majority_judgment.compute ~nchoices ~ngrades ballots in
-                       Pages_voter.majority_judgment q mj >>= Html.send
-                    | None ->
-                       Pages_common.generic_page ~title:(s_ "Error")
-                         (s_ "The result of this election is not available.") ()
-                       >>= Html.send ~code:404
-                  ) else (
-                    Pages_common.generic_page ~title:(s_ "Error")
-                      (s_ "The number of grades is invalid") ()
-                    >>= Html.send ~code:400
-                  )
-              )
-           | Question.Homomorphic _ ->
-              Pages_common.generic_page ~title:(s_ "Error")
-                (s_ "This question is homomorphic, the Majority Judgment method cannot be applied to its result.")
-                ()
-              >>= Html.send ~code:403
-         ) else (
-           Pages_common.generic_page ~title:(s_ "Error")
-             (s_ "Invalid index for question.") ()
-           >>= Html.send ~code:404
-         )
+      handle_method uuid question
+        (fun l q continuation ->
+          let open (val l : Web_i18n_sig.GETTEXT) in
+          match ngrades with
+          | None ->
+             Pages_voter.majority_judgment_select uuid question
+             >>= Html.send
+          | Some ngrades ->
+             if ngrades > 0 then (
+               continuation
+                 (fun ballots ->
+                   let nchoices = Array.length q.Question_nh_t.q_answers in
+                   let mj = Majority_judgment.compute ~nchoices ~ngrades ballots in
+                   Pages_voter.majority_judgment q mj >>= Html.send
+                 )
+             ) else (
+               Pages_common.generic_page ~title:(s_ "Error")
+                 (s_ "The number of grades is invalid") ()
+               >>= Html.send ~code:400
+             )
+        )
     )
 
 let content_type_of_file = function
