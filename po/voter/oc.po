@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-17 09:34+0000\n"
-"PO-Revision-Date: 2020-11-20 20:02+0000\n"
+"PO-Revision-Date: 2020-11-20 20:20+0000\n"
 "Last-Translator: Quentin PAGÈS <quentinantonin@free.fr>\n"
 "Language-Team: Occitan <https://hosted.weblate.org/projects/belenios/voter/"
 "oc/>\n"
@@ -109,7 +109,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:253
 msgid "Accept"
-msgstr ""
+msgstr "Acceptar"
 
 #: src/web/pages_voter.ml:601
 msgid "Accepted ballots"
@@ -143,11 +143,11 @@ msgstr ""
 #. src/web/pages_voter.ml:469
 #: src/web/pages_voter.ml:718 src/web/pages_voter.ml:550
 msgid "Authenticate"
-msgstr ""
+msgstr "Autentificatz-vos"
 
 #: src/web/pages_common.ml:291
 msgid "Authentication failed"
-msgstr ""
+msgstr "Fracàs d'autentificacion"
 
 #: src/web/pages_common.ml:294
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
@@ -177,7 +177,7 @@ msgstr ""
 #. src/web/pages_voter.ml:471
 #: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
 msgid "Confirm"
-msgstr ""
+msgstr "Confirmar"
 
 #: src/web/pages_voter.ml:845 src/web/pages_voter.ml:700
 msgid "Continue"
@@ -198,7 +198,7 @@ msgstr ""
 #. src/web/pages_voter.ml:473
 #: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
 msgid "Done"
-msgstr ""
+msgstr "Terminat"
 
 #: src/web/pages_voter.ml:782
 msgid "Election UUID: "
@@ -285,7 +285,7 @@ msgstr ""
 
 #: src/web/pages_common.ml:134
 msgid "Language:"
-msgstr ""
+msgstr "Lenga :"
 
 #: src/web/pages_voter.ml:658
 msgid "Loading…"
@@ -293,11 +293,11 @@ msgstr ""
 
 #: src/web/pages_common.ml:222
 msgid "Log in"
-msgstr ""
+msgstr "Se connectar"
 
 #: src/web/pages_common.ml:278
 msgid "Login"
-msgstr ""
+msgstr "Login"
 
 #: src/web/pages_voter.ml:960 src/web/pages_voter.ml:914
 msgid "Login and passwords are required once your ballot is ready to be cast."
@@ -313,7 +313,7 @@ msgstr ""
 
 #: src/tool/tool_js_booth.ml:321
 msgid "Next"
-msgstr ""
+msgstr "Seguent"
 
 #: src/tool/tool_js_booth.ml:138
 msgid "No other choices are allowed when voting blank"
@@ -321,7 +321,7 @@ msgstr ""
 
 #: src/web/site_common.ml:43
 msgid "Not found"
-msgstr ""
+msgstr "Pas trobat"
 
 #: src/web/pages_voter.ml:968 src/web/pages_voter.ml:921
 msgid "Note that you are allowed to vote several times."
@@ -361,7 +361,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:918 src/web/pages_common.ml:273
 msgid "Password:"
-msgstr ""
+msgstr "Senhal :"
 
 #: src/tool/tool_js_booth.ml:376
 msgid "Please enter your credential:"
@@ -389,11 +389,11 @@ msgstr ""
 
 #: src/tool/tool_js_booth.ml:320
 msgid "Previous"
-msgstr ""
+msgstr "Precedent"
 
 #: src/web/pages_common.ml:118
 msgid "Privacy policy"
-msgstr ""
+msgstr "Politica de confidencialitat"
 
 #: src/web/pages_common.ml:187
 msgid "Proceed"
@@ -401,7 +401,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:755
 msgid "Restart"
-msgstr ""
+msgstr "Reaviar"
 
 #: src/web/pages_voter.ml:997
 msgid "Results will be published on the election page"
@@ -430,11 +430,11 @@ msgstr ""
 
 #: src/web/pages_common.ml:137
 msgid "Set"
-msgstr ""
+msgstr "Definir"
 
 #: src/web/pages_voter.ml:193
 msgid "Start"
-msgstr ""
+msgstr "Començar"
 
 #: src/web/pages_voter.ml:727
 msgid "Step 1/6: Input credential"
@@ -539,7 +539,7 @@ msgstr ""
 #. src/web/pages_common.ml:269
 #: src/web/pages_voter.ml:964 src/web/pages_voter.ml:917
 msgid "Username:"
-msgstr ""
+msgstr "Nom d'utilizaire :"
 
 #: src/tool/tool_js_booth.ml:211
 msgid "Value must be an integer between 0 and 255."
@@ -547,7 +547,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:519
 msgid "Warning:"
-msgstr ""
+msgstr "Atencion :"
 
 #: src/tool/tool_js_booth.ml:241
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
