@@ -994,23 +994,36 @@ let handle_credentials_post uuid token creds =
           (fun oc -> Lwt_io.write_chars oc creds)
       )
   in
-  let%lwt () =
+  let%lwt weights =
     let i = ref 1 in
     match%lwt read_file fname with
     | Some xs ->
-       let () =
-         List.iter (fun x ->
+       let weights =
+         List.fold_left
+           (fun weights x ->
              try
+               let x, w = extract_weight x in
                let x = G.of_string x in
                if not (G.check x) then raise Exit;
-               incr i
+               incr i;
+               w :: weights
              with _ ->
                Printf.ksprintf failwith "invalid credential at line %d" !i
-           ) xs
+           ) [] xs
        in
-       write_file fname xs
-    | None -> return_unit
+       let%lwt () = write_file fname xs in
+       return (List.sort compare weights)
+    | None -> failwith "anomaly when reading back credentials"
   in
+  let expected_weights =
+    List.fold_left
+      (fun accu {sv_id; _} ->
+        let _, _, weight = split_identity sv_id in
+        weight :: accu
+      ) [] se.se_voters
+    |> List.sort compare
+  in
+  if weights <> expected_weights then failwith "discrepancy in weights";
   let () = se.se_public_creds_received <- true in
   let%lwt () = Web_persist.set_draft_election uuid se in
   Pages_admin.election_draft_credentials_done se () >>= Html.send
