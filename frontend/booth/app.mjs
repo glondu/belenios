@@ -18,27 +18,6 @@ function getHashParametersFromURL(){
   }, {});
 }
 
-// TODO: replace this mock function by usage of Belenios Javascript API (`src/lib/election.ml::of_string()`) when it is ready
-const beleniosComputeElectionFingerprint = (election_data) => {
-  return "election_fingerprint_aaa";
-};
-
-// TODO: replace this mock function by usage of Belenios Javascript API (`src/lib/credential.ml::check()`) when it is ready
-const beleniosCredentialCheck = (credential) => {
-  return true;
-};
-
-function wait(ms){
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// TODO: replace this mock function by usage of Belenios Javascript API (`src/tool/tool_js_booth.ml::encryptBallot()`) when it is ready
-async function beleniosEncryptBallot(election_data, credential, voter_ballot_as_plaintext){
-  console.log("beleniosEncryptBallot() election_data:", election_data, "credential:", credential, "voter_ballot_as_plaintext:", voter_ballot_as_plaintext);
-  await wait(5000);
-  return "encrypted_ballot_aaa";
-};
-
 function VotePage({ electionData, electionFingerprint, currentStep, children }){
   return e(
     "div",
@@ -101,7 +80,7 @@ function GenericPage({title=null, subTitle=null, children}){
   );
 }
 
-function TranslatableVoteApp({uuid=null, beleniosEncryptBallot=null, t}){
+function TranslatableVoteApp({uuid=null, t}){
   const [currentStep, setCurrentStep] = React.useState(1);
   const [electionData, setElectionData] = React.useState({});
   const [electionFingerprint, setElectionFingerprint] = React.useState("");
@@ -112,7 +91,7 @@ function TranslatableVoteApp({uuid=null, beleniosEncryptBallot=null, t}){
 
   const processElectionData = (inputElectionData) => {
     setElectionData(inputElectionData);
-    setElectionFingerprint(beleniosComputeElectionFingerprint(inputElectionData));
+    setElectionFingerprint(belenios.computeFingerprint(inputElectionData));
     setElectionLoadingStatus(1);
   };
 
@@ -213,8 +192,7 @@ function TranslatableVoteApp({uuid=null, beleniosEncryptBallot=null, t}){
           InputCredentialSection,
           {
             onSubmit: function(credential){
-              // TODO: implement usage of Belenios Javascript API when it is ready
-              if(beleniosCredentialCheck(credential) === true){
+              if(belenios.checkCredential(credential) === true){
                 alert("credential: " + credential);
                 setCredential(credential);
                 setCurrentStep(2);
@@ -245,8 +223,15 @@ function TranslatableVoteApp({uuid=null, beleniosEncryptBallot=null, t}){
               const voter_selected_answers = extractVoterSelectedAnswersFromFields(electionData);
               setUncryptedBallotBeforeReview(voter_selected_answers);
               setCurrentStep(3);
-              const cryptedBallot = await beleniosEncryptBallot(electionData, credential, voter_selected_answers);
-              setCryptedBallotBeforeReview(cryptedBallot);
+              belenios.encryptBallot(electionData, credential, voter_selected_answers,
+                                     function(ballot, tracker) {
+                                         console.log("Raw encrypted ballot:", JSON.parse(ballot));
+                                         console.log("Smart ballot tracker:", tracker);
+                                         setCryptedBallotBeforeReview(ballot);
+                                     },
+                                     function(error) {
+                                         alert("Error: " + error);
+                                     });
             }
           }
         )
@@ -285,8 +270,7 @@ i18next.languages[0] || "en");
       e(
         VoteApp,
         {
-          uuid: uuid,
-          beleniosEncryptBallot: beleniosEncryptBallot
+          uuid: uuid
         }
       ),
       container
