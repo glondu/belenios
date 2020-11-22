@@ -807,16 +807,27 @@ let is_identity x =
   | None -> false
 
 let merge_voters a b f =
-  let existing = List.fold_left (fun accu sv ->
-    SSet.add sv.sv_id accu
-  ) SSet.empty a in
-  let _, res = List.fold_left (fun (existing, accu) sv_id ->
-    if SSet.mem sv_id existing then
-      (existing, accu)
-    else
-      (SSet.add sv_id existing, {sv_id; sv_password = f sv_id} :: accu)
-  ) (existing, List.rev a) b in
-  List.rev res
+  let weights =
+    List.fold_left
+      (fun accu sv ->
+        let _, login, weight = split_identity sv.sv_id in
+        SMap.add login weight accu
+      ) SMap.empty a
+  in
+  let weights, res =
+    List.fold_left
+      (fun (weights, accu) sv_id ->
+        let _, login, weight = split_identity sv_id in
+        if SMap.mem login weights then
+          (weights, accu)
+        else (
+          SMap.add login weight weights,
+          {sv_id; sv_password = f sv_id} :: accu
+        )
+      ) (weights, List.rev a) b
+  in
+  List.rev res,
+  SMap.fold (fun _ x y -> x + y) weights 0
 
 let () =
   Any.register ~service:election_draft_voters_add
@@ -834,7 +845,13 @@ let () =
                  Printf.ksprintf failwith (f_ "%S is not a valid identity") bad
               | None -> ()
             in
-            let voters = merge_voters se.se_voters voters (fun _ -> None) in
+            let voters, total_weight =
+              merge_voters se.se_voters voters (fun _ -> None)
+            in
+            if total_weight > max_total_weight then
+              Printf.ksprintf failwith
+                (f_ "The total weight cannot exceed %d.")
+                max_total_weight;
             let uses_password_auth =
               match se.se_metadata.e_auth_config with
               | Some configs ->
@@ -1233,8 +1250,21 @@ let () =
              if se.se_public_creds_received then
                forbidden ()
              else (
-               se.se_voters <- merge_voters se.se_voters voters get_password;
-               redir_preapply election_draft_voters uuid ()
+               let voters, total_weight =
+                 merge_voters se.se_voters voters get_password
+               in
+               if total_weight <= max_total_weight then (
+                 se.se_voters <- voters;
+                 redir_preapply election_draft_voters uuid ()
+               ) else (
+                 Pages_common.generic_page ~title:(s_ "Error")
+                   ~service:(preapply ~service:election_draft_voters uuid)
+                   (Printf.sprintf
+                      (f_ "The total weight cannot exceed %d.")
+                      max_total_weight
+                   ) ()
+                 >>= Html.send
+               )
              )
           | None ->
              Pages_common.generic_page ~title:(s_ "Error")

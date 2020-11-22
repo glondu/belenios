@@ -468,3 +468,4 @@ let days_between_mails = 7
 let days_to_publish_result = 7
 
 let max_election_name_size = 80
+let max_total_weight = 100_000
