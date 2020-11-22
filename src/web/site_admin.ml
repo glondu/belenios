@@ -1073,7 +1073,7 @@ let () =
                         (uuid, ()) |> rewrite_prefix
             in
             let module G = (val Group.of_string se.se_group : GROUP) in
-            let module CSet = Set.Make (G) in
+            let module CMap = Map.Make (G) in
             let module CD = Credential.MakeDerive (G) in
             let%lwt public_creds, private_creds =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
@@ -1094,12 +1094,21 @@ let () =
                       title cas ~login cred weight url se.se_metadata
                   in
                   let%lwt () = send_email (MailCredential uuid) ~recipient ~subject ~body in
-                  return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)
-                ) (CSet.empty, []) se.se_voters
+                  return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)
+                ) (CMap.empty, []) se.se_voters
             in
             let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
             let%lwt () = write_file ~uuid "private_creds.txt" private_creds in
-            let public_creds = CSet.elements public_creds |> List.map G.to_string in
+            let public_creds =
+              CMap.bindings public_creds
+              |> List.map
+                   (fun (cred, weight) ->
+                     let cred = G.to_string cred in
+                     if weight > 1 then
+                       Printf.sprintf "%s,%d" cred weight
+                     else cred
+                   )
+            in
             let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
             let%lwt () =
               Lwt_io.with_file
