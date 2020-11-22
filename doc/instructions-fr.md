@@ -247,6 +247,10 @@ Pendant l'élection, il est attendu que l'auditeur :
 électorale correspond à la liste électorale (s'il a
 accès à ces informations). Cf instructions pour la commission
 électorale.
+
+- vérifie que le nombre d'électeurs est égal au nombre de codes de
+  vote publics dans `public_creds.txt`.
+
 - vérifie la cohérence de l'urne. En copiant les 4 fichiers listés
 ci-dessus dans un répertoire `/path/to/election`, la commande suivante
 exécute toutes les vérifications nécessaires :

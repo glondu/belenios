@@ -239,6 +239,9 @@ During the election, it is expected that the auditor:
   fingerprint of the voter list is correct (if she has access to this
   information). See the instructions for the election committee.
 
+- verifies that the number of voters is equal to the number of  public
+  credentials in `public_creds.txt`.
+
 - verifies the consistency of the ballot box. By copying the 4 files
   listed above in a directory `/path/to/election`, the following command
   runs all the required verifications:
