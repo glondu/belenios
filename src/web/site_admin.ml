@@ -1870,7 +1870,18 @@ let handle_election_tally_release uuid () =
           | `EncryptedTally _ -> return_unit
           | _ -> forbidden ()
         in
-        let%lwt ntallied = Web_persist.get_ballot_hashes uuid >|= List.length in
+        let%lwt ntallied =
+          let%lwt hashes = Web_persist.get_ballot_hashes uuid in
+          let%lwt weights =
+            Lwt_list.map_s
+              (fun hash ->
+                match%lwt Web_persist.get_ballot_by_hash uuid hash with
+                | None -> failwith "anomaly while computing ntallied"
+                | Some ballot -> Web_persist.get_ballot_weight ballot
+              ) hashes
+          in
+          Lwt_list.fold_left_s (fun x y -> return (x + y)) 0 weights
+        in
         let%lwt et =
           !Web_config.spool_dir / uuid_s / string_of_election_file ESETally |>
             Lwt_io.chars_of_file |> Lwt_stream.to_string >>=

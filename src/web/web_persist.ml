@@ -335,6 +335,58 @@ let get_ballot_by_hash uuid hash =
      | Some [x] -> return_some x
      | _ -> return_none
 
+module CredWeightsCacheTypes = struct
+  type key = uuid
+  type value = int StringMap.t
+end
+
+module CredWeightsCache = Ocsigen_cache.Make (CredWeightsCacheTypes)
+
+let raw_get_credential_weights uuid =
+  match%lwt read_file ~uuid "public_creds.txt" with
+  | Some xs ->
+     xs
+     |> List.map extract_weight
+     |> List.fold_left
+          (fun accu (x, w) ->
+            StringMap.add x w accu
+          ) StringMap.empty
+     |> return
+  | None -> return StringMap.empty
+
+let credential_weights_cache =
+  new CredWeightsCache.cache raw_get_credential_weights ~timer:3600. 10
+
+let get_credential_weight uuid cred =
+  try%lwt
+    let%lwt xs = credential_weights_cache#find uuid in
+    return @@ StringMap.find cred xs
+  with _ ->
+    Lwt.fail
+      (Failure
+         (Printf.sprintf
+            "could not find weight of %s/%s"
+            (raw_string_of_uuid uuid) cred
+         )
+      )
+
+let get_ballot_weight ballot =
+  try%lwt
+    let ballot = ballot_of_string Yojson.Safe.read_json ballot in
+    match ballot.signature with
+    | None -> failwith "missing signature"
+    | Some s ->
+       let credential =
+         match s.s_public_key with
+         | `String x -> x
+         | _ -> failwith "unexpected credential"
+       in
+       get_credential_weight ballot.election_uuid credential
+  with e ->
+    Printf.ksprintf failwith
+      "anomaly in get_ballot_weight (%s)"
+       (Printexc.to_string e)
+
 let load_ballots uuid =
   let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
   if%lwt Lwt_unix.file_exists ballots_dir then (
@@ -376,9 +428,15 @@ let compute_encrypted_tally uuid =
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
      let%lwt ballots = load_ballots uuid in
-     let ballots = Array.map (ballot_of_string E.G.read) (Array.of_list ballots) in
-     let ballots = Array.map (fun x -> 1, x) ballots in
-     let tally = E.process_ballots ballots in
+     let%lwt ballots =
+       Lwt_list.map_s
+         (fun raw_ballot ->
+           let ballot = ballot_of_string E.G.read raw_ballot in
+           let%lwt weight = get_ballot_weight raw_ballot in
+           return (weight, ballot)
+         ) ballots
+     in
+     let tally = E.process_ballots (Array.of_list ballots) in
      let tally = string_of_encrypted_tally E.G.write tally in
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
      return_some tally
@@ -559,41 +617,6 @@ module CredMappingsCacheTypes = struct
 end
 
 module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
-
-module CredWeightsCacheTypes = struct
-  type key = uuid
-  type value = int StringMap.t
-end
-
-module CredWeightsCache = Ocsigen_cache.Make (CredWeightsCacheTypes)
-
-let raw_get_credential_weights uuid =
-  match%lwt read_file ~uuid "public_creds.txt" with
-  | Some xs ->
-     xs
-     |> List.map extract_weight
-     |> List.fold_left
-          (fun accu (x, w) ->
-            StringMap.add x w accu
-          ) StringMap.empty
-     |> return
-  | None -> return StringMap.empty
-
-let credential_weights_cache =
-  new CredWeightsCache.cache raw_get_credential_weights ~timer:3600. 10
-
-let get_credential_weight uuid cred =
-  try%lwt
-    let%lwt xs = credential_weights_cache#find uuid in
-    return @@ StringMap.find cred xs
-  with _ ->
-    Lwt.fail
-      (Failure
-         (Printf.sprintf
-            "could not find weight of %s/%s"
-            (raw_string_of_uuid uuid) cred
-         )
-      )
 
 let raw_get_credential_mappings uuid =
   match%lwt read_file ~uuid "credential_mappings.jsons" with
