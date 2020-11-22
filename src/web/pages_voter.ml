@@ -212,6 +212,20 @@ let election_home election state () =
     match result with
     | Some r when hidden = None || is_admin ->
        let result = Shape.to_shape_array r.result in
+       let%lwt hashes = Web_persist.get_ballot_hashes uuid in
+       let nballots = List.length hashes in
+       let div_total_weight =
+         if r.num_tallied > nballots then (
+           div [
+               txt (s_ "Total weight of accepted ballots:");
+               txt " ";
+               txt (string_of_int r.num_tallied);
+             ]
+         ) else (
+           assert (r.num_tallied = nballots);
+           txt ""
+         )
+       in
        return @@ div [
          ul (
              Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) election.e_params.e_questions) result
@@ -219,8 +233,9 @@ let election_home election state () =
            );
          div [
            txt (s_ "Number of accepted ballots: ");
-           txt (string_of_int r.num_tallied);
+           txt (string_of_int nballots);
          ];
+         div_total_weight;
          div [
            txt (s_ "You can also download the ");
            a ~service:election_dir
