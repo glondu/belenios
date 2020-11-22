@@ -272,6 +272,18 @@ let election_home election state () =
           cache.cache_num_voters cache.cache_voters_hash;
       ]
   in
+  let div_total_weight =
+    match cache.cache_total_weight with
+    | Some w ->
+       div [
+           txt "The ";
+           b [txt "total weight"];
+           txt " is ";
+           txt (string_of_int w);
+           txt ".";
+         ]
+    | None -> txt ""
+  in
   let format_tc id xs =
     ul ~a:[a_id id] (
         List.map
@@ -348,6 +360,7 @@ let election_home election state () =
     div ~a:[a_class ["hybrid_box"]] [
       div_admin;
       div_voters;
+      div_total_weight;
       div_trustees;
       div_credentials;
       div_shuffles;
