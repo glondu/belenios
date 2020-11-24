@@ -109,6 +109,8 @@ let format_question_result uuid l (i, q) r =
              a ~service:method_schulze [txt "Condorcet-Schulze"] (uuid, i);
              txt ", ";
              a ~service:method_mj [txt (s_ "Majority Judgment")] (uuid, (i, None));
+             txt ", ";
+             a ~service:method_stv [txt (s_ "Single Transferable Vote")] (uuid, (i, None));
              txt ".";
            ];
        ]
@@ -880,6 +882,71 @@ let majority_judgment q r =
           txt (s_ "The Majority Judgment winners are:");
           ol pretty_winners;
         ];
+      div [invalid];
+    ]
+  in
+  base ~title ~content ()
+
+let stv_select uuid question =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Single Transferable Vote method" in
+  let form =
+    get_form ~service:method_stv
+      (fun (uuidn, (questionn, nseatsn)) -> [
+           input ~input_type:`Hidden ~name:uuidn ~value:uuid (user raw_string_of_uuid);
+           input ~input_type:`Hidden ~name:questionn ~value:question int;
+           txt (s_ "Number of seats:");
+           txt " ";
+           input ~input_type:`Text ~name:nseatsn int;
+           input ~input_type:`Submit ~value:(s_ "Continue") string;
+         ]
+      )
+  in
+  let content = [form] in
+  base ~title ~content ()
+
+let stv q r =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Single Transferable Vote method" in
+  let winners =
+    r.stv_winners
+    |> List.map (fun i -> q.Question_nh_t.q_answers.(i))
+    |> List.map (fun l -> li [txt l])
+  in
+  let invalid =
+    r.stv_invalid
+    |> string_of_mj_ballots
+    |> (fun x -> "data:application/json," ^ x)
+    |> (fun x -> direct_a x (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.stv_invalid)))
+  in
+  let events =
+    r.stv_events
+    |> string_of_stv_events
+    |> (fun x -> "data:application/json," ^ x)
+    |> (fun x -> direct_a x (s_ "Raw events"))
+  in
+  let tie =
+    if
+      List.exists
+        (function
+         | `TieWin _ | `TieLose _ -> true
+         | _ -> false
+        ) r.stv_events
+    then
+      txt (s_ "There has been at least one tie. Look at the raw events for more details.")
+    else
+      txt ""
+  in
+  let content =
+    [
+      div [
+          txt (s_ "The Single Transferable Vote winners are:");
+          ul winners;
+        ];
+      div [tie];
+      div [events];
       div [invalid];
     ]
   in
