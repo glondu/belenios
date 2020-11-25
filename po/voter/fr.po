@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-11-25 08:50+0000\n"
+"PO-Revision-Date: 2020-11-26 15:29+0000\n"
 "Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/voter/fr/"
 ">\n"
@@ -150,8 +149,8 @@ msgstr "Administrer cette élection"
 msgid "Advanced mode"
 msgstr "Mode avancé"
 
-#: src/web/pages_voter.ml:716 src/web/pages_voter.ml:548
 #. src/web/pages_voter.ml:467
+#: src/web/pages_voter.ml:716 src/web/pages_voter.ml:548
 msgid "Answer to questions"
 msgstr "Réponse aux questions"
 
@@ -168,8 +167,8 @@ msgstr "Au moins une des réponses est incorrecte !"
 msgid "Audit data: "
 msgstr "Données d'audit : "
 
-#: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
 #. src/web/pages_voter.ml:471
+#: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
 msgid "Authenticate"
 msgstr "Authentification"
 
@@ -196,8 +195,8 @@ msgstr "Soyez attentif(ve), le mot de passe et le code de vote se ressemblent ma
 msgid "Belenios Booth"
 msgstr "Isoloir Belenios"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
+#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 msgid "Blank vote"
 msgstr "Vote blanc"
 
@@ -209,13 +208,13 @@ msgstr "En utilisant ce site, vous acceptez notre "
 msgid "Condorcet-Schulze method"
 msgstr "Méthode Condorcet-Schulze"
 
-#: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
 #. src/web/pages_voter.ml:473
+#: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
 msgid "Confirm"
 msgstr "Confirmation"
 
-#: src/web/pages_voter.ml:954 src/web/pages_voter.ml:860
 #. src/web/pages_voter.ml:702
+#: src/web/pages_voter.ml:954 src/web/pages_voter.ml:860
 msgid "Continue"
 msgstr "Continuer"
 
@@ -231,8 +230,8 @@ msgstr "Code de vote :"
 msgid "Dear %s,"
 msgstr "%s,"
 
-#: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
 #. src/web/pages_voter.ml:475
+#: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
 msgid "Done"
 msgstr "Terminé"
 
@@ -252,9 +251,9 @@ msgstr "Serveur d'élections"
 msgid "Encrypting…"
 msgstr "Chiffrement en cours…"
 
-#: src/web/site_voter.ml:330 src/web/site_voter.ml:305 src/web/site_voter.ml:267
 #. src/web/site_voter.ml:262
 #. src/web/site_voter.ml:257
+#: src/web/site_voter.ml:330 src/web/site_voter.ml:305 src/web/site_voter.ml:267
 msgid "Error"
 msgstr "Erreur"
 
@@ -266,9 +265,9 @@ msgstr "ÉCHEC !"
 msgid "Get the source code"
 msgstr "Obtenir le code source"
 
-#: src/web/pages_voter.ml:621 src/web/pages_voter.ml:593
 #. src/web/pages_voter.ml:532
 #. src/web/pages_voter.ml:504
+#: src/web/pages_voter.ml:621 src/web/pages_voter.ml:593
 msgid "Go back to election"
 msgstr "Retourner à la page d'accueil de l'élection"
 
@@ -315,8 +314,8 @@ msgstr ""
 "Dans le cadre de STV, les électeurs classent les candidats par ordre de "
 "préférence."
 
-#: src/web/pages_voter.ml:714 src/web/pages_voter.ml:546
 #. src/web/pages_voter.ml:465
+#: src/web/pages_voter.ml:714 src/web/pages_voter.ml:546
 msgid "Input credential"
 msgstr "Saisie du code de vote"
 
@@ -462,6 +461,7 @@ msgstr ""
 "selon la méthode du jugement majoritaire."
 
 #: src/web/pages_voter.ml:976
+#, fuzzy
 msgid "Please provide the number of seats to see the result of the election according to the Single Transferable Vote method."
 msgstr ""
 "Veuillez indiquer le nombre de sièges pour voir le résultat de l'élection "
@@ -503,8 +503,8 @@ msgstr "Recommencer"
 msgid "Results will be published on the election page"
 msgstr "Les résultats seront publiés sur la page de l'élection"
 
-#: src/web/pages_voter.ml:718 src/web/pages_voter.ml:550
 #. src/web/pages_voter.ml:469
+#: src/web/pages_voter.ml:718 src/web/pages_voter.ml:550
 msgid "Review and encrypt"
 msgstr "Récapitulatif et chiffrement"
 
@@ -531,12 +531,14 @@ msgstr ""
 "a pas de vainqueur de Condorcet."
 
 #: src/web/pages_voter.ml:113
+#, fuzzy
 msgid "Single Transferable Vote"
-msgstr "Single Transferable Vote"
+msgstr "Vote unique transférable (Single Tranferable Vote)"
 
 #: src/web/pages_voter.ml:992 src/web/pages_voter.ml:945
+#, fuzzy
 msgid "Single Transferable Vote method"
-msgstr ""
+msgstr "Méthode du vote unique transférable (Single Transferable Vote)"
 
 #: src/web/pages_voter.ml:195
 msgid "Start"
@@ -565,6 +567,8 @@ msgstr "Étape 6/6 : "
 #: src/web/pages_voter.ml:1034
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
+"Ces candidats sont marqués comme \"TieWin\" lorsqu'ils sont élus et comme "
+"\"TieLose\" s'ils ont perdu."
 
 #: src/web/pages_voter.ml:573
 msgid "Thank you for voting!"
@@ -579,8 +583,9 @@ msgid "The Schulze winners are:"
 msgstr "Les vainqueurs au sens de Schulze sont :"
 
 #: src/web/pages_voter.ml:1043
+#, fuzzy
 msgid "The Single Transferable Vote winners are:"
-msgstr ""
+msgstr "Les gagnants selon la méthode Single Transferable Vote sont :"
 
 #: src/web/pages_voter.ml:164 src/web/pages_voter.ml:159
 msgid "The election is closed and being tallied."
@@ -593,14 +598,17 @@ msgstr "L'élection fermera dans "
 #: src/web/pages_voter.ml:883
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
+"Le nombre de notes différentes (Excellent, Très bon, etc.) varie "
+"généralement de 5 à 7."
 
 #: src/web/site_voter.ml:306
+#, fuzzy
 msgid "The number of grades is invalid."
-msgstr ""
+msgstr "Le nombre de notes n'est pas valide."
 
 #: src/web/site_voter.ml:331
 msgid "The number of seats is invalid."
-msgstr ""
+msgstr "Le nombre de sièges n’est pas valide."
 
 #: src/web/pages_voter.ml:103
 msgid "The raw results can be viewed in the "
@@ -617,10 +625,12 @@ msgstr "Le résultat de cette élection n'est pas disponible."
 #: src/web/pages_voter.ml:873
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
 msgstr ""
+"Le gagnant est le candidat qui a la médiane la plus élevée (ou la 2e médiane "
+"la plus élevée en cas d'égalité, etc.)."
 
 #: src/web/pages_voter.ml:1028
 msgid "There has been at least one tie."
-msgstr ""
+msgstr "Il y a eu au moins une égalité."
 
 #: src/web/site_common.ml:43
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
@@ -641,6 +651,8 @@ msgstr "Cette élection est actuellement fermée."
 #: src/web/site_voter.ml:263
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
+"La question demandait de sélectionner des candidats et ne permet pas "
+"d'appliquer cette méthode."
 
 #: src/web/pages_voter.ml:1154
 msgid "This vote replaces any previous vote."
@@ -666,8 +678,8 @@ msgstr ""
 msgid "To get more information, please contact:"
 msgstr "Pour obtenir plus d'informations, veuillez contacter :"
 
-#: src/web/pages_voter.ml:1129 src/web/pages_voter.ml:1082
 #. src/web/pages_common.ml:269
+#: src/web/pages_voter.ml:1129 src/web/pages_voter.ml:1082
 msgid "Username:"
 msgstr "Nom d'utilisateur :"
 
@@ -689,10 +701,14 @@ msgstr ""
 #: src/web/pages_voter.ml:834
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
+"Nous utilisons ici la méthode de Schulze et nous renvoyons les électeurs à "
 
 #: src/web/pages_voter.ml:963
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
+"Lorsqu’un candidat obtient suffisamment de voix pour être élu, les votes "
+"sont transférés au candidat suivant dans le bulletin de vote, avec un "
+"coefficient proportionnel à l'«excédent » des voix."
 
 #: src/web/pages_voter.ml:1116 src/web/pages_voter.ml:1071
 msgid "You are listed as a voter for the election"
@@ -758,8 +774,8 @@ msgstr "Votre mot de passe pour l'élection %s"
 msgid "Your smart ballot tracker is"
 msgstr "Votre numéro de suivi est"
 
-#: src/web/pages_voter.ml:694 src/web/pages_voter.ml:564
 #. src/web/pages_voter.ml:487
+#: src/web/pages_voter.ml:694 src/web/pages_voter.ml:564
 msgid "Your smart ballot tracker is "
 msgstr "Votre numéro de suivi est "
 
@@ -803,14 +819,14 @@ msgstr "créer un compte"
 msgid "has been recorded."
 msgstr "a été enregistré."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:966
 #. src/web/pages_voter.ml:876
+#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:966
 msgid "here"
 msgstr "ici"
 
 #: src/web/pages_voter.ml:969
 msgid "our code of STV"
-msgstr ""
+msgstr "notre code de STV"
 
 #: src/web/pages_voter.ml:53
 msgid "parameters"
@@ -838,7 +854,7 @@ msgstr "recommencer au début"
 
 #: src/web/pages_voter.ml:835
 msgid "the Wikipedia page"
-msgstr ""
+msgstr "la page Wikipédia"
 
 #: src/web/web_common.ml:81
 msgid "the election is closed"
@@ -875,4 +891,3 @@ msgstr "votre code de vote a déjà été utilisé"
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr "votre code de vote est invalide"
-
