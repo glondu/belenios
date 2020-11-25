@@ -303,7 +303,7 @@ let () =
                  )
              ) else (
                Pages_common.generic_page ~title:(s_ "Error")
-                 (s_ "The number of grades is invalid") ()
+                 (s_ "The number of grades is invalid.") ()
                >>= Html.send ~code:400
              )
         )
@@ -328,7 +328,7 @@ let () =
                  )
              ) else (
                Pages_common.generic_page ~title:(s_ "Error")
-                 (s_ "The number of seats is invalid") ()
+                 (s_ "The number of seats is invalid.") ()
                >>= Html.send ~code:400
              )
         )

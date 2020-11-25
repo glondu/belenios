@@ -888,6 +888,7 @@ let majority_judgment_select uuid question =
   let content =
     [
       explanation;
+      br ();
       explanation_grades;
       form;
     ]
@@ -978,6 +979,7 @@ let stv_select uuid question =
   let content =
     [
       explanation;
+      br ();
       explanation_nseats;
       form;
     ]
