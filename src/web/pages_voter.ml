@@ -804,7 +804,7 @@ let booth () =
 let schulze q r =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
-  let title = s_ "Schulze method" in
+  let title = s_ "Condorcet-Schulze method" in
   let explicit_winners =
     List.map
       (List.map
@@ -824,8 +824,21 @@ let schulze q r =
           ]
       ) explicit_winners
   in
+  let explanation =
+    div
+      [
+        txt (s_ "A Condorcet winner is a candidate that is preferred over all the other candidates.");
+        txt " ";
+        txt (s_ "Several techniques exist to decide which candidate to elect when there is no Condorcet winner.");
+        txt " ";
+        txt (s_ "We use here the Schulze method and we refer voters to ");
+        direct_a "https://en.wikipedia.org/wiki/Condorcet_method#Schulze_method" (s_ "the Wikipedia page");
+        txt (s_ " for more information.");
+      ]
+  in
   let content =
     [
+      explanation;
       txt (s_ "The Schulze winners are:");
       ol pretty_winners;
     ]
@@ -848,7 +861,37 @@ let majority_judgment_select uuid question =
          ]
       )
   in
-  let content = [form] in
+  let explanation =
+    div
+      [
+         txt (s_ "In the context of Majority Judgment, a vote gives a grade to each candidate.");
+         txt " ";
+         txt (s_ "1 is the highest grade, 2 is the second highest grade, etc.");
+         txt " ";
+         txt (s_ "As a convenience, 0 is always interpreted as the lowest grade.");
+         txt " ";
+         txt (s_ "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.).");
+         txt " ";
+         txt (s_ "More information can be found ");
+         direct_a "https://en.wikipedia.org/wiki/Majority_judgment" (s_ "here");
+         txt "."
+      ]
+  in
+  let explanation_grades =
+    div
+      [
+        txt (s_ "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7.");
+        txt " ";
+        txt (s_ "Please provide the number of grades to see the result of the election according to the Majority Judgment method.");
+      ]
+  in
+  let content =
+    [
+      explanation;
+      explanation_grades;
+      form;
+    ]
+  in
   base ~title ~content ()
 
 let majority_judgment q r =
@@ -876,13 +919,21 @@ let majority_judgment q r =
   in
   let invalid = "data:application/json," ^ string_of_mj_ballots r.mj_invalid in
   let invalid = direct_a invalid (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.mj_invalid)) in
+  let invalid =
+    div
+      [
+        invalid;
+        txt ". ";
+        txt (s_ "A ballot is invalid if a voter has entered a number that is greater than the number of grades.");
+      ]
+  in
   let content =
     [
       div [
           txt (s_ "The Majority Judgment winners are:");
           ol pretty_winners;
         ];
-      div [invalid];
+      invalid;
     ]
   in
   base ~title ~content ()
@@ -903,7 +954,34 @@ let stv_select uuid question =
          ]
       )
   in
-  let content = [form] in
+  let explanation =
+    div
+      [
+        txt (s_ "In the context of STV, voters rank candidates by order of preference.");
+        txt " ";
+        txt (s_ "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes.");
+        txt " ";
+        txt (s_ "More information can be found ");
+        direct_a "https://en.wikipedia.org/wiki/Single_transferable_vote" (s_ "here");
+        txt ". ";
+        txt (s_ "Many variants of STV exist, we documented our choices in ");
+        direct_a "https://gitlab.inria.fr/belenios/belenios/-/blob/master/src/lib/stv.ml" (s_ "our code of STV");
+        txt ".";
+      ]
+  in
+  let explanation_nseats =
+    div
+      [
+        txt (s_ "Please provide the number of seats to see the result of the election according to the Single Transferable Vote method.");
+      ]
+  in
+  let content =
+    [
+      explanation;
+      explanation_nseats;
+      form;
+    ]
+  in
   base ~title ~content ()
 
 let stv q r =
@@ -920,6 +998,14 @@ let stv q r =
     |> string_of_mj_ballots
     |> (fun x -> "data:application/json," ^ x)
     |> (fun x -> direct_a x (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.stv_invalid)))
+    |> (fun x ->
+      div
+        [
+          x;
+          txt ". ";
+          txt (s_ "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing.");
+        ]
+    )
   in
   let events =
     r.stv_events
@@ -934,10 +1020,20 @@ let stv q r =
          | `TieWin _ | `TieLose _ -> true
          | _ -> false
         ) r.stv_events
-    then
-      txt (s_ "There has been at least one tie. Look at the raw events for more details.")
-    else
-      txt ""
+    then (
+      div
+        [
+          txt (s_ "There has been at least one tie.");
+          txt " ";
+          txt (s_ "Many variants of STV exist, depending for example on how to break ties.");
+          txt " ";
+          txt (s_ "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election.");
+          txt " ";
+          txt (s_ "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost.");
+          txt " ";
+          txt (s_ "Look at the raw events for more details.");
+        ]
+    ) else txt ""
   in
   let content =
     [
@@ -945,7 +1041,7 @@ let stv q r =
           txt (s_ "The Single Transferable Vote winners are:");
           ul winners;
         ];
-      div [tie];
+      tie;
       div [events];
       div [invalid];
     ]
