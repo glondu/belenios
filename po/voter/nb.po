@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2020-11-25 07:57+0000\n"
+"PO-Revision-Date: 2020-11-26 15:29+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "belenios/voter/nb_NO/>\n"
@@ -48,8 +47,9 @@ msgid " day(s)"
 msgstr " dag(er)"
 
 #: src/web/pages_voter.ml:836
+#, fuzzy
 msgid " for more information."
-msgstr ""
+msgstr " for mer info."
 
 #: src/web/pages_voter.ml:562
 msgid " has been accepted."
@@ -146,8 +146,8 @@ msgstr "Administrer dette valget"
 msgid "Advanced mode"
 msgstr "Avansert modus"
 
-#: src/web/pages_voter.ml:716 src/web/pages_voter.ml:548
 #. src/web/pages_voter.ml:467
+#: src/web/pages_voter.ml:716 src/web/pages_voter.ml:548
 msgid "Answer to questions"
 msgstr "Svar på spørsmål"
 
@@ -163,8 +163,8 @@ msgstr "Minst ett av svarene er ugyldig!"
 msgid "Audit data: "
 msgstr "Valgopptellingsdata: "
 
-#: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
 #. src/web/pages_voter.ml:471
+#: src/web/pages_voter.ml:720 src/web/pages_voter.ml:552
 msgid "Authenticate"
 msgstr "Identitetsbekreft"
 
@@ -192,8 +192,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Belenios-valgavlukke"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
+#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 msgid "Blank vote"
 msgstr "Blank stemme"
 
@@ -205,13 +205,13 @@ msgstr "Ved å bruke denne siden, godtar du vår "
 msgid "Condorcet-Schulze method"
 msgstr ""
 
-#: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
 #. src/web/pages_voter.ml:473
+#: src/web/pages_voter.ml:722 src/web/pages_voter.ml:554
 msgid "Confirm"
 msgstr "Bekreft"
 
-#: src/web/pages_voter.ml:954 src/web/pages_voter.ml:860
 #. src/web/pages_voter.ml:702
+#: src/web/pages_voter.ml:954 src/web/pages_voter.ml:860
 msgid "Continue"
 msgstr "Fortsett"
 
@@ -227,8 +227,8 @@ msgstr "Identitetsdetalj:"
 msgid "Dear %s,"
 msgstr "Kjære %s,"
 
-#: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
 #. src/web/pages_voter.ml:475
+#: src/web/pages_voter.ml:724 src/web/pages_voter.ml:556
 msgid "Done"
 msgstr "Ferdig"
 
@@ -248,9 +248,9 @@ msgstr "Valg-tjener"
 msgid "Encrypting…"
 msgstr "Krypterer…"
 
-#: src/web/site_voter.ml:330 src/web/site_voter.ml:305 src/web/site_voter.ml:267
 #. src/web/site_voter.ml:262
 #. src/web/site_voter.ml:257
+#: src/web/site_voter.ml:330 src/web/site_voter.ml:305 src/web/site_voter.ml:267
 msgid "Error"
 msgstr "Feil"
 
@@ -262,9 +262,9 @@ msgstr "FEIL!"
 msgid "Get the source code"
 msgstr "Gå til kildekoden"
 
-#: src/web/pages_voter.ml:621 src/web/pages_voter.ml:593
 #. src/web/pages_voter.ml:532
 #. src/web/pages_voter.ml:504
+#: src/web/pages_voter.ml:621 src/web/pages_voter.ml:593
 msgid "Go back to election"
 msgstr "Gå tilbake til valget"
 
@@ -304,8 +304,8 @@ msgstr ""
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 
-#: src/web/pages_voter.ml:714 src/web/pages_voter.ml:546
 #. src/web/pages_voter.ml:465
+#: src/web/pages_voter.ml:714 src/web/pages_voter.ml:546
 msgid "Input credential"
 msgstr "Skriv inn identitetsdetalj"
 
@@ -353,7 +353,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1036
 msgid "Look at the raw events for more details."
-msgstr ""
+msgstr "Sjekk rå-hendelsene for flere detaljer."
 
 #: src/web/pages_voter.ml:111
 msgid "Majority Judgment"
@@ -372,8 +372,9 @@ msgid "Many variants of STV exist, we documented our choices in "
 msgstr ""
 
 #: src/web/pages_voter.ml:965 src/web/pages_voter.ml:875
+#, fuzzy
 msgid "More information can be found "
-msgstr ""
+msgstr "Mer info er å finne "
 
 #: src/tool/tool_js_booth.ml:321
 msgid "Next"
@@ -487,8 +488,8 @@ msgstr "Start på ny"
 msgid "Results will be published on the election page"
 msgstr "Resultater vil bli vist på valgsiden"
 
-#: src/web/pages_voter.ml:718 src/web/pages_voter.ml:550
 #. src/web/pages_voter.ml:469
+#: src/web/pages_voter.ml:718 src/web/pages_voter.ml:550
 msgid "Review and encrypt"
 msgstr "Gjennomse og krypter"
 
@@ -653,8 +654,8 @@ msgstr ""
 msgid "To get more information, please contact:"
 msgstr "For mer info, kontakt:"
 
-#: src/web/pages_voter.ml:1129 src/web/pages_voter.ml:1082
 #. src/web/pages_common.ml:269
+#: src/web/pages_voter.ml:1129 src/web/pages_voter.ml:1082
 msgid "Username:"
 msgstr "Brukernavn:"
 
@@ -747,8 +748,8 @@ msgstr "Ditt passord for valget %s"
 msgid "Your smart ballot tracker is"
 msgstr "Din smarte stemmesporer er"
 
-#: src/web/pages_voter.ml:694 src/web/pages_voter.ml:564
 #. src/web/pages_voter.ml:487
+#: src/web/pages_voter.ml:694 src/web/pages_voter.ml:564
 msgid "Your smart ballot tracker is "
 msgstr "Din smarte stemmesporer er "
 
@@ -792,8 +793,8 @@ msgstr "opprett en konto"
 msgid "has been recorded."
 msgstr "har blitt lagret."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:966
 #. src/web/pages_voter.ml:876
+#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:966
 msgid "here"
 msgstr "her"
 
@@ -827,7 +828,7 @@ msgstr "start fra begynnelsen"
 
 #: src/web/pages_voter.ml:835
 msgid "the Wikipedia page"
-msgstr ""
+msgstr "Wikipedia-siden"
 
 #: src/web/web_common.ml:81
 msgid "the election is closed"
@@ -864,4 +865,3 @@ msgstr "din identitetsdetalj har allerede blitt brukt"
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr "din identitetsdetalj er ugyldig"
-
