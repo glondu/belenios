@@ -43,7 +43,7 @@ variable, or it will take `~/.belenios` by default. Just run:
 
     ./opam-bootstrap.sh
 
-On a modern desktop system, this needs approximately 20 minutes and 2.6
+On a modern desktop system, this needs approximately 30 minutes and 3.3
 gigabytes of disk space.
 
 If everything goes successfully, follow the given instructions to
