@@ -261,21 +261,15 @@ let election_home election state () =
   let div_admin =
     div [
         Printf.ksprintf txt
-          "This election is administered by %s."
+          (f_ "This election is administered by %s.")
           (Option.get params.e_administrator "N/A");
       ]
   in
   let div_voters =
     div [
-        txt "The ";
-        b [txt "voter list"];
-        txt " has ";
-        txt (string_of_int cache.cache_num_voters);
-        txt " voter(s) and ";
-        b [txt "fingerprint"];
-        txt " ";
-        txt cache.cache_voters_hash;
-        txt ".";
+        Printf.ksprintf txt
+          (f_ "The voter list has %d voter(s) and fingerprint %s.")
+          cache.cache_num_voters cache.cache_voters_hash;
       ]
   in
   let format_tc id xs =
@@ -292,9 +286,7 @@ let election_home election state () =
     | [] -> txt ""
     | l ->
        div [
-           txt "All of the following trustees (";
-           b [txt "verification keys"];
-           txt ") are needed to decrypt the result:";
+           txt (s_ "All of the following trustees (verification keys) are needed to decrypt the result:");
            format_tc "trustees" l;
          ]
   in
@@ -317,12 +309,9 @@ let election_home election state () =
        List.map
          (fun x ->
            div [
-               Printf.ksprintf txt "%d of the following %d trustees ("
+               Printf.ksprintf txt
+                 (f_ "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:")
                  x.ts_threshold (List.length x.ts_trustees);
-               b [txt "verification keys"];
-               txt ") [";
-               b [txt "public keys"];
-               txt "] are needed to decrypt the election result:";
                format_ttc "trustees_threshold" x.ts_trustees;
              ]
          ) l
@@ -331,7 +320,7 @@ let election_home election state () =
   let div_credentials =
     div [
         Printf.ksprintf txt
-          "Credentials were generated and sent by %s and have fingerprint %s."
+          (f_ "Credentials were generated and sent by %s and have fingerprint %s.")
           (Option.get params.e_credential_authority "N/A")
           checksums.ec_public_credentials;
       ]
@@ -341,7 +330,7 @@ let election_home election state () =
     | None -> txt ""
     | Some xs ->
        div [
-           txt "Trustees shuffled the ballots in the following order:";
+           txt (s_ "Trustees shuffled the ballots in the following order:");
            format_tc "shuffles" xs;
          ]
   in
@@ -351,7 +340,7 @@ let election_home election state () =
     | Some x ->
        div [
            Printf.ksprintf txt
-             "The fingerprint of the encrypted tally is %s."
+             (f_ "The fingerprint of the encrypted tally is %s.")
              x
          ]
   in
