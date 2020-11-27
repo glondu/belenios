@@ -139,19 +139,12 @@ expected that the credential authority:
 
 - verifies that the number of voters corresponds to the voter list used
   during the setup and that the fingerprint of the voter list corresponds
-  to the fingerprint saved before, for instance using the following
-  command:
-
-        sha256sum voters.txt | xxd -p -r | base64 | tr -d "="
-
-  (or `shasum -a256` instead of `sha256sum`)
+  to the fingerprint saved before, for instance using one of the
+  commands suggested [here](#hash).
 
 - verifies that the fingerprint of the list of the public credentials
-  corresponds to the fingerprint that has been saved, for instance with:
-
-        sha256sum public_creds.txt | xxd -p -r | base64 | tr -d "="
-
-  (or `shasum -a256` instead of `sha256sum`)
+  corresponds to the fingerprint that has been saved, for instance using one of the
+  commands suggested [here](#hash).
 
 - during the election, the credential authority can, when a voter asks,
   send him again his private credential if he lost it.
@@ -190,12 +183,8 @@ once it is open and checks that:
 
 - the value `voter list fingerprint` published corresponds to the one
   that is given (by the system or by the administrator of the election).
-  This fingerprint can be computed with the command:
-
-        sha256sum voters.txt | xxd -r -p | base64 | tr -d "="
-
-  where `voters.txt` is the voter list.
-  (or `shasum -a256` instead of `sha256sum`)
+  This fingerprint can be computed using one of the
+  commands suggested [here](#hash).
 
 - the list of questions and possible answers correspond to what is
   expected. These questions and answers are also in the `election.json`
@@ -341,3 +330,19 @@ For getting the best security level, the administrator must have:
 - several trustees in charge of protecting vote secrecy: in order to decrypt
   the individual ballots it is then required to attack all of them (or at
   least a proportion of them, in threshold mode).
+
+<a name="hash"></a>How to compute the fingerprint of a file?
+-------------------------------------------------------
+
+To compute the fingerprint of a file, you need to use the same hash
+algorithm as the one used in Belenios. We provide here three possible
+solutions with command lines. We use the file `voters.txt` as example
+but of course you may replace it by any other file.
+
+        sha256sum voters.txt | xxd -p -r | base64 | tr -d "="
+
+  (or `shasum -a256` instead of `sha256sum` for example en MacOS)
+
+        cat public_creds.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
+
+
