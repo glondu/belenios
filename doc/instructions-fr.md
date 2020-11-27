@@ -150,18 +150,10 @@ génération de codes de vote :
 
 - vérifie que le nombre d'électeurs correspond à la liste électorale reçue et que
   l'empreinte de la liste électorale correspond à l'empreinte
-  enregistrée, par exemple avec la commande:
-
-      sha256sum voters.txt | xxd -p -r | base64 | tr -d "="
-
-  (ou bien `shasum -a256` au lieu de `sha256sum`)
+  enregistrée, par exemple avec l'une des commandes décrites [ici](#hash).
 
 - vérifie que l'empreinte de la liste des codes de vote publics correspond à l'empreinte
-enregistrée, à côté de son nom, par exemple avec la commande:
-
-      sha256sum public_creds.txt | xxd -p -r | base64 | tr -d "="
-
-  (ou bien `shasum -a256` au lieu de `sha256sum`)
+enregistrée, à côté de son nom, par exemple avec l'une des commandes décrites [ici](#hash).
 
 - pendant l'élection, l'autorité de génération de codes de vote peut, à
 la demande d'un électeur, lui renvoyer son code de vote privé s'il
@@ -199,12 +191,7 @@ qu'elle ouverte et vérifie que :
 - la valeur `voter list fingerprint` affichée correspond 
   à l'empreinte de la liste électorale fournie
   (par le système informatique ou l'administrateur de l'élection). Le
-  calcul de l'empreinte peut être fait avec la commande :
-
-      sha256sum voters.txt | xxd -r -p | base64 | tr -d "="
-
-  où `voters.txt` est la liste électorale.
-  (Ou bien `shasum -a 256` au lieu de `sha256sum`.)
+  calcul de l'empreinte peut être fait avec l'une des commandes décrites [ici](#hash).
 
 - la liste des questions et des réponses correspond bien à ce qui a
   été déterminé pour ce scrutin. Les questions et les réponses
@@ -356,3 +343,21 @@ doit disposer :
 - de plusieurs autorités de déchiffrement en charge de protéger le
   secret du vote : il faut les attaquer toutes (ou un quorum d'entre
   elles) pour être capable de déchiffrer individuellement les bulletins.
+
+<a name="hash"></a>Comment calculer l'empreinte d'un fichier ?
+---------------------------------------------------------
+
+Pour calculer l'empreinte d'un fichier, vous devez utiliser la même
+fonction de hachage que celle utilisée dans Belenios. Nous proposons
+ici deux solutions pour calculer cette empreinte en ligne de
+commande. Nous utilisons le fichier `voters.txt` en exemple mais vous
+pouvez bien sûr le remplacer par un autre fichier.
+
+        sha256sum voters.txt | xxd -p -r | base64 | tr -d "="
+
+  (ou bien `shasum -a256` au lieu de `sha256sum` par exemple sur
+  MacOS)
+
+ou encore :
+
+        cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
