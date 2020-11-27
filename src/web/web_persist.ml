@@ -681,6 +681,7 @@ let compute_audit_cache uuid =
              match%lwt get_shuffle_hashes uuid with
              | None -> return `Nothing
              | Some sh ->
+                let sh = List.filter (fun x -> x.sh_hash <> "") sh in
                 let shufflers = List.map (fun x -> x.sh_name) sh in
                 return (`Shuffles (shuffles, Some shufflers))
      in
