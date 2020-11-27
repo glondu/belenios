@@ -5,12 +5,14 @@ dev
    specification
  * Add support to apply various counting methods to a set of ballots
    coming out of an non-homomorphic question, in the command-line tool
-   and the web server: Condorcet-Schulze and Majority Judgment
+   and the web server: Condorcet-Schulze, Majority Judgment and Single
+   Transferable Vote
  * Web server:
    + In threshold mode, add a mandatory server-owned key
    + Accept only ballots in canonical form
    + Do not allow change of trustee public key once one has been
      received
+   + Add Belenios-* headers to all sent e-mails
  * Translations:
    + Switch i18n to gettext and use Weblate
    + Add support for translating the admin interface
