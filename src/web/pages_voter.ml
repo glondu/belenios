@@ -245,7 +245,7 @@ let election_home election state () =
   let cookie_disclaimer =
     if scd then
       div
-        ~a:[a_style "border-style: solid; border-width: 1px;"]
+        ~a:[a_class ["cookie-disclaimer"]; a_style "border-style: solid; border-width: 1px;"]
         [
           txt (s_ "By using this site, you accept our ");
           direct_a !Web_config.gdpr_uri (s_ "personal data policy");
@@ -374,7 +374,7 @@ let election_home election state () =
     div_audit;
   ] in
   let lang_box = lang_box l (ContSiteElection uuid) in
-  base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
+  responsive_base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
 
 let cast_raw election () =
   let params = election.e_params in

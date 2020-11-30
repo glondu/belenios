@@ -123,6 +123,83 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
       ]]
      ]))
 
+let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let administer =
+    match uuid with
+    | None ->
+       a ~service:admin [txt (s_ "Administer elections")] ()
+    | Some uuid ->
+       a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
+  in
+  let login_box = match login_box with
+    | None ->
+       div ~a:[a_style "float: right; padding: 10px;"] [
+         img ~a:[a_height 70] ~alt:""
+           ~src:(static "placeholder.png") ();
+       ]
+    | Some x -> x
+  in
+  let lang_box =
+    match lang_box with
+    | None -> div []
+    | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
+  in
+  let%lwt warning = match !Web_config.warning_file with
+    | None -> return @@ txt ""
+    | Some f -> match%lwt read_file f with
+                | None -> return @@ txt ""
+                | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+  in
+  Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
+    (head (Eliom_content.Html.F.title (txt title)) [
+      script (txt "window.onbeforeunload = function () {};");
+      link ~rel:[`Stylesheet] ~href:(static "site.css") ();
+      link ~rel:[`Stylesheet] ~href:(static "responsive_site.css") ();
+    ])
+    (body [
+      div ~a:[a_id "vote-app"] [
+        div ~a:[a_class ["page"]] [
+          div ~a:[a_class ["page-header"]] [
+            div ~a:[a_class ["page-header__logo"]] [
+              img ~alt:(s_ "Election server")
+                ~src:(static "logo.png") ();
+            ];
+            div ~a:[a_class ["page-header__titles"]] [
+              h1 ~a:[a_class ["page-header__titles__election-name"]; a_id "election_name"] [txt title];
+              p ~a:[a_class ["page-header__titles__election-description"]; a_id "election_description"] [txt ""]; (* no description provided? *)
+            ];
+            div ~a:[a_class ["page-header__right"]] [
+              login_box;
+            ];
+          ];
+          div ~a:[a_class ["page-body"]] [
+            warning;
+            div ~a:[a_id "main"] [
+              lang_box;
+              div content;
+            ]
+          ];
+          div ~a:[a_class ["page-footer"]] [
+            footer;
+            txt (s_ "Powered by ");
+            a ~service:belenios_url [txt "Belenios"] ();
+            Belenios_version.(
+              Printf.ksprintf txt " %s (%s). " version build
+            );
+            a ~service:source_code [txt (s_ "Get the source code")] ();
+            txt ". ";
+            direct_a !Web_config.gdpr_uri (s_ "Privacy policy");
+            txt ". ";
+            administer;
+            txt ".";
+          ];
+        ];
+      ];
+    ])
+  )
+
 let lang_box l cont =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let langs = List.map (fun l -> Option ([], l, None, l = lang)) available_languages in

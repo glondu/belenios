@@ -3,8 +3,17 @@
   background: #363636;
   color: rgb(134, 134, 134);
   text-align: center;
-  padding: 2px;
+  padding: 5px 2px;
   line-height: 1.5em;
   font-size: 12px;
   min-height: 8px;
+}
+
+.page-footer a {
+  color: #ffd800;
+  text-decoration: none;
+}
+
+.page-footer a:hover {
+  text-decoration: underline;
 }
