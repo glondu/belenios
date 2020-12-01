@@ -138,7 +138,16 @@ let lang_box l cont =
         ]
       )
   in
-  div ~a:[a_class ["lang_box"]] [form]
+  div ~a:[a_class ["lang_box"]]
+    [
+      form;
+      div ~a:[a_style "font-size: 80%; font-style: italic; text-align: right;"]
+        [
+          txt "(";
+          direct_a "https://www.belenios.org/translation.html" (s_ "Wish to help with translations?");
+          txt ")";
+        ];
+    ]
 
 let make_button ~service ?hash ?style ~disabled contents =
   let uri = Eliom_uri.make_string_uri ~service () in
