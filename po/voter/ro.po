@@ -16,7 +16,7 @@ msgstr ""
 "20)) ? 1 : 2;\n"
 "X-Generator: Weblate 4.3.2-dev\n"
 
-#: src/web/pages_common.ml:259
+#: src/web/pages_common.ml:268
 msgid " (if you forgot it, for example)."
 msgstr " (daca ati uitat-o, de exemplu)."
 
@@ -104,7 +104,7 @@ msgstr ""
 msgid "(nothing)"
 msgstr "(nimic)"
 
-#: src/web/pages_common.ml:257
+#: src/web/pages_common.ml:266
 msgid ", or "
 msgstr ", sau "
 
@@ -177,11 +177,11 @@ msgstr "Date de audit: "
 msgid "Authenticate"
 msgstr "Autentificare"
 
-#: src/web/pages_common.ml:291
+#: src/web/pages_common.ml:300
 msgid "Authentication failed"
 msgstr "Autentificarea a esuat"
 
-#: src/web/pages_common.ml:294
+#: src/web/pages_common.ml:303
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Autentificarea a esuat, probabil datorita unui nume de utilizator sau parola "
@@ -348,11 +348,11 @@ msgstr ""
 msgid "Loading…"
 msgstr "Incarcare…"
 
-#: src/web/pages_common.ml:222
+#: src/web/pages_common.ml:231
 msgid "Log in"
 msgstr "Conexiune"
 
-#: src/web/pages_common.ml:278
+#: src/web/pages_common.ml:287
 msgid "Login"
 msgstr "Conectare"
 
@@ -432,11 +432,11 @@ msgstr "Numai ultimul vot va fi luat în considerare."
 msgid "Page of the election:"
 msgstr "Pagina alegerii:"
 
-#: src/web/pages_common.ml:286
+#: src/web/pages_common.ml:295
 msgid "Password login"
 msgstr "Conectare folosind parola"
 
-#: src/web/pages_voter.ml:1072 src/web/pages_common.ml:273
+#: src/web/pages_voter.ml:1072 src/web/pages_common.ml:282
 msgid "Password:"
 msgstr "Parola:"
 
@@ -448,7 +448,7 @@ msgstr "Vă rugăm să introduceți codul de votare:"
 msgid "Please log in to confirm your vote."
 msgstr "Vă rugăm să vă logați pentru a confirma votul vostru."
 
-#: src/web/pages_common.ml:219
+#: src/web/pages_common.ml:228
 msgid "Please log in:"
 msgstr "Va rugam sa va conectati:"
 
@@ -480,7 +480,7 @@ msgstr "Precedent"
 msgid "Privacy policy"
 msgstr "Politica de confidentialitate"
 
-#: src/web/pages_common.ml:187
+#: src/web/pages_common.ml:196
 msgid "Proceed"
 msgstr "Continuati"
 
@@ -673,7 +673,7 @@ msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
 #: src/web/pages_voter.ml:1118 src/web/pages_voter.ml:1071
-#. src/web/pages_common.ml:269
+#. src/web/pages_common.ml:278
 msgid "Username:"
 msgstr "Nume utilizator:"
 
@@ -701,15 +701,19 @@ msgstr ""
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
 
+#: src/web/pages_common.ml:147
+msgid "Wish to help with translations?"
+msgstr ""
+
 #: src/web/pages_voter.ml:1105 src/web/pages_voter.ml:1060
 msgid "You are listed as a voter for the election"
 msgstr "Sunteți înregistrat(ă) ca votant(ă) pentru alegerea"
 
-#: src/web/pages_common.ml:296
+#: src/web/pages_common.ml:305
 msgid "You can "
 msgstr "Puteti "
 
-#: src/web/pages_common.ml:255
+#: src/web/pages_common.ml:264
 msgid "You can also "
 msgstr "Puteti de asemenea "
 
@@ -798,11 +802,11 @@ msgstr "buletine de vot"
 msgid "but not cast yet"
 msgstr "dar încă nu a fost depus în urna de vot"
 
-#: src/web/pages_common.ml:258
+#: src/web/pages_common.ml:267
 msgid "change your password"
 msgstr "schimbati parola"
 
-#: src/web/pages_common.ml:256
+#: src/web/pages_common.ml:265
 msgid "create an account"
 msgstr "creati un cont"
 
@@ -855,7 +859,7 @@ msgstr "alegerea este inchisă"
 msgid "trustees"
 msgstr "autoritati de descifrare"
 
-#: src/web/pages_common.ml:297
+#: src/web/pages_common.ml:306
 msgid "try to log in again"
 msgstr "incercati sa va conectati din nou"
 

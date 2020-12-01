@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 07:55+0000\n"
+"POT-Creation-Date: 2020-12-01 10:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: src/web/pages_common.ml:259
+#: src/web/pages_common.ml:268
 msgid " (if you forgot it, for example)."
 msgstr ""
 
@@ -105,7 +105,7 @@ msgstr ""
 msgid "(nothing)"
 msgstr ""
 
-#: src/web/pages_common.ml:257
+#: src/web/pages_common.ml:266
 msgid ", or "
 msgstr ""
 
@@ -175,11 +175,11 @@ msgstr ""
 msgid "Authenticate"
 msgstr ""
 
-#: src/web/pages_common.ml:291
+#: src/web/pages_common.ml:300
 msgid "Authentication failed"
 msgstr ""
 
-#: src/web/pages_common.ml:294
+#: src/web/pages_common.ml:303
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 
@@ -340,11 +340,11 @@ msgstr ""
 msgid "Loading…"
 msgstr ""
 
-#: src/web/pages_common.ml:222
+#: src/web/pages_common.ml:231
 msgid "Log in"
 msgstr ""
 
-#: src/web/pages_common.ml:278
+#: src/web/pages_common.ml:287
 msgid "Login"
 msgstr ""
 
@@ -424,11 +424,11 @@ msgstr ""
 msgid "Page of the election:"
 msgstr ""
 
-#: src/web/pages_common.ml:286
+#: src/web/pages_common.ml:295
 msgid "Password login"
 msgstr ""
 
-#: src/web/pages_voter.ml:1072 src/web/pages_common.ml:273
+#: src/web/pages_voter.ml:1072 src/web/pages_common.ml:282
 msgid "Password:"
 msgstr ""
 
@@ -440,7 +440,7 @@ msgstr ""
 msgid "Please log in to confirm your vote."
 msgstr ""
 
-#: src/web/pages_common.ml:219
+#: src/web/pages_common.ml:228
 msgid "Please log in:"
 msgstr ""
 
@@ -472,7 +472,7 @@ msgstr ""
 msgid "Privacy policy"
 msgstr ""
 
-#: src/web/pages_common.ml:187
+#: src/web/pages_common.ml:196
 msgid "Proceed"
 msgstr ""
 
@@ -662,7 +662,7 @@ msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
 #: src/web/pages_voter.ml:1118 src/web/pages_voter.ml:1071
-#. src/web/pages_common.ml:269
+#. src/web/pages_common.ml:278
 msgid "Username:"
 msgstr ""
 
@@ -686,15 +686,19 @@ msgstr ""
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
 
+#: src/web/pages_common.ml:147
+msgid "Wish to help with translations?"
+msgstr ""
+
 #: src/web/pages_voter.ml:1105 src/web/pages_voter.ml:1060
 msgid "You are listed as a voter for the election"
 msgstr ""
 
-#: src/web/pages_common.ml:296
+#: src/web/pages_common.ml:305
 msgid "You can "
 msgstr ""
 
-#: src/web/pages_common.ml:255
+#: src/web/pages_common.ml:264
 msgid "You can also "
 msgstr ""
 
@@ -783,11 +787,11 @@ msgstr ""
 msgid "but not cast yet"
 msgstr ""
 
-#: src/web/pages_common.ml:258
+#: src/web/pages_common.ml:267
 msgid "change your password"
 msgstr ""
 
-#: src/web/pages_common.ml:256
+#: src/web/pages_common.ml:265
 msgid "create an account"
 msgstr ""
 
@@ -840,7 +844,7 @@ msgstr ""
 msgid "trustees"
 msgstr ""
 
-#: src/web/pages_common.ml:297
+#: src/web/pages_common.ml:306
 msgid "try to log in again"
 msgstr ""
 

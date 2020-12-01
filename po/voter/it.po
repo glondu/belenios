@@ -15,7 +15,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.3.1\n"
 
-#: src/web/pages_common.ml:259
+#: src/web/pages_common.ml:268
 msgid " (if you forgot it, for example)."
 msgstr ""
 
@@ -103,7 +103,7 @@ msgstr ""
 msgid "(nothing)"
 msgstr "(niente)"
 
-#: src/web/pages_common.ml:257
+#: src/web/pages_common.ml:266
 msgid ", or "
 msgstr ""
 
@@ -173,11 +173,11 @@ msgstr "Dati d'audit : "
 msgid "Authenticate"
 msgstr "Autenticazione"
 
-#: src/web/pages_common.ml:291
+#: src/web/pages_common.ml:300
 msgid "Authentication failed"
 msgstr "Autenticazione non riuscita"
 
-#: src/web/pages_common.ml:294
+#: src/web/pages_common.ml:303
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Autenticazione non riuscita, probabilmente per uso di nome utilizzatore o "
@@ -341,11 +341,11 @@ msgstr ""
 msgid "Loading…"
 msgstr "Caricamento in corso…"
 
-#: src/web/pages_common.ml:222
+#: src/web/pages_common.ml:231
 msgid "Log in"
 msgstr "Accesso"
 
-#: src/web/pages_common.ml:278
+#: src/web/pages_common.ml:287
 msgid "Login"
 msgstr "Connettersi"
 
@@ -425,11 +425,11 @@ msgstr "Ma soltanto l'ultimo voto è preso in considerazione."
 msgid "Page of the election:"
 msgstr "Pagina dell'elezione :"
 
-#: src/web/pages_common.ml:286
+#: src/web/pages_common.ml:295
 msgid "Password login"
 msgstr "Connessione tramite la password"
 
-#: src/web/pages_voter.ml:1072 src/web/pages_common.ml:273
+#: src/web/pages_voter.ml:1072 src/web/pages_common.ml:282
 msgid "Password:"
 msgstr "Password :"
 
@@ -441,7 +441,7 @@ msgstr "Si prega di inserire il codice di voto :"
 msgid "Please log in to confirm your vote."
 msgstr "La preghiamo di connettersi per confermare il suo voto."
 
-#: src/web/pages_common.ml:219
+#: src/web/pages_common.ml:228
 msgid "Please log in:"
 msgstr ""
 
@@ -473,7 +473,7 @@ msgstr "Precedente"
 msgid "Privacy policy"
 msgstr "Politica di confidenzialità"
 
-#: src/web/pages_common.ml:187
+#: src/web/pages_common.ml:196
 msgid "Proceed"
 msgstr ""
 
@@ -667,7 +667,7 @@ msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
 #: src/web/pages_voter.ml:1118 src/web/pages_voter.ml:1071
-#. src/web/pages_common.ml:269
+#. src/web/pages_common.ml:278
 msgid "Username:"
 msgstr "Nome utente :"
 
@@ -691,15 +691,19 @@ msgstr ""
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
 
+#: src/web/pages_common.ml:147
+msgid "Wish to help with translations?"
+msgstr ""
+
 #: src/web/pages_voter.ml:1105 src/web/pages_voter.ml:1060
 msgid "You are listed as a voter for the election"
 msgstr "Lei è registrato(a) in quanto elettore(trice) per l'elezione"
 
-#: src/web/pages_common.ml:296
+#: src/web/pages_common.ml:305
 msgid "You can "
 msgstr ""
 
-#: src/web/pages_common.ml:255
+#: src/web/pages_common.ml:264
 msgid "You can also "
 msgstr ""
 
@@ -788,11 +792,11 @@ msgstr "schede elettorali"
 msgid "but not cast yet"
 msgstr "ma non è stata ancora depositata nell'urna"
 
-#: src/web/pages_common.ml:258
+#: src/web/pages_common.ml:267
 msgid "change your password"
 msgstr ""
 
-#: src/web/pages_common.ml:256
+#: src/web/pages_common.ml:265
 msgid "create an account"
 msgstr ""
 
@@ -845,7 +849,7 @@ msgstr ""
 msgid "trustees"
 msgstr ""
 
-#: src/web/pages_common.ml:297
+#: src/web/pages_common.ml:306
 msgid "try to log in again"
 msgstr ""
 
