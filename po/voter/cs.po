@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2020-11-30 07:53+0000\n"
+"PO-Revision-Date: 2020-12-03 08:51+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/voter/cs/>"
 "\n"
@@ -164,8 +163,8 @@ msgstr ""
 "Všichni tito garanti (jejich ověřovací klíče)j sou potřeba pro dešifrování "
 "výsledku:"
 
-#: src/web/pages_voter.ml:705 src/web/pages_voter.ml:537
 #. src/web/pages_voter.ml:456
+#: src/web/pages_voter.ml:705 src/web/pages_voter.ml:537
 msgid "Answer to questions"
 msgstr "Odpovědět na otázky"
 
@@ -181,8 +180,8 @@ msgstr "Nejméně jedna z odpovědí není platná!"
 msgid "Audit data: "
 msgstr "Audit dat: "
 
-#: src/web/pages_voter.ml:709 src/web/pages_voter.ml:541
 #. src/web/pages_voter.ml:460
+#: src/web/pages_voter.ml:709 src/web/pages_voter.ml:541
 msgid "Authenticate"
 msgstr "Autentifikovat"
 
@@ -210,8 +209,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Belenios hlasování"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
+#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 msgid "Blank vote"
 msgstr "Prázdný lístek"
 
@@ -223,13 +222,13 @@ msgstr "Používáním tohoto webu, akceptujete naše "
 msgid "Condorcet-Schulze method"
 msgstr "Schulzova Condorcetova metoda"
 
-#: src/web/pages_voter.ml:711 src/web/pages_voter.ml:543
 #. src/web/pages_voter.ml:462
+#: src/web/pages_voter.ml:711 src/web/pages_voter.ml:543
 msgid "Confirm"
 msgstr "Potvrdit"
 
-#: src/web/pages_voter.ml:943 src/web/pages_voter.ml:849
 #. src/web/pages_voter.ml:691
+#: src/web/pages_voter.ml:943 src/web/pages_voter.ml:849
 msgid "Continue"
 msgstr "Pokračovat"
 
@@ -249,8 +248,8 @@ msgstr "Přístupový kód vygeneroval a zaslal %s. Jedinečný otisk kódu je %
 msgid "Dear %s,"
 msgstr "Vážený/vážená %s,"
 
-#: src/web/pages_voter.ml:713 src/web/pages_voter.ml:545
 #. src/web/pages_voter.ml:464
+#: src/web/pages_voter.ml:713 src/web/pages_voter.ml:545
 msgid "Done"
 msgstr "Hotovo"
 
@@ -270,9 +269,9 @@ msgstr "Volební server"
 msgid "Encrypting…"
 msgstr "Zašifrovávám…"
 
-#: src/web/site_voter.ml:330 src/web/site_voter.ml:305 src/web/site_voter.ml:267
 #. src/web/site_voter.ml:262
 #. src/web/site_voter.ml:257
+#: src/web/site_voter.ml:330 src/web/site_voter.ml:305 src/web/site_voter.ml:267
 msgid "Error"
 msgstr "Chyba"
 
@@ -284,9 +283,9 @@ msgstr "CHYBA!"
 msgid "Get the source code"
 msgstr "Získat zdrojový kód"
 
-#: src/web/pages_voter.ml:610 src/web/pages_voter.ml:582
 #. src/web/pages_voter.ml:521
 #. src/web/pages_voter.ml:493
+#: src/web/pages_voter.ml:610 src/web/pages_voter.ml:582
 msgid "Go back to election"
 msgstr "Jít zpět na volbu"
 
@@ -329,8 +328,8 @@ msgstr "V kontextu medoty většinového úsudku hlas oznámkuje každého kandi
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr "V případě STV voliči řadí kandidáty dle svých preferencí."
 
-#: src/web/pages_voter.ml:703 src/web/pages_voter.ml:535
 #. src/web/pages_voter.ml:454
+#: src/web/pages_voter.ml:703 src/web/pages_voter.ml:535
 msgid "Input credential"
 msgstr "Vložte přístupový kód"
 
@@ -521,8 +520,8 @@ msgstr "Restart"
 msgid "Results will be published on the election page"
 msgstr "Výsledky budou publikovány na stránce volby"
 
-#: src/web/pages_voter.ml:707 src/web/pages_voter.ml:539
 #. src/web/pages_voter.ml:458
+#: src/web/pages_voter.ml:707 src/web/pages_voter.ml:539
 msgid "Review and encrypt"
 msgstr "Přezkoumat a zašifrovat"
 
@@ -706,8 +705,8 @@ msgstr "Pro více informací, prosím kontaktujte:"
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "Garanti hlasovací lístky zamíchali v tomto pořadí:"
 
-#: src/web/pages_voter.ml:1118 src/web/pages_voter.ml:1071
 #. src/web/pages_common.ml:278
+#: src/web/pages_voter.ml:1118 src/web/pages_voter.ml:1071
 msgid "Username:"
 msgstr "Uživatelské jméno:"
 
@@ -739,7 +738,7 @@ msgstr ""
 
 #: src/web/pages_common.ml:147
 msgid "Wish to help with translations?"
-msgstr ""
+msgstr "Chcete pomoci s překladem?"
 
 #: src/web/pages_voter.ml:1105 src/web/pages_voter.ml:1060
 msgid "You are listed as a voter for the election"
@@ -807,8 +806,8 @@ msgstr "Vaše heslo pro volbu %s"
 msgid "Your smart ballot tracker is"
 msgstr "Váš ověřovač volby je"
 
-#: src/web/pages_voter.ml:683 src/web/pages_voter.ml:553
 #. src/web/pages_voter.ml:476
+#: src/web/pages_voter.ml:683 src/web/pages_voter.ml:553
 msgid "Your smart ballot tracker is "
 msgstr "Váš ověřovač volby je "
 
@@ -852,8 +851,8 @@ msgstr "vytvořit účet"
 msgid "has been recorded."
 msgstr "byl uložen."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:955
 #. src/web/pages_voter.ml:865
+#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:955
 msgid "here"
 msgstr "zde"
 
@@ -924,4 +923,3 @@ msgstr "váš přístupový kód byl již použit"
 #: src/web/web_common.ml:86
 msgid "your credential is invalid"
 msgstr "váš přístupový kód je neplatný"
-
