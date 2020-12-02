@@ -1,6 +1,7 @@
-dev
-===
+1.13 (2020-12-02)
+=================
 
+ * Update OCaml stack to 4.11.1
  * Handle mix of Single and Pedersen trustees thoughout codebase and
    specification
  * Add support to apply various counting methods to a set of ballots
@@ -17,7 +18,7 @@ dev
    + Switch i18n to gettext and use Weblate
    + Add support for translating the admin interface
    + Add Norwegian Bokmål (nb), Spanish (es), Ukrainian (uk),
-     Czech (cs)
+     Czech (cs), Occitan (oc)
  * Tests:
    + Add monkey testing
  * Contributed scripts:
