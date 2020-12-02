@@ -175,6 +175,8 @@ def check_index_html(data):
     # when the election is closed, there is a "disabled" attributed
     # without value that the xml parser does not like. We remove it.
     st = data['index.html'].decode().replace('disabled>Start', '>Start')
+    # also, the &lang in the link makes the parser crazy.
+    st = st.replace('&lang', 'lang')
     dom = xml.dom.minidom.parseString(st)
     fail = False
     msg = b""
@@ -218,14 +220,17 @@ def check_index_html(data):
     # trustees fingerprint vs trustees.json
     jsn = json.loads(data['trustees.json'])
     names = []
-    hashs = []
+    pks = []
+    certs = []
+
     for trustee in jsn:
         if trustee[0] == 'Single':
             if 'name' in trustee[1]:
                 names.append(trustee[1]['name'])
             else:
                 names.append("N/A")
-            hashs.append(hash_pub_key(trustee[1]['public_key']))
+            pks.append(hash_pub_key(trustee[1]['public_key']))
+            certs.append(None)
         else:
             assert trustee[0] == 'Pedersen'
             for tru in trustee[1]['verification_keys']:
@@ -233,46 +238,41 @@ def check_index_html(data):
                     names.append(tru['name'])
                 else:
                     names.append("N/A")
-                hashs.append(hash_pub_key(tru['public_key']))
-    pat = re.compile('(^.*) \(([\w+/]*)\)$')
+                pks.append(hash_pub_key(tru['public_key']))
+            for tru in trustee[1]['certs']:
+                m = hashlib.sha256()
+                m.update(tru['message'].encode())
+                certs.append(base64.b64encode(m.digest()).decode().strip('='))
+
     names2 = []
-    hashs2 = []
-    # in index.html, the trustees are in the ul list with id "trustees"
-    for trustee in [ x for x in dom.getElementsByTagName("ul") if
-            x.getAttribute('id') == 'trustees'
-            ][0].getElementsByTagName("li"):
-        s = trustee.firstChild.data
-        mat = pat.match(s)
-        names2.append(mat.group(1))
-        hashs2.append(mat.group(2))
-    if ((not names == names2) or (not hashs == hashs2)):
+    pks2 = []
+    certs2 = []
+    # in index.html, the non-threshold trustees are in the ul list with id "trustees"
+    arr = [ x for x in dom.getElementsByTagName("ul") if x.getAttribute('id') == 'trustees' ]
+    if arr != []:
+        pat = re.compile('(^.*) \(([\w+/]*)\)$')
+        for trustee in arr[0].getElementsByTagName("li"):
+            s = trustee.firstChild.data
+            mat = pat.match(s)
+            names2.append(mat.group(1))
+            pks2.append(mat.group(2))
+            certs2.append(None)
+    # the threshold trustees are in the ul list with class "trustees_threshold"
+    arr = [ x for x in dom.getElementsByTagName("ul") if x.getAttribute('class') == 'trustees_threshold' ]
+    if arr != []:
+        pat = re.compile('(^.*) \(([\w+/]*)\) \[([\w+/]*)\]$')
+        for trustee in arr[0].getElementsByTagName("li"):
+            s = trustee.firstChild.data
+            mat = pat.match(s)
+            names2.append(mat.group(1))
+            pks2.append(mat.group(2))
+            certs2.append(mat.group(3))
+    
+    if ((not names == names2) or (not pks == pks2) or (not certs == certs2)):
         msg = msg + "Error: Wrong trustees fingerprint of election {}\n".format(uuid).encode()
         fail = True
     else:
         logme("  trustees fingerprints ok")
-
-    # In Pedersen mode, check PKI fingerprints
-    if jsn[0][0] == 'Pedersen':
-        hashs = []
-        for trustee in jsn[0][1]['certs']:
-            m = hashlib.sha256()
-            m.update(trustee['message'].encode())
-            hashs.append(base64.b64encode(m.digest()).decode().strip('='))
-        names2 = []
-        hashs2 = []
-        # in index.html, the PKI are in the ul list with id "pki"
-        for trustee in [ x for x in dom.getElementsByTagName("ul") if
-                x.getAttribute('id') == 'pki'
-                ][0].getElementsByTagName("li"):
-            s = trustee.firstChild.data
-            mat = pat.match(s)
-            names2.append(mat.group(1))
-            hashs2.append(mat.group(2))
-        if ((not names == names2) or (not hashs == hashs2)):
-            msg = msg + "Error: Wrong PKI fingerprint of election {}\n".format(uuid).encode()
-            fail = True
-        else:
-            logme("  PKI fingerprints ok")
 
     # encrypted tally vs result.json (if present)
     # (and extract shuffles if present)
@@ -378,6 +378,7 @@ parser.add_argument("--wdir", required=True, help="work dir where logs are kept"
 parser.add_argument("--checkhash", type=str2bool, nargs='?',
                         const=True, default=True, metavar="yes|no",
                         help="also check static files on the server")
+parser.add_argument("--hashref", help="reference file for hash, as used by check_hash.py")
 parser.add_argument("--logfile", help="file to write the non-error logs")
 
 args = parser.parse_args()
@@ -400,6 +401,12 @@ else:
 if not os.path.isdir(args.wdir) or not os.access(args.wdir, os.W_OK | os.R_OK):
     print("The wdir {} should read/write accessible".format(args.wdir))
     sys.exit(1)
+
+# check that a ref file is given if checkhash is set
+if args.checkhash == True:
+    if not args.hashref:
+        print("If --checkhash is set, a --hashref file should be given")
+        sys.exit(1)
 
 logme("[{}] Starting monitoring elections.".format(datetime.datetime.now()))
 
@@ -431,7 +438,7 @@ for uuid in uuids:
 # we dot it only once
 
 if args.checkhash == True:
-    hh = subprocess.run(["check_hash.py", "--url", args.url ],
+    hh = subprocess.run(["check_hash.py", "--url", args.url, "--reference", args.hashref ],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if hh.returncode != 0:
         print(hh.stdout.decode())
