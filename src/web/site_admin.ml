@@ -1059,19 +1059,9 @@ let () =
                     G.(g **~ x)
                   in
                   let langs = get_languages se.se_metadata.e_languages in
-                  let%lwt bodies =
-                    Lwt_list.map_s
-                      (fun lang ->
-                        let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
-                        return (Pages_voter.mail_credential l title cas ~login cred url se.se_metadata)
-                      ) langs
-                  in
-                  let body = PString.concat "\n\n----------\n\n" bodies in
-                  let body = body ^ "\n\n-- \nBelenios" in
-                  let%lwt subject =
-                    let%lwt l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
-                    let open (val l) in
-                    Printf.ksprintf return (f_ "Your credential for election %s") title
+                  let%lwt subject, body =
+                    Pages_voter.generate_mail_credential langs
+                      title cas ~login cred url se.se_metadata
                   in
                   let%lwt () = send_email (MailCredential uuid) ~recipient ~subject ~body in
                   return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)

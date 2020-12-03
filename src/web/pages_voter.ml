@@ -1124,6 +1124,23 @@ let mail_credential l title cas ~login cred url metadata =
   contact_footer l metadata b;
   contents b
 
+let generate_mail_credential langs title cas ~login cred url metadata =
+  let%lwt bodies =
+    Lwt_list.map_s
+      (fun lang ->
+        let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
+        return (mail_credential l title cas ~login cred url metadata)
+      ) langs
+  in
+  let body = String.concat "\n\n----------\n\n" bodies in
+  let body = body ^ "\n\n-- \nBelenios" in
+  let%lwt subject =
+    let%lwt l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
+    let open (val l) in
+    Printf.ksprintf return (f_ "Your credential for election %s") title
+  in
+  return (subject, body)
+
 let mail_confirmation l user title hash revote url1 url2 metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in

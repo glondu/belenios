@@ -46,10 +46,10 @@ val generate_password :
   string list ->
   string -> uuid -> string -> string -> (string * string) Lwt.t
 
-val mail_credential :
-  (module Web_i18n_sig.GETTEXT) ->
-  string ->
-  bool -> login:string -> string -> string -> Web_serializable_t.metadata -> string
+val generate_mail_credential :
+  string list -> string ->
+  bool -> login:string -> string -> string ->
+  Web_serializable_t.metadata -> (string * string) Lwt.t
 
 val mail_confirmation :
   (module Web_i18n_sig.GETTEXT) ->
