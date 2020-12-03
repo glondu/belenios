@@ -773,7 +773,7 @@ msgstr "Din nettleser ser ut til å blokkere kaker. Tillat dem først."
 
 #: src/web/pages_voter.ml:1140
 msgid "Your credential for election %s"
-msgstr ""
+msgstr "Din identitetsdetalj for valget %s"
 
 #: src/web/pages_voter.ml:1096
 msgid "Your password for election %s"

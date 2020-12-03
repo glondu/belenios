@@ -790,7 +790,7 @@ msgstr "Al parecer su navegador bloquea las cookies. Por favor habilítelas."
 
 #: src/web/pages_voter.ml:1140
 msgid "Your credential for election %s"
-msgstr ""
+msgstr "Su acreditación por la elección %s"
 
 #: src/web/pages_voter.ml:1096
 msgid "Your password for election %s"

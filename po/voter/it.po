@@ -753,7 +753,7 @@ msgstr "Il suo browser non accetta i cookies. Si prega di attivarli."
 
 #: src/web/pages_voter.ml:1140
 msgid "Your credential for election %s"
-msgstr ""
+msgstr "Il suo codice di voto per l'elezione %s"
 
 #: src/web/pages_voter.ml:1096
 msgid "Your password for election %s"

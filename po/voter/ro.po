@@ -763,7 +763,7 @@ msgstr "Browser-ul dumneavoastră pare să blocheze cookie-urile. Vă rugăm să
 
 #: src/web/pages_voter.ml:1140
 msgid "Your credential for election %s"
-msgstr ""
+msgstr "Codul vostru de votare pentru alegerea %s"
 
 #: src/web/pages_voter.ml:1096
 msgid "Your password for election %s"

@@ -801,7 +801,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1140
 msgid "Your credential for election %s"
-msgstr ""
+msgstr "Váš přístupový kód pro volbu %s"
 
 #: src/web/pages_voter.ml:1096
 msgid "Your password for election %s"

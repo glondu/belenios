@@ -803,7 +803,7 @@ msgstr "Votre navigateur semble bloquer les cookies. Veuillez les activer."
 
 #: src/web/pages_voter.ml:1140
 msgid "Your credential for election %s"
-msgstr ""
+msgstr "Votre code de vote pour l'élection %s"
 
 #: src/web/pages_voter.ml:1096
 msgid "Your password for election %s"
