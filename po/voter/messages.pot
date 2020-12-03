@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-01 10:40+0000\n"
+"POT-Creation-Date: 2020-12-03 08:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -230,7 +230,7 @@ msgstr ""
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
 
-#: src/web/pages_voter.ml:1131
+#: src/web/pages_voter.ml:1148
 msgid "Dear %s,"
 msgstr ""
 
@@ -484,7 +484,7 @@ msgstr ""
 msgid "Restart"
 msgstr ""
 
-#: src/web/pages_voter.ml:1151
+#: src/web/pages_voter.ml:1168
 msgid "Results will be published on the election page"
 msgstr ""
 
@@ -637,7 +637,7 @@ msgstr ""
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 
-#: src/web/pages_voter.ml:1143
+#: src/web/pages_voter.ml:1160
 msgid "This vote replaces any previous vote."
 msgstr ""
 
@@ -710,7 +710,7 @@ msgstr ""
 msgid "You can check its presence in the "
 msgstr ""
 
-#: src/web/pages_voter.ml:1147
+#: src/web/pages_voter.ml:1164
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 
@@ -746,11 +746,15 @@ msgstr ""
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr ""
 
+#: src/web/pages_voter.ml:1140
+msgid "Your credential for election %s"
+msgstr ""
+
 #: src/web/pages_voter.ml:1096
 msgid "Your password for election %s"
 msgstr ""
 
-#: src/web/pages_voter.ml:1138
+#: src/web/pages_voter.ml:1155
 msgid "Your smart ballot tracker is"
 msgstr ""
 
@@ -759,7 +763,7 @@ msgstr ""
 msgid "Your smart ballot tracker is "
 msgstr ""
 
-#: src/web/pages_voter.ml:1133
+#: src/web/pages_voter.ml:1150
 msgid "Your vote for election"
 msgstr ""
 
@@ -795,7 +799,7 @@ msgstr ""
 msgid "create an account"
 msgstr ""
 
-#: src/web/pages_voter.ml:1137
+#: src/web/pages_voter.ml:1154
 msgid "has been recorded."
 msgstr ""
 

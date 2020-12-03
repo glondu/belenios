@@ -228,7 +228,7 @@ msgstr "Credential:"
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
 
-#: src/web/pages_voter.ml:1131
+#: src/web/pages_voter.ml:1148
 msgid "Dear %s,"
 msgstr "Dear %s,"
 
@@ -483,7 +483,7 @@ msgstr ""
 msgid "Restart"
 msgstr "Restart"
 
-#: src/web/pages_voter.ml:1151
+#: src/web/pages_voter.ml:1168
 msgid "Results will be published on the election page"
 msgstr "Results will be published on the election page"
 
@@ -638,7 +638,7 @@ msgstr ""
 "This question requested to select candidates, this method cannot be applied "
 "to its result."
 
-#: src/web/pages_voter.ml:1143
+#: src/web/pages_voter.ml:1160
 msgid "This vote replaces any previous vote."
 msgstr "This vote replaces any previous vote."
 
@@ -711,7 +711,7 @@ msgstr "You can also download the "
 msgid "You can check its presence in the "
 msgstr "You can check its presence in the "
 
-#: src/web/pages_voter.ml:1147
+#: src/web/pages_voter.ml:1164
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "You can check its presence in the ballot box, accessible at"
 
@@ -747,11 +747,15 @@ msgstr "Your ballot has been encrypted, "
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Your browser seems to block cookies. Please enable them."
 
+#: src/web/pages_voter.ml:1140
+msgid "Your credential for election %s"
+msgstr ""
+
 #: src/web/pages_voter.ml:1096
 msgid "Your password for election %s"
 msgstr "Your password for election %s"
 
-#: src/web/pages_voter.ml:1138
+#: src/web/pages_voter.ml:1155
 msgid "Your smart ballot tracker is"
 msgstr "Your smart ballot tracker is"
 
@@ -760,7 +764,7 @@ msgstr "Your smart ballot tracker is"
 msgid "Your smart ballot tracker is "
 msgstr "Your smart ballot tracker is "
 
-#: src/web/pages_voter.ml:1133
+#: src/web/pages_voter.ml:1150
 msgid "Your vote for election"
 msgstr "Your vote for election"
 
@@ -796,7 +800,7 @@ msgstr "change your password"
 msgid "create an account"
 msgstr "create an account"
 
-#: src/web/pages_voter.ml:1137
+#: src/web/pages_voter.ml:1154
 msgid "has been recorded."
 msgstr "has been recorded."
 

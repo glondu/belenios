@@ -235,7 +235,7 @@ msgstr "Identitetsdetalj:"
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
 
-#: src/web/pages_voter.ml:1131
+#: src/web/pages_voter.ml:1148
 msgid "Dear %s,"
 msgstr "Kjære %s,"
 
@@ -495,7 +495,7 @@ msgstr "Rå-hendelser"
 msgid "Restart"
 msgstr "Start på ny"
 
-#: src/web/pages_voter.ml:1151
+#: src/web/pages_voter.ml:1168
 msgid "Results will be published on the election page"
 msgstr "Resultater vil bli vist på valgsiden"
 
@@ -654,7 +654,7 @@ msgstr "Dette valget er for tiden lukket."
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr "Spørsmålet er homomorfisk, metoden kan ikke anvendes på dets resulat."
 
-#: src/web/pages_voter.ml:1143
+#: src/web/pages_voter.ml:1160
 msgid "This vote replaces any previous vote."
 msgstr "Denne stemmen erstatter min tidligere stemme."
 
@@ -733,7 +733,7 @@ msgstr "Du kan også laste ned "
 msgid "You can check its presence in the "
 msgstr "Du kan se om den finnes i "
 
-#: src/web/pages_voter.ml:1147
+#: src/web/pages_voter.ml:1164
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Du kan se om den finnes i valgurnen, tilgjengelig på"
 
@@ -771,11 +771,15 @@ msgstr "Din stemme har blitt kryptert, "
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Din nettleser ser ut til å blokkere kaker. Tillat dem først."
 
+#: src/web/pages_voter.ml:1140
+msgid "Your credential for election %s"
+msgstr ""
+
 #: src/web/pages_voter.ml:1096
 msgid "Your password for election %s"
 msgstr "Ditt passord for valget %s"
 
-#: src/web/pages_voter.ml:1138
+#: src/web/pages_voter.ml:1155
 msgid "Your smart ballot tracker is"
 msgstr "Din smarte stemmesporer er"
 
@@ -784,7 +788,7 @@ msgstr "Din smarte stemmesporer er"
 msgid "Your smart ballot tracker is "
 msgstr "Din smarte stemmesporer er "
 
-#: src/web/pages_voter.ml:1133
+#: src/web/pages_voter.ml:1150
 msgid "Your vote for election"
 msgstr "Din stemme i valget"
 
@@ -820,7 +824,7 @@ msgstr "endre passordet ditt"
 msgid "create an account"
 msgstr "opprett en konto"
 
-#: src/web/pages_voter.ml:1137
+#: src/web/pages_voter.ml:1154
 msgid "has been recorded."
 msgstr "har blitt lagret."
 
