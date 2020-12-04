@@ -40,7 +40,7 @@ let static x =
     Eliom_service.static_dir_with_params
       ~get_params:(Eliom_parameter.string "version") ()
   in
-  make_uri ~service (["static"; x], Belenios_version.version)
+  make_uri ~service (["static"; x], Belenios_version.build)
 
 let format_user ~site u =
   em [txt (if site then string_of_user u else u.user_name)]
