@@ -154,6 +154,7 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
   in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
     (head (Eliom_content.Html.F.title (txt title)) [
+      script (txt "var el = document.createElement('meta'); el.name = 'viewport'; el.content = 'width=device-width, initial-scale=1'; document.querySelector('head').appendChild(el);"); (* TODO: Replace with Ocaml expression of `<meta name="viewport" content="width=device-width, initial-scale=1">` *)
       script (txt "window.onbeforeunload = function () {};");
       link ~rel:[`Stylesheet] ~href:(static "site.css") ();
       link ~rel:[`Stylesheet] ~href:(static "responsive_site.css") ();
