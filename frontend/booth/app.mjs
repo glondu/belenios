@@ -193,7 +193,6 @@ function TranslatableVoteApp({uuid=null, t}){
           {
             onSubmit: function(credential){
               if(belenios.checkCredential(credential) === true){
-                alert("credential: " + credential);
                 setCredential(credential);
                 setCurrentStep(2);
               }

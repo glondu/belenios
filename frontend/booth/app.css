@@ -7,6 +7,7 @@
 @import "./components/PageFooter.css";
 @import "./components/VoteNavigation.css";
 @import "./components/NiceButton.css";
+@import "./components/NiceInput.css";
 @import "./components/ClassicVoteReview.css";
 
 body {
