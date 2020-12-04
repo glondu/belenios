@@ -36,8 +36,11 @@ let direct_a uri text =
     [txt text]
 
 let static x =
-  let service = Eliom_service.static_dir () in
-  make_uri ~service ["static"; x]
+  let service =
+    Eliom_service.static_dir_with_params
+      ~get_params:(Eliom_parameter.string "version") ()
+  in
+  make_uri ~service (["static"; x], Belenios_version.version)
 
 let format_user ~site u =
   em [txt (if site then string_of_user u else u.user_name)]
