@@ -35,7 +35,9 @@ function TranslatableClassicVoteReview({ electionData=null, uncryptedBallot=[], 
       null,
       e(
         "h3",
-        null,
+        {
+          className: "review-encrypt-section__question-title"
+        },
         question.question,
       ),
       e(
