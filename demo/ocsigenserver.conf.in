@@ -39,7 +39,7 @@
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
       <site path="static" charset="utf-8">
-        <static dir="_SHAREDIR_" />
+        <static dir="_SHAREDIR_" cache="0"/>
       </site>
       <site path="monitor">
         <eliom findlib-package="eliom.server.monitor.start"/>
