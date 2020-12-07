@@ -22,7 +22,7 @@
 
 @media screen and (min-width: 640px) {
   .page-header {
-    padding: 18px 10px;
+    padding: 14px 10px;
   }
 
   .page-header__titles__election-name {
@@ -51,7 +51,7 @@
 
 .page-header__titles {
   text-align: center;
-  flex: 1 0 auto;
+  flex: 1 0 60%;
   max-width: 60vw;
   display: flex;
   flex-direction: column;

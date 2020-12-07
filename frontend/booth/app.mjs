@@ -88,6 +88,7 @@ function TranslatableVoteApp({uuid=null, t}){
   const [electionLoadingStatus, setElectionLoadingStatus] = React.useState(0); // 0: not yet loaded. 1: loaded with success. 2: loaded with error.
   const [uncryptedBallotBeforeReview, setUncryptedBallotBeforeReview] = React.useState(null);
   const [cryptedBallotBeforeReview, setCryptedBallotBeforeReview] = React.useState(null);
+  const [smartBallotTracker, setSmartBallotTracker] = React.useState(null);
 
   const processElectionData = (inputElectionData) => {
     setElectionData(inputElectionData);
@@ -222,15 +223,19 @@ function TranslatableVoteApp({uuid=null, t}){
               const voter_selected_answers = extractVoterSelectedAnswersFromFields(electionData);
               setUncryptedBallotBeforeReview(voter_selected_answers);
               setCurrentStep(3);
-              belenios.encryptBallot(electionData, credential, voter_selected_answers,
-                                     function(ballot, tracker) {
-                                         console.log("Raw encrypted ballot:", JSON.parse(ballot));
-                                         console.log("Smart ballot tracker:", tracker);
-                                         setCryptedBallotBeforeReview(ballot);
-                                     },
-                                     function(error) {
-                                         alert("Error: " + error);
-                                     });
+              const encryptBallotSuccessCallback = (ballot, tracker) => {
+                console.log("Raw encrypted ballot:", JSON.parse(ballot));
+                console.log("Smart ballot tracker:", tracker);
+                setCryptedBallotBeforeReview(ballot);
+                setSmartBallotTracker(tracker);
+              };
+              const encryptBallotErrorCallback = (error) => {
+                alert("Error: " + error);
+              };
+              belenios.encryptBallot(
+                electionData, credential, voter_selected_answers,
+                encryptBallotSuccessCallback, encryptBallotErrorCallback
+              );
             }
           }
         )
@@ -249,7 +254,8 @@ function TranslatableVoteApp({uuid=null, t}){
           {
             electionData: electionData,
             uncryptedBallot: uncryptedBallotBeforeReview,
-            cryptedBallot: cryptedBallotBeforeReview
+            cryptedBallot: cryptedBallotBeforeReview,
+            smartBallotTracker: smartBallotTracker
           }
         )
       );

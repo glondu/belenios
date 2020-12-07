@@ -1,16 +1,83 @@
 import ClassicVoteReview from "./ClassicVoteReview.mjs";
 import { WhiteNiceButton } from "./NiceButton.mjs";
 
-function TranslatableReviewEncryptSection({ electionData=null, uncryptedBallot=[], cryptedBallot=null, t }){
+function TranslatableReviewEncryptSection({
+  electionData=null, uncryptedBallot=[],
+  cryptedBallot=null, smartBallotTracker=null, t
+}){
+  const smartBallotTrackerId = "smart_ballot_tracker";
   const contentWhenBallotIsBeingEncrypted = e(
     "div",
     null,
     t("pleaseWaitDuringBallotEncryption")
   );
+  function setBrowserSelectionToSmartBallotTracker(){
+    let el = document.getElementById(smartBallotTrackerId);
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+  function copyToClipboard() {
+    setBrowserSelectionToSmartBallotTracker();
+    document.execCommand("copy");
+    alert(t("yourSmartBallotTrackerHasBeenCopied"));
+  }
   const contentWhenBallotHasBeenEncrypted = e(
     "div",
     null,
-    t("ballotHasBeenEncrypted") // TODO: continue implementation, use ballot tracker, etc
+    e(
+      "p",
+      null,
+      t("ballotHasBeenEncrypted")
+    ),
+    e(
+      "div",
+      null,
+      e(
+        "span",
+        null,
+        "Numéro de suivi :"
+      ),
+      e(
+        "span",
+        {
+          id: smartBallotTrackerId,
+          style: {
+            marginLeft: "5px",
+            wordBreak: "break-all",
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            padding: "5px 14px",
+            background: "white",
+            lineHeight: "35px",
+            fontFamily: "monospace"
+          },
+          onClick: setBrowserSelectionToSmartBallotTracker
+        },
+        smartBallotTracker
+      ),
+      e(
+        "div",
+        null,
+        e(
+          "span",
+          null,
+          t("pleaseSaveYourSmartBallotTracker")
+        ),
+        e(
+          WhiteNiceButton,
+          {
+            label: t("Copy"),
+            onClick: copyToClipboard,
+            style: {
+              marginLeft: "5px"
+            }
+          }
+        )
+      )
+    )
   );
   const content = cryptedBallot ? contentWhenBallotHasBeenEncrypted : contentWhenBallotIsBeingEncrypted;
   return e(
@@ -39,9 +106,11 @@ function TranslatableReviewEncryptSection({ electionData=null, uncryptedBallot=[
         className: "review-encrypt-section__encryption-section",
         style: {
           background: "#e6f8fd",
+          borderRadius: "8px",
           padding: "20px",
           textAlign: "center",
-          marginTop: "40px"
+          margin: "40px auto 0 auto",
+          maxWidth: "600px"
         }
       },
       content
