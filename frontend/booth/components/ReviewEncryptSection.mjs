@@ -38,7 +38,7 @@ function TranslatableReviewEncryptSection({
       e(
         "span",
         null,
-        "Numéro de suivi :"
+        t("yourSmartBallotTracker")
       ),
       e(
         "span",

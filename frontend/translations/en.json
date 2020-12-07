@@ -30,6 +30,7 @@
   "pleaseWaitDuringBallotEncryption": "Please wait while your ballot is being encrypted...",
   "yourSmartBallotTrackerHasBeenCopied": "Your smart ballot tracker has been copied to the clipboard of your device. You can now open a text document and paste it (depending on your device, you can paste by pressing CTRL-V, or CMD-V, or long click and select Paste).",
   "ballotHasBeenEncrypted": "Your ballot has been encrypted, but not cast yet!",
+  "yourSmartBallotTracker": "Your smart ballot tracker is:",
   "pleaseSaveYourSmartBallotTracker": "Please save it to check later that your vote has been taken into account.",
   "Copy": "Copy",
   "reviewBallotForQuestions": "Your ballot is not yet in the ballot box, and has the following content:",

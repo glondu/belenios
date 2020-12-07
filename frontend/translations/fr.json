@@ -30,6 +30,7 @@
   "pleaseWaitDuringBallotEncryption": "Veuillez patienter, le chiffrement de votre bulletin de vote est en cours...",
   "yourSmartBallotTrackerHasBeenCopied": "Votre numéro de suivi a été copié vers le presse-papiers de votre appareil. Vous pouvez maintenant ouvrir un document texte l'y coller (selon votre appareil, vous pouvez coller en appyant sur CTRL-V, ou CMD-V, ou un clic long puis sélectionner Coller).",
   "ballotHasBeenEncrypted": "Votre bulletin a été chiffré avec succès, mais n'a pas encore été déposé dans l'urne !",
+  "yourSmartBallotTracker": "Votre numéro de suivi est :",
   "pleaseSaveYourSmartBallotTracker": "Nous vous invitons à le sauvegarder afin de vérifier que votre vote est bien pris en compte.",
   "Copy": "Copier",
   "reviewBallotForQuestions": "Votre bulletin de vote n'est pas encore placé dans l'urne, et son contenu est :",
