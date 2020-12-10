@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2020-12-10 14:20+0000\n"
+"PO-Revision-Date: 2020-12-11 15:29+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/voter/cs/>"
 "\n"
@@ -202,8 +202,8 @@ msgstr "Metody které tento server poskytuje:"
 #: src/web/pages_voter.ml:1112 src/web/pages_voter.ml:1066
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr ""
-"Buďte opatrní, hesla a přístupové údaje vypadají podobně, ale mají odlišné "
-"role."
+"Je třeba pečlivosti, hesla a přístupové údaje vypadají podobně, ale mají "
+"odlišné role."
 
 #: src/web/pages_voter.ml:654 src/web/pages_voter.ml:642
 msgid "Belenios Booth"
@@ -335,7 +335,7 @@ msgstr "Vložte přístupový kód"
 
 #: src/web/pages_voter.ml:722
 msgid "Input your credential "
-msgstr "Vložte váš přístupový kód "
+msgstr "Vložte svůj přístupový kód "
 
 #: src/tool/tool_js_booth.ml:387
 msgid "Invalid credential!"
@@ -347,7 +347,7 @@ msgstr "Neplatný index otázky."
 
 #: src/web/pages_voter.ml:133
 msgid "It will open in "
-msgstr "Otevře se za "
+msgstr "Bude zahájena za "
 
 #: src/web/pages_voter.ml:104
 msgid "JSON result"
@@ -372,8 +372,8 @@ msgstr "Přihlásit se"
 #: src/web/pages_voter.ml:1114 src/web/pages_voter.ml:1068
 msgid "Login and passwords are required once your ballot is ready to be cast."
 msgstr ""
-"Uživatelské jméno a heslo jsou vyžadovány ve chvíli, pokud je váš lístek "
-"připraven na hlasování."
+"O zadání uživatelského jména a hesla budete požádání před odesláním svého "
+"hlasovacího lístku."
 
 #: src/web/pages_voter.ml:1025
 msgid "Look at the raw events for more details."
@@ -416,7 +416,7 @@ msgstr "Nenalezeno"
 
 #: src/web/pages_voter.ml:1122 src/web/pages_voter.ml:1075
 msgid "Note that you are allowed to vote several times."
-msgstr "Hlasovat můžete vícekrát."
+msgstr "Hlasovací lístek můžete odeslat opakovaně."
 
 #: src/web/pages_voter.ml:449
 msgid "Note: You have already voted. Your vote will be replaced."
@@ -444,7 +444,7 @@ msgstr "Počet křesel:"
 
 #: src/web/pages_voter.ml:1123 src/web/pages_voter.ml:1076
 msgid "Only the last vote counts."
-msgstr "Pouze poslední volba se počítá."
+msgstr "Započítán bude pouze ten odeslaný naposledy."
 
 #: src/web/pages_voter.ml:1120 src/web/pages_voter.ml:1073
 msgid "Page of the election:"
@@ -655,7 +655,7 @@ msgstr "Došlo alespoň k jednomu patu."
 
 #: src/web/site_common.ml:43
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
-msgstr "Tato volba není dostupná: buď ještě nebyla otevřena, nebo byla smazána."
+msgstr "Tato volba není dostupná: buď ještě nebyla zahájena, nebo byla smazána."
 
 #: src/web/pages_voter.ml:169
 msgid "This election has been tallied."
@@ -699,7 +699,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1051
 msgid "To get more information, please contact:"
-msgstr "Pro více informací, prosím kontaktujte:"
+msgstr "Pro více informací prosím kontaktujte:"
 
 #: src/web/pages_voter.ml:333
 msgid "Trustees shuffled the ballots in the following order:"
@@ -742,7 +742,7 @@ msgstr "Chcete pomoci s překladem?"
 
 #: src/web/pages_voter.ml:1105 src/web/pages_voter.ml:1060
 msgid "You are listed as a voter for the election"
-msgstr "Jste zaregistrován pro volbu"
+msgstr "Jste zaregistrován(a) pro volbu"
 
 #: src/web/pages_common.ml:305
 msgid "You can "
@@ -778,11 +778,11 @@ msgstr "Před započetím volby budete požádáni o vložení přístupového k
 
 #: src/web/pages_voter.ml:1109
 msgid "You will find below your credential."
-msgstr "Zde najdete svůj přístupový kód."
+msgstr "Svůj přístupový kód naleznete níže."
 
 #: src/web/pages_voter.ml:1064
 msgid "You will find below your login and password."
-msgstr "Zde najdete své uživatelské jméno a heslo."
+msgstr "Své uživatelské jméno a heslo naleznete níže."
 
 #: src/web/pages_voter.ml:576 src/web/pages_voter.ml:473
 msgid "Your ballot for "
