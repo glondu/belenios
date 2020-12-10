@@ -364,7 +364,7 @@ let election_home election state () =
     br ();
     div_audit;
   ] in
-  let lang_box = lang_box l (ContSiteElection uuid) in
+  let%lwt lang_box = lang_box (ContSiteElection uuid) in
   base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
 
 let cast_raw election () =

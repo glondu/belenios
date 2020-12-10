@@ -70,8 +70,7 @@ val base :
   unit -> [> Html_types.html ] Eliom_content.Html.elt Lwt.t
 
 val lang_box :
-  (module Web_i18n_sig.GETTEXT) -> Web_common.site_cont ->
-  [> Html_types.div ] Eliom_content.Html.elt
+  Web_common.site_cont -> [> Html_types.div ] Eliom_content.Html.elt Lwt.t
 
 val generic_page :
   title:string ->

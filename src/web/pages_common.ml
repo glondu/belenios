@@ -126,8 +126,9 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
       ]]
      ]))
 
-let lang_box l cont =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+let lang_box cont =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
   let langs = List.map (fun l -> Option ([], l, None, l = lang)) available_languages in
   let form =
     get_form ~service:set_language
@@ -141,7 +142,7 @@ let lang_box l cont =
         ]
       )
   in
-  div ~a:[a_class ["lang_box"]]
+  return @@ div ~a:[a_class ["lang_box"]]
     [
       form;
       div ~a:[a_style "font-size: 80%; font-style: italic; text-align: right;"]
