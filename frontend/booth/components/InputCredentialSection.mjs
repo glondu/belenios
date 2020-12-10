@@ -1,4 +1,4 @@
-import { DeepBlueNiceButton } from "./NiceButton.mjs";
+import { BlueNiceButton } from "./NiceButton.mjs";
 import { NicePasswordInput } from "./NiceInput.mjs";
 
 function TranslatableInputCredentialSection({ onSubmit=null, t }){
@@ -58,7 +58,7 @@ function TranslatableInputCredentialSection({ onSubmit=null, t }){
           )
         ),
         e(
-          DeepBlueNiceButton,
+          BlueNiceButton,
           {
             className: "input-credential-section__button",
             style: {

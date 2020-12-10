@@ -1,9 +1,10 @@
 import ClassicVoteReview from "./ClassicVoteReview.mjs";
-import { WhiteNiceButton } from "./NiceButton.mjs";
+import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.mjs";
 
 function TranslatableReviewEncryptSection({
   electionData=null, uncryptedBallot=[],
-  cryptedBallot=null, smartBallotTracker=null, t
+  cryptedBallot=null, smartBallotTracker=null,
+  onClickGiveUp=null, onClickNext=null, t
 }){
   const smartBallotTrackerId = "smart_ballot_tracker";
   const contentWhenBallotIsBeingEncrypted = e(
@@ -80,6 +81,48 @@ function TranslatableReviewEncryptSection({
     )
   );
   const content = cryptedBallot ? contentWhenBallotHasBeenEncrypted : contentWhenBallotIsBeingEncrypted;
+
+  const restartButton = e(
+    NiceButton,
+    {
+      label: t("Restart"),
+      style: {
+        marginRight: "20px"
+      },
+      onClick: onClickGiveUp
+    }
+  );
+  const paginationWhenBallotHasBeenEncrypted = e(
+    "div",
+    {
+      style: {
+        marginTop: "20px",
+        textAlign: "center"
+      }
+    },
+    restartButton,
+    e(
+      BlueNiceButton,
+      {
+        label: t("Next"),
+        style: {
+          marginLeft: "20px"
+        },
+        onClick: onClickNext
+      }
+    )
+  );
+  const paginationWhenBallotIsBeingEncrypted = e(
+    "div",
+    {
+      style: {
+        marginTop: "20px",
+        textAlign: "center"
+      }
+    },
+    restartButton
+  );
+  const pagination = cryptedBallot ? paginationWhenBallotHasBeenEncrypted : paginationWhenBallotIsBeingEncrypted;
   return e(
     "div",
     {
@@ -114,7 +157,8 @@ function TranslatableReviewEncryptSection({
         }
       },
       content
-    )
+    ),
+    pagination
   );
 }
 

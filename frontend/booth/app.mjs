@@ -222,6 +222,8 @@ function TranslatableVoteApp({uuid=null, t}){
             onVoteSubmit: async function(event, electionData){
               const voter_selected_answers = extractVoterSelectedAnswersFromFields(electionData);
               setUncryptedBallotBeforeReview(voter_selected_answers);
+              setCryptedBallotBeforeReview(null);
+              setSmartBallotTracker(null);
               setCurrentStep(3);
               const encryptBallotSuccessCallback = (ballot, tracker) => {
                 console.log("Raw encrypted ballot:", JSON.parse(ballot));
@@ -242,6 +244,17 @@ function TranslatableVoteApp({uuid=null, t}){
       );
     }
     else if (currentStep === 3) {
+      const onClickGiveUp = () => {
+        setCurrentStep(1);
+        setCredential(null);
+        setUncryptedBallotBeforeReview(null);
+        setCryptedBallotBeforeReview(null);
+        setSmartBallotTracker(null);
+      };
+      const onClickNext = () => {
+        // TODO
+        alert("Next");
+      };
       return e(
         VotePage,
         {
@@ -255,7 +268,9 @@ function TranslatableVoteApp({uuid=null, t}){
             electionData: electionData,
             uncryptedBallot: uncryptedBallotBeforeReview,
             cryptedBallot: cryptedBallotBeforeReview,
-            smartBallotTracker: smartBallotTracker
+            smartBallotTracker: smartBallotTracker,
+            onClickGiveUp: onClickGiveUp,
+            onClickNext: onClickNext
           }
         )
       );

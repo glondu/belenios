@@ -9,5 +9,16 @@ function NicePasswordInput(props={}){
   );
 }
 
-export { NicePasswordInput };
+function NiceTextInput(props={}){
+  return e(
+    "input",
+    {
+      type: "text",
+      className: "nice-text-input",
+      ...props
+    }
+  );
+}
+
+export { NicePasswordInput, NiceTextInput };
 export default NicePasswordInput;

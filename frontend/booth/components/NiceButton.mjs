@@ -25,15 +25,6 @@ function NiceButton ({ label=null, dangerousLabel=null, onClick=null, disabled=f
   );
 }
 
-function DeepBlueNiceButton(props){
-  return NiceButton(
-    {
-      ...props,
-      styling: "deep-blue"
-    }
-  );
-}
-
 function BlueNiceButton(props){
   return NiceButton(
     {
@@ -52,5 +43,5 @@ function WhiteNiceButton(props){
   );
 }
 
-export { NiceButton, DeepBlueNiceButton, BlueNiceButton, WhiteNiceButton };
+export { NiceButton, BlueNiceButton, WhiteNiceButton };
 export default NiceButton;

@@ -12,7 +12,7 @@
 }
 
 .classic-vote-review__answers-to-question {
-  background: #c5ffcc;
+  background: #e6f8fd; /* <- pale blue. Another possibility would be pale green: #c5ffcc; */
   border-radius: 10px;
   padding: 15px 40px;
   margin: 16px 0 20px 0;
