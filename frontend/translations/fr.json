@@ -34,6 +34,7 @@
   "pleaseSaveYourSmartBallotTracker": "Nous vous invitons à le sauvegarder afin de vérifier que votre vote est bien pris en compte.",
   "Copy": "Copier",
   "Restart": "Recommencer",
+  "encryptedBallot": "Bulletin chiffré :",
   "reviewBallotForQuestions": "Votre bulletin de vote n'est pas encore placé dans l'urne, et son contenu est :",
   "reviewBallotForQuestions_plural": "Votre bulletin de vote n'est pas encore placé dans l'urne, et son contenu pour les {{count}} questions est :",
   "questionXofY": "$t(questionX, {\"count\": {{current_question}} }) sur {{number_of_questions}}",

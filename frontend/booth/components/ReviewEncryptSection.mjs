@@ -4,9 +4,9 @@ import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.mjs";
 function TranslatableReviewEncryptSection({
   electionData=null, uncryptedBallot=[],
   cryptedBallot=null, smartBallotTracker=null,
-  onClickGiveUp=null, onClickNext=null, t
+  onClickGiveUp=null, urlToPostEncryptedBallot="", t
 }){
-  const smartBallotTrackerId = "smart_ballot_tracker";
+  const smartBallotTrackerId = "smart_ballot_tracker"; // identifier copied from original booth
   const contentWhenBallotIsBeingEncrypted = e(
     "div",
     null,
@@ -52,8 +52,10 @@ function TranslatableReviewEncryptSection({
             borderRadius: "8px",
             padding: "5px 14px",
             background: "white",
-            lineHeight: "35px",
-            fontFamily: "monospace"
+            lineHeight: "32px",
+            fontFamily: "monospace",
+            verticalAlign: "middle",
+            fontSize: "10px"
           },
           onClick: setBrowserSelectionToSmartBallotTracker
         },
@@ -104,11 +106,11 @@ function TranslatableReviewEncryptSection({
     e(
       BlueNiceButton,
       {
+        asInput: true,
         label: t("Next"),
         style: {
           marginLeft: "20px"
-        },
-        onClick: onClickNext
+        }
       }
     )
   );
@@ -123,42 +125,72 @@ function TranslatableReviewEncryptSection({
     restartButton
   );
   const pagination = cryptedBallot ? paginationWhenBallotHasBeenEncrypted : paginationWhenBallotIsBeingEncrypted;
-  return e(
+  const encryptedBallotField = e(
     "div",
     {
-      className: "review-encrypt-section",
       style: {
-        padding: "0 30px 30px 30px"
+        display: "none"
       }
     },
+    t("encryptedBallot"),
     e(
-      "h2",
-      null,
-      t("reviewBallotForQuestions", {count: uncryptedBallot.length})
-    ),
-    e(
-      ClassicVoteReview,
+      "textarea",
       {
-        electionData: electionData,
-        uncryptedBallot: uncryptedBallot
+        id: "ballot", // identifier copied from original booth
+        name: "encrypted_vote", // identifier copied from original booth
+        readOnly: "readonly",
+        cols: "80",
+        rows: "1",
+        value: cryptedBallot ? cryptedBallot : undefined
       }
-    ),
+    )
+  );
+  return e(
+    "form",
+    {
+      id: "ballot_form", // identifier copied from original booth
+      method: "POST",
+      action: urlToPostEncryptedBallot,
+      encType: "multipart/form-data"
+    },
+    encryptedBallotField,
     e(
       "div",
       {
-        className: "review-encrypt-section__encryption-section",
+        className: "review-encrypt-section",
         style: {
-          background: "#e6f8fd",
-          borderRadius: "8px",
-          padding: "20px",
-          textAlign: "center",
-          margin: "40px auto 0 auto",
-          maxWidth: "600px"
+          padding: "0 30px 30px 30px"
         }
       },
-      content
-    ),
-    pagination
+      e(
+        "h2",
+        null,
+        t("reviewBallotForQuestions", {count: uncryptedBallot.length})
+      ),
+      e(
+        ClassicVoteReview,
+        {
+          electionData: electionData,
+          uncryptedBallot: uncryptedBallot
+        }
+      ),
+      e(
+        "div",
+        {
+          className: "review-encrypt-section__encryption-section",
+          style: {
+            background: "#e6f8fd",
+            borderRadius: "8px",
+            padding: "20px",
+            textAlign: "center",
+            margin: "40px auto 0 auto",
+            maxWidth: "600px"
+          }
+        },
+        content
+      ),
+      pagination
+    )
   );
 }
 

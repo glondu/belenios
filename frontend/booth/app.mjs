@@ -244,16 +244,13 @@ function TranslatableVoteApp({uuid=null, t}){
       );
     }
     else if (currentStep === 3) {
+      const urlToPostEncryptedBallot = `${relativeServerRootFolder}/election/submit-ballot`;
       const onClickGiveUp = () => {
         setCurrentStep(1);
         setCredential(null);
         setUncryptedBallotBeforeReview(null);
         setCryptedBallotBeforeReview(null);
         setSmartBallotTracker(null);
-      };
-      const onClickNext = () => {
-        // TODO
-        alert("Next");
       };
       return e(
         VotePage,
@@ -270,7 +267,7 @@ function TranslatableVoteApp({uuid=null, t}){
             cryptedBallot: cryptedBallotBeforeReview,
             smartBallotTracker: smartBallotTracker,
             onClickGiveUp: onClickGiveUp,
-            onClickNext: onClickNext
+            urlToPostEncryptedBallot: urlToPostEncryptedBallot
           }
         )
       );

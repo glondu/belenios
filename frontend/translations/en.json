@@ -34,6 +34,7 @@
   "pleaseSaveYourSmartBallotTracker": "Please save it to check later that your vote has been taken into account.",
   "Copy": "Copy",
   "Restart": "Restart",
+  "encryptedBallot": "Encrypted ballot:",
   "reviewBallotForQuestions": "Your ballot is not yet in the ballot box, and has the following content:",
   "reviewBallotForQuestions_plural": "Your ballot is not yet in the ballot box, and contains the following answers to all {{count}} questions:",
   "questionXofY": "$t(questionX, {\"count\": {{current_question}} }) of {{number_of_questions}}",

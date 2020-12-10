@@ -2,7 +2,7 @@ const defaultDangerousLabel = {
   __html: "hi"
 };
 
-function NiceButton ({ label=null, dangerousLabel=null, onClick=null, disabled=false, styling="default", className=null, ...props }){
+function NiceButton ({ label=null, dangerousLabel=null, onClick=null, disabled=false, styling="default", className=null, asInput=false, ...props }){
   const attributes = {
     className: `nice-button nice-button--${styling} ${className}`,
     onClick: onClick,
@@ -10,18 +10,20 @@ function NiceButton ({ label=null, dangerousLabel=null, onClick=null, disabled=f
   };
   let bonusAttributes = {};
   if (!label && dangerousLabel){
-    bonusAttributes = {
-      dangerouslySetInnerHTML: dangerousLabel
-    };
+    bonusAttributes['dangerouslySetInnerHTML'] = dangerousLabel;
+  }
+  if (asInput){
+    bonusAttributes['type'] = 'submit';
+    bonusAttributes['value'] = label;
   }
   return e(
-    'button',
+    asInput ? 'input' : 'button',
     {
       ...attributes,
       ...bonusAttributes,
       ...props
     },
-    label
+    asInput ? null : label
   );
 }
 
