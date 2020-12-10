@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2020-12-10 14:20+0000\n"
+"PO-Revision-Date: 2020-12-10 14:36+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/admin/cs/>"
 "\n"
@@ -78,7 +78,7 @@ msgstr " z "
 
 #: src/web/pages_admin.ml:477
 msgid " to set up the election key."
-msgstr " nastavit klíč voleb."
+msgstr " pro nastavení klíče voleb."
 
 #: src/web/pages_admin.ml:1002
 msgid " trustees will be needed to decrypt the result."
@@ -293,7 +293,7 @@ msgstr "Přihlášovací metoda: heslo"
 #: src/web/pages_admin.ml:234
 msgid "Automatic (degraded mode - credentials will be handled by the server)"
 msgstr ""
-"Automatické (mód nižšího zabezpečení - přístupové kódy budou vytvořeny "
+"Automatická (mód nižšího zabezpečení – přístupové kódy budou vytvořeny "
 "serverem)"
 
 #: src/web/site_admin.ml:1389
@@ -348,7 +348,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:253
 msgid "CAS (external authentication server), server address: "
-msgstr "CAS (server pro externí správy účtů), adresa serveru: "
+msgstr "CAS (serverem pro externí správu účtů), adresa serveru: "
 
 #: src/web/pages_admin.ml:2629
 msgid "Cancel"
@@ -384,19 +384,19 @@ msgstr "Klasika (výběr odpovědí)"
 
 #: src/web/pages_admin.ml:475
 msgid "Click "
-msgstr "Kliknout "
+msgstr "Klikněte "
 
 #: src/web/pages_admin.ml:2010
 msgid "Click on \"Compute shuffle\"."
-msgstr "Kliknout na „Spočítat zamíchání“."
+msgstr "Kliknětena „Spočítat zamíchání“."
 
 #: src/web/pages_admin.ml:589
 msgid "Click on \"Generate a new key pair\"."
-msgstr "Kliknout na „Vytvořit nový pár klíčů“."
+msgstr "Klikněte na „Vytvořit nový pár klíčů“."
 
 #: src/web/pages_admin.ml:595
 msgid "Click on \"Submit\" to send your verification key."
-msgstr "Kliknout na „Zadat“ pro zaslání ověřovacího klíče."
+msgstr "Klikněte na „Zadat“ pro zaslání ověřovacího klíče."
 
 #: src/web/pages_admin.ml:587
 msgid "Click on the link."
@@ -903,7 +903,7 @@ msgstr "E-mail"
 
 #: src/web/pages_admin.ml:239
 msgid "Manual (safe mode - a third party will handle the credentials)"
-msgstr "Manuální (bezpečný mód - o přístupové údaje se postará třetí strana)"
+msgstr "Manuální (bezpečný mód – o přístupové údaje se postará třetí strana)"
 
 #: src/tool/tool_js_questions.ml:95
 msgid "Maximum number of choices must be greater than 0!"
@@ -1027,7 +1027,9 @@ msgstr "Mějte na paměti:"
 
 #: src/web/pages_admin.ml:540
 msgid "Note: this election will be automatically destroyed after "
-msgstr "Mějte na paměti: tato volba bude automaticky zničena za "
+msgstr ""
+"Tato volba bude tak jako tak samovolně zničena po uplynutí následujícího "
+"data: "
 
 #: src/tool/tool_js_ttkeygen.ml:117
 msgid "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
@@ -1101,7 +1103,7 @@ msgstr "Částečné dešifrování #%d"
 
 #: src/web/pages_admin.ml:248
 msgid "Password (passwords will be emailed to voters)"
-msgstr "Hesla (hesla budou rozeslána voličům emailem)"
+msgstr "Hesly (hesla budou rozeslána voličům emailem)"
 
 #: src/web/pages_admin.ml:1295
 msgid "Password sent?"
@@ -1570,7 +1572,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:399
 msgid "This contact will be added to emails sent to the voters."
-msgstr "Tento kontakt bude přidát k e-mailům, které budou rozeslány voličům."
+msgstr "Tento kontakt bude uveden v e-mailech, které budou rozeslány voličům."
 
 #: src/web/pages_admin.ml:2446
 msgid "This election has been tallied."
@@ -1591,8 +1593,8 @@ msgstr "Tato volba bude automaticky smazána po  uplynutí tohoto data: "
 #: src/web/pages_admin.ml:310
 msgid "This is a space-separated list of languages that will be used in emails sent by the server."
 msgstr ""
-"Toto je seznam jazyků (oddělených mezerou), které budou použity v e-mailech, "
-"které rozešle server."
+"Toto je seznam jazyků (oddělených mezerou), které budou použity v e-mailech "
+"rozeslaných serverem."
 
 #: src/web/site_admin.ml:764
 msgid "This kind of change is not allowed now!"
@@ -1695,7 +1697,7 @@ msgstr "Uživatelské jméno:"
 #. src/web/pages_admin.ml:527
 #: src/web/pages_admin.ml:1940 src/web/pages_admin.ml:1773
 msgid "Validate creation"
-msgstr "Ověřit vytvoření"
+msgstr "Ověřit splnění podmínek pro vytvoření volby"
 
 #: src/web/pages_admin.ml:2534
 msgid "Voter list"
