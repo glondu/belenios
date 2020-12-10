@@ -102,7 +102,7 @@ msgstr "%d cédula(s) inválida(s)"
 #: src/web/pages_voter.ml:313
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
-"%d das seguintes autoridades (chaves verificadoras) [chaves públicas] são "
+"%d das seguintes %d autoridades (chaves verificadoras) [chaves públicas] são "
 "necessárias para descriptografar o resultado da eleição:"
 
 #: src/tool/tool_js_booth.ml:168
