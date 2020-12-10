@@ -326,7 +326,7 @@ let split_identity x =
   | Some i -> String.sub x 0 i, String.sub x (i+1) (n-i-1)
   | None -> x, x
 
-let available_languages = ["en"; "fr"; "de"; "ro"; "it"; "nb"; "es"; "uk"; "cs"; "oc"]
+let available_languages = ["en"; "fr"; "de"; "ro"; "it"; "nb"; "es"; "uk"; "cs"; "oc"; "pt_BR"]
 
 let get_languages xs =
   match xs with
