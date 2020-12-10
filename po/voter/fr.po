@@ -359,7 +359,7 @@ msgstr "résultat JSON"
 
 #: src/web/pages_common.ml:134
 msgid "Language:"
-msgstr "Language :"
+msgstr "Langue :"
 
 #: src/web/pages_voter.ml:649
 msgid "Loading…"
