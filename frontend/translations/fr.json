@@ -33,12 +33,11 @@
   "yourSmartBallotTracker": "Votre numéro de suivi est :",
   "pleaseSaveYourSmartBallotTracker": "Nous vous invitons à le sauvegarder afin de vérifier que votre vote est bien pris en compte.",
   "Copy": "Copier",
-  "Restart": "Recommencer",
+  "Previous": "Précédent",
   "encryptedBallot": "Bulletin chiffré :",
   "reviewBallotForQuestions": "Votre bulletin de vote n'est pas encore placé dans l'urne, et son contenu est :",
   "reviewBallotForQuestions_plural": "Votre bulletin de vote n'est pas encore placé dans l'urne, et son contenu pour les {{count}} questions est :",
   "questionXofY": "$t(questionX, {\"count\": {{current_question}} }) sur {{number_of_questions}}",
-  "Previous": "Précédent",
   "selectBetweenX": "Veuillez sélectionner entre {{count}}",
   "questionX": "Question {{count}}",
   "selectBetweenX_plural": "Veuillez sélectionner entre {{count}}"

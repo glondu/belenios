@@ -81,7 +81,7 @@ function GenericPage({title=null, subTitle=null, children}){
 }
 
 function TranslatableVoteApp({uuid=null, t}){
-  const [currentStep, setCurrentStep] = React.useState(1);
+  const [currentStep, setCurrentStep] = React.useState(1); // Current step of the workflow displayed in the Breadcrumb. 1: input credential. 2: answer questions. 3: review and encrypt.
   const [electionData, setElectionData] = React.useState({});
   const [electionFingerprint, setElectionFingerprint] = React.useState("");
   const [credential, setCredential] = React.useState(null);
@@ -159,8 +159,8 @@ function TranslatableVoteApp({uuid=null, t}){
     );
   }
   else if(electionLoadingStatus === 0 || electionLoadingStatus === 2){
-    const titleMessage = electionLoadingStatus === 0 ? "Loading..." : "Error";
-    const loadingMessage = electionLoadingStatus === 0 ? titleMessage : "Error: Could not load this election. Maybe no election exists with this identifier.";
+    const titleMessage = electionLoadingStatus === 0 ? "Loading..." : "Error"; // TODO: should we localize this?
+    const loadingMessage = electionLoadingStatus === 0 ? titleMessage : "Error: Could not load this election. Maybe no election exists with this identifier."; // TODO: should we localize this?
 
     return e(
       GenericPage,
@@ -245,9 +245,8 @@ function TranslatableVoteApp({uuid=null, t}){
     }
     else if (currentStep === 3) {
       const urlToPostEncryptedBallot = `${relativeServerRootFolder}/election/submit-ballot`;
-      const onClickGiveUp = () => {
-        setCurrentStep(1);
-        setCredential(null);
+      const onClickPrevious = () => {
+        setCurrentStep(2);
         setUncryptedBallotBeforeReview(null);
         setCryptedBallotBeforeReview(null);
         setSmartBallotTracker(null);
@@ -266,7 +265,7 @@ function TranslatableVoteApp({uuid=null, t}){
             uncryptedBallot: uncryptedBallotBeforeReview,
             cryptedBallot: cryptedBallotBeforeReview,
             smartBallotTracker: smartBallotTracker,
-            onClickGiveUp: onClickGiveUp,
+            onClickPrevious: onClickPrevious,
             urlToPostEncryptedBallot: urlToPostEncryptedBallot
           }
         )

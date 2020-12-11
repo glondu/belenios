@@ -4,7 +4,7 @@ import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.mjs";
 function TranslatableReviewEncryptSection({
   electionData=null, uncryptedBallot=[],
   cryptedBallot=null, smartBallotTracker=null,
-  onClickGiveUp=null, urlToPostEncryptedBallot="", t
+  onClickPrevious=null, urlToPostEncryptedBallot="", t
 }){
   const smartBallotTrackerId = "smart_ballot_tracker"; // identifier copied from original booth
   const contentWhenBallotIsBeingEncrypted = e(
@@ -85,15 +85,15 @@ function TranslatableReviewEncryptSection({
   );
   const content = cryptedBallot ? contentWhenBallotHasBeenEncrypted : contentWhenBallotIsBeingEncrypted;
 
-  const restartButton = e(
+  const previousButton = e(
     NiceButton,
     {
       tagName: "a",
-      label: t("Restart"),
+      label: t("Previous"),
       style: {
         marginRight: "20px"
       },
-      onClick: onClickGiveUp
+      onClick: onClickPrevious
     }
   );
   const paginationWhenBallotHasBeenEncrypted = e(
@@ -104,7 +104,7 @@ function TranslatableReviewEncryptSection({
         textAlign: "center"
       }
     },
-    restartButton,
+    previousButton,
     e( // this Next button submits the form
       BlueNiceButton,
       {
@@ -123,10 +123,10 @@ function TranslatableReviewEncryptSection({
         textAlign: "center"
       }
     },
-    restartButton
+    previousButton
   );
   const pagination = cryptedBallot ? paginationWhenBallotHasBeenEncrypted : paginationWhenBallotIsBeingEncrypted;
-  const encryptedBallotField = e(
+  const encryptedBallotField = e( // add a hidden textarea in DOM which contains the encrypted vote, in the same way than the original booth
     "div",
     {
       style: {
