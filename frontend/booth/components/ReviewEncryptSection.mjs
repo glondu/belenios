@@ -72,6 +72,7 @@ function TranslatableReviewEncryptSection({
         e(
           WhiteNiceButton,
           {
+            tagName: "a",
             label: t("Copy"),
             onClick: copyToClipboard,
             style: {
@@ -87,6 +88,7 @@ function TranslatableReviewEncryptSection({
   const restartButton = e(
     NiceButton,
     {
+      tagName: "a",
       label: t("Restart"),
       style: {
         marginRight: "20px"
@@ -103,10 +105,9 @@ function TranslatableReviewEncryptSection({
       }
     },
     restartButton,
-    e(
+    e( // this Next button submits the form
       BlueNiceButton,
       {
-        asInput: true,
         label: t("Next"),
         style: {
           marginLeft: "20px"
