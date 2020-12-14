@@ -2,6 +2,7 @@
 @import "./frontend/booth/components/PageHeader.css";
 @import "./frontend/booth/components/PageFooter.css";
 @import "./frontend/booth/components/NiceButton.css";
+@import "./frontend/booth/components/NiceInput.css";
 
 body {
   background: #E5E4E2;

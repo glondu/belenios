@@ -341,18 +341,18 @@ let login_password ~service ~allowsignups ~state =
     (fun (lstate, (llogin, lpassword)) ->
       [
         input ~input_type:`Hidden ~name:lstate ~value:state string;
-        tablex [tbody [
+        tablex ~a:[a_class ["authentication-table"]] [tbody [
           tr [
             th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [txt (s_ "Username:")]];
-            td [input ~input_type:`Text ~name:llogin string];
+            td [input ~a:[a_class ["nice-text-input"]] ~input_type:`Text ~name:llogin string];
           ];
           tr [
             th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name lpassword)] [txt (s_ "Password:")]];
-            td [input ~input_type:`Password ~name:lpassword string];
+            td [input ~a:[a_class ["nice-password-input"]] ~input_type:`Password ~name:lpassword string];
           ];
         ]];
-        div [
-          input ~input_type:`Submit ~value:(s_ "Login") string;
+        div ~a:[a_style "text-align: center;"] [
+          input ~a:[a_class ["nice-button nice-button--blue"]] ~input_type:`Submit ~value:(s_ "Login") string;
         ]
       ]) ()
   in

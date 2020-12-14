@@ -25,6 +25,8 @@ table{border-collapse:separate;border-spacing:0;border-top:1px solid white;margi
 th{border-top:5px solid #555555;color:#ffffff;padding:10px;text-transform:uppercase;background-color:#49494b;}
 td{padding:10px;}
 td, th{border-bottom:1px solid #1f1f1f;}
+.authentication-table {border: none;}
+.authentication-table td, .authentication-table th {border: none;}
 .lists-arrow ul,
 .lists-star ul,
 .lists-arrow ul{line-height:1.5em;}
