@@ -9,11 +9,17 @@
 @import "./components/NiceButton.css";
 @import "./components/NiceInput.css";
 @import "./components/ClassicVoteReview.css";
+@import "./components/ReviewEncryptSection.css";
 
 body {
   background: #E5E4E2;
-  font-family: 'Ubuntu', arial, serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-weight: lighter;
+  line-height: initial;
+}
+
+h1, h2, h3 {
+  font-family: 'Ubuntu', arial, serif;
 }
 
 @media screen and (max-width: 640px) {

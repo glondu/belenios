@@ -1,8 +1,14 @@
 import { NiceButton, BlueNiceButton } from "./NiceButton.mjs";
 
 function GenericNavigation({ labelInfo=null, labelPreviousButton=null, labelNextButton=null, disabledPreviousButton=false, disabledNextButton=false, hiddenPreviousButton=false, hiddenNextButton=false, onClickPreviousButton=null, onClickNextButton=null }){
-  const stylePreviousButton = hiddenPreviousButton ? { display: "none" } : {};
-  const styleNextButton = hiddenNextButton ? { display: "none" } : {};
+  const buttonStyle = {
+    padding: "10px 13px"
+  };
+  const hiddenStyle = {
+    display: "none"
+  };
+  const stylePreviousButton = hiddenPreviousButton ? hiddenStyle : buttonStyle;
+  const styleNextButton = hiddenNextButton ? hiddenStyle : buttonStyle;
   return e(
     'div',
     {

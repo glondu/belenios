@@ -135,10 +135,7 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
   in
   let login_box = match login_box with
     | None ->
-       div ~a:[a_style "float: right; padding: 10px;"] [
-         img ~a:[a_height 70] ~alt:""
-           ~src:(static "placeholder.png") ();
-       ]
+       div []
     | Some x -> x
   in
   let lang_box =
@@ -164,8 +161,10 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
         div ~a:[a_class ["page"]] [
           div ~a:[a_class ["page-header"]] [
             div ~a:[a_class ["page-header__logo"]] [
-              img ~alt:(s_ "Election server")
-                ~src:(static "logo.png") ();
+              a ~service:home [
+                img ~a:[a_class ["page-header__logo__image"]] ~alt:(s_ "Election server")
+                  ~src:(static "logo.png") ();
+              ] ();
             ];
             div ~a:[a_class ["page-header__titles"]] [
               h1 ~a:[a_class ["page-header__titles__election-name"]; a_id "election_name"] [txt title];
@@ -269,7 +268,7 @@ let generic_page ~title ?service message () =
     p [txt message];
     proceed;
   ] in
-  base ~title ~content ()
+  responsive_base ~title ~content ()
 
 let raw_textarea ?rows ?cols id contents =
   let id = [a_id id] in
@@ -297,7 +296,7 @@ let login_choose auth_systems service () =
       [txt (s_ "Please log in:"); txt " ["] @ auth_systems @ [txt "]"]
     )]
   ] in
-  base ~title:(s_ "Log in") ~content ()
+  responsive_base ~title:(s_ "Log in") ~content ()
 
 let login_dummy ~state =
   let title, field_name, input_type =
@@ -321,7 +320,7 @@ let login_dummy ~state =
   let content = [
     form;
   ] in
-  base ~title ~content ()
+  responsive_base ~title ~content ()
 
 let login_password ~service ~allowsignups ~state =
   let%lwt l = get_preferred_gettext () in
@@ -361,7 +360,7 @@ let login_password ~service ~allowsignups ~state =
     form;
     signup;
   ] in
-  base ~title:(s_ "Password login") ~content ()
+  responsive_base ~title:(s_ "Password login") ~content ()
 
 let login_failed ~service () =
   let%lwt l = get_preferred_gettext () in
@@ -377,4 +376,4 @@ let login_failed ~service () =
         ];
     ]
   in
-  base ~title ~content ()
+  responsive_base ~title ~content ()

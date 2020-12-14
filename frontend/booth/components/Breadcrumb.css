@@ -1,4 +1,5 @@
 .breadcrumb {
+  line-height: 1.1em;
   font-size: 12px;
   display: flex;
   justify-content: space-between;
@@ -23,7 +24,7 @@
 .breadcrumb__step--current {
   font-weight: bold;
   border-bottom: 3px solid #000;
-  padding-bottom: 5px;
+  padding-bottom: 4px;
 }
 
 .breadcrumb__step-separator {

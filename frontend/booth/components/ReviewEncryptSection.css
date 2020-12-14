@@ -1,0 +1,52 @@
+.review-encrypt-section {
+  padding: 0px 30px 30px 30px;
+}
+
+.review-encrypt-section__encryption-section {
+  background: #e6f8fd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  margin: 40px auto 0 auto;
+  max-width: 600px;
+}
+
+.review-encrypt-section__smart-ballot-tracker-container {
+  display: inline;
+}
+
+.review-encrypt-section__smart-ballot-tracker {
+  word-break: break-all;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 5px 14px;
+  background: white;
+  line-height: 32px;
+  font-family: monospace;
+  vertical-align: middle;
+  font-size: 10px;
+}
+
+@media screen and (max-width: 640px) {
+  .review-encrypt-section {
+    padding: 0px 14px 30px 14px;
+  }
+
+  .review-encrypt-section__encryption-section {
+    padding: 10px;
+  }
+
+  .review-encrypt-section__smart-ballot-tracker-container {
+    display: block;
+  }
+
+  .review-encrypt-section__smart-ballot-tracker {
+
+  }
+}
+
+@media screen and (min-width: 640px) {
+  .review-encrypt-section__smart-ballot-tracker {
+    margin-left: 5px;
+  }
+}

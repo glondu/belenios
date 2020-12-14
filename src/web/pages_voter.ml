@@ -422,7 +422,7 @@ let cast_raw election () =
     form_upload;
   ] in
   let%lwt footer = audit_footer election in
-  base ~title:params.e_name ~content ~uuid ~footer ()
+  responsive_base ~title:params.e_name ~content ~uuid ~footer ()
 
 let cast_confirmation election hash () =
   let%lwt l = get_preferred_gettext () in
@@ -504,7 +504,7 @@ let cast_confirmation election hash () =
       txt ".";
     ];
   ] in
-  base ~title:name ~content ~uuid ()
+  responsive_base ~title:name ~content ~uuid ()
 
 let lost_ballot election () =
   let%lwt l = get_preferred_gettext () in
@@ -532,7 +532,7 @@ let lost_ballot election () =
         ];
     ]
   in
-  base ~title ~content ~uuid ()
+  responsive_base ~title ~content ~uuid ()
 
 let cast_confirmed election ~result () =
   let%lwt l = get_preferred_gettext () in
@@ -591,7 +591,7 @@ let cast_confirmed election ~result () =
          [txt (s_ "Go back to election")]
          (uuid, ())];
   ] in
-  base ~title:name ~content ~uuid ()
+  responsive_base ~title:name ~content ~uuid ()
 
 let pretty_ballots election hashes result () =
   let%lwt l = get_preferred_gettext () in
@@ -643,7 +643,7 @@ let pretty_ballots election hashes result () =
     ul ballots;
     links;
   ] in
-  base ~title ~content ~uuid ()
+  responsive_base ~title ~content ~uuid ()
 
 let booth () =
   let%lwt l = get_preferred_gettext () in
@@ -828,7 +828,7 @@ let schulze q r =
       ol pretty_winners;
     ]
   in
-  base ~title ~content ()
+  responsive_base ~title ~content ()
 
 let majority_judgment_select uuid question =
   let%lwt l = get_preferred_gettext () in
@@ -847,7 +847,7 @@ let majority_judgment_select uuid question =
       )
   in
   let content = [form] in
-  base ~title ~content ()
+  responsive_base ~title ~content ()
 
 let majority_judgment q r =
   let%lwt l = get_preferred_gettext () in
@@ -883,7 +883,7 @@ let majority_judgment q r =
       div [invalid];
     ]
   in
-  base ~title ~content ()
+  responsive_base ~title ~content ()
 
 let contact_footer l metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in

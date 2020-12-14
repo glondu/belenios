@@ -42,24 +42,31 @@ function TranslatableReviewEncryptSection({
         t("yourSmartBallotTracker")
       ),
       e(
-        "span",
+        "div",
         {
-          id: smartBallotTrackerId,
-          style: {
-            marginLeft: "5px",
-            wordBreak: "break-all",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            padding: "5px 14px",
-            background: "white",
-            lineHeight: "32px",
-            fontFamily: "monospace",
-            verticalAlign: "middle",
-            fontSize: "10px"
-          },
-          onClick: setBrowserSelectionToSmartBallotTracker
+          className: "review-encrypt-section__smart-ballot-tracker-container"
         },
-        smartBallotTracker
+        e(
+          "span",
+          {
+            className: "review-encrypt-section__smart-ballot-tracker",
+            id: smartBallotTrackerId,
+            style: {
+              marginLeft: "5px",
+              wordBreak: "break-all",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+              padding: "5px 14px",
+              background: "white",
+              lineHeight: "32px",
+              fontFamily: "monospace",
+              verticalAlign: "middle",
+              fontSize: "10px"
+            },
+            onClick: setBrowserSelectionToSmartBallotTracker
+          },
+          smartBallotTracker
+        )
       ),
       e(
         "div",
@@ -85,12 +92,17 @@ function TranslatableReviewEncryptSection({
   );
   const content = cryptedBallot ? contentWhenBallotHasBeenEncrypted : contentWhenBallotIsBeingEncrypted;
 
+  const navigationButtonStyle = {
+    padding: "10px 13px",
+    minWidth: "38px"
+  };
   const previousButton = e(
     NiceButton,
     {
       tagName: "a",
       label: t("Previous"),
       style: {
+        ...navigationButtonStyle,
         marginRight: "20px"
       },
       onClick: onClickPrevious
@@ -110,6 +122,7 @@ function TranslatableReviewEncryptSection({
       {
         label: t("Next"),
         style: {
+          ...navigationButtonStyle,
           marginLeft: "20px"
         }
       }
@@ -158,10 +171,7 @@ function TranslatableReviewEncryptSection({
     e(
       "div",
       {
-        className: "review-encrypt-section",
-        style: {
-          padding: "0 30px 30px 30px"
-        }
+        className: "review-encrypt-section"
       },
       e(
         "h2",
@@ -178,15 +188,7 @@ function TranslatableReviewEncryptSection({
       e(
         "div",
         {
-          className: "review-encrypt-section__encryption-section",
-          style: {
-            background: "#e6f8fd",
-            borderRadius: "8px",
-            padding: "20px",
-            textAlign: "center",
-            margin: "40px auto 0 auto",
-            maxWidth: "600px"
-          }
+          className: "review-encrypt-section__encryption-section"
         },
         content
       ),

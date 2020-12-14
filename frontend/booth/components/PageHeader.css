@@ -3,7 +3,7 @@
   background: #363636;
   color: white;
   display: flex;
-  padding: 18px 2px;
+  padding: 8px 2px;
 }
 
 @media screen and (max-width: 640px) {
@@ -41,7 +41,7 @@
   justify-content: center;
 }
 
-.page-header__logo > img {
+.page-header__logo__image {
   margin: 5px;
   max-height: 70px;
   min-width: 42px;

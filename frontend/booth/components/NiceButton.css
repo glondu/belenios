@@ -5,6 +5,7 @@
   font-size: 15px;
   font-weight: 400;
   display: inline-block;
+  line-height: initial;
 }
 
 .nice-button:hover {
