@@ -1107,8 +1107,10 @@ let mail_password l title login password weight url metadata =
   add_newline b;
   add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Password:"); add_string b " "; add_string b password; add_newline b;
-  if weight > 1 then (
-    add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+  (match weight with
+   | Some weight ->
+      add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+   | None -> ()
   );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;
@@ -1119,8 +1121,9 @@ let mail_password l title login password weight url metadata =
 
 open Belenios_platform.Platform
 
-let generate_password metadata langs title uuid url id =
+let generate_password metadata langs title uuid url id show_weight =
   let recipient, login, weight = split_identity id in
+  let weight = if show_weight then Some weight else None in
   let%lwt salt = generate_token () in
   let%lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
@@ -1157,8 +1160,10 @@ let mail_credential l title cas ~login cred weight url metadata =
   add_newline b;
   add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Credential:"); add_string b " "; add_string b cred; add_newline b;
-  if weight > 1 then (
-    add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+  (match weight with
+   | Some weight ->
+      add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+   | None -> ()
   );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;
@@ -1195,8 +1200,10 @@ let mail_confirmation l user title weight hash revote url1 url2 metadata =
   add_string b "  "; add_string b title; add_newline b;
   add_newline b;
   add_sentence b (s_ "has been recorded.");
-  if weight > 1 then (
-    add_sentence b (Printf.sprintf (f_ "Your weight is %d.") weight)
+  (match weight with
+   | Some weight ->
+      add_sentence b (Printf.sprintf (f_ "Your weight is %d.") weight)
+   | None -> ()
   );
   add_sentence b (s_ "Your smart ballot tracker is"); add_newline b;
   add_newline b;

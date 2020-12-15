@@ -149,21 +149,30 @@ let send_confirmation_email uuid revote user recipient weight hash =
 
 let cast_ballot uuid ~rawballot ~user =
   let%lwt voters = read_file ~uuid "voters.txt" in
+  let voters = match voters with Some xs -> xs | None -> [] in
   let%lwt email, login, weight =
     let rec loop = function
       | x :: xs ->
          let email, login, weight = split_identity x in
          if login = user.user_name then return (email, login, weight) else loop xs
       | [] -> fail UnauthorizedVoter
-    in loop (match voters with Some xs -> xs | None -> [])
+    in loop voters
   in
+  let show_weight =
+    List.exists
+      (fun x ->
+        let _, _, weight = split_identity x in
+        weight <> 1
+      ) voters
+  in
+  let oweight = if show_weight then Some weight else None in
   let user = string_of_user user in
   let%lwt state = Web_persist.get_election_state uuid in
   let voting_open = state = `Open in
   let%lwt () = if not voting_open then fail ElectionClosed else return_unit in
   match%lwt Web_persist.cast_ballot uuid ~rawballot ~user ~weight (now ()) with
   | Ok (hash, revote) ->
-     let%lwt () = send_confirmation_email uuid revote login email weight hash in
+     let%lwt () = send_confirmation_email uuid revote login email oweight hash in
      return (hash, weight)
   | Error e ->
      let msg = match e with

@@ -657,12 +657,22 @@ let handle_password se uuid ~force voters =
     (uuid, ()) |> rewrite_prefix
   in
   let langs = get_languages se.se_metadata.e_languages in
+  let show_weight =
+    List.exists
+      (fun id ->
+        let _, _, weight = split_identity id.sv_id in
+        weight <> 1
+      ) voters
+  in
   let%lwt () =
     Lwt_list.iter_s (fun id ->
         match id.sv_password with
         | Some _ when not force -> return_unit
         | None | Some _ ->
-           let%lwt x = Pages_voter.generate_password se.se_metadata langs title uuid url id.sv_id in
+           let%lwt x =
+             Pages_voter.generate_password se.se_metadata langs title uuid
+               url id.sv_id show_weight
+           in
            return (id.sv_password <- Some x)
       ) voters
   in
@@ -692,7 +702,15 @@ let find_user_id uuid user =
     | id :: xs ->
        let _, login, _ = split_identity id in
        if login = user then Some id else loop xs
-  in return (loop db)
+  in
+  let show_weight =
+    List.exists
+      (fun x ->
+        let _, _, weight = split_identity x in
+        weight <> 1
+      ) db
+  in
+  return (loop db, show_weight)
 
 let load_password_db uuid =
   let uuid_s = raw_string_of_uuid uuid in
@@ -724,16 +742,19 @@ let () =
             in
             let service = preapply ~service:election_admin uuid in
             match%lwt find_user_id uuid user with
-            | Some id ->
+            | Some id, show_weight ->
                let langs = get_languages metadata.e_languages in
                let%lwt db = load_password_db uuid in
-               let%lwt x = Pages_voter.generate_password metadata langs title uuid url id in
+               let%lwt x =
+                 Pages_voter.generate_password metadata langs title uuid
+                   url id show_weight
+               in
                let db = replace_password user x db in
                let%lwt () = dump_passwords uuid db in
                Pages_common.generic_page ~title:(s_ "Success") ~service
                  (Printf.sprintf (f_ "A new password has been mailed to %s.") id) ()
                >>= Html.send
-            | None ->
+            | None, _ ->
                Pages_common.generic_page ~title:(s_ "Error") ~service
                  (Printf.sprintf (f_ "%s is not a registered user for this election.") user) ()
                >>= Html.send
@@ -1075,9 +1096,17 @@ let () =
             let module G = (val Group.of_string se.se_group : GROUP) in
             let module CMap = Map.Make (G) in
             let module CD = Credential.MakeDerive (G) in
+            let show_weight =
+              List.exists
+                (fun v ->
+                  let _, _, weight = split_identity v.sv_id in
+                  weight <> 1
+                ) se.se_voters
+            in
             let%lwt public_creds, private_creds =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
                   let recipient, login, weight = split_identity v.sv_id in
+                  let oweight = if show_weight then Some weight else None in
                   let cas =
                     match se.se_metadata.e_auth_config with
                     | Some [{auth_system = "cas"; _}] -> true
@@ -1091,7 +1120,7 @@ let () =
                   let langs = get_languages se.se_metadata.e_languages in
                   let%lwt subject, body =
                     Pages_voter.generate_mail_credential langs
-                      title cas ~login cred weight url se.se_metadata
+                      title cas ~login cred oweight url se.se_metadata
                   in
                   let%lwt () = send_email (MailCredential uuid) ~recipient ~subject ~body in
                   return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)

@@ -44,14 +44,14 @@ val stv : Question_nh_t.question -> stv_result -> [> `Html ] Eliom_content.Html.
 val generate_password :
   Web_serializable_t.metadata ->
   string list ->
-  string -> uuid -> string -> string -> (string * string) Lwt.t
+  string -> uuid -> string -> string -> bool -> (string * string) Lwt.t
 
 val generate_mail_credential :
   string list -> string ->
-  bool -> login:string -> string -> int -> string ->
+  bool -> login:string -> string -> int option -> string ->
   Web_serializable_t.metadata -> (string * string) Lwt.t
 
 val mail_confirmation :
   (module Web_i18n_sig.GETTEXT) ->
-  string -> string -> int -> string ->
+  string -> string -> int option -> string ->
   bool -> string -> string -> Web_serializable_t.metadata -> string
