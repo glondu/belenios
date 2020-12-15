@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2020-12-10 14:20+0000\n"
+"PO-Revision-Date: 2020-12-11 15:29+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/admin/cs/>"
 "\n"
@@ -44,7 +44,7 @@ msgstr " a vaše e-mailová adresa je: "
 
 #: src/tool/tool_js_questions.ml:173
 msgid " answers."
-msgstr " odpovědi."
+msgstr " odpověďmi."
 
 #: src/web/pages_admin.ml:2931 src/web/pages_admin.ml:2881
 msgid " because "
@@ -78,7 +78,7 @@ msgstr " z "
 
 #: src/web/pages_admin.ml:477
 msgid " to set up the election key."
-msgstr " nastavit klíč voleb."
+msgstr " pro nastavení klíče voleb."
 
 #: src/web/pages_admin.ml:1002
 msgid " trustees will be needed to decrypt the result."
@@ -114,7 +114,7 @@ msgstr "%s není platná e-mailová adresa!"
 
 #: src/web/pages_admin.ml:1943
 msgid "(Warning: This action is irreversible.)"
-msgstr "(Varování: Tuto akci nelze vrátit zpět.)"
+msgstr "(Varování: tento krok nelze vrátit zpět.)"
 
 #: src/web/pages_admin.ml:762
 msgid "(cannot be removed)"
@@ -293,7 +293,7 @@ msgstr "Přihlášovací metoda: heslo"
 #: src/web/pages_admin.ml:234
 msgid "Automatic (degraded mode - credentials will be handled by the server)"
 msgstr ""
-"Automatické (mód nižšího zabezpečení - přístupové kódy budou vytvořeny "
+"Automatická (mód nižšího zabezpečení – přístupové kódy budou vytvořeny "
 "serverem)"
 
 #: src/web/site_admin.ml:1389
@@ -348,7 +348,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:253
 msgid "CAS (external authentication server), server address: "
-msgstr "CAS (server pro externí správy účtů), adresa serveru: "
+msgstr "CAS (serverem pro externí správu účtů), adresa serveru: "
 
 #: src/web/pages_admin.ml:2629
 msgid "Cancel"
@@ -384,19 +384,19 @@ msgstr "Klasika (výběr odpovědí)"
 
 #: src/web/pages_admin.ml:475
 msgid "Click "
-msgstr "Kliknout "
+msgstr "Klikněte "
 
 #: src/web/pages_admin.ml:2010
 msgid "Click on \"Compute shuffle\"."
-msgstr "Kliknout na „Spočítat zamíchání“."
+msgstr "Kliknětena „Spočítat zamíchání“."
 
 #: src/web/pages_admin.ml:589
 msgid "Click on \"Generate a new key pair\"."
-msgstr "Kliknout na „Vytvořit nový pár klíčů“."
+msgstr "Klikněte na „Vytvořit nový pár klíčů“."
 
 #: src/web/pages_admin.ml:595
 msgid "Click on \"Submit\" to send your verification key."
-msgstr "Kliknout na „Zadat“ pro zaslání ověřovacího klíče."
+msgstr "Klikněte na „Zadat“ pro zaslání ověřovacího klíče."
 
 #: src/web/pages_admin.ml:587
 msgid "Click on the link."
@@ -569,7 +569,7 @@ msgstr ""
 #: src/web/pages_admin.ml:1321
 msgid "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins."
 msgstr ""
-"Duplicitní identity nejsou povolené a jsou automaticky sjednoceny. Pokud "
+"duplicitní identity nejsou povolené a jsou automaticky sjednoceny. Pokud "
 "mají dva voliči stejnou e-mailovou adresu, je třeba používat odlišné loginy."
 
 #. src/web/pages_admin.ml:905
@@ -903,7 +903,7 @@ msgstr "E-mail"
 
 #: src/web/pages_admin.ml:239
 msgid "Manual (safe mode - a third party will handle the credentials)"
-msgstr "Manuální (bezpečný mód - o přístupové údaje se postará třetí strana)"
+msgstr "Manuální (bezpečný mód – o přístupové údaje se postará třetí strana)"
 
 #: src/tool/tool_js_questions.ml:95
 msgid "Maximum number of choices must be greater than 0!"
@@ -1012,12 +1012,12 @@ msgstr "Nepřihlášen(a)."
 #: src/web/pages_admin.ml:1095
 msgid "Note that this authority will personally have to send each credential to its respective voter."
 msgstr ""
-"Mějte na paměti, že tento vydavatel musí osobně zaslat každému voliči jeho "
+"Vezměte na vědomí, že tento vydavatel musí osobně zaslat každému voliči jeho "
 "přístupové údaje."
 
 #: src/web/pages_admin.ml:1184
 msgid "Note that:"
-msgstr "Mějte na paměti, že:"
+msgstr "Je třeba si uvědomit následující:"
 
 #. src/web/pages_admin.ml:1402
 #. src/web/pages_admin.ml:1325
@@ -1027,7 +1027,9 @@ msgstr "Mějte na paměti:"
 
 #: src/web/pages_admin.ml:540
 msgid "Note: this election will be automatically destroyed after "
-msgstr "Mějte na paměti: tato volba bude automaticky zničena za "
+msgstr ""
+"Tato volba bude tak jako tak samovolně zničena po uplynutí následujícího "
+"data: "
 
 #: src/tool/tool_js_ttkeygen.ml:117
 msgid "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
@@ -1101,7 +1103,7 @@ msgstr "Částečné dešifrování #%d"
 
 #: src/web/pages_admin.ml:248
 msgid "Password (passwords will be emailed to voters)"
-msgstr "Hesla (hesla budou rozeslána voličům emailem)"
+msgstr "Hesly (hesla budou rozeslána voličům e-mailem)"
 
 #: src/web/pages_admin.ml:1295
 msgid "Password sent?"
@@ -1141,7 +1143,7 @@ msgstr "Prosím zadejte "
 
 #: src/web/pages_admin.ml:1310
 msgid "Please enter the identities of voters to add, one per line"
-msgstr "Prosím zadejte identity voličů, které chcete přidat, jednu na řádku"
+msgstr "Prosím zadejte identity voličů, které chcete přidat, jednu na řádek"
 
 #: src/web/pages_admin.ml:2736
 msgid "Please enter your private key:"
@@ -1565,12 +1567,12 @@ msgstr "Budou následovat tři kroky."
 #: src/web/pages_admin.ml:1182
 msgid "This allows deciding the winner according to your favorite counting method (e.g. Condorcet, STV, majority judgement)."
 msgstr ""
-"Toto umožní rozhodnou o vítězi pomocí vaší oblíbené metody přepočítání hlasů "
-"(tedy Condorcet, STV, většinový úsudek – majority judgement)."
+"To umožní rozhodnout o vítězi pomocí vaší oblíbené metody pro přepočítání "
+"hlasů (např. Condorcet, STV nebo většinový úsudek – majority judgement)."
 
 #: src/web/pages_admin.ml:399
 msgid "This contact will be added to emails sent to the voters."
-msgstr "Tento kontakt bude přidát k e-mailům, které budou rozeslány voličům."
+msgstr "Tento kontakt bude uveden v e-mailech, které budou rozeslány voličům."
 
 #: src/web/pages_admin.ml:2446
 msgid "This election has been tallied."
@@ -1591,8 +1593,8 @@ msgstr "Tato volba bude automaticky smazána po  uplynutí tohoto data: "
 #: src/web/pages_admin.ml:310
 msgid "This is a space-separated list of languages that will be used in emails sent by the server."
 msgstr ""
-"Toto je seznam jazyků (oddělených mezerou), které budou použity v e-mailech, "
-"které rozešle server."
+"Toto je seznam jazyků (oddělených mezerou), které budou použity v e-mailech "
+"rozeslaných serverem."
 
 #: src/web/site_admin.ml:764
 msgid "This kind of change is not allowed now!"
@@ -1695,7 +1697,7 @@ msgstr "Uživatelské jméno:"
 #. src/web/pages_admin.ml:527
 #: src/web/pages_admin.ml:1940 src/web/pages_admin.ml:1773
 msgid "Validate creation"
-msgstr "Ověřit vytvoření"
+msgstr "Ověřit splnění podmínek pro vytvoření volby"
 
 #: src/web/pages_admin.ml:2534
 msgid "Voter list"
@@ -1732,18 +1734,18 @@ msgstr "Varování:"
 
 #: src/web/pages_admin.ml:2512
 msgid "Warning: This action is irreversible."
-msgstr "Varování: Tato akce je nezvratná."
+msgstr "Varování: tento krok je nezvratný."
 
 #: src/web/pages_admin.ml:2483
 msgid "Warning: This action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting)."
 msgstr ""
-"Varování: Tato akce je nezvratná. Archivace znamená, že volbu bude nadále "
+"Varování: tento krok je nezvratný. Archivace znamená, že volbu bude nadále "
 "přístupná pouze pro čtení; zejména tedy bude volba definitivně ukončena ("
 "nebude možné volit ani sečíst hlasy)."
 
 #: src/web/pages_admin.ml:2134
 msgid "Warning: This action is irreversible; the election will be definitively closed."
-msgstr "Varování: Tato akce je nezvratná; volba bude definitivně ukončena."
+msgstr "Varování: tento krok je nezvratný; volba bude definitivně ukončena."
 
 #: src/web/pages_admin.ml:511
 msgid "Warning: this will freeze the voter list!"
@@ -1793,12 +1795,12 @@ msgstr "Zveřejnění výsledku voleb můžete odložit až o %d dní."
 #: src/web/pages_admin.ml:2622
 msgid "You may skip a trustee if they do not answer. Be aware that this reduces the security."
 msgstr ""
-"Garanta můžete přeskočit, pokud nereagují. Mějte na paměti, že to snižuje "
+"Garanta můžete přeskočit, pokud nereagují. Je třeba si uvědomit, to snižuje "
 "zabezpečení volby."
 
 #: src/web/pages_admin.ml:1180
 msgid "You may wish voters to rank candidates or give each candidate a score."
-msgstr "Můžete chtít, aby vliči kandidáty seřadili nebo ohodnotili."
+msgstr "Můžete chtít, aby voliči kandidáty seřadili nebo ohodnotili."
 
 #: src/web/pages_admin.ml:2679
 msgid "You must record this fingerprint and check that it appears on the election result page."
@@ -2019,9 +2021,9 @@ msgstr ""
 #: src/web/pages_admin.ml:1317
 msgid "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote."
 msgstr ""
-"musíte zajistit, že tyto e-mailové adresy jsou platné. Nebudete schopni "
-"změnit volební adresy jakmile je volba připravena. Voliči s neplatnými e-"
-"mailovými adresami nebudou moci volit."
+"musíte zajistit, že tyto e-mailové adresy jsou platné. Nebudete moci změnit "
+"e-mailové adresy, jakmile budou vytvořeny přístupové údaje. Voliči s "
+"neplatnými e-mailovými adresami nebudou moci volit."
 
 #: src/web/pages_admin.ml:650 src/web/pages_admin.ml:600
 msgid "you may store the key on a USB stick and store it in a safe;"
@@ -2030,8 +2032,8 @@ msgstr "můžete klíč uložit na USB klíčenku a tu uložit v sejfu;"
 #: src/web/pages_admin.ml:1190
 msgid "you will be given the raw results (shuffled list of ballots) and you will need to apply your counting method yourself."
 msgstr ""
-"dostanete neupravené výsledky (zamíchaný seznam volebních lístků) a svoji "
-"metodu pro sečtení hlasů budete muset použít sami."
+"dostanete neupravené výsledky (zamíchaný seznam volebních lístků) a sečtení "
+"hlasů dle vámi preferované metody budete muset zajistit sami."
 
 #: src/web/pages_admin.ml:640
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
