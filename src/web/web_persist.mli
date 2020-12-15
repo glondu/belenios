@@ -84,7 +84,9 @@ val has_voted : uuid -> user -> bool Lwt.t
 
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
 
-val cast_ballot : uuid -> rawballot:string -> user:string -> datetime -> (string * bool, cast_error) result Lwt.t
+val cast_ballot :
+  uuid -> rawballot:string -> user:string -> weight:int -> datetime ->
+  (string * bool, cast_error) result Lwt.t
 
 val get_audit_cache : uuid -> audit_cache Lwt.t
 val remove_audit_cache : uuid -> unit Lwt.t

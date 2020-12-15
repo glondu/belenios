@@ -547,9 +547,18 @@ let cast_confirmed election ~result () =
   ] in
   let result, step_title =
     match result with
-    | Ok hash ->
+    | Ok (hash, weight) ->
+       let your_weight_is =
+         if weight > 1 then
+           span [
+               txt (Printf.sprintf (f_ "Your weight is %d.") weight);
+               txt " ";
+             ]
+         else txt ""
+       in
        [txt (s_ " has been accepted.");
         txt " ";
+        your_weight_is;
         txt (s_ "Your smart ballot tracker is ");
         b ~a:[a_id "ballot_tracker"] [
           txt hash
@@ -1053,7 +1062,7 @@ let contact_footer l metadata =
      add_string b "  ";
      add_string b x
 
-let mail_password l title login password url metadata =
+let mail_password l title login password weight url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1070,6 +1079,9 @@ let mail_password l title login password url metadata =
   add_newline b;
   add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Password:"); add_string b " "; add_string b password; add_newline b;
+  if weight > 1 then (
+    add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+  );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;
   add_sentence b (s_ "Note that you are allowed to vote several times.");
@@ -1080,13 +1092,13 @@ let mail_password l title login password url metadata =
 open Belenios_platform.Platform
 
 let generate_password metadata langs title uuid url id =
-  let recipient, login = split_identity id in
+  let recipient, login, weight = split_identity id in
   let%lwt salt = generate_token () in
   let%lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
   let%lwt bodies = Lwt_list.map_s (fun lang ->
     let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
-    return (mail_password l title login password url metadata)
+    return (mail_password l title login password weight url metadata)
   ) langs in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
@@ -1098,7 +1110,7 @@ let generate_password metadata langs title uuid url id =
   let%lwt () = send_email (MailPassword uuid) ~recipient ~subject ~body in
   return (salt, hashed)
 
-let mail_credential l title cas ~login cred url metadata =
+let mail_credential l title cas ~login cred weight url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1117,6 +1129,9 @@ let mail_credential l title cas ~login cred url metadata =
   add_newline b;
   add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Credential:"); add_string b " "; add_string b cred; add_newline b;
+  if weight > 1 then (
+    add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+  );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;
   add_sentence b (s_ "Note that you are allowed to vote several times.");
@@ -1124,12 +1139,12 @@ let mail_credential l title cas ~login cred url metadata =
   contact_footer l metadata b;
   contents b
 
-let generate_mail_credential langs title cas ~login cred url metadata =
+let generate_mail_credential langs title cas ~login cred weight url metadata =
   let%lwt bodies =
     Lwt_list.map_s
       (fun lang ->
         let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
-        return (mail_credential l title cas ~login cred url metadata)
+        return (mail_credential l title cas ~login cred weight url metadata)
       ) langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
@@ -1141,7 +1156,7 @@ let generate_mail_credential langs title cas ~login cred url metadata =
   in
   return (subject, body)
 
-let mail_confirmation l user title hash revote url1 url2 metadata =
+let mail_confirmation l user title weight hash revote url1 url2 metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1152,6 +1167,9 @@ let mail_confirmation l user title hash revote url1 url2 metadata =
   add_string b "  "; add_string b title; add_newline b;
   add_newline b;
   add_sentence b (s_ "has been recorded.");
+  if weight > 1 then (
+    add_sentence b (Printf.sprintf (f_ "Your weight is %d.") weight)
+  );
   add_sentence b (s_ "Your smart ballot tracker is"); add_newline b;
   add_newline b;
   add_string b "  "; add_string b hash; add_newline b;

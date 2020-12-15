@@ -199,7 +199,7 @@ let validate_election uuid se =
     | Some [{auth_system = "password"; _}] ->
        let db =
          List.filter_map (fun v ->
-             let _, login = split_identity v.sv_id in
+             let _, login, _ = split_identity v.sv_id in
              match v.sv_password with
              | Some (salt, hashed) -> Some [login; salt; hashed]
              | None -> None
@@ -690,7 +690,7 @@ let find_user_id uuid user =
   let rec loop = function
     | [] -> None
     | id :: xs ->
-       let _, login = split_identity id in
+       let _, login, _ = split_identity id in
        if login = user then Some id else loop xs
   in return (loop db)
 
@@ -799,7 +799,7 @@ let () =
 (* see http://www.regular-expressions.info/email.html *)
 let identity_rex = Pcre.regexp
   ~flags:[`CASELESS]
-  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}(,[A-Z0-9._%+-]+)?$"
+  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}(,[A-Z0-9._%+-]*(,[1-9][0-9]*)?)?$"
 
 let is_identity x =
   match pcre_exec_opt ~rex:identity_rex x with
@@ -1047,7 +1047,7 @@ let () =
             let module CD = Credential.MakeDerive (G) in
             let%lwt public_creds, private_creds =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
-                  let recipient, login = split_identity v.sv_id in
+                  let recipient, login, weight = split_identity v.sv_id in
                   let cas =
                     match se.se_metadata.e_auth_config with
                     | Some [{auth_system = "cas"; _}] -> true
@@ -1061,7 +1061,7 @@ let () =
                   let langs = get_languages se.se_metadata.e_languages in
                   let%lwt subject, body =
                     Pages_voter.generate_mail_credential langs
-                      title cas ~login cred url se.se_metadata
+                      title cas ~login cred weight url se.se_metadata
                   in
                   let%lwt () = send_email (MailCredential uuid) ~recipient ~subject ~body in
                   return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)
@@ -1225,7 +1225,7 @@ let () =
             match passwords with
             | None -> fun _ -> None
             | Some p -> fun sv_id ->
-                        let _, login = split_identity sv_id in
+                        let _, login, _ = split_identity sv_id in
                         SMap.find_opt login p
           in
           match voters with
@@ -1543,7 +1543,7 @@ let () =
               | Some vs ->
                  return (
                      List.fold_left (fun accu v ->
-                         let _, login = split_identity v in
+                         let _, login, _ = split_identity v in
                          SSet.add login accu
                        ) SSet.empty vs
                    )

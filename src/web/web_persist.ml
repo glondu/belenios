@@ -560,6 +560,41 @@ end
 
 module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
 
+module CredWeightsCacheTypes = struct
+  type key = uuid
+  type value = int StringMap.t
+end
+
+module CredWeightsCache = Ocsigen_cache.Make (CredWeightsCacheTypes)
+
+let raw_get_credential_weights uuid =
+  match%lwt read_file ~uuid "public_creds.txt" with
+  | Some xs ->
+     xs
+     |> List.map extract_weight
+     |> List.fold_left
+          (fun accu (x, w) ->
+            StringMap.add x w accu
+          ) StringMap.empty
+     |> return
+  | None -> return StringMap.empty
+
+let credential_weights_cache =
+  new CredWeightsCache.cache raw_get_credential_weights ~timer:3600. 10
+
+let get_credential_weight uuid cred =
+  try%lwt
+    let%lwt xs = credential_weights_cache#find uuid in
+    return @@ StringMap.find cred xs
+  with _ ->
+    Lwt.fail
+      (Failure
+         (Printf.sprintf
+            "could not find weight of %s/%s"
+            (raw_string_of_uuid uuid) cred
+         )
+      )
+
 let raw_get_credential_mappings uuid =
   match%lwt read_file ~uuid "credential_mappings.jsons" with
   | Some xs ->
@@ -585,7 +620,9 @@ let credential_mappings_cache =
 
 let init_credential_mapping uuid xs =
   let xs =
-    List.fold_left (fun accu x ->
+    List.fold_left
+      (fun accu x ->
+        let x, _ = extract_weight x in
         if StringMap.mem x accu then
           failwith "trying to add duplicate credential"
         else
@@ -605,7 +642,7 @@ let add_credential_mapping uuid cred mapping =
   credential_mappings_cache#add uuid xs;
   dump_credential_mappings uuid xs
 
-let do_cast_ballot election ~rawballot ~user date =
+let do_cast_ballot election ~rawballot ~user ~weight date =
   let module E = (val election : ELECTION) in
   let uuid = E.election.e_params.e_uuid in
   match
@@ -626,30 +663,33 @@ let do_cast_ballot election ~rawballot ~user date =
         match%lwt find_credential_mapping uuid credential with
         | None -> return (Error ECastInvalidCredential)
         | Some old_cred ->
-           let%lwt old_record = find_extended_record uuid user in
-           match old_cred, old_record with
-           | None, None ->
-              (* first vote *)
-              if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
-                let%lwt hash = add_ballot uuid rawballot in
-                let%lwt () = add_credential_mapping uuid credential (Some hash) in
-                let%lwt () = add_extended_record uuid user (date, credential) in
-                return (Ok (hash, false))
-              ) else return (Error ECastProofCheck)
-           | Some hash, Some (_, old_credential) ->
-              (* revote *)
-              if credential = old_credential then (
+           let%lwt cweight = get_credential_weight uuid credential in
+           if cweight = weight then (
+             let%lwt old_record = find_extended_record uuid user in
+             match old_cred, old_record with
+             | None, None ->
+                (* first vote *)
                 if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
-                  let%lwt hash = replace_ballot uuid ~hash ~rawballot in
+                  let%lwt hash = add_ballot uuid rawballot in
                   let%lwt () = add_credential_mapping uuid credential (Some hash) in
                   let%lwt () = add_extended_record uuid user (date, credential) in
-                  return (Ok (hash, true))
+                  return (Ok (hash, false))
                 ) else return (Error ECastProofCheck)
-              ) else return (Error ECastWrongCredential)
-           | None, Some _ -> return (Error ECastRevoteNotAllowed)
-           | Some _, None -> return (Error ECastReusedCredential)
+             | Some hash, Some (_, old_credential) ->
+                (* revote *)
+                if credential = old_credential then (
+                  if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
+                    let%lwt hash = replace_ballot uuid ~hash ~rawballot in
+                    let%lwt () = add_credential_mapping uuid credential (Some hash) in
+                    let%lwt () = add_extended_record uuid user (date, credential) in
+                    return (Ok (hash, true))
+                  ) else return (Error ECastProofCheck)
+                ) else return (Error ECastWrongCredential)
+             | None, Some _ -> return (Error ECastRevoteNotAllowed)
+             | Some _, None -> return (Error ECastReusedCredential)
+           ) else return (Error ECastBadWeight)
 
-let cast_ballot uuid ~rawballot ~user date =
+let cast_ballot uuid ~rawballot ~user ~weight date =
   match%lwt get_raw_election uuid with
   | None -> Lwt.fail Not_found
   | Some raw_election ->
@@ -657,7 +697,7 @@ let cast_ballot uuid ~rawballot ~user date =
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
      Web_election_mutex.with_lock uuid
-       (fun () -> do_cast_ballot (module E) ~rawballot ~user date)
+       (fun () -> do_cast_ballot (module E) ~rawballot ~user ~weight date)
 
 let get_raw_election_result uuid =
   match%lwt read_file ~uuid "result.json" with
