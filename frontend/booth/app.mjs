@@ -34,7 +34,8 @@ function VotePage({ electionData, electionFingerprint, currentStep, children }){
     e(
       "div",
       {
-        className: "page-body"
+        className: "page-body",
+        id: "main" // used to ease targetting of DOM elements in automated tests
       },
       e(
         VoteBreadcrumb,
