@@ -51,18 +51,6 @@ function TranslatableReviewEncryptSection({
           {
             className: "review-encrypt-section__smart-ballot-tracker",
             id: smartBallotTrackerId,
-            style: {
-              marginLeft: "5px",
-              wordBreak: "break-all",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "5px 14px",
-              background: "white",
-              lineHeight: "32px",
-              fontFamily: "monospace",
-              verticalAlign: "middle",
-              fontSize: "10px"
-            },
             onClick: setBrowserSelectionToSmartBallotTracker
           },
           smartBallotTracker
