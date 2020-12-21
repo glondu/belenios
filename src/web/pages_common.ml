@@ -159,7 +159,7 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
     (body [
       div ~a:[a_id "vote-app"] [
         div ~a:[a_class ["page"]] [
-          div ~a:[a_class ["page-header"]] [
+          div ~a:[a_id "header"; a_class ["page-header"]] [
             div ~a:[a_class ["page-header__logo"]] [
               a ~service:home [
                 img ~a:[a_class ["page-header__logo__image"]] ~alt:(s_ "Election server")

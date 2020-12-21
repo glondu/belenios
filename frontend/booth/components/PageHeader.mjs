@@ -4,6 +4,7 @@ function TranslatablePageHeader({title, subTitle, t}) {
   return e(
     "div",
     {
+      id: "header", // used to ease targetting of DOM elements in automated tests
       className: "page-header"
     },
     e(
