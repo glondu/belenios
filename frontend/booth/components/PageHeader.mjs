@@ -4,6 +4,7 @@ function TranslatablePageHeader({title, subTitle, t}) {
   return e(
     "div",
     {
+      id: "header", // used to ease targetting of DOM elements in automated tests
       className: "page-header"
     },
     e(
@@ -14,6 +15,7 @@ function TranslatablePageHeader({title, subTitle, t}) {
       e(
         "img",
         {
+          className: "page-header__logo__image",
           src: "../../logo.png",
           alt: t("Election server"),
           title: t("Election server")

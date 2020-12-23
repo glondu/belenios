@@ -3,6 +3,9 @@
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 15px;
+  font-weight: 400;
+  display: inline-block;
+  line-height: initial;
 }
 
 .nice-button:hover {
@@ -20,19 +23,20 @@
 .nice-button--blue {
   background: #1097e6;
   color: white;
-  border-color: #a0dcff #5fc4ff #21adff;
-  background-image: linear-gradient(to bottom, #25a5f0, #1097e6 66%, #0f8ad3);
+  border-color: #0046ca;
+  background-image: linear-gradient(to bottom, #7ed0ff, #1097e6 66%, #0f8ad3);
 }
 
 .nice-button--white {
-  background: white;
   color: black;
-  border-color: black;
+  border-color: #847f7f;
+  background: white;
+  background-image: linear-gradient(to bottom, #fff, #ddd 66%, #bfbebe);
 }
 
 .nice-button--default {
   background: #9d9d9d;
   color: white;
-  border-color: #dfdfdf #d0d0d0 #a6a6a6;
-  background-image: linear-gradient(to bottom, #b0b0b0, #888 66%, #828282);
+  border-color: #424242;
+  background-image: linear-gradient(to bottom, #c4c4c4, #888 66%, #606060);
 }

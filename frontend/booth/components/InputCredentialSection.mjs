@@ -1,10 +1,10 @@
-import { WhiteNiceButton } from "./NiceButton.mjs";
-
-const e = React.createElement;
+import { BlueNiceButton } from "./NiceButton.mjs";
+import { NicePasswordInput } from "./NiceInput.mjs";
 
 function TranslatableInputCredentialSection({ onSubmit=null, t }){
+  const credentialId = "credential";
   const onClick = () => {
-    const result = prompt(t("Please enter your credential"));
+    const result = document.getElementById(credentialId).value;
     if (result && onSubmit){
       return onSubmit(result);
     }
@@ -22,9 +22,10 @@ function TranslatableInputCredentialSection({ onSubmit=null, t }){
       {
         className: "input-credential-section",
         style: {
-          background: "#e6f8fd",
+          background: "rgb(229, 242, 247)",
           padding: "20px",
-          textAlign: "center"
+          textAlign: "center",
+          borderRadius: "8px"
         }
       },
       e(
@@ -44,16 +45,26 @@ function TranslatableInputCredentialSection({ onSubmit=null, t }){
               paddingBottom: "12px"
             }
           },
-          t("Input your credential")
+          e(
+            "p",
+            null,
+            t("Please enter your credential")
+          ),
+          e(
+            NicePasswordInput,
+            {
+              id: credentialId
+            }
+          )
         ),
         e(
-          WhiteNiceButton,
+          BlueNiceButton,
           {
             className: "input-credential-section__button",
             style: {
-              width: "100%"
+              padding: "8px 28px"
             },
-            label: t("here"),
+            label: t("Next"),
             onClick: onClick
           }
         )

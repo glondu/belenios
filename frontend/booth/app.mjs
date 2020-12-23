@@ -34,7 +34,8 @@ function VotePage({ electionData, electionFingerprint, currentStep, children }){
     e(
       "div",
       {
-        className: "page-body"
+        className: "page-body",
+        id: "main" // used to ease targetting of DOM elements in automated tests
       },
       e(
         VoteBreadcrumb,
@@ -81,13 +82,14 @@ function GenericPage({title=null, subTitle=null, children}){
 }
 
 function TranslatableVoteApp({uuid=null, t}){
-  const [currentStep, setCurrentStep] = React.useState(1);
+  const [currentStep, setCurrentStep] = React.useState(1); // Current step of the workflow displayed in the Breadcrumb. 1: input credential. 2: answer questions. 3: review and encrypt.
   const [electionData, setElectionData] = React.useState({});
   const [electionFingerprint, setElectionFingerprint] = React.useState("");
   const [credential, setCredential] = React.useState(null);
   const [electionLoadingStatus, setElectionLoadingStatus] = React.useState(0); // 0: not yet loaded. 1: loaded with success. 2: loaded with error.
   const [uncryptedBallotBeforeReview, setUncryptedBallotBeforeReview] = React.useState(null);
   const [cryptedBallotBeforeReview, setCryptedBallotBeforeReview] = React.useState(null);
+  const [smartBallotTracker, setSmartBallotTracker] = React.useState(null);
 
   const processElectionData = (inputElectionData) => {
     setElectionData(inputElectionData);
@@ -158,8 +160,8 @@ function TranslatableVoteApp({uuid=null, t}){
     );
   }
   else if(electionLoadingStatus === 0 || electionLoadingStatus === 2){
-    const titleMessage = electionLoadingStatus === 0 ? "Loading..." : "Error";
-    const loadingMessage = electionLoadingStatus === 0 ? titleMessage : "Error: Could not load this election. Maybe no election exists with this identifier.";
+    const titleMessage = electionLoadingStatus === 0 ? "Loading..." : "Error"; // TODO: should we localize this?
+    const loadingMessage = electionLoadingStatus === 0 ? titleMessage : "Error: Could not load this election. Maybe no election exists with this identifier."; // TODO: should we localize this?
 
     return e(
       GenericPage,
@@ -193,7 +195,6 @@ function TranslatableVoteApp({uuid=null, t}){
           {
             onSubmit: function(credential){
               if(belenios.checkCredential(credential) === true){
-                alert("credential: " + credential);
                 setCredential(credential);
                 setCurrentStep(2);
               }
@@ -222,22 +223,35 @@ function TranslatableVoteApp({uuid=null, t}){
             onVoteSubmit: async function(event, electionData){
               const voter_selected_answers = extractVoterSelectedAnswersFromFields(electionData);
               setUncryptedBallotBeforeReview(voter_selected_answers);
+              setCryptedBallotBeforeReview(null);
+              setSmartBallotTracker(null);
               setCurrentStep(3);
-              belenios.encryptBallot(electionData, credential, voter_selected_answers,
-                                     function(ballot, tracker) {
-                                         console.log("Raw encrypted ballot:", JSON.parse(ballot));
-                                         console.log("Smart ballot tracker:", tracker);
-                                         setCryptedBallotBeforeReview(ballot);
-                                     },
-                                     function(error) {
-                                         alert("Error: " + error);
-                                     });
+              const encryptBallotSuccessCallback = (ballot, tracker) => {
+                console.log("Raw encrypted ballot:", JSON.parse(ballot));
+                console.log("Smart ballot tracker:", tracker);
+                setCryptedBallotBeforeReview(ballot);
+                setSmartBallotTracker(tracker);
+              };
+              const encryptBallotErrorCallback = (error) => {
+                alert("Error: " + error);
+              };
+              belenios.encryptBallot(
+                electionData, credential, voter_selected_answers,
+                encryptBallotSuccessCallback, encryptBallotErrorCallback
+              );
             }
           }
         )
       );
     }
     else if (currentStep === 3) {
+      const urlToPostEncryptedBallot = `${relativeServerRootFolder}/election/submit-ballot`;
+      const onClickPrevious = () => {
+        setCurrentStep(2);
+        setUncryptedBallotBeforeReview(null);
+        setCryptedBallotBeforeReview(null);
+        setSmartBallotTracker(null);
+      };
       return e(
         VotePage,
         {
@@ -250,7 +264,10 @@ function TranslatableVoteApp({uuid=null, t}){
           {
             electionData: electionData,
             uncryptedBallot: uncryptedBallotBeforeReview,
-            cryptedBallot: cryptedBallotBeforeReview
+            cryptedBallot: cryptedBallotBeforeReview,
+            smartBallotTracker: smartBallotTracker,
+            onClickPrevious: onClickPrevious,
+            urlToPostEncryptedBallot: urlToPostEncryptedBallot
           }
         )
       );

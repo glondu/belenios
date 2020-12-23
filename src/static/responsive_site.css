@@ -1,0 +1,40 @@
+/* UI Components try to respect [BEM](http://getbem.com/naming/) for the naming of their CSS classes */
+@import "./frontend/booth/components/PageHeader.css";
+@import "./frontend/booth/components/PageFooter.css";
+@import "./frontend/booth/components/NiceButton.css";
+@import "./frontend/booth/components/NiceInput.css";
+
+body {
+  background: #E5E4E2;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: lighter;
+  line-height: initial;
+}
+
+@media screen and (max-width: 640px) {
+  body {
+    margin: 0;
+  }
+}
+
+@media screen and (min-width: 640px) {
+  body {
+    margin: 8px;
+  }
+}
+
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-body {
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.cookie-disclaimer {
+  padding: 10px;
+  margin: 10px;
+}

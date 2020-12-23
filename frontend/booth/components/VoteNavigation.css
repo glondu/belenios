@@ -44,7 +44,7 @@
 }
 
 .vote-navigation__previous-button-container, .vote-navigation__next-button-container {
-  padding: 15px;
+  padding: 15px 0 15px 15px;
   margin: 1px;
 }
 

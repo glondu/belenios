@@ -2,26 +2,29 @@ const defaultDangerousLabel = {
   __html: "hi"
 };
 
-function NiceButton ({ label=null, dangerousLabel=null, onClick=null, disabled=false, styling="default", className=null, ...props }){
+// Parameter `tagName` can be "button", "input", "a"
+function NiceButton ({ label=null, dangerousLabel=null, onClick=null, disabled=false, styling="default", className=null, tagName="button", ...props }){
   const attributes = {
-    className: `nice-button nice-button--${styling} ${className}`,
+    className: className ? `nice-button nice-button--${styling} ${className}` : `nice-button nice-button--${styling}`,
     onClick: onClick,
     disabled: disabled
   };
   let bonusAttributes = {};
   if (!label && dangerousLabel){
-    bonusAttributes = {
-      dangerouslySetInnerHTML: dangerousLabel
-    };
+    bonusAttributes['dangerouslySetInnerHTML'] = dangerousLabel;
+  }
+  if (tagName == "input"){
+    bonusAttributes['type'] = 'submit';
+    bonusAttributes['value'] = label;
   }
   return e(
-    'button',
+    tagName,
     {
       ...attributes,
       ...bonusAttributes,
       ...props
     },
-    label
+    tagName == "input" ? null : label
   );
 }
 

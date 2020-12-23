@@ -62,7 +62,7 @@ let privacy_notice cont =
         ) ();
     ]
   in
-  base ~title ~content ()
+  responsive_base ~title ~content ()
 
 let login_box ?cont () =
   let%lwt l = get_preferred_gettext () in

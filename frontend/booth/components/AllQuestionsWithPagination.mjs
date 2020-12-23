@@ -23,7 +23,6 @@ class TranslatableAllQuestionsWithPagination extends React.Component {
   }
 
   onClickPrevious(){
-    console.log("onClickPrevious");
     if (this.state.current_question_index-1 >= 0){
       this.setState({current_question_index: this.state.current_question_index-1});
       window.scrollTo(0, 0); // Scroll to top of the page
@@ -31,7 +30,6 @@ class TranslatableAllQuestionsWithPagination extends React.Component {
   }
 
   onClickNext(event){
-    console.log("onClickNext");
     const t = this.props.t;
     // Before moving on to next question, verify that user input respects question constraints:
     // - if blank vote is allowed on this question and user voted blank, then verify that no other answer is checked
@@ -68,7 +66,6 @@ class TranslatableAllQuestionsWithPagination extends React.Component {
       window.scrollTo(0, 0); // Scroll to top of the page
     }
     else {
-      // TODO: go to verification page
       if (this.props.onVoteSubmit){
         return this.props.onVoteSubmit(event, this.props.electionData);
       }

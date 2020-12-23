@@ -123,6 +123,83 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
       ]]
      ]))
 
+let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let administer =
+    match uuid with
+    | None ->
+       a ~service:admin [txt (s_ "Administer elections")] ()
+    | Some uuid ->
+       a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
+  in
+  let login_box = match login_box with
+    | None ->
+       div []
+    | Some x -> x
+  in
+  let lang_box =
+    match lang_box with
+    | None -> div []
+    | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
+  in
+  let%lwt warning = match !Web_config.warning_file with
+    | None -> return @@ txt ""
+    | Some f -> match%lwt read_file f with
+                | None -> return @@ txt ""
+                | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+  in
+  Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
+    (head (Eliom_content.Html.F.title (txt title)) [
+      script (txt "var el = document.createElement('meta'); el.name = 'viewport'; el.content = 'width=device-width, initial-scale=1'; document.querySelector('head').appendChild(el);"); (* TODO: Replace with Ocaml expression of `<meta name="viewport" content="width=device-width, initial-scale=1">` *)
+      script (txt "window.onbeforeunload = function () {};");
+      link ~rel:[`Stylesheet] ~href:(static "site.css") ();
+      link ~rel:[`Stylesheet] ~href:(static "responsive_site.css") ();
+    ])
+    (body [
+      div ~a:[a_id "vote-app"] [
+        div ~a:[a_class ["page"]] [
+          div ~a:[a_id "header"; a_class ["page-header"]] [
+            div ~a:[a_class ["page-header__logo"]] [
+              a ~service:home [
+                img ~a:[a_class ["page-header__logo__image"]] ~alt:(s_ "Election server")
+                  ~src:(static "logo.png") ();
+              ] ();
+            ];
+            div ~a:[a_class ["page-header__titles"]] [
+              h1 ~a:[a_class ["page-header__titles__election-name"]; a_id "election_name"] [txt title];
+              p ~a:[a_class ["page-header__titles__election-description"]; a_id "election_description"] [txt ""]; (* no description provided? *)
+            ];
+            div ~a:[a_class ["page-header__right"]] [
+              login_box;
+            ];
+          ];
+          div ~a:[a_class ["page-body"]] [
+            warning;
+            div ~a:[a_id "main"] [
+              lang_box;
+              div content;
+            ]
+          ];
+          div ~a:[a_class ["page-footer"]] [
+            footer;
+            txt (s_ "Powered by ");
+            a ~service:belenios_url [txt "Belenios"] ();
+            Belenios_version.(
+              Printf.ksprintf txt " %s (%s). " version build
+            );
+            a ~service:source_code [txt (s_ "Get the source code")] ();
+            txt ". ";
+            direct_a !Web_config.gdpr_uri (s_ "Privacy policy");
+            txt ". ";
+            administer;
+            txt ".";
+          ];
+        ];
+      ];
+    ])
+  )
+
 let lang_box l cont =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let langs = List.map (fun l -> Option ([], l, None, l = lang)) available_languages in
@@ -191,7 +268,7 @@ let generic_page ~title ?service message () =
     p [txt message];
     proceed;
   ] in
-  base ~title ~content ()
+  responsive_base ~title ~content ()
 
 let raw_textarea ?rows ?cols id contents =
   let id = [a_id id] in
@@ -219,7 +296,7 @@ let login_choose auth_systems service () =
       [txt (s_ "Please log in:"); txt " ["] @ auth_systems @ [txt "]"]
     )]
   ] in
-  base ~title:(s_ "Log in") ~content ()
+  responsive_base ~title:(s_ "Log in") ~content ()
 
 let login_dummy ~state =
   let title, field_name, input_type =
@@ -243,7 +320,7 @@ let login_dummy ~state =
   let content = [
     form;
   ] in
-  base ~title ~content ()
+  responsive_base ~title ~content ()
 
 let login_password ~service ~allowsignups ~state =
   let%lwt l = get_preferred_gettext () in
@@ -264,18 +341,18 @@ let login_password ~service ~allowsignups ~state =
     (fun (lstate, (llogin, lpassword)) ->
       [
         input ~input_type:`Hidden ~name:lstate ~value:state string;
-        tablex [tbody [
+        tablex ~a:[a_class ["authentication-table"]] [tbody [
           tr [
             th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [txt (s_ "Username:")]];
-            td [input ~input_type:`Text ~name:llogin string];
+            td [input ~a:[a_class ["nice-text-input"]] ~input_type:`Text ~name:llogin string];
           ];
           tr [
             th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name lpassword)] [txt (s_ "Password:")]];
-            td [input ~input_type:`Password ~name:lpassword string];
+            td [input ~a:[a_class ["nice-password-input"]] ~input_type:`Password ~name:lpassword string];
           ];
         ]];
-        div [
-          input ~input_type:`Submit ~value:(s_ "Login") string;
+        div ~a:[a_style "text-align: center;"] [
+          input ~a:[a_class ["nice-button nice-button--blue"]] ~input_type:`Submit ~value:(s_ "Login") string;
         ]
       ]) ()
   in
@@ -283,7 +360,7 @@ let login_password ~service ~allowsignups ~state =
     form;
     signup;
   ] in
-  base ~title:(s_ "Password login") ~content ()
+  responsive_base ~title:(s_ "Password login") ~content ()
 
 let login_failed ~service () =
   let%lwt l = get_preferred_gettext () in
@@ -299,4 +376,4 @@ let login_failed ~service () =
         ];
     ]
   in
-  base ~title ~content ()
+  responsive_base ~title ~content ()
