@@ -268,3 +268,23 @@ type mj_result = {
   invalid : mj_ballots;
   winners : int list list;
 } <ocaml field_prefix="mj_">
+
+(** {2 Single Transferable Vote} *)
+
+type stv_raw_ballots = int list <ocaml repr="array"> list <ocaml repr="array">
+type stv_processed_ballots = int list list
+
+type stv_event =
+  [ Win of int list
+  | Lose of int
+  | TieWin of int list
+  | TieLose of int list
+  ]
+type stv_events = stv_event list
+
+type stv_result = {
+  ballots : stv_processed_ballots;
+  invalid : stv_raw_ballots;
+  events : stv_events;
+  winners : int list;
+} <ocaml field_prefix="stv_">

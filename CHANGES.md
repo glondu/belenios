@@ -1,21 +1,24 @@
-dev
-===
+1.13 (2020-12-02)
+=================
 
+ * Update OCaml stack to 4.11.1
  * Handle mix of Single and Pedersen trustees thoughout codebase and
    specification
  * Add support to apply various counting methods to a set of ballots
    coming out of an non-homomorphic question, in the command-line tool
-   and the web server: Condorcet-Schulze and Majority Judgment
+   and the web server: Condorcet-Schulze, Majority Judgment and Single
+   Transferable Vote
  * Web server:
    + In threshold mode, add a mandatory server-owned key
    + Accept only ballots in canonical form
    + Do not allow change of trustee public key once one has been
      received
+   + Add Belenios-* headers to all sent e-mails
  * Translations:
    + Switch i18n to gettext and use Weblate
    + Add support for translating the admin interface
    + Add Norwegian Bokmål (nb), Spanish (es), Ukrainian (uk),
-     Czech (cs)
+     Czech (cs), Occitan (oc)
  * Tests:
    + Add monkey testing
  * Contributed scripts:

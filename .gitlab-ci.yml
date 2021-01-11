@@ -5,11 +5,10 @@ stages:
 build_and_test_with_preinstalled_image:
   stage: test
   # Image glondu/beleniosbase:YYYYMMDD-N is built by Dockerfile_base_environment
-  image: swergas/beleniosbase:20200917-1
+  image: glondu/beleniosbase:20201127-1
   script:
     # Initialize environment
     - source ~/env.sh
-    - opam install --yes gettext-camomile
     # Run command-line tool tests
     - make check
     # Compile belenios
@@ -45,11 +44,10 @@ build_and_test_with_debian_image:
 build_and_run_automated_test_scenarios_with_preinstalled_image:
   stage: test
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by Dockerfile_test_scenario_environment
-  image: swergas/beleniosbase-tests:20200917-1
+  image: glondu/beleniosbase-tests:20201127-1
   script:
     # Initialize environment
     - source ~/env.sh
-    - opam install --yes gettext-camomile
     # Compile belenios
     - make build-debug-tool
     - make build-release-server
@@ -75,13 +73,12 @@ build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_data
   rules:
     - changes:
         - VERSION
-  image: swergas/beleniosbase-tests:20200917-1
+  image: glondu/beleniosbase-tests:20201127-1
   variables:
     PREPARED_DATABASE_VERSION: v0.01
   script:
     # Initialize environment
     - source ~/env.sh
-    - opam install --yes gettext-camomile
     # Import prepared database
     - mkdir -p _run/spool
     - wget https://gitlab.inria.fr/belenios/belenios-prepared-database/-/archive/$PREPARED_DATABASE_VERSION/belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && tar -zxf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && mv belenios-prepared-database-$PREPARED_DATABASE_VERSION/* _run/spool && rm -rf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz belenios-prepared-database-$PREPARED_DATABASE_VERSION
@@ -110,7 +107,7 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
   rules:
     - changes:
         - VERSION
-  image: swergas/beleniosbase-tests:20200917-1
+  image: glondu/beleniosbase-tests:20201127-1
   variables:
     WAIT_TIME_BETWEEN_EACH_STEP: "0.02"
     USE_HEADLESS_BROWSER: "1"
@@ -123,7 +120,6 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
   script:
     # Initialize environment
     - source ~/env.sh
-    - opam install --yes gettext-camomile
     # Compile belenios
     - make build-debug-tool
     - make build-release-server

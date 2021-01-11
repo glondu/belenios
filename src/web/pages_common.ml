@@ -36,8 +36,11 @@ let direct_a uri text =
     [txt text]
 
 let static x =
-  let service = Eliom_service.static_dir () in
-  make_uri ~service ["static"; x]
+  let service =
+    Eliom_service.static_dir_with_params
+      ~get_params:(Eliom_parameter.string "version") ()
+  in
+  make_uri ~service (["static"; x], Belenios_version.build)
 
 let format_user ~site u =
   em [txt (if site then string_of_user u else u.user_name)]
@@ -200,8 +203,9 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
     ])
   )
 
-let lang_box l cont =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+let lang_box cont =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
   let langs = List.map (fun l -> Option ([], l, None, l = lang)) available_languages in
   let form =
     get_form ~service:set_language
@@ -215,7 +219,16 @@ let lang_box l cont =
         ]
       )
   in
-  div ~a:[a_class ["lang_box"]] [form]
+  return @@ div ~a:[a_class ["lang_box"]]
+    [
+      form;
+      div ~a:[a_style "font-size: 80%; font-style: italic; text-align: right;"]
+        [
+          txt "(";
+          direct_a "https://www.belenios.org/translation.html" (s_ "Wish to help with translations?");
+          txt ")";
+        ];
+    ]
 
 let make_button ~service ?hash ?style ~disabled contents =
   let uri = Eliom_uri.make_string_uri ~service () in

@@ -1,5 +1,5 @@
 # Docker image used as FROM has been generated from ./Dockerfile_base_environment
-FROM swergas/beleniosbase:20200917-1
+FROM glondu/beleniosbase:20201127-1
 
 USER root
 

@@ -38,15 +38,18 @@ val schulze : Question_nh_t.question -> schulze_result -> [> `Html ] Eliom_conte
 val majority_judgment_select : uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val majority_judgment : Question_nh_t.question -> mj_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
+val stv_select : uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val stv : Question_nh_t.question -> stv_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
 val generate_password :
   Web_serializable_t.metadata ->
   string list ->
   string -> uuid -> string -> string -> (string * string) Lwt.t
 
-val mail_credential :
-  (module Web_i18n_sig.GETTEXT) ->
-  string ->
-  bool -> login:string -> string -> string -> Web_serializable_t.metadata -> string
+val generate_mail_credential :
+  string list -> string ->
+  bool -> login:string -> string -> string ->
+  Web_serializable_t.metadata -> (string * string) Lwt.t
 
 val mail_confirmation :
   (module Web_i18n_sig.GETTEXT) ->

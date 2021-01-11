@@ -25,6 +25,7 @@ fi
 
 export BELENIOS_SYSROOT="${BELENIOS_SYSROOT:-$HOME/.belenios}"
 export OPAMROOT="$BELENIOS_SYSROOT/opam"
+export XDG_CACHE_HOME="$BELENIOS_SYSROOT/cache"
 
 if [ -e "$BELENIOS_SYSROOT" ]; then
     echo "$BELENIOS_SYSROOT already exists."
@@ -63,6 +64,7 @@ echo
 cat > $BELENIOS_SYSROOT/env.sh <<EOF
 PATH="$BELENIOS_SYSROOT/bootstrap/bin:\$PATH"; export PATH;
 OPAMROOT=$OPAMROOT; export OPAMROOT;
+XDG_CACHE_HOME=$XDG_CACHE_HOME; export XDG_CACHE_HOME;
 eval \$(opam env)
 EOF
 ln -sf $BELENIOS_SYSROOT/env.sh $BELENIOS_SRC/env.sh
@@ -73,9 +75,9 @@ echo
 cd "$BELENIOS_SYSROOT"
 git clone https://github.com/ocaml/opam-repository.git
 cd opam-repository
-git reset --hard c332c82dc33e39c4d23fd4c8179d953ac2fddcc6
+git reset --hard ea0d9f1d30e13bb1db009b79a39bbe7a95b0217e
 opam init --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
-opam switch create 4.08.1 ocaml-base-compiler.4.08.1
+opam switch create 4.11.1 ocaml-base-compiler.4.11.1 --jobs=1
 eval $(opam env)
 
 echo

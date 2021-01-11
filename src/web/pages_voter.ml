@@ -109,6 +109,8 @@ let format_question_result uuid l (i, q) r =
              a ~service:method_schulze [txt "Condorcet-Schulze"] (uuid, i);
              txt ", ";
              a ~service:method_mj [txt (s_ "Majority Judgment")] (uuid, (i, None));
+             txt ", ";
+             a ~service:method_stv [txt (s_ "Single Transferable Vote")] (uuid, (i, None));
              txt ".";
            ];
        ]
@@ -259,21 +261,15 @@ let election_home election state () =
   let div_admin =
     div [
         Printf.ksprintf txt
-          "This election is administered by %s."
+          (f_ "This election is administered by %s.")
           (Option.get params.e_administrator "N/A");
       ]
   in
   let div_voters =
     div [
-        txt "The ";
-        b [txt "voter list"];
-        txt " has ";
-        txt (string_of_int cache.cache_num_voters);
-        txt " voter(s) and ";
-        b [txt "fingerprint"];
-        txt " ";
-        txt cache.cache_voters_hash;
-        txt ".";
+        Printf.ksprintf txt
+          (f_ "The voter list has %d voter(s) and fingerprint %s.")
+          cache.cache_num_voters cache.cache_voters_hash;
       ]
   in
   let format_tc id xs =
@@ -290,9 +286,7 @@ let election_home election state () =
     | [] -> txt ""
     | l ->
        div [
-           txt "All of the following trustees (";
-           b [txt "verification keys"];
-           txt ") are needed to decrypt the result:";
+           txt (s_ "All of the following trustees (verification keys) are needed to decrypt the result:");
            format_tc "trustees" l;
          ]
   in
@@ -315,12 +309,9 @@ let election_home election state () =
        List.map
          (fun x ->
            div [
-               Printf.ksprintf txt "%d of the following %d trustees ("
+               Printf.ksprintf txt
+                 (f_ "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:")
                  x.ts_threshold (List.length x.ts_trustees);
-               b [txt "verification keys"];
-               txt ") [";
-               b [txt "public keys"];
-               txt "] are needed to decrypt the election result:";
                format_ttc "trustees_threshold" x.ts_trustees;
              ]
          ) l
@@ -329,7 +320,7 @@ let election_home election state () =
   let div_credentials =
     div [
         Printf.ksprintf txt
-          "Credentials were generated and sent by %s and have fingerprint %s."
+          (f_ "Credentials were generated and sent by %s and have fingerprint %s.")
           (Option.get params.e_credential_authority "N/A")
           checksums.ec_public_credentials;
       ]
@@ -339,7 +330,7 @@ let election_home election state () =
     | None -> txt ""
     | Some xs ->
        div [
-           txt "Trustees shuffled the ballots in the following order:";
+           txt (s_ "Trustees shuffled the ballots in the following order:");
            format_tc "shuffles" xs;
          ]
   in
@@ -349,7 +340,7 @@ let election_home election state () =
     | Some x ->
        div [
            Printf.ksprintf txt
-             "The fingerprint of the encrypted tally is %s."
+             (f_ "The fingerprint of the encrypted tally is %s.")
              x
          ]
   in
@@ -373,7 +364,7 @@ let election_home election state () =
     br ();
     div_audit;
   ] in
-  let lang_box = lang_box l (ContSiteElection uuid) in
+  let%lwt lang_box = lang_box (ContSiteElection uuid) in
   responsive_base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
 
 let cast_raw election () =
@@ -802,7 +793,7 @@ let booth () =
 let schulze q r =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
-  let title = s_ "Schulze method" in
+  let title = s_ "Condorcet-Schulze method" in
   let explicit_winners =
     List.map
       (List.map
@@ -822,8 +813,21 @@ let schulze q r =
           ]
       ) explicit_winners
   in
+  let explanation =
+    div
+      [
+        txt (s_ "A Condorcet winner is a candidate that is preferred over all the other candidates.");
+        txt " ";
+        txt (s_ "Several techniques exist to decide which candidate to elect when there is no Condorcet winner.");
+        txt " ";
+        txt (s_ "We use here the Schulze method and we refer voters to ");
+        direct_a "https://en.wikipedia.org/wiki/Condorcet_method#Schulze_method" (s_ "the Wikipedia page");
+        txt (s_ " for more information.");
+      ]
+  in
   let content =
     [
+      explanation;
       txt (s_ "The Schulze winners are:");
       ol pretty_winners;
     ]
@@ -846,7 +850,38 @@ let majority_judgment_select uuid question =
          ]
       )
   in
-  let content = [form] in
+  let explanation =
+    div
+      [
+         txt (s_ "In the context of Majority Judgment, a vote gives a grade to each candidate.");
+         txt " ";
+         txt (s_ "1 is the highest grade, 2 is the second highest grade, etc.");
+         txt " ";
+         txt (s_ "As a convenience, 0 is always interpreted as the lowest grade.");
+         txt " ";
+         txt (s_ "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.).");
+         txt " ";
+         txt (s_ "More information can be found ");
+         direct_a "https://en.wikipedia.org/wiki/Majority_judgment" (s_ "here");
+         txt "."
+      ]
+  in
+  let explanation_grades =
+    div
+      [
+        txt (s_ "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7.");
+        txt " ";
+        txt (s_ "Please provide the number of grades to see the result of the election according to the Majority Judgment method.");
+      ]
+  in
+  let content =
+    [
+      explanation;
+      br ();
+      explanation_grades;
+      form;
+    ]
+  in
   responsive_base ~title ~content ()
 
 let majority_judgment q r =
@@ -874,12 +909,131 @@ let majority_judgment q r =
   in
   let invalid = "data:application/json," ^ string_of_mj_ballots r.mj_invalid in
   let invalid = direct_a invalid (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.mj_invalid)) in
+  let invalid =
+    div
+      [
+        invalid;
+        txt ". ";
+        txt (s_ "A ballot is invalid if a voter has entered a number that is greater than the number of grades.");
+      ]
+  in
   let content =
     [
       div [
           txt (s_ "The Majority Judgment winners are:");
           ol pretty_winners;
         ];
+      invalid;
+    ]
+  in
+  base ~title ~content ()
+
+let stv_select uuid question =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Single Transferable Vote method" in
+  let form =
+    get_form ~service:method_stv
+      (fun (uuidn, (questionn, nseatsn)) -> [
+           input ~input_type:`Hidden ~name:uuidn ~value:uuid (user raw_string_of_uuid);
+           input ~input_type:`Hidden ~name:questionn ~value:question int;
+           txt (s_ "Number of seats:");
+           txt " ";
+           input ~input_type:`Text ~name:nseatsn int;
+           input ~input_type:`Submit ~value:(s_ "Continue") string;
+         ]
+      )
+  in
+  let explanation =
+    div
+      [
+        txt (s_ "In the context of STV, voters rank candidates by order of preference.");
+        txt " ";
+        txt (s_ "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes.");
+        txt " ";
+        txt (s_ "More information can be found ");
+        direct_a "https://en.wikipedia.org/wiki/Single_transferable_vote" (s_ "here");
+        txt ". ";
+        txt (s_ "Many variants of STV exist, we documented our choices in ");
+        direct_a "https://gitlab.inria.fr/belenios/belenios/-/blob/master/src/lib/stv.ml" (s_ "our code of STV");
+        txt ".";
+      ]
+  in
+  let explanation_nseats =
+    div
+      [
+        txt (s_ "Please provide the number of seats to see the result of the election according to the Single Transferable Vote method.");
+      ]
+  in
+  let content =
+    [
+      explanation;
+      br ();
+      explanation_nseats;
+      form;
+    ]
+  in
+  base ~title ~content ()
+
+let stv q r =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let title = s_ "Single Transferable Vote method" in
+  let winners =
+    r.stv_winners
+    |> List.map (fun i -> q.Question_nh_t.q_answers.(i))
+    |> List.map (fun l -> li [txt l])
+  in
+  let invalid =
+    r.stv_invalid
+    |> string_of_mj_ballots
+    |> (fun x -> "data:application/json," ^ x)
+    |> (fun x -> direct_a x (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.stv_invalid)))
+    |> (fun x ->
+      div
+        [
+          x;
+          txt ". ";
+          txt (s_ "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing.");
+        ]
+    )
+  in
+  let events =
+    r.stv_events
+    |> string_of_stv_events
+    |> (fun x -> "data:application/json," ^ x)
+    |> (fun x -> direct_a x (s_ "Raw events"))
+  in
+  let tie =
+    if
+      List.exists
+        (function
+         | `TieWin _ | `TieLose _ -> true
+         | _ -> false
+        ) r.stv_events
+    then (
+      div
+        [
+          txt (s_ "There has been at least one tie.");
+          txt " ";
+          txt (s_ "Many variants of STV exist, depending for example on how to break ties.");
+          txt " ";
+          txt (s_ "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election.");
+          txt " ";
+          txt (s_ "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost.");
+          txt " ";
+          txt (s_ "Look at the raw events for more details.");
+        ]
+    ) else txt ""
+  in
+  let content =
+    [
+      div [
+          txt (s_ "The Single Transferable Vote winners are:");
+          ul winners;
+        ];
+      tie;
+      div [events];
       div [invalid];
     ]
   in
@@ -969,6 +1123,23 @@ let mail_credential l title cas ~login cred url metadata =
   add_sentence b (s_ "Only the last vote counts.");
   contact_footer l metadata b;
   contents b
+
+let generate_mail_credential langs title cas ~login cred url metadata =
+  let%lwt bodies =
+    Lwt_list.map_s
+      (fun lang ->
+        let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
+        return (mail_credential l title cas ~login cred url metadata)
+      ) langs
+  in
+  let body = String.concat "\n\n----------\n\n" bodies in
+  let body = body ^ "\n\n-- \nBelenios" in
+  let%lwt subject =
+    let%lwt l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
+    let open (val l) in
+    Printf.ksprintf return (f_ "Your credential for election %s") title
+  in
+  return (subject, body)
 
 let mail_confirmation l user title hash revote url1 url2 metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in

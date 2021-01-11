@@ -185,7 +185,7 @@ let admin ~elections () =
       ];
     ] in
     let%lwt login_box = login_box () in
-    let lang_box = lang_box l ContSiteAdmin in
+    let%lwt lang_box = lang_box ContSiteAdmin in
     base ~lang_box ~title ~login_box ~content ()
 
 let new_election_failure reason () =
