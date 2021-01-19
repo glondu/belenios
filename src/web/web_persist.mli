@@ -62,7 +62,7 @@ val get_private_keys : uuid -> string list option Lwt.t
 val get_trustees : uuid -> string Lwt.t
 val convert_trustees : unit -> unit Lwt.t
 
-val get_ballot_hashes : uuid -> string list Lwt.t
+val get_ballot_hashes : uuid -> (string * int) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 val get_ballot_weight : string -> int Lwt.t
 

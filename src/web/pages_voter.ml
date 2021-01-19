@@ -626,18 +626,24 @@ let pretty_ballots election hashes result () =
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
+  let%lwt audit_cache = Web_persist.get_audit_cache uuid in
+  let show_weights =
+    match audit_cache.cache_total_weight with
+    | Some x when x <> audit_cache.cache_num_voters -> true
+    | _ -> false
+  in
   let title = params.e_name ^ " — " ^ s_ "Accepted ballots" in
   let nballots = ref 0 in
-  let hashes = List.sort compare_b64 hashes in
+  let hashes = List.sort (fun (a, _) (b, _) -> compare_b64 a b) hashes in
   let ballots =
     List.map
-      (fun h ->
+      (fun (h, w) ->
        incr nballots;
        li
-         [a
-            ~service:election_pretty_ballot
-            [txt h]
-            ((uuid, ()), h)]
+         [
+           a ~service:election_pretty_ballot [txt h] ((uuid, ()), h);
+           (if show_weights then Printf.ksprintf txt " (%d)" w else txt "");
+         ]
       ) hashes
   in
   let links =

@@ -289,52 +289,6 @@ let convert_trustees () =
 
 module StringMap = Map.Make (String)
 
-module BallotsCacheTypes = struct
-  type key = uuid
-  type value = string StringMap.t
-end
-
-module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
-
-let raw_get_ballots_archived uuid =
-  match%lwt read_file ~uuid "ballots.jsons" with
-  | Some bs ->
-     return (
-         List.fold_left (fun accu b ->
-             let hash = sha256_b64 b in
-             StringMap.add hash b accu
-           ) StringMap.empty bs
-       )
-  | None -> return StringMap.empty
-
-let archived_ballots_cache =
-  new BallotsCache.cache raw_get_ballots_archived ~timer:3600. 10
-
-let get_ballot_hashes uuid =
-  match%lwt get_election_state uuid with
-  | `Archived ->
-     let%lwt ballots = archived_ballots_cache#find uuid in
-     StringMap.bindings ballots |> List.map fst |> return
-  | _ ->
-     let uuid_s = raw_string_of_uuid uuid in
-     match%lwt Lwt_unix.files_of_directory (!Web_config.spool_dir / uuid_s / "ballots") |> Lwt_stream.to_list with
-     | ballots ->
-        let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
-        return (List.rev_map unurlize ballots)
-     | exception Unix.Unix_error(Unix.ENOENT, "opendir", _) ->
-        return []
-
-let get_ballot_by_hash uuid hash =
-  match%lwt get_election_state uuid with
-  | `Archived ->
-     let%lwt ballots = archived_ballots_cache#find uuid in
-     return (StringMap.find_opt hash ballots)
-  | _ ->
-     let%lwt ballot = read_file ~uuid ("ballots" / urlize hash) in
-     match ballot with
-     | Some [x] -> return_some x
-     | _ -> return_none
-
 module CredWeightsCacheTypes = struct
   type key = uuid
   type value = int StringMap.t
@@ -387,6 +341,74 @@ let get_ballot_weight ballot =
       "anomaly in get_ballot_weight (%s)"
        (Printexc.to_string e)
 
+module BallotsCacheTypes = struct
+  type key = uuid
+  type value = (string * int) StringMap.t
+end
+
+module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
+
+let raw_get_ballots_archived uuid =
+  match%lwt read_file ~uuid "ballots.jsons" with
+  | Some bs ->
+     Lwt_list.fold_left_s (fun accu b ->
+         let hash = sha256_b64 b in
+         let%lwt weight = get_ballot_weight b in
+         return (StringMap.add hash (b, weight) accu)
+       ) StringMap.empty bs
+  | None -> return StringMap.empty
+
+let archived_ballots_cache =
+  new BallotsCache.cache raw_get_ballots_archived ~timer:3600. 10
+
+let get_ballots_index uuid =
+  let%lwt index = read_file ~uuid "ballots_index.json" in
+  match index with
+  | None ->
+     let uuid_s = raw_string_of_uuid uuid in
+     let dir = !Web_config.spool_dir / uuid_s / "ballots" in
+     (match%lwt Lwt_unix.files_of_directory dir |> Lwt_stream.to_list with
+      | ballots ->
+         let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
+         return (List.rev_map (fun h -> unurlize h, 1) ballots)
+      | exception Unix.Unix_error(Unix.ENOENT, "opendir", _) ->
+         return []
+     )
+  | Some [index] ->
+     let index =
+       match Yojson.Safe.from_string index with
+       | `Assoc index ->
+          List.map
+            (function
+             | (hash, `Int weight) -> hash, weight
+             | _ -> failwith "anomaly in get_ballots_index (int expected)"
+            ) index
+       | _ -> failwith "anomaly in get_ballots_index (assoc expected)"
+     in
+     return index
+  | _ -> failwith "anomaly in get_ballots_index (invalid ballots_index.json)"
+
+let get_ballot_hashes uuid =
+  match%lwt get_election_state uuid with
+  | `Archived ->
+     let%lwt ballots = archived_ballots_cache#find uuid in
+     StringMap.bindings ballots |> List.map (fun (h, (_, w)) -> h, w) |> return
+  | _ -> get_ballots_index uuid
+
+let get_ballot_by_hash uuid hash =
+  match%lwt get_election_state uuid with
+  | `Archived ->
+     let%lwt ballots = archived_ballots_cache#find uuid in
+     (match StringMap.find_opt hash ballots with
+      | Some (b, _) -> return_some b
+      | None -> return_none
+     )
+  | _ ->
+     let%lwt ballot = read_file ~uuid ("ballots" / urlize hash) in
+     match ballot with
+     | Some [x] -> return_some x
+     | _ -> return_none
+
 let load_ballots uuid =
   let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
   if%lwt Lwt_unix.file_exists ballots_dir then (
@@ -401,6 +423,15 @@ let load_ballots uuid =
 
 let dump_ballots uuid =
   let%lwt ballots = load_ballots uuid in
+  let%lwt index =
+    Lwt_list.map_s
+      (fun b ->
+        let%lwt w = get_ballot_weight b in
+        return (sha256_b64 b, `Int w)
+      ) ballots
+  in
+  let index = Yojson.Safe.to_string (`Assoc index) in
+  let%lwt () = write_file ~uuid "ballots_index.json" [index] in
   write_file ~uuid "ballots.jsons" ballots
 
 let add_ballot uuid ballot =
