@@ -287,6 +287,21 @@ let election_home election state () =
           cache.cache_num_voters cache.cache_voters_hash;
       ]
   in
+  let show_weights =
+    match cache.cache_total_weight with
+    | Some x when x <> cache.cache_num_voters -> true
+    | _ -> false
+  in
+  let div_show_weights =
+    if show_weights then
+      div [
+          b [
+              txt (s_ "This election uses weights!");
+            ];
+          br ();
+        ]
+    else txt ""
+  in
   let div_total_weight =
     match cache.cache_total_weight with
     | Some w ->
@@ -386,6 +401,7 @@ let election_home election state () =
     cookie_disclaimer;
     p state_;
     br ();
+    div_show_weights;
     middle;
     br ();
     ballots_link;
