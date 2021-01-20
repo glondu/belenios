@@ -1,9 +1,6 @@
 @import url('style.css');
 @import url('superfish.css');
 
-#page-title-home {
-    height:223px;
-}
 ol {
     list-style: decimal;
 }

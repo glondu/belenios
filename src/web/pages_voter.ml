@@ -450,25 +450,56 @@ let cast_confirmation election hash () =
        else
          return @@ txt ""
   in
-  let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-    txt (s_ "Input credential");
-    txt " — ";
-    txt (s_ "Answer to questions");
-    txt " — ";
-    txt (s_ "Review and encrypt");
-    txt " — ";
-    txt (s_ "Authenticate");
-    txt " — ";
-    b [txt (s_ "Confirm")];
-    txt " — ";
-    txt (s_ "Done");
-    hr ();
+  let progress_responsive = div ~a:[a_class ["breadcrumb"]] [
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Input credential");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Input credential")] [
+        txt (s_ "Step 1");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Answer to questions");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Answer to questions")] [
+        txt (s_ "Step 2");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Review and encrypt");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Review and encrypt")] [
+        txt (s_ "Step 3");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Authenticate");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Authenticate")] [
+        txt (s_ "Step 4");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step breadcrumb__step--current"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Confirm");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Confirm")] [
+        txt (s_ "Step 5");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
   ] in
   let content = [
-    progress;
-    div ~a:[a_class ["current_step"]] [
-        txt (s_ "Step 5/6: Confirm");
-    ];
+    progress_responsive;
     p [
       txt (s_ "Your ballot for ");
       em [txt name];
