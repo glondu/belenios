@@ -508,6 +508,23 @@ let cast_confirmation election hash () =
     txt (s_ "Done");
     hr ();
   ] in
+  let%lwt div_weight =
+    let%lwt audit_cache = Web_persist.get_audit_cache uuid in
+    match audit_cache.cache_total_weight with
+    | Some x when x <> audit_cache.cache_num_voters ->
+       (match%lwt Eliom_reference.get Web_state.ballot with
+        | Some ballot ->
+           (match%lwt Web_persist.get_ballot_weight ballot with
+            | weight ->
+               return @@ div [
+                             txt (Printf.sprintf (f_ "Your weight is %d.") weight);
+                           ]
+            | exception _ -> return @@ txt ""
+           )
+        | None -> return @@ txt ""
+       )
+    | _ -> return @@ txt ""
+  in
   let content = [
     progress;
     div ~a:[a_class ["current_step"]] [
@@ -524,6 +541,7 @@ let cast_confirmation election hash () =
       txt ".";
       br ();
     ];
+    div_weight;
     br ();
     p [txt (s_ "Note: your ballot is encrypted and nobody can see its contents.")];
     div_revote;
