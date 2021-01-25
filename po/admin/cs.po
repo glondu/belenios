@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2021-01-23 02:32+0000\n"
+"PO-Revision-Date: 2021-01-26 17:32+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/admin/cs/>"
 "\n"
@@ -221,7 +221,7 @@ msgstr ""
 
 #: src/tool/tool_js_questions.ml:292
 msgid "Alternative (voters assign a number to each candidate)"
-msgstr "Alternativní (voliči muží každému kandidátovi přiřadit číslo)"
+msgstr "Alternativní (voliči každému kandidátovi přiřadí číslo)"
 
 #: src/web/pages_admin.ml:1177
 msgid "Alternative voting methods (warning, still experimental):"
@@ -2046,8 +2046,9 @@ msgstr "můžež svůj klíč uložit na flashdisk a ten uložit v sejfu;"
 #: src/web/pages_admin.ml:1190
 msgid "you will be given the raw results (shuffled list of ballots) and you will need to apply your counting method yourself."
 msgstr ""
-"dostanete neupravené výsledky (zamíchaný seznam volebních lístků) a sečtení "
-"hlasů dle vámi preferované metody budete muset zajistit sami."
+"jako pořadatelé dostanete neupravené výsledky (zamíchaný seznam volebních "
+"lístků) a sečtení hlasů dle vámi preferované metody budete muset zajistit "
+"sami."
 
 #: src/web/pages_admin.ml:640
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
