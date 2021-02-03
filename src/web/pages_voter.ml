@@ -212,6 +212,20 @@ let election_home election state () =
     match result with
     | Some r when hidden = None || is_admin ->
        let result = Shape.to_shape_array r.result in
+       let%lwt hashes = Web_persist.get_ballot_hashes uuid in
+       let nballots = List.length hashes in
+       let div_total_weight =
+         if r.num_tallied > nballots then (
+           div [
+               txt (s_ "Total weight of accepted ballots:");
+               txt " ";
+               txt (string_of_int r.num_tallied);
+             ]
+         ) else (
+           assert (r.num_tallied = nballots);
+           txt ""
+         )
+       in
        return @@ div [
          ul (
              Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) election.e_params.e_questions) result
@@ -219,8 +233,9 @@ let election_home election state () =
            );
          div [
            txt (s_ "Number of accepted ballots: ");
-           txt (string_of_int r.num_tallied);
+           txt (string_of_int nballots);
          ];
+         div_total_weight;
          div [
            txt (s_ "You can also download the ");
            a ~service:election_dir
@@ -271,6 +286,31 @@ let election_home election state () =
           (f_ "The voter list has %d voter(s) and fingerprint %s.")
           cache.cache_num_voters cache.cache_voters_hash;
       ]
+  in
+  let show_weights =
+    match cache.cache_total_weight with
+    | Some x when x <> cache.cache_num_voters -> true
+    | _ -> false
+  in
+  let div_show_weights =
+    if show_weights then
+      div [
+          b [
+              txt (s_ "This election uses weights!");
+            ];
+          br ();
+        ]
+    else txt ""
+  in
+  let div_total_weight =
+    match cache.cache_total_weight, cache.cache_min_weight, cache.cache_max_weight with
+    | Some w, Some min, Some max ->
+       div [
+           Printf.ksprintf txt
+             (f_ "The total weight is %d (min: %d, max: %d).")
+             w min max;
+         ]
+    | _ -> txt ""
   in
   let format_tc id xs =
     ul ~a:[a_id id] (
@@ -348,6 +388,7 @@ let election_home election state () =
     div ~a:[a_class ["hybrid_box"]] [
       div_admin;
       div_voters;
+      div_total_weight;
       div_trustees;
       div_credentials;
       div_shuffles;
@@ -358,6 +399,7 @@ let election_home election state () =
     cookie_disclaimer;
     p state_;
     br ();
+    div_show_weights;
     middle;
     br ();
     ballots_link;
@@ -464,6 +506,23 @@ let cast_confirmation election hash () =
     txt (s_ "Done");
     hr ();
   ] in
+  let%lwt div_weight =
+    let%lwt audit_cache = Web_persist.get_audit_cache uuid in
+    match audit_cache.cache_total_weight with
+    | Some x when x <> audit_cache.cache_num_voters ->
+       (match%lwt Eliom_reference.get Web_state.ballot with
+        | Some ballot ->
+           (match%lwt Web_persist.get_ballot_weight ballot with
+            | weight ->
+               return @@ div [
+                             txt (Printf.sprintf (f_ "Your weight is %d.") weight);
+                           ]
+            | exception _ -> return @@ txt ""
+           )
+        | None -> return @@ txt ""
+       )
+    | _ -> return @@ txt ""
+  in
   let content = [
     progress;
     div ~a:[a_class ["current_step"]] [
@@ -480,6 +539,7 @@ let cast_confirmation election hash () =
       txt ".";
       br ();
     ];
+    div_weight;
     br ();
     p [txt (s_ "Note: your ballot is encrypted and nobody can see its contents.")];
     div_revote;
@@ -547,9 +607,18 @@ let cast_confirmed election ~result () =
   ] in
   let result, step_title =
     match result with
-    | Ok hash ->
+    | Ok (hash, weight) ->
+       let your_weight_is =
+         if weight > 1 then
+           span [
+               txt (Printf.sprintf (f_ "Your weight is %d.") weight);
+               txt " ";
+             ]
+         else txt ""
+       in
        [txt (s_ " has been accepted.");
         txt " ";
+        your_weight_is;
         txt (s_ "Your smart ballot tracker is ");
         b ~a:[a_id "ballot_tracker"] [
           txt hash
@@ -589,18 +658,24 @@ let pretty_ballots election hashes result () =
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
+  let%lwt audit_cache = Web_persist.get_audit_cache uuid in
+  let show_weights =
+    match audit_cache.cache_total_weight with
+    | Some x when x <> audit_cache.cache_num_voters -> true
+    | _ -> false
+  in
   let title = params.e_name ^ " — " ^ s_ "Accepted ballots" in
   let nballots = ref 0 in
-  let hashes = List.sort compare_b64 hashes in
+  let hashes = List.sort (fun (a, _) (b, _) -> compare_b64 a b) hashes in
   let ballots =
     List.map
-      (fun h ->
+      (fun (h, w) ->
        incr nballots;
        li
-         [a
-            ~service:election_pretty_ballot
-            [txt h]
-            ((uuid, ()), h)]
+         [
+           a ~service:election_pretty_ballot [txt h] ((uuid, ()), h);
+           (if show_weights then Printf.ksprintf txt " (%d)" w else txt "");
+         ]
       ) hashes
   in
   let links =
@@ -1053,7 +1128,7 @@ let contact_footer l metadata =
      add_string b "  ";
      add_string b x
 
-let mail_password l title login password url metadata =
+let mail_password l title login password weight url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1070,6 +1145,11 @@ let mail_password l title login password url metadata =
   add_newline b;
   add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Password:"); add_string b " "; add_string b password; add_newline b;
+  (match weight with
+   | Some weight ->
+      add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+   | None -> ()
+  );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;
   add_sentence b (s_ "Note that you are allowed to vote several times.");
@@ -1079,14 +1159,15 @@ let mail_password l title login password url metadata =
 
 open Belenios_platform.Platform
 
-let generate_password metadata langs title uuid url id =
-  let recipient, login = split_identity id in
+let generate_password metadata langs title uuid url id show_weight =
+  let recipient, login, weight = split_identity id in
+  let weight = if show_weight then Some weight else None in
   let%lwt salt = generate_token () in
   let%lwt password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
   let%lwt bodies = Lwt_list.map_s (fun lang ->
     let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
-    return (mail_password l title login password url metadata)
+    return (mail_password l title login password weight url metadata)
   ) langs in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
@@ -1098,7 +1179,7 @@ let generate_password metadata langs title uuid url id =
   let%lwt () = send_email (MailPassword uuid) ~recipient ~subject ~body in
   return (salt, hashed)
 
-let mail_credential l title cas ~login cred url metadata =
+let mail_credential l title cas ~login cred weight url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1117,6 +1198,11 @@ let mail_credential l title cas ~login cred url metadata =
   add_newline b;
   add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Credential:"); add_string b " "; add_string b cred; add_newline b;
+  (match weight with
+   | Some weight ->
+      add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+   | None -> ()
+  );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;
   add_sentence b (s_ "Note that you are allowed to vote several times.");
@@ -1124,12 +1210,12 @@ let mail_credential l title cas ~login cred url metadata =
   contact_footer l metadata b;
   contents b
 
-let generate_mail_credential langs title cas ~login cred url metadata =
+let generate_mail_credential langs title cas ~login cred weight url metadata =
   let%lwt bodies =
     Lwt_list.map_s
       (fun lang ->
         let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
-        return (mail_credential l title cas ~login cred url metadata)
+        return (mail_credential l title cas ~login cred weight url metadata)
       ) langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
@@ -1141,7 +1227,7 @@ let generate_mail_credential langs title cas ~login cred url metadata =
   in
   return (subject, body)
 
-let mail_confirmation l user title hash revote url1 url2 metadata =
+let mail_confirmation l user title weight hash revote url1 url2 metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1152,6 +1238,11 @@ let mail_confirmation l user title hash revote url1 url2 metadata =
   add_string b "  "; add_string b title; add_newline b;
   add_newline b;
   add_sentence b (s_ "has been recorded.");
+  (match weight with
+   | Some weight ->
+      add_sentence b (Printf.sprintf (f_ "Your weight is %d.") weight)
+   | None -> ()
+  );
   add_sentence b (s_ "Your smart ballot tracker is"); add_newline b;
   add_newline b;
   add_string b "  "; add_string b hash; add_newline b;

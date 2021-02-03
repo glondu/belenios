@@ -30,7 +30,14 @@ uuid="--uuid $UUID"
 group="--group $BELENIOS/files/groups/default.json"
 
 # Generate credentials
-belenios-tool credgen $uuid $group --count 5
+cat > voters.txt <<EOF
+voter1,1000
+voter2,2000
+voter3,3000
+voter4,4000
+voter5,90000
+EOF
+belenios-tool credgen $uuid $group --file voters.txt
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
@@ -93,6 +100,23 @@ belenios-tool validate
 header "Perform final verification"
 
 belenios-tool verify
+
+header "Check result"
+
+cat > result.reference <<EOF
+[[7000,3000],[5000,92000,3000]]
+EOF
+
+if command -v jq > /dev/null; then
+    if diff -u result.reference <(jq --compact-output '.result' < result.json); then
+        echo "Result is correct!"
+    else
+        echo "Result is incorrect!"
+        exit 1
+    fi
+else
+    echo "Could not find jq command, test skipped!"
+fi
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

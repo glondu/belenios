@@ -33,3 +33,7 @@ val check : string -> bool
 module MakeDerive (G : GROUP) : sig
   val derive : uuid -> string -> Z.t
 end
+
+module MakeParsePublicCredential (G : GROUP) : sig
+  val parse_public_credential : string -> (int * G.t) option
+end

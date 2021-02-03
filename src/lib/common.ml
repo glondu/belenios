@@ -246,3 +246,10 @@ module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
     in
     loop 0
 end
+
+let extract_weight str =
+  try
+    let i = String.rindex str ',' in
+    let w = int_of_string (String.sub str (i + 1) (String.length str - i - 1)) in
+    if w > 0 then String.sub str 0 i, w else raise Exit
+  with _ -> str, 1

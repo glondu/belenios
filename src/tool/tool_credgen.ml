@@ -53,7 +53,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   module CG = Credential.MakeGenerate (DirectRandom)
   module CD = Credential.MakeDerive (G)
 
-  module CredSet = Set.Make (G)
+  module CredSet = Map.Make (G)
 
   let derive_in_group x =
     let x = CD.derive uuid x in
@@ -63,14 +63,22 @@ module Make (P : PARSED_PARAMS) : S = struct
     G.to_string (derive_in_group x)
 
   let generate ids =
+    let implicit_weights = ref true in
     let privs, pubs =
       List.fold_left
-        (fun (privs, pubs) _ ->
+        (fun (privs, pubs) id ->
+          let _, weight = extract_weight id in
+          if weight <> 1 then implicit_weights := false;
           let priv = CG.generate () in
-          priv::privs, CredSet.add (derive_in_group priv) pubs
+          priv :: privs,
+          CredSet.add (derive_in_group priv) weight pubs
         ) ([], CredSet.empty) ids
     in
-    List.rev privs, (CredSet.elements pubs |> List.map G.to_string)
+    let serialize (e, w) =
+      G.to_string e
+      ^ (if !implicit_weights then "" else Printf.sprintf ",%d" w)
+    in
+    List.rev privs, (CredSet.bindings pubs |> List.map serialize)
 
 end
 

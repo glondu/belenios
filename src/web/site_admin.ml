@@ -199,7 +199,7 @@ let validate_election uuid se =
     | Some [{auth_system = "password"; _}] ->
        let db =
          List.filter_map (fun v ->
-             let _, login = split_identity v.sv_id in
+             let _, login, _ = split_identity v.sv_id in
              match v.sv_password with
              | Some (salt, hashed) -> Some [login; salt; hashed]
              | None -> None
@@ -221,6 +221,7 @@ let delete_sensitive_data uuid =
   let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "extended_records.jsons") in
   let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "credential_mappings.jsons") in
   let%lwt () = rmdir (!Web_config.spool_dir / uuid_s / "ballots") in
+  let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "ballots_index.json") in
   let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_key.json") in
   let%lwt () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_keys.jsons") in
   return_unit
@@ -657,12 +658,22 @@ let handle_password se uuid ~force voters =
     (uuid, ()) |> rewrite_prefix
   in
   let langs = get_languages se.se_metadata.e_languages in
+  let show_weight =
+    List.exists
+      (fun id ->
+        let _, _, weight = split_identity id.sv_id in
+        weight <> 1
+      ) voters
+  in
   let%lwt () =
     Lwt_list.iter_s (fun id ->
         match id.sv_password with
         | Some _ when not force -> return_unit
         | None | Some _ ->
-           let%lwt x = Pages_voter.generate_password se.se_metadata langs title uuid url id.sv_id in
+           let%lwt x =
+             Pages_voter.generate_password se.se_metadata langs title uuid
+               url id.sv_id show_weight
+           in
            return (id.sv_password <- Some x)
       ) voters
   in
@@ -690,9 +701,17 @@ let find_user_id uuid user =
   let rec loop = function
     | [] -> None
     | id :: xs ->
-       let _, login = split_identity id in
+       let _, login, _ = split_identity id in
        if login = user then Some id else loop xs
-  in return (loop db)
+  in
+  let show_weight =
+    List.exists
+      (fun x ->
+        let _, _, weight = split_identity x in
+        weight <> 1
+      ) db
+  in
+  return (loop db, show_weight)
 
 let load_password_db uuid =
   let uuid_s = raw_string_of_uuid uuid in
@@ -724,16 +743,19 @@ let () =
             in
             let service = preapply ~service:election_admin uuid in
             match%lwt find_user_id uuid user with
-            | Some id ->
+            | Some id, show_weight ->
                let langs = get_languages metadata.e_languages in
                let%lwt db = load_password_db uuid in
-               let%lwt x = Pages_voter.generate_password metadata langs title uuid url id in
+               let%lwt x =
+                 Pages_voter.generate_password metadata langs title uuid
+                   url id show_weight
+               in
                let db = replace_password user x db in
                let%lwt () = dump_passwords uuid db in
                Pages_common.generic_page ~title:(s_ "Success") ~service
                  (Printf.sprintf (f_ "A new password has been mailed to %s.") id) ()
                >>= Html.send
-            | None ->
+            | None, _ ->
                Pages_common.generic_page ~title:(s_ "Error") ~service
                  (Printf.sprintf (f_ "%s is not a registered user for this election.") user) ()
                >>= Html.send
@@ -799,7 +821,7 @@ let () =
 (* see http://www.regular-expressions.info/email.html *)
 let identity_rex = Pcre.regexp
   ~flags:[`CASELESS]
-  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}(,[A-Z0-9._%+-]+)?$"
+  "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}(,[A-Z0-9._%+-]*(,[1-9][0-9]*)?)?$"
 
 let is_identity x =
   match pcre_exec_opt ~rex:identity_rex x with
@@ -807,16 +829,27 @@ let is_identity x =
   | None -> false
 
 let merge_voters a b f =
-  let existing = List.fold_left (fun accu sv ->
-    SSet.add sv.sv_id accu
-  ) SSet.empty a in
-  let _, res = List.fold_left (fun (existing, accu) sv_id ->
-    if SSet.mem sv_id existing then
-      (existing, accu)
-    else
-      (SSet.add sv_id existing, {sv_id; sv_password = f sv_id} :: accu)
-  ) (existing, List.rev a) b in
-  List.rev res
+  let weights =
+    List.fold_left
+      (fun accu sv ->
+        let _, login, weight = split_identity sv.sv_id in
+        SMap.add login weight accu
+      ) SMap.empty a
+  in
+  let weights, res =
+    List.fold_left
+      (fun (weights, accu) sv_id ->
+        let _, login, weight = split_identity sv_id in
+        if SMap.mem login weights then
+          (weights, accu)
+        else (
+          SMap.add login weight weights,
+          {sv_id; sv_password = f sv_id} :: accu
+        )
+      ) (weights, List.rev a) b
+  in
+  List.rev res,
+  SMap.fold (fun _ x y -> x + y) weights 0
 
 let () =
   Any.register ~service:election_draft_voters_add
@@ -834,7 +867,13 @@ let () =
                  Printf.ksprintf failwith (f_ "%S is not a valid identity") bad
               | None -> ()
             in
-            let voters = merge_voters se.se_voters voters (fun _ -> None) in
+            let voters, total_weight =
+              merge_voters se.se_voters voters (fun _ -> None)
+            in
+            if total_weight > max_total_weight then
+              Printf.ksprintf failwith
+                (f_ "The total weight cannot exceed %d.")
+                max_total_weight;
             let uses_password_auth =
               match se.se_metadata.e_auth_config with
               | Some configs ->
@@ -977,23 +1016,36 @@ let handle_credentials_post uuid token creds =
           (fun oc -> Lwt_io.write_chars oc creds)
       )
   in
-  let%lwt () =
+  let%lwt weights =
     let i = ref 1 in
     match%lwt read_file fname with
     | Some xs ->
-       let () =
-         List.iter (fun x ->
+       let weights =
+         List.fold_left
+           (fun weights x ->
              try
+               let x, w = extract_weight x in
                let x = G.of_string x in
                if not (G.check x) then raise Exit;
-               incr i
+               incr i;
+               w :: weights
              with _ ->
                Printf.ksprintf failwith "invalid credential at line %d" !i
-           ) xs
+           ) [] xs
        in
-       write_file fname xs
-    | None -> return_unit
+       let%lwt () = write_file fname xs in
+       return (List.sort compare weights)
+    | None -> failwith "anomaly when reading back credentials"
   in
+  let expected_weights =
+    List.fold_left
+      (fun accu {sv_id; _} ->
+        let _, _, weight = split_identity sv_id in
+        weight :: accu
+      ) [] se.se_voters
+    |> List.sort compare
+  in
+  if weights <> expected_weights then failwith "discrepancy in weights";
   let () = se.se_public_creds_received <- true in
   let%lwt () = Web_persist.set_draft_election uuid se in
   Pages_admin.election_draft_credentials_done se () >>= Html.send
@@ -1043,11 +1095,19 @@ let () =
                         (uuid, ()) |> rewrite_prefix
             in
             let module G = (val Group.of_string se.se_group : GROUP) in
-            let module CSet = Set.Make (G) in
+            let module CMap = Map.Make (G) in
             let module CD = Credential.MakeDerive (G) in
+            let show_weight =
+              List.exists
+                (fun v ->
+                  let _, _, weight = split_identity v.sv_id in
+                  weight <> 1
+                ) se.se_voters
+            in
             let%lwt public_creds, private_creds =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
-                  let recipient, login = split_identity v.sv_id in
+                  let recipient, login, weight = split_identity v.sv_id in
+                  let oweight = if show_weight then Some weight else None in
                   let cas =
                     match se.se_metadata.e_auth_config with
                     | Some [{auth_system = "cas"; _}] -> true
@@ -1061,15 +1121,24 @@ let () =
                   let langs = get_languages se.se_metadata.e_languages in
                   let%lwt subject, body =
                     Pages_voter.generate_mail_credential langs
-                      title cas ~login cred url se.se_metadata
+                      title cas ~login cred oweight url se.se_metadata
                   in
                   let%lwt () = send_email (MailCredential uuid) ~recipient ~subject ~body in
-                  return (CSet.add pub_cred public_creds, (v.sv_id, cred) :: private_creds)
-                ) (CSet.empty, []) se.se_voters
+                  return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)
+                ) (CMap.empty, []) se.se_voters
             in
             let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
             let%lwt () = write_file ~uuid "private_creds.txt" private_creds in
-            let public_creds = CSet.elements public_creds |> List.map G.to_string in
+            let public_creds =
+              CMap.bindings public_creds
+              |> List.map
+                   (fun (cred, weight) ->
+                     let cred = G.to_string cred in
+                     if weight > 1 then
+                       Printf.sprintf "%s,%d" cred weight
+                     else cred
+                   )
+            in
             let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
             let%lwt () =
               Lwt_io.with_file
@@ -1225,7 +1294,7 @@ let () =
             match passwords with
             | None -> fun _ -> None
             | Some p -> fun sv_id ->
-                        let _, login = split_identity sv_id in
+                        let _, login, _ = split_identity sv_id in
                         SMap.find_opt login p
           in
           match voters with
@@ -1233,8 +1302,21 @@ let () =
              if se.se_public_creds_received then
                forbidden ()
              else (
-               se.se_voters <- merge_voters se.se_voters voters get_password;
-               redir_preapply election_draft_voters uuid ()
+               let voters, total_weight =
+                 merge_voters se.se_voters voters get_password
+               in
+               if total_weight <= max_total_weight then (
+                 se.se_voters <- voters;
+                 redir_preapply election_draft_voters uuid ()
+               ) else (
+                 Pages_common.generic_page ~title:(s_ "Error")
+                   ~service:(preapply ~service:election_draft_voters uuid)
+                   (Printf.sprintf
+                      (f_ "The total weight cannot exceed %d.")
+                      max_total_weight
+                   ) ()
+                 >>= Html.send
+               )
              )
           | None ->
              Pages_common.generic_page ~title:(s_ "Error")
@@ -1543,7 +1625,7 @@ let () =
               | Some vs ->
                  return (
                      List.fold_left (fun accu v ->
-                         let _, login = split_identity v in
+                         let _, login, _ = split_identity v in
                          SSet.add login accu
                        ) SSet.empty vs
                    )
@@ -1827,7 +1909,11 @@ let handle_election_tally_release uuid () =
           | `EncryptedTally _ -> return_unit
           | _ -> forbidden ()
         in
-        let%lwt ntallied = Web_persist.get_ballot_hashes uuid >|= List.length in
+        let%lwt ntallied =
+          let%lwt hashes = Web_persist.get_ballot_hashes uuid in
+          let weights = List.map snd hashes in
+          Lwt_list.fold_left_s (fun x y -> return (x + y)) 0 weights
+        in
         let%lwt et =
           !Web_config.spool_dir / uuid_s / string_of_election_file ESETally |>
             Lwt_io.chars_of_file |> Lwt_stream.to_string >>=

@@ -36,6 +36,7 @@ type cast_error =
   | ECastWrongCredential
   | ECastRevoteNotAllowed
   | ECastReusedCredential
+  | ECastBadWeight
 
 type error =
   | ElectionClosed
@@ -137,7 +138,7 @@ type mail_kind =
 
 val send_email : mail_kind -> recipient:string -> subject:string -> body:string -> unit Lwt.t
 
-val split_identity : string -> string * string
+val split_identity : string -> string * string * int
 
 val available_languages : string list
 val get_languages : string list option -> string list
@@ -182,3 +183,4 @@ val days_between_mails : int
 val days_to_publish_result : int
 
 val max_election_name_size : int
+val max_total_weight : int

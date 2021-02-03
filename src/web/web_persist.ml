@@ -289,9 +289,61 @@ let convert_trustees () =
 
 module StringMap = Map.Make (String)
 
+module CredWeightsCacheTypes = struct
+  type key = uuid
+  type value = int StringMap.t
+end
+
+module CredWeightsCache = Ocsigen_cache.Make (CredWeightsCacheTypes)
+
+let raw_get_credential_weights uuid =
+  match%lwt read_file ~uuid "public_creds.txt" with
+  | Some xs ->
+     xs
+     |> List.map extract_weight
+     |> List.fold_left
+          (fun accu (x, w) ->
+            StringMap.add x w accu
+          ) StringMap.empty
+     |> return
+  | None -> return StringMap.empty
+
+let credential_weights_cache =
+  new CredWeightsCache.cache raw_get_credential_weights ~timer:3600. 10
+
+let get_credential_weight uuid cred =
+  try%lwt
+    let%lwt xs = credential_weights_cache#find uuid in
+    return @@ StringMap.find cred xs
+  with _ ->
+    Lwt.fail
+      (Failure
+         (Printf.sprintf
+            "could not find weight of %s/%s"
+            (raw_string_of_uuid uuid) cred
+         )
+      )
+
+let get_ballot_weight ballot =
+  try%lwt
+    let ballot = ballot_of_string Yojson.Safe.read_json ballot in
+    match ballot.signature with
+    | None -> failwith "missing signature"
+    | Some s ->
+       let credential =
+         match s.s_public_key with
+         | `String x -> x
+         | _ -> failwith "unexpected credential"
+       in
+       get_credential_weight ballot.election_uuid credential
+  with e ->
+    Printf.ksprintf failwith
+      "anomaly in get_ballot_weight (%s)"
+       (Printexc.to_string e)
+
 module BallotsCacheTypes = struct
   type key = uuid
-  type value = string StringMap.t
+  type value = (string * int) StringMap.t
 end
 
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
@@ -299,36 +351,58 @@ module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
 let raw_get_ballots_archived uuid =
   match%lwt read_file ~uuid "ballots.jsons" with
   | Some bs ->
-     return (
-         List.fold_left (fun accu b ->
-             let hash = sha256_b64 b in
-             StringMap.add hash b accu
-           ) StringMap.empty bs
-       )
+     Lwt_list.fold_left_s (fun accu b ->
+         let hash = sha256_b64 b in
+         let%lwt weight = get_ballot_weight b in
+         return (StringMap.add hash (b, weight) accu)
+       ) StringMap.empty bs
   | None -> return StringMap.empty
 
 let archived_ballots_cache =
   new BallotsCache.cache raw_get_ballots_archived ~timer:3600. 10
 
+let get_ballots_index uuid =
+  let%lwt index = read_file ~uuid "ballots_index.json" in
+  match index with
+  | None ->
+     let uuid_s = raw_string_of_uuid uuid in
+     let dir = !Web_config.spool_dir / uuid_s / "ballots" in
+     (match%lwt Lwt_unix.files_of_directory dir |> Lwt_stream.to_list with
+      | ballots ->
+         let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
+         return (List.rev_map (fun h -> unurlize h, 1) ballots)
+      | exception Unix.Unix_error(Unix.ENOENT, "opendir", _) ->
+         return []
+     )
+  | Some [index] ->
+     let index =
+       match Yojson.Safe.from_string index with
+       | `Assoc index ->
+          List.map
+            (function
+             | (hash, `Int weight) -> hash, weight
+             | _ -> failwith "anomaly in get_ballots_index (int expected)"
+            ) index
+       | _ -> failwith "anomaly in get_ballots_index (assoc expected)"
+     in
+     return index
+  | _ -> failwith "anomaly in get_ballots_index (invalid ballots_index.json)"
+
 let get_ballot_hashes uuid =
   match%lwt get_election_state uuid with
   | `Archived ->
      let%lwt ballots = archived_ballots_cache#find uuid in
-     StringMap.bindings ballots |> List.map fst |> return
-  | _ ->
-     let uuid_s = raw_string_of_uuid uuid in
-     match%lwt Lwt_unix.files_of_directory (!Web_config.spool_dir / uuid_s / "ballots") |> Lwt_stream.to_list with
-     | ballots ->
-        let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
-        return (List.rev_map unurlize ballots)
-     | exception Unix.Unix_error(Unix.ENOENT, "opendir", _) ->
-        return []
+     StringMap.bindings ballots |> List.map (fun (h, (_, w)) -> h, w) |> return
+  | _ -> get_ballots_index uuid
 
 let get_ballot_by_hash uuid hash =
   match%lwt get_election_state uuid with
   | `Archived ->
      let%lwt ballots = archived_ballots_cache#find uuid in
-     return (StringMap.find_opt hash ballots)
+     (match StringMap.find_opt hash ballots with
+      | Some (b, _) -> return_some b
+      | None -> return_none
+     )
   | _ ->
      let%lwt ballot = read_file ~uuid ("ballots" / urlize hash) in
      match ballot with
@@ -349,6 +423,15 @@ let load_ballots uuid =
 
 let dump_ballots uuid =
   let%lwt ballots = load_ballots uuid in
+  let%lwt index =
+    Lwt_list.map_s
+      (fun b ->
+        let%lwt w = get_ballot_weight b in
+        return (sha256_b64 b, `Int w)
+      ) ballots
+  in
+  let index = Yojson.Safe.to_string (`Assoc index) in
+  let%lwt () = write_file ~uuid "ballots_index.json" [index] in
   write_file ~uuid "ballots.jsons" ballots
 
 let add_ballot uuid ballot =
@@ -376,8 +459,15 @@ let compute_encrypted_tally uuid =
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
      let%lwt ballots = load_ballots uuid in
-     let ballots = Array.map (ballot_of_string E.G.read) (Array.of_list ballots) in
-     let tally = E.process_ballots ballots in
+     let%lwt ballots =
+       Lwt_list.map_s
+         (fun raw_ballot ->
+           let ballot = ballot_of_string E.G.read raw_ballot in
+           let%lwt weight = get_ballot_weight raw_ballot in
+           return (weight, ballot)
+         ) ballots
+     in
+     let tally = E.process_ballots (Array.of_list ballots) in
      let tally = string_of_encrypted_tally E.G.write tally in
      let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
      return_some tally
@@ -584,7 +674,9 @@ let credential_mappings_cache =
 
 let init_credential_mapping uuid xs =
   let xs =
-    List.fold_left (fun accu x ->
+    List.fold_left
+      (fun accu x ->
+        let x, _ = extract_weight x in
         if StringMap.mem x accu then
           failwith "trying to add duplicate credential"
         else
@@ -604,7 +696,7 @@ let add_credential_mapping uuid cred mapping =
   credential_mappings_cache#add uuid xs;
   dump_credential_mappings uuid xs
 
-let do_cast_ballot election ~rawballot ~user date =
+let do_cast_ballot election ~rawballot ~user ~weight date =
   let module E = (val election : ELECTION) in
   let uuid = E.election.e_params.e_uuid in
   match
@@ -625,30 +717,33 @@ let do_cast_ballot election ~rawballot ~user date =
         match%lwt find_credential_mapping uuid credential with
         | None -> return (Error ECastInvalidCredential)
         | Some old_cred ->
-           let%lwt old_record = find_extended_record uuid user in
-           match old_cred, old_record with
-           | None, None ->
-              (* first vote *)
-              if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
-                let%lwt hash = add_ballot uuid rawballot in
-                let%lwt () = add_credential_mapping uuid credential (Some hash) in
-                let%lwt () = add_extended_record uuid user (date, credential) in
-                return (Ok (hash, false))
-              ) else return (Error ECastProofCheck)
-           | Some hash, Some (_, old_credential) ->
-              (* revote *)
-              if credential = old_credential then (
+           let%lwt cweight = get_credential_weight uuid credential in
+           if cweight = weight then (
+             let%lwt old_record = find_extended_record uuid user in
+             match old_cred, old_record with
+             | None, None ->
+                (* first vote *)
                 if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
-                  let%lwt hash = replace_ballot uuid ~hash ~rawballot in
+                  let%lwt hash = add_ballot uuid rawballot in
                   let%lwt () = add_credential_mapping uuid credential (Some hash) in
                   let%lwt () = add_extended_record uuid user (date, credential) in
-                  return (Ok (hash, true))
+                  return (Ok (hash, false))
                 ) else return (Error ECastProofCheck)
-              ) else return (Error ECastWrongCredential)
-           | None, Some _ -> return (Error ECastRevoteNotAllowed)
-           | Some _, None -> return (Error ECastReusedCredential)
+             | Some hash, Some (_, old_credential) ->
+                (* revote *)
+                if credential = old_credential then (
+                  if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
+                    let%lwt hash = replace_ballot uuid ~hash ~rawballot in
+                    let%lwt () = add_credential_mapping uuid credential (Some hash) in
+                    let%lwt () = add_extended_record uuid user (date, credential) in
+                    return (Ok (hash, true))
+                  ) else return (Error ECastProofCheck)
+                ) else return (Error ECastWrongCredential)
+             | None, Some _ -> return (Error ECastRevoteNotAllowed)
+             | Some _, None -> return (Error ECastReusedCredential)
+           ) else return (Error ECastBadWeight)
 
-let cast_ballot uuid ~rawballot ~user date =
+let cast_ballot uuid ~rawballot ~user ~weight date =
   match%lwt get_raw_election uuid with
   | None -> Lwt.fail Not_found
   | Some raw_election ->
@@ -656,7 +751,7 @@ let cast_ballot uuid ~rawballot ~user date =
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
      Web_election_mutex.with_lock uuid
-       (fun () -> do_cast_ballot (module E) ~rawballot ~user date)
+       (fun () -> do_cast_ballot (module E) ~rawballot ~user ~weight date)
 
 let get_raw_election_result uuid =
   match%lwt read_file ~uuid "result.json" with
@@ -674,7 +769,22 @@ let compute_audit_cache uuid =
        | Some x -> return x
        | None -> failwith "voters.txt is missing"
      in
+     let total_weight, min_weight, max_weight =
+       List.fold_left
+         (fun (tw, minw, maxw) voter ->
+           let _, _, weight = split_identity voter in
+           tw + weight, min minw weight, max maxw weight
+         ) (0, max_int, 0) voters
+     in
      let cache_num_voters = List.length voters in
+     let cache_total_weight, cache_min_weight, cache_max_weight =
+       if total_weight > cache_num_voters then (
+         Some total_weight, Some min_weight, Some max_weight
+       ) else (
+         assert (total_weight = cache_num_voters);
+         None, None, None
+       )
+     in
      let cache_voters_hash = sha256_b64 (String.concat "\n" voters ^ "\n") in
      let%lwt result_or_shuffles =
        match%lwt get_raw_election_result uuid with
@@ -703,6 +813,9 @@ let compute_audit_cache uuid =
      in
      return {
          cache_num_voters;
+         cache_total_weight;
+         cache_min_weight;
+         cache_max_weight;
          cache_voters_hash;
          cache_checksums;
          cache_threshold = None;
