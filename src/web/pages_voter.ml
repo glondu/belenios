@@ -303,16 +303,14 @@ let election_home election state () =
     else txt ""
   in
   let div_total_weight =
-    match cache.cache_total_weight with
-    | Some w ->
+    match cache.cache_total_weight, cache.cache_min_weight, cache.cache_max_weight with
+    | Some w, Some min, Some max ->
        div [
-           txt "The ";
-           b [txt "total weight"];
-           txt " is ";
-           txt (string_of_int w);
-           txt ".";
+           Printf.ksprintf txt
+             (f_ "The total weight is %d (min: %d, max: %d).")
+             w min max;
          ]
-    | None -> txt ""
+    | _ -> txt ""
   in
   let format_tc id xs =
     ul ~a:[a_id id] (

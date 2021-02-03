@@ -769,20 +769,20 @@ let compute_audit_cache uuid =
        | Some x -> return x
        | None -> failwith "voters.txt is missing"
      in
-     let total_weight =
+     let total_weight, min_weight, max_weight =
        List.fold_left
-         (fun accu voter ->
+         (fun (tw, minw, maxw) voter ->
            let _, _, weight = split_identity voter in
-           accu + weight
-         ) 0 voters
+           tw + weight, min minw weight, max maxw weight
+         ) (0, max_int, 0) voters
      in
      let cache_num_voters = List.length voters in
-     let cache_total_weight =
-       if total_weight > cache_num_voters then
-         Some total_weight
-       else (
+     let cache_total_weight, cache_min_weight, cache_max_weight =
+       if total_weight > cache_num_voters then (
+         Some total_weight, Some min_weight, Some max_weight
+       ) else (
          assert (total_weight = cache_num_voters);
-         None
+         None, None, None
        )
      in
      let cache_voters_hash = sha256_b64 (String.concat "\n" voters ^ "\n") in
@@ -814,6 +814,8 @@ let compute_audit_cache uuid =
      return {
          cache_num_voters;
          cache_total_weight;
+         cache_min_weight;
+         cache_max_weight;
          cache_voters_hash;
          cache_checksums;
          cache_threshold = None;

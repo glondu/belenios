@@ -99,6 +99,8 @@ type 'a web_trustee_public_key = {
 type audit_cache = {
   num_voters : int;
   ?total_weight : int option;
+  ?min_weight : int option;
+  ?max_weight : int option;
   voters_hash : string;
   checksums : election_checksums;
   ?threshold : int option;
