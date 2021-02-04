@@ -235,10 +235,14 @@ function TranslatableVoteApp({uuid=null, t}){
               const encryptBallotErrorCallback = (error) => {
                 alert("Error: " + error);
               };
-              belenios.encryptBallot(
-                electionData, credential, voter_selected_answers,
-                encryptBallotSuccessCallback, encryptBallotErrorCallback
-              );
+              console.log("going to start encryption of ballot very soon");
+              setTimeout(function(){
+                console.log("starting encryption of ballot");
+                belenios.encryptBallot(
+                  electionData, credential, voter_selected_answers,
+                  encryptBallotSuccessCallback, encryptBallotErrorCallback
+                );
+              }, 50);
             }
           }
         )
