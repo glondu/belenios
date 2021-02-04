@@ -1,5 +1,6 @@
 import ClassicVoteReview from "./ClassicVoteReview.mjs";
 import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.mjs";
+import LoadingSpinner from "./LoadingSpinner.mjs";
 
 function TranslatableReviewEncryptSection({
   electionData=null, uncryptedBallot=[],
@@ -10,7 +11,19 @@ function TranslatableReviewEncryptSection({
   const contentWhenBallotIsBeingEncrypted = e(
     "div",
     null,
-    t("pleaseWaitDuringBallotEncryption")
+    e(
+      "div",
+      null,
+      t("pleaseWaitDuringBallotEncryption")
+    ),
+    e(
+      LoadingSpinner,
+      {
+        style: {
+          marginTop: "15px"
+        }
+      }
+    )
   );
   function setBrowserSelectionToSmartBallotTracker(){
     let el = document.getElementById(smartBallotTrackerId);

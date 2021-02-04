@@ -8,6 +8,7 @@
 @import "./components/VoteNavigation.css";
 @import "./components/NiceButton.css";
 @import "./components/NiceInput.css";
+@import "./components/LoadingSpinner.css";
 @import "./components/ClassicVoteReview.css";
 @import "./components/ReviewEncryptSection.css";
 
