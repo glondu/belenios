@@ -1,0 +1,99 @@
+/*
+.majority-judgement-vote-big-candidates-list {
+
+}
+*/
+
+.majority-judgement-vote-big-candidate {
+  display: flex;
+  background: #eeeeee;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.majority-judgement-vote-big-candidate__candidate-info {
+  width: 150px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.majority-judgement-vote-big-candidate__grade {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: bold;
+  flex-basis: 8%; /* TODO: make it dependent on the number of available mentions */
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.majority-judgement-vote-big-candidate__candidate-info, .majority-judgement-vote-big-candidate__grade {
+  border-right: 2px solid white;
+  padding: 10px;
+  flex-grow: 1;
+}
+
+.majority-judgement-vote-big-candidate__grade--not-selected.majority-judgement-vote-big-candidate__grade--0 {
+  color: var(--majority-judgement-color-0);
+}
+
+.majority-judgement-vote-big-candidate__grade--not-selected.majority-judgement-vote-big-candidate__grade--1 {
+  color: var(--majority-judgement-color-1);
+}
+
+.majority-judgement-vote-big-candidate__grade--not-selected.majority-judgement-vote-big-candidate__grade--2 {
+  color: var(--majority-judgement-color-2);
+}
+
+.majority-judgement-vote-big-candidate__grade--not-selected.majority-judgement-vote-big-candidate__grade--3 {
+  color: var(--majority-judgement-color-3);
+}
+
+.majority-judgement-vote-big-candidate__grade--not-selected.majority-judgement-vote-big-candidate__grade--4 {
+  color: var(--majority-judgement-color-4);
+}
+
+.majority-judgement-vote-big-candidate__grade--not-selected.majority-judgement-vote-big-candidate__grade--5 {
+  color: var(--majority-judgement-color-5);
+}
+
+.majority-judgement-vote-big-candidate__grade--not-selected.majority-judgement-vote-big-candidate__grade--6 {
+  color: var(--majority-judgement-color-6);
+}
+
+.majority-judgement-vote-big-candidate__grade--selected {
+  color: white;
+}
+
+.majority-judgement-vote-big-candidate__grade--selected.majority-judgement-vote-big-candidate__grade--0 {
+  background: var(--majority-judgement-color-0);
+}
+
+.majority-judgement-vote-big-candidate__grade--selected.majority-judgement-vote-big-candidate__grade--1 {
+  background: var(--majority-judgement-color-1);
+}
+
+.majority-judgement-vote-big-candidate__grade--selected.majority-judgement-vote-big-candidate__grade--2 {
+  background: var(--majority-judgement-color-2);
+}
+
+.majority-judgement-vote-big-candidate__grade--selected.majority-judgement-vote-big-candidate__grade--3 {
+  background: var(--majority-judgement-color-3);
+}
+
+.majority-judgement-vote-big-candidate__grade--selected.majority-judgement-vote-big-candidate__grade--4 {
+  background: var(--majority-judgement-color-4);
+}
+
+.majority-judgement-vote-big-candidate__grade--selected.majority-judgement-vote-big-candidate__grade--5 {
+  background: var(--majority-judgement-color-5);
+}
+
+.majority-judgement-vote-big-candidate__grade--selected.majority-judgement-vote-big-candidate__grade--6 {
+  background: var(--majority-judgement-color-6);
+}

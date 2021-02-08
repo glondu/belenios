@@ -1,0 +1,9 @@
+:root {
+  --majority-judgement-color-0: #b02800; /* Reject / À rejeter */
+  --majority-judgement-color-1: #ff6503; /* Poor / insuffisant */
+  --majority-judgement-color-2: #ff9f00; /* Acceptable / Passable */
+  --majority-judgement-color-3: #f5c823; /* Fair / Assez bien */
+  --majority-judgement-color-4: #7dd162; /* Good / Bien */
+  --majority-judgement-color-5: #2eb430; /* Very good / Très bien */
+  --majority-judgement-color-6: #0f7c10; /* Excellent / Excellent */
+}

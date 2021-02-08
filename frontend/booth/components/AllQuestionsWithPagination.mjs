@@ -1,4 +1,4 @@
-import QuestionWithVotableAnswers from "./QuestionWithVotableAnswers.mjs";
+import { QuestionTypeEnum, QuestionWithVotableAnswers } from "./QuestionWithVotableAnswers.mjs";
 import VoteNavigation from "./VoteNavigation.mjs";
 
 /* We chose to not use a `<form>`, because it could increase possibilities to leak voter's choices. Instead, we use `<input type="checkbox">` or `<input type="radio">` fields outside of a `<form>`, and classic `<button>` for navigation between questions ("Previous" and "Next" labels). */
@@ -74,16 +74,48 @@ class TranslatableAllQuestionsWithPagination extends React.Component {
 
   render(){
     const renderedQuestions = this.props.electionData.questions.map(function(question, question_index){
+      const questionType = question.hasOwnProperty("type") && question["type"] == "NonHomomorphic" ? QuestionTypeEnum.MAJORITY_JUDGEMENT : QuestionTypeEnum.CLASSIC; // TODO: add here differenciation between majority judgement and vote by preference, once backend transmits this piece of information
+      let answers;
+      let minimumAnswers = null;
+      let maximumAnswers = null;
+      let questionText = null;
+      let blankVoteAllowed = null;
+      let complementaryProps = {};
+      const identifierPrefix = `question_${question_index}_`;
+      const visible = this.state.current_question_index === question_index ? true : false;
+      if (questionType === QuestionTypeEnum.MAJORITY_JUDGEMENT){
+        answers = question.value.answers;
+        questionText = question.value.question;
+        complementaryProps.availableGrades = [
+          "Reject",
+          "Poor",
+          "Acceptable",
+          "Fair",
+          "Good",
+          "Very good",
+          "Excellent"
+        ]; // TODO: receive from backend the number of available grades, their labels and their ordering
+      }
+      else if (questionType === QuestionTypeEnum.CLASSIC){
+        answers = question.answers;
+        questionText = question.question;
+        minimumAnswers = question.min;
+        maximumAnswers = question.max;
+        blankVoteAllowed = question.blank;
+      }
+
       return e(
         QuestionWithVotableAnswers,
         {
-          answers: question.answers,
-          minimum_answers: question.min,
-          maximum_answers: question.max,
-          question: question.question,
-          blankVoteAllowed: question.blank,
-          identifierPrefix: `question_${question_index}_`,
-          visible: this.state.current_question_index === question_index ? true : false
+          questionType: questionType,
+          answers: answers,
+          minimumAnswers: minimumAnswers,
+          maximumAnswers: maximumAnswers,
+          question: questionText,
+          blankVoteAllowed: blankVoteAllowed,
+          identifierPrefix: identifierPrefix,
+          visible: visible,
+          ...complementaryProps
         }
       )
     }, this);

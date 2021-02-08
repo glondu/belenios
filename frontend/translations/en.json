@@ -40,5 +40,6 @@
   "questionXofY": "$t(questionX, {\"count\": {{current_question}} }) of {{number_of_questions}}",
   "selectBetweenX": "Please select between {{count}}",
   "questionX": "Question {{count}}",
-  "selectBetweenX_plural": "Please select between {{count}}"
+  "selectBetweenX_plural": "Please select between {{count}}",
+  "majorityJudgementQuestionDescription": "Please grade each candidate before moving on to next step."
 }

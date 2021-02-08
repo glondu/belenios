@@ -11,6 +11,10 @@
 @import "./components/LoadingSpinner.css";
 @import "./components/ClassicVoteReview.css";
 @import "./components/ReviewEncryptSection.css";
+@import "./components/MajorityJudgementVoteCandidatesList.css";
+@import "./components/MajorityJudgementVoteBigCandidatesList.css";
+@import "./components/MajorityJudgementVoteSmallCandidatesList.css";
+@import "./select-css.css";
 
 body {
   background: #E5E4E2;
