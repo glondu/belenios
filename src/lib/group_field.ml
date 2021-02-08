@@ -54,7 +54,7 @@ module type GROUP = Signatures.GROUP
   with type t = Z.t
   and type group = ff_params
 
-let unsafe_make group =
+let make group =
   let {p; q; g; embedding} = group in
   let module G = struct
     open Z
@@ -142,7 +142,3 @@ let unsafe_make group =
     let write_group = write_ff_params
 
   end in (module G : GROUP)
-
-let make group =
-  if check_params group then unsafe_make group
-  else invalid_arg "incorrect finite field parameters"
