@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-02-05 09:42+0000\n"
+"PO-Revision-Date: 2021-02-09 08:02+0000\n"
 "Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/voter/fr/"
 ">\n"
@@ -640,7 +640,7 @@ msgstr "Le résultat de cette élection n'est pas disponible."
 
 #: src/web/pages_voter.ml:310
 msgid "The total weight is %d (min: %d, max: %d)."
-msgstr "Le total des poids est %d (min : %d, max : %d)."
+msgstr "Le nombre total de voix est %d (min : %d, max : %d)."
 
 #: src/web/pages_voter.ml:286
 msgid "The voter list has %d voter(s) and fingerprint %s."
@@ -712,7 +712,7 @@ msgstr "Pour obtenir plus d'informations, veuillez contacter :"
 
 #: src/web/pages_voter.ml:220
 msgid "Total weight of accepted ballots:"
-msgstr "Poids total des bulletins acceptés :"
+msgstr "Nombre total de voix pour les bulletins acceptés :"
 
 #: src/web/pages_voter.ml:373
 msgid "Trustees shuffled the ballots in the following order:"
@@ -747,7 +747,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1203 src/web/pages_voter.ml:1150
 msgid "Weight:"
-msgstr "Poids :"
+msgstr "Nombre de voix :"
 
 #: src/web/pages_voter.ml:1027
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
@@ -848,7 +848,7 @@ msgstr "Votre vote n'a pas été enregistré !"
 #. src/web/pages_voter.ml:518
 #: src/web/pages_voter.ml:1243 src/web/pages_voter.ml:614
 msgid "Your weight is %d."
-msgstr "Le poids de votre vote est %d."
+msgstr "Votre nombre de voix est %d."
 
 #: src/web/web_common.ml:86
 msgid "a credential is missing"
@@ -945,7 +945,7 @@ msgstr "votre bulletin a une erreur de syntaxe (%s)"
 
 #: src/web/web_common.ml:91
 msgid "your credential has a bad weight"
-msgstr "Votre code de vote n'a pas le bon poids"
+msgstr "Votre code de vote ne correspond pas au bon nombre de voix"
 
 #: src/web/web_common.ml:89
 msgid "your credential has already been used"
