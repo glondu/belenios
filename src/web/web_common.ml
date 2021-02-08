@@ -65,6 +65,7 @@ type cast_error =
   | ECastWrongCredential
   | ECastRevoteNotAllowed
   | ECastReusedCredential
+  | ECastBadWeight
 
 type error =
   | ElectionClosed
@@ -87,6 +88,7 @@ let explain_error l e =
   | CastError ECastRevoteNotAllowed -> s_ "you are not allowed to revote"
   | CastError ECastReusedCredential -> s_ "your credential has already been used"
   | CastError ECastWrongCredential -> s_ "you are not allowed to vote with this credential"
+  | CastError ECastBadWeight -> s_ "your credential has a bad weight"
 
 let decompose_seconds s =
   let h = int_of_float (s /. 3600.) in
@@ -321,10 +323,14 @@ let send_email kind ~recipient ~subject ~body =
   in loop ()
 
 let split_identity x =
-  let n = String.length x in
-  match String.index_opt x ',' with
-  | Some i -> String.sub x 0 i, String.sub x (i+1) (n-i-1)
-  | None -> x, x
+  match Pcre.split ~pat:"," x with
+  | [address] -> address, address, 1
+  | [address; login] -> address, (if login = "" then address else login), 1
+  | [address; login; weight] ->
+     address,
+     (if login = "" then address else login),
+     int_of_string weight
+  | _ -> failwith "Web_common.split_identity"
 
 let available_languages = ["en"; "fr"; "de"; "ro"; "it"; "nb"; "es"; "uk"; "cs"; "oc"; "pt_BR"]
 
@@ -462,3 +468,4 @@ let days_between_mails = 7
 let days_to_publish_result = 7
 
 let max_election_name_size = 80
+let max_total_weight = 100_000

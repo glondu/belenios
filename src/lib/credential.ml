@@ -75,3 +75,20 @@ module MakeDerive (G : GROUP) = struct
     Z.(of_hex derived mod G.q)
 
 end
+
+module MakeParsePublicCredential (G : GROUP) = struct
+
+  let parse_public_credential s =
+    try
+      match String.index s ',' with
+      | exception Not_found ->
+         let x = G.of_string s in
+         if G.check x then Some (1, x) else None
+      | i ->
+         let n = String.length s in
+         let w = int_of_string (String.sub s (i + 1) (n - i - 1)) in
+         let x = G.of_string (String.sub s 0 i) in
+         if G.check x then Some (w, x) else None
+    with _ -> None
+
+end

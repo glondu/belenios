@@ -28,8 +28,8 @@ val election_home : 'a election -> election_state -> unit -> [> `Html ] Eliom_co
 val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_confirmation : 'a election -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val lost_ballot : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_confirmed : 'a election -> result:(string, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val pretty_ballots : 'a election -> string list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_confirmed : 'a election -> result:(string * int, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val pretty_ballots : 'a election -> (string * int) list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
@@ -44,14 +44,14 @@ val stv : Question_nh_t.question -> stv_result -> [> `Html ] Eliom_content.Html.
 val generate_password :
   Web_serializable_t.metadata ->
   string list ->
-  string -> uuid -> string -> string -> (string * string) Lwt.t
+  string -> uuid -> string -> string -> bool -> (string * string) Lwt.t
 
 val generate_mail_credential :
   string list -> string ->
-  bool -> login:string -> string -> string ->
+  bool -> login:string -> string -> int option -> string ->
   Web_serializable_t.metadata -> (string * string) Lwt.t
 
 val mail_confirmation :
   (module Web_i18n_sig.GETTEXT) ->
-  string -> string -> string ->
+  string -> string -> int option -> string ->
   bool -> string -> string -> Web_serializable_t.metadata -> string

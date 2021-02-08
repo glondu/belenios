@@ -115,16 +115,18 @@ module Make (P : PARSED_PARAMS) : S = struct
   (* Load ballots, if present *)
 
   module GSet = Map.Make (G)
+  module PPC = Credential.MakeParsePublicCredential (G)
 
   let public_creds = lazy (
     get_public_creds () |> Option.map (fun creds ->
       let res = ref GSet.empty in
       Stream.iter
         (fun x ->
-          let y = G.of_string x in
-          if not (G.check y) then
+          match PPC.parse_public_credential x with
+          | Some (w, y) ->
+             res := GSet.add y (w, ref false) !res
+          | None ->
             Printf.ksprintf failwith "%s is not a valid public credential" x;
-          res := GSet.add y false !res
         ) creds;
       res
     )
@@ -146,20 +148,24 @@ module Make (P : PARSED_PARAMS) : S = struct
       match b.signature with
       | Some s ->
          (match GSet.find_opt s.s_public_key !creds with
-          | Some false -> creds := GSet.add s.s_public_key true !creds; true
-          | _ -> false)
-      | None -> false
+          | Some (w, used) -> if !used then None else (used := true; Some w)
+          | None -> None)
+      | None -> None
     )
-    | None -> (fun _ -> true)
+    | None -> (fun _ -> Some 1)
   )
 
   let cast (b, hash) =
-    if Lazy.force check_signature_present b && E.check_ballot b
-    then ()
-    else Printf.ksprintf failwith "ballot %s failed tests" hash
+    match
+      match Lazy.force check_signature_present b with
+      | Some w -> if E.check_ballot b then Some w else None
+      | None -> None
+    with
+    | Some w -> w
+    | None -> Printf.ksprintf failwith "ballot %s failed tests" hash
 
-  let ballots_check = lazy (
-    Lazy.force ballots |> Option.map (List.iter cast)
+  let ballots_weights = lazy (
+    Lazy.force ballots |> Option.map (List.map cast)
   )
 
   let raw_encrypted_tally =
@@ -167,9 +173,15 @@ module Make (P : PARSED_PARAMS) : S = struct
         match Lazy.force ballots with
         | None -> E.process_ballots [||], 0
         | Some ballots ->
-           let ballots = Array.map fst (Array.of_list ballots) in
-           E.process_ballots ballots,
-           Array.length ballots
+           match Lazy.force ballots_weights with
+           | None -> failwith "ballots or public credentials are missing"
+           | Some weights ->
+              let ballots = List.map fst ballots in
+              let ballots = List.combine weights ballots |> Array.of_list in
+              let nballots =
+                Array.fold_left (fun accu (w, _) -> accu + w) 0 ballots
+              in
+              E.process_ballots ballots, nballots
       )
 
   let result_as_string = lazy (get_result ())
@@ -317,8 +329,8 @@ module Make (P : PARSED_PARAMS) : S = struct
         assert G.(election.e_params.e_public_key =~ K.combine_keys trustees)
      | None -> failwith "missing trustees"
     );
-    (match Lazy.force ballots_check with
-    | Some () -> assert (Lazy.force shuffles_check)
+    (match Lazy.force ballots_weights with
+    | Some _ -> assert (Lazy.force shuffles_check)
     | None -> print_msg "W: no ballots to check"
     );
     (match Lazy.force result, trustees with

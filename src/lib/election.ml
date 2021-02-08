@@ -76,6 +76,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   type plaintext = int array array
   type ballot = elt Serializable_t.ballot
+  type weighted_ballot = int * ballot
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
@@ -167,7 +168,12 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   let process_ballots bs =
     SArray (
         Array.mapi (fun i q ->
-            Q.process_ciphertexts q (Array.map (fun b -> Q.extract_ciphertexts q b.answers.(i)) bs)
+            Q.process_ciphertexts q
+              (Array.map
+                 (fun (w, b) ->
+                   w, Q.extract_ciphertexts q b.answers.(i)
+                 ) bs
+              )
           ) election.e_params.e_questions
       )
 

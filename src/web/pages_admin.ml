@@ -1179,7 +1179,9 @@ let election_draft_questions uuid se () =
           [
             txt (s_ "You may wish voters to rank candidates or give each candidate a score.");
             txt " ";
-            txt (s_ "This allows deciding the winner according to your favorite counting method (e.g. Condorcet, STV, majority judgement).");
+            txt (s_ "This allows deciding the winner according to your favorite counting method.");
+            txt " ";
+            txt (s_ "Our platform currently supports Condorcet, STV and majority judgment, but you may also apply your own method on the raw result (shuffled list of ballots).");
           ];
         div [txt (s_ "Note that:")];
         ol
@@ -1187,7 +1189,9 @@ let election_draft_questions uuid se () =
             li [txt (s_ "the after-the-vote procedure will require more steps;")];
             li
               [
-                txt (s_ "you will be given the raw results (shuffled list of ballots) and you will need to apply your counting method yourself.")
+                txt (s_ "you should explain to voters how they are supposed to assign a number to each candidate in order to express their vote, since it depends on the underlying voting method.");
+                txt " ";
+                direct_a "https://www.belenios.org/mixnet.html" (s_ "More information.");
               ];
           ];
         div
