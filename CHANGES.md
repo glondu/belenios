@@ -1,3 +1,10 @@
+1.14 (2021-02-09)
+=================
+
+ * Add experimental support for weighted votes: a weight can be
+   assigned to a voter with the syntax "address,login,weight" or
+   "address,,weight"
+
 1.13 (2020-12-02)
 =================
 
