@@ -119,7 +119,8 @@ authority saves:
   voter who has lost it;
 - the `url` of the election;
 - the voter list `voters.txt`. The credential authority must verify with
-  the committee in charge of the election that this list is correct;
+  the committee in charge of the election that this list is correct,
+  as well as the weight of each voter in case of a weighted vote;
 - the fingerprint of the voter list: `fingerprint of voters`;
 - the `fingerprint of the public credentials`.
 
@@ -138,13 +139,13 @@ As soon as the election is open, and at the end of the election, it is
 expected that the credential authority:
 
 - verifies that the number of voters corresponds to the voter list used
-  during the setup and that the fingerprint of the voter list corresponds
+  during the setup, as well as the total weight of the election in
+  case of a weighted vote, and that the fingerprint of the voter list corresponds
   to the fingerprint saved before, for instance using one of the
   commands suggested [here](#hash).
 
 - verifies that the fingerprint of the list of the public credentials
-  corresponds to the fingerprint that has been saved, for instance using one of the
-  commands suggested [here](#hash).
+  corresponds to the one displayed close to his name.
 
 - during the election, the credential authority can, when a voter asks,
   send him again his private credential if he lost it.
@@ -185,6 +186,9 @@ once it is open and checks that:
   that is given (by the system or by the administrator of the election).
   This fingerprint can be computed using one of the
   commands suggested [here](#hash).
+
+- the voter list `voters.txt` corresponds to the legitimate voters,
+  with the right weight in case of a weighted vote.
 
 - the list of questions and possible answers correspond to what is
   expected. These questions and answers are also in the `election.json`
@@ -227,6 +231,11 @@ During the election, it is expected that the auditor:
 - verifies that the printed number of voters is correct and that the
   fingerprint of the voter list is correct (if she has access to this
   information). See the instructions for the election committee.
+
+- verifies that the file of public parts of the credentials
+  `public_creds.txt` corresponds to the fingerprint of the public
+  credentials displayed on the election main page, for example using
+  one of the commands suggested [here](#hash).
 
 - verifies that the number of voters is equal to the number of  public
   credentials in `public_creds.txt`.
@@ -307,7 +316,8 @@ committee, and auditors.
 The important points for the administrator are the following:
 
 - to obtain the voter list, as a list of valid email addresses, one
-  address by voter. This list must be validated by the electoral
+  address by voter. In case of a weighted vote, voters may be assigned
+  a different weight. This list must be validated by the electoral
   committee.
 - to check and check again these email addresses before starting the
   election (and even before the sending of the credentials in automatic
