@@ -820,7 +820,7 @@ module Methods : CMDLINER_MODULE = struct
           let ngrades =
             match ngrades with
             | None -> failcmd "--ngrades is missing"
-            | Some i -> if i > 0 then i else failcmd "invalid --ngrades paramater"
+            | Some i -> if i > 0 then i else failcmd "invalid --ngrades parameter"
           in
           ballots
           |> Majority_judgment.compute ~nchoices ~ngrades
