@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2021-02-10 22:50+0000\n"
+"PO-Revision-Date: 2021-02-12 11:50+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/voter/cs/>"
 "\n"
@@ -703,7 +703,7 @@ msgstr ""
 #: src/web/pages_voter.ml:1192
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
-"Abys mohl hlasovat, budeš potřebovat uživatelské jméno a heslo, které ti "
+"Abys mohl(a) hlasovat, budeš potřebovat uživatelské jméno a heslo, které ti "
 "přijde v samostatném emailu."
 
 #: src/web/pages_voter.ml:1126
