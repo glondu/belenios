@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2021-02-10 22:50+0000\n"
+"PO-Revision-Date: 2021-02-12 11:50+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/admin/cs/>"
 "\n"
@@ -396,11 +396,11 @@ msgstr "Klikni na „Spočítat zamíchání“."
 
 #: src/web/pages_admin.ml:589
 msgid "Click on \"Generate a new key pair\"."
-msgstr "Klikni na „Vytvořit nový pár klíčů“."
+msgstr "Klikni na „Vytvořit klíč“."
 
 #: src/web/pages_admin.ml:595
 msgid "Click on \"Submit\" to send your verification key."
-msgstr "Klikni na „Zadat“ pro zaslání ověřovacího klíče."
+msgstr "Klikni na „Zadat“ pro odeslání svého veřejného ověřovacího klíče."
 
 #: src/web/pages_admin.ml:587
 msgid "Click on the link."
@@ -1947,7 +1947,7 @@ msgstr "z neznámého důvodu"
 
 #: src/web/pages_admin.ml:652 src/web/pages_admin.ml:602
 msgid "or you may simply print it and store it in a safe."
-msgstr "nebo jej jednoduše můžež vytisknout a uložit do sejfu."
+msgstr "nebo jej jednoduše můžeš vytisknout a uložit do sejfu."
 
 #: src/web/pages_admin.ml:52
 msgid "personal data policy"
@@ -2037,7 +2037,7 @@ msgstr "účet s tímto e-mailem již existuje"
 
 #: src/web/pages_admin.ml:824
 msgid "threshold mode"
-msgstr "mód minimálního počtu akltivních garantů"
+msgstr "mód minimálního počtu aktivních garantů"
 
 #: src/web/pages_admin.ml:2064
 msgid "times are in UTC. Now is "
