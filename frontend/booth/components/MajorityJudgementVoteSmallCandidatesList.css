@@ -18,8 +18,12 @@ select.majority-judgement-vote-small-candidate__grade-selector.select-css {
   border: 1px solid transparent;
 }
 
-select.majority-judgement-vote-small-candidate__grade-selector.select-css:focus, select.majority-judgement-vote-small-candidate__grade-selector.select-css:hover {
-  border: 1px solid #444;
+select.majority-judgement-vote-small-candidate__grade-selector.select-css:not([data-value]):focus, select.majority-judgement-vote-small-candidate__grade-selector.select-css:hover, select.majority-judgement-vote-small-candidate__grade-selector.select-css:not([data-value]):hover {
+  border: 1px solid #aaa;
+}
+
+select.majority-judgement-vote-small-candidate__grade-selector.select-css[data-value]:hover {
+  border: 1px solid #777;
 }
 
 select.majority-judgement-vote-small-candidate__grade-selector.select-css, select.majority-judgement-vote-small-candidate__grade-selector.select-css:focus {

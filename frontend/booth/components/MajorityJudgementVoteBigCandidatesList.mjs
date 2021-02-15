@@ -1,11 +1,69 @@
-function TranslatableMajorityJudgementVoteBigCandidate({ candidateInfo, availableGrades, t }){
-  const renderedGrades = availableGrades.map((gradeLabel, index) => {
-    return e(
-      "div",
+function MajorityJudgementVoteBigCandidateAvailableGrade({ name, id, value, checked, gradeLabel, availableGrades, gradeIndex, ...props }){
+  const checkedValue = checked ? "checked" : null;
+  return e(
+    'div',
+    {
+      className: `majority-judgement-vote-big-candidate__grade clickable majority-judgement-vote-big-candidate__grade--not-selected majority-judgement-vote-big-candidate__grade--${gradeIndex}`, // TODO: `not-selected` should be dynamicly set
+      ...props
+    },
+    e(
+      'input',
       {
-        className: `majority-judgement-vote-big-candidate__grade majority-judgement-vote-big-candidate__grade--not-selected majority-judgement-vote-big-candidate__grade--${index}`
+        type: 'radio',
+        className: 'majority-judgement-vote-big-candidate__grade__input',
+        name: name,
+        id: id,
+        value: value,
+        defaultChecked: checkedValue
+      }
+    ),
+    e(
+      'label',
+      {
+        htmlFor: id,
+        className: 'majority-judgement-vote-big-candidate__grade__label'
       },
-      gradeLabel
+      e(
+        'span',
+        {
+          'className': 'radio-button-appearance'
+        }
+      ),
+      e(
+        'span',
+        {
+          'className': 'majority-judgement-vote-big-candidate__grade__label__label'
+        },
+        gradeLabel
+      )
+    )
+  );
+}
+
+MajorityJudgementVoteBigCandidateAvailableGrade.defaultProps = {
+  name: "radio-button-choice",
+  id: "radio-button_1",
+  value: "choice_1",
+  checked: false,
+  gradeLabel: "Excellent",
+  availableGrades: ["Poor", "Good", "Excellent"],
+  gradeIndex: 2
+};
+
+function TranslatableMajorityJudgementVoteBigCandidate({ candidateInfo, availableGrades, identifierPrefix, name, t }){
+  const renderedGrades = availableGrades.map((gradeLabel, gradeIndex) => {
+    const identifier = `${identifierPrefix}_grade_${gradeIndex}`;
+    return e(
+      MajorityJudgementVoteBigCandidateAvailableGrade,
+      {
+        name: name,
+        id: identifier,
+        value: "aaa", // TODO
+        checked: null,
+        gradeLabel,
+        availableGrades,
+        gradeIndex
+      }
     );
   });
   return e(
@@ -18,34 +76,34 @@ function TranslatableMajorityJudgementVoteBigCandidate({ candidateInfo, availabl
       {
         className: "majority-judgement-vote-big-candidate__candidate-info"
       },
-      candidateInfo
+      e(
+        "div",
+        {
+          className: "majority-judgement-vote-big-candidate__candidate-info__label"
+        },
+        candidateInfo
+      )
     ),
     ...renderedGrades
   );
 }
 
 function TranslatableMajorityJudgementVoteBigCandidatesList({ identifierPrefix, candidates, availableGrades, t }){
-
   const renderedCandidates = candidates.map((candidate, instanceNumber) => {
-    const identifier = `${identifierPrefix}_choice_${instanceNumber}`;
+    const identifierConsolidatedPrefix = `${identifierPrefix}_candidate_${instanceNumber}`;
     const commonProps = {
       candidateInfo: candidate,
       availableGrades: availableGrades,
-      id: identifier,
-      key: instanceNumber
-    };
-    const additionalProps = { 
-      name: identifierPrefix,
-      value: `choice_${instanceNumber}` // or maybe a candidate id provided in data input, or slugification of candidate name?
+      id: identifierConsolidatedPrefix,
+      key: instanceNumber,
+      identifierPrefix: identifierConsolidatedPrefix,
+      name: identifierConsolidatedPrefix,
+      t: t
     };
     
     return e(
       TranslatableMajorityJudgementVoteBigCandidate,
-      {
-        ...commonProps,
-        ...additionalProps,
-        t
-      }
+      commonProps
     );
   });
 
