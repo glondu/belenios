@@ -139,6 +139,7 @@ type mail_kind =
 val send_email : mail_kind -> recipient:string -> subject:string -> body:string -> unit Lwt.t
 
 val split_identity : string -> string * string * int
+val split_identity_opt : string -> string * string option * int option
 
 val available_languages : string list
 val get_languages : string list option -> string list
