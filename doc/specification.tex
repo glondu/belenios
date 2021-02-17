@@ -119,6 +119,15 @@ modulo $p$). We suppose the group parameters are agreed on
 beforehand. Default group parameters are given as examples in
 section~\ref{default-group}.
 
+\medskip
+
+{\it Weights.}  In the homomorphic case, each voter has a weight: a
+ballot is counted as many times as the weight of its owner. Usually,
+the weight of all voters is 1 but sometimes, it may be useful to
+assign different weights. We assume the sum of all weights is not too
+big, so that it can be computed as the discrete logarithm of some
+group element.
+
 \section{Parties}
 
 \newcommand{\pk}{\texttt{public\_key}}
@@ -139,7 +148,7 @@ section~\ref{default-group}.
 \item $\mathcal{A}$: server administrator
 \item $\mathcal{C}$: credential authority
 \item $\mathcal{T}_1,\dots,\mathcal{T}_m$: trustees
-\item $\mathcal{V}_1,\dots,\mathcal{V}_n$: voters
+\item $\mathcal{V}_1,\dots,\mathcal{V}_n$: voters; each voter has a weight $w_i$
 %\item $\mathcal{M}_1,\dots,\mathcal{M}_p$: shufflers (if using non-homomorphic questions)
 \item $\mathcal{S}$: voting server \\
   The voting server maintains the public data $D$ that
@@ -165,10 +174,12 @@ consists of:
   sends it to $\mathcal{C}$
 \item $\mathcal{C}$ generates \hyperref[credentials]{credentials}
   $c_1,\dots,c_n$ and computes
-  $L=\shuffle(\public(c_1),\dots,\public(c_n))$
+  \[L=\shuffle((\public(c_1),w_1),\dots,(\public(c_n),w_n))\]
 \item for $j\in[1\dots n]$, $\mathcal{C}$ sends $c_j$ to $\mathcal{V}_j$
 \item \label{item-forget} (optional) $\mathcal{C}$ forgets $c_1,\dots,c_n$
  \item $\mathcal{C}$ sends $L$ to $\mathcal{A}$
+ \item $\mathcal{A}$ checks that the multiset of weights in $L$ is the
+   same as $\{w_1,\dots,w_n\}$
  \item $\mathcal{A}$ defines the shape of the
    \hyperref[trustees]{$\texttt{trustees}$} structure that will be
    used in the election;
@@ -1342,6 +1353,10 @@ The same hashing function is used on a serialization (done by the
 voting client) of the $\ballot$ structure to produce a so-called
 \emph{smart ballot tracker}.
 
+The weight of a ballot $B$, denoted by $\textsf{weight}(B)$, is the
+weight associated to $\pklabel(\siglabel(B))$ in the list of public
+credentials $L$.
+
 \subsection{Encrypted tally}
 \label{tally}
 
@@ -1360,9 +1375,9 @@ question:
 \begin{itemize}
 \item for homomorphic questions, each element of $C_i$
   ($\texttt{ciphertexts\_h}$) is the pointwise product of the $i$-th
-  ciphertext of all the ballots:
+  ciphertext of all the ballots, elevated to the power of its weight:
   \[
-    C_{i,j}=\prod_{k}\choices(\answers(B_k)_i)_j
+    C_{i,j}=\prod_{k}\choices(\answers(B_k)_i)_j^{\textsf{weight}(B_k)}
   \]
   where the product of two ciphertexts $(\alpha_1,\beta_1)$ and
   $(\alpha_2,\beta_2)$ is $(\alpha_1\alpha_2,\beta_1\beta_2)$;
@@ -1371,6 +1386,7 @@ question:
   \[
     C_{i,k}=\choices(\answers(B_k)_i)
   \]
+  In this case, it is an error if $\textsf{weight}(B_k)\neq 1$.
 \end{itemize}
 In the end, in both cases, the encrypted tally is isomorphic to an
 array of arrays of ciphertexts:
@@ -1546,7 +1562,7 @@ as follows:
     \resultlabel_{i,j}=\log_g\left(\frac{\betalabel(a'_{i,j})}{F_{i,j}}\right)
   \]
   where $j$ represents an answer. The discrete logarithm can be easily
-  computed because it is bounded by $\ntallied$;
+  computed because it is bounded by the sum of all weights;
 \item if question $i$ is non-homomorphic,
   \[
     \resultlabel_{i,j}=\textsf{group\_decode}_{\kappa,p}\left(\frac{\betalabel(a'_{i,j})}{F_{i,j}}\right)
