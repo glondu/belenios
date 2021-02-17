@@ -39,7 +39,9 @@ def is_secure(elec_path):
 
 def is_test(elec_path):
     elec = os.path.join(elec_path, "election.json")
-    assert os.path.exists(elec)
+    if not os.path.exists(elec):
+        print("Can not read election.json in " + elec_path)
+        assert False
     with open(elec,"r") as file:
         data = json.load(file)
     if re.search("test", data['name'], re.IGNORECASE) != None:
