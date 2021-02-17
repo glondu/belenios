@@ -24,8 +24,6 @@ import json
 
 
 # TODO:
-# - check that the weights written on the html board are consistent with
-#   the weights in the corresponding credentials.
 # - add options --belenios-tool-path and --check-hash-path
 # - find a way to test that failure are detected
 # - do a git gc from time to time or at the end (how?)
@@ -154,14 +152,34 @@ def write_and_verify_new_data(wdir, uuid, data):
 def check_hash_ballots(data):
     dom = xml.dom.minidom.parseString(data['ballots'])
     list_ballots = dom.getElementsByTagName("li")
+    if len(list_ballots) == 0:
+        return Status(False, b"")
+    if len(list_ballots[0].childNodes) == 2:
+        has_weight = True
+    else:
+        has_weight = False
+
     list_hash = [ x.firstChild.firstChild.data for x in list_ballots ]
+    if has_weight:
+        list_weights = [ x.childNodes[1].data for x in list_ballots ]
+        list_weights = [ x[2:-1] for x in list_weights ]
 
     list_hash2 = []
+    list_weights2 = []
     for l in data['ballots.jsons'].splitlines():
         m = hashlib.sha256()
         m.update(l)
         h = base64.b64encode(m.digest()).decode().strip('=')
         list_hash2.append(h)
+        if has_weight:
+            jsn = json.loads(l)
+            cred = jsn['signature']['public_key']
+            pat = re.compile(cred + r',(\d+)')
+            m=pat.search(data['public_creds.txt'].decode())
+            list_weights2.append(m.group(1))
+    if has_weight:
+        list_hash = [ (list_hash[i],list_weights[i]) for i in range(len(list_hash)) ]
+        list_hash2 = [ (list_hash2[i],list_weights2[i]) for i in range(len(list_hash2)) ]
     list_hash.sort()
     list_hash2.sort()
     if (not list_hash == list_hash2):
