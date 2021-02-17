@@ -219,7 +219,7 @@ def check_index_html(data):
             re.search("The total weight is",x.firstChild.data) != None ]
     if (len(node) == 1):
         fail_weights = False
-        pat = re.compile('The total weight is (\d+) \(min: (\d+), max: (\d+)\)')
+        pat = re.compile(r'The total weight is (\d+) \(min: (\d+), max: (\d+)\)')
         mat = pat.match(node[0].data)
         w_tot = int(mat.group(1))
         w_min = int(mat.group(2))
@@ -281,7 +281,7 @@ def check_index_html(data):
     # in index.html, the non-threshold trustees are in the ul list with id "trustees"
     arr = [ x for x in dom.getElementsByTagName("ul") if x.getAttribute('id') == 'trustees' ]
     if arr != []:
-        pat = re.compile('(^.*) \(([\w+/]*)\)$')
+        pat = re.compile(r'(^.*) \(([\w+/]*)\)$')
         for trustee in arr[0].getElementsByTagName("li"):
             s = trustee.firstChild.data
             mat = pat.match(s)
@@ -291,7 +291,7 @@ def check_index_html(data):
     # the threshold trustees are in the ul list with class "trustees_threshold"
     arr = [ x for x in dom.getElementsByTagName("ul") if x.getAttribute('class') == 'trustees_threshold' ]
     if arr != []:
-        pat = re.compile('(^.*) \(([\w+/]*)\) \[([\w+/]*)\]$')
+        pat = re.compile(r'(^.*) \(([\w+/]*)\) \[([\w+/]*)\]$')
         for trustee in arr[0].getElementsByTagName("li"):
             s = trustee.firstChild.data
             mat = pat.match(s)
