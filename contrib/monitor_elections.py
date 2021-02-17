@@ -24,6 +24,8 @@ import json
 
 
 # TODO:
+# - check that the weights written on the html board are consistent with
+#   the weights in the corresponding credentials.
 # - add options --belenios-tool-path and --check-hash-path
 # - find a way to test that failure are detected
 # - do a git gc from time to time or at the end (how?)
@@ -209,6 +211,35 @@ def check_index_html(data):
         fail = True
     else:
         logme("  cred fingerprint ok")
+    
+    # if weights, check the total/min/max vs content of public_creds.txt
+    node = [ x.firstChild for x in dom.getElementsByTagName("div")
+            if x.firstChild != None and
+            x.firstChild.nodeType == xml.dom.minidom.Node.TEXT_NODE and
+            re.search("The total weight is",x.firstChild.data) != None ]
+    if (len(node) == 1):
+        fail_weights = False
+        pat = re.compile('The total weight is (\d+) \(min: (\d+), max: (\d+)\)')
+        mat = pat.match(node[0].data)
+        w_tot = int(mat.group(1))
+        w_min = int(mat.group(2))
+        w_max = int(mat.group(3))
+        c_tot = 0
+        c_min = 10000000000
+        c_max = 0
+        for l in data['public_creds.txt'].splitlines():
+            x = int(l.decode().split(',')[1])
+            c_tot += x
+            if (x < c_min):
+                c_min = x
+            if (x > c_max):
+                c_max = x
+        if (c_tot != w_tot) or (c_min != w_min) or (c_max != w_max):
+            msg = msg + "Error: Wrong stats of weights in election {}\n".format(uuid).encode()
+            logme(" " + str(c_tot) + " " + str(c_min) + " " + str(c_max))
+            fail = True
+        else:
+            logme("  stats of weights ok")
 
     def hash_pub_key(s):
         m = hashlib.sha256()
