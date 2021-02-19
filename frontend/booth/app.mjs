@@ -1,7 +1,7 @@
 import i18n_init from "./i18n_init.mjs";
 import PageHeader from "./components/PageHeader.mjs";
 import { VoteBreadcrumb } from "./components/Breadcrumb.mjs";
-import AllQuestionsWithPagination from "./components/AllQuestionsWithPagination.mjs";
+import { AllQuestionsWithPagination, QuestionTypeEnum, detectQuestionType } from "./components/AllQuestionsWithPagination.mjs";
 import NoUuidSection from "./components/NoUuidSection.mjs";
 import InputCredentialSection from "./components/InputCredentialSection.mjs";
 import ReviewEncryptSection from "./components/ReviewEncryptSection.mjs";
@@ -219,10 +219,8 @@ function TranslatableVoteApp({uuid=null, t}){
           AllQuestionsWithPagination,
           {
             electionData: electionData,
-            extractVoterSelectedAnswersFromFields: extractVoterSelectedAnswersFromFields,
-            onVoteSubmit: async function(event, electionData){
-              const voter_selected_answers = extractVoterSelectedAnswersFromFields(electionData);
-              setUncryptedBallotBeforeReview(voter_selected_answers);
+            onVoteSubmit: async function(event, electionData, voterSelectedAnswers){
+              setUncryptedBallotBeforeReview(voterSelectedAnswers);
               setCryptedBallotBeforeReview(null);
               setSmartBallotTracker(null);
               setCurrentStep(3);
@@ -239,7 +237,7 @@ function TranslatableVoteApp({uuid=null, t}){
               setTimeout(function(){
                 console.log("starting encryption of ballot");
                 belenios.encryptBallot(
-                  electionData, credential, voter_selected_answers,
+                  electionData, credential, voterSelectedAnswers,
                   encryptBallotSuccessCallback, encryptBallotErrorCallback
                 );
               }, 50);
@@ -306,35 +304,6 @@ function main() {
   const container = document.querySelector("#vote-app");
   container.innerHTML = "Loading...";
   i18n_init(lang, afterI18nInitialized(uuid, lang));
-}
-
-function extractVoterSelectedAnswersFromFields(electionData){
-  const question_x_choice_y_pattern = (question_index, answer_index) => `question_${question_index}__choice_${answer_index}`;
-  let vote_of_voter_per_question = []; // array where each element correspond to voter's vote on question i. if type of question i is checkbox, answer to this question is an array of indexes of answers. if type of question i is radio, answer to this question is an array containing only one index of answer.
-  vote_of_voter_per_question = electionData.questions.map(function(question, question_index){
-    const question_type = question.min === 1 && question.max === 1 ? "radio" : "checkbox";
-    const els = question.answers.map(
-      function(v, index){
-        return document.querySelector("#" + question_x_choice_y_pattern(question_index, index));
-      }
-    );
-    // attribute `checked`` works for questions of type `<input type="checkbox">` as well as `<input type="radio">`
-    let answers_to_question = els.map(el => el.checked).reduce(
-      function(accumulator, value, index){
-        const answer_value = value === true ? 1 : 0;
-        accumulator.push(answer_value);
-        return accumulator;
-      },
-      []
-    );
-    if ("blank" in question && question["blank"] === true){
-      const blank_el = document.querySelector("#" + question_x_choice_y_pattern(question_index, question.answers.length));
-      const blank_value = blank_el.checked ? 1 : 0;
-      answers_to_question = [blank_value, ...answers_to_question];
-    }
-    return answers_to_question;
-  });
-  return vote_of_voter_per_question;
 }
 
 main();

@@ -1,4 +1,4 @@
-function TranslatableMajorityJudgementVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, t }){
+function TranslatableMajorityJudgementVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, dispatchUserVoteForCandidateInQuestion, t }){
   const renderedAvailableGrades = availableGrades.map((availableGrade, index) => {
     const isSelected = index === selectedGradeIndex ? true : false;
     return e(
@@ -11,7 +11,11 @@ function TranslatableMajorityJudgementVoteSmallCandidate({ candidateInfo, availa
     );
   });
   const onChange = (event) => {
-    event.target.dataset.value = event.target.value;
+    const val = event.target.value
+    event.target.dataset.value = val;
+    const valAsInt = parseInt(val, 10);
+    const finalVal = isNaN(valAsInt) ? undefined : valAsInt;
+    dispatchUserVoteForCandidateInQuestion(finalVal);
   };
   let additionalProps = {};
   if (selectedGradeIndex !== null && selectedGradeIndex !== undefined){
@@ -48,15 +52,24 @@ function TranslatableMajorityJudgementVoteSmallCandidate({ candidateInfo, availa
   );
 }
 
-function TranslatableMajorityJudgementVoteSmallCandidatesList({ identifierPrefix, candidates, availableGrades, t }){
-  const renderedCandidates = candidates.map((candidate, instanceNumber) => {
-    const identifier = `${identifierPrefix}_candidate_${instanceNumber}`;
+function TranslatableMajorityJudgementVoteSmallCandidatesList({ identifierPrefix, candidates, availableGrades, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, t }){
+  const renderedCandidates = candidates.map((candidate, candidateIndex) => {
+    const identifier = `${identifierPrefix}_candidate_${candidateIndex}`;
+    const dispatchUserVoteForCandidateInQuestion = (selected_grade) => {
+      dispatchUpdateUserVoteForQuestion({
+        type: 'saveVoteForCandidateInQuestion',
+        candidate_index: candidateIndex,
+        user_vote_for_candidate: selected_grade
+      });
+    }
     const commonProps = {
       candidateInfo: candidate,
-      availableGrades: availableGrades,
+      availableGrades,
       id: identifier,
-      key: instanceNumber,
-      t: t
+      key: candidateIndex,
+      selectedGradeIndex: currentUserVoteForQuestion[candidateIndex],
+      dispatchUserVoteForCandidateInQuestion,
+      t
     };
     return e(
       TranslatableMajorityJudgementVoteSmallCandidate,

@@ -2,7 +2,7 @@ import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
 import { TranslatableMajorityJudgementVoteSmallCandidatesList } from "./MajorityJudgementVoteSmallCandidatesList.mjs";
 import { TranslatableMajorityJudgementVoteBigCandidatesList } from "./MajorityJudgementVoteBigCandidatesList.mjs";
 
-function TranslatableMajorityJudgementVoteCandidatesList({ identifierPrefix, availableGrades, candidates, t }){
+function TranslatableMajorityJudgementVoteCandidatesList({ identifierPrefix, availableGrades, candidates, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, t }){
   return e(
     "div",
     {
@@ -14,10 +14,12 @@ function TranslatableMajorityJudgementVoteCandidatesList({ identifierPrefix, ava
         widthLimit: 800,
         smallComponent: TranslatableMajorityJudgementVoteSmallCandidatesList,
         bigComponent: TranslatableMajorityJudgementVoteBigCandidatesList,
-        identifierPrefix: identifierPrefix,
-        candidates: candidates,
-        availableGrades: availableGrades,
-        t: t
+        identifierPrefix,
+        candidates,
+        availableGrades,
+        currentUserVoteForQuestion,
+        dispatchUpdateUserVoteForQuestion,
+        t
       }
     )
   );
@@ -35,7 +37,9 @@ TranslatableMajorityJudgementVoteCandidatesList.defaultProps = {
     "Candidate 2",
     "Candidate 3"
   ],
-  t: function(s){ return s; }
+  t: function(s){ return s; },
+  currentUserVoteForQuestion: [],
+  dispatchUpdateUserVote: () => {}
 };
 
 const MajorityJudgementVoteCandidatesList = ReactI18next.withTranslation()(TranslatableMajorityJudgementVoteCandidatesList);

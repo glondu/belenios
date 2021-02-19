@@ -8,7 +8,12 @@ const QuestionTypeEnum = Object.freeze(
   }
 );
 
-function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteAllowed, identifierPrefix, visible, availableGrades=null, t }){
+const detectQuestionType = (question) => {
+  const questionType = question.hasOwnProperty("type") && question["type"] == "NonHomomorphic" ? QuestionTypeEnum.MAJORITY_JUDGEMENT : QuestionTypeEnum.CLASSIC; // TODO: add here differenciation between majority judgement and vote by preference, once backend transmits this piece of information
+  return questionType;
+}
+
+function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteAllowed, identifierPrefix, visible, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
   let description;
   let rendered_answers;
   if (questionType === QuestionTypeEnum.MAJORITY_JUDGEMENT){
@@ -16,10 +21,12 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
     rendered_answers = e(
       TranslatableMajorityJudgementVoteCandidatesList,
       {
-        identifierPrefix: identifierPrefix,
+        identifierPrefix,
         candidates: answers,
-        availableGrades: availableGrades,
-        t: t
+        availableGrades,
+        currentUserVoteForQuestion,
+        dispatchUpdateUserVoteForQuestion,
+        t
       }
     );
   }
@@ -38,10 +45,12 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
       TranslatableClassicVoteCandidatesList,
       {
         type: classic_question_subtype,
-        identifierPrefix: identifierPrefix,
+        identifierPrefix,
         candidates: answers,
-        blankVoteAllowed: blankVoteAllowed,
-        t: t
+        blankVoteAllowed,
+        currentUserVoteForQuestion,
+        dispatchUpdateUserVoteForQuestion,
+        t
       }
     );
   }
@@ -82,10 +91,12 @@ TranslatableQuestionWithVotableAnswers.defaultProps = {
   "blankVoteAllowed": false,
   "question": "Question 1?",
   "identifierPrefix": "question_1_",
-  "visible": true
+  "visible": true,
+  "currentUserVoteForQuestion": [],
+  "dispatchUpdateUserVoteForQuestion": () => {}
 };
 
 const QuestionWithVotableAnswers = ReactI18next.withTranslation()(TranslatableQuestionWithVotableAnswers);
 
-export { QuestionTypeEnum, QuestionWithVotableAnswers, TranslatableQuestionWithVotableAnswers };
+export { QuestionTypeEnum, QuestionWithVotableAnswers, TranslatableQuestionWithVotableAnswers, detectQuestionType };
 export default QuestionWithVotableAnswers;

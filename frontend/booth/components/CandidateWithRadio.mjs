@@ -1,5 +1,8 @@
-function CandidateWithRadio({ name, id, value, checked, candidateInfo, ...props }){
+function CandidateWithRadio({ name, id, value, checked, candidateInfo, dispatchUpdateUserVoteForCandidateInQuestion, ...props }){
   const checkedValue = checked ? "checked" : null;
+  const onChange = (event) => {
+    dispatchUpdateUserVoteForCandidateInQuestion(event.target.checked === true ? true : false)
+  };
   return e(
     'div',
     {
@@ -13,7 +16,8 @@ function CandidateWithRadio({ name, id, value, checked, candidateInfo, ...props 
         name: name,
         id: id,
         value: value,
-        defaultChecked: checkedValue
+        defaultChecked: checkedValue,
+        onChange: onChange
       }
     ),
     e(
