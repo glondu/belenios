@@ -365,7 +365,7 @@ let without_site_user ?fallback f =
 
 let () =
   Redirection.register ~service:privacy_notice_accept
-    (fun cont () ->
+    (fun () cont ->
       let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
       let cont = match cont with
         | ContAdmin -> Redirection admin

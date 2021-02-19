@@ -106,6 +106,8 @@ type privacy_cont =
   | ContAdmin
   | ContSignup of string
 
+val string_of_privacy_cont : privacy_cont -> string
+
 val privacy_cont :
   string ->
   (privacy_cont, [ `WithoutSuffix ],

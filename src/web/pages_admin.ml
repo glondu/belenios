@@ -44,7 +44,6 @@ let privacy_notice cont =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election server" ^ " — " ^ s_ "Personal data processing notice" in
-  let service = Eliom_service.preapply ~service:privacy_notice_accept cont in
   let content =
     [
       div [
@@ -52,10 +51,11 @@ let privacy_notice cont =
           direct_a !Web_config.gdpr_uri (s_ "personal data policy");
           txt ".";
         ];
-      post_form ~service
-        (fun () ->
+      post_form ~service:privacy_notice_accept
+        (fun ncont ->
           [
             div [
+                input ~input_type:`Hidden ~name:ncont ~value:cont (user string_of_privacy_cont);
                 input ~input_type:`Submit ~value:(s_ "Accept") string;
               ];
           ]
