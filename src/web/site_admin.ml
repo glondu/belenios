@@ -1160,7 +1160,7 @@ let () =
               |> List.map
                    (fun (cred, weight) ->
                      let cred = G.to_string cred in
-                     if weight > 1 then
+                     if show_weight then
                        Printf.sprintf "%s,%d" cred weight
                      else cred
                    )
