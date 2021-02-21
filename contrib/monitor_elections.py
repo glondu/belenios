@@ -176,7 +176,10 @@ def check_hash_ballots(data):
             cred = jsn['signature']['public_key']
             pat = re.compile(cred + r',(\d+)')
             m=pat.search(data['public_creds.txt'].decode())
-            list_weights2.append(m.group(1))
+            if m:
+                list_weights2.append(m.group(1))
+            else: # if absent, default weight is 1
+                list_weights2.append('1')
     if has_weight:
         list_hash = [ (list_hash[i],list_weights[i]) for i in range(len(list_hash)) ]
         list_hash2 = [ (list_hash2[i],list_weights2[i]) for i in range(len(list_hash2)) ]
@@ -246,7 +249,12 @@ def check_index_html(data):
         c_min = 10000000000
         c_max = 0
         for l in data['public_creds.txt'].splitlines():
-            x = int(l.decode().split(',')[1])
+            wt = l.decode().split(',')
+            if len(wt) == 2:
+                x = int(l.decode().split(',')[1])
+            else: # if absent, default weight is 1.
+                assert len(wt) == 1;
+                x = 1
             c_tot += x
             if (x < c_min):
                 c_min = x
