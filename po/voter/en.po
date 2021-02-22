@@ -48,7 +48,7 @@ msgstr " day(s)"
 
 #: src/web/pages_voter.ml:900
 msgid " for more information."
-msgstr " -for more information"
+msgstr " for more information."
 
 #: src/web/pages_voter.ml:619
 msgid " has been accepted."
