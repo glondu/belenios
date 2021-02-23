@@ -86,7 +86,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
         wait_a_bit()
 
         # She checks that page contains text "Credentials have been received and checked!"
-        page_content_css_selector = "#main div"
+        page_content_css_selector = "#main div div"
         page_content_expected_content = "Credentials have been received and checked!"
         wait_for_element_exists_and_contains_expected_text(browser, page_content_css_selector, page_content_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
