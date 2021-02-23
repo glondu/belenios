@@ -67,7 +67,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
 
         # She executes local (not server's) CLI belenios-tool to generate a number of credentials corresponding to the number of voters. This creates some local files.
         console_log("#### Starting step: belenios_tool_generate_credentials")
-        self.credential_file_id = belenios_tool_generate_credentials(self.election_id)
+        self.credential_file_id = belenios_tool_generate_credentials(self.election_id, nh_question=settings.NH_QUESTION)
         console_log("#### Step complete: belenios_tool_generate_credentials")
         console_log("#### Credential file id:", self.credential_file_id)
 
@@ -150,7 +150,7 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
 
         console_log("### Running test method BeleniosLoadTestingSetUp::test_load_testing_set_up()")
         console_log("### Starting step: administrator_starts_creation_of_manual_election")
-        self.administrator_starts_creation_of_manual_election()
+        self.administrator_starts_creation_of_manual_election(nh_question=settings.NH_QUESTION)
         console_log("### Step complete: administrator_starts_creation_of_manual_election")
 
         self.election_id = admin_election_draft_page_url_to_election_id(self.draft_election_administration_page_url)
@@ -215,6 +215,10 @@ if __name__ == "__main__":
 
     if os.getenv('USE_HEADLESS_BROWSER', None):
         settings.USE_HEADLESS_BROWSER = bool(strtobool(os.getenv('USE_HEADLESS_BROWSER')))
+
+    settings.NH_QUESTION = False
+    if os.getenv('NH_QUESTION', None):
+        settings.NH_QUESTION = bool(strtobool(os.getenv('NH_QUESTION')))
 
     settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH = os.getenv('SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH', settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     settings.WAIT_TIME_BETWEEN_EACH_STEP = float(os.getenv('WAIT_TIME_BETWEEN_EACH_STEP', settings.WAIT_TIME_BETWEEN_EACH_STEP))

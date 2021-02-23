@@ -319,7 +319,7 @@ def verify_election_consistency(election_id, snapshot_folder=None):
         raise Exception("Error: Verification took longer than " + process_timeout + " seconds. STDOUT was: " + outs + " STDERR was:" + errs)
 
 
-def belenios_tool_generate_credentials(election_id, number_of_voters=None):
+def belenios_tool_generate_credentials(election_id, number_of_voters=None, nh_question=False):
     """
     Use local CLI belenios-tool to generate a number of credentials corresponding to the number of voters. Example:
     ```
@@ -334,7 +334,11 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None):
         number_of_voters = settings.NUMBER_OF_INVITED_VOTERS
     generated_files_destination_folder = settings.GENERATED_FILES_DESTINATION_FOLDER
     belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_run/tool-debug/bin/belenios-tool")
-    crypto_group_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "files/groups/default.json")
+    if nh_question:
+        group_base_path = "files/groups/rfc3526-2048.json"
+    else:
+        group_base_path = "files/groups/default.json"
+    crypto_group_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, group_base_path)
     command = [belenios_tool_path, "credgen", "--uuid", election_id, "--group", crypto_group_path, "--count", str(number_of_voters)]
     running_process = subprocess.Popen(command, cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     process_timeout = 15 * number_of_voters # seconds
