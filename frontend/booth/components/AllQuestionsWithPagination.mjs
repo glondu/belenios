@@ -149,27 +149,33 @@ function TranslatableAllQuestionsWithPagination(props){
     if (questionType === QuestionTypeEnum.MAJORITY_JUDGEMENT){
       answers = question.value.answers;
       questionText = question.value.question;
+      
       // TODO: receive from backend the number of available grades, their labels and their ordering
-      /*
-      complementaryProps.availableGrades = [
-        "Reject", // or "To be rejected"
-        "Poor", // or add "Insufficient" before
-        "Acceptable", // or remove this element
-        "Fair",
-        "Good",
-        "Very good",
-        "Excellent",
-      ];
-      */
-      complementaryProps.availableGrades = [
-        "To be rejected",
-        "Insufficient",
-        "Poor",
-        "Fair",
-        "Good",
-        "Very good",
-        "Excellent",
-      ];
+      if ("extra" in question && Array.isArray(question.extra) && question.extra.length > 1 && question.extra[0] == "MajorityJudgement"){
+        complementaryProps.availableGrades = question.extra[1];
+      }
+      else {
+        /*
+        complementaryProps.availableGrades = [
+          "Reject", // or "To be rejected"
+          "Poor", // or add "Insufficient" before
+          "Acceptable", // or remove this element
+          "Fair",
+          "Good",
+          "Very good",
+          "Excellent",
+        ];
+        */
+        complementaryProps.availableGrades = [
+          "To be rejected",
+          "Insufficient",
+          "Poor",
+          "Fair",
+          "Good",
+          "Very good",
+          "Excellent",
+        ];
+      }
     }
     else if (questionType === QuestionTypeEnum.CLASSIC){
       answers = question.answers;

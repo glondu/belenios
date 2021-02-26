@@ -37,14 +37,14 @@ function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallo
     e(
       "h3",
       {
-        className: "review-encrypt-section__question-title"
+        className: "whole-vote-recap__question-title"
       },
       questionText,
     ),
     e(
       "ul",
       {
-        className: "classic-vote-review__answers-to-question"
+        className: "classic-vote-recap__answers-to-question"
       },
       ...renderedAnswers
     )
@@ -52,7 +52,7 @@ function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallo
   return e(
     "div",
     {
-      className: "whole-vote-recap" // TODO: have its own classname and associated CSS
+      className: "classic-vote-recap"
     },
     renderedVoteToQuestion
   );

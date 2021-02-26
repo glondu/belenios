@@ -1,7 +1,43 @@
+function MajorityJudgementVoteRecapForCandidateBig({ candidateName, selectedGradeName, selectedGradeNumber }){
+  const bemBlockName = "majority-judgement-vote-recap-for-candidate-big";
+  return e(
+    "div",
+    {
+      className: bemBlockName
+    },
+    e(
+      "div",
+      {
+        className: `${bemBlockName}__candidate-name`
+      },
+      candidateName
+    ),
+    e(
+      "div",
+      {
+        className: `${bemBlockName}__selected-grade majority-judgement-use-background-color-${selectedGradeNumber}`
+      },
+      selectedGradeName
+    )
+  );
+}
+
+function MajorityJudgementVoteRecapForCandidate({ candidateName, selectedGradeName, selectedGradeNumber }){
+  // TODO: show big or small depending on screen
+  return e(
+    MajorityJudgementVoteRecapForCandidateBig,
+    {
+      candidateName,
+      selectedGradeName,
+      selectedGradeNumber
+    }
+  );
+}
+
 function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncryptedBallot, t }){
   const questionText = question.value.question;
   const questionCandidates = question.value.answers;
-  const questionPossibleGrades = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']; // TODO: use real mentions
+  const questionPossibleGrades = question.extra[1];
   const renderedGradedCandidates = uncryptedBallot[question_index].map(function(answer, answer_index){
     // TODO: verify that blank vote works just like in classic vote mode
     if (question.blank === true && answer_index === 0 && answer === 1){
@@ -21,11 +57,13 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
         );
       }
       const index = question.blank === true ? answer_index-1 : answer_index;
-      const answerTextSelectedByUser = questionCandidates[index] + ' : ' + questionPossibleGrades[answer]; // TODO: implement nicer UI
       return e(
-        "li",
-        null,
-        answerTextSelectedByUser
+        MajorityJudgementVoteRecapForCandidate,
+        {
+          candidateName: questionCandidates[index],
+          selectedGradeName: questionPossibleGrades[answer],
+          selectedGradeNumber: answer
+        }
       );
     }
   });
@@ -35,14 +73,14 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
     e(
       "h3",
       {
-        className: "review-encrypt-section__question-title"
+        className: "whole-vote-recap__question-title"
       },
       questionText,
     ),
     e(
-      "ul",
+      "div",
       {
-        className: "classic-vote-review__answers-to-question"
+        className: "majority-judgement-vote-recap__answers-to-question"
       },
       ...renderedGradedCandidates
     )
@@ -50,7 +88,7 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
   return e(
     "div",
     {
-      className: "whole-vote-recap" // TODO: have its own classname and associated CSS
+      className: "majority-judgement-vote-recap"
     },
     renderedVoteToQuestion
   );

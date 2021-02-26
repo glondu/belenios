@@ -7,20 +7,53 @@
   font-size: smaller;
 }
 
-/* TODO: rework namings of classes and move each one to relevant .css file */
+.majority-judgement-vote-recap, .classic-vote-recap {
+  padding: 10px;
+  margin: 10px auto;
+}
 
-.review-encrypt-section__question-title {
+/* TODO: rework namings of classes and move each one to relevant .css file. Or maybe is it best to have CSS rules of all descendents of WholeVoteRecap regrouped in this file? */
+
+.whole-vote-recap__question-title {
   margin-top: 2px;
   margin-bottom: 
 }
 
-.classic-vote-review__answers-to-question {
-  background: #e6f8fd; /* <- pale blue. Another possibility would be pale green: #c5ffcc; */
-  border-radius: 10px;
+.majority-judgement-vote-recap__answers-to-question, .classic-vote-recap__answers-to-question {
   padding: 15px 40px;
   margin: 16px 0 20px 0;
 }
 
-.classic-vote-review__answers-to-question:last-child {
+.majority-judgement-vote-recap__answers-to-question:last-child, .classic-vote-recap__answers-to-question:last-child {
   margin-bottom: 5px;
+}
+
+.classic-vote-recap__answers-to-question {
+  background: #e6f8fd; /* <- pale blue. Another possibility would be pale green: #c5ffcc; */
+  border-radius: 10px;
+}
+
+.majority-judgement-vote-recap-for-candidate-big {
+  --border-radius-size: 8px;
+  --padding-size: 5px;
+  display: flex;
+  background: #eee;
+  border-radius: var(--border-radius-size);
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.majority-judgement-vote-recap-for-candidate-big__candidate-name {
+  padding: var(--padding-size) 12px;
+  border-right: 3px solid white;
+  flex-grow: 1;
+}
+
+.majority-judgement-vote-recap-for-candidate-big__selected-grade {
+  border-radius: 0 var(--border-radius-size) var(--border-radius-size) 0;
+  padding: var(--padding-size);
+  color: white;
+  font-weight: bold;
+  width: 25%;
+  text-align: center;
 }
