@@ -9,7 +9,7 @@
 @import "./components/NiceButton.css";
 @import "./components/NiceInput.css";
 @import "./components/LoadingSpinner.css";
-@import "./components/ClassicVoteReview.css";
+@import "./components/WholeVoteRecap.css";
 @import "./components/ReviewEncryptSection.css";
 @import "./components/MajorityJudgementVoteCandidatesList.css";
 @import "./components/MajorityJudgementVoteBigCandidatesList.css";

@@ -1,4 +1,4 @@
-.classic-vote-review {
+.whole-vote-recap {
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 10px;
@@ -6,6 +6,8 @@
   max-width: 500px;
   font-size: smaller;
 }
+
+/* TODO: rework namings of classes and move each one to relevant .css file */
 
 .review-encrypt-section__question-title {
   margin-top: 2px;

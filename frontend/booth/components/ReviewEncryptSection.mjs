@@ -1,4 +1,4 @@
-import ClassicVoteReview from "./ClassicVoteReview.mjs";
+import WholeVoteRecap from "./WholeVoteRecap.mjs";
 import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.mjs";
 import LoadingSpinner from "./LoadingSpinner.mjs";
 
@@ -180,7 +180,7 @@ function TranslatableReviewEncryptSection({
         t("reviewBallotForQuestions", {count: uncryptedBallot.length})
       ),
       e(
-        ClassicVoteReview,
+        WholeVoteRecap,
         {
           electionData: electionData,
           uncryptedBallot: uncryptedBallot
