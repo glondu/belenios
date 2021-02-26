@@ -8,259 +8,273 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2021-02-27 04:50+0000\n"
+"Last-Translator: Paulo Figueiredo <phsrf@uol.com.br>\n"
+"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
+"belenios/admin/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.5\n"
 
 #: src/web/pages_admin.ml:2094
 msgid " You may re-open the election when it is closed."
-msgstr ""
+msgstr " Você pode reabrir a eleição, quando estiver fechada."
 
 #: src/tool/tool_js_questions.ml:166
 msgid " and "
-msgstr ""
+msgstr " e "
 
 #: src/web/pages_admin.ml:2902
 msgid " and a password: "
-msgstr ""
+msgstr " e uma senha "
 
 #: src/web/pages_admin.ml:1624 src/web/pages_admin.ml:1499
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " e salvar em um local seguro."
 
 #: src/web/pages_admin.ml:1381
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " e salvar em um local seguro."
 
 #: src/web/pages_admin.ml:1837
 msgid " and save them securely."
-msgstr ""
+msgstr " e salve-os de forma segura."
 
 #: src/web/pages_admin.ml:2947
 msgid " and your e-mail address is: "
-msgstr ""
+msgstr " e seu endereço de email é: "
 
 #: src/tool/tool_js_questions.ml:173
 msgid " answers."
-msgstr ""
+msgstr " respostas."
 
 #: src/web/pages_admin.ml:2935 src/web/pages_admin.ml:2885
 msgid " because "
-msgstr ""
+msgstr " porque "
 
 #: src/web/pages_admin.ml:2406
 msgid " has been computed."
-msgstr ""
+msgstr " foi computado."
 
 #: src/web/pages_admin.ml:2855 src/web/pages_admin.ml:2823
 msgid " in the following box: "
-msgstr ""
+msgstr " na caixa seguinte: "
 
 #: src/web/pages_admin.ml:1127 src/web/pages_admin.ml:1118
 msgid " instead of "
-msgstr ""
+msgstr " em vez de "
 
 #. src/web/pages_admin.ml:940
 #. src/web/pages_admin.ml:774
 #: src/web/pages_admin.ml:2378 src/web/pages_admin.ml:2244
 msgid " is:"
-msgstr ""
+msgstr " é:"
 
 #: src/web/pages_admin.ml:2847
 msgid " or username: "
-msgstr ""
+msgstr " ou nome de usuário: "
 
 #: src/web/pages_admin.ml:1000
 msgid " out of "
-msgstr ""
+msgstr " fora de "
 
 #: src/web/pages_admin.ml:477
 msgid " to set up the election key."
-msgstr ""
+msgstr " estabelecer uma chave de eleição."
 
 #: src/web/pages_admin.ml:1002
 msgid " trustees will be needed to decrypt the result."
-msgstr ""
+msgstr " serão necessários administradores para decifrar o resultado."
 
 #: src/web/pages_admin.ml:463
 msgid " voter(s) registered"
-msgstr ""
+msgstr " eleitor(es) registrado(s)"
 
 #: src/web/pages_admin.ml:2773
 msgid " your contribution to decryption."
-msgstr ""
+msgstr " sua contribuição à decriptografia."
 
 #: src/web/site_admin.ml:890
 msgid "%S is not a valid identity"
-msgstr ""
+msgstr "%S não é uma identidade válida"
 
 #: src/web/pages_admin.ml:1806
 msgid "%d voter(s)"
-msgstr ""
+msgstr "%d eleitor(es)"
 
 #: src/web/site_admin.ml:760
 msgid "%s is not a registered user for this election."
-msgstr ""
+msgstr "%s não é um usuário registrado para esta eleição."
 
 #: src/web/site_admin.ml:1564
 msgid "%s is not a valid date!"
-msgstr ""
+msgstr "%s não é uma data válida!"
 
 #: src/web/site_admin.ml:2252 src/web/site_admin.ml:996
 msgid "%s is not a valid e-mail address!"
-msgstr ""
+msgstr "%s não é um endereço de email válido!"
 
 #: src/web/pages_admin.ml:1947
 msgid "(Warning: This action is irreversible.)"
-msgstr ""
+msgstr "(Atenção: esta ação é irreversível.)"
 
 #: src/web/pages_admin.ml:762
 msgid "(cannot be removed)"
-msgstr ""
+msgstr "(não pode ser removido)"
 
 #: src/web/pages_admin.ml:739
 msgid "(done)"
-msgstr ""
+msgstr "(feito)"
 
 #: src/web/pages_admin.ml:256
 msgid "(for example: https://cas.inria.fr/cas)"
-msgstr ""
+msgstr "(por exemplo: https://cas.inria.fr/cas)"
 
 #: src/web/pages_admin.ml:915 src/web/pages_admin.ml:754
 msgid "(not available)"
-msgstr ""
+msgstr "(não disponível)"
 
 #: src/web/pages_admin.ml:1125 src/web/pages_admin.ml:1116
 msgid "(or "
-msgstr ""
+msgstr "(ou "
 
 #. src/web/pages_admin.ml:743
 #: src/web/pages_admin.ml:2346 src/web/pages_admin.ml:2346
 msgid "(server)"
-msgstr ""
+msgstr "(servidor)"
 
 #: src/web/pages_admin.ml:2188
 msgid "(skipped)"
-msgstr ""
+msgstr "(omitido)"
 
 #: src/web/pages_admin.ml:993
 msgid "(the threshold must be smaller than the number of trustees)"
-msgstr ""
+msgstr "(o limite deve ser menor que o número de administradores)"
 
 #: src/web/pages_admin.ml:287
 msgid "(you can use any credential such as %s)."
-msgstr ""
+msgstr "(você pode utilizar qualquer credencial, tal como %s)."
 
 #: src/web/pages_admin.ml:2937 src/web/pages_admin.ml:2887
 msgid ". Please try again with a different one."
-msgstr ""
+msgstr ". Por favor, tente novamente com outro diferente."
 
 #: src/web/pages_admin.ml:1631
 msgid ". Save it so that you can check that it appears on the election home later."
 msgstr ""
+". Guarde-o de modo a que você possa conferir que  aparece na página da "
+"eleição posteriormente."
 
 #: src/web/pages_admin.ml:970
 msgid "1a: action needed from trustee: generate private key"
-msgstr ""
+msgstr "1a: ação necessária por parte do administrador: gerar chave privada"
 
 #: src/web/pages_admin.ml:972
 msgid "1b, 2b, 3b: waiting for other trustees"
-msgstr ""
+msgstr "1b, 2b, 3b: esperando por outros administradores"
 
 #: src/web/pages_admin.ml:971
 msgid "2a, 3a: action needed from trustee: enter private key"
 msgstr ""
+"2a, 3a: ação necessária por parte do administrador: inserir a chave privada"
 
 #: src/web/site_admin.ml:756
 msgid "A new password has been mailed to %s."
-msgstr ""
+msgstr "Uma nova senha foi enviada para %s."
 
 #: src/web/site_admin.ml:1244
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
-msgstr ""
+msgstr "Uma chave privada já existia. A chave que você enviou foi ignorada!"
 
 #: src/web/pages_admin.ml:59
 msgid "Accept"
-msgstr ""
+msgstr "Aceitar"
 
 #. src/web/site_admin.ml:2445
 #: src/web/site_admin.ml:2561 src/web/site_admin.ml:2475
 msgid "Account creation"
-msgstr ""
+msgstr "Criação de conta"
 
 #. src/web/pages_admin.ml:697
 #: src/web/pages_admin.ml:1232 src/web/pages_admin.ml:861
 msgid "Add"
-msgstr ""
+msgstr "Adicionar"
 
 #: src/tool/tool_js_questions.ml:361
 msgid "Add a question"
-msgstr ""
+msgstr "Adicionar uma pergunta"
 
 #: src/tool/tool_js_questions.ml:305
 msgid "Add an answer"
-msgstr ""
+msgstr "Adicionar uma resposta"
 
 #: src/web/pages_admin.ml:2049 src/web/pages_admin.ml:125
 msgid "Administration"
-msgstr ""
+msgstr "Administração"
 
 #: src/web/pages_admin.ml:426
 msgid "All passwords have been sent!"
-msgstr ""
+msgstr "Todas as senhas foram enviadas!"
 
 #: src/web/pages_admin.ml:636
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr ""
+"Todos os administradores devem ter completado uma etapa, antes que você "
+"possa prosseguir para a seguinte."
 
 #: src/tool/tool_js_questions.ml:292
 msgid "Alternative (voters assign a number to each candidate)"
-msgstr ""
+msgstr "Alternativa (votantes atribuem um número para cada candidato)"
 
 #: src/web/pages_admin.ml:1177
 msgid "Alternative voting methods (warning, still experimental):"
-msgstr ""
+msgstr "Métodos de voto alternativos (advertência, experimental):"
 
 #: src/web/pages_admin.ml:2060
 msgid "Alternatively, you may set up automatic dates."
-msgstr ""
+msgstr "Alternativamente, você pode estabelecer datas automáticas."
 
 #: src/web/site_admin.ml:2473
 msgid "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation."
 msgstr ""
+"Uma mensagem eletrônica foi enviada para %s com o link de confirmação. Por "
+"favor, clique sobre ele para completar a criação da conta."
 
 #: src/web/pages_admin.ml:197
 msgid "An election with the same UUID already exists."
-msgstr ""
+msgstr "Já existe uma eleição com o mesmo UUID."
 
 #: src/web/site_admin.ml:2104
 msgid "An error occurred while applying the shuffle."
-msgstr ""
+msgstr "Ocorreu um erro ao aplicar a combinação."
 
 #: src/web/site_admin.ml:1986
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
+"Ocorreu um erro ao computar o resultado (%s). Provavelmente, isto signifique "
+"que algum administrador não fez sua tarefa."
 
 #: src/web/pages_admin.ml:1331
 msgid "An identity is either an e-mail address, or \"address,login\", where \"address\" is an e-mail address and \"login\" the associated login for authentication."
 msgstr ""
+"Um identificador pode ser um endereço de email, ou “endereço,login”, onde "
+"“endereço” é um endereço de email e “login” é o nome de usuário associado "
+"para autenticação."
 
 #: src/tool/tool_js_questions.ml:124
 msgid "Answer: "
-msgstr ""
+msgstr "Resposta: "
 
 #: src/web/pages_admin.ml:2485
 msgid "Archive election"
-msgstr ""
+msgstr "Arquivar a eleição"
 
 #: src/web/pages_admin.ml:1750 src/web/pages_admin.ml:183
 msgid "Archived elections"
-msgstr ""
+msgstr "Eleições arquivadas"
 
 #: src/web/pages_admin.ml:2648
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
@@ -272,7 +286,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:420 src/web/pages_admin.ml:243
 msgid "Authentication"
-msgstr ""
+msgstr "Autenticação"
 
 #: src/web/pages_admin.ml:439
 msgid "Authentication scheme: CAS with server "
@@ -304,15 +318,15 @@ msgstr ""
 
 #: src/web/pages_admin.ml:304
 msgid "Available languages:"
-msgstr ""
+msgstr "Idiomas disponíveis:"
 
 #: src/web/pages_admin.ml:2409
 msgid "Awaiting trustees…"
-msgstr ""
+msgstr "Esperando administradores…"
 
 #: src/web/pages_admin.ml:1071
 msgid "Back to election preparation page"
-msgstr ""
+msgstr "Voltar à página de preparação da eleição"
 
 #: src/web/site_admin.ml:475
 msgid "Bad CAS server!"
@@ -320,7 +334,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2803
 msgid "Bad e-mail address!"
-msgstr ""
+msgstr "Endereço de email incorreto!"
 
 #: src/web/pages_admin.ml:2802
 msgid "Bad security code!"
@@ -332,7 +346,7 @@ msgstr ""
 
 #: src/tool/tool_js_questions.ml:182
 msgid "Blank vote is allowed"
-msgstr ""
+msgstr "Voto em branco permitido"
 
 #: src/web/pages_admin.ml:471
 msgid "By default, the election server manages the keys of the election (degraded privacy mode)."
@@ -344,46 +358,47 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2633
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: src/web/site_admin.ml:1107
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr ""
+"Não foi possível enviar as credenciais. Há eleitores demais (máximo é %d)"
 
 #: src/web/site_admin.ml:652
 msgid "Cannot send passwords, there are too many voters (max is %d)"
-msgstr ""
+msgstr "Não foi possível enviar as senhas. há eleitores demais (máximo é %d)"
 
 #: src/web/pages_admin.ml:2084
 msgid "Change automatic dates"
-msgstr ""
+msgstr "Mudar datas automáticas"
 
 #. src/web/site_admin.ml:2487
 #. src/web/pages_admin.ml:2968
 #. src/web/pages_admin.ml:2866
 #: src/web/site_admin.ml:2581 src/web/site_admin.ml:2520
 msgid "Change password"
-msgstr ""
+msgstr "Mudar a senha"
 
 #: src/web/pages_admin.ml:1933
 msgid "Checklist:"
-msgstr ""
+msgstr "Checklist:"
 
 #: src/tool/tool_js_questions.ml:263
 msgid "Classical (selection of answers)"
-msgstr ""
+msgstr "Clássico (seleção de respostas)"
 
 #: src/web/pages_admin.ml:475
 msgid "Click "
-msgstr ""
+msgstr "Clique "
 
 #: src/web/pages_admin.ml:2014
 msgid "Click on \"Compute shuffle\"."
-msgstr ""
+msgstr "Clique sobre “Computar a combinação”."
 
 #: src/web/pages_admin.ml:589
 msgid "Click on \"Generate a new key pair\"."
-msgstr ""
+msgstr "Clique sobre “ Gerar novo par de chaves”."
 
 #: src/web/pages_admin.ml:595
 msgid "Click on \"Submit\" to send your verification key."
@@ -1936,6 +1951,9 @@ msgstr ""
 #: src/web/pages_admin.ml:1321
 msgid "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote."
 msgstr ""
+"Você deve se certificar de que estes endereços de email são válidos. Você "
+"não será capaz de alterar os endereços de email, após a criação da eleição. "
+"Eleitores com endereços de email inválidos não poderão votar."
 
 #: src/web/pages_admin.ml:650 src/web/pages_admin.ml:600
 msgid "you may store the key on a USB stick and store it in a safe;"
@@ -1948,3 +1966,5 @@ msgstr ""
 #: src/web/pages_admin.ml:640
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
 msgstr ""
+"sua chave privada. Assegure-se de SALVÁ-LA propriamente, do contrário você "
+"não poderá participar da apuração e a eleição poderá ser cancelada;"
