@@ -253,7 +253,7 @@ let handle_method uuid question f =
      let questions = election.e_params.e_questions in
      if 0 <= question && question < Array.length questions then (
        match questions.(question) with
-       | Question.NonHomomorphic q ->
+       | Question.NonHomomorphic (q, _) ->
           f l q
             (fun continuation ->
               match%lwt Web_persist.get_election_result uuid with

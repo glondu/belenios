@@ -46,11 +46,13 @@ let default_question_h =
 
 let default_question_nh =
   let open Question_nh_t in
-  Question.NonHomomorphic
-    {
-      q_question = "Give a rank to each candidate (a number between 1 and 3)";
-      q_answers;
-    }
+  Question.NonHomomorphic (
+      {
+        q_question = "Give a rank to each candidate (a number between 1 and 3)";
+        q_answers;
+      },
+      None
+    )
 
 let default_question () =
   if !hybrid_mode then default_question_nh else default_question_h
@@ -98,8 +100,19 @@ let extractQuestion q =
      let open Question_h_t in
      return (Question.Homomorphic {q_question; q_blank; q_min; q_max; q_answers})
   | None ->
+     p2##querySelector (Js.string ".question_extra") >>= fun x ->
+     Dom_html.CoerceTo.input x >>= fun x ->
+     let x = Js.to_string x##.value in
+     let extra =
+       if x = "" then
+         None
+       else (
+         try Some (Yojson.Safe.from_string x)
+         with _ -> failwith (s_ "Invalid counting method specification!")
+       )
+     in
      let open Question_nh_t in
-     return (Question.NonHomomorphic {q_question; q_answers})
+     return (Question.NonHomomorphic ({q_question; q_answers}, extra))
 
 let extractTemplate () =
   let t_name = get_input "election_name" in
@@ -196,14 +209,14 @@ let deleteQuestion q =
   return ()
 
 let rec createQuestion q =
-  let question, answers, props =
+  let question, answers, props, extra =
     match q with
     | Question.Homomorphic q ->
        let open Question_h_t in
-       q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max)
-    | Question.NonHomomorphic q ->
+       q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max), None
+    | Question.NonHomomorphic (q, extra) ->
        let open Question_nh_t in
-       q.q_question, q.q_answers, None
+       q.q_question, q.q_answers, None, extra
   in
   let container = Dom_html.createDiv document in
   container##.className := Js.string "question";
@@ -255,6 +268,21 @@ let rec createQuestion q =
   nh_explain##.className := Js.string "nh_explain";
   Dom.appendChild nh_explain (document##createTextNode (Js.string (s_ "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election.")));
   Dom.appendChild prop_div_nh nh_explain;
+  (* extra *)
+  let h_extra = Dom_html.createDiv document in
+  h_extra##.style##.display := Js.string "none";
+  Dom.appendChild prop_div_nh h_extra;
+  Dom.appendChild h_extra (document##createTextNode (Js.string (s_ "Counting method specification:")));
+  Dom.appendChild h_extra (document##createTextNode (Js.string " "));
+  let i_extra = Dom_html.createInput document in
+  Dom.appendChild h_extra i_extra;
+  i_extra##.className := Js.string "question_extra";
+  i_extra##.size := 60;
+  (match extra with
+   | None -> ()
+   | Some x -> i_extra##.value := Js.string (Yojson.Safe.to_string x)
+  );
+  (* selector *)
   let _type = Js.string "radio" and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
   let x = Dom_html.createDiv document in
   Dom.appendChild type_div x;

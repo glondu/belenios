@@ -23,7 +23,7 @@ open Signatures_core
 
 type question =
   | Homomorphic of Question_h_t.question
-  | NonHomomorphic of Question_nh_t.question
+  | NonHomomorphic of Question_nh_t.question * Yojson.Safe.t option
 
 let read_question l b =
   let x = Yojson.Safe.read_json l b in
@@ -35,7 +35,11 @@ let read_question l b =
       | Some (`String "NonHomomorphic") ->
          (match List.assoc_opt "value" o with
           | None -> failwith "Question.read_question: value is missing"
-          | Some v -> NonHomomorphic (Question_nh_j.question_of_string (Yojson.Safe.to_string v))
+          | Some v ->
+             NonHomomorphic (
+                 Question_nh_j.question_of_string (Yojson.Safe.to_string v),
+                 List.assoc_opt "extra" o
+               )
          )
       | Some _ ->
          failwith "Question.read_question: unexpected type"
@@ -44,11 +48,16 @@ let read_question l b =
 
 let write_question b = function
   | Homomorphic q -> Question_h_j.write_question b q
-  | NonHomomorphic q ->
-     let o = [
-         "type", `String "NonHomomorphic";
-         "value", Yojson.Safe.from_string (Question_nh_j.string_of_question q);
-       ]
+  | NonHomomorphic (q, extra) ->
+     let o =
+       match extra with
+       | None -> []
+       | Some x -> ["extra", x]
+     in
+     let o =
+       ("type", `String "NonHomomorphic")
+       :: ("value", Yojson.Safe.from_string (Question_nh_j.string_of_question q))
+       :: o
      in
      Yojson.Safe.write_json b (`Assoc o)
 
@@ -62,12 +71,15 @@ let erase_question = function
          q_max = q.q_max;
          q_question = "";
        }
-  | NonHomomorphic q ->
+  | NonHomomorphic (q, extra) ->
      let open Question_nh_t in
-     NonHomomorphic {
-         q_answers = Array.map (fun _ -> "") q.q_answers;
-         q_question = "";
-       }
+     NonHomomorphic (
+         {
+           q_answers = Array.map (fun _ -> "") q.q_answers;
+           q_question = "";
+         },
+         extra
+       )
 
 module Make (M : RANDOM) (G : GROUP) = struct
   let ( >>= ) = M.bind
@@ -83,7 +95,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
        |> Question_h_j.string_of_answer G.write
        |> Yojson.Safe.from_string
        |> M.return
-    | NonHomomorphic q ->
+    | NonHomomorphic (q, _) ->
        QNonHomomorphic.create_answer q ~public_key ~prefix m >>= fun answer ->
        answer
        |> Question_nh_j.string_of_answer G.write
@@ -97,7 +109,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
        |> Yojson.Safe.to_string
        |> Question_h_j.answer_of_string G.read
        |> QHomomorphic.verify_answer q ~public_key ~prefix
-    | NonHomomorphic q ->
+    | NonHomomorphic (q, _) ->
        a
        |> Yojson.Safe.to_string
        |> Question_nh_j.answer_of_string G.read
@@ -110,7 +122,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
        |> Yojson.Safe.to_string
        |> Question_h_j.answer_of_string G.read
        |> QHomomorphic.extract_ciphertexts q
-    | NonHomomorphic q ->
+    | NonHomomorphic (q, _) ->
        a
        |> Yojson.Safe.to_string
        |> Question_nh_j.answer_of_string G.read
@@ -119,17 +131,17 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let process_ciphertexts q e =
     match q with
     | Homomorphic q -> QHomomorphic.process_ciphertexts q e
-    | NonHomomorphic q -> QNonHomomorphic.process_ciphertexts q e
+    | NonHomomorphic (q, _) -> QNonHomomorphic.process_ciphertexts q e
 
   let compute_result ~num_tallied =
     let compute_h = lazy (QHomomorphic.compute_result ~num_tallied) in
     fun q x ->
     match q with
     | Homomorphic q -> Lazy.force compute_h q x
-    | NonHomomorphic q -> QNonHomomorphic.compute_result ~num_tallied q x
+    | NonHomomorphic (q, _) -> QNonHomomorphic.compute_result ~num_tallied q x
 
   let check_result q x r =
     match q with
     | Homomorphic q -> QHomomorphic.check_result q x r
-    | NonHomomorphic q -> QNonHomomorphic.check_result q x r
+    | NonHomomorphic (q, _) -> QNonHomomorphic.check_result q x r
 end
