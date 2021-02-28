@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2021-02-27 04:50+0000\n"
+"PO-Revision-Date: 2021-03-01 09:51+0000\n"
 "Last-Translator: Paulo Figueiredo <phsrf@uol.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "belenios/admin/pt_BR/>\n"
@@ -87,7 +87,8 @@ msgstr " estabelecer uma chave de eleição."
 
 #: src/web/pages_admin.ml:1002
 msgid " trustees will be needed to decrypt the result."
-msgstr " serão necessários administradores para decifrar o resultado."
+msgstr ""
+" serão necessárias autoridades certificadoras para decifrar o resultado."
 
 #: src/web/pages_admin.ml:463
 msgid " voter(s) registered"
@@ -152,7 +153,7 @@ msgstr "(omitido)"
 
 #: src/web/pages_admin.ml:993
 msgid "(the threshold must be smaller than the number of trustees)"
-msgstr "(o limite deve ser menor que o número de administradores)"
+msgstr "(o limite deve ser menor que o número de autoridades certificadoras)"
 
 #: src/web/pages_admin.ml:287
 msgid "(you can use any credential such as %s)."
@@ -170,16 +171,19 @@ msgstr ""
 
 #: src/web/pages_admin.ml:970
 msgid "1a: action needed from trustee: generate private key"
-msgstr "1a: ação necessária por parte do administrador: gerar chave privada"
+msgstr ""
+"1a: ação necessária por parte da autoridade certificadora: gerar chave "
+"privada"
 
 #: src/web/pages_admin.ml:972
 msgid "1b, 2b, 3b: waiting for other trustees"
-msgstr "1b, 2b, 3b: esperando por outros administradores"
+msgstr "1b, 2b, 3b: esperando por outras autoridades certificadoras"
 
 #: src/web/pages_admin.ml:971
 msgid "2a, 3a: action needed from trustee: enter private key"
 msgstr ""
-"2a, 3a: ação necessária por parte do administrador: inserir a chave privada"
+"2a, 3a: ação necessária por parte da autoridade certificadora: inserir a "
+"chave privada"
 
 #: src/web/site_admin.ml:756
 msgid "A new password has been mailed to %s."
@@ -222,8 +226,8 @@ msgstr "Todas as senhas foram enviadas!"
 #: src/web/pages_admin.ml:636
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr ""
-"Todos os administradores devem ter completado uma etapa, antes que você "
-"possa prosseguir para a seguinte."
+"Todas as autoridades certificadoras devem ter completado uma etapa, antes "
+"que você possa prosseguir para a seguinte."
 
 #: src/tool/tool_js_questions.ml:292
 msgid "Alternative (voters assign a number to each candidate)"
@@ -255,7 +259,7 @@ msgstr "Ocorreu um erro ao aplicar a combinação."
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "Ocorreu um erro ao computar o resultado (%s). Provavelmente, isto signifique "
-"que algum administrador não fez sua tarefa."
+"que alguma autoridade certificadora não fez sua tarefa."
 
 #: src/web/pages_admin.ml:1331
 msgid "An identity is either an e-mail address, or \"address,login\", where \"address\" is an e-mail address and \"login\" the associated login for authentication."
@@ -279,10 +283,12 @@ msgstr "Eleições arquivadas"
 #: src/web/pages_admin.ml:2648
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
 msgstr ""
+"Como autoridade certificadora, sua primeira função é mesclar os votos "
+"codificados."
 
 #: src/web/pages_admin.ml:2306
 msgid "At least %d trustee(s) must act."
-msgstr ""
+msgstr "Pelo menos %d autoridades(s) certificadora(s) deve(m) participar."
 
 #: src/web/pages_admin.ml:420 src/web/pages_admin.ml:243
 msgid "Authentication"
@@ -290,31 +296,33 @@ msgstr "Autenticação"
 
 #: src/web/pages_admin.ml:439
 msgid "Authentication scheme: CAS with server "
-msgstr ""
+msgstr "Esquema de autenticação: CAS com servidor "
 
 #: src/web/pages_admin.ml:435
 msgid "Authentication scheme: dummy"
-msgstr ""
+msgstr "Esquema de autenticação: dummy"
 
 #: src/web/pages_admin.ml:424
 msgid "Authentication scheme: password"
-msgstr ""
+msgstr "Esquema de autenticação: senha"
 
 #: src/web/pages_admin.ml:234
 msgid "Automatic (degraded mode - credentials will be handled by the server)"
 msgstr ""
+"Automático (modo degradado - as credenciais serão administradas pelo "
+"servidor)"
 
 #: src/web/site_admin.ml:1497
 msgid "Automatic shuffle by server has failed for election %s!"
-msgstr ""
+msgstr "A mescla automática pelo servidor para a eleição %s falhou!"
 
 #: src/web/pages_admin.ml:2075
 msgid "Automatically close the election at:"
-msgstr ""
+msgstr "Encerrar a eleição automaticamente em:"
 
 #: src/web/pages_admin.ml:2070
 msgid "Automatically open the election at:"
-msgstr ""
+msgstr "Abrir a eleição automaticamente em:"
 
 #: src/web/pages_admin.ml:304
 msgid "Available languages:"
@@ -330,7 +338,7 @@ msgstr "Voltar à página de preparação da eleição"
 
 #: src/web/site_admin.ml:475
 msgid "Bad CAS server!"
-msgstr ""
+msgstr "Servidor CAS defeituoso!"
 
 #: src/web/pages_admin.ml:2803
 msgid "Bad e-mail address!"
@@ -338,11 +346,11 @@ msgstr "Endereço de email incorreto!"
 
 #: src/web/pages_admin.ml:2802
 msgid "Bad security code!"
-msgstr ""
+msgstr "Código de segurança incorreto!"
 
 #: src/web/pages_admin.ml:2006
 msgid "Below you will find the link to shuffle encrypted ballots."
-msgstr ""
+msgstr "Abaixo, você encontrará o link para mesclar as cédulas criptografadas."
 
 #: src/tool/tool_js_questions.ml:182
 msgid "Blank vote is allowed"
@@ -351,10 +359,12 @@ msgstr "Voto em branco permitido"
 #: src/web/pages_admin.ml:471
 msgid "By default, the election server manages the keys of the election (degraded privacy mode)."
 msgstr ""
+"Por default, o servidor administra as chaves da eleição (modo de privacidade "
+"degradada)."
 
 #: src/web/pages_admin.ml:253
 msgid "CAS (external authentication server), server address: "
-msgstr ""
+msgstr "CAS (servidor de autenticação externo), endereço do servidor: "
 
 #: src/web/pages_admin.ml:2633
 msgid "Cancel"
@@ -402,121 +412,126 @@ msgstr "Clique sobre “ Gerar novo par de chaves”."
 
 #: src/web/pages_admin.ml:595
 msgid "Click on \"Submit\" to send your verification key."
-msgstr ""
+msgstr "Clique em “ Enviar” para enviar sua chave de verificação."
 
 #: src/web/pages_admin.ml:587
 msgid "Click on the link."
-msgstr ""
+msgstr "Clique no link."
 
 #: src/web/pages_admin.ml:2092
 msgid "Close election"
-msgstr ""
+msgstr "Encerrar a eleição"
 
 #: src/web/pages_admin.ml:1545
 msgid "Collaborative key generation"
-msgstr ""
+msgstr "Geração de chave colaborativa"
 
 #: src/web/pages_admin.ml:2665
 msgid "Compute shuffle"
-msgstr ""
+msgstr "Computar a mescla"
 
 #: src/web/pages_admin.ml:2395
 msgid "Compute the result"
-msgstr ""
+msgstr "Apurar o resultado"
 
 #: src/web/pages_admin.ml:2631
 msgid "Confirm"
-msgstr ""
+msgstr "Confirmação"
 
 #: src/web/pages_admin.ml:408
 msgid "Contact"
-msgstr ""
+msgstr "Contato"
 
 #: src/web/pages_admin.ml:389
 msgid "Contact:"
-msgstr ""
+msgstr "Contato:"
 
 #: src/web/pages_admin.ml:1922
 msgid "Contact?"
-msgstr ""
+msgstr "Contato?"
 
 #: src/web/site_admin.ml:1378
 msgid "Could not retrieve trustees from selected election!"
 msgstr ""
+"Não foi possível recuperar as autoridades de certificação para a eleição "
+"selecionada!"
 
 #: src/web/site_admin.ml:1351
 msgid "Could not retrieve voter list from election %s"
-msgstr ""
+msgstr "Não foi possível recuperar a lista de eleitores para a eleição %s"
 
 #: src/web/pages_admin.ml:2918 src/web/pages_admin.ml:2834
 msgid "Create an account"
-msgstr ""
+msgstr "Criar uma conta"
 
 #: src/web/pages_admin.ml:1945 src/web/pages_admin.ml:528
 msgid "Create election"
-msgstr ""
+msgstr "Criar eleição"
 
 #: src/web/pages_admin.ml:194
 msgid "Create new election"
-msgstr ""
+msgstr "Criar uma nova eleição"
 
 #: src/web/pages_admin.ml:1906
 msgid "Credential authority?"
-msgstr ""
+msgstr "Autoridade certificadora?"
 
 #: src/web/pages_admin.ml:519 src/web/pages_admin.ml:225
 msgid "Credential management"
-msgstr ""
+msgstr "Gestão de credenciais"
 
 #: src/web/pages_admin.ml:484
 msgid "Credentials"
-msgstr ""
+msgstr "Credenciais"
 
 #: src/web/pages_admin.ml:1104 src/web/pages_admin.ml:1051
 msgid "Credentials for election %s"
-msgstr ""
+msgstr "Credenciais para a eleição %s"
 
 #: src/web/pages_admin.ml:1453 src/web/pages_admin.ml:505
 msgid "Credentials have already been generated!"
-msgstr ""
+msgstr "As credenciais já foram geradas!"
 
 #: src/web/site_admin.ml:1179
 msgid "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
 msgstr ""
+"As credenciais foram geradas e enviadas por email! Você deve fazer download "
+"das credenciais privadas (e armazená-las de modo seguro), para o caso de "
+"alguém extraviar a sua credencial."
 
 #: src/web/pages_admin.ml:1107
 msgid "Credentials have been received and checked!"
-msgstr ""
+msgstr "As credenciais foram recebidas e verificadas!"
 
 #: src/web/pages_admin.ml:1910
 msgid "Credentials?"
-msgstr ""
+msgstr "Credenciais?"
 
 #: src/web/pages_admin.ml:2650
 msgid "Current list of ballots:"
-msgstr ""
+msgstr "Lista atual de cédulas:"
 
 #: src/web/site_admin.ml:2106
 msgid "Data is invalid! (%s)"
-msgstr ""
+msgstr "Os dados não são válidos! (%s)"
 
 #: src/web/pages_admin.ml:1670 src/web/pages_admin.ml:1639
 msgid "Data:"
-msgstr ""
+msgstr "Dados:"
 
 #: src/web/pages_admin.ml:2601
 msgid "Date/Time (UTC)"
-msgstr ""
+msgstr "Data / hora (UTC)"
 
 #. src/web/pages_admin.ml:628
 #. src/web/pages_admin.ml:579
 #: src/web/pages_admin.ml:2004 src/web/pages_admin.ml:1967
 msgid "Dear trustee,"
-msgstr ""
+msgstr "Cara autoridade certificadora,"
 
 #: src/web/pages_admin.ml:2514
 msgid "Delete election"
-msgstr ""
+msgstr "Excluir a eleição"
 
 #: src/web/pages_admin.ml:336
 msgid "Description of the election:"
