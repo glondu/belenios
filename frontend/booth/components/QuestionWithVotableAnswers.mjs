@@ -9,8 +9,25 @@ const QuestionTypeEnum = Object.freeze(
 );
 
 const detectQuestionType = (question) => {
-  const questionType = question.hasOwnProperty("type") && question["type"] == "NonHomomorphic" ? QuestionTypeEnum.MAJORITY_JUDGEMENT : QuestionTypeEnum.CLASSIC; // TODO: add here differenciation between majority judgement and vote by preference, once backend transmits this piece of information
-  return questionType;
+  const nonHomomorphic = question.hasOwnProperty("type") && question["type"] == "NonHomomorphic";
+  if(!nonHomomorphic){
+    return QuestionTypeEnum.CLASSIC;
+  }
+  else {
+    const basicErrorText = 'Unhandled question type';
+    if(question.hasOwnProperty("extra") && question.extra.length > 1){
+      const questionSubType = question.extra[0];
+      if (questionSubType == "MajorityJudgment"){
+        return QuestionTypeEnum.MAJORITY_JUDGEMENT;
+      }
+      else if (questionSubType == "PreferenceOrdering"){ // TODO: verify type name, once backend transmits this piece of information
+        throw basicErrorText; // TODO: return QuestionTypeEnum.PREFERENCE_ORDERING;
+      }
+    }
+    else {
+      throw basicErrorText; 
+    }
+  }
 }
 
 function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteAllowed, identifierPrefix, visible, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){

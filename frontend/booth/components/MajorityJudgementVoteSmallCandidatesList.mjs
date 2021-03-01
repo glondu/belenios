@@ -1,4 +1,4 @@
-function TranslatableMajorityJudgementVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, dispatchUserVoteForCandidateInQuestion, t }){
+function TranslatableMajorityJudgementVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, t }){
   const renderedAvailableGrades = availableGrades.map((availableGrade, index) => {
     const isSelected = index === selectedGradeIndex ? true : false;
     return e(
@@ -17,14 +17,19 @@ function TranslatableMajorityJudgementVoteSmallCandidate({ candidateInfo, availa
     const finalVal = isNaN(valAsInt) ? undefined : valAsInt;
     dispatchUserVoteForCandidateInQuestion(finalVal);
   };
-  let additionalProps = {};
+  let additionalPropsOnSelect = {};
+  let additionalPropsOnMain = {};
   if (selectedGradeIndex !== null && selectedGradeIndex !== undefined){
-    additionalProps['data-value'] = selectedGradeIndex
+    additionalPropsOnSelect['data-value'] = selectedGradeIndex;
+    additionalPropsOnMain['style'] = {
+      "--selected-grade-color": availableGradesCssColors[selectedGradeIndex]
+    }
   }
   return e(
     "div",
     {
-      className: "majority-judgement-vote-small-candidate"
+      className: "majority-judgement-vote-small-candidate",
+      ...additionalPropsOnMain
     },
     e(
       "div",
@@ -38,7 +43,7 @@ function TranslatableMajorityJudgementVoteSmallCandidate({ candidateInfo, availa
       {
         className: "majority-judgement-vote-small-candidate__grade-selector select-css",
         onChange: onChange,
-        ...additionalProps
+        ...additionalPropsOnSelect
       },
       e(
         "option",
@@ -52,7 +57,7 @@ function TranslatableMajorityJudgementVoteSmallCandidate({ candidateInfo, availa
   );
 }
 
-function TranslatableMajorityJudgementVoteSmallCandidatesList({ identifierPrefix, candidates, availableGrades, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, t }){
+function TranslatableMajorityJudgementVoteSmallCandidatesList({ identifierPrefix, candidates, availableGrades, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
   const renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifier = `${identifierPrefix}_candidate_${candidateIndex}`;
     const dispatchUserVoteForCandidateInQuestion = (selected_grade) => {
@@ -69,6 +74,7 @@ function TranslatableMajorityJudgementVoteSmallCandidatesList({ identifierPrefix
       key: candidateIndex,
       selectedGradeIndex: currentUserVoteForQuestion[candidateIndex],
       dispatchUserVoteForCandidateInQuestion,
+      availableGradesCssColors,
       t
     };
     return e(

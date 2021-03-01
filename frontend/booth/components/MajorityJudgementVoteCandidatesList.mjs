@@ -1,8 +1,14 @@
 import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
 import { TranslatableMajorityJudgementVoteSmallCandidatesList } from "./MajorityJudgementVoteSmallCandidatesList.mjs";
 import { TranslatableMajorityJudgementVoteBigCandidatesList } from "./MajorityJudgementVoteBigCandidatesList.mjs";
+import { majorityJudgementGradeIndexToCssColor } from "../majority_judgement_colors.mjs";
 
 function TranslatableMajorityJudgementVoteCandidatesList({ identifierPrefix, availableGrades, candidates, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, t }){
+  const availableGradesCssColors = React.useMemo(() => {
+    return availableGrades.map((grade, index) => {
+      return majorityJudgementGradeIndexToCssColor(availableGrades.length, index);
+    })
+  }, availableGrades);
   return e(
     "div",
     {
@@ -19,6 +25,7 @@ function TranslatableMajorityJudgementVoteCandidatesList({ identifierPrefix, ava
         availableGrades,
         currentUserVoteForQuestion,
         dispatchUpdateUserVoteForQuestion,
+        availableGradesCssColors,
         t
       }
     )

@@ -150,31 +150,16 @@ function TranslatableAllQuestionsWithPagination(props){
       answers = question.value.answers;
       questionText = question.value.question;
       
-      // TODO: receive from backend the number of available grades, their labels and their ordering
-      if ("extra" in question && Array.isArray(question.extra) && question.extra.length > 1 && question.extra[0] == "MajorityJudgement"){
+      // Receive from backend the number of available grades, their labels and their ordering (index 0 is the best grade, and appreciation gets worse as index increases)
+      if ("extra" in question && Array.isArray(question.extra) && question.extra.length > 1 && question.extra[0] == "MajorityJudgment" && Array.isArray(question.extra[1]) && question.extra[1].length > 1){
         complementaryProps.availableGrades = question.extra[1];
       }
       else {
-        /*
-        complementaryProps.availableGrades = [
-          "Reject", // or "To be rejected"
-          "Poor", // or add "Insufficient" before
-          "Acceptable", // or remove this element
-          "Fair",
-          "Good",
-          "Very good",
-          "Excellent",
-        ];
-        */
-        complementaryProps.availableGrades = [
-          "To be rejected",
-          "Insufficient",
-          "Poor",
-          "Fair",
-          "Good",
-          "Very good",
-          "Excellent",
-        ];
+        return e(
+          "div",
+          null,
+          "Error: Wrong election parameters. Question of type MajorityJudgment does not provide the list of votable mentions."
+        );
       }
     }
     else if (questionType === QuestionTypeEnum.CLASSIC){

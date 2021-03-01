@@ -42,30 +42,6 @@ select.majority-judgement-vote-small-candidate__grade-selector.select-css option
   color: initial;
 }
 
-select.majority-judgement-vote-small-candidate__grade-selector.select-css[data-value="0"] {
-  background-image: var(--select-css-white-arrow), linear-gradient(to bottom, var(--majority-judgement-color-0) 0%, var(--majority-judgement-color-0) 100%);
-}
-
-select.majority-judgement-vote-small-candidate__grade-selector.select-css[data-value="1"] {
-  background-image: var(--select-css-white-arrow), linear-gradient(to bottom, var(--majority-judgement-color-1) 0%, var(--majority-judgement-color-1) 100%);
-}
-
-select.majority-judgement-vote-small-candidate__grade-selector.select-css[data-value="2"] {
-  background-image: var(--select-css-white-arrow), linear-gradient(to bottom, var(--majority-judgement-color-2) 0%, var(--majority-judgement-color-2) 100%);
-}
-
-select.majority-judgement-vote-small-candidate__grade-selector.select-css[data-value="3"] {
-  background-image: var(--select-css-white-arrow), linear-gradient(to bottom, var(--majority-judgement-color-3) 0%, var(--majority-judgement-color-3) 100%);
-}
-
-select.majority-judgement-vote-small-candidate__grade-selector.select-css[data-value="4"] {
-  background-image: var(--select-css-white-arrow), linear-gradient(to bottom, var(--majority-judgement-color-4) 0%, var(--majority-judgement-color-4) 100%);
-}
-
-select.majority-judgement-vote-small-candidate__grade-selector.select-css[data-value="5"] {
-  background-image: var(--select-css-white-arrow), linear-gradient(to bottom, var(--majority-judgement-color-5) 0%, var(--majority-judgement-color-5) 100%);
-}
-
-select.majority-judgement-vote-small-candidate__grade-selector.select-css[data-value="6"] {
-  background-image: var(--select-css-white-arrow), linear-gradient(to bottom, var(--majority-judgement-color-6) 0%, var(--majority-judgement-color-6) 100%);
+select.majority-judgement-vote-small-candidate__grade-selector.select-css[data-value] {
+  background-image: var(--select-css-white-arrow), linear-gradient(to bottom, var(--selected-grade-color) 0%, var(--selected-grade-color) 100%);
 }

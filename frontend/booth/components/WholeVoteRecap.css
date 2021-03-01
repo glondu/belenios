@@ -62,6 +62,7 @@
 }
 
 .majority-judgement-vote-recap-for-candidate-big__selected-grade {
+  background-color: var(--majority-judgement-selected-grade-color);
   border-radius: 0 var(--border-radius-size) var(--border-radius-size) 0;
   padding: var(--padding-size);
   color: white;

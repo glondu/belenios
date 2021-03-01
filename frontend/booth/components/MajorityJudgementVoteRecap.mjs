@@ -1,11 +1,15 @@
 import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
+import { majorityJudgementGradeIndexToCssColor } from "../majority_judgement_colors.mjs";
 
-function MajorityJudgementVoteRecapForCandidateBig({ candidateName, selectedGradeName, selectedGradeNumber }){
+function MajorityJudgementVoteRecapForCandidateBig({ candidateName, selectedGradeName, selectedGradeNumber, availableGradesCssColors }){
   const bemBlockName = "majority-judgement-vote-recap-for-candidate-big";
   return e(
     "div",
     {
-      className: bemBlockName
+      className: bemBlockName,
+      style : {
+        '--majority-judgement-selected-grade-color': availableGradesCssColors[selectedGradeNumber]
+      }
     },
     e(
       "div",
@@ -17,19 +21,22 @@ function MajorityJudgementVoteRecapForCandidateBig({ candidateName, selectedGrad
     e(
       "div",
       {
-        className: `${bemBlockName}__selected-grade majority-judgement-use-background-color-${selectedGradeNumber}`
+        className: `${bemBlockName}__selected-grade`
       },
       selectedGradeName
     )
   );
 }
 
-function MajorityJudgementVoteRecapForCandidateSmall({ candidateName, selectedGradeName, selectedGradeNumber }){
+function MajorityJudgementVoteRecapForCandidateSmall({ candidateName, selectedGradeName, selectedGradeNumber, availableGradesCssColors }){
   const bemBlockName = "majority-judgement-vote-recap-for-candidate-small";
   return e(
     "div",
     {
-      className: bemBlockName
+      className: bemBlockName,
+      style : {
+        '--selected-grade-color': availableGradesCssColors[selectedGradeNumber]
+      }
     },
     e(
       "div",
@@ -41,14 +48,14 @@ function MajorityJudgementVoteRecapForCandidateSmall({ candidateName, selectedGr
     e(
       "div",
       {
-        className: `${bemBlockName}__selected-grade majority-judgement-use-background-color-${selectedGradeNumber}`
+        className: `${bemBlockName}__selected-grade`
       },
       selectedGradeName
     )
   );
 }
 
-function MajorityJudgementVoteRecapForCandidate({ candidateName, selectedGradeName, selectedGradeNumber }){
+function MajorityJudgementVoteRecapForCandidate({ candidateName, selectedGradeName, selectedGradeNumber, availableGradesCssColors }){
   return e(
     DisplayDependingOnWindowWidth,
     {
@@ -57,7 +64,8 @@ function MajorityJudgementVoteRecapForCandidate({ candidateName, selectedGradeNa
       bigComponent: MajorityJudgementVoteRecapForCandidateBig,
       candidateName,
       selectedGradeName,
-      selectedGradeNumber
+      selectedGradeNumber,
+      availableGradesCssColors
     }
   );
 }
@@ -66,6 +74,11 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
   const questionText = question.value.question;
   const questionCandidates = question.value.answers;
   const questionPossibleGrades = question.extra[1];
+  const availableGradesCssColors = React.useMemo(() => {
+    return questionPossibleGrades.map((grade, index) => {
+      return majorityJudgementGradeIndexToCssColor(questionPossibleGrades.length, index);
+    })
+  }, questionPossibleGrades);
   const renderedGradedCandidates = uncryptedBallot[question_index].map(function(answer, answer_index){
     // TODO: verify that blank vote works just like in classic vote mode
     if (question.blank === true && answer_index === 0 && answer === 1){
@@ -90,7 +103,8 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
         {
           candidateName: questionCandidates[index],
           selectedGradeName: questionPossibleGrades[answer],
-          selectedGradeNumber: answer
+          selectedGradeNumber: answer,
+          availableGradesCssColors
         }
       );
     }

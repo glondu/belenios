@@ -11,7 +11,6 @@
 @import "./components/LoadingSpinner.css";
 @import "./components/WholeVoteRecap.css";
 @import "./components/ReviewEncryptSection.css";
-@import "./components/MajorityJudgementVoteCandidatesList.css";
 @import "./components/MajorityJudgementVoteBigCandidatesList.css";
 @import "./components/MajorityJudgementVoteSmallCandidatesList.css";
 @import "./select-css.css";
