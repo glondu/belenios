@@ -1,3 +1,5 @@
+import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
+
 function MajorityJudgementVoteRecapForCandidateBig({ candidateName, selectedGradeName, selectedGradeNumber }){
   const bemBlockName = "majority-judgement-vote-recap-for-candidate-big";
   return e(
@@ -22,11 +24,37 @@ function MajorityJudgementVoteRecapForCandidateBig({ candidateName, selectedGrad
   );
 }
 
-function MajorityJudgementVoteRecapForCandidate({ candidateName, selectedGradeName, selectedGradeNumber }){
-  // TODO: show big or small depending on screen
+function MajorityJudgementVoteRecapForCandidateSmall({ candidateName, selectedGradeName, selectedGradeNumber }){
+  const bemBlockName = "majority-judgement-vote-recap-for-candidate-small";
   return e(
-    MajorityJudgementVoteRecapForCandidateBig,
+    "div",
     {
+      className: bemBlockName
+    },
+    e(
+      "div",
+      {
+        className: `${bemBlockName}__candidate-name`
+      },
+      candidateName
+    ),
+    e(
+      "div",
+      {
+        className: `${bemBlockName}__selected-grade majority-judgement-use-background-color-${selectedGradeNumber}`
+      },
+      selectedGradeName
+    )
+  );
+}
+
+function MajorityJudgementVoteRecapForCandidate({ candidateName, selectedGradeName, selectedGradeNumber }){
+  return e(
+    DisplayDependingOnWindowWidth,
+    {
+      widthLimit: 800,
+      smallComponent: MajorityJudgementVoteRecapForCandidateSmall,
+      bigComponent: MajorityJudgementVoteRecapForCandidateBig,
       candidateName,
       selectedGradeName,
       selectedGradeNumber

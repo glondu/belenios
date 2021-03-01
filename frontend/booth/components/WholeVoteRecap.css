@@ -1,27 +1,36 @@
 .whole-vote-recap {
   border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 10px;
+  padding: 10px 10px 0 10px;
   margin: 10px auto;
   max-width: 500px;
   font-size: smaller;
 }
 
 .majority-judgement-vote-recap, .classic-vote-recap {
-  padding: 10px;
+  padding: 5px 10px 10px 10px;
   margin: 10px auto;
+}
+
+.majority-judgement-vote-recap:first-child, .classic-vote-recap:first-child {
+  margin-top: 0;
+}
+
+.majority-judgement-vote-recap:last-child, .classic-vote-recap:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 /* TODO: rework namings of classes and move each one to relevant .css file. Or maybe is it best to have CSS rules of all descendents of WholeVoteRecap regrouped in this file? */
 
 .whole-vote-recap__question-title {
   margin-top: 2px;
-  margin-bottom: 
+  margin-bottom: 10px;
 }
 
 .majority-judgement-vote-recap__answers-to-question, .classic-vote-recap__answers-to-question {
   padding: 15px 40px;
-  margin: 16px 0 20px 0;
+  margin: 10px 0 20px 0;
 }
 
 .majority-judgement-vote-recap__answers-to-question:last-child, .classic-vote-recap__answers-to-question:last-child {
@@ -37,6 +46,7 @@
   --border-radius-size: 8px;
   --padding-size: 5px;
   display: flex;
+  align-items: center;
   background: #eee;
   border-radius: var(--border-radius-size);
   margin-bottom: 12px;
@@ -47,6 +57,8 @@
   padding: var(--padding-size) 12px;
   border-right: 3px solid white;
   flex-grow: 1;
+  display: flex;
+  align-items: center;
 }
 
 .majority-judgement-vote-recap-for-candidate-big__selected-grade {
@@ -55,5 +67,34 @@
   color: white;
   font-weight: bold;
   width: 25%;
+  min-width: 25%;
   text-align: center;
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+
+.majority-judgement-vote-recap-for-candidate-small {
+  margin: 0 auto 16px auto;
+  max-width: 300px;
+  text-align: center;
+  --border-radius-size: 8px;
+}
+
+.majority-judgement-vote-recap-for-candidate-small__candidate-name {
+  background: #eee;
+  border-radius: var(--border-radius-size) var(--border-radius-size) 0 0;
+  padding: 10px;
+  margin-bottom: 2px;
+}
+
+.majority-judgement-vote-recap-for-candidate-small__selected-grade {
+  border-radius: 0 0 var(--border-radius-size) var(--border-radius-size);
+  padding: 10px;
+  color: white;
+  font-weight: bold;
 }
