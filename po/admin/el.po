@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2021-03-01 09:51+0000\n"
+"PO-Revision-Date: 2021-03-02 13:02+0000\n"
 "Last-Translator: Stavros Christoforou <stavros.christoforou@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/belenios/admin/el/>"
 "\n"
@@ -648,7 +648,7 @@ msgstr ""
 #. src/web/site_admin.ml:362
 #: src/web/site_admin.ml:2254 src/web/site_admin.ml:2224
 msgid "Error"
-msgstr ""
+msgstr "Σφάλμα"
 
 #: src/tool/tool_js_pd.ml:95
 msgid "Error in format of private key: %s"
@@ -859,7 +859,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2662
 msgid "Loading…"
-msgstr ""
+msgstr "Φόρτωση…"
 
 #: src/web/pages_admin.ml:106
 msgid "Log in:"
@@ -1117,7 +1117,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2661
 msgid "Please wait… "
-msgstr ""
+msgstr "Παρακαλώ περιμένετε... "
 
 #: src/web/pages_admin.ml:2437
 msgid "Postpone publication until"
@@ -1141,7 +1141,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1659 src/web/pages_admin.ml:260
 msgid "Proceed"
-msgstr ""
+msgstr "Προχωρήστε"
 
 #: src/web/pages_admin.ml:2262
 msgid "Proceed to decryption"
