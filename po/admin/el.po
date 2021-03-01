@@ -8,14 +8,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2021-03-01 09:51+0000\n"
+"Last-Translator: Stavros Christoforou <stavros.christoforou@gmail.com>\n"
+"Language-Team: Greek <https://hosted.weblate.org/projects/belenios/admin/el/>"
+"\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.5\n"
 
 #: src/web/pages_admin.ml:2094
 msgid " You may re-open the election when it is closed."
@@ -23,7 +25,7 @@ msgstr ""
 
 #: src/tool/tool_js_questions.ml:166
 msgid " and "
-msgstr ""
+msgstr " και "
 
 #: src/web/pages_admin.ml:2902
 msgid " and a password: "
@@ -186,7 +188,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:59
 msgid "Accept"
-msgstr ""
+msgstr "Αποδοχή"
 
 #. src/web/site_admin.ml:2445
 #: src/web/site_admin.ml:2561 src/web/site_admin.ml:2475
@@ -411,7 +413,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2631
 msgid "Confirm"
-msgstr ""
+msgstr "Επιβεβαίωση"
 
 #: src/web/pages_admin.ml:408
 msgid "Contact"
@@ -590,7 +592,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:125 src/web/pages_admin.ml:46
 msgid "Election server"
-msgstr ""
+msgstr "Διακομιστής ψηφοφορίας"
 
 #: src/web/pages_admin.ml:174
 msgid "Elections being prepared"
