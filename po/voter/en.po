@@ -4,8 +4,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-04 07:55+0000\n"
-"PO-Revision-Date: 2020-11-28 12:29+0000\n"
-"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
+"PO-Revision-Date: 2021-02-21 00:50+0000\n"
+"Last-Translator: ZHANGTong <11911831@mail.sustech.edu.cn>\n"
 "Language-Team: English <https://hosted.weblate.org/projects/belenios/voter/"
 "en/>\n"
 "Language: en\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.4-dev\n"
+"X-Generator: Weblate 4.5\n"
 
 #: src/web/pages_common.ml:272
 msgid " (if you forgot it, for example)."
@@ -49,7 +49,7 @@ msgstr " day(s)"
 
 #: src/web/pages_voter.ml:900
 msgid " for more information."
-msgstr ""
+msgstr " for more information."
 
 #: src/web/pages_voter.ml:619
 msgid " has been accepted."

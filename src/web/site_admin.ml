@@ -365,7 +365,7 @@ let without_site_user ?fallback f =
 
 let () =
   Redirection.register ~service:privacy_notice_accept
-    (fun cont () ->
+    (fun () cont ->
       let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
       let cont = match cont with
         | ContAdmin -> Redirection admin
@@ -851,6 +851,29 @@ let merge_voters a b f =
   List.rev res,
   SMap.fold (fun _ x y -> x + y) weights 0
 
+let bool_of_opt = function
+  | None -> false
+  | Some _ -> true
+
+let check_consistency voters =
+  match voters with
+  | [] -> true
+  | voter :: voters ->
+     let has_login, has_weight =
+       let _, login, weight = split_identity_opt voter.sv_id in
+       bool_of_opt login,
+       bool_of_opt weight
+     in
+     let rec loop = function
+       | [] -> true
+       | voter :: voters ->
+          let _, login, weight = split_identity_opt voter.sv_id in
+          bool_of_opt login = has_login
+          && bool_of_opt weight = has_weight
+          && loop voters
+     in
+     loop voters
+
 let () =
   Any.register ~service:election_draft_voters_add
     (fun uuid voters ->
@@ -874,6 +897,9 @@ let () =
               Printf.ksprintf failwith
                 (f_ "The total weight cannot exceed %d.")
                 max_total_weight;
+            if not (check_consistency voters) then
+              failwith
+                (s_ "The voter list is not consistent (a login or a weight is missing).");
             let uses_password_auth =
               match se.se_metadata.e_auth_config with
               | Some configs ->
@@ -1134,7 +1160,7 @@ let () =
               |> List.map
                    (fun (cred, weight) ->
                      let cred = G.to_string cred in
-                     if weight > 1 then
+                     if show_weight then
                        Printf.sprintf "%s,%d" cred weight
                      else cred
                    )

@@ -289,7 +289,7 @@ let createNonHomomorphicQuestionWidget q =
 
 let createQuestionWidget = function
   | Question.Homomorphic q -> createHomomorphicQuestionWidget q
-  | Question.NonHomomorphic q -> createNonHomomorphicQuestionWidget q
+  | Question.NonHomomorphic (q, _) -> createNonHomomorphicQuestionWidget q
 
 let createLabeledButton label =
   let b = Dom_html.createButton document in

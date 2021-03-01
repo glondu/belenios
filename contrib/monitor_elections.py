@@ -152,14 +152,37 @@ def write_and_verify_new_data(wdir, uuid, data):
 def check_hash_ballots(data):
     dom = xml.dom.minidom.parseString(data['ballots'])
     list_ballots = dom.getElementsByTagName("li")
+    if len(list_ballots) == 0:
+        return Status(False, b"")
+    if len(list_ballots[0].childNodes) == 2:
+        has_weight = True
+    else:
+        has_weight = False
+
     list_hash = [ x.firstChild.firstChild.data for x in list_ballots ]
+    if has_weight:
+        list_weights = [ x.childNodes[1].data for x in list_ballots ]
+        list_weights = [ x[2:-1] for x in list_weights ]
 
     list_hash2 = []
+    list_weights2 = []
     for l in data['ballots.jsons'].splitlines():
         m = hashlib.sha256()
         m.update(l)
         h = base64.b64encode(m.digest()).decode().strip('=')
         list_hash2.append(h)
+        if has_weight:
+            jsn = json.loads(l)
+            cred = jsn['signature']['public_key']
+            pat = re.compile(cred + r',(\d+)')
+            m=pat.search(data['public_creds.txt'].decode())
+            if m:
+                list_weights2.append(m.group(1))
+            else: # if absent, default weight is 1
+                list_weights2.append('1')
+    if has_weight:
+        list_hash = [ (list_hash[i],list_weights[i]) for i in range(len(list_hash)) ]
+        list_hash2 = [ (list_hash2[i],list_weights2[i]) for i in range(len(list_hash2)) ]
     list_hash.sort()
     list_hash2.sort()
     if (not list_hash == list_hash2):
@@ -209,6 +232,40 @@ def check_index_html(data):
         fail = True
     else:
         logme("  cred fingerprint ok")
+    
+    # if weights, check the total/min/max vs content of public_creds.txt
+    node = [ x.firstChild for x in dom.getElementsByTagName("div")
+            if x.firstChild != None and
+            x.firstChild.nodeType == xml.dom.minidom.Node.TEXT_NODE and
+            re.search("The total weight is",x.firstChild.data) != None ]
+    if (len(node) == 1):
+        fail_weights = False
+        pat = re.compile(r'The total weight is (\d+) \(min: (\d+), max: (\d+)\)')
+        mat = pat.match(node[0].data)
+        w_tot = int(mat.group(1))
+        w_min = int(mat.group(2))
+        w_max = int(mat.group(3))
+        c_tot = 0
+        c_min = 10000000000
+        c_max = 0
+        for l in data['public_creds.txt'].splitlines():
+            wt = l.decode().split(',')
+            if len(wt) == 2:
+                x = int(l.decode().split(',')[1])
+            else: # if absent, default weight is 1.
+                assert len(wt) == 1;
+                x = 1
+            c_tot += x
+            if (x < c_min):
+                c_min = x
+            if (x > c_max):
+                c_max = x
+        if (c_tot != w_tot) or (c_min != w_min) or (c_max != w_max):
+            msg = msg + "Error: Wrong stats of weights in election {}\n".format(uuid).encode()
+            logme(" " + str(c_tot) + " " + str(c_min) + " " + str(c_max))
+            fail = True
+        else:
+            logme("  stats of weights ok")
 
     def hash_pub_key(s):
         m = hashlib.sha256()
@@ -250,7 +307,7 @@ def check_index_html(data):
     # in index.html, the non-threshold trustees are in the ul list with id "trustees"
     arr = [ x for x in dom.getElementsByTagName("ul") if x.getAttribute('id') == 'trustees' ]
     if arr != []:
-        pat = re.compile('(^.*) \(([\w+/]*)\)$')
+        pat = re.compile(r'(^.*) \(([\w+/]*)\)$')
         for trustee in arr[0].getElementsByTagName("li"):
             s = trustee.firstChild.data
             mat = pat.match(s)
@@ -260,7 +317,7 @@ def check_index_html(data):
     # the threshold trustees are in the ul list with class "trustees_threshold"
     arr = [ x for x in dom.getElementsByTagName("ul") if x.getAttribute('class') == 'trustees_threshold' ]
     if arr != []:
-        pat = re.compile('(^.*) \(([\w+/]*)\) \[([\w+/]*)\]$')
+        pat = re.compile(r'(^.*) \(([\w+/]*)\) \[([\w+/]*)\]$')
         for trustee in arr[0].getElementsByTagName("li"):
             s = trustee.firstChild.data
             mat = pat.match(s)

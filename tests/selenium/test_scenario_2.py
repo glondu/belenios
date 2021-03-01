@@ -95,7 +95,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
             subprocess.run(["rm", "-f", el]) # TODO: Execute a command that works on other OS, like `os.remove()`
 
 
-    def administrator_starts_creation_of_manual_election(self):
+    def administrator_starts_creation_of_manual_election(self, nh_question=False):
         # # Setting up a new election (action of the administrator)
 
         browser = self.browser
@@ -123,7 +123,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         # - She arrives on the Questions page. She checks that the page title is correct
         # - She removes answer 3
         # - She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
-        administrator_edits_election_questions(browser)
+        administrator_edits_election_questions(browser, nh_question)
 
         # She sets election's voters:
         # - She clicks on the "Edit voters" link, to then type the list of voters

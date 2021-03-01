@@ -3,9 +3,11 @@
 import unittest
 import os
 import csv
+from selenium.webdriver.support.select import Select
 from distutils.util import strtobool
 from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_has_non_empty_content, verify_all_elements_have_attribute_value
-from util.election_testing import console_log, ConsoleLogDuration, wait_a_bit, try_several_times
+from util.election_testing import console_log, wait_a_bit
+from util.execution import ConsoleLogDuration, try_several_times
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
 import settings
 
@@ -48,10 +50,11 @@ class BeleniosVoteWithPreparedBallots(BeleniosTestElectionScenario2Base):
 
                     wait_a_bit()
 
-                    # Click on "en" language
-                    english_language_link_expected_label = "en"
-                    english_language_link_element = wait_for_an_element_with_link_text_exists(browser, english_language_link_expected_label, settings.EXPLICIT_WAIT_TIMEOUT)
-                    english_language_link_element.click()
+                    # She clicks on "en" language
+                    select = Select(wait_for_element_exists(browser, ".lang_box select", settings.EXPLICIT_WAIT_TIMEOUT))
+                    select.select_by_visible_text("en")
+                    submit = wait_for_element_exists(browser, ".lang_box input[type=submit]", settings.EXPLICIT_WAIT_TIMEOUT)
+                    submit.click()
 
                     wait_a_bit()
 

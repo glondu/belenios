@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2020-12-02 07:24+0000\n"
+"PO-Revision-Date: 2021-02-09 08:02+0000\n"
 "Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/voter/fr/"
 ">\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.4-dev\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: src/web/pages_common.ml:272
 msgid " (if you forgot it, for example)."
@@ -641,7 +641,7 @@ msgstr "Le résultat de cette élection n'est pas disponible."
 
 #: src/web/pages_voter.ml:310
 msgid "The total weight is %d (min: %d, max: %d)."
-msgstr ""
+msgstr "Le nombre total de voix est %d (min : %d, max : %d)."
 
 #: src/web/pages_voter.ml:286
 msgid "The voter list has %d voter(s) and fingerprint %s."
@@ -679,7 +679,7 @@ msgstr "Cette élection est actuellement fermée."
 
 #: src/web/pages_voter.ml:299
 msgid "This election uses weights!"
-msgstr ""
+msgstr "Cette élection utilise des votes pondérés !"
 
 #: src/web/site_voter.ml:272
 msgid "This question is homomorphic, this method cannot be applied to its result."
@@ -713,7 +713,7 @@ msgstr "Pour obtenir plus d'informations, veuillez contacter :"
 
 #: src/web/pages_voter.ml:220
 msgid "Total weight of accepted ballots:"
-msgstr ""
+msgstr "Nombre total de voix pour les bulletins acceptés :"
 
 #: src/web/pages_voter.ml:373
 msgid "Trustees shuffled the ballots in the following order:"
@@ -748,7 +748,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1203 src/web/pages_voter.ml:1150
 msgid "Weight:"
-msgstr ""
+msgstr "Nombre de voix :"
 
 #: src/web/pages_voter.ml:1027
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
@@ -849,7 +849,7 @@ msgstr "Votre vote n'a pas été enregistré !"
 #: src/web/pages_voter.ml:1243 src/web/pages_voter.ml:614
 #. src/web/pages_voter.ml:518
 msgid "Your weight is %d."
-msgstr ""
+msgstr "Votre nombre de voix est %d."
 
 #: src/web/web_common.ml:86
 msgid "a credential is missing"
@@ -946,7 +946,7 @@ msgstr "votre bulletin a une erreur de syntaxe (%s)"
 
 #: src/web/web_common.ml:91
 msgid "your credential has a bad weight"
-msgstr ""
+msgstr "Votre code de vote ne correspond pas au bon nombre de voix"
 
 #: src/web/web_common.ml:89
 msgid "your credential has already been used"

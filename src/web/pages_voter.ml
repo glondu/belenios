@@ -95,7 +95,7 @@ let format_question_result uuid l (i, q) r =
          div ~a:[a_class ["result_question"]] [txt x.q_question];
          answers;
        ]
-  | Question.NonHomomorphic x ->
+  | Question.NonHomomorphic (x, _) ->
      let open Question_nh_t in
      li [
          div ~a:[a_class ["result_question"]] [txt x.q_question];

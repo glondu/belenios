@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2021-01-23 02:32+0000\n"
+"PO-Revision-Date: 2021-02-12 11:50+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/voter/cs/>"
 "\n"
@@ -114,7 +114,8 @@ msgid ". It contains all submitted ballots in clear, in random order. It is up t
 msgstr ""
 ". Obsahuje všechny odevzdané volební lístky, v náhodném pořadí. Je na vás "
 "jakožto pořadatelích, abyste na ně aplikovali vámi zvolenou metodu "
-"vyhodnocení (Condorcet, STV, většinové posouzení – majority judgement atd)."
+"vyhodnocení (Condorcetovu, metodu jednoho přenosného hlasu – STV, většinové "
+"posouzení – majority judgement atd)."
 
 #: src/web/pages_voter.ml:933
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
@@ -626,7 +627,7 @@ msgstr "Počet křesel je neplatný."
 
 #: src/web/pages_voter.ml:103
 msgid "The raw results can be viewed in the "
-msgstr "Hrubé výsledky můžeš vidět v "
+msgstr "Nezpracované výsledky můžeš vidět v "
 
 #: src/web/pages_voter.ml:256
 msgid "The result of this election is currently not publicly available. It will be in %s."
@@ -640,7 +641,7 @@ msgstr "Výsledek této volby není dostupný."
 
 #: src/web/pages_voter.ml:310
 msgid "The total weight is %d (min: %d, max: %d)."
-msgstr ""
+msgstr "Celková váha je %d (minimálně:,%d, maximálně: %d)."
 
 #: src/web/pages_voter.ml:286
 msgid "The voter list has %d voter(s) and fingerprint %s."
@@ -680,7 +681,7 @@ msgstr "Tato volba je v tuto chvíli uzavřena."
 
 #: src/web/pages_voter.ml:299
 msgid "This election uses weights!"
-msgstr ""
+msgstr "Tato volba používá váhy!"
 
 #: src/web/site_voter.ml:272
 msgid "This question is homomorphic, this method cannot be applied to its result."
@@ -703,7 +704,7 @@ msgstr ""
 #: src/web/pages_voter.ml:1192
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
-"Abys mohl hlasovat, budeš potřebovat uživatelské jméno a heslo, které ti "
+"Abys mohl(a) hlasovat, budeš potřebovat uživatelské jméno a heslo, které ti "
 "přijde v samostatném emailu."
 
 #: src/web/pages_voter.ml:1126
@@ -712,7 +713,7 @@ msgstr "Pro více informací prosím kontaktuj:"
 
 #: src/web/pages_voter.ml:220
 msgid "Total weight of accepted ballots:"
-msgstr ""
+msgstr "Celková váha odevzdaných volebních lístků:"
 
 #: src/web/pages_voter.ml:373
 msgid "Trustees shuffled the ballots in the following order:"
@@ -744,7 +745,7 @@ msgstr "Využívme zde Schulzeho metodu a voliče odkazujeme na "
 
 #: src/web/pages_voter.ml:1203 src/web/pages_voter.ml:1150
 msgid "Weight:"
-msgstr ""
+msgstr "Váha:"
 
 #: src/web/pages_voter.ml:1027
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
@@ -850,7 +851,7 @@ msgstr "Tvůj hlasovací lístek nebyl zaznamenán!"
 #: src/web/pages_voter.ml:1243 src/web/pages_voter.ml:614
 #. src/web/pages_voter.ml:518
 msgid "Your weight is %d."
-msgstr ""
+msgstr "Tvá váha je %d."
 
 #: src/web/web_common.ml:86
 msgid "a credential is missing"
@@ -947,7 +948,7 @@ msgstr "tvůj volební lístek má syntaktickou chybu (%s)"
 
 #: src/web/web_common.ml:91
 msgid "your credential has a bad weight"
-msgstr ""
+msgstr "tvůj přístupový údaj má špatnou váhu"
 
 #: src/web/web_common.ml:89
 msgid "your credential has already been used"

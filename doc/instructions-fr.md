@@ -64,15 +64,16 @@ déchiffrement sauvegarde :
   dans un endroit fermé, etc) car elle protège le secret du vote (en
   combinaison avec les autres clés de déchiffrement);
 - l'`url` de l'élection;
-- (en mode threshold) l'empreinte de sa clé publique de PKI `public key`;
-- l'empreinte de sa clé vérification associée à sa clé de déchiffrement `verification key`.
+- (en mode threshold) l'empreinte de sa clé publique de PKI `clé publique`;
+- l'empreinte de sa clé vérification associée à sa clé de
+  déchiffrement `clé de vérification`.
 
 Dès que l'élection est prête,  il est attendu que l'autorité de
 déchiffrement vérifie :
 
-- que sa clé de vérification `verification key`  apparait bien sur la page d'accueil de
+- que sa clé de vérification `clé de vérification`  apparait bien sur la page d'accueil de
 l'élection, à côté de son nom.
-- (en mode threshold) que sa clé publique de PKI `public key`  apparait bien sur la page d'accueil de
+- (en mode threshold) que sa clé publique de PKI `clé publique`  apparait bien sur la page d'accueil de
 l'élection, à côté de son nom;
 
 
@@ -83,8 +84,7 @@ participe au dépouillement. Dans le cas d'une élection de
   Pour cette étape, il  est attendu que l'autorité de
   déchiffrement :
 
-- sauvegarde l'empreinte de l'urne mélangée : `fingerprint of your
-shuffle`;
+- sauvegarde l'empreinte de l'urne mélangée : `empreinte de votre mélange`;
 - et vérifie immédiatement sa présence sur la page d'accueil de
 l'élection  (pour s'assurer que son
   mélange n'a pas été ignoré).
@@ -95,22 +95,22 @@ l'ouverture de l'urne. Il est attendu que l'autorité de
   déchiffrement :
 
 - vérifie que  (seulement dans le mode vote alternatif) l'empreinte de l'urne mélangée à l'étape
-  précédente  : `fingerprint of your
-  shuffle` apparait sur la page d'accueil de l'élection, à côté du nom
+  précédente  : `empreinte de votre mélange` apparait sur la page d'accueil de l'élection, à côté du nom
   de l'autorité. La clé de déchiffrement ne doit pas être entrée si ce
   n'est pas le cas.
-- sauvegarde l'empreinte de l'urne à déchiffrer : `fingerprint of the
-encrypted tally`.
+- sauvegarde l'empreinte de l'urne à déchiffrer : `empreinte du
+  résultat chiffré`.
 
 Une fois le dépouillement terminé, les résultats sont proclamés sur la
 page d'accueil de l'élection. Il est attendu que l'autorité de
 déchiffrement vérifie que les données suivantes apparaissent sur la
 page, à chaque fois associées à son nom :
 
-- (en mode threshold) sa clé publique de PKI `public key`;
-- sa clé de vérification `verification key`;
+- (en mode threshold) sa clé publique de PKI `clé publique`;
+- sa clé de vérification `clé de vérification`;
 - (en mode vote alternatif) l'empreinte de son mélange;
-- l'empreinte de l'urne à déchiffrer : `fingerprint of the encrypted tally`
+- l'empreinte de l'urne à déchiffrer : `empreinte du
+  résultat chiffré`
   (pour vérifier que sa clé de déchiffrement n'a pas été utilisée pour
   déchiffrer une autre donnée).
 
@@ -129,10 +129,11 @@ de génération des codes de vote sauvegarde :
 - l'`url` de l'élection;
 - la liste électorale `voters.txt`. L'autorité de génération
   de codes de vote doit vérifier
-  auprès de la commission électorale que cette liste électorale est correcte;
-- l'empreinte de la liste électorale : `fingerprint of voters`;
-- l'empreinte de la liste des codes de vote publics : `fingerprint of
-the public credentials`.
+  auprès de la commission électorale que cette liste électorale est
+  correcte, ainsi que le nombre de voix attribuées à chaque électeur
+  dans le cas d'un vote pondéré;
+- l'empreinte de la liste électorale : `Empreinte de la liste électorale`;
+- l'empreinte de la liste des codes de vote publics : `Empreinte de la partie publique des codes de vote`.
 
 L'autorité de génération de codes de vote a en charge l'envoi des
 codes de vote à chaque électeur. Elle précise alors l'`url` de
@@ -148,12 +149,14 @@ envoyer les codes de vote, il est possible d'utiliser le programme
 Dès que l'élection est ouverte ainsi qu'à la fin de l'élection,  il est attendu que l'autorité de
 génération de codes de vote :
 
-- vérifie que le nombre d'électeurs correspond à la liste électorale reçue et que
+- vérifie que le nombre d'électeurs correspond à la liste électorale
+  reçue, ainsi que le nombre total de voix dans le cadre d'un vote
+  pondéré, et que
   l'empreinte de la liste électorale correspond à l'empreinte
   enregistrée, par exemple avec l'une des commandes décrites [ici](#hash).
 
-- vérifie que l'empreinte de la liste des codes de vote publics correspond à l'empreinte
-enregistrée, à côté de son nom, par exemple avec l'une des commandes décrites [ici](#hash).
+- vérifie que l'empreinte de la liste des codes de vote publics
+enregistrée correspond à celle affichée à côté de son nom.
 
 - pendant l'élection, l'autorité de génération de codes de vote peut, à
 la demande d'un électeur, lui renvoyer son code de vote privé s'il
@@ -188,10 +191,14 @@ qu'elle ouverte et vérifie que :
 
 - le nombre d'électeurs affiché correspond à la liste électorale;
 
-- la valeur `voter list fingerprint` affichée correspond 
-  à l'empreinte de la liste électorale fournie
+- la valeur `Empreinte de la liste électorale` affichée correspond 
+  à l'empreinte de la liste électorale `voters.txt` fournie
   (par le système informatique ou l'administrateur de l'élection). Le
-  calcul de l'empreinte peut être fait avec l'une des commandes décrites [ici](#hash).
+  calcul de l'empreinte peut être fait avec l'une des commandes
+  décrites [ici](#hash).
+
+- la liste électorale `voters.txt` correspond bien aux électeurs
+  légitimes, avec le nombre de voix associé dans le cadre d'un vote pondéré.
 
 - la liste des questions et des réponses correspond bien à ce qui a
   été déterminé pour ce scrutin. Les questions et les réponses
@@ -236,7 +243,11 @@ accès à ces informations). Cf instructions pour la commission
 électorale.
 
 - vérifie que le nombre d'électeurs est égal au nombre de codes de
-  vote publics dans `public_creds.txt`.
+vote publics dans `public_creds.txt`.
+
+- vérifie que le fichier des parties publiques des codes de vote
+  `public_creds.txt` correspond à l'empreinte des codes de vote
+  affichée sur la page d'accueil, par exemple en utilisant l'une des commandes suggérées [ici](#hash).
 
 - vérifie la cohérence de l'urne. En copiant les 4 fichiers listés
 ci-dessus dans un répertoire `/path/to/election`, la commande suivante
@@ -318,7 +329,9 @@ autorités de déchiffrement, générateur de code de vote, commission
 Les points importants pour l'administrateur sont les suivants :
 
 - obtenir la liste électorale sous la forme d'une liste d'adresses
-  mail valides, une adresse par électeur. Cette liste doit être
+  mail valides, une adresse par électeur. Dans le cas d'un vote
+  pondéré, un nombre de voix différent peut être attribué à chaque
+  électeur. Cette liste doit être
   validée par la commission électorale.
 - vérifier et revérifier les adresses email rentrées pour les
   électeurs avant de lancer l'élection (et même avant l'envoi des
@@ -329,7 +342,7 @@ Les points importants pour l'administrateur sont les suivants :
 l'élection.
 - si l'administrateur de l'élection n'a pas chargé une
 personne de générer les codes de vote, il doit penser à télécharger
-la liste des codes de vote (`Download private credentials`) pour
+la liste des codes de vote (`Télécharger les parties privées des codes de vote`) pour
 pouvoir renvoyer son code de vote à un électeur qui l'aurait
 perdu. D'un point de vue sécurité, il est cependant préférable de
 déléguer la génération des codes de vote à une tierce personne.

@@ -4,8 +4,9 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-01-30 16:41+0000\n"
-"Last-Translator: Marco M <marcomillo@gmail.com>\n"
+"PO-Revision-Date: 2021-02-08 10:50+0000\n"
+"Last-Translator: Stefano Privato "
+"<9ae976b2-7d28-4d98-bdc2-39642f86fd34@crazyer.anonaddy.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/admin/"
 "it/>\n"
 "Language: it\n"
@@ -25,11 +26,11 @@ msgstr " e "
 
 #: src/web/pages_admin.ml:2902
 msgid " and a password: "
-msgstr " e la password: "
+msgstr " e una password: "
 
 #: src/web/pages_admin.ml:1624 src/web/pages_admin.ml:1499
 msgid " and save it to a secure location."
-msgstr " e la salva in un luogo sicuro."
+msgstr " e salvala in un luogo sicuro."
 
 #: src/web/pages_admin.ml:1381
 msgid " and save the file to a secure location."
@@ -37,11 +38,11 @@ msgstr " e salva il file in un luogo sicuro."
 
 #: src/web/pages_admin.ml:1837
 msgid " and save them securely."
-msgstr ""
+msgstr " e salvali in un luogo sicuro."
 
 #: src/web/pages_admin.ml:2947
 msgid " and your e-mail address is: "
-msgstr ""
+msgstr " e il tuo indirizzo mail è: "
 
 #: src/tool/tool_js_questions.ml:173
 msgid " answers."
@@ -57,7 +58,7 @@ msgstr " è stato calcolato."
 
 #: src/web/pages_admin.ml:2855 src/web/pages_admin.ml:2823
 msgid " in the following box: "
-msgstr ""
+msgstr " nel seguente box: "
 
 #: src/web/pages_admin.ml:1127 src/web/pages_admin.ml:1118
 msgid " instead of "
@@ -91,11 +92,11 @@ msgstr " elettore(i) registrato(i)"
 
 #: src/web/pages_admin.ml:2773
 msgid " your contribution to decryption."
-msgstr ""
+msgstr " il tuo contributo alla decriptazione."
 
-#: src/web/site_admin.ml:867
+#: src/web/site_admin.ml:890
 msgid "%S is not a valid identity"
-msgstr ""
+msgstr "%S non è un'identità valida"
 
 #: src/web/pages_admin.ml:1806
 msgid "%d voter(s)"
@@ -105,11 +106,11 @@ msgstr "%d elettore(i)"
 msgid "%s is not a registered user for this election."
 msgstr ""
 
-#: src/web/site_admin.ml:1538
+#: src/web/site_admin.ml:1564
 msgid "%s is not a valid date!"
 msgstr ""
 
-#: src/web/site_admin.ml:2226 src/web/site_admin.ml:970
+#: src/web/site_admin.ml:2252 src/web/site_admin.ml:996
 msgid "%s is not a valid e-mail address!"
 msgstr ""
 
@@ -178,7 +179,7 @@ msgstr ""
 msgid "A new password has been mailed to %s."
 msgstr "Una nuova password è stata inviata a %s."
 
-#: src/web/site_admin.ml:1218
+#: src/web/site_admin.ml:1244
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
 msgstr ""
 
@@ -186,8 +187,8 @@ msgstr ""
 msgid "Accept"
 msgstr "Accetta"
 
-#: src/web/site_admin.ml:2535 src/web/site_admin.ml:2449
-#. src/web/site_admin.ml:2419
+#: src/web/site_admin.ml:2561 src/web/site_admin.ml:2475
+#. src/web/site_admin.ml:2445
 msgid "Account creation"
 msgstr "Nuovo account"
 
@@ -230,7 +231,7 @@ msgstr "Metodi di voto alternativo (attenzione, ancora sperimentale):"
 msgid "Alternatively, you may set up automatic dates."
 msgstr ""
 
-#: src/web/site_admin.ml:2447
+#: src/web/site_admin.ml:2473
 msgid "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation."
 msgstr ""
 
@@ -238,11 +239,11 @@ msgstr ""
 msgid "An election with the same UUID already exists."
 msgstr "Esiste già un elezione con lo stesso UUID."
 
-#: src/web/site_admin.ml:2078
+#: src/web/site_admin.ml:2104
 msgid "An error occurred while applying the shuffle."
 msgstr ""
 
-#: src/web/site_admin.ml:1960
+#: src/web/site_admin.ml:1986
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 
@@ -290,7 +291,7 @@ msgstr "Sistema di autenticazione: password"
 msgid "Automatic (degraded mode - credentials will be handled by the server)"
 msgstr ""
 
-#: src/web/site_admin.ml:1471
+#: src/web/site_admin.ml:1497
 msgid "Automatic shuffle by server has failed for election %s!"
 msgstr ""
 
@@ -346,7 +347,7 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancella"
 
-#: src/web/site_admin.ml:1081
+#: src/web/site_admin.ml:1107
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr ""
 
@@ -358,8 +359,8 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr ""
 
-#: src/web/site_admin.ml:2555 src/web/site_admin.ml:2494
-#. src/web/site_admin.ml:2461
+#: src/web/site_admin.ml:2581 src/web/site_admin.ml:2520
+#. src/web/site_admin.ml:2487
 #. src/web/pages_admin.ml:2968
 #. src/web/pages_admin.ml:2866
 msgid "Change password"
@@ -425,11 +426,11 @@ msgstr ""
 msgid "Contact?"
 msgstr ""
 
-#: src/web/site_admin.ml:1352
+#: src/web/site_admin.ml:1378
 msgid "Could not retrieve trustees from selected election!"
 msgstr ""
 
-#: src/web/site_admin.ml:1325
+#: src/web/site_admin.ml:1351
 msgid "Could not retrieve voter list from election %s"
 msgstr ""
 
@@ -465,7 +466,7 @@ msgstr ""
 msgid "Credentials have already been generated!"
 msgstr ""
 
-#: src/web/site_admin.ml:1153
+#: src/web/site_admin.ml:1179
 msgid "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
 msgstr ""
 
@@ -481,7 +482,7 @@ msgstr ""
 msgid "Current list of ballots:"
 msgstr "Lista attuale di schede:"
 
-#: src/web/site_admin.ml:2080
+#: src/web/site_admin.ml:2106
 msgid "Data is invalid! (%s)"
 msgstr ""
 
@@ -600,7 +601,7 @@ msgstr ""
 msgid "Elections you can administer"
 msgstr ""
 
-#: src/web/site_admin.ml:1383
+#: src/web/site_admin.ml:1409
 msgid "Encrypted decryption keys are missing!"
 msgstr ""
 
@@ -620,23 +621,23 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr ""
 
-#: src/web/site_admin.ml:2228 src/web/site_admin.ml:2198
-#. src/web/site_admin.ml:2185
-#. src/web/site_admin.ml:2080
-#. src/web/site_admin.ml:2078
-#. src/web/site_admin.ml:1963
-#. src/web/site_admin.ml:1890
-#. src/web/site_admin.ml:1820
-#. src/web/site_admin.ml:1784
-#. src/web/site_admin.ml:1587
-#. src/web/site_admin.ml:1531
-#. src/web/site_admin.ml:1431
-#. src/web/site_admin.ml:1322
-#. src/web/site_admin.ml:1312
-#. src/web/site_admin.ml:1227
-#. src/web/site_admin.ml:1219
-#. src/web/site_admin.ml:1192
-#. src/web/site_admin.ml:972
+#: src/web/site_admin.ml:2254 src/web/site_admin.ml:2224
+#. src/web/site_admin.ml:2211
+#. src/web/site_admin.ml:2106
+#. src/web/site_admin.ml:2104
+#. src/web/site_admin.ml:1989
+#. src/web/site_admin.ml:1916
+#. src/web/site_admin.ml:1846
+#. src/web/site_admin.ml:1810
+#. src/web/site_admin.ml:1613
+#. src/web/site_admin.ml:1557
+#. src/web/site_admin.ml:1457
+#. src/web/site_admin.ml:1348
+#. src/web/site_admin.ml:1338
+#. src/web/site_admin.ml:1253
+#. src/web/site_admin.ml:1245
+#. src/web/site_admin.ml:1218
+#. src/web/site_admin.ml:998
 #. src/web/site_admin.ml:759
 #. src/web/site_admin.ml:637
 #. src/web/site_admin.ml:594
@@ -692,8 +693,8 @@ msgstr "Segui il link."
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr ""
 
-#: src/web/site_admin.ml:1833 src/web/site_admin.ml:1830
-#. src/web/site_admin.ml:1489
+#: src/web/site_admin.ml:1859 src/web/site_admin.ml:1856
+#. src/web/site_admin.ml:1515
 msgid "Forbidden"
 msgstr ""
 
@@ -745,7 +746,7 @@ msgstr "Nascondi link"
 msgid "Identity"
 msgstr "Identità"
 
-#: src/web/site_admin.ml:2492
+#: src/web/site_admin.ml:2518
 msgid "If the account exists, an e-mail was sent with a confirmation link. Please click on it to change your password."
 msgstr ""
 
@@ -769,7 +770,7 @@ msgstr ""
 msgid "Import voters from another election"
 msgstr ""
 
-#: src/web/site_admin.ml:1359
+#: src/web/site_admin.ml:1385
 msgid "Imported trustees are invalid for this election!"
 msgstr ""
 
@@ -781,7 +782,7 @@ msgstr ""
 msgid "Imported voters will have the same password as in the original election, and no new e-mail will be sent."
 msgstr ""
 
-#: src/web/site_admin.ml:1381
+#: src/web/site_admin.ml:1407
 msgid "Inconsistency in imported election!"
 msgstr ""
 
@@ -810,7 +811,7 @@ msgstr ""
 msgid "Invalid minimum number of choices"
 msgstr ""
 
-#: src/web/site_admin.ml:1226
+#: src/web/site_admin.ml:1252
 msgid "Invalid public key!"
 msgstr ""
 
@@ -958,7 +959,7 @@ msgstr ""
 msgid "No trustees were set. This means the server will manage the election key by itself."
 msgstr ""
 
-#: src/web/site_admin.ml:1083 src/web/pages_admin.ml:1291
+#: src/web/site_admin.ml:1109 src/web/pages_admin.ml:1291
 msgid "No voters"
 msgstr ""
 
@@ -1085,7 +1086,7 @@ msgstr ""
 msgid "Please "
 msgstr ""
 
-#: src/web/site_admin.ml:2183
+#: src/web/site_admin.ml:2209
 msgid "Please add some trustees first!"
 msgstr ""
 
@@ -1347,9 +1348,9 @@ msgstr ""
 msgid "Submit your public key using the button below."
 msgstr ""
 
-#: src/web/site_admin.ml:2076 src/web/site_admin.ml:1885
-#. src/web/site_admin.ml:1234
-#. src/web/site_admin.ml:1152
+#: src/web/site_admin.ml:2102 src/web/site_admin.ml:1911
+#. src/web/site_admin.ml:1260
+#. src/web/site_admin.ml:1178
 #. src/web/site_admin.ml:755
 #. src/web/site_admin.ml:681
 #. src/web/site_admin.ml:561
@@ -1377,7 +1378,7 @@ msgstr ""
 msgid "The account creation "
 msgstr ""
 
-#: src/web/site_admin.ml:2535
+#: src/web/site_admin.ml:2561
 msgid "The account has been created."
 msgstr ""
 
@@ -1389,7 +1390,7 @@ msgstr ""
 msgid "The creation failed."
 msgstr ""
 
-#: src/web/site_admin.ml:1549
+#: src/web/site_admin.ml:1575
 msgid "The date must be less than %d days in the future!"
 msgstr ""
 
@@ -1399,7 +1400,7 @@ msgstr ""
 msgid "The election administrator"
 msgstr ""
 
-#: src/web/site_admin.ml:1832
+#: src/web/site_admin.ml:1858
 msgid "The election has already been tallied."
 msgstr ""
 
@@ -1407,11 +1408,11 @@ msgstr ""
 msgid "The election is closed. No one can vote."
 msgstr ""
 
-#: src/web/site_admin.ml:1785
+#: src/web/site_admin.ml:1811
 msgid "The election is not archived!"
 msgstr ""
 
-#: src/web/site_admin.ml:1829
+#: src/web/site_admin.ml:1855
 msgid "The election is not ready to be tallied. Please come back later."
 msgstr ""
 
@@ -1423,7 +1424,7 @@ msgstr ""
 msgid "The election is open. Voters can vote."
 msgstr ""
 
-#: src/web/site_admin.ml:1085 src/web/site_admin.ml:654
+#: src/web/site_admin.ml:1111 src/web/site_admin.ml:654
 msgid "The election name has not been edited!"
 msgstr ""
 
@@ -1462,11 +1463,11 @@ msgstr ""
 msgid "The link to the election will be:"
 msgstr ""
 
-#: src/web/site_admin.ml:1891
+#: src/web/site_admin.ml:1917
 msgid "The partial decryption didn't pass validation!"
 msgstr ""
 
-#: src/web/site_admin.ml:2555
+#: src/web/site_admin.ml:2581
 msgid "The password has been changed."
 msgstr ""
 
@@ -1478,15 +1479,15 @@ msgstr ""
 msgid "The second box is now filled with crypto material. Please press the button \"Submit\"."
 msgstr ""
 
-#: src/web/site_admin.ml:2076
+#: src/web/site_admin.ml:2102
 msgid "The shuffle has been successfully applied!"
 msgstr ""
 
-#: src/web/site_admin.ml:2196
+#: src/web/site_admin.ml:2222
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr ""
 
-#: src/web/site_admin.ml:1315 src/web/site_admin.ml:875
+#: src/web/site_admin.ml:1341 src/web/site_admin.ml:898
 msgid "The total weight cannot exceed %d."
 msgstr ""
 
@@ -1498,7 +1499,11 @@ msgstr ""
 msgid "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
 msgstr ""
 
-#: src/web/site_admin.ml:894
+#: src/web/site_admin.ml:902
+msgid "The voter list is not consistent (a login or a weight is missing)."
+msgstr ""
+
+#: src/web/site_admin.ml:920
 msgid "There are too many voters (max is %d)"
 msgstr ""
 
@@ -1578,7 +1583,7 @@ msgstr ""
 msgid "To set up the election so that only a subset of trustees is needed, go to the "
 msgstr ""
 
-#: src/web/pages_admin.ml:51
+#: src/web/pages_admin.ml:50
 msgid "To use this site, you must accept our "
 msgstr ""
 
@@ -1616,7 +1621,7 @@ msgstr ""
 msgid "Type the password again: "
 msgstr ""
 
-#: src/web/site_admin.ml:1401
+#: src/web/site_admin.ml:1427
 msgid "Unsupported trustees!"
 msgstr ""
 
@@ -1698,7 +1703,7 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: src/web/site_admin.ml:1488
+#: src/web/site_admin.ml:1514
 msgid "You are not allowed to administer this election!"
 msgstr ""
 
@@ -1706,11 +1711,11 @@ msgstr ""
 msgid "You can also access the "
 msgstr ""
 
-#: src/web/site_admin.ml:2462
+#: src/web/site_admin.ml:2488
 msgid "You cannot change your password now. Please try later."
 msgstr ""
 
-#: src/web/site_admin.ml:2420
+#: src/web/site_admin.ml:2446
 msgid "You cannot create an account now. Please try later."
 msgstr ""
 
@@ -1769,19 +1774,19 @@ msgstr ""
 msgid "Your job in the key establishment protocol is done! The fingerprint of your verification key is %s. Check that it is published by the server when the election is open. Your private key will be needed to decrypt the election result."
 msgstr ""
 
-#: src/web/site_admin.ml:1233
+#: src/web/site_admin.ml:1259
 msgid "Your key has been received and checked!"
 msgstr ""
 
-#: src/web/site_admin.ml:1821
+#: src/web/site_admin.ml:1847
 msgid "Your partial decryption has already been received and checked!"
 msgstr ""
 
-#: src/web/site_admin.ml:1886
+#: src/web/site_admin.ml:1912
 msgid "Your partial decryption has been received and checked!"
 msgstr ""
 
-#: src/web/site_admin.ml:1191
+#: src/web/site_admin.ml:1217
 msgid "Your public key has already been received!"
 msgstr ""
 
@@ -1837,7 +1842,7 @@ msgstr ""
 msgid "or you may simply print it and store it in a safe."
 msgstr ""
 
-#: src/web/pages_admin.ml:52
+#: src/web/pages_admin.ml:51
 msgid "personal data policy"
 msgstr ""
 

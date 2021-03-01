@@ -332,6 +332,16 @@ let split_identity x =
      int_of_string weight
   | _ -> failwith "Web_common.split_identity"
 
+let split_identity_opt x =
+  match Pcre.split ~pat:"," x with
+  | [address] -> address, None, None
+  | [address; login] -> address, (if login = "" then None else Some login), None
+  | [address; login; weight] ->
+     address,
+     (if login = "" then None else Some login),
+     Some (int_of_string weight)
+  | _ -> failwith "Web_common.split_identity_opt"
+
 let available_languages = ["en"; "fr"; "de"; "ro"; "it"; "nb"; "es"; "uk"; "cs"; "oc"; "pt_BR"]
 
 let get_languages xs =
