@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2021-03-01 09:51+0000\n"
+"PO-Revision-Date: 2021-03-02 13:02+0000\n"
 "Last-Translator: Stavros Christoforou <stavros.christoforou@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/belenios/voter/el/>"
 "\n"
@@ -274,41 +274,45 @@ msgstr "Κρυπτογραφώντας…"
 #. src/web/site_voter.ml:266
 #: src/web/site_voter.ml:339 src/web/site_voter.ml:314 src/web/site_voter.ml:276
 msgid "Error"
-msgstr ""
+msgstr "Σφάλμα"
 
 #: src/web/pages_voter.ml:636
 msgid "FAIL!"
-msgstr ""
+msgstr "ΑΠΟΤΥΧΙΑ!"
 
 #: src/web/pages_common.ml:119
 msgid "Get the source code"
-msgstr ""
+msgstr "Κατεβάστε τον πηγαίο κώδικα"
 
 #. src/web/pages_voter.ml:581
 #. src/web/pages_voter.ml:553
 #: src/web/pages_voter.ml:685 src/web/pages_voter.ml:651
 msgid "Go back to election"
-msgstr ""
+msgstr "Επιστρέψτε στην ψηφοφορία"
 
 #: src/web/pages_voter.ml:471
 msgid "I am "
-msgstr ""
+msgstr "Είμαι "
 
 #: src/web/pages_voter.ml:476
 msgid "I cast my vote"
-msgstr ""
+msgstr "Ρίχνω το ψηφοδέλτιό μου"
 
 #: src/tool/tool_js_booth.ml:235
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
+"Εαν ζητηθείτε να βαθμολογήσετε υποψηφίους (κρίση πλειοψηφίας) τότε 1 είναι ο "
+"καλύτερος βαθμός, υψηλότεροι βαθμοί είναι χειρότεροι."
 
 #: src/tool/tool_js_booth.ml:238
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
+"Εαν ζητηθείτε να βαθμολογήσετε υποψηφίους (Condorcet, STV, ...) τότε "
+"χρησιμοποιήστε 1 για την πρώτη σας επιλογή, 2 για την δεύτερη κοκ."
 
 #: src/web/pages_voter.ml:575
 msgid "If you want to vote, you must "
-msgstr ""
+msgstr "Εαν θέλετε να ψηφίσετε, πρέπει να "
 
 #: src/web/pages_voter.ml:1096
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
@@ -325,15 +329,15 @@ msgstr ""
 #. src/web/pages_voter.ml:496
 #: src/web/pages_voter.ml:778 src/web/pages_voter.ml:595
 msgid "Input credential"
-msgstr ""
+msgstr "Εισάγετε διαπιστευτήριο"
 
 #: src/web/pages_voter.ml:797
 msgid "Input your credential "
-msgstr ""
+msgstr "Εισάγετε το διαπιστευτήριό σας "
 
 #: src/tool/tool_js_booth.ml:387
 msgid "Invalid credential!"
-msgstr ""
+msgstr "Λανθασμένο διαπιστευτήριο!"
 
 #: src/web/site_voter.ml:277
 msgid "Invalid index for question."
@@ -341,23 +345,23 @@ msgstr ""
 
 #: src/web/pages_voter.ml:133
 msgid "It will open in "
-msgstr ""
+msgstr "Θα ανοίξει σε "
 
 #: src/web/pages_voter.ml:104
 msgid "JSON result"
-msgstr ""
+msgstr "Αποτέλεσμα JSON"
 
 #: src/web/pages_common.ml:138
 msgid "Language:"
-msgstr ""
+msgstr "Γλώσσα:"
 
 #: src/web/pages_voter.ml:724
 msgid "Loading…"
-msgstr ""
+msgstr "Φόρτωση…"
 
 #: src/web/pages_common.ml:235
 msgid "Log in"
-msgstr ""
+msgstr "Είσοδος"
 
 #: src/web/pages_common.ml:291
 msgid "Login"
@@ -366,18 +370,20 @@ msgstr ""
 #: src/web/pages_voter.ml:1195 src/web/pages_voter.ml:1143
 msgid "Login and passwords are required once your ballot is ready to be cast."
 msgstr ""
+"Όνομα εισόδου και κωδικός είναι απαραίτητα όταν είστε έτοιμοι να ρίξετε την "
+"ψήφο σας."
 
 #: src/web/pages_voter.ml:1100
 msgid "Look at the raw events for more details."
-msgstr ""
+msgstr "Δείτε στα μη επεξεργασμένα γεγονότα για περισσότερες πληροφορίες."
 
 #: src/web/pages_voter.ml:111
 msgid "Majority Judgment"
-msgstr ""
+msgstr "Κρίση πλειοψηφίας"
 
 #: src/web/pages_voter.ml:965 src/web/pages_voter.ml:915
 msgid "Majority Judgment method"
-msgstr ""
+msgstr "Μέθοδος Κρίσης πλειοψηφίας"
 
 #: src/web/pages_voter.ml:1094
 msgid "Many variants of STV exist, depending for example on how to break ties."
@@ -389,75 +395,77 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1029 src/web/pages_voter.ml:939
 msgid "More information can be found "
-msgstr ""
+msgstr "Περισσότερες πληροφορίες μπορούν να βρεθούν "
 
 #: src/tool/tool_js_booth.ml:321
 msgid "Next"
-msgstr ""
+msgstr "Επόμενο"
 
 #: src/tool/tool_js_booth.ml:138
 msgid "No other choices are allowed when voting blank"
-msgstr ""
+msgstr "Δεν επιτρέπονται άλλες επιλογές όταν ψηφίζετε λευκό"
 
 #: src/web/site_common.ml:43
 msgid "Not found"
-msgstr ""
+msgstr "Δεν βρέθηκε"
 
 #: src/web/pages_voter.ml:1208 src/web/pages_voter.ml:1155
 msgid "Note that you are allowed to vote several times."
-msgstr ""
+msgstr "Σημειώστε ότι επιτρέπεται να ψηφίσετε περισσότερες φορές."
 
 #: src/web/pages_voter.ml:491
 msgid "Note: You have already voted. Your vote will be replaced."
-msgstr ""
+msgstr "Σημείωση: Έχετε η ψηφίσει. Η ψήφος σας θα αντικατασταθεί."
 
 #: src/web/pages_voter.ml:544
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr ""
+"Σημείωση: το ψηφοδέλτίο σας είναι κρυπτογραφημένο και κανείς δεν μπορεί να "
+"δει τα περιεχόμενά του."
 
 #: src/tool/tool_js_booth.ml:230
 msgid "Notes:"
-msgstr ""
+msgstr "Σημειώσεις:"
 
 #: src/web/pages_voter.ml:235
 msgid "Number of accepted ballots: "
-msgstr ""
+msgstr "Αριθμός αποδεκτών ψηφοδελτίων: "
 
 #: src/web/pages_voter.ml:921
 msgid "Number of grades:"
-msgstr ""
+msgstr "Αριθμός βαθμών:"
 
 #: src/web/pages_voter.ml:1015
 msgid "Number of seats:"
-msgstr ""
+msgstr "Αριθμός θέσεων:"
 
 #: src/web/pages_voter.ml:1209 src/web/pages_voter.ml:1156
 msgid "Only the last vote counts."
-msgstr ""
+msgstr "Μόνο η τελευταία ψήφος μετράει."
 
 #: src/web/pages_voter.ml:1206 src/web/pages_voter.ml:1153
 msgid "Page of the election:"
-msgstr ""
+msgstr "Σελίδα ψηφοφορίας:"
 
 #: src/web/pages_common.ml:299
 msgid "Password login"
-msgstr ""
+msgstr "Είσοδος με κωδικό"
 
 #: src/web/pages_voter.ml:1147 src/web/pages_common.ml:286
 msgid "Password:"
-msgstr ""
+msgstr "Κωδικός:"
 
 #: src/tool/tool_js_booth.ml:376
 msgid "Please enter your credential:"
-msgstr ""
+msgstr "Παρακαλούμε εισάγετε το διαπιστευτήριό σας:"
 
 #: src/web/pages_voter.ml:482
 msgid "Please log in to confirm your vote."
-msgstr ""
+msgstr "Παρακαλούμε κάντε είσοδο για να επιβεβαιώσετε την ψήφο σας."
 
 #: src/web/pages_common.ml:232
 msgid "Please log in:"
-msgstr ""
+msgstr "Παρακαλούμε κάντε είσοδο:"
 
 #: src/web/pages_voter.ml:949
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
@@ -469,39 +477,39 @@ msgstr ""
 
 #: src/web/pages_voter.ml:817
 msgid "Please wait while your ballot is being encrypted…"
-msgstr ""
+msgstr "Παρακαλούμε περιμένετε όσο το ψηφοδέλτιό σας κρυπτογραφείται…"
 
 #: src/web/pages_voter.ml:723
 msgid "Please wait… "
-msgstr ""
+msgstr "Παρακαλώ περιμένετε... "
 
 #: src/web/pages_common.ml:114
 msgid "Powered by "
-msgstr ""
+msgstr "Βασισμένο στο "
 
 #: src/tool/tool_js_booth.ml:320
 msgid "Previous"
-msgstr ""
+msgstr "Προηγούμενο"
 
 #: src/web/pages_common.ml:121
 msgid "Privacy policy"
-msgstr ""
+msgstr "Πολιτική Ιδιωτικότητας"
 
 #: src/web/pages_common.ml:200
 msgid "Proceed"
-msgstr ""
+msgstr "Προχωρήστε"
 
 #: src/web/pages_voter.ml:1080
 msgid "Raw events"
-msgstr ""
+msgstr "Μη επεξεργασμένα συμβάντα"
 
 #: src/web/pages_voter.ml:821
 msgid "Restart"
-msgstr ""
+msgstr "Επανεκκίνηση"
 
 #: src/web/pages_voter.ml:1259
 msgid "Results will be published on the election page"
-msgstr ""
+msgstr "Τα αποτελέσματα θα αναρτηθούν στην σελίδα της ψηφοφορίας"
 
 #. src/web/pages_voter.ml:500
 #: src/web/pages_voter.ml:782 src/web/pages_voter.ml:599
