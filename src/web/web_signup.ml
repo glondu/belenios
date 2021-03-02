@@ -111,8 +111,9 @@ let send_confirmation_link ~service address =
   let nlinks = filter_links_by_time (filter_links_by_address address !links) in
   links := SMap.add token link nlinks;
   let uri =
-    Eliom_uri.make_string_uri ~absolute:true ~service:Web_services.signup_login
-      token |> rewrite_prefix
+    Eliom_uri.make_string_uri ~absolute:true
+      ~service:Web_services.signup_login ()
+    |> rewrite_prefix
   in
   let body =
     Printf.sprintf "\
@@ -125,13 +126,15 @@ server. To confirm this creation, please click on the following link:
 
 or copy and paste it in a web browser.
 
-Warning: this link is valid for 1 day, and previous links sent to this
+Verification code: %s
+
+Warning: this code is valid for 1 day, and previous codes sent to this
 address are no longer valid.
 
 Best regards,
 
 -- \n\
-Belenios Server" address uri
+Belenios Server" address uri token
   in
   let subject = "Belenios account creation" in
   let%lwt () = send_email MailAccountCreation ~recipient:address ~subject ~body in
@@ -145,8 +148,9 @@ let send_changepw_link ~service ~address ~username =
   let nlinks = filter_links_by_time (filter_links_by_address address !links) in
   links := SMap.add token link nlinks;
   let uri =
-    Eliom_uri.make_string_uri ~absolute:true ~service:Web_services.signup_login
-      token |> rewrite_prefix
+    Eliom_uri.make_string_uri ~absolute:true
+      ~service:Web_services.signup_login ()
+    |> rewrite_prefix
   in
   let body =
     Printf.sprintf "\
@@ -159,13 +163,15 @@ Belenios server. To confirm this, please click on the following link:
 
 or copy and paste it in a web browser.
 
-Warning: this link is valid for 1 day, and previous links sent to this
+Verification code: %s
+
+Warning: this code is valid for 1 day, and previous codes sent to this
 address are no longer valid.
 
 Best regards,
 
 -- \n\
-Belenios Server" address uri
+Belenios Server" address uri token
   in
   let subject = "Belenios password change" in
   let%lwt () = send_email MailPasswordChange ~recipient:address ~subject ~body in

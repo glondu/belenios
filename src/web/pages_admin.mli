@@ -55,5 +55,6 @@ val tally_trustees : 'a election -> int -> string -> unit -> [> `Html ] Eliom_co
 
 val signup_captcha : service:string -> captcha_error option -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val signup_changepw : service:string -> captcha_error option -> string -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val signup_login : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val signup : string -> add_account_error option -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val changepw : username:string -> address:string -> add_account_error option -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

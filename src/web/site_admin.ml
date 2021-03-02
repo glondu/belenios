@@ -2527,7 +2527,11 @@ let () =
 
 let () =
   Any.register ~service:signup_login
-    (fun token () ->
+    (fun () () -> Pages_admin.signup_login () >>= Html.send)
+
+let () =
+  Any.register ~service:signup_login_post
+    (fun () token ->
       match%lwt Web_signup.confirm_link token with
       | None -> forbidden ()
       | Some env ->
