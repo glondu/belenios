@@ -2987,3 +2987,16 @@ let changepw ~username ~address error =
   in
   let content = [error; form] in
   base ~title:(s_ "Change password") ~content ()
+
+let compute_fingerprint () =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let interactivity =
+    div
+      ~a:[a_id "interactivity"]
+      [
+        script_with_lang ~lang "tool_js_fingerprint.js";
+      ]
+  in
+  let content = [interactivity] in
+  base ~title:(s_ "Compute fingerprint") ~content ()

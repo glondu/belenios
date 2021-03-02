@@ -2588,6 +2588,10 @@ let () =
       | _ -> forbidden ()
     )
 
+let () =
+  Html.register ~service:compute_fingerprint
+    (fun () () -> Pages_admin.compute_fingerprint ())
+
 let extract_automatic_data_draft uuid_s =
   let uuid = uuid_of_raw_string uuid_s in
   match%lwt Web_persist.get_draft_election uuid with
