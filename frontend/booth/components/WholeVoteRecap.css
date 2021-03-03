@@ -98,4 +98,5 @@
   padding: 10px;
   color: white;
   font-weight: bold;
+  background-color: var(--selected-grade-color);
 }
