@@ -54,6 +54,16 @@
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
+ (target nl.mo)
+ (deps nl.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target nl.json)
+ (deps nl.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target el.json)
  (deps el.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
@@ -123,6 +133,8 @@
   (oc.mo as locales/admin/oc.mo)
   (pt_BR.mo as locales/admin/pt_BR.mo)
   (el.mo as locales/admin/el.mo)
+  (nl.mo as locales/admin/nl.mo)
+  (nl.json as locales/admin/nl.json)
   (el.json as locales/admin/el.json)
   (pt_BR.json as locales/admin/pt_BR.json)
   (oc.json as locales/admin/oc.json)
