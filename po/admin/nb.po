@@ -19,11 +19,11 @@ msgstr ""
 msgid " You may re-open the election when it is closed."
 msgstr " Du kan gjenåpne valget når det er stengt."
 
-#: src/tool/tool_js_questions.ml:166
+#: src/tool/tool_js_questions.ml:179
 msgid " and "
 msgstr " og "
 
-#: src/web/pages_admin.ml:2902
+#: src/web/pages_admin.ml:2923
 msgid " and a password: "
 msgstr " og et passord: "
 
@@ -39,15 +39,15 @@ msgstr " og lagre filen på en sikker plass."
 msgid " and save them securely."
 msgstr " og lagre dem sikkert."
 
-#: src/web/pages_admin.ml:2947
+#: src/web/pages_admin.ml:2968
 msgid " and your e-mail address is: "
 msgstr " og e-postadressen din er: "
 
-#: src/tool/tool_js_questions.ml:173
+#: src/tool/tool_js_questions.ml:186
 msgid " answers."
 msgstr ""
 
-#: src/web/pages_admin.ml:2935 src/web/pages_admin.ml:2885
+#: src/web/pages_admin.ml:2956 src/web/pages_admin.ml:2906
 msgid " because "
 msgstr " fordi "
 
@@ -154,7 +154,7 @@ msgstr "(terskelen må være mindre enn antall betrodde)"
 msgid "(you can use any credential such as %s)."
 msgstr "(du kan bruke enhver identitetsdetalj, som %s)."
 
-#: src/web/pages_admin.ml:2937 src/web/pages_admin.ml:2887
+#: src/web/pages_admin.ml:2958 src/web/pages_admin.ml:2908
 msgid ". Please try again with a different one."
 msgstr ". Prøv igjen med en annen."
 
@@ -188,21 +188,25 @@ msgstr ""
 msgid "Accept"
 msgstr "Godta"
 
-#: src/web/site_admin.ml:2561 src/web/site_admin.ml:2475
+#: src/web/site_admin.ml:2565 src/web/site_admin.ml:2475
 #. src/web/site_admin.ml:2445
 msgid "Account creation"
 msgstr "Kontoopprettelse"
+
+#: src/web/pages_admin.ml:2887
+msgid "Account management"
+msgstr ""
 
 #: src/web/pages_admin.ml:1232 src/web/pages_admin.ml:861
 #. src/web/pages_admin.ml:697
 msgid "Add"
 msgstr "Legg til"
 
-#: src/tool/tool_js_questions.ml:361
+#: src/tool/tool_js_questions.ml:389
 msgid "Add a question"
 msgstr "Legg til et spørsmål"
 
-#: src/tool/tool_js_questions.ml:305
+#: src/tool/tool_js_questions.ml:333
 msgid "Add an answer"
 msgstr "Legg til et svar"
 
@@ -218,7 +222,7 @@ msgstr "Alle passordene har blitt sendt."
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:292
+#: src/tool/tool_js_questions.ml:320
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr ""
 
@@ -255,7 +259,7 @@ msgstr ""
 "\"adresse\" er en e-postadresse og \"innlogging\" er tilknyttet innlogging "
 "for identitetsbekreftelse."
 
-#: src/tool/tool_js_questions.ml:124
+#: src/tool/tool_js_questions.ml:137
 msgid "Answer: "
 msgstr "Svar: "
 
@@ -335,7 +339,7 @@ msgstr "Feil sikkerhetskode!"
 msgid "Below you will find the link to shuffle encrypted ballots."
 msgstr "Nedenfor vil du finne en lenke til å stokke de krypterte stemmene."
 
-#: src/tool/tool_js_questions.ml:182
+#: src/tool/tool_js_questions.ml:195
 msgid "Blank vote is allowed"
 msgstr "Blank stemme tillates"
 
@@ -365,9 +369,9 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr "Endre automatiske datoer"
 
-#: src/web/site_admin.ml:2581 src/web/site_admin.ml:2520
+#: src/web/site_admin.ml:2585 src/web/site_admin.ml:2520
 #. src/web/site_admin.ml:2487
-#. src/web/pages_admin.ml:2968
+#. src/web/pages_admin.ml:2989
 #. src/web/pages_admin.ml:2866
 msgid "Change password"
 msgstr "Endre passord"
@@ -376,7 +380,7 @@ msgstr "Endre passord"
 msgid "Checklist:"
 msgstr "Sjekkliste:"
 
-#: src/tool/tool_js_questions.ml:263
+#: src/tool/tool_js_questions.ml:291
 msgid "Classical (selection of answers)"
 msgstr "Klassisk (valg av svaralternativer)"
 
@@ -406,6 +410,10 @@ msgstr "Lukk valg"
 
 #: src/web/pages_admin.ml:1545
 msgid "Collaborative key generation"
+msgstr ""
+
+#: src/web/pages_admin.ml:3002
+msgid "Compute fingerprint"
 msgstr ""
 
 #: src/web/pages_admin.ml:2665
@@ -440,7 +448,11 @@ msgstr ""
 msgid "Could not retrieve voter list from election %s"
 msgstr ""
 
-#: src/web/pages_admin.ml:2918 src/web/pages_admin.ml:2834
+#: src/tool/tool_js_questions.ml:275
+msgid "Counting method specification:"
+msgstr ""
+
+#: src/web/pages_admin.ml:2939 src/web/pages_admin.ml:2834
 msgid "Create an account"
 msgstr "Opprett en konto"
 
@@ -514,7 +526,7 @@ msgstr "Slett valg"
 msgid "Description of the election:"
 msgstr "Beskrivelse av valget:"
 
-#: src/tool/tool_js_questions.ml:336
+#: src/tool/tool_js_questions.ml:364
 msgid "Description:"
 msgstr "Beskrivelse:"
 
@@ -792,7 +804,7 @@ msgstr ""
 msgid "Inconsistency in imported election!"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:229 src/tool/tool_js_questions.ml:142
+#: src/tool/tool_js_questions.ml:242 src/tool/tool_js_questions.ml:155
 msgid "Insert"
 msgstr "Sett inn"
 
@@ -809,11 +821,15 @@ msgstr "Instruks"
 msgid "Instructions:"
 msgstr "Instruks:"
 
-#: src/tool/tool_js_questions.ml:91
+#: src/tool/tool_js_questions.ml:111
+msgid "Invalid counting method specification!"
+msgstr ""
+
+#: src/tool/tool_js_questions.ml:93
 msgid "Invalid maximum number of choices"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:90
+#: src/tool/tool_js_questions.ml:92
 msgid "Invalid minimum number of choices"
 msgstr "Ugyldig minimumsantall for alternativer"
 
@@ -886,7 +902,7 @@ msgstr "E-post"
 msgid "Manual (safe mode - a third party will handle the credentials)"
 msgstr "Manuell (trygt modus - en tredjepart vil håndtere identitetsdetaljene)"
 
-#: src/tool/tool_js_questions.ml:95
+#: src/tool/tool_js_questions.ml:97
 msgid "Maximum number of choices must be greater than 0!"
 msgstr ""
 
@@ -894,7 +910,7 @@ msgstr ""
 msgid "Meaning of states:"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:93
+#: src/tool/tool_js_questions.ml:95
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr ""
 
@@ -938,7 +954,7 @@ msgstr "Navn og beskrivelse av valget"
 msgid "Name of the election:"
 msgstr "Navn på valget:"
 
-#: src/tool/tool_js_questions.ml:325
+#: src/tool/tool_js_questions.ml:353
 msgid "Name of the election: "
 msgstr "Navn på valget: "
 
@@ -1100,11 +1116,11 @@ msgstr ""
 msgid "Please add some trustees first!"
 msgstr "Legg til noen betrodde først."
 
-#: src/web/pages_admin.ml:2952
+#: src/web/pages_admin.ml:2973
 msgid "Please choose a password: "
 msgstr "Velg et passord: "
 
-#: src/web/pages_admin.ml:2900
+#: src/web/pages_admin.ml:2921
 msgid "Please choose a username: "
 msgstr "Velg et brukernavn: "
 
@@ -1115,6 +1131,10 @@ msgstr "Skriv inn "
 #: src/web/pages_admin.ml:1314
 msgid "Please enter the identities of voters to add, one per line"
 msgstr "Skriv inn identitetene for stemmeberettigede å legge til, én per linje"
+
+#: src/web/pages_admin.ml:2876
+msgid "Please enter the verification code received by e-mail:"
+msgstr ""
 
 #: src/web/pages_admin.ml:2740
 msgid "Please enter your private key:"
@@ -1192,7 +1212,7 @@ msgstr "Offentlig navn på identitetsdetalj-myndigheten:"
 msgid "Publish the result now"
 msgstr "Publiser resultatet nå"
 
-#: src/tool/tool_js_questions.ml:212
+#: src/tool/tool_js_questions.ml:225
 msgid "Question: "
 msgstr "Spørsmål: "
 
@@ -1236,7 +1256,7 @@ msgstr ""
 msgid "Remember to store you private key securely."
 msgstr "Husk å lagre din private nøkkel sikkert."
 
-#: src/tool/tool_js_questions.ml:219 src/tool/tool_js_questions.ml:131
+#: src/tool/tool_js_questions.ml:232 src/tool/tool_js_questions.ml:144
 #. src/web/pages_admin.ml:1300
 #. src/web/pages_admin.ml:1241
 #. src/web/pages_admin.ml:963
@@ -1254,7 +1274,7 @@ msgstr "Fjern alt"
 msgid "Reset threshold"
 msgstr "Fjern terskel"
 
-#: src/tool/tool_js_questions.ml:375 src/web/pages_admin.ml:1166
+#: src/tool/tool_js_questions.ml:403 src/web/pages_admin.ml:1166
 #. src/web/pages_admin.ml:402
 #. src/web/pages_admin.ml:374
 #. src/web/pages_admin.ml:345
@@ -1322,7 +1342,8 @@ msgstr "Steg %d/3"
 msgid "Step 0/3"
 msgstr "Steg 0/3"
 
-#: src/web/pages_admin.ml:2962 src/web/pages_admin.ml:2912
+#: src/web/pages_admin.ml:2983 src/web/pages_admin.ml:2933
+#. src/web/pages_admin.ml:2881
 #. src/web/pages_admin.ml:2859
 #. src/web/pages_admin.ml:2827
 #. src/web/pages_admin.ml:2772
@@ -1384,15 +1405,15 @@ msgstr "Takk for din hjelp,"
 msgid "The "
 msgstr ""
 
-#: src/web/pages_admin.ml:2883
+#: src/web/pages_admin.ml:2904
 msgid "The account creation "
 msgstr "Kontoopprettelsen "
 
-#: src/web/site_admin.ml:2561
+#: src/web/site_admin.ml:2565
 msgid "The account has been created."
 msgstr "Konto opprettet."
 
-#: src/web/pages_admin.ml:2933
+#: src/web/pages_admin.ml:2954
 msgid "The change "
 msgstr "Endringen "
 
@@ -1458,7 +1479,7 @@ msgstr ""
 msgid "The fingerprint of your shuffle will appear. Save it."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:97
+#: src/tool/tool_js_questions.ml:99
 msgid "The given maximum is greater than the number of choices!"
 msgstr ""
 
@@ -1477,7 +1498,7 @@ msgstr "Lenken til valget vil bli:"
 msgid "The partial decryption didn't pass validation!"
 msgstr ""
 
-#: src/web/site_admin.ml:2581
+#: src/web/site_admin.ml:2585
 msgid "The password has been changed."
 msgstr "Passord endret."
 
@@ -1501,11 +1522,11 @@ msgstr ""
 msgid "The total weight cannot exceed %d."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:159
+#: src/tool/tool_js_questions.ml:172
 msgid "The voter has to choose between "
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:256
+#: src/tool/tool_js_questions.ml:269
 msgid "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
 msgstr ""
 
@@ -1627,7 +1648,7 @@ msgstr "Betrodde for valget %s"
 msgid "Trustees?"
 msgstr "Betrodde?"
 
-#: src/web/pages_admin.ml:2957 src/web/pages_admin.ml:2907
+#: src/web/pages_admin.ml:2978 src/web/pages_admin.ml:2928
 msgid "Type the password again: "
 msgstr "Skriv inn passordet igjen: "
 
@@ -1777,7 +1798,7 @@ msgstr "Du vil bruke den til å dekryptere sluttresultatet."
 msgid "You will use it to send credentials to voters."
 msgstr ""
 
-#: src/web/pages_admin.ml:2895
+#: src/web/pages_admin.ml:2916
 msgid "Your e-mail address is: "
 msgstr "Din e-postadresse er: "
 
@@ -1801,7 +1822,7 @@ msgstr ""
 msgid "Your public key has already been received!"
 msgstr ""
 
-#: src/web/pages_admin.ml:2945
+#: src/web/pages_admin.ml:2966
 msgid "Your username is: "
 msgstr "Ditt brukernavn er: "
 
@@ -1829,7 +1850,7 @@ msgstr ""
 msgid "encrypted tally"
 msgstr ""
 
-#: src/web/pages_admin.ml:2934 src/web/pages_admin.ml:2884
+#: src/web/pages_admin.ml:2955 src/web/pages_admin.ml:2905
 msgid "failed"
 msgstr "mislyktes"
 
@@ -1845,7 +1866,7 @@ msgstr ""
 msgid "more info"
 msgstr "mer info"
 
-#: src/web/pages_admin.ml:2930
+#: src/web/pages_admin.ml:2951
 msgid "of an unknown reason"
 msgstr "av en ukjent grunn"
 
@@ -1897,11 +1918,11 @@ msgstr "fingeravtrykket for din bekreftelsesnøkkel;"
 msgid "the list of voters"
 msgstr "listen over stemmeberettigede"
 
-#: src/web/pages_admin.ml:2928
+#: src/web/pages_admin.ml:2949
 msgid "the new password is too weak (%s)"
 msgstr "det nye passordet er for svakt (%s)"
 
-#: src/web/pages_admin.ml:2929
+#: src/web/pages_admin.ml:2950
 msgid "the new password starts or ends with a space"
 msgstr "det nye passordet starter eller slutter med et mellomrom"
 
@@ -1909,27 +1930,27 @@ msgstr "det nye passordet starter eller slutter med et mellomrom"
 msgid "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:"
 msgstr ""
 
-#: src/web/pages_admin.ml:2878
+#: src/web/pages_admin.ml:2899
 msgid "the password is too weak (%s)"
 msgstr "passordet er for svakt (%s)"
 
-#: src/web/pages_admin.ml:2880
+#: src/web/pages_admin.ml:2901
 msgid "the password starts or ends with a space"
 msgstr "passordet starter eller slutter med et mellomrom"
 
-#: src/web/pages_admin.ml:2927 src/web/pages_admin.ml:2879
+#: src/web/pages_admin.ml:2948 src/web/pages_admin.ml:2900
 msgid "the two passwords are not the same"
 msgstr "de to passordene stemmer ikke overens"
 
-#: src/web/pages_admin.ml:2875
+#: src/web/pages_admin.ml:2896
 msgid "the username is already taken"
 msgstr "brukernavnet er allerede i bruk"
 
-#: src/web/pages_admin.ml:2877
+#: src/web/pages_admin.ml:2898
 msgid "the username is invalid"
 msgstr "brukernavnet er ugyldig"
 
-#: src/web/pages_admin.ml:2876
+#: src/web/pages_admin.ml:2897
 msgid "there is already an account with this e-mail address"
 msgstr "det finnes allerede en konto med denne e-postadressen"
 
