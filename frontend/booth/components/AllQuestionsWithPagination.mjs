@@ -6,7 +6,7 @@ function TranslatableAllQuestionsWithPagination(props){
   const [current_question_index, set_current_question_index] = React.useState(props.current_question_index);
   const initialVoteForAllQuestions = props.electionData.questions.map((question, question_index) => {
     const questionType = detectQuestionType(question);
-    if (questionType == QuestionTypeEnum.MAJORITY_JUDGEMENT){
+    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
       return question.value.answers.map((answer, answer_index) => {
         return undefined;
       });
@@ -49,22 +49,31 @@ function TranslatableAllQuestionsWithPagination(props){
     Type of vote_of_voter_per_question: Array where each ith element corresponds to voter's vote on question i.
     - If type of ith question is classic checkbox, voter's vote to this question is an array of integers, where the jth element is respectively 0 or 1 when the jth answer is respectively not checked or checked.
     - If type of ith question is classic radio, voter's vote to this question is an array of integers, where all elements are 0 except the jth element which is 1, as the jth answer radio button is ticked.
-    - If type of ith questionis majority judgement, voter's vote to this question is an array of integers, where each jth element value corresponds to the integer version of the grade selected by the voter for the jth candidate.
+    - If type of ith question is majority judgment, voter's vote to this question is an array of integers, where each jth element value corresponds to the integer version of the grade selected by the voter for the jth candidate.
     If blank vote is allowed on the ith question, then an element is added to the beginning of the ith array, with a value of respectively 1 or 0 if the user has repectively decided to vote blank on this question or not.
     */
     let vote_of_voter_per_question = [];
     vote_of_voter_per_question = props.electionData.questions.map(function(question, question_index){
       let answers_to_question = [];
       const questionType = detectQuestionType(question);
-      if (questionType == QuestionTypeEnum.MAJORITY_JUDGEMENT){
+      if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
         let question_answers = question.value.answers;
         answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as the lowest grade).
+
         // TODO: handle blank vote
+        /*
+        // handle blank vote: if blank vote is allowed on this answer, then the blank value must be placed at the beginning
+        if ("blank" in question && question["blank"] === true){
+          const voter_has_voted_blank = (current_user_vote_for_all_questions[question_index].length == question_answers.length + 1) && (current_user_vote_for_all_questions[question_index][question_answers.length] === 1) ? 1 : 0;
+          answers_to_question = [voter_has_voted_blank, ...answers_to_question];
+        }
+        */
       }
       else if (questionType === QuestionTypeEnum.CLASSIC){
         let question_answers = question.answers;
         answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el;});
-        // if blank vote is allowed on this answer, then the blank value must be placed at the beginning
+
+        // handle blank vote: if blank vote is allowed on this answer, then the blank value must be placed at the beginning
         if ("blank" in question && question["blank"] === true){
           const voter_has_voted_blank = (current_user_vote_for_all_questions[question_index].length == question_answers.length + 1) && (current_user_vote_for_all_questions[question_index][question_answers.length] === 1) ? 1 : 0;
           answers_to_question = [voter_has_voted_blank, ...answers_to_question];
@@ -147,9 +156,10 @@ function TranslatableAllQuestionsWithPagination(props){
     let complementaryProps = {};
     const identifierPrefix = `question_${question_index}_`;
     const visible = current_question_index === question_index ? true : false;
-    if (questionType === QuestionTypeEnum.MAJORITY_JUDGEMENT){
+    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
       answers = question.value.answers;
       questionText = question.value.question;
+      // blankVoteAllowed = question.blank;
       
       // Receive from backend the number of available grades, their labels and their ordering (index 0 is the best grade, and appreciation gets worse as index increases)
       if ("extra" in question && Array.isArray(question.extra) && question.extra.length > 1 && question.extra[0] == "MajorityJudgment" && Array.isArray(question.extra[1]) && question.extra[1].length > 1){

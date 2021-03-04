@@ -41,5 +41,5 @@
   "selectBetweenX": "Please select between {{count}}",
   "questionX": "Question {{count}}",
   "selectBetweenX_plural": "Please select between {{count}}",
-  "majorityJudgementQuestionDescription": "Please grade each candidate before moving on to next step."
+  "majorityJudgmentQuestionDescription": "Please grade each candidate before moving on to next step."
 }

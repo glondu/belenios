@@ -7,16 +7,16 @@
   font-size: smaller;
 }
 
-.majority-judgement-vote-recap, .classic-vote-recap {
+.majority-judgment-vote-recap, .classic-vote-recap {
   padding: 5px 10px 10px 10px;
   margin: 10px auto;
 }
 
-.majority-judgement-vote-recap:first-child, .classic-vote-recap:first-child {
+.majority-judgment-vote-recap:first-child, .classic-vote-recap:first-child {
   margin-top: 0;
 }
 
-.majority-judgement-vote-recap:last-child, .classic-vote-recap:last-child {
+.majority-judgment-vote-recap:last-child, .classic-vote-recap:last-child {
   margin-bottom: 0;
   padding-bottom: 0;
 }
@@ -28,12 +28,12 @@
   margin-bottom: 10px;
 }
 
-.majority-judgement-vote-recap__answers-to-question, .classic-vote-recap__answers-to-question {
+.majority-judgment-vote-recap__answers-to-question, .classic-vote-recap__answers-to-question {
   padding: 15px 40px;
   margin: 10px 0 20px 0;
 }
 
-.majority-judgement-vote-recap__answers-to-question:last-child, .classic-vote-recap__answers-to-question:last-child {
+.majority-judgment-vote-recap__answers-to-question:last-child, .classic-vote-recap__answers-to-question:last-child {
   margin-bottom: 5px;
 }
 
@@ -42,7 +42,7 @@
   border-radius: 10px;
 }
 
-.majority-judgement-vote-recap-for-candidate-big {
+.majority-judgment-vote-recap-for-candidate-big {
   --border-radius-size: 8px;
   --padding-size: 5px;
   display: flex;
@@ -53,7 +53,7 @@
   font-size: 12px;
 }
 
-.majority-judgement-vote-recap-for-candidate-big__candidate-name {
+.majority-judgment-vote-recap-for-candidate-big__candidate-name {
   padding: var(--padding-size) 12px;
   border-right: 3px solid white;
   flex-grow: 1;
@@ -61,8 +61,8 @@
   align-items: center;
 }
 
-.majority-judgement-vote-recap-for-candidate-big__selected-grade {
-  background-color: var(--majority-judgement-selected-grade-color);
+.majority-judgment-vote-recap-for-candidate-big__selected-grade {
+  background-color: var(--majority-judgment-selected-grade-color);
   border-radius: 0 var(--border-radius-size) var(--border-radius-size) 0;
   padding: var(--padding-size);
   color: white;
@@ -79,21 +79,21 @@
 
 
 
-.majority-judgement-vote-recap-for-candidate-small {
+.majority-judgment-vote-recap-for-candidate-small {
   margin: 0 auto 16px auto;
   max-width: 300px;
   text-align: center;
   --border-radius-size: 8px;
 }
 
-.majority-judgement-vote-recap-for-candidate-small__candidate-name {
+.majority-judgment-vote-recap-for-candidate-small__candidate-name {
   background: #eee;
   border-radius: var(--border-radius-size) var(--border-radius-size) 0 0;
   padding: 10px;
   margin-bottom: 2px;
 }
 
-.majority-judgement-vote-recap-for-candidate-small__selected-grade {
+.majority-judgment-vote-recap-for-candidate-small__selected-grade {
   border-radius: 0 0 var(--border-radius-size) var(--border-radius-size);
   padding: 10px;
   color: white;

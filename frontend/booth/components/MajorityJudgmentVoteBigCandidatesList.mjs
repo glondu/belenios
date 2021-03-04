@@ -1,4 +1,4 @@
-function MajorityJudgementVoteBigCandidateAvailableGrade({ name, id, checked=null, gradeLabel, availableGrades, gradeIndex, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, ...props }){
+function MajorityJudgmentVoteBigCandidateAvailableGrade({ name, id, checked=null, gradeLabel, availableGrades, gradeIndex, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, ...props }){
   const checkedValue = checked ? "checked" : null;
   const onChange = (event) => {
     if (event.target.checked){
@@ -8,9 +8,9 @@ function MajorityJudgementVoteBigCandidateAvailableGrade({ name, id, checked=nul
   return e(
     'div',
     {
-      className: `majority-judgement-vote-big-candidate__grade clickable`,
+      className: `majority-judgment-vote-big-candidate__grade clickable`,
       style: {
-        '--majority-judgement-available-grade-color': availableGradesCssColors[gradeIndex]
+        '--majority-judgment-available-grade-color': availableGradesCssColors[gradeIndex]
       },
       ...props
     },
@@ -18,7 +18,7 @@ function MajorityJudgementVoteBigCandidateAvailableGrade({ name, id, checked=nul
       'input',
       {
         type: 'radio',
-        className: 'majority-judgement-vote-big-candidate__grade__input',
+        className: 'majority-judgment-vote-big-candidate__grade__input',
         name: name,
         id: id,
         value: gradeIndex,
@@ -30,7 +30,7 @@ function MajorityJudgementVoteBigCandidateAvailableGrade({ name, id, checked=nul
       'label',
       {
         htmlFor: id,
-        className: 'majority-judgement-vote-big-candidate__grade__label'
+        className: 'majority-judgment-vote-big-candidate__grade__label'
       },
       e(
         'span',
@@ -41,7 +41,7 @@ function MajorityJudgementVoteBigCandidateAvailableGrade({ name, id, checked=nul
       e(
         'span',
         {
-          'className': 'majority-judgement-vote-big-candidate__grade__label__label'
+          'className': 'majority-judgment-vote-big-candidate__grade__label__label'
         },
         gradeLabel
       )
@@ -49,7 +49,7 @@ function MajorityJudgementVoteBigCandidateAvailableGrade({ name, id, checked=nul
   );
 }
 
-MajorityJudgementVoteBigCandidateAvailableGrade.defaultProps = {
+MajorityJudgmentVoteBigCandidateAvailableGrade.defaultProps = {
   name: "radio-button-choice",
   id: "radio-button_1",
   checked: false,
@@ -60,11 +60,11 @@ MajorityJudgementVoteBigCandidateAvailableGrade.defaultProps = {
   availableGradesCssColors: ["red", "yellow", "green"]
 };
 
-function TranslatableMajorityJudgementVoteBigCandidate({ candidateInfo, availableGrades, identifierPrefix, name, dispatchUserVoteForCandidateInQuestion, selectedGradeIndex, availableGradesCssColors, t }){
+function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, availableGrades, identifierPrefix, name, dispatchUserVoteForCandidateInQuestion, selectedGradeIndex, availableGradesCssColors, t }){
   const renderedGrades = availableGrades.map((gradeLabel, gradeIndex) => {
     const identifier = `${identifierPrefix}_grade_${gradeIndex}`;
     return e(
-      MajorityJudgementVoteBigCandidateAvailableGrade,
+      MajorityJudgmentVoteBigCandidateAvailableGrade,
       {
         name,
         id: identifier,
@@ -80,17 +80,17 @@ function TranslatableMajorityJudgementVoteBigCandidate({ candidateInfo, availabl
   return e(
     "div",
     {
-      className: "majority-judgement-vote-big-candidate"
+      className: "majority-judgment-vote-big-candidate"
     },
     e(
       "div",
       {
-        className: "majority-judgement-vote-big-candidate__candidate-info"
+        className: "majority-judgment-vote-big-candidate__candidate-info"
       },
       e(
         "div",
         {
-          className: "majority-judgement-vote-big-candidate__candidate-info__label"
+          className: "majority-judgment-vote-big-candidate__candidate-info__label"
         },
         candidateInfo
       )
@@ -99,7 +99,7 @@ function TranslatableMajorityJudgementVoteBigCandidate({ candidateInfo, availabl
   );
 }
 
-function TranslatableMajorityJudgementVoteBigCandidatesList({ identifierPrefix, candidates, availableGrades, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
+function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, candidates, availableGrades, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
   const renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifierConsolidatedPrefix = `${identifierPrefix}_candidate_${candidateIndex}`;
     const dispatchUserVoteForCandidateInQuestion = (selected_grade_index) => {
@@ -122,7 +122,7 @@ function TranslatableMajorityJudgementVoteBigCandidatesList({ identifierPrefix, 
     };
     
     return e(
-      TranslatableMajorityJudgementVoteBigCandidate,
+      TranslatableMajorityJudgmentVoteBigCandidate,
       {
         ...commonProps
       }
@@ -132,11 +132,11 @@ function TranslatableMajorityJudgementVoteBigCandidatesList({ identifierPrefix, 
   return e(
     'div',
     {
-      className: "majority-judgement-vote-big-candidates-list noselect"
+      className: "majority-judgment-vote-big-candidates-list noselect"
     },
     ...renderedCandidates
   );
 }
 
-export { TranslatableMajorityJudgementVoteBigCandidatesList };
-export default TranslatableMajorityJudgementVoteBigCandidatesList;
+export { TranslatableMajorityJudgmentVoteBigCandidatesList };
+export default TranslatableMajorityJudgmentVoteBigCandidatesList;

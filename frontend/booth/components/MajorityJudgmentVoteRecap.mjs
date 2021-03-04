@@ -1,14 +1,14 @@
 import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
-import { majorityJudgementGradeIndexToCssColor } from "../majority_judgement_colors.mjs";
+import { majorityJudgmentGradeIndexToCssColor } from "../majority_judgment_colors.mjs";
 
-function MajorityJudgementVoteRecapForCandidateBig({ candidateName, selectedGradeName, selectedGradeNumber, availableGradesCssColors }){
-  const bemBlockName = "majority-judgement-vote-recap-for-candidate-big";
+function MajorityJudgmentVoteRecapForCandidateBig({ candidateName, selectedGradeName, selectedGradeNumber, availableGradesCssColors }){
+  const bemBlockName = "majority-judgment-vote-recap-for-candidate-big";
   return e(
     "div",
     {
       className: bemBlockName,
       style : {
-        '--majority-judgement-selected-grade-color': availableGradesCssColors[selectedGradeNumber]
+        '--majority-judgment-selected-grade-color': availableGradesCssColors[selectedGradeNumber]
       }
     },
     e(
@@ -28,8 +28,8 @@ function MajorityJudgementVoteRecapForCandidateBig({ candidateName, selectedGrad
   );
 }
 
-function MajorityJudgementVoteRecapForCandidateSmall({ candidateName, selectedGradeName, selectedGradeNumber, availableGradesCssColors }){
-  const bemBlockName = "majority-judgement-vote-recap-for-candidate-small";
+function MajorityJudgmentVoteRecapForCandidateSmall({ candidateName, selectedGradeName, selectedGradeNumber, availableGradesCssColors }){
+  const bemBlockName = "majority-judgment-vote-recap-for-candidate-small";
   return e(
     "div",
     {
@@ -55,13 +55,13 @@ function MajorityJudgementVoteRecapForCandidateSmall({ candidateName, selectedGr
   );
 }
 
-function MajorityJudgementVoteRecapForCandidate({ candidateName, selectedGradeName, selectedGradeNumber, availableGradesCssColors }){
+function MajorityJudgmentVoteRecapForCandidate({ candidateName, selectedGradeName, selectedGradeNumber, availableGradesCssColors }){
   return e(
     DisplayDependingOnWindowWidth,
     {
       widthLimit: 800,
-      smallComponent: MajorityJudgementVoteRecapForCandidateSmall,
-      bigComponent: MajorityJudgementVoteRecapForCandidateBig,
+      smallComponent: MajorityJudgmentVoteRecapForCandidateSmall,
+      bigComponent: MajorityJudgmentVoteRecapForCandidateBig,
       candidateName,
       selectedGradeName,
       selectedGradeNumber,
@@ -70,13 +70,13 @@ function MajorityJudgementVoteRecapForCandidate({ candidateName, selectedGradeNa
   );
 }
 
-function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncryptedBallot, t }){
+function TranslatableMajorityJudgmentVoteRecap({ question, question_index, uncryptedBallot, t }){
   const questionText = question.value.question;
   const questionCandidates = question.value.answers;
   const questionPossibleGrades = question.extra[1];
   const availableGradesCssColors = React.useMemo(() => {
     return questionPossibleGrades.map((grade, index) => {
-      return majorityJudgementGradeIndexToCssColor(questionPossibleGrades.length, index);
+      return majorityJudgmentGradeIndexToCssColor(questionPossibleGrades.length, index);
     })
   }, questionPossibleGrades);
   const renderedGradedCandidates = uncryptedBallot[question_index].map(function(answer, answer_index){
@@ -100,7 +100,7 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
       }
       const index = question.blank === true ? answer_index-1 : answer_index;
       return e(
-        MajorityJudgementVoteRecapForCandidate,
+        MajorityJudgmentVoteRecapForCandidate,
         {
           candidateName: questionCandidates[index],
           selectedGradeName: questionPossibleGrades[selectedGradeIndex],
@@ -123,7 +123,7 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
     e(
       "div",
       {
-        className: "majority-judgement-vote-recap__answers-to-question"
+        className: "majority-judgment-vote-recap__answers-to-question"
       },
       ...renderedGradedCandidates
     )
@@ -131,13 +131,13 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
   return e(
     "div",
     {
-      className: "majority-judgement-vote-recap"
+      className: "majority-judgment-vote-recap"
     },
     renderedVoteToQuestion
   );
 }
 
-const MajorityJudgementVoteRecap = ReactI18next.withTranslation()(TranslatableMajorityJudgementVoteRecap);
+const MajorityJudgmentVoteRecap = ReactI18next.withTranslation()(TranslatableMajorityJudgmentVoteRecap);
 
-export { TranslatableMajorityJudgementVoteRecap, MajorityJudgementVoteRecap };
-export default MajorityJudgementVoteRecap;
+export { TranslatableMajorityJudgmentVoteRecap, MajorityJudgmentVoteRecap };
+export default MajorityJudgmentVoteRecap;

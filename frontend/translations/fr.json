@@ -41,5 +41,5 @@
   "selectBetweenX": "Veuillez sélectionner entre {{count}}",
   "questionX": "Question {{count}}",
   "selectBetweenX_plural": "Veuillez sélectionner entre {{count}}",
-  "majorityJudgementQuestionDescription": "Veuillez qualifier chaque candidat avant de passer à l'étape suivante."
+  "majorityJudgmentQuestionDescription": "Veuillez qualifier chaque candidat avant de passer à l'étape suivante."
 }

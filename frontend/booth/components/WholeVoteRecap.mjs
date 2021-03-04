@@ -1,13 +1,13 @@
 import { QuestionTypeEnum, detectQuestionType } from "./QuestionWithVotableAnswers.mjs";
 import ClassicVoteRecap from "./ClassicVoteRecap.mjs";
-import MajorityJudgementVoteRecap from "./MajorityJudgementVoteRecap.mjs";
+import MajorityJudgmentVoteRecap from "./MajorityJudgmentVoteRecap.mjs";
 
 function TranslatableWholeVoteRecap({ electionData=null, uncryptedBallot=[], t }){
   const renderedQuestions = electionData.questions.map(function(question, question_index){
     const questionType = detectQuestionType(question);
-    if (questionType == QuestionTypeEnum.MAJORITY_JUDGEMENT){
+    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
       return e(
-        MajorityJudgementVoteRecap,
+        MajorityJudgmentVoteRecap,
         {
           question,
           question_index,

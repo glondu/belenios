@@ -1,10 +1,10 @@
 import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesList.mjs"; // FIXME: We have to import TranslatableClassicVoteCandidatesList instead of ClassicVoteCandidatesList, because otherwise Storybook throws a hook error.
-import { TranslatableMajorityJudgementVoteCandidatesList } from "./MajorityJudgementVoteCandidatesList.mjs";
+import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.mjs";
 
 const QuestionTypeEnum = Object.freeze(
   {
     "CLASSIC": "CLASSIC", // In this question type, voter can select between `questions[i].min` and `questions[i].max` answers, or optionally vote blank (if `questions[i].blank` is true). Question's title is available as `questions[i].question`. Available answers or candidates are each element of array `questions[i].answers`.
-    "MAJORITY_JUDGEMENT": "MAJORITY_JUDGEMENT" // In this question type, voter must associate a grade (represented by a number) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`.
+    "MAJORITY_JUDGMENT": "MAJORITY_JUDGMENT" // In this question type, voter must associate a grade (represented by a number) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`.
   }
 );
 
@@ -18,7 +18,7 @@ const detectQuestionType = (question) => {
     if(question.hasOwnProperty("extra") && question.extra.length > 1){
       const questionSubType = question.extra[0];
       if (questionSubType == "MajorityJudgment"){
-        return QuestionTypeEnum.MAJORITY_JUDGEMENT;
+        return QuestionTypeEnum.MAJORITY_JUDGMENT;
       }
       else if (questionSubType == "PreferenceOrdering"){ // TODO: verify type name, once backend transmits this piece of information
         throw basicErrorText; // TODO: return QuestionTypeEnum.PREFERENCE_ORDERING;
@@ -33,13 +33,14 @@ const detectQuestionType = (question) => {
 function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteAllowed, identifierPrefix, visible, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
   let description;
   let rendered_answers;
-  if (questionType === QuestionTypeEnum.MAJORITY_JUDGEMENT){
-    description = t("majorityJudgementQuestionDescription");
+  if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
+    description = t("majorityJudgmentQuestionDescription");
     rendered_answers = e(
-      TranslatableMajorityJudgementVoteCandidatesList,
+      TranslatableMajorityJudgmentVoteCandidatesList,
       {
         identifierPrefix,
         candidates: answers,
+        blankVoteAllowed,
         availableGrades,
         currentUserVoteForQuestion,
         dispatchUpdateUserVoteForQuestion,
