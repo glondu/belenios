@@ -89,7 +89,8 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
       );
     }
     else {
-      if (answer < 0 || answer >= questionPossibleGrades.length){
+      const selectedGradeIndex = answer-1; // We substract 1 in order to obtain the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas the value of answer in the uncrypted ballot represent the selected grade encoded as Belenios backend expects it, which is: grades are expected to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as the lowest grade). 
+      if (selectedGradeIndex < 0 || selectedGradeIndex >= questionPossibleGrades.length){
         console.error(`uncryptedBallot for question ${question_index} contains an answer for candidate ${answer_index} which is out of the available grades interval.`);
         return e(
           "li",
@@ -102,8 +103,8 @@ function TranslatableMajorityJudgementVoteRecap({ question, question_index, uncr
         MajorityJudgementVoteRecapForCandidate,
         {
           candidateName: questionCandidates[index],
-          selectedGradeName: questionPossibleGrades[answer],
-          selectedGradeNumber: answer,
+          selectedGradeName: questionPossibleGrades[selectedGradeIndex],
+          selectedGradeNumber: selectedGradeIndex,
           availableGradesCssColors
         }
       );

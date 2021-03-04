@@ -219,8 +219,8 @@ function TranslatableVoteApp({uuid=null, t}){
           AllQuestionsWithPagination,
           {
             electionData: electionData,
-            onVoteSubmit: async function(event, electionData, voterSelectedAnswers){
-              setUncryptedBallotBeforeReview(voterSelectedAnswers);
+            onVoteSubmit: async function(event, electionData, voterSelectedAnswersAsUncryptedBallot){
+              setUncryptedBallotBeforeReview(voterSelectedAnswersAsUncryptedBallot);
               setCryptedBallotBeforeReview(null);
               setSmartBallotTracker(null);
               setCurrentStep(3);
@@ -237,7 +237,7 @@ function TranslatableVoteApp({uuid=null, t}){
               setTimeout(function(){
                 console.log("starting encryption of ballot");
                 belenios.encryptBallot(
-                  electionData, credential, voterSelectedAnswers,
+                  electionData, credential, voterSelectedAnswersAsUncryptedBallot,
                   encryptBallotSuccessCallback, encryptBallotErrorCallback
                 );
               }, 50);

@@ -44,7 +44,7 @@ function TranslatableAllQuestionsWithPagination(props){
   const [current_user_vote_for_all_questions, dispatch_current_user_vote_for_all_questions] = React.useReducer(currentUserVoteForAllQuestionsReducer, initialVoteForAllQuestions);
   // TODO: handle local saving of blank vote, probably in another data structure?
 
-  const extractVoterSelectedAnswersFromState = () => {
+  const convertStateToUncryptedBallot = () => {
     /*
     Type of vote_of_voter_per_question: Array where each ith element corresponds to voter's vote on question i.
     - If type of ith question is classic checkbox, voter's vote to this question is an array of integers, where the jth element is respectively 0 or 1 when the jth answer is respectively not checked or checked.
@@ -58,7 +58,7 @@ function TranslatableAllQuestionsWithPagination(props){
       const questionType = detectQuestionType(question);
       if (questionType == QuestionTypeEnum.MAJORITY_JUDGEMENT){
         let question_answers = question.value.answers;
-        answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el;});
+        answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as the lowest grade).
         // TODO: handle blank vote
       }
       else if (questionType === QuestionTypeEnum.CLASSIC){
@@ -101,15 +101,16 @@ function TranslatableAllQuestionsWithPagination(props){
     // - if blank vote is allowed on this question and user voted blank, then verify that no other answer is checked
     // - if this question accepts between X and Y answers and user has not voted blank, verify that user has not checked less than X answers, nor more than Y answers
     const current_question_data = props.electionData.questions[current_question_index];
-    const voter_selected_answers = extractVoterSelectedAnswersFromState();
-    const number_of_answers_checked = voter_selected_answers[current_question_index].reduce(
+    const voter_selected_answers_as_uncrypted_ballot = convertStateToUncryptedBallot();
+    // TODO: implement verification for majority judgment
+    const number_of_answers_checked = voter_selected_answers_as_uncrypted_ballot[current_question_index].reduce(
       function(accumulator, value, index){
         const answer_value = value === 1 ? 1 : 0;
         return accumulator + answer_value;
       },
       0
     );
-    if(current_question_data.blank === true && voter_selected_answers[current_question_index][0] === 1){
+    if(current_question_data.blank === true && voter_selected_answers_as_uncrypted_ballot[current_question_index][0] === 1){
       if(number_of_answers_checked > 1){
         alert(t("questionConstraintNoBlankAndOther"));
         return;
@@ -131,7 +132,7 @@ function TranslatableAllQuestionsWithPagination(props){
     }
     else {
       if (props.onVoteSubmit){
-        return props.onVoteSubmit(event, props.electionData, voter_selected_answers);
+        return props.onVoteSubmit(event, props.electionData, voter_selected_answers_as_uncrypted_ballot);
       }
     }
   }
