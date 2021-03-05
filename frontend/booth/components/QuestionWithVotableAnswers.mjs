@@ -30,7 +30,7 @@ const detectQuestionType = (question) => {
   }
 }
 
-function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteAllowed, identifierPrefix, visible, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
+function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteAllowed, identifierPrefix, visible, currentUserVoteForQuestion, currentAlertsTextsForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
   let description;
   let rendered_answers;
   if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
@@ -43,6 +43,7 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
         blankVoteAllowed,
         availableGrades,
         currentUserVoteForQuestion,
+        currentCandidatesHavingAlertsForQuestion,
         dispatchUpdateUserVoteForQuestion,
         t
       }
@@ -67,13 +68,23 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
         candidates: answers,
         blankVoteAllowed,
         currentUserVoteForQuestion,
+        currentCandidatesHavingAlertsForQuestion,
         dispatchUpdateUserVoteForQuestion,
         t
       }
     );
   }
-  
-  const containerClassNames = visible ? "question-with-votable-answers" : "question-with-votable-answers question-with-votable-answers--hidden";
+  const bemBlockName = "question-with-votable-answers";
+  const containerClassNames = visible ? bemBlockName : `${bemBlockName} ${bemBlockName}--hidden`;
+  const alertsText = currentAlertsTextsForQuestion.reduce(
+    (accumulator, value) => {
+      if (value){
+        accumulator += value + ' '; // TODO: implement a more evolved rendering
+      }
+      return accumulator;
+    },
+    ''
+  );
   return e(
     'div',
     {
@@ -82,18 +93,25 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
     e(
       "h3",
       {
-        className: "question-with-votable-answers__question-title"
+        className: `${bemBlockName}__question-title`
       },
       question
     ),
     e(
       "p",
       {
-        className: "question-with-votable-answers__question-description"
+        className: `${bemBlockName}__question-description`
       },
       description
     ),
-    rendered_answers
+    rendered_answers,
+    e(
+      "div",
+      {
+        className: `${bemBlockName}__alerts`
+      },
+      alertsText
+    )
   );
 }
 
@@ -111,6 +129,8 @@ TranslatableQuestionWithVotableAnswers.defaultProps = {
   "identifierPrefix": "question_1_",
   "visible": true,
   "currentUserVoteForQuestion": [],
+  "currentAlertsTextsForQuestion": [],
+  //"currentCandidatesHavingAlertsForQuestion": [],
   "dispatchUpdateUserVoteForQuestion": () => {}
 };
 

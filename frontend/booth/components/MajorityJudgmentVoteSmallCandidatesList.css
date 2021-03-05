@@ -5,11 +5,17 @@
 
 .majority-judgment-vote-small-candidate {
   margin-bottom: 20px;
+  --border-radius-size: 8px;
+}
+
+.majority-judgment-vote-small-candidate--with-alert {
+  border: 1px solid red;
+  border-radius: var(--border-radius-size);
 }
 
 .majority-judgment-vote-small-candidate__candidate-info {
   background: #eee;
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--border-radius-size) var(--border-radius-size) 0 0;
   padding: 10px;
   margin-bottom: 2px;
 }
@@ -30,7 +36,7 @@ select.majority-judgment-vote-small-candidate__grade-selector.select-css, select
   color: white;
   box-shadow: initial;
   background-image: var(--select-css-gray-arrow), linear-gradient(to bottom, #eeeeee 0%, #eeeeee 100%);
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 var(--border-radius-size) var(--border-radius-size);
 }
 
 select.majority-judgment-vote-small-candidate__grade-selector.select-css[data-value=""], select.majority-judgment-vote-small-candidate__grade-selector.select-css:not([data-value]) {

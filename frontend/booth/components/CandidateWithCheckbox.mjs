@@ -1,12 +1,16 @@
-function CandidateWithCheckbox({ name, id, checked, candidateInfo, dispatchUpdateUserVoteForCandidateInQuestion, ...props }){
+function CandidateWithCheckbox({ name, id, checked, candidateInfo, dispatchUpdateUserVoteForCandidateInQuestion, currentAlertsForCandidateInQuestion, ...props }){
   const checkedValue = checked ? true : false;
   const onChange = (event) => {
     dispatchUpdateUserVoteForCandidateInQuestion(event.target.checked === true ? true : false);
   };
+  let cssClasses = "candidate-with-checkbox clickable";
+  if (currentAlertsForCandidateInQuestion){
+    cssClasses += ' candidate-with-checkbox--with-alert';
+  }
   return e(
     'div',
     {
-      className: "candidate-with-checkbox clickable",
+      className: cssClasses,
       ...props
     },
     e(
@@ -46,7 +50,8 @@ CandidateWithCheckbox.defaultProps = {
   id: "checkbox_1",
   checked: false,
   candidateInfo: "choice 1",
-  dispatchUpdateUserVoteForCandidateInQuestion: () => {}
+  dispatchUpdateUserVoteForCandidateInQuestion: () => {},
+  currentAlertsForCandidateInQuestion: undefined
 };
 
 export { CandidateWithCheckbox };

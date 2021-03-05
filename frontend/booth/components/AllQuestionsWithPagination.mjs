@@ -18,23 +18,87 @@ function TranslatableAllQuestionsWithPagination(props){
     }
     return [];
   });
+  const initialAlertsForAllQuestions = props.electionData.questions.map((question, question_index) => {
+    return {};
+  });
   const deepCloneArray = (currentArray) => {
-    return currentArray.map((arr) => {
-      return arr.slice();
+    return currentArray.map((element) => {
+      if (Array.isArray(element)){
+        return element.slice();
+      }
+      else if (typeof element === 'object'){
+        return Object.assign({}, element);
+      }
+      else {
+        return element;
+      }
     });
   };
+  const currentAlertsForAllQuestionsReducer = (state, action) => {
+    let updatedAlertsForAllQuestions;
+    switch(action.type){
+      case 'saveAlertForCandidateInQuestion':
+        updatedAlertsForAllQuestions = deepCloneArray(state);
+        updatedAlertsForAllQuestions[action.question_index][action.alert_id] = {
+          text: action.alert_text,
+          candidate_indexes : action.candidates_indexes
+        };
+        return updatedAlertsForAllQuestions;
+        break;
+      case 'resetAlertInQuestion':
+        updatedAlertsForAllQuestions = deepCloneArray(state);
+        delete updatedAlertsForAllQuestions[action.question_index][action.alert_id];
+        return updatedAlertsForAllQuestions;
+        break;
+      case 'resetAllAlertsInQuestion':
+        updatedAlertsForAllQuestions = deepCloneArray(state);
+        updatedAlertsForAllQuestions[action.question_index] = {};
+        return updatedAlertsForAllQuestions;
+        break;
+      default:
+        throw new Error();
+    }
+  };
+  const [current_alerts_for_all_questions, dispatch_current_alerts_for_all_questions] = React.useReducer(currentAlertsForAllQuestionsReducer, initialAlertsForAllQuestions);
+  const candidatesIndexesHavingAlertInQuestion = React.useMemo(() => {
+    return current_alerts_for_all_questions.map((alerts_for_question, question_index) => {
+      const indexes_dict = Object.values(alerts_for_question).reduce((accumulator, value, index) => {
+        if (value.candidate_indexes){
+          value.candidate_indexes.forEach(element => {
+            accumulator[element] = 1;
+          });
+        }
+        return accumulator;
+      }, {});
+      const res = Object.keys(indexes_dict).map(el => {return parseInt(el, 10);});
+      return res;
+    });
+  }, current_alerts_for_all_questions);
+  const alertTextsInQuestion = React.useMemo(() => {
+    return current_alerts_for_all_questions.map((alerts_for_question, question_index) => {
+      return Object.values(alerts_for_question).map(element => { return element.text; });
+    });
+  }, current_alerts_for_all_questions);
   const currentUserVoteForAllQuestionsReducer = (state, action) => {
     let updatedVoteToAllQuestions;
     switch(action.type){
       case 'saveVoteForCandidateInQuestion':
         updatedVoteToAllQuestions = deepCloneArray(state);
         updatedVoteToAllQuestions[action.question_index][action.candidate_index] = action.user_vote_for_candidate;
+        dispatch_current_alerts_for_all_questions({
+          type: 'resetAllAlertsInQuestion',
+          question_index: action.question_index
+        });
         return updatedVoteToAllQuestions;
         break;
       case 'saveVoteForCandidateInQuestionAndResetOthers':
         updatedVoteToAllQuestions = deepCloneArray(state);
         updatedVoteToAllQuestions[action.question_index] = updatedVoteToAllQuestions[action.question_index].map((el) => { return undefined; });
         updatedVoteToAllQuestions[action.question_index][action.candidate_index] = action.user_vote_for_candidate;
+        dispatch_current_alerts_for_all_questions({
+          type: 'resetAllAlertsInQuestion',
+          question_index: action.question_index
+        });
         return updatedVoteToAllQuestions;
         break;
       default:
@@ -104,44 +168,101 @@ function TranslatableAllQuestionsWithPagination(props){
     }
   };
 
+  // When user clicks on the Next button:
+  // - convert component state to uncrypted ballot
+  // - verify coherence/validity of user input on this question
+  // - if input is valid:
+  //   - if another question exists after this one:
+  //     - display next question
+  //   - else:
+  //     - submit vote to encryption and recap step
+  // - else:
+  //   - display validity errors on current screen
   const onClickNext = (event) => {
     const t = props.t;
-    // Before moving on to next question, verify that user input respects question constraints:
-    // - if blank vote is allowed on this question and user voted blank, then verify that no other answer is checked
-    // - if this question accepts between X and Y answers and user has not voted blank, verify that user has not checked less than X answers, nor more than Y answers
     const current_question_data = props.electionData.questions[current_question_index];
     const voter_selected_answers_as_uncrypted_ballot = convertStateToUncryptedBallot();
-    // TODO: implement verification for majority judgment
-    const number_of_answers_checked = voter_selected_answers_as_uncrypted_ballot[current_question_index].reduce(
-      function(accumulator, value, index){
-        const answer_value = value === 1 ? 1 : 0;
-        return accumulator + answer_value;
-      },
-      0
-    );
-    if(current_question_data.blank === true && voter_selected_answers_as_uncrypted_ballot[current_question_index][0] === 1){
-      if(number_of_answers_checked > 1){
-        alert(t("questionConstraintNoBlankAndOther"));
-        return;
-      }
+    const questionType = detectQuestionType(current_question_data);
+    let user_vote_to_question_is_valid = true;
+    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
+      // verify that user has selected a grade for all candidates (in majority judgment, it is not accepted to select a grade for only some candidates)
+      current_user_vote_for_all_questions[current_question_index].forEach((selected_grade, candidate_index) => {
+        if(selected_grade === undefined){
+          dispatch_current_alerts_for_all_questions({
+            type: 'saveAlertForCandidateInQuestion',
+            alert_id: `shouldSelectGradeForCandidate_${candidate_index}`,
+            question_index: current_question_index,
+            candidates_indexes: [candidate_index],
+            alert_text: `Please select a grade for candidate ${candidate_index+1}.` // TODO: i18n
+          });
+          user_vote_to_question_is_valid = false;
+        }
+      });
     }
-    else {
-      if(number_of_answers_checked < current_question_data.min){
-        alert(t("questionConstraintNoLessThanMin", {count: current_question_data.min}));
-        return;
+    else if (questionType == QuestionTypeEnum.CLASSIC){
+      // Before moving on to next question, verify that user input respects question constraints:
+      // - if blank vote is allowed on this question and user voted blank, then verify that no other answer is checked
+      // - if this question accepts between X and Y answers and user has not voted blank, verify that user has not checked less than X answers, nor more than Y answers
+      const number_of_answers_checked = voter_selected_answers_as_uncrypted_ballot[current_question_index].reduce(
+        function(accumulator, value, index){
+          const answer_value = value === 1 ? 1 : 0;
+          return accumulator + answer_value;
+        },
+        0
+      );
+      const all_selected_answers_indexes = current_user_vote_for_all_questions[current_question_index].reduce(
+        (accumulator, value, index) => {
+          if (value === 1){
+            accumulator.push(index);
+          }
+          return accumulator;
+        },
+        []
+      );
+      if(current_question_data.blank === true && voter_selected_answers_as_uncrypted_ballot[current_question_index][0] === 1){
+        if(number_of_answers_checked > 1){
+          dispatch_current_alerts_for_all_questions({
+            type: 'saveAlertForCandidateInQuestion',
+            question_index: current_question_index,
+            alert_id: 'shouldEitherVoteBlankOrSomething',
+            candidates_indexes: all_selected_answers_indexes,
+            alert_text: t("questionConstraintNoBlankAndOther")
+          });
+          user_vote_to_question_is_valid = false;
+        }
       }
-      if(number_of_answers_checked > current_question_data.max){
-        alert(t("questionConstraintNoMoreThanMax", {count: current_question_data.max}));
-        return;
+      else {
+        if(number_of_answers_checked < current_question_data.min){
+          dispatch_current_alerts_for_all_questions({
+            type: 'saveAlertForCandidateInQuestion',
+            question_index: current_question_index,
+            alert_id: 'shouldSelectMoreCandidates',
+            candidates_indexes: undefined,
+            alert_text: t("questionConstraintNoLessThanMin", {count: current_question_data.min})
+          });
+          user_vote_to_question_is_valid = false;
+        }
+        if(number_of_answers_checked > current_question_data.max){
+          dispatch_current_alerts_for_all_questions({
+            type: 'saveAlertForCandidateInQuestion',
+            question_index: current_question_index,
+            alert_id: 'shouldSelectLessCandidates',
+            candidates_indexes: all_selected_answers_indexes,
+            alert_text: t("questionConstraintNoMoreThanMax", {count: current_question_data.max})
+          });
+          user_vote_to_question_is_valid = false;
+        }
       }
     }
 
-    if (current_question_index+1 < props.electionData.questions.length){
-      set_current_question_index(current_question_index+1);
-    }
-    else {
-      if (props.onVoteSubmit){
-        return props.onVoteSubmit(event, props.electionData, voter_selected_answers_as_uncrypted_ballot);
+    if (user_vote_to_question_is_valid){
+      if (current_question_index+1 < props.electionData.questions.length){
+        set_current_question_index(current_question_index+1);
+      }
+      else {
+        if (props.onVoteSubmit){
+          return props.onVoteSubmit(event, props.electionData, voter_selected_answers_as_uncrypted_ballot);
+        }
       }
     }
   }
@@ -193,6 +314,8 @@ function TranslatableAllQuestionsWithPagination(props){
         identifierPrefix: identifierPrefix,
         visible: visible,
         currentUserVoteForQuestion: current_user_vote_for_all_questions[question_index],
+        currentAlertsTextsForQuestion: alertTextsInQuestion[question_index],
+        currentCandidatesHavingAlertsForQuestion: candidatesIndexesHavingAlertInQuestion[question_index],
         dispatchUpdateUserVoteForQuestion: bindFunctionMergeObjectToFirstParameter(dispatch_current_user_vote_for_all_questions,
           {'question_index': question_index}
         ),

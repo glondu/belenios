@@ -6,6 +6,10 @@
   margin: 18px 0;
 }
 
+.majority-judgment-vote-big-candidate--with-alert {
+  border: 1px solid red;
+}
+
 .majority-judgment-vote-big-candidate__candidate-info {
   width: 150px;
   display: flex;

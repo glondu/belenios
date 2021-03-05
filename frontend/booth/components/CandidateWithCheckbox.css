@@ -10,6 +10,10 @@
   align-items: stretch;
 }
 
+.candidate-with-checkbox--with-alert {
+  border: 1px solid red;
+}
+
 .candidate-with-checkbox:hover {
   background-color: #ddd;
 }

@@ -1,12 +1,16 @@
-function CandidateWithRadio({ name, id, value, checked, candidateInfo, dispatchUpdateUserVoteForCandidateInQuestion, ...props }){
+function CandidateWithRadio({ name, id, value, checked, candidateInfo, dispatchUpdateUserVoteForCandidateInQuestion, currentAlertsForCandidateInQuestion, ...props }){
   const checkedValue = checked ? "checked" : null;
   const onChange = (event) => {
     dispatchUpdateUserVoteForCandidateInQuestion(event.target.checked === true ? true : false)
   };
+  let cssClasses = "candidate-with-checkbox clickable";
+  if (currentAlertsForCandidateInQuestion){
+    cssClasses += ' candidate-with-checkbox--with-alert';
+  }
   return e(
     'div',
     {
-      className: "candidate-with-checkbox clickable",
+      className: cssClasses,
       ...props
     },
     e(
@@ -47,7 +51,9 @@ CandidateWithRadio.defaultProps = {
   id: "radio-button_1",
   value: "choice_1",
   checked: false,
-  candidateInfo: "choice 1"
+  candidateInfo: "choice 1",
+  dispatchUpdateUserVoteForCandidateInQuestion: () => {},
+  currentAlertsForCandidateInQuestion: undefined
 };
 
 export { CandidateWithRadio };

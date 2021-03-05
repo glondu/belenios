@@ -4,7 +4,7 @@ import CandidateWithRadio from "./CandidateWithRadio.mjs";
 /*
 Displays a list of candidates represented using instances of component CandidateWithCheckbox or CandidateWithRadio, depending on value of "type" prop.
 */
-function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPrefix, blankVoteAllowed, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, t }) {
+function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPrefix, blankVoteAllowed, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, t }) {
   const candidate_constructor = type == "checkbox" ? CandidateWithCheckbox : CandidateWithRadio;
   let finalCandidates = candidates;
   if (blankVoteAllowed === true){
@@ -32,12 +32,14 @@ function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPre
         });
       };
     }
+    const currentAlert = currentCandidatesHavingAlertsForQuestion && currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
     const commonProps = {
       candidateInfo: candidate,
       checked: currentUserVoteForQuestion[candidateIndex] === 1 ? true : false,
       id: identifier,
       key: candidateIndex,
-      dispatchUpdateUserVoteForCandidateInQuestion
+      dispatchUpdateUserVoteForCandidateInQuestion,
+      currentAlertsForCandidateInQuestion: currentAlert
     };
     const additionalProps = type == "checkbox" ? {
       name: identifier
@@ -80,6 +82,7 @@ TranslatableClassicVoteCandidatesList.defaultProps = {
   ],
   blankVoteAllowed: false,
   currentUserVoteForQuestion: [],
+  currentCandidatesHavingAlertsForQuestion: [],
   dispatchUpdateUserVoteForQuestion: () => {},
   t: (s) => {return s;}
 };

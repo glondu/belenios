@@ -60,7 +60,12 @@ MajorityJudgmentVoteBigCandidateAvailableGrade.defaultProps = {
   availableGradesCssColors: ["red", "yellow", "green"]
 };
 
-function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, availableGrades, identifierPrefix, name, dispatchUserVoteForCandidateInQuestion, selectedGradeIndex, availableGradesCssColors, t }){
+function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, availableGrades, identifierPrefix, name, currentAlertsForCandidateInQuestion, dispatchUserVoteForCandidateInQuestion, selectedGradeIndex, availableGradesCssColors, t }){
+  const bemBlockName = 'majority-judgment-vote-big-candidate';
+  let cssClasses = bemBlockName;
+  if (currentAlertsForCandidateInQuestion){
+    cssClasses += ` ${bemBlockName}--with-alert`;
+  }
   const renderedGrades = availableGrades.map((gradeLabel, gradeIndex) => {
     const identifier = `${identifierPrefix}_grade_${gradeIndex}`;
     return e(
@@ -80,17 +85,17 @@ function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, available
   return e(
     "div",
     {
-      className: "majority-judgment-vote-big-candidate"
+      className: cssClasses
     },
     e(
       "div",
       {
-        className: "majority-judgment-vote-big-candidate__candidate-info"
+        className: `${bemBlockName}__candidate-info`
       },
       e(
         "div",
         {
-          className: "majority-judgment-vote-big-candidate__candidate-info__label"
+          className: `${bemBlockName}__candidate-info__label`
         },
         candidateInfo
       )
@@ -99,7 +104,7 @@ function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, available
   );
 }
 
-function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, candidates, availableGrades, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
+function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, candidates, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
   const renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifierConsolidatedPrefix = `${identifierPrefix}_candidate_${candidateIndex}`;
     const dispatchUserVoteForCandidateInQuestion = (selected_grade_index) => {
@@ -109,22 +114,21 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, c
         user_vote_for_candidate: selected_grade_index
       });
     };
-    const commonProps = {
-      candidateInfo: candidate,
-      availableGrades,
-      key: candidateIndex,
-      identifierPrefix: identifierConsolidatedPrefix,
-      name: identifierConsolidatedPrefix,
-      dispatchUserVoteForCandidateInQuestion,
-      selectedGradeIndex: currentUserVoteForQuestion[candidateIndex],
-      availableGradesCssColors,
-      t
-    };
     
+    const currentAlerts = currentCandidatesHavingAlertsForQuestion && currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
     return e(
       TranslatableMajorityJudgmentVoteBigCandidate,
       {
-        ...commonProps
+        candidateInfo: candidate,
+        availableGrades,
+        key: candidateIndex,
+        identifierPrefix: identifierConsolidatedPrefix,
+        name: identifierConsolidatedPrefix,
+        currentAlertsForCandidateInQuestion: currentAlerts,
+        dispatchUserVoteForCandidateInQuestion,
+        selectedGradeIndex: currentUserVoteForQuestion[candidateIndex],
+        availableGradesCssColors,
+        t
       }
     );
   });

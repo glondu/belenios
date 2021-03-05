@@ -3,7 +3,7 @@ import { TranslatableMajorityJudgmentVoteSmallCandidatesList } from "./MajorityJ
 import { TranslatableMajorityJudgmentVoteBigCandidatesList } from "./MajorityJudgmentVoteBigCandidatesList.mjs";
 import { majorityJudgmentGradeIndexToCssColor } from "../majority_judgment_colors.mjs";
 
-function TranslatableMajorityJudgmentVoteCandidatesList({ identifierPrefix, availableGrades, candidates, blankVoteAllowed, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, t }){
+function TranslatableMajorityJudgmentVoteCandidatesList({ identifierPrefix, availableGrades, candidates, blankVoteAllowed, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, t }){
   const availableGradesCssColors = React.useMemo(() => {
     return availableGrades.map((grade, index) => {
       return majorityJudgmentGradeIndexToCssColor(availableGrades.length, index);
@@ -25,6 +25,7 @@ function TranslatableMajorityJudgmentVoteCandidatesList({ identifierPrefix, avai
         blankVoteAllowed,
         availableGrades,
         currentUserVoteForQuestion,
+        currentCandidatesHavingAlertsForQuestion,
         dispatchUpdateUserVoteForQuestion,
         availableGradesCssColors,
         t
@@ -47,7 +48,7 @@ TranslatableMajorityJudgmentVoteCandidatesList.defaultProps = {
   ],
   blankVoteAllowed: false,
   t: function(s){ return s; },
-  currentUserVoteForQuestion: [],
+  //currentCandidatesHavingAlertsForQuestion: [],
   dispatchUpdateUserVote: () => {}
 };
 

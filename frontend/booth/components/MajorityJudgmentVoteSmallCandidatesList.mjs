@@ -1,4 +1,4 @@
-function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, t }){
+function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, currentAlertsForCandidateInQuestion, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, t }){
   const renderedAvailableGrades = availableGrades.map((availableGrade, index) => {
     const isSelected = index === selectedGradeIndex ? true : false;
     return e(
@@ -25,23 +25,28 @@ function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availab
       "--selected-grade-color": availableGradesCssColors[selectedGradeIndex]
     }
   }
+  const bemBlockName = "majority-judgment-vote-small-candidate";
+  let cssClasses = bemBlockName;
+  if (currentAlertsForCandidateInQuestion){
+    cssClasses += ` ${bemBlockName}--with-alert`;
+  }
   return e(
     "div",
     {
-      className: "majority-judgment-vote-small-candidate",
+      className: cssClasses,
       ...additionalPropsOnMain
     },
     e(
       "div",
       {
-        className: "majority-judgment-vote-small-candidate__candidate-info"
+        className: `${bemBlockName}__candidate-info`
       },
       candidateInfo
     ),
     e(
       "select",
       {
-        className: "majority-judgment-vote-small-candidate__grade-selector select-css",
+        className: `${bemBlockName}__grade-selector select-css`,
         onChange: onChange,
         ...additionalPropsOnSelect
       },
@@ -57,7 +62,7 @@ function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availab
   );
 }
 
-function TranslatableMajorityJudgmentVoteSmallCandidatesList({ identifierPrefix, candidates, blankVoteAllowed, availableGrades, currentUserVoteForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
+function TranslatableMajorityJudgmentVoteSmallCandidatesList({ identifierPrefix, candidates, blankVoteAllowed, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
   const renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifier = `${identifierPrefix}_candidate_${candidateIndex}`;
     const dispatchUserVoteForCandidateInQuestion = (selected_grade) => {
@@ -67,12 +72,14 @@ function TranslatableMajorityJudgmentVoteSmallCandidatesList({ identifierPrefix,
         user_vote_for_candidate: selected_grade
       });
     }
+    const currentAlerts = currentCandidatesHavingAlertsForQuestion && currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
     const commonProps = {
       candidateInfo: candidate,
       availableGrades,
       id: identifier,
       key: candidateIndex,
       selectedGradeIndex: currentUserVoteForQuestion[candidateIndex],
+      currentAlertsForCandidateInQuestion: currentAlerts,
       dispatchUserVoteForCandidateInQuestion,
       availableGradesCssColors,
       t
