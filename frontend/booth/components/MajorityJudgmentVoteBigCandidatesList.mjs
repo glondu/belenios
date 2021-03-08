@@ -146,6 +146,20 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, c
     cssClasses += " majority-judgment-vote-big-candidates-list--wide";
   }
   const approximateCandidatesListHeight = 100 * candidates.length;
+  let afterCandidatesList = [];
+  if (shouldDisplayWideMode){
+    afterCandidatesList = [
+      e(
+        "div",
+        {
+          className: 'majority-judgment-vote-big-candidates-list-spacer',
+          style: {
+            'height': `${approximateCandidatesListHeight}px`
+          }
+        }
+      )
+    ];
+  }
   return e(
     React.Fragment,
     null,
@@ -159,15 +173,7 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, c
       },
       ...renderedCandidates
     ),
-    e(
-      "div",
-      {
-        className: 'majority-judgment-vote-big-candidates-list-spacer',
-        style: {
-          'height': `${approximateCandidatesListHeight}px`
-        }
-      }
-    )
+    ...afterCandidatesList
   );
 }
 
