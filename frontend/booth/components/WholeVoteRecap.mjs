@@ -38,7 +38,7 @@ function TranslatableWholeVoteRecap({ electionData=null, uncryptedBallot=[], t }
   return e(
     "div",
     {
-      className: "whole-vote-recap" // TODO: rename to "whole-vote-recap" and in CSS files too
+      className: "whole-vote-recap"
     },
     ...renderedQuestions
   );

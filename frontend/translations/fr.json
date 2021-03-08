@@ -1,6 +1,7 @@
 {
   "Belenios booth": "Isoloir Belenios",
   "Invalid credential!": "Code de vote invalide !",
+  "majorityJudgmentGradeIsMandatoryForCandidateX": "Veuillez évaluer le candidat {{candidate}}.",
   "questionConstraintNoBlankAndOther": "Vous ne pouvez pas cocher à la fois le vote blanc et une autre réponse.",
   "questionConstraintNoLessThanMin": "Cette question n'accepte pas moins de {{count}} réponse cochée.",
   "questionConstraintNoLessThanMin_plural": "Cette question n'accepte pas moins de {{count}} réponses cochées.",
@@ -16,6 +17,7 @@
   "Blank vote": "Vote blanc",
   "Please enter your credential": "Veuillez saisir votre code de vote :",
   "Next": "Suivant",
+  "Please select an option": "Veuillez sélectionner une mention",
   "Load an election on this server by giving its UUID": "Charger une élection stockée sur ce serveur en donnant son UUID",
   "Load any election by giving its parameters": "Charger n'importe quelle élection en donnant ses paramètres",
   "Load from UUID": "Charger à partir de l'UUID",
@@ -23,6 +25,7 @@
   "electionUuid": "UUID de l'élection : {{uuid}}",
   "electionFingerprint": "Empreinte de l'élection : {{fingerprint}}",
   "Election server": "Serveur d'élections",
+  "majorityJudgmentQuestionDescription": "Veuillez qualifier chaque candidat avant de passer à l'étape suivante.",
   "selectXAnswers": "Veuillez sélectionner {{count}} réponse.",
   "selectXAnswers_plural": "Veuillez sélectionner {{count}} réponses.",
   "selectBetweenXAndYAnswers": "$t(selectBetweenX, {\"count\": {{min}} }) et {{count}} réponse.",
@@ -40,6 +43,5 @@
   "questionXofY": "$t(questionX, {\"count\": {{current_question}} }) sur {{number_of_questions}}",
   "selectBetweenX": "Veuillez sélectionner entre {{count}}",
   "questionX": "Question {{count}}",
-  "selectBetweenX_plural": "Veuillez sélectionner entre {{count}}",
-  "majorityJudgmentQuestionDescription": "Veuillez qualifier chaque candidat avant de passer à l'étape suivante."
+  "selectBetweenX_plural": "Veuillez sélectionner entre {{count}}"
 }

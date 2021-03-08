@@ -193,7 +193,7 @@ function TranslatableAllQuestionsWithPagination(props){
             alert_id: `shouldSelectGradeForCandidate_${candidate_index}`,
             question_index: current_question_index,
             candidates_indexes: [candidate_index],
-            alert_text: `Please select a grade for candidate ${candidate_index+1}.` // TODO: i18n
+            alert_text: t("majorityJudgmentGradeIsMandatoryForCandidateX", {candidate: candidate_index+1}) // we could also display candidate name
           });
           user_vote_to_question_is_valid = false;
         }
