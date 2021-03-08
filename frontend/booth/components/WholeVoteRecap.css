@@ -12,6 +12,10 @@
   margin: 10px auto;
 }
 
+.classic-vote-recap:last-child {
+  margin-bottom: 20px;
+}
+
 .majority-judgment-vote-recap:first-child, .classic-vote-recap:first-child {
   margin-top: 0;
 }
