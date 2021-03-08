@@ -76,14 +76,14 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
   }
   const bemBlockName = "question-with-votable-answers";
   const containerClassNames = visible ? bemBlockName : `${bemBlockName} ${bemBlockName}--hidden`;
-  const alertsText = currentAlertsTextsForQuestion.reduce(
+  const alertsElements = currentAlertsTextsForQuestion.reduce(
     (accumulator, value) => {
       if (value){
-        accumulator += value + ' '; // TODO: implement a more evolved rendering
+        accumulator.push(e('p', null, value));
       }
       return accumulator;
     },
-    ''
+    []
   );
   return e(
     'div',
@@ -110,7 +110,7 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
       {
         className: `${bemBlockName}__alerts`
       },
-      alertsText
+      ...alertsElements
     )
   );
 }

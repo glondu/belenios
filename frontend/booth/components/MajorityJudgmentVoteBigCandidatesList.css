@@ -50,8 +50,6 @@
   text-align: center;
   font-weight: bold;
   /*flex-basis: var(--majority-judgment-grade-ratio);*/
-  flex-grow: 1;
-  flex-shrink: 0;
   font-size: 12px;
   overflow: hidden;
 }
@@ -98,6 +96,7 @@
 
 .majority-judgment-vote-big-candidate__grade__label__label {
   flex-grow: 1;
+  word-break: break-word;
 }
 
 .majority-judgment-vote-big-candidate__grade {

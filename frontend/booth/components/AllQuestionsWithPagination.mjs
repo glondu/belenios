@@ -123,15 +123,6 @@ function TranslatableAllQuestionsWithPagination(props){
       if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
         let question_answers = question.value.answers;
         answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as the lowest grade).
-
-        // TODO: handle blank vote
-        /*
-        // handle blank vote: if blank vote is allowed on this answer, then the blank value must be placed at the beginning
-        if ("blank" in question && question["blank"] === true){
-          const voter_has_voted_blank = (current_user_vote_for_all_questions[question_index].length == question_answers.length + 1) && (current_user_vote_for_all_questions[question_index][question_answers.length] === 1) ? 1 : 0;
-          answers_to_question = [voter_has_voted_blank, ...answers_to_question];
-        }
-        */
       }
       else if (questionType === QuestionTypeEnum.CLASSIC){
         let question_answers = question.answers;
