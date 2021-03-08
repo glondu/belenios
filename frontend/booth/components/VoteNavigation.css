@@ -1,6 +1,7 @@
 @import "NiceButton.css";
 
 .vote-navigation-container {
+  clear: both;
   width: 100%;
   background: #666;
   margin-top: 30px;

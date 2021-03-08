@@ -100,11 +100,19 @@ function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, available
         candidateInfo
       )
     ),
-    ...renderedGrades
+    e(
+      "div",
+      {
+        className: `${bemBlockName}__available-grades`
+      },
+      ...renderedGrades
+    )
   );
 }
 
 function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, candidates, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
+  const ratio = 1 / availableGrades.length;
+  const shouldDisplayWideMode = availableGrades.length > 8 || availableGrades.reduce((accumulator, gradeLabel) => { return accumulator + gradeLabel.length; }, 0) > 70;
   const renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifierConsolidatedPrefix = `${identifierPrefix}_candidate_${candidateIndex}`;
     const dispatchUserVoteForCandidateInQuestion = (selected_grade_index) => {
@@ -133,12 +141,33 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, c
     );
   });
 
+  let cssClasses = "majority-judgment-vote-big-candidates-list noselect";
+  if (shouldDisplayWideMode){
+    cssClasses += " majority-judgment-vote-big-candidates-list--wide";
+  }
+  const approximateCandidatesListHeight = 100 * candidates.length;
   return e(
-    'div',
-    {
-      className: "majority-judgment-vote-big-candidates-list noselect"
-    },
-    ...renderedCandidates
+    React.Fragment,
+    null,
+    e(
+      'div',
+      {
+        className: cssClasses,
+        style: {
+          '--majority-judgment-grade-ratio': `${ratio*100}%`
+        }
+      },
+      ...renderedCandidates
+    ),
+    e(
+      "div",
+      {
+        className: 'majority-judgment-vote-big-candidates-list-spacer',
+        style: {
+          'height': `${approximateCandidatesListHeight}px`
+        }
+      }
+    )
   );
 }
 

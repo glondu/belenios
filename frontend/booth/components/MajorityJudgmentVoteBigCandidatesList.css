@@ -1,3 +1,22 @@
+.majority-judgment-vote-big-candidates-list {
+  --majority-judgment-grade-ratio: 8%; /* default, overriden by React component */
+}
+
+.majority-judgment-vote-big-candidates-list--wide {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: white;
+  padding: 20px;
+}
+
+@media screen and (min-width: 1450px) {
+  .majority-judgment-vote-big-candidates-list--wide {
+    left: 10vw;
+    right: 10vw;
+  }
+}
+
 .majority-judgment-vote-big-candidate {
   --border-radius-size: 6px;
   display: flex;
@@ -11,10 +30,16 @@
 }
 
 .majority-judgment-vote-big-candidate__candidate-info {
+  min-width: 120px;
   width: 150px;
   display: flex;
   align-items: center;
   font-size: 14px;
+}
+
+.majority-judgment-vote-big-candidate__available-grades {
+  flex-grow: 1;
+  display: flex;
 }
 
 .majority-judgment-vote-big-candidate__grade {
@@ -24,8 +49,8 @@
   justify-content: center;
   text-align: center;
   font-weight: bold;
-  flex-basis: 8%; /* TODO: make it dependent on the number of available mentions */
-  flex-grow: 0;
+  /*flex-basis: var(--majority-judgment-grade-ratio);*/
+  flex-grow: 1;
   flex-shrink: 0;
   font-size: 12px;
   overflow: hidden;
@@ -68,7 +93,6 @@
 
 .majority-judgment-vote-big-candidate__candidate-info, .majority-judgment-vote-big-candidate__grade {
   border-right: 2px solid white;
-  flex-grow: 1;
   min-height: 42px;
 }
 
