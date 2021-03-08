@@ -89,7 +89,7 @@ function TranslatableMajorityJudgmentVoteRecap({ question, question_index, uncry
         "ERROR"
       );
     }
-    const index = question.blank === true ? answer_index-1 : answer_index;
+    const index = answer_index; // if we handled blank vote, we could use `const index = question.blank === true ? answer_index-1 : answer_index;`
     return e(
       MajorityJudgmentVoteRecapForCandidate,
       {
