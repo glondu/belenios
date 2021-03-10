@@ -1,7 +1,12 @@
 (rule
- (target de.mo)
- (deps de.po)
+ (target en.mo)
+ (deps en.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target en.json)
+ (deps en.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target fr.mo)
@@ -9,9 +14,29 @@
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
+ (target fr.json)
+ (deps fr.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target de.mo)
+ (deps de.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target de.json)
+ (deps de.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target it.mo)
  (deps it.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target it.json)
+ (deps it.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target ro.mo)
@@ -19,9 +44,19 @@
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
+ (target ro.json)
+ (deps ro.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target nb.mo)
  (deps nb.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target nb.json)
+ (deps nb.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target es.mo)
@@ -29,14 +64,19 @@
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
+ (target es.json)
+ (deps es.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target cs.mo)
  (deps cs.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
- (target en.mo)
- (deps en.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (target cs.json)
+ (deps cs.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target oc.mo)
@@ -44,14 +84,29 @@
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
+ (target oc.json)
+ (deps oc.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target pt_BR.mo)
  (deps pt_BR.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
+ (target pt_BR.json)
+ (deps pt_BR.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target el.mo)
  (deps el.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target el.json)
+ (deps el.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target nl.mo)
@@ -63,86 +118,31 @@
  (deps nl.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
-(rule
- (target el.json)
- (deps el.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target pt_BR.json)
- (deps pt_BR.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target oc.json)
- (deps oc.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target en.json)
- (deps en.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target cs.json)
- (deps cs.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target es.json)
- (deps es.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target nb.json)
- (deps nb.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target de.json)
- (deps de.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target fr.json)
- (deps fr.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target it.json)
- (deps it.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target ro.json)
- (deps ro.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
 (install
  (package belenios-server)
  (section share)
  (files
-  (de.mo as locales/admin/de.mo)
-  (fr.mo as locales/admin/fr.mo)
-  (it.mo as locales/admin/it.mo)
-  (ro.mo as locales/admin/ro.mo)
-  (nb.mo as locales/admin/nb.mo)
-  (es.mo as locales/admin/es.mo)
-  (cs.mo as locales/admin/cs.mo)
   (en.mo as locales/admin/en.mo)
-  (oc.mo as locales/admin/oc.mo)
-  (pt_BR.mo as locales/admin/pt_BR.mo)
-  (el.mo as locales/admin/el.mo)
-  (nl.mo as locales/admin/nl.mo)
-  (nl.json as locales/admin/nl.json)
-  (el.json as locales/admin/el.json)
-  (pt_BR.json as locales/admin/pt_BR.json)
-  (oc.json as locales/admin/oc.json)
   (en.json as locales/admin/en.json)
-  (cs.json as locales/admin/cs.json)
-  (es.json as locales/admin/es.json)
-  (nb.json as locales/admin/nb.json)
-  (de.json as locales/admin/de.json)
+  (fr.mo as locales/admin/fr.mo)
   (fr.json as locales/admin/fr.json)
+  (de.mo as locales/admin/de.mo)
+  (de.json as locales/admin/de.json)
+  (it.mo as locales/admin/it.mo)
   (it.json as locales/admin/it.json)
-  (ro.json as locales/admin/ro.json)))
+  (ro.mo as locales/admin/ro.mo)
+  (ro.json as locales/admin/ro.json)
+  (nb.mo as locales/admin/nb.mo)
+  (nb.json as locales/admin/nb.json)
+  (es.mo as locales/admin/es.mo)
+  (es.json as locales/admin/es.json)
+  (cs.mo as locales/admin/cs.mo)
+  (cs.json as locales/admin/cs.json)
+  (oc.mo as locales/admin/oc.mo)
+  (oc.json as locales/admin/oc.json)
+  (pt_BR.mo as locales/admin/pt_BR.mo)
+  (pt_BR.json as locales/admin/pt_BR.json)
+  (el.mo as locales/admin/el.mo)
+  (el.json as locales/admin/el.json)
+  (nl.mo as locales/admin/nl.mo)
+  (nl.json as locales/admin/nl.json)))
