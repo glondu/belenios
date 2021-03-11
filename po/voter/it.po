@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-03-11 11:29+0000\n"
+"PO-Revision-Date: 2021-03-12 21:02+0000\n"
 "Last-Translator: Alfredo Iafolla <alfredoiafolla@aim.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/voter/"
 "it/>\n"
@@ -60,7 +60,7 @@ msgstr " è stata ricevuta, ma non è stata ancora presa in considerazione. "
 
 #: src/web/pages_voter.ml:704
 msgid " have been tallied."
-msgstr " sono state conteggiate."
+msgstr " sono state scrutinate."
 
 #: src/web/web_common.ml:107
 msgid " hour(s)"
@@ -97,7 +97,7 @@ msgstr "%d scheda(e) non valida(e)"
 #: src/web/pages_voter.ml:353
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
-"%d dei seguenti %d fiduciari (chiavi di verifica) [chivi pubbliche] sono "
+"%d dei seguenti %d fiduciari (chiavi di verifica) [chiavi pubbliche] sono "
 "richieste per decrittare il risultato della votazione:"
 
 #: src/tool/tool_js_booth.ml:168
@@ -177,7 +177,7 @@ msgstr "Almeno una delle risposte non è valida!"
 
 #: src/web/pages_voter.ml:51
 msgid "Audit data: "
-msgstr "Dati di audit : "
+msgstr "Dati di audit: "
 
 #. src/web/pages_voter.ml:502
 #: src/web/pages_voter.ml:784 src/web/pages_voter.ml:601
@@ -237,7 +237,7 @@ msgstr "I cookies sono bloccati"
 
 #: src/web/pages_voter.ml:1200
 msgid "Credential:"
-msgstr "Codice di voto :"
+msgstr "Codice di voto:"
 
 #: src/web/pages_voter.ml:363
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
@@ -609,11 +609,13 @@ msgstr ""
 
 #: src/web/pages_voter.ml:103
 msgid "The raw results can be viewed in the "
-msgstr ""
+msgstr "I risultati grezzi possono essere visualizzati nel "
 
 #: src/web/pages_voter.ml:256
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr ""
+"Il risultato di questa elezione non è al momento disponibile pubblicamente. "
+"Lo sarà tra %s."
 
 #: src/web/site_voter.ml:267
 msgid "The result of this election is not available."
@@ -625,7 +627,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:286
 msgid "The voter list has %d voter(s) and fingerprint %s."
-msgstr ""
+msgstr "La lista dei votanti ha %d iscritti e impronta digitale %s."
 
 #: src/web/pages_voter.ml:937
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
@@ -647,7 +649,7 @@ msgstr "Questa elezione è stata scrutinata."
 
 #: src/web/pages_voter.ml:279
 msgid "This election is administered by %s."
-msgstr ""
+msgstr "Questa elezione è amministrata da %s."
 
 #: src/web/pages_voter.ml:174
 msgid "This election is archived."
@@ -728,11 +730,11 @@ msgstr ""
 
 #: src/web/pages_common.ml:151
 msgid "Wish to help with translations?"
-msgstr "Vuole dare un aiuto per le traduzioni?"
+msgstr "Vuole dare il suo aiuto per le traduzioni?"
 
 #: src/web/pages_voter.ml:1186 src/web/pages_voter.ml:1135
 msgid "You are listed as a voter for the election"
-msgstr "Sei registrato(a) in quanto elettore(trice) per l'elezione"
+msgstr "Lei è registrato(a) come elettore(trice) per l'elezione"
 
 #: src/web/pages_common.ml:309
 msgid "You can "
@@ -889,7 +891,7 @@ msgstr "la pagina di Wikipedia"
 
 #: src/web/web_common.ml:82
 msgid "the election is closed"
-msgstr ""
+msgstr "l'elezione è chiusa"
 
 #: src/web/pages_voter.ml:56
 msgid "trustees"
@@ -897,19 +899,19 @@ msgstr ""
 
 #: src/web/pages_common.ml:310
 msgid "try to log in again"
-msgstr ""
+msgstr "provi ad accedere di nuovo"
 
 #: src/web/web_common.ml:88
 msgid "you are not allowed to revote"
-msgstr ""
+msgstr "non le è possibile votare di nuovo"
 
 #: src/web/web_common.ml:83
 msgid "you are not allowed to vote"
-msgstr ""
+msgstr "non le è possibile votare"
 
 #: src/web/web_common.ml:90
 msgid "you are not allowed to vote with this credential"
-msgstr ""
+msgstr "non le è possibile votare con questo codice di voto"
 
 #: src/web/web_common.ml:84
 msgid "your ballot has a syntax error (%s)"
@@ -921,8 +923,8 @@ msgstr ""
 
 #: src/web/web_common.ml:89
 msgid "your credential has already been used"
-msgstr ""
+msgstr "il suo codice di voto è stato già utilizzato"
 
 #: src/web/web_common.ml:87
 msgid "your credential is invalid"
-msgstr ""
+msgstr "il suo codice di voto non è valido"
