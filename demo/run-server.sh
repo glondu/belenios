@@ -2,6 +2,12 @@
 
 set -e
 
+if [ "$1" = "--preload" ]; then
+    shift
+    . "$1"
+    shift
+fi
+
 if [ -d .git ]; then
     : ${BELENIOS_CONFIG:=demo/ocsigenserver.conf.in}
     : ${BELENIOS_VARDIR:=_run}
