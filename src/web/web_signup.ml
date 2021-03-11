@@ -46,7 +46,7 @@ let format_content_type = function
   | x -> Printf.ksprintf failwith "Unknown captcha type: %s" x
 
 let captcha =
-  let x = "./ext/captcha/captcha" in (x, [| x |])
+  let x = "belenios-captcha" in (x, [| x |])
 
 let create_captcha () =
   let%lwt raw = Lwt_process.pread_lines captcha |> Lwt_stream.to_list in
