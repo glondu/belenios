@@ -1,34 +1,6 @@
 import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesList.mjs"; // FIXME: We have to import TranslatableClassicVoteCandidatesList instead of ClassicVoteCandidatesList, because otherwise Storybook throws a hook error.
 import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.mjs";
-
-const QuestionTypeEnum = Object.freeze(
-  {
-    "CLASSIC": "CLASSIC", // In this question type, voter can select between `questions[i].min` and `questions[i].max` answers, or optionally vote blank (if `questions[i].blank` is true). Question's title is available as `questions[i].question`. Available answers or candidates are each element of array `questions[i].answers`.
-    "MAJORITY_JUDGMENT": "MAJORITY_JUDGMENT" // In this question type, voter must associate a grade (represented by a number) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`.
-  }
-);
-
-const detectQuestionType = (question) => {
-  const nonHomomorphic = question.hasOwnProperty("type") && question["type"] == "NonHomomorphic";
-  if(!nonHomomorphic){
-    return QuestionTypeEnum.CLASSIC;
-  }
-  else {
-    const basicErrorText = 'Unhandled question type';
-    if(question.hasOwnProperty("extra") && question.extra.length > 1){
-      const questionSubType = question.extra[0];
-      if (questionSubType == "MajorityJudgment"){
-        return QuestionTypeEnum.MAJORITY_JUDGMENT;
-      }
-      else if (questionSubType == "PreferenceOrdering"){ // TODO: verify type name, once backend transmits this piece of information
-        throw basicErrorText; // TODO: return QuestionTypeEnum.PREFERENCE_ORDERING;
-      }
-    }
-    else {
-      throw basicErrorText; 
-    }
-  }
-}
+import { QuestionTypeEnum, detectQuestionType } from "../election_utils.mjs";
 
 function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteAllowed, identifierPrefix, visible, currentUserVoteForQuestion, currentAlertsTextsForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
   let description;
@@ -130,11 +102,11 @@ TranslatableQuestionWithVotableAnswers.defaultProps = {
   "visible": true,
   "currentUserVoteForQuestion": [],
   "currentAlertsTextsForQuestion": [],
-  //"currentCandidatesHavingAlertsForQuestion": [],
+  "currentCandidatesHavingAlertsForQuestion": [],
   "dispatchUpdateUserVoteForQuestion": () => {}
 };
 
 const QuestionWithVotableAnswers = ReactI18next.withTranslation()(TranslatableQuestionWithVotableAnswers);
 
-export { QuestionTypeEnum, QuestionWithVotableAnswers, TranslatableQuestionWithVotableAnswers, detectQuestionType };
+export { QuestionWithVotableAnswers, TranslatableQuestionWithVotableAnswers };
 export default QuestionWithVotableAnswers;

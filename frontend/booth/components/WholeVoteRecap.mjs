@@ -1,10 +1,10 @@
-import { QuestionTypeEnum, detectQuestionType } from "./QuestionWithVotableAnswers.mjs";
+import { QuestionTypeEnum } from "../election_utils.mjs";
 import ClassicVoteRecap from "./ClassicVoteRecap.mjs";
 import MajorityJudgmentVoteRecap from "./MajorityJudgmentVoteRecap.mjs";
 
-function TranslatableWholeVoteRecap({ electionData=null, uncryptedBallot=[], t }){
-  const renderedQuestions = electionData.questions.map(function(question, question_index){
-    const questionType = detectQuestionType(question);
+function TranslatableWholeVoteRecap({ electionObject=null, uncryptedBallot=[], t }){
+  const renderedQuestions = electionObject.questions.map(function(question, question_index){
+    const questionType = question.type;
     if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
       return e(
         MajorityJudgmentVoteRecap,

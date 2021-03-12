@@ -9,7 +9,7 @@ function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPre
   let finalCandidates = candidates;
   if (blankVoteAllowed === true){
     const blankVoteLabel = t("Blank vote");
-    finalCandidates = [...candidates, blankVoteLabel]; // Is this the right way to do it?
+    finalCandidates = [...candidates, blankVoteLabel]; // We assume this the right way to do it
   }
   const renderedCandidates = finalCandidates.map((candidate, candidateIndex) => {
     const identifier = `${identifierPrefix}_choice_${candidateIndex}`;
@@ -23,7 +23,7 @@ function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPre
         });
       };
     }
-    else {
+    else { // type is radio
       dispatchUpdateUserVoteForCandidateInQuestion = (candidate_is_selected) => {
         dispatchUpdateUserVoteForQuestion({
           type: candidate_is_selected === true ? 'saveVoteForCandidateInQuestionAndResetOthers' : 'saveVoteForCandidateInQuestion',

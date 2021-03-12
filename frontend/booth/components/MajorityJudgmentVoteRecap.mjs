@@ -71,9 +71,9 @@ function MajorityJudgmentVoteRecapForCandidate({ candidateName, selectedGradeNam
 }
 
 function TranslatableMajorityJudgmentVoteRecap({ question, question_index, uncryptedBallot, t }){
-  const questionText = question.value.question;
-  const questionCandidates = question.value.answers;
-  const questionPossibleGrades = question.extra[1];
+  const questionText = question.title;
+  const questionCandidates = question.candidates;
+  const questionPossibleGrades = question.availableGrades;
   const availableGradesCssColors = React.useMemo(() => {
     return questionPossibleGrades.map((grade, index) => {
       return majorityJudgmentGradeIndexToCssColor(questionPossibleGrades.length, index);

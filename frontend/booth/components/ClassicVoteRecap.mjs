@@ -1,12 +1,12 @@
 function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallot, t }){
-  const questionText = question.question;
+  const questionText = question.title;
   const questionPossibleAnswers = question.answers;
   const renderedAnswers = uncryptedBallot[question_index].map(function(answer, answer_index){
     if(answer === 0){
       return null;
     }
     else if(answer === 1){
-      if(answer_index === 0 && question.blank === true){
+      if(answer_index === 0 && question.blankVoteIsAllowed === true){
         return e(
           "li",
           null,
@@ -14,7 +14,7 @@ function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallo
         );
       }
       else {
-        const index = question.blank === true ? answer_index-1 : answer_index;
+        const index = question.blankVoteIsAllowed === true ? answer_index-1 : answer_index;
         return e(
           "li",
           null,

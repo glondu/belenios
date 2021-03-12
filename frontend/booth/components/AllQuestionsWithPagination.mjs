@@ -1,39 +1,40 @@
-import { QuestionTypeEnum, detectQuestionType, QuestionWithVotableAnswers } from "./QuestionWithVotableAnswers.mjs";
+import { QuestionWithVotableAnswers } from "./QuestionWithVotableAnswers.mjs";
+import { QuestionTypeEnum, detectQuestionType } from "../election_utils.mjs";
 import VoteNavigation from "./VoteNavigation.mjs";
+
+const deepCloneArray = (currentArray) => {
+  return currentArray.map((element) => {
+    if (Array.isArray(element)){
+      return element.slice();
+    }
+    else if (typeof element === 'object'){
+      return Object.assign({}, element);
+    }
+    else {
+      return element;
+    }
+  });
+};
+
+const bindFunctionMergeObjectToFirstParameter = (f, obj) => {
+  return (obj2) => {
+    return f({...obj2, ...obj});
+  };
+};
 
 /* We chose to not use a `<form>`, because it could increase possibilities to leak voter's choices. Instead, we use `<input type="checkbox">` or `<input type="radio">` fields outside of a `<form>`, and classic `<button>` for navigation between questions ("Previous" and "Next" labels). */
 function TranslatableAllQuestionsWithPagination(props){
+  // --------------------
+  // Definition of component state properties (and their reducers)
+  // --------------------
+
+  // Definition of state for current question index
   const [current_question_index, set_current_question_index] = React.useState(props.current_question_index);
-  const initialVoteForAllQuestions = props.electionData.questions.map((question, question_index) => {
-    const questionType = detectQuestionType(question);
-    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
-      return question.value.answers.map((answer, answer_index) => {
-        return undefined;
-      });
-    }
-    else if (questionType == QuestionTypeEnum.CLASSIC){
-      return question.answers.map((answer, answer_index) => {
-        return undefined;
-      });
-    }
-    return [];
-  });
+  
+  // Definition of state for current alerts for all questions
   const initialAlertsForAllQuestions = props.electionData.questions.map((question, question_index) => {
     return {};
   });
-  const deepCloneArray = (currentArray) => {
-    return currentArray.map((element) => {
-      if (Array.isArray(element)){
-        return element.slice();
-      }
-      else if (typeof element === 'object'){
-        return Object.assign({}, element);
-      }
-      else {
-        return element;
-      }
-    });
-  };
   const currentAlertsForAllQuestionsReducer = (state, action) => {
     let updatedAlertsForAllQuestions;
     switch(action.type){
@@ -79,6 +80,25 @@ function TranslatableAllQuestionsWithPagination(props){
       return Object.values(alerts_for_question).map(element => { return element.text; });
     });
   }, current_alerts_for_all_questions);
+
+
+  // Definition of state for current vote to all questions
+  // Variable `current_alerts_for_all_questions` (and its initial state `initialVoteForAllQuestions`) is an array where the `ith` element corresponds to (initial) vote to question `i`. This element is itself an array where the `jth` element correponds to user's (initial) vote to the `jth` "available answer" (in classic questions) or "candidate" (in majority judgment), with `undefined` as initial value.
+  // Then, if user votes blank to the `ith` question, an extra element is appended to array `current_alerts_for_all_questions[i]`, containing `1`, so we have `current_alerts_for_all_questions[i][question_answers.length] == 1`.
+  // This current vote state can then ben converted into an uncrypted ballot using function `convertStateToUncryptedBallot()`. This function rearranges data compared to state, because Belenios backend for example expects the representation of a blank vote for a classic question to be [1,0,0,0,0] (1 and `n` zeros, where `n` is the number of available answers), and expects a blank vote for majority judgment question to be [0,0,0,0] (`n` zeros, where `n` is the number of candidates).
+  const computeInitialVoteToQuestionFromAvailableAnswersMapFunction = (answer, answer_index) => {
+    return undefined;
+  };
+  const initialVoteForAllQuestions = props.electionData.questions.map((question, question_index) => {
+    const questionType = detectQuestionType(question);
+    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
+      return question.value.answers.map(computeInitialVoteToQuestionFromAvailableAnswersMapFunction);
+    }
+    else if (questionType == QuestionTypeEnum.CLASSIC){
+      return question.answers.map(computeInitialVoteToQuestionFromAvailableAnswersMapFunction);
+    }
+    return [];
+  });
   const currentUserVoteForAllQuestionsReducer = (state, action) => {
     let updatedVoteToAllQuestions;
     switch(action.type){
@@ -108,6 +128,10 @@ function TranslatableAllQuestionsWithPagination(props){
   const [current_user_vote_for_all_questions, dispatch_current_user_vote_for_all_questions] = React.useReducer(currentUserVoteForAllQuestionsReducer, initialVoteForAllQuestions);
   // TODO: handle local saving of blank vote, probably in another data structure?
 
+  // --------------------
+  // End of definition of component state
+  // --------------------
+
   const convertStateToUncryptedBallot = () => {
     /*
     Type of vote_of_voter_per_question: Array where each ith element corresponds to voter's vote on question i.
@@ -122,13 +146,18 @@ function TranslatableAllQuestionsWithPagination(props){
       const questionType = detectQuestionType(question);
       if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
         let question_answers = question.value.answers;
-        answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as the lowest grade).
+        // Handle blank vote: if blank vote is allowed on this question, then we represent user's vote to this question as an array of zeros of length `question_answers.length`
+        if ("extra" in question && "blank" in question.extra && question.extra.blank === true){
+          answers_to_question = question_answers.map(el => { return 0; });
+        }
+        else {
+          answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as "vote nul" in French (invalid vote), and voting 0 to every candidate being interpreted as voting blank to this question).
+        }
       }
       else if (questionType === QuestionTypeEnum.CLASSIC){
         let question_answers = question.answers;
         answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el;});
-
-        // handle blank vote: if blank vote is allowed on this answer, then the blank value must be placed at the beginning
+        // Handle blank vote: if blank vote is allowed on this question, then the blank value (1 if voter has voted blank, else 0) must be placed at the beginning of the vote array for this question
         if ("blank" in question && question["blank"] === true){
           const voter_has_voted_blank = (current_user_vote_for_all_questions[question_index].length == question_answers.length + 1) && (current_user_vote_for_all_questions[question_index][question_answers.length] === 1) ? 1 : 0;
           answers_to_question = [voter_has_voted_blank, ...answers_to_question];
@@ -137,12 +166,6 @@ function TranslatableAllQuestionsWithPagination(props){
       return answers_to_question;
     });
     return vote_of_voter_per_question;
-  };
-
-  const bindFunctionMergeObjectToFirstParameter = (f, obj) => {
-    return (obj2) => {
-      return f({...obj2, ...obj});
-    };
   };
   
   const scrollToTopOfPage = () => {

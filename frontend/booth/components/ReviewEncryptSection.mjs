@@ -3,7 +3,7 @@ import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.mjs";
 import LoadingSpinner from "./LoadingSpinner.mjs";
 
 function TranslatableReviewEncryptSection({
-  electionData=null, uncryptedBallot=[],
+  electionObject=null, uncryptedBallot=[],
   cryptedBallot=null, smartBallotTracker=null,
   onClickPrevious=null, urlToPostEncryptedBallot="", t
 }){
@@ -182,7 +182,7 @@ function TranslatableReviewEncryptSection({
       e(
         WholeVoteRecap,
         {
-          electionData: electionData,
+          electionObject: electionObject,
           uncryptedBallot: uncryptedBallot
         }
       ),

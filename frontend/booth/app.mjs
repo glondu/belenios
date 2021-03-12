@@ -1,11 +1,12 @@
 import i18n_init from "./i18n_init.mjs";
 import PageHeader from "./components/PageHeader.mjs";
 import { VoteBreadcrumb } from "./components/Breadcrumb.mjs";
-import { AllQuestionsWithPagination, QuestionTypeEnum, detectQuestionType } from "./components/AllQuestionsWithPagination.mjs";
+import { AllQuestionsWithPagination } from "./components/AllQuestionsWithPagination.mjs";
 import NoUuidSection from "./components/NoUuidSection.mjs";
 import InputCredentialSection from "./components/InputCredentialSection.mjs";
 import ReviewEncryptSection from "./components/ReviewEncryptSection.mjs";
 import { PageFooter, EmptyPageFooter } from "./components/PageFooter.mjs";
+import { Election } from "./election_utils.mjs";
 
 const relativeServerRootFolder = "../../..";
 
@@ -18,7 +19,7 @@ function getHashParametersFromURL(){
   }, {});
 }
 
-function VotePage({ electionData, electionFingerprint, currentStep, children }){
+function VotePage({ electionObject, electionFingerprint, currentStep, children }){
   return e(
     "div",
     {
@@ -27,8 +28,8 @@ function VotePage({ electionData, electionFingerprint, currentStep, children }){
     e(
       PageHeader,
       {
-        title: electionData.name,
-        subTitle: electionData.description
+        title: electionObject.name,
+        subTitle: electionObject.description
       }
     ),
     e(
@@ -48,7 +49,7 @@ function VotePage({ electionData, electionFingerprint, currentStep, children }){
     e(
       PageFooter,
       {
-        electionUuid: electionData.uuid,
+        electionUuid: electionObject.uuid,
         electionFingerprint: electionFingerprint
       }
     )
@@ -84,15 +85,27 @@ function GenericPage({title=null, subTitle=null, children}){
 function TranslatableVoteApp({uuid=null, t}){
   const [currentStep, setCurrentStep] = React.useState(1); // Current step of the workflow displayed in the Breadcrumb. 1: input credential. 2: answer questions. 3: review and encrypt.
   const [electionData, setElectionData] = React.useState({});
+  const [electionObject, setElectionObject] = React.useState(undefined);
   const [electionFingerprint, setElectionFingerprint] = React.useState("");
   const [credential, setCredential] = React.useState(null);
   const [electionLoadingStatus, setElectionLoadingStatus] = React.useState(0); // 0: not yet loaded. 1: loaded with success. 2: loaded with error.
+  const [electionLoadingErrorMessage, setElectionLoadingErrorMessage] = React.useState(null);
   const [uncryptedBallotBeforeReview, setUncryptedBallotBeforeReview] = React.useState(null);
   const [cryptedBallotBeforeReview, setCryptedBallotBeforeReview] = React.useState(null);
   const [smartBallotTracker, setSmartBallotTracker] = React.useState(null);
 
   const processElectionData = (inputElectionData) => {
     setElectionData(inputElectionData);
+    try {
+      let election = new Election(inputElectionData);
+      console.log("election:", election);
+      setElectionObject(election);
+    }
+    catch (error){
+      setElectionLoadingErrorMessage(error);
+      setElectionLoadingStatus(2);
+      return;
+    }
     setElectionFingerprint(belenios.computeFingerprint(inputElectionData));
     setElectionLoadingStatus(1);
   };
@@ -107,6 +120,7 @@ function TranslatableVoteApp({uuid=null, t}){
       })
       .then(response => {
         if(!response.ok){
+          setElectionLoadingErrorMessage("Error: Could not load this election. Maybe no election exists with this identifier."); // TODO: should we localize this?
           setElectionLoadingStatus(2);
         }
         else {
@@ -115,11 +129,11 @@ function TranslatableVoteApp({uuid=null, t}){
       });
   };
   
-  React.useEffect(() => {
+  React.useMemo(() => {
     if(uuid){
       loadElectionDataFromUuid(uuid);
     }
-  }, []);
+  }, [uuid]);
 
 
   if(!uuid && electionLoadingStatus == 0){
@@ -161,7 +175,7 @@ function TranslatableVoteApp({uuid=null, t}){
   }
   else if(electionLoadingStatus === 0 || electionLoadingStatus === 2){
     const titleMessage = electionLoadingStatus === 0 ? "Loading..." : "Error"; // TODO: should we localize this?
-    const loadingMessage = electionLoadingStatus === 0 ? titleMessage : "Error: Could not load this election. Maybe no election exists with this identifier."; // TODO: should we localize this?
+    const loadingMessage = electionLoadingStatus === 0 ? titleMessage : electionLoadingErrorMessage;
 
     return e(
       GenericPage,
@@ -186,9 +200,9 @@ function TranslatableVoteApp({uuid=null, t}){
       return e(
         VotePage,
         {
-          electionData: electionData,
-          electionFingerprint: electionFingerprint,
-          currentStep: currentStep
+          electionObject,
+          electionFingerprint,
+          currentStep
         },
         e(
           InputCredentialSection,
@@ -211,14 +225,14 @@ function TranslatableVoteApp({uuid=null, t}){
       return e(
         VotePage,
         {
-          electionData: electionData,
-          electionFingerprint: electionFingerprint,
-          currentStep: currentStep
+          electionObject,
+          electionFingerprint,
+          currentStep
         },
         e(
           AllQuestionsWithPagination,
           {
-            electionData: electionData,
+            electionData,
             onVoteSubmit: async function(event, electionData, voterSelectedAnswersAsUncryptedBallot){
               setUncryptedBallotBeforeReview(voterSelectedAnswersAsUncryptedBallot);
               setCryptedBallotBeforeReview(null);
@@ -257,19 +271,19 @@ function TranslatableVoteApp({uuid=null, t}){
       return e(
         VotePage,
         {
-          electionData: electionData,
-          electionFingerprint: electionFingerprint,
-          currentStep: currentStep
+          electionObject,
+          electionFingerprint,
+          currentStep
         },
         e(
           ReviewEncryptSection,
           {
-            electionData: electionData,
+            electionObject,
             uncryptedBallot: uncryptedBallotBeforeReview,
             cryptedBallot: cryptedBallotBeforeReview,
-            smartBallotTracker: smartBallotTracker,
-            onClickPrevious: onClickPrevious,
-            urlToPostEncryptedBallot: urlToPostEncryptedBallot
+            smartBallotTracker,
+            onClickPrevious,
+            urlToPostEncryptedBallot
           }
         )
       );
