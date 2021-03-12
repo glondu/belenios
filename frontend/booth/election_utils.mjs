@@ -46,6 +46,8 @@ class ElectionQuestion {
       this.title = this.questionData.question;
       this.answers = this.questionData.answers;
       this.blankVoteIsAllowed = "blank" in this.questionData && this.questionData["blank"] === true;
+      this.min = this.questionData.min;
+      this.max = this.questionData.max;
     }
     else {
       // TODO

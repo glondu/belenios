@@ -12,17 +12,18 @@
   margin: 10px auto;
 }
 
-.classic-vote-recap:last-child {
-  margin-bottom: 20px;
-}
-
 .majority-judgment-vote-recap:first-child, .classic-vote-recap:first-child {
   margin-top: 0;
 }
 
-.majority-judgment-vote-recap:last-child, .classic-vote-recap:last-child {
+.majority-judgment-vote-recap:last-child {
   margin-bottom: 0;
   padding-bottom: 0;
+}
+
+.classic-vote-recap:last-child {
+  margin-bottom: 10px;
+  padding-bottom: 5px;
 }
 
 /* TODO: rework namings of classes and move each one to relevant .css file. Or maybe is it best to have CSS rules of all descendents of WholeVoteRecap regrouped in this file? */

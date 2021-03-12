@@ -32,7 +32,7 @@ function TranslatableAllQuestionsWithPagination(props){
   const [current_question_index, set_current_question_index] = React.useState(props.current_question_index);
   
   // Definition of state for current alerts for all questions
-  const initialAlertsForAllQuestions = props.electionData.questions.map((question, question_index) => {
+  const initialAlertsForAllQuestions = props.electionObject.questions.map((question, question_index) => {
     return {};
   });
   const currentAlertsForAllQuestionsReducer = (state, action) => {
@@ -89,12 +89,9 @@ function TranslatableAllQuestionsWithPagination(props){
   const computeInitialVoteToQuestionFromAvailableAnswersMapFunction = (answer, answer_index) => {
     return undefined;
   };
-  const initialVoteForAllQuestions = props.electionData.questions.map((question, question_index) => {
-    const questionType = detectQuestionType(question);
-    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
-      return question.value.answers.map(computeInitialVoteToQuestionFromAvailableAnswersMapFunction);
-    }
-    else if (questionType == QuestionTypeEnum.CLASSIC){
+  const initialVoteForAllQuestions = props.electionObject.questions.map((question, question_index) => {
+    const questionType = question.type;
+    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT || questionType == QuestionTypeEnum.CLASSIC){
       return question.answers.map(computeInitialVoteToQuestionFromAvailableAnswersMapFunction);
     }
     return [];
@@ -141,13 +138,14 @@ function TranslatableAllQuestionsWithPagination(props){
     If blank vote is allowed on the ith question, then an element is added to the beginning of the ith array, with a value of respectively 1 or 0 if the user has repectively decided to vote blank on this question or not.
     */
     let vote_of_voter_per_question = [];
-    vote_of_voter_per_question = props.electionData.questions.map(function(question, question_index){
+    vote_of_voter_per_question = props.electionObject.questions.map(function(question, question_index){
       let answers_to_question = [];
-      const questionType = detectQuestionType(question);
+      const questionType = question.type;
       if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
-        let question_answers = question.value.answers;
-        // Handle blank vote: if blank vote is allowed on this question, then we represent user's vote to this question as an array of zeros of length `question_answers.length`
-        if ("extra" in question && "blank" in question.extra && question.extra.blank === true){
+        let question_answers = question.answers;
+        // Handle blank vote: if (on this question) blank vote is allowed and user has voted blank, then we represent user's vote (to this question) as an array of zeros of length `question_answers.length`
+        const user_has_voted_blank = question.blankVoteIsAllowed && current_user_vote_for_all_questions[question_index].length === question.answers.length + 1 && current_user_vote_for_all_questions[question_index][question.answers.length] === 1;
+        if (user_has_voted_blank){
           answers_to_question = question_answers.map(el => { return 0; });
         }
         else {
@@ -158,7 +156,7 @@ function TranslatableAllQuestionsWithPagination(props){
         let question_answers = question.answers;
         answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el;});
         // Handle blank vote: if blank vote is allowed on this question, then the blank value (1 if voter has voted blank, else 0) must be placed at the beginning of the vote array for this question
-        if ("blank" in question && question["blank"] === true){
+        if (question.blankVoteIsAllowed){
           const voter_has_voted_blank = (current_user_vote_for_all_questions[question_index].length == question_answers.length + 1) && (current_user_vote_for_all_questions[question_index][question_answers.length] === 1) ? 1 : 0;
           answers_to_question = [voter_has_voted_blank, ...answers_to_question];
         }
@@ -194,9 +192,9 @@ function TranslatableAllQuestionsWithPagination(props){
   //   - display validity errors on current screen
   const onClickNext = (event) => {
     const t = props.t;
-    const current_question_data = props.electionData.questions[current_question_index];
+    const current_question_data = props.electionObject.questions[current_question_index];
     const voter_selected_answers_as_uncrypted_ballot = convertStateToUncryptedBallot();
-    const questionType = detectQuestionType(current_question_data);
+    const questionType = current_question_data.type;
     let user_vote_to_question_is_valid = true;
     if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
       // verify that user has selected a grade for all candidates (in majority judgment, it is not accepted to select a grade for only some candidates)
@@ -233,7 +231,7 @@ function TranslatableAllQuestionsWithPagination(props){
         },
         []
       );
-      if(current_question_data.blank === true && voter_selected_answers_as_uncrypted_ballot[current_question_index][0] === 1){
+      if(current_question_data.blankVoteIsAllowed === true && voter_selected_answers_as_uncrypted_ballot[current_question_index][0] === 1){
         if(number_of_answers_checked > 1){
           dispatch_current_alerts_for_all_questions({
             type: 'saveAlertForCandidateInQuestion',
@@ -270,19 +268,19 @@ function TranslatableAllQuestionsWithPagination(props){
     }
 
     if (user_vote_to_question_is_valid){
-      if (current_question_index+1 < props.electionData.questions.length){
+      if (current_question_index+1 < props.electionObject.questions.length){
         set_current_question_index(current_question_index+1);
       }
       else {
         if (props.onVoteSubmit){
-          return props.onVoteSubmit(event, props.electionData, voter_selected_answers_as_uncrypted_ballot);
+          return props.onVoteSubmit(event, voter_selected_answers_as_uncrypted_ballot);
         }
       }
     }
   }
 
-  const renderedQuestions = props.electionData.questions.map(function(question, question_index){
-    const questionType = detectQuestionType(question);
+  const renderedQuestions = props.electionObject.questions.map(function(question, question_index){
+    const questionType = question.type;
     let answers;
     let minimumAnswers = null;
     let maximumAnswers = null;
@@ -292,13 +290,13 @@ function TranslatableAllQuestionsWithPagination(props){
     const identifierPrefix = `question_${question_index}_`;
     const visible = current_question_index === question_index ? true : false;
     if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
-      answers = question.value.answers;
-      questionText = question.value.question;
+      answers = question.answers;
+      questionText = question.title;
       // blankVoteAllowed = question.blank;
       
       // Receive from backend the number of available grades, their labels and their ordering (index 0 is the best grade, and appreciation gets worse as index increases)
-      if ("extra" in question && Array.isArray(question.extra) && question.extra.length > 1 && question.extra[0] == "MajorityJudgment" && Array.isArray(question.extra[1]) && question.extra[1].length > 1){
-        complementaryProps.availableGrades = question.extra[1];
+      if (question.availableGrades && question.availableGrades.length > 1){
+        complementaryProps.availableGrades = question.availableGrades;
       }
       else {
         return e(
@@ -310,10 +308,10 @@ function TranslatableAllQuestionsWithPagination(props){
     }
     else if (questionType === QuestionTypeEnum.CLASSIC){
       answers = question.answers;
-      questionText = question.question;
+      questionText = question.title;
       minimumAnswers = question.min;
       maximumAnswers = question.max;
-      blankVoteAllowed = question.blank;
+      blankVoteAllowed = question.blankVoteIsAllowed;
     }
 
     return e(
@@ -342,7 +340,7 @@ function TranslatableAllQuestionsWithPagination(props){
     VoteNavigation,
     {
       question_index: current_question_index,
-      questions_length: props.electionData.questions.length,
+      questions_length: props.electionObject.questions.length,
       onClickPreviousButton: onClickPrevious,
       onClickNextButton: onClickNext
     }
@@ -357,7 +355,7 @@ function TranslatableAllQuestionsWithPagination(props){
 
 TranslatableAllQuestionsWithPagination.defaultProps = {
   current_question_index: 0,
-  electionData: null,
+  electionObject: null,
   onVoteSubmit: null,
   t: function(s){ return s; }
 };

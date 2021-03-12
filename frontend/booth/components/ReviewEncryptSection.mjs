@@ -182,8 +182,8 @@ function TranslatableReviewEncryptSection({
       e(
         WholeVoteRecap,
         {
-          electionObject: electionObject,
-          uncryptedBallot: uncryptedBallot
+          electionObject,
+          uncryptedBallot
         }
       ),
       e(
