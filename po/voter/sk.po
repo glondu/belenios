@@ -8,38 +8,41 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-03 09:34+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2021-03-14 14:02+0000\n"
+"Last-Translator: Peter Gasparovic <peter.gasparovic@tuke.sk>\n"
+"Language-Team: Slovak <https://hosted.weblate.org/projects/belenios/voter/sk/"
+">\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 4.5.2-dev\n"
 
 #: src/web/pages_common.ml:272
+#, fuzzy
 msgid " (if you forgot it, for example)."
-msgstr ""
+msgstr " (ak ste na to napríklad zabudli)."
 
 #: src/web/pages_voter.ml:630
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " Bol vám zaslaný potvrdzovací e-mail."
 
 #: src/web/pages_voter.ml:473
 msgid " and "
-msgstr ""
+msgstr " a "
 
 #: src/web/pages_voter.ml:629
 msgid " anytime during the election."
-msgstr ""
+msgstr " kedykoľvek počas volieb."
 
 #: src/web/pages_voter.ml:692
 msgid " ballot(s) have been accepted so far."
-msgstr ""
+msgstr " hlasovacích lístkov bolo doteraz prijatých."
 
 #: src/web/pages_voter.ml:702
 msgid " ballot(s) have been accepted, and "
-msgstr ""
+msgstr " hlasovacích lístkov bolo akceptovaných a "
 
 #: src/web/pages_voter.ml:697
 msgid " ballot(s) have been accepted."
