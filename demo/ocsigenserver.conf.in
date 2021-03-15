@@ -3,7 +3,7 @@
 
   <server>
 
-    <port>8001</port>
+    <port>127.0.0.1:8001</port>
 
     <logdir>_VARDIR_/log</logdir>
     <datadir>_VARDIR_/lib</datadir>
