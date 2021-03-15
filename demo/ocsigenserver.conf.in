@@ -17,7 +17,7 @@
       <maxconnected> is related to the number of simultaneous voters
       visiting the server.
     -->
-    <maxuploadfilesize>1024kB</maxuploadfilesize>
+    <maxuploadfilesize>5120kB</maxuploadfilesize>
     <maxconnected>500</maxconnected>
 
     <commandpipe>_RUNDIR_/ocsigenserver_command</commandpipe>
