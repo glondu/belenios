@@ -83,9 +83,9 @@ function TranslatableAllQuestionsWithPagination(props){
 
 
   // Definition of state for current vote to all questions
-  // Variable `current_alerts_for_all_questions` (and its initial state `initialVoteForAllQuestions`) is an array where the `ith` element corresponds to (initial) vote to question `i`. This element is itself an array where the `jth` element correponds to user's (initial) vote to the `jth` "available answer" (in classic questions) or "candidate" (in majority judgment), with `undefined` as initial value.
-  // Then, if user votes blank to the `ith` question, an extra element is appended to array `current_alerts_for_all_questions[i]`, containing `1`, so we have `current_alerts_for_all_questions[i][question_answers.length] == 1`.
-  // This current vote state can then ben converted into an uncrypted ballot using function `convertStateToUncryptedBallot()`. This function rearranges data compared to state, because Belenios backend for example expects the representation of a blank vote for a classic question to be [1,0,0,0,0] (1 and `n` zeros, where `n` is the number of available answers), and expects a blank vote for majority judgment question to be [0,0,0,0] (`n` zeros, where `n` is the number of candidates).
+  // Variable `current_user_vote_for_all_questions` (and its initial state `initialVoteForAllQuestions`) is an array where the `ith` element corresponds to (initial) vote to question `i`. This element is itself an array where the `jth` element correponds to user's (initial) vote to the `jth` "available answer" (in classic questions) or "candidate" (in majority judgment), with `undefined` as initial value.
+  // Then, if user votes blank to the `ith` question, an extra element is appended to array `current_user_vote_for_all_questions[i]`, containing `1`, so we have `current_user_vote_for_all_questions[i][question_answers.length] == 1`.
+  // This current vote state can then ben converted into an uncrypted ballot using function `convertStateToUncryptedBallot()`.
   const computeInitialVoteToQuestionFromAvailableAnswersMapFunction = (answer, answer_index) => {
     return undefined;
   };
@@ -106,6 +106,11 @@ function TranslatableAllQuestionsWithPagination(props){
           type: 'resetAllAlertsInQuestion',
           question_index: action.question_index
         });
+        return updatedVoteToAllQuestions;
+        break;
+      case 'saveBlankVoteInQuestion':
+        updatedVoteToAllQuestions = deepCloneArray(state);
+        updatedVoteToAllQuestions[action.question_index][props.electionObject.questions[action.question_index].answers.length] = action.blankVoteIsChecked ? 1 : 0;
         return updatedVoteToAllQuestions;
         break;
       case 'saveVoteForCandidateInQuestionAndResetOthers':
@@ -131,11 +136,13 @@ function TranslatableAllQuestionsWithPagination(props){
 
   const convertStateToUncryptedBallot = () => {
     /*
+    This function reads component state variable `current_user_vote_for_all_questions` and produces a rearranged array, because Belenios backend for example expects the representation of a blank vote for a classic question to be [1,0,0,0,0] (1 and `n` zeros, where `n` is the number of available answers), and expects a blank vote for majority judgment question to be [0,0,0,0] (`n` zeros, where `n` is the number of candidates).
     Type of vote_of_voter_per_question: Array where each ith element corresponds to voter's vote on question i.
     - If type of ith question is classic checkbox, voter's vote to this question is an array of integers, where the jth element is respectively 0 or 1 when the jth answer is respectively not checked or checked.
     - If type of ith question is classic radio, voter's vote to this question is an array of integers, where all elements are 0 except the jth element which is 1, as the jth answer radio button is ticked.
     - If type of ith question is majority judgment, voter's vote to this question is an array of integers, where each jth element value corresponds to the integer version of the grade selected by the voter for the jth candidate.
-    If blank vote is allowed on the ith question, then an element is added to the beginning of the ith array, with a value of respectively 1 or 0 if the user has repectively decided to vote blank on this question or not.
+    If blank vote is allowed on the ith question of type "classic", then an element is added to the beginning of the ith array, with a value of respectively 1 or 0 if the user has repectively decided to vote blank on this question or not.
+    If blank vote is allowed on the ith question of type "majority judgment", and user has selected the blank vote for this question, then users' vote to this question is represented by an array of `n` zeros, where `n` is the number of candidates.
     */
     let vote_of_voter_per_question = [];
     vote_of_voter_per_question = props.electionObject.questions.map(function(question, question_index){
@@ -198,18 +205,21 @@ function TranslatableAllQuestionsWithPagination(props){
     let user_vote_to_question_is_valid = true;
     if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
       // verify that user has selected a grade for all candidates (in majority judgment, it is not accepted to select a grade for only some candidates)
-      current_user_vote_for_all_questions[current_question_index].forEach((selected_grade, candidate_index) => {
-        if(selected_grade === undefined){
-          dispatch_current_alerts_for_all_questions({
-            type: 'saveAlertForCandidateInQuestion',
-            alert_id: `shouldSelectGradeForCandidate_${candidate_index}`,
-            question_index: current_question_index,
-            candidates_indexes: [candidate_index],
-            alert_text: t("majorityJudgmentGradeIsMandatoryForCandidateX", {candidate: candidate_index+1}) // we could also display candidate name
-          });
-          user_vote_to_question_is_valid = false;
-        }
-      });
+      const user_has_voted_blank = current_question_data.blankVoteIsAllowed && current_user_vote_for_all_questions[current_question_index].length > current_question_data.answers.length && current_user_vote_for_all_questions[current_question_index][current_question_data.answers.length] === 1;
+      if (!user_has_voted_blank){
+        current_user_vote_for_all_questions[current_question_index].forEach((selected_grade, candidate_index) => {
+          if(selected_grade === undefined){
+            dispatch_current_alerts_for_all_questions({
+              type: 'saveAlertForCandidateInQuestion',
+              alert_id: `shouldSelectGradeForCandidate_${candidate_index}`,
+              question_index: current_question_index,
+              candidates_indexes: [candidate_index],
+              alert_text: t("majorityJudgmentGradeIsMandatoryForCandidateX", {candidate: candidate_index+1}) // we could also display candidate name
+            });
+            user_vote_to_question_is_valid = false;
+          }
+        });
+      }
     }
     else if (questionType == QuestionTypeEnum.CLASSIC){
       // Before moving on to next question, verify that user input respects question constraints:
@@ -268,6 +278,10 @@ function TranslatableAllQuestionsWithPagination(props){
     }
 
     if (user_vote_to_question_is_valid){
+      dispatch_current_alerts_for_all_questions({
+        type: 'resetAllAlertsInQuestion',
+        question_index: current_question_index
+      });
       if (current_question_index+1 < props.electionObject.questions.length){
         set_current_question_index(current_question_index+1);
       }
@@ -281,19 +295,15 @@ function TranslatableAllQuestionsWithPagination(props){
 
   const renderedQuestions = props.electionObject.questions.map(function(question, question_index){
     const questionType = question.type;
-    let answers;
+    let answers = question.answers;
     let minimumAnswers = null;
     let maximumAnswers = null;
-    let questionText = null;
-    let blankVoteAllowed = null;
+    let questionText = question.title;
+    let blankVoteIsAllowed = question.blankVoteIsAllowed;
     let complementaryProps = {};
     const identifierPrefix = `question_${question_index}_`;
     const visible = current_question_index === question_index ? true : false;
-    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
-      answers = question.answers;
-      questionText = question.title;
-      // blankVoteAllowed = question.blank;
-      
+    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){      
       // Receive from backend the number of available grades, their labels and their ordering (index 0 is the best grade, and appreciation gets worse as index increases)
       if (question.availableGrades && question.availableGrades.length > 1){
         complementaryProps.availableGrades = question.availableGrades;
@@ -307,24 +317,21 @@ function TranslatableAllQuestionsWithPagination(props){
       }
     }
     else if (questionType === QuestionTypeEnum.CLASSIC){
-      answers = question.answers;
-      questionText = question.title;
       minimumAnswers = question.min;
       maximumAnswers = question.max;
-      blankVoteAllowed = question.blankVoteIsAllowed;
     }
 
     return e(
       QuestionWithVotableAnswers,
       {
-        questionType: questionType,
-        answers: answers,
-        minimumAnswers: minimumAnswers,
-        maximumAnswers: maximumAnswers,
+        questionType,
+        answers,
+        minimumAnswers,
+        maximumAnswers,
         question: questionText,
-        blankVoteAllowed: blankVoteAllowed,
-        identifierPrefix: identifierPrefix,
-        visible: visible,
+        blankVoteIsAllowed,
+        identifierPrefix,
+        visible,
         currentUserVoteForQuestion: current_user_vote_for_all_questions[question_index],
         currentAlertsTextsForQuestion: alertTextsInQuestion[question_index],
         currentCandidatesHavingAlertsForQuestion: candidatesIndexesHavingAlertInQuestion[question_index],

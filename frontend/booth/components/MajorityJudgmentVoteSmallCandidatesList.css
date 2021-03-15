@@ -8,6 +8,10 @@
   --border-radius-size: 8px;
 }
 
+.majority-judgment-vote-candidates-list--blank-vote-is-selected .majority-judgment-vote-small-candidate {
+  filter: blur(3px) grayscale(1) opacity(0.7);
+}
+
 .majority-judgment-vote-small-candidate--with-alert {
   border: 1px solid red;
   border-radius: var(--border-radius-size);

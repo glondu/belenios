@@ -2,7 +2,7 @@ import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesLi
 import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.mjs";
 import { QuestionTypeEnum, detectQuestionType } from "../election_utils.mjs";
 
-function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteAllowed, identifierPrefix, visible, currentUserVoteForQuestion, currentAlertsTextsForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
+function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteIsAllowed, identifierPrefix, visible, currentUserVoteForQuestion, currentAlertsTextsForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
   let description;
   let rendered_answers;
   if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
@@ -12,7 +12,7 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
       {
         identifierPrefix,
         candidates: answers,
-        blankVoteAllowed,
+        blankVoteIsAllowed,
         availableGrades,
         currentUserVoteForQuestion,
         currentCandidatesHavingAlertsForQuestion,
@@ -38,7 +38,7 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
         type: classic_question_subtype,
         identifierPrefix,
         candidates: answers,
-        blankVoteAllowed,
+        blankVoteIsAllowed,
         currentUserVoteForQuestion,
         currentCandidatesHavingAlertsForQuestion,
         dispatchUpdateUserVoteForQuestion,
@@ -96,7 +96,7 @@ TranslatableQuestionWithVotableAnswers.defaultProps = {
   ],
   "minimumAnswers": 1,
   "maximumAnswers": 2,
-  "blankVoteAllowed": false,
+  "blankVoteIsAllowed": false,
   "question": "Question 1?",
   "identifierPrefix": "question_1_",
   "visible": true,

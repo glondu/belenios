@@ -110,11 +110,12 @@ function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, available
   );
 }
 
-function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, candidates, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
+function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, candidates, blankVoteIsAllowed, renderedBlankVoteComponent, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
   const ratio = 1 / availableGrades.length;
   const shouldDisplayWideMode = availableGrades.length > 8 || availableGrades.reduce((accumulator, gradeLabel) => { return accumulator + gradeLabel.length; }, 0) > 70;
-  const renderedCandidates = candidates.map((candidate, candidateIndex) => {
+  let renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifierConsolidatedPrefix = `${identifierPrefix}_candidate_${candidateIndex}`;
+    const currentAlerts = currentCandidatesHavingAlertsForQuestion && currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
     const dispatchUserVoteForCandidateInQuestion = (selected_grade_index) => {
       dispatchUpdateUserVoteForQuestion({
         type: 'saveVoteForCandidateInQuestion',
@@ -122,8 +123,6 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, c
         user_vote_for_candidate: selected_grade_index
       });
     };
-    
-    const currentAlerts = currentCandidatesHavingAlertsForQuestion && currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
     return e(
       TranslatableMajorityJudgmentVoteBigCandidate,
       {
@@ -140,6 +139,10 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, c
       }
     );
   });
+
+  if (renderedBlankVoteComponent){
+    renderedCandidates.push(renderedBlankVoteComponent);
+  }
 
   let cssClasses = "majority-judgment-vote-big-candidates-list noselect";
   if (shouldDisplayWideMode){

@@ -62,8 +62,8 @@ function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availab
   );
 }
 
-function TranslatableMajorityJudgmentVoteSmallCandidatesList({ identifierPrefix, candidates, blankVoteAllowed, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
-  const renderedCandidates = candidates.map((candidate, candidateIndex) => {
+function TranslatableMajorityJudgmentVoteSmallCandidatesList({ identifierPrefix, candidates, blankVoteAllowed, renderedBlankVoteComponent, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
+  let renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifier = `${identifierPrefix}_candidate_${candidateIndex}`;
     const dispatchUserVoteForCandidateInQuestion = (selected_grade) => {
       dispatchUpdateUserVoteForQuestion({
@@ -89,6 +89,9 @@ function TranslatableMajorityJudgmentVoteSmallCandidatesList({ identifierPrefix,
       commonProps
     );
   });
+  if (renderedBlankVoteComponent){
+    renderedCandidates.push(renderedBlankVoteComponent);
+  }
   return e(
     "div",
     {
