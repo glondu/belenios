@@ -20,11 +20,11 @@ msgstr ""
 msgid " You may re-open the election when it is closed."
 msgstr " Può riaprire le elezioni quando sono chiuse."
 
-#: src/tool/tool_js_questions.ml:166
+#: src/tool/tool_js_questions.ml:179
 msgid " and "
 msgstr " e "
 
-#: src/web/pages_admin.ml:2902
+#: src/web/pages_admin.ml:2923
 msgid " and a password: "
 msgstr " e una password: "
 
@@ -40,15 +40,15 @@ msgstr " e salva il file in un luogo sicuro."
 msgid " and save them securely."
 msgstr " e salvali in un luogo sicuro."
 
-#: src/web/pages_admin.ml:2947
+#: src/web/pages_admin.ml:2968
 msgid " and your e-mail address is: "
 msgstr " e il tuo indirizzo mail è: "
 
-#: src/tool/tool_js_questions.ml:173
+#: src/tool/tool_js_questions.ml:186
 msgid " answers."
 msgstr " risposte."
 
-#: src/web/pages_admin.ml:2935 src/web/pages_admin.ml:2885
+#: src/web/pages_admin.ml:2956 src/web/pages_admin.ml:2906
 msgid " because "
 msgstr " in quanto "
 
@@ -155,7 +155,7 @@ msgstr ""
 msgid "(you can use any credential such as %s)."
 msgstr "(puoi usare qualsiasi codice di voto come %s)."
 
-#: src/web/pages_admin.ml:2937 src/web/pages_admin.ml:2887
+#: src/web/pages_admin.ml:2958 src/web/pages_admin.ml:2908
 msgid ". Please try again with a different one."
 msgstr ""
 
@@ -187,21 +187,25 @@ msgstr ""
 msgid "Accept"
 msgstr "Accetta"
 
-#: src/web/site_admin.ml:2561 src/web/site_admin.ml:2475
+#: src/web/site_admin.ml:2565 src/web/site_admin.ml:2475
 #. src/web/site_admin.ml:2445
 msgid "Account creation"
 msgstr "Nuovo account"
+
+#: src/web/pages_admin.ml:2887
+msgid "Account management"
+msgstr ""
 
 #: src/web/pages_admin.ml:1232 src/web/pages_admin.ml:861
 #. src/web/pages_admin.ml:697
 msgid "Add"
 msgstr "Aggiungi"
 
-#: src/tool/tool_js_questions.ml:361
+#: src/tool/tool_js_questions.ml:389
 msgid "Add a question"
 msgstr "Aggiungi una domanda"
 
-#: src/tool/tool_js_questions.ml:305
+#: src/tool/tool_js_questions.ml:333
 msgid "Add an answer"
 msgstr "Aggiungi una risposta"
 
@@ -219,7 +223,7 @@ msgstr ""
 "Tutti i fiduciari devono aver completato un passo prima di procedere al "
 "sucessivo."
 
-#: src/tool/tool_js_questions.ml:292
+#: src/tool/tool_js_questions.ml:320
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr ""
 
@@ -251,7 +255,7 @@ msgstr ""
 msgid "An identity is either an e-mail address, or \"address,login\", where \"address\" is an e-mail address and \"login\" the associated login for authentication."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:124
+#: src/tool/tool_js_questions.ml:137
 msgid "Answer: "
 msgstr "Risposta: "
 
@@ -331,7 +335,7 @@ msgstr ""
 msgid "Below you will find the link to shuffle encrypted ballots."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:182
+#: src/tool/tool_js_questions.ml:195
 msgid "Blank vote is allowed"
 msgstr "Voto in bianco permesso"
 
@@ -359,9 +363,9 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr ""
 
-#: src/web/site_admin.ml:2581 src/web/site_admin.ml:2520
+#: src/web/site_admin.ml:2585 src/web/site_admin.ml:2520
 #. src/web/site_admin.ml:2487
-#. src/web/pages_admin.ml:2968
+#. src/web/pages_admin.ml:2989
 #. src/web/pages_admin.ml:2866
 msgid "Change password"
 msgstr "Cambia la password"
@@ -370,7 +374,7 @@ msgstr "Cambia la password"
 msgid "Checklist:"
 msgstr "Checklist:"
 
-#: src/tool/tool_js_questions.ml:263
+#: src/tool/tool_js_questions.ml:291
 msgid "Classical (selection of answers)"
 msgstr ""
 
@@ -400,6 +404,10 @@ msgstr "Chiudi elezione"
 
 #: src/web/pages_admin.ml:1545
 msgid "Collaborative key generation"
+msgstr ""
+
+#: src/web/pages_admin.ml:3002
+msgid "Compute fingerprint"
 msgstr ""
 
 #: src/web/pages_admin.ml:2665
@@ -434,7 +442,11 @@ msgstr ""
 msgid "Could not retrieve voter list from election %s"
 msgstr ""
 
-#: src/web/pages_admin.ml:2918 src/web/pages_admin.ml:2834
+#: src/tool/tool_js_questions.ml:275
+msgid "Counting method specification:"
+msgstr ""
+
+#: src/web/pages_admin.ml:2939 src/web/pages_admin.ml:2834
 msgid "Create an account"
 msgstr "Crea un'account"
 
@@ -508,7 +520,7 @@ msgstr "Elimina elezione"
 msgid "Description of the election:"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:336
+#: src/tool/tool_js_questions.ml:364
 msgid "Description:"
 msgstr "Descrizione:"
 
@@ -786,7 +798,7 @@ msgstr ""
 msgid "Inconsistency in imported election!"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:229 src/tool/tool_js_questions.ml:142
+#: src/tool/tool_js_questions.ml:242 src/tool/tool_js_questions.ml:155
 msgid "Insert"
 msgstr ""
 
@@ -803,11 +815,15 @@ msgstr "Istruzioni"
 msgid "Instructions:"
 msgstr "Istruzioni:"
 
-#: src/tool/tool_js_questions.ml:91
+#: src/tool/tool_js_questions.ml:111
+msgid "Invalid counting method specification!"
+msgstr ""
+
+#: src/tool/tool_js_questions.ml:93
 msgid "Invalid maximum number of choices"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:90
+#: src/tool/tool_js_questions.ml:92
 msgid "Invalid minimum number of choices"
 msgstr ""
 
@@ -880,7 +896,7 @@ msgstr "Mail"
 msgid "Manual (safe mode - a third party will handle the credentials)"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:95
+#: src/tool/tool_js_questions.ml:97
 msgid "Maximum number of choices must be greater than 0!"
 msgstr ""
 
@@ -888,7 +904,7 @@ msgstr ""
 msgid "Meaning of states:"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:93
+#: src/tool/tool_js_questions.ml:95
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr ""
 
@@ -932,7 +948,7 @@ msgstr ""
 msgid "Name of the election:"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:325
+#: src/tool/tool_js_questions.ml:353
 msgid "Name of the election: "
 msgstr ""
 
@@ -1090,11 +1106,11 @@ msgstr ""
 msgid "Please add some trustees first!"
 msgstr ""
 
-#: src/web/pages_admin.ml:2952
+#: src/web/pages_admin.ml:2973
 msgid "Please choose a password: "
 msgstr ""
 
-#: src/web/pages_admin.ml:2900
+#: src/web/pages_admin.ml:2921
 msgid "Please choose a username: "
 msgstr ""
 
@@ -1104,6 +1120,10 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1314
 msgid "Please enter the identities of voters to add, one per line"
+msgstr ""
+
+#: src/web/pages_admin.ml:2876
+msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
 #: src/web/pages_admin.ml:2740
@@ -1182,7 +1202,7 @@ msgstr ""
 msgid "Publish the result now"
 msgstr "Pubblica il risultato adesso"
 
-#: src/tool/tool_js_questions.ml:212
+#: src/tool/tool_js_questions.ml:225
 msgid "Question: "
 msgstr "Domanda: "
 
@@ -1226,7 +1246,7 @@ msgstr ""
 msgid "Remember to store you private key securely."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:219 src/tool/tool_js_questions.ml:131
+#: src/tool/tool_js_questions.ml:232 src/tool/tool_js_questions.ml:144
 #. src/web/pages_admin.ml:1300
 #. src/web/pages_admin.ml:1241
 #. src/web/pages_admin.ml:963
@@ -1244,7 +1264,7 @@ msgstr ""
 msgid "Reset threshold"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:375 src/web/pages_admin.ml:1166
+#: src/tool/tool_js_questions.ml:403 src/web/pages_admin.ml:1166
 #. src/web/pages_admin.ml:402
 #. src/web/pages_admin.ml:374
 #. src/web/pages_admin.ml:345
@@ -1312,7 +1332,8 @@ msgstr ""
 msgid "Step 0/3"
 msgstr ""
 
-#: src/web/pages_admin.ml:2962 src/web/pages_admin.ml:2912
+#: src/web/pages_admin.ml:2983 src/web/pages_admin.ml:2933
+#. src/web/pages_admin.ml:2881
 #. src/web/pages_admin.ml:2859
 #. src/web/pages_admin.ml:2827
 #. src/web/pages_admin.ml:2772
@@ -1374,15 +1395,15 @@ msgstr ""
 msgid "The "
 msgstr ""
 
-#: src/web/pages_admin.ml:2883
+#: src/web/pages_admin.ml:2904
 msgid "The account creation "
 msgstr ""
 
-#: src/web/site_admin.ml:2561
+#: src/web/site_admin.ml:2565
 msgid "The account has been created."
 msgstr ""
 
-#: src/web/pages_admin.ml:2933
+#: src/web/pages_admin.ml:2954
 msgid "The change "
 msgstr ""
 
@@ -1448,7 +1469,7 @@ msgstr ""
 msgid "The fingerprint of your shuffle will appear. Save it."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:97
+#: src/tool/tool_js_questions.ml:99
 msgid "The given maximum is greater than the number of choices!"
 msgstr ""
 
@@ -1467,7 +1488,7 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr ""
 
-#: src/web/site_admin.ml:2581
+#: src/web/site_admin.ml:2585
 msgid "The password has been changed."
 msgstr ""
 
@@ -1491,11 +1512,11 @@ msgstr ""
 msgid "The total weight cannot exceed %d."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:159
+#: src/tool/tool_js_questions.ml:172
 msgid "The voter has to choose between "
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:256
+#: src/tool/tool_js_questions.ml:269
 msgid "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
 msgstr ""
 
@@ -1617,7 +1638,7 @@ msgstr ""
 msgid "Trustees?"
 msgstr ""
 
-#: src/web/pages_admin.ml:2957 src/web/pages_admin.ml:2907
+#: src/web/pages_admin.ml:2978 src/web/pages_admin.ml:2928
 msgid "Type the password again: "
 msgstr ""
 
@@ -1766,7 +1787,7 @@ msgstr ""
 msgid "You will use it to send credentials to voters."
 msgstr ""
 
-#: src/web/pages_admin.ml:2895
+#: src/web/pages_admin.ml:2916
 msgid "Your e-mail address is: "
 msgstr ""
 
@@ -1790,7 +1811,7 @@ msgstr ""
 msgid "Your public key has already been received!"
 msgstr ""
 
-#: src/web/pages_admin.ml:2945
+#: src/web/pages_admin.ml:2966
 msgid "Your username is: "
 msgstr ""
 
@@ -1818,7 +1839,7 @@ msgstr ""
 msgid "encrypted tally"
 msgstr ""
 
-#: src/web/pages_admin.ml:2934 src/web/pages_admin.ml:2884
+#: src/web/pages_admin.ml:2955 src/web/pages_admin.ml:2905
 msgid "failed"
 msgstr ""
 
@@ -1834,7 +1855,7 @@ msgstr ""
 msgid "more info"
 msgstr ""
 
-#: src/web/pages_admin.ml:2930
+#: src/web/pages_admin.ml:2951
 msgid "of an unknown reason"
 msgstr ""
 
@@ -1886,11 +1907,11 @@ msgstr ""
 msgid "the list of voters"
 msgstr ""
 
-#: src/web/pages_admin.ml:2928
+#: src/web/pages_admin.ml:2949
 msgid "the new password is too weak (%s)"
 msgstr ""
 
-#: src/web/pages_admin.ml:2929
+#: src/web/pages_admin.ml:2950
 msgid "the new password starts or ends with a space"
 msgstr ""
 
@@ -1898,27 +1919,27 @@ msgstr ""
 msgid "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:"
 msgstr ""
 
-#: src/web/pages_admin.ml:2878
+#: src/web/pages_admin.ml:2899
 msgid "the password is too weak (%s)"
 msgstr ""
 
-#: src/web/pages_admin.ml:2880
+#: src/web/pages_admin.ml:2901
 msgid "the password starts or ends with a space"
 msgstr ""
 
-#: src/web/pages_admin.ml:2927 src/web/pages_admin.ml:2879
+#: src/web/pages_admin.ml:2948 src/web/pages_admin.ml:2900
 msgid "the two passwords are not the same"
 msgstr ""
 
-#: src/web/pages_admin.ml:2875
+#: src/web/pages_admin.ml:2896
 msgid "the username is already taken"
 msgstr ""
 
-#: src/web/pages_admin.ml:2877
+#: src/web/pages_admin.ml:2898
 msgid "the username is invalid"
 msgstr ""
 
-#: src/web/pages_admin.ml:2876
+#: src/web/pages_admin.ml:2897
 msgid "there is already an account with this e-mail address"
 msgstr ""
 

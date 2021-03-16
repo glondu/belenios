@@ -2865,6 +2865,27 @@ let signup_changepw ~service error challenge email username =
   let content = [error; form] in
   base ~title:(s_ "Change password") ~content ()
 
+let signup_login () =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let form =
+    post_form ~service:signup_login_post
+      (fun ltoken ->
+        [
+          div [
+              txt (s_ "Please enter the verification code received by e-mail:");
+              txt " ";
+              input ~input_type:`Text ~name:ltoken string;
+            ];
+          div [
+              input ~input_type:`Submit ~value:(s_ "Submit") string;
+            ];
+        ]
+      ) ()
+  in
+  let content = [form] in
+  base ~title:(s_ "Account management") ~content ()
+
 let signup address error username =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
@@ -2966,3 +2987,16 @@ let changepw ~username ~address error =
   in
   let content = [error; form] in
   base ~title:(s_ "Change password") ~content ()
+
+let compute_fingerprint () =
+  let%lwt l = get_preferred_gettext () in
+  let open (val l) in
+  let interactivity =
+    div
+      ~a:[a_id "interactivity"]
+      [
+        script_with_lang ~lang "tool_js_fingerprint.js";
+      ]
+  in
+  let content = [interactivity] in
+  base ~title:(s_ "Compute fingerprint") ~content ()

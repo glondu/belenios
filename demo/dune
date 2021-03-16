@@ -1,0 +1,6 @@
+(install
+ (files
+  (run-server.sh as belenios-start-server)
+  (stop-server.sh as belenios-stop-server))
+ (section bin)
+ (package belenios-server))

@@ -4,25 +4,6 @@ set -e
 
 BELENIOS_SRC="${BELENIOS_SRC:-$PWD}"
 
-# Check that Dune is not installed
-# cf. https://github.com/ocaml/opam/issues/3987
-if command -v dune >/dev/null; then
-    echo "Please uninstall Dune first, or remove it from your PATH."
-    exit 1
-fi
-
-echo
-echo "=-=-= Download and check tarballs =-=-="
-echo
-
-# Look for wget or curl
-if which wget >/dev/null; then
-    echo "wget was found and will be used"
-elif which curl >/dev/null; then
-    wget () { curl "$1" > "${1##*/}"; }
-    echo "curl was found and will be used"
-fi
-
 export BELENIOS_SYSROOT="${BELENIOS_SYSROOT:-$HOME/.belenios}"
 export OPAMROOT="$BELENIOS_SYSROOT/opam"
 export XDG_CACHE_HOME="$BELENIOS_SYSROOT/cache"
@@ -33,36 +14,66 @@ if [ -e "$BELENIOS_SYSROOT" ]; then
     exit 1
 fi
 
-mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
+mkdir -p "$BELENIOS_SYSROOT"
 
-cd "$BELENIOS_SYSROOT/bootstrap/src"
-wget https://github.com/ocaml/opam/releases/download/2.0.7/opam-full-2.0.7.tar.gz
+if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
 
-if which sha256sum >/dev/null; then
-sha256sum --check <<EOF
+    # Download and install opam
+
+    # Check that Dune is not installed
+    # cf. https://github.com/ocaml/opam/issues/3987
+    if command -v dune >/dev/null; then
+        echo "Please uninstall Dune first, or remove it from your PATH."
+        exit 1
+    fi
+
+    echo
+    echo "=-=-= Download and check tarballs =-=-="
+    echo
+
+    # Look for wget or curl
+    if which wget >/dev/null; then
+        echo "wget was found and will be used"
+    elif which curl >/dev/null; then
+        wget () { curl "$1" > "${1##*/}"; }
+        echo "curl was found and will be used"
+    fi
+
+    mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
+
+    cd "$BELENIOS_SYSROOT/bootstrap/src"
+    wget https://github.com/ocaml/opam/releases/download/2.0.7/opam-full-2.0.7.tar.gz
+
+    if which sha256sum >/dev/null; then
+        sha256sum --check <<EOF
 9c0dac1094ed624158fff13000cdfa8edbc96798d32b9fab40b0b5330f9490a2  opam-full-2.0.7.tar.gz
 EOF
-else
-    echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
+    else
+        echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
+    fi
+
+    export PATH="$BELENIOS_SYSROOT/bootstrap/bin:$PATH"
+
+    echo
+    echo "=-=-= Compilation and installation of OPAM =-=-="
+    echo
+    cd "$BELENIOS_SYSROOT/bootstrap/src"
+    tar -xzf opam-full-2.0.7.tar.gz
+    cd opam-full-2.0.7
+    cp $BELENIOS_SRC/ext/opam/bootstrap-ocaml.sh $BELENIOS_SYSROOT/bootstrap/src/opam-full-2.0.7/shell
+    make cold CONFIGURE_ARGS="--prefix $BELENIOS_SYSROOT/bootstrap"
+    make cold-install LIBINSTALL_DIR="$BELENIOS_SYSROOT/bootstrap/lib/ocaml"
+
+    cat > $BELENIOS_SYSROOT/env.sh <<EOF
+PATH="$BELENIOS_SYSROOT/bootstrap/bin:\$PATH"; export PATH;
+EOF
+
 fi
-
-export PATH="$BELENIOS_SYSROOT/bootstrap/bin:$PATH"
-
-echo
-echo "=-=-= Compilation and installation of OPAM =-=-="
-echo
-cd "$BELENIOS_SYSROOT/bootstrap/src"
-tar -xzf opam-full-2.0.7.tar.gz
-cd opam-full-2.0.7
-cp $BELENIOS_SRC/ext/opam/bootstrap-ocaml.sh $BELENIOS_SYSROOT/bootstrap/src/opam-full-2.0.7/shell
-make cold CONFIGURE_ARGS="--prefix $BELENIOS_SYSROOT/bootstrap"
-make cold-install LIBINSTALL_DIR="$BELENIOS_SYSROOT/bootstrap/lib/ocaml"
 
 echo
 echo "=-=-= Generation of env.sh =-=-="
 echo
-cat > $BELENIOS_SYSROOT/env.sh <<EOF
-PATH="$BELENIOS_SYSROOT/bootstrap/bin:\$PATH"; export PATH;
+cat >> $BELENIOS_SYSROOT/env.sh <<EOF
 OPAMROOT=$OPAMROOT; export OPAMROOT;
 XDG_CACHE_HOME=$XDG_CACHE_HOME; export XDG_CACHE_HOME;
 eval \$(opam env)
@@ -76,7 +87,7 @@ cd "$BELENIOS_SYSROOT"
 git clone https://github.com/ocaml/opam-repository.git
 cd opam-repository
 git reset --hard ea0d9f1d30e13bb1db009b79a39bbe7a95b0217e
-opam init --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
+opam init $BELENIOS_OPAM_INIT_ARGS --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
 opam switch create 4.11.1 ocaml-base-compiler.4.11.1 --jobs=1
 eval $(opam env)
 

@@ -78,6 +78,14 @@
  (preprocess (pps js_of_ocaml-ppx lwt_ppx)))
 
 (executable
+ (name tool_js_fingerprint)
+ (modes js)
+ (modules tool_js_fingerprint)
+ (js_of_ocaml (javascript_files ../../ext/sjcl/sjcl.js ../../ext/jsbn/BigIntCompatFull.js ../platform/js/random.js))
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
+ (preprocess (pps js_of_ocaml-ppx lwt_ppx)))
+
+(executable
  (name tool_js)
  (modes js)
  (modules tool_js)

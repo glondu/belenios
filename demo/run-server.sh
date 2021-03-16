@@ -2,10 +2,17 @@
 
 set -e
 
+if [ "$1" = "--preload" ]; then
+    shift
+    . "$1"
+    shift
+fi
+
 if [ -d .git ]; then
     : ${BELENIOS_CONFIG:=demo/ocsigenserver.conf.in}
     : ${BELENIOS_VARDIR:=_run}
     : ${BELENIOS_RUNDIR:=/tmp/belenios}
+    : ${BELENIOS_BINDIR:=_run/usr/bin}
     : ${BELENIOS_LIBDIR:=_run/usr/lib}
     : ${BELENIOS_SHAREDIR:=_run/usr/share/belenios-server}
 fi
@@ -20,6 +27,7 @@ check_nonempty_var () {
 check_nonempty_var BELENIOS_CONFIG
 check_nonempty_var BELENIOS_VARDIR
 check_nonempty_var BELENIOS_RUNDIR
+check_nonempty_var BELENIOS_BINDIR
 check_nonempty_var BELENIOS_LIBDIR
 check_nonempty_var BELENIOS_SHAREDIR
 
@@ -41,6 +49,8 @@ sed \
     $BELENIOS_CONFIG > $BELENIOS_VARDIR/etc/ocsigenserver.conf
 
 cp demo/mime.types $BELENIOS_VARDIR/etc/mime.types
+
+PATH=$BELENIOS_BINDIR:$PATH
 
 OCSIGENSERVER=ocsigenserver
 

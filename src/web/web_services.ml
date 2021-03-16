@@ -130,7 +130,8 @@ let set_language = create ~csrf_safe:true ~path:No_path ~meth:(Get (string "lang
 let signup_captcha = create ~path:(Path ["signup"; ""]) ~meth:(Get (string "service")) ()
 let signup_captcha_post = create_attached_post ~csrf_safe:true ~fallback:signup_captcha ~post_params:(string "challenge" ** string "response" ** string "email") ()
 let signup_captcha_img = create ~path:(Path ["signup"; "captcha"]) ~meth:(Get (string "challenge")) ()
-let signup_login = create ~path:(Path ["signup"; "login"]) ~meth:(Get (string "token")) ()
+let signup_login = create ~path:(Path ["signup"; "login"]) ~meth:(Get unit) ()
+let signup_login_post = create_attached_post ~csrf_safe:true ~fallback:signup_login ~post_params:(string "token") ()
 let signup = create ~path:(Path ["signup"; "account"]) ~meth:(Get unit) ()
 let signup_post = create_attached_post ~csrf_safe:true ~fallback:signup ~post_params:(string "username" ** string "password" ** string "password2") ()
 
@@ -141,3 +142,5 @@ let changepw_post = create_attached_post ~csrf_safe:true ~fallback:signup ~post_
 let method_schulze = create ~path:(Path ["methods"; "schulze"]) ~meth:(Get (uuid "uuid" ** int "question")) ()
 let method_mj = create ~path:(Path ["methods"; "mj"]) ~meth:(Get (uuid "uuid" ** int "question" ** opt (int "ngrades"))) ()
 let method_stv = create ~path:(Path ["methods"; "stv"]) ~meth:(Get (uuid "uuid" ** int "question" ** opt (int "nseats"))) ()
+
+let compute_fingerprint = create ~path:(Path ["compute-fingerprint"]) ~meth:(Get unit) ()

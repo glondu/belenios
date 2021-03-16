@@ -1,7 +1,12 @@
 (rule
- (target de.mo)
- (deps de.po)
+ (target en.mo)
+ (deps en.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target en.json)
+ (deps en.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target fr.mo)
@@ -9,9 +14,29 @@
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
+ (target fr.json)
+ (deps fr.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target de.mo)
+ (deps de.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target de.json)
+ (deps de.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target it.mo)
  (deps it.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target it.json)
+ (deps it.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target ro.mo)
@@ -19,9 +44,19 @@
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
+ (target ro.json)
+ (deps ro.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target nb.mo)
  (deps nb.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target nb.json)
+ (deps nb.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target es.mo)
@@ -29,9 +64,19 @@
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
+ (target es.json)
+ (deps es.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target uk.mo)
  (deps uk.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target uk.json)
+ (deps uk.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target cs.mo)
@@ -39,14 +84,19 @@
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
- (target en.mo)
- (deps en.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (target cs.json)
+ (deps cs.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target oc.mo)
  (deps oc.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target oc.json)
+ (deps oc.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target pt_BR.mo)
@@ -59,78 +109,52 @@
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
- (target oc.json)
- (deps oc.mo)
+ (target el.mo)
+ (deps el.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target el.json)
+ (deps el.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
- (target en.json)
- (deps en.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (target nl.mo)
+ (deps nl.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
- (target cs.json)
- (deps cs.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target uk.json)
- (deps uk.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target es.json)
- (deps es.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target nb.json)
- (deps nb.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target de.json)
- (deps de.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target fr.json)
- (deps fr.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target it.json)
- (deps it.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target ro.json)
- (deps ro.mo)
+ (target nl.json)
+ (deps nl.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (install
  (package belenios-server)
  (section share)
  (files
-  (de.mo as locales/voter/de.mo)
-  (fr.mo as locales/voter/fr.mo)
-  (it.mo as locales/voter/it.mo)
-  (ro.mo as locales/voter/ro.mo)
-  (nb.mo as locales/voter/nb.mo)
-  (es.mo as locales/voter/es.mo)
-  (uk.mo as locales/voter/uk.mo)
-  (cs.mo as locales/voter/cs.mo)
   (en.mo as locales/voter/en.mo)
+  (en.json as locales/voter/en.json)
+  (fr.mo as locales/voter/fr.mo)
+  (fr.json as locales/voter/fr.json)
+  (de.mo as locales/voter/de.mo)
+  (de.json as locales/voter/de.json)
+  (it.mo as locales/voter/it.mo)
+  (it.json as locales/voter/it.json)
+  (ro.mo as locales/voter/ro.mo)
+  (ro.json as locales/voter/ro.json)
+  (nb.mo as locales/voter/nb.mo)
+  (nb.json as locales/voter/nb.json)
+  (es.mo as locales/voter/es.mo)
+  (es.json as locales/voter/es.json)
+  (uk.mo as locales/voter/uk.mo)
+  (uk.json as locales/voter/uk.json)
+  (cs.mo as locales/voter/cs.mo)
+  (cs.json as locales/voter/cs.json)
   (oc.mo as locales/voter/oc.mo)
+  (oc.json as locales/voter/oc.json)
   (pt_BR.mo as locales/voter/pt_BR.mo)
   (pt_BR.json as locales/voter/pt_BR.json)
-  (oc.json as locales/voter/oc.json)
-  (en.json as locales/voter/en.json)
-  (cs.json as locales/voter/cs.json)
-  (uk.json as locales/voter/uk.json)
-  (es.json as locales/voter/es.json)
-  (nb.json as locales/voter/nb.json)
-  (de.json as locales/voter/de.json)
-  (fr.json as locales/voter/fr.json)
-  (it.json as locales/voter/it.json)
-  (ro.json as locales/voter/ro.json)))
+  (el.mo as locales/voter/el.mo)
+  (el.json as locales/voter/el.json)
+  (nl.mo as locales/voter/nl.mo)
+  (nl.json as locales/voter/nl.json)))

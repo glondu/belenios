@@ -20,11 +20,11 @@ msgstr ""
 msgid " You may re-open the election when it is closed."
 msgstr " Puteti re-deschide alegerea odata ce a fost terminata."
 
-#: src/tool/tool_js_questions.ml:166
+#: src/tool/tool_js_questions.ml:179
 msgid " and "
 msgstr " si "
 
-#: src/web/pages_admin.ml:2902
+#: src/web/pages_admin.ml:2923
 msgid " and a password: "
 msgstr " si o parola: "
 
@@ -40,15 +40,15 @@ msgstr " si sa salvati fisierul intr-un loc sigur."
 msgid " and save them securely."
 msgstr " si sa le salvati intr-un loc sigur."
 
-#: src/web/pages_admin.ml:2947
+#: src/web/pages_admin.ml:2968
 msgid " and your e-mail address is: "
 msgstr " si adresa ta email este: "
 
-#: src/tool/tool_js_questions.ml:173
+#: src/tool/tool_js_questions.ml:186
 msgid " answers."
 msgstr ""
 
-#: src/web/pages_admin.ml:2935 src/web/pages_admin.ml:2885
+#: src/web/pages_admin.ml:2956 src/web/pages_admin.ml:2906
 msgid " because "
 msgstr " pentru ca "
 
@@ -158,7 +158,7 @@ msgstr ""
 msgid "(you can use any credential such as %s)."
 msgstr "(pot sa utilizezi orice cod de vot cum ar fi %s)."
 
-#: src/web/pages_admin.ml:2937 src/web/pages_admin.ml:2887
+#: src/web/pages_admin.ml:2958 src/web/pages_admin.ml:2908
 msgid ". Please try again with a different one."
 msgstr ". Va rugam sa incercati din nou cu o parola diferita."
 
@@ -193,21 +193,25 @@ msgstr ""
 msgid "Accept"
 msgstr "Accepta"
 
-#: src/web/site_admin.ml:2561 src/web/site_admin.ml:2475
+#: src/web/site_admin.ml:2565 src/web/site_admin.ml:2475
 #. src/web/site_admin.ml:2445
 msgid "Account creation"
 msgstr "Creare de cont"
+
+#: src/web/pages_admin.ml:2887
+msgid "Account management"
+msgstr ""
 
 #: src/web/pages_admin.ml:1232 src/web/pages_admin.ml:861
 #. src/web/pages_admin.ml:697
 msgid "Add"
 msgstr "Adauga"
 
-#: src/tool/tool_js_questions.ml:361
+#: src/tool/tool_js_questions.ml:389
 msgid "Add a question"
 msgstr "Adauga o intrebare"
 
-#: src/tool/tool_js_questions.ml:305
+#: src/tool/tool_js_questions.ml:333
 msgid "Add an answer"
 msgstr "Adauga un raspuns"
 
@@ -225,7 +229,7 @@ msgstr ""
 "Toate autoritatile de descifrare trebuie sa fi terminat etapa lor inainte de "
 "a putea continua cu etapa urmatoare."
 
-#: src/tool/tool_js_questions.ml:292
+#: src/tool/tool_js_questions.ml:320
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr "Alternativa (alegatorii atribuie un numar fiecarui candidat)"
 
@@ -263,7 +267,7 @@ msgstr ""
 "O identitate este fie o adresa e-mail, fie \"adresa,login\", unde \"adresa\" "
 "este o adresa email iar \"login\" este numele de cont asociat autentificarii."
 
-#: src/tool/tool_js_questions.ml:124
+#: src/tool/tool_js_questions.ml:137
 msgid "Answer: "
 msgstr "Raspuns: "
 
@@ -346,7 +350,7 @@ msgstr "Cod de securitate gresit !"
 msgid "Below you will find the link to shuffle encrypted ballots."
 msgstr "Gasiti mai jos link-ul pentru a amesteca buletinele de vot cifrate."
 
-#: src/tool/tool_js_questions.ml:182
+#: src/tool/tool_js_questions.ml:195
 msgid "Blank vote is allowed"
 msgstr "Voturile albe sunt autorizate"
 
@@ -380,9 +384,9 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr "Schimba datele fixate in mod automat"
 
-#: src/web/site_admin.ml:2581 src/web/site_admin.ml:2520
+#: src/web/site_admin.ml:2585 src/web/site_admin.ml:2520
 #. src/web/site_admin.ml:2487
-#. src/web/pages_admin.ml:2968
+#. src/web/pages_admin.ml:2989
 #. src/web/pages_admin.ml:2866
 msgid "Change password"
 msgstr "Schimba parola"
@@ -391,7 +395,7 @@ msgstr "Schimba parola"
 msgid "Checklist:"
 msgstr "Check-list:"
 
-#: src/tool/tool_js_questions.ml:263
+#: src/tool/tool_js_questions.ml:291
 msgid "Classical (selection of answers)"
 msgstr "Clasic (selectarea raspunsurilor)"
 
@@ -422,6 +426,10 @@ msgstr "Inchideti alegerea"
 #: src/web/pages_admin.ml:1545
 msgid "Collaborative key generation"
 msgstr "Generare colaborativa a cheii"
+
+#: src/web/pages_admin.ml:3002
+msgid "Compute fingerprint"
+msgstr ""
 
 #: src/web/pages_admin.ml:2665
 msgid "Compute shuffle"
@@ -457,7 +465,11 @@ msgstr ""
 msgid "Could not retrieve voter list from election %s"
 msgstr "E imposibil de a obtine lista de alegatori plecand de la alegerea %s"
 
-#: src/web/pages_admin.ml:2918 src/web/pages_admin.ml:2834
+#: src/tool/tool_js_questions.ml:275
+msgid "Counting method specification:"
+msgstr ""
+
+#: src/web/pages_admin.ml:2939 src/web/pages_admin.ml:2834
 msgid "Create an account"
 msgstr "Creare de cont"
 
@@ -534,7 +546,7 @@ msgstr "Sterge alegerea"
 msgid "Description of the election:"
 msgstr "Descrierea alegerii:"
 
-#: src/tool/tool_js_questions.ml:336
+#: src/tool/tool_js_questions.ml:364
 msgid "Description:"
 msgstr "Descriere:"
 
@@ -830,7 +842,7 @@ msgstr ""
 msgid "Inconsistency in imported election!"
 msgstr "Alegerea importata este inconsistenta !"
 
-#: src/tool/tool_js_questions.ml:229 src/tool/tool_js_questions.ml:142
+#: src/tool/tool_js_questions.ml:242 src/tool/tool_js_questions.ml:155
 msgid "Insert"
 msgstr "Introduceti"
 
@@ -847,11 +859,15 @@ msgstr "Instructiuni"
 msgid "Instructions:"
 msgstr "Instructiuni:"
 
-#: src/tool/tool_js_questions.ml:91
+#: src/tool/tool_js_questions.ml:111
+msgid "Invalid counting method specification!"
+msgstr ""
+
+#: src/tool/tool_js_questions.ml:93
 msgid "Invalid maximum number of choices"
 msgstr "Numar maxim de optiuni invalid"
 
-#: src/tool/tool_js_questions.ml:90
+#: src/tool/tool_js_questions.ml:92
 msgid "Invalid minimum number of choices"
 msgstr "Numar minim de optiuni invalid"
 
@@ -924,7 +940,7 @@ msgstr "E-mail"
 msgid "Manual (safe mode - a third party will handle the credentials)"
 msgstr "Manual (mod securizat: o treime se va ocupa de codurile de vot)"
 
-#: src/tool/tool_js_questions.ml:95
+#: src/tool/tool_js_questions.ml:97
 msgid "Maximum number of choices must be greater than 0!"
 msgstr "Numarul maxim de optiuni trebuie sa fie mai mare decat 0 !"
 
@@ -932,7 +948,7 @@ msgstr "Numarul maxim de optiuni trebuie sa fie mai mare decat 0 !"
 msgid "Meaning of states:"
 msgstr "Semnificatia starilor:"
 
-#: src/tool/tool_js_questions.ml:93
+#: src/tool/tool_js_questions.ml:95
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr ""
 "Numarul minim de optiuni trebuie sa fie mai mic sau egal decat numarul maxim "
@@ -978,7 +994,7 @@ msgstr "Numele si descrierea alegerii"
 msgid "Name of the election:"
 msgstr "Numele alegerii:"
 
-#: src/tool/tool_js_questions.ml:325
+#: src/tool/tool_js_questions.ml:353
 msgid "Name of the election: "
 msgstr "Numele alegerii: "
 
@@ -1155,11 +1171,11 @@ msgstr "Va rugam "
 msgid "Please add some trustees first!"
 msgstr "Va rugam sa adaugati mai intai cateva autoritati de descifrare !"
 
-#: src/web/pages_admin.ml:2952
+#: src/web/pages_admin.ml:2973
 msgid "Please choose a password: "
 msgstr "Va rugam sa alegeti o parola: "
 
-#: src/web/pages_admin.ml:2900
+#: src/web/pages_admin.ml:2921
 msgid "Please choose a username: "
 msgstr "Va rugam sa alegeti un identificator: "
 
@@ -1172,6 +1188,10 @@ msgid "Please enter the identities of voters to add, one per line"
 msgstr ""
 "Va rugam sa introduceti identitatile alegatorilor ce urmeaza sa fie "
 "adaugati, cate unul pe linie"
+
+#: src/web/pages_admin.ml:2876
+msgid "Please enter the verification code received by e-mail:"
+msgstr ""
 
 #: src/web/pages_admin.ml:2740
 msgid "Please enter your private key:"
@@ -1249,7 +1269,7 @@ msgstr "Nume public al autoritatii de coduri de vot:"
 msgid "Publish the result now"
 msgstr "Publica rezultatul acum"
 
-#: src/tool/tool_js_questions.ml:212
+#: src/tool/tool_js_questions.ml:225
 msgid "Question: "
 msgstr "Intrebare: "
 
@@ -1297,7 +1317,7 @@ msgstr "Amintiti-va ca trebuie sa verificati prezenta cheii dvoastre publice."
 msgid "Remember to store you private key securely."
 msgstr "Amintiti-va sa stocati intr-un loc sigur cheia dvoastra privata."
 
-#: src/tool/tool_js_questions.ml:219 src/tool/tool_js_questions.ml:131
+#: src/tool/tool_js_questions.ml:232 src/tool/tool_js_questions.ml:144
 #. src/web/pages_admin.ml:1300
 #. src/web/pages_admin.ml:1241
 #. src/web/pages_admin.ml:963
@@ -1315,7 +1335,7 @@ msgstr ""
 msgid "Reset threshold"
 msgstr "Reinitializati pragul"
 
-#: src/tool/tool_js_questions.ml:375 src/web/pages_admin.ml:1166
+#: src/tool/tool_js_questions.ml:403 src/web/pages_admin.ml:1166
 #. src/web/pages_admin.ml:402
 #. src/web/pages_admin.ml:374
 #. src/web/pages_admin.ml:345
@@ -1386,7 +1406,8 @@ msgstr "Etapa %d/3"
 msgid "Step 0/3"
 msgstr "Etapa 0/3"
 
-#: src/web/pages_admin.ml:2962 src/web/pages_admin.ml:2912
+#: src/web/pages_admin.ml:2983 src/web/pages_admin.ml:2933
+#. src/web/pages_admin.ml:2881
 #. src/web/pages_admin.ml:2859
 #. src/web/pages_admin.ml:2827
 #. src/web/pages_admin.ml:2772
@@ -1449,15 +1470,15 @@ msgstr "Multumesc pentru ajutor,"
 msgid "The "
 msgstr "- "
 
-#: src/web/pages_admin.ml:2883
+#: src/web/pages_admin.ml:2904
 msgid "The account creation "
 msgstr "Crearea contului "
 
-#: src/web/site_admin.ml:2561
+#: src/web/site_admin.ml:2565
 msgid "The account has been created."
 msgstr "Contul a fost creat."
 
-#: src/web/pages_admin.ml:2933
+#: src/web/pages_admin.ml:2954
 msgid "The change "
 msgstr "Schimbarea "
 
@@ -1526,7 +1547,7 @@ msgid "The fingerprint of your shuffle will appear. Save it."
 msgstr ""
 "Amprenta amestecului dvoastra va aparea in curand. Va rugam sa o salvati."
 
-#: src/tool/tool_js_questions.ml:97
+#: src/tool/tool_js_questions.ml:99
 msgid "The given maximum is greater than the number of choices!"
 msgstr "Valoarea maximala data este mai mare decat numarul de optiuni!"
 
@@ -1545,7 +1566,7 @@ msgstr "Link-ul catre alegere va fi :"
 msgid "The partial decryption didn't pass validation!"
 msgstr "Descifrare partiala nu a trecut etapa de validare !"
 
-#: src/web/site_admin.ml:2581
+#: src/web/site_admin.ml:2585
 msgid "The password has been changed."
 msgstr "Parola a fost schimbara."
 
@@ -1573,11 +1594,11 @@ msgstr ""
 msgid "The total weight cannot exceed %d."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:159
+#: src/tool/tool_js_questions.ml:172
 msgid "The voter has to choose between "
 msgstr "Alegatorul trebuie sa aleaga intre "
 
-#: src/tool/tool_js_questions.ml:256
+#: src/tool/tool_js_questions.ml:269
 msgid "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
 msgstr ""
 "Alegatorul trebuie sa introduca un numar intreg la inceputul fiecarui "
@@ -1719,7 +1740,7 @@ msgstr "Autoritatile de descifrare %s"
 msgid "Trustees?"
 msgstr "Autoritatile de descifrare ?"
 
-#: src/web/pages_admin.ml:2957 src/web/pages_admin.ml:2907
+#: src/web/pages_admin.ml:2978 src/web/pages_admin.ml:2928
 msgid "Type the password again: "
 msgstr "Introduceti parola din nou: "
 
@@ -1892,7 +1913,7 @@ msgstr "O veti folosi pentru decriptarea rezultatului final."
 msgid "You will use it to send credentials to voters."
 msgstr "O veti folosi pentru trimiterea codurilor de vot alegatorilor."
 
-#: src/web/pages_admin.ml:2895
+#: src/web/pages_admin.ml:2916
 msgid "Your e-mail address is: "
 msgstr "Adresa dvoastra email este: "
 
@@ -1920,7 +1941,7 @@ msgstr "Descifrarea dvoastra partiala a fost primita si verificata !"
 msgid "Your public key has already been received!"
 msgstr "Cheia dvoastra publica a fost deja primita !"
 
-#: src/web/pages_admin.ml:2945
+#: src/web/pages_admin.ml:2966
 msgid "Your username is: "
 msgstr "Numele dvoastra de utilizator este : "
 
@@ -1948,7 +1969,7 @@ msgstr "alegerea e gata"
 msgid "encrypted tally"
 msgstr "rezultat cifrat"
 
-#: src/web/pages_admin.ml:2934 src/web/pages_admin.ml:2884
+#: src/web/pages_admin.ml:2955 src/web/pages_admin.ml:2905
 msgid "failed"
 msgstr "esec"
 
@@ -1964,7 +1985,7 @@ msgstr "initializare: administratorul trebuie sa defineasca un prag"
 msgid "more info"
 msgstr "mai mult despre"
 
-#: src/web/pages_admin.ml:2930
+#: src/web/pages_admin.ml:2951
 msgid "of an unknown reason"
 msgstr "din motive necunoscute"
 
@@ -2021,11 +2042,11 @@ msgstr "amprenta cheii dvoastre de verificare."
 msgid "the list of voters"
 msgstr "lista electorala"
 
-#: src/web/pages_admin.ml:2928
+#: src/web/pages_admin.ml:2949
 msgid "the new password is too weak (%s)"
 msgstr "noua parola este prea slaba (%s)"
 
-#: src/web/pages_admin.ml:2929
+#: src/web/pages_admin.ml:2950
 msgid "the new password starts or ends with a space"
 msgstr "noua parola incepe sau se termina cu un spatiu"
 
@@ -2035,27 +2056,27 @@ msgstr ""
 "numarul de votanti este corect, si amprenta listei electorale corespunde cu "
 "ceea ce a fost inregistrat, de exemplu cu ajutorul comenzii urmatoare:"
 
-#: src/web/pages_admin.ml:2878
+#: src/web/pages_admin.ml:2899
 msgid "the password is too weak (%s)"
 msgstr "parola este prea slaba (%s)"
 
-#: src/web/pages_admin.ml:2880
+#: src/web/pages_admin.ml:2901
 msgid "the password starts or ends with a space"
 msgstr "parola incepe sau se termina cu un spatiu"
 
-#: src/web/pages_admin.ml:2927 src/web/pages_admin.ml:2879
+#: src/web/pages_admin.ml:2948 src/web/pages_admin.ml:2900
 msgid "the two passwords are not the same"
 msgstr "cele doua parole nu sunt identice"
 
-#: src/web/pages_admin.ml:2875
+#: src/web/pages_admin.ml:2896
 msgid "the username is already taken"
 msgstr "numele de utilizator este deja folosit"
 
-#: src/web/pages_admin.ml:2877
+#: src/web/pages_admin.ml:2898
 msgid "the username is invalid"
 msgstr "numele de utilizator este invalid"
 
-#: src/web/pages_admin.ml:2876
+#: src/web/pages_admin.ml:2897
 msgid "there is already an account with this e-mail address"
 msgstr "exista deja un alt cont cu aceasta adresa email"
 

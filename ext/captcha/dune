@@ -1,0 +1,5 @@
+(install
+ (files
+  (captcha as belenios-captcha))
+ (section bin)
+ (package belenios-server))

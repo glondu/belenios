@@ -2527,7 +2527,11 @@ let () =
 
 let () =
   Any.register ~service:signup_login
-    (fun token () ->
+    (fun () () -> Pages_admin.signup_login () >>= Html.send)
+
+let () =
+  Any.register ~service:signup_login_post
+    (fun () token ->
       match%lwt Web_signup.confirm_link token with
       | None -> forbidden ()
       | Some env ->
@@ -2583,6 +2587,10 @@ let () =
          ) else Pages_admin.changepw ~username ~address (Some PasswordMismatch)
       | _ -> forbidden ()
     )
+
+let () =
+  Html.register ~service:compute_fingerprint
+    (fun () () -> Pages_admin.compute_fingerprint ())
 
 let extract_automatic_data_draft uuid_s =
   let uuid = uuid_of_raw_string uuid_s in
