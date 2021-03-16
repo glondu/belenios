@@ -1,0 +1,28 @@
+[Unit]
+Description=Belenios Container %i
+Wants=modprobe@loop.service
+PartOf=machines.target
+Before=machines.target
+After=network.target systemd-resolved.service modprobe@loop.service
+RequiresMountsFor=/srv
+
+[Service]
+ExecStart=/srv/belenios-containers/belenios-nspawn /srv/belenios-containers/%i --quiet --keep-unit --boot --link-journal=try-guest
+KillMode=mixed
+Type=notify
+RestartForceExitStatus=133
+SuccessExitStatus=133
+Slice=machine.slice
+Delegate=yes
+TasksMax=16384
+WatchdogSec=3min
+
+DevicePolicy=closed
+DeviceAllow=char-pts rw
+
+DeviceAllow=/dev/loop-control rw
+DeviceAllow=block-loop rw
+DeviceAllow=block-blkext rw
+
+[Install]
+WantedBy=machines.target
