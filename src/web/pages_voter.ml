@@ -195,6 +195,18 @@ let election_home election state () =
           make_button ~service:election_vote ~hash ~style:"font-size:35px;" ~disabled (s_ "Start");
         ];
       div [
+          let service =
+            Eliom_service.preapply ~service:(Eliom_service.static_dir ())
+              ["static"; "frontend"; "booth"; "vote.html"]
+          in
+          let hash =
+            Netencoding.Url.mk_url_encoded_parameters
+              ["uuid", raw_string_of_uuid uuid; "lang", lang]
+          in
+          make_button ~service ~hash ~style:"font-size:20px;" ~disabled
+            (s_ "Vote with new interface");
+        ];
+      div [
         a
           ~service:(Eliom_service.preapply ~service:election_cast uuid)
           [txt (s_ "Advanced mode")] ();
