@@ -4,3 +4,4 @@ src/web/pages_voter.ml
 src/web/site_common.ml
 src/web/site_voter.ml
 src/tool/tool_js_booth.ml
+src/tool/tool_js_fingerprint.ml
