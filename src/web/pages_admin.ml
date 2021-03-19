@@ -281,9 +281,18 @@ let preview_booth l uuid =
     Eliom_uri.make_string_uri
       ~service:election_vote ~absolute:true () |> rewrite_prefix
   in
+  let service_new =
+    Eliom_uri.make_string_uri
+      ~service:(Eliom_service.static_dir ())
+      ~absolute:true
+      ["static"; "frontend"; "booth"; "vote.html"]
+    |> rewrite_prefix
+  in
   span [
       direct_a (service ^ "#" ^ hash) (s_ "Preview booth");
-      txt " ";
+      txt " (";
+      direct_a (service_new ^ "#" ^ hash) (s_ "new one");
+      txt ") ";
       txt (Printf.sprintf (f_ "(you can use any credential such as %s).") "HsqB3C3y62Ekq4D");
     ]
 
