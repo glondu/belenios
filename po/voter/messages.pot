@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-03 09:34+0000\n"
+"POT-Creation-Date: 2021-03-19 10:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -204,6 +204,18 @@ msgstr ""
 msgid "By using this site, you accept our "
 msgstr ""
 
+#: src/tool/tool_js_fingerprint.ml:83
+msgid "Compare"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:67
+msgid "Compute fingerprint"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:34
+msgid "Computed fingerprint:"
+msgstr ""
+
 #: src/web/pages_voter.ml:871
 msgid "Condorcet-Schulze method"
 msgstr ""
@@ -259,6 +271,10 @@ msgstr ""
 #. src/web/site_voter.ml:271
 #. src/web/site_voter.ml:266
 msgid "Error"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:74
+msgid "Expected fingerprint:"
 msgstr ""
 
 #: src/web/pages_voter.ml:636
@@ -444,6 +460,10 @@ msgstr ""
 msgid "Please log in:"
 msgstr ""
 
+#: src/tool/tool_js_fingerprint.ml:57
+msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
+msgstr ""
+
 #: src/web/pages_voter.ml:949
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
 msgstr ""
@@ -575,6 +595,14 @@ msgstr ""
 
 #: src/web/pages_voter.ml:383
 msgid "The fingerprint of the encrypted tally is %s."
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:46
+msgid "The fingerprints differ!"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:44
+msgid "The fingerprints match!"
 msgstr ""
 
 #: src/web/pages_voter.ml:947

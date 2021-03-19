@@ -211,6 +211,18 @@ msgstr "Blank stemme"
 msgid "By using this site, you accept our "
 msgstr "Ved å bruke denne siden, godtar du vår "
 
+#: src/tool/tool_js_fingerprint.ml:83
+msgid "Compare"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:67
+msgid "Compute fingerprint"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:34
+msgid "Computed fingerprint:"
+msgstr ""
+
 #: src/web/pages_voter.ml:871
 msgid "Condorcet-Schulze method"
 msgstr ""
@@ -267,6 +279,10 @@ msgstr "Krypterer…"
 #. src/web/site_voter.ml:266
 msgid "Error"
 msgstr "Feil"
+
+#: src/tool/tool_js_fingerprint.ml:74
+msgid "Expected fingerprint:"
+msgstr ""
 
 #: src/web/pages_voter.ml:636
 msgid "FAIL!"
@@ -457,6 +473,10 @@ msgstr "Logg inn for å bekrefte din stemme."
 msgid "Please log in:"
 msgstr "Logg inn:"
 
+#: src/tool/tool_js_fingerprint.ml:57
+msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
+msgstr ""
+
 #: src/web/pages_voter.ml:949
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
 msgstr ""
@@ -588,6 +608,14 @@ msgstr "Valget stenger om "
 
 #: src/web/pages_voter.ml:383
 msgid "The fingerprint of the encrypted tally is %s."
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:46
+msgid "The fingerprints differ!"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:44
+msgid "The fingerprints match!"
 msgstr ""
 
 #: src/web/pages_voter.ml:947

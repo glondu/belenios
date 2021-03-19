@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -62,9 +63,9 @@ msgstr " na caixa seguinte: "
 msgid " instead of "
 msgstr " em vez de "
 
+#: src/web/pages_admin.ml:2378 src/web/pages_admin.ml:2244
 #. src/web/pages_admin.ml:940
 #. src/web/pages_admin.ml:774
-#: src/web/pages_admin.ml:2378 src/web/pages_admin.ml:2244
 msgid " is:"
 msgstr " é:"
 
@@ -137,8 +138,8 @@ msgstr "(não disponível)"
 msgid "(or "
 msgstr "(ou "
 
-#. src/web/pages_admin.ml:743
 #: src/web/pages_admin.ml:2346 src/web/pages_admin.ml:2346
+#. src/web/pages_admin.ml:743
 msgid "(server)"
 msgstr "(servidor)"
 
@@ -192,8 +193,8 @@ msgstr "Uma chave privada já existia. A chave que você enviou foi ignorada!"
 msgid "Accept"
 msgstr "Aceitar"
 
-#. src/web/site_admin.ml:2445
 #: src/web/site_admin.ml:2565 src/web/site_admin.ml:2475
+#. src/web/site_admin.ml:2445
 msgid "Account creation"
 msgstr "Criação de conta"
 
@@ -201,8 +202,8 @@ msgstr "Criação de conta"
 msgid "Account management"
 msgstr "Gerenciamento da conta"
 
-#. src/web/pages_admin.ml:697
 #: src/web/pages_admin.ml:1232 src/web/pages_admin.ml:861
+#. src/web/pages_admin.ml:697
 msgid "Add"
 msgstr "Adicionar"
 
@@ -382,10 +383,10 @@ msgstr "Não foi possível enviar as senhas. há eleitores demais (máximo é %d
 msgid "Change automatic dates"
 msgstr "Mudar datas automáticas"
 
+#: src/web/site_admin.ml:2585 src/web/site_admin.ml:2520
 #. src/web/site_admin.ml:2487
 #. src/web/pages_admin.ml:2989
 #. src/web/pages_admin.ml:2866
-#: src/web/site_admin.ml:2585 src/web/site_admin.ml:2520
 msgid "Change password"
 msgstr "Mudar a senha"
 
@@ -530,9 +531,9 @@ msgstr "Dados:"
 msgid "Date/Time (UTC)"
 msgstr "Data / hora (UTC)"
 
+#: src/web/pages_admin.ml:2004 src/web/pages_admin.ml:1967
 #. src/web/pages_admin.ml:628
 #. src/web/pages_admin.ml:579
-#: src/web/pages_admin.ml:2004 src/web/pages_admin.ml:1967
 msgid "Dear trustee,"
 msgstr "Cara autoridade certificadora,"
 
@@ -560,8 +561,8 @@ msgstr "Excluir a eleição"
 msgid "Don't forget to save:"
 msgstr "Não se esqueça de salvar:"
 
-#. src/web/pages_admin.ml:793
 #: src/web/pages_admin.ml:2415 src/web/pages_admin.ml:2278
+#. src/web/pages_admin.ml:793
 msgid "Done?"
 msgstr "Concluído?"
 
@@ -598,10 +599,10 @@ msgstr ""
 "Identidades duplicadas não são permitidas e são automaticamente mescladas. "
 "Se dois eleitores tem o mesmo endereço de email, use logins diferentes."
 
+#: src/web/pages_admin.ml:2413 src/web/pages_admin.ml:2349
 #. src/web/pages_admin.ml:905
 #. src/web/pages_admin.ml:791
 #. src/web/pages_admin.ml:730
-#: src/web/pages_admin.ml:2413 src/web/pages_admin.ml:2349
 msgid "E-mail"
 msgstr "E-mail"
 
@@ -621,8 +622,8 @@ msgstr "Editar as questões"
 msgid "Edit voters"
 msgstr "Editar a lista de eleitores"
 
-#. src/web/pages_admin.ml:1759
 #: src/web/pages_admin.ml:1777 src/web/pages_admin.ml:1767
+#. src/web/pages_admin.ml:1759
 msgid "Election "
 msgstr "Eleição "
 
@@ -668,6 +669,7 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Informe sua chave privada:"
 
+#: src/web/site_admin.ml:2254 src/web/site_admin.ml:2224
 #. src/web/site_admin.ml:2211
 #. src/web/site_admin.ml:2106
 #. src/web/site_admin.ml:2104
@@ -692,7 +694,6 @@ msgstr "Informe sua chave privada:"
 #. src/web/site_admin.ml:537
 #. src/web/site_admin.ml:475
 #. src/web/site_admin.ml:362
-#: src/web/site_admin.ml:2254 src/web/site_admin.ml:2224
 msgid "Error"
 msgstr "Erro"
 
@@ -742,8 +743,8 @@ msgstr ""
 "Para eleições reais, a chave deve ser compartilhada entre autoridades "
 "certificadoras independentes."
 
-#. src/web/site_admin.ml:1515
 #: src/web/site_admin.ml:1859 src/web/site_admin.ml:1856
+#. src/web/site_admin.ml:1515
 msgid "Forbidden"
 msgstr "Proibido"
 
@@ -771,9 +772,9 @@ msgstr "Gerar chave privada"
 msgid "Generate your contribution to decryption"
 msgstr "Gerar sua contribuição à descriptografia"
 
+#: src/web/pages_admin.ml:1953 src/web/pages_admin.ml:1306
 #. src/web/pages_admin.ml:1038
 #. src/web/pages_admin.ml:833
-#: src/web/pages_admin.ml:1953 src/web/pages_admin.ml:1306
 msgid "Go back to election draft"
 msgstr "Voltar à preparação da eleição"
 
@@ -785,9 +786,9 @@ msgstr "Aqui estão as instruções:"
 msgid "Here is the link to proceed to tally:"
 msgstr "Aqui está o link para realizar a apuração:"
 
+#: src/web/pages_admin.ml:2352 src/web/pages_admin.ml:2209
 #. src/web/pages_admin.ml:921
 #. src/web/pages_admin.ml:733
-#: src/web/pages_admin.ml:2352 src/web/pages_admin.ml:2209
 msgid "Hide link"
 msgstr "Ocultar o link"
 
@@ -847,12 +848,12 @@ msgstr "Inserir"
 msgid "Instructions"
 msgstr "Instruções"
 
+#: src/web/pages_admin.ml:2735 src/web/pages_admin.ml:2010
 #. src/web/pages_admin.ml:1974
 #. src/web/pages_admin.ml:1651
 #. src/web/pages_admin.ml:1619
 #. src/web/pages_admin.ml:1494
 #. src/web/pages_admin.ml:1376
-#: src/web/pages_admin.ml:2735 src/web/pages_admin.ml:2010
 msgid "Instructions:"
 msgstr "Instruções:"
 
@@ -888,12 +889,12 @@ msgstr "Idiomas"
 msgid "Languages:"
 msgstr "Idiomas:"
 
+#: src/web/pages_admin.ml:2414 src/web/pages_admin.ml:2354
 #. src/web/pages_admin.ml:2211
 #. src/web/pages_admin.ml:961
 #. src/web/pages_admin.ml:923
 #. src/web/pages_admin.ml:792
 #. src/web/pages_admin.ml:735
-#: src/web/pages_admin.ml:2414 src/web/pages_admin.ml:2354
 msgid "Link"
 msgstr "Link"
 
@@ -949,11 +950,11 @@ msgstr "Significado dos estados:"
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr "O número mínimo de opções deve ser menor ou igual ao número máximo!"
 
+#: src/web/pages_admin.ml:1857 src/web/pages_admin.ml:1849
 #. src/web/pages_admin.ml:1824
 #. src/web/pages_admin.ml:1817
 #. src/web/pages_admin.ml:1812
 #. src/web/pages_admin.ml:1793
-#: src/web/pages_admin.ml:1857 src/web/pages_admin.ml:1849
 msgid "Missing"
 msgstr "Faltante"
 
@@ -997,10 +998,10 @@ msgstr "Nome da eleição: "
 msgid "Name?"
 msgstr "Nome?"
 
+#: src/web/pages_admin.ml:2365 src/web/pages_admin.ml:2229
 #. src/web/pages_admin.ml:1872
 #. src/web/pages_admin.ml:1270
 #. src/web/pages_admin.ml:760
-#: src/web/pages_admin.ml:2365 src/web/pages_admin.ml:2229
 msgid "No"
 msgstr "Não"
 
@@ -1034,8 +1035,8 @@ msgstr "Não é aplicável"
 msgid "Not downloaded."
 msgstr "Não foi baixado."
 
-#. src/web/pages_admin.ml:1781
 #: src/web/pages_admin.ml:1799 src/web/pages_admin.ml:1787
+#. src/web/pages_admin.ml:1781
 msgid "Not edited"
 msgstr "Não editado"
 
@@ -1053,9 +1054,9 @@ msgstr ""
 msgid "Note that:"
 msgstr "Lembre que:"
 
+#: src/web/pages_admin.ml:2062 src/web/pages_admin.ml:1743
 #. src/web/pages_admin.ml:1406
 #. src/web/pages_admin.ml:1329
-#: src/web/pages_admin.ml:2062 src/web/pages_admin.ml:1743
 msgid "Note:"
 msgstr "Aviso:"
 
@@ -1314,13 +1315,13 @@ msgstr "Lembre que você deve verificar a presença da sua chave pública."
 msgid "Remember to store you private key securely."
 msgstr "Lembre de armazenar sua chave privada com segurança."
 
+#: src/tool/tool_js_questions.ml:232 src/tool/tool_js_questions.ml:144
 #. src/web/pages_admin.ml:1300
 #. src/web/pages_admin.ml:1241
 #. src/web/pages_admin.ml:963
 #. src/web/pages_admin.ml:872
 #. src/web/pages_admin.ml:794
 #. src/web/pages_admin.ml:707
-#: src/tool/tool_js_questions.ml:232 src/tool/tool_js_questions.ml:144
 msgid "Remove"
 msgstr "Excluir"
 
@@ -1332,11 +1333,11 @@ msgstr "Excluir tudo"
 msgid "Reset threshold"
 msgstr "Resetar o limite"
 
+#: src/tool/tool_js_questions.ml:403 src/web/pages_admin.ml:1166
 #. src/web/pages_admin.ml:402
 #. src/web/pages_admin.ml:374
 #. src/web/pages_admin.ml:345
 #. src/web/pages_admin.ml:313
-#: src/tool/tool_js_questions.ml:403 src/web/pages_admin.ml:1166
 msgid "Save changes"
 msgstr "Salvar as alterações"
 
@@ -1400,6 +1401,7 @@ msgstr "Passo %d/3"
 msgid "Step 0/3"
 msgstr "Passo 0/3"
 
+#: src/web/pages_admin.ml:2983 src/web/pages_admin.ml:2933
 #. src/web/pages_admin.ml:2881
 #. src/web/pages_admin.ml:2859
 #. src/web/pages_admin.ml:2827
@@ -1409,7 +1411,6 @@ msgstr "Passo 0/3"
 #. src/web/pages_admin.ml:1668
 #. src/web/pages_admin.ml:1636
 #. src/web/pages_admin.ml:1419
-#: src/web/pages_admin.ml:2983 src/web/pages_admin.ml:2933
 msgid "Submit"
 msgstr "Enviar"
 
@@ -1437,12 +1438,12 @@ msgstr "Enviar chave pública"
 msgid "Submit your public key using the button below."
 msgstr "Para enviar sua chave pública, use o botão abaixo."
 
+#: src/web/site_admin.ml:2102 src/web/site_admin.ml:1911
 #. src/web/site_admin.ml:1260
 #. src/web/site_admin.ml:1178
 #. src/web/site_admin.ml:755
 #. src/web/site_admin.ml:681
 #. src/web/site_admin.ml:561
-#: src/web/site_admin.ml:2102 src/web/site_admin.ml:1911
 msgid "Success"
 msgstr "Sucesso"
 
@@ -1454,8 +1455,8 @@ msgstr "Eleições apuradas"
 msgid "Thank you again for your help,"
 msgstr "Obrigado, mais uma vez, pela sua ajuda,"
 
-#. src/web/pages_admin.ml:606
 #: src/web/pages_admin.ml:2020 src/web/pages_admin.ml:656
+#. src/web/pages_admin.ml:606
 msgid "Thank you for your help,"
 msgstr "Obrigado pela sua ajuda,"
 
@@ -1483,9 +1484,9 @@ msgstr "A criação falhou."
 msgid "The date must be less than %d days in the future!"
 msgstr "A data deve ser menos de %d dias a frente!"
 
+#: src/web/pages_admin.ml:2035 src/web/pages_admin.ml:1997
 #. src/web/pages_admin.ml:671
 #. src/web/pages_admin.ml:621
-#: src/web/pages_admin.ml:2035 src/web/pages_admin.ml:1997
 msgid "The election administrator"
 msgstr "O administrador da eleição"
 
@@ -1541,14 +1542,14 @@ msgstr ""
 msgid "The given maximum is greater than the number of choices!"
 msgstr "O limite máximo é superior ao número de opções!"
 
+#: src/web/pages_admin.ml:2376 src/web/pages_admin.ml:2242
 #. src/web/pages_admin.ml:938
 #. src/web/pages_admin.ml:772
-#: src/web/pages_admin.ml:2376 src/web/pages_admin.ml:2242
 msgid "The link that must be sent to trustee "
 msgstr ""
 
-#. src/web/pages_admin.ml:1359
 #: src/web/pages_admin.ml:1556 src/web/pages_admin.ml:1473
+#. src/web/pages_admin.ml:1359
 msgid "The link to the election will be:"
 msgstr "O link para a eleição será:"
 
@@ -1680,9 +1681,9 @@ msgstr "Para utilizar este site, você deve aceitar nossa "
 msgid "Too short"
 msgstr "Muito curta"
 
+#: src/web/pages_admin.ml:2412 src/web/pages_admin.ml:2276
 #. src/web/pages_admin.ml:958
 #. src/web/pages_admin.ml:789
-#: src/web/pages_admin.ml:2412 src/web/pages_admin.ml:2276
 msgid "Trustee"
 msgstr "Autoridade certificadora"
 
@@ -1726,8 +1727,8 @@ msgstr "Nome de usuário"
 msgid "Username:"
 msgstr "Nome de usuário:"
 
-#. src/web/pages_admin.ml:527
 #: src/web/pages_admin.ml:1944 src/web/pages_admin.ml:1777
+#. src/web/pages_admin.ml:527
 msgid "Validate creation"
 msgstr "Validar criação"
 
@@ -1755,9 +1756,9 @@ msgstr ""
 msgid "Waiting for the other trustees... Reload the page to check progress."
 msgstr ""
 
+#: src/web/pages_admin.ml:1874 src/web/pages_admin.ml:1863
 #. src/web/pages_admin.ml:1323
 #. src/web/pages_admin.ml:1319
-#: src/web/pages_admin.ml:1874 src/web/pages_admin.ml:1863
 msgid "Warning:"
 msgstr "Atenção:"
 
@@ -1786,10 +1787,10 @@ msgstr "Nós sugerimos duas opções:"
 msgid "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page."
 msgstr ""
 
+#: src/web/pages_admin.ml:2365 src/web/pages_admin.ml:2229
 #. src/web/pages_admin.ml:1878
 #. src/web/pages_admin.ml:1269
 #. src/web/pages_admin.ml:760
-#: src/web/pages_admin.ml:2365 src/web/pages_admin.ml:2229
 msgid "Yes"
 msgstr "Sim"
 
@@ -1836,10 +1837,10 @@ msgstr ""
 msgid "You must select at least one language!"
 msgstr "Você deve selecionar ao menos um idioma!"
 
+#: src/web/pages_admin.ml:1739 src/web/pages_admin.ml:163
 #. src/web/pages_admin.ml:158
 #. src/web/pages_admin.ml:153
 #. src/web/pages_admin.ml:148
-#: src/web/pages_admin.ml:1739 src/web/pages_admin.ml:163
 msgid "You own no such elections!"
 msgstr "Você não é o administrador desta eleição!"
 
@@ -2050,3 +2051,4 @@ msgid "your private key. Make sure you SAVE IT properly otherwise you will not b
 msgstr ""
 "sua chave privada. Assegure-se de SALVÁ-LA propriamente, do contrário você "
 "não poderá participar da apuração e a eleição poderá ser cancelada;"
+
