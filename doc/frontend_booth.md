@@ -50,4 +50,4 @@ We use `i18next` and `react-i18next` libraries for internationalization. To extr
 
 We use HTML tags `<link rel="modulepreload">` to tell the browser to download all necessary Javascript files, instead of downloading in a waterfall way (downloading `app.mjs` then parsing it and then downloading the files it imports, continuing recursively). So if you add a Javascript file to the vote application (for example you create a new component), make sure to add it to the list of preloaded files in `vote.html` and in its `vote_development.html` counterpart. You can use the following command to generate the whole list:
 
-`cd booth; ls -1 components/*.mjs | grep -v ".stories.mjs" | sed -e 's/\(.*\)/<link rel="modulepreload" href="\1">/' > preload.txt`
+`cd booth; ls -1 *.mjs components/*.mjs | grep -v ".stories.mjs" | sed -e 's/\(.*\)/<link rel="modulepreload" href="\1">/' > preload.txt`

@@ -78,6 +78,10 @@ class NormalVoteGenericStepPage(VerifiablePage):
         self.verify_step_title()
 
 
+class ResponsiveFrontendSelectors:
+    current_step_css_selector = ".breadcrumb__step--current"
+
+
 class NormalVoteStep1Page(NormalVoteGenericStepPage):
     expected_step_content = "Step 1/6: Input credential"
 
@@ -301,7 +305,8 @@ class ServerHomePage(VerifiablePage):
 
 
 class NormalVoteStep5Page(NormalVoteGenericStepWithBallotTrackerPage, ClickableLogoPage):
-    expected_step_content = "Step 5/6: Confirm"
+    expected_step_content = "Confirm"
+    current_step_css_selector = ResponsiveFrontendSelectors.current_step_css_selector
 
 
     def verify_page_body(self, expected_ballot_tracker, expected_username):

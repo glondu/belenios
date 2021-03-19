@@ -1,6 +1,7 @@
 {
   "Belenios booth": "Belenios booth",
   "Invalid credential!": "Invalid credential!",
+  "majorityJudgmentGradeIsMandatoryForCandidateX": "Please select a grade for candidate {{candidate}}.",
   "questionConstraintNoBlankAndOther": "You cannot check blank vote and another answer.",
   "questionConstraintNoLessThanMin": "This question does not accept less than {{count}} answer checked.",
   "questionConstraintNoLessThanMin_plural": "This question does not accept less than {{count}} answers checked.",
@@ -16,6 +17,7 @@
   "Blank vote": "Blank vote",
   "Please enter your credential": "Please enter your credential:",
   "Next": "Next",
+  "Please select an option": "Please select an option",
   "Load an election on this server by giving its UUID": "Load an election on this server by giving its UUID:",
   "Load any election by giving its parameters": "Load any election by giving its parameters:",
   "Load from UUID": "Load from UUID",
@@ -23,6 +25,7 @@
   "electionUuid": "Election UUID: {{uuid}}",
   "electionFingerprint": "Election fingerprint: {{fingerprint}}",
   "Election server": "Election server",
+  "majorityJudgmentQuestionDescription": "Please grade each candidate before moving on to next step.",
   "selectXAnswers": "Please select {{count}} answer.",
   "selectXAnswers_plural": "Please select {{count}} answers.",
   "selectBetweenXAndYAnswers": "$t(selectBetweenX, {\"count\": {{min}} }) and {{count}} answer.",

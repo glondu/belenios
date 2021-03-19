@@ -8,8 +8,12 @@
 @import "./components/VoteNavigation.css";
 @import "./components/NiceButton.css";
 @import "./components/NiceInput.css";
-@import "./components/ClassicVoteReview.css";
+@import "./components/LoadingSpinner.css";
+@import "./components/WholeVoteRecap.css";
 @import "./components/ReviewEncryptSection.css";
+@import "./components/MajorityJudgmentVoteBigCandidatesList.css";
+@import "./components/MajorityJudgmentVoteSmallCandidatesList.css";
+@import "./select-css.css";
 
 body {
   background: #E5E4E2;
@@ -32,6 +36,10 @@ h1, h2, h3 {
   body {
     margin: 8px;
   }
+}
+
+input[type=password], input[type=text] {
+  font-size: 16px; /* this prevents Iphone browser from zooming in */
 }
 
 .page {

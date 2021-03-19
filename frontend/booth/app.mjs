@@ -1,11 +1,12 @@
 import i18n_init from "./i18n_init.mjs";
 import PageHeader from "./components/PageHeader.mjs";
 import { VoteBreadcrumb } from "./components/Breadcrumb.mjs";
-import AllQuestionsWithPagination from "./components/AllQuestionsWithPagination.mjs";
+import { AllQuestionsWithPagination } from "./components/AllQuestionsWithPagination.mjs";
 import NoUuidSection from "./components/NoUuidSection.mjs";
 import InputCredentialSection from "./components/InputCredentialSection.mjs";
 import ReviewEncryptSection from "./components/ReviewEncryptSection.mjs";
 import { PageFooter, EmptyPageFooter } from "./components/PageFooter.mjs";
+import { Election } from "./election_utils.mjs";
 
 const relativeServerRootFolder = "../../..";
 
@@ -18,7 +19,7 @@ function getHashParametersFromURL(){
   }, {});
 }
 
-function VotePage({ electionData, electionFingerprint, currentStep, children }){
+function VotePage({ electionObject, electionFingerprint, currentStep, children }){
   return e(
     "div",
     {
@@ -27,8 +28,8 @@ function VotePage({ electionData, electionFingerprint, currentStep, children }){
     e(
       PageHeader,
       {
-        title: electionData.name,
-        subTitle: electionData.description
+        title: electionObject.name,
+        subTitle: electionObject.description
       }
     ),
     e(
@@ -48,7 +49,7 @@ function VotePage({ electionData, electionFingerprint, currentStep, children }){
     e(
       PageFooter,
       {
-        electionUuid: electionData.uuid,
+        electionUuid: electionObject.uuid,
         electionFingerprint: electionFingerprint
       }
     )
@@ -84,15 +85,26 @@ function GenericPage({title=null, subTitle=null, children}){
 function TranslatableVoteApp({uuid=null, t}){
   const [currentStep, setCurrentStep] = React.useState(1); // Current step of the workflow displayed in the Breadcrumb. 1: input credential. 2: answer questions. 3: review and encrypt.
   const [electionData, setElectionData] = React.useState({});
+  const [electionObject, setElectionObject] = React.useState(undefined);
   const [electionFingerprint, setElectionFingerprint] = React.useState("");
   const [credential, setCredential] = React.useState(null);
   const [electionLoadingStatus, setElectionLoadingStatus] = React.useState(0); // 0: not yet loaded. 1: loaded with success. 2: loaded with error.
+  const [electionLoadingErrorMessage, setElectionLoadingErrorMessage] = React.useState(null);
   const [uncryptedBallotBeforeReview, setUncryptedBallotBeforeReview] = React.useState(null);
   const [cryptedBallotBeforeReview, setCryptedBallotBeforeReview] = React.useState(null);
   const [smartBallotTracker, setSmartBallotTracker] = React.useState(null);
 
   const processElectionData = (inputElectionData) => {
     setElectionData(inputElectionData);
+    try {
+      let election = new Election(inputElectionData);
+      setElectionObject(election);
+    }
+    catch (error){
+      setElectionLoadingErrorMessage(error);
+      setElectionLoadingStatus(2);
+      return;
+    }
     setElectionFingerprint(belenios.computeFingerprint(inputElectionData));
     setElectionLoadingStatus(1);
   };
@@ -107,6 +119,7 @@ function TranslatableVoteApp({uuid=null, t}){
       })
       .then(response => {
         if(!response.ok){
+          setElectionLoadingErrorMessage("Error: Could not load this election. Maybe no election exists with this identifier."); // TODO: should we localize this?
           setElectionLoadingStatus(2);
         }
         else {
@@ -115,11 +128,11 @@ function TranslatableVoteApp({uuid=null, t}){
       });
   };
   
-  React.useEffect(() => {
+  React.useMemo(() => {
     if(uuid){
       loadElectionDataFromUuid(uuid);
     }
-  }, []);
+  }, [uuid]);
 
 
   if(!uuid && electionLoadingStatus == 0){
@@ -161,7 +174,7 @@ function TranslatableVoteApp({uuid=null, t}){
   }
   else if(electionLoadingStatus === 0 || electionLoadingStatus === 2){
     const titleMessage = electionLoadingStatus === 0 ? "Loading..." : "Error"; // TODO: should we localize this?
-    const loadingMessage = electionLoadingStatus === 0 ? titleMessage : "Error: Could not load this election. Maybe no election exists with this identifier."; // TODO: should we localize this?
+    const loadingMessage = electionLoadingStatus === 0 ? titleMessage : electionLoadingErrorMessage;
 
     return e(
       GenericPage,
@@ -186,9 +199,9 @@ function TranslatableVoteApp({uuid=null, t}){
       return e(
         VotePage,
         {
-          electionData: electionData,
-          electionFingerprint: electionFingerprint,
-          currentStep: currentStep
+          electionObject,
+          electionFingerprint,
+          currentStep
         },
         e(
           InputCredentialSection,
@@ -211,18 +224,16 @@ function TranslatableVoteApp({uuid=null, t}){
       return e(
         VotePage,
         {
-          electionData: electionData,
-          electionFingerprint: electionFingerprint,
-          currentStep: currentStep
+          electionObject,
+          electionFingerprint,
+          currentStep
         },
         e(
           AllQuestionsWithPagination,
           {
-            electionData: electionData,
-            extractVoterSelectedAnswersFromFields: extractVoterSelectedAnswersFromFields,
-            onVoteSubmit: async function(event, electionData){
-              const voter_selected_answers = extractVoterSelectedAnswersFromFields(electionData);
-              setUncryptedBallotBeforeReview(voter_selected_answers);
+            electionObject,
+            onVoteSubmit: async function(event, voterSelectedAnswersAsUncryptedBallot){
+              setUncryptedBallotBeforeReview(voterSelectedAnswersAsUncryptedBallot);
               setCryptedBallotBeforeReview(null);
               setSmartBallotTracker(null);
               setCurrentStep(3);
@@ -235,10 +246,14 @@ function TranslatableVoteApp({uuid=null, t}){
               const encryptBallotErrorCallback = (error) => {
                 alert("Error: " + error);
               };
-              belenios.encryptBallot(
-                electionData, credential, voter_selected_answers,
-                encryptBallotSuccessCallback, encryptBallotErrorCallback
-              );
+              console.log("Going to start encryption of ballot very soon.");
+              setTimeout(function(){
+                console.log("Starting encryption of ballot...");
+                belenios.encryptBallot(
+                  electionData, credential, voterSelectedAnswersAsUncryptedBallot,
+                  encryptBallotSuccessCallback, encryptBallotErrorCallback
+                );
+              }, 50);
             }
           }
         )
@@ -255,19 +270,19 @@ function TranslatableVoteApp({uuid=null, t}){
       return e(
         VotePage,
         {
-          electionData: electionData,
-          electionFingerprint: electionFingerprint,
-          currentStep: currentStep
+          electionObject,
+          electionFingerprint,
+          currentStep
         },
         e(
           ReviewEncryptSection,
           {
-            electionData: electionData,
+            electionObject,
             uncryptedBallot: uncryptedBallotBeforeReview,
             cryptedBallot: cryptedBallotBeforeReview,
-            smartBallotTracker: smartBallotTracker,
-            onClickPrevious: onClickPrevious,
-            urlToPostEncryptedBallot: urlToPostEncryptedBallot
+            smartBallotTracker,
+            onClickPrevious,
+            urlToPostEncryptedBallot
           }
         )
       );
@@ -302,35 +317,6 @@ function main() {
   const container = document.querySelector("#vote-app");
   container.innerHTML = "Loading...";
   i18n_init(lang, afterI18nInitialized(uuid, lang));
-}
-
-function extractVoterSelectedAnswersFromFields(electionData){
-  const question_x_choice_y_pattern = (question_index, answer_index) => `question_${question_index}__choice_${answer_index}`;
-  let vote_of_voter_per_question = []; // array where each element correspond to voter's vote on question i. if type of question i is checkbox, answer to this question is an array of indexes of answers. if type of question i is radio, answer to this question is an array containing only one index of answer.
-  vote_of_voter_per_question = electionData.questions.map(function(question, question_index){
-    const question_type = question.min === 1 && question.max === 1 ? "radio" : "checkbox";
-    const els = question.answers.map(
-      function(v, index){
-        return document.querySelector("#" + question_x_choice_y_pattern(question_index, index));
-      }
-    );
-    // attribute `checked`` works for questions of type `<input type="checkbox">` as well as `<input type="radio">`
-    let answers_to_question = els.map(el => el.checked).reduce(
-      function(accumulator, value, index){
-        const answer_value = value === true ? 1 : 0;
-        accumulator.push(answer_value);
-        return accumulator;
-      },
-      []
-    );
-    if ("blank" in question && question["blank"] === true){
-      const blank_el = document.querySelector("#" + question_x_choice_y_pattern(question_index, question.answers.length));
-      const blank_value = blank_el.checked ? 1 : 0;
-      answers_to_question = [blank_value, ...answers_to_question];
-    }
-    return answers_to_question;
-  });
-  return vote_of_voter_per_question;
 }
 
 main();

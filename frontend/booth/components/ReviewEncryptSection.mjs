@@ -1,8 +1,9 @@
-import ClassicVoteReview from "./ClassicVoteReview.mjs";
+import WholeVoteRecap from "./WholeVoteRecap.mjs";
 import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.mjs";
+import LoadingSpinner from "./LoadingSpinner.mjs";
 
 function TranslatableReviewEncryptSection({
-  electionData=null, uncryptedBallot=[],
+  electionObject=null, uncryptedBallot=[],
   cryptedBallot=null, smartBallotTracker=null,
   onClickPrevious=null, urlToPostEncryptedBallot="", t
 }){
@@ -10,7 +11,19 @@ function TranslatableReviewEncryptSection({
   const contentWhenBallotIsBeingEncrypted = e(
     "div",
     null,
-    t("pleaseWaitDuringBallotEncryption")
+    e(
+      "div",
+      null,
+      t("pleaseWaitDuringBallotEncryption")
+    ),
+    e(
+      LoadingSpinner,
+      {
+        style: {
+          marginTop: "15px"
+        }
+      }
+    )
   );
   function setBrowserSelectionToSmartBallotTracker(){
     let el = document.getElementById(smartBallotTrackerId);
@@ -167,10 +180,10 @@ function TranslatableReviewEncryptSection({
         t("reviewBallotForQuestions", {count: uncryptedBallot.length})
       ),
       e(
-        ClassicVoteReview,
+        WholeVoteRecap,
         {
-          electionData: electionData,
-          uncryptedBallot: uncryptedBallot
+          electionObject,
+          uncryptedBallot
         }
       ),
       e(

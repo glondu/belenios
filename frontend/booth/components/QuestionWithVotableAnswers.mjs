@@ -1,28 +1,62 @@
 import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesList.mjs"; // FIXME: We have to import TranslatableClassicVoteCandidatesList instead of ClassicVoteCandidatesList, because otherwise Storybook throws a hook error.
+import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.mjs";
+import { QuestionTypeEnum, detectQuestionType } from "../election_utils.mjs";
 
-function TranslatableQuestionWithVotableAnswers({ minimum_answers, maximum_answers, question, answers, blankVoteAllowed, identifierPrefix, visible, t }){
+function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteIsAllowed, identifierPrefix, visible, currentUserVoteForQuestion, currentAlertsTextsForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
   let description;
-  let question_type = "checkbox";
-  if ( minimum_answers === 1 && maximum_answers === 1){
-    question_type = "radio";
+  let rendered_answers;
+  if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
+    description = t("majorityJudgmentQuestionDescription");
+    rendered_answers = e(
+      TranslatableMajorityJudgmentVoteCandidatesList,
+      {
+        identifierPrefix,
+        candidates: answers,
+        blankVoteIsAllowed,
+        availableGrades,
+        currentUserVoteForQuestion,
+        currentCandidatesHavingAlertsForQuestion,
+        dispatchUpdateUserVoteForQuestion,
+        t
+      }
+    );
   }
-  if ( minimum_answers === maximum_answers ){
-    description = t("selectXAnswers", {count: minimum_answers});
-  }
-  else {
-    description = t("selectBetweenXAndYAnswers", {min: minimum_answers, count: maximum_answers});
-  }
-  const rendered_answers = e(
-    TranslatableClassicVoteCandidatesList,
-    {
-      type: question_type,
-      identifierPrefix: identifierPrefix,
-      candidates: answers,
-      blankVoteAllowed: blankVoteAllowed,
-      t: t
+  else if (questionType === QuestionTypeEnum.CLASSIC){
+    let classic_question_subtype = "checkbox";
+    if ( minimumAnswers === 1 && maximumAnswers === 1){
+      classic_question_subtype = "radio";
     }
+    if ( minimumAnswers === maximumAnswers ){
+      description = t("selectXAnswers", {count: minimumAnswers});
+    }
+    else {
+      description = t("selectBetweenXAndYAnswers", {min: minimumAnswers, count: maximumAnswers});
+    }
+    rendered_answers = e(
+      TranslatableClassicVoteCandidatesList,
+      {
+        type: classic_question_subtype,
+        identifierPrefix,
+        candidates: answers,
+        blankVoteIsAllowed,
+        currentUserVoteForQuestion,
+        currentCandidatesHavingAlertsForQuestion,
+        dispatchUpdateUserVoteForQuestion,
+        t
+      }
+    );
+  }
+  const bemBlockName = "question-with-votable-answers";
+  const containerClassNames = visible ? bemBlockName : `${bemBlockName} ${bemBlockName}--hidden`;
+  const alertsElements = currentAlertsTextsForQuestion.reduce(
+    (accumulator, value) => {
+      if (value){
+        accumulator.push(e('p', null, value));
+      }
+      return accumulator;
+    },
+    []
   );
-  const containerClassNames = visible ? "question-with-votable-answers" : "question-with-votable-answers question-with-votable-answers--hidden";
   return e(
     'div',
     {
@@ -31,33 +65,45 @@ function TranslatableQuestionWithVotableAnswers({ minimum_answers, maximum_answe
     e(
       "h3",
       {
-        className: "question-with-votable-answers__question-title"
+        className: `${bemBlockName}__question-title`
       },
       question
     ),
     e(
       "p",
       {
-        className: "question-with-votable-answers__question-description"
+        className: `${bemBlockName}__question-description`
       },
       description
     ),
-    rendered_answers
+    rendered_answers,
+    e(
+      "div",
+      {
+        className: `${bemBlockName}__alerts`
+      },
+      ...alertsElements
+    )
   );
 }
 
 TranslatableQuestionWithVotableAnswers.defaultProps = {
+  "questionType": QuestionTypeEnum.CLASSIC,
   "answers": [
     "Answer 1",
     "Answer 2",
     "Answer 3"
   ],
-  "minimum_answers": 1,
-  "maximum_answers": 2,
-  "blankVoteAllowed": false,
+  "minimumAnswers": 1,
+  "maximumAnswers": 2,
+  "blankVoteIsAllowed": false,
   "question": "Question 1?",
   "identifierPrefix": "question_1_",
-  "visible": true
+  "visible": true,
+  "currentUserVoteForQuestion": [],
+  "currentAlertsTextsForQuestion": [],
+  "currentCandidatesHavingAlertsForQuestion": [],
+  "dispatchUpdateUserVoteForQuestion": () => {}
 };
 
 const QuestionWithVotableAnswers = ReactI18next.withTranslation()(TranslatableQuestionWithVotableAnswers);

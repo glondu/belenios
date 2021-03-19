@@ -184,7 +184,7 @@ class element_exists_and_attribute_contains_expected_text(object):
         if not element:
             return False
         element_content = self.transform_attribute_content(element.get_attribute(self.attribute))
-        if self.expected_text in element_content:
+        if element_content and self.expected_text in element_content:
             return element
         else:
             return False
@@ -207,7 +207,10 @@ class element_exists_and_contains_expected_text(element_exists_and_attribute_con
         super().__init__(locator, 'innerText', expected_text)
 
     def transform_attribute_content(self, content):
-        return content.strip()
+        if content:
+            return content.strip()
+        else:
+            return content
 
 
 class element_exists_and_does_not_contain_expected_text(object):

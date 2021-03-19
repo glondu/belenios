@@ -156,7 +156,6 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
     (head (Eliom_content.Html.F.title (txt title)) [
       meta ~a:[a_name "viewport"; a_content "width=device-width, initial-scale=1"] ();
       script (txt "window.onbeforeunload = function () {};");
-      link ~rel:[`Stylesheet] ~href:(static "site.css") ();
       link ~rel:[`Stylesheet] ~href:(static "responsive_site.css") ();
     ])
     (body [
