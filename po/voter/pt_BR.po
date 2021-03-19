@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-12-03 08:51+0000\n"
-"PO-Revision-Date: 2021-03-01 09:51+0000\n"
+"PO-Revision-Date: 2021-03-07 20:50+0000\n"
 "Last-Translator: Paulo Figueiredo <phsrf@uol.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "belenios/voter/pt_BR/>\n"
@@ -13,11 +12,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.5\n"
+"X-Generator: Weblate 4.5.1\n"
 
 #: src/web/pages_common.ml:272
 msgid " (if you forgot it, for example)."
-msgstr " (se você esqueceu, por exemplo)."
+msgstr " (se você esquecê-la, por exemplo)."
 
 #: src/web/pages_voter.ml:630
 msgid " A confirmation e-mail has been sent to you."
@@ -61,7 +60,7 @@ msgstr " foi recebido, mas não foi registrado ainda. "
 
 #: src/web/pages_voter.ml:704
 msgid " have been tallied."
-msgstr " foram considerados."
+msgstr " foram apurados."
 
 #: src/web/web_common.ml:107
 msgid " hour(s)"
@@ -98,8 +97,8 @@ msgstr "%d cédula(s) inválida(s)"
 #: src/web/pages_voter.ml:353
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
-"%d das seguintes %d autoridades (chaves verificadoras) [chaves públicas] são "
-"necessárias para descriptografar o resultado da eleição:"
+"%d das seguintes %d autoridades certificadoras (chaves verificadoras) ["
+"chaves públicas] são necessárias para descriptografar o resultado da eleição:"
 
 #: src/tool/tool_js_booth.ml:168
 msgid "(nothing)"
@@ -148,11 +147,11 @@ msgstr "Cédulas aceitas"
 
 #: src/web/pages_common.ml:62
 msgid "Administer elections"
-msgstr "Administrador das eleições"
+msgstr "Administrar eleições"
 
 #: src/web/pages_common.ml:64
 msgid "Administer this election"
-msgstr "Administrador desta eleição"
+msgstr "Administrar esta eleição"
 
 #: src/web/pages_voter.ml:200
 msgid "Advanced mode"
@@ -164,8 +163,8 @@ msgstr ""
 "As seguintes autoridades (chaves verificadoras) são necessárias para "
 "descriptografar o resultado:"
 
-#: src/web/pages_voter.ml:780 src/web/pages_voter.ml:597
 #. src/web/pages_voter.ml:498
+#: src/web/pages_voter.ml:780 src/web/pages_voter.ml:597
 msgid "Answer to questions"
 msgstr "Responder às questões"
 
@@ -181,8 +180,8 @@ msgstr "Ao menos uma das respostas é inválida!"
 msgid "Audit data: "
 msgstr "Dados para auditoria: "
 
-#: src/web/pages_voter.ml:784 src/web/pages_voter.ml:601
 #. src/web/pages_voter.ml:502
+#: src/web/pages_voter.ml:784 src/web/pages_voter.ml:601
 msgid "Authenticate"
 msgstr "Autenticar"
 
@@ -210,8 +209,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Urna Belenios"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
+#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 msgid "Blank vote"
 msgstr "Voto em branco"
 
@@ -223,13 +222,13 @@ msgstr "Ao utilizar este site, você aceita nossas "
 msgid "Condorcet-Schulze method"
 msgstr "Método Condorcet-Schulze"
 
-#: src/web/pages_voter.ml:786 src/web/pages_voter.ml:603
 #. src/web/pages_voter.ml:504
+#: src/web/pages_voter.ml:786 src/web/pages_voter.ml:603
 msgid "Confirm"
 msgstr "Confirmação"
 
-#: src/web/pages_voter.ml:1018 src/web/pages_voter.ml:924
 #. src/web/pages_voter.ml:766
+#: src/web/pages_voter.ml:1018 src/web/pages_voter.ml:924
 msgid "Continue"
 msgstr "Continuar"
 
@@ -250,8 +249,8 @@ msgstr ""
 msgid "Dear %s,"
 msgstr "Prezado(a) %s,"
 
-#: src/web/pages_voter.ml:788 src/web/pages_voter.ml:605
 #. src/web/pages_voter.ml:506
+#: src/web/pages_voter.ml:788 src/web/pages_voter.ml:605
 msgid "Done"
 msgstr "Terminado"
 
@@ -265,15 +264,15 @@ msgstr "Identificador da eleição: "
 
 #: src/web/pages_voter.ml:831 src/web/pages_common.ml:96
 msgid "Election server"
-msgstr "Servidor da eleição"
+msgstr "Servidor de eleições"
 
 #: src/web/pages_voter.ml:818
 msgid "Encrypting…"
 msgstr "Criptografando…"
 
-#: src/web/site_voter.ml:339 src/web/site_voter.ml:314 src/web/site_voter.ml:276
 #. src/web/site_voter.ml:271
 #. src/web/site_voter.ml:266
+#: src/web/site_voter.ml:339 src/web/site_voter.ml:314 src/web/site_voter.ml:276
 msgid "Error"
 msgstr "Erro"
 
@@ -285,9 +284,9 @@ msgstr "FALHA!"
 msgid "Get the source code"
 msgstr "Obter o código fonte"
 
-#: src/web/pages_voter.ml:685 src/web/pages_voter.ml:651
 #. src/web/pages_voter.ml:581
 #. src/web/pages_voter.ml:553
+#: src/web/pages_voter.ml:685 src/web/pages_voter.ml:651
 msgid "Go back to election"
 msgstr "Voltar para a eleição"
 
@@ -332,8 +331,8 @@ msgstr ""
 "No contexto do STV, eleitores classificam os candidatos em ordem de "
 "preferência."
 
-#: src/web/pages_voter.ml:778 src/web/pages_voter.ml:595
 #. src/web/pages_voter.ml:496
+#: src/web/pages_voter.ml:778 src/web/pages_voter.ml:595
 msgid "Input credential"
 msgstr "Inserir credencial"
 
@@ -493,7 +492,7 @@ msgstr "Por favor espere enquanto sua cédula está sendo criptografada…"
 
 #: src/web/pages_voter.ml:723
 msgid "Please wait… "
-msgstr "Por favor espere... "
+msgstr "Por favor, espere... "
 
 #: src/web/pages_common.ml:114
 msgid "Powered by "
@@ -509,7 +508,7 @@ msgstr "Política de privacidade"
 
 #: src/web/pages_common.ml:200
 msgid "Proceed"
-msgstr "Prosseguir"
+msgstr "Continuar"
 
 #: src/web/pages_voter.ml:1080
 msgid "Raw events"
@@ -523,8 +522,8 @@ msgstr "Reiniciar"
 msgid "Results will be published on the election page"
 msgstr "Os resultados serão publicados na página da eleição"
 
-#: src/web/pages_voter.ml:782 src/web/pages_voter.ml:599
 #. src/web/pages_voter.ml:500
+#: src/web/pages_voter.ml:782 src/web/pages_voter.ml:599
 msgid "Review and encrypt"
 msgstr "Revisar e criptografar"
 
@@ -542,7 +541,7 @@ msgstr "Selecione entre %d e %d resposta(s)"
 
 #: src/web/pages_common.ml:141
 msgid "Set"
-msgstr "Selecionar"
+msgstr "Confirmar"
 
 #: src/web/pages_voter.ml:896
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
@@ -668,7 +667,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:169
 msgid "This election has been tallied."
-msgstr "Essa eleição já foi contada."
+msgstr "Essa eleição já foi apurada."
 
 #: src/web/pages_voter.ml:279
 msgid "This election is administered by %s."
@@ -723,8 +722,8 @@ msgstr "Peso total dos votos aceitos:"
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "Autoridades embaralharam as cédulas na seguinte ordem:"
 
-#: src/web/pages_voter.ml:1199 src/web/pages_voter.ml:1146
 #. src/web/pages_common.ml:282
+#: src/web/pages_voter.ml:1199 src/web/pages_voter.ml:1146
 msgid "Username:"
 msgstr "Nome de usuário:"
 
@@ -734,7 +733,7 @@ msgstr "O valor deve ser um inteiro entre 0 e 255."
 
 #: src/web/pages_voter.ml:570
 msgid "Warning:"
-msgstr "Aviso:"
+msgstr "Atenção:"
 
 #: src/tool/tool_js_booth.ml:241
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
@@ -833,8 +832,8 @@ msgstr "Sua senha para eleição %s"
 msgid "Your smart ballot tracker is"
 msgstr "Seu número de rastreio da cédula é"
 
-#: src/web/pages_voter.ml:758 src/web/pages_voter.ml:622
 #. src/web/pages_voter.ml:535
+#: src/web/pages_voter.ml:758 src/web/pages_voter.ml:622
 msgid "Your smart ballot tracker is "
 msgstr "Seu número de rastreio da cédula é "
 
@@ -850,8 +849,8 @@ msgstr "Seu voto para eleição %s"
 msgid "Your vote was not recorded!"
 msgstr "Seu voto não foi registrado!"
 
-#: src/web/pages_voter.ml:1243 src/web/pages_voter.ml:614
 #. src/web/pages_voter.ml:518
+#: src/web/pages_voter.ml:1243 src/web/pages_voter.ml:614
 msgid "Your weight is %d."
 msgstr "Seu peso é %d."
 
@@ -883,8 +882,8 @@ msgstr "criar uma conta"
 msgid "has been recorded."
 msgstr "foi registrado."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
+#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
 msgid "here"
 msgstr "aqui"
 
@@ -898,7 +897,7 @@ msgstr "parâmetros"
 
 #: src/web/pages_voter.ml:268
 msgid "personal data policy"
-msgstr "política de dados pessoais"
+msgstr "política de privacidade de dados pessoais"
 
 #: src/web/pages_voter.ml:59
 msgid "public credentials"
@@ -926,7 +925,7 @@ msgstr "A eleição está fechada"
 
 #: src/web/pages_voter.ml:56
 msgid "trustees"
-msgstr "autoridades"
+msgstr "autoridades certificadoras"
 
 #: src/web/pages_common.ml:310
 msgid "try to log in again"
@@ -959,4 +958,3 @@ msgstr "Sua credencial já foi utilizada"
 #: src/web/web_common.ml:87
 msgid "your credential is invalid"
 msgstr "Sua credencial é inválida"
-
