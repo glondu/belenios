@@ -39,7 +39,7 @@ class ElectionQuestion {
       this.title = this.questionData.value.question;
       this.answers = this.questionData.value.answers;
       this.candidates = this.questionData.value.answers;
-      this.availableGrades = this.questionData.extra.mentions;
+      this.availableGrades = this.questionData.extra.grades;
       this.blankVoteIsAllowed = "extra" in this.questionData && "blank" in this.questionData.extra && this.questionData.extra.blank === true;
     }
     else if (this.type == QuestionTypeEnum.CLASSIC){

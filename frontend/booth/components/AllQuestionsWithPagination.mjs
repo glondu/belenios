@@ -312,7 +312,7 @@ function TranslatableAllQuestionsWithPagination(props){
         return e(
           "div",
           null,
-          "Error: Wrong election parameters. Question of type MajorityJudgment does not provide the list of votable mentions."
+          "Error: Wrong election parameters. Question of type MajorityJudgment does not provide the list of votable grades."
         );
       }
     }
