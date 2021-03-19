@@ -345,7 +345,7 @@ let split_identity_opt x =
 let available_languages = [
     "en"; "fr"; "de"; "ro"; "it";
     "nb"; "es"; "uk"; "cs"; "oc";
-    "pt_BR"; "el"; "nl";
+    "pt_BR"; "el"; "nl"; "sk";
   ]
 
 let get_languages xs =
