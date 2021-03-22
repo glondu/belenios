@@ -329,7 +329,9 @@ let election_draft uuid se () =
             txt (s_ "Name of the election:");
             txt " ";
             input ~name:name
-              ~input_type:`Text ~value:se.se_questions.t_name string;
+              ~input_type:`Text ~value:se.se_questions.t_name
+              ~a:[a_placeholder (s_ "Name of the election")]
+              string;
           ];
           div [
             div [
@@ -337,8 +339,10 @@ let election_draft uuid se () =
                 txt " ";
               ];
             div [
-              textarea ~name:description ~a:[a_cols 80]
-                ~value:se.se_questions.t_description ();
+              textarea ~name:description
+                ~a:[a_cols 80; a_placeholder (s_ "Description of the election.")]
+                ~value:se.se_questions.t_description
+                ();
             ];
           ];
           div [
@@ -393,7 +397,9 @@ let election_draft uuid se () =
                 | Some x -> x
                 | None -> default_contact
               in
-              input ~name:contact ~input_type:`Text ~value string;
+              input ~name:contact ~input_type:`Text ~value
+                ~a:[a_placeholder (s_ "Name <user@example.org>")]
+                string;
             ];
           div [
               txt (s_ "This contact will be added to emails sent to the voters.");

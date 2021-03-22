@@ -453,7 +453,7 @@ let is_group_fixed se =
       | None -> false
      )
 
-let default_contact = "Name <user@example.org>"
+let default_contact = ""
 
 let default_questions =
   let open Question_h_t in
@@ -467,8 +467,8 @@ let default_questions =
   in
   [| Question.Homomorphic question |]
 
-let default_name = "Name of the election"
-let default_description = "Description of the election."
+let default_name = ""
+let default_description = ""
 
 let default_creation_date = datetime_of_string "\"2018-11-26 00:00:00.000000\""
 let default_validation_date = datetime_of_string "\"2015-10-01 00:00:00.000000\""
