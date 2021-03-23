@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-03-23 22:29+0000\n"
-"Last-Translator: Alfredo Iafolla <alfredoiafolla@aim.com>\n"
+"PO-Revision-Date: 2021-03-25 00:29+0000\n"
+"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/admin/"
 "it/>\n"
 "Language: it\n"
@@ -40,7 +40,7 @@ msgstr " e salvali in un luogo sicuro."
 
 #: src/web/pages_admin.ml:2968
 msgid " and your e-mail address is: "
-msgstr " e il tuo indirizzo mail è: "
+msgstr " e il tuo indirizzo e-mail è: "
 
 #: src/tool/tool_js_questions.ml:186
 msgid " answers."
@@ -56,7 +56,7 @@ msgstr " è stato calcolato."
 
 #: src/web/pages_admin.ml:2855 src/web/pages_admin.ml:2823
 msgid " in the following box: "
-msgstr " nel seguente box: "
+msgstr " nella casella seguente: "
 
 #: src/web/pages_admin.ml:1127 src/web/pages_admin.ml:1118
 msgid " instead of "
