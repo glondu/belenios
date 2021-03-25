@@ -90,7 +90,8 @@ let createHomomorphicQuestionWidget q =
     let choices = Dom_html.createDiv document in
     choices##.className := Js.string "answer_div";
     let choices_divs = Array.mapi (fun i a ->
-      let div = Dom_html.createDiv document in
+      let container = Dom_html.createDiv document in
+      let div = Dom_html.createLabel document in
       let checkbox = Dom_html.createInput ~_type:(Js.string "checkbox") document in
       if answers.(i) > 0 then checkbox##.checked := Js.bool true;
       checkbox##.style##.cursor := Js.string "pointer";
@@ -101,7 +102,8 @@ let createHomomorphicQuestionWidget q =
         Js._true
       );
       Dom.appendChild div t;
-      div
+      Dom.appendChild container div;
+      container
     ) q_answers
     in
     begin match q.q_blank with
