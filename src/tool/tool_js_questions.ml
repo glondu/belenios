@@ -187,14 +187,16 @@ let createHomomorphicQuestionPropDiv min max blank =
   Dom.appendChild x t;
   Dom.appendChild container x;
   (* is blank allowed? *)
-  let x = Dom_html.createDiv document in
+  let checkboxContainer = Dom_html.createDiv document in
+  let x = Dom_html.createLabel document in
   let h_blank = Dom_html.createInput ~_type:(Js.string "checkbox") document in
   h_blank##.className := Js.string "question_blank";
   h_blank##.checked := Js.(match blank with Some true -> _true | _ -> _false);
   Dom.appendChild x h_blank;
   let t = document##createTextNode (Js.string (s_ "Blank vote is allowed")) in
   Dom.appendChild x t;
-  Dom.appendChild container x;
+  Dom.appendChild checkboxContainer x;
+  Dom.appendChild container checkboxContainer;
   container
 
 let default_props = None, 0, 1
