@@ -30,9 +30,14 @@ open Web_services
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 
-let direct_a uri text =
+let direct_a ?target uri text =
+  let attributes =
+    match target with
+    | Some x -> [a_target x]
+    | None -> []
+  in
   Eliom_content.Html.F.Raw.a
-    ~a:[a_href (uri_of_string (fun () -> uri))]
+    ~a:(a_href (uri_of_string (fun () -> uri)) :: attributes)
     [txt text]
 
 let static x =
@@ -188,7 +193,9 @@ let a_mailto ~dest ~subject ~body contents =
     (Netencoding.Url.encode ~plus:false subject)
     (Netencoding.Url.encode ~plus:false body)
   in
-  direct_a uri contents
+  (* target="_blank" does not work in Firefox,
+     see https://bugzilla.mozilla.org/show_bug.cgi?id=646552 *)
+  direct_a ~target:"_blank" uri contents
 
 let generic_page ~title ?service message () =
   let%lwt l = get_preferred_gettext () in

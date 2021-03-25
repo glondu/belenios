@@ -136,7 +136,7 @@ let admin ~elections () =
        | Some uri ->
           div [
               txt (s_ "If you do not have any account, you may ");
-              direct_a uri (s_ "contact us");
+              direct_a ~target:"_blank" uri (s_ "contact us");
               txt ".";
             ]
      in
