@@ -1208,8 +1208,11 @@ let election_draft_questions uuid se () =
           ];
         div
           [
-            input ~a:[a_id "hybrid_mode"] ~input_type:`Checkbox string;
-            txt (s_ "Tick the box to activate this mode.");
+            label
+              [
+                input ~a:[a_id "hybrid_mode"] ~input_type:`Checkbox string;
+                txt (s_ "Tick the box to activate this mode.");
+              ];
           ];
       ]
   in
