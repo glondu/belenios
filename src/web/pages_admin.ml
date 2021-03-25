@@ -1871,6 +1871,25 @@ let election_draft_confirm uuid se () =
           then ready, ok "OK"
           else false, notok (s_ "Missing")
   in
+  let ready, nh_and_weights =
+    let has_weights =
+      List.exists
+        (fun x ->
+          let _, _, weight = split_identity x.sv_id in
+          weight <> 1
+        ) se.se_voters
+    in
+    let has_nh =
+      Array.exists
+        (function
+         | Question.NonHomomorphic _ -> true
+         | _ -> false
+        ) se.se_questions.t_questions
+    in
+    match has_weights, has_nh with
+    | true, true -> false, notok (s_ "Alternative questions cannot be combined with weights.")
+    | _, _ -> ready, ok "OK"
+  in
   let div_trustee_warning =
     match se.se_threshold_trustees, se.se_public_keys with
     | None, [] ->
@@ -1936,6 +1955,10 @@ let election_draft_confirm uuid se () =
     tr [
       td [txt (s_ "Contact?")];
       td [txt contact];
+    ];
+    tr [
+      td [txt (s_ "Compatibility of weights with questions?")];
+      td [nh_and_weights];
     ];
   ] in
   let status =
