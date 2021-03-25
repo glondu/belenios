@@ -101,7 +101,7 @@ msgstr ""
 "%d das seguintes %d autoridades certificadoras (chaves verificadoras) ["
 "chaves públicas] são necessárias para descriptografar o resultado da eleição:"
 
-#: src/tool/tool_js_booth.ml:168
+#: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
 msgstr "(nada)"
 
@@ -173,7 +173,7 @@ msgstr "Responder às questões"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr "Por conveniência, 0 é sempre interpretado como a nota mais baixa."
 
-#: src/tool/tool_js_booth.ml:257
+#: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
 msgstr "Ao menos uma das respostas é inválida!"
 
@@ -210,7 +210,7 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Urna Belenios"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "Voto em branco"
@@ -315,13 +315,13 @@ msgstr "Eu sou "
 msgid "I cast my vote"
 msgstr "Eu voto"
 
-#: src/tool/tool_js_booth.ml:235
+#: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Se for solicitado a você classificar os candidatos (voto majoritário) então "
 "1 é a melhor classificação, números mais altos são piores."
 
-#: src/tool/tool_js_booth.ml:238
+#: src/tool/tool_js_booth.ml:240
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Se for solicitado a você classificar os candidatos (Condorcet, STV, ...) "
@@ -357,7 +357,7 @@ msgstr "Inserir credencial"
 msgid "Input your credential "
 msgstr "Insira sua credencial "
 
-#: src/tool/tool_js_booth.ml:387
+#: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
 msgstr "Credencial inválida!"
 
@@ -421,11 +421,11 @@ msgstr "Existem muitas variações de STV, nós documentamos nossas escolhas em 
 msgid "More information can be found "
 msgstr "Maiores informações podem ser encontradas "
 
-#: src/tool/tool_js_booth.ml:321
+#: src/tool/tool_js_booth.ml:323
 msgid "Next"
 msgstr "Próximo"
 
-#: src/tool/tool_js_booth.ml:138
+#: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
 msgstr "Nenhuma outra opção é permitida quando se vota em branco"
 
@@ -446,7 +446,7 @@ msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr ""
 "Nota: sua cédula está criptografada e ninguém poderá ver o seu conteúdo."
 
-#: src/tool/tool_js_booth.ml:230
+#: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
 msgstr "Notas:"
 
@@ -478,7 +478,7 @@ msgstr "Entrar com senha"
 msgid "Password:"
 msgstr "Senha:"
 
-#: src/tool/tool_js_booth.ml:376
+#: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Por favor, insira sua credencial:"
 
@@ -519,7 +519,7 @@ msgstr "Por favor, espere... "
 msgid "Powered by "
 msgstr "Distribuído por "
 
-#: src/tool/tool_js_booth.ml:320
+#: src/tool/tool_js_booth.ml:322
 msgid "Previous"
 msgstr "Anterior"
 
@@ -756,7 +756,7 @@ msgstr "Autoridades embaralharam as cédulas na seguinte ordem:"
 msgid "Username:"
 msgstr "Nome de usuário:"
 
-#: src/tool/tool_js_booth.ml:211
+#: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
 msgstr "O valor deve ser um inteiro entre 0 e 255."
 
@@ -764,7 +764,7 @@ msgstr "O valor deve ser um inteiro entre 0 e 255."
 msgid "Warning:"
 msgstr "Atenção:"
 
-#: src/tool/tool_js_booth.ml:241
+#: src/tool/tool_js_booth.ml:243
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Aviso: o sistema aceitará qualquer valor inteiro entre 0 e 255 mas, de "
@@ -814,11 +814,11 @@ msgstr "Você pode verificar sua presença em "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Você pode verificar sua presença na urna, disponível em"
 
-#: src/tool/tool_js_booth.ml:125
+#: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
 msgstr "Você deve selecionar pelo menos %d resposta(s)"
 
-#: src/tool/tool_js_booth.ml:128
+#: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
 msgstr "Você deve selecionar no máximo %d resposta(s)"
 
@@ -911,7 +911,7 @@ msgstr "criar uma conta"
 msgid "has been recorded."
 msgstr "foi registrado."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
+#: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
 msgstr "aqui"

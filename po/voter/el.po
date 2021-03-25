@@ -99,7 +99,7 @@ msgstr "%d άκυρες ψήφοι"
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:168
+#: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
 msgstr "(τίποτα)"
 
@@ -168,7 +168,7 @@ msgstr "Απαντήστε στις ερωτήσεις"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr "Για ευκολία, το 0 θεωρείται πάντα ο χαμηλότερος βαθμός."
 
-#: src/tool/tool_js_booth.ml:257
+#: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
 msgstr "Τουλάχιστον μία από τις απαντήσεις είναι λανθασμένη!"
 
@@ -204,7 +204,7 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Παραβάν ψηφοφορίας Belenios"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "Λευκή ψήφος"
@@ -310,13 +310,13 @@ msgstr "Είμαι "
 msgid "I cast my vote"
 msgstr "Ρίχνω το ψηφοδέλτιό μου"
 
-#: src/tool/tool_js_booth.ml:235
+#: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Εαν ζητηθείτε να βαθμολογήσετε υποψηφίους (κρίση πλειοψηφίας) τότε 1 είναι ο "
 "καλύτερος βαθμός, υψηλότεροι βαθμοί είναι χειρότεροι."
 
-#: src/tool/tool_js_booth.ml:238
+#: src/tool/tool_js_booth.ml:240
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Εαν ζητηθείτε να βαθμολογήσετε υποψηφίους (Condorcet, STV, ...) τότε "
@@ -347,7 +347,7 @@ msgstr "Εισάγετε διαπιστευτήριο"
 msgid "Input your credential "
 msgstr "Εισάγετε το διαπιστευτήριό σας "
 
-#: src/tool/tool_js_booth.ml:387
+#: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
 msgstr "Λανθασμένο διαπιστευτήριο!"
 
@@ -409,11 +409,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr "Περισσότερες πληροφορίες μπορούν να βρεθούν "
 
-#: src/tool/tool_js_booth.ml:321
+#: src/tool/tool_js_booth.ml:323
 msgid "Next"
 msgstr "Επόμενο"
 
-#: src/tool/tool_js_booth.ml:138
+#: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
 msgstr "Δεν επιτρέπονται άλλες επιλογές όταν ψηφίζετε λευκό"
 
@@ -435,7 +435,7 @@ msgstr ""
 "Σημείωση: το ψηφοδέλτίο σας είναι κρυπτογραφημένο και κανείς δεν μπορεί να "
 "δει τα περιεχόμενά του."
 
-#: src/tool/tool_js_booth.ml:230
+#: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
 msgstr "Σημειώσεις:"
 
@@ -467,7 +467,7 @@ msgstr "Είσοδος με κωδικό"
 msgid "Password:"
 msgstr "Κωδικός:"
 
-#: src/tool/tool_js_booth.ml:376
+#: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Παρακαλούμε εισάγετε το διαπιστευτήριό σας:"
 
@@ -503,7 +503,7 @@ msgstr "Παρακαλώ περιμένετε... "
 msgid "Powered by "
 msgstr "Βασισμένο στο "
 
-#: src/tool/tool_js_booth.ml:320
+#: src/tool/tool_js_booth.ml:322
 msgid "Previous"
 msgstr "Προηγούμενο"
 
@@ -725,7 +725,7 @@ msgstr ""
 msgid "Username:"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:211
+#: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
 msgstr ""
 
@@ -733,7 +733,7 @@ msgstr ""
 msgid "Warning:"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:241
+#: src/tool/tool_js_booth.ml:243
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 
@@ -777,11 +777,11 @@ msgstr ""
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:125
+#: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:128
+#: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
 msgstr ""
 
@@ -871,7 +871,7 @@ msgstr ""
 msgid "has been recorded."
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
+#: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
 msgstr ""

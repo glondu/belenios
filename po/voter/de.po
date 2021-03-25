@@ -101,7 +101,7 @@ msgstr ""
 "%d der folgenden %d Mitglieder der Wahlkommission (Beweisschlüssel) ["
 "öffentliche Schlüssel] müssen das Wahlergebnis entschlüsseln:"
 
-#: src/tool/tool_js_booth.ml:168
+#: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
 msgstr "(nichts)"
 
@@ -174,7 +174,7 @@ msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
 "Als Bequemlichkeit wird 0 immer als schlechteste Bewertung interpretiert."
 
-#: src/tool/tool_js_booth.ml:257
+#: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
 msgstr "Mindestens eine Antwort ist ungültig!"
 
@@ -211,7 +211,7 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Belenios Wahlkabine"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "ungültige Stimme"
@@ -317,11 +317,11 @@ msgstr "Ich bin "
 msgid "I cast my vote"
 msgstr "ich schicke meine Stimme ab"
 
-#: src/tool/tool_js_booth.ml:235
+#: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:238
+#: src/tool/tool_js_booth.ml:240
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 
@@ -350,7 +350,7 @@ msgstr "Wählernummer eingeben"
 msgid "Input your credential "
 msgstr "Bitte Wählernummer eingeben "
 
-#: src/tool/tool_js_booth.ml:387
+#: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
 msgstr "Falsche Wählernummer!"
 
@@ -410,11 +410,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:321
+#: src/tool/tool_js_booth.ml:323
 msgid "Next"
 msgstr "Weiter"
 
-#: src/tool/tool_js_booth.ml:138
+#: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
 msgstr "Bei einer ungültigen Stimme sind keine anderen Auswahlmöglichkeiten vorhanden."
 
@@ -434,7 +434,7 @@ msgstr ""
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt sehen."
 
-#: src/tool/tool_js_booth.ml:230
+#: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
 msgstr ""
 
@@ -466,7 +466,7 @@ msgstr "Login mit Passwort"
 msgid "Password:"
 msgstr "Passwort:"
 
-#: src/tool/tool_js_booth.ml:376
+#: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Bitte geben Sie Ihre Wählernummer ein:"
 
@@ -502,7 +502,7 @@ msgstr ""
 msgid "Powered by "
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:320
+#: src/tool/tool_js_booth.ml:322
 msgid "Previous"
 msgstr "Zurück"
 
@@ -728,7 +728,7 @@ msgstr ""
 msgid "Username:"
 msgstr "Benutzername:"
 
-#: src/tool/tool_js_booth.ml:211
+#: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
 msgstr ""
 
@@ -736,7 +736,7 @@ msgstr ""
 msgid "Warning:"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:241
+#: src/tool/tool_js_booth.ml:243
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 
@@ -780,11 +780,11 @@ msgstr "Sie können jederzeit überprüfen, dass Ihre Stimme in der "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der Wahlurne befindet:"
 
-#: src/tool/tool_js_booth.ml:125
+#: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
 msgstr "Sie müssen mindestens %d Antworten auswählen"
 
-#: src/tool/tool_js_booth.ml:128
+#: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
 msgstr "Sie müssen maximal %d Antworten auswählen"
 
@@ -874,7 +874,7 @@ msgstr ""
 msgid "has been recorded."
 msgstr "wurde angenommen."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
+#: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
 msgstr "hier"

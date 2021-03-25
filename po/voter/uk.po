@@ -102,7 +102,7 @@ msgstr ""
 "%d з наступних %d довірених органів (ключів підтвердження) [відкритих ключів]"
 " потрібні для дешифрування результату виборів:"
 
-#: src/tool/tool_js_booth.ml:168
+#: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
 msgstr "(нічого)"
 
@@ -171,7 +171,7 @@ msgstr "Відровісти на запитання"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:257
+#: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
 msgstr "Принаймні одна з відповідей недійсна!"
 
@@ -207,7 +207,7 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Кабінка Беленіос"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "Протестний голос"
@@ -311,13 +311,13 @@ msgstr "Я "
 msgid "I cast my vote"
 msgstr "Я віддаю свій голос"
 
-#: src/tool/tool_js_booth.ml:235
+#: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Якщо вас попросять оцінити кандидатів (при рішенні більшості), тоді 1 — "
 "найкраща оцінка, більші цифри гірші."
 
-#: src/tool/tool_js_booth.ml:238
+#: src/tool/tool_js_booth.ml:240
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Якщо вас просять оцінити кандидатів (метод Кондорсе, система єдиного "
@@ -349,7 +349,7 @@ msgstr "Ввід посвідчення"
 msgid "Input your credential "
 msgstr "Введіть своє посвідчення "
 
-#: src/tool/tool_js_booth.ml:387
+#: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
 msgstr "Недійсне посвідчення!"
 
@@ -411,11 +411,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:321
+#: src/tool/tool_js_booth.ml:323
 msgid "Next"
 msgstr "Далі"
 
-#: src/tool/tool_js_booth.ml:138
+#: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
 msgstr "Інші варіанти не допускаються у протестному голосі"
 
@@ -435,7 +435,7 @@ msgstr "Примітка: Ви вже проголосували. Ваш гол�
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr "Примітка: ваш бюлетень зашифрований і ніхто не може бачити його вміст."
 
-#: src/tool/tool_js_booth.ml:230
+#: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
 msgstr "Примітки:"
 
@@ -467,7 +467,7 @@ msgstr "Вхід з паролем"
 msgid "Password:"
 msgstr "Пароль:"
 
-#: src/tool/tool_js_booth.ml:376
+#: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Будь ласка, введіть своє посвідчення:"
 
@@ -503,7 +503,7 @@ msgstr "Зачекайте, будь ласка… "
 msgid "Powered by "
 msgstr "Працює на "
 
-#: src/tool/tool_js_booth.ml:320
+#: src/tool/tool_js_booth.ml:322
 msgid "Previous"
 msgstr "Попередній"
 
@@ -733,7 +733,7 @@ msgstr ""
 msgid "Username:"
 msgstr "Ім'я користувача:"
 
-#: src/tool/tool_js_booth.ml:211
+#: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
 msgstr "Значення має бути цілим числом від 0 до 255."
 
@@ -741,7 +741,7 @@ msgstr "Значення має бути цілим числом від 0 до 2
 msgid "Warning:"
 msgstr "Увага:"
 
-#: src/tool/tool_js_booth.ml:241
+#: src/tool/tool_js_booth.ml:243
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Увага: система прийматиме будь-яке ціле число від 0 до 255, але, згідно з "
@@ -789,11 +789,11 @@ msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 "Ви можете перевірити його наявність у виборчій скриньці, доступній за адресою"
 
-#: src/tool/tool_js_booth.ml:125
+#: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
 msgstr "Ви повинні вибрати принаймні %d відповідь(-і)"
 
-#: src/tool/tool_js_booth.ml:128
+#: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
 msgstr "Ви повинні вибрати не більше %d відповіді(-ей)"
 
@@ -884,7 +884,7 @@ msgstr "створити обліковий запис"
 msgid "has been recorded."
 msgstr "було записано."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
+#: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
 msgstr "тут"
