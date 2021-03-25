@@ -109,19 +109,25 @@ let login_box ?cont () =
   in
   return (div ~a:[a_style style] body)
 
-let format_election (uuid, name) =
-  li [
-    a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt name] uuid;
-  ]
-
-let format_draft_election (uuid, name) =
-  li [
-    a ~service:election_draft ~a:[a_id ("election_draft_" ^ (raw_string_of_uuid uuid))] [txt name] uuid;
-  ]
-
 let admin ~elections () =
   let%lwt l = get_preferred_gettext () in
   let open (val l) in
+  let format_election (uuid, name) =
+    let name = if name = "" then s_ "(untitled)" else name in
+    li [
+        a ~service:election_admin
+          ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))]
+          [txt name] uuid;
+      ]
+  in
+  let format_draft_election (uuid, name) =
+    let name = if name = "" then s_ "(untitled)" else name in
+    li [
+        a ~service:election_draft
+          ~a:[a_id ("election_draft_" ^ (raw_string_of_uuid uuid))]
+          [txt name] uuid;
+      ]
+  in
   let title = s_ "Election server" ^ " — " ^ s_ "Administration" in
   match elections with
   | None ->
