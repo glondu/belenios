@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Belenios
 open Common
 open Web_common
@@ -33,12 +34,13 @@ open Eliom_registration
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
 let find_election uuid =
-  match%lwt Web_persist.get_raw_election uuid with
+  let* election = Web_persist.get_raw_election uuid in
+  match election with
   | Some raw_election -> return_some (Election.of_string raw_election)
   | _ -> return_none
 
 let election_not_found () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   Pages_common.generic_page ~title:(s_ "Not found") (s_ "This election does not exist. This may happen for elections that have not yet been open or have been deleted.") ()
   >>= Html.send ~code:404
@@ -50,8 +52,10 @@ let () = File.register ~service:source_code
 let redir_preapply s u () = Redirection.send (Redirection (preapply ~service:s u))
 
 let wrap_handler f =
-  try%lwt f () with
-  | e -> Pages_common.generic_page ~title:"Error" (Printexc.to_string e) () >>= Html.send
+  Lwt.catch f
+    (fun e ->
+      Pages_common.generic_page ~title:"Error" (Printexc.to_string e) ()
+      >>= Html.send)
 
 let get_cont_state cont =
   let redir = match cont with
@@ -64,20 +68,20 @@ let get_cont_state cont =
 let () =
   Any.register ~service:set_cookie_disclaimer
     (fun cont () ->
-      let%lwt () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
+      let* () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
       get_cont_state cont ()
     )
 
 let () =
   Any.register ~service:election_nh_ciphertexts
     (fun uuid () ->
-      let%lwt x = Web_persist.get_nh_ciphertexts uuid in
+      let* x = Web_persist.get_nh_ciphertexts uuid in
       String.send (x, "application/json")
     )
 
 let () =
   Any.register ~service:set_language
     (fun (lang, cont) () ->
-      let%lwt () = Eliom_reference.set Web_state.language (Some lang) in
+      let* () = Eliom_reference.set Web_state.language (Some lang) in
       get_cont_state cont ()
     )

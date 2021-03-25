@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Belenios_platform
 open Belenios
 open Platform
@@ -34,7 +35,8 @@ open Web_common
 let ( / ) = Filename.concat
 
 let get_draft_election uuid =
-  match%lwt read_file ~uuid "draft.json" with
+  let* file = read_file ~uuid "draft.json" in
+  match file with
   | Some [x] -> return_some (draft_election_of_string x)
   | _ -> return_none
 
@@ -42,31 +44,37 @@ let set_draft_election uuid se =
   write_file ~uuid "draft.json" [string_of_draft_election se]
 
 let get_election_result uuid =
-  match%lwt read_file ~uuid "result.json" with
+  let* file = read_file ~uuid "result.json" in
+  match file with
   | Some [x] -> return_some (election_result_of_string Yojson.Safe.read_json x)
   | _ -> return_none
 
 let set_election_result_hidden uuid hidden =
   match hidden with
   | None ->
-     (try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "hide_result") with
-      | _ -> return_unit
-     )
+     Lwt.catch
+       (fun () ->
+         Lwt_unix.unlink
+           (!Web_config.spool_dir / raw_string_of_uuid uuid / "hide_result")
+       )
+       (fun _ -> Lwt.return_unit)
   | Some d -> write_file ~uuid "hide_result" [string_of_datetime d]
 
 let get_election_result_hidden uuid =
-  match%lwt read_file ~uuid "hide_result" with
+  let* file = read_file ~uuid "hide_result" in
+  match file with
   | Some [x] ->
      let t = datetime_of_string x in
      if datetime_compare (now ()) t < 0 then
        return_some t
      else
-       let%lwt () = set_election_result_hidden uuid None in
+       let* () = set_election_result_hidden uuid None in
        return_none
   | _ -> return_none
 
 let get_election_dates uuid =
-  match%lwt read_file ~uuid "dates.json" with
+  let* file = read_file ~uuid "dates.json" in
+  match file with
   | Some [x] -> return (election_dates_of_string x)
   | _ -> return {
              e_creation = None;
@@ -84,16 +92,19 @@ let set_election_dates uuid dates =
 let set_election_state uuid s =
   match s with
   | `Archived ->
-     (try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "state.json") with
-      | _ -> return_unit
-     )
+     Lwt.catch
+       (fun () ->
+         Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "state.json")
+       )
+       (fun _ -> return_unit)
   | _ -> write_file ~uuid "state.json" [string_of_election_state s]
 
 let get_election_state uuid =
-  match%lwt read_file ~uuid "state.json" with
+  let* file = read_file ~uuid "state.json" in
+  match file with
   | Some [x] ->
      let state = election_state_of_string x and now = now () in
-     let%lwt dates = get_election_dates uuid in
+     let* dates = get_election_dates uuid in
      let past = function
        | None -> false
        | Some t -> datetime_compare t now < 0
@@ -106,7 +117,7 @@ let get_election_state uuid =
        | `Open when past dates.e_auto_close -> `Closed
        | x -> x
      in
-     let%lwt () =
+     let* () =
        if new_state <> state then set_election_state uuid new_state
        else return_unit
      in
@@ -114,7 +125,8 @@ let get_election_state uuid =
   | _ -> return `Archived
 
 let get_partial_decryptions uuid =
-  match%lwt read_file ~uuid "partial_decryptions.json" with
+  let* file = read_file ~uuid "partial_decryptions.json" in
+  match file with
   | Some [x] -> return @@ partial_decryptions_of_string x
   | _ -> return []
 
@@ -123,7 +135,8 @@ let set_partial_decryptions uuid pds =
     [string_of_partial_decryptions pds]
 
 let get_decryption_tokens uuid =
-  match%lwt read_file ~uuid "decryption_tokens.json" with
+  let* file = read_file ~uuid "decryption_tokens.json" in
+  match file with
   | Some [x] -> return_some (decryption_tokens_of_string x)
   | _ -> return_none
 
@@ -132,7 +145,8 @@ let set_decryption_tokens uuid pds =
     [string_of_decryption_tokens pds]
 
 let get_raw_election uuid =
-  match%lwt read_file ~uuid "election.json" with
+  let* file = read_file ~uuid "election.json" in
+  match file with
   | Some [x] -> return_some x
   | _ -> return_none
 
@@ -149,7 +163,8 @@ let empty_metadata = {
 let return_empty_metadata = return empty_metadata
 
 let get_election_metadata uuid =
-  match%lwt read_file ~uuid "metadata.json" with
+  let* file = read_file ~uuid "metadata.json" in
+  match file with
   | Some [x] -> return (metadata_of_string x)
   | _ -> return_empty_metadata
 
@@ -170,20 +185,23 @@ let get_elections_by_owner user =
         else (
           try
             let uuid = uuid_of_raw_string x in
-            match%lwt get_draft_election uuid with
+            let* election = get_draft_election uuid in
+            match election with
             | None ->
                (
-                 let%lwt metadata = get_election_metadata uuid in
+                 let* metadata = get_election_metadata uuid in
                  match metadata.e_owner with
                  | Some o when o = user ->
                     (
-                      match%lwt get_raw_election uuid with
+                      let* election = get_raw_election uuid in
+                      match election with
                       | None -> return_none
                       | Some election ->
                          let election = Election.of_string election in
-                         let%lwt dates = get_election_dates uuid in
-                         let%lwt kind, date =
-                           match%lwt get_election_state uuid with
+                         let* dates = get_election_dates uuid in
+                         let* kind, date =
+                           let* state = get_election_state uuid in
+                           match state with
                            | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
                               let date = Option.get dates.e_finalization default_validation_date in
                               return (`Validated, date)
@@ -227,7 +245,8 @@ let get_passwords uuid =
      return_some res
 
 let get_private_key uuid =
-  match%lwt read_file ~uuid "private_key.json" with
+  let* file = read_file ~uuid "private_key.json" in
+  match file with
   | Some [x] -> return_some (number_of_string x)
   | _ -> return_none
 
@@ -235,7 +254,8 @@ let get_private_keys uuid =
   read_file ~uuid "private_keys.jsons"
 
 let get_trustees uuid =
-  match%lwt read_file ~uuid "trustees.json" with
+  let* file = read_file ~uuid "trustees.json" in
+  match file with
   | Some [x] -> return x
   | _ ->
      let msg =
@@ -248,12 +268,14 @@ let get_public_keys uuid =
   read_file ~uuid "public_keys.jsons"
 
 let get_threshold uuid =
-  match%lwt read_file ~uuid "threshold.json" with
+  let* file = read_file ~uuid "threshold.json" in
+  match file with
   | Some [x] -> return_some x
   | _ -> return_none
 
 let get_trustees_legacy uuid =
-  match%lwt get_threshold uuid with
+  let* x = get_threshold uuid in
+  match x with
   | Some x ->
      x
      |> threshold_parameters_of_string Yojson.Safe.read_json
@@ -261,7 +283,8 @@ let get_trustees_legacy uuid =
      |> string_of_trustees Yojson.Safe.write_json
      |> return_some
   | None ->
-     match%lwt get_public_keys uuid with
+     let* x = get_public_keys uuid in
+     match x with
      | Some x ->
         x
         |> List.map (web_trustee_public_key_of_string Yojson.Safe.read_json)
@@ -279,11 +302,12 @@ let convert_trustees () =
             return_unit
           else
             let uuid = uuid_of_raw_string x in
-            match%lwt get_trustees_legacy uuid with
+            let* legacy = get_trustees_legacy uuid in
+            match legacy with
             | None -> return_unit
             | Some trustees ->
-               let%lwt () = write_file ~uuid "trustees.json" [trustees] in
-               let%lwt () = cleanup_file (!Web_config.spool_dir / x / "threshold.json") in
+               let* () = write_file ~uuid "trustees.json" [trustees] in
+               let* () = cleanup_file (!Web_config.spool_dir / x / "threshold.json") in
                cleanup_file (!Web_config.spool_dir / x / "public_keys.jsons")
         )
 
@@ -297,7 +321,8 @@ end
 module CredWeightsCache = Ocsigen_cache.Make (CredWeightsCacheTypes)
 
 let raw_get_credential_weights uuid =
-  match%lwt read_file ~uuid "public_creds.txt" with
+  let* file = read_file ~uuid "public_creds.txt" in
+  match file with
   | Some xs ->
      xs
      |> List.map extract_weight
@@ -312,34 +337,40 @@ let credential_weights_cache =
   new CredWeightsCache.cache raw_get_credential_weights ~timer:3600. 10
 
 let get_credential_weight uuid cred =
-  try%lwt
-    let%lwt xs = credential_weights_cache#find uuid in
-    return @@ StringMap.find cred xs
-  with _ ->
-    Lwt.fail
-      (Failure
-         (Printf.sprintf
-            "could not find weight of %s/%s"
-            (raw_string_of_uuid uuid) cred
-         )
-      )
+  Lwt.catch
+    (fun () ->
+      let* xs = credential_weights_cache#find uuid in
+      return @@ StringMap.find cred xs
+    )
+    (fun _ ->
+      Lwt.fail
+        (Failure
+           (Printf.sprintf
+              "could not find weight of %s/%s"
+              (raw_string_of_uuid uuid) cred
+           )
+        )
+    )
 
 let get_ballot_weight ballot =
-  try%lwt
-    let ballot = ballot_of_string Yojson.Safe.read_json ballot in
-    match ballot.signature with
-    | None -> failwith "missing signature"
-    | Some s ->
-       let credential =
-         match s.s_public_key with
-         | `String x -> x
-         | _ -> failwith "unexpected credential"
-       in
-       get_credential_weight ballot.election_uuid credential
-  with e ->
-    Printf.ksprintf failwith
-      "anomaly in get_ballot_weight (%s)"
-       (Printexc.to_string e)
+  Lwt.catch
+    (fun () ->
+      let ballot = ballot_of_string Yojson.Safe.read_json ballot in
+      match ballot.signature with
+      | None -> failwith "missing signature"
+      | Some s ->
+         let credential =
+           match s.s_public_key with
+           | `String x -> x
+           | _ -> failwith "unexpected credential"
+         in
+         get_credential_weight ballot.election_uuid credential
+    )
+    (fun e ->
+      Printf.ksprintf failwith
+        "anomaly in get_ballot_weight (%s)"
+        (Printexc.to_string e)
+    )
 
 module BallotsCacheTypes = struct
   type key = uuid
@@ -349,11 +380,12 @@ end
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
 
 let raw_get_ballots_archived uuid =
-  match%lwt read_file ~uuid "ballots.jsons" with
+  let* file = read_file ~uuid "ballots.jsons" in
+  match file with
   | Some bs ->
      Lwt_list.fold_left_s (fun accu b ->
          let hash = sha256_b64 b in
-         let%lwt weight = get_ballot_weight b in
+         let* weight = get_ballot_weight b in
          return (StringMap.add hash (b, weight) accu)
        ) StringMap.empty bs
   | None -> return StringMap.empty
@@ -362,18 +394,21 @@ let archived_ballots_cache =
   new BallotsCache.cache raw_get_ballots_archived ~timer:3600. 10
 
 let get_ballots_index uuid =
-  let%lwt index = read_file ~uuid "ballots_index.json" in
+  let* index = read_file ~uuid "ballots_index.json" in
   match index with
   | None ->
      let uuid_s = raw_string_of_uuid uuid in
      let dir = !Web_config.spool_dir / uuid_s / "ballots" in
-     (match%lwt Lwt_unix.files_of_directory dir |> Lwt_stream.to_list with
-      | ballots ->
+     Lwt.catch
+       (fun () ->
+         let* ballots = Lwt_unix.files_of_directory dir |> Lwt_stream.to_list in
          let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
          return (List.rev_map (fun h -> unurlize h, 1) ballots)
-      | exception Unix.Unix_error(Unix.ENOENT, "opendir", _) ->
-         return []
-     )
+       )
+       (function
+        | Unix.Unix_error(Unix.ENOENT, "opendir", _) -> return []
+        | e -> Lwt.fail e
+       )
   | Some [index] ->
      let index =
        match Yojson.Safe.from_string index with
@@ -389,120 +424,128 @@ let get_ballots_index uuid =
   | _ -> failwith "anomaly in get_ballots_index (invalid ballots_index.json)"
 
 let get_ballot_hashes uuid =
-  match%lwt get_election_state uuid with
+  let* state = get_election_state uuid in
+  match state with
   | `Archived ->
-     let%lwt ballots = archived_ballots_cache#find uuid in
+     let* ballots = archived_ballots_cache#find uuid in
      StringMap.bindings ballots |> List.map (fun (h, (_, w)) -> h, w) |> return
   | _ -> get_ballots_index uuid
 
 let get_ballot_by_hash uuid hash =
-  match%lwt get_election_state uuid with
+  let* state = get_election_state uuid in
+  match state with
   | `Archived ->
-     let%lwt ballots = archived_ballots_cache#find uuid in
+     let* ballots = archived_ballots_cache#find uuid in
      (match StringMap.find_opt hash ballots with
       | Some (b, _) -> return_some b
       | None -> return_none
      )
   | _ ->
-     let%lwt ballot = read_file ~uuid ("ballots" / urlize hash) in
+     let* ballot = read_file ~uuid ("ballots" / urlize hash) in
      match ballot with
      | Some [x] -> return_some x
      | _ -> return_none
 
 let load_ballots uuid =
   let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
-  if%lwt Lwt_unix.file_exists ballots_dir then (
+  let* b = Lwt_unix.file_exists ballots_dir in
+  if b then (
     let ballots = Lwt_unix.files_of_directory ballots_dir in
-    let%lwt ballots = Lwt_stream.to_list ballots in
+    let* ballots = Lwt_stream.to_list ballots in
     Lwt_list.filter_map_s (fun x ->
-        match%lwt read_file (ballots_dir / x) with
+        let* file = read_file (ballots_dir / x) in
+        match file with
         | Some [x] -> return_some x
         | _ -> return_none
       ) ballots
   ) else return []
 
 let dump_ballots uuid =
-  let%lwt ballots = load_ballots uuid in
-  let%lwt index =
+  let* ballots = load_ballots uuid in
+  let* index =
     Lwt_list.map_s
       (fun b ->
-        let%lwt w = get_ballot_weight b in
+        let* w = get_ballot_weight b in
         return (sha256_b64 b, `Int w)
       ) ballots
   in
   let index = Yojson.Safe.to_string (`Assoc index) in
-  let%lwt () = write_file ~uuid "ballots_index.json" [index] in
+  let* () = write_file ~uuid "ballots_index.json" [index] in
   write_file ~uuid "ballots.jsons" ballots
 
 let add_ballot uuid ballot =
   let hash = sha256_b64 ballot in
   let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
-  let%lwt () = try%lwt Lwt_unix.mkdir ballots_dir 0o755 with _ -> return_unit in
-  let%lwt () = write_file (ballots_dir / urlize hash) [ballot] in
-  let%lwt () = dump_ballots uuid in
+  let* () = Lwt.catch (fun () -> Lwt_unix.mkdir ballots_dir 0o755) (fun _ -> return_unit) in
+  let* () = write_file (ballots_dir / urlize hash) [ballot] in
+  let* () = dump_ballots uuid in
   return hash
 
 let remove_ballot uuid hash =
   let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
-  try%lwt Lwt_unix.unlink (ballots_dir / urlize hash) with _ -> return_unit
+  Lwt.catch (fun () -> Lwt_unix.unlink (ballots_dir / urlize hash)) (fun _ -> return_unit)
 
 let replace_ballot uuid ~hash ~rawballot =
-  let%lwt () = remove_ballot uuid hash in
+  let* () = remove_ballot uuid hash in
   add_ballot uuid rawballot
 
 let compute_encrypted_tally uuid =
-  let%lwt election = get_raw_election uuid in
+  let* election = get_raw_election uuid in
   match election with
   | None -> return_none
   | Some election ->
      let election = Election.of_string election in
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
-     let%lwt ballots = load_ballots uuid in
-     let%lwt ballots =
+     let* ballots = load_ballots uuid in
+     let* ballots =
        Lwt_list.map_s
          (fun raw_ballot ->
            let ballot = ballot_of_string E.G.read raw_ballot in
-           let%lwt weight = get_ballot_weight raw_ballot in
+           let* weight = get_ballot_weight raw_ballot in
            return (weight, ballot)
          ) ballots
      in
      let tally = E.process_ballots (Array.of_list ballots) in
      let tally = string_of_encrypted_tally E.G.write tally in
-     let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
+     let* () = write_file ~uuid (string_of_election_file ESETally) [tally] in
      return_some tally
 
 let get_shuffle_token uuid =
-  match%lwt read_file ~uuid "shuffle_token.json" with
+  let* file = read_file ~uuid "shuffle_token.json" in
+  match file with
   | Some [x] -> return_some (shuffle_token_of_string x)
   | _ -> return_none
 
 let gen_shuffle_token uuid tk_trustee tk_name =
-  let%lwt tk_token = generate_token () in
+  let* tk_token = generate_token () in
   let t = {tk_trustee; tk_token; tk_name} in
-  let%lwt () = write_file ~uuid "shuffle_token.json" [string_of_shuffle_token t] in
+  let* () = write_file ~uuid "shuffle_token.json" [string_of_shuffle_token t] in
   return t
 
 let clear_shuffle_token uuid =
   let f = !Web_config.spool_dir / raw_string_of_uuid uuid / "shuffle_token.json" in
-  try%lwt Lwt_unix.unlink f with _ -> return_unit
+  Lwt.catch (fun () -> Lwt_unix.unlink f) (fun _ -> return_unit)
 
 let get_nh_ciphertexts uuid =
-  match%lwt get_raw_election uuid with
+  let* election = get_raw_election uuid in
+  match election with
   | None -> Lwt.fail (Failure "get_nh_ciphertexts: election not found")
   | Some election ->
      let election = Election.of_string election in
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
-     let%lwt current =
-       match%lwt read_file ~uuid "shuffles.jsons" with
+     let* current =
+       let* file = read_file ~uuid "shuffles.jsons" in
+       match file with
        | None -> return []
        | Some x -> return x
      in
      match List.rev current with
      | [] ->
-        let%lwt tally =
-          match%lwt read_file ~uuid (string_of_election_file ESETally) with
+        let* tally =
+          let* file = read_file ~uuid (string_of_election_file ESETally) in
+          match file with
           | Some [x] -> return (encrypted_tally_of_string E.G.read x)
           | _ -> Lwt.fail (Failure "get_nh_ciphertexts: encrypted tally not found or invalid")
         in
@@ -512,10 +555,12 @@ let get_nh_ciphertexts uuid =
         return (string_of_nh_ciphertexts E.G.write s.shuffle_ciphertexts)
 
 let get_shuffles uuid =
-  match%lwt get_raw_election uuid with
+  let* election = get_raw_election uuid in
+  match election with
   | None -> return_none
   | Some _ ->
-     match%lwt read_file ~uuid "shuffles.jsons" with
+     let* file = read_file ~uuid "shuffles.jsons" in
+     match file with
      | None -> return_none
      | Some x ->
         let rec loop accu = function
@@ -525,7 +570,8 @@ let get_shuffles uuid =
         loop [] x
 
 let get_shuffle_hashes uuid =
-  match%lwt read_file ~uuid "shuffle_hashes.jsons" with
+  let* file = read_file ~uuid "shuffle_hashes.jsons" in
+  match file with
   | None -> return_none
   | Some x ->
      let rec loop accu = function
@@ -535,8 +581,9 @@ let get_shuffle_hashes uuid =
      loop [] x
 
 let add_shuffle_hash uuid sh =
-  let%lwt current =
-    match%lwt get_shuffle_hashes uuid with
+  let* current =
+    let* x = get_shuffle_hashes uuid in
+    match x with
     | None -> return []
     | Some x -> return x
   in
@@ -550,26 +597,28 @@ let add_shuffle_hash uuid sh =
   write_file ~uuid "shuffle_hashes.jsons" (List.map string_of_shuffle_hash new_)
 
 let compute_encrypted_tally_after_shuffling uuid =
-  let%lwt election = get_raw_election uuid in
+  let* election = get_raw_election uuid in
   match election with
   | None -> return_none
   | Some election ->
      let election = Election.of_string election in
      let module W = (val Election.get_group election) in
      let module E = Election.Make (W) (LwtRandom) in
-     match%lwt read_file ~uuid (string_of_election_file ESETally) with
+     let* file = read_file ~uuid (string_of_election_file ESETally) in
+     match file with
      | Some [x] ->
         let tally = encrypted_tally_of_string E.G.read x in
-        let%lwt nh = get_nh_ciphertexts uuid in
+        let* nh = get_nh_ciphertexts uuid in
         let nh = nh_ciphertexts_of_string E.G.read nh in
         let tally = E.merge_nh_ciphertexts nh tally in
         let tally = string_of_encrypted_tally E.G.write tally in
-        let%lwt () = write_file ~uuid (string_of_election_file ESETally) [tally] in
+        let* () = write_file ~uuid (string_of_election_file ESETally) [tally] in
         return_some tally
      | _ -> return_none
 
 let append_to_shuffles uuid shuffle =
-  match%lwt get_raw_election uuid with
+  let* election = get_raw_election uuid in
+  match election with
   | None -> Lwt.fail (Failure "append_to_shuffles: election not found")
   | Some election ->
      let election = Election.of_string election in
@@ -577,17 +626,18 @@ let append_to_shuffles uuid shuffle =
      let module E = Election.Make (W) (LwtRandom) in
      let shuffle = shuffle_of_string E.G.read shuffle in
      Web_election_mutex.with_lock uuid (fun () ->
-         let%lwt last_ciphertext = get_nh_ciphertexts uuid in
+         let* last_ciphertext = get_nh_ciphertexts uuid in
          let last_ciphertext = nh_ciphertexts_of_string E.G.read last_ciphertext in
          if E.check_shuffle last_ciphertext shuffle then (
-           let%lwt current =
-             match%lwt read_file ~uuid "shuffles.jsons" with
+           let* current =
+             let* file = read_file ~uuid "shuffles.jsons" in
+             match file with
              | None -> return []
              | Some x -> return x
            in
            let shuffle_ = string_of_shuffle E.G.write shuffle in
            let new_ = current @ [shuffle_] in
-           let%lwt () = write_file ~uuid "shuffles.jsons" new_ in
+           let* () = write_file ~uuid "shuffles.jsons" new_ in
            return_some (sha256_b64 shuffle_)
          ) else return_none
        )
@@ -600,7 +650,8 @@ end
 module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
 
 let raw_get_extended_records uuid =
-  match%lwt read_file ~uuid "extended_records.jsons" with
+  let* file = read_file ~uuid "extended_records.jsons" in
+  match file with
   | Some xs ->
      let xs = List.map extended_record_of_string xs in
      return (
@@ -622,24 +673,24 @@ let dump_extended_records uuid rs =
         Printf.sprintf "%s %S" (string_of_datetime d) u
       ) rs
   in
-  let%lwt () = write_file ~uuid "extended_records.jsons" extended_records in
+  let* () = write_file ~uuid "extended_records.jsons" extended_records in
   write_file ~uuid (string_of_election_file ESRecords) records
 
 let extended_records_cache =
   new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
 
 let find_extended_record uuid username =
-  let%lwt rs = extended_records_cache#find uuid in
+  let* rs = extended_records_cache#find uuid in
   return (StringMap.find_opt username rs)
 
 let add_extended_record uuid username r =
-  let%lwt rs = extended_records_cache#find uuid in
+  let* rs = extended_records_cache#find uuid in
   let rs = StringMap.add username r rs in
   extended_records_cache#add uuid rs;
   dump_extended_records uuid rs
 
 let has_voted uuid user =
-  let%lwt rs = extended_records_cache#find uuid in
+  let* rs = extended_records_cache#find uuid in
   return @@ StringMap.mem (string_of_user user) rs
 
 module CredMappingsCacheTypes = struct
@@ -650,7 +701,8 @@ end
 module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
 
 let raw_get_credential_mappings uuid =
-  match%lwt read_file ~uuid "credential_mappings.jsons" with
+  let* file = read_file ~uuid "credential_mappings.jsons" in
+  match file with
   | Some xs ->
      let xs = List.map credential_mapping_of_string xs in
      return (
@@ -687,11 +739,11 @@ let init_credential_mapping uuid xs =
   dump_credential_mappings uuid xs
 
 let find_credential_mapping uuid cred =
-  let%lwt xs = credential_mappings_cache#find uuid in
+  let* xs = credential_mappings_cache#find uuid in
   return @@ StringMap.find_opt cred xs
 
 let add_credential_mapping uuid cred mapping =
-  let%lwt xs = credential_mappings_cache#find uuid in
+  let* xs = credential_mappings_cache#find uuid in
   let xs = StringMap.add cred mapping xs in
   credential_mappings_cache#add uuid xs;
   dump_credential_mappings uuid xs
@@ -714,28 +766,31 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
      | None -> return (Error ECastMissingCredential)
      | Some s ->
         let credential = E.G.to_string s.s_public_key in
-        match%lwt find_credential_mapping uuid credential with
+        let* mapping = find_credential_mapping uuid credential in
+        match mapping with
         | None -> return (Error ECastInvalidCredential)
         | Some old_cred ->
-           let%lwt cweight = get_credential_weight uuid credential in
+           let* cweight = get_credential_weight uuid credential in
            if cweight = weight then (
-             let%lwt old_record = find_extended_record uuid user in
+             let* old_record = find_extended_record uuid user in
              match old_cred, old_record with
              | None, None ->
                 (* first vote *)
-                if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
-                  let%lwt hash = add_ballot uuid rawballot in
-                  let%lwt () = add_credential_mapping uuid credential (Some hash) in
-                  let%lwt () = add_extended_record uuid user (date, credential) in
+                let* b = Lwt_preemptive.detach E.check_ballot ballot in
+                if b then (
+                  let* hash = add_ballot uuid rawballot in
+                  let* () = add_credential_mapping uuid credential (Some hash) in
+                  let* () = add_extended_record uuid user (date, credential) in
                   return (Ok (hash, false))
                 ) else return (Error ECastProofCheck)
              | Some hash, Some (_, old_credential) ->
                 (* revote *)
                 if credential = old_credential then (
-                  if%lwt Lwt_preemptive.detach E.check_ballot ballot then (
-                    let%lwt hash = replace_ballot uuid ~hash ~rawballot in
-                    let%lwt () = add_credential_mapping uuid credential (Some hash) in
-                    let%lwt () = add_extended_record uuid user (date, credential) in
+                  let* b = Lwt_preemptive.detach E.check_ballot ballot in
+                  if b then (
+                    let* hash = replace_ballot uuid ~hash ~rawballot in
+                    let* () = add_credential_mapping uuid credential (Some hash) in
+                    let* () = add_extended_record uuid user (date, credential) in
                     return (Ok (hash, true))
                   ) else return (Error ECastProofCheck)
                 ) else return (Error ECastWrongCredential)
@@ -744,7 +799,8 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
            ) else return (Error ECastBadWeight)
 
 let cast_ballot uuid ~rawballot ~user ~weight date =
-  match%lwt get_raw_election uuid with
+  let* election = get_raw_election uuid in
+  match election with
   | None -> Lwt.fail Not_found
   | Some raw_election ->
      let election = Election.of_string raw_election in
@@ -754,18 +810,21 @@ let cast_ballot uuid ~rawballot ~user ~weight date =
        (fun () -> do_cast_ballot (module E) ~rawballot ~user ~weight date)
 
 let get_raw_election_result uuid =
-  match%lwt read_file ~uuid "result.json" with
+  let* file = read_file ~uuid "result.json" in
+  match file with
   | Some [x] -> return_some x
   | _ -> return_none
 
 let compute_audit_cache uuid =
-  match%lwt get_raw_election uuid with
+  let* election = get_raw_election uuid in
+  match election with
   | None ->
      Printf.ksprintf failwith
        "compute_cache: %s does not exist" (raw_string_of_uuid uuid)
   | Some election ->
-     let%lwt voters =
-       match%lwt read_file ~uuid "voters.txt" with
+     let* voters =
+       let* file = read_file ~uuid "voters.txt" in
+       match file with
        | Some x -> return x
        | None -> failwith "voters.txt is missing"
      in
@@ -786,23 +845,27 @@ let compute_audit_cache uuid =
        )
      in
      let cache_voters_hash = sha256_b64 (String.concat "\n" voters ^ "\n") in
-     let%lwt result_or_shuffles =
-       match%lwt get_raw_election_result uuid with
+     let* result_or_shuffles =
+       let* raw_election_result = get_raw_election_result uuid in
+       match raw_election_result with
        | Some r -> return (`Result r)
        | None ->
-          match%lwt get_shuffles uuid with
+          let* shuffles = get_shuffles uuid in
+          match shuffles with
           | None -> return `Nothing
           | Some shuffles ->
-             match%lwt get_shuffle_hashes uuid with
+             let* shuffle_hashes = get_shuffle_hashes uuid in
+             match shuffle_hashes with
              | None -> return `Nothing
              | Some sh ->
                 let sh = List.filter (fun x -> x.sh_hash <> "") sh in
                 let shufflers = List.map (fun x -> x.sh_name) sh in
                 return (`Shuffles (shuffles, Some shufflers))
      in
-     let%lwt trustees = get_trustees uuid in
-     let%lwt credentials =
-       match%lwt read_file ~uuid "public_creds.txt" with
+     let* trustees = get_trustees uuid in
+     let* credentials =
+       let* file = read_file ~uuid "public_creds.txt" in
+       match file with
        | Some x -> return x
        | None -> failwith "public_creds.txt is missing"
      in
@@ -822,8 +885,9 @@ let compute_audit_cache uuid =
        }
 
 let get_audit_cache uuid =
-  let%lwt cache =
-    match%lwt read_file ~uuid "audit_cache.json" with
+  let* cache =
+    let* file = read_file ~uuid "audit_cache.json" in
+    match file with
     | Some [x] ->
        let cache = try Some (audit_cache_of_string x) with _ -> None in
        return cache
@@ -832,10 +896,13 @@ let get_audit_cache uuid =
   match cache with
   | Some x when x.cache_checksums.ec_trustees_threshold <> None -> return x
   | _ ->
-     let%lwt cache = compute_audit_cache uuid in
-     let%lwt () = write_file ~uuid "audit_cache.json" [string_of_audit_cache cache] in
+     let* cache = compute_audit_cache uuid in
+     let* () = write_file ~uuid "audit_cache.json" [string_of_audit_cache cache] in
      return cache
 
 let remove_audit_cache uuid =
-  try%lwt Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "audit_cache.json") with
-  | _ -> return_unit
+  Lwt.catch
+    (fun () ->
+      Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "audit_cache.json")
+    )
+    (fun _ -> return_unit)

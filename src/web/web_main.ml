@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Belenios
 open Serializable_builtin_t
 open Web_serializable_j
@@ -104,7 +105,7 @@ let source_file =
   Lwt_main.run
     (match !source_file with
      | Some f ->
-        let%lwt b = file_exists f in
+        let* b = file_exists f in
         if b then (
           return f
         ) else (
@@ -128,7 +129,7 @@ let default_group =
     (match !default_group_file with
      | None -> failwith "missing <default-group> in configuration"
      | Some x ->
-        let%lwt x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
+        let* x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
         match x with
         | [x] -> return x
         | _ -> failwith "invalid default group file"
@@ -139,7 +140,7 @@ let nh_group =
     (match !nh_group_file with
      | None -> failwith "missing <nh-group> in configuration"
      | Some x ->
-        let%lwt x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
+        let* x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
         match x with
         | [x] -> return x
         | _ -> failwith "invalid NH group file"

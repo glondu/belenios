@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
+
 let default_lang = "en"
 let devel_lang = "en_devel"
 
@@ -85,12 +87,13 @@ let get_lang_gettext component lang =
          | Some l -> Lwt.return l
          | None ->
             let module L = (val build_gettext_input component lang) in
-            if%lwt Lwt_unix.file_exists L.mo_file then (
+            let* b = Lwt_unix.file_exists L.mo_file in
+            if b then (
               let get () =
                 let module L = Belenios_Gettext (L) (GettextTranslate.Map) in
                 (module L : Web_i18n_sig.GETTEXT)
               in
-              let%lwt l = Lwt_preemptive.detach get () in
+              let* l = Lwt_preemptive.detach get () in
               Hashtbl.add langs lang l;
               Lwt.return l
             ) else (
@@ -116,8 +119,9 @@ let get_preferred_language () =
      | Some lang -> lang
 
 let get_preferred_gettext component =
-  let%lwt lang =
-    match%lwt Eliom_reference.get Web_state.language with
+  let* lang =
+    let* x = Eliom_reference.get Web_state.language in
+    match x with
     | None -> Lwt.return (get_preferred_language ())
     | Some lang -> Lwt.return lang
   in

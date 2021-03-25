@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Eliom_service
 open Web_common
 
@@ -60,11 +61,11 @@ let get_cas_validation server ~state ticket =
     let service = preapply ~service:cas_validate (cas_self ~state, ticket) in
     Eliom_uri.make_string_uri ~absolute:true ~service ()
   in
-  let%lwt reply = Ocsigen_http_client.get_url url in
+  let* reply = Ocsigen_http_client.get_url url in
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
-     let%lwt info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
-     let%lwt () = Ocsigen_stream.finalize stream `Success in
+     let* info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
+     let* () = Ocsigen_stream.finalize stream `Success in
      return (parse_cas_validation info)
   | None -> return (`Error `Http)
 
@@ -89,7 +90,8 @@ let cas_handler (state, ticket) () =
     (fun _ a authenticate ->
       match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
       | Some x, Some server ->
-         (match%lwt get_cas_validation server ~state x with
+         let* r = get_cas_validation server ~state x in
+         (match r with
           | `Yes (Some name) -> authenticate name >>= fun x -> return (Ok x)
           | `No -> return (Error ())
           | `Yes None | `Error _ -> fail_http 502

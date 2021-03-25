@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Belenios
 open Serializable_builtin_t
 open Serializable_j
@@ -39,7 +40,7 @@ let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
 let audit_footer election =
   let uuid = election.e_params.e_uuid in
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
@@ -116,11 +117,11 @@ let format_question_result uuid l (i, q) r =
        ]
 
 let election_home election state () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
-  let%lwt dates = Web_persist.get_election_dates uuid in
+  let* dates = Web_persist.get_election_dates uuid in
   let now = now () in
   let state_ =
     match state with
@@ -183,7 +184,7 @@ let election_home election state () =
           ] (uuid, ())
       ]
   in
-  let%lwt footer = audit_footer election in
+  let* footer = audit_footer election in
   let go_to_the_booth =
     let disabled = match state with
       | `Open -> false
@@ -201,18 +202,18 @@ let election_home election state () =
       ];
     ]
   in
-  let%lwt middle =
-    let%lwt result = Web_persist.get_election_result uuid in
-    let%lwt hidden = Web_persist.get_election_result_hidden uuid in
-    let%lwt is_admin =
-      let%lwt metadata = Web_persist.get_election_metadata uuid in
-      let%lwt site_user = Eliom_reference.get Web_state.site_user in
+  let* middle =
+    let* result = Web_persist.get_election_result uuid in
+    let* hidden = Web_persist.get_election_result_hidden uuid in
+    let* is_admin =
+      let* metadata = Web_persist.get_election_metadata uuid in
+      let* site_user = Eliom_reference.get Web_state.site_user in
       return (metadata.e_owner = site_user)
     in
     match result with
     | Some r when hidden = None || is_admin ->
        let result = Shape.to_shape_array r.result in
-       let%lwt hashes = Web_persist.get_ballot_hashes uuid in
+       let* hashes = Web_persist.get_ballot_hashes uuid in
        let nballots = List.length hashes in
        let div_total_weight =
          if r.num_tallied > nballots then (
@@ -258,7 +259,7 @@ let election_home election state () =
            ]
     | None -> return go_to_the_booth
   in
-  let%lwt scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
+  let* scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
   let cookie_disclaimer =
     if scd then
       div
@@ -271,7 +272,7 @@ let election_home election state () =
         ]
     else txt ""
   in
-  let%lwt cache = Web_persist.get_audit_cache uuid in
+  let* cache = Web_persist.get_audit_cache uuid in
   let checksums = cache.cache_checksums in
   let div_admin =
     div [
@@ -406,7 +407,7 @@ let election_home election state () =
     br ();
     div_audit;
   ] in
-  let%lwt lang_box = lang_box (ContSiteElection uuid) in
+  let* lang_box = lang_box (ContSiteElection uuid) in
   base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
 
 let cast_raw election () =
@@ -454,15 +455,15 @@ let cast_raw election () =
     h3 [ txt "Submit by file" ];
     form_upload;
   ] in
-  let%lwt footer = audit_footer election in
+  let* footer = audit_footer election in
   base ~title:params.e_name ~content ~uuid ~footer ()
 
 let cast_confirmation election hash () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
-  let%lwt user = Web_state.get_election_user uuid in
+  let* user = Web_state.get_election_user uuid in
   let name = params.e_name in
   let user_div = match user with
     | Some u ->
@@ -482,11 +483,11 @@ let cast_confirmation election hash () =
         txt (s_ "Please log in to confirm your vote.");
       ]
   in
-  let%lwt div_revote =
+  let* div_revote =
     match user with
     | None -> return @@ txt ""
     | Some u ->
-       let%lwt revote = Web_persist.has_voted uuid u in
+       let* revote = Web_persist.has_voted uuid u in
        if revote then
          return @@ p [b [txt (s_ "Note: You have already voted. Your vote will be replaced.")]]
        else
@@ -506,19 +507,21 @@ let cast_confirmation election hash () =
     txt (s_ "Done");
     hr ();
   ] in
-  let%lwt div_weight =
-    let%lwt audit_cache = Web_persist.get_audit_cache uuid in
+  let* div_weight =
+    let* audit_cache = Web_persist.get_audit_cache uuid in
     match audit_cache.cache_total_weight with
     | Some x when x <> audit_cache.cache_num_voters ->
-       (match%lwt Eliom_reference.get Web_state.ballot with
+       let* ballot = Eliom_reference.get Web_state.ballot in
+       (match ballot with
         | Some ballot ->
-           (match%lwt Web_persist.get_ballot_weight ballot with
-            | weight ->
+           Lwt.catch
+             (fun () ->
+               let* weight = Web_persist.get_ballot_weight ballot in
                return @@ div [
                              txt (Printf.sprintf (f_ "Your weight is %d.") weight);
                            ]
-            | exception _ -> return @@ txt ""
-           )
+             )
+             (function _ -> return @@ txt "")
         | None -> return @@ txt ""
        )
     | _ -> return @@ txt ""
@@ -558,7 +561,7 @@ let cast_confirmation election hash () =
   base ~title:name ~content ~uuid ()
 
 let lost_ballot election () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = election.e_params.e_name in
   let uuid = election.e_params.e_uuid in
@@ -586,7 +589,7 @@ let lost_ballot election () =
   base ~title ~content ~uuid ()
 
 let cast_confirmed election ~result () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -654,11 +657,11 @@ let cast_confirmed election ~result () =
   base ~title:name ~content ~uuid ()
 
 let pretty_ballots election hashes result () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
-  let%lwt audit_cache = Web_persist.get_audit_cache uuid in
+  let* audit_cache = Web_persist.get_audit_cache uuid in
   let show_weights =
     match audit_cache.cache_total_weight with
     | Some x when x <> audit_cache.cache_num_voters -> true
@@ -712,7 +715,7 @@ let pretty_ballots election hashes result () =
   base ~title ~content ~uuid ()
 
 let booth () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let head = head (title (txt (s_ "Belenios Booth"))) [
     link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
@@ -866,7 +869,7 @@ let booth () =
   return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
 
 let schulze q r =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Condorcet-Schulze method" in
   let explicit_winners =
@@ -910,7 +913,7 @@ let schulze q r =
   base ~title ~content ()
 
 let majority_judgment_select uuid question =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Majority Judgment method" in
   let form =
@@ -960,7 +963,7 @@ let majority_judgment_select uuid question =
   base ~title ~content ()
 
 let majority_judgment q r =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Majority Judgment method" in
   let explicit_winners =
@@ -1004,7 +1007,7 @@ let majority_judgment q r =
   base ~title ~content ()
 
 let stv_select uuid question =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Single Transferable Vote method" in
   let form =
@@ -1051,7 +1054,7 @@ let stv_select uuid question =
   base ~title ~content ()
 
 let stv q r =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Single Transferable Vote method" in
   let winners =
@@ -1162,21 +1165,21 @@ open Belenios_platform.Platform
 let generate_password metadata langs title uuid url id show_weight =
   let recipient, login, weight = split_identity id in
   let weight = if show_weight then Some weight else None in
-  let%lwt salt = generate_token () in
-  let%lwt password = generate_token () in
+  let* salt = generate_token () in
+  let* password = generate_token () in
   let hashed = sha256_hex (salt ^ password) in
-  let%lwt bodies = Lwt_list.map_s (fun lang ->
-    let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
+  let* bodies = Lwt_list.map_s (fun lang ->
+    let* l = Web_i18n.get_lang_gettext "voter" lang in
     return (mail_password l title login password weight url metadata)
   ) langs in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
-  let%lwt subject =
-    let%lwt l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
+  let* subject =
+    let* l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
     let open (val l) in
     Printf.kprintf return (f_ "Your password for election %s") title
   in
-  let%lwt () = send_email (MailPassword uuid) ~recipient ~subject ~body in
+  let* () = send_email (MailPassword uuid) ~recipient ~subject ~body in
   return (salt, hashed)
 
 let mail_credential l title cas ~login cred weight url metadata =
@@ -1211,17 +1214,17 @@ let mail_credential l title cas ~login cred weight url metadata =
   contents b
 
 let generate_mail_credential langs title cas ~login cred weight url metadata =
-  let%lwt bodies =
+  let* bodies =
     Lwt_list.map_s
       (fun lang ->
-        let%lwt l = Web_i18n.get_lang_gettext "voter" lang in
+        let* l = Web_i18n.get_lang_gettext "voter" lang in
         return (mail_credential l title cas ~login cred weight url metadata)
       ) langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
-  let%lwt subject =
-    let%lwt l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
+  let* subject =
+    let* l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
     let open (val l) in
     Printf.ksprintf return (f_ "Your credential for election %s") title
   in

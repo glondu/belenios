@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_platform
 open Belenios_tool_js_common
@@ -89,8 +90,8 @@ let fill_interactivity () =
 
 let () =
   Lwt.async (fun () ->
-      let%lwt _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
-      let%lwt () = Tool_js_i18n.auto_init "admin" in
+      let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
+      let* () = Tool_js_i18n.auto_init "admin" in
       fill_interactivity ();
       Lwt.return_unit
     )

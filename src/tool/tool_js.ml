@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_platform
 open Belenios
@@ -302,7 +303,7 @@ let new_uuid () =
   Lwt.async
     (fun () ->
       let open (Common.MakeGenerateToken (LwtJsRandom)) in
-      let%lwt uuid = generate_token () in
+      let* uuid = generate_token () in
       set_textarea "election_uuid" uuid;
       Lwt.return_unit
     )
@@ -317,7 +318,7 @@ let cmds =
 
 let () =
   Lwt.async (fun () ->
-      let%lwt _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
+      let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
       List.iter install_handler cmds;
       Lwt.return_unit
     )

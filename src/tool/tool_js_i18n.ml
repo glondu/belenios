@@ -1,10 +1,11 @@
+open Lwt.Syntax
 open Js_of_ocaml
 
 let translations = ref (Js.Unsafe.obj [||] : Js.Unsafe.any)
 
 let init dir component lang =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let%lwt request = Printf.ksprintf get "%s/locales/%s/%s.json" dir component lang in
+  let* request = Printf.ksprintf get "%s/locales/%s/%s.json" dir component lang in
   if request.code = 200 then
     translations := Js._JSON##parse (Js.string request.content);
   Lwt.return_unit

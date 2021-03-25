@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Belenios_platform
 open Belenios
 open Platform
@@ -54,16 +55,18 @@ let () =
 let () =
   Any.register ~service:election_home
     (fun (uuid, ()) () ->
-       match%lwt find_election uuid with
+      let* election = find_election uuid in
+      match election with
        | None -> election_not_found ()
        | Some w ->
-         let%lwt () = Eliom_reference.unset Web_state.ballot in
-         (match%lwt Eliom_reference.get Web_state.cast_confirmed with
+         let* () = Eliom_reference.unset Web_state.ballot in
+         let* x = Eliom_reference.get Web_state.cast_confirmed in
+         (match x with
           | Some result ->
-             let%lwt () = Eliom_reference.unset Web_state.cast_confirmed in
+             let* () = Eliom_reference.unset Web_state.cast_confirmed in
              Pages_voter.cast_confirmed w ~result () >>= Html.send
           | None ->
-             let%lwt state = Web_persist.get_election_state uuid in
+             let* state = Web_persist.get_election_state uuid in
              Pages_voter.election_home w state () >>= Html.send
          )
     )
@@ -71,20 +74,21 @@ let () =
 let () =
   Any.register ~service:election_vote
     (fun () () ->
-      let%lwt () = Eliom_reference.unset Web_state.ballot in
+      let* () = Eliom_reference.unset Web_state.ballot in
       Pages_voter.booth () >>= Html.send)
 
 let () =
   Any.register ~service:election_cast
     (fun uuid () ->
-      match%lwt find_election uuid with
+      let* election = find_election uuid in
+      match election with
       | Some w -> Pages_voter.cast_raw w () >>= Html.send
       | None -> election_not_found ()
     )
 
 let submit_ballot ballot =
   let ballot = PString.trim ballot in
-  let%lwt () = Eliom_reference.set Web_state.ballot (Some ballot) in
+  let* () = Eliom_reference.set Web_state.ballot (Some ballot) in
   redir_preapply election_submit_ballot_check () ()
 
 let () =
@@ -94,7 +98,7 @@ let () =
 let () =
   Any.register ~service:election_submit_ballot_file
     (fun () ballot ->
-      let%lwt ballot =
+      let* ballot =
         let fname = ballot.Ocsigen_extensions.tmp_filename in
         Lwt_stream.to_string (Lwt_io.chars_of_file fname)
       in
@@ -104,9 +108,10 @@ let () =
 let () =
   Any.register ~service:election_submit_ballot_check
     (fun () () ->
-      match%lwt Eliom_reference.get Web_state.ballot with
+      let* ballot = Eliom_reference.get Web_state.ballot in
+      match ballot with
       | None ->
-         let%lwt l = get_preferred_gettext () in
+         let* l = get_preferred_gettext () in
          let open (val l) in
          Pages_common.generic_page ~title:(s_ "Cookies are blocked") (s_ "Your browser seems to block cookies. Please enable them.") ()
          >>= Html.send
@@ -116,14 +121,16 @@ let () =
             Pages_common.generic_page ~title:"Error" "Ill-formed ballot" () >>= Html.send
          | ballot ->
             let uuid = ballot.election_uuid in
-            match%lwt Web_persist.get_draft_election uuid with
+            let* election = Web_persist.get_draft_election uuid in
+            match election with
             | Some _ -> redir_preapply election_draft uuid ()
             | None -> redir_preapply election_login ((uuid, ()), None) ()
     )
 
 let send_confirmation_email uuid revote user recipient weight hash =
-  let%lwt election =
-    match%lwt find_election uuid with
+  let* election =
+    let* election = find_election uuid in
+    match election with
     | Some election -> return election
     | None ->
        let msg =
@@ -133,7 +140,7 @@ let send_confirmation_email uuid revote user recipient weight hash =
        Lwt.fail (Failure msg)
   in
   let title = election.e_params.e_name in
-  let%lwt metadata = Web_persist.get_election_metadata uuid in
+  let* metadata = Web_persist.get_election_metadata uuid in
   let x = (uuid, ()) in
   let url1 = Eliom_uri.make_string_uri ~absolute:true
     ~service:Web_services.election_pretty_ballots x |> rewrite_prefix
@@ -141,16 +148,16 @@ let send_confirmation_email uuid revote user recipient weight hash =
   let url2 = Eliom_uri.make_string_uri ~absolute:true
     ~service:Web_services.election_home x |> rewrite_prefix
   in
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let subject = Printf.sprintf (f_ "Your vote for election %s") title in
   let body = Pages_voter.mail_confirmation l user title weight hash revote url1 url2 metadata in
   send_email (MailConfirmation uuid) ~recipient ~subject ~body
 
 let cast_ballot uuid ~rawballot ~user =
-  let%lwt voters = read_file ~uuid "voters.txt" in
+  let* voters = read_file ~uuid "voters.txt" in
   let voters = match voters with Some xs -> xs | None -> [] in
-  let%lwt email, login, weight =
+  let* email, login, weight =
     let rec loop = function
       | x :: xs ->
          let email, login, weight = split_identity x in
@@ -167,12 +174,13 @@ let cast_ballot uuid ~rawballot ~user =
   in
   let oweight = if show_weight then Some weight else None in
   let user = string_of_user user in
-  let%lwt state = Web_persist.get_election_state uuid in
+  let* state = Web_persist.get_election_state uuid in
   let voting_open = state = `Open in
-  let%lwt () = if not voting_open then fail ElectionClosed else return_unit in
-  match%lwt Web_persist.cast_ballot uuid ~rawballot ~user ~weight (now ()) with
+  let* () = if not voting_open then fail ElectionClosed else return_unit in
+  let* r = Web_persist.cast_ballot uuid ~rawballot ~user ~weight (now ()) in
+  match r with
   | Ok (hash, revote) ->
-     let%lwt () = send_confirmation_email uuid revote login email oweight hash in
+     let* () = send_confirmation_email uuid revote login email oweight hash in
      return (hash, weight)
   | Error e ->
      let msg = match e with
@@ -181,7 +189,7 @@ let cast_ballot uuid ~rawballot ~user =
        | ECastReusedCredential -> Some "attempted to vote with already used credential"
        | _ -> None
      in
-     let%lwt () = match msg with
+     let* () = match msg with
        | Some msg -> security_log (fun () -> user ^ " " ^ msg)
        | None -> return_unit
      in
@@ -190,9 +198,11 @@ let cast_ballot uuid ~rawballot ~user =
 let () =
   Any.register ~service:election_cast_fallback
     (fun uuid () ->
-      match%lwt find_election uuid with
+      let* election = find_election uuid in
+      match election with
       | Some w ->
-         (match%lwt Eliom_reference.get Web_state.ballot with
+         let* ballot = Eliom_reference.get Web_state.ballot in
+         (match ballot with
           | Some b -> Pages_voter.cast_confirmation w (sha256_b64 b) () >>= Html.send
           | None -> Pages_voter.lost_ballot w () >>= Html.send
          )
@@ -202,34 +212,44 @@ let () =
 let () =
   Any.register ~service:election_cast_confirm
     (fun uuid () ->
-      match%lwt Eliom_reference.get Web_state.ballot with
+      let* ballot = Eliom_reference.get Web_state.ballot in
+      match ballot with
       | None ->
-         (match%lwt find_election uuid with
+         let* election = find_election uuid in
+         (match election with
           | Some w -> Pages_voter.lost_ballot w () >>= Html.send
           | None -> election_not_found ()
          )
       | Some rawballot ->
-         let%lwt () = Eliom_reference.unset Web_state.ballot in
-         match%lwt Web_state.get_election_user uuid with
+         let* () = Eliom_reference.unset Web_state.ballot in
+         let* user = Web_state.get_election_user uuid in
+         match user with
          | None -> forbidden ()
          | Some user ->
-            let%lwt () = Eliom_reference.unset Web_state.election_user in
-            let%lwt result =
-              match%lwt cast_ballot uuid ~rawballot ~user with
-              | hash -> return (Ok hash)
-              | exception BeleniosWebError e -> return (Error e)
+            let* () = Eliom_reference.unset Web_state.election_user in
+            let* result =
+              Lwt.catch
+                (fun () ->
+                  let* hash = cast_ballot uuid ~rawballot ~user in
+                  return (Ok hash)
+                )
+                (function
+                 | BeleniosWebError e -> return (Error e)
+                 | e -> Lwt.fail e
+                )
             in
-            let%lwt () = Eliom_reference.set Web_state.cast_confirmed (Some result) in
+            let* () = Eliom_reference.set Web_state.cast_confirmed (Some result) in
             redir_preapply election_home (uuid, ()) ()
     )
 
 let () =
   Any.register ~service:election_pretty_ballots
     (fun (uuid, ()) () ->
-      match%lwt find_election uuid with
+      let* election = find_election uuid in
+      match election with
       | Some w ->
-         let%lwt ballots = Web_persist.get_ballot_hashes uuid in
-         let%lwt result = Web_persist.get_election_result uuid in
+         let* ballots = Web_persist.get_ballot_hashes uuid in
+         let* result = Web_persist.get_election_result uuid in
          Pages_voter.pretty_ballots w ballots result () >>= Html.send
       | None -> election_not_found ()
     )
@@ -237,7 +257,7 @@ let () =
 let () =
   Any.register ~service:election_pretty_ballot
     (fun ((uuid, ()), hash) () ->
-      let%lwt ballot = Web_persist.get_ballot_by_hash uuid hash in
+      let* ballot = Web_persist.get_ballot_by_hash uuid hash in
       match ballot with
       | None -> fail_http 404
       | Some b ->
@@ -245,9 +265,10 @@ let () =
            (fun x -> return @@ cast_unknown_content_kind x))
 
 let handle_method uuid question f =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
-  match%lwt find_election uuid with
+  let* election = find_election uuid in
+  match election with
   | None -> election_not_found ()
   | Some election ->
      let questions = election.e_params.e_questions in
@@ -256,7 +277,8 @@ let handle_method uuid question f =
        | Question.NonHomomorphic (q, _) ->
           f l q
             (fun continuation ->
-              match%lwt Web_persist.get_election_result uuid with
+              let* result = Web_persist.get_election_result uuid in
+              match result with
               | Some result ->
                  (Shape.to_shape_array result.result).(question)
                  |> Shape.to_shape_array
@@ -350,18 +372,19 @@ let content_type_of_file = function
   | ESCreds | ESRecords | ESVoters -> "text/plain"
 
 let handle_pseudo_file uuid f site_user =
-  let%lwt confidential =
+  let* confidential =
     match f with
     | ESRaw | ESTrustees | ESBallots | ESETally | ESCreds | ESShuffles -> return false
     | ESRecords | ESVoters -> return true
     | ESResult ->
-       match%lwt Web_persist.get_election_result_hidden uuid with
+       let* hidden = Web_persist.get_election_result_hidden uuid in
+       match hidden with
        | None -> return false
        | Some _ -> return true
   in
-  let%lwt () =
+  let* () =
     if confidential then (
-      let%lwt metadata = Web_persist.get_election_metadata uuid in
+      let* metadata = Web_persist.get_election_metadata uuid in
       match site_user with
       | Some u when metadata.e_owner = Some u -> return ()
       | _ -> forbidden ()
@@ -373,5 +396,5 @@ let handle_pseudo_file uuid f site_user =
 let () =
   Any.register ~service:election_dir
     (fun (uuid, f) () ->
-     let%lwt site_user = Eliom_reference.get Web_state.site_user in
+     let* site_user = Eliom_reference.get Web_state.site_user in
      handle_pseudo_file uuid f site_user)

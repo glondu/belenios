@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_platform
@@ -38,7 +39,7 @@ let encryptBallot params cred plaintext () =
   let module E = Election.Make (P) (LwtJsRandom) in
   let module CD = Credential.MakeDerive (G) in
   let sk = CD.derive P.election.e_params.e_uuid cred in
-  let%lwt b = E.create_ballot ~sk plaintext in
+  let* b = E.create_ballot ~sk plaintext in
   let s = string_of_ballot G.write b in
   set_textarea "ballot" s;
   set_content "ballot_tracker" (sha256_b64 s);
@@ -432,10 +433,10 @@ let get_params x =
 
 let load_uuid uuid =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let%lwt raw =
-    let%lwt x = Printf.ksprintf get "elections/%s/election.json" uuid in
+  let* raw =
+    let* x = Printf.ksprintf get "elections/%s/election.json" uuid in
     if x.code = 404 then (
-      let%lwt x = Printf.ksprintf get "draft/preview/%s/election.json" uuid in
+      let* x = Printf.ksprintf get "draft/preview/%s/election.json" uuid in
       Lwt.return x.content
     ) else Lwt.return x.content
   in
@@ -460,25 +461,25 @@ let load_params_handler () =
 
 let () =
   Lwt.async (fun () ->
-      let%lwt _ = Lwt_js_events.onload () in
+      let* _ = Lwt_js_events.onload () in
       let params = get_params (Js.to_string Dom_html.window##.location##.hash) in
       let lang =
         match List.assoc_opt "lang" params with
         | Some x -> x
         | None -> "en"
       in
-      let%lwt () = Tool_js_i18n.init "static" "voter" lang in
+      let* () = Tool_js_i18n.init "static" "voter" lang in
       let () =
         document##getElementById (Js.string "load_uuid") >>== fun e ->
         Lwt_js_events.async (fun () ->
-            let%lwt _ = Lwt_js_events.click e in
+            let* _ = Lwt_js_events.click e in
             load_uuid_handler lang
           )
       in
       let () =
         document##getElementById (Js.string "load_params") >>== fun e ->
         Lwt_js_events.async (fun () ->
-            let%lwt _ = Lwt_js_events.click e in
+            let* _ = Lwt_js_events.click e in
             load_params_handler ()
           )
       in

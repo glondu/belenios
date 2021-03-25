@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Belenios_platform
 open Belenios
 open Serializable_builtin_t
@@ -41,7 +42,7 @@ let admin_background = " background: #FF9999;"
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
 
 let privacy_notice cont =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election server" ^ " — " ^ s_ "Personal data processing notice" in
   let content =
@@ -65,10 +66,10 @@ let privacy_notice cont =
   base ~title ~content ()
 
 let login_box ?cont () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let style = "float: right; text-align: right;" ^ admin_background in
-  let%lwt user = Eliom_reference.get Web_state.site_user in
+  let* user = Eliom_reference.get Web_state.site_user in
   let auth_systems = List.map (fun x -> x.auth_instance) !Web_config.site_auth_config in
   let cont = match cont with
     | None -> ContSiteHome
@@ -110,7 +111,7 @@ let login_box ?cont () =
   return (div ~a:[a_style style] body)
 
 let admin ~elections () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let format_election (uuid, name) =
     let name = if name = "" then s_ "(untitled)" else name in
@@ -146,7 +147,7 @@ let admin ~elections () =
          contact;
        ]
      ] in
-     let%lwt login_box = login_box ~cont:ContSiteAdmin () in
+     let* login_box = login_box ~cont:ContSiteAdmin () in
      base ~title ~login_box ~content ()
   | Some (draft, elections, tallied, archived) ->
     let draft =
@@ -190,12 +191,12 @@ let admin ~elections () =
         archived;
       ];
     ] in
-    let%lwt login_box = login_box () in
-    let%lwt lang_box = lang_box ContSiteAdmin in
+    let* login_box = login_box () in
+    let* lang_box = lang_box ContSiteAdmin in
     base ~lang_box ~title ~login_box ~content ()
 
 let new_election_failure reason () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Create new election" in
   let reason =
@@ -209,11 +210,11 @@ let new_election_failure reason () =
       p [reason];
     ]
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let election_draft_pre () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Prepare a new election" in
   let cred_info = Eliom_service.extern
@@ -271,7 +272,7 @@ let election_draft_pre () =
   let content = [
     form
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let preview_booth l uuid =
@@ -294,7 +295,7 @@ let preview_booth l uuid =
     ]
 
 let election_draft uuid se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Preparation of election %s") se.se_questions.t_name in
   let form_languages =
@@ -581,7 +582,7 @@ let election_draft uuid se () =
     hr ();
     form_destroy;
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let mail_trustee_generation_basic_body l link =
@@ -620,12 +621,12 @@ let mail_trustee_generation_basic_body l link =
   contents b
 
 let mail_trustee_generation_basic langs link =
-  let%lwt l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
   let open (val l) in
   let subject = s_ "Link to generate the decryption key" in
-  let%lwt bodies =
+  let* bodies =
     Lwt_list.map_s (fun lang ->
-        let%lwt l = Web_i18n.get_lang_gettext "admin" lang in
+        let* l = Web_i18n.get_lang_gettext "admin" lang in
         return (mail_trustee_generation_basic_body l link)
       ) langs
   in
@@ -670,12 +671,12 @@ let mail_trustee_generation_threshold_body l link =
   contents b
 
 let mail_trustee_generation_threshold langs link =
-  let%lwt l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
   let open (val l) in
   let subject = s_ "Link to generate the decryption key" in
-  let%lwt bodies =
+  let* bodies =
     Lwt_list.map_s (fun lang ->
-        let%lwt l = Web_i18n.get_lang_gettext "admin" lang in
+        let* l = Web_i18n.get_lang_gettext "admin" lang in
         return (mail_trustee_generation_threshold_body l link)
       ) langs
   in
@@ -686,12 +687,12 @@ let mail_trustee_generation_threshold langs link =
 let rec lwt_list_mapi f i = function
   | [] -> return []
   | x :: xs ->
-     let%lwt y = f i x in
-     let%lwt ys = lwt_list_mapi f (i + 1) xs in
+     let* y = f i x in
+     let* ys = lwt_list_mapi f (i + 1) xs in
      return (y :: ys)
 
 let election_draft_trustees ?token uuid se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Trustees for election %s") se.se_questions.t_name in
   let form_trustees_add =
@@ -720,10 +721,10 @@ let election_draft_trustees ?token uuid se () =
         ]) uuid
   in
   let langs = get_languages se.se_metadata.e_languages in
-  let%lwt trustees = match se.se_public_keys with
+  let* trustees = match se.se_public_keys with
     | [] -> return (txt "")
     | ts ->
-       let%lwt ts =
+       let* ts =
          lwt_list_mapi
            (fun i t ->
              let this_line =
@@ -731,14 +732,14 @@ let election_draft_trustees ?token uuid se () =
                | Some x when x = t.st_token -> true
                | _ -> false
              in
-             let%lwt mail_cell, link_cell =
+             let* mail_cell, link_cell =
                if t.st_token <> "" then (
                  if t.st_public_key = "" then (
                    let uri =
                      rewrite_prefix
                        (Eliom_uri.make_string_uri ~absolute:true ~service:election_draft_trustee (uuid, t.st_token))
                    in
-                   let%lwt subject, body = mail_trustee_generation_basic langs uri in
+                   let* subject, body = mail_trustee_generation_basic langs uri in
                    let mail_cell = a_mailto ~dest:t.st_id ~subject ~body (s_ "E-mail") in
                    let link_cell =
                      if this_line then
@@ -849,11 +850,11 @@ let election_draft_trustees ?token uuid se () =
     import_link;
     back_link;
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let election_draft_threshold_trustees ?token uuid se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Trustees for election %s") se.se_questions.t_name in
   let show_add_remove = se.se_threshold = None in
@@ -885,10 +886,10 @@ let election_draft_threshold_trustees ?token uuid se () =
       ]) uuid
   in
   let langs = get_languages se.se_metadata.e_languages in
-  let%lwt trustees = match se.se_threshold_trustees with
+  let* trustees = match se.se_threshold_trustees with
     | None -> return (txt "")
     | Some ts ->
-       let%lwt ts =
+       let* ts =
          lwt_list_mapi
            (fun i t ->
              let this_line =
@@ -908,12 +909,12 @@ let election_draft_threshold_trustees ?token uuid se () =
                | Some 7 -> "done"
                | _ -> "unknown"
              in
-             let%lwt mail_cell =
+             let* mail_cell =
                let uri = rewrite_prefix
                          @@ Eliom_uri.make_string_uri
                               ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
                in
-               let%lwt subject, body = mail_trustee_generation_threshold langs uri in
+               let* subject, body = mail_trustee_generation_threshold langs uri in
                return (a_mailto ~dest:t.stt_id ~subject ~body (s_ "E-mail"))
              in
              let first_line =
@@ -1054,11 +1055,11 @@ let election_draft_threshold_trustees ?token uuid se () =
     br ();
     back_link;
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let election_draft_credential_authority uuid se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Credentials for election %s") se.se_questions.t_name in
   let public_name_form =
@@ -1107,11 +1108,11 @@ let election_draft_credential_authority uuid se () =
       txt (s_ "Note that this authority will personally have to send each credential to its respective voter.");
     ];
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let election_draft_credentials_done se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Credentials for election %s") se.se_questions.t_name in
   let content =
@@ -1164,7 +1165,7 @@ let script_with_lang ~lang file =
     ]
 
 let election_draft_questions uuid se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Questions for election %s") se.se_questions.t_name in
   let form =
@@ -1231,11 +1232,11 @@ let election_draft_questions uuid se () =
     form;
     preview;
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let election_draft_voters uuid se maxvoters () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Voters for election %s") se.se_questions.t_name in
   let form =
@@ -1359,11 +1360,11 @@ let election_draft_voters uuid se maxvoters () =
     voters;
     div_add;
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let election_draft_credentials token uuid se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf "Credentials for election %s" se.se_questions.t_name in
   let div_link =
@@ -1477,7 +1478,7 @@ let election_draft_credentials token uuid se () =
   base ~title ~content ()
 
 let election_draft_trustee token uuid se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
   let div_link =
@@ -1552,7 +1553,7 @@ let election_draft_trustee token uuid se () =
   base ~title ~content ()
 
 let election_draft_threshold_trustee token uuid se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
   let header =
@@ -1572,7 +1573,7 @@ let election_draft_threshold_trustee token uuid se () =
         ul [li [txt url]];
       ]
   in
-  let%lwt trustee =
+  let* trustee =
     match se.se_threshold_trustees with
     | None -> fail_http 404
     | Some ts ->
@@ -1580,7 +1581,7 @@ let election_draft_threshold_trustee token uuid se () =
        | Some x -> return x
        | None -> fail_http 404
   in
-  let%lwt certs =
+  let* certs =
     match se.se_threshold_trustees with
     | None -> fail_http 404
     | Some ts ->
@@ -1765,11 +1766,11 @@ let election_draft_importer l ~service ~title ~note uuid (elections, tallied, ar
     h2 [txt (s_ "Archived elections")];
     itemize archived;
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let election_draft_import uuid se elections () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Import voters from another election" in
   let note = s_ "Imported voters will have the same password as in the original election, and no new e-mail will be sent." in
@@ -1777,7 +1778,7 @@ let election_draft_import uuid se elections () =
   election_draft_importer l ~service ~title ~note uuid elections
 
 let election_draft_import_trustees uuid se elections () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Import trustees from another election" in
   let note = s_ "Imported trustees will have the same keys as in the original election." in
@@ -1785,7 +1786,7 @@ let election_draft_import_trustees uuid se elections () =
   election_draft_importer l ~service ~title ~note uuid elections
 
 let election_draft_confirm uuid se () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let notok x = span ~a:[a_style "color: red;"] [txt x] in
   let ok x = txt x in
@@ -1838,7 +1839,7 @@ let election_draft_confirm uuid se () =
       ready, ok (if cred_auth_is_server then s_ "Sent" else s_ "Received")
     else false, notok (s_ "Missing")
   in
-  let%lwt private_creds_downloaded =
+  let* private_creds_downloaded =
     file_exists (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.downloaded")
   in
   let private_creds =
@@ -1995,7 +1996,7 @@ let election_draft_confirm uuid se () =
     checklist;
     form_create;
   ] in
-  let%lwt login_box = login_box () in
+  let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
 let mail_trustee_tally_body l link =
@@ -2022,12 +2023,12 @@ let mail_trustee_tally_body l link =
   contents b
 
 let mail_trustee_tally langs link =
-  let%lwt l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
   let open (val l) in
   let subject = s_ "Link to tally the election" in
-  let%lwt bodies =
+  let* bodies =
     Lwt_list.map_s (fun lang ->
-        let%lwt l = Web_i18n.get_lang_gettext "admin" lang in
+        let* l = Web_i18n.get_lang_gettext "admin" lang in
         return (mail_trustee_tally_body l link)
       ) langs
   in
@@ -2060,12 +2061,12 @@ let mail_shuffle_body l link =
   contents b
 
 let mail_shuffle langs link =
-  let%lwt l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
   let open (val l) in
   let subject = s_ "Link to shuffle encrypted ballots" in
-  let%lwt bodies =
+  let* bodies =
     Lwt_list.map_s (fun lang ->
-        let%lwt l = Web_i18n.get_lang_gettext "admin" lang in
+        let* l = Web_i18n.get_lang_gettext "admin" lang in
         return (mail_shuffle_body l link)
       ) langs
   in
@@ -2081,13 +2082,13 @@ type web_shuffler = {
 
 let election_admin ?shuffle_token ?tally_token election metadata state get_tokens_decrypt () =
   let langs = get_languages metadata.e_languages in
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — " ^ s_ "Administration" in
   let auto_form () =
     let open Web_persist in
-    let%lwt dates = get_election_dates uuid in
+    let* dates = get_election_dates uuid in
     let format = function
       | None -> ""
       | Some x -> String.sub (string_of_datetime x) 1 19
@@ -2148,17 +2149,17 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
          txt msg2;
        ]) uuid
   in
-  let%lwt state_div =
+  let* state_div =
     match state with
     | `Open ->
-       let%lwt auto_form = auto_form () in
+       let* auto_form = auto_form () in
        return @@ div [
          state_form true;
          br ();
          auto_form;
        ]
     | `Closed ->
-       let%lwt auto_form = auto_form () in
+       let* auto_form = auto_form () in
        return @@ div [
          state_form false;
          br ();
@@ -2186,8 +2187,9 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                 {ws_trustee; ws_select = None; ws_hash = None}
               ) ts
        in
-       let%lwt () =
-         match%lwt Web_persist.get_shuffle_hashes uuid with
+       let* () =
+         let* x = Web_persist.get_shuffle_hashes uuid in
+         match x with
          | None -> failwith "shuffle fingerprints are missing"
          | Some hashes ->
             List.iter
@@ -2198,15 +2200,16 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
               ) hashes;
             return_unit
        in
-       let%lwt select_disabled =
-         match%lwt Web_persist.get_shuffle_token uuid with
+       let* select_disabled =
+         let* x = Web_persist.get_shuffle_token uuid in
+         match x with
          | None -> return_false
          | Some t ->
             match List.find_opt (fun x -> x.ws_trustee = t.tk_trustee) shufflers with
             | Some y -> y.ws_select <- Some t.tk_token; return_true
             | None -> return_false
        in
-       let%lwt table_contents =
+       let* table_contents =
          Lwt_list.map_s
            (fun x ->
              let skip, hash, done_ =
@@ -2230,7 +2233,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                  | Some y when x.ws_select = Some y -> true
                  | _ -> false
              in
-             let%lwt cell =
+             let* cell =
                match x.ws_select with
                | Some token ->
                   let uri =
@@ -2238,7 +2241,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                       Eliom_uri.make_string_uri
                         ~absolute:true ~service:election_shuffle_link (uuid, token)
                   in
-                  let%lwt subject, body = mail_shuffle langs uri in
+                  let* subject, body = mail_shuffle langs uri in
                   return @@ div
                     [
                       a_mailto ~dest:x.ws_trustee ~subject ~body (s_ "Mail");
@@ -2323,8 +2326,8 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
              ]
          )
     | `EncryptedTally _ ->
-       let%lwt pds = Web_persist.get_partial_decryptions uuid in
-       let%lwt trustees = Web_persist.get_trustees uuid in
+       let* pds = Web_persist.get_partial_decryptions uuid in
+       let* trustees = Web_persist.get_trustees uuid in
        let trustees = trustees_of_string Yojson.Safe.read_json trustees in
        let threshold, npks =
          let rec loop trustees threshold npks =
@@ -2356,13 +2359,13 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
          | Some ts -> loop 1 ts
        in
        let rec seq i j = if i >= j then [] else i :: (seq (i+1) j) in
-       let%lwt trustee_tokens =
+       let* trustee_tokens =
          match threshold with
          | None -> return (List.map string_of_int (seq 1 (npks+1)))
          | Some _ -> get_tokens_decrypt ()
        in
        let trustees = List.combine trustees trustee_tokens in
-       let%lwt trustees =
+       let* trustees =
          Lwt_list.map_s
            (fun ((name, trustee_id), token) ->
              let this_line =
@@ -2379,11 +2382,11 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
                | None -> uri, !Web_config.server_mail
                | Some name -> name, name
              in
-             let%lwt mail, link =
+             let* mail, link =
                if link_content = "server" then (
                  return (txt (s_ "(server)"), txt (s_ "(server)"))
                ) else (
-                 let%lwt subject, body = mail_trustee_tally langs uri in
+                 let* subject, body = mail_trustee_tally langs uri in
                  let mail = a_mailto ~dest ~subject ~body (s_ "E-mail") in
                  let link =
                    if this_line then
@@ -2456,7 +2459,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
          release_form;
        ]
     | `Tallied ->
-       let%lwt hidden = Web_persist.get_election_result_hidden uuid in
+       let* hidden = Web_persist.get_election_result_hidden uuid in
        let form_toggle =
          match hidden with
          | Some _ ->
@@ -2499,8 +2502,8 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
            ] (uuid, ());
        ]
   in
-  let%lwt dates = Web_persist.get_election_dates uuid in
-  let%lwt archive_date = match state with
+  let* dates = Web_persist.get_election_dates uuid in
+  let* archive_date = match state with
     | `Tallied ->
        let t = Option.get dates.e_tally default_tally_date in
        let t = datetime_add t (day days_to_archive) in
@@ -2527,7 +2530,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
       ) uuid;
     ]
   in
-  let%lwt deletion_date = match state with
+  let* deletion_date = match state with
     | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
        let t = Option.get dates.e_finalization default_validation_date in
        return @@ datetime_add t (day days_to_delete)
@@ -2587,11 +2590,11 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
     div_archive;
     div_delete;
   ] in
-  let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
+  let* login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ()
 
 let regenpwd uuid () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let form = post_form ~service:election_regenpwd_post
     (fun user ->
@@ -2607,11 +2610,11 @@ let regenpwd uuid () =
   in
   let content = [ form ] in
   let title = s_ "Regenerate and e-mail password" in
-  let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
+  let* login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ~uuid ()
 
 let pretty_records election records () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — " ^ s_ "Records" in
@@ -2619,7 +2622,7 @@ let pretty_records election records () =
   let records = List.map (fun (date, voter) ->
     tr [td [txt date]; td [txt voter]]
   ) records in
-  let%lwt voters = Web_persist.get_voters uuid in
+  let* voters = Web_persist.get_voters uuid in
   let nvoters =
     match voters with
     | None -> failwith "voter list not found"
@@ -2649,11 +2652,11 @@ let pretty_records election records () =
     summary;
     table;
   ] in
-  let%lwt login_box = login_box ~cont:(ContSiteElection uuid) () in
+  let* login_box = login_box ~cont:(ContSiteElection uuid) () in
   base ~title ~login_box ~content ()
 
 let election_shuffler_skip_confirm uuid trustee =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Skipping trustee %s") trustee in
   let content =
@@ -2677,7 +2680,7 @@ let election_shuffler_skip_confirm uuid trustee =
   base ~title ~content ()
 
 let shuffle election token =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
@@ -2731,19 +2734,20 @@ let shuffle election token =
   base ~title ~content ~uuid ()
 
 let tally_trustees election trustee_id token () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let title =
     params.e_name ^ " — " ^ Printf.sprintf (f_ "Partial decryption #%d") trustee_id
   in
-  let%lwt encrypted_private_key =
-    match%lwt Web_persist.get_private_keys uuid with
+  let* encrypted_private_key =
+    let* x = Web_persist.get_private_keys uuid in
+    match x with
     | None -> return_none
     | Some keys ->
        (* there is one Pedersen trustee *)
-       let%lwt trustees = Web_persist.get_trustees uuid in
+       let* trustees = Web_persist.get_trustees uuid in
        let trustees = trustees_of_string Yojson.Safe.read_json trustees in
        let rec loop i ts =
          match ts with
@@ -2843,7 +2847,7 @@ let format_captcha_error l e =
      div ~a:[a_style "color: red;"] [txt msg]
 
 let signup_captcha ~service error challenge email =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let form =
     post_form ~service:signup_captcha_post
@@ -2872,7 +2876,7 @@ let signup_captcha ~service error challenge email =
   base ~title:(s_ "Create an account") ~content ()
 
 let signup_changepw ~service error challenge email username =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let form =
     post_form ~service:changepw_captcha_post
@@ -2904,7 +2908,7 @@ let signup_changepw ~service error challenge email username =
   base ~title:(s_ "Change password") ~content ()
 
 let signup_login () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let form =
     post_form ~service:signup_login_post
@@ -2925,7 +2929,7 @@ let signup_login () =
   base ~title:(s_ "Account management") ~content ()
 
 let signup address error username =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let error = match error with
     | None -> txt ""
@@ -2977,7 +2981,7 @@ let signup address error username =
   base ~title:(s_ "Create an account") ~content ()
 
 let changepw ~username ~address error =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let error = match error with
     | None -> txt ""
@@ -3027,7 +3031,7 @@ let changepw ~username ~address error =
   base ~title:(s_ "Change password") ~content ()
 
 let compute_fingerprint () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let interactivity =
     div
