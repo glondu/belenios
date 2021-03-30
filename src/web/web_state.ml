@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 
 let scope = Eliom_common.default_session_scope
 
@@ -29,7 +30,8 @@ let site_user = Eliom_reference.eref ~scope None
 let election_user = Eliom_reference.eref ~scope None
 
 let get_election_user uuid =
-  match%lwt Eliom_reference.get election_user with
+  let* user = Eliom_reference.get election_user in
+  match user with
   | Some (u, x) when u = uuid -> return_some x
   | _ -> return_none
 

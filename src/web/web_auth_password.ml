@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Belenios_platform
 open Belenios
 open Serializable_builtin_t
@@ -46,7 +47,7 @@ let check_password_with_file db name_or_email password =
       | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email -> true
       | _ -> false
   in
-  let%lwt db = Lwt_preemptive.detach Csv.load db in
+  let* db = Lwt_preemptive.detach Csv.load db in
   match List.find_opt check_name_or_email db with
   | Some (u :: salt :: hashed :: _) ->
      if sha256_hex (salt ^ String.trim password) = hashed then
@@ -70,7 +71,7 @@ let run_post_login_handler =
 let password_handler () (state, (name, password)) =
   run_post_login_handler ~state
     (fun uuid a authenticate ->
-      let%lwt ok =
+      let* ok =
         match uuid with
         | None ->
            begin
@@ -103,8 +104,8 @@ let password_db_mutex = Lwt_mutex.create ()
 let do_add_account ~db_fname ~username ~password ~email () =
   let username_ = String.lowercase_ascii username in
   let email_ = String.lowercase_ascii email in
-  let%lwt db = Lwt_preemptive.detach Csv.load db_fname in
-  let%lwt salt = generate_token ~length:8 () in
+  let* db = Lwt_preemptive.detach Csv.load db_fname in
+  let* salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let rec append accu = function
     | [] -> Ok (List.rev ([username; salt; hashed; email] :: accu))
@@ -116,13 +117,13 @@ let do_add_account ~db_fname ~username ~password ~email () =
   | Error _ as x -> Lwt.return x
   | Ok db ->
      let db = List.map (String.concat ",") db in
-     let%lwt () = write_file db_fname db in
+     let* () = write_file db_fname db in
      Lwt.return (Ok ())
 
 let do_change_password ~db_fname ~username ~password () =
   let username = String.lowercase_ascii username in
-  let%lwt db = Lwt_preemptive.detach Csv.load db_fname in
-  let%lwt salt = generate_token ~length:8 () in
+  let* db = Lwt_preemptive.detach Csv.load db_fname in
+  let* salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let rec change accu = function
     | [] -> accu
@@ -131,7 +132,7 @@ let do_change_password ~db_fname ~username ~password () =
     | x :: xs -> change (x :: accu) xs
   in
   let db = List.rev_map (String.concat ",") (change [] db) in
-  let%lwt () = write_file db_fname db in
+  let* () = write_file db_fname db in
   return_unit
 
 let username_rex = "^[A-Z0-9._%+-]+$"
@@ -146,7 +147,8 @@ let is_username =
 let add_account user ~password ~email =
   if String.trim password = password then (
     if is_username user.user_name then
-      match%lwt Web_signup.cracklib_check password with
+      let* c = Web_signup.cracklib_check password in
+      match c with
       | Some e -> return (Error (BadPassword e))
       | None ->
          match get_password_db_fname user.user_domain with
@@ -159,13 +161,14 @@ let add_account user ~password ~email =
 
 let change_password user ~password =
   if String.trim password = password then (
-    match%lwt Web_signup.cracklib_check password with
+    let* c = Web_signup.cracklib_check password in
+    match c with
     | Some e -> return (Error (BadPassword e))
     | None ->
        match get_password_db_fname user.user_domain with
        | None -> forbidden ()
        | Some db_fname ->
-          let%lwt () =
+          let* () =
             Lwt_mutex.with_lock password_db_mutex
               (do_change_password ~db_fname ~username:user.user_name ~password)
           in return (Ok ())
@@ -177,7 +180,7 @@ let lookup_account ~service ~username ~email =
   match get_password_db_fname service with
   | None -> return_none
   | Some db ->
-     let%lwt db = Lwt_preemptive.detach Csv.load db in
+     let* db = Lwt_preemptive.detach Csv.load db in
      match
        List.find_opt (function
            | u :: _ :: _ :: _ when String.lowercase_ascii u = username -> true

@@ -101,7 +101,7 @@ msgstr ""
 "%d z těchto %d garantů (ověřovacích klíčů) [veřejných klíčů] je třeba pro "
 "dešifrování výsledku voleb:"
 
-#: src/tool/tool_js_booth.ml:168
+#: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
 msgstr "(nic)"
 
@@ -174,7 +174,7 @@ msgstr "Odpovědět na otázky"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr "Pro jednoduchost je 0 vždy chápána jako nejnižší známka."
 
-#: src/tool/tool_js_booth.ml:257
+#: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
 msgstr "Nejméně jedna z odpovědí není platná!"
 
@@ -209,7 +209,7 @@ msgstr "Pozor, heslo a přístupový kód vypadají podobně, ale mají odlišn�
 msgid "Belenios Booth"
 msgstr "Belenios hlasování"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "Prázdný lístek"
@@ -217,6 +217,18 @@ msgstr "Prázdný lístek"
 #: src/web/pages_voter.ml:267
 msgid "By using this site, you accept our "
 msgstr "Používáním tohoto webu, akceptujete naše "
+
+#: src/tool/tool_js_fingerprint.ml:83
+msgid "Compare"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:67
+msgid "Compute fingerprint"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:34
+msgid "Computed fingerprint:"
+msgstr ""
 
 #: src/web/pages_voter.ml:871
 msgid "Condorcet-Schulze method"
@@ -275,6 +287,10 @@ msgstr "Zašifrovávám…"
 msgid "Error"
 msgstr "Chyba"
 
+#: src/tool/tool_js_fingerprint.ml:74
+msgid "Expected fingerprint:"
+msgstr ""
+
 #: src/web/pages_voter.ml:636
 msgid "FAIL!"
 msgstr "CHYBA!"
@@ -297,13 +313,13 @@ msgstr "Já jsem "
 msgid "I cast my vote"
 msgstr "odevzdávám svůj volební lístek"
 
-#: src/tool/tool_js_booth.ml:235
+#: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Pokud jste požádáni oznámkovat kandidáty a kandidátky (většinové posouzení – "
 "majority judgement), pak 1 je nejlepší a vyšší čísla jsou horší."
 
-#: src/tool/tool_js_booth.ml:238
+#: src/tool/tool_js_booth.ml:240
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Pokud jste požádáni seřadit kandidáty (metoda STV), použijte 1 pro vaši "
@@ -337,7 +353,7 @@ msgstr "Vložit přístupový kód"
 msgid "Input your credential "
 msgstr "Vlož svůj přístupový kód "
 
-#: src/tool/tool_js_booth.ml:387
+#: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
 msgstr "Neplatný přístupový kód!"
 
@@ -402,11 +418,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr "Více informací nalezneš "
 
-#: src/tool/tool_js_booth.ml:321
+#: src/tool/tool_js_booth.ml:323
 msgid "Next"
 msgstr "Další"
 
-#: src/tool/tool_js_booth.ml:138
+#: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
 msgstr "Pokud vložíš prázdný lístek, nemůžeš vybrat žádnou další volbu"
 
@@ -426,7 +442,7 @@ msgstr "Již jsi hlasoval/a. Tvůj původní hlasovací lístek bude nahrazen no
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr "Tvůj volební lístek je zašifrován a nikdo nemůže vidět jeho obsah."
 
-#: src/tool/tool_js_booth.ml:230
+#: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
 msgstr "Poznámky:"
 
@@ -458,7 +474,7 @@ msgstr "Heslo pro vstup"
 msgid "Password:"
 msgstr "Heslo:"
 
-#: src/tool/tool_js_booth.ml:376
+#: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Prosím zadejte svůj přístupový kód:"
 
@@ -469,6 +485,10 @@ msgstr "Prosím přihlaste se pro potvrzení vaší volby."
 #: src/web/pages_common.ml:232
 msgid "Please log in:"
 msgstr "Prosím přihlaste se:"
+
+#: src/tool/tool_js_fingerprint.ml:57
+msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
+msgstr ""
 
 #: src/web/pages_voter.ml:949
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
@@ -494,7 +514,7 @@ msgstr "Prosím čekejte... "
 msgid "Powered by "
 msgstr "Provozuje "
 
-#: src/tool/tool_js_booth.ml:320
+#: src/tool/tool_js_booth.ml:322
 msgid "Previous"
 msgstr "Předchozí"
 
@@ -611,6 +631,14 @@ msgstr "Volba bude uzavřena v/za "
 msgid "The fingerprint of the encrypted tally is %s."
 msgstr "Jedinečný otisk zašifrovaného vyhodnocení volby je %s."
 
+#: src/tool/tool_js_fingerprint.ml:46
+msgid "The fingerprints differ!"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:44
+msgid "The fingerprints match!"
+msgstr ""
+
 #: src/web/pages_voter.ml:947
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
@@ -724,7 +752,7 @@ msgstr "Garanti hlasovací lístky zamíchali v tomto pořadí:"
 msgid "Username:"
 msgstr "Uživatelské jméno:"
 
-#: src/tool/tool_js_booth.ml:211
+#: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
 msgstr "Hodnota musí být celé číslo mezi 0 a 255."
 
@@ -732,7 +760,7 @@ msgstr "Hodnota musí být celé číslo mezi 0 a 255."
 msgid "Warning:"
 msgstr "Varování:"
 
-#: src/tool/tool_js_booth.ml:241
+#: src/tool/tool_js_booth.ml:243
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Varování: systém akceptuje jakékoli číslo mezi 0 a 255, ale podle pravidel "
@@ -783,11 +811,11 @@ msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 "Můžeš zkontrolovat jeho přítomnost ve volební urně, která je dostupná na"
 
-#: src/tool/tool_js_booth.ml:125
+#: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
 msgstr "Musíš vyplnit alespoň následující počet odpovědí: %d"
 
-#: src/tool/tool_js_booth.ml:128
+#: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
 msgstr "Můžeš vybrat nejvýše tento počet odpovědí: %d"
 
@@ -881,7 +909,7 @@ msgstr "vytvořit účet"
 msgid "has been recorded."
 msgstr "byl uložen."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
+#: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
 msgstr "zde"

@@ -1,224 +1,206 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: belenios 1.12\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-03-09 21:02+0000\n"
-"Last-Translator: Fabian Schmidt <fschmidt@informatik.uni-leipzig.de>\n"
-"Language-Team: German <https://hosted.weblate.org/projects/belenios/voter/de/"
+"POT-Creation-Date: 2021-03-03 09:34+0000\n"
+"PO-Revision-Date: 2021-03-14 14:02+0000\n"
+"Last-Translator: Peter Gasparovic <peter.gasparovic@tuke.sk>\n"
+"Language-Team: Slovak <https://hosted.weblate.org/projects/belenios/voter/sk/"
 ">\n"
-"Language: de\n"
+"Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Weblate 4.5.2-dev\n"
 
 #: src/web/pages_common.ml:272
 msgid " (if you forgot it, for example)."
-msgstr " (wenn Sie es zum Beispiel vergessen haben)."
+msgstr " (ak ste na to napríklad zabudli)."
 
 #: src/web/pages_voter.ml:630
 msgid " A confirmation e-mail has been sent to you."
-msgstr " Sie erhalten eine Bestätigung per E-Mail."
+msgstr " Bol vám zaslaný potvrdzovací e-mail."
 
 #: src/web/pages_voter.ml:473
 msgid " and "
-msgstr " und "
+msgstr " a "
 
 #: src/web/pages_voter.ml:629
 msgid " anytime during the election."
-msgstr " vorhanden ist."
+msgstr " kedykoľvek počas volieb."
 
 #: src/web/pages_voter.ml:692
 msgid " ballot(s) have been accepted so far."
-msgstr " Stimmen wurden bis jetzt angenommen."
+msgstr " hlasovacích lístkov bolo doteraz prijatých."
 
 #: src/web/pages_voter.ml:702
 msgid " ballot(s) have been accepted, and "
-msgstr " Stimmen wurden angenommen, und "
+msgstr " hlasovacích lístkov bolo akceptovaných a "
 
 #: src/web/pages_voter.ml:697
 msgid " ballot(s) have been accepted."
-msgstr " Stimmen wurden angenommen."
+msgstr ""
 
 #: src/web/web_common.ml:105
 msgid " day(s)"
-msgstr " Tag(en)"
+msgstr ""
 
 #: src/web/pages_voter.ml:900
 msgid " for more information."
-msgstr " für mehr Informationen."
+msgstr ""
 
 #: src/web/pages_voter.ml:619
 msgid " has been accepted."
-msgstr " wurde angenommen."
+msgstr ""
 
 #: src/web/pages_voter.ml:534
 msgid " has been received, but not recorded yet. "
-msgstr " wurde empfangen, aber noch nicht gespeichert. "
+msgstr ""
 
 #: src/web/pages_voter.ml:704
 msgid " have been tallied."
-msgstr " wurden gezählt."
+msgstr ""
 
 #: src/web/web_common.ml:107
 msgid " hour(s)"
-msgstr " Stunde(n)"
+msgstr ""
 
 #: src/web/pages_voter.ml:633
 msgid " is rejected, because "
-msgstr " wurde abgelehnt, da "
+msgstr ""
 
 #: src/web/web_common.ml:108
 msgid " minute(s)"
-msgstr " Minute(n)"
+msgstr ""
 
 #: src/web/web_common.ml:104
 msgid " month(s)"
-msgstr " Monat(en)"
+msgstr ""
 
 #: src/web/web_common.ml:109
 msgid " second(s)"
-msgstr " Sekunde(n)"
+msgstr ""
 
 #: src/web/web_common.ml:103
 msgid " year(s)"
-msgstr " Jahr(en)"
+msgstr ""
 
 #: src/web/pages_voter.ml:755
 msgid "!"
-msgstr "!"
+msgstr ""
 
 #: src/web/pages_voter.ml:1066 src/web/pages_voter.ml:986
 msgid "%d invalid ballot(s)"
-msgstr "%d ungültige Stimme(n)"
+msgstr ""
 
 #: src/web/pages_voter.ml:353
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
-"%d der folgenden %d Mitglieder der Wahlkommission (Beweisschlüssel) ["
-"öffentliche Schlüssel] müssen das Wahlergebnis entschlüsseln:"
 
 #: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
-msgstr "(nichts)"
+msgstr ""
 
 #: src/web/pages_common.ml:270
 msgid ", or "
-msgstr ", oder "
+msgstr ""
 
 #: src/web/pages_voter.ml:105
 msgid ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
 msgstr ""
-". Es enthält alle abgegebenen Stimmen im Klartext in zufälliger Reihenfolge. "
-"Sie können Ihre Lieblingszählmethode anwenden (z.B. Condorcet, Übertragbare "
-"Einzelstimmgebung, Majority Judgement)."
 
 #: src/web/pages_voter.ml:933
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
-msgstr "1 ist die beste Bewertung, 2 die zweitbeste usw."
+msgstr ""
 
 #: src/web/pages_voter.ml:894
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
-"Ein Cordorcet-Sieger ist ein Kandidat, der jeden anderen in einer paarweisen "
-"Abstimmung besiegt."
 
 #: src/web/pages_voter.ml:992
 msgid "A ballot is invalid if a voter has entered a number that is greater than the number of grades."
 msgstr ""
-"Eine Stimme ist ungültig, wenn ein Wähler eine höhere Zahl als die Zahl der "
-"Bewertungen eingegeben hat."
 
 #: src/web/pages_voter.ml:1072
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
-"Eine Stimme ist ungültig, wenn zwei Kandidaten gleich bewertet werden oder "
-"ein Rang fehlt."
 
 #: src/web/pages_voter.ml:270
 msgid "Accept"
-msgstr "Akzeptieren"
+msgstr ""
 
 #: src/web/pages_voter.ml:667
 msgid "Accepted ballots"
-msgstr "Angenommene Stimmen"
+msgstr ""
 
 #: src/web/pages_common.ml:62
 msgid "Administer elections"
-msgstr "Abstimmung verwalten"
+msgstr ""
 
 #: src/web/pages_common.ml:64
 msgid "Administer this election"
-msgstr "Diese Abstimmung verwalten"
+msgstr ""
 
 #: src/web/pages_voter.ml:200
 msgid "Advanced mode"
-msgstr "Erweiterter Modus"
+msgstr ""
 
 #: src/web/pages_voter.ml:329
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
-"Jeder der folgenden Mitglieder der Wahlkommission (Beweisschlüssel) muss das "
-"Ergebnis entschlüsseln:"
 
 #: src/web/pages_voter.ml:780 src/web/pages_voter.ml:597
 #. src/web/pages_voter.ml:498
 msgid "Answer to questions"
-msgstr "Fragen beantworten"
+msgstr ""
 
 #: src/web/pages_voter.ml:935
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
-"Als Bequemlichkeit wird 0 immer als schlechteste Bewertung interpretiert."
 
 #: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
-msgstr "Mindestens eine Antwort ist ungültig!"
+msgstr ""
 
 #: src/web/pages_voter.ml:51
 msgid "Audit data: "
-msgstr "Auditdaten: "
+msgstr ""
 
 #: src/web/pages_voter.ml:784 src/web/pages_voter.ml:601
 #. src/web/pages_voter.ml:502
 msgid "Authenticate"
-msgstr "Authentifizieren"
+msgstr ""
 
 #: src/web/pages_common.ml:304
 msgid "Authentication failed"
-msgstr "Authentifizierung fehlgeschlagen"
+msgstr ""
 
 #: src/web/pages_common.ml:307
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
-"Authentifizierung fehlgeschlagen, vermutlich falscher Benutzername oder "
-"Passwort, oder Sie dürfen diese Operation nicht durchführen."
 
 #: src/web/pages_voter.ml:107
 msgid "Available methods on this server:"
-msgstr "Verfügbare Methoden auf diesem Server:"
+msgstr ""
 
 #: src/web/pages_voter.ml:1193 src/web/pages_voter.ml:1141
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr ""
-"Vorsicht, Passwörter und Wählernummern sehen ähnlich aus, spielen aber "
-"unterschiedliche Rollen."
 
 #: src/web/pages_voter.ml:729 src/web/pages_voter.ml:717
 msgid "Belenios Booth"
-msgstr "Belenios Wahlkabine"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
-msgstr "ungültige Stimme"
+msgstr ""
 
 #: src/web/pages_voter.ml:267
 msgid "By using this site, you accept our "
-msgstr "Wenn Sie diese Seite benutzen akzeptieren sie unsere "
+msgstr ""
 
 #: src/tool/tool_js_fingerprint.ml:83
 msgid "Compare"
@@ -234,62 +216,60 @@ msgstr ""
 
 #: src/web/pages_voter.ml:871
 msgid "Condorcet-Schulze method"
-msgstr "Schulze-Methode (Condorcet)"
+msgstr ""
 
 #: src/web/pages_voter.ml:786 src/web/pages_voter.ml:603
 #. src/web/pages_voter.ml:504
 msgid "Confirm"
-msgstr "Bestätigen"
+msgstr ""
 
 #: src/web/pages_voter.ml:1018 src/web/pages_voter.ml:924
 #. src/web/pages_voter.ml:766
 msgid "Continue"
-msgstr "Weiter"
+msgstr ""
 
 #: src/web/site_voter.ml:111
 msgid "Cookies are blocked"
-msgstr "Cookies sind deaktiviert"
+msgstr ""
 
 #: src/web/pages_voter.ml:1200
 msgid "Credential:"
-msgstr "Wählernummer:"
+msgstr ""
 
 #: src/web/pages_voter.ml:363
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
-"Wählernummern wurden generiert und durch %s verschickt und haben den "
-"Fingerabdruck %s."
 
 #: src/web/pages_voter.ml:1234
 msgid "Dear %s,"
-msgstr "%s,"
+msgstr ""
 
 #: src/web/pages_voter.ml:788 src/web/pages_voter.ml:605
 #. src/web/pages_voter.ml:506
 msgid "Done"
-msgstr "Fertig"
+msgstr ""
 
 #: src/web/pages_voter.ml:848
 msgid "Election UUID: "
-msgstr "Eindeutige Nummer der Abstimmung: "
+msgstr ""
 
 #: src/web/pages_voter.ml:852 src/web/pages_voter.ml:47
 msgid "Election fingerprint: "
-msgstr "Fingerabdruck der Abstimmung: "
+msgstr ""
 
 #: src/web/pages_voter.ml:831 src/web/pages_common.ml:96
 msgid "Election server"
-msgstr "Wahlserver"
+msgstr ""
 
 #: src/web/pages_voter.ml:818
 msgid "Encrypting…"
-msgstr "Verschlüssele…"
+msgstr ""
 
 #: src/web/site_voter.ml:339 src/web/site_voter.ml:314 src/web/site_voter.ml:276
 #. src/web/site_voter.ml:271
 #. src/web/site_voter.ml:266
 msgid "Error"
-msgstr "Fehler"
+msgstr ""
 
 #: src/tool/tool_js_fingerprint.ml:74
 msgid "Expected fingerprint:"
@@ -297,25 +277,25 @@ msgstr ""
 
 #: src/web/pages_voter.ml:636
 msgid "FAIL!"
-msgstr "FEHLER!"
+msgstr ""
 
 #: src/web/pages_common.ml:119
 msgid "Get the source code"
-msgstr "Den Quellcode herunterladen"
+msgstr ""
 
 #: src/web/pages_voter.ml:685 src/web/pages_voter.ml:651
 #. src/web/pages_voter.ml:581
 #. src/web/pages_voter.ml:553
 msgid "Go back to election"
-msgstr "Zurück zur Wahl"
+msgstr ""
 
 #: src/web/pages_voter.ml:471
 msgid "I am "
-msgstr "Ich bin "
+msgstr ""
 
 #: src/web/pages_voter.ml:476
 msgid "I cast my vote"
-msgstr "ich schicke meine Stimme ab"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
@@ -344,15 +324,15 @@ msgstr ""
 #: src/web/pages_voter.ml:778 src/web/pages_voter.ml:595
 #. src/web/pages_voter.ml:496
 msgid "Input credential"
-msgstr "Wählernummer eingeben"
+msgstr ""
 
 #: src/web/pages_voter.ml:797
 msgid "Input your credential "
-msgstr "Bitte Wählernummer eingeben "
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
-msgstr "Falsche Wählernummer!"
+msgstr ""
 
 #: src/web/site_voter.ml:277
 msgid "Invalid index for question."
@@ -360,7 +340,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:133
 msgid "It will open in "
-msgstr "Sie öffnet in "
+msgstr ""
 
 #: src/web/pages_voter.ml:104
 msgid "JSON result"
@@ -368,7 +348,7 @@ msgstr ""
 
 #: src/web/pages_common.ml:138
 msgid "Language:"
-msgstr "Sprache:"
+msgstr ""
 
 #: src/web/pages_voter.ml:724
 msgid "Loading…"
@@ -412,11 +392,11 @@ msgstr ""
 
 #: src/tool/tool_js_booth.ml:323
 msgid "Next"
-msgstr "Weiter"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
-msgstr "Bei einer ungültigen Stimme sind keine anderen Auswahlmöglichkeiten vorhanden."
+msgstr ""
 
 #: src/web/site_common.ml:43
 msgid "Not found"
@@ -432,7 +412,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:544
 msgid "Note: your ballot is encrypted and nobody can see its contents."
-msgstr "Hinweis: Ihre Stimme ist verschlüsselt und niemand kann ihren Inhalt sehen."
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
@@ -440,7 +420,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:235
 msgid "Number of accepted ballots: "
-msgstr "Anzahl angenommener Stimmen: "
+msgstr ""
 
 #: src/web/pages_voter.ml:921
 msgid "Number of grades:"
@@ -456,23 +436,23 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1206 src/web/pages_voter.ml:1153
 msgid "Page of the election:"
-msgstr "Website der Abstimmung:"
+msgstr ""
 
 #: src/web/pages_common.ml:299
 msgid "Password login"
-msgstr "Login mit Passwort"
+msgstr ""
 
 #: src/web/pages_voter.ml:1147 src/web/pages_common.ml:286
 msgid "Password:"
-msgstr "Passwort:"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
-msgstr "Bitte geben Sie Ihre Wählernummer ein:"
+msgstr ""
 
 #: src/web/pages_voter.ml:482
 msgid "Please log in to confirm your vote."
-msgstr "Bitte melden Sie sich an um Ihre Stimme zu bestätigen."
+msgstr ""
 
 #: src/web/pages_common.ml:232
 msgid "Please log in:"
@@ -492,7 +472,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:817
 msgid "Please wait while your ballot is being encrypted…"
-msgstr "Bitte warten, Ihre Stimme wird verschlüsselt…"
+msgstr ""
 
 #: src/web/pages_voter.ml:723
 msgid "Please wait… "
@@ -504,11 +484,11 @@ msgstr ""
 
 #: src/tool/tool_js_booth.ml:322
 msgid "Previous"
-msgstr "Zurück"
+msgstr ""
 
 #: src/web/pages_common.ml:121
 msgid "Privacy policy"
-msgstr "Datenschutzbestimmungen"
+msgstr ""
 
 #: src/web/pages_common.ml:200
 msgid "Proceed"
@@ -520,16 +500,16 @@ msgstr ""
 
 #: src/web/pages_voter.ml:821
 msgid "Restart"
-msgstr "Erneut beginnen"
+msgstr ""
 
 #: src/web/pages_voter.ml:1259
 msgid "Results will be published on the election page"
-msgstr "Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:"
+msgstr ""
 
 #: src/web/pages_voter.ml:782 src/web/pages_voter.ml:599
 #. src/web/pages_voter.ml:500
 msgid "Review and encrypt"
-msgstr "Überprüfen und verschlüsseln"
+msgstr ""
 
 #: src/web/pages_voter.ml:762
 msgid "Save it to check that it is taken into account later."
@@ -537,11 +517,11 @@ msgstr ""
 
 #: src/web/pages_voter.ml:182
 msgid "See accepted ballots"
-msgstr "angenommene Stimmen anzeigen"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:79
 msgid "Select between %d and %d answer(s)"
-msgstr "Wählen Sie zwischen %d und %d Antworten aus"
+msgstr ""
 
 #: src/web/pages_common.ml:141
 msgid "Set"
@@ -565,23 +545,23 @@ msgstr ""
 
 #: src/web/pages_voter.ml:793
 msgid "Step 1/6: Input credential"
-msgstr "Schritt 1/6: Wählernummer eingeben"
+msgstr ""
 
 #: src/web/pages_voter.ml:803
 msgid "Step 2/6: Answer to questions"
-msgstr "Schritt 2/6: Fragen beantworten"
+msgstr ""
 
 #: src/web/pages_voter.ml:808
 msgid "Step 3/6: Review and encrypt"
-msgstr "Schritt 3/6: Überprüfen und verschlüsseln"
+msgstr ""
 
 #: src/web/pages_voter.ml:529
 msgid "Step 5/6: Confirm"
-msgstr "Schritt 5/6: Bestätigen"
+msgstr ""
 
 #: src/web/pages_voter.ml:641
 msgid "Step 6/6: "
-msgstr "Schritt 6/6: "
+msgstr ""
 
 #: src/web/pages_voter.ml:1098
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
@@ -589,7 +569,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:631
 msgid "Thank you for voting!"
-msgstr "Vielen Dank für Ihre Stimme!"
+msgstr ""
 
 #: src/web/pages_voter.ml:998
 msgid "The Majority Judgment winners are:"
@@ -605,11 +585,11 @@ msgstr ""
 
 #: src/web/pages_voter.ml:164 src/web/pages_voter.ml:159
 msgid "The election is closed and being tallied."
-msgstr "Diese Abstimmung ist beendet und wird ausgezählt."
+msgstr ""
 
 #: src/web/pages_voter.ml:149
 msgid "The election will close in "
-msgstr "Die Abstimmung schließt in "
+msgstr ""
 
 #: src/web/pages_voter.ml:383
 msgid "The fingerprint of the encrypted tally is %s."
@@ -641,7 +621,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:256
 msgid "The result of this election is currently not publicly available. It will be in %s."
-msgstr "Das Ergebnis dieser Abstimmung ist derzeit noch nicht verfügbar. Es wird in %s veröffentlicht."
+msgstr ""
 
 #: src/web/site_voter.ml:267
 msgid "The result of this election is not available."
@@ -669,7 +649,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:169
 msgid "This election has been tallied."
-msgstr "Diese Abstimmung wurde ausgezählt."
+msgstr ""
 
 #: src/web/pages_voter.ml:279
 msgid "This election is administered by %s."
@@ -677,11 +657,11 @@ msgstr ""
 
 #: src/web/pages_voter.ml:174
 msgid "This election is archived."
-msgstr "Diese Abstimmung wurde archiviert."
+msgstr ""
 
 #: src/web/pages_voter.ml:141
 msgid "This election is currently closed."
-msgstr "Diese Abstimmung ist beendet."
+msgstr ""
 
 #: src/web/pages_voter.ml:299
 msgid "This election uses weights!"
@@ -693,7 +673,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1251
 msgid "This vote replaces any previous vote."
-msgstr "Diese Stimme ersetzt eine eventuelle vorherige Stimme."
+msgstr ""
 
 #: src/web/pages_voter.ml:979 src/web/pages_voter.ml:885
 msgid "Tie:"
@@ -702,18 +682,14 @@ msgstr ""
 #: src/web/pages_voter.ml:1140
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
 msgstr ""
-"Um abzustimmen benötigen sie außerdem noch Ihre Wählernummer, die Ihnen in "
-"einer separaten E-Mail zugestellt wird."
 
 #: src/web/pages_voter.ml:1192
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
-"Um abzustimmen benötigen sie außerdem noch Ihr Passwort, die Ihnen in einer "
-"separaten E-Mail zugestellt wird."
 
 #: src/web/pages_voter.ml:1126
 msgid "To get more information, please contact:"
-msgstr "Für mehr Informationen wenden Sie sich bitte an:"
+msgstr ""
 
 #: src/web/pages_voter.ml:220
 msgid "Total weight of accepted ballots:"
@@ -726,7 +702,7 @@ msgstr ""
 #: src/web/pages_voter.ml:1199 src/web/pages_voter.ml:1146
 #. src/web/pages_common.ml:282
 msgid "Username:"
-msgstr "Benutzername:"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
@@ -758,7 +734,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1186 src/web/pages_voter.ml:1135
 msgid "You are listed as a voter for the election"
-msgstr "Sie sind für die folgende Abstimmung als Wähler eingetragen:"
+msgstr ""
 
 #: src/web/pages_common.ml:309
 msgid "You can "
@@ -770,23 +746,23 @@ msgstr ""
 
 #: src/web/pages_voter.ml:240
 msgid "You can also download the "
-msgstr "Sie können außerdem das "
+msgstr ""
 
 #: src/web/pages_voter.ml:627
 msgid "You can check its presence in the "
-msgstr "Sie können jederzeit überprüfen, dass Ihre Stimme in der "
+msgstr ""
 
 #: src/web/pages_voter.ml:1255
 msgid "You can check its presence in the ballot box, accessible at"
-msgstr "Mit dieser Nummer können Sie überprüfen, ob sich Ihre Stimme in der Wahlurne befindet:"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
-msgstr "Sie müssen mindestens %d Antworten auswählen"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
-msgstr "Sie müssen maximal %d Antworten auswählen"
+msgstr ""
 
 #: src/web/pages_voter.ml:1194 src/web/pages_voter.ml:1142
 msgid "You will be asked to enter your credential before entering the voting booth."
@@ -794,48 +770,48 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1190
 msgid "You will find below your credential."
-msgstr "Am Ende der Nachricht finden Sie Ihre Wählernummer."
+msgstr ""
 
 #: src/web/pages_voter.ml:1139
 msgid "You will find below your login and password."
-msgstr "Am Ende der Mail finden Sie Ihren Benutzername und Ihr Passwort."
+msgstr ""
 
 #: src/web/pages_voter.ml:645 src/web/pages_voter.ml:532
 msgid "Your ballot for "
-msgstr "Ihre Stimme für "
+msgstr ""
 
 #: src/web/pages_voter.ml:753
 msgid "Your ballot has been encrypted, "
-msgstr "Ihre Stimme wurde erfolgreich verschlüsselt, "
+msgstr ""
 
 #: src/web/site_voter.ml:111
 msgid "Your browser seems to block cookies. Please enable them."
-msgstr "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
+msgstr ""
 
 #: src/web/pages_voter.ml:1226
 msgid "Your credential for election %s"
-msgstr "Ihre Wählernummer für die Abstimmung %s"
+msgstr ""
 
 #: src/web/pages_voter.ml:1177
 msgid "Your password for election %s"
-msgstr "Ihr Passwort für die Abstimmung %s"
+msgstr ""
 
 #: src/web/pages_voter.ml:1246
 msgid "Your smart ballot tracker is"
-msgstr "Ihre Stimmennummer ist:"
+msgstr ""
 
 #: src/web/pages_voter.ml:758 src/web/pages_voter.ml:622
 #. src/web/pages_voter.ml:535
 msgid "Your smart ballot tracker is "
-msgstr "Ihre Stimmennummer ist "
+msgstr ""
 
 #: src/web/pages_voter.ml:1236
 msgid "Your vote for election"
-msgstr "Ihre Stimme zur Abstimmung"
+msgstr ""
 
 #: src/web/site_voter.ml:146
 msgid "Your vote for election %s"
-msgstr "Ihre Stimme zur Abstimmung %s"
+msgstr ""
 
 #: src/web/pages_voter.ml:572
 msgid "Your vote was not recorded!"
@@ -848,19 +824,19 @@ msgstr ""
 
 #: src/web/web_common.ml:86
 msgid "a credential is missing"
-msgstr "Die Wählernummer fehlt"
+msgstr ""
 
 #: src/web/pages_voter.ml:628
 msgid "ballot box"
-msgstr "Wahlurne"
+msgstr ""
 
 #: src/web/pages_voter.ml:63
 msgid "ballots"
-msgstr "Stimmen"
+msgstr ""
 
 #: src/web/pages_voter.ml:754
 msgid "but not cast yet"
-msgstr "aber noch nicht abgeschickt"
+msgstr ""
 
 #: src/web/pages_common.ml:271
 msgid "change your password"
@@ -872,12 +848,12 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1240
 msgid "has been recorded."
-msgstr "wurde angenommen."
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
-msgstr "hier"
+msgstr ""
 
 #: src/web/pages_voter.ml:1033
 msgid "our code of STV"
@@ -885,23 +861,23 @@ msgstr ""
 
 #: src/web/pages_voter.ml:53
 msgid "parameters"
-msgstr "Parameter"
+msgstr ""
 
 #: src/web/pages_voter.ml:268
 msgid "personal data policy"
-msgstr "Datenschutzbestimmungen"
+msgstr ""
 
 #: src/web/pages_voter.ml:59
 msgid "public credentials"
-msgstr "Öffentliche Daten"
+msgstr ""
 
 #: src/web/pages_voter.ml:242
 msgid "result with cryptographic proofs"
-msgstr "Ergebnis mit den kryptographischen Beweisen herunterladen"
+msgstr ""
 
 #: src/web/web_common.ml:85
 msgid "some proofs failed verification"
-msgstr "Einige Beweise konnten nicht verifiziert werden"
+msgstr ""
 
 #: src/web/pages_voter.ml:576
 msgid "start from the beginning"
@@ -913,7 +889,7 @@ msgstr ""
 
 #: src/web/web_common.ml:82
 msgid "the election is closed"
-msgstr "Die Abstimmung ist beendet"
+msgstr ""
 
 #: src/web/pages_voter.ml:56
 msgid "trustees"
@@ -925,19 +901,19 @@ msgstr ""
 
 #: src/web/web_common.ml:88
 msgid "you are not allowed to revote"
-msgstr "Sie dürfen nicht erneut abstimmen"
+msgstr ""
 
 #: src/web/web_common.ml:83
 msgid "you are not allowed to vote"
-msgstr "Sie dürfen nicht abstimmen"
+msgstr ""
 
 #: src/web/web_common.ml:90
 msgid "you are not allowed to vote with this credential"
-msgstr "Sie dürfen nicht mit dieser Wählernummer abstimmen"
+msgstr ""
 
 #: src/web/web_common.ml:84
 msgid "your ballot has a syntax error (%s)"
-msgstr "Ihre Stimme enthält einen Syntaxfehler (%s)"
+msgstr ""
 
 #: src/web/web_common.ml:91
 msgid "your credential has a bad weight"
@@ -945,9 +921,9 @@ msgstr ""
 
 #: src/web/web_common.ml:89
 msgid "your credential has already been used"
-msgstr "Ihre Wählernummer wurde schon benutzt"
+msgstr ""
 
 #: src/web/web_common.ml:87
 msgid "your credential is invalid"
-msgstr "Ihre Wählernummer ist ungültig"
+msgstr ""
 

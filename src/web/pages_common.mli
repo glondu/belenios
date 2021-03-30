@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 val direct_a :
-  string -> string ->
+  ?target:string -> string -> string ->
   [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
 val make_button :

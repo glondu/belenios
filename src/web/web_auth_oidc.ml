@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Eliom_service
 open Web_serializable_j
 open Web_common
@@ -46,11 +47,11 @@ let oidc_get_userinfo ocfg info =
   let headers = Http_headers.(
     add (name "Authorization") ("Bearer " ^ access_token) empty
   ) in
-  let%lwt reply = Ocsigen_http_client.get_url ~headers url in
+  let* reply = Ocsigen_http_client.get_url ~headers url in
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
-     let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-     let%lwt () = Ocsigen_stream.finalize stream `Success in
+     let* info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
+     let* () = Ocsigen_stream.finalize stream `Success in
      let x = oidc_userinfo_of_string info in
      return_some (match x.oidc_email with Some x -> x | None -> x.oidc_sub)
   | None -> return_none
@@ -63,21 +64,21 @@ let oidc_get_name ocfg client_id client_secret code =
     "redirect_uri", Lazy.force oidc_self;
     "grant_type", "authorization_code";
   ] in
-  let%lwt reply = Ocsigen_http_client.post_urlencoded_url ~content ocfg.token_endpoint in
+  let* reply = Ocsigen_http_client.post_urlencoded_url ~content ocfg.token_endpoint in
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
-    let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-    let%lwt () = Ocsigen_stream.finalize stream `Success in
+    let* info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
+    let* () = Ocsigen_stream.finalize stream `Success in
     oidc_get_userinfo ocfg info
   | None -> return_none
 
 let get_oidc_configuration server =
   let url = server ^ "/.well-known/openid-configuration" in
-  let%lwt reply = Ocsigen_http_client.get_url url in
+  let* reply = Ocsigen_http_client.get_url url in
   match reply.Ocsigen_http_frame.frame_content with
   | Some stream ->
-     let%lwt info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-     let%lwt () = Ocsigen_stream.finalize stream `Success in
+     let* info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
+     let* () = Ocsigen_stream.finalize stream `Success in
      return (oidc_configuration_of_string info)
   | None -> fail_http 404
 
@@ -90,8 +91,8 @@ let oidc_login_handler a ~state =
   let get x = List.assoc_opt x a.auth_config in
   match get "server", get "client_id" with
   | Some server, Some client_id ->
-     let%lwt ocfg = get_oidc_configuration server in
-     let%lwt () = Eliom_reference.set oidc_config (Some ocfg) in
+     let* ocfg = get_oidc_configuration server in
+     let* () = Eliom_reference.set oidc_config (Some ocfg) in
      let prefix, path = split_prefix_path ocfg.authorization_endpoint in
      let auth_endpoint = Eliom_service.extern ~prefix ~path
        ~meth:(Eliom_service.Get Eliom_parameter.(string "redirect_uri" **
@@ -118,13 +119,15 @@ let oidc_handler params () =
          let get x = List.assoc_opt x a.auth_config in
          match get "client_id", get "client_secret" with
          | Some client_id, Some client_secret ->
-            let%lwt ocfg =
-              match%lwt Eliom_reference.get oidc_config with
+            let* ocfg =
+              let* config = Eliom_reference.get oidc_config in
+              match config with
               | None -> failwith "oidc handler was invoked without discovered configuration"
               | Some x -> return x
             in
-            let%lwt () = Eliom_reference.unset oidc_config in
-            (match%lwt oidc_get_name ocfg client_id client_secret code with
+            let* () = Eliom_reference.unset oidc_config in
+            let* name = oidc_get_name ocfg client_id client_secret code in
+            (match name with
              | Some name -> authenticate name >>= fun x -> return (Ok x)
              | None -> return (Error ())
             )

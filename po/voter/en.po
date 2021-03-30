@@ -99,7 +99,7 @@ msgstr "%d invalid ballot(s)"
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:168
+#: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
 msgstr "(nothing)"
 
@@ -160,7 +160,7 @@ msgstr "Answer to questions"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:257
+#: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
 msgstr "At least one of the answers is invalid!"
 
@@ -193,7 +193,7 @@ msgstr "Be careful, passwords and credentials look similar but play different ro
 msgid "Belenios Booth"
 msgstr "Belenios Booth"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "Blank vote"
@@ -201,6 +201,18 @@ msgstr "Blank vote"
 #: src/web/pages_voter.ml:267
 msgid "By using this site, you accept our "
 msgstr "By using this site, you accept our "
+
+#: src/tool/tool_js_fingerprint.ml:83
+msgid "Compare"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:67
+msgid "Compute fingerprint"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:34
+msgid "Computed fingerprint:"
+msgstr ""
 
 #: src/web/pages_voter.ml:871
 msgid "Condorcet-Schulze method"
@@ -259,6 +271,10 @@ msgstr "Encrypting…"
 msgid "Error"
 msgstr "Error"
 
+#: src/tool/tool_js_fingerprint.ml:74
+msgid "Expected fingerprint:"
+msgstr ""
+
 #: src/web/pages_voter.ml:636
 msgid "FAIL!"
 msgstr "FAIL!"
@@ -281,11 +297,11 @@ msgstr "I am "
 msgid "I cast my vote"
 msgstr "I cast my vote"
 
-#: src/tool/tool_js_booth.ml:235
+#: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 
-#: src/tool/tool_js_booth.ml:238
+#: src/tool/tool_js_booth.ml:240
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 
@@ -315,7 +331,7 @@ msgstr "Input credential"
 msgid "Input your credential "
 msgstr "Input your credential "
 
-#: src/tool/tool_js_booth.ml:387
+#: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
 msgstr "Invalid credential!"
 
@@ -375,11 +391,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:321
+#: src/tool/tool_js_booth.ml:323
 msgid "Next"
 msgstr "Next"
 
-#: src/tool/tool_js_booth.ml:138
+#: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
 msgstr "No other choices are allowed when voting blank"
 
@@ -399,7 +415,7 @@ msgstr "Note: You have already voted. Your vote will be replaced."
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr "Note: your ballot is encrypted and nobody can see its contents."
 
-#: src/tool/tool_js_booth.ml:230
+#: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
 msgstr "Notes:"
 
@@ -431,7 +447,7 @@ msgstr "Password login"
 msgid "Password:"
 msgstr "Password:"
 
-#: src/tool/tool_js_booth.ml:376
+#: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Please enter your credential:"
 
@@ -442,6 +458,10 @@ msgstr "Please log in to confirm your vote."
 #: src/web/pages_common.ml:232
 msgid "Please log in:"
 msgstr "Please log in:"
+
+#: src/tool/tool_js_fingerprint.ml:57
+msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
+msgstr ""
 
 #: src/web/pages_voter.ml:949
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
@@ -463,7 +483,7 @@ msgstr "Please wait… "
 msgid "Powered by "
 msgstr "Powered by "
 
-#: src/tool/tool_js_booth.ml:320
+#: src/tool/tool_js_booth.ml:322
 msgid "Previous"
 msgstr "Previous"
 
@@ -576,6 +596,14 @@ msgstr "The election will close in "
 msgid "The fingerprint of the encrypted tally is %s."
 msgstr ""
 
+#: src/tool/tool_js_fingerprint.ml:46
+msgid "The fingerprints differ!"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:44
+msgid "The fingerprints match!"
+msgstr ""
+
 #: src/web/pages_voter.ml:947
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
@@ -679,7 +707,7 @@ msgstr "The following trustees successively shuffled the ballots:"
 msgid "Username:"
 msgstr "Username:"
 
-#: src/tool/tool_js_booth.ml:211
+#: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
 msgstr "Value must be an integer between 0 and 255."
 
@@ -687,7 +715,7 @@ msgstr "Value must be an integer between 0 and 255."
 msgid "Warning:"
 msgstr "Warning:"
 
-#: src/tool/tool_js_booth.ml:241
+#: src/tool/tool_js_booth.ml:243
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 
@@ -731,11 +759,11 @@ msgstr "You can check its presence in the "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "You can check its presence in the ballot box, accessible at"
 
-#: src/tool/tool_js_booth.ml:125
+#: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
 msgstr "You must select at least %d answer(s)"
 
-#: src/tool/tool_js_booth.ml:128
+#: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
 msgstr "You must select at most %d answer(s)"
 
@@ -825,7 +853,7 @@ msgstr "create an account"
 msgid "has been recorded."
 msgstr "has been recorded."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
+#: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
 msgstr "here"

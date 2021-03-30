@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+DIR="$1"
+shift
+
+NAME="${DIR##*/}"
+
+exec systemd-nspawn --image=$DIR/rootfs.squashfs --overlay=+/var::/var --bind=$DIR/belenios:/var/belenios --machine=belenios-$NAME "$@"

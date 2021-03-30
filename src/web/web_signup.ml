@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios_platform
 open Belenios
 open Platform
@@ -49,7 +50,7 @@ let captcha =
   let x = "belenios-captcha" in (x, [| x |])
 
 let create_captcha () =
-  let%lwt raw = Lwt_process.pread_lines captcha |> Lwt_stream.to_list in
+  let* raw = Lwt_process.pread_lines captcha |> Lwt_stream.to_list in
   match raw with
   | content_type :: response :: contents ->
      let content_type = format_content_type content_type in
@@ -104,7 +105,7 @@ let filter_links_by_address address table =
   SMap.filter (fun _ x -> x.address = address) table
 
 let send_confirmation_link ~service address =
-  let%lwt token = generate_token ~length:20 () in
+  let* token = generate_token ~length:20 () in
   let l_expiration_time = datetime_add (now ()) (day 1) in
   let kind = CreateAccount in
   let link = {service; address; l_expiration_time; kind} in
@@ -137,11 +138,11 @@ Best regards,
 Belenios Server" address uri token
   in
   let subject = "Belenios account creation" in
-  let%lwt () = send_email MailAccountCreation ~recipient:address ~subject ~body in
+  let* () = send_email MailAccountCreation ~recipient:address ~subject ~body in
   Lwt.return_unit
 
 let send_changepw_link ~service ~address ~username =
-  let%lwt token = generate_token ~length:20 () in
+  let* token = generate_token ~length:20 () in
   let l_expiration_time = datetime_add (now ()) (day 1) in
   let kind = ChangePassword username in
   let link = {service; address; l_expiration_time; kind} in
@@ -174,7 +175,7 @@ Best regards,
 Belenios Server" address uri token
   in
   let subject = "Belenios password change" in
-  let%lwt () = send_email MailPasswordChange ~recipient:address ~subject ~body in
+  let* () = send_email MailPasswordChange ~recipient:address ~subject ~body in
   Lwt.return_unit
 
 let confirm_link token =
@@ -202,6 +203,6 @@ let extract_comment x =
 let cracklib_check password =
   match String.index_opt password '\n' with
   | None ->
-     let%lwt x = Lwt_process.pmap ~env:[| "LANG=C" |] cracklib password in
+     let* x = Lwt_process.pmap ~env:[| "LANG=C" |] cracklib password in
      Lwt.return (extract_comment x)
   | Some _ -> Lwt.return_some "newline in password"

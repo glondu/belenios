@@ -100,7 +100,7 @@ msgstr ""
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:168
+#: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
 msgstr "(nimic)"
 
@@ -164,7 +164,7 @@ msgstr "Răspuns la întrebări"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:257
+#: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
 msgstr "Cel putin unul din raspunsuri nu este bun!"
 
@@ -199,7 +199,7 @@ msgstr "Aveți grijă, parola și codul de votare arată similare, dar joacă ro
 msgid "Belenios Booth"
 msgstr "Cabina de vot Belenios"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "Vot alb"
@@ -207,6 +207,18 @@ msgstr "Vot alb"
 #: src/web/pages_voter.ml:267
 msgid "By using this site, you accept our "
 msgstr "Folosind acest sit, acceptați "
+
+#: src/tool/tool_js_fingerprint.ml:83
+msgid "Compare"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:67
+msgid "Compute fingerprint"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:34
+msgid "Computed fingerprint:"
+msgstr ""
 
 #: src/web/pages_voter.ml:871
 msgid "Condorcet-Schulze method"
@@ -265,6 +277,10 @@ msgstr "Criptare în curs…"
 msgid "Error"
 msgstr "Eroare"
 
+#: src/tool/tool_js_fingerprint.ml:74
+msgid "Expected fingerprint:"
+msgstr ""
+
 #: src/web/pages_voter.ml:636
 msgid "FAIL!"
 msgstr "EȘEC!"
@@ -287,13 +303,13 @@ msgstr "Eu sunt "
 msgid "I cast my vote"
 msgstr "Am depus votul meu"
 
-#: src/tool/tool_js_booth.ml:235
+#: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Daca vi se cere sa notati candidatii (judecarea majoritara) atunci 1 este "
 "nota maxima, numerele mai mari corespunzand notelor mai putin bune."
 
-#: src/tool/tool_js_booth.ml:238
+#: src/tool/tool_js_booth.ml:240
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Daca vi se cere sa ordonati candidatii (Condorcet, STV, ...) atunci folositi "
@@ -324,7 +340,7 @@ msgstr "Introducere cod de votare"
 msgid "Input your credential "
 msgstr "Introduceți codul vostru de votare "
 
-#: src/tool/tool_js_booth.ml:387
+#: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
 msgstr "Cod de votare invalid !"
 
@@ -384,11 +400,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:321
+#: src/tool/tool_js_booth.ml:323
 msgid "Next"
 msgstr "Următor"
 
-#: src/tool/tool_js_booth.ml:138
+#: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
 msgstr "Nu puteți selecta o altă opțiune la un vot alb"
 
@@ -408,7 +424,7 @@ msgstr "Remarca: Ati votat deja. Votul dvoastra va fi inlocuit."
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr "Notă: buletinul de vot este criptat și nimeni nu-i poate vedea conținutul."
 
-#: src/tool/tool_js_booth.ml:230
+#: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
 msgstr "Remarci:"
 
@@ -440,7 +456,7 @@ msgstr "Conectare folosind parola"
 msgid "Password:"
 msgstr "Parola:"
 
-#: src/tool/tool_js_booth.ml:376
+#: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Vă rugăm să introduceți codul de votare:"
 
@@ -451,6 +467,10 @@ msgstr "Vă rugăm să vă logați pentru a confirma votul vostru."
 #: src/web/pages_common.ml:232
 msgid "Please log in:"
 msgstr "Va rugam sa va conectati:"
+
+#: src/tool/tool_js_fingerprint.ml:57
+msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
+msgstr ""
 
 #: src/web/pages_voter.ml:949
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
@@ -472,7 +492,7 @@ msgstr "Va rugam sa asteptati... "
 msgid "Powered by "
 msgstr "Realizat de "
 
-#: src/tool/tool_js_booth.ml:320
+#: src/tool/tool_js_booth.ml:322
 msgid "Previous"
 msgstr "Precedent"
 
@@ -586,6 +606,14 @@ msgstr "Alegerea se va închide în "
 msgid "The fingerprint of the encrypted tally is %s."
 msgstr ""
 
+#: src/tool/tool_js_fingerprint.ml:46
+msgid "The fingerprints differ!"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:44
+msgid "The fingerprints match!"
+msgstr ""
+
 #: src/web/pages_voter.ml:947
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
@@ -689,7 +717,7 @@ msgstr ""
 msgid "Username:"
 msgstr "Nume utilizator:"
 
-#: src/tool/tool_js_booth.ml:211
+#: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
 msgstr "Valoarea trebuie sa fie un numar intreg intre 0 si 255."
 
@@ -697,7 +725,7 @@ msgstr "Valoarea trebuie sa fie un numar intreg intre 0 si 255."
 msgid "Warning:"
 msgstr "Atentie:"
 
-#: src/tool/tool_js_booth.ml:241
+#: src/tool/tool_js_booth.ml:243
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Atentie: sistemul va accepta orice numar intreg intre 0 si 255, dar, in "
@@ -745,11 +773,11 @@ msgstr "Puteți verifica prezența sa în "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Puteți verifica prezența acestuia în urna de vot, accesibilă la"
 
-#: src/tool/tool_js_booth.ml:125
+#: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
 msgstr "Trebuie să selectați cel puțin %d răspuns(uri)"
 
-#: src/tool/tool_js_booth.ml:128
+#: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
 msgstr "Trebuie să selectați cel mult %d răspuns(uri)"
 
@@ -839,7 +867,7 @@ msgstr "creati un cont"
 msgid "has been recorded."
 msgstr "a fost înregistrat."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
+#: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
 msgstr "aici"

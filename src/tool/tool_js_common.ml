@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_platform
@@ -122,7 +123,7 @@ module LwtJsRandom : Signatures.RANDOM with type 'a t = 'a Lwt.t = struct
 
   let random q =
     let size = Z.bit_length q / 8 + 1 in
-    let%lwt () = Lwt_js.yield () in
+    let* () = Lwt_js.yield () in
     let r = random_string (Lazy.force prng) size in
     Lwt.return Z.(of_bits r mod q)
 end

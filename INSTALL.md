@@ -1,6 +1,16 @@
 Belenios compilation instructions
 =================================
 
+Using containers
+----------------
+
+If you are using Linux and have root privileges, you might be
+interested in our documentation on [deploying Belenios using
+systemd-nspawn](doc/nspawn/README.md).
+
+The rest of this file documents other ways to build Belenios on
+standard POSIX systems.
+
 The easy way
 ------------
 

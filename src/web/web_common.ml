@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Belenios_platform
 open Belenios
 open Platform
@@ -43,7 +44,7 @@ module LwtRandom = struct
 
   let () =
     let rec loop () =
-      let%lwt () = Lwt_unix.sleep 1800. in
+      let* () = Lwt_unix.sleep 1800. in
       prng := init_prng ();
       loop ()
     in
@@ -113,12 +114,12 @@ let format_period l x =
 let security_logfile = ref None
 
 let open_security_log f =
-  let%lwt () =
+  let* () =
     match !security_logfile with
       | Some ic -> Lwt_io.close ic
       | None -> return ()
   in
-  let%lwt ic = Lwt_io.(
+  let* ic = Lwt_io.(
     open_file ~flags:Unix.(
       [O_WRONLY; O_APPEND; O_CREAT]
     ) ~perm:0o600 ~mode:output f
@@ -131,9 +132,9 @@ let security_log s =
     | None -> return ()
     | Some ic ->
        Lwt_io.atomic (fun ic ->
-           let%lwt () = Lwt_io.write ic (string_of_datetime (now ())) in
-           let%lwt () = Lwt_io.write ic ": " in
-           let%lwt () = Lwt_io.write_line ic (s ()) in
+           let* () = Lwt_io.write ic (string_of_datetime (now ())) in
+           let* () = Lwt_io.write ic ": " in
+           let* () = Lwt_io.write_line ic (s ()) in
            Lwt_io.flush ic
     ) ic
 
@@ -301,7 +302,7 @@ let send_email kind ~recipient ~subject ~body =
       ~subject body
   in
   let headers, _ = contents in
-  let%lwt token = generate_token ~length:6 () in
+  let* token = generate_token ~length:6 () in
   let date = format_datetime ~fmt:"%Y%m%d%H%M%S" (now ()) in
   let message_id = Printf.sprintf "<%s.%s@%s>" date token !Web_config.domain in
   headers#update_field "Message-ID" message_id;
@@ -316,10 +317,14 @@ let send_email kind ~recipient ~subject ~body =
   let return_path = !Web_config.return_path in
   let sendmail = sendmail ?return_path in
   let rec loop () =
-    try%lwt Lwt_preemptive.detach sendmail contents with
-    | Unix.Unix_error (Unix.EAGAIN, _, _) ->
-       let%lwt () = Lwt_unix.sleep 1. in
-       loop ()
+    Lwt.catch
+      (fun () -> Lwt_preemptive.detach sendmail contents)
+      (function
+       | Unix.Unix_error (Unix.EAGAIN, _, _) ->
+          let* () = Lwt_unix.sleep 1. in
+          loop ()
+       | e -> Lwt.fail e
+      )
   in loop ()
 
 let split_identity x =
@@ -345,7 +350,7 @@ let split_identity_opt x =
 let available_languages = [
     "en"; "fr"; "de"; "ro"; "it";
     "nb"; "es"; "uk"; "cs"; "oc";
-    "pt_BR"; "el"; "nl";
+    "pt_BR"; "el"; "nl"; "sk";
   ]
 
 let get_languages xs =
@@ -383,9 +388,12 @@ let extract_email =
   )
 
 let file_exists x =
-  match%lwt Lwt_unix.(access x [R_OK]) with
-  | () -> return true
-  | exception _ -> return false
+  Lwt.catch
+    (fun () ->
+      let* () = Lwt_unix.(access x [R_OK]) in
+      Lwt.return_true
+    )
+    (fun _ -> Lwt.return_false)
 
 let get_fname uuid x =
   match uuid with
@@ -395,14 +403,17 @@ let get_fname uuid x =
      !Web_config.spool_dir / raw_string_of_uuid uuid / x
 
 let read_file ?uuid x =
-  match%lwt Lwt_io.lines_of_file (get_fname uuid x) |> Lwt_stream.to_list with
-  | lines -> return_some lines
-  | exception _ -> return_none
+  Lwt.catch
+    (fun () ->
+      let* lines = Lwt_io.lines_of_file (get_fname uuid x) |> Lwt_stream.to_list in
+      Lwt.return_some lines
+    )
+    (fun _ -> Lwt.return_none)
 
 let write_file ?uuid x lines =
   let fname = get_fname uuid x in
   let fname_new = fname ^ ".new" in
-  let%lwt () =
+  let* () =
     Lwt_io.(
       with_file ~mode:Output fname_new (fun oc ->
           Lwt_list.iter_s (write_line oc) lines
@@ -412,12 +423,13 @@ let write_file ?uuid x lines =
   Lwt_unix.rename fname_new fname
 
 let cleanup_file f =
-  try%lwt Lwt_unix.unlink f with
-  | _ -> return_unit
+  Lwt.catch
+    (fun () -> Lwt_unix.unlink f)
+    (fun _ -> Lwt.return_unit)
 
 let rmdir dir =
   let command = "rm", [| "rm"; "-rf"; dir |] in
-  let%lwt _ = Lwt_process.exec command in
+  let* _ = Lwt_process.exec command in
   return_unit
 
 let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)
@@ -453,7 +465,7 @@ let is_group_fixed se =
       | None -> false
      )
 
-let default_contact = "Name <user@example.org>"
+let default_contact = ""
 
 let default_questions =
   let open Question_h_t in
@@ -467,8 +479,8 @@ let default_questions =
   in
   [| Question.Homomorphic question |]
 
-let default_name = "Name of the election"
-let default_description = "Description of the election."
+let default_name = ""
+let default_description = ""
 
 let default_creation_date = datetime_of_string "\"2018-11-26 00:00:00.000000\""
 let default_validation_date = datetime_of_string "\"2015-10-01 00:00:00.000000\""

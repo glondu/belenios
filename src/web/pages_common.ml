@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt
+open Lwt.Syntax
 open Belenios_platform
 open Belenios
 open Serializable_builtin_t
@@ -30,9 +31,14 @@ open Web_services
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 
-let direct_a uri text =
+let direct_a ?target uri text =
+  let attributes =
+    match target with
+    | Some x -> [a_target x]
+    | None -> []
+  in
   Eliom_content.Html.F.Raw.a
-    ~a:[a_href (uri_of_string (fun () -> uri))]
+    ~a:(a_href (uri_of_string (fun () -> uri)) :: attributes)
     [txt text]
 
 let static x =
@@ -54,7 +60,7 @@ let belenios_url = Eliom_service.extern
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
 let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let administer =
     match uuid with
@@ -76,11 +82,13 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
     | None -> div []
     | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
-  let%lwt warning = match !Web_config.warning_file with
+  let* warning = match !Web_config.warning_file with
     | None -> return @@ txt ""
-    | Some f -> match%lwt read_file f with
-                | None -> return @@ txt ""
-                | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+    | Some f ->
+       let* file = read_file f in
+       match file with
+       | None -> return @@ txt ""
+       | Some x -> return @@ Unsafe.data (String.concat "\n" x)
   in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
     (head (Eliom_content.Html.F.title (txt title)) [
@@ -127,7 +135,7 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
      ]))
 
 let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let administer =
     match uuid with
@@ -146,11 +154,13 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
     | None -> div []
     | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
-  let%lwt warning = match !Web_config.warning_file with
+  let* warning = match !Web_config.warning_file with
     | None -> return @@ txt ""
-    | Some f -> match%lwt read_file f with
-                | None -> return @@ txt ""
-                | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+    | Some f ->
+       let* file = read_file f in
+       match file with
+       | None -> return @@ txt ""
+       | Some x -> return @@ Unsafe.data (String.concat "\n" x)
   in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
     (head (Eliom_content.Html.F.title (txt title)) [
@@ -203,7 +213,7 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
   )
 
 let lang_box cont =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let langs = List.map (fun l -> Option ([], l, None, l = lang)) available_languages in
   let form =
@@ -264,10 +274,12 @@ let a_mailto ~dest ~subject ~body contents =
     (Netencoding.Url.encode ~plus:false subject)
     (Netencoding.Url.encode ~plus:false body)
   in
-  direct_a uri contents
+  (* target="_blank" does not work in Firefox,
+     see https://bugzilla.mozilla.org/show_bug.cgi?id=646552 *)
+  direct_a ~target:"_blank" uri contents
 
 let generic_page ~title ?service message () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let proceed = match service with
     | None -> txt ""
@@ -295,7 +307,7 @@ let raw_textarea ?rows ?cols id contents =
   Eliom_content.Html.F.Raw.textarea ~a:(id @ rows @ cols) (txt contents)
 
 let login_choose auth_systems service () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let auth_systems =
     auth_systems |>
@@ -335,7 +347,7 @@ let login_dummy ~state =
   responsive_base ~title ~content ()
 
 let login_password ~service ~allowsignups ~state =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let signup =
     if allowsignups then
@@ -375,7 +387,7 @@ let login_password ~service ~allowsignups ~state =
   responsive_base ~title:(s_ "Password login") ~content ()
 
 let login_failed ~service () =
-  let%lwt l = get_preferred_gettext () in
+  let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Authentication failed" in
   let content =

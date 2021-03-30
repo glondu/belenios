@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_platform
@@ -138,15 +139,15 @@ let fill_interactivity () =
   | None -> Lwt.return_unit
   | Some uuid ->
      let open Js_of_ocaml_lwt.XmlHttpRequest in
-     let%lwt e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
+     let* e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
      encrypted_tally := Some (String.trim e.content);
-     let%lwt e = get ("../elections/" ^ uuid ^ "/election.json") in
+     let* e = get ("../elections/" ^ uuid ^ "/election.json") in
      election := Some e.content;
      Lwt.return (compute_hash ())
 
 let () =
   Lwt.async (fun () ->
-      let%lwt _ = Lwt_js_events.onload () in
-      let%lwt () = Tool_js_i18n.auto_init "admin" in
+      let* _ = Lwt_js_events.onload () in
+      let* () = Tool_js_i18n.auto_init "admin" in
       fill_interactivity ()
     )

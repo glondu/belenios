@@ -101,7 +101,7 @@ msgstr ""
 "%d av følgende %d betrodde (bekreftelsesnøkler) [offentlige nøkler] kreves "
 "for å dekryptere valgresultatet:"
 
-#: src/tool/tool_js_booth.ml:168
+#: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
 msgstr "(ingenting)"
 
@@ -165,7 +165,7 @@ msgstr "Svar på spørsmål"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:257
+#: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
 msgstr "Minst ett av svarene er ugyldig!"
 
@@ -202,7 +202,7 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Belenios-valgavlukke"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "Blank stemme"
@@ -210,6 +210,18 @@ msgstr "Blank stemme"
 #: src/web/pages_voter.ml:267
 msgid "By using this site, you accept our "
 msgstr "Ved å bruke denne siden, godtar du vår "
+
+#: src/tool/tool_js_fingerprint.ml:83
+msgid "Compare"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:67
+msgid "Compute fingerprint"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:34
+msgid "Computed fingerprint:"
+msgstr ""
 
 #: src/web/pages_voter.ml:871
 msgid "Condorcet-Schulze method"
@@ -268,6 +280,10 @@ msgstr "Krypterer…"
 msgid "Error"
 msgstr "Feil"
 
+#: src/tool/tool_js_fingerprint.ml:74
+msgid "Expected fingerprint:"
+msgstr ""
+
 #: src/web/pages_voter.ml:636
 msgid "FAIL!"
 msgstr "FEIL!"
@@ -290,13 +306,13 @@ msgstr "Jeg er "
 msgid "I cast my vote"
 msgstr "Jeg avgir min stemme"
 
-#: src/tool/tool_js_booth.ml:235
+#: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Hvis du blir spurt om å vurdere kandidater (flertallsvurdering) er 1 den "
 "beste karakteren, høyere nummer er verre."
 
-#: src/tool/tool_js_booth.ml:238
+#: src/tool/tool_js_booth.ml:240
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Hvis du blir spurt om å vurdere kandidater (Condorcet, STV, …) bruk 1 for "
@@ -327,7 +343,7 @@ msgstr "Skriv inn identitetsdetalj"
 msgid "Input your credential "
 msgstr "Skriv inn din identitetsdetalj "
 
-#: src/tool/tool_js_booth.ml:387
+#: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
 msgstr "Ugyldig identitetsdetalj!"
 
@@ -389,11 +405,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr "Mer info er å finne "
 
-#: src/tool/tool_js_booth.ml:321
+#: src/tool/tool_js_booth.ml:323
 msgid "Next"
 msgstr "Next"
 
-#: src/tool/tool_js_booth.ml:138
+#: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
 msgstr "Ingen andre valg tillates når blank stemme avgis"
 
@@ -413,7 +429,7 @@ msgstr "Merk: Du har allerede stemt. Din stemme vil bli erstattet."
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr "Merk: Din stemme er kryptert og ingen kan se dens innhold."
 
-#: src/tool/tool_js_booth.ml:230
+#: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
 msgstr "Merknader:"
 
@@ -445,7 +461,7 @@ msgstr "Passordsinnlogging"
 msgid "Password:"
 msgstr "Passord:"
 
-#: src/tool/tool_js_booth.ml:376
+#: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Skriv inn din identitetsdetalj:"
 
@@ -456,6 +472,10 @@ msgstr "Logg inn for å bekrefte din stemme."
 #: src/web/pages_common.ml:232
 msgid "Please log in:"
 msgstr "Logg inn:"
+
+#: src/tool/tool_js_fingerprint.ml:57
+msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
+msgstr ""
 
 #: src/web/pages_voter.ml:949
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
@@ -477,7 +497,7 @@ msgstr "Vent… "
 msgid "Powered by "
 msgstr "Drevet av "
 
-#: src/tool/tool_js_booth.ml:320
+#: src/tool/tool_js_booth.ml:322
 msgid "Previous"
 msgstr "Forrige"
 
@@ -590,6 +610,14 @@ msgstr "Valget stenger om "
 msgid "The fingerprint of the encrypted tally is %s."
 msgstr ""
 
+#: src/tool/tool_js_fingerprint.ml:46
+msgid "The fingerprints differ!"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:44
+msgid "The fingerprints match!"
+msgstr ""
+
 #: src/web/pages_voter.ml:947
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
@@ -700,7 +728,7 @@ msgstr ""
 msgid "Username:"
 msgstr "Brukernavn:"
 
-#: src/tool/tool_js_booth.ml:211
+#: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
 msgstr "Verdi må være et heltall mellom 0 og 255."
 
@@ -708,7 +736,7 @@ msgstr "Verdi må være et heltall mellom 0 og 255."
 msgid "Warning:"
 msgstr "Advarsel:"
 
-#: src/tool/tool_js_booth.ml:241
+#: src/tool/tool_js_booth.ml:243
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Advarsel: Systemet vil godta ethvert heltall mellom 0 og 255, men i henhold "
@@ -755,11 +783,11 @@ msgstr "Du kan se om den finnes i "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Du kan se om den finnes i valgurnen, tilgjengelig på"
 
-#: src/tool/tool_js_booth.ml:125
+#: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
 msgstr "Du må velge minst %d svar"
 
-#: src/tool/tool_js_booth.ml:128
+#: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
 msgstr "Du kan ikke velge mer enn %d svar"
 
@@ -851,7 +879,7 @@ msgstr "opprett en konto"
 msgid "has been recorded."
 msgstr "har blitt lagret."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
+#: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
 msgstr "her"

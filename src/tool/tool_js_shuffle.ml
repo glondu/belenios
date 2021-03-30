@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_platform
@@ -52,7 +53,7 @@ let shuffle election ciphertexts =
       else
         None
     in
-    let%lwt shuffle = E.shuffle_ciphertexts ciphertexts in
+    let* shuffle = E.shuffle_ciphertexts ciphertexts in
     let r = string_of_shuffle E.G.write shuffle in
     let () =
       match id with
@@ -67,7 +68,7 @@ let shuffle election ciphertexts =
     let n =
       Array.fold_left (fun accu x -> accu + Array.length x) 0 ciphertexts
     in
-    let%lwt x = LwtJsRandom.random E.G.q in
+    let* x = LwtJsRandom.random E.G.q in
     let start = new%js Js.date_now in
     let _ = E.G.(g **~ x) in
     let stop = new%js Js.date_now in
@@ -86,21 +87,21 @@ let shuffle election ciphertexts =
 
 let () =
   Lwt.async (fun () ->
-      let%lwt _ = Lwt_js_events.onload () in
-      let%lwt () = Tool_js_i18n.auto_init "admin" in
+      let* _ = Lwt_js_events.onload () in
+      let* () = Tool_js_i18n.auto_init "admin" in
       let uuid = List.assoc "uuid" (get_params ()) in
       let open Js_of_ocaml_lwt.XmlHttpRequest in
-      let%lwt election = get ("../elections/" ^ uuid ^ "/election.json") in
-      let%lwt ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
+      let* election = get ("../elections/" ^ uuid ^ "/election.json") in
+      let* ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
       set_textarea "current_ballots" ciphertexts.content;
       let full_shuffle = shuffle election.content ciphertexts.content in
       match Dom_html.getElementById_coerce "compute_shuffle" Dom_html.CoerceTo.button with
       | None -> Lwt.return_unit
       | Some btn ->
-         let%lwt _ = Lwt_js_events.click btn in
+         let* _ = Lwt_js_events.click btn in
          set_element_display "controls_div" "none";
          set_element_display "wait_div" "block";
-         let%lwt shuffle = full_shuffle () in
+         let* shuffle = full_shuffle () in
          set_textarea "shuffle" shuffle;
          set_element_display "wait_div" "none";
          set_content "hash" (Platform.sha256_b64 shuffle);

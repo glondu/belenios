@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-12-03 08:51+0000\n"
-"PO-Revision-Date: 2021-03-01 09:51+0000\n"
+"PO-Revision-Date: 2021-03-07 20:50+0000\n"
 "Last-Translator: Paulo Figueiredo <phsrf@uol.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "belenios/voter/pt_BR/>\n"
@@ -13,11 +13,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.5\n"
+"X-Generator: Weblate 4.5.1\n"
 
 #: src/web/pages_common.ml:272
 msgid " (if you forgot it, for example)."
-msgstr " (se você esqueceu, por exemplo)."
+msgstr " (se você esquecê-la, por exemplo)."
 
 #: src/web/pages_voter.ml:630
 msgid " A confirmation e-mail has been sent to you."
@@ -61,7 +61,7 @@ msgstr " foi recebido, mas não foi registrado ainda. "
 
 #: src/web/pages_voter.ml:704
 msgid " have been tallied."
-msgstr " foram considerados."
+msgstr " foram apurados."
 
 #: src/web/web_common.ml:107
 msgid " hour(s)"
@@ -98,10 +98,10 @@ msgstr "%d cédula(s) inválida(s)"
 #: src/web/pages_voter.ml:353
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
-"%d das seguintes %d autoridades (chaves verificadoras) [chaves públicas] são "
-"necessárias para descriptografar o resultado da eleição:"
+"%d das seguintes %d autoridades certificadoras (chaves verificadoras) ["
+"chaves públicas] são necessárias para descriptografar o resultado da eleição:"
 
-#: src/tool/tool_js_booth.ml:168
+#: src/tool/tool_js_booth.ml:170
 msgid "(nothing)"
 msgstr "(nada)"
 
@@ -148,11 +148,11 @@ msgstr "Cédulas aceitas"
 
 #: src/web/pages_common.ml:62
 msgid "Administer elections"
-msgstr "Administrador das eleições"
+msgstr "Administrar eleições"
 
 #: src/web/pages_common.ml:64
 msgid "Administer this election"
-msgstr "Administrador desta eleição"
+msgstr "Administrar esta eleição"
 
 #: src/web/pages_voter.ml:200
 msgid "Advanced mode"
@@ -173,7 +173,7 @@ msgstr "Responder às questões"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr "Por conveniência, 0 é sempre interpretado como a nota mais baixa."
 
-#: src/tool/tool_js_booth.ml:257
+#: src/tool/tool_js_booth.ml:259
 msgid "At least one of the answers is invalid!"
 msgstr "Ao menos uma das respostas é inválida!"
 
@@ -210,7 +210,7 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Urna Belenios"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#: src/tool/tool_js_booth.ml:161 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:78
 msgid "Blank vote"
 msgstr "Voto em branco"
@@ -218,6 +218,18 @@ msgstr "Voto em branco"
 #: src/web/pages_voter.ml:267
 msgid "By using this site, you accept our "
 msgstr "Ao utilizar este site, você aceita nossas "
+
+#: src/tool/tool_js_fingerprint.ml:83
+msgid "Compare"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:67
+msgid "Compute fingerprint"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:34
+msgid "Computed fingerprint:"
+msgstr ""
 
 #: src/web/pages_voter.ml:871
 msgid "Condorcet-Schulze method"
@@ -265,7 +277,7 @@ msgstr "Identificador da eleição: "
 
 #: src/web/pages_voter.ml:831 src/web/pages_common.ml:96
 msgid "Election server"
-msgstr "Servidor da eleição"
+msgstr "Servidor de eleições"
 
 #: src/web/pages_voter.ml:818
 msgid "Encrypting…"
@@ -276,6 +288,10 @@ msgstr "Criptografando…"
 #. src/web/site_voter.ml:266
 msgid "Error"
 msgstr "Erro"
+
+#: src/tool/tool_js_fingerprint.ml:74
+msgid "Expected fingerprint:"
+msgstr ""
 
 #: src/web/pages_voter.ml:636
 msgid "FAIL!"
@@ -299,13 +315,13 @@ msgstr "Eu sou "
 msgid "I cast my vote"
 msgstr "Eu voto"
 
-#: src/tool/tool_js_booth.ml:235
+#: src/tool/tool_js_booth.ml:237
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Se for solicitado a você classificar os candidatos (voto majoritário) então "
 "1 é a melhor classificação, números mais altos são piores."
 
-#: src/tool/tool_js_booth.ml:238
+#: src/tool/tool_js_booth.ml:240
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Se for solicitado a você classificar os candidatos (Condorcet, STV, ...) "
@@ -341,7 +357,7 @@ msgstr "Inserir credencial"
 msgid "Input your credential "
 msgstr "Insira sua credencial "
 
-#: src/tool/tool_js_booth.ml:387
+#: src/tool/tool_js_booth.ml:389
 msgid "Invalid credential!"
 msgstr "Credencial inválida!"
 
@@ -405,11 +421,11 @@ msgstr "Existem muitas variações de STV, nós documentamos nossas escolhas em 
 msgid "More information can be found "
 msgstr "Maiores informações podem ser encontradas "
 
-#: src/tool/tool_js_booth.ml:321
+#: src/tool/tool_js_booth.ml:323
 msgid "Next"
 msgstr "Próximo"
 
-#: src/tool/tool_js_booth.ml:138
+#: src/tool/tool_js_booth.ml:140
 msgid "No other choices are allowed when voting blank"
 msgstr "Nenhuma outra opção é permitida quando se vota em branco"
 
@@ -430,7 +446,7 @@ msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr ""
 "Nota: sua cédula está criptografada e ninguém poderá ver o seu conteúdo."
 
-#: src/tool/tool_js_booth.ml:230
+#: src/tool/tool_js_booth.ml:232
 msgid "Notes:"
 msgstr "Notas:"
 
@@ -462,7 +478,7 @@ msgstr "Entrar com senha"
 msgid "Password:"
 msgstr "Senha:"
 
-#: src/tool/tool_js_booth.ml:376
+#: src/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Por favor, insira sua credencial:"
 
@@ -473,6 +489,10 @@ msgstr "Por favor entre para confirmar seu voto."
 #: src/web/pages_common.ml:232
 msgid "Please log in:"
 msgstr "Por favor entre:"
+
+#: src/tool/tool_js_fingerprint.ml:57
+msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
+msgstr ""
 
 #: src/web/pages_voter.ml:949
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
@@ -493,13 +513,13 @@ msgstr "Por favor espere enquanto sua cédula está sendo criptografada…"
 
 #: src/web/pages_voter.ml:723
 msgid "Please wait… "
-msgstr "Por favor espere... "
+msgstr "Por favor, espere... "
 
 #: src/web/pages_common.ml:114
 msgid "Powered by "
 msgstr "Distribuído por "
 
-#: src/tool/tool_js_booth.ml:320
+#: src/tool/tool_js_booth.ml:322
 msgid "Previous"
 msgstr "Anterior"
 
@@ -509,7 +529,7 @@ msgstr "Política de privacidade"
 
 #: src/web/pages_common.ml:200
 msgid "Proceed"
-msgstr "Prosseguir"
+msgstr "Continuar"
 
 #: src/web/pages_voter.ml:1080
 msgid "Raw events"
@@ -542,7 +562,7 @@ msgstr "Selecione entre %d e %d resposta(s)"
 
 #: src/web/pages_common.ml:141
 msgid "Set"
-msgstr "Selecionar"
+msgstr "Confirmar"
 
 #: src/web/pages_voter.ml:896
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
@@ -616,6 +636,14 @@ msgstr "A eleição será fechada em "
 msgid "The fingerprint of the encrypted tally is %s."
 msgstr "A identificação da criptografia da contagem é %s."
 
+#: src/tool/tool_js_fingerprint.ml:46
+msgid "The fingerprints differ!"
+msgstr ""
+
+#: src/tool/tool_js_fingerprint.ml:44
+msgid "The fingerprints match!"
+msgstr ""
+
 #: src/web/pages_voter.ml:947
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
@@ -668,7 +696,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:169
 msgid "This election has been tallied."
-msgstr "Essa eleição já foi contada."
+msgstr "Essa eleição já foi apurada."
 
 #: src/web/pages_voter.ml:279
 msgid "This election is administered by %s."
@@ -728,15 +756,15 @@ msgstr "Autoridades embaralharam as cédulas na seguinte ordem:"
 msgid "Username:"
 msgstr "Nome de usuário:"
 
-#: src/tool/tool_js_booth.ml:211
+#: src/tool/tool_js_booth.ml:213
 msgid "Value must be an integer between 0 and 255."
 msgstr "O valor deve ser um inteiro entre 0 e 255."
 
 #: src/web/pages_voter.ml:570
 msgid "Warning:"
-msgstr "Aviso:"
+msgstr "Atenção:"
 
-#: src/tool/tool_js_booth.ml:241
+#: src/tool/tool_js_booth.ml:243
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Aviso: o sistema aceitará qualquer valor inteiro entre 0 e 255 mas, de "
@@ -786,11 +814,11 @@ msgstr "Você pode verificar sua presença em "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Você pode verificar sua presença na urna, disponível em"
 
-#: src/tool/tool_js_booth.ml:125
+#: src/tool/tool_js_booth.ml:127
 msgid "You must select at least %d answer(s)"
 msgstr "Você deve selecionar pelo menos %d resposta(s)"
 
-#: src/tool/tool_js_booth.ml:128
+#: src/tool/tool_js_booth.ml:130
 msgid "You must select at most %d answer(s)"
 msgstr "Você deve selecionar no máximo %d resposta(s)"
 
@@ -883,7 +911,7 @@ msgstr "criar uma conta"
 msgid "has been recorded."
 msgstr "foi registrado."
 
-#: src/tool/tool_js_booth.ml:374 src/web/pages_voter.ml:1030
+#: src/tool/tool_js_booth.ml:376 src/web/pages_voter.ml:1030
 #. src/web/pages_voter.ml:940
 msgid "here"
 msgstr "aqui"
@@ -898,7 +926,7 @@ msgstr "parâmetros"
 
 #: src/web/pages_voter.ml:268
 msgid "personal data policy"
-msgstr "política de dados pessoais"
+msgstr "política de privacidade de dados pessoais"
 
 #: src/web/pages_voter.ml:59
 msgid "public credentials"
@@ -926,7 +954,7 @@ msgstr "A eleição está fechada"
 
 #: src/web/pages_voter.ml:56
 msgid "trustees"
-msgstr "autoridades"
+msgstr "autoridades certificadoras"
 
 #: src/web/pages_common.ml:310
 msgid "try to log in again"

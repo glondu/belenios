@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Js_of_ocaml
 open Belenios
 open Belenios_tool_js_common
@@ -187,14 +188,16 @@ let createHomomorphicQuestionPropDiv min max blank =
   Dom.appendChild x t;
   Dom.appendChild container x;
   (* is blank allowed? *)
-  let x = Dom_html.createDiv document in
+  let checkboxContainer = Dom_html.createDiv document in
+  let x = Dom_html.createLabel document in
   let h_blank = Dom_html.createInput ~_type:(Js.string "checkbox") document in
   h_blank##.className := Js.string "question_blank";
   h_blank##.checked := Js.(match blank with Some true -> _true | _ -> _false);
   Dom.appendChild x h_blank;
   let t = document##createTextNode (Js.string (s_ "Blank vote is allowed")) in
   Dom.appendChild x t;
-  Dom.appendChild container x;
+  Dom.appendChild checkboxContainer x;
+  Dom.appendChild container checkboxContainer;
   container
 
 let default_props = None, 0, 1
@@ -457,8 +460,8 @@ let fill_interactivity () =
 
 let () =
   Lwt.async (fun () ->
-      let%lwt _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
-      let%lwt () = Tool_js_i18n.auto_init "admin" in
+      let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
+      let* () = Tool_js_i18n.auto_init "admin" in
       ignore (fill_interactivity ());
       Lwt.return_unit
     )
