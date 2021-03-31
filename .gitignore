@@ -12,5 +12,6 @@ _testdata
 venv
 __pycache__
 .hypothesis
+node_modules
 geckodriver.log
 env.sh
