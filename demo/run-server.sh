@@ -25,6 +25,11 @@ check_nonempty_var () {
 }
 
 check_nonempty_var BELENIOS_CONFIG
+
+if [ -f ${BELENIOS_CONFIG}.preload ]; then
+   . ${BELENIOS_CONFIG}.preload
+fi
+
 check_nonempty_var BELENIOS_VARDIR
 check_nonempty_var BELENIOS_RUNDIR
 check_nonempty_var BELENIOS_BINDIR
