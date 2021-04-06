@@ -32,5 +32,10 @@ val cast_confirmed : (string * int, Web_common.error) result option Eliom_refere
 
 val language : string option Eliom_reference.eref
 
+type link_kind =
+  [ `CreateAccount
+  | `ChangePassword of string
+  ]
+
 val signup_address : string option Eliom_reference.eref
-val signup_env : (string * Web_signup.link_kind) option Eliom_reference.eref
+val signup_env : (string * link_kind) option Eliom_reference.eref

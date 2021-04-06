@@ -29,8 +29,9 @@ val get_captcha : challenge:string -> (string * string) Lwt.t
 val check_captcha : challenge:string -> response:string -> bool Lwt.t
 
 type link_kind =
-  | CreateAccount
-  | ChangePassword of string
+  [ `CreateAccount
+  | `ChangePassword of string
+  ]
 
 val send_confirmation_link : (module Web_i18n_sig.GETTEXT) -> service:string -> string -> unit Lwt.t
 val send_changepw_link : (module Web_i18n_sig.GETTEXT) -> service:string -> address:string -> username:string -> unit Lwt.t

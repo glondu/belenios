@@ -2604,8 +2604,8 @@ let () =
       let* address = Eliom_reference.get Web_state.signup_address in
       let* x = Eliom_reference.get Web_state.signup_env in
       match address, x with
-      | Some address, Some (_, Web_signup.CreateAccount) -> Pages_admin.signup address None ""
-      | Some address, Some (_, Web_signup.ChangePassword username) -> Pages_admin.changepw ~username ~address None
+      | Some address, Some (_, `CreateAccount) -> Pages_admin.signup address None ""
+      | Some address, Some (_, `ChangePassword username) -> Pages_admin.changepw ~username ~address None
       | _ -> forbidden ()
     )
 
@@ -2617,7 +2617,7 @@ let () =
       let* address = Eliom_reference.get Web_state.signup_address in
       let* x = Eliom_reference.get Web_state.signup_env in
       match address, x with
-      | Some email, Some (service, Web_signup.CreateAccount) ->
+      | Some email, Some (service, `CreateAccount) ->
          if password = password2 then (
            let user = { user_name = username; user_domain = service } in
            let* x = Web_auth_password.add_account user ~password ~email in
@@ -2641,7 +2641,7 @@ let () =
       let* address = Eliom_reference.get Web_state.signup_address in
       let* x = Eliom_reference.get Web_state.signup_env in
       match address, x with
-      | Some address, Some (service, Web_signup.ChangePassword username) ->
+      | Some address, Some (service, `ChangePassword username) ->
          if password = password2 then (
            let user = { user_name = username; user_domain = service } in
            let* x = Web_auth_password.change_password user ~password in

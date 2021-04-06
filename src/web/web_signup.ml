@@ -83,8 +83,9 @@ let check_captcha ~challenge ~response =
      Lwt.return (response = x.response)
 
 type link_kind =
-  | CreateAccount
-  | ChangePassword of string
+  [ `CreateAccount
+  | `ChangePassword of string
+  ]
 
 type link = {
     service : string;
@@ -126,7 +127,7 @@ let mail_confirmation_link l address code =
 let send_confirmation_link l ~service address =
   let* code = generate_numeric () in
   let l_expiration_time = datetime_add (now ()) (second 900.) in
-  let kind = CreateAccount in
+  let kind = `CreateAccount in
   let link = {service; code; l_expiration_time; kind} in
   let nlinks = filter_links_by_time !links in
   links := SMap.add address link nlinks;
@@ -159,7 +160,7 @@ let mail_changepw_link l address code =
 let send_changepw_link l ~service ~address ~username =
   let* code = generate_numeric () in
   let l_expiration_time = datetime_add (now ()) (second 900.) in
-  let kind = ChangePassword username in
+  let kind = `ChangePassword username in
   let link = {service; code; l_expiration_time; kind} in
   let nlinks = filter_links_by_time !links in
   links := SMap.add address link nlinks;
