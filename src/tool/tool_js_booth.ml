@@ -377,17 +377,22 @@ let createStartButton params intro_div qs =
   let t = document##createTextNode (Js.string (s_ "here")) in
   b##.onclick := Dom_html.handler (fun _ ->
     (match prompt (s_ "Please enter your credential:") with
-    | Some cred when Credential.check cred ->
-      intro_div##.style##.display := Js.string "none";
-      set_element_display "question_div" "block";
-      Dom_html.window##.onbeforeunload := Dom_html.handler (fun _ ->
-        Js._false
-      );
-      progress_step 2;
-      document##getElementById (Js.string "question_div") >>== fun e ->
-      appendQuestionNavigation e cred params qs
-    | Some _ ->
-       alert (s_ "Invalid credential!")
+     | Some cred ->
+        (match Credential.parse cred with
+         | `Valid ->
+            intro_div##.style##.display := Js.string "none";
+            set_element_display "question_div" "block";
+            Dom_html.window##.onbeforeunload := Dom_html.handler (fun _ ->
+                                                    Js._false
+                                                  );
+            progress_step 2;
+            document##getElementById (Js.string "question_div") >>== fun e ->
+            appendQuestionNavigation e cred params qs
+         | `Invalid ->
+            alert (s_ "Invalid credential!")
+         | `MaybePassword ->
+            alert (s_ "This looks like a password... Maybe you looked at the wrong e-mail?")
+        )
     | None -> ()
     );
     Js._false

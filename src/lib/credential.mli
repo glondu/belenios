@@ -28,6 +28,7 @@ module MakeGenerate (M : RANDOM) : sig
   val generate : unit -> string M.t
 end
 
+val parse : string -> [`Valid | `Invalid | `MaybePassword]
 val check : string -> bool
 
 module MakeDerive (G : GROUP) : sig
