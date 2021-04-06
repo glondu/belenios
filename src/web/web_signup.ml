@@ -88,7 +88,7 @@ type link_kind =
 
 type link = {
     service : string;
-    address : string;
+    code : string;
     l_expiration_time : datetime;
     kind : link_kind;
 }
@@ -101,92 +101,71 @@ let filter_links_by_time table =
       datetime_compare now l_expiration_time <= 0
     ) table
 
-let filter_links_by_address address table =
-  SMap.filter (fun _ x -> x.address = address) table
-
 let send_confirmation_link ~service address =
-  let* token = generate_token ~length:20 () in
-  let l_expiration_time = datetime_add (now ()) (day 1) in
+  let* code = generate_numeric () in
+  let l_expiration_time = datetime_add (now ()) (second 900.) in
   let kind = CreateAccount in
-  let link = {service; address; l_expiration_time; kind} in
-  let nlinks = filter_links_by_time (filter_links_by_address address !links) in
-  links := SMap.add token link nlinks;
-  let uri =
-    Eliom_uri.make_string_uri ~absolute:true
-      ~service:Web_services.signup_login ()
-    |> rewrite_prefix
-  in
+  let link = {service; code; l_expiration_time; kind} in
+  let nlinks = filter_links_by_time !links in
+  links := SMap.add address link nlinks;
   let body =
     Printf.sprintf "\
 Dear %s,
 
 Your e-mail address has been used to create an account on our Belenios
-server. To confirm this creation, please click on the following link:
+server. To confirm this creation, please use the following code:
 
   %s
 
-or copy and paste it in a web browser.
-
-Verification code: %s
-
-Warning: this code is valid for 1 day, and previous codes sent to this
+Warning: this code is valid for 15 minutes, and previous codes sent to this
 address are no longer valid.
 
 Best regards,
 
 -- \n\
-Belenios Server" address uri token
+Belenios Server" address code
   in
   let subject = "Belenios account creation" in
   let* () = send_email MailAccountCreation ~recipient:address ~subject ~body in
   Lwt.return_unit
 
 let send_changepw_link ~service ~address ~username =
-  let* token = generate_token ~length:20 () in
-  let l_expiration_time = datetime_add (now ()) (day 1) in
+  let* code = generate_numeric () in
+  let l_expiration_time = datetime_add (now ()) (second 900.) in
   let kind = ChangePassword username in
-  let link = {service; address; l_expiration_time; kind} in
-  let nlinks = filter_links_by_time (filter_links_by_address address !links) in
-  links := SMap.add token link nlinks;
-  let uri =
-    Eliom_uri.make_string_uri ~absolute:true
-      ~service:Web_services.signup_login ()
-    |> rewrite_prefix
-  in
+  let link = {service; code; l_expiration_time; kind} in
+  let nlinks = filter_links_by_time !links in
+  links := SMap.add address link nlinks;
   let body =
     Printf.sprintf "\
 Dear %s,
 
 There has been a request to change the password of your account on our
-Belenios server. To confirm this, please click on the following link:
+Belenios server. To confirm this, please use the following code:
 
   %s
 
-or copy and paste it in a web browser.
-
-Verification code: %s
-
-Warning: this code is valid for 1 day, and previous codes sent to this
+Warning: this code is valid for 15 minutes, and previous codes sent to this
 address are no longer valid.
 
 Best regards,
 
 -- \n\
-Belenios Server" address uri token
+Belenios Server" address code
   in
   let subject = "Belenios password change" in
   let* () = send_email MailPasswordChange ~recipient:address ~subject ~body in
   Lwt.return_unit
 
-let confirm_link token =
+let confirm_link address =
   links := filter_links_by_time !links;
-  match SMap.find_opt token !links with
+  match SMap.find_opt address !links with
   | None -> Lwt.return_none
-  | Some x -> Lwt.return_some (token, x.service, x.address, x.kind)
+  | Some x -> Lwt.return_some (x.code, x.service, x.kind)
 
-let remove_link token =
+let remove_link address =
   links := filter_links_by_time !links;
-  links := SMap.remove token !links;
+  links := SMap.remove address !links;
   Lwt.return_unit
 
 let cracklib =

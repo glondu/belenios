@@ -2528,11 +2528,8 @@ let () =
       match error with
       | None ->
          let* () = Web_signup.send_confirmation_link ~service email in
-         let message =
-           Printf.sprintf
-             (f_ "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation.") email
-         in
-         Pages_common.generic_page ~title:(s_ "Account creation") message ()
+         let* () = Eliom_reference.set Web_state.signup_address (Some email) in
+         Pages_admin.signup_login ()
       | _ -> signup_captcha_handler service error email
     )
 
@@ -2574,12 +2571,10 @@ let () =
                     username email service
                 )
            | Some (username, address) ->
+              let* () = Eliom_reference.set Web_state.signup_address (Some address) in
               Web_signup.send_changepw_link ~service ~address ~username
          in
-         let message =
-           s_ "If the account exists, an e-mail was sent with a confirmation link. Please click on it to change your password."
-         in
-         Pages_common.generic_page ~title:(s_ "Change password") message ()
+         Pages_admin.signup_login ()
       | _ -> changepw_captcha_handler service error email username
     )
 
@@ -2588,28 +2583,30 @@ let () =
     (fun challenge () -> Web_signup.get_captcha ~challenge)
 
 let () =
-  Any.register ~service:signup_login
-    (fun () () -> Pages_admin.signup_login () >>= Html.send)
-
-let () =
   Any.register ~service:signup_login_post
-    (fun () token ->
-      let* x = Web_signup.confirm_link token in
-      match x with
+    (fun () code ->
+      let code = PString.trim code in
+      let* address = Eliom_reference.get Web_state.signup_address in
+      match address with
       | None -> forbidden ()
-      | Some env ->
-         let* () = Eliom_reference.set Web_state.signup_env (Some env) in
-         redir_preapply signup () ()
+      | Some address ->
+         let* x = Web_signup.confirm_link address in
+         match x with
+         | Some (code2, service, kind) when code = code2 ->
+            let* () = Eliom_reference.set Web_state.signup_env (Some (service, kind)) in
+            redir_preapply signup () ()
+         | _ -> forbidden ()
     )
 
 let () =
   Html.register ~service:signup
     (fun () () ->
+      let* address = Eliom_reference.get Web_state.signup_address in
       let* x = Eliom_reference.get Web_state.signup_env in
-      match x with
-      | None -> forbidden ()
-      | Some (_, _, address, Web_signup.CreateAccount) -> Pages_admin.signup address None ""
-      | Some (_, _, address, Web_signup.ChangePassword username) -> Pages_admin.changepw ~username ~address None
+      match address, x with
+      | Some address, Some (_, Web_signup.CreateAccount) -> Pages_admin.signup address None ""
+      | Some address, Some (_, Web_signup.ChangePassword username) -> Pages_admin.changepw ~username ~address None
+      | _ -> forbidden ()
     )
 
 let () =
@@ -2617,15 +2614,17 @@ let () =
     (fun () (username, (password, password2)) ->
       let* l = get_preferred_gettext () in
       let open (val l) in
+      let* address = Eliom_reference.get Web_state.signup_address in
       let* x = Eliom_reference.get Web_state.signup_env in
-      match x with
-      | Some (token, service, email, Web_signup.CreateAccount) ->
+      match address, x with
+      | Some email, Some (service, Web_signup.CreateAccount) ->
          if password = password2 then (
            let user = { user_name = username; user_domain = service } in
            let* x = Web_auth_password.add_account user ~password ~email in
            match x with
            | Ok () ->
-              let* () = Web_signup.remove_link token in
+              let* () = Web_signup.remove_link email in
+              let* () = Eliom_reference.unset Web_state.signup_address in
               let* () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
               Pages_common.generic_page ~title:(s_ "Account creation") ~service (s_ "The account has been created.") ()
@@ -2639,15 +2638,17 @@ let () =
     (fun () (password, password2) ->
       let* l = get_preferred_gettext () in
       let open (val l) in
+      let* address = Eliom_reference.get Web_state.signup_address in
       let* x = Eliom_reference.get Web_state.signup_env in
-      match x with
-      | Some (token, service, address, Web_signup.ChangePassword username) ->
+      match address, x with
+      | Some address, Some (service, Web_signup.ChangePassword username) ->
          if password = password2 then (
            let user = { user_name = username; user_domain = service } in
            let* x = Web_auth_password.change_password user ~password in
            match x with
            | Ok () ->
-              let* () = Web_signup.remove_link token in
+              let* () = Web_signup.remove_link address in
+              let* () = Eliom_reference.unset Web_state.signup_address in
               let* () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
               Pages_common.generic_page ~title:(s_ "Change password") ~service (s_ "The password has been changed.") ()

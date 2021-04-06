@@ -129,8 +129,7 @@ let set_language = create ~csrf_safe:true ~path:No_path ~meth:(Get (string "lang
 let signup_captcha = create ~path:(Path ["signup"; ""]) ~meth:(Get (string "service")) ()
 let signup_captcha_post = create_attached_post ~csrf_safe:true ~fallback:signup_captcha ~post_params:(string "challenge" ** string "response" ** string "email") ()
 let signup_captcha_img = create ~path:(Path ["signup"; "captcha"]) ~meth:(Get (string "challenge")) ()
-let signup_login = create ~path:(Path ["signup"; "login"]) ~meth:(Get unit) ()
-let signup_login_post = create_attached_post ~csrf_safe:true ~fallback:signup_login ~post_params:(string "token") ()
+let signup_login_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "code")) ()
 let signup = create ~path:(Path ["signup"; "account"]) ~meth:(Get unit) ()
 let signup_post = create_attached_post ~csrf_safe:true ~fallback:signup ~post_params:(string "username" ** string "password" ** string "password2") ()
 

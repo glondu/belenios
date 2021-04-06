@@ -2905,12 +2905,12 @@ let signup_login () =
   let open (val l) in
   let form =
     post_form ~service:signup_login_post
-      (fun ltoken ->
+      (fun lcode ->
         [
           div [
               txt (s_ "Please enter the verification code received by e-mail:");
               txt " ";
-              input ~input_type:`Text ~name:ltoken string;
+              input ~input_type:`Text ~name:lcode string;
             ];
           div [
               input ~input_type:`Submit ~value:(s_ "Submit") string;

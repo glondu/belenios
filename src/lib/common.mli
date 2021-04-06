@@ -82,6 +82,7 @@ module DirectRandom : RANDOM with type 'a t = 'a
 
 module MakeGenerateToken (R : RANDOM) : sig
   val generate_token : ?length:int -> unit -> string R.t
+  val generate_numeric : ?length:int -> unit -> string R.t
 end
 
 (** Input: [str = "something[,weight]"]

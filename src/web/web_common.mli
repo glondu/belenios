@@ -127,6 +127,7 @@ type add_account_error =
   | BadSpaceInPassword
 
 val generate_token : ?length:int -> unit -> string Lwt.t
+val generate_numeric : ?length:int -> unit -> string Lwt.t
 
 val string_of_user : user -> string
 
