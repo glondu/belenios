@@ -91,7 +91,6 @@ let election_close = create_attached_post ~csrf_safe:true ~fallback:election_adm
 let election_hide_result = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:(string "date") ()
 let election_show_result = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_auto_post = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:(string "open" ** string "close") ()
-let election_archive = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_delete = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_vote = create ~path:(Path ["vote.html"]) ~meth:(Get unit) ()
 let election_cast = create ~path:(Path ["election"; "cast"]) ~meth:(Get (uuid "uuid")) ()

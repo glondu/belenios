@@ -2521,13 +2521,6 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
       br ();
       hr ();
       archive_date;
-      post_form ~service:election_archive (fun () ->
-        [
-          input ~input_type:`Submit ~value:(s_ "Archive election") string;
-          txt " ";
-          txt (s_ "Warning: This action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).");
-        ]
-      ) uuid;
     ]
   in
   let* deletion_date = match state with

@@ -1652,18 +1652,6 @@ let () =
     )
 
 let () =
-  Any.register ~service:election_archive
-    (fun uuid () ->
-      with_site_user (fun u ->
-          let* metadata = Web_persist.get_election_metadata uuid in
-          if metadata.e_owner = Some u then (
-            let* () = archive_election uuid in
-            redir_preapply election_admin uuid ()
-          ) else forbidden ()
-        )
-    )
-
-let () =
   Any.register ~service:election_delete
   (fun uuid () ->
     with_site_user (fun u ->
