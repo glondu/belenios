@@ -98,7 +98,7 @@ msgstr "%d hylättyä äänestyslippua"
 #: src/web/pages_voter.ml:354
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
-"%d seuraavista luottamushenkilöistä (vahvistusavaimet) [julkiset avaimet] "
+"%d/%d seuraavista luottamushenkilöistä (vahvistusavaimet) [julkiset avaimet] "
 "vaaditaan äänestystuloksen purkamiseksi:"
 
 #: src/tool/tool_js_booth.ml:171
