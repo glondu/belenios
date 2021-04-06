@@ -60,3 +60,6 @@ val signup : string -> add_account_error option -> string -> [> `Html ] Eliom_co
 val changepw : username:string -> address:string -> add_account_error option -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val compute_fingerprint : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
+val mail_confirmation_link : (module Web_i18n_sig.GETTEXT) -> string -> string -> string * string
+val mail_changepw_link : (module Web_i18n_sig.GETTEXT) -> string -> string -> string * string

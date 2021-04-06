@@ -3035,3 +3035,47 @@ let compute_fingerprint () =
   in
   let content = [interactivity] in
   base ~title:(s_ "Compute fingerprint") ~content ()
+
+let mail_confirmation_link l address code =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Your e-mail address has been used to create an account on our Belenios server.");
+  add_sentence b (s_ "To confirm this creation, please use the following code:");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b code;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Best regards,");
+  add_newline b; add_newline b;
+  add_string b "-- ";
+  add_newline b;
+  add_string b (s_ "Belenios Server");
+  let body = contents b in
+  let subject = s_ "Belenios account creation" in
+  subject, body
+
+let mail_changepw_link l address code =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
+  add_newline b; add_newline b;
+  add_sentence b (s_ "There has been a request to change the password of your account on our Belenios server.");
+  add_sentence b (s_ "To confirm this, please use the following code:");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b code;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Best regards,");
+  add_newline b; add_newline b;
+  add_string b "-- ";
+  add_newline b;
+  add_string b (s_ "Belenios Server");
+  let body = contents b in
+  let subject = s_ "Belenios password change" in
+  subject, body

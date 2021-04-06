@@ -102,28 +102,6 @@ let filter_links_by_time table =
       datetime_compare now l_expiration_time <= 0
     ) table
 
-let mail_confirmation_link l address code =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  let open Mail_formatter in
-  let b = create () in
-  add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
-  add_newline b; add_newline b;
-  add_sentence b (s_ "Your e-mail address has been used to create an account on our Belenios server.");
-  add_sentence b (s_ "To confirm this creation, please use the following code:");
-  add_newline b; add_newline b;
-  add_string b "  "; add_string b code;
-  add_newline b; add_newline b;
-  add_sentence b (s_ "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid.");
-  add_newline b; add_newline b;
-  add_sentence b (s_ "Best regards,");
-  add_newline b; add_newline b;
-  add_string b "-- ";
-  add_newline b;
-  add_string b (s_ "Belenios Server");
-  let body = contents b in
-  let subject = s_ "Belenios account creation" in
-  subject, body
-
 let send_confirmation_link l ~service address =
   let* code = generate_numeric () in
   let l_expiration_time = datetime_add (now ()) (second 900.) in
@@ -131,31 +109,9 @@ let send_confirmation_link l ~service address =
   let link = {service; code; l_expiration_time; kind} in
   let nlinks = filter_links_by_time !links in
   links := SMap.add address link nlinks;
-  let subject, body = mail_confirmation_link l address code in
+  let subject, body = Pages_admin.mail_confirmation_link l address code in
   let* () = send_email MailAccountCreation ~recipient:address ~subject ~body in
   Lwt.return_unit
-
-let mail_changepw_link l address code =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  let open Mail_formatter in
-  let b = create () in
-  add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
-  add_newline b; add_newline b;
-  add_sentence b (s_ "There has been a request to change the password of your account on our Belenios server.");
-  add_sentence b (s_ "To confirm this, please use the following code:");
-  add_newline b; add_newline b;
-  add_string b "  "; add_string b code;
-  add_newline b; add_newline b;
-  add_sentence b (s_ "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid.");
-  add_newline b; add_newline b;
-  add_sentence b (s_ "Best regards,");
-  add_newline b; add_newline b;
-  add_string b "-- ";
-  add_newline b;
-  add_string b (s_ "Belenios Server");
-  let body = contents b in
-  let subject = s_ "Belenios password change" in
-  subject, body
 
 let send_changepw_link l ~service ~address ~username =
   let* code = generate_numeric () in
@@ -164,7 +120,7 @@ let send_changepw_link l ~service ~address ~username =
   let link = {service; code; l_expiration_time; kind} in
   let nlinks = filter_links_by_time !links in
   links := SMap.add address link nlinks;
-  let subject, body = mail_changepw_link l address code in
+  let subject, body = Pages_admin.mail_changepw_link l address code in
   let* () = send_email MailPasswordChange ~recipient:address ~subject ~body in
   Lwt.return_unit
 
