@@ -2527,7 +2527,7 @@ let () =
       in
       match error with
       | None ->
-         let* () = Web_signup.send_confirmation_link ~service email in
+         let* () = Web_signup.send_confirmation_link l ~service email in
          let* () = Eliom_reference.set Web_state.signup_address (Some email) in
          Pages_admin.signup_login ()
       | _ -> signup_captcha_handler service error email
@@ -2572,7 +2572,7 @@ let () =
                 )
            | Some (username, address) ->
               let* () = Eliom_reference.set Web_state.signup_address (Some address) in
-              Web_signup.send_changepw_link ~service ~address ~username
+              Web_signup.send_changepw_link l ~service ~address ~username
          in
          Pages_admin.signup_login ()
       | _ -> changepw_captcha_handler service error email username
