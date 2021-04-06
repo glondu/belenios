@@ -262,6 +262,13 @@ type add_account_error =
 
 include MakeGenerateToken (LwtRandom)
 
+let format_password x =
+  if String.length x = 15 then (
+    String.sub x 0 5
+    ^ "-" ^ String.sub x 5 5
+    ^ "-" ^ String.sub x 10 5
+  ) else x
+
 let string_of_user {user_domain; user_name} =
   user_domain ^ ":" ^ user_name
 

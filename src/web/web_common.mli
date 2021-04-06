@@ -129,6 +129,8 @@ type add_account_error =
 val generate_token : ?length:int -> unit -> string Lwt.t
 val generate_numeric : ?length:int -> unit -> string Lwt.t
 
+val format_password : string -> string
+
 val string_of_user : user -> string
 
 type mail_kind =

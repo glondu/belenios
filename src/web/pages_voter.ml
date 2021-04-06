@@ -1166,7 +1166,10 @@ let generate_password metadata langs title uuid url id show_weight =
   let recipient, login, weight = split_identity id in
   let weight = if show_weight then Some weight else None in
   let* salt = generate_token () in
-  let* password = generate_token () in
+  let* password =
+    let* x = generate_token ~length:15 () in
+    return (format_password x)
+  in
   let hashed = sha256_hex (salt ^ password) in
   let* bodies = Lwt_list.map_s (fun lang ->
     let* l = Web_i18n.get_lang_gettext "voter" lang in
