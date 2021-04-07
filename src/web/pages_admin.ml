@@ -110,7 +110,64 @@ let login_box ?cont () =
   in
   return (div ~a:[a_style style] body)
 
-let admin ~elections () =
+let admin_login get_handler =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  let contact = match !Web_config.contact_uri with
+    | None -> txt ""
+    | Some uri ->
+       div [
+           txt (s_ "If you do not have any account, you may ");
+           direct_a ~target:"_blank" uri (s_ "contact us");
+           txt ".";
+         ]
+  in
+  let* auth_div =
+    match !Web_config.site_auth_config with
+    | [] -> return @@ txt ""
+    | {auth_instance = service; _} :: others ->
+       let* default = get_handler service in
+       let default =
+         match default with
+         | Web_auth.Html x ->
+            div ~a:[a_class ["embedded-login-form"]] [x]
+         | Web_auth.Redirection _ ->
+            div
+              [
+                txt (s_ "Log in with");
+                txt " ";
+                a ~service:site_login [txt service]
+                  (Some service, ContSiteAdmin);
+                txt ".";
+              ]
+       in
+       let others =
+         List.map
+           (fun {auth_instance = service; _} ->
+             div
+               [
+                 txt (s_ "You can also log in with");
+                 txt " ";
+                 a ~service:site_login [txt service]
+                   (Some service, ContSiteAdmin);
+                 txt ".";
+               ]
+           ) others
+       in
+       return @@ div (default :: others)
+  in
+  let content = [
+      div [
+          txt (s_ "To administer an election, you need to log in.");
+          contact;
+        ];
+      auth_div;
+    ] in
+  let title = s_ "Election server" ^ " — " ^ s_ "Administration" in
+  let* login_box = login_box ~cont:ContSiteAdmin () in
+  base ~title ~login_box ~content ()
+
+let admin ~elections =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let format_election (uuid, name) =
@@ -131,25 +188,7 @@ let admin ~elections () =
   in
   let title = s_ "Election server" ^ " — " ^ s_ "Administration" in
   match elections with
-  | None ->
-     let contact = match !Web_config.contact_uri with
-       | None -> txt ""
-       | Some uri ->
-          div [
-              txt (s_ "If you do not have any account, you may ");
-              direct_a ~target:"_blank" uri (s_ "contact us");
-              txt ".";
-            ]
-     in
-     let content = [
-       div [
-         txt (s_ "To administer an election, you need to log in using one of the authentication methods available in the upper right corner of this page.");
-         contact;
-       ]
-     ] in
-     let* login_box = login_box ~cont:ContSiteAdmin () in
-     base ~title ~login_box ~content ()
-  | Some (draft, elections, tallied, archived) ->
+  | (draft, elections, tallied, archived) ->
     let draft =
       match draft with
       | [] -> p [txt (s_ "You own no such elections!")]

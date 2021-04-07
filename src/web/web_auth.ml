@@ -164,3 +164,8 @@ let () = Eliom_registration.Any.register ~service:logout
 
 let () = Eliom_registration.Any.register ~service:election_login
   (fun ((uuid, ()), service) () -> login_handler service (`Election uuid))
+
+let get_site_login_handler service =
+  match find_auth_instance service !Web_config.site_auth_config with
+  | None -> return @@ Html (Eliom_content.Html.F.div [])
+  | Some a -> get_pre_login_handler None (`Site ContSiteAdmin) a

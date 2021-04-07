@@ -384,14 +384,11 @@ let () = Html.register ~service:admin
     let* gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
     if gdpr then Pages_admin.privacy_notice ContAdmin else
     let* site_user = Eliom_reference.get Web_state.site_user in
-    let* elections =
-      match site_user with
-      | None -> return_none
-      | Some u ->
-         let* elections = get_elections_by_owner_sorted u in
-         return_some elections
-    in
-    Pages_admin.admin ~elections ()
+    match site_user with
+    | None -> Pages_admin.admin_login Web_auth.get_site_login_handler
+    | Some u ->
+       let* elections = get_elections_by_owner_sorted u in
+       Pages_admin.admin ~elections
   )
 
 let generate_uuid () =

@@ -33,3 +33,5 @@ type post_login_handler =
 val register_pre_login_handler :
   auth_system:string -> pre_login_handler ->
   state:string -> post_login_handler -> Eliom_registration.Html.result Lwt.t
+
+val get_site_login_handler : string -> result Lwt.t

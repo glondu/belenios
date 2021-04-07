@@ -25,7 +25,8 @@ open Signatures
 open Web_common
 
 val privacy_notice : privacy_cont -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val admin : elections:((uuid * string) list * (uuid * string) list * (uuid * string) list * (uuid * string) list) option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val admin_login : (string -> Web_auth.result Lwt.t) -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val admin : elections:(uuid * string) list * (uuid * string) list * (uuid * string) list * (uuid * string) list -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
