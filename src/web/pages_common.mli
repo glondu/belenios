@@ -80,6 +80,8 @@ val generic_page :
     Eliom_service.t ->
   string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
+val login_title : string -> string Lwt.t
+
 val login_choose :
   string list ->
   (string -> (unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,
@@ -88,8 +90,8 @@ val login_choose :
                Eliom_service.t) ->
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-val login_dummy : state:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val login_password : service:string -> allowsignups:bool -> state:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val login_dummy : state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_password : service:string -> allowsignups:bool -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
 
 val login_failed :
   service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,

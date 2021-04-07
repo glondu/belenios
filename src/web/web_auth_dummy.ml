@@ -24,7 +24,7 @@ open Lwt
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"dummy"
     (fun _ ~state ->
-      Pages_common.login_dummy ~state >>= Eliom_registration.Html.send
+      Pages_common.login_dummy ~state >>= (fun x -> return @@ Web_auth.Html x)
     )
 
 let () =

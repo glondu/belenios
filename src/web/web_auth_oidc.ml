@@ -103,7 +103,7 @@ let oidc_login_handler a ~state =
      let service = preapply ~service:auth_endpoint
        (Lazy.force oidc_self, ("code", (client_id, ("openid email", (state, "consent")))))
      in
-     Eliom_registration.(Redirection.send (Redirection service))
+     return @@ Web_auth.Redirection (Eliom_registration.Redirection service)
   | _ -> failwith "oidc_login_handler invoked with bad config"
 
 let run_post_login_handler =

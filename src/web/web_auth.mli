@@ -21,7 +21,9 @@
 
 open Web_serializable_t
 
-type result = Eliom_registration.Html.result
+type result =
+  | Html : Html_types.div Eliom_content.Html.elt -> result
+  | Redirection : 'a Eliom_registration.redirection -> result
 
 type pre_login_handler = auth_config -> state:string -> result Lwt.t
 
@@ -30,4 +32,4 @@ type post_login_handler =
 
 val register_pre_login_handler :
   auth_system:string -> pre_login_handler ->
-  state:string -> post_login_handler -> result Lwt.t
+  state:string -> post_login_handler -> Eliom_registration.Html.result Lwt.t

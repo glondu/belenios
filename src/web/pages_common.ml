@@ -228,6 +228,11 @@ let raw_textarea ?rows ?cols id contents =
   in
   Eliom_content.Html.F.Raw.textarea ~a:(id @ rows @ cols) (txt contents)
 
+let login_title service =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  return @@ Printf.sprintf (f_ "Log in with %s") service
+
 let login_choose auth_systems service () =
   let* l = get_preferred_gettext () in
   let open (val l) in
@@ -245,9 +250,7 @@ let login_choose auth_systems service () =
   base ~title:(s_ "Log in") ~content ()
 
 let login_dummy ~state =
-  let title, field_name, input_type =
-    "Dummy login", "Username:", `Text
-  in
+  let field_name, input_type = "Username:", `Text in
   let form = post_form ~service:dummy_post
     (fun (nstate, name) ->
       [
@@ -263,10 +266,7 @@ let login_dummy ~state =
         ]
       ]) ()
   in
-  let content = [
-    form;
-  ] in
-  base ~title ~content ()
+  return @@ div [form]
 
 let login_password ~service ~allowsignups ~state =
   let* l = get_preferred_gettext () in
@@ -302,11 +302,7 @@ let login_password ~service ~allowsignups ~state =
         ]
       ]) ()
   in
-  let content = [
-    form;
-    signup;
-  ] in
-  base ~title:(s_ "Password login") ~content ()
+  return @@ div [form; signup]
 
 let login_failed ~service () =
   let* l = get_preferred_gettext () in

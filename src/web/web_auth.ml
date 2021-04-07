@@ -26,7 +26,9 @@ open Web_serializable_j
 open Web_common
 open Web_services
 
-type result = Eliom_registration.Html.result
+type result =
+  | Html : Html_types.div Eliom_content.Html.elt -> result
+  | Redirection : 'a Eliom_registration.redirection -> result
 
 type post_login_handler =
   uuid option -> auth_config -> (string -> unit Lwt.t) -> (unit, unit) Stdlib.result Lwt.t
@@ -129,7 +131,13 @@ let login_handler service kind =
           | Some x -> return x
           | None -> fail_http 404
         in
-        get_pre_login_handler uuid kind a
+        let* x = get_pre_login_handler uuid kind a in
+        (match x with
+         | Html x ->
+            let* title = Pages_common.login_title a.auth_instance in
+            Pages_common.base ~title ~content:[x] () >>= Eliom_registration.Html.send
+         | Redirection x -> Eliom_registration.Redirection.send x
+        )
      | None ->
         match c with
         | [s] -> Eliom_registration.(Redirection.send (Redirection (myself (Some s.auth_instance))))

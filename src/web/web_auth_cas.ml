@@ -79,7 +79,7 @@ let cas_login_handler a ~state =
        ()
      in
      let service = preapply ~service:cas_login (cas_self ~state) in
-     Eliom_registration.(Redirection.send (Redirection service))
+     return @@ Web_auth.Redirection (Eliom_registration.Redirection service)
   | _ -> failwith "cas_login_handler invoked with bad config"
 
 let run_post_login_handler =
