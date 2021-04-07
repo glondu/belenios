@@ -1,5 +1,5 @@
 // BELENIOS
-// Copyright © 2019-2020 Inria, uses JSBN by Tom Wu
+// Copyright © 2012-2021 Inria, uses JSBN by Tom Wu
 // See "LICENSE" for details.
 
 // The following is an implementation of big integer operations needed by Belenios
