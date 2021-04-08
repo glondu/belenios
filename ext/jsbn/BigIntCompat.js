@@ -73,6 +73,7 @@ function getNative () {
             return S;
         },
         modInverse: function(a, m) {
+            if (m == ZERO) throw "modInverse called with modulus zero";
             var b = extEuclide(a, m);
             if (b[0] != ONE) throw "modInverse called on not-coprime numbers";
             var r = b[1] % m; if (r < ZERO) r += m;
