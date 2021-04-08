@@ -53,7 +53,7 @@ sed \
     -e "s@_SHAREDIR_@$BELENIOS_SHAREDIR@g" \
     $BELENIOS_CONFIG > $BELENIOS_VARDIR/etc/ocsigenserver.conf
 
-PATH=$BELENIOS_BINDIR:$PATH
+PATH=$BELENIOS_BINDIR:$PATH:/usr/sbin
 
 OCSIGENSERVER=ocsigenserver
 
