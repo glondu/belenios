@@ -184,11 +184,11 @@ msgstr ""
 msgid "Authenticate"
 msgstr ""
 
-#: src/web/pages_common.ml:314
+#: src/web/pages_common.ml:310
 msgid "Authentication failed"
 msgstr ""
 
-#: src/web/pages_common.ml:317
+#: src/web/pages_common.ml:313
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 
@@ -196,7 +196,7 @@ msgstr ""
 msgid "Available methods on this server:"
 msgstr ""
 
-#: src/web/pages_voter.ml:1196 src/web/pages_voter.ml:1144
+#: src/web/pages_voter.ml:1199 src/web/pages_voter.ml:1144
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr ""
 
@@ -243,7 +243,7 @@ msgstr ""
 msgid "Cookies are blocked"
 msgstr ""
 
-#: src/web/pages_voter.ml:1203
+#: src/web/pages_voter.ml:1206
 msgid "Credential:"
 msgstr ""
 
@@ -251,7 +251,7 @@ msgstr ""
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
 
-#: src/web/pages_voter.ml:1237
+#: src/web/pages_voter.ml:1240
 msgid "Dear %s,"
 msgstr ""
 
@@ -341,7 +341,7 @@ msgstr ""
 msgid "Input your credential "
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:390
+#: src/tool/tool_js_booth.ml:392
 msgid "Invalid credential!"
 msgstr ""
 
@@ -365,15 +365,19 @@ msgstr ""
 msgid "Loading…"
 msgstr ""
 
-#: src/web/pages_common.ml:245
+#: src/web/pages_common.ml:250
 msgid "Log in"
+msgstr ""
+
+#: src/web/pages_common.ml:234
+msgid "Log in with %s"
 msgstr ""
 
 #: src/web/pages_common.ml:301
 msgid "Login"
 msgstr ""
 
-#: src/web/pages_voter.ml:1198 src/web/pages_voter.ml:1146
+#: src/web/pages_voter.ml:1201 src/web/pages_voter.ml:1146
 msgid "Login and passwords are required once your ballot is ready to be cast."
 msgstr ""
 
@@ -413,7 +417,7 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
-#: src/web/pages_voter.ml:1211 src/web/pages_voter.ml:1158
+#: src/web/pages_voter.ml:1214 src/web/pages_voter.ml:1158
 msgid "Note that you are allowed to vote several times."
 msgstr ""
 
@@ -441,16 +445,12 @@ msgstr ""
 msgid "Number of seats:"
 msgstr ""
 
-#: src/web/pages_voter.ml:1212 src/web/pages_voter.ml:1159
+#: src/web/pages_voter.ml:1215 src/web/pages_voter.ml:1159
 msgid "Only the last vote counts."
 msgstr ""
 
-#: src/web/pages_voter.ml:1209 src/web/pages_voter.ml:1156
+#: src/web/pages_voter.ml:1212 src/web/pages_voter.ml:1156
 msgid "Page of the election:"
-msgstr ""
-
-#: src/web/pages_common.ml:309
-msgid "Password login"
 msgstr ""
 
 #: src/web/pages_voter.ml:1150 src/web/pages_common.ml:296
@@ -465,7 +465,7 @@ msgstr ""
 msgid "Please log in to confirm your vote."
 msgstr ""
 
-#: src/web/pages_common.ml:242
+#: src/web/pages_common.ml:247
 msgid "Please log in:"
 msgstr ""
 
@@ -513,7 +513,7 @@ msgstr ""
 msgid "Restart"
 msgstr ""
 
-#: src/web/pages_voter.ml:1262
+#: src/web/pages_voter.ml:1265
 msgid "Results will be published on the election page"
 msgstr ""
 
@@ -678,11 +678,15 @@ msgstr ""
 msgid "This election uses weights!"
 msgstr ""
 
+#: src/tool/tool_js_booth.ml:394
+msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
+msgstr ""
+
 #: src/web/site_voter.ml:294
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 
-#: src/web/pages_voter.ml:1254
+#: src/web/pages_voter.ml:1257
 msgid "This vote replaces any previous vote."
 msgstr ""
 
@@ -694,7 +698,7 @@ msgstr ""
 msgid "To cast a vote, you will also need a credential, sent in a separate email."
 msgstr ""
 
-#: src/web/pages_voter.ml:1195
+#: src/web/pages_voter.ml:1198
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 
@@ -710,7 +714,7 @@ msgstr ""
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/pages_voter.ml:1202 src/web/pages_voter.ml:1149
+#: src/web/pages_voter.ml:1205 src/web/pages_voter.ml:1149
 #. src/web/pages_common.ml:292
 msgid "Username:"
 msgstr ""
@@ -731,7 +735,7 @@ msgstr ""
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 
-#: src/web/pages_voter.ml:1206 src/web/pages_voter.ml:1153
+#: src/web/pages_voter.ml:1209 src/web/pages_voter.ml:1153
 msgid "Weight:"
 msgstr ""
 
@@ -743,11 +747,11 @@ msgstr ""
 msgid "Wish to help with translations?"
 msgstr ""
 
-#: src/web/pages_voter.ml:1189 src/web/pages_voter.ml:1138
+#: src/web/pages_voter.ml:1192 src/web/pages_voter.ml:1138
 msgid "You are listed as a voter for the election"
 msgstr ""
 
-#: src/web/pages_common.ml:319
+#: src/web/pages_common.ml:315
 msgid "You can "
 msgstr ""
 
@@ -763,7 +767,7 @@ msgstr ""
 msgid "You can check its presence in the "
 msgstr ""
 
-#: src/web/pages_voter.ml:1258
+#: src/web/pages_voter.ml:1261
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 
@@ -775,11 +779,11 @@ msgstr ""
 msgid "You must select at most %d answer(s)"
 msgstr ""
 
-#: src/web/pages_voter.ml:1197 src/web/pages_voter.ml:1145
+#: src/web/pages_voter.ml:1200 src/web/pages_voter.ml:1145
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr ""
 
-#: src/web/pages_voter.ml:1193
+#: src/web/pages_voter.ml:1196
 msgid "You will find below your credential."
 msgstr ""
 
@@ -799,15 +803,15 @@ msgstr ""
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr ""
 
-#: src/web/pages_voter.ml:1229
+#: src/web/pages_voter.ml:1232
 msgid "Your credential for election %s"
 msgstr ""
 
-#: src/web/pages_voter.ml:1180
+#: src/web/pages_voter.ml:1183
 msgid "Your password for election %s"
 msgstr ""
 
-#: src/web/pages_voter.ml:1249
+#: src/web/pages_voter.ml:1252
 msgid "Your smart ballot tracker is"
 msgstr ""
 
@@ -816,7 +820,7 @@ msgstr ""
 msgid "Your smart ballot tracker is "
 msgstr ""
 
-#: src/web/pages_voter.ml:1239
+#: src/web/pages_voter.ml:1242
 msgid "Your vote for election"
 msgstr ""
 
@@ -828,7 +832,7 @@ msgstr ""
 msgid "Your vote was not recorded!"
 msgstr ""
 
-#: src/web/pages_voter.ml:1246 src/web/pages_voter.ml:617
+#: src/web/pages_voter.ml:1249 src/web/pages_voter.ml:617
 #. src/web/pages_voter.ml:521
 msgid "Your weight is %d."
 msgstr ""
@@ -857,7 +861,7 @@ msgstr ""
 msgid "create an account"
 msgstr ""
 
-#: src/web/pages_voter.ml:1243
+#: src/web/pages_voter.ml:1246
 msgid "has been recorded."
 msgstr ""
 
@@ -906,7 +910,7 @@ msgstr ""
 msgid "trustees"
 msgstr ""
 
-#: src/web/pages_common.ml:320
+#: src/web/pages_common.ml:316
 msgid "try to log in again"
 msgstr ""
 
