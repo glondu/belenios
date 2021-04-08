@@ -405,6 +405,7 @@ let create_new_election owner cred auth =
     | `Password -> Some [{auth_system = "password"; auth_instance = "password"; auth_config = []}]
     | `Dummy -> Some [{auth_system = "dummy"; auth_instance = "dummy"; auth_config = []}]
     | `CAS server -> Some [{auth_system = "cas"; auth_instance = "cas"; auth_config = ["server", server]}]
+    | `Import name -> Some [{auth_system = "import"; auth_instance = name; auth_config = []}]
   in
   let* uuid = generate_uuid () in
   let* token = generate_token () in
@@ -470,6 +471,12 @@ let () = Any.register ~service:election_draft_new
           | Some "password" -> return `Password
           | Some "dummy" -> return `Dummy
           | Some "cas" -> return @@ `CAS (PString.trim cas_server)
+          | Some x ->
+             let n = PString.length x in
+             if n > 1 && PString.get x 0 = '%' then (
+               let name = PString.sub x 1 (n - 1) in
+               return @@ `Import name
+             ) else fail_http 400
           | _ -> fail_http 400
         in
         match auth with

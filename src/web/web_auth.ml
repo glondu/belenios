@@ -122,7 +122,22 @@ let login_handler service kind =
           let* metadata = Web_persist.get_election_metadata uuid in
           match metadata.e_auth_config with
           | None -> return []
-          | Some x -> return x
+          | Some x ->
+             x
+             |> List.map
+                  (function
+                   | {auth_system = "import"; auth_instance = name; _} ->
+                      (match
+                         List.find_opt (fun x -> x.auth_instance = name)
+                           !Web_config.exported_auth_config
+                       with
+                       | None -> []
+                       | Some x -> [x]
+                      )
+                   | x -> [x]
+                  )
+             |> List.flatten
+             |> return
      in
      match service with
      | Some s ->

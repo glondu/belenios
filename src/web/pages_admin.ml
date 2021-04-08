@@ -265,6 +265,19 @@ let election_draft_pre () =
   let form =
     post_form ~service:election_draft_new
       (fun (credmgmt, (auth, cas_server)) ->
+        let other_auth_systems =
+          !Web_config.exported_auth_config
+          |> List.map
+               (fun a ->
+                 div [
+                     radio ~name:auth ~value:("%" ^ a.auth_instance) string;
+                     txt " ";
+                     txt a.auth_instance;
+                     txt " ";
+                     txt (s_ "(imported from server)");
+                   ]
+               )
+        in
         [
           fieldset
             ~legend:(legend [
@@ -287,12 +300,12 @@ let election_draft_pre () =
             ];
           fieldset
             ~legend:(legend [txt (s_ "Authentication")])
-            [
+            (
               div [
                 radio ~checked:true ~name:auth ~value:"password" string;
                 txt " ";
                 txt (s_ "Password (passwords will be emailed to voters)");
-              ];
+              ] ::
               div [
                 radio ~name:auth ~value:"cas" string;
                 txt " ";
@@ -300,8 +313,9 @@ let election_draft_pre () =
                 input ~input_type:`Text ~name:cas_server string;
                 txt " ";
                 txt (s_ "(for example: https://cas.inria.fr/cas)");
-              ];
-            ];
+              ] ::
+              other_auth_systems
+            );
           div [
             input ~input_type:`Submit ~value:(s_ "Proceed") string;
           ];
@@ -465,6 +479,7 @@ let election_draft uuid se () =
     | Some [{auth_system = "password"; _}] -> `Password
     | Some [{auth_system = "dummy"; _}] -> `Dummy
     | Some [{auth_system = "cas"; auth_config = ["server", server]; _}] -> `CAS server
+    | Some [{auth_system = "import"; auth_instance = name; _}] -> `Import name
     | _ -> failwith "unknown authentication scheme in election_draft"
   in
   let div_auth =
@@ -491,6 +506,10 @@ let election_draft uuid se () =
            txt (s_ "Authentication scheme: CAS with server ");
            txt server;
          ]
+      | `Import name ->
+         div [
+             txt (Printf.sprintf (f_ "Authentication scheme: %s (imported from server)") name);
+           ]
     ]
   in
   let div_questions =

@@ -32,6 +32,7 @@ let locales_dir = ref None
 let spool_dir = ref None
 let source_file = ref None
 let auth_instances = ref []
+let auth_instances_export = ref []
 let gdpr_uri = ref None
 let default_group_file = ref None
 let nh_group_file = ref None
@@ -87,6 +88,10 @@ let () =
              [Element (auth_system, auth_config, [])]) ->
     let i = {auth_system; auth_instance; auth_config} in
     auth_instances := i :: !auth_instances
+  | Element ("auth-export", ["name", auth_instance],
+             [Element (auth_system, auth_config, [])]) ->
+    let i = {auth_system; auth_instance; auth_config} in
+    auth_instances_export := i :: !auth_instances_export
   | Element ("domain", ["name", name], []) ->
      domain := Some name
   | Element (tag, _, _) ->
@@ -159,6 +164,7 @@ let () = Web_config.spool_dir := spool_dir
 let () = Web_config.default_group := default_group
 let () = Web_config.nh_group := nh_group
 let () = Web_config.site_auth_config := List.rev !auth_instances
+let () = Web_config.exported_auth_config := List.rev !auth_instances_export
 let () = Web_config.domain := domain
 let () = Lwt_main.run (Web_persist.convert_trustees ())
 let () = Lwt.async Site_admin.data_policy_loop
