@@ -1,3 +1,23 @@
+dev
+===
+
+ * Improve support for weighted votes:
+   + Update instructions
+   + Update monitoring scripts
+   + Update specification
+ * Add documentation and scripts for deploying using systemd-nspawn
+ * New format for private credentials
+ * Web server:
+   + Check consistency of voter list
+   + Add a generic service for computing and comparing fingerprints
+   + Remove "Archive election" button
+   + Change sign up and password change workflows
+   + New format for voter passwords
+   + Admin home page now shows login form of the first auth system
+   + Add possibility to export auth systems to election administrators
+ * Translations:
+   + Add Greek (el), Dutch (nl), Slovak (sk), Finnish (fi)
+
 1.14 (2021-02-09)
 =================
 
