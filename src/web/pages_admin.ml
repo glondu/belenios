@@ -344,7 +344,7 @@ let preview_booth l uuid =
   span [
       direct_a (service ^ "#" ^ hash) (s_ "Preview booth");
       txt " ";
-      txt (Printf.sprintf (f_ "(you can use any credential such as %s).") "HsqB3C3y62Ekq4D");
+      txt (Printf.sprintf (f_ "(you can use any credential such as %s).") "123-456-789-abc-deN");
     ]
 
 let election_draft uuid se () =
