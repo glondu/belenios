@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-03-28 10:29+0000\n"
+"PO-Revision-Date: 2021-04-12 08:49+0000\n"
 "Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/belenios/voter/de/"
 ">\n"
@@ -164,8 +163,8 @@ msgstr ""
 "Jeder der folgenden Mitglieder der Wahlkommission (Beweisschlüssel) muss das "
 "Ergebnis entschlüsseln:"
 
-#: src/web/pages_voter.ml:783 src/web/pages_voter.ml:600
 #. src/web/pages_voter.ml:499
+#: src/web/pages_voter.ml:783 src/web/pages_voter.ml:600
 msgid "Answer to questions"
 msgstr "Fragen beantworten"
 
@@ -182,8 +181,8 @@ msgstr "Mindestens eine Antwort ist ungültig!"
 msgid "Audit data: "
 msgstr "Auditdaten: "
 
-#: src/web/pages_voter.ml:787 src/web/pages_voter.ml:604
 #. src/web/pages_voter.ml:503
+#: src/web/pages_voter.ml:787 src/web/pages_voter.ml:604
 msgid "Authenticate"
 msgstr "Authentifizieren"
 
@@ -211,8 +210,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Belenios Wahlkabine"
 
-#: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 #. src/web/pages_voter.ml:79
+#: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 msgid "Blank vote"
 msgstr "ungültige Stimme"
 
@@ -230,19 +229,19 @@ msgstr "Fingerabdruck berechnen"
 
 #: src/tool/tool_js_fingerprint.ml:35
 msgid "Computed fingerprint:"
-msgstr ""
+msgstr "Berechneter Fingerabdruck:"
 
 #: src/web/pages_voter.ml:874
 msgid "Condorcet-Schulze method"
 msgstr "Schulze-Methode (Condorcet)"
 
-#: src/web/pages_voter.ml:789 src/web/pages_voter.ml:606
 #. src/web/pages_voter.ml:505
+#: src/web/pages_voter.ml:789 src/web/pages_voter.ml:606
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: src/web/pages_voter.ml:1021 src/web/pages_voter.ml:927
 #. src/web/pages_voter.ml:769
+#: src/web/pages_voter.ml:1021 src/web/pages_voter.ml:927
 msgid "Continue"
 msgstr "Weiter"
 
@@ -264,8 +263,8 @@ msgstr ""
 msgid "Dear %s,"
 msgstr "%s,"
 
-#: src/web/pages_voter.ml:791 src/web/pages_voter.ml:608
 #. src/web/pages_voter.ml:507
+#: src/web/pages_voter.ml:791 src/web/pages_voter.ml:608
 msgid "Done"
 msgstr "Fertig"
 
@@ -285,15 +284,15 @@ msgstr "Wahlserver"
 msgid "Encrypting…"
 msgstr "Verschlüssele…"
 
-#: src/web/site_voter.ml:361 src/web/site_voter.ml:336 src/web/site_voter.ml:298
 #. src/web/site_voter.ml:293
 #. src/web/site_voter.ml:288
+#: src/web/site_voter.ml:361 src/web/site_voter.ml:336 src/web/site_voter.ml:298
 msgid "Error"
 msgstr "Fehler"
 
 #: src/tool/tool_js_fingerprint.ml:75
 msgid "Expected fingerprint:"
-msgstr ""
+msgstr "Erwarteter Fingerabdruck:"
 
 #: src/web/pages_voter.ml:639
 msgid "FAIL!"
@@ -303,9 +302,9 @@ msgstr "FEHLER!"
 msgid "Get the source code"
 msgstr "Den Quellcode herunterladen"
 
-#: src/web/pages_voter.ml:688 src/web/pages_voter.ml:654
 #. src/web/pages_voter.ml:584
 #. src/web/pages_voter.ml:556
+#: src/web/pages_voter.ml:688 src/web/pages_voter.ml:654
 msgid "Go back to election"
 msgstr "Zurück zur Wahl"
 
@@ -341,8 +340,8 @@ msgstr ""
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 
-#: src/web/pages_voter.ml:781 src/web/pages_voter.ml:598
 #. src/web/pages_voter.ml:497
+#: src/web/pages_voter.ml:781 src/web/pages_voter.ml:598
 msgid "Input credential"
 msgstr "Wählernummer eingeben"
 
@@ -526,8 +525,8 @@ msgstr "Erneut beginnen"
 msgid "Results will be published on the election page"
 msgstr "Das Ergebnis wird auf der Website der Abstimmung veröffentlicht:"
 
-#: src/web/pages_voter.ml:785 src/web/pages_voter.ml:602
 #. src/web/pages_voter.ml:501
+#: src/web/pages_voter.ml:785 src/web/pages_voter.ml:602
 msgid "Review and encrypt"
 msgstr "Überprüfen und verschlüsseln"
 
@@ -690,6 +689,8 @@ msgstr ""
 #: src/tool/tool_js_booth.ml:394
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr ""
+"Dies sieht aus wie ein Passwort … Vielleicht haben Sie sich die falsche E-"
+"Mail angesehen?"
 
 #: src/web/site_voter.ml:294
 msgid "This question is homomorphic, this method cannot be applied to its result."
@@ -727,8 +728,8 @@ msgstr ""
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/pages_voter.ml:1205 src/web/pages_voter.ml:1149
 #. src/web/pages_common.ml:292
+#: src/web/pages_voter.ml:1205 src/web/pages_voter.ml:1149
 msgid "Username:"
 msgstr "Benutzername:"
 
@@ -828,8 +829,8 @@ msgstr "Ihr Passwort für die Abstimmung %s"
 msgid "Your smart ballot tracker is"
 msgstr "Ihre Stimmennummer ist:"
 
-#: src/web/pages_voter.ml:761 src/web/pages_voter.ml:625
 #. src/web/pages_voter.ml:538
+#: src/web/pages_voter.ml:761 src/web/pages_voter.ml:625
 msgid "Your smart ballot tracker is "
 msgstr "Ihre Stimmennummer ist "
 
@@ -845,8 +846,8 @@ msgstr "Ihre Stimme zur Abstimmung %s"
 msgid "Your vote was not recorded!"
 msgstr ""
 
-#: src/web/pages_voter.ml:1249 src/web/pages_voter.ml:617
 #. src/web/pages_voter.ml:521
+#: src/web/pages_voter.ml:1249 src/web/pages_voter.ml:617
 msgid "Your weight is %d."
 msgstr ""
 
@@ -878,8 +879,8 @@ msgstr ""
 msgid "has been recorded."
 msgstr "wurde angenommen."
 
-#: src/tool/tool_js_booth.ml:377 src/web/pages_voter.ml:1033
 #. src/web/pages_voter.ml:943
+#: src/tool/tool_js_booth.ml:377 src/web/pages_voter.ml:1033
 msgid "here"
 msgstr "hier"
 
@@ -954,4 +955,3 @@ msgstr "Ihre Wählernummer wurde schon benutzt"
 #: src/web/web_common.ml:88
 msgid "your credential is invalid"
 msgstr "Ihre Wählernummer ist ungültig"
-
