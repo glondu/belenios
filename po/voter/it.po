@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-04-11 12:24+0000\n"
-"Last-Translator: Marco M <marcomillo@gmail.com>\n"
+"PO-Revision-Date: 2021-04-12 08:49+0000\n"
+"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/voter/"
 "it/>\n"
 "Language: it\n"
@@ -695,7 +695,7 @@ msgstr ""
 
 #: src/tool/tool_js_booth.ml:394
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
-msgstr ""
+msgstr "Questa sembra una password… Forse hai guardato l'e-mail sbagliata?"
 
 #: src/web/site_voter.ml:294
 msgid "This question is homomorphic, this method cannot be applied to its result."
