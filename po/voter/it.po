@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
 "PO-Revision-Date: 2021-04-12 08:49+0000\n"
-"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"Last-Translator: Marco M <marcomillo@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/voter/"
 "it/>\n"
 "Language: it\n"
@@ -398,11 +398,11 @@ msgstr "Vedi eventi in grezzo per più dettagli."
 
 #: src/web/pages_voter.ml:112
 msgid "Majority Judgment"
-msgstr ""
+msgstr "Giudizio per maggioranza"
 
 #: src/web/pages_voter.ml:968 src/web/pages_voter.ml:918
 msgid "Majority Judgment method"
-msgstr ""
+msgstr "Metodo di giudizio per maggioranza"
 
 #: src/web/pages_voter.ml:1097
 msgid "Many variants of STV exist, depending for example on how to break ties."
@@ -595,7 +595,7 @@ msgstr "La ringraziamo per la sua partecipazione!"
 
 #: src/web/pages_voter.ml:1001
 msgid "The Majority Judgment winners are:"
-msgstr "I vincitori del voto singolo trasferibilie sono:"
+msgstr "I vincitori per giudizio di maggioranza sono:"
 
 #: src/web/pages_voter.ml:909
 msgid "The Schulze winners are:"
