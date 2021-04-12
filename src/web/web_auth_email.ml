@@ -76,7 +76,14 @@ let () =
         let* () = generate_new_code name in
         let* () = Eliom_reference.set env (Some (state, name)) in
         Pages_common.email_login () >>= Eliom_registration.Html.send
-      ) else forbidden ()
+      ) else (
+        run_post_login_handler ~state
+          {
+            Web_auth.post_login_handler =
+              fun _ _ cont ->
+              cont None
+          }
+      )
     )
 
 let () =
@@ -85,14 +92,23 @@ let () =
       let* x = Eliom_reference.get env in
       match x with
       | Some (state, name) ->
-         if check_code name code then (
-           let* () = Eliom_reference.unset env in
-           run_post_login_handler ~state
-             {
-               Web_auth.post_login_handler =
-                 fun _ _ cont ->
-                 cont (Some name)
-             }
-         ) else forbidden ()
-      | None -> forbidden ()
+         run_post_login_handler ~state
+           {
+             Web_auth.post_login_handler =
+               fun _ _ cont ->
+               let* ok =
+                 if check_code name code then (
+                   let* () = Eliom_reference.unset env in
+                   return_some name
+                 ) else return_none
+               in
+               cont ok
+           }
+      | None ->
+         run_post_login_handler ~state:""
+           {
+             Web_auth.post_login_handler =
+               fun _ _ cont ->
+               cont None
+           }
     )
