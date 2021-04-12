@@ -91,6 +91,7 @@ val login_choose :
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val login_dummy : state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_email : state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
 val login_password : service:string -> allowsignups:bool -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
 
 val login_failed :
@@ -99,3 +100,6 @@ val login_failed :
                     Eliom_service.non_ocaml)
                    Eliom_service.t ->
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
+val email_login : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val email_email : address:string -> code:string -> (string * string) Lwt.t

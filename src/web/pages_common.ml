@@ -249,9 +249,9 @@ let login_choose auth_systems service () =
   ] in
   base ~title:(s_ "Log in") ~content ()
 
-let login_dummy ~state =
+let login_generic ~service ~state =
   let field_name, input_type = "Username:", `Text in
-  let form = post_form ~service:dummy_post
+  let form = post_form ~service
     (fun (nstate, name) ->
       [
         input ~input_type:`Hidden ~name:nstate ~value:state string;
@@ -267,6 +267,9 @@ let login_dummy ~state =
       ]) ()
   in
   return @@ div [form]
+
+let login_dummy = login_generic ~service:dummy_post
+let login_email = login_generic ~service:email_post
 
 let login_password ~service ~allowsignups ~state =
   let* l = get_preferred_gettext () in
@@ -319,3 +322,47 @@ let login_failed ~service () =
     ]
   in
   base ~title ~content ()
+
+let email_login () =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  let form =
+    post_form ~service:email_login_post
+      (fun lcode ->
+        [
+          div [
+              txt (s_ "Please enter the verification code received by e-mail:");
+              txt " ";
+              input ~input_type:`Text ~name:lcode string;
+            ];
+          div [
+              input ~input_type:`Submit ~value:(s_ "Submit") string;
+            ];
+        ]
+      ) ()
+  in
+  let content = [form] in
+  base ~title:(s_ "Log in") ~content ()
+
+let email_email ~address ~code =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Your e-mail address has been used to log in to our Belenios server.");
+  add_sentence b (s_ "Use the following code:");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b code;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Best regards,");
+  add_newline b; add_newline b;
+  add_string b "-- ";
+  add_newline b;
+  add_string b (s_ "Belenios Server");
+  let body = contents b in
+  let subject = s_ "Belenios login" in
+  Lwt.return (subject, body)

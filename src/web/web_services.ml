@@ -122,6 +122,8 @@ let election_tally_release = create_attached_post ~csrf_safe:true ~fallback:elec
 let election_dir = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** election_file "file"))) ()
 
 let dummy_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "username")) ()
+let email_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "username")) ()
+let email_login_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "code")) ()
 let password_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "username" ** string "password")) ()
 
 let set_language = create ~csrf_safe:true ~path:No_path ~meth:(Get (string "lang" ** site_cont "cont")) ()

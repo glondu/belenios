@@ -140,6 +140,7 @@ type mail_kind =
   | MailAutomaticWarning of uuid
   | MailAccountCreation
   | MailPasswordChange
+  | MailLogin
 
 val send_email : mail_kind -> recipient:string -> subject:string -> body:string -> unit Lwt.t
 

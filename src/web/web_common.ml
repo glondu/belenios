@@ -291,6 +291,7 @@ type mail_kind =
   | MailAutomaticWarning of uuid
   | MailAccountCreation
   | MailPasswordChange
+  | MailLogin
 
 let stringuuid_of_mail_kind = function
   | MailCredential uuid -> "credential", Some uuid
@@ -299,6 +300,7 @@ let stringuuid_of_mail_kind = function
   | MailAutomaticWarning uuid -> "autowarning", Some uuid
   | MailAccountCreation -> "account-creation", None
   | MailPasswordChange -> "password-change", None
+  | MailLogin -> "login", None
 
 let send_email kind ~recipient ~subject ~body =
   let contents =

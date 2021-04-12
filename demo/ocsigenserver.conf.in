@@ -65,6 +65,7 @@
         <auth name="demo"><dummy/></auth> <!-- DEMO -->
         <auth name="local"><password db="demo/password_db.csv"/></auth> <!-- DEMO -->
         <auth name="public"><password db="_VARDIR_/password_db.csv" allowsignups="true"/></auth>
+        <auth name="email"><email/></auth> <!-- DEMO -->
         <!-- <auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth> -->
         <source file="_SHAREDIR_/belenios.tar.gz"/>
         <default-group file="_SHAREDIR_/groups/default.json"/>
