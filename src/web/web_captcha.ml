@@ -81,3 +81,8 @@ let check_captcha ~challenge ~response =
   | Some x ->
      captchas := SMap.remove challenge !captchas;
      Lwt.return (response = x.response)
+
+let () =
+  Eliom_registration.String.register
+    ~service:Web_services.signup_captcha_img
+    (fun challenge () -> get_captcha ~challenge)

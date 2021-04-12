@@ -2583,10 +2583,6 @@ let () =
     )
 
 let () =
-  String.register ~service:signup_captcha_img
-    (fun challenge () -> Web_captcha.get_captcha ~challenge)
-
-let () =
   Any.register ~service:signup_login_post
     (fun () code ->
       let code = PString.trim code in
