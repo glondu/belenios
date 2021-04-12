@@ -2501,7 +2501,7 @@ let signup_captcha_handler service error email =
   let open (val l) in
   let* b = Captcha_throttle.wait captcha_throttle 0 in
   if b then
-    let* challenge = Web_signup.create_captcha () in
+    let* challenge = Web_captcha.create_captcha () in
     Pages_admin.signup_captcha ~service error challenge email
   else
     let service = preapply ~service:signup_captcha service in
@@ -2524,7 +2524,7 @@ let () =
       let* l = get_preferred_gettext () in
       let open (val l) in
       let* error =
-        let* ok = Web_signup.check_captcha ~challenge ~response in
+        let* ok = Web_captcha.check_captcha ~challenge ~response in
         if ok then
           if is_email email then return_none else return_some BadAddress
         else return_some BadCaptcha
@@ -2542,7 +2542,7 @@ let changepw_captcha_handler service error email username =
   let open (val l) in
   let* b = Captcha_throttle.wait captcha_throttle 1 in
   if b then
-    let* challenge = Web_signup.create_captcha () in
+    let* challenge = Web_captcha.create_captcha () in
     Pages_admin.signup_changepw ~service error challenge email username
   else
     let service = preapply ~service:changepw_captcha service in
@@ -2559,7 +2559,7 @@ let () =
       let* l = get_preferred_gettext () in
       let open (val l) in
       let* error =
-        let* ok = Web_signup.check_captcha ~challenge ~response in
+        let* ok = Web_captcha.check_captcha ~challenge ~response in
         if ok then return_none
         else return_some BadCaptcha
       in
@@ -2584,7 +2584,7 @@ let () =
 
 let () =
   String.register ~service:signup_captcha_img
-    (fun challenge () -> Web_signup.get_captcha ~challenge)
+    (fun challenge () -> Web_captcha.get_captcha ~challenge)
 
 let () =
   Any.register ~service:signup_login_post

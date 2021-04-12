@@ -19,15 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type link_kind =
-  [ `CreateAccount
-  | `ChangePassword of string
-  ]
+(** Returns a challenge string, used to identify the captcha in
+   following functions. *)
+val create_captcha : unit -> string Lwt.t
 
-val send_confirmation_link : (module Web_i18n_sig.GETTEXT) -> service:string -> string -> unit Lwt.t
-val send_changepw_link : (module Web_i18n_sig.GETTEXT) -> service:string -> address:string -> username:string -> unit Lwt.t
+(** Returns the image associated to a challenge. *)
+val get_captcha : challenge:string -> (string * string) Lwt.t
 
-val confirm_link : string -> (string * string * link_kind) option Lwt.t
-val remove_link : string -> unit Lwt.t
-
-val cracklib_check : string -> string option Lwt.t
+val check_captcha : challenge:string -> response:string -> bool Lwt.t
