@@ -2882,21 +2882,6 @@ let tally_trustees election trustee_id token () =
   ] in
   base ~title ~content ~uuid ()
 
-let signup_captcha_img challenge =
-  let src = make_uri ~service:signup_captcha_img challenge in
-  img ~src ~alt:"CAPTCHA" ()
-
-let format_captcha_error l e =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  match e with
-  | None -> txt ""
-  | Some x ->
-     let msg = match x with
-       | BadCaptcha -> s_ "Bad security code!"
-       | BadAddress -> s_ "Bad e-mail address!"
-     in
-     div ~a:[a_style "color: red;"] [txt msg]
-
 let signup_captcha ~service error challenge email =
   let* l = get_preferred_gettext () in
   let open (val l) in

@@ -269,7 +269,6 @@ let login_generic ~service ~state =
   return @@ div [form]
 
 let login_dummy = login_generic ~service:dummy_post
-let login_email = login_generic ~service:email_post
 
 let login_password ~service ~allowsignups ~state =
   let* l = get_preferred_gettext () in
@@ -366,3 +365,52 @@ let email_email ~address ~code =
   let body = contents b in
   let subject = s_ "Belenios login" in
   Lwt.return (subject, body)
+
+let signup_captcha_img challenge =
+  let src = make_uri ~service:signup_captcha_img challenge in
+  img ~src ~alt:"CAPTCHA" ()
+
+let format_captcha_error l e =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  match e with
+  | None -> txt ""
+  | Some x ->
+     let msg = match x with
+       | BadCaptcha -> s_ "Bad security code!"
+       | BadAddress -> s_ "Bad e-mail address!"
+     in
+     div ~a:[a_style "color: red;"] [txt msg]
+
+let login_email ~state error challenge email =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  let form =
+    post_form ~service:email_post
+      (fun (lstate, (lchallenge, (lresponse, lemail))) ->
+        [
+          div [
+              txt (s_ "E-mail address:");
+              txt " ";
+              input ~input_type:`Text ~name:lemail ~value:email string;
+            ];
+          div [
+              input ~input_type:`Hidden ~name:lstate ~value:state string;
+              input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
+              txt (s_ "Please enter ");
+              signup_captcha_img challenge;
+              txt (s_ " in the following box: ");
+              input ~input_type:`Text ~name:lresponse string;
+            ];
+          div [
+              input ~input_type:`Submit ~value:(s_ "Submit") string;
+            ];
+        ]
+      ) ()
+  in
+  let error = format_captcha_error l error in
+  return @@ div [error; form]
+
+let login_email_not_now () =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  return @@ div [txt (s_ "You cannot log in now. Please try later.")]

@@ -26,10 +26,27 @@ open Common
 open Web_serializable_builtin_t
 open Web_common
 
+module HashedInt = struct
+  type t = int
+  let equal = (=)
+  let hash x = x
+end
+
+module Captcha_throttle = Lwt_throttle.Make (HashedInt)
+let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
+
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"email"
     (fun _ ~state ->
-      Pages_common.login_email ~state >>= (fun x -> return @@ Web_auth.Html x)
+      let* b = Captcha_throttle.wait captcha_throttle 0 in
+      if b then (
+        let* challenge = Web_captcha.create_captcha () in
+        let* fragment = Pages_common.login_email ~state None challenge "" in
+        return @@ Web_auth.Html fragment
+      ) else (
+        let* fragment = Pages_common.login_email_not_now () in
+        return @@ Web_auth.Html fragment
+      )
     )
 
 type code =
@@ -71,8 +88,9 @@ let env = Eliom_reference.eref ~scope None
 
 let () =
   Eliom_registration.Any.register ~service:Web_services.email_post
-    (fun () (state, name) ->
-      if is_email name then (
+    (fun () (state, (challenge, (response, name))) ->
+      let* b = Web_captcha.check_captcha ~challenge ~response in
+      if b && is_email name then (
         let* () = generate_new_code name in
         let* () = Eliom_reference.set env (Some (state, name)) in
         Pages_common.email_login () >>= Eliom_registration.Html.send

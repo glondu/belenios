@@ -91,7 +91,6 @@ val login_choose :
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val login_dummy : state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
-val login_email : state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
 val login_password : service:string -> allowsignups:bool -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
 
 val login_failed :
@@ -103,3 +102,17 @@ val login_failed :
 
 val email_login : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val email_email : address:string -> code:string -> (string * string) Lwt.t
+
+val signup_captcha_img : string -> [> Html_types.img ] Eliom_content.Html.elt
+val format_captcha_error :
+  (module Web_i18n_sig.GETTEXT) -> Web_common.captcha_error option ->
+  [> `Div | `PCDATA ] Eliom_content.Html.elt
+
+val login_email :
+  state:string ->
+  Web_common.captcha_error option ->
+  string -> string ->
+  [> Html_types.div ] Eliom_content.Html.elt Lwt.t
+
+val login_email_not_now :
+  unit -> [> Html_types.div ] Eliom_content.Html.elt Lwt.t
