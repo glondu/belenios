@@ -34,7 +34,7 @@ type post_login_handler =
   {
     post_login_handler :
       'a. uuid option -> auth_config ->
-      (string -> 'a Lwt.t) -> (unit -> 'a Lwt.t) -> 'a Lwt.t
+      (string option -> 'a Lwt.t) -> 'a Lwt.t
   }
 
 let scope = Eliom_common.default_session_scope
@@ -69,21 +69,19 @@ let run_post_login_handler ~auth_system ~state {post_login_handler} =
        >>= Eliom_registration.Html.send ~code:401
      in
      if auth_system = a.auth_system && st = state then
-       let authenticate name =
-         let* () = Eliom_reference.unset auth_env in
-         let user = { user_domain = a.auth_instance; user_name = name } in
-         let* () =
-           match uuid with
-           | None -> Eliom_reference.set Web_state.site_user (Some user)
-           | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
-         in
-         return (Ok ())
+       let cont = function
+         | Some name ->
+            let* () = Eliom_reference.unset auth_env in
+            let user = { user_domain = a.auth_instance; user_name = name } in
+            let* () =
+              match uuid with
+              | None -> Eliom_reference.set Web_state.site_user (Some user)
+              | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
+            in
+            get_cont `Login kind ()
+         | None -> restart_login ()
        in
-       let fail () = return (Error ()) in
-       let* x = post_login_handler uuid a authenticate fail in
-       match x with
-       | Ok () -> get_cont `Login kind ()
-       | Error () -> restart_login ()
+       post_login_handler uuid a cont
      else
        restart_login ()
 

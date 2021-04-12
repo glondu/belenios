@@ -89,16 +89,16 @@ let cas_handler (state, ticket) () =
   run_post_login_handler ~state
     {
       Web_auth.post_login_handler =
-        fun _ a authenticate fail ->
+        fun _ a cont ->
         match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
         | Some x, Some server ->
            let* r = get_cas_validation server ~state x in
            (match r with
-            | `Yes (Some name) -> authenticate name
-            | `No -> fail ()
+            | `Yes (Some name) -> cont (Some name)
+            | `No -> cont None
             | `Yes None | `Error _ -> fail_http 502
            )
-        | None, _ -> fail ()
+        | None, _ -> cont None
         | _, None -> fail_http 503
     }
 

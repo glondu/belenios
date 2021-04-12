@@ -31,7 +31,7 @@ type post_login_handler =
   {
     post_login_handler :
       'a. uuid option -> auth_config ->
-      (string -> 'a Lwt.t) -> (unit -> 'a Lwt.t) -> 'a Lwt.t
+      (string option -> 'a Lwt.t) -> 'a Lwt.t
   }
 
 val register_pre_login_handler :

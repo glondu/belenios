@@ -90,8 +90,8 @@ let () =
            run_post_login_handler ~state
              {
                Web_auth.post_login_handler =
-                 fun _ _ authenticate _ ->
-                 authenticate name
+                 fun _ _ cont ->
+                 cont (Some name)
              }
          ) else forbidden ()
       | None -> forbidden ()

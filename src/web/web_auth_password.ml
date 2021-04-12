@@ -73,7 +73,7 @@ let password_handler () (state, (name, password)) =
   run_post_login_handler ~state
     {
       Web_auth.post_login_handler =
-        fun uuid a authenticate fail ->
+        fun uuid a cont ->
         let* ok =
           match uuid with
           | None ->
@@ -87,9 +87,7 @@ let password_handler () (state, (name, password)) =
              let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
              check_password_with_file db name password
         in
-        match ok with
-        | Some name -> authenticate name
-        | None -> fail ()
+        cont ok
     }
 
 let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler

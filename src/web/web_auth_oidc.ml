@@ -117,7 +117,7 @@ let oidc_handler params () =
      run_post_login_handler ~state
        {
          Web_auth.post_login_handler =
-           fun _ a authenticate fail ->
+           fun _ a cont ->
            let get x = List.assoc_opt x a.auth_config in
            match get "client_id", get "client_secret" with
            | Some client_id, Some client_secret ->
@@ -129,10 +129,7 @@ let oidc_handler params () =
               in
               let* () = Eliom_reference.unset oidc_config in
               let* name = oidc_get_name ocfg client_id client_secret code in
-              (match name with
-               | Some name -> authenticate name
-               | None -> fail ()
-              )
+              cont name
            | _, _ -> fail_http 503
        }
   | _, _ -> fail_http 401
