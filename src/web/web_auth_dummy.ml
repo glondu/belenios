@@ -31,5 +31,9 @@ let () =
   Eliom_registration.Any.register ~service:Web_services.dummy_post
     (fun () (state, name) ->
       run_post_login_handler ~state
-        (fun _ _ authenticate -> authenticate name >>= fun x -> return (Ok x))
+        {
+          Web_auth.post_login_handler =
+            fun _ _ authenticate _ ->
+            authenticate name
+        }
     )

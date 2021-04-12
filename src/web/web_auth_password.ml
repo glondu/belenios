@@ -71,24 +71,26 @@ let run_post_login_handler =
 
 let password_handler () (state, (name, password)) =
   run_post_login_handler ~state
-    (fun uuid a authenticate ->
-      let* ok =
-        match uuid with
-        | None ->
-           begin
-             match List.assoc_opt "db" a.auth_config with
-             | Some db -> check_password_with_file db name password
-             | _ -> failwith "invalid configuration for admin site"
-           end
-        | Some uuid ->
-           let uuid_s = raw_string_of_uuid uuid in
-           let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
-           check_password_with_file db name password
-      in
-      match ok with
-      | Some name -> authenticate name >>= fun x -> return (Ok x)
-      | None -> return (Error ())
-    )
+    {
+      Web_auth.post_login_handler =
+        fun uuid a authenticate fail ->
+        let* ok =
+          match uuid with
+          | None ->
+             begin
+               match List.assoc_opt "db" a.auth_config with
+               | Some db -> check_password_with_file db name password
+               | _ -> failwith "invalid configuration for admin site"
+             end
+          | Some uuid ->
+             let uuid_s = raw_string_of_uuid uuid in
+             let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
+             check_password_with_file db name password
+        in
+        match ok with
+        | Some name -> authenticate name
+        | None -> fail ()
+    }
 
 let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler
 

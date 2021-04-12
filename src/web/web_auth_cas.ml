@@ -87,17 +87,19 @@ let run_post_login_handler =
 
 let cas_handler (state, ticket) () =
   run_post_login_handler ~state
-    (fun _ a authenticate ->
-      match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
-      | Some x, Some server ->
-         let* r = get_cas_validation server ~state x in
-         (match r with
-          | `Yes (Some name) -> authenticate name >>= fun x -> return (Ok x)
-          | `No -> return (Error ())
-          | `Yes None | `Error _ -> fail_http 502
-         )
-      | None, _ -> return (Ok ())
-      | _, None -> fail_http 503
-    )
+    {
+      Web_auth.post_login_handler =
+        fun _ a authenticate fail ->
+        match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
+        | Some x, Some server ->
+           let* r = get_cas_validation server ~state x in
+           (match r with
+            | `Yes (Some name) -> authenticate name
+            | `No -> fail ()
+            | `Yes None | `Error _ -> fail_http 502
+           )
+        | None, _ -> fail ()
+        | _, None -> fail_http 503
+    }
 
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler

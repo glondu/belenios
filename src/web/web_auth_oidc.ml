@@ -115,24 +115,26 @@ let oidc_handler params () =
   match code, state with
   | Some code, Some state ->
      run_post_login_handler ~state
-       (fun _ a authenticate ->
-         let get x = List.assoc_opt x a.auth_config in
-         match get "client_id", get "client_secret" with
-         | Some client_id, Some client_secret ->
-            let* ocfg =
-              let* config = Eliom_reference.get oidc_config in
-              match config with
-              | None -> failwith "oidc handler was invoked without discovered configuration"
-              | Some x -> return x
-            in
-            let* () = Eliom_reference.unset oidc_config in
-            let* name = oidc_get_name ocfg client_id client_secret code in
-            (match name with
-             | Some name -> authenticate name >>= fun x -> return (Ok x)
-             | None -> return (Error ())
-            )
-         | _, _ -> fail_http 503
-       )
+       {
+         Web_auth.post_login_handler =
+           fun _ a authenticate fail ->
+           let get x = List.assoc_opt x a.auth_config in
+           match get "client_id", get "client_secret" with
+           | Some client_id, Some client_secret ->
+              let* ocfg =
+                let* config = Eliom_reference.get oidc_config in
+                match config with
+                | None -> failwith "oidc handler was invoked without discovered configuration"
+                | Some x -> return x
+              in
+              let* () = Eliom_reference.unset oidc_config in
+              let* name = oidc_get_name ocfg client_id client_secret code in
+              (match name with
+               | Some name -> authenticate name
+               | None -> fail ()
+              )
+           | _, _ -> fail_http 503
+       }
   | _, _ -> fail_http 401
 
 let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler

@@ -88,8 +88,11 @@ let () =
          if check_code name code then (
            let* () = Eliom_reference.unset env in
            run_post_login_handler ~state
-             (fun _ _ authenticate ->
-               authenticate name >>= fun x -> return (Ok x))
+             {
+               Web_auth.post_login_handler =
+                 fun _ _ authenticate _ ->
+                 authenticate name
+             }
          ) else forbidden ()
       | None -> forbidden ()
     )

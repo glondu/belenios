@@ -31,7 +31,11 @@ type result =
   | Redirection : 'a Eliom_registration.redirection -> result
 
 type post_login_handler =
-  uuid option -> auth_config -> (string -> unit Lwt.t) -> (unit, unit) Stdlib.result Lwt.t
+  {
+    post_login_handler :
+      'a. uuid option -> auth_config ->
+      (string -> 'a Lwt.t) -> (unit -> 'a Lwt.t) -> 'a Lwt.t
+  }
 
 let scope = Eliom_common.default_session_scope
 
@@ -54,7 +58,7 @@ let restart_login service = function
   | `Election uuid -> preapply ~service:election_login ((uuid, ()), Some service)
   | `Site cont -> preapply ~service:site_login (Some service, cont)
 
-let run_post_login_handler ~auth_system ~state f =
+let run_post_login_handler ~auth_system ~state {post_login_handler} =
   let* env = Eliom_reference.get auth_env in
   match env with
   | None -> Eliom_registration.Action.send ()
@@ -68,11 +72,15 @@ let run_post_login_handler ~auth_system ~state f =
        let authenticate name =
          let* () = Eliom_reference.unset auth_env in
          let user = { user_domain = a.auth_instance; user_name = name } in
-         match uuid with
-         | None -> Eliom_reference.set Web_state.site_user (Some user)
-         | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
+         let* () =
+           match uuid with
+           | None -> Eliom_reference.set Web_state.site_user (Some user)
+           | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
+         in
+         return (Ok ())
        in
-       let* x = f uuid a authenticate in
+       let fail () = return (Error ()) in
+       let* x = post_login_handler uuid a authenticate fail in
        match x with
        | Ok () -> get_cont `Login kind ()
        | Error () -> restart_login ()
