@@ -269,6 +269,7 @@ let login_generic ~service ~state =
   return @@ div [form]
 
 let login_dummy = login_generic ~service:dummy_post
+let login_email = login_generic ~service:email_post
 
 let login_password ~service ~allowsignups ~state =
   let* l = get_preferred_gettext () in
@@ -381,11 +382,11 @@ let format_captcha_error l e =
      in
      div ~a:[a_style "color: red;"] [txt msg]
 
-let login_email ~state error challenge email =
+let login_email_captcha ~state error challenge email =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let form =
-    post_form ~service:email_post
+    post_form ~service:email_captcha_post
       (fun (lstate, (lchallenge, (lresponse, lemail))) ->
         [
           div [

@@ -24,6 +24,7 @@ open Lwt.Syntax
 open Belenios
 open Common
 open Web_serializable_builtin_t
+open Web_serializable_t
 open Web_common
 
 module HashedInt = struct
@@ -35,19 +36,24 @@ end
 module Captcha_throttle = Lwt_throttle.Make (HashedInt)
 let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 
+let pre_login_handler {auth_config; _} ~state =
+  match List.assoc_opt "use_captcha" auth_config with
+  | Some "true" ->
+     let* b = Captcha_throttle.wait captcha_throttle 0 in
+     if b then (
+       let* challenge = Web_captcha.create_captcha () in
+       let* fragment = Pages_common.login_email_captcha ~state None challenge "" in
+       return @@ Web_auth.Html fragment
+     ) else (
+       let* fragment = Pages_common.login_email_not_now () in
+       return @@ Web_auth.Html fragment
+     )
+  | _ ->
+     let* fragment = Pages_common.login_email ~state in
+     return @@ Web_auth.Html fragment
+
 let run_post_login_handler =
-  Web_auth.register_pre_login_handler ~auth_system:"email"
-    (fun _ ~state ->
-      let* b = Captcha_throttle.wait captcha_throttle 0 in
-      if b then (
-        let* challenge = Web_captcha.create_captcha () in
-        let* fragment = Pages_common.login_email ~state None challenge "" in
-        return @@ Web_auth.Html fragment
-      ) else (
-        let* fragment = Pages_common.login_email_not_now () in
-        return @@ Web_auth.Html fragment
-      )
-    )
+  Web_auth.register_pre_login_handler ~auth_system:"email" pre_login_handler
 
 type code =
   {
@@ -86,22 +92,31 @@ let scope = Eliom_common.default_session_scope
 
 let env = Eliom_reference.eref ~scope None
 
+let handle_email_post ~state name ok =
+  if ok then (
+    let* () = generate_new_code name in
+    let* () = Eliom_reference.set env (Some (state, name)) in
+    Pages_common.email_login () >>= Eliom_registration.Html.send
+  ) else (
+    run_post_login_handler ~state
+      {
+        Web_auth.post_login_handler =
+          fun _ _ cont ->
+          cont None
+      }
+  )
+
 let () =
   Eliom_registration.Any.register ~service:Web_services.email_post
+    (fun () (state, name) ->
+      handle_email_post ~state name (is_email name)
+    )
+
+let () =
+  Eliom_registration.Any.register ~service:Web_services.email_captcha_post
     (fun () (state, (challenge, (response, name))) ->
       let* b = Web_captcha.check_captcha ~challenge ~response in
-      if b && is_email name then (
-        let* () = generate_new_code name in
-        let* () = Eliom_reference.set env (Some (state, name)) in
-        Pages_common.email_login () >>= Eliom_registration.Html.send
-      ) else (
-        run_post_login_handler ~state
-          {
-            Web_auth.post_login_handler =
-              fun _ _ cont ->
-              cont None
-          }
-      )
+      handle_email_post ~state name (b && is_email name)
     )
 
 let () =
