@@ -85,7 +85,8 @@ let run_post_login_handler ~auth_system ~state {post_login_handler} =
      else
        restart_login ()
 
-type pre_login_handler = auth_config -> state:string -> result Lwt.t
+type pre_login_handler =
+  uuid option -> auth_config -> state:string -> result Lwt.t
 
 let pre_login_handlers = ref []
 
@@ -93,7 +94,7 @@ let get_pre_login_handler uuid kind a =
   let* state = generate_token () in
   let* () = Eliom_reference.set auth_env (Some (uuid, a, kind, state)) in
   match List.assoc_opt a.auth_system !pre_login_handlers with
-  | Some handler -> handler a ~state
+  | Some handler -> handler uuid a ~state
   | None -> fail_http 404
 
 let register_pre_login_handler ~auth_system handler =

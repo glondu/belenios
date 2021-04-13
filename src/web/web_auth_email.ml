@@ -36,7 +36,13 @@ end
 module Captcha_throttle = Lwt_throttle.Make (HashedInt)
 let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 
-let pre_login_handler {auth_config; _} ~state =
+let scope = Eliom_common.default_session_scope
+
+let uuid_ref = Eliom_reference.eref ~scope None
+let env = Eliom_reference.eref ~scope None
+
+let pre_login_handler uuid {auth_config; _} ~state =
+  let* () = Eliom_reference.set uuid_ref uuid in
   match List.assoc_opt "use_captcha" auth_config with
   | Some "true" ->
      let* b = Captcha_throttle.wait captcha_throttle 0 in
@@ -88,35 +94,49 @@ let check_code name code =
        true
      ) else false
 
-let scope = Eliom_common.default_session_scope
-
-let env = Eliom_reference.eref ~scope None
-
 let handle_email_post ~state name ok =
-  if ok then (
-    let* () = generate_new_code name in
-    let* () = Eliom_reference.set env (Some (state, name)) in
-    Pages_common.email_login () >>= Eliom_registration.Html.send
-  ) else (
-    run_post_login_handler ~state
-      {
-        Web_auth.post_login_handler =
-          fun _ _ cont ->
-          cont None
-      }
-  )
+  let* address =
+    let* uuid = Eliom_reference.get uuid_ref in
+    match uuid with
+    | None -> if is_email name then return_some name else return_none
+    | Some uuid ->
+       let* voters = Web_persist.get_voters uuid in
+       match voters with
+       | None -> return_none
+       | Some voters ->
+          let rec loop = function
+            | [] -> return_none
+            | v :: vs ->
+               let address, login, _ = split_identity v in
+               if name = login then return_some address else loop vs
+          in
+          loop voters
+  in
+  match ok, address with
+  | true, Some address ->
+     let* () = generate_new_code address in
+     let* () = Eliom_reference.unset uuid_ref in
+     let* () = Eliom_reference.set env (Some (state, name, address)) in
+     Pages_common.email_login () >>= Eliom_registration.Html.send
+  | _ ->
+     run_post_login_handler ~state
+       {
+         Web_auth.post_login_handler =
+           fun _ _ cont ->
+           cont None
+       }
 
 let () =
   Eliom_registration.Any.register ~service:Web_services.email_post
     (fun () (state, name) ->
-      handle_email_post ~state name (is_email name)
+      handle_email_post ~state name true
     )
 
 let () =
   Eliom_registration.Any.register ~service:Web_services.email_captcha_post
     (fun () (state, (challenge, (response, name))) ->
       let* b = Web_captcha.check_captcha ~challenge ~response in
-      handle_email_post ~state name (b && is_email name)
+      handle_email_post ~state name b
     )
 
 let () =
@@ -124,13 +144,13 @@ let () =
     (fun () code ->
       let* x = Eliom_reference.get env in
       match x with
-      | Some (state, name) ->
+      | Some (state, name, address) ->
          run_post_login_handler ~state
            {
              Web_auth.post_login_handler =
                fun _ _ cont ->
                let* ok =
-                 if check_code name code then (
+                 if check_code address code then (
                    let* () = Eliom_reference.unset env in
                    return_some name
                  ) else return_none

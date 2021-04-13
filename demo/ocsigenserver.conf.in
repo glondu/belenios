@@ -62,6 +62,7 @@
         <!-- <contact uri="mailto:contact@example.org"/> -->
         <server mail="noreply@example.org" return-path="bounces@example.org"/>
         <auth-export name="demo"><dummy/></auth-export> <!-- DEMO -->
+        <auth-export name="email"><email/></auth-export> <!-- DEMO -->
         <auth name="demo"><dummy/></auth> <!-- DEMO -->
         <auth name="local"><password db="demo/password_db.csv"/></auth> <!-- DEMO -->
         <auth name="public"><password db="_VARDIR_/password_db.csv" allowsignups="true"/></auth>

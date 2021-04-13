@@ -25,7 +25,8 @@ type result =
   | Html : Html_types.div Eliom_content.Html.elt -> result
   | Redirection : 'a Eliom_registration.redirection -> result
 
-type pre_login_handler = auth_config -> state:string -> result Lwt.t
+type pre_login_handler =
+  uuid option -> auth_config -> state:string -> result Lwt.t
 
 type post_login_handler =
   {

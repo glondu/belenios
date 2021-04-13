@@ -87,7 +87,7 @@ let split_prefix_path url =
   let i = String.rindex url '/' in
   String.sub url 0 i, [String.sub url (i+1) (n-i-1)]
 
-let oidc_login_handler a ~state =
+let oidc_login_handler _ a ~state =
   let get x = List.assoc_opt x a.auth_config in
   match get "server", get "client_id" with
   | Some server, Some client_id ->
