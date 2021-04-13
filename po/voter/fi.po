@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-25 10:18+0000\n"
-"PO-Revision-Date: 2021-04-04 14:26+0000\n"
+"PO-Revision-Date: 2021-04-14 08:26+0000\n"
 "Last-Translator: Janne Peltola <jannepeltola@iki.fi>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/belenios/voter/"
 "fi/>\n"
@@ -162,80 +161,85 @@ msgstr ""
 "Seuraavat luottamushenkilöt (varmistusavaimet) vaaditaan tuloksen "
 "purkamiseksi:"
 
-#: src/web/pages_voter.ml:783 src/web/pages_voter.ml:600
 #. src/web/pages_voter.ml:499
+#: src/web/pages_voter.ml:783 src/web/pages_voter.ml:600
 msgid "Answer to questions"
-msgstr ""
+msgstr "Vastaus kysymyksiin"
 
 #: src/web/pages_voter.ml:938
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
-msgstr ""
+msgstr "Helpotukseksi 0 tulkitaan aina alimmaksi vastaukseksi."
 
 #: src/tool/tool_js_booth.ml:260
 msgid "At least one of the answers is invalid!"
-msgstr ""
+msgstr "Ainakin yksi vastaus ei kelpaa!"
 
 #: src/web/pages_voter.ml:52
 msgid "Audit data: "
-msgstr ""
+msgstr "Kirjausketju (audit trail): "
 
-#: src/web/pages_voter.ml:787 src/web/pages_voter.ml:604
 #. src/web/pages_voter.ml:503
+#: src/web/pages_voter.ml:787 src/web/pages_voter.ml:604
 msgid "Authenticate"
-msgstr ""
+msgstr "Tunnistus"
 
 #: src/web/pages_common.ml:310
 msgid "Authentication failed"
-msgstr ""
+msgstr "Tunnistus epäonnistui"
 
 #: src/web/pages_common.ml:313
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
+"Tunnistus epäonnistui. Tämä johtui todennäköisesti väärästä "
+"käyttäjätunnuksesta tai salasanasta; sinulla ei välttämättä ole oikeuksia "
+"käyttää tätä toimintoa."
 
 #: src/web/pages_voter.ml:108
 msgid "Available methods on this server:"
-msgstr ""
+msgstr "Käytettävissä olevat menetelmät:"
 
 #: src/web/pages_voter.ml:1199 src/web/pages_voter.ml:1144
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr ""
+"Ole varovainen, salasanat ja tunnisteet näyttävät samoilta mutta niitä "
+"käytetään eri tarkoituksiin."
 
 #: src/web/pages_voter.ml:732 src/web/pages_voter.ml:720
 msgid "Belenios Booth"
-msgstr ""
+msgstr "Belenios-koppi"
 
-#: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 #. src/web/pages_voter.ml:79
+#: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 msgid "Blank vote"
-msgstr ""
+msgstr "Tyhjä ääni"
 
 #: src/web/pages_voter.ml:268
 msgid "By using this site, you accept our "
-msgstr ""
+msgstr "Käyttämällä sivustoa hyväksyt "
 
 #: src/tool/tool_js_fingerprint.ml:84
 msgid "Compare"
-msgstr ""
+msgstr "Vertaa"
 
 #: src/tool/tool_js_fingerprint.ml:68
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "Laske sormenjälki"
 
 #: src/tool/tool_js_fingerprint.ml:35
 msgid "Computed fingerprint:"
-msgstr ""
+msgstr "Laskettu sormenjälki:"
 
 #: src/web/pages_voter.ml:874
 msgid "Condorcet-Schulze method"
-msgstr ""
+msgstr "Condorcet-Schulzen menetelmä"
 
-#: src/web/pages_voter.ml:789 src/web/pages_voter.ml:606
 #. src/web/pages_voter.ml:505
+#: src/web/pages_voter.ml:789 src/web/pages_voter.ml:606
 msgid "Confirm"
-msgstr ""
+msgstr "Vahvista"
 
-#: src/web/pages_voter.ml:1021 src/web/pages_voter.ml:927
 #. src/web/pages_voter.ml:769
+#: src/web/pages_voter.ml:1021 src/web/pages_voter.ml:927
 msgid "Continue"
 msgstr ""
 
@@ -255,8 +259,8 @@ msgstr ""
 msgid "Dear %s,"
 msgstr ""
 
-#: src/web/pages_voter.ml:791 src/web/pages_voter.ml:608
 #. src/web/pages_voter.ml:507
+#: src/web/pages_voter.ml:791 src/web/pages_voter.ml:608
 msgid "Done"
 msgstr ""
 
@@ -276,9 +280,9 @@ msgstr ""
 msgid "Encrypting…"
 msgstr ""
 
-#: src/web/site_voter.ml:361 src/web/site_voter.ml:336 src/web/site_voter.ml:298
 #. src/web/site_voter.ml:293
 #. src/web/site_voter.ml:288
+#: src/web/site_voter.ml:361 src/web/site_voter.ml:336 src/web/site_voter.ml:298
 msgid "Error"
 msgstr ""
 
@@ -294,9 +298,9 @@ msgstr ""
 msgid "Get the source code"
 msgstr ""
 
-#: src/web/pages_voter.ml:688 src/web/pages_voter.ml:654
 #. src/web/pages_voter.ml:584
 #. src/web/pages_voter.ml:556
+#: src/web/pages_voter.ml:688 src/web/pages_voter.ml:654
 msgid "Go back to election"
 msgstr ""
 
@@ -332,8 +336,8 @@ msgstr ""
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 
-#: src/web/pages_voter.ml:781 src/web/pages_voter.ml:598
 #. src/web/pages_voter.ml:497
+#: src/web/pages_voter.ml:781 src/web/pages_voter.ml:598
 msgid "Input credential"
 msgstr ""
 
@@ -517,8 +521,8 @@ msgstr ""
 msgid "Results will be published on the election page"
 msgstr ""
 
-#: src/web/pages_voter.ml:785 src/web/pages_voter.ml:602
 #. src/web/pages_voter.ml:501
+#: src/web/pages_voter.ml:785 src/web/pages_voter.ml:602
 msgid "Review and encrypt"
 msgstr ""
 
@@ -714,8 +718,8 @@ msgstr ""
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/pages_voter.ml:1205 src/web/pages_voter.ml:1149
 #. src/web/pages_common.ml:292
+#: src/web/pages_voter.ml:1205 src/web/pages_voter.ml:1149
 msgid "Username:"
 msgstr ""
 
@@ -815,8 +819,8 @@ msgstr ""
 msgid "Your smart ballot tracker is"
 msgstr ""
 
-#: src/web/pages_voter.ml:761 src/web/pages_voter.ml:625
 #. src/web/pages_voter.ml:538
+#: src/web/pages_voter.ml:761 src/web/pages_voter.ml:625
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -832,8 +836,8 @@ msgstr ""
 msgid "Your vote was not recorded!"
 msgstr ""
 
-#: src/web/pages_voter.ml:1249 src/web/pages_voter.ml:617
 #. src/web/pages_voter.ml:521
+#: src/web/pages_voter.ml:1249 src/web/pages_voter.ml:617
 msgid "Your weight is %d."
 msgstr ""
 
@@ -865,8 +869,8 @@ msgstr ""
 msgid "has been recorded."
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:377 src/web/pages_voter.ml:1033
 #. src/web/pages_voter.ml:943
+#: src/tool/tool_js_booth.ml:377 src/web/pages_voter.ml:1033
 msgid "here"
 msgstr ""
 
@@ -941,4 +945,3 @@ msgstr ""
 #: src/web/web_common.ml:88
 msgid "your credential is invalid"
 msgstr ""
-
