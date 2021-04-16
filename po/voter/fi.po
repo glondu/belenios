@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-25 10:18+0000\n"
-"PO-Revision-Date: 2021-04-14 08:26+0000\n"
+"PO-Revision-Date: 2021-04-18 00:26+0000\n"
 "Last-Translator: Janne Peltola <jannepeltola@iki.fi>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/belenios/voter/"
 "fi/>\n"
@@ -241,201 +241,215 @@ msgstr "Vahvista"
 #. src/web/pages_voter.ml:769
 #: src/web/pages_voter.ml:1021 src/web/pages_voter.ml:927
 msgid "Continue"
-msgstr ""
+msgstr "Jatka"
 
 #: src/web/site_voter.ml:116
 msgid "Cookies are blocked"
-msgstr ""
+msgstr "Evästeet on estetty"
 
 #: src/web/pages_voter.ml:1206
 msgid "Credential:"
-msgstr ""
+msgstr "Tunniste:"
 
 #: src/web/pages_voter.ml:364
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
-msgstr ""
+msgstr "Tunnisteet on luotu, ne lähetti %s sormenjäljellä %s."
 
 #: src/web/pages_voter.ml:1240
 msgid "Dear %s,"
-msgstr ""
+msgstr "Hyvä %s,"
 
 #. src/web/pages_voter.ml:507
 #: src/web/pages_voter.ml:791 src/web/pages_voter.ml:608
 msgid "Done"
-msgstr ""
+msgstr "Valmis"
 
 #: src/web/pages_voter.ml:851
 msgid "Election UUID: "
-msgstr ""
+msgstr "Äänestyksen UUID: "
 
 #: src/web/pages_voter.ml:855 src/web/pages_voter.ml:48
 msgid "Election fingerprint: "
-msgstr ""
+msgstr "Äänestyksen sormenjälki: "
 
 #: src/web/pages_voter.ml:834 src/web/pages_common.ml:104
 msgid "Election server"
-msgstr ""
+msgstr "Äänestyspalvelin"
 
 #: src/web/pages_voter.ml:821
 msgid "Encrypting…"
-msgstr ""
+msgstr "Salataan…"
 
 #. src/web/site_voter.ml:293
 #. src/web/site_voter.ml:288
 #: src/web/site_voter.ml:361 src/web/site_voter.ml:336 src/web/site_voter.ml:298
 msgid "Error"
-msgstr ""
+msgstr "Virhe"
 
 #: src/tool/tool_js_fingerprint.ml:75
 msgid "Expected fingerprint:"
-msgstr ""
+msgstr "Oletettu sormenjälki:"
 
 #: src/web/pages_voter.ml:639
 msgid "FAIL!"
-msgstr ""
+msgstr "VIRHE!"
 
 #: src/web/pages_common.ml:127
 msgid "Get the source code"
-msgstr ""
+msgstr "Hae lähdekoodi"
 
 #. src/web/pages_voter.ml:584
 #. src/web/pages_voter.ml:556
 #: src/web/pages_voter.ml:688 src/web/pages_voter.ml:654
 msgid "Go back to election"
-msgstr ""
+msgstr "Palaa äänestykseen"
 
 #: src/web/pages_voter.ml:472
 msgid "I am "
-msgstr ""
+msgstr "Olen "
 
 #: src/web/pages_voter.ml:477
 msgid "I cast my vote"
-msgstr ""
+msgstr "Äänestän"
 
 #: src/tool/tool_js_booth.ml:238
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
+"Jos sinua pyydetään järjestämään ehdokkaita (enemmistövaalitapa), 1 on paras "
+"järjestysluku ja korkeammat huonompia."
 
 #: src/tool/tool_js_booth.ml:241
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
+"Jos sinua pyydetään järjestämään ehdokkaita (Condorcet, STV, ...) käytä "
+"numeroa 1 ensimmäiseen valintaasi, numeroa 2 toiseen jne."
 
 #: src/web/pages_voter.ml:578
 msgid "If you want to vote, you must "
-msgstr ""
+msgstr "Jos haluat äänestää, sinun täytyy "
 
 #: src/web/pages_voter.ml:1099
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
+"Toteutustavassamme saman verran ääniä saaneet ehdokkaat valitaan tai "
+"pudotetaan alkuperäisten vaalilistojen mukaisessa järjestyksessä."
 
 #: src/web/pages_voter.ml:934
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
 msgstr ""
+"Enemmistövaalitavassa jokainen vaalilippu antaa järjestysnumeron kullekin "
+"ehdokkaalle."
 
 #: src/web/pages_voter.ml:1028
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
+"STV-vaalitavassa äänestäjät järjestävät ehdokkaat paremmuusjärjestykseen."
 
 #. src/web/pages_voter.ml:497
 #: src/web/pages_voter.ml:781 src/web/pages_voter.ml:598
 msgid "Input credential"
-msgstr ""
+msgstr "Syötä tunniste"
 
 #: src/web/pages_voter.ml:800
 msgid "Input your credential "
-msgstr ""
+msgstr "Syötä tunnisteesi "
 
 #: src/tool/tool_js_booth.ml:392
 msgid "Invalid credential!"
-msgstr ""
+msgstr "Virheellinen tunniste!"
 
 #: src/web/site_voter.ml:299
 msgid "Invalid index for question."
-msgstr ""
+msgstr "Virheellinen järjestysluku kysymykselle."
 
 #: src/web/pages_voter.ml:134
 msgid "It will open in "
-msgstr ""
+msgstr "Se aukeaa "
 
 #: src/web/pages_voter.ml:105
 msgid "JSON result"
-msgstr ""
+msgstr "JSON-tulos"
 
 #: src/web/pages_common.ml:146
 msgid "Language:"
-msgstr ""
+msgstr "Kieli:"
 
 #: src/web/pages_voter.ml:727
 msgid "Loading…"
-msgstr ""
+msgstr "Ladataan…"
 
 #: src/web/pages_common.ml:250
 msgid "Log in"
-msgstr ""
+msgstr "Kirjaudu"
 
 #: src/web/pages_common.ml:234
 msgid "Log in with %s"
-msgstr ""
+msgstr "Kirjaudu %s:lla"
 
 #: src/web/pages_common.ml:301
 msgid "Login"
-msgstr ""
+msgstr "Käyttäjätunnus"
 
 #: src/web/pages_voter.ml:1201 src/web/pages_voter.ml:1146
 msgid "Login and passwords are required once your ballot is ready to be cast."
 msgstr ""
+"Käyttäjätunnus ja salasanat tarvitaan kun olet valmis syöttämään "
+"vaalilippusi."
 
 #: src/web/pages_voter.ml:1103
 msgid "Look at the raw events for more details."
-msgstr ""
+msgstr "Raaka-aineistosta voi katsoa lisätietoja."
 
 #: src/web/pages_voter.ml:112
 msgid "Majority Judgment"
-msgstr ""
+msgstr "Enemmistövaalitapa"
 
 #: src/web/pages_voter.ml:968 src/web/pages_voter.ml:918
 msgid "Majority Judgment method"
-msgstr ""
+msgstr "Enemmistövaalitapa"
 
 #: src/web/pages_voter.ml:1097
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
+"STV-vaalitavasta on monia muunnelmia, esimerkiksi liittyen tasatilanteiden "
+"ratkaisemiseen."
 
 #: src/web/pages_voter.ml:1035
 msgid "Many variants of STV exist, we documented our choices in "
 msgstr ""
+"STV-vaalitavasta on useita muunnelmia. Meidän valintamme on dokumentoitu "
 
 #: src/web/pages_voter.ml:1032 src/web/pages_voter.ml:942
 msgid "More information can be found "
-msgstr ""
+msgstr "Lisätietoa voi löytää "
 
 #: src/tool/tool_js_booth.ml:324
 msgid "Next"
-msgstr ""
+msgstr "Seuraava"
 
 #: src/tool/tool_js_booth.ml:141
 msgid "No other choices are allowed when voting blank"
-msgstr ""
+msgstr "Jos äänestät tyhjää, et voi valita muita vaihtoehtoja"
 
 #: src/web/site_common.ml:45
 msgid "Not found"
-msgstr ""
+msgstr "Ei löytynyt"
 
 #: src/web/pages_voter.ml:1214 src/web/pages_voter.ml:1158
 msgid "Note that you are allowed to vote several times."
-msgstr ""
+msgstr "Huomaa että voit äänestää useita kertoja."
 
 #: src/web/pages_voter.ml:492
 msgid "Note: You have already voted. Your vote will be replaced."
-msgstr ""
+msgstr "Huoio: Olet jo äänestänyt. Aiempi vaalilippusi korvataan."
 
 #: src/web/pages_voter.ml:547
 msgid "Note: your ballot is encrypted and nobody can see its contents."
-msgstr ""
+msgstr "Huomaa: vaalilippusi on salattu ja kukaan ei voi nähdä sen sisältöä."
 
 #: src/tool/tool_js_booth.ml:233
 msgid "Notes:"
-msgstr ""
+msgstr "Huomiot:"
 
 #: src/web/pages_voter.ml:236
 msgid "Number of accepted ballots: "
