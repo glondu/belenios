@@ -1,7 +1,3 @@
-.majority-judgment-vote-big-candidates-list {
-  --majority-judgment-grade-ratio: 8%; /* default, overriden by React component */
-}
-
 .majority-judgment-vote-big-candidates-list--wide {
   position: absolute;
   left: 0;
@@ -54,7 +50,6 @@
   justify-content: center;
   text-align: center;
   font-weight: bold;
-  /*flex-basis: var(--majority-judgment-grade-ratio);*/
   font-size: 12px;
   overflow: hidden;
 }

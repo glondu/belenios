@@ -111,7 +111,6 @@ function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, available
 }
 
 function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, candidates, blankVoteIsAllowed, renderedBlankVoteComponent, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
-  const ratio = 1 / availableGrades.length;
   const shouldDisplayWideMode = availableGrades.length > 8 || availableGrades.reduce((accumulator, gradeLabel) => { return accumulator + gradeLabel.length; }, 0) > 70;
   let renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifierConsolidatedPrefix = `${identifierPrefix}_candidate_${candidateIndex}`;
@@ -169,10 +168,7 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, c
     e(
       'div',
       {
-        className: cssClasses,
-        style: {
-          '--majority-judgment-grade-ratio': `${ratio*100}%`
-        }
+        className: cssClasses
       },
       ...renderedCandidates
     ),
