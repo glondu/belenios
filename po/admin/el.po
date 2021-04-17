@@ -1,11 +1,10 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2021-03-26 13:29+0000\n"
-"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"PO-Revision-Date: 2021-04-18 00:26+0000\n"
+"Last-Translator: Stavros Christoforou <stavros.christoforou@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/belenios/admin/el/>"
 "\n"
 "Language: el\n"
@@ -63,9 +62,9 @@ msgstr ""
 msgid " instead of "
 msgstr ""
 
-#: src/web/pages_admin.ml:2458 src/web/pages_admin.ml:2324
 #. src/web/pages_admin.ml:992
 #. src/web/pages_admin.ml:826
+#: src/web/pages_admin.ml:2458 src/web/pages_admin.ml:2324
 msgid " is:"
 msgstr ""
 
@@ -137,8 +136,8 @@ msgstr ""
 msgid "(or "
 msgstr ""
 
-#: src/web/pages_admin.ml:2426 src/web/pages_admin.ml:2426
 #. src/web/pages_admin.ml:795
+#: src/web/pages_admin.ml:2426 src/web/pages_admin.ml:2426
 msgid "(server)"
 msgstr ""
 
@@ -198,8 +197,8 @@ msgstr ""
 msgid "Account management"
 msgstr ""
 
-#: src/web/pages_admin.ml:1287 src/web/pages_admin.ml:913
 #. src/web/pages_admin.ml:749
+#: src/web/pages_admin.ml:1287 src/web/pages_admin.ml:913
 msgid "Add"
 msgstr ""
 
@@ -211,8 +210,8 @@ msgstr ""
 msgid "Add an answer"
 msgstr ""
 
-#: src/web/pages_admin.ml:2127 src/web/pages_admin.ml:189
 #. src/web/pages_admin.ml:166
+#: src/web/pages_admin.ml:2127 src/web/pages_admin.ml:189
 msgid "Administration"
 msgstr ""
 
@@ -376,9 +375,9 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr ""
 
-#: src/web/site_admin.ml:2651 src/web/site_admin.ml:2542
 #. src/web/pages_admin.ml:3063
 #. src/web/pages_admin.ml:2940
+#: src/web/site_admin.ml:2651 src/web/site_admin.ml:2542
 msgid "Change password"
 msgstr ""
 
@@ -424,7 +423,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3076
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "Υπολογισμός αποτυπώματος"
 
 #: src/web/pages_admin.ml:2738
 msgid "Compute shuffle"
@@ -524,11 +523,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3104 src/web/pages_admin.ml:3082
 msgid "Dear %s,"
-msgstr ""
+msgstr "Αγαπητέ/ή %s,"
 
-#: src/web/pages_admin.ml:2082 src/web/pages_admin.ml:2045
 #. src/web/pages_admin.ml:680
 #. src/web/pages_admin.ml:631
+#: src/web/pages_admin.ml:2082 src/web/pages_admin.ml:2045
 msgid "Dear trustee,"
 msgstr ""
 
@@ -560,8 +559,8 @@ msgstr ""
 msgid "Don't forget to save:"
 msgstr ""
 
-#: src/web/pages_admin.ml:2495 src/web/pages_admin.ml:2358
 #. src/web/pages_admin.ml:845
+#: src/web/pages_admin.ml:2495 src/web/pages_admin.ml:2358
 msgid "Done?"
 msgstr ""
 
@@ -593,10 +592,10 @@ msgstr ""
 msgid "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins."
 msgstr ""
 
-#: src/web/pages_admin.ml:2493 src/web/pages_admin.ml:2429
 #. src/web/pages_admin.ml:957
 #. src/web/pages_admin.ml:843
 #. src/web/pages_admin.ml:782
+#: src/web/pages_admin.ml:2493 src/web/pages_admin.ml:2429
 msgid "E-mail"
 msgstr ""
 
@@ -616,8 +615,8 @@ msgstr ""
 msgid "Edit voters"
 msgstr ""
 
-#: src/web/pages_admin.ml:1832 src/web/pages_admin.ml:1822
 #. src/web/pages_admin.ml:1814
+#: src/web/pages_admin.ml:1832 src/web/pages_admin.ml:1822
 msgid "Election "
 msgstr ""
 
@@ -625,8 +624,8 @@ msgstr ""
 msgid "Election home"
 msgstr ""
 
-#: src/web/pages_admin.ml:189 src/web/pages_admin.ml:166
 #. src/web/pages_admin.ml:47
+#: src/web/pages_admin.ml:189 src/web/pages_admin.ml:166
 msgid "Election server"
 msgstr "Διακομιστής ψηφοφορίας"
 
@@ -658,7 +657,6 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr ""
 
-#: src/web/site_admin.ml:2306 src/web/site_admin.ml:2276
 #. src/web/site_admin.ml:2263
 #. src/web/site_admin.ml:2155
 #. src/web/site_admin.ml:2152
@@ -683,6 +681,7 @@ msgstr ""
 #. src/web/site_admin.ml:543
 #. src/web/site_admin.ml:477
 #. src/web/site_admin.ml:367
+#: src/web/site_admin.ml:2306 src/web/site_admin.ml:2276
 msgid "Error"
 msgstr "Σφάλμα"
 
@@ -730,8 +729,8 @@ msgstr ""
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr ""
 
-#: src/web/site_admin.ml:1891 src/web/site_admin.ml:1888
 #. src/web/site_admin.ml:1541
+#: src/web/site_admin.ml:1891 src/web/site_admin.ml:1888
 msgid "Forbidden"
 msgstr ""
 
@@ -759,9 +758,9 @@ msgstr ""
 msgid "Generate your contribution to decryption"
 msgstr ""
 
-#: src/web/pages_admin.ml:2031 src/web/pages_admin.ml:1361
 #. src/web/pages_admin.ml:1090
 #. src/web/pages_admin.ml:885
+#: src/web/pages_admin.ml:2031 src/web/pages_admin.ml:1361
 msgid "Go back to election draft"
 msgstr ""
 
@@ -773,9 +772,9 @@ msgstr ""
 msgid "Here is the link to proceed to tally:"
 msgstr ""
 
-#: src/web/pages_admin.ml:2432 src/web/pages_admin.ml:2289
 #. src/web/pages_admin.ml:973
 #. src/web/pages_admin.ml:785
+#: src/web/pages_admin.ml:2432 src/web/pages_admin.ml:2289
 msgid "Hide link"
 msgstr ""
 
@@ -827,12 +826,12 @@ msgstr ""
 msgid "Instructions"
 msgstr ""
 
-#: src/web/pages_admin.ml:2809 src/web/pages_admin.ml:2088
 #. src/web/pages_admin.ml:2052
 #. src/web/pages_admin.ml:1706
 #. src/web/pages_admin.ml:1674
 #. src/web/pages_admin.ml:1549
 #. src/web/pages_admin.ml:1431
+#: src/web/pages_admin.ml:2809 src/web/pages_admin.ml:2088
 msgid "Instructions:"
 msgstr ""
 
@@ -868,12 +867,12 @@ msgstr ""
 msgid "Languages:"
 msgstr ""
 
-#: src/web/pages_admin.ml:2494 src/web/pages_admin.ml:2434
 #. src/web/pages_admin.ml:2291
 #. src/web/pages_admin.ml:1013
 #. src/web/pages_admin.ml:975
 #. src/web/pages_admin.ml:844
 #. src/web/pages_admin.ml:787
+#: src/web/pages_admin.ml:2494 src/web/pages_admin.ml:2434
 msgid "Link"
 msgstr ""
 
@@ -933,11 +932,11 @@ msgstr ""
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr ""
 
-#: src/web/pages_admin.ml:1912 src/web/pages_admin.ml:1904
 #. src/web/pages_admin.ml:1879
 #. src/web/pages_admin.ml:1872
 #. src/web/pages_admin.ml:1867
 #. src/web/pages_admin.ml:1848
+#: src/web/pages_admin.ml:1912 src/web/pages_admin.ml:1904
 msgid "Missing"
 msgstr ""
 
@@ -989,10 +988,10 @@ msgstr ""
 msgid "Name?"
 msgstr ""
 
-#: src/web/pages_admin.ml:2445 src/web/pages_admin.ml:2309
 #. src/web/pages_admin.ml:1946
 #. src/web/pages_admin.ml:1325
 #. src/web/pages_admin.ml:812
+#: src/web/pages_admin.ml:2445 src/web/pages_admin.ml:2309
 msgid "No"
 msgstr ""
 
@@ -1024,8 +1023,8 @@ msgstr ""
 msgid "Not downloaded."
 msgstr ""
 
-#: src/web/pages_admin.ml:1854 src/web/pages_admin.ml:1842
 #. src/web/pages_admin.ml:1836
+#: src/web/pages_admin.ml:1854 src/web/pages_admin.ml:1842
 msgid "Not edited"
 msgstr ""
 
@@ -1041,9 +1040,9 @@ msgstr ""
 msgid "Note that:"
 msgstr ""
 
-#: src/web/pages_admin.ml:2140 src/web/pages_admin.ml:1798
 #. src/web/pages_admin.ml:1461
 #. src/web/pages_admin.ml:1384
+#: src/web/pages_admin.ml:2140 src/web/pages_admin.ml:1798
 msgid "Note:"
 msgstr ""
 
@@ -1279,13 +1278,13 @@ msgstr ""
 msgid "Remember to store you private key securely."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:235 src/tool/tool_js_questions.ml:145
 #. src/web/pages_admin.ml:1355
 #. src/web/pages_admin.ml:1296
 #. src/web/pages_admin.ml:1015
 #. src/web/pages_admin.ml:924
 #. src/web/pages_admin.ml:846
 #. src/web/pages_admin.ml:759
+#: src/tool/tool_js_questions.ml:235 src/tool/tool_js_questions.ml:145
 msgid "Remove"
 msgstr ""
 
@@ -1297,11 +1296,11 @@ msgstr ""
 msgid "Reset threshold"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:406 src/web/pages_admin.ml:1218
 #. src/web/pages_admin.ml:454
 #. src/web/pages_admin.ml:424
 #. src/web/pages_admin.ml:395
 #. src/web/pages_admin.ml:359
+#: src/tool/tool_js_questions.ml:406 src/web/pages_admin.ml:1218
 msgid "Save changes"
 msgstr ""
 
@@ -1365,7 +1364,6 @@ msgstr ""
 msgid "Step 0/3"
 msgstr ""
 
-#: src/web/pages_admin.ml:3057 src/web/pages_admin.ml:3007
 #. src/web/pages_admin.ml:2955
 #. src/web/pages_admin.ml:2933
 #. src/web/pages_admin.ml:2901
@@ -1375,6 +1373,7 @@ msgstr ""
 #. src/web/pages_admin.ml:1723
 #. src/web/pages_admin.ml:1691
 #. src/web/pages_admin.ml:1474
+#: src/web/pages_admin.ml:3057 src/web/pages_admin.ml:3007
 msgid "Submit"
 msgstr ""
 
@@ -1402,12 +1401,12 @@ msgstr ""
 msgid "Submit your public key using the button below."
 msgstr ""
 
-#: src/web/site_admin.ml:2150 src/web/site_admin.ml:1946
 #. src/web/site_admin.ml:1275
 #. src/web/site_admin.ml:1190
 #. src/web/site_admin.ml:764
 #. src/web/site_admin.ml:688
 #. src/web/site_admin.ml:568
+#: src/web/site_admin.ml:2150 src/web/site_admin.ml:1946
 msgid "Success"
 msgstr ""
 
@@ -1419,8 +1418,8 @@ msgstr ""
 msgid "Thank you again for your help,"
 msgstr ""
 
-#: src/web/pages_admin.ml:2098 src/web/pages_admin.ml:708
 #. src/web/pages_admin.ml:658
+#: src/web/pages_admin.ml:2098 src/web/pages_admin.ml:708
 msgid "Thank you for your help,"
 msgstr ""
 
@@ -1448,9 +1447,9 @@ msgstr ""
 msgid "The date must be less than %d days in the future!"
 msgstr ""
 
-#: src/web/pages_admin.ml:2113 src/web/pages_admin.ml:2075
 #. src/web/pages_admin.ml:723
 #. src/web/pages_admin.ml:673
+#: src/web/pages_admin.ml:2113 src/web/pages_admin.ml:2075
 msgid "The election administrator"
 msgstr ""
 
@@ -1506,14 +1505,14 @@ msgstr ""
 msgid "The given maximum is greater than the number of choices!"
 msgstr ""
 
-#: src/web/pages_admin.ml:2456 src/web/pages_admin.ml:2322
 #. src/web/pages_admin.ml:990
 #. src/web/pages_admin.ml:824
+#: src/web/pages_admin.ml:2456 src/web/pages_admin.ml:2322
 msgid "The link that must be sent to trustee "
 msgstr ""
 
-#: src/web/pages_admin.ml:1611 src/web/pages_admin.ml:1528
 #. src/web/pages_admin.ml:1414
+#: src/web/pages_admin.ml:1611 src/web/pages_admin.ml:1528
 msgid "The link to the election will be:"
 msgstr ""
 
@@ -1587,11 +1586,11 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2530
 msgid "This election has been tallied."
-msgstr ""
+msgstr "Η ψηφοφορία έχει καταμετρηθεί."
 
 #: src/web/pages_admin.ml:2537
 msgid "This election is archived."
-msgstr ""
+msgstr "Η ψηφοφορία έχει αρχειοθετηθεί."
 
 #: src/web/pages_admin.ml:2551
 msgid "This election will be automatically archived after "
@@ -1657,9 +1656,9 @@ msgstr ""
 msgid "Too short"
 msgstr ""
 
-#: src/web/pages_admin.ml:2492 src/web/pages_admin.ml:2356
 #. src/web/pages_admin.ml:1010
 #. src/web/pages_admin.ml:841
+#: src/web/pages_admin.ml:2492 src/web/pages_admin.ml:2356
 msgid "Trustee"
 msgstr ""
 
@@ -1701,10 +1700,10 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2635
 msgid "Username:"
-msgstr ""
+msgstr "Όνομα χρήστη:"
 
-#: src/web/pages_admin.ml:2022 src/web/pages_admin.ml:1832
 #. src/web/pages_admin.ml:579
+#: src/web/pages_admin.ml:2022 src/web/pages_admin.ml:1832
 msgid "Validate creation"
 msgstr ""
 
@@ -1732,11 +1731,11 @@ msgstr ""
 msgid "Waiting for the other trustees... Reload the page to check progress."
 msgstr ""
 
-#: src/web/pages_admin.ml:1948 src/web/pages_admin.ml:1937
 #. src/web/pages_admin.ml:1378
 #. src/web/pages_admin.ml:1374
+#: src/web/pages_admin.ml:1948 src/web/pages_admin.ml:1937
 msgid "Warning:"
-msgstr ""
+msgstr "Προειδοποίηση:"
 
 #: src/web/pages_admin.ml:2589
 msgid "Warning: This action is irreversible."
@@ -1762,10 +1761,10 @@ msgstr ""
 msgid "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page."
 msgstr ""
 
-#: src/web/pages_admin.ml:2445 src/web/pages_admin.ml:2309
 #. src/web/pages_admin.ml:1952
 #. src/web/pages_admin.ml:1324
 #. src/web/pages_admin.ml:812
+#: src/web/pages_admin.ml:2445 src/web/pages_admin.ml:2309
 msgid "Yes"
 msgstr ""
 
@@ -1813,10 +1812,10 @@ msgstr ""
 msgid "You must select at least one language!"
 msgstr ""
 
-#: src/web/pages_admin.ml:1794 src/web/pages_admin.ml:209
 #. src/web/pages_admin.ml:204
 #. src/web/pages_admin.ml:199
 #. src/web/pages_admin.ml:194
+#: src/web/pages_admin.ml:1794 src/web/pages_admin.ml:209
 msgid "You own no such elections!"
 msgstr ""
 
@@ -1898,7 +1897,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:528
 msgid "here"
-msgstr ""
+msgstr "εδώ"
 
 #: src/web/pages_admin.ml:1021
 msgid "init: administrator needs to set threshold"
@@ -1918,7 +1917,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:52
 msgid "personal data policy"
-msgstr ""
+msgstr "πολιτική προσωπικών δεδομένων"
 
 #: src/web/pages_admin.ml:1435
 msgid "private credentials"
@@ -2023,4 +2022,3 @@ msgstr ""
 #: src/web/pages_admin.ml:692
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
 msgstr ""
-
