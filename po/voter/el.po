@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2021-04-18 00:26+0000\n"
+"PO-Revision-Date: 2021-04-18 19:38+0000\n"
 "Last-Translator: Stavros Christoforou <stavros.christoforou@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/belenios/voter/el/>"
 "\n"
@@ -333,6 +333,9 @@ msgstr "Εαν θέλετε να ψηφίσετε, πρέπει να "
 #: src/web/pages_voter.ml:1099
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
+"Στην εκτέλεσή μας, όταν αρκετοί υποψήφιοι έχουν τον ίδιο αριθμό ψήφων όταν "
+"είναι έτοιμοι να εκλεγούν ή να αποκλειστούν, ακολουθούμε την σειρά με την "
+"οποία οι υποψήφιοι ανακοινώθηκαν στην ψηφοφορία."
 
 #: src/web/pages_voter.ml:934
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
@@ -561,7 +564,7 @@ msgstr "Επιλέξτε μεταξύ %d και %d απάντησης/απαντ
 
 #: src/web/pages_common.ml:149
 msgid "Set"
-msgstr ""
+msgstr "Ορισμός"
 
 #: src/web/pages_voter.ml:899
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
@@ -604,6 +607,8 @@ msgstr "Βήμα 6/6: "
 #: src/web/pages_voter.ml:1101
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
+"Οι υποψήφιοι αυτοί σημειώνονται ως \"TieWin\" όταν εκλεγούν και \"TieLose\" "
+"εαν έχουν χάσει."
 
 #: src/web/pages_voter.ml:634
 msgid "Thank you for voting!"
@@ -680,6 +685,8 @@ msgstr "Η λίστα ψηφοφόρων έχει %d ψηφοφόρους και
 #: src/web/pages_voter.ml:940
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
 msgstr ""
+"Ο νικητής είναι ο υποψήφιος με τον υψηλότερο διάμεσο (ή τον 2ο υψηλότερο εάν "
+"υπάρχει ισοψηφία κοκ.)."
 
 #: src/web/pages_voter.ml:1095
 msgid "There has been at least one tie."
@@ -786,6 +793,9 @@ msgstr "Βάρος:"
 #: src/web/pages_voter.ml:1030
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
+"Όταν ένας υποψήφιος συγκεντρώνει αρκετές ψήφους για να εκλεγεί, οι ψήφοι "
+"μεταφέρονται στον επόμενο υποψήφιο στο ψηφοδέλτιο, με έναν συντελεστή "
+"ανάλογο των επιπλέον ψήφων."
 
 #: src/web/pages_common.ml:159
 msgid "Wish to help with translations?"
@@ -858,12 +868,12 @@ msgstr "Ο κωδικός σας για την ψηφοφορία %s"
 
 #: src/web/pages_voter.ml:1252
 msgid "Your smart ballot tracker is"
-msgstr ""
+msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σας είναι"
 
 #. src/web/pages_voter.ml:538
 #: src/web/pages_voter.ml:761 src/web/pages_voter.ml:625
 msgid "Your smart ballot tracker is "
-msgstr ""
+msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σας είναι "
 
 #: src/web/pages_voter.ml:1242
 msgid "Your vote for election"
@@ -896,7 +906,7 @@ msgstr "ψηφοδέλτια"
 
 #: src/web/pages_voter.ml:757
 msgid "but not cast yet"
-msgstr ""
+msgstr "αλλά δεν έχει μπει στην κάλπη ακόμα"
 
 #: src/web/pages_common.ml:281
 msgid "change your password"
