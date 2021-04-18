@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2021-04-18 19:38+0000\n"
+"PO-Revision-Date: 2021-04-18 20:05+0000\n"
 "Last-Translator: Stavros Christoforou <stavros.christoforou@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/belenios/voter/el/>"
 "\n"
@@ -52,7 +52,7 @@ msgstr " για περισσότερες πληροφορίες."
 
 #: src/web/pages_voter.ml:622
 msgid " has been accepted."
-msgstr " έχει γίνει αποδεκτή."
+msgstr " έχει γίνει αποδεκτό."
 
 #: src/web/pages_voter.ml:537
 msgid " has been received, but not recorded yet. "
@@ -215,7 +215,7 @@ msgstr "Λευκή ψήφος"
 
 #: src/web/pages_voter.ml:268
 msgid "By using this site, you accept our "
-msgstr "Με την χρήση αυτής της σελίδας, δέχεστε τους "
+msgstr "Με την χρήση αυτής της σελίδας, δέχεστε την "
 
 #: src/tool/tool_js_fingerprint.ml:84
 msgid "Compare"
