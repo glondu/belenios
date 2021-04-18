@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2021-04-18 00:26+0000\n"
+"PO-Revision-Date: 2021-04-19 23:29+0000\n"
 "Last-Translator: Stavros Christoforou <stavros.christoforou@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/belenios/admin/el/>"
 "\n"
@@ -12,11 +12,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.6-dev\n"
+"X-Generator: Weblate 4.7-dev\n"
 
 #: src/web/pages_admin.ml:2172
 msgid " You may re-open the election when it is closed."
-msgstr ""
+msgstr " Μπορείτε να ανοίξετε ξανά την ψηφοφορία όταν κλείσει."
 
 #: src/tool/tool_js_questions.ml:180
 msgid " and "
@@ -24,19 +24,19 @@ msgstr " και "
 
 #: src/web/pages_admin.ml:2997
 msgid " and a password: "
-msgstr ""
+msgstr " και έναν κωδικό: "
 
 #: src/web/pages_admin.ml:1679 src/web/pages_admin.ml:1554
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " και να το αποθηκεύσετε σε ασφαλή τοποθεσία."
 
 #: src/web/pages_admin.ml:1436
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " και να αποθηκεύσετε το αρχείο σε ασφαλή τοποθεσία."
 
 #: src/web/pages_admin.ml:1892
 msgid " and save them securely."
-msgstr ""
+msgstr " και να τα αποθηκεύσετε με ασφάλεια."
 
 #: src/web/pages_admin.ml:3042
 msgid " and your e-mail address is: "
@@ -44,37 +44,37 @@ msgstr " και η διεύθυνση ηλεκτρονικού ταχυδρομ�
 
 #: src/tool/tool_js_questions.ml:187
 msgid " answers."
-msgstr ""
+msgstr " απαντήσεις."
 
 #: src/web/pages_admin.ml:3030 src/web/pages_admin.ml:2980
 msgid " because "
-msgstr ""
+msgstr " επειδή "
 
 #: src/web/pages_admin.ml:2486
 msgid " has been computed."
-msgstr ""
+msgstr " έχει υπολογιστεί."
 
 #: src/web/pages_admin.ml:2929 src/web/pages_admin.ml:2897
 msgid " in the following box: "
-msgstr ""
+msgstr " στο εξής πλαίσιο: "
 
 #: src/web/pages_admin.ml:1179 src/web/pages_admin.ml:1170
 msgid " instead of "
-msgstr ""
+msgstr " αντί για "
 
 #. src/web/pages_admin.ml:992
 #. src/web/pages_admin.ml:826
 #: src/web/pages_admin.ml:2458 src/web/pages_admin.ml:2324
 msgid " is:"
-msgstr ""
+msgstr " είναι:"
 
 #: src/web/pages_admin.ml:2921
 msgid " or username: "
-msgstr ""
+msgstr " ή όνομα χρήστη: "
 
 #: src/web/pages_admin.ml:1052
 msgid " out of "
-msgstr ""
+msgstr " από "
 
 #: src/web/pages_admin.ml:529
 msgid " to set up the election key."
@@ -1330,7 +1330,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1116 src/web/pages_admin.ml:1043
 msgid "Set"
-msgstr ""
+msgstr "Ορισμός"
 
 #: src/web/pages_admin.ml:2719
 msgid "Shuffle"
@@ -1981,19 +1981,19 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3022 src/web/pages_admin.ml:2974
 msgid "the two passwords are not the same"
-msgstr ""
+msgstr "οι δύο κωδικοί δεν είναι ίδιοι"
 
 #: src/web/pages_admin.ml:2970
 msgid "the username is already taken"
-msgstr ""
+msgstr "το όνομα χρήστη χρησιμοποιείται ήδη"
 
 #: src/web/pages_admin.ml:2972
 msgid "the username is invalid"
-msgstr ""
+msgstr "το όνομα χρήστη δεν επιτρέπεται"
 
 #: src/web/pages_admin.ml:2971
 msgid "there is already an account with this e-mail address"
-msgstr ""
+msgstr "υπάρχει ήδη λογαριασμός μα αυτή την διεύθυνση e-mail"
 
 #: src/web/pages_admin.ml:876
 msgid "threshold mode"
@@ -2001,7 +2001,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2142
 msgid "times are in UTC. Now is "
-msgstr ""
+msgstr "χρόνοι είναι σε UTC. Τώρα είναι "
 
 #: src/web/pages_admin.ml:1184
 msgid "you can send the private credential back to its rightful owner in case it gets lost."
