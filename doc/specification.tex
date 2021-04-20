@@ -1011,15 +1011,15 @@ and $S=g^s$ written in base 10.
 \subsubsection{Homomorphic answers}
 
 An answer to a homomorphic question is the vector
-$\choices$ of encrypted weights given to each answer. When $\blank$ is
+$\choices$ of encrypted values given to each answer. When $\blank$ is
 false (or absent), a blank vote is not allowed and this vector has the
 same length as $\answers$; otherwise, a blank vote is allowed and this
-vector has an additionnal leading weight corresponding to whether the
-vote is blank or not.  Each weight comes with a proof (in \iproofs,
+vector has an additionnal leading value corresponding to whether the
+vote is blank or not.  Each value comes with a proof (in \iproofs,
 same length as \choices) that it is $0$ or $1$. The whole answer also
-comes with additional proofs that weights respect constraints.
+comes with additional proofs that values respect constraints.
 
-More concretely, each weight $m\in[0\dots1]$ is encrypted (in an El
+More concretely, each value $m\in[0\dots1]$ is encrypted (in an El
 Gamal-like fashion) into a $\ciphertext$ as follows:
 \begin{enumerate}
 \item pick a random $r\in\Z_q$
