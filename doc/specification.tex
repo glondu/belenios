@@ -278,7 +278,8 @@ trustee as specified in section~\ref{polynomials}.
 \item $\mathcal{V}$ creates a \hyperref[ballots]{$\ballot$} $b$ and submits it to $\mathcal{S}$
 \item $\mathcal{S}$ validates $b$ and adds it to $B$
 \item at any time (even after tally), $\mathcal{V}$ may check that $b$
-  appears in the list of accepted ballots $B$
+  appears in the list of accepted ballots $B$ and the weight of her
+  ballot as it appears in $B$ is equal to her weight
 \end{enumerate}
 
 
@@ -352,7 +353,7 @@ always record at least the last audited board. Then:
   \item she records $D$;
   \item for $b\in B$, she checks that the proofs of $b$ are valid and that
   the signature of $b$ is valid and corresponds to one of the keys in
-  $L$;
+  $L$; she also checks that the weights correspond;
   \item she checks that any two ballots in $B$ correspond to distinct keys (of
     $L$);
   \end{itemize}
