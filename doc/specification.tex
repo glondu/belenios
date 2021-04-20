@@ -121,7 +121,8 @@ section~\ref{default-group}.
 
 \medskip
 
-{\it Weights.}  In the homomorphic case, each voter has a weight: a
+{\it Weights.}  In the homomorphic case (and only in the homomorphic
+case), each voter has a weight: a
 ballot is counted as many times as the weight of its owner. Usually,
 the weight of all voters is 1 but sometimes, it may be useful to
 assign different weights. We assume the sum of all weights is not too
@@ -148,7 +149,8 @@ group element.
 \item $\mathcal{A}$: server administrator
 \item $\mathcal{C}$: credential authority
 \item $\mathcal{T}_1,\dots,\mathcal{T}_m$: trustees
-\item $\mathcal{V}_1,\dots,\mathcal{V}_n$: voters; each voter has a weight $w_i$
+\item $\mathcal{V}_1,\dots,\mathcal{V}_n$: voters; each voter has a
+    weight $w_i$ equal to 1 by default
 %\item $\mathcal{M}_1,\dots,\mathcal{M}_p$: shufflers (if using non-homomorphic questions)
 \item $\mathcal{S}$: voting server \\
   The voting server maintains the public data $D$ that
@@ -1375,7 +1377,7 @@ question:
 \begin{itemize}
 \item for homomorphic questions, each element of $C_i$
   ($\texttt{ciphertexts\_h}$) is the pointwise product of the $i$-th
-  ciphertext of all the ballots, elevated to the power of its weight:
+  ciphertext of all the ballots, raised to the power of its weight:
   \[
     C_{i,j}=\prod_{k}\choices(\answers(B_k)_i)_j^{\textsf{weight}(B_k)}
   \]
