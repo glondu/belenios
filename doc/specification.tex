@@ -121,7 +121,8 @@ section~\ref{default-group}.
 
 \medskip
 
-{\it Weights.}  In the homomorphic case, each voter has a weight: a
+{\it Weights.}  In the homomorphic case (and only in the homomorphic
+case), each voter has a weight: a
 ballot is counted as many times as the weight of its owner. Usually,
 the weight of all voters is 1 but sometimes, it may be useful to
 assign different weights. We assume the sum of all weights is not too
@@ -148,7 +149,8 @@ group element.
 \item $\mathcal{A}$: server administrator
 \item $\mathcal{C}$: credential authority
 \item $\mathcal{T}_1,\dots,\mathcal{T}_m$: trustees
-\item $\mathcal{V}_1,\dots,\mathcal{V}_n$: voters; each voter has a weight $w_i$
+\item $\mathcal{V}_1,\dots,\mathcal{V}_n$: voters; each voter has a
+    weight $w_i$ equal to 1 by default
 %\item $\mathcal{M}_1,\dots,\mathcal{M}_p$: shufflers (if using non-homomorphic questions)
 \item $\mathcal{S}$: voting server \\
   The voting server maintains the public data $D$ that
@@ -276,7 +278,8 @@ trustee as specified in section~\ref{polynomials}.
 \item $\mathcal{V}$ creates a \hyperref[ballots]{$\ballot$} $b$ and submits it to $\mathcal{S}$
 \item $\mathcal{S}$ validates $b$ and adds it to $B$
 \item at any time (even after tally), $\mathcal{V}$ may check that $b$
-  appears in the list of accepted ballots $B$
+  appears in the list of accepted ballots $B$ and the weight of her
+  ballot as it appears in $B$ is equal to her weight
 \end{enumerate}
 
 
@@ -350,7 +353,7 @@ always record at least the last audited board. Then:
   \item she records $D$;
   \item for $b\in B$, she checks that the proofs of $b$ are valid and that
   the signature of $b$ is valid and corresponds to one of the keys in
-  $L$;
+  $L$; she also checks that the weights correspond;
   \item she checks that any two ballots in $B$ correspond to distinct keys (of
     $L$);
   \end{itemize}
@@ -1010,16 +1013,16 @@ and $S=g^s$ written in base 10.
 
 \subsubsection{Homomorphic answers}
 
-An answer to a homomorphic answer is the vector
-$\choices$ of encrypted weights given to each answer. When $\blank$ is
+An answer to a homomorphic question is the vector
+$\choices$ of encrypted values given to each answer. When $\blank$ is
 false (or absent), a blank vote is not allowed and this vector has the
 same length as $\answers$; otherwise, a blank vote is allowed and this
-vector has an additionnal leading weight corresponding to whether the
-vote is blank or not.  Each weight comes with a proof (in \iproofs,
+vector has an additionnal leading value corresponding to whether the
+vote is blank or not.  Each value comes with a proof (in \iproofs,
 same length as \choices) that it is $0$ or $1$. The whole answer also
-comes with additional proofs that weights respect constraints.
+comes with additional proofs that values respect constraints.
 
-More concretely, each weight $m\in[0\dots1]$ is encrypted (in an El
+More concretely, each value $m\in[0\dots1]$ is encrypted (in an El
 Gamal-like fashion) into a $\ciphertext$ as follows:
 \begin{enumerate}
 \item pick a random $r\in\Z_q$
@@ -1375,7 +1378,7 @@ question:
 \begin{itemize}
 \item for homomorphic questions, each element of $C_i$
   ($\texttt{ciphertexts\_h}$) is the pointwise product of the $i$-th
-  ciphertext of all the ballots, elevated to the power of its weight:
+  ciphertext of all the ballots, raised to the power of its weight:
   \[
     C_{i,j}=\prod_{k}\choices(\answers(B_k)_i)_j^{\textsf{weight}(B_k)}
   \]
