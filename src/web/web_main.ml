@@ -88,10 +88,14 @@ let () =
              [Element (auth_system, auth_config, [])]) ->
     let i = {auth_system; auth_instance; auth_config} in
     auth_instances := i :: !auth_instances
+  | Element ("auth-export", ["name", "builtin-password"], []) ->
+    auth_instances_export := `BuiltinPassword :: !auth_instances_export
+  | Element ("auth-export", ["name", "builtin-cas"], []) ->
+    auth_instances_export := `BuiltinCAS :: !auth_instances_export
   | Element ("auth-export", ["name", auth_instance],
              [Element (auth_system, auth_config, [])]) ->
     let i = {auth_system; auth_instance; auth_config} in
-    auth_instances_export := i :: !auth_instances_export
+    auth_instances_export := `Export i :: !auth_instances_export
   | Element ("domain", ["name", name], []) ->
      domain := Some name
   | Element (tag, _, _) ->

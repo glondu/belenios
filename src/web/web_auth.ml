@@ -135,11 +135,14 @@ let login_handler service kind =
                   (function
                    | {auth_system = "import"; auth_instance = name; _} ->
                       (match
-                         List.find_opt (fun x -> x.auth_instance = name)
-                           !Web_config.exported_auth_config
+                         List.find_opt
+                           (function
+                            | `Export x -> x.auth_instance = name
+                            | _ -> false
+                           ) !Web_config.exported_auth_config
                        with
-                       | None -> []
-                       | Some x -> [x]
+                       | Some (`Export x) -> [x]
+                       | _ -> []
                       )
                    | x -> [x]
                   )

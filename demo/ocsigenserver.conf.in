@@ -61,6 +61,8 @@
         <gdpr uri="http://www.example.org/privacy_policy.html"/>
         <!-- <contact uri="mailto:contact@example.org"/> -->
         <server mail="noreply@example.org" return-path="bounces@example.org"/>
+        <auth-export name="builtin-password"/>
+        <auth-export name="builtin-cas"/>
         <auth-export name="demo"><dummy/></auth-export> <!-- DEMO -->
         <auth-export name="email"><email/></auth-export> <!-- DEMO -->
         <auth name="demo"><dummy/></auth> <!-- DEMO -->

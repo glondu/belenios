@@ -265,17 +265,33 @@ let election_draft_pre () =
   let form =
     post_form ~service:election_draft_new
       (fun (credmgmt, (auth, cas_server)) ->
-        let other_auth_systems =
+        let auth_systems =
           !Web_config.exported_auth_config
           |> List.map
-               (fun a ->
-                 div [
-                     radio ~name:auth ~value:("%" ^ a.auth_instance) string;
-                     txt " ";
-                     txt a.auth_instance;
-                     txt " ";
-                     txt (s_ "(imported from server)");
-                   ]
+               (function
+                | `BuiltinPassword ->
+                   div [
+                       radio ~checked:true ~name:auth ~value:"password" string;
+                       txt " ";
+                       txt (s_ "Password (passwords will be emailed to voters)");
+                     ]
+                | `BuiltinCAS ->
+                   div [
+                       radio ~name:auth ~value:"cas" string;
+                       txt " ";
+                       txt (s_ "CAS (external authentication server), server address: ");
+                       input ~input_type:`Text ~name:cas_server string;
+                       txt " ";
+                       txt (s_ "(for example: https://cas.inria.fr/cas)");
+                     ]
+                | `Export a ->
+                   div [
+                       radio ~name:auth ~value:("%" ^ a.auth_instance) string;
+                       txt " ";
+                       txt a.auth_instance;
+                       txt " ";
+                       txt (s_ "(imported from server)");
+                     ]
                )
         in
         [
@@ -298,24 +314,7 @@ let election_draft_pre () =
                 txt (s_ "Manual (safe mode - a third party will handle the credentials)");
               ];
             ];
-          fieldset
-            ~legend:(legend [txt (s_ "Authentication")])
-            (
-              div [
-                radio ~checked:true ~name:auth ~value:"password" string;
-                txt " ";
-                txt (s_ "Password (passwords will be emailed to voters)");
-              ] ::
-              div [
-                radio ~name:auth ~value:"cas" string;
-                txt " ";
-                txt (s_ "CAS (external authentication server), server address: ");
-                input ~input_type:`Text ~name:cas_server string;
-                txt " ";
-                txt (s_ "(for example: https://cas.inria.fr/cas)");
-              ] ::
-              other_auth_systems
-            );
+          fieldset ~legend:(legend [txt (s_ "Authentication")]) auth_systems;
           div [
             input ~input_type:`Submit ~value:(s_ "Proceed") string;
           ];
