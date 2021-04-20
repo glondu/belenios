@@ -271,26 +271,36 @@ let election_draft_pre () =
                (function
                 | `BuiltinPassword ->
                    div [
-                       radio ~checked:true ~name:auth ~value:"password" string;
-                       txt " ";
-                       txt (s_ "Password (passwords will be emailed to voters)");
+                       label [
+                           radio ~checked:true ~name:auth ~value:"password" string;
+                           txt " ";
+                           txt (s_ "Password (passwords will be emailed to voters)");
+                         ]
                      ]
                 | `BuiltinCAS ->
                    div [
-                       radio ~name:auth ~value:"cas" string;
-                       txt " ";
-                       txt (s_ "CAS (external authentication server), server address: ");
-                       input ~input_type:`Text ~name:cas_server string;
-                       txt " ";
-                       txt (s_ "(for example: https://cas.inria.fr/cas)");
+                       label [
+                           radio ~name:auth ~value:"cas" string;
+                           txt " ";
+                           txt (s_ "CAS (external authentication server)");
+                         ];
+                       div ~a:[a_style "margin-left: 5em;"] [
+                           txt (s_ "Server address:");
+                           txt " ";
+                           input ~input_type:`Text ~name:cas_server string;
+                           txt " ";
+                           txt (s_ "(for example: https://cas.inria.fr/cas)");
+                         ];
                      ]
                 | `Export a ->
                    div [
-                       radio ~name:auth ~value:("%" ^ a.auth_instance) string;
-                       txt " ";
-                       txt a.auth_instance;
-                       txt " ";
-                       txt (s_ "(imported from server)");
+                       label [
+                           radio ~name:auth ~value:("%" ^ a.auth_instance) string;
+                           txt " ";
+                           txt a.auth_instance;
+                           txt " ";
+                           txt (s_ "(imported from server)");
+                         ]
                      ]
                )
         in
@@ -304,15 +314,19 @@ let election_draft_pre () =
             ])
             [
               div [
-                radio ~checked:true ~name:credmgmt ~value:"auto" string;
-                txt " ";
-                txt (s_ "Automatic (degraded mode - credentials will be handled by the server)");
-              ];
+                  label [
+                      radio ~checked:true ~name:credmgmt ~value:"auto" string;
+                      txt " ";
+                      txt (s_ "Automatic (degraded mode - credentials will be handled by the server)");
+                    ]
+                ];
               div [
-                radio ~name:credmgmt ~value:"manual" string;
-                txt " ";
-                txt (s_ "Manual (safe mode - a third party will handle the credentials)");
-              ];
+                  label [
+                      radio ~name:credmgmt ~value:"manual" string;
+                      txt " ";
+                      txt (s_ "Manual (safe mode - a third party will handle the credentials)");
+                    ]
+                ];
             ];
           fieldset ~legend:(legend [txt (s_ "Authentication")]) auth_systems;
           div [
