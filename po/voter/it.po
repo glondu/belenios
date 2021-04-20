@@ -1,11 +1,10 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-03-12 21:02+0000\n"
-"Last-Translator: Alfredo Iafolla <alfredoiafolla@aim.com>\n"
+"PO-Revision-Date: 2021-04-12 08:49+0000\n"
+"Last-Translator: Marco M <marcomillo@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/voter/"
 "it/>\n"
 "Language: it\n"
@@ -13,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5.2-dev\n"
+"X-Generator: Weblate 4.6-dev\n"
 
 #: src/web/pages_common.ml:282
 msgid " (if you forgot it, for example)."
@@ -163,8 +162,8 @@ msgstr ""
 "Tutti i seguenti fiduciari (chiavi di verifica) sono necessari per "
 "decrittare il risultato:"
 
-#: src/web/pages_voter.ml:783 src/web/pages_voter.ml:600
 #. src/web/pages_voter.ml:499
+#: src/web/pages_voter.ml:783 src/web/pages_voter.ml:600
 msgid "Answer to questions"
 msgstr "Risposta alle domande"
 
@@ -180,8 +179,8 @@ msgstr "Almeno una delle risposte non è valida!"
 msgid "Audit data: "
 msgstr "Dati di audit: "
 
-#: src/web/pages_voter.ml:787 src/web/pages_voter.ml:604
 #. src/web/pages_voter.ml:503
+#: src/web/pages_voter.ml:787 src/web/pages_voter.ml:604
 msgid "Authenticate"
 msgstr "Autenticazione"
 
@@ -209,8 +208,8 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Cabina elettorale Belenios"
 
-#: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 #. src/web/pages_voter.ml:79
+#: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 msgid "Blank vote"
 msgstr "Scheda bianca"
 
@@ -234,13 +233,13 @@ msgstr ""
 msgid "Condorcet-Schulze method"
 msgstr "Metodo Condorcet-Schulze"
 
-#: src/web/pages_voter.ml:789 src/web/pages_voter.ml:606
 #. src/web/pages_voter.ml:505
+#: src/web/pages_voter.ml:789 src/web/pages_voter.ml:606
 msgid "Confirm"
 msgstr "Conferma"
 
-#: src/web/pages_voter.ml:1021 src/web/pages_voter.ml:927
 #. src/web/pages_voter.ml:769
+#: src/web/pages_voter.ml:1021 src/web/pages_voter.ml:927
 msgid "Continue"
 msgstr "Proseguire"
 
@@ -260,8 +259,8 @@ msgstr "Codici di voto generati e inviati da %s e con impronta digitale %s."
 msgid "Dear %s,"
 msgstr "%s,"
 
-#: src/web/pages_voter.ml:791 src/web/pages_voter.ml:608
 #. src/web/pages_voter.ml:507
+#: src/web/pages_voter.ml:791 src/web/pages_voter.ml:608
 msgid "Done"
 msgstr "Finito"
 
@@ -281,9 +280,9 @@ msgstr "Server delle elezioni"
 msgid "Encrypting…"
 msgstr "Cifratura in corso…"
 
-#: src/web/site_voter.ml:361 src/web/site_voter.ml:336 src/web/site_voter.ml:298
 #. src/web/site_voter.ml:293
 #. src/web/site_voter.ml:288
+#: src/web/site_voter.ml:361 src/web/site_voter.ml:336 src/web/site_voter.ml:298
 msgid "Error"
 msgstr "Errore"
 
@@ -299,9 +298,9 @@ msgstr "FALLIMENTO !"
 msgid "Get the source code"
 msgstr "Per ottenere il codice sorgente"
 
-#: src/web/pages_voter.ml:688 src/web/pages_voter.ml:654
 #. src/web/pages_voter.ml:584
 #. src/web/pages_voter.ml:556
+#: src/web/pages_voter.ml:688 src/web/pages_voter.ml:654
 msgid "Go back to election"
 msgstr "Per tornare alla pagina iniziale dell'elezione"
 
@@ -335,13 +334,15 @@ msgstr ""
 #: src/web/pages_voter.ml:934
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
 msgstr ""
+"Nel contesto di un giudizio per maggioranza, una scheda attribuisce un voto "
+"as ogni candidato."
 
 #: src/web/pages_voter.ml:1028
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 
-#: src/web/pages_voter.ml:781 src/web/pages_voter.ml:598
 #. src/web/pages_voter.ml:497
+#: src/web/pages_voter.ml:781 src/web/pages_voter.ml:598
 msgid "Input credential"
 msgstr "Inserire il codice di voto"
 
@@ -397,11 +398,11 @@ msgstr "Vedi eventi in grezzo per più dettagli."
 
 #: src/web/pages_voter.ml:112
 msgid "Majority Judgment"
-msgstr ""
+msgstr "Giudizio per maggioranza"
 
 #: src/web/pages_voter.ml:968 src/web/pages_voter.ml:918
 msgid "Majority Judgment method"
-msgstr ""
+msgstr "Metodo di giudizio per maggioranza"
 
 #: src/web/pages_voter.ml:1097
 msgid "Many variants of STV exist, depending for example on how to break ties."
@@ -527,8 +528,8 @@ msgstr "Riavviare"
 msgid "Results will be published on the election page"
 msgstr "I risultati saranno pubblicati sulla pagina dell'elezione"
 
-#: src/web/pages_voter.ml:785 src/web/pages_voter.ml:602
 #. src/web/pages_voter.ml:501
+#: src/web/pages_voter.ml:785 src/web/pages_voter.ml:602
 msgid "Review and encrypt"
 msgstr "Riepilogo e cifratura"
 
@@ -594,7 +595,7 @@ msgstr "La ringraziamo per la sua partecipazione!"
 
 #: src/web/pages_voter.ml:1001
 msgid "The Majority Judgment winners are:"
-msgstr "I vincitori del voto singolo trasferibilie sono:"
+msgstr "I vincitori per giudizio di maggioranza sono:"
 
 #: src/web/pages_voter.ml:909
 msgid "The Schulze winners are:"
@@ -694,7 +695,7 @@ msgstr ""
 
 #: src/tool/tool_js_booth.ml:394
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
-msgstr ""
+msgstr "Questa sembra una password… Forse hai guardato l'e-mail sbagliata?"
 
 #: src/web/site_voter.ml:294
 msgid "This question is homomorphic, this method cannot be applied to its result."
@@ -732,8 +733,8 @@ msgstr ""
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/pages_voter.ml:1205 src/web/pages_voter.ml:1149
 #. src/web/pages_common.ml:292
+#: src/web/pages_voter.ml:1205 src/web/pages_voter.ml:1149
 msgid "Username:"
 msgstr "Nome utente:"
 
@@ -835,8 +836,8 @@ msgstr "La sua password per l'elezione %s"
 msgid "Your smart ballot tracker is"
 msgstr "Il suo codice di verifica è"
 
-#: src/web/pages_voter.ml:761 src/web/pages_voter.ml:625
 #. src/web/pages_voter.ml:538
+#: src/web/pages_voter.ml:761 src/web/pages_voter.ml:625
 msgid "Your smart ballot tracker is "
 msgstr "Il suo codice di verifica è "
 
@@ -852,8 +853,8 @@ msgstr "La sua scheda per l'elezione %s"
 msgid "Your vote was not recorded!"
 msgstr "Il suo voto non è stato registrato!"
 
-#: src/web/pages_voter.ml:1249 src/web/pages_voter.ml:617
 #. src/web/pages_voter.ml:521
+#: src/web/pages_voter.ml:1249 src/web/pages_voter.ml:617
 msgid "Your weight is %d."
 msgstr ""
 
@@ -885,8 +886,8 @@ msgstr ""
 msgid "has been recorded."
 msgstr "è stata registrata."
 
-#: src/tool/tool_js_booth.ml:377 src/web/pages_voter.ml:1033
 #. src/web/pages_voter.ml:943
+#: src/tool/tool_js_booth.ml:377 src/web/pages_voter.ml:1033
 msgid "here"
 msgstr "qui"
 
@@ -961,4 +962,3 @@ msgstr "il suo codice di voto è stato già utilizzato"
 #: src/web/web_common.ml:88
 msgid "your credential is invalid"
 msgstr "il suo codice di voto non è valido"
-
