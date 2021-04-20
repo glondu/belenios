@@ -15,7 +15,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.5\n"
 
-#: src/web/pages_common.ml:282
+#: src/web/pages_common.ml:285
 msgid " (if you forgot it, for example)."
 msgstr " (bijvoorbeeld als je het vergeten bent)."
 
@@ -67,6 +67,10 @@ msgstr ""
 msgid " hour(s)"
 msgstr ""
 
+#: src/web/pages_common.ml:402
+msgid " in the following box: "
+msgstr ""
+
 #: src/web/pages_voter.ml:636
 msgid " is rejected, because "
 msgstr ""
@@ -103,7 +107,7 @@ msgstr ""
 msgid "(nothing)"
 msgstr ""
 
-#: src/web/pages_common.ml:280
+#: src/web/pages_common.ml:283
 msgid ", or "
 msgstr ""
 
@@ -173,16 +177,24 @@ msgstr ""
 msgid "Authenticate"
 msgstr ""
 
-#: src/web/pages_common.ml:310
+#: src/web/pages_common.ml:313
 msgid "Authentication failed"
 msgstr ""
 
-#: src/web/pages_common.ml:313
+#: src/web/pages_common.ml:316
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 
 #: src/web/pages_voter.ml:108
 msgid "Available methods on this server:"
+msgstr ""
+
+#: src/web/pages_common.ml:381
+msgid "Bad e-mail address!"
+msgstr ""
+
+#: src/web/pages_common.ml:380
+msgid "Bad security code!"
 msgstr ""
 
 #: src/web/pages_voter.ml:1199 src/web/pages_voter.ml:1144
@@ -191,6 +203,18 @@ msgstr ""
 
 #: src/web/pages_voter.ml:732 src/web/pages_voter.ml:720
 msgid "Belenios Booth"
+msgstr ""
+
+#: src/web/pages_common.ml:365
+msgid "Belenios Server"
+msgstr ""
+
+#: src/web/pages_common.ml:367
+msgid "Belenios login"
+msgstr ""
+
+#: src/web/pages_common.ml:361
+msgid "Best regards,"
 msgstr ""
 
 #: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
@@ -240,13 +264,17 @@ msgstr ""
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
 
-#: src/web/pages_voter.ml:1240
+#: src/web/pages_voter.ml:1240 src/web/pages_common.ml:352
 msgid "Dear %s,"
 msgstr ""
 
 #: src/web/pages_voter.ml:791 src/web/pages_voter.ml:608
 #. src/web/pages_voter.ml:507
 msgid "Done"
+msgstr ""
+
+#: src/web/pages_common.ml:393
+msgid "E-mail address:"
 msgstr ""
 
 #: src/web/pages_voter.ml:851
@@ -354,7 +382,7 @@ msgstr ""
 msgid "Loading…"
 msgstr ""
 
-#: src/web/pages_common.ml:250
+#: src/web/pages_common.ml:345 src/web/pages_common.ml:250
 msgid "Log in"
 msgstr ""
 
@@ -362,7 +390,7 @@ msgstr ""
 msgid "Log in with %s"
 msgstr ""
 
-#: src/web/pages_common.ml:301
+#: src/web/pages_common.ml:304
 msgid "Login"
 msgstr ""
 
@@ -442,8 +470,16 @@ msgstr ""
 msgid "Page of the election:"
 msgstr ""
 
-#: src/web/pages_voter.ml:1150 src/web/pages_common.ml:296
+#: src/web/pages_voter.ml:1150 src/web/pages_common.ml:299
 msgid "Password:"
+msgstr ""
+
+#: src/web/pages_common.ml:400
+msgid "Please enter "
+msgstr ""
+
+#: src/web/pages_common.ml:334
+msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
 #: src/tool/tool_js_booth.ml:379
@@ -561,6 +597,10 @@ msgstr ""
 
 #: src/web/pages_voter.ml:644
 msgid "Step 6/6: "
+msgstr ""
+
+#: src/web/pages_common.ml:406 src/web/pages_common.ml:339
+msgid "Submit"
 msgstr ""
 
 #: src/web/pages_voter.ml:1101
@@ -703,8 +743,12 @@ msgstr ""
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
+#: src/web/pages_common.ml:355
+msgid "Use the following code:"
+msgstr ""
+
 #: src/web/pages_voter.ml:1205 src/web/pages_voter.ml:1149
-#. src/web/pages_common.ml:292
+#. src/web/pages_common.ml:295
 msgid "Username:"
 msgstr ""
 
@@ -718,6 +762,10 @@ msgstr ""
 
 #: src/tool/tool_js_booth.ml:244
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
+msgstr ""
+
+#: src/web/pages_common.ml:359
+msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
 #: src/web/pages_voter.ml:901
@@ -740,11 +788,11 @@ msgstr ""
 msgid "You are listed as a voter for the election"
 msgstr ""
 
-#: src/web/pages_common.ml:315
+#: src/web/pages_common.ml:318
 msgid "You can "
 msgstr ""
 
-#: src/web/pages_common.ml:278
+#: src/web/pages_common.ml:281
 msgid "You can also "
 msgstr ""
 
@@ -758,6 +806,10 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1261
 msgid "You can check its presence in the ballot box, accessible at"
+msgstr ""
+
+#: src/web/pages_common.ml:417
+msgid "You cannot log in now. Please try later."
 msgstr ""
 
 #: src/tool/tool_js_booth.ml:128
@@ -794,6 +846,10 @@ msgstr ""
 
 #: src/web/pages_voter.ml:1232
 msgid "Your credential for election %s"
+msgstr ""
+
+#: src/web/pages_common.ml:354
+msgid "Your e-mail address has been used to log in to our Belenios server."
 msgstr ""
 
 #: src/web/pages_voter.ml:1183
@@ -842,11 +898,11 @@ msgstr ""
 msgid "but not cast yet"
 msgstr ""
 
-#: src/web/pages_common.ml:281
+#: src/web/pages_common.ml:284
 msgid "change your password"
 msgstr ""
 
-#: src/web/pages_common.ml:279
+#: src/web/pages_common.ml:282
 msgid "create an account"
 msgstr ""
 
@@ -899,7 +955,7 @@ msgstr ""
 msgid "trustees"
 msgstr ""
 
-#: src/web/pages_common.ml:316
+#: src/web/pages_common.ml:319
 msgid "try to log in again"
 msgstr ""
 

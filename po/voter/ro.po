@@ -16,7 +16,7 @@ msgstr ""
 "20)) ? 1 : 2;\n"
 "X-Generator: Weblate 4.3.2-dev\n"
 
-#: src/web/pages_common.ml:282
+#: src/web/pages_common.ml:285
 msgid " (if you forgot it, for example)."
 msgstr " (daca ati uitat-o, de exemplu)."
 
@@ -68,6 +68,10 @@ msgstr " au fost contorizate."
 msgid " hour(s)"
 msgstr " ora(e)"
 
+#: src/web/pages_common.ml:402
+msgid " in the following box: "
+msgstr ""
+
 #: src/web/pages_voter.ml:636
 msgid " is rejected, because "
 msgstr " este resprins, deoarece "
@@ -104,7 +108,7 @@ msgstr ""
 msgid "(nothing)"
 msgstr "(nimic)"
 
-#: src/web/pages_common.ml:280
+#: src/web/pages_common.ml:283
 msgid ", or "
 msgstr ", sau "
 
@@ -177,11 +181,11 @@ msgstr "Date de audit: "
 msgid "Authenticate"
 msgstr "Autentificare"
 
-#: src/web/pages_common.ml:310
+#: src/web/pages_common.ml:313
 msgid "Authentication failed"
 msgstr "Autentificarea a esuat"
 
-#: src/web/pages_common.ml:313
+#: src/web/pages_common.ml:316
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Autentificarea a esuat, probabil datorita unui nume de utilizator sau parola "
@@ -191,6 +195,14 @@ msgstr ""
 msgid "Available methods on this server:"
 msgstr "Metode disponibile pe acest server:"
 
+#: src/web/pages_common.ml:381
+msgid "Bad e-mail address!"
+msgstr ""
+
+#: src/web/pages_common.ml:380
+msgid "Bad security code!"
+msgstr ""
+
 #: src/web/pages_voter.ml:1199 src/web/pages_voter.ml:1144
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr "Aveți grijă, parola și codul de votare arată similare, dar joacă roluri diferite."
@@ -198,6 +210,18 @@ msgstr "Aveți grijă, parola și codul de votare arată similare, dar joacă ro
 #: src/web/pages_voter.ml:732 src/web/pages_voter.ml:720
 msgid "Belenios Booth"
 msgstr "Cabina de vot Belenios"
+
+#: src/web/pages_common.ml:365
+msgid "Belenios Server"
+msgstr ""
+
+#: src/web/pages_common.ml:367
+msgid "Belenios login"
+msgstr ""
+
+#: src/web/pages_common.ml:361
+msgid "Best regards,"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 #. src/web/pages_voter.ml:79
@@ -246,7 +270,7 @@ msgstr "Cod de votare:"
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
 
-#: src/web/pages_voter.ml:1240
+#: src/web/pages_voter.ml:1240 src/web/pages_common.ml:352
 msgid "Dear %s,"
 msgstr "Draga %s,"
 
@@ -254,6 +278,10 @@ msgstr "Draga %s,"
 #. src/web/pages_voter.ml:507
 msgid "Done"
 msgstr "Terminat"
+
+#: src/web/pages_common.ml:393
+msgid "E-mail address:"
+msgstr ""
 
 #: src/web/pages_voter.ml:851
 msgid "Election UUID: "
@@ -364,7 +392,7 @@ msgstr ""
 msgid "Loading…"
 msgstr "Incarcare…"
 
-#: src/web/pages_common.ml:250
+#: src/web/pages_common.ml:345 src/web/pages_common.ml:250
 msgid "Log in"
 msgstr "Conexiune"
 
@@ -372,7 +400,7 @@ msgstr "Conexiune"
 msgid "Log in with %s"
 msgstr ""
 
-#: src/web/pages_common.ml:301
+#: src/web/pages_common.ml:304
 msgid "Login"
 msgstr "Conectare"
 
@@ -452,9 +480,17 @@ msgstr "Numai ultimul vot va fi luat în considerare."
 msgid "Page of the election:"
 msgstr "Pagina alegerii:"
 
-#: src/web/pages_voter.ml:1150 src/web/pages_common.ml:296
+#: src/web/pages_voter.ml:1150 src/web/pages_common.ml:299
 msgid "Password:"
 msgstr "Parola:"
+
+#: src/web/pages_common.ml:400
+msgid "Please enter "
+msgstr ""
+
+#: src/web/pages_common.ml:334
+msgid "Please enter the verification code received by e-mail:"
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:379
 msgid "Please enter your credential:"
@@ -573,6 +609,10 @@ msgstr "Pas 5/6: Confirmare"
 #: src/web/pages_voter.ml:644
 msgid "Step 6/6: "
 msgstr "Pas 6/6: "
+
+#: src/web/pages_common.ml:406 src/web/pages_common.ml:339
+msgid "Submit"
+msgstr ""
 
 #: src/web/pages_voter.ml:1101
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
@@ -716,8 +756,12 @@ msgstr ""
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
+#: src/web/pages_common.ml:355
+msgid "Use the following code:"
+msgstr ""
+
 #: src/web/pages_voter.ml:1205 src/web/pages_voter.ml:1149
-#. src/web/pages_common.ml:292
+#. src/web/pages_common.ml:295
 msgid "Username:"
 msgstr "Nume utilizator:"
 
@@ -736,6 +780,10 @@ msgstr ""
 "acord cu regulile electorale, buletinele de vot invalide (scor prea mare sau "
 "candidati care nu au fost clasati in mod corect) vor fi refuzate la "
 "sfarsitul alegerii."
+
+#: src/web/pages_common.ml:359
+msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
+msgstr ""
 
 #: src/web/pages_voter.ml:901
 msgid "We use here the Schulze method and we refer voters to "
@@ -757,11 +805,11 @@ msgstr ""
 msgid "You are listed as a voter for the election"
 msgstr "Sunteți înregistrat(ă) ca votant(ă) pentru alegerea"
 
-#: src/web/pages_common.ml:315
+#: src/web/pages_common.ml:318
 msgid "You can "
 msgstr "Puteti "
 
-#: src/web/pages_common.ml:278
+#: src/web/pages_common.ml:281
 msgid "You can also "
 msgstr "Puteti de asemenea "
 
@@ -776,6 +824,10 @@ msgstr "Puteți verifica prezența sa în "
 #: src/web/pages_voter.ml:1261
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Puteți verifica prezența acestuia în urna de vot, accesibilă la"
+
+#: src/web/pages_common.ml:417
+msgid "You cannot log in now. Please try later."
+msgstr ""
 
 #: src/tool/tool_js_booth.ml:128
 msgid "You must select at least %d answer(s)"
@@ -812,6 +864,10 @@ msgstr "Browser-ul dumneavoastră pare să blocheze cookie-urile. Vă rugăm să
 #: src/web/pages_voter.ml:1232
 msgid "Your credential for election %s"
 msgstr "Codul vostru de votare pentru alegerea %s"
+
+#: src/web/pages_common.ml:354
+msgid "Your e-mail address has been used to log in to our Belenios server."
+msgstr ""
 
 #: src/web/pages_voter.ml:1183
 msgid "Your password for election %s"
@@ -859,11 +915,11 @@ msgstr "buletine de vot"
 msgid "but not cast yet"
 msgstr "dar încă nu a fost depus în urna de vot"
 
-#: src/web/pages_common.ml:281
+#: src/web/pages_common.ml:284
 msgid "change your password"
 msgstr "schimbati parola"
 
-#: src/web/pages_common.ml:279
+#: src/web/pages_common.ml:282
 msgid "create an account"
 msgstr "creati un cont"
 
@@ -916,7 +972,7 @@ msgstr "alegerea este inchisă"
 msgid "trustees"
 msgstr "autoritati de descifrare"
 
-#: src/web/pages_common.ml:316
+#: src/web/pages_common.ml:319
 msgid "try to log in again"
 msgstr "incercati sa va conectati din nou"
 
