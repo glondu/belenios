@@ -8,15 +8,17 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2021-04-22 08:40+0000\n"
+"Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/belenios/admin/pl/"
+">\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.7-dev\n"
 
 #: src/web/pages_admin.ml:2191
 msgid " You may re-open the election when it is closed."
@@ -24,7 +26,7 @@ msgstr ""
 
 #: src/tool/tool_js_questions.ml:180
 msgid " and "
-msgstr ""
+msgstr " i "
 
 #: src/web/pages_admin.ml:3001
 msgid " and a password: "
@@ -60,7 +62,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2933 src/web/pages_admin.ml:2901
 msgid " in the following box: "
-msgstr ""
+msgstr " w poniższym polu: "
 
 #: src/web/pages_admin.ml:1198 src/web/pages_admin.ml:1189
 msgid " instead of "
@@ -195,7 +197,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:60
 msgid "Accept"
-msgstr ""
+msgstr "Zgoda"
 
 #: src/web/site_admin.ml:2630 src/web/site_admin.ml:2508
 msgid "Account creation"
@@ -333,7 +335,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3121 src/web/pages_admin.ml:3099
 msgid "Belenios Server"
-msgstr ""
+msgstr "Serwer Belenios"
 
 #: src/web/pages_admin.ml:3101
 msgid "Belenios account creation"
@@ -349,7 +351,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3117 src/web/pages_admin.ml:3095
 msgid "Best regards,"
-msgstr ""
+msgstr "Z poważaniem,"
 
 #: src/tool/tool_js_questions.ml:197
 msgid "Blank vote is allowed"
@@ -427,7 +429,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3080
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "Oblicz odcisk palca"
 
 #: src/web/pages_admin.ml:2757
 msgid "Compute shuffle"
@@ -439,7 +441,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2723
 msgid "Confirm"
-msgstr ""
+msgstr "Potwierdź"
 
 #: src/web/pages_admin.ml:474
 msgid "Contact"
@@ -527,7 +529,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3108 src/web/pages_admin.ml:3086
 msgid "Dear %s,"
-msgstr ""
+msgstr "%s,"
 
 #. src/web/pages_admin.ml:699
 #. src/web/pages_admin.ml:650
@@ -605,7 +607,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2922 src/web/pages_admin.ml:2893
 msgid "E-mail address:"
-msgstr ""
+msgstr "Adres e-mail:"
 
 #: src/web/pages_admin.ml:571
 msgid "Edit credential authority name"
