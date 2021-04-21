@@ -1405,7 +1405,7 @@ let election_draft_voters uuid se maxvoters () =
             br ();
             b [txt (s_ "Warning:")];
             txt " ";
-            txt (s_ "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote.");
+            txt (s_ "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote.");
             br ();
             b [txt (s_ "Warning:")];
             txt " ";
