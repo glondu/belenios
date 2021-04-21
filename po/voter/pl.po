@@ -8,115 +8,122 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2021-04-22 08:40+0000\n"
+"Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
+">\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.7-dev\n"
 
 #: src/web/pages_common.ml:285
 msgid " (if you forgot it, for example)."
-msgstr ""
+msgstr " (jeśli, na przykład o nim zapomnisz)."
 
 #: src/web/pages_voter.ml:633
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " E-mail z potwierdzeniem został wysłany na Twój adres."
 
 #: src/web/pages_voter.ml:474
 msgid " and "
-msgstr ""
+msgstr " i "
 
 #: src/web/pages_voter.ml:632
 msgid " anytime during the election."
-msgstr ""
+msgstr " kiedykolwiek w czasie głosowania."
 
 #: src/web/pages_voter.ml:695
 msgid " ballot(s) have been accepted so far."
-msgstr ""
+msgstr " Oddane głosy."
 
 #: src/web/pages_voter.ml:705
 msgid " ballot(s) have been accepted, and "
-msgstr ""
+msgstr " Głosy zostały oddane, i "
 
 #: src/web/pages_voter.ml:700
 msgid " ballot(s) have been accepted."
-msgstr ""
+msgstr " Głosy zostały oddane."
 
 #: src/web/web_common.ml:106
 msgid " day(s)"
-msgstr ""
+msgstr " dzień (dni)"
 
 #: src/web/pages_voter.ml:903
 msgid " for more information."
-msgstr ""
+msgstr " po więcej informacji."
 
 #: src/web/pages_voter.ml:622
 msgid " has been accepted."
-msgstr ""
+msgstr " został oddany."
 
 #: src/web/pages_voter.ml:537
 msgid " has been received, but not recorded yet. "
-msgstr ""
+msgstr " został przekazany, ale nie został zapisany (oddany). "
 
 #: src/web/pages_voter.ml:707
 msgid " have been tallied."
-msgstr ""
+msgstr " został policzony."
 
 #: src/web/web_common.ml:108
 msgid " hour(s)"
-msgstr ""
+msgstr " godzina (godzin)"
 
 #: src/web/pages_common.ml:402
 msgid " in the following box: "
-msgstr ""
+msgstr " w poniższym polu: "
 
 #: src/web/pages_voter.ml:636
 msgid " is rejected, because "
-msgstr ""
+msgstr " został odrzucony, ponieważ "
 
 #: src/web/web_common.ml:109
 msgid " minute(s)"
-msgstr ""
+msgstr " minuta (minut)"
 
 #: src/web/web_common.ml:105
 msgid " month(s)"
-msgstr ""
+msgstr " miesiąc (miesiące)"
 
 #: src/web/web_common.ml:110
 msgid " second(s)"
-msgstr ""
+msgstr " sekunda (sekundy)"
 
 #: src/web/web_common.ml:104
 msgid " year(s)"
-msgstr ""
+msgstr " rok (lata)"
 
 #: src/web/pages_voter.ml:758
 msgid "!"
-msgstr ""
+msgstr "!"
 
 #: src/web/pages_voter.ml:1069 src/web/pages_voter.ml:989
 msgid "%d invalid ballot(s)"
-msgstr ""
+msgstr "%d nieważny(ch) głos(ów)"
 
 #: src/web/pages_voter.ml:354
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
+"%d z następujących %d członków komisji skrutacyjnej (klucz weryfikacyjny) ["
+"klucz publiczny] musi odszyfrować wynik głosowania."
 
 #: src/tool/tool_js_booth.ml:171
 msgid "(nothing)"
-msgstr ""
+msgstr "(nic)"
 
 #: src/web/pages_common.ml:283
 msgid ", or "
-msgstr ""
+msgstr ", albo "
 
 #: src/web/pages_voter.ml:106
 msgid ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement)."
 msgstr ""
+". Zawiera wszystkie oddane głosy w otwartym tekście, w losowej kolejności. "
+"Możesz zastosować wybraną metodę liczenia głosów (np. system Condorceta, "
+"system pojedynczego głosu przechodniego, system opinii większościowej)."
 
 #: src/web/pages_voter.ml:936
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
@@ -125,6 +132,8 @@ msgstr ""
 #: src/web/pages_voter.ml:897
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
+"Zwycięzcą w systemie Condorceta jest kandydat, który zwyciężył z każdym z "
+"pozostałych kandydatów."
 
 #: src/web/pages_voter.ml:995
 msgid "A ballot is invalid if a voter has entered a number that is greater than the number of grades."
@@ -136,32 +145,34 @@ msgstr ""
 
 #: src/web/pages_voter.ml:271
 msgid "Accept"
-msgstr ""
+msgstr "Zgoda"
 
 #: src/web/pages_voter.ml:670
 msgid "Accepted ballots"
-msgstr ""
+msgstr "Oddane głosy"
 
 #: src/web/pages_common.ml:68
 msgid "Administer elections"
-msgstr ""
+msgstr "Zarządzaj głosowaniem"
 
 #: src/web/pages_common.ml:70
 msgid "Administer this election"
-msgstr ""
+msgstr "Zarządzaj tym głosowaniem"
 
 #: src/web/pages_voter.ml:201
 msgid "Advanced mode"
-msgstr ""
+msgstr "Tryb zaawansowany"
 
 #: src/web/pages_voter.ml:330
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
+"Każdy z następujących członków komisji skrutacyjnej (kluczy weryfikacyjnych) "
+"musi odszyfrować wynik głosowania:"
 
 #. src/web/pages_voter.ml:499
 #: src/web/pages_voter.ml:783 src/web/pages_voter.ml:600
 msgid "Answer to questions"
-msgstr ""
+msgstr "Odpowiedz na pytania (dokonaj wyboru)"
 
 #: src/web/pages_voter.ml:938
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
@@ -169,120 +180,125 @@ msgstr ""
 
 #: src/tool/tool_js_booth.ml:260
 msgid "At least one of the answers is invalid!"
-msgstr ""
+msgstr "Przynajmniej jedna odpowiedź (wybór) nie jest prawidłowa!"
 
 #: src/web/pages_voter.ml:52
 msgid "Audit data: "
-msgstr ""
+msgstr "Dane do audytu: "
 
 #. src/web/pages_voter.ml:503
 #: src/web/pages_voter.ml:787 src/web/pages_voter.ml:604
 msgid "Authenticate"
-msgstr ""
+msgstr "Uwierzytelnij"
 
 #: src/web/pages_common.ml:313
 msgid "Authentication failed"
-msgstr ""
+msgstr "Uwierzytelnianie nie powiodło się"
 
 #: src/web/pages_common.ml:316
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
+"Uwierzytelnianie nie powiodło się, najpewniej z powodu błędnej nazwy "
+"użytkownika,lub hasła, albo z powodu braku uprawnień do wykonania operacji."
 
 #: src/web/pages_voter.ml:108
 msgid "Available methods on this server:"
-msgstr ""
+msgstr "Metody dostępne na tym serwerze:"
 
 #: src/web/pages_common.ml:381
 msgid "Bad e-mail address!"
-msgstr ""
+msgstr "Niewłaściwy adres e-mail!"
 
 #: src/web/pages_common.ml:380
 msgid "Bad security code!"
-msgstr ""
+msgstr "Niewłaściwy kod bezpieczeństwa!"
 
 #: src/web/pages_voter.ml:1199 src/web/pages_voter.ml:1144
 msgid "Be careful, passwords and credentials look similar but play different roles."
 msgstr ""
+"Zwróć proszę baczną uwagę, że hasła i kody głosowania wyglądają bardzo "
+"podobnie, ale odgrywają odmienne role."
 
 #: src/web/pages_voter.ml:732 src/web/pages_voter.ml:720
 msgid "Belenios Booth"
-msgstr ""
+msgstr "Kabina do głosowania Belenios"
 
 #: src/web/pages_common.ml:365
 msgid "Belenios Server"
-msgstr ""
+msgstr "Serwer Belenios"
 
 #: src/web/pages_common.ml:367
 msgid "Belenios login"
-msgstr ""
+msgstr "Belenios login"
 
 #: src/web/pages_common.ml:361
 msgid "Best regards,"
-msgstr ""
+msgstr "Z poważaniem,"
 
 #. src/web/pages_voter.ml:79
 #: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 msgid "Blank vote"
-msgstr ""
+msgstr "Pusty głos"
 
 #: src/web/pages_voter.ml:268
 msgid "By using this site, you accept our "
-msgstr ""
+msgstr "Korzystając z tej strony, zgadzasz się na nasze "
 
 #: src/tool/tool_js_fingerprint.ml:84
 msgid "Compare"
-msgstr ""
+msgstr "Porównaj"
 
 #: src/tool/tool_js_fingerprint.ml:68
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "Oblicz odcisk palca"
 
 #: src/tool/tool_js_fingerprint.ml:35
 msgid "Computed fingerprint:"
-msgstr ""
+msgstr "Obliczony odcisk palca:"
 
 #: src/web/pages_voter.ml:874
 msgid "Condorcet-Schulze method"
-msgstr ""
+msgstr "system Condorcet-Schulze"
 
 #. src/web/pages_voter.ml:505
 #: src/web/pages_voter.ml:789 src/web/pages_voter.ml:606
 msgid "Confirm"
-msgstr ""
+msgstr "Potwierdź"
 
 #. src/web/pages_voter.ml:769
 #: src/web/pages_voter.ml:1021 src/web/pages_voter.ml:927
 msgid "Continue"
-msgstr ""
+msgstr "Dalej"
 
 #: src/web/site_voter.ml:116
 msgid "Cookies are blocked"
-msgstr ""
+msgstr "Ciasteczka są wyłączone"
 
 #: src/web/pages_voter.ml:1206
 msgid "Credential:"
-msgstr ""
+msgstr "Kod głosowania:"
 
 #: src/web/pages_voter.ml:364
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
+"Kody głosowania zostały utworzone i wysłane przez %s i mają odciska palca %s."
 
 #: src/web/pages_voter.ml:1240 src/web/pages_common.ml:352
 msgid "Dear %s,"
-msgstr ""
+msgstr "%s,"
 
 #. src/web/pages_voter.ml:507
 #: src/web/pages_voter.ml:791 src/web/pages_voter.ml:608
 msgid "Done"
-msgstr ""
+msgstr "Gotowe"
 
 #: src/web/pages_common.ml:393
 msgid "E-mail address:"
-msgstr ""
+msgstr "Adres e-mail:"
 
 #: src/web/pages_voter.ml:851
 msgid "Election UUID: "
-msgstr ""
+msgstr "Unikalny identyfikator głosowania: "
 
 #: src/web/pages_voter.ml:855 src/web/pages_voter.ml:48
 msgid "Election fingerprint: "
