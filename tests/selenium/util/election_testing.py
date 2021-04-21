@@ -429,6 +429,14 @@ def delete_election_data_snapshot(snapshot_folder):
     subprocess.run(["rm", "-rf", snapshot_folder]) # TODO: Execute a command that works on other OS, like `shutil.rmtree()`
 
 
+def accept_data_policy(browser):
+    # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
+    accept_button_label = "Accept"
+    button_elements = find_buttons_in_page_content_by_value(browser, accept_button_label)
+    if len(button_elements) > 0:
+        assert len(button_elements) is 1
+        button_elements[0].click()
+
 def log_in_as_administrator(browser, from_a_login_page=False):
     if from_a_login_page:
         local_login_link_label = settings.LOGIN_MODE
@@ -445,13 +453,6 @@ def log_in_as_administrator(browser, from_a_login_page=False):
         # She notices the page title mentions an election
         # TODO: Should we wait for the page to load here? It looks like we don't need to.
         assert 'Election server' in browser.title, "Browser title was: " + browser.title
-
-        # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
-        accept_button_label = "Accept"
-        button_elements = find_buttons_in_page_content_by_value(browser, accept_button_label)
-        if len(button_elements) > 0:
-            assert len(button_elements) is 1
-            button_elements[0].click()
 
         # She clicks on "local" to go to the login page
         login_link_css_selector = "#login_" + settings.LOGIN_MODE
@@ -485,7 +486,11 @@ def log_in_as_administrator(browser, from_a_login_page=False):
 
     page_title_css_selector = "#header h1"
     page_title_expected_content = "Administration"
-    wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
+    try:
+        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
+    except:
+        accept_data_policy(browser)
+        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
 
 def election_home_find_start_button(browser):
