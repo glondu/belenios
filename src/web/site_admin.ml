@@ -2667,37 +2667,31 @@ let extract_automatic_data_draft uuid_s =
   match election with
   | None -> return_none
   | Some se ->
-     let name = se.se_questions.t_name in
-     let contact = se.se_metadata.e_contact in
      let t = Option.get se.se_creation_date default_creation_date in
      let next_t = datetime_add t (day days_to_delete) in
-     return_some (`Destroy, uuid, next_t, name, contact)
+     return_some (`Destroy, uuid, next_t)
 
 let extract_automatic_data_validated uuid_s =
   let uuid = uuid_of_raw_string uuid_s in
   let* election = Web_persist.get_raw_election uuid in
   match election with
   | None -> return_none
-  | Some election ->
-     let election = Election.of_string election in
-     let* metadata = Web_persist.get_election_metadata uuid in
-     let name = election.e_params.e_name in
-     let contact = metadata.e_contact in
+  | Some _ ->
      let* state = Web_persist.get_election_state uuid in
      let* dates = Web_persist.get_election_dates uuid in
      match state with
      | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
         let t = Option.get dates.e_finalization default_validation_date in
         let next_t = datetime_add t (day days_to_delete) in
-        return_some (`Delete, uuid, next_t, name, contact)
+        return_some (`Delete, uuid, next_t)
      | `Tallied ->
         let t = Option.get dates.e_tally default_tally_date in
         let next_t = datetime_add t (day days_to_archive) in
-        return_some (`Archive, uuid, next_t, name, contact)
+        return_some (`Archive, uuid, next_t)
      | `Archived ->
         let t = Option.get dates.e_archive default_archive_date in
         let next_t = datetime_add t (day days_to_delete) in
-        return_some (`Delete, uuid, next_t, name, contact)
+        return_some (`Delete, uuid, next_t)
 
 let try_extract extract x =
   Lwt.catch
@@ -2718,12 +2712,7 @@ let get_next_actions () =
       )
     )
 
-let mail_automatic_warning : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "The election %s will be automatically %s after %s.
-
--- \nBelenios"
-
-let process_election_for_data_policy (action, uuid, next_t, name, contact) =
+let process_election_for_data_policy (action, uuid, next_t) =
   let uuid_s = raw_string_of_uuid uuid in
   let now = now () in
   let action, comment = match action with
@@ -2737,36 +2726,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
         Printf.ksprintf Ocsigen_messages.warning
           "Election %s has been automatically %s" uuid_s comment
       )
-  ) else (
-    let mail_t = datetime_add next_t (day (-days_to_mail)) in
-    if datetime_compare now mail_t > 0 then (
-      let* dates = Web_persist.get_election_dates uuid in
-      let send = match dates.e_last_mail with
-        | None -> true
-        | Some t ->
-           let next_mail_t = datetime_add t (day days_between_mails) in
-           datetime_compare now next_mail_t > 0
-      in
-      if send then (
-        match contact with
-        | None -> return_unit
-        | Some contact ->
-           match extract_email contact with
-           | None -> return_unit
-           | Some recipient ->
-              let subject =
-                Printf.sprintf "Election %s will be automatically %s soon"
-                  name comment
-              in
-              let body =
-                Printf.sprintf mail_automatic_warning
-                  name comment (format_datetime next_t)
-              in
-              let* () = send_email (MailAutomaticWarning uuid) ~recipient ~subject ~body in
-              Web_persist.set_election_dates uuid {dates with e_last_mail = Some now}
-      ) else return_unit
-    ) else return_unit
-  )
+  ) else return_unit
 
 let rec data_policy_loop () =
   let open Ocsigen_messages in
