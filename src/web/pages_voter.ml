@@ -1182,7 +1182,7 @@ let generate_password metadata langs title uuid url id show_weight =
   let* () = send_email (MailPassword uuid) ~recipient ~subject ~body in
   return (salt, hashed)
 
-let mail_credential l title cas ~login cred weight url metadata =
+let mail_credential l has_passwords title ~login cred weight url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1192,7 +1192,7 @@ let mail_credential l title cas ~login cred weight url metadata =
   add_newline b;
   add_sentence b (s_ "You will find below your credential.");
   add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
-  if not cas then (
+  if has_passwords then (
     add_sentence b (s_ "To cast a vote, you will also need a password, sent in a separate email.");
   );
   add_newline b;
@@ -1212,12 +1212,12 @@ let mail_credential l title cas ~login cred weight url metadata =
   contact_footer l metadata b;
   contents b
 
-let generate_mail_credential langs title cas ~login cred weight url metadata =
+let generate_mail_credential langs has_passwords title ~login cred weight url metadata =
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
         let* l = Web_i18n.get_lang_gettext "voter" lang in
-        return (mail_credential l title cas ~login cred weight url metadata)
+        return (mail_credential l has_passwords title ~login cred weight url metadata)
       ) langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in

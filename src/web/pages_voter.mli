@@ -47,8 +47,8 @@ val generate_password :
   string -> uuid -> string -> string -> bool -> (string * string) Lwt.t
 
 val generate_mail_credential :
-  string list -> string ->
-  bool -> login:string -> string -> int option -> string ->
+  string list -> bool -> string ->
+  login:string -> string -> int option -> string ->
   Web_serializable_t.metadata -> (string * string) Lwt.t
 
 val mail_confirmation :

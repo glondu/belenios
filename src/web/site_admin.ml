@@ -1156,9 +1156,9 @@ let () =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
                   let recipient, login, weight = split_identity v.sv_id in
                   let oweight = if show_weight then Some weight else None in
-                  let cas =
+                  let has_passwords =
                     match se.se_metadata.e_auth_config with
-                    | Some [{auth_system = "cas"; _}] -> true
+                    | Some [{auth_system = "password"; _}] -> true
                     | _ -> false
                   in
                   let* cred = CG.generate () in
@@ -1168,8 +1168,8 @@ let () =
                   in
                   let langs = get_languages se.se_metadata.e_languages in
                   let* subject, body =
-                    Pages_voter.generate_mail_credential langs
-                      title cas ~login cred oweight url se.se_metadata
+                    Pages_voter.generate_mail_credential langs has_passwords
+                      title ~login cred oweight url se.se_metadata
                   in
                   let* () = send_email (MailCredential uuid) ~recipient ~subject ~body in
                   return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)
