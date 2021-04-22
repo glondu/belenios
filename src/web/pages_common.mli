@@ -40,7 +40,7 @@ val make_a_with_hash :
   [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
 val a_mailto :
-  dest:string ->
+  ?dest:string ->
   subject:string ->
   body:string -> string ->
   [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt

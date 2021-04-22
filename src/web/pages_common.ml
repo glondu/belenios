@@ -191,7 +191,7 @@ let make_a_with_hash ~service ?hash ?style contents =
   in
   Eliom_content.Html.F.Raw.a ~a:(href @ style) [txt contents]
 
-let a_mailto ~dest ~subject ~body contents =
+let a_mailto ?(dest = "") ~subject ~body contents =
   let uri = Printf.sprintf "mailto:%s?subject=%s&body=%s" dest
     (Netencoding.Url.encode ~plus:false subject)
     (Netencoding.Url.encode ~plus:false body)
