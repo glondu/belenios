@@ -82,6 +82,8 @@ let () =
     spool_dir := Some dir
   | Element ("warning", ["file", file], []) ->
      Web_config.warning_file := Some file
+  | Element ("admin-home", ["file", file], []) ->
+     Web_config.admin_home := Some file
   | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->
     set_rewrite_prefix ~src ~dst
   | Element ("auth", ["name", auth_instance],

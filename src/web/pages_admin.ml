@@ -156,14 +156,25 @@ let admin_login get_handler =
        in
        return @@ div (default :: others)
   in
+  let* body =
+    match !Web_config.admin_home with
+    | None ->
+       return
+       @@ div [
+              txt (s_ "To administer an election, you need to log in.");
+              contact;
+            ]
+    | Some f ->
+       let* file = read_file f in
+       match file with
+       | None -> fail_http 404
+       | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+  in
   let content = [
-      div [
-          txt (s_ "To administer an election, you need to log in.");
-          contact;
-        ];
+      body;
       auth_div;
     ] in
-  let title = s_ "Election server" ^ " — " ^ s_ "Administration" in
+  let title = "Belenios" ^ " — " ^ s_ "Verifiable online voting platform" in
   let* login_box = login_box ~cont:ContSiteAdmin () in
   base ~title ~login_box ~content ()
 
