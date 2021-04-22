@@ -452,7 +452,7 @@ def log_in_as_administrator(browser, from_a_login_page=False):
 
         # She notices the page title mentions an election
         # TODO: Should we wait for the page to load here? It looks like we don't need to.
-        assert 'Election server' in browser.title, "Browser title was: " + browser.title
+        assert 'Belenios' in browser.title, "Browser title was: " + browser.title
 
         # She clicks on "local" to go to the login page
         login_link_css_selector = "#login_" + settings.LOGIN_MODE
