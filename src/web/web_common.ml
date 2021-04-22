@@ -360,6 +360,7 @@ let available_languages = [
     "en"; "fr"; "de"; "ro"; "it";
     "nb"; "es"; "uk"; "cs"; "oc";
     "pt_BR"; "el"; "nl"; "sk"; "fi";
+    "pl";
   ]
 
 let get_languages xs =
