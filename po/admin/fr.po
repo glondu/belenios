@@ -279,7 +279,7 @@ msgstr "Méthodes de vote alternatives (attention, expérimental) :"
 #: src/web/pages_admin.ml:1222
 msgid "Alternatively, you can send the credential authority the following link:"
 msgstr ""
-"Vous pouvez également envoyer l'autorité de codes de vote en utilisant le "
+"Vous pouvez également envoyer à l'autorité de codes de vote le "
 "lien suivant :"
 
 #: src/web/pages_admin.ml:2224
@@ -412,7 +412,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:296
 msgid "CAS (external authentication server)"
-msgstr "SAE (serveur d'authentification externe)"
+msgstr "CAS (serveur d'authentification externe)"
 
 #: src/web/pages_admin.ml:2792
 msgid "Cancel"
@@ -537,7 +537,7 @@ msgstr "Créer un nouvelle élection"
 
 #: src/web/pages_admin.ml:1178
 msgid "Credential authority link"
-msgstr "Lien d’autorité de codes de vote"
+msgstr "Lien pour l’autorité de codes de vote"
 
 #: src/web/pages_admin.ml:2066
 msgid "Credential authority?"
