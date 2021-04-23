@@ -15,8 +15,15 @@ dev
    + New format for voter passwords
    + Admin home page now shows login form of the first auth system
    + Add possibility to export auth systems to election administrators
+   + Add authentication by e-mail
+   + Add possibility to remove built-in voter auth systems
+   + Do no longer send automatic warning e-mails
+   + Show cookie disclaimer only when logged in
+   + Add possibility to customize admin home page
+   + Rephrase e-mails sent to voters
+   + Add a template e-mail to be sent to the credential authority
  * Translations:
-   + Add Greek (el), Dutch (nl), Slovak (sk), Finnish (fi)
+   + Add Greek (el), Dutch (nl), Slovak (sk), Finnish (fi), Polish (pl)
 
 1.14 (2021-02-09)
 =================
