@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-04-23 06:52+0000\n"
+"PO-Revision-Date: 2021-04-23 22:32+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -612,6 +612,8 @@ msgstr "Ustaw"
 #: src/web/pages_voter.ml:899
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
+"Istnieje wiele technik rozstrzygania o tym, którego kandydata należy wybrać "
+"w przypadku gdy zgodnie z systemem Condorceta nie można wskazać zwycięzcy."
 
 #: src/web/pages_voter.ml:114
 msgid "Single Transferable Vote"
@@ -652,6 +654,8 @@ msgstr "Prześlij"
 #: src/web/pages_voter.ml:1101
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
+"Tacy kandydaci są oznaczani jako \"Remis/Zwycięzca\", gdy zostają wybrani i "
+"jako\"Remis/Przegrany\", gdy przegrali."
 
 #: src/web/pages_voter.ml:634
 msgid "Thank you for voting!"
@@ -692,6 +696,7 @@ msgstr "Cyfrowe odciski palca (hasze) są zgodne!"
 #: src/web/pages_voter.ml:950
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
+"Liczba rang (np. doskonały, bardzo dobry, itd.) zazwyczaj wynosi od 5 do 7."
 
 #: src/web/site_voter.ml:337
 msgid "The number of grades is invalid."
@@ -729,6 +734,8 @@ msgstr ""
 #: src/web/pages_voter.ml:940
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
 msgstr ""
+"Zwycięża kandydat z najwyższą medianą (albo drugą najwyższą medianą, gdy "
+"wystąpił remis itd.)."
 
 #: src/web/pages_voter.ml:1095
 msgid "There has been at least one tie."
@@ -758,7 +765,7 @@ msgstr "Głosowanie zakończyło się."
 
 #: src/web/pages_voter.ml:300
 msgid "This election uses weights!"
-msgstr ""
+msgstr "W tym głosowaniu stosowane są wagi!"
 
 #: src/tool/tool_js_booth.ml:394
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
@@ -790,7 +797,7 @@ msgstr "Aby uzyskać więcej informacji, napisz do:"
 
 #: src/web/pages_voter.ml:221
 msgid "Total weight of accepted ballots:"
-msgstr ""
+msgstr "Całkowita waga oddanych głosów:"
 
 #: src/web/pages_voter.ml:374
 msgid "Trustees shuffled the ballots in the following order:"
@@ -943,7 +950,7 @@ msgstr "Twój głos nie został zarejestrowany!"
 #. src/web/pages_voter.ml:521
 #: src/web/pages_voter.ml:1245 src/web/pages_voter.ml:617
 msgid "Your weight is %d."
-msgstr ""
+msgstr "Twoja waga wynosi %d."
 
 #: src/web/web_common.ml:87
 msgid "a credential is missing"
@@ -980,7 +987,7 @@ msgstr "tutaj"
 
 #: src/web/pages_voter.ml:1036
 msgid "our code of STV"
-msgstr ""
+msgstr "nasz kod dla systemu Pojedynczego Głosu Przechodniego"
 
 #: src/web/pages_voter.ml:54
 msgid "parameters"
@@ -992,7 +999,7 @@ msgstr "Polityka prywatności"
 
 #: src/web/pages_voter.ml:60
 msgid "public credentials"
-msgstr ""
+msgstr "publiczny kod głosowania"
 
 #: src/web/pages_voter.ml:243
 msgid "result with cryptographic proofs"
@@ -1036,11 +1043,11 @@ msgstr "nie możesz zagłosować korzystając z tego kodu głosowania"
 
 #: src/web/web_common.ml:85
 msgid "your ballot has a syntax error (%s)"
-msgstr ""
+msgstr "Twoja karta do głosowania ma błąd składni (%s)"
 
 #: src/web/web_common.ml:92
 msgid "your credential has a bad weight"
-msgstr ""
+msgstr "Twój kod głosowania ma niewłaściwą wagę"
 
 #: src/web/web_common.ml:90
 msgid "your credential has already been used"
