@@ -79,7 +79,7 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
   in
   let lang_box =
     match lang_box with
-    | None -> div []
+    | None -> txt ""
     | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
   let* warning = match !Web_config.warning_file with
