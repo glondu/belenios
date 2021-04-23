@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-04-23 06:52+0000\n"
+"PO-Revision-Date: 2021-04-23 22:32+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/admin/pl/"
 ">\n"
@@ -17,7 +17,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2258
 msgid " You may re-open the election when it is closed."
-msgstr ""
+msgstr " Możesz ponownie otworzyć zamknięte głosowanie."
 
 #: src/tool/tool_js_questions.ml:180
 msgid " and "
@@ -25,35 +25,35 @@ msgstr " i "
 
 #: src/web/pages_admin.ml:3068
 msgid " and a password: "
-msgstr ""
+msgstr " I hasło: "
 
 #: src/web/pages_admin.ml:1765 src/web/pages_admin.ml:1640
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " i zapisz je w bezpiecznym miejscu."
 
 #: src/web/pages_admin.ml:1522
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " i zapisz plik w bezpiecznym miejscu."
 
 #: src/web/pages_admin.ml:1978
 msgid " and save them securely."
-msgstr ""
+msgstr " i zapisz je w bezpieczny sposób."
 
 #: src/web/pages_admin.ml:3113
 msgid " and your e-mail address is: "
-msgstr ""
+msgstr " i Twój adres email to: "
 
 #: src/tool/tool_js_questions.ml:187
 msgid " answers."
-msgstr ""
+msgstr " odpowiedzi (opcje wyboru)."
 
 #: src/web/pages_admin.ml:3101 src/web/pages_admin.ml:3051
 msgid " because "
-msgstr ""
+msgstr " ponieważ "
 
 #: src/web/pages_admin.ml:2572
 msgid " has been computed."
-msgstr ""
+msgstr " został obliczony."
 
 #: src/web/pages_admin.ml:3000 src/web/pages_admin.ml:2968
 msgid " in the following box: "
@@ -61,33 +61,35 @@ msgstr " w poniższym polu: "
 
 #: src/web/pages_admin.ml:1265 src/web/pages_admin.ml:1256
 msgid " instead of "
-msgstr ""
+msgstr " zamiast "
 
 #. src/web/pages_admin.ml:1035
 #. src/web/pages_admin.ml:869
 #: src/web/pages_admin.ml:2544 src/web/pages_admin.ml:2410
 msgid " is:"
-msgstr ""
+msgstr " jest:"
 
 #: src/web/pages_admin.ml:2992
 msgid " or username: "
-msgstr ""
+msgstr " albo nazwę użytkownika: "
 
 #: src/web/pages_admin.ml:1095
 msgid " out of "
-msgstr ""
+msgstr " z "
 
 #: src/web/pages_admin.ml:572
 msgid " to set up the election key."
-msgstr ""
+msgstr " aby stworzyć klucz głosowania."
 
 #: src/web/pages_admin.ml:1097
 msgid " trustees will be needed to decrypt the result."
 msgstr ""
+" członkowie komisji skrutacyjnej będą potrzebni do odszyfrowania wyniku "
+"głosowania."
 
 #: src/web/pages_admin.ml:558
 msgid " voter(s) registered"
-msgstr ""
+msgstr " zarejestrowanych, uprawnionych do głosowania"
 
 #: src/web/pages_admin.ml:2933
 msgid " your contribution to decryption."
@@ -99,92 +101,95 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1947
 msgid "%d voter(s)"
-msgstr ""
+msgstr "%d uprawnionych do głosowania"
 
 #: src/web/site_admin.ml:779
 msgid "%s is not a registered user for this election."
-msgstr ""
+msgstr "%s nie jest zarejestrowanym użytkownikiem do tego głosowania."
 
 #: src/web/site_admin.ml:1607
 msgid "%s is not a valid date!"
-msgstr ""
+msgstr "%s nie jest prawidłową datą!"
 
 #: src/web/site_admin.ml:2314 src/web/site_admin.ml:1015
 msgid "%s is not a valid e-mail address!"
-msgstr ""
+msgstr "%s nie jest prawidłowym adresem e-mail!"
 
 #: src/web/pages_admin.ml:2111
 msgid "(Warning: This action is irreversible.)"
-msgstr ""
+msgstr "(Ostrzeżenie: tej czynności nie można cofnąć.)"
 
 #: src/web/pages_admin.ml:857
 msgid "(cannot be removed)"
-msgstr ""
+msgstr "(nie można usunąć)"
 
 #: src/web/pages_admin.ml:834
 msgid "(done)"
-msgstr ""
+msgstr "(gotowe)"
 
 #: src/web/pages_admin.ml:303
 msgid "(for example: https://cas.inria.fr/cas)"
-msgstr ""
+msgstr "(na przykład: https://cas.inria.fr/cas)"
 
 #: src/web/pages_admin.ml:313
 msgid "(imported from server)"
-msgstr ""
+msgstr "(zaimportowane z serwera)"
 
 #: src/web/pages_admin.ml:1010 src/web/pages_admin.ml:849
 msgid "(not available)"
-msgstr ""
+msgstr "(niedostępne)"
 
 #: src/web/pages_admin.ml:1263 src/web/pages_admin.ml:1254
 msgid "(or "
-msgstr ""
+msgstr "(albo "
 
 #. src/web/pages_admin.ml:838
 #: src/web/pages_admin.ml:2512 src/web/pages_admin.ml:2512
 msgid "(server)"
-msgstr ""
+msgstr "(serwer)"
 
 #: src/web/pages_admin.ml:2354
 msgid "(skipped)"
-msgstr ""
+msgstr "(pominięty)"
 
 #: src/web/pages_admin.ml:1088
 msgid "(the threshold must be smaller than the number of trustees)"
-msgstr ""
+msgstr "(próg musi być mniejszy niż liczba członków komisji skrutacyjnej)"
 
 #: src/web/pages_admin.ml:193 src/web/pages_admin.ml:185
 msgid "(untitled)"
-msgstr ""
+msgstr "(bez tytułu)"
 
 #: src/web/pages_admin.ml:371
 msgid "(you can use any credential such as %s)."
 msgstr ""
+"(do aprawdzenia możesz użyć dowolnego kodu głosowania np. takiego jak %s)."
 
 #: src/web/pages_admin.ml:3103 src/web/pages_admin.ml:3053
 msgid ". Please try again with a different one."
-msgstr ""
+msgstr ". Spróbuj ponownie z innym."
 
 #: src/web/pages_admin.ml:1772
 msgid ". Save it so that you can check that it appears on the election home later."
 msgstr ""
+". Zapisz go, abyś mógł później sprawdzić, czy pojawia się na stronie "
+"głosowania."
 
 #: src/web/pages_admin.ml:1154
 msgid "1. Click on the link."
-msgstr ""
+msgstr "1. Kliknij link."
 
 #: src/web/pages_admin.ml:1065
 msgid "1a: action needed from trustee: generate private key"
-msgstr ""
+msgstr "1a. poczekaj aż członek komisji skrutacyjnej utworzy klucz prywatny"
 
 #: src/web/pages_admin.ml:1067
 msgid "1b, 2b, 3b: waiting for other trustees"
-msgstr ""
+msgstr "1b, 2b, 3b: poczekaj na pozostałych członków komisji skrutacyjnej"
 
 #: src/web/pages_admin.ml:1155
 msgid "2. Click on \"Generate\"."
-msgstr ""
+msgstr "2. Kliknij na \"Utwórz\"."
 
 #: src/web/pages_admin.ml:1066
 msgid "2a, 3a: action needed from trustee: enter private key"
@@ -193,22 +198,26 @@ msgstr ""
 #: src/web/pages_admin.ml:1156
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
 msgstr ""
+"3. Pobierz prywatne kody głosowania (creds.txt) i zapisz pobrany plik w "
+"bezpiecznym miejscu."
 
 #: src/web/pages_admin.ml:1158
 msgid "4. Download the list of voters (voters.txt)."
-msgstr ""
+msgstr "4. Pobierz listę uprawnionych do głosowania (voters.txt)."
 
 #: src/web/pages_admin.ml:1160
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
+"5. Zapisz dwa cyfrowe odciski: cyfrowy odcisk uprawnionych do głosowania "
+"oraz cyfrowy odcisk publicznego kodu głosowania"
 
 #: src/web/pages_admin.ml:1162
 msgid "6. Click on \"Submit the public credentials\"."
-msgstr ""
+msgstr "6. Kliknij na \"Prześlij publiczny kod głosowania\"."
 
 #: src/web/site_admin.ml:775
 msgid "A new password has been mailed to %s."
-msgstr ""
+msgstr "Nowe hasło zostało wysłane do %s."
 
 #: src/web/site_admin.ml:1269
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
@@ -220,44 +229,48 @@ msgstr "Zgoda"
 
 #: src/web/site_admin.ml:2633 src/web/site_admin.ml:2511
 msgid "Account creation"
-msgstr ""
+msgstr "Tworzenie konta"
 
 #: src/web/pages_admin.ml:3032
 msgid "Account management"
-msgstr ""
+msgstr "Zarządzanie kontem"
 
 #. src/web/pages_admin.ml:792
 #: src/web/pages_admin.ml:1373 src/web/pages_admin.ml:956
 msgid "Add"
-msgstr ""
+msgstr "Dodaj"
 
 #: src/tool/tool_js_questions.ml:392
 msgid "Add a question"
-msgstr ""
+msgstr "Dodaj pytanie, albo treść uchwały, decyzji do podjęcia"
 
 #: src/tool/tool_js_questions.ml:336
 msgid "Add an answer"
-msgstr ""
+msgstr "Dodaj odpowiedź (opcję wyboru)"
 
 #: src/web/pages_admin.ml:2213 src/web/pages_admin.ml:200
 msgid "Administration"
-msgstr ""
+msgstr "Administracja"
 
 #: src/web/pages_admin.ml:517
 msgid "All passwords have been sent!"
-msgstr ""
+msgstr "Wszystkie hasła zostały wysłane!"
 
 #: src/web/pages_admin.ml:731
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr ""
+"Wszyscy członkowie komisji skrutacyjnej muszą zakończyć, nim przejdziesz "
+"dalej."
 
 #: src/tool/tool_js_questions.ml:323
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr ""
+"Alternatywnie (uprawnieni do głosowania przypisują liczbę każdemu "
+"kandydatowi)"
 
 #: src/web/pages_admin.ml:2016
 msgid "Alternative questions cannot be combined with weights."
-msgstr ""
+msgstr "Alternatywne pytania (opcje wyboru) nie mogą być połączone z wagami."
 
 #: src/web/pages_admin.ml:1315
 msgid "Alternative voting methods (warning, still experimental):"
@@ -491,15 +504,15 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3084 src/web/pages_admin.ml:2979
 msgid "Create an account"
-msgstr ""
+msgstr "Utwórz konto"
 
 #: src/web/pages_admin.ml:2109 src/web/pages_admin.ml:623
 msgid "Create election"
-msgstr ""
+msgstr "Utwórz głosowanie"
 
 #: src/web/pages_admin.ml:251
 msgid "Create new election"
-msgstr ""
+msgstr "Utwórz nowe głosowanie"
 
 #: src/web/pages_admin.ml:1178
 msgid "Credential authority link"
@@ -515,7 +528,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:579
 msgid "Credentials"
-msgstr ""
+msgstr "Kody głosowania"
 
 #: src/web/pages_admin.ml:1242 src/web/pages_admin.ml:1184
 msgid "Credentials for election %s"
@@ -523,23 +536,27 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1594 src/web/pages_admin.ml:600
 msgid "Credentials have already been generated!"
-msgstr ""
+msgstr "Kody głosowania zostały utworzone!"
 
 #: src/web/site_admin.ml:1201
 msgid "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
 msgstr ""
+"Kody głosowania zostały utworzone i rozesłane na adresy e-mail uprawnionych. "
+"Nie zapomnij pobrać prywatnych kodów głosowania (i zapisać je w bezpiecznym "
+"miejscu), na wypadek gdyby ktoś z uprawnionych utracił swój kod do "
+"głosowania."
 
 #: src/web/pages_admin.ml:1245
 msgid "Credentials have been received and checked!"
-msgstr ""
+msgstr "Kody głosowania zostały odebrane i sprawdzone!"
 
 #: src/web/pages_admin.ml:2070
 msgid "Credentials?"
-msgstr ""
+msgstr "Kody głosowania?"
 
 #: src/web/pages_admin.ml:2809
 msgid "Current list of ballots:"
-msgstr ""
+msgstr "Aktualna lista głosów:"
 
 #: src/web/site_admin.ml:2165
 msgid "Data is invalid! (%s)"
@@ -551,7 +568,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2760
 msgid "Date/Time (UTC)"
-msgstr ""
+msgstr "Data/Czas (UTC)"
 
 #: src/web/pages_admin.ml:3175 src/web/pages_admin.ml:3153
 msgid "Dear %s,"
@@ -565,75 +582,80 @@ msgstr ""
 #. src/web/pages_admin.ml:674
 #: src/web/pages_admin.ml:2168 src/web/pages_admin.ml:2131
 msgid "Dear trustee,"
-msgstr ""
+msgstr "Drogi członku komisji skrutacyjnej głosowania,"
 
 #: src/web/pages_admin.ml:2673
 msgid "Delete election"
-msgstr ""
+msgstr "Usuń głosowanie"
 
 #: src/web/pages_admin.ml:427
 msgid "Description of the election."
-msgstr ""
+msgstr "Opis głosowania."
 
 #: src/web/pages_admin.ml:422
 msgid "Description of the election:"
-msgstr ""
+msgstr "Opis głosowania:"
 
 #: src/tool/tool_js_questions.ml:367
 msgid "Description:"
-msgstr ""
+msgstr "Opis:"
 
 #: src/web/pages_admin.ml:2046
 msgid "Description?"
-msgstr ""
+msgstr "Opis?"
 
 #: src/web/pages_admin.ml:639 src/web/pages_admin.ml:633
 msgid "Destroy election"
-msgstr ""
+msgstr "Usuń głosowanie"
 
 #: src/web/pages_admin.ml:733
 msgid "Don't forget to save:"
-msgstr ""
+msgstr "Nie zapomnij zapisać:"
 
 #. src/web/pages_admin.ml:888
 #: src/web/pages_admin.ml:2581 src/web/pages_admin.ml:2444
 msgid "Done?"
-msgstr ""
+msgstr "Gotowe?"
 
 #: src/web/pages_admin.ml:1527 src/web/pages_admin.ml:1520
 msgid "Download "
-msgstr ""
+msgstr "Pobierz "
 
 #: src/web/pages_admin.ml:2626
 msgid "Download archive."
-msgstr ""
+msgstr "Pobierz archiwum."
 
 #: src/web/pages_admin.ml:2814
 msgid "Download as a file"
-msgstr ""
+msgstr "Pobierz jako plik"
 
 #: src/web/pages_admin.ml:585
 msgid "Download private credentials"
-msgstr ""
+msgstr "Pobierz prywatne kody głosowania"
 
 #: src/web/pages_admin.ml:1763 src/web/pages_admin.ml:1638
 msgid "Download your "
-msgstr ""
+msgstr "Pobierz swój "
 
 #: src/web/pages_admin.ml:686
 msgid "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled."
 msgstr ""
+"Pobierz swój klucz prywatny. Upewnij się, że klucz został ZAPISANY "
+"POPRAWNIE, w przeciwnym razie nie będzie możliwe przeliczenie głosów i "
+"wybory zostaną anulowane."
 
 #: src/web/pages_admin.ml:1466
 msgid "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins."
 msgstr ""
+"Duplikaty tożsamości (email) nie są dozwolone i są automatycznie łączone. "
+"Jeśli dwóch głosujących ma ten sam adres email, użyj różnych loginów."
 
 #. src/web/pages_admin.ml:1000
 #. src/web/pages_admin.ml:886
 #. src/web/pages_admin.ml:825
 #: src/web/pages_admin.ml:2579 src/web/pages_admin.ml:2515
 msgid "E-mail"
-msgstr ""
+msgstr "E-mail"
 
 #: src/web/pages_admin.ml:2989 src/web/pages_admin.ml:2960
 msgid "E-mail address:"
@@ -645,20 +667,20 @@ msgstr ""
 
 #: src/web/pages_admin.ml:543
 msgid "Edit questions"
-msgstr ""
+msgstr "Edytuj pytania (opcje wyboru)"
 
 #: src/web/pages_admin.ml:553
 msgid "Edit voters"
-msgstr ""
+msgstr "Edytuj uprawnionych do głosowania"
 
 #. src/web/pages_admin.ml:1900
 #: src/web/pages_admin.ml:1918 src/web/pages_admin.ml:1908
 msgid "Election "
-msgstr ""
+msgstr "Głosowanie "
 
 #: src/web/pages_admin.ml:2694
 msgid "Election home"
-msgstr ""
+msgstr "Strona głosowania"
 
 #: src/web/pages_admin.ml:200 src/web/pages_admin.ml:47
 msgid "Election server"
@@ -666,11 +688,11 @@ msgstr "Serwer głosowania"
 
 #: src/web/pages_admin.ml:231
 msgid "Elections being prepared"
-msgstr ""
+msgstr "Przygotowywane głosowania"
 
 #: src/web/pages_admin.ml:1887 src/web/pages_admin.ml:234
 msgid "Elections you can administer"
-msgstr ""
+msgstr "Głosowania którymi administrujesz"
 
 #: src/web/site_admin.ml:1439
 msgid "Encrypted decryption keys are missing!"
@@ -679,10 +701,14 @@ msgstr ""
 #: src/web/pages_admin.ml:2244
 msgid "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date."
 msgstr ""
+"Wprowadź czas w formacie UTC, zgodnie z wzorem RRRR-MM-DD GG:MM:SS. Pozostaw "
+"puste aby nie ustawiać czasu."
 
 #: src/web/pages_admin.ml:2608
 msgid "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is "
 msgstr ""
+"Wprowadź datę w formacie UTC, zgodnie z RRRR-MM-DD HH:MM:SS. Na przykład, "
+"dzisiaj jest "
 
 #: src/web/pages_admin.ml:2142
 msgid "Enter your private decryption key in the first box and click on \"Generate your contribution to decryption\"."
@@ -690,7 +716,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1795
 msgid "Enter your private key:"
-msgstr ""
+msgstr "Wprowadź Twój klucz prywatny:"
 
 #. src/web/site_admin.ml:2273
 #. src/web/site_admin.ml:2165
@@ -722,35 +748,35 @@ msgstr "Błąd"
 
 #: src/tool/tool_js_pd.ml:96
 msgid "Error in format of private key: %s"
-msgstr ""
+msgstr "Błąd w formacie klucza prywatnego: %s"
 
 #: src/tool/tool_js_shuffle.ml:82
 msgid "Estimated computation time: %d second(s)"
-msgstr ""
+msgstr "Szacunkowy czas trwania obliczeń %d sek."
 
 #: src/tool/tool_js_shuffle.ml:50
 msgid "Estimated remaining time: %d second(s)"
-msgstr ""
+msgstr "Pozostało: %d sec."
 
 #: src/web/pages_admin.ml:2817
 msgid "Estimating computation time…"
-msgstr ""
+msgstr "Szacuję czas obliczeń…"
 
 #: src/web/pages_admin.ml:2446
 msgid "Fingerprint"
-msgstr ""
+msgstr "Cyfrowy odcisk"
 
 #: src/web/pages_admin.ml:1512
 msgid "Fingerprint of public credentials:"
-msgstr ""
+msgstr "Cyfrowy odcisk publicznego kodu głosowania:"
 
 #: src/web/pages_admin.ml:1630
 msgid "Fingerprint of the verification key:"
-msgstr ""
+msgstr "Cyfrowy odcisk klucza weryfikacyjnego:"
 
 #: src/web/pages_admin.ml:1580
 msgid "Fingerprint of voters:"
-msgstr ""
+msgstr "Cyfrowy odcisk uprawnionych do głosowania:"
 
 #: src/web/pages_admin.ml:729
 msgid "Follow the instructions."
@@ -1215,7 +1241,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:269 src/web/pages_admin.ml:227
 msgid "Prepare a new election"
-msgstr ""
+msgstr "Przygotuj nowe głosowanie"
 
 #: src/web/pages_admin.ml:369
 msgid "Preview booth"
