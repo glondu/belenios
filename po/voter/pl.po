@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-04-23 22:32+0000\n"
+"PO-Revision-Date: 2021-04-25 17:32+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -970,11 +970,11 @@ msgstr "ale nie został jeszcze oddany"
 
 #: src/web/pages_common.ml:284
 msgid "change your password"
-msgstr "zmień swoje hasło"
+msgstr "zmienić swoje hasło"
 
 #: src/web/pages_common.ml:282
 msgid "create an account"
-msgstr "utwórz konto"
+msgstr "utworzyć konto"
 
 #: src/web/pages_voter.ml:1242
 msgid "has been recorded."
