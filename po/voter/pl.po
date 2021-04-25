@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-04-25 17:32+0000\n"
+"PO-Revision-Date: 2021-04-26 02:19+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -104,8 +104,8 @@ msgstr "%d nieważny(ch) głos(ów)"
 #: src/web/pages_voter.ml:354
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
-"%d z następujących %d członków komisji skrutacyjnej (klucz weryfikacyjny) ["
-"klucz publiczny] musi odszyfrować wynik głosowania:"
+"%d z następujących %d członków komisji skrutacyjnej (kluczy weryfikacyjnych) "
+"[kluczy publicznych] musi odszyfrować wynik głosowania:"
 
 #: src/tool/tool_js_booth.ml:171
 msgid "(nothing)"
@@ -129,8 +129,8 @@ msgstr "1 to najwyższa ocena, 2 to ocena druga w kolejności, itd."
 #: src/web/pages_voter.ml:897
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
-"Zwycięzcą w systemie Condorceta jest kandydat, który zwyciężył z każdym z "
-"pozostałych kandydatów."
+"Zwycięzcą w systemie Condorceta jest kandydat (opcja), który zwyciężył z "
+"każdym z pozostałych kandydatów (opcji)."
 
 #: src/web/pages_voter.ml:995
 msgid "A ballot is invalid if a voter has entered a number that is greater than the number of grades."
@@ -141,7 +141,7 @@ msgstr ""
 #: src/web/pages_voter.ml:1075
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
-"Głos nie jest prawidłowy, jeśli dwóm kandydatom przyznano tą samą "
+"Głos nie jest prawidłowy, jeśli dwóm kandydatom (opcjom) przyznano tą samą "
 "preferencję, albo nie przyznano żadnej preferencji."
 
 #: src/web/pages_voter.ml:271
@@ -245,7 +245,7 @@ msgstr "Porównaj"
 
 #: src/tool/tool_js_fingerprint.ml:68
 msgid "Compute fingerprint"
-msgstr "Oblicz cyfrowy odcisk(hasz)"
+msgstr "Oblicz cyfrowy odcisk (hasz)"
 
 #: src/tool/tool_js_fingerprint.ml:35
 msgid "Computed fingerprint:"
@@ -294,7 +294,7 @@ msgstr "Adres e-mail:"
 
 #: src/web/pages_voter.ml:851
 msgid "Election UUID: "
-msgstr "Unikalny identyfikator głosowania: "
+msgstr "Unikalny identyfikator głosowania (UUID): "
 
 #: src/web/pages_voter.ml:855 src/web/pages_voter.ml:48
 msgid "Election fingerprint: "
@@ -343,39 +343,39 @@ msgstr "Oddaję głos"
 #: src/tool/tool_js_booth.ml:238
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
-"Przy głosowaniu na kandydatów zgodnie z systemem opinii większościowej \"1\" "
-"jest najlepszą rangą. Im wyższa liczba, tym gorsza ranga."
+"Przy głosowaniu na kandydatów (opcje) zgodnie z systemem opinii "
+"większościowej \"1\" jest najlepszą rangą. Im wyższa liczba, tym gorsza "
+"ranga."
 
 #: src/tool/tool_js_booth.ml:241
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
-"Przy głosowaniu na kandydatów zgodnie z systemem Condorceta, albo systemem "
-"Pojedynczego Głosu Przechodniego \"1\" jest Twoim pierwszym wyborem, \"2\" "
-"drugim, itd."
+"Przy głosowaniu na kandydatów (opcje) zgodnie z systemem Condorceta, albo "
+"systemem Pojedynczego Głosu Przechodniego \"1\" jest Twoim pierwszym "
+"wyborem, \"2\" drugim, itd."
 
 #: src/web/pages_voter.ml:578
 msgid "If you want to vote, you must "
 msgstr "Jeśli chcesz zagłosować, musisz "
 
 #: src/web/pages_voter.ml:1099
-#, fuzzy
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
-"W naszym rozwiązaniu, w przypadku gdy wielu kandydatów ma tą samą liczbę "
-"głosów, decyduje ich kolejność w jakiej zostali umieszczeni na karcie do "
-"głosowania."
+"W naszym rozwiązaniu, w przypadku gdy wielu kandydatów (opcji) ma tą samą "
+"liczbę głosów, decyduje ich kolejność w jakiej zostali umieszczeni na karcie "
+"do głosowania."
 
 #: src/web/pages_voter.ml:934
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
 msgstr ""
 "W systemie Opinii Większościowej, oddany głos przyznaje rangę każdemu z "
-"kandydatów."
+"kandydatów (opcji)."
 
 #: src/web/pages_voter.ml:1028
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 "W systemie Pojedynczego Głosu Przechodniego, głosujący szeregują kandydatów "
-"od najbardziej preferowanego do najmniej preferowanego."
+"(opcje) od najbardziej preferowanego do najmniej preferowanego."
 
 #. src/web/pages_voter.ml:497
 #: src/web/pages_voter.ml:781 src/web/pages_voter.ml:598
@@ -612,8 +612,9 @@ msgstr "Ustaw"
 #: src/web/pages_voter.ml:899
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
-"Istnieje wiele technik rozstrzygania o tym, którego kandydata należy wybrać "
-"w przypadku gdy zgodnie z systemem Condorceta nie można wskazać zwycięzcy."
+"Istnieje wiele technik rozstrzygania o tym, którego kandydata (opcję) należy "
+"wybrać w przypadku gdy zgodnie z systemem Condorceta nie można wskazać "
+"zwycięzcy."
 
 #: src/web/pages_voter.ml:114
 msgid "Single Transferable Vote"
@@ -654,8 +655,8 @@ msgstr "Prześlij"
 #: src/web/pages_voter.ml:1101
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
-"Tacy kandydaci są oznaczani jako \"Remis/Zwycięzca\", gdy zostają wybrani i "
-"jako\"Remis/Przegrany\", gdy przegrali."
+"Tacy kandydaci (opcje) są oznaczani jako \"Remis/Zwycięzca\", gdy zostają "
+"wybrani i jako\"Remis/Przegrany\", gdy przegrali."
 
 #: src/web/pages_voter.ml:634
 msgid "Thank you for voting!"
@@ -734,12 +735,12 @@ msgstr ""
 #: src/web/pages_voter.ml:940
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
 msgstr ""
-"Zwycięża kandydat z najwyższą medianą (albo drugą najwyższą medianą, gdy "
-"wystąpił remis itd.)."
+"Zwycięża kandydat (opcja) z najwyższą medianą (albo drugą najwyższą medianą, "
+"gdy wystąpił remis itd.)."
 
 #: src/web/pages_voter.ml:1095
 msgid "There has been at least one tie."
-msgstr "Wystąpił przynajmniej jeden remis pomiędzy kandydatami."
+msgstr "Wystąpił przynajmniej jeden remis pomiędzy kandydatami (opcjami)."
 
 #: src/web/site_common.ml:45
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
@@ -757,7 +758,7 @@ msgstr "Głosowanie jest zarządzane przez %s."
 
 #: src/web/pages_voter.ml:175
 msgid "This election is archived."
-msgstr "Głosowanie zostało zarchwizowane."
+msgstr "Głosowanie zostało zarchiwizowane."
 
 #: src/web/pages_voter.ml:142
 msgid "This election is currently closed."
@@ -818,7 +819,7 @@ msgstr "Wartość musi być liczbą całkowitą z przedziału między 0 a 255."
 
 #: src/web/pages_voter.ml:573
 msgid "Warning:"
-msgstr "Ostrzeżenie:"
+msgstr "Uwaga:"
 
 #: src/tool/tool_js_booth.ml:244
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
@@ -831,8 +832,8 @@ msgstr ""
 #: src/web/pages_common.ml:359
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
-"Ostrzeżenie: Ten kod jest ważny przez 15 minut. Wcześniej wysłane kody "
-"przesłane na ten adres nie są już ważne."
+"Uwaga: Ten kod jest ważny przez 15 minut. Wcześniej wysłane kody przesłane "
+"na ten adres nie są już ważne."
 
 #: src/web/pages_voter.ml:901
 msgid "We use here the Schulze method and we refer voters to "
