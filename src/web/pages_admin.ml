@@ -278,41 +278,43 @@ let election_draft_pre () =
       (fun (credmgmt, (auth, cas_server)) ->
         let auth_systems =
           !Web_config.exported_auth_config
-          |> List.map
-               (function
-                | `BuiltinPassword ->
-                   div [
-                       label [
-                           radio ~checked:true ~name:auth ~value:"password" string;
-                           txt " ";
-                           txt (s_ "Password (passwords will be emailed to voters)");
-                         ]
-                     ]
-                | `BuiltinCAS ->
-                   div [
-                       label [
-                           radio ~name:auth ~value:"cas" string;
-                           txt " ";
-                           txt (s_ "CAS (external authentication server)");
-                         ];
-                       div ~a:[a_style "margin-left: 5em;"] [
-                           txt (s_ "Server address:");
-                           txt " ";
-                           input ~input_type:`Text ~name:cas_server string;
-                           txt " ";
-                           txt (s_ "(for example: https://cas.inria.fr/cas)");
-                         ];
-                     ]
-                | `Export a ->
-                   div [
-                       label [
-                           radio ~name:auth ~value:("%" ^ a.auth_instance) string;
-                           txt " ";
-                           txt a.auth_instance;
-                           txt " ";
-                           txt (s_ "(imported from server)");
-                         ]
-                     ]
+          |> List.mapi
+               (fun i x ->
+                 let checked = i = 0 in
+                 match x with
+                 | `BuiltinPassword ->
+                    div [
+                        label [
+                            radio ~checked ~name:auth ~value:"password" string;
+                            txt " ";
+                            txt (s_ "Password (passwords will be emailed to voters)");
+                          ]
+                      ]
+                 | `BuiltinCAS ->
+                    div [
+                        label [
+                            radio ~checked ~name:auth ~value:"cas" string;
+                            txt " ";
+                            txt (s_ "CAS (external authentication server)");
+                          ];
+                        div ~a:[a_style "margin-left: 5em;"] [
+                            txt (s_ "Server address:");
+                            txt " ";
+                            input ~input_type:`Text ~name:cas_server string;
+                            txt " ";
+                            txt (s_ "(for example: https://cas.inria.fr/cas)");
+                          ];
+                      ]
+                 | `Export a ->
+                    div [
+                        label [
+                            radio ~checked ~name:auth ~value:("%" ^ a.auth_instance) string;
+                            txt " ";
+                            txt a.auth_instance;
+                            txt " ";
+                            txt (s_ "(imported from server)");
+                          ]
+                      ]
                )
         in
         [
