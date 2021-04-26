@@ -42,11 +42,11 @@ if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
     mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
 
     cd "$BELENIOS_SYSROOT/bootstrap/src"
-    wget https://github.com/ocaml/opam/releases/download/2.0.7/opam-full-2.0.7.tar.gz
+    wget https://github.com/ocaml/opam/releases/download/2.0.8/opam-full-2.0.8.tar.gz
 
     if which sha256sum >/dev/null; then
         sha256sum --check <<EOF
-9c0dac1094ed624158fff13000cdfa8edbc96798d32b9fab40b0b5330f9490a2  opam-full-2.0.7.tar.gz
+7b9d29233d9633ef50ba766df2e39112b15cd05c1c6fedf80bcb548debcdd9bd  opam-full-2.0.8.tar.gz
 EOF
     else
         echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
@@ -58,9 +58,8 @@ EOF
     echo "=-=-= Compilation and installation of OPAM =-=-="
     echo
     cd "$BELENIOS_SYSROOT/bootstrap/src"
-    tar -xzf opam-full-2.0.7.tar.gz
-    cd opam-full-2.0.7
-    cp $BELENIOS_SRC/ext/opam/bootstrap-ocaml.sh $BELENIOS_SYSROOT/bootstrap/src/opam-full-2.0.7/shell
+    tar -xzf opam-full-2.0.8.tar.gz
+    cd opam-full-2.0.8
     make cold CONFIGURE_ARGS="--prefix $BELENIOS_SYSROOT/bootstrap"
     make cold-install LIBINSTALL_DIR="$BELENIOS_SYSROOT/bootstrap/lib/ocaml"
 
@@ -86,9 +85,9 @@ echo
 cd "$BELENIOS_SYSROOT"
 git clone https://github.com/ocaml/opam-repository.git
 cd opam-repository
-git reset --hard ea0d9f1d30e13bb1db009b79a39bbe7a95b0217e
+git reset --hard 80ceef75c2d0dbe4447c4d9a27d5c6f42f2899a4
 opam init $BELENIOS_OPAM_INIT_ARGS --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
-opam switch create 4.11.1 ocaml-base-compiler.4.11.1 --jobs=1
+opam switch create 4.11.2 ocaml-base-compiler.4.11.2 --jobs=1
 eval $(opam env)
 
 echo
