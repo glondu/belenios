@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -40,4 +40,10 @@ let cast_confirmed = Eliom_reference.eref ~scope None
 
 let language = Eliom_reference.eref ~scope None
 
+type link_kind =
+  [ `CreateAccount
+  | `ChangePassword of string
+  ]
+
+let signup_address = Eliom_reference.eref ~scope None
 let signup_env = Eliom_reference.eref ~scope None

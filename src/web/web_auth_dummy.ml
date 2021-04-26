@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -23,13 +23,17 @@ open Lwt
 
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"dummy"
-    (fun _ ~state ->
-      Pages_common.login_dummy ~state >>= Eliom_registration.Html.send
+    (fun _ _ ~state ->
+      Pages_common.login_dummy ~state >>= (fun x -> return @@ Web_auth.Html x)
     )
 
 let () =
   Eliom_registration.Any.register ~service:Web_services.dummy_post
     (fun () (state, name) ->
       run_post_login_handler ~state
-        (fun _ _ authenticate -> authenticate name >>= fun x -> return (Ok x))
+        {
+          Web_auth.post_login_handler =
+            fun _ _ cont ->
+            cont (Some name)
+        }
     )

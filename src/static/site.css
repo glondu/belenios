@@ -62,3 +62,7 @@ button {
 .lang_box {
     float: right;
 }
+
+.embedded-login-form {
+    margin: 2em;
+}

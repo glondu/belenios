@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -47,8 +47,8 @@ val generate_password :
   string -> uuid -> string -> string -> bool -> (string * string) Lwt.t
 
 val generate_mail_credential :
-  string list -> string ->
-  bool -> login:string -> string -> int option -> string ->
+  string list -> bool -> string ->
+  login:string -> string -> int option -> string ->
   Web_serializable_t.metadata -> (string * string) Lwt.t
 
 val mail_confirmation :

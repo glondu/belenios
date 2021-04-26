@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -228,6 +228,7 @@ end
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let z58 = Z.of_int (String.length b58_digits)
+let z10 = Z.of_int 10
 
 module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
   let random_char () =
@@ -245,6 +246,19 @@ module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
       ) else R.return (Bytes.to_string res)
     in
     loop 0
+
+  let generate_numeric ?(length=6) () =
+    let modulus =
+      let rec loop length accu =
+        if length > 0 then
+          loop (length - 1) Z.(accu * z10)
+        else accu
+      in
+      loop length Z.one
+    in
+    R.bind (R.random modulus) (fun n ->
+        R.return (Printf.sprintf "%0*d" length (Z.to_int n))
+      )
 end
 
 let extract_weight str =

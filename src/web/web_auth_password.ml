@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -63,31 +63,32 @@ let does_allow_signups c =
 
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"password"
-    (fun { auth_config; auth_instance = service; _ } ~state ->
+    (fun _ { auth_config; auth_instance = service; _ } ~state ->
       let allowsignups = does_allow_signups auth_config in
-      Pages_common.login_password ~service ~allowsignups ~state >>= Eliom_registration.Html.send
+      Pages_common.login_password ~service ~allowsignups ~state
+      >>= (fun x -> return @@ Web_auth.Html x)
     )
 
 let password_handler () (state, (name, password)) =
   run_post_login_handler ~state
-    (fun uuid a authenticate ->
-      let* ok =
-        match uuid with
-        | None ->
-           begin
-             match List.assoc_opt "db" a.auth_config with
-             | Some db -> check_password_with_file db name password
-             | _ -> failwith "invalid configuration for admin site"
-           end
-        | Some uuid ->
-           let uuid_s = raw_string_of_uuid uuid in
-           let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
-           check_password_with_file db name password
-      in
-      match ok with
-      | Some name -> authenticate name >>= fun x -> return (Ok x)
-      | None -> return (Error ())
-    )
+    {
+      Web_auth.post_login_handler =
+        fun uuid a cont ->
+        let* ok =
+          match uuid with
+          | None ->
+             begin
+               match List.assoc_opt "db" a.auth_config with
+               | Some db -> check_password_with_file db name password
+               | _ -> failwith "invalid configuration for admin site"
+             end
+          | Some uuid ->
+             let uuid_s = raw_string_of_uuid uuid in
+             let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
+             check_password_with_file db name password
+        in
+        cont ok
+    }
 
 let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler
 

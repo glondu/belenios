@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -40,7 +40,7 @@ val make_a_with_hash :
   [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
 val a_mailto :
-  dest:string ->
+  ?dest:string ->
   subject:string ->
   body:string -> string ->
   [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
@@ -93,6 +93,8 @@ val generic_page :
     Eliom_service.t ->
   string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
+val login_title : string -> string Lwt.t
+
 val login_choose :
   string list ->
   (string -> (unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,
@@ -101,8 +103,9 @@ val login_choose :
                Eliom_service.t) ->
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-val login_dummy : state:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val login_password : service:string -> allowsignups:bool -> state:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val login_dummy : state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_email : state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_password : service:string -> allowsignups:bool -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
 
 val login_failed :
   service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,
@@ -110,3 +113,20 @@ val login_failed :
                     Eliom_service.non_ocaml)
                    Eliom_service.t ->
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
+val email_login : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val email_email : address:string -> code:string -> (string * string) Lwt.t
+
+val signup_captcha_img : string -> [> Html_types.img ] Eliom_content.Html.elt
+val format_captcha_error :
+  (module Web_i18n_sig.GETTEXT) -> Web_common.captcha_error option ->
+  [> `Div | `PCDATA ] Eliom_content.Html.elt
+
+val login_email_captcha :
+  state:string ->
+  Web_common.captcha_error option ->
+  string -> string ->
+  [> Html_types.div ] Eliom_content.Html.elt Lwt.t
+
+val login_email_not_now :
+  unit -> [> Html_types.div ] Eliom_content.Html.elt Lwt.t

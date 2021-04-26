@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -25,7 +25,8 @@ open Signatures
 open Web_common
 
 val privacy_notice : privacy_cont -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val admin : elections:((uuid * string) list * (uuid * string) list * (uuid * string) list * (uuid * string) list) option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val admin_login : (string -> Web_auth.result Lwt.t) -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val admin : elections:(uuid * string) list * (uuid * string) list * (uuid * string) list * (uuid * string) list -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val new_election_failure : [ `Exists | `Exception of exn ] -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
@@ -60,3 +61,6 @@ val signup : string -> add_account_error option -> string -> [> `Html ] Eliom_co
 val changepw : username:string -> address:string -> add_account_error option -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val compute_fingerprint : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
+val mail_confirmation_link : (module Web_i18n_sig.GETTEXT) -> string -> string -> string * string
+val mail_changepw_link : (module Web_i18n_sig.GETTEXT) -> string -> string -> string * string

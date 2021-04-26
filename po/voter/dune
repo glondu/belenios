@@ -138,6 +138,26 @@
  (deps sk.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
+(rule
+ (target fi.mo)
+ (deps fi.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target fi.json)
+ (deps fi.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target pl.mo)
+ (deps pl.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target pl.json)
+ (deps pl.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
 (install
  (package belenios-server)
  (section share)
@@ -169,4 +189,8 @@
   (nl.mo as locales/voter/nl.mo)
   (nl.json as locales/voter/nl.json)
   (sk.mo as locales/voter/sk.mo)
-  (sk.json as locales/voter/sk.json)))
+  (sk.json as locales/voter/sk.json)
+  (fi.mo as locales/voter/fi.mo)
+  (fi.json as locales/voter/fi.json)
+  (pl.mo as locales/voter/pl.mo)
+  (pl.json as locales/voter/pl.json)))

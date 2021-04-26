@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -262,6 +262,13 @@ type add_account_error =
 
 include MakeGenerateToken (LwtRandom)
 
+let format_password x =
+  if String.length x = 15 then (
+    String.sub x 0 5
+    ^ "-" ^ String.sub x 5 5
+    ^ "-" ^ String.sub x 10 5
+  ) else x
+
 let string_of_user {user_domain; user_name} =
   user_domain ^ ":" ^ user_name
 
@@ -284,6 +291,7 @@ type mail_kind =
   | MailAutomaticWarning of uuid
   | MailAccountCreation
   | MailPasswordChange
+  | MailLogin
 
 let stringuuid_of_mail_kind = function
   | MailCredential uuid -> "credential", Some uuid
@@ -292,6 +300,7 @@ let stringuuid_of_mail_kind = function
   | MailAutomaticWarning uuid -> "autowarning", Some uuid
   | MailAccountCreation -> "account-creation", None
   | MailPasswordChange -> "password-change", None
+  | MailLogin -> "login", None
 
 let send_email kind ~recipient ~subject ~body =
   let contents =
@@ -350,7 +359,8 @@ let split_identity_opt x =
 let available_languages = [
     "en"; "fr"; "de"; "ro"; "it";
     "nb"; "es"; "uk"; "cs"; "oc";
-    "pt_BR"; "el"; "nl"; "sk";
+    "pt_BR"; "el"; "nl"; "sk"; "fi";
+    "pl";
   ]
 
 let get_languages xs =

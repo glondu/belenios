@@ -1,3 +1,12 @@
+1.15
+====
+
+ * All authentication systems available for voters must be explicitly
+   listed in the configuration file with the new `<auth-export>`
+   directive. Look at `demo/ocsigenserver.conf.in` for examples. In
+   particular, password and (generic) CAS authentications are not shown
+   by default.
+
 1.11
 ====
 

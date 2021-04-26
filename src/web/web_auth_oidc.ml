@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -87,7 +87,7 @@ let split_prefix_path url =
   let i = String.rindex url '/' in
   String.sub url 0 i, [String.sub url (i+1) (n-i-1)]
 
-let oidc_login_handler a ~state =
+let oidc_login_handler _ a ~state =
   let get x = List.assoc_opt x a.auth_config in
   match get "server", get "client_id" with
   | Some server, Some client_id ->
@@ -103,7 +103,7 @@ let oidc_login_handler a ~state =
      let service = preapply ~service:auth_endpoint
        (Lazy.force oidc_self, ("code", (client_id, ("openid email", (state, "consent")))))
      in
-     Eliom_registration.(Redirection.send (Redirection service))
+     return @@ Web_auth.Redirection (Eliom_registration.Redirection service)
   | _ -> failwith "oidc_login_handler invoked with bad config"
 
 let run_post_login_handler =
@@ -115,24 +115,23 @@ let oidc_handler params () =
   match code, state with
   | Some code, Some state ->
      run_post_login_handler ~state
-       (fun _ a authenticate ->
-         let get x = List.assoc_opt x a.auth_config in
-         match get "client_id", get "client_secret" with
-         | Some client_id, Some client_secret ->
-            let* ocfg =
-              let* config = Eliom_reference.get oidc_config in
-              match config with
-              | None -> failwith "oidc handler was invoked without discovered configuration"
-              | Some x -> return x
-            in
-            let* () = Eliom_reference.unset oidc_config in
-            let* name = oidc_get_name ocfg client_id client_secret code in
-            (match name with
-             | Some name -> authenticate name >>= fun x -> return (Ok x)
-             | None -> return (Error ())
-            )
-         | _, _ -> fail_http 503
-       )
+       {
+         Web_auth.post_login_handler =
+           fun _ a cont ->
+           let get x = List.assoc_opt x a.auth_config in
+           match get "client_id", get "client_secret" with
+           | Some client_id, Some client_secret ->
+              let* ocfg =
+                let* config = Eliom_reference.get oidc_config in
+                match config with
+                | None -> failwith "oidc handler was invoked without discovered configuration"
+                | Some x -> return x
+              in
+              let* () = Eliom_reference.unset oidc_config in
+              let* name = oidc_get_name ocfg client_id client_secret code in
+              cont name
+           | _, _ -> fail_http 503
+       }
   | _, _ -> fail_http 401
 
 let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler

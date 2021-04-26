@@ -1,5 +1,5 @@
 // BELENIOS
-// Copyright © 2019-2020 Inria, uses JSBN by Tom Wu
+// Copyright © 2012-2021 Inria, uses JSBN by Tom Wu
 // See "LICENSE" for details.
 
 // The following is an implementation of big integer operations needed by Belenios
@@ -73,6 +73,7 @@ function getNative () {
             return S;
         },
         modInverse: function(a, m) {
+            if (m == ZERO) throw "modInverse called with modulus zero";
             var b = extEuclide(a, m);
             if (b[0] != ONE) throw "modInverse called on not-coprime numbers";
             var r = b[1] % m; if (r < ZERO) r += m;

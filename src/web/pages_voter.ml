@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -1178,27 +1178,24 @@ let mail_password l title login password weight url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
-  add_sentence b (s_ "You are listed as a voter for the election"); add_newline b;
+  add_sentence b (s_ "Please find below your login and password for the election"); add_newline b;
   add_newline b;
   add_string b "  "; add_string b title; add_newline b;
   add_newline b;
-  add_sentence b (s_ "You will find below your login and password.");
-  add_sentence b (s_ "To cast a vote, you will also need a credential, sent in a separate email.");
-  add_sentence b (s_ "Be careful, passwords and credentials look similar but play different roles.");
-  add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
-  add_sentence b (s_ "Login and passwords are required once your ballot is ready to be cast.");
+  add_sentence b (s_ "Note that you also need a credential, sent in a separate email, to start voting.");
   add_newline b;
   add_newline b;
   add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Password:"); add_string b " "; add_string b password; add_newline b;
+  add_newline b;
   (match weight with
    | Some weight ->
-      add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+      add_string b (s_ "Number of votes:"); add_string b " "; add_string b (string_of_int weight); add_newline b
    | None -> ()
   );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;
-  add_sentence b (s_ "Note that you are allowed to vote several times.");
+  add_sentence b (s_ "You are allowed to vote several times.");
   add_sentence b (s_ "Only the last vote counts.");
   contact_footer l metadata b;
   contents b
@@ -1209,7 +1206,10 @@ let generate_password metadata langs title uuid url id show_weight =
   let recipient, login, weight = split_identity id in
   let weight = if show_weight then Some weight else None in
   let* salt = generate_token () in
-  let* password = generate_token () in
+  let* password =
+    let* x = generate_token ~length:15 () in
+    return (format_password x)
+  in
   let hashed = sha256_hex (salt ^ password) in
   let* bodies = Lwt_list.map_s (fun lang ->
     let* l = Web_i18n.get_lang_gettext "voter" lang in
@@ -1225,7 +1225,7 @@ let generate_password metadata langs title uuid url id show_weight =
   let* () = send_email (MailPassword uuid) ~recipient ~subject ~body in
   return (salt, hashed)
 
-let mail_credential l title cas ~login cred weight url metadata =
+let mail_credential l has_passwords title ~login cred weight url metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
@@ -1234,34 +1234,33 @@ let mail_credential l title cas ~login cred weight url metadata =
   add_string b "  "; add_string b title; add_newline b;
   add_newline b;
   add_sentence b (s_ "You will find below your credential.");
-  if not cas then (
+  add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
+  if has_passwords then (
     add_sentence b (s_ "To cast a vote, you will also need a password, sent in a separate email.");
-    add_sentence b (s_ "Be careful, passwords and credentials look similar but play different roles.");
-    add_sentence b (s_ "You will be asked to enter your credential before entering the voting booth.");
-    add_sentence b (s_ "Login and passwords are required once your ballot is ready to be cast.");
   );
   add_newline b;
   add_newline b;
-  add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   add_string b (s_ "Credential:"); add_string b " "; add_string b cred; add_newline b;
+  add_newline b;
+  add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   (match weight with
    | Some weight ->
-      add_string b (s_ "Weight:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+      add_string b (s_ "Number of votes:"); add_string b " "; add_string b (string_of_int weight); add_newline b
    | None -> ()
   );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
   add_newline b;
-  add_sentence b (s_ "Note that you are allowed to vote several times.");
+  add_sentence b (s_ "You are allowed to vote several times.");
   add_sentence b (s_ "Only the last vote counts.");
   contact_footer l metadata b;
   contents b
 
-let generate_mail_credential langs title cas ~login cred weight url metadata =
+let generate_mail_credential langs has_passwords title ~login cred weight url metadata =
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
         let* l = Web_i18n.get_lang_gettext "voter" lang in
-        return (mail_credential l title cas ~login cred weight url metadata)
+        return (mail_credential l has_passwords title ~login cred weight url metadata)
       ) langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in

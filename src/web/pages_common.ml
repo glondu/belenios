@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -79,7 +79,7 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
   in
   let lang_box =
     match lang_box with
-    | None -> div []
+    | None -> txt ""
     | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
   let* warning = match !Web_config.warning_file with
@@ -269,7 +269,7 @@ let make_a_with_hash ~service ?hash ?style contents =
   in
   Eliom_content.Html.F.Raw.a ~a:(href @ style) [txt contents]
 
-let a_mailto ~dest ~subject ~body contents =
+let a_mailto ?(dest = "") ~subject ~body contents =
   let uri = Printf.sprintf "mailto:%s?subject=%s&body=%s" dest
     (Netencoding.Url.encode ~plus:false subject)
     (Netencoding.Url.encode ~plus:false body)
@@ -306,6 +306,11 @@ let raw_textarea ?rows ?cols id contents =
   in
   Eliom_content.Html.F.Raw.textarea ~a:(id @ rows @ cols) (txt contents)
 
+let login_title service =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  return @@ Printf.sprintf (f_ "Log in with %s") service
+
 let login_choose auth_systems service () =
   let* l = get_preferred_gettext () in
   let open (val l) in
@@ -322,18 +327,16 @@ let login_choose auth_systems service () =
   ] in
   responsive_base ~title:(s_ "Log in") ~content ()
 
-let login_dummy ~state =
-  let title, field_name, input_type =
-    "Dummy login", "Username:", `Text
-  in
-  let form = post_form ~service:dummy_post
+let login_generic ~service ~state =
+  let field_name, input_type = "Username:", `Text in
+  let form = post_form ~service
     (fun (nstate, name) ->
       [
         input ~input_type:`Hidden ~name:nstate ~value:state string;
         tablex [tbody [
           tr [
-            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name name)] [txt field_name]];
-            td [input ~input_type ~name string];
+            th [label ~a:[a_label_for "username"] [txt field_name]];
+            td [input ~a:[a_id "username"] ~input_type ~name string];
           ]]
         ];
         div [
@@ -341,10 +344,10 @@ let login_dummy ~state =
         ]
       ]) ()
   in
-  let content = [
-    form;
-  ] in
-  responsive_base ~title ~content ()
+  return @@ div [form]
+
+let login_dummy = login_generic ~service:dummy_post
+let login_email = login_generic ~service:email_post
 
 let login_password ~service ~allowsignups ~state =
   let* l = get_preferred_gettext () in
@@ -367,12 +370,12 @@ let login_password ~service ~allowsignups ~state =
         input ~input_type:`Hidden ~name:lstate ~value:state string;
         tablex ~a:[a_class ["authentication-table"]] [tbody [
           tr [
-            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name llogin)] [txt (s_ "Username:")]];
-            td [input ~a:[a_class ["nice-text-input"]] ~input_type:`Text ~name:llogin string];
+            th [label ~a:[a_label_for "username"] [txt (s_ "Username:")]];
+            td [input ~a:[a_id "username"; a_class ["nice-text-input"]] ~input_type:`Text ~name:llogin string];
           ];
           tr [
-            th [label ~a:[a_label_for (Eliom_parameter.string_of_param_name lpassword)] [txt (s_ "Password:")]];
-            td [input ~a:[a_class ["nice-password-input"]] ~input_type:`Password ~name:lpassword string];
+            th [label ~a:[a_label_for "password"] [txt (s_ "Password:")]];
+            td [input ~a:[a_id "password"; a_class ["nice-password-input"]] ~input_type:`Password ~name:lpassword string];
           ];
         ]];
         div ~a:[a_style "text-align: center;"] [
@@ -380,11 +383,7 @@ let login_password ~service ~allowsignups ~state =
         ]
       ]) ()
   in
-  let content = [
-    form;
-    signup;
-  ] in
-  responsive_base ~title:(s_ "Password login") ~content ()
+  return @@ div [form; signup]
 
 let login_failed ~service () =
   let* l = get_preferred_gettext () in
@@ -401,3 +400,96 @@ let login_failed ~service () =
     ]
   in
   responsive_base ~title ~content ()
+
+let email_login () =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  let form =
+    post_form ~service:email_login_post
+      (fun lcode ->
+        [
+          div [
+              txt (s_ "Please enter the verification code received by e-mail:");
+              txt " ";
+              input ~input_type:`Text ~name:lcode string;
+            ];
+          div [
+              input ~input_type:`Submit ~value:(s_ "Submit") string;
+            ];
+        ]
+      ) ()
+  in
+  let content = [form] in
+  base ~title:(s_ "Log in") ~content ()
+
+let email_email ~address ~code =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Your e-mail address has been used to log in to our Belenios server.");
+  add_sentence b (s_ "Use the following code:");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b code;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Best regards,");
+  add_newline b; add_newline b;
+  add_string b "-- ";
+  add_newline b;
+  add_string b (s_ "Belenios Server");
+  let body = contents b in
+  let subject = s_ "Belenios login" in
+  Lwt.return (subject, body)
+
+let signup_captcha_img challenge =
+  let src = make_uri ~service:signup_captcha_img challenge in
+  img ~src ~alt:"CAPTCHA" ()
+
+let format_captcha_error l e =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  match e with
+  | None -> txt ""
+  | Some x ->
+     let msg = match x with
+       | BadCaptcha -> s_ "Bad security code!"
+       | BadAddress -> s_ "Bad e-mail address!"
+     in
+     div ~a:[a_style "color: red;"] [txt msg]
+
+let login_email_captcha ~state error challenge email =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  let form =
+    post_form ~service:email_captcha_post
+      (fun (lstate, (lchallenge, (lresponse, lemail))) ->
+        [
+          div [
+              txt (s_ "E-mail address:");
+              txt " ";
+              input ~input_type:`Text ~name:lemail ~value:email string;
+            ];
+          div [
+              input ~input_type:`Hidden ~name:lstate ~value:state string;
+              input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
+              txt (s_ "Please enter ");
+              signup_captcha_img challenge;
+              txt (s_ " in the following box: ");
+              input ~input_type:`Text ~name:lresponse string;
+            ];
+          div [
+              input ~input_type:`Submit ~value:(s_ "Submit") string;
+            ];
+        ]
+      ) ()
+  in
+  let error = format_captcha_error l error in
+  return @@ div [error; form]
+
+let login_email_not_now () =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  return @@ div [txt (s_ "You cannot log in now. Please try later.")]

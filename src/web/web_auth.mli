@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -21,13 +21,22 @@
 
 open Web_serializable_t
 
-type result = Eliom_registration.Html.result
+type result =
+  | Html : Html_types.div Eliom_content.Html.elt -> result
+  | Redirection : 'a Eliom_registration.redirection -> result
 
-type pre_login_handler = auth_config -> state:string -> result Lwt.t
+type pre_login_handler =
+  uuid option -> auth_config -> state:string -> result Lwt.t
 
 type post_login_handler =
-  uuid option -> auth_config -> (string -> unit Lwt.t) -> (unit, unit) Stdlib.result Lwt.t
+  {
+    post_login_handler :
+      'a. uuid option -> auth_config ->
+      (string option -> 'a Lwt.t) -> 'a Lwt.t
+  }
 
 val register_pre_login_handler :
   auth_system:string -> pre_login_handler ->
-  state:string -> post_login_handler -> result Lwt.t
+  state:string -> post_login_handler -> Eliom_registration.Html.result Lwt.t
+
+val get_site_login_handler : string -> result Lwt.t

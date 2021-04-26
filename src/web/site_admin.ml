@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -381,17 +381,17 @@ let () =
 
 let () = Html.register ~service:admin
   (fun () () ->
-    let* gdpr = Eliom_reference.get Web_state.show_cookie_disclaimer in
-    if gdpr then Pages_admin.privacy_notice ContAdmin else
     let* site_user = Eliom_reference.get Web_state.site_user in
-    let* elections =
-      match site_user with
-      | None -> return_none
-      | Some u ->
+    match site_user with
+    | None -> Pages_admin.admin_login Web_auth.get_site_login_handler
+    | Some u ->
+       let* show = Eliom_reference.get Web_state.show_cookie_disclaimer in
+       if show then (
+         Pages_admin.privacy_notice ContAdmin
+       ) else (
          let* elections = get_elections_by_owner_sorted u in
-         return_some elections
-    in
-    Pages_admin.admin ~elections ()
+         Pages_admin.admin ~elections
+       )
   )
 
 let generate_uuid () =
@@ -408,6 +408,7 @@ let create_new_election owner cred auth =
     | `Password -> Some [{auth_system = "password"; auth_instance = "password"; auth_config = []}]
     | `Dummy -> Some [{auth_system = "dummy"; auth_instance = "dummy"; auth_config = []}]
     | `CAS server -> Some [{auth_system = "cas"; auth_instance = "cas"; auth_config = ["server", server]}]
+    | `Import name -> Some [{auth_system = "import"; auth_instance = name; auth_config = []}]
   in
   let* uuid = generate_uuid () in
   let* token = generate_token () in
@@ -473,6 +474,12 @@ let () = Any.register ~service:election_draft_new
           | Some "password" -> return `Password
           | Some "dummy" -> return `Dummy
           | Some "cas" -> return @@ `CAS (PString.trim cas_server)
+          | Some x ->
+             let n = PString.length x in
+             if n > 1 && PString.get x 0 = '%' then (
+               let name = PString.sub x 1 (n - 1) in
+               return @@ `Import name
+             ) else fail_http 400
           | _ -> fail_http 400
         in
         match auth with
@@ -1149,9 +1156,9 @@ let () =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
                   let recipient, login, weight = split_identity v.sv_id in
                   let oweight = if show_weight then Some weight else None in
-                  let cas =
+                  let has_passwords =
                     match se.se_metadata.e_auth_config with
-                    | Some [{auth_system = "cas"; _}] -> true
+                    | Some [{auth_system = "password"; _}] -> true
                     | _ -> false
                   in
                   let* cred = CG.generate () in
@@ -1161,8 +1168,8 @@ let () =
                   in
                   let langs = get_languages se.se_metadata.e_languages in
                   let* subject, body =
-                    Pages_voter.generate_mail_credential langs
-                      title cas ~login cred oweight url se.se_metadata
+                    Pages_voter.generate_mail_credential langs has_passwords
+                      title ~login cred oweight url se.se_metadata
                   in
                   let* () = send_email (MailCredential uuid) ~recipient ~subject ~body in
                   return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)
@@ -1647,18 +1654,6 @@ let () =
             | Error msg ->
                let service = preapply ~service:election_admin uuid in
                Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-          ) else forbidden ()
-        )
-    )
-
-let () =
-  Any.register ~service:election_archive
-    (fun uuid () ->
-      with_site_user (fun u ->
-          let* metadata = Web_persist.get_election_metadata uuid in
-          if metadata.e_owner = Some u then (
-            let* () = archive_election uuid in
-            redir_preapply election_admin uuid ()
           ) else forbidden ()
         )
     )
@@ -2509,7 +2504,7 @@ let signup_captcha_handler service error email =
   let open (val l) in
   let* b = Captcha_throttle.wait captcha_throttle 0 in
   if b then
-    let* challenge = Web_signup.create_captcha () in
+    let* challenge = Web_captcha.create_captcha () in
     Pages_admin.signup_captcha ~service error challenge email
   else
     let service = preapply ~service:signup_captcha service in
@@ -2532,19 +2527,16 @@ let () =
       let* l = get_preferred_gettext () in
       let open (val l) in
       let* error =
-        let* ok = Web_signup.check_captcha ~challenge ~response in
+        let* ok = Web_captcha.check_captcha ~challenge ~response in
         if ok then
           if is_email email then return_none else return_some BadAddress
         else return_some BadCaptcha
       in
       match error with
       | None ->
-         let* () = Web_signup.send_confirmation_link ~service email in
-         let message =
-           Printf.sprintf
-             (f_ "An e-mail was sent to %s with a confirmation link. Please click on it to complete account creation.") email
-         in
-         Pages_common.generic_page ~title:(s_ "Account creation") message ()
+         let* () = Web_signup.send_confirmation_link l ~service email in
+         let* () = Eliom_reference.set Web_state.signup_address (Some email) in
+         Pages_admin.signup_login ()
       | _ -> signup_captcha_handler service error email
     )
 
@@ -2553,7 +2545,7 @@ let changepw_captcha_handler service error email username =
   let open (val l) in
   let* b = Captcha_throttle.wait captcha_throttle 1 in
   if b then
-    let* challenge = Web_signup.create_captcha () in
+    let* challenge = Web_captcha.create_captcha () in
     Pages_admin.signup_changepw ~service error challenge email username
   else
     let service = preapply ~service:changepw_captcha service in
@@ -2570,7 +2562,7 @@ let () =
       let* l = get_preferred_gettext () in
       let open (val l) in
       let* error =
-        let* ok = Web_signup.check_captcha ~challenge ~response in
+        let* ok = Web_captcha.check_captcha ~challenge ~response in
         if ok then return_none
         else return_some BadCaptcha
       in
@@ -2586,42 +2578,38 @@ let () =
                     username email service
                 )
            | Some (username, address) ->
-              Web_signup.send_changepw_link ~service ~address ~username
+              let* () = Eliom_reference.set Web_state.signup_address (Some address) in
+              Web_signup.send_changepw_link l ~service ~address ~username
          in
-         let message =
-           s_ "If the account exists, an e-mail was sent with a confirmation link. Please click on it to change your password."
-         in
-         Pages_common.generic_page ~title:(s_ "Change password") message ()
+         Pages_admin.signup_login ()
       | _ -> changepw_captcha_handler service error email username
     )
 
 let () =
-  String.register ~service:signup_captcha_img
-    (fun challenge () -> Web_signup.get_captcha ~challenge)
-
-let () =
-  Any.register ~service:signup_login
-    (fun () () -> Pages_admin.signup_login () >>= Html.send)
-
-let () =
   Any.register ~service:signup_login_post
-    (fun () token ->
-      let* x = Web_signup.confirm_link token in
-      match x with
+    (fun () code ->
+      let code = PString.trim code in
+      let* address = Eliom_reference.get Web_state.signup_address in
+      match address with
       | None -> forbidden ()
-      | Some env ->
-         let* () = Eliom_reference.set Web_state.signup_env (Some env) in
-         redir_preapply signup () ()
+      | Some address ->
+         let* x = Web_signup.confirm_link address in
+         match x with
+         | Some (code2, service, kind) when code = code2 ->
+            let* () = Eliom_reference.set Web_state.signup_env (Some (service, kind)) in
+            redir_preapply signup () ()
+         | _ -> forbidden ()
     )
 
 let () =
   Html.register ~service:signup
     (fun () () ->
+      let* address = Eliom_reference.get Web_state.signup_address in
       let* x = Eliom_reference.get Web_state.signup_env in
-      match x with
-      | None -> forbidden ()
-      | Some (_, _, address, Web_signup.CreateAccount) -> Pages_admin.signup address None ""
-      | Some (_, _, address, Web_signup.ChangePassword username) -> Pages_admin.changepw ~username ~address None
+      match address, x with
+      | Some address, Some (_, `CreateAccount) -> Pages_admin.signup address None ""
+      | Some address, Some (_, `ChangePassword username) -> Pages_admin.changepw ~username ~address None
+      | _ -> forbidden ()
     )
 
 let () =
@@ -2629,15 +2617,17 @@ let () =
     (fun () (username, (password, password2)) ->
       let* l = get_preferred_gettext () in
       let open (val l) in
+      let* address = Eliom_reference.get Web_state.signup_address in
       let* x = Eliom_reference.get Web_state.signup_env in
-      match x with
-      | Some (token, service, email, Web_signup.CreateAccount) ->
+      match address, x with
+      | Some email, Some (service, `CreateAccount) ->
          if password = password2 then (
            let user = { user_name = username; user_domain = service } in
            let* x = Web_auth_password.add_account user ~password ~email in
            match x with
            | Ok () ->
-              let* () = Web_signup.remove_link token in
+              let* () = Web_signup.remove_link email in
+              let* () = Eliom_reference.unset Web_state.signup_address in
               let* () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
               Pages_common.generic_page ~title:(s_ "Account creation") ~service (s_ "The account has been created.") ()
@@ -2651,15 +2641,17 @@ let () =
     (fun () (password, password2) ->
       let* l = get_preferred_gettext () in
       let open (val l) in
+      let* address = Eliom_reference.get Web_state.signup_address in
       let* x = Eliom_reference.get Web_state.signup_env in
-      match x with
-      | Some (token, service, address, Web_signup.ChangePassword username) ->
+      match address, x with
+      | Some address, Some (service, `ChangePassword username) ->
          if password = password2 then (
            let user = { user_name = username; user_domain = service } in
            let* x = Web_auth_password.change_password user ~password in
            match x with
            | Ok () ->
-              let* () = Web_signup.remove_link token in
+              let* () = Web_signup.remove_link address in
+              let* () = Eliom_reference.unset Web_state.signup_address in
               let* () = Eliom_reference.unset Web_state.signup_env in
               let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
               Pages_common.generic_page ~title:(s_ "Change password") ~service (s_ "The password has been changed.") ()
@@ -2678,37 +2670,31 @@ let extract_automatic_data_draft uuid_s =
   match election with
   | None -> return_none
   | Some se ->
-     let name = se.se_questions.t_name in
-     let contact = se.se_metadata.e_contact in
      let t = Option.get se.se_creation_date default_creation_date in
      let next_t = datetime_add t (day days_to_delete) in
-     return_some (`Destroy, uuid, next_t, name, contact)
+     return_some (`Destroy, uuid, next_t)
 
 let extract_automatic_data_validated uuid_s =
   let uuid = uuid_of_raw_string uuid_s in
   let* election = Web_persist.get_raw_election uuid in
   match election with
   | None -> return_none
-  | Some election ->
-     let election = Election.of_string election in
-     let* metadata = Web_persist.get_election_metadata uuid in
-     let name = election.e_params.e_name in
-     let contact = metadata.e_contact in
+  | Some _ ->
      let* state = Web_persist.get_election_state uuid in
      let* dates = Web_persist.get_election_dates uuid in
      match state with
      | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
         let t = Option.get dates.e_finalization default_validation_date in
         let next_t = datetime_add t (day days_to_delete) in
-        return_some (`Delete, uuid, next_t, name, contact)
+        return_some (`Delete, uuid, next_t)
      | `Tallied ->
         let t = Option.get dates.e_tally default_tally_date in
         let next_t = datetime_add t (day days_to_archive) in
-        return_some (`Archive, uuid, next_t, name, contact)
+        return_some (`Archive, uuid, next_t)
      | `Archived ->
         let t = Option.get dates.e_archive default_archive_date in
         let next_t = datetime_add t (day days_to_delete) in
-        return_some (`Delete, uuid, next_t, name, contact)
+        return_some (`Delete, uuid, next_t)
 
 let try_extract extract x =
   Lwt.catch
@@ -2729,12 +2715,7 @@ let get_next_actions () =
       )
     )
 
-let mail_automatic_warning : ('a, 'b, 'c, 'd, 'e, 'f) format6 =
-  "The election %s will be automatically %s after %s.
-
--- \nBelenios"
-
-let process_election_for_data_policy (action, uuid, next_t, name, contact) =
+let process_election_for_data_policy (action, uuid, next_t) =
   let uuid_s = raw_string_of_uuid uuid in
   let now = now () in
   let action, comment = match action with
@@ -2748,36 +2729,7 @@ let process_election_for_data_policy (action, uuid, next_t, name, contact) =
         Printf.ksprintf Ocsigen_messages.warning
           "Election %s has been automatically %s" uuid_s comment
       )
-  ) else (
-    let mail_t = datetime_add next_t (day (-days_to_mail)) in
-    if datetime_compare now mail_t > 0 then (
-      let* dates = Web_persist.get_election_dates uuid in
-      let send = match dates.e_last_mail with
-        | None -> true
-        | Some t ->
-           let next_mail_t = datetime_add t (day days_between_mails) in
-           datetime_compare now next_mail_t > 0
-      in
-      if send then (
-        match contact with
-        | None -> return_unit
-        | Some contact ->
-           match extract_email contact with
-           | None -> return_unit
-           | Some recipient ->
-              let subject =
-                Printf.sprintf "Election %s will be automatically %s soon"
-                  name comment
-              in
-              let body =
-                Printf.sprintf mail_automatic_warning
-                  name comment (format_datetime next_t)
-              in
-              let* () = send_email (MailAutomaticWarning uuid) ~recipient ~subject ~body in
-              Web_persist.set_election_dates uuid {dates with e_last_mail = Some now}
-      ) else return_unit
-    ) else return_unit
-  )
+  ) else return_unit
 
 let rec data_policy_loop () =
   let open Ocsigen_messages in

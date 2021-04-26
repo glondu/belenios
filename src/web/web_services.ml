@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -91,7 +91,6 @@ let election_close = create_attached_post ~csrf_safe:true ~fallback:election_adm
 let election_hide_result = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:(string "date") ()
 let election_show_result = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_auto_post = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:(string "open" ** string "close") ()
-let election_archive = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_delete = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_vote = create ~path:(Path ["vote.html"]) ~meth:(Get unit) ()
 let election_cast = create ~path:(Path ["election"; "cast"]) ~meth:(Get (uuid "uuid")) ()
@@ -123,6 +122,9 @@ let election_tally_release = create_attached_post ~csrf_safe:true ~fallback:elec
 let election_dir = create ~path:(Path ["elections"]) ~meth:(Get (suffix (uuid "uuid" ** election_file "file"))) ()
 
 let dummy_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "username")) ()
+let email_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "username")) ()
+let email_captcha_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "challenge" ** string "response" ** string "username")) ()
+let email_login_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "code")) ()
 let password_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "username" ** string "password")) ()
 
 let set_language = create ~csrf_safe:true ~path:No_path ~meth:(Get (string "lang" ** site_cont "cont")) ()
@@ -130,8 +132,7 @@ let set_language = create ~csrf_safe:true ~path:No_path ~meth:(Get (string "lang
 let signup_captcha = create ~path:(Path ["signup"; ""]) ~meth:(Get (string "service")) ()
 let signup_captcha_post = create_attached_post ~csrf_safe:true ~fallback:signup_captcha ~post_params:(string "challenge" ** string "response" ** string "email") ()
 let signup_captcha_img = create ~path:(Path ["signup"; "captcha"]) ~meth:(Get (string "challenge")) ()
-let signup_login = create ~path:(Path ["signup"; "login"]) ~meth:(Get unit) ()
-let signup_login_post = create_attached_post ~csrf_safe:true ~fallback:signup_login ~post_params:(string "token") ()
+let signup_login_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "code")) ()
 let signup = create ~path:(Path ["signup"; "account"]) ~meth:(Get unit) ()
 let signup_post = create_attached_post ~csrf_safe:true ~fallback:signup ~post_params:(string "username" ** string "password" ** string "password2") ()
 

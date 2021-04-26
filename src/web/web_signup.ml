@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -20,75 +20,19 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_platform
 open Belenios
-open Platform
 open Common
 open Web_serializable_builtin_t
 open Web_common
 
-type captcha = {
-    content_type : string;
-    contents : string;
-    response : string;
-    c_expiration_time : datetime;
-  }
-
-let captchas = ref SMap.empty
-
-let filter_captchas_by_time table =
-  let now = now () in
-  SMap.filter (fun _ {c_expiration_time; _} ->
-      datetime_compare now c_expiration_time <= 0
-    ) table
-
-let format_content_type = function
-  | "png" -> "image/png"
-  | x -> Printf.ksprintf failwith "Unknown captcha type: %s" x
-
-let captcha =
-  let x = "belenios-captcha" in (x, [| x |])
-
-let create_captcha () =
-  let* raw = Lwt_process.pread_lines captcha |> Lwt_stream.to_list in
-  match raw with
-  | content_type :: response :: contents ->
-     let content_type = format_content_type content_type in
-     let contents =
-       let open Cryptokit in
-       String.concat "\n" contents |> transform_string (Base64.decode ())
-     in
-     let challenge = sha256_b64 contents in
-     let c_expiration_time = datetime_add (now ()) (second 300.) in
-     let x = { content_type; contents; response; c_expiration_time } in
-     captchas := SMap.add challenge x !captchas;
-     Lwt.return challenge
-  | _ ->
-     Lwt.fail (Failure "Captcha generation failed")
-
-let get challenge =
-  captchas := filter_captchas_by_time !captchas;
-  SMap.find_opt challenge !captchas
-
-let get_captcha ~challenge =
-  match get challenge with
-  | None -> fail_http 404
-  | Some {content_type; contents; _} -> Lwt.return (contents, content_type)
-
-let check_captcha ~challenge ~response =
-  match get challenge with
-  | None -> Lwt.return false
-  | Some x ->
-     captchas := SMap.remove challenge !captchas;
-     Lwt.return (response = x.response)
-
 type link_kind =
-  | CreateAccount
-  | ChangePassword of string
+  [ `CreateAccount
+  | `ChangePassword of string
+  ]
 
 type link = {
     service : string;
-    address : string;
+    code : string;
     l_expiration_time : datetime;
     kind : link_kind;
 }
@@ -101,92 +45,37 @@ let filter_links_by_time table =
       datetime_compare now l_expiration_time <= 0
     ) table
 
-let filter_links_by_address address table =
-  SMap.filter (fun _ x -> x.address = address) table
-
-let send_confirmation_link ~service address =
-  let* token = generate_token ~length:20 () in
-  let l_expiration_time = datetime_add (now ()) (day 1) in
-  let kind = CreateAccount in
-  let link = {service; address; l_expiration_time; kind} in
-  let nlinks = filter_links_by_time (filter_links_by_address address !links) in
-  links := SMap.add token link nlinks;
-  let uri =
-    Eliom_uri.make_string_uri ~absolute:true
-      ~service:Web_services.signup_login ()
-    |> rewrite_prefix
-  in
-  let body =
-    Printf.sprintf "\
-Dear %s,
-
-Your e-mail address has been used to create an account on our Belenios
-server. To confirm this creation, please click on the following link:
-
-  %s
-
-or copy and paste it in a web browser.
-
-Verification code: %s
-
-Warning: this code is valid for 1 day, and previous codes sent to this
-address are no longer valid.
-
-Best regards,
-
--- \n\
-Belenios Server" address uri token
-  in
-  let subject = "Belenios account creation" in
+let send_confirmation_link l ~service address =
+  let* code = generate_numeric () in
+  let l_expiration_time = datetime_add (now ()) (second 900.) in
+  let kind = `CreateAccount in
+  let link = {service; code; l_expiration_time; kind} in
+  let nlinks = filter_links_by_time !links in
+  links := SMap.add address link nlinks;
+  let subject, body = Pages_admin.mail_confirmation_link l address code in
   let* () = send_email MailAccountCreation ~recipient:address ~subject ~body in
   Lwt.return_unit
 
-let send_changepw_link ~service ~address ~username =
-  let* token = generate_token ~length:20 () in
-  let l_expiration_time = datetime_add (now ()) (day 1) in
-  let kind = ChangePassword username in
-  let link = {service; address; l_expiration_time; kind} in
-  let nlinks = filter_links_by_time (filter_links_by_address address !links) in
-  links := SMap.add token link nlinks;
-  let uri =
-    Eliom_uri.make_string_uri ~absolute:true
-      ~service:Web_services.signup_login ()
-    |> rewrite_prefix
-  in
-  let body =
-    Printf.sprintf "\
-Dear %s,
-
-There has been a request to change the password of your account on our
-Belenios server. To confirm this, please click on the following link:
-
-  %s
-
-or copy and paste it in a web browser.
-
-Verification code: %s
-
-Warning: this code is valid for 1 day, and previous codes sent to this
-address are no longer valid.
-
-Best regards,
-
--- \n\
-Belenios Server" address uri token
-  in
-  let subject = "Belenios password change" in
+let send_changepw_link l ~service ~address ~username =
+  let* code = generate_numeric () in
+  let l_expiration_time = datetime_add (now ()) (second 900.) in
+  let kind = `ChangePassword username in
+  let link = {service; code; l_expiration_time; kind} in
+  let nlinks = filter_links_by_time !links in
+  links := SMap.add address link nlinks;
+  let subject, body = Pages_admin.mail_changepw_link l address code in
   let* () = send_email MailPasswordChange ~recipient:address ~subject ~body in
   Lwt.return_unit
 
-let confirm_link token =
+let confirm_link address =
   links := filter_links_by_time !links;
-  match SMap.find_opt token !links with
+  match SMap.find_opt address !links with
   | None -> Lwt.return_none
-  | Some x -> Lwt.return_some (token, x.service, x.address, x.kind)
+  | Some x -> Lwt.return_some (x.code, x.service, x.kind)
 
-let remove_link token =
+let remove_link address =
   links := filter_links_by_time !links;
-  links := SMap.remove token !links;
+  links := SMap.remove address !links;
   Lwt.return_unit
 
 let cracklib =

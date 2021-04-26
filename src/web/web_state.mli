@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -32,4 +32,10 @@ val cast_confirmed : (string * int, Web_common.error) result option Eliom_refere
 
 val language : string option Eliom_reference.eref
 
-val signup_env : (string * string * string * Web_signup.link_kind) option Eliom_reference.eref
+type link_kind =
+  [ `CreateAccount
+  | `ChangePassword of string
+  ]
+
+val signup_address : string option Eliom_reference.eref
+val signup_env : (string * link_kind) option Eliom_reference.eref

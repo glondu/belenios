@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -69,7 +69,7 @@ let get_cas_validation server ~state ticket =
      return (parse_cas_validation info)
   | None -> return (`Error `Http)
 
-let cas_login_handler a ~state =
+let cas_login_handler _ a ~state =
   match List.assoc_opt "server" a.Web_serializable_t.auth_config with
   | Some server ->
      let cas_login = Eliom_service.extern
@@ -79,7 +79,7 @@ let cas_login_handler a ~state =
        ()
      in
      let service = preapply ~service:cas_login (cas_self ~state) in
-     Eliom_registration.(Redirection.send (Redirection service))
+     return @@ Web_auth.Redirection (Eliom_registration.Redirection service)
   | _ -> failwith "cas_login_handler invoked with bad config"
 
 let run_post_login_handler =
@@ -87,17 +87,19 @@ let run_post_login_handler =
 
 let cas_handler (state, ticket) () =
   run_post_login_handler ~state
-    (fun _ a authenticate ->
-      match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
-      | Some x, Some server ->
-         let* r = get_cas_validation server ~state x in
-         (match r with
-          | `Yes (Some name) -> authenticate name >>= fun x -> return (Ok x)
-          | `No -> return (Error ())
-          | `Yes None | `Error _ -> fail_http 502
-         )
-      | None, _ -> return (Ok ())
-      | _, None -> fail_http 503
-    )
+    {
+      Web_auth.post_login_handler =
+        fun _ a cont ->
+        match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
+        | Some x, Some server ->
+           let* r = get_cas_validation server ~state x in
+           (match r with
+            | `Yes (Some name) -> cont (Some name)
+            | `No -> cont None
+            | `Yes None | `Error _ -> fail_http 502
+           )
+        | None, _ -> cont None
+        | _, None -> fail_http 503
+    }
 
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler

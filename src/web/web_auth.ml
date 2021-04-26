@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -26,10 +26,16 @@ open Web_serializable_j
 open Web_common
 open Web_services
 
-type result = Eliom_registration.Html.result
+type result =
+  | Html : Html_types.div Eliom_content.Html.elt -> result
+  | Redirection : 'a Eliom_registration.redirection -> result
 
 type post_login_handler =
-  uuid option -> auth_config -> (string -> unit Lwt.t) -> (unit, unit) Stdlib.result Lwt.t
+  {
+    post_login_handler :
+      'a. uuid option -> auth_config ->
+      (string option -> 'a Lwt.t) -> 'a Lwt.t
+  }
 
 let scope = Eliom_common.default_session_scope
 
@@ -52,7 +58,7 @@ let restart_login service = function
   | `Election uuid -> preapply ~service:election_login ((uuid, ()), Some service)
   | `Site cont -> preapply ~service:site_login (Some service, cont)
 
-let run_post_login_handler ~auth_system ~state f =
+let run_post_login_handler ~auth_system ~state {post_login_handler} =
   let* env = Eliom_reference.get auth_env in
   match env with
   | None -> Eliom_registration.Action.send ()
@@ -63,21 +69,24 @@ let run_post_login_handler ~auth_system ~state f =
        >>= Eliom_registration.Html.send ~code:401
      in
      if auth_system = a.auth_system && st = state then
-       let authenticate name =
-         let* () = Eliom_reference.unset auth_env in
-         let user = { user_domain = a.auth_instance; user_name = name } in
-         match uuid with
-         | None -> Eliom_reference.set Web_state.site_user (Some user)
-         | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
+       let cont = function
+         | Some name ->
+            let* () = Eliom_reference.unset auth_env in
+            let user = { user_domain = a.auth_instance; user_name = name } in
+            let* () =
+              match uuid with
+              | None -> Eliom_reference.set Web_state.site_user (Some user)
+              | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
+            in
+            get_cont `Login kind ()
+         | None -> restart_login ()
        in
-       let* x = f uuid a authenticate in
-       match x with
-       | Ok () -> get_cont `Login kind ()
-       | Error () -> restart_login ()
+       post_login_handler uuid a cont
      else
        restart_login ()
 
-type pre_login_handler = auth_config -> state:string -> result Lwt.t
+type pre_login_handler =
+  uuid option -> auth_config -> state:string -> result Lwt.t
 
 let pre_login_handlers = ref []
 
@@ -85,7 +94,7 @@ let get_pre_login_handler uuid kind a =
   let* state = generate_token () in
   let* () = Eliom_reference.set auth_env (Some (uuid, a, kind, state)) in
   match List.assoc_opt a.auth_system !pre_login_handlers with
-  | Some handler -> handler a ~state
+  | Some handler -> handler uuid a ~state
   | None -> fail_http 404
 
 let register_pre_login_handler ~auth_system handler =
@@ -120,7 +129,25 @@ let login_handler service kind =
           let* metadata = Web_persist.get_election_metadata uuid in
           match metadata.e_auth_config with
           | None -> return []
-          | Some x -> return x
+          | Some x ->
+             x
+             |> List.map
+                  (function
+                   | {auth_system = "import"; auth_instance = name; _} ->
+                      (match
+                         List.find_opt
+                           (function
+                            | `Export x -> x.auth_instance = name
+                            | _ -> false
+                           ) !Web_config.exported_auth_config
+                       with
+                       | Some (`Export x) -> [x]
+                       | _ -> []
+                      )
+                   | x -> [x]
+                  )
+             |> List.flatten
+             |> return
      in
      match service with
      | Some s ->
@@ -129,7 +156,13 @@ let login_handler service kind =
           | Some x -> return x
           | None -> fail_http 404
         in
-        get_pre_login_handler uuid kind a
+        let* x = get_pre_login_handler uuid kind a in
+        (match x with
+         | Html x ->
+            let* title = Pages_common.login_title a.auth_instance in
+            Pages_common.base ~title ~content:[x] () >>= Eliom_registration.Html.send
+         | Redirection x -> Eliom_registration.Redirection.send x
+        )
      | None ->
         match c with
         | [s] -> Eliom_registration.(Redirection.send (Redirection (myself (Some s.auth_instance))))
@@ -156,3 +189,8 @@ let () = Eliom_registration.Any.register ~service:logout
 
 let () = Eliom_registration.Any.register ~service:election_login
   (fun ((uuid, ()), service) () -> login_handler service (`Election uuid))
+
+let get_site_login_handler service =
+  match find_auth_instance service !Web_config.site_auth_config with
+  | None -> return @@ Html (Eliom_content.Html.F.div [])
+  | Some a -> get_pre_login_handler None (`Site ContSiteAdmin) a

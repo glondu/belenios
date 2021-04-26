@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -29,6 +29,15 @@ let token_length = 14
 let n58 = Z.of_int 58
 let n53 = Z.of_int 53
 
+let format x =
+  assert (token_length = 14);
+  assert (String.length x = 15);
+  String.sub x 0 3
+  ^ "-" ^ String.sub x 3 3
+  ^ "-" ^ String.sub x 6 3
+  ^ "-" ^ String.sub x 9 3
+  ^ "-" ^ String.sub x 12 3
+
 module MakeGenerate (M : RANDOM) = struct
 
   let get_random_digit () =
@@ -47,15 +56,15 @@ module MakeGenerate (M : RANDOM) = struct
 
   let add_checksum (raw, value) =
     let checksum = 53 - Z.(to_int (value mod n53)) in
-    M.return (raw ^ String.make 1 digits.[checksum])
+    raw ^ String.make 1 digits.[checksum]
 
   let generate () =
-    M.bind (generate_raw_token ()) add_checksum
+    M.bind (generate_raw_token ()) (fun x ->
+        M.return (format (add_checksum x)))
 
 end
 
-let check x =
-  String.length x = token_length + 1 &&
+let check_raw x =
   let rec loop i accu =
     if i < token_length then
       match String.index_opt digits x.[i] with
@@ -66,6 +75,30 @@ let check x =
   match loop 0 Z.zero, String.index_opt digits x.[token_length] with
   | Some n, Some checksum -> Z.((n + of_int checksum) mod n53 =% zero)
   | _, _ -> false
+
+let parse x =
+  let n = String.length x in
+  if n = token_length + 1 then (
+    if check_raw x then `Valid else `Invalid
+  ) else if n = token_length + 5 then (
+    assert (n = 19);
+    if x.[3] = '-' && x.[7] = '-' && x.[11] = '-' && x.[15] = '-' then (
+      let actual =
+        String.sub x 0 3
+        ^ String.sub x 4 3 ^ String.sub x 8 3
+        ^ String.sub x 12 3 ^ String.sub x 16 3
+      in
+      if check_raw actual then `Valid else `Invalid
+    ) else `Invalid
+  ) else if n = token_length + 3 then (
+    assert (n = 17);
+    if x.[5] = '-' && x.[11] = '-' then `MaybePassword else `Invalid
+  ) else `Invalid
+
+let check x =
+  match parse x with
+  | `Valid -> true
+  | `Invalid | `MaybePassword -> false
 
 module MakeDerive (G : GROUP) = struct
 

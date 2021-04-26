@@ -76,7 +76,7 @@ Legal
 By "internal code", we mean everything that is not in the `ext/`
 directory.
 
-Copyright © 2012-2020 Inria, CNRS
+Copyright © 2012-2021 Inria, CNRS
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as

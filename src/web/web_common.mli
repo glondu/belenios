@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -127,6 +127,9 @@ type add_account_error =
   | BadSpaceInPassword
 
 val generate_token : ?length:int -> unit -> string Lwt.t
+val generate_numeric : ?length:int -> unit -> string Lwt.t
+
+val format_password : string -> string
 
 val string_of_user : user -> string
 
@@ -137,6 +140,7 @@ type mail_kind =
   | MailAutomaticWarning of uuid
   | MailAccountCreation
   | MailPasswordChange
+  | MailLogin
 
 val send_email : mail_kind -> recipient:string -> subject:string -> body:string -> unit Lwt.t
 

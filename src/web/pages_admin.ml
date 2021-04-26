@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2020 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -110,7 +110,75 @@ let login_box ?cont () =
   in
   return (div ~a:[a_style style] body)
 
-let admin ~elections () =
+let admin_login get_handler =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  let contact = match !Web_config.contact_uri with
+    | None -> txt ""
+    | Some uri ->
+       div [
+           txt (s_ "If you do not have any account, you may ");
+           direct_a ~target:"_blank" uri (s_ "contact us");
+           txt ".";
+         ]
+  in
+  let* auth_div =
+    match !Web_config.site_auth_config with
+    | [] -> return @@ txt ""
+    | {auth_instance = service; _} :: others ->
+       let* default = get_handler service in
+       let default =
+         match default with
+         | Web_auth.Html x ->
+            div ~a:[a_class ["embedded-login-form"]] [x]
+         | Web_auth.Redirection _ ->
+            div
+              [
+                txt (s_ "Log in with");
+                txt " ";
+                a ~service:site_login [txt service]
+                  (Some service, ContSiteAdmin);
+                txt ".";
+              ]
+       in
+       let others =
+         List.map
+           (fun {auth_instance = service; _} ->
+             div
+               [
+                 txt (s_ "You can also log in with");
+                 txt " ";
+                 a ~service:site_login [txt service]
+                   (Some service, ContSiteAdmin);
+                 txt ".";
+               ]
+           ) others
+       in
+       return @@ div (default :: others)
+  in
+  let* body =
+    match !Web_config.admin_home with
+    | None ->
+       return
+       @@ div [
+              txt (s_ "To administer an election, you need to log in.");
+              contact;
+            ]
+    | Some f ->
+       let* file = read_file f in
+       match file with
+       | None -> fail_http 404
+       | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+  in
+  let content = [
+      body;
+      auth_div;
+    ] in
+  let title = "Belenios" ^ " — " ^ s_ "Verifiable online voting platform" in
+  let* login_box = login_box ~cont:ContSiteAdmin () in
+  base ~title ~login_box ~content ()
+
+let admin ~elections =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let format_election (uuid, name) =
@@ -131,25 +199,7 @@ let admin ~elections () =
   in
   let title = s_ "Election server" ^ " — " ^ s_ "Administration" in
   match elections with
-  | None ->
-     let contact = match !Web_config.contact_uri with
-       | None -> txt ""
-       | Some uri ->
-          div [
-              txt (s_ "If you do not have any account, you may ");
-              direct_a ~target:"_blank" uri (s_ "contact us");
-              txt ".";
-            ]
-     in
-     let content = [
-       div [
-         txt (s_ "To administer an election, you need to log in using one of the authentication methods available in the upper right corner of this page.");
-         contact;
-       ]
-     ] in
-     let* login_box = login_box ~cont:ContSiteAdmin () in
-     base ~title ~login_box ~content ()
-  | Some (draft, elections, tallied, archived) ->
+  | (draft, elections, tallied, archived) ->
     let draft =
       match draft with
       | [] -> p [txt (s_ "You own no such elections!")]
@@ -226,6 +276,45 @@ let election_draft_pre () =
   let form =
     post_form ~service:election_draft_new
       (fun (credmgmt, (auth, cas_server)) ->
+        let auth_systems =
+          !Web_config.exported_auth_config
+          |> List.map
+               (function
+                | `BuiltinPassword ->
+                   div [
+                       label [
+                           radio ~checked:true ~name:auth ~value:"password" string;
+                           txt " ";
+                           txt (s_ "Password (passwords will be emailed to voters)");
+                         ]
+                     ]
+                | `BuiltinCAS ->
+                   div [
+                       label [
+                           radio ~name:auth ~value:"cas" string;
+                           txt " ";
+                           txt (s_ "CAS (external authentication server)");
+                         ];
+                       div ~a:[a_style "margin-left: 5em;"] [
+                           txt (s_ "Server address:");
+                           txt " ";
+                           input ~input_type:`Text ~name:cas_server string;
+                           txt " ";
+                           txt (s_ "(for example: https://cas.inria.fr/cas)");
+                         ];
+                     ]
+                | `Export a ->
+                   div [
+                       label [
+                           radio ~name:auth ~value:("%" ^ a.auth_instance) string;
+                           txt " ";
+                           txt a.auth_instance;
+                           txt " ";
+                           txt (s_ "(imported from server)");
+                         ]
+                     ]
+               )
+        in
         [
           fieldset
             ~legend:(legend [
@@ -236,33 +325,21 @@ let election_draft_pre () =
             ])
             [
               div [
-                radio ~checked:true ~name:credmgmt ~value:"auto" string;
-                txt " ";
-                txt (s_ "Automatic (degraded mode - credentials will be handled by the server)");
-              ];
+                  label [
+                      radio ~checked:true ~name:credmgmt ~value:"auto" string;
+                      txt " ";
+                      txt (s_ "Automatic (degraded mode - credentials will be handled by the server)");
+                    ]
+                ];
               div [
-                radio ~name:credmgmt ~value:"manual" string;
-                txt " ";
-                txt (s_ "Manual (safe mode - a third party will handle the credentials)");
-              ];
+                  label [
+                      radio ~name:credmgmt ~value:"manual" string;
+                      txt " ";
+                      txt (s_ "Manual (safe mode - a third party will handle the credentials)");
+                    ]
+                ];
             ];
-          fieldset
-            ~legend:(legend [txt (s_ "Authentication")])
-            [
-              div [
-                radio ~checked:true ~name:auth ~value:"password" string;
-                txt " ";
-                txt (s_ "Password (passwords will be emailed to voters)");
-              ];
-              div [
-                radio ~name:auth ~value:"cas" string;
-                txt " ";
-                txt (s_ "CAS (external authentication server), server address: ");
-                input ~input_type:`Text ~name:cas_server string;
-                txt " ";
-                txt (s_ "(for example: https://cas.inria.fr/cas)");
-              ];
-            ];
+          fieldset ~legend:(legend [txt (s_ "Authentication")]) auth_systems;
           div [
             input ~input_type:`Submit ~value:(s_ "Proceed") string;
           ];
@@ -300,7 +377,7 @@ let preview_booth l uuid =
       txt " (";
       direct_a (service_new ^ "#" ^ hash) (s_ "new one");
       txt ") ";
-      txt (Printf.sprintf (f_ "(you can use any credential such as %s).") "HsqB3C3y62Ekq4D");
+      txt (Printf.sprintf (f_ "(you can use any credential such as %s).") "123-456-789-abc-deN");
     ]
 
 let election_draft uuid se () =
@@ -435,6 +512,7 @@ let election_draft uuid se () =
     | Some [{auth_system = "password"; _}] -> `Password
     | Some [{auth_system = "dummy"; _}] -> `Dummy
     | Some [{auth_system = "cas"; auth_config = ["server", server]; _}] -> `CAS server
+    | Some [{auth_system = "import"; auth_instance = name; _}] -> `Import name
     | _ -> failwith "unknown authentication scheme in election_draft"
   in
   let div_auth =
@@ -461,6 +539,10 @@ let election_draft uuid se () =
            txt (s_ "Authentication scheme: CAS with server ");
            txt server;
          ]
+      | `Import name ->
+         div [
+             txt (Printf.sprintf (f_ "Authentication scheme: %s (imported from server)") name);
+           ]
     ]
   in
   let div_questions =
@@ -1067,6 +1149,44 @@ let election_draft_threshold_trustees ?token uuid se () =
   let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
+let mail_credential_authority l url =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (s_ "Dear credential authority,"); add_newline b;
+  add_newline b;
+  add_sentence b (s_ "You will find below the link to generate the voters' credentials, one for each voter."); add_newline b;
+  add_newline b;
+  add_string b "  "; add_string b url; add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Here are the instructions:"); add_newline b;
+  add_sentence b (s_ "1. Click on the link."); add_newline b;
+  add_sentence b (s_ "2. Click on \"Generate\"."); add_newline b;
+  add_sentence b (s_ "3. Download the private credentials (creds.txt) and save the file to a secure location."); add_newline b;
+  add_sentence b (s_ "You will use it to send credentials to voters."); add_newline b;
+  add_sentence b (s_ "4. Download the list of voters (voters.txt)."); add_newline b;
+  add_sentence b (s_ "This list must be the one approved by the election commission."); add_newline b;
+  add_sentence b (s_ "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"); add_newline b;
+  add_sentence b (s_ "Once the election is open, you must check that they match with what is published by the server."); add_newline b;
+  add_sentence b (s_ "6. Click on \"Submit the public credentials\"."); add_newline b;
+  add_newline b;
+  add_sentence b (s_ "You will then need to send (typically by email) each private credential to the associated voter as written in the file creds.txt."); add_newline b;
+  add_sentence b (s_ "You may use a script of your own or the one provided in the Belenios distribution, see instructions here:"); add_newline b;
+  add_string b "https://www.belenios.org/instructions.html#instructions-for-the-credential-authority"; add_newline b;
+  add_sentence b (s_ "The page also contains instructions for checking the voting record, after the tally."); add_newline b;
+  add_newline b;
+  add_sentence b (s_ "You may need to resend credentials to voters who have lost them."); add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Once the election is finished and validated, you are expected to destroy the file creds.txt for stronger privacy guarantees."); add_newline b;
+  add_newline b;
+  add_sentence b (s_ "Thank you for your help,"); add_newline b;
+  add_newline b;
+  add_string b "-- "; add_newline b;
+  add_sentence b (s_ "The election administrator");
+  let body = contents b in
+  let subject = s_ "Credential authority link" in
+  subject, body
+
 let election_draft_credential_authority uuid se () =
   let* l = get_preferred_gettext () in
   let open (val l) in
@@ -1093,24 +1213,29 @@ let election_draft_credential_authority uuid se () =
           [txt (s_ "Back to election preparation page")] uuid;
       ]
   in
+  let url =
+    rewrite_prefix
+    @@ Eliom_uri.make_string_uri
+         ~absolute:true
+         ~service:election_draft_credentials
+         (uuid, se.se_public_creds)
+  in
   let content = [
     back;
     public_name_form;
     div [
-      txt (s_ "Please send the credential authority the following link:");
+        let subject, body = mail_credential_authority l url in
+        a_mailto ~subject ~body (s_ "Send instructions to the credential authority");
+      ];
+    div [
+      txt (s_ "Alternatively, you can send the credential authority the following link:");
     ];
     ul [
       li [
         a
           ~a:[a_id "credential_authority_link"]
           ~service:election_draft_credentials
-          [
-            txt @@ rewrite_prefix @@ Eliom_uri.make_string_uri
-              ~absolute:true
-              ~service:election_draft_credentials
-              (uuid, se.se_public_creds)
-          ]
-          (uuid, se.se_public_creds);
+          [txt url] (uuid, se.se_public_creds);
       ];
     ];
     div [
@@ -1343,7 +1468,7 @@ let election_draft_voters uuid se maxvoters () =
             br ();
             b [txt (s_ "Warning:")];
             txt " ";
-            txt (s_ "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the election is set up. Voters with invalid email addresses won't be able to vote.");
+            txt (s_ "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote.");
             br ();
             b [txt (s_ "Warning:")];
             txt " ";
@@ -2530,13 +2655,6 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
       br ();
       hr ();
       archive_date;
-      post_form ~service:election_archive (fun () ->
-        [
-          input ~input_type:`Submit ~value:(s_ "Archive election") string;
-          txt " ";
-          txt (s_ "Warning: This action is irreversible. Archiving an election makes it read-only; in particular, the election will be definitively closed (no vote submission, no vote counting).");
-        ]
-      ) uuid;
     ]
   in
   let* deletion_date = match state with
@@ -2840,21 +2958,6 @@ let tally_trustees election trustee_id token () =
   ] in
   base ~title ~content ~uuid ()
 
-let signup_captcha_img challenge =
-  let src = make_uri ~service:signup_captcha_img challenge in
-  img ~src ~alt:"CAPTCHA" ()
-
-let format_captcha_error l e =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  match e with
-  | None -> txt ""
-  | Some x ->
-     let msg = match x with
-       | BadCaptcha -> s_ "Bad security code!"
-       | BadAddress -> s_ "Bad e-mail address!"
-     in
-     div ~a:[a_style "color: red;"] [txt msg]
-
 let signup_captcha ~service error challenge email =
   let* l = get_preferred_gettext () in
   let open (val l) in
@@ -2921,12 +3024,12 @@ let signup_login () =
   let open (val l) in
   let form =
     post_form ~service:signup_login_post
-      (fun ltoken ->
+      (fun lcode ->
         [
           div [
               txt (s_ "Please enter the verification code received by e-mail:");
               txt " ";
-              input ~input_type:`Text ~name:ltoken string;
+              input ~input_type:`Text ~name:lcode string;
             ];
           div [
               input ~input_type:`Submit ~value:(s_ "Submit") string;
@@ -3051,3 +3154,47 @@ let compute_fingerprint () =
   in
   let content = [interactivity] in
   base ~title:(s_ "Compute fingerprint") ~content ()
+
+let mail_confirmation_link l address code =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Your e-mail address has been used to create an account on our Belenios server.");
+  add_sentence b (s_ "To confirm this creation, please use the following code:");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b code;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Best regards,");
+  add_newline b; add_newline b;
+  add_string b "-- ";
+  add_newline b;
+  add_string b (s_ "Belenios Server");
+  let body = contents b in
+  let subject = s_ "Belenios account creation" in
+  subject, body
+
+let mail_changepw_link l address code =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
+  add_newline b; add_newline b;
+  add_sentence b (s_ "There has been a request to change the password of your account on our Belenios server.");
+  add_sentence b (s_ "To confirm this, please use the following code:");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b code;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Best regards,");
+  add_newline b; add_newline b;
+  add_string b "-- ";
+  add_newline b;
+  add_string b (s_ "Belenios Server");
+  let body = contents b in
+  let subject = s_ "Belenios password change" in
+  subject, body

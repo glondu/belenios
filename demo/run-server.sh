@@ -25,6 +25,11 @@ check_nonempty_var () {
 }
 
 check_nonempty_var BELENIOS_CONFIG
+
+if [ -f ${BELENIOS_CONFIG}.preload ]; then
+   . ${BELENIOS_CONFIG}.preload
+fi
+
 check_nonempty_var BELENIOS_VARDIR
 check_nonempty_var BELENIOS_RUNDIR
 check_nonempty_var BELENIOS_BINDIR
@@ -50,7 +55,7 @@ sed \
 
 cp demo/mime.types $BELENIOS_VARDIR/etc/mime.types
 
-PATH=$BELENIOS_BINDIR:$PATH
+PATH=$BELENIOS_BINDIR:$PATH:/usr/sbin
 
 OCSIGENSERVER=ocsigenserver
 

@@ -543,7 +543,7 @@ pris en compte.
 
 
     def some_voters_revote(self):
-        voters_list_we_pick_from = self.voters_email_addresses_who_have_voted.keys()
+        voters_list_we_pick_from = list(self.voters_email_addresses_who_have_voted.keys())
         voters_who_will_vote_now = random.sample(voters_list_we_pick_from, settings.NUMBER_OF_REVOTING_VOTERS)
         voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, settings.ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)
@@ -552,7 +552,7 @@ pris en compte.
 
 
     def one_voter_revotes_after_the_election_is_closed(self):
-        voters_list_we_pick_from = self.voters_email_addresses_who_have_voted.keys()
+        voters_list_we_pick_from = list(self.voters_email_addresses_who_have_voted.keys())
         voters_who_will_vote_now = random.sample(voters_list_we_pick_from, 1)
         voters_who_will_vote_now_data = populate_credential_and_password_for_voters_from_sent_emails(self.fake_sent_emails_manager, voters_who_will_vote_now, settings.ELECTION_TITLE)
         voters_who_will_vote_now_data = populate_random_votes_for_voters(voters_who_will_vote_now_data)

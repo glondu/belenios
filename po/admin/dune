@@ -118,6 +118,16 @@
  (deps nl.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
+(rule
+ (target pl.mo)
+ (deps pl.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target pl.json)
+ (deps pl.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
 (install
  (package belenios-server)
  (section share)
@@ -145,4 +155,6 @@
   (el.mo as locales/admin/el.mo)
   (el.json as locales/admin/el.json)
   (nl.mo as locales/admin/nl.mo)
-  (nl.json as locales/admin/nl.json)))
+  (nl.json as locales/admin/nl.json)
+  (pl.mo as locales/admin/pl.mo)
+  (pl.json as locales/admin/pl.json)))
