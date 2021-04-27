@@ -1496,7 +1496,7 @@ msgstr "Pomiń"
 
 #: src/web/pages_admin.ml:2779
 msgid "Skipping trustee %s"
-msgstr "Pomijanie członka komisji skrutacyjnej"
+msgstr "Pomijanie członka komisji skrutacyjnej %s"
 
 #: src/web/pages_admin.ml:1057
 msgid "State"
