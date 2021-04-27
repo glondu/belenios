@@ -473,7 +473,11 @@ let () = Any.register ~service:election_draft_new
         let* auth = match auth with
           | Some "password" -> return `Password
           | Some "dummy" -> return `Dummy
-          | Some "cas" -> return @@ `CAS (PString.trim cas_server)
+          | Some "cas" ->
+             (match cas_server with
+              | None -> fail_http 400
+              | Some cas_server -> return @@ `CAS (PString.trim cas_server)
+             )
           | Some x ->
              let n = PString.length x in
              if n > 1 && PString.get x 0 = '%' then (
