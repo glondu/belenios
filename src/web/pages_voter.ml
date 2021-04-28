@@ -195,7 +195,7 @@ let election_home election state () =
     div ~a:[a_style "text-align:center;"] [
       div [
           let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid; "lang", lang] in
-          make_button ~service:election_vote ~hash ~style:"font-size:35px;" ~disabled (s_ "Start");
+          make_button ~service:(election_vote ()) ~hash ~style:"font-size:35px;" ~disabled (s_ "Start");
         ];
       div [
         a
@@ -455,6 +455,7 @@ let cast_raw election () =
     |> Array.to_list
     |> List.map
          (fun (Booth service, name) ->
+           let service = service () in
            li [
                a ~service [txt name] ();
                txt " (";
@@ -641,7 +642,7 @@ let lost_ballot election () =
         ];
       div [
           txt (s_ "If you want to vote, you must ");
-          make_a_with_hash ~service ~hash (s_ "start from the beginning");
+          make_a_with_hash ~service:(service ()) ~hash (s_ "start from the beginning");
           txt ".";
         ];
       div [

@@ -96,19 +96,20 @@ let election_delete = create_attached_post ~csrf_safe:true ~fallback:election_ad
 
 let booth_v1 = create ~path:(Path ["vote.html"]) ~meth:(Get unit) ()
 
-let booth_v2 =
+let booth_v2 () =
   Eliom_service.preapply ~service:(Eliom_service.static_dir ())
     ["static"; "frontend"; "booth"; "vote.html"]
 
 type booth =
   | Booth :
-      (unit, unit, get, att, non_co, non_ext, 'reg, [ `WithoutSuffix ],
-       unit, unit, non_ocaml) Eliom_service.t ->
+      (unit ->
+       (unit, unit, get, att, non_co, non_ext, 'reg, [ `WithoutSuffix ],
+        unit, unit, non_ocaml) Eliom_service.t) ->
       booth
 
 let booths =
   [|
-    Booth booth_v1, "Version 1";
+    Booth (fun () -> booth_v1), "Version 1";
     Booth booth_v2, "Version 2";
   |]
 
