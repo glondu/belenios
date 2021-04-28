@@ -57,6 +57,7 @@ let election_draft_credentials_post = create ~csrf_safe:true ~path:(Path ["draft
 let election_draft_credentials_post_file = create ~csrf_safe:true ~path:(Path ["draft"; "submit-credentials-file"]) ~meth:(Post (uuid_and_token, file "public_creds")) ()
 let election_draft_credentials_server = create_attached_post ~csrf_safe:true ~fallback:election_draft ~post_params:unit ()
 let election_draft_credentials_get = create ~path:(Path ["draft"; "get-credentials"]) ~meth:(Get (uuid "uuid")) ()
+let election_draft_booth_version = create_attached_post ~csrf_safe:true ~fallback:election_draft ~post_params:(string "booth") ()
 
 let election_draft_trustees = create ~path:(Path ["draft"; "trustees"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_trustee = create ~path:(Path ["draft"; "trustee"]) ~meth:(Get uuid_and_token) ()

@@ -539,6 +539,27 @@ let election_draft uuid se () =
            ]
     ]
   in
+  let form_booth =
+    if Array.length Web_services.booths > 1 then (
+      let booths =
+        let current = get_booth_index se.se_metadata.e_booth_version in
+        Web_services.booths
+        |> Array.to_list
+        |> List.mapi
+             (fun i (_, booth) -> Option ([], booth, None, i = current))
+      in
+      post_form ~service:election_draft_booth_version
+        ~a:[a_id "form_booth_version"]
+        (fun booth ->
+          [
+            txt (s_ "Booth:");
+            txt " ";
+            select ~name:booth string (List.hd booths) (List.tl booths);
+            input ~input_type:`Submit ~value:(s_ "Set") string;
+          ]
+        ) uuid
+    ) else txt ""
+  in
   let div_questions =
     div [
       h2 [
@@ -546,6 +567,7 @@ let election_draft uuid se () =
           [txt (s_ "Edit questions")]
           uuid;
       ];
+      form_booth;
       preview_booth l uuid se.se_metadata;
     ]
   in
