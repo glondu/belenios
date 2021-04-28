@@ -121,6 +121,7 @@ let election_home election state () =
   let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
+  let* metadata = Web_persist.get_election_metadata uuid in
   let* dates = Web_persist.get_election_dates uuid in
   let now = now () in
   let state_ =
@@ -190,6 +191,7 @@ let election_home election state () =
       | `Open -> false
       | _ -> true
     in
+    let election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
     div ~a:[a_style "text-align:center;"] [
       div [
           let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid; "lang", lang] in
@@ -423,6 +425,8 @@ let election_home election state () =
   responsive_base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
 
 let cast_raw election () =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let form_rawballot = post_form ~service:election_submit_ballot
@@ -446,15 +450,44 @@ let cast_raw election () =
       ]
     ) ()
   in
+  let booths =
+    let hash =
+      Netencoding.Url.mk_url_encoded_parameters
+        [
+          "uuid", raw_string_of_uuid uuid;
+          "lang", lang;
+        ]
+    in
+    let make ~service =
+      Eliom_uri.make_string_uri ~service ~absolute:true ()
+      |> rewrite_prefix
+      |> (fun uri -> direct_a (uri ^ "#" ^ hash) "direct link")
+    in
+    Web_services.booths
+    |> Array.to_list
+    |> List.map
+         (fun (service, name) ->
+           li [
+               a ~service [txt name] ();
+               txt " (";
+               make ~service;
+               txt ")";
+             ]
+         )
+  in
   let intro = div [
     div [
       txt "You can create an encrypted ballot by using the command-line tool ";
       txt "(available in the ";
       a ~service:source_code [txt "sources"] ();
-      txt "), or any booth (you can use the ";
-      a ~service:election_vote [txt "booth of this server"] ();
-      txt " or any other booth of the same version). A specification of encrypted ballots is also available in the sources.";
+      txt "), or any compatible booth.";
+      txt " ";
+      txt "A specification of encrypted ballots is also available in the sources.";
     ];
+    div [
+        txt "Booths available on this server:";
+        ul booths;
+      ];
     div [
       a ~service:Web_services.election_home
         [txt "Back to election home"] (uuid, ());
@@ -608,7 +641,8 @@ let lost_ballot election () =
   let open (val l) in
   let title = election.e_params.e_name in
   let uuid = election.e_params.e_uuid in
-  let service = Web_services.election_vote in
+  let* metadata = Web_persist.get_election_metadata uuid in
+  let service = fst Web_services.booths.(get_booth_index metadata.e_booth_version) in
   let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
   let content =
     [

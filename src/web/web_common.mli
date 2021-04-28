@@ -173,6 +173,8 @@ val unwebize_trustee_public_key : 'a web_trustee_public_key -> 'a trustee_public
 val get_suitable_group_kind : template -> [ `H | `NH ]
 val is_group_fixed : draft_election -> bool
 
+val get_booth_index : int option -> int
+
 val default_contact : string
 val default_questions : question array
 val default_name : string

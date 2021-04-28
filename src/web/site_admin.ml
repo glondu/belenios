@@ -420,6 +420,7 @@ let create_new_election owner cred auth =
     e_languages = Some ["en"; "fr"];
     e_contact = None;
     e_server_is_trustee = None;
+    e_booth_version = None;
   } in
   let se_questions = {
     t_description = default_description;
@@ -473,7 +474,11 @@ let () = Any.register ~service:election_draft_new
         let* auth = match auth with
           | Some "password" -> return `Password
           | Some "dummy" -> return `Dummy
-          | Some "cas" -> return @@ `CAS (PString.trim cas_server)
+          | Some "cas" ->
+             (match cas_server with
+              | None -> fail_http 400
+              | Some cas_server -> return @@ `CAS (PString.trim cas_server)
+             )
           | Some x ->
              let n = PString.length x in
              if n > 1 && PString.get x 0 = '%' then (
@@ -625,6 +630,24 @@ let () =
           se.se_metadata <- {
               se.se_metadata with
               e_contact = contact
+            };
+          redir_preapply election_draft uuid ()
+        )
+    )
+
+let () =
+  Any.register ~service:election_draft_booth_version
+    (fun uuid booth ->
+      with_draft_election uuid (fun se ->
+          let rec loop version = function
+            | (_, name) :: _ when name = booth -> return version
+            | _ :: xs -> loop (version + 1) xs
+            | [] -> fail_http 400
+          in
+          let* version = loop 1 (Array.to_list Web_services.booths) in
+          se.se_metadata <- {
+              se.se_metadata with
+              e_booth_version = Some version
             };
           redir_preapply election_draft uuid ()
         )

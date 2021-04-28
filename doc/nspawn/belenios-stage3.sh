@@ -110,7 +110,7 @@ for u in \
     lib/xml-light \
     lib/yojson \
     lib/zarith \
-; do cp -a --parents home/belenios/.belenios/opam/4.11.1/$u "$DIR/rootfs"; done
+; do cp -a --parents home/belenios/.belenios/opam/4.11.2/$u "$DIR/rootfs"; done
 
 echo "Copying needed runtime files from belenios source tree..."
 

@@ -278,41 +278,43 @@ let election_draft_pre () =
       (fun (credmgmt, (auth, cas_server)) ->
         let auth_systems =
           !Web_config.exported_auth_config
-          |> List.map
-               (function
-                | `BuiltinPassword ->
-                   div [
-                       label [
-                           radio ~checked:true ~name:auth ~value:"password" string;
-                           txt " ";
-                           txt (s_ "Password (passwords will be emailed to voters)");
-                         ]
-                     ]
-                | `BuiltinCAS ->
-                   div [
-                       label [
-                           radio ~name:auth ~value:"cas" string;
-                           txt " ";
-                           txt (s_ "CAS (external authentication server)");
-                         ];
-                       div ~a:[a_style "margin-left: 5em;"] [
-                           txt (s_ "Server address:");
-                           txt " ";
-                           input ~input_type:`Text ~name:cas_server string;
-                           txt " ";
-                           txt (s_ "(for example: https://cas.inria.fr/cas)");
-                         ];
-                     ]
-                | `Export a ->
-                   div [
-                       label [
-                           radio ~name:auth ~value:("%" ^ a.auth_instance) string;
-                           txt " ";
-                           txt a.auth_instance;
-                           txt " ";
-                           txt (s_ "(imported from server)");
-                         ]
-                     ]
+          |> List.mapi
+               (fun i x ->
+                 let checked = i = 0 in
+                 match x with
+                 | `BuiltinPassword ->
+                    div [
+                        label [
+                            radio ~checked ~name:auth ~value:"password" string;
+                            txt " ";
+                            txt (s_ "Password (passwords will be emailed to voters)");
+                          ]
+                      ]
+                 | `BuiltinCAS ->
+                    div [
+                        label [
+                            radio ~checked ~name:auth ~value:"cas" string;
+                            txt " ";
+                            txt (s_ "CAS (external authentication server)");
+                          ];
+                        div ~a:[a_style "margin-left: 5em;"] [
+                            txt (s_ "Server address:");
+                            txt " ";
+                            input ~input_type:`Text ~name:cas_server string;
+                            txt " ";
+                            txt (s_ "(for example: https://cas.inria.fr/cas)");
+                          ];
+                      ]
+                 | `Export a ->
+                    div [
+                        label [
+                            radio ~checked ~name:auth ~value:("%" ^ a.auth_instance) string;
+                            txt " ";
+                            txt a.auth_instance;
+                            txt " ";
+                            txt (s_ "(imported from server)");
+                          ]
+                      ]
                )
         in
         [
@@ -352,7 +354,7 @@ let election_draft_pre () =
   let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
-let preview_booth l uuid =
+let preview_booth l uuid metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let hash =
     Netencoding.Url.mk_url_encoded_parameters
@@ -361,6 +363,7 @@ let preview_booth l uuid =
         "lang", lang;
       ]
   in
+  let election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
   let service =
     Eliom_uri.make_string_uri
       ~service:election_vote ~absolute:true () |> rewrite_prefix
@@ -545,6 +548,27 @@ let election_draft uuid se () =
            ]
     ]
   in
+  let form_booth =
+    if Array.length Web_services.booths > 1 then (
+      let booths =
+        let current = get_booth_index se.se_metadata.e_booth_version in
+        Web_services.booths
+        |> Array.to_list
+        |> List.mapi
+             (fun i (_, booth) -> Option ([], booth, None, i = current))
+      in
+      post_form ~service:election_draft_booth_version
+        ~a:[a_id "form_booth_version"]
+        (fun booth ->
+          [
+            txt (s_ "Booth:");
+            txt " ";
+            select ~name:booth string (List.hd booths) (List.tl booths);
+            input ~input_type:`Submit ~value:(s_ "Set") string;
+          ]
+        ) uuid
+    ) else txt ""
+  in
   let div_questions =
     div [
       h2 [
@@ -552,7 +576,8 @@ let election_draft uuid se () =
           [txt (s_ "Edit questions")]
           uuid;
       ];
-      preview_booth l uuid;
+      form_booth;
+      preview_booth l uuid se.se_metadata;
     ]
   in
   let div_voters =
@@ -1360,7 +1385,7 @@ let election_draft_questions uuid se () =
         hybrid_box;
       ]
   in
-  let preview = div [hr (); preview_booth l uuid] in
+  let preview = div [hr (); preview_booth l uuid se.se_metadata] in
   let content = [
     interactivity;
     form;
@@ -2061,7 +2086,7 @@ let election_draft_confirm uuid se () =
       ];
     tr [
       td [txt (s_ "Questions?")];
-      td [questions; txt " "; preview_booth l uuid];
+      td [questions; txt " "; preview_booth l uuid se.se_metadata];
     ];
     tr [
       td [txt (s_ "Voters?")];

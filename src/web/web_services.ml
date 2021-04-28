@@ -33,7 +33,7 @@ let logout = create ~path:(Path ["logout"]) ~meth:(Get (site_cont "cont")) ()
 
 let source_code = create ~path:(Path ["belenios.tar.gz"]) ~meth:(Get unit) ()
 
-let election_draft_new = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:(radio string "credmgmt" ** radio string "auth" ** string "cas_server") ()
+let election_draft_new = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:(radio string "credmgmt" ** radio string "auth" ** opt (string "cas_server")) ()
 let election_draft_pre = create ~path:(Path ["draft"; "new"]) ~meth:(Get unit) ()
 let election_draft = create ~path:(Path ["draft"; "election"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_questions = create ~path:(Path ["draft"; "questions"]) ~meth:(Get (uuid "uuid")) ()
@@ -57,6 +57,7 @@ let election_draft_credentials_post = create ~csrf_safe:true ~path:(Path ["draft
 let election_draft_credentials_post_file = create ~csrf_safe:true ~path:(Path ["draft"; "submit-credentials-file"]) ~meth:(Post (uuid_and_token, file "public_creds")) ()
 let election_draft_credentials_server = create_attached_post ~csrf_safe:true ~fallback:election_draft ~post_params:unit ()
 let election_draft_credentials_get = create ~path:(Path ["draft"; "get-credentials"]) ~meth:(Get (uuid "uuid")) ()
+let election_draft_booth_version = create_attached_post ~csrf_safe:true ~fallback:election_draft ~post_params:(string "booth") ()
 
 let election_draft_trustees = create ~path:(Path ["draft"; "trustees"]) ~meth:(Get (uuid "uuid")) ()
 let election_draft_trustee = create ~path:(Path ["draft"; "trustee"]) ~meth:(Get uuid_and_token) ()
@@ -92,7 +93,13 @@ let election_hide_result = create_attached_post ~csrf_safe:true ~fallback:electi
 let election_show_result = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 let election_auto_post = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:(string "open" ** string "close") ()
 let election_delete = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
-let election_vote = create ~path:(Path ["vote.html"]) ~meth:(Get unit) ()
+
+let booth_v1 = create ~path:(Path ["vote.html"]) ~meth:(Get unit) ()
+let booths =
+  [|
+    booth_v1, "Version 1";
+  |]
+
 let election_cast = create ~path:(Path ["election"; "cast"]) ~meth:(Get (uuid "uuid")) ()
 let election_submit_ballot = create ~path:(Path ["election"; "submit-ballot"]) ~meth:(Post (unit, string "encrypted_vote")) ()
 let election_submit_ballot_file = create ~path:(Path ["election"; "submit-ballot-file"]) ~meth:(Post (unit, file "encrypted_vote")) ()
