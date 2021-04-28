@@ -95,9 +95,21 @@ let election_auto_post = create_attached_post ~csrf_safe:true ~fallback:election
 let election_delete = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 
 let booth_v1 = create ~path:(Path ["vote.html"]) ~meth:(Get unit) ()
+
+let booth_v2 =
+  Eliom_service.preapply ~service:(Eliom_service.static_dir ())
+    ["static"; "frontend"; "booth"; "vote.html"]
+
+type booth =
+  | Booth :
+      (unit, unit, get, att, non_co, non_ext, 'reg, [ `WithoutSuffix ],
+       unit, unit, non_ocaml) Eliom_service.t ->
+      booth
+
 let booths =
   [|
-    booth_v1, "Version 1";
+    Booth booth_v1, "Version 1";
+    Booth booth_v2, "Version 2";
   |]
 
 let election_cast = create ~path:(Path ["election"; "cast"]) ~meth:(Get (uuid "uuid")) ()

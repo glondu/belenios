@@ -191,7 +191,7 @@ let election_home election state () =
       | `Open -> false
       | _ -> true
     in
-    let election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
+    let Booth election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
     div ~a:[a_style "text-align:center;"] [
       div [
           let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid; "lang", lang] in
@@ -466,7 +466,7 @@ let cast_raw election () =
     Web_services.booths
     |> Array.to_list
     |> List.map
-         (fun (service, name) ->
+         (fun (Booth service, name) ->
            li [
                a ~service [txt name] ();
                txt " (";
@@ -642,7 +642,7 @@ let lost_ballot election () =
   let title = election.e_params.e_name in
   let uuid = election.e_params.e_uuid in
   let* metadata = Web_persist.get_election_metadata uuid in
-  let service = fst Web_services.booths.(get_booth_index metadata.e_booth_version) in
+  let Booth service = fst Web_services.booths.(get_booth_index metadata.e_booth_version) in
   let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
   let content =
     [

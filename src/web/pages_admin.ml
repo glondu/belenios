@@ -363,7 +363,7 @@ let preview_booth l uuid metadata =
         "lang", lang;
       ]
   in
-  let election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
+  let Booth election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
   let service =
     Eliom_uri.make_string_uri
       ~service:election_vote ~absolute:true () |> rewrite_prefix
