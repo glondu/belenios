@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-04-27 12:53+0000\n"
+"PO-Revision-Date: 2021-04-29 13:42+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -58,8 +58,8 @@ msgstr " został oddany."
 #: src/web/pages_voter.ml:537
 msgid " has been received, but not recorded yet. "
 msgstr ""
-" został przekazany, ale nie został zarejestrowany (nie może być uznany za "
-"głos oddany). "
+" został przekazany, ale nie został jeszcze zarejestrowany (nie może być "
+"jeszcze uznany za głos oddany). "
 
 #: src/web/pages_voter.ml:707
 msgid " have been tallied."
@@ -126,7 +126,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:936
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
-msgstr "1 to najwyższa ocena, 2 to ocena druga w kolejności, itd."
+msgstr "1 to najwyższa ranga, 2 to ranga druga w kolejności, itd."
 
 #: src/web/pages_voter.ml:897
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
@@ -230,7 +230,7 @@ msgstr "Belenios login"
 
 #: src/web/pages_common.ml:361
 msgid "Best regards,"
-msgstr "Z poważaniem,"
+msgstr "Z pozdrowieniami"
 
 #. src/web/pages_voter.ml:79
 #: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
@@ -255,7 +255,7 @@ msgstr "Obliczony cyfrowy odcisk (hasz):"
 
 #: src/web/pages_voter.ml:874
 msgid "Condorcet-Schulze method"
-msgstr "system Condorcet-Schulze"
+msgstr "system Condorceta-Schulzego"
 
 #. src/web/pages_voter.ml:505
 #: src/web/pages_voter.ml:789 src/web/pages_voter.ml:606
@@ -395,7 +395,7 @@ msgstr "Błędny kod głosowania!"
 
 #: src/web/site_voter.ml:299
 msgid "Invalid index for question."
-msgstr ""
+msgstr "Nieprawidłowy indeks dla pytania (decyzji, uchwały)."
 
 #: src/web/pages_voter.ml:134
 msgid "It will open in "
@@ -423,7 +423,7 @@ msgstr "Zaloguj się przy pomocy %s"
 
 #: src/web/pages_common.ml:304
 msgid "Login"
-msgstr "Login"
+msgstr "Zaloguj się"
 
 #: src/web/pages_voter.ml:1103
 msgid "Look at the raw events for more details."
@@ -431,7 +431,7 @@ msgstr "Aby dowiedzieć się więcej, sprawdź nieprzetworzone dane."
 
 #: src/web/pages_voter.ml:112
 msgid "Majority Judgment"
-msgstr "Opinia Większościowa"
+msgstr "opinii większościowej"
 
 #: src/web/pages_voter.ml:968 src/web/pages_voter.ml:918
 msgid "Majority Judgment method"
@@ -480,7 +480,8 @@ msgstr ""
 #: src/web/pages_voter.ml:547
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr ""
-"Twój głos jest zaszyfrowany. Nikt nie może podejrzeć jak zagłosowałaś/eś."
+"Twój głos jest zaszyfrowany. Nikt nie może podejrzeć jak zagłosowałaś/eś. "
+"Przejdź teraz do ostatniego kroku. Oddaj głos."
 
 #: src/tool/tool_js_booth.ml:233
 msgid "Notes:"
@@ -570,7 +571,7 @@ msgstr "System oparty na "
 
 #: src/tool/tool_js_booth.ml:323
 msgid "Previous"
-msgstr "Wróć"
+msgstr "Wstecz"
 
 #: src/web/pages_common.ml:129
 msgid "Privacy policy"
@@ -600,8 +601,10 @@ msgstr "Sprawdź i zaszyfruj"
 #: src/web/pages_voter.ml:765
 msgid "Save it to check that it is taken into account later."
 msgstr ""
-"Zapisz go aby sprawdzić czy Twój głos został później wzięty pod uwagę przy "
-"ustaleniu wyniku głosowania."
+"Zapisz ten numer aby sprawdzić czy Twój głos został później wzięty pod uwagę "
+"przy ustaleniu wyniku głosowania. Następnie przejdź dalej i zaloguj się aby "
+"uwierzytelnić swój głos. Uwierzytelnienie jest potrzebne aby było pewne, że "
+"głos pochodzi od uprawnionego do głosowania. To zajmie jeszcze tylko chwilę."
 
 #: src/web/pages_voter.ml:183
 msgid "See accepted ballots"
@@ -715,7 +718,7 @@ msgstr "Liczba mandatów do obsadzenia nie jest prawidłowa."
 
 #: src/web/pages_voter.ml:104
 msgid "The raw results can be viewed in the "
-msgstr "Nieprzetworzone dane można obejrzeć w "
+msgstr "Nieprzetworzone dane można obejrzeć tutaj: "
 
 #: src/web/pages_voter.ml:257
 msgid "The result of this election is currently not publicly available. It will be in %s."
@@ -734,8 +737,8 @@ msgstr "Całkowita waga wszystkich głosów wynosi %d (min: %d, max: %d)."
 #: src/web/pages_voter.ml:287
 msgid "The voter list has %d voter(s) and fingerprint %s."
 msgstr ""
-"Lista uprawnionych do głosowania liczy %d osób i cyfrowy odcisk listy (hasz) "
-"to %s."
+"Lista uprawnionych do głosowania liczy %d osobę/y/osób i cyfrowy odcisk "
+"listy uprawnionych (hasz) to %s."
 
 #: src/web/pages_voter.ml:940
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
@@ -845,18 +848,16 @@ msgstr ""
 "na ten adres nie są już ważne."
 
 #: src/web/pages_voter.ml:901
-#, fuzzy
 msgid "We use here the Schulze method and we refer voters to "
-msgstr "Używamy tutaj metody Schulzego i prosimy głosujących do "
+msgstr "Używamy tutaj metody Schulzego i odsyłamy głosujących do "
 
 #: src/web/pages_voter.ml:1030
-#, fuzzy
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
 "Gdy kandydat (opcja) uzyska wystarczającą liczbę głosów (pierwszej "
-"preferencji), aby zostać wybranym, głosy te (głosy nadmiarowe) są "
-"przenoszone na kolejnego kandydata w karcie wyborczej, przy czym "
-"współczynnik ten jest proporcjonalny do \"nadwyżki\" głosów."
+"preferencji), aby zostać wybranym, głosy te są przenoszone na kolejnego "
+"kandydata w karcie wyborczej, przy czym współczynnik ten jest proporcjonalny "
+"do \"nadwyżki\" głosów."
 
 #: src/web/pages_common.ml:159
 msgid "Wish to help with translations?"
