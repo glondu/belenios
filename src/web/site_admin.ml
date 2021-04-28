@@ -420,6 +420,7 @@ let create_new_election owner cred auth =
     e_languages = Some ["en"; "fr"];
     e_contact = None;
     e_server_is_trustee = None;
+    e_booth_version = None;
   } in
   let se_questions = {
     t_description = default_description;

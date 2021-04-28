@@ -72,7 +72,7 @@ let () =
     )
 
 let () =
-  Any.register ~service:election_vote
+  Any.register ~service:booth_v1
     (fun () () ->
       let* () = Eliom_reference.unset Web_state.ballot in
       Pages_voter.booth () >>= Html.send)

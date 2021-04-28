@@ -475,6 +475,10 @@ let is_group_fixed se =
       | None -> false
      )
 
+let get_booth_index = function
+  | None -> 0
+  | Some i -> i - 1
+
 let default_contact = ""
 
 let default_questions =

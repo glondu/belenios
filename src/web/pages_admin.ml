@@ -354,7 +354,7 @@ let election_draft_pre () =
   let* login_box = login_box () in
   base ~title ~login_box ~content ()
 
-let preview_booth l uuid =
+let preview_booth l uuid metadata =
   let open (val l : Web_i18n_sig.GETTEXT) in
   let hash =
     Netencoding.Url.mk_url_encoded_parameters
@@ -363,6 +363,7 @@ let preview_booth l uuid =
         "lang", lang;
       ]
   in
+  let election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
   let service =
     Eliom_uri.make_string_uri
       ~service:election_vote ~absolute:true () |> rewrite_prefix
@@ -545,7 +546,7 @@ let election_draft uuid se () =
           [txt (s_ "Edit questions")]
           uuid;
       ];
-      preview_booth l uuid;
+      preview_booth l uuid se.se_metadata;
     ]
   in
   let div_voters =
@@ -1353,7 +1354,7 @@ let election_draft_questions uuid se () =
         hybrid_box;
       ]
   in
-  let preview = div [hr (); preview_booth l uuid] in
+  let preview = div [hr (); preview_booth l uuid se.se_metadata] in
   let content = [
     interactivity;
     form;
@@ -2054,7 +2055,7 @@ let election_draft_confirm uuid se () =
       ];
     tr [
       td [txt (s_ "Questions?")];
-      td [questions; txt " "; preview_booth l uuid];
+      td [questions; txt " "; preview_booth l uuid se.se_metadata];
     ];
     tr [
       td [txt (s_ "Voters?")];
