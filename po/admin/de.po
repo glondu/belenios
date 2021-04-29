@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-04-26 13:29+0000\n"
+"PO-Revision-Date: 2021-04-29 13:42+0000\n"
 "Last-Translator: Alban Bruder <mail@albanbruder.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/belenios/admin/de/"
 ">\n"
@@ -574,7 +574,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3175 src/web/pages_admin.ml:3153
 msgid "Dear %s,"
-msgstr "%s,"
+msgstr "Hallo %s,"
 
 #: src/web/pages_admin.ml:1147
 msgid "Dear credential authority,"
@@ -1214,7 +1214,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3021
 msgid "Please enter the verification code received by e-mail:"
-msgstr ""
+msgstr "Bitte geben Sie den per E-Mail erhaltenen Bestätigungscode ein:"
 
 #: src/web/pages_admin.ml:2900
 msgid "Please enter your private key:"
@@ -1222,7 +1222,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2820
 msgid "Please wait… "
-msgstr ""
+msgstr "Bitte warten... "
 
 #: src/web/pages_admin.ml:2603
 msgid "Postpone publication until"
@@ -1246,7 +1246,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1800 src/web/pages_admin.ml:344
 msgid "Proceed"
-msgstr ""
+msgstr "Fortfahren"
 
 #: src/web/pages_admin.ml:2428
 msgid "Proceed to decryption"
@@ -1392,7 +1392,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:1197 src/web/pages_admin.ml:1086
 msgid "Set"
-msgstr ""
+msgstr "Anwenden"
 
 #: src/web/pages_admin.ml:2805
 msgid "Shuffle"
@@ -1437,7 +1437,7 @@ msgstr ""
 #. src/web/pages_admin.ml:1560
 #: src/web/pages_admin.ml:3128 src/web/pages_admin.ml:3078
 msgid "Submit"
-msgstr ""
+msgstr "Absenden"
 
 #: src/web/pages_admin.ml:1557
 msgid "Submit by file"
@@ -1807,7 +1807,7 @@ msgstr ""
 #. src/web/pages_admin.ml:1460
 #: src/web/pages_admin.ml:2034 src/web/pages_admin.ml:2023
 msgid "Warning:"
-msgstr ""
+msgstr "Warnung:"
 
 #: src/web/pages_admin.ml:2675
 msgid "Warning: This action is irreversible."
@@ -1820,6 +1820,8 @@ msgstr ""
 #: src/web/pages_admin.ml:3182 src/web/pages_admin.ml:3160
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
+"Achtung: Dieser Code ist 15 Minuten lang gültig. Vorherige Codes, die an "
+"diese Adresse gesendet wurden, sind nicht mehr gültig."
 
 #: src/web/pages_admin.ml:606
 msgid "Warning: this will freeze the voter list!"
