@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-04-27 12:53+0000\n"
+"PO-Revision-Date: 2021-04-29 13:42+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/admin/pl/"
 ">\n"
@@ -17,7 +17,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2258
 msgid " You may re-open the election when it is closed."
-msgstr " Możesz ponownie otworzyć zamknięte głosowanie."
+msgstr " Uwaga: jeśli zamkniesz głosowanie, możesz je potem otworzyć ponownie."
 
 #: src/tool/tool_js_questions.ml:180
 msgid " and "
@@ -29,7 +29,7 @@ msgstr " I hasło: "
 
 #: src/web/pages_admin.ml:1765 src/web/pages_admin.ml:1640
 msgid " and save it to a secure location."
-msgstr " i zapisz je w bezpiecznym miejscu."
+msgstr " i zapisz go w bezpiecznym miejscu."
 
 #: src/web/pages_admin.ml:1522
 msgid " and save the file to a secure location."
@@ -93,7 +93,7 @@ msgstr " zarejestrowanych, uprawnionych do głosowania"
 
 #: src/web/pages_admin.ml:2933
 msgid " your contribution to decryption."
-msgstr ""
+msgstr " twój cyfrowy udział w odszyfrowaniu wyniku głosowania."
 
 #: src/web/site_admin.ml:909
 msgid "%S is not a valid identity"
@@ -162,7 +162,7 @@ msgstr "(bez tytułu)"
 
 #: src/web/pages_admin.ml:371
 msgid "(you can use any credential such as %s)."
-msgstr "(do testu możesz użyć dowolnego kodu głosowania np. takiego jak %s)."
+msgstr "(do testu możesz użyć dowolnego kodu głosowania np. takiego: %s)."
 
 #: src/web/pages_admin.ml:3103 src/web/pages_admin.ml:3053
 msgid ". Please try again with a different one."
@@ -266,17 +266,20 @@ msgstr ""
 #: src/tool/tool_js_questions.ml:323
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr ""
-"Alternatywnie (uprawnieni do głosowania przypisują liczbę każdemu "
-"kandydatowi)"
+"Alternatywnie (uprawnieni do głosowania przypisują liczbę (rangę, punktację) "
+"każdemu kandydatowi)"
 
 #: src/web/pages_admin.ml:2016
 msgid "Alternative questions cannot be combined with weights."
-msgstr "Alternatywne pytania nie mogą być połączone z wagami."
+msgstr ""
+"Alternatywne metody ustalania wyników głosowania nie mogą być połączone z "
+"wagami."
 
 #: src/web/pages_admin.ml:1315
 msgid "Alternative voting methods (warning, still experimental):"
 msgstr ""
-"Alternatywne metody głosowania (Uwaga, to nadal eksperymentalne rozwiązania):"
+"Alternatywne metody ustalania wyników głosowania (UWAGA, to nadal "
+"eksperymentalne rozwiązania!):"
 
 #: src/web/pages_admin.ml:1222
 msgid "Alternatively, you can send the credential authority the following link:"
@@ -334,7 +337,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:511 src/web/pages_admin.ml:342
 msgid "Authentication"
-msgstr "Uwierzytelnienie"
+msgstr "Wybierz sposób uwierzytelniania uprawnionych do głosowania"
 
 #: src/web/pages_admin.ml:535
 msgid "Authentication scheme: %s (imported from server)"
@@ -406,7 +409,7 @@ msgstr "Poniżej znajduje się link służący do pomieszania zaszyfrowanych gł
 
 #: src/web/pages_admin.ml:3184 src/web/pages_admin.ml:3162
 msgid "Best regards,"
-msgstr "Z poważaniem,"
+msgstr "Z pozdrowieniami"
 
 #: src/tool/tool_js_questions.ml:197
 msgid "Blank vote is allowed"
@@ -478,7 +481,7 @@ msgstr "Kliknij w link."
 
 #: src/web/pages_admin.ml:2256
 msgid "Close election"
-msgstr "Zamknij wybory"
+msgstr "Zamknij głosowanie"
 
 #: src/web/pages_admin.ml:1686
 msgid "Collaborative key generation"
@@ -551,7 +554,7 @@ msgstr "Administrator kodów głosowania?"
 
 #: src/web/pages_admin.ml:614 src/web/pages_admin.ml:321
 msgid "Credential management"
-msgstr "Administracja kodami głosowania"
+msgstr "Wybierz sposób administrowania kodami głosowania"
 
 #: src/web/pages_admin.ml:579
 msgid "Credentials"
@@ -563,7 +566,7 @@ msgstr "Kody głosowania dla głosowania %s"
 
 #: src/web/pages_admin.ml:1594 src/web/pages_admin.ml:600
 msgid "Credentials have already been generated!"
-msgstr "Kody głosowania zostały utworzone!"
+msgstr "Kody głosowania zostały już utworzone!"
 
 #: src/web/site_admin.ml:1201
 msgid "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
@@ -674,8 +677,9 @@ msgstr ""
 #: src/web/pages_admin.ml:1466
 msgid "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins."
 msgstr ""
-"Duplikaty tożsamości (email) nie są dozwolone i są automatycznie łączone. "
-"Jeśli dwóch głosujących ma ten sam adres email, użyj różnych loginów."
+"Duplikaty tożsamości (email) nie są dozwolone i zostaną automatycznie "
+"połączone. Jeśli dwóch głosujących ma ten sam adres email, użyj różnych "
+"loginów."
 
 #. src/web/pages_admin.ml:1000
 #. src/web/pages_admin.ml:886
@@ -715,7 +719,7 @@ msgstr "Serwer głosowania"
 
 #: src/web/pages_admin.ml:231
 msgid "Elections being prepared"
-msgstr "Przygotowywane głosowania"
+msgstr "Głosowania w trakcie przygotowania"
 
 #: src/web/pages_admin.ml:1887 src/web/pages_admin.ml:234
 msgid "Elections you can administer"
@@ -740,6 +744,8 @@ msgstr ""
 #: src/web/pages_admin.ml:2142
 msgid "Enter your private decryption key in the first box and click on \"Generate your contribution to decryption\"."
 msgstr ""
+"Wprowadź Twój prywatny klucz odszyfrowujący w pierwszym polu i kliknij na "
+"\"Utwórz mój cyfrowy udział do odszyfrowania wyniku głosowania\"."
 
 #: src/web/pages_admin.ml:1795
 msgid "Enter your private key:"
@@ -816,7 +822,7 @@ msgstr "Kliknij link."
 #: src/web/pages_admin.ml:568
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr ""
-"W realnym głosowaniu, klucze muszą być podzielone pomiędzy członkami komisji "
+"W realnym głosowaniu, klucze muszą być podzielone pomiędzy członków komisji "
 "skrutacyjnej."
 
 #. src/web/site_admin.ml:1551
@@ -846,7 +852,7 @@ msgstr "Utwórz klucz prywatny"
 
 #: src/web/pages_admin.ml:2921
 msgid "Generate your contribution to decryption"
-msgstr ""
+msgstr "Utwórz Twój cyfrowy udział w odszyfrowaniu wyniku głosowania"
 
 #. src/web/pages_admin.ml:1133
 #. src/web/pages_admin.ml:928
@@ -953,7 +959,9 @@ msgstr "Nieprawidłowe Imię i nazwisko (nazwa) administratora kodów głosowani
 
 #: src/web/pages_admin.ml:2879
 msgid "It is now time to compute your partial decryption factors."
-msgstr "Teraz czas na obliczenie Twoich cząstkowych czynników odszyfrowujących."
+msgstr ""
+"Teraz czas na obliczenie cyfrowych udziałów odszyfrowujących z pomocą "
+"członków komisji skrutacyjnej."
 
 #: src/web/pages_admin.ml:403
 msgid "Languages"
@@ -1015,17 +1023,17 @@ msgstr "Email"
 #: src/web/pages_admin.ml:338
 msgid "Manual (safe mode - a third party will handle the credentials)"
 msgstr ""
-"Ręcznie (tryb zwiększonego bezpieczeństwa - osoba trzecia zajmuje się "
-"tworzeniem i rozesłaniem kodów głosowania dla uprawnionych)"
+"Ręcznie (tryb zwiększonego bezpieczeństwa - osoba trzecia, czyli wybrany "
+"przez Ciebie administrator kodów głosowania musi zająć się tworzeniem i "
+"rozesłaniem kodów głosowania dla uprawnionych)"
 
 #: src/tool/tool_js_questions.ml:98
 msgid "Maximum number of choices must be greater than 0!"
 msgstr "Maksymalna liczba odpowiedzi (opcji wyboru) musi być większa niż 0!"
 
 #: src/web/pages_admin.ml:1062
-#, fuzzy
 msgid "Meaning of states:"
-msgstr "Znaczenie stanów:"
+msgstr "Znaczenie statusów:"
 
 #: src/tool/tool_js_questions.ml:96
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
@@ -1043,7 +1051,7 @@ msgstr "Brakujący"
 
 #: src/web/pages_admin.ml:2703
 msgid "Missing voters"
-msgstr "Brakujący uprawnieni do głosowania"
+msgstr "Uprawnieni, którzy nie oddali głosu"
 
 #: src/web/pages_admin.ml:1332
 msgid "More information."
@@ -1234,9 +1242,9 @@ msgstr "Lub załaduj go z pliku:"
 msgid "Our platform currently supports Condorcet, STV and majority judgment, but you may also apply your own method on the raw result (shuffled list of ballots)."
 msgstr ""
 "Nasza platforma wspiera obecnie systemy Condorceta, pojedynczego głosu "
-"przechodniego i opinii większościowej, ale możesz również zastosować własną "
-"metodę do nieprzetworzonego wyniku głosowania (pomieszanej liście oddanych "
-"głosów)."
+"przechodniego (STV) i opinii większościowej. Możesz również zastosować "
+"własną metodę do nieprzetworzonego wyniku głosowania (zbioru pomieszanych "
+"oddanych głosów)."
 
 #: src/web/pages_admin.ml:2860
 msgid "Partial decryption #%d"
@@ -1318,7 +1326,7 @@ msgstr "Podgląd wirtualnej kabiny do głosowania"
 
 #: src/web/pages_admin.ml:2074
 msgid "Private credentials?"
-msgstr "Prywatny kod głosowania?"
+msgstr "prywatne kody głosowania?"
 
 #: src/web/pages_admin.ml:1800 src/web/pages_admin.ml:344
 msgid "Proceed"
@@ -1346,15 +1354,15 @@ msgstr "Imię i nazwisko (nazwa)"
 
 #: src/web/pages_admin.ml:468
 msgid "Public name of the administrator"
-msgstr "Imię i nazwisko (nazwa) administratora"
+msgstr "Imię i nazwisko (nazwa) administratora głosowania"
 
 #: src/web/pages_admin.ml:449
 msgid "Public name of the administrator:"
-msgstr "Imię i nazwisko (nazwa) administratora:"
+msgstr "Imię i nazwisko (nazwa) administratora głosowania:"
 
 #: src/web/pages_admin.ml:2050
 msgid "Public name of the administrator?"
-msgstr "Imię i nazwisko (nazwa) administratora?"
+msgstr "Imię i nazwisko (nazwa) administratora głosowania?"
 
 #: src/web/pages_admin.ml:1194
 msgid "Public name of the credential authority:"
@@ -1441,7 +1449,7 @@ msgstr "Zapisz zmiany"
 
 #: src/web/pages_admin.ml:1833 src/web/pages_admin.ml:1645
 msgid "Save the fingerprint above."
-msgstr "Zapisz powyższy cyfrowy odcisk (hasz)."
+msgstr "Zapisz również powyższy cyfrowy odcisk (hasz)."
 
 #: src/web/pages_admin.ml:688
 msgid "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server."
@@ -1500,7 +1508,7 @@ msgstr "Pomijanie członka komisji skrutacyjnej %s"
 
 #: src/web/pages_admin.ml:1057
 msgid "State"
-msgstr "Stan"
+msgstr "Status"
 
 #: src/tool/tool_js_ttkeygen.ml:36
 msgid "Step %d/3"
@@ -1572,7 +1580,7 @@ msgstr "Dziękujemy Ci za Twoją pomoc,"
 
 #: src/web/pages_admin.ml:2567
 msgid "The "
-msgstr ""
+msgstr "Wasz "
 
 #: src/web/pages_admin.ml:3049
 msgid "The account creation "
@@ -1684,7 +1692,7 @@ msgstr "Hasło zostało zmienione."
 #: src/web/site_admin.ml:577
 msgid "The public name of the credential authority has been set successfully!"
 msgstr ""
-"Imię i nazwisko (nazwa) administratora kodów głosowania została ustawiona "
+"Imię i nazwisko (nazwa) administratora kodów głosowania zostały ustawione "
 "pomyślnie!"
 
 #: src/web/pages_admin.ml:2144
@@ -1713,11 +1721,11 @@ msgstr "Uprawniony do głosowania musi wybrać pomiędzy "
 #: src/tool/tool_js_questions.ml:272
 msgid "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
 msgstr ""
-"Uprawniony do głosowania musi wpisać liczbę całkowitą przed każdą "
-"odpowiedzią (opcją wyboru). System przyjmie każdą liczbę całkowitą z "
+"Uprawniony do głosowania musi wpisać liczbę całkowitą przy każdej odpowiedzi "
+"(opcji wyboru). Uwaga: system przyjmie, co prawda każdą liczbę całkowitą z "
 "przedziału od 0 do 255, ale to do Ciebie należy usunięcie ewentualnych "
-"nieważnych głosów (np. ze względu na wpisanie zbyt wysokich wartości lub "
-"niewłaściwe uszeregowanie) na koniec głosowania."
+"nieważnych głosów po zakończeniu głosowania (np. ze względu na wpisanie zbyt "
+"wysokich wartości lub niewłaściwe uszeregowanie)."
 
 #: src/web/site_admin.ml:921
 msgid "The voter list is not consistent (a login or a weight is missing)."
@@ -1810,7 +1818,7 @@ msgstr "Próg:"
 
 #: src/web/pages_admin.ml:1340
 msgid "Tick the box to activate this mode."
-msgstr "Zaznacz pole, aby aktywować ten tryb."
+msgstr "Zaznacz to pole, aby aktywować ten tryb."
 
 #: src/web/pages_admin.ml:164
 msgid "To administer an election, you need to log in."
@@ -1895,7 +1903,7 @@ msgstr "Nazwa użytkownika:"
 #. src/web/pages_admin.ml:622
 #: src/web/pages_admin.ml:2108 src/web/pages_admin.ml:1918
 msgid "Validate creation"
-msgstr "Zatwierdź utworzenie"
+msgstr "Zatwierdź utworzenie głosowania"
 
 #: src/web/pages_admin.ml:177
 msgid "Verifiable online voting platform"
@@ -1954,8 +1962,8 @@ msgstr ""
 #: src/web/pages_admin.ml:606
 msgid "Warning: this will freeze the voter list!"
 msgstr ""
-"Uwaga: spowoduje to zamknięcie i zapieczętowanie listy uprawnionych do "
-"głosowania!"
+"Uwaga: kliknięcie poniżej i rozpoczęcie pracy z kodami głosowania spowoduje "
+"zamknięcie i zapieczętowanie listy uprawnionych do głosowania!"
 
 #: src/web/pages_admin.ml:743 src/web/pages_admin.ml:693
 msgid "We suggest two options:"
@@ -2023,8 +2031,9 @@ msgstr ""
 #: src/web/pages_admin.ml:1318
 msgid "You may wish voters to rank candidates or give each candidate a score."
 msgstr ""
-"Możesz chcieć, aby wyborcy oceniali kandydatów (opcje) przyznając im rangi "
-"lub przyznawali każdemu kandydatowi punktację i wyrazili swoją preferencję."
+"Możesz zarządzić, aby uprawnieni do głosowania oceniali kandydatów (opcje do "
+"wyboru) przyznając im rangi, albo punktację stanowiącą wyraz ich preferencji "
+"dla danego kandydata (opcji)."
 
 #: src/web/pages_admin.ml:2842
 msgid "You must record this fingerprint and check that it appears on the election result page."
@@ -2092,8 +2101,8 @@ msgid "Your job in the key establishment protocol is done! The fingerprint of yo
 msgstr ""
 "Twoje zadanie w procedurze ustanowienia klucza została wykonane! Cyfrowy "
 "odcisk (hasz) Twojego klucza weryfikacyjnego to %s. Sprawdź, czy został on "
-"opublikowany przez serwer w momencie otwarcia wyborów. Twój klucz prywatny "
-"będzie potrzebny do odszyfrowania wyniku wyborów."
+"opublikowany przez serwer w momencie otwarcia głosowania. Twój klucz "
+"prywatny będzie potrzebny do odszyfrowania wyniku głosowania."
 
 #: src/web/site_admin.ml:1284
 msgid "Your key has been received and checked!"
@@ -2162,7 +2171,7 @@ msgstr "z nieznanego powodu"
 #: src/web/pages_admin.ml:747 src/web/pages_admin.ml:697
 msgid "or you may simply print it and store it in a safe."
 msgstr ""
-"lub możesz to po prostu wydrukować i przechowywać w bezpiecznym miejscu."
+"lub możesz go po prostu wydrukować i przechowywać w bezpiecznym miejscu."
 
 #: src/web/pages_admin.ml:52
 msgid "personal data policy"
@@ -2170,7 +2179,7 @@ msgstr "politykę prywatności"
 
 #: src/web/pages_admin.ml:1521
 msgid "private credentials"
-msgstr "prywatny kod głosowania"
+msgstr "prywatne kody głosowania"
 
 #: src/web/pages_admin.ml:1764 src/web/pages_admin.ml:1639
 msgid "private key"
@@ -2194,7 +2203,8 @@ msgstr ""
 #: src/web/pages_admin.ml:1327
 msgid "the after-the-vote procedure will require more steps;"
 msgstr ""
-"procedura ustalenia wyniku i zakończenia głosowaniu będzie wymagała większej "
+"procedura ustalenia wyniku i zakończenia głosowania z zastosowaniem "
+"alternatywnych metod ustalania wyniku głosowania będzie wymagała większej "
 "liczby kroków;"
 
 #: src/web/pages_admin.ml:1261
@@ -2264,14 +2274,18 @@ msgstr "czasy są podane w UTC. Teraz jest "
 
 #: src/web/pages_admin.ml:1270
 msgid "you can send the private credential back to its rightful owner in case it gets lost."
-msgstr "możesz odesłać prywatny kod głosowania do uprawnionego."
+msgstr ""
+"możesz wysłać prywatny kod głosowania do prawowitego właściciela (wysłać "
+"ponownie w przypadku zgubienia kodu)."
 
 #: src/web/pages_admin.ml:1462
 msgid "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote."
 msgstr ""
-"musisz się upewnić, że te adresy e-mail są prawidłowe. Nie będziesz mógł "
+"musisz się upewnić, że dodane adresy e-mail są prawidłowe. Nie będziesz mógł "
 "zmienić adresów e-mail po utworzeniu kodów głosowania. Uprawnieni z "
-"nieprawidłowymi adresami e-mail nie będą mogli zagłosować."
+"nieprawidłowymi adresami e-mail nie będą mogli zagłosować. Pozbawienie "
+"części uprawnionych możliwości głosowania może prowadzić do unieważnienia "
+"głosowania."
 
 #: src/web/pages_admin.ml:745 src/web/pages_admin.ml:695
 msgid "you may store the key on a USB stick and store it in a safe;"
@@ -2281,9 +2295,11 @@ msgstr ""
 #: src/web/pages_admin.ml:1330
 msgid "you should explain to voters how they are supposed to assign a number to each candidate in order to express their vote, since it depends on the underlying voting method."
 msgstr ""
-"powinieneś wyjaśnić uprawnionym do głosowania, w jaki sposób mają przypisać "
-"każdemu kandydatowi (opcji) liczbę w celu wyrażenia swojego głosu, ponieważ "
-"zależy to od przyjętej metody głosowania."
+"powinieneś szczegółowo wyjaśnić uprawnionym do głosowania, w jaki sposób "
+"mogą wyrazić swoją wolę przez przypisanie każdemu kandydatowi (opcji) danej "
+"rangi lub punktacji. Skutki decyzji uprawnionego co do rangi, albo punktacji "
+"oraz jej wpływ na wynik głosowania zależą od przyjętej metody ustalania "
+"wyniku głosowania."
 
 #: src/web/pages_admin.ml:735
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
