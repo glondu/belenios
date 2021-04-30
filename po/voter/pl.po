@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-04-30 14:27+0000\n"
+"PO-Revision-Date: 2021-05-02 06:31+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -533,7 +533,7 @@ msgstr "Wprowadź kod głosowania:"
 
 #: src/web/pages_voter.ml:1173
 msgid "Please find below your login and password for the election"
-msgstr "Oto Twój login i hasło głosowania"
+msgstr "Oto Twój login i hasło do głosowania"
 
 #: src/web/pages_voter.ml:517
 msgid "Please log in to confirm your vote."
@@ -802,8 +802,8 @@ msgstr "Remis:"
 #: src/web/pages_voter.ml:1231
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
-"Do oddania głosu, będzie również potrzebne hasło logowania, wysłane na Twój "
-"adres e-mail w odrębnej wiadomości."
+"Do oddania głosu, będzie również potrzebne hasło, wysłane na Twój adres e-"
+"mail w odrębnej wiadomości."
 
 #: src/web/pages_voter.ml:1164
 msgid "To get more information, please contact:"
@@ -888,7 +888,8 @@ msgstr "Możesz również pobrać "
 
 #: src/web/pages_voter.ml:665
 msgid "You can check its presence in the "
-msgstr "Możesz w każdym momencie sprawdzić, czy Twój głos jest w "
+msgstr ""
+"Możesz w każdym momencie sprawdzić, czy Twoja karta do głosowania jest w "
 
 #: src/web/pages_voter.ml:1292
 msgid "You can check its presence in the ballot box, accessible at"
