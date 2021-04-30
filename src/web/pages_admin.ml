@@ -2006,21 +2006,18 @@ let election_draft_confirm uuid se () =
       ok "OK"
   in
   let ready, trustees =
-    match se.se_public_keys with
-    | [] -> ready, ok "OK"
-    | _ :: _ ->
-       match se.se_threshold_trustees with
-       | None -> if List.for_all (fun {st_public_key; _} ->
-                        st_public_key <> ""
-                      ) se.se_public_keys then ready, ok "OK" else false, notok (s_ "Missing")
-       | Some _ ->
-          if se.se_threshold_parameters <> None &&
-               match se.se_threshold_trustees with
-               | None -> false
-               | Some ts ->
-                  List.for_all (fun {stt_step; _} -> stt_step = Some 7) ts
-          then ready, ok "OK"
-          else false, notok (s_ "Missing")
+    match se.se_threshold_trustees with
+    | None -> if List.for_all (fun {st_public_key; _} ->
+                     st_public_key <> ""
+                   ) se.se_public_keys then ready, ok "OK" else false, notok (s_ "Missing")
+    | Some _ ->
+       if se.se_threshold_parameters <> None &&
+            match se.se_threshold_trustees with
+            | None -> false
+            | Some ts ->
+               List.for_all (fun {stt_step; _} -> stt_step = Some 7) ts
+       then ready, ok "OK"
+       else false, notok (s_ "Missing")
   in
   let ready, nh_and_weights =
     let has_weights =
