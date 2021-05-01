@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-04-30 08:45+0000\n"
+"PO-Revision-Date: 2021-05-02 06:31+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/admin/pl/"
 ">\n"
@@ -162,7 +162,9 @@ msgstr "(bez tytułu)"
 
 #: src/web/pages_admin.ml:374
 msgid "(you can use any credential such as %s)."
-msgstr "(do testu możesz użyć dowolnego kodu głosowania np. takiego: %s)."
+msgstr ""
+"(do testu możesz użyć dowolnego kodu głosowania z tą samą składnią np. "
+"takiego: %s)."
 
 #: src/web/pages_admin.ml:3128 src/web/pages_admin.ml:3078
 msgid ". Please try again with a different one."
@@ -209,11 +211,11 @@ msgstr "4. Pobierz listę uprawnionych do głosowania (voters.txt)."
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
 "5. Zapisz dwa cyfrowe odciski: cyfrowy odcisk listy uprawnionych do "
-"głosowania oraz cyfrowy odcisk publicznych kodów głosowania"
+"głosowania oraz cyfrowy odcisk publicznych części kodów głosowania"
 
 #: src/web/pages_admin.ml:1187
 msgid "6. Click on \"Submit the public credentials\"."
-msgstr "6. Kliknij na \"Prześlij publiczne kody głosowania\"."
+msgstr "6. Kliknij na \"Prześlij publiczne części kodów głosowania\"."
 
 #: src/web/site_admin.ml:798
 msgid "A new password has been mailed to %s."
@@ -278,8 +280,7 @@ msgstr ""
 #: src/web/pages_admin.ml:1340
 msgid "Alternative voting methods (warning, still experimental):"
 msgstr ""
-"Alternatywne metody ustalania wyników głosowania (UWAGA, to nadal "
-"eksperymentalne rozwiązania!):"
+"Alternatywne metody ustalania wyników głosowania (Uwaga: eksperymentalne):"
 
 #: src/web/pages_admin.ml:1247
 msgid "Alternatively, you can send the credential authority the following link:"
@@ -311,12 +312,15 @@ msgstr ""
 #: src/web/pages_admin.ml:1497
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
-"Pojedyncza tożsamość to: \"adres\", albo \"adres,nazwa użytkownika\", albo "
-"\"adres,nazwa użytkownika, waga\", albo \"adres,waga\", gdzie \"adres\" to "
-"adres e-mail, \"nazwa użytkownika\" to skojarzona z nim nazwa (login) "
-"służąca do uwierzytelniania, a \"waga\" to liczba głosów służących danemu "
-"uprawnionemu (w przypadku, gdy w głosowaniu uprawnieni dysponują różną "
-"ilością głosów)."
+"pojedynczą tożsamość należy zapisać wg następującej składni: jako \"adres\", "
+"albo jako: \"adres,login\", albo \"adres,login,waga\", albo \"adres,,waga\", "
+"gdzie \"adres\" to adres e-mail uprawnionego, \"login\" to nazwa skojarzona "
+"z uprawnionym służąca do uwierzytelniania, a \"waga\" to liczba głosów "
+"służących uprawnionemu (w przypadku, gdy w głosowaniu uprawnieni dysponują "
+"różną ilością głosów). Zwróć uwagę na przecinki! Przykładowe rekordy to: "
+"\"użytkownik@domena.com\", albo \"użytkownik@domena.com,użytkownik\", albo "
+"\"użytkownik@domena.com,użytkownik,2\", albo wreszcie \"użytkownik@domena."
+"com,,2\"."
 
 #: src/tool/tool_js_questions.ml:138
 msgid "Answer: "
@@ -361,8 +365,8 @@ msgstr "Schemat uwierzytelniania: hasło"
 #: src/web/pages_admin.ml:333
 msgid "Automatic (degraded mode - credentials will be handled by the server)"
 msgstr ""
-"Automatycznie (tryb ograniczonego bezpieczeństwa - prywatne i publiczne kody "
-"głosowania będą obsługiwane przez serwer głosowania)"
+"Automatycznie (tryb ograniczonego bezpieczeństwa - kody głosowania będą "
+"obsługiwane przez serwer głosowania)"
 
 #: src/web/site_admin.ml:1555
 msgid "Automatic shuffle by server has failed for election %s!"
@@ -686,7 +690,7 @@ msgstr ""
 #: src/web/pages_admin.ml:1491
 msgid "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins."
 msgstr ""
-"Duplikaty tożsamości (email) nie są dozwolone i zostaną automatycznie "
+"duplikaty tożsamości (email) nie są dozwolone i zostaną automatycznie "
 "połączone. Jeśli dwóch głosujących ma ten sam adres email, użyj różnych "
 "loginów."
 
@@ -810,7 +814,7 @@ msgstr "Cyfrowy odcisk (hasz)"
 
 #: src/web/pages_admin.ml:1537
 msgid "Fingerprint of public credentials:"
-msgstr "Cyfrowy odcisk (hasz) publicznych kodów głosowania:"
+msgstr "Cyfrowy odcisk (hasz) publicznych części kodów głosowania:"
 
 #: src/web/pages_admin.ml:1655
 msgid "Fingerprint of the verification key:"
@@ -1156,7 +1160,7 @@ msgstr "Niezalogowany."
 #: src/web/pages_admin.ml:1258
 msgid "Note that this authority will personally have to send each credential to its respective voter."
 msgstr ""
-"Uwaga! Administrator kodów głosowania będzie musiał samodzielnie rozesłać "
+"Uwaga: administrator kodów głosowania będzie musiał samodzielnie rozesłać "
 "każdy kod do odpowiedniego uprawnionego do głosowania."
 
 #: src/web/pages_admin.ml:1349
@@ -1351,7 +1355,7 @@ msgstr "Przejdź do liczenia głosów"
 
 #: src/web/pages_admin.ml:1534
 msgid "Public credentials:"
-msgstr "Publiczny kod głosowania:"
+msgstr "Publiczna część kodu głosowania:"
 
 #: src/web/pages_admin.ml:1652
 msgid "Public key:"
@@ -1446,7 +1450,7 @@ msgstr "Usuń wszystko"
 
 #: src/web/pages_admin.ml:1128
 msgid "Reset threshold"
-msgstr "Przywróć próg"
+msgstr "Zresetuj próg"
 
 #. src/web/pages_admin.ml:495
 #. src/web/pages_admin.ml:465
@@ -1551,11 +1555,12 @@ msgstr "Prześlij dane za pomocą następującego przycisku:"
 
 #: src/web/pages_admin.ml:1566
 msgid "Submit public credentials"
-msgstr "Prześlij publiczne kody głosowania"
+msgstr "Prześlij publiczne części kodów głosowania"
 
 #: src/web/pages_admin.ml:1563
 msgid "Submit public credentials using the button below."
-msgstr "Prześlij publiczne kody głosowania używając poniższego przycisku."
+msgstr ""
+"Prześlij publiczne części kodów głosowania używając poniższego przycisku."
 
 #: src/web/pages_admin.ml:1677
 msgid "Submit public key"
@@ -1851,8 +1856,9 @@ msgstr ""
 #: src/web/pages_admin.ml:943
 msgid "To set up the election so that only a subset of trustees is needed, go to the "
 msgstr ""
-"Aby utworzyć głosowanie tak aby tylko część ze składu komisji skrutacyjnej "
-"była potrzebna do odszyfrowania wyniku głosowania, wejdź na "
+"Alternatywnie możesz postanowić, aby tylko część ze składu komisji "
+"skrutacyjnej była potrzebna do odszyfrowania wyniku głosowania. Aby tak "
+"zrobić przejdź do "
 
 #: src/web/pages_admin.ml:51
 msgid "To use this site, you must accept our "
@@ -1899,8 +1905,8 @@ msgstr "Nieobsługiwani członkowie komisji skrutacyjnej!"
 #: src/web/pages_admin.ml:1583
 msgid "Use this form to upload public credentials generated with the command-line tool."
 msgstr ""
-"Użyj tego formularza aby wgrać publiczne kody głosowania utworzone przy "
-"pomocy wiersza poleceń."
+"Użyj tego formularza aby wgrać publiczne części kodów głosowania utworzonych "
+"przy pomocy wiersza poleceń."
 
 #: src/web/pages_admin.ml:2785
 msgid "Username"
@@ -1917,7 +1923,7 @@ msgstr "Zatwierdź utworzenie głosowania"
 
 #: src/web/pages_admin.ml:177
 msgid "Verifiable online voting platform"
-msgstr "Rozliczalna platforma do głosowania online"
+msgstr "Sprawdzalne głosowania online"
 
 #: src/web/pages_admin.ml:2722
 msgid "Voter list"
@@ -1933,7 +1939,7 @@ msgstr "Uprawnieni do głosowania?"
 
 #: src/web/pages_admin.ml:2725
 msgid "Voting records"
-msgstr "Zarejestrowane oddane głosy"
+msgstr "Rekordy głosowania"
 
 #: src/tool/tool_js_ttkeygen.ml:92
 msgid "Waiting for the election administrator to set the threshold... Reload the page to check progress."
@@ -2220,7 +2226,7 @@ msgstr ""
 #: src/web/pages_admin.ml:1286
 msgid "the fingerprint of public credentials matches what has been saved, for example with the following command:"
 msgstr ""
-"cyfrowy odcisk (hasz) publicznych kodów głosowania pasuje do tego, co "
+"cyfrowy odcisk (hasz) publicznych części kodów głosowania pasuje do tego, co "
 "zostało zapisane, na przykład za pomocą następującego polecenia:"
 
 #: src/web/pages_admin.ml:762
@@ -2291,7 +2297,7 @@ msgstr ""
 #: src/web/pages_admin.ml:1487
 msgid "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote."
 msgstr ""
-"musisz się upewnić, że dodane adresy e-mail są prawidłowe. Nie będziesz mógł "
+"Musisz się upewnić, że dodane adresy e-mail są prawidłowe. Nie będziesz mógł "
 "zmienić adresów e-mail po utworzeniu kodów głosowania. Uprawnieni z "
 "nieprawidłowymi adresami e-mail nie będą mogli zagłosować. Pozbawienie "
 "części uprawnionych możliwości głosowania może prowadzić do unieważnienia "
