@@ -1494,7 +1494,7 @@ let election_draft_voters uuid se maxvoters () =
         div [
           b [txt (s_ "Note:")];
           txt " ";
-          txt (s_ "An identity is either an e-mail address, or \"address,login\", where \"address\" is an e-mail address and \"login\" the associated login for authentication.");
+          txt (s_ "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes).");
         ];
       ]
   in
@@ -2006,21 +2006,18 @@ let election_draft_confirm uuid se () =
       ok "OK"
   in
   let ready, trustees =
-    match se.se_public_keys with
-    | [] -> ready, ok "OK"
-    | _ :: _ ->
-       match se.se_threshold_trustees with
-       | None -> if List.for_all (fun {st_public_key; _} ->
-                        st_public_key <> ""
-                      ) se.se_public_keys then ready, ok "OK" else false, notok (s_ "Missing")
-       | Some _ ->
-          if se.se_threshold_parameters <> None &&
-               match se.se_threshold_trustees with
-               | None -> false
-               | Some ts ->
-                  List.for_all (fun {stt_step; _} -> stt_step = Some 7) ts
-          then ready, ok "OK"
-          else false, notok (s_ "Missing")
+    match se.se_threshold_trustees with
+    | None -> if List.for_all (fun {st_public_key; _} ->
+                     st_public_key <> ""
+                   ) se.se_public_keys then ready, ok "OK" else false, notok (s_ "Missing")
+    | Some _ ->
+       if se.se_threshold_parameters <> None &&
+            match se.se_threshold_trustees with
+            | None -> false
+            | Some ts ->
+               List.for_all (fun {stt_step; _} -> stt_step = Some 7) ts
+       then ready, ok "OK"
+       else false, notok (s_ "Missing")
   in
   let ready, nh_and_weights =
     let has_weights =

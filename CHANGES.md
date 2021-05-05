@@ -1,8 +1,9 @@
-dev
-===
+1.15 (2021-05-04)
+=================
 
+ * Update OCaml stack to 4.11.2
  * Improve support for weighted votes:
-   + Update instructions
+   + Update instructions and interface for editing voters
    + Update monitoring scripts
    + Update specification
  * Add documentation and scripts for deploying using systemd-nspawn
