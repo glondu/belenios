@@ -4,3 +4,8 @@
   (stop-server.sh as belenios-stop-server))
  (section bin)
  (package belenios-server))
+
+(install
+ (files mime.types)
+ (section share)
+ (package belenios-server))
