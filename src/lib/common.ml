@@ -269,7 +269,7 @@ let extract_weight str =
   with _ -> str, 1
 
 let split_identity x =
-  match Pcre.split ~pat:"," x with
+  match String.split_on_char ',' x with
   | [address] -> address, address, 1
   | [address; login] -> address, (if login = "" then address else login), 1
   | [address; login; weight] ->
@@ -279,7 +279,7 @@ let split_identity x =
   | _ -> failwith "Common.split_identity"
 
 let split_identity_opt x =
-  match Pcre.split ~pat:"," x with
+  match String.split_on_char ',' x with
   | [address] -> address, None, None
   | [address; login] -> address, (if login = "" then None else Some login), None
   | [address; login; weight] ->
