@@ -31,11 +31,11 @@ group="--group $BELENIOS/files/groups/default.json"
 
 # Generate credentials
 cat > voters.txt <<EOF
-voter1,1000
-voter2,2000
-voter3,3000
-voter4,4000
-voter5,90000
+voter1@example.com,voter1,1000
+voter2@example.com,voter2,2000
+voter3@example.com,voter3,3000
+voter4@example.com,voter4,4000
+voter5@example.com,voter5,90000
 EOF
 belenios-tool credgen $uuid $group --file voters.txt
 mv *.pubcreds public_creds.txt
