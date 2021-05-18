@@ -90,3 +90,6 @@ end
     - if [weight] is an integer > 0, return [(something, weight)]
     - else, return [(str, 1)] *)
 val extract_weight : string -> string * int
+
+val split_identity : string -> string * string * int
+val split_identity_opt : string -> string * string option * int option

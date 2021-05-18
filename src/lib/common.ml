@@ -267,3 +267,23 @@ let extract_weight str =
     let w = int_of_string (String.sub str (i + 1) (String.length str - i - 1)) in
     if w > 0 then String.sub str 0 i, w else raise Exit
   with _ -> str, 1
+
+let split_identity x =
+  match Pcre.split ~pat:"," x with
+  | [address] -> address, address, 1
+  | [address; login] -> address, (if login = "" then address else login), 1
+  | [address; login; weight] ->
+     address,
+     (if login = "" then address else login),
+     int_of_string weight
+  | _ -> failwith "Common.split_identity"
+
+let split_identity_opt x =
+  match Pcre.split ~pat:"," x with
+  | [address] -> address, None, None
+  | [address; login] -> address, (if login = "" then None else Some login), None
+  | [address; login; weight] ->
+     address,
+     (if login = "" then None else Some login),
+     Some (int_of_string weight)
+  | _ -> failwith "Common.split_identity_opt"
