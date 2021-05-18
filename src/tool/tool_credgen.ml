@@ -67,7 +67,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     let privs, pubs =
       List.fold_left
         (fun (privs, pubs) id ->
-          let _, weight = extract_weight id in
+          let _, _, weight = split_identity id in
           if weight <> 1 then implicit_weights := false;
           let priv = CG.generate () in
           priv :: privs,
