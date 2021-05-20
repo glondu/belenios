@@ -1,5 +1,5 @@
 import { BlueNiceButton } from "./NiceButton.mjs";
-import { NicePasswordInput } from "./NiceInput.mjs";
+import { NiceTextInput } from "./NiceInput.mjs";
 
 function TranslatableInputCredentialSection({ onSubmit=null, t }){
   const credentialId = "credential";
@@ -51,7 +51,7 @@ function TranslatableInputCredentialSection({ onSubmit=null, t }){
             t("Please enter your credential")
           ),
           e(
-            NicePasswordInput,
+            NiceTextInput,
             {
               id: credentialId
             }
