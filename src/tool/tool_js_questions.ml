@@ -58,6 +58,9 @@ let default_question_nh =
 let default_question () =
   if !hybrid_mode then default_question_nh else default_question_h
 
+let default_mj_specification =
+  "{\"type\":\"MajorityJudgment\",\"blank\":true,\"grades\":[\"Excellent\",\"Good\",\"Bad\",\"Reject\"]}"
+
 (* Getting the OCaml structure out of the DOM *)
 
 let extractAnswer a =
@@ -274,16 +277,49 @@ let rec createQuestion q =
   (* extra *)
   let h_extra = Dom_html.createDiv document in
   Dom.appendChild prop_div_nh h_extra;
-  Dom.appendChild h_extra (document##createTextNode (Js.string (s_ "Counting method specification:")));
-  Dom.appendChild h_extra (document##createTextNode (Js.string " "));
+  let label_method = Dom_html.createLabel document in
+  Dom.appendChild h_extra label_method;
+  Dom.appendChild label_method (document##createTextNode (Js.string (s_ "Counting method:")));
+  Dom.appendChild label_method (document##createTextNode (Js.string " "));
+  let select_method = Dom_html.createSelect document in
+  Dom.appendChild label_method select_method;
+  let makeOption value content =
+    let x = Dom_html.createOption document in
+    x##.value := Js.string value;
+    Dom.appendChild x (document##createTextNode (Js.string content));
+    x
+  in
+  Dom.appendChild select_method (makeOption "none" (s_ "None"));
+  Dom.appendChild select_method (makeOption "mj" (s_ "Majority Judgment"));
+  Dom.appendChild select_method (makeOption "custom" (s_ "Custom"));
   let i_extra = Dom_html.createInput document in
   Dom.appendChild h_extra i_extra;
+  i_extra##.placeholder := Js.string (s_ "Counting method specification");
   i_extra##.className := Js.string "question_extra";
   i_extra##.size := 60;
   (match extra with
    | None -> ()
-   | Some x -> i_extra##.value := Js.string (Yojson.Safe.to_string x)
+   | Some x ->
+      select_method##.value := Js.string "custom";
+      i_extra##.value := Js.string (Yojson.Safe.to_string x)
   );
+  select_method##.onchange :=
+    Dom_html.handler
+      (fun _ ->
+        let () =
+          match Js.to_string select_method##.value with
+          | "none" -> i_extra##.value := Js.string ""
+          | "mj" -> i_extra##.value := Js.string default_mj_specification
+          | _ -> ()
+        in
+        Js._false
+      );
+  i_extra##.onchange :=
+    Dom_html.handler
+      (fun _ ->
+        select_method##.value := Js.string "custom";
+        Js._false
+      );
   (* selector *)
   let _type = Js.string "radio" and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
   let x = Dom_html.createDiv document in
