@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2021-05-13 13:32+0000\n"
+"PO-Revision-Date: 2021-05-21 21:32+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/voter/cs/>"
 "\n"
@@ -235,7 +235,7 @@ msgstr "Prázdný lístek"
 
 #: src/web/pages_voter.ml:270
 msgid "By using this site, you accept our "
-msgstr "Používáním tohoto webu, akceptujete naše "
+msgstr "Používáním tohoto webu akceptujete naše "
 
 #: src/tool/tool_js_fingerprint.ml:84
 msgid "Compare"
@@ -486,7 +486,8 @@ msgstr "Počet hlasování:"
 
 #: src/web/pages_voter.ml:1246 src/web/pages_voter.ml:1191
 msgid "Only the last vote counts."
-msgstr "Započítán bude pouze ten zadaný a odeslaný naposledy."
+msgstr ""
+"Započítán bude pouze volební lístek, který byl zadaný a odeslaný naposledy."
 
 #: src/web/pages_voter.ml:1243 src/web/pages_voter.ml:1188
 msgid "Page of the election:"
@@ -807,8 +808,8 @@ msgstr "Varování:"
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Varování: systém akceptuje jakékoli číslo mezi 0 a 255, ale podle pravidel "
-"volby, neplatné lístky (příliš vysoké skóre nebo kandidáti nesprávně "
-"seřazeni) nebudou při sčítáni akceptované."
+"volby neplatné lístky (příliš vysoké skóre nebo kandidáti nesprávně seřazeni)"
+" nebudou při sčítáni akceptované."
 
 #: src/web/pages_common.ml:359
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
@@ -978,7 +979,7 @@ msgstr "parametry"
 
 #: src/web/pages_voter.ml:271
 msgid "personal data policy"
-msgstr "pravidly ochrany soukromí"
+msgstr "pravidla ochrany soukromí"
 
 #: src/web/pages_voter.ml:60
 msgid "public credentials"
