@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2021-05-13 13:32+0000\n"
+"PO-Revision-Date: 2021-05-21 21:32+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/admin/cs/>"
 "\n"
@@ -2114,7 +2114,7 @@ msgstr "nebo jej jednoduše můžeš vytisknout a uložit do sejfu."
 
 #: src/web/pages_admin.ml:52
 msgid "personal data policy"
-msgstr "pravidly ochrany soukromí"
+msgstr "pravidla ochrany soukromí"
 
 #: src/web/pages_admin.ml:1546
 msgid "private credentials"
