@@ -336,26 +336,6 @@ let send_email kind ~recipient ~subject ~body =
       )
   in loop ()
 
-let split_identity x =
-  match Pcre.split ~pat:"," x with
-  | [address] -> address, address, 1
-  | [address; login] -> address, (if login = "" then address else login), 1
-  | [address; login; weight] ->
-     address,
-     (if login = "" then address else login),
-     int_of_string weight
-  | _ -> failwith "Web_common.split_identity"
-
-let split_identity_opt x =
-  match Pcre.split ~pat:"," x with
-  | [address] -> address, None, None
-  | [address; login] -> address, (if login = "" then None else Some login), None
-  | [address; login; weight] ->
-     address,
-     (if login = "" then None else Some login),
-     Some (int_of_string weight)
-  | _ -> failwith "Web_common.split_identity_opt"
-
 let available_languages = [
     "en"; "fr"; "de"; "ro"; "it";
     "nb"; "es"; "uk"; "cs"; "oc";
