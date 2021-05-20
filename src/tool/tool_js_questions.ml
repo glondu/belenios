@@ -273,7 +273,6 @@ let rec createQuestion q =
   Dom.appendChild prop_div_nh nh_explain;
   (* extra *)
   let h_extra = Dom_html.createDiv document in
-  h_extra##.style##.display := Js.string "none";
   Dom.appendChild prop_div_nh h_extra;
   Dom.appendChild h_extra (document##createTextNode (Js.string (s_ "Counting method specification:")));
   Dom.appendChild h_extra (document##createTextNode (Js.string " "));
