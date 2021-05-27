@@ -50,6 +50,10 @@ button {
     font-style: italic;
     margin-bottom: 2ex;
 }
+.counting_method_specification {
+    border: 1px groove;
+    margin-bottom: 2ex;
+}
 .result_question {
     font-weight: bold;
     font-style: italic;

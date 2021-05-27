@@ -277,47 +277,35 @@ let rec createQuestion q =
   (* extra *)
   let h_extra = Dom_html.createDiv document in
   Dom.appendChild prop_div_nh h_extra;
-  let label_method = Dom_html.createLabel document in
-  Dom.appendChild h_extra label_method;
-  Dom.appendChild label_method (document##createTextNode (Js.string (s_ "Counting method:")));
-  Dom.appendChild label_method (document##createTextNode (Js.string " "));
-  let select_method = Dom_html.createSelect document in
-  Dom.appendChild label_method select_method;
-  let makeOption value content =
-    let x = Dom_html.createOption document in
-    x##.value := Js.string value;
-    Dom.appendChild x (document##createTextNode (Js.string content));
-    x
-  in
-  Dom.appendChild select_method (makeOption "none" (s_ "None"));
-  Dom.appendChild select_method (makeOption "mj" (s_ "Majority Judgment"));
-  Dom.appendChild select_method (makeOption "custom" (s_ "Custom"));
+  let title = Js.string (s_ "Counting method specification") in
+  let fieldset = Dom_html.createFieldset document in
+  fieldset##.className := Js.string "counting_method_specification";
+  Dom.appendChild h_extra fieldset;
+  let legend = Dom_html.createLegend document in
+  Dom.appendChild fieldset legend;
+  Dom.appendChild legend (document##createTextNode title);
+  let div_extra1 = Dom_html.createDiv document in
+  Dom.appendChild fieldset div_extra1;
+  let prefill_mj = Dom_html.createButton document in
+  Dom.appendChild prefill_mj
+    (document##createTextNode (Js.string (s_ "Prefill with Majority Judgment")));
+  Dom.appendChild div_extra1 prefill_mj;
+  let div_extra2 = Dom_html.createDiv document in
+  Dom.appendChild fieldset div_extra2;
   let i_extra = Dom_html.createInput document in
-  Dom.appendChild h_extra i_extra;
-  i_extra##.placeholder := Js.string (s_ "Counting method specification");
+  Dom.appendChild div_extra2 i_extra;
+  i_extra##.placeholder := title;
   i_extra##.className := Js.string "question_extra";
-  i_extra##.size := 60;
+  i_extra##.size := 80;
   (match extra with
    | None -> ()
    | Some x ->
-      select_method##.value := Js.string "custom";
       i_extra##.value := Js.string (Yojson.Safe.to_string x)
   );
-  select_method##.onchange :=
+  prefill_mj##.onclick :=
     Dom_html.handler
       (fun _ ->
-        let () =
-          match Js.to_string select_method##.value with
-          | "none" -> i_extra##.value := Js.string ""
-          | "mj" -> i_extra##.value := Js.string default_mj_specification
-          | _ -> ()
-        in
-        Js._false
-      );
-  i_extra##.onchange :=
-    Dom_html.handler
-      (fun _ ->
-        select_method##.value := Js.string "custom";
+        i_extra##.value := Js.string default_mj_specification;
         Js._false
       );
   (* selector *)
