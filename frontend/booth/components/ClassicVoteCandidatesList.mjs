@@ -4,10 +4,10 @@ import CandidateWithRadio from "./CandidateWithRadio.mjs";
 /*
 Displays a list of candidates represented using instances of component CandidateWithCheckbox or CandidateWithRadio, depending on value of "type" prop.
 */
-function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPrefix, blankVoteAllowed, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, t }) {
+function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPrefix, blankVoteIsAllowed, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, t }) {
   const candidate_constructor = type == "checkbox" ? CandidateWithCheckbox : CandidateWithRadio;
   let finalCandidates = candidates;
-  if (blankVoteAllowed === true){
+  if (blankVoteIsAllowed === true){
     const blankVoteLabel = t("Blank vote");
     finalCandidates = [...candidates, blankVoteLabel]; // We assume this the right way to do it
   }
@@ -48,7 +48,7 @@ function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPre
       value: `choice_${candidateIndex}` // or maybe a candidate id provided in data input, or slugification of candidate name?
     };
     let blankVoteProps = {};
-    if (blankVoteAllowed === true && candidateIndex === candidates.length){
+    if (blankVoteIsAllowed === true && candidateIndex === candidates.length){
       blankVoteProps = {
         style: {marginTop: "30px"}
       };
@@ -80,7 +80,7 @@ TranslatableClassicVoteCandidatesList.defaultProps = {
     "Answer 2",
     "Answer 3"
   ],
-  blankVoteAllowed: false,
+  blankVoteIsAllowed: false,
   currentUserVoteForQuestion: [],
   currentCandidatesHavingAlertsForQuestion: [],
   dispatchUpdateUserVoteForQuestion: () => {},
