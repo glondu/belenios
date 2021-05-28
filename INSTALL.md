@@ -193,6 +193,25 @@ issue, either uninstall dune before running `opam-bootstrap.sh`, or
 manage to get opam running by other means, and directly use it to
 install the dependencies of Belenios.
 
+### Bootstrap fails because of an error with an OPAM package
+
+For reproducibility purposes, the `opam-bootstrap.sh` script hardcodes
+a specific revision of the OPAM repository. However, it may happen
+that this revision becomes unusable, e.g. the URL of some tarball
+changes. This may give errors like bad checksums when running the
+script.
+
+To recover from such errors, update your local copy of the OPAM
+repository with the following commands:
+
+    source env.sh
+    cd $OPAMROOT/../opam-repository
+    git pull --ff-only
+    opam update
+
+then run the `opam install` command that can be found in the
+`opam-bootstrap.sh` script.
+
 ### Missing sources
 
 The instructions outlined in this document and in the
