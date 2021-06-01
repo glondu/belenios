@@ -1331,14 +1331,20 @@ let election_draft_questions uuid se () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let title = Printf.sprintf (f_ "Questions for election %s") se.se_questions.t_name in
+  let booth_version =
+    match se.se_metadata.e_booth_version with
+    | None -> 1
+    | Some v -> v
+  in
   let form =
     let value = string_of_template se.se_questions in
     post_form
       ~service:election_draft_questions_post
-      (fun name ->
+      (fun (nquestions, nbooth) ->
        [
          div [txt (s_ "Questions:")];
-         div [textarea ~a:[a_id "questions"; a_rows 5; a_cols 80] ~name ~value ()];
+         div [textarea ~a:[a_id "questions"; a_rows 5; a_cols 80] ~name:nquestions ~value ()];
+         div [input ~input_type:`Text ~a:[a_id "booth_version"] ~name:nbooth ~value:booth_version int];
          div [input ~input_type:`Submit ~value:(s_ "Save changes") string]])
       uuid
   in

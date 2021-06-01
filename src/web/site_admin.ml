@@ -645,10 +645,8 @@ let () =
             | [] -> fail_http 400
           in
           let* version = loop 1 (Array.to_list Web_services.booths) in
-          se.se_metadata <- {
-              se.se_metadata with
-              e_booth_version = Some version
-            };
+          let e_booth_version = match version with 1 -> None | x -> Some x in
+          se.se_metadata <- { se.se_metadata with e_booth_version };
           redir_preapply election_draft uuid ()
         )
     )
@@ -815,7 +813,7 @@ let () =
 
 let () =
   Any.register ~service:election_draft_questions_post
-    (fun uuid template ->
+    (fun uuid (template, booth_version) ->
       with_draft_election uuid (fun se ->
           let* l = get_preferred_gettext () in
           let open (val l) in
@@ -829,6 +827,8 @@ let () =
            | `H, `NH -> se.se_group <- !Web_config.nh_group
           );
           se.se_questions <- template;
+          let e_booth_version = match booth_version with 1 -> None | x -> Some x in
+          se.se_metadata <- { se.se_metadata with e_booth_version };
           redir_preapply election_draft uuid ()
         )
     )
