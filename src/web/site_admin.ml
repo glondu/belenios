@@ -636,22 +636,6 @@ let () =
     )
 
 let () =
-  Any.register ~service:election_draft_booth_version
-    (fun uuid booth ->
-      with_draft_election uuid (fun se ->
-          let rec loop version = function
-            | (_, name) :: _ when name = booth -> return version
-            | _ :: xs -> loop (version + 1) xs
-            | [] -> fail_http 400
-          in
-          let* version = loop 1 (Array.to_list Web_services.booths) in
-          let e_booth_version = match version with 1 -> None | x -> Some x in
-          se.se_metadata <- { se.se_metadata with e_booth_version };
-          redir_preapply election_draft uuid ()
-        )
-    )
-
-let () =
   Any.register ~service:election_draft_admin_name
     (fun uuid name ->
       with_draft_election uuid (fun se ->
