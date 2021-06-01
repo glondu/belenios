@@ -1389,11 +1389,9 @@ let election_draft_questions uuid se () =
         hybrid_box;
       ]
   in
-  let preview = div [hr (); preview_booth l uuid se.se_metadata] in
   let content = [
     interactivity;
     form;
-    preview;
   ] in
   let* login_box = login_box () in
   base ~title ~login_box ~content ()
