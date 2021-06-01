@@ -65,6 +65,10 @@ let get_input id =
   | Some x -> x
   | None -> Printf.ksprintf failwith "<input> %s is missing" id
 
+let set_input id z =
+  Option.iter (fun x -> x##.value := Js.string z)
+    (Dom_html.getElementById_coerce id Dom_html.CoerceTo.input)
+
 let set_element_display id x =
   document##getElementById (Js.string id) >>== fun e ->
   e##.style##.display := Js.string x

@@ -371,7 +371,33 @@ let rec createQuestion q =
   (* return *)
   container
 
-let createTemplate template =
+let createRadioItem name checked label =
+  let container = Dom_html.createLabel document in
+  let radio = Dom_html.createInput ~_type:(Js.string "radio") ~name document in
+  radio##.checked := Js.bool checked;
+  Dom.appendChild container radio;
+  Dom.appendChild container (document##createTextNode (Js.string " "));
+  Dom.appendChild container (document##createTextNode (Js.string label));
+  radio, container
+
+let createBoothSelector booth_version =
+  let container = Dom_html.createDiv document in
+  let line1 = Dom_html.createDiv document in
+  Dom.appendChild container line1;
+  Dom.appendChild line1 (document##createTextNode (Js.string (s_ "Booth:")));
+  let line2 = Dom_html.createDiv document in
+  Dom.appendChild container line2;
+  let name = Js.string "booth_version_radio" in
+  let _, i1 = createRadioItem name (booth_version = 1) (s_ "classic") in
+  Dom.appendChild line2 i1;
+  let line3 = Dom_html.createDiv document in
+  Dom.appendChild container line3;
+  let r2, i2 = createRadioItem name (booth_version = 2) (s_ "new interface (more elegant, still under test)") in
+  Dom.appendChild line3 i2;
+  let get () = if Js.to_bool r2##.checked then 2 else 1 in
+  get, container
+
+let createTemplate template booth_version =
   let container = Dom_html.createDiv document in
   (* name *)
   let x = Dom_html.createDiv document in
@@ -421,6 +447,10 @@ let createTemplate template =
   Dom.appendChild b t;
   Dom.appendChild x b;
   Dom.appendChild container x;
+  (* booth selection *)
+  Dom.appendChild container (Dom_html.createHr document);
+  let booth_get, booth_select = createBoothSelector booth_version in
+  Dom.appendChild container booth_select;
   (* button for submitting *)
   let x = Dom_html.createHr document in
   Dom.appendChild container x;
@@ -431,6 +461,8 @@ let createTemplate template =
     try
       let template = extractTemplate () in
       set_textarea "questions" (string_of_template template);
+      let booth_version = booth_get () in
+      set_input "booth_version" (string_of_int booth_version);
       document##querySelector (Js.string "form") >>= fun x ->
       Dom_html.CoerceTo.form x >>= fun x ->
       let () = x##submit in
@@ -463,6 +495,7 @@ let handle_hybrid e _ =
 let fill_interactivity () =
   document##getElementById (Js.string "interactivity") >>= fun e ->
   let t = template_of_string (get_textarea "questions") in
+  let booth_version = int_of_string (get_input "booth_version") in
   let has_nh =
     Array.exists
       (function
@@ -471,7 +504,7 @@ let fill_interactivity () =
       ) t.t_questions
   in
   hybrid_mode := has_nh;
-  let div = createTemplate t in
+  let div = createTemplate t booth_version in
   Dom.appendChild e div;
   document##querySelector (Js.string "form") >>= fun x ->
   x##.style##.display := Js.string "none";
