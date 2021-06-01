@@ -1389,7 +1389,13 @@ let election_draft_questions uuid se () =
         hybrid_box;
       ]
   in
+  let back =
+    div [
+        a ~service:Web_services.election_draft [txt (s_ "Go back to election draft")] uuid;
+      ]
+  in
   let content = [
+    back;
     interactivity;
     form;
   ] in
