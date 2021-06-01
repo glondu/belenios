@@ -287,7 +287,7 @@ let election_draft_pre () =
                         label [
                             radio ~checked ~name:auth ~value:"password" string;
                             txt " ";
-                            txt (s_ "Password (passwords will be emailed to voters)");
+                            txt (s_ "sent in advance by e-mail (useful for multiple elections)");
                           ]
                       ]
                  | `BuiltinCAS ->
@@ -295,7 +295,7 @@ let election_draft_pre () =
                         label [
                             radio ~checked ~name:auth ~value:"cas" string;
                             txt " ";
-                            txt (s_ "CAS (external authentication server)");
+                            txt (s_ "CAS (external authentication server, offers better security guarantees when applicable)");
                           ];
                         div ~a:[a_style "margin-left: 5em;"] [
                             txt (s_ "Server address:");
@@ -306,42 +306,55 @@ let election_draft_pre () =
                           ];
                       ]
                  | `Export a ->
+                    let legend =
+                      match a.auth_system with
+                      | "email" ->
+                         [
+                           txt (s_ "sent by email when voting (a short password, renewed for each vote)");
+                         ]
+                      | _ ->
+                         [
+                           txt a.auth_instance;
+                           txt " ";
+                           txt (s_ "(imported from server)");
+                         ]
+                    in
                     div [
-                        label [
-                            radio ~checked ~name:auth ~value:("%" ^ a.auth_instance) string;
-                            txt " ";
-                            txt a.auth_instance;
-                            txt " ";
-                            txt (s_ "(imported from server)");
-                          ]
+                        label (
+                            radio ~checked ~name:auth ~value:("%" ^ a.auth_instance) string
+                            :: txt " "
+                            :: legend
+                          );
                       ]
                )
         in
         [
-          fieldset
-            ~legend:(legend [
-              txt (s_ "Credential management");
+          div [
+              txt (s_ "For a better control of eligibility, voters will be authenticated by two factors: credentials and passwords");
               txt " (";
               a ~service:cred_info [txt (s_ "more info")] ();
-              txt ")";
-            ])
-            [
-              div [
-                  label [
-                      radio ~checked:true ~name:credmgmt ~value:"auto" string;
-                      txt " ";
-                      txt (s_ "Automatic (degraded mode - credentials will be handled by the server)");
-                    ]
-                ];
-              div [
-                  label [
-                      radio ~name:credmgmt ~value:"manual" string;
-                      txt " ";
-                      txt (s_ "Manual (safe mode - a third party will handle the credentials)");
-                    ]
-                ];
+              txt ").";
             ];
-          fieldset ~legend:(legend [txt (s_ "Authentication")]) auth_systems;
+          ol [
+              li [
+                  txt (s_ "Credentials:");
+                  div [
+                      label [
+                          radio ~checked:true ~name:credmgmt ~value:"auto" string;
+                          txt " ";
+                          txt (s_ "sent by our server (easier mode but offers less security)");
+                        ]
+                    ];
+                  div [
+                      label [
+                          radio ~name:credmgmt ~value:"manual" string;
+                          txt " ";
+                          txt (s_ "sent by a third party chosen by you (safe mode)");
+                        ]
+                    ];
+                ];
+              li (txt (s_ "Passwords:") :: auth_systems);
+            ];
           div [
             input ~input_type:`Submit ~value:(s_ "Proceed") string;
           ];
