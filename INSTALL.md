@@ -22,7 +22,7 @@ OCaml projects.
 
 The non-OCaml prerequisites are:
 
- * a POSIX system with a C compiler
+ * a POSIX system with a C compiler and a `/usr/lib/sendmail` command
  * on Linux, [Bubblewrap](https://github.com/projectatomic/bubblewrap)
  * [GMP](http://gmplib.org/)
  * [PCRE](http://www.pcre.org/)
