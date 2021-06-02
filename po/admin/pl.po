@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-05-31 23:16+0000\n"
+"PO-Revision-Date: 2021-06-03 12:28+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/admin/pl/"
 ">\n"
@@ -84,8 +84,7 @@ msgstr " aby utworzyć klucz głosowania."
 #: src/web/pages_admin.ml:1122
 msgid " trustees will be needed to decrypt the result."
 msgstr ""
-" członkowie komisji skrutacyjnej będą potrzebni do odszyfrowania wyniku "
-"głosowania."
+" mężowie (osoby) zaufania będą potrzebni do odszyfrowania wyniku głosowania."
 
 #: src/web/pages_admin.ml:583
 msgid " voter(s) registered"
@@ -154,7 +153,7 @@ msgstr "(pominięty)"
 
 #: src/web/pages_admin.ml:1113
 msgid "(the threshold must be smaller than the number of trustees)"
-msgstr "(próg musi być mniejszy niż liczba członków komisji skrutacyjnej)"
+msgstr "(próg musi być mniejszy niż liczba mężów (osób) zaufania)"
 
 #: src/web/pages_admin.ml:193 src/web/pages_admin.ml:185
 msgid "(untitled)"
@@ -182,11 +181,11 @@ msgstr "1. Kliknij link."
 
 #: src/web/pages_admin.ml:1090
 msgid "1a: action needed from trustee: generate private key"
-msgstr "1a. poczekaj aż członek komisji skrutacyjnej utworzy klucz prywatny"
+msgstr "1a. poczekaj aż mąż (osoba) zaufania utworzy klucz prywatny"
 
 #: src/web/pages_admin.ml:1092
 msgid "1b, 2b, 3b: waiting for other trustees"
-msgstr "1b, 2b, 3b: poczekaj na pozostałych członków komisji skrutacyjnej"
+msgstr "1b, 2b, 3b: poczekaj na pozostałych mężów (osoby) zaufania"
 
 #: src/web/pages_admin.ml:1180
 msgid "2. Click on \"Generate\"."
@@ -194,8 +193,7 @@ msgstr "2. Kliknij na \"Utwórz\"."
 
 #: src/web/pages_admin.ml:1091
 msgid "2a, 3a: action needed from trustee: enter private key"
-msgstr ""
-"2a, 3a: poczekaj aż członek komisji skrutacyjnej wprowadzi klucz prywatny"
+msgstr "2a, 3a: poczekaj aż mąż (osoba) zaufania wprowadzi klucz prywatny"
 
 #: src/web/pages_admin.ml:1181
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
@@ -210,8 +208,8 @@ msgstr "4. Pobierz listę uprawnionych do głosowania (voters.txt)."
 #: src/web/pages_admin.ml:1185
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
-"5. Zapisz dwa cyfrowe odciski: cyfrowy odcisk listy uprawnionych do "
-"głosowania oraz cyfrowy odcisk publicznych części kodów głosowania"
+"5. Zapisz dwa cyfrowe odciski: cyfrowy odcisk (hasz) listy uprawnionych do "
+"głosowania oraz cyfrowy odcisk (hasz) publicznych części kodów głosowania"
 
 #: src/web/pages_admin.ml:1187
 msgid "6. Click on \"Submit the public credentials\"."
@@ -262,8 +260,7 @@ msgstr "Wszystkie hasła zostały wysłane!"
 #: src/web/pages_admin.ml:756
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr ""
-"Wszyscy członkowie komisji skrutacyjnej muszą zakończyć, nim przejdziesz "
-"dalej."
+"Wszyscy mężowie (osoby) zaufania muszą zakończyć, nim przejdziesz dalej."
 
 #: src/tool/tool_js_questions.ml:323
 msgid "Alternative (voters assign a number to each candidate)"
@@ -306,8 +303,8 @@ msgstr "Wystąpił błąd przy tasowaniu oddanych głosów."
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "Przy obliczaniu wyników głosowania wystąpił błąd (%s). Najpewniej błąd "
-"wynika z tego, że przynajmniej jeden z członków komisji skrutacyjnej nie "
-"wykonał jeszcze potrzebnej czynności."
+"wynika z tego, że przynajmniej jeden z mężów (osób) zaufania nie wykonał "
+"jeszcze potrzebnej czynności."
 
 #: src/web/pages_admin.ml:1497
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
@@ -333,14 +330,14 @@ msgstr "Zarchiwizowane głosowania"
 #: src/web/pages_admin.ml:2832
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
 msgstr ""
-"Jako członek komisji skrutacyjnej, Twoim pierwszym zadaniem jest potasowanie "
+"Jako mąż (osoba) zaufania, Twoim pierwszym zadaniem jest potasowanie "
 "oddanych (zaszyfrowanych) kart do głosowania."
 
 #: src/web/pages_admin.ml:2497
 msgid "At least %d trustee(s) must act."
 msgstr ""
-"Przynajmniej %d członków komisji skrutacyjnej musi pozostać aktywna i "
-"działać do końca głosowania."
+"Przynajmniej %d mężów (osób) zaufania musi pozostać aktywna i działać do "
+"końca głosowania."
 
 #: src/web/pages_admin.ml:514 src/web/pages_admin.ml:344
 msgid "Authentication"
@@ -388,7 +385,7 @@ msgstr "Dostępne języki:"
 
 #: src/web/pages_admin.ml:2600
 msgid "Awaiting trustees…"
-msgstr "Czekam na komisję skrutacyjną…"
+msgstr "Czekam na mężów (osoby) zaufania…"
 
 #: src/web/pages_admin.ml:1229
 msgid "Back to election preparation page"
@@ -534,8 +531,7 @@ msgstr "Kontakt?"
 
 #: src/web/site_admin.ml:1431
 msgid "Could not retrieve trustees from selected election!"
-msgstr ""
-"Nie udało się pobrać członków komisji skrutacyjnej z wybranych głosowań!"
+msgstr "Nie udało się pobrać mężów (osób) zaufania z wybranych głosowań!"
 
 #: src/web/site_admin.ml:1403
 msgid "Could not retrieve voter list from election %s"
@@ -625,7 +621,7 @@ msgstr "Szanowny Administratorze kodów głosowania,"
 #. src/web/pages_admin.ml:699
 #: src/web/pages_admin.ml:2193 src/web/pages_admin.ml:2156
 msgid "Dear trustee,"
-msgstr "Szanowny Członku komisji skrutacyjnej,"
+msgstr "Szanowny Mężu (Osobo) Zaufania,"
 
 #: src/web/pages_admin.ml:2698
 msgid "Delete election"
@@ -835,8 +831,8 @@ msgstr "Kliknij link."
 #: src/web/pages_admin.ml:593
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr ""
-"W realnym głosowaniu, klucze muszą być podzielone pomiędzy członków komisji "
-"skrutacyjnej."
+"W realnym głosowaniu, klucze muszą być podzielone pomiędzy mężów (osoby) "
+"zaufania."
 
 #. src/web/site_admin.ml:1574
 #: src/web/site_admin.ml:1924 src/web/site_admin.ml:1921
@@ -905,7 +901,7 @@ msgstr "Importuj z tego głosowania"
 
 #: src/web/pages_admin.ml:1933 src/web/pages_admin.ml:920
 msgid "Import trustees from another election"
-msgstr "Importuj dane członków komisji skrutacyjnej z innego głosowania"
+msgstr "Importuj dane mężów (osób) zaufania z innego głosowania"
 
 #: src/web/pages_admin.ml:1925 src/web/pages_admin.ml:1503
 msgid "Import voters from another election"
@@ -914,14 +910,14 @@ msgstr "Importuj dane uprawnionych do głosowania z innego głosowania"
 #: src/web/site_admin.ml:1438
 msgid "Imported trustees are invalid for this election!"
 msgstr ""
-"Zaimportowane dane członków komisji skrutacyjnej nie są odpowiednie dla tego "
+"Zaimportowane dane mężów (osób) zaufania nie są odpowiednie dla tego "
 "głosowania!"
 
 #: src/web/pages_admin.ml:1934
 msgid "Imported trustees will have the same keys as in the original election."
 msgstr ""
-"Zaimportowani członkowie komisji skrutacyjnej będą mieli takie same klucze "
-"jak w pierwotnym głosowaniu."
+"Zaimportowani mężowie (osoby) zaufania będą mieli takie same klucze jak w "
+"pierwotnym głosowaniu."
 
 #: src/web/pages_admin.ml:1926
 msgid "Imported voters will have the same password as in the original election, and no new e-mail will be sent."
@@ -973,8 +969,8 @@ msgstr "Nieprawidłowe Imię i nazwisko (nazwa) administratora kodów głosowani
 #: src/web/pages_admin.ml:2904
 msgid "It is now time to compute your partial decryption factors."
 msgstr ""
-"Teraz czas na obliczenie cyfrowych udziałów odszyfrowujących z pomocą "
-"członków komisji skrutacyjnej."
+"Teraz czas na obliczenie cyfrowych udziałów odszyfrowujących z pomocą mężów "
+"(osób) zaufania."
 
 #: src/web/pages_admin.ml:406
 msgid "Languages"
@@ -1128,9 +1124,8 @@ msgstr "Taki język nie jest dostępny: %s"
 #: src/web/pages_admin.ml:2050
 msgid "No trustees were set. This means the server will manage the election key by itself."
 msgstr ""
-"Nie ustawiono opcji udziału komisji skrutacyjnej. Oznacza to, że serwer "
-"będzie administrował kluczem głosowania bez udziału członków komisji "
-"skrutacyjnej."
+"Nie ustawiono opcji udziału mężów (osób) zaufania. Oznacza to, że serwer "
+"będzie administrował kluczem głosowania bez ich udziału."
 
 #: src/web/site_admin.ml:1154 src/web/pages_admin.ml:1457
 msgid "No voters"
@@ -1180,15 +1175,15 @@ msgstr "Uwaga: to głosowanie zostanie automatycznie usunięte po "
 #: src/tool/tool_js_ttkeygen.ml:118
 msgid "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
 msgstr ""
-"Teraz wszystkie certyfikaty członków komisji skrutacyjnej zostały utworzone. "
-"Przejdź do utworzenia swojego udziału w kluczu deszyfrującym."
+"Teraz wszystkie certyfikaty mężów (osób) zaufania zostały utworzone. Przejdź "
+"do utworzenia swojego udziału w kluczu deszyfrującym."
 
 #: src/tool/tool_js_ttkeygen.ml:119
 msgid "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
 msgstr ""
-"Teraz wszyscy członkowie komisji skrutacyjnej utworzyli swoje sekretne "
-"udziały w kluczu odszyfrowującym. Przejdź do ostatecznego sprawdzenia, aby "
-"zatwierdzić głosowanie."
+"Teraz wszyscy mężowie (osoby) zaufania utworzyli swoje sekretne udziały w "
+"kluczu odszyfrowującym. Przejdź do ostatecznego sprawdzenia, aby zatwierdzić "
+"głosowanie."
 
 #: src/web/pages_admin.ml:2777
 msgid "Number of records: %d/%d"
@@ -1201,8 +1196,8 @@ msgstr "Oczywiście mile widziane są również dalsze rozwiązania kryptografic
 #: src/web/pages_admin.ml:1139
 msgid "On this page, you can configure a group of trustees so that only a subset of them is needed to perform the decryption."
 msgstr ""
-"W tym miejscu można określić, którzy z członków komisji skrutacyjnej będą "
-"potrzebni do odszyfrowania wyniku głosowania."
+"W tym miejscu można określić, którzy z mężów (osób) zaufania będą potrzebni "
+"do odszyfrowania wyniku głosowania."
 
 #: src/web/pages_admin.ml:1196
 msgid "Once the election is finished and validated, you are expected to destroy the file creds.txt for stronger privacy guarantees."
@@ -1289,7 +1284,7 @@ msgstr "Proszę "
 
 #: src/web/site_admin.ml:2294
 msgid "Please add some trustees first!"
-msgstr "Najpierw dodaj kilku członków komisji skrutacyjnej!"
+msgstr "Najpierw dodaj kilku mężów (osób) zaufania!"
 
 #: src/web/pages_admin.ml:3143
 msgid "Please choose a password: "
@@ -1414,8 +1409,8 @@ msgid "Regarding your private key, it is crucial you save it (otherwise the elec
 msgstr ""
 "Musisz koniecznie zapisać Twój klucz prywatny i przechowywać w bezpiecznym "
 "miejscu. Utrata klucza spowoduje unieważnienie głosowania. Jeśli Twój klucz "
-"prywatny zostałby ujawniony wraz z kluczami prywatnymi innych członków "
-"komisji skrutacyjnej, to tajność głosowania nie byłaby już gwarantowana."
+"prywatny zostałby ujawniony wraz z kluczami prywatnymi innych mężów (osób) "
+"zaufania, to tajność głosowania nie byłaby już gwarantowana."
 
 #: src/web/pages_admin.ml:2714
 msgid "Regenerate and e-mail a password"
@@ -1477,7 +1472,7 @@ msgstr "Zapisz powyższe dwa cyfrowe odciski (hasze)."
 
 #: src/web/pages_admin.ml:2411
 msgid "Select this trustee"
-msgstr "Wybierz tego członka komisji skrutacyjnej"
+msgstr "Wybierz tego męża (osobę) zaufania"
 
 #: src/web/pages_admin.ml:1430
 msgid "Send again"
@@ -1518,7 +1513,7 @@ msgstr "Pomiń"
 
 #: src/web/pages_admin.ml:2804
 msgid "Skipping trustee %s"
-msgstr "Pomijanie członka komisji skrutacyjnej %s"
+msgstr "Pomijanie męża (osoby) zaufania %s"
 
 #: src/web/pages_admin.ml:1082
 msgid "State"
@@ -1683,7 +1678,7 @@ msgstr "Podane maksimum jest większe niż liczba odpowiedzi (opcji wyboru)!"
 #. src/web/pages_admin.ml:892
 #: src/web/pages_admin.ml:2567 src/web/pages_admin.ml:2433
 msgid "The link that must be sent to trustee "
-msgstr "Link, który musi zostać wysłany do członka komisji skrutacyjnej "
+msgstr "Link, który musi zostać wysłany do męża (osoby) zaufania "
 
 #. src/web/pages_admin.ml:1525
 #: src/web/pages_admin.ml:1722 src/web/pages_admin.ml:1639
@@ -1722,8 +1717,7 @@ msgstr "Pomyślnie potasowano oddane głosy!"
 
 #: src/web/site_admin.ml:2307
 msgid "The threshold must be positive and smaller than the number of trustees!"
-msgstr ""
-"Próg musi być dodatni i mniejszy od liczby członków komisji skrutacyjnej!"
+msgstr "Próg musi być dodatni i mniejszy od liczby mężów (osób) zaufania!"
 
 #: src/web/site_admin.ml:1393 src/web/site_admin.ml:940
 msgid "The total weight cannot exceed %d."
@@ -1760,14 +1754,14 @@ msgstr ""
 #: src/web/pages_admin.ml:1146
 msgid "There is one link per trustee. Send a link to each trustee."
 msgstr ""
-"Na każdego członka komisji skrutacyjnej przypada jeden link. Wyślij link do "
-"każdego z tych członków."
+"Na każdego męża (osobę) zaufania przypada jeden link. Wyślij link do każdego "
+"z nich."
 
 #: src/web/pages_admin.ml:929
 msgid "There is one link per trustee. Send each trustee the respective link."
 msgstr ""
-"Na każdego członka komisji skrutacyjnej przypada jeden link. Wyślij każdemu "
-"z tych członków odpowiedni link."
+"Na każdego męża (osobę) zaufania przypada jeden link. Wyślij każdemu z nich "
+"odpowiedni link."
 
 #: src/web/pages_admin.ml:755
 msgid "There will be 3 steps."
@@ -1815,7 +1809,7 @@ msgstr "Tego rodzaju zmiany nie są teraz dopuszczalne!"
 msgid "This list must be the one approved by the election commission."
 msgstr ""
 "Lista uprawnionych do głosowania musi być zatwierdzona przez komisję "
-"skrutacyjną, albo inną właściwą komisję."
+"skrutacyjną, albo inną właściwą komisję odpowiedzialną za głosowanie."
 
 #: src/web/pages_admin.ml:462
 msgid "This name will be published on the election result page."
@@ -1850,14 +1844,14 @@ msgstr "Aby to potwierdzić, należy użyć następującego kodu:"
 #: src/web/pages_admin.ml:941
 msgid "To set up the election key, you need to nominate trustees. Each trustee will create a secret key."
 msgstr ""
-"Aby ustawić klucz głosowania, należy powołać członków komisji skrutacyjnej. "
-"Każdy z członków tej komisji utworzy sekretny klucz."
+"Aby ustawić klucz głosowania, należy powołać mężów (osoby) zaufania. Każdy z "
+"nich utworzy sekretny klucz."
 
 #: src/web/pages_admin.ml:943
 msgid "To set up the election so that only a subset of trustees is needed, go to the "
 msgstr ""
-"Alternatywnie możesz postanowić, aby tylko część ze składu komisji "
-"skrutacyjnej była potrzebna do odszyfrowania wyniku głosowania. Aby tak "
+"Alternatywnie możesz skonfigurować głosowanie tak, aby tylko część z mężów "
+"(osób) zaufania była potrzebna do odszyfrowania wyniku głosowania. Aby tak "
 "zrobić przejdź do "
 
 #: src/web/pages_admin.ml:51
@@ -1872,27 +1866,27 @@ msgstr "Za krótkie"
 #. src/web/pages_admin.ml:909
 #: src/web/pages_admin.ml:2603 src/web/pages_admin.ml:2467
 msgid "Trustee"
-msgstr "Członek komisji skrutacyjnej"
+msgstr "Mąż (osoba) zaufania"
 
 #: src/web/pages_admin.ml:1708 src/web/pages_admin.ml:1633
 msgid "Trustee for election %s"
-msgstr "Członek komisji skrutacyjnej do głosowania %s"
+msgstr "Mąż (osoba) zaufania w głosowaniu %s"
 
 #: src/web/pages_admin.ml:974 src/web/pages_admin.ml:810
 msgid "Trustee's e-mail address:"
-msgstr "Email członka komisji skrutacyjnej:"
+msgstr "Email męża (osoby) zaufania:"
 
 #: src/web/pages_admin.ml:589
 msgid "Trustees"
-msgstr "Członkowie komisji skrutacyjnej"
+msgstr "Mężowie (osoby) zaufania"
 
 #: src/web/pages_admin.ml:966 src/web/pages_admin.ml:804
 msgid "Trustees for election %s"
-msgstr "Członkowie komisji skrutacyjnej do głosowania %s"
+msgstr "Mężowie (osoby) zaufania w głosowaniu %s"
 
 #: src/web/pages_admin.ml:2103
 msgid "Trustees?"
-msgstr "Członkowie komisji skrutacyjnej?"
+msgstr "Mężowie (osoby) zaufania?"
 
 #: src/web/pages_admin.ml:3148 src/web/pages_admin.ml:3098
 msgid "Type the password again: "
@@ -1900,7 +1894,7 @@ msgstr "Wpisz hasło ponownie: "
 
 #: src/web/site_admin.ml:1480
 msgid "Unsupported trustees!"
-msgstr "Nieobsługiwani członkowie komisji skrutacyjnej!"
+msgstr "Nieobsługiwani mężowie (osoby) zaufania!"
 
 #: src/web/pages_admin.ml:1583
 msgid "Use this form to upload public credentials generated with the command-line tool."
@@ -1950,8 +1944,8 @@ msgstr ""
 #: src/tool/tool_js_ttkeygen.ml:97
 msgid "Waiting for the other trustees... Reload the page to check progress."
 msgstr ""
-"Czekam na pozostałych członków komisji skrutacyjnej... Załaduj stronę "
-"ponownie aby sprawdzić postęp."
+"Czekam na pozostałych mężów (osoby) zaufania... Załaduj stronę ponownie aby "
+"sprawdzić postęp."
 
 #. src/web/pages_admin.ml:1489
 #. src/web/pages_admin.ml:1485
@@ -2035,8 +2029,8 @@ msgstr "Możesz odroczyć publikację wyników głosowania do %d dni."
 #: src/web/pages_admin.ml:2810
 msgid "You may skip a trustee if they do not answer. Be aware that this reduces the security."
 msgstr ""
-"Możesz pominąć członka komisji skrutacyjnej, jeśli nie jest dostępny. Należy "
-"mieć świadomość, że zmniejsza to bezpieczeństwo."
+"Możesz pominąć męża (osobę) zaufania, jeśli nie jest dostępny. Należy mieć "
+"świadomość, że zmniejsza to bezpieczeństwo."
 
 #: src/web/pages_admin.ml:1190
 msgid "You may use a script of your own or the one provided in the Belenios distribution, see instructions here:"
@@ -2282,7 +2276,9 @@ msgstr "istnieje już konto z tym adresem e-mail"
 
 #: src/web/pages_admin.ml:944
 msgid "threshold mode"
-msgstr "wskazania członków komisji, których działanie będzie niezbędne"
+msgstr ""
+"wskazania liczby mężów (osób) zaufania, których działanie będzie niezbędne ("
+"tryb progowy)"
 
 #: src/web/pages_admin.ml:2253
 msgid "times are in UTC. Now is "
