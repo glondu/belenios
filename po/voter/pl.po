@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-05-04 05:15+0000\n"
+"PO-Revision-Date: 2021-06-03 12:28+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -104,9 +104,8 @@ msgstr "%d nieważnych kart do głosowania"
 #: src/web/pages_voter.ml:356
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
-"%d z następujących %d członków komisji skrutacyjnej (przy pomocy swoich "
-"kluczy weryfikacyjnych) [kluczy publicznych] musi odszyfrować wynik "
-"głosowania:"
+"%d z następujących %d mężów (osób) zaufania (przy pomocy swoich kluczy "
+"weryfikacyjnych) [kluczy publicznych] musi odszyfrować wynik głosowania:"
 
 #: src/tool/tool_js_booth.ml:171
 msgid "(nothing)"
@@ -170,8 +169,8 @@ msgstr "Tryb zaawansowany"
 #: src/web/pages_voter.ml:332
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
-"Każdy z następujących członków komisji skrutacyjnej (przy pomocy swoich "
-"kluczy weryfikacyjnych) musi odszyfrować wynik głosowania:"
+"Każdy z następujących mężów (osób) zaufania (przy pomocy swoich kluczy "
+"weryfikacyjnych) musi odszyfrować wynik głosowania:"
 
 #. src/web/pages_voter.ml:533
 #: src/web/pages_voter.ml:818 src/web/pages_voter.ml:635
@@ -279,8 +278,8 @@ msgstr "Twój kod głosowania:"
 #: src/web/pages_voter.ml:366
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
-"Kody głosowania zostały utworzone i wysłane przez %s . Ich cyfrowy odcisk "
-"(hasz) to %s."
+"Kody głosowania zostały utworzone i wysłane przez %s. Cyfrowy odcisk (hasz) "
+"publicznych części kodów głosowania to %s."
 
 #: src/web/pages_voter.ml:1271 src/web/pages_common.ml:352
 msgid "Dear %s,"
@@ -741,7 +740,7 @@ msgstr "Całkowita waga wszystkich głosów wynosi %d (min: %d, max: %d)."
 msgid "The voter list has %d voter(s) and fingerprint %s."
 msgstr ""
 "Lista uprawnionych do głosowania liczy %d osobę/y/osób i cyfrowy odcisk "
-"listy uprawnionych (hasz) to %s."
+"(hasz) listy uprawnionych to %s."
 
 #: src/web/pages_voter.ml:975
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
@@ -816,8 +815,7 @@ msgstr "Całkowita waga oddanych kart do głosowania:"
 #: src/web/pages_voter.ml:376
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
-"Komisja skrutacyjna potasowała i ułożyła oddane karty do głosowania w "
-"następującej kolejności:"
+"Mężowie (osoby) zaufania potasowali oddane karty do głosowania jak następuje:"
 
 #: src/web/pages_common.ml:355
 msgid "Use the following code:"
@@ -1045,7 +1043,7 @@ msgstr "Głosowanie zakończyło się"
 
 #: src/web/pages_voter.ml:57
 msgid "trustees"
-msgstr "członkowie komisji skrutacyjnej"
+msgstr "mężowie (osoby) zaufania"
 
 #: src/web/pages_common.ml:319
 msgid "try to log in again"
