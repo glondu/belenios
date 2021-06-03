@@ -305,7 +305,7 @@ let stringuuid_of_mail_kind = function
 let send_email kind ~recipient ~subject ~body =
   let contents =
     Netsendmail.compose
-      ~from_addr:("Belenios public server", !Web_config.server_mail)
+      ~from_addr:(!Web_config.server_name, !Web_config.server_mail)
       ~to_addrs:[recipient, recipient]
       ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
       ~subject body

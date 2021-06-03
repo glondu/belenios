@@ -67,15 +67,16 @@ let () =
   | Element ("gdpr", ["uri", uri], []) ->
     gdpr_uri := Some uri
   | Element ("server", attrs, []) ->
-     let set attr setter =
+     let set check_email attr setter =
        match List.assoc_opt attr attrs with
        | Some mail ->
-          if is_email mail then setter mail
+          if not check_email || is_email mail then setter mail
           else Printf.ksprintf failwith "%s is not a valid e-mail address" mail
        | None -> ()
      in
-     set "mail" (fun x -> Web_config.server_mail := x);
-     set "return-path" (fun x -> Web_config.return_path := Some x);
+     set true "mail" (fun x -> Web_config.server_mail := x);
+     set true "return-path" (fun x -> Web_config.return_path := Some x);
+     set false "name" (fun x -> Web_config.server_name := x);
   | Element ("locales", ["dir", dir], []) ->
     locales_dir := Some dir
   | Element ("spool", ["dir", dir], []) ->
