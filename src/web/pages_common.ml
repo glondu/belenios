@@ -67,7 +67,7 @@ let read_snippet file = match file with
      | None -> return @@ txt ""
      | Some x -> return @@ Unsafe.data (String.concat "\n" x)
 
-let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
+let base ~title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let administer =
@@ -137,7 +137,7 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
       ]]
      ]))
 
-let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
+let responsive_base ~title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let administer =
