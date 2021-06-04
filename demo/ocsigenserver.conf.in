@@ -80,6 +80,7 @@
         <locales dir="_SHAREDIR_/locales"/>
         <spool dir="_VARDIR_/spool"/>
         <warning file="_VARDIR_/warning.html"/>
+        <footer file="_VARDIR_/footer.html"/>
       </eliom>
     </host>
 

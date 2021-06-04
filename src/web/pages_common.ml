@@ -59,6 +59,14 @@ let belenios_url = Eliom_service.extern
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
+let read_snippet file = match file with
+  | None -> return @@ txt ""
+  | Some f ->
+     let* file = read_file f in
+     match file with
+     | None -> return @@ txt ""
+     | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+
 let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
   let* l = get_preferred_gettext () in
   let open (val l) in
@@ -82,14 +90,8 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
     | None -> txt ""
     | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
-  let* warning = match !Web_config.warning_file with
-    | None -> return @@ txt ""
-    | Some f ->
-       let* file = read_file f in
-       match file with
-       | None -> return @@ txt ""
-       | Some x -> return @@ Unsafe.data (String.concat "\n" x)
-  in
+  let* warning = read_snippet !Web_config.warning_file in
+  let* extra_footer = read_snippet !Web_config.footer_file in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
     (head (Eliom_content.Html.F.title (txt title)) [
       script (txt "window.onbeforeunload = function () {};");
@@ -130,6 +132,7 @@ let base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uuid () =
           txt ". ";
           administer;
           txt ".";
+          extra_footer;
         ]
       ]]
      ]))
@@ -154,14 +157,8 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
     | None -> div []
     | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
-  let* warning = match !Web_config.warning_file with
-    | None -> return @@ txt ""
-    | Some f ->
-       let* file = read_file f in
-       match file with
-       | None -> return @@ txt ""
-       | Some x -> return @@ Unsafe.data (String.concat "\n" x)
-  in
+  let* warning = read_snippet !Web_config.warning_file in
+  let* extra_footer = read_snippet !Web_config.footer_file in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
     (head (Eliom_content.Html.F.title (txt title)) [
       meta ~a:[a_name "viewport"; a_content "width=device-width, initial-scale=1"] ();
@@ -206,6 +203,7 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = div []) ?uui
             txt ". ";
             administer;
             txt ".";
+            extra_footer;
           ];
         ];
       ];

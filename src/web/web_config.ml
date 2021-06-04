@@ -29,6 +29,7 @@ let return_path = ref None
 let contact_uri = ref None
 let gdpr_uri = ref ""
 let warning_file = ref None
+let footer_file = ref None
 let admin_home = ref None
 let source_file = ref "belenios.tar.gz"
 let maxmailsatonce = ref 1000
