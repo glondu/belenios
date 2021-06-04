@@ -28,6 +28,13 @@ type question =
 val read_question : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question
 val write_question : Bi_outbuf.t -> question -> unit
 
+type counting_method =
+  [ `None
+  | `MajorityJudgment of Question_nh_t.mj_extra
+  ]
+
+val get_counting_method : Yojson.Safe.t option -> counting_method
+
 val erase_question : question -> question
 
 module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION

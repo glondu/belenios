@@ -68,6 +68,45 @@ let audit_footer election =
     ]
   ]
 
+let majority_judgment_content l q r =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let explicit_winners =
+    List.map
+      (List.map
+         (fun i -> q.Question_nh_t.q_answers.(i))
+      ) r.mj_winners
+  in
+  let pretty_winners =
+    List.map
+      (fun l ->
+        li [match l with
+            | [] -> failwith "anomaly in Pages_voter.majority_judgment"
+            | [x] -> txt x
+            | l -> div [
+                       txt (s_ "Tie:");
+                       ul (List.map (fun x -> li [txt x]) l);
+                     ]
+          ]
+      ) explicit_winners
+  in
+  let invalid = "data:application/json," ^ string_of_mj_ballots r.mj_invalid in
+  let invalid = direct_a invalid (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.mj_invalid)) in
+  let invalid =
+    div
+      [
+        invalid;
+        txt ". ";
+        txt (s_ "A ballot is invalid if a voter has entered a number that is greater than the number of grades.");
+      ]
+  in
+  [
+    div [
+        txt (s_ "The Majority Judgment winners are:");
+        ol pretty_winners;
+      ];
+    invalid;
+  ]
+
 let format_question_result uuid l (i, q) r =
   let open (val l : Web_i18n_sig.GETTEXT) in
   match q with
@@ -92,18 +131,31 @@ let format_question_result uuid l (i, q) r =
           | Some true -> table (ys @ [y])
           | _ -> table (y :: ys)
      in
-     li [
+     li ~a:[a_class ["result_question_item"]] [
          div ~a:[a_class ["result_question"]] [txt x.q_question];
          answers;
        ]
-  | Question.NonHomomorphic (x, _) ->
+  | Question.NonHomomorphic (q, extra) ->
      let open Question_nh_t in
-     li [
-         div ~a:[a_class ["result_question"]] [txt x.q_question];
+     let applied_counting_method, show_others =
+       match Question.get_counting_method extra with
+       | `None -> txt "", true
+       | `MajorityJudgment o ->
+          let ngrades = Array.length o.mj_extra_grades in
+          let ballots =
+            r
+            |> Shape.to_shape_array
+            |> Array.map Shape.to_array
+          in
+          let nchoices = Array.length q.Question_nh_t.q_answers in
+          let mj = Majority_judgment.compute ~nchoices ~ngrades ballots in
+          let contents = majority_judgment_content l q mj in
+          div ~a:[a_class ["majority_judgment_result"]] contents, false
+     in
+     let others =
+       if show_others then (
          div [
-             txt (s_ "The raw results can be viewed in the ");
-             a ~service:election_project_result [txt (s_ "JSON result")] ((uuid, ()), i);
-             txt (s_ ". It contains all submitted ballots in clear, in random order. It is up to you to apply your favorite counting method (e.g. Condorcet, STV, majority judgement).");
+             txt (s_ "It is up to you to apply your favorite counting method.");
              txt " ";
              txt (s_ "Available methods on this server:");
              txt " ";
@@ -113,6 +165,18 @@ let format_question_result uuid l (i, q) r =
              txt ", ";
              a ~service:method_stv [txt (s_ "Single Transferable Vote")] (uuid, (i, None));
              txt ".";
+           ]
+       ) else txt ""
+     in
+     li ~a:[a_class ["result_question_item"]] [
+         div ~a:[a_class ["result_question"]] [txt q.q_question];
+         applied_counting_method;
+         div [
+             txt (s_ "The raw results can be viewed in the ");
+             a ~service:election_project_result [txt (s_ "JSON result")] ((uuid, ()), i);
+             txt ". ";
+             txt (s_ "It contains all submitted ballots in clear, in random order.");
+             others;
            ];
        ]
 
@@ -1032,44 +1096,7 @@ let majority_judgment q r =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Majority Judgment method" in
-  let explicit_winners =
-    List.map
-      (List.map
-         (fun i -> q.Question_nh_t.q_answers.(i))
-      ) r.mj_winners
-  in
-  let pretty_winners =
-    List.map
-      (fun l ->
-        li [match l with
-            | [] -> failwith "anomaly in Pages_voter.majority_judgment"
-            | [x] -> txt x
-            | l -> div [
-                       txt (s_ "Tie:");
-                       ul (List.map (fun x -> li [txt x]) l);
-                     ]
-          ]
-      ) explicit_winners
-  in
-  let invalid = "data:application/json," ^ string_of_mj_ballots r.mj_invalid in
-  let invalid = direct_a invalid (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.mj_invalid)) in
-  let invalid =
-    div
-      [
-        invalid;
-        txt ". ";
-        txt (s_ "A ballot is invalid if a voter has entered a number that is greater than the number of grades.");
-      ]
-  in
-  let content =
-    [
-      div [
-          txt (s_ "The Majority Judgment winners are:");
-          ol pretty_winners;
-        ];
-      invalid;
-    ]
-  in
+  let content = majority_judgment_content l q r in
   base ~title ~content ()
 
 let stv_select uuid question =

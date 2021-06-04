@@ -61,6 +61,25 @@ let write_question b = function
      in
      Yojson.Safe.write_json b (`Assoc o)
 
+type counting_method =
+  [ `None
+  | `MajorityJudgment of Question_nh_t.mj_extra
+  ]
+
+let get_counting_method extra =
+  let open Question_nh_j in
+  match extra with
+  | Some (`Assoc o as extra) ->
+     (match List.assoc_opt "type" o with
+      | Some (`String "MajorityJudgment") ->
+         (match extra |> Yojson.Safe.to_string |> mj_extra_of_string with
+          | x -> `MajorityJudgment x
+          | exception _ -> `None
+         )
+      | _ -> `None
+     )
+  | _ -> `None
+
 let erase_question = function
   | Homomorphic q ->
      let open Question_h_t in

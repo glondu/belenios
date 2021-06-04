@@ -57,6 +57,9 @@ button {
   font-style: italic;
   margin-bottom: 2ex;
 }
+.result_question_item {
+  margin-bottom: 2ex;
+}
 .result_question {
   font-weight: bold;
   font-style: italic;
@@ -65,6 +68,10 @@ button {
   font-family: monospace;
   font-size: 90%;
   background-color: #EEEEEE;
+}
+.majority_judgment_result {
+    margin: 1em;
+    border: 1px solid;
 }
 .lang_box {
   float: right;

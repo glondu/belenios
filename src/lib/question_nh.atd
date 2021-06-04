@@ -38,3 +38,10 @@ type 'a answer = {
   proof : proof;
 }
 <doc text="An answer to a question.">
+
+(** {2 Counting methods} *)
+
+type mj_extra = {
+  blank : bool;
+  grades : string list <ocaml repr="array">;
+} <ocaml field_prefix="mj_extra_">
