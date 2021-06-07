@@ -62,7 +62,7 @@
         <uuid length="14"/>
         <gdpr uri="http://www.example.org/privacy_policy.html"/>
         <!-- <contact uri="mailto:contact@example.org"/> -->
-        <server mail="noreply@example.org" return-path="bounces@example.org"/>
+        <server mail="noreply@example.org" return-path="bounces@example.org" name="Belenios public server"/>
         <auth-export name="builtin-password"/>
         <auth-export name="builtin-cas"/>
         <auth-export name="demo"><dummy/></auth-export> <!-- DEMO -->
