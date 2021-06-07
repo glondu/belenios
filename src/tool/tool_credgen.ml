@@ -56,8 +56,12 @@ module Make (P : PARSED_PARAMS) : S = struct
   module CredSet = Map.Make (G)
 
   let derive_in_group x =
-    let x = CD.derive uuid x in
-    G.(g **~ x)
+    if Credential.check x then (
+      let x = CD.derive uuid x in
+      G.(g **~ x)
+    ) else (
+      Printf.ksprintf failwith "invalid secret credential: %s" x
+    )
 
   let derive x =
     G.to_string (derive_in_group x)
