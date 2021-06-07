@@ -1280,9 +1280,9 @@ $(\pi_0,\pi_1,\dotsc,\pi_k)$ such that the following procedure passes:
   and
   $B_0=y^{\response(\pi_0)}\times(\beta_0/g)^{\challenge(\pi_0)}$
 \item for $j>0$, compute
-  \[A_j=g^{\response(\pi_j)}\times\alpha_j^{\challenge(\pi_j)}
+  \[A_j=g^{\response(\pi_j)}\times\alpha_\Sigma^{\challenge(\pi_j)}
   \quad\text{and}\quad
-  B_j=y^{\response(\pi_j)}\times(\beta_j/g^{M_j})^{\challenge(\pi_j)}\]
+  B_j=y^{\response(\pi_j)}\times(\beta_\Sigma/g^{M_j})^{\challenge(\pi_j)}\]
 \item check that
   \[\Hash_{\textsf{bproof1}}(S,P,A_0,B_0,\dots,A_k,B_k)=\sum_{j=0}^k\challenge(\pi_j)\mod q\]
 \end{enumerate}
