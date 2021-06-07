@@ -476,8 +476,8 @@ where $\pok$ and the vertical bars are verbatim and numbers are
 written in base 10. The result is interpreted as a 256-bit big-endian
 number. The proof is verified as follows:
 \begin{enumerate}
-\item compute $A={g^\response}/{y^\challenge}$
-\item check that $\challenge=\Hash_\pok(\pklabel,A)\mod q$
+\item compute $A={g^\response}/{X^\challenge}$
+\item check that $\challenge=\Hash_\pok(X,A)\mod q$
 \end{enumerate}
 
 \subsection{Messages specific to threshold decryption support}
