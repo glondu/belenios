@@ -815,8 +815,10 @@ combined to form the global election key.
 
 \newcommand{\secret}{\texttt{secret}}
 
-A secret \emph{credential} $c$ is a 15-character string, where characters are
-taken from the set:
+A secret \emph{credential} $c$ is a string of the form
+$\texttt{XXX-XXX-XXX-XXX-XXX}$ or $\texttt{XXXXXXXXXXXXXXX}$, where
+the 15 $\texttt{X}$ characters are taken from the set:
+
 \[\texttt{123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz}\]
 The first 14 characters are random, and the last one is a checksum to
 detect typing errors. To compute the checksum, each character is
@@ -830,9 +832,7 @@ PBKDF2 (RFC 2898) with:
 \begin{itemize}
 \item $c$ as password;
 \item HMAC-SHA256 (RFC 2104, FIPS PUB 180-2) as pseudorandom function;
-\item the $\uuid$ (either interpreted as a 16-byte array in the RFC
-  4122 case, or directly itself in the Base58 case) of the election as
-  salt;
+\item the $\uuid$ of the election as salt;
 \item $1000$ iterations
 \end{itemize}
 and an output size of 1 block, which is interpreted as a big-endian
