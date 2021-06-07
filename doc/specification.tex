@@ -928,14 +928,17 @@ big.
       \textsf{name}&:&\jstring\\
       \textsf{public\_key}&:&\texttt{wrapped\_pk}\\
       \textsf{questions}&:&\texttt{question}^\ast\\
-      \textsf{uuid}&:&\texttt{uuid}
+      \textsf{uuid}&:&\texttt{uuid}\\
+      \textsf{?administrator}&:&\jstring\\
+      \textsf{?credential\_authority}&:&\jstring
     \end{array}
   \right\}
 \end{gather*}
 
 The $\election$ structure includes all public data related to an
-election and is sent to each voter. It uses the $\texttt{wrapped\_pk}$
-defined below:
+election and is sent to each voter, serialized as a string which must
+be always the same throughout the election. It uses the
+$\texttt{wrapped\_pk}$ defined below:
 
 \begin{gather*}
   \texttt{embedding}=\left\{
@@ -973,7 +976,7 @@ section~\ref{nh-answers}.
 During an election, the following data need to be public in order to
 verify the setup phase and to validate ballots:
 \begin{itemize}
-\item the $\election$ structure described above;
+\item the serialization of the $\election$ structure described above;
 \item the $\texttt{trustees}$ structure described in
   section~\ref{trustees};
 \item the set $L$ of public credentials.
@@ -1349,8 +1352,8 @@ is computed with the function $\Hash_\json$:
 \[
 \Hash_\json(J)=\basesixfour(\shatwo(J))
 \]
-Where $J$ is the serialization (done by the server) of the $\election$
-structure.
+Where $J$ is the serialization of the $\election$ structure, and the
+Base64 encoding is done without padding.
 
 The same hashing function is used on a serialization (done by the
 voting client) of the $\ballot$ structure to produce a so-called
