@@ -310,13 +310,17 @@ let rec createQuestion q =
       );
   (* selector *)
   let _type = Js.string "radio" and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
-  let x = Dom_html.createDiv document in
-  Dom.appendChild type_div x;
+  let type_classical = Dom_html.createDiv document in
+  Dom.appendChild type_div type_classical;
+  let x = Dom_html.createLabel document in
+  Dom.appendChild type_classical x;
   let cb_type_classical = Dom_html.createInput ~_type ~name document in
   Dom.appendChild x cb_type_classical;
   Dom.appendChild x (document##createTextNode (Js.string (s_ "Classical (selection of answers)")));
-  let x = Dom_html.createDiv document in
-  Dom.appendChild type_div x;
+  let type_alternative = Dom_html.createDiv document in
+  Dom.appendChild type_div type_alternative;
+  let x = Dom_html.createLabel document in
+  Dom.appendChild type_alternative x;
   let cb_type = Dom_html.createInput ~_type ~name document in
   cb_type##.className := Js.string "nonhomomorphic_tally";
   (match props with
