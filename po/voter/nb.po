@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2021-01-18 18:32+0000\n"
+"PO-Revision-Date: 2021-06-11 21:32+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "belenios/voter/nb_NO/>\n"
@@ -13,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.7-dev\n"
 
 #: src/web/pages_common.ml:361
 msgid " (if you forgot it, for example)."
@@ -68,8 +67,9 @@ msgid " hour(s)"
 msgstr " time(r)"
 
 #: src/web/pages_common.ml:478
+#, fuzzy
 msgid " in the following box: "
-msgstr ""
+msgstr " i følgende stemmeurne: "
 
 #: src/web/pages_voter.ml:766
 msgid " is rejected, because "
@@ -153,9 +153,9 @@ msgstr "Avansert modus"
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 
-#: src/web/pages_voter.ml:913 src/web/pages_voter.ml:730
 #. src/web/pages_voter.ml:609
 #. src/web/pages_voter.ml:607
+#: src/web/pages_voter.ml:913 src/web/pages_voter.ml:730
 msgid "Answer to questions"
 msgstr "Svar på spørsmål"
 
@@ -171,9 +171,9 @@ msgstr "Minst ett av svarene er ugyldig!"
 msgid "Audit data: "
 msgstr "Valgopptellingsdata: "
 
-#: src/web/pages_voter.ml:917 src/web/pages_voter.ml:734
 #. src/web/pages_voter.ml:627
 #. src/web/pages_voter.ml:625
+#: src/web/pages_voter.ml:917 src/web/pages_voter.ml:734
 msgid "Authenticate"
 msgstr "Identitetsbekreft"
 
@@ -215,8 +215,8 @@ msgstr ""
 msgid "Best regards,"
 msgstr ""
 
-#: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 #. src/web/pages_voter.ml:118
+#: src/tool/tool_js_booth.ml:162 src/tool/tool_js_booth.ml:86
 msgid "Blank vote"
 msgstr "Blank stemme"
 
@@ -240,14 +240,14 @@ msgstr ""
 msgid "Condorcet-Schulze method"
 msgstr ""
 
-#: src/web/pages_voter.ml:919 src/web/pages_voter.ml:736
 #. src/web/pages_voter.ml:636
 #. src/web/pages_voter.ml:634
+#: src/web/pages_voter.ml:919 src/web/pages_voter.ml:736
 msgid "Confirm"
 msgstr "Bekreft"
 
-#: src/web/pages_voter.ml:1114 src/web/pages_voter.ml:1057
 #. src/web/pages_voter.ml:899
+#: src/web/pages_voter.ml:1114 src/web/pages_voter.ml:1057
 msgid "Continue"
 msgstr "Fortsett"
 
@@ -273,7 +273,7 @@ msgstr "Ferdig"
 
 #: src/web/pages_common.ml:469
 msgid "E-mail address:"
-msgstr ""
+msgstr "E-postadresse:"
 
 #: src/web/pages_voter.ml:981
 msgid "Election UUID: "
@@ -283,8 +283,8 @@ msgstr "Valg-UUID: "
 msgid "Election fingerprint: "
 msgstr "Valg-fingeravtrykk: "
 
-#: src/web/pages_voter.ml:964 src/web/pages_common.ml:174
 #. src/web/pages_common.ml:106
+#: src/web/pages_voter.ml:964 src/web/pages_common.ml:174
 msgid "Election server"
 msgstr "Valg-tjener"
 
@@ -292,15 +292,15 @@ msgstr "Valg-tjener"
 msgid "Encrypting…"
 msgstr "Krypterer…"
 
-#: src/web/site_voter.ml:361 src/web/site_voter.ml:336 src/web/site_voter.ml:298
 #. src/web/site_voter.ml:293
 #. src/web/site_voter.ml:288
+#: src/web/site_voter.ml:361 src/web/site_voter.ml:336 src/web/site_voter.ml:298
 msgid "Error"
 msgstr "Feil"
 
 #: src/tool/tool_js_fingerprint.ml:75
 msgid "Expected fingerprint:"
-msgstr ""
+msgstr "Forventet fingeravtrykk:"
 
 #: src/web/pages_voter.ml:769
 msgid "FAIL!"
@@ -310,9 +310,9 @@ msgstr "FEIL!"
 msgid "Get the source code"
 msgstr "Gå til kildekoden"
 
-#: src/web/pages_voter.ml:818 src/web/pages_voter.ml:784
 #. src/web/pages_voter.ml:714
 #. src/web/pages_voter.ml:685
+#: src/web/pages_voter.ml:818 src/web/pages_voter.ml:784
 msgid "Go back to election"
 msgstr "Gå tilbake til valget"
 
@@ -352,9 +352,9 @@ msgstr ""
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 
-#: src/web/pages_voter.ml:911 src/web/pages_voter.ml:728
 #. src/web/pages_voter.ml:600
 #. src/web/pages_voter.ml:598
+#: src/web/pages_voter.ml:911 src/web/pages_voter.ml:728
 msgid "Input credential"
 msgstr "Skriv inn identitetsdetalj"
 
@@ -400,7 +400,7 @@ msgstr "Logg inn"
 
 #: src/web/pages_common.ml:310
 msgid "Log in with %s"
-msgstr ""
+msgstr "Logg inn med %s"
 
 #: src/web/pages_common.ml:380
 msgid "Login"
@@ -472,7 +472,7 @@ msgstr "Antall seter:"
 
 #: src/web/pages_voter.ml:1298 src/web/pages_voter.ml:1243
 msgid "Number of votes:"
-msgstr ""
+msgstr "Antall stemmer:"
 
 #: src/web/pages_voter.ml:1304 src/web/pages_voter.ml:1249
 msgid "Only the last vote counts."
@@ -558,9 +558,9 @@ msgstr "Start på ny"
 msgid "Results will be published on the election page"
 msgstr "Resultater vil bli vist på valgsiden"
 
-#: src/web/pages_voter.ml:915 src/web/pages_voter.ml:732
 #. src/web/pages_voter.ml:618
 #. src/web/pages_voter.ml:616
+#: src/web/pages_voter.ml:915 src/web/pages_voter.ml:732
 msgid "Review and encrypt"
 msgstr "Gjennomse og krypter"
 
@@ -598,7 +598,7 @@ msgstr "Start"
 
 #: src/web/pages_voter.ml:601
 msgid "Step 1"
-msgstr ""
+msgstr "Steg 1"
 
 #: src/web/pages_voter.ml:926
 msgid "Step 1/6: Input credential"
@@ -606,7 +606,7 @@ msgstr "Steg 1/6: Skriv inn identitetsdetalj"
 
 #: src/web/pages_voter.ml:610
 msgid "Step 2"
-msgstr ""
+msgstr "Steg 2"
 
 #: src/web/pages_voter.ml:936
 msgid "Step 2/6: Answer to questions"
@@ -614,7 +614,7 @@ msgstr "Steg 2/6: Svar på spørsmålene"
 
 #: src/web/pages_voter.ml:619
 msgid "Step 3"
-msgstr ""
+msgstr "Steg 3"
 
 #: src/web/pages_voter.ml:941
 msgid "Step 3/6: Review and encrypt"
@@ -622,11 +622,11 @@ msgstr "Steg 3/6: Gjennomse og krypter"
 
 #: src/web/pages_voter.ml:628
 msgid "Step 4"
-msgstr ""
+msgstr "Steg 4"
 
 #: src/web/pages_voter.ml:637
 msgid "Step 5"
-msgstr ""
+msgstr "Steg 5"
 
 #: src/web/pages_voter.ml:774
 msgid "Step 6/6: "
@@ -634,7 +634,7 @@ msgstr "Steg 6/6: "
 
 #: src/web/pages_common.ml:482 src/web/pages_common.ml:415
 msgid "Submit"
-msgstr ""
+msgstr "Send inn"
 
 #: src/web/pages_voter.ml:1194
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
@@ -783,8 +783,8 @@ msgstr ""
 msgid "Use the following code:"
 msgstr ""
 
-#: src/web/pages_voter.ml:1295 src/web/pages_voter.ml:1238
 #. src/web/pages_common.ml:371
+#: src/web/pages_voter.ml:1295 src/web/pages_voter.ml:1238
 msgid "Username:"
 msgstr "Brukernavn:"
 
@@ -897,8 +897,8 @@ msgstr "Ditt passord for valget %s"
 msgid "Your smart ballot tracker is"
 msgstr "Din smarte stemmesporer er"
 
-#: src/web/pages_voter.ml:891 src/web/pages_voter.ml:755
 #. src/web/pages_voter.ml:667
+#: src/web/pages_voter.ml:891 src/web/pages_voter.ml:755
 msgid "Your smart ballot tracker is "
 msgstr "Din smarte stemmesporer er "
 
@@ -914,8 +914,8 @@ msgstr "Din stemme i valget %s"
 msgid "Your vote was not recorded!"
 msgstr "Din stemme ble ikke registrert!"
 
-#: src/web/pages_voter.ml:1338 src/web/pages_voter.ml:747
 #. src/web/pages_voter.ml:653
+#: src/web/pages_voter.ml:1338 src/web/pages_voter.ml:747
 msgid "Your weight is %d."
 msgstr ""
 
@@ -947,8 +947,8 @@ msgstr "opprett en konto"
 msgid "has been recorded."
 msgstr "har blitt lagret."
 
-#: src/tool/tool_js_booth.ml:377 src/web/pages_voter.ml:1126
 #. src/web/pages_voter.ml:1073
+#: src/tool/tool_js_booth.ml:377 src/web/pages_voter.ml:1126
 msgid "here"
 msgstr "her"
 
@@ -1023,4 +1023,3 @@ msgstr "din identitetsdetalj har allerede blitt brukt"
 #: src/web/web_common.ml:88
 msgid "your credential is invalid"
 msgstr "din identitetsdetalj er ugyldig"
-
