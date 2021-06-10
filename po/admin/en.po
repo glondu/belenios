@@ -15,113 +15,113 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.5\n"
 
-#: src/web/pages_admin.ml:2283
+#: src/web/pages_admin.ml:2281
 msgid " You may re-open the election when it is closed."
 msgstr " You may re-open the election when it is closed."
 
-#: src/tool/tool_js_questions.ml:180
+#: src/tool/tool_js_questions.ml:183
 msgid " and "
 msgstr " and "
 
-#: src/web/pages_admin.ml:3093
+#: src/web/pages_admin.ml:3091
 msgid " and a password: "
 msgstr " and a password: "
 
-#: src/web/pages_admin.ml:1790 src/web/pages_admin.ml:1665
+#: src/web/pages_admin.ml:1791 src/web/pages_admin.ml:1666
 msgid " and save it to a secure location."
 msgstr " and save it to a secure location."
 
-#: src/web/pages_admin.ml:1547
+#: src/web/pages_admin.ml:1548
 msgid " and save the file to a secure location."
 msgstr " and save the file to a secure location."
 
-#: src/web/pages_admin.ml:2003
+#: src/web/pages_admin.ml:2004
 msgid " and save them securely."
 msgstr " and save them securely."
 
-#: src/web/pages_admin.ml:3138
+#: src/web/pages_admin.ml:3136
 msgid " and your e-mail address is: "
 msgstr " and your e-mail address is: "
 
-#: src/tool/tool_js_questions.ml:187
+#: src/tool/tool_js_questions.ml:190
 msgid " answers."
 msgstr " answers."
 
-#: src/web/pages_admin.ml:3126 src/web/pages_admin.ml:3076
+#: src/web/pages_admin.ml:3124 src/web/pages_admin.ml:3074
 msgid " because "
 msgstr " because "
 
-#: src/web/pages_admin.ml:2597
+#: src/web/pages_admin.ml:2595
 msgid " has been computed."
 msgstr " has been computed."
 
-#: src/web/pages_admin.ml:3025 src/web/pages_admin.ml:2993
+#: src/web/pages_admin.ml:3023 src/web/pages_admin.ml:2991
 msgid " in the following box: "
 msgstr " in the following box: "
 
-#: src/web/pages_admin.ml:1290 src/web/pages_admin.ml:1281
+#: src/web/pages_admin.ml:1281 src/web/pages_admin.ml:1272
 msgid " instead of "
 msgstr " instead of "
 
-#: src/web/pages_admin.ml:2569 src/web/pages_admin.ml:2435
-#. src/web/pages_admin.ml:1060
-#. src/web/pages_admin.ml:894
+#: src/web/pages_admin.ml:2567 src/web/pages_admin.ml:2433
+#. src/web/pages_admin.ml:1051
+#. src/web/pages_admin.ml:885
 msgid " is:"
 msgstr " is:"
 
-#: src/web/pages_admin.ml:3017
+#: src/web/pages_admin.ml:3015
 msgid " or username: "
 msgstr " or username: "
 
-#: src/web/pages_admin.ml:1120
+#: src/web/pages_admin.ml:1111
 msgid " out of "
 msgstr " out of "
 
-#: src/web/pages_admin.ml:597
+#: src/web/pages_admin.ml:588
 msgid " to set up the election key."
 msgstr " to set up the election key."
 
-#: src/web/pages_admin.ml:1122
+#: src/web/pages_admin.ml:1113
 msgid " trustees will be needed to decrypt the result."
 msgstr " trustees will be needed to decrypt the result."
 
-#: src/web/pages_admin.ml:583
+#: src/web/pages_admin.ml:574
 msgid " voter(s) registered"
 msgstr " voter(s) registered"
 
-#: src/web/pages_admin.ml:2958
+#: src/web/pages_admin.ml:2956
 msgid " your contribution to decryption."
 msgstr " your contribution to decryption."
 
-#: src/web/site_admin.ml:932
+#: src/web/site_admin.ml:916
 msgid "%S is not a valid identity"
 msgstr "%S is not a valid identity"
 
-#: src/web/pages_admin.ml:1972
+#: src/web/pages_admin.ml:1973
 msgid "%d voter(s)"
 msgstr "%d voter(s)"
 
-#: src/web/site_admin.ml:802
+#: src/web/site_admin.ml:784
 msgid "%s is not a registered user for this election."
 msgstr "%s is not a registered user for this election."
 
-#: src/web/site_admin.ml:1630
+#: src/web/site_admin.ml:1614
 msgid "%s is not a valid date!"
 msgstr "%s is not a valid date!"
 
-#: src/web/site_admin.ml:2337 src/web/site_admin.ml:1038
+#: src/web/site_admin.ml:2321 src/web/site_admin.ml:1022
 msgid "%s is not a valid e-mail address!"
 msgstr "%s is not a valid e-mail address!"
 
-#: src/web/pages_admin.ml:2136
+#: src/web/pages_admin.ml:2134
 msgid "(Warning: This action is irreversible.)"
 msgstr "(Warning: This action is irreversible.)"
 
-#: src/web/pages_admin.ml:882
+#: src/web/pages_admin.ml:873
 msgid "(cannot be removed)"
 msgstr "(cannot be removed)"
 
-#: src/web/pages_admin.ml:859
+#: src/web/pages_admin.ml:850
 msgid "(done)"
 msgstr "(done)"
 
@@ -129,28 +129,28 @@ msgstr "(done)"
 msgid "(for example: https://cas.inria.fr/cas)"
 msgstr "(for example: https://cas.inria.fr/cas)"
 
-#: src/web/pages_admin.ml:315
+#: src/web/pages_admin.ml:319
 msgid "(imported from server)"
 msgstr ""
 
-#: src/web/pages_admin.ml:1035 src/web/pages_admin.ml:874
+#: src/web/pages_admin.ml:1026 src/web/pages_admin.ml:865
 msgid "(not available)"
 msgstr "(not available)"
 
-#: src/web/pages_admin.ml:1288 src/web/pages_admin.ml:1279
+#: src/web/pages_admin.ml:1279 src/web/pages_admin.ml:1270
 msgid "(or "
 msgstr "(or "
 
-#: src/web/pages_admin.ml:2537 src/web/pages_admin.ml:2537
-#. src/web/pages_admin.ml:863
+#: src/web/pages_admin.ml:2535 src/web/pages_admin.ml:2535
+#. src/web/pages_admin.ml:854
 msgid "(server)"
 msgstr "(server)"
 
-#: src/web/pages_admin.ml:2379
+#: src/web/pages_admin.ml:2377
 msgid "(skipped)"
 msgstr "(skipped)"
 
-#: src/web/pages_admin.ml:1113
+#: src/web/pages_admin.ml:1104
 msgid "(the threshold must be smaller than the number of trustees)"
 msgstr "(the threshold must be smaller than the number of trustees)"
 
@@ -158,59 +158,59 @@ msgstr "(the threshold must be smaller than the number of trustees)"
 msgid "(untitled)"
 msgstr ""
 
-#: src/web/pages_admin.ml:374
+#: src/web/pages_admin.ml:387
 msgid "(you can use any credential such as %s)."
 msgstr "(you can use any credential such as %s)."
 
-#: src/web/pages_admin.ml:3128 src/web/pages_admin.ml:3078
+#: src/web/pages_admin.ml:3126 src/web/pages_admin.ml:3076
 msgid ". Please try again with a different one."
 msgstr ". Please try again with a different one."
 
-#: src/web/pages_admin.ml:1797
+#: src/web/pages_admin.ml:1798
 msgid ". Save it so that you can check that it appears on the election home later."
 msgstr ". Save it so that you can check that it appears on the election home later."
 
-#: src/web/pages_admin.ml:1179
+#: src/web/pages_admin.ml:1170
 msgid "1. Click on the link."
 msgstr ""
 
-#: src/web/pages_admin.ml:1090
+#: src/web/pages_admin.ml:1081
 msgid "1a: action needed from trustee: generate private key"
 msgstr "1a: action needed from trustee: generate private key"
 
-#: src/web/pages_admin.ml:1092
+#: src/web/pages_admin.ml:1083
 msgid "1b, 2b, 3b: waiting for other trustees"
 msgstr "1b, 2b, 3b: waiting for other trustees"
 
-#: src/web/pages_admin.ml:1180
+#: src/web/pages_admin.ml:1171
 msgid "2. Click on \"Generate\"."
 msgstr ""
 
-#: src/web/pages_admin.ml:1091
+#: src/web/pages_admin.ml:1082
 msgid "2a, 3a: action needed from trustee: enter private key"
 msgstr "2a, 3a: action needed from trustee: enter private key"
 
-#: src/web/pages_admin.ml:1181
+#: src/web/pages_admin.ml:1172
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
 msgstr ""
 
-#: src/web/pages_admin.ml:1183
+#: src/web/pages_admin.ml:1174
 msgid "4. Download the list of voters (voters.txt)."
 msgstr ""
 
-#: src/web/pages_admin.ml:1185
+#: src/web/pages_admin.ml:1176
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
 
-#: src/web/pages_admin.ml:1187
+#: src/web/pages_admin.ml:1178
 msgid "6. Click on \"Submit the public credentials\"."
 msgstr ""
 
-#: src/web/site_admin.ml:798
+#: src/web/site_admin.ml:780
 msgid "A new password has been mailed to %s."
 msgstr "A new password has been mailed to %s."
 
-#: src/web/site_admin.ml:1292
+#: src/web/site_admin.ml:1276
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
 msgstr "A public key already existed, the key you've just uploaded has been ignored!"
 
@@ -218,56 +218,56 @@ msgstr "A public key already existed, the key you've just uploaded has been igno
 msgid "Accept"
 msgstr "Accept"
 
-#: src/web/site_admin.ml:2656 src/web/site_admin.ml:2534
+#: src/web/site_admin.ml:2640 src/web/site_admin.ml:2518
 msgid "Account creation"
 msgstr "Account creation"
 
-#: src/web/pages_admin.ml:3057
+#: src/web/pages_admin.ml:3055
 msgid "Account management"
 msgstr ""
 
-#: src/web/pages_admin.ml:1398 src/web/pages_admin.ml:981
-#. src/web/pages_admin.ml:817
+#: src/web/pages_admin.ml:1399 src/web/pages_admin.ml:972
+#. src/web/pages_admin.ml:808
 msgid "Add"
 msgstr "Add"
 
-#: src/tool/tool_js_questions.ml:392
+#: src/tool/tool_js_questions.ml:445
 msgid "Add a question"
 msgstr "Add a question"
 
-#: src/tool/tool_js_questions.ml:336
+#: src/tool/tool_js_questions.ml:363
 msgid "Add an answer"
 msgstr "Add an answer"
 
-#: src/web/pages_admin.ml:2238 src/web/pages_admin.ml:200
+#: src/web/pages_admin.ml:2236 src/web/pages_admin.ml:200
 msgid "Administration"
 msgstr "Administration"
 
-#: src/web/pages_admin.ml:520
+#: src/web/pages_admin.ml:533
 msgid "All passwords have been sent!"
 msgstr "All passwords have been sent!"
 
-#: src/web/pages_admin.ml:756
+#: src/web/pages_admin.ml:747
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr "All trustees must have completed one step before you can proceed to the next one."
 
-#: src/tool/tool_js_questions.ml:323
+#: src/tool/tool_js_questions.ml:350
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr "Alternative (voters assign a number to each candidate)"
 
-#: src/web/pages_admin.ml:2041
+#: src/web/pages_admin.ml:2039
 msgid "Alternative questions cannot be combined with weights."
 msgstr ""
 
-#: src/web/pages_admin.ml:1340
+#: src/web/pages_admin.ml:1337
 msgid "Alternative voting methods (warning, still experimental):"
 msgstr "Alternative voting methods (warning, still experimental):"
 
-#: src/web/pages_admin.ml:1247
+#: src/web/pages_admin.ml:1238
 msgid "Alternatively, you can send the credential authority the following link:"
 msgstr ""
 
-#: src/web/pages_admin.ml:2249
+#: src/web/pages_admin.ml:2247
 msgid "Alternatively, you may set up automatic dates."
 msgstr "Alternatively, you may set up automatic dates."
 
@@ -275,79 +275,75 @@ msgstr "Alternatively, you may set up automatic dates."
 msgid "An election with the same UUID already exists."
 msgstr "An election with the same UUID already exists."
 
-#: src/web/site_admin.ml:2185
+#: src/web/site_admin.ml:2169
 msgid "An error occurred while applying the shuffle."
 msgstr "An error occurred while applying the shuffle."
 
-#: src/web/site_admin.ml:2058
+#: src/web/site_admin.ml:2042
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 
-#: src/web/pages_admin.ml:1497
+#: src/web/pages_admin.ml:1498
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:138
+#: src/tool/tool_js_questions.ml:141
 msgid "Answer: "
 msgstr "Answer: "
 
-#: src/web/pages_admin.ml:1916 src/web/pages_admin.ml:240
+#: src/web/pages_admin.ml:1917 src/web/pages_admin.ml:240
 msgid "Archived elections"
 msgstr "Archived elections"
 
-#: src/web/pages_admin.ml:2832
+#: src/web/pages_admin.ml:2830
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
 msgstr "As a trustee, your first role is to shuffle the encrypted ballots."
 
-#: src/web/pages_admin.ml:2497
+#: src/web/pages_admin.ml:2495
 msgid "At least %d trustee(s) must act."
 msgstr "At least %d trustee(s) must act."
 
-#: src/web/pages_admin.ml:514 src/web/pages_admin.ml:344
+#: src/web/pages_admin.ml:527
 msgid "Authentication"
 msgstr "Authentication"
 
-#: src/web/pages_admin.ml:538
+#: src/web/pages_admin.ml:551
 msgid "Authentication scheme: %s (imported from server)"
 msgstr ""
 
-#: src/web/pages_admin.ml:533
+#: src/web/pages_admin.ml:546
 msgid "Authentication scheme: CAS with server "
 msgstr "Authentication scheme: CAS with server "
 
-#: src/web/pages_admin.ml:529
+#: src/web/pages_admin.ml:542
 msgid "Authentication scheme: dummy"
 msgstr "Authentication scheme: dummy"
 
-#: src/web/pages_admin.ml:518
+#: src/web/pages_admin.ml:531
 msgid "Authentication scheme: password"
 msgstr "Authentication scheme: password"
 
-#: src/web/pages_admin.ml:333
-msgid "Automatic (degraded mode - credentials will be handled by the server)"
-msgstr "Automatic (degraded mode - credentials will be handled by the server)"
-
-#: src/web/site_admin.ml:1555
+#: src/web/site_admin.ml:1539
 msgid "Automatic shuffle by server has failed for election %s!"
 msgstr "Automatic shuffle by server has failed for election %s!"
 
-#: src/web/pages_admin.ml:2264
+#: src/web/pages_admin.ml:2262
 msgid "Automatically close the election at:"
 msgstr "Automatically close the election at:"
 
-#: src/web/pages_admin.ml:2259
+#: src/web/pages_admin.ml:2257
 msgid "Automatically open the election at:"
 msgstr "Automatically open the election at:"
 
-#: src/web/pages_admin.ml:391
+#: src/web/pages_admin.ml:404
 msgid "Available languages:"
 msgstr "Available languages:"
 
-#: src/web/pages_admin.ml:2600
+#: src/web/pages_admin.ml:2598
 msgid "Awaiting trustees…"
 msgstr "Awaiting trustees…"
 
-#: src/web/pages_admin.ml:1229
+#: src/web/pages_admin.ml:1220
 msgid "Back to election preparation page"
 msgstr "Back to election preparation page"
 
@@ -355,149 +351,149 @@ msgstr "Back to election preparation page"
 msgid "Bad CAS server!"
 msgstr "Bad CAS server!"
 
-#: src/web/pages_admin.ml:3213 src/web/pages_admin.ml:3191
+#: src/web/pages_admin.ml:3211 src/web/pages_admin.ml:3189
 msgid "Belenios Server"
 msgstr ""
 
-#: src/web/pages_admin.ml:3193
+#: src/web/pages_admin.ml:3191
 msgid "Belenios account creation"
 msgstr ""
 
-#: src/web/pages_admin.ml:3215
+#: src/web/pages_admin.ml:3213
 msgid "Belenios password change"
 msgstr ""
 
-#: src/web/pages_admin.ml:2195
+#: src/web/pages_admin.ml:2193
 msgid "Below you will find the link to shuffle encrypted ballots."
 msgstr "Below you will find the link to shuffle encrypted ballots."
 
-#: src/web/pages_admin.ml:3209 src/web/pages_admin.ml:3187
+#: src/web/pages_admin.ml:3207 src/web/pages_admin.ml:3185
 msgid "Best regards,"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:197
+#: src/tool/tool_js_questions.ml:200
 msgid "Blank vote is allowed"
 msgstr "Blank vote is allowed"
 
-#: src/web/pages_admin.ml:555
+#: src/tool/tool_js_questions.ml:391
 msgid "Booth:"
 msgstr ""
 
-#: src/web/pages_admin.ml:591
+#: src/web/pages_admin.ml:582
 msgid "By default, the election server manages the keys of the election (degraded privacy mode)."
 msgstr "By default, the election server manages the keys of the election (degraded privacy mode)."
 
 #: src/web/pages_admin.ml:298
-msgid "CAS (external authentication server)"
+msgid "CAS (external authentication server, offers better security guarantees when applicable)"
 msgstr ""
 
-#: src/web/pages_admin.ml:2817
+#: src/web/pages_admin.ml:2815
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/web/site_admin.ml:1152
+#: src/web/site_admin.ml:1136
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr "Cannot send credentials, there are too many voters (max is %d)"
 
-#: src/web/site_admin.ml:692
+#: src/web/site_admin.ml:674
 msgid "Cannot send passwords, there are too many voters (max is %d)"
 msgstr "Cannot send passwords, there are too many voters (max is %d)"
 
-#: src/web/pages_admin.ml:2273
+#: src/web/pages_admin.ml:2271
 msgid "Change automatic dates"
 msgstr "Change automatic dates"
 
-#: src/web/site_admin.ml:2680 src/web/site_admin.ml:2575
-#. src/web/pages_admin.ml:3159
-#. src/web/pages_admin.ml:3036
+#: src/web/site_admin.ml:2664 src/web/site_admin.ml:2559
+#. src/web/pages_admin.ml:3157
+#. src/web/pages_admin.ml:3034
 msgid "Change password"
 msgstr "Change password"
 
-#: src/web/pages_admin.ml:2122
+#: src/web/pages_admin.ml:2120
 msgid "Checklist:"
 msgstr "Checklist:"
 
-#: src/tool/tool_js_questions.ml:294
+#: src/tool/tool_js_questions.ml:319
 msgid "Classical (selection of answers)"
 msgstr "Classical (selection of answers)"
 
-#: src/web/pages_admin.ml:595
+#: src/web/pages_admin.ml:586
 msgid "Click "
 msgstr "Click "
 
-#: src/web/pages_admin.ml:2203
+#: src/web/pages_admin.ml:2201
 msgid "Click on \"Compute shuffle\"."
 msgstr "Click on \"Compute shuffle\"."
 
-#: src/web/pages_admin.ml:709
+#: src/web/pages_admin.ml:700
 msgid "Click on \"Generate a new key pair\"."
 msgstr "Click on \"Generate a key\"."
 
-#: src/web/pages_admin.ml:715
+#: src/web/pages_admin.ml:706
 msgid "Click on \"Submit\" to send your verification key."
 msgstr "Click on \"Submit public key\" to send your verification key."
 
-#: src/web/pages_admin.ml:707
+#: src/web/pages_admin.ml:698
 msgid "Click on the link."
 msgstr "Click on the link."
 
-#: src/web/pages_admin.ml:2281
+#: src/web/pages_admin.ml:2279
 msgid "Close election"
 msgstr "Close election"
 
-#: src/web/pages_admin.ml:1711
+#: src/web/pages_admin.ml:1712
 msgid "Collaborative key generation"
 msgstr "Collaborative key generation"
 
-#: src/web/pages_admin.ml:2111
+#: src/web/pages_admin.ml:2109
 msgid "Compatibility of weights with questions?"
 msgstr ""
 
-#: src/web/pages_admin.ml:3172
+#: src/web/pages_admin.ml:3170
 msgid "Compute fingerprint"
 msgstr ""
 
-#: src/web/pages_admin.ml:2849
+#: src/web/pages_admin.ml:2847
 msgid "Compute shuffle"
 msgstr "Compute shuffle"
 
-#: src/web/pages_admin.ml:2586
+#: src/web/pages_admin.ml:2584
 msgid "Compute the result"
 msgstr "Compute the result"
 
-#: src/web/pages_admin.ml:2815
+#: src/web/pages_admin.ml:2813
 msgid "Confirm"
 msgstr "Confirm"
 
-#: src/web/pages_admin.ml:501
+#: src/web/pages_admin.ml:514
 msgid "Contact"
 msgstr "Contact"
 
-#: src/web/pages_admin.ml:480
+#: src/web/pages_admin.ml:493
 msgid "Contact:"
 msgstr "Contact:"
 
-#: src/web/pages_admin.ml:2107
+#: src/web/pages_admin.ml:2105
 msgid "Contact?"
 msgstr "Contact?"
 
-#: src/web/site_admin.ml:1431
+#: src/web/site_admin.ml:1415
 msgid "Could not retrieve trustees from selected election!"
 msgstr "Could not retrieve trustees from selected election!"
 
-#: src/web/site_admin.ml:1403
+#: src/web/site_admin.ml:1387
 msgid "Could not retrieve voter list from election %s"
 msgstr "Could not retrieve voter list from election %s"
 
-#: src/tool/tool_js_questions.ml:278
-msgid "Counting method specification:"
+#: src/tool/tool_js_questions.ml:280
+msgid "Counting method specification"
 msgstr ""
 
-#: src/web/pages_admin.ml:3109 src/web/pages_admin.ml:3004
+#: src/web/pages_admin.ml:3107 src/web/pages_admin.ml:3002
 msgid "Create an account"
 msgstr "Create an account"
 
-#: src/web/pages_admin.ml:2134 src/web/pages_admin.ml:648
+#: src/web/pages_admin.ml:2132 src/web/pages_admin.ml:639
 msgid "Create election"
 msgstr "Create election"
 
@@ -505,162 +501,166 @@ msgstr "Create election"
 msgid "Create new election"
 msgstr "Create new election"
 
-#: src/web/pages_admin.ml:1203
+#: src/web/pages_admin.ml:1194
 msgid "Credential authority link"
 msgstr ""
 
-#: src/web/pages_admin.ml:2091
+#: src/web/pages_admin.ml:2089
 msgid "Credential authority?"
 msgstr "Credential authority?"
 
-#: src/web/pages_admin.ml:639 src/web/pages_admin.ml:323
+#: src/web/pages_admin.ml:630
 msgid "Credential management"
 msgstr "Credential management"
 
-#: src/web/pages_admin.ml:604
+#: src/web/pages_admin.ml:595
 msgid "Credentials"
 msgstr "Credentials"
 
-#: src/web/pages_admin.ml:1267 src/web/pages_admin.ml:1209
+#: src/web/pages_admin.ml:1258 src/web/pages_admin.ml:1200
 msgid "Credentials for election %s"
 msgstr "Credentials for election %s"
 
-#: src/web/pages_admin.ml:1619 src/web/pages_admin.ml:625
+#: src/web/pages_admin.ml:1620 src/web/pages_admin.ml:616
 msgid "Credentials have already been generated!"
 msgstr "Credentials have already been generated!"
 
-#: src/web/site_admin.ml:1224
+#: src/web/site_admin.ml:1208
 msgid "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
 msgstr "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
 
-#: src/web/pages_admin.ml:1270
+#: src/web/pages_admin.ml:1261
 msgid "Credentials have been received and checked!"
 msgstr "Credentials have been received and checked!"
 
-#: src/web/pages_admin.ml:2095
+#: src/web/pages_admin.ml:340
+msgid "Credentials:"
+msgstr ""
+
+#: src/web/pages_admin.ml:2093
 msgid "Credentials?"
 msgstr "Credentials?"
 
-#: src/web/pages_admin.ml:2834
+#: src/web/pages_admin.ml:2832
 msgid "Current list of ballots:"
 msgstr "Current list of ballots:"
 
-#: src/web/site_admin.ml:2188
+#: src/web/site_admin.ml:2172
 msgid "Data is invalid! (%s)"
 msgstr "Data is invalid! (%s)"
 
-#: src/web/pages_admin.ml:1836 src/web/pages_admin.ml:1805
+#: src/web/pages_admin.ml:1837 src/web/pages_admin.ml:1806
 msgid "Data:"
 msgstr "Data:"
 
-#: src/web/pages_admin.ml:2785
+#: src/web/pages_admin.ml:2783
 msgid "Date/Time (UTC)"
 msgstr "Date/Time (UTC)"
 
-#: src/web/pages_admin.ml:3200 src/web/pages_admin.ml:3178
+#: src/web/pages_admin.ml:3198 src/web/pages_admin.ml:3176
 msgid "Dear %s,"
 msgstr ""
 
-#: src/web/pages_admin.ml:1172
+#: src/web/pages_admin.ml:1163
 msgid "Dear credential authority,"
 msgstr ""
 
-#: src/web/pages_admin.ml:2193 src/web/pages_admin.ml:2156
-#. src/web/pages_admin.ml:748
-#. src/web/pages_admin.ml:699
+#: src/web/pages_admin.ml:2191 src/web/pages_admin.ml:2154
+#. src/web/pages_admin.ml:739
+#. src/web/pages_admin.ml:690
 msgid "Dear trustee,"
 msgstr "Dear trustee,"
 
-#: src/web/pages_admin.ml:2698
+#: src/web/pages_admin.ml:2696
 msgid "Delete election"
 msgstr "Delete election"
 
-#: src/web/pages_admin.ml:430
+#: src/web/pages_admin.ml:443
 msgid "Description of the election."
 msgstr ""
 
-#: src/web/pages_admin.ml:425
+#: src/web/pages_admin.ml:438
 msgid "Description of the election:"
 msgstr "Description of the election:"
 
-#: src/tool/tool_js_questions.ml:367
+#: src/tool/tool_js_questions.ml:420
 msgid "Description:"
 msgstr "Description:"
 
-#: src/web/pages_admin.ml:2071
+#: src/web/pages_admin.ml:2069
 msgid "Description?"
 msgstr "Description?"
 
-#: src/web/pages_admin.ml:664 src/web/pages_admin.ml:658
+#: src/web/pages_admin.ml:655 src/web/pages_admin.ml:649
 msgid "Destroy election"
 msgstr "Destroy election"
 
-#: src/web/pages_admin.ml:758
+#: src/web/pages_admin.ml:749
 msgid "Don't forget to save:"
 msgstr "Don't forget to save:"
 
-#: src/web/pages_admin.ml:2606 src/web/pages_admin.ml:2469
-#. src/web/pages_admin.ml:913
+#: src/web/pages_admin.ml:2604 src/web/pages_admin.ml:2467
+#. src/web/pages_admin.ml:904
 msgid "Done?"
 msgstr "Done?"
 
-#: src/web/pages_admin.ml:1552 src/web/pages_admin.ml:1545
+#: src/web/pages_admin.ml:1553 src/web/pages_admin.ml:1546
 msgid "Download "
 msgstr "Download "
 
-#: src/web/pages_admin.ml:2651
+#: src/web/pages_admin.ml:2649
 msgid "Download archive."
 msgstr "Download archive."
 
-#: src/web/pages_admin.ml:2839
+#: src/web/pages_admin.ml:2837
 msgid "Download as a file"
 msgstr "Download as a file"
 
-#: src/web/pages_admin.ml:610
+#: src/web/pages_admin.ml:601
 msgid "Download private credentials"
 msgstr "Download private credentials"
 
-#: src/web/pages_admin.ml:1788 src/web/pages_admin.ml:1663
+#: src/web/pages_admin.ml:1789 src/web/pages_admin.ml:1664
 msgid "Download your "
 msgstr "Download your "
 
-#: src/web/pages_admin.ml:711
+#: src/web/pages_admin.ml:702
 msgid "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled."
 msgstr "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled."
 
-#: src/web/pages_admin.ml:1491
+#: src/web/pages_admin.ml:1492
 msgid "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins."
 msgstr "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins."
 
-#: src/web/pages_admin.ml:2604 src/web/pages_admin.ml:2540
-#. src/web/pages_admin.ml:1025
-#. src/web/pages_admin.ml:911
-#. src/web/pages_admin.ml:850
+#: src/web/pages_admin.ml:2602 src/web/pages_admin.ml:2538
+#. src/web/pages_admin.ml:1016
+#. src/web/pages_admin.ml:902
+#. src/web/pages_admin.ml:841
 msgid "E-mail"
 msgstr "E-mail"
 
-#: src/web/pages_admin.ml:3014 src/web/pages_admin.ml:2985
+#: src/web/pages_admin.ml:3012 src/web/pages_admin.ml:2983
 msgid "E-mail address:"
 msgstr "E-mail address:"
 
-#: src/web/pages_admin.ml:620
+#: src/web/pages_admin.ml:611
 msgid "Edit credential authority name"
 msgstr "Edit credential authority name"
 
-#: src/web/pages_admin.ml:567
+#: src/web/pages_admin.ml:559
 msgid "Edit questions"
 msgstr "Edit questions"
 
-#: src/web/pages_admin.ml:578
+#: src/web/pages_admin.ml:569
 msgid "Edit voters"
 msgstr "Edit voters"
 
-#: src/web/pages_admin.ml:1943 src/web/pages_admin.ml:1933
-#. src/web/pages_admin.ml:1925
+#: src/web/pages_admin.ml:1944 src/web/pages_admin.ml:1934
+#. src/web/pages_admin.ml:1926
 msgid "Election "
 msgstr "Election "
 
-#: src/web/pages_admin.ml:2719
+#: src/web/pages_admin.ml:2717
 msgid "Election home"
 msgstr "Election home"
 
@@ -672,49 +672,49 @@ msgstr "Election server"
 msgid "Elections being prepared"
 msgstr "Elections being prepared"
 
-#: src/web/pages_admin.ml:1912 src/web/pages_admin.ml:234
+#: src/web/pages_admin.ml:1913 src/web/pages_admin.ml:234
 msgid "Elections you can administer"
 msgstr "Elections you can administer"
 
-#: src/web/site_admin.ml:1462
+#: src/web/site_admin.ml:1446
 msgid "Encrypted decryption keys are missing!"
 msgstr "Encrypted decryption keys are missing!"
 
-#: src/web/pages_admin.ml:2269
+#: src/web/pages_admin.ml:2267
 msgid "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date."
 msgstr "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date."
 
-#: src/web/pages_admin.ml:2633
+#: src/web/pages_admin.ml:2631
 msgid "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is "
 msgstr "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is "
 
-#: src/web/pages_admin.ml:2167
+#: src/web/pages_admin.ml:2165
 msgid "Enter your private decryption key in the first box and click on \"Generate your contribution to decryption\"."
 msgstr "Enter your private decryption key in the first box and click on \"Generate your contribution to decryption\"."
 
-#: src/web/pages_admin.ml:1820
+#: src/web/pages_admin.ml:1821
 msgid "Enter your private key:"
 msgstr "Enter your private key:"
 
-#: src/web/site_admin.ml:2339 src/web/site_admin.ml:2309
-#. src/web/site_admin.ml:2296
-#. src/web/site_admin.ml:2188
-#. src/web/site_admin.ml:2185
-#. src/web/site_admin.ml:2061
-#. src/web/site_admin.ml:1984
-#. src/web/site_admin.ml:1911
-#. src/web/site_admin.ml:1871
-#. src/web/site_admin.ml:1679
-#. src/web/site_admin.ml:1621
-#. src/web/site_admin.ml:1511
-#. src/web/site_admin.ml:1400
-#. src/web/site_admin.ml:1390
-#. src/web/site_admin.ml:1301
-#. src/web/site_admin.ml:1293
-#. src/web/site_admin.ml:1265
-#. src/web/site_admin.ml:1040
-#. src/web/site_admin.ml:801
-#. src/web/site_admin.ml:677
+#: src/web/site_admin.ml:2323 src/web/site_admin.ml:2293
+#. src/web/site_admin.ml:2280
+#. src/web/site_admin.ml:2172
+#. src/web/site_admin.ml:2169
+#. src/web/site_admin.ml:2045
+#. src/web/site_admin.ml:1968
+#. src/web/site_admin.ml:1895
+#. src/web/site_admin.ml:1855
+#. src/web/site_admin.ml:1663
+#. src/web/site_admin.ml:1605
+#. src/web/site_admin.ml:1495
+#. src/web/site_admin.ml:1384
+#. src/web/site_admin.ml:1374
+#. src/web/site_admin.ml:1285
+#. src/web/site_admin.ml:1277
+#. src/web/site_admin.ml:1249
+#. src/web/site_admin.ml:1024
+#. src/web/site_admin.ml:783
+#. src/web/site_admin.ml:659
 #. src/web/site_admin.ml:616
 #. src/web/site_admin.ml:599
 #. src/web/site_admin.ml:585
@@ -736,40 +736,44 @@ msgstr "Estimated computation time: %d second(s)"
 msgid "Estimated remaining time: %d second(s)"
 msgstr "Estimated remaining time: %d second(s)"
 
-#: src/web/pages_admin.ml:2842
+#: src/web/pages_admin.ml:2840
 msgid "Estimating computation time…"
 msgstr "Estimating computation time…"
 
-#: src/web/pages_admin.ml:2471
+#: src/web/pages_admin.ml:2469
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
-#: src/web/pages_admin.ml:1537
+#: src/web/pages_admin.ml:1538
 msgid "Fingerprint of public credentials:"
 msgstr "Fingerprint of public credentials:"
 
-#: src/web/pages_admin.ml:1655
+#: src/web/pages_admin.ml:1656
 msgid "Fingerprint of the verification key:"
 msgstr "Fingerprint of the verification key:"
 
-#: src/web/pages_admin.ml:1605
+#: src/web/pages_admin.ml:1606
 msgid "Fingerprint of voters:"
 msgstr "Fingerprint of voters:"
 
-#: src/web/pages_admin.ml:754
+#: src/web/pages_admin.ml:745
 msgid "Follow the instructions."
 msgstr "Follow the instructions."
 
-#: src/web/pages_admin.ml:2201 src/web/pages_admin.ml:2165
+#: src/web/pages_admin.ml:2199 src/web/pages_admin.ml:2163
 msgid "Follow the link."
 msgstr "Follow the link."
 
-#: src/web/pages_admin.ml:593
+#: src/web/pages_admin.ml:333
+msgid "For a better control of eligibility, voters will be authenticated by two factors: credentials and passwords"
+msgstr ""
+
+#: src/web/pages_admin.ml:584
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr "For real elections, the key must be shared among independent trustees."
 
-#: src/web/site_admin.ml:1924 src/web/site_admin.ml:1921
-#. src/web/site_admin.ml:1574
+#: src/web/site_admin.ml:1908 src/web/site_admin.ml:1905
+#. src/web/site_admin.ml:1558
 msgid "Forbidden"
 msgstr "Forbidden"
 
@@ -781,11 +785,11 @@ msgstr "Generate"
 msgid "Generate a key"
 msgstr "Generate a key"
 
-#: src/web/pages_admin.ml:1451 src/web/pages_admin.ml:524
+#: src/web/pages_admin.ml:1452 src/web/pages_admin.ml:537
 msgid "Generate and mail missing passwords"
 msgstr "Generate and mail missing passwords"
 
-#: src/web/pages_admin.ml:635
+#: src/web/pages_admin.ml:626
 msgid "Generate on server"
 msgstr "Generate on server"
 
@@ -793,31 +797,32 @@ msgstr "Generate on server"
 msgid "Generate private key"
 msgstr "Generate private key"
 
-#: src/web/pages_admin.ml:2946
+#: src/web/pages_admin.ml:2944
 msgid "Generate your contribution to decryption"
 msgstr "Generate your contribution to decryption"
 
-#: src/web/pages_admin.ml:2142 src/web/pages_admin.ml:1472
-#. src/web/pages_admin.ml:1158
-#. src/web/pages_admin.ml:953
+#: src/web/pages_admin.ml:2140 src/web/pages_admin.ml:1473
+#. src/web/pages_admin.ml:1378
+#. src/web/pages_admin.ml:1149
+#. src/web/pages_admin.ml:944
 msgid "Go back to election draft"
 msgstr "Go back to election draft"
 
-#: src/web/pages_admin.ml:1178 src/web/pages_admin.ml:705
+#: src/web/pages_admin.ml:1169 src/web/pages_admin.ml:696
 msgid "Here are the instructions:"
 msgstr "Here are the instructions:"
 
-#: src/web/pages_admin.ml:2159
+#: src/web/pages_admin.ml:2157
 msgid "Here is the link to proceed to tally:"
 msgstr "Here is the link to proceed to tally:"
 
-#: src/web/pages_admin.ml:2543 src/web/pages_admin.ml:2400
-#. src/web/pages_admin.ml:1041
-#. src/web/pages_admin.ml:853
+#: src/web/pages_admin.ml:2541 src/web/pages_admin.ml:2398
+#. src/web/pages_admin.ml:1032
+#. src/web/pages_admin.ml:844
 msgid "Hide link"
 msgstr "Hide link"
 
-#: src/web/pages_admin.ml:1464
+#: src/web/pages_admin.ml:1465
 msgid "Identity"
 msgstr "Identity"
 
@@ -829,64 +834,64 @@ msgstr "If you do not have any account, you may "
 msgid "Illegal character: %c"
 msgstr "Illegal character: %c"
 
-#: src/web/pages_admin.ml:1897
+#: src/web/pages_admin.ml:1898
 msgid "Import from this election"
 msgstr "Import from this election"
 
-#: src/web/pages_admin.ml:1933 src/web/pages_admin.ml:920
+#: src/web/pages_admin.ml:1934 src/web/pages_admin.ml:911
 msgid "Import trustees from another election"
 msgstr "Import trustees from another election"
 
-#: src/web/pages_admin.ml:1925 src/web/pages_admin.ml:1503
+#: src/web/pages_admin.ml:1926 src/web/pages_admin.ml:1504
 msgid "Import voters from another election"
 msgstr "Import voters from another election"
 
-#: src/web/site_admin.ml:1438
+#: src/web/site_admin.ml:1422
 msgid "Imported trustees are invalid for this election!"
 msgstr "Imported trustees are invalid for this election!"
 
-#: src/web/pages_admin.ml:1934
+#: src/web/pages_admin.ml:1935
 msgid "Imported trustees will have the same keys as in the original election."
 msgstr "Imported trustees will have the same keys as in the original election."
 
-#: src/web/pages_admin.ml:1926
+#: src/web/pages_admin.ml:1927
 msgid "Imported voters will have the same password as in the original election, and no new e-mail will be sent."
 msgstr "Imported voters will have the same password as in the original election, and no new e-mail will be sent."
 
-#: src/web/site_admin.ml:1460
+#: src/web/site_admin.ml:1444
 msgid "Inconsistency in imported election!"
 msgstr "Inconsistency in imported election!"
 
-#: src/tool/tool_js_questions.ml:245 src/tool/tool_js_questions.ml:156
+#: src/tool/tool_js_questions.ml:248 src/tool/tool_js_questions.ml:159
 msgid "Insert"
 msgstr "Insert"
 
-#: src/web/pages_admin.ml:1856 src/web/pages_admin.ml:1272
+#: src/web/pages_admin.ml:1857 src/web/pages_admin.ml:1263
 msgid "Instructions"
 msgstr "Instructions"
 
-#: src/web/pages_admin.ml:2920 src/web/pages_admin.ml:2199
-#. src/web/pages_admin.ml:2163
-#. src/web/pages_admin.ml:1817
-#. src/web/pages_admin.ml:1785
-#. src/web/pages_admin.ml:1660
-#. src/web/pages_admin.ml:1542
+#: src/web/pages_admin.ml:2918 src/web/pages_admin.ml:2197
+#. src/web/pages_admin.ml:2161
+#. src/web/pages_admin.ml:1818
+#. src/web/pages_admin.ml:1786
+#. src/web/pages_admin.ml:1661
+#. src/web/pages_admin.ml:1543
 msgid "Instructions:"
 msgstr "Instructions:"
 
-#: src/tool/tool_js_questions.ml:112
+#: src/tool/tool_js_questions.ml:115
 msgid "Invalid counting method specification!"
 msgstr ""
 
-#: src/tool/tool_js_questions.ml:94
+#: src/tool/tool_js_questions.ml:97
 msgid "Invalid maximum number of choices"
 msgstr "Invalid maximum number of choices"
 
-#: src/tool/tool_js_questions.ml:93
+#: src/tool/tool_js_questions.ml:96
 msgid "Invalid minimum number of choices"
 msgstr "Invalid minimum number of choices"
 
-#: src/web/site_admin.ml:1300
+#: src/web/site_admin.ml:1284
 msgid "Invalid public key!"
 msgstr "Invalid public key!"
 
@@ -894,44 +899,44 @@ msgstr "Invalid public key!"
 msgid "Invalid public name for credential authority!"
 msgstr "Invalid public name for credential authority!"
 
-#: src/web/pages_admin.ml:2904
+#: src/web/pages_admin.ml:2902
 msgid "It is now time to compute your partial decryption factors."
 msgstr "It is now time to compute your partial decryption factors."
 
-#: src/web/pages_admin.ml:406
+#: src/web/pages_admin.ml:419
 msgid "Languages"
 msgstr "Languages"
 
-#: src/web/pages_admin.ml:386
+#: src/web/pages_admin.ml:399
 msgid "Languages:"
 msgstr "Languages:"
 
-#: src/web/pages_admin.ml:2605 src/web/pages_admin.ml:2545
-#. src/web/pages_admin.ml:2402
-#. src/web/pages_admin.ml:1081
-#. src/web/pages_admin.ml:1043
-#. src/web/pages_admin.ml:912
-#. src/web/pages_admin.ml:855
+#: src/web/pages_admin.ml:2603 src/web/pages_admin.ml:2543
+#. src/web/pages_admin.ml:2400
+#. src/web/pages_admin.ml:1072
+#. src/web/pages_admin.ml:1034
+#. src/web/pages_admin.ml:903
+#. src/web/pages_admin.ml:846
 msgid "Link"
 msgstr "Link"
 
-#: src/web/pages_admin.ml:783 src/web/pages_admin.ml:733
+#: src/web/pages_admin.ml:774 src/web/pages_admin.ml:724
 msgid "Link to generate the decryption key"
 msgstr "Link to generate the decryption key"
 
-#: src/web/pages_admin.ml:2216
+#: src/web/pages_admin.ml:2214
 msgid "Link to shuffle encrypted ballots"
 msgstr "Link to shuffle encrypted ballots"
 
-#: src/web/pages_admin.ml:2178
+#: src/web/pages_admin.ml:2176
 msgid "Link to tally the election"
 msgstr "Link to tally the election"
 
-#: src/web/pages_admin.ml:1603
+#: src/web/pages_admin.ml:1604
 msgid "List of voters:"
 msgstr "List of voters:"
 
-#: src/web/pages_admin.ml:2846
+#: src/web/pages_admin.ml:2844
 msgid "Loading…"
 msgstr "Loading…"
 
@@ -951,39 +956,35 @@ msgstr "Log out"
 msgid "Logged in as"
 msgstr "Logged in as"
 
-#: src/web/pages_admin.ml:2397 src/web/pages_admin.ml:1080
+#: src/web/pages_admin.ml:2395 src/web/pages_admin.ml:1071
 msgid "Mail"
 msgstr "Mail"
 
-#: src/web/pages_admin.ml:340
-msgid "Manual (safe mode - a third party will handle the credentials)"
-msgstr "Manual (safe mode - a third party will handle the credentials)"
-
-#: src/tool/tool_js_questions.ml:98
+#: src/tool/tool_js_questions.ml:101
 msgid "Maximum number of choices must be greater than 0!"
 msgstr "Maximum number of choices must be greater than 0!"
 
-#: src/web/pages_admin.ml:1087
+#: src/web/pages_admin.ml:1078
 msgid "Meaning of states:"
 msgstr "Meaning of states:"
 
-#: src/tool/tool_js_questions.ml:96
+#: src/tool/tool_js_questions.ml:99
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr "Minimum number of choices must be less than or equal to maximum number of choices!"
 
-#: src/web/pages_admin.ml:2023 src/web/pages_admin.ml:2015
-#. src/web/pages_admin.ml:1990
-#. src/web/pages_admin.ml:1983
-#. src/web/pages_admin.ml:1978
-#. src/web/pages_admin.ml:1959
+#: src/web/pages_admin.ml:2021 src/web/pages_admin.ml:2013
+#. src/web/pages_admin.ml:1991
+#. src/web/pages_admin.ml:1984
+#. src/web/pages_admin.ml:1979
+#. src/web/pages_admin.ml:1960
 msgid "Missing"
 msgstr "Missing"
 
-#: src/web/pages_admin.ml:2728
+#: src/web/pages_admin.ml:2726
 msgid "Missing voters"
 msgstr "Missing voters"
 
-#: src/web/pages_admin.ml:1357
+#: src/web/pages_admin.ml:1354
 msgid "More information."
 msgstr "More information."
 
@@ -1003,38 +1004,38 @@ msgstr "Must start with a double quote (character given was another character)"
 msgid "Must start with a double quote (empty string given)"
 msgstr "Must start with a double quote (empty string given)"
 
-#: src/web/pages_admin.ml:488
+#: src/web/pages_admin.ml:501
 msgid "Name <user@example.org>"
 msgstr ""
 
-#: src/web/pages_admin.ml:443
+#: src/web/pages_admin.ml:456
 msgid "Name and description of the election"
 msgstr "Name and description of the election"
 
-#: src/web/pages_admin.ml:420
+#: src/web/pages_admin.ml:433
 msgid "Name of the election"
 msgstr ""
 
-#: src/web/pages_admin.ml:416
+#: src/web/pages_admin.ml:429
 msgid "Name of the election:"
 msgstr "Name of the election:"
 
-#: src/tool/tool_js_questions.ml:356
+#: src/tool/tool_js_questions.ml:409
 msgid "Name of the election: "
 msgstr "Name of the election: "
 
-#: src/web/pages_admin.ml:2067
+#: src/web/pages_admin.ml:2065
 msgid "Name?"
 msgstr "Name?"
 
-#: src/web/pages_admin.ml:2556 src/web/pages_admin.ml:2420
-#. src/web/pages_admin.ml:2057
-#. src/web/pages_admin.ml:1436
-#. src/web/pages_admin.ml:880
+#: src/web/pages_admin.ml:2554 src/web/pages_admin.ml:2418
+#. src/web/pages_admin.ml:2055
+#. src/web/pages_admin.ml:1437
+#. src/web/pages_admin.ml:871
 msgid "No"
 msgstr "No"
 
-#: src/web/pages_admin.ml:2061
+#: src/web/pages_admin.ml:2059
 msgid "No contact was set!"
 msgstr "No contact was set!"
 
@@ -1042,28 +1043,28 @@ msgstr "No contact was set!"
 msgid "No such language: %s"
 msgstr "No such language: %s"
 
-#: src/web/pages_admin.ml:2050
+#: src/web/pages_admin.ml:2048
 msgid "No trustees were set. This means the server will manage the election key by itself."
 msgstr "No trustees were set. This means the server will manage the election key by itself."
 
-#: src/web/site_admin.ml:1154 src/web/pages_admin.ml:1457
+#: src/web/site_admin.ml:1138 src/web/pages_admin.ml:1458
 msgid "No voters"
 msgstr "No voters"
 
-#: src/web/pages_admin.ml:2781
+#: src/web/pages_admin.ml:2779
 msgid "Nobody voted!"
 msgstr "Nobody voted!"
 
-#: src/web/pages_admin.ml:1979
+#: src/web/pages_admin.ml:1980
 msgid "Not applicable"
 msgstr "Not applicable"
 
-#: src/web/pages_admin.ml:1999
+#: src/web/pages_admin.ml:2000
 msgid "Not downloaded."
 msgstr "Not downloaded."
 
-#: src/web/pages_admin.ml:1965 src/web/pages_admin.ml:1953
-#. src/web/pages_admin.ml:1947
+#: src/web/pages_admin.ml:1966 src/web/pages_admin.ml:1954
+#. src/web/pages_admin.ml:1948
 msgid "Not edited"
 msgstr "Not edited"
 
@@ -1071,21 +1072,21 @@ msgstr "Not edited"
 msgid "Not logged in."
 msgstr "Not logged in."
 
-#: src/web/pages_admin.ml:1258
+#: src/web/pages_admin.ml:1249
 msgid "Note that this authority will personally have to send each credential to its respective voter."
 msgstr "Note that this authority will personally have to send each credential to its respective voter."
 
-#: src/web/pages_admin.ml:1349
+#: src/web/pages_admin.ml:1346
 msgid "Note that:"
 msgstr "Note that:"
 
-#: src/web/pages_admin.ml:2251 src/web/pages_admin.ml:1909
-#. src/web/pages_admin.ml:1572
-#. src/web/pages_admin.ml:1495
+#: src/web/pages_admin.ml:2249 src/web/pages_admin.ml:1910
+#. src/web/pages_admin.ml:1573
+#. src/web/pages_admin.ml:1496
 msgid "Note:"
 msgstr "Note:"
 
-#: src/web/pages_admin.ml:660
+#: src/web/pages_admin.ml:651
 msgid "Note: this election will be automatically destroyed after "
 msgstr "Note: this election will be automatically destroyed after "
 
@@ -1097,78 +1098,78 @@ msgstr "Now, all the certificates of the trustees have been generated. Proceed t
 msgid "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
 msgstr "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
 
-#: src/web/pages_admin.ml:2777
+#: src/web/pages_admin.ml:2775
 msgid "Number of records: %d/%d"
 msgstr "Number of records: %d/%d"
 
-#: src/web/pages_admin.ml:774 src/web/pages_admin.ml:724
+#: src/web/pages_admin.ml:765 src/web/pages_admin.ml:715
 msgid "Of course, more cryptographic solutions are welcome as well."
 msgstr "Of course, more cryptographic solutions are welcome as well."
 
-#: src/web/pages_admin.ml:1139
+#: src/web/pages_admin.ml:1130
 msgid "On this page, you can configure a group of trustees so that only a subset of them is needed to perform the decryption."
 msgstr "On this page, you can configure a group of trustees so that only a subset of them is needed to perform the decryption."
 
-#: src/web/pages_admin.ml:1196
+#: src/web/pages_admin.ml:1187
 msgid "Once the election is finished and validated, you are expected to destroy the file creds.txt for stronger privacy guarantees."
 msgstr ""
 
-#: src/web/pages_admin.ml:1274
+#: src/web/pages_admin.ml:1265
 msgid "Once the election is open, check that:"
 msgstr "Once the election is open, check that:"
 
-#: src/web/pages_admin.ml:1672
+#: src/web/pages_admin.ml:1673
 msgid "Once the election is open, you must check that it is present in the set of public keys published by the server."
 msgstr "Once the election is open, you must check that it is present in the set of public keys published by the server."
 
-#: src/web/pages_admin.ml:1859
+#: src/web/pages_admin.ml:1860
 msgid "Once the election is open, you must check that it is present in the set of verification keys published by the server."
 msgstr "Once the election is open, you must check that it is present in the set of verification keys published by the server."
 
-#: src/web/pages_admin.ml:765
+#: src/web/pages_admin.ml:756
 msgid "Once the election is open, you must check that the fingerprints of your two keys are present in the set of keys published by the server."
 msgstr "Once the election is open, you must check that the fingerprints of your two keys are present in the set of keys published by the server."
 
-#: src/web/pages_admin.ml:1561 src/web/pages_admin.ml:1186
+#: src/web/pages_admin.ml:1562 src/web/pages_admin.ml:1177
 msgid "Once the election is open, you must check that they match with what is published by the server."
 msgstr "Once the election is open, you must check that they match with what is published by the server."
 
-#: src/web/pages_admin.ml:1300
+#: src/web/pages_admin.ml:1291
 msgid "Once the election is over, the file creds.txt must be destroyed."
 msgstr "Once the election is over, the file creds.txt must be destroyed."
 
-#: src/web/pages_admin.ml:2285
+#: src/web/pages_admin.ml:2283
 msgid "Open election"
 msgstr "Open election"
 
-#: src/web/pages_admin.ml:2932
+#: src/web/pages_admin.ml:2930
 msgid "Or load it from a file:"
 msgstr "Or load it from a file:"
 
-#: src/web/pages_admin.ml:1347
+#: src/web/pages_admin.ml:1344
 msgid "Our platform currently supports Condorcet, STV and majority judgment, but you may also apply your own method on the raw result (shuffled list of ballots)."
 msgstr ""
 "Our platform currently supports the Condorcet, STV and majority judgment "
 "methods, but you can also apply your own method to the raw results (randomly "
 "shuffled votes)."
 
-#: src/web/pages_admin.ml:2885
+#: src/web/pages_admin.ml:2883
 msgid "Partial decryption #%d"
 msgstr "Partial decryption #%d"
 
-#: src/web/pages_admin.ml:290
-msgid "Password (passwords will be emailed to voters)"
-msgstr "Password (passwords will be emailed to voters)"
-
-#: src/web/pages_admin.ml:1465
+#: src/web/pages_admin.ml:1466
 msgid "Password sent?"
 msgstr "Password sent?"
 
-#: src/web/site_admin.ml:722
+#: src/web/site_admin.ml:704
 msgid "Passwords have been generated and mailed!"
 msgstr "Passwords have been generated and mailed!"
 
-#: src/web/pages_admin.ml:2087
+#: src/web/pages_admin.ml:356
+msgid "Passwords:"
+msgstr ""
+
+#: src/web/pages_admin.ml:2085
 msgid "Passwords?"
 msgstr "Passwords?"
 
@@ -1176,47 +1177,51 @@ msgstr "Passwords?"
 msgid "Personal data processing notice"
 msgstr "Personal data processing notice"
 
-#: src/web/pages_admin.ml:2001
+#: src/web/pages_admin.ml:2002
 msgid "Please "
 msgstr "Please "
 
-#: src/web/site_admin.ml:2294
+#: src/web/site_admin.ml:2278
 msgid "Please add some trustees first!"
 msgstr "Please add some trustees first!"
 
-#: src/web/pages_admin.ml:3143
+#: src/web/pages_admin.ml:3141
 msgid "Please choose a password: "
 msgstr "Please choose a password: "
 
-#: src/web/pages_admin.ml:3091
+#: src/web/pages_admin.ml:3089
 msgid "Please choose a username: "
 msgstr "Please choose a username: "
 
-#: src/web/pages_admin.ml:3023 src/web/pages_admin.ml:2991
+#: src/web/pages_admin.ml:3021 src/web/pages_admin.ml:2989
 msgid "Please enter "
 msgstr "Please enter "
 
-#: src/web/pages_admin.ml:1480
+#: src/web/pages_admin.ml:1481
 msgid "Please enter the identities of voters to add, one per line"
 msgstr "Please enter the identities of voters to add, one per line"
 
-#: src/web/pages_admin.ml:3046
+#: src/web/pages_admin.ml:3044
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
-#: src/web/pages_admin.ml:2925
+#: src/web/pages_admin.ml:2923
 msgid "Please enter your private key:"
 msgstr "Please enter your private key:"
 
-#: src/web/pages_admin.ml:2845
+#: src/web/pages_admin.ml:2843
 msgid "Please wait… "
 msgstr "Please wait… "
 
-#: src/web/pages_admin.ml:2628
+#: src/web/pages_admin.ml:2626
 msgid "Postpone publication until"
 msgstr "Postpone publication until"
 
-#: src/web/pages_admin.ml:380
+#: src/tool/tool_js_questions.ml:291
+msgid "Prefill with Majority Judgment"
+msgstr ""
+
+#: src/web/pages_admin.ml:393
 msgid "Preparation of election %s"
 msgstr "Preparation of election %s"
 
@@ -1224,153 +1229,153 @@ msgstr "Preparation of election %s"
 msgid "Prepare a new election"
 msgstr "Prepare a new election"
 
-#: src/web/pages_admin.ml:372
+#: src/web/pages_admin.ml:385
 msgid "Preview booth"
 msgstr "Preview booth"
 
-#: src/web/pages_admin.ml:2099
+#: src/web/pages_admin.ml:2097
 msgid "Private credentials?"
 msgstr "Private credentials?"
 
-#: src/web/pages_admin.ml:1825 src/web/pages_admin.ml:346
+#: src/web/pages_admin.ml:1826 src/web/pages_admin.ml:359
 msgid "Proceed"
 msgstr "Proceed"
 
-#: src/web/pages_admin.ml:2453
+#: src/web/pages_admin.ml:2451
 msgid "Proceed to decryption"
 msgstr "Proceed to decryption"
 
-#: src/web/pages_admin.ml:2324
+#: src/web/pages_admin.ml:2322
 msgid "Proceed to vote counting"
 msgstr "Proceed to vote counting"
 
-#: src/web/pages_admin.ml:1534
+#: src/web/pages_admin.ml:1535
 msgid "Public credentials:"
 msgstr "Public credentials:"
 
-#: src/web/pages_admin.ml:1652
+#: src/web/pages_admin.ml:1653
 msgid "Public key:"
 msgstr "Public key:"
 
-#: src/web/pages_admin.ml:1079 src/web/pages_admin.ml:910
+#: src/web/pages_admin.ml:1070 src/web/pages_admin.ml:901
 msgid "Public name"
 msgstr "Public name"
 
-#: src/web/pages_admin.ml:471
+#: src/web/pages_admin.ml:484
 msgid "Public name of the administrator"
 msgstr "Public name of the administrator"
 
-#: src/web/pages_admin.ml:452
+#: src/web/pages_admin.ml:465
 msgid "Public name of the administrator:"
 msgstr "Public name of the administrator:"
 
-#: src/web/pages_admin.ml:2075
+#: src/web/pages_admin.ml:2073
 msgid "Public name of the administrator?"
 msgstr "Public name of the administrator?"
 
-#: src/web/pages_admin.ml:1219
+#: src/web/pages_admin.ml:1210
 msgid "Public name of the credential authority:"
 msgstr "Public name of the credential authority:"
 
-#: src/web/pages_admin.ml:2618
+#: src/web/pages_admin.ml:2616
 msgid "Publish the result now"
 msgstr "Publish the result now"
 
-#: src/tool/tool_js_questions.ml:228
+#: src/tool/tool_js_questions.ml:231
 msgid "Question: "
 msgstr "Question: "
 
-#: src/web/pages_admin.ml:1320
+#: src/web/pages_admin.ml:1311
 msgid "Questions for election %s"
 msgstr "Questions for election %s"
 
-#: src/web/pages_admin.ml:1327
+#: src/web/pages_admin.ml:1323
 msgid "Questions:"
 msgstr "Questions:"
 
-#: src/web/pages_admin.ml:2079
+#: src/web/pages_admin.ml:2077
 msgid "Questions?"
 msgstr "Questions?"
 
-#: src/web/pages_admin.ml:1989
+#: src/web/pages_admin.ml:1990
 msgid "Received"
 msgstr "Received"
 
-#: src/web/pages_admin.ml:2763
+#: src/web/pages_admin.ml:2761
 msgid "Records"
 msgstr "Records"
 
-#: src/web/pages_admin.ml:767 src/web/pages_admin.ml:717
+#: src/web/pages_admin.ml:758 src/web/pages_admin.ml:708
 msgid "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed)."
 msgstr "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed)."
 
-#: src/web/pages_admin.ml:2714
+#: src/web/pages_admin.ml:2712
 msgid "Regenerate and e-mail a password"
 msgstr "Regenerate and e-mail a password"
 
-#: src/web/pages_admin.ml:2755
+#: src/web/pages_admin.ml:2753
 msgid "Regenerate and e-mail password"
 msgstr "Regenerate and e-mail password"
 
-#: src/web/pages_admin.ml:1860
+#: src/web/pages_admin.ml:1861
 msgid "Remember that you must also check the presence of your public key."
 msgstr "Remember that you must also check the presence of your public key."
 
-#: src/web/pages_admin.ml:1861
+#: src/web/pages_admin.ml:1862
 msgid "Remember to store you private key securely."
 msgstr "Remember to store you private key securely."
 
-#: src/tool/tool_js_questions.ml:235 src/tool/tool_js_questions.ml:145
-#. src/web/pages_admin.ml:1466
-#. src/web/pages_admin.ml:1407
-#. src/web/pages_admin.ml:1083
-#. src/web/pages_admin.ml:992
-#. src/web/pages_admin.ml:914
-#. src/web/pages_admin.ml:827
+#: src/tool/tool_js_questions.ml:238 src/tool/tool_js_questions.ml:148
+#. src/web/pages_admin.ml:1467
+#. src/web/pages_admin.ml:1408
+#. src/web/pages_admin.ml:1074
+#. src/web/pages_admin.ml:983
+#. src/web/pages_admin.ml:905
+#. src/web/pages_admin.ml:818
 msgid "Remove"
 msgstr "Remove"
 
-#: src/web/pages_admin.ml:1417
+#: src/web/pages_admin.ml:1418
 msgid "Remove all"
 msgstr "Remove all"
 
-#: src/web/pages_admin.ml:1128
+#: src/web/pages_admin.ml:1119
 msgid "Reset threshold"
 msgstr "Reset threshold"
 
-#: src/tool/tool_js_questions.ml:406 src/web/pages_admin.ml:1329
-#. src/web/pages_admin.ml:495
-#. src/web/pages_admin.ml:465
-#. src/web/pages_admin.ml:436
-#. src/web/pages_admin.ml:400
+#: src/tool/tool_js_questions.ml:463 src/web/pages_admin.ml:1326
+#. src/web/pages_admin.ml:508
+#. src/web/pages_admin.ml:478
+#. src/web/pages_admin.ml:449
+#. src/web/pages_admin.ml:413
 msgid "Save changes"
 msgstr "Save changes"
 
-#: src/web/pages_admin.ml:1858 src/web/pages_admin.ml:1670
+#: src/web/pages_admin.ml:1859 src/web/pages_admin.ml:1671
 msgid "Save the fingerprint above."
 msgstr "Save the fingerprint above."
 
-#: src/web/pages_admin.ml:713
+#: src/web/pages_admin.ml:704
 msgid "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server."
 msgstr "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server."
 
-#: src/web/pages_admin.ml:1559
+#: src/web/pages_admin.ml:1560
 msgid "Save the two fingerprints above."
 msgstr "Save the two fingerprints above."
 
-#: src/web/pages_admin.ml:2411
+#: src/web/pages_admin.ml:2409
 msgid "Select this trustee"
 msgstr "Select this trustee"
 
-#: src/web/pages_admin.ml:1430
+#: src/web/pages_admin.ml:1431
 msgid "Send again"
 msgstr "Send again"
 
-#: src/web/pages_admin.ml:1244
+#: src/web/pages_admin.ml:1235
 msgid "Send instructions to the credential authority"
 msgstr ""
 
-#: src/web/pages_admin.ml:1989
+#: src/web/pages_admin.ml:1990
 msgid "Sent"
 msgstr "Sent"
 
@@ -1378,32 +1383,31 @@ msgstr "Sent"
 msgid "Server address:"
 msgstr ""
 
-#: src/web/pages_admin.ml:1222 src/web/pages_admin.ml:1111
-#. src/web/pages_admin.ml:558
+#: src/web/pages_admin.ml:1213 src/web/pages_admin.ml:1102
 msgid "Set"
 msgstr "Set"
 
-#: src/web/pages_admin.ml:2830
+#: src/web/pages_admin.ml:2828
 msgid "Shuffle"
 msgstr "Shuffle"
 
-#: src/web/pages_admin.ml:2856
+#: src/web/pages_admin.ml:2854
 msgid "Shuffled list of ballots:"
 msgstr "Shuffled list of ballots:"
 
-#: src/web/pages_admin.ml:2463
+#: src/web/pages_admin.ml:2461
 msgid "Shuffling of ballots"
 msgstr "Shuffling of ballots"
 
-#: src/web/pages_admin.ml:2373
+#: src/web/pages_admin.ml:2371
 msgid "Skip"
 msgstr "Skip"
 
-#: src/web/pages_admin.ml:2804
+#: src/web/pages_admin.ml:2802
 msgid "Skipping trustee %s"
 msgstr "Skipping trustee %s"
 
-#: src/web/pages_admin.ml:1082
+#: src/web/pages_admin.ml:1073
 msgid "State"
 msgstr "State"
 
@@ -1411,83 +1415,83 @@ msgstr "State"
 msgid "Step %d/3"
 msgstr "Step %d/3"
 
-#: src/web/pages_admin.ml:1713
+#: src/web/pages_admin.ml:1714
 msgid "Step 0/3"
 msgstr "Step 0/3"
 
-#: src/web/pages_admin.ml:3153 src/web/pages_admin.ml:3103
-#. src/web/pages_admin.ml:3051
-#. src/web/pages_admin.ml:3029
-#. src/web/pages_admin.ml:2997
-#. src/web/pages_admin.ml:2957
-#. src/web/pages_admin.ml:2870
-#. src/web/pages_admin.ml:2750
-#. src/web/pages_admin.ml:1834
-#. src/web/pages_admin.ml:1802
-#. src/web/pages_admin.ml:1585
+#: src/web/pages_admin.ml:3151 src/web/pages_admin.ml:3101
+#. src/web/pages_admin.ml:3049
+#. src/web/pages_admin.ml:3027
+#. src/web/pages_admin.ml:2995
+#. src/web/pages_admin.ml:2955
+#. src/web/pages_admin.ml:2868
+#. src/web/pages_admin.ml:2748
+#. src/web/pages_admin.ml:1835
+#. src/web/pages_admin.ml:1803
+#. src/web/pages_admin.ml:1586
 msgid "Submit"
 msgstr "Submit"
 
-#: src/web/pages_admin.ml:1582
+#: src/web/pages_admin.ml:1583
 msgid "Submit by file"
 msgstr "Submit by file"
 
-#: src/web/pages_admin.ml:1829 src/web/pages_admin.ml:1800
+#: src/web/pages_admin.ml:1830 src/web/pages_admin.ml:1801
 msgid "Submit data using the following button:"
 msgstr "Submit data using the following button:"
 
-#: src/web/pages_admin.ml:1566
+#: src/web/pages_admin.ml:1567
 msgid "Submit public credentials"
 msgstr "Submit public credentials"
 
-#: src/web/pages_admin.ml:1563
+#: src/web/pages_admin.ml:1564
 msgid "Submit public credentials using the button below."
 msgstr "Submit public credentials using the button below."
 
-#: src/web/pages_admin.ml:1677
+#: src/web/pages_admin.ml:1678
 msgid "Submit public key"
 msgstr "Submit public key"
 
-#: src/web/pages_admin.ml:1674
+#: src/web/pages_admin.ml:1675
 msgid "Submit your public key using the button below."
 msgstr "Submit your public key using the button below."
 
-#: src/web/site_admin.ml:2183 src/web/site_admin.ml:1979
-#. src/web/site_admin.ml:1308
-#. src/web/site_admin.ml:1223
-#. src/web/site_admin.ml:797
-#. src/web/site_admin.ml:721
+#: src/web/site_admin.ml:2167 src/web/site_admin.ml:1963
+#. src/web/site_admin.ml:1292
+#. src/web/site_admin.ml:1207
+#. src/web/site_admin.ml:779
+#. src/web/site_admin.ml:703
 #. src/web/site_admin.ml:583
 msgid "Success"
 msgstr "Success"
 
-#: src/web/pages_admin.ml:1914 src/web/pages_admin.ml:237
+#: src/web/pages_admin.ml:1915 src/web/pages_admin.ml:237
 msgid "Tallied elections"
 msgstr "Tallied elections"
 
-#: src/web/pages_admin.ml:2171
+#: src/web/pages_admin.ml:2169
 msgid "Thank you again for your help,"
 msgstr "Thank you again for your help,"
 
-#: src/web/pages_admin.ml:2209 src/web/pages_admin.ml:1198
-#. src/web/pages_admin.ml:776
-#. src/web/pages_admin.ml:726
+#: src/web/pages_admin.ml:2207 src/web/pages_admin.ml:1189
+#. src/web/pages_admin.ml:767
+#. src/web/pages_admin.ml:717
 msgid "Thank you for your help,"
 msgstr "Thank you for your help,"
 
-#: src/web/pages_admin.ml:2592
+#: src/web/pages_admin.ml:2590
 msgid "The "
 msgstr "The "
 
-#: src/web/pages_admin.ml:3074
+#: src/web/pages_admin.ml:3072
 msgid "The account creation "
 msgstr "The account creation "
 
-#: src/web/site_admin.ml:2656
+#: src/web/site_admin.ml:2640
 msgid "The account has been created."
 msgstr "The account has been created."
 
-#: src/web/pages_admin.ml:3124
+#: src/web/pages_admin.ml:3122
 msgid "The change "
 msgstr "The change "
 
@@ -1495,89 +1499,89 @@ msgstr "The change "
 msgid "The creation failed."
 msgstr "The creation failed."
 
-#: src/web/site_admin.ml:1641
+#: src/web/site_admin.ml:1625
 msgid "The date must be less than %d days in the future!"
 msgstr "The date must be less than %d days in the future!"
 
-#: src/web/pages_admin.ml:2224 src/web/pages_admin.ml:2186
-#. src/web/pages_admin.ml:1201
-#. src/web/pages_admin.ml:791
-#. src/web/pages_admin.ml:741
+#: src/web/pages_admin.ml:2222 src/web/pages_admin.ml:2184
+#. src/web/pages_admin.ml:1192
+#. src/web/pages_admin.ml:782
+#. src/web/pages_admin.ml:732
 msgid "The election administrator"
 msgstr "The election administrator"
 
-#: src/web/site_admin.ml:1923
+#: src/web/site_admin.ml:1907
 msgid "The election has already been tallied."
 msgstr "The election has already been tallied."
 
-#: src/web/pages_admin.ml:2286
+#: src/web/pages_admin.ml:2284
 msgid "The election is closed. No one can vote."
 msgstr "The election is closed. No one can vote."
 
-#: src/web/site_admin.ml:1872
+#: src/web/site_admin.ml:1856
 msgid "The election is not archived!"
 msgstr "The election is not archived!"
 
-#: src/web/site_admin.ml:1920
+#: src/web/site_admin.ml:1904
 msgid "The election is not ready to be tallied. Please come back later."
 msgstr "The election is not ready to be tallied. Please come back later."
 
-#: src/web/pages_admin.ml:2158
+#: src/web/pages_admin.ml:2156
 msgid "The election is now closed."
 msgstr "The election is now closed."
 
-#: src/web/pages_admin.ml:2282
+#: src/web/pages_admin.ml:2280
 msgid "The election is open. Voters can vote."
 msgstr "The election is open. Voters can vote."
 
-#: src/web/site_admin.ml:1156 src/web/site_admin.ml:694
+#: src/web/site_admin.ml:1140 src/web/site_admin.ml:676
 msgid "The election name has not been edited!"
 msgstr "The election name has not been edited!"
 
-#: src/web/site_admin.ml:674
+#: src/web/site_admin.ml:656
 msgid "The election name must be %d characters or less!"
 msgstr "The election name must be %d characters or less!"
 
-#: src/web/pages_admin.ml:2906
+#: src/web/pages_admin.ml:2904
 msgid "The fingerprint of the encrypted tally is "
 msgstr "The fingerprint of the encrypted tally is "
 
-#: src/web/pages_admin.ml:1795
+#: src/web/pages_admin.ml:1796
 msgid "The fingerprint of your public key is "
 msgstr "The fingerprint of your public key is "
 
-#: src/web/pages_admin.ml:2862
+#: src/web/pages_admin.ml:2860
 msgid "The fingerprint of your shuffle is:"
 msgstr "The fingerprint of your shuffle is:"
 
-#: src/web/pages_admin.ml:2205
+#: src/web/pages_admin.ml:2203
 msgid "The fingerprint of your shuffle will appear. Save it."
 msgstr "The fingerprint of your shuffle will appear. Save it."
 
-#: src/tool/tool_js_questions.ml:100
+#: src/tool/tool_js_questions.ml:103
 msgid "The given maximum is greater than the number of choices!"
 msgstr "The given maximum is greater than the number of choices!"
 
-#: src/web/pages_admin.ml:2567 src/web/pages_admin.ml:2433
-#. src/web/pages_admin.ml:1058
-#. src/web/pages_admin.ml:892
+#: src/web/pages_admin.ml:2565 src/web/pages_admin.ml:2431
+#. src/web/pages_admin.ml:1049
+#. src/web/pages_admin.ml:883
 msgid "The link that must be sent to trustee "
 msgstr "The link that must be sent to trustee "
 
-#: src/web/pages_admin.ml:1722 src/web/pages_admin.ml:1639
-#. src/web/pages_admin.ml:1525
+#: src/web/pages_admin.ml:1723 src/web/pages_admin.ml:1640
+#. src/web/pages_admin.ml:1526
 msgid "The link to the election will be:"
 msgstr "The link to the election will be:"
 
-#: src/web/pages_admin.ml:1192
+#: src/web/pages_admin.ml:1183
 msgid "The page also contains instructions for checking the voting record, after the tally."
 msgstr ""
 
-#: src/web/site_admin.ml:1985
+#: src/web/site_admin.ml:1969
 msgid "The partial decryption didn't pass validation!"
 msgstr "The partial decryption didn't pass validation!"
 
-#: src/web/site_admin.ml:2680
+#: src/web/site_admin.ml:2664
 msgid "The password has been changed."
 msgstr "The password has been changed."
 
@@ -1585,91 +1589,91 @@ msgstr "The password has been changed."
 msgid "The public name of the credential authority has been set successfully!"
 msgstr "The public name of the credential authority has been set successfully!"
 
-#: src/web/pages_admin.ml:2169
+#: src/web/pages_admin.ml:2167
 msgid "The second box is now filled with crypto material. Please press the button \"Submit\"."
 msgstr "The second box is now filled with crypto material. Please press the button \"Submit\"."
 
-#: src/web/site_admin.ml:2183
+#: src/web/site_admin.ml:2167
 msgid "The shuffle has been successfully applied!"
 msgstr "The shuffle has been successfully applied!"
 
-#: src/web/site_admin.ml:2307
+#: src/web/site_admin.ml:2291
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr "The threshold must be positive and smaller than the number of trustees!"
 
-#: src/web/site_admin.ml:1393 src/web/site_admin.ml:940
+#: src/web/site_admin.ml:1377 src/web/site_admin.ml:924
 msgid "The total weight cannot exceed %d."
 msgstr "The total weight cannot exceed %d."
 
-#: src/tool/tool_js_questions.ml:173
+#: src/tool/tool_js_questions.ml:176
 msgid "The voter has to choose between "
 msgstr "The voter has to choose between "
 
-#: src/tool/tool_js_questions.ml:272
+#: src/tool/tool_js_questions.ml:275
 msgid "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
 msgstr "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
 
-#: src/web/site_admin.ml:944
+#: src/web/site_admin.ml:928
 msgid "The voter list is not consistent (a login or a weight is missing)."
 msgstr ""
 
-#: src/web/site_admin.ml:962
+#: src/web/site_admin.ml:946
 msgid "There are too many voters (max is %d)"
 msgstr "There are too many voters (max is %d)"
 
-#: src/web/pages_admin.ml:3202
+#: src/web/pages_admin.ml:3200
 msgid "There has been a request to change the password of your account on our Belenios server."
 msgstr ""
 
-#: src/web/pages_admin.ml:1146
+#: src/web/pages_admin.ml:1137
 msgid "There is one link per trustee. Send a link to each trustee."
 msgstr "There is one link per trustee. Send a link to each trustee."
 
-#: src/web/pages_admin.ml:929
+#: src/web/pages_admin.ml:920
 msgid "There is one link per trustee. Send each trustee the respective link."
 msgstr "There is one link per trustee. Send each trustee the respective link."
 
-#: src/web/pages_admin.ml:755
+#: src/web/pages_admin.ml:746
 msgid "There will be 3 steps."
 msgstr "There will be 3 steps."
 
-#: src/web/pages_admin.ml:1345
+#: src/web/pages_admin.ml:1342
 msgid "This allows deciding the winner according to your favorite counting method."
 msgstr "This will determine the winner based on your preferred counting method."
 
-#: src/web/pages_admin.ml:492
+#: src/web/pages_admin.ml:505
 msgid "This contact will be added to emails sent to the voters."
 msgstr "This contact will be added to emails sent to the voters."
 
-#: src/web/pages_admin.ml:2641
+#: src/web/pages_admin.ml:2639
 msgid "This election has been tallied."
 msgstr "This election has been tallied."
 
-#: src/web/pages_admin.ml:2648
+#: src/web/pages_admin.ml:2646
 msgid "This election is archived."
 msgstr "This election is archived."
 
-#: src/web/pages_admin.ml:2662
+#: src/web/pages_admin.ml:2660
 msgid "This election will be automatically archived after "
 msgstr "This election will be automatically archived after "
 
-#: src/web/pages_admin.ml:2692
+#: src/web/pages_admin.ml:2690
 msgid "This election will be automatically deleted after "
 msgstr "This election will be automatically deleted after "
 
-#: src/web/pages_admin.ml:397
+#: src/web/pages_admin.ml:410
 msgid "This is a space-separated list of languages that will be used in emails sent by the server."
 msgstr "This is a space-separated list of languages that will be used in emails sent by the server."
 
-#: src/web/site_admin.ml:828
+#: src/web/site_admin.ml:810
 msgid "This kind of change is not allowed now!"
 msgstr "This kind of change is not allowed now!"
 
-#: src/web/pages_admin.ml:1556 src/web/pages_admin.ml:1184
+#: src/web/pages_admin.ml:1557 src/web/pages_admin.ml:1175
 msgid "This list must be the one approved by the election commission."
 msgstr "This list must be the one approved by the election commission."
 
-#: src/web/pages_admin.ml:462
+#: src/web/pages_admin.ml:475
 msgid "This name will be published on the election result page."
 msgstr "This name will be published on the election result page."
 
@@ -1677,11 +1681,11 @@ msgstr "This name will be published on the election result page."
 msgid "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
 msgstr "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
 
-#: src/web/pages_admin.ml:1108
+#: src/web/pages_admin.ml:1099
 msgid "Threshold:"
 msgstr "Threshold:"
 
-#: src/web/pages_admin.ml:1365
+#: src/web/pages_admin.ml:1362
 msgid "Tick the box to activate this mode."
 msgstr "Tick the box to activate this mode."
 
@@ -1689,19 +1693,19 @@ msgstr "Tick the box to activate this mode."
 msgid "To administer an election, you need to log in."
 msgstr ""
 
-#: src/web/pages_admin.ml:3181
+#: src/web/pages_admin.ml:3179
 msgid "To confirm this creation, please use the following code:"
 msgstr ""
 
-#: src/web/pages_admin.ml:3203
+#: src/web/pages_admin.ml:3201
 msgid "To confirm this, please use the following code:"
 msgstr ""
 
-#: src/web/pages_admin.ml:941
+#: src/web/pages_admin.ml:932
 msgid "To set up the election key, you need to nominate trustees. Each trustee will create a secret key."
 msgstr "To set up the election key, you need to nominate trustees. Each trustee will create a secret key."
 
-#: src/web/pages_admin.ml:943
+#: src/web/pages_admin.ml:934
 msgid "To set up the election so that only a subset of trustees is needed, go to the "
 msgstr "To set up the election so that only a subset of trustees is needed, go to the "
 
@@ -1713,54 +1717,54 @@ msgstr "To use this site, you must accept our "
 msgid "Too short"
 msgstr "Too short"
 
-#: src/web/pages_admin.ml:2603 src/web/pages_admin.ml:2467
-#. src/web/pages_admin.ml:1078
-#. src/web/pages_admin.ml:909
+#: src/web/pages_admin.ml:2601 src/web/pages_admin.ml:2465
+#. src/web/pages_admin.ml:1069
+#. src/web/pages_admin.ml:900
 msgid "Trustee"
 msgstr "Trustee"
 
-#: src/web/pages_admin.ml:1708 src/web/pages_admin.ml:1633
+#: src/web/pages_admin.ml:1709 src/web/pages_admin.ml:1634
 msgid "Trustee for election %s"
 msgstr "Trustee for election %s"
 
-#: src/web/pages_admin.ml:974 src/web/pages_admin.ml:810
+#: src/web/pages_admin.ml:965 src/web/pages_admin.ml:801
 msgid "Trustee's e-mail address:"
 msgstr "Trustee's e-mail address:"
 
-#: src/web/pages_admin.ml:589
+#: src/web/pages_admin.ml:580
 msgid "Trustees"
 msgstr "Trustees"
 
-#: src/web/pages_admin.ml:966 src/web/pages_admin.ml:804
+#: src/web/pages_admin.ml:957 src/web/pages_admin.ml:795
 msgid "Trustees for election %s"
 msgstr "Trustees for election %s"
 
-#: src/web/pages_admin.ml:2103
+#: src/web/pages_admin.ml:2101
 msgid "Trustees?"
 msgstr "Trustees?"
 
-#: src/web/pages_admin.ml:3148 src/web/pages_admin.ml:3098
+#: src/web/pages_admin.ml:3146 src/web/pages_admin.ml:3096
 msgid "Type the password again: "
 msgstr "Type the password again: "
 
-#: src/web/site_admin.ml:1480
+#: src/web/site_admin.ml:1464
 msgid "Unsupported trustees!"
 msgstr "Unsupported trustees!"
 
-#: src/web/pages_admin.ml:1583
+#: src/web/pages_admin.ml:1584
 msgid "Use this form to upload public credentials generated with the command-line tool."
 msgstr "Use this form to upload public credentials generated with the command-line tool."
 
-#: src/web/pages_admin.ml:2785
+#: src/web/pages_admin.ml:2783
 msgid "Username"
 msgstr "Username"
 
-#: src/web/pages_admin.ml:2746
+#: src/web/pages_admin.ml:2744
 msgid "Username:"
 msgstr "Username:"
 
-#: src/web/pages_admin.ml:2133 src/web/pages_admin.ml:1943
-#. src/web/pages_admin.ml:647
+#: src/web/pages_admin.ml:2131 src/web/pages_admin.ml:1944
+#. src/web/pages_admin.ml:638
 msgid "Validate creation"
 msgstr "Validate creation"
 
@@ -1768,19 +1772,19 @@ msgstr "Validate creation"
 msgid "Verifiable online voting platform"
 msgstr ""
 
-#: src/web/pages_admin.ml:2722
+#: src/web/pages_admin.ml:2720
 msgid "Voter list"
 msgstr "Voter list"
 
-#: src/web/pages_admin.ml:1391
+#: src/web/pages_admin.ml:1392
 msgid "Voters for election %s"
 msgstr "Voters for election %s"
 
-#: src/web/pages_admin.ml:2083
+#: src/web/pages_admin.ml:2081
 msgid "Voters?"
 msgstr "Voters?"
 
-#: src/web/pages_admin.ml:2725
+#: src/web/pages_admin.ml:2723
 msgid "Voting records"
 msgstr "Voting records"
 
@@ -1792,48 +1796,48 @@ msgstr "Waiting for the election administrator to set the threshold... Reload th
 msgid "Waiting for the other trustees... Reload the page to check progress."
 msgstr "Waiting for the other trustees... Reload the page to check progress."
 
-#: src/web/pages_admin.ml:2059 src/web/pages_admin.ml:2048
-#. src/web/pages_admin.ml:1489
-#. src/web/pages_admin.ml:1485
+#: src/web/pages_admin.ml:2057 src/web/pages_admin.ml:2046
+#. src/web/pages_admin.ml:1490
+#. src/web/pages_admin.ml:1486
 msgid "Warning:"
 msgstr "Warning:"
 
-#: src/web/pages_admin.ml:2700
+#: src/web/pages_admin.ml:2698
 msgid "Warning: This action is irreversible."
 msgstr "Warning: This action is irreversible."
 
-#: src/web/pages_admin.ml:2327
+#: src/web/pages_admin.ml:2325
 msgid "Warning: This action is irreversible; the election will be definitively closed."
 msgstr "Warning: This action is irreversible; the election will be definitively closed."
 
-#: src/web/pages_admin.ml:3207 src/web/pages_admin.ml:3185
+#: src/web/pages_admin.ml:3205 src/web/pages_admin.ml:3183
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
-#: src/web/pages_admin.ml:631
+#: src/web/pages_admin.ml:622
 msgid "Warning: this will freeze the voter list!"
 msgstr "Warning: this will freeze the voter list!"
 
-#: src/web/pages_admin.ml:768 src/web/pages_admin.ml:718
+#: src/web/pages_admin.ml:759 src/web/pages_admin.ml:709
 msgid "We suggest two options:"
 msgstr "We suggest two options:"
 
-#: src/web/pages_admin.ml:2207
+#: src/web/pages_admin.ml:2205
 msgid "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page."
 msgstr "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page."
 
-#: src/web/pages_admin.ml:2556 src/web/pages_admin.ml:2420
-#. src/web/pages_admin.ml:2063
-#. src/web/pages_admin.ml:1435
-#. src/web/pages_admin.ml:880
+#: src/web/pages_admin.ml:2554 src/web/pages_admin.ml:2418
+#. src/web/pages_admin.ml:2061
+#. src/web/pages_admin.ml:1436
+#. src/web/pages_admin.ml:871
 msgid "Yes"
 msgstr "Yes"
 
-#: src/web/site_admin.ml:1573
+#: src/web/site_admin.ml:1557
 msgid "You are not allowed to administer this election!"
 msgstr "You are not allowed to administer this election!"
 
-#: src/web/pages_admin.ml:2791
+#: src/web/pages_admin.ml:2789
 msgid "You can also access the "
 msgstr "You can also access the "
 
@@ -1841,11 +1845,11 @@ msgstr "You can also access the "
 msgid "You can also log in with"
 msgstr ""
 
-#: src/web/site_admin.ml:2576
+#: src/web/site_admin.ml:2560
 msgid "You cannot change your password now. Please try later."
 msgstr "You cannot change your password now. Please try later."
 
-#: src/web/site_admin.ml:2535
+#: src/web/site_admin.ml:2519
 msgid "You cannot create an account now. Please try later."
 msgstr "You cannot create an account now. Please try later."
 
@@ -1853,27 +1857,27 @@ msgstr "You cannot create an account now. Please try later."
 msgid "You cannot set the credential authority for this election!"
 msgstr "You cannot set the credential authority for this election!"
 
-#: src/web/pages_admin.ml:1194
+#: src/web/pages_admin.ml:1185
 msgid "You may need to resend credentials to voters who have lost them."
 msgstr ""
 
-#: src/web/pages_admin.ml:2625
+#: src/web/pages_admin.ml:2623
 msgid "You may postpone the publication of the election result up to %d days in the future."
 msgstr "You may postpone the publication of the election result up to %d days in the future."
 
-#: src/web/pages_admin.ml:2810
+#: src/web/pages_admin.ml:2808
 msgid "You may skip a trustee if they do not answer. Be aware that this reduces the security."
 msgstr "You may skip a trustee if they do not answer. Be aware that this reduces the security."
 
-#: src/web/pages_admin.ml:1190
+#: src/web/pages_admin.ml:1181
 msgid "You may use a script of your own or the one provided in the Belenios distribution, see instructions here:"
 msgstr ""
 
-#: src/web/pages_admin.ml:1343
+#: src/web/pages_admin.ml:1340
 msgid "You may wish voters to rank candidates or give each candidate a score."
 msgstr "You may wish voters to rank candidates or give each candidate a score."
 
-#: src/web/pages_admin.ml:2867
+#: src/web/pages_admin.ml:2865
 msgid "You must record this fingerprint and check that it appears on the election result page."
 msgstr "You must record this fingerprint and check that it appears on the election result page."
 
@@ -1881,42 +1885,42 @@ msgstr "You must record this fingerprint and check that it appears on the electi
 msgid "You must select at least one language!"
 msgstr "You must select at least one language!"
 
-#: src/web/pages_admin.ml:1905 src/web/pages_admin.ml:220
+#: src/web/pages_admin.ml:1906 src/web/pages_admin.ml:220
 #. src/web/pages_admin.ml:215
 #. src/web/pages_admin.ml:210
 #. src/web/pages_admin.ml:205
 msgid "You own no such elections!"
 msgstr "You own no such elections!"
 
-#: src/web/pages_admin.ml:1174
+#: src/web/pages_admin.ml:1165
 msgid "You will find below the link to generate the voters' credentials, one for each voter."
 msgstr ""
 
-#: src/web/pages_admin.ml:750 src/web/pages_admin.ml:701
+#: src/web/pages_admin.ml:741 src/web/pages_admin.ml:692
 msgid "You will find below the link to generate your private decryption key, used to tally the election."
 msgstr "You will find below the link to generate your private decryption key, used to tally the election."
 
-#: src/web/pages_admin.ml:1189
+#: src/web/pages_admin.ml:1180
 msgid "You will then need to send (typically by email) each private credential to the associated voter as written in the file creds.txt."
 msgstr ""
 
-#: src/web/pages_admin.ml:1792
+#: src/web/pages_admin.ml:1793
 msgid "You will use it in the next steps and to decrypt the final result."
 msgstr "You will use it in the next steps and to decrypt the final result."
 
-#: src/web/pages_admin.ml:1667
+#: src/web/pages_admin.ml:1668
 msgid "You will use it to decrypt the final result."
 msgstr "You will use it to decrypt the final result."
 
-#: src/web/pages_admin.ml:1549 src/web/pages_admin.ml:1182
+#: src/web/pages_admin.ml:1550 src/web/pages_admin.ml:1173
 msgid "You will use it to send credentials to voters."
 msgstr "You will use it to send credentials to voters."
 
-#: src/web/pages_admin.ml:3180
+#: src/web/pages_admin.ml:3178
 msgid "Your e-mail address has been used to create an account on our Belenios server."
 msgstr ""
 
-#: src/web/pages_admin.ml:3086
+#: src/web/pages_admin.ml:3084
 msgid "Your e-mail address is: "
 msgstr "Your e-mail address is: "
 
@@ -1924,71 +1928,79 @@ msgstr "Your e-mail address is: "
 msgid "Your job in the key establishment protocol is done! The fingerprint of your verification key is %s. Check that it is published by the server when the election is open. Your private key will be needed to decrypt the election result."
 msgstr "Your job in the key establishment protocol is done! The fingerprint of your verification key is %s. Check that it is published by the server when the election is open. Your private key will be needed to decrypt the election result."
 
-#: src/web/site_admin.ml:1307
+#: src/web/site_admin.ml:1291
 msgid "Your key has been received and checked!"
 msgstr "Your key has been received and checked!"
 
-#: src/web/site_admin.ml:1912
+#: src/web/site_admin.ml:1896
 msgid "Your partial decryption has already been received and checked!"
 msgstr "Your partial decryption has already been received and checked!"
 
-#: src/web/site_admin.ml:1980
+#: src/web/site_admin.ml:1964
 msgid "Your partial decryption has been received and checked!"
 msgstr "Your partial decryption has been received and checked!"
 
-#: src/web/site_admin.ml:1264
+#: src/web/site_admin.ml:1248
 msgid "Your public key has already been received!"
 msgstr "Your public key has already been received!"
 
-#: src/web/pages_admin.ml:3136
+#: src/web/pages_admin.ml:3134
 msgid "Your username is: "
 msgstr "Your username is: "
+
+#: src/tool/tool_js_questions.ml:395
+msgid "classic"
+msgstr ""
 
 #: src/web/pages_admin.ml:121
 msgid "contact us"
 msgstr "contact us"
 
-#: src/web/pages_admin.ml:1093
+#: src/web/pages_admin.ml:1084
 msgid "done: the key establishment protocol is finished"
 msgstr "done: the key establishment protocol is finished"
 
-#: src/web/pages_admin.ml:2002
+#: src/web/pages_admin.ml:2003
 msgid "download"
 msgstr "download"
 
-#: src/web/pages_admin.ml:2119
+#: src/web/pages_admin.ml:2117
 msgid "election not ready"
 msgstr "election not ready"
 
-#: src/web/pages_admin.ml:2117
+#: src/web/pages_admin.ml:2115
 msgid "election ready"
 msgstr "election ready"
 
-#: src/web/pages_admin.ml:2595
+#: src/web/pages_admin.ml:2593
 msgid "encrypted tally"
 msgstr "encrypted tally"
 
-#: src/web/pages_admin.ml:3125 src/web/pages_admin.ml:3075
+#: src/web/pages_admin.ml:3123 src/web/pages_admin.ml:3073
 msgid "failed"
 msgstr "failed"
 
-#: src/web/pages_admin.ml:596
+#: src/web/pages_admin.ml:587
 msgid "here"
 msgstr "here"
 
-#: src/web/pages_admin.ml:1089
+#: src/web/pages_admin.ml:1080
 msgid "init: administrator needs to set threshold"
 msgstr "init: administrator needs to set threshold"
 
-#: src/web/pages_admin.ml:325
+#: src/web/pages_admin.ml:335
 msgid "more info"
 msgstr "more info"
 
-#: src/web/pages_admin.ml:3121
+#: src/tool/tool_js_questions.ml:399
+msgid "new interface (more elegant, still under test)"
+msgstr ""
+
+#: src/web/pages_admin.ml:3119
 msgid "of an unknown reason"
 msgstr "of an unknown reason"
 
-#: src/web/pages_admin.ml:772 src/web/pages_admin.ml:722
+#: src/web/pages_admin.ml:763 src/web/pages_admin.ml:713
 msgid "or you may simply print it and store it in a safe."
 msgstr "or you may simply print it and store it in a safe."
 
@@ -1996,107 +2008,123 @@ msgstr "or you may simply print it and store it in a safe."
 msgid "personal data policy"
 msgstr "personal data policy"
 
-#: src/web/pages_admin.ml:1546
+#: src/web/pages_admin.ml:1547
 msgid "private credentials"
 msgstr "private credentials"
 
-#: src/web/pages_admin.ml:1789 src/web/pages_admin.ml:1664
+#: src/web/pages_admin.ml:1790 src/web/pages_admin.ml:1665
 msgid "private key"
 msgstr "private key"
 
-#: src/web/pages_admin.ml:978 src/web/pages_admin.ml:814
+#: src/web/pages_admin.ml:969 src/web/pages_admin.ml:805
 msgid "public name:"
 msgstr "public name:"
 
-#: src/web/pages_admin.ml:2792
+#: src/web/pages_admin.ml:2790
 msgid "raw data"
 msgstr "raw data"
 
-#: src/web/pages_admin.ml:1574
+#: src/web/pages_admin.ml:352
+msgid "sent by a third party chosen by you (safe mode)"
+msgstr ""
+
+#: src/web/pages_admin.ml:313
+msgid "sent by email when voting (a short password, renewed for each vote)"
+msgstr ""
+
+#: src/web/pages_admin.ml:345
+msgid "sent by our server (easier mode but offers less security)"
+msgstr ""
+
+#: src/web/pages_admin.ml:290
+msgid "sent in advance by e-mail (useful for multiple elections)"
+msgstr ""
+
+#: src/web/pages_admin.ml:1575
 msgid "submitting a large number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below."
 msgstr "submitting a large number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below."
 
-#: src/web/pages_admin.ml:1352
+#: src/web/pages_admin.ml:1349
 msgid "the after-the-vote procedure will require more steps;"
 msgstr "the after-the-vote procedure will require more steps;"
 
-#: src/web/pages_admin.ml:1286
+#: src/web/pages_admin.ml:1277
 msgid "the fingerprint of public credentials matches what has been saved, for example with the following command:"
 msgstr "the fingerprint of public credentials matches what has been saved, for example with the following command:"
 
-#: src/web/pages_admin.ml:762
+#: src/web/pages_admin.ml:753
 msgid "the fingerprint of your public key;"
 msgstr "the fingerprint of your public key;"
 
-#: src/web/pages_admin.ml:763
+#: src/web/pages_admin.ml:754
 msgid "the fingerprint of your verification key."
 msgstr "the fingerprint of your verification key."
 
-#: src/web/pages_admin.ml:1553
+#: src/web/pages_admin.ml:1554
 msgid "the list of voters"
 msgstr "the list of voters"
 
-#: src/web/pages_admin.ml:3119
+#: src/web/pages_admin.ml:3117
 msgid "the new password is too weak (%s)"
 msgstr "the new password is too weak (%s)"
 
-#: src/web/pages_admin.ml:3120
+#: src/web/pages_admin.ml:3118
 msgid "the new password starts or ends with a space"
 msgstr "the new password starts or ends with a space"
 
-#: src/web/pages_admin.ml:1277
+#: src/web/pages_admin.ml:1268
 msgid "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:"
 msgstr "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:"
 
-#: src/web/pages_admin.ml:3069
+#: src/web/pages_admin.ml:3067
 msgid "the password is too weak (%s)"
 msgstr "the password is too weak (%s)"
 
-#: src/web/pages_admin.ml:3071
+#: src/web/pages_admin.ml:3069
 msgid "the password starts or ends with a space"
 msgstr "the password starts or ends with a space"
 
-#: src/web/pages_admin.ml:3118 src/web/pages_admin.ml:3070
+#: src/web/pages_admin.ml:3116 src/web/pages_admin.ml:3068
 msgid "the two passwords are not the same"
 msgstr "the two passwords are not the same"
 
-#: src/web/pages_admin.ml:3066
+#: src/web/pages_admin.ml:3064
 msgid "the username is already taken"
 msgstr "the username is already taken"
 
-#: src/web/pages_admin.ml:3068
+#: src/web/pages_admin.ml:3066
 msgid "the username is invalid"
 msgstr "the username is invalid"
 
-#: src/web/pages_admin.ml:3067
+#: src/web/pages_admin.ml:3065
 msgid "there is already an account with this e-mail address"
 msgstr "there is already an account with this e-mail address"
 
-#: src/web/pages_admin.ml:944
+#: src/web/pages_admin.ml:935
 msgid "threshold mode"
 msgstr "threshold mode"
 
-#: src/web/pages_admin.ml:2253
+#: src/web/pages_admin.ml:2251
 msgid "times are in UTC. Now is "
 msgstr "times are in UTC. Now is "
 
-#: src/web/pages_admin.ml:1295
+#: src/web/pages_admin.ml:1286
 msgid "you can send the private credential back to its rightful owner in case it gets lost."
 msgstr "you can send the private credential back to its rightful owner in case it gets lost."
 
-#: src/web/pages_admin.ml:1487
+#: src/web/pages_admin.ml:1488
 msgid "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote."
 msgstr ""
 
-#: src/web/pages_admin.ml:770 src/web/pages_admin.ml:720
+#: src/web/pages_admin.ml:761 src/web/pages_admin.ml:711
 msgid "you may store the key on a USB stick and store it in a safe;"
 msgstr "you may store the key on a USB stick and store it in a safe;"
 
-#: src/web/pages_admin.ml:1355
+#: src/web/pages_admin.ml:1352
 msgid "you should explain to voters how they are supposed to assign a number to each candidate in order to express their vote, since it depends on the underlying voting method."
 msgstr ""
 
-#: src/web/pages_admin.ml:760
+#: src/web/pages_admin.ml:751
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
 msgstr "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
 
