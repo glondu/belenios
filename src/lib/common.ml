@@ -180,12 +180,12 @@ module Weight = struct
   let of_string x =
     try
       let x = of_string x in
-      if Z.(compare x zero > 0) then x else raise Exit
+      if Z.(compare x zero >= 0) then x else raise Exit
     with _ ->
       Printf.ksprintf invalid_arg "invalid weight: %s" x
 
   let of_int x =
-    if x > 0 then
+    if x >= 0 then
       of_int x
     else
       Printf.ksprintf invalid_arg "invalid weight: %d" x
