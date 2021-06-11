@@ -76,7 +76,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   type plaintext = int array array
   type ballot = elt Serializable_t.ballot
-  type weighted_ballot = int * ballot
+  type weighted_ballot = Weight.t * ballot
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
@@ -287,6 +287,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
          | SArray xs ->
             SArray (Array.map2 (Q.compute_result ~num_tallied) election.e_params.e_questions xs)
        in
+       let num_tallied = Weight.to_int num_tallied in
        Ok {num_tallied; encrypted_tally; shuffles; shufflers; partial_decryptions; result}
     | Error e -> Error e
 

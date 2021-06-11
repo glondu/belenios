@@ -168,8 +168,8 @@ let cast_ballot uuid ~rawballot ~user =
   let show_weight =
     List.exists
       (fun x ->
-        let _, _, weight = split_identity x in
-        weight <> 1
+        let _, _, weight = split_identity_opt x in
+        weight <> None
       ) voters
   in
   let oweight = if show_weight then Some weight else None in

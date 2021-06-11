@@ -650,7 +650,7 @@ let cast_confirmation election hash () =
              (fun () ->
                let* weight = Web_persist.get_ballot_weight ballot in
                return @@ div [
-                             txt (Printf.sprintf (f_ "Your weight is %d.") weight);
+                             txt (Printf.sprintf (f_ "Your weight is %s.") (Weight.to_string weight));
                            ]
              )
              (function _ -> return @@ txt "")
@@ -742,9 +742,9 @@ let cast_confirmed election ~result () =
     match result with
     | Ok (hash, weight) ->
        let your_weight_is =
-         if weight > 1 then
+         if Weight.(compare weight one > 0) then
            span [
-               txt (Printf.sprintf (f_ "Your weight is %d.") weight);
+               txt (Printf.sprintf (f_ "Your weight is %s.") (Weight.to_string weight));
                txt " ";
              ]
          else txt ""
@@ -807,7 +807,7 @@ let pretty_ballots election hashes result () =
        li
          [
            a ~service:election_pretty_ballot [txt h] ((uuid, ()), h);
-           (if show_weights then Printf.ksprintf txt " (%d)" w else txt "");
+           (if show_weights then Printf.ksprintf txt " (%s)" (Weight.to_string w) else txt "");
          ]
       ) hashes
   in
@@ -1240,7 +1240,7 @@ let mail_password l title login password weight url metadata =
   add_newline b;
   (match weight with
    | Some weight ->
-      add_string b (s_ "Number of votes:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+      add_string b (s_ "Number of votes:"); add_string b " "; add_string b (Weight.to_string weight); add_newline b
    | None -> ()
   );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
@@ -1295,7 +1295,7 @@ let mail_credential l has_passwords title ~login cred weight url metadata =
   add_string b (s_ "Username:"); add_string b " "; add_string b login; add_newline b;
   (match weight with
    | Some weight ->
-      add_string b (s_ "Number of votes:"); add_string b " "; add_string b (string_of_int weight); add_newline b
+      add_string b (s_ "Number of votes:"); add_string b " "; add_string b (Weight.to_string weight); add_newline b
    | None -> ()
   );
   add_string b (s_ "Page of the election:"); add_string b " "; add_string b url; add_newline b;
@@ -1335,7 +1335,7 @@ let mail_confirmation l user title weight hash revote url1 url2 metadata =
   add_sentence b (s_ "has been recorded.");
   (match weight with
    | Some weight ->
-      add_sentence b (Printf.sprintf (f_ "Your weight is %d.") weight)
+      add_sentence b (Printf.sprintf (f_ "Your weight is %s.") (Weight.to_string weight))
    | None -> ()
   );
   add_sentence b (s_ "Your smart ballot tracker is"); add_newline b;

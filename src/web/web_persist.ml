@@ -316,7 +316,7 @@ module StringMap = Map.Make (String)
 
 module CredWeightsCacheTypes = struct
   type key = uuid
-  type value = int StringMap.t
+  type value = Weight.t StringMap.t
 end
 
 module CredWeightsCache = Ocsigen_cache.Make (CredWeightsCacheTypes)
@@ -375,7 +375,7 @@ let get_ballot_weight ballot =
 
 module BallotsCacheTypes = struct
   type key = uuid
-  type value = (string * int) StringMap.t
+  type value = (string * Weight.t) StringMap.t
 end
 
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
@@ -404,7 +404,7 @@ let get_ballots_index uuid =
        (fun () ->
          let* ballots = Lwt_unix.files_of_directory dir |> Lwt_stream.to_list in
          let ballots = List.filter (fun x -> x <> "." && x <> "..") ballots in
-         return (List.rev_map (fun h -> unurlize h, 1) ballots)
+         return (List.rev_map (fun h -> unurlize h, Weight.one) ballots)
        )
        (function
         | Unix.Unix_error(Unix.ENOENT, "opendir", _) -> return []
@@ -416,7 +416,8 @@ let get_ballots_index uuid =
        | `Assoc index ->
           List.map
             (function
-             | (hash, `Int weight) -> hash, weight
+             | (hash, `Int weight) -> hash, Weight.of_int weight
+             | (hash, `Intlit weight) -> hash, Weight.of_string weight
              | _ -> failwith "anomaly in get_ballots_index (int expected)"
             ) index
        | _ -> failwith "anomaly in get_ballots_index (assoc expected)"
@@ -467,7 +468,7 @@ let dump_ballots uuid =
     Lwt_list.map_s
       (fun b ->
         let* w = get_ballot_weight b in
-        return (sha256_b64 b, `Int w)
+        return (sha256_b64 b, `Intlit (Weight.to_string w))
       ) ballots
   in
   let index = Yojson.Safe.to_string (`Assoc index) in
@@ -830,18 +831,19 @@ let compute_audit_cache uuid =
        | None -> failwith "voters.txt is missing"
      in
      let total_weight, min_weight, max_weight =
+       let open Weight in
        List.fold_left
          (fun (tw, minw, maxw) voter ->
            let _, _, weight = split_identity voter in
            tw + weight, min minw weight, max maxw weight
-         ) (0, max_int, 0) voters
+         ) (zero, max_weight, zero) voters
      in
      let cache_num_voters = List.length voters in
      let cache_total_weight, cache_min_weight, cache_max_weight =
-       if total_weight > cache_num_voters then (
+       if Weight.(compare total_weight (of_int cache_num_voters) > 0) then (
          Some total_weight, Some min_weight, Some max_weight
        ) else (
-         assert (total_weight = cache_num_voters);
+         assert Weight.(compare total_weight (of_int cache_num_voters) = 0);
          None, None, None
        )
      in
@@ -875,6 +877,9 @@ let compute_audit_cache uuid =
        Election.compute_checksums ~election result_or_shuffles
          ~trustees ~public_credentials
      in
+     let cache_total_weight = Option.map Weight.to_int cache_total_weight in
+     let cache_min_weight = Option.map Weight.to_int cache_min_weight in
+     let cache_max_weight = Option.map Weight.to_int cache_max_weight in
      return {
          cache_num_voters;
          cache_total_weight;

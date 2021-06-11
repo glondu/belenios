@@ -2024,8 +2024,8 @@ let election_draft_confirm uuid se () =
     let has_weights =
       List.exists
         (fun x ->
-          let _, _, weight = split_identity x.sv_id in
-          weight <> 1
+          let _, _, weight = split_identity_opt x.sv_id in
+          weight <> None
         ) se.se_voters
     in
     let has_nh =

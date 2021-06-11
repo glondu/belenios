@@ -67,7 +67,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let es =
       Array.map
         (fun (w, e) ->
-          if w <> 1 then (
+          if Weight.(compare w one <> 0) then (
             invalid_arg "Question_nh.process_ciphertexts"
           ) else e
         ) es

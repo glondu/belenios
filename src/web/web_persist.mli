@@ -62,9 +62,9 @@ val get_private_keys : uuid -> string list option Lwt.t
 val get_trustees : uuid -> string Lwt.t
 val convert_trustees : unit -> unit Lwt.t
 
-val get_ballot_hashes : uuid -> (string * int) list Lwt.t
+val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
-val get_ballot_weight : string -> int Lwt.t
+val get_ballot_weight : string -> Weight.t Lwt.t
 
 val compute_encrypted_tally : uuid -> string option Lwt.t
 
@@ -86,7 +86,7 @@ val has_voted : uuid -> user -> bool Lwt.t
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
 
 val cast_ballot :
-  uuid -> rawballot:string -> user:string -> weight:int -> datetime ->
+  uuid -> rawballot:string -> user:string -> weight:Weight.t -> datetime ->
   (string * bool, cast_error) result Lwt.t
 
 val get_audit_cache : uuid -> audit_cache Lwt.t

@@ -152,7 +152,7 @@ module Make (P : PARSED_PARAMS) : S = struct
           | None -> None)
       | None -> None
     )
-    | None -> (fun _ -> Some 1)
+    | None -> (fun _ -> Some Weight.one)
   )
 
   let cast (b, hash) =
@@ -171,7 +171,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   let raw_encrypted_tally =
     lazy (
         match Lazy.force ballots with
-        | None -> E.process_ballots [||], 0
+        | None -> E.process_ballots [||], Weight.zero
         | Some ballots ->
            match Lazy.force ballots_weights with
            | None -> failwith "ballots or public credentials are missing"
@@ -179,7 +179,8 @@ module Make (P : PARSED_PARAMS) : S = struct
               let ballots = List.map fst ballots in
               let ballots = List.combine weights ballots |> Array.of_list in
               let nballots =
-                Array.fold_left (fun accu (w, _) -> accu + w) 0 ballots
+                let open Weight in
+                Array.fold_left (fun accu (w, _) -> accu + w) zero ballots
               in
               E.process_ballots ballots, nballots
       )

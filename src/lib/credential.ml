@@ -23,6 +23,7 @@ open Belenios_platform
 open Serializable_builtin_t
 open Platform
 open Signatures
+open Common
 
 let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let token_length = 14
@@ -116,10 +117,10 @@ module MakeParsePublicCredential (G : GROUP) = struct
       match String.index s ',' with
       | exception Not_found ->
          let x = G.of_string s in
-         if G.check x then Some (1, x) else None
+         if G.check x then Some (Weight.one, x) else None
       | i ->
          let n = String.length s in
-         let w = int_of_string (String.sub s (i + 1) (n - i - 1)) in
+         let w = Weight.of_string (String.sub s (i + 1) (n - i - 1)) in
          let x = G.of_string (String.sub s 0 i) in
          if G.check x then Some (w, x) else None
     with _ -> None

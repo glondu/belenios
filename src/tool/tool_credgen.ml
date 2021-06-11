@@ -71,8 +71,12 @@ module Make (P : PARSED_PARAMS) : S = struct
     let privs, pubs =
       List.fold_left
         (fun (privs, pubs) id ->
-          let _, _, weight = split_identity id in
-          if weight <> 1 then implicit_weights := false;
+          let _, _, weight = split_identity_opt id in
+          let weight =
+            match weight with
+            | None -> Weight.one
+            | Some w -> implicit_weights := false; w
+          in
           let priv = CG.generate () in
           priv :: privs,
           CredSet.add (derive_in_group priv) weight pubs
@@ -80,7 +84,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     in
     let serialize (e, w) =
       G.to_string e
-      ^ (if !implicit_weights then "" else Printf.sprintf ",%d" w)
+      ^ (if !implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w))
     in
     List.rev privs, (CredSet.bindings pubs |> List.map serialize)
 

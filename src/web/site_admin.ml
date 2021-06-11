@@ -683,8 +683,8 @@ let handle_password se uuid ~force voters =
   let show_weight =
     List.exists
       (fun id ->
-        let _, _, weight = split_identity id.sv_id in
-        weight <> 1
+        let _, _, weight = split_identity_opt id.sv_id in
+        weight <> None
       ) voters
   in
   let* () =
@@ -729,8 +729,8 @@ let find_user_id uuid user =
   let show_weight =
     List.exists
       (fun x ->
-        let _, _, weight = split_identity x in
-        weight <> 1
+        let _, _, weight = split_identity_opt x in
+        weight <> None
       ) db
   in
   return (loop db, show_weight)
@@ -875,7 +875,7 @@ let merge_voters a b f =
       ) (weights, List.rev a) b
   in
   List.rev res,
-  SMap.fold (fun _ x y -> x + y) weights 0
+  Weight.(SMap.fold (fun _ x y -> x + y) weights zero)
 
 let bool_of_opt = function
   | None -> false
@@ -919,10 +919,10 @@ let () =
             let voters, total_weight =
               merge_voters se.se_voters voters (fun _ -> None)
             in
-            if total_weight > max_total_weight then
+            if Weight.(compare total_weight max_weight > 0) then
               Printf.ksprintf failwith
-                (f_ "The total weight cannot exceed %d.")
-                max_total_weight;
+                (f_ "The total weight cannot exceed %s.")
+                Weight.(to_string max_weight);
             if not (check_consistency voters) then
               failwith
                 (s_ "The voter list is not consistent (a login or a weight is missing).");
@@ -1155,8 +1155,8 @@ let () =
             let show_weight =
               List.exists
                 (fun v ->
-                  let _, _, weight = split_identity v.sv_id in
-                  weight <> 1
+                  let _, _, weight = split_identity_opt v.sv_id in
+                  weight <> None
                 ) se.se_voters
             in
             let* public_creds, private_creds =
@@ -1190,7 +1190,7 @@ let () =
                    (fun (cred, weight) ->
                      let cred = G.to_string cred in
                      if show_weight then
-                       Printf.sprintf "%s,%d" cred weight
+                       Printf.sprintf "%s,%s" cred (Weight.to_string weight)
                      else cred
                    )
             in
@@ -1367,15 +1367,15 @@ let () =
                let voters, total_weight =
                  merge_voters se.se_voters voters get_password
                in
-               if total_weight <= max_total_weight then (
+               if Weight.(compare total_weight max_weight <= 0) then (
                  se.se_voters <- voters;
                  redir_preapply election_draft_voters uuid ()
                ) else (
                  Pages_common.generic_page ~title:(s_ "Error")
                    ~service:(preapply ~service:election_draft_voters uuid)
                    (Printf.sprintf
-                      (f_ "The total weight cannot exceed %d.")
-                      max_total_weight
+                      (f_ "The total weight cannot exceed %s.")
+                      Weight.(to_string max_weight)
                    ) ()
                  >>= Html.send
                )
@@ -1992,7 +1992,8 @@ let handle_election_tally_release uuid () =
         let* ntallied =
           let* hashes = Web_persist.get_ballot_hashes uuid in
           let weights = List.map snd hashes in
-          Lwt_list.fold_left_s (fun x y -> return (x + y)) 0 weights
+          let open Weight in
+          Lwt_list.fold_left_s (fun x y -> return (x + y)) zero weights
         in
         let* et =
           !Web_config.spool_dir / uuid_s / string_of_election_file ESETally |>

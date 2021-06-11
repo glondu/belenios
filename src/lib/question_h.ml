@@ -430,19 +430,20 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let neutral = SArray (Array.make (question_length q) (SAtomic dummy_ciphertext)) in
     let ( * ) = Shape.map2 eg_combine in
     let rec power b n =
-      if n > 0 then (
-        let x = power b Stdlib.(n / 2) in
-        (if n mod 2 = 1 then b else neutral) * x * x
+      let open Weight in
+      if compare n zero > 0 then (
+        let x = power b (n / two) in
+        (if compare (n mod two) one = 0 then b else neutral) * x * x
       ) else neutral
     in
     let es = Array.map (fun (w, b) -> power b w) es in
     Array.fold_left (Shape.map2 eg_combine) neutral es
 
   let compute_result ~num_tallied =
-    let log =
+    let log = (* FIXME: use an efficient algorithm *)
       let module GMap = Map.Make(G) in
       let rec loop i cur accu =
-        if i <= num_tallied
+        if Weight.(compare (of_int i) num_tallied <= 0)
         then loop (succ i) (cur *~ g) (GMap.add cur i accu)
         else accu
       in
