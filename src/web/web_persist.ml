@@ -839,11 +839,12 @@ let compute_audit_cache uuid =
          ) (zero, max_weight, zero) voters
      in
      let cache_num_voters = List.length voters in
+     let num_voters = Weight.of_int cache_num_voters in
      let cache_total_weight, cache_min_weight, cache_max_weight =
-       if Weight.(compare total_weight (of_int cache_num_voters) > 0) then (
+       if Weight.(compare total_weight num_voters > 0) then (
          Some total_weight, Some min_weight, Some max_weight
        ) else (
-         assert Weight.(compare total_weight (of_int cache_num_voters) = 0);
+         assert Weight.(compare total_weight num_voters = 0);
          None, None, None
        )
      in
@@ -877,9 +878,6 @@ let compute_audit_cache uuid =
        Election.compute_checksums ~election result_or_shuffles
          ~trustees ~public_credentials
      in
-     let cache_total_weight = Option.map Weight.to_int cache_total_weight in
-     let cache_min_weight = Option.map Weight.to_int cache_min_weight in
-     let cache_max_weight = Option.map Weight.to_int cache_max_weight in
      return {
          cache_num_voters;
          cache_total_weight;

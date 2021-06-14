@@ -24,6 +24,7 @@
 (** {1 Predefined types} *)
 
 type number <ocaml predef from="Belenios.Serializable_builtin"> = abstract
+type weight <ocaml predef from="Belenios.Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Belenios.Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
 type proof <ocaml predef from="Belenios.Serializable"> = abstract
@@ -99,9 +100,9 @@ type 'a web_trustee_public_key = {
 
 type audit_cache = {
   num_voters : int;
-  ?total_weight : int option;
-  ?min_weight : int option;
-  ?max_weight : int option;
+  ?total_weight : weight option;
+  ?min_weight : weight option;
+  ?max_weight : weight option;
   voters_hash : string;
   checksums : election_checksums;
   ?threshold : int option;

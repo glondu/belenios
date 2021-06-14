@@ -281,15 +281,16 @@ let election_home election state () =
        let result = Shape.to_shape_array r.result in
        let* hashes = Web_persist.get_ballot_hashes uuid in
        let nballots = List.length hashes in
+       let nballotsw = Weight.of_int nballots in
        let div_total_weight =
-         if r.num_tallied > nballots then (
+         if Weight.(compare r.num_tallied nballotsw > 0) then (
            div [
                txt (s_ "Total weight of accepted ballots:");
                txt " ";
-               txt (string_of_int r.num_tallied);
+               txt (Weight.to_string r.num_tallied);
              ]
          ) else (
-           assert (r.num_tallied = nballots);
+           assert Weight.(compare r.num_tallied nballotsw = 0);
            txt ""
          )
        in
@@ -356,7 +357,7 @@ let election_home election state () =
   in
   let show_weights =
     match cache.cache_total_weight with
-    | Some x when x <> cache.cache_num_voters -> true
+    | Some x when Weight.(compare x (of_int cache.cache_num_voters) <> 0) -> true
     | _ -> false
   in
   let div_show_weights =
@@ -374,8 +375,8 @@ let election_home election state () =
     | Some w, Some min, Some max ->
        div [
            Printf.ksprintf txt
-             (f_ "The total weight is %d (min: %d, max: %d).")
-             w min max;
+             (f_ "The total weight is %s (min: %s, max: %s).")
+             (Weight.to_string w) (Weight.to_string min) (Weight.to_string max);
          ]
     | _ -> txt ""
   in
@@ -642,7 +643,7 @@ let cast_confirmation election hash () =
   let* div_weight =
     let* audit_cache = Web_persist.get_audit_cache uuid in
     match audit_cache.cache_total_weight with
-    | Some x when x <> audit_cache.cache_num_voters ->
+    | Some x when Weight.(compare x (of_int audit_cache.cache_num_voters) <> 0) ->
        let* ballot = Eliom_reference.get Web_state.ballot in
        (match ballot with
         | Some ballot ->
@@ -794,7 +795,7 @@ let pretty_ballots election hashes result () =
   let* audit_cache = Web_persist.get_audit_cache uuid in
   let show_weights =
     match audit_cache.cache_total_weight with
-    | Some x when x <> audit_cache.cache_num_voters -> true
+    | Some x when Weight.(compare x (of_int audit_cache.cache_num_voters) <> 0) -> true
     | _ -> false
   in
   let title = params.e_name ^ " — " ^ s_ "Accepted ballots" in
@@ -824,7 +825,7 @@ let pretty_ballots election hashes result () =
          txt (string_of_int n);
          txt (s_ " ballot(s) have been accepted so far.");
        ]
-    | n, Some r when n = r.num_tallied ->
+    | n, Some r when Weight.(compare (of_int n) r.num_tallied = 0) ->
        div [
          txt (string_of_int n);
          txt (s_ " ballot(s) have been accepted.");
@@ -833,7 +834,7 @@ let pretty_ballots election hashes result () =
        div [
          txt (string_of_int n);
          txt (s_ " ballot(s) have been accepted, and ");
-         txt (string_of_int r.num_tallied);
+         txt (Weight.to_string r.num_tallied);
          txt (s_ " have been tallied.");
        ]
   in
