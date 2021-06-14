@@ -214,7 +214,7 @@ let deleteQuestion q =
   Dom.removeChild x q;
   return ()
 
-let rec createQuestion q =
+let rec createQuestion booth_set q =
   let question, answers, props, extra =
     match q with
     | Question.Homomorphic q ->
@@ -248,7 +248,7 @@ let rec createQuestion q =
   let insert_text = document##createTextNode (Js.string (s_ "Insert")) in
   let insert_btn = Dom_html.createButton document in
   let f _ =
-    let x = createQuestion (default_question ()) in
+    let x = createQuestion booth_set (default_question ()) in
     container##.parentNode >>= fun p ->
     Dom.insertBefore p x (Js.some container);
     return ()
@@ -290,6 +290,10 @@ let rec createQuestion q =
   Dom.appendChild prefill_mj
     (document##createTextNode (Js.string (s_ "Prefill with Majority Judgment")));
   Dom.appendChild div_extra1 prefill_mj;
+  let clear_spec = Dom_html.createButton document in
+  Dom.appendChild clear_spec
+    (document##createTextNode (Js.string (s_ "Clear")));
+  Dom.appendChild div_extra1 clear_spec;
   let div_extra2 = Dom_html.createDiv document in
   Dom.appendChild fieldset div_extra2;
   let i_extra = Dom_html.createInput document in
@@ -306,6 +310,14 @@ let rec createQuestion q =
     Dom_html.handler
       (fun _ ->
         i_extra##.value := Js.string default_mj_specification;
+        booth_set `New;
+        Js._false
+      );
+  clear_spec##.onclick :=
+    Dom_html.handler
+      (fun _ ->
+        i_extra##.value := Js.string "";
+        booth_set `Classic;
         Js._false
       );
   (* selector *)
@@ -336,9 +348,9 @@ let rec createQuestion q =
       (fun _ ->
         container##.parentNode >>= fun parent ->
         if Js.to_bool cb_type##.checked then
-          Dom.replaceChild parent (createQuestion default_question_nh) container
+          Dom.replaceChild parent (createQuestion booth_set default_question_nh) container
         else
-          Dom.replaceChild parent (createQuestion default_question_h) container;
+          Dom.replaceChild parent (createQuestion booth_set default_question_h) container;
         return ()
       )
   in
@@ -392,16 +404,20 @@ let createBoothSelector booth_version =
   let line2 = Dom_html.createDiv document in
   Dom.appendChild container line2;
   let name = Js.string "booth_version_radio" in
-  let _, i1 = createRadioItem name (booth_version = 1) (s_ "classic") in
+  let r1, i1 = createRadioItem name (booth_version = 1) (s_ "classic") in
   Dom.appendChild line2 i1;
   let line3 = Dom_html.createDiv document in
   Dom.appendChild container line3;
   let r2, i2 = createRadioItem name (booth_version = 2) (s_ "new interface (more elegant, still under test)") in
   Dom.appendChild line3 i2;
   let get () = if Js.to_bool r2##.checked then 2 else 1 in
-  get, container
+  let set = function
+    | `Classic -> r1##.checked := Js._true
+    | `New -> r2##.checked := Js._true
+  in
+  get, set, container
 
-let createTemplate template booth_version =
+let createTemplate (booth_get, booth_set, booth_select) template =
   let container = Dom_html.createDiv document in
   (* name *)
   let x = Dom_html.createDiv document in
@@ -436,7 +452,7 @@ let createTemplate template booth_version =
   Dom.appendChild container x;
   Array.iter
     (fun q ->
-     let x = createQuestion q in
+     let x = createQuestion booth_set q in
      Dom.appendChild h_questions_div x)
     template.t_questions;
   (* button for adding question *)
@@ -444,7 +460,7 @@ let createTemplate template booth_version =
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string (s_ "Add a question")) in
   let f _ =
-    let x = createQuestion (default_question ()) in
+    let x = createQuestion booth_set (default_question ()) in
     Dom.appendChild h_questions_div x
   in
   b##.onclick := handler f;
@@ -453,7 +469,6 @@ let createTemplate template booth_version =
   Dom.appendChild container x;
   (* booth selection *)
   Dom.appendChild container (Dom_html.createHr document);
-  let booth_get, booth_select = createBoothSelector booth_version in
   Dom.appendChild container booth_select;
   (* button for submitting *)
   let x = Dom_html.createHr document in
@@ -484,14 +499,14 @@ let createTemplate template booth_version =
 
 (* Handling of hybrid checkbox *)
 
-let handle_hybrid e _ =
+let handle_hybrid booth_set e _ =
   hybrid_mode := Js.to_bool e##.checked;
   let qs = document##querySelectorAll (Js.string ".question") in
   for i = 0 to qs##.length do
     ignore (qs##item i >>= deleteQuestion)
   done;
   document##getElementById (Js.string "election_questions") >>= fun qsdiv ->
-  Dom.appendChild qsdiv (createQuestion (default_question ()));
+  Dom.appendChild qsdiv (createQuestion booth_set (default_question ()));
   return ()
 
 (* Entry point *)
@@ -508,14 +523,15 @@ let fill_interactivity () =
       ) t.t_questions
   in
   hybrid_mode := has_nh;
-  let div = createTemplate t booth_version in
+  let (_, booth_set, _) as booth_selector = createBoothSelector booth_version in
+  let div = createTemplate booth_selector t in
   Dom.appendChild e div;
   document##querySelector (Js.string "form") >>= fun x ->
   x##.style##.display := Js.string "none";
   document##getElementById (Js.string "hybrid_mode") >>= fun e ->
   Dom_html.CoerceTo.input e >>= fun e ->
   e##.checked := Js.bool !hybrid_mode;
-  e##.onchange := handler (handle_hybrid e);
+  e##.onchange := handler (handle_hybrid booth_set e);
   return ()
 
 let () =
