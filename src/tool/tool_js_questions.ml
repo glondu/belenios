@@ -270,10 +270,6 @@ let rec createQuestion booth_set q =
   type_div##.style##.display := if !hybrid_mode then Js.string "block" else Js.string "none";
   Dom.appendChild container type_div;
   let prop_div_nh = Dom_html.createDiv document in
-  let nh_explain = Dom_html.createDiv document in
-  nh_explain##.className := Js.string "nh_explain";
-  Dom.appendChild nh_explain (document##createTextNode (Js.string (s_ "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election.")));
-  Dom.appendChild prop_div_nh nh_explain;
   (* extra *)
   let h_extra = Dom_html.createDiv document in
   Dom.appendChild prop_div_nh h_extra;
@@ -320,6 +316,15 @@ let rec createQuestion booth_set q =
         booth_set `Classic;
         Js._false
       );
+  let div_extra3 = Dom_html.createDiv document in
+  div_extra3##.className := Js.string "nh_explain";
+  Dom.appendChild fieldset div_extra3;
+  Dom.appendChild div_extra3 (document##createTextNode (Js.string (s_ "Leave blank for other counting methods. Note that for other counting methods, the voting interface is quite rough: the voter has to enter an integer in front of each answer.")));
+  Dom.appendChild div_extra3 (document##createTextNode (Js.string " "));
+  let more_info = Dom_html.createA document in
+  Dom.appendChild div_extra3 more_info;
+  more_info##.href := Js.string "https://www.belenios.org/mixnet.html";
+  Dom.appendChild more_info (document##createTextNode (Js.string (s_ "More information.")));
   (* selector *)
   let _type = Js.string "radio" and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
   let type_classical = Dom_html.createDiv document in

@@ -1349,7 +1349,7 @@ let election_draft_questions uuid se () =
             li [txt (s_ "the after-the-vote procedure will require more steps;")];
             li
               [
-                txt (s_ "you should explain to voters how they are supposed to assign a number to each candidate in order to express their vote, since it depends on the underlying voting method.");
+                txt (s_ "the voting interface will depend on the selected counting method. In some cases, you should explain to voters (e.g. in the question field) how they are supposed to express their vote.");
                 txt " ";
                 direct_a "https://www.belenios.org/mixnet.html" (s_ "More information.");
               ];
