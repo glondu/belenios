@@ -32,8 +32,8 @@ module type QUESTION = sig
   val verify_answer : question -> public_key:elt -> prefix:string -> answer -> bool
 
   val extract_ciphertexts : question -> answer -> elt ciphertext shape
-  val process_ciphertexts : question -> (Common.Weight.t * elt ciphertext shape) array -> elt ciphertext shape
+  val process_ciphertexts : question -> (Weight.t * elt ciphertext shape) array -> elt ciphertext shape
 
-  val compute_result : num_tallied:Common.Weight.t -> question -> elt shape -> int shape
+  val compute_result : num_tallied:Weight.t -> question -> elt shape -> int shape
   val check_result : question -> elt shape -> int shape -> bool
 end

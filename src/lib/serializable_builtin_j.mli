@@ -35,3 +35,8 @@ val read_uuid : Yojson.Safe.lexer_state -> Lexing.lexbuf -> uuid
 
 val write_shape : (Bi_outbuf.t -> 'a -> unit) -> Bi_outbuf.t -> 'a shape -> unit
 val read_shape : (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a shape
+
+(** {1 Serializers for type weight} *)
+
+val write_weight : Bi_outbuf.t -> weight -> unit
+val read_weight : Yojson.Safe.lexer_state -> Lexing.lexbuf -> weight

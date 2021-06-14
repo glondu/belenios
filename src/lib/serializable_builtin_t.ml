@@ -49,3 +49,71 @@ let raw_string_of_uuid x = x
 type 'a shape = 'a Shape.t =
   | SAtomic of 'a
   | SArray of 'a shape array
+
+type weight = Z.t
+
+let weight_of_raw_string x =
+  try
+    let x = Z.of_string x in
+    if Z.(compare x zero >= 0) then
+      x
+    else
+      raise Exit
+  with _ -> Printf.ksprintf invalid_arg "%S is not a valid weight" x
+
+let weight_of_int x =
+  if x >= 0 then
+    Z.of_int x
+  else
+    Printf.ksprintf invalid_arg "%d is not a valid weight" x
+
+let weight_of_json = function
+  | `Int x -> weight_of_int x
+  | `Intlit x | `String x -> weight_of_raw_string x
+  | _ -> invalid_arg "invalid weight"
+
+let json_of_weight x =
+  `String (Z.to_string x)
+
+module Weight = struct
+  include Z
+
+  let two = of_string "2"
+  let max_weight = of_string "100000"
+
+  let of_string x = weight_of_json (`String x)
+  let of_int x = weight_of_json (`Int x)
+
+  let min a b =
+    if compare a b < 0 then a else b
+
+  let max a b =
+    if compare a b > 0 then a else b
+end
+
+let extract_weight str =
+  try
+    let i = String.rindex str ',' in
+    let w = Weight.of_string (String.sub str (i + 1) (String.length str - i - 1)) in
+    String.sub str 0 i, w
+  with _ -> str, Weight.one
+
+let split_identity x =
+  match String.split_on_char ',' x with
+  | [address] -> address, address, Weight.one
+  | [address; login] -> address, (if login = "" then address else login), Weight.one
+  | [address; login; weight] ->
+     address,
+     (if login = "" then address else login),
+     Weight.of_string weight
+  | _ -> failwith "Common.split_identity"
+
+let split_identity_opt x =
+  match String.split_on_char ',' x with
+  | [address] -> address, None, None
+  | [address; login] -> address, (if login = "" then None else Some login), None
+  | [address; login; weight] ->
+     address,
+     (if login = "" then None else Some login),
+     Some (Weight.of_string weight)
+  | _ -> failwith "Common.split_identity_opt"

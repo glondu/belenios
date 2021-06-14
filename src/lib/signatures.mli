@@ -23,6 +23,7 @@
 
 open Belenios_platform
 open Platform
+open Serializable_builtin_t
 open Serializable_t
 
 (** Helpers for interacting with atd stuff *)
@@ -94,7 +95,7 @@ module type ELECTION = sig
       answers and cryptographic proofs that they satisfy the election
       constraints. *)
 
-  type weighted_ballot = Common.Weight.t * ballot
+  type weighted_ballot = Weight.t * ballot
 
   val create_ballot : ?sk:private_key -> plaintext -> ballot m
   (** [create_ballot r answers] creates a ballot, or raises
@@ -138,7 +139,7 @@ module type ELECTION = sig
 
   val compute_result :
     ?shuffles:elt shuffle list -> ?shufflers:shuffler list ->
-    Common.Weight.t -> elt Serializable_t.ciphertext shape -> factor list -> elt trustees ->
+    Weight.t -> elt Serializable_t.ciphertext shape -> factor list -> elt trustees ->
     (result, combination_error) Stdlib.result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of

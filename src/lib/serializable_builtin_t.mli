@@ -34,3 +34,35 @@ val raw_string_of_uuid : uuid -> string
 type 'a shape = 'a Shape.t =
   | SAtomic of 'a
   | SArray of 'a shape array
+
+module Weight : sig
+  type t
+  val zero : t
+  val one : t
+  val two : t
+  val max_weight : t
+  val compare : t -> t -> int
+  val ( + ) : t -> t -> t
+  val ( / ) : t -> t -> t
+  val ( mod ) : t -> t -> t
+  val min : t -> t -> t
+  val max : t -> t -> t
+  val of_string : string -> t
+  val to_string : t -> string
+  val of_int : int -> t
+  val to_int : t -> int (* FIXME: weights can be bigger than int *)
+end
+
+type weight = Weight.t
+
+val weight_of_json : Yojson.Safe.t -> weight
+val json_of_weight : weight -> Yojson.Safe.t
+
+(** Input: [str = "something[,weight]"]
+    Output:
+    - if [weight] is an integer > 0, return [(something, weight)]
+    - else, return [(str, 1)] *)
+val extract_weight : string -> string * Weight.t
+
+val split_identity : string -> string * string * Weight.t
+val split_identity_opt : string -> string * string option * Weight.t option

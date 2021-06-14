@@ -36,5 +36,5 @@ module MakeDerive (G : GROUP) : sig
 end
 
 module MakeParsePublicCredential (G : GROUP) : sig
-  val parse_public_credential : string -> (Common.Weight.t * G.t) option
+  val parse_public_credential : string -> (Weight.t * G.t) option
 end

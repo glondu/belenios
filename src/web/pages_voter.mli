@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios
+open Serializable_builtin_t
 open Serializable_t
 open Web_serializable_t
 open Signatures
@@ -28,8 +29,8 @@ val election_home : 'a election -> election_state -> unit -> [> `Html ] Eliom_co
 val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_confirmation : 'a election -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val lost_ballot : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_confirmed : 'a election -> result:(string * Common.Weight.t, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val pretty_ballots : 'a election -> (string * Common.Weight.t) list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_confirmed : 'a election -> result:(string * Weight.t, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val pretty_ballots : 'a election -> (string * Weight.t) list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
@@ -48,10 +49,10 @@ val generate_password :
 
 val generate_mail_credential :
   string list -> bool -> string ->
-  login:string -> string -> Common.Weight.t option -> string ->
+  login:string -> string -> Weight.t option -> string ->
   Web_serializable_t.metadata -> (string * string) Lwt.t
 
 val mail_confirmation :
   (module Web_i18n_sig.GETTEXT) ->
-  string -> string -> Common.Weight.t option -> string ->
+  string -> string -> Weight.t option -> string ->
   bool -> string -> string -> Web_serializable_t.metadata -> string

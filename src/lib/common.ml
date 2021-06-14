@@ -171,32 +171,6 @@ module Shape = struct
 
 end
 
-module Weight = struct
-  include Z
-
-  let two = of_string "2"
-  let max_weight = of_string "100000"
-
-  let of_string x =
-    try
-      let x = of_string x in
-      if Z.(compare x zero >= 0) then x else raise Exit
-    with _ ->
-      Printf.ksprintf invalid_arg "invalid weight: %s" x
-
-  let of_int x =
-    if x >= 0 then
-      of_int x
-    else
-      Printf.ksprintf invalid_arg "invalid weight: %d" x
-
-  let min a b =
-    if compare a b < 0 then a else b
-
-  let max a b =
-    if compare a b > 0 then a else b
-end
-
 let save_to filename writer x =
   let oc = open_out filename in
   let ob = Bi_outbuf.create_channel_writer oc in
@@ -286,30 +260,3 @@ module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
         R.return (Printf.sprintf "%0*d" length (Z.to_int n))
       )
 end
-
-let extract_weight str =
-  try
-    let i = String.rindex str ',' in
-    let w = Weight.of_string (String.sub str (i + 1) (String.length str - i - 1)) in
-    String.sub str 0 i, w
-  with _ -> str, Weight.one
-
-let split_identity x =
-  match String.split_on_char ',' x with
-  | [address] -> address, address, Weight.one
-  | [address; login] -> address, (if login = "" then address else login), Weight.one
-  | [address; login; weight] ->
-     address,
-     (if login = "" then address else login),
-     Weight.of_string weight
-  | _ -> failwith "Common.split_identity"
-
-let split_identity_opt x =
-  match String.split_on_char ',' x with
-  | [address] -> address, None, None
-  | [address; login] -> address, (if login = "" then None else Some login), None
-  | [address; login; weight] ->
-     address,
-     (if login = "" then None else Some login),
-     Some (Weight.of_string weight)
-  | _ -> failwith "Common.split_identity_opt"

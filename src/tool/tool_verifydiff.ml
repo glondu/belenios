@@ -21,6 +21,7 @@
 
 open Belenios
 open Signatures
+open Serializable_builtin_t
 open Serializable_j
 open Common
 
