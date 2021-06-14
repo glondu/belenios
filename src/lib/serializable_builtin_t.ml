@@ -72,8 +72,13 @@ let weight_of_json = function
   | `Intlit x | `String x -> weight_of_raw_string x
   | _ -> invalid_arg "invalid weight"
 
+let max_int31 = Z.of_string "1073741823"
+
 let json_of_weight x =
-  `String (Z.to_string x)
+  if Z.(compare x max_int31 <= 0) then
+    `Int (Z.to_int x)
+  else
+    `String (Z.to_string x)
 
 module Weight = struct
   include Z
