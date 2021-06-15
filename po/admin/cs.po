@@ -109,7 +109,7 @@ msgstr "%s není uživatelem s registrací pro tuto volbu."
 msgid "%s is not a valid date!"
 msgstr "%s není platné datum!"
 
-#: src/web/site_admin.ml:2321 src/web/site_admin.ml:1022
+#: src/web/site_admin.ml:2322 src/web/site_admin.ml:1022
 msgid "%s is not a valid e-mail address!"
 msgstr "%s není platná e-mailová adresa!"
 
@@ -224,7 +224,7 @@ msgstr "Veřejný klíč již existuje, klíč, který jste nahrály, byl ignoro
 msgid "Accept"
 msgstr "Přijmout"
 
-#: src/web/site_admin.ml:2640 src/web/site_admin.ml:2518
+#: src/web/site_admin.ml:2641 src/web/site_admin.ml:2519
 msgid "Account creation"
 msgstr "Vytvoření účtu"
 
@@ -237,11 +237,11 @@ msgstr "Správa účtu"
 msgid "Add"
 msgstr "Přidat"
 
-#: src/tool/tool_js_questions.ml:445
+#: src/tool/tool_js_questions.ml:466
 msgid "Add a question"
 msgstr "Přidat otázku"
 
-#: src/tool/tool_js_questions.ml:363
+#: src/tool/tool_js_questions.ml:380
 msgid "Add an answer"
 msgstr "Přidat odpověď"
 
@@ -259,7 +259,7 @@ msgstr ""
 "Každý garant musí dokončit příslušný krok, než můžeš přikročit k dalšímu "
 "kroku."
 
-#: src/tool/tool_js_questions.ml:350
+#: src/tool/tool_js_questions.ml:367
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr "Alternativní (voliči každému kandidátovi přiřadí číslo)"
 
@@ -283,11 +283,11 @@ msgstr "Případně můžeš nastavit automatické datumy."
 msgid "An election with the same UUID already exists."
 msgstr "Volba s tím samým UUID již existuje."
 
-#: src/web/site_admin.ml:2169
+#: src/web/site_admin.ml:2170
 msgid "An error occurred while applying the shuffle."
 msgstr "Při míchání došlo k chybě."
 
-#: src/web/site_admin.ml:2042
+#: src/web/site_admin.ml:2043
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "Při počítání výsledku došlo k chybě (%s). Nejpravděpodobněji to znamená, že "
@@ -390,7 +390,7 @@ msgstr "S pozdravem,"
 msgid "Blank vote is allowed"
 msgstr "Prázdný volební lístek je povolen"
 
-#: src/tool/tool_js_questions.ml:391
+#: src/tool/tool_js_questions.ml:408
 msgid "Booth:"
 msgstr "Volební místnost:"
 
@@ -421,7 +421,7 @@ msgstr "Nelze rozeslat hesla, je zadáno příliš mnoho voličů (maximum je %d
 msgid "Change automatic dates"
 msgstr "Změnit automatická datumy"
 
-#: src/web/site_admin.ml:2664 src/web/site_admin.ml:2559
+#: src/web/site_admin.ml:2665 src/web/site_admin.ml:2560
 #. src/web/pages_admin.ml:3157
 #. src/web/pages_admin.ml:3034
 msgid "Change password"
@@ -431,9 +431,13 @@ msgstr "Změnit heslo"
 msgid "Checklist:"
 msgstr "Seznam úkolů:"
 
-#: src/tool/tool_js_questions.ml:319
+#: src/tool/tool_js_questions.ml:336
 msgid "Classical (selection of answers)"
 msgstr "Klasika (výběr odpovědí)"
+
+#: src/tool/tool_js_questions.ml:291
+msgid "Clear"
+msgstr ""
 
 #: src/web/pages_admin.ml:586
 msgid "Click "
@@ -503,7 +507,7 @@ msgstr "Nebylo možné získat garanta pro vybranou volbu!"
 msgid "Could not retrieve voter list from election %s"
 msgstr "Nebylo možné získat seznam voličů pro volbu %s"
 
-#: src/tool/tool_js_questions.ml:280
+#: src/tool/tool_js_questions.ml:276
 msgid "Counting method specification"
 msgstr ""
 
@@ -566,7 +570,7 @@ msgstr "Přístupové kódy?"
 msgid "Current list of ballots:"
 msgstr "Seznam aktuálních hlasovacích lístků:"
 
-#: src/web/site_admin.ml:2172
+#: src/web/site_admin.ml:2173
 msgid "Data is invalid! (%s)"
 msgstr "Datum je neplatné! (%s)"
 
@@ -604,7 +608,7 @@ msgstr "Popis volby."
 msgid "Description of the election:"
 msgstr "Popis volby:"
 
-#: src/tool/tool_js_questions.ml:420
+#: src/tool/tool_js_questions.ml:441
 msgid "Description:"
 msgstr "Popis:"
 
@@ -728,11 +732,11 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Zadej svůj soukromý klíč:"
 
-#: src/web/site_admin.ml:2323 src/web/site_admin.ml:2293
-#. src/web/site_admin.ml:2280
-#. src/web/site_admin.ml:2172
-#. src/web/site_admin.ml:2169
-#. src/web/site_admin.ml:2045
+#: src/web/site_admin.ml:2324 src/web/site_admin.ml:2294
+#. src/web/site_admin.ml:2281
+#. src/web/site_admin.ml:2173
+#. src/web/site_admin.ml:2170
+#. src/web/site_admin.ml:2046
 #. src/web/site_admin.ml:1968
 #. src/web/site_admin.ml:1895
 #. src/web/site_admin.ml:1855
@@ -946,6 +950,10 @@ msgstr "Jazyky"
 msgid "Languages:"
 msgstr "Jazyky:"
 
+#: src/tool/tool_js_questions.ml:322
+msgid "Leave blank for other counting methods. Note that for other counting methods, the voting interface is quite rough: the voter has to enter an integer in front of each answer."
+msgstr ""
+
 #: src/web/pages_admin.ml:2603 src/web/pages_admin.ml:2543
 #. src/web/pages_admin.ml:2400
 #. src/web/pages_admin.ml:1072
@@ -1021,7 +1029,7 @@ msgstr "Chybějící"
 msgid "Missing voters"
 msgstr "Voliči, kteří ještě nehlasovali"
 
-#: src/web/pages_admin.ml:1354
+#: src/tool/tool_js_questions.ml:327 src/web/pages_admin.ml:1354
 msgid "More information."
 msgstr "Další informace."
 
@@ -1057,7 +1065,7 @@ msgstr "Jméno volby"
 msgid "Name of the election:"
 msgstr "Jméno volby:"
 
-#: src/tool/tool_js_questions.ml:409
+#: src/tool/tool_js_questions.ml:430
 msgid "Name of the election: "
 msgstr "Jméno volby: "
 
@@ -1239,7 +1247,7 @@ msgstr "Upozornění ohledně ochrany soukromí"
 msgid "Please "
 msgstr "Prosím "
 
-#: src/web/site_admin.ml:2278
+#: src/web/site_admin.ml:2279
 msgid "Please add some trustees first!"
 msgstr "Prosím nejprve zadej nějaké garanty!"
 
@@ -1275,7 +1283,7 @@ msgstr "Prosím čekejte... "
 msgid "Postpone publication until"
 msgstr "Odložit zveřejnění až do"
 
-#: src/tool/tool_js_questions.ml:291
+#: src/tool/tool_js_questions.ml:287
 msgid "Prefill with Majority Judgment"
 msgstr ""
 
@@ -1405,7 +1413,7 @@ msgstr "Odstranit vše"
 msgid "Reset threshold"
 msgstr "Zresetovat minimální počet aktivních garantů"
 
-#: src/tool/tool_js_questions.ml:463 src/web/pages_admin.ml:1326
+#: src/tool/tool_js_questions.ml:483 src/web/pages_admin.ml:1326
 #. src/web/pages_admin.ml:508
 #. src/web/pages_admin.ml:478
 #. src/web/pages_admin.ml:449
@@ -1522,7 +1530,7 @@ msgstr "Zadat veřejný klíč"
 msgid "Submit your public key using the button below."
 msgstr "Zadej svůj veřejný klíč pomocí tlačítka níže."
 
-#: src/web/site_admin.ml:2167 src/web/site_admin.ml:1963
+#: src/web/site_admin.ml:2168 src/web/site_admin.ml:1963
 #. src/web/site_admin.ml:1292
 #. src/web/site_admin.ml:1207
 #. src/web/site_admin.ml:779
@@ -1553,7 +1561,7 @@ msgstr " "
 msgid "The account creation "
 msgstr "Vytvoření účtu "
 
-#: src/web/site_admin.ml:2640
+#: src/web/site_admin.ml:2641
 msgid "The account has been created."
 msgstr "Účet byl vytvořen."
 
@@ -1649,7 +1657,7 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr "Příspěvek k dešifrování neprošel ověřením!"
 
-#: src/web/site_admin.ml:2664
+#: src/web/site_admin.ml:2665
 msgid "The password has been changed."
 msgstr "Heslo bylo změněno."
 
@@ -1663,31 +1671,23 @@ msgstr ""
 "V druhém poli se zobrazí kryptografická data. Zmáčkni prosím tlačítko "
 "„Zadat“."
 
-#: src/web/site_admin.ml:2167
+#: src/web/site_admin.ml:2168
 msgid "The shuffle has been successfully applied!"
 msgstr "Zamíchání bylo úspěšně provedeno!"
 
-#: src/web/site_admin.ml:2291
+#: src/web/site_admin.ml:2292
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr ""
 "Minimální počet aktivních garantů musí být kladné číslo, které je menší než "
 "celkový počet garantů!"
 
 #: src/web/site_admin.ml:1377 src/web/site_admin.ml:924
-msgid "The total weight cannot exceed %d."
-msgstr "Celková váha nesmí překročit %d."
+msgid "The total weight cannot exceed %s."
+msgstr ""
 
 #: src/tool/tool_js_questions.ml:176
 msgid "The voter has to choose between "
 msgstr "Volič si musí vybrat mezi "
-
-#: src/tool/tool_js_questions.ml:275
-msgid "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
-msgstr ""
-"Volič před každou odpověď musí zadat celé číslo. Systém přijme jakékoliv "
-"celé číslo mezi 0 a 255, ale odstranění neplatných lístků (příliš vysoká "
-"zadaná hodnota nebo nesprávně seřazení kandidáti) je po ukončení volby na "
-"jejích pořadatelích."
 
 #: src/web/site_admin.ml:928
 msgid "The voter list is not consistent (a login or a weight is missing)."
@@ -1944,11 +1944,11 @@ msgstr "Máte také přístup k "
 msgid "You can also log in with"
 msgstr "Můžeš se také přihlásit pomocí"
 
-#: src/web/site_admin.ml:2560
+#: src/web/site_admin.ml:2561
 msgid "You cannot change your password now. Please try later."
 msgstr "Neyní nelze změnit vaše heslo. Zkuste to prosím později."
 
-#: src/web/site_admin.ml:2519
+#: src/web/site_admin.ml:2520
 msgid "You cannot create an account now. Please try later."
 msgstr "Nyní nelze vytvořit účet. Zkus to prosím později."
 
@@ -2065,7 +2065,7 @@ msgstr "Váš veřejný klíč již byl přijat!"
 msgid "Your username is: "
 msgstr "Tvoje uživatelské jméno je: "
 
-#: src/tool/tool_js_questions.ml:395
+#: src/tool/tool_js_questions.ml:412
 msgid "classic"
 msgstr ""
 
@@ -2111,7 +2111,7 @@ msgstr ""
 msgid "more info"
 msgstr "více informací"
 
-#: src/tool/tool_js_questions.ml:399
+#: src/tool/tool_js_questions.ml:416
 msgid "new interface (more elegant, still under test)"
 msgstr ""
 
@@ -2221,6 +2221,10 @@ msgstr "toto uživatelské jméno je již zabráno"
 msgid "the username is invalid"
 msgstr "toto uživatelské jméno není platné"
 
+#: src/web/pages_admin.ml:1352
+msgid "the voting interface will depend on the selected counting method. In some cases, you should explain to voters (e.g. in the question field) how they are supposed to express their vote."
+msgstr ""
+
 #: src/web/pages_admin.ml:3065
 msgid "there is already an account with this e-mail address"
 msgstr "účet s tímto e-mailem již existuje"
@@ -2249,13 +2253,6 @@ msgstr ""
 #: src/web/pages_admin.ml:761 src/web/pages_admin.ml:711
 msgid "you may store the key on a USB stick and store it in a safe;"
 msgstr "můžež svůj klíč uložit na flashdisk a ten uložit v sejfu;"
-
-#: src/web/pages_admin.ml:1352
-msgid "you should explain to voters how they are supposed to assign a number to each candidate in order to express their vote, since it depends on the underlying voting method."
-msgstr ""
-"je třeba vysvětlit voličům, jak mají každému kandidátovi nebo kandidátce "
-"přiřadit číslo a vyjádřit tak svůj hlas, protože to záleží na metodě použité "
-"pro vyhodnocení volby."
 
 #: src/web/pages_admin.ml:751
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"

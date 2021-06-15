@@ -111,7 +111,7 @@ msgstr "%s nu este un utilizator inregistrat pentru aceasta alegere."
 msgid "%s is not a valid date!"
 msgstr "%s nu este o data valida !"
 
-#: src/web/site_admin.ml:2321 src/web/site_admin.ml:1022
+#: src/web/site_admin.ml:2322 src/web/site_admin.ml:1022
 msgid "%s is not a valid e-mail address!"
 msgstr "%s nu este o adresa email valida !"
 
@@ -225,7 +225,7 @@ msgstr ""
 msgid "Accept"
 msgstr "Accepta"
 
-#: src/web/site_admin.ml:2640 src/web/site_admin.ml:2518
+#: src/web/site_admin.ml:2641 src/web/site_admin.ml:2519
 msgid "Account creation"
 msgstr "Creare de cont"
 
@@ -238,11 +238,11 @@ msgstr ""
 msgid "Add"
 msgstr "Adauga"
 
-#: src/tool/tool_js_questions.ml:445
+#: src/tool/tool_js_questions.ml:466
 msgid "Add a question"
 msgstr "Adauga o intrebare"
 
-#: src/tool/tool_js_questions.ml:363
+#: src/tool/tool_js_questions.ml:380
 msgid "Add an answer"
 msgstr "Adauga un raspuns"
 
@@ -260,7 +260,7 @@ msgstr ""
 "Toate autoritatile de descifrare trebuie sa fi terminat etapa lor inainte de "
 "a putea continua cu etapa urmatoare."
 
-#: src/tool/tool_js_questions.ml:350
+#: src/tool/tool_js_questions.ml:367
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr "Alternativa (alegatorii atribuie un numar fiecarui candidat)"
 
@@ -284,11 +284,11 @@ msgstr "Daca doriti, puteti configura ca datele sa fie create in mod automat."
 msgid "An election with the same UUID already exists."
 msgstr "O alegere cu acelasi UUID exista deja."
 
-#: src/web/site_admin.ml:2169
+#: src/web/site_admin.ml:2170
 msgid "An error occurred while applying the shuffle."
 msgstr "O eroare a aparut in etapa de amestecare a buletinelor de vot."
 
-#: src/web/site_admin.ml:2042
+#: src/web/site_admin.ml:2043
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "O eroare a aparut pe durata calcularii rezultatului (%s). Cel mai probabil, "
@@ -388,7 +388,7 @@ msgstr ""
 msgid "Blank vote is allowed"
 msgstr "Voturile albe sunt autorizate"
 
-#: src/tool/tool_js_questions.ml:391
+#: src/tool/tool_js_questions.ml:408
 msgid "Booth:"
 msgstr ""
 
@@ -422,7 +422,7 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr "Schimba datele fixate in mod automat"
 
-#: src/web/site_admin.ml:2664 src/web/site_admin.ml:2559
+#: src/web/site_admin.ml:2665 src/web/site_admin.ml:2560
 #. src/web/pages_admin.ml:3157
 #. src/web/pages_admin.ml:3034
 msgid "Change password"
@@ -432,9 +432,13 @@ msgstr "Schimba parola"
 msgid "Checklist:"
 msgstr "Check-list:"
 
-#: src/tool/tool_js_questions.ml:319
+#: src/tool/tool_js_questions.ml:336
 msgid "Classical (selection of answers)"
 msgstr "Clasic (selectarea raspunsurilor)"
+
+#: src/tool/tool_js_questions.ml:291
+msgid "Clear"
+msgstr ""
 
 #: src/web/pages_admin.ml:586
 msgid "Click "
@@ -506,7 +510,7 @@ msgstr ""
 msgid "Could not retrieve voter list from election %s"
 msgstr "E imposibil de a obtine lista de alegatori plecand de la alegerea %s"
 
-#: src/tool/tool_js_questions.ml:280
+#: src/tool/tool_js_questions.ml:276
 msgid "Counting method specification"
 msgstr ""
 
@@ -569,7 +573,7 @@ msgstr "Coduri de vot ?"
 msgid "Current list of ballots:"
 msgstr "Lista curenta a buletinelor de vot:"
 
-#: src/web/site_admin.ml:2172
+#: src/web/site_admin.ml:2173
 msgid "Data is invalid! (%s)"
 msgstr "Data este invalida ! (%s)"
 
@@ -607,7 +611,7 @@ msgstr ""
 msgid "Description of the election:"
 msgstr "Descrierea alegerii:"
 
-#: src/tool/tool_js_questions.ml:420
+#: src/tool/tool_js_questions.ml:441
 msgid "Description:"
 msgstr "Descriere:"
 
@@ -729,11 +733,11 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Introduceti cheia privata:"
 
-#: src/web/site_admin.ml:2323 src/web/site_admin.ml:2293
-#. src/web/site_admin.ml:2280
-#. src/web/site_admin.ml:2172
-#. src/web/site_admin.ml:2169
-#. src/web/site_admin.ml:2045
+#: src/web/site_admin.ml:2324 src/web/site_admin.ml:2294
+#. src/web/site_admin.ml:2281
+#. src/web/site_admin.ml:2173
+#. src/web/site_admin.ml:2170
+#. src/web/site_admin.ml:2046
 #. src/web/site_admin.ml:1968
 #. src/web/site_admin.ml:1895
 #. src/web/site_admin.ml:1855
@@ -951,6 +955,10 @@ msgstr "Limbi"
 msgid "Languages:"
 msgstr "Limbi:"
 
+#: src/tool/tool_js_questions.ml:322
+msgid "Leave blank for other counting methods. Note that for other counting methods, the voting interface is quite rough: the voter has to enter an integer in front of each answer."
+msgstr ""
+
 #: src/web/pages_admin.ml:2603 src/web/pages_admin.ml:2543
 #. src/web/pages_admin.ml:2400
 #. src/web/pages_admin.ml:1072
@@ -1026,7 +1034,7 @@ msgstr "Lipseste"
 msgid "Missing voters"
 msgstr "Alegatorii care lipsesc"
 
-#: src/web/pages_admin.ml:1354
+#: src/tool/tool_js_questions.ml:327 src/web/pages_admin.ml:1354
 msgid "More information."
 msgstr ""
 
@@ -1062,7 +1070,7 @@ msgstr ""
 msgid "Name of the election:"
 msgstr "Numele alegerii:"
 
-#: src/tool/tool_js_questions.ml:409
+#: src/tool/tool_js_questions.ml:430
 msgid "Name of the election: "
 msgstr "Numele alegerii: "
 
@@ -1239,7 +1247,7 @@ msgstr "Informatii despre procesarea datelor personale"
 msgid "Please "
 msgstr "Va rugam "
 
-#: src/web/site_admin.ml:2278
+#: src/web/site_admin.ml:2279
 msgid "Please add some trustees first!"
 msgstr "Va rugam sa adaugati mai intai cateva autoritati de descifrare !"
 
@@ -1277,7 +1285,7 @@ msgstr "Va rugam sa asteptati... "
 msgid "Postpone publication until"
 msgstr "Amanati publicarea pana cand"
 
-#: src/tool/tool_js_questions.ml:291
+#: src/tool/tool_js_questions.ml:287
 msgid "Prefill with Majority Judgment"
 msgstr ""
 
@@ -1407,7 +1415,7 @@ msgstr ""
 msgid "Reset threshold"
 msgstr "Reinitializati pragul"
 
-#: src/tool/tool_js_questions.ml:463 src/web/pages_admin.ml:1326
+#: src/tool/tool_js_questions.ml:483 src/web/pages_admin.ml:1326
 #. src/web/pages_admin.ml:508
 #. src/web/pages_admin.ml:478
 #. src/web/pages_admin.ml:449
@@ -1524,7 +1532,7 @@ msgstr "Trimite cheia publica"
 msgid "Submit your public key using the button below."
 msgstr "Trimite cheia publica folosind butonul de mai jos."
 
-#: src/web/site_admin.ml:2167 src/web/site_admin.ml:1963
+#: src/web/site_admin.ml:2168 src/web/site_admin.ml:1963
 #. src/web/site_admin.ml:1292
 #. src/web/site_admin.ml:1207
 #. src/web/site_admin.ml:779
@@ -1555,7 +1563,7 @@ msgstr "- "
 msgid "The account creation "
 msgstr "Crearea contului "
 
-#: src/web/site_admin.ml:2640
+#: src/web/site_admin.ml:2641
 msgid "The account has been created."
 msgstr "Contul a fost creat."
 
@@ -1652,7 +1660,7 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr "Descifrare partiala nu a trecut etapa de validare !"
 
-#: src/web/site_admin.ml:2664
+#: src/web/site_admin.ml:2665
 msgid "The password has been changed."
 msgstr "Parola a fost schimbara."
 
@@ -1666,32 +1674,23 @@ msgstr ""
 "A doua cutie este acum plina cu material criptografic. Va rugam sa apasati "
 "pe butonul \"Trimite\"."
 
-#: src/web/site_admin.ml:2167
+#: src/web/site_admin.ml:2168
 msgid "The shuffle has been successfully applied!"
 msgstr "Etapa de amestecare s-a aplicat cu succes !"
 
-#: src/web/site_admin.ml:2291
+#: src/web/site_admin.ml:2292
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr ""
 "Pragul trebuie sa fie pozitiv si mai mic decat numarul de autoritati de "
 "descifrare!"
 
 #: src/web/site_admin.ml:1377 src/web/site_admin.ml:924
-msgid "The total weight cannot exceed %d."
+msgid "The total weight cannot exceed %s."
 msgstr ""
 
 #: src/tool/tool_js_questions.ml:176
 msgid "The voter has to choose between "
 msgstr "Alegatorul trebuie sa aleaga intre "
-
-#: src/tool/tool_js_questions.ml:275
-msgid "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
-msgstr ""
-"Alegatorul trebuie sa introduca un numar intreg la inceputul fiecarui "
-"raspuns. Sistemul va accepta orice intreg intre 0 si 255 dar este la "
-"latitudinea dvoastra sa eliminati buletinele de vot invalide (scoruri prea "
-"mari sau candidati care nu sunt clasati in mod corect) dupa ce alegerea s-a "
-"terminat."
 
 #: src/web/site_admin.ml:928
 msgid "The voter list is not consistent (a login or a weight is missing)."
@@ -1946,11 +1945,11 @@ msgstr "Puteti de asemenea accesa "
 msgid "You can also log in with"
 msgstr ""
 
-#: src/web/site_admin.ml:2560
+#: src/web/site_admin.ml:2561
 msgid "You cannot change your password now. Please try later."
 msgstr "Nu puteti schimba parola acum. Incercati mai tarziu."
 
-#: src/web/site_admin.ml:2519
+#: src/web/site_admin.ml:2520
 msgid "You cannot create an account now. Please try later."
 msgstr "Nu puteti crea contul acum. Incercati mai tarziu."
 
@@ -2065,7 +2064,7 @@ msgstr "Cheia dvoastra publica a fost deja primita !"
 msgid "Your username is: "
 msgstr "Numele dvoastra de utilizator este : "
 
-#: src/tool/tool_js_questions.ml:395
+#: src/tool/tool_js_questions.ml:412
 msgid "classic"
 msgstr ""
 
@@ -2109,7 +2108,7 @@ msgstr "initializare: administratorul trebuie sa defineasca un prag"
 msgid "more info"
 msgstr "mai mult despre"
 
-#: src/tool/tool_js_questions.ml:399
+#: src/tool/tool_js_questions.ml:416
 msgid "new interface (more elegant, still under test)"
 msgstr ""
 
@@ -2220,6 +2219,10 @@ msgstr "numele de utilizator este deja folosit"
 msgid "the username is invalid"
 msgstr "numele de utilizator este invalid"
 
+#: src/web/pages_admin.ml:1352
+msgid "the voting interface will depend on the selected counting method. In some cases, you should explain to voters (e.g. in the question field) how they are supposed to express their vote."
+msgstr ""
+
 #: src/web/pages_admin.ml:3065
 msgid "there is already an account with this e-mail address"
 msgstr "exista deja un alt cont cu aceasta adresa email"
@@ -2247,10 +2250,6 @@ msgid "you may store the key on a USB stick and store it in a safe;"
 msgstr ""
 "puteti conserva cheia pe o cheie USB pe care sa o stocati apoi intr-un loc "
 "sigur;"
-
-#: src/web/pages_admin.ml:1352
-msgid "you should explain to voters how they are supposed to assign a number to each candidate in order to express their vote, since it depends on the underlying voting method."
-msgstr ""
 
 #: src/web/pages_admin.ml:751
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"

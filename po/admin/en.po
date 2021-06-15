@@ -109,7 +109,7 @@ msgstr "%s is not a registered user for this election."
 msgid "%s is not a valid date!"
 msgstr "%s is not a valid date!"
 
-#: src/web/site_admin.ml:2321 src/web/site_admin.ml:1022
+#: src/web/site_admin.ml:2322 src/web/site_admin.ml:1022
 msgid "%s is not a valid e-mail address!"
 msgstr "%s is not a valid e-mail address!"
 
@@ -218,7 +218,7 @@ msgstr "A public key already existed, the key you've just uploaded has been igno
 msgid "Accept"
 msgstr "Accept"
 
-#: src/web/site_admin.ml:2640 src/web/site_admin.ml:2518
+#: src/web/site_admin.ml:2641 src/web/site_admin.ml:2519
 msgid "Account creation"
 msgstr "Account creation"
 
@@ -231,11 +231,11 @@ msgstr ""
 msgid "Add"
 msgstr "Add"
 
-#: src/tool/tool_js_questions.ml:445
+#: src/tool/tool_js_questions.ml:466
 msgid "Add a question"
 msgstr "Add a question"
 
-#: src/tool/tool_js_questions.ml:363
+#: src/tool/tool_js_questions.ml:380
 msgid "Add an answer"
 msgstr "Add an answer"
 
@@ -251,7 +251,7 @@ msgstr "All passwords have been sent!"
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr "All trustees must have completed one step before you can proceed to the next one."
 
-#: src/tool/tool_js_questions.ml:350
+#: src/tool/tool_js_questions.ml:367
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr "Alternative (voters assign a number to each candidate)"
 
@@ -275,11 +275,11 @@ msgstr "Alternatively, you may set up automatic dates."
 msgid "An election with the same UUID already exists."
 msgstr "An election with the same UUID already exists."
 
-#: src/web/site_admin.ml:2169
+#: src/web/site_admin.ml:2170
 msgid "An error occurred while applying the shuffle."
 msgstr "An error occurred while applying the shuffle."
 
-#: src/web/site_admin.ml:2042
+#: src/web/site_admin.ml:2043
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 
@@ -375,7 +375,7 @@ msgstr ""
 msgid "Blank vote is allowed"
 msgstr "Blank vote is allowed"
 
-#: src/tool/tool_js_questions.ml:391
+#: src/tool/tool_js_questions.ml:408
 msgid "Booth:"
 msgstr ""
 
@@ -403,7 +403,7 @@ msgstr "Cannot send passwords, there are too many voters (max is %d)"
 msgid "Change automatic dates"
 msgstr "Change automatic dates"
 
-#: src/web/site_admin.ml:2664 src/web/site_admin.ml:2559
+#: src/web/site_admin.ml:2665 src/web/site_admin.ml:2560
 #. src/web/pages_admin.ml:3157
 #. src/web/pages_admin.ml:3034
 msgid "Change password"
@@ -413,9 +413,13 @@ msgstr "Change password"
 msgid "Checklist:"
 msgstr "Checklist:"
 
-#: src/tool/tool_js_questions.ml:319
+#: src/tool/tool_js_questions.ml:336
 msgid "Classical (selection of answers)"
 msgstr "Classical (selection of answers)"
+
+#: src/tool/tool_js_questions.ml:291
+msgid "Clear"
+msgstr ""
 
 #: src/web/pages_admin.ml:586
 msgid "Click "
@@ -485,7 +489,7 @@ msgstr "Could not retrieve trustees from selected election!"
 msgid "Could not retrieve voter list from election %s"
 msgstr "Could not retrieve voter list from election %s"
 
-#: src/tool/tool_js_questions.ml:280
+#: src/tool/tool_js_questions.ml:276
 msgid "Counting method specification"
 msgstr ""
 
@@ -545,7 +549,7 @@ msgstr "Credentials?"
 msgid "Current list of ballots:"
 msgstr "Current list of ballots:"
 
-#: src/web/site_admin.ml:2172
+#: src/web/site_admin.ml:2173
 msgid "Data is invalid! (%s)"
 msgstr "Data is invalid! (%s)"
 
@@ -583,7 +587,7 @@ msgstr ""
 msgid "Description of the election:"
 msgstr "Description of the election:"
 
-#: src/tool/tool_js_questions.ml:420
+#: src/tool/tool_js_questions.ml:441
 msgid "Description:"
 msgstr "Description:"
 
@@ -696,11 +700,11 @@ msgstr "Enter your private decryption key in the first box and click on \"Genera
 msgid "Enter your private key:"
 msgstr "Enter your private key:"
 
-#: src/web/site_admin.ml:2323 src/web/site_admin.ml:2293
-#. src/web/site_admin.ml:2280
-#. src/web/site_admin.ml:2172
-#. src/web/site_admin.ml:2169
-#. src/web/site_admin.ml:2045
+#: src/web/site_admin.ml:2324 src/web/site_admin.ml:2294
+#. src/web/site_admin.ml:2281
+#. src/web/site_admin.ml:2173
+#. src/web/site_admin.ml:2170
+#. src/web/site_admin.ml:2046
 #. src/web/site_admin.ml:1968
 #. src/web/site_admin.ml:1895
 #. src/web/site_admin.ml:1855
@@ -911,6 +915,10 @@ msgstr "Languages"
 msgid "Languages:"
 msgstr "Languages:"
 
+#: src/tool/tool_js_questions.ml:322
+msgid "Leave blank for other counting methods. Note that for other counting methods, the voting interface is quite rough: the voter has to enter an integer in front of each answer."
+msgstr ""
+
 #: src/web/pages_admin.ml:2603 src/web/pages_admin.ml:2543
 #. src/web/pages_admin.ml:2400
 #. src/web/pages_admin.ml:1072
@@ -984,7 +992,7 @@ msgstr "Missing"
 msgid "Missing voters"
 msgstr "Missing voters"
 
-#: src/web/pages_admin.ml:1354
+#: src/tool/tool_js_questions.ml:327 src/web/pages_admin.ml:1354
 msgid "More information."
 msgstr "More information."
 
@@ -1020,7 +1028,7 @@ msgstr ""
 msgid "Name of the election:"
 msgstr "Name of the election:"
 
-#: src/tool/tool_js_questions.ml:409
+#: src/tool/tool_js_questions.ml:430
 msgid "Name of the election: "
 msgstr "Name of the election: "
 
@@ -1181,7 +1189,7 @@ msgstr "Personal data processing notice"
 msgid "Please "
 msgstr "Please "
 
-#: src/web/site_admin.ml:2278
+#: src/web/site_admin.ml:2279
 msgid "Please add some trustees first!"
 msgstr "Please add some trustees first!"
 
@@ -1217,7 +1225,7 @@ msgstr "Please wait… "
 msgid "Postpone publication until"
 msgstr "Postpone publication until"
 
-#: src/tool/tool_js_questions.ml:291
+#: src/tool/tool_js_questions.ml:287
 msgid "Prefill with Majority Judgment"
 msgstr ""
 
@@ -1343,7 +1351,7 @@ msgstr "Remove all"
 msgid "Reset threshold"
 msgstr "Reset threshold"
 
-#: src/tool/tool_js_questions.ml:463 src/web/pages_admin.ml:1326
+#: src/tool/tool_js_questions.ml:483 src/web/pages_admin.ml:1326
 #. src/web/pages_admin.ml:508
 #. src/web/pages_admin.ml:478
 #. src/web/pages_admin.ml:449
@@ -1456,7 +1464,7 @@ msgstr "Submit public key"
 msgid "Submit your public key using the button below."
 msgstr "Submit your public key using the button below."
 
-#: src/web/site_admin.ml:2167 src/web/site_admin.ml:1963
+#: src/web/site_admin.ml:2168 src/web/site_admin.ml:1963
 #. src/web/site_admin.ml:1292
 #. src/web/site_admin.ml:1207
 #. src/web/site_admin.ml:779
@@ -1487,7 +1495,7 @@ msgstr "The "
 msgid "The account creation "
 msgstr "The account creation "
 
-#: src/web/site_admin.ml:2640
+#: src/web/site_admin.ml:2641
 msgid "The account has been created."
 msgstr "The account has been created."
 
@@ -1581,7 +1589,7 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr "The partial decryption didn't pass validation!"
 
-#: src/web/site_admin.ml:2664
+#: src/web/site_admin.ml:2665
 msgid "The password has been changed."
 msgstr "The password has been changed."
 
@@ -1593,25 +1601,21 @@ msgstr "The public name of the credential authority has been set successfully!"
 msgid "The second box is now filled with crypto material. Please press the button \"Submit\"."
 msgstr "The second box is now filled with crypto material. Please press the button \"Submit\"."
 
-#: src/web/site_admin.ml:2167
+#: src/web/site_admin.ml:2168
 msgid "The shuffle has been successfully applied!"
 msgstr "The shuffle has been successfully applied!"
 
-#: src/web/site_admin.ml:2291
+#: src/web/site_admin.ml:2292
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr "The threshold must be positive and smaller than the number of trustees!"
 
 #: src/web/site_admin.ml:1377 src/web/site_admin.ml:924
-msgid "The total weight cannot exceed %d."
-msgstr "The total weight cannot exceed %d."
+msgid "The total weight cannot exceed %s."
+msgstr ""
 
 #: src/tool/tool_js_questions.ml:176
 msgid "The voter has to choose between "
 msgstr "The voter has to choose between "
-
-#: src/tool/tool_js_questions.ml:275
-msgid "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
-msgstr "The voter has to enter an integer in front of each answer. The system will accept any integer between 0 and 255 but it is up to you to remove invalid ballots (score too high or candidates not properly ranked) at the end of the election."
 
 #: src/web/site_admin.ml:928
 msgid "The voter list is not consistent (a login or a weight is missing)."
@@ -1845,11 +1849,11 @@ msgstr "You can also access the "
 msgid "You can also log in with"
 msgstr ""
 
-#: src/web/site_admin.ml:2560
+#: src/web/site_admin.ml:2561
 msgid "You cannot change your password now. Please try later."
 msgstr "You cannot change your password now. Please try later."
 
-#: src/web/site_admin.ml:2519
+#: src/web/site_admin.ml:2520
 msgid "You cannot create an account now. Please try later."
 msgstr "You cannot create an account now. Please try later."
 
@@ -1948,7 +1952,7 @@ msgstr "Your public key has already been received!"
 msgid "Your username is: "
 msgstr "Your username is: "
 
-#: src/tool/tool_js_questions.ml:395
+#: src/tool/tool_js_questions.ml:412
 msgid "classic"
 msgstr ""
 
@@ -1992,7 +1996,7 @@ msgstr "init: administrator needs to set threshold"
 msgid "more info"
 msgstr "more info"
 
-#: src/tool/tool_js_questions.ml:399
+#: src/tool/tool_js_questions.ml:416
 msgid "new interface (more elegant, still under test)"
 msgstr ""
 
@@ -2096,6 +2100,10 @@ msgstr "the username is already taken"
 msgid "the username is invalid"
 msgstr "the username is invalid"
 
+#: src/web/pages_admin.ml:1352
+msgid "the voting interface will depend on the selected counting method. In some cases, you should explain to voters (e.g. in the question field) how they are supposed to express their vote."
+msgstr ""
+
 #: src/web/pages_admin.ml:3065
 msgid "there is already an account with this e-mail address"
 msgstr "there is already an account with this e-mail address"
@@ -2119,10 +2127,6 @@ msgstr ""
 #: src/web/pages_admin.ml:761 src/web/pages_admin.ml:711
 msgid "you may store the key on a USB stick and store it in a safe;"
 msgstr "you may store the key on a USB stick and store it in a safe;"
-
-#: src/web/pages_admin.ml:1352
-msgid "you should explain to voters how they are supposed to assign a number to each candidate in order to express their vote, since it depends on the underlying voting method."
-msgstr ""
 
 #: src/web/pages_admin.ml:751
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
