@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2020-11-05 04:35+0000\n"
+"PO-Revision-Date: 2021-06-15 11:33+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "belenios/admin/nb_NO/>\n"
@@ -13,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.3.2-dev\n"
+"X-Generator: Weblate 4.7-dev\n"
 
 #: src/web/pages_admin.ml:2281
 msgid " You may re-open the election when it is closed."
@@ -44,8 +43,9 @@ msgid " and your e-mail address is: "
 msgstr " og e-postadressen din er: "
 
 #: src/tool/tool_js_questions.ml:190
+#, fuzzy
 msgid " answers."
-msgstr ""
+msgstr " svar."
 
 #: src/web/pages_admin.ml:3124 src/web/pages_admin.ml:3074
 msgid " because "
@@ -56,16 +56,17 @@ msgid " has been computed."
 msgstr " har blitt utregnet."
 
 #: src/web/pages_admin.ml:3023 src/web/pages_admin.ml:2991
+#, fuzzy
 msgid " in the following box: "
-msgstr " i følgende avkryssningsboks: "
+msgstr " i følgende stemmeurne: "
 
 #: src/web/pages_admin.ml:1281 src/web/pages_admin.ml:1272
 msgid " instead of "
 msgstr " i stedet for "
 
-#: src/web/pages_admin.ml:2567 src/web/pages_admin.ml:2433
 #. src/web/pages_admin.ml:1051
 #. src/web/pages_admin.ml:885
+#: src/web/pages_admin.ml:2567 src/web/pages_admin.ml:2433
 msgid " is:"
 msgstr " er:"
 
@@ -131,7 +132,7 @@ msgstr "(for eksempel: https://cas.inria.fr/cas)"
 
 #: src/web/pages_admin.ml:319
 msgid "(imported from server)"
-msgstr ""
+msgstr "(importert fra tjener)"
 
 #: src/web/pages_admin.ml:1026 src/web/pages_admin.ml:865
 msgid "(not available)"
@@ -141,8 +142,8 @@ msgstr "(ikke tilgjengelig)"
 msgid "(or "
 msgstr "(eller "
 
-#: src/web/pages_admin.ml:2535 src/web/pages_admin.ml:2535
 #. src/web/pages_admin.ml:854
+#: src/web/pages_admin.ml:2535 src/web/pages_admin.ml:2535
 msgid "(server)"
 msgstr "(tjener)"
 
@@ -156,7 +157,7 @@ msgstr "(terskelen må være mindre enn antall betrodde)"
 
 #: src/web/pages_admin.ml:193 src/web/pages_admin.ml:185
 msgid "(untitled)"
-msgstr ""
+msgstr "(uten tittel)"
 
 #: src/web/pages_admin.ml:387
 msgid "(you can use any credential such as %s)."
@@ -172,7 +173,7 @@ msgstr ". Lagre den slik at du kan sjekke senere at den vises på valgsiden."
 
 #: src/web/pages_admin.ml:1170
 msgid "1. Click on the link."
-msgstr ""
+msgstr "1. Klikk på lenken."
 
 #: src/web/pages_admin.ml:1081
 msgid "1a: action needed from trustee: generate private key"
@@ -184,7 +185,7 @@ msgstr "1b, 2b, 3b: Venter på andre betrodde"
 
 #: src/web/pages_admin.ml:1171
 msgid "2. Click on \"Generate\"."
-msgstr ""
+msgstr "2. Klikk på «Generer»."
 
 #: src/web/pages_admin.ml:1082
 msgid "2a, 3a: action needed from trustee: enter private key"
@@ -193,18 +194,23 @@ msgstr "2a, 3a: Handling behøves av betrodd: Skriv inn privat nøkkel"
 #: src/web/pages_admin.ml:1172
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
 msgstr ""
+"3. Last ned de private identitetsdetaljene (creds.txt) og lagre filen på et "
+"sikkert sted."
 
 #: src/web/pages_admin.ml:1174
 msgid "4. Download the list of voters (voters.txt)."
-msgstr ""
+msgstr "4. Last ned listen over stemmeberettigede (voters.txt)."
 
 #: src/web/pages_admin.ml:1176
+#, fuzzy
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
+"5. Lagre de to fingeravtrykkene; fingeravtrykk av stemmeberettigede og "
+"fingeravtrykk for offentlige identitetsdetaljer."
 
 #: src/web/pages_admin.ml:1178
 msgid "6. Click on \"Submit the public credentials\"."
-msgstr ""
+msgstr "6. Klikk på «Send inn offentlige identitetsdetaljer»."
 
 #: src/web/site_admin.ml:780
 msgid "A new password has been mailed to %s."
@@ -226,10 +232,10 @@ msgstr "Kontoopprettelse"
 
 #: src/web/pages_admin.ml:3055
 msgid "Account management"
-msgstr ""
+msgstr "Kontohåndtering"
 
-#: src/web/pages_admin.ml:1399 src/web/pages_admin.ml:972
 #. src/web/pages_admin.ml:808
+#: src/web/pages_admin.ml:1399 src/web/pages_admin.ml:972
 msgid "Add"
 msgstr "Legg til"
 
@@ -250,24 +256,28 @@ msgid "All passwords have been sent!"
 msgstr "Alle passordene har blitt sendt."
 
 #: src/web/pages_admin.ml:747
+#, fuzzy
 msgid "All trustees must have completed one step before you can proceed to the next one."
-msgstr ""
+msgstr "Alle betrodde må ha fullført ett steg før du kan fortsette til neste."
 
 #: src/tool/tool_js_questions.ml:350
+#, fuzzy
 msgid "Alternative (voters assign a number to each candidate)"
-msgstr ""
+msgstr "Alternativ (stemmeberettigede må tildele hver kandidat et tall)"
 
 #: src/web/pages_admin.ml:2039
+#, fuzzy
 msgid "Alternative questions cannot be combined with weights."
-msgstr ""
+msgstr "Altnernative spørsmål kan ikke kombineres med vekter."
 
 #: src/web/pages_admin.ml:1337
 msgid "Alternative voting methods (warning, still experimental):"
 msgstr "Alternative avstemmingsmetoder (advarsel, fremdeles eksperimentelt):"
 
 #: src/web/pages_admin.ml:1238
+#, fuzzy
 msgid "Alternatively, you can send the credential authority the following link:"
-msgstr ""
+msgstr "Alternativt kan du sende identitetsdetalj-autoriteten følgende lenke:"
 
 #: src/web/pages_admin.ml:2247
 msgid "Alternatively, you may set up automatic dates."
@@ -278,8 +288,9 @@ msgid "An election with the same UUID already exists."
 msgstr "En avstemming med samme UUID finnes allerede."
 
 #: src/web/site_admin.ml:2169
+#, fuzzy
 msgid "An error occurred while applying the shuffle."
-msgstr ""
+msgstr "Klarte ikke å utføre stokkingen."
 
 #: src/web/site_admin.ml:2042
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
@@ -355,7 +366,7 @@ msgstr "Feilaktig CAS-tjener!"
 
 #: src/web/pages_admin.ml:3211 src/web/pages_admin.ml:3189
 msgid "Belenios Server"
-msgstr ""
+msgstr "Belenios-tjener"
 
 #: src/web/pages_admin.ml:3191
 msgid "Belenios account creation"
@@ -370,8 +381,9 @@ msgid "Below you will find the link to shuffle encrypted ballots."
 msgstr "Nedenfor vil du finne en lenke til å stokke de krypterte stemmene."
 
 #: src/web/pages_admin.ml:3207 src/web/pages_admin.ml:3185
+#, fuzzy
 msgid "Best regards,"
-msgstr ""
+msgstr "Hilsen,"
 
 #: src/tool/tool_js_questions.ml:200
 msgid "Blank vote is allowed"
@@ -407,9 +419,9 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr "Endre automatiske datoer"
 
-#: src/web/site_admin.ml:2664 src/web/site_admin.ml:2559
 #. src/web/pages_admin.ml:3157
 #. src/web/pages_admin.ml:3034
+#: src/web/site_admin.ml:2664 src/web/site_admin.ml:2559
 msgid "Change password"
 msgstr "Endre passord"
 
@@ -455,7 +467,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:3170
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "Regn ut fingeravtrykk"
 
 #: src/web/pages_admin.ml:2847
 msgid "Compute shuffle"
@@ -563,15 +575,15 @@ msgstr "Dato/tid (UTC)"
 
 #: src/web/pages_admin.ml:3198 src/web/pages_admin.ml:3176
 msgid "Dear %s,"
-msgstr ""
+msgstr "Kjære %s,"
 
 #: src/web/pages_admin.ml:1163
 msgid "Dear credential authority,"
 msgstr ""
 
-#: src/web/pages_admin.ml:2191 src/web/pages_admin.ml:2154
 #. src/web/pages_admin.ml:739
 #. src/web/pages_admin.ml:690
+#: src/web/pages_admin.ml:2191 src/web/pages_admin.ml:2154
 msgid "Dear trustee,"
 msgstr "Kjære betrodde,"
 
@@ -580,8 +592,9 @@ msgid "Delete election"
 msgstr "Slett valg"
 
 #: src/web/pages_admin.ml:443
+#, fuzzy
 msgid "Description of the election."
-msgstr ""
+msgstr "Beskrivelse av avstemmingen."
 
 #: src/web/pages_admin.ml:438
 msgid "Description of the election:"
@@ -603,8 +616,8 @@ msgstr "Slett valget for godt"
 msgid "Don't forget to save:"
 msgstr "Ikke glem å lagre:"
 
-#: src/web/pages_admin.ml:2604 src/web/pages_admin.ml:2467
 #. src/web/pages_admin.ml:904
+#: src/web/pages_admin.ml:2604 src/web/pages_admin.ml:2467
 msgid "Done?"
 msgstr "Ferdig?"
 
@@ -631,15 +644,17 @@ msgstr "Last ned din "
 #: src/web/pages_admin.ml:702
 msgid "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled."
 msgstr ""
+"Last ned din private nøkkel. Du må LAGRE DEN for å kunne telle opp "
+"avstemmingen, ellers vil den bli kansellert."
 
 #: src/web/pages_admin.ml:1492
 msgid "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins."
 msgstr ""
 
-#: src/web/pages_admin.ml:2602 src/web/pages_admin.ml:2538
 #. src/web/pages_admin.ml:1016
 #. src/web/pages_admin.ml:902
 #. src/web/pages_admin.ml:841
+#: src/web/pages_admin.ml:2602 src/web/pages_admin.ml:2538
 msgid "E-mail"
 msgstr "E-post"
 
@@ -659,8 +674,8 @@ msgstr "Rediger spørsmål"
 msgid "Edit voters"
 msgstr "Rediger stemmeberettigede"
 
-#: src/web/pages_admin.ml:1944 src/web/pages_admin.ml:1934
 #. src/web/pages_admin.ml:1926
+#: src/web/pages_admin.ml:1944 src/web/pages_admin.ml:1934
 msgid "Election "
 msgstr "Valg "
 
@@ -700,7 +715,6 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Skriv inn din private nøkkel:"
 
-#: src/web/site_admin.ml:2323 src/web/site_admin.ml:2293
 #. src/web/site_admin.ml:2280
 #. src/web/site_admin.ml:2172
 #. src/web/site_admin.ml:2169
@@ -725,6 +739,7 @@ msgstr "Skriv inn din private nøkkel:"
 #. src/web/site_admin.ml:558
 #. src/web/site_admin.ml:492
 #. src/web/site_admin.ml:367
+#: src/web/site_admin.ml:2323 src/web/site_admin.ml:2293
 msgid "Error"
 msgstr "Feil"
 
@@ -776,8 +791,8 @@ msgstr ""
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr "For virkelige valg, må nøkkelen deles mellom uavhengige betrodde."
 
-#: src/web/site_admin.ml:1908 src/web/site_admin.ml:1905
 #. src/web/site_admin.ml:1558
+#: src/web/site_admin.ml:1908 src/web/site_admin.ml:1905
 msgid "Forbidden"
 msgstr "Forbudt"
 
@@ -805,10 +820,10 @@ msgstr "Generer ny privat nøkkel"
 msgid "Generate your contribution to decryption"
 msgstr "Generer ditt bidrag til dekryptering"
 
-#: src/web/pages_admin.ml:2140 src/web/pages_admin.ml:1473
 #. src/web/pages_admin.ml:1378
 #. src/web/pages_admin.ml:1149
 #. src/web/pages_admin.ml:944
+#: src/web/pages_admin.ml:2140 src/web/pages_admin.ml:1473
 msgid "Go back to election draft"
 msgstr "Gå tilbake til valgkladd"
 
@@ -820,9 +835,9 @@ msgstr "Her er instruksjonene:"
 msgid "Here is the link to proceed to tally:"
 msgstr "Her er lenken for å fortsette opptelling:"
 
-#: src/web/pages_admin.ml:2541 src/web/pages_admin.ml:2398
 #. src/web/pages_admin.ml:1032
 #. src/web/pages_admin.ml:844
+#: src/web/pages_admin.ml:2541 src/web/pages_admin.ml:2398
 msgid "Hide link"
 msgstr "Skjul lenke"
 
@@ -874,12 +889,12 @@ msgstr "Sett inn"
 msgid "Instructions"
 msgstr "Instruks"
 
-#: src/web/pages_admin.ml:2918 src/web/pages_admin.ml:2197
 #. src/web/pages_admin.ml:2161
 #. src/web/pages_admin.ml:1818
 #. src/web/pages_admin.ml:1786
 #. src/web/pages_admin.ml:1661
 #. src/web/pages_admin.ml:1543
+#: src/web/pages_admin.ml:2918 src/web/pages_admin.ml:2197
 msgid "Instructions:"
 msgstr "Instruks:"
 
@@ -915,12 +930,12 @@ msgstr "Språk"
 msgid "Languages:"
 msgstr "Språk:"
 
-#: src/web/pages_admin.ml:2603 src/web/pages_admin.ml:2543
 #. src/web/pages_admin.ml:2400
 #. src/web/pages_admin.ml:1072
 #. src/web/pages_admin.ml:1034
 #. src/web/pages_admin.ml:903
 #. src/web/pages_admin.ml:846
+#: src/web/pages_admin.ml:2603 src/web/pages_admin.ml:2543
 msgid "Link"
 msgstr "Lenke"
 
@@ -934,7 +949,7 @@ msgstr "Lenke til omstokking av krypterte stemmer"
 
 #: src/web/pages_admin.ml:2176
 msgid "Link to tally the election"
-msgstr ""
+msgstr "Lenke til opptelling av avstemmingen"
 
 #: src/web/pages_admin.ml:1604
 msgid "List of voters:"
@@ -976,11 +991,11 @@ msgstr ""
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr ""
 
-#: src/web/pages_admin.ml:2021 src/web/pages_admin.ml:2013
 #. src/web/pages_admin.ml:1991
 #. src/web/pages_admin.ml:1984
 #. src/web/pages_admin.ml:1979
 #. src/web/pages_admin.ml:1960
+#: src/web/pages_admin.ml:2021 src/web/pages_admin.ml:2013
 msgid "Missing"
 msgstr "Mangler"
 
@@ -989,8 +1004,9 @@ msgid "Missing voters"
 msgstr "Manglende stemmeberettigede"
 
 #: src/web/pages_admin.ml:1354
+#, fuzzy
 msgid "More information."
-msgstr ""
+msgstr "Mer info."
 
 #: src/tool/tool_js_pd.ml:69 src/tool/tool_js_pd.ml:67
 msgid "Must end with a double quote"
@@ -1032,10 +1048,10 @@ msgstr "Navn på valget: "
 msgid "Name?"
 msgstr "Navn?"
 
-#: src/web/pages_admin.ml:2554 src/web/pages_admin.ml:2418
 #. src/web/pages_admin.ml:2055
 #. src/web/pages_admin.ml:1437
 #. src/web/pages_admin.ml:871
+#: src/web/pages_admin.ml:2554 src/web/pages_admin.ml:2418
 msgid "No"
 msgstr "Nei"
 
@@ -1069,8 +1085,8 @@ msgstr "Ikke anvendbart"
 msgid "Not downloaded."
 msgstr "Ikke nedlastet."
 
-#: src/web/pages_admin.ml:1966 src/web/pages_admin.ml:1954
 #. src/web/pages_admin.ml:1948
+#: src/web/pages_admin.ml:1966 src/web/pages_admin.ml:1954
 msgid "Not edited"
 msgstr "Ikke redigert"
 
@@ -1088,9 +1104,9 @@ msgstr ""
 msgid "Note that:"
 msgstr "Merk at:"
 
-#: src/web/pages_admin.ml:2249 src/web/pages_admin.ml:1910
 #. src/web/pages_admin.ml:1573
 #. src/web/pages_admin.ml:1496
+#: src/web/pages_admin.ml:2249 src/web/pages_admin.ml:1910
 msgid "Note:"
 msgstr "Merk:"
 
@@ -1171,8 +1187,9 @@ msgid "Passwords have been generated and mailed!"
 msgstr "Passord har blitt generert og sendt per e-post."
 
 #: src/web/pages_admin.ml:356
+#, fuzzy
 msgid "Passwords:"
-msgstr ""
+msgstr "Passord:"
 
 #: src/web/pages_admin.ml:2085
 msgid "Passwords?"
@@ -1199,6 +1216,7 @@ msgid "Please choose a username: "
 msgstr "Velg et brukernavn: "
 
 #: src/web/pages_admin.ml:3021 src/web/pages_admin.ml:2989
+#, fuzzy
 msgid "Please enter "
 msgstr "Skriv inn "
 
@@ -1208,7 +1226,7 @@ msgstr "Skriv inn identitetene for stemmeberettigede å legge til, én per linje
 
 #: src/web/pages_admin.ml:3044
 msgid "Please enter the verification code received by e-mail:"
-msgstr ""
+msgstr "Skriv inn bekreftelseskoden du har mottatt per e-post:"
 
 #: src/web/pages_admin.ml:2923
 msgid "Please enter your private key:"
@@ -1330,13 +1348,13 @@ msgstr ""
 msgid "Remember to store you private key securely."
 msgstr "Husk å lagre din private nøkkel sikkert."
 
-#: src/tool/tool_js_questions.ml:238 src/tool/tool_js_questions.ml:148
 #. src/web/pages_admin.ml:1467
 #. src/web/pages_admin.ml:1408
 #. src/web/pages_admin.ml:1074
 #. src/web/pages_admin.ml:983
 #. src/web/pages_admin.ml:905
 #. src/web/pages_admin.ml:818
+#: src/tool/tool_js_questions.ml:238 src/tool/tool_js_questions.ml:148
 msgid "Remove"
 msgstr "Fjern"
 
@@ -1348,11 +1366,11 @@ msgstr "Fjern alt"
 msgid "Reset threshold"
 msgstr "Fjern terskel"
 
-#: src/tool/tool_js_questions.ml:463 src/web/pages_admin.ml:1326
 #. src/web/pages_admin.ml:508
 #. src/web/pages_admin.ml:478
 #. src/web/pages_admin.ml:449
 #. src/web/pages_admin.ml:413
+#: src/tool/tool_js_questions.ml:463 src/web/pages_admin.ml:1326
 msgid "Save changes"
 msgstr "Lagre endringer"
 
@@ -1386,7 +1404,7 @@ msgstr "Sendt"
 
 #: src/web/pages_admin.ml:301
 msgid "Server address:"
-msgstr ""
+msgstr "Tjeneradresse:"
 
 #: src/web/pages_admin.ml:1213 src/web/pages_admin.ml:1102
 msgid "Set"
@@ -1424,7 +1442,6 @@ msgstr "Steg %d/3"
 msgid "Step 0/3"
 msgstr "Steg 0/3"
 
-#: src/web/pages_admin.ml:3151 src/web/pages_admin.ml:3101
 #. src/web/pages_admin.ml:3049
 #. src/web/pages_admin.ml:3027
 #. src/web/pages_admin.ml:2995
@@ -1434,6 +1451,7 @@ msgstr "Steg 0/3"
 #. src/web/pages_admin.ml:1835
 #. src/web/pages_admin.ml:1803
 #. src/web/pages_admin.ml:1586
+#: src/web/pages_admin.ml:3151 src/web/pages_admin.ml:3101
 msgid "Submit"
 msgstr "Send inn"
 
@@ -1461,12 +1479,12 @@ msgstr "Send inn offentlig nøkkel"
 msgid "Submit your public key using the button below."
 msgstr "Send inn din offentlige nøkkel ved bruk av knappen nedenfor."
 
-#: src/web/site_admin.ml:2167 src/web/site_admin.ml:1963
 #. src/web/site_admin.ml:1292
 #. src/web/site_admin.ml:1207
 #. src/web/site_admin.ml:779
 #. src/web/site_admin.ml:703
 #. src/web/site_admin.ml:583
+#: src/web/site_admin.ml:2167 src/web/site_admin.ml:1963
 msgid "Success"
 msgstr "Vellykket"
 
@@ -1478,9 +1496,9 @@ msgstr "Opptalte valg"
 msgid "Thank you again for your help,"
 msgstr "Takk igjen for din help,"
 
-#: src/web/pages_admin.ml:2207 src/web/pages_admin.ml:1189
 #. src/web/pages_admin.ml:767
 #. src/web/pages_admin.ml:717
+#: src/web/pages_admin.ml:2207 src/web/pages_admin.ml:1189
 msgid "Thank you for your help,"
 msgstr "Takk for din hjelp,"
 
@@ -1508,10 +1526,10 @@ msgstr "Opprettelse mislyktes."
 msgid "The date must be less than %d days in the future!"
 msgstr "Datoen må være mindre enn %d dager inn i fremtiden!"
 
-#: src/web/pages_admin.ml:2222 src/web/pages_admin.ml:2184
 #. src/web/pages_admin.ml:1192
 #. src/web/pages_admin.ml:782
 #. src/web/pages_admin.ml:732
+#: src/web/pages_admin.ml:2222 src/web/pages_admin.ml:2184
 msgid "The election administrator"
 msgstr "Valgadministratoren"
 
@@ -1567,20 +1585,23 @@ msgstr ""
 msgid "The given maximum is greater than the number of choices!"
 msgstr ""
 
-#: src/web/pages_admin.ml:2565 src/web/pages_admin.ml:2431
 #. src/web/pages_admin.ml:1049
 #. src/web/pages_admin.ml:883
+#: src/web/pages_admin.ml:2565 src/web/pages_admin.ml:2431
 msgid "The link that must be sent to trustee "
 msgstr ""
 
-#: src/web/pages_admin.ml:1723 src/web/pages_admin.ml:1640
 #. src/web/pages_admin.ml:1526
+#: src/web/pages_admin.ml:1723 src/web/pages_admin.ml:1640
 msgid "The link to the election will be:"
 msgstr "Lenken til valget vil bli:"
 
 #: src/web/pages_admin.ml:1183
+#, fuzzy
 msgid "The page also contains instructions for checking the voting record, after the tally."
 msgstr ""
+"Siden inneholder også instruks om sjekking av avstemmingshistorikken, etter "
+"avstemmingen."
 
 #: src/web/site_admin.ml:1969
 msgid "The partial decryption didn't pass validation!"
@@ -1722,9 +1743,9 @@ msgstr "For å bruke denne siden, må du godta vår "
 msgid "Too short"
 msgstr "For kort"
 
-#: src/web/pages_admin.ml:2601 src/web/pages_admin.ml:2465
 #. src/web/pages_admin.ml:1069
 #. src/web/pages_admin.ml:900
+#: src/web/pages_admin.ml:2601 src/web/pages_admin.ml:2465
 msgid "Trustee"
 msgstr "Betrodd"
 
@@ -1768,8 +1789,8 @@ msgstr "Brukernavn"
 msgid "Username:"
 msgstr "Brukernavn:"
 
-#: src/web/pages_admin.ml:2131 src/web/pages_admin.ml:1944
 #. src/web/pages_admin.ml:638
+#: src/web/pages_admin.ml:2131 src/web/pages_admin.ml:1944
 msgid "Validate creation"
 msgstr ""
 
@@ -1801,9 +1822,9 @@ msgstr ""
 msgid "Waiting for the other trustees... Reload the page to check progress."
 msgstr ""
 
-#: src/web/pages_admin.ml:2057 src/web/pages_admin.ml:2046
 #. src/web/pages_admin.ml:1490
 #. src/web/pages_admin.ml:1486
+#: src/web/pages_admin.ml:2057 src/web/pages_admin.ml:2046
 msgid "Warning:"
 msgstr "Advarsel:"
 
@@ -1818,6 +1839,8 @@ msgstr ""
 #: src/web/pages_admin.ml:3205 src/web/pages_admin.ml:3183
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
+"Advarsel: Denne koden er gyldig i et kvarter, og koder tidligere sendt til "
+"denne adressen er ikke lenger gyldige."
 
 #: src/web/pages_admin.ml:622
 msgid "Warning: this will freeze the voter list!"
@@ -1831,10 +1854,10 @@ msgstr ""
 msgid "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page."
 msgstr ""
 
-#: src/web/pages_admin.ml:2554 src/web/pages_admin.ml:2418
 #. src/web/pages_admin.ml:2061
 #. src/web/pages_admin.ml:1436
 #. src/web/pages_admin.ml:871
+#: src/web/pages_admin.ml:2554 src/web/pages_admin.ml:2418
 msgid "Yes"
 msgstr "Ja"
 
@@ -1890,10 +1913,10 @@ msgstr ""
 msgid "You must select at least one language!"
 msgstr "Du må velge minst ett språk."
 
-#: src/web/pages_admin.ml:1906 src/web/pages_admin.ml:220
 #. src/web/pages_admin.ml:215
 #. src/web/pages_admin.ml:210
 #. src/web/pages_admin.ml:205
+#: src/web/pages_admin.ml:1906 src/web/pages_admin.ml:220
 msgid "You own no such elections!"
 msgstr "Du eier ingen slike valg!"
 
@@ -1904,6 +1927,8 @@ msgstr ""
 #: src/web/pages_admin.ml:741 src/web/pages_admin.ml:692
 msgid "You will find below the link to generate your private decryption key, used to tally the election."
 msgstr ""
+"Nedenfor finner du lenke til generering av din private dekrypteringsnøkkel, "
+"som brukes til opptelling av avstemmingen."
 
 #: src/web/pages_admin.ml:1180
 msgid "You will then need to send (typically by email) each private credential to the associated voter as written in the file creds.txt."
@@ -1980,7 +2005,7 @@ msgstr ""
 
 #: src/web/pages_admin.ml:2593
 msgid "encrypted tally"
-msgstr ""
+msgstr "kryptert opptelling"
 
 #: src/web/pages_admin.ml:3123 src/web/pages_admin.ml:3073
 msgid "failed"
@@ -2131,6 +2156,8 @@ msgid "you should explain to voters how they are supposed to assign a number to 
 msgstr ""
 
 #: src/web/pages_admin.ml:751
+#, fuzzy
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
 msgstr ""
-
+"din private nøkkel. Du må LAGRE DEN for å kunne delta i avstemmingen, ellers "
+"vil den kanskje kanselleres;"
