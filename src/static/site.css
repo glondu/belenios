@@ -1,71 +1,8 @@
 @import url('style.css');
 @import url('superfish.css');
+@import url('common.css');
 
-ol {
-    list-style: decimal;
-}
-ul {
-    list-style: disc;
-}
-#wrapper {
-    min-height: 0px;
-    font-size: 16px;
-}
-#header {
-    color: #ffffff;
-    height: auto;
-}
 #main {
     border-radius: 0px 0px 0px 0px;
     padding: 10px;
-}
-#footer #bottom {
-    line-height: 3em;
-}
-#header a {
-    color: #ffffff;
-}
-button {
-    cursor: pointer;
-}
-.current_step {
-    text-align: center;
-    font-size: 28px;
-    padding-bottom: 28px;
-}
-.hybrid_box {
-    border-style: solid;
-    border-width: 1px;
-    background: #E5E5E5;
-    margin-bottom: 2em;
-    margin-left: 10%;
-    margin-right: 10%;
-    font-size: 80%;
-    padding: 3px;
-    line-height: 2.2ex;
-}
-.nh_explain {
-    font-size: 90%;
-    line-height: 2.2ex;
-    font-style: italic;
-}
-.counting_method_specification {
-    border: 1px groove;
-    margin-bottom: 2ex;
-}
-.result_question {
-    font-weight: bold;
-    font-style: italic;
-}
-.result_jsquery {
-    font-family: monospace;
-    font-size: 90%;
-    background-color: #EEEEEE;
-}
-.lang_box {
-    float: right;
-}
-
-.embedded-login-form {
-    margin: 2em;
 }
