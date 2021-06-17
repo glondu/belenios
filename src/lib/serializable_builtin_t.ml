@@ -83,10 +83,11 @@ let json_of_weight x =
 module Weight = struct
   include Z
 
-  let max_weight = of_string "100000"
+  let max_expanded_weight = of_string "100000"
+
+  let is_int x i = Z.(compare x (of_int i) = 0)
 
   let of_string x = weight_of_json (`String x)
-  let of_int x = weight_of_json (`Int x)
 
   let expand ~total:_ x = x
 

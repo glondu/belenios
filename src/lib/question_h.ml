@@ -444,10 +444,11 @@ module Make (M : RANDOM) (G : GROUP) = struct
     Array.fold_left (Shape.map2 eg_combine) neutral es
 
   let compute_result ~num_tallied =
+    let num_tallied = Weight.expand ~total:num_tallied num_tallied in
     let log = (* FIXME: use an efficient algorithm *)
       let module GMap = Map.Make(G) in
       let rec loop i cur accu =
-        if Weight.(compare (of_int i) num_tallied <= 0)
+        if Z.(compare (of_int i) num_tallied <= 0)
         then loop (succ i) (cur *~ g) (GMap.add cur i accu)
         else accu
       in

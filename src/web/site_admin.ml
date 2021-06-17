@@ -21,6 +21,8 @@
 
 open Lwt
 open Lwt.Syntax
+open Belenios_platform
+open Platform
 open Belenios
 open Serializable_builtin_t
 open Serializable_j
@@ -919,10 +921,14 @@ let () =
             let voters, total_weight =
               merge_voters se.se_voters voters (fun _ -> None)
             in
-            if Weight.(compare total_weight max_weight > 0) then
-              Printf.ksprintf failwith
-                (f_ "The total weight cannot exceed %s.")
-                Weight.(to_string max_weight);
+            let () =
+              let expanded = Weight.expand ~total:total_weight total_weight in
+              if Z.compare expanded Weight.max_expanded_weight > 0 then
+                Printf.ksprintf failwith
+                  (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
+                  Weight.(to_string total_weight)
+                  (Z.to_string Weight.max_expanded_weight)
+            in
             if not (check_consistency voters) then
               failwith
                 (s_ "The voter list is not consistent (a login or a weight is missing).");
@@ -1367,15 +1373,17 @@ let () =
                let voters, total_weight =
                  merge_voters se.se_voters voters get_password
                in
-               if Weight.(compare total_weight max_weight <= 0) then (
+               let expanded = Weight.expand ~total:total_weight total_weight in
+               if Z.compare expanded Weight.max_expanded_weight <= 0 then (
                  se.se_voters <- voters;
                  redir_preapply election_draft_voters uuid ()
                ) else (
                  Pages_common.generic_page ~title:(s_ "Error")
                    ~service:(preapply ~service:election_draft_voters uuid)
                    (Printf.sprintf
-                      (f_ "The total weight cannot exceed %s.")
-                      Weight.(to_string max_weight)
+                      (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
+                      Weight.(to_string total_weight)
+                      (Z.to_string Weight.max_expanded_weight)
                    ) ()
                  >>= Html.send
                )

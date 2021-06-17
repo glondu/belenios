@@ -415,11 +415,8 @@ let get_ballots_index uuid =
        match Yojson.Safe.from_string index with
        | `Assoc index ->
           List.map
-            (function
-             | (hash, `Int weight) -> hash, Weight.of_int weight
-             | (hash, `Intlit weight) -> hash, Weight.of_string weight
-             | _ -> failwith "anomaly in get_ballots_index (int expected)"
-            ) index
+            (fun (hash, weight) -> hash, weight_of_json weight)
+            index
        | _ -> failwith "anomaly in get_ballots_index (assoc expected)"
      in
      return index
@@ -832,19 +829,30 @@ let compute_audit_cache uuid =
      in
      let total_weight, min_weight, max_weight =
        let open Weight in
-       List.fold_left
-         (fun (tw, minw, maxw) voter ->
-           let _, _, weight = split_identity voter in
-           tw + weight, min minw weight, max maxw weight
-         ) (zero, max_weight, zero) voters
+       let min a b =
+         match a with
+         | None -> Some b
+         | Some a -> Some (min a b)
+       and max a b =
+         match a with
+         | None -> Some b
+         | Some a -> Some (max a b)
+       in
+       match
+         List.fold_left
+           (fun (tw, minw, maxw) voter ->
+             let _, _, weight = split_identity voter in
+             tw + weight, min minw weight, max maxw weight
+           ) (zero, None, None) voters
+       with
+       | tw, Some minw, Some maxw -> tw, minw, maxw
+       | _ -> failwith "no voters"
      in
      let cache_num_voters = List.length voters in
-     let num_voters = Weight.of_int cache_num_voters in
      let cache_total_weight, cache_min_weight, cache_max_weight =
-       if Weight.(compare total_weight num_voters > 0) then (
+       if not Weight.(is_int total_weight cache_num_voters) then (
          Some total_weight, Some min_weight, Some max_weight
        ) else (
-         assert Weight.(compare total_weight num_voters = 0);
          None, None, None
        )
      in

@@ -39,15 +39,14 @@ module Weight : sig
   type t
   val zero : t
   val one : t
-  val max_weight : t
-  val compare : t -> t -> int
+  val is_int : t -> int -> bool
   val ( + ) : t -> t -> t
   val expand : total:t -> t -> Z.t
+  val max_expanded_weight : Z.t
   val min : t -> t -> t
   val max : t -> t -> t
   val of_string : string -> t
   val to_string : t -> string
-  val of_int : int -> t
 end
 
 type weight = Weight.t
