@@ -39,12 +39,10 @@ module Weight : sig
   type t
   val zero : t
   val one : t
-  val two : t
   val max_weight : t
   val compare : t -> t -> int
   val ( + ) : t -> t -> t
-  val ( / ) : t -> t -> t
-  val ( mod ) : t -> t -> t
+  val expand : total:t -> t -> Z.t
   val min : t -> t -> t
   val max : t -> t -> t
   val of_string : string -> t

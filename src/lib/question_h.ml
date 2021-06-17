@@ -429,14 +429,18 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let process_ciphertexts q es =
     let neutral = SArray (Array.make (question_length q) (SAtomic dummy_ciphertext)) in
     let ( * ) = Shape.map2 eg_combine in
+    let two = Z.of_int 2 in
     let rec power b n =
-      let open Weight in
-      if compare n zero > 0 then (
-        let x = power b (n / two) in
-        (if compare (n mod two) one = 0 then b else neutral) * x * x
+      if Z.(compare n zero) > 0 then (
+        let x = power b Z.(n / two) in
+        (if Z.(compare (n mod two) one) = 0 then b else neutral) * x * x
       ) else neutral
     in
-    let es = Array.map (fun (w, b) -> power b w) es in
+    let total =
+      let open Weight in
+      Array.fold_left (fun a (w, _) -> a + w) zero es
+    in
+    let es = Array.map (fun (w, b) -> power b (Weight.expand ~total w)) es in
     Array.fold_left (Shape.map2 eg_combine) neutral es
 
   let compute_result ~num_tallied =
