@@ -26,7 +26,7 @@
  (synopsis "Definition of the Belenios platform"))
 
 (package
- (name belenios)
+ (name belenios-lib)
  (synopsis "Belenios library")
  (depends
   (yojson (>= 1.7.0))
@@ -39,16 +39,23 @@
  (depends
   (cmdliner (>= 1.0.4))
   (belenios-platform-native (= :version))
-  (belenios (= :version))))
+  (belenios-lib (= :version))))
 
 (package
  (name belenios-server)
  (synopsis "Belenios server")
  (depends
   (belenios-platform-native (= :version))
-  (belenios (= :version))
+  (belenios-lib (= :version))
   (lwt (>= 5.3.0))
   (calendar (>= 2.04))
   (csv (>= 2.4))
   (eliom (>= 8.4.8))
   (ocamlnet (>= 4.1.9-1))))
+
+(package
+ (name belenios)
+ (synopsis "Belenios meta-package")
+ (depends
+  (belenios-tool (= :version))
+  (belenios-server (= :version))))

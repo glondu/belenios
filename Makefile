@@ -1,7 +1,7 @@
 DUNE_DEBUG_ARGS := --build-dir=_build-debug
 
 minimal:
-	dune build -p belenios-platform,belenios-platform-native,belenios,belenios-tool
+	dune build -p belenios-platform,belenios-platform-native,belenios-lib,belenios-tool
 
 build-debug-server:
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS)
@@ -19,9 +19,9 @@ build-release-server:
 	git archive --prefix="belenios-$(shell git describe --tags)/" HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
 build-debug-tool:
-	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS) -p belenios-platform,belenios-platform-native,belenios,belenios-tool
+	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS) -p belenios-platform,belenios-platform-native,belenios-lib,belenios-tool
 	rm -rf _run/tool-debug
-	dune install $(DUNE_DEBUG_ARGS) --destdir=_run/tool-debug --prefix=/ belenios-platform belenios-platform-native belenios belenios-tool 2>/dev/null
+	dune install $(DUNE_DEBUG_ARGS) --destdir=_run/tool-debug --prefix=/ belenios-platform belenios-platform-native belenios-lib belenios-tool 2>/dev/null
 
 check:
 	$(MAKE) build-debug-tool

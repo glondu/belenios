@@ -9,7 +9,7 @@ depends: [
   "dune" {>= "2.7"}
   "cmdliner" {>= "1.0.4"}
   "belenios-platform-native" {= version}
-  "belenios" {= version}
+  "belenios-lib" {= version}
   "odoc" {with-doc}
 ]
 build: [
