@@ -59,7 +59,7 @@ let default_question () =
   if !hybrid_mode then default_question_nh else default_question_h
 
 let default_mj_specification =
-  "{\"type\":\"MajorityJudgment\",\"blank\":true,\"grades\":[\"Excellent\",\"Good\",\"Bad\",\"Reject\"]}"
+  "{\"type\":\"ScoreVoting\",\"blank\":true,\"grades\":[\"Excellent\",\"Good\",\"Bad\",\"Reject\"],\"method\":\"MajorityJudgment\"}"
 
 (* Getting the OCaml structure out of the DOM *)
 

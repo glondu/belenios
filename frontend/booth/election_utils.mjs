@@ -15,7 +15,7 @@ const detectQuestionType = (question) => {
     if(question.hasOwnProperty("extra") && question.extra.hasOwnProperty("type")){
       const questionSubType = question.extra.type;
       const preciseErrorText = `This booth does not know how to render questions of type "${questionSubType}".`;
-      if (questionSubType == "MajorityJudgment"){
+      if (questionSubType == "ScoreVoting"){
         return QuestionTypeEnum.MAJORITY_JUDGMENT;
       }
       else if (questionSubType == "PreferenceOrdering"){ // TODO: verify type name, once backend transmits this piece of information

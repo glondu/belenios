@@ -70,7 +70,7 @@ let get_counting_method extra =
   let open Question_nh_j in
   match extra with
   | Some (`Assoc o as extra) ->
-     (match List.assoc_opt "type" o with
+     (match List.assoc_opt "method" o with
       | Some (`String "MajorityJudgment") ->
          (match extra |> Yojson.Safe.to_string |> mj_extra_of_string with
           | x -> `MajorityJudgment x
