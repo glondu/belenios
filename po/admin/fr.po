@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-06-17 12:32+0000\n"
-"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"PO-Revision-Date: 2021-06-21 09:46+0000\n"
+"Last-Translator: Stéphane Glondu <steph@glondu.net>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
 "Language: fr\n"
@@ -1319,7 +1319,7 @@ msgstr "Reporter la publication jusqu'à"
 
 #: src/tool/tool_js_questions.ml:287
 msgid "Prefill with Majority Judgment"
-msgstr "Pré-remplir avec le jugement de la majorité"
+msgstr "Pré-remplir avec le Jugement Majoritaire"
 
 #: src/web/pages_admin.ml:393
 msgid "Preparation of election %s"
