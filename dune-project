@@ -3,7 +3,6 @@
 (version 1.12)
 
 (generate_opam_files true)
-(allow_approximate_merlin)
 
 (license AGPL-3)
 (authors "Stéphane Glondu")
