@@ -1779,11 +1779,11 @@ let () =
       match result with
       | None -> fail_http 404
       | Some result ->
-         let full = Shape.to_shape_array result.result in
+         let full = result.result in
          if index < 0 || index >= Array.length full then
            fail_http 404
          else
-           String.send (string_of_raw_result full.(index), "application/json")
+           String.send (string_of_question_result full.(index), "application/json")
     )
 
 let copy_file src dst =

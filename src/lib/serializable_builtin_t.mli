@@ -42,6 +42,7 @@ module Weight : sig
   val is_int : t -> int -> bool
   val ( + ) : t -> t -> t
   val expand : total:t -> t -> Z.t
+  val reduce : total:t -> Z.t -> t
   val max_expanded_weight : Z.t
   val min : t -> t -> t
   val max : t -> t -> t
@@ -62,3 +63,10 @@ val extract_weight : string -> string * Weight.t
 
 val split_identity : string -> string * string * Weight.t
 val split_identity_opt : string -> string * string option * Weight.t option
+
+type question_result =
+  | RHomomorphic of weight array
+  | RNonHomomorphic of int array array
+
+val question_result_of_json : Yojson.Safe.t -> question_result
+val json_of_question_result : question_result -> Yojson.Safe.t

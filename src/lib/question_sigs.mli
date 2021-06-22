@@ -34,6 +34,6 @@ module type QUESTION = sig
   val extract_ciphertexts : question -> answer -> elt ciphertext shape
   val process_ciphertexts : question -> (Weight.t * elt ciphertext shape) array -> elt ciphertext shape
 
-  val compute_result : num_tallied:Weight.t -> question -> elt shape -> int shape
-  val check_result : question -> elt shape -> int shape -> bool
+  val compute_result : num_tallied:Weight.t -> question -> elt shape -> question_result
+  val check_result : num_tallied:Weight.t -> question -> elt shape -> question_result -> bool
 end

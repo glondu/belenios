@@ -109,9 +109,8 @@ let majority_judgment_content l q r =
 
 let format_question_result uuid l (i, q) r =
   let open (val l : Web_i18n_sig.GETTEXT) in
-  match q with
-  | Question.Homomorphic x ->
-     let r = Shape.to_array r in
+  match q, r with
+  | Question.Homomorphic x, RHomomorphic r ->
      let open Question_h_t in
      let answers = Array.to_list x.q_answers in
      let answers = match x.q_blank with
@@ -120,7 +119,7 @@ let format_question_result uuid l (i, q) r =
      in
      let answers =
        List.mapi (fun j x ->
-           tr [td [txt x]; td [txt @@ string_of_int r.(j)]]
+           tr [td [txt x]; td [txt @@ Weight.to_string r.(j)]]
          ) answers
      in
      let answers =
@@ -135,18 +134,13 @@ let format_question_result uuid l (i, q) r =
          div ~a:[a_class ["result_question"]] [txt x.q_question];
          answers;
        ]
-  | Question.NonHomomorphic (q, extra) ->
+  | Question.NonHomomorphic (q, extra), RNonHomomorphic ballots ->
      let open Question_nh_t in
      let applied_counting_method, show_others =
        match Question.get_counting_method extra with
        | `None -> txt "", true
        | `MajorityJudgment o ->
           let ngrades = Array.length o.mj_extra_grades in
-          let ballots =
-            r
-            |> Shape.to_shape_array
-            |> Array.map Shape.to_array
-          in
           let nchoices = Array.length q.Question_nh_t.q_answers in
           let mj = Majority_judgment.compute ~nchoices ~ngrades ballots in
           let contents = majority_judgment_content l q mj in
@@ -179,6 +173,7 @@ let format_question_result uuid l (i, q) r =
              others;
            ];
        ]
+  | _ -> failwith "format_question_result"
 
 let election_home election state () =
   let* l = get_preferred_gettext () in
@@ -278,7 +273,6 @@ let election_home election state () =
     in
     match result with
     | Some r when hidden = None || is_admin ->
-       let result = Shape.to_shape_array r.result in
        let* hashes = Web_persist.get_ballot_hashes uuid in
        let nballots = List.length hashes in
        let div_total_weight =
@@ -294,7 +288,7 @@ let election_home election state () =
        in
        return @@ div [
          ul (
-             Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) election.e_params.e_questions) result
+             Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) election.e_params.e_questions) r.result
              |> Array.to_list
            );
          div [

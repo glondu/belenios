@@ -77,11 +77,17 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let compute_result ~num_tallied:_ q x =
     let n = Array.length q.q_answers in
-    let rec aux = function
-      | SAtomic x -> SArray (Array.map (fun x -> SAtomic x) (G.to_ints n x))
-      | SArray xs -> SArray (Array.map aux xs)
-    in aux x
+    match x with
+    | SArray xs ->
+       xs
+       |> Array.map
+            (function
+             | SAtomic x -> G.to_ints n x
+             | _ -> invalid_arg "Question_nh.compute_result/1"
+            )
+       |> (fun x -> RNonHomomorphic x)
+    | _ -> invalid_arg "Question_nh.compute_result/2"
 
-  let check_result q x r =
-    r = compute_result ~num_tallied:0 q x
+  let check_result ~num_tallied q x r =
+    r = compute_result ~num_tallied q x
 end

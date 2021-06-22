@@ -280,10 +280,10 @@ let handle_method uuid question f =
               let* result = Web_persist.get_election_result uuid in
               match result with
               | Some result ->
-                 (Shape.to_shape_array result.result).(question)
-                 |> Shape.to_shape_array
-                 |> Array.map Shape.to_array
-                 |> continuation
+                 (match result.result.(question) with
+                  | RNonHomomorphic ballots -> continuation ballots
+                  | _ -> failwith "handle_method"
+                 )
               | None ->
                  Pages_common.generic_page ~title:(s_ "Error")
                    (s_ "The result of this election is not available.") ()

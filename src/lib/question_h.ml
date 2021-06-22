@@ -443,13 +443,14 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let es = Array.map (fun (w, b) -> power b (Weight.expand ~total w)) es in
     Array.fold_left (Shape.map2 eg_combine) neutral es
 
-  let compute_result ~num_tallied =
-    let num_tallied = Weight.expand ~total:num_tallied num_tallied in
+  let compute_result ~num_tallied:total =
+    let num_tallied = Weight.expand ~total total in
     let log = (* FIXME: use an efficient algorithm *)
       let module GMap = Map.Make(G) in
       let rec loop i cur accu =
-        if Z.(compare (of_int i) num_tallied <= 0)
-        then loop (succ i) (cur *~ g) (GMap.add cur i accu)
+        let z = Z.of_int i in
+        if Z.(compare z num_tallied <= 0)
+        then loop (succ i) (cur *~ g) (GMap.add cur z accu)
         else accu
       in
       let map = loop 0 G.one GMap.empty in
@@ -459,12 +460,19 @@ module Make (M : RANDOM) (G : GROUP) = struct
         | None -> invalid_arg "Cannot compute result"
     in
     fun _ x ->
-    Shape.map log x
+    Shape.to_array x
+    |> Array.map (fun i -> Weight.reduce ~total (log i))
+    |> (fun x -> RHomomorphic x)
 
-  let check_result _ x r =
-    Shape.forall2 (fun x r ->
-        let g' = if r = 0 then G.one else g **~ Z.of_int r in
-        x =~ g'
-      ) x r
+  let check_result ~num_tallied _ x r =
+    match r with
+    | RHomomorphic r ->
+       Array.forall2
+         (fun x r ->
+           let r = Weight.expand ~total:num_tallied r in
+           let g' = if Z.compare r Z.zero = 0 then G.one else g **~ r in
+           x =~ g'
+         ) (Shape.to_array x) r
+    | _ -> false
 
 end

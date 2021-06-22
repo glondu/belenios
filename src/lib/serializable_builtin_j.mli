@@ -40,3 +40,8 @@ val read_shape : (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) -> Yojson.Safe
 
 val write_weight : Bi_outbuf.t -> weight -> unit
 val read_weight : Yojson.Safe.lexer_state -> Lexing.lexbuf -> weight
+
+(** {1 Serializers for type question_result} *)
+
+val write_question_result : Bi_outbuf.t -> question_result -> unit
+val read_question_result : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question_result

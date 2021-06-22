@@ -91,6 +91,8 @@ module Weight = struct
 
   let expand ~total:_ x = x
 
+  let reduce ~total:_ x = x
+
   let min a b =
     if compare a b < 0 then a else b
 
@@ -124,3 +126,43 @@ let split_identity_opt x =
      (if login = "" then None else Some login),
      Some (Weight.of_string weight)
   | _ -> failwith "Common.split_identity_opt"
+
+type question_result =
+  | RHomomorphic of weight array
+  | RNonHomomorphic of int array array
+
+let question_result_of_json = function
+  | `List (`List _ :: _ as xs) ->
+     Array.of_list xs
+     |> Array.map
+          (function
+           | `List ys ->
+              Array.of_list ys
+              |> Array.map
+                   (function
+                    | `Int i -> i
+                    | _ -> failwith "question_result_of_json/1"
+                   )
+           | _ -> failwith "question_result_of_json/2"
+          )
+     |> (fun x -> RNonHomomorphic x)
+  | `List xs ->
+     Array.of_list xs
+     |> Array.map weight_of_json
+     |> (fun x -> RHomomorphic x)
+  | _ -> failwith "question_result_of_json/3"
+
+let json_of_question_result = function
+  | RHomomorphic xs ->
+     xs
+     |> Array.map json_of_weight
+     |> (fun x -> `List (Array.to_list x))
+  | RNonHomomorphic xs ->
+     xs
+     |> Array.map
+          (fun ys ->
+            ys
+            |> Array.map (fun i -> `Int i)
+            |> (fun y -> `List (Array.to_list y))
+          )
+     |> (fun x -> `List (Array.to_list x))

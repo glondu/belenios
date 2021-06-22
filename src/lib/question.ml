@@ -159,8 +159,8 @@ module Make (M : RANDOM) (G : GROUP) = struct
     | Homomorphic q -> Lazy.force compute_h q x
     | NonHomomorphic (q, _) -> QNonHomomorphic.compute_result ~num_tallied q x
 
-  let check_result q x r =
+  let check_result ~num_tallied q x r =
     match q with
-    | Homomorphic q -> QHomomorphic.check_result q x r
-    | NonHomomorphic (q, _) -> QNonHomomorphic.check_result q x r
+    | Homomorphic q -> QHomomorphic.check_result ~num_tallied q x r
+    | NonHomomorphic (q, _) -> QNonHomomorphic.check_result ~num_tallied q x r
 end

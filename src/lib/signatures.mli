@@ -146,9 +146,6 @@ module type ELECTION = sig
       tallied ballots. May raise [Invalid_argument]. *)
 
   val check_result : elt trustees -> result -> bool
-
-  val extract_tally : result -> int shape
-  (** Extract the plaintext result of the election. *)
 end
 
 module type PKI = sig

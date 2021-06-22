@@ -70,3 +70,11 @@ let write_weight buf x =
 
 let read_weight state buf =
   weight_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
+
+(** {1 Serializers for type question_result} *)
+
+let write_question_result buf x =
+  Yojson.Safe.write_t buf (json_of_question_result x)
+
+let read_question_result state buf =
+  question_result_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
