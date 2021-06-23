@@ -211,4 +211,6 @@ module Z = struct
 
   let powm = powm_sec (* Warning: no efforts have been made to be
                          constant time in the rest of the code. *)
+
+  let hash_to_int = Z.hash
 end

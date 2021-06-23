@@ -123,6 +123,8 @@ let make group =
       let z = Z.of_hex (sha256_hex x) in
       Z.(z mod q)
 
+    let hash_to_int = Z.hash_to_int
+
     let compare = Z.compare
 
     let get_generator =

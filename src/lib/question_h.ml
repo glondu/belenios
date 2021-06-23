@@ -445,19 +445,13 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let compute_result ~num_tallied:total =
     let num_tallied = Weight.expand ~total total in
-    let log = (* FIXME: use an efficient algorithm *)
-      let module GMap = Map.Make(G) in
-      let rec loop i cur accu =
-        let z = Z.of_int i in
-        if Z.(compare z num_tallied <= 0)
-        then loop (succ i) (cur *~ g) (GMap.add cur z accu)
-        else accu
-      in
-      let map = loop 0 G.one GMap.empty in
+    let log =
+      let module X = BabyStepGiantStep (G) in
+      let log = X.log ~generator:G.g ~max:num_tallied in
       fun x ->
-        match GMap.find_opt x map with
-        | Some x -> x
-        | None -> invalid_arg "Cannot compute result"
+      match log x with
+      | Some x -> x
+      | None -> invalid_arg "Cannot compute result"
     in
     fun _ x ->
     Shape.to_array x

@@ -62,4 +62,5 @@ module Z : sig
   val shift_left : t -> int -> t
   val shift_right : t -> int -> t
   val logand : t -> t -> t
+  val hash_to_int : t -> int
 end

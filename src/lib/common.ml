@@ -21,6 +21,7 @@
 
 open Belenios_platform
 open Platform
+open Signatures_core
 
 module Array = struct
   include Array
@@ -259,4 +260,62 @@ module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
     R.bind (R.random modulus) (fun n ->
         R.return (Printf.sprintf "%0*d" length (Z.to_int n))
       )
+end
+
+let sqrt s =
+  (* https://en.wikipedia.org/wiki/Integer_square_root *)
+  let rec loop x0 =
+    if Z.compare x0 Z.zero > 0 then
+      let x1 = Z.(shift_right (x0 + s / x0) 1) in
+      if Z.compare x1 x0 < 0 then
+        loop x1
+      else x0
+    else x0
+  in
+  loop Z.(shift_right s 1)
+
+module BabyStepGiantStep (G : GROUP) = struct
+  (* https://en.wikipedia.org/wiki/Baby-step_giant-step *)
+  let log ~generator:alpha ~max:n =
+    let m = Z.(to_int (sqrt n + one)) in
+    let table = Hashtbl.create m in
+    let add_to_table x i =
+      let h = G.hash_to_int x in
+      let ii =
+        match Hashtbl.find_opt table h with
+        | None -> []
+        | Some ii -> ii
+      in
+      Hashtbl.add table h (i :: ii)
+    in
+    let rec populate_table j cur =
+      if j < m then (
+        add_to_table cur j;
+        populate_table (j + 1) G.(cur *~ alpha)
+      ) else cur
+    in
+    let inv_alpha_m = G.(invert (populate_table 0 one)) in
+    fun beta ->
+    let rec lookup i gamma =
+      if i < m then (
+        let r =
+          match Hashtbl.find_opt table (G.hash_to_int gamma) with
+          | Some jj ->
+             let rec find = function
+               | [] -> None
+               | j :: jj ->
+                  let r = Z.((of_int i * of_int m + of_int j) mod G.q) in
+                  if G.(alpha **~ r =~ beta) then
+                    Some r
+                  else find jj
+             in
+             find jj
+          | None -> None
+        in
+        match r with
+        | Some r -> Some r
+        | None -> lookup (i + 1) G.(gamma *~ inv_alpha_m)
+      ) else None
+    in
+    lookup 0 beta
 end

@@ -83,6 +83,9 @@ module type GROUP = sig
   (** Hash an array of elements into an integer mod [q]. The string
       argument is a string that is prepended before computing the hash. *)
 
+  val hash_to_int : t -> int
+  (** Hash an element to a small integer. *)
+
   val compare : t -> t -> int
   (** A total ordering over the elements of the group. *)
 
