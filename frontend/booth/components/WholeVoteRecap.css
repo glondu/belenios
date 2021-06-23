@@ -21,6 +21,22 @@
   padding-bottom: 0;
 }
 
+.preferential-voting-vote-recap__preference-level {
+  border-radius: 6px;
+  padding: 5px 10px;
+  margin-bottom: 12px;
+  border: 1px solid lightgray;
+}
+
+.preferential-voting-vote-recap__preference-level__title {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.preferential-voting-vote-recap__preference-level__candidates {
+  padding-left: 6px;
+}
+
 .classic-vote-recap:last-child {
   margin-bottom: 10px;
   padding-bottom: 5px;

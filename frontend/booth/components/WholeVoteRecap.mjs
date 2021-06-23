@@ -1,31 +1,20 @@
 import { QuestionTypeEnum } from "../election_utils.mjs";
 import ClassicVoteRecap from "./ClassicVoteRecap.mjs";
 import MajorityJudgmentVoteRecap from "./MajorityJudgmentVoteRecap.mjs";
+import PreferentialVotingVoteRecap from "./PreferentialVotingVoteRecap.mjs";
 
 function TranslatableWholeVoteRecap({ electionObject=null, uncryptedBallot=[], t }){
   const renderedQuestions = electionObject.questions.map(function(question, question_index){
     const questionType = question.type;
-    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
-      return e(
-        MajorityJudgmentVoteRecap,
-        {
-          question,
-          question_index,
-          uncryptedBallot,
-          t
-        }
-      );
+    let questionRecapComponent;
+    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
+      questionRecapComponent = MajorityJudgmentVoteRecap;
     }
-    else if (questionType == QuestionTypeEnum.CLASSIC){
-      return e(
-        ClassicVoteRecap,
-        {
-          question,
-          question_index,
-          uncryptedBallot,
-          t
-        }
-      );
+    else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
+      questionRecapComponent = PreferentialVotingVoteRecap;
+    }
+    else if (questionType === QuestionTypeEnum.CLASSIC){
+      questionRecapComponent = ClassicVoteRecap;
     }
     else {
       return e(
@@ -34,6 +23,15 @@ function TranslatableWholeVoteRecap({ electionObject=null, uncryptedBallot=[], t
         "Error: Unknown question type."
       );
     }
+    return e(
+      questionRecapComponent,
+      {
+        question,
+        question_index,
+        uncryptedBallot,
+        t
+      }
+    );
   });
   return e(
     "div",

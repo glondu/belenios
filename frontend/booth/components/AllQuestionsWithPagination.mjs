@@ -157,7 +157,7 @@ function TranslatableAllQuestionsWithPagination(props){
     vote_of_voter_per_question = props.electionObject.questions.map(function(question, question_index){
       let answers_to_question = [];
       const questionType = question.type;
-      if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
+      if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT || questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
         let question_answers = question.answers;
         // Handle blank vote: if (on this question) blank vote is allowed and user has voted blank, then we represent user's vote (to this question) as an array of zeros of length `question_answers.length`
         const user_has_voted_blank = question.blankVoteIsAllowed && current_user_vote_for_all_questions[question_index].length === question.answers.length + 1 && current_user_vote_for_all_questions[question_index][question.answers.length] === 1;
@@ -165,11 +165,8 @@ function TranslatableAllQuestionsWithPagination(props){
           answers_to_question = question_answers.map(el => { return 0; });
         }
         else {
-          answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as "vote nul" in French (invalid vote), and voting 0 to every candidate being interpreted as voting blank to this question).
+          answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects Majority Judgement grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as "vote nul" in French (invalid vote), and voting 0 to every candidate being interpreted as voting blank to this question). And Belenios backend expects Preferential Voting rank associated to each candidate to also start at 1, 1 being the most preferred (and 0 being interpreted as "not ranked", and voting 0 to every candidate being interpreted as voting blank to this question).
         }
-      }
-      else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
-        // TODO
       }
       else if (questionType === QuestionTypeEnum.CLASSIC){
         let question_answers = question.answers;
