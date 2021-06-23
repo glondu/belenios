@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_platform
+open Platform
 open Signatures_core
 
 module Array : sig
@@ -75,8 +76,8 @@ val compare_b64 : string -> string -> int
 module SSet : Set.S with type elt = string
 module SMap : Map.S with type key = string
 
-val bytes_to_sample : Platform.Z.t -> int
-val check_modulo : Platform.Z.t -> Platform.Z.t -> bool
+val bytes_to_sample : Z.t -> int
+val check_modulo : Z.t -> Z.t -> bool
 
 module DirectRandom : RANDOM with type 'a t = 'a
 
