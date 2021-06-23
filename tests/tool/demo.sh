@@ -31,11 +31,11 @@ group="--group $BELENIOS/files/groups/default.json"
 
 # Generate credentials
 cat > voters.txt <<EOF
-voter1@example.com,voter1,1000
-voter2@example.com,voter2,2000
-voter3@example.com,voter3,3000
-voter4@example.com,voter4,4000
-voter5@example.com,voter5,90000
+voter1@example.com,voter1,1000000000
+voter2@example.com,voter2,2000000000
+voter3@example.com,voter3,3000000000
+voter4@example.com,voter4,4000000000
+voter5@example.com,voter5,90000000000
 EOF
 belenios-tool credgen $uuid $group --file voters.txt
 mv *.pubcreds public_creds.txt
@@ -104,7 +104,7 @@ belenios-tool verify
 header "Check result"
 
 cat > result.reference <<EOF
-[[7000,3000],[5000,92000,3000]]
+[["7000000000","3000000000"],["5000000000","92000000000","3000000000"]]
 EOF
 
 if command -v jq > /dev/null; then
