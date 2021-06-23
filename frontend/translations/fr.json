@@ -26,6 +26,7 @@
   "electionFingerprint": "Empreinte de l'élection : {{fingerprint}}",
   "Election server": "Serveur d'élections",
   "majorityJudgmentQuestionDescription": "Veuillez qualifier chaque candidat avant de passer à l'étape suivante.",
+  "preferentialVotingQuestionDescription": "Veuillez classer chaque candidat avant de passer à l'étape suivante.",
   "selectXAnswers": "Veuillez sélectionner {{count}} réponse.",
   "selectXAnswers_plural": "Veuillez sélectionner {{count}} réponses.",
   "selectBetweenXAndYAnswers": "$t(selectBetweenX, {\"count\": {{min}} }) et {{count}} réponse.",

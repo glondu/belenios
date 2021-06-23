@@ -91,7 +91,7 @@ function TranslatableAllQuestionsWithPagination(props){
   };
   const initialVoteForAllQuestions = props.electionObject.questions.map((question, question_index) => {
     const questionType = question.type;
-    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT || questionType == QuestionTypeEnum.CLASSIC){
+    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT || questionType === QuestionTypeEnum.PREFERENTIAL_VOTING || questionType === QuestionTypeEnum.CLASSIC){
       return question.answers.map(computeInitialVoteToQuestionFromAvailableAnswersMapFunction);
     }
     return [];
@@ -102,6 +102,15 @@ function TranslatableAllQuestionsWithPagination(props){
       case 'saveVoteForCandidateInQuestion':
         updatedVoteToAllQuestions = deepCloneArray(state);
         updatedVoteToAllQuestions[action.question_index][action.candidate_index] = action.user_vote_for_candidate;
+        dispatch_current_alerts_for_all_questions({
+          type: 'resetAllAlertsInQuestion',
+          question_index: action.question_index
+        });
+        return updatedVoteToAllQuestions;
+        break;
+      case 'saveVoteForAllCandidatesInQuestion':
+        updatedVoteToAllQuestions = deepCloneArray(state);
+        updatedVoteToAllQuestions[action.question_index] = action.user_vote_for_all_candidates_in_question;
         dispatch_current_alerts_for_all_questions({
           type: 'resetAllAlertsInQuestion',
           question_index: action.question_index
@@ -128,7 +137,7 @@ function TranslatableAllQuestionsWithPagination(props){
     }
   };
   const [current_user_vote_for_all_questions, dispatch_current_user_vote_for_all_questions] = React.useReducer(currentUserVoteForAllQuestionsReducer, initialVoteForAllQuestions);
-  // TODO: handle local saving of blank vote, probably in another data structure?
+  // Voter's current vote at current state of completion is stored in variable `current_user_vote_for_all_questions` (to all questions), including the information about whether or not he voted blank for a question. An idea of refactoring is to split information about voter's blank votes to another variable which would have its own data structure.
 
   // --------------------
   // End of definition of component state
@@ -158,6 +167,9 @@ function TranslatableAllQuestionsWithPagination(props){
         else {
           answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as "vote nul" in French (invalid vote), and voting 0 to every candidate being interpreted as voting blank to this question).
         }
+      }
+      else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
+        // TODO
       }
       else if (questionType === QuestionTypeEnum.CLASSIC){
         let question_answers = question.answers;
@@ -203,7 +215,7 @@ function TranslatableAllQuestionsWithPagination(props){
     const voter_selected_answers_as_uncrypted_ballot = convertStateToUncryptedBallot();
     const questionType = current_question_data.type;
     let user_vote_to_question_is_valid = true;
-    if (questionType == QuestionTypeEnum.MAJORITY_JUDGMENT){
+    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
       // verify that user has selected a grade for all candidates (in majority judgment, it is not accepted to select a grade for only some candidates)
       const user_has_voted_blank = current_question_data.blankVoteIsAllowed && current_user_vote_for_all_questions[current_question_index].length > current_question_data.answers.length && current_user_vote_for_all_questions[current_question_index][current_question_data.answers.length] === 1;
       if (!user_has_voted_blank){
@@ -221,7 +233,10 @@ function TranslatableAllQuestionsWithPagination(props){
         });
       }
     }
-    else if (questionType == QuestionTypeEnum.CLASSIC){
+    else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
+      // TODO
+    }
+    else if (questionType === QuestionTypeEnum.CLASSIC){
       // Before moving on to next question, verify that user input respects question constraints:
       // - if blank vote is allowed on this question and user voted blank, then verify that no other answer is checked
       // - if this question accepts between X and Y answers and user has not voted blank, verify that user has not checked less than X answers, nor more than Y answers

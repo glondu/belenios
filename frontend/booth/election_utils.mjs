@@ -1,7 +1,8 @@
 const QuestionTypeEnum = Object.freeze(
   {
     "CLASSIC": "CLASSIC", // In this question type, voter can select between `questions[i].min` and `questions[i].max` answers, or optionally vote blank (if `questions[i].blank` is true). Question's title is available as `questions[i].question`. Available answers or candidates are each element of array `questions[i].answers`.
-    "MAJORITY_JUDGMENT": "MAJORITY_JUDGMENT" // In this question type, voter must associate a grade (represented by a number) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`.
+    "MAJORITY_JUDGMENT": "MAJORITY_JUDGMENT", // In this question type, voter must associate a grade (represented by a number) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`.
+    "PREFERENTIAL_VOTING": "PREFERENTIAL_VOTING" // In this question type, voter must associate a rank (represented by a number, 1 being the most preferred, and a bigger number being less preferred ; blank vote and equality are accepted) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`
   }
 );
 
@@ -18,8 +19,8 @@ const detectQuestionType = (question) => {
       if (questionSubType == "ScoreVoting"){
         return QuestionTypeEnum.MAJORITY_JUDGMENT;
       }
-      else if (questionSubType == "PreferenceOrdering"){ // TODO: verify type name, once backend transmits this piece of information
-        throw preciseErrorText; // TODO: return QuestionTypeEnum.PREFERENCE_ORDERING;
+      else if (questionSubType == "PreferentialVoting"){ // TODO: verify type name, once backend transmits this piece of information
+        return QuestionTypeEnum.PREFERENTIAL_VOTING;
       }
       else {
         throw preciseErrorText;
@@ -35,14 +36,16 @@ class ElectionQuestion {
   constructor(questionData) {
     this.questionData = questionData;
     this.type = detectQuestionType(this.questionData);
-    if (this.type == QuestionTypeEnum.MAJORITY_JUDGMENT){
+    if (this.type === QuestionTypeEnum.MAJORITY_JUDGMENT || this.type === QuestionTypeEnum.PREFERENTIAL_VOTING){
       this.title = this.questionData.value.question;
       this.answers = this.questionData.value.answers;
       this.candidates = this.questionData.value.answers;
-      this.availableGrades = this.questionData.extra.grades;
       this.blankVoteIsAllowed = "extra" in this.questionData && "blank" in this.questionData.extra && this.questionData.extra.blank === true;
+      if (this.type === QuestionTypeEnum.MAJORITY_JUDGMENT){
+        this.availableGrades = this.questionData.extra.grades;
+      }
     }
-    else if (this.type == QuestionTypeEnum.CLASSIC){
+    else if (this.type === QuestionTypeEnum.CLASSIC){
       this.title = this.questionData.question;
       this.answers = this.questionData.answers;
       this.blankVoteIsAllowed = "blank" in this.questionData && this.questionData["blank"] === true;

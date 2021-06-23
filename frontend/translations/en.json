@@ -26,6 +26,7 @@
   "electionFingerprint": "Election fingerprint: {{fingerprint}}",
   "Election server": "Election server",
   "majorityJudgmentQuestionDescription": "Please grade each candidate before moving on to next step.",
+  "preferentialVotingQuestionDescription": "Please rank each candidate before moving on to next step.",
   "selectXAnswers": "Please select {{count}} answer.",
   "selectXAnswers_plural": "Please select {{count}} answers.",
   "selectBetweenXAndYAnswers": "$t(selectBetweenX, {\"count\": {{min}} }) and {{count}} answer.",

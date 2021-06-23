@@ -1,5 +1,6 @@
 import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesList.mjs"; // FIXME: We have to import TranslatableClassicVoteCandidatesList instead of ClassicVoteCandidatesList, because otherwise Storybook throws a hook error.
 import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.mjs";
+import { TranslatablePreferentialVotingCandidatesList } from "./PreferentialVotingCandidatesList.mjs";
 import { QuestionTypeEnum, detectQuestionType } from "../election_utils.mjs";
 
 function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteIsAllowed, identifierPrefix, visible, currentUserVoteForQuestion, currentAlertsTextsForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
@@ -14,6 +15,21 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
         candidates: answers,
         blankVoteIsAllowed,
         availableGrades,
+        currentUserVoteForQuestion,
+        currentCandidatesHavingAlertsForQuestion,
+        dispatchUpdateUserVoteForQuestion,
+        t
+      }
+    );
+  }
+  else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
+    description = t("preferentialVotingQuestionDescription");
+    rendered_answers = e(
+      TranslatablePreferentialVotingCandidatesList,
+      {
+        identifierPrefix,
+        candidates: answers,
+        blankVoteIsAllowed,
         currentUserVoteForQuestion,
         currentCandidatesHavingAlertsForQuestion,
         dispatchUpdateUserVoteForQuestion,
