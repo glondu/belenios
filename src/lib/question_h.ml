@@ -429,11 +429,10 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let process_ciphertexts q es =
     let neutral = SArray (Array.make (question_length q) (SAtomic dummy_ciphertext)) in
     let ( * ) = Shape.map2 eg_combine in
-    let two = Z.of_int 2 in
     let rec power b n =
       if Z.(compare n zero) > 0 then (
-        let x = power b Z.(n / two) in
-        (if Z.(compare (n mod two) one) = 0 then b else neutral) * x * x
+        let x = power b Z.(shift_right n 1) in
+        (if Z.(compare (logand n one) one) = 0 then b else neutral) * x * x
       ) else neutral
     in
     let total =
