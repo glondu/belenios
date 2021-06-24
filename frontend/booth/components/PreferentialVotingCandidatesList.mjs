@@ -7,7 +7,8 @@ const buildColumnLabel = (column, columnOrderIndex) => {
   return column.title ? column.title : `Préférence ${columnOrderIndex+1}`; // TODO: i18n
 };
 
-const PreferenceLevelCreatorButton = ({onClick}) => {
+const PreferenceLevelCreatorButton = ({onClick, disabled}) => {
+  const cssClass = "preferential-voting-ui__level-creator__add-icon";
   return e(
     "div",
     {
@@ -16,8 +17,8 @@ const PreferenceLevelCreatorButton = ({onClick}) => {
     e(
       "span",
       {
-        className: "preferential-voting-ui__level-creator__add-icon clickable",
-        onClick: onClick,
+        className: disabled ? cssClass : cssClass + " clickable",
+        onClick: disabled ? null : onClick,
         title: "+ Ajouter ici un niveau de préférence" // TODO: i18n
       },
       "+ Ajouter ici un niveau de préférence" // TODO: i18n
@@ -180,7 +181,8 @@ class PreferentialVotingApp extends React.Component {
             {
               onClick: () => {
                 this.insertPreferenceLevel(index);
-              }
+              },
+              disabled: this.props.disabled
             }
           ),
           e(
@@ -202,7 +204,8 @@ class PreferentialVotingApp extends React.Component {
               otherColumns: otherColumns,
               onSelectCandidateDestinationColumn: (candidateId, sourceColumnCandidateIndex, destinationColumnId) => {
                 this.moveCandidate(candidateId, column.id, destinationColumnId, sourceColumnCandidateIndex, this.state.columns[destinationColumnId].candidatesIds.length);
-              }
+              },
+              disabled: this.props.disabled
             }
           )
         );
@@ -248,7 +251,7 @@ PreferentialVotingApp.defaultProps = {
     },
     columnOrder: ['column-0', 'column-1', 'not-ranked'],
   },
-  blankVoteIsAllowed: false,
+  disabled: false,
   t: function(s){ return s; },
   currentCandidatesHavingAlertsForQuestion: [],
   dispatchUpdateUserVoteForQuestion: () => {}
@@ -262,6 +265,7 @@ function TranslatablePreferentialVotingBigCandidatesList({ identifierPrefix, can
   - show alerts using currentCandidatesHavingAlertsForQuestion
   - implement blank vote using blankVoteIsAllowed and renderedBlankVoteComponent
   */
+  const userHasSelectedBlankVote = blankVoteIsAllowed && (currentUserVoteForQuestion.length > candidates.length) && (currentUserVoteForQuestion[candidates.length] === 1) ? true : false;
   let initialData = {};
   const candidatesForInitialData = candidates.map((candidateLabel, candidateIndex) => {
     return {
@@ -292,6 +296,11 @@ function TranslatablePreferentialVotingBigCandidatesList({ identifierPrefix, can
   // Facilitate reordering of the columns
   initialData.columnOrder = ['column-0', 'column-1', 'not-ranked'];
 
+  let additionalComponents = [];
+  if (blankVoteIsAllowed && renderedBlankVoteComponent){
+    additionalComponents.push(renderedBlankVoteComponent);
+  }
+
   return e(
     "div",
     {
@@ -301,9 +310,11 @@ function TranslatablePreferentialVotingBigCandidatesList({ identifierPrefix, can
       PreferentialVotingApp,
       {
         initialData,
-        dispatchUpdateUserVoteForQuestion
+        dispatchUpdateUserVoteForQuestion,
+        disabled: userHasSelectedBlankVote
       }
-    )
+    ),
+    ...additionalComponents
   );
 }
 

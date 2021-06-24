@@ -21,7 +21,7 @@ const MoveCandidateHandle = (props) => {
   );
 }
 
-const Candidate = ({ candidate, index, otherColumns, onSelectDestinationColumn }) => {
+const Candidate = ({ candidate, index, otherColumns, onSelectDestinationColumn, disabled }) => {
   const otherPreferencesSelectOptions = otherColumns.map(column => {
     return e(
       "option",
@@ -65,7 +65,8 @@ const Candidate = ({ candidate, index, otherColumns, onSelectDestinationColumn }
         {
           className: "preferential-voting__candidate-select-destination",
           onChange: onSelectDestinationColumn,
-          defaultValue: "default"
+          defaultValue: "default",
+          disabled: disabled
         },
         ...otherPreferencesSelectOptions
       )
@@ -76,7 +77,8 @@ const Candidate = ({ candidate, index, otherColumns, onSelectDestinationColumn }
     {
       draggableId: candidate.id,
       index: index,
-      children: children
+      children: children,
+      isDragDisabled: disabled
     }
   );
 }
@@ -94,12 +96,13 @@ const CandidateList = ({innerRef, placeholder, children, ...otherProps}) => {
   );
 };
 
-const DeletePreferenceLevelButton = ({onClick}) => {
+const DeletePreferenceLevelButton = ({onClick, disabled}) => {
+  const cssClass = "preferential-voting__column-actions__action";
   return e(
     "div",
     {
-      className: "preferential-voting__column-actions__action clickable",
-      onClick,
+      className: disabled ? cssClass : cssClass + " clickable",
+      onClick: disabled ? null : onClick,
       title: "Supprimer ce niveau de préférence" // TODO: i18n
     },
     e(
@@ -118,7 +121,7 @@ const DeletePreferenceLevelButton = ({onClick}) => {
 // These candidates can be moved to other columns by drag & drop or using the select box next to each candidate.
 // The user can delete a Column if it contains no candidates.
 // A special kind of Column is when `column.id` is "not-ranked": this Column cannot be deleted.
-const Column = ({ column, label, otherColumns, candidates, onClickDeleteButton, onSelectCandidateDestinationColumn
+const Column = ({ column, label, otherColumns, candidates, onClickDeleteButton, onSelectCandidateDestinationColumn, disabled
  }) => {
   const rendered_candidates = candidates.map((candidate, index) => {
     return e(
@@ -130,7 +133,8 @@ const Column = ({ column, label, otherColumns, candidates, onClickDeleteButton, 
         otherColumns,
         onSelectDestinationColumn: (event) => {
           onSelectCandidateDestinationColumn(candidate.id, index, event.currentTarget.value);
-        }
+        },
+        disabled: disabled
       }
     );
   });
@@ -142,7 +146,8 @@ const Column = ({ column, label, otherColumns, candidates, onClickDeleteButton, 
     e(
       DeletePreferenceLevelButton,
       {
-        onClick: onClickDeleteButton
+        onClick: onClickDeleteButton,
+        disabled: disabled
       }
     )
   );

@@ -48,7 +48,11 @@ function TranslatablePreferentialVotingVoteRecap({ question, question_index, unc
   , 0) === 0){
     renderedGradedCandidates = [e(
       "div",
-      null,
+      {
+        style: {
+          paddingLeft: "40px"
+        }
+      },
       t("Blank vote")
     )];
   }
