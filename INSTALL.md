@@ -60,7 +60,6 @@ gigabytes of disk space.
 If everything goes successfully, follow the given instructions to
 update your shell environment, then run:
 
-    cd frontend && npm install && cd ..
     make build-release-server
 
 and you can skip the next two sections and go directly to the
