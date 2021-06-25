@@ -46,6 +46,9 @@ let get_group x =
     end
   in (module X : ELECTION_DATA)
 
+let parse x =
+  x |> of_string |> get_group
+
 (** Helper functions *)
 
 let has_nh_questions e =

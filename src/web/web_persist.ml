@@ -198,7 +198,7 @@ let get_elections_by_owner user =
                       match election with
                       | None -> return_none
                       | Some election ->
-                         let election = Election.of_string election in
+                         let open (val Election.parse election) in
                          let* dates = get_election_dates uuid in
                          let* kind, date =
                            let* state = get_election_state uuid in
@@ -493,8 +493,7 @@ let compute_encrypted_tally uuid =
   match election with
   | None -> return_none
   | Some election ->
-     let election = Election.of_string election in
-     let module W = (val Election.get_group election) in
+     let module W = (val Election.parse election) in
      let module E = Election.Make (W) (LwtRandom) in
      let* ballots = load_ballots uuid in
      let* ballots =
@@ -531,8 +530,7 @@ let get_nh_ciphertexts uuid =
   match election with
   | None -> Lwt.fail (Failure "get_nh_ciphertexts: election not found")
   | Some election ->
-     let election = Election.of_string election in
-     let module W = (val Election.get_group election) in
+     let module W = (val Election.parse election) in
      let module E = Election.Make (W) (LwtRandom) in
      let* current =
        let* file = read_file ~uuid "shuffles.jsons" in
@@ -600,8 +598,7 @@ let compute_encrypted_tally_after_shuffling uuid =
   match election with
   | None -> return_none
   | Some election ->
-     let election = Election.of_string election in
-     let module W = (val Election.get_group election) in
+     let module W = (val Election.parse election) in
      let module E = Election.Make (W) (LwtRandom) in
      let* file = read_file ~uuid (string_of_election_file ESETally) in
      match file with
@@ -620,8 +617,7 @@ let append_to_shuffles uuid shuffle =
   match election with
   | None -> Lwt.fail (Failure "append_to_shuffles: election not found")
   | Some election ->
-     let election = Election.of_string election in
-     let module W = (val Election.get_group election) in
+     let module W = (val Election.parse election) in
      let module E = Election.Make (W) (LwtRandom) in
      let shuffle = shuffle_of_string E.G.read shuffle in
      Web_election_mutex.with_lock uuid (fun () ->
@@ -802,8 +798,7 @@ let cast_ballot uuid ~rawballot ~user ~weight date =
   match election with
   | None -> Lwt.fail Not_found
   | Some raw_election ->
-     let election = Election.of_string raw_election in
-     let module W = (val Election.get_group election) in
+     let module W = (val Election.parse raw_election) in
      let module E = Election.Make (W) (LwtRandom) in
      Web_election_mutex.with_lock uuid
        (fun () -> do_cast_ballot (module E) ~rawballot ~user ~weight date)

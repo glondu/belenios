@@ -178,6 +178,7 @@ let format_question_result uuid l (i, q) r =
 let election_home election state () =
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let* metadata = Web_persist.get_election_metadata uuid in
@@ -472,6 +473,7 @@ let election_home election state () =
 let cast_raw election () =
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let form_rawballot = post_form ~service:election_submit_ballot
@@ -552,6 +554,7 @@ let cast_raw election () =
 let cast_confirmation election hash () =
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let* user = Web_state.get_election_user uuid in
@@ -685,6 +688,7 @@ let cast_confirmation election hash () =
 let lost_ballot election () =
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let title = election.e_params.e_name in
   let uuid = election.e_params.e_uuid in
   let* metadata = Web_persist.get_election_metadata uuid in
@@ -714,6 +718,7 @@ let lost_ballot election () =
 let cast_confirmed election ~result () =
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let name = params.e_name in
@@ -782,6 +787,7 @@ let cast_confirmed election ~result () =
 let pretty_ballots election hashes result () =
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let* audit_cache = Web_persist.get_audit_cache uuid in

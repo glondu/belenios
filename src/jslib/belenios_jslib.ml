@@ -80,8 +80,7 @@ let belenios =
             let params =
               Js._JSON##stringify params
               |> Js.to_string
-              |> Election.of_string
-              |> Election.get_group
+              |> Election.parse
             in
             let%lwt () = Lwt_js.yield () in
             let plaintext =

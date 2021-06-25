@@ -25,12 +25,12 @@ open Serializable_t
 open Web_serializable_t
 open Signatures
 
-val election_home : 'a election -> election_state -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_raw : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_confirmation : 'a election -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val lost_ballot : 'a election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_confirmed : 'a election -> result:(string * Weight.t, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val pretty_ballots : 'a election -> (string * Weight.t) list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val election_home : (module ELECTION_DATA) -> election_state -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_raw : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_confirmation : (module ELECTION_DATA) -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val lost_ballot : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_confirmed : (module ELECTION_DATA) -> result:(string * Weight.t, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val pretty_ballots : (module ELECTION_DATA) -> (string * Weight.t) list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

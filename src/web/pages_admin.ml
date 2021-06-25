@@ -2232,6 +2232,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   let langs = get_languages metadata.e_languages in
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — " ^ s_ "Administration" in
   let auto_form () =
@@ -2757,6 +2758,7 @@ let regenpwd uuid () =
 let pretty_records election records () =
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let uuid = election.e_params.e_uuid in
   let title = election.e_params.e_name ^ " — " ^ s_ "Records" in
   let nrecords = List.length records in
@@ -2823,6 +2825,7 @@ let election_shuffler_skip_confirm uuid trustee =
 let shuffle election token =
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let title = params.e_name ^ " — " ^ s_ "Shuffle" in
@@ -2877,6 +2880,7 @@ let shuffle election token =
 let tally_trustees election trustee_id token () =
   let* l = get_preferred_gettext () in
   let open (val l) in
+  let open (val election : ELECTION_DATA) in
   let params = election.e_params in
   let uuid = params.e_uuid in
   let title =

@@ -413,7 +413,7 @@ let loadElection () =
     | Some x -> drop_trailing_newline x
     | None -> failwith "election_params is missing"
   in
-  let election_params = Election.(get_group (of_string election_raw)) in
+  let election_params = Election.parse election_raw in
   let module P = (val election_params : ELECTION_DATA) in
   let params = P.election.e_params in
   set_content "election_name" params.e_name;

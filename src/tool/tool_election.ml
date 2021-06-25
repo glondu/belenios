@@ -56,7 +56,7 @@ end
 
 let parse_params p =
   let module P = (val p : PARAMS) in
-  let params = Election.(get_group (of_string P.election)) in
+  let params = Election.parse P.election in
   let module R = struct
     include P
     let election_as_string = election

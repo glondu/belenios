@@ -242,6 +242,7 @@ let delete_election uuid =
   match election with
   | None -> return_unit
   | Some election ->
+  let open (val election) in
   let* metadata = Web_persist.get_election_metadata uuid in
   let de_template = {
       t_description = "";
@@ -759,6 +760,7 @@ let () =
           match election with
           | None -> election_not_found ()
           | Some election ->
+          let open (val election) in
           let* metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
             let title = election.e_params.e_name in
@@ -1518,7 +1520,7 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
      | None, _ -> election_not_found ()
      | Some w, Some u when metadata.e_owner = Some u ->
         let* state = Web_persist.get_election_state uuid in
-        let module W = (val Election.get_group w) in
+        let module W = (val w) in
         let module E = Election.Make (W) (LwtRandom) in
         let* pending_server_shuffle =
           match state with
@@ -1945,7 +1947,7 @@ let () =
       match election with
       | None -> election_not_found ()
       | Some election ->
-      let module W = (val Election.get_group election) in
+      let module W = (val election) in
       let module E = Election.Make (W) (LwtRandom) in
       let* pks =
         let* trustees = Web_persist.get_trustees uuid in
@@ -1988,7 +1990,7 @@ let handle_election_tally_release uuid () =
       | None -> election_not_found ()
       | Some election ->
       let* metadata = Web_persist.get_election_metadata uuid in
-      let module W = (val Election.get_group election) in
+      let module W = (val election) in
       let module E = Election.Make (W) (LwtRandom) in
       if metadata.e_owner = Some u then (
         let* () =
@@ -2110,7 +2112,7 @@ let () =
           | None -> election_not_found ()
           | Some election ->
           let* metadata = Web_persist.get_election_metadata uuid in
-          let module W = (val Election.get_group election) in
+          let module W = (val election) in
           let module E = Election.Make (W) (LwtRandom) in
           if metadata.e_owner = Some u then (
             let* () =
@@ -2256,7 +2258,7 @@ let () =
           | None -> election_not_found ()
           | Some election ->
           let* metadata = Web_persist.get_election_metadata uuid in
-          let module W = (val Election.get_group election) in
+          let module W = (val election) in
           let module E = Election.Make (W) (LwtRandom) in
           if metadata.e_owner = Some u then (
             let* () =

@@ -71,7 +71,7 @@ let basic_check_private_key s =
 
 let compute_partial_decryption _ =
   Js.Opt.option !election >>= fun e ->
-  let election = Election.(get_group (of_string e)) in
+  let election = Election.parse e in
   let module P = (val election) in
   let module E = Election.Make (P) (DirectRandom) in
   Js.Opt.option !encrypted_tally >>= fun e ->

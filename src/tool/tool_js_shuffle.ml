@@ -33,7 +33,7 @@ open Tool_js_i18n.Gettext
 let eta = ref 0
 
 let shuffle election ciphertexts =
-  let election = Election.(get_group (of_string election)) in
+  let election = Election.parse election in
   let module W = (val election) in
   let module E = Election.Make (W) (LwtJsRandom) in
   let ciphertexts = nh_ciphertexts_of_string E.G.read ciphertexts in

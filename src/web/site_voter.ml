@@ -139,6 +139,7 @@ let send_confirmation_email uuid revote user recipient weight hash =
        in
        Lwt.fail (Failure msg)
   in
+  let open (val election) in
   let title = election.e_params.e_name in
   let* metadata = Web_persist.get_election_metadata uuid in
   let x = (uuid, ()) in
@@ -271,6 +272,7 @@ let handle_method uuid question f =
   match election with
   | None -> election_not_found ()
   | Some election ->
+     let open (val election) in
      let questions = election.e_params.e_questions in
      if 0 <= question && question < Array.length questions then (
        match questions.(question) with
