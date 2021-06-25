@@ -1,5 +1,6 @@
 import CandidateWithCheckbox from "./CandidateWithCheckbox.mjs";
 import Column from './PreferentialVotingColumn.mjs';
+import { WhiteNiceButton } from "./NiceButton.mjs";
 
 const { DragDropContext } = window.ReactBeautifulDnd;
 
@@ -8,20 +9,20 @@ const buildColumnLabel = (column, columnOrderIndex) => {
 };
 
 const PreferenceLevelCreatorButton = ({onClick, disabled}) => {
-  const cssClass = "preferential-voting-ui__level-creator__add-icon";
   return e(
     "div",
     {
       className: "preferential-voting-ui__level-creator noselect",
     },
     e(
-      "span",
+      WhiteNiceButton,
       {
-        className: disabled ? cssClass : cssClass + " clickable",
+        tagName: "a",
+        label: "+ Ajouter ici un niveau de préférence", // TODO: i18n
         onClick: disabled ? null : onClick,
-        title: "+ Ajouter ici un niveau de préférence" // TODO: i18n
-      },
-      "+ Ajouter ici un niveau de préférence" // TODO: i18n
+        className: "preferential-voting-ui__level-creator__add-icon",
+        disabled: disabled
+      }
     )
   );
 };

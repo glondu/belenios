@@ -1,3 +1,5 @@
+import { WhiteNiceButton } from "./NiceButton.mjs";
+
 const { Draggable, Droppable } = window.ReactBeautifulDnd;
 const React = window.React;
 const ReactDOM = window.ReactDOM;
@@ -97,22 +99,16 @@ const CandidateList = ({innerRef, placeholder, children, ...otherProps}) => {
 };
 
 const DeletePreferenceLevelButton = ({onClick, disabled}) => {
-  const cssClass = "preferential-voting__column-actions__action";
   return e(
-    "div",
+    WhiteNiceButton,
     {
-      className: disabled ? cssClass : cssClass + " clickable",
+      tagName: "a",
+      label: "×", // or 🗑✖
+      title: "Supprimer ce niveau de préférence", // TODO: i18n
       onClick: disabled ? null : onClick,
-      title: "Supprimer ce niveau de préférence" // TODO: i18n
-    },
-    e(
-      "div",
-      {
-        className: "preferential-voting__column-actions__action__delete-preference-level"
-      },
-      "×" // or 🗑✖
-    )
-    
+      className: "preferential-voting__column-actions__action preferential-voting__column-actions__action__delete-preference-level",
+      disabled: disabled
+    }
   );
 };
 
