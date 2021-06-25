@@ -101,7 +101,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     | Some trustees ->
       assert (K.check trustees);
       let y' = K.combine_keys trustees in
-      assert G.(election.e_params.e_public_key =~ y')
+      assert G.(election.e_public_key =~ y')
     | None -> failwith "missing trustees"
 
   let public_keys =
@@ -256,7 +256,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     let sk =
       privcred |> Option.map (fun cred ->
         let module CD = Credential.MakeDerive (G) in
-        CD.derive election.e_params.e_uuid cred
+        CD.derive election.e_uuid cred
       )
     in
     let b = E.create_ballot ?sk ballot in
@@ -328,7 +328,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     (match trustees with
      | Some trustees ->
         assert (K.check trustees);
-        assert G.(election.e_params.e_public_key =~ K.combine_keys trustees)
+        assert G.(election.e_public_key =~ K.combine_keys trustees)
      | None -> failwith "missing trustees"
     );
     (match Lazy.force ballots_weights with
@@ -390,7 +390,7 @@ module Make (P : PARSED_PARAMS) : S = struct
       List.fold_left
         (fun accu line ->
           let id, cred = split line in
-          GMap.add G.(g **~ D.derive election.e_params.e_uuid cred) id accu
+          GMap.add G.(g **~ D.derive election.e_uuid cred) id accu
         ) GMap.empty privcreds
     in
     (match Lazy.force ballots with

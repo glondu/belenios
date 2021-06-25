@@ -38,7 +38,7 @@ let encryptBallot params cred plaintext () =
   let module G = P.G in
   let module E = Election.Make (P) (LwtJsRandom) in
   let module CD = Credential.MakeDerive (G) in
-  let sk = CD.derive P.election.e_params.e_uuid cred in
+  let sk = CD.derive P.election.e_uuid cred in
   let* b = E.create_ballot ~sk plaintext in
   let s = string_of_ballot G.write b in
   set_textarea "ballot" s;
@@ -415,11 +415,11 @@ let loadElection () =
   in
   let election_params = Election.parse election_raw in
   let module P = (val election_params : ELECTION_DATA) in
-  let params = P.election.e_params in
+  let params = P.election in
   set_content "election_name" params.e_name;
   set_content "election_description" params.e_description;
   set_content "election_uuid" (raw_string_of_uuid params.e_uuid);
-  set_content "election_fingerprint" P.election.e_fingerprint;
+  set_content "election_fingerprint" P.fingerprint;
   document##getElementById (Js.string "intro") >>== fun e ->
   let b = createStartButton election_params e params.e_questions in
   document##getElementById (Js.string "input_code") >>== fun e ->

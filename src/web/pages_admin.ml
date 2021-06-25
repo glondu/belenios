@@ -2233,8 +2233,8 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   let* l = get_preferred_gettext () in
   let open (val l) in
   let open (val election : ELECTION_DATA) in
-  let uuid = election.e_params.e_uuid in
-  let title = election.e_params.e_name ^ " — " ^ s_ "Administration" in
+  let uuid = election.e_uuid in
+  let title = election.e_name ^ " — " ^ s_ "Administration" in
   let auto_form () =
     let open Web_persist in
     let* dates = get_election_dates uuid in
@@ -2759,8 +2759,8 @@ let pretty_records election records () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let open (val election : ELECTION_DATA) in
-  let uuid = election.e_params.e_uuid in
-  let title = election.e_params.e_name ^ " — " ^ s_ "Records" in
+  let uuid = election.e_uuid in
+  let title = election.e_name ^ " — " ^ s_ "Records" in
   let nrecords = List.length records in
   let records = List.map (fun (date, voter) ->
     tr [td [txt date]; td [txt voter]]
@@ -2826,9 +2826,8 @@ let shuffle election token =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let open (val election : ELECTION_DATA) in
-  let params = election.e_params in
-  let uuid = params.e_uuid in
-  let title = params.e_name ^ " — " ^ s_ "Shuffle" in
+  let uuid = election.e_uuid in
+  let title = election.e_name ^ " — " ^ s_ "Shuffle" in
   let content = [
       div [txt (s_ "As a trustee, your first role is to shuffle the encrypted ballots.")];
       div [
@@ -2881,10 +2880,9 @@ let tally_trustees election trustee_id token () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let open (val election : ELECTION_DATA) in
-  let params = election.e_params in
-  let uuid = params.e_uuid in
+  let uuid = election.e_uuid in
   let title =
-    params.e_name ^ " — " ^ Printf.sprintf (f_ "Partial decryption #%d") trustee_id
+    election.e_name ^ " — " ^ Printf.sprintf (f_ "Partial decryption #%d") trustee_id
   in
   let* encrypted_private_key =
     let* x = Web_persist.get_private_keys uuid in

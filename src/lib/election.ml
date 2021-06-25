@@ -33,12 +33,11 @@ let parse x =
   let params = params_of_string Yojson.Safe.read_json x in
   let wpk = Yojson.Safe.to_string params.e_public_key in
   let module W = (val Group.wrapped_pubkey_of_string wpk) in
-  let e_params = {params with e_public_key = W.y} in
-  let e_fingerprint = sha256_b64 x in
   let module X =
     struct
       module G = W.G
-      let election = {e_params; e_fingerprint}
+      let election = {params with e_public_key = W.y}
+      let fingerprint = sha256_b64 x
     end
   in
   (module X : ELECTION_DATA)
@@ -49,7 +48,7 @@ let has_nh_questions e =
   Array.exists (function
       | Question.NonHomomorphic _ -> true
       | Question.Homomorphic _ -> false
-    ) e.e_params.e_questions
+    ) e.e_questions
 
 (** Homomorphic elections *)
 
@@ -102,7 +101,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     "sig|" ^ zkp ^ "|" ^ G.to_string commitment ^ "|"
 
   let make_sig_contents answers =
-    Array.map2 Q.extract_ciphertexts election.e_params.e_questions answers
+    Array.map2 Q.extract_ciphertexts election.e_questions answers
     |> Array.map Shape.flatten
     |> Array.to_list
     |> List.flatten
@@ -111,13 +110,12 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     |> Array.of_list
 
   let create_ballot ?sk m =
-    let p = election.e_params in
     let sk, zkp =
       match sk with
       | None -> None, ""
       | Some x -> let y = G.(g **~ x) in Some (x, y), G.to_string y
     in
-    swap (Array.map2 (create_answer p.e_public_key zkp) p.e_questions m) >>= fun answers ->
+    swap (Array.map2 (create_answer election.e_public_key zkp) election.e_questions m) >>= fun answers ->
     (
       match sk with
       | None -> return None
@@ -132,8 +130,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     ) >>= fun signature ->
     return {
       answers;
-      election_hash = election.e_fingerprint;
-      election_uuid = p.e_uuid;
+      election_hash = W.fingerprint;
+      election_uuid = election.e_uuid;
       signature;
     }
 
@@ -143,9 +141,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     Q.verify_answer q ~public_key:y ~prefix:zkp a
 
   let check_ballot b =
-    let p = election.e_params in
-    b.election_uuid = p.e_uuid &&
-    b.election_hash = election.e_fingerprint &&
+    b.election_uuid = election.e_uuid &&
+    b.election_hash = W.fingerprint &&
     let ok, zkp = match b.signature with
       | Some {s_public_key = y; s_challenge; s_response} ->
         let zkp = G.to_string y in
@@ -160,7 +157,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         in ok, zkp
       | None -> true, ""
     in ok &&
-    Array.forall2 (verify_answer p.e_public_key zkp) p.e_questions b.answers
+    Array.forall2 (verify_answer election.e_public_key zkp) election.e_questions b.answers
 
   let process_ballots bs =
     SArray (
@@ -171,14 +168,14 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
                    w, Q.extract_ciphertexts q b.answers.(i)
                  ) bs
               )
-          ) election.e_params.e_questions
+          ) election.e_questions
       )
 
   let extract_nh_ciphertexts x =
     let x = Shape.to_shape_array x in
     let rec loop i accu =
       if i >= 0 then (
-        match election.e_params.e_questions.(i) with
+        match election.e_questions.(i) with
         | Question.Homomorphic _ -> loop (i-1) accu
         | Question.NonHomomorphic _ -> loop (i-1) (Shape.to_array x.(i) :: accu)
       ) else Array.of_list accu
@@ -190,7 +187,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let n = Array.length x and m = Array.length cc in
     let rec loop i j =
       if i < n && j < m then (
-        match election.e_params.e_questions.(i) with
+        match election.e_questions.(i) with
         | Question.Homomorphic _ -> loop (i+1) j
         | Question.NonHomomorphic _ ->
            x.(i) <- Shape.of_array cc.(j);
@@ -203,7 +200,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     loop 0 0
 
   let shuffle_ciphertexts cc =
-    let y = election.e_params.e_public_key in
+    let y = election.e_public_key in
     let rec loop i accu =
       if i >= 0 then (
         let c = cc.(i) in
@@ -218,7 +215,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     loop (Array.length cc - 1) []
 
   let check_shuffle cc s =
-    let y = election.e_params.e_public_key in
+    let y = election.e_public_key in
     Array.forall3 (Mix.check_shuffle_proof y) cc s.shuffle_ciphertexts s.shuffle_proofs
 
   type factor = elt partial_decryption
@@ -282,7 +279,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
          | SAtomic _ ->
             invalid_arg "Election.compute_result: cannot compute result"
          | SArray xs ->
-            Array.map2 (Q.compute_result ~num_tallied) election.e_params.e_questions xs
+            Array.map2 (Q.compute_result ~num_tallied) election.e_questions xs
        in
        Ok {num_tallied; encrypted_tally; shuffles; shufflers; partial_decryptions; result}
     | Error e -> Error e
@@ -301,7 +298,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
        in
        match results with
        | SArray xs ->
-          Array.forall3 (Q.check_result ~num_tallied) election.e_params.e_questions xs result
+          Array.forall3 (Q.check_result ~num_tallied) election.e_questions xs result
        | _ -> false
 end
 

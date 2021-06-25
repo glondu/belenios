@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios
-open Signatures
 open Serializable_builtin_t
 open Serializable_j
 open Common
@@ -116,7 +115,7 @@ let verifydiff dir1 dir2 =
   let y = K.combine_keys trustees in
   (* the public keys must correspond to the public key of election *)
   let () =
-    if not G.(election.e_params.e_public_key =~ y) then
+    if not G.(election.e_public_key =~ y) then
       raise (VerifydiffError PublicKeyMismatch)
   in
   (* load both public_creds.txt and check that their contents is valid *)

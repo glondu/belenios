@@ -39,14 +39,15 @@ let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
 let audit_footer election =
-  let uuid = election.e_params.e_uuid in
+  let open (val election : ELECTION_DATA) in
+  let uuid = election.e_uuid in
   let* l = get_preferred_gettext () in
   let open (val l) in
   return @@ div ~a:[a_style "line-height:1.5em;"] [
     div [
       div [
         txt (s_ "Election fingerprint: ");
-        code [ txt election.e_fingerprint ];
+        code [ txt fingerprint ];
       ];
       div [
         txt (s_ "Audit data: ");
@@ -178,8 +179,8 @@ let format_question_result uuid l (i, q) r =
 let election_home election state () =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
-  let params = election.e_params in
+  let module W = (val election : ELECTION_DATA) in
+  let params = W.election in
   let uuid = params.e_uuid in
   let* metadata = Web_persist.get_election_metadata uuid in
   let* dates = Web_persist.get_election_dates uuid in
@@ -289,7 +290,7 @@ let election_home election state () =
        in
        return @@ div [
          ul (
-             Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) election.e_params.e_questions) r.result
+             Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) W.election.e_questions) r.result
              |> Array.to_list
            );
          div [
@@ -473,8 +474,8 @@ let election_home election state () =
 let cast_raw election () =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
-  let params = election.e_params in
+  let module W = (val election : ELECTION_DATA) in
+  let params = W.election in
   let uuid = params.e_uuid in
   let form_rawballot = post_form ~service:election_submit_ballot
     (fun name ->
@@ -555,10 +556,9 @@ let cast_confirmation election hash () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let open (val election : ELECTION_DATA) in
-  let params = election.e_params in
-  let uuid = params.e_uuid in
+  let uuid = election.e_uuid in
   let* user = Web_state.get_election_user uuid in
-  let name = params.e_name in
+  let name = election.e_name in
   let user_div = match user with
     | Some u ->
       post_form ~service:election_cast_confirm (fun () -> [
@@ -689,8 +689,8 @@ let lost_ballot election () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let open (val election : ELECTION_DATA) in
-  let title = election.e_params.e_name in
-  let uuid = election.e_params.e_uuid in
+  let title = election.e_name in
+  let uuid = election.e_uuid in
   let* metadata = Web_persist.get_election_metadata uuid in
   let Booth service = fst Web_services.booths.(get_booth_index metadata.e_booth_version) in
   let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
@@ -719,9 +719,8 @@ let cast_confirmed election ~result () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let open (val election : ELECTION_DATA) in
-  let params = election.e_params in
-  let uuid = params.e_uuid in
-  let name = params.e_name in
+  let uuid = election.e_uuid in
+  let name = election.e_name in
   let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
     txt (s_ "Input credential");
     txt " — ";
@@ -788,15 +787,14 @@ let pretty_ballots election hashes result () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let open (val election : ELECTION_DATA) in
-  let params = election.e_params in
-  let uuid = params.e_uuid in
+  let uuid = election.e_uuid in
   let* audit_cache = Web_persist.get_audit_cache uuid in
   let show_weights =
     match audit_cache.cache_total_weight with
     | Some x when not Weight.(is_int x audit_cache.cache_num_voters) -> true
     | _ -> false
   in
-  let title = params.e_name ^ " — " ^ s_ "Accepted ballots" in
+  let title = election.e_name ^ " — " ^ s_ "Accepted ballots" in
   let nballots = ref 0 in
   let hashes = List.sort (fun (a, _) (b, _) -> compare_b64 a b) hashes in
   let ballots =

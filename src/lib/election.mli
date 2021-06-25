@@ -22,10 +22,11 @@
 (** Election primitives *)
 
 open Signatures
+open Serializable_t
 
 val parse : string -> (module ELECTION_DATA)
 
-val has_nh_questions : 'a election -> bool
+val has_nh_questions : 'a params -> bool
 
 module Make (W : ELECTION_DATA) (M : RANDOM) :
   ELECTION with type elt = W.G.t and type 'a m = 'a M.t

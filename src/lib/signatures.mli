@@ -42,19 +42,11 @@ end
 module type MONAD = Signatures_core.MONAD
 module type RANDOM = Signatures_core.RANDOM
 
-(** Election data needed for cryptographic operations. *)
-type 'a election = {
-  e_params : 'a params;
-  (** Parameters of the election. *)
-
-  e_fingerprint : string;
-  (** Fingerprint of the election. *)
-}
-
 (** Election data bundled with a group. *)
 module type ELECTION_DATA = sig
   module G : GROUP
-  val election : G.t election
+  val election : G.t params
+  val fingerprint : string
 end
 
 type combination_error =

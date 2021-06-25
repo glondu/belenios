@@ -213,7 +213,7 @@ let get_elections_by_owner user =
                               let date = Option.get dates.e_archive default_archive_date in
                               return (`Archived, date)
                          in
-                         return_some (kind, uuid, date, election.e_params.e_name)
+                         return_some (kind, uuid, date, election.e_name)
                     )
                  | _ -> return_none
                )
@@ -746,7 +746,7 @@ let add_credential_mapping uuid cred mapping =
 let do_cast_ballot election ~rawballot ~user ~weight date =
   let module W = (val election : ELECTION_DATA) in
   let module E = Election.Make (W) (LwtRandom) in
-  let uuid = W.election.e_params.e_uuid in
+  let uuid = W.election.e_uuid in
   match
     try
       if String.contains rawballot '\n' then invalid_arg "multiline ballot";

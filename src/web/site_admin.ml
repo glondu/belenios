@@ -246,8 +246,8 @@ let delete_election uuid =
   let* metadata = Web_persist.get_election_metadata uuid in
   let de_template = {
       t_description = "";
-      t_name = election.e_params.e_name;
-      t_questions = Array.map Question.erase_question election.e_params.e_questions;
+      t_name = election.e_name;
+      t_questions = Array.map Question.erase_question election.e_questions;
       t_administrator = None;
       t_credential_authority = None;
     }
@@ -763,7 +763,7 @@ let () =
           let open (val election) in
           let* metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
-            let title = election.e_params.e_name in
+            let title = election.e_name in
             let url = Eliom_uri.make_string_uri
                         ~absolute:true ~service:election_home
                         (uuid, ()) |> rewrite_prefix

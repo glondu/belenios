@@ -26,7 +26,6 @@ open Belenios
 open Platform
 open Serializable_builtin_t
 open Serializable_j
-open Signatures
 open Common
 open Web_serializable_builtin_t
 open Web_serializable_j
@@ -140,7 +139,7 @@ let send_confirmation_email uuid revote user recipient weight hash =
        Lwt.fail (Failure msg)
   in
   let open (val election) in
-  let title = election.e_params.e_name in
+  let title = election.e_name in
   let* metadata = Web_persist.get_election_metadata uuid in
   let x = (uuid, ()) in
   let url1 = Eliom_uri.make_string_uri ~absolute:true
@@ -273,7 +272,7 @@ let handle_method uuid question f =
   | None -> election_not_found ()
   | Some election ->
      let open (val election) in
-     let questions = election.e_params.e_questions in
+     let questions = election.e_questions in
      if 0 <= question && question < Array.length questions then (
        match questions.(question) with
        | Question.NonHomomorphic (q, _) ->
