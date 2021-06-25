@@ -29,25 +29,19 @@ open Common
 
 (** Parsing helpers *)
 
-let of_string x =
+let parse x =
   let params = params_of_string Yojson.Safe.read_json x in
-  {
-    e_params = params;
-    e_fingerprint = sha256_b64 x;
-  }
-
-let get_group x =
-  let w = Yojson.Safe.to_string x.e_params.e_public_key in
-  let module W = (val Group.wrapped_pubkey_of_string w) in
+  let wpk = Yojson.Safe.to_string params.e_public_key in
+  let module W = (val Group.wrapped_pubkey_of_string wpk) in
+  let e_params = {params with e_public_key = W.y} in
+  let e_fingerprint = sha256_b64 x in
   let module X =
     struct
       module G = W.G
-      let election = {x with e_params = {x.e_params with e_public_key = W.y}}
+      let election = {e_params; e_fingerprint}
     end
-  in (module X : ELECTION_DATA)
-
-let parse x =
-  x |> of_string |> get_group
+  in
+  (module X : ELECTION_DATA)
 
 (** Helper functions *)
 
