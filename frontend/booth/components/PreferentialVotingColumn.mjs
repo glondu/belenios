@@ -5,13 +5,13 @@ const React = window.React;
 const ReactDOM = window.ReactDOM;
 const e = React.createElement;
 
-const TranslatableMoveCandidateHandle = (props) => {
+const TranslatableMoveCandidateHandle = ({t, tReady, ...props}) => {
   // the icon visual is made using CSS
   return e(
     "div",
     {
       className: "preferential-voting__candidate-handle draggable",
-      title: props.t("preferential_voting_drag_candidate"),
+      title: t("preferential_voting_drag_candidate"),
       ...props
     },
     e(
