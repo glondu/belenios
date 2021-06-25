@@ -1525,7 +1525,7 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
         let* pending_server_shuffle =
           match state with
           | `Shuffling ->
-             if Election.has_nh_questions E.election then
+             if Election.has_nh_questions W.election then
                let* x = Web_persist.get_shuffles uuid in
                match x with
                | None -> return_true
@@ -1536,9 +1536,9 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
         let* () =
           if pending_server_shuffle then (
             let* cc = Web_persist.get_nh_ciphertexts uuid in
-            let cc = nh_ciphertexts_of_string E.G.read cc in
+            let cc = nh_ciphertexts_of_string W.G.read cc in
             let* shuffle = E.shuffle_ciphertexts cc in
-            let shuffle = string_of_shuffle E.G.write shuffle in
+            let shuffle = string_of_shuffle W.G.write shuffle in
             let* x = Web_persist.append_to_shuffles uuid shuffle in
             match x with
             | Some h ->
@@ -2064,14 +2064,15 @@ let () =
 module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
 
 let perform_server_side_decryption uuid e metadata tally =
-  let module E = (val e : ELECTION_LWT) in
-  let tally = encrypted_tally_of_string E.G.read tally in
+  let module W = (val e : ELECTION_DATA) in
+  let module E = Election.Make (W) (LwtRandom) in
+  let tally = encrypted_tally_of_string W.G.read tally in
   let decrypt i =
     let* x = Web_persist.get_private_key uuid in
     match x with
     | Some sk ->
        let* pd = E.compute_factor tally sk in
-       let pd = string_of_partial_decryption E.G.write pd in
+       let pd = string_of_partial_decryption W.G.write pd in
        Web_persist.set_partial_decryptions uuid [i, pd]
     | None ->
        Printf.ksprintf failwith
@@ -2113,7 +2114,6 @@ let () =
           | Some election ->
           let* metadata = Web_persist.get_election_metadata uuid in
           let module W = (val election) in
-          let module E = Election.Make (W) (LwtRandom) in
           if metadata.e_owner = Some u then (
             let* () =
               let* state = Web_persist.get_election_state uuid in
@@ -2127,11 +2127,11 @@ let () =
               | Some x -> return x
               | None -> failwith "Anomaly in election_compute_encrypted_tally service handler. Please report." (* should not happen *)
             in
-            if Election.has_nh_questions E.election then (
+            if Election.has_nh_questions W.election then (
               let* () = Web_persist.set_election_state uuid `Shuffling in
               redir_preapply election_admin uuid ()
             ) else (
-              transition_to_encrypted_tally uuid (module E) metadata tally
+              transition_to_encrypted_tally uuid election metadata tally
             )
           ) else forbidden ()
         )
@@ -2258,8 +2258,6 @@ let () =
           | None -> election_not_found ()
           | Some election ->
           let* metadata = Web_persist.get_election_metadata uuid in
-          let module W = (val election) in
-          let module E = Election.Make (W) (LwtRandom) in
           if metadata.e_owner = Some u then (
             let* () =
               let* state = Web_persist.get_election_state uuid in
@@ -2273,7 +2271,7 @@ let () =
               | Some x -> return x
               | None -> Lwt.fail (Failure "election_decrypt handler: compute_encrypted_tally_after_shuffling")
             in
-            transition_to_encrypted_tally uuid (module E) metadata tally
+            transition_to_encrypted_tally uuid election metadata tally
           ) else forbidden ()
         )
     )

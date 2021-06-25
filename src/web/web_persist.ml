@@ -499,13 +499,13 @@ let compute_encrypted_tally uuid =
      let* ballots =
        Lwt_list.map_s
          (fun raw_ballot ->
-           let ballot = ballot_of_string E.G.read raw_ballot in
+           let ballot = ballot_of_string W.G.read raw_ballot in
            let* weight = get_ballot_weight raw_ballot in
            return (weight, ballot)
          ) ballots
      in
      let tally = E.process_ballots (Array.of_list ballots) in
-     let tally = string_of_encrypted_tally E.G.write tally in
+     let tally = string_of_encrypted_tally W.G.write tally in
      let* () = write_file ~uuid (string_of_election_file ESETally) [tally] in
      return_some tally
 
@@ -543,13 +543,13 @@ let get_nh_ciphertexts uuid =
         let* tally =
           let* file = read_file ~uuid (string_of_election_file ESETally) in
           match file with
-          | Some [x] -> return (encrypted_tally_of_string E.G.read x)
+          | Some [x] -> return (encrypted_tally_of_string W.G.read x)
           | _ -> Lwt.fail (Failure "get_nh_ciphertexts: encrypted tally not found or invalid")
         in
-        return (string_of_nh_ciphertexts E.G.write (E.extract_nh_ciphertexts tally))
+        return (string_of_nh_ciphertexts W.G.write (E.extract_nh_ciphertexts tally))
      | x :: _ ->
-        let s = shuffle_of_string E.G.read x in
-        return (string_of_nh_ciphertexts E.G.write s.shuffle_ciphertexts)
+        let s = shuffle_of_string W.G.read x in
+        return (string_of_nh_ciphertexts W.G.write s.shuffle_ciphertexts)
 
 let get_shuffles uuid =
   let* election = get_raw_election uuid in
@@ -603,11 +603,11 @@ let compute_encrypted_tally_after_shuffling uuid =
      let* file = read_file ~uuid (string_of_election_file ESETally) in
      match file with
      | Some [x] ->
-        let tally = encrypted_tally_of_string E.G.read x in
+        let tally = encrypted_tally_of_string W.G.read x in
         let* nh = get_nh_ciphertexts uuid in
-        let nh = nh_ciphertexts_of_string E.G.read nh in
+        let nh = nh_ciphertexts_of_string W.G.read nh in
         let tally = E.merge_nh_ciphertexts nh tally in
-        let tally = string_of_encrypted_tally E.G.write tally in
+        let tally = string_of_encrypted_tally W.G.write tally in
         let* () = write_file ~uuid (string_of_election_file ESETally) [tally] in
         return_some tally
      | _ -> return_none
@@ -619,10 +619,10 @@ let append_to_shuffles uuid shuffle =
   | Some election ->
      let module W = (val Election.parse election) in
      let module E = Election.Make (W) (LwtRandom) in
-     let shuffle = shuffle_of_string E.G.read shuffle in
+     let shuffle = shuffle_of_string W.G.read shuffle in
      Web_election_mutex.with_lock uuid (fun () ->
          let* last_ciphertext = get_nh_ciphertexts uuid in
-         let last_ciphertext = nh_ciphertexts_of_string E.G.read last_ciphertext in
+         let last_ciphertext = nh_ciphertexts_of_string W.G.read last_ciphertext in
          if E.check_shuffle last_ciphertext shuffle then (
            let* current =
              let* file = read_file ~uuid "shuffles.jsons" in
@@ -630,7 +630,7 @@ let append_to_shuffles uuid shuffle =
              | None -> return []
              | Some x -> return x
            in
-           let shuffle_ = string_of_shuffle E.G.write shuffle in
+           let shuffle_ = string_of_shuffle W.G.write shuffle in
            let new_ = current @ [shuffle_] in
            let* () = write_file ~uuid "shuffles.jsons" new_ in
            return_some (sha256_b64 shuffle_)
@@ -744,13 +744,14 @@ let add_credential_mapping uuid cred mapping =
   dump_credential_mappings uuid xs
 
 let do_cast_ballot election ~rawballot ~user ~weight date =
-  let module E = (val election : ELECTION) in
-  let uuid = E.election.e_params.e_uuid in
+  let module W = (val election : ELECTION_DATA) in
+  let module E = Election.Make (W) (LwtRandom) in
+  let uuid = W.election.e_params.e_uuid in
   match
     try
       if String.contains rawballot '\n' then invalid_arg "multiline ballot";
-      let ballot = ballot_of_string E.G.read rawballot in
-      if string_of_ballot E.G.write ballot <> rawballot then
+      let ballot = ballot_of_string W.G.read rawballot in
+      if string_of_ballot W.G.write ballot <> rawballot then
         invalid_arg "ballot not in canonical form";
       Ok ballot
     with e -> Error (ECastSerialization e)
@@ -760,7 +761,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
      match ballot.signature with
      | None -> return (Error ECastMissingCredential)
      | Some s ->
-        let credential = E.G.to_string s.s_public_key in
+        let credential = W.G.to_string s.s_public_key in
         let* mapping = find_credential_mapping uuid credential in
         match mapping with
         | None -> return (Error ECastInvalidCredential)
@@ -798,10 +799,9 @@ let cast_ballot uuid ~rawballot ~user ~weight date =
   match election with
   | None -> Lwt.fail Not_found
   | Some raw_election ->
-     let module W = (val Election.parse raw_election) in
-     let module E = Election.Make (W) (LwtRandom) in
+     let election = Election.parse raw_election in
      Web_election_mutex.with_lock uuid
-       (fun () -> do_cast_ballot (module E) ~rawballot ~user ~weight date)
+       (fun () -> do_cast_ballot election ~rawballot ~user ~weight date)
 
 let get_raw_election_result uuid =
   let* file = read_file ~uuid "result.json" in

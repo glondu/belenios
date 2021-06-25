@@ -271,7 +271,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     );
     (match Lazy.force shuffles_hash with
      | None | Some [] ->
-        if Election.has_nh_questions E.election then
+        if Election.has_nh_questions election then
           failwith "the election has non-homomorphic questions and no shuffles were found";
      | Some shuffles ->
         shuffles
@@ -279,7 +279,7 @@ module Make (P : PARSED_PARAMS) : S = struct
              (fun s ->
                Printf.ksprintf print_msg "I: shuffle %s has been applied" s)
     );
-    if Election.has_nh_questions E.election then
+    if Election.has_nh_questions election then
       print_msg "W: you should check that your shuffle appears in the list of applied shuffles";
     let tally, _ = Lazy.force encrypted_tally in
     let factor = E.compute_factor tally sk in

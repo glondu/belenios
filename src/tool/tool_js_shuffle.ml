@@ -36,7 +36,7 @@ let shuffle election ciphertexts =
   let election = Election.parse election in
   let module W = (val election) in
   let module E = Election.Make (W) (LwtJsRandom) in
-  let ciphertexts = nh_ciphertexts_of_string E.G.read ciphertexts in
+  let ciphertexts = nh_ciphertexts_of_string W.G.read ciphertexts in
   let full_shuffle () =
     let id =
       if !eta > 0 then
@@ -54,7 +54,7 @@ let shuffle election ciphertexts =
         None
     in
     let* shuffle = E.shuffle_ciphertexts ciphertexts in
-    let r = string_of_shuffle E.G.write shuffle in
+    let r = string_of_shuffle W.G.write shuffle in
     let () =
       match id with
       | Some x ->
@@ -68,9 +68,9 @@ let shuffle election ciphertexts =
     let n =
       Array.fold_left (fun accu x -> accu + Array.length x) 0 ciphertexts
     in
-    let* x = LwtJsRandom.random E.G.q in
+    let* x = LwtJsRandom.random W.G.q in
     let start = new%js Js.date_now in
-    let _ = E.G.(g **~ x) in
+    let _ = W.G.(g **~ x) in
     let stop = new%js Js.date_now in
     set_element_display "controls_div" "block";
     set_element_display "wait_div" "none";
