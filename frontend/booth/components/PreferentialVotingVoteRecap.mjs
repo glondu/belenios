@@ -1,3 +1,5 @@
+import { buildColumnLabel } from "./PreferentialVotingCandidatesList.mjs";
+
 function PreferentialVotingVoteRecapForPreferenceLevel({ preference_level_title, preference_level_candidates }){
   if (preference_level_candidates.length === 0){
     return null;
@@ -79,7 +81,7 @@ function TranslatablePreferentialVotingVoteRecap({ question, question_index, unc
       return e(
         PreferentialVotingVoteRecapForPreferenceLevel,
         {
-          preference_level_title: `Préférence ${preference_level_index+1}`, // TODO: i18n
+          preference_level_title: buildColumnLabel(null, preference_level_index, t),
           preference_level_candidates: preference_level_candidates.map((candidate_index) => questionCandidates[candidate_index])
         }
       );
@@ -90,7 +92,7 @@ function TranslatablePreferentialVotingVoteRecap({ question, question_index, unc
         e(
           PreferentialVotingVoteRecapForPreferenceLevel,
           {
-            preference_level_title: "Non classé", // TODO: i18n
+            preference_level_title: t("preferential_voting_not_ranked"),
             preference_level_candidates: notRankedCandidatesIndexes.map((candidate_index) => questionCandidates[candidate_index])
           }
         )

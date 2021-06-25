@@ -5,13 +5,13 @@ const React = window.React;
 const ReactDOM = window.ReactDOM;
 const e = React.createElement;
 
-const MoveCandidateHandle = (props) => {
+const TranslatableMoveCandidateHandle = (props) => {
   // the icon visual is made using CSS
   return e(
     "div",
     {
       className: "preferential-voting__candidate-handle draggable",
-      title: "Déplacer ce candidat", // TODO: i18n
+      title: props.t("preferential_voting_drag_candidate"),
       ...props
     },
     e(
@@ -23,7 +23,9 @@ const MoveCandidateHandle = (props) => {
   );
 }
 
-const Candidate = ({ candidate, index, otherColumns, onSelectDestinationColumn, disabled }) => {
+const MoveCandidateHandle = ReactI18next.withTranslation()(TranslatableMoveCandidateHandle);
+
+const TranslatableCandidate = ({ candidate, index, otherColumns, onSelectDestinationColumn, disabled, t }) => {
   const otherPreferencesSelectOptions = otherColumns.map(column => {
     return e(
       "option",
@@ -38,7 +40,7 @@ const Candidate = ({ candidate, index, otherColumns, onSelectDestinationColumn, 
     {
       value: "default"
     },
-    "Déplacer vers" // TODO: i18n
+    t("preferential_voting_move_candidate_to")
   ));
   const children = (provided) => {
     return e(
@@ -85,6 +87,8 @@ const Candidate = ({ candidate, index, otherColumns, onSelectDestinationColumn, 
   );
 }
 
+const Candidate = ReactI18next.withTranslation()(TranslatableCandidate);
+
 const CandidateList = ({innerRef, placeholder, children, ...otherProps}) => {
   return e(
     "div",
@@ -98,13 +102,13 @@ const CandidateList = ({innerRef, placeholder, children, ...otherProps}) => {
   );
 };
 
-const DeletePreferenceLevelButton = ({onClick, disabled}) => {
+const TranslatableDeletePreferenceLevelButton = ({onClick, disabled, t}) => {
   return e(
     WhiteNiceButton,
     {
       tagName: "a",
       label: "×", // or 🗑✖
-      title: "Supprimer ce niveau de préférence", // TODO: i18n
+      title: t("preferential_voting_delete_preference_level"),
       onClick: disabled ? null : onClick,
       className: "preferential-voting__column-actions__action preferential-voting__column-actions__action__delete-preference-level",
       disabled: disabled
@@ -112,12 +116,13 @@ const DeletePreferenceLevelButton = ({onClick, disabled}) => {
   );
 };
 
+const DeletePreferenceLevelButton = ReactI18next.withTranslation()(TranslatableDeletePreferenceLevelButton);
 
 // A Column is a list which has a title (prop label) and which can contain candidates.
 // These candidates can be moved to other columns by drag & drop or using the select box next to each candidate.
 // The user can delete a Column if it contains no candidates.
 // A special kind of Column is when `column.id` is "not-ranked": this Column cannot be deleted.
-const Column = ({ column, label, otherColumns, candidates, onClickDeleteButton, onSelectCandidateDestinationColumn, disabled
+const PreferentialVotingColumn = ({ column, label, otherColumns, candidates, onClickDeleteButton, onSelectCandidateDestinationColumn, disabled
  }) => {
   const rendered_candidates = candidates.map((candidate, index) => {
     return e(
@@ -186,5 +191,5 @@ const Column = ({ column, label, otherColumns, candidates, onClickDeleteButton, 
   );
 }
 
-export default Column;
+export default PreferentialVotingColumn;
 

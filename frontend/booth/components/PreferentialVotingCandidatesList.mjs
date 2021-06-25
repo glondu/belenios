@@ -1,14 +1,14 @@
 import CandidateWithCheckbox from "./CandidateWithCheckbox.mjs";
-import Column from './PreferentialVotingColumn.mjs';
+import PreferentialVotingColumn from './PreferentialVotingColumn.mjs';
 import { WhiteNiceButton } from "./NiceButton.mjs";
 
 const { DragDropContext } = window.ReactBeautifulDnd;
 
-const buildColumnLabel = (column, columnOrderIndex) => {
-  return column.title ? column.title : `Préférence ${columnOrderIndex+1}`; // TODO: i18n
+const buildColumnLabel = (column, columnOrderIndex, t) => {
+  return column && column.title ? column.title : t('preferential_voting_preference_level', {level: columnOrderIndex+1});
 };
 
-const PreferenceLevelCreatorButton = ({onClick, disabled}) => {
+const PreferenceLevelCreatorButton = ({onClick, disabled, t}) => {
   return e(
     "div",
     {
@@ -18,7 +18,7 @@ const PreferenceLevelCreatorButton = ({onClick, disabled}) => {
       WhiteNiceButton,
       {
         tagName: "a",
-        label: "+ Ajouter ici un niveau de préférence", // TODO: i18n
+        label: t("preferential_votign_add_preference_level"),
         onClick: disabled ? null : onClick,
         className: "preferential-voting-ui__level-creator__add-icon",
         disabled: disabled
@@ -163,7 +163,7 @@ class PreferentialVotingApp extends React.Component {
     this.moveCandidate(draggableId, source.droppableId, destination.droppableId, source.index, destination.index);
   }
   render() {
-    const allColumns = this.state.columnOrder.map((columnId, index) => { return {id: columnId, label: buildColumnLabel(this.state.columns[columnId], index)}; });
+    const allColumns = this.state.columnOrder.map((columnId, index) => { return {id: columnId, label: buildColumnLabel(this.state.columns[columnId], index, this.props.t)}; });
     const children = this.state.columnOrder.map(
       (columnId, index) => {
         if(!this.state.columns.hasOwnProperty(columnId)){
@@ -183,23 +183,24 @@ class PreferentialVotingApp extends React.Component {
               onClick: () => {
                 this.insertPreferenceLevel(index);
               },
-              disabled: this.props.disabled
+              disabled: this.props.disabled,
+              t: this.props.t
             }
           ),
           e(
-            Column,
+            PreferentialVotingColumn,
             {
               key: column.id,
               column: column,
               candidates: candidates,
-              label: buildColumnLabel(column, index),
+              label: buildColumnLabel(column, index, this.props.t),
               onClickDeleteButton: () => {
                 const canDeleteColumn = candidates.length == 0;
                 if (canDeleteColumn){
                   this.deletePreferenceLevel(column.id);
                 }
                 else {
-                  alert("You can delete a level of preference only if it is empty. Please first move the candidates it contains to other preference levels."); // TODO: i18n
+                  alert(t("preferential_voting_warning_delete_only_empty_level"));
                 }
               },
               otherColumns: otherColumns,
@@ -262,9 +263,8 @@ PreferentialVotingApp.defaultProps = {
 function TranslatablePreferentialVotingBigCandidatesList({ identifierPrefix, candidates, blankVoteIsAllowed, renderedBlankVoteComponent, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, t }){
   /*
   TODO:
-  - use currentUserVoteForQuestion to build initialData
   - show alerts using currentCandidatesHavingAlertsForQuestion
-  - implement blank vote using blankVoteIsAllowed and renderedBlankVoteComponent
+  - optional improvement to implement a smart back button: use currentUserVoteForQuestion to build initialData
   */
   const userHasSelectedBlankVote = blankVoteIsAllowed && (currentUserVoteForQuestion.length > candidates.length) && (currentUserVoteForQuestion[candidates.length] === 1) ? true : false;
   let initialData = {};
@@ -290,7 +290,7 @@ function TranslatablePreferentialVotingBigCandidatesList({ identifierPrefix, can
     },
     'not-ranked': {
       id: 'not-ranked',
-      title: 'Non classé', // TODO: i18n
+      title: t('preferential_voting_not_ranked'),
       candidatesIds: candidatesForInitialData.map(candidate => candidate.id),
     },
   };
@@ -312,7 +312,8 @@ function TranslatablePreferentialVotingBigCandidatesList({ identifierPrefix, can
       {
         initialData,
         dispatchUpdateUserVoteForQuestion,
-        disabled: userHasSelectedBlankVote
+        disabled: userHasSelectedBlankVote,
+        t
       }
     ),
     ...additionalComponents
@@ -396,5 +397,5 @@ TranslatablePreferentialVotingCandidatesList.defaultProps = {
 
 const PreferentialVotingCandidatesList = ReactI18next.withTranslation()(TranslatablePreferentialVotingCandidatesList);
 
-export { PreferentialVotingCandidatesList, TranslatablePreferentialVotingCandidatesList };
+export { PreferentialVotingCandidatesList, TranslatablePreferentialVotingCandidatesList, buildColumnLabel };
 export default PreferentialVotingCandidatesList;
