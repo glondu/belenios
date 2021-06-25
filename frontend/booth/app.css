@@ -44,6 +44,12 @@ input[type=password], input[type=text] {
   font-size: 16px; /* this prevents Iphone browser from zooming in */
 }
 
+@supports (-webkit-touch-callout: none) {
+  select { 
+    font-size: 16px; /* this prevents Iphone browser from zooming in */
+  }
+}
+
 .page {
   max-width: 800px;
   margin: 0 auto;
