@@ -166,6 +166,29 @@ function TranslatableAllQuestionsWithPagination(props){
         }
         else {
           answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects Majority Judgement grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as "vote nul" in French (invalid vote), and voting 0 to every candidate being interpreted as voting blank to this question). And Belenios backend expects Preferential Voting rank associated to each candidate to also start at 1, 1 being the most preferred (and 0 being interpreted as "not ranked", and voting 0 to every candidate being interpreted as voting blank to this question).
+
+          if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
+            // remove all preference levels which are empty, because the backend only cares about relative ordering
+            const upperBound = question.answers.length;
+            let aCandidateAtCurrentPreferenceLevelExists;
+            let hasChanged;
+            do {
+              hasChanged = false;
+              for (let preferenceLevel = upperBound; preferenceLevel > 0; --preferenceLevel){
+                aCandidateAtCurrentPreferenceLevelExists = answers_to_question.find(level => level === preferenceLevel);
+                if (!aCandidateAtCurrentPreferenceLevelExists){
+                  answers_to_question = answers_to_question.map((level) => {
+                    if (level > preferenceLevel){
+                      hasChanged = true;
+                      return level-1;
+                    } else {
+                      return level;
+                    }
+                  });
+                }
+              }
+            } while (hasChanged);
+          }
         }
       }
       else if (questionType === QuestionTypeEnum.CLASSIC){
