@@ -345,7 +345,7 @@ For getting the best security level, the administrator must have:
 -------------------------------------------------------
 
 To compute the fingerprint of a file, you need to use the same hash
-algorithm as the one used in Belenios. We provide here two possible
+algorithm as the one used in Belenios. We provide here possible
 solutions with command lines. We use the file `voters.txt` as example
 but of course you may replace it by any other file.
 
@@ -355,4 +355,6 @@ but of course you may replace it by any other file.
 
         cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
-
+You may also use
+[the online tool](https://belenios.loria.fr/compute-fingerprint)
+supported by Belenios.

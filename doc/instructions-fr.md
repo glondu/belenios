@@ -362,7 +362,7 @@ doit disposer :
 
 Pour calculer l'empreinte d'un fichier, vous devez utiliser la même
 fonction de hachage que celle utilisée dans Belenios. Nous proposons
-ici deux solutions pour calculer cette empreinte en ligne de
+ici plusieurs solutions pour calculer cette empreinte en ligne de
 commande. Nous utilisons le fichier `voters.txt` en exemple mais vous
 pouvez bien sûr le remplacer par un autre fichier.
 
@@ -374,3 +374,6 @@ pouvez bien sûr le remplacer par un autre fichier.
 ou encore :
 
         cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
+
+Vous pouvez également utiliser [l'outil en ligne](https://belenios.loria.fr/compute-fingerprint) mis à disposition par
+Belenios.
