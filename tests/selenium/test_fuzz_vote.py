@@ -183,7 +183,7 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionWithCreationBas
                 console_log("#### Analyzing page title, expecting it not to be 'Unauthorized'")
                 # If user provided a wrong username/password combination, the resulting page is a browser error page like `<h1>Unauthorized</h1><p>Error 401</p>`
                 page_title_css_selector = "h1"
-                expected_text_1 = "Log in with password"
+                expected_text_1 = "Authenticate with password"
                 expected_text_2 = "Unauthorized"
                 page_title_element = wait_for_element_exists_and_does_not_contain_expected_text(browser, page_title_css_selector, expected_text_1, timeout)
                 page_title_element = wait_for_element_exists_and_does_not_contain_expected_text(browser, page_title_css_selector, expected_text_2, timeout)
@@ -259,7 +259,7 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionWithCreationBas
             if page_title_label == "Error":
                 assert page_content_label == "Ill-formed ballot"
                 return page_title_label
-            elif page_title_label == "Log in with password":
+            elif page_title_label == "Authenticate with password":
                 return page_title_label
             else:
                 # This case happens sometimes, because Selenium has not yet replaced its DOM with the new DOM of the page (maybe because server has not responded yet or page loading is not yet complete).
@@ -269,7 +269,7 @@ class BeleniosMonkeyTestFuzzVoteAdvancedMode(BeleniosTestElectionWithCreationBas
 
         try:
             page_title = verify_page_title(browser)
-            assert page_title in ["Error", "Log in with password"]
+            assert page_title in ["Error", "Authenticate with password"]
             return page_title
         except Exception as e:
             console_log("Could not locate expected element. Exception received:", e)
