@@ -197,7 +197,7 @@ belenios-tool verify
 header "Apply Majority Judgment method"
 
 cat > mj.reference <<EOF
-{"raw":[[30,25,20,15,10],[25,30,20,14,11],[6,24,40,24,6],[10,15,20,25,30]],"blank":0,"invalid":[],"winners":[[0],[1],[2],[3]]}
+{"raw":[[30,25,20,15,10],[25,30,20,14,11],[6,24,40,24,6],[10,15,20,25,30]],"valid":100,"blank":0,"invalid":[],"winners":[[0],[1],[2],[3]]}
 EOF
 
 if command -v jq > /dev/null; then

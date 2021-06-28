@@ -24,7 +24,7 @@ open Serializable_j
 let compute_matrix ~ngrades ~nchoices ~blank_allowed ballots =
   let n = Array.length ballots in
   let raw = Array.make_matrix nchoices ngrades 0 in
-  let rec add_ballot i invalid blank =
+  let rec add_ballot i invalid blank valid =
     if i < n then (
       let ballot = ballots.(i) in
       assert (nchoices = Array.length ballot);
@@ -52,15 +52,15 @@ let compute_matrix ~ngrades ~nchoices ~blank_allowed ballots =
           ) else ()
         in
         fill 0;
-        add_ballot (i + 1) invalid blank
+        add_ballot (i + 1) invalid blank (valid + 1)
       ) else if blank_allowed && is_blank_ballot 0 then (
-        add_ballot (i + 1) invalid (blank + 1)
+        add_ballot (i + 1) invalid (blank + 1) valid
       ) else (
-        add_ballot (i + 1) (ballot :: invalid) blank
+        add_ballot (i + 1) (ballot :: invalid) blank valid
       )
-    ) else invalid, blank
+    ) else invalid, blank, valid
   in
-  let invalid, blank = add_ballot 0 [] 0 in
+  let invalid, blank, valid = add_ballot 0 [] 0 0 in
   let blank =
     if blank_allowed then (
       Some blank
@@ -69,7 +69,7 @@ let compute_matrix ~ngrades ~nchoices ~blank_allowed ballots =
       None
     )
   in
-  raw, Array.of_list invalid, blank
+  raw, Array.of_list invalid, blank, valid
 
 let compute_increasing_vector grades =
   let sum = Array.fold_left ( + ) 0 grades in
@@ -147,6 +147,6 @@ let compute_winners matrix =
   main 0 []
 
 let compute ~ngrades ~nchoices ~blank_allowed ballots =
-  let mj_raw, mj_invalid, mj_blank = compute_matrix ~ngrades ~nchoices ~blank_allowed ballots in
+  let mj_raw, mj_invalid, mj_blank, mj_valid = compute_matrix ~ngrades ~nchoices ~blank_allowed ballots in
   let mj_winners = compute_winners mj_raw in
-  {mj_raw; mj_blank; mj_invalid; mj_winners}
+  {mj_raw; mj_valid; mj_blank; mj_invalid; mj_winners}
