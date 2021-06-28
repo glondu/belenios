@@ -21,4 +21,4 @@
 
 open Serializable_t
 
-val compute : ngrades:int -> nchoices:int -> mj_ballots -> mj_result
+val compute : ngrades:int -> nchoices:int -> blank_allowed:bool -> mj_ballots -> mj_result

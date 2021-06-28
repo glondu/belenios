@@ -143,7 +143,8 @@ let format_question_result uuid l (i, q) r =
        | `MajorityJudgment o ->
           let ngrades = Array.length o.mj_extra_grades in
           let nchoices = Array.length q.Question_nh_t.q_answers in
-          let mj = Majority_judgment.compute ~nchoices ~ngrades ballots in
+          let blank_allowed = o.mj_extra_blank in
+          let mj = Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed ballots in
           let contents = majority_judgment_content l q mj in
           div ~a:[a_class ["majority_judgment_result"]] contents, false
      in

@@ -275,8 +275,8 @@ let handle_method uuid question f =
      let questions = election.e_questions in
      if 0 <= question && question < Array.length questions then (
        match questions.(question) with
-       | Question.NonHomomorphic (q, _) ->
-          f l q
+       | Question.NonHomomorphic (q, extra) ->
+          f l q extra
             (fun continuation ->
               let* result = Web_persist.get_election_result uuid in
               match result with
@@ -305,7 +305,7 @@ let () =
   Any.register ~service:method_schulze
     (fun (uuid, question) () ->
       handle_method uuid question
-        (fun _ q continuation ->
+        (fun _ q _ continuation ->
           continuation
             (fun ballots ->
               let nchoices = Array.length q.Question_nh_t.q_answers in
@@ -319,7 +319,7 @@ let () =
   Any.register ~service:method_mj
     (fun (uuid, (question, ngrades)) () ->
       handle_method uuid question
-        (fun l q continuation ->
+        (fun l q extra continuation ->
           let open (val l : Web_i18n_sig.GETTEXT) in
           match ngrades with
           | None ->
@@ -327,10 +327,15 @@ let () =
              >>= Html.send
           | Some ngrades ->
              if ngrades > 0 then (
+               let blank_allowed =
+                 match Question.get_counting_method extra with
+                 | `None -> false
+                 | `MajorityJudgment o -> o.mj_extra_blank
+               in
                continuation
                  (fun ballots ->
                    let nchoices = Array.length q.Question_nh_t.q_answers in
-                   let mj = Majority_judgment.compute ~nchoices ~ngrades ballots in
+                   let mj = Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed ballots in
                    Pages_voter.majority_judgment q mj >>= Html.send
                  )
              ) else (
@@ -345,7 +350,7 @@ let () =
   Any.register ~service:method_stv
     (fun (uuid, (question, nseats)) () ->
       handle_method uuid question
-        (fun l q continuation ->
+        (fun l q _ continuation ->
           let open (val l : Web_i18n_sig.GETTEXT) in
           match nseats with
           | None ->

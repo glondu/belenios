@@ -806,7 +806,7 @@ module Methods : CMDLINER_MODULE = struct
           |> print_endline
       )
 
-  let mj nchoices ngrades =
+  let mj nchoices ngrades blank_allowed =
     wrap_main (fun () ->
         let ballots = chars_of_stdin () |> mj_ballots_of_string in
         let nchoices =
@@ -822,8 +822,13 @@ module Methods : CMDLINER_MODULE = struct
             | None -> failcmd "--ngrades is missing"
             | Some i -> if i > 0 then i else failcmd "invalid --ngrades parameter"
           in
+          let blank_allowed =
+            match blank_allowed with
+            | None -> failcmd "--blank-allowed is missing"
+            | Some b -> b
+          in
           ballots
-          |> Majority_judgment.compute ~nchoices ~ngrades
+          |> Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
           |> string_of_mj_result
           |> print_endline
       )
@@ -854,6 +859,10 @@ module Methods : CMDLINER_MODULE = struct
     let doc = "Number of seats." in
     Arg.(value & opt (some int) None & info ["nseats"] ~docv:"N" ~doc)
 
+  let blank_allowed_t =
+    let doc = "Is blank allowed?" in
+    Arg.(value & opt (some bool) None & info ["blank-allowed"] ~docv:"B" ~doc)
+
   let schulze_cmd =
     let doc = "compute Schulze result" in
     let man = [
@@ -871,7 +880,7 @@ module Methods : CMDLINER_MODULE = struct
         `P "This command reads on standard input JSON-formatted ballots and interprets them as grades (ranging from 1 (best) to $(i,G) (worst)) given to $(i,N) choices. It then computes the result according to the Majority Judgment method and prints it on standard output.";
       ] @ common_man
     in
-    Term.(ret (pure mj $ nchoices_t $ ngrades_t)),
+    Term.(ret (pure mj $ nchoices_t $ ngrades_t $ blank_allowed_t)),
     Term.info "method-majority-judgment" ~doc ~man
 
   let stv_cmd =

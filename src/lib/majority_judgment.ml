@@ -21,10 +21,10 @@
 
 open Serializable_j
 
-let compute_matrix ~ngrades ~nchoices ballots =
+let compute_matrix ~ngrades ~nchoices ~blank_allowed ballots =
   let n = Array.length ballots in
   let raw = Array.make_matrix nchoices ngrades 0 in
-  let rec add_ballot i invalid =
+  let rec add_ballot i invalid blank =
     if i < n then (
       let ballot = ballots.(i) in
       assert (nchoices = Array.length ballot);
@@ -33,6 +33,15 @@ let compute_matrix ~ngrades ~nchoices ballots =
           let grade = ballot.(j) in
           if 0 < grade && grade <= ngrades then check (j + 1) else j
         ) else j
+      in
+      let rec is_blank_ballot j =
+        if j < nchoices then
+          if ballot.(j) = 0 then
+            is_blank_ballot (j + 1)
+          else
+            false
+        else
+          true
       in
       if check 0 = nchoices then (
         let rec fill j =
@@ -43,12 +52,24 @@ let compute_matrix ~ngrades ~nchoices ballots =
           ) else ()
         in
         fill 0;
-        add_ballot (i + 1) invalid
-      ) else add_ballot (i + 1) (ballot :: invalid)
-    ) else invalid
+        add_ballot (i + 1) invalid blank
+      ) else if blank_allowed && is_blank_ballot 0 then (
+        add_ballot (i + 1) invalid (blank + 1)
+      ) else (
+        add_ballot (i + 1) (ballot :: invalid) blank
+      )
+    ) else invalid, blank
   in
-  let invalid = add_ballot 0 [] in
-  raw, Array.of_list invalid
+  let invalid, blank = add_ballot 0 [] 0 in
+  let blank =
+    if blank_allowed then (
+      Some blank
+    ) else (
+      assert (blank = 0);
+      None
+    )
+  in
+  raw, Array.of_list invalid, blank
 
 let compute_increasing_vector grades =
   let sum = Array.fold_left ( + ) 0 grades in
@@ -125,7 +146,7 @@ let compute_winners matrix =
   in
   main 0 []
 
-let compute ~ngrades ~nchoices ballots =
-  let mj_raw, mj_invalid = compute_matrix ~ngrades ~nchoices ballots in
+let compute ~ngrades ~nchoices ~blank_allowed ballots =
+  let mj_raw, mj_invalid, mj_blank = compute_matrix ~ngrades ~nchoices ~blank_allowed ballots in
   let mj_winners = compute_winners mj_raw in
-  {mj_raw; mj_invalid; mj_winners}
+  {mj_raw; mj_blank; mj_invalid; mj_winners}

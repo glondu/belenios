@@ -197,11 +197,11 @@ belenios-tool verify
 header "Apply Majority Judgment method"
 
 cat > mj.reference <<EOF
-{"raw":[[30,25,20,15,10],[25,30,20,14,11],[6,24,40,24,6],[10,15,20,25,30]],"invalid":[],"winners":[[0],[1],[2],[3]]}
+{"raw":[[30,25,20,15,10],[25,30,20,14,11],[6,24,40,24,6],[10,15,20,25,30]],"blank":0,"invalid":[],"winners":[[0],[1],[2],[3]]}
 EOF
 
 if command -v jq > /dev/null; then
-    if diff -u mj.reference <(jq --compact-output '.result[0]' < result.json | belenios-tool method-majority-judgment --ngrades 5); then
+    if diff -u mj.reference <(jq --compact-output '.result[0]' < result.json | belenios-tool method-majority-judgment --ngrades 5 --blank-allowed true); then
         echo "Majority Judgment output is identical!"
     else
         echo "Differences in Majority Judgment output!"
