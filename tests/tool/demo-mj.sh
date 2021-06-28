@@ -30,7 +30,7 @@ uuid="--uuid $UUID"
 group="--group $BELENIOS/files/groups/rfc3526-2048.json"
 
 # Generate credentials
-belenios-tool credgen $uuid $group --count 100
+belenios-tool credgen $uuid $group --count 102
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
@@ -150,6 +150,8 @@ cat > votes.txt <<EOF
 [[5,5,5,5]]
 [[5,5,5,5]]
 [[5,5,5,5]]
+[[5,0,5,5]]
+[[0,0,0,0]]
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
@@ -197,7 +199,7 @@ belenios-tool verify
 header "Apply Majority Judgment method"
 
 cat > mj.reference <<EOF
-{"raw":[[30,25,20,15,10],[25,30,20,14,11],[6,24,40,24,6],[10,15,20,25,30]],"valid":100,"blank":0,"invalid":[],"winners":[[0],[1],[2],[3]]}
+{"raw":[[30,25,20,15,10],[25,30,20,14,11],[6,24,40,24,6],[10,15,20,25,30]],"valid":100,"blank":1,"invalid":[[5,0,5,5]],"winners":[[0],[1],[2],[3]]}
 EOF
 
 if command -v jq > /dev/null; then
