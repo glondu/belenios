@@ -751,11 +751,11 @@ msgstr "El resultado de esta elección no está disponible."
 
 #: src/web/pages_voter.ml:379
 msgid "The total weight is %s (min: %s, max: %s)."
-msgstr "El peso total es $s (min: %s, max: %s)."
+msgstr "El peso total es %s (min: %s, max: %s)."
 
 #: src/web/pages_voter.ml:355
 msgid "The voter list has %d voter(s) and fingerprint %s."
-msgstr "La lista de votantes tiene $d votante(s) y huellas %s."
+msgstr "La lista de votantes tiene %d votante(s) y huellas %s."
 
 #: src/web/pages_voter.ml:1074
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
