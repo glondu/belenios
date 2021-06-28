@@ -42,7 +42,7 @@ let scope = Eliom_common.default_session_scope
 let uuid_ref = Eliom_reference.eref ~scope None
 let env = Eliom_reference.eref ~scope None
 
-let pre_login_handler uuid {auth_config; _} ~state =
+let pre_login_handler uuid username_or_address {auth_config; _} ~state =
   let* () = Eliom_reference.set uuid_ref uuid in
   let site_or_election =
     match uuid with
@@ -61,7 +61,7 @@ let pre_login_handler uuid {auth_config; _} ~state =
        return @@ Web_auth.Html fragment
      )
   | _ ->
-     let* fragment = Pages_common.login_email site_or_election ~state in
+     let* fragment = Pages_common.login_email site_or_election username_or_address ~state in
      return @@ Web_auth.Html fragment
 
 let run_post_login_handler =

@@ -103,9 +103,9 @@ val login_choose :
                Eliom_service.t) ->
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-val login_dummy : [`Site | `Election] -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
-val login_email : [`Site | `Election] -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
-val login_password : [`Site | `Election] -> service:string -> allowsignups:bool -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_dummy : [`Site | `Election] -> [`Username | `Address] -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_email : [`Site | `Election] -> [`Username | `Address] -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_password : [`Site | `Election] -> [`Username | `Address] -> service:string -> allowsignups:bool -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
 
 val login_failed :
   service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,

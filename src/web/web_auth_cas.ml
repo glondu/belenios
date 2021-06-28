@@ -69,7 +69,7 @@ let get_cas_validation server ~state ticket =
      return (parse_cas_validation info)
   | None -> return (`Error `Http)
 
-let cas_login_handler _ a ~state =
+let cas_login_handler _ _ a ~state =
   match List.assoc_opt "server" a.Web_serializable_t.auth_config with
   | Some server ->
      let cas_login = Eliom_service.extern

@@ -26,7 +26,7 @@ type result =
   | Redirection : 'a Eliom_registration.redirection -> result
 
 type pre_login_handler =
-  uuid option -> auth_config -> state:string -> result Lwt.t
+  uuid option -> [`Username | `Address] -> auth_config -> state:string -> result Lwt.t
 
 type post_login_handler =
   {

@@ -22,6 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Eliom_service
+open Belenios.Serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Web_services
@@ -86,15 +87,15 @@ let run_post_login_handler ~auth_system ~state {post_login_handler} =
        restart_login ()
 
 type pre_login_handler =
-  uuid option -> auth_config -> state:string -> result Lwt.t
+  uuid option -> [`Username | `Address] -> auth_config -> state:string -> result Lwt.t
 
 let pre_login_handlers = ref []
 
-let get_pre_login_handler uuid kind a =
+let get_pre_login_handler uuid username_or_address kind a =
   let* state = generate_token () in
   let* () = Eliom_reference.set auth_env (Some (uuid, a, kind, state)) in
   match List.assoc_opt a.auth_system !pre_login_handlers with
-  | Some handler -> handler uuid a ~state
+  | Some handler -> handler uuid username_or_address a ~state
   | None -> fail_http 404
 
 let register_pre_login_handler ~auth_system handler =
@@ -123,31 +124,45 @@ let login_handler service kind =
   match user, uuid with
   | Some _, None -> get_cont `Login kind ()
   | Some _, Some _ | None, _ ->
-     let* c, site_or_election = match uuid with
-       | None -> return (!Web_config.site_auth_config, `Site)
+     let* c, site_or_election, username_or_address =
+       match uuid with
+       | None -> return (!Web_config.site_auth_config, `Site, `Username)
        | Some uuid ->
           let* metadata = Web_persist.get_election_metadata uuid in
-          match metadata.e_auth_config with
-          | None -> return ([], `Election)
-          | Some x ->
-             x
-             |> List.map
-                  (function
-                   | {auth_system = "import"; auth_instance = name; _} ->
-                      (match
-                         List.find_opt
-                           (function
-                            | `Export x -> x.auth_instance = name
-                            | _ -> false
-                           ) !Web_config.exported_auth_config
-                       with
-                       | Some (`Export x) -> [x]
-                       | _ -> []
-                      )
-                   | x -> [x]
-                  )
-             |> List.flatten
-             |> (fun x -> return (x, `Election))
+          let* c =
+            match metadata.e_auth_config with
+            | None -> return []
+            | Some x ->
+               x
+               |> List.map
+                    (function
+                     | {auth_system = "import"; auth_instance = name; _} ->
+                        (match
+                           List.find_opt
+                             (function
+                              | `Export x -> x.auth_instance = name
+                              | _ -> false
+                             ) !Web_config.exported_auth_config
+                         with
+                         | Some (`Export x) -> [x]
+                         | _ -> []
+                        )
+                     | x -> [x]
+                    )
+               |> List.flatten
+               |> return
+          in
+          let* username_or_address =
+            let* voters = Web_persist.get_voters uuid in
+            match voters with
+            | None | Some [] -> return `Username
+            | Some (v :: _) ->
+               let _, username, _ = split_identity_opt v in
+               match username with
+               | None -> return `Address
+               | Some _ -> return `Username
+          in
+          return (c, `Election, username_or_address)
      in
      match service with
      | Some s ->
@@ -156,7 +171,7 @@ let login_handler service kind =
           | Some x -> return x
           | None -> fail_http 404
         in
-        let* x = get_pre_login_handler uuid kind a in
+        let* x = get_pre_login_handler uuid username_or_address kind a in
         (match x with
          | Html x ->
             let* title = Pages_common.login_title site_or_election a.auth_instance in
@@ -193,4 +208,4 @@ let () = Eliom_registration.Any.register ~service:election_login
 let get_site_login_handler service =
   match find_auth_instance service !Web_config.site_auth_config with
   | None -> return @@ Html (Eliom_content.Html.F.div [])
-  | Some a -> get_pre_login_handler None (`Site ContSiteAdmin) a
+  | Some a -> get_pre_login_handler None `Username (`Site ContSiteAdmin) a

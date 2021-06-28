@@ -63,14 +63,14 @@ let does_allow_signups c =
 
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"password"
-    (fun uuid { auth_config; auth_instance = service; _ } ~state ->
+    (fun uuid username_or_address { auth_config; auth_instance = service; _ } ~state ->
       let allowsignups = does_allow_signups auth_config in
       let site_or_election =
         match uuid with
         | None -> `Site
         | Some _ -> `Election
       in
-      Pages_common.login_password site_or_election ~service ~allowsignups ~state
+      Pages_common.login_password site_or_election username_or_address ~service ~allowsignups ~state
       >>= (fun x -> return @@ Web_auth.Html x)
     )
 

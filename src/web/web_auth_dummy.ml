@@ -24,13 +24,13 @@ open Lwt
 
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"dummy"
-    (fun uuid _ ~state ->
+    (fun uuid username_or_address _ ~state ->
       let site_or_election =
         match uuid with
         | None -> `Site
         | Some _ -> `Election
       in
-      let* page = Pages_common.login_dummy site_or_election ~state in
+      let* page = Pages_common.login_dummy site_or_election username_or_address ~state in
       return @@ Web_auth.Html page
     )
 

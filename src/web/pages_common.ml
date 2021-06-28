@@ -330,10 +330,14 @@ let login_choose auth_systems service () =
   ] in
   responsive_base ~title:(s_ "Log in") ~content ()
 
-let login_generic site_or_election ~service ~state =
+let login_generic site_or_election username_or_address ~service ~state =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let field_name, input_type = s_ "Username:", `Text in
+  let field_name =
+    match username_or_address with
+    | `Username -> s_ "Username:"
+    | `Address -> s_ "E-mail address:"
+  in
   let form = post_form ~service
     (fun (nstate, name) ->
       [
@@ -341,7 +345,7 @@ let login_generic site_or_election ~service ~state =
         tablex [tbody [
           tr [
             th [label ~a:[a_label_for "username"] [txt field_name]];
-            td [input ~a:[a_id "username"] ~input_type ~name string];
+            td [input ~a:[a_id "username"] ~input_type:`Text ~name string];
           ]]
         ];
         div [
@@ -359,7 +363,7 @@ let login_generic site_or_election ~service ~state =
 let login_dummy = login_generic ~service:dummy_post
 let login_email = login_generic ~service:email_post
 
-let login_password site_or_election ~service ~allowsignups ~state =
+let login_password site_or_election username_or_address ~service ~allowsignups ~state =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let signup =
@@ -374,13 +378,18 @@ let login_password site_or_election ~service ~allowsignups ~state =
         ]
     else txt ""
   in
+  let username_label =
+    match username_or_address with
+    | `Username -> s_ "Username:"
+    | `Address -> s_ "E-mail address:"
+  in
   let form = post_form ~service:password_post
     (fun (lstate, (llogin, lpassword)) ->
       [
         input ~input_type:`Hidden ~name:lstate ~value:state string;
         tablex ~a:[a_class ["authentication-table"]] [tbody [
           tr [
-            th [label ~a:[a_label_for "username"] [txt (s_ "Username:")]];
+            th [label ~a:[a_label_for "username"] [txt username_label]];
             td [input ~a:[a_id "username"; a_class ["nice-text-input"]] ~input_type:`Text ~name:llogin string];
           ];
           tr [
