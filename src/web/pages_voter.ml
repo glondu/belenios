@@ -90,21 +90,27 @@ let majority_judgment_content l q r =
           ]
       ) explicit_winners
   in
+  let valid_format =
+    match r.mj_blank with
+    | Some _ -> f_ "%d valid (non-blank) ballot(s)"
+    | None -> f_ "%d valid ballot(s)"
+  in
+  let valid = div [Printf.ksprintf txt valid_format r.mj_valid] in
+  let blank =
+    match r.mj_blank with
+    | Some b -> div [Printf.ksprintf txt (f_ "%d blank ballot(s)") b]
+    | None -> txt ""
+  in
   let invalid = "data:application/json," ^ string_of_mj_ballots r.mj_invalid in
   let invalid = direct_a invalid (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.mj_invalid)) in
-  let invalid =
-    div
-      [
-        invalid;
-        txt ". ";
-        txt (s_ "A ballot is invalid if a voter has entered a number that is greater than the number of grades.");
-      ]
-  in
+  let invalid = div [invalid] in
   [
     div [
-        txt (s_ "The Majority Judgment winners are:");
-        ol pretty_winners;
+        txt (s_ "According to Majority Judgment, the ranking is:");
+        ol ~a:[a_class ["majority_judgment_ranking"]] pretty_winners;
       ];
+    valid;
+    blank;
     invalid;
   ]
 
