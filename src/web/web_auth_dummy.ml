@@ -19,12 +19,19 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Lwt
 
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"dummy"
-    (fun _ _ ~state ->
-      Pages_common.login_dummy ~state >>= (fun x -> return @@ Web_auth.Html x)
+    (fun uuid _ ~state ->
+      let site_or_election =
+        match uuid with
+        | None -> `Site
+        | Some _ -> `Election
+      in
+      let* page = Pages_common.login_dummy site_or_election ~state in
+      return @@ Web_auth.Html page
     )
 
 let () =

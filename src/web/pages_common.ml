@@ -304,10 +304,15 @@ let raw_textarea ?rows ?cols id contents =
   in
   Eliom_content.Html.F.Raw.textarea ~a:(id @ rows @ cols) (txt contents)
 
-let login_title service =
+let login_title site_or_election service =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  return @@ Printf.sprintf (f_ "Log in with %s") service
+  let format =
+    match site_or_election with
+    | `Site -> f_ "Log in with %s"
+    | `Election -> f_ "Authenticate with %s"
+  in
+  Printf.ksprintf return format service
 
 let login_choose auth_systems service () =
   let* l = get_preferred_gettext () in
@@ -325,8 +330,10 @@ let login_choose auth_systems service () =
   ] in
   responsive_base ~title:(s_ "Log in") ~content ()
 
-let login_generic ~service ~state =
-  let field_name, input_type = "Username:", `Text in
+let login_generic site_or_election ~service ~state =
+  let* l = get_preferred_gettext () in
+  let open (val l) in
+  let field_name, input_type = s_ "Username:", `Text in
   let form = post_form ~service
     (fun (nstate, name) ->
       [
@@ -338,7 +345,12 @@ let login_generic ~service ~state =
           ]]
         ];
         div [
-          input ~input_type:`Submit ~value:"Login" string;
+            let value =
+              match site_or_election with
+              | `Site -> s_ "Log in"
+              | `Election -> s_ "Authenticate"
+            in
+            input ~input_type:`Submit ~value string;
         ]
       ]) ()
   in
@@ -347,7 +359,7 @@ let login_generic ~service ~state =
 let login_dummy = login_generic ~service:dummy_post
 let login_email = login_generic ~service:email_post
 
-let login_password ~service ~allowsignups ~state =
+let login_password site_or_election ~service ~allowsignups ~state =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let signup =
@@ -377,7 +389,12 @@ let login_password ~service ~allowsignups ~state =
           ];
         ]];
         div ~a:[a_style "text-align: center;"] [
-          input ~a:[a_class ["nice-button nice-button--blue"]] ~input_type:`Submit ~value:(s_ "Login") string;
+            let value =
+              match site_or_election with
+              | `Site -> s_ "Log in"
+              | `Election -> s_ "Authenticate"
+            in
+            input ~a:[a_class ["nice-button nice-button--blue"]] ~input_type:`Submit ~value string;
         ]
       ]) ()
   in
@@ -399,7 +416,7 @@ let login_failed ~service () =
   in
   responsive_base ~title ~content ()
 
-let email_login () =
+let email_login site_or_election =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let form =
@@ -418,7 +435,12 @@ let email_login () =
       ) ()
   in
   let content = [form] in
-  base ~title:(s_ "Log in") ~content ()
+  let title =
+    match site_or_election with
+    | `Site -> s_ "Log in"
+    | `Election -> s_ "Authenticate"
+  in
+  base ~title ~content ()
 
 let email_email ~address ~code =
   let* l = get_preferred_gettext () in

@@ -93,7 +93,7 @@ val generic_page :
     Eliom_service.t ->
   string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-val login_title : string -> string Lwt.t
+val login_title : [`Site | `Election] -> string -> string Lwt.t
 
 val login_choose :
   string list ->
@@ -103,9 +103,9 @@ val login_choose :
                Eliom_service.t) ->
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-val login_dummy : state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
-val login_email : state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
-val login_password : service:string -> allowsignups:bool -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_dummy : [`Site | `Election] -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_email : [`Site | `Election] -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
+val login_password : [`Site | `Election] -> service:string -> allowsignups:bool -> state:string -> [> Html_types.div ] Eliom_content.Html.F.elt Lwt.t
 
 val login_failed :
   service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,
@@ -114,7 +114,7 @@ val login_failed :
                    Eliom_service.t ->
   unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-val email_login : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val email_login : [`Site | `Election] -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val email_email : address:string -> code:string -> (string * string) Lwt.t
 
 val signup_captcha_img : string -> [> Html_types.img ] Eliom_content.Html.elt

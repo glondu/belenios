@@ -44,6 +44,11 @@ let env = Eliom_reference.eref ~scope None
 
 let pre_login_handler uuid {auth_config; _} ~state =
   let* () = Eliom_reference.set uuid_ref uuid in
+  let site_or_election =
+    match uuid with
+    | None -> `Site
+    | Some _ -> `Election
+  in
   match List.assoc_opt "use_captcha" auth_config with
   | Some "true" ->
      let* b = Captcha_throttle.wait captcha_throttle 0 in
@@ -56,7 +61,7 @@ let pre_login_handler uuid {auth_config; _} ~state =
        return @@ Web_auth.Html fragment
      )
   | _ ->
-     let* fragment = Pages_common.login_email ~state in
+     let* fragment = Pages_common.login_email site_or_election ~state in
      return @@ Web_auth.Html fragment
 
 let run_post_login_handler =
@@ -96,29 +101,32 @@ let check_code name code =
      ) else false
 
 let handle_email_post ~state name ok =
-  let* address =
+  let* address, site_or_election =
     let* uuid = Eliom_reference.get uuid_ref in
     match uuid with
-    | None -> if is_email name then return_some name else return_none
+    | None -> return ((if is_email name then Some name else None), `Site)
     | Some uuid ->
        let* voters = Web_persist.get_voters uuid in
-       match voters with
-       | None -> return_none
-       | Some voters ->
-          let rec loop = function
-            | [] -> return_none
-            | v :: vs ->
-               let address, login, _ = split_identity v in
-               if name = login then return_some address else loop vs
-          in
-          loop voters
+       let* address =
+         match voters with
+         | None -> return_none
+         | Some voters ->
+            let rec loop = function
+              | [] -> return_none
+              | v :: vs ->
+                 let address, login, _ = split_identity v in
+                 if name = login then return_some address else loop vs
+            in
+            loop voters
+       in
+       return (address, `Election)
   in
   match ok, address with
   | true, Some address ->
      let* () = generate_new_code address in
      let* () = Eliom_reference.unset uuid_ref in
      let* () = Eliom_reference.set env (Some (state, name, address)) in
-     Pages_common.email_login () >>= Eliom_registration.Html.send
+     Pages_common.email_login site_or_election >>= Eliom_registration.Html.send
   | _ ->
      run_post_login_handler ~state
        {

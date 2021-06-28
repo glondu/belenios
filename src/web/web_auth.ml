@@ -123,12 +123,12 @@ let login_handler service kind =
   match user, uuid with
   | Some _, None -> get_cont `Login kind ()
   | Some _, Some _ | None, _ ->
-     let* c = match uuid with
-       | None -> return !Web_config.site_auth_config
+     let* c, site_or_election = match uuid with
+       | None -> return (!Web_config.site_auth_config, `Site)
        | Some uuid ->
           let* metadata = Web_persist.get_election_metadata uuid in
           match metadata.e_auth_config with
-          | None -> return []
+          | None -> return ([], `Election)
           | Some x ->
              x
              |> List.map
@@ -147,7 +147,7 @@ let login_handler service kind =
                    | x -> [x]
                   )
              |> List.flatten
-             |> return
+             |> (fun x -> return (x, `Election))
      in
      match service with
      | Some s ->
@@ -159,7 +159,7 @@ let login_handler service kind =
         let* x = get_pre_login_handler uuid kind a in
         (match x with
          | Html x ->
-            let* title = Pages_common.login_title a.auth_instance in
+            let* title = Pages_common.login_title site_or_election a.auth_instance in
             Pages_common.base ~title ~content:[x] () >>= Eliom_registration.Html.send
          | Redirection x -> Eliom_registration.Redirection.send x
         )
