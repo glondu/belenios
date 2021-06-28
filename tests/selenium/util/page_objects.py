@@ -261,7 +261,7 @@ class VoterLoginPage(VerifiablePage, ClickableLogoPage):
 
 
     def click_on_login_button(self):
-        login_button_element = wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text(self.browser, self.login_form_submit_css_selector, "value", "Login", self.timeout)
+        login_button_element = wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text(self.browser, self.login_form_submit_css_selector, "value", "Authenticate", self.timeout)
         login_button_element.submit()
 
 
