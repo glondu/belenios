@@ -71,8 +71,7 @@ let createHomomorphicQuestionWidget q =
   let open Question_h_t in
   let () =
     let c = Dom_html.createH2 document in
-    let t = document##createTextNode (Js.string q.q_question) in
-    Dom.appendChild c t;
+    append_with_br c q.q_question;
     Dom.appendChild div c
   in
   let () =
@@ -97,12 +96,11 @@ let createHomomorphicQuestionWidget q =
       if answers.(i) > 0 then checkbox##.checked := Js.bool true;
       checkbox##.style##.cursor := Js.string "pointer";
       Dom.appendChild div checkbox;
-      let t = document##createTextNode (Js.string a) in
       checkbox##.onclick := Dom_html.handler (fun _ ->
         answers.(i) <- if Js.to_bool checkbox##.checked then 1 else 0;
         Js._true
       );
-      Dom.appendChild div t;
+      append_with_br div a;
       Dom.appendChild container div;
       container
     ) q_answers
@@ -148,8 +146,7 @@ let createHomomorphicQuestionWidget q =
   let create_summary () =
     let e = Dom_html.createDiv document in
     let h = Dom_html.createH3 document in
-    let t = document##createTextNode (Js.string q.q_question) in
-    Dom.appendChild h t;
+    append_with_br h q.q_question;
     Dom.appendChild e h;
     let ul = Dom_html.createUl document in
     let checked = ref 0 in
@@ -162,8 +159,7 @@ let createHomomorphicQuestionWidget q =
             | Some true -> if i = 0 then s_ "Blank vote" else q.q_answers.(i-1)
             | _ -> q.q_answers.(i)
           in
-          let t = document##createTextNode (Js.string text) in
-          Dom.appendChild li t;
+          append_with_br li text;
           Dom.appendChild ul li;
         )
       ) answers;
@@ -187,8 +183,7 @@ let createNonHomomorphicQuestionWidget q =
   let open Question_nh_t in
   let () =
     let c = Dom_html.createH2 document in
-    let t = document##createTextNode (Js.string q.q_question) in
-    Dom.appendChild c t;
+    append_with_br c q.q_question;
     Dom.appendChild div c
   in
   let answers = Array.make (Array.length q.q_answers) 0 in
@@ -201,7 +196,6 @@ let createNonHomomorphicQuestionWidget q =
       input##.size := 5;
       input##.value := Js.string (string_of_int answers.(i));
       Dom.appendChild div input;
-      let t = document##createTextNode (Js.string (" " ^ a)) in
       input##.onchange :=
         Dom_html.handler (fun _ ->
             try
@@ -214,7 +208,7 @@ let createNonHomomorphicQuestionWidget q =
               alert (s_ "Value must be an integer between 0 and 255.");
               Js._false
           );
-      Dom.appendChild div t;
+      append_with_br div (" " ^ a);
       input, div
     ) q.q_answers
     in
@@ -267,16 +261,14 @@ let createNonHomomorphicQuestionWidget q =
   let create_summary () =
     let e = Dom_html.createDiv document in
     let h = Dom_html.createH3 document in
-    let t = document##createTextNode (Js.string q.q_question) in
-    Dom.appendChild h t;
+    append_with_br h q.q_question;
     Dom.appendChild e h;
     let ul = Dom_html.createUl document in
     Array.iteri
       (fun i a ->
         let li = Dom_html.createLi document in
         let text = Printf.sprintf "%d (%s)" a q.q_answers.(i) in
-        let t = document##createTextNode (Js.string text) in
-        Dom.appendChild li t;
+        append_with_br li text;
         Dom.appendChild ul li;
       ) answers;
     Dom.appendChild e ul;
@@ -416,8 +408,8 @@ let loadElection () =
   let election_params = Election.parse election_raw in
   let module P = (val election_params : ELECTION_DATA) in
   let params = P.election in
-  set_content "election_name" params.e_name;
-  set_content "election_description" params.e_description;
+  set_content_with_br "election_name" params.e_name;
+  set_content_with_br "election_description" params.e_description;
   set_content "election_uuid" (raw_string_of_uuid params.e_uuid);
   set_content "election_fingerprint" P.fingerprint;
   document##getElementById (Js.string "intro") >>== fun e ->

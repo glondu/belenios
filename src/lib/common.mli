@@ -91,3 +91,5 @@ val sqrt : Z.t -> Z.t
 module BabyStepGiantStep (G : GROUP) : sig
   val log : generator:G.t -> max:Z.t -> G.t -> Z.t option
 end
+
+val split_on_br : string -> string list

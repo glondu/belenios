@@ -93,6 +93,24 @@ let set_content id x =
   let t = document##createTextNode (Js.string x) in
   Dom.appendChild e t
 
+let append_with_br e x =
+  let rec loop = function
+    | [] -> ()
+    | x :: xs ->
+       Dom.appendChild e (Dom_html.createBr document);
+       Dom.appendChild e (document##createTextNode (Js.string x));
+       loop xs
+  in
+  match split_on_br x with
+  | [] -> ()
+  | x :: xs ->
+     Dom.appendChild e (document##createTextNode (Js.string x));
+     loop xs
+
+let set_content_with_br id x =
+  document##getElementById (Js.string id) >>== fun e ->
+  append_with_br e x
+
 let clear_content (e : #Dom.node Js.t) =
   while Js.to_bool e##hasChildNodes do
     e##.firstChild >>== fun x ->

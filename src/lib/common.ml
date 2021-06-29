@@ -319,3 +319,16 @@ module BabyStepGiantStep (G : GROUP) = struct
     in
     lookup 0 beta
 end
+
+let split_on_br s =
+  let n = String.length s in
+  let rec loop i j accu =
+    if j <= n - 4 then
+       if String.sub s j 4 = "<br>" then
+         loop (j + 4) (j + 4) (String.sub s i (j - i) :: accu)
+       else
+         loop i (j + 1) accu
+    else
+      List.rev (String.sub s i (n - i) :: accu)
+  in
+  loop 0 0 []
