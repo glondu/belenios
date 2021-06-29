@@ -244,7 +244,7 @@ class VoterLoginPage(VerifiablePage, ClickableLogoPage):
 
 
     def verify_page(self):
-        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "h1", "Authenticate with", self.timeout)
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, "h1", "with", self.timeout)
 
 
     def fill_form(self, username, password):
