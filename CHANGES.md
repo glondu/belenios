@@ -1,3 +1,20 @@
+dev
+===
+
+ * Check secret credentials in belenios-tool (GitHub issue #31)
+ * Optimize log computation during decryption
+ * Majority Judgment: compute explicitly valid and blank votes
+ * Web server:
+   + New voting interface for classic and Majority Judgment votes
+   + Add a way to specify counting method of alternative questions
+     (only Majority Judgment is supported at the moment)
+   + Add possibility to customize email sender name (GitHub issue #30)
+   + Add possibility to customize footer
+   + The maximum total weight is now 10^11 (instead of 10^5)
+   + `<br>` are interpreted as line breaks in election names,
+     descriptions, questions and answers
+   + Many cosmetic changes in administrator's and voter's workflows
+
 1.15 (2021-05-04)
 =================
 
