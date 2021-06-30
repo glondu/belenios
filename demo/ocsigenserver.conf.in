@@ -79,6 +79,7 @@
         <log file="_VARDIR_/log/security.log"/>
         <locales dir="_SHAREDIR_/locales"/>
         <spool dir="_VARDIR_/spool"/>
+        <admin-home file="_VARDIR_/admin-home.html"/>
         <warning file="_VARDIR_/warning.html"/>
         <footer file="_VARDIR_/footer.html"/>
       </eliom>
