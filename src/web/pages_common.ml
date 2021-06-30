@@ -59,9 +59,14 @@ let belenios_url = Eliom_service.extern
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
-let read_snippet ?(default = txt "") file = match file with
+let read_snippet ?(default = txt "") ~lang file = match file with
   | None -> return default
   | Some f ->
+     let* f =
+       let f' = f ^ "." ^ lang in
+       let* b = Lwt_unix.file_exists f' in
+       return (if b then f' else f)
+     in
      let* file = read_file f in
      match file with
      | None -> return default
@@ -90,8 +95,8 @@ let base ~title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid () =
     | None -> txt ""
     | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
-  let* warning = read_snippet !Web_config.warning_file in
-  let* extra_footer = read_snippet !Web_config.footer_file in
+  let* warning = read_snippet ~lang !Web_config.warning_file in
+  let* extra_footer = read_snippet ~lang !Web_config.footer_file in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
     (head (Eliom_content.Html.F.title (txt title)) [
       script (txt "window.onbeforeunload = function () {};");
@@ -157,8 +162,8 @@ let responsive_base ~title ?login_box ?lang_box ~content ?(footer = txt "") ?uui
     | None -> div []
     | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
   in
-  let* warning = read_snippet !Web_config.warning_file in
-  let* extra_footer = read_snippet !Web_config.footer_file in
+  let* warning = read_snippet ~lang !Web_config.warning_file in
+  let* extra_footer = read_snippet ~lang !Web_config.footer_file in
   Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
     (head (Eliom_content.Html.F.title (txt title)) [
       meta ~a:[a_name "viewport"; a_content "width=device-width, initial-scale=1"] ();

@@ -163,7 +163,7 @@ let admin_login get_handler =
           contact;
         ]
     in
-    read_snippet ~default !Web_config.admin_home
+    read_snippet ~default ~lang !Web_config.admin_home
   in
   let content = [
       body;

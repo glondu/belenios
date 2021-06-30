@@ -58,7 +58,7 @@ val format_user :
 
 val read_snippet :
   ?default:([> Html_types.div_content_fun ] as 'a) Eliom_content.Html.elt ->
-  string option -> 'a Eliom_content.Html.elt Lwt.t
+  lang:string -> string option -> 'a Eliom_content.Html.elt Lwt.t
 
 val base :
   title:string ->
