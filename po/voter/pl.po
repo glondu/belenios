@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-06-30 13:00+0000\n"
+"PO-Revision-Date: 2021-07-01 15:32+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -14,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.7.1-dev\n"
+"X-Generator: Weblate 4.8-dev\n"
 
 #: src/web/pages_common.ml:382
 msgid " (if you forgot it, for example)."
@@ -155,7 +154,8 @@ msgstr "Oddane karty do głosowania"
 
 #: src/web/pages_voter.ml:109
 msgid "According to Majority Judgment, the ranking is:"
-msgstr "Wynik głosowania zgodnie z systemem opinii większościowej:"
+msgstr ""
+"Wynik głosowania zgodnie z systemem Sądu Większościowego (Laraki/Baliński):"
 
 #: src/web/pages_common.ml:151 src/web/pages_common.ml:81
 msgid "Administer elections"
@@ -175,9 +175,9 @@ msgstr ""
 "Każdy z następujących mężów (osób) zaufania (przy pomocy swoich kluczy "
 "weryfikacyjnych) musi odszyfrować wynik głosowania:"
 
-#: src/web/pages_voter.ml:921 src/web/pages_voter.ml:735
 #. src/web/pages_voter.ml:613
 #. src/web/pages_voter.ml:611
+#: src/web/pages_voter.ml:921 src/web/pages_voter.ml:735
 msgid "Answer to questions"
 msgstr "Wybierz"
 
@@ -193,12 +193,12 @@ msgstr "Przynajmniej jedna odpowiedź (wybór) nie jest prawidłowa!"
 msgid "Audit data: "
 msgstr "Dane audytu: "
 
-#: src/web/pages_voter.ml:925 src/web/pages_voter.ml:739
 #. src/web/pages_voter.ml:631
 #. src/web/pages_voter.ml:629
 #. src/web/pages_common.ml:455
 #. src/web/pages_common.ml:409
 #. src/web/pages_common.ml:360
+#: src/web/pages_voter.ml:925 src/web/pages_voter.ml:739
 msgid "Authenticate"
 msgstr "Uwierzytelnij"
 
@@ -244,8 +244,8 @@ msgstr "Belenios login"
 msgid "Best regards,"
 msgstr "Z pozdrowieniami"
 
-#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 #. src/web/pages_voter.ml:124
+#: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
 msgid "Blank vote"
 msgstr "Pusty głos"
 
@@ -269,14 +269,14 @@ msgstr "Obliczony cyfrowy odcisk (hasz):"
 msgid "Condorcet-Schulze method"
 msgstr "system Condorceta-Schulzego"
 
-#: src/web/pages_voter.ml:927 src/web/pages_voter.ml:741
 #. src/web/pages_voter.ml:640
 #. src/web/pages_voter.ml:638
+#: src/web/pages_voter.ml:927 src/web/pages_voter.ml:741
 msgid "Confirm"
 msgstr "Potwierdź"
 
-#: src/web/pages_voter.ml:1122 src/web/pages_voter.ml:1065
 #. src/web/pages_voter.ml:907
+#: src/web/pages_voter.ml:1122 src/web/pages_voter.ml:1065
 msgid "Continue"
 msgstr "Dalej"
 
@@ -302,8 +302,8 @@ msgstr "Dzień dobry %s,"
 msgid "Done"
 msgstr "Gotowe"
 
-#: src/web/pages_common.ml:505 src/web/pages_common.ml:389
 #. src/web/pages_common.ml:344
+#: src/web/pages_common.ml:505 src/web/pages_common.ml:389
 msgid "E-mail address:"
 msgstr "Adres e-mail:"
 
@@ -315,8 +315,8 @@ msgstr "Unikalny identyfikator głosowania (UUID): "
 msgid "Election fingerprint: "
 msgstr "Cyfrowy odcisk (hasz) głosowania: "
 
-#: src/web/pages_voter.ml:972 src/web/pages_common.ml:179
 #. src/web/pages_common.ml:111
+#: src/web/pages_voter.ml:972 src/web/pages_common.ml:179
 msgid "Election server"
 msgstr "Serwer głosowania"
 
@@ -324,9 +324,9 @@ msgstr "Serwer głosowania"
 msgid "Encrypting…"
 msgstr "Szyfruję…"
 
-#: src/web/site_voter.ml:365 src/web/site_voter.ml:340 src/web/site_voter.ml:297
 #. src/web/site_voter.ml:292
 #. src/web/site_voter.ml:287
+#: src/web/site_voter.ml:365 src/web/site_voter.ml:340 src/web/site_voter.ml:297
 msgid "Error"
 msgstr "Błąd"
 
@@ -342,9 +342,9 @@ msgstr "BŁĄD!"
 msgid "Get the source code"
 msgstr "Pobierz kod źródłowy"
 
-#: src/web/pages_voter.ml:826 src/web/pages_voter.ml:789
 #. src/web/pages_voter.ml:719
 #. src/web/pages_voter.ml:689
+#: src/web/pages_voter.ml:826 src/web/pages_voter.ml:789
 msgid "Go back to election"
 msgstr "Wróć do głosowania"
 
@@ -359,9 +359,9 @@ msgstr "Oddaję głos"
 #: src/tool/tool_js_booth.ml:232
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
-"Przy głosowaniu na kandydatów (opcje) zgodnie z systemem opinii "
-"większościowej \"1\" jest najlepszą rangą. Im wyższa liczba, tym gorsza "
-"ranga."
+"Przy głosowaniu na kandydatów (opcje) zgodnie z systemem Sądu "
+"Większościowego (Laraki/Baliński) \"1\" jest najlepszą rangą. Im wyższa "
+"liczba, tym gorsza ranga."
 
 #: src/tool/tool_js_booth.ml:235
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
@@ -384,8 +384,8 @@ msgstr ""
 #: src/web/pages_voter.ml:1072
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
 msgstr ""
-"W systemie opinii większościowej, oddany głos przyznaje rangę każdemu z "
-"kandydatów (opcji)."
+"W systemie Sądu Większościowego (Laraki/Baliński), oddany głos przyznaje "
+"rangę każdemu z kandydatów (opcji)."
 
 #: src/web/pages_voter.ml:1129
 msgid "In the context of STV, voters rank candidates by order of preference."
@@ -394,9 +394,9 @@ msgstr ""
 "kandydatów (opcje) w kolejności od najbardziej preferowanego do najmniej "
 "preferowanego."
 
-#: src/web/pages_voter.ml:919 src/web/pages_voter.ml:733
 #. src/web/pages_voter.ml:604
 #. src/web/pages_voter.ml:602
+#: src/web/pages_voter.ml:919 src/web/pages_voter.ml:733
 msgid "Input credential"
 msgstr "Wprowadź kod głosowania"
 
@@ -438,9 +438,9 @@ msgstr "Język:"
 msgid "Loading…"
 msgstr "Ładowanie…"
 
-#: src/web/pages_common.ml:454 src/web/pages_common.ml:408
 #. src/web/pages_common.ml:359
 #. src/web/pages_common.ml:336
+#: src/web/pages_common.ml:454 src/web/pages_common.ml:408
 msgid "Log in"
 msgstr "Zaloguj się"
 
@@ -454,11 +454,11 @@ msgstr "Aby dowiedzieć się więcej, sprawdź nieprzetworzone dane."
 
 #: src/web/pages_voter.ml:166
 msgid "Majority Judgment"
-msgstr "opinii większościowej"
+msgstr "Sądu Większościowego (Laraki/Baliński)"
 
 #: src/web/pages_voter.ml:1106 src/web/pages_voter.ml:1056
 msgid "Majority Judgment method"
-msgstr "system opinii większościowej"
+msgstr "system Sądu Większościowego (Laraki/Baliński)"
 
 #: src/web/pages_voter.ml:1198
 msgid "Many variants of STV exist, depending for example on how to break ties."
@@ -572,8 +572,8 @@ msgstr "Wklej poniżej dane, dla których chcesz obliczyć cyfrowy odcisk (hasz)
 #: src/web/pages_voter.ml:1090
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
 msgstr ""
-"Podaj liczbę rang aby zobaczyć wynik głosowania zgodnie z systemem opinii "
-"większościowej."
+"Podaj liczbę rang aby zobaczyć wynik głosowania zgodnie z systemem Sądu "
+"Większościowego (Laraki/Baliński)."
 
 #: src/web/pages_voter.ml:1144
 msgid "Please provide the number of seats to see the result of the election according to the Single Transferable Vote method."
@@ -617,9 +617,9 @@ msgstr "Rozpocznij od nowa"
 msgid "Results will be published on the election page"
 msgstr "Wyniki zostaną wyświetlone na stronie głosowania"
 
-#: src/web/pages_voter.ml:923 src/web/pages_voter.ml:737
 #. src/web/pages_voter.ml:622
 #. src/web/pages_voter.ml:620
+#: src/web/pages_voter.ml:923 src/web/pages_voter.ml:737
 msgid "Review and encrypt"
 msgstr "Sprawdź i zaszyfruj"
 
@@ -857,9 +857,9 @@ msgstr ""
 msgid "Use the following code:"
 msgstr "Użyj kodu:"
 
-#: src/web/pages_voter.ml:1303 src/web/pages_voter.ml:1246
 #. src/web/pages_common.ml:388
 #. src/web/pages_common.ml:343
+#: src/web/pages_voter.ml:1303 src/web/pages_voter.ml:1246
 msgid "Username:"
 msgstr "Nazwa użytkownika:"
 
@@ -987,8 +987,8 @@ msgstr "Twoje hasło logowania do głosowania %s"
 msgid "Your smart ballot tracker is"
 msgstr "Nr Twojej karty do głosowania to"
 
-#: src/web/pages_voter.ml:899 src/web/pages_voter.ml:760
 #. src/web/pages_voter.ml:671
+#: src/web/pages_voter.ml:899 src/web/pages_voter.ml:760
 msgid "Your smart ballot tracker is "
 msgstr "Numer Twojej karty do głosowania to "
 
@@ -1004,8 +1004,8 @@ msgstr "Twój głos w głosowaniu %s"
 msgid "Your vote was not recorded!"
 msgstr "Twój głos nie został zarejestrowany!"
 
-#: src/web/pages_voter.ml:1346 src/web/pages_voter.ml:752
 #. src/web/pages_voter.ml:657
+#: src/web/pages_voter.ml:1346 src/web/pages_voter.ml:752
 msgid "Your weight is %s."
 msgstr "Waga Twojego głosu wynosi %s."
 
@@ -1037,8 +1037,8 @@ msgstr "utworzyć konto"
 msgid "has been recorded."
 msgstr "został zarejestrowany."
 
-#: src/tool/tool_js_booth.ml:369 src/web/pages_voter.ml:1134
 #. src/web/pages_voter.ml:1081
+#: src/tool/tool_js_booth.ml:369 src/web/pages_voter.ml:1134
 msgid "here"
 msgstr "tutaj"
 
@@ -1113,4 +1113,3 @@ msgstr "Twój kod głosowania został już wykorzystany"
 #: src/web/web_common.ml:88
 msgid "your credential is invalid"
 msgstr "Twój kod głosowania nie jest prawidłowy"
-
