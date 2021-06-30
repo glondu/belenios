@@ -56,6 +56,10 @@ val format_user :
   Web_serializable_t.user ->
   [> Html_types.em ] Eliom_content.Html.elt
 
+val read_snippet :
+  ?default:([> Html_types.div_content_fun ] as 'a) Eliom_content.Html.elt ->
+  string option -> 'a Eliom_content.Html.elt Lwt.t
+
 val base :
   title:string ->
   ?login_box:[< Html_types.div_content_fun > `Div `H1 ]

@@ -157,18 +157,13 @@ let admin_login get_handler =
        return @@ div (default :: others)
   in
   let* body =
-    match !Web_config.admin_home with
-    | None ->
-       return
-       @@ div [
-              txt (s_ "To administer an election, you need to log in.");
-              contact;
-            ]
-    | Some f ->
-       let* file = read_file f in
-       match file with
-       | None -> fail_http 404
-       | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+    let default =
+      div [
+          txt (s_ "To administer an election, you need to log in.");
+          contact;
+        ]
+    in
+    read_snippet ~default !Web_config.admin_home
   in
   let content = [
       body;

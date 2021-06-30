@@ -59,12 +59,12 @@ let belenios_url = Eliom_service.extern
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
-let read_snippet file = match file with
-  | None -> return @@ txt ""
+let read_snippet ?(default = txt "") file = match file with
+  | None -> return default
   | Some f ->
      let* file = read_file f in
      match file with
-     | None -> return @@ txt ""
+     | None -> return default
      | Some x -> return @@ Unsafe.data (String.concat "\n" x)
 
 let base ~title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid () =
