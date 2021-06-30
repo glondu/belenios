@@ -274,6 +274,7 @@ let election_home election state () =
   in
   let* middle =
     let* result = Web_persist.get_election_result uuid in
+    let result = Option.map (election_result_of_string W.G.read W.read_result) result in
     let* hidden = Web_persist.get_election_result_hidden uuid in
     let* is_admin =
       let* metadata = Web_persist.get_election_metadata uuid in
@@ -297,7 +298,7 @@ let election_home election state () =
        in
        return @@ div [
          ul (
-             Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) W.election.e_questions) r.result
+             Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) W.election.e_questions) (r.result :> raw_result)
              |> Array.to_list
            );
          div [
@@ -790,11 +791,14 @@ let cast_confirmed election ~result () =
   ] in
   responsive_base ~title:name ~content ~uuid ()
 
-let pretty_ballots election hashes result () =
+let pretty_ballots election =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let open (val election : ELECTION_DATA) in
   let uuid = election.e_uuid in
+  let* hashes = Web_persist.get_ballot_hashes uuid in
+  let* result = Web_persist.get_election_result uuid in
+  let result = Option.map (election_result_of_string G.read read_result) result in
   let* audit_cache = Web_persist.get_audit_cache uuid in
   let show_weights =
     match audit_cache.cache_total_weight with

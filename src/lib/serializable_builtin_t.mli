@@ -68,5 +68,4 @@ type question_result =
   | RHomomorphic of weight array
   | RNonHomomorphic of int array array
 
-val question_result_of_json : Yojson.Safe.t -> question_result
 val json_of_question_result : question_result -> Yojson.Safe.t

@@ -47,6 +47,11 @@ module type ELECTION_DATA = sig
   module G : GROUP
   val election : G.t params
   val fingerprint : string
+
+  type result = private raw_result
+  val cast_result : raw_result -> result
+  val write_result : result writer
+  val read_result : result reader
 end
 
 type combination_error =
@@ -122,7 +127,8 @@ module type ELECTION = sig
 
   (** {2 Result} *)
 
-  type result = elt Serializable_t.election_result
+  type result_type
+  type result = (elt, result_type) Serializable_t.election_result
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 

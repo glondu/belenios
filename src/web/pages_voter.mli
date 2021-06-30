@@ -30,7 +30,7 @@ val cast_raw : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html.F
 val cast_confirmation : (module ELECTION_DATA) -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val lost_ballot : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_confirmed : (module ELECTION_DATA) -> result:(string * Weight.t, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val pretty_ballots : (module ELECTION_DATA) -> (string * Weight.t) list -> Yojson.Safe.t election_result option -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val pretty_ballots : (module ELECTION_DATA) -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

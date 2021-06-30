@@ -132,13 +132,13 @@ type shuffler = string nullable
 
 type raw_result = question_result list <ocaml repr="array">
 
-type 'a election_result = {
+type ('a, 'b) election_result = {
   num_tallied : weight;
   encrypted_tally : 'a encrypted_tally;
   ?shuffles : 'a shuffle list option;
   ?shufflers : shuffler list option;
   partial_decryptions : 'a partial_decryption list;
-  result : raw_result;
+  result : 'b;
 }
 
 (** {2 Election report} *)

@@ -46,7 +46,7 @@ let set_draft_election uuid se =
 let get_election_result uuid =
   let* file = read_file ~uuid "result.json" in
   match file with
-  | Some [x] -> return_some (election_result_of_string Yojson.Safe.read_json x)
+  | Some [x] -> return_some x
   | _ -> return_none
 
 let set_election_result_hidden uuid hidden =

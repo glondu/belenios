@@ -76,5 +76,6 @@ let read_weight state buf =
 let write_question_result buf x =
   Yojson.Safe.write_t buf (json_of_question_result x)
 
-let read_question_result state buf =
-  question_result_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
+let read_question_result _ _ =
+  (* should not be called *)
+  failwith "read_question_result"

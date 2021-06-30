@@ -247,10 +247,7 @@ let () =
     (fun (uuid, ()) () ->
       let* election = find_election uuid in
       match election with
-      | Some w ->
-         let* ballots = Web_persist.get_ballot_hashes uuid in
-         let* result = Web_persist.get_election_result uuid in
-         Pages_voter.pretty_ballots w ballots result () >>= Html.send
+      | Some w -> Pages_voter.pretty_ballots w >>= Html.send
       | None -> election_not_found ()
     )
 
@@ -281,7 +278,8 @@ let handle_method uuid question f =
               let* result = Web_persist.get_election_result uuid in
               match result with
               | Some result ->
-                 (match result.result.(question) with
+                 let result = election_result_of_string G.read read_result result in
+                 (match (result.result :> raw_result).(question) with
                   | RNonHomomorphic ballots -> continuation ballots
                   | _ -> failwith "handle_method"
                  )

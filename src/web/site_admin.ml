@@ -1762,30 +1762,37 @@ let () =
 let () =
   Any.register ~service:election_project_result
     (fun ((uuid, ()), index) () ->
-      let* hidden =
-        let* x = Web_persist.get_election_result_hidden uuid in
-        match x with
-        | None -> return_false
-        | Some _ -> return_true
-      in
-      let* () =
-        if hidden then (
-          let* metadata = Web_persist.get_election_metadata uuid in
-          let* site_user = Eliom_reference.get Web_state.site_user in
-          match site_user with
-          | Some u when metadata.e_owner = Some u -> return_unit
-          | _ -> forbidden ()
-        ) else return_unit
-      in
-      let* result = Web_persist.get_election_result uuid in
-      match result with
-      | None -> fail_http 404
-      | Some result ->
-         let full = result.result in
-         if index < 0 || index >= Array.length full then
-           fail_http 404
-         else
-           String.send (string_of_question_result full.(index), "application/json")
+      if index < 0 then (
+        fail_http 404
+      ) else (
+        let* hidden =
+          let* x = Web_persist.get_election_result_hidden uuid in
+          match x with
+          | None -> return_false
+          | Some _ -> return_true
+        in
+        let* () =
+          if hidden then (
+            let* metadata = Web_persist.get_election_metadata uuid in
+            let* site_user = Eliom_reference.get Web_state.site_user in
+            match site_user with
+            | Some u when metadata.e_owner = Some u -> return_unit
+            | _ -> forbidden ()
+          ) else return_unit
+        in
+        let* result = Web_persist.get_election_result uuid in
+        match result with
+        | None -> fail_http 404
+        | Some result ->
+           let result = election_result_of_string Yojson.Safe.read_json Yojson.Safe.read_json result in
+           match result.result with
+           | `List xs ->
+              (match List.nth_opt xs index with
+               | None -> fail_http 404
+               | Some x -> String.send (Yojson.Safe.to_string x, "application/json")
+              )
+           | _ -> fail_http 404
+      )
     )
 
 let copy_file src dst =
@@ -2036,7 +2043,7 @@ let handle_election_tally_release uuid () =
         match E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
         | Ok result ->
            let* () =
-             let result = string_of_election_result W.G.write result in
+             let result = string_of_election_result W.G.write W.write_result result in
              write_file ~uuid (string_of_election_file ESResult) [result]
            in
            let* () = Web_persist.remove_audit_cache uuid in

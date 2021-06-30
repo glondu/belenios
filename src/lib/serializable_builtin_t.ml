@@ -131,27 +131,6 @@ type question_result =
   | RHomomorphic of weight array
   | RNonHomomorphic of int array array
 
-let question_result_of_json = function
-  | `List (`List _ :: _ as xs) ->
-     Array.of_list xs
-     |> Array.map
-          (function
-           | `List ys ->
-              Array.of_list ys
-              |> Array.map
-                   (function
-                    | `Int i -> i
-                    | _ -> failwith "question_result_of_json/1"
-                   )
-           | _ -> failwith "question_result_of_json/2"
-          )
-     |> (fun x -> RNonHomomorphic x)
-  | `List xs ->
-     Array.of_list xs
-     |> Array.map weight_of_json
-     |> (fun x -> RHomomorphic x)
-  | _ -> failwith "question_result_of_json/3"
-
 let json_of_question_result = function
   | RHomomorphic xs ->
      xs

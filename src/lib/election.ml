@@ -38,6 +38,76 @@ let parse x =
       module G = W.G
       let election = {params with e_public_key = W.y}
       let fingerprint = sha256_b64 x
+
+      type result = raw_result
+
+      let cast_result x =
+        let questions = election.e_questions in
+        let n = Array.length questions in
+        if Array.length x = n then (
+          let rec check i =
+            if i < n then (
+              match questions.(i), x.(i) with
+              | Homomorphic _, RHomomorphic _ -> check (i + 1)
+              | NonHomomorphic _, RNonHomomorphic _ -> check (i + 1)
+              | _, _ -> failwith "cast_result: type mismatch"
+            ) else ()
+          in
+          check 0;
+          x
+        ) else failwith "cast_result: length mismatch"
+
+      let write_result = write_raw_result
+
+      let read_result state buf =
+        match Yojson.Safe.from_lexbuf ~stream:true state buf with
+        | `List xs ->
+           let n = Array.length election.e_questions in
+           let result = Array.make n (RHomomorphic [||]) in
+           let rec loop i xs =
+             match (i < n), xs with
+             | true, (x :: xs) ->
+                (match election.e_questions.(i) with
+                 | Homomorphic _ ->
+                    (match x with
+                     | `List ys ->
+                        ys
+                        |> Array.of_list
+                        |> Array.map weight_of_json
+                        |> (fun x -> result.(i) <- RHomomorphic x)
+                        |> (fun () -> loop (i + 1) xs)
+                     | _ -> failwith "read_result/Homomorphic: list expected"
+                    )
+                 | NonHomomorphic _ ->
+                    (match x with
+                     | `List ys ->
+                        ys
+                        |> Array.of_list
+                        |> Array.map
+                             (function
+                              | `List zs ->
+                                 zs
+                                 |> Array.of_list
+                                 |> Array.map
+                                      (function
+                                       | `Int i -> i
+                                       | _ -> failwith "read_result: int expected"
+                                      )
+                              | _ -> failwith "read_result/NonHomomorphic: list list expected"
+                             )
+                        |> (fun x -> result.(i) <- RNonHomomorphic x)
+                        |> (fun () -> loop (i + 1) xs)
+                     | _ -> failwith "read_result/NonHomomorphic: list expected"
+                    )
+                )
+             | true, [] -> failwith "read_result: list too short"
+             | false, _ :: _ -> failwith "read_result: list too long"
+             | false, [] -> ()
+           in
+           loop 0 xs;
+           result
+        | _ -> failwith "read_result: list expected"
+
     end
   in
   (module X : ELECTION_DATA)
@@ -261,7 +331,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       in Z.(hash zkp commitments =% challenge)
     ) c f.decryption_factors f.decryption_proofs
 
-  type result = elt Serializable_t.election_result
+  type result_type = W.result
+  type result = (elt, result_type) Serializable_t.election_result
 
   module Combinator = Trustees.MakeCombinator (G)
 
@@ -274,13 +345,14 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
              beta / f
            ) encrypted_tally factors
        in
-       let result =
+       let raw_result =
          match results with
          | SAtomic _ ->
             invalid_arg "Election.compute_result: cannot compute result"
          | SArray xs ->
             Array.map2 (Q.compute_result ~num_tallied) election.e_questions xs
        in
+       let result = W.cast_result raw_result in
        Ok {num_tallied; encrypted_tally; shuffles; shufflers; partial_decryptions; result}
     | Error e -> Error e
 
@@ -298,7 +370,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
        in
        match results with
        | SArray xs ->
-          Array.forall3 (Q.check_result ~num_tallied) election.e_questions xs result
+          Array.forall3 (Q.check_result ~num_tallied) election.e_questions xs (result : W.result :> raw_result)
        | _ -> false
 end
 
@@ -375,7 +447,7 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
        let shuffles = List.map (shuffle_of_string Yojson.Safe.read_json) shuffles in
        combine (Some shuffles) shufflers, None
     | `Result result ->
-       let result = election_result_of_string Yojson.Safe.read_json result in
+       let result = election_result_of_string Yojson.Safe.read_json Yojson.Safe.read_json result in
        let tally = string_of_encrypted_tally Yojson.Safe.write_json result.encrypted_tally in
        combine result.shuffles result.shufflers, Some (sha256_b64 tally)
   in

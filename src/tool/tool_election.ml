@@ -191,7 +191,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   let result =
     lazy (
         Lazy.force result_as_string
-        |> Option.map (election_result_of_string G.read)
+        |> Option.map (election_result_of_string G.read read_result)
       )
 
   let shuffles_as_text =
@@ -319,7 +319,7 @@ module Make (P : PARSED_PARAMS) : S = struct
        (match E.compute_result ?shuffles nballots tally factors trustees with
         | Ok result ->
            assert (E.check_result trustees result);
-           string_of_election_result G.write result
+           string_of_election_result G.write write_result result
         | Error e -> failwith (Trustees.string_of_combination_error e)
        )
     | None -> failwith "missing trustees"
