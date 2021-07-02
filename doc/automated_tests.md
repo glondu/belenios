@@ -4,11 +4,11 @@ Automated tests are stored in the `tests` directory.
 
 Technologies used to run these tests are:
 
-- `python3`: Python 3. We us it in a virtual environment
+- `python3`: Python 3 (version >= 3.6). We use it in a virtual environment (using Python's `venv` module)
 - `pip`: Python's package manager. We use it to install Python packages such as `selenium` (`pip` installs packages mentioned in `requirements.txt`)
-- `selenium`: Selenium's Python API documentation: https://selenium-python.readthedocs.io/)
+- `selenium`: Selenium's Python API ([documentation](https://selenium-python.readthedocs.io/))
 - `firefox`: The browser we use to run tests with Selenium. We can use standard Firefox, or `firefox-esr`, depending what is available on the system and which Firefox version is compatible with Selenium at the moment
-- `geckodriver`: A Firefox driver for Selenium
+- `geckodriver`: A Firefox driver for Selenium. Its role is to translate commands received from Selenium using a specific protocol into concrete actions to trigger in the Firefox browser, and to trigger these actions.
 - `unittest`: Python's standard test framework
 
 These automated tests start the Belenios demo server (`demo/run-server.sh`), with the `BELENIOS_SENDMAIL` environment variable defined as the path to a fake `sendmail` executable (similar to a mock, provided in `tests/selenium/tools/sendmail_fake.sh`). This way, Belenios server does not return an error when trying to send emails in the test environment (that has no `sendmail` installed nor configured), and the fake `sendmail` executable makes it possible to verify what emails have been sent and read their content, simply by reading the log file where it redirects all its input (we use `/tmp/sendmail_fake` as location for this log file).
@@ -30,11 +30,13 @@ wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodri
 
 sudo apt-get install -y -qq python3 python3-venv firefox
 
-BELENIOS_DEBUG=1 make all
-make archive
+source ./env.sh
+make build-debug-server
+make build-debug-tool
 
 python3 -m venv venv
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 python ./tests/selenium/test_scenario_1.py
 ```
