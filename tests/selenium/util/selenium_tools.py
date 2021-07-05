@@ -362,6 +362,15 @@ def wait_for_elements_exist(browser, css_selector, wait_duration=DEFAULT_WAIT_DU
         raise Exception("Could not find expected DOM elements '" + css_selector + "' until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
 
 
+def wait_until_page_url_changes(browser, old_url, wait_duration=DEFAULT_WAIT_DURATION):
+    try:
+        return WebDriverWait(browser, wait_duration).until(
+            lambda driver: old_url != driver.current_url
+        )
+    except Exception as e:
+        raise Exception("Could not detect a change in page URL until timeout of " + str(wait_duration) + " seconds." + printable_page_source(browser)) from e
+
+
 def set_element_attribute(browser, element_dom_id, attribute_key, attribute_value):
     browser.execute_script("let el = document.getElementById('" + element_dom_id + "'); el.setAttribute('" + attribute_key + "','" + attribute_value + "');")
 
