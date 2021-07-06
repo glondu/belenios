@@ -61,13 +61,9 @@ let get_cas_validation server ~state ticket =
     let service = preapply ~service:cas_validate (cas_self ~state, ticket) in
     Eliom_uri.make_string_uri ~absolute:true ~service ()
   in
-  let* reply = Ocsigen_http_client.get_url url in
-  match reply.Ocsigen_http_frame.frame_content with
-  | Some stream ->
-     let* info = Ocsigen_stream.(string_of_stream 1000 (get stream)) in
-     let* () = Ocsigen_stream.finalize stream `Success in
-     return (parse_cas_validation info)
-  | None -> return (`Error `Http)
+  let* _, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
+  let* info = Cohttp_lwt.Body.to_string body in
+  return (parse_cas_validation info)
 
 let cas_login_handler _ _ a ~state =
   match List.assoc_opt "server" a.Web_serializable_t.auth_config with
@@ -96,10 +92,10 @@ let cas_handler (state, ticket) () =
            (match r with
             | `Yes (Some name) -> cont (Some name)
             | `No -> cont None
-            | `Yes None | `Error _ -> fail_http 502
+            | `Yes None | `Error _ -> fail_http `Bad_gateway
            )
         | None, _ -> cont None
-        | _, None -> fail_http 503
+        | _, None -> fail_http `Service_unavailable
     }
 
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler

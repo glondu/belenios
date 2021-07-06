@@ -85,15 +85,15 @@ echo
 cd "$BELENIOS_SYSROOT"
 git clone https://github.com/ocaml/opam-repository.git
 cd opam-repository
-git reset --hard a0b420b216582d2b186ee1fdd94b3fbad254f243
+git reset --hard 94a137c4585c442147ef4dd0f8c8c7756ebcdec8
 opam init $BELENIOS_OPAM_INIT_ARGS --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
-opam switch create 4.11.2 ocaml-base-compiler.4.11.2 --jobs=1
+opam switch create 4.11.2
 eval $(opam env)
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv eliom gettext-camomile
+opam install --yes dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv eliom gettext-camomile ocamlnet
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

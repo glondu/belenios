@@ -109,8 +109,7 @@ let parse_lang =
   | exception Not_found -> None
 
 let get_preferred_language () =
-  let ri = Eliom_request_info.get_ri () in
-  let lazy langs = Ocsigen_request_info.accept_language ri in
+  let langs = Eliom_request_info.get_accept_language () in
   match langs with
   | [] -> default_lang
   | (lang, _) :: _ ->

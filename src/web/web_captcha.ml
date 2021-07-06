@@ -72,7 +72,7 @@ let get challenge =
 
 let get_captcha ~challenge =
   match get challenge with
-  | None -> fail_http 404
+  | None -> fail_http `Not_found
   | Some {content_type; contents; _} -> Lwt.return (contents, content_type)
 
 let check_captcha ~challenge ~response =

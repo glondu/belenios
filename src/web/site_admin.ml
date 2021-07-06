@@ -472,14 +472,14 @@ let () = Any.register ~service:election_draft_new
         let* credmgmt = match credmgmt with
           | Some "auto" -> return `Automatic
           | Some "manual" -> return `Manual
-          | _ -> fail_http 400
+          | _ -> fail_http `Bad_request
         in
         let* auth = match auth with
           | Some "password" -> return `Password
           | Some "dummy" -> return `Dummy
           | Some "cas" ->
              (match cas_server with
-              | None -> fail_http 400
+              | None -> fail_http `Bad_request
               | Some cas_server -> return @@ `CAS (PString.trim cas_server)
              )
           | Some x ->
@@ -487,8 +487,8 @@ let () = Any.register ~service:election_draft_new
              if n > 1 && PString.get x 0 = '%' then (
                let name = PString.sub x 1 (n - 1) in
                return @@ `Import name
-             ) else fail_http 400
-          | _ -> fail_http 400
+             ) else fail_http `Bad_request
+          | _ -> fail_http `Bad_request
         in
         match auth with
         | `CAS cas_server when not (is_http_url cas_server) ->
@@ -501,7 +501,7 @@ let with_draft_election_ro uuid f =
   with_site_user (fun u ->
       let* election = Web_persist.get_draft_election uuid in
       match election with
-      | None -> fail_http 404
+      | None -> fail_http `Not_found
       | Some se -> if se.se_owner = u then f se else forbidden ()
     )
 
@@ -546,7 +546,7 @@ let with_draft_election ?(save = true) uuid f =
       Web_election_mutex.with_lock uuid (fun () ->
           let* election = Web_persist.get_draft_election uuid in
           match election with
-          | None -> fail_http 404
+          | None -> fail_http `Not_found
           | Some se ->
              if se.se_owner = u then (
                Lwt.catch
@@ -1057,7 +1057,7 @@ let () =
       without_site_user (fun () ->
           let* election = Web_persist.get_draft_election uuid in
           match election with
-          | None -> fail_http 404
+          | None -> fail_http `Not_found
           | Some se -> Pages_admin.election_draft_credentials token uuid se () >>= Html.send
         )
     )
@@ -1065,7 +1065,7 @@ let () =
 let handle_credentials_post uuid token creds =
   let* election = Web_persist.get_draft_election uuid in
   match election with
-  | None -> fail_http 404
+  | None -> fail_http `Not_found
   | Some se ->
   if se.se_public_creds <> token then forbidden () else
   if se.se_public_creds_received then forbidden () else
@@ -1240,7 +1240,7 @@ let () =
         ~fallback:(fun u ->
           let* election = Web_persist.get_draft_election uuid in
           match election with
-          | None -> fail_http 404
+          | None -> fail_http `Not_found
           | Some se ->
              if se.se_owner = u then (
                Pages_admin.election_draft_trustees ~token uuid se () >>= Html.send
@@ -1249,7 +1249,7 @@ let () =
         (fun () ->
           let* election = Web_persist.get_draft_election uuid in
           match election with
-          | None -> fail_http 404
+          | None -> fail_http `Not_found
           | Some se ->
              match List.find_opt (fun t -> t.st_token = token) se.se_public_keys with
              | None -> forbidden ()
@@ -1277,7 +1277,7 @@ let () =
                 (fun () ->
                   let* election = Web_persist.get_draft_election uuid in
                   match election with
-                  | None -> fail_http 404
+                  | None -> fail_http `Not_found
                   | Some se ->
                      match List.find_opt (fun x -> token = x.st_token) se.se_public_keys with
                      | None -> forbidden ()
@@ -1765,7 +1765,7 @@ let () =
   Any.register ~service:election_project_result
     (fun ((uuid, ()), index) () ->
       if index < 0 then (
-        fail_http 404
+        fail_http `Not_found
       ) else (
         let* hidden =
           let* x = Web_persist.get_election_result_hidden uuid in
@@ -1784,16 +1784,16 @@ let () =
         in
         let* result = Web_persist.get_election_result uuid in
         match result with
-        | None -> fail_http 404
+        | None -> fail_http `Not_found
         | Some result ->
            let result = election_result_of_string Yojson.Safe.read_json Yojson.Safe.read_json result in
            match result.result with
            | `List xs ->
               (match List.nth_opt xs index with
-               | None -> fail_http 404
+               | None -> fail_http `Not_found
                | Some x -> String.send (Yojson.Safe.to_string x, "application/json")
               )
-           | _ -> fail_http 404
+           | _ -> fail_http `Not_found
       )
     )
 
@@ -1950,7 +1950,7 @@ let () =
         if List.mem_assoc trustee_id pds then forbidden () else return ()
       in
       let* () =
-        if trustee_id > 0 then return () else fail_http 404
+        if trustee_id > 0 then return () else fail_http `Not_found
       in
       let* election = find_election uuid in
       match election with
@@ -2371,7 +2371,7 @@ let () =
         ~fallback:(fun u ->
           let* election = Web_persist.get_draft_election uuid in
           match election with
-          | None -> fail_http 404
+          | None -> fail_http `Not_found
           | Some se ->
              if se.se_owner = u then (
                Pages_admin.election_draft_threshold_trustees ~token uuid se () >>= Html.send
@@ -2380,7 +2380,7 @@ let () =
         (fun () ->
           let* election = Web_persist.get_draft_election uuid in
           match election with
-          | None -> fail_http 404
+          | None -> fail_http `Not_found
           | Some se -> Pages_admin.election_draft_threshold_trustee token uuid se () >>= Html.send
         )
     )
@@ -2398,7 +2398,7 @@ let () =
               (fun () ->
                 let* election = Web_persist.get_draft_election uuid in
                 match election with
-                | None -> fail_http 404
+                | None -> fail_http `Not_found
                 | Some se ->
                    let ts =
                      match se.se_threshold_trustees with

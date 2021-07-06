@@ -96,7 +96,7 @@ let get_pre_login_handler uuid username_or_address kind a =
   let* () = Eliom_reference.set auth_env (Some (uuid, a, kind, state)) in
   match List.assoc_opt a.auth_system !pre_login_handlers with
   | Some handler -> handler uuid username_or_address a ~state
-  | None -> fail_http 404
+  | None -> fail_http `Not_found
 
 let register_pre_login_handler ~auth_system handler =
   pre_login_handlers := (auth_system, handler) :: !pre_login_handlers;
@@ -169,7 +169,7 @@ let login_handler service kind =
         let* a =
           match find_auth_instance s c with
           | Some x -> return x
-          | None -> fail_http 404
+          | None -> fail_http `Not_found
         in
         let* x = get_pre_login_handler uuid username_or_address kind a in
         (match x with

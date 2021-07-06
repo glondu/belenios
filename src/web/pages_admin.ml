@@ -1721,15 +1721,15 @@ let election_draft_threshold_trustee token uuid se () =
   in
   let* trustee =
     match se.se_threshold_trustees with
-    | None -> fail_http 404
+    | None -> fail_http `Not_found
     | Some ts ->
        match List.find_opt (fun x -> x.stt_token = token) ts with
        | Some x -> return x
-       | None -> fail_http 404
+       | None -> fail_http `Not_found
   in
   let* certs =
     match se.se_threshold_trustees with
-    | None -> fail_http 404
+    | None -> fail_http `Not_found
     | Some ts ->
        let certs = List.fold_left (fun accu x ->
            match x.stt_cert with

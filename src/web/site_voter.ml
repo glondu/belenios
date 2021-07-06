@@ -256,7 +256,7 @@ let () =
     (fun ((uuid, ()), hash) () ->
       let* ballot = Web_persist.get_ballot_by_hash uuid hash in
       match ballot with
-      | None -> fail_http 404
+      | None -> fail_http `Not_found
       | Some b ->
          String.send (b, "application/json") >>=
            (fun x -> return @@ cast_unknown_content_kind x))

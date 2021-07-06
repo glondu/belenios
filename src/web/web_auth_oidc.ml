@@ -41,46 +41,43 @@ let oidc_self =
           () |> rewrite_prefix)
 
 let oidc_get_userinfo ocfg info =
-  let info = oidc_tokens_of_string info in
-  let access_token = info.oidc_access_token in
-  let url = ocfg.userinfo_endpoint in
-  let headers = Http_headers.(
-    add (name "Authorization") ("Bearer " ^ access_token) empty
-  ) in
-  let* reply = Ocsigen_http_client.get_url ~headers url in
-  match reply.Ocsigen_http_frame.frame_content with
-  | Some stream ->
-     let* info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-     let* () = Ocsigen_stream.finalize stream `Success in
-     let x = oidc_userinfo_of_string info in
-     return_some (match x.oidc_email with Some x -> x | None -> x.oidc_sub)
-  | None -> return_none
+  try
+    let info = oidc_tokens_of_string info in
+    let access_token = info.oidc_access_token in
+    let url = ocfg.userinfo_endpoint in
+    let headers =
+      Cohttp.Header.init_with "Authorization" ("Bearer " ^ access_token)
+    in
+    let* _, body = Cohttp_lwt_unix.Client.get ~headers (Uri.of_string url) in
+    let* info = Cohttp_lwt.Body.to_string body in
+    try
+      let x = oidc_userinfo_of_string info in
+      return_some (match x.oidc_email with Some x -> x | None -> x.oidc_sub)
+    with _ -> return_none
+  with _ -> return_none
 
 let oidc_get_name ocfg client_id client_secret code =
-  let content = [
-    "code", code;
-    "client_id", client_id;
-    "client_secret", client_secret;
-    "redirect_uri", Lazy.force oidc_self;
-    "grant_type", "authorization_code";
-  ] in
-  let* reply = Ocsigen_http_client.post_urlencoded_url ~content ocfg.token_endpoint in
-  match reply.Ocsigen_http_frame.frame_content with
-  | Some stream ->
-    let* info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-    let* () = Ocsigen_stream.finalize stream `Success in
-    oidc_get_userinfo ocfg info
-  | None -> return_none
+  let params =
+    [
+      "code", [code];
+      "client_id", [client_id];
+      "client_secret", [client_secret];
+      "redirect_uri", [Lazy.force oidc_self];
+      "grant_type", ["authorization_code"];
+    ]
+  in
+  let* _, body = Cohttp_lwt_unix.Client.post_form ~params (Uri.of_string ocfg.token_endpoint) in
+  let* info = Cohttp_lwt.Body.to_string body in
+  oidc_get_userinfo ocfg info
 
 let get_oidc_configuration server =
   let url = server ^ "/.well-known/openid-configuration" in
-  let* reply = Ocsigen_http_client.get_url url in
-  match reply.Ocsigen_http_frame.frame_content with
-  | Some stream ->
-     let* info = Ocsigen_stream.(string_of_stream 10000 (get stream)) in
-     let* () = Ocsigen_stream.finalize stream `Success in
-     return (oidc_configuration_of_string info)
-  | None -> fail_http 404
+  let* _, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
+  let* info = Cohttp_lwt.Body.to_string body in
+  try
+    return (oidc_configuration_of_string info)
+  with _ ->
+    fail_http `Not_found
 
 let split_prefix_path url =
   let n = String.length url in
@@ -130,8 +127,8 @@ let oidc_handler params () =
               let* () = Eliom_reference.unset oidc_config in
               let* name = oidc_get_name ocfg client_id client_secret code in
               cont name
-           | _, _ -> fail_http 503
+           | _, _ -> fail_http `Service_unavailable
        }
-  | _, _ -> fail_http 401
+  | _, _ -> fail_http `Unauthorized
 
 let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler

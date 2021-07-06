@@ -141,10 +141,10 @@ let security_log s =
 let fail_http status =
   Lwt.fail (
       Ocsigen_extensions.Ocsigen_http_error
-        (Ocsigen_cookies.empty_cookieset, status)
+        (Ocsigen_cookie_map.empty, status)
     )
 
-let forbidden () = fail_http 403
+let forbidden () = fail_http `Unauthorized
 
 let rewrite_fun = ref (fun x -> x)
 
