@@ -5,7 +5,7 @@ stages:
 build_and_test_with_preinstalled_image:
   stage: test
   # Image glondu/beleniosbase:YYYYMMDD-N is built by Dockerfile_base_environment
-  image: glondu/beleniosbase:20210426-1
+  image: glondu/beleniosbase:20210706-1
   script:
     # Initialize environment
     - source ~/env.sh
@@ -44,7 +44,7 @@ build_and_test_with_debian_image:
 build_and_run_automated_test_scenarios_with_preinstalled_image:
   stage: test
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by Dockerfile_test_scenario_environment
-  image: glondu/beleniosbase-tests:20210426-1
+  image: glondu/beleniosbase-tests:20210706-1
   script:
     # Initialize environment
     - source ~/env.sh
@@ -73,7 +73,7 @@ build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_data
   rules:
     - changes:
         - VERSION
-  image: glondu/beleniosbase-tests:20210426-1
+  image: glondu/beleniosbase-tests:20210706-1
   variables:
     PREPARED_DATABASE_VERSION: v0.01
   script:
@@ -107,7 +107,7 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
   rules:
     - changes:
         - VERSION
-  image: glondu/beleniosbase-tests:20210426-1
+  image: glondu/beleniosbase-tests:20210706-1
   variables:
     WAIT_TIME_BETWEEN_EACH_STEP: "0.02"
     USE_HEADLESS_BROWSER: "1"
