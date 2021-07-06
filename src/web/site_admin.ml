@@ -863,6 +863,7 @@ let merge_voters a b f =
     List.fold_left
       (fun accu sv ->
         let _, login, weight = split_identity sv.sv_id in
+        let login = PString.lowercase_ascii login in
         SMap.add login weight accu
       ) SMap.empty a
   in
@@ -870,6 +871,7 @@ let merge_voters a b f =
     List.fold_left
       (fun (weights, accu) sv_id ->
         let _, login, weight = split_identity sv_id in
+        let login = PString.lowercase_ascii login in
         if SMap.mem login weights then
           (weights, accu)
         else (
