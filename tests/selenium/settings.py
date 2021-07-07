@@ -40,6 +40,12 @@ class CLEAN_UP_POLICIES(Enum):
     DO_NOTHING = "DO_NOTHING"
 
 
+@unique
+class BOOTH_VERSIONS(Enum):
+    CLASSIC_BOOTH = "CLASSIC_BOOTH"
+    RESPONSIVE_BOOTH = "RESPONSIVE_BOOTH"
+
+
 CLEAN_UP_POLICY = CLEAN_UP_POLICIES.REMOVE_DATABASE
 
 
@@ -50,3 +56,4 @@ CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = "cecily_aka_election_credential_authority@m
 NUMBER_OF_TRUSTEES = 5
 TRUSTEES_EMAIL_ADDRESSES = ["tom_aka_trustee_1@mailinator.com", "taylor_aka_trustee_2@mailinator.com", "tania_aka_trustee_3@mailinator.com", "tiffany_aka_trustee_4@mailinator.com", "theresa_aka_trustee_5@mailinator.com"]
 TRUSTEES_THRESHOLD_VALUE = 3
+BOOTH_VERSION = BOOTH_VERSIONS.CLASSIC_BOOTH

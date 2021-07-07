@@ -500,7 +500,7 @@ def log_in_as_administrator(browser, from_a_login_page=False):
 
 
 def election_home_find_start_button(browser):
-    return wait_for_element_exists_and_attribute_contains_expected_text(browser, "#main button", "onclick", "location.href='../../vote.html#uuid=", settings.EXPLICIT_WAIT_TIMEOUT)
+    return wait_for_element_exists_and_attribute_contains_expected_text(browser, "#main button", "onclick", "location.href='", settings.EXPLICIT_WAIT_TIMEOUT)
 
 
 def log_out(browser, election_id=None):
@@ -663,6 +663,12 @@ def administrator_edits_election_questions(browser, nh_question=False):
     remove_button_css_selector = ".question_answer_item:nth-child(" + str(question_to_remove) + ") .btn_remove"
     remove_button_element = browser.find_element_by_css_selector(remove_button_css_selector)
     remove_button_element.click()
+
+    if settings.BOOTH_VERSION == settings.BOOTH_VERSIONS.RESPONSIVE_BOOTH:
+        # In the booth type section, she clicks on the second radio button, to select the responsive booth
+        booth_version_radio_buttons = browser.find_elements_by_css_selector("input[type=radio][name=booth_version_radio]")
+        if len(booth_version_radio_buttons) == 2:
+            booth_version_radio_buttons[1].click()
 
     wait_a_bit()
 

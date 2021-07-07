@@ -165,6 +165,13 @@ if __name__ == "__main__":
     settings.ELECTION_TITLE = os.getenv('ELECTION_TITLE', settings.ELECTION_TITLE)
     settings.ELECTION_DESCRIPTION = os.getenv('ELECTION_DESCRIPTION', settings.ELECTION_DESCRIPTION)
 
+    if os.getenv('BOOTH_VERSION', None):
+        input_booth_version = os.getenv('BOOTH_VERSION')
+        if hasattr(settings.BOOTH_VERSIONS, input_booth_version):
+            settings.BOOTH_VERSION = getattr(settings.BOOTH_VERSION, input_booth_version)
+        else:
+            raise Exception("Error: Unknown value for BOOTH_VERSION:", input_booth_version)
+
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
@@ -177,5 +184,7 @@ if __name__ == "__main__":
     console_log("NUMBER_OF_REGENERATED_PASSWORD_VOTERS:", settings.NUMBER_OF_REGENERATED_PASSWORD_VOTERS)
     console_log("ELECTION_TITLE:", settings.ELECTION_TITLE)
     console_log("ELECTION_DESCRIPTION:", settings.ELECTION_DESCRIPTION)
+
+    console_log("BOOTH_VERSION:", settings.BOOTH_VERSION)
 
     unittest.main()

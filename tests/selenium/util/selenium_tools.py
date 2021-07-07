@@ -49,6 +49,37 @@ def wait_for_an_alert(browser, wait_duration=DEFAULT_WAIT_DURATION):
         raise Exception(f"Could not find expected Alert until timeout of {str(wait_duration)} seconds. " + printable_page_source(browser)) from e
 
 
+class elements_exist_and_are_visible(object):
+    def __init__(self, locator):
+        self.locator = locator
+
+    def __call__(self, driver):
+        elements = driver.find_elements(*self.locator)
+        if not elements:
+            return False
+        visible_elements = list(filter(element_is_visible_filter, elements))
+        if not visible_elements:
+            return False
+        return visible_elements
+
+
+def wait_for_elements_exist_and_are_visible(browser, css_selector, wait_duration=DEFAULT_WAIT_DURATION):
+    """
+    Waits for the presence of elements that match CSS selector `css_selector` and which are currently visible in the page.
+    :param browser: Selenium browser
+    :param css_selector: CSS selector of the expected element
+    :param wait_duration: Maximum duration in seconds that we wait for the presence of this element before raising an exception
+    :return: The list of WebElement once they match expected conditions
+    """
+    try:
+        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException,)
+        custom_wait = WebDriverWait(browser, wait_duration, ignored_exceptions=ignored_exceptions)
+        elements = custom_wait.until(elements_exist_and_are_visible((By.CSS_SELECTOR, css_selector)))
+        return elements
+    except Exception as e:
+        raise Exception(f"Could not find expected visible DOM elements matching '{css_selector}' until timeout of {str(wait_duration)} seconds. " + printable_page_source(browser)) from e
+
+
 class an_element_exists_and_is_visible_and_attribute_contains_expected_text(object):
     def __init__(self, locator, attribute_name, expected_content):
         self.locator = locator

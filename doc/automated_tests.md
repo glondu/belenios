@@ -89,8 +89,9 @@ The list of configuration variables is:
 - `SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH`: By default, this is "/tmp/sendmail_fake"
 - `ADMINISTRATOR_USERNAME`: By default, this value comes from file `demo/password_db.csv`, first row, first column
 - `ADMINISTRATOR_PASSWORD`: By default, this value comes from file `demo/password_db.csv`, first row, 4th column
+- `BOOTH_VERSION`: The version of the web booth to be used by automatic voters. Default is `CLASSIC_BOOTH`, which is the original booth and is the most widely translated, but handles only the classic type of questions, which is checkboxes or radio buttons. Another accepted value is `RESPONSIVE_BOOTH`, which is translated in fewer languages but handles questions of type classic and alternative (more precisely Majority Judgement and Preference Voting)
 
-Here is an example of how you can set configuration variables and execute the test in your terminal:
+Other automated tests (files `test_scenario_2.py`, `test_scenario_3.py`, etc) also have configuration variables, and some of them are in common. Here is an example of how you can set configuration variables and execute the test in your terminal:
 
 ```
 RANDOM_SEED=222 WAIT_TIME_BETWEEN_EACH_STEP=1.2 USE_HEADLESS_BROWSER=0 NUMBER_OF_INVITED_VOTERS=4 python3 ./tests/selenium/test_scenario_1.py
