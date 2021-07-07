@@ -54,63 +54,21 @@ chroot "$DIR/rootfs" sh -c "apt-get install -qq libgmp-dev libpcre3-dev libssl-d
 chroot "$DIR/rootfs" sh -c "apt-get clean"
 chroot "$DIR/rootfs" useradd belenios
 
-echo "Copying needed runtime files from opam root..."
+echo "Setting up runtime files from opam root..."
 
-for u in \
-    bin/ocsigenserver.opt \
-    lib/astring \
-    lib/atdgen \
-    lib/atdgen-runtime \
-    lib/bigarray \
-    lib/biniou \
-    lib/bytes \
-    lib/calendar \
-    lib/camomile \
-    lib/cryptokit \
-    lib/csv \
-    lib/domain-name \
-    lib/dynlink \
-    lib/easy-format \
-    lib/eliom \
-    lib/fileutils \
-    lib/findlib \
-    lib/findlib.conf \
-    lib/fmt \
-    lib/gettext \
-    lib/gettext-camomile \
-    lib/ipaddr \
-    lib/js_of_ocaml \
-    lib/lwt \
-    lib/lwt_log \
-    lib/lwt_react \
-    lib/lwt_ssl \
-    lib/macaddr \
-    lib/mmap \
-    lib/netstring \
-    lib/netstring-pcre \
-    lib/netsys \
-    lib/ocplib-endian \
-    lib/ocsigenserver \
-    lib/pcre \
-    lib/ppx_deriving \
-    lib/re \
-    lib/react \
-    lib/reactiveData \
-    lib/result \
-    lib/seq \
-    lib/sqlite3 \
-    lib/ssl \
-    lib/stdlib-shims \
-    lib/str \
-    lib/threads \
-    lib/tyxml \
-    lib/uchar \
-    lib/unix \
-    lib/uutf \
-    lib/xml-light \
-    lib/yojson \
-    lib/zarith \
-; do cp -a --parents home/belenios/.belenios/opam/4.11.2/$u "$DIR/rootfs"; done
+cp -a --parents home/belenios/.belenios/opam/4.11.2 "$DIR/rootfs"
+
+# Remove some big files that are not needed at runtime...
+(
+    cd "$DIR/rootfs/home/belenios/.belenios/opam/4.11.2"
+    rm -rf .opam-switch
+    rm -rf bin/ocaml*
+    rm -rf bin/ppx_*
+    find -name '*.ml*' -delete
+    find -name '*.cmi' -delete
+    find -name '*.cmt*' -delete
+    find -name '*.a' -delete
+)
 
 echo "Copying needed runtime files from belenios source tree..."
 
