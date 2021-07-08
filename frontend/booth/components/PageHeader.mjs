@@ -17,8 +17,8 @@ function TranslatablePageHeader({title, subTitle, t}) {
         {
           className: "page-header__logo__image",
           src: "../../logo.png",
-          alt: t("Election server"),
-          title: t("Election server")
+          alt: t("election_server"),
+          title: t("election_server")
         }
       )
     ),

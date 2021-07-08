@@ -65,9 +65,9 @@ function GenericNavigation({ labelInfo=null, labelPreviousButton=null, labelNext
 function TranslatableVoteNavigation({ question_index=0, questions_length=1, onClickPreviousButton=null, onClickNextButton=null, t }){
   return GenericNavigation(
     {
-      labelInfo: t("questionXofY", {current_question: question_index+1, number_of_questions: questions_length}),
-      labelPreviousButton: t("Previous"),
-      labelNextButton: t("Next"),
+      labelInfo: t("question_x_of_y", {current_question: question_index+1, number_of_questions: questions_length}),
+      labelPreviousButton: t("previous_button_label"),
+      labelNextButton: t("next_button_label"),
       onClickPreviousButton: question_index == 0 ? null : onClickPreviousButton,
       onClickNextButton: onClickNextButton,
       disabledPreviousButton: question_index == 0 ? true : false,

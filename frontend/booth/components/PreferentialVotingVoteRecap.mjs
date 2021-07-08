@@ -55,7 +55,7 @@ function TranslatablePreferentialVotingVoteRecap({ question, question_index, unc
           paddingLeft: "40px"
         }
       },
-      t("Blank vote")
+      t("blank_vote")
     )];
   }
   else {

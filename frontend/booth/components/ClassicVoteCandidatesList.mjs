@@ -8,7 +8,7 @@ function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPre
   const candidate_constructor = type == "checkbox" ? CandidateWithCheckbox : CandidateWithRadio;
   let finalCandidates = candidates;
   if (blankVoteIsAllowed === true){
-    const blankVoteLabel = t("Blank vote");
+    const blankVoteLabel = t("blank_vote");
     finalCandidates = [...candidates, blankVoteLabel]; // We assume this the right way to do it
   }
   const renderedCandidates = finalCandidates.map((candidate, candidateIndex) => {

@@ -86,7 +86,7 @@ function TranslatableMajorityJudgmentVoteRecap({ question, question_index, uncry
     renderedGradedCandidates = [e(
       "div",
       null,
-      t("Blank vote")
+      t("blank_vote")
     )];
   }
   else {

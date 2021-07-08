@@ -14,7 +14,7 @@ function TranslatableMajorityJudgmentVoteCandidatesList({ identifierPrefix, avai
   const candidateIndex = candidates.length;
   const userHasSelectedBlankVote = blankVoteIsAllowed && (currentUserVoteForQuestion.length > candidates.length) && (currentUserVoteForQuestion[candidateIndex] === 1) ? true : false;
   if (blankVoteIsAllowed){
-    const blankVoteLabel = t("Blank vote");
+    const blankVoteLabel = t("blank_vote");
     const identifier = `${identifierPrefix}_blank-vote`;
     const currentAlerts = currentCandidatesHavingAlertsForQuestion && currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
     const dispatchBlankVoteInQuestion = (blankVoteIsChecked) => {

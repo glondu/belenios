@@ -11,14 +11,14 @@ function TranslatablePageFooter({electionUuid, electionFingerprint, t}) {
       {
         className: "page-footer__election-uuid-container"
       },
-      t("electionUuid",{uuid: electionUuid})
+      t("election_uuid_is_x",{uuid: electionUuid})
     ),
     e(
       "div",
       {
         className: "page-footer__election-footprint-container"
       },
-      t("electionFingerprint",{fingerprint: electionFingerprint})
+      t("election_fingerprint_is_x",{fingerprint: electionFingerprint})
     )
   );
 }

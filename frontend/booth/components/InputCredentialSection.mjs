@@ -48,7 +48,7 @@ function TranslatableInputCredentialSection({ onSubmit=null, t }){
           e(
             "p",
             null,
-            t("Please enter your credential")
+            t("ask_for_credential")
           ),
           e(
             NiceTextInput,
@@ -64,7 +64,7 @@ function TranslatableInputCredentialSection({ onSubmit=null, t }){
             style: {
               padding: "8px 28px"
             },
-            label: t("Next"),
+            label: t("next_button_label"),
             onClick: onClick
           }
         )
