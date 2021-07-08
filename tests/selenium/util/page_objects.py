@@ -252,7 +252,7 @@ class NormalVoteStep2Page(NormalVoteGenericStepPage):
                 answers_elements[0].click()
             if voter_vote_to_question_1_answer_2 and not voter_vote_to_question_1_answer_2_is_checked:
                 answers_elements[1].click()
-        else:
+        else: # this handles the case of non homomorphic questions
             if voter_vote_to_question_1_answer_1:
                 question1_answer1_element.send_keys("1")
             if voter_vote_to_question_1_answer_2:
