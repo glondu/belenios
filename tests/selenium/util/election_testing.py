@@ -667,8 +667,9 @@ def administrator_edits_election_questions(browser, nh_question=False):
     if settings.BOOTH_VERSION == settings.BOOTH_VERSIONS.RESPONSIVE_BOOTH:
         # In the booth type section, she clicks on the second radio button, to select the responsive booth
         booth_version_radio_buttons = browser.find_elements_by_css_selector("input[type=radio][name=booth_version_radio]")
-        if len(booth_version_radio_buttons) == 2:
-            booth_version_radio_buttons[1].click()
+        if not booth_version_radio_buttons or len(booth_version_radio_buttons) != 2:
+            raise Exception("Booth version should be selected among 2 radio buttons")
+        booth_version_radio_buttons[1].click()
 
     wait_a_bit()
 
