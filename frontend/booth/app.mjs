@@ -155,7 +155,7 @@ function TranslatableVoteApp({uuid=null, t}){
       loadElectionDataFromUuid(uuid);
     };
 
-    const titleMessage = t("Belenios booth");
+    const titleMessage = t("page_title");
     
     return e(
       GenericPage,
@@ -212,7 +212,7 @@ function TranslatableVoteApp({uuid=null, t}){
                 setCurrentStep(2);
               }
               else {
-                alert(t("Invalid credential!"));
+                alert(t("alert_invalid_credential"));
               }
               return false;
             }
@@ -294,7 +294,7 @@ const VoteApp = ReactI18next.withTranslation()(TranslatableVoteApp);
 
 const afterI18nInitialized = (uuid, lang) => {
   return function(){
-    document.title = i18next.t("Belenios booth");
+    document.title = i18next.t("page_title");
     document.querySelector("html").setAttribute("lang", 
 i18next.languages[0] || "en");
     const container = document.querySelector("#vote-app");
