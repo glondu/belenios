@@ -50,7 +50,7 @@ chroot "$DIR/rootfs" sh -c "debconf-set-selections" <<EOF
 dma dma/mailname string belenios
 dma dma/relayhost string localhost
 EOF
-chroot "$DIR/rootfs" sh -c "apt-get install -qq libgmp-dev libpcre3-dev libssl-dev libsqlite3-dev ca-certificates zip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime dma logrotate"
+chroot "$DIR/rootfs" sh -c "apt-get install -qq netbase libgmp-dev libpcre3-dev libssl-dev libsqlite3-dev ca-certificates zip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime dma logrotate"
 chroot "$DIR/rootfs" sh -c "apt-get clean"
 chroot "$DIR/rootfs" useradd belenios
 

@@ -5,7 +5,7 @@ set -e
 echo "Installing Debian prerequisites..."
 
 apt-get update -qq && apt-get upgrade -qq
-apt-get install -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime git jq npm rsync debootstrap squashfs-tools
+apt-get install -qq netbase build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime git jq npm rsync debootstrap squashfs-tools
 apt-get clean
 
 echo "Running opam-bootstrap.sh..."
