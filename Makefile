@@ -4,7 +4,6 @@ minimal:
 	dune build -p belenios-platform,belenios-platform-native,belenios,belenios-tool
 
 build-debug-server:
-	./fixup-magic-mime.sh
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS)
 	rm -rf _run/usr
 	dune install $(DUNE_DEBUG_ARGS) --destdir=_run --prefix=/usr 2>/dev/null
@@ -12,7 +11,6 @@ build-debug-server:
 	git archive --prefix=belenios-debug/ HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
 build-release-server:
-	./fixup-magic-mime.sh
 	$(MAKE) clean
 	BELENIOS_DEBUG= dune build --release
 	rm -rf _run/usr
@@ -21,7 +19,6 @@ build-release-server:
 	git archive --prefix="belenios-$(shell git describe --tags)/" HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
 build-debug-tool:
-	./fixup-magic-mime.sh
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS) -p belenios-platform,belenios-platform-native,belenios,belenios-tool
 	rm -rf _run/tool-debug
 	dune install $(DUNE_DEBUG_ARGS) --destdir=_run/tool-debug --prefix=/ belenios-platform belenios-platform-native belenios belenios-tool 2>/dev/null

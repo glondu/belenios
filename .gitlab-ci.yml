@@ -25,10 +25,11 @@ build_and_test_with_debian_image:
   image: ocaml/opam:debian-10-ocaml-4.11
   script:
     # Install required packages
-    - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev jq npm
+    - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev jq npm rsync
     # Install the same Opam packages that opam-bootstrap.sh installs
     - git -C /home/opam/opam-repository pull
     - opam update
+    - ./fixup-magic-mime.sh
     - eval `grep "opam install" ./opam-bootstrap.sh`
     # Compile belenios
     - make build-debug-tool
