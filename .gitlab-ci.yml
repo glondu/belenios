@@ -22,8 +22,7 @@ build_and_test_with_preinstalled_image:
 
 build_and_test_with_debian_image:
   stage: test
-  # Image ocaml/opam2:debian-10-ocaml-4.08 currently has ocaml version 4.08.1 and opam version 2.0.5
-  image: ocaml/opam2:debian-10-ocaml-4.08
+  image: ocaml/opam:debian-10-ocaml-4.11
   script:
     # Install required packages
     - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev jq npm
