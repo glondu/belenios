@@ -463,7 +463,7 @@ let email_email ~address ~code =
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
   add_newline b; add_newline b;
-  add_sentence b (s_ "Your e-mail address has been used to log in to our Belenios server.");
+  add_sentence b (s_ "Your e-mail address has been used to authenticate with our Belenios server.");
   add_sentence b (s_ "Use the following code:");
   add_newline b; add_newline b;
   add_string b "  "; add_string b code;
@@ -476,7 +476,7 @@ let email_email ~address ~code =
   add_newline b;
   add_string b (s_ "Belenios Server");
   let body = contents b in
-  let subject = s_ "Belenios login" in
+  let subject = s_ "Belenios authentication" in
   Lwt.return (subject, body)
 
 let signup_captcha_img challenge =
