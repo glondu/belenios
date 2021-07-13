@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -175,9 +176,9 @@ msgstr ""
 "Każdy z następujących mężów (osób) zaufania (przy pomocy swoich kluczy "
 "weryfikacyjnych) musi odszyfrować wynik głosowania:"
 
+#: src/web/pages_voter.ml:921 src/web/pages_voter.ml:735
 #. src/web/pages_voter.ml:613
 #. src/web/pages_voter.ml:611
-#: src/web/pages_voter.ml:921 src/web/pages_voter.ml:735
 msgid "Answer to questions"
 msgstr "Wybierz"
 
@@ -193,12 +194,12 @@ msgstr "Przynajmniej jedna odpowiedź (wybór) nie jest prawidłowa!"
 msgid "Audit data: "
 msgstr "Dane audytu: "
 
+#: src/web/pages_voter.ml:925 src/web/pages_voter.ml:739
 #. src/web/pages_voter.ml:631
 #. src/web/pages_voter.ml:629
 #. src/web/pages_common.ml:455
 #. src/web/pages_common.ml:409
 #. src/web/pages_common.ml:360
-#: src/web/pages_voter.ml:925 src/web/pages_voter.ml:739
 msgid "Authenticate"
 msgstr "Uwierzytelnij"
 
@@ -237,15 +238,15 @@ msgid "Belenios Server"
 msgstr "Serwer Belenios"
 
 #: src/web/pages_common.ml:479
-msgid "Belenios login"
-msgstr "Belenios login"
+msgid "Belenios authentication"
+msgstr ""
 
 #: src/web/pages_common.ml:473
 msgid "Best regards,"
 msgstr "Z pozdrowieniami"
 
-#. src/web/pages_voter.ml:124
 #: src/tool/tool_js_booth.ml:159 src/tool/tool_js_booth.ml:85
+#. src/web/pages_voter.ml:124
 msgid "Blank vote"
 msgstr "Pusty głos"
 
@@ -269,14 +270,14 @@ msgstr "Obliczony cyfrowy odcisk (hasz):"
 msgid "Condorcet-Schulze method"
 msgstr "system Condorceta-Schulzego"
 
+#: src/web/pages_voter.ml:927 src/web/pages_voter.ml:741
 #. src/web/pages_voter.ml:640
 #. src/web/pages_voter.ml:638
-#: src/web/pages_voter.ml:927 src/web/pages_voter.ml:741
 msgid "Confirm"
 msgstr "Potwierdź"
 
-#. src/web/pages_voter.ml:907
 #: src/web/pages_voter.ml:1122 src/web/pages_voter.ml:1065
+#. src/web/pages_voter.ml:907
 msgid "Continue"
 msgstr "Dalej"
 
@@ -302,8 +303,8 @@ msgstr "Dzień dobry %s,"
 msgid "Done"
 msgstr "Gotowe"
 
-#. src/web/pages_common.ml:344
 #: src/web/pages_common.ml:505 src/web/pages_common.ml:389
+#. src/web/pages_common.ml:344
 msgid "E-mail address:"
 msgstr "Adres e-mail:"
 
@@ -315,8 +316,8 @@ msgstr "Unikalny identyfikator głosowania (UUID): "
 msgid "Election fingerprint: "
 msgstr "Cyfrowy odcisk (hasz) głosowania: "
 
-#. src/web/pages_common.ml:111
 #: src/web/pages_voter.ml:972 src/web/pages_common.ml:179
+#. src/web/pages_common.ml:111
 msgid "Election server"
 msgstr "Serwer głosowania"
 
@@ -324,9 +325,9 @@ msgstr "Serwer głosowania"
 msgid "Encrypting…"
 msgstr "Szyfruję…"
 
+#: src/web/site_voter.ml:365 src/web/site_voter.ml:340 src/web/site_voter.ml:297
 #. src/web/site_voter.ml:292
 #. src/web/site_voter.ml:287
-#: src/web/site_voter.ml:365 src/web/site_voter.ml:340 src/web/site_voter.ml:297
 msgid "Error"
 msgstr "Błąd"
 
@@ -342,9 +343,9 @@ msgstr "BŁĄD!"
 msgid "Get the source code"
 msgstr "Pobierz kod źródłowy"
 
+#: src/web/pages_voter.ml:826 src/web/pages_voter.ml:789
 #. src/web/pages_voter.ml:719
 #. src/web/pages_voter.ml:689
-#: src/web/pages_voter.ml:826 src/web/pages_voter.ml:789
 msgid "Go back to election"
 msgstr "Wróć do głosowania"
 
@@ -394,9 +395,9 @@ msgstr ""
 "kandydatów (opcje) w kolejności od najbardziej preferowanego do najmniej "
 "preferowanego."
 
+#: src/web/pages_voter.ml:919 src/web/pages_voter.ml:733
 #. src/web/pages_voter.ml:604
 #. src/web/pages_voter.ml:602
-#: src/web/pages_voter.ml:919 src/web/pages_voter.ml:733
 msgid "Input credential"
 msgstr "Wprowadź kod głosowania"
 
@@ -438,9 +439,9 @@ msgstr "Język:"
 msgid "Loading…"
 msgstr "Ładowanie…"
 
+#: src/web/pages_common.ml:454 src/web/pages_common.ml:408
 #. src/web/pages_common.ml:359
 #. src/web/pages_common.ml:336
-#: src/web/pages_common.ml:454 src/web/pages_common.ml:408
 msgid "Log in"
 msgstr "Zaloguj się"
 
@@ -617,9 +618,9 @@ msgstr "Rozpocznij od nowa"
 msgid "Results will be published on the election page"
 msgstr "Wyniki zostaną wyświetlone na stronie głosowania"
 
+#: src/web/pages_voter.ml:923 src/web/pages_voter.ml:737
 #. src/web/pages_voter.ml:622
 #. src/web/pages_voter.ml:620
-#: src/web/pages_voter.ml:923 src/web/pages_voter.ml:737
 msgid "Review and encrypt"
 msgstr "Sprawdź i zaszyfruj"
 
@@ -857,9 +858,9 @@ msgstr ""
 msgid "Use the following code:"
 msgstr "Użyj kodu:"
 
+#: src/web/pages_voter.ml:1303 src/web/pages_voter.ml:1246
 #. src/web/pages_common.ml:388
 #. src/web/pages_common.ml:343
-#: src/web/pages_voter.ml:1303 src/web/pages_voter.ml:1246
 msgid "Username:"
 msgstr "Nazwa użytkownika:"
 
@@ -974,10 +975,8 @@ msgid "Your credential for election %s"
 msgstr "Twój kod głosowania %s"
 
 #: src/web/pages_common.ml:466
-msgid "Your e-mail address has been used to log in to our Belenios server."
+msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
-"Twój adres e-mail został wykorzystany do zalogowania się do naszego serwera "
-"Belenios."
 
 #: src/web/pages_voter.ml:1281
 msgid "Your password for election %s"
@@ -987,8 +986,8 @@ msgstr "Twoje hasło logowania do głosowania %s"
 msgid "Your smart ballot tracker is"
 msgstr "Nr Twojej karty do głosowania to"
 
-#. src/web/pages_voter.ml:671
 #: src/web/pages_voter.ml:899 src/web/pages_voter.ml:760
+#. src/web/pages_voter.ml:671
 msgid "Your smart ballot tracker is "
 msgstr "Numer Twojej karty do głosowania to "
 
@@ -1004,8 +1003,8 @@ msgstr "Twój głos w głosowaniu %s"
 msgid "Your vote was not recorded!"
 msgstr "Twój głos nie został zarejestrowany!"
 
-#. src/web/pages_voter.ml:657
 #: src/web/pages_voter.ml:1346 src/web/pages_voter.ml:752
+#. src/web/pages_voter.ml:657
 msgid "Your weight is %s."
 msgstr "Waga Twojego głosu wynosi %s."
 
@@ -1037,8 +1036,8 @@ msgstr "utworzyć konto"
 msgid "has been recorded."
 msgstr "został zarejestrowany."
 
-#. src/web/pages_voter.ml:1081
 #: src/tool/tool_js_booth.ml:369 src/web/pages_voter.ml:1134
+#. src/web/pages_voter.ml:1081
 msgid "here"
 msgstr "tutaj"
 
@@ -1113,3 +1112,4 @@ msgstr "Twój kod głosowania został już wykorzystany"
 #: src/web/web_common.ml:88
 msgid "your credential is invalid"
 msgstr "Twój kod głosowania nie jest prawidłowy"
+

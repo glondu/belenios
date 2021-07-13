@@ -232,7 +232,7 @@ msgid "Belenios Server"
 msgstr ""
 
 #: src/web/pages_common.ml:479
-msgid "Belenios login"
+msgid "Belenios authentication"
 msgstr ""
 
 #: src/web/pages_common.ml:473
@@ -902,7 +902,7 @@ msgid "Your credential for election %s"
 msgstr ""
 
 #: src/web/pages_common.ml:466
-msgid "Your e-mail address has been used to log in to our Belenios server."
+msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 
 #: src/web/pages_voter.ml:1281

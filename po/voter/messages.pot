@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-30 13:01+0000\n"
+"POT-Creation-Date: 2021-07-13 06:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -225,7 +225,7 @@ msgid "Belenios Server"
 msgstr ""
 
 #: src/web/pages_common.ml:479
-msgid "Belenios login"
+msgid "Belenios authentication"
 msgstr ""
 
 #: src/web/pages_common.ml:473
@@ -883,7 +883,7 @@ msgid "Your credential for election %s"
 msgstr ""
 
 #: src/web/pages_common.ml:466
-msgid "Your e-mail address has been used to log in to our Belenios server."
+msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 
 #: src/web/pages_voter.ml:1281

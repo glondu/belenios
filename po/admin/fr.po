@@ -94,7 +94,7 @@ msgstr " électeur(s) enregistré(s)"
 msgid " your contribution to decryption."
 msgstr " votre contribution au déchiffrement."
 
-#: src/web/site_admin.ml:920
+#: src/web/site_admin.ml:922
 msgid "%S is not a valid identity"
 msgstr "%S n'est pas une identité valide"
 
@@ -106,11 +106,11 @@ msgstr "%d électeur(s)"
 msgid "%s is not a registered user for this election."
 msgstr "%s n'est pas un utilisateur enregistré pour cette élection."
 
-#: src/web/site_admin.ml:1624
+#: src/web/site_admin.ml:1626
 msgid "%s is not a valid date!"
 msgstr "%s n'est pas une date valide !"
 
-#: src/web/site_admin.ml:2337 src/web/site_admin.ml:1030
+#: src/web/site_admin.ml:2339 src/web/site_admin.ml:1032
 msgid "%s is not a valid e-mail address!"
 msgstr "%s n'est pas une adresse électronique valide !"
 
@@ -218,7 +218,7 @@ msgstr "6. Cliquez sur « Soumettre les parties publiques codes de vote »."
 msgid "A new password has been mailed to %s."
 msgstr "Un nouveau mot de passe a été envoyé à %s."
 
-#: src/web/site_admin.ml:1284
+#: src/web/site_admin.ml:1286
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
 msgstr ""
 "Une clé publique existait déjà, la clé que vous venez de télécharger a été "
@@ -228,7 +228,7 @@ msgstr ""
 msgid "Accept"
 msgstr "Accepter"
 
-#: src/web/site_admin.ml:2656 src/web/site_admin.ml:2534
+#: src/web/site_admin.ml:2658 src/web/site_admin.ml:2536
 msgid "Account creation"
 msgstr "Création de compte"
 
@@ -292,11 +292,11 @@ msgstr ""
 msgid "An election with the same UUID already exists."
 msgstr "Une élection avec le même UUID existe déjà."
 
-#: src/web/site_admin.ml:2187
+#: src/web/site_admin.ml:2189
 msgid "An error occurred while applying the shuffle."
 msgstr "Une erreur est survenue lors de l'étape de mélange des bulletins."
 
-#: src/web/site_admin.ml:2060
+#: src/web/site_admin.ml:2062
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "Une erreur est survenue lors du calcul du résultat (%s). Cela signifie "
@@ -351,7 +351,7 @@ msgstr "Mécanisme d'authentification : dummy"
 msgid "Authentication scheme: password"
 msgstr "Mécanisme d'authentification : mot de passe"
 
-#: src/web/site_admin.ml:1549
+#: src/web/site_admin.ml:1551
 msgid "Automatic shuffle by server has failed for election %s!"
 msgstr "Le mélange automatique du serveur a échoué pour l'élection %s !"
 
@@ -423,7 +423,7 @@ msgstr ""
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/web/site_admin.ml:1144
+#: src/web/site_admin.ml:1146
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr ""
 "L'envoi des codes de vote n'a pas pu être effectué, il y a trop d'électeurs ("
@@ -439,7 +439,7 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr "Changer les dates automatiques"
 
-#: src/web/site_admin.ml:2680 src/web/site_admin.ml:2575
+#: src/web/site_admin.ml:2682 src/web/site_admin.ml:2577
 #. src/web/pages_admin.ml:3154
 #. src/web/pages_admin.ml:3031
 msgid "Change password"
@@ -517,13 +517,13 @@ msgstr "Contact :"
 msgid "Contact?"
 msgstr "Contact ?"
 
-#: src/web/site_admin.ml:1425
+#: src/web/site_admin.ml:1427
 msgid "Could not retrieve trustees from selected election!"
 msgstr ""
 "Impossible de récupérer les autorités de déchiffrement de l’élection "
 "sélectionnée !"
 
-#: src/web/site_admin.ml:1397
+#: src/web/site_admin.ml:1399
 msgid "Could not retrieve voter list from election %s"
 msgstr ""
 "Impossible de récupérer la liste des électeurs à partir de l'élection %s"
@@ -568,7 +568,7 @@ msgstr "Code de vote pour l'élection %s"
 msgid "Credentials have already been generated!"
 msgstr "Les codes de vote ont déjà été générés !"
 
-#: src/web/site_admin.ml:1216
+#: src/web/site_admin.ml:1218
 msgid "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
 msgstr ""
 "Les codes de votes ont été générés et envoyés par courriel ! Vous devriez "
@@ -591,7 +591,7 @@ msgstr "Codes de vote ?"
 msgid "Current list of ballots:"
 msgstr "Liste courante des bulletins :"
 
-#: src/web/site_admin.ml:2190
+#: src/web/site_admin.ml:2192
 msgid "Data is invalid! (%s)"
 msgstr "Les données ne sont pas valides ! (%s)"
 
@@ -727,7 +727,7 @@ msgstr "Élections en cours de préparation"
 msgid "Elections you can administer"
 msgstr "Élections que vous pouvez administrer"
 
-#: src/web/site_admin.ml:1456
+#: src/web/site_admin.ml:1458
 msgid "Encrypted decryption keys are missing!"
 msgstr "Les chiffrés des clés de déchiffrement sont manquants !"
 
@@ -753,23 +753,23 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Entrez votre clé privée :"
 
-#: src/web/site_admin.ml:2339 src/web/site_admin.ml:2309
-#. src/web/site_admin.ml:2296
-#. src/web/site_admin.ml:2190
-#. src/web/site_admin.ml:2187
-#. src/web/site_admin.ml:2063
-#. src/web/site_admin.ml:1985
-#. src/web/site_admin.ml:1912
-#. src/web/site_admin.ml:1872
-#. src/web/site_admin.ml:1673
-#. src/web/site_admin.ml:1615
-#. src/web/site_admin.ml:1505
-#. src/web/site_admin.ml:1394
-#. src/web/site_admin.ml:1383
-#. src/web/site_admin.ml:1293
-#. src/web/site_admin.ml:1285
-#. src/web/site_admin.ml:1257
-#. src/web/site_admin.ml:1032
+#: src/web/site_admin.ml:2341 src/web/site_admin.ml:2311
+#. src/web/site_admin.ml:2298
+#. src/web/site_admin.ml:2192
+#. src/web/site_admin.ml:2189
+#. src/web/site_admin.ml:2065
+#. src/web/site_admin.ml:1987
+#. src/web/site_admin.ml:1914
+#. src/web/site_admin.ml:1874
+#. src/web/site_admin.ml:1675
+#. src/web/site_admin.ml:1617
+#. src/web/site_admin.ml:1507
+#. src/web/site_admin.ml:1396
+#. src/web/site_admin.ml:1385
+#. src/web/site_admin.ml:1295
+#. src/web/site_admin.ml:1287
+#. src/web/site_admin.ml:1259
+#. src/web/site_admin.ml:1034
 #. src/web/site_admin.ml:787
 #. src/web/site_admin.ml:662
 #. src/web/site_admin.ml:619
@@ -833,8 +833,8 @@ msgstr ""
 "Pour de vraies élections, la clé doit être partagée entre des autorités de "
 "déchiffrement indépendantes."
 
-#: src/web/site_admin.ml:1925 src/web/site_admin.ml:1922
-#. src/web/site_admin.ml:1568
+#: src/web/site_admin.ml:1927 src/web/site_admin.ml:1924
+#. src/web/site_admin.ml:1570
 msgid "Forbidden"
 msgstr "Interdit"
 
@@ -907,7 +907,7 @@ msgstr "Importer les autorités de déchiffrement depuis une autre élection"
 msgid "Import voters from another election"
 msgstr "Importer la liste électorale depuis une autre élection"
 
-#: src/web/site_admin.ml:1432
+#: src/web/site_admin.ml:1434
 msgid "Imported trustees are invalid for this election!"
 msgstr ""
 "Les autorités de déchiffrement importées ne sont pas valides pour cette "
@@ -925,7 +925,7 @@ msgstr ""
 "Les électeurs importés auront le même mot de passe que lors de l’élection "
 "initiale, et aucun nouveau courriel ne sera envoyé."
 
-#: src/web/site_admin.ml:1454
+#: src/web/site_admin.ml:1456
 msgid "Inconsistency in imported election!"
 msgstr "Incohérence dans l'élection importée !"
 
@@ -958,7 +958,7 @@ msgstr "Nombre maximal de choix non valide"
 msgid "Invalid minimum number of choices"
 msgstr "Nombre minimum de choix non valide"
 
-#: src/web/site_admin.ml:1292
+#: src/web/site_admin.ml:1294
 msgid "Invalid public key!"
 msgstr "La clé publique est invalide !"
 
@@ -1126,7 +1126,7 @@ msgstr ""
 "Aucune autorité de déchiffrement n'a été donnée. Cela signifie que le "
 "serveur va gérer lui-même la clé de l'élection."
 
-#: src/web/site_admin.ml:1146 src/web/pages_admin.ml:1453
+#: src/web/site_admin.ml:1148 src/web/pages_admin.ml:1453
 msgid "No voters"
 msgstr "Aucun électeur"
 
@@ -1282,7 +1282,7 @@ msgstr "Information sur le traitement de données personnelles"
 msgid "Please "
 msgstr "S'il vous plait "
 
-#: src/web/site_admin.ml:2294
+#: src/web/site_admin.ml:2296
 msgid "Please add some trustees first!"
 msgstr "Veuillez d'abord ajouter quelques autorités de déchiffrement !"
 
@@ -1568,9 +1568,9 @@ msgstr "Soumettre la clé publique"
 msgid "Submit your public key using the button below."
 msgstr "Soumettez votre clé publique en utilisant le bouton ci-dessous."
 
-#: src/web/site_admin.ml:2185 src/web/site_admin.ml:1980
-#. src/web/site_admin.ml:1300
-#. src/web/site_admin.ml:1215
+#: src/web/site_admin.ml:2187 src/web/site_admin.ml:1982
+#. src/web/site_admin.ml:1302
+#. src/web/site_admin.ml:1217
 #. src/web/site_admin.ml:783
 #. src/web/site_admin.ml:706
 #. src/web/site_admin.ml:586
@@ -1599,7 +1599,7 @@ msgstr "Le "
 msgid "The account creation "
 msgstr "La création du compte "
 
-#: src/web/site_admin.ml:2656
+#: src/web/site_admin.ml:2658
 msgid "The account has been created."
 msgstr "Le compte a été créé."
 
@@ -1611,7 +1611,7 @@ msgstr "Le changement "
 msgid "The creation failed."
 msgstr "La création a échoué."
 
-#: src/web/site_admin.ml:1635
+#: src/web/site_admin.ml:1637
 msgid "The date must be less than %d days in the future!"
 msgstr "La date ne doit pas être à plus de %d jours dans le futur !"
 
@@ -1622,7 +1622,7 @@ msgstr "La date ne doit pas être à plus de %d jours dans le futur !"
 msgid "The election administrator"
 msgstr "L'administrateur de l'élection"
 
-#: src/web/site_admin.ml:1924
+#: src/web/site_admin.ml:1926
 msgid "The election has already been tallied."
 msgstr "L'élection a déjà été dépouillée."
 
@@ -1630,11 +1630,11 @@ msgstr "L'élection a déjà été dépouillée."
 msgid "The election is closed. No one can vote."
 msgstr "L'élection est fermée. Personne ne peut voter."
 
-#: src/web/site_admin.ml:1873
+#: src/web/site_admin.ml:1875
 msgid "The election is not archived!"
 msgstr "L’élection n’est pas archivée !"
 
-#: src/web/site_admin.ml:1921
+#: src/web/site_admin.ml:1923
 msgid "The election is not ready to be tallied. Please come back later."
 msgstr ""
 "L'élection n'est pas prête à être dépouillée. Merci de revenir plus tard."
@@ -1647,7 +1647,7 @@ msgstr "L'élection est maintenant fermée."
 msgid "The election is open. Voters can vote."
 msgstr "L'élection est ouverte. Les électeurs peuvent voter."
 
-#: src/web/site_admin.ml:1148 src/web/site_admin.ml:679
+#: src/web/site_admin.ml:1150 src/web/site_admin.ml:679
 msgid "The election name has not been edited!"
 msgstr "Le nom de l'élection n'a pas été modifié !"
 
@@ -1692,11 +1692,11 @@ msgstr ""
 "La page contient également des instructions pour vérifier l'enregistrement "
 "du vote, après le décompte."
 
-#: src/web/site_admin.ml:1986
+#: src/web/site_admin.ml:1988
 msgid "The partial decryption didn't pass validation!"
 msgstr "Le déchiffrement partiel n’a pas passé la validation !"
 
-#: src/web/site_admin.ml:2680
+#: src/web/site_admin.ml:2682
 msgid "The password has been changed."
 msgstr "Le mot de passe a été modifié."
 
@@ -1712,17 +1712,17 @@ msgstr ""
 "La deuxième boîte est maintenant remplie de matériel cryptographique. "
 "Veuillez appuyer sur le bouton « Soumettre »."
 
-#: src/web/site_admin.ml:2185
+#: src/web/site_admin.ml:2187
 msgid "The shuffle has been successfully applied!"
 msgstr "Le mélange a été appliqué avec succès !"
 
-#: src/web/site_admin.ml:2307
+#: src/web/site_admin.ml:2309
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr ""
 "Le seuil doit être positif et plus petit que le nombre d'autorités de "
 "déchiffrement !"
 
-#: src/web/site_admin.ml:1386 src/web/site_admin.ml:930
+#: src/web/site_admin.ml:1388 src/web/site_admin.ml:932
 msgid "The total weight (%s) cannot be handled. Its expanded value must be less than %s."
 msgstr ""
 "Le poids total (%s) ne peut pas être manipulé. Sa valeur développée doit "
@@ -1732,12 +1732,12 @@ msgstr ""
 msgid "The voter has to choose between "
 msgstr "L’électeur doit choisir entre "
 
-#: src/web/site_admin.ml:936
+#: src/web/site_admin.ml:938
 msgid "The voter list is not consistent (a login or a weight is missing)."
 msgstr ""
 "La liste électorale n'est pas cohérente (il manque un login ou un poids)."
 
-#: src/web/site_admin.ml:954
+#: src/web/site_admin.ml:956
 msgid "There are too many voters (max is %d)"
 msgstr "Il y a trop d’électeurs (le max est %d)"
 
@@ -1880,7 +1880,7 @@ msgstr "Autorités de déchiffrement ?"
 msgid "Type the password again: "
 msgstr "Entrez de nouveau le mot de passe : "
 
-#: src/web/site_admin.ml:1474
+#: src/web/site_admin.ml:1476
 msgid "Unsupported trustees!"
 msgstr "Autorités de déchiffrement non supportées !"
 
@@ -1978,7 +1978,7 @@ msgstr ""
 msgid "Yes"
 msgstr "Oui"
 
-#: src/web/site_admin.ml:1567
+#: src/web/site_admin.ml:1569
 msgid "You are not allowed to administer this election!"
 msgstr "Vous n'avez pas le droit d'administrer cette élection !"
 
@@ -1990,13 +1990,13 @@ msgstr "Vous pouvez également accéder aux "
 msgid "You can also log in with"
 msgstr "Vous pouvez aussi vous connecter avec"
 
-#: src/web/site_admin.ml:2576
+#: src/web/site_admin.ml:2578
 msgid "You cannot change your password now. Please try later."
 msgstr ""
 "Vous ne pouvez pas changer votre mot de passe maintenant. Veuillez essayer "
 "plus tard."
 
-#: src/web/site_admin.ml:2535
+#: src/web/site_admin.ml:2537
 msgid "You cannot create an account now. Please try later."
 msgstr ""
 "Vous ne pouvez pas créer un compte maintenant. Veuillez essayer plus tard."
@@ -2104,19 +2104,19 @@ msgstr ""
 "publiée par le serveur lorsque l'élection sera ouverte. Votre clé privée "
 "sera nécessaire pour décrypter le résultat de l'élection."
 
-#: src/web/site_admin.ml:1299
+#: src/web/site_admin.ml:1301
 msgid "Your key has been received and checked!"
 msgstr "Votre clé a été reçue et vérifiée !"
 
-#: src/web/site_admin.ml:1913
+#: src/web/site_admin.ml:1915
 msgid "Your partial decryption has already been received and checked!"
 msgstr "Votre déchiffrement partiel a déjà été reçu et vérifié !"
 
-#: src/web/site_admin.ml:1981
+#: src/web/site_admin.ml:1983
 msgid "Your partial decryption has been received and checked!"
 msgstr "Votre déchiffrement partiel a été reçu et vérifié !"
 
-#: src/web/site_admin.ml:1256
+#: src/web/site_admin.ml:1258
 msgid "Your public key has already been received!"
 msgstr "Votre clé publique a déjà été reçue !"
 
