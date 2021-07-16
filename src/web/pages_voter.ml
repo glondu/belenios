@@ -745,7 +745,7 @@ let cast_confirmed election ~result () =
   ] in
   let result, step_title =
     match result with
-    | Ok (hash, weight) ->
+    | Ok (hash, weight, email) ->
        let your_weight_is =
          if not Weight.(is_int weight 1) then
            span [
@@ -765,7 +765,7 @@ let cast_confirmed election ~result () =
         txt (s_ "You can check its presence in the ");
         a ~service:election_pretty_ballots [txt (s_ "ballot box")] (uuid, ());
         txt (s_ " anytime during the election.");
-        txt (s_ " A confirmation e-mail has been sent to you.");
+        txt (if email then s_ " A confirmation e-mail has been sent to you." else "");
        ], s_ "Thank you for voting!"
     | Error e ->
        [txt (s_ " is rejected, because ");

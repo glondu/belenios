@@ -184,9 +184,8 @@ let cast_ballot uuid ~rawballot ~user =
   let* r = Web_persist.cast_ballot uuid ~rawballot ~user ~weight (now ()) in
   match r with
   | Ok (hash, revote) ->
-     let* _success = send_confirmation_email uuid revote login email oweight hash in
-     (* TODO: warn that no confirmation e-mail have been sent *)
-     return (hash, weight)
+     let* success = send_confirmation_email uuid revote login email oweight hash in
+     return (hash, weight, success)
   | Error e ->
      let msg = match e with
        | ECastWrongCredential -> Some "attempted to revote with already used credential"
