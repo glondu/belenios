@@ -1,10 +1,11 @@
-dev
-===
+1.16 (2021-07-19)
+=================
 
  * Check secret credentials in belenios-tool (GitHub issue #31)
  * Optimize log computation during decryption
  * Majority Judgment: compute explicitly valid and blank votes
  * Web server:
+   + Port to (cohttp-based) ocsigenserver 3.0.0
    + New voting interface for classic and Majority Judgment votes
    + Add a way to specify counting method of alternative questions
      (only Majority Judgment is supported at the moment)
@@ -13,6 +14,8 @@ dev
    + The maximum total weight is now 10^11 (instead of 10^5)
    + `<br>` are interpreted as line breaks in election names,
      descriptions, questions and answers
+   + Add possibility to localize configurable snippets
+   + Better behaviour when sending a confirmation email fails
    + Many cosmetic changes in administrator's and voter's workflows
 
 1.15 (2021-05-04)
