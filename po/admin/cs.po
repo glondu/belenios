@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2021-07-19 13:32+0000\n"
+"PO-Revision-Date: 2021-07-20 06:25+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/admin/cs/>"
 "\n"
@@ -1690,6 +1690,8 @@ msgstr ""
 #: src/web/site_admin.ml:1388 src/web/site_admin.ml:932
 msgid "The total weight (%s) cannot be handled. Its expanded value must be less than %s."
 msgstr ""
+"Součet vah (%s) nelze zpracovat. Jeho expandovaná hodnota musí být menší než "
+"%s."
 
 #: src/tool/tool_js_questions.ml:176
 msgid "The voter has to choose between "
@@ -2073,7 +2075,7 @@ msgstr "Tvoje uživatelské jméno je: "
 
 #: src/tool/tool_js_questions.ml:412
 msgid "classic"
-msgstr ""
+msgstr "původní"
 
 #: src/web/pages_admin.ml:121
 msgid "contact us"
@@ -2119,7 +2121,7 @@ msgstr "více informací"
 
 #: src/tool/tool_js_questions.ml:416
 msgid "new interface (more elegant, still under test)"
-msgstr ""
+msgstr "nové rozhraní (elegantnější, ale stále testováno)"
 
 #: src/web/pages_admin.ml:3116
 msgid "of an unknown reason"
@@ -2151,19 +2153,21 @@ msgstr "neupraveným nezpracovaným datům"
 
 #: src/web/pages_admin.ml:347
 msgid "sent by a third party chosen by you (safe mode)"
-msgstr ""
+msgstr "posláno tebou vybranou třetí stranou (bezpečný mód)"
 
 #: src/web/pages_admin.ml:308
 msgid "sent by email when voting (a short password, renewed for each vote)"
 msgstr ""
+"posláno e-mailem při odevzdání hlasu (krátké heslo obnovovoané pro každou "
+"volbu)"
 
 #: src/web/pages_admin.ml:340
 msgid "sent by our server (easier mode but offers less security)"
-msgstr ""
+msgstr "posláno naším serverem (snadnější mód, ale zajišťuje méně bezpečí)"
 
 #: src/web/pages_admin.ml:285
 msgid "sent in advance by e-mail (useful for multiple elections)"
-msgstr ""
+msgstr "posláno dopředu e-mailem (užitečné po několik voleb najednou)"
 
 #: src/web/pages_admin.ml:1570
 msgid "submitting a large number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below."
@@ -2230,6 +2234,8 @@ msgstr "toto uživatelské jméno není platné"
 #: src/web/pages_admin.ml:1347
 msgid "the voting interface will depend on the selected counting method. In some cases, you should explain to voters (e.g. in the question field) how they are supposed to express their vote."
 msgstr ""
+"volební rozhraní záleží na vybrané metodě vyhodnocení. V některý případech "
+"je nutné vysvětlit voličům (v poli pro otázku), jak mají svůj hlas vyjádřit."
 
 #: src/web/pages_admin.ml:3062
 msgid "there is already an account with this e-mail address"
