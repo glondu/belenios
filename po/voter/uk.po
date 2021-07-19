@@ -317,9 +317,9 @@ msgstr "Сервер виборів"
 msgid "Encrypting…"
 msgstr "Шифрування…"
 
-#: src/web/site_voter.ml:365 src/web/site_voter.ml:340 src/web/site_voter.ml:297
-#. src/web/site_voter.ml:292
-#. src/web/site_voter.ml:287
+#: src/web/site_voter.ml:369 src/web/site_voter.ml:344 src/web/site_voter.ml:301
+#. src/web/site_voter.ml:296
+#. src/web/site_voter.ml:291
 msgid "Error"
 msgstr "Помилка"
 
@@ -392,7 +392,7 @@ msgstr "Введіть своє посвідчення "
 msgid "Invalid credential!"
 msgstr "Недійсне посвідчення!"
 
-#: src/web/site_voter.ml:298
+#: src/web/site_voter.ml:302
 msgid "Invalid index for question."
 msgstr "Недійсний індекс для запитання."
 
@@ -700,11 +700,11 @@ msgstr ""
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
 
-#: src/web/site_voter.ml:341
+#: src/web/site_voter.ml:345
 msgid "The number of grades is invalid."
 msgstr ""
 
-#: src/web/site_voter.ml:366
+#: src/web/site_voter.ml:370
 msgid "The number of seats is invalid."
 msgstr ""
 
@@ -718,7 +718,7 @@ msgstr ""
 "Результат цих виборів наразі недоступний у відкритому доступі. Це "
 "відбудеться через %s."
 
-#: src/web/site_voter.ml:288
+#: src/web/site_voter.ml:292
 msgid "The result of this election is not available."
 msgstr "Результат цих виборів недоступний."
 
@@ -768,7 +768,7 @@ msgstr ""
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr ""
 
-#: src/web/site_voter.ml:293
+#: src/web/site_voter.ml:297
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 

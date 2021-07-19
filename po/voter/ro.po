@@ -311,9 +311,9 @@ msgstr "Serverul alegerii"
 msgid "Encrypting…"
 msgstr "Criptare în curs…"
 
-#: src/web/site_voter.ml:365 src/web/site_voter.ml:340 src/web/site_voter.ml:297
-#. src/web/site_voter.ml:292
-#. src/web/site_voter.ml:287
+#: src/web/site_voter.ml:369 src/web/site_voter.ml:344 src/web/site_voter.ml:301
+#. src/web/site_voter.ml:296
+#. src/web/site_voter.ml:291
 msgid "Error"
 msgstr "Eroare"
 
@@ -385,7 +385,7 @@ msgstr "Introduceți codul vostru de votare "
 msgid "Invalid credential!"
 msgstr "Cod de votare invalid !"
 
-#: src/web/site_voter.ml:298
+#: src/web/site_voter.ml:302
 msgid "Invalid index for question."
 msgstr "Numar de intrebare invalid."
 
@@ -694,11 +694,11 @@ msgstr ""
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
 
-#: src/web/site_voter.ml:341
+#: src/web/site_voter.ml:345
 msgid "The number of grades is invalid."
 msgstr ""
 
-#: src/web/site_voter.ml:366
+#: src/web/site_voter.ml:370
 msgid "The number of seats is invalid."
 msgstr ""
 
@@ -710,7 +710,7 @@ msgstr "Rezultatele brute pot fi consultate in "
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr "Rezultatul acestei alegeri nu este disponibil deocamdată. Va fi disponibil în %s."
 
-#: src/web/site_voter.ml:288
+#: src/web/site_voter.ml:292
 msgid "The result of this election is not available."
 msgstr "Rezultatele acestei alegeri nu sunt disponibile."
 
@@ -760,7 +760,7 @@ msgstr ""
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr ""
 
-#: src/web/site_voter.ml:293
+#: src/web/site_voter.ml:297
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 

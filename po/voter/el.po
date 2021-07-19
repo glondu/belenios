@@ -320,9 +320,9 @@ msgstr "Διακομιστής ψηφοφορίας"
 msgid "Encrypting…"
 msgstr "Κρυπτογραφώντας…"
 
-#: src/web/site_voter.ml:365 src/web/site_voter.ml:340 src/web/site_voter.ml:297
-#. src/web/site_voter.ml:292
-#. src/web/site_voter.ml:287
+#: src/web/site_voter.ml:369 src/web/site_voter.ml:344 src/web/site_voter.ml:301
+#. src/web/site_voter.ml:296
+#. src/web/site_voter.ml:291
 msgid "Error"
 msgstr "Σφάλμα"
 
@@ -399,7 +399,7 @@ msgstr "Εισάγετε το διαπιστευτήριό σας "
 msgid "Invalid credential!"
 msgstr "Λανθασμένο διαπιστευτήριο!"
 
-#: src/web/site_voter.ml:298
+#: src/web/site_voter.ml:302
 msgid "Invalid index for question."
 msgstr "Λανθασμένο ευρετήριο για την ερώτηση."
 
@@ -724,11 +724,11 @@ msgstr ""
 "Ο αριθμός διαφορετικών βαθμών (Άριστος, πολύ καλός κλπ.) συνήθως κυμαίνεται "
 "μεταξύ 5 και 7."
 
-#: src/web/site_voter.ml:341
+#: src/web/site_voter.ml:345
 msgid "The number of grades is invalid."
 msgstr "Ο αριθμός των βαθμών είναι λανθασμένος."
 
-#: src/web/site_voter.ml:366
+#: src/web/site_voter.ml:370
 msgid "The number of seats is invalid."
 msgstr "Ο αριθμός των θέσεων είναι λανθασμένος."
 
@@ -742,7 +742,7 @@ msgstr ""
 "Το αποτέλεσμα της ψηφοφορίας δεν είναι δημόσια διαθέσιμο αυτή την στιγμή. Θα "
 "είναι σε %s."
 
-#: src/web/site_voter.ml:288
+#: src/web/site_voter.ml:292
 msgid "The result of this election is not available."
 msgstr "Το αποτέλεσμα της ψηφοφορίας δεν είναι διαθέσιμο."
 
@@ -794,7 +794,7 @@ msgstr "Η ψηφοφορία χρησιμοποιεί βάρη!"
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr "Αυτό μοιάζει με κωδικός πρόσβασης, μήπως κοιτάξατε στο λάθος e-mail;"
 
-#: src/web/site_voter.ml:293
+#: src/web/site_voter.ml:297
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 "Η ερώτηση είναι ομομορφική, η μέθοδος αυτή δεν μπορεί να χρησιμοποιηθεί για "

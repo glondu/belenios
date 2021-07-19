@@ -317,9 +317,9 @@ msgstr "Server delle elezioni"
 msgid "Encrypting…"
 msgstr "Cifratura in corso…"
 
-#: src/web/site_voter.ml:365 src/web/site_voter.ml:340 src/web/site_voter.ml:297
-#. src/web/site_voter.ml:292
-#. src/web/site_voter.ml:287
+#: src/web/site_voter.ml:369 src/web/site_voter.ml:344 src/web/site_voter.ml:301
+#. src/web/site_voter.ml:296
+#. src/web/site_voter.ml:291
 msgid "Error"
 msgstr "Errore"
 
@@ -392,7 +392,7 @@ msgstr "Inserisca il suo codice di voto "
 msgid "Invalid credential!"
 msgstr "Codice di voto non valido!"
 
-#: src/web/site_voter.ml:298
+#: src/web/site_voter.ml:302
 msgid "Invalid index for question."
 msgstr "Numero di domanda non valido."
 
@@ -700,11 +700,11 @@ msgstr ""
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
 
-#: src/web/site_voter.ml:341
+#: src/web/site_voter.ml:345
 msgid "The number of grades is invalid."
 msgstr ""
 
-#: src/web/site_voter.ml:366
+#: src/web/site_voter.ml:370
 msgid "The number of seats is invalid."
 msgstr ""
 
@@ -718,7 +718,7 @@ msgstr ""
 "Il risultato di questa elezione non è al momento disponibile pubblicamente. "
 "Lo sarà tra %s."
 
-#: src/web/site_voter.ml:288
+#: src/web/site_voter.ml:292
 msgid "The result of this election is not available."
 msgstr "Il risultato dell'elezione non è disponibile."
 
@@ -768,7 +768,7 @@ msgstr ""
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr "Questa sembra una password… Forse hai guardato l'e-mail sbagliata?"
 
-#: src/web/site_voter.ml:293
+#: src/web/site_voter.ml:297
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 
