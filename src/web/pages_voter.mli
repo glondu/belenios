@@ -29,7 +29,7 @@ val election_home : (module ELECTION_DATA) -> election_state -> unit -> [> `Html
 val cast_raw : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val cast_confirmation : (module ELECTION_DATA) -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val lost_ballot : (module ELECTION_DATA) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val cast_confirmed : (module ELECTION_DATA) -> result:(string * Weight.t, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val cast_confirmed : (module ELECTION_DATA) -> result:(string * Weight.t * bool, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val pretty_ballots : (module ELECTION_DATA) -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

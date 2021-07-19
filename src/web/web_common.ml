@@ -325,16 +325,19 @@ let send_email kind ~recipient ~subject ~body =
   in
   let return_path = !Web_config.return_path in
   let sendmail = sendmail ?return_path in
-  let rec loop () =
+  let rec loop retry =
     Lwt.catch
       (fun () -> Lwt_preemptive.detach sendmail contents)
       (function
-       | Unix.Unix_error (Unix.EAGAIN, _, _) ->
+       | Unix.Unix_error (Unix.EAGAIN, _, _) when retry > 0 ->
+          Ocsigen_messages.warning "Failed to fork for sending an e-mail; will try again in 1s";
           let* () = Lwt_unix.sleep 1. in
-          loop ()
-       | e -> Lwt.fail e
+          loop (retry - 1)
+       | e ->
+          Ocsigen_messages.errlog ("Failed to send an e-mail: " ^ Printexc.to_string e);
+          Lwt.fail e
       )
-  in loop ()
+  in loop 2
 
 let available_languages = [
     "en"; "fr"; "de"; "ro"; "it";

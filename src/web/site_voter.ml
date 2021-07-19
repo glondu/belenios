@@ -152,7 +152,11 @@ let send_confirmation_email uuid revote user recipient weight hash =
   let open (val l) in
   let subject = Printf.sprintf (f_ "Your vote for election %s") title in
   let body = Pages_voter.mail_confirmation l user title weight hash revote url1 url2 metadata in
-  send_email (MailConfirmation uuid) ~recipient ~subject ~body
+  Lwt.catch
+    (fun () ->
+      let* () = send_email (MailConfirmation uuid) ~recipient ~subject ~body in
+      Lwt.return true)
+    (fun _ -> Lwt.return false)
 
 let cast_ballot uuid ~rawballot ~user =
   let* voters = read_file ~uuid "voters.txt" in
@@ -180,8 +184,8 @@ let cast_ballot uuid ~rawballot ~user =
   let* r = Web_persist.cast_ballot uuid ~rawballot ~user ~weight (now ()) in
   match r with
   | Ok (hash, revote) ->
-     let* () = send_confirmation_email uuid revote login email oweight hash in
-     return (hash, weight)
+     let* success = send_confirmation_email uuid revote login email oweight hash in
+     return (hash, weight, success)
   | Error e ->
      let msg = match e with
        | ECastWrongCredential -> Some "attempted to revote with already used credential"
