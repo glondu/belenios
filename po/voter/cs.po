@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2021-07-19 13:32+0000\n"
+"PO-Revision-Date: 2021-07-20 06:25+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/voter/cs/>"
 "\n"
@@ -96,7 +96,7 @@ msgstr "!"
 
 #: src/web/pages_voter.ml:101
 msgid "%d blank ballot(s)"
-msgstr ""
+msgstr "počet prázdných hlasovacích lístků: %d"
 
 #: src/web/pages_voter.ml:1170 src/web/pages_voter.ml:105
 msgid "%d invalid ballot(s)"
@@ -110,11 +110,11 @@ msgstr ""
 
 #: src/web/pages_voter.ml:95
 msgid "%d valid (non-blank) ballot(s)"
-msgstr ""
+msgstr "počet platných (neprázdných) volebních lístků"
 
 #: src/web/pages_voter.ml:96
 msgid "%d valid ballot(s)"
-msgstr ""
+msgstr "počet platných lístků: %d"
 
 #: src/tool/tool_js_booth.ml:167
 msgid "(nothing)"
@@ -150,7 +150,7 @@ msgstr "Akceptované volební lístky"
 
 #: src/web/pages_voter.ml:109
 msgid "According to Majority Judgment, the ranking is:"
-msgstr ""
+msgstr "Dle většinového úsudku je pořadí takovéto:"
 
 #: src/web/pages_common.ml:151 src/web/pages_common.ml:81
 msgid "Administer elections"
@@ -199,7 +199,7 @@ msgstr "Přihlásit se"
 
 #: src/web/pages_common.ml:318
 msgid "Authenticate with %s"
-msgstr ""
+msgstr "Přihlásti se pomocí %s"
 
 #: src/web/pages_common.ml:420
 msgid "Authentication failed"
@@ -233,7 +233,7 @@ msgstr "Server Belenios"
 
 #: src/web/pages_common.ml:479
 msgid "Belenios authentication"
-msgstr ""
+msgstr "Přihlášení s Beleniosem"
 
 #: src/web/pages_common.ml:473
 msgid "Best regards,"
@@ -401,10 +401,12 @@ msgstr "Neplatný index otázky."
 #: src/web/pages_voter.ml:180
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr ""
+"Obsahuje všechny odevzdané hlasovací lístky v čisté podobě, v náhodném "
+"pořadí."
 
 #: src/web/pages_voter.ml:160
 msgid "It is up to you to apply your favorite counting method."
-msgstr ""
+msgstr "Je na tobě použít tvoji oblíbenou metodu vyhodnocení."
 
 #: src/web/pages_voter.ml:203
 msgid "It will open in "
@@ -637,7 +639,7 @@ msgstr "Start"
 
 #: src/web/pages_voter.ml:605
 msgid "Step 1"
-msgstr ""
+msgstr "Krok 1"
 
 #: src/web/pages_voter.ml:934
 msgid "Step 1/6: Input credential"
@@ -645,7 +647,7 @@ msgstr "Krok 1 ze 6: Vložit přístupový kód"
 
 #: src/web/pages_voter.ml:614
 msgid "Step 2"
-msgstr ""
+msgstr "Krok 2"
 
 #: src/web/pages_voter.ml:944
 msgid "Step 2/6: Answer to questions"
@@ -653,7 +655,7 @@ msgstr "Krok 2 ze 6: Odpovědět na otázky"
 
 #: src/web/pages_voter.ml:623
 msgid "Step 3"
-msgstr ""
+msgstr "Krok 3"
 
 #: src/web/pages_voter.ml:949
 msgid "Step 3/6: Review and encrypt"
@@ -661,11 +663,11 @@ msgstr "Krok 3 ze 6: Ověřit a zašifrovat"
 
 #: src/web/pages_voter.ml:632
 msgid "Step 4"
-msgstr ""
+msgstr "Krok 4"
 
 #: src/web/pages_voter.ml:641
 msgid "Step 5"
-msgstr ""
+msgstr "Krok 5"
 
 #: src/web/pages_voter.ml:779
 msgid "Step 6/6: "
@@ -743,7 +745,7 @@ msgstr "Výsledek této volby není dostupný."
 
 #: src/web/pages_voter.ml:380
 msgid "The total weight is %s (min: %s, max: %s)."
-msgstr ""
+msgstr "Celková váha je: %s (min: %s, max: %s)."
 
 #: src/web/pages_voter.ml:356
 msgid "The voter list has %d voter(s) and fingerprint %s."
@@ -938,6 +940,8 @@ msgstr "Tvůj přístupový kód pro volbu %s"
 #: src/web/pages_common.ml:466
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
+"Tvá e-mailová adresa byla použita pro přihlášení pomocí našeho serveru "
+"Belenios."
 
 #: src/web/pages_voter.ml:1281
 msgid "Your password for election %s"
@@ -967,7 +971,7 @@ msgstr "Tvůj hlasovací lístek nebyl zaznamenán!"
 #. src/web/pages_voter.ml:657
 #: src/web/pages_voter.ml:1346 src/web/pages_voter.ml:752
 msgid "Your weight is %s."
-msgstr ""
+msgstr "Tvá váha je %s."
 
 #: src/web/web_common.ml:87
 msgid "a credential is missing"
