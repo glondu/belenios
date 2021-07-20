@@ -209,8 +209,10 @@ module Z = struct
   let ( =% ) = equal
   let bit_length x = Stdlib.(String.length (to_bits x) * 8)
 
-  let powm = powm_sec (* Warning: no efforts have been made to be
-                         constant time in the rest of the code. *)
+  let powm x a m =
+    if Z.compare a Z.zero = 0 then Z.one else powm_sec x a m
+    (* Warning: no efforts have been made to be constant time in the
+       rest of the code. *)
 
   let hash_to_int = Z.hash
 end
