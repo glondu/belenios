@@ -110,7 +110,7 @@ msgstr ""
 
 #: src/web/pages_voter.ml:95
 msgid "%d valid (non-blank) ballot(s)"
-msgstr "počet platných (neprázdných) volebních lístků"
+msgstr "počet platných (neprázdných) volebních lístků: %d"
 
 #: src/web/pages_voter.ml:96
 msgid "%d valid ballot(s)"
