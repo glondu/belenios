@@ -10,7 +10,7 @@ function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallo
         return e(
           "li",
           null,
-          t("Blank vote")
+          t("blank_vote")
         );
       }
       else {

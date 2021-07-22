@@ -246,7 +246,7 @@ function TranslatableAllQuestionsWithPagination(props){
               alert_id: `shouldSelectGradeForCandidate_${candidate_index}`,
               question_index: current_question_index,
               candidates_indexes: [candidate_index],
-              alert_text: t("majorityJudgmentGradeIsMandatoryForCandidateX", {candidate: candidate_index+1}) // we could also display candidate name
+              alert_text: t("majority_judgment_alert_grade_is_mandatory_for_candidate_x", {candidate: candidate_index+1}) // we could also display candidate name
             });
             user_vote_to_question_is_valid = false;
           }
@@ -283,7 +283,7 @@ function TranslatableAllQuestionsWithPagination(props){
             question_index: current_question_index,
             alert_id: 'shouldEitherVoteBlankOrSomething',
             candidates_indexes: all_selected_answers_indexes,
-            alert_text: t("questionConstraintNoBlankAndOther")
+            alert_text: t("alert_question_constraint_no_blank_and_other")
           });
           user_vote_to_question_is_valid = false;
         }
@@ -295,7 +295,7 @@ function TranslatableAllQuestionsWithPagination(props){
             question_index: current_question_index,
             alert_id: 'shouldSelectMoreCandidates',
             candidates_indexes: undefined,
-            alert_text: t("questionConstraintNoLessThanMin", {count: current_question_data.min})
+            alert_text: t("alert_question_constraint_no_less_than_min", {count: current_question_data.min})
           });
           user_vote_to_question_is_valid = false;
         }
@@ -305,7 +305,7 @@ function TranslatableAllQuestionsWithPagination(props){
             question_index: current_question_index,
             alert_id: 'shouldSelectLessCandidates',
             candidates_indexes: all_selected_answers_indexes,
-            alert_text: t("questionConstraintNoMoreThanMax", {count: current_question_data.max})
+            alert_text: t("alert_question_constraint_no_more_than_max", {count: current_question_data.max})
           });
           user_vote_to_question_is_valid = false;
         }

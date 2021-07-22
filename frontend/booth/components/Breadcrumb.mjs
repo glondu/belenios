@@ -70,25 +70,25 @@ Breadcrumb.defaultProps = {
 function TranslatableVoteBreadcrumb({ t, currentStep=1, ...props }){
   let voteBreadcrumbSteps = [
     {
-      title: t("Input credential")
+      title: t("breadcrumb_input_credential")
     },
     {
-      title: t("Answer to questions")
+      title: t("breadcrumb_answer_to_questions")
     },
     {
-      title: t("Review and encrypt")
+      title: t("breadcrumb_review_and_encrypt")
     },
     {
-      title: t("Authenticate")
+      title: t("breadcrumb_authenticate")
     },
     {
-      title: t("Confirm")
+      title: t("breadcrumb_confirm")
     }
   ];
   voteBreadcrumbSteps = voteBreadcrumbSteps.map(function(el, index){
     return {
       ...el,
-      shortTitle: t("stepX", {count: index+1}),
+      shortTitle: t("breadcrumb_step_x", {count: index+1}),
       isCurrentStep: currentStep === index+1 ? true : false
     };
   });

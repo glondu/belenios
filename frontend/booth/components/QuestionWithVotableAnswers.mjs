@@ -7,7 +7,7 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
   let description;
   let rendered_answers;
   if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
-    description = t("majorityJudgmentQuestionDescription");
+    description = t("majority_judgment_question_description");
     rendered_answers = e(
       TranslatableMajorityJudgmentVoteCandidatesList,
       {
@@ -23,7 +23,7 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
     );
   }
   else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
-    description = t("preferentialVotingQuestionDescription");
+    description = t("preferential_voting_question_description");
     rendered_answers = e(
       TranslatablePreferentialVotingCandidatesList,
       {
@@ -43,10 +43,10 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
       classic_question_subtype = "radio";
     }
     if ( minimumAnswers === maximumAnswers ){
-      description = t("selectXAnswers", {count: minimumAnswers});
+      description = t("ask_to_select_x_answers", {count: minimumAnswers});
     }
     else {
-      description = t("selectBetweenXAndYAnswers", {min: minimumAnswers, count: maximumAnswers});
+      description = t("ask_to_select_between_x_and_y_answers", {min: minimumAnswers, count: maximumAnswers});
     }
     rendered_answers = e(
       TranslatableClassicVoteCandidatesList,

@@ -20,7 +20,7 @@ function TranslatableReviewEncryptSection({
     e(
       "div",
       null,
-      t("pleaseWaitDuringBallotEncryption")
+      t("ask_to_wait_during_ballot_encryption")
     ),
     e(
       LoadingSpinner,
@@ -42,7 +42,7 @@ function TranslatableReviewEncryptSection({
   function copyToClipboard() {
     setBrowserSelectionToSmartBallotTracker();
     document.execCommand("copy");
-    alert(t("yourSmartBallotTrackerHasBeenCopied"));
+    alert(t("your_smart_ballot_tracker_has_been_copied"));
   }
   const contentWhenBallotHasBeenEncrypted = e(
     "div",
@@ -50,7 +50,7 @@ function TranslatableReviewEncryptSection({
     e(
       "p",
       null,
-      t("ballotHasBeenEncrypted")
+      t("your_ballot_has_been_encrypted")
     ),
     e(
       "div",
@@ -58,7 +58,7 @@ function TranslatableReviewEncryptSection({
       e(
         "span",
         null,
-        t("yourSmartBallotTracker")
+        t("your_smart_ballot_tracker_is")
       ),
       e(
         "div",
@@ -81,13 +81,13 @@ function TranslatableReviewEncryptSection({
         e(
           "span",
           null,
-          t("pleaseSaveYourSmartBallotTracker")
+          t("ask_to_save_your_smart_ballot_tracker")
         ),
         e(
           WhiteNiceButton,
           {
             tagName: "a",
-            label: t("Copy"),
+            label: t("copy_to_clipboard_label"),
             onClick: copyToClipboard,
             style: {
               marginLeft: "5px"
@@ -107,7 +107,7 @@ function TranslatableReviewEncryptSection({
     NiceButton,
     {
       tagName: "a",
-      label: t("Previous"),
+      label: t("previous_button_label"),
       style: {
         ...navigationButtonStyle,
         marginRight: "20px"
@@ -127,7 +127,7 @@ function TranslatableReviewEncryptSection({
     e( // this Next button submits the form
       BlueNiceButton,
       {
-        label: t("Next"),
+        label: t("next_button_label"),
         style: {
           ...navigationButtonStyle,
           marginLeft: "20px"
@@ -153,7 +153,7 @@ function TranslatableReviewEncryptSection({
         display: "none"
       }
     },
-    t("encryptedBallot"),
+    t("encrypted_ballot_is"),
     e(
       "textarea",
       {
@@ -188,7 +188,7 @@ function TranslatableReviewEncryptSection({
         e(
           "h2",
           null,
-          t("reviewBallotForQuestions", {count: uncryptedBallot.length})
+          t("review_ballot_for_questions", {count: uncryptedBallot.length})
         ),
         e(
           WholeVoteRecap,

@@ -3,8 +3,8 @@ import { WhiteNiceButton } from "./NiceButton.mjs";
 const e = React.createElement;
 
 function TranslatableNoUuidSection({ onClickLoadFromUuid=null, onClickLoadFromParameters=null, t }){
-  const loadViaUuidMessage = t("Load an election on this server by giving its UUID");
-  const loadViaParametersMessage = t("Load any election by giving its parameters");
+  const loadViaUuidMessage = t("ask_election_uuid_to_load");
+  const loadViaParametersMessage = t("ask_election_parameters_to_load");
   return e(
     "div",
     {
@@ -28,7 +28,7 @@ function TranslatableNoUuidSection({ onClickLoadFromUuid=null, onClickLoadFromPa
     e(
       WhiteNiceButton,
       {
-        label: t("Load from UUID"),
+        label: t("load_election_from_uuid_label"),
         onClick: () => {
           const uuid = document.querySelector("#uuid").value;
           onClickLoadFromUuid(uuid);
@@ -50,7 +50,7 @@ function TranslatableNoUuidSection({ onClickLoadFromUuid=null, onClickLoadFromPa
     e(
       WhiteNiceButton,
       {
-        label: t("Load from parameters"),
+        label: t("load_election_from_parameters_label"),
         onClick: () => {
           const election_params = document.querySelector("#election_params").value;
           onClickLoadFromParameters(election_params);

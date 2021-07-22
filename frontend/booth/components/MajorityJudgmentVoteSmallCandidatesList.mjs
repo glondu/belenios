@@ -55,7 +55,7 @@ function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availab
         {
           value: ""
         },
-        t("Please select an option")
+        t("majority_judgment_grade_select")
       ),
       ...renderedAvailableGrades
     )
