@@ -6,6 +6,7 @@
   <link href="app.css" rel="stylesheet">
   <link rel="modulepreload" href="app.mjs">
   <link rel="modulepreload" href="i18n_init.mjs">
+  <link rel="modulepreload" href="election_utils.mjs">
   <link rel="modulepreload" href="color_utils.mjs">
   <link rel="modulepreload" href="majority_judgment_colors.mjs">
   <link rel="modulepreload" href="components/PageFooter.mjs">
@@ -30,6 +31,9 @@
   <link rel="modulepreload" href="components/QuestionWithVotableAnswers.mjs">
   <link rel="modulepreload" href="components/VoteNavigation.mjs">
   <link rel="modulepreload" href="components/WholeVoteRecap.mjs">
+  <link rel="modulepreload" href="components/PreferentialVotingCandidatesList.mjs">
+  <link rel="modulepreload" href="components/PreferentialVotingColumn.mjs">
+  <link rel="modulepreload" href="components/PreferentialVotingVoteRecap.mjs">
 </head>
 <body>
   <div id="vote-app"></div>
@@ -40,6 +44,8 @@
   <script src="../node_modules/i18next/dist/umd/i18next.min.js"></script>
   <script src="../node_modules/react-i18next/dist/umd/react-i18next.min.js"></script>
   <script src="../node_modules/i18next-http-backend/i18nextHttpBackend.min.js"></script>
+
+  <script src="../node_modules/react-beautiful-dnd/dist/react-beautiful-dnd.min.js"></script>
 
   <script src="../../belenios_jslib.js"></script>
 

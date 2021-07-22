@@ -1,6 +1,7 @@
 /* UI Components try to respect [BEM](http://getbem.com/naming/) for the naming of their CSS classes */
 @import "./components/PageHeader.css";
 @import "./components/Breadcrumb.css";
+@import "./components/InputCredentialSection.css";
 @import "./components/CandidateWithCheckbox.css";
 @import "./components/ClassicVoteCandidatesList.css";
 @import "./components/QuestionWithVotableAnswers.css";
@@ -13,6 +14,7 @@
 @import "./components/ReviewEncryptSection.css";
 @import "./components/MajorityJudgmentVoteBigCandidatesList.css";
 @import "./components/MajorityJudgmentVoteSmallCandidatesList.css";
+@import "./components/PreferentialVotingCandidatesList.css";
 @import "./select-css.css";
 
 body {
@@ -40,6 +42,12 @@ h1, h2, h3 {
 
 input[type=password], input[type=text] {
   font-size: 16px; /* this prevents Iphone browser from zooming in */
+}
+
+@supports (-webkit-touch-callout: none) {
+  select { 
+    font-size: 16px; /* this prevents Iphone browser from zooming in */
+  }
 }
 
 .page {

@@ -1,0 +1,116 @@
+.preferential-voting-ui-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.preferential-voting-ui {
+  max-width: 500px;
+  --draggable-handle-color: #777;
+}
+
+.preferential-voting-candidates-list--blank-vote-is-selected .preferential-voting-ui {
+  filter: blur(3px) grayscale(1) opacity(0.7);
+}
+
+.preferential-voting-ui__level-creator {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.preferential-voting-ui__level-creator__add-icon {
+  border-radius: 30px;
+  display: flex;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+.preferential-voting__column-container {
+  margin: 6px;
+  border: 1px solid lightgrey;
+  border-radius: 6px;
+  max-width: 500px;
+}
+
+.preferential-voting__column-header {
+  display: flex;
+  padding: 6px 8px 2px 8px;
+  min-height: 23px;
+}
+
+.preferential-voting__column-title {
+  padding: 0 1px;
+  flex-grow: 1;
+  margin: 0;
+  font-size: 14px;
+}
+
+.preferential-voting__column-actions__action {
+  display: flex;
+  flex-direction: column;
+  border-radius: 30px;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+  font-size: 18px;
+  text-align: center;
+  position: relative;
+  top: -2px;
+  padding: 0;
+}
+
+.preferential-voting__column-candidate-list {
+  padding: 0 6px 2px 6px;
+  transition: all 350ms;
+  min-height: 44px; /* for when there are no elements, and smoother transition */
+}
+
+.preferential-voting__candidate {
+  display: flex;
+  border: 1px solid lightgrey;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background-color: white;
+  min-height: 32px;
+  box-sizing: border-box;
+}
+
+.preferential-voting__candidate-handle {
+  font-weight: bolder;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+.preferential-voting__candidate-handle__icon {
+  width: 0px;
+  font-size: 22px;
+  padding-left: 14px;
+  padding-right: 17px;
+  position: relative;
+  top: -1px;
+  color: var(--draggable-handle-color);
+}
+
+.preferential-voting__candidate-handle__icon::before {
+  content: ".";
+  text-shadow: -5px 0 var(--draggable-handle-color), -5px -5px var(--draggable-handle-color), 0 -5px var(--draggable-handle-color), -5px -10px var(--draggable-handle-color), 0 -10px var(--draggable-handle-color);
+  font-size: 16px;
+  color: var(--draggable-handle-color);
+}
+
+.preferential-voting__candidate-label {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 1px 8px 1px 0;
+  font-size: 12px;
+}
+
+.preferential-voting__candidate-select-destination {
+  font-size: 11px;
+  vertical-align: middle;
+  margin: auto 2px;
+}

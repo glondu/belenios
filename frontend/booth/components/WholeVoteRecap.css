@@ -7,18 +7,45 @@
   font-size: smaller;
 }
 
-.majority-judgment-vote-recap, .classic-vote-recap {
+.majority-judgment-vote-recap, .classic-vote-recap, .preferential-voting-vote-recap {
   padding: 5px 10px 10px 10px;
   margin: 10px auto;
 }
 
-.majority-judgment-vote-recap:first-child, .classic-vote-recap:first-child {
+.majority-judgment-vote-recap:first-child, .classic-vote-recap:first-child, .preferential-voting-vote-recap:first-child {
   margin-top: 0;
 }
 
 .majority-judgment-vote-recap:last-child {
   margin-bottom: 0;
   padding-bottom: 0;
+}
+
+.preferential-voting-vote-recap__preference-level {
+  border-radius: 6px;
+  padding: 5px 10px;
+  max-width: 425px;
+  margin: 0 auto 8px auto;
+}
+
+.preferential-voting-vote-recap__preference-level__title {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.preferential-voting-vote-recap__preference-level__candidates {
+  display: flex;
+  flex-direction: column;
+  max-width: 375px;
+  margin: 6px auto 0 auto;
+}
+
+.preferential-voting-vote-recap__candidate {
+  background: #eee;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  margin-bottom: 5px;
 }
 
 .classic-vote-recap:last-child {
@@ -43,8 +70,19 @@
 }
 
 .classic-vote-recap__answers-to-question {
-  background: #e6f8fd; /* <- pale blue. Another possibility would be pale green: #c5ffcc; */
-  border-radius: 10px;
+  list-style-type: none;
+  padding: 0;
+  margin: 14px auto 0 auto;
+  display: flex;
+  flex-direction: column;
+  max-width: 375px;
+  font-size: 12px;
+}
+
+.classic-vote-recap__answers-to-question li {
+  background: #eee;
+  border-radius: 6px;
+  padding: 5px 10px;
 }
 
 .majority-judgment-vote-recap-for-candidate-big {

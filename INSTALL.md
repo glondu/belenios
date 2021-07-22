@@ -60,7 +60,6 @@ gigabytes of disk space.
 If everything goes successfully, follow the given instructions to
 update your shell environment, then run:
 
-    npm install
     make build-release-server
 
 and you can skip the next two sections and go directly to the
@@ -224,7 +223,7 @@ get:
     =-=-= Installing ocamlnet.3.7.3 =-=-=
     ocamlnet.3.7.3 Downloading http://download.camlcity.org/download/ocamlnet-3.7.3.tar.gz
     [ERROR] http://download.camlcity.org/download/ocamlnet-3.7.3.tar.gz is not available
-
+    
     ===== ERROR while installing ocamlnet.3.7.3 =====
     Could not get the source for ocamlnet.3.7.3.
 
