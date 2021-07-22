@@ -29,9 +29,9 @@
     "i18next": "^19.7.0",
     "i18next-http-backend": "^1.0.21",
     "react": "^16.13.1",
+    "react-beautiful-dnd": "^13.1.0",
     "react-dom": "^16.13.1",
-    "react-i18next": "^11.7.3",
-    "react-beautiful-dnd": "^13.1.0"
+    "react-i18next": "^11.7.3"
   },
   "browserslist": [
     "supports es6-module"
