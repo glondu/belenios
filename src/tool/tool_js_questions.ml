@@ -61,6 +61,9 @@ let default_question () =
 let default_mj_specification =
   "{\"type\":\"ScoreVoting\",\"blank\":true,\"grades\":[\"Excellent\",\"Good\",\"Bad\",\"Reject\"],\"method\":\"MajorityJudgment\"}"
 
+let default_schulze_specification =
+  "{\"type\":\"PreferentialVoting\",\"blank\":true,\"method\":\"Schulze\"}"
+
 (* Getting the OCaml structure out of the DOM *)
 
 let extractAnswer a =
@@ -286,6 +289,10 @@ let rec createQuestion booth_set q =
   Dom.appendChild prefill_mj
     (document##createTextNode (Js.string (s_ "Prefill with Majority Judgment")));
   Dom.appendChild div_extra1 prefill_mj;
+  let prefill_schulze = Dom_html.createButton document in
+  Dom.appendChild prefill_schulze
+    (document##createTextNode (Js.string (s_ "Prefill with Condorcet-Schulze")));
+  Dom.appendChild div_extra1 prefill_schulze;
   let clear_spec = Dom_html.createButton document in
   Dom.appendChild clear_spec
     (document##createTextNode (Js.string (s_ "Clear")));
@@ -306,6 +313,13 @@ let rec createQuestion booth_set q =
     Dom_html.handler
       (fun _ ->
         i_extra##.value := Js.string default_mj_specification;
+        booth_set `New;
+        Js._false
+      );
+  prefill_schulze##.onclick :=
+    Dom_html.handler
+      (fun _ ->
+        i_extra##.value := Js.string default_schulze_specification;
         booth_set `New;
         Js._false
       );
