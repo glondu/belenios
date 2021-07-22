@@ -11,7 +11,7 @@ from distutils.util import strtobool
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.support.select import Select
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute, verify_all_elements_have_attribute_value, verify_some_elements_have_attribute_value, wait_for_an_element_with_link_text_exists
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute, verify_all_elements_have_attribute_value, verify_some_elements_have_attribute_value
 from util.election_testing import random_email_addresses_generator, remove_database_folder, remove_election_from_database, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 from util.election_test_base import BeleniosElectionTestBase
 from util.execution import console_log, ConsoleLogDuration
@@ -165,7 +165,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         credential_authority_css_selector = "#main form input[name=__co_eliom_name]"
         credential_authority_element = wait_for_element_exists(browser, credential_authority_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         credential_authority_element.clear()
-        credential_authority_element.send_keys("Cecily");
+        credential_authority_element.send_keys("Cecily")
         credential_authority_set_css_selector = "#main form input[type=submit]"
         credential_authority_set_element = browser.find_element_by_css_selector(credential_authority_set_css_selector)
         credential_authority_set_element.click()
@@ -758,6 +758,13 @@ if __name__ == "__main__":
     settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = os.getenv('CREDENTIAL_AUTHORITY_EMAIL_ADDRESS', settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)
     # TODO: settings.TRUSTEES_EMAIL_ADDRESSES (it cannot be manipulated the same way because it is an array)
 
+    if os.getenv('BOOTH_VERSION', None):
+        input_booth_version = os.getenv('BOOTH_VERSION')
+        if hasattr(settings.BOOTH_VERSIONS, input_booth_version):
+            settings.BOOTH_VERSION = getattr(settings.BOOTH_VERSION, input_booth_version)
+        else:
+            raise Exception("Error: Unknown value for BOOTH_VERSION:", input_booth_version)
+
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
@@ -775,5 +782,7 @@ if __name__ == "__main__":
     console_log("ADMINISTRATOR_EMAIL_ADDRESS:", settings.ADMINISTRATOR_EMAIL_ADDRESS)
     console_log("CREDENTIAL_AUTHORITY_EMAIL_ADDRESS:", settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)
     console_log("TRUSTEES_EMAIL_ADDRESSES:", settings.TRUSTEES_EMAIL_ADDRESSES)
+    
+    console_log("BOOTH_VERSION:", settings.BOOTH_VERSION)
 
     unittest.main()

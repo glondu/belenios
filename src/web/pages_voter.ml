@@ -575,7 +575,7 @@ let cast_confirmation election hash () =
           format_user ~site:false u;
           txt (s_ " and ");
           input
-            ~a:[a_style "font-size: 20px; cursor: pointer;"]
+            ~a:[a_class ["nice-button nice-button--blue"]; a_style "font-size: 18px;"]
             ~input_type:`Submit ~value:(s_ "I cast my vote") string;
           txt ".";
         ]
@@ -595,7 +595,7 @@ let cast_confirmation election hash () =
        else
          return @@ txt ""
   in
-  let progress_responsive = div ~a:[a_class ["breadcrumb"]] [
+  let progress_responsive = div ~a:[a_class ["breadcrumb"]; a_style "padding-top: 0;"] [
     div ~a:[a_class ["breadcrumb__step-separator"]] [];
     div ~a:[a_class ["breadcrumb__step"]] [
       span ~a:[a_class ["breadcrumb__step__title"]] [
@@ -729,19 +729,53 @@ let cast_confirmed election ~result () =
   let open (val election : ELECTION_DATA) in
   let uuid = election.e_uuid in
   let name = election.e_name in
-  let progress = div ~a:[a_style "text-align:center;margin-bottom:20px;"] [
-    txt (s_ "Input credential");
-    txt " — ";
-    txt (s_ "Answer to questions");
-    txt " — ";
-    txt (s_ "Review and encrypt");
-    txt " — ";
-    txt (s_ "Authenticate");
-    txt " — ";
-    txt (s_ "Confirm");
-    txt " — ";
-    b [txt (s_ "Done")];
-    hr ();
+  let progress_responsive = div ~a:[a_class ["breadcrumb"]; a_style "padding-top: 0;"] [
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Input credential");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Input credential")] [
+        txt (s_ "Step 1");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Answer to questions");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Answer to questions")] [
+        txt (s_ "Step 2");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Review and encrypt");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Review and encrypt")] [
+        txt (s_ "Step 3");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Authenticate");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Authenticate")] [
+        txt (s_ "Step 4");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
+    div ~a:[a_class ["breadcrumb__step breadcrumb__step--current"]] [
+      span ~a:[a_class ["breadcrumb__step__title"]] [
+        txt (s_ "Confirm");
+      ];
+      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Confirm")] [
+        txt (s_ "Step 5");
+      ];
+    ];
+    div ~a:[a_class ["breadcrumb__step-separator"]] [];
   ] in
   let result, step_title =
     match result with
@@ -774,9 +808,8 @@ let cast_confirmed election ~result () =
        ], s_ "FAIL!"
   in
   let content = [
-    progress;
+    progress_responsive;
     div ~a:[a_class ["current_step"]] [
-        txt (s_ "Step 6/6: ");
         txt step_title;
     ];
     p ([

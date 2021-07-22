@@ -3,7 +3,7 @@
 import time
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support.select import Select
-from util.selenium_tools import wait_for_an_element_exists_and_is_visible_and_contains_expected_text, wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text, wait_for_element_exists, wait_for_elements_exist, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_alert
+from util.selenium_tools import wait_for_an_element_exists_and_is_visible_and_contains_expected_text, wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text, wait_for_element_exists, wait_for_elements_exist, wait_for_elements_exist_and_are_visible, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_alert
 from util.election_testing import wait_a_bit, election_home_find_start_button, find_buttons_in_page_content_by_value
 
 
@@ -80,6 +80,33 @@ class NormalVoteGenericStepPage(VerifiablePage):
 
 class ResponsiveFrontendSelectors:
     current_step_css_selector = ".breadcrumb__step--current"
+    current_step_title_css_selector = ".breadcrumb__step--current .breadcrumb__step__title"
+
+
+class ResponsiveBoothGenericStepPage(VerifiablePage):
+    current_step_title_css_selector = ResponsiveFrontendSelectors.current_step_title_css_selector
+    expected_breadcrumb_title = "" # will be customized by children
+
+    def verify_breadcrumb(self):
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, self.current_step_title_css_selector, self.expected_breadcrumb_title, self.timeout)
+
+    def verify_page(self):
+        self.verify_breadcrumb()
+
+
+class ResponsiveBoothStep1Page(ResponsiveBoothGenericStepPage):
+    expected_breadcrumb_title = "Input credential"
+    credential_input_css_selector = "#credential"
+    next_button_css_selector = ".input-credential-section__button"
+
+    def type_voter_credential(self, voter_credential):
+        credential_input_element = wait_for_element_exists(self.browser, self.credential_input_css_selector, self.timeout)
+        credential_input_element.clear()
+        credential_input_element.send_keys(voter_credential)
+
+    def click_next_button(self):
+        next_button_element = wait_for_element_exists(self.browser, self.next_button_css_selector, self.timeout)
+        next_button_element.click()
 
 
 class NormalVoteStep1Page(NormalVoteGenericStepPage):
@@ -129,6 +156,31 @@ class NormalVoteStep1Page(NormalVoteGenericStepPage):
         credential_prompt.dismiss()
 
 
+class ResponsiveBoothStep2Page(ResponsiveBoothGenericStepPage):
+    expected_breadcrumb_title = "Answer to questions"
+    answers_css_selector = ".classic-vote-candidates-list label" # includes blank vote
+    next_button_css_selector = ".vote-navigation__next-button-container .nice-button"
+
+    def verify_page_body(self):
+        answers_elements = wait_for_elements_exist(self.browser, self.answers_css_selector, self.timeout)
+        assert len(answers_elements) == 2
+
+    def verify_page(self):
+        super().verify_page()
+        self.verify_page_body()
+
+
+    def fill_vote_form(self, vote_data):
+        page = NormalVoteStep2Page(self.browser, self.timeout)
+        page.answers_css_selector = self.answers_css_selector
+        page.fill_vote_form(vote_data)
+
+
+    def click_next_button(self):
+        next_button_element = wait_for_element_exists(self.browser, self.next_button_css_selector, self.timeout)
+        next_button_element.click()
+
+
 class NormalVoteStep2Page(NormalVoteGenericStepPage):
     expected_step_content = "Step 2/6: Answer to questions"
     answers_css_selector = ".answer_div input"
@@ -173,42 +225,98 @@ class NormalVoteStep2Page(NormalVoteGenericStepPage):
         For now, only one question is supported, with only 2 possible answers.
         """
 
-        answers_elements = wait_for_elements_exist(self.browser, self.answers_css_selector, self.timeout) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
+        answers_elements = wait_for_elements_exist_and_are_visible(self.browser, self.answers_css_selector, self.timeout) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
 
         assert len(answers_elements) == 2
-        question1_answer1_element = answers_elements[0]
-        question1_answer2_element = answers_elements[1]
+        anwser1_element_is_proxy = answers_elements[0].tag_name == "label"
+        anwser2_element_is_proxy = answers_elements[1].tag_name == "label"
+        question1_answer1_element = wait_for_element_exists(self.browser, "#" + answers_elements[0].get_attribute("for"), self.timeout) if anwser1_element_is_proxy else answers_elements[0]
+        question1_answer2_element = wait_for_element_exists(self.browser, "#" + answers_elements[1].get_attribute("for"), self.timeout) if anwser2_element_is_proxy else answers_elements[1]
         voter_vote_to_question_1_answer_1 = vote_data["question1"]["answer1"]
         voter_vote_to_question_1_answer_2 = vote_data["question1"]["answer2"]
         if question1_answer1_element.get_attribute('type') == 'checkbox':
             voter_vote_to_question_1_answer_1_is_checked = question1_answer1_element.is_selected()
             voter_vote_to_question_1_answer_2_is_checked = question1_answer2_element.is_selected()
             if voter_vote_to_question_1_answer_1 and not voter_vote_to_question_1_answer_1_is_checked:
-                question1_answer1_element.click()
+                answers_elements[0].click()
             if not voter_vote_to_question_1_answer_1 and voter_vote_to_question_1_answer_1_is_checked:
-                question1_answer1_element.click()
+                answers_elements[0].click()
             if voter_vote_to_question_1_answer_2 and not voter_vote_to_question_1_answer_2_is_checked:
-                question1_answer2_element.click()
+                answers_elements[1].click()
             if not voter_vote_to_question_1_answer_2 and voter_vote_to_question_1_answer_2_is_checked:
-                question1_answer2_element.click()
-        else:
+                answers_elements[1].click()
+        elif question1_answer1_element.get_attribute('type') == 'radio':
+            voter_vote_to_question_1_answer_1_is_checked = question1_answer1_element.is_selected()
+            voter_vote_to_question_1_answer_2_is_checked = question1_answer2_element.is_selected()
+            if voter_vote_to_question_1_answer_1 and not voter_vote_to_question_1_answer_1_is_checked:
+                answers_elements[0].click()
+            if voter_vote_to_question_1_answer_2 and not voter_vote_to_question_1_answer_2_is_checked:
+                answers_elements[1].click()
+        else: # this handles the case of non homomorphic questions
             if voter_vote_to_question_1_answer_1:
                 question1_answer1_element.send_keys("1")
             if voter_vote_to_question_1_answer_2:
                 question1_answer2_element.send_keys("1")
 
 
-class NormalVoteGenericStepWithBallotTrackerPage(NormalVoteGenericStepPage):
+class BallotTrackerPage(SeleniumPageObjectModel):
+    smart_ballot_tracker_css_selector = "#ballot_tracker"
+
     def get_smart_ballot_tracker_value(self):
-        smart_ballot_tracker_css_selector = "#ballot_tracker"
-        smart_ballot_tracker_element = wait_for_element_exists_and_has_non_empty_content(self.browser, smart_ballot_tracker_css_selector, self.timeout)
+        smart_ballot_tracker_element = wait_for_element_exists_and_has_non_empty_content(self.browser, self.smart_ballot_tracker_css_selector, self.timeout)
         smart_ballot_tracker_value = smart_ballot_tracker_element.get_attribute('innerText')
         return smart_ballot_tracker_value
 
-
-    def verify_ballot_tracker_value(self):
+    def verify_smart_ballot_tracker_value(self):
         smart_ballot_tracker_value = self.get_smart_ballot_tracker_value()
         assert len(smart_ballot_tracker_value) > 5
+
+
+class ResponsiveBoothStep3Page(ResponsiveBoothGenericStepPage):
+    expected_breadcrumb_title = "Review and encrypt"
+
+    def __init__(self, browser, timeout):
+        super().__init__(browser, timeout)
+        self.ballot_tracker_page = BallotTrackerPage(browser, timeout)
+        self.ballot_tracker_page.smart_ballot_tracker_css_selector = "#smart_ballot_tracker"
+
+    def verify_page_body(self):
+        # We could also verify that the recap content corresponds to what has been voted in previous page
+        step_3_parent_css_selector = "#ballot_div"
+        step_3_expected_success_content = "Your ballot has been encrypted"
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_3_parent_css_selector, step_3_expected_success_content, self.timeout)
+        self.ballot_tracker_page.verify_smart_ballot_tracker_value()
+
+    def verify_page(self):
+        super().verify_page()
+        self.verify_page_body()
+
+    def click_next_button(self):
+        next_button_element = wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text(self.browser, ".nice-button.nice-button--blue", "innerText", "Next", self.timeout)
+        next_button_element.click()
+
+    def click_previous_button(self):
+        previous_button_element = wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, ".nice-button.nice-button--default", "Previous", self.timeout)
+        previous_button_element.click()
+
+    def get_smart_ballot_tracker_value(self):
+        return self.ballot_tracker_page.get_smart_ballot_tracker_value()
+
+    def verify_smart_ballot_tracker_value(self):
+        return self.ballot_tracker_page.verify_smart_ballot_tracker_value()
+
+
+class NormalVoteGenericStepWithBallotTrackerPage(NormalVoteGenericStepPage):
+    def __init__(self, browser, timeout):
+        super().__init__(browser, timeout)
+        self.ballot_tracker_page = BallotTrackerPage(browser, timeout)
+        self.ballot_tracker_page.smart_ballot_tracker_css_selector = "#ballot_tracker"
+
+    def get_smart_ballot_tracker_value(self):
+        return self.ballot_tracker_page.get_smart_ballot_tracker_value()
+
+    def verify_smart_ballot_tracker_value(self):
+        return self.ballot_tracker_page.verify_smart_ballot_tracker_value()
 
 
 class NormalVoteStep3Page(NormalVoteGenericStepWithBallotTrackerPage):
@@ -216,10 +324,11 @@ class NormalVoteStep3Page(NormalVoteGenericStepWithBallotTrackerPage):
 
 
     def verify_page_body(self):
+        # We could also verify that the recap content corresponds to what has been voted in previous page
         step_3_parent_css_selector = "#ballot_div"
         step_3_expected_success_content = "Your ballot has been encrypted"
         wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_3_parent_css_selector, step_3_expected_success_content, self.timeout)
-        self.verify_ballot_tracker_value()
+        self.verify_smart_ballot_tracker_value()
 
 
     def verify_page(self):
@@ -313,7 +422,7 @@ class NormalVoteStep5Page(NormalVoteGenericStepWithBallotTrackerPage, ClickableL
         step_5_parent_css_selector = "#main"
         step_5_expected_success_content = "has been received, but not recorded yet"
         wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_5_parent_css_selector, step_5_expected_success_content, self.timeout)
-        self.verify_ballot_tracker_value()
+        self.verify_smart_ballot_tracker_value()
         ballot_tracker_value = self.get_smart_ballot_tracker_value()
         assert ballot_tracker_value == expected_ballot_tracker
 
@@ -336,14 +445,14 @@ class NormalVoteStep5Page(NormalVoteGenericStepWithBallotTrackerPage, ClickableL
 
 
 class NormalVoteStep6Page(NormalVoteGenericStepWithBallotTrackerPage):
-    expected_step_content = "Step 6/6: Thank you for voting!"
+    expected_step_content = "Thank you for voting!"
 
 
     def verify_page_body(self, expected_ballot_tracker):
         step_6_parent_css_selector = "#main"
         expected_step_6_body_content = "has been accepted"
         wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_6_parent_css_selector, expected_step_6_body_content, self.timeout)
-        self.verify_ballot_tracker_value()
+        self.verify_smart_ballot_tracker_value()
         ballot_tracker_value = self.get_smart_ballot_tracker_value()
         assert ballot_tracker_value == expected_ballot_tracker
 

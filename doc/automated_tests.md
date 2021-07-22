@@ -4,11 +4,11 @@ Automated tests are stored in the `tests` directory.
 
 Technologies used to run these tests are:
 
-- `python3`: Python 3. We us it in a virtual environment
+- `python3`: Python 3 (version >= 3.6). We use it in a virtual environment (using Python's `venv` module)
 - `pip`: Python's package manager. We use it to install Python packages such as `selenium` (`pip` installs packages mentioned in `requirements.txt`)
-- `selenium`: Selenium's Python API documentation: https://selenium-python.readthedocs.io/)
+- `selenium`: Selenium's Python API ([documentation](https://selenium-python.readthedocs.io/))
 - `firefox`: The browser we use to run tests with Selenium. We can use standard Firefox, or `firefox-esr`, depending what is available on the system and which Firefox version is compatible with Selenium at the moment
-- `geckodriver`: A Firefox driver for Selenium
+- `geckodriver`: A Firefox driver for Selenium. Its role is to translate commands received from Selenium using a specific protocol into concrete actions to trigger in the Firefox browser, and to trigger these actions.
 - `unittest`: Python's standard test framework
 
 These automated tests start the Belenios demo server (`demo/run-server.sh`), with the `BELENIOS_SENDMAIL` environment variable defined as the path to a fake `sendmail` executable (similar to a mock, provided in `tests/selenium/tools/sendmail_fake.sh`). This way, Belenios server does not return an error when trying to send emails in the test environment (that has no `sendmail` installed nor configured), and the fake `sendmail` executable makes it possible to verify what emails have been sent and read their content, simply by reading the log file where it redirects all its input (we use `/tmp/sendmail_fake` as location for this log file).
@@ -30,11 +30,13 @@ wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodri
 
 sudo apt-get install -y -qq python3 python3-venv firefox
 
-BELENIOS_DEBUG=1 make all
-make archive
+source ./env.sh
+make build-debug-server
+make build-debug-tool
 
 python3 -m venv venv
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 python ./tests/selenium/test_scenario_1.py
 ```
@@ -87,8 +89,9 @@ The list of configuration variables is:
 - `SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH`: By default, this is "/tmp/sendmail_fake"
 - `ADMINISTRATOR_USERNAME`: By default, this value comes from file `demo/password_db.csv`, first row, first column
 - `ADMINISTRATOR_PASSWORD`: By default, this value comes from file `demo/password_db.csv`, first row, 4th column
+- `BOOTH_VERSION`: The version of the web booth to be used by automatic voters. Default is `CLASSIC_BOOTH`, which is the original booth and is the most widely translated, but handles only the classic type of questions, which is checkboxes or radio buttons. Another accepted value is `RESPONSIVE_BOOTH`, which is translated in fewer languages but handles questions of type classic and alternative (more precisely Majority Judgement and Preference Voting)
 
-Here is an example of how you can set configuration variables and execute the test in your terminal:
+Other automated tests (files `test_scenario_2.py`, `test_scenario_3.py`, etc) also have configuration variables, and some of them are in common. Here is an example of how you can set configuration variables and execute the test in your terminal:
 
 ```
 RANDOM_SEED=222 WAIT_TIME_BETWEEN_EACH_STEP=1.2 USE_HEADLESS_BROWSER=0 NUMBER_OF_INVITED_VOTERS=4 python3 ./tests/selenium/test_scenario_1.py

@@ -10,7 +10,8 @@ import re
 import json
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, wait_for_element_exists_and_attribute_contains_expected_text
+from selenium.common.exceptions import NoSuchElementException
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, wait_for_element_exists_and_attribute_contains_expected_text, wait_until_page_url_changes
 from util.execution import console_log
 import settings
 
@@ -429,13 +430,18 @@ def delete_election_data_snapshot(snapshot_folder):
     subprocess.run(["rm", "-rf", snapshot_folder]) # TODO: Execute a command that works on other OS, like `shutil.rmtree()`
 
 
-def accept_data_policy(browser):
+def accept_data_policy_if_present(browser):
     # If a personal data policy modal appears (it does not appear after it has been accepted), she clicks on the "Accept" button
     accept_button_label = "Accept"
-    button_elements = find_buttons_in_page_content_by_value(browser, accept_button_label)
-    if len(button_elements) > 0:
-        assert len(button_elements) is 1
-        button_elements[0].click()
+    try:
+        button_elements = find_buttons_in_page_content_by_value(browser, accept_button_label)
+        if len(button_elements) == 1:
+            button_elements[0].click()
+            return True
+    except NoSuchElementException:
+        pass
+    return False
+
 
 def log_in_as_administrator(browser, from_a_login_page=False):
     if from_a_login_page:
@@ -476,6 +482,8 @@ def log_in_as_administrator(browser, from_a_login_page=False):
 
     wait_a_bit()
 
+    old_url = browser.current_url
+
     login_form_password_element.submit()
 
     # She verifies that she arrived on the administration page (instead of any login error page)
@@ -484,17 +492,15 @@ def log_in_as_administrator(browser, from_a_login_page=False):
     # - Sometimes we get an error like `selenium.common.exceptions.StaleElementReferenceException: Message: The element reference of <h1> is stale; either the element is no longer attached to the DOM, it is not in the current frame context, or the document has been refreshed` or `selenium.common.exceptions.NoSuchElementException: Message: Unable to locate element: #header h1`. This is because page content changed in between two of our instructions.
     # - Value read from the page is still the value contained in previous page, because page content has not changed yet.
 
+    wait_until_page_url_changes(browser, old_url, settings.EXPLICIT_WAIT_TIMEOUT)
+    accept_data_policy_if_present(browser)
     page_title_css_selector = "#header h1"
     page_title_expected_content = "Administration"
-    try:
-        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
-    except:
-        accept_data_policy(browser)
-        wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
+    wait_for_element_exists_and_contains_expected_text(browser, page_title_css_selector, page_title_expected_content, settings.EXPLICIT_WAIT_TIMEOUT)
 
 
 def election_home_find_start_button(browser):
-    return wait_for_element_exists_and_attribute_contains_expected_text(browser, "#main button", "onclick", "location.href='../../vote.html#uuid=", settings.EXPLICIT_WAIT_TIMEOUT)
+    return wait_for_element_exists_and_attribute_contains_expected_text(browser, "#main button", "onclick", "location.href='", settings.EXPLICIT_WAIT_TIMEOUT)
 
 
 def log_out(browser, election_id=None):
@@ -653,10 +659,17 @@ def administrator_edits_election_questions(browser, nh_question=False):
         nhtally_checkbox_element.click()
 
     # She removes answer 3
-    question_to_remove = 3
-    remove_button_css_selector = ".question_answer_item:nth-child(" + str(question_to_remove) + ") .btn_remove"
+    candidate_to_remove = 3
+    remove_button_css_selector = ".question_answer_item:nth-child(" + str(candidate_to_remove) + ") .btn_remove"
     remove_button_element = browser.find_element_by_css_selector(remove_button_css_selector)
     remove_button_element.click()
+
+    if settings.BOOTH_VERSION == settings.BOOTH_VERSIONS.RESPONSIVE_BOOTH:
+        # In the booth type section, she clicks on the second radio button, to select the responsive booth
+        booth_version_radio_buttons = browser.find_elements_by_css_selector("input[type=radio][name=booth_version_radio]")
+        if not booth_version_radio_buttons or len(booth_version_radio_buttons) != 2:
+            raise Exception("Booth version should be selected among 2 radio buttons")
+        booth_version_radio_buttons[1].click()
 
     wait_a_bit()
 

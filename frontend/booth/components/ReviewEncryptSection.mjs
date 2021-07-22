@@ -7,7 +7,13 @@ function TranslatableReviewEncryptSection({
   cryptedBallot=null, smartBallotTracker=null,
   onClickPrevious=null, urlToPostEncryptedBallot="", t
 }){
-  const smartBallotTrackerId = "smart_ballot_tracker"; // identifier copied from original booth
+  // identifiers are copied from original booth
+  const smartBallotTrackerId = "smart_ballot_tracker";
+  const ballotContainerId = "ballot_div";
+  const ballotFormId = "ballot_form";
+  const encryptedBallotId = "ballot";
+  const encryptedBallotName = "encrypted_vote";
+
   const contentWhenBallotIsBeingEncrypted = e(
     "div",
     null,
@@ -151,8 +157,8 @@ function TranslatableReviewEncryptSection({
     e(
       "textarea",
       {
-        id: "ballot", // identifier copied from original booth
-        name: "encrypted_vote", // identifier copied from original booth
+        id: encryptedBallotId,
+        name: encryptedBallotName,
         readOnly: "readonly",
         cols: "80",
         rows: "1",
@@ -161,39 +167,45 @@ function TranslatableReviewEncryptSection({
     )
   );
   return e(
-    "form",
+    "div",
     {
-      id: "ballot_form", // identifier copied from original booth
-      method: "POST",
-      action: urlToPostEncryptedBallot,
-      encType: "multipart/form-data"
+      id: ballotContainerId
     },
-    encryptedBallotField,
     e(
-      "div",
+      "form",
       {
-        className: "review-encrypt-section"
+        id: ballotFormId,
+        method: "POST",
+        action: urlToPostEncryptedBallot,
+        encType: "multipart/form-data"
       },
-      e(
-        "h2",
-        null,
-        t("reviewBallotForQuestions", {count: uncryptedBallot.length})
-      ),
-      e(
-        WholeVoteRecap,
-        {
-          electionObject,
-          uncryptedBallot
-        }
-      ),
+      encryptedBallotField,
       e(
         "div",
         {
-          className: "review-encrypt-section__encryption-section"
+          className: "review-encrypt-section"
         },
-        content
-      ),
-      pagination
+        e(
+          "h2",
+          null,
+          t("reviewBallotForQuestions", {count: uncryptedBallot.length})
+        ),
+        e(
+          WholeVoteRecap,
+          {
+            electionObject,
+            uncryptedBallot
+          }
+        ),
+        e(
+          "div",
+          {
+            className: "review-encrypt-section__encryption-section"
+          },
+          content
+        ),
+        pagination
+      )
     )
   );
 }
