@@ -31,6 +31,7 @@ val write_question : Bi_outbuf.t -> question -> unit
 type counting_method =
   [ `None
   | `MajorityJudgment of Question_nh_t.mj_extra
+  | `Schulze of Question_nh_t.schulze_extra
   ]
 
 val get_counting_method : Yojson.Safe.t option -> counting_method

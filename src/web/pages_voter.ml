@@ -114,6 +114,45 @@ let majority_judgment_content l q r =
     invalid;
   ]
 
+let schulze_content l q r =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let explicit_winners =
+    List.map
+      (List.map
+         (fun i -> q.Question_nh_t.q_answers.(i))
+      ) r.schulze_winners
+  in
+  let pretty_winners =
+    List.map
+      (fun l ->
+        li [match l with
+            | [] -> failwith "anomaly in Web_templates.schulze"
+            | [x] -> txt x
+            | l -> div [
+                       txt (s_ "Tie:");
+                       ul (List.map (fun x -> li [txt x]) l);
+                     ]
+          ]
+      ) explicit_winners
+  in
+  let explanation =
+    div
+      [
+        txt (s_ "A Condorcet winner is a candidate that is preferred over all the other candidates.");
+        txt " ";
+        txt (s_ "Several techniques exist to decide which candidate to elect when there is no Condorcet winner.");
+        txt " ";
+        txt (s_ "We use here the Schulze method and we refer voters to ");
+        direct_a "https://en.wikipedia.org/wiki/Condorcet_method#Schulze_method" (s_ "the Wikipedia page");
+        txt (s_ " for more information.");
+      ]
+  in
+  [
+    explanation;
+    txt (s_ "The Schulze winners are:");
+    ol pretty_winners;
+  ]
+
 let format_question_result uuid l (i, q) r =
   let open (val l : Web_i18n_sig.GETTEXT) in
   match q, r with
@@ -153,6 +192,11 @@ let format_question_result uuid l (i, q) r =
           let mj = Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed ballots in
           let contents = majority_judgment_content l q mj in
           div ~a:[a_class ["majority_judgment_result"]] contents, false
+       | `Schulze _ ->
+          let nchoices = Array.length q.Question_nh_t.q_answers in
+          let r = Schulze.compute ~nchoices ballots in
+          let contents = schulze_content l q r in
+          div ~a:[a_class ["schulze_result"]] contents, false
      in
      let others =
        if show_others then (
@@ -1043,44 +1087,7 @@ let schulze q r =
   let* l = get_preferred_gettext () in
   let open (val l) in
   let title = s_ "Condorcet-Schulze method" in
-  let explicit_winners =
-    List.map
-      (List.map
-         (fun i -> q.Question_nh_t.q_answers.(i))
-      ) r.schulze_winners
-  in
-  let pretty_winners =
-    List.map
-      (fun l ->
-        li [match l with
-            | [] -> failwith "anomaly in Web_templates.schulze"
-            | [x] -> txt x
-            | l -> div [
-                       txt (s_ "Tie:");
-                       ul (List.map (fun x -> li [txt x]) l);
-                     ]
-          ]
-      ) explicit_winners
-  in
-  let explanation =
-    div
-      [
-        txt (s_ "A Condorcet winner is a candidate that is preferred over all the other candidates.");
-        txt " ";
-        txt (s_ "Several techniques exist to decide which candidate to elect when there is no Condorcet winner.");
-        txt " ";
-        txt (s_ "We use here the Schulze method and we refer voters to ");
-        direct_a "https://en.wikipedia.org/wiki/Condorcet_method#Schulze_method" (s_ "the Wikipedia page");
-        txt (s_ " for more information.");
-      ]
-  in
-  let content =
-    [
-      explanation;
-      txt (s_ "The Schulze winners are:");
-      ol pretty_winners;
-    ]
-  in
+  let content = schulze_content l q r in
   responsive_base ~title ~content ()
 
 let majority_judgment_select uuid question =

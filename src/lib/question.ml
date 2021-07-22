@@ -64,6 +64,7 @@ let write_question b = function
 type counting_method =
   [ `None
   | `MajorityJudgment of Question_nh_t.mj_extra
+  | `Schulze of Question_nh_t.schulze_extra
   ]
 
 let get_counting_method extra =
@@ -74,6 +75,11 @@ let get_counting_method extra =
       | Some (`String "MajorityJudgment") ->
          (match extra |> Yojson.Safe.to_string |> mj_extra_of_string with
           | x -> `MajorityJudgment x
+          | exception _ -> `None
+         )
+      | Some (`String "Schulze") ->
+         (match extra |> Yojson.Safe.to_string |> schulze_extra_of_string with
+          | x -> `Schulze x
           | exception _ -> `None
          )
       | _ -> `None

@@ -331,8 +331,8 @@ let () =
              if ngrades > 0 then (
                let blank_allowed =
                  match Question.get_counting_method extra with
-                 | `None -> false
                  | `MajorityJudgment o -> o.mj_extra_blank
+                 | _ -> false
                in
                continuation
                  (fun ballots ->

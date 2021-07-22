@@ -45,3 +45,7 @@ type mj_extra = {
   blank : bool;
   grades : string list <ocaml repr="array">;
 } <ocaml field_prefix="mj_extra_">
+
+type schulze_extra = {
+  blank : bool;
+} <ocaml field_prefix="schulze_extra_">
