@@ -789,7 +789,7 @@ end
 
 module Methods : CMDLINER_MODULE = struct
 
-  let schulze nchoices =
+  let schulze nchoices blank_allowed =
     wrap_main (fun () ->
         let ballots = chars_of_stdin () |> condorcet_ballots_of_string in
         let nchoices =
@@ -800,8 +800,13 @@ module Methods : CMDLINER_MODULE = struct
         if nchoices <= 0 then
           failcmd "invalid --nchoices parameter (or could not infer it)"
         else
+          let blank_allowed =
+            match blank_allowed with
+            | None -> failcmd "--blank-allowed is missing"
+            | Some b -> b
+          in
           ballots
-          |> Schulze.compute ~nchoices
+          |> Schulze.compute ~nchoices ~blank_allowed
           |> string_of_schulze_result
           |> print_endline
       )
@@ -870,7 +875,7 @@ module Methods : CMDLINER_MODULE = struct
         `P "This command reads on standard input JSON-formatted ballots and interprets them as Condorcet rankings on $(i,N) choices. It then computes the result according to the Schulze method and prints it on standard output.";
       ] @ common_man
     in
-    Term.(ret (pure schulze $ nchoices_t)),
+    Term.(ret (pure schulze $ nchoices_t $ blank_allowed_t)),
     Term.info "method-schulze" ~doc ~man
 
   let mj_cmd =

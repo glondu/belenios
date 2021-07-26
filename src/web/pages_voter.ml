@@ -116,6 +116,17 @@ let majority_judgment_content l q r =
 
 let schulze_content l q r =
   let open (val l : Web_i18n_sig.GETTEXT) in
+  let valid_format =
+    match r.schulze_blank with
+    | Some _ -> f_ "%d valid (non-blank) ballot(s)"
+    | None -> f_ "%d valid ballot(s)"
+  in
+  let valid = div [Printf.ksprintf txt valid_format r.schulze_valid] in
+  let blank =
+    match r.schulze_blank with
+    | Some b -> div [Printf.ksprintf txt (f_ "%d blank ballot(s)") b]
+    | None -> txt ""
+  in
   let explicit_winners =
     List.map
       (List.map
@@ -151,6 +162,8 @@ let schulze_content l q r =
     explanation;
     txt (s_ "The Schulze winners are:");
     ol pretty_winners;
+    valid;
+    blank;
   ]
 
 let format_question_result uuid l (i, q) r =
@@ -192,9 +205,10 @@ let format_question_result uuid l (i, q) r =
           let mj = Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed ballots in
           let contents = majority_judgment_content l q mj in
           div ~a:[a_class ["majority_judgment_result"]] contents, false
-       | `Schulze _ ->
+       | `Schulze o ->
           let nchoices = Array.length q.Question_nh_t.q_answers in
-          let r = Schulze.compute ~nchoices ballots in
+          let blank_allowed = o.schulze_extra_blank in
+          let r = Schulze.compute ~nchoices ~blank_allowed ballots in
           let contents = schulze_content l q r in
           div ~a:[a_class ["schulze_result"]] contents, false
      in

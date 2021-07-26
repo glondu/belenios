@@ -157,11 +157,11 @@ belenios-tool verify
 header "Apply Schulze method"
 
 cat > schulze.reference <<EOF
-{"raw":[[0,33,25],[27,0,42],[35,18,0]],"strongest":[[0,6,6],[10,0,24],[10,6,0]],"winners":[[1],[2],[0]]}
+{"valid":60,"blank":0,"raw":[[0,33,25],[27,0,42],[35,18,0]],"strongest":[[0,6,6],[10,0,24],[10,6,0]],"winners":[[1],[2],[0]]}
 EOF
 
 if command -v jq > /dev/null; then
-    if diff -u schulze.reference <(jq --compact-output '.result[2]' < result.json | belenios-tool method-schulze); then
+    if diff -u schulze.reference <(jq --compact-output '.result[2]' < result.json | belenios-tool method-schulze --blank-allowed true); then
         echo "Schulze output is identical!"
     else
         echo "Differences in Schulze output!"

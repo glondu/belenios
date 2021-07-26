@@ -307,11 +307,16 @@ let () =
   Any.register ~service:method_schulze
     (fun (uuid, question) () ->
       handle_method uuid question
-        (fun _ q _ continuation ->
+        (fun _ q extra continuation ->
           continuation
             (fun ballots ->
               let nchoices = Array.length q.Question_nh_t.q_answers in
-              let schulze = Schulze.compute ~nchoices ballots in
+              let blank_allowed =
+                match Question.get_counting_method extra with
+                | `Schulze o -> o.schulze_extra_blank
+                | _ -> false
+              in
+              let schulze = Schulze.compute ~nchoices ~blank_allowed ballots in
               Pages_voter.schulze q schulze >>= Html.send
             )
         )

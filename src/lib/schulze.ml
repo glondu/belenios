@@ -23,7 +23,7 @@ open Serializable_t
 
 let compute_raw nchoices ballots =
   let result = Array.make_matrix nchoices nchoices 0 in
-  Array.iter
+  List.iter
     (fun ballot ->
       assert (nchoices = Array.length ballot);
       let get i =
@@ -100,12 +100,30 @@ let compute_winners x =
   in
   main 0 []
 
-let compute ~nchoices ballots =
+let compute ~nchoices ~blank_allowed ballots =
+  let n = Array.length ballots in
+  let ballots = Array.to_list ballots in
+  let null_ballot = Array.make nchoices 0 in
+  let schulze_valid, schulze_blank, ballots =
+    if blank_allowed then (
+      let rec loop valid blank ballots = function
+        | [] -> valid, Some blank, ballots
+        | ballot :: xs ->
+           if ballot = null_ballot then
+             loop valid (blank + 1) ballots xs
+           else
+             loop (valid + 1) blank (ballot :: ballots) xs
+      in
+      loop 0 0 [] ballots
+    ) else n, None, ballots
+  in
   let schulze_raw = compute_raw nchoices ballots in
   let schulze_strongest = compute_strongest schulze_raw in
   let schulze_winners = compute_winners schulze_strongest in
   {
     schulze_raw;
+    schulze_valid;
+    schulze_blank;
     schulze_strongest;
     schulze_winners;
   }

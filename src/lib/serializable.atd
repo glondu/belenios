@@ -255,6 +255,8 @@ type condorcet_ballots = int list <ocaml repr="array"> list <ocaml repr="array">
 type condorcet_matrix = int list <ocaml repr="array"> list <ocaml repr="array">
 
 type schulze_result = {
+  valid : int;
+  ?blank : int option;
   raw : condorcet_matrix;
   strongest : condorcet_matrix;
   winners : int list list;
