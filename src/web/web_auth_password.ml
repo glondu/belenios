@@ -28,6 +28,13 @@ open Web_serializable_j
 open Platform
 open Web_common
 
+let does_allow_signups c =
+  match List.assoc_opt "allowsignups" c with
+  | Some x -> bool_of_string x
+  | None -> false
+
+module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
+
 let ( / ) = Filename.concat
 
 let check_password_with_file db name_or_email password =
@@ -56,11 +63,6 @@ let check_password_with_file db name_or_email password =
        return_none
   | _ -> return_none
 
-let does_allow_signups c =
-  match List.assoc_opt "allowsignups" c with
-  | Some x -> bool_of_string x
-  | None -> false
-
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"password"
     (fun uuid username_or_address { auth_config; auth_instance = service; _ } ~state ->
@@ -71,7 +73,7 @@ let run_post_login_handler =
         | Some _ -> `Election
       in
       Pages_common.login_password site_or_election username_or_address ~service ~allowsignups ~state
-      >>= (fun x -> return @@ Web_auth.Html x)
+      >>= (fun x -> return @@ Web_auth_sig.Html x)
     )
 
 let password_handler () (state, (name, password)) =
@@ -96,6 +98,8 @@ let password_handler () (state, (name, password)) =
     }
 
 let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler
+
+end
 
 let get_password_db_fname service =
   let rec find = function

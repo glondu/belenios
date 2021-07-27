@@ -29,9 +29,12 @@ open Common
 open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
-open Web_services
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
+
+module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) = struct
+
+open Web_services
 open Pages_common
 
 let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
@@ -1422,3 +1425,5 @@ let mail_confirmation l user title weight hash revote url1 url2 metadata =
   add_string b "-- "; add_newline b;
   add_string b "Belenios";
   contents b
+
+end

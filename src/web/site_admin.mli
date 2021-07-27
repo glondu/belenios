@@ -19,4 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val data_policy_loop : unit -> 'a Lwt.t
+module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_auth_sig.S) : Site_admin_sig.S

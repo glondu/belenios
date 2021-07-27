@@ -26,6 +26,8 @@ open Serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
+module Make () = struct
+
 (** Parse configuration from <eliom> *)
 
 let locales_dir = ref None
@@ -176,4 +178,31 @@ let () = Web_config.site_auth_config := List.rev !auth_instances
 let () = Web_config.exported_auth_config := List.rev !auth_instances_export
 let () = Web_config.domain := domain
 let () = Lwt_main.run (Web_persist.convert_trustees ())
+
+module X : Pages_sig.S = struct
+  module Web_services = Web_services.Make ()
+  module Pages_common = Pages_common.Make (Web_services)
+  module Pages_admin = Pages_admin.Make (Web_services) (Pages_common)
+  module Pages_voter = Pages_voter.Make (Web_services) (Pages_common)
+end
+
+module Web_captcha = Web_captcha.Make (X.Web_services)
+
+module Web_auth = Web_auth.Make (X.Web_services) (X.Pages_common)
+module Web_auth_dummy = Web_auth_dummy.Make (X.Web_services) (X.Pages_common) (Web_auth)
+module Web_auth_password = Web_auth_password.Make (X.Web_services) (X.Pages_common) (Web_auth)
+module Web_auth_email = Web_auth_email.Make (X.Web_services) (X.Pages_common) (Web_auth)
+module Web_auth_cas = Web_auth_cas.Make (Web_auth)
+module Web_auth_oidc = Web_auth_oidc.Make (Web_auth)
+
+module Site_common = Site_common.Make (X)
+module Site_admin = Site_admin.Make (X) (Site_common) (Web_auth)
+module Site_voter = Site_voter.Make (X) (Site_common) (Site_admin)
+
 let () = Lwt.async Site_admin.data_policy_loop
+
+end
+
+let () =
+  let module M = Make () in
+  ()

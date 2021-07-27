@@ -31,6 +31,10 @@ open Common
 open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
+
+module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
+
+open X
 open Web_services
 open Site_common
 
@@ -2764,3 +2768,5 @@ let rec data_policy_loop () =
   let () = accesslog "Data policy process completed" in
   let* () = Lwt_unix.sleep 3600. in
   data_policy_loop ()
+
+end

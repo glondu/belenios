@@ -22,6 +22,8 @@
 open Lwt.Syntax
 open Lwt
 
+module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
+
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"dummy"
     (fun uuid username_or_address _ ~state ->
@@ -31,7 +33,7 @@ let run_post_login_handler =
         | Some _ -> `Election
       in
       let* page = Pages_common.login_dummy site_or_election username_or_address ~state in
-      return @@ Web_auth.Html page
+      return @@ Web_auth_sig.Html page
     )
 
 let () =
@@ -44,3 +46,5 @@ let () =
             cont (Some name)
         }
     )
+
+end

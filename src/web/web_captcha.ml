@@ -82,7 +82,11 @@ let check_captcha ~challenge ~response =
      captchas := SMap.remove challenge !captchas;
      Lwt.return (response = x.response)
 
+module Make (Web_services : Web_services_sig.S) = struct
+
 let () =
   Eliom_registration.String.register
     ~service:Web_services.signup_captcha_img
     (fun challenge () -> get_captcha ~challenge)
+
+end

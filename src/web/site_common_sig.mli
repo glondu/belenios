@@ -19,4 +19,22 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) : Web_auth_sig.S
+module type S = sig
+
+val find_election :
+  Web_serializable_t.uuid ->
+  (module Belenios.Signatures.ELECTION_DATA) option Lwt.t
+
+val election_not_found :
+  unit -> Eliom_registration.Html.result Lwt.t
+
+val redir_preapply :
+  ('a, unit, Eliom_service.get, Eliom_service.att, 'b, 'c, 'd,
+   [< `WithSuffix | `WithoutSuffix ], 'e, unit, 'f)
+    Eliom_service.t -> 'a -> unit -> 'g Eliom_registration.kind Lwt.t
+
+val wrap_handler :
+  (unit -> Eliom_registration.Html.result Lwt.t) ->
+  Eliom_registration.Html.result Lwt.t
+
+end

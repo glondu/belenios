@@ -23,6 +23,8 @@ open Eliom_service
 open Eliom_parameter
 open Web_common
 
+module Make () = struct
+
 let uuid_and_token = uuid "uuid" ** string "token"
 
 let home = create ~path:(Path [""]) ~meth:(Get unit) ()
@@ -164,3 +166,5 @@ let method_mj = create ~path:(Path ["methods"; "mj"]) ~meth:(Get (uuid "uuid" **
 let method_stv = create ~path:(Path ["methods"; "stv"]) ~meth:(Get (uuid "uuid" ** int "question" ** opt (int "nseats"))) ()
 
 let compute_fingerprint = create ~path:(Path ["compute-fingerprint"]) ~meth:(Get unit) ()
+
+end

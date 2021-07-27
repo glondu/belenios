@@ -30,6 +30,10 @@ open Common
 open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
+
+module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Site_admin_sig.S) = struct
+
+open X
 open Web_services
 open Site_common
 
@@ -411,3 +415,5 @@ let () =
     (fun (uuid, f) () ->
      let* site_user = Eliom_reference.get Web_state.site_user in
      handle_pseudo_file uuid f site_user)
+
+end

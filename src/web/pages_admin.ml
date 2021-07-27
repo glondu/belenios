@@ -30,9 +30,12 @@ open Common
 open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
-open Web_services
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
+
+module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) = struct
+
+open Web_services
 open Pages_common
 
 let ( / ) = Filename.concat
@@ -129,9 +132,9 @@ let admin_login get_handler =
        let* default = get_handler service in
        let default =
          match default with
-         | Web_auth.Html x ->
+         | Web_auth_sig.Html x ->
             div ~a:[a_class ["embedded-login-form"]] [x]
-         | Web_auth.Redirection _ ->
+         | Web_auth_sig.Redirection _ ->
             div
               [
                 txt (s_ "Log in with");
@@ -2984,7 +2987,7 @@ let signup_captcha ~service error challenge email =
           div [
               input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
               txt (s_ "Please enter ");
-              signup_captcha_img challenge;
+              Pages_common.signup_captcha_img challenge;
               txt (s_ " in the following box: ");
               input ~input_type:`Text ~name:lresponse string;
             ];
@@ -3016,7 +3019,7 @@ let signup_changepw ~service error challenge email username =
           div [
               input ~input_type:`Hidden ~name:lchallenge ~value:challenge string;
               txt (s_ "Please enter ");
-              signup_captcha_img challenge;
+              Pages_common.signup_captcha_img challenge;
               txt (s_ " in the following box: ");
               input ~input_type:`Text ~name:lresponse string;
             ];
@@ -3165,6 +3168,8 @@ let compute_fingerprint () =
   in
   let content = [interactivity] in
   base ~title:(s_ "Compute fingerprint") ~content ()
+
+end
 
 let mail_confirmation_link l address code =
   let open (val l : Web_i18n_sig.GETTEXT) in

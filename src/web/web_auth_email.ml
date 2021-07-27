@@ -28,6 +28,8 @@ open Web_serializable_builtin_t
 open Web_serializable_t
 open Web_common
 
+module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
+
 module HashedInt = struct
   type t = int
   let equal = (=)
@@ -55,14 +57,14 @@ let pre_login_handler uuid username_or_address {auth_config; _} ~state =
      if b then (
        let* challenge = Web_captcha.create_captcha () in
        let* fragment = Pages_common.login_email_captcha ~state None challenge "" in
-       return @@ Web_auth.Html fragment
+       return @@ Web_auth_sig.Html fragment
      ) else (
        let* fragment = Pages_common.login_email_not_now () in
-       return @@ Web_auth.Html fragment
+       return @@ Web_auth_sig.Html fragment
      )
   | _ ->
      let* fragment = Pages_common.login_email site_or_election username_or_address ~state in
-     return @@ Web_auth.Html fragment
+     return @@ Web_auth_sig.Html fragment
 
 let run_post_login_handler =
   Web_auth.register_pre_login_handler ~auth_system:"email" pre_login_handler
@@ -174,3 +176,5 @@ let () =
                cont None
            }
     )
+
+end

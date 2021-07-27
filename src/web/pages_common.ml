@@ -27,9 +27,12 @@ open Serializable_builtin_t
 open Common
 open Web_serializable_j
 open Web_common
-open Web_services
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
+
+module Make (Web_services : Web_services_sig.S) = struct
+
+open Web_services
 
 let direct_a ?target uri text =
   let attributes =
@@ -527,3 +530,5 @@ let login_email_not_now () =
   let* l = get_preferred_gettext () in
   let open (val l) in
   return @@ div [txt (s_ "You cannot log in now. Please try later.")]
+
+end

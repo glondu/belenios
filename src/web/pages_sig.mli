@@ -19,4 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) : Web_auth_sig.S
+module type S = sig
+  module Web_services : Web_services_sig.S
+  module Pages_common : Pages_common_sig.S
+  module Pages_admin : Pages_admin_sig.S
+  module Pages_voter : Pages_voter_sig.S
+end

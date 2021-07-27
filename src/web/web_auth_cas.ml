@@ -24,6 +24,8 @@ open Lwt.Syntax
 open Eliom_service
 open Web_common
 
+module Make (Web_auth : Web_auth_sig.S) = struct
+
 let next_lf str i =
   String.index_from_opt str i '\n'
 
@@ -75,7 +77,7 @@ let cas_login_handler _ _ a ~state =
        ()
      in
      let service = preapply ~service:cas_login (cas_self ~state) in
-     return @@ Web_auth.Redirection (Eliom_registration.Redirection service)
+     return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
   | _ -> failwith "cas_login_handler invoked with bad config"
 
 let run_post_login_handler =
@@ -99,3 +101,5 @@ let cas_handler (state, ticket) () =
     }
 
 let () = Eliom_registration.Any.register ~service:login_cas cas_handler
+
+end

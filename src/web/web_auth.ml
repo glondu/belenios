@@ -25,11 +25,11 @@ open Eliom_service
 open Belenios.Serializable_builtin_t
 open Web_serializable_j
 open Web_common
-open Web_services
+open Web_auth_sig
 
-type result =
-  | Html : Html_types.div Eliom_content.Html.elt -> result
-  | Redirection : 'a Eliom_registration.redirection -> result
+module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) = struct
+
+open Web_services
 
 type post_login_handler =
   {
@@ -209,3 +209,5 @@ let get_site_login_handler service =
   match find_auth_instance service !Web_config.site_auth_config with
   | None -> return @@ Html (Eliom_content.Html.F.div [])
   | Some a -> get_pre_login_handler None `Username (`Site ContSiteAdmin) a
+
+end

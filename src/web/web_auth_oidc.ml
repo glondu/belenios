@@ -25,6 +25,8 @@ open Eliom_service
 open Web_serializable_j
 open Web_common
 
+module Make (Web_auth : Web_auth_sig.S) = struct
+
 let scope = Eliom_common.default_session_scope
 
 let oidc_config = Eliom_reference.eref ~scope None
@@ -100,7 +102,7 @@ let oidc_login_handler _ _ a ~state =
      let service = preapply ~service:auth_endpoint
        (Lazy.force oidc_self, ("code", (client_id, ("openid email", (state, "consent")))))
      in
-     return @@ Web_auth.Redirection (Eliom_registration.Redirection service)
+     return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
   | _ -> failwith "oidc_login_handler invoked with bad config"
 
 let run_post_login_handler =
@@ -132,3 +134,5 @@ let oidc_handler params () =
   | _, _ -> fail_http `Unauthorized
 
 let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler
+
+end

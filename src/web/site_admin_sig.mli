@@ -19,4 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) : Web_auth_sig.S
+module type S = sig
+
+val data_policy_loop : unit -> 'a Lwt.t
+
+end

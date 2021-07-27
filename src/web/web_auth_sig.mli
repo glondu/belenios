@@ -19,4 +19,28 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) : Web_auth_sig.S
+open Web_serializable_t
+
+type result =
+  | Html : Html_types.div Eliom_content.Html.elt -> result
+  | Redirection : 'a Eliom_registration.redirection -> result
+
+module type S = sig
+
+type pre_login_handler =
+  uuid option -> [`Username | `Address] -> auth_config -> state:string -> result Lwt.t
+
+type post_login_handler =
+  {
+    post_login_handler :
+      'a. uuid option -> auth_config ->
+      (string option -> 'a Lwt.t) -> 'a Lwt.t
+  }
+
+val register_pre_login_handler :
+  auth_system:string -> pre_login_handler ->
+  state:string -> post_login_handler -> Eliom_registration.Html.result Lwt.t
+
+val get_site_login_handler : string -> result Lwt.t
+
+end

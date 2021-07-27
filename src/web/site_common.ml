@@ -24,6 +24,10 @@ open Lwt.Syntax
 open Belenios
 open Common
 open Web_common
+
+module Make (X : Pages_sig.S) = struct
+
+open X
 open Web_services
 
 module PString = String
@@ -85,3 +89,5 @@ let () =
       let* () = Eliom_reference.set Web_state.language (Some lang) in
       get_cont_state cont ()
     )
+
+end
