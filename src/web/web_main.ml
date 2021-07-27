@@ -180,15 +180,17 @@ let () = Web_config.domain := domain
 let () = Lwt_main.run (Web_persist.convert_trustees ())
 
 module X : Pages_sig.S = struct
+  module Web_state = Web_state.Make ()
   module Web_services = Web_services.Make ()
-  module Pages_common = Pages_common.Make (Web_services)
-  module Pages_admin = Pages_admin.Make (Web_services) (Pages_common)
-  module Pages_voter = Pages_voter.Make (Web_services) (Pages_common)
+  module Web_i18n = Web_i18n.Make (Web_state)
+  module Pages_common = Pages_common.Make (Web_i18n) (Web_services)
+  module Pages_admin = Pages_admin.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
+  module Pages_voter = Pages_voter.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
 end
 
 module Web_captcha = Web_captcha.Make (X.Web_services)
 
-module Web_auth = Web_auth.Make (X.Web_services) (X.Pages_common)
+module Web_auth = Web_auth.Make (X.Web_state) (X.Web_services) (X.Pages_common)
 module Web_auth_dummy = Web_auth_dummy.Make (X.Web_services) (X.Pages_common) (Web_auth)
 module Web_auth_password = Web_auth_password.Make (X.Web_services) (X.Pages_common) (Web_auth)
 module Web_auth_email = Web_auth_email.Make (X.Web_services) (X.Pages_common) (Web_auth)

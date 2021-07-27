@@ -5,6 +5,7 @@
  (modules_without_implementation
   web_i18n_sig
   web_services_sig
+  web_state_sig
   pages_common_sig
   pages_admin_sig
   pages_voter_sig

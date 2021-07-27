@@ -30,7 +30,7 @@ open Web_common
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 
-module Make (Web_services : Web_services_sig.S) = struct
+module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = struct
 
 open Web_services
 

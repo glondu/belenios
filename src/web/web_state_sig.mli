@@ -19,7 +19,29 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) : Pages_admin_sig.S
+open Belenios
+open Serializable_builtin_t
+open Web_serializable_t
 
-val mail_confirmation_link : (module Web_i18n_sig.GETTEXT) -> string -> string -> string * string
-val mail_changepw_link : (module Web_i18n_sig.GETTEXT) -> string -> string -> string * string
+module type S = sig
+
+val show_cookie_disclaimer : bool Eliom_reference.eref
+
+val site_user : user option Eliom_reference.eref
+val election_user : (uuid * user) option Eliom_reference.eref
+val get_election_user : uuid -> user option Lwt.t
+
+val ballot : string option Eliom_reference.eref
+val cast_confirmed : (string * Weight.t * bool, Web_common.error) result option Eliom_reference.eref
+
+val language : string option Eliom_reference.eref
+
+type link_kind =
+  [ `CreateAccount
+  | `ChangePassword of string
+  ]
+
+val signup_address : string option Eliom_reference.eref
+val signup_env : (string * link_kind) option Eliom_reference.eref
+
+end

@@ -20,6 +20,8 @@
 (**************************************************************************)
 
 module type S = sig
+  module Web_state : Web_state_sig.S
+  module Web_i18n : Web_i18n_sig.S
   module Web_services : Web_services_sig.S
   module Pages_common : Pages_common_sig.S
   module Pages_admin : Pages_admin_sig.S

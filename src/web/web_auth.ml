@@ -27,7 +27,7 @@ open Web_serializable_j
 open Web_common
 open Web_auth_sig
 
-module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) = struct
+module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) = struct
 
 open Web_services
 

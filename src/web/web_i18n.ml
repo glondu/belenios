@@ -21,6 +21,8 @@
 
 open Lwt.Syntax
 
+module Make (Web_state : Web_state_sig.S) = struct
+
 let default_lang = "en"
 let devel_lang = "en_devel"
 
@@ -125,3 +127,5 @@ let get_preferred_gettext component =
     | Some lang -> Lwt.return lang
   in
   get_lang_gettext component lang
+
+end

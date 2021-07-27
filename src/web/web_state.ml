@@ -22,6 +22,8 @@
 open Lwt
 open Lwt.Syntax
 
+module Make () = struct
+
 let scope = Eliom_common.default_session_scope
 
 let show_cookie_disclaimer = Eliom_reference.eref ~scope true
@@ -47,3 +49,5 @@ type link_kind =
 
 let signup_address = Eliom_reference.eref ~scope None
 let signup_env = Eliom_reference.eref ~scope None
+
+end
