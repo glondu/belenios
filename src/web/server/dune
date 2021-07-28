@@ -1,0 +1,12 @@
+(executable
+ (name server)
+ (public_name belenios-server)
+ (package belenios-server)
+ (libraries
+  ocsigenserver
+  ocsigenserver.ext.ocsipersist-sqlite
+  ocsigenserver.ext.redirectmod
+  ocsigenserver.ext.staticmod
+  eliom
+  belenios-platform-native
+  belenios-server))
