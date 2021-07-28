@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-07-01 15:32+0000\n"
+"PO-Revision-Date: 2021-07-29 19:33+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/admin/pl/"
 ">\n"
@@ -14,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.8-dev\n"
+"X-Generator: Weblate 4.7.2-dev\n"
 
 #: src/web/lib/pages_admin.ml:2280
 msgid " You may re-open the election when it is closed."
@@ -64,9 +63,9 @@ msgstr " w poniższym polu: "
 msgid " instead of "
 msgstr " zamiast "
 
-#: src/web/lib/pages_admin.ml:2566 src/web/lib/pages_admin.ml:2432
 #. src/web/lib/pages_admin.ml:1049
 #. src/web/lib/pages_admin.ml:883
+#: src/web/lib/pages_admin.ml:2566 src/web/lib/pages_admin.ml:2432
 msgid " is:"
 msgstr " jest:"
 
@@ -143,8 +142,8 @@ msgstr "(niedostępne)"
 msgid "(or "
 msgstr "(albo "
 
-#: src/web/lib/pages_admin.ml:2534 src/web/lib/pages_admin.ml:2534
 #. src/web/lib/pages_admin.ml:852
+#: src/web/lib/pages_admin.ml:2534 src/web/lib/pages_admin.ml:2534
 msgid "(server)"
 msgstr "(serwer)"
 
@@ -237,8 +236,8 @@ msgstr "Tworzenie konta"
 msgid "Account management"
 msgstr "Zarządzanie kontem"
 
-#: src/web/lib/pages_admin.ml:1397 src/web/lib/pages_admin.ml:970
 #. src/web/lib/pages_admin.ml:806
+#: src/web/lib/pages_admin.ml:1397 src/web/lib/pages_admin.ml:970
 msgid "Add"
 msgstr "Dodaj"
 
@@ -452,9 +451,9 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr "Ustaw automatyczny początek i koniec"
 
-#: src/web/lib/site_admin.ml:2686 src/web/lib/site_admin.ml:2581
 #. src/web/lib/pages_admin.ml:3157
 #. src/web/lib/pages_admin.ml:3034
+#: src/web/lib/site_admin.ml:2686 src/web/lib/site_admin.ml:2581
 msgid "Change password"
 msgstr "Zmiana hasła"
 
@@ -622,9 +621,9 @@ msgstr "Dzień dobry %s,"
 msgid "Dear credential authority,"
 msgstr "Szanowny Administratorze kodów głosowania,"
 
-#: src/web/lib/pages_admin.ml:2189 src/web/lib/pages_admin.ml:2152
 #. src/web/lib/pages_admin.ml:737
 #. src/web/lib/pages_admin.ml:688
+#: src/web/lib/pages_admin.ml:2189 src/web/lib/pages_admin.ml:2152
 msgid "Dear trustee,"
 msgstr "Szanowny Mężu (Osobo) Zaufania,"
 
@@ -656,8 +655,8 @@ msgstr "Usuń głosowanie"
 msgid "Don't forget to save:"
 msgstr "Nie zapomnij zapisać:"
 
-#: src/web/lib/pages_admin.ml:2603 src/web/lib/pages_admin.ml:2466
 #. src/web/lib/pages_admin.ml:902
+#: src/web/lib/pages_admin.ml:2603 src/web/lib/pages_admin.ml:2466
 msgid "Done?"
 msgstr "Gotowe?"
 
@@ -695,10 +694,10 @@ msgstr ""
 "połączone. Jeśli dwóch głosujących ma ten sam adres email, użyj różnych "
 "loginów."
 
-#: src/web/lib/pages_admin.ml:2601 src/web/lib/pages_admin.ml:2537
 #. src/web/lib/pages_admin.ml:1014
 #. src/web/lib/pages_admin.ml:900
 #. src/web/lib/pages_admin.ml:839
+#: src/web/lib/pages_admin.ml:2601 src/web/lib/pages_admin.ml:2537
 msgid "E-mail"
 msgstr "E-mail"
 
@@ -718,8 +717,8 @@ msgstr "Edytuj pytania (uchwały decyzje do podjęcia)"
 msgid "Edit voters"
 msgstr "Edytuj uprawnionych do głosowania"
 
-#: src/web/lib/pages_admin.ml:1942 src/web/lib/pages_admin.ml:1932
 #. src/web/lib/pages_admin.ml:1924
+#: src/web/lib/pages_admin.ml:1942 src/web/lib/pages_admin.ml:1932
 msgid "Election "
 msgstr "Głosowanie "
 
@@ -765,7 +764,6 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Wprowadź Twój klucz prywatny:"
 
-#: src/web/lib/site_admin.ml:2345 src/web/lib/site_admin.ml:2315
 #. src/web/lib/site_admin.ml:2302
 #. src/web/lib/site_admin.ml:2196
 #. src/web/lib/site_admin.ml:2193
@@ -790,6 +788,7 @@ msgstr "Wprowadź Twój klucz prywatny:"
 #. src/web/lib/site_admin.ml:565
 #. src/web/lib/site_admin.ml:499
 #. src/web/lib/site_admin.ml:374
+#: src/web/lib/site_admin.ml:2345 src/web/lib/site_admin.ml:2315
 msgid "Error"
 msgstr "Błąd"
 
@@ -845,8 +844,8 @@ msgstr ""
 "W realnym głosowaniu, klucze muszą być podzielone pomiędzy mężów (osoby) "
 "zaufania."
 
-#: src/web/lib/site_admin.ml:1931 src/web/lib/site_admin.ml:1928
 #. src/web/lib/site_admin.ml:1574
+#: src/web/lib/site_admin.ml:1931 src/web/lib/site_admin.ml:1928
 msgid "Forbidden"
 msgstr "Zabronione"
 
@@ -874,10 +873,10 @@ msgstr "Utwórz klucz prywatny"
 msgid "Generate your contribution to decryption"
 msgstr "Utwórz Twój cyfrowy udział w odszyfrowaniu wyniku głosowania"
 
-#: src/web/lib/pages_admin.ml:2138 src/web/lib/pages_admin.ml:1471
 #. src/web/lib/pages_admin.ml:1376
 #. src/web/lib/pages_admin.ml:1147
 #. src/web/lib/pages_admin.ml:942
+#: src/web/lib/pages_admin.ml:2138 src/web/lib/pages_admin.ml:1471
 msgid "Go back to election draft"
 msgstr "Wróć do projektu głosowania"
 
@@ -889,9 +888,9 @@ msgstr "Oto instrukcje:"
 msgid "Here is the link to proceed to tally:"
 msgstr "Oto link do ustalenia wyniku głosowania:"
 
-#: src/web/lib/pages_admin.ml:2540 src/web/lib/pages_admin.ml:2397
 #. src/web/lib/pages_admin.ml:1030
 #. src/web/lib/pages_admin.ml:842
+#: src/web/lib/pages_admin.ml:2540 src/web/lib/pages_admin.ml:2397
 msgid "Hide link"
 msgstr "Ukryj link"
 
@@ -949,12 +948,12 @@ msgstr "Wstaw"
 msgid "Instructions"
 msgstr "Instukcje"
 
-#: src/web/lib/pages_admin.ml:2918 src/web/lib/pages_admin.ml:2195
 #. src/web/lib/pages_admin.ml:2159
 #. src/web/lib/pages_admin.ml:1816
 #. src/web/lib/pages_admin.ml:1784
 #. src/web/lib/pages_admin.ml:1659
 #. src/web/lib/pages_admin.ml:1541
+#: src/web/lib/pages_admin.ml:2918 src/web/lib/pages_admin.ml:2195
 msgid "Instructions:"
 msgstr "Instrukcje:"
 
@@ -1000,12 +999,12 @@ msgstr ""
 "niewygodny. Głosujący musi wprowadzić liczbę całkowitą przed każdą "
 "odpowiedzią (opcją wyboru)."
 
-#: src/web/lib/pages_admin.ml:2602 src/web/lib/pages_admin.ml:2542
 #. src/web/lib/pages_admin.ml:2399
 #. src/web/lib/pages_admin.ml:1070
 #. src/web/lib/pages_admin.ml:1032
 #. src/web/lib/pages_admin.ml:901
 #. src/web/lib/pages_admin.ml:844
+#: src/web/lib/pages_admin.ml:2602 src/web/lib/pages_admin.ml:2542
 msgid "Link"
 msgstr "Link"
 
@@ -1063,11 +1062,11 @@ msgstr ""
 "Minimalna liczba opcji do wybrania musi być mniejsza lub równa maksymalnej "
 "liczbie opcji do wybrania!"
 
-#: src/web/lib/pages_admin.ml:2019 src/web/lib/pages_admin.ml:2011
 #. src/web/lib/pages_admin.ml:1989
 #. src/web/lib/pages_admin.ml:1982
 #. src/web/lib/pages_admin.ml:1977
 #. src/web/lib/pages_admin.ml:1958
+#: src/web/lib/pages_admin.ml:2019 src/web/lib/pages_admin.ml:2011
 msgid "Missing"
 msgstr "Brak"
 
@@ -1119,10 +1118,10 @@ msgstr "Nazwa głosowania: "
 msgid "Name?"
 msgstr "Imię i nazwisko?"
 
-#: src/web/lib/pages_admin.ml:2553 src/web/lib/pages_admin.ml:2417
 #. src/web/lib/pages_admin.ml:2053
 #. src/web/lib/pages_admin.ml:1435
 #. src/web/lib/pages_admin.ml:869
+#: src/web/lib/pages_admin.ml:2553 src/web/lib/pages_admin.ml:2417
 msgid "No"
 msgstr "Nie"
 
@@ -1156,8 +1155,8 @@ msgstr "Nie dotyczy"
 msgid "Not downloaded."
 msgstr "Nie pobrano."
 
-#: src/web/lib/pages_admin.ml:1964 src/web/lib/pages_admin.ml:1952
 #. src/web/lib/pages_admin.ml:1946
+#: src/web/lib/pages_admin.ml:1964 src/web/lib/pages_admin.ml:1952
 msgid "Not edited"
 msgstr "Nie edytowano"
 
@@ -1175,9 +1174,9 @@ msgstr ""
 msgid "Note that:"
 msgstr "Uwaga:"
 
-#: src/web/lib/pages_admin.ml:2248 src/web/lib/pages_admin.ml:1908
 #. src/web/lib/pages_admin.ml:1571
 #. src/web/lib/pages_admin.ml:1494
+#: src/web/lib/pages_admin.ml:2248 src/web/lib/pages_admin.ml:1908
 msgid "Note:"
 msgstr "Uwaga:"
 
@@ -1335,7 +1334,7 @@ msgstr "Odrocz publikację do"
 
 #: src/tool/tool_js_questions.ml:294
 msgid "Prefill with Condorcet-Schulze"
-msgstr ""
+msgstr "Wypełnij zgodnie z systemem Condorcet-Schulzego"
 
 #: src/tool/tool_js_questions.ml:290
 msgid "Prefill with Majority Judgment"
@@ -1450,13 +1449,13 @@ msgstr ""
 msgid "Remember to store you private key securely."
 msgstr "Pamiętaj, aby bezpiecznie przechowywać swój klucz prywatny."
 
-#: src/tool/tool_js_questions.ml:241 src/tool/tool_js_questions.ml:151
 #. src/web/lib/pages_admin.ml:1465
 #. src/web/lib/pages_admin.ml:1406
 #. src/web/lib/pages_admin.ml:1072
 #. src/web/lib/pages_admin.ml:981
 #. src/web/lib/pages_admin.ml:903
 #. src/web/lib/pages_admin.ml:816
+#: src/tool/tool_js_questions.ml:241 src/tool/tool_js_questions.ml:151
 msgid "Remove"
 msgstr "Usuń"
 
@@ -1468,11 +1467,11 @@ msgstr "Usuń wszystko"
 msgid "Reset threshold"
 msgstr "Zresetuj próg"
 
-#: src/tool/tool_js_questions.ml:497 src/web/lib/pages_admin.ml:1324
 #. src/web/lib/pages_admin.ml:506
 #. src/web/lib/pages_admin.ml:476
 #. src/web/lib/pages_admin.ml:447
 #. src/web/lib/pages_admin.ml:411
+#: src/tool/tool_js_questions.ml:497 src/web/lib/pages_admin.ml:1324
 msgid "Save changes"
 msgstr "Zapisz zmiany"
 
@@ -1547,7 +1546,6 @@ msgstr "Krok %d/3"
 msgid "Step 0/3"
 msgstr "Krok 0/3"
 
-#: src/web/lib/pages_admin.ml:3151 src/web/lib/pages_admin.ml:3101
 #. src/web/lib/pages_admin.ml:3049
 #. src/web/lib/pages_admin.ml:3027
 #. src/web/lib/pages_admin.ml:2995
@@ -1557,6 +1555,7 @@ msgstr "Krok 0/3"
 #. src/web/lib/pages_admin.ml:1833
 #. src/web/lib/pages_admin.ml:1801
 #. src/web/lib/pages_admin.ml:1584
+#: src/web/lib/pages_admin.ml:3151 src/web/lib/pages_admin.ml:3101
 msgid "Submit"
 msgstr "Prześlij"
 
@@ -1585,12 +1584,12 @@ msgstr "Prześlij klucz publiczny"
 msgid "Submit your public key using the button below."
 msgstr "Prześlij swój klucz publiczny za pomocą poniższego przycisku."
 
-#: src/web/lib/site_admin.ml:2191 src/web/lib/site_admin.ml:1986
 #. src/web/lib/site_admin.ml:1306
 #. src/web/lib/site_admin.ml:1221
 #. src/web/lib/site_admin.ml:787
 #. src/web/lib/site_admin.ml:710
 #. src/web/lib/site_admin.ml:590
+#: src/web/lib/site_admin.ml:2191 src/web/lib/site_admin.ml:1986
 msgid "Success"
 msgstr "Zakończono z powodzeniem"
 
@@ -1602,9 +1601,9 @@ msgstr "Głosowania z ustalonymi wynikami"
 msgid "Thank you again for your help,"
 msgstr "Jeszcze raz dziękujemy za Twoją pomoc,"
 
-#: src/web/lib/pages_admin.ml:2205 src/web/lib/pages_admin.ml:1187
 #. src/web/lib/pages_admin.ml:765
 #. src/web/lib/pages_admin.ml:715
+#: src/web/lib/pages_admin.ml:2205 src/web/lib/pages_admin.ml:1187
 msgid "Thank you for your help,"
 msgstr "Dziękujemy Ci za Twoją pomoc,"
 
@@ -1632,10 +1631,10 @@ msgstr "Tworzenie nie powiodło się."
 msgid "The date must be less than %d days in the future!"
 msgstr "Data musi być wcześniejsza niż% d dni!"
 
-#: src/web/lib/pages_admin.ml:2220 src/web/lib/pages_admin.ml:2182
 #. src/web/lib/pages_admin.ml:1190
 #. src/web/lib/pages_admin.ml:780
 #. src/web/lib/pages_admin.ml:730
+#: src/web/lib/pages_admin.ml:2220 src/web/lib/pages_admin.ml:2182
 msgid "The election administrator"
 msgstr "Administrator głosowania"
 
@@ -1694,14 +1693,14 @@ msgstr ""
 msgid "The given maximum is greater than the number of choices!"
 msgstr "Podane maksimum jest większe niż liczba odpowiedzi (opcji wyboru)!"
 
-#: src/web/lib/pages_admin.ml:2564 src/web/lib/pages_admin.ml:2430
 #. src/web/lib/pages_admin.ml:1047
 #. src/web/lib/pages_admin.ml:881
+#: src/web/lib/pages_admin.ml:2564 src/web/lib/pages_admin.ml:2430
 msgid "The link that must be sent to trustee "
 msgstr "Link, który musi zostać wysłany do męża (osoby) zaufania "
 
-#: src/web/lib/pages_admin.ml:1721 src/web/lib/pages_admin.ml:1638
 #. src/web/lib/pages_admin.ml:1524
+#: src/web/lib/pages_admin.ml:1721 src/web/lib/pages_admin.ml:1638
 msgid "The link to the election will be:"
 msgstr "Link do głosowania to:"
 
@@ -1875,9 +1874,9 @@ msgstr "Aby korzystać z tej strony, musisz zaakceptować naszą "
 msgid "Too short"
 msgstr "Za krótkie"
 
-#: src/web/lib/pages_admin.ml:2600 src/web/lib/pages_admin.ml:2464
 #. src/web/lib/pages_admin.ml:1067
 #. src/web/lib/pages_admin.ml:898
+#: src/web/lib/pages_admin.ml:2600 src/web/lib/pages_admin.ml:2464
 msgid "Trustee"
 msgstr "Mąż (osoba) zaufania"
 
@@ -1923,8 +1922,8 @@ msgstr "Nazwa użytkownika"
 msgid "Username:"
 msgstr "Nazwa użytkownika:"
 
-#: src/web/lib/pages_admin.ml:2129 src/web/lib/pages_admin.ml:1942
 #. src/web/lib/pages_admin.ml:636
+#: src/web/lib/pages_admin.ml:2129 src/web/lib/pages_admin.ml:1942
 msgid "Validate creation"
 msgstr "Zatwierdź utworzenie głosowania"
 
@@ -1960,9 +1959,9 @@ msgstr ""
 "Czekam na pozostałych mężów (osoby) zaufania... Załaduj stronę ponownie aby "
 "sprawdzić postęp."
 
-#: src/web/lib/pages_admin.ml:2055 src/web/lib/pages_admin.ml:2044
 #. src/web/lib/pages_admin.ml:1488
 #. src/web/lib/pages_admin.ml:1484
+#: src/web/lib/pages_admin.ml:2055 src/web/lib/pages_admin.ml:2044
 msgid "Warning:"
 msgstr "Uwaga:"
 
@@ -1998,10 +1997,10 @@ msgstr ""
 "Gdy wyniki głosowania zostaną opublikowane, upewnij się, że cyfrowy odcisk "
 "(hasz) potasowanych oddanych głosów pojawi się na stronie z wynikami."
 
-#: src/web/lib/pages_admin.ml:2553 src/web/lib/pages_admin.ml:2417
 #. src/web/lib/pages_admin.ml:2059
 #. src/web/lib/pages_admin.ml:1434
 #. src/web/lib/pages_admin.ml:869
+#: src/web/lib/pages_admin.ml:2553 src/web/lib/pages_admin.ml:2417
 msgid "Yes"
 msgstr "Tak"
 
@@ -2068,10 +2067,10 @@ msgstr ""
 msgid "You must select at least one language!"
 msgstr "Musisz wybrać co najmniej jeden język!"
 
-#: src/web/lib/pages_admin.ml:1904 src/web/lib/pages_admin.ml:218
 #. src/web/lib/pages_admin.ml:213
 #. src/web/lib/pages_admin.ml:208
 #. src/web/lib/pages_admin.ml:203
+#: src/web/lib/pages_admin.ml:1904 src/web/lib/pages_admin.ml:218
 msgid "You own no such elections!"
 msgstr "Nie masz takiego głosowania!"
 
@@ -2365,4 +2364,3 @@ msgstr ""
 "Twój klucz prywatny. Uwaga! ZAPISZ GO PRAWIDŁOWO, w przeciwnym razie nie "
 "będziesz mógł uczestniczyć w ustaleniu wyniku głosowania, a głosowanie może "
 "zostać unieważnione;"
-
