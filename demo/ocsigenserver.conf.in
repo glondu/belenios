@@ -28,25 +28,21 @@
 
     <findlib path="_LIBDIR_"/>
 
-    <extension findlib-package="ocsigenserver.ext.staticmod"/>
-    <extension findlib-package="ocsigenserver.ext.redirectmod"/>
+    <extension name="staticmod"/>
+    <extension name="redirectmod"/>
 
-    <extension findlib-package="ocsigenserver.ext.ocsipersist-sqlite">
+    <extension name="ocsipersist">
       <database file="_VARDIR_/lib/ocsidb"/>
     </extension>
 
-    <extension findlib-package="eliom.server"/>
-    <extension findlib-package="belenios-platform-native"/>
+    <extension name="eliom"/>
 
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
       <site path="static" charset="utf-8">
         <static dir="_SHAREDIR_" cache="0"/>
       </site>
-      <site path="monitor">
-        <eliom findlib-package="eliom.server.monitor.start"/>
-      </site>
-      <eliom findlib-package="belenios-server.module">
+      <eliom name="belenios">
         <!-- Domain name used in Message-ID -->
         <domain name="belenios.example.org"/>
         <!--
