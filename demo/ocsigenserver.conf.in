@@ -46,7 +46,7 @@
       <site path="monitor">
         <eliom findlib-package="eliom.server.monitor.start"/>
       </site>
-      <eliom findlib-package="belenios-server">
+      <eliom findlib-package="belenios-server.module">
         <!-- Domain name used in Message-ID -->
         <domain name="belenios.example.org"/>
         <!--

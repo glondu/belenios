@@ -205,6 +205,6 @@ let () = Lwt.async Site_admin.data_policy_loop
 
 end
 
-let () =
+let main () =
   let module M = Make () in
   ()
