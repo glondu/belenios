@@ -56,19 +56,7 @@ chroot "$DIR/rootfs" useradd belenios
 
 echo "Setting up runtime files from opam root..."
 
-cp -a --parents home/belenios/.belenios/opam/4.11.2 "$DIR/rootfs"
-
-# Remove some big files that are not needed at runtime...
-(
-    cd "$DIR/rootfs/home/belenios/.belenios/opam/4.11.2"
-    rm -rf .opam-switch
-    rm -rf bin/ocaml*
-    rm -rf bin/ppx_*
-    find -name '*.ml*' -delete
-    find -name '*.cmi' -delete
-    find -name '*.cmt*' -delete
-    find -name '*.a' -delete
-)
+cp -a --parents home/belenios/.belenios/opam/4.11.2/lib/findlib.conf "$DIR/rootfs"
 
 echo "Copying needed runtime files from belenios source tree..."
 
