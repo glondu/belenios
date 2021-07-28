@@ -55,10 +55,6 @@ sed \
 
 PATH=$BELENIOS_BINDIR:$PATH:/usr/sbin
 
-OCSIGENSERVER=ocsigenserver
-
-if command -v ocsigenserver.opt > /dev/null; then
-  OCSIGENSERVER=ocsigenserver.opt
-fi
+OCSIGENSERVER=belenios-server
 
 exec $OCSIGENSERVER -c $BELENIOS_VARDIR/etc/ocsigenserver.conf "$@"
