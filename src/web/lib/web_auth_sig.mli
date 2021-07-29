@@ -27,20 +27,20 @@ type result =
 
 module type S = sig
 
-type pre_login_handler =
-  uuid option -> [`Username | `Address] -> auth_config -> state:string -> result Lwt.t
+  type pre_login_handler =
+    uuid option -> [`Username | `Address] -> auth_config -> state:string -> result Lwt.t
 
-type post_login_handler =
-  {
-    post_login_handler :
-      'a. uuid option -> auth_config ->
-      (string option -> 'a Lwt.t) -> 'a Lwt.t
-  }
+  type post_login_handler =
+    {
+      post_login_handler :
+        'a. uuid option -> auth_config ->
+        (string option -> 'a Lwt.t) -> 'a Lwt.t
+    }
 
-val register_pre_login_handler :
-  auth_system:string -> pre_login_handler ->
-  state:string -> post_login_handler -> Eliom_registration.Html.result Lwt.t
+  val register_pre_login_handler :
+    auth_system:string -> pre_login_handler ->
+    state:string -> post_login_handler -> Eliom_registration.Html.result Lwt.t
 
-val get_site_login_handler : string -> result Lwt.t
+  val get_site_login_handler : string -> result Lwt.t
 
 end

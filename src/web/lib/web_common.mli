@@ -83,13 +83,13 @@ val election_file :
   string ->
   (election_file, [ `WithoutSuffix ],
    [ `One of election_file ] Eliom_parameter.param_name)
-  Eliom_parameter.params_type
+    Eliom_parameter.params_type
 
 val uuid :
   string ->
   (uuid, [ `WithoutSuffix ],
    [ `One of uuid ] Eliom_parameter.param_name)
-  Eliom_parameter.params_type
+    Eliom_parameter.params_type
 
 type site_cont =
   | ContSiteHome
@@ -102,7 +102,7 @@ val site_cont :
   string ->
   (site_cont, [ `WithoutSuffix ],
    [ `One of site_cont ] Eliom_parameter.param_name)
-  Eliom_parameter.params_type
+    Eliom_parameter.params_type
 
 type privacy_cont =
   | ContAdmin
@@ -114,7 +114,7 @@ val privacy_cont :
   string ->
   (privacy_cont, [ `WithoutSuffix ],
    [ `One of privacy_cont ] Eliom_parameter.param_name)
-  Eliom_parameter.params_type
+    Eliom_parameter.params_type
 
 type captcha_error =
   | BadCaptcha

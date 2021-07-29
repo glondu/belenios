@@ -35,7 +35,7 @@ type link = {
     code : string;
     l_expiration_time : datetime;
     kind : link_kind;
-}
+  }
 
 let links = ref SMap.empty
 

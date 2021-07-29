@@ -26,80 +26,80 @@ open Web_common
 
 module Make (Web_auth : Web_auth_sig.S) = struct
 
-let next_lf str i =
-  String.index_from_opt str i '\n'
+  let next_lf str i =
+    String.index_from_opt str i '\n'
 
-let login_cas = Eliom_service.create
-  ~path:(Eliom_service.Path ["auth"; "cas"])
-  ~meth:(Eliom_service.Get Eliom_parameter.(string "state" ** opt (string "ticket")))
-  ()
+  let login_cas = Eliom_service.create
+                    ~path:(Eliom_service.Path ["auth"; "cas"])
+                    ~meth:(Eliom_service.Get Eliom_parameter.(string "state" ** opt (string "ticket")))
+                    ()
 
-let cas_self ~state =
-  Eliom_uri.make_string_uri
-    ~absolute:true
-    ~service:(preapply ~service:login_cas (state, None))
-    () |> rewrite_prefix
+  let cas_self ~state =
+    Eliom_uri.make_string_uri
+      ~absolute:true
+      ~service:(preapply ~service:login_cas (state, None))
+      () |> rewrite_prefix
 
-let parse_cas_validation info =
-  match next_lf info 0 with
-  | Some i ->
-     (match String.sub info 0 i with
-     | "yes" -> `Yes
-        (match next_lf info (i+1) with
-        | Some j -> Some (String.sub info (i+1) (j-i-1))
-        | None -> None)
-     | "no" -> `No
-     | _ -> `Error `Parsing)
-  | None -> `Error `Parsing
+  let parse_cas_validation info =
+    match next_lf info 0 with
+    | Some i ->
+       (match String.sub info 0 i with
+        | "yes" -> `Yes
+                     (match next_lf info (i+1) with
+                      | Some j -> Some (String.sub info (i+1) (j-i-1))
+                      | None -> None)
+        | "no" -> `No
+        | _ -> `Error `Parsing)
+    | None -> `Error `Parsing
 
-let get_cas_validation server ~state ticket =
-  let url =
-    let cas_validate = Eliom_service.extern
-      ~prefix:server
-      ~path:["validate"]
-      ~meth:(Eliom_service.Get Eliom_parameter.(string "service" ** string "ticket"))
-      ()
+  let get_cas_validation server ~state ticket =
+    let url =
+      let cas_validate = Eliom_service.extern
+                           ~prefix:server
+                           ~path:["validate"]
+                           ~meth:(Eliom_service.Get Eliom_parameter.(string "service" ** string "ticket"))
+                           ()
+      in
+      let service = preapply ~service:cas_validate (cas_self ~state, ticket) in
+      Eliom_uri.make_string_uri ~absolute:true ~service ()
     in
-    let service = preapply ~service:cas_validate (cas_self ~state, ticket) in
-    Eliom_uri.make_string_uri ~absolute:true ~service ()
-  in
-  let* _, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
-  let* info = Cohttp_lwt.Body.to_string body in
-  return (parse_cas_validation info)
+    let* _, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
+    let* info = Cohttp_lwt.Body.to_string body in
+    return (parse_cas_validation info)
 
-let cas_login_handler _ _ a ~state =
-  match List.assoc_opt "server" a.Web_serializable_t.auth_config with
-  | Some server ->
-     let cas_login = Eliom_service.extern
-       ~prefix:server
-       ~path:["login"]
-       ~meth:(Eliom_service.Get Eliom_parameter.(string "service"))
-       ()
-     in
-     let service = preapply ~service:cas_login (cas_self ~state) in
-     return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
-  | _ -> failwith "cas_login_handler invoked with bad config"
+  let cas_login_handler _ _ a ~state =
+    match List.assoc_opt "server" a.Web_serializable_t.auth_config with
+    | Some server ->
+       let cas_login = Eliom_service.extern
+                         ~prefix:server
+                         ~path:["login"]
+                         ~meth:(Eliom_service.Get Eliom_parameter.(string "service"))
+                         ()
+       in
+       let service = preapply ~service:cas_login (cas_self ~state) in
+       return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
+    | _ -> failwith "cas_login_handler invoked with bad config"
 
-let run_post_login_handler =
-  Web_auth.register_pre_login_handler ~auth_system:"cas" cas_login_handler
+  let run_post_login_handler =
+    Web_auth.register_pre_login_handler ~auth_system:"cas" cas_login_handler
 
-let cas_handler (state, ticket) () =
-  run_post_login_handler ~state
-    {
-      Web_auth.post_login_handler =
-        fun _ a cont ->
-        match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
-        | Some x, Some server ->
-           let* r = get_cas_validation server ~state x in
-           (match r with
-            | `Yes (Some name) -> cont (Some name)
-            | `No -> cont None
-            | `Yes None | `Error _ -> fail_http `Bad_gateway
-           )
-        | None, _ -> cont None
-        | _, None -> fail_http `Service_unavailable
-    }
+  let cas_handler (state, ticket) () =
+    run_post_login_handler ~state
+      {
+        Web_auth.post_login_handler =
+          fun _ a cont ->
+          match ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config with
+          | Some x, Some server ->
+             let* r = get_cas_validation server ~state x in
+             (match r with
+              | `Yes (Some name) -> cont (Some name)
+              | `No -> cont None
+              | `Yes None | `Error _ -> fail_http `Bad_gateway
+             )
+          | None, _ -> cont None
+          | _, None -> fail_http `Service_unavailable
+      }
 
-let () = Eliom_registration.Any.register ~service:login_cas cas_handler
+  let () = Eliom_registration.Any.register ~service:login_cas cas_handler
 
 end

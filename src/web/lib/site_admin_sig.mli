@@ -21,6 +21,6 @@
 
 module type S = sig
 
-val data_policy_loop : unit -> 'a Lwt.t
+  val data_policy_loop : unit -> 'a Lwt.t
 
 end

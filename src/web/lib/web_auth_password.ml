@@ -35,69 +35,69 @@ let does_allow_signups c =
 
 module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
 
-let ( / ) = Filename.concat
+  let ( / ) = Filename.concat
 
-let check_password_with_file db name_or_email password =
-  let name_or_email = String.trim name_or_email |> String.lowercase_ascii in
-  let check_name_or_email =
-    if is_email name_or_email then
-      function
-      | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email ->
-         (* When authenticating as a voter, the username may be an email *)
-         true
-      | _ :: _ :: _ :: e :: _ when String.lowercase_ascii e = name_or_email ->
-         (* When authenticating as an admin, email is 4th CSV field *)
-         true
-      | _ -> false
-    else
-      function
-      | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email -> true
-      | _ -> false
-  in
-  let* db = Lwt_preemptive.detach Csv.load db in
-  match List.find_opt check_name_or_email db with
-  | Some (u :: salt :: hashed :: _) ->
-     if sha256_hex (salt ^ String.trim password) = hashed then
-       return_some u
-     else
-       return_none
-  | _ -> return_none
+  let check_password_with_file db name_or_email password =
+    let name_or_email = String.trim name_or_email |> String.lowercase_ascii in
+    let check_name_or_email =
+      if is_email name_or_email then
+        function
+        | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email ->
+           (* When authenticating as a voter, the username may be an email *)
+           true
+        | _ :: _ :: _ :: e :: _ when String.lowercase_ascii e = name_or_email ->
+           (* When authenticating as an admin, email is 4th CSV field *)
+           true
+        | _ -> false
+      else
+        function
+        | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email -> true
+        | _ -> false
+    in
+    let* db = Lwt_preemptive.detach Csv.load db in
+    match List.find_opt check_name_or_email db with
+    | Some (u :: salt :: hashed :: _) ->
+       if sha256_hex (salt ^ String.trim password) = hashed then
+         return_some u
+       else
+         return_none
+    | _ -> return_none
 
-let run_post_login_handler =
-  Web_auth.register_pre_login_handler ~auth_system:"password"
-    (fun uuid username_or_address { auth_config; auth_instance = service; _ } ~state ->
-      let allowsignups = does_allow_signups auth_config in
-      let site_or_election =
-        match uuid with
-        | None -> `Site
-        | Some _ -> `Election
-      in
-      Pages_common.login_password site_or_election username_or_address ~service ~allowsignups ~state
-      >>= (fun x -> return @@ Web_auth_sig.Html x)
-    )
-
-let password_handler () (state, (name, password)) =
-  run_post_login_handler ~state
-    {
-      Web_auth.post_login_handler =
-        fun uuid a cont ->
-        let* ok =
+  let run_post_login_handler =
+    Web_auth.register_pre_login_handler ~auth_system:"password"
+      (fun uuid username_or_address { auth_config; auth_instance = service; _ } ~state ->
+        let allowsignups = does_allow_signups auth_config in
+        let site_or_election =
           match uuid with
-          | None ->
-             begin
-               match List.assoc_opt "db" a.auth_config with
-               | Some db -> check_password_with_file db name password
-               | _ -> failwith "invalid configuration for admin site"
-             end
-          | Some uuid ->
-             let uuid_s = raw_string_of_uuid uuid in
-             let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
-             check_password_with_file db name password
+          | None -> `Site
+          | Some _ -> `Election
         in
-        cont ok
-    }
+        Pages_common.login_password site_or_election username_or_address ~service ~allowsignups ~state
+        >>= (fun x -> return @@ Web_auth_sig.Html x)
+      )
 
-let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler
+  let password_handler () (state, (name, password)) =
+    run_post_login_handler ~state
+      {
+        Web_auth.post_login_handler =
+          fun uuid a cont ->
+          let* ok =
+            match uuid with
+            | None ->
+               begin
+                 match List.assoc_opt "db" a.auth_config with
+                 | Some db -> check_password_with_file db name password
+                 | _ -> failwith "invalid configuration for admin site"
+               end
+            | Some uuid ->
+               let uuid_s = raw_string_of_uuid uuid in
+               let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
+               check_password_with_file db name password
+          in
+          cont ok
+      }
+
+  let () = Eliom_registration.Any.register ~service:Web_services.password_post password_handler
 
 end
 

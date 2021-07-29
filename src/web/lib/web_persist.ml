@@ -150,15 +150,15 @@ let get_raw_election uuid =
   | _ -> return_none
 
 let empty_metadata = {
-  e_owner = None;
-  e_auth_config = None;
-  e_cred_authority = None;
-  e_trustees = None;
-  e_languages = None;
-  e_contact = None;
-  e_server_is_trustee = None;
-  e_booth_version = None;
-}
+    e_owner = None;
+    e_auth_config = None;
+    e_cred_authority = None;
+    e_trustees = None;
+    e_languages = None;
+    e_contact = None;
+    e_server_is_trustee = None;
+    e_booth_version = None;
+  }
 
 let return_empty_metadata = return empty_metadata
 
@@ -237,11 +237,11 @@ let get_passwords uuid =
   | None -> return_none
   | Some csv ->
      let res = List.fold_left (fun accu line ->
-       match line with
-       | [login; salt; hash] ->
-          SMap.add login (salt, hash) accu
-       | _ -> accu
-     ) SMap.empty csv in
+                   match line with
+                   | [login; salt; hash] ->
+                      SMap.add login (salt, hash) accu
+                   | _ -> accu
+                 ) SMap.empty csv in
      return_some res
 
 let get_private_key uuid =
@@ -490,19 +490,19 @@ let replace_ballot uuid ~hash ~rawballot =
 let compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-     let* ballots = load_ballots uuid in
-     let* ballots =
-       Lwt_list.map_s
-         (fun raw_ballot ->
-           let ballot = ballot_of_string W.G.read raw_ballot in
-           let* weight = get_ballot_weight raw_ballot in
-           return (weight, ballot)
-         ) ballots
-     in
-     let tally = W.E.process_ballots (Array.of_list ballots) in
-     let tally = string_of_encrypted_tally W.G.write tally in
-     let* () = write_file ~uuid (string_of_election_file ESETally) [tally] in
-     return tally
+  let* ballots = load_ballots uuid in
+  let* ballots =
+    Lwt_list.map_s
+      (fun raw_ballot ->
+        let ballot = ballot_of_string W.G.read raw_ballot in
+        let* weight = get_ballot_weight raw_ballot in
+        return (weight, ballot)
+      ) ballots
+  in
+  let tally = W.E.process_ballots (Array.of_list ballots) in
+  let tally = string_of_encrypted_tally W.G.write tally in
+  let* () = write_file ~uuid (string_of_election_file ESETally) [tally] in
+  return tally
 
 let get_shuffle_token uuid =
   let* file = read_file ~uuid "shuffle_token.json" in
@@ -523,24 +523,24 @@ let clear_shuffle_token uuid =
 let get_nh_ciphertexts election =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-     let* current =
-       let* file = read_file ~uuid "shuffles.jsons" in
+  let* current =
+    let* file = read_file ~uuid "shuffles.jsons" in
+    match file with
+    | None -> return []
+    | Some x -> return x
+  in
+  match List.rev current with
+  | [] ->
+     let* tally =
+       let* file = read_file ~uuid (string_of_election_file ESETally) in
        match file with
-       | None -> return []
-       | Some x -> return x
+       | Some [x] -> return (encrypted_tally_of_string W.G.read x)
+       | _ -> Lwt.fail (Failure "get_nh_ciphertexts: encrypted tally not found or invalid")
      in
-     match List.rev current with
-     | [] ->
-        let* tally =
-          let* file = read_file ~uuid (string_of_election_file ESETally) in
-          match file with
-          | Some [x] -> return (encrypted_tally_of_string W.G.read x)
-          | _ -> Lwt.fail (Failure "get_nh_ciphertexts: encrypted tally not found or invalid")
-        in
-        return (string_of_nh_ciphertexts W.G.write (W.E.extract_nh_ciphertexts tally))
-     | x :: _ ->
-        let s = shuffle_of_string W.G.read x in
-        return (string_of_nh_ciphertexts W.G.write s.shuffle_ciphertexts)
+     return (string_of_nh_ciphertexts W.G.write (W.E.extract_nh_ciphertexts tally))
+  | x :: _ ->
+     let s = shuffle_of_string W.G.read x in
+     return (string_of_nh_ciphertexts W.G.write s.shuffle_ciphertexts)
 
 let get_shuffles uuid =
   let* election = get_raw_election uuid in
@@ -587,38 +587,38 @@ let add_shuffle_hash uuid sh =
 let compute_encrypted_tally_after_shuffling election =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-     let* file = read_file ~uuid (string_of_election_file ESETally) in
-     match file with
-     | Some [x] ->
-        let tally = encrypted_tally_of_string W.G.read x in
-        let* nh = get_nh_ciphertexts election in
-        let nh = nh_ciphertexts_of_string W.G.read nh in
-        let tally = W.E.merge_nh_ciphertexts nh tally in
-        let tally = string_of_encrypted_tally W.G.write tally in
-        let* () = write_file ~uuid (string_of_election_file ESETally) [tally] in
-        return_some tally
-     | _ -> return_none
+  let* file = read_file ~uuid (string_of_election_file ESETally) in
+  match file with
+  | Some [x] ->
+     let tally = encrypted_tally_of_string W.G.read x in
+     let* nh = get_nh_ciphertexts election in
+     let nh = nh_ciphertexts_of_string W.G.read nh in
+     let tally = W.E.merge_nh_ciphertexts nh tally in
+     let tally = string_of_encrypted_tally W.G.write tally in
+     let* () = write_file ~uuid (string_of_election_file ESETally) [tally] in
+     return_some tally
+  | _ -> return_none
 
 let append_to_shuffles election shuffle =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-     let shuffle = shuffle_of_string W.G.read shuffle in
-     Web_election_mutex.with_lock uuid (fun () ->
-         let* last_ciphertext = get_nh_ciphertexts election in
-         let last_ciphertext = nh_ciphertexts_of_string W.G.read last_ciphertext in
-         if W.E.check_shuffle last_ciphertext shuffle then (
-           let* current =
-             let* file = read_file ~uuid "shuffles.jsons" in
-             match file with
-             | None -> return []
-             | Some x -> return x
-           in
-           let shuffle_ = string_of_shuffle W.G.write shuffle in
-           let new_ = current @ [shuffle_] in
-           let* () = write_file ~uuid "shuffles.jsons" new_ in
-           return_some (sha256_b64 shuffle_)
-         ) else return_none
-       )
+  let shuffle = shuffle_of_string W.G.read shuffle in
+  Web_election_mutex.with_lock uuid (fun () ->
+      let* last_ciphertext = get_nh_ciphertexts election in
+      let last_ciphertext = nh_ciphertexts_of_string W.G.read last_ciphertext in
+      if W.E.check_shuffle last_ciphertext shuffle then (
+        let* current =
+          let* file = read_file ~uuid "shuffles.jsons" in
+          match file with
+          | None -> return []
+          | Some x -> return x
+        in
+        let shuffle_ = string_of_shuffle W.G.write shuffle in
+        let new_ = current @ [shuffle_] in
+        let* () = write_file ~uuid "shuffles.jsons" new_ in
+        return_some (sha256_b64 shuffle_)
+      ) else return_none
+    )
 
 module ExtendedRecordsCacheTypes = struct
   type key = uuid
@@ -779,8 +779,8 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
 let cast_ballot election ~rawballot ~user ~weight date =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-     Web_election_mutex.with_lock uuid
-       (fun () -> do_cast_ballot election ~rawballot ~user ~weight date)
+  Web_election_mutex.with_lock uuid
+    (fun () -> do_cast_ballot election ~rawballot ~user ~weight date)
 
 let get_raw_election_result uuid =
   let* file = read_file ~uuid "result.json" in

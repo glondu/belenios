@@ -30,12 +30,12 @@ let raw_string_of_datetime (n, s) =
   match s with
   | Some s -> s
   | None ->
-    let n = Fcalendar.Precise.to_gmt n in
-    let a = Printer.Precise_Fcalendar.sprint datetime_format n in
-    let ts = Printf.sprintf "%.6f" (Fcalendar.Precise.to_unixfloat n) in
-    let i = String.index ts '.' in
-    let b = String.sub ts i (String.length ts - i) in
-    a ^ b
+     let n = Fcalendar.Precise.to_gmt n in
+     let a = Printer.Precise_Fcalendar.sprint datetime_format n in
+     let ts = Printf.sprintf "%.6f" (Fcalendar.Precise.to_unixfloat n) in
+     let i = String.index ts '.' in
+     let b = String.sub ts i (String.length ts - i) in
+     a ^ b
 
 let raw_datetime_of_string s =
   let i = String.index s '.' in
