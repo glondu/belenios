@@ -361,6 +361,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     | Some u -> f u
     | None -> forbidden ()
 
+  let with_metadata_check_owner uuid f =
+    let* user = Eliom_reference.get Web_state.site_user in
+    let* metadata = Web_persist.get_election_metadata uuid in
+    match user, metadata.e_owner with
+    | Some a, Some b when a = b -> f metadata
+    | _, _ -> forbidden ()
+
   let without_site_user ?fallback f =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -757,39 +764,35 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_regenpwd_post
       (fun uuid user ->
-        with_site_user (fun u ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let@ election = with_election uuid in
-            let open (val election) in
-            let* metadata = Web_persist.get_election_metadata uuid in
-            if metadata.e_owner = Some u then (
-              let title = election.e_name in
-              let url = Eliom_uri.make_string_uri
-                          ~absolute:true ~service:election_home
-                          (uuid, ()) |> rewrite_prefix
-              in
-              let service = preapply ~service:election_admin uuid in
-              let* x = find_user_id uuid user in
-              match x with
-              | Some id, show_weight ->
-                 let langs = get_languages metadata.e_languages in
-                 let* db = load_password_db uuid in
-                 let* x =
-                   Pages_voter.generate_password metadata langs title uuid
-                     url id show_weight
-                 in
-                 let db = replace_password user x db in
-                 let* () = dump_passwords uuid db in
-                 Pages_common.generic_page ~title:(s_ "Success") ~service
-                   (Printf.sprintf (f_ "A new password has been mailed to %s.") id) ()
-                 >>= Html.send
-              | None, _ ->
-                 Pages_common.generic_page ~title:(s_ "Error") ~service
-                   (Printf.sprintf (f_ "%s is not a registered user for this election.") user) ()
-                 >>= Html.send
-            ) else forbidden ()
-          )
+        let@ metadata = with_metadata_check_owner uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let@ election = with_election uuid in
+        let open (val election) in
+        let title = election.e_name in
+        let url = Eliom_uri.make_string_uri
+                    ~absolute:true ~service:election_home
+                    (uuid, ()) |> rewrite_prefix
+        in
+        let service = preapply ~service:election_admin uuid in
+        let* x = find_user_id uuid user in
+        match x with
+        | Some id, show_weight ->
+           let langs = get_languages metadata.e_languages in
+           let* db = load_password_db uuid in
+           let* x =
+             Pages_voter.generate_password metadata langs title uuid
+               url id show_weight
+           in
+           let db = replace_password user x db in
+           let* () = dump_passwords uuid db in
+           Pages_common.generic_page ~title:(s_ "Success") ~service
+             (Printf.sprintf (f_ "A new password has been mailed to %s.") id) ()
+           >>= Html.send
+        | None, _ ->
+           Pages_common.generic_page ~title:(s_ "Error") ~service
+             (Printf.sprintf (f_ "%s is not a registered user for this election.") user) ()
+           >>= Html.send
       )
 
   let () =
@@ -1576,47 +1579,39 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid () -> election_admin_handler uuid)
 
   let election_set_state state uuid () =
-    with_site_user (fun u ->
-        let* metadata = Web_persist.get_election_metadata uuid in
-        if metadata.e_owner = Some u then (
-          let* () =
-            let* state = Web_persist.get_election_state uuid in
-            match state with
-            | `Open | `Closed -> return ()
-            | _ -> forbidden ()
-          in
-          let state = if state then `Open else `Closed in
-          let* () = Web_persist.set_election_state uuid state in
-          let* dates = Web_persist.get_election_dates uuid in
-          let* () =
-            Web_persist.set_election_dates uuid
-              {dates with e_auto_open = None; e_auto_close = None}
-          in
-          redir_preapply election_admin uuid ()
-        ) else forbidden ()
-      )
+    let@ _ = with_metadata_check_owner uuid in
+    let* () =
+      let* state = Web_persist.get_election_state uuid in
+      match state with
+      | `Open | `Closed -> return ()
+      | _ -> forbidden ()
+    in
+    let state = if state then `Open else `Closed in
+    let* () = Web_persist.set_election_state uuid state in
+    let* dates = Web_persist.get_election_dates uuid in
+    let* () =
+      Web_persist.set_election_dates uuid
+        {dates with e_auto_open = None; e_auto_close = None}
+    in
+    redir_preapply election_admin uuid ()
 
   let () = Any.register ~service:election_open (election_set_state true)
   let () = Any.register ~service:election_close (election_set_state false)
 
   let election_set_result_hidden f uuid x =
-    with_site_user (fun u ->
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        let* metadata = Web_persist.get_election_metadata uuid in
-        if metadata.e_owner = Some u then (
-          Lwt.catch
-            (fun () ->
-              let* () = Web_persist.set_election_result_hidden uuid (f l x) in
-              redir_preapply election_admin uuid ()
-            )
-            (function
-             | Failure msg ->
-                let service = preapply ~service:election_admin uuid in
-                Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-             | e -> Lwt.fail e
-            )
-        ) else forbidden ()
+    let@ _ = with_metadata_check_owner uuid in
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    Lwt.catch
+      (fun () ->
+        let* () = Web_persist.set_election_result_hidden uuid (f l x) in
+        redir_preapply election_admin uuid ()
+      )
+      (function
+       | Failure msg ->
+          let service = preapply ~service:election_admin uuid in
+          Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
+       | e -> Lwt.fail e
       )
 
   let parse_datetime_from_post l x =
@@ -1647,114 +1642,98 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_auto_post
       (fun uuid (auto_open, auto_close) ->
-        with_site_user (fun u ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let* metadata = Web_persist.get_election_metadata uuid in
-            if metadata.e_owner = Some u then (
-              let auto_dates =
-                try
-                  let format x =
-                    if x = "" then None
-                    else Some (parse_datetime_from_post l x)
-                  in
-                  Ok (format auto_open, format auto_close)
-                with Failure e -> Error e
-              in
-              match auto_dates with
-              | Ok (e_auto_open, e_auto_close) ->
-                 let* dates = Web_persist.get_election_dates uuid in
-                 let* () =
-                   Web_persist.set_election_dates uuid
-                     {dates with e_auto_open; e_auto_close}
-                 in
-                 redir_preapply election_admin uuid ()
-              | Error msg ->
-                 let service = preapply ~service:election_admin uuid in
-                 Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-            ) else forbidden ()
-          )
+        let@ _ = with_metadata_check_owner uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let auto_dates =
+          try
+            let format x =
+              if x = "" then None
+              else Some (parse_datetime_from_post l x)
+            in
+            Ok (format auto_open, format auto_close)
+          with Failure e -> Error e
+        in
+        match auto_dates with
+        | Ok (e_auto_open, e_auto_close) ->
+           let* dates = Web_persist.get_election_dates uuid in
+           let* () =
+             Web_persist.set_election_dates uuid
+               {dates with e_auto_open; e_auto_close}
+           in
+           redir_preapply election_admin uuid ()
+        | Error msg ->
+           let service = preapply ~service:election_admin uuid in
+           Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
       )
 
   let () =
     Any.register ~service:election_delete
       (fun uuid () ->
-        with_site_user (fun u ->
-            let* metadata = Web_persist.get_election_metadata uuid in
-            if metadata.e_owner = Some u then (
-              let* () = delete_election uuid in
-              redir_preapply admin () ()
-            ) else forbidden ()
-          )
+        let@ _ = with_metadata_check_owner uuid in
+        let* () = delete_election uuid in
+        redir_preapply admin () ()
       )
 
   let () =
     let rex = Pcre.regexp "\".*\" \".*:(.*)\"" in
     Any.register ~service:election_missing_voters
       (fun (uuid, ()) () ->
-        with_site_user (fun u ->
-            let* metadata = Web_persist.get_election_metadata uuid in
-            if metadata.e_owner = Some u then (
-              let* voters =
-                let* file = read_file ~uuid (string_of_election_file ESVoters) in
-                match file with
-                | Some vs ->
-                   return (
-                       List.fold_left (fun accu v ->
-                           let _, login, _ = split_identity v in
-                           SSet.add login accu
-                         ) SSet.empty vs
-                     )
-                | None -> return SSet.empty
-              in
-              let* voters =
-                let* file = read_file ~uuid (string_of_election_file ESRecords) in
-                match file with
-                | Some rs ->
-                   return (
-                       List.fold_left (fun accu r ->
-                           let s = Pcre.exec ~rex r in
-                           let v = Pcre.get_substring s 1 in
-                           SSet.remove v accu
-                         ) voters rs
-                     )
-                | None -> return voters
-              in
-              let buf = Buffer.create 128 in
-              SSet.iter (fun v ->
-                  Buffer.add_string buf v;
-                  Buffer.add_char buf '\n'
-                ) voters;
-              String.send (Buffer.contents buf, "text/plain")
-            ) else forbidden ()
-          )
+        let@ _ = with_metadata_check_owner uuid in
+        let* voters =
+          let* file = read_file ~uuid (string_of_election_file ESVoters) in
+          match file with
+          | Some vs ->
+             return (
+                 List.fold_left (fun accu v ->
+                     let _, login, _ = split_identity v in
+                     SSet.add login accu
+                   ) SSet.empty vs
+               )
+          | None -> return SSet.empty
+        in
+        let* voters =
+          let* file = read_file ~uuid (string_of_election_file ESRecords) in
+          match file with
+          | Some rs ->
+             return (
+                 List.fold_left (fun accu r ->
+                     let s = Pcre.exec ~rex r in
+                     let v = Pcre.get_substring s 1 in
+                     SSet.remove v accu
+                   ) voters rs
+               )
+          | None -> return voters
+        in
+        let buf = Buffer.create 128 in
+        SSet.iter (fun v ->
+            Buffer.add_string buf v;
+            Buffer.add_char buf '\n'
+          ) voters;
+        String.send (Buffer.contents buf, "text/plain")
       )
 
   let () =
     let rex = Pcre.regexp "\"(.*)\\..*\" \".*:(.*)\"" in
     Any.register ~service:election_pretty_records
       (fun (uuid, ()) () ->
-        with_site_user (fun u ->
-            let@ election = with_election uuid in
-            let* metadata = Web_persist.get_election_metadata uuid in
-            if metadata.e_owner = Some u then (
-              let* records =
-                let* file = read_file ~uuid (string_of_election_file ESRecords) in
-                match file with
-                | Some rs ->
-                   return (
-                       List.rev_map (fun r ->
-                           let s = Pcre.exec ~rex r in
-                           let date = Pcre.get_substring s 1 in
-                           let voter = Pcre.get_substring s 2 in
-                           (date, voter)
-                         ) rs
-                     )
-                | None -> return []
-              in
-              Pages_admin.pretty_records election (List.rev records) () >>= Html.send
-            ) else forbidden ()
-          )
+        let@ _ = with_metadata_check_owner uuid in
+        let@ election = with_election uuid in
+        let* records =
+          let* file = read_file ~uuid (string_of_election_file ESRecords) in
+          match file with
+          | Some rs ->
+             return (
+                 List.rev_map (fun r ->
+                     let s = Pcre.exec ~rex r in
+                     let date = Pcre.get_substring s 1 in
+                     let voter = Pcre.get_substring s 2 in
+                     (date, voter)
+                   ) rs
+               )
+          | None -> return []
+        in
+        Pages_admin.pretty_records election (List.rev records) () >>= Html.send
       )
 
   let () =
@@ -1853,25 +1832,21 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_download_archive
       (fun (uuid, ()) () ->
-        with_site_user (fun u ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let* metadata = Web_persist.get_election_metadata uuid in
-            let* state = Web_persist.get_election_state uuid in
-            if metadata.e_owner = Some u then (
-              if state = `Archived then (
-                let uuid_s = raw_string_of_uuid uuid in
-                let archive_name = !Web_config.spool_dir / uuid_s / "archive.zip" in
-                let* b = file_exists archive_name in
-                let* () = if not b then make_archive uuid else return_unit in
-                File.send ~content_type:"application/zip" archive_name
-              ) else (
-                let service = preapply ~service:election_admin uuid in
-                Pages_common.generic_page ~title:(s_ "Error") ~service
-                  (s_ "The election is not archived!") () >>= Html.send
-              )
-            ) else forbidden ()
-          )
+        let@ _ = with_metadata_check_owner uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let* state = Web_persist.get_election_state uuid in
+        if state = `Archived then (
+          let uuid_s = raw_string_of_uuid uuid in
+          let archive_name = !Web_config.spool_dir / uuid_s / "archive.zip" in
+          let* b = file_exists archive_name in
+          let* () = if not b then make_archive uuid else return_unit in
+          File.send ~content_type:"application/zip" archive_name
+        ) else (
+          let service = preapply ~service:election_admin uuid in
+          Pages_common.generic_page ~title:(s_ "Error") ~service
+            (s_ "The election is not archived!") () >>= Html.send
+        )
       )
 
   let find_trustee_id uuid token =
@@ -1979,77 +1954,73 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       ))
 
   let handle_election_tally_release uuid () =
-    with_site_user (fun u ->
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        let uuid_s = raw_string_of_uuid uuid in
-        let@ election = with_election uuid in
-        let* metadata = Web_persist.get_election_metadata uuid in
-        let module W = (val election) in
-        if metadata.e_owner = Some u then (
-          let* () =
-            let* state = Web_persist.get_election_state uuid in
-            match state with
-            | `EncryptedTally _ -> return_unit
-            | _ -> forbidden ()
-          in
-          let* ntallied =
-            let* hashes = Web_persist.get_ballot_hashes uuid in
-            let weights = List.map snd hashes in
-            let open Weight in
-            Lwt_list.fold_left_s (fun x y -> return (x + y)) zero weights
-          in
-          let* et =
-            !Web_config.spool_dir / uuid_s / string_of_election_file ESETally |>
-              Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
-              wrap1 (encrypted_tally_of_string W.G.read)
-          in
-          let* trustees = Web_persist.get_trustees uuid in
-          let trustees = trustees_of_string W.G.read trustees in
-          let* pds = Web_persist.get_partial_decryptions uuid in
-          let pds = List.map snd pds in
-          let pds = List.map (partial_decryption_of_string W.G.read) pds in
-          let* shuffles, shufflers =
-            let* x = Web_persist.get_shuffles uuid in
-            match x with
-            | None -> return (None, None)
-            | Some s ->
-               let s = List.map (shuffle_of_string W.G.read) s in
-               let* x = Web_persist.get_shuffle_hashes uuid in
-               match x with
-               | None -> return (Some s, None)
-               | Some x ->
-                  let x =
-                    x
-                    |> List.map (fun x -> if x.sh_hash = "" then [] else [x.sh_name])
-                    |> List.flatten
-                  in
-                  assert (List.length s = List.length x);
-                  return (Some s, Some x)
-          in
-          match W.E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
-          | Ok result ->
-             let* () =
-               let result = string_of_election_result W.G.write W.write_result result in
-               write_file ~uuid (string_of_election_file ESResult) [result]
-             in
-             let* () = Web_persist.remove_audit_cache uuid in
-             let* () = Web_persist.set_election_state uuid `Tallied in
-             let* dates = Web_persist.get_election_dates uuid in
-             let* () = Web_persist.set_election_dates uuid {dates with e_tally = Some (now ())} in
-             let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
-             let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "shuffles.jsons") in
-             let* () = Web_persist.clear_shuffle_token uuid in
-             redir_preapply election_home (uuid, ()) ()
-          | Error e ->
-             let msg =
-               Printf.sprintf
-                 (f_ "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job.")
-                 (Trustees.string_of_combination_error e)
-             in
-             Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
-        ) else forbidden ()
-      )
+    let@ _ = with_metadata_check_owner uuid in
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let uuid_s = raw_string_of_uuid uuid in
+    let@ election = with_election uuid in
+    let module W = (val election) in
+    let* () =
+      let* state = Web_persist.get_election_state uuid in
+      match state with
+      | `EncryptedTally _ -> return_unit
+      | _ -> forbidden ()
+    in
+    let* ntallied =
+      let* hashes = Web_persist.get_ballot_hashes uuid in
+      let weights = List.map snd hashes in
+      let open Weight in
+      Lwt_list.fold_left_s (fun x y -> return (x + y)) zero weights
+    in
+    let* et =
+      !Web_config.spool_dir / uuid_s / string_of_election_file ESETally |>
+        Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
+        wrap1 (encrypted_tally_of_string W.G.read)
+    in
+    let* trustees = Web_persist.get_trustees uuid in
+    let trustees = trustees_of_string W.G.read trustees in
+    let* pds = Web_persist.get_partial_decryptions uuid in
+    let pds = List.map snd pds in
+    let pds = List.map (partial_decryption_of_string W.G.read) pds in
+    let* shuffles, shufflers =
+      let* x = Web_persist.get_shuffles uuid in
+      match x with
+      | None -> return (None, None)
+      | Some s ->
+         let s = List.map (shuffle_of_string W.G.read) s in
+         let* x = Web_persist.get_shuffle_hashes uuid in
+         match x with
+         | None -> return (Some s, None)
+         | Some x ->
+            let x =
+              x
+              |> List.map (fun x -> if x.sh_hash = "" then [] else [x.sh_name])
+              |> List.flatten
+            in
+            assert (List.length s = List.length x);
+            return (Some s, Some x)
+    in
+    match W.E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
+    | Ok result ->
+       let* () =
+         let result = string_of_election_result W.G.write W.write_result result in
+         write_file ~uuid (string_of_election_file ESResult) [result]
+       in
+       let* () = Web_persist.remove_audit_cache uuid in
+       let* () = Web_persist.set_election_state uuid `Tallied in
+       let* dates = Web_persist.get_election_dates uuid in
+       let* () = Web_persist.set_election_dates uuid {dates with e_tally = Some (now ())} in
+       let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
+       let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "shuffles.jsons") in
+       let* () = Web_persist.clear_shuffle_token uuid in
+       redir_preapply election_home (uuid, ()) ()
+    | Error e ->
+       let msg =
+         Printf.sprintf
+           (f_ "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job.")
+           (Trustees.string_of_combination_error e)
+       in
+       Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
 
   let () =
     Any.register ~service:election_tally_release
@@ -2100,26 +2071,22 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_compute_encrypted_tally
       (fun uuid () ->
-        with_site_user (fun u ->
-            let@ election = with_election uuid in
-            let* metadata = Web_persist.get_election_metadata uuid in
-            let module W = (val election) in
-            if metadata.e_owner = Some u then (
-              let* () =
-                let* state = Web_persist.get_election_state uuid in
-                match state with
-                | `Closed -> return ()
-                | _ -> forbidden ()
-              in
-              let* tally = Web_persist.compute_encrypted_tally election in
-              if Election.has_nh_questions W.election then (
-                let* () = Web_persist.set_election_state uuid `Shuffling in
-                redir_preapply election_admin uuid ()
-              ) else (
-                transition_to_encrypted_tally uuid election metadata tally
-              )
-            ) else forbidden ()
-          )
+        let@ metadata = with_metadata_check_owner uuid in
+        let@ election = with_election uuid in
+        let module W = (val election) in
+        let* () =
+          let* state = Web_persist.get_election_state uuid in
+          match state with
+          | `Closed -> return ()
+          | _ -> forbidden ()
+        in
+        let* tally = Web_persist.compute_encrypted_tally election in
+        if Election.has_nh_questions W.election then (
+          let* () = Web_persist.set_election_state uuid `Shuffling in
+          redir_preapply election_admin uuid ()
+        ) else (
+          transition_to_encrypted_tally uuid election metadata tally
+        )
       )
 
   let () =
@@ -2196,64 +2163,48 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_shuffler_select
       (fun () (uuid, trustee) ->
-        with_site_user (fun u ->
-            let* metadata = Web_persist.get_election_metadata uuid in
-            let* name = get_trustee_name uuid metadata trustee in
-            if metadata.e_owner = Some u then (
-              let* () = Web_persist.clear_shuffle_token uuid in
-              let* _ = Web_persist.gen_shuffle_token uuid trustee name in
-              redir_preapply election_admin uuid ()
-            ) else forbidden ()
-          )
+        let@ metadata = with_metadata_check_owner uuid in
+        let* name = get_trustee_name uuid metadata trustee in
+        let* () = Web_persist.clear_shuffle_token uuid in
+        let* _ = Web_persist.gen_shuffle_token uuid trustee name in
+        redir_preapply election_admin uuid ()
       )
 
   let () =
     Any.register ~service:election_shuffler_skip_confirm
       (fun () (uuid, trustee) ->
-        with_site_user (fun u ->
-            let* metadata = Web_persist.get_election_metadata uuid in
-            if metadata.e_owner = Some u then (
-              Pages_admin.election_shuffler_skip_confirm uuid trustee >>= Html.send
-            ) else forbidden ()
-          )
+        let@ _ = with_metadata_check_owner uuid in
+        Pages_admin.election_shuffler_skip_confirm uuid trustee >>= Html.send
       )
 
   let () =
     Any.register ~service:election_shuffler_skip
       (fun () (uuid, trustee) ->
-        with_site_user (fun u ->
-            let* metadata = Web_persist.get_election_metadata uuid in
-            let* sh_name = get_trustee_name uuid metadata trustee in
-            if metadata.e_owner = Some u then (
-              let* () = Web_persist.clear_shuffle_token uuid in
-              let sh = {sh_trustee = trustee; sh_hash = ""; sh_name} in
-              let* () = Web_persist.add_shuffle_hash uuid sh in
-              redir_preapply election_admin uuid ()
-            ) else forbidden ()
-          )
+        let@ metadata = with_metadata_check_owner uuid in
+        let* sh_name = get_trustee_name uuid metadata trustee in
+        let* () = Web_persist.clear_shuffle_token uuid in
+        let sh = {sh_trustee = trustee; sh_hash = ""; sh_name} in
+        let* () = Web_persist.add_shuffle_hash uuid sh in
+        redir_preapply election_admin uuid ()
       )
 
   let () =
     Any.register ~service:election_decrypt (fun uuid () ->
-        with_site_user (fun u ->
-            let@ election = with_election uuid in
-            let* metadata = Web_persist.get_election_metadata uuid in
-            if metadata.e_owner = Some u then (
-              let* () =
-                let* state = Web_persist.get_election_state uuid in
-                match state with
-                | `Shuffling -> return ()
-                | _ -> forbidden ()
-              in
-              let* tally =
-                let* x = Web_persist.compute_encrypted_tally_after_shuffling election in
-                match x with
-                | Some x -> return x
-                | None -> Lwt.fail (Failure "election_decrypt handler: compute_encrypted_tally_after_shuffling")
-              in
-              transition_to_encrypted_tally uuid election metadata tally
-            ) else forbidden ()
-          )
+        let@ metadata = with_metadata_check_owner uuid in
+        let@ election = with_election uuid in
+        let* () =
+          let* state = Web_persist.get_election_state uuid in
+          match state with
+          | `Shuffling -> return ()
+          | _ -> forbidden ()
+        in
+        let* tally =
+          let* x = Web_persist.compute_encrypted_tally_after_shuffling election in
+          match x with
+          | Some x -> return x
+          | None -> Lwt.fail (Failure "election_decrypt handler: compute_encrypted_tally_after_shuffling")
+        in
+        transition_to_encrypted_tally uuid election metadata tally
       )
 
   let () =
