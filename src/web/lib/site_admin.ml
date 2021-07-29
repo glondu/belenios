@@ -2074,7 +2074,7 @@ let () =
   Any.register ~service:election_tally_release
     handle_election_tally_release
 
-module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
+module type ELECTION_LWT = ELECTION_OPS with type 'a m = 'a Lwt.t
 
 let perform_server_side_decryption uuid e metadata tally =
   let module W = (val e : ELECTION_DATA) in

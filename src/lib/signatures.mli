@@ -64,7 +64,7 @@ module type RAW_ELECTION = sig
 end
 
 (** Cryptographic primitives for an election with homomorphic tally. *)
-module type ELECTION = sig
+module type ELECTION_OPS = sig
 
   type 'a m
   (** The type of monadic values. *)

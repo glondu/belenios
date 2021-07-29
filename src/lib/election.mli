@@ -29,7 +29,7 @@ module Parse (R : RAW_ELECTION) () : ELECTION_DATA
 val has_nh_questions : 'a params -> bool
 
 module Make (W : ELECTION_DATA) (M : RANDOM) :
-  ELECTION with
+  ELECTION_OPS with
          type elt = W.G.t and
          type 'a m = 'a M.t and
          type result_type = W.result
