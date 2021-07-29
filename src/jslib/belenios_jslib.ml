@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_platform.Platform
@@ -38,7 +39,7 @@ let encryptBallot election cred plaintext callback =
   let module G = P.G in
   let module CD = Credential.MakeDerive (G) in
   let sk = CD.derive P.election.e_uuid cred in
-  let%lwt b = P.E.create_ballot ~sk plaintext in
+  let* b = P.E.create_ballot ~sk plaintext in
   let ballot = string_of_ballot G.write b in
   let tracker = sha256_b64 ballot in
   callback ballot tracker
@@ -76,24 +77,23 @@ let belenios =
       in
       Lwt.async
         (fun () ->
-          try%lwt
-            let%lwt () = Lwt_js.yield () in
+          Lwt.catch (fun () ->
+            let* () = Lwt_js.yield () in
             let module R =
               struct
                 let raw_election = Js._JSON##stringify params |> Js.to_string
               end
             in
             let module W = Election.ParseMake (R) (LwtJsRandom) () in
-            let%lwt () = Lwt_js.yield () in
+            let* () = Lwt_js.yield () in
             let plaintext =
               Js._JSON##stringify plaintext
               |> Js.to_string
               |> plaintext_of_string
             in
-            let%lwt () = Lwt_js.yield () in
+            let* () = Lwt_js.yield () in
             encryptBallot (module W) (Js.to_string cred) plaintext success
-          with e ->
-            failure (Printexc.to_string e)
+          ) (fun e -> failure (Printexc.to_string e))
         );
       Js.undefined
   end
