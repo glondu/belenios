@@ -162,7 +162,9 @@ let send_confirmation_email uuid revote user recipient weight hash =
       Lwt.return true)
     (fun _ -> Lwt.return false)
 
-let cast_ballot uuid ~rawballot ~user =
+let cast_ballot election ~rawballot ~user =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
   let* voters = read_file ~uuid "voters.txt" in
   let voters = match voters with Some xs -> xs | None -> [] in
   let* email, login, weight =
@@ -185,7 +187,7 @@ let cast_ballot uuid ~rawballot ~user =
   let* state = Web_persist.get_election_state uuid in
   let voting_open = state = `Open in
   let* () = if not voting_open then fail ElectionClosed else return_unit in
-  let* r = Web_persist.cast_ballot uuid ~rawballot ~user ~weight (now ()) in
+  let* r = Web_persist.cast_ballot election ~rawballot ~user ~weight (now ()) in
   match r with
   | Ok (hash, revote) ->
      let* success = send_confirmation_email uuid revote login email oweight hash in
@@ -220,14 +222,14 @@ let () =
 let () =
   Any.register ~service:election_cast_confirm
     (fun uuid () ->
+      let* x = find_election uuid in
+      match x with
+      | None -> election_not_found ()
+      | Some election ->
       let* ballot = Eliom_reference.get Web_state.ballot in
       match ballot with
       | None ->
-         let* election = find_election uuid in
-         (match election with
-          | Some w -> Pages_voter.lost_ballot w () >>= Html.send
-          | None -> election_not_found ()
-         )
+         Pages_voter.lost_ballot election () >>= Html.send
       | Some rawballot ->
          let* () = Eliom_reference.unset Web_state.ballot in
          let* user = Web_state.get_election_user uuid in
@@ -238,7 +240,7 @@ let () =
             let* result =
               Lwt.catch
                 (fun () ->
-                  let* hash = cast_ballot uuid ~rawballot ~user in
+                  let* hash = cast_ballot election ~rawballot ~user in
                   return (Ok hash)
                 )
                 (function

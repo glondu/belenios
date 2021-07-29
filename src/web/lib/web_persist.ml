@@ -487,12 +487,9 @@ let replace_ballot uuid ~hash ~rawballot =
   let* () = remove_ballot uuid hash in
   add_ballot uuid rawballot
 
-let compute_encrypted_tally uuid =
-  let* election = get_raw_election uuid in
-  match election with
-  | None -> return_none
-  | Some election ->
-     let module W = Election.ParseMake (struct let raw_election = election end) (LwtRandom) () in
+let compute_encrypted_tally election =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
      let* ballots = load_ballots uuid in
      let* ballots =
        Lwt_list.map_s
@@ -505,7 +502,7 @@ let compute_encrypted_tally uuid =
      let tally = W.E.process_ballots (Array.of_list ballots) in
      let tally = string_of_encrypted_tally W.G.write tally in
      let* () = write_file ~uuid (string_of_election_file ESETally) [tally] in
-     return_some tally
+     return tally
 
 let get_shuffle_token uuid =
   let* file = read_file ~uuid "shuffle_token.json" in
@@ -523,12 +520,9 @@ let clear_shuffle_token uuid =
   let f = !Web_config.spool_dir / raw_string_of_uuid uuid / "shuffle_token.json" in
   Lwt.catch (fun () -> Lwt_unix.unlink f) (fun _ -> return_unit)
 
-let get_nh_ciphertexts uuid =
-  let* election = get_raw_election uuid in
-  match election with
-  | None -> Lwt.fail (Failure "get_nh_ciphertexts: election not found")
-  | Some election ->
-     let module W = Election.ParseMake (struct let raw_election = election end) (LwtRandom) () in
+let get_nh_ciphertexts election =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
      let* current =
        let* file = read_file ~uuid "shuffles.jsons" in
        match file with
@@ -590,17 +584,14 @@ let add_shuffle_hash uuid sh =
   let new_ = current @ [sh] in
   write_file ~uuid "shuffle_hashes.jsons" (List.map string_of_shuffle_hash new_)
 
-let compute_encrypted_tally_after_shuffling uuid =
-  let* election = get_raw_election uuid in
-  match election with
-  | None -> return_none
-  | Some election ->
-     let module W = Election.ParseMake (struct let raw_election = election end) (LwtRandom) () in
+let compute_encrypted_tally_after_shuffling election =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
      let* file = read_file ~uuid (string_of_election_file ESETally) in
      match file with
      | Some [x] ->
         let tally = encrypted_tally_of_string W.G.read x in
-        let* nh = get_nh_ciphertexts uuid in
+        let* nh = get_nh_ciphertexts election in
         let nh = nh_ciphertexts_of_string W.G.read nh in
         let tally = W.E.merge_nh_ciphertexts nh tally in
         let tally = string_of_encrypted_tally W.G.write tally in
@@ -608,15 +599,12 @@ let compute_encrypted_tally_after_shuffling uuid =
         return_some tally
      | _ -> return_none
 
-let append_to_shuffles uuid shuffle =
-  let* election = get_raw_election uuid in
-  match election with
-  | None -> Lwt.fail (Failure "append_to_shuffles: election not found")
-  | Some election ->
-     let module W = Election.ParseMake (struct let raw_election = election end) (LwtRandom) () in
+let append_to_shuffles election shuffle =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
      let shuffle = shuffle_of_string W.G.read shuffle in
      Web_election_mutex.with_lock uuid (fun () ->
-         let* last_ciphertext = get_nh_ciphertexts uuid in
+         let* last_ciphertext = get_nh_ciphertexts election in
          let last_ciphertext = nh_ciphertexts_of_string W.G.read last_ciphertext in
          if W.E.check_shuffle last_ciphertext shuffle then (
            let* current =
@@ -788,14 +776,11 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
              | Some _, None -> return (Error ECastReusedCredential)
            ) else return (Error ECastBadWeight)
 
-let cast_ballot uuid ~rawballot ~user ~weight date =
-  let* election = get_raw_election uuid in
-  match election with
-  | None -> Lwt.fail Not_found
-  | Some raw_election ->
-     let module W = Election.ParseMake (struct let raw_election = raw_election end) (LwtRandom) () in
+let cast_ballot election ~rawballot ~user ~weight date =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
      Web_election_mutex.with_lock uuid
-       (fun () -> do_cast_ballot (module W) ~rawballot ~user ~weight date)
+       (fun () -> do_cast_ballot election ~rawballot ~user ~weight date)
 
 let get_raw_election_result uuid =
   let* file = read_file ~uuid "result.json" in

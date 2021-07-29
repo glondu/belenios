@@ -1540,11 +1540,11 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
         in
         let* () =
           if pending_server_shuffle then (
-            let* cc = Web_persist.get_nh_ciphertexts uuid in
+            let* cc = Web_persist.get_nh_ciphertexts w in
             let cc = nh_ciphertexts_of_string W.G.read cc in
             let* shuffle = W.E.shuffle_ciphertexts cc in
             let shuffle = string_of_shuffle W.G.write shuffle in
-            let* x = Web_persist.append_to_shuffles uuid shuffle in
+            let* x = Web_persist.append_to_shuffles w shuffle in
             match x with
             | Some h ->
                let sh = {sh_trustee = "server"; sh_hash = h; sh_name = Some "server"} in
@@ -2130,12 +2130,7 @@ let () =
               | `Closed -> return ()
               | _ -> forbidden ()
             in
-            let* tally =
-              let* et = Web_persist.compute_encrypted_tally uuid in
-              match et with
-              | Some x -> return x
-              | None -> failwith "Anomaly in election_compute_encrypted_tally service handler. Please report." (* should not happen *)
-            in
+            let* tally = Web_persist.compute_encrypted_tally election in
             if Election.has_nh_questions W.election then (
               let* () = Web_persist.set_election_state uuid `Shuffling in
               redir_preapply election_admin uuid ()
@@ -2169,6 +2164,10 @@ let () =
 let () =
   Any.register ~service:election_shuffle_post
     (fun (uuid, token) shuffle ->
+      let* x = find_election uuid in
+      match x with
+      | None -> election_not_found ()
+      | Some election ->
       without_site_user (fun () ->
           let* l = get_preferred_gettext () in
           let open (val l) in
@@ -2177,7 +2176,7 @@ let () =
           | Some x when token = x.tk_token ->
              Lwt.catch
                (fun () ->
-                 let* y = Web_persist.append_to_shuffles uuid shuffle in
+                 let* y = Web_persist.append_to_shuffles election shuffle in
                  match y with
                  | Some h ->
                     let* () = Web_persist.clear_shuffle_token uuid in
@@ -2275,7 +2274,7 @@ let () =
               | _ -> forbidden ()
             in
             let* tally =
-              let* x = Web_persist.compute_encrypted_tally_after_shuffling uuid in
+              let* x = Web_persist.compute_encrypted_tally_after_shuffling election in
               match x with
               | Some x -> return x
               | None -> Lwt.fail (Failure "election_decrypt handler: compute_encrypted_tally_after_shuffling")

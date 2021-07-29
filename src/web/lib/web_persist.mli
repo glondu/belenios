@@ -67,27 +67,28 @@ val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 val get_ballot_weight : string -> Weight.t Lwt.t
 
-val compute_encrypted_tally : uuid -> string option Lwt.t
+val compute_encrypted_tally : (module Site_common_sig.ELECTION_LWT) -> string Lwt.t
 
 val get_shuffles : uuid -> string list option Lwt.t
 val get_shuffle_hashes : uuid -> shuffle_hash list option Lwt.t
 val add_shuffle_hash : uuid -> shuffle_hash -> unit Lwt.t
-val compute_encrypted_tally_after_shuffling : uuid -> string option Lwt.t
+val compute_encrypted_tally_after_shuffling : (module Site_common_sig.ELECTION_LWT) -> string option Lwt.t
 
 val get_shuffle_token : uuid -> shuffle_token option Lwt.t
 val gen_shuffle_token : uuid -> string -> shuffler -> shuffle_token Lwt.t
 val clear_shuffle_token : uuid -> unit Lwt.t
 
-val get_nh_ciphertexts : uuid -> string Lwt.t
+val get_nh_ciphertexts : (module Site_common_sig.ELECTION_LWT) -> string Lwt.t
 
-val append_to_shuffles : uuid -> string -> string option Lwt.t
+val append_to_shuffles : (module Site_common_sig.ELECTION_LWT) -> string -> string option Lwt.t
 
 val has_voted : uuid -> user -> bool Lwt.t
 
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
 
 val cast_ballot :
-  uuid -> rawballot:string -> user:string -> weight:Weight.t -> datetime ->
+  (module Site_common_sig.ELECTION_LWT) ->
+  rawballot:string -> user:string -> weight:Weight.t -> datetime ->
   (string * bool, cast_error) result Lwt.t
 
 val get_audit_cache : uuid -> audit_cache Lwt.t

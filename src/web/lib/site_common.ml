@@ -81,8 +81,12 @@ let () =
 let () =
   Any.register ~service:election_nh_ciphertexts
     (fun uuid () ->
-      let* x = Web_persist.get_nh_ciphertexts uuid in
-      String.send (x, "application/json")
+      let* x = find_election uuid in
+      match x with
+      | None -> fail_http `Not_found
+      | Some election ->
+         let* x = Web_persist.get_nh_ciphertexts election in
+         String.send (x, "application/json")
     )
 
 let () =
