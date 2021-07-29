@@ -25,7 +25,6 @@ open Belenios_platform
 open Belenios
 open Serializable_builtin_t
 open Serializable_j
-open Signatures
 open Common
 open Web_serializable_builtin_t
 open Web_serializable_j
@@ -2230,7 +2229,7 @@ let election_admin ?shuffle_token ?tally_token election metadata state get_token
   let langs = get_languages metadata.e_languages in
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
+  let open (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = election.e_uuid in
   let title = election.e_name ^ " — " ^ s_ "Administration" in
   let auto_form () =
@@ -2756,7 +2755,7 @@ let regenpwd uuid () =
 let pretty_records election records () =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
+  let open (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = election.e_uuid in
   let title = election.e_name ^ " — " ^ s_ "Records" in
   let nrecords = List.length records in
@@ -2823,7 +2822,7 @@ let election_shuffler_skip_confirm uuid trustee =
 let shuffle election token =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
+  let open (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = election.e_uuid in
   let title = election.e_name ^ " — " ^ s_ "Shuffle" in
   let content = [
@@ -2877,7 +2876,7 @@ let shuffle election token =
 let tally_trustees election trustee_id token () =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
+  let open (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = election.e_uuid in
   let title =
     election.e_name ^ " — " ^ Printf.sprintf (f_ "Partial decryption #%d") trustee_id

@@ -71,8 +71,7 @@ let basic_check_private_key s =
 
 let compute_partial_decryption _ =
   Js.Opt.option !election >>= fun e ->
-  let module P = Election.Parse (struct let raw_election = e end) () in
-  let module E = Election.Make (P) (DirectRandom) in
+  let module P = Election.ParseMake (struct let raw_election = e end) (DirectRandom) () in
   Js.Opt.option !encrypted_tally >>= fun e ->
   let encrypted_tally = encrypted_tally_of_string P.G.read e in
   document##getElementById (Js.string "private_key") >>= fun e ->
@@ -94,7 +93,7 @@ let compute_partial_decryption _ =
          Printf.ksprintf
            failwith (f_ "Error in format of private key: %s") (Printexc.to_string e)
   in
-  let factor = E.compute_factor encrypted_tally private_key in
+  let factor = P.E.compute_factor encrypted_tally private_key in
   set_textarea "pd" (string_of_partial_decryption P.G.write factor);
   return_unit
 

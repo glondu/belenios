@@ -50,21 +50,20 @@ end
 
 module type PARSED_PARAMS = sig
   include PARAMS
-  include ELECTION_DATA
+  include ELECTION with type 'a m = 'a
 end
 
 let parse_params p =
   let module P = (val p : PARAMS) in
   let module R = struct
     include P
-    include Election.Parse (P) ()
+    include Election.ParseMake (P) (DirectRandom) ()
   end in
   (module R : PARSED_PARAMS)
 
 module Make (P : PARSED_PARAMS) : S = struct
 
   open P
-  module E = Election.Make (P) (DirectRandom)
 
   module P = Trustees.MakePKI (G) (DirectRandom)
   module C = Trustees.MakeChannels (G) (DirectRandom) (P)

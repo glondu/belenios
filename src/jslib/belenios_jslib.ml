@@ -31,13 +31,14 @@ let computeFingerprint = sha256_b64
 
 let checkCredential = Credential.check
 
-let encryptBallot params cred plaintext callback =
-  let module P = (val params : ELECTION_DATA) in
+module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
+
+let encryptBallot election cred plaintext callback =
+  let module P = (val election : ELECTION_LWT) in
   let module G = P.G in
-  let module E = Election.Make (P) (LwtJsRandom) in
   let module CD = Credential.MakeDerive (G) in
   let sk = CD.derive P.election.e_uuid cred in
-  let%lwt b = E.create_ballot ~sk plaintext in
+  let%lwt b = P.E.create_ballot ~sk plaintext in
   let ballot = string_of_ballot G.write b in
   let tracker = sha256_b64 ballot in
   callback ballot tracker
@@ -82,7 +83,7 @@ let belenios =
                 let raw_election = Js._JSON##stringify params |> Js.to_string
               end
             in
-            let module W = Election.Parse (R) () in
+            let module W = Election.ParseMake (R) (LwtJsRandom) () in
             let%lwt () = Lwt_js.yield () in
             let plaintext =
               Js._JSON##stringify plaintext

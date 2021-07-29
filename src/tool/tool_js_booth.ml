@@ -33,14 +33,14 @@ open Common
 open Tool_js_common
 open Tool_js_i18n.Gettext
 
-let encryptBallot params cred plaintext () =
-  let module P = (val params : ELECTION_DATA) in
-  let module G = P.G in
-  let module E = Election.Make (P) (LwtJsRandom) in
-  let module CD = Credential.MakeDerive (G) in
-  let sk = CD.derive P.election.e_uuid cred in
-  let* b = E.create_ballot ~sk plaintext in
-  let s = string_of_ballot G.write b in
+module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
+
+let encryptBallot election cred plaintext () =
+  let module E = (val election : ELECTION_LWT) in
+  let module CD = Credential.MakeDerive (E.G) in
+  let sk = CD.derive E.election.e_uuid cred in
+  let* b = E.E.create_ballot ~sk plaintext in
+  let s = string_of_ballot E.G.write b in
   set_textarea "ballot" s;
   set_content "ballot_tracker" (sha256_b64 s);
   set_element_display "encrypting_div" "none";
@@ -408,7 +408,7 @@ let loadElection () =
         | None -> failwith "election_params is missing"
     end
   in
-  let module P = Election.Parse (R) () in
+  let module P = Election.ParseMake (R) (LwtJsRandom) () in
   let params = P.election in
   set_content_with_br "election_name" params.e_name;
   set_content_with_br "election_description" params.e_description;

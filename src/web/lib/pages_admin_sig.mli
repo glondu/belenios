@@ -19,9 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
 open Web_serializable_t
-open Signatures
 open Web_common
 
 module type S = sig
@@ -47,14 +45,14 @@ val election_draft_import : uuid -> draft_election -> (uuid * string) list * (uu
 val election_draft_import_trustees : uuid -> draft_election -> (uuid * string) list * (uuid * string) list * (uuid * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val election_draft_confirm : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-val election_admin : ?shuffle_token:string -> ?tally_token:string -> (module ELECTION_DATA) -> Web_serializable_j.metadata -> election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val election_admin : ?shuffle_token:string -> ?tally_token:string -> (module Site_common_sig.ELECTION_LWT) -> Web_serializable_j.metadata -> election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val pretty_records : (module ELECTION_DATA) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val pretty_records : (module Site_common_sig.ELECTION_LWT) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val election_shuffler_skip_confirm : uuid -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-val shuffle : (module ELECTION_DATA) -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val shuffle : (module Site_common_sig.ELECTION_LWT) -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-val tally_trustees : (module ELECTION_DATA) -> int -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val tally_trustees : (module Site_common_sig.ELECTION_LWT) -> int -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
 val signup_captcha : service:string -> captcha_error option -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 val signup_changepw : service:string -> captcha_error option -> string -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

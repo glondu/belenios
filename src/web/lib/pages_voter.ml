@@ -24,7 +24,6 @@ open Lwt.Syntax
 open Belenios
 open Serializable_builtin_t
 open Serializable_j
-open Signatures
 open Common
 open Web_serializable_builtin_t
 open Web_serializable_j
@@ -42,7 +41,7 @@ let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
 let audit_footer election =
-  let open (val election : ELECTION_DATA) in
+  let open (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = election.e_uuid in
   let* l = get_preferred_gettext () in
   let open (val l) in
@@ -247,7 +246,7 @@ let format_question_result uuid l (i, q) r =
 let election_home election state () =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let module W = (val election : ELECTION_DATA) in
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let params = W.election in
   let uuid = params.e_uuid in
   let* metadata = Web_persist.get_election_metadata uuid in
@@ -543,7 +542,7 @@ let election_home election state () =
 let cast_raw election () =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let module W = (val election : ELECTION_DATA) in
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let params = W.election in
   let uuid = params.e_uuid in
   let form_rawballot = post_form ~service:election_submit_ballot
@@ -624,7 +623,7 @@ let cast_raw election () =
 let cast_confirmation election hash () =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
+  let open (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = election.e_uuid in
   let* user = Web_state.get_election_user uuid in
   let name = election.e_name in
@@ -757,7 +756,7 @@ let cast_confirmation election hash () =
 let lost_ballot election () =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
+  let open (val election : Site_common_sig.ELECTION_LWT) in
   let title = election.e_name in
   let uuid = election.e_uuid in
   let* metadata = Web_persist.get_election_metadata uuid in
@@ -787,7 +786,7 @@ let lost_ballot election () =
 let cast_confirmed election ~result () =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
+  let open (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = election.e_uuid in
   let name = election.e_name in
   let progress_responsive = div ~a:[a_class ["breadcrumb"]; a_style "padding-top: 0;"] [
@@ -888,7 +887,7 @@ let cast_confirmed election ~result () =
 let pretty_ballots election =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let open (val election : ELECTION_DATA) in
+  let open (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = election.e_uuid in
   let* hashes = Web_persist.get_ballot_hashes uuid in
   let* result = Web_persist.get_election_result uuid in

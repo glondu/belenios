@@ -147,6 +147,12 @@ module type ELECTION_OPS = sig
   val check_result : elt trustees -> result -> bool
 end
 
+module type ELECTION = sig
+  include ELECTION_DATA
+  type 'a m
+  module E : ELECTION_OPS with type elt = G.t and type 'a m = 'a m and type result_type = result
+end
+
 module type PKI = sig
   type 'a m
   type private_key

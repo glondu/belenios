@@ -24,16 +24,9 @@
 open Signatures
 open Serializable_t
 
-module Parse (R : RAW_ELECTION) () : ELECTION_DATA
-
 val has_nh_questions : 'a params -> bool
 
-module Make (W : ELECTION_DATA) (M : RANDOM) :
-  ELECTION_OPS with
-         type elt = W.G.t and
-         type 'a m = 'a M.t and
-         type result_type = W.result
-(** Implementation of {!Signatures.ELECTION}. *)
+module ParseMake (R : RAW_ELECTION) (M : RANDOM) () : ELECTION with type 'a m = 'a M.t
 
 val compute_checksums :
   election:string ->

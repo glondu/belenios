@@ -371,6 +371,13 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
        | _ -> false
 end
 
+module ParseMake (R : RAW_ELECTION) (M : RANDOM) () = struct
+  module X = Parse (R) ()
+  include X
+  type 'a m = 'a M.t
+  module E = Make (X) (M)
+end
+
 (** Computing checksums *)
 
 let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials =

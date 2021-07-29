@@ -1527,7 +1527,6 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
      | Some w, Some u when metadata.e_owner = Some u ->
         let* state = Web_persist.get_election_state uuid in
         let module W = (val w) in
-        let module E = Election.Make (W) (LwtRandom) in
         let* pending_server_shuffle =
           match state with
           | `Shuffling ->
@@ -1543,7 +1542,7 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
           if pending_server_shuffle then (
             let* cc = Web_persist.get_nh_ciphertexts uuid in
             let cc = nh_ciphertexts_of_string W.G.read cc in
-            let* shuffle = E.shuffle_ciphertexts cc in
+            let* shuffle = W.E.shuffle_ciphertexts cc in
             let shuffle = string_of_shuffle W.G.write shuffle in
             let* x = Web_persist.append_to_shuffles uuid shuffle in
             match x with
@@ -1961,7 +1960,6 @@ let () =
       | None -> election_not_found ()
       | Some election ->
       let module W = (val election) in
-      let module E = Election.Make (W) (LwtRandom) in
       let* pks =
         let* trustees = Web_persist.get_trustees uuid in
         let trustees = trustees_of_string W.G.read trustees in
@@ -1980,7 +1978,7 @@ let () =
       let et = !Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file ESETally in
       let* et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
       let et = encrypted_tally_of_string W.G.read et in
-      if E.check_factor et pk pd then (
+      if W.E.check_factor et pk pd then (
         let pds = (trustee_id, partial_decryption) :: pds in
         let* () = Web_persist.set_partial_decryptions uuid pds in
         Pages_common.generic_page ~title:(s_ "Success")
@@ -2004,7 +2002,6 @@ let handle_election_tally_release uuid () =
       | Some election ->
       let* metadata = Web_persist.get_election_metadata uuid in
       let module W = (val election) in
-      let module E = Election.Make (W) (LwtRandom) in
       if metadata.e_owner = Some u then (
         let* () =
           let* state = Web_persist.get_election_state uuid in
@@ -2046,7 +2043,7 @@ let handle_election_tally_release uuid () =
                 assert (List.length s = List.length x);
                 return (Some s, Some x)
         in
-        match E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
+        match W.E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
         | Ok result ->
            let* () =
              let result = string_of_election_result W.G.write W.write_result result in
@@ -2077,14 +2074,13 @@ let () =
 module type ELECTION_LWT = ELECTION_OPS with type 'a m = 'a Lwt.t
 
 let perform_server_side_decryption uuid e metadata tally =
-  let module W = (val e : ELECTION_DATA) in
-  let module E = Election.Make (W) (LwtRandom) in
+  let module W = (val e : Site_common_sig.ELECTION_LWT) in
   let tally = encrypted_tally_of_string W.G.read tally in
   let decrypt i =
     let* x = Web_persist.get_private_key uuid in
     match x with
     | Some sk ->
-       let* pd = E.compute_factor tally sk in
+       let* pd = W.E.compute_factor tally sk in
        let pd = string_of_partial_decryption W.G.write pd in
        Web_persist.set_partial_decryptions uuid [i, pd]
     | None ->
