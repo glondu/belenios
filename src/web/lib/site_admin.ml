@@ -760,10 +760,7 @@ let () =
       with_site_user (fun u ->
           let* l = get_preferred_gettext () in
           let open (val l) in
-          let* election = find_election uuid in
-          match election with
-          | None -> election_not_found ()
-          | Some election ->
+          let@ election = with_election uuid in
           let open (val election) in
           let* metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
@@ -1519,14 +1516,13 @@ let () =
 let election_admin_handler ?shuffle_token ?tally_token uuid =
      let* l = get_preferred_gettext () in
      let open (val l) in
-     let* w = find_election uuid in
+     let@ election = with_election uuid in
      let* metadata = Web_persist.get_election_metadata uuid in
      let* site_user = Eliom_reference.get Web_state.site_user in
-     match w, site_user with
-     | None, _ -> election_not_found ()
-     | Some w, Some u when metadata.e_owner = Some u ->
+     match site_user with
+     | Some u when metadata.e_owner = Some u ->
         let* state = Web_persist.get_election_state uuid in
-        let module W = (val w) in
+        let module W = (val election) in
         let* pending_server_shuffle =
           match state with
           | `Shuffling ->
@@ -1540,11 +1536,11 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
         in
         let* () =
           if pending_server_shuffle then (
-            let* cc = Web_persist.get_nh_ciphertexts w in
+            let* cc = Web_persist.get_nh_ciphertexts election in
             let cc = nh_ciphertexts_of_string W.G.read cc in
             let* shuffle = W.E.shuffle_ciphertexts cc in
             let shuffle = string_of_shuffle W.G.write shuffle in
-            let* x = Web_persist.append_to_shuffles w shuffle in
+            let* x = Web_persist.append_to_shuffles election shuffle in
             match x with
             | Some h ->
                let sh = {sh_trustee = "server"; sh_hash = h; sh_name = Some "server"} in
@@ -1567,12 +1563,12 @@ let election_admin_handler ?shuffle_token ?tally_token uuid =
                let* () = Web_persist.set_decryption_tokens uuid ts in
                return ts
         in
-        Pages_admin.election_admin ?shuffle_token ?tally_token w metadata state get_tokens_decrypt () >>= Html.send
-     | _, Some _ ->
+        Pages_admin.election_admin ?shuffle_token ?tally_token election metadata state get_tokens_decrypt () >>= Html.send
+     | Some _ ->
         let msg = s_ "You are not allowed to administer this election!" in
         Pages_common.generic_page ~title:(s_ "Forbidden") msg ()
         >>= Html.send ~code:403
-     | _, _ ->
+     | _ ->
         redir_preapply site_login (None, ContSiteElection uuid) ()
 
 let () =
@@ -1739,10 +1735,7 @@ let () =
   Any.register ~service:election_pretty_records
     (fun (uuid, ()) () ->
       with_site_user (fun u ->
-          let* election = find_election uuid in
-          match election with
-          | None -> election_not_found ()
-          | Some w ->
+          let@ election = with_election uuid in
           let* metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
             let* records =
@@ -1759,7 +1752,7 @@ let () =
                    )
               | None -> return []
             in
-            Pages_admin.pretty_records w (List.rev records) () >>= Html.send
+            Pages_admin.pretty_records election (List.rev records) () >>= Html.send
           ) else forbidden ()
         )
     )
@@ -1902,10 +1895,7 @@ let () =
         (fun () ->
           let* l = get_preferred_gettext () in
           let open (val l) in
-          let* election = find_election uuid in
-          match election with
-          | None -> election_not_found ()
-          | Some w ->
+          let@ election = with_election uuid in
              let* state = Web_persist.get_election_state uuid in
              match state with
              | `EncryptedTally _ ->
@@ -1918,7 +1908,7 @@ let () =
                         (s_ "Your partial decryption has already been received and checked!")
                         () >>= Html.send
                     ) else (
-                      Pages_admin.tally_trustees w trustee_id token () >>= Html.send
+                      Pages_admin.tally_trustees election trustee_id token () >>= Html.send
                     )
                  | None -> forbidden ()
                 )
@@ -1955,10 +1945,7 @@ let () =
       let* () =
         if trustee_id > 0 then return () else fail_http `Not_found
       in
-      let* election = find_election uuid in
-      match election with
-      | None -> election_not_found ()
-      | Some election ->
+      let@ election = with_election uuid in
       let module W = (val election) in
       let* pks =
         let* trustees = Web_persist.get_trustees uuid in
@@ -1996,10 +1983,7 @@ let handle_election_tally_release uuid () =
       let* l = get_preferred_gettext () in
       let open (val l) in
       let uuid_s = raw_string_of_uuid uuid in
-      let* election = find_election uuid in
-      match election with
-      | None -> election_not_found ()
-      | Some election ->
+      let@ election = with_election uuid in
       let* metadata = Web_persist.get_election_metadata uuid in
       let module W = (val election) in
       if metadata.e_owner = Some u then (
@@ -2117,10 +2101,7 @@ let () =
   Any.register ~service:election_compute_encrypted_tally
     (fun uuid () ->
       with_site_user (fun u ->
-          let* election = find_election uuid in
-          match election with
-          | None -> election_not_found ()
-          | Some election ->
+          let@ election = with_election uuid in
           let* metadata = Web_persist.get_election_metadata uuid in
           let module W = (val election) in
           if metadata.e_owner = Some u then (
@@ -2152,11 +2133,8 @@ let () =
           let* expected_token = Web_persist.get_shuffle_token uuid in
           match expected_token with
           | Some x when token = x.tk_token ->
-             let* election = find_election uuid in
-             (match election with
-              | None -> election_not_found ()
-              | Some election -> Pages_admin.shuffle election token >>= Html.send
-             )
+             let@ election = with_election uuid in
+             Pages_admin.shuffle election token >>= Html.send
           | _ -> forbidden ()
         )
     )
@@ -2164,10 +2142,7 @@ let () =
 let () =
   Any.register ~service:election_shuffle_post
     (fun (uuid, token) shuffle ->
-      let* x = find_election uuid in
-      match x with
-      | None -> election_not_found ()
-      | Some election ->
+      let@ election = with_election uuid in
       without_site_user (fun () ->
           let* l = get_preferred_gettext () in
           let open (val l) in
@@ -2261,10 +2236,7 @@ let () =
 let () =
   Any.register ~service:election_decrypt (fun uuid () ->
       with_site_user (fun u ->
-          let* election = find_election uuid in
-          match election with
-          | None -> election_not_found ()
-          | Some election ->
+          let@ election = with_election uuid in
           let* metadata = Web_persist.get_election_metadata uuid in
           if metadata.e_owner = Some u then (
             let* () =

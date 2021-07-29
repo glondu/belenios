@@ -58,19 +58,16 @@ let () =
 let () =
   Any.register ~service:election_home
     (fun (uuid, ()) () ->
-      let* election = find_election uuid in
-      match election with
-       | None -> election_not_found ()
-       | Some w ->
+      let@ election = with_election uuid in
          let* () = Eliom_reference.unset Web_state.ballot in
          let* x = Eliom_reference.get Web_state.cast_confirmed in
          (match x with
           | Some result ->
              let* () = Eliom_reference.unset Web_state.cast_confirmed in
-             Pages_voter.cast_confirmed w ~result () >>= Html.send
+             Pages_voter.cast_confirmed election ~result () >>= Html.send
           | None ->
              let* state = Web_persist.get_election_state uuid in
-             Pages_voter.election_home w state () >>= Html.send
+             Pages_voter.election_home election state () >>= Html.send
          )
     )
 
@@ -83,10 +80,8 @@ let () =
 let () =
   Any.register ~service:election_cast
     (fun uuid () ->
-      let* election = find_election uuid in
-      match election with
-      | Some w -> Pages_voter.cast_raw w () >>= Html.send
-      | None -> election_not_found ()
+      let@ election = with_election uuid in
+      Pages_voter.cast_raw election () >>= Html.send
     )
 
 let submit_ballot ballot =
@@ -208,24 +203,18 @@ let cast_ballot election ~rawballot ~user =
 let () =
   Any.register ~service:election_cast_fallback
     (fun uuid () ->
-      let* election = find_election uuid in
-      match election with
-      | Some w ->
+      let@ election = with_election uuid in
          let* ballot = Eliom_reference.get Web_state.ballot in
          (match ballot with
-          | Some b -> Pages_voter.cast_confirmation w (sha256_b64 b) () >>= Html.send
-          | None -> Pages_voter.lost_ballot w () >>= Html.send
+          | Some b -> Pages_voter.cast_confirmation election (sha256_b64 b) () >>= Html.send
+          | None -> Pages_voter.lost_ballot election () >>= Html.send
          )
-      | None -> election_not_found ()
     )
 
 let () =
   Any.register ~service:election_cast_confirm
     (fun uuid () ->
-      let* x = find_election uuid in
-      match x with
-      | None -> election_not_found ()
-      | Some election ->
+      let@ election = with_election uuid in
       let* ballot = Eliom_reference.get Web_state.ballot in
       match ballot with
       | None ->
@@ -255,10 +244,8 @@ let () =
 let () =
   Any.register ~service:election_pretty_ballots
     (fun (uuid, ()) () ->
-      let* election = find_election uuid in
-      match election with
-      | Some w -> Pages_voter.pretty_ballots w >>= Html.send
-      | None -> election_not_found ()
+      let@ election = with_election uuid in
+      Pages_voter.pretty_ballots election >>= Html.send
     )
 
 let () =
@@ -274,10 +261,7 @@ let () =
 let handle_method uuid question f =
   let* l = get_preferred_gettext () in
   let open (val l) in
-  let* election = find_election uuid in
-  match election with
-  | None -> election_not_found ()
-  | Some election ->
+  let@ election = with_election uuid in
      let open (val election) in
      let questions = election.e_questions in
      if 0 <= question && question < Array.length questions then (

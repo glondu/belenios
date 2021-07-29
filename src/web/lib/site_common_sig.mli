@@ -30,6 +30,11 @@ val find_election :
 val election_not_found :
   unit -> Eliom_registration.Html.result Lwt.t
 
+val with_election :
+  Web_serializable_t.uuid ->
+  ((module ELECTION_LWT) -> Eliom_registration.Html.result Lwt.t) ->
+  Eliom_registration.Html.result Lwt.t
+
 val redir_preapply :
   ('a, unit, Eliom_service.get, Eliom_service.att, 'b, 'c, 'd,
    [< `WithSuffix | `WithoutSuffix ], 'e, unit, 'f)

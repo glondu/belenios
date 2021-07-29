@@ -30,6 +30,8 @@ open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 
+let ( let@ ) f x = f x
+
 module LwtRandom = struct
 
   type 'a t = 'a Lwt.t

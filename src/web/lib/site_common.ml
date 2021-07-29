@@ -51,6 +51,12 @@ let election_not_found () =
   Pages_common.generic_page ~title:(s_ "Not found") (s_ "This election does not exist. This may happen for elections that have not yet been open or have been deleted.") ()
   >>= Html.send ~code:404
 
+let with_election uuid f =
+  let* x = find_election uuid in
+  match x with
+  | None -> election_not_found ()
+  | Some election -> f election
+
 let () = File.register ~service:source_code
   ~content_type:"application/x-gzip"
   (fun () () -> return !Web_config.source_file)
