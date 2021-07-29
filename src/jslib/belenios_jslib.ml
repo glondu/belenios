@@ -77,11 +77,12 @@ let belenios =
         (fun () ->
           try%lwt
             let%lwt () = Lwt_js.yield () in
-            let params =
-              Js._JSON##stringify params
-              |> Js.to_string
-              |> Election.parse
+            let module R =
+              struct
+                let raw_election = Js._JSON##stringify params |> Js.to_string
+              end
             in
+            let module W = Election.Parse (R) () in
             let%lwt () = Lwt_js.yield () in
             let plaintext =
               Js._JSON##stringify plaintext
@@ -89,7 +90,7 @@ let belenios =
               |> plaintext_of_string
             in
             let%lwt () = Lwt_js.yield () in
-            encryptBallot params (Js.to_string cred) plaintext success
+            encryptBallot (module W) (Js.to_string cred) plaintext success
           with e ->
             failure (Printexc.to_string e)
         );

@@ -59,6 +59,10 @@ type combination_error =
   | NotEnoughPartialDecryptions
   | UnusedPartialDecryption
 
+module type RAW_ELECTION = sig
+  val raw_election : string
+end
+
 (** Cryptographic primitives for an election with homomorphic tally. *)
 module type ELECTION = sig
 

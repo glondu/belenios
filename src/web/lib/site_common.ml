@@ -40,7 +40,9 @@ let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 let find_election uuid =
   let* election = Web_persist.get_raw_election uuid in
   match election with
-  | Some raw_election -> return_some (Election.parse raw_election)
+  | Some e ->
+     let module W = Election.Parse (struct let raw_election = e end) () in
+     return_some (module W : Signatures.ELECTION_DATA)
   | _ -> return_none
 
 let election_not_found () =

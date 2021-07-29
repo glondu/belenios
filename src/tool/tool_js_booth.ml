@@ -400,20 +400,22 @@ let loadElection () =
   set_element_display "election_loader" "none";
   set_element_display "wait_div" "none";
   set_element_display "booth_div" "block";
-  let election_raw =
-    match get_textarea_opt "election_params" with
-    | Some x -> drop_trailing_newline x
-    | None -> failwith "election_params is missing"
+  let module R =
+    struct
+      let raw_election =
+        match get_textarea_opt "election_params" with
+        | Some x -> drop_trailing_newline x
+        | None -> failwith "election_params is missing"
+    end
   in
-  let election_params = Election.parse election_raw in
-  let module P = (val election_params : ELECTION_DATA) in
+  let module P = Election.Parse (R) () in
   let params = P.election in
   set_content_with_br "election_name" params.e_name;
   set_content_with_br "election_description" params.e_description;
   set_content "election_uuid" (raw_string_of_uuid params.e_uuid);
   set_content "election_fingerprint" P.fingerprint;
   document##getElementById (Js.string "intro") >>== fun e ->
-  let b = createStartButton election_params e params.e_questions in
+  let b = createStartButton (module P) e params.e_questions in
   document##getElementById (Js.string "input_code") >>== fun e ->
   Dom.appendChild e b
 

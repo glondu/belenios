@@ -24,7 +24,7 @@
 open Signatures
 open Serializable_t
 
-val parse : string -> (module ELECTION_DATA)
+module Parse (R : RAW_ELECTION) () : ELECTION_DATA
 
 val has_nh_questions : 'a params -> bool
 

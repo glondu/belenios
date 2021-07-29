@@ -389,7 +389,7 @@ module Election : CMDLINER_MODULE = struct
       in
       let module P : PARAMS = struct
         include MakeGetters (struct let dir = dir end)
-        let election =
+        let raw_election =
           let fname = dir/"election.json" in
           load_from_file (fun x -> x) fname |>
           function

@@ -256,7 +256,7 @@ module ToolElection = struct
 
   let create_ballot () =
     let module P : PARAMS = struct
-      let election = get_election ()
+      let raw_election = get_election ()
       include Getters
     end in
     let choices = get_textarea "election_choices" |> plaintext_of_string in
@@ -266,7 +266,7 @@ module ToolElection = struct
 
   let verify () =
     let module P : PARAMS = struct
-      let election = get_election ()
+      let raw_election = get_election ()
       include Getters
     end in
     let module X = (val make (module P : PARAMS) : S) in
@@ -274,7 +274,7 @@ module ToolElection = struct
 
   let decrypt () =
     let module P : PARAMS = struct
-      let election = get_election ()
+      let raw_election = get_election ()
       include Getters
     end in
     let module X = (val make (module P : PARAMS) : S) in
@@ -283,7 +283,7 @@ module ToolElection = struct
 
   let validate () =
     let module P : PARAMS = struct
-      let election = get_election ()
+      let raw_election = get_election ()
       include Getters
     end in
     let module X = (val make (module P : PARAMS) : S) in

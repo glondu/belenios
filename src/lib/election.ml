@@ -29,15 +29,14 @@ open Common
 
 (** Parsing helpers *)
 
-let parse x =
-  let params = params_of_string Yojson.Safe.read_json x in
-  let wpk = Yojson.Safe.to_string params.e_public_key in
-  let module W = (val Group.wrapped_pubkey_of_string wpk) in
-  let module X =
-    struct
+module Parse (R : RAW_ELECTION) () = struct
+  let params = params_of_string Yojson.Safe.read_json R.raw_election
+  let wpk = Yojson.Safe.to_string params.e_public_key
+  module W = (val Group.wrapped_pubkey_of_string wpk)
+
       module G = W.G
       let election = {params with e_public_key = W.y}
-      let fingerprint = sha256_b64 x
+      let fingerprint = sha256_b64 R.raw_election
 
       type result = raw_result
 
@@ -108,9 +107,7 @@ let parse x =
            result
         | _ -> failwith "read_result: list expected"
 
-    end
-  in
-  (module X : ELECTION_DATA)
+end
 
 (** Helper functions *)
 

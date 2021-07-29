@@ -1,5 +1,5 @@
 module type PARAMS = sig
-  val election : string
+  val raw_election : string
   val get_trustees : unit -> string option
   val get_public_creds : unit -> string Stream.t option
   val get_ballots : unit -> string Stream.t option

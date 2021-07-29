@@ -28,7 +28,7 @@ open Signatures
 open Common
 
 module type PARAMS = sig
-  val election : string
+  val raw_election : string
   val get_trustees : unit -> string option
   val get_public_creds : unit -> string Stream.t option
   val get_ballots : unit -> string Stream.t option
@@ -50,17 +50,14 @@ end
 
 module type PARSED_PARAMS = sig
   include PARAMS
-  val election_as_string : string
   include ELECTION_DATA
 end
 
 let parse_params p =
   let module P = (val p : PARAMS) in
-  let params = Election.parse P.election in
   let module R = struct
     include P
-    let election_as_string = election
-    include (val params : ELECTION_DATA)
+    include Election.Parse (P) ()
   end in
   (module R : PARSED_PARAMS)
 
@@ -351,7 +348,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     string_of_shuffle G.write s
 
   let checksums () =
-    let election = election_as_string in
+    let election = raw_election in
     let result_or_shuffles =
       match Lazy.force result_as_string with
       | Some r -> `Result r
