@@ -107,7 +107,7 @@ let erase_question = function
        )
 
 module Make (M : RANDOM) (G : GROUP) = struct
-  let ( >>= ) = M.bind
+  let ( let* ) = M.bind
 
   module QHomomorphic = Question_h.Make (M) (G)
   module QNonHomomorphic = Question_nh.Make (M) (G)
@@ -115,13 +115,13 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let create_answer q ~public_key ~prefix m =
     match q with
     | Homomorphic q ->
-       QHomomorphic.create_answer q ~public_key ~prefix m >>= fun answer ->
+       let* answer = QHomomorphic.create_answer q ~public_key ~prefix m in
        answer
        |> Question_h_j.string_of_answer G.write
        |> Yojson.Safe.from_string
        |> M.return
     | NonHomomorphic (q, _) ->
-       QNonHomomorphic.create_answer q ~public_key ~prefix m >>= fun answer ->
+       let* answer = QNonHomomorphic.create_answer q ~public_key ~prefix m in
        answer
        |> Question_nh_j.string_of_answer G.write
        |> Yojson.Safe.from_string

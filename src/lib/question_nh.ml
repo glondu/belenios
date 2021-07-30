@@ -28,14 +28,14 @@ open Serializable_core_t
 open Question_nh_t
 
 module Make (M : RANDOM) (G : GROUP) = struct
-  let ( >>= ) = M.bind
+  let ( let* ) = M.bind
   open G
 
   let create_answer q ~public_key:y ~prefix m =
     assert (Array.length q.q_answers = Array.length m);
-    M.random G.q >>= fun r ->
+    let* r = M.random G.q in
     let alpha = g **~ r and beta = (y **~ r) *~ (G.of_ints m) in
-    M.random G.q >>= fun w ->
+    let* w = M.random G.q in
     let commitment = g **~ w in
     let zkp = Printf.sprintf "raweg|%s|%s,%s,%s|" prefix (G.to_string y) (G.to_string alpha) (G.to_string beta) in
     let challenge = G.hash zkp [| commitment |] in
