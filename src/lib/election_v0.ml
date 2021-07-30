@@ -29,8 +29,7 @@ open Common
 
 module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   type 'a m = 'a M.t
-  open M
-  let ( >>= ) = bind
+  let ( let* ) = M.bind
 
   type elt = W.G.t
 
@@ -53,20 +52,20 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       knowledge *)
 
   let fs_prove gs x oracle =
-    random q >>= fun w ->
+    let* w = M.random q in
     let commitments = Array.map (fun g -> g **~ w) gs in
-    M.yield () >>= fun () ->
+    let* () = M.yield () in
     let challenge = oracle commitments in
     let response = Z.((w + x * challenge) mod q) in
-    return {challenge; response}
+    M.return {challenge; response}
 
   (** Ballot creation *)
 
   let swap xs =
     let rec loop i accu =
       if i >= 0
-      then xs.(i) >>= fun x -> loop (pred i) (x::accu)
-      else return (Array.of_list accu)
+      then let* x = xs.(i) in loop (pred i) (x::accu)
+      else M.return (Array.of_list accu)
     in loop (pred (Array.length xs)) []
 
   let create_answer y zkp q m =
@@ -90,20 +89,20 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       | None -> None, ""
       | Some x -> let y = G.(g **~ x) in Some (x, y), G.to_string y
     in
-    swap (Array.map2 (create_answer election.e_public_key zkp) election.e_questions m) >>= fun answers ->
-    (
+    let* answers = swap (Array.map2 (create_answer election.e_public_key zkp) election.e_questions m) in
+    let* signature =
       match sk with
-      | None -> return None
+      | None -> M.return None
       | Some (x, y) ->
-        random q >>= fun w ->
+        let* w = M.random q in
         let commitment = g **~ w in
         let prefix = make_sig_prefix zkp commitment in
         let contents = make_sig_contents answers in
         let s_challenge = G.hash prefix contents in
         let s_response = Z.(erem (w - x * s_challenge) q) in
-        return (Some {s_public_key = y; s_challenge; s_response})
-    ) >>= fun signature ->
-    return {
+        M.return (Some {s_public_key = y; s_challenge; s_response})
+    in
+    M.return {
       answers;
       election_hash = W.fingerprint;
       election_uuid = election.e_uuid;
@@ -179,8 +178,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let rec loop i accu =
       if i >= 0 then (
         let c = cc.(i) in
-        Mix.gen_shuffle y c >>= fun (c', r', psi) ->
-        Mix.gen_shuffle_proof y c c' r' psi >>= fun pi ->
+        let* (c', r', psi) = Mix.gen_shuffle y c in
+        let* pi = Mix.gen_shuffle_proof y c c' r' psi in
         loop (i-1) ((c', pi) :: accu)
       ) else (
         let shuffle_ciphertexts, shuffle_proofs = Array.(split (of_list accu)) in
@@ -204,12 +203,12 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     Shape.forall (fun {alpha; beta} -> G.check alpha && G.check beta) c
 
   let rec swaps = function
-    | SAtomic x -> x >>= fun x -> return (SAtomic x)
+    | SAtomic x -> let* x = x in M.return (SAtomic x)
     | SArray x ->
        let rec loop i accu =
          if i >= 0
-         then swaps x.(i) >>= fun x -> loop (pred i) (x::accu)
-         else return (SArray (Array.of_list accu))
+         then let* x = swaps x.(i) in loop (pred i) (x::accu)
+         else M.return (SArray (Array.of_list accu))
        in
        loop (pred (Array.length x)) []
 
@@ -217,10 +216,10 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     if check_ciphertext c then (
       let res = Shape.map (eg_factor x) c in
       let decryption_factors, decryption_proofs = Shape.split res in
-      swaps decryption_proofs >>= fun decryption_proofs ->
-      return {decryption_factors; decryption_proofs}
+      let* decryption_proofs = swaps decryption_proofs in
+      M.return {decryption_factors; decryption_proofs}
     ) else (
-      fail (Invalid_argument "Invalid ciphertext")
+      M.fail (Invalid_argument "Invalid ciphertext")
     )
 
   let check_factor c y f =
