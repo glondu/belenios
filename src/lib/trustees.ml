@@ -199,27 +199,26 @@ end
 
 module MakeSimple (G : GROUP) (M : RANDOM) = struct
   open G
-  open M
 
-  let ( >>= ) = bind
+  let ( let* ) = M.bind
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
 
   let fs_prove gs x oracle =
-    random q >>= fun w ->
+    let* w = M.random q in
     let commitments = Array.map (fun g -> g **~ w) gs in
     let challenge = oracle commitments in
     let response = Z.((w + x * challenge) mod q) in
-    return {challenge; response}
+    M.return {challenge; response}
 
-  let generate () = random q
+  let generate () = M.random q
 
   let prove x =
     let trustee_public_key = g **~ x in
     let zkp = "pok|" ^ G.to_string trustee_public_key ^ "|" in
-    fs_prove [| g |] x (G.hash zkp) >>= fun trustee_pok ->
-    return {trustee_pok; trustee_public_key; trustee_name = None}
+    let* trustee_pok = fs_prove [| g |] x (G.hash zkp) in
+    M.return {trustee_pok; trustee_public_key; trustee_name = None}
 
 end
 
@@ -328,17 +327,17 @@ module MakePedersen (G : GROUP) (M : RANDOM)
   type 'a m = 'a M.t
   type elt = G.t
   open G
-  let (>>=) = M.bind
+  let ( let* ) = M.bind
 
   module K = MakeSimple (G) (M)
   module V = MakeVerificator (G)
   module L = MakeCombinator (G)
 
   let step1 () =
-    P.genkey () >>= fun seed ->
+    let* seed = P.genkey () in
     let sk = P.derive_sk seed in
     let dk = P.derive_dk seed in
-    P.make_cert ~sk ~dk >>= fun cert ->
+    let* cert = P.make_cert ~sk ~dk in
     M.return (seed, cert)
 
   let step1_check cert = P.verify_cert cert
@@ -378,25 +377,27 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     let polynomial = Array.make threshold Z.zero in
     let rec fill_polynomial i =
       if i < threshold then
-        M.random q >>= fun a ->
+        let* a = M.random q in
         polynomial.(i) <- a;
         fill_polynomial (i+1)
       else M.return ()
-    in fill_polynomial 0 >>= fun () ->
-    C.send sk ek (string_of_raw_polynomial {polynomial}) >>= fun p_polynomial ->
+    in
+    let* () = fill_polynomial 0 in
+    let* p_polynomial = C.send sk ek (string_of_raw_polynomial {polynomial}) in
     let coefexps = Array.map (fun x -> g **~ x) polynomial in
     let coefexps = string_of_raw_coefexps G.write {coefexps} in
-    P.sign sk coefexps >>= fun p_coefexps ->
+    let* p_coefexps = P.sign sk coefexps in
     let p_secrets = Array.make n "" in
     let rec fill_secrets j =
       if j < n then
         let secret = eval_poly polynomial (Z.of_int (j+1)) in
         let secret = string_of_secret {secret} in
-        C.send sk certs.(j).cert_encryption secret >>= fun x ->
+        let* x = C.send sk certs.(j).cert_encryption secret in
         p_secrets.(j) <- x;
         fill_secrets (j+1)
       else M.return ()
-    in fill_secrets 0 >>= fun () ->
+    in
+    let* () = fill_secrets 0 in
     M.return {p_polynomial; p_secrets; p_coefexps}
 
   let step3_check certs i polynomial =
