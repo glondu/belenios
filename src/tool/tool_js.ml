@@ -37,9 +37,8 @@ let install_handler (id, handler) =
     end;
     Js._false
   in
-  Js.Opt.iter
-    (document##getElementById (Js.string id))
-    (fun e -> e##.onclick := Dom_html.handler f)
+  let$ e = document##getElementById (Js.string id) in
+  e##.onclick := Dom_html.handler f
 
 module Tests = struct
 
