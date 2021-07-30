@@ -34,7 +34,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   type elt = W.G.t
 
   module G = W.G
-  module Q = Question.Make (M) (G)
+  module Q = Question.Make (M) (G) (Question_h_v0.Make (M) (G)) (Question_nh_v0.Make (M) (G))
   module Mix = Mixnet.Make (M) (G)
   open G
   let election = W.election

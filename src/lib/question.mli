@@ -38,7 +38,17 @@ val get_counting_method : Yojson.Safe.t option -> counting_method
 
 val erase_question : question -> question
 
-module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
+module Make (M : RANDOM) (G : GROUP)
+         (QHomomorphic : Question_sigs.QUESTION
+          with type 'a m := 'a M.t
+           and type elt := G.t
+           and type question := Question_h_t.question
+           and type answer := G.t Question_h_t.answer)
+         (QNonHomomorphic : Question_sigs.QUESTION
+          with type 'a m := 'a M.t
+           and type elt := G.t
+           and type question := Question_nh_t.question
+           and type answer := G.t Question_nh_t.answer) : Question_sigs.QUESTION
        with type 'a m := 'a M.t
         and type elt := G.t
         and type question := question

@@ -22,8 +22,6 @@
 open Signatures_core
 open Question_h_t
 
-val question_length : question -> int
-
 module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
        with type 'a m := 'a M.t
         and type elt := G.t

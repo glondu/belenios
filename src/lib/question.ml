@@ -106,11 +106,19 @@ let erase_question = function
          extra
        )
 
-module Make (M : RANDOM) (G : GROUP) = struct
-  let ( let* ) = M.bind
+module Make (M : RANDOM) (G : GROUP)
+         (QHomomorphic : Question_sigs.QUESTION
+          with type 'a m := 'a M.t
+           and type elt := G.t
+           and type question := Question_h_t.question
+           and type answer := G.t Question_h_t.answer)
+         (QNonHomomorphic : Question_sigs.QUESTION
+          with type 'a m := 'a M.t
+           and type elt := G.t
+           and type question := Question_nh_t.question
+           and type answer := G.t Question_nh_t.answer) = struct
 
-  module QHomomorphic = Question_h.Make (M) (G)
-  module QNonHomomorphic = Question_nh.Make (M) (G)
+  let ( let* ) = M.bind
 
   let create_answer q ~public_key ~prefix m =
     match q with
