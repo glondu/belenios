@@ -70,12 +70,12 @@ let basic_check_private_key s =
   in leading 0
 
 let compute_partial_decryption _ =
-  Js.Opt.option !election >>= fun e ->
+  let& e = Js.Opt.option !election in
   let module P = Election.ParseMake (struct let raw_election = e end) (DirectRandom) () in
-  Js.Opt.option !encrypted_tally >>= fun e ->
+  let& e = Js.Opt.option !encrypted_tally in
   let encrypted_tally = encrypted_tally_of_string P.G.read e in
-  document##getElementById (Js.string "private_key") >>= fun e ->
-  Dom_html.CoerceTo.input e >>= fun e ->
+  let& e = document##getElementById (Js.string "private_key") in
+  let& e = Dom_html.CoerceTo.input e in
   let pk_str = Js.to_string e##.value in
   let private_key =
     match get_textarea_opt "encrypted_private_key" with
@@ -105,10 +105,10 @@ let compute_hash () =
   Dom.appendChild e t
 
 let load_private_key_file _ =
-  document##getElementById (Js.string "private_key_file") >>= fun e ->
-  Dom_html.CoerceTo.input e >>= fun e ->
-  Js.Opt.option (Js.Optdef.to_option (e##.files)) >>= fun e ->
-  e##item (0) >>= fun file ->
+  let& e = document##getElementById (Js.string "private_key_file") in
+  let& e = Dom_html.CoerceTo.input e in
+  let& e = Js.Opt.option (Js.Optdef.to_option (e##.files)) in
+  let& file = e##item (0) in
   let reader = new%js File.fileReader in
   reader##.onload :=
     Dom.handler (fun _ ->

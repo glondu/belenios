@@ -29,7 +29,7 @@ open Common
 
 let document = Dom_html.document
 
-let ( >>= ) = Js.Opt.bind
+let ( let& ) = Js.Opt.bind
 
 let ( let$ ) = Js.Opt.iter
 
@@ -83,8 +83,8 @@ let set_download id mime fn x =
 
 let get_content x =
   Js.Opt.get (
-      document##getElementById (Js.string x) >>= fun e ->
-      e##.textContent >>= fun x ->
+      let& e = document##getElementById (Js.string x) in
+      let& x = e##.textContent in
       Js.some (Js.to_string x)
     ) (fun () -> x)
 

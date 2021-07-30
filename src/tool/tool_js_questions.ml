@@ -67,19 +67,19 @@ let default_schulze_specification =
 (* Getting the OCaml structure out of the DOM *)
 
 let extractAnswer a =
-  Dom_html.CoerceTo.input a >>= fun x ->
+  let& x = Dom_html.CoerceTo.input a in
   return (Js.to_string (x##.value))
 
 let extractQuestion q =
-  Dom_html.CoerceTo.input q >>= fun x ->
+  let& x = Dom_html.CoerceTo.input q in
   let q_question = Js.to_string (x##.value) in
-  q##.parentNode >>= fun p1 ->
-  p1##.parentNode >>= fun p2 ->
-  Dom.CoerceTo.element p2 >>= fun p2 ->
+  let& p1 = q##.parentNode in
+  let& p2 = p1##.parentNode in
+  let& p2 = Dom.CoerceTo.element p2 in
   let p2 = Dom_html.element p2 in
   let numeric selector error_msg =
-    p2##querySelector (Js.string selector) >>= fun x ->
-    Dom_html.CoerceTo.input x >>= fun x ->
+    let& x = p2##querySelector (Js.string selector) in
+    let& x = Dom_html.CoerceTo.input x in
     let x = Js.to_string x##.value in
     try return (int_of_string x) with
     | _ -> failwith (error_msg ^ ": " ^ x ^ ".")
@@ -89,15 +89,15 @@ let extractQuestion q =
     Array.init
       (answers##.length)
       (fun i ->
-       let a = answers##item (i) >>= extractAnswer in
+       let a = let& x = answers##item (i) in extractAnswer x in
        Js.Opt.get a (fun () -> failwith "extractQuestion"))
   in
   match Js.Opt.to_option (p2##querySelector (Js.string ".question_blank")) with
   | Some q_blank ->
-     Dom_html.CoerceTo.input q_blank >>= fun q_blank ->
+     let& q_blank = Dom_html.CoerceTo.input q_blank in
      let q_blank = if Js.to_bool q_blank##.checked then Some true else None in
-     numeric ".question_min" (s_ "Invalid minimum number of choices") >>= fun q_min ->
-     numeric ".question_max" (s_ "Invalid maximum number of choices") >>= fun q_max ->
+     let& q_min = numeric ".question_min" (s_ "Invalid minimum number of choices") in
+     let& q_max = numeric ".question_max" (s_ "Invalid maximum number of choices") in
      if not (q_min <= q_max) then
        failwith (s_ "Minimum number of choices must be less than or equal to maximum number of choices!");
      if (q_max = 0) then
@@ -107,8 +107,8 @@ let extractQuestion q =
      let open Question_h_t in
      return (Question.Homomorphic {q_question; q_blank; q_min; q_max; q_answers})
   | None ->
-     p2##querySelector (Js.string ".question_extra") >>= fun x ->
-     Dom_html.CoerceTo.input x >>= fun x ->
+     let& x = p2##querySelector (Js.string ".question_extra") in
+     let& x = Dom_html.CoerceTo.input x in
      let x = Js.to_string x##.value in
      let extra =
        if x = "" then
@@ -129,7 +129,7 @@ let extractTemplate () =
     Array.init
       (questions##.length)
       (fun i ->
-       let q = questions##item (i) >>= extractQuestion in
+       let q = let& x = questions##item (i) in extractQuestion x in
        Js.Opt.get q (fun () -> failwith "extractTemplate"))
   in
   let t_administrator = None in
@@ -151,7 +151,7 @@ let rec createAnswer a =
   let btn_text = document##createTextNode (Js.string (s_ "Remove")) in
   let btn = Dom_html.createButton document in
   let f _ =
-    container##.parentNode >>= fun x ->
+    let& x = container##.parentNode in
     Dom.removeChild x container;
     return ()
   in
@@ -163,7 +163,7 @@ let rec createAnswer a =
   let insert_btn = Dom_html.createButton document in
   let f _ =
     let x = createAnswer "" in
-    container##.parentNode >>= fun p ->
+    let& p = container##.parentNode in
     Dom.insertBefore p x (Js.some container);
     return ()
   in
@@ -213,7 +213,7 @@ let gensym =
   fun () -> incr counter; !counter
 
 let deleteQuestion q =
-  q##.parentNode >>= fun x ->
+  let& x = q##.parentNode in
   Dom.removeChild x q;
   return ()
 
@@ -241,7 +241,7 @@ let rec createQuestion booth_set q =
   let remove_text = document##createTextNode (Js.string (s_ "Remove")) in
   let remove_btn = Dom_html.createButton document in
   let f _ =
-    container##.parentNode >>= fun x ->
+    let& x = container##.parentNode in
     Dom.removeChild x container;
     return ()
   in
@@ -252,7 +252,7 @@ let rec createQuestion booth_set q =
   let insert_btn = Dom_html.createButton document in
   let f _ =
     let x = createQuestion booth_set (default_question ()) in
-    container##.parentNode >>= fun p ->
+    let& p = container##.parentNode in
     Dom.insertBefore p x (Js.some container);
     return ()
   in
@@ -365,7 +365,7 @@ let rec createQuestion booth_set q =
   let f =
     handler
       (fun _ ->
-        container##.parentNode >>= fun parent ->
+        let& parent = container##.parentNode in
         if Js.to_bool cb_type##.checked then
           Dom.replaceChild parent (createQuestion booth_set default_question_nh) container
         else
@@ -501,8 +501,8 @@ let createTemplate (booth_get, booth_set, booth_select) template =
       set_textarea "questions" (string_of_template template);
       let booth_version = booth_get () in
       set_input "booth_version" (string_of_int booth_version);
-      document##querySelector (Js.string "form") >>= fun x ->
-      Dom_html.CoerceTo.form x >>= fun x ->
+      let& x = document##querySelector (Js.string "form") in
+      let& x = Dom_html.CoerceTo.form x in
       let () = x##submit in
       return ()
     with Failure e ->
@@ -522,16 +522,16 @@ let handle_hybrid booth_set e _ =
   hybrid_mode := Js.to_bool e##.checked;
   let qs = document##querySelectorAll (Js.string ".question") in
   for i = 0 to qs##.length do
-    ignore (qs##item i >>= deleteQuestion)
+    ignore (let& x = qs##item i in deleteQuestion x)
   done;
-  document##getElementById (Js.string "election_questions") >>= fun qsdiv ->
+  let& qsdiv = document##getElementById (Js.string "election_questions") in
   Dom.appendChild qsdiv (createQuestion booth_set (default_question ()));
   return ()
 
 (* Entry point *)
 
 let fill_interactivity () =
-  document##getElementById (Js.string "interactivity") >>= fun e ->
+  let& e = document##getElementById (Js.string "interactivity") in
   let t = template_of_string (get_textarea "questions") in
   let booth_version = int_of_string (get_input "booth_version") in
   let has_nh =
@@ -545,10 +545,10 @@ let fill_interactivity () =
   let (_, booth_set, _) as booth_selector = createBoothSelector booth_version in
   let div = createTemplate booth_selector t in
   Dom.appendChild e div;
-  document##querySelector (Js.string "form") >>= fun x ->
+  let& x = document##querySelector (Js.string "form") in
   x##.style##.display := Js.string "none";
-  document##getElementById (Js.string "hybrid_mode") >>= fun e ->
-  Dom_html.CoerceTo.input e >>= fun e ->
+  let& e = document##getElementById (Js.string "hybrid_mode") in
+  let& e = Dom_html.CoerceTo.input e in
   e##.checked := Js.bool !hybrid_mode;
   e##.onchange := handler (handle_hybrid booth_set e);
   return ()
