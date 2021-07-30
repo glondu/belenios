@@ -27,18 +27,18 @@ open Signatures
 
 module Make (M : RANDOM) (G : GROUP) = struct
   open G
-  let ( >>= ) = M.bind
+  let ( let* ) = M.bind
 
   let mmap2 f a b =
     let n = Array.length a in
     assert (n = Array.length b);
     if n > 0 then
       let r = Array.make n (f a.(0) b.(0)) in
-      M.yield () >>= fun () ->
+      let* () = M.yield () in
       let rec loop i =
         if i < n then (
           r.(i) <- f a.(i) b.(i);
-          M.yield () >>= fun () ->
+          let* () = M.yield () in
           loop (succ i)
         ) else M.return r
       in
@@ -51,11 +51,11 @@ module Make (M : RANDOM) (G : GROUP) = struct
     assert (n = Array.length c);
     if n > 0 then
       let r = Array.make n (f a.(0) b.(0) c.(0)) in
-      M.yield () >>= fun () ->
+      let* () = M.yield () in
       let rec loop i =
         if i < n then (
           r.(i) <- f a.(i) b.(i) c.(i);
-          M.yield () >>= fun () ->
+          let* () = M.yield () in
           loop (succ i)
         ) else M.return r
       in
@@ -66,7 +66,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let res = Array.make n Z.zero in
     let rec loop i =
       if i < n then
-        M.random G.q >>= fun x ->
+        let* x = M.random G.q in
         res.(i) <- x;
         loop (succ i)
       else
@@ -79,7 +79,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let psi = Array.make n 0 in
     let rec loop i =
       if i < n then
-        M.random (Z.of_int Stdlib.(n - i)) >>= fun k ->
+        let* k = M.random (Z.of_int Stdlib.(n - i)) in
         let k = Stdlib.(Z.to_int k + i) in
         psi.(i) <- tmp.(k);
         tmp.(k) <- tmp.(i);
@@ -97,9 +97,9 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let gen_shuffle y e =
     let n = Array.length e in
-    gen_permutation n >>= fun psi ->
-    randoms n >>= fun r ->
-    mmap2 (re_encrypt y) e r >>= fun e ->
+    let* psi = gen_permutation n in
+    let* r = randoms n in
+    let* e = mmap2 (re_encrypt y) e r in
     let e = Array.init n (fun i -> e.(psi.(i))) in
     M.return (e, r, psi)
 
@@ -108,7 +108,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let c = Array.make n G.one and r = Array.make n Z.zero in
     let rec loop i =
       if i < n then
-        M.random G.q >>= fun r_ ->
+        let* r_ = M.random G.q in
         r.(psi.(i)) <- r_;
         c.(psi.(i)) <- (g **~ r_) *~ h.(i);
         loop (succ i)
@@ -144,13 +144,13 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let gen_commitment_chain c0 uu =
     let n = Array.length uu in
-    randoms n >>= fun rr ->
+    let* rr = randoms n in
     let cc = Array.make n G.one in
     let rec loop i =
       if i < n then (
         let ccpred = if i = 0 then c0 else cc.(pred i) in
         cc.(i) <- (g **~ rr.(i)) *~ (ccpred **~ uu.(i));
-        M.yield () >>= fun () ->
+        let* () = M.yield () in
         loop (succ i)
       ) else M.return (cc, rr)
     in
@@ -175,27 +175,27 @@ module Make (M : RANDOM) (G : GROUP) = struct
     assert (n = Array.length rr');
     assert (n = Array.length psi);
     let hh = Array.init n get_generator_indep in
-    gen_permutation_commitment psi hh >>= fun (cc, rr) ->
+    let* (cc, rr) = gen_permutation_commitment psi hh in
     let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in
     let uu = get_nizkp_challenges n ("shuffle-challenges|" ^ str1) in
     let uu' = Array.init n (fun i -> uu.(psi.(i))) in
-    gen_commitment_chain h uu' >>= fun (cc_hat, rr_hat) ->
-    M.random G.q >>= fun w1 ->
-    M.random G.q >>= fun w2 ->
-    M.random G.q >>= fun w3 ->
-    M.random G.q >>= fun w4 ->
-    randoms n >>= fun ww_hat ->
-    randoms n >>= fun ww' ->
+    let* (cc_hat, rr_hat) = gen_commitment_chain h uu' in
+    let* w1 = M.random G.q in
+    let* w2 = M.random G.q in
+    let* w3 = M.random G.q in
+    let* w4 = M.random G.q in
+    let* ww_hat = randoms n in
+    let* ww' = randoms n in
     let t1 = g **~ w1 and t2 = g **~ w2 in
-    M.yield () >>= fun () ->
-    mmap2 ( **~ ) hh ww' >>= fun t3_ ->
+    let* () = M.yield () in
+    let* t3_ = mmap2 ( **~ ) hh ww' in
     let t3 = Array.fold_left ( *~ ) (g **~ w3) t3_ in
-    mmap2 (fun e' w' -> e'.beta **~ w') ee' ww' >>= fun t41_ ->
+    let* t41_ = mmap2 (fun e' w' -> e'.beta **~ w') ee' ww' in
     let t41 = Array.fold_left ( *~ ) (invert (y **~ w4)) t41_ in
-    mmap2 (fun e' w' -> e'.alpha **~ w') ee' ww' >>= fun t42_ ->
+    let* t42_ = mmap2 (fun e' w' -> e'.alpha **~ w') ee' ww' in
     let t42 = Array.fold_left ( *~ ) (invert (g **~ w4)) t42_ in
     let cc_hat' = Array.init n (fun i -> if i = 0 then h else cc_hat.(pred i)) in
-    mmap3 (fun w_hat w' c_hat -> (g **~ w_hat) *~ (c_hat **~ w')) ww_hat ww' cc_hat' >>= fun tt_hat ->
+    let* tt_hat = mmap3 (fun w_hat w' c_hat -> (g **~ w_hat) *~ (c_hat **~ w')) ww_hat ww' cc_hat' in
     let t = (t1, t2, t3, (t41, t42), tt_hat) in
     let str2 = str_elts [| t1; t2; t3; t41; t42 |] ^ str_elts tt_hat in
     let str3 = str1 ^ str_elts cc_hat ^ G.to_string y in
