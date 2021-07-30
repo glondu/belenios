@@ -31,14 +31,14 @@ open Tool_js_common
 open Tool_js_i18n.Gettext
 
 let set_step i =
-  document##getElementById (Js.string "current_step") >>== fun e ->
+  let$ e = document##getElementById (Js.string "current_step") in
   clear_content e;
   let t = Printf.sprintf (f_ "Step %d/3") i in
   let t = document##createTextNode (Js.string t) in
   Dom.appendChild e t
 
 let set_explain str =
-  document##getElementById (Js.string "explain") >>== fun e ->
+  let$ e = document##getElementById (Js.string "explain") in
   clear_content e;
   let t = document##createTextNode (Js.string str) in
   Dom.appendChild e t;
@@ -62,8 +62,8 @@ let gen_cert e _ =
 
 let proceed step =
   let group = get_textarea "group" in
-  document##getElementById (Js.string "compute_private_key") >>== fun e ->
-  Dom_html.CoerceTo.input e >>== fun e ->
+  let$ e = document##getElementById (Js.string "compute_private_key") in
+  let$ e = Dom_html.CoerceTo.input e in
   let key = Js.to_string e##.value in
   let certs = certs_of_string (get_textarea "certs") in
   let threshold = int_of_string (get_textarea "threshold") in
@@ -84,7 +84,7 @@ let proceed step =
      alert "Unexpected state!"
 
 let fill_interactivity () =
-  document##getElementById (Js.string "interactivity") >>== fun e ->
+  let$ e = document##getElementById (Js.string "interactivity") in
   let step = int_of_string (get_textarea "step") in
   match step with
   | 0 ->
@@ -122,7 +122,7 @@ let fill_interactivity () =
      set_step ((step + 1) / 2);
      set_explain explain;
      set_element_display "compute_form" "block";
-     document##getElementById (Js.string "compute_button") >>== fun e ->
+     let$ e = document##getElementById (Js.string "compute_button") in
      e##.onclick := Dom_html.handler (fun _ -> proceed step; Js._false)
   | _ ->
      alert "Unexpected state!"

@@ -52,7 +52,7 @@ let compare_handler input output _ =
   Js._true
 
 let fill_interactivity () =
-  document##getElementById (Js.string "interactivity") >>== fun container ->
+  let$ container = document##getElementById (Js.string "interactivity") in
   let result_div = Dom_html.createDiv document in
   let intro_div = Dom_html.createDiv document in
   Dom.appendChild intro_div (document##createTextNode (Js.string (s_ "Please paste the data for which you want to compute the fingerprint in the text area below:")));

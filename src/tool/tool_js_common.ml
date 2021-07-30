@@ -31,7 +31,7 @@ let document = Dom_html.document
 
 let ( >>= ) = Js.Opt.bind
 
-let ( >>== ) = Js.Opt.iter
+let ( let$ ) = Js.Opt.iter
 
 let return_unit =
   Js.some ()
@@ -70,7 +70,7 @@ let set_input id z =
     (Dom_html.getElementById_coerce id Dom_html.CoerceTo.input)
 
 let set_element_display id x =
-  document##getElementById (Js.string id) >>== fun e ->
+  let$ e = document##getElementById (Js.string id) in
   e##.style##.display := Js.string x
 
 let set_download id mime fn x =
@@ -89,7 +89,7 @@ let get_content x =
     ) (fun () -> x)
 
 let set_content id x =
-  document##getElementById (Js.string id) >>== fun e ->
+  let$ e = document##getElementById (Js.string id) in
   let t = document##createTextNode (Js.string x) in
   Dom.appendChild e t
 
@@ -108,18 +108,18 @@ let append_with_br e x =
      loop xs
 
 let set_content_with_br id x =
-  document##getElementById (Js.string id) >>== fun e ->
+  let$ e = document##getElementById (Js.string id) in
   append_with_br e x
 
 let clear_content (e : #Dom.node Js.t) =
   while Js.to_bool e##hasChildNodes do
-    e##.firstChild >>== fun x ->
+    let$ x = e##.firstChild in
     let _ = e##removeChild x in
     ()
   done
 
 let clear_content_by_id id =
-  document##getElementById (Js.string id) >>== fun e ->
+  let$ e = document##getElementById (Js.string id) in
   clear_content e
 
 let run_handler handler () =

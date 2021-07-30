@@ -64,7 +64,7 @@ let generate _ =
   Js._false
 
 let fill_interactivity () =
-  document##getElementById (Js.string "interactivity") >>== fun e ->
+  let$ e = document##getElementById (Js.string "interactivity") in
   let x = Dom_html.createDiv document in
   Dom.appendChild e x;
   let b = Dom_html.createButton document in

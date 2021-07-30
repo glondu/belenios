@@ -51,12 +51,12 @@ let encryptBallot election cred plaintext () =
 let progress_step n =
   let () =
     let old_ = Printf.sprintf "progress%d" (n-1) in
-    document##getElementById (Js.string old_) >>== fun old_ ->
+    let$ old_ = document##getElementById (Js.string old_) in
     old_##.style##.fontWeight := Js.string "normal"
   in
   let () =
     let new_ = Printf.sprintf "progress%d" n in
-    document##getElementById (Js.string new_) >>== fun new_ ->
+    let$ new_ = document##getElementById (Js.string new_) in
     new_##.style##.fontWeight := Js.string "bold"
   in ()
 
@@ -352,7 +352,7 @@ let appendQuestionNavigation question_div sk params qs =
                 let plaintext = Array.map fst answers in
                 set_textarea "choices" (string_of_plaintext plaintext);
                 let () =
-                  document##getElementById (Js.string "pretty_choices") >>== fun e ->
+                  let$ e = document##getElementById (Js.string "pretty_choices") in
                   Array.iter (fun (_, a) -> Dom.appendChild e a) answers
                 in
                 Lwt_js_events.async (encryptBallot params sk plaintext);
@@ -378,7 +378,7 @@ let createStartButton params intro_div qs =
                                                     Js._false
                                                   );
             progress_step 2;
-            document##getElementById (Js.string "question_div") >>== fun e ->
+            let$ e = document##getElementById (Js.string "question_div") in
             appendQuestionNavigation e cred params qs
          | `Invalid ->
             alert (s_ "Invalid credential!")
@@ -414,9 +414,9 @@ let loadElection () =
   set_content_with_br "election_description" params.e_description;
   set_content "election_uuid" (raw_string_of_uuid params.e_uuid);
   set_content "election_fingerprint" P.fingerprint;
-  document##getElementById (Js.string "intro") >>== fun e ->
+  let$ e = document##getElementById (Js.string "intro") in
   let b = createStartButton (module P) e params.e_questions in
-  document##getElementById (Js.string "input_code") >>== fun e ->
+  let$ e = document##getElementById (Js.string "input_code") in
   Dom.appendChild e b
 
 let get_prefix str =
@@ -469,14 +469,14 @@ let () =
       in
       let* () = Tool_js_i18n.init "static" "voter" lang in
       let () =
-        document##getElementById (Js.string "load_uuid") >>== fun e ->
+        let$ e = document##getElementById (Js.string "load_uuid") in
         Lwt_js_events.async (fun () ->
             let* _ = Lwt_js_events.click e in
             load_uuid_handler lang
           )
       in
       let () =
-        document##getElementById (Js.string "load_params") >>== fun e ->
+        let$ e = document##getElementById (Js.string "load_params") in
         Lwt_js_events.async (fun () ->
             let* _ = Lwt_js_events.click e in
             load_params_handler ()

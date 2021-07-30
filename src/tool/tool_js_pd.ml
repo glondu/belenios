@@ -98,9 +98,9 @@ let compute_partial_decryption _ =
   return_unit
 
 let compute_hash () =
-  Js.Opt.option !encrypted_tally >>== fun e ->
+  let$ e = Js.Opt.option !encrypted_tally in
   let hash = sha256_b64 e in
-  document##getElementById (Js.string "hash") >>== fun e ->
+  let$ e = document##getElementById (Js.string "hash") in
   let t = document##createTextNode (Js.string hash) in
   Dom.appendChild e t
 
@@ -113,9 +113,9 @@ let load_private_key_file _ =
   reader##.onload :=
     Dom.handler (fun _ ->
         let () =
-          document##getElementById (Js.string "private_key") >>== fun e ->
-          Dom_html.CoerceTo.input e >>== fun e ->
-          File.CoerceTo.string (reader##.result) >>== fun text ->
+          let$ e = document##getElementById (Js.string "private_key") in
+          let$ e = Dom_html.CoerceTo.input e in
+          let$ text = File.CoerceTo.string (reader##.result) in
           e##.value := text
         in Js._false
       );
@@ -124,13 +124,13 @@ let load_private_key_file _ =
 
 let fill_interactivity () =
   let () =
-    document##getElementById (Js.string "compute") >>== fun e ->
-    Dom_html.CoerceTo.button e >>== fun e ->
+    let$ e = document##getElementById (Js.string "compute") in
+    let$ e = Dom_html.CoerceTo.button e in
     e##.onclick := Dom_html.handler (wrap compute_partial_decryption)
   in
   let () =
-    document##getElementById (Js.string "private_key_file") >>== fun e ->
-    Dom_html.CoerceTo.input e >>== fun e ->
+    let$ e = document##getElementById (Js.string "private_key_file") in
+    let$ e = Dom_html.CoerceTo.input e in
     e##.onchange := Dom_html.handler (wrap load_private_key_file)
   in
   match List.assoc_opt "uuid" (get_params ()) with
