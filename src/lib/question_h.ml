@@ -56,11 +56,9 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   (** ElGamal encryption. *)
   let eg_encrypt y r x =
-    (* FIXME: side channel *)
-    let g' = if x = 0 then G.one else g **~ Z.of_int x in
     {
       alpha = g **~ r;
-      beta = y **~ r *~ g';
+      beta = (y **~ r) *~ (g **~ Z.of_int x);
     }
 
   let dummy_proof =
