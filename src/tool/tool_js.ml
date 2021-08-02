@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_platform
-open Belenios
+open Belenios_core
 open Belenios_tool_common
 open Belenios_tool_js_common
 open Platform

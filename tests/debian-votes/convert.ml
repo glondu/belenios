@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
+open Belenios_core
 open Serializable_j
 
 let rec input_lines ic lines =

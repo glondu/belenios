@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
+open Belenios_core
 open Serializable_builtin_t
 open Serializable_t
 open Common

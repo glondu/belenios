@@ -23,7 +23,7 @@ open Lwt
 open Lwt.Syntax
 open Belenios_platform
 open Platform
-open Belenios
+open Belenios_core
 open Serializable_builtin_t
 open Serializable_j
 open Signatures

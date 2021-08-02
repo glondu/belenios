@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module type ELECTION_LWT = Belenios.Signatures.ELECTION with type 'a m = 'a Lwt.t
+module type ELECTION_LWT = Belenios_core.Signatures.ELECTION with type 'a m = 'a Lwt.t
 
 module type S = sig
 

@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
+open Belenios_core
 open Signatures
 open Serializable_t
 open Web_serializable_builtin_t

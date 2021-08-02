@@ -21,7 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios
+open Belenios_core
 open Common
 open Web_common
 
