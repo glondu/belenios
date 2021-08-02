@@ -153,7 +153,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         e_server_is_trustee;
       } in
     let template = se.se_questions in
-    let open Belenios_v0.Serializable_v0_j in
+    let open Belenios_v0.Serializable_j in
     let params = {
         e_description = template.t_description;
         e_name = template.t_name;
@@ -833,7 +833,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         with_draft_election_ro uuid (fun se ->
             let group = Group.of_string se.se_group in
             let module G = (val group : GROUP) in
-            let open Belenios_v0.Serializable_v0_j in
+            let open Belenios_v0.Serializable_j in
             let params = {
                 e_description = se.se_questions.t_description;
                 e_name = se.se_questions.t_name;

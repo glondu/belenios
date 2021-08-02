@@ -65,7 +65,7 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Setup election *)
 
-  open Belenios_v0.Serializable_v0_j
+  open Belenios_v0.Serializable_j
 
   let params = {
     e_description = template.t_description;

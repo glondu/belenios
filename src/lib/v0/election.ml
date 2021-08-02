@@ -19,13 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Serializable_j
 open Belenios_platform
 open Belenios_core
 open Platform
 open Serializable_builtin_t
 open Serializable_core_j
 open Serializable_j
-open Serializable_v0_j
 open Signatures
 open Common
 
@@ -36,7 +36,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   type elt = W.G.t
 
   module G = W.G
-  module Q = Question.Make (M) (G) (Question_h_v0.Make (M) (G)) (Question_nh_v0.Make (M) (G))
+  module Q = Question.Make (M) (G) (Question_h.Make (M) (G)) (Question_nh.Make (M) (G))
   module Mix = Mixnet.Make (M) (G)
   open G
   let election = W.election
@@ -48,7 +48,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   let ( / ) x y = x *~ invert y
 
   type plaintext = int array array
-  type ballot = elt Serializable_v0_t.ballot
+  type nonrec ballot = elt ballot
   type weighted_ballot = Weight.t * ballot
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
