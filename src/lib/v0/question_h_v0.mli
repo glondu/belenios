@@ -19,31 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type json <ocaml module="Yojson.Safe" t="t"> = abstract
-type number <ocaml predef from="Serializable_builtin"> = abstract
-type uuid <ocaml predef from="Serializable_builtin"> = abstract
-type question <ocaml module="Question"> = abstract
+open Belenios_core
+open Signatures_core
+open Question_h_t
 
-type 'a params = {
-  description : string;
-  name : string;
-  public_key : 'a;
-  questions : question list <ocaml repr="array">;
-  uuid : uuid;
-  ?administrator : string option;
-  ?credential_authority : string option;
-} <ocaml field_prefix="e_">
-<doc text="Election parameters relevant for creating a ballot.">
-
-type 'a signature = {
-  public_key : 'a;
-  challenge : number;
-  response : number;
-} <ocaml field_prefix="s_">
-
-type 'a ballot = {
-  answers : json list <ocaml repr="array">;
-  election_hash : string;
-  election_uuid : uuid;
-  ?signature : 'a signature option;
-}
+module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
+       with type 'a m := 'a M.t
+        and type elt := G.t
+        and type question := question
+        and type answer := G.t answer

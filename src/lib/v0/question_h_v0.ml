@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_platform
+open Belenios_core
 open Platform
 open Common
 open Signatures_core

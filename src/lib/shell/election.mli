@@ -19,11 +19,24 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures_core
-open Question_h_t
+(** Election primitives *)
 
-module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
-       with type 'a m := 'a M.t
-        and type elt := G.t
-        and type question := question
-        and type answer := G.t answer
+open Belenios_core
+open Signatures
+open Serializable_t
+
+val of_string : string -> params
+
+val election_uuid_of_string_ballot : string -> uuid
+
+val has_nh_questions : params -> bool
+
+module ParseMake (R : RAW_ELECTION) (M : RANDOM) () : ELECTION with type 'a m = 'a M.t
+
+val compute_checksums :
+  election:string ->
+  [`Nothing
+  | `Shuffles of string list * string option list option
+  | `Result of string] ->
+  trustees:string -> public_credentials:string ->
+  Serializable_t.election_checksums

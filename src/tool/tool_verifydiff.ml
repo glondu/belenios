@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_core
+open Belenios
 open Serializable_builtin_t
 open Serializable_j
 open Common

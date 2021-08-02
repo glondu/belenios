@@ -1,0 +1,14 @@
+(library
+ (name belenios_v0)
+ (public_name belenios-lib.v0)
+ (libraries yojson atdgen belenios_platform belenios_core))
+
+(rule
+ (targets serializable_v0_t.ml serializable_v0_t.mli)
+ (deps serializable_v0.atd)
+ (action (run atdgen -t %{deps})))
+
+(rule
+ (targets serializable_v0_j.ml serializable_v0_j.mli)
+ (deps serializable_v0.atd)
+ (action (run atdgen -j -j-std %{deps})))

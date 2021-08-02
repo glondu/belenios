@@ -19,11 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures
+open Belenios_core
+open Signatures_core
+open Question_nh_t
 
-module Make (W : ELECTION_DATA) (M : RANDOM) :
-  ELECTION_OPS with
-         type elt = W.G.t and
-         type 'a m = 'a M.t and
-         type ballot = W.G.t Serializable_v0_t.ballot and
-         type result_type = W.result
+module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
+       with type 'a m := 'a M.t
+        and type elt := G.t
+        and type question := question
+        and type answer := G.t answer

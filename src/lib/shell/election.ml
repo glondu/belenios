@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_platform
+open Belenios_core
 open Platform
 open Serializable_builtin_t
 open Serializable_j
@@ -27,7 +28,7 @@ open Signatures
 open Common
 
 let of_string x =
-  let open Serializable_v0_j in
+  let open Belenios_v0.Serializable_v0_j in
   let params = params_of_string Yojson.Safe.read_json x in
   let {
       e_description; e_name; e_questions; e_uuid;
@@ -43,14 +44,14 @@ let of_string x =
   }
 
 let election_uuid_of_string_ballot x =
-  let open Serializable_v0_j in
+  let open Belenios_v0.Serializable_v0_j in
   let ballot = ballot_of_string Yojson.Safe.read_json x in
   ballot.election_uuid
 
 (** Parsing helpers *)
 
 module Parse (R : RAW_ELECTION) () = struct
-  open Serializable_v0_j
+  open Belenios_v0.Serializable_v0_j
   let params = params_of_string Yojson.Safe.read_json R.raw_election
   let wpk = Yojson.Safe.to_string params.e_public_key
   module W = (val Group.wrapped_pubkey_of_string wpk)
@@ -163,7 +164,7 @@ module ParseMake (R : RAW_ELECTION) (M : RANDOM) () = struct
   module X = Parse (R) ()
   include X
   type 'a m = 'a M.t
-  module E = Election_v0.Make (X) (M)
+  module E = Belenios_v0.Election_v0.Make (X) (M)
 end
 
 (** Computing checksums *)
