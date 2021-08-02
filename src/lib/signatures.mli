@@ -49,6 +49,11 @@ module type ELECTION_DATA = sig
   val fingerprint : string
   val public_key : G.t
 
+  type ballot
+  val string_of_ballot : ballot -> string
+  val ballot_of_string : string -> ballot
+  val get_credential : ballot -> G.t option
+
   type result = private raw_result
   val cast_result : raw_result -> result
   val write_result : result writer
@@ -89,7 +94,7 @@ module type ELECTION_OPS = sig
       ballot. When [x] is such a value, [x.(i).(j)] is the weight (0
       or 1) given to answer [j] in question [i]. *)
 
-  type ballot = elt Serializable_t.ballot
+  type ballot
   (** A ballot ready to be transmitted, containing the encrypted
       answers and cryptographic proofs that they satisfy the election
       constraints. *)
@@ -151,7 +156,7 @@ end
 module type ELECTION = sig
   include ELECTION_DATA
   type 'a m
-  module E : ELECTION_OPS with type elt = G.t and type 'a m = 'a m and type result_type = result
+  module E : ELECTION_OPS with type elt = G.t and type 'a m = 'a m and type ballot = ballot and type result_type = result
 end
 
 module type PKI = sig

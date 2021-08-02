@@ -151,18 +151,18 @@ let verifydiff dir1 dir2 =
   (* load both ballots.jsons and check that their contents is valid *)
   let module GMap = Map.Make (G) in
   let ballots dir =
-    match load_from_file (ballot_of_string G.read) (dir / "ballots.jsons") with
+    match load_from_file ballot_of_string (dir / "ballots.jsons") with
     | None -> GMap.empty
     | Some ballots ->
        if not (List.for_all E.check_ballot ballots) then
          raise (VerifydiffError InvalidBallot);
        (* return the set of ballots indexed by the public keys used to sign *)
        List.fold_left (fun accu x ->
-           match x.signature with
+           match get_credential x with
            | None -> raise (VerifydiffError InvalidBallot)
-           | Some s -> if GMap.mem s.s_public_key accu then
+           | Some c -> if GMap.mem c accu then
                          raise (VerifydiffError DuplicateBallot)
-                       else GMap.add s.s_public_key x accu
+                       else GMap.add c x accu
          ) GMap.empty ballots
   in
   let ballots1 = ballots dir1 and ballots2 = ballots dir2 in

@@ -26,6 +26,8 @@ open Serializable_t
 
 val of_string : string -> params
 
+val election_uuid_of_string_ballot : string -> uuid
+
 val has_nh_questions : params -> bool
 
 module ParseMake (R : RAW_ELECTION) (M : RANDOM) () : ELECTION with type 'a m = 'a M.t

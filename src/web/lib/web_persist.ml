@@ -352,19 +352,15 @@ let get_credential_weight uuid cred =
         )
     )
 
-let get_ballot_weight ballot =
+let get_ballot_weight election ballot =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
   Lwt.catch
     (fun () ->
-      let ballot = ballot_of_string Yojson.Safe.read_json ballot in
-      match ballot.signature with
+      let ballot = W.ballot_of_string ballot in
+      match W.get_credential ballot with
       | None -> failwith "missing signature"
-      | Some s ->
-         let credential =
-           match s.s_public_key with
-           | `String x -> x
-           | _ -> failwith "unexpected credential"
-         in
-         get_credential_weight ballot.election_uuid credential
+      | Some credential ->
+         get_credential_weight W.election.e_uuid (W.G.to_string credential)
     )
     (fun e ->
       Printf.ksprintf failwith
@@ -380,15 +376,20 @@ end
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
 
 let raw_get_ballots_archived uuid =
-  let* file = read_file ~uuid "ballots.jsons" in
-  match file with
-  | Some bs ->
-     Lwt_list.fold_left_s (fun accu b ->
-         let hash = sha256_b64 b in
-         let* weight = get_ballot_weight b in
-         return (StringMap.add hash (b, weight) accu)
-       ) StringMap.empty bs
+  let* x = get_raw_election uuid in
+  match x with
   | None -> return StringMap.empty
+  | Some x ->
+     let module W = Election.ParseMake (struct let raw_election = x end) (LwtRandom) () in
+     let* file = read_file ~uuid "ballots.jsons" in
+     match file with
+     | Some bs ->
+        Lwt_list.fold_left_s (fun accu b ->
+            let hash = sha256_b64 b in
+            let* weight = get_ballot_weight (module W) b in
+            return (StringMap.add hash (b, weight) accu)
+          ) StringMap.empty bs
+     | None -> return StringMap.empty
 
 let archived_ballots_cache =
   new BallotsCache.cache raw_get_ballots_archived ~timer:3600. 10
@@ -458,12 +459,14 @@ let load_ballots uuid =
       ) ballots
   ) else return []
 
-let dump_ballots uuid =
+let dump_ballots election =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
   let* ballots = load_ballots uuid in
   let* index =
     Lwt_list.map_s
       (fun b ->
-        let* w = get_ballot_weight b in
+        let* w = get_ballot_weight election b in
         return (sha256_b64 b, `Intlit (Weight.to_string w))
       ) ballots
   in
@@ -471,21 +474,25 @@ let dump_ballots uuid =
   let* () = write_file ~uuid "ballots_index.json" [index] in
   write_file ~uuid "ballots.jsons" ballots
 
-let add_ballot uuid ballot =
+let add_ballot election ballot =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
   let hash = sha256_b64 ballot in
   let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
   let* () = Lwt.catch (fun () -> Lwt_unix.mkdir ballots_dir 0o755) (fun _ -> return_unit) in
   let* () = write_file (ballots_dir / urlize hash) [ballot] in
-  let* () = dump_ballots uuid in
+  let* () = dump_ballots election in
   return hash
 
-let remove_ballot uuid hash =
+let remove_ballot election hash =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
   let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
   Lwt.catch (fun () -> Lwt_unix.unlink (ballots_dir / urlize hash)) (fun _ -> return_unit)
 
-let replace_ballot uuid ~hash ~rawballot =
-  let* () = remove_ballot uuid hash in
-  add_ballot uuid rawballot
+let replace_ballot election ~hash ~rawballot =
+  let* () = remove_ballot election hash in
+  add_ballot election rawballot
 
 let compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
@@ -494,8 +501,8 @@ let compute_encrypted_tally election =
   let* ballots =
     Lwt_list.map_s
       (fun raw_ballot ->
-        let ballot = ballot_of_string W.G.read raw_ballot in
-        let* weight = get_ballot_weight raw_ballot in
+        let ballot = W.ballot_of_string raw_ballot in
+        let* weight = get_ballot_weight election raw_ballot in
         return (weight, ballot)
       ) ballots
   in
@@ -732,18 +739,18 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
   match
     try
       if String.contains rawballot '\n' then invalid_arg "multiline ballot";
-      let ballot = ballot_of_string W.G.read rawballot in
-      if string_of_ballot W.G.write ballot <> rawballot then
+      let ballot = W.ballot_of_string rawballot in
+      if W.string_of_ballot ballot <> rawballot then
         invalid_arg "ballot not in canonical form";
       Ok ballot
     with e -> Error (ECastSerialization e)
   with
   | Error _ as x -> return x
   | Ok ballot ->
-     match ballot.signature with
+     match W.get_credential ballot with
      | None -> return (Error ECastMissingCredential)
-     | Some s ->
-        let credential = W.G.to_string s.s_public_key in
+     | Some credential ->
+        let credential = W.G.to_string credential in
         let* mapping = find_credential_mapping uuid credential in
         match mapping with
         | None -> return (Error ECastInvalidCredential)
@@ -756,7 +763,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
                 (* first vote *)
                 let* b = Lwt_preemptive.detach W.E.check_ballot ballot in
                 if b then (
-                  let* hash = add_ballot uuid rawballot in
+                  let* hash = add_ballot election rawballot in
                   let* () = add_credential_mapping uuid credential (Some hash) in
                   let* () = add_extended_record uuid user (date, credential) in
                   return (Ok (hash, false))
@@ -766,7 +773,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
                 if credential = old_credential then (
                   let* b = Lwt_preemptive.detach W.E.check_ballot ballot in
                   if b then (
-                    let* hash = replace_ballot uuid ~hash ~rawballot in
+                    let* hash = replace_ballot election ~hash ~rawballot in
                     let* () = add_credential_mapping uuid credential (Some hash) in
                     let* () = add_extended_record uuid user (date, credential) in
                     return (Ok (hash, true))

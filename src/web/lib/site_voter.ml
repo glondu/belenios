@@ -114,11 +114,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
            Pages_common.generic_page ~title:(s_ "Cookies are blocked") (s_ "Your browser seems to block cookies. Please enable them.") ()
            >>= Html.send
         | Some ballot ->
-           match ballot_of_string Yojson.Safe.read_json ballot with
+           match Election.election_uuid_of_string_ballot ballot with
            | exception _ ->
               Pages_common.generic_page ~title:"Error" "Ill-formed ballot" () >>= Html.send
-           | ballot ->
-              let uuid = ballot.election_uuid in
+           | uuid ->
               let* election = Web_persist.get_draft_election uuid in
               match election with
               | Some _ -> redir_preapply election_draft uuid ()

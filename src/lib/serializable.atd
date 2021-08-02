@@ -23,7 +23,6 @@
 
 (** {2 Predefined types} *)
 
-type json <ocaml module="Yojson.Safe" t="t"> = abstract
 type number <ocaml predef from="Serializable_builtin"> = abstract
 type weight <ocaml predef from="Serializable_builtin"> = abstract
 type question_result <ocaml predef from="Serializable_builtin"> = abstract
@@ -85,20 +84,6 @@ type template = {
   ?credential_authority : string option;
 } <ocaml field_prefix="t_">
 <doc text="Election template.">
-
-(* FIXME: merge this with trustee_public_key *)
-type 'a signature = {
-  public_key : 'a;
-  challenge : number;
-  response : number;
-} <ocaml field_prefix="s_">
-
-type 'a ballot = {
-  answers : json list <ocaml repr="array">;
-  election_hash : string;
-  election_uuid : uuid;
-  ?signature : 'a signature option;
-}
 
 type 'a partial_decryption = {
   decryption_factors : 'a shape;

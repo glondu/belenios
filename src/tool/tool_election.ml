@@ -133,7 +133,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     get_ballots () |> Option.map (fun ballots ->
       let res = ref [] in
       Stream.iter (fun x ->
-        res := (ballot_of_string G.read x, sha256_b64 x) :: !res
+        res := (ballot_of_string x, sha256_b64 x) :: !res
       ) ballots;
       List.rev !res
     )
@@ -142,9 +142,9 @@ module Make (P : PARSED_PARAMS) : S = struct
   let check_signature_present = lazy (
     match Lazy.force public_creds with
     | Some creds -> (fun b ->
-      match b.signature with
-      | Some s ->
-         (match GSet.find_opt s.s_public_key !creds with
+      match get_credential b with
+      | Some c ->
+         (match GSet.find_opt c !creds with
           | Some (w, used) -> if !used then None else (used := true; Some w)
           | None -> None)
       | None -> None
@@ -257,7 +257,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     in
     let b = E.create_ballot ?sk ballot in
     assert (E.check_ballot b);
-    string_of_ballot G.write b
+    string_of_ballot b
 
   let decrypt privkey =
     let sk = number_of_string privkey in
@@ -394,10 +394,10 @@ module Make (P : PARSED_PARAMS) : S = struct
      | Some bs -> bs)
     |> List.map
          (fun (b, h) ->
-           match b.signature with
+           match get_credential b with
            | None -> Printf.ksprintf failwith "Missing signature in ballot %s" h
-           | Some s ->
-              match GMap.find_opt s.s_public_key map with
+           | Some c ->
+              match GMap.find_opt c map with
               | None -> Printf.ksprintf failwith "Unknown public key in ballot %s" h
               | Some id -> id
          )

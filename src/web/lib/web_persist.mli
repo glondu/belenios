@@ -65,7 +65,7 @@ val convert_trustees : unit -> unit Lwt.t
 
 val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
-val get_ballot_weight : string -> Weight.t Lwt.t
+val get_ballot_weight : (module Site_common_sig.ELECTION_LWT) -> string -> Weight.t Lwt.t
 
 val compute_encrypted_tally : (module Site_common_sig.ELECTION_LWT) -> string Lwt.t
 

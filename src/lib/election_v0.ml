@@ -24,6 +24,7 @@ open Platform
 open Serializable_builtin_t
 open Serializable_core_j
 open Serializable_j
+open Serializable_v0_j
 open Signatures
 open Common
 
@@ -46,7 +47,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   let ( / ) x y = x *~ invert y
 
   type plaintext = int array array
-  type ballot = elt Serializable_t.ballot
+  type ballot = elt Serializable_v0_t.ballot
   type weighted_ballot = Weight.t * ballot
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of

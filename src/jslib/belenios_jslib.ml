@@ -40,7 +40,7 @@ let encryptBallot election cred plaintext callback =
   let module CD = Credential.MakeDerive (G) in
   let sk = CD.derive P.election.e_uuid cred in
   let* b = P.E.create_ballot ~sk plaintext in
-  let ballot = string_of_ballot G.write b in
+  let ballot = P.string_of_ballot b in
   let tracker = sha256_b64 ballot in
   callback ballot tracker
 

@@ -40,7 +40,7 @@ let encryptBallot election cred plaintext () =
   let module CD = Credential.MakeDerive (E.G) in
   let sk = CD.derive E.election.e_uuid cred in
   let* b = E.E.create_ballot ~sk plaintext in
-  let s = string_of_ballot E.G.write b in
+  let s = E.string_of_ballot b in
   set_textarea "ballot" s;
   set_content "ballot_tracker" (sha256_b64 s);
   set_element_display "encrypting_div" "none";

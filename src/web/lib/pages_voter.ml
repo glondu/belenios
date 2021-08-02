@@ -623,7 +623,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   let cast_confirmation election hash () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
+    let module W = (val election : Site_common_sig.ELECTION_LWT) in
+    let open W in
     let uuid = election.e_uuid in
     let* user = Web_state.get_election_user uuid in
     let name = election.e_name in
@@ -712,7 +713,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
           | Some ballot ->
              Lwt.catch
                (fun () ->
-                 let* weight = Web_persist.get_ballot_weight ballot in
+                 let* weight = Web_persist.get_ballot_weight (module W) ballot in
                  return @@ div [
                                txt (Printf.sprintf (f_ "Your weight is %s.") (Weight.to_string weight));
                              ]

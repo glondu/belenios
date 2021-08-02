@@ -42,6 +42,11 @@ let of_string x =
     e_administrator; e_credential_authority;
   }
 
+let election_uuid_of_string_ballot x =
+  let open Serializable_v0_j in
+  let ballot = ballot_of_string Yojson.Safe.read_json x in
+  ballot.election_uuid
+
 (** Parsing helpers *)
 
 module Parse (R : RAW_ELECTION) () = struct
@@ -66,6 +71,14 @@ module Parse (R : RAW_ELECTION) () = struct
         }
       let fingerprint = sha256_b64 R.raw_election
       let public_key = W.y
+
+      type nonrec ballot = G.t ballot
+      let string_of_ballot x = string_of_ballot G.write x
+      let ballot_of_string x = ballot_of_string G.read x
+      let get_credential x =
+        match x.signature with
+        | None -> None
+        | Some s -> Some s.s_public_key
 
       type result = raw_result
 
