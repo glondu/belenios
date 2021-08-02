@@ -66,10 +66,10 @@ type ('a, 'b) wrapped_pubkey = {
 } <ocaml field_prefix="wpk_">
 <doc text="A public key wrapped with its group parameters.">
 
-type 'a params = {
+type params = {
+  version : int;
   description : string;
   name : string;
-  public_key : 'a;
   questions : question list <ocaml repr="array">;
   uuid : uuid;
   ?administrator : string option;

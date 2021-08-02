@@ -65,6 +65,8 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   (* Setup election *)
 
+  open Serializable_v0_j
+
   let params = {
     e_description = template.t_description;
     e_name = template.t_name;

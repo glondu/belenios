@@ -211,7 +211,7 @@ let get_elections_by_owner user =
                               let date = Option.get dates.e_archive default_archive_date in
                               return (`Archived, date)
                          in
-                         let election = params_of_string Yojson.Safe.read_json election in
+                         let election = Election.of_string election in
                          return_some (kind, uuid, date, election.e_name)
                     )
                  | _ -> return_none

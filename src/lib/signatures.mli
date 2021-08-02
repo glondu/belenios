@@ -45,8 +45,9 @@ module type RANDOM = Signatures_core.RANDOM
 (** Election data bundled with a group. *)
 module type ELECTION_DATA = sig
   module G : GROUP
-  val election : G.t params
+  val election : params
   val fingerprint : string
+  val public_key : G.t
 
   type result = private raw_result
   val cast_result : raw_result -> result

@@ -38,6 +38,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   module Mix = Mixnet.Make (M) (G)
   open G
   let election = W.election
+  let y = W.public_key
 
   type private_key = Z.t
   type public_key = elt
@@ -89,7 +90,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       | None -> None, ""
       | Some x -> let y = G.(g **~ x) in Some (x, y), G.to_string y
     in
-    let* answers = swap (Array.map2 (create_answer election.e_public_key zkp) election.e_questions m) in
+    let* answers = swap (Array.map2 (create_answer y zkp) election.e_questions m) in
     let* signature =
       match sk with
       | None -> M.return None
@@ -131,7 +132,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
         in ok, zkp
       | None -> true, ""
     in ok &&
-    Array.forall2 (verify_answer election.e_public_key zkp) election.e_questions b.answers
+    Array.forall2 (verify_answer W.public_key zkp) election.e_questions b.answers
 
   let process_ballots bs =
     SArray (
@@ -174,7 +175,6 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     loop 0 0
 
   let shuffle_ciphertexts cc =
-    let y = election.e_public_key in
     let rec loop i accu =
       if i >= 0 then (
         let c = cc.(i) in
@@ -189,7 +189,6 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     loop (Array.length cc - 1) []
 
   let check_shuffle cc s =
-    let y = election.e_public_key in
     Array.forall3 (Mix.check_shuffle_proof y) cc s.shuffle_ciphertexts s.shuffle_proofs
 
   type factor = elt partial_decryption

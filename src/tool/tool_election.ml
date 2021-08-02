@@ -97,7 +97,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     | Some trustees ->
       assert (K.check trustees);
       let y' = K.combine_keys trustees in
-      assert G.(election.e_public_key =~ y')
+      assert G.(public_key =~ y')
     | None -> failwith "missing trustees"
 
   let public_keys =
@@ -324,7 +324,7 @@ module Make (P : PARSED_PARAMS) : S = struct
     (match trustees with
      | Some trustees ->
         assert (K.check trustees);
-        assert G.(election.e_public_key =~ K.combine_keys trustees)
+        assert G.(public_key =~ K.combine_keys trustees)
      | None -> failwith "missing trustees"
     );
     (match Lazy.force ballots_weights with

@@ -26,16 +26,46 @@ open Serializable_j
 open Signatures
 open Common
 
+let of_string x =
+  let open Serializable_v0_j in
+  let params = params_of_string Yojson.Safe.read_json x in
+  let {
+      e_description; e_name; e_questions; e_uuid;
+      e_administrator; e_credential_authority;
+      _
+    } = params
+  in
+  let open Serializable_j in
+  {
+    e_version = 0;
+    e_description; e_name; e_questions; e_uuid;
+    e_administrator; e_credential_authority;
+  }
+
 (** Parsing helpers *)
 
 module Parse (R : RAW_ELECTION) () = struct
+  open Serializable_v0_j
   let params = params_of_string Yojson.Safe.read_json R.raw_election
   let wpk = Yojson.Safe.to_string params.e_public_key
   module W = (val Group.wrapped_pubkey_of_string wpk)
 
       module G = W.G
-      let election = {params with e_public_key = W.y}
+      let election =
+        let {
+            e_description; e_name; e_questions; e_uuid;
+            e_administrator; e_credential_authority;
+            _
+          } = params
+        in
+        let open Serializable_j in
+        {
+          e_version = 0;
+          e_description; e_name; e_questions; e_uuid;
+          e_administrator; e_credential_authority;
+        }
       let fingerprint = sha256_b64 R.raw_election
+      let public_key = W.y
 
       type result = raw_result
 
