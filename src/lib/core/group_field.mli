@@ -27,7 +27,6 @@ open Serializable_t
 
 module type GROUP = Signatures.GROUP
   with type t = Z.t
-  and type group = ff_params
 (** Multiplicative subgroup of a finite field. *)
 
 val check_params : ff_params -> bool

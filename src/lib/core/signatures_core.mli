@@ -92,12 +92,6 @@ module type GROUP = sig
   val get_generator : int -> t
   (** [get_generator i] computes generator #[i] of the group. *)
 
-  type group
-  (** Serializable description of the group. *)
-
-  val group : group
-  val write_group : group writer
-
 end
 
 (** Monad signature. *)

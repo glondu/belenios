@@ -157,13 +157,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let params = {
         e_description = template.t_description;
         e_name = template.t_name;
-        e_public_key = {wpk_group = G.group; wpk_y = y};
+        e_public_key = {wpk_group = ff_params_of_string se.se_group; wpk_y = y};
         e_questions = template.t_questions;
         e_uuid = uuid;
         e_administrator = se.se_administrator;
         e_credential_authority = metadata.e_cred_authority;
       } in
-    let raw_election = string_of_params (write_wrapped_pubkey G.write_group G.write) params in
+    let raw_election = string_of_params (write_wrapped_pubkey write_ff_params G.write) params in
     (* write election files to disk *)
     let dir = !Web_config.spool_dir / uuid_s in
     let create_file fname what xs =
@@ -837,13 +837,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             let params = {
                 e_description = se.se_questions.t_description;
                 e_name = se.se_questions.t_name;
-                e_public_key = {wpk_group = G.group; wpk_y = G.g};
+                e_public_key = {wpk_group = ff_params_of_string se.se_group; wpk_y = G.g};
                 e_questions = se.se_questions.t_questions;
                 e_uuid = uuid;
                 e_administrator = se.se_administrator;
                 e_credential_authority = se.se_metadata.e_cred_authority;
               } in
-            String.send (string_of_params (write_wrapped_pubkey G.write_group G.write) params, "application/json")
+            String.send (string_of_params (write_wrapped_pubkey write_ff_params G.write) params, "application/json")
           )
       )
 

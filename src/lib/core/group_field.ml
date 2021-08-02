@@ -52,7 +52,6 @@ let check_params {p; q; g; embedding} =
 
 module type GROUP = Signatures.GROUP
   with type t = Z.t
-  and type group = ff_params
 
 let make group =
   let {p; q; g; embedding} = group in
@@ -138,9 +137,5 @@ let make group =
       assert (Z.(compare h one) <> 0);
       assert (Z.(compare h g) <> 0);
       h
-
-    type group = ff_params
-    let group = group
-    let write_group = write_ff_params
 
   end in (module G : GROUP)

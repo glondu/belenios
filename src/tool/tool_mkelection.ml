@@ -38,6 +38,7 @@ end
 module type PARSED_PARAMS = sig
   val uuid : uuid
   val template : template
+  val group : string
   module G : GROUP
   val get_trustees : unit -> G.t trustees
 end
@@ -47,6 +48,7 @@ let parse_params p =
   let module R = struct
     let uuid = uuid_of_raw_string P.uuid
     let template = template_of_string P.template
+    let group = P.group
     module G = (val Group.of_string P.group : GROUP)
     let get_trustees () =
       P.get_trustees () |> trustees_of_string G.read
@@ -70,7 +72,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   let params = {
     e_description = template.t_description;
     e_name = template.t_name;
-    e_public_key = {wpk_group = G.group; wpk_y = y};
+    e_public_key = {wpk_group = ff_params_of_string group; wpk_y = y};
     e_questions = template.t_questions;
     e_uuid = uuid;
     e_administrator = template.t_administrator;
@@ -80,7 +82,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   (* Generate and serialize election.json *)
 
   let mkelection () =
-    string_of_params (write_wrapped_pubkey G.write_group G.write) params
+    string_of_params (write_wrapped_pubkey write_ff_params G.write) params
 
 end
 
