@@ -19,47 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt.Syntax
-open Js_of_ocaml
-open Belenios_platform
-open Belenios_core
-open Belenios_tool_common
-open Belenios_tool_js_common
-open Serializable_j
-open Tool_js_common
-open Tool_tkeygen
-open Tool_js_i18n.Gettext
+let get_by_version = function
+  | 0 -> (module Belenios_v0.Trustees : Belenios_core.Trustees_sig.S)
+  | _ -> failwith "Trustees.get_by_version: unsupported version"
 
-let tkeygen _ =
-  let module P : PARAMS = struct
-    let group = get_textarea "group"
-    let version = get_textarea "version" |> int_of_string
-  end in
-  let module X = (val make (module P : PARAMS) : S) in
-  let open X in
-  let {id=_; priv; pub} = trustee_keygen () in
-  let hash =
-    let pub = trustee_public_key_of_string Yojson.Safe.read_json pub in
-    Platform.sha256_b64 (Yojson.Safe.to_string pub.trustee_public_key)
-  in
-  set_textarea "pk" pub;
-  set_content "public_key_fp" hash;
-  set_download "private_key" "application/json" "private_key.json" priv;
-  set_element_display "submit_form" "inline";
-  Js._false
+open Belenios_core.Signatures
 
-let fill_interactivity () =
-  let$ e = document##getElementById (Js.string "interactivity") in
-  let b = Dom_html.createButton document in
-  let t = document##createTextNode (Js.string (s_ "Generate a key")) in
-  b##.onclick := Dom_html.handler tkeygen;
-  Dom.appendChild b t;
-  Dom.appendChild e b
-
-let () =
-  Lwt.async (fun () ->
-      let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
-      let* () = Tool_js_i18n.auto_init "admin" in
-      fill_interactivity ();
-      Lwt.return_unit
-    )
+let string_of_combination_error = function
+  | MissingPartialDecryption -> "a partial decryption is missing"
+  | NotEnoughPartialDecryptions -> "not enough partial decryptions"
+  | UnusedPartialDecryption -> "unused partial decryption"

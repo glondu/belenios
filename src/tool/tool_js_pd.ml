@@ -81,6 +81,7 @@ let compute_partial_decryption _ =
   let private_key =
     match get_textarea_opt "encrypted_private_key" with
     | Some epk ->
+       let module Trustees = (val Trustees.get_by_version P.election.e_version) in
        let module PKI = Trustees.MakePKI (P.G) (DirectRandom) in
        let module C = Trustees.MakeChannels (P.G) (DirectRandom) (PKI) in
        let sk = PKI.derive_sk pk_str and dk = PKI.derive_dk pk_str in

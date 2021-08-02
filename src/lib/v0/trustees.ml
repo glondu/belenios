@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_platform
+open Belenios_core
 open Platform
 open Serializable_core_t
 open Serializable_j
@@ -67,11 +68,6 @@ module MakeVerificator (G : GROUP) = struct
 end
 
 exception CombinationError of combination_error
-
-let string_of_combination_error = function
-  | MissingPartialDecryption -> "a partial decryption is missing"
-  | NotEnoughPartialDecryptions -> "not enough partial decryptions"
-  | UnusedPartialDecryption -> "unused partial decryption"
 
 module MakeCombinator (G : GROUP) = struct
 

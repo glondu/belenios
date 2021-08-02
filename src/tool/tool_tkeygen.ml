@@ -21,6 +21,7 @@
 
 open Belenios_platform
 open Belenios_core
+open Belenios
 open Platform
 open Serializable_j
 open Signatures
@@ -28,6 +29,7 @@ open Common
 
 module type PARAMS = sig
   val group : string
+  val version : int
 end
 
 module type S = sig
@@ -37,12 +39,15 @@ end
 
 module type PARSED_PARAMS = sig
   module G : GROUP
+  module Trustees : Trustees_sig.S
 end
 
 let parse_params p =
   let module P = (val p : PARAMS) in
+  let module T = (val Trustees.get_by_version P.version) in
   let module R = struct
     module G = (val Group.of_string P.group : GROUP)
+    module Trustees = T
   end
   in (module R : PARSED_PARAMS)
 

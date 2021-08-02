@@ -51,14 +51,20 @@ end
 
 module type PARSED_PARAMS = sig
   include PARAMS
+  module Trustees : Trustees_sig.S
   include ELECTION with type 'a m = 'a
 end
 
+module PTrustees = Trustees
+
 let parse_params p =
   let module P = (val p : PARAMS) in
+  let module E = Election.ParseMake (P) (DirectRandom) () in
+  let module T = (val Trustees.get_by_version E.election.e_version) in
   let module R = struct
     include P
-    include Election.ParseMake (P) (DirectRandom) ()
+    module Trustees = T
+    include E
   end in
   (module R : PARSED_PARAMS)
 
@@ -317,7 +323,7 @@ module Make (P : PARSED_PARAMS) : S = struct
         | Ok result ->
            assert (E.check_result trustees result);
            string_of_election_result G.write write_result result
-        | Error e -> failwith (Trustees.string_of_combination_error e)
+        | Error e -> failwith (PTrustees.string_of_combination_error e)
        )
     | None -> failwith "missing trustees"
 

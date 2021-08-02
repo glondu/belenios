@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_core
+open Belenios
 open Signatures
 open Belenios_platform
 open Belenios_tool_common
@@ -136,6 +137,10 @@ let group_t =
   let doc = "Take group parameters from file $(docv)." in
   Arg.(value & opt (some file) None & info ["group"] ~docv:"GROUP" ~doc)
 
+let version_t =
+  let doc = "Use protocol version $(docv)." in
+  Arg.(value & opt int 0 & info ["protocol-version"] ~docv:"VERSION" ~doc)
+
 let uuid_t =
   let doc = "UUID of the election." in
   Arg.(value & opt (some string) None & info ["uuid"] ~docv:"UUID" ~doc)
@@ -159,10 +164,11 @@ let key_t =
 module Tkeygen : CMDLINER_MODULE = struct
   open Tool_tkeygen
 
-  let main group =
+  let main group version =
     wrap_main (fun () ->
       let module P = struct
         let group = get_mandatory_opt "--group" group |> string_of_file
+        let version = version
       end in
       let module R = (val make (module P : PARAMS) : S) in
       let kp = R.trustee_keygen () in
@@ -188,7 +194,7 @@ module Tkeygen : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command is run by a trustee to generate a share of an election key. Such a share consists of a private key and a public key with a certificate. Generated files are stored in the current directory with a name that starts with $(i,ID), where $(i,ID) is a short fingerprint of the public key. The private key is stored in $(i,ID.privkey) and must be secured by the trustee. The public key is stored in $(i,ID.pubkey) and must be sent to the election administrator.";
     ] @ common_man in
-    Term.(ret (pure main $ group_t)),
+    Term.(ret (pure main $ group_t $ version_t)),
     Term.info "trustee-keygen" ~doc ~man
 
   let cmds = [tkeygen_cmd]
@@ -197,7 +203,7 @@ end
 
 module Ttkeygen : CMDLINER_MODULE = struct
 
-  let main group step certs threshold key polynomials =
+  let main group version step certs threshold key polynomials =
     wrap_main (fun () ->
         let get_certs () =
           let certs = get_mandatory_opt "--certs" certs in
@@ -213,6 +219,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         in
         let group = get_mandatory_opt "--group" group |> string_of_file in
         let module G = (val Group.of_string group : GROUP) in
+        let module Trustees = (val Trustees.get_by_version version) in
         let module P = Trustees.MakePKI (G) (DirectRandom) in
         let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
         let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
@@ -317,7 +324,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         `S "DESCRIPTION";
         `P "This command is run by trustees and the administrator to generate an election key with threshold decryption.";
       ] @ common_man in
-    Term.(ret (pure main $ group_t $ step_t $ cert_t $ threshold_t $ key_t $ polynomials_t)),
+    Term.(ret (pure main $ group_t $ version_t $ step_t $ cert_t $ threshold_t $ key_t $ polynomials_t)),
     Term.info "threshold-trustee-keygen" ~doc ~man
 
   let cmds = [ttkeygen_cmd]
@@ -718,9 +725,10 @@ end
 module Mkelection : CMDLINER_MODULE = struct
   open Tool_mkelection
 
-  let main dir group uuid template =
+  let main dir group version uuid template =
     wrap_main (fun () ->
       let module P = struct
+        let version = version
         let group = get_mandatory_opt "--group" group |> string_of_file
         let uuid = get_mandatory_opt "--uuid" uuid
         let template = get_mandatory_opt "--template" template |> string_of_file
@@ -749,7 +757,7 @@ module Mkelection : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command reads and checks $(i,public_keys.jsons) (or $(i,threshold.json) if it exists). It then computes the global election public key and generates an $(i,election.json) file.";
     ] @ common_man in
-    Term.(ret (pure main $ dir_t $ group_t $ uuid_t $ template_t)),
+    Term.(ret (pure main $ dir_t $ group_t $ version_t $ uuid_t $ template_t)),
     Term.info "mkelection" ~doc ~man
 
   let cmds = [mkelection_cmd]

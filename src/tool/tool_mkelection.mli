@@ -1,4 +1,5 @@
 module type PARAMS = sig
+  val version : int
   val uuid : string
   val group : string
   val template : string

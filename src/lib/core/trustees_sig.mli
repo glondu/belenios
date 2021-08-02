@@ -24,62 +24,64 @@ open Platform
 open Serializable_t
 open Signatures
 
-module MakeSimple (G : GROUP) (M : RANDOM) : sig
+module type S = sig
 
-  (** This module implements a simple distributed key generation. Each
+  module MakeSimple (G : GROUP) (M : RANDOM) : sig
+
+    (** This module implements a simple distributed key generation. Each
       share is a number modulo q, and the secret key is their sum. All
       shares are needed to decrypt, but the decryptions can be done in
       a distributed fashion. *)
 
-  val generate : unit -> Z.t M.t
-  (** [generate ()] generates a new private key. *)
+    val generate : unit -> Z.t M.t
+    (** [generate ()] generates a new private key. *)
 
-  val prove : Z.t -> G.t trustee_public_key M.t
+    val prove : Z.t -> G.t trustee_public_key M.t
   (** [prove x] returns the public key associated to [x] and a zero-
       knowledge proof of its knowledge. *)
 
-end
-(** Simple distributed generation of an election public key. *)
+  end
+  (** Simple distributed generation of an election public key. *)
 
-module MakePKI (G : GROUP) (M : RANDOM) :
+  module MakePKI (G : GROUP) (M : RANDOM) :
   PKI with type 'a m = 'a M.t
-     and type private_key = Z.t
-     and type public_key = G.t
+         and type private_key = Z.t
+         and type public_key = G.t
 
-module MakeChannels (G : GROUP) (M : RANDOM)
-         (P : PKI with type 'a m = 'a M.t
-                   and type private_key = Z.t
-                   and type public_key = G.t) :
+  module MakeChannels (G : GROUP) (M : RANDOM)
+           (P : PKI with type 'a m = 'a M.t
+                     and type private_key = Z.t
+                     and type public_key = G.t) :
   CHANNELS with type 'a m = 'a P.m
-     and type private_key = P.private_key
-     and type public_key = P.public_key
+            and type private_key = P.private_key
+            and type public_key = P.public_key
 
-exception PedersenFailure of string
+  exception PedersenFailure of string
 
-module MakePedersen (G : GROUP) (M : RANDOM)
-         (P : PKI with type 'a m = 'a M.t
-                   and type private_key = Z.t
-                   and type public_key = G.t)
-         (C : CHANNELS with type 'a m = 'a M.t
-                        and type private_key = Z.t
-                        and type public_key = G.t) :
+  module MakePedersen (G : GROUP) (M : RANDOM)
+           (P : PKI with type 'a m = 'a M.t
+                     and type private_key = Z.t
+                     and type public_key = G.t)
+           (C : CHANNELS with type 'a m = 'a M.t
+                          and type private_key = Z.t
+                          and type public_key = G.t) :
   PEDERSEN with type 'a m = 'a M.t
             and type elt = G.t
 
-val string_of_combination_error : combination_error -> string
+  module MakeCombinator (G : GROUP) : sig
 
-module MakeCombinator (G : GROUP) : sig
+    val check : G.t trustees -> bool
+    (** Check consistency of a set of trustees. *)
 
-  val check : G.t trustees -> bool
-  (** Check consistency of a set of trustees. *)
+    val combine_keys : G.t trustees -> G.t
+    (** Compute the public key associated to a set of trustees. *)
 
-  val combine_keys : G.t trustees -> G.t
-  (** Compute the public key associated to a set of trustees. *)
+    val combine_factors :
+      G.t trustees ->
+      (G.t -> G.t partial_decryption -> bool) ->
+      G.t partial_decryption list -> (G.t shape, combination_error) result
+                                                                    (** Compute synthetic decryption factors. *)
 
-  val combine_factors :
-    G.t trustees ->
-    (G.t -> G.t partial_decryption -> bool) ->
-    G.t partial_decryption list -> (G.t shape, combination_error) result
-  (** Compute synthetic decryption factors. *)
+  end
 
 end

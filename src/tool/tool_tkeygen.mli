@@ -1,5 +1,6 @@
 module type PARAMS = sig
   val group : string
+  val version : int
 end
 
 module type S = sig

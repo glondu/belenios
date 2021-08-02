@@ -109,6 +109,7 @@ let verifydiff dir1 dir2 =
   let module ED = Election.ParseMake (struct let raw_election = election end) (DirectRandom) () in
   let open ED in
   let trustees = trustees_of_string G.read trustees in
+  let module Trustees = (val Trustees.get_by_version election.e_version) in
   let module K = Trustees.MakeCombinator (G) in
   if not (K.check trustees) then
     raise (VerifydiffError InvalidTrustees);

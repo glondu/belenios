@@ -112,6 +112,7 @@ module Tkeygen = struct
   let tkeygen () =
     let module P : PARAMS = struct
       let group = get_textarea "election_group"
+      let version = get_textarea "version" |> int_of_string
     end in
     let module X = (val make (module P : PARAMS) : S) in
     let open X in
@@ -184,6 +185,7 @@ module Mkelection = struct
 
   let mkelection () =
     let module P : PARAMS = struct
+      let version = get_textarea "version" |> int_of_string
       let uuid = get_textarea "election_uuid"
       let group = get_textarea "election_group"
       let template = get_textarea "mkelection_template"

@@ -74,6 +74,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     (* trustees *)
     let group = Group.of_string se.se_group in
     let module G = (val group : GROUP) in
+    let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
     let module K = Trustees.MakeCombinator (G) in
     let module KG = Trustees.MakeSimple (G) (LwtRandom) in
     let* trustee_names, trustees, private_keys =
@@ -446,6 +447,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         t_credential_authority = None;
       } in
     let se = {
+        se_version = None;
         se_owner = owner;
         se_group = !Web_config.default_group;
         se_voters = [];
@@ -1008,6 +1010,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let trustee_add_server se =
     let st_id = "server" and st_token = "" in
     let module G = (val Group.of_string se.se_group) in
+    let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
     let module K = Trustees.MakeSimple (G) (LwtRandom) in
     let* private_key = K.generate () in
     let* public_key = K.prove private_key in
@@ -1295,6 +1298,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                             return (title, msg, 400)
                           else
                             let module G = (val Group.of_string se.se_group : GROUP) in
+                            let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
                             let pk = trustee_public_key_of_string G.read public_key in
                             let module K = Trustees.MakeCombinator (G) in
                             if not (K.check [`Single pk]) then
@@ -1435,6 +1439,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 | Some names ->
                    let* trustees = Web_persist.get_trustees from in
                    let module G = (val Group.of_string se.se_group : GROUP) in
+                   let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
                    let module K = Trustees.MakeCombinator (G) in
                    let trustees = trustees_of_string G.read trustees in
                    if not (K.check trustees) then
@@ -2353,6 +2358,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                          ) ts
                      in
                      let module G = (val Group.of_string se.se_group : GROUP) in
+                     let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
                      let module P = Trustees.MakePKI (G) (LwtRandom) in
                      let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
                      let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in

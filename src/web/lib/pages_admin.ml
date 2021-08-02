@@ -1681,8 +1681,14 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       div
         ~a:[a_style "display:none;"]
         [
-          div [txt "Group parameters:"];
-          div [raw_textarea "group" se.se_group];
+          div [
+              txt "Version:";
+              raw_textarea "version" (string_of_int (Option.get se.se_version 0));
+            ];
+          div [
+              txt "Group parameters:";
+              raw_textarea "group" se.se_group
+            ];
         ]
     in
     let interactivity =
@@ -1747,6 +1753,10 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     in
     let inputs =
       div ~a:[a_style "display:none;"] [
+          div [
+              txt "Version: ";
+              raw_textarea "version" (Option.get se.se_version 0 |> string_of_int);
+            ];
           div [
               txt "Step: ";
               raw_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);

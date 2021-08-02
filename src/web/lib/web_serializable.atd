@@ -135,6 +135,7 @@ type draft_threshold_trustee = {
 } <ocaml field_prefix="stt_">
 
 type draft_election = {
+  ?version : int option;
   owner : user;
   group <ocaml mutable> : string;
   voters <ocaml mutable> : draft_voter list;

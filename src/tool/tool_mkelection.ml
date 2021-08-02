@@ -20,11 +20,13 @@
 (**************************************************************************)
 
 open Belenios_core
+open Belenios
 open Serializable_builtin_t
 open Serializable_j
 open Signatures
 
 module type PARAMS = sig
+  val version : int
   val uuid : string
   val group : string
   val template : string
@@ -41,10 +43,12 @@ module type PARSED_PARAMS = sig
   val group : string
   module G : GROUP
   val get_trustees : unit -> G.t trustees
+  module Trustees : Trustees_sig.S
 end
 
 let parse_params p =
   let module P = (val p : PARAMS) in
+  let module T = (val Trustees.get_by_version P.version) in
   let module R = struct
     let uuid = uuid_of_raw_string P.uuid
     let template = template_of_string P.template
@@ -52,6 +56,7 @@ let parse_params p =
     module G = (val Group.of_string P.group : GROUP)
     let get_trustees () =
       P.get_trustees () |> trustees_of_string G.read
+    module Trustees = T
   end
   in (module R : PARSED_PARAMS)
 

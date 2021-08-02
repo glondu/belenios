@@ -23,6 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_platform
 open Belenios_core
+open Belenios
 open Belenios_tool_js_common
 open Serializable_j
 open Signatures
@@ -45,8 +46,10 @@ let set_explain str =
   Dom.appendChild e (Dom_html.createBr document)
 
 let gen_cert e _ =
+  let version = get_textarea "version" |> int_of_string in
   let group = get_textarea "group" in
   let module G = (val Group.of_string group : GROUP) in
+  let module Trustees = (val Trustees.get_by_version version) in
   let module P = Trustees.MakePKI (G) (DirectRandom) in
   let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
   let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
@@ -61,6 +64,7 @@ let gen_cert e _ =
   Js._false
 
 let proceed step =
+  let version = get_textarea "version" |> int_of_string in
   let group = get_textarea "group" in
   let$ e = document##getElementById (Js.string "compute_private_key") in
   let$ e = Dom_html.CoerceTo.input e in
@@ -68,6 +72,7 @@ let proceed step =
   let certs = certs_of_string (get_textarea "certs") in
   let threshold = int_of_string (get_textarea "threshold") in
   let module G = (val Group.of_string group : GROUP) in
+  let module Trustees = (val Trustees.get_by_version version) in
   let module P = Trustees.MakePKI (G) (DirectRandom) in
   let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
   let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
