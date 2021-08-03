@@ -33,10 +33,10 @@ module MakeVerificator (G : GROUP) = struct
 
   let verify vk {s_message; s_signature = { challenge; response }} =
     check_modulo G.q challenge &&
-    check_modulo G.q response &&
-    let commitment = G.(g **~ response *~ vk **~ challenge) in
-    let prefix = "sigmsg|" ^ s_message ^ "|" in
-    Z.(challenge =% G.hash prefix [|commitment|])
+      check_modulo G.q response &&
+        let commitment = G.(g **~ response *~ vk **~ challenge) in
+        let prefix = "sigmsg|" ^ s_message ^ "|" in
+        Z.(challenge =% G.hash prefix [|commitment|])
 
   let verify_cert x =
     let keys = cert_keys_of_string G.read x.s_message in
@@ -77,26 +77,26 @@ module MakeCombinator (G : GROUP) = struct
 
   let check_single {trustee_pok; trustee_public_key = y; _} =
     G.check y &&
-    let {challenge; response} = trustee_pok in
-    check_modulo G.q challenge &&
-    check_modulo G.q response &&
-    let commitment = G.(g **~ response / (y **~ challenge)) in
-    let zkp = "pok|" ^ G.to_string y ^ "|" in
-    Z.(challenge =% G.hash zkp [| commitment |])
+      let {challenge; response} = trustee_pok in
+      check_modulo G.q challenge &&
+        check_modulo G.q response &&
+          let commitment = G.(g **~ response / (y **~ challenge)) in
+          let zkp = "pok|" ^ G.to_string y ^ "|" in
+          Z.(challenge =% G.hash zkp [| commitment |])
 
   let check_pedersen t =
     Array.forall V.verify_cert t.t_certs &&
-    let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) t.t_certs in
-    Array.forall2 (fun cert x ->
-        V.verify cert.cert_verification x
-      ) certs t.t_coefexps &&
-    let coefexps = Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps) t.t_coefexps in
-    Array.forall check_single t.t_verification_keys &&
-    let computed_vks = V.compute_verification_keys coefexps in
-    t.t_threshold = Array.length coefexps.(0) &&
-    Array.forall2 G.(fun vk computed_vk ->
-        vk.trustee_public_key =~ computed_vk
-      ) t.t_verification_keys computed_vks
+      let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) t.t_certs in
+      Array.forall2 (fun cert x ->
+          V.verify cert.cert_verification x
+        ) certs t.t_coefexps &&
+        let coefexps = Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps) t.t_coefexps in
+        Array.forall check_single t.t_verification_keys &&
+          let computed_vks = V.compute_verification_keys coefexps in
+          t.t_threshold = Array.length coefexps.(0) &&
+            Array.forall2 G.(fun vk computed_vk ->
+            vk.trustee_public_key =~ computed_vk
+            ) t.t_verification_keys computed_vks
 
   let check trustees =
     trustees
@@ -281,7 +281,7 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     let cert = string_of_cert_keys G.write cert_keys in
     sign sk cert
 
-    include MakeVerificator (G)
+  include MakeVerificator (G)
 end
 
 module MakeChannels (G : GROUP) (M : RANDOM)
@@ -487,7 +487,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     in
     let computed_vk = (V.compute_verification_keys coefexps).(i) in
     L.check [`Single voutput.vo_public_key] &&
-    voutput.vo_public_key.trustee_public_key =~ computed_vk
+      voutput.vo_public_key.trustee_public_key =~ computed_vk
 
   let step6 certs polynomials voutputs =
     let n = Array.length certs.certs in

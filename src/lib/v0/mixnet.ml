@@ -223,49 +223,49 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let n = Array.length ee in
     let h = get_generator_indep (-1) in
     n = Array.length ee' &&
-    let t, s, cc, cc_hat = proof in
-    let t1, t2, t3, (t41, t42), tt_hat = t in
-    let s1, s2, s3, s4, ss_hat, ss' = s in
-    Array.forall G.check [| t1; t2; t3; t41; t42 |] &&
-    Array.forall (check_modulo G.q) [| s1; s2; s3; s4 |] &&
-    n = Array.length cc &&
-    n = Array.length cc_hat &&
-    n = Array.length tt_hat &&
-    n = Array.length ss_hat &&
-    n = Array.length ss' &&
-    Array.forall G.check cc &&
-    Array.forall G.check cc_hat &&
-    Array.forall G.check tt_hat &&
-    Array.forall (check_modulo G.q) ss_hat &&
-    Array.forall (check_modulo G.q) ss' &&
-    let hh = Array.init n get_generator_indep in
-    let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in
-    let uu = get_nizkp_challenges n ("shuffle-challenges|" ^ str1) in
-    let str2 = str_elts [| t1; t2; t3; t41; t42 |] ^ str_elts tt_hat in
-    let str3 = str1 ^ str_elts cc_hat ^ G.to_string y in
-    let c = get_nizkp_challenge ("shuffle-challenge|" ^ str2 ^ str3) in
-    let c_bar = (Array.fold_left ( *~ ) one cc) *~ invert (Array.fold_left ( *~ ) one hh) in
-    let u = Z.(Array.fold_left ( * ) one uu mod G.q) in
-    let c_hat = (if n = 0 then h else cc_hat.(pred n)) *~ invert (h **~ u) in
-    let c_tilde = Array.fold_left ( *~ ) one (Array.map2 ( **~ ) cc uu) in
-    let a' = Array.fold_left ( *~ ) one (Array.map2 (fun x u -> x.beta **~ u) ee uu) in
-    let b' = Array.fold_left ( *~ ) one (Array.map2 (fun x u -> x.alpha **~ u) ee uu) in
-    let t1' = invert (c_bar **~ c) *~ (g **~ s1) in
-    let t2' = invert (c_hat **~ c) *~ (g **~ s2) in
-    let t3' = invert (c_tilde **~ c) *~ Array.fold_left ( *~ ) (g **~ s3) (Array.map2 ( **~ ) hh ss') in
-    let t41' = Array.fold_left ( *~ ) (invert ((a' **~ c) *~ (y **~ s4))) (Array.map2 (fun x s -> x.beta **~ s) ee' ss') in
-    let t42' = Array.fold_left ( *~ ) (invert ((b' **~ c) *~ (g **~ s4))) (Array.map2 (fun x s -> x.alpha **~ s) ee' ss') in
-    let tt'_hat =
-      Array.init n (fun i ->
-          let x = if i = 0 then h else cc_hat.(pred i) in
-          invert (cc_hat.(i) **~ c) *~ (g **~ ss_hat.(i)) *~ (x **~ ss'.(i))
-        )
-    in
-    G.compare t1 t1' = 0 &&
-    G.compare t2 t2' = 0 &&
-    G.compare t3 t3' = 0 &&
-    G.compare t41 t41' = 0 &&
-    G.compare t42 t42' = 0 &&
-    Array.forall2 (fun t t' -> G.compare t t' = 0) tt_hat tt'_hat
+      let t, s, cc, cc_hat = proof in
+      let t1, t2, t3, (t41, t42), tt_hat = t in
+      let s1, s2, s3, s4, ss_hat, ss' = s in
+      Array.forall G.check [| t1; t2; t3; t41; t42 |] &&
+        Array.forall (check_modulo G.q) [| s1; s2; s3; s4 |] &&
+          n = Array.length cc &&
+            n = Array.length cc_hat &&
+              n = Array.length tt_hat &&
+                n = Array.length ss_hat &&
+                  n = Array.length ss' &&
+                    Array.forall G.check cc &&
+                      Array.forall G.check cc_hat &&
+                        Array.forall G.check tt_hat &&
+                          Array.forall (check_modulo G.q) ss_hat &&
+                            Array.forall (check_modulo G.q) ss' &&
+                              let hh = Array.init n get_generator_indep in
+                              let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in
+                              let uu = get_nizkp_challenges n ("shuffle-challenges|" ^ str1) in
+                              let str2 = str_elts [| t1; t2; t3; t41; t42 |] ^ str_elts tt_hat in
+                              let str3 = str1 ^ str_elts cc_hat ^ G.to_string y in
+                              let c = get_nizkp_challenge ("shuffle-challenge|" ^ str2 ^ str3) in
+                              let c_bar = (Array.fold_left ( *~ ) one cc) *~ invert (Array.fold_left ( *~ ) one hh) in
+                              let u = Z.(Array.fold_left ( * ) one uu mod G.q) in
+                              let c_hat = (if n = 0 then h else cc_hat.(pred n)) *~ invert (h **~ u) in
+                              let c_tilde = Array.fold_left ( *~ ) one (Array.map2 ( **~ ) cc uu) in
+                              let a' = Array.fold_left ( *~ ) one (Array.map2 (fun x u -> x.beta **~ u) ee uu) in
+                              let b' = Array.fold_left ( *~ ) one (Array.map2 (fun x u -> x.alpha **~ u) ee uu) in
+                              let t1' = invert (c_bar **~ c) *~ (g **~ s1) in
+                              let t2' = invert (c_hat **~ c) *~ (g **~ s2) in
+                              let t3' = invert (c_tilde **~ c) *~ Array.fold_left ( *~ ) (g **~ s3) (Array.map2 ( **~ ) hh ss') in
+                              let t41' = Array.fold_left ( *~ ) (invert ((a' **~ c) *~ (y **~ s4))) (Array.map2 (fun x s -> x.beta **~ s) ee' ss') in
+                              let t42' = Array.fold_left ( *~ ) (invert ((b' **~ c) *~ (g **~ s4))) (Array.map2 (fun x s -> x.alpha **~ s) ee' ss') in
+                              let tt'_hat =
+                                Array.init n (fun i ->
+                                    let x = if i = 0 then h else cc_hat.(pred i) in
+                                    invert (cc_hat.(i) **~ c) *~ (g **~ ss_hat.(i)) *~ (x **~ ss'.(i))
+                                  )
+                              in
+                              G.compare t1 t1' = 0 &&
+                                G.compare t2 t2' = 0 &&
+                                  G.compare t3 t3' = 0 &&
+                                    G.compare t41 t41' = 0 &&
+                                      G.compare t42 t42' = 0 &&
+                                        Array.forall2 (fun t t' -> G.compare t t' = 0) tt_hat tt'_hat
 
 end

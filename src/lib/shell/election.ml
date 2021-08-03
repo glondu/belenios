@@ -81,99 +81,99 @@ module Parse (R : RAW_ELECTION) () = struct
   let wpk = Yojson.Safe.to_string params.e_public_key
   module W = (val Group.wrapped_pubkey_of_string wpk)
 
-      module G = W.G
-      let election =
-        let {
-            e_description; e_name; e_questions; e_uuid;
-            e_administrator; e_credential_authority;
-            _
-          } = params
-        in
-        let open Serializable_j in
-        {
-          e_version = 0;
-          e_description; e_name; e_questions; e_uuid;
-          e_administrator; e_credential_authority;
-        }
-      let fingerprint = sha256_b64 R.raw_election
-      let public_key = W.y
+  module G = W.G
+  let election =
+    let {
+        e_description; e_name; e_questions; e_uuid;
+        e_administrator; e_credential_authority;
+        _
+      } = params
+    in
+    let open Serializable_j in
+    {
+      e_version = 0;
+      e_description; e_name; e_questions; e_uuid;
+      e_administrator; e_credential_authority;
+    }
+  let fingerprint = sha256_b64 R.raw_election
+  let public_key = W.y
 
-      type nonrec ballot = G.t ballot
-      let string_of_ballot x = string_of_ballot G.write x
-      let ballot_of_string x = ballot_of_string G.read x
-      let get_credential x =
-        match x.signature with
-        | None -> None
-        | Some s -> Some s.s_public_key
+  type nonrec ballot = G.t ballot
+  let string_of_ballot x = string_of_ballot G.write x
+  let ballot_of_string x = ballot_of_string G.read x
+  let get_credential x =
+    match x.signature with
+    | None -> None
+    | Some s -> Some s.s_public_key
 
-      type result = raw_result
+  type result = raw_result
 
-      let cast_result x =
-        let questions = election.e_questions in
-        let n = Array.length questions in
-        if Array.length x = n then (
-          let rec check i =
-            if i < n then (
-              match questions.(i), x.(i) with
-              | Homomorphic _, RHomomorphic _ -> check (i + 1)
-              | NonHomomorphic _, RNonHomomorphic _ -> check (i + 1)
-              | _, _ -> failwith "cast_result: type mismatch"
-            ) else ()
-          in
-          check 0;
-          x
-        ) else failwith "cast_result: length mismatch"
+  let cast_result x =
+    let questions = election.e_questions in
+    let n = Array.length questions in
+    if Array.length x = n then (
+      let rec check i =
+        if i < n then (
+          match questions.(i), x.(i) with
+          | Homomorphic _, RHomomorphic _ -> check (i + 1)
+          | NonHomomorphic _, RNonHomomorphic _ -> check (i + 1)
+          | _, _ -> failwith "cast_result: type mismatch"
+        ) else ()
+      in
+      check 0;
+      x
+    ) else failwith "cast_result: length mismatch"
 
-      let write_result = write_raw_result
+  let write_result = write_raw_result
 
-      let read_result state buf =
-        match Yojson.Safe.from_lexbuf ~stream:true state buf with
-        | `List xs ->
-           let n = Array.length election.e_questions in
-           let result = Array.make n (RHomomorphic [||]) in
-           let rec loop i xs =
-             match (i < n), xs with
-             | true, (x :: xs) ->
-                (match election.e_questions.(i) with
-                 | Homomorphic _ ->
-                    (match x with
-                     | `List ys ->
-                        ys
-                        |> Array.of_list
-                        |> Array.map weight_of_json
-                        |> (fun x -> result.(i) <- RHomomorphic x)
-                        |> (fun () -> loop (i + 1) xs)
-                     | _ -> failwith "read_result/Homomorphic: list expected"
-                    )
-                 | NonHomomorphic _ ->
-                    (match x with
-                     | `List ys ->
-                        ys
-                        |> Array.of_list
-                        |> Array.map
-                             (function
-                              | `List zs ->
-                                 zs
-                                 |> Array.of_list
-                                 |> Array.map
-                                      (function
-                                       | `Int i -> i
-                                       | _ -> failwith "read_result: int expected"
-                                      )
-                              | _ -> failwith "read_result/NonHomomorphic: list list expected"
-                             )
-                        |> (fun x -> result.(i) <- RNonHomomorphic x)
-                        |> (fun () -> loop (i + 1) xs)
-                     | _ -> failwith "read_result/NonHomomorphic: list expected"
-                    )
+  let read_result state buf =
+    match Yojson.Safe.from_lexbuf ~stream:true state buf with
+    | `List xs ->
+       let n = Array.length election.e_questions in
+       let result = Array.make n (RHomomorphic [||]) in
+       let rec loop i xs =
+         match (i < n), xs with
+         | true, (x :: xs) ->
+            (match election.e_questions.(i) with
+             | Homomorphic _ ->
+                (match x with
+                 | `List ys ->
+                    ys
+                    |> Array.of_list
+                    |> Array.map weight_of_json
+                    |> (fun x -> result.(i) <- RHomomorphic x)
+                    |> (fun () -> loop (i + 1) xs)
+                 | _ -> failwith "read_result/Homomorphic: list expected"
                 )
-             | true, [] -> failwith "read_result: list too short"
-             | false, _ :: _ -> failwith "read_result: list too long"
-             | false, [] -> ()
-           in
-           loop 0 xs;
-           result
-        | _ -> failwith "read_result: list expected"
+             | NonHomomorphic _ ->
+                (match x with
+                 | `List ys ->
+                    ys
+                    |> Array.of_list
+                    |> Array.map
+                         (function
+                          | `List zs ->
+                             zs
+                             |> Array.of_list
+                             |> Array.map
+                                  (function
+                                   | `Int i -> i
+                                   | _ -> failwith "read_result: int expected"
+                                  )
+                          | _ -> failwith "read_result/NonHomomorphic: list list expected"
+                         )
+                    |> (fun x -> result.(i) <- RNonHomomorphic x)
+                    |> (fun () -> loop (i + 1) xs)
+                 | _ -> failwith "read_result/NonHomomorphic: list expected"
+                )
+            )
+         | true, [] -> failwith "read_result: list too short"
+         | false, _ :: _ -> failwith "read_result: list too long"
+         | false, [] -> ()
+       in
+       loop 0 xs;
+       result
+    | _ -> failwith "read_result: list expected"
 
 end
 

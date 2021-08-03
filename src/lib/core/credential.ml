@@ -49,9 +49,9 @@ module MakeGenerate (M : RANDOM) = struct
     let rec loop i accu =
       if i < token_length then (
         M.bind (get_random_digit ()) (fun digit ->
-          Bytes.set res i digits.[digit];
-          loop (i+1) Z.(n58 * accu + of_int digit)
-        )
+            Bytes.set res i digits.[digit];
+            loop (i+1) Z.(n58 * accu + of_int digit)
+          )
       ) else M.return (Bytes.to_string res, accu)
     in loop 0 Z.zero
 

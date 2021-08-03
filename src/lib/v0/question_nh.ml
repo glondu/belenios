@@ -49,10 +49,10 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let {alpha; beta} = a.choices in
     let {challenge; response} = a.proof in
     G.check alpha && G.check beta &&
-    check_modulo G.q challenge && check_modulo G.q response &&
-    let commitment = (g **~ response) *~ (alpha **~ challenge) in
-    let zkp = Printf.sprintf "raweg|%s|%s,%s,%s|" prefix (G.to_string y) (G.to_string alpha) (G.to_string beta) in
-    Z.(challenge =% G.hash zkp [| commitment |])
+      check_modulo G.q challenge && check_modulo G.q response &&
+        let commitment = (g **~ response) *~ (alpha **~ challenge) in
+        let zkp = Printf.sprintf "raweg|%s|%s,%s,%s|" prefix (G.to_string y) (G.to_string alpha) (G.to_string beta) in
+        Z.(challenge =% G.hash zkp [| commitment |])
 
   let extract_ciphertexts _ a =
     SAtomic a.choices

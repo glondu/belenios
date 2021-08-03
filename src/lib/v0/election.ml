@@ -97,20 +97,20 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       match sk with
       | None -> M.return None
       | Some (x, y) ->
-        let* w = M.random q in
-        let commitment = g **~ w in
-        let prefix = make_sig_prefix zkp commitment in
-        let contents = make_sig_contents answers in
-        let s_challenge = G.hash prefix contents in
-        let s_response = Z.(erem (w - x * s_challenge) q) in
-        M.return (Some {s_public_key = y; s_challenge; s_response})
+         let* w = M.random q in
+         let commitment = g **~ w in
+         let prefix = make_sig_prefix zkp commitment in
+         let contents = make_sig_contents answers in
+         let s_challenge = G.hash prefix contents in
+         let s_response = Z.(erem (w - x * s_challenge) q) in
+         M.return (Some {s_public_key = y; s_challenge; s_response})
     in
     M.return {
-      answers;
-      election_hash = W.fingerprint;
-      election_uuid = election.e_uuid;
-      signature;
-    }
+        answers;
+        election_hash = W.fingerprint;
+        election_uuid = election.e_uuid;
+        signature;
+      }
 
   (** Ballot verification *)
 
@@ -119,22 +119,22 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   let check_ballot b =
     b.election_uuid = election.e_uuid &&
-    b.election_hash = W.fingerprint &&
-    let ok, zkp = match b.signature with
-      | Some {s_public_key = y; s_challenge; s_response} ->
-        let zkp = G.to_string y in
-        let ok =
-          G.check y &&
-          check_modulo q s_challenge &&
-          check_modulo q s_response &&
-          let commitment = g **~ s_response *~ y **~ s_challenge in
-          let prefix = make_sig_prefix zkp commitment in
-          let contents = make_sig_contents b.answers in
-          Z.(s_challenge =% G.hash prefix contents)
-        in ok, zkp
-      | None -> true, ""
-    in ok &&
-    Array.forall2 (verify_answer W.public_key zkp) election.e_questions b.answers
+      b.election_hash = W.fingerprint &&
+        let ok, zkp = match b.signature with
+          | Some {s_public_key = y; s_challenge; s_response} ->
+             let zkp = G.to_string y in
+             let ok =
+               G.check y &&
+                 check_modulo q s_challenge &&
+                   check_modulo q s_response &&
+                     let commitment = g **~ s_response *~ y **~ s_challenge in
+                     let prefix = make_sig_prefix zkp commitment in
+                     let contents = make_sig_contents b.answers in
+                     Z.(s_challenge =% G.hash prefix contents)
+             in ok, zkp
+          | None -> true, ""
+        in ok &&
+             Array.forall2 (verify_answer W.public_key zkp) election.e_questions b.answers
 
   let process_ballots bs =
     SArray (
@@ -226,15 +226,15 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   let check_factor c y f =
     let zkp = "decrypt|" ^ G.to_string y ^ "|" in
     Shape.forall3 (fun {alpha; _} f {challenge; response} ->
-      check_modulo q challenge &&
-      check_modulo q response &&
-      let commitments =
-        [|
-          g **~ response / (y **~ challenge);
-          alpha **~ response / (f **~ challenge);
-        |]
-      in Z.(hash zkp commitments =% challenge)
-    ) c f.decryption_factors f.decryption_proofs
+        check_modulo q challenge &&
+          check_modulo q response &&
+            let commitments =
+              [|
+                g **~ response / (y **~ challenge);
+                alpha **~ response / (f **~ challenge);
+              |]
+            in Z.(hash zkp commitments =% challenge)
+      ) c f.decryption_factors f.decryption_proofs
 
   type result_type = W.result
   type result = (elt, result_type) Serializable_t.election_result
@@ -264,17 +264,17 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   let check_result trustees r =
     let {num_tallied; encrypted_tally; partial_decryptions; result; _} = r in
     check_ciphertext encrypted_tally &&
-    let check = check_factor encrypted_tally in
-    match Combinator.combine_factors trustees check partial_decryptions with
-    | Error _ -> false
-    | Ok factors ->
-       let results =
-         Shape.map2 (fun {beta; _} f ->
-             beta / f
-           ) encrypted_tally factors
-       in
-       match results with
-       | SArray xs ->
-          Array.forall3 (Q.check_result ~num_tallied) election.e_questions xs (result : W.result :> raw_result)
-       | _ -> false
+      let check = check_factor encrypted_tally in
+      match Combinator.combine_factors trustees check partial_decryptions with
+      | Error _ -> false
+      | Ok factors ->
+         let results =
+           Shape.map2 (fun {beta; _} f ->
+               beta / f
+             ) encrypted_tally factors
+         in
+         match results with
+         | SArray xs ->
+            Array.forall3 (Q.check_result ~num_tallied) election.e_questions xs (result : W.result :> raw_result)
+         | _ -> false
 end

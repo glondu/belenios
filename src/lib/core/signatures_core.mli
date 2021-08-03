@@ -90,7 +90,7 @@ module type GROUP = sig
   (** A total ordering over the elements of the group. *)
 
   val get_generator : int -> t
-  (** [get_generator i] computes generator #[i] of the group. *)
+                               (** [get_generator i] computes generator #[i] of the group. *)
 
 end
 
@@ -108,5 +108,5 @@ module type RANDOM = sig
   include MONAD
 
   val random : Z.t -> Z.t t
-  (** [random q] returns a random number modulo [q]. *)
+                          (** [random q] returns a random number modulo [q]. *)
 end

@@ -22,7 +22,7 @@
 open Belenios_core.Signatures
 
 module Make (W : ELECTION_DATA) (M : RANDOM) :
-  ELECTION_OPS with
+ELECTION_OPS with
          type elt = W.G.t and
          type 'a m = 'a M.t and
          type ballot = W.G.t Serializable_t.ballot and

@@ -31,7 +31,7 @@ module Array : sig
   val forall3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
   val map2 : ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
   val map3 : ('a -> 'b -> 'c -> 'd) ->
-    'a array -> 'b array -> 'c array -> 'd array
+             'a array -> 'b array -> 'c array -> 'd array
   val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
   val split : ('a * 'b) array -> 'a array * 'b array
 end
