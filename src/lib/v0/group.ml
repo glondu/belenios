@@ -19,63 +19,31 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
 open Belenios_core
-open Belenios
-open Platform
 open Serializable_j
 open Signatures
-open Common
 
-module type PARAMS = sig
-  val group : string
-  val version : int
-end
+(** Generic group parsing *)
 
-module type S = sig
-  type keypair = { id : string; priv : string; pub : string }
-  val trustee_keygen : unit -> keypair
-end
+(* For now, only finite fields are supported... *)
 
-module type PARSED_PARAMS = sig
-  module G : GROUP
-  module Trustees : Trustees_sig.S
-end
+let of_string x =
+  let group = ff_params_of_string x in
+  let module G = (val Group_field.make group : Group_field.GROUP) in
+  (module G : GROUP)
 
-let parse_params p =
-  let module P = (val p : PARAMS) in
-  let module T = (val Trustees.get_by_version P.version) in
-  let module R = struct
-    module G = (val Group.of_string ~version:P.version P.group : GROUP)
-    module Trustees = T
-  end
-  in (module R : PARSED_PARAMS)
+let read state buf =
+  let group = read_ff_params state buf in
+  let module G = (val Group_field.make group : Group_field.GROUP) in
+  (module G : GROUP)
 
-module Make (P : PARSED_PARAMS) : S = struct
-  open P
-
-  (* Generate key *)
-
-  module KG = Trustees.MakeSimple (G) (DirectRandom)
-  module K = Trustees.MakeCombinator (G)
-
-  type keypair = { id : string; priv : string; pub : string }
-
-  let trustee_keygen () =
-    let private_key = KG.generate () in
-    let public_key = KG.prove private_key in
-    assert (K.check [`Single public_key]);
-    let id = String.sub
-      (sha256_hex (G.to_string public_key.trustee_public_key))
-      0 8 |> String.uppercase_ascii
-    in
-    let priv = string_of_number private_key in
-    let pub = string_of_trustee_public_key G.write public_key in
-    {id; priv; pub}
-
-end
-
-let make params =
-  let module P = (val parse_params params : PARSED_PARAMS) in
-  let module R = Make (P) in
-  (module R : S)
+let wrapped_pubkey_of_string x =
+  let x = wrapped_pubkey_of_string read Yojson.Safe.read_json x in
+  let {wpk_group=group; wpk_y=y} = x in
+  let module X =
+    struct
+      module G = (val group)
+      let y = G.of_string (Yojson.Safe.Util.to_string y)
+    end
+  in
+  (module X : WRAPPED_PUBKEY)

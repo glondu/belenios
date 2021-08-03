@@ -53,6 +53,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       write_file ~uuid "passwords.csv"
 
   let validate_election uuid se =
+    let version = Option.get se.se_version 0 in
     let uuid_s = raw_string_of_uuid uuid in
     (* voters *)
     let () =
@@ -72,9 +73,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         failwith "public credentials are missing"
     in
     (* trustees *)
-    let group = Group.of_string se.se_group in
+    let group = Group.of_string ~version se.se_group in
     let module G = (val group : GROUP) in
-    let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
+    let module Trustees = (val Trustees.get_by_version version) in
     let module K = Trustees.MakeCombinator (G) in
     let module KG = Trustees.MakeSimple (G) (LwtRandom) in
     let* trustee_names, trustees, private_keys =
@@ -835,8 +836,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_preview
       (fun (uuid, ()) () ->
         with_draft_election_ro uuid (fun se ->
+            let version = Option.get se.se_version 0 in
             let group = se.se_group in
-            let module G = (val Group.of_string group : GROUP) in
+            let module G = (val Group.of_string ~version group : GROUP) in
             let params = {
                 e_version = Option.get se.se_version 0;
                 e_description = se.se_questions.t_description;
@@ -1013,7 +1015,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let trustee_add_server se =
     let st_id = "server" and st_token = "" in
-    let module G = (val Group.of_string se.se_group) in
+    let version = Option.get se.se_version 0 in
+    let module G = (val Group.of_string ~version se.se_group) in
     let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
     let module K = Trustees.MakeSimple (G) (LwtRandom) in
     let* private_key = K.generate () in
@@ -1083,7 +1086,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     | Some se ->
        if se.se_public_creds <> token then forbidden () else
          if se.se_public_creds_received then forbidden () else
-           let module G = (val Group.of_string se.se_group : GROUP) in
+           let version = Option.get se.se_version 0 in
+           let module G = (val Group.of_string ~version se.se_group : GROUP) in
            let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
            let* () =
              Web_election_mutex.with_lock uuid
@@ -1173,7 +1177,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                           ~absolute:true ~service:election_home
                           (uuid, ()) |> rewrite_prefix
               in
-              let module G = (val Group.of_string se.se_group : GROUP) in
+              let version = Option.get se.se_version 0 in
+              let module G = (val Group.of_string ~version se.se_group : GROUP) in
               let module CMap = Map.Make (G) in
               let module CD = Credential.MakeDerive (G) in
               let show_weight =
@@ -1301,7 +1306,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                             let title = s_ "Error" in
                             return (title, msg, 400)
                           else
-                            let module G = (val Group.of_string se.se_group : GROUP) in
+                            let version = Option.get se.se_version 0 in
+                            let module G = (val Group.of_string ~version se.se_group : GROUP) in
                             let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
                             let pk = trustee_public_key_of_string G.read public_key in
                             let module K = Trustees.MakeCombinator (G) in
@@ -1442,7 +1448,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 | None -> Lwt.fail (TrusteeImportError (s_ "Could not retrieve trustees from selected election!"))
                 | Some names ->
                    let* trustees = Web_persist.get_trustees from in
-                   let module G = (val Group.of_string se.se_group : GROUP) in
+                   let version = Option.get se.se_version 0 in
+                   let module G = (val Group.of_string ~version se.se_group : GROUP) in
                    let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
                    let module K = Trustees.MakeCombinator (G) in
                    let trustees = trustees_of_string G.read trustees in
@@ -2361,7 +2368,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                            | Some y -> y
                          ) ts
                      in
-                     let module G = (val Group.of_string se.se_group : GROUP) in
+                     let version = Option.get se.se_version 0 in
+                     let module G = (val Group.of_string ~version se.se_group : GROUP) in
                      let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
                      let module P = Trustees.MakePKI (G) (LwtRandom) in
                      let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in

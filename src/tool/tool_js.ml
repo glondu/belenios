@@ -142,6 +142,7 @@ module Credgen = struct
 
   let derive () =
     let module P : PARAMS = struct
+      let version = get_textarea "version" |> int_of_string
       let uuid = get_textarea "election_uuid"
       let group = get_textarea "election_group"
     end in
@@ -151,6 +152,7 @@ module Credgen = struct
 
   let generate ids =
     let module P : PARAMS = struct
+      let version = get_textarea "version" |> int_of_string
       let uuid = get_textarea "election_uuid"
       let group = get_textarea "election_group"
     end in

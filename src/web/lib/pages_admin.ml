@@ -1587,6 +1587,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       div
         ~a:[a_style "display:none;"]
         [
+          div [txt "Version:"];
+          div [raw_textarea "version" (Option.get se.se_version 0 |> string_of_int)];
           div [txt "UUID:"];
           div [raw_textarea "uuid" (raw_string_of_uuid uuid)];
           div [txt "Group parameters:"];

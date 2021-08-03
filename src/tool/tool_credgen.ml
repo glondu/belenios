@@ -25,6 +25,7 @@ open Signatures
 open Common
 
 module type PARAMS = sig
+  val version : int
   val uuid : string
   val group : string
 end
@@ -43,7 +44,7 @@ let parse_params p =
   let module P = (val p : PARAMS) in
   let module R = struct
     let uuid = uuid_of_raw_string P.uuid
-    module G = (val Group.of_string P.group : GROUP)
+    module G = (val Belenios.Group.of_string ~version:P.version P.group : GROUP)
   end
   in (module R : PARSED_PARAMS)
 

@@ -19,30 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_j
-open Signatures
+open Belenios_core.Signatures
 
-(** Generic group parsing *)
-
-(* For now, only finite fields are supported... *)
-
-let of_string x =
-  let group = ff_params_of_string x in
-  let module G = (val Group_field.make group : Group_field.GROUP) in
-  (module G : GROUP)
-
-let read state buf =
-  let group = read_ff_params state buf in
-  let module G = (val Group_field.make group : Group_field.GROUP) in
-  (module G : GROUP)
-
-let wrapped_pubkey_of_string x =
-  let x = wrapped_pubkey_of_string read Yojson.Safe.read_json x in
-  let {wpk_group=group; wpk_y=y} = x in
-  let module X =
-    struct
-      module G = (val group)
-      let y = G.of_string (Yojson.Safe.Util.to_string y)
-    end
-  in
-  (module X : WRAPPED_PUBKEY)
+val of_string : version:int -> string -> (module GROUP)

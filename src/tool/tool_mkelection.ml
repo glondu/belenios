@@ -55,7 +55,7 @@ let parse_params p =
     let uuid = uuid_of_raw_string P.uuid
     let template = template_of_string P.template
     let group = P.group
-    module G = (val Group.of_string P.group : GROUP)
+    module G = (val Group.of_string ~version P.group : GROUP)
     let get_trustees () =
       P.get_trustees () |> trustees_of_string G.read
     module Trustees = T

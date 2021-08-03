@@ -218,7 +218,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
           | Some l -> Array.of_list (List.rev l)
         in
         let group = get_mandatory_opt "--group" group |> string_of_file in
-        let module G = (val Group.of_string group : GROUP) in
+        let module G = (val Group.of_string ~version group : GROUP) in
         let module Trustees = (val Trustees.get_by_version version) in
         let module P = Trustees.MakePKI (G) (DirectRandom) in
         let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
@@ -609,9 +609,10 @@ module Credgen : CMDLINER_MODULE = struct
     close_out oc;
     Printf.printf "%d %s saved to %s\n%!" !count info fname
 
-  let main group dir uuid count file derive =
+  let main version group dir uuid count file derive =
     wrap_main (fun () ->
       let module P = struct
+        let version = version
         let group = get_mandatory_opt "--group" group |> string_of_file
         let uuid = get_mandatory_opt "--uuid" uuid
       end in
@@ -663,7 +664,7 @@ module Credgen : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command is run by a credential authority to generate credentials for a specific election. The generated private credentials are stored in $(i,T.privcreds), where $(i,T) is a timestamp. $(i,T.privcreds) contains one credential per line. Each voter must be sent a credential, and $(i,T.privcreds) must be destroyed after dispatching is done. The associated public keys are stored in $(i,T.pubcreds) and must be sent to the election administrator.";
     ] @ common_man in
-    Term.(ret (pure main $ group_t $ dir_t $ uuid_t $ count_t $ file_t $ derive_t)),
+    Term.(ret (pure main $ version_t $ group_t $ dir_t $ uuid_t $ count_t $ file_t $ derive_t)),
     Term.info "credgen" ~doc ~man
 
   let cmds = [credgen_cmd]

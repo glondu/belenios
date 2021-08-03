@@ -44,6 +44,7 @@ let generate _ =
     in loop (String.length raw - 2) []
   in
   let module P : PARAMS = struct
+    let version = get_textarea "version" |> int_of_string
     let uuid = get_textarea "uuid"
     let group = get_textarea "group"
   end in

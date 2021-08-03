@@ -19,13 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-(** Generic group parsing *)
-
-open Signatures
-
-val of_string : string -> (module GROUP)
-(** Parse a [Serializable_t.group]. *)
-
-val read : (module GROUP) reader
-
-val wrapped_pubkey_of_string : string -> (module WRAPPED_PUBKEY)
+let of_string ~version =
+  match version with
+  | 0 -> Belenios_v0.Group.of_string
+  | n -> Printf.ksprintf failwith "Group.of_string: unsupported version: %d" n

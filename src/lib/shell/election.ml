@@ -58,7 +58,7 @@ let make_raw_election params ~group ~public_key =
        } = params
      in
      let wpk_group = ff_params_of_string group in
-     let module G = (val Group.of_string group) in
+     let module G = (val Belenios_v0.Group.of_string group) in
      let wpk_y = G.of_string public_key in
      let e_public_key = {wpk_group; wpk_y} in
      let open Belenios_v0.Serializable_j in
