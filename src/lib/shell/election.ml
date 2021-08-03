@@ -73,39 +73,8 @@ let make_raw_election params ~group ~public_key =
      Printf.ksprintf invalid_arg
        "make_raw_election: unsupported version: %d" n
 
-(** Parsing helpers *)
-
-module Parse (R : RAW_ELECTION) () = struct
-  open Belenios_v0.Serializable_j
-  let params = params_of_string Yojson.Safe.read_json R.raw_election
-  let wpk = Yojson.Safe.to_string params.e_public_key
-  module W = (val Group.wrapped_pubkey_of_string wpk)
-
-  module G = W.G
-  let election =
-    let {
-        e_description; e_name; e_questions; e_uuid;
-        e_administrator; e_credential_authority;
-        _
-      } = params
-    in
-    let open Serializable_j in
-    {
-      e_version = 0;
-      e_description; e_name; e_questions; e_uuid;
-      e_administrator; e_credential_authority;
-    }
-  let fingerprint = sha256_b64 R.raw_election
-  let public_key = W.y
-
-  type nonrec ballot = G.t ballot
-  let string_of_ballot x = string_of_ballot G.write x
-  let ballot_of_string x = ballot_of_string G.read x
-  let get_credential x =
-    match x.signature with
-    | None -> None
-    | Some s -> Some s.s_public_key
-
+module MakeResult (X : ELECTION_BASE) = struct
+  open X
   type result = raw_result
 
   let cast_result x =
@@ -185,12 +154,7 @@ let has_nh_questions e =
       | Question.Homomorphic _ -> false
     ) e.e_questions
 
-module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
-  module X = Parse (R) ()
-  include X
-  type 'a m = 'a M.t
-  module E = Belenios_v0.Election.Make (X) (M)
-end
+module Make = Belenios_v0.Election.Make (MakeResult)
 
 (** Computing checksums *)
 

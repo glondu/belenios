@@ -19,17 +19,50 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_j
+module PSerializable_j = Serializable_j
 open Belenios_platform
 open Belenios_core
 open Platform
 open Serializable_builtin_t
 open Serializable_core_j
 open Serializable_j
+open PSerializable_j
 open Signatures
 open Common
 
-module Make (W : ELECTION_DATA) (M : RANDOM) = struct
+module Parse (R : RAW_ELECTION) () = struct
+  let params = params_of_string Yojson.Safe.read_json R.raw_election
+  let wpk = Yojson.Safe.to_string params.e_public_key
+  module W = (val Group.wrapped_pubkey_of_string wpk)
+
+  module G = W.G
+  let election =
+    let {
+        e_description; e_name; e_questions; e_uuid;
+        e_administrator; e_credential_authority;
+        _
+      } = params
+    in
+    let open Serializable_j in
+    {
+      e_version = 0;
+      e_description; e_name; e_questions; e_uuid;
+      e_administrator; e_credential_authority;
+    }
+  let fingerprint = sha256_b64 R.raw_election
+  let public_key = W.y
+
+  type nonrec ballot = G.t ballot
+  let string_of_ballot x = string_of_ballot G.write x
+  let ballot_of_string x = ballot_of_string G.read x
+  let get_credential x =
+    match x.signature with
+    | None -> None
+    | Some s -> Some s.s_public_key
+
+end
+
+module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   type 'a m = 'a M.t
   let ( let* ) = M.bind
 
@@ -277,4 +310,15 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
          | SArray xs ->
             Array.forall3 (Q.check_result ~num_tallied) election.e_questions xs (result : W.result :> raw_result)
          | _ -> false
+end
+
+module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () = struct
+  module X = Parse (R) ()
+  module Y = struct
+    include X
+    include MakeResult (X)
+  end
+  include Y
+  type 'a m = 'a M.t
+  module E = MakeElection (Y) (M)
 end

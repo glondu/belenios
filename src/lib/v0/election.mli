@@ -21,9 +21,5 @@
 
 open Belenios_core.Signatures
 
-module Make (W : ELECTION_DATA) (M : RANDOM) :
-ELECTION_OPS with
-         type elt = W.G.t and
-         type 'a m = 'a M.t and
-         type ballot = W.G.t Serializable_t.ballot and
-         type result_type = W.result
+module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () :
+ELECTION with type 'a m = 'a M.t

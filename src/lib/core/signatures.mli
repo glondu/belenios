@@ -42,8 +42,7 @@ end
 module type MONAD = Signatures_core.MONAD
 module type RANDOM = Signatures_core.RANDOM
 
-(** Election data bundled with a group. *)
-module type ELECTION_DATA = sig
+module type ELECTION_BASE = sig
   module G : GROUP
   val election : params
   val fingerprint : string
@@ -53,11 +52,20 @@ module type ELECTION_DATA = sig
   val string_of_ballot : ballot -> string
   val ballot_of_string : string -> ballot
   val get_credential : ballot -> G.t option
+end
 
+module type ELECTION_RESULT = sig
   type result = private raw_result
   val cast_result : raw_result -> result
   val write_result : result writer
   val read_result : result reader
+end
+
+module type MAKE_RESULT = functor (X : ELECTION_BASE) -> ELECTION_RESULT
+
+module type ELECTION_DATA = sig
+  include ELECTION_BASE
+  include ELECTION_RESULT
 end
 
 type combination_error =
