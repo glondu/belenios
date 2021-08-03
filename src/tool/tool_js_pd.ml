@@ -72,7 +72,7 @@ let basic_check_private_key s =
 
 let compute_partial_decryption _ =
   let& e = Js.Opt.option !election in
-  let module P = Election.ParseMake (struct let raw_election = e end) (DirectRandom) () in
+  let module P = Election.Make (struct let raw_election = e end) (DirectRandom) () in
   let& e = Js.Opt.option !encrypted_tally in
   let encrypted_tally = encrypted_tally_of_string P.G.read e in
   let& e = document##getElementById (Js.string "private_key") in

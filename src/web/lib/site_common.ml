@@ -42,7 +42,7 @@ module Make (X : Pages_sig.S) = struct
     let* election = Web_persist.get_raw_election uuid in
     match election with
     | Some e ->
-       let module W = Election.ParseMake (struct let raw_election = e end) (LwtRandom) () in
+       let module W = Election.Make (struct let raw_election = e end) (LwtRandom) () in
        return_some (module W : Site_common_sig.ELECTION_LWT)
     | _ -> return_none
 

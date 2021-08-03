@@ -85,7 +85,7 @@ let belenios =
                 let raw_election = Js._JSON##stringify params |> Js.to_string
               end
             in
-            let module W = Election.ParseMake (R) (LwtJsRandom) () in
+            let module W = Election.Make (R) (LwtJsRandom) () in
             let* () = Lwt_js.yield () in
             let plaintext =
               Js._JSON##stringify plaintext

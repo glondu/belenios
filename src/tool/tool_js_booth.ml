@@ -409,7 +409,7 @@ let loadElection () =
         | None -> failwith "election_params is missing"
     end
   in
-  let module P = Election.ParseMake (R) (LwtJsRandom) () in
+  let module P = Election.Make (R) (LwtJsRandom) () in
   let params = P.election in
   set_content_with_br "election_name" params.e_name;
   set_content_with_br "election_description" params.e_description;

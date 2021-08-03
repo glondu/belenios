@@ -34,7 +34,7 @@ open Tool_js_i18n.Gettext
 let eta = ref 0
 
 let shuffle election ciphertexts =
-  let module W = Election.ParseMake (struct let raw_election = election end) (LwtJsRandom) () in
+  let module W = Election.Make (struct let raw_election = election end) (LwtJsRandom) () in
   let ciphertexts = nh_ciphertexts_of_string W.G.read ciphertexts in
   let full_shuffle () =
     let id =

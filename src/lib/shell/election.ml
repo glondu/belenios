@@ -160,7 +160,7 @@ let has_nh_questions e =
       | Question.Homomorphic _ -> false
     ) e.e_questions
 
-module ParseMake (R : RAW_ELECTION) (M : RANDOM) () = struct
+module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
   module X = Parse (R) ()
   include X
   type 'a m = 'a M.t

@@ -381,7 +381,7 @@ let raw_get_ballots_archived uuid =
   match x with
   | None -> return StringMap.empty
   | Some x ->
-     let module W = Election.ParseMake (struct let raw_election = x end) (LwtRandom) () in
+     let module W = Election.Make (struct let raw_election = x end) (LwtRandom) () in
      let* file = read_file ~uuid "ballots.jsons" in
      match file with
      | Some bs ->

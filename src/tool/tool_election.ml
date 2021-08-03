@@ -59,7 +59,7 @@ module PTrustees = Trustees
 
 let parse_params p =
   let module P = (val p : PARAMS) in
-  let module E = Election.ParseMake (P) (DirectRandom) () in
+  let module E = Election.Make (P) (DirectRandom) () in
   let module T = (val Trustees.get_by_version E.election.e_version) in
   let module R = struct
     include P
