@@ -27,26 +27,61 @@ open Serializable_j
 open Signatures
 open Common
 
+let get_version x =
+  let j = Yojson.Safe.from_string x in
+  match j with
+  | `Assoc o ->
+     (match List.assoc_opt "version" o with
+      | None -> 0
+      | Some (`Int x) -> x
+      | _ -> failwith "Election.of_string: invalid version"
+     )
+  | _ -> failwith "Election.of_string: invalid data"
+
 let of_string x =
-  let open Belenios_v0.Serializable_j in
-  let params = params_of_string Yojson.Safe.read_json x in
-  let {
-      e_description; e_name; e_questions; e_uuid;
-      e_administrator; e_credential_authority;
-      _
-    } = params
-  in
-  let open Serializable_j in
-  {
-    e_version = 0;
-    e_description; e_name; e_questions; e_uuid;
-    e_administrator; e_credential_authority;
-  }
+  match get_version x with
+  | 0 ->
+     let open Belenios_v0.Serializable_j in
+     let params = params_of_string Yojson.Safe.read_json x in
+     let {
+         e_description; e_name; e_questions; e_uuid;
+         e_administrator; e_credential_authority;
+         _
+       } = params
+     in
+     let open Serializable_j in
+     {
+       e_version = 0;
+       e_description; e_name; e_questions; e_uuid;
+       e_administrator; e_credential_authority;
+     }
+  | 1 ->
+     let open Belenios_v1.Serializable_j in
+     let params = params_of_string Yojson.Safe.read_json x in
+     let {
+         e_description; e_name; e_questions; e_uuid;
+         e_administrator; e_credential_authority;
+         _
+       } = params
+     in
+     let open Serializable_j in
+     {
+       e_version = 1;
+       e_description; e_name; e_questions; e_uuid;
+       e_administrator; e_credential_authority;
+     }
+  | n -> Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
+
 
 let election_uuid_of_string_ballot x =
-  let open Belenios_v0.Serializable_j in
-  let ballot = ballot_of_string Yojson.Safe.read_json x in
-  ballot.election_uuid
+  let j = Yojson.Safe.from_string x in
+  match j with
+  | `Assoc o ->
+     (match List.assoc_opt "election_uuid" o with
+      | Some (`String x) -> uuid_of_raw_string x
+      | _ -> failwith "election_uuid_of_string_ballot: invalid election_uuid"
+     )
+  | _ -> failwith "election_uuid_of_string_ballot: invalid ballot"
 
 let make_raw_election params ~group ~public_key =
   match params.e_version with
@@ -69,6 +104,24 @@ let make_raw_election params ~group ~public_key =
        }
      in
      string_of_params (write_wrapped_pubkey write_ff_params G.write) params
+  | 1 ->
+     let {
+         e_description; e_name; e_questions; e_uuid;
+         e_administrator; e_credential_authority;
+         _
+       } = params
+     in
+     let module G = (val Belenios_v1.Group.of_string group) in
+     let e_public_key = G.of_string public_key in
+     let open Belenios_v1.Serializable_j in
+     let params = {
+         e_version = 1;
+         e_description; e_name; e_questions; e_uuid;
+         e_administrator; e_credential_authority;
+         e_group = group; e_public_key;
+       }
+     in
+     string_of_params G.write params
   | n ->
      Printf.ksprintf invalid_arg
        "make_raw_election: unsupported version: %d" n
@@ -154,7 +207,21 @@ let has_nh_questions e =
       | Question.Homomorphic _ -> false
     ) e.e_questions
 
-module Make = Belenios_v0.Election.Make (MakeResult)
+module type MAKER =
+  functor (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) ()  ->
+  ELECTION with type 'a m = 'a M.t
+
+module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
+
+  let x =
+    match get_version R.raw_election with
+    | 0 -> (module Belenios_v0.Election.Make : MAKER)
+    | 1 -> (module Belenios_v1.Election.Make : MAKER)
+    | n -> Printf.ksprintf failwith "Election.Make: unsupported version: %d" n
+
+  module X = (val x)
+  include X (MakeResult) (R) (M) ()
+end
 
 (** Computing checksums *)
 

@@ -25,8 +25,10 @@ type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type question <ocaml module="Belenios_core.Question"> = abstract
 
 type 'a params = {
+  version : int;
   description : string;
   name : string;
+  group : string;
   public_key : 'a;
   questions : question list <ocaml repr="array">;
   uuid : uuid;

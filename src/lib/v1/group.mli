@@ -23,7 +23,3 @@ open Belenios_core
 open Signatures
 
 val of_string : string -> (module GROUP)
-
-val read : (module GROUP) reader
-
-val wrapped_pubkey_of_string : string -> (module WRAPPED_PUBKEY)

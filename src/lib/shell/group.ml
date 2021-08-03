@@ -22,4 +22,5 @@
 let of_string ~version =
   match version with
   | 0 -> Belenios_v0.Group.of_string
+  | 1 -> Belenios_v1.Group.of_string
   | n -> Printf.ksprintf failwith "Group.of_string: unsupported version: %d" n
