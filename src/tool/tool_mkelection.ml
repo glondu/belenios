@@ -38,6 +38,7 @@ module type S = sig
 end
 
 module type PARSED_PARAMS = sig
+  val version : int
   val uuid : uuid
   val template : template
   val group : string
@@ -50,6 +51,7 @@ let parse_params p =
   let module P = (val p : PARAMS) in
   let module T = (val Trustees.get_by_version P.version) in
   let module R = struct
+    let version = P.version
     let uuid = uuid_of_raw_string P.uuid
     let template = template_of_string P.template
     let group = P.group
@@ -69,15 +71,14 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   let trustees = get_trustees ()
   let y = K.combine_keys trustees
+  let public_key = G.to_string y
 
   (* Setup election *)
 
-  open Belenios_v0.Serializable_j
-
   let params = {
+    e_version = version;
     e_description = template.t_description;
     e_name = template.t_name;
-    e_public_key = {wpk_group = ff_params_of_string group; wpk_y = y};
     e_questions = template.t_questions;
     e_uuid = uuid;
     e_administrator = template.t_administrator;
@@ -87,7 +88,7 @@ module Make (P : PARSED_PARAMS) : S = struct
   (* Generate and serialize election.json *)
 
   let mkelection () =
-    string_of_params (write_wrapped_pubkey write_ff_params G.write) params
+    Election.make_raw_election params ~group ~public_key
 
 end
 

@@ -48,6 +48,31 @@ let election_uuid_of_string_ballot x =
   let ballot = ballot_of_string Yojson.Safe.read_json x in
   ballot.election_uuid
 
+let make_raw_election params ~group ~public_key =
+  match params.e_version with
+  | 0 ->
+     let {
+         e_description; e_name; e_questions; e_uuid;
+         e_administrator; e_credential_authority;
+         _
+       } = params
+     in
+     let wpk_group = ff_params_of_string group in
+     let module G = (val Group.of_string group) in
+     let wpk_y = G.of_string public_key in
+     let e_public_key = {wpk_group; wpk_y} in
+     let open Belenios_v0.Serializable_j in
+     let params = {
+         e_description; e_name; e_questions; e_uuid;
+         e_administrator; e_credential_authority;
+         e_public_key;
+       }
+     in
+     string_of_params (write_wrapped_pubkey write_ff_params G.write) params
+  | n ->
+     Printf.ksprintf invalid_arg
+       "make_raw_election: unsupported version: %d" n
+
 (** Parsing helpers *)
 
 module Parse (R : RAW_ELECTION) () = struct

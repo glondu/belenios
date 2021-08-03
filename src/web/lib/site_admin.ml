@@ -154,17 +154,19 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         e_server_is_trustee;
       } in
     let template = se.se_questions in
-    let open Belenios_v0.Serializable_j in
     let params = {
+        e_version = Option.get se.se_version 0;
         e_description = template.t_description;
         e_name = template.t_name;
-        e_public_key = {wpk_group = ff_params_of_string se.se_group; wpk_y = y};
         e_questions = template.t_questions;
         e_uuid = uuid;
         e_administrator = se.se_administrator;
         e_credential_authority = metadata.e_cred_authority;
       } in
-    let raw_election = string_of_params (write_wrapped_pubkey write_ff_params G.write) params in
+    let raw_election =
+      let public_key = G.to_string y in
+      Election.make_raw_election params ~group:se.se_group ~public_key
+    in
     (* write election files to disk *)
     let dir = !Web_config.spool_dir / uuid_s in
     let create_file fname what xs =
@@ -833,19 +835,21 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_preview
       (fun (uuid, ()) () ->
         with_draft_election_ro uuid (fun se ->
-            let group = Group.of_string se.se_group in
-            let module G = (val group : GROUP) in
-            let open Belenios_v0.Serializable_j in
+            let group = se.se_group in
+            let module G = (val Group.of_string group : GROUP) in
             let params = {
+                e_version = Option.get se.se_version 0;
                 e_description = se.se_questions.t_description;
                 e_name = se.se_questions.t_name;
-                e_public_key = {wpk_group = ff_params_of_string se.se_group; wpk_y = G.g};
                 e_questions = se.se_questions.t_questions;
                 e_uuid = uuid;
                 e_administrator = se.se_administrator;
                 e_credential_authority = se.se_metadata.e_cred_authority;
-              } in
-            String.send (string_of_params (write_wrapped_pubkey write_ff_params G.write) params, "application/json")
+              }
+            in
+            let public_key = G.to_string G.g in
+            let raw_election = Election.make_raw_election params ~group ~public_key in
+            String.send (raw_election, "application/json")
           )
       )
 
