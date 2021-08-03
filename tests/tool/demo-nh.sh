@@ -27,7 +27,8 @@ cd $DIR
 
 # Common options
 uuid="--uuid $UUID"
-group="--group $BELENIOS/files/groups/rfc3526-2048.json"
+group="--group group"
+echo RFC-3526-2048 > group
 
 # Generate credentials
 belenios-tool credgen $uuid $group --count 60
