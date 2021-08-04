@@ -147,10 +147,6 @@ module Make (M : RANDOM) (G : GROUP) = struct
   (** ZKPs for blank ballots *)
 
   let make_blank_proof y zkp min max m0 c0 r0 mS cS rS =
-    let zkp = Printf.sprintf "%s|%s,%s,%s,%s" zkp
-                (G.to_string c0.alpha) (G.to_string c0.beta)
-                (G.to_string cS.alpha) (G.to_string cS.beta)
-    in
     if m0 = 0 then (
       let* blank_proof =
         (* proof of m0 = 0 \/ mS = 0 (first is true) *)
@@ -279,10 +275,6 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let verify_blank_proof y zkp min max c0 cS overall_proof blank_proof =
     G.check c0.alpha && G.check c0.beta &&
       G.check cS.alpha && G.check cS.beta &&
-        let zkp = Printf.sprintf "%s|%s,%s,%s,%s" zkp
-                    (G.to_string c0.alpha) (G.to_string c0.beta)
-                    (G.to_string cS.alpha) (G.to_string cS.beta)
-        in
         (* check blank_proof, proof of m0 = 0 \/ mS = 0 *)
         Array.length blank_proof = 2 &&
           (
