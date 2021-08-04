@@ -360,6 +360,15 @@ module Make (M : RANDOM) (G : GROUP) = struct
       else M.return (Array.of_list accu)
     in loop (pred (Array.length xs)) []
 
+  let stringify_choices choices =
+    choices
+    |> Array.map
+         (fun {alpha; beta} ->
+           Printf.sprintf "%s,%s" (G.to_string alpha) (G.to_string beta)
+         )
+    |> Array.to_list
+    |> String.concat ","
+
   let create_answer q ~public_key:y ~prefix:zkp m =
     let n = Array.length m in
     let* r = swap (Array.init n (fun _ -> M.random G.q)) in
@@ -368,6 +377,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let individual_proofs = Array.map3 (eg_disj_prove y d01 zkp) m r choices in
     let* () = M.yield () in
     let* individual_proofs = swap individual_proofs in
+    let zkp = zkp ^ "|" ^ stringify_choices choices in
     match q.q_blank with
     | Some true ->
        (* index 0 is whether the ballot is blank or not,
@@ -401,6 +411,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let n = Array.length a.choices in
     n = Array.length a.individual_proofs &&
       Array.forall2 (eg_disj_verify y d01 zkp) a.individual_proofs a.choices &&
+        let zkp = zkp ^ "|" ^ stringify_choices a.choices in
         match q.q_blank, a.blank_proof with
         | Some true, Some blank_proof ->
            n = Array.length q.q_answers + 1 &&
