@@ -11,7 +11,7 @@
 \usepackage{xcolor}
 \usepackage{placeins}
 
-\newcommand{\version}{1.11}
+\newcommand{\version}{1.17}
 
 \newcommand{\F}{\mathbbm{F}}
 \newcommand{\G}{\mathbbm{G}}
@@ -924,9 +924,11 @@ big.
 \begin{gather*}
   \election=\left\{
     \begin{array}{rcl}
+      \textsf{version}&:&\I\\
       \textsf{description}&:&\jstring\\
       \textsf{name}&:&\jstring\\
-      \textsf{public\_key}&:&\texttt{wrapped\_pk}\\
+      \textsf{group}&:&\jstring\\
+      \textsf{public\_key}&:&\G\\
       \textsf{questions}&:&\texttt{question}^\ast\\
       \textsf{uuid}&:&\texttt{uuid}\\
       \textsf{?administrator}&:&\jstring\\
@@ -937,9 +939,11 @@ big.
 
 The $\election$ structure includes all public data related to an
 election and is sent to each voter, serialized as a string which must
-be always the same throughout the election. It uses the
-$\texttt{wrapped\_pk}$ defined below:
-
+be always the same throughout the election. The $\textsf{version}$ is
+set to 1 in this version of the specification. The group is specified
+by the $\textsf{group}$ member, either $\texttt{BELENIOS-2048}$ or
+$\texttt{RFC-3526-2048}$. These groups are described in
+section~\ref{default-group}, using the following structures:
 \begin{gather*}
   \texttt{embedding}=\left\{
     \begin{array}{rcl}
@@ -947,9 +951,7 @@ $\texttt{wrapped\_pk}$ defined below:
       \textsf{bits\_per\_int}&:&\I
     \end{array}
   \right\}
-\end{gather*}
-
-\begin{gather*}
+  \qquad
   \texttt{group}=\left\{
     \begin{array}{rcl}
       \textsf{g}&:&\G\\
@@ -958,20 +960,12 @@ $\texttt{wrapped\_pk}$ defined below:
       \textsf{?embedding}&:&\texttt{embedding}
     \end{array}
   \right\}
-  \qquad
-  \texttt{wrapped\_pk}=\left\{
-    \begin{array}{rcl}
-      \textsf{group}&:&\texttt{group}\\
-      \textsf{y}&:&\G
-    \end{array}
-  \right\}
 \end{gather*}
 The election public key, which is denoted by $y$ thoughout this
-document, is computed during the setup phase, and bundled with the
-group parameters in a \texttt{wrapped\_pk} structure. The
-\texttt{embedding} structure is required when the election includes a
-non-homomorphic question; its meaning will be explained in
-section~\ref{nh-answers}.
+document, is computed during the setup phase, and stored in the
+$\textsf{public\_key}$ member. The \texttt{embedding} structure is
+required when the election includes a non-homomorphic question; its
+meaning will be explained in section~\ref{nh-answers}.
 
 During an election, the following data need to be public in order to
 verify the setup phase and to validate ballots:
@@ -1591,10 +1585,10 @@ verify the tally:
 \item the $\result$ structure described above.
 \end{itemize}
 
-\section{Default group parameters}
+\section{Group parameters}
 \label{default-group}
 
-\subsection{Homomorphic group}
+\subsection{BELENIOS-2048}
 \label{h-group}
 
 This group is optimized for elections that have only homomorphic
@@ -1642,7 +1636,7 @@ The additional output of the generation algorithm is:
 \end{array}
 \]
 
-\subsection{Non-homomorphic group}
+\subsection{RFC-3526-2048}
 \label{nh-group}
 
 The group described in the previous section is not suitable for
