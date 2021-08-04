@@ -976,6 +976,10 @@ verify the setup phase and to validate ballots:
 \item the set $L$ of public credentials.
 \end{itemize}
 
+Additionnally, we will denote throughout this document by $\varphi$
+the fingerprint of the election, as explained in
+section~\ref{ballots}.
+
 \subsection{Encrypted answers}
 \label{answers}
 
@@ -1006,7 +1010,7 @@ verify the setup phase and to validate ballots:
 The structure of an answer to a \hyperref[elections]{$\question$}
 depends on the type of the question. In all cases, a
 \hyperref[credentials]{credential} $c$ is needed. Let $s=\secret(c)$,
-and $S=g^s$ written in base 10.
+and $S=\varphi\verb=|=g^s$ (where numbers are written in base 10).
 
 \subsubsection{Homomorphic answers}
 
@@ -1107,7 +1111,7 @@ The proof is verified as follows:
 Given a pair $(\alpha,\beta)$ of group elements, one can prove that it
 has the form $(g^r,y^rg^{M_i})$ with $M_i\in[M_0,\dots,M_k]$ by
 creating a sequence of $\proof$s $\pi_0,\dots,\pi_k$ with the
-following procedure, parameterised by a group element $S$:
+following procedure, parameterised by a string $S$:
 \begin{enumerate}
 \item for $j\neq i$:
   \begin{enumerate}
