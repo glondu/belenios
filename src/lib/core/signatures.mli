@@ -109,11 +109,10 @@ module type ELECTION_OPS = sig
 
   type weighted_ballot = Weight.t * ballot
 
-  val create_ballot : ?sk:private_key -> plaintext -> ballot m
+  val create_ballot : sk:private_key -> plaintext -> ballot m
   (** [create_ballot r answers] creates a ballot, or raises
       [Invalid_argument] if [answers] doesn't satisfy the election
-      constraints. The private key, if given, will be used to sign
-      the ballot. *)
+      constraints. *)
 
   val check_ballot : ballot -> bool
   (** [check_ballot b] checks all the cryptographic proofs in [b]. All

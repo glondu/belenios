@@ -118,24 +118,18 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     |> List.flatten
     |> Array.of_list
 
-  let create_ballot ?sk m =
-    let sk, zkp =
-      match sk with
-      | None -> None, ""
-      | Some x -> let y = G.(g **~ x) in Some (x, y), G.to_string y
-    in
+  let create_ballot ~sk m =
+    let credential = G.(g **~ sk) in
+    let zkp = G.to_string credential in
     let* answers = swap (Array.map2 (create_answer y zkp) election.e_questions m) in
     let* signature =
-      match sk with
-      | None -> M.return None
-      | Some (x, y) ->
-         let* w = M.random q in
-         let commitment = g **~ w in
-         let prefix = make_sig_prefix zkp commitment in
-         let contents = make_sig_contents answers in
-         let s_challenge = G.hash prefix contents in
-         let s_response = Z.(erem (w - x * s_challenge) q) in
-         M.return (Some {s_public_key = y; s_challenge; s_response})
+      let* w = M.random q in
+      let commitment = g **~ w in
+      let prefix = make_sig_prefix zkp commitment in
+      let contents = make_sig_contents answers in
+      let s_challenge = G.hash prefix contents in
+      let s_response = Z.(erem (w - sk * s_challenge) q) in
+      M.return (Some {s_public_key = credential; s_challenge; s_response})
     in
     M.return {
         answers;
