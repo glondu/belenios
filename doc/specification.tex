@@ -1009,8 +1009,9 @@ section~\ref{ballots}.
 
 The structure of an answer to a \hyperref[elections]{$\question$}
 depends on the type of the question. In all cases, a
-\hyperref[credentials]{credential} $c$ is needed. Let $s=\secret(c)$,
-and $S=\varphi\verb=|=g^s$ (where numbers are written in base 10).
+\hyperref[credentials]{credential} $c$ is needed. Let $s$ be the
+number $\secret(c)$, and $S_0$ be the string $\varphi$ followed by a
+vertical bar and the serialization of $g^s$.
 
 \subsubsection{Homomorphic answers}
 
@@ -1030,10 +1031,19 @@ Gamal-like fashion) into a $\ciphertext$ as follows:
 \item $\alphalabel=g^r$
 \item $\betalabel=y^rg^m$
 \end{enumerate}
-where $y$ is the election public key.
+where $y$ is the election public key. The resulting vector is then
+used to compute $S$ as follows:
+\begin{enumerate}
+\item let $a$ be the vector $\choices$, where each ciphertext $c$ is
+  replaced by the serialization of its $\alphalabel$ field, a comma,
+  and the serialization of its $\betalabel$ field;
+\item let $b$ be the concatenation of all strings in $a$, separated
+  by commas;
+\item let $S$ be the string $S_0$ followed by a vertical bar and $b$.
+\end{enumerate}
 
 The individual proof that $m\in[0\dots1]$ is computed by running
-$\iprove(S,r,m,0,1)$ (see section~\ref{iproof}).
+$\iprove(S_0,r,m,0,1)$ (see section~\ref{iproof}).
 
 When a blank vote is not allowed, $\oproof$ proves that
 $M\in[\minlabel\dots\maxlabel]$ and is computed by running
