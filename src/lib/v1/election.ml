@@ -54,10 +54,7 @@ module Parse (R : RAW_ELECTION) () = struct
   type nonrec ballot = G.t ballot
   let string_of_ballot x = string_of_ballot G.write x
   let ballot_of_string x = ballot_of_string G.read x
-  let get_credential x =
-    match x.signature with
-    | None -> None
-    | Some s -> Some s.s_public_key
+  let get_credential x = Some x.credential
 
 end
 
@@ -127,14 +124,16 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
       let commitment = g **~ w in
       let prefix = make_sig_prefix zkp commitment in
       let contents = make_sig_contents answers in
-      let s_challenge = G.hash prefix contents in
-      let s_response = Z.(erem (w - sk * s_challenge) q) in
-      M.return (Some {s_public_key = credential; s_challenge; s_response})
+      let challenge = G.hash prefix contents in
+      let response = Z.(erem (w - sk * challenge) q) in
+      let s_proof = {challenge; response} in
+      M.return (Some {s_proof})
     in
     M.return {
-        answers;
-        election_hash = W.fingerprint;
         election_uuid = election.e_uuid;
+        election_hash = W.fingerprint;
+        credential;
+        answers;
         signature;
       }
 
@@ -146,19 +145,20 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   let check_ballot b =
     b.election_uuid = election.e_uuid &&
       b.election_hash = W.fingerprint &&
+        let y = b.credential in
         let ok, zkp = match b.signature with
-          | Some {s_public_key = y; s_challenge; s_response} ->
+          | Some {s_proof = {challenge; response}} ->
              let zkp = G.to_string y in
              let ok =
                G.check y &&
-                 check_modulo q s_challenge &&
-                   check_modulo q s_response &&
-                     let commitment = g **~ s_response *~ y **~ s_challenge in
+                 check_modulo q challenge &&
+                   check_modulo q response &&
+                     let commitment = g **~ response *~ y **~ challenge in
                      let prefix = make_sig_prefix zkp commitment in
                      let contents = make_sig_contents b.answers in
-                     Z.(s_challenge =% G.hash prefix contents)
+                     Z.(challenge =% G.hash prefix contents)
              in ok, zkp
-          | None -> true, ""
+          | None -> false, ""
         in ok &&
              Array.forall2 (verify_answer W.public_key zkp) election.e_questions b.answers
 
