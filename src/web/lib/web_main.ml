@@ -53,9 +53,13 @@ module Make () = struct
                   | Element ("source", ["file", file], []) ->
                      source_file := Some file
                   | Element ("default-group", ["file", file], []) ->
-                     default_group_file := Some file
+                     default_group_file := Some (`File file)
                   | Element ("nh-group", ["file", file], []) ->
-                     nh_group_file := Some file
+                     nh_group_file := Some (`File file)
+                  | Element ("default-group", ["group", group], []) ->
+                     default_group_file := Some (`Group group)
+                  | Element ("nh-group", ["group", group], []) ->
+                     nh_group_file := Some (`Group group)
                   | Element ("maxmailsatonce", ["value", limit], []) ->
                      Web_config.maxmailsatonce := int_of_string limit
                   | Element ("uuid", ["length", length], []) ->
@@ -144,7 +148,8 @@ module Make () = struct
     Lwt_main.run
       (match !default_group_file with
        | None -> failwith "missing <default-group> in configuration"
-       | Some x ->
+       | Some (`Group x) -> return x
+       | Some (`File x) ->
           let* x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
           match x with
           | [x] -> return x
@@ -155,7 +160,8 @@ module Make () = struct
     Lwt_main.run
       (match !nh_group_file with
        | None -> failwith "missing <nh-group> in configuration"
-       | Some x ->
+       | Some (`Group x) -> return x
+       | Some (`File x) ->
           let* x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
           match x with
           | [x] -> return x
