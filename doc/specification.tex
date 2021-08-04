@@ -11,7 +11,7 @@
 \usepackage{xcolor}
 \usepackage{placeins}
 
-\newcommand{\version}{1.11}
+\newcommand{\version}{1.17}
 
 \newcommand{\F}{\mathbbm{F}}
 \newcommand{\G}{\mathbbm{G}}
@@ -468,15 +468,16 @@ $\pklabel$ is $X=g^x$. A $\tpk$ is a bundle of this public key with a
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$
 \item $\challenge=\Hash_\pok(X,A)\mod q$
-\item $\response=w+x\times\challenge\mod q$
+\item $\response=w-x\times\challenge\mod q$
 \end{enumerate}
 where $\Hash_\pok$ is computed as follows:
-\[\Hash_\pok(X,A) = \shatwo(\verb=pok|=X\verb=|=A) \]
+\[\Hash_\pok(X,A) = \shatwo(\verb=pok|=G\verb=|=X\verb=|=A) \]
 where $\pok$ and the vertical bars are verbatim and numbers are
-written in base 10. The result is interpreted as a 256-bit big-endian
-number. The proof is verified as follows:
+written in base 10, and $G$ is the string specifying the group in the
+$\election$ structure. The result is interpreted as a 256-bit
+big-endian number. The proof is verified as follows:
 \begin{enumerate}
-\item compute $A={g^\response}/{X^\challenge}$
+\item compute $A={g^\response}\times{X^\challenge}$
 \item check that $\challenge=\Hash_\pok(X,A)\mod q$
 \end{enumerate}
 
@@ -924,9 +925,11 @@ big.
 \begin{gather*}
   \election=\left\{
     \begin{array}{rcl}
+      \textsf{version}&:&\I\\
       \textsf{description}&:&\jstring\\
       \textsf{name}&:&\jstring\\
-      \textsf{public\_key}&:&\texttt{wrapped\_pk}\\
+      \textsf{group}&:&\jstring\\
+      \textsf{public\_key}&:&\G\\
       \textsf{questions}&:&\texttt{question}^\ast\\
       \textsf{uuid}&:&\texttt{uuid}\\
       \textsf{?administrator}&:&\jstring\\
@@ -937,9 +940,11 @@ big.
 
 The $\election$ structure includes all public data related to an
 election and is sent to each voter, serialized as a string which must
-be always the same throughout the election. It uses the
-$\texttt{wrapped\_pk}$ defined below:
-
+be always the same throughout the election. The $\textsf{version}$ is
+set to 1 in this version of the specification. The group is specified
+by the $\textsf{group}$ member, either $\texttt{BELENIOS-2048}$ or
+$\texttt{RFC-3526-2048}$. These groups are described in
+section~\ref{default-group}, using the following structures:
 \begin{gather*}
   \texttt{embedding}=\left\{
     \begin{array}{rcl}
@@ -947,9 +952,7 @@ $\texttt{wrapped\_pk}$ defined below:
       \textsf{bits\_per\_int}&:&\I
     \end{array}
   \right\}
-\end{gather*}
-
-\begin{gather*}
+  \qquad
   \texttt{group}=\left\{
     \begin{array}{rcl}
       \textsf{g}&:&\G\\
@@ -958,20 +961,12 @@ $\texttt{wrapped\_pk}$ defined below:
       \textsf{?embedding}&:&\texttt{embedding}
     \end{array}
   \right\}
-  \qquad
-  \texttt{wrapped\_pk}=\left\{
-    \begin{array}{rcl}
-      \textsf{group}&:&\texttt{group}\\
-      \textsf{y}&:&\G
-    \end{array}
-  \right\}
 \end{gather*}
 The election public key, which is denoted by $y$ thoughout this
-document, is computed during the setup phase, and bundled with the
-group parameters in a \texttt{wrapped\_pk} structure. The
-\texttt{embedding} structure is required when the election includes a
-non-homomorphic question; its meaning will be explained in
-section~\ref{nh-answers}.
+document, is computed during the setup phase, and stored in the
+$\textsf{public\_key}$ member. The \texttt{embedding} structure is
+required when the election includes a non-homomorphic question; its
+meaning will be explained in section~\ref{nh-answers}.
 
 During an election, the following data need to be public in order to
 verify the setup phase and to validate ballots:
@@ -981,6 +976,10 @@ verify the setup phase and to validate ballots:
   section~\ref{trustees};
 \item the set $L$ of public credentials.
 \end{itemize}
+
+Additionnally, we will denote throughout this document by $\varphi$
+the fingerprint of the election, as explained in
+section~\ref{ballots}.
 
 \subsection{Encrypted answers}
 \label{answers}
@@ -1011,8 +1010,9 @@ verify the setup phase and to validate ballots:
 
 The structure of an answer to a \hyperref[elections]{$\question$}
 depends on the type of the question. In all cases, a
-\hyperref[credentials]{credential} $c$ is needed. Let $s=\secret(c)$,
-and $S=g^s$ written in base 10.
+\hyperref[credentials]{credential} $c$ is needed. Let $s$ be the
+number $\secret(c)$, and $S_0$ be the string $\varphi$ followed by a
+vertical bar and the serialization of $g^s$.
 
 \subsubsection{Homomorphic answers}
 
@@ -1032,10 +1032,19 @@ Gamal-like fashion) into a $\ciphertext$ as follows:
 \item $\alphalabel=g^r$
 \item $\betalabel=y^rg^m$
 \end{enumerate}
-where $y$ is the election public key.
+where $y$ is the election public key. The resulting vector is then
+used to compute $S$ as follows:
+\begin{enumerate}
+\item let $a$ be the vector $\choices$, where each ciphertext $c$ is
+  replaced by the serialization of its $\alphalabel$ field, a comma,
+  and the serialization of its $\betalabel$ field;
+\item let $b$ be the concatenation of all strings in $a$, separated
+  by commas;
+\item let $S$ be the string $S_0$ followed by a vertical bar and $b$.
+\end{enumerate}
 
 The individual proof that $m\in[0\dots1]$ is computed by running
-$\iprove(S,r,m,0,1)$ (see section~\ref{iproof}).
+$\iprove(S_0,r,m,0,1)$ (see section~\ref{iproof}).
 
 When a blank vote is not allowed, $\oproof$ proves that
 $M\in[\minlabel\dots\maxlabel]$ and is computed by running
@@ -1113,15 +1122,15 @@ The proof is verified as follows:
 Given a pair $(\alpha,\beta)$ of group elements, one can prove that it
 has the form $(g^r,y^rg^{M_i})$ with $M_i\in[M_0,\dots,M_k]$ by
 creating a sequence of $\proof$s $\pi_0,\dots,\pi_k$ with the
-following procedure, parameterised by a group element $S$:
+following procedure, parameterised by a string $S$:
 \begin{enumerate}
 \item for $j\neq i$:
   \begin{enumerate}
   \item create $\pi_j$ with a random $\challenge$ and a random
     $\response$
   \item compute
-    \[A_j=\frac{g^\response}{\alpha^\challenge}\quad\text{and}\quad
-    B_j=\frac{y^\response}{(\beta/g^{M_j})^\challenge}\]
+    \[A_j={g^\response}\times{\alpha^\challenge}\quad\text{and}\quad
+    B_j={y^\response}\times{(\beta/g^{M_j})^\challenge}\]
   \end{enumerate}
 \item $\pi_i$ is created as follows:
   \begin{enumerate}
@@ -1129,7 +1138,7 @@ following procedure, parameterised by a group element $S$:
   \item compute $A_i=g^w$ and $B_i=y^w$
   \item $\challenge(\pi_i)=\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq
       i}\challenge(\pi_j)\mod q$
-  \item $\response(\pi_i)=w+r\times\challenge(\pi_i)\mod q$
+  \item $\response(\pi_i)=w-r\times\challenge(\pi_i)\mod q$
   \end{enumerate}
 \end{enumerate}
 In the above, $\Hash_\iprove$ is computed as follows:
@@ -1142,8 +1151,8 @@ $\iprove(S,r,i,M_0,\dots,M_k)$.
 The proof is verified as follows:
 \begin{enumerate}
 \item for $j\in[0\dots k]$, compute
-  \[A_j=\frac{g^{\response(\pi_j)}}{\alpha^{\challenge(\pi_j)}}\quad\text{and}\quad
-  B_j=\frac{y^{\response(\pi_j)}}{(\beta/g^{M_j})^{\challenge(\pi_j)}}\]
+  \[A_j={g^{\response(\pi_j)}}\times{\alpha^{\challenge(\pi_j)}}\quad\text{and}\quad
+  B_j={y^{\response(\pi_j)}}\times{(\beta/g^{M_j})^{\challenge(\pi_j)}}\]
 \item check that
   \[\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\sum_{j\in[0\dots
     k]}\challenge(\pi_j)\mod q\]
@@ -1162,10 +1171,7 @@ Note that $\alpha_\Sigma$, $\beta_\Sigma$ and $r_\Sigma$ can be easily
 computed from the encryptions of $m_1,\dotsc,m_n$ and their associated
 secrets.
 
-Additionnally, let $P$ be the string
-``$g\verb=,=y\verb=,=\alpha_0\verb=,=\beta_0\verb=,=\alpha_\Sigma\verb=,=\beta_\Sigma$'',
-where the commas are verbatim and the numbers are written in base
-10. Let also $M_1,\dotsc,M_k$ be the sequence
+Additionnally, let $M_1,\dotsc,M_k$ be the sequence
 $\minlabel,\dots,\maxlabel$ ($k=\maxlabel-\minlabel+1$).
 
 \subsubsection{Non-blank votes ($m_0=0$)}
@@ -1184,12 +1190,12 @@ built as follows:
   $B_\Sigma=y^{\response(\pi_\Sigma)}\times\beta_\Sigma^{\challenge(\pi_\Sigma)}$
 \item pick a random $w$ in $\Z_q$
 \item compute $A_0=g^w$ and $B_0=y^w$
-\item compute \[\challenge(\pi_0)=\Hash_{\mathsf{bproof0}}(S,P,A_0,B_0,A_\Sigma,B_\Sigma)-\challenge(\pi_\Sigma)\mod q\]
+\item compute \[\challenge(\pi_0)=\Hash_{\mathsf{bproof0}}(S,A_0,B_0,A_\Sigma,B_\Sigma)-\challenge(\pi_\Sigma)\mod q\]
 \item compute $\response(\pi_0)=w-r_0\times\challenge(\pi_0)\mod q$
 \end{enumerate}
 In the above, $\Hash_{\mathsf{bproof0}}$ is computed as follows:
 \[\Hash_{\mathsf{bproof0}}(\dotsc)=
-\shatwo(\verb=bproof0|=S\verb=|=P\verb=|=A_0\verb=,=B_0\verb=,=A_\Sigma\verb=,=B_\Sigma)\mod q\]
+\shatwo(\verb=bproof0|=S\verb=|=A_0\verb=,=B_0\verb=,=A_\Sigma\verb=,=B_\Sigma)\mod q\]
 where \verb=bproof0=, the vertical bars and the commas are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
 big-endian number.
@@ -1217,12 +1223,12 @@ follows:
 \item pick a random $w\in\Z_q$
 \item compute $A_i=g^w$ and $B_i=y^w$
 \item compute
-  \[\challenge(\pi_i)=\Hash_{\textsf{bproof1}}(S,P,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq i}\challenge(\pi_j)\mod q\]
+  \[\challenge(\pi_i)=\Hash_{\textsf{bproof1}}(S,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq i}\challenge(\pi_j)\mod q\]
 \item compute $\response(\pi_i)=w-r_\Sigma\times\challenge(\pi_i)\mod q$
 \end{enumerate}
 In the above, $\Hash_{\mathsf{bproof1}}$ is computed as follows:
 \[\Hash_{\mathsf{bproof1}}(\dotsc)=
-\shatwo(\verb=bproof1|=S\verb=|=P\verb=|=A_0\verb=,=B_0\verb=,=\dotsc\verb=,=A_k\verb=,=B_k)\mod q\]
+\shatwo(\verb=bproof1|=S\verb=|=A_0\verb=,=B_0\verb=,=\dotsc\verb=,=A_k\verb=,=B_k)\mod q\]
 where \verb=bproof1=, the vertical bars and the commas are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
 big-endian number.
@@ -1252,7 +1258,7 @@ $(\pi_0,\pi_1,\dotsc,\pi_k)$ built as follows:
 \item pick a random $w\in\Z_q$
 \item compute $A_0=g^w$ and $B_0=y^w$
 \item compute
-  \[\challenge(\pi_0)=\Hash_{\textsf{bproof1}}(S,P,A_0,B_0,\dots,A_k,B_k)-\sum_{j>0}\challenge(\pi_j)\mod q\]
+  \[\challenge(\pi_0)=\Hash_{\textsf{bproof1}}(S,A_0,B_0,\dots,A_k,B_k)-\sum_{j>0}\challenge(\pi_j)\mod q\]
 \item compute $\response(\pi_0)=w-r_0\times\challenge(\pi_0)\mod q$
 \end{enumerate}
 
@@ -1271,7 +1277,7 @@ $(\pi_0,\pi_\Sigma)$ such that the following procedure passes:
   and
   $B_\Sigma=y^{\response(\pi_\Sigma)}\times\beta_\Sigma^{\challenge(\pi_\Sigma)}$
 \item check that
-  \[\Hash_{\mathsf{bproof0}}(S,P,A_0,B_0,A_\Sigma,B_\Sigma)=\challenge(\pi_0)+\challenge(\pi_\Sigma)\mod q\]
+  \[\Hash_{\mathsf{bproof0}}(S,A_0,B_0,A_\Sigma,B_\Sigma)=\challenge(\pi_0)+\challenge(\pi_\Sigma)\mod q\]
 \end{enumerate}
 
 \paragraph{Verifying \oproof}
@@ -1287,7 +1293,7 @@ $(\pi_0,\pi_1,\dotsc,\pi_k)$ such that the following procedure passes:
   \quad\text{and}\quad
   B_j=y^{\response(\pi_j)}\times(\beta_\Sigma/g^{M_j})^{\challenge(\pi_j)}\]
 \item check that
-  \[\Hash_{\textsf{bproof1}}(S,P,A_0,B_0,\dots,A_k,B_k)=\sum_{j=0}^k\challenge(\pi_j)\mod q\]
+  \[\Hash_{\textsf{bproof1}}(S,A_0,B_0,\dots,A_k,B_k)=\sum_{j=0}^k\challenge(\pi_j)\mod q\]
 \end{enumerate}
 
 \subsection{Signatures}
@@ -1296,9 +1302,8 @@ $(\pi_0,\pi_1,\dotsc,\pi_k)$ such that the following procedure passes:
 \begin{gather*}
   \signature=\left\{
     \begin{array}{rcl}
-      \pklabel&:&\pk\\
-      \challenge&:&\Z_q\\
-      \response&:&\Z_q
+      \textsf{hash}&:&\jstring\\
+      \textsf{proof}&:&\proof
     \end{array}
   \right\}
 \end{gather*}
@@ -1307,29 +1312,32 @@ $(\pi_0,\pi_1,\dotsc,\pi_k)$ such that the following procedure passes:
 
 Each ballot contains a (Schnorr-like) digital signature to avoid
 ballot stuffing. The signature needs a
-\hyperref[credentials]{credential} $c$ and uses all the \ciphertext{}s
-$\gamma_1,\dots,\gamma_l$ that appear in the ballot. It is computed as
-follows:
+\hyperref[credentials]{credential} $c$ and uses the $\textsf{hash}$ of
+the surrounding ballot (without the $\siglabel$ field). It is computed
+as follows:
 \begin{enumerate}
 \item compute $s=\secret(c)$
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$
-\item $\pklabel=g^s$
-\item $\challenge=\Hash_\siglabel(\pklabel,A,\gamma_1,\dots,\gamma_l)\mod q$
-\item $\response=w-s\times\challenge\mod q$
+\item compute $\textsf{proof}$ as follows:
+  \begin{enumerate}
+  \item $\challenge=\Hash_\siglabel(\textsf{hash},A)\mod q$
+  \item $\response=w-s\times\challenge\mod q$
+  \end{enumerate}
 \end{enumerate}
 In the above, $\Hash_\siglabel$ is computed as follows:
 \[
-\Hash_\siglabel(S,A,\gamma_1,\dots,\gamma_l)=\shatwo(\verb=sig|=S\verb=|=A\verb=|=\alphalabel(\gamma_1)\verb=,=\betalabel(\gamma_1)\verb=,=\dots\verb=,=\alphalabel(\gamma_l)\verb=,=\betalabel(\gamma_l))
+\Hash_\siglabel(H,A)=\shatwo(\verb=sig|=H\verb=|=A)
 \]
 where \verb=sig=, the vertical bars and commas are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
 big-endian number.
 
-Signatures are verified as follows:
+Signatures are verified as follows ($\textsf{credential}$ and
+$\textsf{hash}$ can be obtained from the surrounding ballot):
 \begin{enumerate}
-\item compute $A=g^\response\times \pklabel^\challenge$
-\item check that $\challenge=\Hash_\siglabel(\pklabel,A,\gamma_1,\dots,\gamma_l)\mod q$
+\item compute $A=g^\response\times \textsf{credential}^\challenge$
+\item check that $\challenge=\Hash_\siglabel(\textsf{hash},A)\mod q$
 \end{enumerate}
 
 \subsection{Ballots}
@@ -1340,13 +1348,18 @@ Signatures are verified as follows:
 \begin{gather*}
   \ballot=\left\{
     \begin{array}{rcl}
-      \answers&:&\hyperref[answers]{\answer}^\ast\\
-      \textsf{election\_hash}&:&\jstring\\
       \textsf{election\_uuid}&:&\uuid\\
+      \textsf{election\_hash}&:&\jstring\\
+      \textsf{credential}&:&\G\\
+      \answers&:&\hyperref[answers]{\answer}^\ast\\
       \siglabel&:&\hyperref[signatures]{\signature}
     \end{array}
   \right\}
 \end{gather*}
+A ballot references in its $\textsf{credential}$ member the public
+credential $S=g^{\secret(c)}$ ($c$ being the secret credential) of the
+voter.
+
 The so-called hash (or \emph{fingerprint}) of the election
 is computed with the function $\Hash_\json$:
 \[
@@ -1355,12 +1368,17 @@ is computed with the function $\Hash_\json$:
 Where $J$ is the serialization of the $\election$ structure, and the
 Base64 encoding is done without padding.
 
-The same hashing function is used on a serialization (done by the
-voting client) of the $\ballot$ structure to produce a so-called
-\emph{smart ballot tracker}.
+To compute the $\textsf{hash}$ used in signatures, the ballot without
+the $\siglabel$ field is first serialized as a JSON compact string,
+where object fields are ordered as specified in this
+document. $\Hash_\json$ is then used on this serialization.
+
+The same hashing function is used on the serialization of the whole
+$\ballot$ structure to produce a so-called \emph{smart ballot
+  tracker}.
 
 The weight of a ballot $B$, denoted by $\textsf{weight}(B)$, is the
-weight associated to $\pklabel(\siglabel(B))$ in the list of public
+weight associated to $\textsf{credential}(B)$ in the list of public
 credentials $L$.
 
 \subsection{Encrypted tally}
@@ -1489,7 +1507,7 @@ computed as follows:
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$ and $B=\alphalabel(a'_{i,j})^w$
 \item $\challenge=\Hash_\decrypt(X,A,B)$
-\item $\response=w+x\times\challenge\mod q$
+\item $\response=w-x\times\challenge\mod q$
 \end{enumerate}
 In the above, $\Hash_\decrypt$ is computed as follows:
 \[
@@ -1504,9 +1522,10 @@ trustee sent to the administrator during the election setup:
 \begin{enumerate}
 \item compute
 \[
-A=\frac{g^\response}{\pklabel(k)^\challenge}
-\quad\text{and}\quad
-B=\frac{\alphalabel(a'_{i,j})^\response}{\dfactors_{i,j}^\challenge}
+\begin{array}{rcl}
+A&=&{g^\response}\times{\pklabel(k)^\challenge}\\
+B&=&{\alphalabel(a'_{i,j})^\response}\times{\dfactors_{i,j}^\challenge}
+\end{array}
 \]
 \item check that $\Hash_\decrypt(\pklabel(k),A,B)=\challenge$
 \end{enumerate}
@@ -1591,10 +1610,10 @@ verify the tally:
 \item the $\result$ structure described above.
 \end{itemize}
 
-\section{Default group parameters}
+\section{Group parameters}
 \label{default-group}
 
-\subsection{Homomorphic group}
+\subsection{BELENIOS-2048}
 \label{h-group}
 
 This group is optimized for elections that have only homomorphic
@@ -1642,7 +1661,7 @@ The additional output of the generation algorithm is:
 \end{array}
 \]
 
-\subsection{Non-homomorphic group}
+\subsection{RFC-3526-2048}
 \label{nh-group}
 
 The group described in the previous section is not suitable for
