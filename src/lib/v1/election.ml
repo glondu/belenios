@@ -103,17 +103,8 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   let create_answer y zkp q m =
     Q.create_answer q ~public_key:y ~prefix:zkp m
 
-  let make_sig_prefix zkp commitment =
-    "sig|" ^ zkp ^ "|" ^ G.to_string commitment ^ "|"
-
-  let make_sig_contents answers =
-    Array.map2 Q.extract_ciphertexts election.e_questions answers
-    |> Array.map Shape.flatten
-    |> Array.to_list
-    |> List.flatten
-    |> List.map (fun {alpha; beta} -> [alpha; beta])
-    |> List.flatten
-    |> Array.of_list
+  let make_sig_prefix hash =
+    "sig|" ^ hash ^ "|"
 
   let create_ballot ~sk m =
     let election_uuid = election.e_uuid in
@@ -134,9 +125,8 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let* signature =
       let* w = M.random q in
       let commitment = g **~ w in
-      let prefix = make_sig_prefix zkp commitment in
-      let contents = make_sig_contents answers in
-      let challenge = G.hash prefix contents in
+      let prefix = make_sig_prefix s_hash in
+      let challenge = G.hash prefix [|commitment|] in
       let response = Z.(erem (w - sk * challenge) q) in
       let s_proof = {challenge; response} in
       M.return (Some {s_hash; s_proof})
@@ -177,9 +167,8 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
               && check_modulo q challenge
               && check_modulo q response
               && let commitment = g **~ response *~ y **~ challenge in
-                 let prefix = make_sig_prefix zkp commitment in
-                 let contents = make_sig_contents answers in
-                 Z.(challenge =% G.hash prefix contents)
+                 let prefix = make_sig_prefix s_hash in
+                 Z.(challenge =% G.hash prefix [|commitment|])
             in
             ok, zkp
          | None -> false, ""
