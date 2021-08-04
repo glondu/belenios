@@ -110,7 +110,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let election_uuid = election.e_uuid in
     let election_hash = W.fingerprint in
     let credential = G.(g **~ sk) in
-    let zkp = G.to_string credential in
+    let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
     let* answers = swap (Array.map2 (create_answer y zkp) election.e_questions m) in
     let ballot_without_signature =
       {
@@ -155,26 +155,21 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
       }
     in
     let expected_hash = sha256_b64 (string_of_ballot G.write ballot_without_signature) in
+    let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
     election_uuid = election.e_uuid
     && election_hash = W.fingerprint
-    && let y = credential in
-       let ok, zkp = match signature with
-         | Some {s_hash; s_proof = {challenge; response}} ->
-            let zkp = G.to_string y in
-            let ok =
-              s_hash = expected_hash
-              && G.check y
-              && check_modulo q challenge
-              && check_modulo q response
-              && let commitment = g **~ response *~ y **~ challenge in
-                 let prefix = make_sig_prefix s_hash in
-                 Z.(challenge =% G.hash prefix [|commitment|])
-            in
-            ok, zkp
-         | None -> false, ""
-       in
-       ok
-       && Array.forall2 (verify_answer W.public_key zkp) election.e_questions answers
+    && (match signature with
+        | Some {s_hash; s_proof = {challenge; response}} ->
+           s_hash = expected_hash
+           && G.check credential
+           && check_modulo q challenge
+           && check_modulo q response
+           && let commitment = g **~ response *~ credential **~ challenge in
+              let prefix = make_sig_prefix s_hash in
+              Z.(challenge =% G.hash prefix [|commitment|])
+        | None -> false
+       )
+    && Array.forall2 (verify_answer W.public_key zkp) election.e_questions answers
 
   let process_ballots bs =
     SArray (
