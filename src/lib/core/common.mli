@@ -93,3 +93,5 @@ module BabyStepGiantStep (G : GROUP) : sig
 end
 
 val split_on_br : string -> string list
+
+val default_version : int
