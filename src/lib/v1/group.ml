@@ -47,5 +47,5 @@ let of_string x =
   | exception Not_found ->
      Printf.ksprintf failwith "unknown group: %s" x
   | params ->
-     let module G = (val Group_field.make params : Group_field.GROUP) in
+     let module G = (val Group_field.make x params : Group_field.GROUP) in
      (module G : GROUP)

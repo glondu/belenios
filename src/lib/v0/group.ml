@@ -29,12 +29,13 @@ open Signatures
 
 let of_string x =
   let group = ff_params_of_string x in
-  let module G = (val Group_field.make group : Group_field.GROUP) in
+  let module G = (val Group_field.make x group : Group_field.GROUP) in
   (module G : GROUP)
 
 let read state buf =
   let group = read_ff_params state buf in
-  let module G = (val Group_field.make group : Group_field.GROUP) in
+  let x = string_of_ff_params group in
+  let module G = (val Group_field.make x group : Group_field.GROUP) in
   (module G : GROUP)
 
 let wrapped_pubkey_of_string x =
