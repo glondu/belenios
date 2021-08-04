@@ -468,7 +468,7 @@ $\pklabel$ is $X=g^x$. A $\tpk$ is a bundle of this public key with a
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$
 \item $\challenge=\Hash_\pok(X,A)\mod q$
-\item $\response=w+x\times\challenge\mod q$
+\item $\response=w-x\times\challenge\mod q$
 \end{enumerate}
 where $\Hash_\pok$ is computed as follows:
 \[\Hash_\pok(X,A) = \shatwo(\verb=pok|=X\verb=|=A) \]
@@ -476,7 +476,7 @@ where $\pok$ and the vertical bars are verbatim and numbers are
 written in base 10. The result is interpreted as a 256-bit big-endian
 number. The proof is verified as follows:
 \begin{enumerate}
-\item compute $A={g^\response}/{X^\challenge}$
+\item compute $A={g^\response}\times{X^\challenge}$
 \item check that $\challenge=\Hash_\pok(X,A)\mod q$
 \end{enumerate}
 
@@ -1128,8 +1128,8 @@ following procedure, parameterised by a string $S$:
   \item create $\pi_j$ with a random $\challenge$ and a random
     $\response$
   \item compute
-    \[A_j=\frac{g^\response}{\alpha^\challenge}\quad\text{and}\quad
-    B_j=\frac{y^\response}{(\beta/g^{M_j})^\challenge}\]
+    \[A_j={g^\response}\times{\alpha^\challenge}\quad\text{and}\quad
+    B_j={y^\response}\times{(\beta/g^{M_j})^\challenge}\]
   \end{enumerate}
 \item $\pi_i$ is created as follows:
   \begin{enumerate}
@@ -1137,7 +1137,7 @@ following procedure, parameterised by a string $S$:
   \item compute $A_i=g^w$ and $B_i=y^w$
   \item $\challenge(\pi_i)=\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq
       i}\challenge(\pi_j)\mod q$
-  \item $\response(\pi_i)=w+r\times\challenge(\pi_i)\mod q$
+  \item $\response(\pi_i)=w-r\times\challenge(\pi_i)\mod q$
   \end{enumerate}
 \end{enumerate}
 In the above, $\Hash_\iprove$ is computed as follows:
@@ -1150,8 +1150,8 @@ $\iprove(S,r,i,M_0,\dots,M_k)$.
 The proof is verified as follows:
 \begin{enumerate}
 \item for $j\in[0\dots k]$, compute
-  \[A_j=\frac{g^{\response(\pi_j)}}{\alpha^{\challenge(\pi_j)}}\quad\text{and}\quad
-  B_j=\frac{y^{\response(\pi_j)}}{(\beta/g^{M_j})^{\challenge(\pi_j)}}\]
+  \[A_j={g^{\response(\pi_j)}}\times{\alpha^{\challenge(\pi_j)}}\quad\text{and}\quad
+  B_j={y^{\response(\pi_j)}}\times{(\beta/g^{M_j})^{\challenge(\pi_j)}}\]
 \item check that
   \[\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\sum_{j\in[0\dots
     k]}\challenge(\pi_j)\mod q\]
@@ -1506,7 +1506,7 @@ computed as follows:
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$ and $B=\alphalabel(a'_{i,j})^w$
 \item $\challenge=\Hash_\decrypt(X,A,B)$
-\item $\response=w+x\times\challenge\mod q$
+\item $\response=w-x\times\challenge\mod q$
 \end{enumerate}
 In the above, $\Hash_\decrypt$ is computed as follows:
 \[
@@ -1521,9 +1521,10 @@ trustee sent to the administrator during the election setup:
 \begin{enumerate}
 \item compute
 \[
-A=\frac{g^\response}{\pklabel(k)^\challenge}
-\quad\text{and}\quad
-B=\frac{\alphalabel(a'_{i,j})^\response}{\dfactors_{i,j}^\challenge}
+\begin{array}{rcl}
+A&=&{g^\response}\times{\pklabel(k)^\challenge}\\
+B&=&{\alphalabel(a'_{i,j})^\response}\times{\dfactors_{i,j}^\challenge}
+\end{array}
 \]
 \item check that $\Hash_\decrypt(\pklabel(k),A,B)=\challenge$
 \end{enumerate}
