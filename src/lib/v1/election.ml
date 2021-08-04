@@ -69,7 +69,6 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   module Mix = Mixnet.Make (M) (G)
   open G
   let election = W.election
-  let y = W.public_key
 
   type private_key = Z.t
   type public_key = elt
@@ -111,7 +110,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let election_hash = W.fingerprint in
     let credential = G.(g **~ sk) in
     let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
-    let* answers = swap (Array.map2 (create_answer y zkp) election.e_questions m) in
+    let* answers = swap (Array.map2 (create_answer W.public_key zkp) election.e_questions m) in
     let ballot_without_signature =
       {
         election_uuid;
@@ -215,8 +214,8 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let rec loop i accu =
       if i >= 0 then (
         let c = cc.(i) in
-        let* (c', r', psi) = Mix.gen_shuffle y c in
-        let* pi = Mix.gen_shuffle_proof y c c' r' psi in
+        let* (c', r', psi) = Mix.gen_shuffle W.public_key c in
+        let* pi = Mix.gen_shuffle_proof W.public_key c c' r' psi in
         loop (i-1) ((c', pi) :: accu)
       ) else (
         let shuffle_ciphertexts, shuffle_proofs = Array.(split (of_list accu)) in
@@ -226,7 +225,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     loop (Array.length cc - 1) []
 
   let check_shuffle cc s =
-    Array.forall3 (Mix.check_shuffle_proof y) cc s.shuffle_ciphertexts s.shuffle_proofs
+    Array.forall3 (Mix.check_shuffle_proof W.public_key) cc s.shuffle_ciphertexts s.shuffle_proofs
 
   type factor = elt partial_decryption
 
