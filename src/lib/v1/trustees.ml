@@ -73,14 +73,12 @@ module MakeCombinator (G : GROUP) = struct
 
   module V = MakeVerificator (G)
 
-  let ( / ) x y = G.(x *~ invert y)
-
   let check_single {trustee_pok; trustee_public_key = y; _} =
     G.check y &&
       let {challenge; response} = trustee_pok in
       check_modulo G.q challenge &&
         check_modulo G.q response &&
-          let commitment = G.(g **~ response / (y **~ challenge)) in
+          let commitment = G.(g **~ response *~ y **~ challenge) in
           let zkp = "pok|" ^ G.to_string y ^ "|" in
           Z.(challenge =% G.hash zkp [| commitment |])
 
@@ -205,7 +203,7 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
     let* w = M.random q in
     let commitments = Array.map (fun g -> g **~ w) gs in
     let challenge = oracle commitments in
-    let response = Z.((w + x * challenge) mod q) in
+    let response = Z.(erem (w - x * challenge) q) in
     M.return {challenge; response}
 
   let generate () = M.random q

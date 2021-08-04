@@ -76,7 +76,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let commitments = Array.map (fun g -> g **~ w) gs in
     let* () = M.yield () in
     let challenge = oracle commitments in
-    let response = Z.((w + x * challenge) mod q) in
+    let response = Z.(erem (w - x * challenge) q) in
     M.return {challenge; response}
 
   (** ZKPs for disjunctions *)
@@ -94,9 +94,9 @@ module Make (M : RANDOM) (G : GROUP) = struct
       let* challenge = M.random q in
       let* response = M.random q in
       proofs.(i) <- {challenge; response};
-      commitments.(2*i) <- g **~ response / alpha **~ challenge;
+      commitments.(2*i) <- g **~ response *~ alpha **~ challenge;
       let* () = M.yield () in
-      commitments.(2*i+1) <- y **~ response / (beta *~ d.(i)) **~ challenge;
+      commitments.(2*i+1) <- y **~ response *~ (beta *~ d.(i)) **~ challenge;
       let* () = M.yield () in
       total_challenges := Z.(!total_challenges + challenge);
       M.return ()
@@ -132,8 +132,8 @@ module Make (M : RANDOM) (G : GROUP) = struct
           for i = 0 to n-1 do
             let {challenge; response} = proofs.(i) in
             if check_modulo q challenge && check_modulo q response then (
-              commitments.(2*i) <- g **~ response / alpha **~ challenge;
-              commitments.(2*i+1) <- y **~ response / (beta *~ d.(i)) **~ challenge;
+              commitments.(2*i) <- g **~ response *~ alpha **~ challenge;
+              commitments.(2*i+1) <- y **~ response *~ (beta *~ d.(i)) **~ challenge;
               total_challenges := Z.(!total_challenges + challenge);
             ) else raise Exit
           done;

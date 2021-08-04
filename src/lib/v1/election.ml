@@ -87,7 +87,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let commitments = Array.map (fun g -> g **~ w) gs in
     let* () = M.yield () in
     let challenge = oracle commitments in
-    let response = Z.((w + x * challenge) mod q) in
+    let response = Z.(erem (w - x * challenge) q) in
     M.return {challenge; response}
 
   (** Ballot creation *)
@@ -264,8 +264,8 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
           check_modulo q response &&
             let commitments =
               [|
-                g **~ response / (y **~ challenge);
-                alpha **~ response / (f **~ challenge);
+                g **~ response *~ y **~ challenge;
+                alpha **~ response *~ f **~ challenge;
               |]
             in Z.(hash zkp commitments =% challenge)
       ) c f.decryption_factors f.decryption_proofs
