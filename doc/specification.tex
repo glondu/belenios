@@ -1290,9 +1290,7 @@ $(\pi_0,\pi_1,\dotsc,\pi_k)$ such that the following procedure passes:
 \begin{gather*}
   \signature=\left\{
     \begin{array}{rcl}
-      \pklabel&:&\pk\\
-      \challenge&:&\Z_q\\
-      \response&:&\Z_q
+      \textsf{proof}&:&\proof
     \end{array}
   \right\}
 \end{gather*}
@@ -1305,12 +1303,14 @@ ballot stuffing. The signature needs a
 $\gamma_1,\dots,\gamma_l$ that appear in the ballot. It is computed as
 follows:
 \begin{enumerate}
-\item compute $s=\secret(c)$
+\item compute $s=\secret(c)$ and $S=g^s$
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$
-\item $\pklabel=g^s$
-\item $\challenge=\Hash_\siglabel(\pklabel,A,\gamma_1,\dots,\gamma_l)\mod q$
-\item $\response=w-s\times\challenge\mod q$
+\item compute $\textsf{proof}$ as follows:
+  \begin{enumerate}
+  \item $\challenge=\Hash_\siglabel(S,A,\gamma_1,\dots,\gamma_l)\mod q$
+  \item $\response=w-s\times\challenge\mod q$
+  \end{enumerate}
 \end{enumerate}
 In the above, $\Hash_\siglabel$ is computed as follows:
 \[
@@ -1320,10 +1320,11 @@ where \verb=sig=, the vertical bars and commas are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
 big-endian number.
 
-Signatures are verified as follows:
+Signatures are verified as follows ($S$ can be obtained from the
+surrounding ballot):
 \begin{enumerate}
-\item compute $A=g^\response\times \pklabel^\challenge$
-\item check that $\challenge=\Hash_\siglabel(\pklabel,A,\gamma_1,\dots,\gamma_l)\mod q$
+\item compute $A=g^\response\times S^\challenge$
+\item check that $\challenge=\Hash_\siglabel(S,A,\gamma_1,\dots,\gamma_l)\mod q$
 \end{enumerate}
 
 \subsection{Ballots}
@@ -1334,13 +1335,18 @@ Signatures are verified as follows:
 \begin{gather*}
   \ballot=\left\{
     \begin{array}{rcl}
-      \answers&:&\hyperref[answers]{\answer}^\ast\\
-      \textsf{election\_hash}&:&\jstring\\
       \textsf{election\_uuid}&:&\uuid\\
+      \textsf{election\_hash}&:&\jstring\\
+      \textsf{credential}&:&\G\\
+      \answers&:&\hyperref[answers]{\answer}^\ast\\
       \siglabel&:&\hyperref[signatures]{\signature}
     \end{array}
   \right\}
 \end{gather*}
+A ballot references in its $\textsf{credential}$ member the public
+credential $S=g^{\secret(c)}$ ($c$ being the secret credential) of the
+voter.
+
 The so-called hash (or \emph{fingerprint}) of the election
 is computed with the function $\Hash_\json$:
 \[
@@ -1354,7 +1360,7 @@ voting client) of the $\ballot$ structure to produce a so-called
 \emph{smart ballot tracker}.
 
 The weight of a ballot $B$, denoted by $\textsf{weight}(B)$, is the
-weight associated to $\pklabel(\siglabel(B))$ in the list of public
+weight associated to $\textsf{credential}(B)$ in the list of public
 credentials $L$.
 
 \subsection{Encrypted tally}
