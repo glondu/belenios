@@ -116,9 +116,21 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     |> Array.of_list
 
   let create_ballot ~sk m =
+    let election_uuid = election.e_uuid in
+    let election_hash = W.fingerprint in
     let credential = G.(g **~ sk) in
     let zkp = G.to_string credential in
     let* answers = swap (Array.map2 (create_answer y zkp) election.e_questions m) in
+    let ballot_without_signature =
+      {
+        election_uuid;
+        election_hash;
+        credential;
+        answers;
+        signature = None;
+      }
+    in
+    let s_hash = sha256_b64 (string_of_ballot G.write ballot_without_signature) in
     let* signature =
       let* w = M.random q in
       let commitment = g **~ w in
@@ -127,11 +139,11 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
       let challenge = G.hash prefix contents in
       let response = Z.(erem (w - sk * challenge) q) in
       let s_proof = {challenge; response} in
-      M.return (Some {s_proof})
+      M.return (Some {s_hash; s_proof})
     in
     M.return {
-        election_uuid = election.e_uuid;
-        election_hash = W.fingerprint;
+        election_uuid;
+        election_hash;
         credential;
         answers;
         signature;
@@ -142,25 +154,38 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   let verify_answer y zkp q a =
     Q.verify_answer q ~public_key:y ~prefix:zkp a
 
-  let check_ballot b =
-    b.election_uuid = election.e_uuid &&
-      b.election_hash = W.fingerprint &&
-        let y = b.credential in
-        let ok, zkp = match b.signature with
-          | Some {s_proof = {challenge; response}} ->
-             let zkp = G.to_string y in
-             let ok =
-               G.check y &&
-                 check_modulo q challenge &&
-                   check_modulo q response &&
-                     let commitment = g **~ response *~ y **~ challenge in
-                     let prefix = make_sig_prefix zkp commitment in
-                     let contents = make_sig_contents b.answers in
-                     Z.(challenge =% G.hash prefix contents)
-             in ok, zkp
-          | None -> false, ""
-        in ok &&
-             Array.forall2 (verify_answer W.public_key zkp) election.e_questions b.answers
+  let check_ballot {election_uuid; election_hash; credential; answers; signature} =
+    let ballot_without_signature =
+      {
+        election_uuid;
+        election_hash;
+        credential;
+        answers;
+        signature = None;
+      }
+    in
+    let expected_hash = sha256_b64 (string_of_ballot G.write ballot_without_signature) in
+    election_uuid = election.e_uuid
+    && election_hash = W.fingerprint
+    && let y = credential in
+       let ok, zkp = match signature with
+         | Some {s_hash; s_proof = {challenge; response}} ->
+            let zkp = G.to_string y in
+            let ok =
+              s_hash = expected_hash
+              && G.check y
+              && check_modulo q challenge
+              && check_modulo q response
+              && let commitment = g **~ response *~ y **~ challenge in
+                 let prefix = make_sig_prefix zkp commitment in
+                 let contents = make_sig_contents answers in
+                 Z.(challenge =% G.hash prefix contents)
+            in
+            ok, zkp
+         | None -> false, ""
+       in
+       ok
+       && Array.forall2 (verify_answer W.public_key zkp) election.e_questions answers
 
   let process_ballots bs =
     SArray (
