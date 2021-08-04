@@ -79,7 +79,7 @@ module MakeCombinator (G : GROUP) = struct
       check_modulo G.q challenge &&
         check_modulo G.q response &&
           let commitment = G.(g **~ response *~ y **~ challenge) in
-          let zkp = "pok|" ^ G.to_string y ^ "|" in
+          let zkp = "pok|" ^ G.description ^ "|" ^ G.to_string y ^ "|" in
           Z.(challenge =% G.hash zkp [| commitment |])
 
   let check_pedersen t =
@@ -210,7 +210,7 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
 
   let prove x =
     let trustee_public_key = g **~ x in
-    let zkp = "pok|" ^ G.to_string trustee_public_key ^ "|" in
+    let zkp = "pok|" ^ G.description ^ "|" ^ G.to_string trustee_public_key ^ "|" in
     let* trustee_pok = fs_prove [| g |] x (G.hash zkp) in
     M.return {trustee_pok; trustee_public_key; trustee_name = None}
 
