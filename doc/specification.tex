@@ -1511,7 +1511,7 @@ computed as follows:
 \end{enumerate}
 In the above, $\Hash_\decrypt$ is computed as follows:
 \[
-\Hash_\decrypt(X,A,B)=\shatwo(\verb=decrypt|=X\verb=|=A\verb=,=B)\mod q
+\Hash_\decrypt(X,A,B)=\shatwo(\verb=decrypt|=\varphi\verb=|=X\verb=|=A\verb=,=B)\mod q
 \]
 where \verb=decrypt=, the vertical bars and the comma are verbatim and
 numbers are written in base 10. The result is interpreted as a 256-bit
@@ -1810,6 +1810,7 @@ algorithms, please refer to the CHVote System Specification.
       randomizations
     \item $\psi=[j_1,\dots,j_N]\in\Psi_N$: permutation
     \item $pk\in\G$: the public key of the election
+    \item $\varphi\in\jstring$: the fingerprint of the election
     \end{itemize}
     \noindent\paragraph{Algorithm}
     \begin{enumerate}
@@ -1823,7 +1824,7 @@ algorithms, please refer to the CHVote System Specification.
       $\textsf{str}_c\leftarrow\llbracket\textbf{e}\rrbracket\llbracket\textbf{e}'\rrbracket\llbracket\textbf{c}\rrbracket$\hfill//
       see table~\ref{serialize-array}
     \item
-      $\textbf{u}\leftarrow\textsf{GetNIZKPChallenges}(N,\verb=shuffle-challenges|=\textsf{str}_c)$\hfill//
+      $\textbf{u}\leftarrow\textsf{GetNIZKPChallenges}(N,\verb=shuffle-challenges|=\varphi\verb=|=\textsf{str}_c)$\hfill//
       see table~\ref{get-nizkp-challenges}
     \item For $i=1,\dots,N$: $u'_i\leftarrow u_{j_i}$
     \item $\textbf{u}'\leftarrow[u'_1,\dots,u'_N]$
@@ -1848,7 +1849,7 @@ algorithms, please refer to the CHVote System Specification.
       $\textsf{str}_y\leftarrow\textsf{str}_c\llbracket\hat{\textbf{c}}\rrbracket
       pk$\hfill// $pk$ taken as a number in base 10
     \item
-      $c\leftarrow\textsf{GetNIZKPChallenge}(\verb=shuffle-challenge|=\textsf{str}_t\textsf{str}_y)$\hfill//
+      $c\leftarrow\textsf{GetNIZKPChallenge}(\verb=shuffle-challenge|=\varphi\verb=|=\textsf{str}_t\textsf{str}_y)$\hfill//
       see table~\ref{get-nizkp-challenge}
     \item $\bar{r}\leftarrow\sum_{i=1}^N r_i\mod q$,
       $s_1\leftarrow\omega_1+c\times\bar{r}\mod q$
@@ -1866,7 +1867,7 @@ algorithms, please refer to the CHVote System Specification.
     \item Return $\pi$\hfill// $\pi\in\texttt{shuffle\_proof}$
     \end{enumerate}
   \end{framed}
-  \caption{Function $\mathsf{GenShuffleProof}(\textbf{e},\textbf{e}',\textbf{r}',\psi,pk)$}
+  \caption{Function $\mathsf{GenShuffleProof}(\textbf{e},\textbf{e}',\textbf{r}',\psi,pk,\varphi)$}
   \label{gen-shuffle-proof}
 \end{table}
 
@@ -1883,6 +1884,7 @@ algorithms, please refer to the CHVote System Specification.
       shuffled encrypted answers; we will denote by
       $\alpha'_i$ and $\beta'_i$ the contents of $e'_i$
     \item $pk\in\G$: the public key of the election
+    \item $\varphi\in\jstring$: the fingerprint of the election
     \end{itemize}
     \noindent\paragraph{Algorithm}
     \begin{enumerate}
@@ -1898,7 +1900,7 @@ algorithms, please refer to the CHVote System Specification.
       $\textsf{str}_c\leftarrow\llbracket\textbf{e}\rrbracket\llbracket\textbf{e}'\rrbracket\llbracket\textbf{c}\rrbracket$\hfill//
       see table~\ref{serialize-array}
     \item
-      $\textbf{u}\leftarrow\textsf{GetNIZKPChallenges}(N,\verb=shuffle-challenges|=\textsf{str}_c)$\hfill//
+      $\textbf{u}\leftarrow\textsf{GetNIZKPChallenges}(N,\verb=shuffle-challenges|=\varphi\verb=|=\textsf{str}_c)$\hfill//
       see table~\ref{get-nizkp-challenges}
     \item
       $\textsf{str}_t\leftarrow\llbracket[t_1,t_2,t_3,t_{4,1},t_{4,2}]\rrbracket\llbracket[\hat{t}_1,\dots,\hat{t}_N]\rrbracket$
@@ -1906,7 +1908,7 @@ algorithms, please refer to the CHVote System Specification.
       $\textsf{str}_y\leftarrow\textsf{str}_c\llbracket\hat{\textbf{c}}\rrbracket
       pk$\hfill// $pk$ taken as a number in base 10
     \item
-      $c\leftarrow\textsf{GetNIZKPChallenge}(\verb=shuffle-challenge|=\textsf{str}_t\textsf{str}_y)$\hfill//
+      $c\leftarrow\textsf{GetNIZKPChallenge}(\verb=shuffle-challenge|=\varphi\verb=|=\textsf{str}_t\textsf{str}_y)$\hfill//
       see table~\ref{get-nizkp-challenge}
     \item $\bar{c}\leftarrow\prod_{i=1}^N c_i/\prod_{i=1}^N h_i$
     \item $u\leftarrow\prod_{i=1}^N u_i\mod q$
@@ -1926,7 +1928,7 @@ algorithms, please refer to the CHVote System Specification.
       $(t_1=t'_1)\land(t_2=t'_2)\land(t_3=t'_3)\land(t_{4,1}=t'_{4,1})\land(t_{4,2}=t'_{4,2})\land\left[\bigwedge_{i=1}^N(\hat{t_i}=\hat{t'_i})\right]$
     \end{enumerate}
   \end{framed}
-  \caption{Function $\mathsf{CheckShuffleProof}(\pi,\textbf{e},\textbf{e}',pk)$}
+  \caption{Function $\mathsf{CheckShuffleProof}(\pi,\textbf{e},\textbf{e}',pk,\varphi)$}
   \label{check-shuffle-proof}
 \end{table}
 
