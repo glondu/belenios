@@ -93,7 +93,7 @@ let () =
       let* election = get ("../elections/" ^ uuid ^ "/election.json") in
       let* ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
       set_textarea "current_ballots" ciphertexts.content;
-      let full_shuffle = shuffle election.content ciphertexts.content in
+      let full_shuffle = shuffle (String.trim election.content) ciphertexts.content in
       match Dom_html.getElementById_coerce "compute_shuffle" Dom_html.CoerceTo.button with
       | None -> Lwt.return_unit
       | Some btn ->
