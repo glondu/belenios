@@ -230,7 +230,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   type factor = elt partial_decryption
 
   let eg_factor x {alpha; _} =
-    let zkp = "decrypt|" ^ G.to_string (g **~ x) ^ "|" in
+    let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in
     alpha **~ x,
     fs_prove [| g; alpha |] x (hash zkp)
 
@@ -258,7 +258,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     )
 
   let check_factor c y f =
-    let zkp = "decrypt|" ^ G.to_string y ^ "|" in
+    let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
     Shape.forall3 (fun {alpha; _} f {challenge; response} ->
         check_modulo q challenge &&
           check_modulo q response &&
