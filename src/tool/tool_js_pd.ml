@@ -142,7 +142,7 @@ let fill_interactivity () =
      let* e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
      encrypted_tally := Some (String.trim e.content);
      let* e = get ("../elections/" ^ uuid ^ "/election.json") in
-     election := Some e.content;
+     election := Some (String.trim e.content);
      Lwt.return (compute_hash ())
 
 let () =
