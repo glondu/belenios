@@ -265,14 +265,11 @@ end
 let sqrt s =
   (* https://en.wikipedia.org/wiki/Integer_square_root *)
   let rec loop x0 =
-    if Z.compare x0 Z.zero > 0 then
-      let x1 = Z.(shift_right (x0 + s / x0) 1) in
-      if Z.compare x1 x0 < 0 then
-        loop x1
-      else x0
-    else x0
+    let x1 = Z.(shift_right (x0 + s / x0) 1) in
+    if Z.compare x1 x0 < 0 then loop x1 else x0
   in
-  loop Z.(shift_right s 1)
+  let x0 = Z.shift_right s 1 in
+  if Z.compare x0 Z.zero > 0 then loop x0 else s
 
 module BabyStepGiantStep (G : GROUP) = struct
   (* https://en.wikipedia.org/wiki/Baby-step_giant-step *)
