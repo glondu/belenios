@@ -23,7 +23,7 @@ open Belenios_core
 open Signatures
 open Serializable_t
 
-module Make (M : RANDOM) (G : GROUP) : MIXNET
+module Make (W : ELECTION_DATA) (M : RANDOM) : MIXNET
        with type 'a m := 'a M.t
-        and type elt := G.t
+        and type elt := W.G.t
         and type 'a proof := 'a shuffle_proof

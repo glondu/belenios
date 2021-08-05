@@ -66,7 +66,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
 
   module G = W.G
   module Q = Question.Make (M) (G) (Question_h.Make (M) (G)) (Question_nh.Make (M) (G))
-  module Mix = Mixnet.Make (M) (G)
+  module Mix = Mixnet.Make (W) (M)
   open G
   let election = W.election
 
