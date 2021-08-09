@@ -68,11 +68,12 @@ let to_string params ~group ~public_key =
   string_of_params (write_wrapped_pubkey write_ff_params G.write) params
 
 module Parse (R : RAW_ELECTION) () = struct
-  let params = params_of_string Yojson.Safe.read_json R.raw_election
-  let wpk = Yojson.Safe.to_string params.e_public_key
-  module W = (val Group.wrapped_pubkey_of_string wpk)
+  let params = params_of_string (read_wrapped_pubkey Yojson.Safe.read_json Yojson.Safe.read_json) R.raw_election
+  let group = Yojson.Safe.to_string params.e_public_key.wpk_group
+  let y = Yojson.Safe.Util.to_string params.e_public_key.wpk_y
 
-  module G = W.G
+  module G = (val Group.of_string group)
+
   let election =
     let {
         e_description; e_name; e_questions; e_uuid;
@@ -87,7 +88,7 @@ module Parse (R : RAW_ELECTION) () = struct
       e_administrator; e_credential_authority;
     }
   let fingerprint = sha256_b64 R.raw_election
-  let public_key = W.y
+  let public_key = G.of_string y
 
   type nonrec ballot = G.t ballot
   let string_of_ballot x = string_of_ballot G.write x

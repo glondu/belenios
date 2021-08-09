@@ -24,6 +24,12 @@ type number <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type question <ocaml module="Belenios_core.Question"> = abstract
 
+type ('a, 'b) wrapped_pubkey = {
+  group : 'a;
+  y : 'b;
+} <ocaml field_prefix="wpk_">
+<doc text="A public key wrapped with its group parameters.">
+
 type 'a params = {
   description : string;
   name : string;

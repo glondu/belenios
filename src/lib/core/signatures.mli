@@ -32,13 +32,6 @@ type 'a reader = Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
 type 'a writer = Bi_outbuf.t -> 'a -> unit
 
 module type GROUP = Signatures_core.GROUP
-
-(** A public key with its group *)
-module type WRAPPED_PUBKEY = sig
-  module G : GROUP
-  val y : G.t
-end
-
 module type MONAD = Signatures_core.MONAD
 module type RANDOM = Signatures_core.RANDOM
 
