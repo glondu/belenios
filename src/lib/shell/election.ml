@@ -40,36 +40,8 @@ let get_version x =
 
 let of_string x =
   match get_version x with
-  | 0 ->
-     let open Belenios_v0.Serializable_j in
-     let params = params_of_string Yojson.Safe.read_json x in
-     let {
-         e_description; e_name; e_questions; e_uuid;
-         e_administrator; e_credential_authority;
-         _
-       } = params
-     in
-     let open Serializable_j in
-     {
-       e_version = 0;
-       e_description; e_name; e_questions; e_uuid;
-       e_administrator; e_credential_authority;
-     }
-  | 1 ->
-     let open Belenios_v1.Serializable_j in
-     let params = params_of_string Yojson.Safe.read_json x in
-     let {
-         e_description; e_name; e_questions; e_uuid;
-         e_administrator; e_credential_authority;
-         _
-       } = params
-     in
-     let open Serializable_j in
-     {
-       e_version = 1;
-       e_description; e_name; e_questions; e_uuid;
-       e_administrator; e_credential_authority;
-     }
+  | 0 -> Belenios_v0.Election.of_string x
+  | 1 -> Belenios_v1.Election.of_string x
   | n -> Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
 
@@ -85,43 +57,8 @@ let election_uuid_of_string_ballot x =
 
 let make_raw_election params ~group ~public_key =
   match params.e_version with
-  | 0 ->
-     let {
-         e_description; e_name; e_questions; e_uuid;
-         e_administrator; e_credential_authority;
-         _
-       } = params
-     in
-     let wpk_group = ff_params_of_string group in
-     let module G = (val Belenios_v0.Group.of_string group) in
-     let wpk_y = G.of_string public_key in
-     let e_public_key = {wpk_group; wpk_y} in
-     let open Belenios_v0.Serializable_j in
-     let params = {
-         e_description; e_name; e_questions; e_uuid;
-         e_administrator; e_credential_authority;
-         e_public_key;
-       }
-     in
-     string_of_params (write_wrapped_pubkey write_ff_params G.write) params
-  | 1 ->
-     let {
-         e_description; e_name; e_questions; e_uuid;
-         e_administrator; e_credential_authority;
-         _
-       } = params
-     in
-     let module G = (val Belenios_v1.Group.of_string group) in
-     let e_public_key = G.of_string public_key in
-     let open Belenios_v1.Serializable_j in
-     let params = {
-         e_version = 1;
-         e_description; e_name; e_questions; e_uuid;
-         e_administrator; e_credential_authority;
-         e_group = group; e_public_key;
-       }
-     in
-     string_of_params G.write params
+  | 0 -> Belenios_v0.Election.to_string params ~group ~public_key
+  | 1 -> Belenios_v1.Election.to_string params ~group ~public_key
   | n ->
      Printf.ksprintf invalid_arg
        "make_raw_election: unsupported version: %d" n

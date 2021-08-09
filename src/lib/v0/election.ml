@@ -30,6 +30,43 @@ open PSerializable_j
 open Signatures
 open Common
 
+let of_string x =
+  let open PSerializable_j in
+  let params = params_of_string Yojson.Safe.read_json x in
+  let {
+      e_description; e_name; e_questions; e_uuid;
+      e_administrator; e_credential_authority;
+      _
+    } = params
+  in
+  let open Serializable_j in
+  {
+    e_version = 0;
+    e_description; e_name; e_questions; e_uuid;
+    e_administrator; e_credential_authority;
+  }
+
+let to_string params ~group ~public_key =
+  let open Serializable_j in
+  let {
+      e_description; e_name; e_questions; e_uuid;
+      e_administrator; e_credential_authority;
+      _
+    } = params
+  in
+  let wpk_group = ff_params_of_string group in
+  let module G = (val Group.of_string group) in
+  let wpk_y = G.of_string public_key in
+  let e_public_key = {wpk_group; wpk_y} in
+  let open PSerializable_j in
+  let params = {
+      e_description; e_name; e_questions; e_uuid;
+      e_administrator; e_credential_authority;
+      e_public_key;
+    }
+  in
+  string_of_params (write_wrapped_pubkey write_ff_params G.write) params
+
 module Parse (R : RAW_ELECTION) () = struct
   let params = params_of_string Yojson.Safe.read_json R.raw_election
   let wpk = Yojson.Safe.to_string params.e_public_key

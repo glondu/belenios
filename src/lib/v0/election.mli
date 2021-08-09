@@ -21,5 +21,11 @@
 
 open Belenios_core.Signatures
 
+val of_string : string -> Belenios_core.Serializable_t.params
+
+val to_string :
+  Belenios_core.Serializable_t.params ->
+  group:string -> public_key:string -> string
+
 module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () :
 ELECTION with type 'a m = 'a M.t
