@@ -26,7 +26,8 @@ open Common
 open Serializable_core_t
 open Signatures
 
-module Make (M : RANDOM) (G : GROUP) = struct
+module Make (W : ELECTION_DATA) (M : RANDOM) = struct
+  module G = W.G
   open G
   let ( let* ) = M.bind
 
