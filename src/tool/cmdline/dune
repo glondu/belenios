@@ -1,0 +1,6 @@
+(executable
+ (name tool_cmdline)
+ (public_name belenios-tool)
+ (package belenios-tool)
+ (modules tool_cmdline)
+ (libraries cmdliner belenios-platform-native belenios belenios_tool_common))

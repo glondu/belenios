@@ -3,5 +3,5 @@ src/web/lib/pages_common.ml
 src/web/lib/pages_voter.ml
 src/web/lib/site_common.ml
 src/web/lib/site_voter.ml
-src/tool/tool_js_booth.ml
-src/tool/tool_js_fingerprint.ml
+src/tool/js/tool_js_booth.ml
+src/tool/js/tool_js_fingerprint.ml

@@ -1,8 +1,8 @@
 src/web/lib/pages_admin.ml
 src/web/lib/site_admin.ml
-src/tool/tool_js_questions.ml
-src/tool/tool_js_credgen.ml
-src/tool/tool_js_tkeygen.ml
-src/tool/tool_js_ttkeygen.ml
-src/tool/tool_js_shuffle.ml
-src/tool/tool_js_pd.ml
+src/tool/js/tool_js_questions.ml
+src/tool/js/tool_js_credgen.ml
+src/tool/js/tool_js_tkeygen.ml
+src/tool/js/tool_js_ttkeygen.ml
+src/tool/js/tool_js_shuffle.ml
+src/tool/js/tool_js_pd.ml
