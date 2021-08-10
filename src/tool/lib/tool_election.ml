@@ -43,8 +43,8 @@ module type S = sig
   val vote : string option -> int array array -> string m
   val decrypt : string -> string m
   val tdecrypt : string -> string -> string m
-  val validate : string list -> string
-  val verify : unit -> unit
+  val validate : string list -> string m
+  val verify : unit -> unit m
   val shuffle_ciphertexts : unit -> string m
   val checksums : unit -> string
   val compute_voters : string list -> string list
@@ -105,7 +105,6 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
 
   (* Load ballots, if present *)
 
-  module GSet = Map.Make (G)
   module PPC = Credential.MakeParsePublicCredential (G)
 
   let public_creds =
@@ -115,59 +114,83 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
              (List.fold_left
                 (fun accu x ->
                   match PPC.parse_public_credential x with
-                  | Some (w, y) -> GSet.add y (w, ref false) accu
+                  | Some (w, y) -> SMap.add (G.to_string y) (w, ref None) accu
                   | None -> Printf.ksprintf failwith "%s is not a valid public credential" x;
-                ) GSet.empty
+                ) SMap.empty
              )
       )
 
-  let ballots =
-    lazy (
-        get_ballots ()
-        |> Option.map (List.map (fun x -> ballot_of_string x, sha256_b64 x))
-      )
+  let rawballots = lazy (get_ballots ())
 
-  let check_signature_present = lazy (
+  let string_of_cast_error = function
+    | `SerializationError e -> Printf.sprintf "ill-formed ballot: %s" (Printexc.to_string e)
+    | `NonCanonical -> "ballot not in canonical form"
+    | `InvalidBallot -> "invalid ballot"
+    | `InvalidCredential -> "invalid credential"
+    | `WrongCredential -> "wrong credential"
+    | `WrongWeight -> "wrong weight"
+    | `UsedCredential -> "used credential"
+    | `RevoteNotAllowed -> "revote not allowed"
+
+  let cast rawballot =
     match Lazy.force public_creds with
-    | Some creds -> (fun b ->
-      match get_credential b with
-      | Some c ->
-         (match GSet.find_opt c creds with
-          | Some (w, used) -> if !used then None else (used := true; Some w)
-          | None -> None)
-      | None -> None
-    )
-    | None -> (fun _ -> Some Weight.one)
-  )
+    | None -> failwith "missing public credentials"
+    | Some creds ->
+       let ballot_id = sha256_b64 rawballot in
+       let module X =
+         struct
+           type user
+           let get_credential_record c =
+             match SMap.find_opt c creds with
+             | None -> M.return None
+             | Some (cr_weight, old) -> M.return (Some {cr_ballot = !old; cr_weight})
+           let get_user_record _ =
+             M.return None
+         end
+       in
+       let module B = E.CastBallot (X) in
+       let* x = B.cast rawballot in
+       match x with
+       | Error e ->
+          Printf.ksprintf failwith "error while casting ballot %s: %s"
+            ballot_id (string_of_cast_error e)
+       | Ok (credential, ballot, old) ->
+          match SMap.find_opt credential creds with
+          | None ->
+             Printf.ksprintf failwith "invalid credential for ballot %s"
+               ballot_id
+          | Some (w, used) ->
+             assert (!used = old);
+             let () =
+               match old with
+               | None -> used := Some ballot_id
+               | Some _ ->
+                  Printf.ksprintf failwith
+                    "credential of ballot %s used multiple times"
+                    ballot_id
+             in
+             M.return (w, ballot)
 
-  let cast (b, hash) =
-    match
-      match Lazy.force check_signature_present b with
-      | Some w -> if E.check_ballot b then Some w else None
-      | None -> None
-    with
-    | Some w -> w
-    | None -> Printf.ksprintf failwith "ballot %s failed tests" hash
-
-  let ballots_weights = lazy (
-    Lazy.force ballots |> Option.map (List.map cast)
-  )
+  let ballots =
+    let rec loop accu = function
+      | [] -> M.return (Array.of_list accu)
+      | b :: bs ->
+         let* x = cast b in
+         loop (x :: accu) bs
+    in
+    lazy (Lazy.force rawballots |> Option.map (loop []))
 
   let raw_encrypted_tally =
     lazy (
         match Lazy.force ballots with
-        | None -> E.process_ballots [||], Weight.zero
-        | Some ballots ->
-           match Lazy.force ballots_weights with
-           | None -> failwith "ballots or public credentials are missing"
-           | Some weights ->
-              let ballots = List.map fst ballots in
-              let ballots = List.combine weights ballots |> Array.of_list in
-              let nballots =
-                let open Weight in
-                Array.fold_left (fun accu (w, _) -> accu + w) zero ballots
-              in
-              E.process_ballots ballots, nballots
+        | None -> M.return (E.process_ballots [||], Weight.zero)
+        | Some x ->
+           let* ballots = x in
+           let total_weight =
+             let open Weight in
+             Array.fold_left (fun accu (w, _) -> accu + w) zero ballots
+           in
+           M.return (E.process_ballots ballots, total_weight)
       )
 
   let result_as_string = lazy (get_result ())
@@ -205,7 +228,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
 
   let shuffles_check =
     lazy (
-        let rtally, _ = Lazy.force raw_encrypted_tally in
+        let* rtally, _ = Lazy.force raw_encrypted_tally in
         let cc = E.extract_nh_ciphertexts rtally in
         let rec loop i cc ss =
           match ss with
@@ -214,19 +237,19 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
                loop (i+1) s.shuffle_ciphertexts ss
              else
                Printf.ksprintf failwith "shuffle #%d failed tests" i
-          | [] -> true
+          | [] -> M.return true
         in
         match Lazy.force shuffles with
         | Some ss -> loop 0 cc ss
-        | None -> true
+        | None -> M.return true
       )
 
   let encrypted_tally =
     lazy (
-        let raw_encrypted_tally, ntally = Lazy.force raw_encrypted_tally in
+        let* raw_encrypted_tally, ntally = Lazy.force raw_encrypted_tally in
         match Option.map List.rev (Lazy.force shuffles) with
-        | Some (s :: _) -> E.merge_nh_ciphertexts s.shuffle_ciphertexts raw_encrypted_tally, ntally
-        | _ -> raw_encrypted_tally, ntally
+        | Some (s :: _) -> M.return (E.merge_nh_ciphertexts s.shuffle_ciphertexts raw_encrypted_tally, ntally)
+        | _ -> M.return (raw_encrypted_tally, ntally)
       )
 
   let vote privcred ballot =
@@ -259,7 +282,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
     );
     if Election.has_nh_questions election then
       print_msg "W: you should check that your shuffle appears in the list of applied shuffles";
-    let tally, _ = Lazy.force encrypted_tally in
+    let* tally, _ = Lazy.force encrypted_tally in
     let* factor = E.compute_factor tally sk in
     assert (E.check_factor tally pk factor);
     M.return (string_of_partial_decryption G.write factor)
@@ -283,21 +306,21 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
                     ) ts
         then print_msg "W: your key is not present in threshold parameters"
     );
-    let tally, _ = Lazy.force encrypted_tally in
+    let* tally, _ = Lazy.force encrypted_tally in
     let* factor = E.compute_factor tally pdk in
     assert (E.check_factor tally pvk factor);
     M.return (string_of_partial_decryption G.write factor)
 
   let validate factors =
     let factors = List.map (partial_decryption_of_string G.read) factors in
-    let tally, nballots = Lazy.force encrypted_tally in
+    let* tally, nballots = Lazy.force encrypted_tally in
     let shuffles = Lazy.force shuffles in
     match trustees with
     | Some trustees ->
        (match E.compute_result ?shuffles nballots tally factors trustees with
         | Ok result ->
            assert (E.check_result trustees result);
-           string_of_election_result G.write write_result result
+           M.return (string_of_election_result G.write write_result result)
         | Error e -> failwith (PTrustees.string_of_combination_error e)
        )
     | None -> failwith "missing trustees"
@@ -309,21 +332,26 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
         assert G.(public_key =~ K.combine_keys trustees)
      | None -> failwith "missing trustees"
     );
-    (match Lazy.force ballots_weights with
-    | Some _ -> assert (Lazy.force shuffles_check)
-    | None -> print_msg "W: no ballots to check"
-    );
-    (match Lazy.force result, trustees with
-    | Some result, Some trustees ->
-       assert (fst (Lazy.force encrypted_tally) = result.encrypted_tally);
-       assert (E.check_result trustees result)
-    | Some _, None -> failwith "missing trustees"
-    | None, _ -> print_msg "W: no result to check"
-    );
-    print_msg "I: all checks passed"
+    let* () =
+      match Lazy.force ballots with
+      | Some _ -> let* b = Lazy.force shuffles_check in assert b; M.return ()
+      | None -> print_msg "W: no ballots to check"; M.return ()
+    in
+    let* () =
+      match Lazy.force result, trustees with
+      | Some result, Some trustees ->
+         let* et = Lazy.force encrypted_tally in
+         assert (fst et = result.encrypted_tally);
+         assert (E.check_result trustees result);
+         M.return ()
+      | Some _, None -> failwith "missing trustees"
+      | None, _ -> print_msg "W: no result to check"; M.return ()
+    in
+    print_msg "I: all checks passed";
+    M.return ()
 
   let shuffle_ciphertexts () =
-    let cc, _ = Lazy.force encrypted_tally in
+    let* cc, _ = Lazy.force encrypted_tally in
     let cc = E.extract_nh_ciphertexts cc in
     let* s = E.shuffle_ciphertexts cc in
     M.return (string_of_shuffle G.write s)
@@ -348,9 +376,9 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
       | None -> failwith "missing public credentials"
       | Some public_creds ->
          public_creds
-         |> GSet.bindings
+         |> SMap.bindings
          |> List.map fst
-         |> List.map (fun x -> G.to_string x ^ "\n")
+         |> List.map (fun x -> x ^ "\n")
          |> String.concat ""
     in
     Election.compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
@@ -363,25 +391,24 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
 
   let compute_voters privcreds =
     let module D = Credential.MakeDerive (G) in
-    let module GMap = Map.Make (G) in
     let map =
       List.fold_left
         (fun accu line ->
           let id, cred = split line in
-          GMap.add G.(g **~ D.derive election.e_uuid cred) id accu
-        ) GMap.empty privcreds
+          SMap.add G.(g **~ D.derive election.e_uuid cred |> to_string) id accu
+        ) SMap.empty privcreds
     in
-    (match Lazy.force ballots with
-     | None -> []
-     | Some bs -> bs)
-    |> List.map
-         (fun (b, h) ->
-           match get_credential b with
-           | None -> Printf.ksprintf failwith "Missing signature in ballot %s" h
-           | Some c ->
-              match GMap.find_opt c map with
+    match Lazy.force public_creds with
+    | None -> []
+    | Some creds ->
+       SMap.fold
+         (fun cred (_, ballot) accu ->
+           match !ballot with
+           | None -> accu
+           | Some h ->
+              match SMap.find_opt cred map with
               | None -> Printf.ksprintf failwith "Unknown public key in ballot %s" h
-              | Some id -> id
-         )
+              | Some id -> id :: accu
+         ) creds []
 
 end

@@ -13,8 +13,8 @@ module type S = sig
   val vote : string option -> int array array -> string m
   val decrypt : string -> string m
   val tdecrypt : string -> string -> string m
-  val validate : string list -> string
-  val verify : unit -> unit
+  val validate : string list -> string m
+  val verify : unit -> unit m
   val shuffle_ciphertexts : unit -> string m
   val checksums : unit -> string
   val compute_voters : string list -> string list

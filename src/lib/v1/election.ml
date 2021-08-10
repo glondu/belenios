@@ -206,6 +206,56 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
        )
     && Array.forall2 (verify_answer W.public_key zkp) election.e_questions answers
 
+  module CastBallot (B : BBOX_OPS with type 'a m := 'a m) = struct
+
+    let check_credential ?user ?weight ~credential =
+      let* x = B.get_credential_record credential in
+      match x with
+      | None -> M.return (Error `InvalidCredential)
+      | Some cr ->
+         let weight_ok =
+           match weight with
+           | None -> true
+           | Some weight -> Weight.compare weight cr.cr_weight = 0
+         in
+         if weight_ok then (
+           let* user_record =
+             match user with
+             | None -> M.return None
+             | Some user -> B.get_user_record user
+           in
+           match user_record, cr.cr_ballot with
+           | None, (None as x) -> M.return (Ok x)
+           | None, Some _ -> M.return (Error `UsedCredential)
+           | Some _, None -> M.return (Error `RevoteNotAllowed)
+           | Some old_credential, (Some _ as x) ->
+              if credential = old_credential then
+                M.return (Ok x)
+              else
+                M.return (Error `WrongCredential)
+         ) else M.return (Error `WrongWeight)
+
+    let cast ?user ?weight rawballot =
+      match ballot_of_string G.read rawballot with
+      | exception e -> M.return (Error (`SerializationError e))
+      | ballot ->
+         if string_of_ballot G.write ballot <> rawballot then (
+           M.return (Error `NonCanonical)
+         ) else (
+           let credential = G.to_string ballot.credential in
+           let* x = check_credential ?user ?weight ~credential in
+           match x with
+           | Error _ as e -> M.return e
+           | Ok old ->
+              let* () = M.yield () in
+              if check_ballot ballot then
+                M.return (Ok (credential, ballot, old))
+              else
+                M.return (Error `InvalidBallot)
+         )
+
+  end
+
   let process_ballots bs =
     SArray (
         Array.mapi (fun i q ->

@@ -188,16 +188,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
        let* success = send_confirmation_email uuid revote login email oweight hash in
        return (hash, weight, success)
     | Error e ->
-       let msg = match e with
-         | ECastWrongCredential -> Some "attempted to revote with already used credential"
-         | ECastRevoteNotAllowed -> Some "attempted to revote using a new credential"
-         | ECastReusedCredential -> Some "attempted to vote with already used credential"
-         | _ -> None
-       in
-       let* () = match msg with
-         | Some msg -> security_log (fun () -> user ^ " " ^ msg)
-         | None -> return_unit
-       in
        fail (CastError e)
 
   let () =

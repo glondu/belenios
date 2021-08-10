@@ -24,7 +24,6 @@ open Serializable_builtin_t
 open Serializable_t
 open Common
 open Web_serializable_t
-open Web_common
 
 val get_draft_election : uuid -> draft_election option Lwt.t
 val set_draft_election : uuid -> draft_election -> unit Lwt.t
@@ -89,7 +88,7 @@ val init_credential_mapping : uuid -> string list -> unit Lwt.t
 val cast_ballot :
   (module Site_common_sig.ELECTION_LWT) ->
   rawballot:string -> user:string -> weight:Weight.t -> datetime ->
-  (string * bool, cast_error) result Lwt.t
+  (string * bool, Signatures.cast_error) result Lwt.t
 
 val get_audit_cache : uuid -> audit_cache Lwt.t
 val remove_audit_cache : uuid -> unit Lwt.t

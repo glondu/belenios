@@ -284,8 +284,7 @@ module ToolElection = struct
       include Getters
     end in
     let module X = Make (P) (LwtJsRandom) () in
-    X.verify ();
-    Lwt.return_unit
+    X.verify ()
 
   let decrypt () =
     let module P : PARAMS = struct
@@ -305,7 +304,8 @@ module ToolElection = struct
     end in
     let module X = Make (P) (LwtJsRandom) () in
     let factors = get_textarea "election_factors" |> split_lines in
-    set_textarea "election_result" (X.validate factors);
+    let* result = X.validate factors in
+    set_textarea "election_result" result;
     Lwt.return_unit
 
   let cmds = [

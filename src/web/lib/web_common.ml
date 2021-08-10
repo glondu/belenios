@@ -59,20 +59,10 @@ module LwtRandom = struct
 
 end
 
-type cast_error =
-  | ECastSerialization of exn
-  | ECastMissingCredential
-  | ECastInvalidCredential
-  | ECastProofCheck
-  | ECastWrongCredential
-  | ECastRevoteNotAllowed
-  | ECastReusedCredential
-  | ECastBadWeight
-
 type error =
   | ElectionClosed
   | UnauthorizedVoter
-  | CastError of cast_error
+  | CastError of Signatures.cast_error
 
 exception BeleniosWebError of error
 
@@ -83,14 +73,14 @@ let explain_error l e =
   match e with
   | ElectionClosed -> s_ "the election is closed"
   | UnauthorizedVoter -> s_ "you are not allowed to vote"
-  | CastError (ECastSerialization e) -> Printf.sprintf (f_ "your ballot has a syntax error (%s)") (Printexc.to_string e)
-  | CastError ECastProofCheck -> s_ "some proofs failed verification"
-  | CastError ECastMissingCredential -> s_ "a credential is missing"
-  | CastError ECastInvalidCredential -> s_ "your credential is invalid"
-  | CastError ECastRevoteNotAllowed -> s_ "you are not allowed to revote"
-  | CastError ECastReusedCredential -> s_ "your credential has already been used"
-  | CastError ECastWrongCredential -> s_ "you are not allowed to vote with this credential"
-  | CastError ECastBadWeight -> s_ "your credential has a bad weight"
+  | CastError (`SerializationError e) -> Printf.sprintf (f_ "your ballot has a syntax error (%s)") (Printexc.to_string e)
+  | CastError `NonCanonical -> s_ "your ballot is not in canonical form"
+  | CastError `InvalidBallot -> s_ "some proofs failed verification"
+  | CastError `InvalidCredential -> s_ "your credential is invalid"
+  | CastError `RevoteNotAllowed -> s_ "you are not allowed to revote"
+  | CastError `UsedCredential -> s_ "your credential has already been used"
+  | CastError `WrongCredential -> s_ "you are not allowed to vote with this credential"
+  | CastError `WrongWeight -> s_ "your credential has a bad weight"
 
 let decompose_seconds s =
   let h = int_of_float (s /. 3600.) in

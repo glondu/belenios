@@ -23,6 +23,7 @@ open Lwt
 open Lwt.Syntax
 open Belenios_platform
 open Belenios_core
+open Signatures
 open Belenios
 open Platform
 open Serializable_builtin_t
@@ -737,52 +738,40 @@ let add_credential_mapping uuid cred mapping =
 let do_cast_ballot election ~rawballot ~user ~weight date =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-  match
-    try
-      if String.contains rawballot '\n' then invalid_arg "multiline ballot";
-      let ballot = W.ballot_of_string rawballot in
-      if W.string_of_ballot ballot <> rawballot then
-        invalid_arg "ballot not in canonical form";
-      Ok ballot
-    with e -> Error (ECastSerialization e)
-  with
+  let module X =
+    struct
+      type user = string
+      let get_user_record user =
+        let* x = find_extended_record uuid user in
+        match x with
+        | None -> return_none
+        | Some (_, old_credential) -> return_some old_credential
+      let get_credential_record credential =
+        let* x = find_credential_mapping uuid credential in
+        match x with
+        | None -> return_none
+        | Some cr_ballot ->
+           let* cr_weight = get_credential_weight uuid credential in
+           return_some {cr_ballot; cr_weight}
+    end
+  in
+  let module B = W.E.CastBallot (X) in
+  let* x = B.cast ~user ~weight rawballot in
+  match x with
   | Error _ as x -> return x
-  | Ok ballot ->
-     match W.get_credential ballot with
-     | None -> return (Error ECastMissingCredential)
-     | Some credential ->
-        let credential = W.G.to_string credential in
-        let* mapping = find_credential_mapping uuid credential in
-        match mapping with
-        | None -> return (Error ECastInvalidCredential)
-        | Some old_cred ->
-           let* cweight = get_credential_weight uuid credential in
-           if cweight = weight then (
-             let* old_record = find_extended_record uuid user in
-             match old_cred, old_record with
-             | None, None ->
-                (* first vote *)
-                let* b = Lwt_preemptive.detach W.E.check_ballot ballot in
-                if b then (
-                  let* hash = add_ballot election rawballot in
-                  let* () = add_credential_mapping uuid credential (Some hash) in
-                  let* () = add_extended_record uuid user (date, credential) in
-                  return (Ok (hash, false))
-                ) else return (Error ECastProofCheck)
-             | Some hash, Some (_, old_credential) ->
-                (* revote *)
-                if credential = old_credential then (
-                  let* b = Lwt_preemptive.detach W.E.check_ballot ballot in
-                  if b then (
-                    let* hash = replace_ballot election ~hash ~rawballot in
-                    let* () = add_credential_mapping uuid credential (Some hash) in
-                    let* () = add_extended_record uuid user (date, credential) in
-                    return (Ok (hash, true))
-                  ) else return (Error ECastProofCheck)
-                ) else return (Error ECastWrongCredential)
-             | None, Some _ -> return (Error ECastRevoteNotAllowed)
-             | Some _, None -> return (Error ECastReusedCredential)
-           ) else return (Error ECastBadWeight)
+  | Ok (credential, _, old) ->
+     let* hash, revote =
+       match old with
+       | None ->
+          let* h = add_ballot election rawballot in
+          return (h, false)
+       | Some hash ->
+          let* h = replace_ballot election ~hash ~rawballot in
+          return (h, true)
+     in
+     let* () = add_credential_mapping uuid credential (Some hash) in
+     let* () = add_extended_record uuid user (date, credential) in
+     return (Ok (hash, revote))
 
 let cast_ballot election ~rawballot ~user ~weight date =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in

@@ -48,6 +48,7 @@ module Weight : sig
   val max : t -> t -> t
   val of_string : string -> t
   val to_string : t -> string
+  val compare : t -> t -> int
 end
 
 type weight = Weight.t

@@ -70,6 +70,48 @@ module type RAW_ELECTION = sig
   val raw_election : string
 end
 
+type cast_error =
+  [ `SerializationError of exn
+  | `NonCanonical
+  | `InvalidBallot
+  | `InvalidCredential
+  | `WrongCredential
+  | `WrongWeight
+  | `UsedCredential
+  | `RevoteNotAllowed
+  ]
+
+type ballot_id = string
+
+type credential_record = {
+    cr_ballot : ballot_id option;
+    cr_weight : weight;
+}
+
+module type BBOX_OPS = sig
+  type 'a m
+  type user
+
+  (** Returns [None] if given credential does not exist. *)
+  val get_credential_record : string -> credential_record option m
+
+  (** Returns the credential used in previous ballot of given user, if
+     any. *)
+  val get_user_record : user -> string option m
+end
+
+module type BBOX = sig
+  type 'a m
+  type ballot
+  type user
+
+  (** Tries to cast a raw ballot. If possible, returns [Ok
+     (credential, parsed_ballot, id_of_ballot_to_be_replaced)]. *)
+  val cast :
+    ?user:user -> ?weight:weight -> string ->
+    (string * ballot * ballot_id option, cast_error) Stdlib.result m
+end
+
 (** Cryptographic primitives for an election with homomorphic tally. *)
 module type ELECTION_OPS = sig
 
@@ -110,6 +152,11 @@ module type ELECTION_OPS = sig
   val check_ballot : ballot -> bool
   (** [check_ballot b] checks all the cryptographic proofs in [b]. All
       ballots produced by [create_ballot] should pass this check. *)
+
+  module CastBallot (B : BBOX_OPS with type 'a m := 'a m) : BBOX
+         with type 'a m := 'a m
+          and type ballot := ballot
+          and type user := B.user
 
   (** {2 Tally} *)
 
