@@ -33,37 +33,37 @@ module type PARAMS = sig
 end
 
 module type S = sig
+  type 'a m
   type keypair = { id : string; priv : string; pub : string }
-  val trustee_keygen : unit -> keypair
+  val trustee_keygen : unit -> keypair m
 end
 
 module type PARSED_PARAMS = sig
+  module M : RANDOM
   module G : GROUP
   module Trustees : Trustees_sig.S
 end
 
-let parse_params p =
-  let module P = (val p : PARAMS) in
-  let module T = (val Trustees.get_by_version P.version) in
-  let module R = struct
-    module G = (val Group.of_string ~version:P.version P.group : GROUP)
-    module Trustees = T
-  end
-  in (module R : PARSED_PARAMS)
+module Parse (P : PARAMS) (M : RANDOM) () = struct
+  module M = M
+  module G = (val Group.of_string ~version:P.version P.group : GROUP)
+  module Trustees = (val Trustees.get_by_version P.version)
+end
 
-module Make (P : PARSED_PARAMS) : S = struct
+module MakeInner (P : PARSED_PARAMS) = struct
   open P
+  let ( let* ) = M.bind
 
   (* Generate key *)
 
-  module KG = Trustees.MakeSimple (G) (DirectRandom)
+  module KG = Trustees.MakeSimple (G) (M)
   module K = Trustees.MakeCombinator (G)
 
   type keypair = { id : string; priv : string; pub : string }
 
   let trustee_keygen () =
-    let private_key = KG.generate () in
-    let public_key = KG.prove private_key in
+    let* private_key = KG.generate () in
+    let* public_key = KG.prove private_key in
     assert (K.check [`Single public_key]);
     let id = String.sub
       (sha256_hex (G.to_string public_key.trustee_public_key))
@@ -71,11 +71,11 @@ module Make (P : PARSED_PARAMS) : S = struct
     in
     let priv = string_of_number private_key in
     let pub = string_of_trustee_public_key G.write public_key in
-    {id; priv; pub}
+    M.return {id; priv; pub}
 
 end
 
-let make params =
-  let module P = (val parse_params params : PARSED_PARAMS) in
-  let module R = Make (P) in
-  (module R : S)
+module Make (P : PARAMS) (M : RANDOM) () = struct
+  module X = Parse (P) (M) ()
+  include MakeInner (X)
+end

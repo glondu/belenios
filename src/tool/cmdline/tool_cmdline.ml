@@ -170,7 +170,7 @@ module Tkeygen : CMDLINER_MODULE = struct
         let group = get_mandatory_opt "--group" group |> string_of_file
         let version = version
       end in
-      let module R = (val make (module P : PARAMS) : S) in
+      let module R = Make (P) (DirectRandom) () in
       let kp = R.trustee_keygen () in
       Printf.printf "I: keypair %s has been generated\n%!" kp.R.id;
       let pubkey = "public", kp.R.id ^ ".pubkey", 0o444, kp.R.pub in

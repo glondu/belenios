@@ -119,9 +119,9 @@ module Tkeygen = struct
       let group = get_textarea "election_group"
       let version = get_textarea "version" |> int_of_string
     end in
-    let module X = (val make (module P : PARAMS) : S) in
+    let module X = Make (P) (LwtJsRandom) () in
     let open X in
-    let {id; priv; pub} = trustee_keygen () in
+    let* {id; priv; pub} = trustee_keygen () in
     set_textarea "tkeygen_id" id;
     set_textarea "tkeygen_secret" priv;
     set_textarea "tkeygen_public" pub;
