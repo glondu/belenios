@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Js_of_ocaml_lwt
 open Belenios_platform
 open Belenios_tool_common
 open Belenios_tool_js_common
@@ -28,7 +29,7 @@ open Tool_js_common
 open Tool_credgen
 open Tool_js_i18n.Gettext
 
-let generate _ =
+let generate () =
   let raw = get_textarea "voters" in
   let ids =
     let rec loop i accu =
@@ -48,8 +49,8 @@ let generate _ =
     let uuid = get_textarea "uuid"
     let group = get_textarea "group"
   end in
-  let module X = (val make (module P : PARAMS) : S) in
-  let privs, pubs = X.generate ids in
+  let module X = Make (P) (LwtJsRandom) () in
+  let* privs, pubs = X.generate ids in
   let privs =
     List.combine ids privs
     |> List.map (fun (id, priv) -> id ^ " " ^ priv)
@@ -62,7 +63,7 @@ let generate _ =
   set_download "creds" "text/plain" "creds.txt" text_creds;
   set_download "voters_txt" "text/plain" "voters.txt" raw;
   set_element_display "submit_form" "inline";
-  Js._false
+  Lwt.return_unit
 
 let fill_interactivity () =
   let$ e = document##getElementById (Js.string "interactivity") in
@@ -70,13 +71,16 @@ let fill_interactivity () =
   Dom.appendChild e x;
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string (s_ "Generate")) in
-  b##.onclick := Dom_html.handler generate;
+  Lwt_js_events.async (fun () ->
+      let* _ = Lwt_js_events.click b in
+      generate ()
+    );
   Dom.appendChild b t;
   Dom.appendChild x b
 
 let () =
   Lwt.async (fun () ->
-      let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
+      let* _ = Lwt_js_events.onload () in
       let* () = Tool_js_i18n.auto_init "admin" in
       fill_interactivity ();
       Lwt.return_unit

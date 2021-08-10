@@ -616,7 +616,7 @@ module Credgen : CMDLINER_MODULE = struct
         let group = get_mandatory_opt "--group" group |> string_of_file
         let uuid = get_mandatory_opt "--uuid" uuid
       end in
-      let module R = (val make (module P : PARAMS) : S) in
+      let module R = Make (P) (DirectRandom) () in
       let action =
         match count, file, derive with
         | Some n, None, None ->

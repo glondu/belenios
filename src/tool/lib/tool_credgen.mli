@@ -5,10 +5,11 @@ module type PARAMS = sig
 end
 
 module type S = sig
+  type 'a m
   val derive : string -> string
-  val generate : string list -> string list * string list
+  val generate : string list -> (string list * string list) m
 end
 
-val make : (module PARAMS) -> (module S)
+module Make (P : PARAMS) (M : Belenios_core.Signatures.RANDOM) () : S with type 'a m := 'a M.t
 
 val generate_ids : int -> string list

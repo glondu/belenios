@@ -152,7 +152,7 @@ module Credgen = struct
       let uuid = get_textarea "election_uuid"
       let group = get_textarea "election_group"
     end in
-    let module X = (val make (module P : PARAMS) : S) in
+    let module X = Make (P) (LwtJsRandom) () in
     let cred = get_textarea "credgen_derive_input" in
     set_textarea "credgen_derive_output" (X.derive cred);
     Lwt.return_unit
@@ -163,8 +163,8 @@ module Credgen = struct
       let uuid = get_textarea "election_uuid"
       let group = get_textarea "election_group"
     end in
-    let module X = (val make (module P : PARAMS) : S) in
-    let privs, pubs = X.generate ids in
+    let module X = Make (P) (LwtJsRandom) () in
+    let* privs, pubs = X.generate ids in
     let privs =
       List.combine ids privs
       |> List.map (fun (id, priv) -> id ^ " " ^ priv)
