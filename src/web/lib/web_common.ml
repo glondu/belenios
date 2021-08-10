@@ -54,8 +54,7 @@ module LwtRandom = struct
 
   let random q =
     let size = bytes_to_sample q in
-    let rng = Lazy.force !prng in
-    let r = random_string rng size in
+    let r = random_string (Lazy.force !prng) size in
     return Z.(of_bits r mod q)
 
 end

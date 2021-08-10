@@ -144,7 +144,7 @@ module LwtJsRandom : Signatures.RANDOM with type 'a t = 'a Lwt.t = struct
   let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
   let random q =
-    let size = Z.bit_length q / 8 + 1 in
+    let size = bytes_to_sample q in
     let* () = Lwt_js.yield () in
     let r = random_string (Lazy.force prng) size in
     Lwt.return Z.(of_bits r mod q)
