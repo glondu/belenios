@@ -9,14 +9,15 @@ module type PARAMS = sig
 end
 
 module type S = sig
-  val vote : string option -> int array array -> string
-  val decrypt : string -> string
-  val tdecrypt : string -> string -> string
+  type 'a m
+  val vote : string option -> int array array -> string m
+  val decrypt : string -> string m
+  val tdecrypt : string -> string -> string m
   val validate : string list -> string
   val verify : unit -> unit
-  val shuffle_ciphertexts : unit -> string
+  val shuffle_ciphertexts : unit -> string m
   val checksums : unit -> string
   val compute_voters : string list -> string list
 end
 
-val make : (module PARAMS) -> (module S)
+module Make (P : PARAMS) (R : Belenios_core.Signatures.RANDOM) () : S with type 'a m := 'a R.t

@@ -31,10 +31,13 @@ open Tool_js_common
 
 let install_handler (id, handler) =
   let f _ =
-    begin try handler () with e ->
-      let msg = "Unexpected error: " ^ Printexc.to_string e in
-      alert msg
-    end;
+    Lwt.async (fun () ->
+        try handler ()
+        with e ->
+          let msg = "Unexpected error: " ^ Printexc.to_string e in
+          alert msg;
+          Lwt.return_unit
+      );
     Js._false
   in
   let$ e = document##getElementById (Js.string id) in
@@ -86,7 +89,8 @@ module Tests = struct
     let ciphertext = "91f136cd65db6fa83b4943395e388089d4a8d0531b43a24a6498a1433559039ce5a18734752e13418718be1c2da5cca3d89e6e62fb729a81ec1cb3d1174e770c" in
     check "AES-CCM-encrypt" (fun () -> encrypt ~key ~iv ~plaintext = ciphertext);
     check "AES-CCM-decrypt" (fun () -> decrypt ~key ~iv ~ciphertext = plaintext);
-    Printf.ksprintf alert "%d tests were successful!" !ntests
+    Printf.ksprintf alert "%d tests were successful!" !ntests;
+    Lwt.return_unit
 
   let bench_powm () =
     let n = 100 in
@@ -97,7 +101,8 @@ module Tests = struct
     for _ = 1 to n do ignore (Z.powm a b p) done;
     let stop = new%js Js.date_now in
     let delta = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
-    Printf.ksprintf alert "%d modular exponentiations in %d ms!" n delta
+    Printf.ksprintf alert "%d modular exponentiations in %d ms!" n delta;
+    Lwt.return_unit
 
   let cmds =
     [
@@ -119,7 +124,8 @@ module Tkeygen = struct
     let {id; priv; pub} = trustee_keygen () in
     set_textarea "tkeygen_id" id;
     set_textarea "tkeygen_secret" priv;
-    set_textarea "tkeygen_public" pub
+    set_textarea "tkeygen_public" pub;
+    Lwt.return_unit
 
   let cmds = ["do_tkeygen", tkeygen]
 end
@@ -148,7 +154,8 @@ module Credgen = struct
     end in
     let module X = (val make (module P : PARAMS) : S) in
     let cred = get_textarea "credgen_derive_input" in
-    set_textarea "credgen_derive_output" (X.derive cred)
+    set_textarea "credgen_derive_output" (X.derive cred);
+    Lwt.return_unit
 
   let generate ids =
     let module P : PARAMS = struct
@@ -165,7 +172,8 @@ module Credgen = struct
     set_textarea "credgen_generated_creds"
       (privs |> String.concat "\n");
     set_textarea "credgen_generated_pks"
-      (pubs |> String.concat "\n")
+      (pubs |> String.concat "\n");
+    Lwt.return_unit
 
   let generate_n () =
     get_textarea "credgen_number" |>
@@ -199,7 +207,8 @@ module Mkelection = struct
         |> string_of_trustees Yojson.Safe.write_json
     end in
     let module X = (val make (module P : PARAMS) : S) in
-    set_textarea "mkelection_output" (X.mkelection ())
+    set_textarea "mkelection_output" (X.mkelection ());
+    Lwt.return_unit
 
   let cmds = [
     "do_mkelection", mkelection;
@@ -264,34 +273,40 @@ module ToolElection = struct
     end in
     let choices = get_textarea "election_choices" |> plaintext_of_string in
     let privcred = get_textarea "election_privcred" in
-    let module X = (val make (module P : PARAMS) : S) in
-    set_textarea "election_ballot" (X.vote (Some privcred) choices)
+    let module X = Make (P) (LwtJsRandom) () in
+    let* ballot = X.vote (Some privcred) choices in
+    set_textarea "election_ballot" ballot;
+    Lwt.return_unit
 
   let verify () =
     let module P : PARAMS = struct
       let raw_election = get_election ()
       include Getters
     end in
-    let module X = (val make (module P : PARAMS) : S) in
-    X.verify ()
+    let module X = Make (P) (LwtJsRandom) () in
+    X.verify ();
+    Lwt.return_unit
 
   let decrypt () =
     let module P : PARAMS = struct
       let raw_election = get_election ()
       include Getters
     end in
-    let module X = (val make (module P : PARAMS) : S) in
+    let module X = Make (P) (LwtJsRandom) () in
     let privkey = get_textarea "election_privkey" in
-    set_textarea "election_pd" (X.decrypt privkey)
+    let* pd = X.decrypt privkey in
+    set_textarea "election_pd" pd;
+    Lwt.return_unit
 
   let validate () =
     let module P : PARAMS = struct
       let raw_election = get_election ()
       include Getters
     end in
-    let module X = (val make (module P : PARAMS) : S) in
+    let module X = Make (P) (LwtJsRandom) () in
     let factors = get_textarea "election_factors" |> split_lines in
-    set_textarea "election_result" (X.validate factors)
+    set_textarea "election_result" (X.validate factors);
+    Lwt.return_unit
 
   let cmds = [
     "do_encrypt", create_ballot;
@@ -303,13 +318,10 @@ module ToolElection = struct
 end
 
 let new_uuid () =
-  Lwt.async
-    (fun () ->
-      let open (Common.MakeGenerateToken (LwtJsRandom)) in
-      let* uuid = generate_token () in
-      set_textarea "election_uuid" uuid;
-      Lwt.return_unit
-    )
+  let open (Common.MakeGenerateToken (LwtJsRandom)) in
+  let* uuid = generate_token () in
+  set_textarea "election_uuid" uuid;
+  Lwt.return_unit
 
 let cmds =
   ["new_uuid", new_uuid] @

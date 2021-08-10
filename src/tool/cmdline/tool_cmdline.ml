@@ -404,7 +404,7 @@ module Election : CMDLINER_MODULE = struct
           | None -> failcmd "could not read %s" fname
           | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
       end in
-      let module X = (val make (module P : PARAMS) : S) in
+      let module X = Make (P) (DirectRandom) () in
       begin match action with
       | `Vote (privcred, ballot) ->
         let ballot =
