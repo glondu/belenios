@@ -212,21 +212,6 @@ let bytes_to_sample q =
 
 let check_modulo p x = Z.(compare x zero >= 0 && compare x p < 0)
 
-module DirectRandom = struct
-  type 'a t = 'a
-  let yield () = ()
-  let return x = x
-  let bind x f = f x
-  let fail e = raise e
-
-  let prng = lazy (pseudo_rng (random_string secure_rng 16))
-
-  let random q =
-    let size = bytes_to_sample q in
-    let r = random_string (Lazy.force prng) size in
-    Z.(of_bits r mod q)
-end
-
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let z58 = Z.of_int (String.length b58_digits)
 let z10 = Z.of_int 10

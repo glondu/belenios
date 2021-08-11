@@ -79,8 +79,6 @@ module SMap : Map.S with type key = string
 val bytes_to_sample : Z.t -> int
 val check_modulo : Z.t -> Z.t -> bool
 
-module DirectRandom : RANDOM with type 'a t = 'a
-
 module MakeGenerateToken (R : RANDOM) : sig
   val generate_token : ?length:int -> unit -> string R.t
   val generate_numeric : ?length:int -> unit -> string R.t
