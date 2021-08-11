@@ -39,41 +39,40 @@ module type PARAMS = sig
 end
 
 module type S = sig
-  val vote : string option -> int array array -> string
-  val decrypt : string -> string
-  val tdecrypt : string -> string -> string
+  type 'a m
+  val vote : string option -> int array array -> string m
+  val decrypt : string -> string m
+  val tdecrypt : string -> string -> string m
   val validate : string list -> string
   val verify : unit -> unit
-  val shuffle_ciphertexts : unit -> string
+  val shuffle_ciphertexts : unit -> string m
   val checksums : unit -> string
   val compute_voters : string list -> string list
 end
 
 module type PARSED_PARAMS = sig
+  module M : RANDOM
   include PARAMS
   module Trustees : Trustees_sig.S
-  include ELECTION with type 'a m = 'a
+  include ELECTION with type 'a m = 'a M.t
 end
 
 module PTrustees = Trustees
 
-let parse_params p =
-  let module P = (val p : PARAMS) in
-  let module E = Election.Make (P) (DirectRandom) () in
-  let module T = (val Trustees.get_by_version E.election.e_version) in
-  let module R = struct
-    include P
-    module Trustees = T
-    include E
-  end in
-  (module R : PARSED_PARAMS)
+module Parse (P : PARAMS) (M : RANDOM) () = struct
+  module M = M
+  include P
+  include Election.Make (P) (M) ()
+  module Trustees = (val Trustees.get_by_version election.e_version)
+end
 
-module Make (P : PARSED_PARAMS) : S = struct
+module MakeInner (P : PARSED_PARAMS) : S with type 'a m := 'a P.M.t = struct
 
   open P
+  let ( let* ) = M.bind
 
-  module P = Trustees.MakePKI (G) (DirectRandom)
-  module C = Trustees.MakeChannels (G) (DirectRandom) (P)
+  module P = Trustees.MakePKI (G) (M)
+  module C = Trustees.MakeChannels (G) (M) (P)
 
   module K = Trustees.MakeCombinator (G)
 
@@ -263,9 +262,9 @@ module Make (P : PARSED_PARAMS) : S = struct
          let module CD = Credential.MakeDerive (G) in
          CD.derive election.e_uuid cred
     in
-    let b = E.create_ballot ~sk ballot in
+    let* b = E.create_ballot ~sk ballot in
     assert (E.check_ballot b);
-    string_of_ballot b
+    M.return (string_of_ballot b)
 
   let decrypt privkey =
     let sk = number_of_string privkey in
@@ -286,9 +285,9 @@ module Make (P : PARSED_PARAMS) : S = struct
     if Election.has_nh_questions election then
       print_msg "W: you should check that your shuffle appears in the list of applied shuffles";
     let tally, _ = Lazy.force encrypted_tally in
-    let factor = E.compute_factor tally sk in
+    let* factor = E.compute_factor tally sk in
     assert (E.check_factor tally pk factor);
-    string_of_partial_decryption G.write factor
+    M.return (string_of_partial_decryption G.write factor)
 
   let tdecrypt key pdk =
     let sk = P.derive_sk key and dk = P.derive_dk key in
@@ -310,9 +309,9 @@ module Make (P : PARSED_PARAMS) : S = struct
         then print_msg "W: your key is not present in threshold parameters"
     );
     let tally, _ = Lazy.force encrypted_tally in
-    let factor = E.compute_factor tally pdk in
+    let* factor = E.compute_factor tally pdk in
     assert (E.check_factor tally pvk factor);
-    string_of_partial_decryption G.write factor
+    M.return (string_of_partial_decryption G.write factor)
 
   let validate factors =
     let factors = List.map (partial_decryption_of_string G.read) factors in
@@ -351,8 +350,8 @@ module Make (P : PARSED_PARAMS) : S = struct
   let shuffle_ciphertexts () =
     let cc, _ = Lazy.force encrypted_tally in
     let cc = E.extract_nh_ciphertexts cc in
-    let s = E.shuffle_ciphertexts cc in
-    string_of_shuffle G.write s
+    let* s = E.shuffle_ciphertexts cc in
+    M.return (string_of_shuffle G.write s)
 
   let checksums () =
     let election = raw_election in
@@ -412,7 +411,7 @@ module Make (P : PARSED_PARAMS) : S = struct
 
 end
 
-let make params =
-  let module P = (val parse_params params : PARSED_PARAMS) in
-  let module R = Make (P) in
-  (module R : S)
+module Make (P : PARAMS) (M : RANDOM) () = struct
+  module X = Parse (P) (M) ()
+  include MakeInner (X)
+end

@@ -27,7 +27,6 @@ open Belenios
 open Belenios_tool_js_common
 open Serializable_j
 open Signatures
-open Common
 open Tool_js_common
 open Tool_js_i18n.Gettext
 
@@ -50,17 +49,20 @@ let gen_cert e _ =
   let group = get_textarea "group" in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module P = Trustees.MakePKI (G) (DirectRandom) in
-  let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
-  let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
-  let key, cert = T.step1 () in
-  clear_content e;
-  set_download "private_key" "text/plain" "private_key.txt" key;
-  set_element_display "key_helper" "block";
-  let fp = Platform.sha256_b64 cert.s_message in
-  let cert = string_of_cert cert in
-  set_content "pki_fp" fp;
-  set_textarea "data" cert;
+  let module P = Trustees.MakePKI (G) (LwtJsRandom) in
+  let module C = Trustees.MakeChannels (G) (LwtJsRandom) (P) in
+  let module T = Trustees.MakePedersen (G) (LwtJsRandom) (P) (C) in
+  Lwt.async (fun () ->
+      let* key, cert = T.step1 () in
+      clear_content e;
+      set_download "private_key" "text/plain" "private_key.txt" key;
+      set_element_display "key_helper" "block";
+      let fp = Platform.sha256_b64 cert.s_message in
+      let cert = string_of_cert cert in
+      set_content "pki_fp" fp;
+      set_textarea "data" cert;
+      Lwt.return_unit
+    );
   Js._false
 
 let proceed step =
@@ -73,20 +75,25 @@ let proceed step =
   let threshold = int_of_string (get_textarea "threshold") in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module P = Trustees.MakePKI (G) (DirectRandom) in
-  let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
-  let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
-  match step with
-  | 3 ->
-     let polynomial = T.step3 certs key threshold in
-     set_textarea "compute_data" (string_of_polynomial polynomial)
-  | 5 ->
-     let vinput = get_textarea "vinput" in
-     let vinput = vinput_of_string vinput in
-     let voutput = T.step5 certs key vinput in
-     set_textarea "compute_data" (string_of_voutput G.write voutput)
-  | _ ->
-     alert "Unexpected state!"
+  let module P = Trustees.MakePKI (G) (LwtJsRandom) in
+  let module C = Trustees.MakeChannels (G) (LwtJsRandom) (P) in
+  let module T = Trustees.MakePedersen (G) (LwtJsRandom) (P) (C) in
+  Lwt.async (fun () ->
+      match step with
+      | 3 ->
+         let* polynomial = T.step3 certs key threshold in
+         set_textarea "compute_data" (string_of_polynomial polynomial);
+         Lwt.return_unit
+      | 5 ->
+         let vinput = get_textarea "vinput" in
+         let vinput = vinput_of_string vinput in
+         let* voutput = T.step5 certs key vinput in
+         set_textarea "compute_data" (string_of_voutput G.write voutput);
+         Lwt.return_unit
+      | _ ->
+         alert "Unexpected state!";
+         Lwt.return_unit
+    )
 
 let fill_interactivity () =
   let$ e = document##getElementById (Js.string "interactivity") in

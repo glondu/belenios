@@ -72,7 +72,7 @@ let basic_check_private_key s =
 
 let compute_partial_decryption _ =
   let& e = Js.Opt.option !election in
-  let module P = Election.Make (struct let raw_election = e end) (DirectRandom) () in
+  let module P = Election.Make (struct let raw_election = e end) (LwtJsRandom) () in
   let& e = Js.Opt.option !encrypted_tally in
   let encrypted_tally = encrypted_tally_of_string P.G.read e in
   let& e = document##getElementById (Js.string "private_key") in
@@ -82,8 +82,8 @@ let compute_partial_decryption _ =
     match get_textarea_opt "encrypted_private_key" with
     | Some epk ->
        let module Trustees = (val Trustees.get_by_version P.election.e_version) in
-       let module PKI = Trustees.MakePKI (P.G) (DirectRandom) in
-       let module C = Trustees.MakeChannels (P.G) (DirectRandom) (PKI) in
+       let module PKI = Trustees.MakePKI (P.G) (LwtJsRandom) in
+       let module C = Trustees.MakeChannels (P.G) (LwtJsRandom) (PKI) in
        let sk = PKI.derive_sk pk_str and dk = PKI.derive_dk pk_str in
        let vk = P.G.(g **~ sk) in
        let epk = C.recv dk vk epk in
@@ -95,8 +95,11 @@ let compute_partial_decryption _ =
          Printf.ksprintf
            failwith (f_ "Error in format of private key: %s") (Printexc.to_string e)
   in
-  let factor = P.E.compute_factor encrypted_tally private_key in
-  set_textarea "pd" (string_of_partial_decryption P.G.write factor);
+  Lwt.async (fun () ->
+      let* factor = P.E.compute_factor encrypted_tally private_key in
+      set_textarea "pd" (string_of_partial_decryption P.G.write factor);
+      Lwt.return_unit
+    );
   return_unit
 
 let compute_hash () =

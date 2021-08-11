@@ -106,7 +106,7 @@ let verifydiff dir1 dir2 =
     let trustees2 = load_trustees dir2 in
     if trustees2 <> trustees then raise (VerifydiffError TrusteesMismatch)
   in
-  let module ED = Election.Make (struct let raw_election = election end) (DirectRandom) () in
+  let module ED = Election.Make (struct let raw_election = election end) (Random) () in
   let open ED in
   let trustees = trustees_of_string G.read trustees in
   let module Trustees = (val Trustees.get_by_version election.e_version) in

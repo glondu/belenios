@@ -170,7 +170,7 @@ module Tkeygen : CMDLINER_MODULE = struct
         let group = get_mandatory_opt "--group" group |> string_of_file
         let version = version
       end in
-      let module R = (val make (module P : PARAMS) : S) in
+      let module R = Make (P) (Random) () in
       let kp = R.trustee_keygen () in
       Printf.printf "I: keypair %s has been generated\n%!" kp.R.id;
       let pubkey = "public", kp.R.id ^ ".pubkey", 0o444, kp.R.pub in
@@ -220,9 +220,9 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let group = get_mandatory_opt "--group" group |> string_of_file in
         let module G = (val Group.of_string ~version group : GROUP) in
         let module Trustees = (val Trustees.get_by_version version) in
-        let module P = Trustees.MakePKI (G) (DirectRandom) in
-        let module C = Trustees.MakeChannels (G) (DirectRandom) (P) in
-        let module T = Trustees.MakePedersen (G) (DirectRandom) (P) (C) in
+        let module P = Trustees.MakePKI (G) (Random) in
+        let module C = Trustees.MakeChannels (G) (Random) (P) in
+        let module T = Trustees.MakePedersen (G) (Random) (P) (C) in
         match step with
         | 1 ->
            let key, cert = T.step1 () in
@@ -404,7 +404,7 @@ module Election : CMDLINER_MODULE = struct
           | None -> failcmd "could not read %s" fname
           | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
       end in
-      let module X = (val make (module P : PARAMS) : S) in
+      let module X = Make (P) (Random) () in
       begin match action with
       | `Vote (privcred, ballot) ->
         let ballot =
@@ -616,7 +616,7 @@ module Credgen : CMDLINER_MODULE = struct
         let group = get_mandatory_opt "--group" group |> string_of_file
         let uuid = get_mandatory_opt "--uuid" uuid
       end in
-      let module R = (val make (module P : PARAMS) : S) in
+      let module R = Make (P) (Random) () in
       let action =
         match count, file, derive with
         | Some n, None, None ->
@@ -915,7 +915,7 @@ module GenerateToken : CMDLINER_MODULE = struct
 
   let main length =
     wrap_main (fun () ->
-        let module X = MakeGenerateToken (DirectRandom) in
+        let module X = MakeGenerateToken (Random) in
         X.generate_token ~length ()
         |> print_endline
       )

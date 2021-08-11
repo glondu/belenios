@@ -20,62 +20,19 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Belenios_core
-open Belenios
 open Platform
-open Serializable_j
-open Signatures
+open Belenios_core
 open Common
 
-module type PARAMS = sig
-  val group : string
-  val version : int
-end
+type 'a t = 'a
+let yield () = ()
+let return x = x
+let bind x f = f x
+let fail e = raise e
 
-module type S = sig
-  type 'a m
-  type keypair = { id : string; priv : string; pub : string }
-  val trustee_keygen : unit -> keypair m
-end
+let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
-module type PARSED_PARAMS = sig
-  module M : RANDOM
-  module G : GROUP
-  module Trustees : Trustees_sig.S
-end
-
-module Parse (P : PARAMS) (M : RANDOM) () = struct
-  module M = M
-  module G = (val Group.of_string ~version:P.version P.group : GROUP)
-  module Trustees = (val Trustees.get_by_version P.version)
-end
-
-module MakeInner (P : PARSED_PARAMS) = struct
-  open P
-  let ( let* ) = M.bind
-
-  (* Generate key *)
-
-  module KG = Trustees.MakeSimple (G) (M)
-  module K = Trustees.MakeCombinator (G)
-
-  type keypair = { id : string; priv : string; pub : string }
-
-  let trustee_keygen () =
-    let* private_key = KG.generate () in
-    let* public_key = KG.prove private_key in
-    assert (K.check [`Single public_key]);
-    let id = String.sub
-      (sha256_hex (G.to_string public_key.trustee_public_key))
-      0 8 |> String.uppercase_ascii
-    in
-    let priv = string_of_number private_key in
-    let pub = string_of_trustee_public_key G.write public_key in
-    M.return {id; priv; pub}
-
-end
-
-module Make (P : PARAMS) (M : RANDOM) () = struct
-  module X = Parse (P) (M) ()
-  include MakeInner (X)
-end
+let random q =
+  let size = bytes_to_sample q in
+  let r = random_string (Lazy.force prng) size in
+  Z.(of_bits r mod q)

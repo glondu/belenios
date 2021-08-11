@@ -31,27 +31,28 @@ module type PARAMS = sig
 end
 
 module type S = sig
+  type 'a m
   val derive : string -> string
-  val generate : string list -> string list * string list
+  val generate : string list -> (string list * string list) m
 end
 
 module type PARSED_PARAMS = sig
   val uuid : uuid
   module G : GROUP
+  module M : RANDOM
 end
 
-let parse_params p =
-  let module P = (val p : PARAMS) in
-  let module R = struct
-    let uuid = uuid_of_raw_string P.uuid
-    module G = (val Belenios.Group.of_string ~version:P.version P.group : GROUP)
-  end
-  in (module R : PARSED_PARAMS)
+module Parse (P : PARAMS) (M : RANDOM) () = struct
+  let uuid = uuid_of_raw_string P.uuid
+  module G = (val Belenios.Group.of_string ~version:P.version P.group : GROUP)
+  module M = M
+end
 
-module Make (P : PARSED_PARAMS) : S = struct
+module MakeInner (P : PARSED_PARAMS) = struct
   open P
+  let ( let* ) = M.bind
 
-  module CG = Credential.MakeGenerate (DirectRandom)
+  module CG = Credential.MakeGenerate (M)
   module CD = Credential.MakeDerive (G)
 
   module CredSet = Map.Make (G)
@@ -67,10 +68,16 @@ module Make (P : PARSED_PARAMS) : S = struct
   let derive x =
     G.to_string (derive_in_group x)
 
+  let rec monadic_fold_left f accu = function
+    | [] -> M.return accu
+    | x :: xs ->
+       let* accu = f accu x in
+       monadic_fold_left f accu xs
+
   let generate ids =
     let implicit_weights = ref true in
-    let privs, pubs =
-      List.fold_left
+    let* privs, pubs =
+      monadic_fold_left
         (fun (privs, pubs) id ->
           let _, _, weight = split_identity_opt id in
           let weight =
@@ -78,23 +85,25 @@ module Make (P : PARSED_PARAMS) : S = struct
             | None -> Weight.one
             | Some w -> implicit_weights := false; w
           in
-          let priv = CG.generate () in
-          priv :: privs,
-          CredSet.add (derive_in_group priv) weight pubs
+          let* priv = CG.generate () in
+          M.return (
+              priv :: privs,
+              CredSet.add (derive_in_group priv) weight pubs
+            )
         ) ([], CredSet.empty) ids
     in
     let serialize (e, w) =
       G.to_string e
       ^ (if !implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w))
     in
-    List.rev privs, (CredSet.bindings pubs |> List.map serialize)
+    M.return (List.rev privs, (CredSet.bindings pubs |> List.map serialize))
 
 end
 
-let make params =
-  let module P = (val parse_params params : PARSED_PARAMS) in
-  let module R = Make (P) in
-  (module R : S)
+module Make (P : PARAMS) (M : RANDOM) () = struct
+  module X = Parse (P) (M) ()
+  include MakeInner (X)
+end
 
 let int_length n =
   string_of_int n |> String.length

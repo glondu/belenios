@@ -11,7 +11,7 @@ from distutils.util import strtobool
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.support.select import Select
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute, verify_all_elements_have_attribute_value, verify_some_elements_have_attribute_value
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute, verify_all_elements_have_attribute_value, verify_some_elements_have_attribute_value, wait_for_elements_exist_and_are_visible
 from util.election_testing import random_email_addresses_generator, remove_database_folder, remove_election_from_database, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, initialize_server, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 from util.election_test_base import BeleniosElectionTestBase
 from util.execution import console_log, ConsoleLogDuration
@@ -214,7 +214,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         generate_button_element = wait_for_element_exists(browser, generate_button_css_selector)
         generate_button_element.click()
 
-        wait_a_bit()
+        wait_for_elements_exist_and_are_visible(browser, "#creds")
 
         # She clicks on the "private credentials" and "public credentials" links and downloads these files. Files are by default downloaded to /tmp using filenames `creds.txt` and `public_creds.txt` respectively, but we choose to name them using an unique identifier instead.
         link_css_ids = ["creds"]
