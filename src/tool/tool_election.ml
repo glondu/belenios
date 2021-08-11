@@ -257,12 +257,13 @@ module Make (P : PARSED_PARAMS) : S = struct
 
   let vote privcred ballot =
     let sk =
-      privcred |> Option.map (fun cred ->
-        let module CD = Credential.MakeDerive (G) in
-        CD.derive election.e_uuid cred
-      )
+      match privcred with
+      | None -> failwith "missing private credential"
+      | Some cred ->
+         let module CD = Credential.MakeDerive (G) in
+         CD.derive election.e_uuid cred
     in
-    let b = E.create_ballot ?sk ballot in
+    let b = E.create_ballot ~sk ballot in
     assert (E.check_ballot b);
     string_of_ballot b
 

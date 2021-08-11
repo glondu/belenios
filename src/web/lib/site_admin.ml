@@ -450,7 +450,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         t_credential_authority = None;
       } in
     let se = {
-        se_version = None;
+        se_version = Some default_version;
         se_owner = owner;
         se_group = !Web_config.default_group;
         se_voters = [];

@@ -139,7 +139,7 @@ let group_t =
 
 let version_t =
   let doc = "Use protocol version $(docv)." in
-  Arg.(value & opt int 0 & info ["protocol-version"] ~docv:"VERSION" ~doc)
+  Arg.(value & opt int default_version & info ["protocol-version"] ~docv:"VERSION" ~doc)
 
 let uuid_t =
   let doc = "UUID of the election." in

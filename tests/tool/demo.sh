@@ -27,7 +27,8 @@ cd $DIR
 
 # Common options
 uuid="--uuid $UUID"
-group="--group $BELENIOS/files/groups/default.json"
+group="--group group"
+echo BELENIOS-2048 > group
 
 # Generate credentials
 cat > voters.txt <<EOF

@@ -2,7 +2,7 @@
  (name belenios_core)
  (public_name belenios-lib.core)
  (libraries yojson atdgen belenios_platform)
- (modules_without_implementation question_sigs signatures signatures_core trustees_sig))
+ (modules_without_implementation question_sigs signatures signatures_core trustees_sig versioned_sig))
 
 (rule
  (targets serializable_core_t.ml serializable_core_t.mli)

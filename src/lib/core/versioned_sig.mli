@@ -19,37 +19,49 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type json <ocaml module="Yojson.Safe" t="t"> = abstract
-type number <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
-type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
-type question <ocaml module="Belenios_core.Question"> = abstract
+open Signatures
 
-type ('a, 'b) wrapped_pubkey = {
-  group : 'a;
-  y : 'b;
-} <ocaml field_prefix="wpk_">
-<doc text="A public key wrapped with its group parameters.">
+module type GROUP_SIG = sig
 
-type 'a params = {
-  description : string;
-  name : string;
-  public_key : 'a;
-  questions : question list <ocaml repr="array">;
-  uuid : uuid;
-  ?administrator : string option;
-  ?credential_authority : string option;
-} <ocaml field_prefix="e_">
-<doc text="Election parameters relevant for creating a ballot.">
+  val of_string : string -> (module GROUP)
 
-type 'a signature = {
-  public_key : 'a;
-  challenge : number;
-  response : number;
-} <ocaml field_prefix="s_">
+end
 
-type 'a ballot = {
-  answers : json list <ocaml repr="array">;
-  election_hash : string;
-  election_uuid : uuid;
-  ?signature : 'a signature option;
-}
+module type QUESTION_H_SIG = sig
+
+  module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
+         with type 'a m := 'a M.t
+          and type elt := G.t
+          and type question := Question_h_t.question
+          and type answer := G.t Question_h_t.answer
+
+end
+
+module type QUESTION_NH_SIG = sig
+
+  module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
+         with type 'a m := 'a M.t
+          and type elt := G.t
+          and type question := Question_nh_t.question
+          and type answer := G.t Question_nh_t.answer
+
+end
+
+module type MIXNET_SIG = sig
+
+  module Make (W : ELECTION_DATA) (M : RANDOM) : MIXNET
+         with type 'a m := 'a M.t
+          and type elt := W.G.t
+          and type 'a proof := 'a Serializable_t.shuffle_proof
+
+end
+
+module type ELECTION_SIG = sig
+
+  val of_string : string -> Serializable_t.params
+  val to_string : Serializable_t.params -> group:string -> public_key:string -> string
+
+  module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () : ELECTION
+         with type 'a m = 'a M.t
+
+end

@@ -70,8 +70,8 @@
         <auth name="captcha"><email use_captcha="true"/></auth> <!-- DEMO -->
         <!-- <auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth> -->
         <source file="_SHAREDIR_/belenios.tar.gz"/>
-        <default-group file="_SHAREDIR_/groups/default.json"/>
-        <nh-group file="_SHAREDIR_/groups/rfc3526-2048.json"/>
+        <default-group group="BELENIOS-2048"/>
+        <nh-group group="RFC-3526-2048"/>
         <log file="_VARDIR_/log/security.log"/>
         <locales dir="_SHAREDIR_/locales"/>
         <spool dir="_VARDIR_/spool"/>

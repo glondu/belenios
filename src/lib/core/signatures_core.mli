@@ -92,6 +92,7 @@ module type GROUP = sig
   val get_generator : int -> t
                                (** [get_generator i] computes generator #[i] of the group. *)
 
+  val description : string
 end
 
 (** Monad signature. *)

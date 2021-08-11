@@ -22,17 +22,14 @@
 type json <ocaml module="Yojson.Safe" t="t"> = abstract
 type number <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 type question <ocaml module="Belenios_core.Question"> = abstract
 
-type ('a, 'b) wrapped_pubkey = {
-  group : 'a;
-  y : 'b;
-} <ocaml field_prefix="wpk_">
-<doc text="A public key wrapped with its group parameters.">
-
 type 'a params = {
+  version : int;
   description : string;
   name : string;
+  group : string;
   public_key : 'a;
   questions : question list <ocaml repr="array">;
   uuid : uuid;
@@ -41,15 +38,15 @@ type 'a params = {
 } <ocaml field_prefix="e_">
 <doc text="Election parameters relevant for creating a ballot.">
 
-type 'a signature = {
-  public_key : 'a;
-  challenge : number;
-  response : number;
+type signature = {
+  hash : string;
+  proof : proof;
 } <ocaml field_prefix="s_">
 
 type 'a ballot = {
-  answers : json list <ocaml repr="array">;
-  election_hash : string;
   election_uuid : uuid;
-  ?signature : 'a signature option;
+  election_hash : string;
+  credential : 'a;
+  answers : json list <ocaml repr="array">;
+  ?signature : signature option;
 }

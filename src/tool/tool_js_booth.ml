@@ -393,10 +393,6 @@ let createStartButton params intro_div qs =
   Dom.appendChild b t;
   b
 
-let drop_trailing_newline s =
-  let n = String.length s in
-  if n > 0 && s.[n-1] = '\n' then String.sub s 0 (n-1) else s
-
 let loadElection () =
   set_element_display "election_loader" "none";
   set_element_display "wait_div" "none";
@@ -405,7 +401,7 @@ let loadElection () =
     struct
       let raw_election =
         match get_textarea_opt "election_params" with
-        | Some x -> drop_trailing_newline x
+        | Some x -> String.trim x
         | None -> failwith "election_params is missing"
     end
   in
