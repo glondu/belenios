@@ -73,9 +73,10 @@ def check_or_create_dir(wdir, uuid):
 
 # List of audit files.
 # When no ballot have been cast yet, ballots.jsons does not exist.
+# We also put here a fake filename, for the hash of the voterlist.
 audit_files=['election.json', 'public_creds.txt', 'trustees.json',
         'ballots', 'index.html']
-optional_audit_files=['ballots.jsons','result.json','shuffles.jsons']
+optional_audit_files=['ballots.jsons','result.json','shuffles.jsons','hash_voterlist']
 
 def download_audit_data(url, uuid):
     link = url + '/elections/' + uuid
@@ -266,6 +267,25 @@ def check_index_html(data):
             fail = True
         else:
             logme("  stats of weights ok")
+
+    # check that the printed number of voters is consistent with number
+    # of credentials
+    node = [ x.firstChild for x in dom.getElementsByTagName("div")
+            if x.firstChild != None and
+            x.firstChild.nodeType == xml.dom.minidom.Node.TEXT_NODE and
+            re.search("The voter list has",x.firstChild.data) != None ]
+    assert len(node) == 1
+    pat = re.compile(r'The voter list has (\d+) voter\(s\) and fingerprint ([\w/+]+).')
+    mat = pat.match(node[0].data)
+    nb_voters = int(mat.group(1))
+    data['hash_voterlist'] = mat.group(2).encode() # for further checks
+    nb_creds = data['public_creds.txt'].decode().count('\n')
+    if (nb_voters != nb_creds):
+        msg = msg + "Error: Number of voters different from number of credentials for election {}\n".format(uuid).encode()
+        logme(" " + str(nb_voters) + " " + str(nb_creds))
+        fail = True
+    else:
+        logme("  number of voters ok")
 
     def hash_pub_key(s):
         m = hashlib.sha256()
@@ -484,6 +504,18 @@ for uuid in uuids:
 
         stat = check_index_html(data)
         status.merge(stat)
+        # create the hash_voterlist file, with the value read from index.html
+        # or check that its value is consistent
+        p = os.path.join(args.wdir, uuid, 'hash_voterlist')
+        if os.path.exists(p):
+            with open(p, "rb") as file:
+                oldhash = file.read()
+            if (oldhash != data['hash_voterlist']):
+                status.merge(Status(True,
+                    "Error: hash of the voter list changed for election {}".format(uuid).encode()))
+        else:
+            with open(p, "wb") as file:
+                file.write(data['hash_voterlist'])
 
     # commit 
     if status.msg != b'':
