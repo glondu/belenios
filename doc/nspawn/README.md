@@ -26,13 +26,19 @@ Building the development environment
 This requires `debootstrap` and `systemd-nspawn` (provided by the
 `systemd-container` package in Debian).
 
+You must also enable and start `systemd-resolved` on the host, with
+the following commands:
+
+   systemctl enable systemd-resolved
+   systemctl start systemd-resolved
+
 The `belenios-stage1.sh` script (which must be run as root) takes a
 directory as argument and bootstraps in it a Debian distribution with
 the appropriate prerequisites, and runs `opam-bootstrap.sh` inside it.
 
 One can log into the resulting environment with the command:
 
-    systemd-nspawn --directory=/path/to/directory --user=belenios
+    systemd-nspawn --directory=/path/to/development/environment --user=belenios
 
 To work on Belenios inside this environment, one must source the
 `/home/belenios/opam-env.sh` file. One can then clone Belenios sources
@@ -44,17 +50,15 @@ Building the deployment environment
 -----------------------------------
 
 The deployment environment must be built from inside the development
-environment created above. It consists in a squashfs image of a root
-file system, and a directory which is mounted at `/var/belenios`
-inside the system.
+environment created above. It is a squashfs image of a root file
+system.
 
 The image is built with the `belenios-stage3.sh` script, which creates
 `/target/rootfs.squashfs`.
 
-The directory can be created empty with just an
-`ocsigenserver.conf.in` file (which should be based on the one that
-can be found in Belenios sources). Beware, this directory and its
-contents must be owned by the `belenios` user.
+To run the script from the host, use the following command:
+
+    systemd-nspawn --directory=/path/to/development/environment /home/belenios/belenios/doc/nspawn/belenios-stage3.sh
 
 
 Deploying
@@ -73,10 +77,21 @@ When deploying on a server for the first time, run:
 You might want to update `belenios-nspawn` and
 `belenios-container@.service` as Belenios evolves.
 
-To deploy an instance named `main`, create a directory
-`/srv/belenios-containers/main`, and copy there `rootfs.squashfs` and
-the `belenios` directory (beware of the owner). You can then run the
-instance with:
+To deploy an instance named `main`:
+
+ * create a directory `/srv/belenios-containers/main`
+ * copy there `rootfs.squashfs`
+ * create a `belenios` sub-directory belonging to user 1000 and
+   group 1000
+ * create there an `ocsigenserver.conf.in` file (you can take the one
+   in Belenios sources as example)
+
+Beware, the `belenios` directory and its contents must belong to user
+and group 1000, which correspond to user and group `belenios` inside
+the deployment environment, but may appear as different names on the
+host.
+
+You can then run the instance with:
 
     systemctl start belenios-container@main.service
 
