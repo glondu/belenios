@@ -38,20 +38,10 @@ module type S = sig
   val trustee_keygen : unit -> keypair m
 end
 
-module type PARSED_PARAMS = sig
-  module M : RANDOM
-  module G : GROUP
-  module Trustees : Trustees_sig.S
-end
+module Make (P : PARAMS) (M : RANDOM) () = struct
 
-module Parse (P : PARAMS) (M : RANDOM) () = struct
-  module M = M
   module G = (val Group.of_string ~version:P.version P.group : GROUP)
   module Trustees = (val Trustees.get_by_version P.version)
-end
-
-module MakeInner (P : PARSED_PARAMS) = struct
-  open P
   let ( let* ) = M.bind
 
   (* Generate key *)
@@ -73,9 +63,4 @@ module MakeInner (P : PARSED_PARAMS) = struct
     let pub = string_of_trustee_public_key G.write public_key in
     M.return {id; priv; pub}
 
-end
-
-module Make (P : PARAMS) (M : RANDOM) () = struct
-  module X = Parse (P) (M) ()
-  include MakeInner (X)
 end

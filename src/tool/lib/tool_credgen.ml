@@ -36,20 +36,10 @@ module type S = sig
   val generate : string list -> (string list * string list) m
 end
 
-module type PARSED_PARAMS = sig
-  val uuid : uuid
-  module G : GROUP
-  module M : RANDOM
-end
+module Make (P : PARAMS) (M : RANDOM) () = struct
 
-module Parse (P : PARAMS) (M : RANDOM) () = struct
   let uuid = uuid_of_raw_string P.uuid
   module G = (val Belenios.Group.of_string ~version:P.version P.group : GROUP)
-  module M = M
-end
-
-module MakeInner (P : PARSED_PARAMS) = struct
-  open P
   let ( let* ) = M.bind
 
   module CG = Credential.MakeGenerate (M)
@@ -98,11 +88,6 @@ module MakeInner (P : PARSED_PARAMS) = struct
     in
     M.return (List.rev privs, (CredSet.bindings pubs |> List.map serialize))
 
-end
-
-module Make (P : PARAMS) (M : RANDOM) () = struct
-  module X = Parse (P) (M) ()
-  include MakeInner (X)
 end
 
 let int_length n =

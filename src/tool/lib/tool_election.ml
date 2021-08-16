@@ -50,25 +50,13 @@ module type S = sig
   val compute_voters : string list -> string list
 end
 
-module type PARSED_PARAMS = sig
-  module M : RANDOM
-  include PARAMS
-  module Trustees : Trustees_sig.S
-  include ELECTION with type 'a m = 'a M.t
-end
-
 module PTrustees = Trustees
 
-module Parse (P : PARAMS) (M : RANDOM) () = struct
-  module M = M
+module Make (P : PARAMS) (M : RANDOM) () = struct
+
   include P
   include Election.Make (P) (M) ()
   module Trustees = (val Trustees.get_by_version election.e_version)
-end
-
-module MakeInner (P : PARSED_PARAMS) : S with type 'a m := 'a P.M.t = struct
-
-  open P
   let ( let* ) = M.bind
 
   module P = Trustees.MakePKI (G) (M)
@@ -409,9 +397,4 @@ module MakeInner (P : PARSED_PARAMS) : S with type 'a m := 'a P.M.t = struct
               | Some id -> id
          )
 
-end
-
-module Make (P : PARAMS) (M : RANDOM) () = struct
-  module X = Parse (P) (M) ()
-  include MakeInner (X)
 end
