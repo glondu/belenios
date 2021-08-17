@@ -31,9 +31,9 @@ open Common
 module type PARAMS = sig
   val raw_election : string
   val get_trustees : unit -> string option
-  val get_public_creds : unit -> string Stream.t option
-  val get_ballots : unit -> string Stream.t option
-  val get_shuffles : unit -> string Stream.t option
+  val get_public_creds : unit -> string list option
+  val get_ballots : unit -> string list option
+  val get_shuffles : unit -> string list option
   val get_result : unit -> string option
   val print_msg : string -> unit
 end
@@ -108,37 +108,31 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
   module GSet = Map.Make (G)
   module PPC = Credential.MakeParsePublicCredential (G)
 
-  let public_creds = lazy (
-    get_public_creds () |> Option.map (fun creds ->
-      let res = ref GSet.empty in
-      Stream.iter
-        (fun x ->
-          match PPC.parse_public_credential x with
-          | Some (w, y) ->
-             res := GSet.add y (w, ref false) !res
-          | None ->
-            Printf.ksprintf failwith "%s is not a valid public credential" x;
-        ) creds;
-      res
-    )
-  )
+  let public_creds =
+    lazy (
+        get_public_creds ()
+        |> Option.map
+             (List.fold_left
+                (fun accu x ->
+                  match PPC.parse_public_credential x with
+                  | Some (w, y) -> GSet.add y (w, ref false) accu
+                  | None -> Printf.ksprintf failwith "%s is not a valid public credential" x;
+                ) GSet.empty
+             )
+      )
 
-  let ballots = lazy (
-    get_ballots () |> Option.map (fun ballots ->
-      let res = ref [] in
-      Stream.iter (fun x ->
-        res := (ballot_of_string x, sha256_b64 x) :: !res
-      ) ballots;
-      List.rev !res
-    )
-  )
+  let ballots =
+    lazy (
+        get_ballots ()
+        |> Option.map (List.map (fun x -> ballot_of_string x, sha256_b64 x))
+      )
 
   let check_signature_present = lazy (
     match Lazy.force public_creds with
     | Some creds -> (fun b ->
       match get_credential b with
       | Some c ->
-         (match GSet.find_opt c !creds with
+         (match GSet.find_opt c creds with
           | Some (w, used) -> if !used then None else (used := true; Some w)
           | None -> None)
       | None -> None
@@ -192,14 +186,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
         | Some result, None ->
            result.shuffles
            |> Option.map (List.map (string_of_shuffle G.write))
-        | None, Some s ->
-           let rec loop accu =
-             if (try Stream.empty s; true with Stream.Failure -> false) then
-               Some (List.rev accu)
-             else
-               loop (Stream.next s :: accu)
-           in
-           loop []
+        | None, (Some _ as s) -> s
       )
 
   let shuffles =
@@ -360,7 +347,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
       match Lazy.force public_creds with
       | None -> failwith "missing public credentials"
       | Some public_creds ->
-         !public_creds
+         public_creds
          |> GSet.bindings
          |> List.map fst
          |> List.map (fun x -> G.to_string x ^ "\n")

@@ -25,28 +25,24 @@ open Serializable_builtin_t
 open Serializable_j
 open Common
 
-let stream_to_list s =
-  let res = ref [] in
-  Stream.iter (fun x -> res := x :: !res) s;
-  List.rev !res
-
 let lines_of_file fname =
   let ic = open_in fname in
-  Stream.from (fun _ ->
-      match input_line ic with
-      | line -> Some line
-      | exception End_of_file -> close_in ic; None
-    )
+  let rec loop accu =
+    match input_line ic with
+    | line -> loop (line :: accu)
+    | exception End_of_file -> close_in ic; List.rev accu
+  in
+  loop []
 
 let string_of_file f =
-  lines_of_file f |> stream_to_list |> String.concat "\n"
+  lines_of_file f |> String.concat "\n"
 
 let string_of_file_opt filename =
   if Sys.file_exists filename then Some (string_of_file filename) else None
 
 let load_from_file of_string filename =
   if Sys.file_exists filename then (
-    Some (lines_of_file filename |> stream_to_list |> List.rev_map of_string)
+    Some (lines_of_file filename |> List.rev_map of_string)
   ) else None
 
 let ( / ) = Filename.concat

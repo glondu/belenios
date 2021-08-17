@@ -29,25 +29,22 @@ open Platform
 open Common
 open Cmdliner
 
-let stream_to_list s =
-  let res = ref [] in
-  Stream.iter (fun x -> res := x :: !res) s;
-  List.rev !res
-
 let lines_of_file fname =
   let ic = open_in fname in
-  Stream.from (fun _ ->
-      match input_line ic with
-      | line -> Some line
-      | exception End_of_file -> close_in ic; None
-    )
+  let rec loop accu =
+    match input_line ic with
+    | line -> loop (line :: accu)
+    | exception End_of_file -> close_in ic; List.rev accu
+  in
+  loop []
 
 let lines_of_stdin () =
-  Stream.from (fun _ ->
-      match input_line stdin with
-      | line -> Some line
-      | exception End_of_file -> None
-    )
+  let rec loop accu =
+    match input_line stdin with
+    | line -> loop (line :: accu)
+    | exception End_of_file -> List.rev accu
+  in
+  loop []
 
 let chars_of_stdin () =
   let buf = Buffer.create 1024 in
@@ -60,12 +57,12 @@ let chars_of_stdin () =
   Buffer.contents buf
 
 let string_of_file f =
-  lines_of_file f |> stream_to_list |> String.concat "\n"
+  lines_of_file f |> String.concat "\n"
 
 let load_from_file of_string filename =
   if Sys.file_exists filename then (
     Printf.eprintf "I: loading %s...\n%!" (Filename.basename filename);
-    Some (lines_of_file filename |> stream_to_list |> List.rev_map of_string)
+    Some (lines_of_file filename |> List.rev_map of_string)
   ) else None
 
 let ( / ) = Filename.concat
@@ -279,7 +276,6 @@ module Ttkeygen : CMDLINER_MODULE = struct
            let polynomials = get_polynomials () in
            assert (n = Array.length polynomials);
            let voutputs = lines_of_stdin ()
-                          |> stream_to_list
                           |> List.map (voutput_of_string G.read)
                           |> Array.of_list
            in
@@ -569,7 +565,6 @@ module Election : CMDLINER_MODULE = struct
           let privcreds =
             get_mandatory_opt "--privcreds" privcreds
             |> lines_of_file
-            |> stream_to_list
           in
           main u d (`ComputeVoters privcreds)
         )
@@ -623,7 +618,7 @@ module Credgen : CMDLINER_MODULE = struct
           if n < 1 then (
             failcmd "the argument of --count must be a positive number"
           ) else `Generate (generate_ids n)
-        | None, Some f, None -> `Generate (lines_of_file f |> stream_to_list)
+        | None, Some f, None -> `Generate (lines_of_file f)
         | None, None, Some c -> `Derive c
         | _, _, _ ->
           failcmd "--count, --file and --derive are mutually exclusive"
@@ -676,7 +671,7 @@ module Mktrustees : CMDLINER_MODULE = struct
     wrap_main
       (fun () ->
         let get_public_keys () =
-          Some (lines_of_file (dir / "public_keys.jsons") |> stream_to_list)
+          Some (lines_of_file (dir / "public_keys.jsons"))
         in
         let get_threshold () =
           let fn = dir / "threshold.json" in

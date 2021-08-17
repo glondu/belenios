@@ -238,13 +238,13 @@ module ToolElection = struct
       let raw = get_textarea "election_pubcreds" |> split_lines in
       match raw with
       | [] -> None
-      | _ -> Some (Stream.of_list raw)
+      | _ -> Some raw
 
     let get_ballots () =
       let raw = get_textarea "election_ballots" |> split_lines in
       match raw with
       | [] -> None
-      | _ -> Some (Stream.of_list raw)
+      | _ -> Some raw
 
     let get_result () =
       let raw = get_textarea "election_result" |> split_lines in
