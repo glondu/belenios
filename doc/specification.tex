@@ -941,8 +941,9 @@ big.
 The $\election$ structure includes all public data related to an
 election and is sent to each voter, serialized as a string which must
 be always the same throughout the election. The $\textsf{version}$ is
-set to 1 in this version of the specification. The group is specified
-by the $\textsf{group}$ member, either $\texttt{BELENIOS-2048}$ or
+set to 1 in this version of the specification. It is incremented in
+case of backward-incompatible changes. The group is specified by the
+$\textsf{group}$ member, either $\texttt{BELENIOS-2048}$ or
 $\texttt{RFC-3526-2048}$. These groups are described in
 section~\ref{default-group}, using the following structures:
 \begin{gather*}
