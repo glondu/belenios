@@ -14,7 +14,7 @@ DEBUG_MAIL='bozo.leclown@example.com'
 # Edit the following according to your election:
 FROM='bozo.leclown@example.com' # can be the email of the credential authority
 SUBJECT='Élection du meilleur cookie: votre matériel de vote'
-UUID='7af1a378-ed25-481a-9775-7b1a7e55c746'
+UUID='pmFbhhuxH3k6vc'
 
 # Your outgoing email configuration:
 SMTP='smtp.example.com'
@@ -22,7 +22,7 @@ username='bozo'
 password = getpass.getpass("please type your password: ")
 
 # name of the file where to read the credentials
-CODE_FILE='codefile.txt'
+CODE_FILE='creds.txt'
 
 # Edit the email template:
 TEMPLATE=Template("""
@@ -71,7 +71,7 @@ Reminder: there are two candidates Maïté and Amandine.
 Thank you for your participation.
 """)
 
-# Real stuf starts here. Pretty short, isn't it?
+# Real stuff starts here. Pretty short, isn't it?
 with open(CODE_FILE) as cf:
     d = dict(UUID=UUID)
     s = smtplib.SMTP(SMTP)
