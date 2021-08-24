@@ -2045,8 +2045,15 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
           ) se.se_questions.t_questions
       in
       match has_weights, has_nh with
-      | true, true -> false, notok (s_ "Alternative questions cannot be combined with weights.")
-      | _, _ -> ready, ok "OK"
+      | true, true ->
+         false,
+         [
+           tr [
+               td [txt (s_ "Compatibility of weights with questions?")];
+               td [notok (s_ "Alternative questions cannot be combined with weights.")];
+             ]
+         ]
+      | _, _ -> ready, []
     in
     let div_trustee_warning =
       match se.se_threshold_trustees, se.se_public_keys with
@@ -2069,56 +2076,59 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
            ]
       | Some _ -> s_ "Yes", txt ""
     in
-    let table_checklist = table [
-                              tr [
-                                  td [txt (s_ "Name?")];
-                                  td [name];
-                                ];
-                              tr [
-                                  td [txt (s_ "Description?")];
-                                  td [description];
-                                ];
-                              tr [
-                                  td [txt (s_ "Public name of the administrator?")];
-                                  td [admin_name];
-                                ];
-                              tr [
-                                  td [txt (s_ "Questions?")];
-                                  td [questions; txt " "; preview_booth l uuid se.se_metadata];
-                                ];
-                              tr [
-                                  td [txt (s_ "Voters?")];
-                                  td [voters];
-                                ];
-                              tr [
-                                  td [txt (s_ "Passwords?")];
-                                  td [passwords];
-                                ];
-                              tr [
-                                  td [txt (s_ "Credential authority?")];
-                                  td [credential_authority];
-                                ];
-                              tr [
-                                  td [txt (s_ "Credentials?")];
-                                  td [credentials];
-                                ];
-                              tr [
-                                  td [txt (s_ "Private credentials?")];
-                                  td [private_creds];
-                                ];
-                              tr [
-                                  td [txt (s_ "Trustees?")];
-                                  td [trustees];
-                                ];
-                              tr [
-                                  td [txt (s_ "Contact?")];
-                                  td [txt contact];
-                                ];
-                              tr [
-                                  td [txt (s_ "Compatibility of weights with questions?")];
-                                  td [nh_and_weights];
-                                ];
-                            ] in
+    let table_checklist =
+      [
+        [
+          tr [
+              td [txt (s_ "Name?")];
+              td [name];
+            ];
+          tr [
+              td [txt (s_ "Description?")];
+              td [description];
+            ];
+          tr [
+              td [txt (s_ "Public name of the administrator?")];
+              td [admin_name];
+            ];
+          tr [
+              td [txt (s_ "Questions?")];
+              td [questions; txt " "; preview_booth l uuid se.se_metadata];
+            ];
+          tr [
+              td [txt (s_ "Voters?")];
+              td [voters];
+            ];
+          tr [
+              td [txt (s_ "Passwords?")];
+              td [passwords];
+            ];
+          tr [
+              td [txt (s_ "Credential authority?")];
+              td [credential_authority];
+            ];
+          tr [
+              td [txt (s_ "Credentials?")];
+              td [credentials];
+            ];
+          tr [
+              td [txt (s_ "Private credentials?")];
+              td [private_creds];
+            ];
+          tr [
+              td [txt (s_ "Trustees?")];
+              td [trustees];
+            ];
+          tr [
+              td [txt (s_ "Contact?")];
+              td [txt contact];
+            ];
+        ];
+        nh_and_weights;
+      ]
+      |> List.flatten
+      |> table
+    in
     let status =
       if ready then
         span ~a:[a_style "color: green;"] [txt (s_ "election ready")]
