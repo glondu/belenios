@@ -375,16 +375,18 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
          | None -> return false
          | Some _ -> return true
     in
-    let* () =
+    let* allowed =
       if confidential then (
         let* metadata = Web_persist.get_election_metadata uuid in
         match site_user with
-        | Some u when metadata.e_owner = Some u -> return ()
-        | _ -> forbidden ()
-      ) else return ()
+        | Some u when metadata.e_owner = Some u -> return_true
+        | _ -> return_false
+      ) else return_true
     in
-    let content_type = content_type_of_file f in
-    File.send ~content_type (!Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file f)
+    if allowed then (
+      let content_type = content_type_of_file f in
+      File.send ~content_type (!Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file f)
+    ) else forbidden ()
 
   let () =
     Any.register ~service:election_dir

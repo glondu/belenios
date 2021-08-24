@@ -50,7 +50,6 @@ val security_log : (unit -> string) -> unit Lwt.t
 (** Add an entry to the security log. *)
 
 val fail_http : Cohttp.Code.status -> 'a Lwt.t
-val forbidden : unit -> 'a Lwt.t
 
 val rewrite_prefix : string -> string
 val set_rewrite_prefix : src:string -> dst:string -> unit

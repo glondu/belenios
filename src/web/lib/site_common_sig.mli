@@ -44,4 +44,6 @@ module type S = sig
     (unit -> Eliom_registration.Html.result Lwt.t) ->
     Eliom_registration.Html.result Lwt.t
 
+  val forbidden :
+    unit -> Eliom_registration.Html.result Lwt.t
 end

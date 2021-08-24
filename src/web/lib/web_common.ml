@@ -135,8 +135,6 @@ let fail_http status =
         (Ocsigen_cookie_map.empty, status)
     )
 
-let forbidden () = fail_http `Unauthorized
-
 let rewrite_fun = ref (fun x -> x)
 
 let rewrite_prefix x = !rewrite_fun x

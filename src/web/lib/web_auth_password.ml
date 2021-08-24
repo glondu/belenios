@@ -162,7 +162,7 @@ let add_account user ~password ~email =
       | Some e -> return (Error (BadPassword e))
       | None ->
          match get_password_db_fname user.user_domain with
-         | None -> forbidden ()
+         | None -> Lwt.fail (Failure (Printf.sprintf "add_account: unknown domain: %s" user.user_domain))
          | Some db_fname ->
             Lwt_mutex.with_lock password_db_mutex
               (do_add_account ~db_fname ~username:user.user_name ~password ~email)
@@ -176,7 +176,7 @@ let change_password user ~password =
     | Some e -> return (Error (BadPassword e))
     | None ->
        match get_password_db_fname user.user_domain with
-       | None -> forbidden ()
+       | None -> Lwt.fail (Failure (Printf.sprintf "change_password: unknown domain: %s" user.user_domain))
        | Some db_fname ->
           let* () =
             Lwt_mutex.with_lock password_db_mutex

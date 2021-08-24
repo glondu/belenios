@@ -524,11 +524,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let () =
-    Html.register ~service:election_draft
+    Any.register ~service:election_draft
       (fun uuid () ->
-        with_draft_election_ro uuid (fun se ->
-            Pages_admin.election_draft uuid se ()
-          )
+        let@ se = with_draft_election_ro uuid in
+        Pages_admin.election_draft uuid se ()
+        >>= Html.send
       )
 
   let () =
@@ -542,19 +542,19 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let () =
-    Html.register ~service:election_draft_threshold_trustees
+    Any.register ~service:election_draft_threshold_trustees
       (fun uuid () ->
-        with_draft_election_ro uuid (fun se ->
-            Pages_admin.election_draft_threshold_trustees uuid se ()
-          )
+        let@ se = with_draft_election_ro uuid in
+        Pages_admin.election_draft_threshold_trustees uuid se ()
+        >>= Html.send
       )
 
   let () =
-    Html.register ~service:election_draft_credential_authority
+    Any.register ~service:election_draft_credential_authority
       (fun uuid () ->
-        with_draft_election_ro uuid (fun se ->
-            Pages_admin.election_draft_credential_authority uuid se ()
-          )
+        let@ se = with_draft_election_ro uuid in
+        Pages_admin.election_draft_credential_authority uuid se ()
+        >>= Html.send
       )
 
   let with_draft_election ?(save = true) uuid f =
@@ -803,11 +803,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let () =
-    Html.register ~service:election_draft_questions
+    Any.register ~service:election_draft_questions
       (fun uuid () ->
-        with_draft_election_ro uuid (fun se ->
-            Pages_admin.election_draft_questions uuid se ()
-          )
+        let@ se = with_draft_election_ro uuid in
+        Pages_admin.election_draft_questions uuid se ()
+        >>= Html.send
       )
 
   let () =
@@ -851,16 +851,17 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             in
             let public_key = G.to_string G.g in
             let raw_election = Election.make_raw_election params ~group ~public_key in
-            String.send (raw_election, "application/json")
+            let* x = String.send (raw_election, "application/json") in
+            return @@ Eliom_registration.cast_unknown_content_kind x
           )
       )
 
   let () =
-    Html.register ~service:election_draft_voters
+    Any.register ~service:election_draft_voters
       (fun uuid () ->
-        with_draft_election_ro uuid (fun se ->
-            Pages_admin.election_draft_voters uuid se !Web_config.maxmailsatonce ()
-          )
+        let@ se = with_draft_election_ro uuid in
+        Pages_admin.election_draft_voters uuid se !Web_config.maxmailsatonce ()
+        >>= Html.send
       )
 
   (* see http://www.regular-expressions.info/email.html *)
@@ -1291,7 +1292,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             if token = "" then
               forbidden ()
             else
-              let* title, msg, code =
+              let* x =
                 Web_election_mutex.with_lock uuid
                   (fun () ->
                     let* election = Web_persist.get_draft_election uuid in
@@ -1299,12 +1300,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                     | None -> fail_http `Not_found
                     | Some se ->
                        match List.find_opt (fun x -> token = x.st_token) se.se_public_keys with
-                       | None -> forbidden ()
+                       | None -> return_none
                        | Some t ->
                           if t.st_public_key <> "" then
                             let msg = s_ "A public key already existed, the key you've just uploaded has been ignored!" in
                             let title = s_ "Error" in
-                            return (title, msg, 400)
+                            return_some (title, msg, 400)
                           else
                             let version = Option.get se.se_version 0 in
                             let module G = (val Group.of_string ~version se.se_group : GROUP) in
@@ -1314,18 +1315,20 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                             if not (K.check [`Single pk]) then
                               let msg = s_ "Invalid public key!" in
                               let title = s_ "Error" in
-                              return (title, msg, 400)
+                              return_some (title, msg, 400)
                             else (
                               (* we keep pk as a string because of G.t *)
                               t.st_public_key <- public_key;
                               let* () = Web_persist.set_draft_election uuid se in
                               let msg = s_ "Your key has been received and checked!" in
                               let title = s_ "Success" in
-                              return (title, msg, 200)
+                              return_some (title, msg, 200)
                             )
                   )
               in
-              Pages_common.generic_page ~title msg () >>= Html.send ~code
+              match x with
+              | None -> forbidden ()
+              | Some (title, msg, code) -> Pages_common.generic_page ~title msg () >>= Html.send ~code
           )
       )
 
@@ -1365,12 +1368,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let () =
-    Html.register ~service:election_draft_import
+    Any.register ~service:election_draft_import
       (fun uuid () ->
-        with_draft_election_ro uuid (fun se ->
-            let* _, a, b, c = get_elections_by_owner_sorted se.se_owner in
-            Pages_admin.election_draft_import uuid se (a, b, c) ()
-          )
+        let@ se = with_draft_election_ro uuid in
+        let* _, a, b, c = get_elections_by_owner_sorted se.se_owner in
+        Pages_admin.election_draft_import uuid se (a, b, c) ()
+        >>= Html.send
       )
 
   let () =
@@ -1424,12 +1427,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let () =
-    Html.register ~service:election_draft_import_trustees
+    Any.register ~service:election_draft_import_trustees
       (fun uuid () ->
-        with_draft_election_ro uuid (fun se ->
-            let* _, a, b, c = get_elections_by_owner_sorted se.se_owner in
-            Pages_admin.election_draft_import_trustees uuid se (a, b, c) ()
-          )
+        let@ se = with_draft_election_ro uuid in
+        let* _, a, b, c = get_elections_by_owner_sorted se.se_owner in
+        Pages_admin.election_draft_import_trustees uuid se (a, b, c) ()
+        >>= Html.send
       )
 
   exception TrusteeImportError of string
@@ -1599,20 +1602,22 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let election_set_state state uuid () =
     let@ _ = with_metadata_check_owner uuid in
-    let* () =
+    let* allowed =
       let* state = Web_persist.get_election_state uuid in
       match state with
-      | `Open | `Closed -> return ()
-      | _ -> forbidden ()
+      | `Open | `Closed -> return_true
+      | _ -> return_false
     in
-    let state = if state then `Open else `Closed in
-    let* () = Web_persist.set_election_state uuid state in
-    let* dates = Web_persist.get_election_dates uuid in
-    let* () =
-      Web_persist.set_election_dates uuid
-        {dates with e_auto_open = None; e_auto_close = None}
-    in
-    redir_preapply election_admin uuid ()
+    if allowed then (
+      let state = if state then `Open else `Closed in
+      let* () = Web_persist.set_election_state uuid state in
+      let* dates = Web_persist.get_election_dates uuid in
+      let* () =
+        Web_persist.set_election_dates uuid
+          {dates with e_auto_open = None; e_auto_close = None}
+      in
+      redir_preapply election_admin uuid ()
+    ) else forbidden ()
 
   let () = Any.register ~service:election_open (election_set_state true)
   let () = Any.register ~service:election_close (election_set_state false)
@@ -1729,7 +1734,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             Buffer.add_string buf v;
             Buffer.add_char buf '\n'
           ) voters;
-        String.send (Buffer.contents buf, "text/plain")
+        let* x = String.send (Buffer.contents buf, "text/plain") in
+        return @@ Eliom_registration.cast_unknown_content_kind x
       )
 
   let () =
@@ -1767,27 +1773,31 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             | None -> return_false
             | Some _ -> return_true
           in
-          let* () =
+          let* allow =
             if hidden then (
               let* metadata = Web_persist.get_election_metadata uuid in
               let* site_user = Eliom_reference.get Web_state.site_user in
               match site_user with
-              | Some u when metadata.e_owner = Some u -> return_unit
-              | _ -> forbidden ()
-            ) else return_unit
+              | Some u when metadata.e_owner = Some u -> return_true
+              | _ -> return_false
+            ) else return_true
           in
-          let* result = Web_persist.get_election_result uuid in
-          match result with
-          | None -> fail_http `Not_found
-          | Some result ->
-             let result = election_result_of_string Yojson.Safe.read_json Yojson.Safe.read_json result in
-             match result.result with
-             | `List xs ->
-                (match List.nth_opt xs index with
-                 | None -> fail_http `Not_found
-                 | Some x -> String.send (Yojson.Safe.to_string x, "application/json")
-                )
-             | _ -> fail_http `Not_found
+          if allow then (
+            let* result = Web_persist.get_election_result uuid in
+            match result with
+            | None -> fail_http `Not_found
+            | Some result ->
+               let result = election_result_of_string Yojson.Safe.read_json Yojson.Safe.read_json result in
+               match result.result with
+               | `List xs ->
+                  (match List.nth_opt xs index with
+                   | None -> fail_http `Not_found
+                   | Some x ->
+                      let* x = String.send (Yojson.Safe.to_string x, "application/json") in
+                      return @@ Eliom_registration.cast_unknown_content_kind x
+                  )
+               | _ -> fail_http `Not_found
+          ) else forbidden ()
         )
       )
 
@@ -1915,26 +1925,35 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           )
       )
 
+  exception TallyEarlyError
+
+  let render_tally_early_error_as_forbidden f =
+    Lwt.catch f
+      (function
+       | TallyEarlyError -> forbidden ()
+       | e -> Lwt.fail e)
+
   let () =
     Any.register ~service:election_tally_trustees_post
       (fun (uuid, token) partial_decryption ->
+        let@ () = render_tally_early_error_as_forbidden in
         let* l = get_preferred_gettext () in
         let open (val l) in
         let* () =
           let* state = Web_persist.get_election_state uuid in
           match state with
           | `EncryptedTally _ -> return ()
-          | _ -> forbidden ()
+          | _ -> Lwt.fail TallyEarlyError
         in
         let* trustee_id =
           let* x = find_trustee_id uuid token in
           match x with
           | Some x -> return x
-          | None -> forbidden ()
+          | None -> Lwt.fail TallyEarlyError
         in
         let* pds = Web_persist.get_partial_decryptions uuid in
         let* () =
-          if List.mem_assoc trustee_id pds then forbidden () else return ()
+          if List.mem_assoc trustee_id pds then Lwt.fail TallyEarlyError else return ()
         in
         let* () =
           if trustee_id > 0 then return () else fail_http `Not_found
@@ -1973,6 +1992,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       ))
 
   let handle_election_tally_release uuid () =
+    let@ () = render_tally_early_error_as_forbidden in
     let@ _ = with_metadata_check_owner uuid in
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -1983,7 +2003,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       let* state = Web_persist.get_election_state uuid in
       match state with
       | `EncryptedTally _ -> return_unit
-      | _ -> forbidden ()
+      | _ -> Lwt.fail TallyEarlyError
     in
     let* ntallied =
       let* hashes = Web_persist.get_ballot_hashes uuid in
@@ -2090,6 +2110,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_compute_encrypted_tally
       (fun uuid () ->
+        let@ () = render_tally_early_error_as_forbidden in
         let@ metadata = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
         let module W = (val election) in
@@ -2097,7 +2118,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           let* state = Web_persist.get_election_state uuid in
           match state with
           | `Closed -> return ()
-          | _ -> forbidden ()
+          | _ -> Lwt.fail TallyEarlyError
         in
         let* tally = Web_persist.compute_encrypted_tally election in
         if Election.has_nh_questions W.election then (
@@ -2209,13 +2230,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let () =
     Any.register ~service:election_decrypt (fun uuid () ->
+        let@ () = render_tally_early_error_as_forbidden in
         let@ metadata = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
         let* () =
           let* state = Web_persist.get_election_state uuid in
           match state with
           | `Shuffling -> return ()
-          | _ -> forbidden ()
+          | _ -> Lwt.fail TallyEarlyError
         in
         let* tally =
           let* x = Web_persist.compute_encrypted_tally_after_shuffling election in
@@ -2570,18 +2592,18 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let () =
-    Html.register ~service:signup
+    Any.register ~service:signup
       (fun () () ->
         let* address = Eliom_reference.get Web_state.signup_address in
         let* x = Eliom_reference.get Web_state.signup_env in
         match address, x with
-        | Some address, Some (_, `CreateAccount) -> Pages_admin.signup address None ""
-        | Some address, Some (_, `ChangePassword username) -> Pages_admin.changepw ~username ~address None
+        | Some address, Some (_, `CreateAccount) -> Pages_admin.signup address None "" >>= Html.send
+        | Some address, Some (_, `ChangePassword username) -> Pages_admin.changepw ~username ~address None >>= Html.send
         | _ -> forbidden ()
       )
 
   let () =
-    Html.register ~service:signup_post
+    Any.register ~service:signup_post
       (fun () (username, (password, password2)) ->
         let* l = get_preferred_gettext () in
         let open (val l) in
@@ -2599,13 +2621,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 let* () = Eliom_reference.unset Web_state.signup_env in
                 let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
                 Pages_common.generic_page ~title:(s_ "Account creation") ~service (s_ "The account has been created.") ()
-             | Error e -> Pages_admin.signup email (Some e) username
-           ) else Pages_admin.signup email (Some PasswordMismatch) username
+                >>= Html.send
+             | Error e -> Pages_admin.signup email (Some e) username >>= Html.send
+           ) else Pages_admin.signup email (Some PasswordMismatch) username >>= Html.send
         | _ -> forbidden ()
       )
 
   let () =
-    Html.register ~service:changepw_post
+    Any.register ~service:changepw_post
       (fun () (password, password2) ->
         let* l = get_preferred_gettext () in
         let open (val l) in
@@ -2623,8 +2646,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 let* () = Eliom_reference.unset Web_state.signup_env in
                 let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
                 Pages_common.generic_page ~title:(s_ "Change password") ~service (s_ "The password has been changed.") ()
-             | Error e -> Pages_admin.changepw ~username ~address (Some e)
-           ) else Pages_admin.changepw ~username ~address (Some PasswordMismatch)
+                >>= Html.send
+             | Error e -> Pages_admin.changepw ~username ~address (Some e) >>= Html.send
+           ) else Pages_admin.changepw ~username ~address (Some PasswordMismatch) >>= Html.send
         | _ -> forbidden ()
       )
 

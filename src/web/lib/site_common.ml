@@ -103,4 +103,11 @@ module Make (X : Pages_sig.S) = struct
         get_cont_state cont ()
       )
 
+  let forbidden () =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let msg = s_ "You are not allowed to access this page!" in
+    Pages_common.generic_page ~title:(s_ "Forbidden") msg ()
+    >>= Html.send ~code:403
+
 end
