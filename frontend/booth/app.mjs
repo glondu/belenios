@@ -28,7 +28,7 @@ function VotePage({ electionObject, electionFingerprint, currentStep, children }
     e(
       PageHeader,
       {
-        title: electionObject.name,
+        title: electionObject.title,
         subTitle: electionObject.description
       }
     ),
