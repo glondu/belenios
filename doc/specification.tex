@@ -276,7 +276,18 @@ trustee as specified in section~\ref{polynomials}.
 \begin{enumerate}
 \item $\mathcal{V}$ gets $E$
 \item $\mathcal{V}$ creates a \hyperref[ballots]{$\ballot$} $b$ and submits it to $\mathcal{S}$
-\item $\mathcal{S}$ validates $b$ and adds it to $B$
+\item $\mathcal{S}$ processes $b$:
+  \begin{enumerate}
+  \item let $C$ be the public credential used in $b$ (its
+    $\textsf{credential}$ field)
+  \item $\mathcal{S}$ checks that $C\in L$ and $C$ has not been used
+    in a ballot cast by another voter
+  \item (revote case) if $\mathcal{V}$ has already voted,
+    $\mathcal{S}$ checks that it was with $C$
+  \item $\mathcal{S}$ checks all zero-knowledge proofs of $b$
+  \item $\mathcal{S}$ adds $b$ to $B$ (or replaces the old ballot in
+    case of revote)
+  \end{enumerate}
 \item at any time (even after tally), $\mathcal{V}$ may check that $b$
   appears in the list of accepted ballots $B$ and the weight of her
   ballot as it appears in $B$ is equal to her weight
