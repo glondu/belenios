@@ -35,6 +35,16 @@ open Web_common
 
 let ( / ) = Filename.concat
 
+module UMap = Map.Make (struct type t = user let compare = compare end)
+
+let elections_by_owner_cache = ref None
+let elections_by_owner_mutex = Lwt_mutex.create ()
+
+let clear_elections_by_owner_cache () =
+  let@ () = Lwt_mutex.with_lock elections_by_owner_mutex in
+  elections_by_owner_cache := None;
+  return_unit
+
 let get_draft_election uuid =
   let* file = read_file ~uuid "draft.json" in
   match file with
@@ -88,17 +98,20 @@ let get_election_dates uuid =
            }
 
 let set_election_dates uuid dates =
-  write_file ~uuid "dates.json" [string_of_election_dates dates]
+  let* () = write_file ~uuid "dates.json" [string_of_election_dates dates] in
+  clear_elections_by_owner_cache ()
 
 let set_election_state uuid s =
-  match s with
-  | `Archived ->
-     Lwt.catch
-       (fun () ->
-         Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "state.json")
-       )
-       (fun _ -> return_unit)
-  | _ -> write_file ~uuid "state.json" [string_of_election_state s]
+  let* () = match s with
+    | `Archived ->
+       Lwt.catch
+         (fun () ->
+           Lwt_unix.unlink (!Web_config.spool_dir / raw_string_of_uuid uuid / "state.json")
+         )
+         (fun _ -> return_unit)
+    | _ -> write_file ~uuid "state.json" [string_of_election_state s]
+  in
+  clear_elections_by_owner_cache ()
 
 let get_election_state uuid =
   let* file = read_file ~uuid "state.json" in
@@ -177,55 +190,75 @@ type election_kind =
   | `Archived
   ]
 
+let umap_add user x map =
+  let xs =
+    match UMap.find_opt user map with
+    | None -> []
+    | Some xs -> xs
+  in
+  UMap.add user (x :: xs) map
+
+let build_elections_by_owner_cache () =
+  Lwt_unix.files_of_directory !Web_config.spool_dir
+  |> Lwt_stream.to_list
+  >>= Lwt_list.fold_left_s
+        (fun accu uuid_s ->
+          if uuid_s = "." || uuid_s = ".." then
+            return accu
+          else (
+            Lwt.catch
+              (fun () ->
+                let uuid = uuid_of_raw_string uuid_s in
+                let* election = get_draft_election uuid in
+                match election with
+                | None ->
+                   (
+                     let* metadata = get_election_metadata uuid in
+                     match metadata.e_owner with
+                     | None -> return accu
+                     | Some o ->
+                        let* election = get_raw_election uuid in
+                        match election with
+                        | None -> return accu
+                        | Some election ->
+                           let* dates = get_election_dates uuid in
+                           let* kind, date =
+                             let* state = get_election_state uuid in
+                             match state with
+                             | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
+                                let date = Option.get dates.e_finalization default_validation_date in
+                                return (`Validated, date)
+                             | `Tallied ->
+                                let date = Option.get dates.e_tally default_tally_date in
+                                return (`Tallied, date)
+                             | `Archived ->
+                                let date = Option.get dates.e_archive default_archive_date in
+                                return (`Archived, date)
+                           in
+                           let election = Election.of_string election in
+                           return @@ umap_add o (kind, uuid, date, election.e_name) accu
+                   )
+                | Some se ->
+                   let date = Option.get se.se_creation_date default_creation_date in
+                   return @@ umap_add se.se_owner (`Draft, uuid, date, se.se_questions.t_name) accu
+              )
+              (fun _ -> return accu)
+          )
+        ) UMap.empty
+
 let get_elections_by_owner user =
-  Lwt_unix.files_of_directory !Web_config.spool_dir |>
-    Lwt_stream.to_list >>=
-    Lwt_list.filter_map_s
-      (fun x ->
-        if x = "." || x = ".." then
-          return_none
-        else (
-          try
-            let uuid = uuid_of_raw_string x in
-            let* election = get_draft_election uuid in
-            match election with
-            | None ->
-               (
-                 let* metadata = get_election_metadata uuid in
-                 match metadata.e_owner with
-                 | Some o when o = user ->
-                    (
-                      let* election = get_raw_election uuid in
-                      match election with
-                      | None -> return_none
-                      | Some election ->
-                         let* dates = get_election_dates uuid in
-                         let* kind, date =
-                           let* state = get_election_state uuid in
-                           match state with
-                           | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-                              let date = Option.get dates.e_finalization default_validation_date in
-                              return (`Validated, date)
-                           | `Tallied ->
-                              let date = Option.get dates.e_tally default_tally_date in
-                              return (`Tallied, date)
-                           | `Archived ->
-                              let date = Option.get dates.e_archive default_archive_date in
-                              return (`Archived, date)
-                         in
-                         let election = Election.of_string election in
-                         return_some (kind, uuid, date, election.e_name)
-                    )
-                 | _ -> return_none
-               )
-            | Some se ->
-               if se.se_owner = user then
-                 let date = Option.get se.se_creation_date default_creation_date in
-                 return_some (`Draft, uuid, date, se.se_questions.t_name)
-               else return_none
-          with _ -> return_none
-        )
-      )
+  let* cache =
+    match !elections_by_owner_cache with
+    | Some x -> return x
+    | None ->
+       let@ () = Lwt_mutex.with_lock elections_by_owner_mutex in
+       let* x = build_elections_by_owner_cache () in
+       elections_by_owner_cache := Some x;
+       return x
+  in
+  match UMap.find_opt user cache with
+  | None -> return []
+  | Some xs -> return xs
 
 let get_voters uuid =
   read_file ~uuid "voters.txt"

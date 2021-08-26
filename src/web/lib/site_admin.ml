@@ -340,7 +340,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                      cleanup_file (!Web_config.spool_dir / uuid_s / x)
                    ) files_to_delete
        in
-       return_unit
+       Web_persist.clear_elections_by_owner_cache ()
 
   let () = Any.register ~service:home
              (fun () () -> Redirection.send (Redirection admin))
@@ -675,6 +675,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                                t_name = name;
                                t_description = description;
                              };
+          let* () = Web_persist.clear_elections_by_owner_cache () in
           redir_preapply election_draft uuid ()
         )
       )
@@ -1329,7 +1330,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let destroy_election uuid =
-    rmdir (!Web_config.spool_dir / raw_string_of_uuid uuid)
+    let* () = rmdir (!Web_config.spool_dir / raw_string_of_uuid uuid) in
+    Web_persist.clear_elections_by_owner_cache ()
 
   let () =
     Any.register ~service:election_draft_destroy
