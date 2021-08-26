@@ -158,11 +158,11 @@ let decrypt ~key ~iv ~ciphertext =
   let plaintext = Sjcl.ccm##decrypt prf ciphertext iv in
   utf8String_fromBits plaintext
 
-type rng = unit -> unit
+type rng = unit
 
 (* PRNG is initialized in random.js *)
-let secure_rng () = ()
-let pseudo_rng _ () = ()
+let secure_rng = ()
+let pseudo_rng _ = ()
 
 let string_of_hex hex n =
   String.init n (fun i ->
@@ -170,8 +170,7 @@ let string_of_hex hex n =
     char_of_int c
   )
 
-let random_string rng n =
-  let () = rng () in
+let random_string () n =
   let words = Sjcl.sjcl##.random##randomWords (n/4+1) in
   let hex_words = hex_fromBits words in
   string_of_hex hex_words n
