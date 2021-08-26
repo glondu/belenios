@@ -250,8 +250,6 @@ module Z = struct
   let shift_right x n = lib##shiftRight x n
   let logand x y = lib##_and x y
 
-  let hash_to_int x =
-    x
-    |> to_string |> sha256_hex |> (fun x -> String.sub x 0 7)
-    |> of_hex |> to_int
+  let hash_modulus = of_int 1073741789 (* previous_prime(2^30) *)
+  let hash_to_int x = to_int (erem x hash_modulus)
 end
