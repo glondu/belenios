@@ -53,7 +53,10 @@ function TranslatableInputCredentialSection({ onSubmit=null, t }){
           e(
             NiceTextInput,
             {
-              id: credentialId
+              id: credentialId,
+              onKeyUp: function(e) {
+                  if (e.keyCode == 13) onClick();
+              }
             }
           )
         ),
