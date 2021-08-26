@@ -374,7 +374,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     | Some a, Some b when a = b -> f metadata
     | _, _ -> forbidden ()
 
-  let without_site_user ?fallback f =
+  let without_site_user ?fallback () f =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let* user = Eliom_reference.get Web_state.site_user in
@@ -482,46 +482,45 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     | Some _ -> true
     | None -> false
 
-  let () = Any.register ~service:election_draft_new
-             (fun () (credmgmt, (auth, cas_server)) ->
-               let* l = get_preferred_gettext () in
-               let open (val l) in
-               with_site_user (fun u ->
-                   let* credmgmt = match credmgmt with
-                     | Some "auto" -> return `Automatic
-                     | Some "manual" -> return `Manual
-                     | _ -> fail_http `Bad_request
-                   in
-                   let* auth = match auth with
-                     | Some "password" -> return `Password
-                     | Some "dummy" -> return `Dummy
-                     | Some "cas" ->
-                        (match cas_server with
-                         | None -> fail_http `Bad_request
-                         | Some cas_server -> return @@ `CAS (PString.trim cas_server)
-                        )
-                     | Some x ->
-                        let n = PString.length x in
-                        if n > 1 && PString.get x 0 = '%' then (
-                          let name = PString.sub x 1 (n - 1) in
-                          return @@ `Import name
-                        ) else fail_http `Bad_request
-                     | _ -> fail_http `Bad_request
-                   in
-                   match auth with
-                   | `CAS cas_server when not (is_http_url cas_server) ->
-                      Pages_common.generic_page ~title:(s_ "Error") (s_ "Bad CAS server!") () >>= Html.send
-                   | _ -> create_new_election u credmgmt auth
-                 )
+  let () =
+    Any.register ~service:election_draft_new
+      (fun () (credmgmt, (auth, cas_server)) ->
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let@ u = with_site_user in
+        let* credmgmt = match credmgmt with
+          | Some "auto" -> return `Automatic
+          | Some "manual" -> return `Manual
+          | _ -> fail_http `Bad_request
+        in
+        let* auth = match auth with
+          | Some "password" -> return `Password
+          | Some "dummy" -> return `Dummy
+          | Some "cas" ->
+             (match cas_server with
+              | None -> fail_http `Bad_request
+              | Some cas_server -> return @@ `CAS (PString.trim cas_server)
              )
+          | Some x ->
+             let n = PString.length x in
+             if n > 1 && PString.get x 0 = '%' then (
+               let name = PString.sub x 1 (n - 1) in
+               return @@ `Import name
+             ) else fail_http `Bad_request
+          | _ -> fail_http `Bad_request
+        in
+        match auth with
+        | `CAS cas_server when not (is_http_url cas_server) ->
+           Pages_common.generic_page ~title:(s_ "Error") (s_ "Bad CAS server!") () >>= Html.send
+        | _ -> create_new_election u credmgmt auth
+      )
 
   let with_draft_election_ro uuid f =
-    with_site_user (fun u ->
-        let* election = Web_persist.get_draft_election uuid in
-        match election with
-        | None -> fail_http `Not_found
-        | Some se -> if se.se_owner = u then f se else forbidden ()
-      )
+    let@ u = with_site_user in
+    let* election = Web_persist.get_draft_election uuid in
+    match election with
+    | None -> fail_http `Not_found
+    | Some se -> if se.se_owner = u then f se else forbidden ()
 
   let () =
     Any.register ~service:election_draft
@@ -534,11 +533,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_trustees
       (fun uuid () ->
-        with_draft_election_ro uuid (fun se ->
-            match se.se_threshold_trustees with
-            | None -> Pages_admin.election_draft_trustees uuid se () >>= Html.send
-            | Some _ -> redir_preapply election_draft_threshold_trustees uuid ()
-          )
+        let@ se = with_draft_election_ro uuid in
+        match se.se_threshold_trustees with
+        | None -> Pages_admin.election_draft_trustees uuid se () >>= Html.send
+        | Some _ -> redir_preapply election_draft_threshold_trustees uuid ()
       )
 
   let () =
@@ -558,134 +556,127 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let with_draft_election ?(save = true) uuid f =
-    with_site_user (fun u ->
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        Web_election_mutex.with_lock uuid (fun () ->
-            let* election = Web_persist.get_draft_election uuid in
-            match election with
-            | None -> fail_http `Not_found
-            | Some se ->
-               if se.se_owner = u then (
-                 Lwt.catch
-                   (fun () ->
-                     let* r = f se in
-                     let* () = if save then Web_persist.set_draft_election uuid se else return_unit in
-                     return r
-                   )
-                   (fun e ->
-                     let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
-                     let service = preapply ~service:election_draft uuid in
-                     Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-                   )
-               ) else forbidden ()
-          )
-      )
+    let@ u = with_site_user in
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let@ () = Web_election_mutex.with_lock uuid in
+    let* election = Web_persist.get_draft_election uuid in
+    match election with
+    | None -> fail_http `Not_found
+    | Some se ->
+       if se.se_owner = u then (
+         Lwt.catch
+           (fun () ->
+             let* r = f se in
+             let* () = if save then Web_persist.set_draft_election uuid se else return_unit in
+             return r
+           )
+           (fun e ->
+             let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
+             let service = preapply ~service:election_draft uuid in
+             Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
+           )
+       ) else forbidden ()
 
   let () =
     Any.register ~service:election_draft_set_credential_authority
       (fun uuid name ->
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let service = Eliom_service.preapply ~service:election_draft_credential_authority uuid in
-            match (
-              if se.se_metadata.e_cred_authority = Some "server" then
-                Error (s_ "You cannot set the credential authority for this election!")
-              else
-                match name with
-                | "" -> Ok None
-                | "server" -> Error (s_ "Invalid public name for credential authority!")
-                | x -> Ok (Some x)
-            ) with
-            | Ok e_cred_authority ->
-               se.se_metadata <- {se.se_metadata with e_cred_authority};
-               let msg = s_ "The public name of the credential authority has been set successfully!" in
-               Pages_common.generic_page ~title:(s_ "Success") ~service msg () >>= Html.send
-            | Error msg ->
-               Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-          )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let service = Eliom_service.preapply ~service:election_draft_credential_authority uuid in
+        match (
+          if se.se_metadata.e_cred_authority = Some "server" then
+            Error (s_ "You cannot set the credential authority for this election!")
+          else
+            match name with
+            | "" -> Ok None
+            | "server" -> Error (s_ "Invalid public name for credential authority!")
+            | x -> Ok (Some x)
+        ) with
+        | Ok e_cred_authority ->
+           se.se_metadata <- {se.se_metadata with e_cred_authority};
+           let msg = s_ "The public name of the credential authority has been set successfully!" in
+           Pages_common.generic_page ~title:(s_ "Success") ~service msg () >>= Html.send
+        | Error msg ->
+           Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
       )
 
   let () =
     Any.register ~service:election_draft_languages
       (fun uuid languages ->
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let langs = languages_of_string languages in
-            match langs with
-            | [] ->
-               let service = preapply ~service:election_draft uuid in
-               Pages_common.generic_page ~title:(s_ "Error") ~service
-                 (s_ "You must select at least one language!") () >>= Html.send
-            | _ :: _ ->
-               let unavailable =
-                 List.filter (fun x ->
-                     not (List.mem x available_languages)
-                   ) langs
-               in
-               match unavailable with
-               | [] ->
-                  se.se_metadata <- {
-                     se.se_metadata with
-                     e_languages = Some langs
-                   };
-                  redir_preapply election_draft uuid ()
-               | l :: _ ->
-                  let service = preapply ~service:election_draft uuid in
-                  Pages_common.generic_page ~title:(s_ "Error") ~service
-                    (Printf.sprintf (f_ "No such language: %s") l) () >>= Html.send
-          )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let langs = languages_of_string languages in
+        match langs with
+        | [] ->
+           let service = preapply ~service:election_draft uuid in
+           Pages_common.generic_page ~title:(s_ "Error") ~service
+             (s_ "You must select at least one language!") () >>= Html.send
+        | _ :: _ ->
+           let unavailable =
+             List.filter (fun x ->
+                 not (List.mem x available_languages)
+               ) langs
+           in
+           match unavailable with
+           | [] ->
+              se.se_metadata <- {
+                 se.se_metadata with
+                 e_languages = Some langs
+               };
+              redir_preapply election_draft uuid ()
+           | l :: _ ->
+              let service = preapply ~service:election_draft uuid in
+              Pages_common.generic_page ~title:(s_ "Error") ~service
+                (Printf.sprintf (f_ "No such language: %s") l) () >>= Html.send
       )
 
   let () =
     Any.register ~service:election_draft_contact
       (fun uuid contact ->
-        with_draft_election uuid (fun se ->
-            let contact =
-              if contact = "" || contact = default_contact then
-                None
-              else Some contact
-            in
-            se.se_metadata <- {
-                se.se_metadata with
-                e_contact = contact
-              };
-            redir_preapply election_draft uuid ()
-          )
+        let@ se = with_draft_election uuid in
+        let contact =
+          if contact = "" || contact = default_contact then
+            None
+          else Some contact
+        in
+        se.se_metadata <- {
+            se.se_metadata with
+            e_contact = contact
+          };
+        redir_preapply election_draft uuid ()
       )
 
   let () =
     Any.register ~service:election_draft_admin_name
       (fun uuid name ->
-        with_draft_election uuid (fun se ->
-            let administrator = if name = "" then None else Some name in
-            se.se_administrator <- administrator;
-            redir_preapply election_draft uuid ()
-          )
+        let@ se = with_draft_election uuid in
+        let administrator = if name = "" then None else Some name in
+        se.se_administrator <- administrator;
+        redir_preapply election_draft uuid ()
       )
 
   let () =
     Any.register ~service:election_draft_description
       (fun uuid (name, description) ->
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            if PString.length name > max_election_name_size then (
-              let msg =
-                Printf.sprintf (f_ "The election name must be %d characters or less!")
-                  max_election_name_size
-              in
-              Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
-            ) else (
-              se.se_questions <- {se.se_questions with
-                                   t_name = name;
-                                   t_description = description;
-                                 };
-              redir_preapply election_draft uuid ()
-            )
-          )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        if PString.length name > max_election_name_size then (
+          let msg =
+            Printf.sprintf (f_ "The election name must be %d characters or less!")
+              max_election_name_size
+          in
+          Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
+        ) else (
+          se.se_questions <- {se.se_questions with
+                               t_name = name;
+                               t_description = description;
+                             };
+          redir_preapply election_draft uuid ()
+        )
       )
 
   let handle_password se uuid ~force voters =
@@ -727,9 +718,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_auth_genpwd
       (fun uuid () ->
-        with_draft_election uuid (fun se ->
-            handle_password se uuid ~force:false se.se_voters
-          )
+        let@ se = with_draft_election uuid in
+        handle_password se uuid ~force:false se.se_voters
       )
 
   let () =
@@ -813,47 +803,45 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_questions_post
       (fun uuid (template, booth_version) ->
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let template = template_of_string template in
-            let fixed_group = is_group_fixed se in
-            (match get_suitable_group_kind se.se_questions, get_suitable_group_kind template with
-             | `NH, `NH | `H, `H -> ()
-             | `NH, `H when fixed_group -> ()
-             | `NH, `H -> se.se_group <- !Web_config.default_group
-             | `H, `NH when fixed_group -> failwith (s_ "This kind of change is not allowed now!")
-             | `H, `NH -> se.se_group <- !Web_config.nh_group
-            );
-            se.se_questions <- template;
-            let e_booth_version = match booth_version with 1 -> None | x -> Some x in
-            se.se_metadata <- { se.se_metadata with e_booth_version };
-            redir_preapply election_draft uuid ()
-          )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let template = template_of_string template in
+        let fixed_group = is_group_fixed se in
+        (match get_suitable_group_kind se.se_questions, get_suitable_group_kind template with
+         | `NH, `NH | `H, `H -> ()
+         | `NH, `H when fixed_group -> ()
+         | `NH, `H -> se.se_group <- !Web_config.default_group
+         | `H, `NH when fixed_group -> failwith (s_ "This kind of change is not allowed now!")
+         | `H, `NH -> se.se_group <- !Web_config.nh_group
+        );
+        se.se_questions <- template;
+        let e_booth_version = match booth_version with 1 -> None | x -> Some x in
+        se.se_metadata <- { se.se_metadata with e_booth_version };
+        redir_preapply election_draft uuid ()
       )
 
   let () =
     Any.register ~service:election_draft_preview
       (fun (uuid, ()) () ->
-        with_draft_election_ro uuid (fun se ->
-            let version = Option.get se.se_version 0 in
-            let group = se.se_group in
-            let module G = (val Group.of_string ~version group : GROUP) in
-            let params = {
-                e_version = Option.get se.se_version 0;
-                e_description = se.se_questions.t_description;
-                e_name = se.se_questions.t_name;
-                e_questions = se.se_questions.t_questions;
-                e_uuid = uuid;
-                e_administrator = se.se_administrator;
-                e_credential_authority = se.se_metadata.e_cred_authority;
-              }
-            in
-            let public_key = G.to_string G.g in
-            let raw_election = Election.make_raw_election params ~group ~public_key in
-            let* x = String.send (raw_election, "application/json") in
-            return @@ Eliom_registration.cast_unknown_content_kind x
-          )
+        let@ se = with_draft_election_ro uuid in
+        let version = Option.get se.se_version 0 in
+        let group = se.se_group in
+        let module G = (val Group.of_string ~version group : GROUP) in
+        let params = {
+            e_version = Option.get se.se_version 0;
+            e_description = se.se_questions.t_description;
+            e_name = se.se_questions.t_name;
+            e_questions = se.se_questions.t_questions;
+            e_uuid = uuid;
+            e_administrator = se.se_administrator;
+            e_credential_authority = se.se_metadata.e_cred_authority;
+          }
+        in
+        let public_key = G.to_string G.g in
+        let raw_election = Election.make_raw_election params ~group ~public_key in
+        let* x = String.send (raw_election, "application/json") in
+        return @@ Eliom_registration.cast_unknown_content_kind x
       )
 
   let () =
@@ -925,93 +913,89 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_voters_add
       (fun uuid voters ->
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            if se.se_public_creds_received then
-              forbidden ()
-            else (
-              let voters = Pcre.split voters in
-              let () =
-                match List.find_opt (fun x -> not (is_identity x)) voters with
-                | Some bad ->
-                   Printf.ksprintf failwith (f_ "%S is not a valid identity") bad
-                | None -> ()
-              in
-              let voters, total_weight =
-                merge_voters se.se_voters voters (fun _ -> None)
-              in
-              let () =
-                let expanded = Weight.expand ~total:total_weight total_weight in
-                if Z.compare expanded Weight.max_expanded_weight > 0 then
-                  Printf.ksprintf failwith
-                    (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
-                    Weight.(to_string total_weight)
-                    (Z.to_string Weight.max_expanded_weight)
-              in
-              if not (check_consistency voters) then
-                failwith
-                  (s_ "The voter list is not consistent (a login or a weight is missing).");
-              let uses_password_auth =
-                match se.se_metadata.e_auth_config with
-                | Some configs ->
-                   List.exists
-                     (fun {auth_system; _} -> auth_system = "password")
-                     configs
-                | None -> false
-              in
-              let cred_auth_is_server =
-                se.se_metadata.e_cred_authority = Some "server"
-              in
-              if
-                (uses_password_auth || cred_auth_is_server)
-                && List.length voters > !Web_config.maxmailsatonce
-              then
-                Lwt.fail
-                  (Failure
-                     (Printf.sprintf (f_ "There are too many voters (max is %d)")
-                        !Web_config.maxmailsatonce))
-              else (
-                se.se_voters <- voters;
-                redir_preapply election_draft_voters uuid ()
-              )
-            )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        if se.se_public_creds_received then
+          forbidden ()
+        else (
+          let voters = Pcre.split voters in
+          let () =
+            match List.find_opt (fun x -> not (is_identity x)) voters with
+            | Some bad ->
+               Printf.ksprintf failwith (f_ "%S is not a valid identity") bad
+            | None -> ()
+          in
+          let voters, total_weight =
+            merge_voters se.se_voters voters (fun _ -> None)
+          in
+          let () =
+            let expanded = Weight.expand ~total:total_weight total_weight in
+            if Z.compare expanded Weight.max_expanded_weight > 0 then
+              Printf.ksprintf failwith
+                (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
+                Weight.(to_string total_weight)
+                (Z.to_string Weight.max_expanded_weight)
+          in
+          if not (check_consistency voters) then
+            failwith
+              (s_ "The voter list is not consistent (a login or a weight is missing).");
+          let uses_password_auth =
+            match se.se_metadata.e_auth_config with
+            | Some configs ->
+               List.exists
+                 (fun {auth_system; _} -> auth_system = "password")
+                 configs
+            | None -> false
+          in
+          let cred_auth_is_server =
+            se.se_metadata.e_cred_authority = Some "server"
+          in
+          if
+            (uses_password_auth || cred_auth_is_server)
+            && List.length voters > !Web_config.maxmailsatonce
+          then
+            Lwt.fail
+              (Failure
+                 (Printf.sprintf (f_ "There are too many voters (max is %d)")
+                    !Web_config.maxmailsatonce))
+          else (
+            se.se_voters <- voters;
+            redir_preapply election_draft_voters uuid ()
           )
+        )
       )
 
   let () =
     Any.register ~service:election_draft_voters_remove
       (fun uuid voter ->
-        with_draft_election uuid (fun se ->
-            if se.se_public_creds_received then
-              forbidden ()
-            else (
-              se.se_voters <- List.filter (fun v -> v.sv_id <> voter) se.se_voters;
-              redir_preapply election_draft_voters uuid ()
-            )
-          )
+        let@ se = with_draft_election uuid in
+        if se.se_public_creds_received then
+          forbidden ()
+        else (
+          se.se_voters <- List.filter (fun v -> v.sv_id <> voter) se.se_voters;
+          redir_preapply election_draft_voters uuid ()
+        )
       )
 
   let () =
     Any.register ~service:election_draft_voters_remove_all
       (fun uuid () ->
-        with_draft_election uuid (fun se ->
-            if se.se_public_creds_received then
-              forbidden ()
-            else (
-              se.se_voters <- [];
-              redir_preapply election_draft_voters uuid ()
-            )
-          )
+        let@ se = with_draft_election uuid in
+        if se.se_public_creds_received then
+          forbidden ()
+        else (
+          se.se_voters <- [];
+          redir_preapply election_draft_voters uuid ()
+        )
       )
 
   let () =
     Any.register ~service:election_draft_voters_passwd
       (fun uuid voter ->
-        with_draft_election uuid (fun se ->
-            let voter = List.filter (fun v -> v.sv_id = voter) se.se_voters in
-            handle_password se uuid ~force:true voter
-          )
+        let@ se = with_draft_election uuid in
+        let voter = List.filter (fun v -> v.sv_id = voter) se.se_voters in
+        handle_password se uuid ~force:true voter
       )
 
   let trustee_add_server se =
@@ -1032,52 +1016,49 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_trustee_add
       (fun uuid (st_id, name) ->
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let* () =
-              if List.exists (fun x -> x.st_id = "server") se.se_public_keys then
-                return_unit
-              else trustee_add_server se
-            in
-            if is_email st_id then (
-              let* st_token = generate_token () in
-              let st_name = Some name in
-              let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None; st_name} in
-              se.se_public_keys <- se.se_public_keys @ [trustee];
-              redir_preapply election_draft_trustees uuid ()
-            ) else (
-              let msg = Printf.sprintf (f_ "%s is not a valid e-mail address!") st_id in
-              let service = preapply ~service:election_draft_trustees uuid in
-              Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-            )
-          )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let* () =
+          if List.exists (fun x -> x.st_id = "server") se.se_public_keys then
+            return_unit
+          else trustee_add_server se
+        in
+        if is_email st_id then (
+          let* st_token = generate_token () in
+          let st_name = Some name in
+          let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None; st_name} in
+          se.se_public_keys <- se.se_public_keys @ [trustee];
+          redir_preapply election_draft_trustees uuid ()
+        ) else (
+          let msg = Printf.sprintf (f_ "%s is not a valid e-mail address!") st_id in
+          let service = preapply ~service:election_draft_trustees uuid in
+          Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
+        )
       )
 
   let () =
     Any.register ~service:election_draft_trustee_del
       (fun uuid index ->
-        with_draft_election uuid (fun se ->
-            let trustees =
-              se.se_public_keys |>
-                List.mapi (fun i x -> i, x) |>
-                List.filter (fun (i, _) -> i <> index) |>
-                List.map snd
-            in
-            se.se_public_keys <- trustees;
-            redir_preapply election_draft_trustees uuid ()
-          )
+        let@ se = with_draft_election uuid in
+        let trustees =
+          se.se_public_keys |>
+            List.mapi (fun i x -> i, x) |>
+            List.filter (fun (i, _) -> i <> index) |>
+            List.map snd
+        in
+        se.se_public_keys <- trustees;
+        redir_preapply election_draft_trustees uuid ()
       )
 
   let () =
     Any.register ~service:election_draft_credentials
       (fun (uuid, token) () ->
-        without_site_user (fun () ->
-            let* election = Web_persist.get_draft_election uuid in
-            match election with
-            | None -> fail_http `Not_found
-            | Some se -> Pages_admin.election_draft_credentials token uuid se () >>= Html.send
-          )
+        let@ () = without_site_user () in
+        let* election = Web_persist.get_draft_election uuid in
+        match election with
+        | None -> fail_http `Not_found
+        | Some se -> Pages_admin.election_draft_credentials token uuid se () >>= Html.send
       )
 
   let handle_credentials_post uuid token creds =
@@ -1137,19 +1118,17 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_credentials_post
       (fun (uuid, token) creds ->
-        without_site_user (fun () ->
-            let s = Lwt_stream.of_string creds in
-            wrap_handler (fun () -> handle_credentials_post uuid token s)
-          )
+        let@ () = without_site_user () in
+        let s = Lwt_stream.of_string creds in
+        wrap_handler (fun () -> handle_credentials_post uuid token s)
       )
 
   let () =
     Any.register ~service:election_draft_credentials_post_file
       (fun (uuid, token) creds ->
-        without_site_user (fun () ->
-            let s = Lwt_io.chars_of_file creds.Ocsigen_extensions.tmp_filename in
-            wrap_handler (fun () -> handle_credentials_post uuid token s)
-          )
+        let@ () = without_site_user () in
+        let s = Lwt_io.chars_of_file creds.Ocsigen_extensions.tmp_filename in
+        wrap_handler (fun () -> handle_credentials_post uuid token s)
       )
 
   module CG = Credential.MakeGenerate (LwtRandom)
@@ -1157,98 +1136,95 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_credentials_server
       (fun uuid () ->
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let nvoters = List.length se.se_voters in
-            if nvoters > !Web_config.maxmailsatonce then
-              Lwt.fail (Failure (Printf.sprintf (f_ "Cannot send credentials, there are too many voters (max is %d)") !Web_config.maxmailsatonce))
-            else if nvoters = 0 then
-              Lwt.fail (Failure (s_ "No voters"))
-            else if se.se_questions.t_name = default_name then
-              Lwt.fail (Failure (s_ "The election name has not been edited!"))
-            else if se.se_public_creds_received then
-              forbidden ()
-            else (
-              let () = se.se_metadata <- {se.se_metadata with
-                                           e_cred_authority = Some "server"
-                                         } in
-              let title = se.se_questions.t_name in
-              let url = Eliom_uri.make_string_uri
-                          ~absolute:true ~service:election_home
-                          (uuid, ()) |> rewrite_prefix
-              in
-              let version = Option.get se.se_version 0 in
-              let module G = (val Group.of_string ~version se.se_group : GROUP) in
-              let module CMap = Map.Make (G) in
-              let module CD = Credential.MakeDerive (G) in
-              let show_weight =
-                List.exists
-                  (fun v ->
-                    let _, _, weight = split_identity_opt v.sv_id in
-                    weight <> None
-                  ) se.se_voters
-              in
-              let* public_creds, private_creds =
-                Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
-                    let recipient, login, weight = split_identity v.sv_id in
-                    let oweight = if show_weight then Some weight else None in
-                    let has_passwords =
-                      match se.se_metadata.e_auth_config with
-                      | Some [{auth_system = "password"; _}] -> true
-                      | _ -> false
-                    in
-                    let* cred = CG.generate () in
-                    let pub_cred =
-                      let x = CD.derive uuid cred in
-                      G.(g **~ x)
-                    in
-                    let langs = get_languages se.se_metadata.e_languages in
-                    let* subject, body =
-                      Pages_voter.generate_mail_credential langs has_passwords
-                        title ~login cred oweight url se.se_metadata
-                    in
-                    let* () = send_email (MailCredential uuid) ~recipient ~subject ~body in
-                    return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)
-                  ) (CMap.empty, []) se.se_voters
-              in
-              let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
-              let* () = write_file ~uuid "private_creds.txt" private_creds in
-              let public_creds =
-                CMap.bindings public_creds
-                |> List.map
-                     (fun (cred, weight) ->
-                       let cred = G.to_string cred in
-                       if show_weight then
-                         Printf.sprintf "%s,%s" cred (Weight.to_string weight)
-                       else cred
-                     )
-              in
-              let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
-              let* () =
-                Lwt_io.with_file
-                  ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
-                  ~perm:0o600 ~mode:Lwt_io.Output fname
-                  (fun oc ->
-                    Lwt_list.iter_s (Lwt_io.write_line oc) public_creds)
-              in
-              se.se_public_creds_received <- true;
-              let service = preapply ~service:election_draft uuid in
-              Pages_common.generic_page ~title:(s_ "Success") ~service
-                (s_ "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential.") () >>= Html.send
-            )
-          )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let nvoters = List.length se.se_voters in
+        if nvoters > !Web_config.maxmailsatonce then
+          Lwt.fail (Failure (Printf.sprintf (f_ "Cannot send credentials, there are too many voters (max is %d)") !Web_config.maxmailsatonce))
+        else if nvoters = 0 then
+          Lwt.fail (Failure (s_ "No voters"))
+        else if se.se_questions.t_name = default_name then
+          Lwt.fail (Failure (s_ "The election name has not been edited!"))
+        else if se.se_public_creds_received then
+          forbidden ()
+        else (
+          let () = se.se_metadata <- {se.se_metadata with
+                                       e_cred_authority = Some "server"
+                                     } in
+          let title = se.se_questions.t_name in
+          let url = Eliom_uri.make_string_uri
+                      ~absolute:true ~service:election_home
+                      (uuid, ()) |> rewrite_prefix
+          in
+          let version = Option.get se.se_version 0 in
+          let module G = (val Group.of_string ~version se.se_group : GROUP) in
+          let module CMap = Map.Make (G) in
+          let module CD = Credential.MakeDerive (G) in
+          let show_weight =
+            List.exists
+              (fun v ->
+                let _, _, weight = split_identity_opt v.sv_id in
+                weight <> None
+              ) se.se_voters
+          in
+          let* public_creds, private_creds =
+            Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
+                let recipient, login, weight = split_identity v.sv_id in
+                let oweight = if show_weight then Some weight else None in
+                let has_passwords =
+                  match se.se_metadata.e_auth_config with
+                  | Some [{auth_system = "password"; _}] -> true
+                  | _ -> false
+                in
+                let* cred = CG.generate () in
+                let pub_cred =
+                  let x = CD.derive uuid cred in
+                  G.(g **~ x)
+                in
+                let langs = get_languages se.se_metadata.e_languages in
+                let* subject, body =
+                  Pages_voter.generate_mail_credential langs has_passwords
+                    title ~login cred oweight url se.se_metadata
+                in
+                let* () = send_email (MailCredential uuid) ~recipient ~subject ~body in
+                return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)
+              ) (CMap.empty, []) se.se_voters
+          in
+          let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
+          let* () = write_file ~uuid "private_creds.txt" private_creds in
+          let public_creds =
+            CMap.bindings public_creds
+            |> List.map
+                 (fun (cred, weight) ->
+                   let cred = G.to_string cred in
+                   if show_weight then
+                     Printf.sprintf "%s,%s" cred (Weight.to_string weight)
+                   else cred
+                 )
+          in
+          let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
+          let* () =
+            Lwt_io.with_file
+              ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+              ~perm:0o600 ~mode:Lwt_io.Output fname
+              (fun oc ->
+                Lwt_list.iter_s (Lwt_io.write_line oc) public_creds)
+          in
+          se.se_public_creds_received <- true;
+          let service = preapply ~service:election_draft uuid in
+          Pages_common.generic_page ~title:(s_ "Success") ~service
+            (s_ "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential.") () >>= Html.send
+        )
       )
 
   let () =
     Any.register ~service:election_draft_credentials_get
       (fun uuid () ->
-        with_draft_election_ro uuid
-          (fun _ ->
-            let* () = write_file ~uuid "private_creds.downloaded" [] in
-            File.send ~content_type:"text/plain"
-              (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.txt")
-          )
+        let@ _ = with_draft_election_ro uuid in
+        let* () = write_file ~uuid "private_creds.downloaded" [] in
+        File.send ~content_type:"text/plain"
+          (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.txt")
       )
 
   let () =
@@ -1256,102 +1232,99 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun (uuid, token) () ->
         let* l = get_preferred_gettext () in
         let open (val l) in
-        without_site_user
-          ~fallback:(fun u ->
-            let* election = Web_persist.get_draft_election uuid in
-            match election with
-            | None -> fail_http `Not_found
-            | Some se ->
-               if se.se_owner = u then (
-                 Pages_admin.election_draft_trustees ~token uuid se () >>= Html.send
-               ) else forbidden ()
-          )
-          (fun () ->
-            let* election = Web_persist.get_draft_election uuid in
-            match election with
-            | None -> fail_http `Not_found
-            | Some se ->
-               match List.find_opt (fun t -> t.st_token = token) se.se_public_keys with
-               | None -> forbidden ()
-               | Some t ->
-                  if t.st_public_key <> "" then
-                    let msg = s_ "Your public key has already been received!" in
-                    let title = s_ "Error" in
-                    Pages_common.generic_page ~title msg () >>= Html.send ~code:403
-                  else
-                    Pages_admin.election_draft_trustee token uuid se () >>= Html.send
-          )
+        let@ () =
+          without_site_user
+            ~fallback:(fun u ->
+              let* election = Web_persist.get_draft_election uuid in
+              match election with
+              | None -> fail_http `Not_found
+              | Some se ->
+                 if se.se_owner = u then (
+                   Pages_admin.election_draft_trustees ~token uuid se () >>= Html.send
+                 ) else forbidden ()
+            ) ()
+        in
+        let* election = Web_persist.get_draft_election uuid in
+        match election with
+        | None -> fail_http `Not_found
+        | Some se ->
+           match List.find_opt (fun t -> t.st_token = token) se.se_public_keys with
+           | None -> forbidden ()
+           | Some t ->
+              if t.st_public_key <> "" then
+                let msg = s_ "Your public key has already been received!" in
+                let title = s_ "Error" in
+                Pages_common.generic_page ~title msg () >>= Html.send ~code:403
+              else
+                Pages_admin.election_draft_trustee token uuid se () >>= Html.send
       )
 
   let () =
     Any.register ~service:election_draft_trustee_post
       (fun (uuid, token) public_key ->
-        without_site_user (fun () ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            if token = "" then
-              forbidden ()
-            else
-              let* x =
-                Web_election_mutex.with_lock uuid
-                  (fun () ->
-                    let* election = Web_persist.get_draft_election uuid in
-                    match election with
-                    | None -> fail_http `Not_found
-                    | Some se ->
-                       match List.find_opt (fun x -> token = x.st_token) se.se_public_keys with
-                       | None -> return_none
-                       | Some t ->
-                          if t.st_public_key <> "" then
-                            let msg = s_ "A public key already existed, the key you've just uploaded has been ignored!" in
-                            let title = s_ "Error" in
-                            return_some (title, msg, 400)
-                          else
-                            let version = Option.get se.se_version 0 in
-                            let module G = (val Group.of_string ~version se.se_group : GROUP) in
-                            let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
-                            let pk = trustee_public_key_of_string G.read public_key in
-                            let module K = Trustees.MakeCombinator (G) in
-                            if not (K.check [`Single pk]) then
-                              let msg = s_ "Invalid public key!" in
-                              let title = s_ "Error" in
-                              return_some (title, msg, 400)
-                            else (
-                              (* we keep pk as a string because of G.t *)
-                              t.st_public_key <- public_key;
-                              let* () = Web_persist.set_draft_election uuid se in
-                              let msg = s_ "Your key has been received and checked!" in
-                              let title = s_ "Success" in
-                              return_some (title, msg, 200)
-                            )
-                  )
-              in
-              match x with
-              | None -> forbidden ()
-              | Some (title, msg, code) -> Pages_common.generic_page ~title msg () >>= Html.send ~code
-          )
+        let@ () = without_site_user () in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        if token = "" then
+          forbidden ()
+        else
+          let* x =
+            Web_election_mutex.with_lock uuid
+              (fun () ->
+                let* election = Web_persist.get_draft_election uuid in
+                match election with
+                | None -> fail_http `Not_found
+                | Some se ->
+                   match List.find_opt (fun x -> token = x.st_token) se.se_public_keys with
+                   | None -> return_none
+                   | Some t ->
+                      if t.st_public_key <> "" then
+                        let msg = s_ "A public key already existed, the key you've just uploaded has been ignored!" in
+                        let title = s_ "Error" in
+                        return_some (title, msg, 400)
+                      else
+                        let version = Option.get se.se_version 0 in
+                        let module G = (val Group.of_string ~version se.se_group : GROUP) in
+                        let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
+                        let pk = trustee_public_key_of_string G.read public_key in
+                        let module K = Trustees.MakeCombinator (G) in
+                        if not (K.check [`Single pk]) then
+                          let msg = s_ "Invalid public key!" in
+                          let title = s_ "Error" in
+                          return_some (title, msg, 400)
+                        else (
+                          (* we keep pk as a string because of G.t *)
+                          t.st_public_key <- public_key;
+                          let* () = Web_persist.set_draft_election uuid se in
+                          let msg = s_ "Your key has been received and checked!" in
+                          let title = s_ "Success" in
+                          return_some (title, msg, 200)
+                        )
+              )
+          in
+          match x with
+          | None -> forbidden ()
+          | Some (title, msg, code) -> Pages_common.generic_page ~title msg () >>= Html.send ~code
       )
 
   let () =
     Any.register ~service:election_draft_confirm
       (fun uuid () ->
-        with_draft_election_ro uuid (fun se ->
-            Pages_admin.election_draft_confirm uuid se () >>= Html.send
-          )
+        let@ se = with_draft_election_ro uuid in
+        Pages_admin.election_draft_confirm uuid se () >>= Html.send
       )
 
   let () =
     Any.register ~service:election_draft_create
       (fun uuid () ->
-        with_draft_election ~save:false uuid (fun se ->
-            Lwt.catch
-              (fun () ->
-                let* () = validate_election uuid se in
-                redir_preapply election_admin uuid ()
-              )
-              (fun e ->
-                Pages_admin.new_election_failure (`Exception e) () >>= Html.send
-              )
+        let@ se = with_draft_election ~save:false uuid in
+        Lwt.catch
+          (fun () ->
+            let* () = validate_election uuid se in
+            redir_preapply election_admin uuid ()
+          )
+          (fun e ->
+            Pages_admin.new_election_failure (`Exception e) () >>= Html.send
           )
       )
 
@@ -1361,10 +1334,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_destroy
       (fun uuid () ->
-        with_draft_election ~save:false uuid (fun _ ->
-            let* () = destroy_election uuid in
-            Redirection.send (Redirection admin)
-          )
+        let@ _ = with_draft_election ~save:false uuid in
+        let* () = destroy_election uuid in
+        Redirection.send (Redirection admin)
       )
 
   let () =
@@ -1380,50 +1352,49 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_import_post
       (fun uuid from ->
         let from = uuid_of_raw_string from in
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let from_s = raw_string_of_uuid from in
-            let* voters = Web_persist.get_voters from in
-            let* passwords = Web_persist.get_passwords from in
-            let get_password =
-              match passwords with
-              | None -> fun _ -> None
-              | Some p -> fun sv_id ->
-                          let _, login, _ = split_identity sv_id in
-                          SMap.find_opt login p
-            in
-            match voters with
-            | Some voters ->
-               if se.se_public_creds_received then
-                 forbidden ()
-               else (
-                 let voters, total_weight =
-                   merge_voters se.se_voters voters get_password
-                 in
-                 let expanded = Weight.expand ~total:total_weight total_weight in
-                 if Z.compare expanded Weight.max_expanded_weight <= 0 then (
-                   se.se_voters <- voters;
-                   redir_preapply election_draft_voters uuid ()
-                 ) else (
-                   Pages_common.generic_page ~title:(s_ "Error")
-                     ~service:(preapply ~service:election_draft_voters uuid)
-                     (Printf.sprintf
-                        (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
-                        Weight.(to_string total_weight)
-                        (Z.to_string Weight.max_expanded_weight)
-                     ) ()
-                   >>= Html.send
-                 )
-               )
-            | None ->
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let from_s = raw_string_of_uuid from in
+        let* voters = Web_persist.get_voters from in
+        let* passwords = Web_persist.get_passwords from in
+        let get_password =
+          match passwords with
+          | None -> fun _ -> None
+          | Some p -> fun sv_id ->
+                      let _, login, _ = split_identity sv_id in
+                      SMap.find_opt login p
+        in
+        match voters with
+        | Some voters ->
+           if se.se_public_creds_received then
+             forbidden ()
+           else (
+             let voters, total_weight =
+               merge_voters se.se_voters voters get_password
+             in
+             let expanded = Weight.expand ~total:total_weight total_weight in
+             if Z.compare expanded Weight.max_expanded_weight <= 0 then (
+               se.se_voters <- voters;
+               redir_preapply election_draft_voters uuid ()
+             ) else (
                Pages_common.generic_page ~title:(s_ "Error")
                  ~service:(preapply ~service:election_draft_voters uuid)
                  (Printf.sprintf
-                    (f_ "Could not retrieve voter list from election %s")
-                    from_s)
-                 () >>= Html.send
-          )
+                    (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
+                    Weight.(to_string total_weight)
+                    (Z.to_string Weight.max_expanded_weight)
+                 ) ()
+               >>= Html.send
+             )
+           )
+        | None ->
+           Pages_common.generic_page ~title:(s_ "Error")
+             ~service:(preapply ~service:election_draft_voters uuid)
+             (Printf.sprintf
+                (f_ "Could not retrieve voter list from election %s")
+                from_s)
+             () >>= Html.send
       )
 
   let () =
@@ -1441,100 +1412,99 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_import_trustees_post
       (fun uuid from ->
         let from = uuid_of_raw_string from in
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let* metadata = Web_persist.get_election_metadata from in
-            Lwt.catch
-              (fun () ->
-                match metadata.e_trustees with
-                | None -> Lwt.fail (TrusteeImportError (s_ "Could not retrieve trustees from selected election!"))
-                | Some names ->
-                   let* trustees = Web_persist.get_trustees from in
-                   let version = Option.get se.se_version 0 in
-                   let module G = (val Group.of_string ~version se.se_group : GROUP) in
-                   let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
-                   let module K = Trustees.MakeCombinator (G) in
-                   let trustees = trustees_of_string G.read trustees in
-                   if not (K.check trustees) then
-                     Lwt.fail (TrusteeImportError (s_ "Imported trustees are invalid for this election!"))
-                   else
-                     let import_pedersen t names =
-                       let* privs = Web_persist.get_private_keys from in
-                       let* se_threshold_trustees =
-                         match privs with
-                         | Some privs ->
-                            let rec loop ts pubs privs accu =
-                              match ts, pubs, privs with
-                              | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
-                                 let stt_name = vo_public_key.trustee_name in
-                                 let* stt_token = generate_token () in
-                                 let stt_voutput = {vo_public_key; vo_private_key} in
-                                 let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
-                                 let stt = {
-                                     stt_id; stt_token; stt_voutput;
-                                     stt_step = Some 7; stt_cert = None;
-                                     stt_polynomial = None; stt_vinput = None;
-                                     stt_name;
-                                   } in
-                                 loop ts pubs privs (stt :: accu)
-                              | [], [], [] -> return (List.rev accu)
-                              | _, _, _ -> Lwt.fail (TrusteeImportError (s_ "Inconsistency in imported election!"))
-                            in loop names (Array.to_list t.t_verification_keys) privs []
-                         | None -> Lwt.fail (TrusteeImportError (s_ "Encrypted decryption keys are missing!"))
-                       in
-                       se.se_threshold <- Some t.t_threshold;
-                       se.se_threshold_trustees <- Some se_threshold_trustees;
-                       se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write t);
-                       redir_preapply election_draft_threshold_trustees uuid ()
-                     in
-                     match trustees with
-                     | [`Pedersen t] ->
-                        import_pedersen t names
-                     | [`Single x; `Pedersen t] when x.trustee_name = Some "server" ->
-                        import_pedersen t (List.tl names)
-                     | ts ->
-                        let* ts =
-                          try
-                            List.map
-                              (function
-                               | `Single x -> x
-                               | `Pedersen _ -> raise (TrusteeImportError (s_ "Unsupported trustees!"))
-                              ) ts
-                            |> return
-                          with
-                          | e -> Lwt.fail e
-                        in
-                        let* ts =
-                          let module KG = Trustees.MakeSimple (G) (LwtRandom) in
-                          List.combine names ts
-                          |> Lwt_list.map_p
-                               (fun (st_id, public_key) ->
-                                 let* st_token, st_private_key, st_public_key =
-                                   if st_id = "server" then (
-                                     let* private_key = KG.generate () in
-                                     let* public_key = KG.prove private_key in
-                                     let public_key = string_of_trustee_public_key G.write public_key in
-                                     return ("", Some private_key, public_key)
-                                   ) else (
-                                     let* st_token = generate_token () in
-                                     let public_key = string_of_trustee_public_key G.write public_key in
-                                     return (st_token, None, public_key)
-                                   )
-                                 in
-                                 let st_name = public_key.trustee_name in
-                                 return {st_id; st_token; st_public_key; st_private_key; st_name})
-                        in
-                        se.se_public_keys <- ts;
-                        redir_preapply election_draft_trustees uuid ()
-              )
-              (function
-               | TrusteeImportError msg ->
-                  Pages_common.generic_page ~title:(s_ "Error")
-                    ~service:(preapply ~service:election_draft_trustees uuid)
-                    msg () >>= Html.send
-               | e -> Lwt.fail e
-              )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let* metadata = Web_persist.get_election_metadata from in
+        Lwt.catch
+          (fun () ->
+            match metadata.e_trustees with
+            | None -> Lwt.fail (TrusteeImportError (s_ "Could not retrieve trustees from selected election!"))
+            | Some names ->
+               let* trustees = Web_persist.get_trustees from in
+               let version = Option.get se.se_version 0 in
+               let module G = (val Group.of_string ~version se.se_group : GROUP) in
+               let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
+               let module K = Trustees.MakeCombinator (G) in
+               let trustees = trustees_of_string G.read trustees in
+               if not (K.check trustees) then
+                 Lwt.fail (TrusteeImportError (s_ "Imported trustees are invalid for this election!"))
+               else
+                 let import_pedersen t names =
+                   let* privs = Web_persist.get_private_keys from in
+                   let* se_threshold_trustees =
+                     match privs with
+                     | Some privs ->
+                        let rec loop ts pubs privs accu =
+                          match ts, pubs, privs with
+                          | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
+                             let stt_name = vo_public_key.trustee_name in
+                             let* stt_token = generate_token () in
+                             let stt_voutput = {vo_public_key; vo_private_key} in
+                             let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
+                             let stt = {
+                                 stt_id; stt_token; stt_voutput;
+                                 stt_step = Some 7; stt_cert = None;
+                                 stt_polynomial = None; stt_vinput = None;
+                                 stt_name;
+                               } in
+                             loop ts pubs privs (stt :: accu)
+                          | [], [], [] -> return (List.rev accu)
+                          | _, _, _ -> Lwt.fail (TrusteeImportError (s_ "Inconsistency in imported election!"))
+                        in loop names (Array.to_list t.t_verification_keys) privs []
+                     | None -> Lwt.fail (TrusteeImportError (s_ "Encrypted decryption keys are missing!"))
+                   in
+                   se.se_threshold <- Some t.t_threshold;
+                   se.se_threshold_trustees <- Some se_threshold_trustees;
+                   se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write t);
+                   redir_preapply election_draft_threshold_trustees uuid ()
+                 in
+                 match trustees with
+                 | [`Pedersen t] ->
+                    import_pedersen t names
+                 | [`Single x; `Pedersen t] when x.trustee_name = Some "server" ->
+                    import_pedersen t (List.tl names)
+                 | ts ->
+                    let* ts =
+                      try
+                        List.map
+                          (function
+                           | `Single x -> x
+                           | `Pedersen _ -> raise (TrusteeImportError (s_ "Unsupported trustees!"))
+                          ) ts
+                        |> return
+                      with
+                      | e -> Lwt.fail e
+                    in
+                    let* ts =
+                      let module KG = Trustees.MakeSimple (G) (LwtRandom) in
+                      List.combine names ts
+                      |> Lwt_list.map_p
+                           (fun (st_id, public_key) ->
+                             let* st_token, st_private_key, st_public_key =
+                               if st_id = "server" then (
+                                 let* private_key = KG.generate () in
+                                 let* public_key = KG.prove private_key in
+                                 let public_key = string_of_trustee_public_key G.write public_key in
+                                 return ("", Some private_key, public_key)
+                               ) else (
+                                 let* st_token = generate_token () in
+                                 let public_key = string_of_trustee_public_key G.write public_key in
+                                 return (st_token, None, public_key)
+                               )
+                             in
+                             let st_name = public_key.trustee_name in
+                             return {st_id; st_token; st_public_key; st_private_key; st_name})
+                    in
+                    se.se_public_keys <- ts;
+                    redir_preapply election_draft_trustees uuid ()
+          )
+          (function
+           | TrusteeImportError msg ->
+              Pages_common.generic_page ~title:(s_ "Error")
+                ~service:(preapply ~service:election_draft_trustees uuid)
+                msg () >>= Html.send
+           | e -> Lwt.fail e
           )
       )
 
@@ -1892,37 +1862,37 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_tally_trustees
       (fun (uuid, token) () ->
-        without_site_user
-          ~fallback:(fun _ ->
-            election_admin_handler ~tally_token:token uuid
-          )
-          (fun () ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let@ election = with_election uuid in
-            let* state = Web_persist.get_election_state uuid in
-            match state with
-            | `EncryptedTally _ ->
-               let* x = find_trustee_id uuid token in
-               (match x with
-                | Some trustee_id ->
-                   let* pds = Web_persist.get_partial_decryptions uuid in
-                   if List.mem_assoc trustee_id pds then (
-                     Pages_common.generic_page ~title:(s_ "Error")
-                       (s_ "Your partial decryption has already been received and checked!")
-                       () >>= Html.send
-                   ) else (
-                     Pages_admin.tally_trustees election trustee_id token () >>= Html.send
-                   )
-                | None -> forbidden ()
+        let@ () =
+          without_site_user
+            ~fallback:(fun _ ->
+              election_admin_handler ~tally_token:token uuid
+            ) ()
+        in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let@ election = with_election uuid in
+        let* state = Web_persist.get_election_state uuid in
+        match state with
+        | `EncryptedTally _ ->
+           let* x = find_trustee_id uuid token in
+           (match x with
+            | Some trustee_id ->
+               let* pds = Web_persist.get_partial_decryptions uuid in
+               if List.mem_assoc trustee_id pds then (
+                 Pages_common.generic_page ~title:(s_ "Error")
+                   (s_ "Your partial decryption has already been received and checked!")
+                   () >>= Html.send
+               ) else (
+                 Pages_admin.tally_trustees election trustee_id token () >>= Html.send
                )
-            | `Open | `Closed | `Shuffling ->
-               let msg = s_ "The election is not ready to be tallied. Please come back later." in
-               Pages_common.generic_page ~title:(s_ "Forbidden") msg () >>= Html.send ~code:403
-            | `Tallied | `Archived ->
-               let msg = s_ "The election has already been tallied." in
-               Pages_common.generic_page ~title:(s_ "Forbidden") msg () >>= Html.send ~code:403
-          )
+            | None -> forbidden ()
+           )
+        | `Open | `Closed | `Shuffling ->
+           let msg = s_ "The election is not ready to be tallied. Please come back later." in
+           Pages_common.generic_page ~title:(s_ "Forbidden") msg () >>= Html.send ~code:403
+        | `Tallied | `Archived ->
+           let msg = s_ "The election has already been tallied." in
+           Pages_common.generic_page ~title:(s_ "Forbidden") msg () >>= Html.send ~code:403
       )
 
   exception TallyEarlyError
@@ -2132,48 +2102,47 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_shuffle_link
       (fun (uuid, token) () ->
-        without_site_user
-          ~fallback:(fun _ ->
-            election_admin_handler ~shuffle_token:token uuid
-          )
-          (fun () ->
-            let* expected_token = Web_persist.get_shuffle_token uuid in
-            match expected_token with
-            | Some x when token = x.tk_token ->
-               let@ election = with_election uuid in
-               Pages_admin.shuffle election token >>= Html.send
-            | _ -> forbidden ()
-          )
+        let@ () =
+          without_site_user
+            ~fallback:(fun _ ->
+              election_admin_handler ~shuffle_token:token uuid
+            ) ()
+        in
+        let* expected_token = Web_persist.get_shuffle_token uuid in
+        match expected_token with
+        | Some x when token = x.tk_token ->
+           let@ election = with_election uuid in
+           Pages_admin.shuffle election token >>= Html.send
+        | _ -> forbidden ()
       )
 
   let () =
     Any.register ~service:election_shuffle_post
       (fun (uuid, token) shuffle ->
         let@ election = with_election uuid in
-        without_site_user (fun () ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let* expected_token = Web_persist.get_shuffle_token uuid in
-            match expected_token with
-            | Some x when token = x.tk_token ->
-               Lwt.catch
-                 (fun () ->
-                   let* y = Web_persist.append_to_shuffles election shuffle in
-                   match y with
-                   | Some h ->
-                      let* () = Web_persist.clear_shuffle_token uuid in
-                      let sh = {sh_trustee = x.tk_trustee; sh_hash = h; sh_name = x.tk_name} in
-                      let* () = Web_persist.add_shuffle_hash uuid sh in
-                      let* () = Web_persist.remove_audit_cache uuid in
-                      Pages_common.generic_page ~title:(s_ "Success") (s_ "The shuffle has been successfully applied!") () >>= Html.send
-                   | None ->
-                      Pages_common.generic_page ~title:(s_ "Error") (s_ "An error occurred while applying the shuffle.") () >>= Html.send
-                 )
-                 (fun e ->
-                   Pages_common.generic_page ~title:(s_ "Error") (Printf.sprintf (f_ "Data is invalid! (%s)") (Printexc.to_string e)) () >>= Html.send
-                 )
-            | _ -> forbidden ()
-          )
+        let@ () = without_site_user () in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        let* expected_token = Web_persist.get_shuffle_token uuid in
+        match expected_token with
+        | Some x when token = x.tk_token ->
+           Lwt.catch
+             (fun () ->
+               let* y = Web_persist.append_to_shuffles election shuffle in
+               match y with
+               | Some h ->
+                  let* () = Web_persist.clear_shuffle_token uuid in
+                  let sh = {sh_trustee = x.tk_trustee; sh_hash = h; sh_name = x.tk_name} in
+                  let* () = Web_persist.add_shuffle_hash uuid sh in
+                  let* () = Web_persist.remove_audit_cache uuid in
+                  Pages_common.generic_page ~title:(s_ "Success") (s_ "The shuffle has been successfully applied!") () >>= Html.send
+               | None ->
+                  Pages_common.generic_page ~title:(s_ "Error") (s_ "An error occurred while applying the shuffle.") () >>= Html.send
+             )
+             (fun e ->
+               Pages_common.generic_page ~title:(s_ "Error") (Printf.sprintf (f_ "Data is invalid! (%s)") (Printexc.to_string e)) () >>= Html.send
+             )
+        | _ -> forbidden ()
       )
 
   let extract_names trustees =
@@ -2251,233 +2220,228 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_threshold_set
       (fun uuid threshold ->
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            match se.se_threshold_trustees with
-            | None ->
-               let msg = s_ "Please add some trustees first!" in
-               let service = preapply ~service:election_draft_threshold_trustees uuid in
-               Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-            | Some xs ->
-               let maybe_threshold, step =
-                 if threshold = 0 then None, None
-                 else Some threshold, Some 1
-               in
-               if threshold >= 0 && threshold < List.length xs then (
-                 List.iter (fun x -> x.stt_step <- step) xs;
-                 se.se_threshold <- maybe_threshold;
-                 redir_preapply election_draft_threshold_trustees uuid ()
-               ) else (
-                 let msg = s_ "The threshold must be positive and smaller than the number of trustees!" in
-                 let service = preapply ~service:election_draft_threshold_trustees uuid in
-                 Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-               )
-          )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        match se.se_threshold_trustees with
+        | None ->
+           let msg = s_ "Please add some trustees first!" in
+           let service = preapply ~service:election_draft_threshold_trustees uuid in
+           Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
+        | Some xs ->
+           let maybe_threshold, step =
+             if threshold = 0 then None, None
+             else Some threshold, Some 1
+           in
+           if threshold >= 0 && threshold < List.length xs then (
+             List.iter (fun x -> x.stt_step <- step) xs;
+             se.se_threshold <- maybe_threshold;
+             redir_preapply election_draft_threshold_trustees uuid ()
+           ) else (
+             let msg = s_ "The threshold must be positive and smaller than the number of trustees!" in
+             let service = preapply ~service:election_draft_threshold_trustees uuid in
+             Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
+           )
       )
 
   let () =
     Any.register ~service:election_draft_threshold_trustee_add
       (fun uuid (stt_id, name) ->
-        with_draft_election uuid (fun se ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            if is_email stt_id then (
-              let stt_name = Some name in
-              let* stt_token = generate_token () in
-              let trustee = {
-                  stt_id; stt_token; stt_step = None;
-                  stt_cert = None; stt_polynomial = None;
-                  stt_vinput = None; stt_voutput = None;
-                  stt_name;
-                } in
-              let trustees =
-                match se.se_threshold_trustees with
-                | None -> Some [trustee]
-                | Some t -> Some (t @ [trustee])
-              in
-              se.se_threshold_trustees <- trustees;
-              redir_preapply election_draft_threshold_trustees uuid ()
-            ) else (
-              let msg = Printf.sprintf (f_ "%s is not a valid e-mail address!") stt_id in
-              let service = preapply ~service:election_draft_threshold_trustees uuid in
-              Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-            )
-          )
+        let@ se = with_draft_election uuid in
+        let* l = get_preferred_gettext () in
+        let open (val l) in
+        if is_email stt_id then (
+          let stt_name = Some name in
+          let* stt_token = generate_token () in
+          let trustee = {
+              stt_id; stt_token; stt_step = None;
+              stt_cert = None; stt_polynomial = None;
+              stt_vinput = None; stt_voutput = None;
+              stt_name;
+            } in
+          let trustees =
+            match se.se_threshold_trustees with
+            | None -> Some [trustee]
+            | Some t -> Some (t @ [trustee])
+          in
+          se.se_threshold_trustees <- trustees;
+          redir_preapply election_draft_threshold_trustees uuid ()
+        ) else (
+          let msg = Printf.sprintf (f_ "%s is not a valid e-mail address!") stt_id in
+          let service = preapply ~service:election_draft_threshold_trustees uuid in
+          Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
+        )
       )
 
   let () =
     Any.register ~service:election_draft_threshold_trustee_del
       (fun uuid index ->
-        with_draft_election uuid (fun se ->
-            let trustees =
-              let trustees =
-                match se.se_threshold_trustees with
-                | None -> []
-                | Some x -> x
-              in
-              trustees |>
-                List.mapi (fun i x -> i, x) |>
-                List.filter (fun (i, _) -> i <> index) |>
-                List.map snd
-            in
-            let trustees = match trustees with [] -> None | x -> Some x in
-            se.se_threshold_trustees <- trustees;
-            redir_preapply election_draft_threshold_trustees uuid ()
-          )
+        let@ se = with_draft_election uuid in
+        let trustees =
+          let trustees =
+            match se.se_threshold_trustees with
+            | None -> []
+            | Some x -> x
+          in
+          trustees |>
+            List.mapi (fun i x -> i, x) |>
+            List.filter (fun (i, _) -> i <> index) |>
+            List.map snd
+        in
+        let trustees = match trustees with [] -> None | x -> Some x in
+        se.se_threshold_trustees <- trustees;
+        redir_preapply election_draft_threshold_trustees uuid ()
       )
 
   let () =
     Any.register ~service:election_draft_threshold_trustee
       (fun (uuid, token) () ->
-        without_site_user
-          ~fallback:(fun u ->
-            let* election = Web_persist.get_draft_election uuid in
-            match election with
-            | None -> fail_http `Not_found
-            | Some se ->
-               if se.se_owner = u then (
-                 Pages_admin.election_draft_threshold_trustees ~token uuid se () >>= Html.send
-               ) else forbidden ()
-          )
-          (fun () ->
-            let* election = Web_persist.get_draft_election uuid in
-            match election with
-            | None -> fail_http `Not_found
-            | Some se -> Pages_admin.election_draft_threshold_trustee token uuid se () >>= Html.send
-          )
+        let@ () =
+          without_site_user
+            ~fallback:(fun u ->
+              let* election = Web_persist.get_draft_election uuid in
+              match election with
+              | None -> fail_http `Not_found
+              | Some se ->
+                 if se.se_owner = u then (
+                   Pages_admin.election_draft_threshold_trustees ~token uuid se () >>= Html.send
+                 ) else forbidden ()
+            ) ()
+        in
+        let* election = Web_persist.get_draft_election uuid in
+        match election with
+        | None -> fail_http `Not_found
+        | Some se -> Pages_admin.election_draft_threshold_trustee token uuid se () >>= Html.send
       )
 
   let wrap_handler_without_site_user f =
-    without_site_user (fun () -> wrap_handler f)
+    without_site_user () (fun () -> wrap_handler f)
 
   let () =
     Any.register ~service:election_draft_threshold_trustee_post
       (fun (uuid, token) data ->
-        wrap_handler_without_site_user
-          (fun () ->
-            let* () =
-              Web_election_mutex.with_lock uuid
-                (fun () ->
-                  let* election = Web_persist.get_draft_election uuid in
-                  match election with
-                  | None -> fail_http `Not_found
-                  | Some se ->
-                     let ts =
-                       match se.se_threshold_trustees with
-                       | None -> failwith "No threshold trustees"
-                       | Some xs -> Array.of_list xs
-                     in
-                     let i, t =
-                       match Array.findi (fun i x ->
-                                 if token = x.stt_token then Some (i, x) else None
-                               ) ts with
-                       | Some (i, t) -> i, t
-                       | None -> failwith "Trustee not found"
-                     in
-                     let get_certs () =
-                       let certs = Array.map (fun x ->
-                                       match x.stt_cert with
-                                       | None -> failwith "Missing certificate"
-                                       | Some y -> y
-                                     ) ts in
-                       {certs}
-                     in
-                     let get_polynomials () =
-                       Array.map (fun x ->
-                           match x.stt_polynomial with
-                           | None -> failwith "Missing polynomial"
-                           | Some y -> y
-                         ) ts
-                     in
-                     let version = Option.get se.se_version 0 in
-                     let module G = (val Group.of_string ~version se.se_group : GROUP) in
-                     let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
-                     let module P = Trustees.MakePKI (G) (LwtRandom) in
-                     let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
-                     let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
-                     let* () =
-                       match t.stt_step with
-                       | Some 1 ->
-                          let cert = cert_of_string data in
-                          if K.step1_check cert then (
-                            t.stt_cert <- Some cert;
-                            t.stt_step <- Some 2;
-                            return_unit
-                          ) else (
-                            failwith "Invalid certificate"
-                          )
-                       | Some 3 ->
-                          let certs = get_certs () in
-                          let polynomial = polynomial_of_string data in
-                          if K.step3_check certs i polynomial then (
-                            t.stt_polynomial <- Some polynomial;
-                            t.stt_step <- Some 4;
-                            return_unit
-                          ) else (
-                            failwith "Invalid polynomial"
-                          )
-                       | Some 5 ->
-                          let certs = get_certs () in
-                          let polynomials = get_polynomials () in
-                          let voutput = voutput_of_string G.read data in
-                          if K.step5_check certs i polynomials voutput then (
-                            t.stt_voutput <- Some data;
-                            t.stt_step <- Some 6;
-                            return_unit
-                          ) else (
-                            failwith "Invalid voutput"
-                          )
-                       | _ -> failwith "Unknown step"
-                     in
-                     let* () =
-                       if Array.forall (fun x -> x.stt_step = Some 2) ts then (
-                         (try
-                            K.step2 (get_certs ());
-                            Array.iter (fun x -> x.stt_step <- Some 3) ts;
-                          with e ->
-                            se.se_threshold_error <- Some (Printexc.to_string e)
-                         ); return_unit
-                       ) else return_unit
-                     in
-                     let* () =
-                       if Array.forall (fun x -> x.stt_step = Some 4) ts then (
-                         (try
-                            let certs = get_certs () in
-                            let polynomials = get_polynomials () in
-                            let vinputs = K.step4 certs polynomials in
-                            for j = 0 to Array.length ts - 1 do
-                              ts.(j).stt_vinput <- Some vinputs.(j)
-                            done;
-                            Array.iter (fun x -> x.stt_step <- Some 5) ts
-                          with e ->
-                            se.se_threshold_error <- Some (Printexc.to_string e)
-                         ); return_unit
-                       ) else return_unit
-                     in
-                     let* () =
-                       if Array.forall (fun x -> x.stt_step = Some 6) ts then (
-                         (try
-                            let certs = get_certs () in
-                            let polynomials = get_polynomials () in
-                            let voutputs = Array.map (fun x ->
-                                               match x.stt_voutput with
-                                               | None -> failwith "Missing voutput"
-                                               | Some y -> voutput_of_string G.read y
-                                             ) ts in
-                            let p = K.step6 certs polynomials voutputs in
-                            se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write p);
-                            Array.iter (fun x -> x.stt_step <- Some 7) ts
-                          with e ->
-                            se.se_threshold_error <- Some (Printexc.to_string e)
-                         ); return_unit
-                       ) else return_unit
-                     in
-                     Web_persist.set_draft_election uuid se
-                )
-            in
-            redir_preapply election_draft_threshold_trustee (uuid, token) ()
-          )
+        let@ () = wrap_handler_without_site_user in
+        let* () =
+          Web_election_mutex.with_lock uuid
+            (fun () ->
+              let* election = Web_persist.get_draft_election uuid in
+              match election with
+              | None -> fail_http `Not_found
+              | Some se ->
+                 let ts =
+                   match se.se_threshold_trustees with
+                   | None -> failwith "No threshold trustees"
+                   | Some xs -> Array.of_list xs
+                 in
+                 let i, t =
+                   match Array.findi (fun i x ->
+                             if token = x.stt_token then Some (i, x) else None
+                           ) ts with
+                   | Some (i, t) -> i, t
+                   | None -> failwith "Trustee not found"
+                 in
+                 let get_certs () =
+                   let certs = Array.map (fun x ->
+                                   match x.stt_cert with
+                                   | None -> failwith "Missing certificate"
+                                   | Some y -> y
+                                 ) ts in
+                   {certs}
+                 in
+                 let get_polynomials () =
+                   Array.map (fun x ->
+                       match x.stt_polynomial with
+                       | None -> failwith "Missing polynomial"
+                       | Some y -> y
+                     ) ts
+                 in
+                 let version = Option.get se.se_version 0 in
+                 let module G = (val Group.of_string ~version se.se_group : GROUP) in
+                 let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
+                 let module P = Trustees.MakePKI (G) (LwtRandom) in
+                 let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
+                 let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
+                 let* () =
+                   match t.stt_step with
+                   | Some 1 ->
+                      let cert = cert_of_string data in
+                      if K.step1_check cert then (
+                        t.stt_cert <- Some cert;
+                        t.stt_step <- Some 2;
+                        return_unit
+                      ) else (
+                        failwith "Invalid certificate"
+                      )
+                   | Some 3 ->
+                      let certs = get_certs () in
+                      let polynomial = polynomial_of_string data in
+                      if K.step3_check certs i polynomial then (
+                        t.stt_polynomial <- Some polynomial;
+                        t.stt_step <- Some 4;
+                        return_unit
+                      ) else (
+                        failwith "Invalid polynomial"
+                      )
+                   | Some 5 ->
+                      let certs = get_certs () in
+                      let polynomials = get_polynomials () in
+                      let voutput = voutput_of_string G.read data in
+                      if K.step5_check certs i polynomials voutput then (
+                        t.stt_voutput <- Some data;
+                        t.stt_step <- Some 6;
+                        return_unit
+                      ) else (
+                        failwith "Invalid voutput"
+                      )
+                   | _ -> failwith "Unknown step"
+                 in
+                 let* () =
+                   if Array.forall (fun x -> x.stt_step = Some 2) ts then (
+                     (try
+                        K.step2 (get_certs ());
+                        Array.iter (fun x -> x.stt_step <- Some 3) ts;
+                      with e ->
+                        se.se_threshold_error <- Some (Printexc.to_string e)
+                     ); return_unit
+                   ) else return_unit
+                 in
+                 let* () =
+                   if Array.forall (fun x -> x.stt_step = Some 4) ts then (
+                     (try
+                        let certs = get_certs () in
+                        let polynomials = get_polynomials () in
+                        let vinputs = K.step4 certs polynomials in
+                        for j = 0 to Array.length ts - 1 do
+                          ts.(j).stt_vinput <- Some vinputs.(j)
+                        done;
+                        Array.iter (fun x -> x.stt_step <- Some 5) ts
+                      with e ->
+                        se.se_threshold_error <- Some (Printexc.to_string e)
+                     ); return_unit
+                   ) else return_unit
+                 in
+                 let* () =
+                   if Array.forall (fun x -> x.stt_step = Some 6) ts then (
+                     (try
+                        let certs = get_certs () in
+                        let polynomials = get_polynomials () in
+                        let voutputs = Array.map (fun x ->
+                                           match x.stt_voutput with
+                                           | None -> failwith "Missing voutput"
+                                           | Some y -> voutput_of_string G.read y
+                                         ) ts in
+                        let p = K.step6 certs polynomials voutputs in
+                        se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write p);
+                        Array.iter (fun x -> x.stt_step <- Some 7) ts
+                      with e ->
+                        se.se_threshold_error <- Some (Printexc.to_string e)
+                     ); return_unit
+                   ) else return_unit
+                 in
+                 Web_persist.set_draft_election uuid se
+            )
+        in
+        redir_preapply election_draft_threshold_trustee (uuid, token) ()
       )
 
   module HashedInt = struct

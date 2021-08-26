@@ -23,6 +23,8 @@ open Belenios_platform
 open Platform
 open Signatures_core
 
+val ( let@ ) : ('a -> 'b) -> 'a -> 'b
+
 module Array : sig
   include module type of Array
   val exists : ('a -> bool) -> 'a array -> bool

@@ -25,8 +25,6 @@ open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_t
 
-val ( let@ ) : ('a -> 'b) -> 'a -> 'b
-
 module LwtRandom : RANDOM with type 'a t = 'a Lwt.t
 (** Lwt-compatible random number generation. *)
 

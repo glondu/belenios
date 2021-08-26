@@ -23,6 +23,8 @@ open Belenios_platform
 open Platform
 open Signatures_core
 
+let ( let@ ) f x = f x
+
 module Array = struct
   include Array
 

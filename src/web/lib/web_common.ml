@@ -30,8 +30,6 @@ open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 
-let ( let@ ) f x = f x
-
 module LwtRandom = struct
 
   type 'a t = 'a Lwt.t
@@ -396,11 +394,9 @@ let write_file ?uuid x lines =
   let fname = get_fname uuid x in
   let fname_new = fname ^ ".new" in
   let* () =
-    Lwt_io.(
-      with_file ~mode:Output fname_new (fun oc ->
-          Lwt_list.iter_s (write_line oc) lines
-        )
-    )
+    let open Lwt_io in
+    let@ oc = with_file ~mode:Output fname_new in
+    Lwt_list.iter_s (write_line oc) lines
   in
   Lwt_unix.rename fname_new fname
 

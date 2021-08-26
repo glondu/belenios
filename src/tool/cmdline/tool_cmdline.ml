@@ -162,28 +162,27 @@ module Tkeygen : CMDLINER_MODULE = struct
   open Tool_tkeygen
 
   let main group version =
-    wrap_main (fun () ->
-      let module P = struct
+    let@ () = wrap_main in
+    let module P = struct
         let group = get_mandatory_opt "--group" group |> string_of_file
         let version = version
       end in
-      let module R = Make (P) (Random) () in
-      let kp = R.trustee_keygen () in
-      Printf.printf "I: keypair %s has been generated\n%!" kp.R.id;
-      let pubkey = "public", kp.R.id ^ ".pubkey", 0o444, kp.R.pub in
-      let privkey = "private", kp.R.id ^ ".privkey", 0o400, kp.R.priv in
-      let save (kind, filename, perm, thing) =
-        let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
-        output_string oc thing;
-        output_char oc '\n';
-        close_out oc;
-        Printf.printf "I: %s key saved to %s\n%!" kind filename;
-        (* set permissions in the unlikely case where the file already existed *)
-        Unix.chmod filename perm
-      in
-      save pubkey;
-      save privkey
-    )
+    let module R = Make (P) (Random) () in
+    let kp = R.trustee_keygen () in
+    Printf.printf "I: keypair %s has been generated\n%!" kp.R.id;
+    let pubkey = "public", kp.R.id ^ ".pubkey", 0o444, kp.R.pub in
+    let privkey = "private", kp.R.id ^ ".privkey", 0o400, kp.R.priv in
+    let save (kind, filename, perm, thing) =
+      let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
+      output_string oc thing;
+      output_char oc '\n';
+      close_out oc;
+      Printf.printf "I: %s key saved to %s\n%!" kind filename;
+      (* set permissions in the unlikely case where the file already existed *)
+      Unix.chmod filename perm
+    in
+    save pubkey;
+    save privkey
 
   let tkeygen_cmd =
     let doc = "generate a trustee key" in
@@ -201,98 +200,97 @@ end
 module Ttkeygen : CMDLINER_MODULE = struct
 
   let main group version step certs threshold key polynomials =
-    wrap_main (fun () ->
-        let get_certs () =
-          let certs = get_mandatory_opt "--certs" certs in
-          match load_from_file cert_of_string certs with
-          | None -> Printf.ksprintf failwith "%s does not exist" certs
-          | Some l -> { certs = Array.of_list (List.rev l) }
-        in
-        let get_polynomials () =
-          let polynomials = get_mandatory_opt "--polynomials" polynomials in
-          match load_from_file polynomial_of_string polynomials with
-          | None -> Printf.ksprintf failwith "%s does not exist" polynomials
-          | Some l -> Array.of_list (List.rev l)
-        in
-        let group = get_mandatory_opt "--group" group |> string_of_file in
-        let module G = (val Group.of_string ~version group : GROUP) in
-        let module Trustees = (val Trustees.get_by_version version) in
-        let module P = Trustees.MakePKI (G) (Random) in
-        let module C = Trustees.MakeChannels (G) (Random) (P) in
-        let module T = Trustees.MakePedersen (G) (Random) (P) (C) in
-        match step with
-        | 1 ->
-           let key, cert = T.step1 () in
-           let id = sha256_hex cert.s_message in
-           Printf.eprintf "I: certificate %s has been generated\n%!" id;
-           let pub = "certificate", id ^ ".cert", 0o444, string_of_cert cert in
-           let prv = "private key", id ^ ".key", 0o400, key in
-           let save (descr, filename, perm, thing) =
-             let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
-             output_string oc thing;
-             output_char oc '\n';
-             close_out oc;
-             Printf.eprintf "I: %s saved to %s\n%!" descr filename;
-             (* set permissions in the unlikely case where the file already existed *)
-             Unix.chmod filename perm
-           in
-           save pub;
-           save prv
-        | 2 ->
-           let certs = get_certs () in
-           let () = T.step2 certs in
-           Printf.eprintf "I: certificates are valid\n%!"
-        | 3 ->
-           let certs = get_certs () in
-           let threshold = get_mandatory_opt "--threshold" threshold in
-           let key = get_mandatory_opt "--key" key |> string_of_file in
-           let polynomial = T.step3 certs key threshold in
-           Printf.printf "%s\n%!" (string_of_polynomial polynomial)
-        | 4 ->
-           let certs = get_certs () in
-           let n = Array.length certs.certs in
-           let polynomials = get_polynomials () in
-           assert (n = Array.length polynomials);
-           let vinputs = T.step4 certs polynomials in
-           assert (n = Array.length vinputs);
-           for i = 0 to n - 1 do
-             let id = sha256_hex certs.certs.(i).s_message in
-             let fn = id ^ ".vinput" in
-             let oc = open_out_gen [Open_wronly; Open_creat] 0o444 fn in
-             output_string oc (string_of_vinput vinputs.(i));
-             output_char oc '\n';
-             close_out oc;
-             Printf.eprintf "I: wrote %s\n%!" fn
-           done
-        | 5 ->
-           let certs = get_certs () in
-           let key = get_mandatory_opt "--key" key |> string_of_file in
-           let vinput = read_line () |> vinput_of_string in
-           let voutput = T.step5 certs key vinput in
-           Printf.printf "%s\n%!" (string_of_voutput G.write voutput)
-        | 6 ->
-           let certs = get_certs () in
-           let n = Array.length certs.certs in
-           let polynomials = get_polynomials () in
-           assert (n = Array.length polynomials);
-           let voutputs = lines_of_stdin ()
-                          |> List.map (voutput_of_string G.read)
-                          |> Array.of_list
-           in
-           assert (n = Array.length voutputs);
-           let tparams = T.step6 certs polynomials voutputs in
-           for i = 0 to n - 1 do
-             let id = sha256_hex certs.certs.(i).s_message in
-             let fn = id ^ ".dkey" in
-             let oc = open_out_gen [Open_wronly; Open_creat] 0o400 fn in
-             output_string oc voutputs.(i).vo_private_key;
-             output_char oc '\n';
-             close_out oc;
-             Printf.eprintf "I: wrote %s\n%!" fn
-           done;
-           Printf.printf "%s\n%!" (string_of_threshold_parameters G.write tparams)
-        | _ -> failwith "invalid step"
-      )
+    let@ () = wrap_main in
+    let get_certs () =
+      let certs = get_mandatory_opt "--certs" certs in
+      match load_from_file cert_of_string certs with
+      | None -> Printf.ksprintf failwith "%s does not exist" certs
+      | Some l -> { certs = Array.of_list (List.rev l) }
+    in
+    let get_polynomials () =
+      let polynomials = get_mandatory_opt "--polynomials" polynomials in
+      match load_from_file polynomial_of_string polynomials with
+      | None -> Printf.ksprintf failwith "%s does not exist" polynomials
+      | Some l -> Array.of_list (List.rev l)
+    in
+    let group = get_mandatory_opt "--group" group |> string_of_file in
+    let module G = (val Group.of_string ~version group : GROUP) in
+    let module Trustees = (val Trustees.get_by_version version) in
+    let module P = Trustees.MakePKI (G) (Random) in
+    let module C = Trustees.MakeChannels (G) (Random) (P) in
+    let module T = Trustees.MakePedersen (G) (Random) (P) (C) in
+    match step with
+    | 1 ->
+       let key, cert = T.step1 () in
+       let id = sha256_hex cert.s_message in
+       Printf.eprintf "I: certificate %s has been generated\n%!" id;
+       let pub = "certificate", id ^ ".cert", 0o444, string_of_cert cert in
+       let prv = "private key", id ^ ".key", 0o400, key in
+       let save (descr, filename, perm, thing) =
+         let oc = open_out_gen [Open_wronly; Open_creat] perm filename in
+         output_string oc thing;
+         output_char oc '\n';
+         close_out oc;
+         Printf.eprintf "I: %s saved to %s\n%!" descr filename;
+         (* set permissions in the unlikely case where the file already existed *)
+         Unix.chmod filename perm
+       in
+       save pub;
+       save prv
+    | 2 ->
+       let certs = get_certs () in
+       let () = T.step2 certs in
+       Printf.eprintf "I: certificates are valid\n%!"
+    | 3 ->
+       let certs = get_certs () in
+       let threshold = get_mandatory_opt "--threshold" threshold in
+       let key = get_mandatory_opt "--key" key |> string_of_file in
+       let polynomial = T.step3 certs key threshold in
+       Printf.printf "%s\n%!" (string_of_polynomial polynomial)
+    | 4 ->
+       let certs = get_certs () in
+       let n = Array.length certs.certs in
+       let polynomials = get_polynomials () in
+       assert (n = Array.length polynomials);
+       let vinputs = T.step4 certs polynomials in
+       assert (n = Array.length vinputs);
+       for i = 0 to n - 1 do
+         let id = sha256_hex certs.certs.(i).s_message in
+         let fn = id ^ ".vinput" in
+         let oc = open_out_gen [Open_wronly; Open_creat] 0o444 fn in
+         output_string oc (string_of_vinput vinputs.(i));
+         output_char oc '\n';
+         close_out oc;
+         Printf.eprintf "I: wrote %s\n%!" fn
+       done
+    | 5 ->
+       let certs = get_certs () in
+       let key = get_mandatory_opt "--key" key |> string_of_file in
+       let vinput = read_line () |> vinput_of_string in
+       let voutput = T.step5 certs key vinput in
+       Printf.printf "%s\n%!" (string_of_voutput G.write voutput)
+    | 6 ->
+       let certs = get_certs () in
+       let n = Array.length certs.certs in
+       let polynomials = get_polynomials () in
+       assert (n = Array.length polynomials);
+       let voutputs = lines_of_stdin ()
+                      |> List.map (voutput_of_string G.read)
+                      |> Array.of_list
+       in
+       assert (n = Array.length voutputs);
+       let tparams = T.step6 certs polynomials voutputs in
+       for i = 0 to n - 1 do
+         let id = sha256_hex certs.certs.(i).s_message in
+         let fn = id ^ ".dkey" in
+         let oc = open_out_gen [Open_wronly; Open_creat] 0o400 fn in
+         output_string oc voutputs.(i).vo_private_key;
+         output_char oc '\n';
+         close_out oc;
+         Printf.eprintf "I: wrote %s\n%!" fn
+       done;
+       Printf.printf "%s\n%!" (string_of_threshold_parameters G.write tparams)
+    | _ -> failwith "invalid step"
 
   let step_t =
     let doc = "Step to execute." in
@@ -366,88 +364,87 @@ module Election : CMDLINER_MODULE = struct
   end
 
   let main url dir action =
-    wrap_main (fun () ->
-      let dir, cleanup = match url, dir with
-        | Some _, None ->
-           let tmp = Filename.temp_file "belenios" "" in
-           Unix.unlink tmp;
-           Unix.mkdir tmp 0o700;
-           tmp, true
-        | None, None -> Filename.current_dir_name, false
-        | _, Some d -> d, false
-      in
-      Printf.eprintf "I: using directory %s\n%!" dir;
-      let () =
-        match url with
-        | None -> ()
-        | Some u ->
-           if not (
-             download dir u "election.json" &&
-             download dir u "trustees.json" &&
-             download dir u "public_creds.txt" &&
-             (download dir u "ballots.jsons" || true) &&
-             (download dir u "result.json" || download dir u "shuffles.jsons" || true)
-           ) then
-             Printf.eprintf "W: some errors occurred while downloading\n%!";
-      in
-      let module P : PARAMS = struct
+    let@ () = wrap_main in
+    let dir, cleanup = match url, dir with
+      | Some _, None ->
+         let tmp = Filename.temp_file "belenios" "" in
+         Unix.unlink tmp;
+         Unix.mkdir tmp 0o700;
+         tmp, true
+      | None, None -> Filename.current_dir_name, false
+      | _, Some d -> d, false
+    in
+    Printf.eprintf "I: using directory %s\n%!" dir;
+    let () =
+      match url with
+      | None -> ()
+      | Some u ->
+         if not (
+                download dir u "election.json" &&
+                  download dir u "trustees.json" &&
+                    download dir u "public_creds.txt" &&
+                      (download dir u "ballots.jsons" || true) &&
+                        (download dir u "result.json" || download dir u "shuffles.jsons" || true)
+              ) then
+           Printf.eprintf "W: some errors occurred while downloading\n%!";
+    in
+    let module P : PARAMS = struct
         include MakeGetters (struct let dir = dir end)
         let raw_election =
           let fname = dir/"election.json" in
           load_from_file (fun x -> x) fname |>
-          function
-          | Some [e] -> e
-          | None -> failcmd "could not read %s" fname
-          | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
+            function
+            | Some [e] -> e
+            | None -> failcmd "could not read %s" fname
+            | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
       end in
-      let module X = Make (P) (Random) () in
-      begin match action with
-      | `Vote (privcred, ballot) ->
-        let ballot =
-          match load_from_file plaintext_of_string ballot with
-          | Some [b] -> b
-          | _ -> failwith "invalid plaintext ballot file"
-        and privcred =
-          match load_from_file (fun x -> x) privcred with
-          | Some [cred] -> cred
-          | _ -> failwith "invalid credential"
-        in
-        print_endline (X.vote (Some privcred) ballot)
-      | `Decrypt privkey ->
-        X.verify ();
-        let privkey =
-          match load_from_file (fun x -> x) privkey with
-          | Some [privkey] -> privkey
-          | _ -> failwith "invalid private key"
-        in
-        print_endline (X.decrypt privkey)
-      | `TDecrypt (key, pdk) ->
-         let key = string_of_file key in
-         let pdk = string_of_file pdk in
-         print_endline (X.tdecrypt key pdk)
-      | `Verify -> X.verify ()
-      | `Validate ->
-        let factors =
-          let fname = dir/"partial_decryptions.jsons" in
-          match load_from_file (fun x -> x) fname with
-          | Some factors -> factors
-          | None -> failwith "cannot load partial decryptions"
-        in
-        let result = X.validate factors in
-        let oc = open_out (dir/"result.json") in
-        output_string oc result;
-        output_char oc '\n';
-        close_out oc
-      | `Shuffle ->
-         let s = X.shuffle_ciphertexts () in
-         print_endline s
-      | `Checksums ->
-         X.checksums () |> print_endline
-      | `ComputeVoters privcreds ->
-         X.compute_voters privcreds |> List.iter print_endline
-      end;
-      if cleanup then rm_rf dir
-    )
+    let module X = Make (P) (Random) () in
+    begin match action with
+    | `Vote (privcred, ballot) ->
+       let ballot =
+         match load_from_file plaintext_of_string ballot with
+         | Some [b] -> b
+         | _ -> failwith "invalid plaintext ballot file"
+       and privcred =
+         match load_from_file (fun x -> x) privcred with
+         | Some [cred] -> cred
+         | _ -> failwith "invalid credential"
+       in
+       print_endline (X.vote (Some privcred) ballot)
+    | `Decrypt privkey ->
+       X.verify ();
+       let privkey =
+         match load_from_file (fun x -> x) privkey with
+         | Some [privkey] -> privkey
+         | _ -> failwith "invalid private key"
+       in
+       print_endline (X.decrypt privkey)
+    | `TDecrypt (key, pdk) ->
+       let key = string_of_file key in
+       let pdk = string_of_file pdk in
+       print_endline (X.tdecrypt key pdk)
+    | `Verify -> X.verify ()
+    | `Validate ->
+       let factors =
+         let fname = dir/"partial_decryptions.jsons" in
+         match load_from_file (fun x -> x) fname with
+         | Some factors -> factors
+         | None -> failwith "cannot load partial decryptions"
+       in
+       let result = X.validate factors in
+       let oc = open_out (dir/"result.json") in
+       output_string oc result;
+       output_char oc '\n';
+       close_out oc
+    | `Shuffle ->
+       let s = X.shuffle_ciphertexts () in
+       print_endline s
+    | `Checksums ->
+       X.checksums () |> print_endline
+    | `ComputeVoters privcreds ->
+       X.compute_voters privcreds |> List.iter print_endline
+    end;
+    if cleanup then rm_rf dir
 
   let privcred_t =
     let doc = "Read private credential from file $(docv)." in
@@ -605,38 +602,37 @@ module Credgen : CMDLINER_MODULE = struct
     Printf.printf "%d %s saved to %s\n%!" !count info fname
 
   let main version group dir uuid count file derive =
-    wrap_main (fun () ->
-      let module P = struct
+    let@ () = wrap_main in
+    let module P = struct
         let version = version
         let group = get_mandatory_opt "--group" group |> string_of_file
         let uuid = get_mandatory_opt "--uuid" uuid
       end in
-      let module R = Make (P) (Random) () in
-      let action =
-        match count, file, derive with
-        | Some n, None, None ->
-          if n < 1 then (
-            failcmd "the argument of --count must be a positive number"
-          ) else `Generate (generate_ids n)
-        | None, Some f, None -> `Generate (lines_of_file f)
-        | None, None, Some c -> `Derive c
-        | _, _, _ ->
-          failcmd "--count, --file and --derive are mutually exclusive"
-      in
-      match action with
-      | `Derive c ->
-        print_endline (R.derive c)
-      | `Generate ids ->
-        let privs, pubs = R.generate ids in
-        let privs =
-          List.combine ids privs
-          |> List.map (fun (id, priv) -> id ^ " " ^ priv)
-        in
-        let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
-        let base = dir / timestamp in
-        save params_priv base privs;
-        save params_pub base pubs
-    )
+    let module R = Make (P) (Random) () in
+    let action =
+      match count, file, derive with
+      | Some n, None, None ->
+         if n < 1 then (
+           failcmd "the argument of --count must be a positive number"
+         ) else `Generate (generate_ids n)
+      | None, Some f, None -> `Generate (lines_of_file f)
+      | None, None, Some c -> `Derive c
+      | _, _, _ ->
+         failcmd "--count, --file and --derive are mutually exclusive"
+    in
+    match action with
+    | `Derive c ->
+       print_endline (R.derive c)
+    | `Generate ids ->
+       let privs, pubs = R.generate ids in
+       let privs =
+         List.combine ids privs
+         |> List.map (fun (id, priv) -> id ^ " " ^ priv)
+       in
+       let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
+       let base = dir / timestamp in
+       save params_priv base privs;
+       save params_pub base pubs
 
   let count_t =
     let doc = "Generate $(docv) credentials." in
@@ -668,42 +664,40 @@ end
 
 module Mktrustees : CMDLINER_MODULE = struct
   let main dir =
-    wrap_main
-      (fun () ->
-        let get_public_keys () =
-          Some (lines_of_file (dir / "public_keys.jsons"))
-        in
-        let get_threshold () =
-          let fn = dir / "threshold.json" in
-          if Sys.file_exists fn then Some (string_of_file fn) else None
-        in
-        let get_trustees () =
-          let singles =
-            match get_public_keys () with
-            | None -> []
-            | Some t ->
-               t
-               |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
-               |> List.map (fun x -> `Single x)
-          in
-          let pedersens =
-            match get_threshold () with
-            | None -> []
-            | Some t ->
-               t
-               |> threshold_parameters_of_string Yojson.Safe.read_json
-               |> (fun x -> [`Pedersen x])
-          in
-          match singles @ pedersens with
-          | [] -> failwith "trustees are missing"
-          | trustees -> string_of_trustees Yojson.Safe.write_json trustees
-        in
-        let trustees = get_trustees () in
-        let oc = open_out (dir / "trustees.json") in
-        output_string oc trustees;
-        output_char oc '\n';
-        close_out oc
-      )
+    let@ () = wrap_main in
+    let get_public_keys () =
+      Some (lines_of_file (dir / "public_keys.jsons"))
+    in
+    let get_threshold () =
+      let fn = dir / "threshold.json" in
+      if Sys.file_exists fn then Some (string_of_file fn) else None
+    in
+    let get_trustees () =
+      let singles =
+        match get_public_keys () with
+        | None -> []
+        | Some t ->
+           t
+           |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+           |> List.map (fun x -> `Single x)
+      in
+      let pedersens =
+        match get_threshold () with
+        | None -> []
+        | Some t ->
+           t
+           |> threshold_parameters_of_string Yojson.Safe.read_json
+           |> (fun x -> [`Pedersen x])
+      in
+      match singles @ pedersens with
+      | [] -> failwith "trustees are missing"
+      | trustees -> string_of_trustees Yojson.Safe.write_json trustees
+    in
+    let trustees = get_trustees () in
+    let oc = open_out (dir / "trustees.json") in
+    output_string oc trustees;
+    output_char oc '\n';
+    close_out oc
 
   let mktrustees_cmd =
     let doc = "create a trustee parameter file" in
@@ -722,8 +716,8 @@ module Mkelection : CMDLINER_MODULE = struct
   open Tool_mkelection
 
   let main dir group version uuid template =
-    wrap_main (fun () ->
-      let module P = struct
+    let@ () = wrap_main in
+    let module P = struct
         let version = version
         let group = get_mandatory_opt "--group" group |> string_of_file
         let uuid = get_mandatory_opt "--uuid" uuid
@@ -735,13 +729,12 @@ module Mkelection : CMDLINER_MODULE = struct
           else
             failwith "trustees are missing"
       end in
-      let module R = (val make (module P : PARAMS) : S) in
-      let params = R.mkelection () in
-      let oc = open_out (dir / "election.json") in
-      output_string oc params;
-      output_char oc '\n';
-      close_out oc
-    )
+    let module R = (val make (module P : PARAMS) : S) in
+    let params = R.mkelection () in
+    let oc = open_out (dir / "election.json") in
+    output_string oc params;
+    output_char oc '\n';
+    close_out oc
 
   let template_t =
     let doc = "Read election template from file $(docv)." in
@@ -764,11 +757,10 @@ module Verifydiff : CMDLINER_MODULE = struct
   open Tool_verifydiff
 
   let main dir1 dir2 =
-    wrap_main (fun () ->
-        match dir1, dir2 with
-        | Some dir1, Some dir2 -> verifydiff dir1 dir2
-        | _, _ -> failcmd "--dir1 or --dir2 is missing"
-      )
+    let@ () = wrap_main in
+    match dir1, dir2 with
+    | Some dir1, Some dir2 -> verifydiff dir1 dir2
+    | _, _ -> failcmd "--dir1 or --dir2 is missing"
 
   let dir1_t =
     let doc = "First directory to compare." in
@@ -794,67 +786,64 @@ end
 module Methods : CMDLINER_MODULE = struct
 
   let schulze nchoices blank_allowed =
-    wrap_main (fun () ->
-        let ballots = chars_of_stdin () |> condorcet_ballots_of_string in
-        let nchoices =
-          if nchoices = 0 then
-            if Array.length ballots > 0 then Array.length ballots.(0) else 0
-          else nchoices
-        in
-        if nchoices <= 0 then
-          failcmd "invalid --nchoices parameter (or could not infer it)"
-        else
-          let blank_allowed =
-            match blank_allowed with
-            | None -> failcmd "--blank-allowed is missing"
-            | Some b -> b
-          in
-          ballots
-          |> Schulze.compute ~nchoices ~blank_allowed
-          |> string_of_schulze_result
-          |> print_endline
-      )
+    let@ () = wrap_main in
+    let ballots = chars_of_stdin () |> condorcet_ballots_of_string in
+    let nchoices =
+      if nchoices = 0 then
+        if Array.length ballots > 0 then Array.length ballots.(0) else 0
+      else nchoices
+    in
+    if nchoices <= 0 then
+      failcmd "invalid --nchoices parameter (or could not infer it)"
+    else
+      let blank_allowed =
+        match blank_allowed with
+        | None -> failcmd "--blank-allowed is missing"
+        | Some b -> b
+      in
+      ballots
+      |> Schulze.compute ~nchoices ~blank_allowed
+      |> string_of_schulze_result
+      |> print_endline
 
   let mj nchoices ngrades blank_allowed =
-    wrap_main (fun () ->
-        let ballots = chars_of_stdin () |> mj_ballots_of_string in
-        let nchoices =
-          if nchoices = 0 then
-            if Array.length ballots > 0 then Array.length ballots.(0) else 0
-          else nchoices
-        in
-        if nchoices <= 0 then
-          failcmd "invalid --nchoices parameter (or could not infer it)"
-        else
-          let ngrades =
-            match ngrades with
-            | None -> failcmd "--ngrades is missing"
-            | Some i -> if i > 0 then i else failcmd "invalid --ngrades parameter"
-          in
-          let blank_allowed =
-            match blank_allowed with
-            | None -> failcmd "--blank-allowed is missing"
-            | Some b -> b
-          in
-          ballots
-          |> Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
-          |> string_of_mj_result
-          |> print_endline
-      )
+    let@ () = wrap_main in
+    let ballots = chars_of_stdin () |> mj_ballots_of_string in
+    let nchoices =
+      if nchoices = 0 then
+        if Array.length ballots > 0 then Array.length ballots.(0) else 0
+      else nchoices
+    in
+    if nchoices <= 0 then
+      failcmd "invalid --nchoices parameter (or could not infer it)"
+    else
+      let ngrades =
+        match ngrades with
+        | None -> failcmd "--ngrades is missing"
+        | Some i -> if i > 0 then i else failcmd "invalid --ngrades parameter"
+      in
+      let blank_allowed =
+        match blank_allowed with
+        | None -> failcmd "--blank-allowed is missing"
+        | Some b -> b
+      in
+      ballots
+      |> Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
+      |> string_of_mj_result
+      |> print_endline
 
   let stv nseats =
-    wrap_main (fun () ->
-        let nseats =
-          match nseats with
-          | None -> failcmd "--nseats is missing"
-          | Some i -> if i > 0 then i else failcmd "invalid --nseats parameter"
-        in
-        chars_of_stdin ()
-        |> stv_raw_ballots_of_string
-        |> Stv.compute ~nseats
-        |> string_of_stv_result
-        |> print_endline
-      )
+    let@ () = wrap_main in
+    let nseats =
+      match nseats with
+      | None -> failcmd "--nseats is missing"
+      | Some i -> if i > 0 then i else failcmd "invalid --nseats parameter"
+    in
+    chars_of_stdin ()
+    |> stv_raw_ballots_of_string
+    |> Stv.compute ~nseats
+    |> string_of_stv_result
+    |> print_endline
 
   let nchoices_t =
     let doc = "Number of choices. If 0, try to infer it." in
@@ -909,11 +898,10 @@ end
 module GenerateToken : CMDLINER_MODULE = struct
 
   let main length =
-    wrap_main (fun () ->
-        let module X = MakeGenerateToken (Random) in
-        X.generate_token ~length ()
-        |> print_endline
-      )
+    let@ () = wrap_main in
+    let module X = MakeGenerateToken (Random) in
+    X.generate_token ~length ()
+    |> print_endline
 
   let length_t =
     let doc = "Token length." in
