@@ -23,7 +23,6 @@ val debug : string -> unit
 
 val sha256_hex : string -> string
 val sha256_b64 : string -> string
-val pbkdf2_hex : iterations:int -> salt:string -> string -> string
 val pbkdf2_utf8 : iterations:int -> salt:string -> string -> string
 
 val aes_hex : key:string -> data:string -> string

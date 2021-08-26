@@ -133,7 +133,6 @@ let pbkdf2_generic toBits ~iterations ~salt x =
   let derived = Sjcl.sjcl##.misc##pbkdf2 (Js.string x) salt iterations 256 in
   hex_fromBits derived
 
-let pbkdf2_hex = pbkdf2_generic hex_toBits
 let pbkdf2_utf8 = pbkdf2_generic utf8String_toBits
 
 let aes_hex ~key ~data =
