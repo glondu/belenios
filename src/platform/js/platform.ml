@@ -160,7 +160,6 @@ let decrypt ~key ~iv ~ciphertext =
 
 type rng = unit
 
-(* PRNG is initialized in random.js *)
 let secure_rng = ()
 let pseudo_rng _ = ()
 
