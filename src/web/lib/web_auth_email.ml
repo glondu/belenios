@@ -163,7 +163,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
                  let* ok =
                    if check_code address code then (
                      let* () = Eliom_reference.unset env in
-                     return_some name
+                     return_some (name, address)
                    ) else return_none
                  in
                  cont ok

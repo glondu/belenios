@@ -205,3 +205,14 @@ type oidc_userinfo = {
   sub : string;
   ?email : string option;
 } <ocaml field_prefix="oidc_">
+
+(** {1 Administrator accounts} *)
+
+type account = {
+    id : int;
+    name : string;
+    email : string;
+    last_connected : datetime;
+    authentications : user list;
+    ?consent : datetime option;
+} <ocaml field_prefix="account_">

@@ -339,6 +339,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       let* is_admin =
         let* metadata = Web_persist.get_election_metadata uuid in
         let* site_user = Eliom_reference.get Web_state.site_user in
+        let site_user = match site_user with None -> None | Some (a, _) -> Some a in
         return (metadata.e_owner = site_user)
       in
       match result with

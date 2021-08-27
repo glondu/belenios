@@ -23,6 +23,7 @@ open Lwt
 open Lwt.Syntax
 open Eliom_service
 open Belenios_core.Serializable_builtin_t
+open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Web_auth_sig
@@ -35,7 +36,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
     {
       post_login_handler :
         'a. uuid option -> auth_config ->
-        (string option -> 'a Lwt.t) -> 'a Lwt.t
+        ((string * string) option -> 'a Lwt.t) -> 'a Lwt.t
     }
 
   let scope = Eliom_common.default_session_scope
@@ -71,12 +72,23 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
        in
        if auth_system = a.auth_system && st = state then
          let cont = function
-           | Some name ->
+           | Some (name, email) ->
               let* () = Eliom_reference.unset auth_env in
               let user = { user_domain = a.auth_instance; user_name = name } in
               let* () =
                 match uuid with
-                | None -> Eliom_reference.set Web_state.site_user (Some user)
+                | None ->
+                   let* account =
+                     let* x = Accounts.get_account user in
+                     match x with
+                     | None -> Accounts.create_account ~email user
+                     | Some x ->
+                        let account_last_connected = now () in
+                        let x = {x with account_last_connected} in
+                        let* () = Accounts.update_account x in
+                        return x
+                   in
+                   Eliom_reference.set Web_state.site_user (Some (user, account))
                 | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
               in
               get_cont `Login kind ()
@@ -118,7 +130,12 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
       | `Election uuid -> preapply ~service:election_login ((uuid, ()), service)
     in
     let* user = match uuid with
-      | None -> Eliom_reference.get Web_state.site_user
+      | None ->
+         let* x = Eliom_reference.get Web_state.site_user in
+         (match x with
+          | Some (a, _) -> return_some a
+          | None -> return_none
+         )
       | Some uuid -> Web_state.get_election_user uuid
     in
     match user, uuid with

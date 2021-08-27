@@ -32,6 +32,7 @@ module Make () = struct
 
   let locales_dir = ref None
   let spool_dir = ref None
+  let accounts_dir = ref None
   let source_file = ref None
   let auth_instances = ref []
   let auth_instances_export = ref []
@@ -87,6 +88,8 @@ module Make () = struct
                      locales_dir := Some dir
                   | Element ("spool", ["dir", dir], []) ->
                      spool_dir := Some dir
+                  | Element ("accounts", ["dir", dir], []) ->
+                     accounts_dir := Some dir
                   | Element ("warning", ["file", file], []) ->
                      Web_config.warning_file := Some file
                   | Element ("footer", ["file", file], []) ->
@@ -144,6 +147,11 @@ module Make () = struct
     | Some d -> d
     | None -> failwith "missing <spool> in configuration"
 
+  let accounts_dir =
+    match !accounts_dir with
+    | Some d -> d
+    | None -> failwith "missing <accounts> in configuration"
+
   let default_group =
     Lwt_main.run
       (match !default_group_file with
@@ -178,6 +186,7 @@ module Make () = struct
   let () = Web_config.source_file := source_file
   let () = Web_config.locales_dir := locales_dir
   let () = Web_config.spool_dir := spool_dir
+  let () = Web_config.accounts_dir := accounts_dir
   let () = Web_config.default_group := default_group
   let () = Web_config.nh_group := nh_group
   let () = Web_config.site_auth_config := List.rev !auth_instances

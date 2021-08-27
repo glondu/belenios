@@ -86,7 +86,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
            div [
                txt (s_ "Logged in as");
                txt " ";
-               format_user ~site:true user;
+               format_user ~site:true (fst user);
                txt ".";
              ];
            div [

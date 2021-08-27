@@ -364,14 +364,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let with_site_user f =
     let* user = Eliom_reference.get Web_state.site_user in
     match user with
-    | Some u -> f u
+    | Some u -> f (fst u)
     | None -> forbidden ()
 
   let with_metadata_check_owner uuid f =
     let* user = Eliom_reference.get Web_state.site_user in
     let* metadata = Web_persist.get_election_metadata uuid in
     match user, metadata.e_owner with
-    | Some a, Some b when a = b -> f metadata
+    | Some (a, _), Some b when a = b -> f metadata
     | _, _ -> forbidden ()
 
   let without_site_user ?fallback () f =
@@ -380,7 +380,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* user = Eliom_reference.get Web_state.site_user in
     match user with
     | None -> f ()
-    | Some u ->
+    | Some (u, _) ->
        match fallback with
        | Some g -> g u
        | None ->
@@ -404,8 +404,22 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                let* site_user = Eliom_reference.get Web_state.site_user in
                match site_user with
                | None -> Pages_admin.admin_login Web_auth.get_site_login_handler
-               | Some u ->
-                  let* show = Eliom_reference.get Web_state.show_cookie_disclaimer in
+               | Some (u, a) ->
+                  let* show =
+                    match a.account_consent with
+                    | Some _ -> return_false
+                    | None ->
+                       let* b = Eliom_reference.get Web_state.show_cookie_disclaimer in
+                       if b then (
+                         return_true
+                       ) else (
+                         let account_consent = Some (now ()) in
+                         let a = {a with account_consent} in
+                         let* () = Accounts.update_account {a with account_consent} in
+                         let* () = Eliom_reference.set Web_state.site_user (Some (u, a)) in
+                         return_false
+                       )
+                  in
                   if show then (
                     Pages_admin.privacy_notice ContAdmin
                   ) else (
@@ -1517,7 +1531,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* metadata = Web_persist.get_election_metadata uuid in
     let* site_user = Eliom_reference.get Web_state.site_user in
     match site_user with
-    | Some u when metadata.e_owner = Some u ->
+    | Some (u, _) when metadata.e_owner = Some u ->
        let* state = Web_persist.get_election_state uuid in
        let module W = (val election) in
        let* pending_server_shuffle =
@@ -1750,7 +1764,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
               let* metadata = Web_persist.get_election_metadata uuid in
               let* site_user = Eliom_reference.get Web_state.site_user in
               match site_user with
-              | Some u when metadata.e_owner = Some u -> return_true
+              | Some (u, _) when metadata.e_owner = Some u -> return_true
               | _ -> return_false
             ) else return_true
           in

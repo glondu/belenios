@@ -92,7 +92,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
           | Some x, Some server ->
              let* r = get_cas_validation server ~state x in
              (match r with
-              | `Yes (Some name) -> cont (Some name)
+              | `Yes (Some name) -> cont (Some (name, ""))
               | `No -> cont None
               | `Yes None | `Error _ -> fail_http `Bad_gateway
              )

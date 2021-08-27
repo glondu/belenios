@@ -54,7 +54,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
       let* info = Cohttp_lwt.Body.to_string body in
       try
         let x = oidc_userinfo_of_string info in
-        return_some (match x.oidc_email with Some x -> x | None -> x.oidc_sub)
+        return_some (match x.oidc_email with Some x -> (x, x) | None -> (x.oidc_sub, ""))
       with _ -> return_none
     with _ -> return_none
 
