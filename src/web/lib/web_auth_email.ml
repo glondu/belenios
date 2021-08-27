@@ -24,7 +24,6 @@ open Lwt.Syntax
 open Belenios_core
 open Common
 open Serializable_builtin_t
-open Web_serializable_builtin_t
 open Web_serializable_t
 open Web_common
 
@@ -69,38 +68,13 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
   let run_post_login_handler =
     Web_auth.register_pre_login_handler ~auth_system:"email" pre_login_handler
 
-  type code =
-    {
-      code : string;
-      expiration_time : datetime;
-    }
+  module Sender = struct
+    let send ~address ~code =
+      let* subject, body = Pages_common.email_email ~address ~code in
+      send_email ~subject ~body ~recipient:address MailLogin
+  end
 
-  let codes = ref SMap.empty
-
-  let filter_codes_by_time table =
-    let now = now () in
-    SMap.filter (fun _ {expiration_time; _} ->
-        datetime_compare now expiration_time <= 0
-      ) table
-
-  let generate_new_code name =
-    let codes_ = filter_codes_by_time !codes in
-    let* code = generate_numeric () in
-    let expiration_time = datetime_add (now ()) (second 900.) in
-    codes := SMap.add name {code; expiration_time} codes_;
-    let* subject, body = Pages_common.email_email ~address:name ~code in
-    send_email ~subject ~body ~recipient:name MailLogin
-
-  let check_code name code =
-    let codes_ = filter_codes_by_time !codes in
-    codes := codes_;
-    match SMap.find_opt name codes_ with
-    | None -> false
-    | Some x ->
-       if x.code = code then (
-         codes := SMap.remove name codes_;
-         true
-       ) else false
+  module Otp = Otp.Make (Sender) ()
 
   let handle_email_post ~state name ok =
     let* address, site_or_election =
@@ -125,7 +99,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
     in
     match ok, address with
     | true, Some address ->
-       let* () = generate_new_code address in
+       let* () = Otp.generate ~address in
        let* () = Eliom_reference.unset uuid_ref in
        let* () = Eliom_reference.set env (Some (state, name, address)) in
        Pages_common.email_login site_or_election >>= Eliom_registration.Html.send
@@ -161,7 +135,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
                Web_auth.post_login_handler =
                  fun _ _ cont ->
                  let* ok =
-                   if check_code address code then (
+                   if Otp.check ~address ~code then (
                      let* () = Eliom_reference.unset env in
                      return_some (name, address)
                    ) else return_none
