@@ -3190,6 +3190,54 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let content = [interactivity] in
     base ~title:(s_ "Compute fingerprint") ~content ()
 
+  let set_email () =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let form =
+      post_form ~service:set_email_post
+        (fun name ->
+          [
+            div [
+                txt (s_ "There is no e-mail address attached to your account.");
+                txt " ";
+                txt (s_ "Please provide one:");
+                txt " ";
+                input ~input_type:`Text ~name string;
+              ];
+            div [
+                input ~input_type:`Submit ~value:(s_ "Proceed") string;
+              ];
+          ]
+        ) ()
+    in
+    let content = [form] in
+    let title = s_ "Your e-mail address" in
+    base ~title ~content ()
+
+  let set_email_confirm ~address =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let form =
+      post_form ~service:set_email_confirm
+        (fun name ->
+          [
+            div [
+                txt (Printf.sprintf (f_ "An e-mail with a code has been sent to %s.") address);
+                txt " ";
+                txt (s_ "Please enter the code here:");
+                txt " ";
+                input ~input_type:`Text ~name string;
+              ];
+            div [
+                input ~input_type:`Submit ~value:(s_ "Proceed") string;
+              ];
+          ]
+        ) ()
+    in
+    let content = [form] in
+    let title = s_ "Your e-mail address" in
+    base ~title ~content ()
+
 end
 
 let mail_confirmation_link l address code =
@@ -3234,4 +3282,26 @@ let mail_changepw_link l address code =
   add_string b (s_ "Belenios Server");
   let body = contents b in
   let subject = s_ "Belenios password change" in
+  subject, body
+
+let mail_set_email l address code =
+  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open Mail_formatter in
+  let b = create () in
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Someone is trying to associate your e-mail address to an account on our Belenios server.");
+  add_sentence b (s_ "To confirm this, please use the following code:");
+  add_newline b; add_newline b;
+  add_string b "  "; add_string b code;
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid.");
+  add_newline b; add_newline b;
+  add_sentence b (s_ "Best regards,");
+  add_newline b; add_newline b;
+  add_string b "-- ";
+  add_newline b;
+  add_string b (s_ "Belenios Server");
+  let body = contents b in
+  let subject = s_ "Belenios account e-mail address change" in
   subject, body

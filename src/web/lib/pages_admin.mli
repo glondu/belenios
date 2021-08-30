@@ -23,3 +23,4 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
 
 val mail_confirmation_link : (module Web_i18n_sig.GETTEXT) -> string -> string -> string * string
 val mail_changepw_link : (module Web_i18n_sig.GETTEXT) -> string -> string -> string * string
+val mail_set_email : (module Web_i18n_sig.GETTEXT) -> string -> string -> string * string

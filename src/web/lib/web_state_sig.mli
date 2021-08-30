@@ -44,4 +44,5 @@ module type S = sig
   val signup_address : string option Eliom_reference.eref
   val signup_env : (string * link_kind) option Eliom_reference.eref
 
+  val set_email_env : string option Eliom_reference.eref
 end

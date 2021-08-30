@@ -167,4 +167,6 @@ module Make () = struct
 
   let compute_fingerprint = create ~path:(Path ["compute-fingerprint"]) ~meth:(Get unit) ()
 
+  let set_email_post = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:(string "email") ()
+  let set_email_confirm = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:(string "code") ()
 end

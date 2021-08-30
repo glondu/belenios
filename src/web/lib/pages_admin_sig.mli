@@ -62,4 +62,6 @@ module type S = sig
 
   val compute_fingerprint : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
+  val set_email : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val set_email_confirm : address:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end

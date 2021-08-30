@@ -50,4 +50,5 @@ module Make () = struct
   let signup_address = Eliom_reference.eref ~scope None
   let signup_env = Eliom_reference.eref ~scope None
 
+  let set_email_env = Eliom_reference.eref ~scope None
 end

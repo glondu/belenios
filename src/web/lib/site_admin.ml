@@ -33,6 +33,8 @@ open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
+module Pages_admin_root = Pages_admin
+
 module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
 
   open X
@@ -423,10 +425,66 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                   if show then (
                     Pages_admin.privacy_notice ContAdmin
                   ) else (
-                    let* elections = get_elections_by_owner_sorted u in
-                    Pages_admin.admin ~elections
+                    if a.account_email = "" then (
+                      Pages_admin.set_email ()
+                    ) else (
+                      let* elections = get_elections_by_owner_sorted u in
+                      Pages_admin.admin ~elections
+                    )
                   )
              )
+
+  module SetEmailSender = struct
+    let send ~address ~code =
+      let* l = get_preferred_gettext () in
+      let subject, body = Pages_admin_root.mail_set_email l address code in
+      send_email ~subject ~recipient:address ~body MailSetEmail
+  end
+
+  module SetEmailOtp = Otp.Make (SetEmailSender) ()
+
+  let () =
+    Any.register ~service:set_email_post
+      (fun () address ->
+        let@ _ = with_site_user in
+        if is_email address then (
+          let* () = Eliom_reference.set Web_state.set_email_env (Some address) in
+          let* () = SetEmailOtp.generate ~address in
+          Pages_admin.set_email_confirm ~address
+          >>= Html.send
+        ) else (
+          let* l = get_preferred_gettext () in
+          let open (val l) in
+          let msg = s_ "This e-mail address is invalid!" in
+          let title = s_ "Error" in
+          Pages_common.generic_page ~title msg ()
+          >>= Html.send ~code:400
+        )
+      )
+
+  let () =
+    Any.register ~service:set_email_confirm
+      (fun () code ->
+        let* u = Eliom_reference.get Web_state.site_user in
+        let* x = Eliom_reference.get Web_state.set_email_env in
+        match x, u with
+        | None, _ | _, None -> forbidden ()
+        | Some address, Some (u, a) ->
+           if SetEmailOtp.check ~address ~code then (
+             let a = {a with account_email = address} in
+             let* () = Accounts.update_account a in
+             let* () = Eliom_reference.set Web_state.site_user (Some (u, a)) in
+             let* () = Eliom_reference.unset Web_state.set_email_env in
+             Redirection.send (Redirection admin)
+           ) else (
+             let* l = get_preferred_gettext () in
+             let open (val l) in
+             let msg = s_ "The provided code is incorrect. Please go back and try again." in
+             let title = s_ "Incorrect code" in
+             Pages_common.generic_page ~title msg ()
+             >>= Html.send ~code:403
+           )
+      )
 
   let generate_uuid () =
     let length = !Web_config.uuid_length in
