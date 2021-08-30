@@ -33,8 +33,18 @@ let ( let& ) x f =
   | None -> Lwt.return_none
   | Some x -> f x
 
+module UMap = Map.Make (struct type t = user let compare = compare end)
+
+let cache = ref None
+
 let counter_mutex = Lwt_mutex.create ()
 let account_mutex = Lwt_mutex.create ()
+let cache_mutex = Lwt_mutex.create ()
+
+let clear_account_cache () =
+  let@ () = Lwt_mutex.with_lock account_mutex in
+  cache := None;
+  Lwt.return_unit
 
 let account_of_filename filename =
   let& id = Filename.chop_suffix_opt ~suffix:".json" filename in
@@ -80,24 +90,38 @@ let create_account ~email user =
   in
   let* () = update_account account in
   let* () = write_file (!Web_config.accounts_dir / "counter") [string_of_int (account_id + 1)] in
+  let* () = clear_account_cache () in
   Lwt.return account
 
-let get_account user =
+let build_account_cache () =
   Lwt_unix.files_of_directory !Web_config.accounts_dir
   |> Lwt_stream.to_list
-  >>= fun files ->
-  let rec loop = function
-    | [] -> Lwt.return_none
-    | f :: fs ->
-       let* account = account_of_filename f in
-       match account with
-       | None -> loop fs
-       | Some account ->
-          if List.mem user account.account_authentications then
-            Lwt.return_some account
-          else loop fs
+  >>= Lwt_list.fold_left_s
+        (fun accu f ->
+          let* account = account_of_filename f in
+          match account with
+          | None -> Lwt.return accu
+          | Some account ->
+             List.fold_left
+               (fun accu u -> UMap.add u account.account_id accu)
+               accu account.account_authentications
+             |> Lwt.return
+        ) UMap.empty
+
+let get_account user =
+  let* cache =
+    match !cache with
+    | Some x -> Lwt.return x
+    | None ->
+       let@ () = Lwt_mutex.with_lock cache_mutex in
+       let* x = build_account_cache () in
+       cache := Some x;
+       Lwt.return x
   in
-  loop files
+  let& id = UMap.find_opt user cache in
+  let* account = account_of_filename (Printf.sprintf "%d.json" id) in
+  let& account = account in
+  Lwt.return_some account
 
 type capability =
   | Sudo
