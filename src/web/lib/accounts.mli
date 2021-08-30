@@ -24,3 +24,8 @@ open Web_serializable_t
 val create_account : email:string -> user -> account Lwt.t
 val get_account : user -> account option Lwt.t
 val update_account : account -> unit Lwt.t
+
+type capability =
+  | Sudo
+
+val has_capability : capability -> account -> bool

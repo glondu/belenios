@@ -3238,6 +3238,29 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let title = s_ "Your e-mail address" in
     base ~title ~content ()
 
+  let sudo () =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let form =
+      post_form ~service:sudo_post
+        (fun (ndomain, nuser) ->
+          [
+            div [
+                txt "Domain: ";
+                input ~input_type:`Text ~name:ndomain string;
+                txt ", user: ";
+                input ~input_type:`Text ~name:nuser string;
+              ];
+            div [
+                input ~input_type:`Submit ~value:(s_ "Proceed") string;
+              ];
+          ]
+        ) ()
+    in
+    let content = [form] in
+    let title = s_ "Impersonate a user" in
+    base ~title ~content ()
+
 end
 
 let mail_confirmation_link l address code =

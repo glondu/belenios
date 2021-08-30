@@ -215,4 +215,5 @@ type account = {
     last_connected : datetime;
     authentications : user list;
     ?consent : datetime option;
+    ?capabilities : int option;
 } <ocaml field_prefix="account_">

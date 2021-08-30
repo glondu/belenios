@@ -169,4 +169,7 @@ module Make () = struct
 
   let set_email_post = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:(string "email") ()
   let set_email_confirm = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:(string "code") ()
+
+  let sudo = create ~path:(Path ["sudo"]) ~meth:(Get unit) ()
+  let sudo_post = create_attached_post ~csrf_safe:true ~fallback:sudo ~post_params:(string "domain" ** string "name") ()
 end

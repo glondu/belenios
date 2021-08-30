@@ -75,6 +75,7 @@ let create_account ~email user =
       account_last_connected;
       account_authentications = [user];
       account_consent = None;
+      account_capabilities = None;
     }
   in
   let* () = update_account account in
@@ -97,3 +98,14 @@ let get_account user =
           else loop fs
   in
   loop files
+
+type capability =
+  | Sudo
+
+let mask_of_capability = function
+  | Sudo -> 1
+
+let has_capability cap account =
+  match account.account_capabilities with
+  | None -> false
+  | Some i -> i land (mask_of_capability cap) <> 0

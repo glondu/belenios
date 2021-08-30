@@ -64,4 +64,6 @@ module type S = sig
 
   val set_email : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val set_email_confirm : address:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
+  val sudo : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end

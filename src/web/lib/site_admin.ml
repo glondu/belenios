@@ -2694,6 +2694,38 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Html.register ~service:compute_fingerprint
       (fun () () -> Pages_admin.compute_fingerprint ())
 
+  let has_sudo_capability f =
+    let* x = Eliom_reference.get Web_state.site_user in
+    match x with
+    | Some (_, a) when Accounts.(has_capability Sudo a) -> f ()
+    | _ -> forbidden ()
+
+  let () =
+    Any.register ~service:sudo
+      (fun () () ->
+        let@ () = has_sudo_capability in
+        Pages_admin.sudo () >>= Html.send
+      )
+
+  let () =
+    Any.register ~service:sudo_post
+      (fun () (user_domain, user_name) ->
+        let@ () = has_sudo_capability in
+        let u = {user_domain; user_name} in
+        let* x = Accounts.get_account u in
+        match x with
+        | None ->
+           let* l = get_preferred_gettext () in
+           let open (val l) in
+           let msg = s_ "This account does not exist" in
+           let title = s_ "Account not found" in
+           Pages_common.generic_page ~title ~service:sudo msg ()
+           >>= Html.send
+        | Some a ->
+           let* () = Eliom_reference.set Web_state.site_user (Some (u, a)) in
+           Redirection.send (Redirection admin)
+      )
+
   let extract_automatic_data_draft uuid_s =
     let uuid = uuid_of_raw_string uuid_s in
     let* election = Web_persist.get_draft_election uuid in
