@@ -13,7 +13,6 @@
     "breadcrumb_authenticate": "Authentification",
     "breadcrumb_confirm": "Confirmation",
     "breadcrumb_step_x": "Étape {{count}}",
-    "breadcrumb_step_x_plural": "Étape {{count}}",
     "blank_vote": "Vote blanc",
     "ask_for_credential": "Veuillez saisir votre code de vote :",
     "next_button_label": "Suivant",

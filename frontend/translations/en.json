@@ -13,7 +13,6 @@
     "breadcrumb_authenticate": "Authenticate",
     "breadcrumb_confirm": "Confirm",
     "breadcrumb_step_x": "Step {{count}}",
-    "breadcrumb_step_x_plural": "Step {{count}}",
     "blank_vote": "Blank vote",
     "ask_for_credential": "Please enter your credential:",
     "next_button_label": "Next",
