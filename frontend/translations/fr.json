@@ -38,7 +38,7 @@
     "ask_to_select_x_answers_plural": "Veuillez sélectionner {{count}} réponses.",
     "ask_to_select_between_x_and_y_answers": "$t(ask_to_select_between_x, {\"count\": {{min}} }) et {{count}} réponse.",
     "ask_to_select_between_x_and_y_answers_plural": "$t(ask_to_select_between_x, {\"count\": {{min}} }) et {{count}} réponses.",
-    "ask_to_wait_during_ballot_encryption": "Veuillez patienter, le chiffrement de votre bulletin de vote est en cours...",
+    "ask_to_wait_during_ballot_encryption": "Veuillez patienter, le chiffrement de votre bulletin de vote est en cours…",
     "your_smart_ballot_tracker_has_been_copied": "Votre numéro de suivi a été copié vers le presse-papiers de votre appareil. Vous pouvez maintenant ouvrir un document texte pour l'y coller (selon votre appareil, vous pouvez coller en appyant sur CTRL-V, ou CMD-V, ou un clic long puis sélectionner Coller).",
     "your_ballot_has_been_encrypted": "Votre bulletin a été chiffré avec succès, mais n'a pas encore été déposé dans l'urne !",
     "your_smart_ballot_tracker_is": "Votre numéro de suivi est :",
