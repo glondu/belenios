@@ -53,11 +53,6 @@ module type S = sig
 
   val static : string -> Eliom_content.Xml.uri
 
-  val format_user :
-    site:bool ->
-    Web_serializable_t.user ->
-    [> Html_types.em ] Eliom_content.Html.elt
-
   val read_snippet :
     ?default:([> Html_types.div_content_fun ] as 'a) Eliom_content.Html.elt ->
     lang:string -> string option -> 'a Eliom_content.Html.elt Lwt.t

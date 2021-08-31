@@ -634,7 +634,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
          post_form ~service:election_cast_confirm (fun () -> [
                                                        p ~a:[a_style "text-align: center; padding: 10px;"] [
                                                            txt (s_ "I am ");
-                                                           format_user ~site:false u;
+                                                           em [txt u.user_name];
                                                            txt (s_ " and ");
                                                            input
                                                              ~a:[a_class ["nice-button nice-button--blue"]; a_style "font-size: 18px;"]

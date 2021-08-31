@@ -81,12 +81,12 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let logout () = Eliom_service.preapply ~service:logout cont in
     let body =
       match user with
-      | Some user ->
+      | Some (_, account) ->
          [
            div [
                txt (s_ "Logged in as");
                txt " ";
-               format_user ~site:true (fst user);
+               em [txt account.account_name];
                txt ".";
              ];
            div [
