@@ -54,7 +54,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     List.map (fun line -> PString.concat "," line) db |>
       write_file ~uuid "passwords.csv"
 
-  let validate_election uuid se =
+  let validate_election account uuid se =
     let version = Option.get se.se_version 0 in
     let uuid_s = raw_string_of_uuid uuid in
     (* voters *)
@@ -155,6 +155,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         se.se_metadata with
         e_trustees = Some trustee_names;
         e_server_is_trustee;
+        e_owner = Some (`Id account.account_id);
       } in
     let template = se.se_questions in
     let params = {
@@ -1390,10 +1391,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_create
       (fun uuid () ->
+        let@ _, account = with_site_user in
         let@ se = with_draft_election ~save:false uuid in
         Lwt.catch
           (fun () ->
-            let* () = validate_election uuid se in
+            let* () = validate_election account uuid se in
             redir_preapply election_admin uuid ()
           )
           (fun e ->
