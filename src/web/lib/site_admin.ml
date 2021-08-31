@@ -492,7 +492,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* token = generate_token ?length () in
     return (uuid_of_raw_string token)
 
-  let create_new_election owner cred auth =
+  let create_new_election account cred auth =
+    let owner = `Id account.account_id in
     let e_cred_authority = match cred with
       | `Automatic -> Some "server"
       | `Manual -> None
@@ -537,7 +538,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         se_threshold_parameters = None;
         se_threshold_error = None;
         se_creation_date = Some (now ());
-        se_administrator = None;
+        se_administrator = Some account.account_name;
       } in
     let* () = Lwt_unix.mkdir (!Web_config.spool_dir / raw_string_of_uuid uuid) 0o700 in
     let* () = Web_persist.set_draft_election uuid se in
@@ -585,7 +586,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         match auth with
         | `CAS cas_server when not (is_http_url cas_server) ->
            Pages_common.generic_page ~title:(s_ "Error") (s_ "Bad CAS server!") () >>= Html.send
-        | _ -> create_new_election (`Id a.account_id) credmgmt auth
+        | _ -> create_new_election a credmgmt auth
       )
 
   let with_draft_election_ro uuid f =
