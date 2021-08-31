@@ -60,6 +60,11 @@ let update_account account =
     (!Web_config.accounts_dir / Printf.sprintf "%d.json" account.account_id)
     [string_of_account account]
 
+let drop_after_at x =
+  match String.index_opt x '@' with
+  | None -> x
+  | Some i -> String.sub x 0 i
+
 let create_account ~email user =
   let@ () = Lwt_mutex.with_lock counter_mutex in
   let* counter =
@@ -77,10 +82,14 @@ let create_account ~email user =
   in
   let* account_id = find_free_id counter in
   let account_last_connected = now () in
+  let account_name =
+    let x = drop_after_at user.user_name in
+    if x = "" then Printf.sprintf "User #%d" account_id else x
+  in
   let account =
     {
       account_id;
-      account_name = Printf.sprintf "User #%d" account_id;
+      account_name;
       account_email = email;
       account_last_connected;
       account_authentications = [user];
