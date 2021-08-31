@@ -142,3 +142,7 @@ let has_capability cap account =
   match account.account_capabilities with
   | None -> false
   | Some i -> i land (mask_of_capability cap) <> 0
+
+let check (u, a) = function
+  | `Id i -> a.account_id = i
+  | `User u' -> u = u'

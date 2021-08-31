@@ -81,7 +81,10 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
                    let* account =
                      let* x = Accounts.get_account user in
                      match x with
-                     | None -> Accounts.create_account ~email user
+                     | None ->
+                        let* a = Accounts.create_account ~email user in
+                        let* () = Web_persist.clear_elections_by_owner_cache () in
+                        return a
                      | Some x ->
                         let account_last_connected = now () in
                         let x = {x with account_last_connected} in

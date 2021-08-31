@@ -366,14 +366,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let with_site_user f =
     let* user = Eliom_reference.get Web_state.site_user in
     match user with
-    | Some u -> f (fst u)
+    | Some u -> f u
     | None -> forbidden ()
 
   let with_metadata_check_owner uuid f =
     let* user = Eliom_reference.get Web_state.site_user in
     let* metadata = Web_persist.get_election_metadata uuid in
     match user, metadata.e_owner with
-    | Some (a, _), Some b when a = b -> f metadata
+    | Some x, Some y when Accounts.check x y -> f metadata
     | _, _ -> forbidden ()
 
   let without_site_user ?fallback () f =
@@ -382,7 +382,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* user = Eliom_reference.get Web_state.site_user in
     match user with
     | None -> f ()
-    | Some (u, _) ->
+    | Some u ->
        match fallback with
        | Some g -> g u
        | None ->
@@ -428,7 +428,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                     if a.account_email = "" then (
                       Pages_admin.set_email ()
                     ) else (
-                      let* elections = get_elections_by_owner_sorted u in
+                      let* elections = get_elections_by_owner_sorted a.account_id in
                       Pages_admin.admin ~elections
                     )
                   )
@@ -559,7 +559,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun () (credmgmt, (auth, cas_server)) ->
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let@ u = with_site_user in
+        let@ _, a = with_site_user in
         let* credmgmt = match credmgmt with
           | Some "auto" -> return `Automatic
           | Some "manual" -> return `Manual
@@ -584,7 +584,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         match auth with
         | `CAS cas_server when not (is_http_url cas_server) ->
            Pages_common.generic_page ~title:(s_ "Error") (s_ "Bad CAS server!") () >>= Html.send
-        | _ -> create_new_election u credmgmt auth
+        | _ -> create_new_election (`Id a.account_id) credmgmt auth
       )
 
   let with_draft_election_ro uuid f =
@@ -592,7 +592,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* election = Web_persist.get_draft_election uuid in
     match election with
     | None -> fail_http `Not_found
-    | Some se -> if se.se_owner = u then f se else forbidden ()
+    | Some se -> if Accounts.check u se.se_owner then f se else forbidden ()
 
   let () =
     Any.register ~service:election_draft
@@ -636,7 +636,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     match election with
     | None -> fail_http `Not_found
     | Some se ->
-       if se.se_owner = u then (
+       if Accounts.check u se.se_owner then (
          Lwt.catch
            (fun () ->
              let* r = f se in
@@ -1312,7 +1312,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
               match election with
               | None -> fail_http `Not_found
               | Some se ->
-                 if se.se_owner = u then (
+                 if Accounts.check u se.se_owner then (
                    Pages_admin.election_draft_trustees ~token uuid se () >>= Html.send
                  ) else forbidden ()
             ) ()
@@ -1416,8 +1416,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_import
       (fun uuid () ->
+        let@ _, account = with_site_user in
         let@ se = with_draft_election_ro uuid in
-        let* _, a, b, c = get_elections_by_owner_sorted se.se_owner in
+        let* _, a, b, c = get_elections_by_owner_sorted account.account_id in
         Pages_admin.election_draft_import uuid se (a, b, c) ()
         >>= Html.send
       )
@@ -1474,8 +1475,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_import_trustees
       (fun uuid () ->
+        let@ _, account = with_site_user in
         let@ se = with_draft_election_ro uuid in
-        let* _, a, b, c = get_elections_by_owner_sorted se.se_owner in
+        let* _, a, b, c = get_elections_by_owner_sorted account.account_id in
         Pages_admin.election_draft_import_trustees uuid se (a, b, c) ()
         >>= Html.send
       )
@@ -1589,7 +1591,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* metadata = Web_persist.get_election_metadata uuid in
     let* site_user = Eliom_reference.get Web_state.site_user in
     match site_user with
-    | Some (u, _) when metadata.e_owner = Some u ->
+    | Some x when (match metadata.e_owner with None -> false | Some o -> Accounts.check x o) ->
        let* state = Web_persist.get_election_state uuid in
        let module W = (val election) in
        let* pending_server_shuffle =
@@ -1822,7 +1824,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
               let* metadata = Web_persist.get_election_metadata uuid in
               let* site_user = Eliom_reference.get Web_state.site_user in
               match site_user with
-              | Some (u, _) when metadata.e_owner = Some u -> return_true
+              | Some x when (match metadata.e_owner with None -> false | Some o -> Accounts.check x o) -> return_true
               | _ -> return_false
             ) else return_true
           in
@@ -2377,7 +2379,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
               match election with
               | None -> fail_http `Not_found
               | Some se ->
-                 if se.se_owner = u then (
+                 if Accounts.check u se.se_owner then (
                    Pages_admin.election_draft_threshold_trustees ~token uuid se () >>= Html.send
                  ) else forbidden ()
             ) ()

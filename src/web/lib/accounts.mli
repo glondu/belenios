@@ -29,3 +29,5 @@ type capability =
   | Sudo
 
 val has_capability : capability -> account -> bool
+
+val check : user * account -> user user_or_id -> bool

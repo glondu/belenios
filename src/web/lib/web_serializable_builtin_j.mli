@@ -25,3 +25,8 @@ open Web_serializable_builtin_t
 
 val write_datetime : Bi_outbuf.t -> datetime -> unit
 val read_datetime : Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
+
+(** {1 Serializers for type user_or_id} *)
+
+val write_user_or_id : (Bi_outbuf.t -> 'a -> unit) -> Bi_outbuf.t -> 'a user_or_id -> unit
+val read_user_or_id : (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a user_or_id

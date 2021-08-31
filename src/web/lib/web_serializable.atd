@@ -33,6 +33,7 @@ type election_checksums <ocaml predef from="Belenios_core.Serializable"> = abstr
 type cert <ocaml predef from="Belenios_core.Serializable"> = abstract
 type polynomial <ocaml predef from="Belenios_core.Serializable"> = abstract
 type vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a user_or_id <ocaml predef from="Web_serializable_builtin"> = abstract
 
 (** {1 Web-specific types} *)
 
@@ -48,7 +49,7 @@ type auth_config = {
 }
 
 type metadata = {
-  ?owner: user option;
+  ?owner: user user_or_id option;
   ?auth_config: auth_config list option;
   ?cred_authority : string option;
   ?trustees : string list option;
@@ -136,7 +137,7 @@ type draft_threshold_trustee = {
 
 type draft_election = {
   ?version : int option;
-  owner : user;
+  owner : user user_or_id;
   group <ocaml mutable> : string;
   voters <ocaml mutable> : draft_voter list;
   questions <ocaml mutable> : template;
@@ -176,7 +177,7 @@ type deleted_trustee = [ Single | Pedersen of (int * int) ]
 type deleted_election = {
   uuid : uuid;
   template : template;
-  owner : user;
+  owner : user user_or_id;
   nb_voters : int;
   nb_ballots : int;
   date : datetime;

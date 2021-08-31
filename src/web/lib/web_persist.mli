@@ -53,7 +53,7 @@ type election_kind =
   | `Tallied
   | `Archived
   ]
-val get_elections_by_owner : user -> (election_kind * uuid * datetime * string) list Lwt.t
+val get_elections_by_owner : int -> (election_kind * uuid * datetime * string) list Lwt.t
 val clear_elections_by_owner_cache : unit -> unit Lwt.t
 
 val get_voters : uuid -> string list option Lwt.t
