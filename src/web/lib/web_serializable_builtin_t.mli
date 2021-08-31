@@ -32,3 +32,8 @@ val second : float -> period
 val datetime_add : datetime -> period -> datetime
 val datetime_sub : datetime -> datetime -> period
 val ymds : period -> int * int * int * float
+
+type 'a user_or_id =
+  [ `Id of int
+  | `User of 'a
+  ]

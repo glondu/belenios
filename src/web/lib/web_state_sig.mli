@@ -27,7 +27,7 @@ module type S = sig
 
   val show_cookie_disclaimer : bool Eliom_reference.eref
 
-  val site_user : user option Eliom_reference.eref
+  val site_user : (user * account) option Eliom_reference.eref
   val election_user : (uuid * user) option Eliom_reference.eref
   val get_election_user : uuid -> user option Lwt.t
 
@@ -44,4 +44,5 @@ module type S = sig
   val signup_address : string option Eliom_reference.eref
   val signup_env : (string * link_kind) option Eliom_reference.eref
 
+  val set_email_env : string option Eliom_reference.eref
 end

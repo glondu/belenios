@@ -42,6 +42,7 @@ mkdir -p \
       $BELENIOS_VARDIR/lib \
       $BELENIOS_VARDIR/upload \
       $BELENIOS_VARDIR/spool \
+      $BELENIOS_VARDIR/accounts \
       $BELENIOS_RUNDIR
 
 touch $BELENIOS_VARDIR/password_db.csv

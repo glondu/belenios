@@ -25,7 +25,6 @@ open Belenios_platform
 open Belenios_core
 open Serializable_builtin_t
 open Common
-open Web_serializable_j
 open Web_common
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
@@ -50,9 +49,6 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
         ~get_params:(Eliom_parameter.string "version") ()
     in
     make_uri ~service (["static"; x], Belenios_version.build)
-
-  let format_user ~site u =
-    em [txt (if site then string_of_user u else u.user_name)]
 
   let belenios_url = Eliom_service.extern
                        ~prefix:"https://www.belenios.org"

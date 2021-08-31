@@ -19,14 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_serializable_builtin_t
+module type SENDER = sig
+  val send : address:string -> code:string -> unit Lwt.t
+end
 
-(** {1 Serializers for type datetime} *)
+module type S = sig
+  val generate : address:string -> unit Lwt.t
+  val check : address:string -> code:string -> bool
+end
 
-val write_datetime : Bi_outbuf.t -> datetime -> unit
-val read_datetime : Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
-
-(** {1 Serializers for type user_or_id} *)
-
-val write_user_or_id : (Bi_outbuf.t -> 'a -> unit) -> Bi_outbuf.t -> 'a user_or_id -> unit
-val read_user_or_id : (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a user_or_id
+module Make (I : SENDER) () : S

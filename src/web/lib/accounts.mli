@@ -19,14 +19,15 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_serializable_builtin_t
+open Web_serializable_t
 
-(** {1 Serializers for type datetime} *)
+val create_account : email:string -> user -> account Lwt.t
+val get_account : user -> account option Lwt.t
+val update_account : account -> unit Lwt.t
 
-val write_datetime : Bi_outbuf.t -> datetime -> unit
-val read_datetime : Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
+type capability =
+  | Sudo
 
-(** {1 Serializers for type user_or_id} *)
+val has_capability : capability -> account -> bool
 
-val write_user_or_id : (Bi_outbuf.t -> 'a -> unit) -> Bi_outbuf.t -> 'a user_or_id -> unit
-val read_user_or_id : (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a user_or_id
+val check : user * account -> user user_or_id -> bool

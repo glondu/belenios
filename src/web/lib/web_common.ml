@@ -279,6 +279,7 @@ type mail_kind =
   | MailAccountCreation
   | MailPasswordChange
   | MailLogin
+  | MailSetEmail
 
 let stringuuid_of_mail_kind = function
   | MailCredential uuid -> "credential", Some uuid
@@ -288,6 +289,7 @@ let stringuuid_of_mail_kind = function
   | MailAccountCreation -> "account-creation", None
   | MailPasswordChange -> "password-change", None
   | MailLogin -> "login", None
+  | MailSetEmail -> "set-email", None
 
 let send_email kind ~recipient ~subject ~body =
   let contents =

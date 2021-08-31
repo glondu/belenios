@@ -19,14 +19,52 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
+open Belenios_core.Common
 open Web_serializable_builtin_t
+open Web_common
 
-(** {1 Serializers for type datetime} *)
+module type SENDER = sig
+  val send : address:string -> code:string -> unit Lwt.t
+end
 
-val write_datetime : Bi_outbuf.t -> datetime -> unit
-val read_datetime : Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
+module type S = sig
+  val generate : address:string -> unit Lwt.t
+  val check : address:string -> code:string -> bool
+end
 
-(** {1 Serializers for type user_or_id} *)
+module Make (I : SENDER) () = struct
 
-val write_user_or_id : (Bi_outbuf.t -> 'a -> unit) -> Bi_outbuf.t -> 'a user_or_id -> unit
-val read_user_or_id : (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a user_or_id
+  type code =
+    {
+      code : string;
+      expiration_time : datetime;
+    }
+
+  let codes = ref SMap.empty
+
+  let filter_codes_by_time table =
+    let now = now () in
+    SMap.filter (fun _ {expiration_time; _} ->
+        datetime_compare now expiration_time <= 0
+      ) table
+
+  let generate ~address =
+    let codes_ = filter_codes_by_time !codes in
+    let* code = generate_numeric () in
+    let expiration_time = datetime_add (now ()) (second 900.) in
+    codes := SMap.add address {code; expiration_time} codes_;
+    I.send ~address ~code
+
+  let check ~address ~code =
+    let codes_ = filter_codes_by_time !codes in
+    codes := codes_;
+    match SMap.find_opt address codes_ with
+    | None -> false
+    | Some x ->
+       if x.code = code then (
+         codes := SMap.remove address codes_;
+         true
+       ) else false
+
+end

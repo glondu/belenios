@@ -35,7 +35,7 @@ open Web_common
 
 let ( / ) = Filename.concat
 
-module UMap = Map.Make (struct type t = user let compare = compare end)
+module UMap = Map.Make (struct type t = int let compare = compare end)
 
 let elections_by_owner_cache = ref None
 let elections_by_owner_mutex = Lwt_mutex.create ()
@@ -198,6 +198,14 @@ let umap_add user x map =
   in
   UMap.add user (x :: xs) map
 
+let get_id = function
+  | `Id i -> return i
+  | `User u ->
+     let* x = Accounts.get_account u in
+     match x with
+     | None -> Lwt.fail Exit
+     | Some a -> return a.account_id
+
 let build_elections_by_owner_cache () =
   Lwt_unix.files_of_directory !Web_config.spool_dir
   |> Lwt_stream.to_list
@@ -217,6 +225,7 @@ let build_elections_by_owner_cache () =
                      match metadata.e_owner with
                      | None -> return accu
                      | Some o ->
+                        let* id = get_id o in
                         let* election = get_raw_election uuid in
                         match election with
                         | None -> return accu
@@ -236,11 +245,12 @@ let build_elections_by_owner_cache () =
                                 return (`Archived, date)
                            in
                            let election = Election.of_string election in
-                           return @@ umap_add o (kind, uuid, date, election.e_name) accu
+                           return @@ umap_add id (kind, uuid, date, election.e_name) accu
                    )
                 | Some se ->
                    let date = Option.get se.se_creation_date default_creation_date in
-                   return @@ umap_add se.se_owner (`Draft, uuid, date, se.se_questions.t_name) accu
+                   let* id = get_id se.se_owner in
+                   return @@ umap_add id (`Draft, uuid, date, se.se_questions.t_name) accu
               )
               (fun _ -> return accu)
           )

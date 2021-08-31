@@ -792,4 +792,43 @@ module type S = sig
      Eliom_service.non_ext, Eliom_service.reg, [ `WithoutSuffix ], unit,
      unit, Eliom_service.non_ocaml)
       Eliom_service.t
+  val set_email_post :
+    (unit, string, Eliom_service.post, Eliom_service.att,
+     Eliom_service.co, Eliom_service.non_ext, Eliom_service.reg,
+     [ `WithoutSuffix ], unit,
+     [ `One of string ] Eliom_parameter.param_name,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
+  val set_email_confirm :
+    (unit, string, Eliom_service.post, Eliom_service.att,
+     Eliom_service.co, Eliom_service.non_ext, Eliom_service.reg,
+     [ `WithoutSuffix ], unit,
+     [ `One of string ] Eliom_parameter.param_name,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
+  val sudo :
+    (unit, unit, Eliom_service.get, Eliom_service.att,
+     Eliom_service.non_co, Eliom_service.non_ext, Eliom_service.reg,
+     [ `WithoutSuffix ], unit, unit, Eliom_service.non_ocaml)
+      Eliom_service.t
+  val sudo_post :
+    (unit, string * string, Eliom_service.post, Eliom_service.att,
+     Eliom_service.co, Eliom_service.non_ext, Eliom_service.reg,
+     [ `WithoutSuffix ], unit,
+     [ `One of string ] Eliom_parameter.param_name *
+       [ `One of string ] Eliom_parameter.param_name,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
+  val account :
+    (unit, unit, Eliom_service.get, Eliom_service.att,
+     Eliom_service.non_co, Eliom_service.non_ext, Eliom_service.reg,
+     [ `WithoutSuffix ], unit, unit, Eliom_service.non_ocaml)
+      Eliom_service.t
+  val account_post :
+    (unit, string, Eliom_service.post, Eliom_service.att,
+     Eliom_service.co, Eliom_service.non_ext, Eliom_service.reg,
+     [ `WithoutSuffix ], unit,
+     [ `One of string ] Eliom_parameter.param_name,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
 end

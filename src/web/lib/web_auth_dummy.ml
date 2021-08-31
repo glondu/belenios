@@ -43,7 +43,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
           {
             Web_auth.post_login_handler =
               fun _ _ cont ->
-              cont (Some name)
+              cont (Some (name, ""))
           }
       )
 

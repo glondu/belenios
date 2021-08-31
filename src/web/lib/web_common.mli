@@ -130,6 +130,7 @@ type mail_kind =
   | MailAccountCreation
   | MailPasswordChange
   | MailLogin
+  | MailSetEmail
 
 val send_email : mail_kind -> recipient:string -> subject:string -> body:string -> unit Lwt.t
 

@@ -379,7 +379,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
       if confidential then (
         let* metadata = Web_persist.get_election_metadata uuid in
         match site_user with
-        | Some u when metadata.e_owner = Some u -> return_true
+        | Some x when (match metadata.e_owner with None -> false | Some o -> Accounts.check x o) -> return_true
         | _ -> return_false
       ) else return_true
     in

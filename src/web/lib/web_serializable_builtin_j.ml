@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Serializable_core_j
 open Web_serializable_builtin_t
 
 (** {1 Serializers for type datetime} *)
@@ -34,3 +35,16 @@ let datetime_of_json = function
 
 let read_datetime state buf =
   datetime_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
+
+(** {1 Serializers for type user_or_id} *)
+
+let write_user_or_id write_user buf = function
+  | `Id i -> Bi_outbuf.add_string buf (string_of_int i)
+  | `User u -> write_user buf u
+
+let user_or_id_of_json read_user = function
+  | `Int i -> `Id i
+  | x -> `User (unboxed_of_string read_user (Yojson.Safe.to_string x))
+
+let read_user_or_id read_user state buf =
+  user_or_id_of_json read_user (Yojson.Safe.from_lexbuf ~stream:true state buf)

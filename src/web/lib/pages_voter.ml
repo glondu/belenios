@@ -339,7 +339,9 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       let* is_admin =
         let* metadata = Web_persist.get_election_metadata uuid in
         let* site_user = Eliom_reference.get Web_state.site_user in
-        return (metadata.e_owner = site_user)
+        match site_user, metadata.e_owner with
+        | Some x, Some y -> return @@ Accounts.check x y
+        | _ -> return_false
       in
       match result with
       | Some r when hidden = None || is_admin ->
@@ -633,7 +635,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
          post_form ~service:election_cast_confirm (fun () -> [
                                                        p ~a:[a_style "text-align: center; padding: 10px;"] [
                                                            txt (s_ "I am ");
-                                                           format_user ~site:false u;
+                                                           em [txt u.user_name];
                                                            txt (s_ " and ");
                                                            input
                                                              ~a:[a_class ["nice-button nice-button--blue"]; a_style "font-size: 18px;"]

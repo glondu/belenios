@@ -56,10 +56,11 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
     in
     let* db = Lwt_preemptive.detach Csv.load db in
     match List.find_opt check_name_or_email db with
-    | Some (u :: salt :: hashed :: _) ->
-       if sha256_hex (salt ^ String.trim password) = hashed then
-         return_some u
-       else
+    | Some (u :: salt :: hashed :: xs) ->
+       if sha256_hex (salt ^ String.trim password) = hashed then (
+         let email = match xs with [] -> "" | x :: _ -> x in
+         return_some (u, email)
+       ) else
          return_none
     | _ -> return_none
 

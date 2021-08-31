@@ -62,3 +62,8 @@ let datetime_sub (a, _) (b, _) =
   CalendarLib.Fcalendar.Precise.sub a b
 
 let ymds = CalendarLib.Fcalendar.Precise.Period.ymds
+
+type 'a user_or_id =
+  [ `Id of int
+  | `User of 'a
+  ]

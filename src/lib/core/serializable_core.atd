@@ -25,6 +25,10 @@
 
 type number <ocaml predef from="Serializable_builtin"> = abstract
 
+(** {2 Helper} *)
+
+type 'a unboxed = 'a
+
 (** {2 Basic cryptographic datastructures} *)
 
 type 'a ciphertext = {

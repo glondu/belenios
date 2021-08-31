@@ -32,10 +32,6 @@ type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
 type proof <ocaml predef from="Serializable_core"> = abstract
 type question <ocaml module="Question"> = abstract
 
-(** {2 Basic cryptographic datastructures} *)
-
-type 'a group_element = 'a
-
 (** {2 Trustees} *)
 
 type 'a trustee_public_key = {
