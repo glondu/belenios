@@ -16,35 +16,35 @@ msgstr ""
 "20)) ? 1 : 2;\n"
 "X-Generator: Weblate 4.3.2-dev\n"
 
-#: src/web/lib/pages_common.ml:385
+#: src/web/lib/pages_common.ml:381
 msgid " (if you forgot it, for example)."
 msgstr " (daca ati uitat-o, de exemplu)."
 
-#: src/web/lib/pages_voter.ml:863
+#: src/web/lib/pages_voter.ml:865
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Un e-mail de confirmare v-a fost trimis."
 
-#: src/web/lib/pages_voter.ml:637
+#: src/web/lib/pages_voter.ml:639
 msgid " and "
 msgstr " si "
 
-#: src/web/lib/pages_voter.ml:862
+#: src/web/lib/pages_voter.ml:864
 msgid " anytime during the election."
 msgstr " în orice moment pe durata alegerii."
 
-#: src/web/lib/pages_voter.ml:927
+#: src/web/lib/pages_voter.ml:929
 msgid " ballot(s) have been accepted so far."
 msgstr " buletin(e) de vot au fost acceptat(e) până în prezent."
 
-#: src/web/lib/pages_voter.ml:937
+#: src/web/lib/pages_voter.ml:939
 msgid " ballot(s) have been accepted, and "
 msgstr " buletin(e) de vot au fost acceptat(e), și "
 
-#: src/web/lib/pages_voter.ml:932
+#: src/web/lib/pages_voter.ml:934
 msgid " ballot(s) have been accepted."
 msgstr " buletin(e) de vot au fost acceptat(e)."
 
-#: src/web/lib/web_common.ml:107
+#: src/web/lib/web_common.ml:95
 msgid " day(s)"
 msgstr " zi(le)"
 
@@ -52,47 +52,47 @@ msgstr " zi(le)"
 msgid " for more information."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:852
+#: src/web/lib/pages_voter.ml:854
 msgid " has been accepted."
 msgstr " a fost acceptat."
 
-#: src/web/lib/pages_voter.ml:731
+#: src/web/lib/pages_voter.ml:733
 msgid " has been received, but not recorded yet. "
 msgstr " a fost primit, dar nu a fost încă înregistrat. "
 
-#: src/web/lib/pages_voter.ml:939
+#: src/web/lib/pages_voter.ml:941
 msgid " have been tallied."
 msgstr " au fost contorizate."
 
-#: src/web/lib/web_common.ml:109
+#: src/web/lib/web_common.ml:97
 msgid " hour(s)"
 msgstr " ora(e)"
 
-#: src/web/lib/pages_common.ml:517
+#: src/web/lib/pages_common.ml:513
 msgid " in the following box: "
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:866
+#: src/web/lib/pages_voter.ml:868
 msgid " is rejected, because "
 msgstr " este resprins, deoarece "
 
-#: src/web/lib/web_common.ml:110
+#: src/web/lib/web_common.ml:98
 msgid " minute(s)"
 msgstr " minut(e)"
 
-#: src/web/lib/web_common.ml:106
+#: src/web/lib/web_common.ml:94
 msgid " month(s)"
 msgstr " luna(i)"
 
-#: src/web/lib/web_common.ml:111
+#: src/web/lib/web_common.ml:99
 msgid " second(s)"
 msgstr " secundă(e)"
 
-#: src/web/lib/web_common.ml:105
+#: src/web/lib/web_common.ml:93
 msgid " year(s)"
 msgstr " an(i)"
 
-#: src/web/lib/pages_voter.ml:990
+#: src/web/lib/pages_voter.ml:992
 msgid "!"
 msgstr "!"
 
@@ -100,11 +100,11 @@ msgstr "!"
 msgid "%d blank ballot(s)"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1227 src/web/lib/pages_voter.ml:107
+#: src/web/lib/pages_voter.ml:1229 src/web/lib/pages_voter.ml:107
 msgid "%d invalid ballot(s)"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:483
+#: src/web/lib/pages_voter.ml:485
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
 
@@ -120,11 +120,11 @@ msgstr ""
 msgid "(nothing)"
 msgstr "(nimic)"
 
-#: src/web/lib/pages_common.ml:383
+#: src/web/lib/pages_common.ml:379
 msgid ", or "
 msgstr ", sau "
 
-#: src/web/lib/pages_voter.ml:1131
+#: src/web/lib/pages_voter.ml:1133
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
 msgstr ""
 
@@ -132,15 +132,15 @@ msgstr ""
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1233
+#: src/web/lib/pages_voter.ml:1235
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:400
+#: src/web/lib/pages_voter.ml:402
 msgid "Accept"
 msgstr "Accepta"
 
-#: src/web/lib/pages_voter.ml:902
+#: src/web/lib/pages_voter.ml:904
 msgid "Accepted ballots"
 msgstr "Buletinele de vot acceptate"
 
@@ -148,11 +148,11 @@ msgstr "Buletinele de vot acceptate"
 msgid "According to Majority Judgment, the ranking is:"
 msgstr ""
 
-#: src/web/lib/pages_common.ml:154 src/web/lib/pages_common.ml:84
+#: src/web/lib/pages_common.ml:150 src/web/lib/pages_common.ml:80
 msgid "Administer elections"
 msgstr "Administrează alegerile"
 
-#: src/web/lib/pages_common.ml:156 src/web/lib/pages_common.ml:86
+#: src/web/lib/pages_common.ml:152 src/web/lib/pages_common.ml:82
 msgid "Administer this election"
 msgstr "Administrează această alegere"
 
@@ -160,18 +160,18 @@ msgstr "Administrează această alegere"
 msgid "Advanced mode"
 msgstr "Mod avansat"
 
-#: src/web/lib/pages_voter.ml:459
+#: src/web/lib/pages_voter.ml:461
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1015 src/web/lib/pages_voter.ml:808
-#. src/web/lib/pages_voter.ml:806
+#: src/web/lib/pages_voter.ml:1017 src/web/lib/pages_voter.ml:810
+#. src/web/lib/pages_voter.ml:808
+#. src/web/lib/pages_voter.ml:676
 #. src/web/lib/pages_voter.ml:674
-#. src/web/lib/pages_voter.ml:672
 msgid "Answer to questions"
 msgstr "Răspuns la întrebări"
 
-#: src/web/lib/pages_voter.ml:1133
+#: src/web/lib/pages_voter.ml:1135
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
 
@@ -183,25 +183,25 @@ msgstr "Cel putin unul din raspunsuri nu este bun!"
 msgid "Audit data: "
 msgstr "Date de audit: "
 
-#: src/web/lib/pages_voter.ml:1019 src/web/lib/pages_voter.ml:826
-#. src/web/lib/pages_voter.ml:824
+#: src/web/lib/pages_voter.ml:1021 src/web/lib/pages_voter.ml:828
+#. src/web/lib/pages_voter.ml:826
+#. src/web/lib/pages_voter.ml:694
 #. src/web/lib/pages_voter.ml:692
-#. src/web/lib/pages_voter.ml:690
-#. src/web/lib/pages_common.ml:458
-#. src/web/lib/pages_common.ml:412
-#. src/web/lib/pages_common.ml:363
+#. src/web/lib/pages_common.ml:454
+#. src/web/lib/pages_common.ml:408
+#. src/web/lib/pages_common.ml:359
 msgid "Authenticate"
 msgstr "Autentificare"
 
-#: src/web/lib/pages_common.ml:321
+#: src/web/lib/pages_common.ml:317
 msgid "Authenticate with %s"
 msgstr ""
 
-#: src/web/lib/pages_common.ml:423
+#: src/web/lib/pages_common.ml:419
 msgid "Authentication failed"
 msgstr "Autentificarea a esuat"
 
-#: src/web/lib/pages_common.ml:426
+#: src/web/lib/pages_common.ml:422
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Autentificarea a esuat, probabil datorita unui nume de utilizator sau parola "
@@ -211,27 +211,27 @@ msgstr ""
 msgid "Available methods on this server:"
 msgstr "Metode disponibile pe acest server:"
 
-#: src/web/lib/pages_common.ml:496
+#: src/web/lib/pages_common.ml:492
 msgid "Bad e-mail address!"
 msgstr ""
 
-#: src/web/lib/pages_common.ml:495
+#: src/web/lib/pages_common.ml:491
 msgid "Bad security code!"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:964 src/web/lib/pages_voter.ml:952
+#: src/web/lib/pages_voter.ml:966 src/web/lib/pages_voter.ml:954
 msgid "Belenios Booth"
 msgstr "Cabina de vot Belenios"
 
-#: src/web/lib/pages_common.ml:480
+#: src/web/lib/pages_common.ml:476
 msgid "Belenios Server"
 msgstr ""
 
-#: src/web/lib/pages_common.ml:482
+#: src/web/lib/pages_common.ml:478
 msgid "Belenios authentication"
 msgstr ""
 
-#: src/web/lib/pages_common.ml:476
+#: src/web/lib/pages_common.ml:472
 msgid "Best regards,"
 msgstr ""
 
@@ -240,7 +240,7 @@ msgstr ""
 msgid "Blank vote"
 msgstr "Vot alb"
 
-#: src/web/lib/pages_voter.ml:397
+#: src/web/lib/pages_voter.ml:399
 msgid "By using this site, you accept our "
 msgstr "Folosind acest sit, acceptați "
 
@@ -256,19 +256,19 @@ msgstr ""
 msgid "Computed fingerprint:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1106
+#: src/web/lib/pages_voter.ml:1108
 msgid "Condorcet-Schulze method"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1021 src/web/lib/pages_voter.ml:835
-#. src/web/lib/pages_voter.ml:833
+#: src/web/lib/pages_voter.ml:1023 src/web/lib/pages_voter.ml:837
+#. src/web/lib/pages_voter.ml:835
+#. src/web/lib/pages_voter.ml:703
 #. src/web/lib/pages_voter.ml:701
-#. src/web/lib/pages_voter.ml:699
 msgid "Confirm"
 msgstr "Confirmati"
 
-#: src/web/lib/pages_voter.ml:1179 src/web/lib/pages_voter.ml:1122
-#. src/web/lib/pages_voter.ml:1001
+#: src/web/lib/pages_voter.ml:1181 src/web/lib/pages_voter.ml:1124
+#. src/web/lib/pages_voter.ml:1003
 msgid "Continue"
 msgstr "Continuă"
 
@@ -276,48 +276,48 @@ msgstr "Continuă"
 msgid "Cookies are blocked"
 msgstr "Cookie-urile sunt blocate"
 
-#: src/web/lib/pages_voter.ml:1358
+#: src/web/lib/pages_voter.ml:1360
 msgid "Credential:"
 msgstr "Cod de votare:"
 
-#: src/web/lib/pages_voter.ml:493
+#: src/web/lib/pages_voter.ml:495
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1394 src/web/lib/pages_common.ml:467
+#: src/web/lib/pages_voter.ml:1396 src/web/lib/pages_common.ml:463
 msgid "Dear %s,"
 msgstr "Draga %s,"
 
-#: src/web/lib/pages_voter.ml:1023
+#: src/web/lib/pages_voter.ml:1025
 msgid "Done"
 msgstr "Terminat"
 
-#: src/web/lib/pages_common.ml:508 src/web/lib/pages_common.ml:392
-#. src/web/lib/pages_common.ml:347
+#: src/web/lib/pages_common.ml:504 src/web/lib/pages_common.ml:388
+#. src/web/lib/pages_common.ml:343
 msgid "E-mail address:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1083
+#: src/web/lib/pages_voter.ml:1085
 msgid "Election UUID: "
 msgstr "Codul UUID al alegerii: "
 
-#: src/web/lib/pages_voter.ml:1087 src/web/lib/pages_voter.ml:51
+#: src/web/lib/pages_voter.ml:1089 src/web/lib/pages_voter.ml:51
 msgid "Election fingerprint: "
 msgstr "Amprenta digitală a alegerii: "
 
-#: src/web/lib/pages_voter.ml:1066 src/web/lib/pages_common.ml:182
-#. src/web/lib/pages_common.ml:114
+#: src/web/lib/pages_voter.ml:1068 src/web/lib/pages_common.ml:178
+#. src/web/lib/pages_common.ml:110
 msgid "Election server"
 msgstr "Serverul alegerii"
 
-#: src/web/lib/pages_voter.ml:1053
+#: src/web/lib/pages_voter.ml:1055
 msgid "Encrypting…"
 msgstr "Criptare în curs…"
 
-#: src/web/lib/site_voter.ml:364 src/web/lib/site_voter.ml:339
-#. src/web/lib/site_voter.ml:291
-#. src/web/lib/site_voter.ml:286
+#: src/web/lib/site_voter.ml:354 src/web/lib/site_voter.ml:329
 #. src/web/lib/site_voter.ml:281
+#. src/web/lib/site_voter.ml:276
+#. src/web/lib/site_voter.ml:271
 msgid "Error"
 msgstr "Eroare"
 
@@ -325,25 +325,29 @@ msgstr "Eroare"
 msgid "Expected fingerprint:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:869
+#: src/web/lib/pages_voter.ml:871
 msgid "FAIL!"
 msgstr "EȘEC!"
 
-#: src/web/lib/pages_common.ml:208 src/web/lib/pages_common.ml:137
+#: src/web/lib/site_common.ml:110
+msgid "Forbidden"
+msgstr ""
+
+#: src/web/lib/pages_common.ml:204 src/web/lib/pages_common.ml:133
 msgid "Get the source code"
 msgstr "Obține codul sursă"
 
-#: src/web/lib/pages_voter.ml:920 src/web/lib/pages_voter.ml:883
-#. src/web/lib/pages_voter.ml:780
-#. src/web/lib/pages_voter.ml:750
+#: src/web/lib/pages_voter.ml:922 src/web/lib/pages_voter.ml:885
+#. src/web/lib/pages_voter.ml:782
+#. src/web/lib/pages_voter.ml:752
 msgid "Go back to election"
 msgstr "Întoarcere la pagina de start a alegerii"
 
-#: src/web/lib/pages_voter.ml:635
+#: src/web/lib/pages_voter.ml:637
 msgid "I am "
 msgstr "Eu sunt "
 
-#: src/web/lib/pages_voter.ml:640
+#: src/web/lib/pages_voter.ml:642
 msgid "I cast my vote"
 msgstr "Am depus votul meu"
 
@@ -359,30 +363,30 @@ msgstr ""
 "Daca vi se cere sa ordonati candidatii (Condorcet, STV, ...) atunci folositi "
 "1 pentru primul candidat, 2 pentru al doilea, etc."
 
-#: src/web/lib/pages_voter.ml:774
+#: src/web/lib/pages_voter.ml:776
 msgid "If you want to vote, you must "
 msgstr "Daca vreti sa votati, trebuie sa "
 
-#: src/web/lib/pages_voter.ml:1257
+#: src/web/lib/pages_voter.ml:1259
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1129
+#: src/web/lib/pages_voter.ml:1131
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1186
+#: src/web/lib/pages_voter.ml:1188
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1013 src/web/lib/pages_voter.ml:799
-#. src/web/lib/pages_voter.ml:797
+#: src/web/lib/pages_voter.ml:1015 src/web/lib/pages_voter.ml:801
+#. src/web/lib/pages_voter.ml:799
+#. src/web/lib/pages_voter.ml:667
 #. src/web/lib/pages_voter.ml:665
-#. src/web/lib/pages_voter.ml:663
 msgid "Input credential"
 msgstr "Introducere cod de votare"
 
-#: src/web/lib/pages_voter.ml:1032
+#: src/web/lib/pages_voter.ml:1034
 msgid "Input your credential "
 msgstr "Introduceți codul vostru de votare "
 
@@ -390,7 +394,7 @@ msgstr "Introduceți codul vostru de votare "
 msgid "Invalid credential!"
 msgstr "Cod de votare invalid !"
 
-#: src/web/lib/site_voter.ml:292
+#: src/web/lib/site_voter.ml:282
 msgid "Invalid index for question."
 msgstr "Numar de intrebare invalid."
 
@@ -410,25 +414,25 @@ msgstr "Se va deschide în "
 msgid "JSON result"
 msgstr "rezultat JSON"
 
-#: src/web/lib/pages_common.ml:230
+#: src/web/lib/pages_common.ml:226
 msgid "Language:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:959
+#: src/web/lib/pages_voter.ml:961
 msgid "Loading…"
 msgstr "Incarcare…"
 
-#: src/web/lib/pages_common.ml:457 src/web/lib/pages_common.ml:411
-#. src/web/lib/pages_common.ml:362
-#. src/web/lib/pages_common.ml:339
+#: src/web/lib/pages_common.ml:453 src/web/lib/pages_common.ml:407
+#. src/web/lib/pages_common.ml:358
+#. src/web/lib/pages_common.ml:335
 msgid "Log in"
 msgstr "Conexiune"
 
-#: src/web/lib/pages_common.ml:320
+#: src/web/lib/pages_common.ml:316
 msgid "Log in with %s"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1261
+#: src/web/lib/pages_voter.ml:1263
 msgid "Look at the raw events for more details."
 msgstr ""
 
@@ -436,19 +440,19 @@ msgstr ""
 msgid "Majority Judgment"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1163 src/web/lib/pages_voter.ml:1113
+#: src/web/lib/pages_voter.ml:1165 src/web/lib/pages_voter.ml:1115
 msgid "Majority Judgment method"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1255
+#: src/web/lib/pages_voter.ml:1257
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1193
+#: src/web/lib/pages_voter.ml:1195
 msgid "Many variants of STV exist, we documented our choices in "
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1190 src/web/lib/pages_voter.ml:1137
+#: src/web/lib/pages_voter.ml:1192 src/web/lib/pages_voter.ml:1139
 msgid "More information can be found "
 msgstr ""
 
@@ -464,15 +468,15 @@ msgstr "Nu puteți selecta o altă opțiune la un vot alb"
 msgid "Not found"
 msgstr "Inexistent"
 
-#: src/web/lib/pages_voter.ml:1300
+#: src/web/lib/pages_voter.ml:1302
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:655
+#: src/web/lib/pages_voter.ml:657
 msgid "Note: You have already voted. Your vote will be replaced."
 msgstr "Remarca: Ati votat deja. Votul dvoastra va fi inlocuit."
 
-#: src/web/lib/pages_voter.ml:741
+#: src/web/lib/pages_voter.ml:743
 msgid "Note: your ballot is encrypted and nobody can see its contents."
 msgstr "Notă: buletinul de vot este criptat și nimeni nu-i poate vedea conținutul."
 
@@ -480,39 +484,39 @@ msgstr "Notă: buletinul de vot este criptat și nimeni nu-i poate vedea conțin
 msgid "Notes:"
 msgstr "Remarci:"
 
-#: src/web/lib/pages_voter.ml:365
+#: src/web/lib/pages_voter.ml:367
 msgid "Number of accepted ballots: "
 msgstr "Numărul buletinelor de vot acceptate: "
 
-#: src/web/lib/pages_voter.ml:1119
+#: src/web/lib/pages_voter.ml:1121
 msgid "Number of grades:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1176
+#: src/web/lib/pages_voter.ml:1178
 msgid "Number of seats:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1363 src/web/lib/pages_voter.ml:1308
+#: src/web/lib/pages_voter.ml:1365 src/web/lib/pages_voter.ml:1310
 msgid "Number of votes:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1369 src/web/lib/pages_voter.ml:1314
+#: src/web/lib/pages_voter.ml:1371 src/web/lib/pages_voter.ml:1316
 msgid "Only the last vote counts."
 msgstr "Numai ultimul vot va fi luat în considerare."
 
-#: src/web/lib/pages_voter.ml:1366 src/web/lib/pages_voter.ml:1311
+#: src/web/lib/pages_voter.ml:1368 src/web/lib/pages_voter.ml:1313
 msgid "Page of the election:"
 msgstr "Pagina alegerii:"
 
-#: src/web/lib/pages_voter.ml:1304 src/web/lib/pages_common.ml:404
+#: src/web/lib/pages_voter.ml:1306 src/web/lib/pages_common.ml:400
 msgid "Password:"
 msgstr "Parola:"
 
-#: src/web/lib/pages_common.ml:515
+#: src/web/lib/pages_common.ml:511
 msgid "Please enter "
 msgstr ""
 
-#: src/web/lib/pages_common.ml:444
+#: src/web/lib/pages_common.ml:440
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
@@ -520,15 +524,15 @@ msgstr ""
 msgid "Please enter your credential:"
 msgstr "Vă rugăm să introduceți codul de votare:"
 
-#: src/web/lib/pages_voter.ml:1296
+#: src/web/lib/pages_voter.ml:1298
 msgid "Please find below your login and password for the election"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:646
+#: src/web/lib/pages_voter.ml:648
 msgid "Please log in to confirm your vote."
 msgstr "Vă rugăm să vă logați pentru a confirma votul vostru."
 
-#: src/web/lib/pages_common.ml:336
+#: src/web/lib/pages_common.ml:332
 msgid "Please log in:"
 msgstr "Va rugam sa va conectati:"
 
@@ -536,23 +540,23 @@ msgstr "Va rugam sa va conectati:"
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1147
+#: src/web/lib/pages_voter.ml:1149
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1201
+#: src/web/lib/pages_voter.ml:1203
 msgid "Please provide the number of seats to see the result of the election according to the Single Transferable Vote method."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1052
+#: src/web/lib/pages_voter.ml:1054
 msgid "Please wait while your ballot is being encrypted…"
 msgstr "Vă rugăm să așteptați criptarea buletinului vostru de vot…"
 
-#: src/web/lib/pages_voter.ml:958
+#: src/web/lib/pages_voter.ml:960
 msgid "Please wait… "
 msgstr "Va rugam sa asteptati... "
 
-#: src/web/lib/pages_common.ml:203 src/web/lib/pages_common.ml:132
+#: src/web/lib/pages_common.ml:199 src/web/lib/pages_common.ml:128
 msgid "Powered by "
 msgstr "Realizat de "
 
@@ -560,34 +564,34 @@ msgstr "Realizat de "
 msgid "Previous"
 msgstr "Precedent"
 
-#: src/web/lib/pages_common.ml:210 src/web/lib/pages_common.ml:139
+#: src/web/lib/pages_common.ml:206 src/web/lib/pages_common.ml:135
 msgid "Privacy policy"
 msgstr "Politica de confidentialitate"
 
-#: src/web/lib/pages_common.ml:294
+#: src/web/lib/pages_common.ml:290
 msgid "Proceed"
 msgstr "Continuati"
 
-#: src/web/lib/pages_voter.ml:1241
+#: src/web/lib/pages_voter.ml:1243
 msgid "Raw events"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1056
+#: src/web/lib/pages_voter.ml:1058
 msgid "Restart"
 msgstr "Reîncepe"
 
-#: src/web/lib/pages_voter.ml:1419
+#: src/web/lib/pages_voter.ml:1421
 msgid "Results will be published on the election page"
 msgstr "Rezultatele vor fi publicate pe pagina alegerii"
 
-#: src/web/lib/pages_voter.ml:1017 src/web/lib/pages_voter.ml:817
-#. src/web/lib/pages_voter.ml:815
+#: src/web/lib/pages_voter.ml:1019 src/web/lib/pages_voter.ml:819
+#. src/web/lib/pages_voter.ml:817
+#. src/web/lib/pages_voter.ml:685
 #. src/web/lib/pages_voter.ml:683
-#. src/web/lib/pages_voter.ml:681
 msgid "Review and encrypt"
 msgstr "Rezumat și criptare"
 
-#: src/web/lib/pages_voter.ml:997
+#: src/web/lib/pages_voter.ml:999
 msgid "Save it to check that it is taken into account later."
 msgstr ""
 "Salvati-o pentru a verifica ulterior ca votul dvoastra a fost luat in calcul."
@@ -600,7 +604,7 @@ msgstr "Consultă buletinele de vot acceptate"
 msgid "Select between %d and %d answer(s)"
 msgstr "Selectați între %d și %d rspuns(uri)"
 
-#: src/web/lib/pages_common.ml:233
+#: src/web/lib/pages_common.ml:229
 msgid "Set"
 msgstr ""
 
@@ -612,7 +616,7 @@ msgstr ""
 msgid "Single Transferable Vote"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1217 src/web/lib/pages_voter.ml:1170
+#: src/web/lib/pages_voter.ml:1219 src/web/lib/pages_voter.ml:1172
 msgid "Single Transferable Vote method"
 msgstr ""
 
@@ -620,47 +624,47 @@ msgstr ""
 msgid "Start"
 msgstr "Incepeti"
 
-#: src/web/lib/pages_voter.ml:800 src/web/lib/pages_voter.ml:666
+#: src/web/lib/pages_voter.ml:802 src/web/lib/pages_voter.ml:668
 msgid "Step 1"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1028
+#: src/web/lib/pages_voter.ml:1030
 msgid "Step 1/6: Input credential"
 msgstr "Pas 1/6: Introducere cod de votare"
 
-#: src/web/lib/pages_voter.ml:809 src/web/lib/pages_voter.ml:675
+#: src/web/lib/pages_voter.ml:811 src/web/lib/pages_voter.ml:677
 msgid "Step 2"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1038
+#: src/web/lib/pages_voter.ml:1040
 msgid "Step 2/6: Answer to questions"
 msgstr "Pas 2/6: Răspuns la întrebări"
 
-#: src/web/lib/pages_voter.ml:818 src/web/lib/pages_voter.ml:684
+#: src/web/lib/pages_voter.ml:820 src/web/lib/pages_voter.ml:686
 msgid "Step 3"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1043
+#: src/web/lib/pages_voter.ml:1045
 msgid "Step 3/6: Review and encrypt"
 msgstr "Pas 3/6: Rezumat și criptare"
 
-#: src/web/lib/pages_voter.ml:827 src/web/lib/pages_voter.ml:693
+#: src/web/lib/pages_voter.ml:829 src/web/lib/pages_voter.ml:695
 msgid "Step 4"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:836 src/web/lib/pages_voter.ml:702
+#: src/web/lib/pages_voter.ml:838 src/web/lib/pages_voter.ml:704
 msgid "Step 5"
 msgstr ""
 
-#: src/web/lib/pages_common.ml:521 src/web/lib/pages_common.ml:449
+#: src/web/lib/pages_common.ml:517 src/web/lib/pages_common.ml:445
 msgid "Submit"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1259
+#: src/web/lib/pages_voter.ml:1261
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:864
+#: src/web/lib/pages_voter.ml:866
 msgid "Thank you for voting!"
 msgstr "Vă mulțumim pentru participare!"
 
@@ -668,7 +672,7 @@ msgstr "Vă mulțumim pentru participare!"
 msgid "The Schulze winners are:"
 msgstr "Castigatorii, dupa metoda Schulze, sunt:"
 
-#: src/web/lib/pages_voter.ml:1268
+#: src/web/lib/pages_voter.ml:1270
 msgid "The Single Transferable Vote winners are:"
 msgstr ""
 
@@ -680,7 +684,7 @@ msgstr "Alegerea este închisă și în curs de contorizare."
 msgid "The election will close in "
 msgstr "Alegerea se va închide în "
 
-#: src/web/lib/pages_voter.ml:513
+#: src/web/lib/pages_voter.ml:515
 msgid "The fingerprint of the encrypted tally is %s."
 msgstr ""
 
@@ -692,15 +696,15 @@ msgstr ""
 msgid "The fingerprints match!"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1145
+#: src/web/lib/pages_voter.ml:1147
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
 
-#: src/web/lib/site_voter.ml:340
+#: src/web/lib/site_voter.ml:330
 msgid "The number of grades is invalid."
 msgstr ""
 
-#: src/web/lib/site_voter.ml:365
+#: src/web/lib/site_voter.ml:355
 msgid "The number of seats is invalid."
 msgstr ""
 
@@ -708,27 +712,27 @@ msgstr ""
 msgid "The raw results can be viewed in the "
 msgstr "Rezultatele brute pot fi consultate in "
 
-#: src/web/lib/pages_voter.ml:386
+#: src/web/lib/pages_voter.ml:388
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr "Rezultatul acestei alegeri nu este disponibil deocamdată. Va fi disponibil în %s."
 
-#: src/web/lib/site_voter.ml:282
+#: src/web/lib/site_voter.ml:272
 msgid "The result of this election is not available."
 msgstr "Rezultatele acestei alegeri nu sunt disponibile."
 
-#: src/web/lib/pages_voter.ml:440
+#: src/web/lib/pages_voter.ml:442
 msgid "The total weight is %s (min: %s, max: %s)."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:416
+#: src/web/lib/pages_voter.ml:418
 msgid "The voter list has %d voter(s) and fingerprint %s."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1135
+#: src/web/lib/pages_voter.ml:1137
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1253
+#: src/web/lib/pages_voter.ml:1255
 msgid "There has been at least one tie."
 msgstr ""
 
@@ -742,7 +746,7 @@ msgstr ""
 msgid "This election has been tallied."
 msgstr "Această alegere a fost contorizata."
 
-#: src/web/lib/pages_voter.ml:409
+#: src/web/lib/pages_voter.ml:411
 msgid "This election is administered by %s."
 msgstr ""
 
@@ -754,7 +758,7 @@ msgstr "Această alegere este arhivată."
 msgid "This election is currently closed."
 msgstr "Această alegere este în prezent închisă."
 
-#: src/web/lib/pages_voter.ml:429
+#: src/web/lib/pages_voter.ml:431
 msgid "This election uses weights!"
 msgstr ""
 
@@ -762,11 +766,11 @@ msgstr ""
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr ""
 
-#: src/web/lib/site_voter.ml:287
+#: src/web/lib/site_voter.ml:277
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1411
+#: src/web/lib/pages_voter.ml:1413
 msgid "This vote replaces any previous vote."
 msgstr "Acest vot înlocuiește orice vot precedent."
 
@@ -774,29 +778,29 @@ msgstr "Acest vot înlocuiește orice vot precedent."
 msgid "Tie:"
 msgstr "Egalitate:"
 
-#: src/web/lib/pages_voter.ml:1354
+#: src/web/lib/pages_voter.ml:1356
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr "Pentru a depune votul vostru, vă trebuie o parolă, ce va fi trimisă într-un e-mail separat."
 
-#: src/web/lib/pages_voter.ml:1287
+#: src/web/lib/pages_voter.ml:1289
 msgid "To get more information, please contact:"
 msgstr "Pentru mai multe informatii, va rugam sa contactati:"
 
-#: src/web/lib/pages_voter.ml:351
+#: src/web/lib/pages_voter.ml:353
 msgid "Total weight of accepted ballots:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:503
+#: src/web/lib/pages_voter.ml:505
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/lib/pages_common.ml:470
+#: src/web/lib/pages_common.ml:466
 msgid "Use the following code:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1360 src/web/lib/pages_voter.ml:1303
-#. src/web/lib/pages_common.ml:391
-#. src/web/lib/pages_common.ml:346
+#: src/web/lib/pages_voter.ml:1362 src/web/lib/pages_voter.ml:1305
+#. src/web/lib/pages_common.ml:387
+#. src/web/lib/pages_common.ml:342
 msgid "Username:"
 msgstr "Nume utilizator:"
 
@@ -804,7 +808,7 @@ msgstr "Nume utilizator:"
 msgid "Value must be an integer between 0 and 255."
 msgstr "Valoarea trebuie sa fie un numar intreg intre 0 si 255."
 
-#: src/web/lib/pages_voter.ml:769
+#: src/web/lib/pages_voter.ml:771
 msgid "Warning:"
 msgstr "Atentie:"
 
@@ -816,7 +820,7 @@ msgstr ""
 "candidati care nu au fost clasati in mod corect) vor fi refuzate la "
 "sfarsitul alegerii."
 
-#: src/web/lib/pages_common.ml:474
+#: src/web/lib/pages_common.ml:470
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
@@ -824,43 +828,47 @@ msgstr ""
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1188
+#: src/web/lib/pages_voter.ml:1190
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
 
-#: src/web/lib/pages_common.ml:243
+#: src/web/lib/pages_common.ml:239
 msgid "Wish to help with translations?"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1368 src/web/lib/pages_voter.ml:1313
+#: src/web/lib/pages_voter.ml:1370 src/web/lib/pages_voter.ml:1315
 msgid "You are allowed to vote several times."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1347
+#: src/web/lib/pages_voter.ml:1349
 msgid "You are listed as a voter for the election"
 msgstr "Sunteți înregistrat(ă) ca votant(ă) pentru alegerea"
 
-#: src/web/lib/pages_common.ml:428
+#: src/web/lib/site_common.ml:109
+msgid "You are not allowed to access this page!"
+msgstr ""
+
+#: src/web/lib/pages_common.ml:424
 msgid "You can "
 msgstr "Puteti "
 
-#: src/web/lib/pages_common.ml:381
+#: src/web/lib/pages_common.ml:377
 msgid "You can also "
 msgstr "Puteti de asemenea "
 
-#: src/web/lib/pages_voter.ml:370
+#: src/web/lib/pages_voter.ml:372
 msgid "You can also download the "
 msgstr "De asemenea, puteți descărca "
 
-#: src/web/lib/pages_voter.ml:860
+#: src/web/lib/pages_voter.ml:862
 msgid "You can check its presence in the "
 msgstr "Puteți verifica prezența sa în "
 
-#: src/web/lib/pages_voter.ml:1415
+#: src/web/lib/pages_voter.ml:1417
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Puteți verifica prezența acestuia în urna de vot, accesibilă la"
 
-#: src/web/lib/pages_common.ml:532
+#: src/web/lib/pages_common.ml:528
 msgid "You cannot log in now. Please try later."
 msgstr ""
 
@@ -872,19 +880,19 @@ msgstr "Trebuie să selectați cel puțin %d răspuns(uri)"
 msgid "You must select at most %d answer(s)"
 msgstr "Trebuie să selectați cel mult %d răspuns(uri)"
 
-#: src/web/lib/pages_voter.ml:1352
+#: src/web/lib/pages_voter.ml:1354
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr "Sistemul va solicita codul de votare la intrarea în cabina de vot."
 
-#: src/web/lib/pages_voter.ml:1351
+#: src/web/lib/pages_voter.ml:1353
 msgid "You will find below your credential."
 msgstr "Veți găsi mai jos codul de vot."
 
-#: src/web/lib/pages_voter.ml:877 src/web/lib/pages_voter.ml:729
+#: src/web/lib/pages_voter.ml:879 src/web/lib/pages_voter.ml:731
 msgid "Your ballot for "
 msgstr "Buletinul de vot pentru "
 
-#: src/web/lib/pages_voter.ml:988
+#: src/web/lib/pages_voter.ml:990
 msgid "Your ballot has been encrypted, "
 msgstr "Buletinul vostru de vot a fost criptat cu succes, "
 
@@ -892,28 +900,28 @@ msgstr "Buletinul vostru de vot a fost criptat cu succes, "
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Browser-ul dumneavoastră pare să blocheze cookie-urile. Vă rugăm să le activați."
 
-#: src/web/lib/pages_voter.ml:1386
+#: src/web/lib/pages_voter.ml:1388
 msgid "Your credential for election %s"
 msgstr "Codul vostru de votare pentru alegerea %s"
 
-#: src/web/lib/pages_common.ml:469
+#: src/web/lib/pages_common.ml:465
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1338
+#: src/web/lib/pages_voter.ml:1340
 msgid "Your password for election %s"
 msgstr "Parola voastră pentru alegere %s"
 
-#: src/web/lib/pages_voter.ml:1406
+#: src/web/lib/pages_voter.ml:1408
 msgid "Your smart ballot tracker is"
 msgstr "Numărul vostru de identificare este"
 
-#: src/web/lib/pages_voter.ml:993 src/web/lib/pages_voter.ml:855
-#. src/web/lib/pages_voter.ml:732
+#: src/web/lib/pages_voter.ml:995 src/web/lib/pages_voter.ml:857
+#. src/web/lib/pages_voter.ml:734
 msgid "Your smart ballot tracker is "
 msgstr "Numărul vostru de identificare este "
 
-#: src/web/lib/pages_voter.ml:1396
+#: src/web/lib/pages_voter.ml:1398
 msgid "Your vote for election"
 msgstr "Votul vostru pentru alegerea"
 
@@ -921,20 +929,16 @@ msgstr "Votul vostru pentru alegerea"
 msgid "Your vote for election %s"
 msgstr "Votul vostru pentru alegerea %s"
 
-#: src/web/lib/pages_voter.ml:771
+#: src/web/lib/pages_voter.ml:773
 msgid "Your vote was not recorded!"
 msgstr "Votul dvoastra nu a fost inregistrat !"
 
-#: src/web/lib/pages_voter.ml:1403 src/web/lib/pages_voter.ml:847
-#. src/web/lib/pages_voter.ml:718
+#: src/web/lib/pages_voter.ml:1405 src/web/lib/pages_voter.ml:849
+#. src/web/lib/pages_voter.ml:720
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/lib/web_common.ml:88
-msgid "a credential is missing"
-msgstr "un cod de votare lipsește"
-
-#: src/web/lib/pages_voter.ml:861
+#: src/web/lib/pages_voter.ml:863
 msgid "ballot box"
 msgstr "urna de vot"
 
@@ -942,28 +946,28 @@ msgstr "urna de vot"
 msgid "ballots"
 msgstr "buletine de vot"
 
-#: src/web/lib/pages_voter.ml:989
+#: src/web/lib/pages_voter.ml:991
 msgid "but not cast yet"
 msgstr "dar încă nu a fost depus în urna de vot"
 
-#: src/web/lib/pages_common.ml:384
+#: src/web/lib/pages_common.ml:380
 msgid "change your password"
 msgstr "schimbati parola"
 
-#: src/web/lib/pages_common.ml:382
+#: src/web/lib/pages_common.ml:378
 msgid "create an account"
 msgstr "creati un cont"
 
-#: src/web/lib/pages_voter.ml:1400
+#: src/web/lib/pages_voter.ml:1402
 msgid "has been recorded."
 msgstr "a fost înregistrat."
 
-#: src/tool/js/tool_js_booth.ml:370 src/web/lib/pages_voter.ml:1191
-#. src/web/lib/pages_voter.ml:1138
+#: src/tool/js/tool_js_booth.ml:370 src/web/lib/pages_voter.ml:1193
+#. src/web/lib/pages_voter.ml:1140
 msgid "here"
 msgstr "aici"
 
-#: src/web/lib/pages_voter.ml:1194
+#: src/web/lib/pages_voter.ml:1196
 msgid "our code of STV"
 msgstr ""
 
@@ -971,7 +975,7 @@ msgstr ""
 msgid "parameters"
 msgstr "parametrii"
 
-#: src/web/lib/pages_voter.ml:398
+#: src/web/lib/pages_voter.ml:400
 msgid "personal data policy"
 msgstr "politica noastră privind datele personale"
 
@@ -979,15 +983,15 @@ msgstr "politica noastră privind datele personale"
 msgid "public credentials"
 msgstr "chei de verificare"
 
-#: src/web/lib/pages_voter.ml:372
+#: src/web/lib/pages_voter.ml:374
 msgid "result with cryptographic proofs"
 msgstr "rezultatul împreună cu dovada criptografică"
 
-#: src/web/lib/web_common.ml:87
+#: src/web/lib/web_common.ml:76
 msgid "some proofs failed verification"
 msgstr "unele dovezi sunt invalide"
 
-#: src/web/lib/pages_voter.ml:775
+#: src/web/lib/pages_voter.ml:777
 msgid "start from the beginning"
 msgstr "incepeti de la inceput"
 
@@ -995,7 +999,7 @@ msgstr "incepeti de la inceput"
 msgid "the Wikipedia page"
 msgstr ""
 
-#: src/web/lib/web_common.ml:84
+#: src/web/lib/web_common.ml:72
 msgid "the election is closed"
 msgstr "alegerea este inchisă"
 
@@ -1003,35 +1007,39 @@ msgstr "alegerea este inchisă"
 msgid "trustees"
 msgstr "autoritati de descifrare"
 
-#: src/web/lib/pages_common.ml:429
+#: src/web/lib/pages_common.ml:425
 msgid "try to log in again"
 msgstr "incercati sa va conectati din nou"
 
-#: src/web/lib/web_common.ml:90
+#: src/web/lib/web_common.ml:78
 msgid "you are not allowed to revote"
 msgstr "nu sunteți autorizați să revotați"
 
-#: src/web/lib/web_common.ml:85
+#: src/web/lib/web_common.ml:73
 msgid "you are not allowed to vote"
 msgstr "nu sunteți autorizați să votați"
 
-#: src/web/lib/web_common.ml:92
+#: src/web/lib/web_common.ml:80
 msgid "you are not allowed to vote with this credential"
 msgstr "nu sunteți autorizați să votați cu acest cod de vot"
 
-#: src/web/lib/web_common.ml:86
+#: src/web/lib/web_common.ml:74
 msgid "your ballot has a syntax error (%s)"
 msgstr "buletinul vostru de vot are o eroare sintactică (%s)"
 
-#: src/web/lib/web_common.ml:93
+#: src/web/lib/web_common.ml:75
+msgid "your ballot is not in canonical form"
+msgstr ""
+
+#: src/web/lib/web_common.ml:81
 msgid "your credential has a bad weight"
 msgstr ""
 
-#: src/web/lib/web_common.ml:91
+#: src/web/lib/web_common.ml:79
 msgid "your credential has already been used"
 msgstr "codul vostru de votare a vost deja utilizat"
 
-#: src/web/lib/web_common.ml:89
+#: src/web/lib/web_common.ml:77
 msgid "your credential is invalid"
 msgstr "codul vostru de votare este invalid"
 
