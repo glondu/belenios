@@ -1,3 +1,20 @@
+dev
+===
+
+ * Properly count and ignore blank votes in Condorcet-Schulze counting
+   method
+ * New version of cryptographic operations, fixing many (theoretical)
+   weaknesses
+   + This new version is called v1 and is used for new elections
+   + The previous version, retroactively called v0, is kept for
+     compatibility but will eventually be removed
+ * Web server:
+   + New voting interface for Condorcet votes
+   + Build a belenios-server executable (with static linking of Eliom
+     modules)
+   + Add a notion of account for administrators; do no longer rely on
+     the authentication method to identify them
+
 1.16 (2021-07-19)
 =================
 

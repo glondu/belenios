@@ -1,3 +1,23 @@
+dev
+===
+
+ * To use the `belenios-server` executable, the syntax of
+   `ocsigenserver.conf.in` changes. Please review the changes to this
+   file since version 1.16.
+ * With the new version of the crypto, giving all parameters of a
+   group with an external file is no longer supported. Allowed groups
+   are hardcoded in the source code and identified by short strings
+   such as `BELENIOS-2048` or `RFC-3526-2048`. These strings must now
+   be used in the configuration file.
+ * The new notion of administrator accounts:
+   + adds a new `accounts` directory, configured in
+     `ocsigenserver.conf.in`
+   + changes the format of the `owner` field of `draft.json`,
+     `metadata.json` and `deleted.json`, which is now the account id
+     (an integer) for new elections. The old format based on the
+     authentication method will continue to be supported for a while,
+     but this support may be dropped in the future.
+
 1.15
 ====
 
