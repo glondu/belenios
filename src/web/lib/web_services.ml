@@ -172,4 +172,7 @@ module Make () = struct
 
   let sudo = create ~path:(Path ["sudo"]) ~meth:(Get unit) ()
   let sudo_post = create_attached_post ~csrf_safe:true ~fallback:sudo ~post_params:(string "domain" ** string "name") ()
+
+  let account = create ~path:(Path ["account"]) ~meth:(Get unit) ()
+  let account_post = create_attached_post ~csrf_safe:true ~fallback:account ~post_params:(string "name") ()
 end

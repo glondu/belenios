@@ -86,7 +86,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
            div [
                txt (s_ "Logged in as");
                txt " ";
-               em [txt account.account_name];
+               em [a ~service:Web_services.account [txt account.account_name] ()];
                txt ".";
              ];
            div [
@@ -3259,6 +3259,54 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     in
     let content = [form] in
     let title = s_ "Impersonate a user" in
+    base ~title ~content ()
+
+  let account account =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let title = s_ "Account settings" in
+    let content = [
+        post_form ~service:account_post
+          (fun name ->
+            [
+              div [
+                  txt (s_ "Name:");
+                  txt " ";
+                  input ~input_type:`Text ~name ~value:account.account_name string;
+                ];
+              div [
+                  txt (s_ "E-mail address:");
+                  txt " ";
+                  txt account.account_email;
+                ];
+              div [
+                  txt (s_ "Authentication methods:");
+                  txt " ";
+                  ul (
+                      List.map
+                        (fun u ->
+                          li [
+                              Printf.ksprintf txt "%s:%s" u.user_domain u.user_name;
+                            ]
+                        ) account.account_authentications;
+                    );
+                ];
+              div [
+                  txt (s_ "Consent date:");
+                  txt " ";
+                  txt (
+                      match account.account_consent with
+                      | None -> s_ "(none)"
+                      | Some t -> format_datetime t
+                    );
+                ];
+              div [
+                  input ~input_type:`Submit ~value:(s_ "Submit") string;
+                ];
+            ]
+          ) ()
+      ]
+    in
     base ~title ~content ()
 
 end

@@ -2726,6 +2726,29 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            Redirection.send (Redirection admin)
       )
 
+  let with_user_and_account f =
+    let* x = Eliom_reference.get Web_state.site_user in
+    match x with
+    | Some x -> f x
+    | None -> forbidden ()
+
+  let () =
+    Any.register ~service:account
+      (fun () () ->
+        let@ _, a = with_user_and_account in
+        Pages_admin.account a >>= Html.send
+      )
+
+  let () =
+    Any.register ~service:account_post
+      (fun () account_name ->
+        let@ u, a = with_user_and_account in
+        let a = {a with account_name} in
+        let* () = Accounts.update_account a in
+        let* () = Eliom_reference.set Web_state.site_user (Some (u, a)) in
+        Redirection.send (Redirection admin)
+      )
+
   let extract_automatic_data_draft uuid_s =
     let uuid = uuid_of_raw_string uuid_s in
     let* election = Web_persist.get_draft_election uuid in
