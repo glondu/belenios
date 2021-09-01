@@ -512,7 +512,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         e_cred_authority;
         e_trustees = None;
         e_languages = Some ["en"; "fr"];
-        e_contact = None;
+        e_contact = Some (Printf.sprintf "%s <%s>" account.account_name account.account_email);
         e_server_is_trustee = None;
         e_booth_version = None;
       } in
