@@ -28,11 +28,12 @@ type verifydiff_error =
   | MissingCredentials
   | InvalidCredential
   | CredentialsMismatch
-  | InvalidBallot
+  | InvalidBallot of string
   | DuplicateBallot
   | BallotSignedByInvalidKey
   | DecreasingBallots
-  | BallotSignedByReplacedKey
+  | CredentialsHaveChanged
+  | InvalidRevote of string
 
 exception VerifydiffError of verifydiff_error
 

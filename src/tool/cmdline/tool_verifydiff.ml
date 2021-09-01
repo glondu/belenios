@@ -19,7 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_platform.Platform
 open Belenios_core
+open Signatures
 open Belenios
 open Serializable_builtin_t
 open Serializable_j
@@ -56,11 +58,12 @@ type verifydiff_error =
   | MissingCredentials
   | InvalidCredential
   | CredentialsMismatch
-  | InvalidBallot
+  | InvalidBallot of string
   | DuplicateBallot
   | BallotSignedByInvalidKey
   | DecreasingBallots
-  | BallotSignedByReplacedKey
+  | CredentialsHaveChanged
+  | InvalidRevote of string
 
 exception VerifydiffError of verifydiff_error
 
@@ -73,11 +76,12 @@ let explain_error = function
   | MissingCredentials -> "missing credentials"
   | InvalidCredential -> "invalid credential"
   | CredentialsMismatch -> "credentials mismatch"
-  | InvalidBallot -> "invalid ballot"
+  | InvalidBallot ballot_id -> Printf.sprintf "invalid ballot: %s" ballot_id
   | DuplicateBallot -> "duplicate ballot"
   | BallotSignedByInvalidKey -> "ballot signed by invalid key"
   | DecreasingBallots -> "decreasing ballots"
-  | BallotSignedByReplacedKey -> "ballot signed by replaced key"
+  | CredentialsHaveChanged -> "credentials have changed"
+  | InvalidRevote ballot_id -> Printf.sprintf "invalid revote: %s" ballot_id
 
 let () =
   Printexc.register_printer (function
@@ -116,7 +120,6 @@ let verifydiff dir1 dir2 =
       raise (VerifydiffError PublicKeyMismatch)
   in
   (* load both public_creds.txt and check that their contents is valid *)
-  let module GSet = Set.Make (G) in
   let parse x =
     let cred, w = extract_weight x in
     G.of_string cred, w
@@ -127,74 +130,105 @@ let verifydiff dir1 dir2 =
     | Some creds ->
        if not (List.for_all (fun (x, _) -> G.check x) creds) then
          raise (VerifydiffError InvalidCredential);
-       List.fold_left (fun accu (x, _) -> GSet.add x accu) GSet.empty creds
+       List.fold_left (fun accu (x, w) -> SMap.add (G.to_string x) (ref None, w) accu) SMap.empty creds
   in
   let creds1 = creds dir1 and creds2 = creds dir2 in
   (* both public_creds.txt have the same cardinal *)
   let () =
-    if GSet.cardinal creds1 <> GSet.cardinal creds2 then
+    if SMap.cardinal creds1 <> SMap.cardinal creds2 then
       raise (VerifydiffError CredentialsMismatch)
   in
   (* compute credentials that have been replaced *)
   let creds_replaced =
-    GSet.fold (fun x accu ->
-        if not (GSet.mem x creds2) then GSet.add x accu else accu
-      ) creds1 GSet.empty
+    SMap.fold (fun x _ accu ->
+        if not (SMap.mem x creds2) then SSet.add x accu else accu
+      ) creds1 SSet.empty
   in
-  (* issue a warning when credentials have changed *)
+  (* fail if credentials have changed *)
   let () =
-    if not (GSet.is_empty creds_replaced) then
-      Printf.eprintf "W: credentials have changed\n%!"
+    if not (SSet.is_empty creds_replaced) then
+      raise (VerifydiffError CredentialsHaveChanged)
   in
-  (* load both ballots.jsons and check that their contents is valid *)
-  let module GMap = Map.Make (G) in
-  let ballots dir =
-    match load_from_file ballot_of_string (dir / "ballots.jsons") with
-    | None -> GMap.empty
+  (* instantiate CastBallot *)
+  let module BboxOps =
+    struct
+      type user = string
+      let get_credential_record cred =
+        match SMap.find_opt cred creds1 with
+        | None -> None
+        | Some (id, cr_weight) -> Some {cr_weight; cr_ballot = !id}
+      let get_user_record user =
+        match SMap.find_opt user creds1 with
+        | None -> None
+        | Some (id, _) ->
+           match !id with
+           | None -> None
+           | Some _ -> Some user
+    end
+  in
+  let module CastBallot = E.CastBallot (BboxOps) in
+  (* load first ballots.jsons *)
+  let nballots1 =
+    match load_from_file (fun x -> x) (dir1 / "ballots.jsons") with
+    | None -> 0
     | Some ballots ->
-       if not (List.for_all E.check_ballot ballots) then
-         raise (VerifydiffError InvalidBallot);
-       (* return the set of ballots indexed by the public keys used to sign *)
-       List.fold_left (fun accu x ->
-           match get_credential x with
-           | None -> raise (VerifydiffError InvalidBallot)
-           | Some c -> if GMap.mem c accu then
-                         raise (VerifydiffError DuplicateBallot)
-                       else GMap.add c x accu
-         ) GMap.empty ballots
+       List.iter
+         (fun b ->
+           let ballot_id = sha256_b64 b in
+           let user =
+             match get_credential @@ ballot_of_string b with
+             | None -> raise (VerifydiffError BallotSignedByInvalidKey)
+             | Some x -> G.to_string x
+           in
+           match CastBallot.cast ~user b with
+           | Ok (_, _, None) ->
+              (match SMap.find_opt user creds1 with
+               | None -> assert false
+               | Some (id, _) -> id := Some ballot_id
+              )
+           | Ok (_, _, Some _) -> raise (VerifydiffError DuplicateBallot)
+           | Error _ -> raise (VerifydiffError (InvalidBallot ballot_id))
+         ) ballots;
+       List.length ballots
   in
-  let ballots1 = ballots dir1 and ballots2 = ballots dir2 in
-  (* each ballot is signed with a valid key *)
-  let check_keys ballots creds =
-    GMap.for_all (fun pk _ -> GSet.mem pk creds) ballots
-  in
-  let () =
-    if not (check_keys ballots1 creds1 && check_keys ballots2 creds2) then
-      raise (VerifydiffError BallotSignedByInvalidKey)
+  (* load second ballots.jsons *)
+  let nballots2 =
+    match load_from_file (fun x -> x) (dir2 / "ballots.jsons") with
+    | None -> 0
+    | Some ballots ->
+       let replaced_ballots = ref 0 in
+       List.iter
+         (fun b ->
+           let ballot_id = sha256_b64 b in
+           let user =
+             match get_credential @@ ballot_of_string b with
+             | None -> raise (VerifydiffError BallotSignedByInvalidKey)
+             | Some x -> G.to_string x
+           in
+           match SMap.find_opt user creds1 with
+           | None -> raise (VerifydiffError BallotSignedByInvalidKey)
+           | Some (id, _) when !id = Some ballot_id -> ()
+           | Some (id, _) ->
+              match CastBallot.cast ~user b with
+              | Ok (_, _, i) ->
+                 let () = match i with
+                   | None -> ()
+                   | Some x -> assert (x <> ballot_id); incr replaced_ballots
+                 in
+                 id := Some ballot_id
+              | Error _ -> raise (VerifydiffError (InvalidRevote ballot_id))
+         ) ballots;
+       if !replaced_ballots > 0 then
+         Printf.eprintf "W: %d ballot(s) have been replaced\n%!" !replaced_ballots;
+       List.length ballots
   in
   (* the set of ballots increases *)
   let () =
-    if not (GMap.for_all (fun pk _ -> GMap.mem pk ballots2) ballots1) then
+    if nballots2 < nballots1 then
       raise (VerifydiffError DecreasingBallots)
   in
   let () =
-    let n = GMap.cardinal ballots2 - GMap.cardinal ballots1 in
+    let n = nballots2 - nballots1 in
     if n > 0 then Printf.eprintf "I: %d new ballot(s)\n%!" n
-  in
-  (* the keys of modified ballots have not been replaced *)
-  let () =
-    if not (GMap.for_all (fun pk ballot1 ->
-                let ballot2 = GMap.find pk ballots2 in
-                ballot1 = ballot2 || not (GSet.mem pk creds_replaced)
-              ) ballots1)
-    then raise (VerifydiffError BallotSignedByReplacedKey)
-  in
-  let () =
-    let n = GMap.fold (fun pk ballot1 accu ->
-                let ballot2 = GMap.find pk ballots2 in
-                if ballot1 <> ballot2 then accu + 1 else accu
-              ) ballots1 0
-    in
-    if n > 0 then Printf.eprintf "W: %d ballot(s) have been replaced\n%!" n
   in
   Printf.eprintf "I: all tests passed!\n%!"
