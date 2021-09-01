@@ -544,8 +544,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* () = Web_persist.set_draft_election uuid se in
     redir_preapply election_draft uuid ()
 
-  let () = Html.register ~service:election_draft_pre
-             (fun () () -> Pages_admin.election_draft_pre ())
+  let () =
+    Any.register ~service:election_draft_pre
+      (fun () () ->
+        let@ _ = with_site_user in
+        Pages_admin.election_draft_pre () >>= Html.send
+      )
 
   let http_rex = "^https?://[a-z0-9/.-]+$"
 
