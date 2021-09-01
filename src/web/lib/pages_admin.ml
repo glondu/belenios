@@ -2720,17 +2720,16 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
             ) uuid;
         ]
     in
-    let cas = match metadata.e_auth_config with
-      | Some [{auth_system = "cas"; _}] -> true
+    let password = match metadata.e_auth_config with
+      | Some [{auth_system = "password"; _}] -> true
       | _ -> false
     in
     let div_regenpwd =
-      if cas || (match state with `Open | `Closed -> false | _ -> true) then
-        txt ""
-      else
+      if password && (match state with `Open | `Closed -> true | _ -> false) then
         div [
             a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [txt (s_ "Regenerate and e-mail a password")] uuid;
           ]
+      else txt ""
     in
     let content = [
         div [
