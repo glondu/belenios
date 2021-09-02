@@ -41,6 +41,7 @@ end
 module String : sig
   include module type of String
   val startswith : string -> string -> bool
+  val drop_prefix : prefix:string -> string -> string option
 end
 
 module List : sig

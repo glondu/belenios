@@ -86,6 +86,13 @@ module String = struct
   let startswith x s =
     let xn = String.length x and sn = String.length s in
     xn >= sn && String.sub x 0 sn = s
+
+  let drop_prefix ~prefix x =
+    let prefixn = length prefix and n = length x in
+    if n >= prefixn && sub x 0 prefixn = prefix then
+      Some (sub x prefixn (n - prefixn))
+    else
+      None
 end
 
 module List = struct
