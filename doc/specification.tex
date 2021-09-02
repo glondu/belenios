@@ -280,6 +280,8 @@ trustee as specified in section~\ref{polynomials}.
   \begin{enumerate}
   \item let $C$ be the public credential used in $b$ (its
     $\textsf{credential}$ field)
+  \item $\mathcal{S}$ checks that the weight of $C$ and the weight of
+    $\mathcal{V}$ agree
   \item $\mathcal{S}$ checks that $C\in L$ and $C$ has not been used
     in a ballot cast by another voter
   \item (revote case) if $\mathcal{V}$ has already voted,
