@@ -149,7 +149,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ) explicit_winners
     in
     let explanation =
-      div
+      div ~a:[a_class ["schulze_explanation"]]
         [
           txt (s_ "A Condorcet winner is a candidate that is preferred over all the other candidates.");
           txt " ";

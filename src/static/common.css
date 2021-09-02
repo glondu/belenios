@@ -74,6 +74,15 @@ button {
     border: 1px solid;
     padding: 1em;
 }
+.schulze_result ol {
+    margin-bottom: 1em;
+}
+.schulze_explanation {
+    text-align: justify;
+    margin-bottom: 1em;
+    font-style: italic;
+    font-size: 90%;
+}
 .majority_judgment_ranking {
     margin-top: 1em;
     margin-bottom: 1em;
