@@ -19,30 +19,31 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-open Serializable_builtin_t
-open Web_serializable_t
+<doc text="API-specific serializable datatypes">
 
-module type S = sig
+type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
-  val show_cookie_disclaimer : bool Eliom_reference.eref
+type authentication =
+  [ Password
+  | CAS of string
+  | Configured of string
+  ]
 
-  val site_user : (user * account * string) option Eliom_reference.eref
-  val election_user : (uuid * user) option Eliom_reference.eref
-  val get_election_user : uuid -> user option Lwt.t
+type draft = {
+    questions : template;
+    languages : string list;
+    ?contact : string option;
+    booth : int;
+    authentication : authentication;
+} <ocaml field_prefix="draft_">
 
-  val ballot : string option Eliom_reference.eref
-  val cast_confirmed : (string * Weight.t * bool, Web_common.error) result option Eliom_reference.eref
+type summary = {
+    uuid : uuid;
+    name : string;
+    date : float;
+} <ocaml field_prefix="summary_">
 
-  val language : string option Eliom_reference.eref
+type summary_list = summary list
 
-  type link_kind =
-    [ `CreateAccount
-    | `ChangePassword of string
-    ]
-
-  val signup_address : string option Eliom_reference.eref
-  val signup_env : (string * link_kind) option Eliom_reference.eref
-
-  val set_email_env : string option Eliom_reference.eref
-end
+type voter_list = string list

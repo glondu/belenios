@@ -19,30 +19,16 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-open Serializable_builtin_t
+open Belenios_api.Serializable_t
 open Web_serializable_t
 
-module type S = sig
+exception Error of string
 
-  val show_cookie_disclaimer : bool Eliom_reference.eref
+val api_of_draft : draft_election -> draft
+val draft_of_api : draft_election -> draft -> draft_election
 
-  val site_user : (user * account * string) option Eliom_reference.eref
-  val election_user : (uuid * user) option Eliom_reference.eref
-  val get_election_user : uuid -> user option Lwt.t
+val delete_draft : uuid -> unit Lwt.t
+val post_drafts : account -> draft -> uuid Lwt.t
 
-  val ballot : string option Eliom_reference.eref
-  val cast_confirmed : (string * Weight.t * bool, Web_common.error) result option Eliom_reference.eref
-
-  val language : string option Eliom_reference.eref
-
-  type link_kind =
-    [ `CreateAccount
-    | `ChangePassword of string
-    ]
-
-  val signup_address : string option Eliom_reference.eref
-  val signup_env : (string * link_kind) option Eliom_reference.eref
-
-  val set_email_env : string option Eliom_reference.eref
-end
+val get_drafts_voters : draft_election -> voter_list
+val put_drafts_voters : uuid -> draft_election -> voter_list -> unit Lwt.t

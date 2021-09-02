@@ -1,8 +1,9 @@
 (library
  (name belenios_server)
  (public_name belenios-server)
- (libraries belenios-platform-native belenios lwt calendar csv eliom.server gettext-camomile netstring)
+ (libraries belenios-platform-native belenios belenios-server.api lwt calendar csv eliom.server gettext-camomile netstring)
  (modules_without_implementation
+  api_eliom_sig
   web_i18n_sig
   web_services_sig
   web_state_sig

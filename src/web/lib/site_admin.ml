@@ -407,7 +407,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                let* site_user = Eliom_reference.get Web_state.site_user in
                match site_user with
                | None -> Pages_admin.admin_login Web_auth.get_site_login_handler
-               | Some (u, a) ->
+               | Some (u, a, token) ->
                   let* show =
                     match a.account_consent with
                     | Some _ -> return_false
@@ -419,7 +419,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                          let account_consent = Some (now ()) in
                          let a = {a with account_consent} in
                          let* () = Accounts.update_account {a with account_consent} in
-                         let* () = Eliom_reference.set Web_state.site_user (Some (u, a)) in
+                         let* () = Eliom_reference.set Web_state.site_user (Some (u, a, token)) in
                          return_false
                        )
                   in
@@ -470,11 +470,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* x = Eliom_reference.get Web_state.set_email_env in
         match x, u with
         | None, _ | _, None -> forbidden ()
-        | Some address, Some (u, a) ->
+        | Some address, Some (u, a, token) ->
            if SetEmailOtp.check ~address ~code then (
              let a = {a with account_email = address} in
              let* () = Accounts.update_account a in
-             let* () = Eliom_reference.set Web_state.site_user (Some (u, a)) in
+             let* () = Eliom_reference.set Web_state.site_user (Some (u, a, token)) in
              let* () = Eliom_reference.unset Web_state.set_email_env in
              Redirection.send (Redirection admin)
            ) else (
@@ -487,61 +487,27 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            )
       )
 
-  let generate_uuid () =
-    let length = !Web_config.uuid_length in
-    let* token = generate_token ?length () in
-    return (uuid_of_raw_string token)
-
-  let create_new_election account cred auth =
-    let owner = `Id account.account_id in
-    let e_cred_authority = match cred with
-      | `Automatic -> Some "server"
-      | `Manual -> None
-    in
-    let e_auth_config = match auth with
-      | `Password -> Some [{auth_system = "password"; auth_instance = "password"; auth_config = []}]
-      | `Dummy -> Some [{auth_system = "dummy"; auth_instance = "dummy"; auth_config = []}]
-      | `CAS server -> Some [{auth_system = "cas"; auth_instance = "cas"; auth_config = ["server", server]}]
-      | `Import name -> Some [{auth_system = "import"; auth_instance = name; auth_config = []}]
-    in
-    let* uuid = generate_uuid () in
-    let* token = generate_token () in
-    let se_metadata = {
-        e_owner = Some owner;
-        e_auth_config;
-        e_cred_authority;
-        e_trustees = None;
-        e_languages = Some ["en"; "fr"];
-        e_contact = Some (Printf.sprintf "%s <%s>" account.account_name account.account_email);
-        e_server_is_trustee = None;
-        e_booth_version = None;
-      } in
-    let se_questions = {
+  let create_new_election account cred draft_authentication =
+    let open Belenios_api.Serializable_t in
+    let draft_questions =
+      {
         t_description = default_description;
         t_name = default_name;
         t_questions = default_questions;
-        t_administrator = None;
-        t_credential_authority = None;
-      } in
-    let se = {
-        se_version = Some default_version;
-        se_owner = owner;
-        se_group = !Web_config.default_group;
-        se_voters = [];
-        se_questions;
-        se_public_keys = [];
-        se_metadata;
-        se_public_creds = token;
-        se_public_creds_received = false;
-        se_threshold = None;
-        se_threshold_trustees = None;
-        se_threshold_parameters = None;
-        se_threshold_error = None;
-        se_creation_date = Some (now ());
-        se_administrator = Some account.account_name;
-      } in
-    let* () = Lwt_unix.mkdir (!Web_config.spool_dir / raw_string_of_uuid uuid) 0o700 in
-    let* () = Web_persist.set_draft_election uuid se in
+        t_administrator = Some account.account_name;
+        t_credential_authority = Some (match cred with `Automatic -> "server" | `Manual -> "");
+      }
+    in
+    let draft =
+      {
+        draft_questions;
+        draft_languages = ["en"; "fr"];
+        draft_contact = Some (Printf.sprintf "%s <%s>" account.account_name account.account_email);
+        draft_booth = 1;
+        draft_authentication;
+      }
+    in
+    let* uuid = Api_drafts.post_drafts account draft in
     redir_preapply election_draft uuid ()
 
   let () =
@@ -565,7 +531,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun () (credmgmt, (auth, cas_server)) ->
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let@ _, a = with_site_user in
+        let@ _, a, _ = with_site_user in
         let* credmgmt = match credmgmt with
           | Some "auto" -> return `Automatic
           | Some "manual" -> return `Manual
@@ -573,7 +539,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         in
         let* auth = match auth with
           | Some "password" -> return `Password
-          | Some "dummy" -> return `Dummy
           | Some "cas" ->
              (match cas_server with
               | None -> fail_http `Bad_request
@@ -583,7 +548,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
              let n = PString.length x in
              if n > 1 && PString.get x 0 = '%' then (
                let name = PString.sub x 1 (n - 1) in
-               return @@ `Import name
+               return @@ `Configured name
              ) else fail_http `Bad_request
           | _ -> fail_http `Bad_request
         in
@@ -1386,7 +1351,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_create
       (fun uuid () ->
-        let@ _, account = with_site_user in
+        let@ _, account, _ = with_site_user in
         let@ se = with_draft_election ~save:false uuid in
         Lwt.catch
           (fun () ->
@@ -1398,22 +1363,18 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           )
       )
 
-  let destroy_election uuid =
-    let* () = rmdir (!Web_config.spool_dir / raw_string_of_uuid uuid) in
-    Web_persist.clear_elections_by_owner_cache ()
-
   let () =
     Any.register ~service:election_draft_destroy
       (fun uuid () ->
         let@ _ = with_draft_election ~save:false uuid in
-        let* () = destroy_election uuid in
+        let* () = Api_drafts.delete_draft uuid in
         Redirection.send (Redirection admin)
       )
 
   let () =
     Any.register ~service:election_draft_import
       (fun uuid () ->
-        let@ _, account = with_site_user in
+        let@ _, account, _ = with_site_user in
         let@ se = with_draft_election_ro uuid in
         let* _, a, b, c = get_elections_by_owner_sorted account.account_id in
         Pages_admin.election_draft_import uuid se (a, b, c) ()
@@ -1472,7 +1433,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_import_trustees
       (fun uuid () ->
-        let@ _, account = with_site_user in
+        let@ _, account, _ = with_site_user in
         let@ se = with_draft_election_ro uuid in
         let* _, a, b, c = get_elections_by_owner_sorted account.account_id in
         Pages_admin.election_draft_import_trustees uuid se (a, b, c) ()
@@ -2696,20 +2657,20 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let has_sudo_capability f =
     let* x = Eliom_reference.get Web_state.site_user in
     match x with
-    | Some (_, a) when Accounts.(has_capability Sudo a) -> f ()
+    | Some (_, a, token) when Accounts.(has_capability Sudo a) -> f token
     | _ -> forbidden ()
 
   let () =
     Any.register ~service:sudo
       (fun () () ->
-        let@ () = has_sudo_capability in
+        let@ _ = has_sudo_capability in
         Pages_admin.sudo () >>= Html.send
       )
 
   let () =
     Any.register ~service:sudo_post
       (fun () (user_domain, user_name) ->
-        let@ () = has_sudo_capability in
+        let@ token = has_sudo_capability in
         let u = {user_domain; user_name} in
         let* x = Accounts.get_account u in
         match x with
@@ -2721,7 +2682,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            Pages_common.generic_page ~title ~service:sudo msg ()
            >>= Html.send
         | Some a ->
-           let* () = Eliom_reference.set Web_state.site_user (Some (u, a)) in
+           let () = Api.invalidate_token token in
+           let* token = Api.new_token a in
+           let* () = Eliom_reference.set Web_state.site_user (Some (u, a, token)) in
            Redirection.send (Redirection admin)
       )
 
@@ -2734,18 +2697,30 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:account
       (fun () () ->
-        let@ _, a = with_user_and_account in
+        let@ _, a, _ = with_user_and_account in
         Pages_admin.account a >>= Html.send
       )
 
   let () =
     Any.register ~service:account_post
       (fun () account_name ->
-        let@ u, a = with_user_and_account in
+        let@ u, a, token = with_user_and_account in
         let a = {a with account_name} in
         let* () = Accounts.update_account a in
-        let* () = Eliom_reference.set Web_state.site_user (Some (u, a)) in
+        let* () = Eliom_reference.set Web_state.site_user (Some (u, a, token)) in
         Redirection.send (Redirection admin)
+      )
+
+  let () =
+    Any.register ~service:api_token
+      (fun () () ->
+        let* x = Eliom_reference.get Web_state.site_user in
+        let code, content =
+          match x with
+          | None -> 403, "Forbidden"
+          | Some (_, _, token) -> 200, token
+        in
+        String.send ~code (content, "text/plain")
       )
 
   let extract_automatic_data_draft uuid_s =
@@ -2803,7 +2778,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let uuid_s = raw_string_of_uuid uuid in
     let now = now () in
     let action, comment = match action with
-      | `Destroy -> destroy_election, "destroyed"
+      | `Destroy -> Api_drafts.delete_draft, "destroyed"
       | `Delete -> delete_election, "deleted"
       | `Archive -> archive_election, "archived"
     in
