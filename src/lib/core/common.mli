@@ -50,9 +50,8 @@ module List : sig
 end
 
 module Option : sig
-  val iter : ('a -> unit) -> 'a option -> unit
+  include module type of Option
   val get : 'a option -> 'a -> 'a
-  val map : ('a -> 'b) -> 'a option -> 'b option
 end
 
 module Shape : sig

@@ -106,17 +106,11 @@ module List = struct
 end
 
 module Option = struct
-  let iter f = function
-    | None -> ()
-    | Some x -> f x
+  include Option
 
   let get x default_value = match x with
     | None -> default_value
     | Some x -> x
-
-  let map f = function
-    | Some x -> Some (f x)
-    | None -> None
 end
 
 module Shape = struct
