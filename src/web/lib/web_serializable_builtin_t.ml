@@ -50,6 +50,9 @@ let datetime_compare (a, _) (b, _) =
 let format_datetime ?(fmt = datetime_format) (a, _) =
   CalendarLib.Printer.Precise_Fcalendar.sprint fmt a
 
+let unixfloat_of_datetime (a, _) =
+  CalendarLib.Fcalendar.Precise.to_unixfloat a
+
 type period = CalendarLib.Fcalendar.Precise.Period.t
 
 let day = CalendarLib.Fcalendar.Precise.Period.day
