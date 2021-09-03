@@ -186,6 +186,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
     match r with
     | Ok (hash, revote) ->
        let* success = send_confirmation_email uuid revote login email oweight hash in
+       let () =
+         if revote then
+           Printf.ksprintf Ocsigen_messages.accesslog
+             "Someone revoted in election %s" (raw_string_of_uuid uuid)
+       in
        return (hash, weight, success)
     | Error e ->
        fail (CastError e)
