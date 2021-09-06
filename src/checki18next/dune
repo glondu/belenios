@@ -1,0 +1,3 @@
+(executable
+ (name checki18next)
+ (libraries unix str yojson))

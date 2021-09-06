@@ -5,6 +5,9 @@ minimal:
 
 build-debug-server:
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS)
+	BELENIOS_DEBUG=1 dune exec $(DUNE_DEBUG_ARGS) -- \
+	  src/checki18next/checki18next.exe --dir frontend/translations \
+	  < src/checki18next/reference.json
 	rm -rf _run/usr
 	dune install $(DUNE_DEBUG_ARGS) --destdir=_run --prefix=/usr 2>/dev/null
 	BELENIOS_DEBUG=1 $(MAKE) DESTDIR=../_run/usr/share/belenios-server/frontend -C frontend
@@ -13,10 +16,18 @@ build-debug-server:
 build-release-server:
 	$(MAKE) clean
 	BELENIOS_DEBUG= dune build --release
+	BELENIOS_DEBUG= dune exec $(DUNE_DEBUG_ARGS) -- \
+	  src/checki18next/checki18next.exe --dir frontend/translations \
+	  < src/checki18next/reference.json
 	rm -rf _run/usr
 	dune install --destdir=_run --prefix=/usr 2>/dev/null
 	BELENIOS_DEBUG= $(MAKE) DESTDIR=../_run/usr/share/belenios-server/frontend -C frontend
 	git archive --prefix="belenios-$(shell git describe --tags)/" HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
+
+build-i18next-reference:
+	BELENIOS_DEBUG=1 dune exec $(DUNE_DEBUG_ARGS) -- \
+	  src/checki18next/checki18next.exe --dir frontend/translations --make-reference \
+	  < frontend/translations/en.json > src/checki18next/reference.json
 
 build-debug-tool:
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS) -p belenios-platform,belenios-platform-native,belenios-lib,belenios-tool
