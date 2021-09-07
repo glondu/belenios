@@ -118,6 +118,14 @@ module Option = struct
   let get x default_value = match x with
     | None -> default_value
     | Some x -> x
+
+  let wrap f x =
+    try Some (f x) with _ -> None
+
+  let unwrap default x f =
+    match x with
+    | None -> default
+    | Some x -> f x
 end
 
 module Shape = struct
