@@ -1,5 +1,5 @@
-dev
-===
+1.17
+====
 
  * To use the `belenios-server` executable, the syntax of
    `ocsigenserver.conf.in` changes. Please review the changes to this

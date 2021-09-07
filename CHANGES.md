@@ -1,5 +1,5 @@
-dev
-===
+1.17 (2021-09-07)
+=================
 
  * Properly count and ignore blank votes in Condorcet-Schulze counting
    method
