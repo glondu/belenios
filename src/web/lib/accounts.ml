@@ -42,7 +42,7 @@ let account_mutex = Lwt_mutex.create ()
 let cache_mutex = Lwt_mutex.create ()
 
 let clear_account_cache () =
-  let@ () = Lwt_mutex.with_lock account_mutex in
+  let@ () = Lwt_mutex.with_lock cache_mutex in
   cache := None;
   Lwt.return_unit
 
