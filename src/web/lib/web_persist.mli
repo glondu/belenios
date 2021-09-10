@@ -28,7 +28,7 @@ open Web_serializable_t
 val get_draft_election : uuid -> draft_election option Lwt.t
 val set_draft_election : uuid -> draft_election -> unit Lwt.t
 
-val get_election_state : uuid -> election_state Lwt.t
+val get_election_state : ?update:bool -> uuid -> election_state Lwt.t
 val set_election_state : uuid -> election_state -> unit Lwt.t
 
 val get_election_dates : uuid -> election_dates Lwt.t

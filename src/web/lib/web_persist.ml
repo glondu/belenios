@@ -113,7 +113,7 @@ let set_election_state uuid s =
   in
   clear_elections_by_owner_cache ()
 
-let get_election_state uuid =
+let get_election_state ?(update = true) uuid =
   let* file = read_file ~uuid "state.json" in
   match file with
   | Some [x] ->
@@ -132,7 +132,7 @@ let get_election_state uuid =
        | x -> x
      in
      let* () =
-       if new_state <> state then set_election_state uuid new_state
+       if update && new_state <> state then set_election_state uuid new_state
        else return_unit
      in
      return new_state
@@ -232,7 +232,7 @@ let build_elections_by_owner_cache () =
                         | Some election ->
                            let* dates = get_election_dates uuid in
                            let* kind, date =
-                             let* state = get_election_state uuid in
+                             let* state = get_election_state ~update:false uuid in
                              match state with
                              | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
                                 let date = Option.get dates.e_finalization default_validation_date in
