@@ -252,7 +252,13 @@ let build_elections_by_owner_cache () =
                    let* id = get_id se.se_owner in
                    return @@ umap_add id (`Draft, uuid, date, se.se_questions.t_name) accu
               )
-              (fun _ -> return accu)
+              (function
+               | Lwt.Canceled ->
+                  Printf.ksprintf Ocsigen_messages.accesslog
+                    "Building elections_by_owner_cache canceled while processing %s"
+                    uuid_s;
+                  Lwt.fail Lwt.Canceled
+               | _ -> return accu)
           )
         ) UMap.empty
 
