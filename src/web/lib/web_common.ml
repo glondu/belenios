@@ -369,6 +369,16 @@ let extract_email =
     | None -> None
   )
 
+(* see http://www.regular-expressions.info/email.html *)
+let identity_rex = Pcre.regexp
+                     ~flags:[`CASELESS]
+                     "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}(,[A-Z0-9._%+-]*(,[1-9][0-9]*)?)?$"
+
+let is_identity x =
+  match pcre_exec_opt ~rex:identity_rex x with
+  | Some _ -> true
+  | None -> false
+
 let file_exists x =
   Lwt.catch
     (fun () ->
