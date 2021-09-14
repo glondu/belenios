@@ -236,7 +236,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               )
            | _ -> method_not_allowed
          end
-      | _ -> bad_request
+      | _ -> not_found
     in
     Eliom_registration.String.send ~code (response, "application/json")
 
