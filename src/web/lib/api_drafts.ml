@@ -68,13 +68,20 @@ let assert_ msg b f =
 let draft_of_api se d =
   let@ () = assert_ "invalid booth version" (1 <= d.draft_booth && d.draft_booth <= 2) in
   let@ () = assert_ "there must be at least one language" (List.length d.draft_languages >= 1) in
+  let e_cred_authority = d.draft_questions.t_credential_authority in
+  let () =
+    let old = se.se_metadata.e_cred_authority in
+    if e_cred_authority <> old then
+      if old = Some "server" && se.se_public_creds_received then
+        raise (Error "credential authority can no longer be changed")
+  in
   let se_metadata =
     {
       se.se_metadata with
       e_contact = d.draft_contact;
       e_languages = Some d.draft_languages;
       e_booth_version = Some d.draft_booth;
-      e_cred_authority = d.draft_questions.t_credential_authority;
+      e_cred_authority;
       e_auth_config = Some [auth_config_of_authentication d.draft_authentication];
     }
   in
