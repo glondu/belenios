@@ -1102,51 +1102,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     | Some se ->
        if se.se_public_creds <> token then forbidden () else
          if se.se_public_creds_received then forbidden () else
-           let version = Option.get se.se_version 0 in
-           let module G = (val Group.of_string ~version se.se_group : GROUP) in
-           let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
-           let* () =
-             Web_election_mutex.with_lock uuid
-               (fun () ->
-                 Lwt_io.with_file
-                   ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
-                   ~perm:0o600 ~mode:Lwt_io.Output fname
-                   (fun oc -> Lwt_io.write_chars oc creds)
-               )
-           in
-           let* weights =
-             let i = ref 1 in
-             let* x = read_file fname in
-             match x with
-             | Some xs ->
-                let weights =
-                  List.fold_left
-                    (fun weights x ->
-                      try
-                        let x, w = extract_weight x in
-                        let x = G.of_string x in
-                        if not (G.check x) then raise Exit;
-                        incr i;
-                        w :: weights
-                      with _ ->
-                        Printf.ksprintf failwith "invalid credential at line %d" !i
-                    ) [] xs
-                in
-                let* () = write_file fname xs in
-                return (List.sort compare weights)
-             | None -> failwith "anomaly when reading back credentials"
-           in
-           let expected_weights =
-             List.fold_left
-               (fun accu {sv_id; _} ->
-                 let _, _, weight = split_identity sv_id in
-                 weight :: accu
-               ) [] se.se_voters
-             |> List.sort compare
-           in
-           if weights <> expected_weights then failwith "discrepancy in weights";
-           let () = se.se_public_creds_received <- true in
-           let* () = Web_persist.set_draft_election uuid se in
+           let* creds = Lwt_stream.to_string creds in
+           let creds = PString.split_on_char '\n' creds |> List.filter ((<>) "") in
+           let* () = Api_drafts.submit_public_credentials uuid se creds in
            Pages_admin.election_draft_credentials_done se () >>= Html.send
 
   let () =
@@ -1165,90 +1123,30 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         wrap_handler (fun () -> handle_credentials_post uuid token s)
       )
 
-  module CG = Credential.MakeGenerate (LwtRandom)
-
   let () =
     Any.register ~service:election_draft_credentials_server
       (fun uuid () ->
         let@ se = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let nvoters = List.length se.se_voters in
-        if nvoters > !Web_config.maxmailsatonce then
-          Lwt.fail (Failure (Printf.sprintf (f_ "Cannot send credentials, there are too many voters (max is %d)") !Web_config.maxmailsatonce))
-        else if nvoters = 0 then
-          Lwt.fail (Failure (s_ "No voters"))
-        else if se.se_questions.t_name = default_name then
+        if se.se_questions.t_name = default_name then
           Lwt.fail (Failure (s_ "The election name has not been edited!"))
-        else if se.se_public_creds_received then
-          forbidden ()
         else (
-          let () = se.se_metadata <- {se.se_metadata with
-                                       e_cred_authority = Some "server"
-                                     } in
-          let title = se.se_questions.t_name in
-          let url = Eliom_uri.make_string_uri
-                      ~absolute:true ~service:election_home
-                      (uuid, ()) |> rewrite_prefix
-          in
-          let version = Option.get se.se_version 0 in
-          let module G = (val Group.of_string ~version se.se_group : GROUP) in
-          let module CMap = Map.Make (G) in
-          let module CD = Credential.MakeDerive (G) in
-          let show_weight =
-            List.exists
-              (fun v ->
-                let _, _, weight = split_identity_opt v.sv_id in
-                weight <> None
-              ) se.se_voters
-          in
-          let* public_creds, private_creds =
-            Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
-                let recipient, login, weight = split_identity v.sv_id in
-                let oweight = if show_weight then Some weight else None in
-                let has_passwords =
-                  match se.se_metadata.e_auth_config with
-                  | Some [{auth_system = "password"; _}] -> true
-                  | _ -> false
-                in
-                let* cred = CG.generate () in
-                let pub_cred =
-                  let x = CD.derive uuid cred in
-                  G.(g **~ x)
-                in
-                let langs = get_languages se.se_metadata.e_languages in
-                let* subject, body =
-                  Pages_voter.generate_mail_credential langs has_passwords
-                    title ~login cred oweight url se.se_metadata
-                in
-                let* () = send_email (MailCredential uuid) ~recipient ~subject ~body in
-                return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)
-              ) (CMap.empty, []) se.se_voters
-          in
-          let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
-          let* () = write_file ~uuid "private_creds.txt" private_creds in
-          let public_creds =
-            CMap.bindings public_creds
-            |> List.map
-                 (fun (cred, weight) ->
-                   let cred = G.to_string cred in
-                   if show_weight then
-                     Printf.sprintf "%s,%s" cred (Weight.to_string weight)
-                   else cred
-                 )
-          in
-          let fname = !Web_config.spool_dir / raw_string_of_uuid uuid / "public_creds.txt" in
-          let* () =
-            Lwt_io.with_file
-              ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
-              ~perm:0o600 ~mode:Lwt_io.Output fname
-              (fun oc ->
-                Lwt_list.iter_s (Lwt_io.write_line oc) public_creds)
-          in
-          se.se_public_creds_received <- true;
-          let service = preapply ~service:election_draft uuid in
-          Pages_common.generic_page ~title:(s_ "Success") ~service
-            (s_ "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential.") () >>= Html.send
+          let send = Pages_voter.send_mail_credential uuid se in
+          let* x = Api_drafts.generate_credentials_on_server send uuid se in
+          match x with
+          | Ok () ->
+             let service = preapply ~service:election_draft uuid in
+             Pages_common.generic_page ~title:(s_ "Success") ~service
+               (s_ "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential.") () >>= Html.send
+          | Error `Already ->
+             Lwt.fail (Failure (s_ "The credentials were already sent"))
+          | Error `NoVoters ->
+             Lwt.fail (Failure (s_ "No voters"))
+          | Error `TooManyVoters ->
+             Lwt.fail (Failure (Printf.sprintf (f_ "Cannot send credentials, there are too many voters (max is %d)") !Web_config.maxmailsatonce))
+          | Error `NoServer ->
+             Lwt.fail (Failure (s_ "The authority is not the server"))
         )
       )
 

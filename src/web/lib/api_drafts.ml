@@ -24,6 +24,7 @@ open Belenios_platform.Platform
 open Belenios_core.Common
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_t
+open Belenios_core.Signatures
 open Belenios_api.Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_t
@@ -205,4 +206,93 @@ let put_drafts_voters uuid se voters =
     )
   in
   let se = {se with se_voters} in
+  Web_persist.set_draft_election uuid se
+
+let get_draft_credentials uuid =
+  let* x = read_file ~uuid "public_creds.txt" in
+  match x with
+  | None -> Lwt.fail @@ Error "inconsistent state: public_creds.txt not found"
+  | Some xs -> Lwt.return xs
+
+module CG = Belenios_core.Credential.MakeGenerate (LwtRandom)
+
+let generate_credentials_on_server send uuid se =
+  let nvoters = List.length se.se_voters in
+  if nvoters > !Web_config.maxmailsatonce then
+    Lwt.return (Stdlib.Error `TooManyVoters)
+  else if nvoters = 0 then
+    Lwt.return (Stdlib.Error `NoVoters)
+  else if se.se_public_creds_received then
+    Lwt.return (Stdlib.Error `Already)
+  else if se.se_metadata.e_cred_authority <> Some "server" then
+    Lwt.return (Stdlib.Error `NoServer)
+  else (
+    let show_weight =
+      List.exists
+        (fun v ->
+          let _, _, weight = split_identity_opt v.sv_id in
+          weight <> None
+        ) se.se_voters
+    in
+    let version = Option.get se.se_version 0 in
+    let module G = (val Belenios.Group.of_string ~version se.se_group : GROUP) in
+    let module CMap = Map.Make (G) in
+    let module CD = Belenios_core.Credential.MakeDerive (G) in
+    let* public_creds, private_creds =
+      Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
+          let recipient, login, weight = split_identity v.sv_id in
+          let* cred = CG.generate () in
+          let pub_cred =
+            let x = CD.derive uuid cred in
+            G.(g **~ x)
+          in
+          let* () = send ~recipient ~login ~weight ~cred in
+          Lwt.return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)
+        ) (CMap.empty, []) se.se_voters
+    in
+    let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
+    let* () = write_file ~uuid "private_creds.txt" private_creds in
+    let public_creds =
+      CMap.bindings public_creds
+      |> List.map
+           (fun (cred, weight) ->
+             let cred = G.to_string cred in
+             if show_weight then
+               Printf.sprintf "%s,%s" cred (Weight.to_string weight)
+             else cred
+           )
+    in
+    let* () = write_file ~uuid "public_creds.txt" public_creds in
+    se.se_public_creds_received <- true;
+    let* () = Web_persist.set_draft_election uuid se in
+    Lwt.return (Ok ())
+  )
+
+let submit_public_credentials uuid se credentials =
+  let version = Option.get se.se_version 0 in
+  let module G = (val Belenios.Group.of_string ~version se.se_group : GROUP) in
+  let weights =
+    List.fold_left
+      (fun (i, weights) x ->
+        try
+          let x, w = extract_weight x in
+          let x = G.of_string x in
+          if not (G.check x) then raise Exit;
+          i + 1, w :: weights
+        with _ ->
+          raise (Error (Printf.sprintf "invalid credential at index %d" i))
+      ) (0, []) credentials
+    |> (fun (_, weights) -> List.sort Weight.compare weights)
+  in
+  let expected_weights =
+    List.fold_left
+      (fun accu {sv_id; _} ->
+        let _, _, weight = split_identity sv_id in
+        weight :: accu
+      ) [] se.se_voters
+    |> List.sort Weight.compare
+  in
+  if weights <> expected_weights then raise (Error "discrepancy in weights");
+  let* () = write_file ~uuid "public_creds.txt" credentials in
+  se.se_public_creds_received <- true;
   Web_persist.set_draft_election uuid se

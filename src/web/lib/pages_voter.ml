@@ -1389,6 +1389,33 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     in
     return (subject, body)
 
+  let send_mail_credential uuid se =
+    let title = se.se_questions.t_name in
+    let url =
+      Eliom_uri.make_string_uri ~absolute:true ~service:Web_services.election_home (uuid, ())
+      |> rewrite_prefix
+    in
+    let show_weight =
+      List.exists
+        (fun v ->
+          let _, _, weight = split_identity_opt v.sv_id in
+          weight <> None
+        ) se.se_voters
+    in
+    let has_passwords =
+      match se.se_metadata.e_auth_config with
+      | Some [{auth_system = "password"; _}] -> true
+      | _ -> false
+    in
+    let langs = get_languages se.se_metadata.e_languages in
+    fun ~recipient ~login ~weight ~cred ->
+    let oweight = if show_weight then Some weight else None in
+    let* subject, body =
+      generate_mail_credential langs has_passwords
+        title ~login cred oweight url se.se_metadata
+    in
+    send_email (MailCredential uuid) ~recipient ~subject ~body
+
   let mail_confirmation l user title weight hash revote url1 url2 metadata =
     let open (val l : Web_i18n_sig.GETTEXT) in
     let open Mail_formatter in

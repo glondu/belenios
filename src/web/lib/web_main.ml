@@ -195,13 +195,13 @@ module Make () = struct
   let () = Lwt_main.run (Web_persist.convert_trustees ())
 
   module X : Pages_sig.S = struct
-    module Api = Api_eliom.Make ()
     module Web_state = Web_state.Make ()
     module Web_services = Web_services.Make ()
     module Web_i18n = Web_i18n.Make (Web_state)
     module Pages_common = Pages_common.Make (Web_i18n) (Web_services)
     module Pages_admin = Pages_admin.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
     module Pages_voter = Pages_voter.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
+    module Api = Api_eliom.Make (Web_services) (Pages_voter)
   end
 
   module Web_captcha = Web_captcha.Make (X.Web_services)

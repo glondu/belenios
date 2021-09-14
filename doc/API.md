@@ -33,3 +33,8 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 * `GET`: unit -> voter_list
 * `PUT`: voter_list -> unit
+
+## `drafts/$UUID/credentials` (administrator or credential authority)
+
+* `GET`: unit -> credential_list
+* `POST`: credential_operation -> unit

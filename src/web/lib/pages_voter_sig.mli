@@ -48,10 +48,9 @@ module type S = sig
     string list ->
     string -> uuid -> string -> string -> bool -> (string * string) Lwt.t
 
-  val generate_mail_credential :
-    string list -> bool -> string ->
-    login:string -> string -> Weight.t option -> string ->
-    Web_serializable_t.metadata -> (string * string) Lwt.t
+  val send_mail_credential :
+    uuid -> draft_election ->
+    recipient:string -> login:string -> weight:weight -> cred:string -> unit Lwt.t
 
   val mail_confirmation :
     (module Web_i18n_sig.GETTEXT) ->

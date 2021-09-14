@@ -35,7 +35,7 @@ type token = {
     account : account;
   }
 
-module Make () = struct
+module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S) = struct
 
   let tokens = ref SMap.empty
 
@@ -182,6 +182,60 @@ module Make () = struct
          ) else (
            not_found
          )
+      | ["drafts"; uuid; "credentials"] ->
+         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+         let@ token = Option.unwrap unauthorized token in
+         let* se = Web_persist.get_draft_election uuid in
+         let@ se = Option.unwrap not_found se in
+         let who =
+           if token = se.se_public_creds then (
+             Some `CredentialAuthority
+           ) else (
+             match lookup_token token with
+             | Some a when Accounts.check_account a se.se_owner -> Some (`Administrator a)
+             | _ -> None
+           )
+         in
+         let@ who = Option.unwrap unauthorized who in
+         begin
+           match method_ with
+           | `GET ->
+              if se.se_public_creds_received then (
+                Lwt.catch
+                  (fun () ->
+                    let* x = Api_drafts.get_draft_credentials uuid in
+                    Lwt.return (200, string_of_credential_list x)
+                  ) handle_exn
+              ) else (
+                not_found
+              )
+           | `POST ->
+              if se.se_public_creds_received then (
+                forbidden
+              ) else (
+                let@ _, body = Option.unwrap bad_request body in
+                let* op = Cohttp_lwt.Body.to_string body in
+                let@ op = Option.unwrap bad_request (Option.wrap credential_operation_of_string op) in
+                match who, op with
+                | `Administrator _, `GenerateOnServer ->
+                   Lwt.catch
+                     (fun () ->
+                       let send = Pages_voter.send_mail_credential uuid se in
+                       let* x = Api_drafts.generate_credentials_on_server send uuid se in
+                       match x with
+                       | Ok () -> ok
+                       | Error _ -> bad_request
+                     ) handle_exn
+                | `CredentialAuthority, `SubmitPublic credentials ->
+                   Lwt.catch
+                     (fun () ->
+                       let* () = Api_drafts.submit_public_credentials uuid se credentials in
+                       ok
+                     ) handle_exn
+                | _ -> forbidden
+              )
+           | _ -> method_not_allowed
+         end
       | _ -> bad_request
     in
     Eliom_registration.String.send ~code (response, "application/json")

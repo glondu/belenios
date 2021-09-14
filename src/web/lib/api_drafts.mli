@@ -32,3 +32,12 @@ val post_drafts : account -> draft -> uuid Lwt.t
 
 val get_drafts_voters : draft_election -> voter_list
 val put_drafts_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
+
+val get_draft_credentials : uuid -> credential_list Lwt.t
+
+val generate_credentials_on_server :
+  (recipient:string -> login:string -> weight:weight -> cred:string -> unit Lwt.t) ->
+  uuid -> draft_election ->
+  (unit, [`NoVoters | `TooManyVoters | `Already | `NoServer]) Stdlib.result Lwt.t
+
+val submit_public_credentials : uuid -> draft_election -> credential_list -> unit Lwt.t
