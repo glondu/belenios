@@ -72,8 +72,8 @@ let draft_of_api se d =
   let () =
     let old = se.se_metadata.e_cred_authority in
     if e_cred_authority <> old then
-      if old = Some "server" && se.se_public_creds_received then
-        raise (Error "credential authority can no longer be changed")
+      if se.se_public_creds_received && (old = Some "server" || e_cred_authority = Some "server") then
+        raise (Error "credential authority change not allowed")
   in
   let se_metadata =
     {
