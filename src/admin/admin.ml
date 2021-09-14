@@ -275,16 +275,30 @@ let draft_a x =
   let uuid = raw_string_of_uuid x.summary_uuid in
   a ~href:("#drafts/" ^ uuid) x.summary_name
 
+let draft_regexp = Regexp.regexp "^#drafts/([0-9A-Za-z]+)$"
+
 let parse_hash () =
   let x = Js.to_string Dom_html.window##.location##.hash in
-  match String.drop_prefix ~prefix:"#drafts/" x with
-  | None -> `Unknown
-  | Some x -> `Draft x
+  if x = "" || x = "#" then
+    `Root
+  else
+    match Regexp.string_match draft_regexp x 0 with
+    | Some r ->
+       begin
+         match Regexp.matched_group r 1 with
+         | None -> `Unknown
+         | Some uuid -> `Draft uuid
+       end
+    | None -> `Unknown
 
 let rec onhashchange_inner main =
   main##.innerHTML := Js.string "Loading...";
   match parse_hash () with
   | `Unknown ->
+     let content = div [txt "Unknown hash"] in
+     replace_content main content;
+     Lwt.return_unit
+  | `Root ->
      let* drafts =
        let* x = get_drafts () in
        match x with
