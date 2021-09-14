@@ -23,6 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_platform
 open Belenios_core
+open Common
 open Belenios_tool_common
 open Belenios_tool_js_common
 open Platform
@@ -129,19 +130,6 @@ module Tkeygen = struct
 
   let cmds = ["do_tkeygen", tkeygen]
 end
-
-let split_lines str =
-  let str = str ^ "\n" in
-  let n = String.length str in
-  let rec loop accu i =
-    if i < n
-    then (
-      let j = String.index_from str i '\n' in
-      let line = String.sub str i (j-i) in
-      let accu = if line = "" then accu else line :: accu in
-      loop accu (j+1)
-    ) else List.rev accu
-  in loop [] 0
 
 module Credgen = struct
   open Tool_credgen

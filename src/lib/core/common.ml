@@ -326,4 +326,20 @@ let split_on_br s =
   in
   loop 0 0 []
 
+let split_lines str =
+  let n = String.length str in
+  let find i c =
+    match String.index_from_opt str i c with
+    | None -> n
+    | Some j -> j
+  in
+  let rec loop accu i =
+    if i < n then (
+      let j = min (find i '\n') (find i '\r') in
+      let line = String.sub str i (j-i) in
+      let accu = if line = "" then accu else line :: accu in
+      loop accu (j + 1)
+    ) else List.rev accu
+  in loop [] 0
+
 let default_version = 1
