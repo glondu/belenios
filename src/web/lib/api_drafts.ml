@@ -221,6 +221,13 @@ let get_draft_credentials uuid =
   | None -> Lwt.fail @@ Error "inconsistent state: public_creds.txt not found"
   | Some xs -> Lwt.return xs
 
+type generate_credentials_on_server_error =
+  [ `NoVoters
+  | `TooManyVoters
+  | `Already
+  | `NoServer
+  ]
+
 module CG = Belenios_core.Credential.MakeGenerate (LwtRandom)
 
 let generate_credentials_on_server send uuid se =
@@ -274,6 +281,12 @@ let generate_credentials_on_server send uuid se =
     let* () = Web_persist.set_draft_election uuid se in
     Lwt.return (Ok ())
   )
+
+let exn_of_generate_credentials_on_server_error = function
+  | `NoVoters -> Error "no voters"
+  | `TooManyVoters -> Error "too many voters"
+  | `Already -> Error "already done"
+  | `NoServer -> Error "credential authority is not the server"
 
 let submit_public_credentials uuid se credentials =
   let version = Option.get se.se_version 0 in

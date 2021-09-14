@@ -224,7 +224,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                        let* x = Api_drafts.generate_credentials_on_server send uuid se in
                        match x with
                        | Ok () -> ok
-                       | Error _ -> bad_request
+                       | Error e -> Lwt.fail @@ Api_drafts.exn_of_generate_credentials_on_server_error e
                      ) handle_exn
                 | `CredentialAuthority, `SubmitPublic credentials ->
                    Lwt.catch

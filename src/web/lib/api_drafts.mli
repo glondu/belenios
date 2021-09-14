@@ -35,9 +35,19 @@ val put_drafts_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
 
 val get_draft_credentials : uuid -> credential_list Lwt.t
 
+type generate_credentials_on_server_error =
+  [ `NoVoters
+  | `TooManyVoters
+  | `Already
+  | `NoServer
+  ]
+
 val generate_credentials_on_server :
   (recipient:string -> login:string -> weight:weight -> cred:string -> unit Lwt.t) ->
   uuid -> draft_election ->
-  (unit, [`NoVoters | `TooManyVoters | `Already | `NoServer]) Stdlib.result Lwt.t
+  (unit, generate_credentials_on_server_error) Stdlib.result Lwt.t
+
+val exn_of_generate_credentials_on_server_error :
+  generate_credentials_on_server_error -> exn
 
 val submit_public_credentials : uuid -> draft_election -> credential_list -> unit Lwt.t
