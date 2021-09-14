@@ -1103,7 +1103,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
        if se.se_public_creds <> token then forbidden () else
          if se.se_public_creds_received then forbidden () else
            let* creds = Lwt_stream.to_string creds in
-           let creds = PString.split_on_char '\n' creds |> List.filter ((<>) "") in
+           let creds = split_lines creds in
            let* () = Api_drafts.submit_public_credentials uuid se creds in
            Pages_admin.election_draft_credentials_done se () >>= Html.send
 
