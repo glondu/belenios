@@ -236,12 +236,6 @@ and load_draft main uuid =
       let* body =
         let* x = get_credentials uuid in
         match x with
-        | Error (`BadStatus (404, _)) ->
-           let b =
-             let@ () = button "Generate on server" in
-             generate_credentials_on_server main container uuid
-           in
-           Lwt.return @@ div [node @@ b]
         | Error e ->
            let msg =
              Printf.sprintf
@@ -250,9 +244,26 @@ and load_draft main uuid =
            in
            Lwt.return @@ div [txt msg]
         | Ok x ->
-           let t = textarea () in
-           t##.value := Js.string (string_of_credentials x);
-           Lwt.return @@ div [node @@ t]
+           match x.credentials_public, x.credentials_token with
+           | None, None ->
+              let b =
+                let@ () = button "Generate on server" in
+                generate_credentials_on_server main container uuid
+              in
+              Lwt.return @@ div [node @@ b]
+           | None, Some token ->
+              let href = Js.to_string Dom_html.window##.location##.href ^ "/credentials@" ^ token in
+              let link = a ~href href in
+              Lwt.return
+              @@ div [
+                     txt "Send the following link to the credential authority:";
+                     txt " ";
+                     node @@ link;
+                   ]
+           | Some _, _ ->
+              let t = textarea () in
+              t##.value := Js.string (string_of_credentials x);
+              Lwt.return @@ div [node @@ t]
       in
       Lwt.return
       @@ div [
