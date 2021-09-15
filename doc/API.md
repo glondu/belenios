@@ -2,8 +2,14 @@
 
 Logged in administrators can get an "administrator" API token at
 `/api-token`. This token expires when the administrator logs out, or
-after 24 hours (or when the server is restarted). The token must be
-given in an HTTP header:
+after 24 hours (or when the server is restarted).
+
+For each draft, a token is generated for the credential authority. It
+is embedded in the link sent by the administrator to the credential
+authority.
+
+The token (of the administrator or of the credential authority) must
+be given in an HTTP header:
 
     Authorization: Bearer $API_TOKEN
 
@@ -23,13 +29,13 @@ types. They refer to types defined in `src/api/serializable.atd`.
 * `GET`: unit -> summary_list
 * `POST`: draft -> uuid
 
-## `drafts/$UUID` (administrator)
+## `drafts/$UUID` (administrator or credential authority)
 
 * `GET`: unit -> draft
 * `PUT`: draft -> unit
 * `DELETE`: unit -> unit
 
-## `drafts/$UUID/voters` (administrator)
+## `drafts/$UUID/voters` (administrator or credential authority)
 
 * `GET`: unit -> voter_list
 * `PUT`: voter_list -> unit
