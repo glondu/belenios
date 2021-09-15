@@ -500,6 +500,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     in
     let draft =
       {
+        draft_version = default_version;
         draft_questions;
         draft_languages = ["en"; "fr"];
         draft_contact = Some (Printf.sprintf "%s <%s>" account.account_name account.account_email);

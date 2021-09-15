@@ -55,6 +55,7 @@ let api_of_draft se =
     }
   in
   {
+    draft_version = Option.get se.se_version 0;
     draft_questions;
     draft_languages = Option.get se.se_metadata.e_languages [];
     draft_contact = se.se_metadata.e_contact;
@@ -67,6 +68,11 @@ let assert_ msg b f =
   if b then f () else raise (Error msg)
 
 let draft_of_api se d =
+  let version = Option.get se.se_version 0 in
+  let () =
+    if d.draft_version <> version then
+      raise (Error "cannot change version")
+  in
   let@ () = assert_ "invalid booth version" (1 <= d.draft_booth && d.draft_booth <= 2) in
   let@ () = assert_ "there must be at least one language" (List.length d.draft_languages >= 1) in
   let e_cred_authority = d.draft_questions.t_credential_authority in
@@ -84,7 +90,7 @@ let draft_of_api se d =
         raise (Error "the group cannot be changed")
       else (
         try
-          let module G = (val Belenios.Group.of_string ~version:default_version se_group) in
+          let module G = (val Belenios.Group.of_string ~version se_group) in
           ()
         with _ ->
           raise (Error "invalid group")
