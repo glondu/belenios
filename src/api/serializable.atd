@@ -36,6 +36,7 @@ type draft = {
     ?contact : string option;
     booth : int;
     authentication : authentication;
+    group : string;
 } <ocaml field_prefix="draft_">
 
 type summary = {

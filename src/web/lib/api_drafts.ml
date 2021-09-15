@@ -60,6 +60,7 @@ let api_of_draft se =
     draft_contact = se.se_metadata.e_contact;
     draft_booth = Option.get se.se_metadata.e_booth_version 1;
     draft_authentication = get_authentication se;
+    draft_group = se.se_group;
   }
 
 let assert_ msg b f =
@@ -74,6 +75,33 @@ let draft_of_api se d =
     if e_cred_authority <> old then
       if se.se_public_creds_received && (old = Some "server" || e_cred_authority = Some "server") then
         raise (Error "credential authority change not allowed")
+  in
+  let se_group = d.draft_group in
+  let () =
+    let old = se.se_group in
+    if se_group <> old then (
+      if se.se_public_creds_received then
+        raise (Error "the group cannot be changed")
+      else (
+        try
+          let module G = (val Belenios.Group.of_string ~version:default_version se_group) in
+          ()
+        with _ ->
+          raise (Error "invalid group")
+      )
+    )
+  in
+  let () =
+    let has_nh_questions =
+      Array.exists
+        (function Belenios_core.Question.NonHomomorphic _ -> true | _ -> false)
+        d.draft_questions.t_questions
+    in
+    if has_nh_questions then (
+      match se_group with
+      | "RFC-3526-2048" -> ()
+      | _ -> raise (Error "a NH group is required for these questions")
+    )
   in
   let se_metadata =
     {
@@ -90,6 +118,7 @@ let draft_of_api se d =
     se_metadata;
     se_questions = d.draft_questions;
     se_administrator = d.draft_questions.t_administrator;
+    se_group;
   }
 
 let delete_draft uuid =
