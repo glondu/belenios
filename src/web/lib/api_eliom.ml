@@ -81,6 +81,16 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            Lwt.return (400, Yojson.Safe.to_string json)
         | _ -> bad_request
       in
+      let with_administrator_or_credential_authority se f =
+        let@ token = Option.unwrap unauthorized token in
+        if token = se.se_public_creds then (
+          f `CredentialAuthority
+        ) else (
+          match lookup_token token with
+          | Some a when Accounts.check_account a se.se_owner -> f (`Administrator a)
+          | _ -> not_found
+        )
+      in
       match endpoint with
       | ["drafts"] ->
          let@ token = Option.unwrap unauthorized token in
@@ -153,19 +163,18 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
          )
       | ["drafts"; uuid; "voters"] ->
          let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let@ token = Option.unwrap unauthorized token in
-         let@ account = Option.unwrap unauthorized (lookup_token token) in
          let* se = Web_persist.get_draft_election uuid in
          let@ se = Option.unwrap not_found se in
-         if Accounts.check_account account se.se_owner then (
-           match method_ with
-           | `GET ->
+         let@ who = with_administrator_or_credential_authority se in
+         begin
+           match method_, who with
+           | `GET, _ ->
               Lwt.catch
                 (fun () ->
                   let x = Api_drafts.get_drafts_voters se in
                   Lwt.return (200, string_of_voter_list x)
                 ) handle_exn
-           | `PUT ->
+           | `PUT, `Administrator _ ->
               if se.se_public_creds_received then (
                 forbidden
               ) else (
@@ -179,24 +188,12 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                   ) handle_exn
               )
            | _ -> method_not_allowed
-         ) else (
-           not_found
-         )
+         end
       | ["drafts"; uuid; "credentials"] ->
          let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let@ token = Option.unwrap unauthorized token in
          let* se = Web_persist.get_draft_election uuid in
          let@ se = Option.unwrap not_found se in
-         let who =
-           if token = se.se_public_creds then (
-             Some `CredentialAuthority
-           ) else (
-             match lookup_token token with
-             | Some a when Accounts.check_account a se.se_owner -> Some (`Administrator a)
-             | _ -> None
-           )
-         in
-         let@ who = Option.unwrap unauthorized who in
+         let@ who = with_administrator_or_credential_authority se in
          begin
            match method_ with
            | `GET ->
