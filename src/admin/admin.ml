@@ -291,9 +291,9 @@ let parse_hash () =
        end
     | None -> `Unknown
 
-let rec onhashchange_inner main =
+let rec onhashchange_inner hash main =
   main##.innerHTML := Js.string "Loading...";
-  match parse_hash () with
+  match hash with
   | `Unknown ->
      let content = div [txt "Unknown hash"] in
      replace_content main content;
@@ -327,7 +327,7 @@ let rec onhashchange_inner main =
               "An error occurred while creating the draft: %s"
               (string_of_error e)
           in
-          let b = button "Continue" (fun () -> onhashchange_inner main) in
+          let b = button "Continue" (fun () -> onhashchange_inner (parse_hash ()) main) in
           let content =
             div [
                 node @@ div [msg];
@@ -357,16 +357,21 @@ let rec onhashchange_inner main =
 
 let onhashchange () =
   let& main = document##getElementById (Js.string "main") in
-  Lwt.async (fun () -> onhashchange_inner main);
+  Lwt.async (fun () -> onhashchange_inner (parse_hash ()) main);
   Js.Opt.return ()
 
 let onload () =
   let& main = document##getElementById (Js.string "main") in
   Lwt.async
     (fun () ->
-      let* b = get_api_token () in
+      let hash = parse_hash () in
+      let* b =
+        match hash with
+        | `Root | `Draft _ -> get_api_token ()
+        | `Unknown -> Lwt.return_true
+      in
       if b then (
-        onhashchange_inner main
+        onhashchange_inner hash main
       ) else (
         alert "Unable to retrieve API token. Please log in again.";
         Lwt.return_unit
