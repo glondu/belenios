@@ -273,33 +273,48 @@ and load_draft main uuid =
   Lwt.return_unit
 
 let credentials_ui main uuid =
-  let* voters =
-    let* x = get_voters uuid in
+  let* content =
+    let* x = get_draft uuid in
     match x with
     | Error e ->
        let msg =
          Printf.sprintf
-           "An error occurred while retrieving voters of draft %s: %s"
+           "An error occurred while retrieving draft %s: %s"
            uuid (string_of_error e)
        in
-       Lwt.return @@ div [txt msg]
-    | Ok xs ->
-       let fingerprint =
-         String.concat "\n" xs ^ "\n"
-         |> sha256_b64
+       Lwt.return
+       @@ div [
+              node @@ h1 [txt "Error"];
+              node @@ div [txt msg];
+            ]
+    | Ok draft ->
+       let* voters =
+         let* x = get_voters uuid in
+         match x with
+         | Error e ->
+            let msg =
+              Printf.sprintf
+                "An error occurred while retrieving voters of draft %s: %s"
+                uuid (string_of_error e)
+            in
+            Lwt.return @@ div [txt msg]
+         | Ok xs ->
+            let fingerprint =
+              String.concat "\n" xs ^ "\n"
+              |> sha256_b64
+            in
+            let msg =
+              Printf.sprintf
+                "The voter list has %d voter(s) and its fingerprint is %s."
+                (List.length xs) fingerprint
+            in
+            Lwt.return @@ div [txt msg]
        in
-       let msg =
-         Printf.sprintf
-           "The voter list has %d voter(s) and its fingerprint is %s."
-           (List.length xs) fingerprint
-       in
-       Lwt.return @@ div [txt msg]
-  in
-  let content =
-    div [
-        node @@ h1 [txt (Printf.sprintf "Credentials for draft %s" uuid)];
-        node @@ voters;
-      ]
+       Lwt.return
+       @@ div [
+              node @@ h1 [txt (Printf.sprintf "Credentials for %s" draft.draft_questions.t_name)];
+              node @@ voters;
+            ]
   in
   replace_content main content;
   Lwt.return_unit
