@@ -52,6 +52,12 @@ type voter_list = string list
 
 type credential_list = string list
 
+type credentials = {
+    ?token : string option;
+    ?public : credential_list option;
+    ?private : string list option;
+} <ocaml field_prefix="credentials_">
+
 type credential_operation =
   [ GenerateOnServer
   | SubmitPublic of credential_list

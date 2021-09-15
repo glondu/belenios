@@ -120,7 +120,7 @@ let put_voters uuid voters =
   put_with_token ("drafts/" ^ uuid ^ "/voters") voters
 
 let get_credentials uuid =
-  get_with_token ("drafts/" ^ uuid ^ "/credentials") |> wrap credential_list_of_string
+  get_with_token ("drafts/" ^ uuid ^ "/credentials") |> wrap credentials_of_string
 
 let perform_draft container uuid action msg handler =
   let* x = action ("drafts/" ^ uuid) in
@@ -251,7 +251,7 @@ and load_draft main uuid =
            Lwt.return @@ div [txt msg]
         | Ok x ->
            let t = textarea () in
-           t##.value := Js.string (string_of_credential_list x);
+           t##.value := Js.string (string_of_credentials x);
            Lwt.return @@ div [node @@ t]
       in
       Lwt.return

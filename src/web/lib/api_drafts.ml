@@ -250,11 +250,16 @@ let put_drafts_voters uuid se voters =
   let se = {se with se_voters} in
   Web_persist.set_draft_election uuid se
 
-let get_draft_credentials uuid =
-  let* x = read_file ~uuid "public_creds.txt" in
-  match x with
-  | None -> Lwt.fail @@ Error "inconsistent state: public_creds.txt not found"
-  | Some xs -> Lwt.return xs
+let get_draft_credentials uuid se =
+  let credentials_token =
+    if se.se_metadata.e_cred_authority = Some "server" then
+      None
+    else
+      Some se.se_public_creds
+  in
+  let* credentials_public = read_file ~uuid "public_creds.txt" in
+  let* credentials_private = read_file ~uuid "private_creds.txt" in
+  Lwt.return {credentials_token; credentials_public; credentials_private}
 
 type generate_credentials_on_server_error =
   [ `NoVoters

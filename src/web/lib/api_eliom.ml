@@ -194,15 +194,11 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
          begin
            match method_ with
            | `GET ->
-              if se.se_public_creds_received then (
-                Lwt.catch
-                  (fun () ->
-                    let* x = Api_drafts.get_draft_credentials uuid in
-                    Lwt.return (200, string_of_credential_list x)
-                  ) handle_exn
-              ) else (
-                not_found
-              )
+              Lwt.catch
+                (fun () ->
+                  let* x = Api_drafts.get_draft_credentials uuid se in
+                  Lwt.return (200, string_of_credentials x)
+                ) handle_exn
            | `POST ->
               if se.se_public_creds_received then (
                 forbidden
