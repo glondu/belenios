@@ -122,19 +122,18 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
          )
       | ["drafts"; uuid] ->
          let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let@ token = Option.unwrap unauthorized token in
-         let@ account = Option.unwrap unauthorized (lookup_token token) in
          let* se = Web_persist.get_draft_election uuid in
          let@ se = Option.unwrap not_found se in
-         if Accounts.check_account account se.se_owner then (
-           match method_ with
-           | `GET ->
+         let@ who = with_administrator_or_credential_authority se in
+         begin
+           match method_, who with
+           | `GET, _ ->
               Lwt.catch
                 (fun () ->
                   let x = Api_drafts.api_of_draft se in
                   Lwt.return (200, string_of_draft x)
                 ) handle_exn
-           | `PUT ->
+           | `PUT, `Administrator _ ->
               let@ _, body = Option.unwrap bad_request body in
               let* draft = Cohttp_lwt.Body.to_string body in
               let@ draft = Option.unwrap bad_request (Option.wrap draft_of_string draft) in
@@ -151,16 +150,14 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                   in
                   ok
                 ) handle_exn
-           | `DELETE ->
+           | `DELETE, `Administrator _ ->
               Lwt.catch
                 (fun () ->
                   let* () = Api_drafts.delete_draft uuid in
                   ok
                 ) handle_exn
            | _ -> method_not_allowed
-         ) else (
-           not_found
-         )
+         end
       | ["drafts"; uuid; "voters"] ->
          let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
          let* se = Web_persist.get_draft_election uuid in
