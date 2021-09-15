@@ -33,7 +33,9 @@ val post_drafts : account -> draft -> uuid Lwt.t
 val get_drafts_voters : draft_election -> voter_list
 val put_drafts_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
 
-val get_draft_credentials : uuid -> draft_election -> credentials Lwt.t
+val get_draft_credentials :
+  [`Administrator of account | `CredentialAuthority] ->
+  uuid -> draft_election -> credentials Lwt.t
 
 type generate_credentials_on_server_error =
   [ `NoVoters

@@ -196,7 +196,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | `GET ->
               Lwt.catch
                 (fun () ->
-                  let* x = Api_drafts.get_draft_credentials uuid se in
+                  let* x = Api_drafts.get_draft_credentials who uuid se in
                   Lwt.return (200, string_of_credentials x)
                 ) handle_exn
            | `POST ->

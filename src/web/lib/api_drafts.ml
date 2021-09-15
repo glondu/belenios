@@ -250,7 +250,7 @@ let put_drafts_voters uuid se voters =
   let se = {se with se_voters} in
   Web_persist.set_draft_election uuid se
 
-let get_draft_credentials uuid se =
+let get_draft_credentials who uuid se =
   let credentials_token =
     if se.se_metadata.e_cred_authority = Some "server" then
       None
@@ -258,7 +258,11 @@ let get_draft_credentials uuid se =
       Some se.se_public_creds
   in
   let* credentials_public = read_file ~uuid "public_creds.txt" in
-  let* credentials_private = read_file ~uuid "private_creds.txt" in
+  let* credentials_private =
+    match who with
+    | `Administrator _ -> read_file ~uuid "private_creds.txt"
+    | `CredentialAuthority -> Lwt.return_none
+  in
   Lwt.return {credentials_token; credentials_public; credentials_private}
 
 type generate_credentials_on_server_error =
