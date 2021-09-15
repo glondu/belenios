@@ -253,13 +253,12 @@ and load_draft main uuid =
               in
               Lwt.return @@ div [node @@ b]
            | None, Some token ->
-              let href = Js.to_string Dom_html.window##.location##.href ^ "/credentials@" ^ token in
-              let link = a ~href href in
+              let link = Js.to_string Dom_html.window##.location##.href ^ "/credentials@" ^ token in
               Lwt.return
               @@ div [
                      txt "Send the following link to the credential authority:";
                      txt " ";
-                     node @@ link;
+                     txt link;
                    ]
            | Some _, _ ->
               let t = textarea () in
