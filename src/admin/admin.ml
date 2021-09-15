@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Belenios_platform.Platform
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
@@ -271,11 +272,44 @@ and load_draft main uuid =
   replace_content main content;
   Lwt.return_unit
 
+let credentials_ui main uuid =
+  let* voters =
+    let* x = get_voters uuid in
+    match x with
+    | Error e ->
+       let msg =
+         Printf.sprintf
+           "An error occurred while retrieving voters of draft %s: %s"
+           uuid (string_of_error e)
+       in
+       Lwt.return @@ div [txt msg]
+    | Ok xs ->
+       let fingerprint =
+         String.concat "\n" xs ^ "\n"
+         |> sha256_b64
+       in
+       let msg =
+         Printf.sprintf
+           "The voter list has %d voter(s) and its fingerprint is %s."
+           (List.length xs) fingerprint
+       in
+       Lwt.return @@ div [txt msg]
+  in
+  let content =
+    div [
+        node @@ h1 [txt (Printf.sprintf "Credentials for draft %s" uuid)];
+        node @@ voters;
+      ]
+  in
+  replace_content main content;
+  Lwt.return_unit
+
 let draft_a x =
   let uuid = raw_string_of_uuid x.summary_uuid in
   a ~href:("#drafts/" ^ uuid) x.summary_name
 
 let draft_regexp = Regexp.regexp "^#drafts/([0-9A-Za-z]+)$"
+let credentials_regexp = Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$"
 
 let parse_hash () =
   let x = Js.to_string Dom_html.window##.location##.hash in
@@ -289,7 +323,15 @@ let parse_hash () =
          | None -> `Unknown
          | Some uuid -> `Draft uuid
        end
-    | None -> `Unknown
+    | None ->
+       match Regexp.string_match credentials_regexp x 0 with
+       | Some r ->
+          begin
+            match Regexp.matched_group r 1, Regexp.matched_group r 2 with
+            | Some uuid, Some token -> `Credentials (uuid, token)
+            | _ -> `Unknown
+          end
+       | None -> `Unknown
 
 let rec onhashchange_inner hash main =
   main##.innerHTML := Js.string "Loading...";
@@ -354,6 +396,7 @@ let rec onhashchange_inner hash main =
      replace_content main content;
      Lwt.return_unit
   | `Draft uuid -> load_draft main uuid
+  | `Credentials (uuid, _) -> credentials_ui main uuid
 
 let onhashchange () =
   let& main = document##getElementById (Js.string "main") in
@@ -368,6 +411,7 @@ let onload () =
       let* b =
         match hash with
         | `Root | `Draft _ -> get_api_token ()
+        | `Credentials (_, token) -> api_token := token; Lwt.return_true
         | `Unknown -> Lwt.return_true
       in
       if b then (
