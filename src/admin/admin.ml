@@ -22,6 +22,7 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_platform.Platform
+open Belenios_core.Signatures
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
@@ -283,6 +284,8 @@ and load_draft main uuid =
   replace_content main content;
   Lwt.return_unit
 
+module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
+
 let credentials_ui main uuid =
   let* content =
     let* x = get_draft uuid in
@@ -314,12 +317,78 @@ let credentials_ui main uuid =
               String.concat "\n" xs ^ "\n"
               |> sha256_b64
             in
-            let msg =
+            let fingerprint =
               Printf.sprintf
                 "The voter list has %d voter(s) and its fingerprint is %s."
                 (List.length xs) fingerprint
             in
-            Lwt.return @@ div [txt msg]
+            let container = div [] in
+            let b =
+              let@ () = button "Generate credentials" in
+              let uuid_ = uuid_of_raw_string uuid in
+              let show_weight =
+                List.exists
+                  (fun v ->
+                    let _, _, weight = split_identity_opt v in
+                    weight <> None
+                  ) xs
+              in
+              let version = draft.draft_version in
+              let module G = (val Belenios.Group.of_string ~version draft.draft_group : GROUP) in
+              let module CMap = Map.Make (G) in
+              let module CD = Belenios_core.Credential.MakeDerive (G) in
+              let* public_creds, private_creds =
+                Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
+                    let _, _, weight = split_identity v in
+                    let* cred = CG.generate () in
+                    let pub_cred =
+                      let x = CD.derive uuid_ cred in
+                      G.(g **~ x)
+                    in
+                    Lwt.return (CMap.add pub_cred weight public_creds, (v, cred) :: private_creds)
+                  ) (CMap.empty, []) xs
+              in
+              let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
+              let public_creds =
+                CMap.bindings public_creds
+                |> List.map
+                     (fun (cred, weight) ->
+                       let cred = G.to_string cred in
+                       if show_weight then
+                         Printf.sprintf "%s,%s" cred (Weight.to_string weight)
+                       else cred
+                     )
+              in
+              let op = `SubmitPublic public_creds |> string_of_credential_operation in
+              let t = textarea () in
+              t##.value := Js.string (String.concat "\n" private_creds ^ "\n");
+              let b =
+                let@ () = button "Send public credentials to server" in
+                let* x = post_with_token ("drafts/" ^ uuid ^ "/credentials") op in
+                let msg =
+                  match x.code with
+                  | 200 -> "Public credentials successfully uploaded!"
+                  | code -> Printf.sprintf "Error %d: %s" code x.content
+                in
+                let content = div [txt msg] in
+                replace_content container content;
+                Lwt.return_unit
+              in
+              let content =
+                div [
+                    node @@ div [node @@ t];
+                    node @@ div [node @@ b];
+                  ]
+              in
+              replace_content container content;
+              Lwt.return_unit
+            in
+            Dom.appendChild container b;
+            Lwt.return
+            @@ div [
+                   node @@ div [txt fingerprint];
+                   node @@ container;
+                 ]
        in
        Lwt.return
        @@ div [
