@@ -71,24 +71,24 @@ let get_api_token () =
 let get_with_token url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let headers = ["Authorization", "Bearer " ^ !api_token] in
-  perform_raw_url ~headers (api_root ^ url)
+  Printf.ksprintf (fun x -> perform_raw_url ~headers (api_root ^ x)) url
 
 let delete_with_token url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let headers = ["Authorization", "Bearer " ^ !api_token] in
-  perform_raw_url ~headers ~override_method:`DELETE (api_root ^ url)
+  Printf.ksprintf (fun x -> perform_raw_url ~headers ~override_method:`DELETE (api_root ^ x)) url
 
-let put_with_token url x =
+let put_with_token x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let headers = ["Authorization", "Bearer " ^ !api_token] in
   let contents = `String x in
-  perform_raw_url ~headers ~contents ~override_method:`PUT (api_root ^ url)
+  Printf.ksprintf (fun x -> perform_raw_url ~headers ~contents ~override_method:`PUT (api_root ^ x)) url
 
-let post_with_token url x =
+let post_with_token x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let headers = ["Authorization", "Bearer " ^ !api_token] in
   let contents = `String x in
-  perform_raw_url ~headers ~contents ~override_method:`POST (api_root ^ url)
+  Printf.ksprintf (fun x -> perform_raw_url ~headers ~contents ~override_method:`POST (api_root ^ x)) url
 
 let bad_result = Lwt.return (Error `BadResult)
 
@@ -109,25 +109,25 @@ let get_drafts () =
   get_with_token "drafts" |> wrap summary_list_of_string
 
 let post_drafts draft =
-  post_with_token "drafts" draft |> wrap uuid_of_string
+  post_with_token draft "drafts" |> wrap uuid_of_string
 
 let get_draft uuid =
-  get_with_token ("drafts/" ^ uuid) |> wrap draft_of_string
+  get_with_token "drafts/%s" uuid |> wrap draft_of_string
 
 let get_voters uuid =
-  get_with_token ("drafts/" ^ uuid ^ "/voters") |> wrap voter_list_of_string
+  get_with_token "drafts/%s/voters" uuid |> wrap voter_list_of_string
 
 let put_voters uuid voters =
-  put_with_token ("drafts/" ^ uuid ^ "/voters") voters
+  put_with_token voters "drafts/%s/voters" uuid
 
 let get_passwords uuid =
-  get_with_token ("drafts/" ^ uuid ^ "/passwords") |> wrap voter_list_of_string
+  get_with_token "drafts/%s/passwords" uuid |> wrap voter_list_of_string
 
 let get_credentials uuid =
-  get_with_token ("drafts/" ^ uuid ^ "/credentials") |> wrap credentials_of_string
+  get_with_token "drafts/%s/credentials" uuid |> wrap credentials_of_string
 
 let perform_draft container uuid action msg handler =
-  let* x = action ("drafts/" ^ uuid) in
+  let* x = action (format_of_string "drafts/%s") uuid in
   let msg =
     let open Js_of_ocaml_lwt.XmlHttpRequest in
     match x.code with
@@ -146,7 +146,7 @@ let delete_draft container uuid =
 
 let rec save_draft main container uuid x =
   perform_draft container uuid
-    (fun url -> put_with_token url x) "Changes successfully applied!"
+    (fun url -> put_with_token x url) "Changes successfully applied!"
     (fun () -> load_draft main uuid)
 
 and save_voters main container uuid voters =
@@ -162,7 +162,7 @@ and save_voters main container uuid voters =
   Lwt.return_unit
 
 and post_passwords main container uuid voters =
-  let* x = post_with_token ("drafts/" ^ uuid ^ "/passwords") voters in
+  let* x = post_with_token voters "drafts/%s/passwords" uuid in
   let msg =
     match x.code with
     | 200 -> "Passwords successfully generated and sent!"
@@ -175,7 +175,7 @@ and post_passwords main container uuid voters =
 
 and generate_credentials_on_server main container uuid =
   let op = string_of_credential_operation `GenerateOnServer in
-  let* x = post_with_token ("drafts/" ^ uuid ^ "/credentials") op in
+  let* x = post_with_token op "drafts/%s/credentials" uuid in
   let msg =
     match x.code with
     | 200 -> "Credentials successfully generated!"
@@ -411,7 +411,7 @@ let credentials_ui main uuid =
               t##.value := Js.string (String.concat "\n" private_creds ^ "\n");
               let b =
                 let@ () = button "Send public credentials to server" in
-                let* x = post_with_token ("drafts/" ^ uuid ^ "/credentials") op in
+                let* x = post_with_token op "drafts/%s/credentials" uuid in
                 let msg =
                   match x.code with
                   | 200 -> "Public credentials successfully uploaded!"
