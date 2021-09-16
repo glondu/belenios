@@ -409,6 +409,7 @@ let credentials_ui main uuid =
               let op = `SubmitPublic public_creds |> string_of_credential_operation in
               let t = textarea () in
               t##.value := Js.string (String.concat "\n" private_creds ^ "\n");
+              let button_container = div [] in
               let b =
                 let@ () = button "Send public credentials to server" in
                 let* x = post_with_token op "drafts/%s/credentials" uuid in
@@ -418,13 +419,14 @@ let credentials_ui main uuid =
                   | code -> Printf.sprintf "Error %d: %s" code x.content
                 in
                 let content = div [txt msg] in
-                replace_content container content;
+                replace_content button_container content;
                 Lwt.return_unit
               in
+              Dom.appendChild button_container b;
               let content =
                 div [
                     node @@ div [node @@ t];
-                    node @@ div [node @@ b];
+                    node @@ button_container;
                   ]
               in
               replace_content container content;
