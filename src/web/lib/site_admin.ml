@@ -1035,17 +1035,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let trustee_add_server se =
-    let st_id = "server" and st_token = "" in
-    let version = Option.get se.se_version 0 in
-    let module G = (val Group.of_string ~version se.se_group) in
-    let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
-    let module K = Trustees.MakeSimple (G) (LwtRandom) in
-    let* private_key = K.generate () in
-    let* public_key = K.prove private_key in
-    let st_public_key = string_of_trustee_public_key G.write public_key in
-    let st_private_key = Some private_key in
-    let st_name = Some "server" in
-    let trustee = {st_id; st_token; st_public_key; st_private_key; st_name} in
+    let* trustee = Api_drafts.generate_server_trustee se in
     se.se_public_keys <- se.se_public_keys @ [trustee];
     return_unit
 

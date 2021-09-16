@@ -62,3 +62,23 @@ type credential_operation =
   [ GenerateOnServer
   | SubmitPublic of credential_list
   ]
+
+type trustee = {
+    address : string;
+    name : string;
+} <ocaml field_prefix="trustee_">
+
+type trustees_mode =
+  [ Basic
+  | Threshold
+  ]
+
+type trustees = {
+    mode: trustees_mode;
+    tokens: string list;
+} <ocaml field_prefix="trustees_">
+
+type trustees_operation =
+  [ SetMode of trustees_mode
+  | Add of trustee
+  ]

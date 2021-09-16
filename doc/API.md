@@ -49,3 +49,8 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 * `GET`: unit -> credentials
 * `POST`: credential_operation -> unit
+
+## `drafts/$UUID/trustees` (administrator)
+
+* `GET`: unit -> trustees
+* `POST`: trustees_operation -> json

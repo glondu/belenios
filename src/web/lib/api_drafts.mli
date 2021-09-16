@@ -58,3 +58,8 @@ val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn
 
 val submit_public_credentials : uuid -> draft_election -> credential_list -> unit Lwt.t
+
+val generate_server_trustee : draft_election -> draft_trustee Lwt.t
+
+val get_drafts_trustees : draft_election -> trustees
+val post_drafts_trustees : uuid -> draft_election -> trustees_operation -> Yojson.Safe.t Lwt.t

@@ -23,7 +23,7 @@ open Lwt.Syntax
 open Belenios_platform.Platform
 open Belenios_core.Common
 open Belenios_core.Serializable_builtin_t
-open Belenios_core.Serializable_t
+open Belenios_core.Serializable_j
 open Belenios_core.Signatures
 open Belenios_api.Serializable_t
 open Web_serializable_builtin_t
@@ -390,3 +390,98 @@ let submit_public_credentials uuid se credentials =
   let* () = write_file ~uuid "public_creds.txt" credentials in
   se.se_public_creds_received <- true;
   Web_persist.set_draft_election uuid se
+
+let get_drafts_trustees se =
+  match se.se_threshold_trustees with
+  | None ->
+     {
+       trustees_mode = `Basic;
+       trustees_tokens =
+         List.filter_map
+           (fun t -> if t.st_token = "" then None else Some t.st_token)
+           se.se_public_keys;
+     }
+  | Some ts ->
+     {
+       trustees_mode = `Threshold;
+       trustees_tokens = List.map (fun t -> t.stt_token) ts;
+     }
+
+let check_address address f =
+  if is_email address then
+    f ()
+  else
+    Lwt.fail (Error (Printf.sprintf "invalid e-mail address: %s" address))
+
+let generate_server_trustee se =
+  let st_id = "server" and st_token = "" in
+  let version = Option.get se.se_version 0 in
+  let module G = (val Belenios.Group.of_string ~version se.se_group) in
+  let module Trustees = (val Belenios.Trustees.get_by_version (Option.get se.se_version 0)) in
+  let module K = Trustees.MakeSimple (G) (LwtRandom) in
+  let* private_key = K.generate () in
+  let* public_key = K.prove private_key in
+  let st_public_key = string_of_trustee_public_key G.write public_key in
+  let st_private_key = Some private_key in
+  let st_name = Some "server" in
+  Lwt.return {st_id; st_token; st_public_key; st_private_key; st_name}
+
+let post_drafts_trustees uuid se op =
+  match op with
+  | `SetMode m ->
+     begin
+       let* () =
+         match se.se_threshold_trustees, m with
+         | None, `Basic | Some _, `Threshold -> Lwt.return_unit
+         | None, `Threshold ->
+            let se = {se with se_public_keys = []; se_threshold_trustees = Some []} in
+            Web_persist.set_draft_election uuid se
+         | Some _, `Basic ->
+            let se = {se with se_threshold_trustees = None} in
+            Web_persist.set_draft_election uuid se
+       in
+       Lwt.return @@ `Assoc []
+     end
+  | `Add t ->
+     begin
+       let@ () = check_address t.trustee_address in
+       match se.se_threshold_trustees with
+       | None ->
+          let* ts =
+            let ts = se.se_public_keys in
+            if List.exists (fun x -> x.st_id = "server") ts then
+              Lwt.return ts
+            else
+              let* server = generate_server_trustee se in
+              Lwt.return (ts @ [server])
+          in
+          let* st_token = generate_token () in
+          let t =
+            {
+              st_id = t.trustee_address;
+              st_name = Some t.trustee_name;
+              st_public_key = "";
+              st_private_key = None;
+              st_token;
+            }
+          in
+          let se_public_keys = ts @ [t] in
+          let se = {se with se_public_keys} in
+          let* () = Web_persist.set_draft_election uuid se in
+          Lwt.return @@ `String st_token
+       | Some ts ->
+          let* stt_token = generate_token () in
+          let t =
+            {
+              stt_id = t.trustee_address;
+              stt_name = Some t.trustee_name;
+              stt_token; stt_step = None;
+              stt_cert = None; stt_polynomial = None;
+              stt_vinput = None; stt_voutput = None;
+            }
+          in
+          let se_threshold_trustees = Some (ts @ [t]) in
+          let se = {se with se_threshold_trustees} in
+          let* () = Web_persist.set_draft_election uuid se in
+          Lwt.return @@ `String stt_token
+     end

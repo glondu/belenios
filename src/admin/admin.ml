@@ -126,6 +126,9 @@ let get_passwords uuid =
 let get_credentials uuid =
   get_with_token "drafts/%s/credentials" uuid |> wrap credentials_of_string
 
+let get_trustees uuid =
+  get_with_token "drafts/%s/trustees" uuid |> wrap trustees_of_string
+
 let perform_draft container uuid action msg handler =
   let* x = action (format_of_string "drafts/%s") uuid in
   let msg =
@@ -179,6 +182,18 @@ and generate_credentials_on_server main container uuid =
   let msg =
     match x.code with
     | 200 -> "Credentials successfully generated!"
+    | code -> Printf.sprintf "Error %d: %s" code x.content
+  in
+  let b = button "Proceed" (fun () -> load_draft main uuid) in
+  let content = div [node @@ div [txt msg]; node @@ b] in
+  replace_content container content;
+  Lwt.return_unit
+
+and post_trustees main container uuid op =
+  let* x = post_with_token op "drafts/%s/trustees" uuid in
+  let msg =
+    match x.code with
+    | 200 -> Printf.sprintf "Trustee operation successfully applied: %s" x.content
     | code -> Printf.sprintf "Error %d: %s" code x.content
   in
   let b = button "Proceed" (fun () -> load_draft main uuid) in
@@ -318,10 +333,39 @@ and load_draft main uuid =
              node @@ body;
            ]
     in
+    let* trustees =
+      let* body =
+        let* x = get_trustees uuid in
+        match x with
+        | Error e ->
+           let msg =
+             Printf.sprintf
+               "An error occurred while retrieving trustees of draft %s: %s"
+               uuid (string_of_error e)
+           in
+           Lwt.return @@ div [txt msg]
+        | Ok x ->
+           let t = textarea () in
+           t##.value := Js.string (string_of_trustees x);
+           let t_op = textarea () in
+           let b =
+             let@ () = button "Submit trustee operation" in
+             post_trustees main container uuid (Js.to_string t_op##.value)
+           in
+           Lwt.return
+           @@ div [
+                  node @@ div [node @@ t];
+                  node @@ div [node @@ t_op];
+                  node @@ div [node @@ b];
+                ]
+      in
+      Lwt.return @@ div [node @@ h2 [txt "Trustees"]; node @@ body]
+    in
     Dom.appendChild container draft;
     Dom.appendChild container voters;
     Dom.appendChild container passwords;
     Dom.appendChild container credentials;
+    Dom.appendChild container trustees;
     Lwt.return @@ node
     @@ div [
            node @@ h1 [txt title];

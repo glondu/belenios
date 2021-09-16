@@ -273,6 +273,30 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               )
            | _ -> method_not_allowed
          end
+      | ["drafts"; uuid; "trustees"] ->
+         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+         let* se = Web_persist.get_draft_election uuid in
+         let@ se = Option.unwrap not_found se in
+         let@ () = with_administrator se in
+         begin
+           match method_ with
+           | `GET ->
+              Lwt.catch
+                (fun () ->
+                  let x = Api_drafts.get_drafts_trustees se in
+                  Lwt.return (200, string_of_trustees x)
+                ) handle_exn
+           | `POST ->
+              let@ _, body = Option.unwrap bad_request body in
+              let* op = Cohttp_lwt.Body.to_string body in
+              let@ op = Option.unwrap bad_request (Option.wrap trustees_operation_of_string op) in
+              Lwt.catch
+                (fun () ->
+                  let* r = Api_drafts.post_drafts_trustees uuid se op in
+                  Lwt.return (200, Yojson.Safe.to_string r)
+                ) handle_exn
+           | _ -> method_not_allowed
+         end
       | _ -> not_found
     in
     Eliom_registration.String.send ~code (response, "application/json")
