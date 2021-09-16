@@ -33,6 +33,11 @@ val post_drafts : account -> draft -> uuid Lwt.t
 val get_drafts_voters : draft_election -> voter_list
 val put_drafts_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
 
+val get_drafts_passwords : draft_election -> voter_list
+val post_drafts_passwords :
+  (Web_serializable_t.metadata -> string -> (string * string) Lwt.t) ->
+  uuid -> draft_election -> voter_list -> unit Lwt.t
+
 val get_draft_credentials :
   [`Administrator of account | `CredentialAuthority] ->
   uuid -> draft_election -> credentials Lwt.t

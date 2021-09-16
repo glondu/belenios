@@ -40,6 +40,11 @@ types. They refer to types defined in `src/api/serializable.atd`.
 * `GET`: unit -> voter_list
 * `PUT`: voter_list -> unit
 
+## `drafts/$UUID/passwords` (administrator)
+
+* `GET`: unit -> voter_list
+* `POST`: voter_list -> unit
+
 ## `drafts/$UUID/credentials` (administrator or credential authority)
 
 * `GET`: unit -> credentials

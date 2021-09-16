@@ -250,6 +250,32 @@ let put_drafts_voters uuid se voters =
   let se = {se with se_voters} in
   Web_persist.set_draft_election uuid se
 
+let get_drafts_passwords se =
+  se.se_voters
+  |> List.filter_map (fun x -> Option.map (fun _ -> x.sv_id) x.sv_password)
+
+let post_drafts_passwords generate uuid se voters =
+  let se_voters =
+    List.fold_left (fun accu v -> SMap.add v.sv_id v accu) SMap.empty se.se_voters
+  in
+  let voters =
+    List.map
+      (fun id ->
+        match SMap.find_opt id se_voters with
+        | None -> raise (Error (Printf.sprintf "voter not in voter list: %s" id))
+        | Some v -> v
+      ) voters
+  in
+  let* () =
+    Lwt_list.iter_s
+      (fun v ->
+        let* x = generate se.se_metadata v.sv_id in
+        v.sv_password <- Some x;
+        Lwt.return_unit
+      ) voters
+  in
+  Web_persist.set_draft_election uuid se
+
 let get_draft_credentials who uuid se =
   let credentials_token =
     if se.se_metadata.e_cred_authority = Some "server" then

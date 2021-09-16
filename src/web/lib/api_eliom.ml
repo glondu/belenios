@@ -81,6 +81,12 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            Lwt.return (400, Yojson.Safe.to_string json)
         | _ -> bad_request
       in
+      let with_administrator se f =
+        let@ token = Option.unwrap unauthorized token in
+        match lookup_token token with
+        | Some a when Accounts.check_account a se.se_owner -> f ()
+        | _ -> not_found
+      in
       let with_administrator_or_credential_authority se f =
         let@ token = Option.unwrap unauthorized token in
         if token = se.se_public_creds then (
@@ -184,6 +190,47 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                     ok
                   ) handle_exn
               )
+           | _ -> method_not_allowed
+         end
+      | ["drafts"; uuid; "passwords"] ->
+         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+         let* se = Web_persist.get_draft_election uuid in
+         let@ se = Option.unwrap not_found se in
+         let@ () = with_administrator se in
+         begin
+           match method_ with
+           | `GET ->
+              Lwt.catch
+                (fun () ->
+                  let x = Api_drafts.get_drafts_passwords se in
+                  Lwt.return (200, string_of_voter_list x)
+                ) handle_exn
+           | `POST ->
+              let@ _, body = Option.unwrap bad_request body in
+              let* voters = Cohttp_lwt.Body.to_string body in
+              let@ voters = Option.unwrap bad_request (Option.wrap voter_list_of_string voters) in
+              Lwt.catch
+                (fun () ->
+                  let generate =
+                    let title = se.se_questions.t_name in
+                    let url =
+                      Eliom_uri.make_string_uri ~absolute:true ~service:Web_services.election_home (uuid, ())
+                      |> rewrite_prefix
+                    in
+                    let langs = get_languages se.se_metadata.e_languages in
+                    let show_weight =
+                      List.exists
+                        (fun id ->
+                          let _, _, weight = split_identity_opt id.sv_id in
+                          weight <> None
+                        ) se.se_voters
+                    in
+                    fun metadata id ->
+                    Pages_voter.generate_password metadata langs title uuid url id show_weight
+                  in
+                  let* () = Api_drafts.post_drafts_passwords generate uuid se voters in
+                  ok
+                ) handle_exn
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "credentials"] ->

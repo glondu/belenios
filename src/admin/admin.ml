@@ -120,6 +120,9 @@ let get_voters uuid =
 let put_voters uuid voters =
   put_with_token ("drafts/" ^ uuid ^ "/voters") voters
 
+let get_passwords uuid =
+  get_with_token ("drafts/" ^ uuid ^ "/passwords") |> wrap voter_list_of_string
+
 let get_credentials uuid =
   get_with_token ("drafts/" ^ uuid ^ "/credentials") |> wrap credentials_of_string
 
@@ -151,6 +154,18 @@ and save_voters main container uuid voters =
   let msg =
     match x.code with
     | 200 -> "Voters successfully updated!"
+    | code -> Printf.sprintf "Error %d: %s" code x.content
+  in
+  let b = button "Proceed" (fun () -> load_draft main uuid) in
+  let content = div [node @@ div [txt msg]; node @@ b] in
+  replace_content container content;
+  Lwt.return_unit
+
+and post_passwords main container uuid voters =
+  let* x = post_with_token ("drafts/" ^ uuid ^ "/passwords") voters in
+  let msg =
+    match x.code with
+    | 200 -> "Passwords successfully generated and sent!"
     | code -> Printf.sprintf "Error %d: %s" code x.content
   in
   let b = button "Proceed" (fun () -> load_draft main uuid) in
@@ -209,7 +224,7 @@ and load_draft main uuid =
                ]
            )
     in
-    let* voters =
+    let* voters, all_voters =
       let* x = get_voters uuid in
       match x with
       | Error e ->
@@ -218,7 +233,7 @@ and load_draft main uuid =
              "An error occurred while retrieving voters of draft %s: %s"
              uuid (string_of_error e)
          in
-         Lwt.return @@ div [txt msg]
+         Lwt.return (div [txt msg], [])
       | Ok x ->
          let t = textarea () in
          t##.value := Js.string (string_of_voter_list x);
@@ -227,9 +242,41 @@ and load_draft main uuid =
            save_voters main container uuid (Js.to_string t##.value)
          in
          Lwt.return
-         @@ div [
+           (div [
                 node @@ h2 [txt "Voter list"];
                 node @@ div [node @@ t];
+                node @@ div [node @@ b];
+              ],
+            x)
+    in
+    let* passwords =
+      let* x = get_passwords uuid in
+      match x with
+      | Error e ->
+         let msg =
+           Printf.sprintf
+             "An error occurred while retrieving passwords of draft %s: %s"
+             uuid (string_of_error e)
+         in
+         Lwt.return @@ div [txt msg]
+      | Ok x ->
+         let missing =
+           let x = List.fold_left (fun accu v -> SSet.add v accu) SSet.empty x in
+           List.filter (fun v -> not @@ SSet.mem v x) all_voters
+         in
+         let t_current = textarea () in
+         t_current##.value := Js.string (string_of_voter_list x);
+         let t_post = textarea () in
+         t_post##.value := Js.string (string_of_voter_list missing);
+         let b =
+           let@ () = button "Generate and send passwords" in
+           post_passwords main container uuid (Js.to_string t_post##.value)
+         in
+         Lwt.return
+         @@ div [
+                node @@ h2 [txt "Passwords"];
+                node @@ div [node @@ t_current];
+                node @@ div [node @@ t_post];
                 node @@ div [node @@ b];
               ]
     in
@@ -273,6 +320,7 @@ and load_draft main uuid =
     in
     Dom.appendChild container draft;
     Dom.appendChild container voters;
+    Dom.appendChild container passwords;
     Dom.appendChild container credentials;
     Lwt.return @@ node
     @@ div [
