@@ -258,6 +258,10 @@ let post_drafts_passwords generate uuid se voters =
   let se_voters =
     List.fold_left (fun accu v -> SMap.add v.sv_id v accu) SMap.empty se.se_voters
   in
+  let () =
+    if SMap.cardinal se_voters > !Web_config.maxmailsatonce then
+      raise (Error "too many voters")
+  in
   let voters =
     List.map
       (fun id ->
