@@ -511,7 +511,7 @@ let rec onhashchange_inner hash main =
               "An error occurred while creating the draft: %s"
               (string_of_error e)
           in
-          let b = button "Continue" (fun () -> onhashchange_inner (parse_hash ()) main) in
+          let b = button "Proceed" (fun () -> onhashchange_inner (parse_hash ()) main) in
           let content =
             div [
                 node @@ div [msg];
