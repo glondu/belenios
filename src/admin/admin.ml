@@ -496,30 +496,29 @@ let draft_a x =
   let uuid = raw_string_of_uuid x.summary_uuid in
   a ~href:("#drafts/" ^ uuid) x.summary_name
 
-let draft_regexp = Regexp.regexp "^#drafts/([0-9A-Za-z]+)$"
-let credentials_regexp = Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$"
+let regexps =
+  [
+    Regexp.regexp "^#?$", (fun _ -> `Root);
+    Regexp.regexp "^#drafts/([0-9A-Za-z]+)$",
+    begin
+      fun r ->
+      match Regexp.matched_group r 1 with
+      | None -> `Unknown
+      | Some uuid -> `Draft uuid
+    end;
+    Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$",
+    begin
+      fun r ->
+      match Regexp.matched_group r 1, Regexp.matched_group r 2 with
+      | Some uuid, Some token -> `Credentials (uuid, token)
+      | _ -> `Unknown
+    end;
+  ]
 
 let parse_hash () =
   let x = Js.to_string Dom_html.window##.location##.hash in
-  if x = "" || x = "#" then
-    `Root
-  else
-    match Regexp.string_match draft_regexp x 0 with
-    | Some r ->
-       begin
-         match Regexp.matched_group r 1 with
-         | None -> `Unknown
-         | Some uuid -> `Draft uuid
-       end
-    | None ->
-       match Regexp.string_match credentials_regexp x 0 with
-       | Some r ->
-          begin
-            match Regexp.matched_group r 1, Regexp.matched_group r 2 with
-            | Some uuid, Some token -> `Credentials (uuid, token)
-            | _ -> `Unknown
-          end
-       | None -> `Unknown
+  let r = List.find_map (fun (r, f) -> Option.map f @@ Regexp.string_match r x 0) regexps in
+  Option.get r `Unknown
 
 let rec onhashchange_inner hash main =
   main##.innerHTML := Js.string "Loading...";
