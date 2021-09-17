@@ -42,7 +42,7 @@ let lwt_handler f =
 
 let replace_content container content =
   container##.innerHTML := Js.string "";
-  Dom.appendChild container content
+  List.iter (Dom.appendChild container) content
 
 let textarea () =
   let r = textarea [] in
@@ -140,11 +140,10 @@ let credentials_ui main uuid =
            "An error occurred while retrieving draft %s: %s"
            uuid (string_of_error e)
        in
-       Lwt.return
-       @@ div [
-              node @@ h1 [txt "Error"];
-              node @@ div [txt msg];
-            ]
+       Lwt.return [
+           node @@ h1 [txt "Error"];
+           node @@ div [txt msg];
+         ]
     | Ok draft ->
        let* voters =
          let* x = get_voters uuid in
@@ -215,16 +214,16 @@ let credentials_ui main uuid =
                   | 200 -> "Public credentials successfully uploaded!"
                   | code -> Printf.sprintf "Error %d: %s" code x.content
                 in
-                let content = div [txt msg] in
+                let content = [txt msg] in
                 replace_content button_container content;
                 Lwt.return_unit
               in
               Dom.appendChild button_container b;
               let content =
-                div [
-                    node @@ div [node @@ t];
-                    node @@ button_container;
-                  ]
+                [
+                  node @@ div [node @@ t];
+                  node @@ button_container;
+                ]
               in
               replace_content container content;
               Lwt.return_unit
@@ -236,11 +235,10 @@ let credentials_ui main uuid =
                    node @@ container;
                  ]
        in
-       Lwt.return
-       @@ div [
-              node @@ h1 [txt (Printf.sprintf "Credentials for %s" draft.draft_questions.t_name)];
-              node @@ voters;
-            ]
+       Lwt.return [
+           node @@ h1 [txt (Printf.sprintf "Credentials for %s" draft.draft_questions.t_name)];
+           node @@ voters;
+         ]
   in
   replace_content main content;
   Lwt.return_unit
@@ -313,12 +311,7 @@ let rec show_root main =
              (string_of_error e)
          in
          let b = button "Proceed" (fun () -> show_root main) in
-         let content =
-           div [
-               node @@ div [msg];
-               node @@ div [node @@ b];
-             ]
-         in
+         let content = [node @@ div [msg]; node @@ div [node @@ b]] in
          replace_content main content;
          Lwt.return_unit
     in
@@ -328,12 +321,12 @@ let rec show_root main =
       ]
   in
   let content =
-    div [
-        node @@ h1 [txt "My draft elections"];
-        node @@ drafts;
-        node @@ h1 [txt "Create new draft"];
-        node @@ create;
-      ]
+    [
+      node @@ h1 [txt "My draft elections"];
+      node @@ drafts;
+      node @@ h1 [txt "Create new draft"];
+      node @@ create;
+    ]
   in
   replace_content main content;
   Lwt.return_unit
@@ -351,7 +344,7 @@ let show_draft_main show_root show_all uuid draft container =
         | code -> Printf.sprintf "Error %d: %s" code x.content
       in
       let b = button "Proceed" show_all in
-      let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+      let content = [node @@ div [txt msg]; node @@ div [node @@ b]] in
       replace_content container content;
       Lwt.return_unit
     in
@@ -365,7 +358,7 @@ let show_draft_main show_root show_all uuid draft container =
           | code -> Printf.sprintf "Error %d: %s" code x.content
         in
         let b = button "Proceed" show_root in
-        let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+        let content = [node @@ div [txt msg]; node @@ div [node @@ b]] in
         replace_content container content;
         Lwt.return_unit
       ) else (
@@ -379,7 +372,7 @@ let show_draft_main show_root show_all uuid draft container =
            node @@ div [node button_delete];
          ]
   in
-  let content = div [node @@ h2 [txt "Draft"]; node @@ body] in
+  let content = [node @@ h2 [txt "Draft"]; node @@ body] in
   replace_content container content;
   Lwt.return_unit
 
@@ -402,13 +395,13 @@ let rec show_draft_voters uuid draft container =
            | code -> Printf.sprintf "Error %d: %s" code x.content
          in
          let b = button "Proceed" (fun () -> show_draft_voters uuid draft container) in
-         let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+         let content = [node @@ div [txt msg]; node @@ div [node @@ b]] in
          replace_content container content;
          Lwt.return_unit
        in
        Lwt.return @@ div [node @@ div [node @@ t]; node @@ div [node b]]
   in
-  let content = div [node @@ h2 [txt "Voters"]; node @@ body] in
+  let content = [node @@ h2 [txt "Voters"]; node @@ body] in
   replace_content container content;
   Lwt.return_unit
 
@@ -443,13 +436,13 @@ let rec show_draft_passwords uuid container =
               | code -> Printf.sprintf "Error %d: %s" code x.content
             in
             let b = button "Proceed" (fun () -> show_draft_passwords uuid container) in
-            let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+            let content = [node @@ div [txt msg]; node @@ div [node @@ b]] in
             replace_content container content;
             Lwt.return_unit
           in
           Lwt.return @@ div [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
   in
-  let content = div [node @@ h2 [txt "Passwords"]; node @@ body] in
+  let content = [node @@ h2 [txt "Passwords"]; node @@ body] in
   replace_content container content;
   Lwt.return_unit
 
@@ -473,7 +466,7 @@ let rec show_draft_credentials uuid container =
               | code -> Printf.sprintf "Error %d: %s" code x.content
             in
             let b = button "Proceed" (fun () -> show_draft_credentials uuid container) in
-            let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+            let content = [node @@ div [txt msg]; node @@ div [node @@ b]] in
             replace_content container content;
             Lwt.return_unit
           in
@@ -491,7 +484,7 @@ let rec show_draft_credentials uuid container =
           t##.value := Js.string (string_of_credentials x);
           Lwt.return @@ div [node @@ t]
   in
-  let content = div [node @@ h2 [txt "Credentials"]; node @@ body] in
+  let content = [node @@ h2 [txt "Credentials"]; node @@ body] in
   replace_content container content;
   Lwt.return_unit
 
@@ -515,13 +508,13 @@ let rec show_draft_trustees uuid container =
            | code -> Printf.sprintf "Error %d: %s" code x.content
          in
          let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in
-         let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+         let content = [node @@ div [txt msg]; node @@ div [node @@ b]] in
          replace_content container content;
          Lwt.return_unit
        in
        Lwt.return @@ div [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
   in
-  let content = div [node @@ h2 [txt "Trustees"]; node @@ body] in
+  let content = [node @@ h2 [txt "Trustees"]; node @@ body] in
   replace_content container content;
   Lwt.return_unit
 
@@ -564,10 +557,10 @@ let show hash main =
                 uuid (string_of_error e)
             in
             let content =
-              div [
-                  node @@ h1 [txt "Error"];
-                  node @@ div [txt msg];
-                ]
+              [
+                node @@ h1 [txt "Error"];
+                node @@ div [txt msg];
+              ]
             in
             replace_content main content;
             Lwt.return_unit
@@ -584,11 +577,11 @@ let show hash main =
                 ]
             in
             let content =
-              div [
-                  node @@ h1 [txt draft.draft_questions.t_name];
-                  node @@ tabs;
-                  node @@ container;
-                ]
+              [
+                node @@ h1 [txt draft.draft_questions.t_name];
+                node @@ tabs;
+                node @@ container;
+              ]
             in
             replace_content main content;
             context := `Draft (draft, container);
