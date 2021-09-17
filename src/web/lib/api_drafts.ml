@@ -470,6 +470,10 @@ let post_drafts_trustees uuid se op =
               let* server = generate_server_trustee se in
               Lwt.return (ts @ [server])
           in
+          let () =
+            if List.exists (fun x -> x.st_id = t.trustee_address) ts then
+              raise (Error "address already used")
+          in
           let* st_token = generate_token () in
           let t =
             {
@@ -485,6 +489,10 @@ let post_drafts_trustees uuid se op =
           let* () = Web_persist.set_draft_election uuid se in
           Lwt.return @@ `String st_token
        | Some ts ->
+          let () =
+            if List.exists (fun x -> x.stt_id = t.trustee_address) ts then
+              raise (Error "address already used")
+          in
           let* stt_token = generate_token () in
           let t =
             {
