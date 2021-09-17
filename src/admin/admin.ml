@@ -35,6 +35,8 @@ let ( let& ) = Js.Opt.bind
 let api_token = ref ""
 let api_root = "../api/"
 
+let context = ref `None
+
 let lwt_handler f =
   Dom_html.handler (fun _ -> Lwt.async f; Js._true)
 
@@ -117,9 +119,6 @@ let get_draft uuid =
 let get_voters uuid =
   get_with_token "drafts/%s/voters" uuid |> wrap voter_list_of_string
 
-let put_voters uuid voters =
-  put_with_token voters "drafts/%s/voters" uuid
-
 let get_passwords uuid =
   get_with_token "drafts/%s/passwords" uuid |> wrap voter_list_of_string
 
@@ -128,252 +127,6 @@ let get_credentials uuid =
 
 let get_trustees uuid =
   get_with_token "drafts/%s/trustees" uuid |> wrap trustees_of_string
-
-let perform_draft container uuid action msg handler =
-  let* x = action (format_of_string "drafts/%s") uuid in
-  let msg =
-    let open Js_of_ocaml_lwt.XmlHttpRequest in
-    match x.code with
-    | 200 -> div [txt msg]
-    | code -> div [Printf.ksprintf txt "Error %d: %s" code x.content]
-  in
-  let b = button "Proceed" handler in
-  let content = div [node @@ msg; node @@ b] in
-  replace_content container content;
-  Lwt.return_unit
-
-let delete_draft container uuid =
-  perform_draft container uuid
-    delete_with_token "Draft successfully deleted!"
-    (fun () -> Dom_html.window##.location##.hash := Js.string "#"; Lwt.return_unit)
-
-let rec save_draft main container uuid x =
-  perform_draft container uuid
-    (fun url -> put_with_token x url) "Changes successfully applied!"
-    (fun () -> load_draft main uuid)
-
-and save_voters main container uuid voters =
-  let* x = put_voters uuid voters in
-  let msg =
-    match x.code with
-    | 200 -> "Voters successfully updated!"
-    | code -> Printf.sprintf "Error %d: %s" code x.content
-  in
-  let b = button "Proceed" (fun () -> load_draft main uuid) in
-  let content = div [node @@ div [txt msg]; node @@ b] in
-  replace_content container content;
-  Lwt.return_unit
-
-and post_passwords main container uuid voters =
-  let* x = post_with_token voters "drafts/%s/passwords" uuid in
-  let msg =
-    match x.code with
-    | 200 -> "Passwords successfully generated and sent!"
-    | code -> Printf.sprintf "Error %d: %s" code x.content
-  in
-  let b = button "Proceed" (fun () -> load_draft main uuid) in
-  let content = div [node @@ div [txt msg]; node @@ b] in
-  replace_content container content;
-  Lwt.return_unit
-
-and generate_credentials_on_server main container uuid =
-  let op = string_of_credential_operation `GenerateOnServer in
-  let* x = post_with_token op "drafts/%s/credentials" uuid in
-  let msg =
-    match x.code with
-    | 200 -> "Credentials successfully generated!"
-    | code -> Printf.sprintf "Error %d: %s" code x.content
-  in
-  let b = button "Proceed" (fun () -> load_draft main uuid) in
-  let content = div [node @@ div [txt msg]; node @@ b] in
-  replace_content container content;
-  Lwt.return_unit
-
-and post_trustees main container uuid op =
-  let* x = post_with_token op "drafts/%s/trustees" uuid in
-  let msg =
-    match x.code with
-    | 200 -> Printf.sprintf "Trustee operation successfully applied: %s" x.content
-    | code -> Printf.sprintf "Error %d: %s" code x.content
-  in
-  let b = button "Proceed" (fun () -> load_draft main uuid) in
-  let content = div [node @@ div [txt msg]; node @@ b] in
-  replace_content container content;
-  Lwt.return_unit
-
-and load_draft main uuid =
-  let* content =
-    let container = div [] in
-    let* title, draft =
-      let* x = get_draft uuid in
-      match x with
-      | Error e ->
-         let msg =
-           Printf.sprintf "An error occurred while retrieving draft %s: %s"
-             uuid (string_of_error e)
-         in
-         Lwt.return ("Error", div [txt msg])
-      | Ok x ->
-         let t = textarea () in
-         t##.value := Js.string (string_of_draft x);
-         let save_button =
-           let@ () = button "Save changes" in
-           save_draft main container uuid (Js.to_string t##.value)
-         in
-         let delete_button =
-           let@ () = button "Delete draft" in
-           if confirm "Are you sure?" then
-             delete_draft main uuid
-           else
-             Lwt.return_unit
-         in
-         let index_link = a ~href:"#" "All drafts" in
-         Lwt.return
-           (
-             x.draft_questions.t_name,
-             div [
-                 node @@ h2 [txt "Draft"];
-                 node @@ div [node @@ t];
-                 node @@ div [node @@ save_button; txt " "; node @@ index_link];
-                 node @@ div [node @@ delete_button];
-               ]
-           )
-    in
-    let* voters, all_voters =
-      let* x = get_voters uuid in
-      match x with
-      | Error e ->
-         let msg =
-           Printf.sprintf
-             "An error occurred while retrieving voters of draft %s: %s"
-             uuid (string_of_error e)
-         in
-         Lwt.return (div [txt msg], [])
-      | Ok x ->
-         let t = textarea () in
-         t##.value := Js.string (string_of_voter_list x);
-         let b =
-           let@ () = button "Update voter list" in
-           save_voters main container uuid (Js.to_string t##.value)
-         in
-         Lwt.return
-           (div [
-                node @@ h2 [txt "Voter list"];
-                node @@ div [node @@ t];
-                node @@ div [node @@ b];
-              ],
-            x)
-    in
-    let* passwords =
-      let* x = get_passwords uuid in
-      match x with
-      | Error e ->
-         let msg =
-           Printf.sprintf
-             "An error occurred while retrieving passwords of draft %s: %s"
-             uuid (string_of_error e)
-         in
-         Lwt.return @@ div [txt msg]
-      | Ok x ->
-         let missing =
-           let x = List.fold_left (fun accu v -> SSet.add v accu) SSet.empty x in
-           List.filter (fun v -> not @@ SSet.mem v x) all_voters
-         in
-         let t_current = textarea () in
-         t_current##.value := Js.string (string_of_voter_list x);
-         let t_post = textarea () in
-         t_post##.value := Js.string (string_of_voter_list missing);
-         let b =
-           let@ () = button "Generate and send passwords" in
-           post_passwords main container uuid (Js.to_string t_post##.value)
-         in
-         Lwt.return
-         @@ div [
-                node @@ h2 [txt "Passwords"];
-                node @@ div [node @@ t_current];
-                node @@ div [node @@ t_post];
-                node @@ div [node @@ b];
-              ]
-    in
-    let* credentials =
-      let* body =
-        let* x = get_credentials uuid in
-        match x with
-        | Error e ->
-           let msg =
-             Printf.sprintf
-               "An error occurred while retrieving credentials of draft %s: %s"
-               uuid (string_of_error e)
-           in
-           Lwt.return @@ div [txt msg]
-        | Ok x ->
-           match x.credentials_public, x.credentials_token with
-           | None, None ->
-              let b =
-                let@ () = button "Generate on server" in
-                generate_credentials_on_server main container uuid
-              in
-              Lwt.return @@ div [node @@ b]
-           | None, Some token ->
-              let link = Js.to_string Dom_html.window##.location##.href ^ "/credentials@" ^ token in
-              Lwt.return
-              @@ div [
-                     txt "Send the following link to the credential authority:";
-                     txt " ";
-                     txt link;
-                   ]
-           | Some _, _ ->
-              let t = textarea () in
-              t##.value := Js.string (string_of_credentials x);
-              Lwt.return @@ div [node @@ t]
-      in
-      Lwt.return
-      @@ div [
-             node @@ h2 [txt "Credentials"];
-             node @@ body;
-           ]
-    in
-    let* trustees =
-      let* body =
-        let* x = get_trustees uuid in
-        match x with
-        | Error e ->
-           let msg =
-             Printf.sprintf
-               "An error occurred while retrieving trustees of draft %s: %s"
-               uuid (string_of_error e)
-           in
-           Lwt.return @@ div [txt msg]
-        | Ok x ->
-           let t = textarea () in
-           t##.value := Js.string (string_of_trustees x);
-           let t_op = textarea () in
-           let b =
-             let@ () = button "Submit trustee operation" in
-             post_trustees main container uuid (Js.to_string t_op##.value)
-           in
-           Lwt.return
-           @@ div [
-                  node @@ div [node @@ t];
-                  node @@ div [node @@ t_op];
-                  node @@ div [node @@ b];
-                ]
-      in
-      Lwt.return @@ div [node @@ h2 [txt "Trustees"]; node @@ body]
-    in
-    Dom.appendChild container draft;
-    Dom.appendChild container voters;
-    Dom.appendChild container passwords;
-    Dom.appendChild container credentials;
-    Dom.appendChild container trustees;
-    Lwt.return @@ node
-    @@ div [
-           node @@ h1 [txt title];
-           node @@ container;
-         ]
-  in
-  replace_content main content;
-  Lwt.return_unit
 
 module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
 
@@ -499,95 +252,357 @@ let draft_a x =
 let regexps =
   [
     Regexp.regexp "^#?$", (fun _ -> `Root);
-    Regexp.regexp "^#drafts/([0-9A-Za-z]+)$",
+    Regexp.regexp "^#drafts/([0-9A-Za-z]+)(/(voters|passwords|credentials|trustees))?$",
     begin
       fun r ->
-      match Regexp.matched_group r 1 with
-      | None -> `Unknown
-      | Some uuid -> `Draft uuid
+      match Regexp.matched_group r 1, Regexp.matched_group r 3 with
+      | Some uuid, None -> `Draft (uuid, `Draft)
+      | Some uuid, Some "voters" -> `Draft (uuid, `Voters)
+      | Some uuid, Some "passwords" -> `Draft (uuid, `Passwords)
+      | Some uuid, Some "credentials" -> `Draft (uuid, `Credentials)
+      | Some uuid, Some "trustees" -> `Draft (uuid, `Trustees)
+      | _ -> `Error
     end;
     Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$",
     begin
       fun r ->
       match Regexp.matched_group r 1, Regexp.matched_group r 2 with
       | Some uuid, Some token -> `Credentials (uuid, token)
-      | _ -> `Unknown
+      | _ -> `Error
     end;
   ]
 
 let parse_hash () =
   let x = Js.to_string Dom_html.window##.location##.hash in
   let r = List.find_map (fun (r, f) -> Option.map f @@ Regexp.string_match r x 0) regexps in
-  Option.get r `Unknown
+  Option.get r `Error
 
-let rec onhashchange_inner hash main =
+let show_error main =
+  main##.innerHTML := Js.string "Error";
+  Lwt.return_unit
+
+let rec show_root main =
   main##.innerHTML := Js.string "Loading...";
-  match hash with
-  | `Unknown ->
-     let content = div [txt "Unknown hash"] in
-     replace_content main content;
-     Lwt.return_unit
-  | `Root ->
-     let* drafts =
-       let* x = get_drafts () in
+  let* drafts =
+    let* x = get_drafts () in
+    match x with
+    | Error error ->
+       error
+       |> string_of_error
+       |> (fun x -> Printf.sprintf "An error occurred while retrieving drafts: %s" x)
+       |> (fun x -> Lwt.return @@ div [txt x])
+    | Ok drafts ->
+       drafts
+       |> List.sort (fun a b -> compare a.summary_date b.summary_date)
+       |> List.map (fun x -> node @@ li [node @@ draft_a x])
+       |> (fun xs -> Lwt.return @@ ul xs)
+  in
+  let create =
+    let t = textarea () in
+    let b =
+      let@ () = button "Create new draft" in
+      let* x = post_drafts (Js.to_string t##.value) in
+      match x with
+      | Ok uuid ->
+         Dom_html.window##.location##.hash := Js.string ("#drafts/" ^ raw_string_of_uuid uuid);
+         Lwt.return_unit
+      | Error e ->
+         let msg =
+           Printf.ksprintf txt
+             "An error occurred while creating the draft: %s"
+             (string_of_error e)
+         in
+         let b = button "Proceed" (fun () -> show_root main) in
+         let content =
+           div [
+               node @@ div [msg];
+               node @@ div [node @@ b];
+             ]
+         in
+         replace_content main content;
+         Lwt.return_unit
+    in
+    div [
+        node @@ div [node @@ t];
+        node @@ div [node @@ b];
+      ]
+  in
+  let content =
+    div [
+        node @@ h1 [txt "My draft elections"];
+        node @@ drafts;
+        node @@ h1 [txt "Create new draft"];
+        node @@ create;
+      ]
+  in
+  replace_content main content;
+  Lwt.return_unit
+
+let show_draft_main show_root show_all uuid draft container =
+  let* body =
+    let t = textarea () in
+    t##.value := Js.string (string_of_draft draft);
+    let button_save =
+      let@ () = button "Save changes" in
+      let* x = put_with_token (Js.to_string t##.value) "drafts/%s" uuid in
+      let msg =
+        match x.code with
+        | 200 -> "Changes successfully applied!"
+        | code -> Printf.sprintf "Error %d: %s" code x.content
+      in
+      let b = button "Proceed" show_all in
+      let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+      replace_content container content;
+      Lwt.return_unit
+    in
+    let button_delete =
+      let@ () = button "Delete draft" in
+      if confirm "Are you sure?" then (
+        let* x = delete_with_token "drafts/%s" uuid in
+        let msg =
+          match x.code with
+          | 200 -> "Draft successfully deleted!"
+          | code -> Printf.sprintf "Error %d: %s" code x.content
+        in
+        let b = button "Proceed" show_root in
+        let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+        replace_content container content;
+        Lwt.return_unit
+      ) else (
+        Lwt.return_unit
+      )
+    in
+    Lwt.return
+    @@ div [
+           node @@ div [node @@ t];
+           node @@ div [node button_save];
+           node @@ div [node button_delete];
+         ]
+  in
+  let content = div [node @@ h2 [txt "Draft"]; node @@ body] in
+  replace_content container content;
+  Lwt.return_unit
+
+let rec show_draft_voters uuid draft container =
+  let* body =
+    let* x = get_voters uuid in
+    match x with
+    | Error e ->
+       let msg = Printf.sprintf "Error: %s" (string_of_error e) in
+       Lwt.return @@ div [txt msg]
+    | Ok voters ->
+       let t = textarea () in
+       t##.value := Js.string (string_of_voter_list voters);
+       let b =
+         let@ () = button "Save changes" in
+         let* x = put_with_token (Js.to_string t##.value) "drafts/%s/voters" uuid in
+         let msg =
+           match x.code with
+           | 200 -> "Changes successfully applied!"
+           | code -> Printf.sprintf "Error %d: %s" code x.content
+         in
+         let b = button "Proceed" (fun () -> show_draft_voters uuid draft container) in
+         let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+         replace_content container content;
+         Lwt.return_unit
+       in
+       Lwt.return @@ div [node @@ div [node @@ t]; node @@ div [node b]]
+  in
+  let content = div [node @@ h2 [txt "Voters"]; node @@ body] in
+  replace_content container content;
+  Lwt.return_unit
+
+let rec show_draft_passwords uuid container =
+  let* body =
+    let* x = get_voters uuid in
+    match x with
+    | Error e ->
+       let msg = Printf.sprintf "Error while retrieving voters: %s" (string_of_error e) in
+       Lwt.return @@ div [txt msg]
+    | Ok voters ->
+       let* x = get_passwords uuid in
        match x with
-       | Error error ->
-          error
-          |> string_of_error
-          |> (fun x -> Printf.sprintf "An error occurred while retrieving drafts: %s" x)
-          |> (fun x -> Lwt.return @@ div [txt x])
-       | Ok drafts ->
-          drafts
-          |> List.sort (fun a b -> compare a.summary_date b.summary_date)
-          |> List.map (fun x -> node @@ li [node @@ draft_a x])
-          |> (fun xs -> Lwt.return @@ ul xs)
-     in
-     let create_textarea = textarea () in
-     let create_button =
-       let@ () = button "Create new draft" in
-       let* x = post_drafts (Js.to_string create_textarea##.value) in
-       match x with
-       | Ok uuid ->
-          Dom_html.window##.location##.hash := Js.string ("#drafts/" ^ raw_string_of_uuid uuid);
-          Lwt.return_unit
        | Error e ->
-          let msg =
-            Printf.ksprintf txt
-              "An error occurred while creating the draft: %s"
-              (string_of_error e)
+          let msg = Printf.sprintf "Error while retrieving passwords: %s" (string_of_error e) in
+          Lwt.return @@ div [txt msg]
+       | Ok x ->
+          let missing =
+            let x = List.fold_left (fun accu v -> SSet.add v accu) SSet.empty x in
+            List.filter (fun v -> not @@ SSet.mem v x) voters
           in
-          let b = button "Proceed" (fun () -> onhashchange_inner (parse_hash ()) main) in
-          let content =
-            div [
-                node @@ div [msg];
-                node @@ div [node @@ b];
-              ]
+          let t1 = textarea () in
+          t1##.value := Js.string (string_of_voter_list x);
+          let t2 = textarea () in
+          t2##.value := Js.string (string_of_voter_list missing);
+          let b =
+            let@ () = button "Generate and send passwords" in
+            let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/passwords" uuid in
+            let msg =
+              match x.code with
+              | 200 -> "Passwords successfully generated and sent!"
+              | code -> Printf.sprintf "Error %d: %s" code x.content
+            in
+            let b = button "Proceed" (fun () -> show_draft_passwords uuid container) in
+            let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+            replace_content container content;
+            Lwt.return_unit
           in
-          replace_content main content;
-          Lwt.return_unit
-     in
-     let create =
-       div [
-           node @@ div [node @@ create_textarea];
-           node @@ div [node @@ create_button];
-         ]
-     in
-     let content =
-       div [
-           node @@ h1 [txt "My draft elections"];
-           node @@ drafts;
-           node @@ h1 [txt "Create new draft"];
-           node @@ create;
-         ]
-     in
-     replace_content main content;
-     Lwt.return_unit
-  | `Draft uuid -> load_draft main uuid
-  | `Credentials (uuid, _) -> credentials_ui main uuid
+          Lwt.return @@ div [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
+  in
+  let content = div [node @@ h2 [txt "Passwords"]; node @@ body] in
+  replace_content container content;
+  Lwt.return_unit
+
+let rec show_draft_credentials uuid container =
+  let* body =
+    let* x = get_credentials uuid in
+    match x with
+    | Error e ->
+       let msg = Printf.sprintf "Error: %s" (string_of_error e) in
+       Lwt.return @@ div [txt msg]
+    | Ok x ->
+       match x.credentials_public, x.credentials_token with
+       | None, None ->
+          let b =
+            let@ () = button "Generate on server" in
+            let op = string_of_credential_operation `GenerateOnServer in
+            let* x = post_with_token op "drafts/%s/credentials" uuid in
+            let msg =
+              match x.code with
+              | 200 -> "Credentials successfully generated and sent!"
+              | code -> Printf.sprintf "Error %d: %s" code x.content
+            in
+            let b = button "Proceed" (fun () -> show_draft_credentials uuid container) in
+            let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+            replace_content container content;
+            Lwt.return_unit
+          in
+          Lwt.return @@ div [node @@ b]
+       | None, Some token ->
+          let link = Js.to_string Dom_html.window##.location##.href ^ "@" ^ token in
+          Lwt.return
+          @@ div [
+                 txt "Send the following link to the credential authority:";
+                 txt " ";
+                 txt link;
+               ]
+       | Some _, _ ->
+          let t = textarea () in
+          t##.value := Js.string (string_of_credentials x);
+          Lwt.return @@ div [node @@ t]
+  in
+  let content = div [node @@ h2 [txt "Credentials"]; node @@ body] in
+  replace_content container content;
+  Lwt.return_unit
+
+let rec show_draft_trustees uuid container =
+  let* body =
+    let* x = get_trustees uuid in
+    match x with
+    | Error e ->
+       let msg = Printf.sprintf "Error: %s" (string_of_error e) in
+       Lwt.return @@ div [txt msg]
+    | Ok trustees ->
+       let t1 = textarea () in
+       t1##.value := Js.string (string_of_trustees trustees);
+       let t2 = textarea () in
+       let b =
+         let@ () = button "Submit trustee operation" in
+         let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/trustees" uuid in
+         let msg =
+           match x.code with
+           | 200 -> Printf.sprintf "Success: %s" x.content
+           | code -> Printf.sprintf "Error %d: %s" code x.content
+         in
+         let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in
+         let content = div [node @@ div [txt msg]; node @@ div [node @@ b]] in
+         replace_content container content;
+         Lwt.return_unit
+       in
+       Lwt.return @@ div [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
+  in
+  let content = div [node @@ h2 [txt "Trustees"]; node @@ body] in
+  replace_content container content;
+  Lwt.return_unit
+
+let show_draft show_root show_all uuid draft container tab =
+  match tab with
+  | `Draft -> show_draft_main show_root show_all uuid draft container
+  | `Voters -> show_draft_voters uuid draft container
+  | `Passwords -> show_draft_passwords uuid container
+  | `Credentials -> show_draft_credentials uuid container
+  | `Trustees -> show_draft_trustees uuid container
+
+let a_draft_tab uuid tab =
+  let suffix, label =
+    match tab with
+    | `Draft -> "", "Draft"
+    | `Voters -> "/voters", "Voters"
+    | `Passwords -> "/passwords", "Passwords"
+    | `Credentials -> "/credentials", "Credentials"
+    | `Trustees -> "/trustees", "Trustees"
+  in
+  let href = Printf.sprintf "#drafts/%s%s" uuid suffix in
+  a ~href label
+
+let show hash main =
+  let show_root () =
+    context := `None;
+    show_root main
+  in
+  match hash with
+  | `Error -> context := `None; show_error main
+  | `Root -> show_root ()
+  | `Draft (uuid, tab) ->
+     begin
+       let rec show_all () =
+         let* x = get_draft uuid in
+         match x with
+         | Error e ->
+            let msg =
+              Printf.sprintf "An error occurred while retrieving draft %s: %s"
+                uuid (string_of_error e)
+            in
+            let content =
+              div [
+                  node @@ h1 [txt "Error"];
+                  node @@ div [txt msg];
+                ]
+            in
+            replace_content main content;
+            Lwt.return_unit
+         | Ok draft ->
+            let container = div [] in
+            let tabs =
+              ul [
+                  node @@ li [node @@ a_draft_tab uuid `Draft];
+                  node @@ li [node @@ a_draft_tab uuid `Voters];
+                  node @@ li [node @@ a_draft_tab uuid `Passwords];
+                  node @@ li [node @@ a_draft_tab uuid `Credentials];
+                  node @@ li [node @@ a_draft_tab uuid `Trustees];
+                  node @@ li [node @@ a ~href:"#" "All drafts"];
+                ]
+            in
+            let content =
+              div [
+                  node @@ h1 [txt draft.draft_questions.t_name];
+                  node @@ tabs;
+                  node @@ container;
+                ]
+            in
+            replace_content main content;
+            context := `Draft (draft, container);
+            show_draft show_root show_all uuid draft container tab
+       in
+       match !context with
+       | `Draft (draft, container) -> show_draft show_root show_all uuid draft container tab
+       | _ -> show_all ()
+     end
+  | `Credentials (uuid, _) -> context := `None; credentials_ui main uuid
 
 let onhashchange () =
   let& main = document##getElementById (Js.string "main") in
-  Lwt.async (fun () -> onhashchange_inner (parse_hash ()) main);
+  Lwt.async (fun () -> show (parse_hash ()) main);
   Js.Opt.return ()
 
 let onload () =
@@ -599,10 +614,10 @@ let onload () =
         match hash with
         | `Root | `Draft _ -> get_api_token ()
         | `Credentials (_, token) -> api_token := token; Lwt.return_true
-        | `Unknown -> Lwt.return_true
+        | `Error -> Lwt.return_true
       in
       if b then (
-        onhashchange_inner hash main
+        show hash main
       ) else (
         alert "Unable to retrieve API token. Please log in again.";
         Lwt.return_unit
