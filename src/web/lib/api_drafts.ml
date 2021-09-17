@@ -363,6 +363,7 @@ let exn_of_generate_credentials_on_server_error = function
   | `NoServer -> Error "credential authority is not the server"
 
 let submit_public_credentials uuid se credentials =
+  let () = if se.se_voters = [] then raise (Error "No voters") in
   let version = Option.get se.se_version 0 in
   let module G = (val Belenios.Group.of_string ~version se.se_group : GROUP) in
   let weights =
