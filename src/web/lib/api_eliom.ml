@@ -297,6 +297,30 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                 ) handle_exn
            | _ -> method_not_allowed
          end
+      | ["drafts"; uuid; "trustees"; trustee] ->
+         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+         let* se = Web_persist.get_draft_election uuid in
+         let@ se = Option.unwrap not_found se in
+         let@ () = with_administrator se in
+         begin
+           match method_ with
+           | `GET ->
+              Lwt.catch
+                (fun () ->
+                  let x = Api_drafts.get_draft_trustee se trustee in
+                  match x with
+                  | `NotFound -> not_found
+                  | `Basic t -> Lwt.return (200, string_of_basic_trustee t)
+                  | `Threshold t -> Lwt.return (200, string_of_threshold_trustee t)
+                ) handle_exn
+           | `DELETE ->
+              Lwt.catch
+                (fun () ->
+                  let* x = Api_drafts.delete_draft_trustee uuid se trustee in
+                  if x then ok else not_found
+                ) handle_exn
+           | _ -> method_not_allowed
+         end
       | _ -> not_found
     in
     Eliom_registration.String.send ~code (response, "application/json")

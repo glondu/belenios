@@ -63,3 +63,12 @@ val generate_server_trustee : draft_election -> draft_trustee Lwt.t
 
 val get_drafts_trustees : draft_election -> trustees
 val post_drafts_trustees : uuid -> draft_election -> trustees_operation -> Yojson.Safe.t Lwt.t
+
+type get_draft_trustee_result =
+  [ `NotFound
+  | `Basic of basic_trustee
+  | `Threshold of threshold_trustee
+  ]
+
+val get_draft_trustee : draft_election -> string -> get_draft_trustee_result
+val delete_draft_trustee : uuid -> draft_election -> string -> bool Lwt.t

@@ -128,6 +128,9 @@ let get_credentials uuid =
 let get_trustees uuid =
   get_with_token "drafts/%s/trustees" uuid |> wrap trustees_of_string
 
+let get_trustee uuid trustee =
+  get_with_token "drafts/%s/trustees/%s" uuid trustee |> wrap (fun x -> x)
+
 module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
 
 let credentials_ui main uuid =
@@ -496,8 +499,42 @@ let rec show_draft_trustees uuid container =
        let msg = Printf.sprintf "Error: %s" (string_of_error e) in
        Lwt.return @@ div [txt msg]
     | Ok trustees ->
-       let t1 = textarea () in
-       t1##.value := Js.string (string_of_trustees trustees);
+       let mode =
+         match trustees.trustees_mode with
+         | `Basic -> "basic"
+         | `Threshold -> "threshold"
+       in
+       let mode = div [txt "Mode:"; txt " "; txt mode] in
+       let* all_trustees =
+         Lwt_list.map_s
+           (fun t ->
+             let encoded_trustee = t.trustee_address |> Js.string |> Js.encodeURIComponent |> Js.to_string in
+             let* x = get_trustee uuid encoded_trustee in
+             let content =
+               match x with
+               | Error e ->
+                  let msg = Printf.sprintf "Error with %s: %s" t.trustee_address (string_of_error e) in
+                  [txt msg]
+               | Ok x ->
+                  let b =
+                    let@ () = button "Delete" in
+                    let* x = delete_with_token "drafts/%s/trustees/%s" uuid encoded_trustee in
+                    let msg =
+                      match x.code with
+                      | 200 -> "Success"
+                      | code -> Printf.sprintf "Error %d: %s" code x.content
+                    in
+                    let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in
+                    let content = [node @@ div [txt msg]; node @@ div [node @@ b]] in
+                    replace_content container content;
+                    Lwt.return_unit
+                  in
+                  [txt x; txt " "; node @@ b]
+             in
+             Lwt.return @@ node @@ li content
+           ) trustees.trustees_trustees
+       in
+       let all_trustees = ul all_trustees in
        let t2 = textarea () in
        let b =
          let@ () = button "Submit trustee operation" in
@@ -512,7 +549,13 @@ let rec show_draft_trustees uuid container =
          replace_content container content;
          Lwt.return_unit
        in
-       Lwt.return @@ div [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
+       Lwt.return
+       @@ div [
+              node @@ mode;
+              node @@ div [node all_trustees];
+              node @@ div [node t2];
+              node @@ div [node b];
+            ]
   in
   let content = [node @@ h2 [txt "Trustees"]; node @@ body] in
   replace_content container content;

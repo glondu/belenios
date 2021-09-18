@@ -508,3 +508,63 @@ let post_drafts_trustees uuid se op =
           let* () = Web_persist.set_draft_election uuid se in
           Lwt.return @@ `String stt_token
      end
+
+type get_draft_trustee_result =
+  [ `NotFound
+  | `Basic of basic_trustee
+  | `Threshold of threshold_trustee
+  ]
+
+let get_draft_trustee se trustee =
+  match se.se_threshold_trustees with
+  | None ->
+     begin
+       match List.find_opt (fun x -> x.st_id = trustee) se.se_public_keys with
+       | None -> `NotFound
+       | Some t ->
+          `Basic {
+              btrustee_address = t.st_id;
+              btrustee_name = Option.get t.st_name "";
+              btrustee_token = t.st_token;
+            }
+     end
+  | Some ts ->
+     begin
+       match List.find_opt (fun x -> x.stt_id = trustee) ts with
+       | None -> `NotFound
+       | Some t ->
+          `Threshold {
+              ttrustee_address = t.stt_id;
+              ttrustee_name = Option.get t.stt_name "";
+              ttrustee_token = t.stt_token;
+            }
+     end
+
+let rec filter_out_first f = function
+  | [] -> false, []
+  | x :: xs ->
+     if f x then
+       true, xs
+     else (
+       let touched, xs = filter_out_first f xs in
+       touched, x :: xs
+     )
+
+let delete_draft_trustee uuid se trustee =
+  match se.se_threshold_trustees with
+  | None ->
+     let touched, ts = filter_out_first (fun x -> x.st_id = trustee) se.se_public_keys in
+     if touched then (
+       let* () = Web_persist.set_draft_election uuid {se with se_public_keys = ts} in
+       Lwt.return_true
+     ) else (
+       Lwt.return_false
+     )
+  | Some ts ->
+     let touched, ts = filter_out_first (fun x -> x.stt_id = trustee) ts in
+     if touched then (
+       let* () = Web_persist.set_draft_election uuid {se with se_threshold_trustees = Some ts} in
+       Lwt.return_true
+     ) else (
+       Lwt.return_false
+     )
