@@ -408,6 +408,7 @@ let get_drafts_trustees se =
                    trustee_name = Option.get t.st_name "";
                  }
            ) se.se_public_keys;
+       trustees_threshold = None;
      }
   | Some ts ->
      {
@@ -420,6 +421,7 @@ let get_drafts_trustees se =
                trustee_name = Option.get t.stt_name "";
              }
            ) ts;
+       trustees_threshold = se.se_threshold;
      }
 
 let check_address address f =

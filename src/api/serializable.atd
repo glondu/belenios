@@ -90,6 +90,7 @@ type trustees_mode =
 type trustees = {
     mode : trustees_mode;
     trustees : trustee list;
+    ?threshold : int option;
 } <ocaml field_prefix="trustees_">
 
 type trustees_operation =

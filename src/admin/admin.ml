@@ -470,7 +470,13 @@ let rec show_draft_trustees uuid container =
      let mode =
        match trustees.trustees_mode with
        | `Basic -> "basic"
-       | `Threshold -> "threshold"
+       | `Threshold ->
+          let threshold =
+            match trustees.trustees_threshold with
+            | None -> "not set"
+            | Some i -> Printf.sprintf "%d out of %d" i (List.length trustees.trustees_trustees)
+          in
+          Printf.sprintf "threshold (%s)" threshold
      in
      let mode = div [txt "Mode:"; txt " "; txt mode] in
      let* all_trustees =
