@@ -53,7 +53,7 @@ types. They refer to types defined in `src/api/serializable.atd`.
 ## `drafts/$UUID/trustees` (administrator)
 
 * `GET`: unit -> trustees
-* `POST`: trustees_operation -> json
+* `POST`: trustees_operation -> unit
 
 ## `drafts/$UUID/trustees/$ADDRESS` (administrator)
 

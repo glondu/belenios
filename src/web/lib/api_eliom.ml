@@ -292,8 +292,8 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               let@ op = Option.unwrap bad_request (Option.wrap trustees_operation_of_string op) in
               Lwt.catch
                 (fun () ->
-                  let* r = Api_drafts.post_drafts_trustees uuid se op in
-                  Lwt.return (200, Yojson.Safe.to_string r)
+                  let* () = Api_drafts.post_drafts_trustees uuid se op in
+                  ok
                 ) handle_exn
            | _ -> method_not_allowed
          end

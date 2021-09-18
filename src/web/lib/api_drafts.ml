@@ -445,17 +445,14 @@ let post_drafts_trustees uuid se op =
   match op with
   | `SetMode m ->
      begin
-       let* () =
-         match se.se_threshold_trustees, m with
-         | None, `Basic | Some _, `Threshold -> Lwt.return_unit
-         | None, `Threshold ->
-            let se = {se with se_public_keys = []; se_threshold_trustees = Some []} in
-            Web_persist.set_draft_election uuid se
-         | Some _, `Basic ->
-            let se = {se with se_threshold_trustees = None} in
-            Web_persist.set_draft_election uuid se
-       in
-       Lwt.return @@ `Assoc []
+       match se.se_threshold_trustees, m with
+       | None, `Basic | Some _, `Threshold -> Lwt.return_unit
+       | None, `Threshold ->
+          let se = {se with se_public_keys = []; se_threshold_trustees = Some []} in
+          Web_persist.set_draft_election uuid se
+       | Some _, `Basic ->
+          let se = {se with se_threshold_trustees = None} in
+          Web_persist.set_draft_election uuid se
      end
   | `Add t ->
      begin
@@ -486,8 +483,7 @@ let post_drafts_trustees uuid se op =
           in
           let se_public_keys = ts @ [t] in
           let se = {se with se_public_keys} in
-          let* () = Web_persist.set_draft_election uuid se in
-          Lwt.return @@ `String st_token
+          Web_persist.set_draft_election uuid se
        | Some ts ->
           let () =
             if List.exists (fun x -> x.stt_id = t.trustee_address) ts then
@@ -505,8 +501,7 @@ let post_drafts_trustees uuid se op =
           in
           let se_threshold_trustees = Some (ts @ [t]) in
           let se = {se with se_threshold_trustees} in
-          let* () = Web_persist.set_draft_election uuid se in
-          Lwt.return @@ `String stt_token
+          Web_persist.set_draft_election uuid se
      end
 
 type get_draft_trustee_result =

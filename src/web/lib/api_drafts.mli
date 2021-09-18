@@ -62,7 +62,7 @@ val submit_public_credentials : uuid -> draft_election -> credential_list -> uni
 val generate_server_trustee : draft_election -> draft_trustee Lwt.t
 
 val get_drafts_trustees : draft_election -> trustees
-val post_drafts_trustees : uuid -> draft_election -> trustees_operation -> Yojson.Safe.t Lwt.t
+val post_drafts_trustees : uuid -> draft_election -> trustees_operation -> unit Lwt.t
 
 type get_draft_trustee_result =
   [ `NotFound
