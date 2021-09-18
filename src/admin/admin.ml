@@ -522,20 +522,26 @@ let rec show_draft_trustees uuid container =
          node @@ div [node b];
        ]
 
-let show_draft show_root show_all uuid draft container tab =
-  match tab with
-  | `Draft -> show_draft_main show_root show_all uuid draft container
-  | `Voters -> show_draft_voters uuid draft container
-  | `Passwords -> show_draft_passwords uuid container
-  | `Credentials -> show_draft_credentials uuid container
-  | `Trustees -> show_draft_trustees uuid container
-
 let suffix_and_label_of_draft_tab = function
   | `Draft -> "", "Draft"
   | `Voters -> "/voters", "Voters"
   | `Passwords -> "/passwords", "Passwords"
   | `Credentials -> "/credentials", "Credentials"
   | `Trustees -> "/trustees", "Trustees"
+
+let show_draft show_root show_all uuid draft title container tab =
+  container##.innerHTML := Js.string "Loading...";
+  let _, label = suffix_and_label_of_draft_tab tab in
+  let* () =
+    let@ () = show_in title in
+    Lwt.return [txt label]
+  in
+  match tab with
+  | `Draft -> show_draft_main show_root show_all uuid draft container
+  | `Voters -> show_draft_voters uuid draft container
+  | `Passwords -> show_draft_passwords uuid container
+  | `Credentials -> show_draft_credentials uuid container
+  | `Trustees -> show_draft_trustees uuid container
 
 let a_draft_tab uuid tab =
   let suffix, label = suffix_and_label_of_draft_tab tab in
@@ -566,10 +572,10 @@ let show hash main =
                 node @@ div [txt msg];
               ]
          | Ok draft ->
+            let title = h2 [] in
             let container = div [] in
             let* () =
               let@ () = show_in main in
-              let _, label = suffix_and_label_of_draft_tab tab in
               let tabs =
                 ul [
                     node @@ li [node @@ a_draft_tab uuid `Draft];
@@ -583,15 +589,16 @@ let show hash main =
               Lwt.return [
                   node @@ h1 [txt draft.draft_questions.t_name];
                   node @@ tabs;
-                  node @@ h2 [txt label];
+                  node @@ title;
                   node @@ container;
                 ]
             in
-            context := `Draft (draft, container);
-            show_draft show_root show_all uuid draft container tab
+            context := `Draft (draft, title, container);
+            show_draft show_root show_all uuid draft title container tab
        in
        match !context with
-       | `Draft (draft, container) -> show_draft show_root show_all uuid draft container tab
+       | `Draft (draft, title, container) ->
+          show_draft show_root show_all uuid draft title container tab
        | _ -> show_all ()
      end
   | `Credentials (uuid, _) -> context := `None; credentials_ui main uuid
