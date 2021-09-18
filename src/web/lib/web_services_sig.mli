@@ -179,11 +179,11 @@ module type S = sig
        [ `One of string ] Eliom_parameter.param_name, Eliom_service.non_ocaml)
       Eliom_service.t
   val election_draft_trustee_del :
-    (Web_serializable_t.uuid, int, Eliom_service.post, Eliom_service.att,
+    (Web_serializable_t.uuid, string, Eliom_service.post, Eliom_service.att,
      Eliom_service.co, Eliom_service.non_ext, Eliom_service.reg,
      [ `WithoutSuffix ],
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name,
-     [ `One of int ] Eliom_parameter.param_name, Eliom_service.non_ocaml)
+     [ `One of string ] Eliom_parameter.param_name, Eliom_service.non_ocaml)
       Eliom_service.t
   val election_draft_credential_authority :
     (Web_serializable_t.uuid, unit, Eliom_service.get, Eliom_service.att,
@@ -300,11 +300,11 @@ module type S = sig
        [ `One of string ] Eliom_parameter.param_name, Eliom_service.non_ocaml)
       Eliom_service.t
   val election_draft_threshold_trustee_del :
-    (Web_serializable_t.uuid, int, Eliom_service.post, Eliom_service.att,
+    (Web_serializable_t.uuid, string, Eliom_service.post, Eliom_service.att,
      Eliom_service.co, Eliom_service.non_ext, Eliom_service.reg,
      [ `WithoutSuffix ],
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name,
-     [ `One of int ] Eliom_parameter.param_name, Eliom_service.non_ocaml)
+     [ `One of string ] Eliom_parameter.param_name, Eliom_service.non_ocaml)
       Eliom_service.t
   val election_draft_confirm :
     (Web_serializable_t.uuid, unit, Eliom_service.get, Eliom_service.att,

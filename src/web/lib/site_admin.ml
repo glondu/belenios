@@ -1034,48 +1034,44 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         handle_password se uuid ~force:true voter
       )
 
-  let trustee_add_server se =
-    let* trustee = Api_drafts.generate_server_trustee se in
-    se.se_public_keys <- se.se_public_keys @ [trustee];
-    return_unit
+  let ensure_trustees_mode uuid se mode =
+    match se.se_threshold_trustees, mode with
+    | None, `Basic | Some _, `Threshold -> Lwt.return se
+    | Some _, `Basic | None, `Threshold ->
+       let* () = Api_drafts.post_drafts_trustees uuid se (`SetMode mode) in
+       let* x = Web_persist.get_draft_election uuid in
+       match x with
+       | Some se -> Lwt.return se
+       | None -> Lwt.fail (Failure "inconsistency in ensure_trustees_mode")
+
+  let handle_trustee_add mode uuid (trustee_address, trustee_name) =
+    let@ se = with_draft_election ~save:false uuid in
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    if is_email trustee_address then (
+      let* se = ensure_trustees_mode uuid se mode in
+      let open Belenios_api.Serializable_t in
+      let trustee = {trustee_address; trustee_name} in
+      let* () = Api_drafts.post_drafts_trustees uuid se (`Add trustee) in
+      redir_preapply election_draft_trustees uuid ()
+    ) else (
+      let msg = Printf.sprintf (f_ "%s is not a valid e-mail address!") trustee_address in
+      let service = preapply ~service:election_draft_trustees uuid in
+      Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
+    )
+
+  let handle_trustee_del service uuid address =
+    let@ se = with_draft_election ~save:false uuid in
+    let* _ = Api_drafts.delete_draft_trustee uuid se address in
+    redir_preapply service uuid ()
 
   let () =
     Any.register ~service:election_draft_trustee_add
-      (fun uuid (st_id, name) ->
-        let@ se = with_draft_election uuid in
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        let* () =
-          if List.exists (fun x -> x.st_id = "server") se.se_public_keys then
-            return_unit
-          else trustee_add_server se
-        in
-        if is_email st_id then (
-          let* st_token = generate_token () in
-          let st_name = Some name in
-          let trustee = {st_id; st_token; st_public_key = ""; st_private_key = None; st_name} in
-          se.se_public_keys <- se.se_public_keys @ [trustee];
-          redir_preapply election_draft_trustees uuid ()
-        ) else (
-          let msg = Printf.sprintf (f_ "%s is not a valid e-mail address!") st_id in
-          let service = preapply ~service:election_draft_trustees uuid in
-          Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-        )
-      )
+      (handle_trustee_add `Basic)
 
   let () =
     Any.register ~service:election_draft_trustee_del
-      (fun uuid index ->
-        let@ se = with_draft_election uuid in
-        let trustees =
-          se.se_public_keys |>
-            List.mapi (fun i x -> i, x) |>
-            List.filter (fun (i, _) -> i <> index) |>
-            List.map snd
-        in
-        se.se_public_keys <- trustees;
-        redir_preapply election_draft_trustees uuid ()
-      )
+      (handle_trustee_del election_draft_trustees)
 
   let () =
     Any.register ~service:election_draft_credentials
@@ -2170,52 +2166,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let () =
     Any.register ~service:election_draft_threshold_trustee_add
-      (fun uuid (stt_id, name) ->
-        let@ se = with_draft_election uuid in
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        if is_email stt_id then (
-          let stt_name = Some name in
-          let* stt_token = generate_token () in
-          let trustee = {
-              stt_id; stt_token; stt_step = None;
-              stt_cert = None; stt_polynomial = None;
-              stt_vinput = None; stt_voutput = None;
-              stt_name;
-            } in
-          let trustees =
-            match se.se_threshold_trustees with
-            | None -> Some [trustee]
-            | Some t -> Some (t @ [trustee])
-          in
-          se.se_threshold_trustees <- trustees;
-          redir_preapply election_draft_threshold_trustees uuid ()
-        ) else (
-          let msg = Printf.sprintf (f_ "%s is not a valid e-mail address!") stt_id in
-          let service = preapply ~service:election_draft_threshold_trustees uuid in
-          Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-        )
-      )
+      (handle_trustee_add `Threshold)
 
   let () =
     Any.register ~service:election_draft_threshold_trustee_del
-      (fun uuid index ->
-        let@ se = with_draft_election uuid in
-        let trustees =
-          let trustees =
-            match se.se_threshold_trustees with
-            | None -> []
-            | Some x -> x
-          in
-          trustees |>
-            List.mapi (fun i x -> i, x) |>
-            List.filter (fun (i, _) -> i <> index) |>
-            List.map snd
-        in
-        let trustees = match trustees with [] -> None | x -> Some x in
-        se.se_threshold_trustees <- trustees;
-        redir_preapply election_draft_threshold_trustees uuid ()
-      )
+      (handle_trustee_del election_draft_threshold_trustees)
 
   let () =
     Any.register ~service:election_draft_threshold_trustee

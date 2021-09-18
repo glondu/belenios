@@ -779,13 +779,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
     return (subject, body)
 
-  let rec lwt_list_mapi f i = function
-    | [] -> return []
-    | x :: xs ->
-       let* y = f i x in
-       let* ys = lwt_list_mapi f (i + 1) xs in
-       return (y :: ys)
-
   let election_draft_trustees ?token uuid se () =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -811,7 +804,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ~service:election_draft_trustee_del
         (fun name ->
           [
-            input ~input_type:`Hidden ~name ~value int;
+            input ~input_type:`Hidden ~name ~value string;
             input ~input_type:`Submit ~value:(s_ "Remove") string;
         ]) uuid
     in
@@ -820,8 +813,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       | [] -> return (txt "")
       | ts ->
          let* ts =
-           lwt_list_mapi
-             (fun i t ->
+           Lwt_list.map_s
+             (fun t ->
                let this_line =
                  match token with
                  | Some x when x = t.st_token -> true
@@ -867,7 +860,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                      td [
                          txt (if t.st_public_key = "" then s_ "No" else s_ "Yes");
                        ];
-                     td [if t.st_id = "server" then txt (s_ "(cannot be removed)") else mk_form_trustee_del i];
+                     td [if t.st_id = "server" then txt (s_ "(cannot be removed)") else mk_form_trustee_del t.st_id];
                    ]
                in
                let second_line =
@@ -890,7 +883,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                  else []
                in
                return (first_line :: second_line)
-             ) 0 ts
+             ) ts
          in
          return @@ table (
                        tr [
@@ -976,7 +969,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ~service:election_draft_threshold_trustee_del
         (fun name ->
           [
-            input ~input_type:`Hidden ~name ~value int;
+            input ~input_type:`Hidden ~name ~value string;
             input ~input_type:`Submit ~value:(s_ "Remove") string;
         ]) uuid
     in
@@ -985,8 +978,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       | None -> return (txt "")
       | Some ts ->
          let* ts =
-           lwt_list_mapi
-             (fun i t ->
+           Lwt_list.map_s
+             (fun t ->
                let this_line =
                  match token with
                  | Some x when x = t.stt_token -> true
@@ -1033,7 +1026,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                        td [
                            txt state;
                          ];
-                     ] @ (if show_add_remove then [td [mk_form_trustee_del i]] else [])
+                     ] @ (if show_add_remove then [td [mk_form_trustee_del t.stt_id]] else [])
                    )
                in
                let second_line =
@@ -1057,7 +1050,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                  else []
                in
                return (first_line :: second_line)
-             ) 0 ts
+             ) ts
          in
          return @@ div [
                        table (
