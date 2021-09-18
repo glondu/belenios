@@ -521,6 +521,7 @@ let get_draft_trustee se trustee =
               btrustee_address = t.st_id;
               btrustee_name = Option.get t.st_name "";
               btrustee_token = t.st_token;
+              btrustee_done = t.st_public_key <> "";
             }
      end
   | Some ts ->
@@ -532,6 +533,7 @@ let get_draft_trustee se trustee =
               ttrustee_address = t.stt_id;
               ttrustee_name = Option.get t.stt_name "";
               ttrustee_token = t.stt_token;
+              ttrustee_state = t.stt_step;
             }
      end
 

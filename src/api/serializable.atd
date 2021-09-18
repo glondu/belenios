@@ -67,12 +67,14 @@ type basic_trustee = {
     token : string;
     address : string;
     name : string;
+    done : bool;
 } <ocaml field_prefix="btrustee_">
 
 type threshold_trustee = {
     token : string;
     address : string;
     name : string;
+    ?state : int option;
 } <ocaml field_prefix="ttrustee_">
 
 type trustee = {
