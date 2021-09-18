@@ -583,10 +583,10 @@ let show hash main =
                     node @@ li [node @@ a_draft_tab uuid `Passwords];
                     node @@ li [node @@ a_draft_tab uuid `Credentials];
                     node @@ li [node @@ a_draft_tab uuid `Trustees];
-                    node @@ li [node @@ a ~href:"#" "All drafts"];
                   ]
               in
               Lwt.return [
+                  node @@ div [node @@ a ~href:"#" "All drafts"];
                   node @@ h1 [txt draft.draft_questions.t_name];
                   node @@ tabs;
                   node @@ title;
