@@ -445,13 +445,12 @@ let post_drafts_trustees uuid se op =
   match op with
   | `SetMode m ->
      begin
-       match se.se_threshold_trustees, m with
-       | None, `Basic | Some _, `Threshold -> Lwt.return_unit
-       | None, `Threshold ->
+       match m with
+       | `Threshold ->
           let se = {se with se_public_keys = []; se_threshold_trustees = Some []} in
           Web_persist.set_draft_election uuid se
-       | Some _, `Basic ->
-          let se = {se with se_threshold_trustees = None} in
+       | `Basic ->
+          let se = {se with se_public_keys = []; se_threshold_trustees = None} in
           Web_persist.set_draft_election uuid se
      end
   | `Add t ->
