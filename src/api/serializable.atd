@@ -69,25 +69,11 @@ type basic_trustee = {
     name : string;
 } <ocaml field_prefix="btrustee_">
 
-type basic_trustees = {
-    trustees : basic_trustee list;
-} <ocaml field_prefix="btrustees_">
-
 type threshold_trustee = {
     token : string;
     address : string;
     name : string;
 } <ocaml field_prefix="ttrustee_">
-
-type threshold_trustees = {
-    ?threshold : int option;
-    trustees : threshold_trustee list;
-} <ocaml field_prefix="ttrustees_">
-
-type trustees =
-  [ Basic of basic_trustees
-  | Threshold of threshold_trustees
-  ]
 
 type trustee = {
     address : string;
@@ -98,6 +84,11 @@ type trustees_mode =
   [ Basic
   | Threshold
   ]
+
+type trustees = {
+    mode : trustees_mode;
+    trustees : trustee list;
+} <ocaml field_prefix="trustees_">
 
 type trustees_operation =
   [ SetMode of trustees_mode

@@ -395,33 +395,32 @@ let submit_public_credentials uuid se credentials =
 let get_drafts_trustees se =
   match se.se_threshold_trustees with
   | None ->
-     `Basic {
-         btrustees_trustees =
-           List.filter_map
-             (fun t ->
-               if t.st_id = "server" then
-                 None
-               else
-                 Some {
-                     btrustee_address = t.st_id;
-                     btrustee_name = Option.get t.st_name "";
-                     btrustee_token = t.st_token;
-                   }
-             ) se.se_public_keys;
-       }
+     {
+       trustees_mode = `Basic;
+       trustees_trustees =
+         List.filter_map
+           (fun t ->
+             if t.st_id = "server" then
+               None
+             else
+               Some {
+                   trustee_address = t.st_id;
+                   trustee_name = Option.get t.st_name "";
+                 }
+           ) se.se_public_keys;
+     }
   | Some ts ->
-     `Threshold {
-         ttrustees_threshold = se.se_threshold;
-         ttrustees_trustees =
-           List.map
-             (fun t ->
-               {
-                 ttrustee_address = t.stt_id;
-                 ttrustee_name = Option.get t.stt_name "";
-                 ttrustee_token = t.stt_token
-               }
-             ) ts;
-       }
+     {
+       trustees_mode = `Threshold;
+       trustees_trustees =
+         List.map
+           (fun t ->
+             {
+               trustee_address = t.stt_id;
+               trustee_name = Option.get t.stt_name "";
+             }
+           ) ts;
+     }
 
 let check_address address f =
   if is_email address then
