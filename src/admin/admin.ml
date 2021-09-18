@@ -368,15 +368,13 @@ let show_draft_main show_root show_all uuid draft container =
         Lwt.return_unit
       )
     in
-    Lwt.return
-    @@ div [
-           node @@ div [node @@ t];
-           node @@ div [node button_save];
-           node @@ div [node button_delete];
-         ]
+    Lwt.return [
+        node @@ div [node @@ t];
+        node @@ div [node button_save];
+        node @@ div [node button_delete];
+      ]
   in
-  let content = [node @@ h2 [txt "Draft"]; node @@ body] in
-  replace_content container content;
+  replace_content container body;
   Lwt.return_unit
 
 let rec show_draft_voters uuid draft container =
@@ -385,7 +383,7 @@ let rec show_draft_voters uuid draft container =
     match x with
     | Error e ->
        let msg = Printf.sprintf "Error: %s" (string_of_error e) in
-       Lwt.return @@ div [txt msg]
+       Lwt.return [txt msg]
     | Ok voters ->
        let t = textarea () in
        t##.value := Js.string (string_of_voter_list voters);
@@ -402,10 +400,9 @@ let rec show_draft_voters uuid draft container =
          replace_content container content;
          Lwt.return_unit
        in
-       Lwt.return @@ div [node @@ div [node @@ t]; node @@ div [node b]]
+       Lwt.return [node @@ div [node @@ t]; node @@ div [node b]]
   in
-  let content = [node @@ h2 [txt "Voters"]; node @@ body] in
-  replace_content container content;
+  replace_content container body;
   Lwt.return_unit
 
 let rec show_draft_passwords uuid container =
@@ -414,13 +411,13 @@ let rec show_draft_passwords uuid container =
     match x with
     | Error e ->
        let msg = Printf.sprintf "Error while retrieving voters: %s" (string_of_error e) in
-       Lwt.return @@ div [txt msg]
+       Lwt.return [txt msg]
     | Ok voters ->
        let* x = get_passwords uuid in
        match x with
        | Error e ->
           let msg = Printf.sprintf "Error while retrieving passwords: %s" (string_of_error e) in
-          Lwt.return @@ div [txt msg]
+          Lwt.return [txt msg]
        | Ok x ->
           let missing =
             let x = List.fold_left (fun accu v -> SSet.add v accu) SSet.empty x in
@@ -443,10 +440,9 @@ let rec show_draft_passwords uuid container =
             replace_content container content;
             Lwt.return_unit
           in
-          Lwt.return @@ div [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
+          Lwt.return [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
   in
-  let content = [node @@ h2 [txt "Passwords"]; node @@ body] in
-  replace_content container content;
+  replace_content container body;
   Lwt.return_unit
 
 let rec show_draft_credentials uuid container =
@@ -455,7 +451,7 @@ let rec show_draft_credentials uuid container =
     match x with
     | Error e ->
        let msg = Printf.sprintf "Error: %s" (string_of_error e) in
-       Lwt.return @@ div [txt msg]
+       Lwt.return [txt msg]
     | Ok x ->
        match x.credentials_public, x.credentials_token with
        | None, None ->
@@ -473,22 +469,20 @@ let rec show_draft_credentials uuid container =
             replace_content container content;
             Lwt.return_unit
           in
-          Lwt.return @@ div [node @@ b]
+          Lwt.return [node @@ b]
        | None, Some token ->
           let link = Js.to_string Dom_html.window##.location##.href ^ "@" ^ token in
-          Lwt.return
-          @@ div [
-                 txt "Send the following link to the credential authority:";
-                 txt " ";
-                 txt link;
-               ]
+          Lwt.return [
+              txt "Send the following link to the credential authority:";
+              txt " ";
+              txt link;
+            ]
        | Some _, _ ->
           let t = textarea () in
           t##.value := Js.string (string_of_credentials x);
-          Lwt.return @@ div [node @@ t]
+          Lwt.return [node @@ t]
   in
-  let content = [node @@ h2 [txt "Credentials"]; node @@ body] in
-  replace_content container content;
+  replace_content container body;
   Lwt.return_unit
 
 let rec show_draft_trustees uuid container =
@@ -497,7 +491,7 @@ let rec show_draft_trustees uuid container =
     match x with
     | Error e ->
        let msg = Printf.sprintf "Error: %s" (string_of_error e) in
-       Lwt.return @@ div [txt msg]
+       Lwt.return [txt msg]
     | Ok trustees ->
        let mode =
          match trustees.trustees_mode with
@@ -549,16 +543,14 @@ let rec show_draft_trustees uuid container =
          replace_content container content;
          Lwt.return_unit
        in
-       Lwt.return
-       @@ div [
-              node @@ mode;
-              node @@ div [node all_trustees];
-              node @@ div [node t2];
-              node @@ div [node b];
-            ]
+       Lwt.return [
+           node @@ mode;
+           node @@ div [node all_trustees];
+           node @@ div [node t2];
+           node @@ div [node b];
+         ]
   in
-  let content = [node @@ h2 [txt "Trustees"]; node @@ body] in
-  replace_content container content;
+  replace_content container body;
   Lwt.return_unit
 
 let show_draft show_root show_all uuid draft container tab =
@@ -569,15 +561,15 @@ let show_draft show_root show_all uuid draft container tab =
   | `Credentials -> show_draft_credentials uuid container
   | `Trustees -> show_draft_trustees uuid container
 
+let suffix_and_label_of_draft_tab = function
+  | `Draft -> "", "Draft"
+  | `Voters -> "/voters", "Voters"
+  | `Passwords -> "/passwords", "Passwords"
+  | `Credentials -> "/credentials", "Credentials"
+  | `Trustees -> "/trustees", "Trustees"
+
 let a_draft_tab uuid tab =
-  let suffix, label =
-    match tab with
-    | `Draft -> "", "Draft"
-    | `Voters -> "/voters", "Voters"
-    | `Passwords -> "/passwords", "Passwords"
-    | `Credentials -> "/credentials", "Credentials"
-    | `Trustees -> "/trustees", "Trustees"
-  in
+  let suffix, label = suffix_and_label_of_draft_tab tab in
   let href = Printf.sprintf "#drafts/%s%s" uuid suffix in
   a ~href label
 
@@ -608,6 +600,7 @@ let show hash main =
             replace_content main content;
             Lwt.return_unit
          | Ok draft ->
+            let _, label = suffix_and_label_of_draft_tab tab in
             let container = div [] in
             let tabs =
               ul [
@@ -623,6 +616,7 @@ let show hash main =
               [
                 node @@ h1 [txt draft.draft_questions.t_name];
                 node @@ tabs;
+                node @@ h2 [txt label];
                 node @@ container;
               ]
             in
