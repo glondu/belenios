@@ -304,15 +304,6 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
          let@ () = with_administrator se in
          begin
            match method_ with
-           | `GET ->
-              Lwt.catch
-                (fun () ->
-                  let x = Api_drafts.get_draft_trustee se trustee in
-                  match x with
-                  | `NotFound -> not_found
-                  | `Basic t -> Lwt.return (200, string_of_basic_trustee t)
-                  | `Threshold t -> Lwt.return (200, string_of_threshold_trustee t)
-                ) handle_exn
            | `DELETE ->
               Lwt.catch
                 (fun () ->

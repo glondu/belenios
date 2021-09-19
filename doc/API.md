@@ -57,5 +57,4 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 ## `drafts/$UUID/trustees/$ADDRESS` (administrator)
 
-* `GET`: unit -> `basic_trustee` or `threshold_trustee`
 * `DELETE`: unit -> unit

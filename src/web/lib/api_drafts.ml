@@ -399,22 +399,43 @@ let get_drafts_trustees se =
        trustees_mode = `Basic;
        trustees_trustees =
          List.filter_map
-           (fun t -> if t.st_id = "server" then None else Some t.st_id)
+           (fun t ->
+             if t.st_id = "server" then
+               None
+             else
+               Some {
+                   trustee_address = t.st_id;
+                   trustee_name = Option.get t.st_name "";
+                   trustee_token = Some t.st_token;
+                   trustee_state = Some (if t.st_public_key = "" then 0 else 1);
+                 }
+           )
            se.se_public_keys;
        trustees_threshold = None;
      }
   | Some ts ->
      {
        trustees_mode = `Threshold;
-       trustees_trustees = List.map (fun t -> t.stt_id) ts;
+       trustees_trustees =
+         List.map
+           (fun t ->
+             {
+               trustee_address = t.stt_id;
+               trustee_name = Option.get t.stt_name "";
+               trustee_token = Some t.stt_token;
+               trustee_state = Some (Option.get t.stt_step 0);
+             }
+           ) ts;
        trustees_threshold = se.se_threshold;
      }
 
-let check_address address f =
-  if is_email address then
-    f ()
-  else
-    Lwt.fail (Error (Printf.sprintf "invalid e-mail address: %s" address))
+let check_address address =
+  if not @@ is_email address then
+    raise (Error (Printf.sprintf "invalid e-mail address: %s" address))
+
+let ensure_none label x =
+  if x <> None then
+    raise (Error (Printf.sprintf "%s must not be set" label))
 
 let generate_server_trustee se =
   let st_id = "server" and st_token = "" in
@@ -443,7 +464,9 @@ let post_drafts_trustees uuid se op =
      end
   | `Add t ->
      begin
-       let@ () = check_address t.trustee_address in
+       let () = check_address t.trustee_address in
+       let () = ensure_none "token" t.trustee_token in
+       let () = ensure_none "state" t.trustee_state in
        match se.se_threshold_trustees with
        | None ->
           let* ts =
@@ -489,39 +512,6 @@ let post_drafts_trustees uuid se op =
           let se_threshold_trustees = Some (ts @ [t]) in
           let se = {se with se_threshold_trustees} in
           Web_persist.set_draft_election uuid se
-     end
-
-type get_draft_trustee_result =
-  [ `NotFound
-  | `Basic of basic_trustee
-  | `Threshold of threshold_trustee
-  ]
-
-let get_draft_trustee se trustee =
-  match se.se_threshold_trustees with
-  | None ->
-     begin
-       match List.find_opt (fun x -> x.st_id = trustee) se.se_public_keys with
-       | None -> `NotFound
-       | Some t ->
-          `Basic {
-              btrustee_address = t.st_id;
-              btrustee_name = Option.get t.st_name "";
-              btrustee_token = t.st_token;
-              btrustee_done = t.st_public_key <> "";
-            }
-     end
-  | Some ts ->
-     begin
-       match List.find_opt (fun x -> x.stt_id = trustee) ts with
-       | None -> `NotFound
-       | Some t ->
-          `Threshold {
-              ttrustee_address = t.stt_id;
-              ttrustee_name = Option.get t.stt_name "";
-              ttrustee_token = t.stt_token;
-              ttrustee_state = t.stt_step;
-            }
      end
 
 let rec filter_out_first f = function

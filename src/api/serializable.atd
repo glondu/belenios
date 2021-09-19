@@ -63,23 +63,11 @@ type credential_operation =
   | SubmitPublic of credential_list
   ]
 
-type basic_trustee = {
-    token : string;
-    address : string;
-    name : string;
-    done : bool;
-} <ocaml field_prefix="btrustee_">
-
-type threshold_trustee = {
-    token : string;
-    address : string;
-    name : string;
-    ?state : int option;
-} <ocaml field_prefix="ttrustee_">
-
 type trustee = {
     address : string;
     name : string;
+    ?token : string option;
+    ?state : int option;
 } <ocaml field_prefix="trustee_">
 
 type trustees_mode =
@@ -89,7 +77,7 @@ type trustees_mode =
 
 type trustees = {
     mode : trustees_mode;
-    trustees : string list;
+    trustees : trustee list;
     ?threshold : int option;
 } <ocaml field_prefix="trustees_">
 

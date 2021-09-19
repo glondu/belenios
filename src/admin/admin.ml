@@ -130,9 +130,6 @@ let get_credentials uuid =
 let get_trustees uuid =
   get_with_token "drafts/%s/trustees" uuid |> wrap trustees_of_string
 
-let get_trustee uuid trustee =
-  get_with_token "drafts/%s/trustees/%s" uuid trustee |> wrap (fun x -> x)
-
 module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
 
 let credentials_ui main uuid =
@@ -479,32 +476,26 @@ let rec show_draft_trustees uuid container =
           Printf.sprintf "threshold (%s)" threshold
      in
      let mode = div [txt "Mode:"; txt " "; txt mode] in
-     let* all_trustees =
-       Lwt_list.map_s
+     let all_trustees =
+       List.map
          (fun t ->
-           let encoded_trustee = t |> Js.string |> Js.encodeURIComponent |> Js.to_string in
-           let* x = get_trustee uuid encoded_trustee in
+           let encoded_trustee = t.trustee_address |> Js.string |> Js.encodeURIComponent |> Js.to_string in
            let content =
-             match x with
-             | Error e ->
-                let msg = Printf.sprintf "Error with %s: %s" t (string_of_error e) in
-                [txt msg]
-             | Ok x ->
-                let b =
-                  let@ () = button "Delete" in
-                  let* x = delete_with_token "drafts/%s/trustees/%s" uuid encoded_trustee in
-                  let@ () = show_in container in
-                  let msg =
-                    match x.code with
-                    | 200 -> "Success"
-                    | code -> Printf.sprintf "Error %d: %s" code x.content
-                  in
-                  let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in
-                  Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
-                in
-                [txt x; txt " "; node @@ b]
+             let b =
+               let@ () = button "Delete" in
+               let* x = delete_with_token "drafts/%s/trustees/%s" uuid encoded_trustee in
+               let@ () = show_in container in
+               let msg =
+                 match x.code with
+                 | 200 -> "Success"
+                 | code -> Printf.sprintf "Error %d: %s" code x.content
+               in
+               let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in
+               Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+             in
+             [txt (string_of_trustee t); txt " "; node @@ b]
            in
-           Lwt.return @@ node @@ li content
+           node @@ li content
          ) trustees.trustees_trustees
      in
      let all_trustees = ul all_trustees in
