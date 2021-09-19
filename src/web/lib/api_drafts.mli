@@ -73,6 +73,9 @@ val get_draft_trustees_mode : draft_election -> trustees_mode
 val put_draft_trustees_mode : uuid -> draft_election -> trustees_mode -> unit Lwt.t
 
 val get_draft_status : uuid -> draft_election -> status Lwt.t
+val post_draft_status : account -> uuid -> draft_election -> status_request -> unit Lwt.t
+
+val set_downloaded : uuid -> unit Lwt.t
 
 val dump_passwords : uuid -> string list list -> unit Lwt.t
 val validate_election : account -> uuid -> draft_election -> unit Lwt.t

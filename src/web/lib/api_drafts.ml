@@ -605,6 +605,9 @@ let get_draft_status uuid se =
         end;
     }
 
+let set_downloaded uuid =
+  write_file ~uuid "private_creds.downloaded" []
+
 let dump_passwords uuid db =
   List.map (fun line -> String.concat "," line) db |>
     write_file ~uuid "passwords.csv"
@@ -790,3 +793,7 @@ let validate_election account uuid se =
   let* () = Web_persist.set_election_state uuid `Open in
   let* dates = Web_persist.get_election_dates uuid in
   Web_persist.set_election_dates uuid {dates with e_finalization = Some (now ())}
+
+let post_draft_status account uuid se = function
+  | `SetDownloaded -> set_downloaded uuid
+  | `ValidateElection -> validate_election account uuid se

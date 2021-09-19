@@ -962,7 +962,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_credentials_get
       (fun uuid () ->
         let@ _ = with_draft_election_ro uuid in
-        let* () = write_file ~uuid "private_creds.downloaded" [] in
+        let* () = Api_drafts.set_downloaded uuid in
         File.send ~content_type:"text/plain"
           (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.txt")
       )

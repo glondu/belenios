@@ -67,3 +67,4 @@ types. They refer to types defined in `src/api/serializable.atd`.
 ## `drafts/$UUID/status` (administrator)
 
 * `GET`: unit -> status
+* `POST`: status_request -> unit
