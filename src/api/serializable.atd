@@ -70,18 +70,13 @@ type trustee = {
     ?state : int option;
 } <ocaml field_prefix="trustee_">
 
+type trustees = trustee list
+
+type threshold_mode = {
+    ?threshold : int option;
+} <ocaml field_prefix="mode_">
+
 type trustees_mode =
   [ Basic
-  | Threshold
-  ]
-
-type trustees = {
-    mode : trustees_mode;
-    trustees : trustee list;
-    ?threshold : int option;
-} <ocaml field_prefix="trustees_">
-
-type trustees_operation =
-  [ SetMode of trustees_mode
-  | Add of trustee
+  | Threshold of threshold_mode
   ]

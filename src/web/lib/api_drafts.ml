@@ -395,39 +395,28 @@ let submit_public_credentials uuid se credentials =
 let get_drafts_trustees se =
   match se.se_threshold_trustees with
   | None ->
-     {
-       trustees_mode = `Basic;
-       trustees_trustees =
-         List.filter_map
-           (fun t ->
-             if t.st_id = "server" then
-               None
-             else
-               Some {
-                   trustee_address = t.st_id;
-                   trustee_name = Option.get t.st_name "";
-                   trustee_token = Some t.st_token;
-                   trustee_state = Some (if t.st_public_key = "" then 0 else 1);
-                 }
-           )
-           se.se_public_keys;
-       trustees_threshold = None;
-     }
-  | Some ts ->
-     {
-       trustees_mode = `Threshold;
-       trustees_trustees =
-         List.map
-           (fun t ->
-             {
-               trustee_address = t.stt_id;
-               trustee_name = Option.get t.stt_name "";
-               trustee_token = Some t.stt_token;
-               trustee_state = Some (Option.get t.stt_step 0);
+     List.filter_map
+       (fun t ->
+         if t.st_id = "server" then
+           None
+         else
+           Some {
+               trustee_address = t.st_id;
+               trustee_name = Option.get t.st_name "";
+               trustee_token = Some t.st_token;
+               trustee_state = Some (if t.st_public_key = "" then 0 else 1);
              }
-           ) ts;
-       trustees_threshold = se.se_threshold;
-     }
+       ) se.se_public_keys
+  | Some ts ->
+     List.map
+       (fun t ->
+         {
+           trustee_address = t.stt_id;
+           trustee_name = Option.get t.stt_name "";
+           trustee_token = Some t.stt_token;
+           trustee_state = Some (Option.get t.stt_step 0);
+         }
+       ) ts
 
 let check_address address =
   if not @@ is_email address then
@@ -450,69 +439,55 @@ let generate_server_trustee se =
   let st_name = Some "server" in
   Lwt.return {st_id; st_token; st_public_key; st_private_key; st_name}
 
-let post_drafts_trustees uuid se op =
-  match op with
-  | `SetMode m ->
-     begin
-       match m with
-       | `Threshold ->
-          let se = {se with se_public_keys = []; se_threshold_trustees = Some []} in
-          Web_persist.set_draft_election uuid se
-       | `Basic ->
-          let se = {se with se_public_keys = []; se_threshold_trustees = None} in
-          Web_persist.set_draft_election uuid se
-     end
-  | `Add t ->
-     begin
-       let () = check_address t.trustee_address in
-       let () = ensure_none "token" t.trustee_token in
-       let () = ensure_none "state" t.trustee_state in
-       match se.se_threshold_trustees with
-       | None ->
-          let* ts =
-            let ts = se.se_public_keys in
-            if List.exists (fun x -> x.st_id = "server") ts then
-              Lwt.return ts
-            else
-              let* server = generate_server_trustee se in
-              Lwt.return (ts @ [server])
-          in
-          let () =
-            if List.exists (fun x -> x.st_id = t.trustee_address) ts then
-              raise (Error "address already used")
-          in
-          let* st_token = generate_token () in
-          let t =
-            {
-              st_id = t.trustee_address;
-              st_name = Some t.trustee_name;
-              st_public_key = "";
-              st_private_key = None;
-              st_token;
-            }
-          in
-          let se_public_keys = ts @ [t] in
-          let se = {se with se_public_keys} in
-          Web_persist.set_draft_election uuid se
-       | Some ts ->
-          let () =
-            if List.exists (fun x -> x.stt_id = t.trustee_address) ts then
-              raise (Error "address already used")
-          in
-          let* stt_token = generate_token () in
-          let t =
-            {
-              stt_id = t.trustee_address;
-              stt_name = Some t.trustee_name;
-              stt_token; stt_step = None;
-              stt_cert = None; stt_polynomial = None;
-              stt_vinput = None; stt_voutput = None;
-            }
-          in
-          let se_threshold_trustees = Some (ts @ [t]) in
-          let se = {se with se_threshold_trustees} in
-          Web_persist.set_draft_election uuid se
-     end
+let post_drafts_trustees uuid se t =
+  let () = check_address t.trustee_address in
+  let () = ensure_none "token" t.trustee_token in
+  let () = ensure_none "state" t.trustee_state in
+  match se.se_threshold_trustees with
+  | None ->
+     let* ts =
+       let ts = se.se_public_keys in
+       if List.exists (fun x -> x.st_id = "server") ts then
+         Lwt.return ts
+       else
+         let* server = generate_server_trustee se in
+         Lwt.return (ts @ [server])
+     in
+     let () =
+       if List.exists (fun x -> x.st_id = t.trustee_address) ts then
+         raise (Error "address already used")
+     in
+     let* st_token = generate_token () in
+     let t =
+       {
+         st_id = t.trustee_address;
+         st_name = Some t.trustee_name;
+         st_public_key = "";
+         st_private_key = None;
+         st_token;
+       }
+     in
+     let se_public_keys = ts @ [t] in
+     let se = {se with se_public_keys} in
+     Web_persist.set_draft_election uuid se
+  | Some ts ->
+     let () =
+       if List.exists (fun x -> x.stt_id = t.trustee_address) ts then
+         raise (Error "address already used")
+     in
+     let* stt_token = generate_token () in
+     let t =
+       {
+         stt_id = t.trustee_address;
+         stt_name = Some t.trustee_name;
+         stt_token; stt_step = None;
+         stt_cert = None; stt_polynomial = None;
+         stt_vinput = None; stt_voutput = None;
+       }
+     in
+     let se_threshold_trustees = Some (ts @ [t]) in
+     let se = {se with se_threshold_trustees} in
+     Web_persist.set_draft_election uuid se
 
 let rec filter_out_first f = function
   | [] -> false, []
@@ -542,3 +517,18 @@ let delete_draft_trustee uuid se trustee =
      ) else (
        Lwt.return_false
      )
+
+let get_draft_trustees_mode se =
+  match se.se_threshold_trustees with
+  | None -> `Basic
+  | Some _ -> `Threshold {mode_threshold = se.se_threshold}
+
+let set_draft_trustees_mode uuid se mode =
+  match mode with
+  | `Basic ->
+     let se = {se with se_public_keys = []; se_threshold_trustees = None} in
+     Web_persist.set_draft_election uuid se
+  | `Threshold {mode_threshold} ->
+     let () = ensure_none "threshold" mode_threshold in
+     let se = {se with se_public_keys = []; se_threshold_trustees = Some []} in
+     Web_persist.set_draft_election uuid se

@@ -130,6 +130,9 @@ let get_credentials uuid =
 let get_trustees uuid =
   get_with_token "drafts/%s/trustees" uuid |> wrap trustees_of_string
 
+let get_trustees_mode uuid =
+  get_with_token "drafts/%s/trustees-mode" uuid |> wrap trustees_mode_of_string
+
 module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
 
 let credentials_ui main uuid =
@@ -464,16 +467,18 @@ let rec show_draft_trustees uuid container =
      let msg = Printf.sprintf "Error: %s" (string_of_error e) in
      Lwt.return [txt msg]
   | Ok trustees ->
-     let mode =
-       match trustees.trustees_mode with
-       | `Basic -> "basic"
-       | `Threshold ->
+     let* mode =
+       let* x = get_trustees_mode uuid in
+       match x with
+       | Error e -> Lwt.return @@ Printf.sprintf "error (%s)" (string_of_error e)
+       | Ok `Basic -> Lwt.return "basic"
+       | Ok (`Threshold {mode_threshold}) ->
           let threshold =
-            match trustees.trustees_threshold with
+            match mode_threshold with
             | None -> "not set"
-            | Some i -> Printf.sprintf "%d out of %d" i (List.length trustees.trustees_trustees)
+            | Some i -> Printf.sprintf "%d out of %d" i (List.length trustees)
           in
-          Printf.sprintf "threshold (%s)" threshold
+          Lwt.return @@ Printf.sprintf "threshold (%s)" threshold
      in
      let mode = div [txt "Mode:"; txt " "; txt mode] in
      let all_trustees =
@@ -496,17 +501,17 @@ let rec show_draft_trustees uuid container =
              [txt (string_of_trustee t); txt " "; node @@ b]
            in
            node @@ li content
-         ) trustees.trustees_trustees
+         ) trustees
      in
      let all_trustees = ul all_trustees in
      let t2 = textarea () in
      let b =
-       let@ () = button "Submit trustee operation" in
+       let@ () = button "Add trustee" in
        let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/trustees" uuid in
        let@ () = show_in container in
        let msg =
          match x.code with
-         | 200 -> Printf.sprintf "Success: %s" x.content
+         | 200 -> "Success"
          | code -> Printf.sprintf "Error %d: %s" code x.content
        in
        let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in

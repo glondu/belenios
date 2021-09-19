@@ -1036,9 +1036,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let ensure_trustees_mode uuid se mode =
     match se.se_threshold_trustees, mode with
-    | None, `Basic | Some _, `Threshold -> Lwt.return se
-    | Some _, `Basic | None, `Threshold ->
-       let* () = Api_drafts.post_drafts_trustees uuid se (`SetMode mode) in
+    | None, `Basic | Some _, `Threshold _ -> Lwt.return se
+    | Some _, `Basic | None, `Threshold _ ->
+       let* () = Api_drafts.set_draft_trustees_mode uuid se mode in
        let* x = Web_persist.get_draft_election uuid in
        match x with
        | Some se -> Lwt.return se
@@ -1052,7 +1052,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       let* se = ensure_trustees_mode uuid se mode in
       let open Belenios_api.Serializable_t in
       let trustee = {trustee_address; trustee_name; trustee_token = None; trustee_state = None} in
-      let* () = Api_drafts.post_drafts_trustees uuid se (`Add trustee) in
+      let* () = Api_drafts.post_drafts_trustees uuid se trustee in
       redir_preapply election_draft_trustees uuid ()
     ) else (
       let msg = Printf.sprintf (f_ "%s is not a valid e-mail address!") trustee_address in
@@ -2166,7 +2166,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let () =
     Any.register ~service:election_draft_threshold_trustee_add
-      (handle_trustee_add `Threshold)
+      (handle_trustee_add (`Threshold {mode_threshold = None}))
 
   let () =
     Any.register ~service:election_draft_threshold_trustee_del

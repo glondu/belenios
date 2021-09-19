@@ -62,5 +62,8 @@ val submit_public_credentials : uuid -> draft_election -> credential_list -> uni
 val generate_server_trustee : draft_election -> draft_trustee Lwt.t
 
 val get_drafts_trustees : draft_election -> trustees
-val post_drafts_trustees : uuid -> draft_election -> trustees_operation -> unit Lwt.t
+val post_drafts_trustees : uuid -> draft_election -> trustee -> unit Lwt.t
 val delete_draft_trustee : uuid -> draft_election -> string -> bool Lwt.t
+
+val get_draft_trustees_mode : draft_election -> trustees_mode
+val set_draft_trustees_mode : uuid -> draft_election -> trustees_mode -> unit Lwt.t
