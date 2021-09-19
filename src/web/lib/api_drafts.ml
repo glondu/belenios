@@ -25,9 +25,10 @@ open Belenios_core.Common
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_core.Signatures
+open Belenios
 open Belenios_api.Serializable_t
 open Web_serializable_builtin_t
-open Web_serializable_t
+open Web_serializable_j
 open Web_common
 
 exception Error of string
@@ -90,7 +91,7 @@ let draft_of_api se d =
         raise (Error "the group cannot be changed")
       else (
         try
-          let module G = (val Belenios.Group.of_string ~version se_group) in
+          let module G = (val Group.of_string ~version se_group) in
           ()
         with _ ->
           raise (Error "invalid group")
@@ -323,7 +324,7 @@ let generate_credentials_on_server send uuid se =
         ) se.se_voters
     in
     let version = Option.get se.se_version 0 in
-    let module G = (val Belenios.Group.of_string ~version se.se_group : GROUP) in
+    let module G = (val Group.of_string ~version se.se_group : GROUP) in
     let module CMap = Map.Make (G) in
     let module CD = Belenios_core.Credential.MakeDerive (G) in
     let* public_creds, private_creds =
@@ -365,7 +366,7 @@ let exn_of_generate_credentials_on_server_error = function
 let submit_public_credentials uuid se credentials =
   let () = if se.se_voters = [] then raise (Error "No voters") in
   let version = Option.get se.se_version 0 in
-  let module G = (val Belenios.Group.of_string ~version se.se_group : GROUP) in
+  let module G = (val Group.of_string ~version se.se_group : GROUP) in
   let weights =
     List.fold_left
       (fun (i, weights) x ->
@@ -429,8 +430,8 @@ let ensure_none label x =
 let generate_server_trustee se =
   let st_id = "server" and st_token = "" in
   let version = Option.get se.se_version 0 in
-  let module G = (val Belenios.Group.of_string ~version se.se_group) in
-  let module Trustees = (val Belenios.Trustees.get_by_version (Option.get se.se_version 0)) in
+  let module G = (val Group.of_string ~version se.se_group) in
+  let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
   let module K = Trustees.MakeSimple (G) (LwtRandom) in
   let* private_key = K.generate () in
   let* public_key = K.prove private_key in
@@ -603,3 +604,189 @@ let get_draft_status uuid se =
           not (has_weights && has_nh)
         end;
     }
+
+let dump_passwords uuid db =
+  List.map (fun line -> String.concat "," line) db |>
+    write_file ~uuid "passwords.csv"
+
+let validate_election account uuid se =
+  let* s = get_draft_status uuid se in
+  let version = Option.get se.se_version 0 in
+  let uuid_s = raw_string_of_uuid uuid in
+  (* check status *)
+  let () =
+    if s.status_num_voters = 0 then raise (Error "no voters");
+    begin
+      match s.status_passwords_ready with
+      | Some false -> raise (Error "some passwords are missing")
+      | Some true | None -> ()
+    end;
+    if not s.status_credentials_ready then
+      raise (Error "public credentials are missing");
+    if not s.status_trustees_ready then
+      raise (Error "trustees are not ready");
+    if not s.status_nh_and_weights_compatible then
+      raise (Error "weights are incompatible with NH questions")
+  in
+  (* trustees *)
+  let group = Group.of_string ~version se.se_group in
+  let module G = (val group : GROUP) in
+  let module Trustees = (val Trustees.get_by_version version) in
+  let module K = Trustees.MakeCombinator (G) in
+  let module KG = Trustees.MakeSimple (G) (LwtRandom) in
+  let* trustee_names, trustees, private_keys =
+    match se.se_threshold_trustees with
+    | None ->
+       let* trustee_names, trustees, private_key =
+         match se.se_public_keys with
+         | [] ->
+            let* private_key = KG.generate () in
+            let* public_key = KG.prove private_key in
+            let public_key = { public_key with trustee_name = Some "server" } in
+            Lwt.return (["server"], [`Single public_key], `KEY private_key)
+         | _ :: _ ->
+            let private_key =
+              List.fold_left (fun accu {st_private_key; _} ->
+                  match st_private_key with
+                  | Some x -> x :: accu
+                  | None -> accu
+                ) [] se.se_public_keys
+            in
+            let private_key = match private_key with
+              | [] -> `None
+              | [x] -> `KEY x
+              | _ -> raise (Error "multiple private keys")
+            in
+            Lwt.return
+              begin
+                (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
+                (List.map
+                   (fun {st_public_key; st_name; _} ->
+                     let pk = trustee_public_key_of_string G.read st_public_key in
+                     let pk = { pk with trustee_name = st_name } in
+                     `Single pk
+                   ) se.se_public_keys),
+                private_key
+              end
+       in
+       Lwt.return (trustee_names, trustees, private_key)
+    | Some ts ->
+       match se.se_threshold_parameters with
+       | None -> raise (Error "key establishment not finished")
+       | Some tp ->
+          let tp = threshold_parameters_of_string G.read tp in
+          let named =
+            let open Belenios_core.Serializable_j in
+            List.combine (Array.to_list tp.t_verification_keys) ts
+            |> List.map (fun (k, t) -> { k with trustee_name = t.stt_name })
+            |> Array.of_list
+          in
+          let tp = { tp with t_verification_keys = named } in
+          let trustee_names = List.map (fun {stt_id; _} -> stt_id) ts in
+          let private_keys =
+            List.map (fun {stt_voutput; _} ->
+                match stt_voutput with
+                | Some v ->
+                   let voutput = voutput_of_string G.read v in
+                   voutput.vo_private_key
+                | None -> raise (Error "inconsistent state")
+              ) ts
+          in
+          let* server_private_key = KG.generate () in
+          let* server_public_key = KG.prove server_private_key in
+          let server_public_key = { server_public_key with trustee_name = Some "server" } in
+          Lwt.return
+            begin
+              "server" :: trustee_names,
+              [`Single server_public_key; `Pedersen tp],
+              `KEYS (server_private_key, private_keys)
+            end
+  in
+  let y = K.combine_keys trustees in
+  (* election parameters *)
+  let e_server_is_trustee = match private_keys with
+    | `KEY _ | `KEYS _ -> Some true
+    | `None -> None
+  in
+  let metadata =
+    {
+      se.se_metadata with
+      e_trustees = Some trustee_names;
+      e_server_is_trustee;
+      e_owner = Some (`Id account.account_id);
+    }
+  in
+  let template = se.se_questions in
+  let params =
+    {
+      e_version = Option.get se.se_version 0;
+      e_description = template.t_description;
+      e_name = template.t_name;
+      e_questions = template.t_questions;
+      e_uuid = uuid;
+      e_administrator = se.se_administrator;
+      e_credential_authority = metadata.e_cred_authority;
+    }
+  in
+  let raw_election =
+    let public_key = G.to_string y in
+    Election.make_raw_election params ~group:se.se_group ~public_key
+  in
+  (* write election files to disk *)
+  let dir = !Web_config.spool_dir / uuid_s in
+  let create_file fname what xs =
+    Lwt_io.with_file
+      ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+      ~perm:0o600 ~mode:Lwt_io.Output (dir / fname)
+      (fun oc ->
+        Lwt_list.iter_s
+          (fun v ->
+            let* () = Lwt_io.write oc (what v) in
+            Lwt_io.write oc "\n") xs)
+  in
+  let* () = create_file "trustees.json" (string_of_trustees G.write) [trustees] in
+  let* () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in
+  let* () = create_file "metadata.json" string_of_metadata [metadata] in
+  let* () = create_file "election.json" (fun x -> x) [raw_election] in
+  let* () = create_file "ballots.jsons" (fun x -> x) [] in
+  (* initialize credentials *)
+  let* () =
+    let fname = !Web_config.spool_dir / uuid_s / "public_creds.txt" in
+    let* file = read_file fname in
+    match file with
+    | Some xs -> Web_persist.init_credential_mapping uuid xs
+    | None -> Lwt.return_unit
+  in
+  (* create file with private keys, if any *)
+  let* () =
+    match private_keys with
+    | `None -> Lwt.return_unit
+    | `KEY x -> create_file "private_key.json" string_of_number [x]
+    | `KEYS (x, y) ->
+       let* () = create_file "private_key.json" string_of_number [x] in
+       create_file "private_keys.jsons" (fun x -> x) y
+  in
+  (* clean up draft *)
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "draft.json") in
+  (* clean up private credentials, if any *)
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_creds.txt") in
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_creds.downloaded") in
+  (* write passwords *)
+  let* () =
+    match metadata.e_auth_config with
+    | Some [{auth_system = "password"; _}] ->
+       let db =
+         List.filter_map (fun v ->
+             let _, login, _ = split_identity v.sv_id in
+             match v.sv_password with
+             | Some (salt, hashed) -> Some [login; salt; hashed]
+             | None -> None
+           ) se.se_voters
+       in
+       if db <> [] then dump_passwords uuid db else Lwt.return_unit
+    | _ -> Lwt.return_unit
+  in
+  (* finish *)
+  let* () = Web_persist.set_election_state uuid `Open in
+  let* dates = Web_persist.get_election_dates uuid in
+  Web_persist.set_election_dates uuid {dates with e_finalization = Some (now ())}

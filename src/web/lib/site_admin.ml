@@ -50,186 +50,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
 
-  let dump_passwords uuid db =
-    List.map (fun line -> PString.concat "," line) db |>
-      write_file ~uuid "passwords.csv"
-
-  let validate_election account uuid se =
-    let version = Option.get se.se_version 0 in
-    let uuid_s = raw_string_of_uuid uuid in
-    (* voters *)
-    let () =
-      if se.se_voters = [] then failwith "no voters"
-    in
-    (* passwords *)
-    let () =
-      match se.se_metadata.e_auth_config with
-      | Some [{auth_system = "password"; _}] ->
-         if not @@ List.for_all (fun v -> v.sv_password <> None) se.se_voters then
-           failwith "some passwords are missing"
-      | _ -> ()
-    in
-    (* credentials *)
-    let () =
-      if not se.se_public_creds_received then
-        failwith "public credentials are missing"
-    in
-    (* trustees *)
-    let group = Group.of_string ~version se.se_group in
-    let module G = (val group : GROUP) in
-    let module Trustees = (val Trustees.get_by_version version) in
-    let module K = Trustees.MakeCombinator (G) in
-    let module KG = Trustees.MakeSimple (G) (LwtRandom) in
-    let* trustee_names, trustees, private_keys =
-      match se.se_threshold_trustees with
-      | None ->
-         let* trustee_names, trustees, private_key =
-           match se.se_public_keys with
-           | [] ->
-              let* private_key = KG.generate () in
-              let* public_key = KG.prove private_key in
-              let public_key = { public_key with trustee_name = Some "server" } in
-              return (["server"], [`Single public_key], `KEY private_key)
-           | _ :: _ ->
-              let private_key =
-                List.fold_left (fun accu {st_private_key; _} ->
-                    match st_private_key with
-                    | Some x -> x :: accu
-                    | None -> accu
-                  ) [] se.se_public_keys
-              in
-              let private_key = match private_key with
-                | [] -> `None
-                | [x] -> `KEY x
-                | _ -> failwith "multiple private keys"
-              in
-              return (
-                  (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
-                  (List.map
-                     (fun {st_public_key; st_name; _} ->
-                       if st_public_key = "" then failwith "some public keys are missing";
-                       let pk = trustee_public_key_of_string G.read st_public_key in
-                       let pk = { pk with trustee_name = st_name } in
-                       `Single pk
-                     ) se.se_public_keys),
-                  private_key)
-         in
-         return (trustee_names, trustees, private_key)
-      | Some ts ->
-         match se.se_threshold_parameters with
-         | None -> failwith "key establishment not finished"
-         | Some tp ->
-            let tp = threshold_parameters_of_string G.read tp in
-            let named =
-              List.combine (Array.to_list tp.t_verification_keys) ts
-              |> List.map (fun (k, t) -> { k with trustee_name = t.stt_name })
-              |> Array.of_list
-            in
-            let tp = { tp with t_verification_keys = named } in
-            let trustee_names = List.map (fun {stt_id; _} -> stt_id) ts in
-            let private_keys =
-              List.map (fun {stt_voutput; _} ->
-                  match stt_voutput with
-                  | Some v ->
-                     let voutput = voutput_of_string G.read v in
-                     voutput.vo_private_key
-                  | None -> failwith "inconsistent state"
-                ) ts
-            in
-            let* server_private_key = KG.generate () in
-            let* server_public_key = KG.prove server_private_key in
-            let server_public_key = { server_public_key with trustee_name = Some "server" } in
-            return (
-                "server" :: trustee_names,
-                [`Single server_public_key; `Pedersen tp],
-                `KEYS (server_private_key, private_keys)
-              )
-    in
-    let y = K.combine_keys trustees in
-    (* election parameters *)
-    let e_server_is_trustee = match private_keys with
-      | `KEY _ | `KEYS _ -> Some true
-      | `None -> None
-    in
-    let metadata = {
-        se.se_metadata with
-        e_trustees = Some trustee_names;
-        e_server_is_trustee;
-        e_owner = Some (`Id account.account_id);
-      } in
-    let template = se.se_questions in
-    let params = {
-        e_version = Option.get se.se_version 0;
-        e_description = template.t_description;
-        e_name = template.t_name;
-        e_questions = template.t_questions;
-        e_uuid = uuid;
-        e_administrator = se.se_administrator;
-        e_credential_authority = metadata.e_cred_authority;
-      } in
-    let raw_election =
-      let public_key = G.to_string y in
-      Election.make_raw_election params ~group:se.se_group ~public_key
-    in
-    (* write election files to disk *)
-    let dir = !Web_config.spool_dir / uuid_s in
-    let create_file fname what xs =
-      Lwt_io.with_file
-        ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
-        ~perm:0o600 ~mode:Lwt_io.Output (dir / fname)
-        (fun oc ->
-          Lwt_list.iter_s
-            (fun v ->
-              let* () = Lwt_io.write oc (what v) in
-              Lwt_io.write oc "\n") xs)
-    in
-    let* () = create_file "trustees.json" (string_of_trustees G.write) [trustees] in
-    let* () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in
-    let* () = create_file "metadata.json" string_of_metadata [metadata] in
-    let* () = create_file "election.json" (fun x -> x) [raw_election] in
-    let* () = create_file "ballots.jsons" (fun x -> x) [] in
-    (* initialize credentials *)
-    let* () =
-      let fname = !Web_config.spool_dir / uuid_s / "public_creds.txt" in
-      let* file = read_file fname in
-      match file with
-      | Some xs -> Web_persist.init_credential_mapping uuid xs
-      | None -> return_unit
-    in
-    (* create file with private keys, if any *)
-    let* () =
-      match private_keys with
-      | `None -> return_unit
-      | `KEY x -> create_file "private_key.json" string_of_number [x]
-      | `KEYS (x, y) ->
-         let* () = create_file "private_key.json" string_of_number [x] in
-         create_file "private_keys.jsons" (fun x -> x) y
-    in
-    (* clean up draft *)
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "draft.json") in
-    (* clean up private credentials, if any *)
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_creds.txt") in
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_creds.downloaded") in
-    (* write passwords *)
-    let* () =
-      match metadata.e_auth_config with
-      | Some [{auth_system = "password"; _}] ->
-         let db =
-           List.filter_map (fun v ->
-               let _, login, _ = split_identity v.sv_id in
-               match v.sv_password with
-               | Some (salt, hashed) -> Some [login; salt; hashed]
-               | None -> None
-             ) se.se_voters
-         in
-         if db <> [] then dump_passwords uuid db else return_unit
-      | _ -> return_unit
-    in
-    (* finish *)
-    let* () = Web_persist.set_election_state uuid `Open in
-    let* dates = Web_persist.get_election_dates uuid in
-    Web_persist.set_election_dates uuid {dates with e_finalization = Some (now ())}
-
   let delete_sensitive_data uuid =
     let uuid_s = raw_string_of_uuid uuid in
     let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "state.json") in
@@ -828,7 +648,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                url id show_weight
            in
            let db = replace_password user x db in
-           let* () = dump_passwords uuid db in
+           let* () = Api_drafts.dump_passwords uuid db in
            Pages_common.generic_page ~title:(s_ "Success") ~service
              (Printf.sprintf (f_ "A new password has been mailed to %s.") id) ()
            >>= Html.send
@@ -1241,7 +1061,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let@ se = with_draft_election ~save:false uuid in
         Lwt.catch
           (fun () ->
-            let* () = validate_election account uuid se in
+            let* () = Api_drafts.validate_election account uuid se in
             redir_preapply election_admin uuid ()
           )
           (fun e ->
