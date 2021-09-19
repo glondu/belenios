@@ -557,3 +557,49 @@ let put_draft_trustees_mode uuid se mode =
        | Error `OutOfBounds -> Lwt.fail (Error "threshold out of bounds")
      end
   | _, _ -> Lwt.fail (Error "change not allowed")
+
+let get_draft_status uuid se =
+  let* status_private_credentials_downloaded =
+    if se.se_metadata.e_cred_authority = Some "server" then (
+      let* b = file_exists (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.downloaded") in
+      Lwt.return_some b
+    ) else Lwt.return_none
+  in
+  Lwt.return {
+      status_num_voters = List.length se.se_voters;
+      status_passwords_ready =
+        begin
+          match se.se_metadata.e_auth_config with
+          | Some [{auth_system = "password"; _}] ->
+             Some (List.for_all (fun v -> v.sv_password <> None) se.se_voters)
+          | _ -> None
+        end;
+      status_credentials_ready = se.se_public_creds_received;
+      status_private_credentials_downloaded;
+      status_trustees_ready =
+        begin
+          match se.se_threshold_trustees with
+          | None ->
+             List.for_all (fun t -> t.st_public_key <> "") se.se_public_keys
+          | Some ts ->
+             List.for_all (fun t -> t.stt_step = Some 7) ts
+        end;
+      status_nh_and_weights_compatible =
+        begin
+          let has_weights =
+            List.exists
+              (fun x ->
+                let _, _, weight = split_identity_opt x.sv_id in
+                weight <> None
+              ) se.se_voters
+          in
+          let has_nh =
+            Array.exists
+              (function
+               | Belenios_core.Question.NonHomomorphic _ -> true
+               | _ -> false
+              ) se.se_questions.t_questions
+          in
+          not (has_weights && has_nh)
+        end;
+    }

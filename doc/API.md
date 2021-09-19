@@ -63,3 +63,7 @@ types. They refer to types defined in `src/api/serializable.atd`.
 ## `drafts/$UUID/trustees/$ADDRESS` (administrator)
 
 * `DELETE`: unit -> unit
+
+## `drafts/$UUID/status` (administrator)
+
+* `GET`: unit -> status

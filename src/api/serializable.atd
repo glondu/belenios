@@ -71,3 +71,12 @@ type trustees_mode =
   [ Basic
   | Threshold of int
   ]
+
+type status = {
+    num_voters : int;
+    ?passwords_ready : bool option;
+    credentials_ready : bool;
+    ?private_credentials_downloaded : bool option;
+    trustees_ready : bool;
+    nh_and_weights_compatible : bool;
+} <ocaml field_prefix="status_">

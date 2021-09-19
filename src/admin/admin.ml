@@ -133,6 +133,9 @@ let get_trustees uuid =
 let get_trustees_mode uuid =
   get_with_token "drafts/%s/trustees-mode" uuid |> wrap trustees_mode_of_string
 
+let get_status uuid =
+  get_with_token "drafts/%s/status" uuid |> wrap status_of_string
+
 module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
 
 let credentials_ui main uuid =
@@ -248,7 +251,7 @@ let draft_a x =
 let regexps =
   [
     Regexp.regexp "^#?$", (fun _ -> `Root);
-    Regexp.regexp "^#drafts/([0-9A-Za-z]+)(/(voters|passwords|credentials|trustees))?$",
+    Regexp.regexp "^#drafts/([0-9A-Za-z]+)(/(voters|passwords|credentials|trustees|status))?$",
     begin
       fun r ->
       match Regexp.matched_group r 1, Regexp.matched_group r 3 with
@@ -257,6 +260,7 @@ let regexps =
       | Some uuid, Some "passwords" -> `Draft (uuid, `Passwords)
       | Some uuid, Some "credentials" -> `Draft (uuid, `Credentials)
       | Some uuid, Some "trustees" -> `Draft (uuid, `Trustees)
+      | Some uuid, Some "status" -> `Draft (uuid, `Status)
       | _ -> `Error
     end;
     Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$",
@@ -541,12 +545,25 @@ let rec show_draft_trustees uuid container =
          node @@ div [node b];
        ]
 
+let show_draft_status uuid container =
+  let@ () = show_in container in
+  let* x = get_status uuid in
+  match x with
+  | Error e ->
+     let msg = Printf.sprintf "Error: %s" (string_of_error e) in
+     Lwt.return [txt msg]
+  | Ok status ->
+     let t = textarea () in
+     t##.value := Js.string (string_of_status status);
+     Lwt.return [node t]
+
 let suffix_and_label_of_draft_tab = function
   | `Draft -> "", "Draft"
   | `Voters -> "/voters", "Voters"
   | `Passwords -> "/passwords", "Passwords"
   | `Credentials -> "/credentials", "Credentials"
   | `Trustees -> "/trustees", "Trustees"
+  | `Status -> "/status", "Status"
 
 let show_draft show_root show_all uuid draft title container tab =
   container##.innerHTML := Js.string "Loading...";
@@ -561,6 +578,7 @@ let show_draft show_root show_all uuid draft title container tab =
   | `Passwords -> show_draft_passwords uuid container
   | `Credentials -> show_draft_credentials uuid container
   | `Trustees -> show_draft_trustees uuid container
+  | `Status -> show_draft_status uuid container
 
 let a_draft_tab uuid tab =
   let suffix, label = suffix_and_label_of_draft_tab tab in
@@ -602,6 +620,7 @@ let show hash main =
                     node @@ li [node @@ a_draft_tab uuid `Passwords];
                     node @@ li [node @@ a_draft_tab uuid `Credentials];
                     node @@ li [node @@ a_draft_tab uuid `Trustees];
+                    node @@ li [node @@ a_draft_tab uuid `Status];
                   ]
               in
               Lwt.return [

@@ -37,8 +37,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   open Web_services
   open Pages_common
 
-  let ( / ) = Filename.concat
-
   let admin_background = " background: #FF9999;"
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
@@ -1944,6 +1942,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let notok x = span ~a:[a_style "color: red;"] [txt x] in
     let ok x = txt x in
     let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Validate creation" in
+    let* s = Api_drafts.get_draft_status uuid se in
     let ready = true in
     let ready, name =
       if se.se_questions.t_name = default_name then
@@ -1970,75 +1969,48 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ready, ok "OK"
     in
     let ready, voters =
-      let b = not (se.se_voters = []) in
-      ready && b,
-      (if b then ok else notok) (Printf.sprintf (f_ "%d voter(s)") (List.length se.se_voters))
+      match s.status_num_voters with
+      | 0 -> false, notok "Missing"
+      | n -> ready, ok (Printf.sprintf (f_ "%d voter(s)") n)
     in
     let ready, passwords =
-      match se.se_metadata.e_auth_config with
-      | Some [{auth_system = "password"; _}] ->
-         if List.for_all (fun v -> v.sv_password <> None) se.se_voters then ready, ok "OK"
-         else false, notok (s_ "Missing")
-      | _ -> ready, ok (s_ "Not applicable")
+      match s.status_passwords_ready with
+      | Some true -> ready, ok "OK"
+      | Some false -> false, notok (s_ "Missing")
+      | None -> ready, ok (s_ "Not applicable")
     in
     let ready, credential_authority =
       match se.se_metadata.e_cred_authority with
       | None -> false, notok (s_ "Missing")
       | Some _ -> ready, ok "OK"
     in
-    let cred_auth_is_server = se.se_metadata.e_cred_authority = Some "server" in
     let ready, credentials =
-      if se.se_public_creds_received then
-        ready, ok (if cred_auth_is_server then s_ "Sent" else s_ "Received")
-      else false, notok (s_ "Missing")
-    in
-    let* private_creds_downloaded =
-      file_exists (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.downloaded")
+      match s.status_credentials_ready with
+      | true -> ready, ok "OK"
+      | false -> false, notok (s_ "Missing")
     in
     let private_creds =
-      if cred_auth_is_server && not private_creds_downloaded then
-        span
-          [
-            notok (s_ "Not downloaded.");
-            txt " ";
-            txt (s_ "Please ");
-            a ~service:election_draft_credentials_get [txt (s_ "download")] uuid;
-            txt (s_ " and save them securely.");
-          ]
-      else
-        ok "OK"
+      match s.status_private_credentials_downloaded with
+      | Some true -> ok "OK"
+      | Some false ->
+         span [
+             notok (s_ "Not downloaded.");
+             txt " ";
+             txt (s_ "Please ");
+             a ~service:election_draft_credentials_get [txt (s_ "download")] uuid;
+             txt (s_ " and save them securely.");
+           ]
+      | None -> ok (s_ "Not applicable")
     in
     let ready, trustees =
-      match se.se_threshold_trustees with
-      | None -> if List.for_all (fun {st_public_key; _} ->
-                       st_public_key <> ""
-                     ) se.se_public_keys then ready, ok "OK" else false, notok (s_ "Missing")
-      | Some _ ->
-         if se.se_threshold_parameters <> None &&
-              match se.se_threshold_trustees with
-              | None -> false
-              | Some ts ->
-                 List.for_all (fun {stt_step; _} -> stt_step = Some 7) ts
-         then ready, ok "OK"
-         else false, notok (s_ "Missing")
+      match s.status_trustees_ready with
+      | true -> ready, ok "OK"
+      | false -> false, notok (s_ "Missing")
     in
     let ready, nh_and_weights =
-      let has_weights =
-        List.exists
-          (fun x ->
-            let _, _, weight = split_identity_opt x.sv_id in
-            weight <> None
-          ) se.se_voters
-      in
-      let has_nh =
-        Array.exists
-          (function
-           | Question.NonHomomorphic _ -> true
-           | _ -> false
-          ) se.se_questions.t_questions
-      in
-      match has_weights, has_nh with
-      | true, true ->
+      match s.status_nh_and_weights_compatible with
+      | true -> ready, []
+      | false ->
          false,
          [
            tr [
@@ -2046,7 +2018,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                td [notok (s_ "Alternative questions cannot be combined with weights.")];
              ]
          ]
-      | _, _ -> ready, []
     in
     let div_trustee_warning =
       match se.se_threshold_trustees, se.se_public_keys with

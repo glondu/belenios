@@ -336,6 +336,21 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                 ) handle_exn
            | _ -> method_not_allowed
          end
+      | ["drafts"; uuid; "status"] ->
+         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+         let* se = Web_persist.get_draft_election uuid in
+         let@ se = Option.unwrap not_found se in
+         let@ () = with_administrator se in
+         begin
+           match method_ with
+           | `GET ->
+              Lwt.catch
+                (fun () ->
+                  let* x = Api_drafts.get_draft_status uuid se in
+                  Lwt.return (200, string_of_status x)
+                ) handle_exn
+           | _ -> method_not_allowed
+         end
       | _ -> not_found
     in
     Eliom_registration.String.send ~code (response, "application/json")
