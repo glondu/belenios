@@ -524,6 +524,10 @@ let get_draft_trustees_mode se =
   | Some _ -> `Threshold {mode_threshold = se.se_threshold}
 
 let set_draft_trustees_mode uuid se mode =
+  let@ () = fun cont ->
+    let old = get_draft_trustees_mode se in
+    if mode = old then Lwt.return_unit else cont ()
+  in
   match mode with
   | `Basic ->
      let se = {se with se_public_keys = []; se_threshold_trustees = None} in
