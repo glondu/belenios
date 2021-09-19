@@ -2140,33 +2140,25 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_threshold_set
       (fun uuid threshold ->
-        let@ se = with_draft_election uuid in
+        let@ se = with_draft_election ~save:false uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        match se.se_threshold_trustees with
-        | None ->
+        let* x = Api_drafts.set_threshold uuid se threshold in
+        match x with
+        | Ok () -> redir_preapply election_draft_threshold_trustees uuid ()
+        | Error `NoTrustees ->
            let msg = s_ "Please add some trustees first!" in
            let service = preapply ~service:election_draft_threshold_trustees uuid in
            Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-        | Some xs ->
-           let maybe_threshold, step =
-             if threshold = 0 then None, None
-             else Some threshold, Some 1
-           in
-           if threshold >= 0 && threshold < List.length xs then (
-             List.iter (fun x -> x.stt_step <- step) xs;
-             se.se_threshold <- maybe_threshold;
-             redir_preapply election_draft_threshold_trustees uuid ()
-           ) else (
-             let msg = s_ "The threshold must be positive and smaller than the number of trustees!" in
-             let service = preapply ~service:election_draft_threshold_trustees uuid in
-             Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-           )
+        | Error `OutOfBounds ->
+           let msg = s_ "The threshold must be positive and smaller than the number of trustees!" in
+           let service = preapply ~service:election_draft_threshold_trustees uuid in
+           Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
       )
 
   let () =
     Any.register ~service:election_draft_threshold_trustee_add
-      (handle_trustee_add (`Threshold {mode_threshold = None}))
+      (handle_trustee_add (`Threshold 0))
 
   let () =
     Any.register ~service:election_draft_threshold_trustee_del

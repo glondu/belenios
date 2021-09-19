@@ -65,5 +65,9 @@ val get_draft_trustees : draft_election -> trustees
 val post_draft_trustees : uuid -> draft_election -> trustee -> unit Lwt.t
 val delete_draft_trustee : uuid -> draft_election -> string -> bool Lwt.t
 
+val set_threshold :
+  uuid -> draft_election -> int ->
+  (unit, [`NoTrustees | `OutOfBounds]) Stdlib.result Lwt.t
+
 val get_draft_trustees_mode : draft_election -> trustees_mode
 val put_draft_trustees_mode : uuid -> draft_election -> trustees_mode -> unit Lwt.t

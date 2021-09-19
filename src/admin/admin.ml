@@ -472,11 +472,11 @@ let rec show_draft_trustees uuid container =
        match x with
        | Error e -> Lwt.return @@ Printf.sprintf "error (%s)" (string_of_error e)
        | Ok `Basic -> Lwt.return "basic"
-       | Ok (`Threshold {mode_threshold}) ->
+       | Ok (`Threshold threshold) ->
           let threshold =
-            match mode_threshold with
-            | None -> "not set"
-            | Some i -> Printf.sprintf "%d out of %d" i (List.length trustees)
+            match threshold with
+            | 0 -> "not set"
+            | i -> Printf.sprintf "%d out of %d" i (List.length trustees)
           in
           Lwt.return @@ Printf.sprintf "threshold (%s)" threshold
      in

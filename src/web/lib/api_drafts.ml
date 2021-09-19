@@ -518,21 +518,42 @@ let delete_draft_trustee uuid se trustee =
        Lwt.return_false
      )
 
+let set_threshold uuid se threshold =
+  match se.se_threshold_trustees with
+  | None | Some [] -> Lwt.return @@ Stdlib.Error `NoTrustees
+  | Some ts ->
+     let maybe_threshold, step =
+       if threshold = 0 then None, None else Some threshold, Some 1
+     in
+     if 0 <= threshold && threshold < List.length ts then (
+       List.iter (fun t -> t.stt_step <- step) ts;
+       se.se_threshold <- maybe_threshold;
+       let* () = Web_persist.set_draft_election uuid se in
+       Lwt.return @@ Ok ()
+     ) else (
+       Lwt.return @@ Stdlib.Error `OutOfBounds
+     )
+
 let get_draft_trustees_mode se =
   match se.se_threshold_trustees with
   | None -> `Basic
-  | Some _ -> `Threshold {mode_threshold = se.se_threshold}
+  | Some _ -> `Threshold (Option.get se.se_threshold 0)
 
 let put_draft_trustees_mode uuid se mode =
-  let@ () = fun cont ->
-    let old = get_draft_trustees_mode se in
-    if mode = old then Lwt.return_unit else cont ()
-  in
-  match mode with
-  | `Basic ->
+  match get_draft_trustees_mode se, mode with
+  | a, b when a = b -> Lwt.return_unit
+  | _, `Basic ->
      let se = {se with se_public_keys = []; se_threshold_trustees = None} in
      Web_persist.set_draft_election uuid se
-  | `Threshold {mode_threshold} ->
-     let () = ensure_none "threshold" mode_threshold in
+  | `Basic, `Threshold 0 ->
      let se = {se with se_public_keys = []; se_threshold_trustees = Some []} in
      Web_persist.set_draft_election uuid se
+  | `Threshold _, `Threshold threshold ->
+     begin
+       let* x = set_threshold uuid se threshold in
+       match x with
+       | Ok () -> Lwt.return_unit
+       | Error `NoTrustees -> Lwt.fail (Error "no trustees")
+       | Error `OutOfBounds -> Lwt.fail (Error "threshold out of bounds")
+     end
+  | _, _ -> Lwt.fail (Error "change not allowed")
