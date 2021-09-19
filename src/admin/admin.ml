@@ -545,7 +545,7 @@ let rec show_draft_trustees uuid container =
          node @@ div [node b];
        ]
 
-let show_draft_status uuid container =
+let rec show_draft_status uuid container =
   let@ () = show_in container in
   let* x = get_status uuid in
   match x with
@@ -555,7 +555,25 @@ let show_draft_status uuid container =
   | Ok status ->
      let t = textarea () in
      t##.value := Js.string (string_of_status status);
-     Lwt.return [node t]
+     let b label r =
+       let@ () = button label in
+       let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
+       let@ () = show_in container in
+       let msg =
+         match x.code with
+         | 200 -> "Success"
+         | code -> Printf.sprintf "Error %d: %s" code x.content
+       in
+       let b = button "Proceed" (fun () -> show_draft_status uuid container) in
+       Lwt.return [node @@ div [txt msg]; node @@ div [node b]]
+     in
+     let buttons =
+       div [
+         node @@ b "Set downloaded" `SetDownloaded;
+         node @@ b "Validate election" `ValidateElection;
+       ]
+     in
+     Lwt.return [node @@ div [node t]; node buttons]
 
 let suffix_and_label_of_draft_tab = function
   | `Draft -> "", "Draft"
