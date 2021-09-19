@@ -251,10 +251,10 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                 forbidden
               ) else (
                 let@ _, body = Option.unwrap bad_request body in
-                let* op = Cohttp_lwt.Body.to_string body in
-                let@ op = Option.unwrap bad_request (Option.wrap credential_operation_of_string op) in
-                match who, op with
-                | `Administrator _, `GenerateOnServer ->
+                let* x = Cohttp_lwt.Body.to_string body in
+                let@ x = Option.unwrap bad_request (Option.wrap credential_list_of_string x) in
+                match who, x with
+                | `Administrator _, [] ->
                    Lwt.catch
                      (fun () ->
                        let send = Pages_voter.send_mail_credential uuid se in
@@ -263,7 +263,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                        | Ok () -> ok
                        | Error e -> Lwt.fail @@ Api_drafts.exn_of_generate_credentials_on_server_error e
                      ) handle_exn
-                | `CredentialAuthority, `SubmitPublic credentials ->
+                | `CredentialAuthority, credentials ->
                    Lwt.catch
                      (fun () ->
                        let* () = Api_drafts.submit_public_credentials uuid se credentials in

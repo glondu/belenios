@@ -207,7 +207,7 @@ let credentials_ui main uuid =
                      else cred
                    )
             in
-            let op = `SubmitPublic public_creds |> string_of_credential_operation in
+            let op = string_of_credential_list public_creds in
             let t = textarea () in
             t##.value := Js.string (String.concat "\n" private_creds ^ "\n");
             let button_container = div [] in
@@ -435,7 +435,7 @@ let rec show_draft_credentials uuid container =
      | None, None ->
         let b =
           let@ () = button "Generate on server" in
-          let op = string_of_credential_operation `GenerateOnServer in
+          let op = string_of_credential_list [] in
           let* x = post_with_token op "drafts/%s/credentials" uuid in
           let@ () = show_in container in
           let msg =

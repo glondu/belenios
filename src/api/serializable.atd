@@ -58,11 +58,6 @@ type credentials = {
     ?private : string list option;
 } <ocaml field_prefix="credentials_">
 
-type credential_operation =
-  [ GenerateOnServer
-  | SubmitPublic of credential_list
-  ]
-
 type trustee = {
     address : string;
     name : string;

@@ -48,7 +48,7 @@ types. They refer to types defined in `src/api/serializable.atd`.
 ## `drafts/$UUID/credentials` (administrator or credential authority)
 
 * `GET`: unit -> credentials
-* `POST`: credential_operation -> unit
+* `POST`: credential_list -> unit
 
 ## `drafts/$UUID/trustees-mode` (administrator)
 
