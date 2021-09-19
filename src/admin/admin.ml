@@ -46,10 +46,10 @@ let show_in container f =
   List.iter (Dom.appendChild container) content;
   Lwt.return_unit
 
-let textarea () =
+let textarea ?(cols = 80) ?(rows = 10) () =
   let r = textarea [] in
-  r##.cols := 80;
-  r##.rows := 10;
+  r##.cols := cols;
+  r##.rows := rows;
   r
 
 let button label handler =
@@ -481,6 +481,22 @@ let rec show_draft_trustees uuid container =
           Lwt.return @@ Printf.sprintf "threshold (%s)" threshold
      in
      let mode = div [txt "Mode:"; txt " "; txt mode] in
+     let mode_set =
+       let t = textarea ~rows:1 ~cols:60 () in
+       let b =
+         let@ () = button "Set mode" in
+         let* x = put_with_token (Js.to_string t##.value) "drafts/%s/trustees-mode" uuid in
+         let@ () = show_in container in
+         let msg =
+           match x.code with
+           | 200 -> "Success"
+           | code -> Printf.sprintf "Error %d: %s" code x.content
+         in
+         let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in
+         Lwt.return [node @@ div [txt msg]; node @@ div [node b]]
+       in
+       div [node t; txt " "; node b]
+     in
      let all_trustees =
        List.map
          (fun t ->
@@ -519,6 +535,7 @@ let rec show_draft_trustees uuid container =
      in
      Lwt.return [
          node @@ mode;
+         node @@ mode_set;
          node @@ div [node all_trustees];
          node @@ div [node t2];
          node @@ div [node b];
