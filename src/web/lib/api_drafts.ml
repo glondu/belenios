@@ -399,28 +399,14 @@ let get_drafts_trustees se =
        trustees_mode = `Basic;
        trustees_trustees =
          List.filter_map
-           (fun t ->
-             if t.st_id = "server" then
-               None
-             else
-               Some {
-                   trustee_address = t.st_id;
-                   trustee_name = Option.get t.st_name "";
-                 }
-           ) se.se_public_keys;
+           (fun t -> if t.st_id = "server" then None else Some t.st_id)
+           se.se_public_keys;
        trustees_threshold = None;
      }
   | Some ts ->
      {
        trustees_mode = `Threshold;
-       trustees_trustees =
-         List.map
-           (fun t ->
-             {
-               trustee_address = t.stt_id;
-               trustee_name = Option.get t.stt_name "";
-             }
-           ) ts;
+       trustees_trustees = List.map (fun t -> t.stt_id) ts;
        trustees_threshold = se.se_threshold;
      }
 

@@ -482,12 +482,12 @@ let rec show_draft_trustees uuid container =
      let* all_trustees =
        Lwt_list.map_s
          (fun t ->
-           let encoded_trustee = t.trustee_address |> Js.string |> Js.encodeURIComponent |> Js.to_string in
+           let encoded_trustee = t |> Js.string |> Js.encodeURIComponent |> Js.to_string in
            let* x = get_trustee uuid encoded_trustee in
            let content =
              match x with
              | Error e ->
-                let msg = Printf.sprintf "Error with %s: %s" t.trustee_address (string_of_error e) in
+                let msg = Printf.sprintf "Error with %s: %s" t (string_of_error e) in
                 [txt msg]
              | Ok x ->
                 let b =
