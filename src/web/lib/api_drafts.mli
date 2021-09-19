@@ -30,11 +30,11 @@ val draft_of_api : draft_election -> draft -> draft_election
 val delete_draft : uuid -> unit Lwt.t
 val post_drafts : account -> draft -> uuid Lwt.t
 
-val get_drafts_voters : draft_election -> voter_list
-val put_drafts_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
+val get_draft_voters : draft_election -> voter_list
+val put_draft_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
 
-val get_drafts_passwords : draft_election -> voter_list
-val post_drafts_passwords :
+val get_draft_passwords : draft_election -> voter_list
+val post_draft_passwords :
   (Web_serializable_t.metadata -> string -> (string * string) Lwt.t) ->
   uuid -> draft_election -> voter_list -> unit Lwt.t
 
@@ -61,9 +61,9 @@ val submit_public_credentials : uuid -> draft_election -> credential_list -> uni
 
 val generate_server_trustee : draft_election -> draft_trustee Lwt.t
 
-val get_drafts_trustees : draft_election -> trustees
-val post_drafts_trustees : uuid -> draft_election -> trustee -> unit Lwt.t
+val get_draft_trustees : draft_election -> trustees
+val post_draft_trustees : uuid -> draft_election -> trustee -> unit Lwt.t
 val delete_draft_trustee : uuid -> draft_election -> string -> bool Lwt.t
 
 val get_draft_trustees_mode : draft_election -> trustees_mode
-val set_draft_trustees_mode : uuid -> draft_election -> trustees_mode -> unit Lwt.t
+val put_draft_trustees_mode : uuid -> draft_election -> trustees_mode -> unit Lwt.t

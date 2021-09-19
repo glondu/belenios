@@ -174,7 +174,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | `GET, _ ->
               Lwt.catch
                 (fun () ->
-                  let x = Api_drafts.get_drafts_voters se in
+                  let x = Api_drafts.get_draft_voters se in
                   Lwt.return (200, string_of_voter_list x)
                 ) handle_exn
            | `PUT, `Administrator _ ->
@@ -186,7 +186,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                 let@ voters = Option.unwrap bad_request (Option.wrap voter_list_of_string voters) in
                 Lwt.catch
                   (fun () ->
-                    let* () = Api_drafts.put_drafts_voters uuid se voters in
+                    let* () = Api_drafts.put_draft_voters uuid se voters in
                     ok
                   ) handle_exn
               )
@@ -202,7 +202,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | `GET ->
               Lwt.catch
                 (fun () ->
-                  let x = Api_drafts.get_drafts_passwords se in
+                  let x = Api_drafts.get_draft_passwords se in
                   Lwt.return (200, string_of_voter_list x)
                 ) handle_exn
            | `POST ->
@@ -228,7 +228,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                     fun metadata id ->
                     Pages_voter.generate_password metadata langs title uuid url id show_weight
                   in
-                  let* () = Api_drafts.post_drafts_passwords generate uuid se voters in
+                  let* () = Api_drafts.post_draft_passwords generate uuid se voters in
                   ok
                 ) handle_exn
            | _ -> method_not_allowed
@@ -292,7 +292,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               let@ mode = Option.unwrap bad_request (Option.wrap trustees_mode_of_string mode) in
               Lwt.catch
                 (fun () ->
-                  let* () = Api_drafts.set_draft_trustees_mode uuid se mode in
+                  let* () = Api_drafts.put_draft_trustees_mode uuid se mode in
                   ok
                 ) handle_exn
            | _ -> method_not_allowed
@@ -307,7 +307,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | `GET ->
               Lwt.catch
                 (fun () ->
-                  let x = Api_drafts.get_drafts_trustees se in
+                  let x = Api_drafts.get_draft_trustees se in
                   Lwt.return (200, string_of_trustees x)
                 ) handle_exn
            | `POST ->
@@ -316,7 +316,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               let@ trustee = Option.unwrap bad_request (Option.wrap trustee_of_string trustee) in
               Lwt.catch
                 (fun () ->
-                  let* () = Api_drafts.post_drafts_trustees uuid se trustee in
+                  let* () = Api_drafts.post_draft_trustees uuid se trustee in
                   ok
                 ) handle_exn
            | _ -> method_not_allowed

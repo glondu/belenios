@@ -186,11 +186,11 @@ let post_drafts account draft =
   let* () = Web_persist.clear_elections_by_owner_cache () in
   Lwt.return uuid
 
-let get_drafts_voters se =
+let get_draft_voters se =
   se.se_voters
   |> List.map (fun x -> x.sv_id)
 
-let put_drafts_voters uuid se voters =
+let put_draft_voters uuid se voters =
   let existing_voters =
     List.fold_left (fun accu v -> SMap.add v.sv_id v accu) SMap.empty se.se_voters
   in
@@ -250,11 +250,11 @@ let put_drafts_voters uuid se voters =
   let se = {se with se_voters} in
   Web_persist.set_draft_election uuid se
 
-let get_drafts_passwords se =
+let get_draft_passwords se =
   se.se_voters
   |> List.filter_map (fun x -> Option.map (fun _ -> x.sv_id) x.sv_password)
 
-let post_drafts_passwords generate uuid se voters =
+let post_draft_passwords generate uuid se voters =
   let se_voters =
     List.fold_left (fun accu v -> SMap.add v.sv_id v accu) SMap.empty se.se_voters
   in
@@ -392,7 +392,7 @@ let submit_public_credentials uuid se credentials =
   se.se_public_creds_received <- true;
   Web_persist.set_draft_election uuid se
 
-let get_drafts_trustees se =
+let get_draft_trustees se =
   match se.se_threshold_trustees with
   | None ->
      List.filter_map
@@ -439,7 +439,7 @@ let generate_server_trustee se =
   let st_name = Some "server" in
   Lwt.return {st_id; st_token; st_public_key; st_private_key; st_name}
 
-let post_drafts_trustees uuid se t =
+let post_draft_trustees uuid se t =
   let () = check_address t.trustee_address in
   let () = ensure_none "token" t.trustee_token in
   let () = ensure_none "state" t.trustee_state in
@@ -523,7 +523,7 @@ let get_draft_trustees_mode se =
   | None -> `Basic
   | Some _ -> `Threshold {mode_threshold = se.se_threshold}
 
-let set_draft_trustees_mode uuid se mode =
+let put_draft_trustees_mode uuid se mode =
   let@ () = fun cont ->
     let old = get_draft_trustees_mode se in
     if mode = old then Lwt.return_unit else cont ()
