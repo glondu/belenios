@@ -249,7 +249,7 @@ let credentials_ui main uuid =
 
 let draft_a x =
   let uuid = raw_string_of_uuid x.summary_uuid in
-  a ~href:("#drafts/" ^ uuid) x.summary_name
+  a ~href:("#drafts/" ^ uuid) (if x.summary_name = "" then "(no title)" else x.summary_name)
 
 let regexps =
   [
