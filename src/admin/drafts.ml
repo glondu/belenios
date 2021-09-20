@@ -28,6 +28,16 @@ open Tool_js_common
 open Tool_js_html
 open Common
 
+let generic_proceed x handler =
+  let msg =
+    let open Js_of_ocaml_lwt.XmlHttpRequest in
+    match x.code with
+    | 200 -> "Success"
+    | code -> Printf.sprintf "Error %d: %s" code x.content
+  in
+  let b = button "Proceed" handler in
+  Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+
 let show_draft_main show_root show_all uuid draft container =
   let@ () = show_in container in
   let t = textarea () in
@@ -36,26 +46,14 @@ let show_draft_main show_root show_all uuid draft container =
     let@ () = button "Save changes" in
     let* x = put_with_token (Js.to_string t##.value) "drafts/%s" uuid in
     let@ () = show_in container in
-    let msg =
-      match x.code with
-      | 200 -> "Changes successfully applied!"
-      | code -> Printf.sprintf "Error %d: %s" code x.content
-    in
-    let b = button "Proceed" show_all in
-    Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+    generic_proceed x show_all
   in
   let button_delete =
     let@ () = button "Delete draft" in
     if confirm "Are you sure?" then (
       let* x = delete_with_token "drafts/%s" uuid in
       let@ () = show_in container in
-      let msg =
-        match x.code with
-        | 200 -> "Draft successfully deleted!"
-        | code -> Printf.sprintf "Error %d: %s" code x.content
-      in
-      let b = button "Proceed" show_root in
-      Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+      generic_proceed x show_root
     ) else (
       Lwt.return_unit
     )
@@ -80,13 +78,7 @@ let rec show_draft_voters uuid draft container =
        let@ () = button "Save changes" in
        let* x = put_with_token (Js.to_string t##.value) "drafts/%s/voters" uuid in
        let@ () = show_in container in
-       let msg =
-         match x.code with
-         | 200 -> "Changes successfully applied!"
-         | code -> Printf.sprintf "Error %d: %s" code x.content
-       in
-       let b = button "Proceed" (fun () -> show_draft_voters uuid draft container) in
-       Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+       generic_proceed x (fun () -> show_draft_voters uuid draft container)
      in
      Lwt.return [node @@ div [node @@ t]; node @@ div [node b]]
 
@@ -116,13 +108,7 @@ let rec show_draft_passwords uuid container =
           let@ () = button "Generate and send passwords" in
           let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/passwords" uuid in
           let@ () = show_in container in
-          let msg =
-            match x.code with
-            | 200 -> "Passwords successfully generated and sent!"
-            | code -> Printf.sprintf "Error %d: %s" code x.content
-          in
-          let b = button "Proceed" (fun () -> show_draft_passwords uuid container) in
-          Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+          generic_proceed x (fun () -> show_draft_passwords uuid container)
         in
         Lwt.return [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
 
@@ -141,13 +127,7 @@ let rec show_draft_credentials uuid container =
           let op = string_of_credential_list [] in
           let* x = post_with_token op "drafts/%s/credentials" uuid in
           let@ () = show_in container in
-          let msg =
-            match x.code with
-            | 200 -> "Credentials successfully generated and sent!"
-            | code -> Printf.sprintf "Error %d: %s" code x.content
-          in
-          let b = button "Proceed" (fun () -> show_draft_credentials uuid container) in
-          Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+          generic_proceed x (fun () -> show_draft_credentials uuid container)
         in
         Lwt.return [node @@ b]
      | None, Some token ->
@@ -190,13 +170,7 @@ let rec show_draft_trustees uuid container =
          let@ () = button "Set mode" in
          let* x = put_with_token (Js.to_string t##.value) "drafts/%s/trustees-mode" uuid in
          let@ () = show_in container in
-         let msg =
-           match x.code with
-           | 200 -> "Success"
-           | code -> Printf.sprintf "Error %d: %s" code x.content
-         in
-         let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in
-         Lwt.return [node @@ div [txt msg]; node @@ div [node b]]
+         generic_proceed x (fun () -> show_draft_trustees uuid container)
        in
        div [node t; txt " "; node b]
      in
@@ -209,13 +183,7 @@ let rec show_draft_trustees uuid container =
                let@ () = button "Delete" in
                let* x = delete_with_token "drafts/%s/trustees/%s" uuid encoded_trustee in
                let@ () = show_in container in
-               let msg =
-                 match x.code with
-                 | 200 -> "Success"
-                 | code -> Printf.sprintf "Error %d: %s" code x.content
-               in
-               let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in
-               Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+               generic_proceed x (fun () -> show_draft_trustees uuid container)
              in
              [txt (string_of_trustee t); txt " "; node @@ b]
            in
@@ -228,13 +196,7 @@ let rec show_draft_trustees uuid container =
        let@ () = button "Add trustee" in
        let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/trustees" uuid in
        let@ () = show_in container in
-       let msg =
-         match x.code with
-         | 200 -> "Success"
-         | code -> Printf.sprintf "Error %d: %s" code x.content
-       in
-       let b = button "Proceed" (fun () -> show_draft_trustees uuid container) in
-       Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+       generic_proceed x (fun () -> show_draft_trustees uuid container)
      in
      Lwt.return [
          node @@ mode;
@@ -258,13 +220,7 @@ let rec show_draft_status uuid container =
        let@ () = button label in
        let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
        let@ () = show_in container in
-       let msg =
-         match x.code with
-         | 200 -> "Success"
-         | code -> Printf.sprintf "Error %d: %s" code x.content
-       in
-       let b = button "Proceed" (fun () -> show_draft_status uuid container) in
-       Lwt.return [node @@ div [txt msg]; node @@ div [node b]]
+       generic_proceed x (fun () -> show_draft_status uuid container)
      in
      let buttons =
        div [
