@@ -38,6 +38,13 @@ let generic_proceed x handler =
   let b = button "Proceed" handler in
   Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
 
+let with_ok what x f =
+  match x with
+  | Error e ->
+     let msg = Printf.sprintf "Error while retrieving %s: %s" what (string_of_error e) in
+     Lwt.return [txt msg]
+  | Ok x -> f x
+
 let show_draft_main show_root show_all uuid draft container =
   let@ () = show_in container in
   let t = textarea () in
@@ -67,168 +74,144 @@ let show_draft_main show_root show_all uuid draft container =
 let rec show_draft_voters uuid draft container =
   let@ () = show_in container in
   let* x = get voter_list_of_string "drafts/%s/voters" uuid in
-  match x with
-  | Error e ->
-     let msg = Printf.sprintf "Error: %s" (string_of_error e) in
-     Lwt.return [txt msg]
-  | Ok voters ->
-     let t = textarea () in
-     t##.value := Js.string (string_of_voter_list voters);
-     let b =
-       let@ () = button "Save changes" in
-       let* x = put_with_token (Js.to_string t##.value) "drafts/%s/voters" uuid in
-       let@ () = show_in container in
-       generic_proceed x (fun () -> show_draft_voters uuid draft container)
-     in
-     Lwt.return [node @@ div [node @@ t]; node @@ div [node b]]
+  let@ voters = with_ok "voters" x in
+  let t = textarea () in
+  t##.value := Js.string (string_of_voter_list voters);
+  let b =
+    let@ () = button "Save changes" in
+    let* x = put_with_token (Js.to_string t##.value) "drafts/%s/voters" uuid in
+    let@ () = show_in container in
+    generic_proceed x (fun () -> show_draft_voters uuid draft container)
+  in
+  Lwt.return [node @@ div [node @@ t]; node @@ div [node b]]
 
 let rec show_draft_passwords uuid container =
   let@ () = show_in container in
   let* x = get voter_list_of_string "drafts/%s/voters" uuid in
-  match x with
-  | Error e ->
-     let msg = Printf.sprintf "Error while retrieving voters: %s" (string_of_error e) in
-     Lwt.return [txt msg]
-  | Ok voters ->
-     let* x = get voter_list_of_string "drafts/%s/passwords" uuid in
-     match x with
-     | Error e ->
-        let msg = Printf.sprintf "Error while retrieving passwords: %s" (string_of_error e) in
-        Lwt.return [txt msg]
-     | Ok x ->
-        let missing =
-          let x = List.fold_left (fun accu v -> SSet.add v accu) SSet.empty x in
-          List.filter (fun v -> not @@ SSet.mem v x) voters
-        in
-        let t1 = textarea () in
-        t1##.value := Js.string (string_of_voter_list x);
-        let t2 = textarea () in
-        t2##.value := Js.string (string_of_voter_list missing);
-        let b =
-          let@ () = button "Generate and send passwords" in
-          let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/passwords" uuid in
-          let@ () = show_in container in
-          generic_proceed x (fun () -> show_draft_passwords uuid container)
-        in
-        Lwt.return [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
+  let@ voters = with_ok "voters" x in
+  let* x = get voter_list_of_string "drafts/%s/passwords" uuid in
+  let@ x = with_ok "passwords" x in
+  let missing =
+    let x = List.fold_left (fun accu v -> SSet.add v accu) SSet.empty x in
+    List.filter (fun v -> not @@ SSet.mem v x) voters
+  in
+  let t1 = textarea () in
+  t1##.value := Js.string (string_of_voter_list x);
+  let t2 = textarea () in
+  t2##.value := Js.string (string_of_voter_list missing);
+  let b =
+    let@ () = button "Generate and send passwords" in
+    let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/passwords" uuid in
+    let@ () = show_in container in
+    generic_proceed x (fun () -> show_draft_passwords uuid container)
+  in
+  Lwt.return [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
 
 let rec show_draft_credentials uuid container =
   let@ () = show_in container in
   let* x = get credentials_of_string "drafts/%s/credentials" uuid in
-  match x with
-  | Error e ->
-     let msg = Printf.sprintf "Error: %s" (string_of_error e) in
-     Lwt.return [txt msg]
-  | Ok x ->
-     match x.credentials_public, x.credentials_token with
-     | None, None ->
-        let b =
-          let@ () = button "Generate on server" in
-          let op = string_of_credential_list [] in
-          let* x = post_with_token op "drafts/%s/credentials" uuid in
-          let@ () = show_in container in
-          generic_proceed x (fun () -> show_draft_credentials uuid container)
-        in
-        Lwt.return [node @@ b]
-     | None, Some token ->
-        let link = Js.to_string Dom_html.window##.location##.href ^ "@" ^ token in
-        Lwt.return [
-            txt "Send the following link to the credential authority:";
-            txt " ";
-            txt link;
-          ]
-     | Some _, _ ->
-        let t = textarea () in
-        t##.value := Js.string (string_of_credentials x);
-        Lwt.return [node @@ t]
+  let@ x = with_ok "credentials" x in
+  match x.credentials_public, x.credentials_token with
+  | None, None ->
+     let b =
+       let@ () = button "Generate on server" in
+       let op = string_of_credential_list [] in
+       let* x = post_with_token op "drafts/%s/credentials" uuid in
+       let@ () = show_in container in
+       generic_proceed x (fun () -> show_draft_credentials uuid container)
+     in
+     Lwt.return [node @@ b]
+  | None, Some token ->
+     let link = Js.to_string Dom_html.window##.location##.href ^ "@" ^ token in
+     Lwt.return [
+         txt "Send the following link to the credential authority:";
+         txt " ";
+         txt link;
+       ]
+  | Some _, _ ->
+     let t = textarea () in
+     t##.value := Js.string (string_of_credentials x);
+     Lwt.return [node @@ t]
 
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
   let* x = get trustees_of_string "drafts/%s/trustees" uuid in
-  match x with
-  | Error e ->
-     let msg = Printf.sprintf "Error: %s" (string_of_error e) in
-     Lwt.return [txt msg]
-  | Ok trustees ->
-     let* mode =
-       let* x = get trustees_mode_of_string "drafts/%s/trustees-mode" uuid in
-       match x with
-       | Error e -> Lwt.return @@ Printf.sprintf "error (%s)" (string_of_error e)
-       | Ok `Basic -> Lwt.return "basic"
-       | Ok (`Threshold threshold) ->
-          let threshold =
-            match threshold with
-            | 0 -> "not set"
-            | i -> Printf.sprintf "%d out of %d" i (List.length trustees)
-          in
-          Lwt.return @@ Printf.sprintf "threshold (%s)" threshold
-     in
-     let mode = div [txt "Mode:"; txt " "; txt mode] in
-     let mode_set =
-       let t = textarea ~rows:1 ~cols:60 () in
-       let b =
-         let@ () = button "Set mode" in
-         let* x = put_with_token (Js.to_string t##.value) "drafts/%s/trustees-mode" uuid in
-         let@ () = show_in container in
-         generic_proceed x (fun () -> show_draft_trustees uuid container)
+  let@ trustees = with_ok "trustees" x in
+  let* mode =
+    let* x = get trustees_mode_of_string "drafts/%s/trustees-mode" uuid in
+    match x with
+    | Error e -> Lwt.return @@ Printf.sprintf "error (%s)" (string_of_error e)
+    | Ok `Basic -> Lwt.return "basic"
+    | Ok (`Threshold threshold) ->
+       let threshold =
+         match threshold with
+         | 0 -> "not set"
+         | i -> Printf.sprintf "%d out of %d" i (List.length trustees)
        in
-       div [node t; txt " "; node b]
-     in
-     let all_trustees =
-       List.map
-         (fun t ->
-           let encoded_trustee = t.trustee_address |> Js.string |> Js.encodeURIComponent |> Js.to_string in
-           let content =
-             let b =
-               let@ () = button "Delete" in
-               let* x = delete_with_token "drafts/%s/trustees/%s" uuid encoded_trustee in
-               let@ () = show_in container in
-               generic_proceed x (fun () -> show_draft_trustees uuid container)
-             in
-             [txt (string_of_trustee t); txt " "; node @@ b]
-           in
-           node @@ li content
-         ) trustees
-     in
-     let all_trustees = ul all_trustees in
-     let t2 = textarea () in
-     let b =
-       let@ () = button "Add trustee" in
-       let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/trustees" uuid in
-       let@ () = show_in container in
-       generic_proceed x (fun () -> show_draft_trustees uuid container)
-     in
-     Lwt.return [
-         node @@ mode;
-         node @@ mode_set;
-         node @@ div [node all_trustees];
-         node @@ div [node t2];
-         node @@ div [node b];
-       ]
+       Lwt.return @@ Printf.sprintf "threshold (%s)" threshold
+  in
+  let mode = div [txt "Mode:"; txt " "; txt mode] in
+  let mode_set =
+    let t = textarea ~rows:1 ~cols:60 () in
+    let b =
+      let@ () = button "Set mode" in
+      let* x = put_with_token (Js.to_string t##.value) "drafts/%s/trustees-mode" uuid in
+      let@ () = show_in container in
+      generic_proceed x (fun () -> show_draft_trustees uuid container)
+    in
+    div [node t; txt " "; node b]
+  in
+  let all_trustees =
+    List.map
+      (fun t ->
+        let encoded_trustee = t.trustee_address |> Js.string |> Js.encodeURIComponent |> Js.to_string in
+        let content =
+          let b =
+            let@ () = button "Delete" in
+            let* x = delete_with_token "drafts/%s/trustees/%s" uuid encoded_trustee in
+            let@ () = show_in container in
+            generic_proceed x (fun () -> show_draft_trustees uuid container)
+          in
+          [txt (string_of_trustee t); txt " "; node @@ b]
+        in
+        node @@ li content
+      ) trustees
+  in
+  let all_trustees = ul all_trustees in
+  let t2 = textarea () in
+  let b =
+    let@ () = button "Add trustee" in
+    let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/trustees" uuid in
+    let@ () = show_in container in
+    generic_proceed x (fun () -> show_draft_trustees uuid container)
+  in
+  Lwt.return [
+      node @@ mode;
+      node @@ mode_set;
+      node @@ div [node all_trustees];
+      node @@ div [node t2];
+      node @@ div [node b];
+    ]
 
 let rec show_draft_status uuid container =
   let@ () = show_in container in
   let* x = get status_of_string "drafts/%s/status" uuid in
-  match x with
-  | Error e ->
-     let msg = Printf.sprintf "Error: %s" (string_of_error e) in
-     Lwt.return [txt msg]
-  | Ok status ->
-     let t = textarea () in
-     t##.value := Js.string (string_of_status status);
-     let b label r =
-       let@ () = button label in
-       let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
-       let@ () = show_in container in
-       generic_proceed x (fun () -> show_draft_status uuid container)
-     in
-     let buttons =
-       div [
-         node @@ b "Set downloaded" `SetDownloaded;
-         node @@ b "Validate election" `ValidateElection;
-       ]
-     in
-     Lwt.return [node @@ div [node t]; node buttons]
+  let@ status = with_ok "status" x in
+  let t = textarea () in
+  t##.value := Js.string (string_of_status status);
+  let b label r =
+    let@ () = button label in
+    let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
+    let@ () = show_in container in
+    generic_proceed x (fun () -> show_draft_status uuid container)
+  in
+  let buttons =
+    div [
+        node @@ b "Set downloaded" `SetDownloaded;
+        node @@ b "Validate election" `ValidateElection;
+      ]
+  in
+  Lwt.return [node @@ div [node t]; node buttons]
 
 let suffix_and_label_of_draft_tab = function
   | `Draft -> "", "Draft"
