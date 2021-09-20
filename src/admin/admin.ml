@@ -72,11 +72,6 @@ let get_api_token () =
     Lwt.return_false
   )
 
-let get_with_token url =
-  let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let headers = ["Authorization", "Bearer " ^ !api_token] in
-  Printf.ksprintf (fun x -> perform_raw_url ~headers (api_root ^ x)) url
-
 let delete_with_token url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let headers = ["Authorization", "Bearer " ^ !api_token] in
@@ -96,6 +91,19 @@ let post_with_token x url =
 
 let bad_result = Lwt.return (Error `BadResult)
 
+let get of_string url =
+  let open Js_of_ocaml_lwt.XmlHttpRequest in
+  let headers = ["Authorization", "Bearer " ^ !api_token] in
+  Printf.ksprintf
+    (fun x ->
+      let* x = perform_raw_url ~headers (api_root ^ x) in
+      match x.code with
+      | 200 ->
+         let@ x = Option.unwrap bad_result (Option.wrap of_string x.content) in
+         Lwt.return @@ Ok x
+      | code -> Lwt.return @@ Error (`BadStatus (code, x.content))
+    ) url
+
 let string_of_error = function
   | `BadResult -> "bad result"
   | `BadStatus (code, content) -> Printf.sprintf "bad status %d: %s" code content
@@ -109,41 +117,11 @@ let wrap of_string x =
      Lwt.return @@ Ok x
   | code -> Lwt.return @@ Error (`BadStatus (code, x.content))
 
-let get_account () =
-  get_with_token "account" |> wrap api_account_of_string
-
-let get_drafts () =
-  get_with_token "drafts" |> wrap summary_list_of_string
-
-let post_drafts draft =
-  post_with_token draft "drafts" |> wrap uuid_of_string
-
-let get_draft uuid =
-  get_with_token "drafts/%s" uuid |> wrap draft_of_string
-
-let get_voters uuid =
-  get_with_token "drafts/%s/voters" uuid |> wrap voter_list_of_string
-
-let get_passwords uuid =
-  get_with_token "drafts/%s/passwords" uuid |> wrap voter_list_of_string
-
-let get_credentials uuid =
-  get_with_token "drafts/%s/credentials" uuid |> wrap credentials_of_string
-
-let get_trustees uuid =
-  get_with_token "drafts/%s/trustees" uuid |> wrap trustees_of_string
-
-let get_trustees_mode uuid =
-  get_with_token "drafts/%s/trustees-mode" uuid |> wrap trustees_mode_of_string
-
-let get_status uuid =
-  get_with_token "drafts/%s/status" uuid |> wrap status_of_string
-
 module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
 
 let credentials_ui main uuid =
   let@ () = show_in main in
-  let* x = get_draft uuid in
+  let* x = get draft_of_string "drafts/%s" uuid in
   match x with
   | Error e ->
      let msg =
@@ -157,7 +135,7 @@ let credentials_ui main uuid =
        ]
   | Ok draft ->
      let* voters =
-       let* x = get_voters uuid in
+       let* x = get voter_list_of_string "drafts/%s/voters" uuid in
        match x with
        | Error e ->
           let msg =
@@ -288,7 +266,7 @@ let rec show_root main =
   main##.innerHTML := Js.string "Loading...";
   let@ () = show_in main in
   let* account =
-    let* x = get_account () in
+    let* x = get api_account_of_string "account" in
     match x with
     | Error error ->
        error
@@ -313,7 +291,7 @@ let rec show_root main =
        Lwt.return @@ div [node @@ div [node t]; node @@ div [node b]]
   in
   let* drafts =
-    let* x = get_drafts () in
+    let* x = get summary_list_of_string "drafts" in
     match x with
     | Error error ->
        error
@@ -330,7 +308,7 @@ let rec show_root main =
     let t = textarea () in
     let b =
       let@ () = button "Create new draft" in
-      let* x = post_drafts (Js.to_string t##.value) in
+      let* x = post_with_token (Js.to_string t##.value) "drafts" |> wrap uuid_of_string in
       match x with
       | Ok uuid ->
          Dom_html.window##.location##.hash := Js.string ("#drafts/" ^ raw_string_of_uuid uuid);
@@ -399,7 +377,7 @@ let show_draft_main show_root show_all uuid draft container =
 
 let rec show_draft_voters uuid draft container =
   let@ () = show_in container in
-  let* x = get_voters uuid in
+  let* x = get voter_list_of_string "drafts/%s/voters" uuid in
   match x with
   | Error e ->
      let msg = Printf.sprintf "Error: %s" (string_of_error e) in
@@ -423,13 +401,13 @@ let rec show_draft_voters uuid draft container =
 
 let rec show_draft_passwords uuid container =
   let@ () = show_in container in
-  let* x = get_voters uuid in
+  let* x = get voter_list_of_string "drafts/%s/voters" uuid in
   match x with
   | Error e ->
      let msg = Printf.sprintf "Error while retrieving voters: %s" (string_of_error e) in
      Lwt.return [txt msg]
   | Ok voters ->
-     let* x = get_passwords uuid in
+     let* x = get voter_list_of_string "drafts/%s/passwords" uuid in
      match x with
      | Error e ->
         let msg = Printf.sprintf "Error while retrieving passwords: %s" (string_of_error e) in
@@ -459,7 +437,7 @@ let rec show_draft_passwords uuid container =
 
 let rec show_draft_credentials uuid container =
   let@ () = show_in container in
-  let* x = get_credentials uuid in
+  let* x = get credentials_of_string "drafts/%s/credentials" uuid in
   match x with
   | Error e ->
      let msg = Printf.sprintf "Error: %s" (string_of_error e) in
@@ -495,14 +473,14 @@ let rec show_draft_credentials uuid container =
 
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
-  let* x = get_trustees uuid in
+  let* x = get trustees_of_string "drafts/%s/trustees" uuid in
   match x with
   | Error e ->
      let msg = Printf.sprintf "Error: %s" (string_of_error e) in
      Lwt.return [txt msg]
   | Ok trustees ->
      let* mode =
-       let* x = get_trustees_mode uuid in
+       let* x = get trustees_mode_of_string "drafts/%s/trustees-mode" uuid in
        match x with
        | Error e -> Lwt.return @@ Printf.sprintf "error (%s)" (string_of_error e)
        | Ok `Basic -> Lwt.return "basic"
@@ -577,7 +555,7 @@ let rec show_draft_trustees uuid container =
 
 let rec show_draft_status uuid container =
   let@ () = show_in container in
-  let* x = get_status uuid in
+  let* x = get status_of_string "drafts/%s/status" uuid in
   match x with
   | Error e ->
      let msg = Printf.sprintf "Error: %s" (string_of_error e) in
@@ -644,7 +622,7 @@ let show hash main =
   | `Draft (uuid, tab) ->
      begin
        let rec show_all () =
-         let* x = get_draft uuid in
+         let* x = get draft_of_string "drafts/%s" uuid in
          match x with
          | Error e ->
             let@ () = show_in main in
