@@ -24,6 +24,11 @@
 type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
+type api_account = {
+    name : string;
+    address : string;
+} <ocaml field_prefix="api_account_">
+
 type authentication =
   [ Password
   | CAS of string

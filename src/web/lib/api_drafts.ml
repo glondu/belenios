@@ -30,8 +30,7 @@ open Belenios_api.Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
-
-exception Error of string
+open Api_generic
 
 let ( / ) = Filename.concat
 

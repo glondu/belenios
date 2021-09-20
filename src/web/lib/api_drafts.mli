@@ -22,8 +22,6 @@
 open Belenios_api.Serializable_t
 open Web_serializable_t
 
-exception Error of string
-
 val api_of_draft : draft_election -> draft
 val draft_of_api : draft_election -> draft -> draft_election
 

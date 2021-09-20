@@ -109,6 +109,9 @@ let wrap of_string x =
      Lwt.return @@ Ok x
   | code -> Lwt.return @@ Error (`BadStatus (code, x.content))
 
+let get_account () =
+  get_with_token "account" |> wrap api_account_of_string
+
 let get_drafts () =
   get_with_token "drafts" |> wrap summary_list_of_string
 
@@ -284,6 +287,31 @@ let show_error main =
 let rec show_root main =
   main##.innerHTML := Js.string "Loading...";
   let@ () = show_in main in
+  let* account =
+    let* x = get_account () in
+    match x with
+    | Error error ->
+       error
+       |> string_of_error
+       |> (fun x -> Printf.sprintf "An error occurred while retrieving account: %s" x)
+       |> (fun x -> Lwt.return @@ div [txt x])
+    | Ok account ->
+       let t = textarea ~rows:2 () in
+       t##.value := Js.string (string_of_api_account account);
+       let b =
+         let@ () = button "Save changes" in
+         let* x = put_with_token (Js.to_string t##.value) "account" in
+         let@ () = show_in main in
+         let msg =
+           match x.code with
+           | 200 -> "Changes successfully applied!"
+           | code -> Printf.sprintf "Error %d: %s" code x.content
+         in
+         let b = button "Proceed" (fun () -> show_root main) in
+         Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+       in
+       Lwt.return @@ div [node @@ div [node t]; node @@ div [node b]]
+  in
   let* drafts =
     let* x = get_drafts () in
     match x with
@@ -323,6 +351,8 @@ let rec show_root main =
       ]
   in
   Lwt.return [
+      node @@ h1 [txt "My account"];
+      node @@ account;
       node @@ h1 [txt "My draft elections"];
       node @@ drafts;
       node @@ h1 [txt "Create new draft"];

@@ -71,7 +71,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
       let not_found = Lwt.return (404, "\"Not Found\"") in
       let method_not_allowed = Lwt.return (405, "\"Method Not Allowed\"") in
       let handle_exn = function
-        | Api_drafts.Error msg ->
+        | Api_generic.Error msg ->
            let json =
              `Assoc [
                  "status", `String "Bad request";
@@ -98,6 +98,25 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
         )
       in
       match endpoint with
+      | ["account"] ->
+         begin
+           let@ token = Option.unwrap unauthorized token in
+           let@ account = Option.unwrap unauthorized (lookup_token token) in
+           match method_ with
+           | `GET ->
+              let x = Api_generic.get_account account in
+              Lwt.return (200, string_of_api_account x)
+           | `PUT ->
+              let@ _, body = Option.unwrap bad_request body in
+              let* x = Cohttp_lwt.Body.to_string body in
+              let@ x = Option.unwrap bad_request (Option.wrap api_account_of_string x) in
+              Lwt.catch
+                (fun () ->
+                  let* () = Api_generic.put_account account x in
+                  ok
+                ) handle_exn
+           | _ -> method_not_allowed
+         end
       | ["drafts"] ->
          let@ token = Option.unwrap unauthorized token in
          let@ account = Option.unwrap unauthorized (lookup_token token) in
