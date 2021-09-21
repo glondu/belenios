@@ -24,6 +24,10 @@ this root.
 Here, we give for each endpoint the available methods and their
 types. They refer to types defined in `src/api/serializable.atd`.
 
+## `configuration` (anybody)
+
+* `GET`: unit -> configuration
+
 ## `account` (administrator)
 
 * `GET`: unit -> api_account

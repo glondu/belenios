@@ -24,5 +24,7 @@ open Belenios_api.Serializable_t
 
 exception Error of string
 
+val get_configuration : unit -> configuration
+
 val get_account : account -> api_account
 val put_account : account -> api_account -> unit Lwt.t

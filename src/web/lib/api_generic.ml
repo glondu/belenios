@@ -24,6 +24,27 @@ open Belenios_api.Serializable_t
 
 exception Error of string
 
+let get_configuration () =
+  {
+    belenios_version = Belenios_platform.Belenios_version.version;
+    belenios_build = Belenios_platform.Belenios_version.build;
+    api_version = 1;
+    default_crypto_version = Belenios_core.Common.default_version;
+    authentications =
+      begin
+        List.map
+          (function
+           | `BuiltinPassword -> `Password
+           | `BuiltinCAS -> `CAS
+           | `Export a ->
+              `Configured {
+                  configured_instance = a.auth_instance;
+                  configured_system = a.auth_system;
+                }
+          ) !Web_config.exported_auth_config
+      end;
+  }
+
 let get_account a =
   {
     api_account_name = a.account_name;

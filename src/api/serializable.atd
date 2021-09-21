@@ -24,6 +24,25 @@
 type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
+type configured_authentication = {
+    instance : string;
+    system : string;
+} <ocaml field_prefix="configured_">
+
+type authentication_system =
+  [ Password
+  | CAS
+  | Configured of configured_authentication
+  ]
+
+type configuration = {
+    belenios_version : string;
+    belenios_build : string;
+    api_version : int;
+    default_crypto_version : int;
+    authentications : authentication_system list;
+}
+
 type api_account = {
     name : string;
     address : string;

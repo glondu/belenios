@@ -73,6 +73,17 @@ let show_error main =
 let rec show_root main =
   main##.innerHTML := Js.string "Loading...";
   let@ () = show_in main in
+  let* configuration =
+    let* x = get configuration_of_string "configuration" in
+    match x with
+    | Error error ->
+       error
+       |> string_of_error
+       |> (fun x -> Printf.sprintf "An error occurred while retrieving configuration: %s" x)
+       |> (fun x -> Lwt.return @@ div [txt x])
+    | Ok configuration ->
+       Lwt.return @@ div [txt (string_of_configuration configuration)]
+  in
   let* account =
     let* x = get api_account_of_string "account" in
     match x with
@@ -137,6 +148,8 @@ let rec show_root main =
       ]
   in
   Lwt.return [
+      node @@ h1 [txt "Server configuration"];
+      node @@ configuration;
       node @@ h1 [txt "My account"];
       node @@ account;
       node @@ h1 [txt "My draft elections"];

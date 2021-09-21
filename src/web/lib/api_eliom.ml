@@ -98,6 +98,14 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
         )
       in
       match endpoint with
+      | ["configuration"] ->
+         begin
+           match method_ with
+           | `GET ->
+              let x = Api_generic.get_configuration () in
+              Lwt.return (200, string_of_configuration x)
+           | _ -> method_not_allowed
+         end
       | ["account"] ->
          begin
            let@ token = Option.unwrap unauthorized token in
