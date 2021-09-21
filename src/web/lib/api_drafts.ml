@@ -615,6 +615,23 @@ let validate_election account uuid se =
   let* s = get_draft_status uuid se in
   let version = Option.get se.se_version 0 in
   let uuid_s = raw_string_of_uuid uuid in
+  (* convenience tests *)
+  let () =
+    if se.se_questions.t_name = "" then
+      raise (Error "no title");
+    if se.se_questions.t_questions = [||] then
+      raise (Error "no questions");
+    begin
+      match se.se_administrator with
+      | None | Some "" -> raise (Error "no administrator")
+      | _ -> ()
+    end;
+    begin
+      match se.se_metadata.e_cred_authority with
+      | None | Some "" -> raise (Error "no credential authority")
+      | _ -> ()
+    end
+  in
   (* check status *)
   let () =
     if s.status_num_voters = 0 then raise (Error "no voters");
