@@ -41,6 +41,8 @@ type configuration = {
     api_version : int;
     default_crypto_version : int;
     authentications : authentication_system list;
+    default_group : string;
+    default_nh_group : string;
 }
 
 type api_account = {

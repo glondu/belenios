@@ -146,7 +146,7 @@ let rec show_root main =
                | `CAS :: _ -> `CAS ""
                | `Configured x :: _ -> `Configured x.configured_instance
              end;
-           draft_group = "BELENIOS-2048";
+           draft_group = c.default_group;
          }
     | _ -> None
   in

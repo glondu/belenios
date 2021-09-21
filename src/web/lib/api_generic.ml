@@ -43,6 +43,8 @@ let get_configuration () =
                 }
           ) !Web_config.exported_auth_config
       end;
+    default_group = !Web_config.default_group;
+    default_nh_group = !Web_config.nh_group;
   }
 
 let get_account a =
