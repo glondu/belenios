@@ -184,6 +184,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     in
     return (sort draft, sort elections, sort tallied, sort archived)
 
+  let () =
+    let@ a = Accounts.add_update_hook in
+    let* user = Eliom_reference.get Web_state.site_user in
+    match user with
+    | Some (u, b, t) when a.account_id = b.account_id ->
+       Eliom_reference.set Web_state.site_user (Some (u, a, t))
+    | _ -> Lwt.return_unit
+
   let with_site_user f =
     let* user = Eliom_reference.get Web_state.site_user in
     match user with
@@ -227,7 +235,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                let* site_user = Eliom_reference.get Web_state.site_user in
                match site_user with
                | None -> Pages_admin.admin_login Web_auth.get_site_login_handler
-               | Some (u, a, token) ->
+               | Some (_, a, _) ->
                   let* show =
                     match a.account_consent with
                     | Some _ -> return_false
@@ -239,7 +247,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                          let account_consent = Some (now ()) in
                          let a = {a with account_consent} in
                          let* () = Accounts.update_account {a with account_consent} in
-                         let* () = Eliom_reference.set Web_state.site_user (Some (u, a, token)) in
                          return_false
                        )
                   in
@@ -290,11 +297,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* x = Eliom_reference.get Web_state.set_email_env in
         match x, u with
         | None, _ | _, None -> forbidden ()
-        | Some address, Some (u, a, token) ->
+        | Some address, Some (_, a, _) ->
            if SetEmailOtp.check ~address ~code then (
              let a = {a with account_email = address} in
              let* () = Accounts.update_account a in
-             let* () = Eliom_reference.set Web_state.site_user (Some (u, a, token)) in
              let* () = Eliom_reference.unset Web_state.set_email_env in
              Redirection.send (Redirection admin)
            ) else (
@@ -2361,10 +2367,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:account_post
       (fun () account_name ->
-        let@ u, a, token = with_user_and_account in
+        let@ _, a, _ = with_user_and_account in
         let a = {a with account_name} in
         let* () = Accounts.update_account a in
-        let* () = Eliom_reference.set Web_state.site_user (Some (u, a, token)) in
         Redirection.send (Redirection admin)
       )
 

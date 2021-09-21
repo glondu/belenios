@@ -57,6 +57,15 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
   let invalidate_token token =
     tokens := SMap.remove token !tokens
 
+  let () =
+    let@ a = Accounts.add_update_hook in
+    let f {expiration; account} =
+      let account = if a.account_id = account.account_id then a else account in
+      {expiration; account}
+    in
+    tokens := SMap.map f !tokens;
+    Lwt.return_unit
+
   let dispatch endpoint method_ _params body =
     let token =
       let sp = Eliom_common.get_sp () in
