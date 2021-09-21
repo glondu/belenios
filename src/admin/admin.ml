@@ -73,25 +73,25 @@ let show_error main =
 let rec show_root main =
   main##.innerHTML := Js.string "Loading...";
   let@ () = show_in main in
-  let* configuration =
+  let* configuration, configuration_opt =
     let* x = get configuration_of_string "configuration" in
     match x with
     | Error error ->
        error
        |> string_of_error
        |> (fun x -> Printf.sprintf "An error occurred while retrieving configuration: %s" x)
-       |> (fun x -> Lwt.return @@ div [txt x])
-    | Ok configuration ->
-       Lwt.return @@ div [txt (string_of_configuration configuration)]
+       |> (fun x -> Lwt.return (div [txt x], None))
+    | Ok c ->
+       Lwt.return (div [txt (string_of_configuration c)], Some c)
   in
-  let* account =
+  let* account, account_opt =
     let* x = get api_account_of_string "account" in
     match x with
     | Error error ->
        error
        |> string_of_error
        |> (fun x -> Printf.sprintf "An error occurred while retrieving account: %s" x)
-       |> (fun x -> Lwt.return @@ div [txt x])
+       |> (fun x -> Lwt.return (div [txt x], None))
     | Ok account ->
        let t = textarea ~rows:2 () in
        t##.value := Js.string (string_of_api_account account);
@@ -107,7 +107,7 @@ let rec show_root main =
          let b = button "Proceed" (fun () -> show_root main) in
          Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
        in
-       Lwt.return @@ div [node @@ div [node t]; node @@ div [node b]]
+       Lwt.return (div [node @@ div [node t]; node @@ div [node b]], Some account)
   in
   let* drafts =
     let* x = get summary_list_of_string "drafts" in
@@ -123,8 +123,40 @@ let rec show_root main =
        |> List.map (fun x -> node @@ li [node @@ draft_a x])
        |> (fun xs -> Lwt.return @@ ul xs)
   in
+  let template =
+    match configuration_opt, account_opt with
+    | Some c, Some a ->
+       Some {
+           draft_version = c.default_crypto_version;
+           draft_questions =
+             {
+               t_description = "";
+               t_name = "";
+               t_questions = [||];
+               t_administrator = Some a.api_account_name;
+               t_credential_authority = Some "server";
+             };
+           draft_languages = ["en"; "fr"];
+           draft_contact = Some (Printf.sprintf "%s <%s>" a.api_account_name a.api_account_address);
+           draft_booth = 1;
+           draft_authentication =
+             begin
+               match c.authentications with
+               | [] | `Password :: _ -> `Password
+               | `CAS :: _ -> `CAS ""
+               | `Configured x :: _ -> `Configured x.configured_instance
+             end;
+           draft_group = "BELENIOS-2048";
+         }
+    | _ -> None
+  in
   let create =
     let t = textarea () in
+    let () =
+      match template with
+      | None -> ()
+      | Some x -> t##.value := Js.string (string_of_draft x)
+    in
     let b =
       let@ () = button "Create new draft" in
       let* x = post_with_token (Js.to_string t##.value) "drafts" |> wrap uuid_of_string in
