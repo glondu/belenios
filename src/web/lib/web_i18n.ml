@@ -21,103 +21,103 @@
 
 open Lwt.Syntax
 
+let default_lang = "en"
+let devel_lang = "en_devel"
+
+let components = Hashtbl.create 2
+
+module type LANG = sig
+  val lang : string
+  val mo_file : string
+end
+
+module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i18n_sig.GETTEXT = struct
+  let lang = L.lang
+  open GettextCategory
+  open GettextTypes
+  let t =
+    {
+      failsafe = Ignore;
+      textdomains = MapTextdomain.empty;
+      categories = MapCategory.empty;
+      language = Some L.lang;
+      codeset = "UTF-8";
+      path = [];
+      default = "belenios";
+    }
+  let u = T.create t L.mo_file (fun x -> x)
+  let s_ str = T.translate u false str None
+  let f_ str = Scanf.format_from_string (T.translate u true (string_of_format str) None) str
+  let sn_ str str_plural n = T.translate u false str (Some (str_plural, n))
+  let fn_ str str_plural n = Scanf.format_from_string (T.translate u true (string_of_format str) (Some (string_of_format str_plural, n))) str
+end
+
+let ( / ) = Filename.concat
+
+let build_gettext_input component lang =
+  (module struct
+     let lang = lang
+     let mo_file = !Web_config.locales_dir / component / (lang ^ ".mo")
+   end : LANG)
+
+let default_gettext component =
+  let module L = (val build_gettext_input component devel_lang) in
+  let module G = Belenios_Gettext (L) (GettextTranslate.Dummy) in
+  (module G : Web_i18n_sig.GETTEXT)
+
+let () =
+  List.iter
+    (fun component ->
+      let h = Hashtbl.create 10 in
+      Hashtbl.add h devel_lang (default_gettext component);
+      Hashtbl.add components component h
+    )
+    ["voter"; "admin"]
+
+let lang_mutex = Lwt_mutex.create ()
+
+let get_lang_gettext component lang =
+  let langs = Hashtbl.find components component in
+  match Hashtbl.find_opt langs lang with
+  | Some l -> Lwt.return l
+  | None ->
+     Lwt_mutex.with_lock lang_mutex
+       (fun () ->
+         match Hashtbl.find_opt langs lang with
+         | Some l -> Lwt.return l
+         | None ->
+            let module L = (val build_gettext_input component lang) in
+            let* b = Lwt_unix.file_exists L.mo_file in
+            if b then (
+              let get () =
+                let module L = Belenios_Gettext (L) (GettextTranslate.Map) in
+                (module L : Web_i18n_sig.GETTEXT)
+              in
+              let* l = Lwt_preemptive.detach get () in
+              Hashtbl.add langs lang l;
+              Lwt.return l
+            ) else (
+              Lwt.return (Hashtbl.find langs devel_lang)
+            )
+       )
+
+let parse_lang =
+  let rex = Pcre.regexp "^([a-z]{2})(?:-.*)?$" in
+  fun s ->
+  match Pcre.exec ~rex s with
+  | groups -> Some (Pcre.get_substring groups 1)
+  | exception Not_found -> None
+
+let get_preferred_language () =
+  let langs = Eliom_request_info.get_accept_language () in
+  match langs with
+  | [] -> default_lang
+  | (lang, _) :: _ ->
+     match parse_lang lang with
+     | None -> default_lang
+     | Some lang -> lang
+
 module Make (Web_state : Web_state_sig.S) = struct
-
-  let default_lang = "en"
-  let devel_lang = "en_devel"
-
-  let components = Hashtbl.create 2
-
-  module type LANG = sig
-    val lang : string
-    val mo_file : string
-  end
-
-  module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i18n_sig.GETTEXT = struct
-    let lang = L.lang
-    open GettextCategory
-    open GettextTypes
-    let t =
-      {
-        failsafe = Ignore;
-        textdomains = MapTextdomain.empty;
-        categories = MapCategory.empty;
-        language = Some L.lang;
-        codeset = "UTF-8";
-        path = [];
-        default = "belenios";
-      }
-    let u = T.create t L.mo_file (fun x -> x)
-    let s_ str = T.translate u false str None
-    let f_ str = Scanf.format_from_string (T.translate u true (string_of_format str) None) str
-    let sn_ str str_plural n = T.translate u false str (Some (str_plural, n))
-    let fn_ str str_plural n = Scanf.format_from_string (T.translate u true (string_of_format str) (Some (string_of_format str_plural, n))) str
-  end
-
-  let ( / ) = Filename.concat
-
-  let build_gettext_input component lang =
-    (module struct
-       let lang = lang
-       let mo_file = !Web_config.locales_dir / component / (lang ^ ".mo")
-     end : LANG)
-
-  let default_gettext component =
-    let module L = (val build_gettext_input component devel_lang) in
-    let module G = Belenios_Gettext (L) (GettextTranslate.Dummy) in
-    (module G : Web_i18n_sig.GETTEXT)
-
-  let () =
-    List.iter
-      (fun component ->
-        let h = Hashtbl.create 10 in
-        Hashtbl.add h devel_lang (default_gettext component);
-        Hashtbl.add components component h
-      )
-      ["voter"; "admin"]
-
-  let lang_mutex = Lwt_mutex.create ()
-
-  let get_lang_gettext component lang =
-    let langs = Hashtbl.find components component in
-    match Hashtbl.find_opt langs lang with
-    | Some l -> Lwt.return l
-    | None ->
-       Lwt_mutex.with_lock lang_mutex
-         (fun () ->
-           match Hashtbl.find_opt langs lang with
-           | Some l -> Lwt.return l
-           | None ->
-              let module L = (val build_gettext_input component lang) in
-              let* b = Lwt_unix.file_exists L.mo_file in
-              if b then (
-                let get () =
-                  let module L = Belenios_Gettext (L) (GettextTranslate.Map) in
-                  (module L : Web_i18n_sig.GETTEXT)
-                in
-                let* l = Lwt_preemptive.detach get () in
-                Hashtbl.add langs lang l;
-                Lwt.return l
-              ) else (
-                Lwt.return (Hashtbl.find langs devel_lang)
-              )
-         )
-
-  let parse_lang =
-    let rex = Pcre.regexp "^([a-z]{2})(?:-.*)?$" in
-    fun s ->
-    match Pcre.exec ~rex s with
-    | groups -> Some (Pcre.get_substring groups 1)
-    | exception Not_found -> None
-
-  let get_preferred_language () =
-    let langs = Eliom_request_info.get_accept_language () in
-    match langs with
-    | [] -> default_lang
-    | (lang, _) :: _ ->
-       match parse_lang lang with
-       | None -> default_lang
-       | Some lang -> lang
 
   let get_preferred_gettext component =
     let* lang =

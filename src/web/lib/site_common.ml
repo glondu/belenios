@@ -58,6 +58,12 @@ module Make (X : Pages_sig.S) = struct
     | None -> election_not_found ()
     | Some election -> f election
 
+  let () =
+    let@ uuid = set_get_election_home_url in
+    Eliom_uri.make_string_uri ~absolute:true
+      ~service:Web_services.election_home (uuid, ())
+    |> rewrite_prefix
+
   let () = File.register ~service:source_code
              ~content_type:"application/x-gzip"
              (fun () () -> return !Web_config.source_file)

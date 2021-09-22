@@ -32,6 +32,5 @@ module type GETTEXT = sig
 end
 
 module type S = sig
-  val get_lang_gettext : string -> string -> (module GETTEXT) Lwt.t
   val get_preferred_gettext : string -> (module GETTEXT) Lwt.t
 end

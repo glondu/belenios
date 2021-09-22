@@ -19,4 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Web_i18n_sig
+
+val get_lang_gettext : string -> string -> (module GETTEXT) Lwt.t
+
 module Make (Web_state : Web_state_sig.S) : Web_i18n_sig.S

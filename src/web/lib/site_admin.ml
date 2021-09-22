@@ -577,7 +577,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             | Some _ when not force -> return_unit
             | None | Some _ ->
                let* x =
-                 Pages_voter.generate_password se.se_metadata langs title uuid
+                 Mails_voter.generate_password se.se_metadata langs title uuid
                    url id.sv_id show_weight
                in
                return (id.sv_password <- Some x)
@@ -650,7 +650,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            let langs = get_languages metadata.e_languages in
            let* db = load_password_db uuid in
            let* x =
-             Pages_voter.generate_password metadata langs title uuid
+             Mails_voter.generate_password metadata langs title uuid
                url id show_weight
            in
            let db = replace_password user x db in
@@ -946,7 +946,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         if se.se_questions.t_name = default_name then
           Lwt.fail (Failure (s_ "The election name has not been edited!"))
         else (
-          let send = Pages_voter.send_mail_credential uuid se in
+          let send = Mails_voter.send_mail_credential uuid se in
           let* x = Api_drafts.generate_credentials_on_server send uuid se in
           match x with
           | Ok () ->

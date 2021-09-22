@@ -245,7 +245,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                     ) se.se_voters
                 in
                 fun metadata id ->
-                Pages_voter.generate_password metadata langs title uuid url id show_weight
+                Mails_voter.generate_password metadata langs title uuid url id show_weight
               in
               let* () = Api_drafts.post_draft_passwords generate uuid se voters in
               ok
@@ -271,7 +271,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                 | `Administrator _, [] ->
                    begin
                      let@ () = handle_generic_error in
-                     let send = Pages_voter.send_mail_credential uuid se in
+                     let send = Mails_voter.send_mail_credential uuid se in
                      let* x = Api_drafts.generate_credentials_on_server send uuid se in
                      match x with
                      | Ok () -> ok

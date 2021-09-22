@@ -146,6 +146,10 @@ let set_rewrite_prefix ~src ~dst =
     else x
   in rewrite_fun := f
 
+let get_election_home_url_ref = ref (fun _ -> failwith "get_election_home_url not initialized")
+let set_get_election_home_url f = get_election_home_url_ref := f
+let get_election_home_url uuid = !get_election_home_url_ref uuid
+
 type election_file =
   | ESRaw
   | ESTrustees

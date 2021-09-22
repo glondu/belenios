@@ -52,6 +52,9 @@ val fail_http : Cohttp.Code.status -> 'a Lwt.t
 val rewrite_prefix : string -> string
 val set_rewrite_prefix : src:string -> dst:string -> unit
 
+val set_get_election_home_url : (uuid -> string) -> unit
+val get_election_home_url : uuid -> string
+
 type election_file =
   | ESRaw
   | ESTrustees

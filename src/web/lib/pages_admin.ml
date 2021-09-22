@@ -678,105 +678,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let mail_trustee_generation_basic_body l link =
-    let open (val l : Web_i18n_sig.GETTEXT) in
-    let open Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear trustee,");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "You will find below the link to generate your private decryption key, used to tally the election.");
-    add_newline b; add_newline b;
-    add_string b "  "; add_string b link;
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Here are the instructions:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "Click on the link.");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "Click on \"Generate a new key pair\".");
-    add_newline b; add_string b "3. ";
-    add_sentence b (s_ "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled.");
-    add_newline b; add_string b "4. ";
-    add_sentence b (s_ "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server.");
-    add_newline b; add_string b "5. ";
-    add_sentence b (s_ "Click on \"Submit\" to send your verification key.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed).");
-    add_sentence b (s_ "We suggest two options:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "you may store the key on a USB stick and store it in a safe;");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "or you may simply print it and store it in a safe.");
-    add_newline b;
-    add_sentence b (s_ "Of course, more cryptographic solutions are welcome as well.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Thank you for your help,");
-    add_newline b;
-    contents b
-
-  let mail_trustee_generation_basic langs link =
-    let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
-    let open (val l) in
-    let subject = s_ "Link to generate the decryption key" in
-    let* bodies =
-      Lwt_list.map_s (fun lang ->
-          let* l = Web_i18n.get_lang_gettext "admin" lang in
-          return (mail_trustee_generation_basic_body l link)
-        ) langs
-    in
-    let body = String.concat "\n\n----------\n\n" bodies in
-    let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
-    return (subject, body)
-
-  let mail_trustee_generation_threshold_body l link =
-    let open (val l : Web_i18n_sig.GETTEXT) in
-    let open Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear trustee,");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "You will find below the link to generate your private decryption key, used to tally the election.");
-    add_newline b; add_newline b;
-    add_string b "  "; add_string b link;
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Follow the instructions.");
-    add_sentence b (s_ "There will be 3 steps.");
-    add_sentence b (s_ "All trustees must have completed one step before you can proceed to the next one.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Don't forget to save:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "the fingerprint of your public key;");
-    add_sentence b (s_ "the fingerprint of your verification key.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Once the election is open, you must check that the fingerprints of your two keys are present in the set of keys published by the server.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed).");
-    add_sentence b (s_ "We suggest two options:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "you may store the key on a USB stick and store it in a safe;");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "or you may simply print it and store it in a safe.");
-    add_newline b;
-    add_sentence b (s_ "Of course, more cryptographic solutions are welcome as well.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Thank you for your help,");
-    add_newline b;
-    contents b
-
-  let mail_trustee_generation_threshold langs link =
-    let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
-    let open (val l) in
-    let subject = s_ "Link to generate the decryption key" in
-    let* bodies =
-      Lwt_list.map_s (fun lang ->
-          let* l = Web_i18n.get_lang_gettext "admin" lang in
-          return (mail_trustee_generation_threshold_body l link)
-        ) langs
-    in
-    let body = String.concat "\n\n----------\n\n" bodies in
-    let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
-    return (subject, body)
-
   let election_draft_trustees ?token uuid se () =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -825,7 +726,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                        rewrite_prefix
                          (Eliom_uri.make_string_uri ~absolute:true ~service:election_draft_trustee (uuid, t.st_token))
                      in
-                     let* subject, body = mail_trustee_generation_basic langs uri in
+                     let* subject, body = Mails_admin.mail_trustee_generation_basic langs uri in
                      let mail_cell = a_mailto ~dest:t.st_id ~subject ~body (s_ "E-mail") in
                      let link_cell =
                        if this_line then
@@ -1000,7 +901,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                            @@ Eliom_uri.make_string_uri
                                 ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
                  in
-                 let* subject, body = mail_trustee_generation_threshold langs uri in
+                 let* subject, body = Mails_admin.mail_trustee_generation_threshold langs uri in
                  return (a_mailto ~dest:t.stt_id ~subject ~body (s_ "E-mail"))
                in
                let first_line =
@@ -2130,81 +2031,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let mail_trustee_tally_body l link =
-    let open (val l : Web_i18n_sig.GETTEXT) in
-    let open Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear trustee,");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "The election is now closed.");
-    add_sentence b (s_ "Here is the link to proceed to tally:");
-    add_newline b; add_newline b;
-    add_string b "  "; add_string b link;
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Instructions:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "Follow the link.");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "Enter your private decryption key in the first box and click on \"Generate your contribution to decryption\".");
-    add_newline b; add_string b "3. ";
-    add_sentence b (s_ "The second box is now filled with crypto material. Please press the button \"Submit\".");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Thank you again for your help,");
-    add_newline b;
-    contents b
-
-  let mail_trustee_tally langs link =
-    let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
-    let open (val l) in
-    let subject = s_ "Link to tally the election" in
-    let* bodies =
-      Lwt_list.map_s (fun lang ->
-          let* l = Web_i18n.get_lang_gettext "admin" lang in
-          return (mail_trustee_tally_body l link)
-        ) langs
-    in
-    let body = String.concat "\n\n----------\n\n" bodies in
-    let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
-    return (subject, body)
-
-  let mail_shuffle_body l link =
-    let open (val l : Web_i18n_sig.GETTEXT) in
-    let open Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear trustee,");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Below you will find the link to shuffle encrypted ballots.");
-    add_newline b; add_newline b;
-    add_string b "  "; add_string b link;
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Instructions:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "Follow the link.");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "Click on \"Compute shuffle\".");
-    add_newline b; add_string b "3. ";
-    add_sentence b (s_ "The fingerprint of your shuffle will appear. Save it.");
-    add_newline b; add_string b "4. ";
-    add_sentence b (s_ "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Thank you for your help,");
-    add_newline b;
-    contents b
-
-  let mail_shuffle langs link =
-    let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
-    let open (val l) in
-    let subject = s_ "Link to shuffle encrypted ballots" in
-    let* bodies =
-      Lwt_list.map_s (fun lang ->
-          let* l = Web_i18n.get_lang_gettext "admin" lang in
-          return (mail_shuffle_body l link)
-        ) langs
-    in
-    let body = String.concat "\n\n----------\n\n" bodies in
-    let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
-    return (subject, body)
-
   type web_shuffler = {
       ws_trustee : string;
       mutable ws_select : string option;
@@ -2373,7 +2199,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                         Eliom_uri.make_string_uri
                           ~absolute:true ~service:election_shuffle_link (uuid, token)
                     in
-                    let* subject, body = mail_shuffle langs uri in
+                    let* subject, body = Mails_admin.mail_shuffle langs uri in
                     return @@ div
                                 [
                                   a_mailto ~dest:x.ws_trustee ~subject ~body (s_ "Mail");
@@ -2518,7 +2344,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                  if link_content = "server" then (
                    return (txt (s_ "(server)"), txt (s_ "(server)"))
                  ) else (
-                   let* subject, body = mail_trustee_tally langs uri in
+                   let* subject, body = Mails_admin.mail_trustee_tally langs uri in
                    let mail = a_mailto ~dest ~subject ~body (s_ "E-mail") in
                    let link =
                      if this_line then

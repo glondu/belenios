@@ -19,28 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-open Serializable_builtin_t
-open Serializable_t
-open Web_serializable_t
+val mail_trustee_generation_basic :
+  string list -> string -> (string * string) Lwt.t
 
-module type S = sig
+val mail_trustee_generation_threshold :
+  string list -> string -> (string * string) Lwt.t
 
-  val election_home : (module Site_common_sig.ELECTION_LWT) -> election_state -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val cast_raw : (module Site_common_sig.ELECTION_LWT) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val cast_confirmation : (module Site_common_sig.ELECTION_LWT) -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val lost_ballot : (module Site_common_sig.ELECTION_LWT) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val cast_confirmed : (module Site_common_sig.ELECTION_LWT) -> result:(string * Weight.t * bool, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val pretty_ballots : (module Site_common_sig.ELECTION_LWT) -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+val mail_shuffle :
+  string list -> string -> (string * string) Lwt.t
 
-  val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val schulze : Question_nh_t.question -> schulze_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val majority_judgment_select : uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val majority_judgment : Question_nh_t.question -> mj_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val stv_select : uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val stv : Question_nh_t.question -> stv_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-end
+val mail_trustee_tally :
+  string list -> string -> (string * string) Lwt.t
