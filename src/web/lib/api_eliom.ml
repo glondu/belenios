@@ -79,6 +79,12 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
       let forbidden = Lwt.return (403, "\"Forbidden\"") in
       let not_found = Lwt.return (404, "\"Not Found\"") in
       let method_not_allowed = Lwt.return (405, "\"Method Not Allowed\"") in
+      let with_body of_string f =
+        let@ _, body = Option.unwrap bad_request body in
+        let* x = Cohttp_lwt.Body.to_string body in
+        let@ x = Option.unwrap bad_request (Option.wrap of_string x) in
+        f x
+      in
       let handle_exn = function
         | Api_generic.Error msg ->
            let json =
@@ -124,9 +130,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               let x = Api_generic.get_account account in
               Lwt.return (200, string_of_api_account x)
            | `PUT ->
-              let@ _, body = Option.unwrap bad_request body in
-              let* x = Cohttp_lwt.Body.to_string body in
-              let@ x = Option.unwrap bad_request (Option.wrap api_account_of_string x) in
+              let@ x = with_body api_account_of_string in
               Lwt.catch
                 (fun () ->
                   let* () = Api_generic.put_account account x in
@@ -153,9 +157,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               in
               Lwt.return (200, string_of_summary_list elections)
            | `POST ->
-              let@ _, body = Option.unwrap bad_request body in
-              let* draft = Cohttp_lwt.Body.to_string body in
-              let@ draft = Option.unwrap bad_request (Option.wrap draft_of_string draft) in
+              let@ draft = with_body draft_of_string in
               Lwt.catch
                 (fun () ->
                   let* uuid = Api_drafts.post_drafts account draft in
@@ -177,9 +179,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                   Lwt.return (200, string_of_draft x)
                 ) handle_exn
            | `PUT, `Administrator _ ->
-              let@ _, body = Option.unwrap bad_request body in
-              let* draft = Cohttp_lwt.Body.to_string body in
-              let@ draft = Option.unwrap bad_request (Option.wrap draft_of_string draft) in
+              let@ draft = with_body draft_of_string in
               Lwt.catch
                 (fun () ->
                   let update_cache = draft.draft_questions.t_name <> se.se_questions.t_name in
@@ -218,9 +218,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               if se.se_public_creds_received then (
                 forbidden
               ) else (
-                let@ _, body = Option.unwrap bad_request body in
-                let* voters = Cohttp_lwt.Body.to_string body in
-                let@ voters = Option.unwrap bad_request (Option.wrap voter_list_of_string voters) in
+                let@ voters = with_body voter_list_of_string in
                 Lwt.catch
                   (fun () ->
                     let* () = Api_drafts.put_draft_voters uuid se voters in
@@ -243,9 +241,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                   Lwt.return (200, string_of_voter_list x)
                 ) handle_exn
            | `POST ->
-              let@ _, body = Option.unwrap bad_request body in
-              let* voters = Cohttp_lwt.Body.to_string body in
-              let@ voters = Option.unwrap bad_request (Option.wrap voter_list_of_string voters) in
+              let@ voters = with_body voter_list_of_string in
               Lwt.catch
                 (fun () ->
                   let generate =
@@ -287,9 +283,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               if se.se_public_creds_received then (
                 forbidden
               ) else (
-                let@ _, body = Option.unwrap bad_request body in
-                let* x = Cohttp_lwt.Body.to_string body in
-                let@ x = Option.unwrap bad_request (Option.wrap credential_list_of_string x) in
+                let@ x = with_body credential_list_of_string in
                 match who, x with
                 | `Administrator _, [] ->
                    Lwt.catch
@@ -324,9 +318,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                   Lwt.return (200, string_of_trustees_mode x)
                 ) handle_exn
            | `PUT ->
-              let@ _, body = Option.unwrap bad_request body in
-              let* mode = Cohttp_lwt.Body.to_string body in
-              let@ mode = Option.unwrap bad_request (Option.wrap trustees_mode_of_string mode) in
+              let@ mode = with_body trustees_mode_of_string in
               Lwt.catch
                 (fun () ->
                   let* () = Api_drafts.put_draft_trustees_mode uuid se mode in
@@ -348,9 +340,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                   Lwt.return (200, string_of_trustees x)
                 ) handle_exn
            | `POST ->
-              let@ _, body = Option.unwrap bad_request body in
-              let* trustee = Cohttp_lwt.Body.to_string body in
-              let@ trustee = Option.unwrap bad_request (Option.wrap trustee_of_string trustee) in
+              let@ trustee = with_body trustee_of_string in
               Lwt.catch
                 (fun () ->
                   let* () = Api_drafts.post_draft_trustees uuid se trustee in
@@ -387,9 +377,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                   Lwt.return (200, string_of_status x)
                 ) handle_exn
            | `POST ->
-              let@ _, body = Option.unwrap bad_request body in
-              let* x = Cohttp_lwt.Body.to_string body in
-              let@ x = Option.unwrap bad_request (Option.wrap status_request_of_string x) in
+              let@ x = with_body status_request_of_string in
               Lwt.catch
                 (fun () ->
                   let* () = Api_drafts.post_draft_status account uuid se x in
