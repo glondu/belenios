@@ -135,23 +135,24 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | _ -> method_not_allowed
          end
       | ["drafts"] ->
-         let@ token = Option.unwrap unauthorized token in
-         let@ account = Option.unwrap unauthorized (lookup_token token) in
-         (match method_ with
-          | `GET ->
-             let* elections = Web_persist.get_elections_by_owner account.account_id in
-             let elections =
-               List.fold_left
-                 (fun accu (kind, summary_uuid, date, summary_name) ->
-                   let summary_date = unixfloat_of_datetime date in
-                   if kind = `Draft then
-                     {summary_uuid; summary_name; summary_date} :: accu
-                   else
-                     accu
-                 ) [] elections
-             in
-             Lwt.return (200, string_of_summary_list elections)
-          | `POST ->
+         begin
+           let@ token = Option.unwrap unauthorized token in
+           let@ account = Option.unwrap unauthorized (lookup_token token) in
+           match method_ with
+           | `GET ->
+              let* elections = Web_persist.get_elections_by_owner account.account_id in
+              let elections =
+                List.fold_left
+                  (fun accu (kind, summary_uuid, date, summary_name) ->
+                    let summary_date = unixfloat_of_datetime date in
+                    if kind = `Draft then
+                      {summary_uuid; summary_name; summary_date} :: accu
+                    else
+                      accu
+                  ) [] elections
+              in
+              Lwt.return (200, string_of_summary_list elections)
+           | `POST ->
               let@ _, body = Option.unwrap bad_request body in
               let* draft = Cohttp_lwt.Body.to_string body in
               let@ draft = Option.unwrap bad_request (Option.wrap draft_of_string draft) in
@@ -160,14 +161,14 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                   let* uuid = Api_drafts.post_drafts account draft in
                   Lwt.return (200, string_of_uuid uuid)
                 ) handle_exn
-          | _ -> method_not_allowed
-         )
+           | _ -> method_not_allowed
+         end
       | ["drafts"; uuid] ->
-         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let* se = Web_persist.get_draft_election uuid in
-         let@ se = Option.unwrap not_found se in
-         let@ who = with_administrator_or_credential_authority se in
          begin
+           let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+           let* se = Web_persist.get_draft_election uuid in
+           let@ se = Option.unwrap not_found se in
+           let@ who = with_administrator_or_credential_authority se in
            match method_, who with
            | `GET, _ ->
               Lwt.catch
@@ -201,11 +202,11 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "voters"] ->
-         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let* se = Web_persist.get_draft_election uuid in
-         let@ se = Option.unwrap not_found se in
-         let@ who = with_administrator_or_credential_authority se in
          begin
+           let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+           let* se = Web_persist.get_draft_election uuid in
+           let@ se = Option.unwrap not_found se in
+           let@ who = with_administrator_or_credential_authority se in
            match method_, who with
            | `GET, _ ->
               Lwt.catch
@@ -229,11 +230,11 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "passwords"] ->
-         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let* se = Web_persist.get_draft_election uuid in
-         let@ se = Option.unwrap not_found se in
-         let@ _ = with_administrator se in
          begin
+           let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+           let* se = Web_persist.get_draft_election uuid in
+           let@ se = Option.unwrap not_found se in
+           let@ _ = with_administrator se in
            match method_ with
            | `GET ->
               Lwt.catch
@@ -270,11 +271,11 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "credentials"] ->
-         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let* se = Web_persist.get_draft_election uuid in
-         let@ se = Option.unwrap not_found se in
-         let@ who = with_administrator_or_credential_authority se in
          begin
+           let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+           let* se = Web_persist.get_draft_election uuid in
+           let@ se = Option.unwrap not_found se in
+           let@ who = with_administrator_or_credential_authority se in
            match method_ with
            | `GET ->
               Lwt.catch
@@ -310,11 +311,11 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "trustees-mode"] ->
-         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let* se = Web_persist.get_draft_election uuid in
-         let@ se = Option.unwrap not_found se in
-         let@ _ = with_administrator se in
          begin
+           let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+           let* se = Web_persist.get_draft_election uuid in
+           let@ se = Option.unwrap not_found se in
+           let@ _ = with_administrator se in
            match method_ with
            | `GET ->
               Lwt.catch
@@ -334,11 +335,11 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "trustees"] ->
-         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let* se = Web_persist.get_draft_election uuid in
-         let@ se = Option.unwrap not_found se in
-         let@ _ = with_administrator se in
          begin
+           let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+           let* se = Web_persist.get_draft_election uuid in
+           let@ se = Option.unwrap not_found se in
+           let@ _ = with_administrator se in
            match method_ with
            | `GET ->
               Lwt.catch
@@ -358,11 +359,11 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "trustees"; trustee] ->
-         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let* se = Web_persist.get_draft_election uuid in
-         let@ se = Option.unwrap not_found se in
-         let@ _ = with_administrator se in
          begin
+           let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+           let* se = Web_persist.get_draft_election uuid in
+           let@ se = Option.unwrap not_found se in
+           let@ _ = with_administrator se in
            match method_ with
            | `DELETE ->
               Lwt.catch
@@ -373,11 +374,11 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "status"] ->
-         let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
-         let* se = Web_persist.get_draft_election uuid in
-         let@ se = Option.unwrap not_found se in
-         let@ account = with_administrator se in
          begin
+           let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+           let* se = Web_persist.get_draft_election uuid in
+           let@ se = Option.unwrap not_found se in
+           let@ account = with_administrator se in
            match method_ with
            | `GET ->
               Lwt.catch
