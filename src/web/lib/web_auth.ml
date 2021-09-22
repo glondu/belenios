@@ -28,7 +28,7 @@ open Web_serializable_j
 open Web_common
 open Web_auth_sig
 
-module Make (Api : Api_eliom_sig.S) (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) = struct
+module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) = struct
 
   open Web_services
 
@@ -91,7 +91,7 @@ module Make (Api : Api_eliom_sig.S) (Web_state : Web_state_sig.S) (Web_services 
                         let* () = Accounts.update_account x in
                         return x
                    in
-                   let* token = Api.new_token account in
+                   let* token = Api_generic.new_token account in
                    Eliom_reference.set Web_state.site_user (Some (user, account, token))
                 | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
               in
@@ -218,7 +218,7 @@ module Make (Api : Api_eliom_sig.S) (Web_state : Web_state_sig.S) (Web_services 
       let* x = Eliom_reference.get Web_state.site_user in
       match x with
       | None -> Lwt.return_unit
-      | Some (_, _, token) -> let () = Api.invalidate_token token in Lwt.return_unit
+      | Some (_, _, token) -> let () = Api_generic.invalidate_token token in Lwt.return_unit
     in
     let* () = Eliom_reference.unset Web_state.site_user in
     get_cont `Logout (`Site cont) ()

@@ -22,7 +22,35 @@
 open Web_serializable_t
 open Belenios_api.Serializable_t
 
+val new_token : account -> string Lwt.t
+val lookup_token : string -> account option
+val invalidate_token : string -> unit
+
 exception Error of string
+
+type result = int * string
+
+type body = {
+    run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t
+}
+
+val ok : result Lwt.t
+val bad_request : result Lwt.t
+val unauthorized : result Lwt.t
+val forbidden : result Lwt.t
+val not_found  : result Lwt.t
+val method_not_allowed : result Lwt.t
+
+val handle_generic_error :
+  (unit -> result Lwt.t) -> result Lwt.t
+
+val with_administrator :
+  string option -> draft_election -> (account -> result Lwt.t) -> result Lwt.t
+
+val with_administrator_or_credential_authority :
+  string option -> draft_election ->
+  ([ `Administrator of account | `CredentialAuthority ] -> result Lwt.t) ->
+  result Lwt.t
 
 val get_configuration : unit -> configuration
 

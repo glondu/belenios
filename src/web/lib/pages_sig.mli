@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 module type S = sig
-  module Api : Api_eliom_sig.S
   module Web_state : Web_state_sig.S
   module Web_i18n : Web_i18n_sig.S
   module Web_services : Web_services_sig.S

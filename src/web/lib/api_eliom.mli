@@ -19,4 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S) : Api_eliom_sig.S
+module Make () : sig end

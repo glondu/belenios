@@ -77,3 +77,9 @@ val set_downloaded : uuid -> unit Lwt.t
 
 val dump_passwords : uuid -> string list list -> unit Lwt.t
 val validate_election : account -> uuid -> draft_election -> unit Lwt.t
+
+open Api_generic
+
+val dispatch :
+  string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
+  body -> result Lwt.t

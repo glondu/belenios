@@ -201,12 +201,12 @@ module Make () = struct
     module Pages_common = Pages_common.Make (Web_i18n) (Web_services)
     module Pages_admin = Pages_admin.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
     module Pages_voter = Pages_voter.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
-    module Api = Api_eliom.Make (Web_services) (Pages_voter)
   end
 
+  module Api = Api_eliom.Make ()
   module Web_captcha = Web_captcha.Make (X.Web_services)
 
-  module Web_auth = Web_auth.Make (X.Api) (X.Web_state) (X.Web_services) (X.Pages_common)
+  module Web_auth = Web_auth.Make (X.Web_state) (X.Web_services) (X.Pages_common)
   module Web_auth_dummy = Web_auth_dummy.Make (X.Web_services) (X.Pages_common) (Web_auth)
   module Web_auth_password = Web_auth_password.Make (X.Web_services) (X.Pages_common) (Web_auth)
   module Web_auth_email = Web_auth_email.Make (X.Web_services) (X.Pages_common) (Web_auth)

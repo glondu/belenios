@@ -26,7 +26,7 @@ open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_core.Signatures
 open Belenios
-open Belenios_api.Serializable_t
+open Belenios_api.Serializable_j
 open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
@@ -763,6 +763,7 @@ let validate_election account uuid se =
             let* () = Lwt_io.write oc (what v) in
             Lwt_io.write oc "\n") xs)
   in
+  let open Belenios_core.Serializable_j in
   let* () = create_file "trustees.json" (string_of_trustees G.write) [trustees] in
   let* () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in
   let* () = create_file "metadata.json" string_of_metadata [metadata] in
@@ -813,3 +814,201 @@ let validate_election account uuid se =
 let post_draft_status account uuid se = function
   | `SetDownloaded -> set_downloaded uuid
   | `ValidateElection -> validate_election account uuid se
+
+let dispatch_draft token endpoint method_ body uuid se =
+  match endpoint with
+  | [] ->
+     begin
+       let@ who = with_administrator_or_credential_authority token se in
+       match method_, who with
+       | `GET, _ ->
+          let@ () = handle_generic_error in
+          let x = api_of_draft se in
+          Lwt.return (200, string_of_draft x)
+       | `PUT, `Administrator _ ->
+          let@ draft = body.run draft_of_string in
+          let@ () = handle_generic_error in
+          let update_cache = draft.draft_questions.t_name <> se.se_questions.t_name in
+          let se = draft_of_api se draft in
+          let* () = Web_persist.set_draft_election uuid se in
+          let* () =
+            if update_cache then
+              Web_persist.clear_elections_by_owner_cache ()
+            else
+              Lwt.return_unit
+          in
+          ok
+       | `DELETE, `Administrator _ ->
+          let@ () = handle_generic_error in
+          let* () = delete_draft uuid in
+          ok
+       | _ -> method_not_allowed
+     end
+  | ["voters"] ->
+     begin
+       let@ who = with_administrator_or_credential_authority token se in
+       match method_, who with
+       | `GET, _ ->
+          let@ () = handle_generic_error in
+          let x = get_draft_voters se in
+          Lwt.return (200, string_of_voter_list x)
+       | `PUT, `Administrator _ ->
+          if se.se_public_creds_received then (
+            forbidden
+          ) else (
+            let@ voters = body.run voter_list_of_string in
+            let@ () = handle_generic_error in
+            let* () = put_draft_voters uuid se voters in
+            ok
+          )
+       | _ -> method_not_allowed
+     end
+  | ["passwords"] ->
+     begin
+       let@ _ = with_administrator token se in
+       match method_ with
+       | `GET ->
+          let@ () = handle_generic_error in
+          let x = get_draft_passwords se in
+          Lwt.return (200, string_of_voter_list x)
+       | `POST ->
+          let@ voters = body.run voter_list_of_string in
+          let@ () = handle_generic_error in
+          let generate =
+            let title = se.se_questions.t_name in
+            let url = get_election_home_url uuid in
+            let langs = get_languages se.se_metadata.e_languages in
+            let show_weight =
+              List.exists
+                (fun id ->
+                  let _, _, weight = split_identity_opt id.sv_id in
+                  weight <> None
+                ) se.se_voters
+            in
+            fun metadata id ->
+            Mails_voter.generate_password metadata langs title uuid url id show_weight
+          in
+          let* () = post_draft_passwords generate uuid se voters in
+          ok
+       | _ -> method_not_allowed
+     end
+  | ["credentials"] ->
+     begin
+       let@ who = with_administrator_or_credential_authority token se in
+       match method_ with
+       | `GET ->
+          let@ () = handle_generic_error in
+          let* x = get_draft_credentials who uuid se in
+          Lwt.return (200, string_of_credentials x)
+       | `POST ->
+          if se.se_public_creds_received then (
+            forbidden
+          ) else (
+            let@ x = body.run credential_list_of_string in
+            match who, x with
+            | `Administrator _, [] ->
+               begin
+                 let@ () = handle_generic_error in
+                 let send = Mails_voter.send_mail_credential uuid se in
+                 let* x = generate_credentials_on_server send uuid se in
+                 match x with
+                 | Ok () -> ok
+                 | Error e -> Lwt.fail @@ exn_of_generate_credentials_on_server_error e
+               end
+            | `CredentialAuthority, credentials ->
+               let@ () = handle_generic_error in
+               let* () = submit_public_credentials uuid se credentials in
+               ok
+            | _ -> forbidden
+          )
+       | _ -> method_not_allowed
+     end
+  | ["trustees-mode"] ->
+     begin
+       let@ _ = with_administrator token se in
+       match method_ with
+       | `GET ->
+          let@ () = handle_generic_error in
+          let x = get_draft_trustees_mode se in
+          Lwt.return (200, string_of_trustees_mode x)
+       | `PUT ->
+          let@ mode = body.run trustees_mode_of_string in
+          let@ () = handle_generic_error in
+          let* () = put_draft_trustees_mode uuid se mode in
+          ok
+       | _ -> method_not_allowed
+     end
+  | ["trustees"] ->
+     begin
+       let@ _ = with_administrator token se in
+       match method_ with
+       | `GET ->
+          let@ () = handle_generic_error in
+          let x = get_draft_trustees se in
+          Lwt.return (200, string_of_trustees x)
+       | `POST ->
+          let@ trustee = body.run trustee_of_string in
+          let@ () = handle_generic_error in
+          let* () = post_draft_trustees uuid se trustee in
+          ok
+       | _ -> method_not_allowed
+     end
+  | ["trustees"; trustee] ->
+     begin
+       let@ _ = with_administrator token se in
+       match method_ with
+       | `DELETE ->
+          let@ () = handle_generic_error in
+          let* x = delete_draft_trustee uuid se trustee in
+          if x then ok else not_found
+       | _ -> method_not_allowed
+     end
+  | ["status"] ->
+     begin
+       let@ account = with_administrator token se in
+       match method_ with
+       | `GET ->
+          let@ () = handle_generic_error in
+          let* x = get_draft_status uuid se in
+          Lwt.return (200, string_of_status x)
+       | `POST ->
+          let@ x = body.run status_request_of_string in
+          let@ () = handle_generic_error in
+          let* () = post_draft_status account uuid se x in
+          ok
+       | _ -> method_not_allowed
+     end
+  | _ -> not_found
+
+let dispatch token endpoint method_ body =
+  match endpoint with
+  | [] ->
+     begin
+       let@ token = Option.unwrap unauthorized token in
+       let@ account = Option.unwrap unauthorized (lookup_token token) in
+       match method_ with
+       | `GET ->
+          let* elections = Web_persist.get_elections_by_owner account.account_id in
+          let elections =
+            List.fold_left
+              (fun accu (kind, summary_uuid, date, summary_name) ->
+                let summary_date = unixfloat_of_datetime date in
+                if kind = `Draft then
+                  {summary_uuid; summary_name; summary_date} :: accu
+                else
+                  accu
+              ) [] elections
+          in
+          Lwt.return (200, string_of_summary_list elections)
+       | `POST ->
+          let@ draft = body.run draft_of_string in
+          let@ () = handle_generic_error in
+          let* uuid = post_drafts account draft in
+          Lwt.return (200, string_of_uuid uuid)
+       | _ -> method_not_allowed
+     end
+  | uuid :: endpoint ->
+     let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+     let* se = Web_persist.get_draft_election uuid in
+     let@ se = Option.unwrap not_found se in
+     dispatch_draft token endpoint method_ body uuid se
