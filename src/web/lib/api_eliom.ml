@@ -85,16 +85,19 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
         let@ x = Option.unwrap bad_request (Option.wrap of_string x) in
         f x
       in
-      let handle_exn = function
-        | Api_generic.Error msg ->
-           let json =
-             `Assoc [
-                 "status", `String "Bad request";
-                 "error", `String msg;
-               ]
-           in
-           Lwt.return (400, Yojson.Safe.to_string json)
-        | _ -> bad_request
+      let handle_generic_error f =
+        Lwt.catch f
+          (function
+           | Api_generic.Error msg ->
+              let json =
+                `Assoc [
+                    "status", `String "Bad Request";
+                    "error", `String msg;
+                  ]
+              in
+              Lwt.return (400, Yojson.Safe.to_string json)
+           | _ -> bad_request
+          )
       in
       let with_administrator se f =
         let@ token = Option.unwrap unauthorized token in
@@ -131,11 +134,9 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               Lwt.return (200, string_of_api_account x)
            | `PUT ->
               let@ x = with_body api_account_of_string in
-              Lwt.catch
-                (fun () ->
-                  let* () = Api_generic.put_account account x in
-                  ok
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let* () = Api_generic.put_account account x in
+              ok
            | _ -> method_not_allowed
          end
       | ["drafts"] ->
@@ -158,11 +159,9 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
               Lwt.return (200, string_of_summary_list elections)
            | `POST ->
               let@ draft = with_body draft_of_string in
-              Lwt.catch
-                (fun () ->
-                  let* uuid = Api_drafts.post_drafts account draft in
-                  Lwt.return (200, string_of_uuid uuid)
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let* uuid = Api_drafts.post_drafts account draft in
+              Lwt.return (200, string_of_uuid uuid)
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid] ->
@@ -173,32 +172,26 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            let@ who = with_administrator_or_credential_authority se in
            match method_, who with
            | `GET, _ ->
-              Lwt.catch
-                (fun () ->
-                  let x = Api_drafts.api_of_draft se in
-                  Lwt.return (200, string_of_draft x)
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let x = Api_drafts.api_of_draft se in
+              Lwt.return (200, string_of_draft x)
            | `PUT, `Administrator _ ->
               let@ draft = with_body draft_of_string in
-              Lwt.catch
-                (fun () ->
-                  let update_cache = draft.draft_questions.t_name <> se.se_questions.t_name in
-                  let se = Api_drafts.draft_of_api se draft in
-                  let* () = Web_persist.set_draft_election uuid se in
-                  let* () =
-                    if update_cache then
-                      Web_persist.clear_elections_by_owner_cache ()
-                    else
-                      Lwt.return_unit
-                  in
-                  ok
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let update_cache = draft.draft_questions.t_name <> se.se_questions.t_name in
+              let se = Api_drafts.draft_of_api se draft in
+              let* () = Web_persist.set_draft_election uuid se in
+              let* () =
+                if update_cache then
+                  Web_persist.clear_elections_by_owner_cache ()
+                else
+                  Lwt.return_unit
+              in
+              ok
            | `DELETE, `Administrator _ ->
-              Lwt.catch
-                (fun () ->
-                  let* () = Api_drafts.delete_draft uuid in
-                  ok
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let* () = Api_drafts.delete_draft uuid in
+              ok
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "voters"] ->
@@ -209,21 +202,17 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            let@ who = with_administrator_or_credential_authority se in
            match method_, who with
            | `GET, _ ->
-              Lwt.catch
-                (fun () ->
-                  let x = Api_drafts.get_draft_voters se in
-                  Lwt.return (200, string_of_voter_list x)
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let x = Api_drafts.get_draft_voters se in
+              Lwt.return (200, string_of_voter_list x)
            | `PUT, `Administrator _ ->
               if se.se_public_creds_received then (
                 forbidden
               ) else (
                 let@ voters = with_body voter_list_of_string in
-                Lwt.catch
-                  (fun () ->
-                    let* () = Api_drafts.put_draft_voters uuid se voters in
-                    ok
-                  ) handle_exn
+                let@ () = handle_generic_error in
+                let* () = Api_drafts.put_draft_voters uuid se voters in
+                ok
               )
            | _ -> method_not_allowed
          end
@@ -235,35 +224,31 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            let@ _ = with_administrator se in
            match method_ with
            | `GET ->
-              Lwt.catch
-                (fun () ->
-                  let x = Api_drafts.get_draft_passwords se in
-                  Lwt.return (200, string_of_voter_list x)
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let x = Api_drafts.get_draft_passwords se in
+              Lwt.return (200, string_of_voter_list x)
            | `POST ->
               let@ voters = with_body voter_list_of_string in
-              Lwt.catch
-                (fun () ->
-                  let generate =
-                    let title = se.se_questions.t_name in
-                    let url =
-                      Eliom_uri.make_string_uri ~absolute:true ~service:Web_services.election_home (uuid, ())
-                      |> rewrite_prefix
-                    in
-                    let langs = get_languages se.se_metadata.e_languages in
-                    let show_weight =
-                      List.exists
-                        (fun id ->
-                          let _, _, weight = split_identity_opt id.sv_id in
-                          weight <> None
-                        ) se.se_voters
-                    in
-                    fun metadata id ->
-                    Pages_voter.generate_password metadata langs title uuid url id show_weight
-                  in
-                  let* () = Api_drafts.post_draft_passwords generate uuid se voters in
-                  ok
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let generate =
+                let title = se.se_questions.t_name in
+                let url =
+                  Eliom_uri.make_string_uri ~absolute:true ~service:Web_services.election_home (uuid, ())
+                  |> rewrite_prefix
+                in
+                let langs = get_languages se.se_metadata.e_languages in
+                let show_weight =
+                  List.exists
+                    (fun id ->
+                      let _, _, weight = split_identity_opt id.sv_id in
+                      weight <> None
+                    ) se.se_voters
+                in
+                fun metadata id ->
+                Pages_voter.generate_password metadata langs title uuid url id show_weight
+              in
+              let* () = Api_drafts.post_draft_passwords generate uuid se voters in
+              ok
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "credentials"] ->
@@ -274,11 +259,9 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            let@ who = with_administrator_or_credential_authority se in
            match method_ with
            | `GET ->
-              Lwt.catch
-                (fun () ->
-                  let* x = Api_drafts.get_draft_credentials who uuid se in
-                  Lwt.return (200, string_of_credentials x)
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let* x = Api_drafts.get_draft_credentials who uuid se in
+              Lwt.return (200, string_of_credentials x)
            | `POST ->
               if se.se_public_creds_received then (
                 forbidden
@@ -286,20 +269,18 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
                 let@ x = with_body credential_list_of_string in
                 match who, x with
                 | `Administrator _, [] ->
-                   Lwt.catch
-                     (fun () ->
-                       let send = Pages_voter.send_mail_credential uuid se in
-                       let* x = Api_drafts.generate_credentials_on_server send uuid se in
-                       match x with
-                       | Ok () -> ok
-                       | Error e -> Lwt.fail @@ Api_drafts.exn_of_generate_credentials_on_server_error e
-                     ) handle_exn
+                   begin
+                     let@ () = handle_generic_error in
+                     let send = Pages_voter.send_mail_credential uuid se in
+                     let* x = Api_drafts.generate_credentials_on_server send uuid se in
+                     match x with
+                     | Ok () -> ok
+                     | Error e -> Lwt.fail @@ Api_drafts.exn_of_generate_credentials_on_server_error e
+                   end
                 | `CredentialAuthority, credentials ->
-                   Lwt.catch
-                     (fun () ->
-                       let* () = Api_drafts.submit_public_credentials uuid se credentials in
-                       ok
-                     ) handle_exn
+                   let@ () = handle_generic_error in
+                   let* () = Api_drafts.submit_public_credentials uuid se credentials in
+                   ok
                 | _ -> forbidden
               )
            | _ -> method_not_allowed
@@ -312,18 +293,14 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            let@ _ = with_administrator se in
            match method_ with
            | `GET ->
-              Lwt.catch
-                (fun () ->
-                  let x = Api_drafts.get_draft_trustees_mode se in
-                  Lwt.return (200, string_of_trustees_mode x)
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let x = Api_drafts.get_draft_trustees_mode se in
+              Lwt.return (200, string_of_trustees_mode x)
            | `PUT ->
               let@ mode = with_body trustees_mode_of_string in
-              Lwt.catch
-                (fun () ->
-                  let* () = Api_drafts.put_draft_trustees_mode uuid se mode in
-                  ok
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let* () = Api_drafts.put_draft_trustees_mode uuid se mode in
+              ok
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "trustees"] ->
@@ -334,18 +311,14 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            let@ _ = with_administrator se in
            match method_ with
            | `GET ->
-              Lwt.catch
-                (fun () ->
-                  let x = Api_drafts.get_draft_trustees se in
-                  Lwt.return (200, string_of_trustees x)
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let x = Api_drafts.get_draft_trustees se in
+              Lwt.return (200, string_of_trustees x)
            | `POST ->
               let@ trustee = with_body trustee_of_string in
-              Lwt.catch
-                (fun () ->
-                  let* () = Api_drafts.post_draft_trustees uuid se trustee in
-                  ok
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let* () = Api_drafts.post_draft_trustees uuid se trustee in
+              ok
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "trustees"; trustee] ->
@@ -356,11 +329,9 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            let@ _ = with_administrator se in
            match method_ with
            | `DELETE ->
-              Lwt.catch
-                (fun () ->
-                  let* x = Api_drafts.delete_draft_trustee uuid se trustee in
-                  if x then ok else not_found
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let* x = Api_drafts.delete_draft_trustee uuid se trustee in
+              if x then ok else not_found
            | _ -> method_not_allowed
          end
       | ["drafts"; uuid; "status"] ->
@@ -371,18 +342,14 @@ module Make (Web_services : Web_services_sig.S) (Pages_voter : Pages_voter_sig.S
            let@ account = with_administrator se in
            match method_ with
            | `GET ->
-              Lwt.catch
-                (fun () ->
-                  let* x = Api_drafts.get_draft_status uuid se in
-                  Lwt.return (200, string_of_status x)
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let* x = Api_drafts.get_draft_status uuid se in
+              Lwt.return (200, string_of_status x)
            | `POST ->
               let@ x = with_body status_request_of_string in
-              Lwt.catch
-                (fun () ->
-                  let* () = Api_drafts.post_draft_status account uuid se x in
-                  ok
-                ) handle_exn
+              let@ () = handle_generic_error in
+              let* () = Api_drafts.post_draft_status account uuid se x in
+              ok
            | _ -> method_not_allowed
          end
       | _ -> not_found
