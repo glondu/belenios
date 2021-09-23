@@ -72,7 +72,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                 ]
 
   let majority_judgment_content l q r =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     let explicit_winners =
       List.map
         (List.map
@@ -117,7 +117,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     ]
 
   let schulze_content l q r =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     let valid_format =
       match r.schulze_blank with
       | Some _ -> f_ "%d valid (non-blank) ballot(s)"
@@ -169,7 +169,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     ]
 
   let format_question_result uuid l (i, q) r =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     match q, r with
     | Question.Homomorphic x, RHomomorphic r ->
        let open Question_h_t in

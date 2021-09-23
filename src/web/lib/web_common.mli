@@ -37,9 +37,9 @@ exception BeleniosWebError of error
 
 val fail : error -> 'a Lwt.t
 
-val explain_error : (module Web_i18n_sig.GETTEXT) -> error -> string
+val explain_error : (module Belenios_ui.I18n.GETTEXT) -> error -> string
 
-val format_period : (module Web_i18n_sig.GETTEXT) -> period -> string
+val format_period : (module Belenios_ui.I18n.GETTEXT) -> period -> string
 
 val open_security_log : string -> unit Lwt.t
 (** Set the path to the security logger. *)

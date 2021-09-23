@@ -34,7 +34,7 @@ val send_mail_credential :
   weight:Web_serializable_t.weight -> cred:string -> unit Lwt.t
 
 val mail_confirmation :
-  (module Web_i18n_sig.GETTEXT) ->
+  (module Belenios_ui.I18n.GETTEXT) ->
   string ->
   string ->
   Web_serializable_t.weight option ->

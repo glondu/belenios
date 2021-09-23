@@ -67,7 +67,7 @@ exception BeleniosWebError of error
 let fail e = Lwt.fail (BeleniosWebError e)
 
 let explain_error l e =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   match e with
   | ElectionClosed -> s_ "the election is closed"
   | UnauthorizedVoter -> s_ "you are not allowed to vote"
@@ -88,7 +88,7 @@ let decompose_seconds s =
   (h, m, int_of_float s)
 
 let format_period l x =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let y, m, d, s = ymds x in
   let y = if y = 0 then "" else string_of_int y ^ (s_ " year(s)") in
   let m = if m = 0 then "" else string_of_int m ^ (s_ " month(s)") in

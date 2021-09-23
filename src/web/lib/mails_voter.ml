@@ -29,7 +29,7 @@ open Web_serializable_j
 open Web_common
 
 let contact_footer l metadata =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   match metadata.e_contact with
   | None -> fun _ -> ()
   | Some x ->
@@ -43,7 +43,7 @@ let contact_footer l metadata =
      add_string b x
 
 let mail_password l title login password weight url metadata =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (s_ "Please find below your login and password for the election"); add_newline b;
@@ -80,13 +80,13 @@ let generate_password metadata langs title uuid url id show_weight =
   in
   let hashed = sha256_hex (salt ^ password) in
   let* bodies = Lwt_list.map_s (fun lang ->
-                    let* l = Web_i18n.get_lang_gettext "voter" lang in
+                    let* l = Web_i18n.get ~component:"voter" ~lang in
                     return (mail_password l title login password weight url metadata)
                   ) langs in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
   let* subject =
-    let* l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
+    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd langs) in
     let open (val l) in
     Printf.kprintf return (f_ "Your password for election %s") title
   in
@@ -94,7 +94,7 @@ let generate_password metadata langs title uuid url id show_weight =
   return (salt, hashed)
 
 let mail_credential l has_passwords title ~login cred weight url metadata =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (s_ "You are listed as a voter for the election"); add_newline b;
@@ -127,14 +127,14 @@ let generate_mail_credential langs has_passwords title ~login cred weight url me
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
-        let* l = Web_i18n.get_lang_gettext "voter" lang in
+        let* l = Web_i18n.get ~component:"voter" ~lang in
         return (mail_credential l has_passwords title ~login cred weight url metadata)
       ) langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
   let* subject =
-    let* l = Web_i18n.get_lang_gettext "voter" (List.hd langs) in
+    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd langs) in
     let open (val l) in
     Printf.ksprintf return (f_ "Your credential for election %s") title
   in
@@ -165,7 +165,7 @@ let send_mail_credential uuid se =
   send_email (MailCredential uuid) ~recipient ~subject ~body
 
 let mail_confirmation l user title weight hash revote url1 url2 metadata =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") user); add_newline b;

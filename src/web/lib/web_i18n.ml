@@ -31,7 +31,7 @@ module type LANG = sig
   val mo_file : string
 end
 
-module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i18n_sig.GETTEXT = struct
+module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Belenios_ui.I18n.GETTEXT = struct
   let lang = L.lang
   open GettextCategory
   open GettextTypes
@@ -48,8 +48,6 @@ module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Web_i
   let u = T.create t L.mo_file (fun x -> x)
   let s_ str = T.translate u false str None
   let f_ str = Scanf.format_from_string (T.translate u true (string_of_format str) None) str
-  let sn_ str str_plural n = T.translate u false str (Some (str_plural, n))
-  let fn_ str str_plural n = Scanf.format_from_string (T.translate u true (string_of_format str) (Some (string_of_format str_plural, n))) str
 end
 
 let ( / ) = Filename.concat
@@ -63,7 +61,7 @@ let build_gettext_input component lang =
 let default_gettext component =
   let module L = (val build_gettext_input component devel_lang) in
   let module G = Belenios_Gettext (L) (GettextTranslate.Dummy) in
-  (module G : Web_i18n_sig.GETTEXT)
+  (module G : Belenios_ui.I18n.GETTEXT)
 
 let () =
   List.iter
@@ -76,7 +74,7 @@ let () =
 
 let lang_mutex = Lwt_mutex.create ()
 
-let get_lang_gettext component lang =
+let get ~component ~lang =
   let langs = Hashtbl.find components component in
   match Hashtbl.find_opt langs lang with
   | Some l -> Lwt.return l
@@ -91,7 +89,7 @@ let get_lang_gettext component lang =
             if b then (
               let get () =
                 let module L = Belenios_Gettext (L) (GettextTranslate.Map) in
-                (module L : Web_i18n_sig.GETTEXT)
+                (module L : Belenios_ui.I18n.GETTEXT)
               in
               let* l = Lwt_preemptive.detach get () in
               Hashtbl.add langs lang l;
@@ -126,6 +124,6 @@ module Make (Web_state : Web_state_sig.S) = struct
       | None -> Lwt.return (get_preferred_language ())
       | Some lang -> Lwt.return lang
     in
-    get_lang_gettext component lang
+    get ~component ~lang
 
 end

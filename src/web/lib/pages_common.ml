@@ -483,7 +483,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     img ~src ~alt:"CAPTCHA" ()
 
   let format_captcha_error l e =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     match e with
     | None -> txt ""
     | Some x ->

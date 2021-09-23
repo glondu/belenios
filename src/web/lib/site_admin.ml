@@ -1355,7 +1355,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let parse_datetime_from_post l x =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     try datetime_of_string ("\"" ^ x ^ ".000000\"") with
     | _ -> Printf.ksprintf failwith (f_ "%s is not a valid date!") x
 
@@ -1363,7 +1363,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_hide_result
       (election_set_result_hidden
          (fun l x ->
-           let open (val l : Web_i18n_sig.GETTEXT) in
+           let open (val l : Belenios_ui.I18n.GETTEXT) in
            let t = parse_datetime_from_post l x in
            let max = datetime_add (now ()) (day days_to_publish_result) in
            if datetime_compare t max > 0 then

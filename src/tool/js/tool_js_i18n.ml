@@ -16,6 +16,8 @@ let auto_init component =
   init dir component lang
 
 module Gettext = struct
+  let lang = "en_devel" (* FIXME *)
+
   let s_ str_id =
     let str = Js.Unsafe.get !translations (Js.string str_id) in
     Js.Optdef.case str

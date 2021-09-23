@@ -25,7 +25,7 @@ open Belenios_core
 open Common
 
 let mail_trustee_generation_basic_body l link =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (s_ "Dear trustee,");
@@ -60,12 +60,12 @@ let mail_trustee_generation_basic_body l link =
   contents b
 
 let mail_trustee_generation_basic langs link =
-  let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let* l = Web_i18n.get ~component:"admin" ~lang:(List.hd langs) in
   let open (val l) in
   let subject = s_ "Link to generate the decryption key" in
   let* bodies =
     Lwt_list.map_s (fun lang ->
-        let* l = Web_i18n.get_lang_gettext "admin" lang in
+        let* l = Web_i18n.get ~component:"admin" ~lang in
         return (mail_trustee_generation_basic_body l link)
       ) langs
   in
@@ -74,7 +74,7 @@ let mail_trustee_generation_basic langs link =
   return (subject, body)
 
 let mail_trustee_generation_threshold_body l link =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (s_ "Dear trustee,");
@@ -110,12 +110,12 @@ let mail_trustee_generation_threshold_body l link =
   contents b
 
 let mail_trustee_generation_threshold langs link =
-  let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let* l = Web_i18n.get ~component:"admin" ~lang:(List.hd langs) in
   let open (val l) in
   let subject = s_ "Link to generate the decryption key" in
   let* bodies =
     Lwt_list.map_s (fun lang ->
-        let* l = Web_i18n.get_lang_gettext "admin" lang in
+        let* l = Web_i18n.get ~component:"admin" ~lang in
         return (mail_trustee_generation_threshold_body l link)
       ) langs
   in
@@ -124,7 +124,7 @@ let mail_trustee_generation_threshold langs link =
   return (subject, body)
 
 let mail_trustee_tally_body l link =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (s_ "Dear trustee,");
@@ -147,12 +147,12 @@ let mail_trustee_tally_body l link =
   contents b
 
 let mail_trustee_tally langs link =
-  let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let* l = Web_i18n.get ~component:"admin" ~lang:(List.hd langs) in
   let open (val l) in
   let subject = s_ "Link to tally the election" in
   let* bodies =
     Lwt_list.map_s (fun lang ->
-        let* l = Web_i18n.get_lang_gettext "admin" lang in
+        let* l = Web_i18n.get ~component:"admin" ~lang in
         return (mail_trustee_tally_body l link)
       ) langs
   in
@@ -161,7 +161,7 @@ let mail_trustee_tally langs link =
   return (subject, body)
 
 let mail_shuffle_body l link =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (s_ "Dear trustee,");
@@ -185,12 +185,12 @@ let mail_shuffle_body l link =
   contents b
 
 let mail_shuffle langs link =
-  let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
+  let* l = Web_i18n.get ~component:"admin" ~lang:(List.hd langs) in
   let open (val l) in
   let subject = s_ "Link to shuffle encrypted ballots" in
   let* bodies =
     Lwt_list.map_s (fun lang ->
-        let* l = Web_i18n.get_lang_gettext "admin" lang in
+        let* l = Web_i18n.get ~component:"admin" ~lang in
         return (mail_shuffle_body l link)
       ) langs
   in

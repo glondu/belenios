@@ -312,7 +312,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
       (fun (uuid, (question, ngrades)) () ->
         handle_method uuid question
           (fun l q extra continuation ->
-            let open (val l : Web_i18n_sig.GETTEXT) in
+            let open (val l : Belenios_ui.I18n.GETTEXT) in
             match ngrades with
             | None ->
                Pages_voter.majority_judgment_select uuid question
@@ -343,7 +343,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
       (fun (uuid, (question, nseats)) () ->
         handle_method uuid question
           (fun l q _ continuation ->
-            let open (val l : Web_i18n_sig.GETTEXT) in
+            let open (val l : Belenios_ui.I18n.GETTEXT) in
             match nseats with
             | None ->
                Pages_voter.stv_select uuid question

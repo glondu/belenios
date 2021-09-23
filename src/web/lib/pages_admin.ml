@@ -363,7 +363,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     base ~title ~login_box ~content ()
 
   let preview_booth l uuid metadata =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     let hash =
       Netencoding.Url.mk_url_encoded_parameters
         [
@@ -1046,7 +1046,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     base ~title ~login_box ~content ()
 
   let mail_credential_authority l url =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     let open Mail_formatter in
     let b = create () in
     add_sentence b (s_ "Dear credential authority,"); add_newline b;
@@ -1779,7 +1779,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     base ~title ~content ()
 
   let election_draft_importer l ~service ~title ~note uuid (elections, tallied, archived) =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     let format_election (from_uuid, name) =
       let from_uuid = raw_string_of_uuid from_uuid in
       let form = post_form ~service
@@ -3101,7 +3101,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
 end
 
 let mail_confirmation_link l address code =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
@@ -3123,7 +3123,7 @@ let mail_confirmation_link l address code =
   subject, body
 
 let mail_changepw_link l address code =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
@@ -3145,7 +3145,7 @@ let mail_changepw_link l address code =
   subject, body
 
 let mail_set_email l address code =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
