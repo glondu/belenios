@@ -19,14 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val mail_trustee_generation_basic :
-  string list -> string -> (string * string) Lwt.t
+type mail_template = string list -> string -> (string * string) Lwt.t
 
-val mail_trustee_generation_threshold :
-  string list -> string -> (string * string) Lwt.t
-
-val mail_shuffle :
-  string list -> string -> (string * string) Lwt.t
-
-val mail_trustee_tally :
-  string list -> string -> (string * string) Lwt.t
+module type S = sig
+  val mail_trustee_generation_basic : mail_template
+  val mail_trustee_generation_threshold : mail_template
+  val mail_shuffle : mail_template
+  val mail_trustee_tally : mail_template
+end

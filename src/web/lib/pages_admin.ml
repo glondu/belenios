@@ -32,7 +32,13 @@ open Web_common
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 
-module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) = struct
+module Make
+         (Web_state : Web_state_sig.S)
+         (Web_i18n : Web_i18n_sig.S)
+         (Web_services : Web_services_sig.S)
+         (Pages_common : Pages_common_sig.S)
+         (Mails_admin : Belenios_ui.Mails_admin_sig.S)
+  = struct
 
   open Web_services
   open Pages_common
@@ -1047,7 +1053,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
 
   let mail_credential_authority l url =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
-    let open Mail_formatter in
+    let open Belenios_ui.Mail_formatter in
     let b = create () in
     add_sentence b (s_ "Dear credential authority,"); add_newline b;
     add_newline b;
@@ -3102,7 +3108,7 @@ end
 
 let mail_confirmation_link l address code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
-  let open Mail_formatter in
+  let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
   add_newline b; add_newline b;
@@ -3124,7 +3130,7 @@ let mail_confirmation_link l address code =
 
 let mail_changepw_link l address code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
-  let open Mail_formatter in
+  let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
   add_newline b; add_newline b;
@@ -3146,7 +3152,7 @@ let mail_changepw_link l address code =
 
 let mail_set_email l address code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
-  let open Mail_formatter in
+  let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
   add_newline b; add_newline b;

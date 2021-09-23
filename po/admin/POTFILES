@@ -1,4 +1,4 @@
-src/web/lib/mails_admin.ml
+src/ui/mails_admin.ml
 src/web/lib/pages_admin.ml
 src/web/lib/site_admin.ml
 src/tool/js/tool_js_questions.ml

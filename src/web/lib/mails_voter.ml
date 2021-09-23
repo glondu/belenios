@@ -34,7 +34,7 @@ let contact_footer l metadata =
   | None -> fun _ -> ()
   | Some x ->
      fun b ->
-     let open Mail_formatter in
+     let open Belenios_ui.Mail_formatter in
      add_newline b;
      add_newline b;
      add_sentence b (s_ "To get more information, please contact:");
@@ -44,7 +44,7 @@ let contact_footer l metadata =
 
 let mail_password l title login password weight url metadata =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
-  let open Mail_formatter in
+  let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (s_ "Please find below your login and password for the election"); add_newline b;
   add_newline b;
@@ -95,7 +95,7 @@ let generate_password metadata langs title uuid url id show_weight =
 
 let mail_credential l has_passwords title ~login cred weight url metadata =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
-  let open Mail_formatter in
+  let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (s_ "You are listed as a voter for the election"); add_newline b;
   add_newline b;
@@ -166,7 +166,7 @@ let send_mail_credential uuid se =
 
 let mail_confirmation l user title weight hash revote url1 url2 metadata =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
-  let open Mail_formatter in
+  let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") user); add_newline b;
   add_newline b;

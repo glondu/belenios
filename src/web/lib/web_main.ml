@@ -195,11 +195,12 @@ module Make () = struct
   let () = Lwt_main.run (Web_persist.convert_trustees ())
 
   module X : Pages_sig.S = struct
+    module Mails_admin = Belenios_ui.Mails_admin.Make (Web_i18n)
     module Web_state = Web_state.Make ()
     module Web_services = Web_services.Make ()
     module Web_i18n = Web_i18n.Make (Web_state)
     module Pages_common = Pages_common.Make (Web_i18n) (Web_services)
-    module Pages_admin = Pages_admin.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
+    module Pages_admin = Pages_admin.Make (Web_state) (Web_i18n) (Web_services) (Pages_common) (Mails_admin)
     module Pages_voter = Pages_voter.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
   end
 
