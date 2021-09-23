@@ -210,6 +210,12 @@ let onload () =
   let& main = document##getElementById (Js.string "main") in
   Lwt.async
     (fun () ->
+      let lang =
+        Js.Optdef.case Dom_html.window##.navigator##.language
+          (fun () -> "en") Js.to_string
+      in
+      let* g = I18n.get ~component:"admin" ~lang in
+      gettext := g;
       let hash = parse_hash () in
       let* b =
         match hash with

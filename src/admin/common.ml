@@ -25,6 +25,8 @@ open Belenios_core.Common
 open Belenios_tool_js_common
 open Tool_js_html
 
+let gettext = ref I18n.default
+
 let lwt_handler f =
   Dom_html.handler (fun _ -> Lwt.async f; Js._true)
 
@@ -49,6 +51,12 @@ let a ~href label =
   let r = a [txt label] in
   r##.href := Js.string href;
   r
+
+let a_mailto ~recipient ~subject ~body label =
+  let params = Url.encode_arguments ["subject", subject; "body", body] in
+  let recipient = recipient |> Js.string |> Js.encodeURIComponent |> Js.to_string in
+  let href = Printf.sprintf "mailto:%s?%s" recipient params in
+  a ~href label
 
 let api_token = ref ""
 let api_root = "../api/"
