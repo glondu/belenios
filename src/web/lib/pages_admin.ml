@@ -1051,44 +1051,6 @@ module Make
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let mail_credential_authority l url =
-    let open (val l : Belenios_ui.I18n.GETTEXT) in
-    let open Belenios_ui.Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear credential authority,"); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "You will find below the link to generate the voters' credentials, one for each voter."); add_newline b;
-    add_newline b;
-    add_string b "  "; add_string b url; add_newline b;
-    add_newline b;
-    add_sentence b (s_ "Here are the instructions:"); add_newline b;
-    add_sentence b (s_ "1. Click on the link."); add_newline b;
-    add_sentence b (s_ "2. Click on \"Generate\"."); add_newline b;
-    add_sentence b (s_ "3. Download the private credentials (creds.txt) and save the file to a secure location."); add_newline b;
-    add_sentence b (s_ "You will use it to send credentials to voters."); add_newline b;
-    add_sentence b (s_ "4. Download the list of voters (voters.txt)."); add_newline b;
-    add_sentence b (s_ "This list must be the one approved by the election commission."); add_newline b;
-    add_sentence b (s_ "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"); add_newline b;
-    add_sentence b (s_ "Once the election is open, you must check that they match with what is published by the server."); add_newline b;
-    add_sentence b (s_ "6. Click on \"Submit the public credentials\"."); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "You will then need to send (typically by email) each private credential to the associated voter as written in the file creds.txt."); add_newline b;
-    add_sentence b (s_ "You may use a script of your own or the one provided in the Belenios distribution, see instructions here:"); add_newline b;
-    add_string b "https://www.belenios.org/instructions.html#instructions-for-the-credential-authority"; add_newline b;
-    add_sentence b (s_ "The page also contains instructions for checking the voting record, after the tally."); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "You may need to resend credentials to voters who have lost them."); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "Once the election is finished and validated, you are expected to destroy the file creds.txt for stronger privacy guarantees."); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "Thank you for your help,"); add_newline b;
-    add_newline b;
-    add_string b "-- "; add_newline b;
-    add_sentence b (s_ "The election administrator");
-    let body = contents b in
-    let subject = s_ "Credential authority link" in
-    subject, body
-
   let election_draft_credential_authority uuid se () =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -1126,7 +1088,7 @@ module Make
         back;
         public_name_form;
         div [
-            let subject, body = mail_credential_authority l url in
+            let subject, body = Mails_admin.mail_credential_authority l url in
             a_mailto ~subject ~body (s_ "Send instructions to the credential authority");
           ];
         div [

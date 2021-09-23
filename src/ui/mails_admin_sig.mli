@@ -22,6 +22,9 @@
 type mail_template = string list -> string -> (string * string) Lwt.t
 
 module type S = sig
+  val mail_credential_authority :
+    (module I18n.GETTEXT) -> string -> string * string
+
   val mail_trustee_generation_basic : mail_template
   val mail_trustee_generation_threshold : mail_template
   val mail_shuffle : mail_template
