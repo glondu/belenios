@@ -66,10 +66,17 @@ type draft = {
     group : string;
 } <ocaml field_prefix="draft_">
 
+type kind =
+  [ Validated
+  | Tallied
+  | Archived
+  ]
+
 type summary = {
     uuid : uuid;
     name : string;
     date : float;
+    ?kind : kind option;
 } <ocaml field_prefix="summary_">
 
 type summary_list = summary list

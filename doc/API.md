@@ -77,3 +77,11 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 * `GET`: unit -> status
 * `POST`: status_request -> unit
+
+## `elections` (administrator)
+
+* `GET`: unit -> summary_list
+
+## `elections/$UUID`
+
+* `GET`: unit -> json (anybody)

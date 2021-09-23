@@ -37,6 +37,10 @@ let draft_a x =
   let uuid = raw_string_of_uuid x.summary_uuid in
   a ~href:("#drafts/" ^ uuid) (if x.summary_name = "" then "(no title)" else x.summary_name)
 
+let election_a x =
+  let uuid = raw_string_of_uuid x.summary_uuid in
+  a ~href:("#elections/" ^ uuid) (if x.summary_name = "" then "(no title)" else x.summary_name)
+
 let regexps =
   [
     Regexp.regexp "^#?$", (fun _ -> `Root);
@@ -59,6 +63,13 @@ let regexps =
       | Some uuid, Some token -> `Credentials (uuid, token)
       | _ -> `Error
     end;
+    Regexp.regexp "^#elections/([0-9A-Za-z]+)$",
+    begin
+      fun r ->
+      match Regexp.matched_group r 1 with
+      | Some uuid -> `Election uuid
+      | _ -> `Error
+    end;
   ]
 
 let parse_hash () =
@@ -71,6 +82,7 @@ let show_error main =
   Lwt.return_unit
 
 let rec show_root main =
+  let open (val !gettext) in
   main##.innerHTML := Js.string "Loading...";
   let@ () = show_in main in
   let* configuration, configuration_opt =
@@ -122,6 +134,25 @@ let rec show_root main =
        |> List.sort (fun a b -> compare a.summary_date b.summary_date)
        |> List.map (fun x -> node @@ li [node @@ draft_a x])
        |> (fun xs -> Lwt.return @@ ul xs)
+  in
+  let* validated, tallied, archived =
+    let* x = get summary_list_of_string "elections" in
+    match x with
+    | Error e ->
+       let msg =
+         Printf.sprintf "An error occurred while retrieving elections: %s"
+           (string_of_error e)
+       in
+       let x () = div [txt msg] in
+       Lwt.return (x (), x (), x ())
+    | Ok elections ->
+       let make kind =
+         List.filter (fun x -> x.summary_kind = Some kind) elections
+         |> List.sort (fun a b -> compare a.summary_date b.summary_date)
+         |> List.map (fun x -> node @@ li [node @@ election_a x])
+         |> ul
+       in
+       Lwt.return (make `Validated, make `Tallied, make `Archived)
   in
   let template =
     match configuration_opt, account_opt with
@@ -184,11 +215,27 @@ let rec show_root main =
       node @@ configuration;
       node @@ h1 [txt "My account"];
       node @@ account;
-      node @@ h1 [txt "My draft elections"];
+      node @@ h1 [txt @@ s_ "Elections being prepared"];
       node @@ drafts;
+      node @@ h1 [txt @@ s_ "Elections you can administer"];
+      node @@ validated;
+      node @@ h1 [txt @@ s_ "Tallied elections"];
+      node @@ tallied;
+      node @@ h1 [txt @@ s_ "Archived elections"];
+      node @@ archived;
       node @@ h1 [txt "Create new draft"];
       node @@ create;
     ]
+
+let show_election main uuid =
+  let@ () = show_in main in
+  let* x = get (fun x -> x) "elections/%s" uuid in
+  match x with
+  | Error e ->
+     let msg = Printf.sprintf "Error: %s" (string_of_error e) in
+     Lwt.return @@ [txt msg]
+  | Ok raw_election ->
+     Lwt.return @@ [txt raw_election]
 
 let show hash main =
   let show_root () =
@@ -199,6 +246,7 @@ let show hash main =
   | `Error -> context := `None; show_error main
   | `Root -> show_root ()
   | `Draft (uuid, tab) -> Drafts.show show_root main uuid tab context
+  | `Election uuid -> context := `None; show_election main uuid
   | `Credentials (uuid, _) -> context := `None; Credentials.show main uuid
 
 let onhashchange () =
@@ -221,6 +269,7 @@ let onload () =
         match hash with
         | `Root | `Draft _ -> get_api_token ()
         | `Credentials (_, token) -> api_token := token; Lwt.return_true
+        | `Election _ -> Lwt.return_true
         | `Error -> Lwt.return_true
       in
       if b then (

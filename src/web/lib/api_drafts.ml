@@ -993,8 +993,9 @@ let dispatch token endpoint method_ body =
             List.fold_left
               (fun accu (kind, summary_uuid, date, summary_name) ->
                 let summary_date = unixfloat_of_datetime date in
+                let summary_kind = None in
                 if kind = `Draft then
-                  {summary_uuid; summary_name; summary_date} :: accu
+                  {summary_uuid; summary_name; summary_date; summary_kind} :: accu
                 else
                   accu
               ) [] elections

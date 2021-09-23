@@ -71,6 +71,7 @@ module Make () = struct
            | _ -> method_not_allowed
          end
       | "drafts" :: endpoint -> Api_drafts.dispatch token endpoint method_ body
+      | "elections" :: endpoint -> Api_elections.dispatch token endpoint method_ body
       | _ -> not_found
     in
     Eliom_registration.String.send ~code (response, "application/json")
